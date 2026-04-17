@@ -4,8 +4,8 @@
  * Plugin URI:  https://github.com/yourusername/talenttrack
  * Description: Professional player development tracking system for soccer academies — evaluations, team management, goals, attendance, and reporting.
  * Version:     1.0.0
- * Author:      Your Name
- * Author URI:  https://github.com/yourusername
+ * Author:      Casper Nieuwenhuizen
+ * Author URI:  https://github.com/caspernieuwenhuizen
  * License:     GPL-2.0+
  * Text Domain: talenttrack
  * Requires at least: 6.0
