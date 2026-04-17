@@ -1,0 +1,29 @@
+name: Build and Release Plugin ZIP
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create plugin ZIP
+        run: |
+          mkdir -p /tmp/build
+          rsync -av --exclude='.git' --exclude='.github' --exclude='.gitignore' ./ /tmp/build/talenttrack/
+          cd /tmp/build
+          zip -r talenttrack.zip talenttrack
+
+      - name: Create GitHub Release with ZIP attached
+        uses: softprops/action-gh-release@v2
+        with:
+          files: /tmp/build/talenttrack.zip
+          generate_release_notes: true
