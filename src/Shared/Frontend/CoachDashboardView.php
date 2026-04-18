@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 
 class CoachDashboardView {
@@ -97,9 +98,7 @@ class CoachDashboardView {
         echo '</div></div>';
     }
 
-    /**
-     * @param object[] $teams
-     */
+    /** @param object[] $teams */
     private function renderEvalForm( array $teams, bool $is_admin ): void {
         $categories = QueryHelpers::get_categories();
         $types      = QueryHelpers::get_eval_types();
@@ -184,7 +183,7 @@ class CoachDashboardView {
             <?php foreach ( $all_players as $pl ) : ?>
                 <tr><td><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></td>
                     <td><select name="att[<?php echo (int) $pl->id; ?>][status]">
-                        <?php foreach ( $statuses as $s ) : ?><option value="<?php echo esc_attr( $s ); ?>"><?php echo esc_html( $s ); ?></option><?php endforeach; ?>
+                        <?php foreach ( $statuses as $s ) : ?><option value="<?php echo esc_attr( $s ); ?>"><?php echo esc_html( LabelTranslator::attendanceStatus( $s ) ); ?></option><?php endforeach; ?>
                     </select></td>
                     <td><input type="text" name="att[<?php echo (int) $pl->id; ?>][notes]" style="width:150px" /></td></tr>
             <?php endforeach; ?>
@@ -224,7 +223,7 @@ class CoachDashboardView {
             <div class="tt-form-row"><label><?php esc_html_e( 'Title', 'talenttrack' ); ?> *</label><input type="text" name="title" required /></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Description', 'talenttrack' ); ?></label><textarea name="description" rows="2"></textarea></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Priority', 'talenttrack' ); ?></label><select name="priority">
-                <?php foreach ( $priorities as $pr ) : ?><option value="<?php echo esc_attr( strtolower( $pr ) ); ?>"><?php echo esc_html( $pr ); ?></option><?php endforeach; ?>
+                <?php foreach ( $priorities as $pr ) : ?><option value="<?php echo esc_attr( strtolower( $pr ) ); ?>"><?php echo esc_html( LabelTranslator::goalPriority( $pr ) ); ?></option><?php endforeach; ?>
             </select></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Due Date', 'talenttrack' ); ?></label><input type="date" name="due_date" /></div>
             <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Add Goal', 'talenttrack' ); ?></button>
@@ -240,10 +239,10 @@ class CoachDashboardView {
             </tr></thead><tbody>
             <?php foreach ( $goals as $g ) : ?>
                 <tr><td><?php echo esc_html( (string) $g->player_name ); ?></td><td><?php echo esc_html( (string) $g->title ); ?></td>
-                    <td><?php echo esc_html( ucfirst( (string) $g->priority ) ); ?></td>
+                    <td><?php echo esc_html( LabelTranslator::goalPriority( (string) $g->priority ) ); ?></td>
                     <td><select class="tt-goal-status-select" data-goal-id="<?php echo (int) $g->id; ?>">
                         <?php foreach ( $statuses as $st ) : $v = strtolower( str_replace( ' ', '_', $st ) ); ?>
-                            <option value="<?php echo esc_attr( $v ); ?>" <?php selected( (string) $g->status, $v ); ?>><?php echo esc_html( $st ); ?></option><?php endforeach; ?>
+                            <option value="<?php echo esc_attr( $v ); ?>" <?php selected( (string) $g->status, $v ); ?>><?php echo esc_html( LabelTranslator::goalStatus( $v ) ); ?></option><?php endforeach; ?>
                     </select></td>
                     <td><?php echo esc_html( $g->due_date ?: '—' ); ?></td>
                     <td><button class="tt-btn-sm tt-goal-delete" data-goal-id="<?php echo (int) $g->id; ?>">✕</button></td></tr>

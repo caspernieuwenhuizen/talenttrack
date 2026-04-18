@@ -3,6 +3,7 @@ namespace TT\Modules\Players\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 
 class PlayersPage {
@@ -61,6 +62,13 @@ class PlayersPage {
         $foot_opts = QueryHelpers::get_lookup_names( 'foot_option' );
         $sel_pos   = $is_edit ? ( json_decode( (string) $player->preferred_positions, true ) ?: [] ) : [];
         wp_enqueue_media();
+
+        $status_options = [
+            'active'   => __( 'Active', 'talenttrack' ),
+            'inactive' => __( 'Inactive', 'talenttrack' ),
+            'trial'    => __( 'Trial', 'talenttrack' ),
+            'released' => __( 'Released', 'talenttrack' ),
+        ];
         ?>
         <div class="wrap">
             <h1><?php echo $is_edit ? esc_html__( 'Edit Player', 'talenttrack' ) : esc_html__( 'Add Player', 'talenttrack' ); ?></h1>
@@ -90,13 +98,13 @@ class PlayersPage {
                     <tr><th><?php esc_html_e( 'Guardian Phone', 'talenttrack' ); ?></th><td><input type="text" name="guardian_phone" value="<?php echo esc_attr( $player->guardian_phone ?? '' ); ?>" class="regular-text" /></td></tr>
                     <tr><th><?php esc_html_e( 'Linked WP User', 'talenttrack' ); ?></th><td><?php wp_dropdown_users( [ 'name' => 'wp_user_id', 'selected' => $player->wp_user_id ?? 0, 'show_option_none' => __( '— None —', 'talenttrack' ), 'option_none_value' => 0 ] ); ?></td></tr>
                     <tr><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><td><select name="status">
-                        <?php foreach ( [ 'active' => __( 'Active', 'talenttrack' ), 'inactive' => __( 'Inactive', 'talenttrack' ), 'trial' => __( 'Trial', 'talenttrack' ), 'released' => __( 'Released', 'talenttrack' ) ] as $k => $l ) : ?>
+                        <?php foreach ( $status_options as $k => $l ) : ?>
                             <option value="<?php echo esc_attr( $k ); ?>" <?php selected( $player->status ?? 'active', $k ); ?>><?php echo esc_html( $l ); ?></option><?php endforeach; ?></select></td></tr>
                 </table>
                 <?php submit_button( $is_edit ? __( 'Update Player', 'talenttrack' ) : __( 'Add Player', 'talenttrack' ) ); ?>
             </form>
         </div>
-        <script>jQuery(function($){ var f; $('#tt-upload-photo').on('click',function(e){ e.preventDefault(); if(!f)f=wp.media({title:'Select Photo',button:{text:'Use'},multiple:false}); f.on('select',function(){$('#tt_photo_url').val(f.state().get('selection').first().toJSON().url);}); f.open(); }); });</script>
+        <script>jQuery(function($){ var f; $('#tt-upload-photo').on('click',function(e){ e.preventDefault(); if(!f)f=wp.media({title:'<?php echo esc_js( __( 'Select Photo', 'talenttrack' ) ); ?>',button:{text:'<?php echo esc_js( __( 'Use', 'talenttrack' ) ); ?>'},multiple:false}); f.on('select',function(){$('#tt_photo_url').val(f.state().get('selection').first().toJSON().url);}); f.open(); }); });</script>
         <?php
     }
 
@@ -120,6 +128,7 @@ class PlayersPage {
                         <tr><th><?php esc_html_e( 'Foot', 'talenttrack' ); ?></th><td><?php echo esc_html( $player->preferred_foot ?: '—' ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'DOB', 'talenttrack' ); ?></th><td><?php echo esc_html( $player->date_of_birth ?: '—' ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'Nationality', 'talenttrack' ); ?></th><td><?php echo esc_html( $player->nationality ?: '—' ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><td><?php echo esc_html( LabelTranslator::playerStatus( (string) $player->status ) ); ?></td></tr>
                     </table>
                 </div>
                 <div style="flex:1;min-width:320px;">

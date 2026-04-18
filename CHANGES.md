@@ -1,87 +1,60 @@
-# TalentTrack v2.4.0 — Delivery Changes
+# TalentTrack v2.4.1 — Delivery Changes
 
 ## What this ZIP does
 
-Completes **Sprint 0 Phase 4: full internationalization**. Adds:
+Completes the i18n pass that v2.4.0 started. v2.4.0 translated most of the UI
+but left residual `ucwords()` status transforms and hardcoded labels in the
+coach dashboard and several admin pages. This release closes those gaps.
 
-- Translation template (`.pot`) covering every translatable string
-- Complete Dutch translation (`.po` + compiled `.mo`)
-- JS-side strings now translated via `wp_localize_script`
-- Status/priority labels routed through a translation map
-
-With this release, **Sprint 0 is complete**. TalentTrack has modular architecture,
-migrations, REST envelope, logging, audit, feature toggles, environment-aware
-behavior, and full i18n.
+With v2.4.1, **Sprint 0 is now genuinely complete**.
 
 ## How to install
 
 1. Extract this ZIP somewhere.
-2. Open the resulting `talenttrack-v2.4.0/` folder.
-3. Copy its **contents** (not the folder itself — the files and folders inside)
-   into your local `talenttrack/` repository folder. Allow overwrites.
-4. GitHub Desktop shows the changed files.
-5. Commit: `v2.4.0 — Sprint 0 Phase 4 (i18n + Dutch)`.
+2. Open the resulting `talenttrack-v2.4.1/` folder.
+3. Copy its **contents** into your local `talenttrack/` repository folder.
+   Allow overwrites.
+4. GitHub Desktop shows the changed files (5 PHP files + talenttrack.php + readme.txt).
+5. Commit: `v2.4.1 — i18n completion pass`.
 6. Push to origin.
-7. GitHub → Releases → new release tagged `v2.4.0`. Publish.
+7. GitHub → Releases → new release tagged `v2.4.1`. Publish.
 8. WordPress auto-updates.
 
 ## Files in this delivery
 
 ### Modified
-- `talenttrack.php` — version bumped to 2.4.0.
+- `talenttrack.php` — version bumped to 2.4.1.
 - `readme.txt` — stable tag + changelog.
-- `assets/js/public.js` — strings now read from a localized `TT.i18n` object; no hardcoded English.
-- `src/Shared/Frontend/DashboardShortcode.php` — passes translated strings to the script via `wp_localize_script`.
-- `src/Shared/Frontend/PlayerDashboardView.php` — uses `LabelTranslator` for goal status / attendance labels (no more untranslatable `ucwords()`).
-
-### Added
-- `src/Infrastructure/Query/LabelTranslator.php` — returns translated labels for goal statuses, priorities, player statuses, attendance statuses.
-- `languages/talenttrack.pot` — master translation template (245 strings).
-- `languages/talenttrack-nl_NL.po` — Dutch translation source.
-- `languages/talenttrack-nl_NL.mo` — Dutch translation compiled (what WordPress actually loads).
+- `src/Shared/Frontend/CoachDashboardView.php` — goal status/priority dropdowns and attendance options routed through LabelTranslator; fixes the "In Progress" fallback text.
+- `src/Modules/Players/Admin/PlayersPage.php` — player-status option labels now explicit translated strings; status on player-detail view routes through LabelTranslator; media picker strings translatable.
+- `src/Modules/Goals/Admin/GoalsPage.php` — status and priority columns and dropdowns use LabelTranslator.
+- `src/Modules/Sessions/Admin/SessionsPage.php` — attendance status dropdown labels use LabelTranslator.
 
 ### Unchanged
-- Every other file — existing modules, REST, DB, roles, auth, logging, audit, feature toggles, config, menu — all carry through from v2.3.0 untouched.
+- Every other file in the plugin. v2.4.0 infrastructure (LabelTranslator, .pot, Dutch .po/.mo) is the foundation this release builds on.
 
-## How to switch the interface to Dutch
-
-1. In WordPress admin → **Settings → General → Site Language**.
-2. Choose **Nederlands**.
-3. Save.
-4. Refresh the page. The TalentTrack admin menu now shows "Spelers", "Evaluaties", "Doelen", etc.
-5. Log out and visit the page with `[talenttrack_dashboard]` — the login form is in Dutch ("Inloggen", "Onthoud mij", "Wachtwoord vergeten?").
-6. Log in — all dashboard tabs and forms are translated.
-
-To switch back to English, set Site Language to **English (United States)**.
-
-## What you'll see
-
-**Examples of the Dutch translation:**
-- Admin menu: Spelers / Teams / Evaluaties / Trainingen / Doelen / Rapporten / Instellingen
-- Roles: Hoofd Opleidingen / Clubbeheerder / Trainer / Scout / Staf / Speler / Ouder
-- Goal statuses: Open / Bezig / Afgerond / Gepauzeerd / Geannuleerd
-- Attendance: Aanwezig / Afwezig / Te laat / Geblesseerd / Afgemeld
-- Login form: "Log in om verder te gaan" / "Gebruikersnaam of e-mail" / "Wachtwoord" / "Onthoud mij" / "Inloggen" / "Wachtwoord vergeten?"
-
-**What stays in English / original:**
-- Position codes (GK, CB, CM, CAM, LW, etc.) — these are data, not UI labels
-- Player names, team names, evaluation notes — user-entered content
-- Audit log internal action codes (`player.saved`, `evaluation.deleted`) — technical identifiers
-
-## Adding another language later
-
-The template is at `languages/talenttrack.pot`. To add, e.g., German:
-
-1. Install [Poedit](https://poedit.net/) (free).
-2. Open the `.pot`, save as `talenttrack-de_DE.po`, translate all strings.
-3. Poedit auto-generates `talenttrack-de_DE.mo` on save.
-4. Drop both files into the `languages/` folder.
-5. Set WP site language to Deutsch.
+## Files NOT modified (but audited)
+These were audited during this pass and confirmed already correct:
+- `src/Modules/Teams/Admin/TeamsPage.php`
+- `src/Modules/Evaluations/Admin/EvaluationsPage.php`
+- `src/Modules/Reports/Admin/ReportsPage.php`
+- `src/Modules/Documentation/Admin/DocumentationPage.php`
+- `src/Modules/Configuration/Admin/ConfigurationPage.php` (already i18n'd in v2.3.0)
+- `src/Shared/Admin/Menu.php`
+- `src/Shared/Frontend/DashboardShortcode.php`
+- `src/Shared/Frontend/PlayerDashboardView.php`
+- `src/Shared/Frontend/FrontendAjax.php`
+- `src/Shared/Frontend/BrandStyles.php`
+- `src/Modules/Auth/LoginForm.php`, `LoginHandler.php`, `AuthModule.php`
 
 ## Post-install verification
 
-1. Switch site language to Nederlands.
-2. TalentTrack admin menu should show "Spelers", "Evaluaties", etc.
-3. Click "Spelers" → page header should be "Spelers" with "Nieuwe toevoegen" button.
-4. Log out and visit `[talenttrack_dashboard]` page → login form in Dutch.
-5. Switch back to English → everything reverts.
+1. Switch WP site language to Nederlands (Settings → General).
+2. Visit **TalentTrack → Spelers** — status filter / column labels in Dutch.
+3. Edit a player — Status dropdown shows: Actief / Inactief / Proef / Vertrokken.
+4. View a player — Status row reads "Actief" (not "Active").
+5. Visit **TalentTrack → Doelen** — Status column shows Dutch labels: Open / Bezig / Afgerond / Gepauzeerd / Geannuleerd.
+6. Edit a goal — Priority dropdown: Laag / Gemiddeld / Hoog. Status dropdown: Open / Bezig / Afgerond / etc.
+7. Visit **TalentTrack → Trainingen** → edit a session — Attendance dropdown: Aanwezig / Afwezig / Te laat / Geblesseerd / Afgemeld.
+8. Open the frontend dashboard as a coach — all dropdowns translated; delete-goal confirm ("Dit doel verwijderen?") shows in Dutch.
+9. Switch back to English — all fallbacks still work.

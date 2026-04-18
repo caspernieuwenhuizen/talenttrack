@@ -3,6 +3,7 @@ namespace TT\Modules\Goals\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 
 class GoalsPage {
@@ -24,7 +25,7 @@ class GoalsPage {
             <table class="widefat striped"><thead><tr><th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Goal', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th></tr></thead><tbody>
             <?php if ( empty( $goals ) ) : ?><tr><td colspan="4"><?php esc_html_e( 'No goals.', 'talenttrack' ); ?></td></tr>
             <?php else : foreach ( $goals as $g ) : ?>
-                <tr><td><?php echo esc_html( (string) $g->player_name ); ?></td><td><strong><?php echo esc_html( (string) $g->title ); ?></strong></td><td><?php echo esc_html( ucwords( str_replace( '_', ' ', (string) $g->status ) ) ); ?></td>
+                <tr><td><?php echo esc_html( (string) $g->player_name ); ?></td><td><strong><?php echo esc_html( (string) $g->title ); ?></strong></td><td><?php echo esc_html( LabelTranslator::goalStatus( (string) $g->status ) ); ?></td>
                     <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-goals&action=edit&id={$g->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_goal&id={$g->id}" ), 'tt_del_goal_' . $g->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td></tr>
             <?php endforeach; endif; ?></tbody></table>
         </div>
@@ -51,9 +52,9 @@ class GoalsPage {
                     <tr><th><?php esc_html_e( 'Title', 'talenttrack' ); ?> *</th><td><input type="text" name="title" value="<?php echo esc_attr( $goal->title ?? '' ); ?>" class="regular-text" required /></td></tr>
                     <tr><th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th><td><textarea name="description" rows="3" class="large-text"><?php echo esc_textarea( $goal->description ?? '' ); ?></textarea></td></tr>
                     <tr><th><?php esc_html_e( 'Priority', 'talenttrack' ); ?></th><td><select name="priority">
-                        <?php foreach ( $priorities as $pr ) : ?><option value="<?php echo esc_attr( strtolower( $pr ) ); ?>" <?php selected( $goal->priority ?? 'medium', strtolower( $pr ) ); ?>><?php echo esc_html( $pr ); ?></option><?php endforeach; ?></select></td></tr>
+                        <?php foreach ( $priorities as $pr ) : ?><option value="<?php echo esc_attr( strtolower( $pr ) ); ?>" <?php selected( $goal->priority ?? 'medium', strtolower( $pr ) ); ?>><?php echo esc_html( LabelTranslator::goalPriority( $pr ) ); ?></option><?php endforeach; ?></select></td></tr>
                     <tr><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><td><select name="status">
-                        <?php foreach ( $statuses as $st ) : $v = strtolower( str_replace( ' ', '_', $st ) ); ?><option value="<?php echo esc_attr( $v ); ?>" <?php selected( $goal->status ?? 'pending', $v ); ?>><?php echo esc_html( $st ); ?></option><?php endforeach; ?></select></td></tr>
+                        <?php foreach ( $statuses as $st ) : $v = strtolower( str_replace( ' ', '_', $st ) ); ?><option value="<?php echo esc_attr( $v ); ?>" <?php selected( $goal->status ?? 'pending', $v ); ?>><?php echo esc_html( LabelTranslator::goalStatus( $v ) ); ?></option><?php endforeach; ?></select></td></tr>
                     <tr><th><?php esc_html_e( 'Due Date', 'talenttrack' ); ?></th><td><input type="date" name="due_date" value="<?php echo esc_attr( $goal->due_date ?? '' ); ?>" /></td></tr>
                 </table>
                 <?php submit_button( $goal ? __( 'Update', 'talenttrack' ) : __( 'Add', 'talenttrack' ) ); ?>
