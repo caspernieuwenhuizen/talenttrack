@@ -1,8 +1,19 @@
 {
-    "name": "talenttrack/talenttrack",
+    "name": "caspernieuwenhuizen/talenttrack",
     "description": "Frontend-first modular youth football talent management system.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0+",
+    "homepage": "https://github.com/caspernieuwenhuizen/talenttrack",
+    "authors": [
+        {
+            "name": "Casper Nieuwenhuizen",
+            "homepage": "https://github.com/caspernieuwenhuizen"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/caspernieuwenhuizen/talenttrack/issues",
+        "source": "https://github.com/caspernieuwenhuizen/talenttrack"
+    },
     "require": {
         "php": ">=7.4"
     },

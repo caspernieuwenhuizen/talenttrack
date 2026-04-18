@@ -1,5 +1,5 @@
 === TalentTrack ===
-Contributors: yourname
+Contributors: caspernieuwenhuizen
 Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
@@ -38,6 +38,8 @@ TalentTrack v2.0.0 introduces a full architectural refactor aligned with Sprint 
 * PHPStan level 8 enforced on new code (baseline grandfathers existing code)
 * GitHub Actions CI — PHP syntax lint + PHPStan + ZIP build on version tags
 * Full WordPress i18n on new code (`talenttrack` text domain)
+
+**Source & issues:** https://github.com/caspernieuwenhuizen/talenttrack
 
 == Installation ==
 
