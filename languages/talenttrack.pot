@@ -1,0 +1,769 @@
+# Copyright (C) 2026 Casper Nieuwenhuizen
+# This file is distributed under the GPL-2.0+ License.
+msgid ""
+msgstr ""
+"Project-Id-Version: TalentTrack 2.4.0\n"
+"Report-Msgid-Bugs-To: https://github.com/caspernieuwenhuizen/talenttrack/issues\n"
+"POT-Creation-Date: 2026-04-18 12:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: \n"
+"X-Generator: TalentTrack i18n\n"
+"X-Domain: talenttrack\n"
+
+# === Common / Shared ===
+msgid "TalentTrack"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Teams"
+msgstr ""
+
+msgid "Players"
+msgstr ""
+
+msgid "Evaluations"
+msgstr ""
+
+msgid "Sessions"
+msgstr ""
+
+msgid "Goals"
+msgstr ""
+
+msgid "Reports"
+msgstr ""
+
+msgid "Configuration"
+msgstr ""
+
+msgid "Help & Docs"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Save Changes"
+msgstr ""
+
+msgid "Update"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Add New"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Delete?"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "← Back"
+msgstr ""
+
+msgid "Saved."
+msgstr ""
+
+msgid "Deleted."
+msgstr ""
+
+msgid "Unauthorized"
+msgstr ""
+
+msgid "Not found."
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Notes"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "— Select —"
+msgstr ""
+
+msgid "— None —"
+msgstr ""
+
+msgid "— All —"
+msgstr ""
+
+msgid "Sort Order"
+msgstr ""
+
+msgid "Order"
+msgstr ""
+
+# === Login Form ===
+msgid "Sign in to continue"
+msgstr ""
+
+msgid "Username or email"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Remember me"
+msgstr ""
+
+msgid "Sign in"
+msgstr ""
+
+msgid "Lost your password?"
+msgstr ""
+
+msgid "Security check failed. Please try again."
+msgstr ""
+
+# === Roles ===
+msgid "Head of Development"
+msgstr ""
+
+msgid "Club Admin"
+msgstr ""
+
+msgid "Coach"
+msgstr ""
+
+msgid "Scout"
+msgstr ""
+
+msgid "Staff"
+msgstr ""
+
+msgid "Player"
+msgstr ""
+
+msgid "Parent"
+msgstr ""
+
+# === Admin: Teams ===
+msgid "No teams."
+msgstr ""
+
+msgid "Age Group"
+msgstr ""
+
+msgid "Head Coach"
+msgstr ""
+
+msgid "Edit Team"
+msgstr ""
+
+msgid "Add Team"
+msgstr ""
+
+msgid "Update Team"
+msgstr ""
+
+# === Admin: Players ===
+msgid "No players."
+msgstr ""
+
+msgid "All Teams"
+msgstr ""
+
+msgid "Position(s)"
+msgstr ""
+
+msgid "Foot"
+msgstr ""
+
+msgid "DOB"
+msgstr ""
+
+msgid "Edit Player"
+msgstr ""
+
+msgid "Add Player"
+msgstr ""
+
+msgid "Update Player"
+msgstr ""
+
+msgid "First Name"
+msgstr ""
+
+msgid "Last Name"
+msgstr ""
+
+msgid "Date of Birth"
+msgstr ""
+
+msgid "Nationality"
+msgstr ""
+
+msgid "Height (cm)"
+msgstr ""
+
+msgid "Weight (kg)"
+msgstr ""
+
+msgid "Preferred Foot"
+msgstr ""
+
+msgid "Preferred Position(s)"
+msgstr ""
+
+msgid "Jersey Number"
+msgstr ""
+
+msgid "Team"
+msgstr ""
+
+msgid "Date Joined"
+msgstr ""
+
+msgid "Photo"
+msgstr ""
+
+msgid "Upload"
+msgstr ""
+
+msgid "Guardian Name"
+msgstr ""
+
+msgid "Guardian Email"
+msgstr ""
+
+msgid "Guardian Phone"
+msgstr ""
+
+msgid "Linked WP User"
+msgstr ""
+
+msgid "Active"
+msgstr ""
+
+msgid "Inactive"
+msgstr ""
+
+msgid "Trial"
+msgstr ""
+
+msgid "Released"
+msgstr ""
+
+msgid "Deleted"
+msgstr ""
+
+msgid "Development Radar"
+msgstr ""
+
+msgid "No evaluations yet."
+msgstr ""
+
+# === Admin: Evaluations ===
+msgid "No evaluations."
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "New Evaluation"
+msgstr ""
+
+msgid "Edit Evaluation"
+msgstr ""
+
+msgid "Save Evaluation"
+msgstr ""
+
+msgid "Submit Evaluation"
+msgstr ""
+
+msgid "Evaluation"
+msgstr ""
+
+msgid "Opponent"
+msgstr ""
+
+msgid "Competition"
+msgstr ""
+
+msgid "Result"
+msgstr ""
+
+msgid "Home"
+msgstr ""
+
+msgid "Away"
+msgstr ""
+
+msgid "Home/Away"
+msgstr ""
+
+msgid "Minutes Played"
+msgstr ""
+
+msgid "Ratings"
+msgstr ""
+
+msgid "Radar Chart"
+msgstr ""
+
+msgid "No evaluation categories configured."
+msgstr ""
+
+msgid "Add some"
+msgstr ""
+
+msgid "View"
+msgstr ""
+
+# === Admin: Sessions ===
+msgid "Training Sessions"
+msgstr ""
+
+msgid "No sessions."
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Location"
+msgstr ""
+
+msgid "New Session"
+msgstr ""
+
+msgid "Edit Session"
+msgstr ""
+
+msgid "Save Session"
+msgstr ""
+
+msgid "Record Training Session"
+msgstr ""
+
+msgid "Attendance"
+msgstr ""
+
+msgid "Session"
+msgstr ""
+
+msgid "No attendance records."
+msgstr ""
+
+# === Admin: Goals ===
+msgid "No goals."
+msgstr ""
+
+msgid "Goal"
+msgstr ""
+
+msgid "Priority"
+msgstr ""
+
+msgid "Due Date"
+msgstr ""
+
+msgid "Add Goal"
+msgstr ""
+
+msgid "Edit Goal"
+msgstr ""
+
+msgid "Due:"
+msgstr ""
+
+msgid "Due"
+msgstr ""
+
+msgid "Delete this goal?"
+msgstr ""
+
+msgid "Goal added!"
+msgstr ""
+
+msgid "Goal deleted."
+msgstr ""
+
+msgid "No goals yet."
+msgstr ""
+
+msgid "No goals assigned."
+msgstr ""
+
+msgid "Current Goals"
+msgstr ""
+
+msgid "Manage Goals"
+msgstr ""
+
+msgid "Status updated."
+msgstr ""
+
+# Goal Statuses
+msgid "Pending"
+msgstr ""
+
+msgid "In Progress"
+msgstr ""
+
+msgid "Completed"
+msgstr ""
+
+msgid "On Hold"
+msgstr ""
+
+msgid "Cancelled"
+msgstr ""
+
+# Goal Priorities
+msgid "Low"
+msgstr ""
+
+msgid "Medium"
+msgstr ""
+
+msgid "High"
+msgstr ""
+
+# Attendance statuses
+msgid "Present"
+msgstr ""
+
+msgid "Absent"
+msgstr ""
+
+msgid "Late"
+msgstr ""
+
+msgid "Injured"
+msgstr ""
+
+msgid "Excused"
+msgstr ""
+
+# === Admin: Reports ===
+msgid "Report Type"
+msgstr ""
+
+msgid "Player Progress"
+msgstr ""
+
+msgid "Player Comparison"
+msgstr ""
+
+msgid "Team Averages"
+msgstr ""
+
+msgid "Player(s)"
+msgstr ""
+
+msgid "Run Report"
+msgstr ""
+
+msgid "Player Progress Over Time"
+msgstr ""
+
+msgid "No data."
+msgstr ""
+
+msgid "Select at least 2 players."
+msgstr ""
+
+# === Admin: Configuration ===
+msgid "TalentTrack Configuration"
+msgstr ""
+
+msgid "Evaluation Categories"
+msgstr ""
+
+msgid "Evaluation Category"
+msgstr ""
+
+msgid "Evaluation Types"
+msgstr ""
+
+msgid "Evaluation Type"
+msgstr ""
+
+msgid "Positions"
+msgstr ""
+
+msgid "Position"
+msgstr ""
+
+msgid "Preferred Foot"
+msgstr ""
+
+msgid "Foot Option"
+msgstr ""
+
+msgid "Age Groups"
+msgstr ""
+
+msgid "Goal Statuses"
+msgstr ""
+
+msgid "Goal Status"
+msgstr ""
+
+msgid "Goal Priorities"
+msgstr ""
+
+msgid "Goal Priority"
+msgstr ""
+
+msgid "Attendance Statuses"
+msgstr ""
+
+msgid "Attendance Status"
+msgstr ""
+
+msgid "Rating Scale"
+msgstr ""
+
+msgid "Branding"
+msgstr ""
+
+msgid "Feature Toggles"
+msgstr ""
+
+msgid "Audit Log"
+msgstr ""
+
+msgid "Minimum"
+msgstr ""
+
+msgid "Maximum"
+msgstr ""
+
+msgid "Step"
+msgstr ""
+
+msgid "Academy Name"
+msgstr ""
+
+msgid "Logo"
+msgstr ""
+
+msgid "Primary Color"
+msgstr ""
+
+msgid "Secondary Color"
+msgstr ""
+
+msgid "Requires Match Details"
+msgstr ""
+
+msgid "Prompts for opponent, competition, result, home/away, minutes played"
+msgstr ""
+
+msgid "No items."
+msgstr ""
+
+msgid "No evaluation types."
+msgstr ""
+
+msgid "Match Details?"
+msgstr ""
+
+# === Feature Toggles ===
+msgid "Enable or disable specific TalentTrack features without code changes."
+msgstr ""
+
+msgid "State"
+msgstr ""
+
+msgid "Feature"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "Disabled"
+msgstr ""
+
+msgid "Save Toggles"
+msgstr ""
+
+msgid "Audit log"
+msgstr ""
+
+msgid "Record player, evaluation, team, session, goal, and configuration changes to the audit trail."
+msgstr ""
+
+msgid "Verbose logging"
+msgstr ""
+
+msgid "Write additional debug-level messages to the error log. Non-production environments only."
+msgstr ""
+
+msgid "Login redirect"
+msgstr ""
+
+msgid "After login, redirect players and coaches to the TalentTrack dashboard page instead of wp-admin."
+msgstr ""
+
+# === Audit Log ===
+msgid "Audit logging is currently disabled. Enable it under Feature Toggles to start recording entries."
+msgstr ""
+
+msgid "Action (e.g. player.saved)"
+msgstr ""
+
+msgid "Entity type"
+msgstr ""
+
+msgid "User ID"
+msgstr ""
+
+msgid "Filter"
+msgstr ""
+
+msgid "Clear"
+msgstr ""
+
+msgid "When"
+msgstr ""
+
+msgid "User"
+msgstr ""
+
+msgid "Action"
+msgstr ""
+
+msgid "Entity"
+msgstr ""
+
+msgid "IP"
+msgstr ""
+
+msgid "Payload"
+msgstr ""
+
+msgid "No audit entries match your filters."
+msgstr ""
+
+# === Frontend Dashboard: Tabs ===
+msgid "Overview"
+msgstr ""
+
+msgid "Progress"
+msgstr ""
+
+msgid "Help"
+msgstr ""
+
+msgid "My Team"
+msgstr ""
+
+msgid "Player Detail"
+msgstr ""
+
+# === Frontend Dashboard: Content ===
+msgid "No player profile is linked to your account. Please contact your administrator."
+msgstr ""
+
+msgid "Team:"
+msgstr ""
+
+msgid "Pos:"
+msgstr ""
+
+msgid "Foot:"
+msgstr ""
+
+msgid "How to use your dashboard"
+msgstr ""
+
+msgid "Overview shows your profile and latest radar chart. Evaluations lists every evaluation your coaches have recorded. Goals shows your development goals. Attendance tracks your sessions. Progress shows your trajectory."
+msgstr ""
+
+msgid "Development Over Time"
+msgstr ""
+
+msgid "Not enough data yet."
+msgstr ""
+
+msgid "No teams assigned."
+msgstr ""
+
+msgid "Select a player from the roster."
+msgstr ""
+
+msgid "Coach Quick Guide"
+msgstr ""
+
+msgid "My Team shows your players. New Evaluation submits training or match evaluations. New Session records attendance. Manage Goals assigns and tracks goals."
+msgstr ""
+
+msgid "vs %s (%s)"
+msgstr ""
+
+# === Frontend AJAX ===
+msgid "Missing required fields."
+msgstr ""
+
+msgid "You can only evaluate players in your team."
+msgstr ""
+
+msgid "Evaluation saved!"
+msgstr ""
+
+msgid "Session saved!"
+msgstr ""
+
+# === JS-side strings ===
+msgid "Saving..."
+msgstr ""
+
+msgid "Error."
+msgstr ""
+
+msgid "Network error."
+msgstr ""
+
+# === Documentation ===
+msgid "TalentTrack — Help & Documentation"
+msgstr ""
+
+msgid "Admin"
+msgstr ""
+
+msgid "Administrator Guide"
+msgstr ""
+
+msgid "Set up your academy by visiting Configuration, adding Teams, creating Players, and linking WP user accounts to players."
+msgstr ""
+
+msgid "Coach Guide"
+msgstr ""
+
+msgid "Submit evaluations, manage goals, and record attendance from the frontend dashboard."
+msgstr ""
+
+msgid "Player Guide"
+msgstr ""
+
+msgid "View your profile, evaluations, goals, and progress from the dashboard."
+msgstr ""

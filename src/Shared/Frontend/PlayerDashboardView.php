@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 
 class PlayerDashboardView {
@@ -53,7 +54,9 @@ class PlayerDashboardView {
             foreach ( $evals as $ev ) {
                 $full = QueryHelpers::get_evaluation( (int) $ev->id );
                 echo '<tr><td>' . esc_html( $ev->eval_date ) . '</td><td>' . esc_html( $ev->type_name ?: '—' ) . '</td><td>' . esc_html( $ev->coach_name ) . '</td><td>';
-                if ( $ev->opponent ) echo '<small>vs ' . esc_html( $ev->opponent ) . ' (' . esc_html( $ev->match_result ?: '—' ) . ')</small><br/>';
+                if ( $ev->opponent ) {
+                    echo '<small>' . esc_html( sprintf( __( 'vs %s (%s)', 'talenttrack' ), $ev->opponent, $ev->match_result ?: '—' ) ) . '</small><br/>';
+                }
                 if ( $full && ! empty( $full->ratings ) ) foreach ( $full->ratings as $r ) echo '<span class="tt-rating-pill">' . esc_html( $r->category_name ) . ': ' . esc_html( (string) $r->rating ) . '</span> ';
                 echo '</td></tr>';
             }
@@ -71,7 +74,7 @@ class PlayerDashboardView {
             foreach ( $goals as $g ) {
                 echo '<div class="tt-goal-item tt-status-' . esc_attr( $g->status ) . '"><h4>' . esc_html( $g->title ) . '</h4>';
                 if ( $g->description ) echo '<p>' . esc_html( $g->description ) . '</p>';
-                echo '<span class="tt-status-badge">' . esc_html( ucwords( str_replace( '_', ' ', (string) $g->status ) ) ) . '</span>';
+                echo '<span class="tt-status-badge">' . esc_html( LabelTranslator::goalStatus( (string) $g->status ) ) . '</span>';
                 if ( $g->due_date ) echo ' <small>' . esc_html__( 'Due:', 'talenttrack' ) . ' ' . esc_html( $g->due_date ) . '</small>';
                 echo '</div>';
             }
@@ -97,7 +100,12 @@ class PlayerDashboardView {
             foreach ( $att as $a ) {
                 $status_lower = strtolower( (string) $a->status );
                 $cls = $status_lower === 'present' ? 'tt-att-present' : ( $status_lower === 'absent' ? 'tt-att-absent' : 'tt-att-other' );
-                echo '<tr class="' . esc_attr( $cls ) . '"><td>' . esc_html( (string) $a->session_date ) . '</td><td>' . esc_html( (string) $a->session_title ) . '</td><td>' . esc_html( (string) $a->status ) . '</td><td>' . esc_html( $a->notes ?: '—' ) . '</td></tr>';
+                echo '<tr class="' . esc_attr( $cls ) . '">'
+                    . '<td>' . esc_html( (string) $a->session_date ) . '</td>'
+                    . '<td>' . esc_html( (string) $a->session_title ) . '</td>'
+                    . '<td>' . esc_html( LabelTranslator::attendanceStatus( (string) $a->status ) ) . '</td>'
+                    . '<td>' . esc_html( $a->notes ?: '—' ) . '</td>'
+                    . '</tr>';
             }
             echo '</tbody></table>';
         }

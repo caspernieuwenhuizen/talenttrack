@@ -10,8 +10,8 @@ use TT\Modules\Auth\LoginForm;
 /**
  * DashboardShortcode — owns [talenttrack_dashboard].
  *
- * Dispatches to either the login form (logged out) or the appropriate
- * role-based dashboard view (logged in).
+ * Phase 4: JS-side strings now pass through wp_localize_script so they're
+ * translatable alongside the rest of the plugin.
  */
 class DashboardShortcode {
 
@@ -25,9 +25,21 @@ class DashboardShortcode {
     public static function render( $atts = [] ): string {
         wp_enqueue_style( 'tt-public', TT_PLUGIN_URL . 'assets/css/public.css', [], TT_VERSION );
         wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [ 'jquery' ], TT_VERSION, true );
+
         wp_localize_script( 'tt-public', 'TT', [
             'ajax_url' => admin_url( 'admin-ajax.php' ),
             'nonce'    => wp_create_nonce( 'tt_frontend' ),
+            'i18n'     => [
+                'saving'               => __( 'Saving...', 'talenttrack' ),
+                'saved'                => __( 'Saved.', 'talenttrack' ),
+                'error_generic'        => __( 'Error.', 'talenttrack' ),
+                'network_error'        => __( 'Network error.', 'talenttrack' ),
+                'confirm_delete_goal'  => __( 'Delete this goal?', 'talenttrack' ),
+                'save_evaluation'      => __( 'Save Evaluation', 'talenttrack' ),
+                'save_session'         => __( 'Save Session', 'talenttrack' ),
+                'add_goal'             => __( 'Add Goal', 'talenttrack' ),
+                'save'                 => __( 'Save', 'talenttrack' ),
+            ],
         ]);
 
         // Logged out → login form
