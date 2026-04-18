@@ -1,70 +1,60 @@
-# TalentTrack v2.2.0 — Delivery Changes
+# TalentTrack v2.3.0 — Delivery Changes
 
 ## What this ZIP does
 
-This delivery completes **Sprint 0 Phase 2 Part 2: REST envelope**. All REST API
-responses now use a standardized `{success, data, errors}` format.
+Completes **Sprint 0 Phase 3: observability & governance**. Adds central logging,
+an audit trail, feature toggles, and environment-aware behaviour — all without
+touching existing frontend, admin, REST, or module code.
 
 ## How to install
 
-1. Unzip this archive.
-2. Open the resulting `talenttrack-v2.2.0/` folder.
-3. Copy its **contents** (not the folder itself) into your local `talenttrack/`
-   repository folder — allow overwrites when prompted.
+1. Extract this ZIP somewhere.
+2. Open the resulting `talenttrack-v2.3.0/` folder.
+3. Copy its **contents** (not the folder itself — the files and folders inside)
+   into your local `talenttrack/` repository folder. Allow overwrites.
 4. GitHub Desktop will show you the files that changed.
-5. Commit with a message like: `v2.2.0 — REST envelope`.
+5. Commit: `v2.3.0 — Sprint 0 Phase 3 (logging/audit/toggles/environment)`.
 6. Push to origin.
-7. On GitHub.com → Releases → create a new release tagged `v2.2.0`.
-8. GitHub Actions builds the ZIP automatically and attaches it to the release.
-9. WordPress auto-updates within a few hours, or you can force-check in
-   **Dashboard → Updates**.
+7. GitHub → Releases → create new release tagged `v2.3.0`.
+8. GitHub Actions builds & attaches the ZIP automatically.
+9. WordPress auto-updates within a few hours, or force-check in Dashboard → Updates.
 
 ## Files in this delivery
 
 ### Modified
-- `talenttrack.php` — version bumped to 2.2.0 (header + `TT_VERSION` constant)
-- `readme.txt` — stable tag 2.2.0, changelog entry added
-- `src/Infrastructure/REST/PlayersRestController.php` — uses envelope + proper
-  HTTP status codes
-- `src/Infrastructure/REST/EvaluationsRestController.php` — uses envelope +
-  proper HTTP status codes
+- `talenttrack.php` — version bumped to 2.3.0.
+- `readme.txt` — stable tag 2.3.0, changelog entry added.
+- `src/Core/Kernel.php` — registers logger, environment, toggles, audit, audit.subscriber in the container; wires AuditSubscriber on boot.
+- `src/Modules/Configuration/Admin/ConfigurationPage.php` — adds "Feature Toggles" and "Audit Log" tabs.
+- `config/environment.php` — minor refinement to read via `wp_get_environment_type()`.
 
 ### Added
-- `src/Infrastructure/REST/RestResponse.php` — envelope factory
-  (`success()`, `error()`, `errors()`)
-- `src/Infrastructure/REST/BaseController.php` — shared helpers for REST
-  controllers (permissions, validation)
+- `src/Infrastructure/Logging/Logger.php` — 4-level central logging.
+- `src/Infrastructure/Environment/EnvironmentService.php` — env detection.
+- `src/Infrastructure/FeatureToggles/FeatureToggleService.php` — feature flags backed by `tt_config`.
+- `src/Infrastructure/Audit/AuditService.php` — writes to `tt_audit_log`.
+- `src/Infrastructure/Audit/AuditSubscriber.php` — hooks existing TT actions to record audit entries.
+- `database/migrations/0002_create_audit_log.php` — new migration creating `tt_audit_log` table.
 
 ### Unchanged
-- Everything else in the plugin — frontend, admin UI, modules, migrations,
-  database, etc.
+- Every other file — frontend views, REST controllers, module classes, role management, admin page logic for non-Configuration modules.
 
-## Breaking change notice
+## What you'll notice after install
 
-Any external consumer of the REST API must update its response parsing:
+1. **New table** `wp_tt_audit_log` created automatically (via migration 0002).
+2. **New tab** in Configuration → Feature Toggles — three initial toggles:
+   - Audit log (on by default)
+   - Verbose logging (off by default)
+   - Login redirect (on by default — matches existing behaviour)
+3. **New tab** in Configuration → Audit Log — shows recent events with filters.
+4. **Logging** — any warnings/errors appear in `wp-content/debug.log` (if `WP_DEBUG_LOG` is enabled) prefixed with `[TalentTrack][LEVEL]`.
 
-**Before (v2.1.0):**
-```json
-{ "id": 42, "first_name": "Liam", "last_name": "Jansen" }
-```
+## Verification after install
 
-**After (v2.2.0):**
-```json
-{
-    "success": true,
-    "data": { "id": 42, "first_name": "Liam", "last_name": "Jansen" },
-    "errors": []
-}
-```
+1. `wp_tt_migrations` should now have 2 rows: `0001_initial_schema` and `0002_create_audit_log`.
+2. Visit **TalentTrack → Configuration → Audit Log** — if you've done any actions since install, you'll see entries (e.g. `user.login` from your own login).
+3. Visit **TalentTrack → Configuration → Feature Toggles** — flip one, save, flip it back to confirm the UI works.
 
-If you're not yet consuming the REST API anywhere, no action needed.
+## Rollback note
 
-## Post-install verification
-
-In a browser, while logged into WordPress, open:
-```
-https://your-site.com/wp-json/talenttrack/v1/players
-```
-
-The JSON response should start with `"success": true` and contain your players
-inside `"data"`. That confirms the envelope is live.
+If anything misbehaves, the new code paths are all feature-toggled. Disabling the `audit_log` toggle stops new audit entries from being recorded. The `tt_audit_log` table remains (containing historical entries) but plays no role in the running plugin.

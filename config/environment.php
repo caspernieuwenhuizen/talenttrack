@@ -2,13 +2,19 @@
 /**
  * Environment Configuration
  *
- * Phase 1 stub. Phase 3 will expand this into full dev/staging/production
- * handling driven by a TT_ENV constant or WP_ENVIRONMENT_TYPE.
+ * Phase 3: This file is now a simple snapshot. Actual environment detection
+ * is provided by TT\Infrastructure\Environment\EnvironmentService which
+ * reads WordPress's native WP_ENVIRONMENT_TYPE.
+ *
+ * Available environments: production, staging, development, local.
+ * Set WP_ENVIRONMENT_TYPE in wp-config.php to override.
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-$env = defined( 'WP_ENVIRONMENT_TYPE' ) ? WP_ENVIRONMENT_TYPE : 'production';
+$env = function_exists( 'wp_get_environment_type' )
+    ? wp_get_environment_type()
+    : ( defined( 'WP_ENVIRONMENT_TYPE' ) ? WP_ENVIRONMENT_TYPE : 'production' );
 
 return [
     'environment' => $env,

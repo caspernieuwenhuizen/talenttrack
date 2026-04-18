@@ -3,8 +3,13 @@ namespace TT\Core;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Audit\AuditService;
+use TT\Infrastructure\Audit\AuditSubscriber;
 use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\Database\MigrationRunner;
+use TT\Infrastructure\Environment\EnvironmentService;
+use TT\Infrastructure\FeatureToggles\FeatureToggleService;
+use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\RolesService;
 use TT\Shared\Admin\Menu;
@@ -15,10 +20,9 @@ use TT\Shared\Frontend\FrontendAjax;
 /**
  * Kernel — the system bootstrap.
  *
- * Phase 2 change: calls MigrationRunner::run() on boot so new migrations
- * shipped in plugin updates apply automatically without requiring
- * deactivate/reactivate. Runner is idempotent and cheap when nothing is
- * pending (one SELECT against tt_migrations).
+ * Phase 3 changes: registers EnvironmentService, Logger, FeatureToggleService,
+ * and AuditService in the container, and wires AuditSubscriber to hook
+ * existing TT actions for audit recording.
  */
 class Kernel {
 
@@ -49,7 +53,7 @@ class Kernel {
     public function boot(): void {
         if ( $this->booted ) return;
 
-        // Apply any pending migrations before modules load (safe re-check).
+        // Apply pending migrations before anything else.
         ( new MigrationRunner() )->run();
 
         $this->registerCoreServices();
@@ -62,10 +66,16 @@ class Kernel {
         $this->registry->registerAll();
         $this->registry->bootAll();
 
+        // Shared cross-cutting concerns
         Menu::init();
         BrandStyles::init( $this->container );
         DashboardShortcode::register();
         FrontendAjax::register();
+
+        // Phase 3: wire audit subscriber to existing action hooks.
+        /** @var AuditSubscriber $subscriber */
+        $subscriber = $this->container->get( 'audit.subscriber' );
+        $subscriber->register();
 
         add_action( 'admin_init', function () {
             /** @var RolesService $roles */
@@ -82,6 +92,33 @@ class Kernel {
         });
         $this->container->bind( 'roles', function () {
             return new RolesService();
+        });
+
+        // Phase 3 additions
+        $this->container->bind( 'environment', function () {
+            return new EnvironmentService();
+        });
+        $this->container->bind( 'logger', function ( Container $c ) {
+            /** @var EnvironmentService $env */
+            $env = $c->get( 'environment' );
+            return new Logger( $env );
+        });
+        $this->container->bind( 'toggles', function ( Container $c ) {
+            /** @var ConfigService $config */
+            $config = $c->get( 'config' );
+            return new FeatureToggleService( $config );
+        });
+        $this->container->bind( 'audit', function ( Container $c ) {
+            /** @var FeatureToggleService $toggles */
+            $toggles = $c->get( 'toggles' );
+            /** @var Logger $logger */
+            $logger = $c->get( 'logger' );
+            return new AuditService( $toggles, $logger );
+        });
+        $this->container->bind( 'audit.subscriber', function ( Container $c ) {
+            /** @var AuditService $audit */
+            $audit = $c->get( 'audit' );
+            return new AuditSubscriber( $audit );
         });
     }
 

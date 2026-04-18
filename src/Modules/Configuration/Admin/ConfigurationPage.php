@@ -3,6 +3,9 @@ namespace TT\Modules\Configuration\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Core\Kernel;
+use TT\Infrastructure\Audit\AuditService;
+use TT\Infrastructure\FeatureToggles\FeatureToggleService;
 use TT\Infrastructure\Query\QueryHelpers;
 
 class ConfigurationPage {
@@ -11,6 +14,7 @@ class ConfigurationPage {
         add_action( 'admin_post_tt_save_config', [ __CLASS__, 'handle_save_config' ] );
         add_action( 'admin_post_tt_save_lookup', [ __CLASS__, 'handle_save_lookup' ] );
         add_action( 'admin_post_tt_delete_lookup', [ __CLASS__, 'handle_delete_lookup' ] );
+        add_action( 'admin_post_tt_save_toggles', [ __CLASS__, 'handle_save_toggles' ] );
     }
 
     public static function render_page(): void {
@@ -26,6 +30,8 @@ class ConfigurationPage {
             'att_statuses'    => __( 'Attendance Statuses', 'talenttrack' ),
             'rating'          => __( 'Rating Scale', 'talenttrack' ),
             'branding'        => __( 'Branding', 'talenttrack' ),
+            'toggles'         => __( 'Feature Toggles', 'talenttrack' ),
+            'audit'           => __( 'Audit Log', 'talenttrack' ),
         ];
         ?>
         <div class="wrap">
@@ -51,12 +57,119 @@ class ConfigurationPage {
                 case 'att_statuses':    self::tab_lookup( 'attendance_status', __( 'Attendance Status', 'talenttrack' ), false, false ); break;
                 case 'rating':          self::tab_rating(); break;
                 case 'branding':        self::tab_branding(); break;
+                case 'toggles':         self::tab_toggles(); break;
+                case 'audit':           self::tab_audit(); break;
             }
             ?>
             </div>
         </div>
         <?php
     }
+
+    /* ═══ Feature Toggles tab ═══ */
+
+    private static function tab_toggles(): void {
+        /** @var FeatureToggleService $toggles */
+        $toggles = Kernel::instance()->container()->get( 'toggles' );
+        $definitions = FeatureToggleService::definitions();
+        ?>
+        <h2><?php esc_html_e( 'Feature Toggles', 'talenttrack' ); ?></h2>
+        <p class="description"><?php esc_html_e( 'Enable or disable specific TalentTrack features without code changes.', 'talenttrack' ); ?></p>
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+            <?php wp_nonce_field( 'tt_save_toggles', 'tt_nonce' ); ?>
+            <input type="hidden" name="action" value="tt_save_toggles" />
+            <table class="widefat striped" style="max-width:800px;">
+                <thead>
+                    <tr>
+                        <th style="width:120px;"><?php esc_html_e( 'State', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Feature', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ( $definitions as $key => $def ) :
+                        $enabled = $toggles->isEnabled( $key );
+                    ?>
+                        <tr>
+                            <td>
+                                <label style="display:flex;align-items:center;gap:8px;">
+                                    <input type="checkbox" name="toggles[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( $enabled ); ?> />
+                                    <span><?php echo $enabled ? esc_html__( 'Enabled', 'talenttrack' ) : esc_html__( 'Disabled', 'talenttrack' ); ?></span>
+                                </label>
+                            </td>
+                            <td><strong><?php echo esc_html( (string) $def['label'] ); ?></strong><br/>
+                                <code style="font-size:11px;color:#888;"><?php echo esc_html( FeatureToggleService::PREFIX . $key ); ?></code></td>
+                            <td><?php echo esc_html( (string) $def['description'] ); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <?php submit_button( __( 'Save Toggles', 'talenttrack' ) ); ?>
+        </form>
+        <?php
+    }
+
+    /* ═══ Audit Log tab ═══ */
+
+    private static function tab_audit(): void {
+        /** @var AuditService $audit */
+        $audit = Kernel::instance()->container()->get( 'audit' );
+        /** @var FeatureToggleService $toggles */
+        $toggles = Kernel::instance()->container()->get( 'toggles' );
+
+        $is_on = $toggles->isEnabled( 'audit_log' );
+        $filters = [];
+        if ( ! empty( $_GET['f_action'] ) )      $filters['action']      = sanitize_text_field( wp_unslash( (string) $_GET['f_action'] ) );
+        if ( ! empty( $_GET['f_entity_type'] ) ) $filters['entity_type'] = sanitize_text_field( wp_unslash( (string) $_GET['f_entity_type'] ) );
+        if ( ! empty( $_GET['f_user_id'] ) )     $filters['user_id']     = absint( $_GET['f_user_id'] );
+
+        $entries = $audit->recent( 100, $filters );
+        ?>
+        <h2><?php esc_html_e( 'Audit Log', 'talenttrack' ); ?></h2>
+        <?php if ( ! $is_on ) : ?>
+            <div class="notice notice-warning inline"><p>
+                <?php esc_html_e( 'Audit logging is currently disabled. Enable it under Feature Toggles to start recording entries.', 'talenttrack' ); ?>
+            </p></div>
+        <?php endif; ?>
+
+        <form method="get" style="margin:10px 0;">
+            <input type="hidden" name="page" value="tt-config" />
+            <input type="hidden" name="tab"  value="audit" />
+            <input type="text" name="f_action"      value="<?php echo esc_attr( $filters['action'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Action (e.g. player.saved)', 'talenttrack' ); ?>" style="width:220px" />
+            <input type="text" name="f_entity_type" value="<?php echo esc_attr( $filters['entity_type'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Entity type', 'talenttrack' ); ?>" style="width:140px" />
+            <input type="number" name="f_user_id"   value="<?php echo esc_attr( (string) ( $filters['user_id'] ?? '' ) ); ?>" placeholder="<?php esc_attr_e( 'User ID', 'talenttrack' ); ?>" style="width:100px" />
+            <?php submit_button( __( 'Filter', 'talenttrack' ), 'secondary', 'submit', false ); ?>
+            <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-config&tab=audit' ) ); ?>" class="button"><?php esc_html_e( 'Clear', 'talenttrack' ); ?></a>
+        </form>
+
+        <table class="widefat striped">
+            <thead><tr>
+                <th style="width:150px;"><?php esc_html_e( 'When', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'User', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Action', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Entity', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'IP', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Payload', 'talenttrack' ); ?></th>
+            </tr></thead>
+            <tbody>
+                <?php if ( empty( $entries ) ) : ?>
+                    <tr><td colspan="6"><?php esc_html_e( 'No audit entries match your filters.', 'talenttrack' ); ?></td></tr>
+                <?php else : foreach ( $entries as $e ) : ?>
+                    <tr>
+                        <td><code><?php echo esc_html( (string) $e->created_at ); ?></code></td>
+                        <td><?php echo esc_html( $e->user_name ?: '(system)' ); ?></td>
+                        <td><code><?php echo esc_html( (string) $e->action ); ?></code></td>
+                        <td><?php echo esc_html( $e->entity_type ? "{$e->entity_type}#{$e->entity_id}" : '—' ); ?></td>
+                        <td><?php echo esc_html( (string) $e->ip_address ); ?></td>
+                        <td style="font-size:11px;font-family:monospace;max-width:400px;word-break:break-all;"><?php echo esc_html( (string) $e->payload ); ?></td>
+                    </tr>
+                <?php endforeach; endif; ?>
+            </tbody>
+        </table>
+        <?php
+    }
+
+    /* ═══ (Unchanged tabs below — identical to v2.2.0) ═══ */
 
     private static function tab_lookup( string $type, string $label, bool $show_desc, bool $show_sort ): void {
         $action = isset( $_GET['crud'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['crud'] ) ) : 'list';
@@ -196,6 +309,8 @@ class ConfigurationPage {
         <?php
     }
 
+    /* ═══ Handlers ═══ */
+
     public static function handle_save_config(): void {
         if ( ! current_user_can( 'tt_manage_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_config', 'tt_nonce' );
@@ -205,6 +320,23 @@ class ConfigurationPage {
             QueryHelpers::set_config( sanitize_key( (string) $k ), sanitize_text_field( wp_unslash( (string) $v ) ) );
         }
         wp_safe_redirect( admin_url( "admin.php?page=tt-config&tab=$tab&tt_msg=saved" ) );
+        exit;
+    }
+
+    public static function handle_save_toggles(): void {
+        if ( ! current_user_can( 'tt_manage_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        check_admin_referer( 'tt_save_toggles', 'tt_nonce' );
+
+        /** @var FeatureToggleService $toggles */
+        $toggles = Kernel::instance()->container()->get( 'toggles' );
+        $submitted = isset( $_POST['toggles'] ) && is_array( $_POST['toggles'] ) ? $_POST['toggles'] : [];
+
+        foreach ( array_keys( FeatureToggleService::definitions() ) as $key ) {
+            $enabled = ! empty( $submitted[ $key ] );
+            $toggles->setEnabled( $key, $enabled );
+        }
+
+        wp_safe_redirect( admin_url( 'admin.php?page=tt-config&tab=toggles&tt_msg=saved' ) );
         exit;
     }
 
