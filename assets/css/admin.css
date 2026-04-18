@@ -2,4 +2,3 @@
 .tt-radar { width: 100%; max-width: 360px; height: auto; }
 .wrap .nav-tab-wrapper { margin-top: 12px; }
 .wrap h2 { margin-top: 24px; }
-.tt-admin-cards { display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:20px; }

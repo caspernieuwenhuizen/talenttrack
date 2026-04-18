@@ -1,28 +1,64 @@
-name: Build and Release Plugin ZIP
+name: TalentTrack Build & Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
 
 jobs:
-  release:
+  lint:
+    name: PHP Syntax Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+      - name: PHP syntax check
+        run: |
+          find src -name "*.php" -print0 | xargs -0 -n1 -P4 php -l
 
-      - name: Create plugin ZIP
+  phpstan:
+    name: PHPStan Static Analysis (level 8)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress || true
+
+  release:
+    name: Build & Release ZIP
+    needs: [lint]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build plugin ZIP
         run: |
           mkdir -p /tmp/build
-          rsync -av --exclude='.git' --exclude='.github' --exclude='.gitignore' ./ /tmp/build/talenttrack/
+          rsync -av \
+            --exclude='.git' --exclude='.github' --exclude='.gitignore' \
+            --exclude='tests' --exclude='vendor' --exclude='phpstan*' \
+            ./ /tmp/build/talenttrack/
           cd /tmp/build
           zip -r talenttrack.zip talenttrack
-
-      - name: Create GitHub Release with ZIP attached
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: /tmp/build/talenttrack.zip

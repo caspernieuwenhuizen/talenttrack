@@ -2,12 +2,13 @@
 /**
  * Plugin Name: TalentTrack
  * Plugin URI:  https://github.com/yourusername/talenttrack
- * Description: Professional player development tracking system for soccer academies — evaluations, team management, goals, attendance, and reporting.
- * Version:     1.0.0
- * Author:      Casper Nieuwenhuizen
- * Author URI:  https://github.com/caspernieuwenhuizen
+ * Description: Frontend-first, modular youth football talent management system for a single club.
+ * Version:     2.0.0
+ * Author:      Your Name
+ * Author URI:  https://github.com/yourusername
  * License:     GPL-2.0+
  * Text Domain: talenttrack
+ * Domain Path: /languages
  * Requires at least: 6.0
  * Requires PHP: 7.4
  *
@@ -19,24 +20,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /* ─── Constants ─────────────────────────────────────────── */
-define( 'TT_VERSION',     '1.0.0' );
+define( 'TT_VERSION',     '2.0.0' );
 define( 'TT_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'TT_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );
 define( 'TT_PLUGIN_FILE', __FILE__ );
 define( 'TT_PLUGIN_SLUG', 'talenttrack' );
 
-/* ─── Autoloader ────────────────────────────────────────── */
-spl_autoload_register( function ( $class ) {
-    $prefix = 'TT\\';
-    if ( strncmp( $prefix, $class, strlen( $prefix ) ) !== 0 ) {
-        return;
-    }
-    $relative = substr( $class, strlen( $prefix ) );
-    $file     = TT_PLUGIN_DIR . 'includes/' . str_replace( '\\', '/', $relative ) . '.php';
-    if ( file_exists( $file ) ) {
-        require_once $file;
-    }
-});
+/* ─── Autoloader (PSR-4 via Composer if present, fallback otherwise) ── */
+if ( file_exists( TT_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
+    require_once TT_PLUGIN_DIR . 'vendor/autoload.php';
+} else {
+    // Fallback autoloader — maps TT\ namespace to /src/
+    spl_autoload_register( function ( $class ) {
+        $prefix = 'TT\\';
+        if ( strncmp( $prefix, $class, strlen( $prefix ) ) !== 0 ) {
+            return;
+        }
+        $relative = substr( $class, strlen( $prefix ) );
+        $file     = TT_PLUGIN_DIR . 'src/' . str_replace( '\\', '/', $relative ) . '.php';
+        if ( file_exists( $file ) ) {
+            require_once $file;
+        }
+    });
+}
 
 /* ─── GitHub Update Checker ─────────────────────────────── */
 if ( file_exists( TT_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.php' ) ) {
@@ -49,10 +55,15 @@ if ( file_exists( TT_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.p
 }
 
 /* ─── Activation / Deactivation ─────────────────────────── */
-register_activation_hook( __FILE__, [ 'TT\\Activator', 'activate' ] );
-register_deactivation_hook( __FILE__, [ 'TT\\Activator', 'deactivate' ] );
+register_activation_hook( __FILE__, [ 'TT\\Core\\Activator', 'activate' ] );
+register_deactivation_hook( __FILE__, [ 'TT\\Core\\Activator', 'deactivate' ] );
 
-/* ─── Boot ──────────────────────────────────────────────── */
+/* ─── i18n ──────────────────────────────────────────────── */
 add_action( 'plugins_loaded', function () {
-    TT\Core::instance()->init();
-});
+    load_plugin_textdomain( 'talenttrack', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+}, 1 );
+
+/* ─── Kernel Boot ───────────────────────────────────────── */
+add_action( 'plugins_loaded', function () {
+    TT\Core\Kernel::instance()->boot();
+}, 5 );
