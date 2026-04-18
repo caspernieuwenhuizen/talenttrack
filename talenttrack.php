@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: TalentTrack
- * Plugin URI:  https://github.com/yourusername/talenttrack
+ * Plugin URI:  https://github.com/caspernieuwenhuizen/talenttrack
  * Description: Frontend-first, modular youth football talent management system for a single club.
  * Version:     2.0.0
  * Author:      Your Name
- * Author URI:  https://github.com/yourusername
+ * Author URI:  https://github.com/caspernieuwenhuizen
  * License:     GPL-2.0+
  * Text Domain: talenttrack
  * Domain Path: /languages
@@ -48,7 +48,7 @@ if ( file_exists( TT_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
 if ( file_exists( TT_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.php' ) ) {
     require_once TT_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.php';
     \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
-        'https://github.com/yourusername/talenttrack/',
+        'https://github.com/caspernieuwenhuizen/talenttrack/',
         __FILE__,
         TT_PLUGIN_SLUG
     );
