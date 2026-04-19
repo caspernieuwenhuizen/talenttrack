@@ -7,10 +7,9 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 
 /**
- * AuthModule — owns the frontend login experience.
+ * AuthModule — login form + login handler + logout handler.
  *
- * Provides the login form rendered by the dashboard shortcode when the user
- * is logged out, and handles the login POST via admin-post.php.
+ * Sprint 1a: adds LogoutHandler.
  */
 class AuthModule implements ModuleInterface {
 
@@ -22,10 +21,21 @@ class AuthModule implements ModuleInterface {
         $container->bind( 'auth.login_form', function () {
             return new LoginForm();
         });
+        $container->bind( 'auth.login_handler', function () {
+            return new LoginHandler();
+        });
+        $container->bind( 'auth.logout_handler', function () {
+            return new LogoutHandler();
+        });
     }
 
     public function boot( Container $container ): void {
-        add_action( 'admin_post_nopriv_tt_login', [ LoginHandler::class, 'handle' ] );
-        add_action( 'admin_post_tt_login',        [ LoginHandler::class, 'handle' ] );
+        /** @var LoginHandler $login */
+        $login = $container->get( 'auth.login_handler' );
+        $login->register();
+
+        /** @var LogoutHandler $logout */
+        $logout = $container->get( 'auth.logout_handler' );
+        $logout->register();
     }
 }

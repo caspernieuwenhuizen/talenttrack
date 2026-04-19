@@ -15,14 +15,15 @@ use TT\Infrastructure\Security\RolesService;
 use TT\Shared\Admin\Menu;
 use TT\Shared\Frontend\BrandStyles;
 use TT\Shared\Frontend\DashboardShortcode;
+use TT\Shared\Frontend\FrontendAccessControl;
 use TT\Shared\Frontend\FrontendAjax;
 
 /**
  * Kernel — the system bootstrap.
  *
- * Phase 3 changes: registers EnvironmentService, Logger, FeatureToggleService,
- * and AuditService in the container, and wires AuditSubscriber to hook
- * existing TT actions for audit recording.
+ * Sprint 1a addition: registers FrontendAccessControl service which gates
+ * wp-admin access for non-administrators, hides admin bar, and routes
+ * wp-login.php traffic back to the TalentTrack dashboard.
  */
 class Kernel {
 
@@ -53,7 +54,6 @@ class Kernel {
     public function boot(): void {
         if ( $this->booted ) return;
 
-        // Apply pending migrations before anything else.
         ( new MigrationRunner() )->run();
 
         $this->registerCoreServices();
@@ -66,16 +66,18 @@ class Kernel {
         $this->registry->registerAll();
         $this->registry->bootAll();
 
-        // Shared cross-cutting concerns
         Menu::init();
         BrandStyles::init( $this->container );
         DashboardShortcode::register();
         FrontendAjax::register();
 
-        // Phase 3: wire audit subscriber to existing action hooks.
         /** @var AuditSubscriber $subscriber */
         $subscriber = $this->container->get( 'audit.subscriber' );
         $subscriber->register();
+
+        /** @var FrontendAccessControl $access */
+        $access = $this->container->get( 'frontend.access' );
+        $access->register();
 
         add_action( 'admin_init', function () {
             /** @var RolesService $roles */
@@ -93,8 +95,6 @@ class Kernel {
         $this->container->bind( 'roles', function () {
             return new RolesService();
         });
-
-        // Phase 3 additions
         $this->container->bind( 'environment', function () {
             return new EnvironmentService();
         });
@@ -119,6 +119,11 @@ class Kernel {
             /** @var AuditService $audit */
             $audit = $c->get( 'audit' );
             return new AuditSubscriber( $audit );
+        });
+        $this->container->bind( 'frontend.access', function ( Container $c ) {
+            /** @var ConfigService $config */
+            $config = $c->get( 'config' );
+            return new FrontendAccessControl( $config );
         });
     }
 

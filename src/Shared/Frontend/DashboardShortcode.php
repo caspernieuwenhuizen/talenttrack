@@ -6,12 +6,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Kernel;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Auth\LoginForm;
+use TT\Modules\Auth\LogoutHandler;
 
 /**
  * DashboardShortcode — owns [talenttrack_dashboard].
  *
- * Phase 4: JS-side strings now pass through wp_localize_script so they're
- * translatable alongside the rest of the plugin.
+ * Sprint 1a: adds an explicit early-return for logged-out users and a
+ * logout button in the authenticated dashboard header. Everything else is
+ * unchanged from v2.4.1.
  */
 class DashboardShortcode {
 
@@ -42,14 +44,23 @@ class DashboardShortcode {
             ],
         ]);
 
-        // Logged out → login form
+        // === Route guard — no partial render for logged-out users. ===
         if ( ! is_user_logged_in() ) {
             /** @var LoginForm $form */
             $form = Kernel::instance()->container()->get( 'auth.login_form' );
             $error = isset( $_GET['tt_login_error'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tt_login_error'] ) ) : '';
-            return $form->render( $error );
+
+            // Friendly notice if coming back from password-reset request
+            $reset_notice = '';
+            if ( isset( $_GET['checkemail'] ) && $_GET['checkemail'] === 'confirm' ) {
+                $reset_notice = '<div class="tt-notice-inline">'
+                    . esc_html__( 'Check your email for a password reset link.', 'talenttrack' )
+                    . '</div>';
+            }
+            return $reset_notice . $form->render( $error );
         }
 
+        // === Authenticated dashboard ===
         ob_start();
         echo '<div class="tt-dashboard">';
         self::renderHeader();
@@ -79,9 +90,18 @@ class DashboardShortcode {
     private static function renderHeader(): void {
         $logo = QueryHelpers::get_config( 'logo_url', '' );
         $name = QueryHelpers::get_config( 'academy_name', 'TalentTrack' );
+        $user = wp_get_current_user();
+
         echo '<div class="tt-dash-header">';
+        echo '<div class="tt-dash-brand">';
         if ( $logo ) echo '<img src="' . esc_url( $logo ) . '" class="tt-dash-logo" alt="" />';
         echo '<h2 class="tt-dash-title">' . esc_html( $name ) . '</h2>';
+        echo '</div>';
+
+        echo '<div class="tt-dash-user">';
+        echo '<span class="tt-dash-userlabel">' . esc_html( $user->display_name ) . '</span>';
+        echo '<a class="tt-logout-btn" href="' . esc_url( LogoutHandler::url() ) . '">' . esc_html__( 'Log out', 'talenttrack' ) . '</a>';
+        echo '</div>';
         echo '</div>';
     }
 }
