@@ -1,70 +1,87 @@
-# TalentTrack v2.5.1 — Delivery Changes
+# TalentTrack v2.6.0 — Delivery Changes
 
 ## What this ZIP does
 
-Two bundled fixes/additions:
+**Sprint 1b Part 1 — custom fields foundation.** Ships the infrastructure for admin-defined custom fields on players. This release adds:
 
-1. **BUGFIX — non-admin logout**. v2.5.0 accidentally blocked `admin-post.php` for non-admins, which silently killed the logout button. Fixed by whitelisting `admin-post.php` in `FrontendAccessControl`.
+- Two new database tables (polymorphic — scoped by entity_type so future sprints can add custom fields for teams / sessions / goals without schema changes).
+- A new Configuration tab "Player Custom Fields" where admins can create, edit, deactivate/reactivate, and drag-to-reorder fields.
+- Reusable primitives (OptionSetEditor, CustomFieldRenderer, CustomFieldValidator, admin-sortable.js) that v2.6.1 and future sprints will consume.
 
-2. **Dashboard user menu dropdown**. Replaces the bare Log out button with a proper dropdown. Click your name → "Edit profile" + "Log out" menu.
+**What does NOT change for users in this release:** nothing outside of the new admin tab. Creating fields here does not yet affect the Player form or dashboard. That integration ships in v2.6.1.
 
-## How to install
+## Install
 
-1. Extract this ZIP.
-2. Open `talenttrack-v2.5.1/`.
-3. Copy contents into your local `talenttrack/` repo folder. Allow overwrites.
-4. GitHub Desktop shows the changed files.
-5. Commit: `v2.5.1 — fix non-admin logout + add user menu dropdown`.
-6. Push.
-7. GitHub → Releases → tag `v2.5.1`.
-8. WordPress auto-updates.
+1. Extract the ZIP.
+2. Copy the **contents** of `talenttrack-v2.6.0/` into your local `talenttrack/` folder. Allow overwrites.
+3. GitHub Desktop → commit `v2.6.0 — custom fields foundation` → push.
+4. GitHub → Releases → new release tagged `v2.6.0`.
+5. WordPress auto-updates.
+6. After update, open any TalentTrack admin page once so the migration runs (it creates the two new tables idempotently).
 
 ## Files in this delivery
 
+### Added
+
+- `database/migrations/0003_create_custom_fields.php` — creates `tt_custom_fields` and `tt_custom_values`.
+- `src/Infrastructure/CustomFields/CustomFieldsRepository.php` — field definitions CRUD.
+- `src/Infrastructure/CustomFields/CustomValuesRepository.php` — value CRUD + typed output.
+- `src/Shared/Validation/CustomFieldValidator.php` — per-type validation.
+- `src/Shared/Frontend/CustomFieldRenderer.php` — renders inputs per type + display helpers.
+- `src/Shared/Admin/OptionSetEditor.php` — reusable option-list UI block.
+- `src/Modules/Configuration/Admin/CustomFieldsTab.php` — admin tab logic.
+- `assets/js/admin-sortable.js` — vanilla drag-reorder.
+
 ### Modified
-- `talenttrack.php` — v2.5.1.
-- `readme.txt` — stable tag + changelog.
-- `src/Shared/Frontend/FrontendAccessControl.php` — whitelists `admin-post.php` for non-admin users.
-- `src/Shared/Frontend/DashboardShortcode.php` — new user menu dropdown (replaces bare logout button).
-- `assets/css/public.css` — styles for dropdown menu; old `.tt-dash-user` / `.tt-logout-btn` selectors replaced.
-- `languages/talenttrack-nl_NL.po` — adds "Edit profile" Dutch translation.
-- `languages/talenttrack-nl_NL.mo` — recompiled (251 messages).
+
+- `talenttrack.php` — version bumped to 2.6.0.
+- `readme.txt` — stable tag + changelog entry.
+- `src/Modules/Configuration/Admin/ConfigurationPage.php` — registers the new "Player Custom Fields" tab and delegates rendering to `CustomFieldsTab`.
+- `src/Shared/Admin/Menu.php` — registers `admin-sortable.js` so the custom-fields admin UI can enqueue it.
+- `languages/talenttrack-nl_NL.po` — 40+ new Dutch strings for custom-fields UI + validation messages.
+- `languages/talenttrack-nl_NL.mo` — recompiled (292 total messages).
 
 ### Unchanged
-- Everything else.
 
-## After install — clear cache
+- Kernel, all modules except Configuration, every other admin page, the frontend dashboard, REST API, all existing data tables.
 
-Because CSS changed, **hard-refresh** your browser once (Ctrl/Cmd+Shift+R) to pick up the new styles. If you use a caching plugin (W3TC, WP Super Cache, etc.) purge it first.
+## Post-install verification
 
-## Verification
+1. Log in as an administrator.
+2. Go to **TalentTrack → Configuration**. A new tab **"Player Custom Fields"** appears alongside Evaluation Categories, Positions, etc.
+3. Click the tab. Empty state: "No custom fields defined yet."
+4. Click "Add New". Fill in:
+   - Label: "Favorite Drill"
+   - Type: Text
+   - Leave Required unchecked
+   - Save.
+5. Return to the list. See the new field with auto-generated key `favorite_drill`.
+6. Click "Add New" again, create a select-type field:
+   - Label: "Dominant Leg Focus"
+   - Type: Select (dropdown)
+   - Click "+ Add option" twice, add "Strong" and "Weak"
+   - Save.
+7. Return to list — both fields visible. Drag the rows to reorder them, click "Save Order". The list remembers the order next time.
+8. Click "Edit" on either field. The Label can be changed; Key and Type are locked (as designed).
+9. Click "Deactivate" on one field — status column changes to "Inactive". Click "Activate" to reverse.
+10. Switch site language to Nederlands — tab label "Extra spelervelden", labels all translate.
 
-1. Log out (via wp-login.php or deactivate-and-reactivate the plugin so you're logged out cleanly).
-2. Log in as a **non-admin** user (player, coach, etc.).
-3. Top-right of the dashboard: click your name.
-4. Dropdown opens with "Edit profile" and "Log out".
-5. Click "Log out" — you land on the homepage with the login form. ✓
-6. Log in again, click your name, click "Edit profile".
-7. WP profile page loads (it's under wp-admin but whitelisted). Change your display name, save.
-8. Click browser back. You're back on the dashboard, name updated.
-9. Press Esc with the dropdown open — it closes. ✓
-10. Click anywhere outside the dropdown — it closes. ✓
+**No effect on players yet.** Visit Players → Edit → you'll see the same form as before. That integration is v2.6.1.
 
-## UX note — the profile page experience
+## Architectural notes
 
-Clicking "Edit profile" takes users to `/wp-admin/profile.php`, WordPress's native profile page. It's functional but looks like WP admin — plain gray, no TalentTrack branding. For non-admins there's no admin bar, so there's no obvious "back to dashboard" link. Users navigate back via the browser back button.
+### Why polymorphic?
 
-If this turns out to be a problem in practice (users get confused, or want a TT-styled profile form), that's a future enhancement — a custom TT-styled profile tab inside the dashboard, adding about 150 lines. For now, the simpler approach keeps the scope tight.
+The spec asked for `tt_player_custom_fields` and `tt_player_custom_values`. We built `tt_custom_fields` and `tt_custom_values` with an `entity_type` column (default `player`) so a future sprint can enable team-level or session-level custom fields without another migration. All repository methods accept an `$entity_type` parameter; today it's always `player` in callers, but the schema is ready.
 
-## Sprint 1a — now complete
+### What's queued for v2.6.1
 
-With v2.5.0 + v2.5.1 together, Sprint 1a is done:
+- Player form integration (admin: Additional Fields section; frontend coach form: same).
+- Player dashboard Overview tab displays custom field values read-only.
+- REST API extension: GET `/players/{id}` returns `"custom_fields": {...}`; POST/PUT accept and validate them.
+- "Go to Admin" link in the dashboard user-menu dropdown for administrators.
+- Hook custom-values delete on player soft-delete.
 
-- ✅ Homepage shows login when logged out
-- ✅ Homepage shows dashboard when logged in
-- ✅ No user (except admin) can access wp-admin
-- ✅ Logout works for all roles, returns to homepage
-- ✅ Profile access via dashboard user menu
-- ✅ No redirects to wp-login or wp-admin after login
-- ✅ Admin users retain full backend access
-- ✅ No broken AJAX/REST/cron (admin-ajax, admin-post, and cron all whitelisted)
+### What's queued further out
+
+- **Visual form designer** (drag-to-place with layout) — noted on the backlog, deferred to its own future sprint. The drag-to-reorder we ship today covers the 80% case.

@@ -161,6 +161,130 @@ msgstr "Gebruiken"
 msgid "Edit profile"
 msgstr "Profiel bewerken"
 
+# === v2.6.0 additions (custom fields) ===
+msgid "Player Custom Fields"
+msgstr "Extra spelervelden"
+
+msgid "Define additional attributes you want to capture for each player. Fields you add here appear on the Add/Edit Player form."
+msgstr "Definieer extra gegevens die je per speler wilt vastleggen. Velden die je hier toevoegt, verschijnen op het Speler-toevoegen/bewerken-formulier."
+
+msgid "No custom fields defined yet."
+msgstr "Nog geen extra velden gedefinieerd."
+
+msgid "Add Field"
+msgstr "Veld toevoegen"
+
+msgid "Update Field"
+msgstr "Veld bijwerken"
+
+msgid "New Custom Field"
+msgstr "Nieuw extra veld"
+
+msgid "Edit Custom Field"
+msgstr "Extra veld bewerken"
+
+msgid "Required"
+msgstr "Verplicht"
+
+msgid "Activate"
+msgstr "Activeren"
+
+msgid "Deactivate"
+msgstr "Deactiveren"
+
+msgid "Save Order"
+msgstr "Volgorde opslaan"
+
+msgid "Drag rows to reorder, then click Save Order."
+msgstr "Sleep rijen om ze te herschikken en klik op Volgorde opslaan."
+
+msgid "The label shown next to the input on forms."
+msgstr "Het label dat op formulieren naast het invoerveld staat."
+
+msgid "Key"
+msgstr "Sleutel"
+
+msgid "Label"
+msgstr "Label"
+
+msgid "Value"
+msgstr "Waarde"
+
+msgid "Keys are locked once saved (changing a key would orphan existing values)."
+msgstr "Sleutels worden vastgezet na opslaan (een sleutel wijzigen zou bestaande waarden losmaken)."
+
+msgid "Auto-generated from Label when blank. Lower-case, snake_case. Locked after saving."
+msgstr "Automatisch gegenereerd uit het label wanneer leeg. Kleine letters, snake_case. Vastgezet na opslaan."
+
+msgid "Field type is locked once saved."
+msgstr "Type veld wordt vastgezet na opslaan."
+
+msgid "Players cannot be saved without a value for this field."
+msgstr "Spelers kunnen niet worden opgeslagen zonder waarde voor dit veld."
+
+msgid "Options"
+msgstr "Opties"
+
+msgid "Only used for select-type fields."
+msgstr "Alleen gebruikt voor velden van het type 'keuzelijst'."
+
+msgid "+ Add option"
+msgstr "+ Optie toevoegen"
+
+msgid "Drag rows to reorder. Leave Value blank to auto-fill from Label."
+msgstr "Sleep rijen om ze te herschikken. Laat Waarde leeg om automatisch in te vullen op basis van Label."
+
+msgid "Option label"
+msgstr "Optielabel"
+
+msgid "auto"
+msgstr "auto"
+
+msgid "Remove"
+msgstr "Verwijderen"
+
+msgid "Text"
+msgstr "Tekst"
+
+msgid "Number"
+msgstr "Getal"
+
+msgid "Select (dropdown)"
+msgstr "Keuzelijst"
+
+msgid "Checkbox"
+msgstr "Aanvinkvakje"
+
+msgid "Label is required."
+msgstr "Label is verplicht."
+
+msgid "Field type is invalid."
+msgstr "Veldtype is ongeldig."
+
+msgid "Select-type fields require at least one option."
+msgstr "Velden van het type 'keuzelijst' moeten minimaal één optie hebben."
+
+msgid "The field \"%s\" is required."
+msgstr "Het veld \"%s\" is verplicht."
+
+msgid "The field \"%s\" must be a number."
+msgstr "Het veld \"%s\" moet een getal zijn."
+
+msgid "The field \"%s\" has an invalid selection."
+msgstr "Het veld \"%s\" heeft een ongeldige selectie."
+
+msgid "The field \"%s\" must be a valid date (YYYY-MM-DD)."
+msgstr "Het veld \"%s\" moet een geldige datum zijn (YYYY-MM-DD)."
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "No"
+msgstr "Nee"
+
+msgid "Select Logo"
+msgstr "Logo kiezen"
+
 # === Roles ===
 msgid "Head of Development"
 msgstr "Hoofd Opleidingen"

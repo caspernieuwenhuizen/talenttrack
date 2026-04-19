@@ -15,7 +15,8 @@ use TT\Modules\Teams\Admin\TeamsPage;
 /**
  * Menu — registers the top-level TalentTrack admin menu plus subpages.
  *
- * Kept in /Shared/Admin because every module contributes a page.
+ * v2.6.0: enqueues admin-sortable.js on TT admin pages so the CustomFieldsTab
+ * and OptionSetEditor drag-reorder UI works.
  */
 class Menu {
 
@@ -66,5 +67,16 @@ class Menu {
         if ( strpos( $hook, 'talenttrack' ) === false && strpos( $hook, 'tt-' ) === false ) return;
         wp_enqueue_style( 'tt-admin', TT_PLUGIN_URL . 'assets/css/admin.css', [], TT_VERSION );
         wp_enqueue_script( 'tt-admin', TT_PLUGIN_URL . 'assets/js/admin.js', [ 'jquery' ], TT_VERSION, true );
+
+        // Register (not auto-enqueue) the sortable script. The CustomFieldsTab
+        // and OptionSetEditor call wp_enqueue_script('tt-admin-sortable') on
+        // demand — this registration makes that call effective.
+        wp_register_script(
+            'tt-admin-sortable',
+            TT_PLUGIN_URL . 'assets/js/admin-sortable.js',
+            [],
+            TT_VERSION,
+            true
+        );
     }
 }

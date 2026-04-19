@@ -8,13 +8,21 @@ use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\FeatureToggles\FeatureToggleService;
 use TT\Infrastructure\Query\QueryHelpers;
 
+/**
+ * ConfigurationPage — admin tabs for every config surface.
+ *
+ * v2.6.0: adds a "Player Custom Fields" tab that delegates to CustomFieldsTab
+ * (extracted for maintainability — that class is 400+ lines on its own).
+ */
 class ConfigurationPage {
 
     public static function init(): void {
-        add_action( 'admin_post_tt_save_config', [ __CLASS__, 'handle_save_config' ] );
-        add_action( 'admin_post_tt_save_lookup', [ __CLASS__, 'handle_save_lookup' ] );
+        add_action( 'admin_post_tt_save_config',   [ __CLASS__, 'handle_save_config' ] );
+        add_action( 'admin_post_tt_save_lookup',   [ __CLASS__, 'handle_save_lookup' ] );
         add_action( 'admin_post_tt_delete_lookup', [ __CLASS__, 'handle_delete_lookup' ] );
-        add_action( 'admin_post_tt_save_toggles', [ __CLASS__, 'handle_save_toggles' ] );
+        add_action( 'admin_post_tt_save_toggles',  [ __CLASS__, 'handle_save_toggles' ] );
+        // CustomFieldsTab registers its own handlers.
+        CustomFieldsTab::registerHandlers();
     }
 
     public static function render_page(): void {
@@ -28,6 +36,7 @@ class ConfigurationPage {
             'goal_statuses'   => __( 'Goal Statuses', 'talenttrack' ),
             'goal_priorities' => __( 'Goal Priorities', 'talenttrack' ),
             'att_statuses'    => __( 'Attendance Statuses', 'talenttrack' ),
+            'custom_fields'   => __( 'Player Custom Fields', 'talenttrack' ),
             'rating'          => __( 'Rating Scale', 'talenttrack' ),
             'branding'        => __( 'Branding', 'talenttrack' ),
             'toggles'         => __( 'Feature Toggles', 'talenttrack' ),
@@ -38,6 +47,9 @@ class ConfigurationPage {
             <h1><?php esc_html_e( 'TalentTrack Configuration', 'talenttrack' ); ?></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?>
                 <div class="notice notice-success is-dismissible"><p><?php echo $_GET['tt_msg'] === 'deleted' ? esc_html__( 'Deleted.', 'talenttrack' ) : esc_html__( 'Saved.', 'talenttrack' ); ?></p></div>
+            <?php endif; ?>
+            <?php if ( isset( $_GET['tt_error'] ) ) : ?>
+                <div class="notice notice-error is-dismissible"><p><?php echo esc_html( self::errorMessage( (string) $_GET['tt_error'] ) ); ?></p></div>
             <?php endif; ?>
             <nav class="nav-tab-wrapper">
                 <?php foreach ( $tabs as $k => $l ) : ?>
@@ -55,6 +67,7 @@ class ConfigurationPage {
                 case 'goal_statuses':   self::tab_lookup( 'goal_status', __( 'Goal Status', 'talenttrack' ), false, false ); break;
                 case 'goal_priorities': self::tab_lookup( 'goal_priority', __( 'Goal Priority', 'talenttrack' ), false, false ); break;
                 case 'att_statuses':    self::tab_lookup( 'attendance_status', __( 'Attendance Status', 'talenttrack' ), false, false ); break;
+                case 'custom_fields':   CustomFieldsTab::render(); break;
                 case 'rating':          self::tab_rating(); break;
                 case 'branding':        self::tab_branding(); break;
                 case 'toggles':         self::tab_toggles(); break;
@@ -64,6 +77,15 @@ class ConfigurationPage {
             </div>
         </div>
         <?php
+    }
+
+    private static function errorMessage( string $code ): string {
+        switch ( $code ) {
+            case 'missing_label':   return __( 'Label is required.', 'talenttrack' );
+            case 'invalid_type':    return __( 'Field type is invalid.', 'talenttrack' );
+            case 'missing_options': return __( 'Select-type fields require at least one option.', 'talenttrack' );
+            default:                return __( 'An error occurred.', 'talenttrack' );
+        }
     }
 
     /* ═══ Feature Toggles tab ═══ */
@@ -169,7 +191,7 @@ class ConfigurationPage {
         <?php
     }
 
-    /* ═══ (Unchanged tabs below — identical to v2.2.0) ═══ */
+    /* ═══ Lookup-table tabs (unchanged) ═══ */
 
     private static function tab_lookup( string $type, string $label, bool $show_desc, bool $show_sort ): void {
         $action = isset( $_GET['crud'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['crud'] ) ) : 'list';
@@ -304,12 +326,12 @@ class ConfigurationPage {
             <?php submit_button( __( 'Save', 'talenttrack' ) ); ?>
         </form>
         <script>
-        jQuery(function($){ var f; $('#tt-upload-logo').on('click',function(e){ e.preventDefault(); if(!f)f=wp.media({title:'Select Logo',button:{text:'Use'},multiple:false}); f.on('select',function(){ var u=f.state().get('selection').first().toJSON().url; $('#tt_logo_url').val(u); $('#tt-logo-preview').html('<img src="'+u+'" style="max-height:70px"/>'); }); f.open(); }); });
+        jQuery(function($){ var f; $('#tt-upload-logo').on('click',function(e){ e.preventDefault(); if(!f)f=wp.media({title:'<?php echo esc_js( __( 'Select Logo', 'talenttrack' ) ); ?>',button:{text:'<?php echo esc_js( __( 'Use', 'talenttrack' ) ); ?>'},multiple:false}); f.on('select',function(){ var u=f.state().get('selection').first().toJSON().url; $('#tt_logo_url').val(u); $('#tt-logo-preview').html('<img src="'+u+'" style="max-height:70px"/>'); }); f.open(); }); });
         </script>
         <?php
     }
 
-    /* ═══ Handlers ═══ */
+    /* ═══ Handlers (unchanged from v2.3.0) ═══ */
 
     public static function handle_save_config(): void {
         if ( ! current_user_can( 'tt_manage_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
@@ -326,16 +348,13 @@ class ConfigurationPage {
     public static function handle_save_toggles(): void {
         if ( ! current_user_can( 'tt_manage_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_toggles', 'tt_nonce' );
-
         /** @var FeatureToggleService $toggles */
         $toggles = Kernel::instance()->container()->get( 'toggles' );
         $submitted = isset( $_POST['toggles'] ) && is_array( $_POST['toggles'] ) ? $_POST['toggles'] : [];
-
         foreach ( array_keys( FeatureToggleService::definitions() ) as $key ) {
             $enabled = ! empty( $submitted[ $key ] );
             $toggles->setEnabled( $key, $enabled );
         }
-
         wp_safe_redirect( admin_url( 'admin.php?page=tt-config&tab=toggles&tt_msg=saved' ) );
         exit;
     }
