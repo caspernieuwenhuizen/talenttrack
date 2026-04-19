@@ -1,908 +1,115 @@
-# Dutch translation of TalentTrack.
-# Copyright (C) 2026 Casper Nieuwenhuizen
-# This file is distributed under the GPL-2.0+ License.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 2.5.1\n"
-"Report-Msgid-Bugs-To: https://github.com/caspernieuwenhuizen/talenttrack/issues\n"
-"POT-Creation-Date: 2026-04-19 10:00+0000\n"
-"PO-Revision-Date: 2026-04-19 10:30+0200\n"
-"Language-Team: Dutch\n"
+"Project-Id-Version: TalentTrack 2.6.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-19 20:00+0000\n"
+"PO-Revision-Date: 2026-04-19 20:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Nederlands\n"
 "Language: nl_NL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Domain: talenttrack\n"
 
-msgid "TalentTrack"
-msgstr "TalentTrack"
+# v2.6.3 Migrations admin page
+msgid "Database Migrations"
+msgstr "Database-migraties"
 
-msgid "Dashboard"
-msgstr "Dashboard"
+msgid "Migrations"
+msgstr "Migraties"
 
-msgid "Teams"
-msgstr "Teams"
+msgid "TalentTrack uses versioned database migrations to evolve its schema safely. This page shows every migration shipped with the plugin and its status."
+msgstr "TalentTrack gebruikt versiegebaseerde database-migraties om het databaseschema veilig te ontwikkelen. Deze pagina toont elke migratie die is meegeleverd met de plugin en de bijbehorende status."
 
-msgid "Players"
-msgstr "Spelers"
+msgid "Warning: migrations recorded as applied but missing from disk:"
+msgstr "Waarschuwing: migraties zijn als toegepast geregistreerd, maar de bestanden ontbreken op schijf:"
 
-msgid "Evaluations"
-msgstr "Evaluaties"
+msgid "This usually means migration files were deleted or never copied during manual installation. No action required unless you need to re-apply."
+msgstr "Dit betekent meestal dat migratiebestanden zijn verwijderd of niet zijn meegekopieerd tijdens een handmatige installatie. Geen actie vereist, tenzij u opnieuw wilt toepassen."
 
-msgid "Sessions"
-msgstr "Trainingen"
+msgid "%d pending migration"
+msgid_plural "%d pending migrations"
+msgstr[0] "%d migratie in behandeling"
+msgstr[1] "%d migraties in behandeling"
 
-msgid "Goals"
-msgstr "Doelen"
+msgid "Pending migrations typically ship new schema changes required by recent features. Apply them to keep your database in sync with the plugin code."
+msgstr "Migraties in behandeling bevatten doorgaans nieuwe schemawijzigingen die nodig zijn voor recente functies. Voer ze uit om uw database gelijk te houden met de plugincode."
 
-msgid "Reports"
-msgstr "Rapporten"
+msgid "Run All Pending Migrations"
+msgstr "Alle openstaande migraties uitvoeren"
 
-msgid "Configuration"
-msgstr "Instellingen"
+msgid "Database is up to date."
+msgstr "Database is up-to-date."
 
-msgid "Help & Docs"
-msgstr "Hulp & Documentatie"
+msgid "%d migration applied."
+msgid_plural "%d migrations applied."
+msgstr[0] "%d migratie toegepast."
+msgstr[1] "%d migraties toegepast."
 
-msgid "Save"
-msgstr "Opslaan"
-
-msgid "Save Changes"
-msgstr "Wijzigingen opslaan"
-
-msgid "Update"
-msgstr "Bijwerken"
-
-msgid "Add"
-msgstr "Toevoegen"
-
-msgid "Add New"
-msgstr "Nieuwe toevoegen"
-
-msgid "Edit"
-msgstr "Bewerken"
-
-msgid "Delete"
-msgstr "Verwijderen"
-
-msgid "Delete?"
-msgstr "Verwijderen?"
-
-msgid "Cancel"
-msgstr "Annuleren"
-
-msgid "← Back"
-msgstr "← Terug"
-
-msgid "Saved."
-msgstr "Opgeslagen."
-
-msgid "Deleted."
-msgstr "Verwijderd."
-
-msgid "Unauthorized"
-msgstr "Geen toegang"
-
-msgid "Not found."
-msgstr "Niet gevonden."
-
-msgid "Actions"
-msgstr "Acties"
-
-msgid "Name"
-msgstr "Naam"
-
-msgid "Description"
-msgstr "Omschrijving"
-
-msgid "Date"
-msgstr "Datum"
-
-msgid "Notes"
-msgstr "Notities"
+msgid "All Migrations"
+msgstr "Alle migraties"
 
 msgid "Status"
 msgstr "Status"
 
-msgid "— Select —"
-msgstr "— Kies —"
+msgid "Migration"
+msgstr "Migratie"
 
-msgid "— None —"
-msgstr "— Geen —"
+msgid "Applied At"
+msgstr "Toegepast op"
 
-msgid "— All —"
-msgstr "— Alle —"
-
-msgid "— No Team —"
-msgstr "— Geen team —"
-
-msgid "Sort Order"
-msgstr "Volgorde"
-
-msgid "Order"
-msgstr "Volgorde"
-
-msgid "Sign in to continue"
-msgstr "Log in om verder te gaan"
-
-msgid "Username or email"
-msgstr "Gebruikersnaam of e-mail"
-
-msgid "Password"
-msgstr "Wachtwoord"
-
-msgid "Remember me"
-msgstr "Onthoud mij"
-
-msgid "Sign in"
-msgstr "Inloggen"
-
-msgid "Lost your password?"
-msgstr "Wachtwoord vergeten?"
-
-msgid "Security check failed. Please try again."
-msgstr "Beveiligingscontrole mislukt. Probeer het opnieuw."
-
-# === v2.5.0 additions ===
-msgid "Log out"
-msgstr "Uitloggen"
-
-msgid "Check your email for a password reset link."
-msgstr "Controleer je e-mail voor een link om je wachtwoord opnieuw in te stellen."
-
-msgid "Select Photo"
-msgstr "Foto kiezen"
-
-msgid "Use"
-msgstr "Gebruiken"
-
-# === v2.5.1 additions ===
-msgid "Edit profile"
-msgstr "Profiel bewerken"
-
-# === v2.6.0 additions (custom fields) ===
-msgid "Player Custom Fields"
-msgstr "Extra spelervelden"
-
-msgid "Define additional attributes you want to capture for each player. Fields you add here appear on the Add/Edit Player form."
-msgstr "Definieer extra gegevens die je per speler wilt vastleggen. Velden die je hier toevoegt, verschijnen op het Speler-toevoegen/bewerken-formulier."
-
-msgid "No custom fields defined yet."
-msgstr "Nog geen extra velden gedefinieerd."
-
-msgid "Add Field"
-msgstr "Veld toevoegen"
-
-msgid "Update Field"
-msgstr "Veld bijwerken"
-
-msgid "New Custom Field"
-msgstr "Nieuw extra veld"
-
-msgid "Edit Custom Field"
-msgstr "Extra veld bewerken"
-
-msgid "Required"
-msgstr "Verplicht"
-
-msgid "Activate"
-msgstr "Activeren"
-
-msgid "Deactivate"
-msgstr "Deactiveren"
-
-msgid "Save Order"
-msgstr "Volgorde opslaan"
-
-msgid "Drag rows to reorder, then click Save Order."
-msgstr "Sleep rijen om ze te herschikken en klik op Volgorde opslaan."
-
-msgid "The label shown next to the input on forms."
-msgstr "Het label dat op formulieren naast het invoerveld staat."
-
-msgid "Key"
-msgstr "Sleutel"
-
-msgid "Label"
-msgstr "Label"
-
-msgid "Value"
-msgstr "Waarde"
-
-msgid "Keys are locked once saved (changing a key would orphan existing values)."
-msgstr "Sleutels worden vastgezet na opslaan (een sleutel wijzigen zou bestaande waarden losmaken)."
-
-msgid "Auto-generated from Label when blank. Lower-case, snake_case. Locked after saving."
-msgstr "Automatisch gegenereerd uit het label wanneer leeg. Kleine letters, snake_case. Vastgezet na opslaan."
-
-msgid "Field type is locked once saved."
-msgstr "Type veld wordt vastgezet na opslaan."
-
-msgid "Players cannot be saved without a value for this field."
-msgstr "Spelers kunnen niet worden opgeslagen zonder waarde voor dit veld."
-
-msgid "Options"
-msgstr "Opties"
-
-msgid "Only used for select-type fields."
-msgstr "Alleen gebruikt voor velden van het type 'keuzelijst'."
-
-msgid "+ Add option"
-msgstr "+ Optie toevoegen"
-
-msgid "Drag rows to reorder. Leave Value blank to auto-fill from Label."
-msgstr "Sleep rijen om ze te herschikken. Laat Waarde leeg om automatisch in te vullen op basis van Label."
-
-msgid "Option label"
-msgstr "Optielabel"
-
-msgid "auto"
-msgstr "auto"
-
-msgid "Remove"
-msgstr "Verwijderen"
-
-msgid "Text"
-msgstr "Tekst"
-
-msgid "Number"
-msgstr "Getal"
-
-msgid "Select (dropdown)"
-msgstr "Keuzelijst"
-
-msgid "Checkbox"
-msgstr "Aanvinkvakje"
-
-msgid "Label is required."
-msgstr "Label is verplicht."
-
-msgid "Field type is invalid."
-msgstr "Veldtype is ongeldig."
-
-msgid "Select-type fields require at least one option."
-msgstr "Velden van het type 'keuzelijst' moeten minimaal één optie hebben."
-
-msgid "The field \"%s\" is required."
-msgstr "Het veld \"%s\" is verplicht."
-
-msgid "The field \"%s\" must be a number."
-msgstr "Het veld \"%s\" moet een getal zijn."
-
-msgid "The field \"%s\" has an invalid selection."
-msgstr "Het veld \"%s\" heeft een ongeldige selectie."
-
-msgid "The field \"%s\" must be a valid date (YYYY-MM-DD)."
-msgstr "Het veld \"%s\" moet een geldige datum zijn (YYYY-MM-DD)."
-
-msgid "Yes"
-msgstr "Ja"
-
-msgid "No"
-msgstr "Nee"
-
-msgid "Select Logo"
-msgstr "Logo kiezen"
-
-# === Roles ===
-msgid "Head of Development"
-msgstr "Hoofd Opleidingen"
-
-msgid "Club Admin"
-msgstr "Clubbeheerder"
-
-msgid "Coach"
-msgstr "Trainer"
-
-msgid "Scout"
-msgstr "Scout"
-
-msgid "Staff"
-msgstr "Staf"
-
-msgid "Player"
-msgstr "Speler"
-
-msgid "Parent"
-msgstr "Ouder"
-
-# === Admin: Teams ===
-msgid "No teams."
-msgstr "Geen teams."
-
-msgid "Age Group"
-msgstr "Leeftijdsgroep"
-
-msgid "Head Coach"
-msgstr "Hoofdtrainer"
-
-msgid "Edit Team"
-msgstr "Team bewerken"
-
-msgid "Add Team"
-msgstr "Team toevoegen"
-
-msgid "Update Team"
-msgstr "Team bijwerken"
-
-# === Admin: Players ===
-msgid "No players."
-msgstr "Geen spelers."
-
-msgid "All Teams"
-msgstr "Alle teams"
-
-msgid "Position(s)"
-msgstr "Positie(s)"
-
-msgid "Foot"
-msgstr "Voet"
-
-msgid "DOB"
-msgstr "Geb. datum"
-
-msgid "Edit Player"
-msgstr "Speler bewerken"
-
-msgid "Add Player"
-msgstr "Speler toevoegen"
-
-msgid "Update Player"
-msgstr "Speler bijwerken"
-
-msgid "First Name"
-msgstr "Voornaam"
-
-msgid "Last Name"
-msgstr "Achternaam"
-
-msgid "Date of Birth"
-msgstr "Geboortedatum"
-
-msgid "Nationality"
-msgstr "Nationaliteit"
-
-msgid "Height (cm)"
-msgstr "Lengte (cm)"
-
-msgid "Weight (kg)"
-msgstr "Gewicht (kg)"
-
-msgid "Preferred Foot"
-msgstr "Voorkeursvoet"
-
-msgid "Preferred Position(s)"
-msgstr "Voorkeurspositie(s)"
-
-msgid "Jersey Number"
-msgstr "Rugnummer"
-
-msgid "Team"
-msgstr "Team"
-
-msgid "Date Joined"
-msgstr "Datum aangesloten"
-
-msgid "Photo"
-msgstr "Foto"
-
-msgid "Upload"
-msgstr "Uploaden"
-
-msgid "Guardian Name"
-msgstr "Naam ouder/voogd"
-
-msgid "Guardian Email"
-msgstr "E-mail ouder/voogd"
-
-msgid "Guardian Phone"
-msgstr "Telefoon ouder/voogd"
-
-msgid "Linked WP User"
-msgstr "Gekoppelde WP-gebruiker"
-
-msgid "Active"
-msgstr "Actief"
-
-msgid "Inactive"
-msgstr "Inactief"
-
-msgid "Trial"
-msgstr "Proef"
-
-msgid "Released"
-msgstr "Vertrokken"
-
-msgid "Deleted"
-msgstr "Verwijderd"
-
-msgid "Development Radar"
-msgstr "Ontwikkelingsradar"
-
-msgid "No evaluations yet."
-msgstr "Nog geen evaluaties."
-
-msgid "No evaluations."
-msgstr "Geen evaluaties."
-
-msgid "Type"
-msgstr "Type"
-
-msgid "New Evaluation"
-msgstr "Nieuwe evaluatie"
-
-msgid "Edit Evaluation"
-msgstr "Evaluatie bewerken"
-
-msgid "Save Evaluation"
-msgstr "Evaluatie opslaan"
-
-msgid "Submit Evaluation"
-msgstr "Evaluatie indienen"
-
-msgid "Evaluation"
-msgstr "Evaluatie"
-
-msgid "Opponent"
-msgstr "Tegenstander"
-
-msgid "Competition"
-msgstr "Competitie"
-
-msgid "Result"
-msgstr "Uitslag"
-
-msgid "Home"
-msgstr "Thuis"
-
-msgid "Away"
-msgstr "Uit"
-
-msgid "Home/Away"
-msgstr "Thuis/Uit"
-
-msgid "Minutes Played"
-msgstr "Speelminuten"
-
-msgid "Ratings"
-msgstr "Beoordelingen"
-
-msgid "Radar Chart"
-msgstr "Radar"
-
-msgid "No evaluation categories configured."
-msgstr "Geen evaluatiecategorieën ingesteld."
-
-msgid "Add some"
-msgstr "Voeg er een toe"
-
-msgid "View"
-msgstr "Bekijk"
-
-msgid "Training Sessions"
-msgstr "Trainingen"
-
-msgid "No sessions."
-msgstr "Geen trainingen."
-
-msgid "Title"
-msgstr "Titel"
-
-msgid "Location"
-msgstr "Locatie"
-
-msgid "New Session"
-msgstr "Nieuwe training"
-
-msgid "Edit Session"
-msgstr "Training bewerken"
-
-msgid "Save Session"
-msgstr "Training opslaan"
-
-msgid "Record Training Session"
-msgstr "Training vastleggen"
-
-msgid "Attendance"
-msgstr "Aanwezigheid"
-
-msgid "Session"
-msgstr "Training"
-
-msgid "No attendance records."
-msgstr "Geen aanwezigheidsregistraties."
-
-msgid "No goals."
-msgstr "Geen doelen."
-
-msgid "Goal"
-msgstr "Doel"
-
-msgid "Priority"
-msgstr "Prioriteit"
-
-msgid "Due Date"
-msgstr "Einddatum"
-
-msgid "Add Goal"
-msgstr "Doel toevoegen"
-
-msgid "Edit Goal"
-msgstr "Doel bewerken"
-
-msgid "Due:"
-msgstr "Deadline:"
-
-msgid "Due"
-msgstr "Deadline"
-
-msgid "Delete this goal?"
-msgstr "Dit doel verwijderen?"
-
-msgid "Goal added!"
-msgstr "Doel toegevoegd!"
-
-msgid "Goal deleted."
-msgstr "Doel verwijderd."
-
-msgid "No goals yet."
-msgstr "Nog geen doelen."
-
-msgid "No goals assigned."
-msgstr "Geen doelen toegewezen."
-
-msgid "Current Goals"
-msgstr "Huidige doelen"
-
-msgid "Manage Goals"
-msgstr "Doelen beheren"
-
-msgid "Status updated."
-msgstr "Status bijgewerkt."
+msgid "Actions"
+msgstr "Acties"
 
 msgid "Pending"
-msgstr "Open"
+msgstr "In behandeling"
 
-msgid "In Progress"
-msgstr "Bezig"
+msgid "Run"
+msgstr "Uitvoeren"
 
-msgid "Completed"
-msgstr "Afgerond"
+msgid "No migrations found."
+msgstr "Geen migraties gevonden."
 
-msgid "On Hold"
-msgstr "Gepauzeerd"
+msgid "Diagnostic Information"
+msgstr "Diagnostische informatie"
 
-msgid "Cancelled"
-msgstr "Geannuleerd"
+msgid "Migrations directory"
+msgstr "Map met migraties"
 
-msgid "Low"
-msgstr "Laag"
+msgid "(directory not found!)"
+msgstr "(map niet gevonden!)"
 
-msgid "Medium"
-msgstr "Gemiddeld"
+msgid "Tracking table"
+msgstr "Volgsysteemtabel"
 
-msgid "High"
-msgstr "Hoog"
+msgid "Tracking table does not exist yet."
+msgstr "De volgsysteemtabel bestaat nog niet."
 
-msgid "Present"
-msgstr "Aanwezig"
+msgid "Plugin version"
+msgstr "Plugin-versie"
 
-msgid "Absent"
-msgstr "Afwezig"
+msgid "Migration %s was already applied."
+msgstr "Migratie %s was al toegepast."
 
-msgid "Late"
-msgstr "Te laat"
+msgid "Migration %1$s applied successfully in %2$dms."
+msgstr "Migratie %1$s met succes toegepast in %2$dms."
 
-msgid "Injured"
-msgstr "Geblesseerd"
+msgid "Migration %s failed."
+msgstr "Migratie %s is mislukt."
 
-msgid "Excused"
-msgstr "Afgemeld"
+# Dashboard pending-migration warning
+msgid "TalentTrack: database migrations pending."
+msgstr "TalentTrack: database-migraties in behandeling."
 
-msgid "Report Type"
-msgstr "Rapporttype"
+msgid "%d migration is waiting to be applied. Some features may not work until you apply it."
+msgid_plural "%d migrations are waiting to be applied. Some features may not work until you apply them."
+msgstr[0] "%d migratie wacht op uitvoering. Sommige functies werken mogelijk pas nadat u deze toepast."
+msgstr[1] "%d migraties wachten op uitvoering. Sommige functies werken mogelijk pas nadat u deze toepast."
 
-msgid "Player Progress"
-msgstr "Spelervoortgang"
+msgid "Review and Apply"
+msgstr "Bekijken en toepassen"
 
-msgid "Player Comparison"
-msgstr "Spelersvergelijking"
-
-msgid "Team Averages"
-msgstr "Teamgemiddelden"
-
-msgid "Player(s)"
-msgstr "Speler(s)"
-
-msgid "Run Report"
-msgstr "Rapport uitvoeren"
-
-msgid "Player Progress Over Time"
-msgstr "Spelervoortgang over tijd"
-
-msgid "No data."
-msgstr "Geen gegevens."
-
-msgid "Select at least 2 players."
-msgstr "Selecteer minimaal 2 spelers."
-
-msgid "TalentTrack Configuration"
-msgstr "TalentTrack instellingen"
-
-msgid "Evaluation Categories"
-msgstr "Evaluatiecategorieën"
-
-msgid "Evaluation Category"
-msgstr "Evaluatiecategorie"
-
-msgid "Evaluation Types"
-msgstr "Evaluatietypes"
-
-msgid "Evaluation Type"
-msgstr "Evaluatietype"
-
-msgid "Positions"
-msgstr "Posities"
-
-msgid "Position"
-msgstr "Positie"
-
-msgid "Foot Option"
-msgstr "Voetoptie"
-
-msgid "Age Groups"
-msgstr "Leeftijdsgroepen"
-
-msgid "Goal Statuses"
-msgstr "Doelstatussen"
-
-msgid "Goal Status"
-msgstr "Doelstatus"
-
-msgid "Goal Priorities"
-msgstr "Doelprioriteiten"
-
-msgid "Goal Priority"
-msgstr "Doelprioriteit"
-
-msgid "Attendance Statuses"
-msgstr "Aanwezigheidsstatussen"
-
-msgid "Attendance Status"
-msgstr "Aanwezigheidsstatus"
-
-msgid "Rating Scale"
-msgstr "Beoordelingsschaal"
-
-msgid "Branding"
-msgstr "Huisstijl"
-
-msgid "Feature Toggles"
-msgstr "Functieschakelaars"
-
-msgid "Audit Log"
-msgstr "Audit-log"
-
-msgid "Minimum"
-msgstr "Minimum"
-
-msgid "Maximum"
-msgstr "Maximum"
-
-msgid "Step"
-msgstr "Stap"
-
-msgid "Academy Name"
-msgstr "Naam academie"
-
-msgid "Logo"
-msgstr "Logo"
-
-msgid "Primary Color"
-msgstr "Hoofdkleur"
-
-msgid "Secondary Color"
-msgstr "Accentkleur"
-
-msgid "Requires Match Details"
-msgstr "Vereist wedstrijdgegevens"
-
-msgid "Prompts for opponent, competition, result, home/away, minutes played"
-msgstr "Vraagt om tegenstander, competitie, uitslag, thuis/uit en speelminuten"
-
-msgid "No items."
-msgstr "Geen items."
-
-msgid "No evaluation types."
-msgstr "Geen evaluatietypes."
-
-msgid "Match Details?"
-msgstr "Wedstrijdgegevens?"
-
-msgid "Enable or disable specific TalentTrack features without code changes."
-msgstr "Schakel specifieke TalentTrack-functies in of uit zonder codewijzigingen."
-
-msgid "State"
-msgstr "Status"
-
-msgid "Feature"
-msgstr "Functie"
-
-msgid "Enabled"
-msgstr "Aan"
-
-msgid "Disabled"
-msgstr "Uit"
-
-msgid "Save Toggles"
-msgstr "Schakelaars opslaan"
-
-msgid "Audit log"
-msgstr "Audit-log"
-
-msgid "Record player, evaluation, team, session, goal, and configuration changes to the audit trail."
-msgstr "Registreer wijzigingen aan spelers, evaluaties, teams, trainingen, doelen en instellingen in de audit-log."
-
-msgid "Verbose logging"
-msgstr "Uitgebreide logging"
-
-msgid "Write additional debug-level messages to the error log. Non-production environments only."
-msgstr "Schrijft extra debug-berichten naar het foutenlogboek. Alleen voor niet-productieomgevingen."
-
-msgid "Login redirect"
-msgstr "Doorsturen na inloggen"
-
-msgid "After login, redirect players and coaches to the TalentTrack dashboard page instead of wp-admin."
-msgstr "Stuur spelers en trainers na het inloggen door naar het TalentTrack-dashboard in plaats van wp-admin."
-
-msgid "Audit logging is currently disabled. Enable it under Feature Toggles to start recording entries."
-msgstr "Audit-loggen staat momenteel uit. Zet het aan bij Functieschakelaars om registraties vast te leggen."
-
-msgid "Action (e.g. player.saved)"
-msgstr "Actie (bijv. player.saved)"
-
-msgid "Entity type"
-msgstr "Type entiteit"
-
-msgid "User ID"
-msgstr "Gebruikers-ID"
-
-msgid "Filter"
-msgstr "Filteren"
-
-msgid "Clear"
-msgstr "Wissen"
-
-msgid "When"
-msgstr "Wanneer"
-
-msgid "User"
-msgstr "Gebruiker"
-
-msgid "Action"
-msgstr "Actie"
-
-msgid "Entity"
-msgstr "Entiteit"
-
-msgid "IP"
-msgstr "IP"
-
-msgid "Payload"
-msgstr "Gegevens"
-
-msgid "No audit entries match your filters."
-msgstr "Geen audit-registraties voldoen aan je filters."
-
-msgid "Overview"
-msgstr "Overzicht"
-
-msgid "Progress"
-msgstr "Voortgang"
-
-msgid "Help"
-msgstr "Hulp"
-
-msgid "My Team"
-msgstr "Mijn team"
-
-msgid "Player Detail"
-msgstr "Spelerdetails"
-
-msgid "No player profile is linked to your account. Please contact your administrator."
-msgstr "Er is geen spelersprofiel gekoppeld aan je account. Neem contact op met je beheerder."
-
-msgid "Team:"
-msgstr "Team:"
-
-msgid "Pos:"
-msgstr "Positie:"
-
-msgid "Foot:"
-msgstr "Voet:"
-
-msgid "How to use your dashboard"
-msgstr "Zo gebruik je je dashboard"
-
-msgid "Overview shows your profile and latest radar chart. Evaluations lists every evaluation your coaches have recorded. Goals shows your development goals. Attendance tracks your sessions. Progress shows your trajectory."
-msgstr "Overzicht toont je profiel en laatste radar. Evaluaties laat alle evaluaties zien die je trainers hebben vastgelegd. Doelen toont je ontwikkelingsdoelen. Aanwezigheid volgt je trainingen. Voortgang laat je ontwikkeling zien."
-
-msgid "Development Over Time"
-msgstr "Ontwikkeling over tijd"
-
-msgid "Not enough data yet."
-msgstr "Nog onvoldoende gegevens."
-
-msgid "No teams assigned."
-msgstr "Geen teams toegewezen."
-
-msgid "Select a player from the roster."
-msgstr "Kies een speler uit het overzicht."
-
-msgid "Coach Quick Guide"
-msgstr "Snelgids voor trainers"
-
-msgid "My Team shows your players. New Evaluation submits training or match evaluations. New Session records attendance. Manage Goals assigns and tracks goals."
-msgstr "Mijn team toont je spelers. Bij Nieuwe evaluatie leg je training- of wedstrijdevaluaties vast. Nieuwe training registreert aanwezigheid. Via Doelen beheren wijs je doelen toe en volg je ze."
-
-msgid "vs %s (%s)"
-msgstr "tegen %s (%s)"
-
-msgid "Missing required fields."
-msgstr "Vereiste velden ontbreken."
-
-msgid "You can only evaluate players in your team."
-msgstr "Je kunt alleen spelers uit je eigen team evalueren."
-
-msgid "Evaluation saved!"
-msgstr "Evaluatie opgeslagen!"
-
-msgid "Session saved!"
-msgstr "Training opgeslagen!"
-
-msgid "Saving..."
-msgstr "Bezig met opslaan..."
-
-msgid "Error."
-msgstr "Er is iets misgegaan."
-
-msgid "Network error."
-msgstr "Netwerkfout."
-
-msgid "TalentTrack — Help & Documentation"
-msgstr "TalentTrack — Hulp & Documentatie"
-
-msgid "Admin"
-msgstr "Beheerder"
-
-msgid "Administrator Guide"
-msgstr "Beheerdershandleiding"
-
-msgid "Set up your academy by visiting Configuration, adding Teams, creating Players, and linking WP user accounts to players."
-msgstr "Richt je academie in via Instellingen, voeg Teams en Spelers toe, en koppel WordPress-accounts aan spelers."
-
-msgid "Coach Guide"
-msgstr "Trainershandleiding"
-
-msgid "Submit evaluations, manage goals, and record attendance from the frontend dashboard."
-msgstr "Dien evaluaties in, beheer doelen en registreer aanwezigheid vanuit het dashboard."
-
-msgid "Player Guide"
-msgstr "Spelershandleiding"
-
-msgid "View your profile, evaluations, goals, and progress from the dashboard."
-msgstr "Bekijk je profiel, evaluaties, doelen en voortgang in het dashboard."
-
-# === v2.6.1 additions (custom fields integration) ===
-msgid "Additional Fields"
-msgstr "Extra velden"
-
-msgid "Additional Information"
-msgstr "Extra informatie"
-
-msgid "Please fix the errors below:"
-msgstr "Los de onderstaande fouten op:"
-
-msgid "Go to Admin"
-msgstr "Ga naar beheer"
+# Common
+msgid "Unauthorized"
+msgstr "Geen toegang"

@@ -1,126 +1,109 @@
-# TalentTrack v2.6.2 — Critical Bugfix
+# TalentTrack v2.6.3 — Migrations Admin Page
 
-## The bug that's being fixed
+## Why this release exists
 
-Your site was installed before v2.0.0. When TalentTrack v2.0.0 introduced a new schema for evaluations, attendance, and goals, WordPress's `dbDelta()` function — which the activator used — silently failed to add new columns to the pre-existing v1.x tables. All subsequent versions inherited that stuck schema without knowing.
+After installing v2.6.2, migration `0004_schema_reconciliation` never ran. Your `z06x_tt_migrations` table still only had migrations 0001-0003 recorded.
 
-Specifically:
-- `tt_evaluations` was missing `eval_type_id`, `opponent`, `competition`, `match_result`, `home_away`, `minutes_played`, `updated_at`
-- `tt_attendance` was missing `status`
-- `tt_goals` was missing `priority`
+Investigation revealed the cause: **v2.6.2's migration 0004 used a simpler code pattern** (`return new class { public function up(\wpdb $wpdb) {...} }`) than the existing migrations (`return new class extends Migration {...}`). The MigrationRunner had a strict check — if the file's return value wasn't an instance of the `Migration` base class, it silently skipped it.
 
-Every save to these tables silently failed because `$wpdb->insert()` returned `false` (MySQL rejected the unknown columns), but nobody was checking that return value. The form redirected to the list with a green "Saved." message. The user believed the data was there. It wasn't.
+Double irony: the whole point of v2.6.2 was to stop silent failures. But the migration runner itself had exactly the same "silent skip" pattern as the admin save handlers.
 
-This release fixes both halves of the problem:
-1. A migration that reconciles your schema to the v2.x expected shape
-2. Every save now checks the return value and surfaces failures to the user
+v2.6.3 fixes the runner AND gives you the admin UI you asked for, so this class of thing stops being invisible going forward.
+
+## What's in this release
+
+### The Migrations admin page
+New menu item under TalentTrack → **Migrations**. Shows:
+- Every migration file shipped with the plugin
+- Its status: ✓ applied (with timestamp) or ⏳ pending
+- A "Run" button per pending migration
+- A "Run All Pending Migrations" button when multiple are pending
+- Diagnostic info: migrations directory path, tracking table status, plugin version
+- Clear error messages when a migration fails (the actual DB error, not a generic message)
+
+### Dashboard warning
+Every TalentTrack admin page shows a yellow warning banner when migrations are pending, with a one-click button to the Migrations page. The menu item also gets a red badge with the pending count. Hard to miss.
+
+### MigrationRunner fix
+The runner now accepts **two** migration patterns:
+1. Classic: `return new class extends Migration {...}` (existing migrations 0001-0003)
+2. Simple: `return new class { public function up(\wpdb $wpdb) {...} }` (v2.6.2+ migrations)
+
+Plus, it now captures `$wpdb->last_error` during migration execution, so SQL errors that don't throw PHP exceptions are still caught and surfaced.
+
+### Migration 0004 bundled
+Since your site never got 0004 applied, it's included in this delivery. After install, the Migrations page will show it as pending; click Run; verify.
 
 ## Install
 
-1. Extract the ZIP.
-2. Copy the contents into your local `talenttrack/` folder. Allow overwrites.
-3. GitHub Desktop → commit `v2.6.2 — schema reconciliation bugfix` → push.
-4. GitHub → new release tagged `v2.6.2`.
-5. WordPress auto-updates.
-6. **Open any TalentTrack admin page once** — this triggers the migration runner, which detects the new migration 0004 and runs it. Your schema gets updated.
+1. Extract the ZIP, copy contents into your local `talenttrack/` folder, commit, push.
+2. Tag `v2.6.3` on GitHub, create a release.
+3. WordPress auto-updates (or manual install if auto-update fails — no loss of data either way).
+4. Navigate to **TalentTrack → Migrations**.
+5. You should see `0004_schema_reconciliation` listed with status ⏳ Pending.
+6. Click the **Run** button next to it.
+7. You should see a green success notice: "Migration 0004_schema_reconciliation applied successfully in Xms."
+8. The same row should now show ✓ with the current timestamp.
 
-## Post-install verification
+## Verification
 
-### 1. Verify migration ran
-Run this SQL:
+### SQL verification (same as before)
+
 ```sql
 SELECT * FROM z06x_tt_migrations ORDER BY id DESC LIMIT 5;
 ```
-You should see `0004_schema_reconciliation` near the top with an `applied_at` timestamp of now.
 
-### 2. Verify new columns exist
+Now you should see 4 rows including `0004_schema_reconciliation`.
+
 ```sql
 DESCRIBE z06x_tt_evaluations;
 ```
-You should now see `eval_type_id`, `opponent`, `competition`, `match_result`, `home_away`, `minutes_played`, `updated_at` as columns (alongside the legacy `category_id` and `rating` columns which are preserved).
 
-```sql
-DESCRIBE z06x_tt_attendance;
-```
-Should show a `status` column alongside the legacy `present` column. Existing rows get `status='present'` if `present=1`, or `status='absent'` if `present=0`.
+Should now show `eval_type_id`, `opponent`, `competition`, `match_result`, `home_away`, `minutes_played`, `updated_at`.
 
-```sql
-DESCRIBE z06x_tt_goals;
-```
-Should show a `priority` column.
+### Functional verification
 
-### 3. Test the actual bug
-- Log in as an admin. Go to TalentTrack → Evaluations → Add New.
-- Fill in the form with a player, type, date, and at least one rating.
-- Click Save.
+- Go to TalentTrack → Evaluations → Add New. Fill in the form. Save.
+- Should succeed; the evaluation should appear in the list AND on the player dashboard.
+- Same for Sessions and Goals.
 
-If the migration worked: you'll see "Saved." and the new evaluation appears in the list AND in the DB.
+## If something goes wrong
 
-If something went wrong: you'll see a red error notice with the specific DB error message (no more silent failures).
+The Migrations page surfaces errors verbatim. If you click Run and something fails, you'll get a red box with the actual MySQL error message. Send me that message and I'll know exactly what to fix.
 
-### 4. Verify the player dashboard
-- Log in as the linked player.
-- Go to the frontend dashboard.
-- Evaluations tab should now show the evaluation you just created.
-- Goals and Attendance should also work once you create new ones.
-
-### 5. The 4 old evaluations
-The 4 orphaned v1.x-era evaluations remain in the database as you requested (option a). They're invisible to all v2.x queries because their `player_id` values don't match any existing player. They're inert — they won't cause errors, they just won't display anywhere.
-
-If you ever want to delete them:
-```sql
-DELETE FROM z06x_tt_evaluations WHERE player_id NOT IN (SELECT id FROM z06x_tt_players);
-```
-
-Or if you want to re-associate them to your current player:
-```sql
-UPDATE z06x_tt_evaluations SET player_id = [YOUR_PLAYER_ID] WHERE category_id IS NOT NULL;
-```
-(The `category_id IS NOT NULL` filter identifies the old v1.x rows specifically.)
-
-## Files in this delivery
+## Files in this release
 
 ### New
-- `src/Infrastructure/Database/MigrationHelpers.php` — idempotent ALTER TABLE helpers
-- `database/migrations/0004_schema_reconciliation.php` — the actual migration
+- `src/Infrastructure/Database/MigrationRunner.php` — rewritten with runOne, inspect, dual-pattern support, error capture
+- `src/Modules/Configuration/Admin/MigrationsPage.php` — the admin UI
+- `src/Shared/Admin/MenuExtension.php` — adds Migrations submenu + dashboard warning without touching existing Menu
 
-### Modified (fail-loud saves)
-- `src/Modules/Players/Admin/PlayersPage.php`
-- `src/Modules/Evaluations/Admin/EvaluationsPage.php`
-- `src/Modules/Sessions/Admin/SessionsPage.php`
-- `src/Modules/Goals/Admin/GoalsPage.php`
-- `src/Infrastructure/REST/PlayersRestController.php`
-- `src/Infrastructure/REST/EvaluationsRestController.php`
-- `src/Shared/Frontend/FrontendAjax.php`
-- `talenttrack.php` (version bump)
-- `readme.txt` (stable tag + changelog)
+### Carried forward from v2.6.2 (in case your site never got them)
+- `src/Infrastructure/Database/MigrationHelpers.php` — column/index existence helpers
+- `database/migrations/0004_schema_reconciliation.php` — the schema reconciliation migration
 
-### Unchanged
-- All dashboards, views, custom fields code, REST envelope, auth, roles, config, module system, seed data — everything else.
+### Modified
+- `talenttrack.php` — version bump to 2.6.3 + one line to init MenuExtension
+- `readme.txt` — stable tag + changelog
 
-## The "fail-loud" pattern
+### Translations
+- `languages/talenttrack-nl_NL.po` + `.mo` — Dutch strings for the Migrations page and warning banner
 
-Every write operation now follows this pattern:
+## Unchanged
+- All existing migrations 0001-0003 (still applied on your site)
+- All existing admin pages (Players, Evaluations, Sessions, Goals, Configuration, etc.)
+- Frontend dashboards, REST API, auth, roles, module system
+- The v2.6.2 fail-loud save handlers (if you already applied v2.6.2, they remain in place)
 
-```php
-$ok = $wpdb->insert( $table, $data );
-if ( $ok === false ) {
-    Logger::error( 'entity.save.failed', [ 'db_error' => $wpdb->last_error ] );
-    // Return error to user / client / API consumer
-    // Do NOT redirect to success page
-}
-```
+## What this teaches us
 
-This means the "save reported success but nothing hit the DB" class of bug can never silently happen again. If the database rejects a write:
-- Admin pages: red error banner with the DB error message, form stays on the edit page
-- Frontend AJAX: JSON error response with `detail` field; the JS form should show the error
-- REST API: HTTP 500 with the error in the envelope
+Both bugs in this stack came from the same bad pattern: **detect a condition we can't handle, then silently continue as if nothing happened.** The admin save handlers did it (silent insert failures → "Saved." message → empty DB). The migration runner did it (silent instanceof mismatch → no migration applied → user has no idea).
 
-## Sprint 1b completion
+v2.6.2 fixed the save handlers. v2.6.3 fixes the migration runner AND adds UI so you can see what the system thinks is true. Going forward: no more invisible state.
 
-With v2.6.2 landed, Sprint 1b is actually, fully complete — the custom fields work end-to-end AND existing evaluation/session/goal flows work for the first time on this installation.
+## Next sprint
 
-Next sprint candidates remain the same:
+With v2.6.3 landed and 0004 finally applied, the backlog stands where it was:
 - Parent role views
 - Visual form designer (parked)
 - More REST endpoints
@@ -128,4 +111,4 @@ Next sprint candidates remain the same:
 - Match-day attendance sheets
 - Player portfolio PDF export
 
-Install v2.6.2, verify, confirm "working", and we pick the next direction.
+Confirm v2.6.3 works, run 0004, then we pick the next direction.
