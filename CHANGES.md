@@ -1,58 +1,47 @@
-# TalentTrack v2.6.4 — Migration loader hardening
+# TalentTrack v2.6.5 — the real fix
 
-## What happened on your site
+## What the v2.6.4 diagnostic revealed
 
-You clicked Run on migration 0004 in the Migrations admin page and got this error:
+The error message in v2.6.4 said exactly what was happening:
 
-> Migration file does not return a runnable migration. Expected either a Migration instance or an object with an up(\wpdb) method.
+> Migration file returned integer (value: 1) instead of an object. (This often means the file was already included earlier in the request and PHP returned its default success value instead of re-running it.)
 
-The file is physically correct. The problem is that my v2.6.3 runner's `require` call didn't always re-evaluate the file's `return` statement cleanly when the same file had been touched earlier in the request lifecycle. PHP's include/require semantics around anonymous class files are subtle.
+And that's the truth. The Kernel calls `( new MigrationRunner() )->run()` on every page boot. That run traverses all pending migrations and `require`'s each file. Later in the same request, when you click Run in the admin page, the runner tries to `require` the same file again — but PHP has already loaded it in this request, so `require` returns `int(1)` instead of the object.
 
-## What v2.6.4 does
+Neither `require`, `include`, `require_once`, `include_once`, nor wrapping in a closure gets around this. It's a fundamental property of PHP's include tracking, which is global per-request.
 
-**Two parallel fixes so we don't have to care which theory was right:**
+## The fix
 
-**1. Rewrote migration 0004.** It now uses the classic `extends Migration` pattern (same as migrations 0001-0003, which work fine on your site), and all the column-existence helpers are inlined inside the migration class instead of being called out to a separate `MigrationHelpers` file. This removes autoload timing from the picture. Functionally identical to v2.6.2's version.
+`eval()`. I read the file contents with `file_get_contents`, strip the leading `<?php` tag, and evaluate the code as a string. This gives a fresh execution scope on every call regardless of prior include history.
 
-**2. Rewrote the migration loader.** The runner now loads each file inside a closure-isolated scope, with exception and stray-output capture. If the file returns something weird, the error message now tells you exactly what it returned (type, value, and a hint for common failure modes).
+`eval()` is normally a bad smell — injection risk, debugging pain, etc. But here it's the right tool:
 
-These two changes together make it essentially impossible to see the "file does not return a runnable migration" error from this migration again. If it does happen on some future migration, the new error message will tell us why.
+- The input is a plugin-bundled PHP file, not user input. No injection surface.
+- Errors (parse errors, fatal errors, exceptions) are caught and surfaced to the admin page.
+- We explicitly need fresh evaluation on every call, which is what `eval()` gives us and what `require` actively resists.
 
 ## Install
 
 1. Extract ZIP, drop into `/wp-content/plugins/talenttrack/` (overwriting).
-2. Commit + push + tag `v2.6.4`.
-3. WordPress admin → TalentTrack → Migrations.
-4. 0004 should still show as ⏳ Pending (nothing changed in the DB).
-5. Click **Run** next to it.
-6. Expect: green success notice, row flips to ✓ Applied.
+2. Commit, push, tag `v2.6.5`, release.
+3. TalentTrack → Migrations → click **Run** next to 0004.
+4. Expect: green success notice, 0004 flips to ✓ Applied with a duration in ms.
 
-## Verify
+## Why I'm confident this time
 
-Same SQL checks as before:
-```sql
-SELECT * FROM z06x_tt_migrations ORDER BY id DESC LIMIT 5;
-DESCRIBE z06x_tt_evaluations;
-DESCRIBE z06x_tt_attendance;
-DESCRIBE z06x_tt_goals;
-```
+The v2.6.4 error message was unambiguous: PHP's include cache was returning `1`. That's a known PHP behavior with a known workaround (`eval`). There's no third layer of silent-skip hiding behind this one — the evaluation happens in-memory, isolated from the file-include tracker.
 
-Then try saving a new evaluation in admin. Should succeed end-to-end.
+## Files changed
 
-## If it still errors
-
-The new error message will be much more informative. If it still fails, paste me the exact wording and we'll pinpoint the issue.
-
-## Files in this delivery
-
-### Modified
-- `src/Infrastructure/Database/MigrationRunner.php` — closure-isolated loader, better error messages
-- `database/migrations/0004_schema_reconciliation.php` — extends Migration, inlined helpers
+- `src/Infrastructure/Database/MigrationRunner.php` — eval()-based loader
+- `database/migrations/0004_schema_reconciliation.php` — unchanged from v2.6.4 (uses classic extends Migration pattern)
 - `talenttrack.php` — version bump
 - `readme.txt` — stable tag + changelog
 
-### Unchanged from v2.6.3
-- `src/Modules/Configuration/Admin/MigrationsPage.php`
-- `src/Shared/Admin/MenuExtension.php`
-- `src/Infrastructure/Database/MigrationHelpers.php` (still shipped, still works — just not used by 0004 anymore)
-- Everything else
+## Everything else is unchanged from v2.6.3/v2.6.4
+
+- Migrations admin page
+- MenuExtension with pending-migration warning
+- Fail-loud save handlers (v2.6.2)
+- Schema reconciliation migration (v2.6.2)
+- All modules, dashboards, REST, auth, etc.

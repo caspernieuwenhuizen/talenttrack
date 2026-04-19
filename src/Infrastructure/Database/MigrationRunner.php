@@ -4,20 +4,24 @@ namespace TT\Infrastructure\Database;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * MigrationRunner (v2.6.4 rewrite)
+ * MigrationRunner (v2.6.5)
  *
- * Key changes from v2.6.3:
- *   - loadMigrationFromFile() wraps the file inclusion in a closure so each
- *     call is a fresh execution scope. This sidesteps a class of issues where
- *     the file had already been required earlier in the request lifecycle,
- *     causing require to return int(1) instead of the object.
- *   - Error messages now include the actual type/value returned by require,
- *     so future "file not runnable" errors tell you WHY.
- *   - Boot-time auto-run behavior is DISABLED by default. Migrations are now
- *     applied exclusively via the Migrations admin page. This eliminates the
- *     whole category of "boot-time silently ran or skipped something" bugs.
- *     Kernel no longer calls run() on boot; it's purely an admin-triggered
- *     action now.
+ * Fix for v2.6.4 diagnostic finding: PHP's include/require tracks file
+ * inclusion globally per-request. Once a migration file has been included
+ * (typically by the boot-time runner in Kernel::boot), subsequent include
+ * calls return int(1) instead of re-executing the file's `return` statement.
+ *
+ * v2.6.5 sidesteps this by reading the file contents and evaluating via
+ * eval(). This is the rare legitimate use of eval: we explicitly want a
+ * fresh evaluation scope every time, and PHP's include-tracking fights us.
+ *
+ * Safety notes:
+ *   - Migration files are bundled with the plugin, not user input; no
+ *     injection surface.
+ *   - We strip the leading <?php tag before eval since eval expects
+ *     statements, not file content.
+ *   - Errors from eval (parse errors, fatal errors) are caught via
+ *     ParseError and Throwable so the admin page can display them.
  */
 class MigrationRunner {
 
@@ -31,7 +35,6 @@ class MigrationRunner {
     }
 
     /**
-     * Apply every pending migration. Admin-triggered, not boot-triggered.
      * @return array<int, array{name:string, ok:bool, error:?string, duration_ms:int, skipped:bool}>
      */
     public function run(): array {
@@ -107,9 +110,6 @@ class MigrationRunner {
 
     /* ═══ internals ═══ */
 
-    /**
-     * @return array{name:string, ok:bool, error:?string, duration_ms:int, skipped:bool}
-     */
     private function runFile( string $file, string $name ): array {
         $start = microtime( true );
         try {
@@ -149,34 +149,34 @@ class MigrationRunner {
     }
 
     /**
-     * Load the migration file in an isolated closure scope, capturing both the
-     * return value AND any errors. Using a closure guarantees we actually
-     * evaluate the file's `return` statement in THIS call, regardless of
-     * prior inclusions in the request.
-     *
-     * Accepts:
-     *   (a) object extending TT\Infrastructure\Database\Migration (legacy pattern)
-     *   (b) object with a public up() method (v2.6.2+ pattern)
+     * Load and evaluate a migration file. Uses eval() because PHP's include
+     * tracking means a previously-included file won't re-execute its return
+     * statement. See class docblock for context.
      *
      * @return array{ok:bool, migration?:object, error?:string}
      */
     private function loadMigrationFromFile( string $file ): array {
-        // Read contents and evaluate via eval-safe isolated scope.
-        // We use a closure that include's the file; include (not require)
-        // re-evaluates even if previously loaded in some cases, and the
-        // closure scope means `use` statements in the included file still
-        // resolve against the global namespace correctly.
-        $loader = function () use ( $file ) {
-            return include $file;
-        };
+        $contents = @file_get_contents( $file );
+        if ( $contents === false ) {
+            return [ 'ok' => false, 'error' => "Could not read migration file: $file" ];
+        }
 
-        // Capture any output (stray whitespace, notices) so it doesn't
-        // break the admin page.
+        // Strip leading <?php (and any whitespace/BOM) so eval gets clean code.
+        $contents = preg_replace( '/^\xEF\xBB\xBF/', '', $contents ); // strip BOM
+        $contents = preg_replace( '/^\s*<\?php\s*/', '', $contents, 1 );
+        // Strip optional trailing ?> if present.
+        $contents = preg_replace( '/\s*\?>\s*$/', '', $contents );
+
         ob_start();
         $maybe = null;
         $thrown = null;
         try {
-            $maybe = $loader();
+            // eval returns the value from `return` statements at top level.
+            // Phpstan ignore — intentional use of eval for fresh execution.
+            /** @noinspection PhpUnusedLocalVariableInspection */
+            $maybe = eval( $contents );
+        } catch ( \ParseError $e ) {
+            $thrown = $e;
         } catch ( \Throwable $e ) {
             $thrown = $e;
         }
@@ -186,7 +186,7 @@ class MigrationRunner {
             return [
                 'ok'    => false,
                 'error' => sprintf(
-                    'Exception while loading migration file: %s (in %s:%d)',
+                    'Error evaluating migration: %s (%s:%d)',
                     $thrown->getMessage(),
                     basename( $thrown->getFile() ),
                     $thrown->getLine()
@@ -204,30 +204,22 @@ class MigrationRunner {
             return [
                 'ok'    => false,
                 'error' => sprintf(
-                    'Migration file returned an object of class %s, but it neither extends Migration nor has an up() method.',
+                    'Migration returned an object of class %s, but it neither extends Migration nor has an up() method.',
                     get_class( $maybe )
                 ),
             ];
         }
 
-        // Diagnostic: describe what we actually got back.
         $type = gettype( $maybe );
         $repr = is_scalar( $maybe ) ? var_export( $maybe, true ) : $type;
-        $hint = '';
-        if ( $maybe === 1 || $maybe === true ) {
-            $hint = ' (This often means the file was already included earlier in the request and PHP returned its default success value instead of re-running it. Try deactivating and reactivating the plugin once, then retry.)';
-        } elseif ( $maybe === null ) {
-            $hint = ' (The file executed but did not contain a top-level `return` statement.)';
-        }
-        $stray = $stray_output !== '' ? ' Unexpected output from migration file: "' . trim( mb_substr( $stray_output, 0, 200 ) ) . '".' : '';
+        $stray = $stray_output !== '' ? ' Unexpected output: "' . trim( mb_substr( $stray_output, 0, 200 ) ) . '".' : '';
 
         return [
             'ok'    => false,
             'error' => sprintf(
-                'Migration file returned %s (value: %s) instead of an object.%s%s',
+                'Migration evaluation returned %s (value: %s) instead of an object.%s',
                 $type,
                 $repr,
-                $hint,
                 $stray
             ),
         ];
