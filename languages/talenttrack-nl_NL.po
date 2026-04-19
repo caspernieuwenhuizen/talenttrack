@@ -893,3 +893,16 @@ msgstr "Spelershandleiding"
 
 msgid "View your profile, evaluations, goals, and progress from the dashboard."
 msgstr "Bekijk je profiel, evaluaties, doelen en voortgang in het dashboard."
+
+# === v2.6.1 additions (custom fields integration) ===
+msgid "Additional Fields"
+msgstr "Extra velden"
+
+msgid "Additional Information"
+msgstr "Extra informatie"
+
+msgid "Please fix the errors below:"
+msgstr "Los de onderstaande fouten op:"
+
+msgid "Go to Admin"
+msgstr "Ga naar beheer"

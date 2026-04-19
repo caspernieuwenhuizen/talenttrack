@@ -3,6 +3,8 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\CustomFields\CustomFieldsRepository;
+use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 
@@ -29,6 +31,7 @@ class PlayerDashboardView {
         // Overview
         echo '<div class="tt-tab-content' . ( $view === 'overview' ? ' tt-tab-content-active' : '' ) . '" data-tab="overview">';
         $this->renderPlayerCard( $player );
+        $this->renderCustomFields( (int) $player->id );
         $radar = QueryHelpers::player_radar_datasets( (int) $player->id, 3 );
         if ( ! empty( $radar['datasets'] ) ) {
             echo '<div class="tt-radar-wrap">' . QueryHelpers::radar_chart_svg( $radar['labels'], $radar['datasets'], (float) $max ) . '</div>';
@@ -141,5 +144,31 @@ class PlayerDashboardView {
         if ( $player->preferred_foot ) echo '<p><strong>' . esc_html__( 'Foot:', 'talenttrack' ) . '</strong> ' . esc_html( (string) $player->preferred_foot ) . '</p>';
         if ( $player->jersey_number ) echo '<p><strong>#</strong>' . esc_html( (string) $player->jersey_number ) . '</p>';
         echo '</div></div>';
+    }
+
+    private function renderCustomFields( int $player_id ): void {
+        $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
+        if ( empty( $fields ) ) return;
+        $values = ( new CustomValuesRepository() )->getByEntityKeyed( CustomFieldsRepository::ENTITY_PLAYER, $player_id );
+
+        // Only render the section if at least one field actually has a value.
+        $has_any = false;
+        foreach ( $fields as $f ) {
+            $v = $values[ (string) $f->field_key ] ?? null;
+            if ( $v !== null && $v !== '' ) { $has_any = true; break; }
+        }
+        if ( ! $has_any ) return;
+
+        echo '<div class="tt-custom-fields">';
+        echo '<h4>' . esc_html__( 'Additional Information', 'talenttrack' ) . '</h4>';
+        echo '<dl class="tt-custom-fields-list">';
+        foreach ( $fields as $f ) {
+            $v = $values[ (string) $f->field_key ] ?? null;
+            if ( $v === null || $v === '' ) continue;
+            echo '<dt>' . esc_html( (string) $f->label ) . '</dt>';
+            echo '<dd>' . CustomFieldRenderer::display( $f, $v ) . '</dd>';
+        }
+        echo '</dl>';
+        echo '</div>';
     }
 }

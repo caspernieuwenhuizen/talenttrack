@@ -11,13 +11,8 @@ use TT\Modules\Auth\LogoutHandler;
 /**
  * DashboardShortcode — owns [talenttrack_dashboard].
  *
- * v2.5.1: replaces the bare Log-out button with a user-menu dropdown.
- * Click the name → menu with:
- *   - Edit profile (wp-admin/profile.php, allowed via FrontendAccessControl)
- *   - Log out (triggers wp_logout + home redirect)
- *
- * The dropdown uses a tiny inline script — no dependency on public.js,
- * no jQuery required, no risk of breaking existing AJAX handlers.
+ * v2.6.1: adds a "Go to Admin" link to the user-menu dropdown for
+ * administrators only. Non-admins see only Edit profile + Log out.
  */
 class DashboardShortcode {
 
@@ -95,10 +90,9 @@ class DashboardShortcode {
         $name = QueryHelpers::get_config( 'academy_name', 'TalentTrack' );
         $user = wp_get_current_user();
 
-        // Profile URL — WP's native profile edit page. FrontendAccessControl
-        // whitelists profile.php so this works for all logged-in users.
         $profile_url = get_edit_profile_url( (int) $user->ID );
         $logout_url  = LogoutHandler::url();
+        $is_wp_admin = current_user_can( 'administrator' );
 
         echo '<div class="tt-dash-header">';
         echo '<div class="tt-dash-brand">';
@@ -106,7 +100,6 @@ class DashboardShortcode {
         echo '<h2 class="tt-dash-title">' . esc_html( $name ) . '</h2>';
         echo '</div>';
 
-        // User menu (dropdown)
         echo '<div class="tt-user-menu">';
         echo '<button type="button" class="tt-user-menu-trigger" aria-haspopup="true" aria-expanded="false">';
         echo '<span class="tt-user-menu-name">' . esc_html( $user->display_name ) . '</span>';
@@ -116,6 +109,11 @@ class DashboardShortcode {
         echo '<a href="' . esc_url( $profile_url ) . '" class="tt-user-menu-item" role="menuitem">';
         echo esc_html__( 'Edit profile', 'talenttrack' );
         echo '</a>';
+        if ( $is_wp_admin ) {
+            echo '<a href="' . esc_url( admin_url() ) . '" class="tt-user-menu-item" role="menuitem">';
+            echo esc_html__( 'Go to Admin', 'talenttrack' );
+            echo '</a>';
+        }
         echo '<a href="' . esc_url( $logout_url ) . '" class="tt-user-menu-item tt-user-menu-item-logout" role="menuitem">';
         echo esc_html__( 'Log out', 'talenttrack' );
         echo '</a>';
@@ -123,7 +121,7 @@ class DashboardShortcode {
         echo '</div>';
         echo '</div>';
 
-        // Inline dropdown behaviour — no jQuery, no external dependency.
+        // Inline dropdown behaviour.
         ?>
         <script>
         (function(){

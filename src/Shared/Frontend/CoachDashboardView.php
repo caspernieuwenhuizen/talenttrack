@@ -3,6 +3,8 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\CustomFields\CustomFieldsRepository;
+use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 
@@ -64,6 +66,7 @@ class CoachDashboardView {
         echo '<div class="tt-tab-content' . ( $view === 'player' ? ' tt-tab-content-active' : '' ) . '" data-tab="player">';
         if ( $pid && ( $pl = QueryHelpers::get_player( $pid ) ) ) {
             $this->renderPlayerCard( $pl );
+            $this->renderCustomFieldsBlock( $pid );
             $r = QueryHelpers::player_radar_datasets( $pid, 3 );
             if ( ! empty( $r['datasets'] ) ) echo '<div class="tt-radar-wrap">' . QueryHelpers::radar_chart_svg( $r['labels'], $r['datasets'], $max ) . '</div>';
         } else {
@@ -96,6 +99,31 @@ class CoachDashboardView {
         if ( $player->preferred_foot ) echo '<p><strong>' . esc_html__( 'Foot:', 'talenttrack' ) . '</strong> ' . esc_html( (string) $player->preferred_foot ) . '</p>';
         if ( $player->jersey_number ) echo '<p><strong>#</strong>' . esc_html( (string) $player->jersey_number ) . '</p>';
         echo '</div></div>';
+    }
+
+    private function renderCustomFieldsBlock( int $player_id ): void {
+        $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
+        if ( empty( $fields ) ) return;
+        $values = ( new CustomValuesRepository() )->getByEntityKeyed( CustomFieldsRepository::ENTITY_PLAYER, $player_id );
+
+        $has_any = false;
+        foreach ( $fields as $f ) {
+            $v = $values[ (string) $f->field_key ] ?? null;
+            if ( $v !== null && $v !== '' ) { $has_any = true; break; }
+        }
+        if ( ! $has_any ) return;
+
+        echo '<div class="tt-custom-fields">';
+        echo '<h4>' . esc_html__( 'Additional Information', 'talenttrack' ) . '</h4>';
+        echo '<dl class="tt-custom-fields-list">';
+        foreach ( $fields as $f ) {
+            $v = $values[ (string) $f->field_key ] ?? null;
+            if ( $v === null || $v === '' ) continue;
+            echo '<dt>' . esc_html( (string) $f->label ) . '</dt>';
+            echo '<dd>' . CustomFieldRenderer::display( $f, $v ) . '</dd>';
+        }
+        echo '</dl>';
+        echo '</div>';
     }
 
     /** @param object[] $teams */

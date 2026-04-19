@@ -1,87 +1,107 @@
-# TalentTrack v2.6.0 — Delivery Changes
+# TalentTrack v2.6.1 — Delivery Changes
 
 ## What this ZIP does
 
-**Sprint 1b Part 1 — custom fields foundation.** Ships the infrastructure for admin-defined custom fields on players. This release adds:
+**Sprint 1b Part 2 — custom fields are now live end-to-end.** Wires the v2.6.0 infrastructure into the user-facing application:
 
-- Two new database tables (polymorphic — scoped by entity_type so future sprints can add custom fields for teams / sessions / goals without schema changes).
-- A new Configuration tab "Player Custom Fields" where admins can create, edit, deactivate/reactivate, and drag-to-reorder fields.
-- Reusable primitives (OptionSetEditor, CustomFieldRenderer, CustomFieldValidator, admin-sortable.js) that v2.6.1 and future sprints will consume.
+- Admin Players form renders active custom fields as an "Additional Fields" section.
+- Validation errors keep the user on the form with their submitted values preserved and a clear error banner.
+- Player dashboard (Overview tab) and coach Player Detail view show custom field values in a styled block.
+- REST API returns and accepts `custom_fields`.
+- Administrator users get a "Go to Admin" shortcut in the dashboard dropdown.
 
-**What does NOT change for users in this release:** nothing outside of the new admin tab. Creating fields here does not yet affect the Player form or dashboard. That integration ships in v2.6.1.
+Zero database changes — this builds entirely on v2.6.0's `tt_custom_fields` / `tt_custom_values` tables.
 
 ## Install
 
 1. Extract the ZIP.
-2. Copy the **contents** of `talenttrack-v2.6.0/` into your local `talenttrack/` folder. Allow overwrites.
-3. GitHub Desktop → commit `v2.6.0 — custom fields foundation` → push.
-4. GitHub → Releases → new release tagged `v2.6.0`.
+2. Copy the **contents** of `talenttrack-v2.6.1/` into your local `talenttrack/` folder. Allow overwrites.
+3. GitHub Desktop → commit `v2.6.1 — custom fields integration` → push.
+4. GitHub → Releases → new release tagged `v2.6.1`.
 5. WordPress auto-updates.
-6. After update, open any TalentTrack admin page once so the migration runs (it creates the two new tables idempotently).
 
 ## Files in this delivery
 
-### Added
-
-- `database/migrations/0003_create_custom_fields.php` — creates `tt_custom_fields` and `tt_custom_values`.
-- `src/Infrastructure/CustomFields/CustomFieldsRepository.php` — field definitions CRUD.
-- `src/Infrastructure/CustomFields/CustomValuesRepository.php` — value CRUD + typed output.
-- `src/Shared/Validation/CustomFieldValidator.php` — per-type validation.
-- `src/Shared/Frontend/CustomFieldRenderer.php` — renders inputs per type + display helpers.
-- `src/Shared/Admin/OptionSetEditor.php` — reusable option-list UI block.
-- `src/Modules/Configuration/Admin/CustomFieldsTab.php` — admin tab logic.
-- `assets/js/admin-sortable.js` — vanilla drag-reorder.
-
 ### Modified
-
-- `talenttrack.php` — version bumped to 2.6.0.
-- `readme.txt` — stable tag + changelog entry.
-- `src/Modules/Configuration/Admin/ConfigurationPage.php` — registers the new "Player Custom Fields" tab and delegates rendering to `CustomFieldsTab`.
-- `src/Shared/Admin/Menu.php` — registers `admin-sortable.js` so the custom-fields admin UI can enqueue it.
-- `languages/talenttrack-nl_NL.po` — 40+ new Dutch strings for custom-fields UI + validation messages.
-- `languages/talenttrack-nl_NL.mo` — recompiled (292 total messages).
+- `talenttrack.php` — v2.6.1.
+- `readme.txt` — stable tag + changelog.
+- `src/Modules/Players/Admin/PlayersPage.php` — renders custom fields, validates on save, shows errors on validation failure, shows values on view page.
+- `src/Infrastructure/REST/PlayersRestController.php` — overhauled: full field coverage, envelope, custom_fields in GET responses, validation on POST/PUT.
+- `src/Shared/Frontend/PlayerDashboardView.php` — custom fields block on Overview tab.
+- `src/Shared/Frontend/CoachDashboardView.php` — custom fields block on Player Detail tab.
+- `src/Shared/Frontend/DashboardShortcode.php` — "Go to Admin" menu item for administrators.
+- `assets/css/public.css` — new `.tt-custom-fields` styles.
+- `languages/talenttrack-nl_NL.po` — 4 new Dutch strings ("Additional Fields", "Additional Information", "Please fix the errors below:", "Go to Admin").
+- `languages/talenttrack-nl_NL.mo` — recompiled (296 messages).
 
 ### Unchanged
-
-- Kernel, all modules except Configuration, every other admin page, the frontend dashboard, REST API, all existing data tables.
+- Everything else — no new files, no schema changes, no module changes.
 
 ## Post-install verification
 
+### Admin Players form
+
+1. Configuration → Player Custom Fields: create at least one field of each type (text, number, date, checkbox, select with 2+ options). Mark at least one as Required.
+2. TalentTrack → Players → Add New or Edit existing.
+3. Scroll to bottom — see "Additional Fields" section with all active fields.
+4. Try saving without filling the required field — form redisplays with red error banner and all fields retain typed values.
+5. Fill the required field, save — success message, values persisted.
+6. Reopen the player — values reappear.
+7. Click through to the player's view page (TalentTrack → Players → player name) — see "Additional Fields" section showing non-empty values only.
+
+### Player dashboard
+
+1. Log in as a player (whose WP user is linked via `wp_user_id`).
+2. Overview tab — see the "Additional Information" block under the player card, before the radar chart, if any custom values exist.
+3. If no values exist, the block is hidden entirely (no empty "Additional Information" shell).
+
+### Coach Player Detail
+
+1. Log in as a coach/admin on the frontend dashboard.
+2. My Team tab → click a player → Player Detail tab.
+3. See the same "Additional Information" block, styled identically.
+
+### REST API
+
+1. Fetch `/wp-json/talenttrack/v1/players/{id}` (authenticated as a logged-in user).
+2. Response envelope: `{success: true, data: { ..., custom_fields: {favorite_drill: "1v1", ...} }, errors: []}`.
+3. POST a player with `custom_fields: {favorite_drill: ""}` when that field is required → 422 with errors array. Player is not created.
+
+### Go to Admin
+
 1. Log in as an administrator.
-2. Go to **TalentTrack → Configuration**. A new tab **"Player Custom Fields"** appears alongside Evaluation Categories, Positions, etc.
-3. Click the tab. Empty state: "No custom fields defined yet."
-4. Click "Add New". Fill in:
-   - Label: "Favorite Drill"
-   - Type: Text
-   - Leave Required unchecked
-   - Save.
-5. Return to the list. See the new field with auto-generated key `favorite_drill`.
-6. Click "Add New" again, create a select-type field:
-   - Label: "Dominant Leg Focus"
-   - Type: Select (dropdown)
-   - Click "+ Add option" twice, add "Strong" and "Weak"
-   - Save.
-7. Return to list — both fields visible. Drag the rows to reorder them, click "Save Order". The list remembers the order next time.
-8. Click "Edit" on either field. The Label can be changed; Key and Type are locked (as designed).
-9. Click "Deactivate" on one field — status column changes to "Inactive". Click "Activate" to reverse.
-10. Switch site language to Nederlands — tab label "Extra spelervelden", labels all translate.
+2. Click the user name dropdown in the dashboard header.
+3. See three items: Edit profile, Go to Admin, Log out.
+4. Log in as a non-admin — see only two items: Edit profile, Log out.
 
-**No effect on players yet.** Visit Players → Edit → you'll see the same form as before. That integration is v2.6.1.
+## Notes
 
-## Architectural notes
+- **Custom field labels are not translated.** Labels you type in the admin UI ("Favorite Drill") are user content, stored as-is. WordPress's translation pipeline doesn't apply to user-entered text. If you want Dutch labels, type them in Dutch.
+- **Custom values survive field deactivation.** If an admin deactivates a field, the stored values stay in the database. Reactivating brings them back.
+- **Player soft-delete does not clean up custom values.** Since players are only soft-deleted (status = 'deleted', not removed from the table), their custom values remain for historical completeness.
 
-### Why polymorphic?
+## Sprint 1b — complete
 
-The spec asked for `tt_player_custom_fields` and `tt_player_custom_values`. We built `tt_custom_fields` and `tt_custom_values` with an `entity_type` column (default `player`) so a future sprint can enable team-level or session-level custom fields without another migration. All repository methods accept an `$entity_type` parameter; today it's always `player` in callers, but the schema is ready.
+| Item | Version | Status |
+|---|---|---|
+| Polymorphic tables + admin management UI | v2.6.0 | ✅ |
+| Player form integration | v2.6.1 | ✅ |
+| Validation + error UX | v2.6.1 | ✅ |
+| Dashboard display (player + coach) | v2.6.1 | ✅ |
+| REST API extension | v2.6.1 | ✅ |
+| Go to Admin link | v2.6.1 | ✅ |
+| Visual form designer | parked on backlog | ⏸ |
 
-### What's queued for v2.6.1
+## What's next
 
-- Player form integration (admin: Additional Fields section; frontend coach form: same).
-- Player dashboard Overview tab displays custom field values read-only.
-- REST API extension: GET `/players/{id}` returns `"custom_fields": {...}`; POST/PUT accept and validate them.
-- "Go to Admin" link in the dashboard user-menu dropdown for administrators.
-- Hook custom-values delete on player soft-delete.
+Sprint 1b is done. The backlog for the next sprint:
 
-### What's queued further out
+- **Parent role views** — activate the dormant parent role with a linked-child dashboard.
+- **Visual form designer** — drag-to-place layout builder for custom fields (parked item).
+- **More REST endpoints** — Teams, Goals, Sessions, Attendance, Reports, Config still missing from the API.
+- **UX polish** — bulk operations, search & filter on lists, general refinement.
+- **Uniform ownership enforcement** — coach-owns-player check across all entry points.
+- **Match-day attendance sheets** — companion to training attendance.
+- **Player portfolio PDF export** — CV-style document for scouting.
 
-- **Visual form designer** (drag-to-place with layout) — noted on the backlog, deferred to its own future sprint. The drag-to-reorder we ship today covers the 80% case.
+Tell me when v2.6.1 is live, then we pick the next direction.

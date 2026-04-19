@@ -3,10 +3,28 @@ namespace TT\Modules\Players\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\CustomFields\CustomFieldsRepository;
+use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Shared\Frontend\CustomFieldRenderer;
+use TT\Shared\Validation\CustomFieldValidator;
 
+/**
+ * PlayersPage — admin CRUD for players.
+ *
+ * v2.6.1 additions:
+ *   - Renders active custom fields as an "Additional Fields" section at the
+ *     bottom of the player form.
+ *   - Validates custom values on save; on failure, stores submitted data +
+ *     errors in a user-scoped transient, redirects back to the form with a
+ *     visible error banner, and repopulates the custom field inputs.
+ *   - Upserts custom values after a successful player save.
+ */
 class PlayersPage {
+
+    private const TRANSIENT_PREFIX = 'tt_player_form_state_';
+
     public static function init(): void {
         add_action( 'admin_post_tt_save_player', [ __CLASS__, 'handle_save' ] );
         add_action( 'admin_post_tt_delete_player', [ __CLASS__, 'handle_delete' ] );
@@ -63,15 +81,45 @@ class PlayersPage {
         $sel_pos   = $is_edit ? ( json_decode( (string) $player->preferred_positions, true ) ?: [] ) : [];
         wp_enqueue_media();
 
+        // Try to recover prior submitted state from a validation-failure transient.
+        $state = self::popFormState();
+
         $status_options = [
             'active'   => __( 'Active', 'talenttrack' ),
             'inactive' => __( 'Inactive', 'talenttrack' ),
             'trial'    => __( 'Trial', 'talenttrack' ),
             'released' => __( 'Released', 'talenttrack' ),
         ];
+
+        // Load active custom fields + current values.
+        $fields_repo = new CustomFieldsRepository();
+        $values_repo = new CustomValuesRepository();
+        $custom_fields = $fields_repo->getActive( CustomFieldsRepository::ENTITY_PLAYER );
+        $current_values_by_key = ( $is_edit && $player )
+            ? $values_repo->getByEntityKeyed( CustomFieldsRepository::ENTITY_PLAYER, (int) $player->id )
+            : [];
+
+        // If we're recovering from a validation failure, overlay the user's submitted values.
+        if ( $state && isset( $state['submitted_custom_fields'] ) ) {
+            foreach ( $state['submitted_custom_fields'] as $k => $v ) {
+                $current_values_by_key[ (string) $k ] = $v;
+            }
+        }
         ?>
         <div class="wrap">
             <h1><?php echo $is_edit ? esc_html__( 'Edit Player', 'talenttrack' ) : esc_html__( 'Add Player', 'talenttrack' ); ?></h1>
+
+            <?php if ( $state && ! empty( $state['errors'] ) ) : ?>
+                <div class="notice notice-error">
+                    <p><strong><?php esc_html_e( 'Please fix the errors below:', 'talenttrack' ); ?></strong></p>
+                    <ul style="list-style:disc;margin-left:20px;">
+                    <?php foreach ( $state['errors'] as $err ) : ?>
+                        <li><?php echo esc_html( (string) ( $err['message'] ?? '' ) ); ?></li>
+                    <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                 <?php wp_nonce_field( 'tt_save_player', 'tt_nonce' ); ?>
                 <input type="hidden" name="action" value="tt_save_player" />
@@ -101,6 +149,31 @@ class PlayersPage {
                         <?php foreach ( $status_options as $k => $l ) : ?>
                             <option value="<?php echo esc_attr( $k ); ?>" <?php selected( $player->status ?? 'active', $k ); ?>><?php echo esc_html( $l ); ?></option><?php endforeach; ?></select></td></tr>
                 </table>
+
+                <?php if ( ! empty( $custom_fields ) ) : ?>
+                    <h2 style="margin-top:30px;padding-top:20px;border-top:1px solid #dcdcde;">
+                        <?php esc_html_e( 'Additional Fields', 'talenttrack' ); ?>
+                    </h2>
+                    <table class="form-table">
+                        <?php foreach ( $custom_fields as $field ) :
+                            $val = $current_values_by_key[ (string) $field->field_key ] ?? null;
+                            $is_checkbox = ( (string) $field->field_type === CustomFieldsRepository::TYPE_CHECKBOX );
+                        ?>
+                            <tr>
+                                <th>
+                                    <?php if ( ! $is_checkbox ) : ?>
+                                        <?php echo esc_html( (string) $field->label ); ?>
+                                        <?php echo $field->is_required ? ' *' : ''; ?>
+                                    <?php endif; ?>
+                                </th>
+                                <td>
+                                    <?php echo CustomFieldRenderer::input( $field, $val ); ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </table>
+                <?php endif; ?>
+
                 <?php submit_button( $is_edit ? __( 'Update Player', 'talenttrack' ) : __( 'Add Player', 'talenttrack' ) ); ?>
             </form>
         </div>
@@ -115,6 +188,10 @@ class PlayersPage {
         $radar = QueryHelpers::player_radar_datasets( $id );
         $max   = (float) QueryHelpers::get_config( 'rating_max', '5' );
         $pos   = json_decode( (string) $player->preferred_positions, true );
+
+        // Custom fields + values.
+        $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
+        $values = ( new CustomValuesRepository() )->getByEntityKeyed( CustomFieldsRepository::ENTITY_PLAYER, $id );
         ?>
         <div class="wrap">
             <h1><?php echo esc_html( QueryHelpers::player_display_name( $player ) ); ?>
@@ -130,6 +207,20 @@ class PlayersPage {
                         <tr><th><?php esc_html_e( 'Nationality', 'talenttrack' ); ?></th><td><?php echo esc_html( $player->nationality ?: '—' ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><td><?php echo esc_html( LabelTranslator::playerStatus( (string) $player->status ) ); ?></td></tr>
                     </table>
+                    <?php if ( ! empty( $fields ) ) : ?>
+                        <h3><?php esc_html_e( 'Additional Fields', 'talenttrack' ); ?></h3>
+                        <table class="form-table">
+                            <?php foreach ( $fields as $f ) :
+                                $v = $values[ (string) $f->field_key ] ?? null;
+                                if ( $v === null || $v === '' ) continue;
+                            ?>
+                                <tr>
+                                    <th><?php echo esc_html( (string) $f->label ); ?></th>
+                                    <td><?php echo CustomFieldRenderer::display( $f, $v ); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </table>
+                    <?php endif; ?>
                 </div>
                 <div style="flex:1;min-width:320px;">
                     <h3><?php esc_html_e( 'Development Radar', 'talenttrack' ); ?></h3>
@@ -144,6 +235,32 @@ class PlayersPage {
         if ( ! current_user_can( 'tt_manage_players' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_player', 'tt_nonce' );
         global $wpdb;
+
+        // Validate custom fields BEFORE touching the player row.
+        $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
+        $submitted_cf = ( isset( $_POST['custom_fields'] ) && is_array( $_POST['custom_fields'] ) )
+            ? array_map( function ( $v ) { return is_string( $v ) ? wp_unslash( $v ) : $v; }, $_POST['custom_fields'] )
+            : [];
+        $validation = ( new CustomFieldValidator() )->validate( $fields, $submitted_cf );
+
+        if ( ! empty( $validation['errors'] ) ) {
+            self::saveFormState( [
+                'errors' => $validation['errors'],
+                'submitted_custom_fields' => $submitted_cf,
+            ] );
+            $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+            $back = add_query_arg(
+                [
+                    'page'   => 'tt-players',
+                    'action' => $id ? 'edit' : 'new',
+                    'id'     => $id,
+                ],
+                admin_url( 'admin.php' )
+            );
+            wp_safe_redirect( $back );
+            exit;
+        }
+
         $data = [
             'first_name' => isset( $_POST['first_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['first_name'] ) ) : '',
             'last_name' => isset( $_POST['last_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['last_name'] ) ) : '',
@@ -166,6 +283,13 @@ class PlayersPage {
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
         if ( $id ) $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id ] );
         else { $wpdb->insert( $wpdb->prefix . 'tt_players', $data ); $id = (int) $wpdb->insert_id; }
+
+        // Upsert custom values.
+        $values_repo = new CustomValuesRepository();
+        foreach ( $validation['sanitized'] as $field_id => $value ) {
+            $values_repo->upsert( CustomFieldsRepository::ENTITY_PLAYER, $id, (int) $field_id, $value );
+        }
+
         do_action( 'tt_after_player_save', $id, $data );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-players&tt_msg=saved' ) );
         exit;
@@ -179,5 +303,30 @@ class PlayersPage {
         $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => 'deleted' ], [ 'id' => $id ] );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-players&tt_msg=deleted' ) );
         exit;
+    }
+
+    /* ═══ Form state helpers (for validation-failure recovery) ═══ */
+
+    /**
+     * Store submitted form data + errors in a short-lived, user-scoped transient
+     * so they survive the POST→redirect→GET cycle.
+     *
+     * @param array<string,mixed> $state
+     */
+    private static function saveFormState( array $state ): void {
+        set_transient( self::TRANSIENT_PREFIX . get_current_user_id(), $state, 60 );
+    }
+
+    /**
+     * Retrieve & delete any pending form state for the current user.
+     *
+     * @return array<string,mixed>|null
+     */
+    private static function popFormState(): ?array {
+        $key   = self::TRANSIENT_PREFIX . get_current_user_id();
+        $state = get_transient( $key );
+        if ( $state === false ) return null;
+        delete_transient( $key );
+        return is_array( $state ) ? $state : null;
     }
 }
