@@ -2,110 +2,85 @@
 /**
  * Migration 0004 — Schema reconciliation for v2.x columns.
  *
- * Purpose: Sites that were running TalentTrack before v2.0.0 (or that encountered
- * dbDelta limitations during the v2.0.0 upgrade) may have existing tables that
- * lack columns the v2.x+ code expects. This causes $wpdb->insert() to silently
- * fail, leading to "save reports success but no row appears" bugs.
+ * v2.6.4: Rewritten to use the legacy Migration base class pattern (matching
+ * migrations 0001-0003) for maximum runner compatibility. All helper logic
+ * is inlined here instead of delegating to an external MigrationHelpers class
+ * — this keeps the migration self-contained and removes autoload timing
+ * from the equation.
  *
- * This migration runs idempotent ALTER TABLE statements guarded by column-exists
- * checks. Safe to re-run. Non-destructive — no columns are dropped, no data is
- * modified except to backfill tt_attendance.status from the legacy `present`
- * column.
- *
- * Affected tables:
- *   - tt_evaluations: adds eval_type_id, opponent, competition, match_result,
- *     home_away, minutes_played, updated_at. Relaxes legacy category_id/rating
- *     to NULL so the v1.x inline-rating columns don't block new inserts.
- *   - tt_attendance: adds status column (v1.x used boolean `present`).
- *   - tt_goals: adds priority column.
- *
- * Legacy tables (tt_eval_categories) and legacy columns (tt_evaluations.category_id,
- * tt_evaluations.rating, tt_attendance.present) are NOT dropped. They remain for
- * historical data preservation and can be manually cleaned up later.
+ * Safe to re-run. Non-destructive. See v2.6.2 CHANGES.md for full context.
  */
 
-use TT\Infrastructure\Database\MigrationHelpers;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
-return new class {
+use TT\Infrastructure\Database\Migration;
 
-    public function up( \wpdb $wpdb ): void {
+return new class extends Migration {
+
+    public function getName(): string {
+        return '0004_schema_reconciliation';
+    }
+
+    public function up(): void {
+        global $wpdb;
         $p = $wpdb->prefix;
 
         /* ═══ tt_evaluations ═══ */
+        $this->addColumnIfMissing( "{$p}tt_evaluations", 'eval_type_id',   'BIGINT(20) UNSIGNED NULL', 'coach_id' );
+        $this->addColumnIfMissing( "{$p}tt_evaluations", 'opponent',       'VARCHAR(255) NULL' );
+        $this->addColumnIfMissing( "{$p}tt_evaluations", 'competition',    'VARCHAR(255) NULL' );
+        $this->addColumnIfMissing( "{$p}tt_evaluations", 'match_result',   'VARCHAR(50) NULL' );
+        $this->addColumnIfMissing( "{$p}tt_evaluations", 'home_away',      'VARCHAR(10) NULL' );
+        $this->addColumnIfMissing( "{$p}tt_evaluations", 'minutes_played', 'SMALLINT(5) UNSIGNED NULL' );
+        $this->addColumnIfMissing( "{$p}tt_evaluations", 'updated_at',     'DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' );
 
-        MigrationHelpers::addColumnIfMissing(
-            "{$p}tt_evaluations",
-            'eval_type_id',
-            'BIGINT(20) UNSIGNED NULL',
-            'coach_id'
-        );
-        MigrationHelpers::addColumnIfMissing(
-            "{$p}tt_evaluations",
-            'opponent',
-            'VARCHAR(255) NULL'
-        );
-        MigrationHelpers::addColumnIfMissing(
-            "{$p}tt_evaluations",
-            'competition',
-            'VARCHAR(255) NULL'
-        );
-        MigrationHelpers::addColumnIfMissing(
-            "{$p}tt_evaluations",
-            'match_result',
-            'VARCHAR(50) NULL'
-        );
-        MigrationHelpers::addColumnIfMissing(
-            "{$p}tt_evaluations",
-            'home_away',
-            'VARCHAR(10) NULL'
-        );
-        MigrationHelpers::addColumnIfMissing(
-            "{$p}tt_evaluations",
-            'minutes_played',
-            'SMALLINT(5) UNSIGNED NULL'
-        );
-        MigrationHelpers::addColumnIfMissing(
-            "{$p}tt_evaluations",
-            'updated_at',
-            'DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
-        );
-
-        // The v1.x schema has NOT NULL on category_id and rating (they used to be
-        // the inline rating columns). New v2.x saves don't populate them, so inserts
-        // would fail with "Field doesn't have a default value" unless we relax them.
-        MigrationHelpers::makeColumnNullable(
-            "{$p}tt_evaluations",
-            'category_id',
-            'BIGINT(20) UNSIGNED NULL'
-        );
-        MigrationHelpers::makeColumnNullable(
-            "{$p}tt_evaluations",
-            'rating',
-            'DECIMAL(3,1) NULL'
-        );
+        // Relax legacy NOT NULL constraints on category_id and rating so they
+        // don't block v2.x inserts that don't populate these columns.
+        $this->makeColumnNullable( "{$p}tt_evaluations", 'category_id', 'BIGINT(20) UNSIGNED NULL' );
+        $this->makeColumnNullable( "{$p}tt_evaluations", 'rating',      'DECIMAL(3,1) NULL' );
 
         /* ═══ tt_attendance ═══ */
+        $added_status = $this->addColumnIfMissing( "{$p}tt_attendance", 'status', "VARCHAR(50) NULL DEFAULT 'present'", 'player_id' );
 
-        $added_status = MigrationHelpers::addColumnIfMissing(
-            "{$p}tt_attendance",
-            'status',
-            "VARCHAR(50) NULL DEFAULT 'present'",
-            'player_id'
-        );
-
-        // Backfill from legacy `present` column if present.
-        if ( $added_status && MigrationHelpers::columnExists( "{$p}tt_attendance", 'present' ) ) {
+        // Backfill status from legacy `present` tinyint if that column exists.
+        if ( $added_status && $this->columnExists( "{$p}tt_attendance", 'present' ) ) {
             $wpdb->query( "UPDATE {$p}tt_attendance SET status='present' WHERE present=1 AND (status IS NULL OR status='')" );
-            $wpdb->query( "UPDATE {$p}tt_attendance SET status='absent' WHERE present=0 AND (status IS NULL OR status='')" );
+            $wpdb->query( "UPDATE {$p}tt_attendance SET status='absent'  WHERE present=0 AND (status IS NULL OR status='')" );
         }
 
         /* ═══ tt_goals ═══ */
+        $this->addColumnIfMissing( "{$p}tt_goals", 'priority', "VARCHAR(50) NULL DEFAULT 'medium'", 'status' );
+    }
 
-        MigrationHelpers::addColumnIfMissing(
-            "{$p}tt_goals",
-            'priority',
-            "VARCHAR(50) NULL DEFAULT 'medium'",
-            'status'
-        );
+    /* ═══ inline helpers ═══ */
+
+    private function columnExists( string $table, string $column ): bool {
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare( "SHOW COLUMNS FROM `$table` LIKE %s", $column ) );
+        return $row !== null;
+    }
+
+    private function addColumnIfMissing( string $table, string $column, string $definition, string $after = '' ): bool {
+        global $wpdb;
+        if ( $this->columnExists( $table, $column ) ) {
+            return true;
+        }
+        $after_clause = $after !== '' && $this->columnExists( $table, $after ) ? " AFTER `$after`" : '';
+        $sql = "ALTER TABLE `$table` ADD COLUMN `$column` $definition{$after_clause}";
+        $result = $wpdb->query( $sql );
+        return $result !== false;
+    }
+
+    private function makeColumnNullable( string $table, string $column, string $definition ): bool {
+        global $wpdb;
+        if ( ! $this->columnExists( $table, $column ) ) {
+            return true;
+        }
+        $row = $wpdb->get_row( $wpdb->prepare( "SHOW COLUMNS FROM `$table` LIKE %s", $column ) );
+        if ( ! $row || ( $row->Null ?? '' ) === 'YES' ) {
+            return true;
+        }
+        $result = $wpdb->query( "ALTER TABLE `$table` MODIFY COLUMN `$column` $definition" );
+        return $result !== false;
     }
 };

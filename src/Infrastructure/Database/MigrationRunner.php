@@ -4,23 +4,20 @@ namespace TT\Infrastructure\Database;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * MigrationRunner (v2.6.3 rewrite)
+ * MigrationRunner (v2.6.4 rewrite)
  *
- * Same responsibilities as before:
- *   - Ensure tt_migrations tracking table exists
- *   - Scan /database/migrations/*.php
- *   - Apply new migrations, mark applied_at
- *   - Handle legacy (pre-migration-system) installs
- *
- * What changed in v2.6.3:
- *   - pending() returns the list of pending migration names (for UI display)
- *   - all() returns the full state: applied + pending + files
- *   - runAll() and runOne() now RETURN structured results (name, ok, error, duration_ms)
- *     instead of just silently recording/logging. Admin UI uses these.
- *   - loadMigrationFromFile() accepts BOTH the old pattern (class extends Migration)
- *     AND the simpler pattern (anonymous class with an up(\wpdb $wpdb) method).
- *     This fixes v2.6.2's migration 0004 which used the simpler pattern and was
- *     silently skipped by the old runner's strict instanceof check.
+ * Key changes from v2.6.3:
+ *   - loadMigrationFromFile() wraps the file inclusion in a closure so each
+ *     call is a fresh execution scope. This sidesteps a class of issues where
+ *     the file had already been required earlier in the request lifecycle,
+ *     causing require to return int(1) instead of the object.
+ *   - Error messages now include the actual type/value returned by require,
+ *     so future "file not runnable" errors tell you WHY.
+ *   - Boot-time auto-run behavior is DISABLED by default. Migrations are now
+ *     applied exclusively via the Migrations admin page. This eliminates the
+ *     whole category of "boot-time silently ran or skipped something" bugs.
+ *     Kernel no longer calls run() on boot; it's purely an admin-triggered
+ *     action now.
  */
 class MigrationRunner {
 
@@ -34,9 +31,7 @@ class MigrationRunner {
     }
 
     /**
-     * Auto-apply any pending migrations (original boot/activation behavior).
-     * Returns per-migration results.
-     *
+     * Apply every pending migration. Admin-triggered, not boot-triggered.
      * @return array<int, array{name:string, ok:bool, error:?string, duration_ms:int, skipped:bool}>
      */
     public function run(): array {
@@ -53,27 +48,21 @@ class MigrationRunner {
         $results = [];
         foreach ( $files as $file ) {
             $name = basename( $file, '.php' );
-            if ( in_array( $name, $applied, true ) ) {
-                continue; // Already applied, don't include in results
-            }
+            if ( in_array( $name, $applied, true ) ) continue;
             $results[] = $this->runFile( $file, $name );
         }
         return $results;
     }
 
     /**
-     * Run a single named migration. Used by the Migrations admin page.
-     *
      * @return array{name:string, ok:bool, error:?string, duration_ms:int, skipped:bool}
      */
     public function runOne( string $name ): array {
         if ( ! $this->migrations_dir || ! is_dir( $this->migrations_dir ) ) {
             return $this->errorResult( $name, 'Migrations directory not found.' );
         }
-
         $this->ensureTrackingTable();
 
-        // Already applied?
         if ( in_array( $name, $this->getAppliedMigrations(), true ) ) {
             return [ 'name' => $name, 'ok' => true, 'error' => null, 'duration_ms' => 0, 'skipped' => true ];
         }
@@ -82,7 +71,6 @@ class MigrationRunner {
         if ( ! file_exists( $file ) ) {
             return $this->errorResult( $name, "Migration file not found: $file" );
         }
-
         return $this->runFile( $file, $name );
     }
 
@@ -102,12 +90,9 @@ class MigrationRunner {
         foreach ( $this->scanMigrationFiles() as $file ) {
             $files_by_name[ basename( $file, '.php' ) ] = $file;
         }
-
         $applied_names = array_column( $applied_raw, 'name' );
         $pending = array_values( array_diff( array_keys( $files_by_name ), $applied_names ) );
         sort( $pending );
-
-        // Migrations the DB thinks are applied but whose source file is gone.
         $missing_files = array_values( array_diff( $applied_names, array_keys( $files_by_name ) ) );
         sort( $missing_files );
 
@@ -128,16 +113,13 @@ class MigrationRunner {
     private function runFile( string $file, string $name ): array {
         $start = microtime( true );
         try {
-            $migration = $this->loadMigrationFromFile( $file );
-            if ( $migration === null ) {
-                return $this->errorResult(
-                    $name,
-                    "Migration file does not return a runnable migration. Expected either a Migration instance or an object with an up(\\wpdb) method."
-                );
+            $load = $this->loadMigrationFromFile( $file );
+            if ( ! $load['ok'] ) {
+                return $this->errorResult( $name, $load['error'], $start );
             }
+            $migration = $load['migration'];
 
             global $wpdb;
-            // Suppress wpdb's default error output during migration — we capture it below.
             $prev_show_errors = $wpdb->hide_errors();
 
             if ( $migration instanceof Migration ) {
@@ -162,32 +144,93 @@ class MigrationRunner {
                 'skipped'     => false,
             ];
         } catch ( \Throwable $e ) {
-            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                error_log( sprintf( '[TalentTrack] Migration "%s" failed: %s', $name, $e->getMessage() ) );
-            }
             return $this->errorResult( $name, $e->getMessage(), $start );
         }
     }
 
     /**
-     * Load a migration file and return something we can run.
+     * Load the migration file in an isolated closure scope, capturing both the
+     * return value AND any errors. Using a closure guarantees we actually
+     * evaluate the file's `return` statement in THIS call, regardless of
+     * prior inclusions in the request.
+     *
      * Accepts:
      *   (a) object extending TT\Infrastructure\Database\Migration (legacy pattern)
-     *   (b) object with a public up(\wpdb) method (v2.6.2+ pattern)
-     * Returns null if neither.
+     *   (b) object with a public up() method (v2.6.2+ pattern)
+     *
+     * @return array{ok:bool, migration?:object, error?:string}
      */
-    private function loadMigrationFromFile( string $file ) {
-        $maybe = require $file;
-        if ( ! is_object( $maybe ) ) {
-            return null;
+    private function loadMigrationFromFile( string $file ): array {
+        // Read contents and evaluate via eval-safe isolated scope.
+        // We use a closure that include's the file; include (not require)
+        // re-evaluates even if previously loaded in some cases, and the
+        // closure scope means `use` statements in the included file still
+        // resolve against the global namespace correctly.
+        $loader = function () use ( $file ) {
+            return include $file;
+        };
+
+        // Capture any output (stray whitespace, notices) so it doesn't
+        // break the admin page.
+        ob_start();
+        $maybe = null;
+        $thrown = null;
+        try {
+            $maybe = $loader();
+        } catch ( \Throwable $e ) {
+            $thrown = $e;
         }
-        if ( $maybe instanceof Migration ) {
-            return $maybe;
+        $stray_output = ob_get_clean();
+
+        if ( $thrown !== null ) {
+            return [
+                'ok'    => false,
+                'error' => sprintf(
+                    'Exception while loading migration file: %s (in %s:%d)',
+                    $thrown->getMessage(),
+                    basename( $thrown->getFile() ),
+                    $thrown->getLine()
+                ),
+            ];
         }
-        if ( method_exists( $maybe, 'up' ) ) {
-            return $maybe;
+
+        if ( is_object( $maybe ) ) {
+            if ( $maybe instanceof Migration ) {
+                return [ 'ok' => true, 'migration' => $maybe ];
+            }
+            if ( method_exists( $maybe, 'up' ) ) {
+                return [ 'ok' => true, 'migration' => $maybe ];
+            }
+            return [
+                'ok'    => false,
+                'error' => sprintf(
+                    'Migration file returned an object of class %s, but it neither extends Migration nor has an up() method.',
+                    get_class( $maybe )
+                ),
+            ];
         }
-        return null;
+
+        // Diagnostic: describe what we actually got back.
+        $type = gettype( $maybe );
+        $repr = is_scalar( $maybe ) ? var_export( $maybe, true ) : $type;
+        $hint = '';
+        if ( $maybe === 1 || $maybe === true ) {
+            $hint = ' (This often means the file was already included earlier in the request and PHP returned its default success value instead of re-running it. Try deactivating and reactivating the plugin once, then retry.)';
+        } elseif ( $maybe === null ) {
+            $hint = ' (The file executed but did not contain a top-level `return` statement.)';
+        }
+        $stray = $stray_output !== '' ? ' Unexpected output from migration file: "' . trim( mb_substr( $stray_output, 0, 200 ) ) . '".' : '';
+
+        return [
+            'ok'    => false,
+            'error' => sprintf(
+                'Migration file returned %s (value: %s) instead of an object.%s%s',
+                $type,
+                $repr,
+                $hint,
+                $stray
+            ),
+        ];
     }
 
     private function errorResult( string $name, string $error, ?float $start = null ): array {
@@ -244,7 +287,6 @@ class MigrationRunner {
     private function getAppliedMigrations(): array {
         global $wpdb;
         $table = $wpdb->prefix . self::TRACKING_TABLE;
-        /** @var string[] $rows */
         $rows = $wpdb->get_col( "SELECT migration FROM {$table}" );
         return $rows ?: [];
     }
