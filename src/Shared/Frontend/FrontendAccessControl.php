@@ -8,24 +8,23 @@ use TT\Infrastructure\Config\ConfigService;
 /**
  * FrontendAccessControl — Sprint 1a access-control primitives.
  *
- * Responsibilities (all of these are non-destructive and reversible):
+ * Responsibilities (all non-destructive and reversible):
  *
  *  1. Redirect non-administrator users away from wp-admin pages.
- *     - Allows admin-ajax.php (critical — frontend AJAX uses it).
- *     - Allows the profile page for all users (so they can change their password).
- *     - Bypasses for actual administrators.
+ *     Allows: admin-ajax.php, admin-post.php, profile.php, DOING_CRON.
+ *     Bypasses for actual administrators.
  *
  *  2. Hide admin bar for non-administrators on the frontend.
  *
- *  3. Gate wp-login.php:
- *     - action=logout, lostpassword, rp, resetpass → pass through (WP handles these)
- *     - bare / action=login → redirect to the TalentTrack dashboard page
+ *  3. Gate wp-login.php (except logout / password-reset actions).
  *
- *  4. Ensure logout always lands on the dashboard page (i.e. the login form).
+ *  4. Ensure logout always lands on the dashboard page.
  *
- * Home resolution: prefers the configured dashboard_page_id (tt_config) if set;
- * falls back to home_url('/'). This prevents the "homepage doesn't contain the
- * shortcode" failure mode.
+ *  5. Override core login redirect to push users to the TT dashboard.
+ *
+ * v2.5.1 fix: admin-post.php is now whitelisted. Previously this was blocked
+ * for non-admins, which broke the frontend logout button and any future
+ * admin-post endpoint hit by non-admin TT roles.
  */
 class FrontendAccessControl {
 
@@ -46,7 +45,7 @@ class FrontendAccessControl {
     }
 
     /**
-     * Resolve the URL to send users to. Prefers the configured dashboard page;
+     * Resolve the URL to send users to. Prefers configured dashboard_page_id;
      * falls back to home_url('/').
      */
     public function dashboardUrl(): string {
@@ -63,12 +62,12 @@ class FrontendAccessControl {
     /**
      * Redirect non-administrator users away from wp-admin.
      *
-     * Runs on admin_init at priority 1 so it fires before any plugin's admin-init
-     * work. Careful exceptions:
-     *   - DOING_AJAX is already true during admin-ajax.php requests; we never
-     *     redirect those (would break every frontend AJAX call).
-     *   - DOING_CRON is true for wp-cron.php; let it through.
-     *   - profile.php is allowed for all logged-in users (password change etc.).
+     * Runs on admin_init priority 1 so it fires before any plugin's
+     * admin-init work. Critical exceptions:
+     *   - DOING_AJAX (admin-ajax.php)   — frontend AJAX relies on this
+     *   - DOING_CRON (wp-cron)          — scheduled tasks must run
+     *   - admin-post.php                — logout + any other form-post endpoints
+     *   - profile.php                   — any logged-in user may edit their profile
      */
     public function restrictWpAdmin(): void {
         // Never interfere with AJAX or cron.
@@ -76,7 +75,7 @@ class FrontendAccessControl {
             return;
         }
 
-        // Not logged in → WP will handle the login-required redirect itself; don't interfere.
+        // Not logged in → let WP handle it.
         if ( ! is_user_logged_in() ) {
             return;
         }
@@ -86,9 +85,13 @@ class FrontendAccessControl {
             return;
         }
 
-        // Allow profile management for everyone (password change, display name).
+        // Whitelist specific admin pages.
         global $pagenow;
-        if ( in_array( $pagenow, [ 'profile.php' ], true ) ) {
+        $allowed = [
+            'admin-post.php',   // logout endpoint + any future admin-post form targets
+            'profile.php',      // user profile management (password, name, email)
+        ];
+        if ( in_array( $pagenow, $allowed, true ) ) {
             return;
         }
 
@@ -97,9 +100,6 @@ class FrontendAccessControl {
         exit;
     }
 
-    /**
-     * Hide admin bar for all non-administrators.
-     */
     public function hideAdminBar( bool $show ): bool {
         if ( ! is_user_logged_in() ) {
             return $show;
@@ -107,44 +107,22 @@ class FrontendAccessControl {
         return current_user_can( 'administrator' ) ? $show : false;
     }
 
-    /**
-     * Gate direct access to wp-login.php.
-     *
-     * Pass-through actions (handled by WP core):
-     *   - logout           (logging out)
-     *   - lostpassword     (requesting a reset link)
-     *   - rp / resetpass   (completing the reset flow)
-     *   - confirmaction    (WP's email-confirmation endpoints)
-     *   - postpass         (password-protected post form)
-     *
-     * Everything else (including bare wp-login.php and action=login) redirects
-     * to the TT dashboard page so users see the TT login form.
-     */
     public function gateWpLogin(): void {
         $action = isset( $_REQUEST['action'] ) ? (string) $_REQUEST['action'] : '';
         $pass_through = [ 'logout', 'lostpassword', 'rp', 'resetpass', 'confirmaction', 'postpass' ];
         if ( in_array( $action, $pass_through, true ) ) {
             return;
         }
-
-        // Suppress only direct GET requests. POST requests (form submissions to
-        // wp-login.php) are allowed through so existing code — including core
-        // password submission — keeps working.
         if ( ( $_SERVER['REQUEST_METHOD'] ?? 'GET' ) !== 'GET' ) {
             return;
         }
-
-        // If a user is already logged in and hits wp-login.php, they get the
-        // dashboard. If not, they get the TT login form on the dashboard page.
         wp_safe_redirect( $this->dashboardUrl() );
         exit;
     }
 
     /**
-     * Always redirect logout to the dashboard page.
-     *
-     * @param string  $redirect_to
-     * @param string  $requested_redirect_to
+     * @param string $redirect_to
+     * @param string $requested_redirect_to
      * @param \WP_User|\WP_Error|mixed $user
      */
     public function logoutRedirect( $redirect_to, $requested_redirect_to, $user ): string {
@@ -152,38 +130,23 @@ class FrontendAccessControl {
     }
 
     /**
-     * After WP-core login (e.g. someone who bypassed the TT login form),
-     * still end up on the TT dashboard — except for administrators who
-     * explicitly asked for wp-admin.
-     *
-     * @param string  $redirect_to
-     * @param string  $requested_redirect_to
+     * @param string $redirect_to
+     * @param string $requested_redirect_to
      * @param \WP_User|\WP_Error|mixed $user
      */
     public function loginRedirect( $redirect_to, $requested_redirect_to, $user ): string {
-        // On failed login, $user is WP_Error; leave the redirect alone so the
-        // error can render.
         if ( ! $user instanceof \WP_User ) {
             return $redirect_to;
         }
-
-        // Administrator explicitly asked for wp-admin → allow it.
         if ( user_can( $user, 'administrator' ) ) {
             if ( $requested_redirect_to && strpos( $requested_redirect_to, admin_url() ) === 0 ) {
                 return $requested_redirect_to;
             }
         }
-
-        // Everyone else goes to the TT dashboard.
         return $this->dashboardUrl();
     }
 
-    /**
-     * After password reset request, send back to the dashboard page
-     * (so the user sees confirmation next to the login form).
-     */
     public function passwordResetRedirect( $redirect_to ): string {
-        $url = add_query_arg( 'checkemail', 'confirm', $this->dashboardUrl() );
-        return $url;
+        return add_query_arg( 'checkemail', 'confirm', $this->dashboardUrl() );
     }
 }

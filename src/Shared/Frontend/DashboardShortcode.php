@@ -11,9 +11,13 @@ use TT\Modules\Auth\LogoutHandler;
 /**
  * DashboardShortcode — owns [talenttrack_dashboard].
  *
- * Sprint 1a: adds an explicit early-return for logged-out users and a
- * logout button in the authenticated dashboard header. Everything else is
- * unchanged from v2.4.1.
+ * v2.5.1: replaces the bare Log-out button with a user-menu dropdown.
+ * Click the name → menu with:
+ *   - Edit profile (wp-admin/profile.php, allowed via FrontendAccessControl)
+ *   - Log out (triggers wp_logout + home redirect)
+ *
+ * The dropdown uses a tiny inline script — no dependency on public.js,
+ * no jQuery required, no risk of breaking existing AJAX handlers.
  */
 class DashboardShortcode {
 
@@ -44,13 +48,12 @@ class DashboardShortcode {
             ],
         ]);
 
-        // === Route guard — no partial render for logged-out users. ===
+        // Route guard — no partial render for logged-out users.
         if ( ! is_user_logged_in() ) {
             /** @var LoginForm $form */
             $form = Kernel::instance()->container()->get( 'auth.login_form' );
             $error = isset( $_GET['tt_login_error'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tt_login_error'] ) ) : '';
 
-            // Friendly notice if coming back from password-reset request
             $reset_notice = '';
             if ( isset( $_GET['checkemail'] ) && $_GET['checkemail'] === 'confirm' ) {
                 $reset_notice = '<div class="tt-notice-inline">'
@@ -60,7 +63,7 @@ class DashboardShortcode {
             return $reset_notice . $form->render( $error );
         }
 
-        // === Authenticated dashboard ===
+        // Authenticated dashboard.
         ob_start();
         echo '<div class="tt-dashboard">';
         self::renderHeader();
@@ -92,16 +95,70 @@ class DashboardShortcode {
         $name = QueryHelpers::get_config( 'academy_name', 'TalentTrack' );
         $user = wp_get_current_user();
 
+        // Profile URL — WP's native profile edit page. FrontendAccessControl
+        // whitelists profile.php so this works for all logged-in users.
+        $profile_url = get_edit_profile_url( (int) $user->ID );
+        $logout_url  = LogoutHandler::url();
+
         echo '<div class="tt-dash-header">';
         echo '<div class="tt-dash-brand">';
         if ( $logo ) echo '<img src="' . esc_url( $logo ) . '" class="tt-dash-logo" alt="" />';
         echo '<h2 class="tt-dash-title">' . esc_html( $name ) . '</h2>';
         echo '</div>';
 
-        echo '<div class="tt-dash-user">';
-        echo '<span class="tt-dash-userlabel">' . esc_html( $user->display_name ) . '</span>';
-        echo '<a class="tt-logout-btn" href="' . esc_url( LogoutHandler::url() ) . '">' . esc_html__( 'Log out', 'talenttrack' ) . '</a>';
+        // User menu (dropdown)
+        echo '<div class="tt-user-menu">';
+        echo '<button type="button" class="tt-user-menu-trigger" aria-haspopup="true" aria-expanded="false">';
+        echo '<span class="tt-user-menu-name">' . esc_html( $user->display_name ) . '</span>';
+        echo '<span class="tt-user-menu-caret" aria-hidden="true">▾</span>';
+        echo '</button>';
+        echo '<div class="tt-user-menu-dropdown" role="menu">';
+        echo '<a href="' . esc_url( $profile_url ) . '" class="tt-user-menu-item" role="menuitem">';
+        echo esc_html__( 'Edit profile', 'talenttrack' );
+        echo '</a>';
+        echo '<a href="' . esc_url( $logout_url ) . '" class="tt-user-menu-item tt-user-menu-item-logout" role="menuitem">';
+        echo esc_html__( 'Log out', 'talenttrack' );
+        echo '</a>';
         echo '</div>';
         echo '</div>';
+        echo '</div>';
+
+        // Inline dropdown behaviour — no jQuery, no external dependency.
+        ?>
+        <script>
+        (function(){
+            var menu = document.currentScript.parentNode.querySelector('.tt-user-menu');
+            if (!menu) return;
+            var trigger = menu.querySelector('.tt-user-menu-trigger');
+            var dropdown = menu.querySelector('.tt-user-menu-dropdown');
+            if (!trigger || !dropdown) return;
+
+            function closeMenu() {
+                menu.classList.remove('is-open');
+                trigger.setAttribute('aria-expanded', 'false');
+            }
+            function openMenu() {
+                menu.classList.add('is-open');
+                trigger.setAttribute('aria-expanded', 'true');
+            }
+
+            trigger.addEventListener('click', function(e){
+                e.stopPropagation();
+                if (menu.classList.contains('is-open')) { closeMenu(); } else { openMenu(); }
+            });
+            document.addEventListener('click', function(e){
+                if (menu.classList.contains('is-open') && !menu.contains(e.target)) {
+                    closeMenu();
+                }
+            });
+            document.addEventListener('keydown', function(e){
+                if (e.key === 'Escape' && menu.classList.contains('is-open')) {
+                    closeMenu();
+                    trigger.focus();
+                }
+            });
+        })();
+        </script>
+        <?php
     }
 }

@@ -3,10 +3,10 @@
 # This file is distributed under the GPL-2.0+ License.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 2.5.0\n"
+"Project-Id-Version: TalentTrack 2.5.1\n"
 "Report-Msgid-Bugs-To: https://github.com/caspernieuwenhuizen/talenttrack/issues\n"
-"POT-Creation-Date: 2026-04-19 06:00+0000\n"
-"PO-Revision-Date: 2026-04-19 08:00+0200\n"
+"POT-Creation-Date: 2026-04-19 10:00+0000\n"
+"PO-Revision-Date: 2026-04-19 10:30+0200\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
 "MIME-Version: 1.0\n"
@@ -123,7 +123,6 @@ msgstr "Volgorde"
 msgid "Order"
 msgstr "Volgorde"
 
-# === Login Form ===
 msgid "Sign in to continue"
 msgstr "Log in om verder te gaan"
 
@@ -157,6 +156,10 @@ msgstr "Foto kiezen"
 
 msgid "Use"
 msgstr "Gebruiken"
+
+# === v2.5.1 additions ===
+msgid "Edit profile"
+msgstr "Profiel bewerken"
 
 # === Roles ===
 msgid "Head of Development"
@@ -296,7 +299,6 @@ msgstr "Ontwikkelingsradar"
 msgid "No evaluations yet."
 msgstr "Nog geen evaluaties."
 
-# === Admin: Evaluations ===
 msgid "No evaluations."
 msgstr "Geen evaluaties."
 
@@ -354,7 +356,6 @@ msgstr "Voeg er een toe"
 msgid "View"
 msgstr "Bekijk"
 
-# === Admin: Sessions ===
 msgid "Training Sessions"
 msgstr "Trainingen"
 
@@ -388,7 +389,6 @@ msgstr "Training"
 msgid "No attendance records."
 msgstr "Geen aanwezigheidsregistraties."
 
-# === Admin: Goals ===
 msgid "No goals."
 msgstr "Geen doelen."
 
@@ -437,7 +437,6 @@ msgstr "Doelen beheren"
 msgid "Status updated."
 msgstr "Status bijgewerkt."
 
-# Goal Statuses
 msgid "Pending"
 msgstr "Open"
 
@@ -453,7 +452,6 @@ msgstr "Gepauzeerd"
 msgid "Cancelled"
 msgstr "Geannuleerd"
 
-# Goal Priorities
 msgid "Low"
 msgstr "Laag"
 
@@ -463,7 +461,6 @@ msgstr "Gemiddeld"
 msgid "High"
 msgstr "Hoog"
 
-# Attendance statuses
 msgid "Present"
 msgstr "Aanwezig"
 
@@ -479,7 +476,6 @@ msgstr "Geblesseerd"
 msgid "Excused"
 msgstr "Afgemeld"
 
-# === Admin: Reports ===
 msgid "Report Type"
 msgstr "Rapporttype"
 
@@ -507,7 +503,6 @@ msgstr "Geen gegevens."
 msgid "Select at least 2 players."
 msgstr "Selecteer minimaal 2 spelers."
 
-# === Admin: Configuration ===
 msgid "TalentTrack Configuration"
 msgstr "TalentTrack instellingen"
 
@@ -601,7 +596,6 @@ msgstr "Geen evaluatietypes."
 msgid "Match Details?"
 msgstr "Wedstrijdgegevens?"
 
-# === Feature Toggles ===
 msgid "Enable or disable specific TalentTrack features without code changes."
 msgstr "Schakel specifieke TalentTrack-functies in of uit zonder codewijzigingen."
 
@@ -638,7 +632,6 @@ msgstr "Doorsturen na inloggen"
 msgid "After login, redirect players and coaches to the TalentTrack dashboard page instead of wp-admin."
 msgstr "Stuur spelers en trainers na het inloggen door naar het TalentTrack-dashboard in plaats van wp-admin."
 
-# === Audit Log ===
 msgid "Audit logging is currently disabled. Enable it under Feature Toggles to start recording entries."
 msgstr "Audit-loggen staat momenteel uit. Zet het aan bij Functieschakelaars om registraties vast te leggen."
 
@@ -678,7 +671,6 @@ msgstr "Gegevens"
 msgid "No audit entries match your filters."
 msgstr "Geen audit-registraties voldoen aan je filters."
 
-# === Frontend Dashboard: Tabs ===
 msgid "Overview"
 msgstr "Overzicht"
 
@@ -694,7 +686,6 @@ msgstr "Mijn team"
 msgid "Player Detail"
 msgstr "Spelerdetails"
 
-# === Frontend Dashboard: Content ===
 msgid "No player profile is linked to your account. Please contact your administrator."
 msgstr "Er is geen spelersprofiel gekoppeld aan je account. Neem contact op met je beheerder."
 
@@ -734,7 +725,6 @@ msgstr "Mijn team toont je spelers. Bij Nieuwe evaluatie leg je training- of wed
 msgid "vs %s (%s)"
 msgstr "tegen %s (%s)"
 
-# === Frontend AJAX ===
 msgid "Missing required fields."
 msgstr "Vereiste velden ontbreken."
 
@@ -747,7 +737,6 @@ msgstr "Evaluatie opgeslagen!"
 msgid "Session saved!"
 msgstr "Training opgeslagen!"
 
-# === JS-side strings ===
 msgid "Saving..."
 msgstr "Bezig met opslaan..."
 
@@ -757,7 +746,6 @@ msgstr "Er is iets misgegaan."
 msgid "Network error."
 msgstr "Netwerkfout."
 
-# === Documentation ===
 msgid "TalentTrack — Help & Documentation"
 msgstr "TalentTrack — Hulp & Documentatie"
 

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   TalentTrack — Frontend stylesheet (v2.5.0)
+   TalentTrack — Frontend stylesheet (v2.5.1)
    ═══════════════════════════════════════════════════════════ */
 .tt-dashboard {
     --tt-ink: #0e1a14;
@@ -45,7 +45,6 @@
 .tt-login-links a { color: var(--tt-primary, #0b3d2e); text-decoration: none; border-bottom: 1px dotted currentColor; }
 .tt-login-links a:hover { color: var(--tt-secondary, #e8b624); }
 
-/* Inline notice above login (e.g. password-reset confirmation) */
 .tt-notice-inline {
     max-width: 420px;
     margin: 1rem auto -1rem;
@@ -74,32 +73,88 @@
 .tt-dash-logo { max-height: 56px; width: auto; }
 .tt-dash-title { font-family: "Playfair Display", Georgia, serif; font-size: 2rem; font-weight: 700; margin: 0; color: var(--tt-primary, #0b3d2e); }
 
-.tt-dash-user {
-    display: flex;
+/* ─── User menu (dropdown) ────────────────────────────── */
+.tt-user-menu {
+    position: relative;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+}
+.tt-user-menu-trigger {
+    display: inline-flex;
     align-items: center;
-    gap: 1rem;
-    font-family: "Helvetica Neue", Arial, sans-serif;
-    font-size: 0.85rem;
-}
-.tt-dash-userlabel { color: var(--tt-muted); font-weight: 600; }
-.tt-logout-btn {
-    padding: .5rem 1rem;
+    gap: .5rem;
+    padding: .55rem .9rem;
     background: transparent;
-    border: 1px solid var(--tt-primary, #0b3d2e);
-    color: var(--tt-primary, #0b3d2e);
-    font-family: "Helvetica Neue", Arial, sans-serif;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    text-decoration: none;
-    transition: all .15s;
+    border: 1px solid var(--tt-line);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--tt-ink);
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
 }
-.tt-logout-btn:hover {
-    background: var(--tt-primary, #0b3d2e);
-    color: #fff;
+.tt-user-menu-trigger:hover,
+.tt-user-menu.is-open .tt-user-menu-trigger {
+    border-color: var(--tt-primary, #0b3d2e);
+    background: #fff;
+}
+.tt-user-menu-name {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tt-user-menu-caret {
+    font-size: 0.7rem;
+    color: var(--tt-muted);
+    transition: transform .15s;
+}
+.tt-user-menu.is-open .tt-user-menu-caret {
+    transform: rotate(180deg);
+}
+.tt-user-menu-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 180px;
+    background: #fff;
+    border: 1px solid var(--tt-line);
+    border-top: 3px solid var(--tt-primary, #0b3d2e);
+    box-shadow: 0 6px 20px -8px rgba(0,0,0,0.15);
+    z-index: 999;
+}
+.tt-user-menu.is-open .tt-user-menu-dropdown {
+    display: block;
+}
+.tt-user-menu-item {
+    display: block;
+    padding: .7rem 1rem;
+    font-size: 0.85rem;
+    color: var(--tt-ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--tt-line);
+    transition: background .1s;
+}
+.tt-user-menu-item:last-child {
+    border-bottom: none;
+}
+.tt-user-menu-item:hover,
+.tt-user-menu-item:focus {
+    background: rgba(var(--tt-primary-rgb, 11,61,46), 0.05);
+    color: var(--tt-primary, #0b3d2e);
+    outline: none;
+}
+.tt-user-menu-item-logout {
+    color: #8a1f1f;
+}
+.tt-user-menu-item-logout:hover,
+.tt-user-menu-item-logout:focus {
+    background: rgba(179, 45, 46, 0.08);
+    color: #8a1f1f;
 }
 
+/* ─── Rest of stylesheet (unchanged from v2.5.0) ─── */
 .tt-notice { padding: 2.5rem 1.5rem; text-align: center; background: #fff7e0; border-left: 4px solid var(--tt-secondary, #e8b624); font-style: italic; }
 
 .tt-tabs { display: flex; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 1px solid var(--tt-line); }
@@ -159,12 +214,12 @@
 
 @media (max-width: 700px) {
     .tt-dashboard { padding: 0 .8rem 2rem; }
-    .tt-dash-header { flex-direction: column; align-items: flex-start; }
-    .tt-dash-user { width: 100%; justify-content: flex-end; }
+    .tt-dash-header { flex-direction: row; align-items: center; }
     .tt-dash-title { font-size: 1.5rem; }
     .tt-tabs { overflow-x: auto; flex-wrap: nowrap; }
     .tt-tab { flex: 0 0 auto; padding: .7rem .9rem; font-size: 0.7rem; }
     .tt-grid { grid-template-columns: 1fr; }
     .tt-form-row { flex-direction: column; align-items: stretch; gap: 4px; }
     .tt-form-row label { flex: none; }
+    .tt-user-menu-name { max-width: 100px; }
 }
