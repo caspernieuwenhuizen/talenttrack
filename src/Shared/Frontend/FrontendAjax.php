@@ -3,10 +3,16 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 
 /**
  * FrontendAjax — centralized AJAX endpoints for the frontend dashboard.
+ *
+ * v2.6.2: every $wpdb->insert/update return value is now checked. On failure
+ * we log via Logger and return a structured error to the client instead of
+ * silently pretending success. This prevents the "save reports success but
+ * nothing hits the database" class of bug seen with schema drift.
  */
 class FrontendAjax {
 
@@ -19,7 +25,9 @@ class FrontendAjax {
 
     public static function handle_save_evaluation(): void {
         check_ajax_referer( 'tt_frontend', 'nonce' );
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) wp_send_json_error( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_evaluate_players' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Unauthorized', 'talenttrack' ) ] );
+        }
         global $wpdb; $p = $wpdb->prefix;
 
         $header = [
@@ -36,35 +44,59 @@ class FrontendAjax {
         ];
 
         if ( ! $header['player_id'] || ! $header['eval_date'] ) {
-            wp_send_json_error( esc_html__( 'Missing required fields.', 'talenttrack' ) );
+            wp_send_json_error( [ 'message' => __( 'Missing required fields.', 'talenttrack' ) ] );
         }
         if ( ! current_user_can( 'tt_manage_settings' ) ) {
             if ( ! QueryHelpers::coach_owns_player( get_current_user_id(), (int) $header['player_id'] ) ) {
-                wp_send_json_error( esc_html__( 'You can only evaluate players in your team.', 'talenttrack' ) );
+                wp_send_json_error( [ 'message' => __( 'You can only evaluate players in your team.', 'talenttrack' ) ] );
             }
         }
 
         do_action( 'tt_before_save_evaluation', $header['player_id'], 0, 0 );
-        $wpdb->insert( "{$p}tt_evaluations", $header );
+
+        $ok = $wpdb->insert( "{$p}tt_evaluations", $header );
+        if ( $ok === false ) {
+            $err = (string) $wpdb->last_error;
+            Logger::error( 'evaluation.save.failed', [ 'db_error' => $err, 'payload' => $header ] );
+            wp_send_json_error( [
+                'message' => __( 'The evaluation could not be saved. The database rejected the operation.', 'talenttrack' ),
+                'detail'  => $err,
+            ], 500 );
+        }
         $eval_id = (int) $wpdb->insert_id;
 
         $rmin = (float) QueryHelpers::get_config( 'rating_min', '1' );
         $rmax = (float) QueryHelpers::get_config( 'rating_max', '5' );
         $ratings = isset( $_POST['ratings'] ) && is_array( $_POST['ratings'] ) ? $_POST['ratings'] : [];
+        $rating_failures = [];
         foreach ( $ratings as $cat_id => $rating ) {
             $r = max( $rmin, min( $rmax, floatval( $rating ) ) );
-            $wpdb->insert( "{$p}tt_eval_ratings", [
+            $ok_rating = $wpdb->insert( "{$p}tt_eval_ratings", [
                 'evaluation_id' => $eval_id, 'category_id' => absint( $cat_id ), 'rating' => $r,
             ]);
+            if ( $ok_rating === false ) {
+                $rating_failures[] = [ 'category_id' => absint( $cat_id ), 'db_error' => (string) $wpdb->last_error ];
+            }
         }
 
-        wp_send_json_success( [ 'message' => esc_html__( 'Evaluation saved!', 'talenttrack' ), 'id' => $eval_id ] );
+        if ( ! empty( $rating_failures ) ) {
+            Logger::error( 'evaluation.ratings.save.failed', [ 'evaluation_id' => $eval_id, 'failures' => $rating_failures ] );
+            wp_send_json_error( [
+                'message' => __( 'The evaluation was saved, but some ratings could not be stored.', 'talenttrack' ),
+                'detail'  => $rating_failures[0]['db_error'] ?? '',
+            ], 500 );
+        }
+
+        wp_send_json_success( [ 'message' => __( 'Evaluation saved!', 'talenttrack' ), 'id' => $eval_id ] );
     }
 
     public static function handle_save_session(): void {
         check_ajax_referer( 'tt_frontend', 'nonce' );
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) wp_send_json_error( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_evaluate_players' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Unauthorized', 'talenttrack' ) ] );
+        }
         global $wpdb; $p = $wpdb->prefix;
+
         $data = [
             'title'        => isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['title'] ) ) : '',
             'session_date' => isset( $_POST['session_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['session_date'] ) ) : '',
@@ -73,24 +105,49 @@ class FrontendAjax {
             'location'     => isset( $_POST['location'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['location'] ) ) : '',
             'notes'        => isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '',
         ];
-        $wpdb->insert( "{$p}tt_sessions", $data );
+
+        $ok = $wpdb->insert( "{$p}tt_sessions", $data );
+        if ( $ok === false ) {
+            $err = (string) $wpdb->last_error;
+            Logger::error( 'session.save.failed', [ 'db_error' => $err, 'payload' => $data ] );
+            wp_send_json_error( [
+                'message' => __( 'The session could not be saved. The database rejected the operation.', 'talenttrack' ),
+                'detail'  => $err,
+            ], 500 );
+        }
         $sid = (int) $wpdb->insert_id;
+
         $att_raw = isset( $_POST['att'] ) && is_array( $_POST['att'] ) ? $_POST['att'] : [];
+        $att_failures = [];
         foreach ( $att_raw as $pid => $d ) {
-            $wpdb->insert( "{$p}tt_attendance", [
+            $ok_att = $wpdb->insert( "{$p}tt_attendance", [
                 'session_id' => $sid, 'player_id' => absint( $pid ),
                 'status' => isset( $d['status'] ) ? sanitize_text_field( wp_unslash( (string) $d['status'] ) ) : 'Present',
                 'notes'  => isset( $d['notes'] ) ? sanitize_text_field( wp_unslash( (string) $d['notes'] ) ) : '',
             ]);
+            if ( $ok_att === false ) {
+                $att_failures[] = [ 'player_id' => absint( $pid ), 'db_error' => (string) $wpdb->last_error ];
+            }
         }
-        wp_send_json_success( [ 'message' => esc_html__( 'Session saved!', 'talenttrack' ) ] );
+
+        if ( ! empty( $att_failures ) ) {
+            Logger::error( 'session.attendance.save.failed', [ 'session_id' => $sid, 'failures' => $att_failures ] );
+            wp_send_json_error( [
+                'message' => __( 'The session was saved, but some attendance rows could not be stored.', 'talenttrack' ),
+                'detail'  => $att_failures[0]['db_error'] ?? '',
+            ], 500 );
+        }
+
+        wp_send_json_success( [ 'message' => __( 'Session saved!', 'talenttrack' ), 'id' => $sid ] );
     }
 
     public static function handle_save_goal(): void {
         check_ajax_referer( 'tt_frontend', 'nonce' );
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) wp_send_json_error( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_evaluate_players' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Unauthorized', 'talenttrack' ) ] );
+        }
         global $wpdb;
-        $wpdb->insert( $wpdb->prefix . 'tt_goals', [
+        $data = [
             'player_id'   => isset( $_POST['player_id'] ) ? absint( $_POST['player_id'] ) : 0,
             'title'       => isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['title'] ) ) : '',
             'description' => isset( $_POST['description'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['description'] ) ) : '',
@@ -98,26 +155,48 @@ class FrontendAjax {
             'priority'    => isset( $_POST['priority'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['priority'] ) ) : 'medium',
             'due_date'    => ! empty( $_POST['due_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['due_date'] ) ) : null,
             'created_by'  => get_current_user_id(),
-        ]);
-        wp_send_json_success( [ 'message' => esc_html__( 'Goal added!', 'talenttrack' ) ] );
+        ];
+        $ok = $wpdb->insert( $wpdb->prefix . 'tt_goals', $data );
+        if ( $ok === false ) {
+            $err = (string) $wpdb->last_error;
+            Logger::error( 'goal.save.failed', [ 'db_error' => $err, 'payload' => $data ] );
+            wp_send_json_error( [
+                'message' => __( 'The goal could not be saved. The database rejected the operation.', 'talenttrack' ),
+                'detail'  => $err,
+            ], 500 );
+        }
+        wp_send_json_success( [ 'message' => __( 'Goal added!', 'talenttrack' ), 'id' => (int) $wpdb->insert_id ] );
     }
 
     public static function handle_update_goal_status(): void {
         check_ajax_referer( 'tt_frontend', 'nonce' );
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) wp_send_json_error( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_evaluate_players' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Unauthorized', 'talenttrack' ) ] );
+        }
         global $wpdb;
-        $wpdb->update( $wpdb->prefix . 'tt_goals',
+        $ok = $wpdb->update(
+            $wpdb->prefix . 'tt_goals',
             [ 'status' => isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['status'] ) ) : 'pending' ],
             [ 'id' => isset( $_POST['goal_id'] ) ? absint( $_POST['goal_id'] ) : 0 ]
         );
-        wp_send_json_success( [ 'message' => esc_html__( 'Status updated.', 'talenttrack' ) ] );
+        if ( $ok === false ) {
+            Logger::error( 'goal.status.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'goal_id' => isset( $_POST['goal_id'] ) ? absint( $_POST['goal_id'] ) : 0 ] );
+            wp_send_json_error( [ 'message' => __( 'Status update failed.', 'talenttrack' ) ], 500 );
+        }
+        wp_send_json_success( [ 'message' => __( 'Status updated.', 'talenttrack' ) ] );
     }
 
     public static function handle_delete_goal(): void {
         check_ajax_referer( 'tt_frontend', 'nonce' );
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) wp_send_json_error( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_evaluate_players' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Unauthorized', 'talenttrack' ) ] );
+        }
         global $wpdb;
-        $wpdb->delete( $wpdb->prefix . 'tt_goals', [ 'id' => isset( $_POST['goal_id'] ) ? absint( $_POST['goal_id'] ) : 0 ] );
-        wp_send_json_success( [ 'message' => esc_html__( 'Goal deleted.', 'talenttrack' ) ] );
+        $ok = $wpdb->delete( $wpdb->prefix . 'tt_goals', [ 'id' => isset( $_POST['goal_id'] ) ? absint( $_POST['goal_id'] ) : 0 ] );
+        if ( $ok === false ) {
+            Logger::error( 'goal.delete.failed', [ 'db_error' => (string) $wpdb->last_error, 'goal_id' => isset( $_POST['goal_id'] ) ? absint( $_POST['goal_id'] ) : 0 ] );
+            wp_send_json_error( [ 'message' => __( 'Goal delete failed.', 'talenttrack' ) ], 500 );
+        }
+        wp_send_json_success( [ 'message' => __( 'Goal deleted.', 'talenttrack' ) ] );
     }
 }

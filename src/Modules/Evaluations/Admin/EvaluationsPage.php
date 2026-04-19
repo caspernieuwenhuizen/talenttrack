@@ -3,9 +3,20 @@ namespace TT\Modules\Evaluations\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 
+/**
+ * EvaluationsPage — admin CRUD for evaluations.
+ *
+ * v2.6.2: fail-loud on insert/update failures. If the database rejects the
+ * save (e.g. missing schema column), the user is redirected back with an
+ * error notice instead of silently redirecting to the list showing "Saved."
+ */
 class EvaluationsPage {
+
+    private const TRANSIENT_PREFIX = 'tt_eval_form_state_';
+
     public static function init(): void {
         add_action( 'admin_post_tt_save_evaluation', [ __CLASS__, 'handle_save' ] );
         add_action( 'admin_post_tt_delete_evaluation', [ __CLASS__, 'handle_delete' ] );
@@ -34,7 +45,7 @@ class EvaluationsPage {
             <table class="widefat striped"><thead><tr><th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Coach', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th></tr></thead><tbody>
             <?php if ( empty( $evals ) ) : ?><tr><td colspan="5"><?php esc_html_e( 'No evaluations.', 'talenttrack' ); ?></td></tr>
             <?php else : foreach ( $evals as $ev ) : ?>
-                <tr><td><?php echo esc_html( (string) $ev->eval_date ); ?></td><td><?php echo esc_html( (string) $ev->player_name ); ?></td>
+                <tr><td><?php echo esc_html( (string) $ev->eval_date ); ?></td><td><?php echo esc_html( $ev->player_name ?: '—' ); ?></td>
                     <td><?php echo esc_html( $ev->type_name ?: '—' ); ?></td><td><?php echo esc_html( (string) $ev->coach_name ); ?></td>
                     <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-evaluations&action=view&id={$ev->id}" ) ); ?>"><?php esc_html_e( 'View', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( admin_url( "admin.php?page=tt-evaluations&action=edit&id={$ev->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_evaluation&id={$ev->id}" ), 'tt_del_eval_' . $ev->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td></tr>
             <?php endforeach; endif; ?></tbody></table>
@@ -54,10 +65,20 @@ class EvaluationsPage {
         if ( $eval && ! empty( $eval->ratings ) ) foreach ( $eval->ratings as $r ) $existing[ (int) $r->category_id ] = (float) $r->rating;
         $type_meta = [];
         foreach ( $types as $t ) { $m = QueryHelpers::lookup_meta( $t ); $type_meta[ (int) $t->id ] = ! empty( $m['requires_match_details'] ) ? 1 : 0; }
+
+        $state = self::popFormState();
         ?>
         <div class="wrap">
             <h1><?php echo $eval ? esc_html__( 'Edit Evaluation', 'talenttrack' ) : esc_html__( 'New Evaluation', 'talenttrack' ); ?>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-evaluations' ) ); ?>" class="page-title-action"><?php esc_html_e( '← Back', 'talenttrack' ); ?></a></h1>
+
+            <?php if ( $state && ! empty( $state['db_error'] ) ) : ?>
+                <div class="notice notice-error">
+                    <p><strong><?php esc_html_e( 'The database rejected the save. No evaluation was created.', 'talenttrack' ); ?></strong></p>
+                    <p style="font-family:monospace;font-size:12px;"><?php echo esc_html( (string) $state['db_error'] ); ?></p>
+                </div>
+            <?php endif; ?>
+
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                 <?php wp_nonce_field( 'tt_save_evaluation', 'tt_nonce' ); ?>
                 <input type="hidden" name="action" value="tt_save_evaluation" />
@@ -148,14 +169,36 @@ class EvaluationsPage {
             'home_away' => isset( $_POST['home_away'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['home_away'] ) ) : '',
             'minutes_played' => ! empty( $_POST['minutes_played'] ) ? absint( $_POST['minutes_played'] ) : null,
         ];
-        if ( $id ) { $wpdb->update( "{$p}tt_evaluations", $header, [ 'id' => $id ] ); $wpdb->delete( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id ] ); }
-        else { do_action( 'tt_before_save_evaluation', $header['player_id'], 0, 0 ); $wpdb->insert( "{$p}tt_evaluations", $header ); $id = (int) $wpdb->insert_id; }
+
+        if ( $id ) {
+            $ok = $wpdb->update( "{$p}tt_evaluations", $header, [ 'id' => $id ] );
+            if ( $ok !== false ) $wpdb->delete( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id ] );
+        } else {
+            do_action( 'tt_before_save_evaluation', $header['player_id'], 0, 0 );
+            $ok = $wpdb->insert( "{$p}tt_evaluations", $header );
+            if ( $ok !== false ) $id = (int) $wpdb->insert_id;
+        }
+
+        if ( $ok === false ) {
+            Logger::error( 'admin.evaluation.save.failed', [ 'db_error' => (string) $wpdb->last_error, 'is_update' => (bool) $id ] );
+            self::saveFormState( [ 'db_error' => $wpdb->last_error ?: __( 'Unknown database error.', 'talenttrack' ) ] );
+            $back = add_query_arg(
+                [ 'page' => 'tt-evaluations', 'action' => $id ? 'edit' : 'new', 'id' => $id ],
+                admin_url( 'admin.php' )
+            );
+            wp_safe_redirect( $back );
+            exit;
+        }
+
         $rmin = (float) QueryHelpers::get_config( 'rating_min', '1' );
         $rmax = (float) QueryHelpers::get_config( 'rating_max', '5' );
         $ratings = isset( $_POST['ratings'] ) && is_array( $_POST['ratings'] ) ? $_POST['ratings'] : [];
         foreach ( $ratings as $cid => $val ) {
             $r = max( $rmin, min( $rmax, floatval( $val ) ) );
-            $wpdb->insert( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id, 'category_id' => absint( $cid ), 'rating' => $r ] );
+            $ok_rating = $wpdb->insert( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id, 'category_id' => absint( $cid ), 'rating' => $r ] );
+            if ( $ok_rating === false ) {
+                Logger::error( 'admin.evaluation.rating.save.failed', [ 'db_error' => (string) $wpdb->last_error, 'evaluation_id' => $id, 'category_id' => absint( $cid ) ] );
+            }
         }
         wp_safe_redirect( admin_url( 'admin.php?page=tt-evaluations&tt_msg=saved' ) );
         exit;
@@ -170,5 +213,17 @@ class EvaluationsPage {
         $wpdb->delete( "{$p}tt_evaluations", [ 'id' => $id ] );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-evaluations&tt_msg=deleted' ) );
         exit;
+    }
+
+    private static function saveFormState( array $state ): void {
+        set_transient( self::TRANSIENT_PREFIX . get_current_user_id(), $state, 60 );
+    }
+
+    private static function popFormState(): ?array {
+        $key   = self::TRANSIENT_PREFIX . get_current_user_id();
+        $state = get_transient( $key );
+        if ( $state === false ) return null;
+        delete_transient( $key );
+        return is_array( $state ) ? $state : null;
     }
 }

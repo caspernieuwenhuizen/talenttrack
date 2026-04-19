@@ -3,8 +3,10 @@ namespace TT\Modules\Players\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Core\Kernel;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
+use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Frontend\CustomFieldRenderer;
@@ -13,13 +15,10 @@ use TT\Shared\Validation\CustomFieldValidator;
 /**
  * PlayersPage — admin CRUD for players.
  *
- * v2.6.1 additions:
- *   - Renders active custom fields as an "Additional Fields" section at the
- *     bottom of the player form.
- *   - Validates custom values on save; on failure, stores submitted data +
- *     errors in a user-scoped transient, redirects back to the form with a
- *     visible error banner, and repopulates the custom field inputs.
- *   - Upserts custom values after a successful player save.
+ * v2.6.2: adds fail-loud $wpdb->insert/update return-value checks. If a write
+ * fails (e.g., schema drift, constraint violation), we now log via Logger and
+ * redirect back to the form with a visible error banner instead of silently
+ * pretending success.
  */
 class PlayersPage {
 
@@ -81,7 +80,6 @@ class PlayersPage {
         $sel_pos   = $is_edit ? ( json_decode( (string) $player->preferred_positions, true ) ?: [] ) : [];
         wp_enqueue_media();
 
-        // Try to recover prior submitted state from a validation-failure transient.
         $state = self::popFormState();
 
         $status_options = [
@@ -91,7 +89,6 @@ class PlayersPage {
             'released' => __( 'Released', 'talenttrack' ),
         ];
 
-        // Load active custom fields + current values.
         $fields_repo = new CustomFieldsRepository();
         $values_repo = new CustomValuesRepository();
         $custom_fields = $fields_repo->getActive( CustomFieldsRepository::ENTITY_PLAYER );
@@ -99,7 +96,6 @@ class PlayersPage {
             ? $values_repo->getByEntityKeyed( CustomFieldsRepository::ENTITY_PLAYER, (int) $player->id )
             : [];
 
-        // If we're recovering from a validation failure, overlay the user's submitted values.
         if ( $state && isset( $state['submitted_custom_fields'] ) ) {
             foreach ( $state['submitted_custom_fields'] as $k => $v ) {
                 $current_values_by_key[ (string) $k ] = $v;
@@ -117,6 +113,13 @@ class PlayersPage {
                         <li><?php echo esc_html( (string) ( $err['message'] ?? '' ) ); ?></li>
                     <?php endforeach; ?>
                     </ul>
+                </div>
+            <?php endif; ?>
+
+            <?php if ( $state && ! empty( $state['db_error'] ) ) : ?>
+                <div class="notice notice-error">
+                    <p><strong><?php esc_html_e( 'The database rejected the save. Please contact your administrator.', 'talenttrack' ); ?></strong></p>
+                    <p style="font-family:monospace;font-size:12px;"><?php echo esc_html( (string) $state['db_error'] ); ?></p>
                 </div>
             <?php endif; ?>
 
@@ -189,7 +192,6 @@ class PlayersPage {
         $max   = (float) QueryHelpers::get_config( 'rating_max', '5' );
         $pos   = json_decode( (string) $player->preferred_positions, true );
 
-        // Custom fields + values.
         $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
         $values = ( new CustomValuesRepository() )->getByEntityKeyed( CustomFieldsRepository::ENTITY_PLAYER, $id );
         ?>
@@ -236,7 +238,6 @@ class PlayersPage {
         check_admin_referer( 'tt_save_player', 'tt_nonce' );
         global $wpdb;
 
-        // Validate custom fields BEFORE touching the player row.
         $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
         $submitted_cf = ( isset( $_POST['custom_fields'] ) && is_array( $_POST['custom_fields'] ) )
             ? array_map( function ( $v ) { return is_string( $v ) ? wp_unslash( $v ) : $v; }, $_POST['custom_fields'] )
@@ -250,11 +251,7 @@ class PlayersPage {
             ] );
             $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
             $back = add_query_arg(
-                [
-                    'page'   => 'tt-players',
-                    'action' => $id ? 'edit' : 'new',
-                    'id'     => $id,
-                ],
+                [ 'page' => 'tt-players', 'action' => $id ? 'edit' : 'new', 'id' => $id ],
                 admin_url( 'admin.php' )
             );
             wp_safe_redirect( $back );
@@ -281,10 +278,28 @@ class PlayersPage {
             'status' => isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['status'] ) ) : 'active',
         ];
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
-        if ( $id ) $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id ] );
-        else { $wpdb->insert( $wpdb->prefix . 'tt_players', $data ); $id = (int) $wpdb->insert_id; }
 
-        // Upsert custom values.
+        if ( $id ) {
+            $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id ] );
+        } else {
+            $ok = $wpdb->insert( $wpdb->prefix . 'tt_players', $data );
+            if ( $ok ) $id = (int) $wpdb->insert_id;
+        }
+
+        if ( $ok === false ) {
+            Logger::error( 'player.save.failed', [ 'db_error' => (string) $wpdb->last_error, 'is_update' => (bool) $id ] );
+            self::saveFormState( [
+                'db_error' => $wpdb->last_error ?: __( 'Unknown database error.', 'talenttrack' ),
+                'submitted_custom_fields' => $submitted_cf,
+            ] );
+            $back = add_query_arg(
+                [ 'page' => 'tt-players', 'action' => $id ? 'edit' : 'new', 'id' => $id ],
+                admin_url( 'admin.php' )
+            );
+            wp_safe_redirect( $back );
+            exit;
+        }
+
         $values_repo = new CustomValuesRepository();
         foreach ( $validation['sanitized'] as $field_id => $value ) {
             $values_repo->upsert( CustomFieldsRepository::ENTITY_PLAYER, $id, (int) $field_id, $value );
@@ -305,23 +320,10 @@ class PlayersPage {
         exit;
     }
 
-    /* ═══ Form state helpers (for validation-failure recovery) ═══ */
-
-    /**
-     * Store submitted form data + errors in a short-lived, user-scoped transient
-     * so they survive the POST→redirect→GET cycle.
-     *
-     * @param array<string,mixed> $state
-     */
     private static function saveFormState( array $state ): void {
         set_transient( self::TRANSIENT_PREFIX . get_current_user_id(), $state, 60 );
     }
 
-    /**
-     * Retrieve & delete any pending form state for the current user.
-     *
-     * @return array<string,mixed>|null
-     */
     private static function popFormState(): ?array {
         $key   = self::TRANSIENT_PREFIX . get_current_user_id();
         $state = get_transient( $key );

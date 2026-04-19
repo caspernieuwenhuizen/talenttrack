@@ -5,19 +5,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
+use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Validation\CustomFieldValidator;
 
 /**
  * PlayersRestController — /wp-json/talenttrack/v1/players
  *
- * v2.6.1 changes:
- *   - GET includes `custom_fields: { field_key: value }` on list and single.
- *   - POST/PUT accept a `custom_fields` object; values are validated and
- *     upserted. Validation failure returns 422 with the errors array and
- *     the player row is not modified.
- *   - Full field coverage (matches admin form). Previously stub-only.
- *   - Continues to use RestResponse envelope introduced in v2.2.0.
+ * v2.6.2: insert/update return values are checked. Failures return HTTP 500
+ * with the DB error message and are logged via Logger.
  */
 class PlayersRestController {
 
@@ -29,33 +25,13 @@ class PlayersRestController {
 
     public static function register(): void {
         register_rest_route( self::NS, '/players', [
-            [
-                'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'list_players' ],
-                'permission_callback' => function () { return is_user_logged_in(); },
-            ],
-            [
-                'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'create_player' ],
-                'permission_callback' => function () { return current_user_can( 'tt_manage_players' ); },
-            ],
+            [ 'methods' => 'GET',  'callback' => [ __CLASS__, 'list_players' ],  'permission_callback' => function () { return is_user_logged_in(); } ],
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'create_player' ], 'permission_callback' => function () { return current_user_can( 'tt_manage_players' ); } ],
         ]);
         register_rest_route( self::NS, '/players/(?P<id>\d+)', [
-            [
-                'methods'             => 'GET',
-                'callback'            => [ __CLASS__, 'get_player' ],
-                'permission_callback' => function () { return is_user_logged_in(); },
-            ],
-            [
-                'methods'             => 'PUT',
-                'callback'            => [ __CLASS__, 'update_player' ],
-                'permission_callback' => function () { return current_user_can( 'tt_manage_players' ); },
-            ],
-            [
-                'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'delete_player' ],
-                'permission_callback' => function () { return current_user_can( 'tt_manage_players' ); },
-            ],
+            [ 'methods' => 'GET',    'callback' => [ __CLASS__, 'get_player' ],    'permission_callback' => function () { return is_user_logged_in(); } ],
+            [ 'methods' => 'PUT',    'callback' => [ __CLASS__, 'update_player' ], 'permission_callback' => function () { return current_user_can( 'tt_manage_players' ); } ],
+            [ 'methods' => 'DELETE', 'callback' => [ __CLASS__, 'delete_player' ], 'permission_callback' => function () { return current_user_can( 'tt_manage_players' ); } ],
         ]);
     }
 
@@ -72,7 +48,6 @@ class PlayersRestController {
     }
 
     public static function create_player( \WP_REST_Request $r ) {
-        // Validate custom fields first.
         $validation = self::validateCustomFields( $r );
         if ( ! empty( $validation['errors'] ) ) {
             return RestResponse::errors( $validation['errors'], 422 );
@@ -80,11 +55,16 @@ class PlayersRestController {
 
         global $wpdb;
         $data = self::extract( $r );
-        $wpdb->insert( $wpdb->prefix . 'tt_players', $data );
+        $ok = $wpdb->insert( $wpdb->prefix . 'tt_players', $data );
+        if ( $ok === false ) {
+            Logger::error( 'rest.player.create.failed', [ 'db_error' => (string) $wpdb->last_error ] );
+            return RestResponse::errors( [
+                [ 'code' => 'db_error', 'message' => __( 'The player could not be created.', 'talenttrack' ), 'details' => [ 'db_error' => (string) $wpdb->last_error ] ],
+            ], 500 );
+        }
         $id = (int) $wpdb->insert_id;
 
         self::upsertCustomValues( $id, $validation['sanitized'] );
-
         do_action( 'tt_after_player_save', $id, $data );
 
         $pl = QueryHelpers::get_player( $id );
@@ -103,10 +83,15 @@ class PlayersRestController {
 
         global $wpdb;
         $data = self::extract( $r );
-        $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id ] );
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id ] );
+        if ( $ok === false ) {
+            Logger::error( 'rest.player.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
+            return RestResponse::errors( [
+                [ 'code' => 'db_error', 'message' => __( 'The player could not be updated.', 'talenttrack' ), 'details' => [ 'db_error' => (string) $wpdb->last_error ] ],
+            ], 500 );
+        }
 
         self::upsertCustomValues( $id, $validation['sanitized'] );
-
         do_action( 'tt_after_player_save', $id, $data );
 
         $pl = QueryHelpers::get_player( $id );
@@ -115,17 +100,16 @@ class PlayersRestController {
 
     public static function delete_player( \WP_REST_Request $r ) {
         global $wpdb;
-        $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => 'deleted' ], [ 'id' => (int) $r['id'] ] );
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => 'deleted' ], [ 'id' => (int) $r['id'] ] );
+        if ( $ok === false ) {
+            Logger::error( 'rest.player.delete.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => (int) $r['id'] ] );
+            return RestResponse::errors( [
+                [ 'code' => 'db_error', 'message' => __( 'The player could not be deleted.', 'talenttrack' ) ],
+            ], 500 );
+        }
         return RestResponse::success( [ 'deleted' => true ] );
     }
 
-    /* ═══ Helpers ═══ */
-
-    /**
-     * Validate the request's custom_fields payload against active field defs.
-     *
-     * @return array{errors: array<int, array{code:string, message:string, details:array<string,mixed>}>, sanitized: array<int, ?string>}
-     */
     private static function validateCustomFields( \WP_REST_Request $r ): array {
         $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
         if ( empty( $fields ) ) {
@@ -138,9 +122,6 @@ class PlayersRestController {
         return ( new CustomFieldValidator() )->validate( $fields, $submitted );
     }
 
-    /**
-     * @param array<int, ?string> $sanitized  field_id → value map
-     */
     private static function upsertCustomValues( int $player_id, array $sanitized ): void {
         $repo = new CustomValuesRepository();
         foreach ( $sanitized as $field_id => $value ) {
@@ -148,9 +129,6 @@ class PlayersRestController {
         }
     }
 
-    /**
-     * @return array<string,mixed>
-     */
     private static function extract( \WP_REST_Request $r ): array {
         return [
             'first_name'          => sanitize_text_field( (string) ( $r['first_name'] ?? '' ) ),
@@ -177,19 +155,12 @@ class PlayersRestController {
         ];
     }
 
-    /**
-     * Format a player row for API output, including custom_fields.
-     *
-     * @return array<string,mixed>
-     */
     private static function fmt( ?object $pl ): array {
         if ( ! $pl ) return [];
-
         $custom = ( new CustomValuesRepository() )->getByEntityKeyed(
             CustomFieldsRepository::ENTITY_PLAYER,
             (int) $pl->id
         );
-
         return [
             'id'                  => (int) $pl->id,
             'first_name'          => (string) $pl->first_name,

@@ -3,10 +3,19 @@ namespace TT\Modules\Sessions\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\LabelTranslator;
+use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 
+/**
+ * SessionsPage — admin CRUD for training sessions.
+ *
+ * v2.6.2: fail-loud on session save (the primary case where the v1.x
+ * tt_attendance.status column mismatch would silently lose data).
+ */
 class SessionsPage {
+
+    private const TRANSIENT_PREFIX = 'tt_sess_form_state_';
+
     public static function init(): void {
         add_action( 'admin_post_tt_save_session', [ __CLASS__, 'handle_save' ] );
         add_action( 'admin_post_tt_delete_session', [ __CLASS__, 'handle_delete' ] );
@@ -41,9 +50,18 @@ class SessionsPage {
         if ( $session ) foreach ( $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$p}tt_attendance WHERE session_id=%d", $session->id ) ) as $r ) $attendance[ (int) $r->player_id ] = $r;
         $team_id = (int) ( $session->team_id ?? 0 );
         $players = $team_id ? QueryHelpers::get_players( $team_id ) : QueryHelpers::get_players();
+        $state = self::popFormState();
         ?>
         <div class="wrap">
             <h1><?php echo $session ? esc_html__( 'Edit Session', 'talenttrack' ) : esc_html__( 'New Session', 'talenttrack' ); ?></h1>
+
+            <?php if ( $state && ! empty( $state['db_error'] ) ) : ?>
+                <div class="notice notice-error">
+                    <p><strong><?php esc_html_e( 'The database rejected the save. No session was created.', 'talenttrack' ); ?></strong></p>
+                    <p style="font-family:monospace;font-size:12px;"><?php echo esc_html( (string) $state['db_error'] ); ?></p>
+                </div>
+            <?php endif; ?>
+
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                 <?php wp_nonce_field( 'tt_save_session', 'tt_nonce' ); ?>
                 <input type="hidden" name="action" value="tt_save_session" />
@@ -61,7 +79,7 @@ class SessionsPage {
                 <table class="widefat striped" style="max-width:600px;"><thead><tr><th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th></tr></thead><tbody>
                 <?php foreach ( $players as $pl ) : $att = $attendance[ (int) $pl->id ] ?? null; ?>
                     <tr><td><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></td>
-                        <td><select name="att[<?php echo (int) $pl->id; ?>][status]"><?php foreach ( $att_statuses as $as ) : ?><option value="<?php echo esc_attr( $as ); ?>" <?php selected( $att->status ?? 'Present', $as ); ?>><?php echo esc_html( LabelTranslator::attendanceStatus( $as ) ); ?></option><?php endforeach; ?></select></td>
+                        <td><select name="att[<?php echo (int) $pl->id; ?>][status]"><?php foreach ( $att_statuses as $as ) : ?><option value="<?php echo esc_attr( $as ); ?>" <?php selected( $att->status ?? 'Present', $as ); ?>><?php echo esc_html( $as ); ?></option><?php endforeach; ?></select></td>
                         <td><input type="text" name="att[<?php echo (int) $pl->id; ?>][notes]" value="<?php echo esc_attr( $att->notes ?? '' ); ?>" style="width:200px" /></td></tr>
                 <?php endforeach; ?></tbody></table>
                 <?php endif; ?>
@@ -84,16 +102,36 @@ class SessionsPage {
             'location' => isset( $_POST['location'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['location'] ) ) : '',
             'notes' => isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '',
         ];
-        if ( $id ) $wpdb->update( "{$p}tt_sessions", $data, [ 'id' => $id ] );
-        else { $wpdb->insert( "{$p}tt_sessions", $data ); $id = (int) $wpdb->insert_id; }
+
+        if ( $id ) {
+            $ok = $wpdb->update( "{$p}tt_sessions", $data, [ 'id' => $id ] );
+        } else {
+            $ok = $wpdb->insert( "{$p}tt_sessions", $data );
+            if ( $ok !== false ) $id = (int) $wpdb->insert_id;
+        }
+
+        if ( $ok === false ) {
+            Logger::error( 'admin.session.save.failed', [ 'db_error' => (string) $wpdb->last_error, 'is_update' => (bool) $id ] );
+            self::saveFormState( [ 'db_error' => $wpdb->last_error ?: __( 'Unknown database error.', 'talenttrack' ) ] );
+            $back = add_query_arg(
+                [ 'page' => 'tt-sessions', 'action' => $id ? 'edit' : 'new', 'id' => $id ],
+                admin_url( 'admin.php' )
+            );
+            wp_safe_redirect( $back );
+            exit;
+        }
+
         $wpdb->delete( "{$p}tt_attendance", [ 'session_id' => $id ] );
         $att_raw = isset( $_POST['att'] ) && is_array( $_POST['att'] ) ? $_POST['att'] : [];
         foreach ( $att_raw as $pid => $d ) {
-            $wpdb->insert( "{$p}tt_attendance", [
+            $ok_att = $wpdb->insert( "{$p}tt_attendance", [
                 'session_id' => $id, 'player_id' => absint( $pid ),
                 'status' => isset( $d['status'] ) ? sanitize_text_field( wp_unslash( (string) $d['status'] ) ) : 'Present',
                 'notes' => isset( $d['notes'] ) ? sanitize_text_field( wp_unslash( (string) $d['notes'] ) ) : '',
             ]);
+            if ( $ok_att === false ) {
+                Logger::error( 'admin.session.attendance.save.failed', [ 'db_error' => (string) $wpdb->last_error, 'session_id' => $id, 'player_id' => absint( $pid ) ] );
+            }
         }
         wp_safe_redirect( admin_url( 'admin.php?page=tt-sessions&tt_msg=saved' ) );
         exit;
@@ -108,5 +146,17 @@ class SessionsPage {
         $wpdb->delete( "{$p}tt_sessions", [ 'id' => $id ] );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-sessions&tt_msg=deleted' ) );
         exit;
+    }
+
+    private static function saveFormState( array $state ): void {
+        set_transient( self::TRANSIENT_PREFIX . get_current_user_id(), $state, 60 );
+    }
+
+    private static function popFormState(): ?array {
+        $key   = self::TRANSIENT_PREFIX . get_current_user_id();
+        $state = get_transient( $key );
+        if ( $state === false ) return null;
+        delete_transient( $key );
+        return is_array( $state ) ? $state : null;
     }
 }

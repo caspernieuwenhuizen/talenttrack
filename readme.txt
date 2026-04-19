@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.6.1
+Stable tag: 2.6.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,21 +12,19 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
+= 2.6.2 — Critical bugfix: schema reconciliation + fail-loud saves =
+* FIXED: Evaluation, session, and goal saves silently failed on sites whose schema pre-dated v2.0.0. Symptom: form reported "Saved" but no row landed in the database; admin list pages showed "No X"; player dashboard tabs were empty.
+* New migration 0004_schema_reconciliation adds missing v2.x columns to legacy tt_evaluations, tt_attendance, and tt_goals tables (eval_type_id, opponent, competition, match_result, home_away, minutes_played, updated_at, status, priority). Non-destructive — preserves v1.x columns and data.
+* Every $wpdb->insert and $wpdb->update in admin pages, REST controllers, and frontend AJAX now checks the return value. Failures now (a) log via the structured Logger, (b) return an error to the user with the underlying DB error message, and (c) never pretend success.
+* Admin form validation errors now show a red error banner with the DB error message, and the user is redirected back to the form (not dropped to the list with a false success toast).
+
 = 2.6.1 — Sprint 1b part 2 (custom fields integration) =
-* Custom fields now appear on the Admin → Players add/edit form as an "Additional Fields" section below core fields.
-* Validation errors redisplay the form with clear error messages and preserve submitted values.
-* Player detail view (admin) shows custom field values read-only.
-* Player dashboard Overview tab shows custom field values in a styled block.
-* Coach Player Detail tab shows custom field values when viewing a player.
-* REST API `/players` and `/players/{id}` responses now include a `custom_fields` object (field_key → typed value).
-* REST API POST/PUT accept a `custom_fields` object. Validation failures return HTTP 422 with the standard errors envelope; the player row is not modified if validation fails.
-* REST controller overhauled: full player field coverage (matches admin form) and standard envelope.
-* Added "Go to Admin" link in the user-menu dropdown for administrator users only.
-* New Dutch translations for custom-fields labels and validation messages.
+* Custom fields on Admin Players form with validation.
+* Custom fields visible on player dashboard Overview + coach Player Detail.
+* REST API includes custom_fields in responses; POST/PUT accept them with 422 on validation failure.
+* "Go to Admin" link in user menu dropdown for administrators.
 
 = 2.6.0 — Sprint 1b part 1 (custom fields foundation) =
-* Polymorphic custom-field tables + admin tab for managing field definitions.
-
 = 2.5.1 — Sprint 1a polish =
 = 2.5.0 — Sprint 1a (frontend-first application) =
 = 2.4.1 — i18n completion pass =

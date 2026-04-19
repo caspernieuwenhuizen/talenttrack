@@ -1,107 +1,131 @@
-# TalentTrack v2.6.1 — Delivery Changes
+# TalentTrack v2.6.2 — Critical Bugfix
 
-## What this ZIP does
+## The bug that's being fixed
 
-**Sprint 1b Part 2 — custom fields are now live end-to-end.** Wires the v2.6.0 infrastructure into the user-facing application:
+Your site was installed before v2.0.0. When TalentTrack v2.0.0 introduced a new schema for evaluations, attendance, and goals, WordPress's `dbDelta()` function — which the activator used — silently failed to add new columns to the pre-existing v1.x tables. All subsequent versions inherited that stuck schema without knowing.
 
-- Admin Players form renders active custom fields as an "Additional Fields" section.
-- Validation errors keep the user on the form with their submitted values preserved and a clear error banner.
-- Player dashboard (Overview tab) and coach Player Detail view show custom field values in a styled block.
-- REST API returns and accepts `custom_fields`.
-- Administrator users get a "Go to Admin" shortcut in the dashboard dropdown.
+Specifically:
+- `tt_evaluations` was missing `eval_type_id`, `opponent`, `competition`, `match_result`, `home_away`, `minutes_played`, `updated_at`
+- `tt_attendance` was missing `status`
+- `tt_goals` was missing `priority`
 
-Zero database changes — this builds entirely on v2.6.0's `tt_custom_fields` / `tt_custom_values` tables.
+Every save to these tables silently failed because `$wpdb->insert()` returned `false` (MySQL rejected the unknown columns), but nobody was checking that return value. The form redirected to the list with a green "Saved." message. The user believed the data was there. It wasn't.
+
+This release fixes both halves of the problem:
+1. A migration that reconciles your schema to the v2.x expected shape
+2. Every save now checks the return value and surfaces failures to the user
 
 ## Install
 
 1. Extract the ZIP.
-2. Copy the **contents** of `talenttrack-v2.6.1/` into your local `talenttrack/` folder. Allow overwrites.
-3. GitHub Desktop → commit `v2.6.1 — custom fields integration` → push.
-4. GitHub → Releases → new release tagged `v2.6.1`.
+2. Copy the contents into your local `talenttrack/` folder. Allow overwrites.
+3. GitHub Desktop → commit `v2.6.2 — schema reconciliation bugfix` → push.
+4. GitHub → new release tagged `v2.6.2`.
 5. WordPress auto-updates.
-
-## Files in this delivery
-
-### Modified
-- `talenttrack.php` — v2.6.1.
-- `readme.txt` — stable tag + changelog.
-- `src/Modules/Players/Admin/PlayersPage.php` — renders custom fields, validates on save, shows errors on validation failure, shows values on view page.
-- `src/Infrastructure/REST/PlayersRestController.php` — overhauled: full field coverage, envelope, custom_fields in GET responses, validation on POST/PUT.
-- `src/Shared/Frontend/PlayerDashboardView.php` — custom fields block on Overview tab.
-- `src/Shared/Frontend/CoachDashboardView.php` — custom fields block on Player Detail tab.
-- `src/Shared/Frontend/DashboardShortcode.php` — "Go to Admin" menu item for administrators.
-- `assets/css/public.css` — new `.tt-custom-fields` styles.
-- `languages/talenttrack-nl_NL.po` — 4 new Dutch strings ("Additional Fields", "Additional Information", "Please fix the errors below:", "Go to Admin").
-- `languages/talenttrack-nl_NL.mo` — recompiled (296 messages).
-
-### Unchanged
-- Everything else — no new files, no schema changes, no module changes.
+6. **Open any TalentTrack admin page once** — this triggers the migration runner, which detects the new migration 0004 and runs it. Your schema gets updated.
 
 ## Post-install verification
 
-### Admin Players form
+### 1. Verify migration ran
+Run this SQL:
+```sql
+SELECT * FROM z06x_tt_migrations ORDER BY id DESC LIMIT 5;
+```
+You should see `0004_schema_reconciliation` near the top with an `applied_at` timestamp of now.
 
-1. Configuration → Player Custom Fields: create at least one field of each type (text, number, date, checkbox, select with 2+ options). Mark at least one as Required.
-2. TalentTrack → Players → Add New or Edit existing.
-3. Scroll to bottom — see "Additional Fields" section with all active fields.
-4. Try saving without filling the required field — form redisplays with red error banner and all fields retain typed values.
-5. Fill the required field, save — success message, values persisted.
-6. Reopen the player — values reappear.
-7. Click through to the player's view page (TalentTrack → Players → player name) — see "Additional Fields" section showing non-empty values only.
+### 2. Verify new columns exist
+```sql
+DESCRIBE z06x_tt_evaluations;
+```
+You should now see `eval_type_id`, `opponent`, `competition`, `match_result`, `home_away`, `minutes_played`, `updated_at` as columns (alongside the legacy `category_id` and `rating` columns which are preserved).
 
-### Player dashboard
+```sql
+DESCRIBE z06x_tt_attendance;
+```
+Should show a `status` column alongside the legacy `present` column. Existing rows get `status='present'` if `present=1`, or `status='absent'` if `present=0`.
 
-1. Log in as a player (whose WP user is linked via `wp_user_id`).
-2. Overview tab — see the "Additional Information" block under the player card, before the radar chart, if any custom values exist.
-3. If no values exist, the block is hidden entirely (no empty "Additional Information" shell).
+```sql
+DESCRIBE z06x_tt_goals;
+```
+Should show a `priority` column.
 
-### Coach Player Detail
+### 3. Test the actual bug
+- Log in as an admin. Go to TalentTrack → Evaluations → Add New.
+- Fill in the form with a player, type, date, and at least one rating.
+- Click Save.
 
-1. Log in as a coach/admin on the frontend dashboard.
-2. My Team tab → click a player → Player Detail tab.
-3. See the same "Additional Information" block, styled identically.
+If the migration worked: you'll see "Saved." and the new evaluation appears in the list AND in the DB.
 
-### REST API
+If something went wrong: you'll see a red error notice with the specific DB error message (no more silent failures).
 
-1. Fetch `/wp-json/talenttrack/v1/players/{id}` (authenticated as a logged-in user).
-2. Response envelope: `{success: true, data: { ..., custom_fields: {favorite_drill: "1v1", ...} }, errors: []}`.
-3. POST a player with `custom_fields: {favorite_drill: ""}` when that field is required → 422 with errors array. Player is not created.
+### 4. Verify the player dashboard
+- Log in as the linked player.
+- Go to the frontend dashboard.
+- Evaluations tab should now show the evaluation you just created.
+- Goals and Attendance should also work once you create new ones.
 
-### Go to Admin
+### 5. The 4 old evaluations
+The 4 orphaned v1.x-era evaluations remain in the database as you requested (option a). They're invisible to all v2.x queries because their `player_id` values don't match any existing player. They're inert — they won't cause errors, they just won't display anywhere.
 
-1. Log in as an administrator.
-2. Click the user name dropdown in the dashboard header.
-3. See three items: Edit profile, Go to Admin, Log out.
-4. Log in as a non-admin — see only two items: Edit profile, Log out.
+If you ever want to delete them:
+```sql
+DELETE FROM z06x_tt_evaluations WHERE player_id NOT IN (SELECT id FROM z06x_tt_players);
+```
 
-## Notes
+Or if you want to re-associate them to your current player:
+```sql
+UPDATE z06x_tt_evaluations SET player_id = [YOUR_PLAYER_ID] WHERE category_id IS NOT NULL;
+```
+(The `category_id IS NOT NULL` filter identifies the old v1.x rows specifically.)
 
-- **Custom field labels are not translated.** Labels you type in the admin UI ("Favorite Drill") are user content, stored as-is. WordPress's translation pipeline doesn't apply to user-entered text. If you want Dutch labels, type them in Dutch.
-- **Custom values survive field deactivation.** If an admin deactivates a field, the stored values stay in the database. Reactivating brings them back.
-- **Player soft-delete does not clean up custom values.** Since players are only soft-deleted (status = 'deleted', not removed from the table), their custom values remain for historical completeness.
+## Files in this delivery
 
-## Sprint 1b — complete
+### New
+- `src/Infrastructure/Database/MigrationHelpers.php` — idempotent ALTER TABLE helpers
+- `database/migrations/0004_schema_reconciliation.php` — the actual migration
 
-| Item | Version | Status |
-|---|---|---|
-| Polymorphic tables + admin management UI | v2.6.0 | ✅ |
-| Player form integration | v2.6.1 | ✅ |
-| Validation + error UX | v2.6.1 | ✅ |
-| Dashboard display (player + coach) | v2.6.1 | ✅ |
-| REST API extension | v2.6.1 | ✅ |
-| Go to Admin link | v2.6.1 | ✅ |
-| Visual form designer | parked on backlog | ⏸ |
+### Modified (fail-loud saves)
+- `src/Modules/Players/Admin/PlayersPage.php`
+- `src/Modules/Evaluations/Admin/EvaluationsPage.php`
+- `src/Modules/Sessions/Admin/SessionsPage.php`
+- `src/Modules/Goals/Admin/GoalsPage.php`
+- `src/Infrastructure/REST/PlayersRestController.php`
+- `src/Infrastructure/REST/EvaluationsRestController.php`
+- `src/Shared/Frontend/FrontendAjax.php`
+- `talenttrack.php` (version bump)
+- `readme.txt` (stable tag + changelog)
 
-## What's next
+### Unchanged
+- All dashboards, views, custom fields code, REST envelope, auth, roles, config, module system, seed data — everything else.
 
-Sprint 1b is done. The backlog for the next sprint:
+## The "fail-loud" pattern
 
-- **Parent role views** — activate the dormant parent role with a linked-child dashboard.
-- **Visual form designer** — drag-to-place layout builder for custom fields (parked item).
-- **More REST endpoints** — Teams, Goals, Sessions, Attendance, Reports, Config still missing from the API.
-- **UX polish** — bulk operations, search & filter on lists, general refinement.
-- **Uniform ownership enforcement** — coach-owns-player check across all entry points.
-- **Match-day attendance sheets** — companion to training attendance.
-- **Player portfolio PDF export** — CV-style document for scouting.
+Every write operation now follows this pattern:
 
-Tell me when v2.6.1 is live, then we pick the next direction.
+```php
+$ok = $wpdb->insert( $table, $data );
+if ( $ok === false ) {
+    Logger::error( 'entity.save.failed', [ 'db_error' => $wpdb->last_error ] );
+    // Return error to user / client / API consumer
+    // Do NOT redirect to success page
+}
+```
+
+This means the "save reported success but nothing hit the DB" class of bug can never silently happen again. If the database rejects a write:
+- Admin pages: red error banner with the DB error message, form stays on the edit page
+- Frontend AJAX: JSON error response with `detail` field; the JS form should show the error
+- REST API: HTTP 500 with the error in the envelope
+
+## Sprint 1b completion
+
+With v2.6.2 landed, Sprint 1b is actually, fully complete — the custom fields work end-to-end AND existing evaluation/session/goal flows work for the first time on this installation.
+
+Next sprint candidates remain the same:
+- Parent role views
+- Visual form designer (parked)
+- More REST endpoints
+- UX polish
+- Match-day attendance sheets
+- Player portfolio PDF export
+
+Install v2.6.2, verify, confirm "working", and we pick the next direction.
