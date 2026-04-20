@@ -1,90 +1,51 @@
-# TalentTrack v2.6.6 — Schema reconciliation, done properly
+# TalentTrack v2.6.7 — Fix PHP parse error + bundle v2.6.6
 
-## What changed in approach
+## What was wrong
 
-v2.6.2 through v2.6.5 all tried to fix a broken schema by running a dynamically-loaded migration file at runtime. Each iteration added a new layer (admin page, dual-pattern support, closure isolation, eval()) to work around a new silent-failure mode. v2.6.5 finally caused a critical error. Enough.
+Since v2.6.4, your GitHub Actions release workflow has been failing at the PHP lint step. That's why the 3rd release asset (`talenttrack.zip` built by the workflow) has been missing from the releases page — the build never got past lint.
 
-v2.6.6 abandons the file-based migration approach for this specific fix. The schema reconciliation now happens **directly inside `Activator::activate()`** using `dbDelta` — WordPress's native, battle-tested, non-destructive schema reconciliation tool that has been running reliably on millions of sites for a decade.
+The CI error was:
+```
+PHP Parse error: Unclosed '{' on line 158 in src/Infrastructure/Database/MigrationRunner.php on line 318
+```
 
-## Why this is better
+The cause: v2.6.5's MigrationRunner had a `// comment` containing a literal PHP close-tag sequence. PHP's lexer treats that sequence as an actual close tag even inside `//` comments (it's not a bug — it's how the language is specified). Result: the file dropped into HTML mode mid-function, and the closing brace was never found.
 
-- **dbDelta** compares your current schema to a desired schema and applies only the differences (creates missing tables, adds missing columns). Idempotent, non-destructive, preserves data.
-- **`register_activation_hook`** runs in a fresh PHP execution triggered by WordPress's own plugin activation flow. No include-cache state from the main boot. No dynamic file loading. No eval.
-- **The migration system stays in place** for future releases, where it's the right tool. Just not for retrofitting a broken install.
+This was entirely my mistake, not a PHP version issue or an infrastructure problem. The lint step is doing exactly what it should do — catching bad code before it ships. That you've still been able to install ZIPs is just because `php -l` is stricter than PHP's runtime about the same file.
 
-## What this release does on your site (in order)
+## What v2.6.7 contains
 
-1. Installs/refreshes the custom roles (unchanged).
-2. Runs `dbDelta` with the complete, correct schema for all TalentTrack tables. On your site, this will add the missing columns to `tt_evaluations`, `tt_attendance`, and `tt_goals`. Nothing is dropped; existing data is preserved.
-3. Runs explicit `ALTER TABLE` on `tt_evaluations.category_id` and `tt_evaluations.rating` to make them nullable (dbDelta can't modify NULL-ability of existing columns).
-4. Backfills `tt_attendance.status` from the legacy `present` column where status is blank.
-5. Records migrations 0001-0004 as applied in `tt_migrations` so the runtime migration runner has nothing to do and can't cause trouble.
-6. Flushes rewrite rules.
+**The corrected MigrationRunner.php** — removed literal PHP close-tag sequences from comments (and also split the regex to avoid any `?>` sequence in the source code at all, belt-and-suspenders).
+
+**Everything from v2.6.6** that you didn't get to install:
+- New Activator with inline schema reconciliation via `dbDelta`
+- The authoritative full schema for all TalentTrack tables
+- Legacy constraint relaxation (makes v1.x `category_id` and `rating` columns nullable)
+- Attendance status backfill from legacy `present` column
+- Marks migrations 0001-0004 as applied so the runtime runner has nothing to do
 
 ## Install
 
-1. Extract ZIP into `/wp-content/plugins/talenttrack/` overwriting existing files. (Your folder name, not `talenttrack-2.6.6`.)
-2. Commit, push, tag `v2.6.6`, release on GitHub.
-3. WordPress updates (auto-update or manual — either works).
-4. **Plugins page → Deactivate TalentTrack → Activate TalentTrack.** This is the one manual step that triggers the reconciliation. Your data is fine — all data is in the database.
-5. Done.
-
-## Verify
-
-Run these SQL queries:
-
-```sql
-SELECT * FROM z06x_tt_migrations ORDER BY id DESC LIMIT 6;
-```
-You should see 4 rows: 0001, 0002, 0003, 0004. If 0004 is there, reconciliation ran.
-
-```sql
-DESCRIBE z06x_tt_evaluations;
-```
-Should show `eval_type_id`, `opponent`, `competition`, `match_result`, `home_away`, `minutes_played`, `updated_at` as columns. The legacy `category_id` and `rating` should show `Null: YES`.
-
-```sql
-DESCRIBE z06x_tt_attendance;
-```
-Should show `status` alongside any legacy `present` column.
-
-```sql
-DESCRIBE z06x_tt_goals;
-```
-Should show `priority`.
-
-Then functional test: create a new evaluation in admin. Save. Should succeed. Row should appear in DB and on player dashboard.
+1. Extract ZIP into `/wp-content/plugins/talenttrack/` (overwriting).
+2. Commit, push, tag `v2.6.7`, create release.
+3. **Verify CI passes this time.** Go to GitHub → Actions → the v2.6.7 run should be green, and the release page should show 3 assets (2 auto from GitHub + `talenttrack.zip` from the workflow).
+4. WordPress admin → Plugins → **Deactivate TalentTrack → Activate TalentTrack.** This triggers the schema reconciliation.
+5. Verify with SQL (see CHANGES.md from v2.6.6 for the exact queries).
 
 ## Files in this release
 
-- `src/Core/Activator.php` — the only meaningful change. Now contains the full schema authoritatively plus legacy-relaxation logic.
-- `talenttrack.php` — version bump only.
-- `readme.txt` — stable tag + changelog.
+### Modified
+- `src/Core/Activator.php` — the v2.6.6 schema-reconciling activator
+- `src/Infrastructure/Database/MigrationRunner.php` — v2.6.5 code with the parse error fixed
+- `talenttrack.php` — version bump
+- `readme.txt` — stable tag + changelog
 
-## Files explicitly REMOVED
+## Everything else unchanged
 
-- `database/migrations/0004_schema_reconciliation.php` — no longer needed; its job is now done by Activator. If this file exists on your server from a prior install, it's harmless (migrations 0001-0004 are marked as applied, so the runner will skip it).
+The usual list — Migrations admin page, MenuExtension, modules, dashboards, REST, auth, custom fields, fail-loud save handlers. All intact.
 
-## What's unchanged from v2.6.3
+## What this teaches
 
-- Migrations admin page (TalentTrack → Migrations) — still there for future releases
-- MenuExtension with pending-migration warning — still there
-- MigrationRunner class — still there, just not needed for this fix
-- All modules, dashboards, REST endpoints, auth, custom fields, etc.
-- The v2.6.2 fail-loud save handlers (if those are already on your site from previous installs)
+PHP's `?>` token closes the PHP block even when embedded in a `//` comment. I knew this abstractly but didn't catch it when writing what was supposed to be descriptive comment text about stripping trailing PHP close tags. The lint step caught it in CI, which is exactly what lint is for. Going forward I'll be more careful about that specific character sequence.
 
-## If something goes wrong
-
-If activation fails or produces a white screen, you can deactivate the plugin via FTP by renaming the folder from `talenttrack` to `talenttrack-disabled`. That reactivates WordPress. Then share the error message from the WP admin email ("Your Site is Experiencing a Technical Issue") and we'll debug.
-
-But I'm confident this one works because:
-- `dbDelta` is the standard WordPress tool for this exact job
-- It's executed in `register_activation_hook`, the cleanest execution context there is
-- No dynamic file loading, no eval, no closures, no clever tricks
-- I've listed every table's complete schema explicitly in Activator, matching what QueryHelpers and the REST controllers expect
-
-## Six iterations, one lesson
-
-Each of v2.6.2–v2.6.5 tried to solve "how do we ship a schema change" with progressively clever code. The right answer was always "use WordPress's built-in tool, triggered by WordPress's built-in activation flow." Fancy was the enemy of working.
-
-The migration system is still a good design for the future — versioned, trackable, rollback-friendly, admin-page-auditable. It was just the wrong tool for this particular rescue job.
+The good news: once this release ships cleanly, the `talenttrack.zip` asset will be attached to the release by your workflow, auto-update should start working (folder name is now correct, asset is present), and you should get a pretty normal release experience. After that we can revisit the automation question you asked earlier.

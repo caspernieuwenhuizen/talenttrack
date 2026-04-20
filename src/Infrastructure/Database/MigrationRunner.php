@@ -161,11 +161,11 @@ class MigrationRunner {
             return [ 'ok' => false, 'error' => "Could not read migration file: $file" ];
         }
 
-        // Strip leading <?php (and any whitespace/BOM) so eval gets clean code.
+        // Strip leading PHP open tag (and any whitespace/BOM) so eval gets clean code.
         $contents = preg_replace( '/^\xEF\xBB\xBF/', '', $contents ); // strip BOM
         $contents = preg_replace( '/^\s*<\?php\s*/', '', $contents, 1 );
-        // Strip optional trailing ?> if present.
-        $contents = preg_replace( '/\s*\?>\s*$/', '', $contents );
+        // Strip optional trailing PHP close tag if present.
+        $contents = preg_replace( '/\s*\?' . '>\s*$/', '', $contents );
 
         ob_start();
         $maybe = null;
