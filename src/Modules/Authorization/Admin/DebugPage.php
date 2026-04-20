@@ -29,7 +29,7 @@ class DebugPage {
             <h1><?php esc_html_e( 'Permission Debug', 'talenttrack' ); ?></h1>
 
             <p class="description">
-                <?php esc_html_e( 'Choose a WordPress user to see every role-scope they resolve to, the source of each scope (data-driven role assignment, legacy bridge, or derived), and the concrete permissions each scope grants.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Choose a WordPress user to see every role-scope they resolve to, the source of each scope (direct role assignment, functional-role mapping, or derived), and the concrete permissions each scope grants.', 'talenttrack' ); ?>
             </p>
 
             <form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" style="margin:16px 0;">
@@ -140,11 +140,24 @@ class DebugPage {
                             $scope['scope_id'] !== null ? (int) $scope['scope_id'] : null
                         );
                         $source_label = self::sourceLabel( (string) $scope['source'] );
+                        $via_fn_key   = $scope['via_functional_role_key'] ?? null;
                         ?>
                         <tr>
                             <td><code><?php echo esc_html( (string) $scope['role_key'] ); ?></code></td>
                             <td><?php echo esc_html( $scope_label ); ?></td>
-                            <td><?php echo esc_html( $source_label ); ?></td>
+                            <td>
+                                <?php echo esc_html( $source_label ); ?>
+                                <?php if ( $via_fn_key ) :
+                                    $fn_label = \TT\Modules\Authorization\Admin\FunctionalRolesPage::roleLabel( (string) $via_fn_key );
+                                    ?>
+                                    <br><small style="color:#666;">
+                                        <?php
+                                        /* translators: %s is a functional role label. */
+                                        printf( esc_html__( 'via %s', 'talenttrack' ), '<strong>' . esc_html( $fn_label ) . '</strong>' );
+                                        ?>
+                                    </small>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <?php if ( empty( $scope['permissions'] ) ) : ?>
                                     <em><?php esc_html_e( '(none)', 'talenttrack' ); ?></em>
@@ -214,9 +227,12 @@ class DebugPage {
     private static function sourceLabel( string $source ): string {
         switch ( $source ) {
             case 'role_scope':           return __( 'Role assignment (data-driven)', 'talenttrack' );
+            case 'functional_role':      return __( 'Via functional role', 'talenttrack' );
+            case 'derived_player_link':  return __( 'Derived: linked player record', 'talenttrack' );
+            // Retained for any third-party filter that still emits the legacy
+            // source values via tt_auth_resolve_permissions.
             case 'legacy_team_people':   return __( 'Legacy bridge: tt_team_people', 'talenttrack' );
             case 'legacy_head_coach_id': return __( 'Legacy bridge: head_coach_id', 'talenttrack' );
-            case 'derived_player_link':  return __( 'Derived: linked player record', 'talenttrack' );
             default: return $source;
         }
     }

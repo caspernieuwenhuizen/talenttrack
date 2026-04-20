@@ -6,13 +6,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Authorization\Admin\RolesPage;
+use TT\Modules\Authorization\Admin\FunctionalRolesPage;
 use TT\Modules\Authorization\Admin\DebugPage;
 
 /**
- * AuthorizationModule — Sprint 1F (v2.9.0).
+ * AuthorizationModule — Sprint 1F (v2.9.0), Sprint 1G (v2.10.0).
  *
- * Registers the admin UI for roles, role assignments, and the permission
- * diagnostic page. Pure UI wiring; no domain logic lives here.
+ * Registers the admin UI for roles, role assignments, functional roles,
+ * and the permission diagnostic page. Pure UI wiring; no domain logic
+ * lives here.
  *
  * Properly implements ModuleInterface (register takes Container, boot takes
  * Container, getName() returns a stable slug). Lesson from v2.7.0 where
@@ -28,6 +30,8 @@ class AuthorizationModule implements ModuleInterface {
         // admin_post handlers — need to be registered before admin_menu fires.
         add_action( 'admin_post_tt_grant_role',  [ RolesPage::class, 'handleGrant' ] );
         add_action( 'admin_post_tt_revoke_role', [ RolesPage::class, 'handleRevoke' ] );
+        add_action( 'admin_post_tt_save_functional_role_mapping',
+            [ FunctionalRolesPage::class, 'handleSaveMapping' ] );
     }
 
     public function boot( Container $container ): void {
@@ -46,6 +50,15 @@ class AuthorizationModule implements ModuleInterface {
             $cap,
             'tt-roles',
             [ RolesPage::class, 'render' ]
+        );
+
+        add_submenu_page(
+            'talenttrack',
+            __( 'Functional Roles', 'talenttrack' ),
+            __( 'Functional Roles', 'talenttrack' ),
+            $cap,
+            'tt-functional-roles',
+            [ FunctionalRolesPage::class, 'render' ]
         );
 
         add_submenu_page(

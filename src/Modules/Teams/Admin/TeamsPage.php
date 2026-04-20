@@ -66,7 +66,7 @@ class TeamsPage {
                             <?php wp_dropdown_users( [ 'name' => 'head_coach_id', 'selected' => $team->head_coach_id ?? 0, 'show_option_none' => __( '— None —', 'talenttrack' ), 'option_none_value' => 0 ] ); ?>
                             <?php if ( $is_edit ) : ?>
                                 <p class="description">
-                                    <?php esc_html_e( 'This is the legacy head coach field (kept for backward compatibility). Prefer assigning staff in the Staff section below — it supports multiple coaches, assistants, managers, and physios per team.', 'talenttrack' ); ?>
+                                    <?php esc_html_e( 'This is the legacy head coach field (kept for display only). As of v2.10.0 it no longer drives permissions — the Staff section below is the source of truth. The head coach from this field was automatically added to the Staff list on upgrade.', 'talenttrack' ); ?>
                                 </p>
                             <?php endif; ?>
                         </td>

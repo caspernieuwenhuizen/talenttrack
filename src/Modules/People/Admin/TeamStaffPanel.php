@@ -3,14 +3,25 @@ namespace TT\Modules\People\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Authorization\FunctionalRolesRepository;
 use TT\Infrastructure\People\PeopleRepository;
+use TT\Modules\Authorization\Admin\FunctionalRolesPage;
 
 /**
  * TeamStaffPanel — renders the Staff section for the team edit page.
  *
- * Designed to be called from TeamsPage::renderForm() (or equivalent) as a
- * self-contained include. Keeps all staff-related UI logic in one place
- * so the Teams module doesn't grow People-specific concerns.
+ * v2.10.0 (Sprint 1G): The role dropdown now reads from
+ * tt_functional_roles rather than a hardcoded PHP constant. Assignment
+ * writes go through PeopleRepository::assignToTeam( int $functional_role_id ).
+ *
+ * One row per assignment — a head coach who (via the functional→auth role
+ * mapping) also has physio permissions still appears once under their
+ * functional role. The physio auth role is visible on the Roles &
+ * Permissions detail page, not here.
+ *
+ * Designed to be called from TeamsPage::renderForm() as a self-contained
+ * include. Keeps all staff-related UI logic in one place so the Teams
+ * module doesn't grow People-specific concerns.
  *
  * Usage inside team edit form:
  *   TeamStaffPanel::render( (int) $team->id );
@@ -19,10 +30,8 @@ use TT\Infrastructure\People\PeopleRepository;
 class TeamStaffPanel {
 
     /**
-     * Render the current staff list for a team, grouped by role.
+     * Render the current staff list for a team, grouped by functional role.
      * Each assignment row has an Unassign button.
-     * Legacy head_coach_id rows (source=legacy) are shown as read-only
-     * with a note explaining how to migrate.
      */
     public static function render( int $team_id ): void {
         $repo    = new PeopleRepository();
@@ -33,9 +42,9 @@ class TeamStaffPanel {
         <?php if ( empty( $grouped ) ) : ?>
             <p><?php esc_html_e( 'No staff assigned to this team yet.', 'talenttrack' ); ?></p>
         <?php else : ?>
-            <?php foreach ( self::displayOrder() as $role ) :
-                if ( empty( $grouped[ $role ] ) ) continue; ?>
-                <h3 style="margin-top:18px;"><?php echo esc_html( PeoplePage::roleLabel( $role ) ); ?></h3>
+            <?php foreach ( self::displayOrder( $grouped ) as $fn_role_key ) :
+                if ( empty( $grouped[ $fn_role_key ] ) ) continue; ?>
+                <h3 style="margin-top:18px;"><?php echo esc_html( FunctionalRolesPage::roleLabel( $fn_role_key ) ); ?></h3>
                 <table class="widefat striped" style="max-width:800px;">
                     <thead>
                         <tr>
@@ -43,15 +52,13 @@ class TeamStaffPanel {
                             <th><?php esc_html_e( 'Email', 'talenttrack' ); ?></th>
                             <th><?php esc_html_e( 'From', 'talenttrack' ); ?></th>
                             <th><?php esc_html_e( 'Until', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Source', 'talenttrack' ); ?></th>
                             <th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
                         </tr>
                     </thead>
                     <tbody>
-                    <?php foreach ( $grouped[ $role ] as $entry ) :
+                    <?php foreach ( $grouped[ $fn_role_key ] as $entry ) :
                         $person  = $entry['person']  ?? null;
                         $wp_user = $entry['wp_user'] ?? null;
-                        $is_legacy = ( $entry['source'] ?? '' ) === 'legacy';
 
                         if ( $person ) {
                             $name  = trim( $person->first_name . ' ' . $person->last_name );
@@ -70,28 +77,15 @@ class TeamStaffPanel {
                             <td><?php echo esc_html( $entry['start_date'] ?: '—' ); ?></td>
                             <td><?php echo esc_html( $entry['end_date'] ?: '—' ); ?></td>
                             <td>
-                                <?php if ( $is_legacy ) : ?>
-                                    <em style="color:#9a6700;"><?php esc_html_e( 'Legacy head_coach_id', 'talenttrack' ); ?></em>
-                                <?php else : ?>
-                                    <?php esc_html_e( 'Assignment', 'talenttrack' ); ?>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ( $is_legacy ) : ?>
-                                    <span class="description">
-                                        <?php esc_html_e( 'Shown for backward compatibility. Add as an explicit assignment below to manage it here.', 'talenttrack' ); ?>
-                                    </span>
-                                <?php else : ?>
-                                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline;">
-                                        <?php wp_nonce_field( 'tt_unassign_staff_' . (int) $entry['assignment_id'], 'tt_nonce' ); ?>
-                                        <input type="hidden" name="action"        value="tt_unassign_staff" />
-                                        <input type="hidden" name="assignment_id" value="<?php echo (int) $entry['assignment_id']; ?>" />
-                                        <input type="hidden" name="team_id"       value="<?php echo (int) $team_id; ?>" />
-                                        <button type="submit" class="button-link" style="color:#b32d2e;" onclick="return confirm('<?php echo esc_js( __( 'Remove this staff assignment?', 'talenttrack' ) ); ?>');">
-                                            <?php esc_html_e( 'Unassign', 'talenttrack' ); ?>
-                                        </button>
-                                    </form>
-                                <?php endif; ?>
+                                <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline;">
+                                    <?php wp_nonce_field( 'tt_unassign_staff_' . (int) $entry['assignment_id'], 'tt_nonce' ); ?>
+                                    <input type="hidden" name="action"        value="tt_unassign_staff" />
+                                    <input type="hidden" name="assignment_id" value="<?php echo (int) $entry['assignment_id']; ?>" />
+                                    <input type="hidden" name="team_id"       value="<?php echo (int) $team_id; ?>" />
+                                    <button type="submit" class="button-link" style="color:#b32d2e;" onclick="return confirm('<?php echo esc_js( __( 'Remove this staff assignment?', 'talenttrack' ) ); ?>');">
+                                        <?php esc_html_e( 'Unassign', 'talenttrack' ); ?>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -103,11 +97,14 @@ class TeamStaffPanel {
 
     /**
      * Render the "add staff to team" form. Submits to admin-post.php with
-     * action=tt_assign_staff, handled by TeamStaffHandler below.
+     * action=tt_assign_staff, handled by PeopleModule::handleAssignStaff.
      */
     public static function renderAddForm( int $team_id ): void {
         $repo = new PeopleRepository();
         $active_people = $repo->list( [ 'status' => 'active' ] );
+
+        $fn_repo = new FunctionalRolesRepository();
+        $functional_roles = $fn_repo->listRoles();
         ?>
         <h3 style="margin-top:24px;"><?php esc_html_e( 'Assign staff to this team', 'talenttrack' ); ?></h3>
 
@@ -117,6 +114,10 @@ class TeamStaffPanel {
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-people&action=new' ) ); ?>" class="button">
                     <?php esc_html_e( 'Add a person first', 'talenttrack' ); ?>
                 </a>
+            </p>
+        <?php elseif ( empty( $functional_roles ) ) : ?>
+            <p>
+                <?php esc_html_e( 'No functional roles are defined. Check the Functional Roles admin page.', 'talenttrack' ); ?>
             </p>
         <?php else : ?>
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:10px;">
@@ -139,15 +140,18 @@ class TeamStaffPanel {
                         </td>
                     </tr>
                     <tr>
-                        <th><label for="tt_assign_role"><?php esc_html_e( 'Role in team', 'talenttrack' ); ?></label> *</th>
+                        <th><label for="tt_assign_functional_role_id"><?php esc_html_e( 'Functional role', 'talenttrack' ); ?></label> *</th>
                         <td>
-                            <select name="role_in_team" id="tt_assign_role" required>
-                                <?php foreach ( PeopleRepository::TEAM_ROLES as $r ) : ?>
-                                    <option value="<?php echo esc_attr( $r ); ?>">
-                                        <?php echo esc_html( PeoplePage::roleLabel( $r ) ); ?>
+                            <select name="functional_role_id" id="tt_assign_functional_role_id" required>
+                                <?php foreach ( $functional_roles as $fr ) : ?>
+                                    <option value="<?php echo (int) $fr->id; ?>">
+                                        <?php echo esc_html( FunctionalRolesPage::roleLabel( (string) $fr->role_key ) ); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                            <p class="description">
+                                <?php esc_html_e( 'What is this person\'s job on the team? Functional roles are mapped to authorization roles (permissions) on the Functional Roles admin page.', 'talenttrack' ); ?>
+                            </p>
                         </td>
                     </tr>
                     <tr>
@@ -165,8 +169,24 @@ class TeamStaffPanel {
         <?php endif;
     }
 
-    /** Display order for staff role sections on the team edit page. */
-    private static function displayOrder(): array {
-        return [ 'head_coach', 'assistant_coach', 'manager', 'physio', 'other' ];
+    /**
+     * Display order: explicit sort for the common roles, then any others
+     * discovered in the grouped data, then 'other' last.
+     *
+     * @param array<string, mixed> $grouped
+     * @return string[]
+     */
+    private static function displayOrder( array $grouped ): array {
+        $preferred = [ 'head_coach', 'assistant_coach', 'manager', 'physio' ];
+        $out = [];
+        foreach ( $preferred as $k ) {
+            if ( array_key_exists( $k, $grouped ) ) $out[] = $k;
+        }
+        foreach ( array_keys( $grouped ) as $k ) {
+            if ( $k === 'other' ) continue;
+            if ( ! in_array( $k, $out, true ) ) $out[] = $k;
+        }
+        if ( array_key_exists( 'other', $grouped ) ) $out[] = 'other';
+        return $out;
     }
 }

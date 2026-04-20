@@ -9,6 +9,14 @@ use TT\Infrastructure\Security\RolesService;
 /**
  * Activator — runs on plugin activation.
  *
+ * v2.10.0 (Sprint 1G): Adds tt_functional_roles and
+ * tt_functional_role_auth_roles tables plus a functional_role_id column on
+ * tt_team_people. Separates "what is this person's job" (functional role)
+ * from "what are they allowed to do" (authorization role). One functional
+ * role can map to multiple authorization roles, enabling cases like
+ * "Head Coach who also does physio". Seeds 5 system functional roles,
+ * a new `team_member` authorization role (for the `other` functional
+ * role), and the default 1-to-1 functional→auth mapping.
  * v2.9.0 (Sprint 1F): Adds tt_roles, tt_role_permissions, and
  * tt_user_role_scopes for the data-driven authorization model. Seeds the
  * 9 system roles and their permission matrix on first activation.
@@ -24,6 +32,7 @@ class Activator {
         self::backfillAttendanceStatus();
         self::markMigrationsApplied();
         self::seedRolesIfEmpty();
+        self::seedFunctionalRolesIfEmpty();
 
         try {
             ( new MigrationRunner() )->run();
@@ -142,14 +151,48 @@ class Activator {
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             team_id BIGINT UNSIGNED NOT NULL,
             person_id BIGINT UNSIGNED NOT NULL,
+            functional_role_id BIGINT UNSIGNED DEFAULT NULL,
             role_in_team VARCHAR(50) NOT NULL,
             start_date DATE DEFAULT NULL,
             end_date DATE DEFAULT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             UNIQUE KEY uniq_team_person_role (team_id, person_id, role_in_team),
+            UNIQUE KEY uniq_team_person_fnrole (team_id, person_id, functional_role_id),
             KEY idx_team (team_id),
-            KEY idx_person (person_id)
+            KEY idx_person (person_id),
+            KEY idx_functional_role (functional_role_id)
+        ) $c;";
+
+        /* ─── Functional roles (NEW in v2.10.0, Sprint 1G) ─── */
+        // Catalogue of jobs people can hold on a team. Decouples "what is this
+        // person's job" from "what are they allowed to do". The mapping table
+        // below defines which authorization roles each functional role grants.
+        $queries[] = "CREATE TABLE {$p}tt_functional_roles (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            role_key VARCHAR(64) NOT NULL,
+            label VARCHAR(191) NOT NULL,
+            description TEXT,
+            is_system TINYINT(1) DEFAULT 0,
+            sort_order INT DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_fnrole_key (role_key)
+        ) $c;";
+
+        // Mapping table: functional role → 0..N authorization roles.
+        // Default seeding is 1-to-1 but the admin UI can add rows (e.g. a
+        // head_coach functional role that also maps to the physio auth role).
+        $queries[] = "CREATE TABLE {$p}tt_functional_role_auth_roles (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            functional_role_id BIGINT UNSIGNED NOT NULL,
+            auth_role_id BIGINT UNSIGNED NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_fnrole_authrole (functional_role_id, auth_role_id),
+            KEY idx_fnrole (functional_role_id),
+            KEY idx_authrole (auth_role_id)
         ) $c;";
 
         /* ─── Roles, permissions, user-role scopes (NEW in v2.9.0) ─── */
@@ -452,18 +495,22 @@ class Activator {
 
     /* ═══════════════════════════════════════════════════════════
      *  v2.9.0 — seed 9 system roles + permission matrix
+     *  v2.10.0 — top up missing system roles on existing sites
+     *            (so team_member lands on Sprint 1F installs)
      * ═══════════════════════════════════════════════════════════ */
 
     private static function seedRolesIfEmpty(): void {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_roles" );
-        if ( $count > 0 ) return;
-
         $roles = self::defaultRoleDefinitions();
 
+        $existing = $wpdb->get_col( "SELECT role_key FROM {$p}tt_roles" );
+        $existing = is_array( $existing ) ? array_map( 'strval', $existing ) : [];
+
         foreach ( $roles as $role ) {
+            if ( in_array( $role['key'], $existing, true ) ) continue;
+
             $wpdb->insert( "{$p}tt_roles", [
                 'role_key'    => $role['key'],
                 'label'       => $role['label'],
@@ -480,6 +527,121 @@ class Activator {
                 ] );
             }
         }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+     *  v2.10.0 (Sprint 1G) — seed functional roles + default mapping
+     * ═══════════════════════════════════════════════════════════ */
+
+    /**
+     * Seed the 5 system functional roles (head_coach, assistant_coach,
+     * manager, physio, other) and the default 1-to-1 mapping to
+     * authorization roles. Idempotent: only seeds functional roles that
+     * don't already exist, and only inserts mapping rows that aren't
+     * already there. Safe to call on every activation.
+     */
+    private static function seedFunctionalRolesIfEmpty(): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $defs = self::defaultFunctionalRoleDefinitions();
+
+        $existing = $wpdb->get_col( "SELECT role_key FROM {$p}tt_functional_roles" );
+        $existing = is_array( $existing ) ? array_map( 'strval', $existing ) : [];
+
+        foreach ( $defs as $def ) {
+            if ( ! in_array( $def['key'], $existing, true ) ) {
+                $wpdb->insert( "{$p}tt_functional_roles", [
+                    'role_key'    => $def['key'],
+                    'label'       => $def['label'],
+                    'description' => $def['description'],
+                    'is_system'   => 1,
+                    'sort_order'  => (int) $def['sort_order'],
+                ] );
+            }
+
+            // Resolve functional_role_id (just-inserted or pre-existing).
+            $fn_role_id = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$p}tt_functional_roles WHERE role_key = %s",
+                $def['key']
+            ) );
+            if ( $fn_role_id <= 0 ) continue;
+
+            // Seed default auth-role mappings (idempotent, one row per mapping).
+            foreach ( $def['maps_to'] as $auth_role_key ) {
+                $auth_role_id = (int) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT id FROM {$p}tt_roles WHERE role_key = %s",
+                    $auth_role_key
+                ) );
+                if ( $auth_role_id <= 0 ) continue;
+
+                $already = (int) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$p}tt_functional_role_auth_roles
+                     WHERE functional_role_id = %d AND auth_role_id = %d",
+                    $fn_role_id, $auth_role_id
+                ) );
+                if ( $already > 0 ) continue;
+
+                $wpdb->insert( "{$p}tt_functional_role_auth_roles", [
+                    'functional_role_id' => $fn_role_id,
+                    'auth_role_id'       => $auth_role_id,
+                ] );
+            }
+        }
+    }
+
+    /**
+     * The authoritative definition of the 5 system functional roles and
+     * their default 1-to-1 mapping to authorization roles. Editable in the
+     * admin UI (TalentTrack → Functional Roles) after activation.
+     *
+     * Mapping default per Sprint 1G design:
+     *   head_coach      → [head_coach]
+     *   assistant_coach → [assistant_coach]
+     *   manager         → [manager]
+     *   physio          → [physio]
+     *   other           → [team_member]   (new minimal read-only auth role)
+     *
+     * @return array<int, array{key:string, label:string, description:string, sort_order:int, maps_to:string[]}>
+     */
+    public static function defaultFunctionalRoleDefinitions(): array {
+        return [
+            [
+                'key'         => 'head_coach',
+                'label'       => 'Head Coach',
+                'description' => 'Lead coach for a team. Owns methodology, selection, and session planning.',
+                'sort_order'  => 10,
+                'maps_to'     => [ 'head_coach' ],
+            ],
+            [
+                'key'         => 'assistant_coach',
+                'label'       => 'Assistant Coach',
+                'description' => 'Supports the head coach with training and evaluations within a team.',
+                'sort_order'  => 20,
+                'maps_to'     => [ 'assistant_coach' ],
+            ],
+            [
+                'key'         => 'manager',
+                'label'       => 'Manager',
+                'description' => 'Handles logistics, roster, sessions, and team settings. Not an evaluator.',
+                'sort_order'  => 30,
+                'maps_to'     => [ 'manager' ],
+            ],
+            [
+                'key'         => 'physio',
+                'label'       => 'Physio',
+                'description' => 'Medical / physical support staff attached to a team.',
+                'sort_order'  => 40,
+                'maps_to'     => [ 'physio' ],
+            ],
+            [
+                'key'         => 'other',
+                'label'       => 'Other',
+                'description' => 'Anything that does not fit the other categories. Minimal read-only access by default.',
+                'sort_order'  => 50,
+                'maps_to'     => [ 'team_member' ],
+            ],
+        ];
     }
 
     /**
@@ -572,6 +734,15 @@ class Activator {
                 'key'         => 'physio',
                 'label'       => 'Physio',
                 'description' => 'Read-only access to players and sessions within assigned teams.',
+                'permissions' => [
+                    'players.view',
+                    'sessions.view',
+                ],
+            ],
+            [
+                'key'         => 'team_member',
+                'label'       => 'Team Member',
+                'description' => 'Minimal read-only access within assigned teams. Default authorization for the "Other" functional role — see only players and sessions of the teams you are assigned to, nothing more.',
                 'permissions' => [
                     'players.view',
                     'sessions.view',

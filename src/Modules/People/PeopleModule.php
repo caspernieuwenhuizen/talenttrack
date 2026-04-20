@@ -53,13 +53,16 @@ class PeopleModule implements ModuleInterface {
      * Handle the tt_assign_staff form submission from the team edit page.
      * Lives on the module (not PeoplePage) because it's triggered from the
      * Teams admin context, not the People page.
+     *
+     * v2.10.0 (Sprint 1G): Reads functional_role_id from the form (the
+     * dropdown is now populated from tt_functional_roles).
      */
     public static function handleAssignStaff(): void {
-        $team_id   = isset( $_POST['team_id'] ) ? absint( wp_unslash( (string) $_POST['team_id'] ) ) : 0;
-        $person_id = isset( $_POST['person_id'] ) ? absint( wp_unslash( (string) $_POST['person_id'] ) ) : 0;
-        $role      = isset( $_POST['role_in_team'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['role_in_team'] ) ) : '';
-        $start     = isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['start_date'] ) ) : '';
-        $end       = isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['end_date'] ) ) : '';
+        $team_id            = isset( $_POST['team_id'] ) ? absint( wp_unslash( (string) $_POST['team_id'] ) ) : 0;
+        $person_id          = isset( $_POST['person_id'] ) ? absint( wp_unslash( (string) $_POST['person_id'] ) ) : 0;
+        $functional_role_id = isset( $_POST['functional_role_id'] ) ? absint( wp_unslash( (string) $_POST['functional_role_id'] ) ) : 0;
+        $start              = isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['start_date'] ) ) : '';
+        $end                = isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['end_date'] ) ) : '';
 
         check_admin_referer( 'tt_assign_staff_' . $team_id, 'tt_nonce' );
 
@@ -71,8 +74,8 @@ class PeopleModule implements ModuleInterface {
         }
 
         $repo = new \TT\Infrastructure\People\PeopleRepository();
-        $ok = $team_id > 0 && $person_id > 0 && $role !== ''
-            && $repo->assignToTeam( $team_id, $person_id, $role, $start ?: null, $end ?: null );
+        $ok = $team_id > 0 && $person_id > 0 && $functional_role_id > 0
+            && $repo->assignToTeam( $team_id, $person_id, $functional_role_id, $start ?: null, $end ?: null );
 
         $redirect = admin_url( 'admin.php?page=tt-teams&action=edit&id=' . $team_id . '&tt_msg=' . ( $ok ? 'saved' : 'error' ) );
         wp_safe_redirect( $redirect );

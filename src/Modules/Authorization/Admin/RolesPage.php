@@ -130,7 +130,7 @@ class RolesPage {
 
             <?php if ( (int) $role->is_system === 1 ) : ?>
                 <p class="description">
-                    <em><?php esc_html_e( 'This is a system role. Its permission set is read-only in Sprint 1F. Custom role editing will be available in a future release.', 'talenttrack' ); ?></em>
+                    <em><?php esc_html_e( 'This is a system role. Its permission set is read-only. Custom role editing will be available in a future release.', 'talenttrack' ); ?></em>
                 </p>
             <?php endif; ?>
 
@@ -161,22 +161,26 @@ class RolesPage {
             <?php endif; ?>
 
             <h2 style="margin-top:30px;"><?php esc_html_e( 'Current assignments', 'talenttrack' ); ?></h2>
-            <?php self::renderAssignmentsTable( $assignments ); ?>
+            <?php self::renderAssignmentsTable( $assignments, $role_id ); ?>
         </div>
         <?php
     }
 
-    private static function renderAssignmentsTable( array $assignments ): void {
-        if ( empty( $assignments ) ) {
+    private static function renderAssignmentsTable( array $assignments, int $role_id = 0 ): void {
+        $fn_repo = new \TT\Infrastructure\Authorization\FunctionalRolesRepository();
+        $indirect = $role_id > 0 ? $fn_repo->getIndirectAssignmentsForAuthRole( $role_id ) : [];
+
+        if ( empty( $assignments ) && empty( $indirect ) ) {
             echo '<p>' . esc_html__( 'This role is not currently assigned to anyone.', 'talenttrack' ) . '</p>';
             return;
         }
         ?>
-        <table class="widefat striped" style="max-width:900px;">
+        <table class="widefat striped" style="max-width:1000px;">
             <thead>
                 <tr>
                     <th><?php esc_html_e( 'Person', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'Scope', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Source', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'From', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'Until', 'talenttrack' ); ?></th>
                     <th style="width:100px;"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
@@ -192,6 +196,7 @@ class RolesPage {
                     <tr>
                         <td><?php echo esc_html( trim( $a->first_name . ' ' . $a->last_name ) ); ?></td>
                         <td><?php echo esc_html( $scope_label ); ?></td>
+                        <td><?php esc_html_e( 'Direct', 'talenttrack' ); ?></td>
                         <td><?php echo esc_html( $a->start_date ?: '—' ); ?></td>
                         <td><?php echo esc_html( $a->end_date ?: '—' ); ?></td>
                         <td>
@@ -209,8 +214,45 @@ class RolesPage {
                         </td>
                     </tr>
                 <?php endforeach; ?>
+
+                <?php foreach ( $indirect as $ia ) :
+                    $team_scope_label = sprintf(
+                        '%s: %s',
+                        __( 'Team', 'talenttrack' ),
+                        (string) $ia->team_name
+                    );
+                    $fn_role_label = \TT\Modules\Authorization\Admin\FunctionalRolesPage::roleLabel( (string) $ia->functional_role_key );
+                    $fn_role_url   = admin_url( 'admin.php?page=tt-functional-roles&action=view&id=' . (int) $ia->functional_role_id );
+                    ?>
+                    <tr>
+                        <td><?php echo esc_html( trim( $ia->first_name . ' ' . $ia->last_name ) ); ?></td>
+                        <td><?php echo esc_html( $team_scope_label ); ?></td>
+                        <td>
+                            <?php
+                            /* translators: %s is a functional role label, e.g. "Head Coach". */
+                            printf(
+                                esc_html__( 'via %s', 'talenttrack' ),
+                                '<a href="' . esc_url( $fn_role_url ) . '">' . esc_html( $fn_role_label ) . '</a>'
+                            );
+                            ?>
+                        </td>
+                        <td><?php echo esc_html( $ia->start_date ?: '—' ); ?></td>
+                        <td><?php echo esc_html( $ia->end_date ?: '—' ); ?></td>
+                        <td>
+                            <span class="description" style="color:#999;">
+                                <?php esc_html_e( '—', 'talenttrack' ); ?>
+                            </span>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
+
+        <?php if ( ! empty( $indirect ) ) : ?>
+            <p class="description" style="margin-top:8px;">
+                <?php esc_html_e( 'Indirect grants come from a functional role mapping. To remove one, either unassign the person from the team or change the functional role\'s mapping on the Functional Roles admin page.', 'talenttrack' ); ?>
+            </p>
+        <?php endif; ?>
         <?php
     }
 
@@ -345,6 +387,7 @@ class RolesPage {
             'assistant_coach'     => [ 'team' ],
             'manager'             => [ 'team' ],
             'physio'              => [ 'team' ],
+            'team_member'         => [ 'team' ],
             'scout'               => [ 'global', 'team' ],
             'parent'              => [ 'player' ],
             'player'              => [], // not manually grantable
@@ -365,6 +408,7 @@ class RolesPage {
             case 'assistant_coach':     return __( 'Assistant Coach', 'talenttrack' );
             case 'manager':             return __( 'Manager', 'talenttrack' );
             case 'physio':              return __( 'Physio', 'talenttrack' );
+            case 'team_member':         return __( 'Team Member', 'talenttrack' );
             case 'scout':               return __( 'Scout', 'talenttrack' );
             case 'parent':              return __( 'Parent', 'talenttrack' );
             case 'player':              return __( 'Player', 'talenttrack' );
@@ -390,6 +434,8 @@ class RolesPage {
                 return __( 'Runs logistics within assigned teams — roster, sessions, team settings. No evaluation permissions. Scoped to team.', 'talenttrack' );
             case 'physio':
                 return __( 'Read-only access to players and sessions within assigned teams.', 'talenttrack' );
+            case 'team_member':
+                return __( 'Minimal read-only access within assigned teams. Default authorization for the "Other" functional role — see only players and sessions of the teams you are assigned to, nothing more.', 'talenttrack' );
             case 'scout':
                 return __( 'View any player and create scouting evaluations. Can be assigned globally or to specific teams.', 'talenttrack' );
             case 'parent':

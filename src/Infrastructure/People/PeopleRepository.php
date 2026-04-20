@@ -6,9 +6,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * PeopleRepository — data access for the People/Staff domain.
  *
- * Handles CRUD on tt_people, assignment CRUD on tt_team_people, and the
- * union-style getTeamStaff() that includes legacy tt_teams.head_coach_id
- * as a synthetic row for backward compatibility.
+ * Handles CRUD on tt_people and assignment CRUD on tt_team_people. In
+ * Sprint 1G (v2.10.0) the tt_teams.head_coach_id legacy column stopped
+ * driving permissions and stopped being read here; the 0006 migration
+ * translated all non-zero values into explicit tt_team_people rows.
  *
  * All methods return plain arrays (or bools) — no ORM, no shared mutable
  * state. Safe to instantiate anywhere.
@@ -138,16 +139,26 @@ class PeopleRepository {
     /* ═══════════════ Team-staff assignments ═══════════════ */
 
     /**
-     * Return staff for a team, grouped by role. Includes the legacy
-     * head_coach_id from tt_teams as a synthetic row when present.
+     * Return staff for a team, grouped by functional role key.
+     *
+     * v2.10.0 (Sprint 1G): Grouping is driven by functional_role_id →
+     * tt_functional_roles.role_key. Rows without a functional_role_id
+     * (shouldn't happen post-migration, but defensive) fall back to
+     * their legacy role_in_team string.
+     *
+     * The Sprint 1F legacy synthesis of tt_teams.head_coach_id is gone.
+     * Migration 0006 promoted those values to explicit tt_team_people
+     * rows; there is no longer a read-path for head_coach_id.
      *
      * Return shape:
      * [
      *   'head_coach' => [
-     *     [ 'person' => object|null, 'wp_user' => object|null,
-     *       'role' => 'head_coach', 'assignment_id' => int|null,
+     *     [ 'person' => object, 'wp_user' => object|null,
+     *       'functional_role_key' => 'head_coach',
+     *       'functional_role_id'  => int,
+     *       'assignment_id' => int,
      *       'start_date' => string|null, 'end_date' => string|null,
-     *       'source' => 'legacy'|'assignment' ],
+     *       'source' => 'assignment' ],
      *     ...
      *   ],
      *   'assistant_coach' => [ ... ],
@@ -162,65 +173,35 @@ class PeopleRepository {
 
         $grouped = [];
 
-        /* ─── Real assignments from tt_team_people ─── */
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT tp.id AS assignment_id, tp.role_in_team, tp.start_date, tp.end_date,
+            "SELECT tp.id AS assignment_id, tp.role_in_team, tp.functional_role_id,
+                    tp.start_date, tp.end_date,
+                    fr.role_key AS functional_role_key,
                     p.*
              FROM {$p}tt_team_people tp
              INNER JOIN {$p}tt_people p ON p.id = tp.person_id
+             LEFT  JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id
              WHERE tp.team_id = %d
-             ORDER BY tp.role_in_team ASC, p.last_name ASC",
+             ORDER BY p.last_name ASC",
             $team_id
         ) );
 
         if ( is_array( $rows ) ) {
             foreach ( $rows as $r ) {
-                $role = (string) $r->role_in_team;
-                $grouped[ $role ][] = [
-                    'person'        => $r,
-                    'wp_user'       => $r->wp_user_id ? get_userdata( (int) $r->wp_user_id ) : null,
-                    'role'          => $role,
-                    'assignment_id' => (int) $r->assignment_id,
-                    'start_date'    => $r->start_date,
-                    'end_date'      => $r->end_date,
-                    'source'        => 'assignment',
+                // Prefer the functional role key when available (post-migration
+                // state). Fall back to role_in_team for any row that somehow
+                // didn't get backfilled.
+                $group_key = $r->functional_role_key ?: (string) $r->role_in_team;
+                $grouped[ $group_key ][] = [
+                    'person'              => $r,
+                    'wp_user'             => $r->wp_user_id ? get_userdata( (int) $r->wp_user_id ) : null,
+                    'functional_role_key' => (string) $group_key,
+                    'functional_role_id'  => $r->functional_role_id !== null ? (int) $r->functional_role_id : null,
+                    'assignment_id'       => (int) $r->assignment_id,
+                    'start_date'          => $r->start_date,
+                    'end_date'            => $r->end_date,
+                    'source'              => 'assignment',
                 ];
-            }
-        }
-
-        /* ─── Legacy head coach from tt_teams.head_coach_id ─── */
-        // DEPRECATED: tt_teams.head_coach_id is retained for backward compat.
-        // Read-only union with assignment data above. New assignments write
-        // to tt_team_people only; this column is not updated on save.
-        $legacy_user_id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT head_coach_id FROM {$p}tt_teams WHERE id = %d",
-            $team_id
-        ) );
-
-        if ( $legacy_user_id > 0 ) {
-            $wp_user = get_userdata( $legacy_user_id );
-            if ( $wp_user ) {
-                // Only add the legacy row if no tt_team_people row already
-                // represents this user as head_coach (via wp_user_id match).
-                $already = false;
-                foreach ( $grouped['head_coach'] ?? [] as $entry ) {
-                    $person = $entry['person'] ?? null;
-                    if ( $person && (int) ( $person->wp_user_id ?? 0 ) === $legacy_user_id ) {
-                        $already = true;
-                        break;
-                    }
-                }
-                if ( ! $already ) {
-                    $grouped['head_coach'][] = [
-                        'person'        => null,
-                        'wp_user'       => $wp_user,
-                        'role'          => 'head_coach',
-                        'assignment_id' => null,
-                        'start_date'    => null,
-                        'end_date'      => null,
-                        'source'        => 'legacy',
-                    ];
-                }
             }
         }
 
@@ -234,9 +215,11 @@ class PeopleRepository {
         global $wpdb;
         $p = $wpdb->prefix;
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT tp.*, t.name AS team_name, t.age_group
+            "SELECT tp.*, t.name AS team_name, t.age_group,
+                    fr.role_key AS functional_role_key
              FROM {$p}tt_team_people tp
              INNER JOIN {$p}tt_teams t ON t.id = tp.team_id
+             LEFT  JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id
              WHERE tp.person_id = %d
              ORDER BY t.name ASC",
             $person_id
@@ -244,19 +227,33 @@ class PeopleRepository {
         return is_array( $rows ) ? $rows : [];
     }
 
-    public function assignToTeam( int $team_id, int $person_id, string $role, ?string $start = null, ?string $end = null ): bool {
+    /**
+     * Assign a person to a team under a specific functional role.
+     *
+     * v2.10.0 (Sprint 1G): Accepts a functional_role_id. Also writes the
+     * legacy role_in_team string for continuity with the
+     * uniq_team_person_role index (kept during the transition). Both
+     * columns stay in sync for rows written through this method.
+     */
+    public function assignToTeam( int $team_id, int $person_id, int $functional_role_id, ?string $start = null, ?string $end = null ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        if ( ! in_array( $role, self::TEAM_ROLES, true ) ) return false;
-        if ( $team_id <= 0 || $person_id <= 0 ) return false;
+        if ( $team_id <= 0 || $person_id <= 0 || $functional_role_id <= 0 ) return false;
+
+        $fn_role_key = (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT role_key FROM {$p}tt_functional_roles WHERE id = %d",
+            $functional_role_id
+        ) );
+        if ( $fn_role_key === '' ) return false;
 
         $result = $wpdb->insert( "{$p}tt_team_people", [
-            'team_id'      => $team_id,
-            'person_id'    => $person_id,
-            'role_in_team' => $role,
-            'start_date'   => $start ?: null,
-            'end_date'     => $end ?: null,
+            'team_id'            => $team_id,
+            'person_id'          => $person_id,
+            'functional_role_id' => $functional_role_id,
+            'role_in_team'       => $fn_role_key,
+            'start_date'         => $start ?: null,
+            'end_date'           => $end ?: null,
         ] );
         if ( $result === false ) return false;
 
@@ -265,9 +262,10 @@ class PeopleRepository {
          *
          * @param int    $team_id
          * @param int    $person_id
-         * @param string $role
+         * @param string $functional_role_key
+         * @param int    $functional_role_id
          */
-        do_action( 'tt_person_assigned_to_team', $team_id, $person_id, $role );
+        do_action( 'tt_person_assigned_to_team', $team_id, $person_id, $fn_role_key, $functional_role_id );
 
         return true;
     }

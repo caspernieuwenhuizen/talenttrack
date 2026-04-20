@@ -4,10 +4,17 @@ namespace TT\Infrastructure\Security;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Authorization\AuthorizationRepository;
+use TT\Infrastructure\Authorization\FunctionalRolesRepository;
 
 /**
  * AuthorizationService — central authorization layer.
  *
+ * v2.10.0 (Sprint 1G): The legacy role_in_team bridge and the
+ * tt_teams.head_coach_id bridge are retired. Team-based permissions now
+ * flow through the explicit functional-role → authorization-role mapping
+ * (tt_functional_roles + tt_functional_role_auth_roles). This allows one
+ * functional role (e.g. head_coach) to grant multiple authorization roles
+ * (e.g. head_coach + physio) via the configurable mapping table.
  * v2.9.0 (Sprint 1F): Internals rewritten to evaluate permissions from
  * the data-driven tt_roles / tt_role_permissions / tt_user_role_scopes
  * tables, plus a legacy bridge that auto-grants equivalent permissions
@@ -24,9 +31,10 @@ use TT\Infrastructure\Authorization\AuthorizationRepository;
  *   3. Compute "what permissions do I have in scope X?"
  *   4. For each high-level canXxx() call, map it to one or more
  *      permission checks in the correct scope.
- *   5. Legacy bridge: if a user has tt_team_people assignments, grant the
- *      equivalent permissions on the fly. This lets existing data keep
- *      working without a data migration.
+ *   5. Functional-role resolution: for each tt_team_people row the user
+ *      owns (via tt_people.wp_user_id), read its functional_role_id,
+ *      follow tt_functional_role_auth_roles to the set of auth roles,
+ *      and emit one scope entry per auth role at team scope.
  *
  * Everything is filterable via `tt_auth_can_*` and `tt_auth_check_result`
  * filters. Every decision fires `tt_auth_check` for audit.
@@ -42,12 +50,15 @@ class AuthorizationService {
     private static $cache_team_roles = [];
 
     /**
-     * Resolved scopes for a user (combination of DB-driven role scopes and
-     * legacy bridge). Structure:
+     * Resolved scopes for a user (combination of data-driven role scopes,
+     * functional-role mapping, and derived player link). Structure:
      *   [user_id => [ scope_entries ... ]]
      * Each entry: ['role_key'=>..., 'scope_type'=>..., 'scope_id'=>...|null,
-     *              'permissions'=>[...], 'source'=>'role_scope'|'legacy_team_people'|'legacy_head_coach_id'|'wp_role',
-     *              'scope_id_pk'=>int|null]
+     *              'permissions'=>[...],
+     *              'source'=>'role_scope'|'functional_role'|'derived_player_link',
+     *              'scope_id_pk'=>int|null,
+     *              'via_functional_role_key'=>string|null (only when source=functional_role),
+     *              'via_functional_role_id'=>int|null    (only when source=functional_role)]
      *
      * @var array<int, array<int, array<string,mixed>>>
      */
@@ -72,6 +83,7 @@ class AuthorizationService {
         add_action( 'tt_person_created',          [ __CLASS__, 'flushCache' ], 10, 0 );
         add_action( 'tt_role_granted',            [ __CLASS__, 'flushCache' ], 10, 0 );
         add_action( 'tt_role_revoked',            [ __CLASS__, 'flushCache' ], 10, 0 );
+        add_action( 'tt_functional_role_mapping_updated', [ __CLASS__, 'flushCache' ], 10, 0 );
         add_action( 'wp_login',                   [ __CLASS__, 'flushCache' ], 10, 0 );
         add_action( 'wp_logout',                  [ __CLASS__, 'flushCache' ], 10, 0 );
     }
@@ -282,8 +294,14 @@ class AuthorizationService {
     /**
      * Build the full set of scope entries for a user, combining:
      *   1. tt_user_role_scopes rows (via AuthorizationRepository)
-     *   2. legacy bridge: tt_team_people assignments → implied role scopes
-     *   3. legacy bridge: tt_teams.head_coach_id → implied head_coach scope
+     *   2. Functional role resolution: tt_team_people.functional_role_id →
+     *      tt_functional_role_auth_roles → one scope entry per auth role
+     *   3. Derived `player` role from tt_players.wp_user_id
+     *
+     * The legacy bridges (role_in_team string lookup, tt_teams.head_coach_id)
+     * that existed in Sprint 1F were retired in Sprint 1G once the data
+     * migration 0006 translated them into explicit tt_team_people rows with
+     * functional_role_id set.
      *
      * Each entry carries the role_key, scope, and resolved permissions.
      *
@@ -314,63 +332,66 @@ class AuthorizationService {
             }
         }
 
-        /* ─── Source 2: legacy tt_team_people → implied scoped role ─── */
-        // Maps role_in_team values to role_key values. Identical for the
-        // common cases; 'other' falls back to a generic view-only permission
-        // set (treat them like physio/read-only).
-        $legacy_map = [
-            'head_coach'      => 'head_coach',
-            'assistant_coach' => 'assistant_coach',
-            'manager'         => 'manager',
-            'physio'          => 'physio',
-            'other'           => 'physio', // read-only equivalent
-        ];
+        /* ─── Source 2: functional role → auth role mapping ─── */
+        // For each team the person is assigned to, look up their functional
+        // role and follow the mapping table to the set of auth roles. One
+        // functional role can map to multiple auth roles (e.g. head_coach
+        // mapped to both head_coach and physio auth roles), so this loop
+        // can emit multiple scope entries for a single team assignment.
+        if ( $person_id ) {
+            $fn_repo = new FunctionalRolesRepository();
+            $assignments = $fn_repo->getFunctionalRoleAssignmentsForPerson( $person_id );
 
-        $team_roles = self::getUserTeamRoles( $user_id );
-        foreach ( $team_roles as $team_id => $roles_in_team ) {
-            foreach ( $roles_in_team as $role_in_team ) {
-                $role_key = $legacy_map[ $role_in_team ] ?? null;
-                if ( ! $role_key ) continue;
-                $perms = self::getPermissionsForRoleKey( $role_key );
-                $scopes[] = [
-                    'role_key'    => $role_key,
-                    'scope_type'  => 'team',
-                    'scope_id'    => $team_id,
-                    'permissions' => $perms,
-                    'source'      => 'legacy_team_people',
-                    'scope_id_pk' => null,
-                    'start_date'  => null,
-                    'end_date'    => null,
-                ];
+            // Cache auth role ids per functional role id within this call
+            // to avoid a query per assignment when the same functional role
+            // shows up on multiple teams.
+            $auth_role_ids_cache = [];
+            $today = current_time( 'Y-m-d' );
+
+            foreach ( $assignments as $a ) {
+                // Honor start/end dates — inactive assignments don't grant
+                // permissions. Matches how tt_user_role_scopes is filtered.
+                if ( ! self::dateActive( $a->start_date, $a->end_date, $today ) ) continue;
+
+                $fn_role_id = (int) $a->functional_role_id;
+                if ( $fn_role_id <= 0 ) continue;
+
+                if ( ! array_key_exists( $fn_role_id, $auth_role_ids_cache ) ) {
+                    $auth_role_ids_cache[ $fn_role_id ] = $fn_repo->getAuthRoleIdsForFunctionalRole( $fn_role_id );
+                }
+                $auth_role_ids = $auth_role_ids_cache[ $fn_role_id ];
+                if ( empty( $auth_role_ids ) ) continue;
+
+                $team_id = (int) $a->team_id;
+                $fn_role_key = (string) $a->functional_role_key;
+
+                foreach ( $auth_role_ids as $auth_role_id ) {
+                    $auth_role_key = self::getRoleKeyById( (int) $auth_role_id );
+                    if ( $auth_role_key === null ) continue;
+
+                    $perms = self::getPermissionsForRoleKey( $auth_role_key );
+
+                    $scopes[] = [
+                        'role_key'           => $auth_role_key,
+                        'scope_type'         => 'team',
+                        'scope_id'           => $team_id,
+                        'permissions'        => $perms,
+                        'source'             => 'functional_role',
+                        'scope_id_pk'        => (int) $a->assignment_id,
+                        'start_date'         => $a->start_date,
+                        'end_date'           => $a->end_date,
+                        'via_functional_role_key' => $fn_role_key,
+                        'via_functional_role_id'  => $fn_role_id,
+                    ];
+                }
             }
         }
 
-        /* ─── Source 3: legacy tt_teams.head_coach_id pointing at this user ─── */
-        global $wpdb;
-        $legacy_head_coach_team_ids = $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_teams WHERE head_coach_id = %d",
-            $user_id
-        ) );
-        if ( is_array( $legacy_head_coach_team_ids ) ) {
-            $perms_hc = self::getPermissionsForRoleKey( 'head_coach' );
-            foreach ( $legacy_head_coach_team_ids as $tid ) {
-                $scopes[] = [
-                    'role_key'    => 'head_coach',
-                    'scope_type'  => 'team',
-                    'scope_id'    => (int) $tid,
-                    'permissions' => $perms_hc,
-                    'source'      => 'legacy_head_coach_id',
-                    'scope_id_pk' => null,
-                    'start_date'  => null,
-                    'end_date'    => null,
-                ];
-            }
-        }
-
-        /* ─── Source 4: derived `player` role ─── */
+        /* ─── Source 3: derived `player` role ─── */
         // If this WP user is linked to a tt_players row, grant the player
         // role scoped to that player. Not stored in tt_user_role_scopes —
         // derived at runtime.
+        global $wpdb;
         $player_ids_i_am = $wpdb->get_col( $wpdb->prepare(
             "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND status = 'active'",
             $user_id
@@ -425,6 +446,32 @@ class AuthorizationService {
         ) );
         $cache[ $role_key ] = is_array( $rows ) ? array_map( 'strval', $rows ) : [];
         return $cache[ $role_key ];
+    }
+
+    /**
+     * Resolve a tt_roles.id to its role_key. Request-scoped cache.
+     */
+    private static function getRoleKeyById( int $role_id ): ?string {
+        static $cache = [];
+        if ( array_key_exists( $role_id, $cache ) ) return $cache[ $role_id ];
+
+        global $wpdb;
+        $key = $wpdb->get_var( $wpdb->prepare(
+            "SELECT role_key FROM {$wpdb->prefix}tt_roles WHERE id = %d",
+            $role_id
+        ) );
+        $cache[ $role_id ] = $key ? (string) $key : null;
+        return $cache[ $role_id ];
+    }
+
+    /**
+     * Is the (start_date, end_date) range active for the given day?
+     * NULL on either side means open-ended in that direction.
+     */
+    private static function dateActive( ?string $start, ?string $end, string $today ): bool {
+        if ( $start !== null && $start !== '' && $start > $today ) return false;
+        if ( $end   !== null && $end   !== '' && $end   < $today ) return false;
+        return true;
     }
 
     private static function decide( string $action, int $user_id, string $entity_type, int $entity_id, callable $rule ): bool {

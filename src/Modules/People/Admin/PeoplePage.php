@@ -257,10 +257,14 @@ class PeoplePage {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ( $teams as $a ) : ?>
+                    <?php foreach ( $teams as $a ) :
+                        $role_key = ! empty( $a->functional_role_key )
+                            ? (string) $a->functional_role_key
+                            : (string) $a->role_in_team;
+                        ?>
                         <tr>
                             <td><?php echo esc_html( $a->team_name ); ?> <?php if ( ! empty( $a->age_group ) ) echo '<small style="color:#999;">(' . esc_html( $a->age_group ) . ')</small>'; ?></td>
-                            <td><?php echo esc_html( self::roleLabel( (string) $a->role_in_team ) ); ?></td>
+                            <td><?php echo esc_html( \TT\Modules\Authorization\Admin\FunctionalRolesPage::roleLabel( $role_key ) ); ?></td>
                             <td><?php echo esc_html( $a->start_date ?: '—' ); ?></td>
                             <td><?php echo esc_html( $a->end_date ?: '—' ); ?></td>
                         </tr>

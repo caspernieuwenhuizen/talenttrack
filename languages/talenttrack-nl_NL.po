@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 2.7.2\n"
+"Project-Id-Version: TalentTrack 2.10.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-04-20 10:30+0000\n"
 "PO-Revision-Date: 2026-04-20 10:30+0000\n"
@@ -1375,4 +1375,97 @@ msgstr "Alleen-lezen toegang tot gekoppelde gegevens van kinderen. Beperkt tot s
 
 msgid "Read-only access to own profile. Auto-derived from tt_players.wp_user_id — not manually grantable."
 msgstr "Alleen-lezen toegang tot eigen profiel. Automatisch afgeleid van tt_players.wp_user_id — niet handmatig toekenbaar."
+
+msgid "Functional Roles"
+msgstr "Functionele rollen"
+
+msgid "Functional role"
+msgstr "Functionele rol"
+
+msgid "Functional roles describe the jobs people hold on a team (head coach, assistant coach, manager, physio, other). Each functional role is mapped to one or more authorization roles, which determine what that person is allowed to do. Edit a functional role below to change its mapping."
+msgstr "Functionele rollen beschrijven de functies die mensen binnen een team vervullen (hoofdtrainer, assistent-trainer, manager, fysio, overig). Elke functionele rol wordt gekoppeld aan een of meer autorisatierollen, die bepalen wat die persoon mag doen. Bewerk hieronder een functionele rol om de koppeling te wijzigen."
+
+msgid "Maps to authorization roles"
+msgstr "Gekoppeld aan autorisatierollen"
+
+msgid "(none — grants no permissions)"
+msgstr "(geen — geeft geen rechten)"
+
+msgid "No functional roles configured."
+msgstr "Geen functionele rollen geconfigureerd."
+
+msgid "Functional role not found."
+msgstr "Functionele rol niet gevonden."
+
+msgid "← Back to all functional roles"
+msgstr "← Terug naar alle functionele rollen"
+
+msgid "Authorization roles this functional role grants"
+msgstr "Autorisatierollen die deze functionele rol toekent"
+
+msgid "When someone is assigned to a team with this functional role, they receive every authorization role ticked below, scoped to that team. Tick multiple to combine permission sets — for example, a head coach who should also see physio-level information."
+msgstr "Wanneer iemand aan een team wordt toegewezen met deze functionele rol, krijgt diegene elke hieronder aangevinkte autorisatierol, beperkt tot dat team. Vink er meerdere aan om rechtensets te combineren — bijvoorbeeld een hoofdtrainer die ook fysio-informatie moet kunnen zien."
+
+msgid "Authorization role"
+msgstr "Autorisatierol"
+
+msgid "No team-scoped authorization roles available."
+msgstr "Geen autorisatierollen met teambereik beschikbaar."
+
+msgid "Save mapping"
+msgstr "Koppeling opslaan"
+
+msgid "Current assignments using this functional role"
+msgstr "Huidige toewijzingen met deze functionele rol"
+
+msgid "No one is currently assigned to a team with this functional role."
+msgstr "Er is momenteel niemand aan een team toegewezen met deze functionele rol."
+
+msgid "Lead coach for a team. Owns methodology, selection, and session planning."
+msgstr "Hoofdverantwoordelijke trainer van een team. Eigenaar van methodiek, selectie en sessieplanning."
+
+msgid "Supports the head coach with training and evaluations within a team."
+msgstr "Ondersteunt de hoofdtrainer bij trainingen en evaluaties binnen een team."
+
+msgid "Handles logistics, roster, sessions, and team settings. Not an evaluator."
+msgstr "Regelt logistiek, selectie, sessies en teaminstellingen. Geen evaluator."
+
+msgid "Medical / physical support staff attached to a team."
+msgstr "Medische / fysieke ondersteuningsstaf gekoppeld aan een team."
+
+msgid "Anything that does not fit the other categories. Minimal read-only access by default."
+msgstr "Alles wat niet in de andere categorieën past. Standaard minimale alleen-lezen toegang."
+
+msgid "Direct"
+msgstr "Direct"
+
+msgid "via %s"
+msgstr "via %s"
+
+msgid "Indirect grants come from a functional role mapping. To remove one, either unassign the person from the team or change the functional role's mapping on the Functional Roles admin page."
+msgstr "Indirecte toekenningen komen voort uit een functionele-rolkoppeling. Om er een te verwijderen, haal de persoon van het team af of wijzig de koppeling van de functionele rol op de beheerpagina Functionele rollen."
+
+msgid "Team Member"
+msgstr "Teamlid"
+
+msgid "Minimal read-only access within assigned teams. Default authorization for the \"Other\" functional role — see only players and sessions of the teams you are assigned to, nothing more."
+msgstr "Minimale alleen-lezen toegang binnen toegewezen teams. Standaardautorisatie voor de functionele rol \"Overig\" — bekijk alleen spelers en sessies van de teams waaraan je bent toegewezen, niets meer."
+
+msgid "This is a system role. Its permission set is read-only. Custom role editing will be available in a future release."
+msgstr "Dit is een systeemrol. De rechtenset is alleen-lezen. Het bewerken van eigen rollen komt beschikbaar in een toekomstige release."
+
+msgid "No functional roles are defined. Check the Functional Roles admin page."
+msgstr "Er zijn geen functionele rollen gedefinieerd. Bekijk de beheerpagina Functionele rollen."
+
+msgid "What is this person's job on the team? Functional roles are mapped to authorization roles (permissions) on the Functional Roles admin page."
+msgstr "Wat is de functie van deze persoon in het team? Functionele rollen worden op de beheerpagina Functionele rollen gekoppeld aan autorisatierollen (rechten)."
+
+msgid "This is the legacy head coach field (kept for display only). As of v2.10.0 it no longer drives permissions — the Staff section below is the source of truth. The head coach from this field was automatically added to the Staff list on upgrade."
+msgstr "Dit is het oude hoofdtrainer-veld (alleen nog ter weergave). Vanaf v2.10.0 bepaalt het geen rechten meer — de sectie Staf hieronder is leidend. De hoofdtrainer uit dit veld is bij het upgraden automatisch aan de Staf toegevoegd."
+
+msgid "Via functional role"
+msgstr "Via functionele rol"
+
+msgid "Choose a WordPress user to see every role-scope they resolve to, the source of each scope (direct role assignment, functional-role mapping, or derived), and the concrete permissions each scope grants."
+msgstr "Kies een WordPress-gebruiker om elke role-scope te zien die deze persoon oplevert, de bron van elke scope (directe roltoewijzing, functionele-rolkoppeling of afgeleid), en de concrete rechten die elke scope toekent."
 
