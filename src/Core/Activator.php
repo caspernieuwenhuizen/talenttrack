@@ -321,6 +321,26 @@ class Activator {
             KEY idx_active (is_active)
         ) $c;";
 
+        /* ─── Category weights per age group (v2.13.0) ─── */
+        // Per-(age_group, main_category) percentage weight used to compute
+        // an overall rating per evaluation. Weights sum to 100 for a given
+        // age group when configured; sites without weights for an age
+        // group fall back to equal weighting at compute time.
+        // age_group_id references tt_lookups.id (lookup_type='age_group').
+        // main_category_id references tt_eval_categories.id (parent_id IS NULL).
+        $queries[] = "CREATE TABLE {$p}tt_category_weights (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            age_group_id BIGINT UNSIGNED NOT NULL,
+            main_category_id BIGINT UNSIGNED NOT NULL,
+            weight TINYINT UNSIGNED NOT NULL DEFAULT 25,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_age_main (age_group_id, main_category_id),
+            KEY idx_age_group (age_group_id),
+            KEY idx_main_category (main_category_id)
+        ) $c;";
+
         /* ─── Sessions & attendance ─── */
         $queries[] = "CREATE TABLE {$p}tt_sessions (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,

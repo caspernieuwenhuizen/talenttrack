@@ -1848,3 +1848,77 @@ msgstr "(van %d subcategorie)"
 
 msgid "(from %d subcategories)"
 msgstr "(van %d subcategorieën)"
+
+# ===== v2.13.0 — Weighted overall rating + per-age-group weights =====
+
+msgid "Category Weights"
+msgstr "Categorie gewichten"
+
+msgid "Overall rating:"
+msgstr "Totaalscore:"
+
+msgid "Overall"
+msgstr "Totaal"
+
+msgid "(weighted by age group)"
+msgstr "(gewogen per leeftijdsgroep)"
+
+msgid "(equal weights)"
+msgstr "(gelijke gewichten)"
+
+msgid "Weighted by age group"
+msgstr "Gewogen per leeftijdsgroep"
+
+msgid "Equal weights"
+msgstr "Gelijke gewichten"
+
+msgid "%1$d of %2$d categories rated"
+msgstr "%1$d van %2$d categorieën beoordeeld"
+
+msgid "Configure how much each main category contributes to the overall rating per age group. Weights are percentages — the four values must sum to 100. Age groups without a configured weight set use equal weights (25% / 25% / 25% / 25% for four mains)."
+msgstr "Stel in hoeveel elke hoofdcategorie bijdraagt aan de totaalscore per leeftijdsgroep. Gewichten zijn percentages — de vier waarden moeten optellen tot 100. Leeftijdsgroepen zonder ingestelde gewichten gebruiken gelijke gewichten (25% / 25% / 25% / 25% voor vier hoofdcategorieën)."
+
+msgid "No active main categories found."
+msgstr "Geen actieve hoofdcategorieën gevonden."
+
+msgid "No age groups configured. Add some under Configuration → Age Groups first."
+msgstr "Geen leeftijdsgroepen ingesteld. Voeg er eerst een paar toe onder Configuratie → Leeftijdsgroepen."
+
+msgid "Configured"
+msgstr "Geconfigureerd"
+
+msgid "Equal fallback in use"
+msgstr "Gelijke fallback actief"
+
+msgid "Total:"
+msgstr "Totaal:"
+
+msgid "Save weights"
+msgstr "Gewichten opslaan"
+
+msgid "Reset to equal"
+msgstr "Reset naar gelijk"
+
+msgid "Reset to equal weights?"
+msgstr "Resetten naar gelijke gewichten?"
+
+msgid "Weights saved."
+msgstr "Gewichten opgeslagen."
+
+msgid "Weights reset to equal."
+msgstr "Gewichten gereset naar gelijk."
+
+msgid "Weights must sum to 100%%. Current total: %d%%."
+msgstr "Gewichten moeten optellen tot 100%%. Huidig totaal: %d%%."
+
+msgid "Missing age group."
+msgstr "Leeftijdsgroep ontbreekt."
+
+msgid "Sum is 100 — ready to save"
+msgstr "Som is 100 — klaar om op te slaan"
+
+msgid "Must equal 100 (current: %d)"
+msgstr "Moet 100 zijn (huidig: %d)"
+
+msgid "No weights configured for this age group — using equal weights"
+msgstr "Geen gewichten ingesteld voor deze leeftijdsgroep — gelijke gewichten worden gebruikt"

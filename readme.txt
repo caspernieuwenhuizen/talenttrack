@@ -4,13 +4,20 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.12.2
+Stable tag: 2.13.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.13.0 — Weighted overall rating per evaluation =
+* NEW: Every evaluation has a weighted overall rating — computed as the weighted mean of main category effective ratings. Weights configurable per age group via the new TalentTrack → Category Weights admin page. Equal fallback (25/25/25/25 for four mains) when no weights are configured.
+* NEW: Overall rating surfaces in three places: live-preview card on the evaluation form (updates on any input change), headline card on the detail view, and a new "Overall" column on the evaluations list. All three use the same compute algorithm — what you see while editing equals what gets displayed after save.
+* NEW: tt_category_weights schema + migration 0009. Weights are integer percentages that must sum to exactly 100 per age group (hard-validated client-side + server-side). "Reset to equal" link per configured age group.
+* NEW: EvalRatingsRepository::overallRating() for single-evaluation compute; overallRatingsForEvaluations() for batched list display (three SQL roundtrips regardless of row count).
+* INTERNAL: Skip-null behavior — partial evaluations (fewer than all 4 mains rated) produce a weighted mean over just the rated mains, with "M of N categories rated" notation on all three surfaces.
 
 = 2.12.2 — Translation fix + live average preview + two latent bug fixes =
 * FIX: Evaluation categories and subcategories now render through the translator on every surface (admin tree, evaluation form, detail view, radar chart legends). Dutch translations for all 25 seeded labels apply automatically. New EvalCategoriesRepository::displayLabel() helper centralizes the translation point.

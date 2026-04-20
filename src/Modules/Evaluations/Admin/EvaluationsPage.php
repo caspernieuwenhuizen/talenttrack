@@ -44,17 +44,77 @@ class EvaluationsPage {
              LEFT JOIN {$p}tt_players pl ON e.player_id=pl.id LEFT JOIN {$wpdb->users} u ON e.coach_id=u.ID
              ORDER BY e.eval_date DESC LIMIT 50"
         );
+
+        // v2.13.0: batch-compute overall ratings for the whole page in
+        // three SQL roundtrips (age groups, ratings, weights), keyed by
+        // eval id. Avoids N+1 from calling overallRating() per row.
+        $overalls = [];
+        if ( ! empty( $evals ) ) {
+            $ratings_repo = new EvalRatingsRepository();
+            $overalls = $ratings_repo->overallRatingsForEvaluations(
+                array_map( fn( $ev ) => (int) $ev->id, $evals )
+            );
+        }
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Evaluations', 'talenttrack' ); ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-evaluations&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?><div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved.', 'talenttrack' ); ?></p></div><?php endif; ?>
-            <table class="widefat striped"><thead><tr><th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Coach', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th></tr></thead><tbody>
-            <?php if ( empty( $evals ) ) : ?><tr><td colspan="5"><?php esc_html_e( 'No evaluations.', 'talenttrack' ); ?></td></tr>
-            <?php else : foreach ( $evals as $ev ) : ?>
-                <tr><td><?php echo esc_html( (string) $ev->eval_date ); ?></td><td><?php echo esc_html( $ev->player_name ?: '—' ); ?></td>
-                    <td><?php echo esc_html( $ev->type_name ?: '—' ); ?></td><td><?php echo esc_html( (string) $ev->coach_name ); ?></td>
-                    <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-evaluations&action=view&id={$ev->id}" ) ); ?>"><?php esc_html_e( 'View', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( admin_url( "admin.php?page=tt-evaluations&action=edit&id={$ev->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_evaluation&id={$ev->id}" ), 'tt_del_eval_' . $ev->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td></tr>
-            <?php endforeach; endif; ?></tbody></table>
+            <table class="widefat striped">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Coach', 'talenttrack' ); ?></th>
+                        <th style="width:90px;"><?php esc_html_e( 'Overall', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php if ( empty( $evals ) ) : ?>
+                    <tr><td colspan="6"><?php esc_html_e( 'No evaluations.', 'talenttrack' ); ?></td></tr>
+                <?php else : foreach ( $evals as $ev ) :
+                    $ov = $overalls[ (int) $ev->id ] ?? null;
+                    ?>
+                    <tr>
+                        <td><?php echo esc_html( (string) $ev->eval_date ); ?></td>
+                        <td><?php echo esc_html( $ev->player_name ?: '—' ); ?></td>
+                        <td><?php echo esc_html( $ev->type_name ?: '—' ); ?></td>
+                        <td><?php echo esc_html( (string) $ev->coach_name ); ?></td>
+                        <td>
+                            <?php if ( $ov && $ov['value'] !== null ) :
+                                $tooltip_parts = [];
+                                $tooltip_parts[] = $ov['weighted']
+                                    ? __( 'Weighted by age group', 'talenttrack' )
+                                    : __( 'Equal weights', 'talenttrack' );
+                                if ( $ov['rated_mains'] < $ov['total_mains'] ) {
+                                    $tooltip_parts[] = sprintf(
+                                        /* translators: 1: rated mains count, 2: total mains count */
+                                        __( '%1$d of %2$d categories rated', 'talenttrack' ),
+                                        (int) $ov['rated_mains'],
+                                        (int) $ov['total_mains']
+                                    );
+                                }
+                                ?>
+                                <span style="font-weight:600;" title="<?php echo esc_attr( implode( ' · ', $tooltip_parts ) ); ?>">
+                                    <?php echo esc_html( (string) $ov['value'] ); ?>
+                                </span>
+                                <?php if ( ! $ov['weighted'] ) : ?>
+                                    <span style="color:#888; font-size:11px;" title="<?php echo esc_attr__( 'No weights configured for this age group — using equal weights', 'talenttrack' ); ?>"> *</span>
+                                <?php endif; ?>
+                            <?php else : ?>
+                                <span style="color:#888;">—</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <a href="<?php echo esc_url( admin_url( "admin.php?page=tt-evaluations&action=view&id={$ev->id}" ) ); ?>"><?php esc_html_e( 'View', 'talenttrack' ); ?></a> |
+                            <a href="<?php echo esc_url( admin_url( "admin.php?page=tt-evaluations&action=edit&id={$ev->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> |
+                            <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_evaluation&id={$ev->id}" ), 'tt_del_eval_' . $ev->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a>
+                        </td>
+                    </tr>
+                <?php endforeach; endif; ?>
+                </tbody>
+            </table>
         </div>
         <?php
     }
@@ -95,6 +155,40 @@ class EvaluationsPage {
             $m = QueryHelpers::lookup_meta( $t );
             $type_meta[ (int) $t->id ] = ! empty( $m['requires_match_details'] ) ? 1 : 0;
         }
+
+        // v2.13.0: preload everything the JS needs to compute the weighted
+        // overall live as the coach types. Specifically:
+        //   - player_id → age_group_id lookup (so switching player updates weights)
+        //   - age_group_id → { main_id => weight } lookup
+        //   - equal-fallback weights for "no age group" / "not configured" cases
+        $cats_repo     = new \TT\Infrastructure\Evaluations\EvalCategoriesRepository();
+        $main_cats_all = $cats_repo->getMainCategories( true );
+        $main_cat_ids  = array_map( fn( $m ) => (int) $m->id, $main_cats_all );
+        $child_to_parent = [];
+        foreach ( $cats_repo->getAll( true ) as $c ) {
+            if ( $c->parent_id !== null ) {
+                $child_to_parent[ (int) $c->id ] = (int) $c->parent_id;
+            }
+        }
+
+        global $wpdb; $p = $wpdb->prefix;
+        $player_age_rows = $wpdb->get_results(
+            "SELECT pl.id AS player_id, t.age_group_id AS age_group_id
+             FROM {$p}tt_players pl
+             LEFT JOIN {$p}tt_teams t ON pl.team_id = t.id
+             WHERE pl.status = 'active'"
+        );
+        $player_age_map = [];
+        $age_group_ids  = [];
+        foreach ( (array) $player_age_rows as $r ) {
+            $ag = $r->age_group_id !== null ? (int) $r->age_group_id : 0;
+            $player_age_map[ (int) $r->player_id ] = $ag;
+            if ( $ag > 0 ) $age_group_ids[ $ag ] = true;
+        }
+
+        $weights_repo = new \TT\Infrastructure\Evaluations\CategoryWeightsRepository();
+        $weights_map  = $weights_repo->getForAgeGroups( array_keys( $age_group_ids ) );
+        $equal_fallback = \TT\Infrastructure\Evaluations\CategoryWeightsRepository::equalWeightsForMains( $main_cat_ids );
 
         $state = self::popFormState();
 
@@ -160,6 +254,18 @@ class EvaluationsPage {
                         <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-eval-categories' ) ); ?>"><?php esc_html_e( 'Configure categories', 'talenttrack' ); ?></a>
                     </p>
                 <?php else : ?>
+                    <!-- v2.13.0: live-computed overall rating (weighted average
+                         of main-category effective ratings). Updates as the
+                         coach types any rating input. Uses the current
+                         player's age group to pick the weight set. -->
+                    <div class="tt-overall-preview" style="background:#f0f6fc; border:1px solid #2271b1; border-left-width:4px; padding:12px 16px; margin-bottom:16px;">
+                        <div style="font-size:14px; color:#1d2327;">
+                            <strong><?php esc_html_e( 'Overall rating:', 'talenttrack' ); ?></strong>
+                            <span class="tt-overall-value" style="font-size:20px; font-weight:700; margin-left:8px; color:#2271b1;">—</span>
+                            <span class="tt-overall-note" style="color:#666; margin-left:8px; font-size:12px;"></span>
+                        </div>
+                    </div>
+
                     <p class="description" style="margin-bottom:12px;">
                         <?php esc_html_e( 'For each main category you can either rate it directly OR drill into its subcategories. Pick whichever makes sense — you can mix modes across categories.', 'talenttrack' ); ?>
                     </p>
@@ -340,6 +446,101 @@ class EvaluationsPage {
                     recomputeAvg($block); // resets to '—'
                 });
             });
+
+            /* ═══════════════════════════════════════════════════════════
+             * v2.13.0 — Live overall rating preview.
+             *
+             * Computes the weighted mean of main-category effective
+             * ratings using the weight set for the currently-selected
+             * player's age group. Matches the server algorithm in
+             * EvalRatingsRepository::overallRating(): effective = direct
+             * if present, else mean of sub ratings; skip nulls from both
+             * numerator and denominator.
+             * ═══════════════════════════════════════════════════════════ */
+            var mainIds       = <?php echo wp_json_encode( array_values( $main_cat_ids ) ); ?>;
+            var childToParent = <?php echo wp_json_encode( $child_to_parent ); ?>;
+            var playerAgeMap  = <?php echo wp_json_encode( $player_age_map ); ?>;
+            var weightsByAg   = <?php echo wp_json_encode( $weights_map ); ?>;
+            var equalFallback = <?php echo wp_json_encode( $equal_fallback ); ?>;
+            var weightedTxt   = <?php echo wp_json_encode( __( '(weighted by age group)', 'talenttrack' ) ); ?>;
+            var equalTxt      = <?php echo wp_json_encode( __( '(equal weights)', 'talenttrack' ) ); ?>;
+            var partialTpl    = <?php echo wp_json_encode( __( '%1$d of %2$d categories rated', 'talenttrack' ) ); ?>;
+
+            function currentWeights(){
+                var pid = parseInt($('select[name=player_id]').val(), 10);
+                var ag  = (!isNaN(pid) && playerAgeMap[pid]) ? playerAgeMap[pid] : 0;
+                if (ag > 0 && weightsByAg[ag] && Object.keys(weightsByAg[ag]).length > 0) {
+                    return { weights: weightsByAg[ag], isWeighted: true };
+                }
+                return { weights: equalFallback, isWeighted: false };
+            }
+
+            function readEffective(mainId){
+                // Direct first.
+                var $direct = $('.tt-rating-block[data-main-id=' + mainId + '] input[name="ratings[' + mainId + ']"]');
+                var dv = $direct.val();
+                if (dv !== '' && dv !== null && $direct.is(':visible')) {
+                    var n = parseFloat(dv);
+                    if (!isNaN(n)) return n;
+                }
+                // Sub rollup — scan subs whose parent is this main.
+                var sum = 0, count = 0;
+                for (var childId in childToParent) {
+                    if (childToParent[childId] !== parseInt(mainId, 10)) continue;
+                    var $sub = $('input[name="ratings[' + childId + ']"]');
+                    if (!$sub.length) continue;
+                    var sv = $sub.val();
+                    if (sv === '' || sv === null) continue;
+                    var sn = parseFloat(sv);
+                    if (!isNaN(sn)) { sum += sn; count++; }
+                }
+                if (count > 0) return sum / count;
+                return null;
+            }
+
+            function recomputeOverall(){
+                var $val  = $('.tt-overall-value');
+                var $note = $('.tt-overall-note');
+                if (!$val.length) return;
+                var ctx = currentWeights();
+                var w = ctx.weights;
+                var num = 0, denom = 0, rated = 0;
+                for (var i = 0; i < mainIds.length; i++) {
+                    var mid = mainIds[i];
+                    var eff = readEffective(mid);
+                    if (eff === null) continue;
+                    var ww = parseInt(w[mid], 10);
+                    if (!(ww > 0)) continue;
+                    num   += eff * ww;
+                    denom += ww;
+                    rated++;
+                }
+                if (denom === 0) {
+                    $val.text('—');
+                    $note.text('');
+                    return;
+                }
+                var mean = num / denom;
+                $val.text(String(Math.round(mean * 10) / 10));
+                var parts = [ ctx.isWeighted ? weightedTxt : equalTxt ];
+                if (rated < mainIds.length) {
+                    parts.push(partialTpl.replace('%1$d', rated).replace('%2$d', mainIds.length));
+                }
+                $note.text(parts.join(' · '));
+            }
+
+            // Recompute overall on ANY rating input change (direct or sub),
+            // on player select change (weights may shift), and on the
+            // mode-toggle clicks.
+            $(document).on('input change', 'input[name^="ratings["]', recomputeOverall);
+            $('select[name=player_id]').on('change', recomputeOverall);
+            $(document).on('click', '.tt-toggle-subs, .tt-toggle-direct', function(){
+                // Mode switch clears inputs on the block — run after the
+                // existing click handler has done its clearing.
+                setTimeout(recomputeOverall, 0);
+            });
+            // Initial paint.
+            recomputeOverall();
         });
         </script>
         <?php
@@ -356,6 +557,8 @@ class EvaluationsPage {
         // for the breakdown display.
         $ratings_repo = new EvalRatingsRepository();
         $effective    = $ratings_repo->effectiveMainRatingsFor( $id );
+        // v2.13.0: weighted overall for the headline card.
+        $overall = $ratings_repo->overallRating( $id );
 
         $sub_ratings_by_main = []; // main_id => [ [label, value], ... ]
         if ( ! empty( $eval->ratings ) ) {
@@ -391,6 +594,34 @@ class EvaluationsPage {
                     </table>
 
                     <h3 style="margin-top:24px;"><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h3>
+
+                    <?php if ( $overall['value'] !== null ) :
+                        $note_parts = [];
+                        $note_parts[] = $overall['weighted']
+                            ? __( '(weighted by age group)', 'talenttrack' )
+                            : __( '(equal weights)', 'talenttrack' );
+                        if ( $overall['rated_mains'] < $overall['total_mains'] ) {
+                            $note_parts[] = sprintf(
+                                /* translators: 1: rated mains count, 2: total mains count */
+                                __( '%1$d of %2$d categories rated', 'talenttrack' ),
+                                (int) $overall['rated_mains'],
+                                (int) $overall['total_mains']
+                            );
+                        }
+                        ?>
+                        <div style="background:#f0f6fc; border:1px solid #2271b1; border-left-width:4px; padding:14px 18px; margin:10px 0 14px; max-width:500px;">
+                            <div style="font-size:13px; color:#1d2327;">
+                                <strong><?php esc_html_e( 'Overall rating:', 'talenttrack' ); ?></strong>
+                                <span style="font-size:24px; font-weight:700; margin-left:10px; color:#2271b1;">
+                                    <?php echo esc_html( (string) $overall['value'] ); ?>
+                                </span>
+                                <span style="color:#666; margin-left:8px; font-size:12px;">
+                                    <?php echo esc_html( implode( ' · ', $note_parts ) ); ?>
+                                </span>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
                     <?php if ( empty( $effective ) ) : ?>
                         <p><em><?php esc_html_e( 'No ratings recorded.', 'talenttrack' ); ?></em></p>
                     <?php else : ?>
