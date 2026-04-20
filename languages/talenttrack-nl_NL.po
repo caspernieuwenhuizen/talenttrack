@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 2.6.3\n"
+"Project-Id-Version: TalentTrack 2.7.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-19 20:00+0000\n"
-"PO-Revision-Date: 2026-04-19 20:00+0000\n"
+"POT-Creation-Date: 2026-04-20 10:00+0000\n"
+"PO-Revision-Date: 2026-04-20 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
 "Language: nl_NL\n"
@@ -12,104 +12,194 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-# v2.6.3 Migrations admin page
-msgid "Database Migrations"
-msgstr "Database-migraties"
+msgid "People"
+msgstr "Personen"
 
-msgid "Migrations"
-msgstr "Migraties"
+msgid "Staff"
+msgstr "Staf"
 
-msgid "TalentTrack uses versioned database migrations to evolve its schema safely. This page shows every migration shipped with the plugin and its status."
-msgstr "TalentTrack gebruikt versiegebaseerde database-migraties om het databaseschema veilig te ontwikkelen. Deze pagina toont elke migratie die is meegeleverd met de plugin en de bijbehorende status."
+msgid "Add New"
+msgstr "Toevoegen"
 
-msgid "Warning: migrations recorded as applied but missing from disk:"
-msgstr "Waarschuwing: migraties zijn als toegepast geregistreerd, maar de bestanden ontbreken op schijf:"
+msgid "Add Person"
+msgstr "Persoon toevoegen"
 
-msgid "This usually means migration files were deleted or never copied during manual installation. No action required unless you need to re-apply."
-msgstr "Dit betekent meestal dat migratiebestanden zijn verwijderd of niet zijn meegekopieerd tijdens een handmatige installatie. Geen actie vereist, tenzij u opnieuw wilt toepassen."
+msgid "Edit Person"
+msgstr "Persoon bewerken"
 
-msgid "%d pending migration"
-msgid_plural "%d pending migrations"
-msgstr[0] "%d migratie in behandeling"
-msgstr[1] "%d migraties in behandeling"
+msgid "Update Person"
+msgstr "Persoon bijwerken"
 
-msgid "Pending migrations typically ship new schema changes required by recent features. Apply them to keep your database in sync with the plugin code."
-msgstr "Migraties in behandeling bevatten doorgaans nieuwe schemawijzigingen die nodig zijn voor recente functies. Voer ze uit om uw database gelijk te houden met de plugincode."
+msgid "Person created."
+msgstr "Persoon aangemaakt."
 
-msgid "Run All Pending Migrations"
-msgstr "Alle openstaande migraties uitvoeren"
+msgid "Person not found."
+msgstr "Persoon niet gevonden."
 
-msgid "Database is up to date."
-msgstr "Database is up-to-date."
+msgid "No people yet."
+msgstr "Nog geen personen."
 
-msgid "%d migration applied."
-msgid_plural "%d migrations applied."
-msgstr[0] "%d migratie toegepast."
-msgstr[1] "%d migraties toegepast."
+msgid "Search name or email"
+msgstr "Zoek naam of e-mail"
 
-msgid "All Migrations"
-msgstr "Alle migraties"
+msgid "All statuses"
+msgstr "Alle statussen"
+
+msgid "Active"
+msgstr "Actief"
+
+msgid "Inactive"
+msgstr "Inactief"
+
+msgid "Only staff (assigned to at least one team)"
+msgstr "Alleen staf (gekoppeld aan minstens één team)"
+
+msgid "Filter"
+msgstr "Filteren"
+
+msgid "Name"
+msgstr "Naam"
+
+msgid "Role"
+msgstr "Rol"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Phone"
+msgstr "Telefoon"
+
+msgid "Teams"
+msgstr "Teams"
 
 msgid "Status"
 msgstr "Status"
 
-msgid "Migration"
-msgstr "Migratie"
-
-msgid "Applied At"
-msgstr "Toegepast op"
-
 msgid "Actions"
 msgstr "Acties"
 
-msgid "Pending"
-msgstr "In behandeling"
+msgid "First name"
+msgstr "Voornaam"
 
-msgid "Run"
-msgstr "Uitvoeren"
+msgid "Last name"
+msgstr "Achternaam"
 
-msgid "No migrations found."
-msgstr "Geen migraties gevonden."
+msgid "Primary role"
+msgstr "Primaire rol"
 
-msgid "Diagnostic Information"
-msgstr "Diagnostische informatie"
+msgid "Default role if this person isn't assigned to a specific team. Team assignments can override this per-team."
+msgstr "Standaardrol als deze persoon niet aan een specifiek team is toegewezen. Teamtoewijzingen kunnen dit per team overschrijven."
 
-msgid "Migrations directory"
-msgstr "Map met migraties"
+msgid "Linked WordPress user"
+msgstr "Gekoppelde WordPress-gebruiker"
 
-msgid "(directory not found!)"
-msgstr "(map niet gevonden!)"
+msgid "Optional. Link to a WordPress user account for login access."
+msgstr "Optioneel. Koppel aan een WordPress-gebruikersaccount voor inlogtoegang."
 
-msgid "Tracking table"
-msgstr "Volgsysteemtabel"
+msgid "— None —"
+msgstr "— Geen —"
 
-msgid "Tracking table does not exist yet."
-msgstr "De volgsysteemtabel bestaat nog niet."
+msgid "Activate"
+msgstr "Activeren"
 
-msgid "Plugin version"
-msgstr "Plugin-versie"
+msgid "Deactivate"
+msgstr "Deactiveren"
 
-msgid "Migration %s was already applied."
-msgstr "Migratie %s was al toegepast."
+msgid "Team assignments"
+msgstr "Teamtoewijzingen"
 
-msgid "Migration %1$s applied successfully in %2$dms."
-msgstr "Migratie %1$s met succes toegepast in %2$dms."
+msgid "This person is not currently assigned to any team."
+msgstr "Deze persoon is momenteel niet toegewezen aan een team."
 
-msgid "Migration %s failed."
-msgstr "Migratie %s is mislukt."
+msgid "To add new assignments, edit the team and use the Staff section there."
+msgstr "Om nieuwe toewijzingen toe te voegen, bewerk het team en gebruik de Staf-sectie daar."
 
-# Dashboard pending-migration warning
-msgid "TalentTrack: database migrations pending."
-msgstr "TalentTrack: database-migraties in behandeling."
+msgid "Team"
+msgstr "Team"
 
-msgid "%d migration is waiting to be applied. Some features may not work until you apply it."
-msgid_plural "%d migrations are waiting to be applied. Some features may not work until you apply them."
-msgstr[0] "%d migratie wacht op uitvoering. Sommige functies werken mogelijk pas nadat u deze toepast."
-msgstr[1] "%d migraties wachten op uitvoering. Sommige functies werken mogelijk pas nadat u deze toepast."
+msgid "From"
+msgstr "Vanaf"
 
-msgid "Review and Apply"
-msgstr "Bekijken en toepassen"
+msgid "Until"
+msgstr "Tot"
 
-# Common
+msgid "Source"
+msgstr "Bron"
+
+msgid "No staff assigned to this team yet."
+msgstr "Nog geen staf toegewezen aan dit team."
+
+msgid "Legacy head_coach_id"
+msgstr "Verouderde hoofdtrainer-koppeling"
+
+msgid "Assignment"
+msgstr "Toewijzing"
+
+msgid "Shown for backward compatibility. Add as an explicit assignment below to manage it here."
+msgstr "Getoond voor achterwaartse compatibiliteit. Voeg hieronder toe als expliciete toewijzing om deze hier te beheren."
+
+msgid "Remove this staff assignment?"
+msgstr "Deze staftoewijzing verwijderen?"
+
+msgid "Unassign"
+msgstr "Verwijderen"
+
+msgid "Assign staff to this team"
+msgstr "Staf toewijzen aan dit team"
+
+msgid "No active people exist yet."
+msgstr "Er zijn nog geen actieve personen."
+
+msgid "Add a person first"
+msgstr "Voeg eerst een persoon toe"
+
+msgid "Person"
+msgstr "Persoon"
+
+msgid "— Select —"
+msgstr "— Selecteer —"
+
+msgid "Role in team"
+msgstr "Rol in team"
+
+msgid "Start date"
+msgstr "Startdatum"
+
+msgid "End date"
+msgstr "Einddatum"
+
+msgid "Assign"
+msgstr "Toewijzen"
+
+msgid "Coach"
+msgstr "Trainer"
+
+msgid "Assistant coach"
+msgstr "Assistent-trainer"
+
+msgid "Head coach"
+msgstr "Hoofdtrainer"
+
+msgid "Manager"
+msgstr "Manager"
+
+msgid "Physio"
+msgstr "Fysio"
+
+msgid "Scout"
+msgstr "Scout"
+
+msgid "Parent"
+msgstr "Ouder"
+
+msgid "Other"
+msgstr "Overig"
+
+msgid "Saved."
+msgstr "Opgeslagen."
+
+msgid "Something went wrong."
+msgstr "Er is iets misgegaan."
+
 msgid "Unauthorized"
 msgstr "Geen toegang"

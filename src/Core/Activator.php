@@ -9,44 +9,20 @@ use TT\Infrastructure\Security\RolesService;
 /**
  * Activator — runs on plugin activation.
  *
- * v2.6.6: Schema reconciliation is now performed DIRECTLY in activate() via
- * dbDelta and explicit ALTER statements, replacing the file-based migration
- * approach that caused a series of issues with PHP's include cache and eval()
- * across v2.6.2–v2.6.5.
- *
- * Why this is the right call:
- *   - dbDelta is WordPress-native, battle-tested, idempotent, and non-destructive
- *   - It handles both CREATE TABLE IF NOT EXISTS and ADD COLUMN for missing columns
- *   - register_activation_hook fires in a fresh PHP execution with no include-cache
- *     state from the main boot, so it's always reliable
- *   - The migration system (admin page, runner) stays in place for future releases
- *     but is bypassed for this specific fix
- *
- * Trigger: user deactivates + reactivates the plugin once after installing v2.6.6.
+ * v2.7.0: Adds tt_people and tt_team_people tables to the authoritative
+ * schema definition. Extends v2.6.6's approach of doing schema reconciliation
+ * via dbDelta directly in activate() rather than via file-based migrations.
  */
 class Activator {
 
     public static function activate(): void {
-        // 1. Install / refresh roles (unchanged).
         ( new RolesService() )->installRoles();
 
-        // 2. Reconcile schema: full dbDelta pass over every TalentTrack table.
-        //    Creates missing tables, adds missing columns. Existing data preserved.
         self::ensureSchema();
-
-        // 3. Relax legacy NOT NULL constraints that dbDelta can't modify.
         self::relaxLegacyConstraints();
-
-        // 4. Backfill tt_attendance.status from legacy `present` column if needed.
         self::backfillAttendanceStatus();
-
-        // 5. Mark all known migrations as applied so the runtime runner stops
-        //    trying to touch them. Safe on fresh installs (applied rows just
-        //    tell the runner nothing is pending).
         self::markMigrationsApplied();
 
-        // 6. Kick off any still-pending migrations (future releases).
-        //    Wrapped in try/catch — a failure here must not block activation.
         try {
             ( new MigrationRunner() )->run();
         } catch ( \Throwable $e ) {
@@ -142,7 +118,39 @@ class Activator {
             KEY idx_user (wp_user_id)
         ) $c;";
 
-        /* ─── Evaluations (FULL v2.x schema — this is the key reconciliation) ─── */
+        /* ─── People & team-staff assignments (NEW in v2.7.0) ─── */
+        $queries[] = "CREATE TABLE {$p}tt_people (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            first_name VARCHAR(255) NOT NULL,
+            last_name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) DEFAULT NULL,
+            phone VARCHAR(50) DEFAULT NULL,
+            role_type VARCHAR(50) DEFAULT 'other',
+            wp_user_id BIGINT UNSIGNED DEFAULT NULL,
+            status VARCHAR(20) DEFAULT 'active',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_status (status),
+            KEY idx_role_type (role_type),
+            KEY idx_wp_user (wp_user_id)
+        ) $c;";
+
+        $queries[] = "CREATE TABLE {$p}tt_team_people (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            team_id BIGINT UNSIGNED NOT NULL,
+            person_id BIGINT UNSIGNED NOT NULL,
+            role_in_team VARCHAR(50) NOT NULL,
+            start_date DATE DEFAULT NULL,
+            end_date DATE DEFAULT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_team_person_role (team_id, person_id, role_in_team),
+            KEY idx_team (team_id),
+            KEY idx_person (person_id)
+        ) $c;";
+
+        /* ─── Evaluations (FULL v2.x schema) ─── */
         $queries[] = "CREATE TABLE {$p}tt_evaluations (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             player_id BIGINT UNSIGNED NOT NULL,
@@ -227,7 +235,7 @@ class Activator {
             PRIMARY KEY (id)
         ) $c;";
 
-        /* ─── Audit log (from v2.3.0) ─── */
+        /* ─── Audit log ─── */
         $queries[] = "CREATE TABLE {$p}tt_audit_log (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             user_id BIGINT UNSIGNED DEFAULT 0,
@@ -242,7 +250,7 @@ class Activator {
             KEY idx_created (created_at)
         ) $c;";
 
-        /* ─── Custom fields (from v2.6.0) ─── */
+        /* ─── Custom fields ─── */
         $queries[] = "CREATE TABLE {$p}tt_custom_fields (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             entity_type VARCHAR(50) NOT NULL,
@@ -280,55 +288,29 @@ class Activator {
         }
     }
 
-    /* ═══════════════════════════════════════════════════════════
-     *  Legacy constraint relaxation
-     *  dbDelta cannot change NULL-ability of existing columns, so we
-     *  run direct ALTER statements. Each is idempotent — checks the
-     *  current state first and only runs if needed.
-     * ═══════════════════════════════════════════════════════════ */
-
     private static function relaxLegacyConstraints(): void {
         global $wpdb;
         $p = $wpdb->prefix;
-
-        // v1.x tt_evaluations had NOT NULL on category_id and rating (inline
-        // rating columns). v2.x doesn't populate these — inserts fail unless
-        // they're nullable.
         self::ensureColumnNullable( "{$p}tt_evaluations", 'category_id', 'BIGINT(20) UNSIGNED NULL' );
         self::ensureColumnNullable( "{$p}tt_evaluations", 'rating', 'DECIMAL(3,1) NULL' );
     }
 
     private static function ensureColumnNullable( string $table, string $column, string $definition ): void {
         global $wpdb;
-
-        // Check column exists and whether it's currently NOT NULL.
         $row = $wpdb->get_row( $wpdb->prepare( "SHOW COLUMNS FROM `$table` LIKE %s", $column ) );
-        if ( ! $row ) return; // column doesn't exist (fresh install); nothing to relax.
-        if ( ( $row->Null ?? '' ) === 'YES' ) return; // already nullable.
-
+        if ( ! $row ) return;
+        if ( ( $row->Null ?? '' ) === 'YES' ) return;
         $wpdb->query( "ALTER TABLE `$table` MODIFY COLUMN `$column` $definition" );
     }
-
-    /* ═══════════════════════════════════════════════════════════
-     *  Backfill tt_attendance.status from legacy `present` column
-     * ═══════════════════════════════════════════════════════════ */
 
     private static function backfillAttendanceStatus(): void {
         global $wpdb;
         $p = $wpdb->prefix;
-
-        // Skip if the legacy `present` column doesn't exist (fresh v2.x install).
         $has_present = $wpdb->get_row( "SHOW COLUMNS FROM `{$p}tt_attendance` LIKE 'present'" );
         if ( ! $has_present ) return;
-
-        // Only touch rows where status is blank — don't overwrite user-set values.
         $wpdb->query( "UPDATE {$p}tt_attendance SET status='present' WHERE present=1 AND (status IS NULL OR status='')" );
         $wpdb->query( "UPDATE {$p}tt_attendance SET status='absent'  WHERE present=0 AND (status IS NULL OR status='')" );
     }
-
-    /* ═══════════════════════════════════════════════════════════
-     *  Mark migrations as applied so the runtime runner skips them
-     * ═══════════════════════════════════════════════════════════ */
 
     private static function markMigrationsApplied(): void {
         global $wpdb;
@@ -342,45 +324,36 @@ class Activator {
         ];
 
         foreach ( $to_mark as $name ) {
-            // Only insert if not already present (UNIQUE constraint on `migration`
-            // would reject duplicates but this avoids pointless queries).
             $exists = $wpdb->get_var( $wpdb->prepare(
                 "SELECT id FROM $table WHERE migration = %s LIMIT 1",
                 $name
             ) );
             if ( $exists ) continue;
-
             $wpdb->insert( $table, [
                 'migration'  => $name,
                 'applied_at' => current_time( 'mysql' ),
             ] );
         }
 
-        // Also seed default lookups & config if this is a fresh install
-        // (detected by empty tt_lookups).
         self::seedDefaultsIfEmpty();
     }
-
-    /* ═══════════════════════════════════════════════════════════
-     *  Seed defaults on fresh installs (preserves existing data)
-     * ═══════════════════════════════════════════════════════════ */
 
     private static function seedDefaultsIfEmpty(): void {
         global $wpdb;
         $p = $wpdb->prefix;
 
         $count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_lookups" );
-        if ( $count > 0 ) return; // existing install — don't touch data.
+        if ( $count > 0 ) return;
 
         foreach ( [
             [ 'Technical', 'Ball control, passing, shooting, dribbling', 1 ],
             [ 'Tactical',  'Positioning, decision-making, game reading', 2 ],
             [ 'Physical',  'Speed, endurance, strength, agility', 3 ],
             [ 'Mental',    'Focus, leadership, attitude, resilience', 4 ],
-        ] as $c ) {
+        ] as $cat ) {
             $wpdb->insert( "{$p}tt_lookups", [
                 'lookup_type' => 'eval_category',
-                'name' => $c[0], 'description' => $c[1], 'sort_order' => $c[2],
+                'name' => $cat[0], 'description' => $cat[1], 'sort_order' => $cat[2],
             ] );
         }
 
@@ -419,7 +392,7 @@ class Activator {
             'season_label' => '2025/2026', 'academy_name' => 'Soccer Academy',
             'footer_text' => '', 'date_format' => 'Y-m-d',
             'default_report_range' => '3', 'composite_weights' => '{}',
-            'modules_enabled' => '["evaluations","goals","attendance","sessions","reports"]',
+            'modules_enabled' => '["evaluations","goals","attendance","sessions","reports","people"]',
             'primary_color' => '#0b3d2e', 'secondary_color' => '#e8b624',
             'logo_url' => '',
             'login_redirect_enabled' => '1',

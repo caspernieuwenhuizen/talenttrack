@@ -1,51 +1,103 @@
-# TalentTrack v2.6.7 — Fix PHP parse error + bundle v2.6.6
+# TalentTrack v2.7.0 — Sprint 1D: People/Staff domain
 
-## What was wrong
+## What's new
 
-Since v2.6.4, your GitHub Actions release workflow has been failing at the PHP lint step. That's why the 3rd release asset (`talenttrack.zip` built by the workflow) has been missing from the releases page — the build never got past lint.
+Introduces a People/Staff domain to support multiple staff per team, flexible roles, and future non-staff people like parents.
 
-The CI error was:
+### Mental model
+
+- **`tt_people`** holds anyone the system tracks — staff, parents, scouts, external people. A person in this table is just a record; they aren't staff until they're assigned to a team.
+- **`tt_team_people`** is the assignment relationship. Being listed here for a given team with a given role is what makes someone "staff" in that context.
+- Menu label is **People** because the table represents everyone. The team edit page calls its section **Staff** because that's the assignment context.
+
+### New feature set
+
+**People admin page** (TalentTrack → People)
+- List with filters: status (active/inactive), search, and "Only staff" toggle that shows people with at least one team assignment.
+- Create / edit / activate / deactivate.
+- Fields: first name, last name, email, phone, primary role, linked WordPress user, status.
+- `role_type` values: coach, assistant_coach, manager, staff, physio, scout, parent, other. Defaults to `other`.
+- Edit screen includes a Team assignments section showing which teams this person is staff on.
+
+**Team-staff assignments** (team edit page)
+- New Staff section displays current staff grouped by role: head coach, assistant coach, manager, physio, other.
+- Add-staff form lets you select any active person, choose their role on this team, and optionally set start/end dates.
+- Multiple people per role allowed.
+- Each assignment has an Unassign button.
+- Legacy `tt_teams.head_coach_id` is shown as a synthetic row labeled "Legacy" — read-only, with a hint explaining how to migrate.
+- Teams list now shows a Staff count column alongside Players.
+
+**Backward compatibility**
+- `tt_teams.head_coach_id` is deprecated but still read. `getTeamStaff()` unions assignment rows with a synthetic row for the legacy head coach, so existing data keeps displaying.
+- New assignments write only to `tt_team_people`. The legacy column is not updated on save, so it cleanly freezes the old value until a future release drops it.
+- Team edit page still has a Head Coach dropdown that writes to `head_coach_id` — noted with a description as legacy.
+- Team deletion now also cleans up `tt_team_people` rows for that team, avoiding orphans.
+
+**Hooks**
+
+```php
+do_action('tt_person_created', $person);
+do_action('tt_person_assigned_to_team', $team_id, $person_id, $role);
 ```
-PHP Parse error: Unclosed '{' on line 158 in src/Infrastructure/Database/MigrationRunner.php on line 318
-```
 
-The cause: v2.6.5's MigrationRunner had a `// comment` containing a literal PHP close-tag sequence. PHP's lexer treats that sequence as an actual close tag even inside `//` comments (it's not a bug — it's how the language is specified). Result: the file dropped into HTML mode mid-function, and the closing brace was never found.
+### Infrastructure cleanup
 
-This was entirely my mistake, not a PHP version issue or an infrastructure problem. The lint step is doing exactly what it should do — catching bad code before it ships. That you've still been able to install ZIPs is just because `php -l` is stricter than PHP's runtime about the same file.
+- `MigrationRunner::scanMigrationFiles()` now filters out `index.php` and anything that doesn't match the `NNNN_name.php` migration naming convention. The phantom "index" row in the Migrations admin page is gone.
+- Activator's `markMigrationsApplied()` unchanged; migrations 0001-0004 still auto-marked on activation.
 
-## What v2.6.7 contains
+### Capability
 
-**The corrected MigrationRunner.php** — removed literal PHP close-tag sequences from comments (and also split the regex to avoid any `?>` sequence in the source code at all, belt-and-suspenders).
-
-**Everything from v2.6.6** that you didn't get to install:
-- New Activator with inline schema reconciliation via `dbDelta`
-- The authoritative full schema for all TalentTrack tables
-- Legacy constraint relaxation (makes v1.x `category_id` and `rating` columns nullable)
-- Attendance status backfill from legacy `present` column
-- Marks migrations 0001-0004 as applied so the runtime runner has nothing to do
+All new admin actions require `tt_manage_players` (temporarily reused). A dedicated `tt_manage_people` capability is on the backlog for a future RBAC update.
 
 ## Install
 
-1. Extract ZIP into `/wp-content/plugins/talenttrack/` (overwriting).
-2. Commit, push, tag `v2.6.7`, create release.
-3. **Verify CI passes this time.** Go to GitHub → Actions → the v2.6.7 run should be green, and the release page should show 3 assets (2 auto from GitHub + `talenttrack.zip` from the workflow).
-4. WordPress admin → Plugins → **Deactivate TalentTrack → Activate TalentTrack.** This triggers the schema reconciliation.
-5. Verify with SQL (see CHANGES.md from v2.6.6 for the exact queries).
+1. Extract ZIP into `/wp-content/plugins/talenttrack/` (overwriting existing files).
+2. Commit, push, tag `v2.7.0`, create release.
+3. WordPress admin → Plugins → **Deactivate TalentTrack → Activate TalentTrack.** This triggers the activator which creates the two new tables via `dbDelta` and marks legacy migrations applied.
+4. Done.
+
+## Optional cleanup (via FTP)
+
+Delete this obsolete file if it still exists on your server:
+
+```
+/wp-content/plugins/talenttrack/database/migrations/0004_schema_reconciliation.php
+```
+
+The Activator has handled that schema reconciliation directly since v2.6.6. The file is harmless if left in place (the migration is already recorded as applied, so the runner will skip it), but removing it keeps the `database/migrations/` directory clean.
 
 ## Files in this release
 
+### New
+- `src/Modules/People/PeopleModule.php`
+- `src/Modules/People/Admin/PeoplePage.php`
+- `src/Modules/People/Admin/TeamStaffPanel.php`
+- `src/Infrastructure/People/PeopleRepository.php`
+
 ### Modified
-- `src/Core/Activator.php` — the v2.6.6 schema-reconciling activator
-- `src/Infrastructure/Database/MigrationRunner.php` — v2.6.5 code with the parse error fixed
+- `src/Core/Activator.php` — adds `tt_people` and `tt_team_people` to ensureSchema
+- `src/Infrastructure/Database/MigrationRunner.php` — index.php filter
+- `src/Modules/Teams/Admin/TeamsPage.php` — Staff panel hooked into edit form, Staff count in list, orphan cleanup on delete
+- `config/modules.php` — People module registered
 - `talenttrack.php` — version bump
 - `readme.txt` — stable tag + changelog
+- `languages/talenttrack-nl_NL.po` + `.mo` — Dutch strings for new UI
 
-## Everything else unchanged
+## Verify after install
 
-The usual list — Migrations admin page, MenuExtension, modules, dashboards, REST, auth, custom fields, fail-loud save handlers. All intact.
+1. TalentTrack → People exists in the menu, renders an empty list.
+2. Add a test person, save — success notice, edit page loads.
+3. TalentTrack → Teams → edit any team. Scroll below the main form. Staff section appears.
+4. If the team had a legacy head_coach_id set, it shows as a row labeled "Legacy".
+5. Assign the test person as e.g. Assistant Coach with a start date. Submit. Person appears in the Staff section grouped under Assistant Coach.
+6. Click Unassign — person disappears from Staff section.
+7. Teams list shows Staff count column.
+8. TalentTrack → Migrations: the phantom "index" row is gone; all 4 migrations show ✓ Applied.
 
-## What this teaches
+## Deferred backlog
 
-PHP's `?>` token closes the PHP block even when embedded in a `//` comment. I knew this abstractly but didn't catch it when writing what was supposed to be descriptive comment text about stripping trailing PHP close tags. The lint step caught it in CI, which is exactly what lint is for. Going forward I'll be more careful about that specific character sequence.
-
-The good news: once this release ships cleanly, the `talenttrack.zip` asset will be attached to the release by your workflow, auto-update should start working (folder name is now correct, asset is present), and you should get a pretty normal release experience. After that we can revisit the automation question you asked earlier.
+- Parent role views (linking parents to players)
+- Dedicated `tt_manage_people` capability
+- REST endpoints for People
+- Remove obsolete `0004_schema_reconciliation.php` from the repo
+- Review `MigrationHelpers.php` — verify usage and remove if orphaned

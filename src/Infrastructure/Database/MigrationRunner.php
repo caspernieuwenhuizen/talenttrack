@@ -303,6 +303,14 @@ class MigrationRunner {
     private function scanMigrationFiles(): array {
         $files = glob( $this->migrations_dir . '/*.php' );
         if ( ! $files ) return [];
+        // Ignore non-migration files like WordPress's index.php placeholder.
+        // Real migrations follow the NNNN_name.php convention.
+        $files = array_values( array_filter( $files, function ( string $f ): bool {
+            $name = basename( $f, '.php' );
+            if ( $name === 'index' ) return false;
+            // Enforce NNNN_ prefix (four digits, underscore).
+            return (bool) preg_match( '/^\d{4}_/', $name );
+        } ) );
         sort( $files );
         return $files;
     }

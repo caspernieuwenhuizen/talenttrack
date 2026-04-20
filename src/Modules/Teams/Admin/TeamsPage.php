@@ -4,6 +4,7 @@ namespace TT\Modules\Teams\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\People\Admin\TeamStaffPanel;
 
 class TeamsPage {
     public static function init(): void {
@@ -28,13 +29,15 @@ class TeamsPage {
                 <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Age Group', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Head Coach', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Staff', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Players', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
             </tr></thead><tbody>
-            <?php if ( empty( $teams ) ) : ?><tr><td colspan="5"><?php esc_html_e( 'No teams.', 'talenttrack' ); ?></td></tr>
+            <?php if ( empty( $teams ) ) : ?><tr><td colspan="6"><?php esc_html_e( 'No teams.', 'talenttrack' ); ?></td></tr>
             <?php else : foreach ( $teams as $t ) :
-                $pc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_players WHERE team_id=%d AND status='active'", $t->id ) ); ?>
-                <tr><td><strong><?php echo esc_html( (string) $t->name ); ?></strong></td><td><?php echo esc_html( (string) $t->age_group ); ?></td><td><?php echo esc_html( $t->coach_name ?: '—' ); ?></td><td><?php echo (int) $pc; ?></td>
+                $pc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_players WHERE team_id=%d AND status='active'", $t->id ) );
+                $sc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_team_people WHERE team_id=%d", $t->id ) ); ?>
+                <tr><td><strong><?php echo esc_html( (string) $t->name ); ?></strong></td><td><?php echo esc_html( (string) $t->age_group ); ?></td><td><?php echo esc_html( $t->coach_name ?: '—' ); ?></td><td><?php echo (int) $sc; ?></td><td><?php echo (int) $pc; ?></td>
                     <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-teams&action=edit&id={$t->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_team&id={$t->id}" ), 'tt_delete_team_' . $t->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td></tr>
             <?php endforeach; endif; ?></tbody></table>
         </div>
@@ -56,11 +59,26 @@ class TeamsPage {
                     <tr><th><?php esc_html_e( 'Age Group', 'talenttrack' ); ?></th><td><select name="age_group"><option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                         <?php foreach ( $age_groups as $ag ) : ?><option value="<?php echo esc_attr( $ag ); ?>" <?php selected( $team->age_group ?? '', $ag ); ?>><?php echo esc_html( $ag ); ?></option><?php endforeach; ?>
                     </select></td></tr>
-                    <tr><th><?php esc_html_e( 'Head Coach', 'talenttrack' ); ?></th><td><?php wp_dropdown_users( [ 'name' => 'head_coach_id', 'selected' => $team->head_coach_id ?? 0, 'show_option_none' => __( '— None —', 'talenttrack' ), 'option_none_value' => 0 ] ); ?></td></tr>
+                    <tr>
+                        <th><?php esc_html_e( 'Head Coach', 'talenttrack' ); ?></th>
+                        <td>
+                            <?php wp_dropdown_users( [ 'name' => 'head_coach_id', 'selected' => $team->head_coach_id ?? 0, 'show_option_none' => __( '— None —', 'talenttrack' ), 'option_none_value' => 0 ] ); ?>
+                            <?php if ( $is_edit ) : ?>
+                                <p class="description">
+                                    <?php esc_html_e( 'This is the legacy head coach field (kept for backward compatibility). Prefer assigning staff in the Staff section below — it supports multiple coaches, assistants, managers, and physios per team.', 'talenttrack' ); ?>
+                                </p>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
                     <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><textarea name="notes" rows="3" class="large-text"><?php echo esc_textarea( $team->notes ?? '' ); ?></textarea></td></tr>
                 </table>
                 <?php submit_button( $is_edit ? __( 'Update Team', 'talenttrack' ) : __( 'Add Team', 'talenttrack' ) ); ?>
             </form>
+
+            <?php if ( $is_edit && $team && class_exists( TeamStaffPanel::class ) ) : ?>
+                <?php TeamStaffPanel::render( (int) $team->id ); ?>
+                <?php TeamStaffPanel::renderAddForm( (int) $team->id ); ?>
+            <?php endif; ?>
         </div>
         <?php
     }
@@ -87,6 +105,8 @@ class TeamsPage {
         check_admin_referer( 'tt_delete_team_' . $id );
         if ( ! current_user_can( 'tt_manage_players' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         global $wpdb;
+        // Also clean up any staff assignments pointing at this team, to avoid orphans.
+        $wpdb->delete( $wpdb->prefix . 'tt_team_people', [ 'team_id' => $id ] );
         $wpdb->delete( $wpdb->prefix . 'tt_teams', [ 'id' => $id ] );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-teams&tt_msg=deleted' ) );
         exit;
