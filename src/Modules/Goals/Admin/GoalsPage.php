@@ -3,8 +3,11 @@ namespace TT\Modules\Goals\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\CustomFields\CustomFieldsRepository;
+use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Shared\Validation\CustomFieldValidator;
 
 /**
  * GoalsPage — admin CRUD for goals.
@@ -52,6 +55,12 @@ class GoalsPage {
         <div class="wrap">
             <h1><?php echo $goal ? esc_html__( 'Edit Goal', 'talenttrack' ) : esc_html__( 'Add Goal', 'talenttrack' ); ?></h1>
 
+            <?php if ( ! empty( $_GET['tt_cf_error'] ) ) : ?>
+                <div class="notice notice-warning is-dismissible">
+                    <p><?php esc_html_e( 'The goal was saved, but one or more custom fields had invalid values and were not updated.', 'talenttrack' ); ?></p>
+                </div>
+            <?php endif; ?>
+
             <?php if ( $state && ! empty( $state['db_error'] ) ) : ?>
                 <div class="notice notice-error">
                     <p><strong><?php esc_html_e( 'The database rejected the save. No goal was created.', 'talenttrack' ); ?></strong></p>
@@ -67,13 +76,20 @@ class GoalsPage {
                     <tr><th><?php esc_html_e( 'Player', 'talenttrack' ); ?> *</th><td><select name="player_id" required>
                         <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                         <?php foreach ( $players as $pl ) : ?><option value="<?php echo (int) $pl->id; ?>" <?php selected( $goal->player_id ?? 0, $pl->id ); ?>><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></option><?php endforeach; ?></select></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ), 'player_id' ); ?>
                     <tr><th><?php esc_html_e( 'Title', 'talenttrack' ); ?> *</th><td><input type="text" name="title" value="<?php echo esc_attr( $goal->title ?? '' ); ?>" class="regular-text" required /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ), 'title' ); ?>
                     <tr><th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th><td><textarea name="description" rows="3" class="large-text"><?php echo esc_textarea( $goal->description ?? '' ); ?></textarea></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ), 'description' ); ?>
                     <tr><th><?php esc_html_e( 'Priority', 'talenttrack' ); ?></th><td><select name="priority">
                         <?php foreach ( $priorities as $pr ) : ?><option value="<?php echo esc_attr( strtolower( $pr ) ); ?>" <?php selected( $goal->priority ?? 'medium', strtolower( $pr ) ); ?>><?php echo esc_html( $pr ); ?></option><?php endforeach; ?></select></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ), 'priority' ); ?>
                     <tr><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><td><select name="status">
                         <?php foreach ( $statuses as $st ) : $v = strtolower( str_replace( ' ', '_', $st ) ); ?><option value="<?php echo esc_attr( $v ); ?>" <?php selected( $goal->status ?? 'pending', $v ); ?>><?php echo esc_html( $st ); ?></option><?php endforeach; ?></select></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ), 'status' ); ?>
                     <tr><th><?php esc_html_e( 'Due Date', 'talenttrack' ); ?></th><td><input type="date" name="due_date" value="<?php echo esc_attr( $goal->due_date ?? '' ); ?>" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ), 'due_date' ); ?>
+                    <?php CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ) ); ?>
                 </table>
                 <?php submit_button( $goal ? __( 'Update', 'talenttrack' ) : __( 'Add', 'talenttrack' ) ); ?>
             </form>
@@ -100,6 +116,10 @@ class GoalsPage {
             $ok = $wpdb->update( "{$p}tt_goals", $data, [ 'id' => $id ] );
         } else {
             $ok = $wpdb->insert( "{$p}tt_goals", $data );
+            // v2.11.0: previous versions didn't capture insert_id here, which
+            // meant any post-save integration keyed on the goal ID (e.g.
+            // custom fields, audit log) silently failed for new goals.
+            if ( $ok !== false ) $id = (int) $wpdb->insert_id;
         }
 
         if ( $ok === false ) {
@@ -113,7 +133,17 @@ class GoalsPage {
             exit;
         }
 
-        wp_safe_redirect( admin_url( 'admin.php?page=tt-goals&tt_msg=saved' ) );
+        // Persist custom field values. Native save already succeeded; any
+        // validation errors on custom fields are surfaced via notice but
+        // don't undo the save.
+        $cf_errors = CustomFieldValidator::persistFromPost( CustomFieldsRepository::ENTITY_GOAL, $id, $_POST );
+        $redirect_args = [ 'page' => 'tt-goals', 'tt_msg' => 'saved' ];
+        if ( ! empty( $cf_errors ) ) {
+            $redirect_args['tt_cf_error'] = 1;
+            $redirect_args['action']      = 'edit';
+            $redirect_args['id']          = $id;
+        }
+        wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'admin.php' ) ) );
         exit;
     }
 

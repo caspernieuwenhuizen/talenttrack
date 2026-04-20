@@ -11,8 +11,11 @@ use TT\Infrastructure\Query\QueryHelpers;
 /**
  * ConfigurationPage — admin tabs for every config surface.
  *
- * v2.6.0: adds a "Player Custom Fields" tab that delegates to CustomFieldsTab
- * (extracted for maintainability — that class is 400+ lines on its own).
+ * v2.6.0: adds a "Player Custom Fields" tab. Retired in v2.11.0 —
+ * custom fields now live under their own top-level admin page
+ * (TalentTrack → Custom Fields, see CustomFieldsPage). The handlers
+ * are still registered here because this page's init() is already
+ * hooked at the right admin lifecycle point.
  */
 class ConfigurationPage {
 
@@ -21,8 +24,12 @@ class ConfigurationPage {
         add_action( 'admin_post_tt_save_lookup',   [ __CLASS__, 'handle_save_lookup' ] );
         add_action( 'admin_post_tt_delete_lookup', [ __CLASS__, 'handle_delete_lookup' ] );
         add_action( 'admin_post_tt_save_toggles',  [ __CLASS__, 'handle_save_toggles' ] );
-        // CustomFieldsTab registers its own handlers.
-        CustomFieldsTab::registerHandlers();
+
+        // Sprint 1H (v2.11.0): Custom Fields moved to its own top-level admin
+        // page (TalentTrack → Custom Fields). Handlers register here because
+        // ConfigurationModule::boot runs at the right admin lifecycle point.
+        add_action( 'admin_post_tt_save_custom_field',   [ CustomFieldsPage::class, 'handleSave' ] );
+        add_action( 'admin_post_tt_toggle_custom_field', [ CustomFieldsPage::class, 'handleToggle' ] );
     }
 
     public static function render_page(): void {
@@ -36,7 +43,6 @@ class ConfigurationPage {
             'goal_statuses'   => __( 'Goal Statuses', 'talenttrack' ),
             'goal_priorities' => __( 'Goal Priorities', 'talenttrack' ),
             'att_statuses'    => __( 'Attendance Statuses', 'talenttrack' ),
-            'custom_fields'   => __( 'Player Custom Fields', 'talenttrack' ),
             'rating'          => __( 'Rating Scale', 'talenttrack' ),
             'branding'        => __( 'Branding', 'talenttrack' ),
             'toggles'         => __( 'Feature Toggles', 'talenttrack' ),
@@ -67,7 +73,6 @@ class ConfigurationPage {
                 case 'goal_statuses':   self::tab_lookup( 'goal_status', __( 'Goal Status', 'talenttrack' ), false, false ); break;
                 case 'goal_priorities': self::tab_lookup( 'goal_priority', __( 'Goal Priority', 'talenttrack' ), false, false ); break;
                 case 'att_statuses':    self::tab_lookup( 'attendance_status', __( 'Attendance Status', 'talenttrack' ), false, false ); break;
-                case 'custom_fields':   CustomFieldsTab::render(); break;
                 case 'rating':          self::tab_rating(); break;
                 case 'branding':        self::tab_branding(); break;
                 case 'toggles':         self::tab_toggles(); break;

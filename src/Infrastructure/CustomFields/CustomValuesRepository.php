@@ -111,6 +111,9 @@ class CustomValuesRepository {
     /**
      * Cast a stored string value back to its natural PHP type for output.
      *
+     * v2.11.0: Added multi_select (stored as comma-joined, returned as array),
+     * and treats url/email/phone as strings (same as text).
+     *
      * @return mixed
      */
     private static function castForOutput( string $field_type, ?string $raw ) {
@@ -123,6 +126,11 @@ class CustomValuesRepository {
                     : (float) $raw;
             case CustomFieldsRepository::TYPE_CHECKBOX:
                 return $raw === '1';
+            case CustomFieldsRepository::TYPE_MULTI_SELECT:
+                if ( $raw === '' ) return [];
+                return array_values( array_filter( array_map( 'trim', explode( ',', $raw ) ), function ( $v ) {
+                    return $v !== '';
+                } ) );
             default:
                 return (string) $raw;
         }

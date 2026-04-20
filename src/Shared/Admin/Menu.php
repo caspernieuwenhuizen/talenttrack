@@ -4,6 +4,7 @@ namespace TT\Shared\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Configuration\Admin\ConfigurationPage;
+use TT\Modules\Configuration\Admin\CustomFieldsPage;
 use TT\Modules\Documentation\Admin\DocumentationPage;
 use TT\Modules\Evaluations\Admin\EvaluationsPage;
 use TT\Modules\Goals\Admin\GoalsPage;
@@ -15,8 +16,9 @@ use TT\Modules\Teams\Admin\TeamsPage;
 /**
  * Menu — registers the top-level TalentTrack admin menu plus subpages.
  *
- * v2.6.0: enqueues admin-sortable.js on TT admin pages so the CustomFieldsTab
- * and OptionSetEditor drag-reorder UI works.
+ * v2.11.0: added Custom Fields submenu (TalentTrack → Custom Fields).
+ * v2.6.0: enqueues admin-sortable.js on TT admin pages. (Originally for
+ * the old CustomFieldsTab drag-sort UI; still used by OptionSetEditor.)
  */
 class Menu {
 
@@ -35,6 +37,7 @@ class Menu {
         add_submenu_page( 'talenttrack', __( 'Goals', 'talenttrack' ), __( 'Goals', 'talenttrack' ), 'tt_evaluate_players', 'tt-goals', [ GoalsPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Reports', 'talenttrack' ), __( 'Reports', 'talenttrack' ), 'tt_view_reports', 'tt-reports', [ ReportsPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Configuration', 'talenttrack' ), __( 'Configuration', 'talenttrack' ), 'tt_manage_settings', 'tt-config', [ ConfigurationPage::class, 'render_page' ] );
+        add_submenu_page( 'talenttrack', __( 'Custom Fields', 'talenttrack' ), __( 'Custom Fields', 'talenttrack' ), 'tt_manage_settings', 'tt-custom-fields', [ CustomFieldsPage::class, 'render' ] );
         add_submenu_page( 'talenttrack', __( 'Help & Docs', 'talenttrack' ), __( 'Help & Docs', 'talenttrack' ), 'read', 'tt-docs', [ DocumentationPage::class, 'render_page' ] );
     }
 

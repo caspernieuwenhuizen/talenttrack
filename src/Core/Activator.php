@@ -364,13 +364,15 @@ class Activator {
             options LONGTEXT,
             is_required TINYINT(1) DEFAULT 0,
             is_active TINYINT(1) DEFAULT 1,
+            insert_after VARCHAR(64) DEFAULT NULL,
             sort_order INT DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             UNIQUE KEY uniq_entity_key (entity_type, field_key),
             KEY idx_entity (entity_type),
-            KEY idx_active (is_active)
+            KEY idx_active (is_active),
+            KEY idx_insert_after (entity_type, insert_after)
         ) $c;";
 
         $queries[] = "CREATE TABLE {$p}tt_custom_values (

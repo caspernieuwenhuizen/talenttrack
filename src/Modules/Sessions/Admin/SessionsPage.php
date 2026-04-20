@@ -3,8 +3,11 @@ namespace TT\Modules\Sessions\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\CustomFields\CustomFieldsRepository;
+use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Shared\Validation\CustomFieldValidator;
 
 /**
  * SessionsPage — admin CRUD for training sessions.
@@ -55,6 +58,12 @@ class SessionsPage {
         <div class="wrap">
             <h1><?php echo $session ? esc_html__( 'Edit Session', 'talenttrack' ) : esc_html__( 'New Session', 'talenttrack' ); ?></h1>
 
+            <?php if ( ! empty( $_GET['tt_cf_error'] ) ) : ?>
+                <div class="notice notice-warning is-dismissible">
+                    <p><?php esc_html_e( 'The session was saved, but one or more custom fields had invalid values and were not updated.', 'talenttrack' ); ?></p>
+                </div>
+            <?php endif; ?>
+
             <?php if ( $state && ! empty( $state['db_error'] ) ) : ?>
                 <div class="notice notice-error">
                     <p><strong><?php esc_html_e( 'The database rejected the save. No session was created.', 'talenttrack' ); ?></strong></p>
@@ -68,11 +77,17 @@ class SessionsPage {
                 <?php if ( $session ) : ?><input type="hidden" name="id" value="<?php echo (int) $session->id; ?>" /><?php endif; ?>
                 <table class="form-table">
                     <tr><th><?php esc_html_e( 'Title', 'talenttrack' ); ?> *</th><td><input type="text" name="title" value="<?php echo esc_attr( $session->title ?? '' ); ?>" class="regular-text" required /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_SESSION, (int) ( $session->id ?? 0 ), 'title' ); ?>
                     <tr><th><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</th><td><input type="date" name="session_date" value="<?php echo esc_attr( $session->session_date ?? current_time( 'Y-m-d' ) ); ?>" required /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_SESSION, (int) ( $session->id ?? 0 ), 'session_date' ); ?>
+                    <tr><th><?php esc_html_e( 'Location', 'talenttrack' ); ?></th><td><input type="text" name="location" value="<?php echo esc_attr( $session->location ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_SESSION, (int) ( $session->id ?? 0 ), 'location' ); ?>
                     <tr><th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th><td><select name="team_id"><option value="0"><?php esc_html_e( '— All —', 'talenttrack' ); ?></option>
                         <?php foreach ( $teams as $t ) : ?><option value="<?php echo (int) $t->id; ?>" <?php selected( $team_id, $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option><?php endforeach; ?></select></td></tr>
-                    <tr><th><?php esc_html_e( 'Location', 'talenttrack' ); ?></th><td><input type="text" name="location" value="<?php echo esc_attr( $session->location ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_SESSION, (int) ( $session->id ?? 0 ), 'team_id' ); ?>
                     <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><textarea name="notes" rows="3" class="large-text"><?php echo esc_textarea( $session->notes ?? '' ); ?></textarea></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_SESSION, (int) ( $session->id ?? 0 ), 'notes' ); ?>
+                    <?php CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_SESSION, (int) ( $session->id ?? 0 ) ); ?>
                 </table>
                 <?php if ( ! empty( $players ) ) : ?>
                 <h3><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></h3>
@@ -133,7 +148,16 @@ class SessionsPage {
                 Logger::error( 'admin.session.attendance.save.failed', [ 'db_error' => (string) $wpdb->last_error, 'session_id' => $id, 'player_id' => absint( $pid ) ] );
             }
         }
-        wp_safe_redirect( admin_url( 'admin.php?page=tt-sessions&tt_msg=saved' ) );
+
+        // Persist custom field values for the session.
+        $cf_errors = CustomFieldValidator::persistFromPost( CustomFieldsRepository::ENTITY_SESSION, $id, $_POST );
+        $redirect_args = [ 'page' => 'tt-sessions', 'tt_msg' => 'saved' ];
+        if ( ! empty( $cf_errors ) ) {
+            $redirect_args['tt_cf_error'] = 1;
+            $redirect_args['action']      = 'edit';
+            $redirect_args['id']          = $id;
+        }
+        wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'admin.php' ) ) );
         exit;
     }
 

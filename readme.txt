@@ -4,13 +4,23 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.10.1
+Stable tag: 2.11.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.11.0 — Sprint 1H: Custom fields framework =
+* NEW: Custom fields can be defined for all five entities — Players, People, Teams, Sessions, Goals — from a new TalentTrack → Custom Fields admin page. Previously only Players had custom fields, and they lived under a Configuration sub-tab.
+* NEW: Custom fields can be positioned anywhere on the edit form via an "Insert after" dropdown that lists every native field slug for the target entity (plus "at end of form"). No more fixed "Additional Fields" section at the bottom.
+* NEW: Five additional field types: long text (textarea), multi-select, URL, email, phone. Joins the existing text, number, select, checkbox, date types for ten total.
+* NEW: Schema migration 0007 adds tt_custom_fields.insert_after column + idx_insert_after index. Additive, non-destructive. Existing custom fields keep working (they render at the end of the form, same as before).
+* NEW: Framework pieces — FormSlugContract (single source of truth for native slugs per entity), CustomFieldsSlot (form-injection point called from each module's edit page), CustomFieldValidator::persistFromPost (one-call validate + upsert for save handlers).
+* FIXED: GoalsPage::handle_save() didn't capture $wpdb->insert_id on new goal creation. Pre-existing bug since v2.6.x. Now captures the new ID so post-save integrations (including the new custom-fields persistence) work on create.
+* INTERNAL: Old CustomFieldsTab retired; its handlers live on the new CustomFieldsPage. Shared\Frontend\CustomFieldRenderer and Shared\Validation\CustomFieldValidator both extended for the five new field types. 42 new Dutch strings translated.
+* DEFERRED: Custom fields on Evaluations (Sprint 1I / v2.12.0), drag-and-drop reorder (polish backlog), list-page filtering on custom values (polish backlog), custom values in REST API responses, audit log of custom value writes, file upload / rich text / repeater field types.
 
 = 2.10.1 — Migration loader fix + self-healing backfill =
 * FIXED: Migration 0006_functional_role_backfill was marked applied but did nothing on some hosts. Root cause: `MigrationRunner::loadMigrationFromFile()` used `eval()`, which silently ignores `use` statements and resolves class names in the global namespace. This broke the `return new class extends Migration { ... }` pattern every migration file relies on. Replaced with `include` inside a closure — proper scoping, proper namespace handling.

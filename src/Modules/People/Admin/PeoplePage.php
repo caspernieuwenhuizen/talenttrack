@@ -3,7 +3,10 @@ namespace TT\Modules\People\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\CustomFields\CustomFieldsRepository;
+use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\People\PeopleRepository;
+use TT\Shared\Validation\CustomFieldValidator;
 
 /**
  * PeoplePage — admin UI for the People module.
@@ -164,6 +167,12 @@ class PeoplePage {
         <div class="wrap">
             <h1><?php echo $is_edit ? esc_html__( 'Edit Person', 'talenttrack' ) : esc_html__( 'Add Person', 'talenttrack' ); ?></h1>
 
+            <?php if ( ! empty( $_GET['tt_cf_error'] ) ) : ?>
+                <div class="notice notice-warning is-dismissible">
+                    <p><?php esc_html_e( 'The person was saved, but one or more custom fields had invalid values and were not updated.', 'talenttrack' ); ?></p>
+                </div>
+            <?php endif; ?>
+
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                 <?php wp_nonce_field( 'tt_save_person', 'tt_nonce' ); ?>
                 <input type="hidden" name="action" value="tt_save_person" />
@@ -176,18 +185,22 @@ class PeoplePage {
                         <th><label for="first_name"><?php esc_html_e( 'First name', 'talenttrack' ); ?></label> *</th>
                         <td><input type="text" name="first_name" id="first_name" value="<?php echo esc_attr( $data['first_name'] ); ?>" class="regular-text" required /></td>
                     </tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PERSON, (int) ( $person->id ?? 0 ), 'first_name' ); ?>
                     <tr>
                         <th><label for="last_name"><?php esc_html_e( 'Last name', 'talenttrack' ); ?></label> *</th>
                         <td><input type="text" name="last_name" id="last_name" value="<?php echo esc_attr( $data['last_name'] ); ?>" class="regular-text" required /></td>
                     </tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PERSON, (int) ( $person->id ?? 0 ), 'last_name' ); ?>
                     <tr>
                         <th><label for="email"><?php esc_html_e( 'Email', 'talenttrack' ); ?></label></th>
                         <td><input type="email" name="email" id="email" value="<?php echo esc_attr( $data['email'] ); ?>" class="regular-text" /></td>
                     </tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PERSON, (int) ( $person->id ?? 0 ), 'email' ); ?>
                     <tr>
                         <th><label for="phone"><?php esc_html_e( 'Phone', 'talenttrack' ); ?></label></th>
                         <td><input type="text" name="phone" id="phone" value="<?php echo esc_attr( $data['phone'] ); ?>" class="regular-text" /></td>
                     </tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PERSON, (int) ( $person->id ?? 0 ), 'phone' ); ?>
                     <tr>
                         <th><label for="role_type"><?php esc_html_e( 'Primary role', 'talenttrack' ); ?></label></th>
                         <td>
@@ -201,6 +214,7 @@ class PeoplePage {
                             <p class="description"><?php esc_html_e( "Default role if this person isn't assigned to a specific team. Team assignments can override this per-team.", 'talenttrack' ); ?></p>
                         </td>
                     </tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PERSON, (int) ( $person->id ?? 0 ), 'role_type' ); ?>
                     <tr>
                         <th><label for="wp_user_id"><?php esc_html_e( 'Linked WordPress user', 'talenttrack' ); ?></label></th>
                         <td>
@@ -214,6 +228,7 @@ class PeoplePage {
                             <p class="description"><?php esc_html_e( 'Optional. Link to a WordPress user account for login access.', 'talenttrack' ); ?></p>
                         </td>
                     </tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PERSON, (int) ( $person->id ?? 0 ), 'wp_user_id' ); ?>
                     <tr>
                         <th><label for="status"><?php esc_html_e( 'Status', 'talenttrack' ); ?></label></th>
                         <td>
@@ -223,6 +238,8 @@ class PeoplePage {
                             </select>
                         </td>
                     </tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PERSON, (int) ( $person->id ?? 0 ), 'status' ); ?>
+                    <?php CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_PERSON, (int) ( $person->id ?? 0 ) ); ?>
                 </table>
 
                 <?php submit_button( $is_edit ? __( 'Update Person', 'talenttrack' ) : __( 'Add Person', 'talenttrack' ) ); ?>
@@ -300,13 +317,25 @@ class PeoplePage {
         } else {
             $new_id = $repo->create( $data );
             $ok = $new_id !== false;
+            if ( $ok ) $id = (int) $new_id;
         }
 
-        // Match the plugin-wide pattern: successful save redirects to the list
-        // with tt_msg=saved. Failed save also redirects to list but with
-        // tt_msg=error (rendered as an error notice there).
-        $msg = $ok ? 'saved' : 'error';
-        wp_safe_redirect( admin_url( 'admin.php?page=tt-people&tt_msg=' . $msg ) );
+        if ( ! $ok ) {
+            wp_safe_redirect( admin_url( 'admin.php?page=tt-people&tt_msg=error' ) );
+            exit;
+        }
+
+        // Persist custom field values. Errors accumulate without rolling
+        // back the native save; surface them via notice on the edit form.
+        $cf_errors = CustomFieldValidator::persistFromPost( CustomFieldsRepository::ENTITY_PERSON, $id, $_POST );
+
+        $redirect_args = [ 'page' => 'tt-people', 'tt_msg' => 'saved' ];
+        if ( ! empty( $cf_errors ) ) {
+            $redirect_args['tt_cf_error'] = 1;
+            $redirect_args['action']      = 'edit';
+            $redirect_args['id']          = $id;
+        }
+        wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'admin.php' ) ) );
         exit;
     }
 

@@ -5,12 +5,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Kernel;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
+use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
-use TT\Shared\Frontend\CustomFieldRenderer;
 use TT\Shared\Validation\CustomFieldValidator;
 
 /**
@@ -90,17 +90,17 @@ class PlayersPage {
             'released' => __( 'Released', 'talenttrack' ),
         ];
 
-        $fields_repo = new CustomFieldsRepository();
-        $values_repo = new CustomValuesRepository();
-        $custom_fields = $fields_repo->getActive( CustomFieldsRepository::ENTITY_PLAYER );
-        $current_values_by_key = ( $is_edit && $player )
-            ? $values_repo->getByEntityKeyed( CustomFieldsRepository::ENTITY_PLAYER, (int) $player->id )
-            : [];
-
-        if ( $state && isset( $state['submitted_custom_fields'] ) ) {
-            foreach ( $state['submitted_custom_fields'] as $k => $v ) {
-                $current_values_by_key[ (string) $k ] = $v;
-            }
+        // Note: custom field values are loaded on-demand by CustomFieldsSlot
+        // itself (per-request cached), so this render_form doesn't need to
+        // pre-load them. The slot consults $_POST['custom_fields'] so a
+        // submitted form always re-renders with the user's typed values.
+        //
+        // On a validation-error redirect, $_POST is lost, so we pull the
+        // transient-saved submission back into $_POST before rendering.
+        // CustomFieldsSlot can't tell the difference and renders the
+        // right values.
+        if ( $state && isset( $state['submitted_custom_fields'] ) && is_array( $state['submitted_custom_fields'] ) ) {
+            $_POST['custom_fields'] = $state['submitted_custom_fields'];
         }
         ?>
         <div class="wrap">
@@ -130,53 +130,47 @@ class PlayersPage {
                 <?php if ( $is_edit ) : ?><input type="hidden" name="id" value="<?php echo (int) $player->id; ?>" /><?php endif; ?>
                 <table class="form-table">
                     <tr><th><?php esc_html_e( 'First Name', 'talenttrack' ); ?> *</th><td><input type="text" name="first_name" value="<?php echo esc_attr( $player->first_name ?? '' ); ?>" class="regular-text" required /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'first_name' ); ?>
                     <tr><th><?php esc_html_e( 'Last Name', 'talenttrack' ); ?> *</th><td><input type="text" name="last_name" value="<?php echo esc_attr( $player->last_name ?? '' ); ?>" class="regular-text" required /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'last_name' ); ?>
                     <tr><th><?php esc_html_e( 'Date of Birth', 'talenttrack' ); ?></th><td><input type="date" name="date_of_birth" value="<?php echo esc_attr( $player->date_of_birth ?? '' ); ?>" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'date_of_birth' ); ?>
                     <tr><th><?php esc_html_e( 'Nationality', 'talenttrack' ); ?></th><td><input type="text" name="nationality" value="<?php echo esc_attr( $player->nationality ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'nationality' ); ?>
                     <tr><th><?php esc_html_e( 'Height (cm)', 'talenttrack' ); ?></th><td><input type="number" name="height_cm" value="<?php echo esc_attr( $player->height_cm ?? '' ); ?>" min="50" max="250" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'height_cm' ); ?>
                     <tr><th><?php esc_html_e( 'Weight (kg)', 'talenttrack' ); ?></th><td><input type="number" name="weight_kg" value="<?php echo esc_attr( $player->weight_kg ?? '' ); ?>" min="20" max="200" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'weight_kg' ); ?>
                     <tr><th><?php esc_html_e( 'Preferred Foot', 'talenttrack' ); ?></th><td><select name="preferred_foot"><option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                         <?php foreach ( $foot_opts as $f ) : ?><option value="<?php echo esc_attr( $f ); ?>" <?php selected( $player->preferred_foot ?? '', $f ); ?>><?php echo esc_html( $f ); ?></option><?php endforeach; ?></select></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'preferred_foot' ); ?>
                     <tr><th><?php esc_html_e( 'Preferred Position(s)', 'talenttrack' ); ?></th><td>
                         <?php foreach ( $positions as $pos ) : ?><label style="display:inline-block;margin-right:12px;"><input type="checkbox" name="preferred_positions[]" value="<?php echo esc_attr( $pos ); ?>" <?php echo in_array( $pos, $sel_pos ) ? 'checked' : ''; ?> /> <?php echo esc_html( $pos ); ?></label><?php endforeach; ?>
                     </td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'preferred_positions' ); ?>
                     <tr><th><?php esc_html_e( 'Jersey Number', 'talenttrack' ); ?></th><td><input type="number" name="jersey_number" value="<?php echo esc_attr( $player->jersey_number ?? '' ); ?>" min="1" max="99" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'jersey_number' ); ?>
                     <tr><th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th><td><select name="team_id"><option value="0"><?php esc_html_e( '— No Team —', 'talenttrack' ); ?></option>
                         <?php foreach ( $teams as $t ) : ?><option value="<?php echo (int) $t->id; ?>" <?php selected( $player->team_id ?? 0, $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option><?php endforeach; ?></select></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'team_id' ); ?>
                     <tr><th><?php esc_html_e( 'Date Joined', 'talenttrack' ); ?></th><td><input type="date" name="date_joined" value="<?php echo esc_attr( $player->date_joined ?? '' ); ?>" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'date_joined' ); ?>
                     <tr><th><?php esc_html_e( 'Photo', 'talenttrack' ); ?></th><td><input type="text" name="photo_url" id="tt_photo_url" value="<?php echo esc_url( $player->photo_url ?? '' ); ?>" class="regular-text" /> <button type="button" class="button" id="tt-upload-photo"><?php esc_html_e( 'Upload', 'talenttrack' ); ?></button></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'photo_url' ); ?>
                     <tr><th><?php esc_html_e( 'Guardian Name', 'talenttrack' ); ?></th><td><input type="text" name="guardian_name" value="<?php echo esc_attr( $player->guardian_name ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_name' ); ?>
                     <tr><th><?php esc_html_e( 'Guardian Email', 'talenttrack' ); ?></th><td><input type="email" name="guardian_email" value="<?php echo esc_attr( $player->guardian_email ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_email' ); ?>
                     <tr><th><?php esc_html_e( 'Guardian Phone', 'talenttrack' ); ?></th><td><input type="text" name="guardian_phone" value="<?php echo esc_attr( $player->guardian_phone ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_phone' ); ?>
                     <tr><th><?php esc_html_e( 'Linked WP User', 'talenttrack' ); ?></th><td><?php wp_dropdown_users( [ 'name' => 'wp_user_id', 'selected' => $player->wp_user_id ?? 0, 'show_option_none' => __( '— None —', 'talenttrack' ), 'option_none_value' => 0 ] ); ?></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'wp_user_id' ); ?>
                     <tr><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><td><select name="status">
                         <?php foreach ( $status_options as $k => $l ) : ?>
                             <option value="<?php echo esc_attr( $k ); ?>" <?php selected( $player->status ?? 'active', $k ); ?>><?php echo esc_html( $l ); ?></option><?php endforeach; ?></select></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'status' ); ?>
+                    <?php CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ) ); ?>
                 </table>
-
-                <?php if ( ! empty( $custom_fields ) ) : ?>
-                    <h2 style="margin-top:30px;padding-top:20px;border-top:1px solid #dcdcde;">
-                        <?php esc_html_e( 'Additional Fields', 'talenttrack' ); ?>
-                    </h2>
-                    <table class="form-table">
-                        <?php foreach ( $custom_fields as $field ) :
-                            $val = $current_values_by_key[ (string) $field->field_key ] ?? null;
-                            $is_checkbox = ( (string) $field->field_type === CustomFieldsRepository::TYPE_CHECKBOX );
-                        ?>
-                            <tr>
-                                <th>
-                                    <?php if ( ! $is_checkbox ) : ?>
-                                        <?php echo esc_html( (string) $field->label ); ?>
-                                        <?php echo $field->is_required ? ' *' : ''; ?>
-                                    <?php endif; ?>
-                                </th>
-                                <td>
-                                    <?php echo CustomFieldRenderer::input( $field, $val ); ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </table>
-                <?php endif; ?>
 
                 <?php submit_button( $is_edit ? __( 'Update Player', 'talenttrack' ) : __( 'Add Player', 'talenttrack' ) ); ?>
             </form>
@@ -192,9 +186,6 @@ class PlayersPage {
         $radar = QueryHelpers::player_radar_datasets( $id );
         $max   = (float) QueryHelpers::get_config( 'rating_max', '5' );
         $pos   = json_decode( (string) $player->preferred_positions, true );
-
-        $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
-        $values = ( new CustomValuesRepository() )->getByEntityKeyed( CustomFieldsRepository::ENTITY_PLAYER, $id );
         ?>
         <div class="wrap">
             <h1><?php echo esc_html( QueryHelpers::player_display_name( $player ) ); ?>
@@ -210,20 +201,7 @@ class PlayersPage {
                         <tr><th><?php esc_html_e( 'Nationality', 'talenttrack' ); ?></th><td><?php echo esc_html( $player->nationality ?: '—' ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><td><?php echo esc_html( LabelTranslator::playerStatus( (string) $player->status ) ); ?></td></tr>
                     </table>
-                    <?php if ( ! empty( $fields ) ) : ?>
-                        <h3><?php esc_html_e( 'Additional Fields', 'talenttrack' ); ?></h3>
-                        <table class="form-table">
-                            <?php foreach ( $fields as $f ) :
-                                $v = $values[ (string) $f->field_key ] ?? null;
-                                if ( $v === null || $v === '' ) continue;
-                            ?>
-                                <tr>
-                                    <th><?php echo esc_html( (string) $f->label ); ?></th>
-                                    <td><?php echo CustomFieldRenderer::display( $f, $v ); ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </table>
-                    <?php endif; ?>
+                    <?php CustomFieldsSlot::renderReadonly( CustomFieldsRepository::ENTITY_PLAYER, $id ); ?>
                 </div>
                 <div style="flex:1;min-width:320px;">
                     <h3><?php esc_html_e( 'Development Radar', 'talenttrack' ); ?></h3>
@@ -253,11 +231,18 @@ class PlayersPage {
 
         global $wpdb;
 
+        // Validate custom fields first so we can bail before writing the
+        // native entity if required fields are missing (keeps the UX
+        // predictable — error banner, user's input preserved via
+        // transient, no half-saved state).
         $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
         $submitted_cf = ( isset( $_POST['custom_fields'] ) && is_array( $_POST['custom_fields'] ) )
-            ? array_map( function ( $v ) { return is_string( $v ) ? wp_unslash( $v ) : $v; }, $_POST['custom_fields'] )
+            ? array_map( function ( $v ) { return is_string( $v ) ? wp_unslash( $v ) : $v; }, wp_unslash( $_POST['custom_fields'] ) )
             : [];
-        $validation = ( new CustomFieldValidator() )->validate( $fields, $submitted_cf );
+        $multi_markers = ( isset( $_POST['custom_fields_multi_marker'] ) && is_array( $_POST['custom_fields_multi_marker'] ) )
+            ? wp_unslash( $_POST['custom_fields_multi_marker'] )
+            : [];
+        $validation = ( new CustomFieldValidator() )->validate( $fields, $submitted_cf, $multi_markers );
 
         if ( ! empty( $validation['errors'] ) ) {
             self::saveFormState( [
@@ -315,6 +300,8 @@ class PlayersPage {
             exit;
         }
 
+        // Custom fields validated cleanly above; apply sanitized values.
+        // Fields that were "skipped" (not on this submission) are left alone.
         $values_repo = new CustomValuesRepository();
         foreach ( $validation['sanitized'] as $field_id => $value ) {
             $values_repo->upsert( CustomFieldsRepository::ENTITY_PLAYER, $id, (int) $field_id, $value );

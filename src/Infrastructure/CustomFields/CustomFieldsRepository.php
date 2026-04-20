@@ -6,21 +6,36 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * CustomFieldsRepository — typed data access for tt_custom_fields.
  *
+ * v2.11.0 (Sprint 1H): Expanded beyond Player-only. Entity constants
+ * now cover Player, Person, Team, Session, Goal. Added type constants
+ * for textarea, multi_select, url, email, phone. Added insert_after
+ * support for positioning a custom field inline with the native form.
+ *
  * The plugin is polymorphic across entity types. Most calls accept an
- * $entity_type (default 'player'); passing different values targets
- * different sets of fields.
+ * $entity_type; passing different values targets different sets of
+ * fields. Field keys are unique per (entity_type, field_key) — two
+ * different entities can both have a 'shirt_size' field.
  *
  * Stateless. Instantiate where needed; no container binding required.
  */
 class CustomFieldsRepository {
 
-    public const ENTITY_PLAYER = 'player';
+    public const ENTITY_PLAYER  = 'player';
+    public const ENTITY_PERSON  = 'person';
+    public const ENTITY_TEAM    = 'team';
+    public const ENTITY_SESSION = 'session';
+    public const ENTITY_GOAL    = 'goal';
 
-    public const TYPE_TEXT     = 'text';
-    public const TYPE_NUMBER   = 'number';
-    public const TYPE_SELECT   = 'select';
-    public const TYPE_CHECKBOX = 'checkbox';
-    public const TYPE_DATE     = 'date';
+    public const TYPE_TEXT         = 'text';
+    public const TYPE_TEXTAREA     = 'textarea';
+    public const TYPE_NUMBER       = 'number';
+    public const TYPE_SELECT       = 'select';
+    public const TYPE_MULTI_SELECT = 'multi_select';
+    public const TYPE_CHECKBOX     = 'checkbox';
+    public const TYPE_DATE         = 'date';
+    public const TYPE_URL          = 'url';
+    public const TYPE_EMAIL        = 'email';
+    public const TYPE_PHONE        = 'phone';
 
     /**
      * @return string[] Allowed field_type values.
@@ -28,11 +43,38 @@ class CustomFieldsRepository {
     public static function allowedTypes(): array {
         return [
             self::TYPE_TEXT,
+            self::TYPE_TEXTAREA,
             self::TYPE_NUMBER,
             self::TYPE_SELECT,
+            self::TYPE_MULTI_SELECT,
             self::TYPE_CHECKBOX,
             self::TYPE_DATE,
+            self::TYPE_URL,
+            self::TYPE_EMAIL,
+            self::TYPE_PHONE,
         ];
+    }
+
+    /**
+     * @return string[] All supported entity types.
+     */
+    public static function allowedEntityTypes(): array {
+        return [
+            self::ENTITY_PLAYER,
+            self::ENTITY_PERSON,
+            self::ENTITY_TEAM,
+            self::ENTITY_SESSION,
+            self::ENTITY_GOAL,
+        ];
+    }
+
+    /**
+     * Does this type store a non-scalar value (multi-select stores a
+     * comma-joined list; checkbox stores '0'/'1')? Used by the
+     * render/save layers to reason about shape.
+     */
+    public static function typeIsMulti( string $type ): bool {
+        return $type === self::TYPE_MULTI_SELECT;
     }
 
     private function table(): string {
@@ -50,6 +92,43 @@ class CustomFieldsRepository {
             "SELECT * FROM {$t} WHERE entity_type = %s AND is_active = 1 ORDER BY sort_order ASC, id ASC",
             $entity_type
         ) );
+    }
+
+    /**
+     * Active fields grouped by insert_after slug.
+     *
+     * Return shape:
+     *   [
+     *     'first_name'  => [ field1, field2, ... ],  // insert_after='first_name'
+     *     'jersey_no'   => [ field3 ],
+     *     '__append__'  => [ field4, ... ],          // insert_after IS NULL
+     *   ]
+     *
+     * Each group is ordered by sort_order then id. Used by the render
+     * layer: a form's edit page calls CustomFieldsSlot::render() with
+     * a slug, and the slot looks up this map to render the fields for
+     * that slug.
+     *
+     * @return array<string, object[]>
+     */
+    public function getActiveGroupedByInsertAfter( string $entity_type ): array {
+        global $wpdb;
+        $t = $this->table();
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE entity_type = %s AND is_active = 1 ORDER BY sort_order ASC, id ASC",
+            $entity_type
+        ) );
+
+        $groups = [];
+        if ( is_array( $rows ) ) {
+            foreach ( $rows as $r ) {
+                $slug = ( $r->insert_after === null || $r->insert_after === '' )
+                    ? '__append__'
+                    : (string) $r->insert_after;
+                $groups[ $slug ][] = $r;
+            }
+        }
+        return $groups;
     }
 
     /**
@@ -159,6 +238,14 @@ class CustomFieldsRepository {
         if ( array_key_exists( 'is_required', $data ) ) $out['is_required'] = ! empty( $data['is_required'] ) ? 1 : 0;
         if ( array_key_exists( 'sort_order', $data ) )  $out['sort_order']  = (int) $data['sort_order'];
         if ( array_key_exists( 'is_active', $data ) )   $out['is_active']   = ! empty( $data['is_active'] ) ? 1 : 0;
+        if ( array_key_exists( 'insert_after', $data ) ) {
+            $raw = $data['insert_after'];
+            if ( $raw === null || $raw === '' ) {
+                $out['insert_after'] = null;
+            } else {
+                $out['insert_after'] = sanitize_key( (string) $raw );
+            }
+        }
 
         if ( array_key_exists( 'options', $data ) ) {
             $opts = $data['options'];

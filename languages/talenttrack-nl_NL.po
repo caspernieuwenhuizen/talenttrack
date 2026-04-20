@@ -1469,3 +1469,175 @@ msgstr "Via functionele rol"
 msgid "Choose a WordPress user to see every role-scope they resolve to, the source of each scope (direct role assignment, functional-role mapping, or derived), and the concrete permissions each scope grants."
 msgstr "Kies een WordPress-gebruiker om elke role-scope te zien die deze persoon oplevert, de bron van elke scope (directe roltoewijzing, functionele-rolkoppeling of afgeleid), en de concrete rechten die elke scope toekent."
 
+
+# ===== v2.11.0 — Sprint 1H: Custom fields framework =====
+
+msgid "Custom Fields"
+msgstr "Aangepaste velden"
+
+msgid "Define extra attributes you want to capture for this entity. Each custom field appears on the edit form at the position you pick — between native fields, or at the end."
+msgstr "Definieer extra kenmerken die je voor deze entiteit wilt vastleggen. Elk aangepast veld verschijnt op het bewerkformulier op de plek die je kiest — tussen standaardvelden of aan het einde."
+
+msgid "No custom fields defined yet for this entity."
+msgstr "Nog geen aangepaste velden gedefinieerd voor deze entiteit."
+
+msgid "Inserts after"
+msgstr "Voegt in na"
+
+msgid "Sort"
+msgstr "Volgorde"
+
+msgid "Insert after"
+msgstr "Voeg in na"
+
+msgid "(at end of form)"
+msgstr "(aan einde van formulier)"
+
+msgid "(at end)"
+msgstr "(aan einde)"
+
+msgid "After: %s"
+msgstr "Na: %s"
+
+msgid "Choose where on the form this field appears. \"(at end)\" places it below all native fields."
+msgstr "Kies waar op het formulier dit veld verschijnt. \"(aan einde)\" plaatst het onder alle standaardvelden."
+
+msgid "Sort order"
+msgstr "Sorteervolgorde"
+
+msgid "When multiple custom fields share the same \"Insert after\" slug, lower sort order renders first."
+msgstr "Als meerdere aangepaste velden dezelfde \"Voeg in na\"-plek delen, verschijnt een lagere volgorde eerst."
+
+msgid "This custom field will appear on the %s edit form."
+msgstr "Dit aangepaste veld verschijnt op het bewerkformulier voor %s."
+
+msgid "Add field"
+msgstr "Veld toevoegen"
+
+msgid "Update field"
+msgstr "Veld bijwerken"
+
+msgid "The label shown next to the field on the form. Use the language you want it displayed in — no translation system for user-defined fields."
+msgstr "Het label naast het veld op het formulier. Gebruik de taal waarin je het wilt weergeven — er is geen vertaalsysteem voor door gebruikers gedefinieerde velden."
+
+msgid "The stable identifier for this field. Cannot be changed after creation."
+msgstr "De vaste identificatie voor dit veld. Kan na aanmaken niet worden gewijzigd."
+
+msgid "Auto-generated from the label if left blank. Used internally; must be unique per entity."
+msgstr "Wordt automatisch gegenereerd uit het label als dit leeg blijft. Intern gebruikt; moet uniek zijn per entiteit."
+
+msgid "Determines what input is shown on the form."
+msgstr "Bepaalt welke invoer op het formulier wordt getoond."
+
+msgid "Type cannot be changed after creation."
+msgstr "Type kan na aanmaken niet worden gewijzigd."
+
+msgid "One option per line. Use \"value|Label\" to give a stored value a different display label. Lines with no pipe use the same string as both value and label."
+msgstr "Eén optie per regel. Gebruik \"waarde|Label\" om een opgeslagen waarde een ander zichtbaar label te geven. Regels zonder pipe gebruiken dezelfde tekst als waarde én label."
+
+msgid "Required on the form"
+msgstr "Verplicht op het formulier"
+
+# Field type labels
+
+msgid "Long text"
+msgstr "Lange tekst"
+
+msgid "Multi-select"
+msgstr "Meervoudige keuze"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "Phone"
+msgstr "Telefoon"
+
+# Entity labels
+
+msgid "People"
+msgstr "Personen"
+
+# Error / notice messages
+
+msgid "Label is required."
+msgstr "Label is verplicht."
+
+msgid "That field type is not supported."
+msgstr "Dit veldtype wordt niet ondersteund."
+
+msgid "That entity type is not supported."
+msgstr "Dit entiteitstype wordt niet ondersteund."
+
+msgid "Select and multi-select fields require at least one option."
+msgstr "Keuze- en meervoudige-keuzevelden vereisen minimaal één optie."
+
+msgid "Something went wrong."
+msgstr "Er is iets misgegaan."
+
+msgid "The team was saved, but one or more custom fields had invalid values and were not updated."
+msgstr "Het team is opgeslagen, maar één of meer aangepaste velden hadden ongeldige waarden en zijn niet bijgewerkt."
+
+msgid "The session was saved, but one or more custom fields had invalid values and were not updated."
+msgstr "De sessie is opgeslagen, maar één of meer aangepaste velden hadden ongeldige waarden en zijn niet bijgewerkt."
+
+msgid "The goal was saved, but one or more custom fields had invalid values and were not updated."
+msgstr "Het doel is opgeslagen, maar één of meer aangepaste velden hadden ongeldige waarden en zijn niet bijgewerkt."
+
+msgid "The person was saved, but one or more custom fields had invalid values and were not updated."
+msgstr "De persoon is opgeslagen, maar één of meer aangepaste velden hadden ongeldige waarden en zijn niet bijgewerkt."
+
+msgid "Additional information"
+msgstr "Aanvullende informatie"
+
+msgid "The field \"%s\" must be a number."
+msgstr "Het veld \"%s\" moet een getal zijn."
+
+msgid "The field \"%s\" must be a valid date (YYYY-MM-DD)."
+msgstr "Het veld \"%s\" moet een geldige datum zijn (JJJJ-MM-DD)."
+
+msgid "The field \"%s\" has an invalid selection."
+msgstr "Het veld \"%s\" heeft een ongeldige keuze."
+
+msgid "The field \"%s\" must be a valid URL."
+msgstr "Het veld \"%s\" moet een geldige URL zijn."
+
+msgid "The field \"%s\" must be a valid email address."
+msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
+
+msgid "The field \"%s\" must be a valid phone number."
+msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+# Native field slug labels (for "Insert after" dropdown)
+
+msgid "Height (cm)"
+msgstr "Lengte (cm)"
+
+msgid "Weight (kg)"
+msgstr "Gewicht (kg)"
+
+msgid "Preferred positions"
+msgstr "Voorkeursposities"
+
+msgid "Guardian name"
+msgstr "Naam ouder/voogd"
+
+msgid "Guardian email"
+msgstr "E-mail ouder/voogd"
+
+msgid "Guardian phone"
+msgstr "Telefoon ouder/voogd"
+
+msgid "Photo URL"
+msgstr "Foto-URL"
+
+msgid "Role type"
+msgstr "Roltype"
+
+msgid "Session date"
+msgstr "Sessiedatum"
+
+msgid "Due date"
+msgstr "Vervaldatum"
+
+msgid "missing"
+msgstr "ontbreekt"

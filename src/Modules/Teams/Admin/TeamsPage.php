@@ -3,9 +3,12 @@ namespace TT\Modules\Teams\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\CustomFields\CustomFieldsRepository;
+use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\People\Admin\TeamStaffPanel;
+use TT\Shared\Validation\CustomFieldValidator;
 
 class TeamsPage {
     public static function init(): void {
@@ -51,15 +54,22 @@ class TeamsPage {
         ?>
         <div class="wrap">
             <h1><?php echo $is_edit ? esc_html__( 'Edit Team', 'talenttrack' ) : esc_html__( 'Add Team', 'talenttrack' ); ?></h1>
+            <?php if ( ! empty( $_GET['tt_cf_error'] ) ) : ?>
+                <div class="notice notice-warning is-dismissible">
+                    <p><?php esc_html_e( 'The team was saved, but one or more custom fields had invalid values and were not updated.', 'talenttrack' ); ?></p>
+                </div>
+            <?php endif; ?>
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                 <?php wp_nonce_field( 'tt_save_team', 'tt_nonce' ); ?>
                 <input type="hidden" name="action" value="tt_save_team" />
                 <?php if ( $is_edit ) : ?><input type="hidden" name="id" value="<?php echo (int) $team->id; ?>" /><?php endif; ?>
                 <table class="form-table">
                     <tr><th><?php esc_html_e( 'Name', 'talenttrack' ); ?> *</th><td><input type="text" name="name" value="<?php echo esc_attr( $team->name ?? '' ); ?>" class="regular-text" required /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_TEAM, (int) ( $team->id ?? 0 ), 'name' ); ?>
                     <tr><th><?php esc_html_e( 'Age Group', 'talenttrack' ); ?></th><td><select name="age_group"><option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                         <?php foreach ( $age_groups as $ag ) : ?><option value="<?php echo esc_attr( $ag ); ?>" <?php selected( $team->age_group ?? '', $ag ); ?>><?php echo esc_html( $ag ); ?></option><?php endforeach; ?>
                     </select></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_TEAM, (int) ( $team->id ?? 0 ), 'age_group' ); ?>
                     <tr>
                         <th><?php esc_html_e( 'Head Coach', 'talenttrack' ); ?></th>
                         <td>
@@ -71,7 +81,10 @@ class TeamsPage {
                             <?php endif; ?>
                         </td>
                     </tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_TEAM, (int) ( $team->id ?? 0 ), 'head_coach_id' ); ?>
                     <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><textarea name="notes" rows="3" class="large-text"><?php echo esc_textarea( $team->notes ?? '' ); ?></textarea></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_TEAM, (int) ( $team->id ?? 0 ), 'notes' ); ?>
+                    <?php CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_TEAM, (int) ( $team->id ?? 0 ) ); ?>
                 </table>
                 <?php submit_button( $is_edit ? __( 'Update Team', 'talenttrack' ) : __( 'Add Team', 'talenttrack' ) ); ?>
             </form>
@@ -109,9 +122,25 @@ class TeamsPage {
             'notes' => isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '',
         ];
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
-        if ( $id ) $wpdb->update( $wpdb->prefix . 'tt_teams', $data, [ 'id' => $id ] );
-        else $wpdb->insert( $wpdb->prefix . 'tt_teams', $data );
-        wp_safe_redirect( admin_url( 'admin.php?page=tt-teams&tt_msg=saved' ) );
+        if ( $id ) {
+            $wpdb->update( $wpdb->prefix . 'tt_teams', $data, [ 'id' => $id ] );
+        } else {
+            $wpdb->insert( $wpdb->prefix . 'tt_teams', $data );
+            $id = (int) $wpdb->insert_id;
+        }
+
+        // Persist any submitted custom field values. Validation errors are
+        // collected but not blocking — the native save already succeeded.
+        // Fields that fail validation retain their previously-stored value.
+        $cf_errors = CustomFieldValidator::persistFromPost( CustomFieldsRepository::ENTITY_TEAM, $id, $_POST );
+
+        $redirect_args = [ 'page' => 'tt-teams', 'tt_msg' => 'saved' ];
+        if ( ! empty( $cf_errors ) ) {
+            $redirect_args['tt_cf_error'] = 1;
+            $redirect_args['action']      = 'edit';
+            $redirect_args['id']          = $id;
+        }
+        wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'admin.php' ) ) );
         exit;
     }
 
