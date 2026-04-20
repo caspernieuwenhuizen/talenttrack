@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.12.1
+Stable tag: 2.12.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.12.2 — Translation fix + live average preview + two latent bug fixes =
+* FIX: Evaluation categories and subcategories now render through the translator on every surface (admin tree, evaluation form, detail view, radar chart legends). Dutch translations for all 25 seeded labels apply automatically. New EvalCategoriesRepository::displayLabel() helper centralizes the translation point.
+* NEW: Live main-category average preview on the evaluation form. While a coach rates subcategories, a read-only line at the bottom of each main's subs block shows "Main category average (computed): X (from N subcategories)" and updates on every input event. Matches the server's effectiveMainRating algorithm, so what you see equals what the detail view will show after save.
+* FIX: Activator::repairEvalCategoriesTableIfCorrupt() now detects three corruption signals (missing category_key column, stale tt_lookups-shape columns, blank-label rows) instead of one. Catches edge cases where dbDelta had partially repaired the table in a prior activation without clearing the garbage.
+* FIX: Migration 0008's "already retargeted?" check uses the remap map's value set instead of raw ID presence in tt_eval_categories. Prevents the false-positive that hit sites where old lookup IDs coincidentally matched corrupt row IDs in the new table.
 
 = 2.12.1 — Recovery release for 2.12.0's broken schema =
 * FIX: Renamed the `key` column on `tt_eval_categories` to `category_key`. The original column name was a MySQL reserved word that dbDelta silently dropped on some hosts (Strato / MariaDB), leaving the table in a corrupt state after activation and causing migration 0008 to fail with "Unknown column 'key' in 'INSERT INTO'".

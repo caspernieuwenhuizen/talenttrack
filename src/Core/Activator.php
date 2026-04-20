@@ -774,6 +774,11 @@ class Activator {
 
     /**
      * v2.12.1 — repair a corrupt tt_eval_categories table.
+     * v2.12.2 — detection improved: also treats obsolete tt_lookups-shape
+     *           columns (`name`, `sort_order`) and blank-label rows as
+     *           corruption signals, because on some sites dbDelta added
+     *           `category_key` to an already-corrupt table without
+     *           clearing the stale columns or garbage rows.
      *
      * Background: v2.12.0 defined the tt_eval_categories schema with a
      * column literally named `key`, which is a MySQL reserved word.
@@ -781,28 +786,27 @@ class Activator {
      * dropped that column when creating the table, leaving the table
      * in an unusable state for migration 0008.
      *
-     * On affected sites the table has the wrong columns and may contain
-     * a few stray rows from dbDelta's attempts to reconcile the
-     * mismatched schema. This routine:
+     * On affected sites the table may have:
+     *   - the wrong columns (old `tt_lookups`-shape `name` / `sort_order`)
+     *   - stray rows with empty `category_key` / `label`
+     *   - both, if a previous 2.12.1 activation added `category_key` without
+     *     clearing the garbage
+     *
+     * This routine:
      *
      *   1. Returns immediately if the table doesn't exist (fresh install).
-     *   2. Returns immediately if the table has the expected category_key
-     *      column (healthy state — already on 2.12.1 schema).
-     *   3. Otherwise, the table is corrupt. We DROP it so the ensureSchema
-     *      call right after us recreates it cleanly with the new column
-     *      name. This is safe because:
-     *         a) migration 0008 never completed (we know — any applied
-     *            state would have already used the corrupt schema's IDs,
-     *            which would be a bigger problem than this routine solves)
-     *         b) no tt_eval_ratings rows reference tt_eval_categories IDs
-     *            on corrupt sites — they still point at the old tt_lookups
-     *            IDs. Verified before this code shipped.
-     *
-     * Safety guard: if any tt_eval_ratings row DOES reference an id in
-     * the current (corrupt) tt_eval_categories table, the routine aborts
-     * the drop and logs a warning instead of destroying the references.
-     * Admins with such a site should contact support — it's unexpected
-     * enough that we don't want to handle it silently.
+     *   2. Checks for corruption signals:
+     *       - Missing `category_key` column  (original 2.12.0 symptom)
+     *       - Presence of stale `name` or `sort_order` columns from the
+     *         tt_lookups shape  (v2.12.2: new signal)
+     *       - Any row with blank `category_key` AND blank `label`
+     *         (v2.12.2: new signal)
+     *      If none present, the table is healthy — return.
+     *   3. Safety guard: refuse to drop if any tt_eval_ratings row
+     *      references an ID in the current table. Log WP_DEBUG warning
+     *      and return.
+     *   4. DROP the table. ensureSchema will recreate cleanly on the
+     *      next step of activate().
      *
      * Idempotent. No-op on healthy schemas. No-op on fresh installs.
      */
@@ -815,21 +819,57 @@ class Activator {
             return;
         }
 
-        // 2. Does it have the new column? If yes, we're on the 2.12.1
-        //    schema already — nothing to repair.
-        $has_new_column = $wpdb->get_row( $wpdb->prepare(
+        // 2. Check every corruption signal. ANY of them triggers repair.
+        $is_corrupt = false;
+
+        $has_category_key = $wpdb->get_row( $wpdb->prepare(
             "SHOW COLUMNS FROM {$p}tt_eval_categories LIKE %s",
             'category_key'
         ) );
-        if ( $has_new_column !== null ) {
+        if ( $has_category_key === null ) {
+            $is_corrupt = true;
+        }
+
+        if ( ! $is_corrupt ) {
+            // v2.12.2: stale tt_lookups-shape columns are a corruption
+            // signal even when category_key is also present, because a
+            // partially-reconciled dbDelta run can leave both.
+            $has_stale_name = $wpdb->get_row( $wpdb->prepare(
+                "SHOW COLUMNS FROM {$p}tt_eval_categories LIKE %s",
+                'name'
+            ) );
+            $has_stale_sort = $wpdb->get_row( $wpdb->prepare(
+                "SHOW COLUMNS FROM {$p}tt_eval_categories LIKE %s",
+                'sort_order'
+            ) );
+            if ( $has_stale_name !== null || $has_stale_sort !== null ) {
+                $is_corrupt = true;
+            }
+        }
+
+        if ( ! $is_corrupt ) {
+            // v2.12.2: any row with a blank category_key AND blank label
+            // is an artifact of dbDelta's half-reconciliation on sites
+            // that had the reserved-word bug. A normal row always has
+            // both populated (the repo enforces non-empty category_key
+            // at insert time).
+            $blank_rows = (int) $wpdb->get_var(
+                "SELECT COUNT(*) FROM {$p}tt_eval_categories
+                 WHERE (category_key IS NULL OR category_key = '')
+                    OR (label IS NULL OR label = '')"
+            );
+            if ( $blank_rows > 0 ) {
+                $is_corrupt = true;
+            }
+        }
+
+        if ( ! $is_corrupt ) {
+            // All clear — healthy schema, no repair needed.
             return;
         }
 
-        // 3. Safety guard: refuse to drop if tt_eval_ratings is referencing
-        //    IDs in this table. Shouldn't happen on any site that hit the
-        //    original 2.12.0 bug (the migration throws before retargeting
-        //    ratings), but if somehow it has, we stop rather than break
-        //    referential integrity.
+        // 3. Safety guard: refuse to drop if tt_eval_ratings references
+        //    IDs in this table. Manual intervention required.
         $referencing = (int) $wpdb->get_var(
             "SELECT COUNT(*) FROM {$p}tt_eval_ratings r
              INNER JOIN {$p}tt_eval_categories c ON r.category_id = c.id"
@@ -837,20 +877,18 @@ class Activator {
         if ( $referencing > 0 ) {
             if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
                 error_log( sprintf(
-                    '[TalentTrack 2.12.1] repairEvalCategoriesTableIfCorrupt: refusing to drop tt_eval_categories — %d tt_eval_ratings rows reference it. Manual intervention required.',
+                    '[TalentTrack 2.12.2] repairEvalCategoriesTableIfCorrupt: refusing to drop tt_eval_categories — %d tt_eval_ratings rows reference it. Manual intervention required.',
                     $referencing
                 ) );
             }
             return;
         }
 
-        // 4. Drop the corrupt table. ensureSchema (called immediately after
-        //    this routine in activate()) will recreate it with the new
-        //    column name via dbDelta.
+        // 4. Drop the corrupt table; ensureSchema recreates it cleanly.
         $wpdb->query( "DROP TABLE IF EXISTS {$p}tt_eval_categories" );
 
         if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            error_log( '[TalentTrack 2.12.1] repairEvalCategoriesTableIfCorrupt: dropped corrupt tt_eval_categories table; ensureSchema will recreate.' );
+            error_log( '[TalentTrack 2.12.2] repairEvalCategoriesTableIfCorrupt: dropped corrupt tt_eval_categories table; ensureSchema will recreate.' );
         }
     }
 

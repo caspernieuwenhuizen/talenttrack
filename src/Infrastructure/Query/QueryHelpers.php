@@ -264,7 +264,13 @@ class QueryHelpers {
         ));
         $evals = array_reverse( $evals );
         $categories = self::get_categories();
-        $labels  = wp_list_pluck( $categories, 'name' );
+        // v2.12.2: translate seeded category labels through __() so radar
+        // chart legends show in the admin's locale. Untranslated labels
+        // (admin-added mains) pass through unchanged.
+        $labels = [];
+        foreach ( $categories as $cat ) {
+            $labels[] = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->name );
+        }
         $cat_ids = wp_list_pluck( $categories, 'id' );
         $datasets = [];
         foreach ( $evals as $ev ) {

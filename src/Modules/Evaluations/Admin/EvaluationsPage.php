@@ -175,7 +175,7 @@ class EvaluationsPage {
                                   data-mode="<?php echo esc_attr( $mode_default ); ?>"
                                   style="border:1px solid #dcdcde; padding:12px 16px; margin-bottom:10px; background:#fff;">
                             <legend style="font-weight:600; padding:0 6px;">
-                                <?php echo esc_html( (string) $main->label ); ?>
+                                <?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $main->label ) ); ?>
                             </legend>
 
                             <input type="hidden" name="tt_rating_mode[<?php echo $main_id; ?>]"
@@ -215,7 +215,7 @@ class EvaluationsPage {
                                             <tr>
                                                 <td style="padding:4px 12px 4px 16px; color:#555; width:60%;">
                                                     <span style="color:#bbb;">↳</span>
-                                                    <?php echo esc_html( (string) $sub->label ); ?>
+                                                    <?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $sub->label ) ); ?>
                                                 </td>
                                                 <td style="padding:4px 0;">
                                                     <input type="number"
@@ -224,12 +224,25 @@ class EvaluationsPage {
                                                            min="<?php echo esc_attr( (string) $rmin ); ?>"
                                                            max="<?php echo esc_attr( (string) $rmax ); ?>"
                                                            step="<?php echo esc_attr( (string) $rstep ); ?>"
+                                                           class="tt-sub-input"
                                                            style="width:80px;" />
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
                                         </tbody>
                                     </table>
+
+                                    <!-- v2.12.2: live preview of the computed
+                                         main-category average. Updates as the
+                                         coach types subcategory scores. Read-
+                                         only surface; the actual rollup still
+                                         happens on read via effectiveMainRating. -->
+                                    <div class="tt-subs-summary" style="margin-top:10px; padding:8px 12px; background:#f0f6fc; border-left:3px solid #2271b1; font-size:13px;">
+                                        <strong><?php esc_html_e( 'Main category average (computed):', 'talenttrack' ); ?></strong>
+                                        <span class="tt-subs-avg" style="font-weight:600; margin-left:6px;">—</span>
+                                        <span class="tt-subs-avg-note" style="color:#666; margin-left:6px; font-weight:400;"></span>
+                                    </div>
+
                                     <p style="margin:8px 0 0;">
                                         <a href="#" class="tt-toggle-direct">
                                             ← <?php esc_html_e( 'rate main category directly instead', 'talenttrack' ); ?>
@@ -258,14 +271,55 @@ class EvaluationsPage {
             function t(){ var v = $('#tt_eval_type').val(); $('#tt-match-fields').toggle(v && m[v]==1); }
             $('#tt_eval_type').on('change', t); t();
 
-            // Either/or mode switching. Clicking "rate subcategories" clears
-            // the direct input (per design: discard silently on mode switch).
-            // Clicking "rate main directly" clears the subcategory inputs.
+            // Either/or mode switching + live average preview.
+            //
+            // Clicking "rate subcategories" clears the direct input (per
+            // design: discard silently on mode switch). Clicking "rate
+            // main directly" clears the subcategory inputs AND resets the
+            // preview. While in subcategory mode, the preview updates on
+            // every input event — empty inputs are ignored, the average
+            // is (sum of entered) / (count of entered), rounded to 1
+            // decimal. Preview note shows "(from N subcategory/ies)".
+            var noteOneTpl  = <?php echo wp_json_encode( __( '(from %d subcategory)', 'talenttrack' ) ); ?>;
+            var noteManyTpl = <?php echo wp_json_encode( __( '(from %d subcategories)', 'talenttrack' ) ); ?>;
+
+            function recomputeAvg($block){
+                var $avg  = $block.find('.tt-subs-avg');
+                var $note = $block.find('.tt-subs-avg-note');
+                if (!$avg.length) return;
+                var sum = 0, count = 0;
+                $block.find('.tt-sub-input').each(function(){
+                    var v = $(this).val();
+                    if (v === '' || v === null) return;
+                    var n = parseFloat(v);
+                    if (!isNaN(n)) { sum += n; count++; }
+                });
+                if (count === 0) {
+                    $avg.text('—');
+                    $note.text('');
+                } else {
+                    var mean = sum / count;
+                    // Round to 1 decimal. Strip trailing .0 for cleaner display.
+                    var rounded = Math.round(mean * 10) / 10;
+                    $avg.text(String(rounded));
+                    var tpl = count === 1 ? noteOneTpl : noteManyTpl;
+                    $note.text(tpl.replace('%d', count));
+                }
+            }
+
             $('.tt-rating-block').each(function(){
                 var $block = $(this);
                 var $modeInput = $block.find('.tt-mode-input');
                 var $direct = $block.find('.tt-mode-direct');
                 var $subs   = $block.find('.tt-mode-subs');
+
+                // Live recompute on any sub input change.
+                $block.find('.tt-sub-input').on('input change', function(){
+                    recomputeAvg($block);
+                });
+                // Initial paint — show average if pre-filled (editing
+                // an evaluation that already has subcategory ratings).
+                recomputeAvg($block);
 
                 $block.find('.tt-toggle-subs').on('click', function(e){
                     e.preventDefault();
@@ -274,6 +328,7 @@ class EvaluationsPage {
                     $subs.show();
                     $modeInput.val('subcategories');
                     $block.attr('data-mode', 'subcategories');
+                    recomputeAvg($block);
                 });
                 $block.find('.tt-toggle-direct').on('click', function(e){
                     e.preventDefault();
@@ -282,6 +337,7 @@ class EvaluationsPage {
                     $direct.show();
                     $modeInput.val('direct');
                     $block.attr('data-mode', 'direct');
+                    recomputeAvg($block); // resets to '—'
                 });
             });
         });
@@ -314,11 +370,12 @@ class EvaluationsPage {
         }
 
         // Radar chart uses effective ratings so subcategory-only evals still
-        // produce a chart with all four dimensions.
+        // produce a chart with all four dimensions. Labels go through the
+        // translator so seeded category names display in the admin's locale.
         $radar_labels = [];
         $radar_values = [];
         foreach ( $effective as $row ) {
-            $radar_labels[] = $row['label'];
+            $radar_labels[] = EvalCategoriesRepository::displayLabel( (string) $row['label'] );
             $radar_values[] = $row['value'] !== null ? $row['value'] : 0;
         }
         ?>
@@ -351,7 +408,7 @@ class EvaluationsPage {
                                 $subs_here = $sub_ratings_by_main[ $main_id ] ?? [];
                                 ?>
                                 <tr style="background:#f6f7f7;">
-                                    <td><strong><?php echo esc_html( $row['label'] ); ?></strong>
+                                    <td><strong><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $row['label'] ) ); ?></strong>
                                         <?php if ( $source === 'computed' ) : ?>
                                             <span style="color:#888; font-weight:400; font-size:12px; margin-left:8px;">
                                                 <?php printf(
@@ -372,7 +429,7 @@ class EvaluationsPage {
                                     <tr>
                                         <td style="padding-left:30px; color:#555;">
                                             <span style="color:#bbb;">↳</span>
-                                            <?php echo esc_html( $sub['label'] ); ?>
+                                            <?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $sub['label'] ) ); ?>
                                         </td>
                                         <td style="text-align:right; color:#555;">
                                             <?php echo esc_html( (string) $sub['value'] ); ?>

@@ -98,7 +98,7 @@ class EvalCategoriesPage {
                     <tr style="background:#f6f7f7;">
                         <td>
                             <strong style="font-size:14px;">
-                                <a href="<?php echo esc_url( $main_edit_url ); ?>"><?php echo esc_html( (string) $main->label ); ?></a>
+                                <a href="<?php echo esc_url( $main_edit_url ); ?>"><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $main->label ) ); ?></a>
                             </strong>
                         </td>
                         <td><code><?php echo esc_html( (string) $main->category_key ); ?></code></td>
@@ -139,7 +139,7 @@ class EvalCategoriesPage {
                         <tr>
                             <td style="padding-left:30px;">
                                 <span style="color:#999;">↳</span>
-                                <a href="<?php echo esc_url( $sub_edit_url ); ?>"><?php echo esc_html( (string) $sub->label ); ?></a>
+                                <a href="<?php echo esc_url( $sub_edit_url ); ?>"><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $sub->label ) ); ?></a>
                             </td>
                             <td><code><?php echo esc_html( (string) $sub->category_key ); ?></code></td>
                             <td><?php echo (int) $sub->display_order; ?></td>
@@ -228,7 +228,7 @@ class EvalCategoriesPage {
                     <?php printf(
                         /* translators: %s is a main category label. */
                         esc_html__( 'This subcategory sits under: %s', 'talenttrack' ),
-                        '<strong>' . esc_html( (string) $parent->label ) . '</strong>'
+                        '<strong>' . esc_html( EvalCategoriesRepository::displayLabel( (string) $parent->label ) ) . '</strong>'
                     ); ?>
                 </p>
             <?php endif; ?>

@@ -1837,3 +1837,14 @@ msgstr "Gespeelde minuten"
 # Evaluations as a custom-fields entity
 msgid "Evaluations"
 msgstr "Evaluaties"
+
+# ===== v2.12.2 — Live average preview on evaluation form =====
+
+msgid "Main category average (computed):"
+msgstr "Gemiddelde van hoofdcategorie (berekend):"
+
+msgid "(from %d subcategory)"
+msgstr "(van %d subcategorie)"
+
+msgid "(from %d subcategories)"
+msgstr "(van %d subcategorieën)"

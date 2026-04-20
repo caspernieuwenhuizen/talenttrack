@@ -23,6 +23,33 @@ class EvalCategoriesRepository {
         return $wpdb->prefix . 'tt_eval_categories';
     }
 
+    /**
+     * v2.12.2 — translate a stored category label at display time.
+     *
+     * Seeded categories and subcategories store English source strings in
+     * `tt_eval_categories.label` (e.g. "Short pass", "Technical"). Each
+     * seeded string has a matching msgid entry in the .po files, so
+     * __() translates them automatically at render time. Admin-added
+     * labels that have no translation entry pass through unchanged —
+     * __() returns its input when the translator has no match.
+     *
+     * Call this wherever a category label is rendered to the user:
+     * admin tree, evaluation form, detail view, radar chart legends.
+     * Never call it inside data writes or queries — the DB stores the
+     * source string, not the translation.
+     */
+    public static function displayLabel( string $raw ): string {
+        if ( $raw === '' ) return '';
+        // The translator function is called with a dynamic argument
+        // here. That's fine in our case because every seeded label is
+        // registered as a msgid in talenttrack-nl_NL.po — the string
+        // extraction tool (msgfmt_mini) picks them up from the seed
+        // tables, not from __() call sites. Non-seeded labels simply
+        // fall through unchanged.
+        // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+        return __( $raw, 'talenttrack' );
+    }
+
     /* ═══════════════ Fetchers ═══════════════ */
 
     /** Main categories only. Ordered for rendering. */

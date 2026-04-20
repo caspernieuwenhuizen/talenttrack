@@ -158,37 +158,42 @@ return new class extends Migration {
         );
         if ( ! is_array( $rows ) ) return [ 'retargeted' => 0, 'orphans' => 0 ];
 
+        // v2.12.2: build a set of "valid new-table IDs" — specifically,
+        // the IDs we just inserted/reused via copyMainCategoriesFromLookups.
+        // A rating's category_id is considered already-retargeted only if
+        // it's in this set, NOT merely if some row with that ID exists
+        // in tt_eval_categories (which can falsely trigger on sites with
+        // corrupt blank rows from the 2.12.0 bug where old lookup IDs
+        // coincidentally match stray new-table IDs).
+        $valid_new_ids = array_flip( $remap ); // new_id => true
+
         $retargeted = 0;
         $orphans    = 0;
         foreach ( $rows as $r ) {
             $old = (int) $r->category_id;
 
-            // If this category_id is already pointing at a new-table row
-            // (second run, or fresh install), skip. We detect that by
-            // seeing if the ID exists in tt_eval_categories — in which
-            // case we have nothing to do.
-            $in_new_table = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE id = %d",
-                $old
-            ) );
-            if ( $in_new_table > 0 ) {
+            // Already pointing at a remap target? No-op.
+            if ( isset( $valid_new_ids[ $old ] ) ) {
                 $retargeted++;
                 continue;
             }
 
-            if ( ! isset( $remap[ $old ] ) ) {
-                $orphans++;
+            // Known old-lookup-id → new-category-id? Retarget.
+            if ( isset( $remap[ $old ] ) ) {
+                $wpdb->update(
+                    "{$p}tt_eval_ratings",
+                    [ 'category_id' => $remap[ $old ] ],
+                    [ 'id' => (int) $r->id ],
+                    [ '%d' ],
+                    [ '%d' ]
+                );
+                $retargeted++;
                 continue;
             }
 
-            $wpdb->update(
-                "{$p}tt_eval_ratings",
-                [ 'category_id' => $remap[ $old ] ],
-                [ 'id' => (int) $r->id ],
-                [ '%d' ],
-                [ '%d' ]
-            );
-            $retargeted++;
+            // Neither a remap source nor a remap target — orphan. The
+            // migration will throw rather than delete tt_lookups rows.
+            $orphans++;
         }
 
         return [ 'retargeted' => $retargeted, 'orphans' => $orphans ];
