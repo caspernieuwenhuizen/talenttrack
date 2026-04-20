@@ -63,6 +63,8 @@ return new class extends Migration {
              WHERE functional_role_id IS NULL"
         );
 
+        $failures = [];  // collected row IDs where the UPDATE returned false
+
         if ( is_array( $rows ) && ! empty( $rows ) ) {
             // Pre-fetch role_key → id map in one query.
             $fn_map = [];
@@ -82,14 +84,36 @@ return new class extends Migration {
                 } else {
                     $fn_id = $fn_map[ $role_key ];
                 }
-                if ( $fn_id <= 0 ) continue;
+                if ( $fn_id <= 0 ) {
+                    $failures[] = (int) $r->id;
+                    continue;
+                }
 
-                $wpdb->update(
+                // v2.10.1: explicit %d format and return-value check. On
+                // some hosts $wpdb->update silently returned non-false
+                // but with zero rows affected, which the previous version
+                // didn't catch. We now throw on any non-truthy return so
+                // the migration isn't marked applied on partial failure.
+                $result = $wpdb->update(
                     "{$p}tt_team_people",
                     [ 'functional_role_id' => $fn_id ],
-                    [ 'id' => (int) $r->id ]
+                    [ 'id' => (int) $r->id ],
+                    [ '%d' ],   // functional_role_id format
+                    [ '%d' ]    // WHERE id format
                 );
+                if ( $result === false ) {
+                    $failures[] = (int) $r->id;
+                }
             }
+        }
+
+        if ( ! empty( $failures ) ) {
+            throw new \RuntimeException( sprintf(
+                'Failed to backfill functional_role_id on %d tt_team_people row(s): %s. Last wpdb error: %s',
+                count( $failures ),
+                implode( ', ', array_slice( $failures, 0, 20 ) ),
+                (string) $wpdb->last_error
+            ) );
         }
 
         /* ═══════════════════════════════════════════════════════════

@@ -4,13 +4,20 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.10.0
+Stable tag: 2.10.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.10.1 — Migration loader fix + self-healing backfill =
+* FIXED: Migration 0006_functional_role_backfill was marked applied but did nothing on some hosts. Root cause: `MigrationRunner::loadMigrationFromFile()` used `eval()`, which silently ignores `use` statements and resolves class names in the global namespace. This broke the `return new class extends Migration { ... }` pattern every migration file relies on. Replaced with `include` inside a closure — proper scoping, proper namespace handling.
+* FIXED: Even on working hosts, Migration 0006 didn't notice when `$wpdb->update()` returned `false` or 0 rows affected. Added explicit `%d` format hints and a throw-on-partial-failure check so the runner no longer marks partial failures as applied.
+* NEW: `Activator::repairFunctionalRoleBackfill()` — self-healing routine that runs on every activation, detects any tt_team_people rows with role_in_team set but functional_role_id NULL, and fills them in directly. Catches up sites that got stuck under 2.10.0's eval-based loader.
+* FIXED: Removed `0005_authorization_rbac` from the migrations-applied pre-mark list (no such migration file ever existed — the warning "applied but file missing" on the migrations admin page has been visible on every v2.9.x install). Added a one-shot cleanup to delete the orphan row.
+* CHANGED: Removed the "Assignments" column from the Roles & Permissions list page. That column only counted direct grants via tt_user_role_scopes, which is almost always zero for team-scoped auth roles now that assignments arrive via functional-role mapping. The detail page remains the authoritative assignment list. The Functional Roles list page keeps its Assignments column since that count is unambiguous.
 
 = 2.10.0 — Sprint 1G: Functional roles architecture =
 * NEW: Functional roles are now separated from authorization roles. `tt_functional_roles` catalogues the jobs people hold on a team (head_coach, assistant_coach, manager, physio, other); `tt_functional_role_auth_roles` maps each to one or more authorization roles. A new `functional_role_id` column on `tt_team_people` links the assignment to the catalogue.

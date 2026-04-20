@@ -9,6 +9,15 @@ use TT\Infrastructure\Security\RolesService;
 /**
  * Activator — runs on plugin activation.
  *
+ * v2.10.1: Adds a self-healing repair routine (repairFunctionalRoleBackfill)
+ * that detects tt_team_people rows where role_in_team is set but
+ * functional_role_id is NULL and backfills them directly. This is the
+ * belt to migration 0006's suspenders: if the migration ever fails to
+ * persist (as it did on at least one host under the pre-2.10.1
+ * eval-based migration loader), every subsequent activation catches up.
+ * Idempotent — does nothing if all rows are already backfilled. Also
+ * removes 0005_authorization_rbac from the pre-applied migrations list
+ * (it never had a file on disk) and cleans up its orphan row.
  * v2.10.0 (Sprint 1G): Adds tt_functional_roles and
  * tt_functional_role_auth_roles tables plus a functional_role_id column on
  * tt_team_people. Separates "what is this person's job" (functional role)
@@ -31,6 +40,7 @@ class Activator {
         self::relaxLegacyConstraints();
         self::backfillAttendanceStatus();
         self::markMigrationsApplied();
+        self::cleanupOrphanMigrationRecords();
         self::seedRolesIfEmpty();
         self::seedFunctionalRolesIfEmpty();
 
@@ -41,6 +51,11 @@ class Activator {
                 error_log( '[TalentTrack] Migration runner threw during activation: ' . $e->getMessage() );
             }
         }
+
+        // Self-healing: runs AFTER the migration so fresh installs that
+        // ran 0006 successfully also hit it (no-op in that case). Catches
+        // up any site where the backfill previously failed silently.
+        self::repairFunctionalRoleBackfill();
 
         flush_rewrite_rules();
     }
@@ -405,12 +420,18 @@ class Activator {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_migrations';
 
+        // v2.10.1: 0005_authorization_rbac removed from this list.
+        // No such migration file ever existed — the Sprint 1F (v2.9.0)
+        // schema changes were applied via Activator::ensureSchema +
+        // seedRolesIfEmpty. Pre-marking a nonexistent migration as
+        // applied caused a spurious "applied but file missing" warning
+        // on the migrations admin page. cleanupOrphanMigrationRecords()
+        // below removes the leftover row on existing sites.
         $to_mark = [
             '0001_initial_schema',
             '0002_create_audit_log',
             '0003_create_custom_fields',
             '0004_schema_reconciliation',
-            '0005_authorization_rbac',
         ];
 
         foreach ( $to_mark as $name ) {
@@ -426,6 +447,25 @@ class Activator {
         }
 
         self::seedDefaultsIfEmpty();
+    }
+
+    /**
+     * v2.10.1 — one-shot cleanup of migration tracking rows whose file
+     * never existed on disk. Idempotent; safe to run on every activation.
+     * Currently only targets 0005_authorization_rbac (see markMigrationsApplied
+     * for context). If a future bad entry slips in, extend the list here.
+     */
+    private static function cleanupOrphanMigrationRecords(): void {
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_migrations';
+
+        $orphans = [
+            '0005_authorization_rbac',
+        ];
+
+        foreach ( $orphans as $name ) {
+            $wpdb->delete( $table, [ 'migration' => $name ] );
+        }
     }
 
     private static function seedDefaultsIfEmpty(): void {
@@ -588,6 +628,95 @@ class Activator {
                 ] );
             }
         }
+    }
+
+    /**
+     * v2.10.1 — self-healing backfill.
+     *
+     * Finds tt_team_people rows where role_in_team has a value but
+     * functional_role_id is NULL and fills in the FK. Idempotent: does
+     * nothing if every row is already backfilled.
+     *
+     * This is the safety net for sites where migration 0006 ran but its
+     * UPDATE statements didn't persist (an issue caused by the pre-2.10.1
+     * eval-based migration loader on some PHP hosts). Unlike the
+     * migration, this routine runs on every activation so any site that
+     * got stuck self-heals as soon as 2.10.1 activates.
+     *
+     * Does not fail activation: errors are logged under WP_DEBUG but do
+     * not throw. The goal is to quietly converge toward the correct
+     * state; if convergence fails the user will still see the empty
+     * assignment lists and can diagnose via the Permission Debug page.
+     */
+    private static function repairFunctionalRoleBackfill(): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        // Prerequisite: the new tables must exist. If they don't, this
+        // activation didn't get as far as ensureSchema — not our problem
+        // to paper over here.
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', "{$p}tt_functional_roles" ) ) !== "{$p}tt_functional_roles" ) {
+            return;
+        }
+        if ( ! self::columnExists( "{$p}tt_team_people", 'functional_role_id' ) ) {
+            return;
+        }
+
+        $rows = $wpdb->get_results(
+            "SELECT id, role_in_team
+             FROM {$p}tt_team_people
+             WHERE functional_role_id IS NULL AND role_in_team IS NOT NULL AND role_in_team <> ''"
+        );
+        if ( ! is_array( $rows ) || empty( $rows ) ) return;
+
+        // Build role_key → id map in one query.
+        $fn_map = [];
+        $all_fn = $wpdb->get_results( "SELECT id, role_key FROM {$p}tt_functional_roles" );
+        if ( is_array( $all_fn ) ) {
+            foreach ( $all_fn as $f ) {
+                $fn_map[ (string) $f->role_key ] = (int) $f->id;
+            }
+        }
+        if ( empty( $fn_map ) ) return;
+
+        $filled = 0;
+        foreach ( $rows as $r ) {
+            $role_key = (string) $r->role_in_team;
+            $fn_id = $fn_map[ $role_key ] ?? ( $fn_map['other'] ?? 0 );
+            if ( $fn_id <= 0 ) continue;
+
+            $result = $wpdb->update(
+                "{$p}tt_team_people",
+                [ 'functional_role_id' => $fn_id ],
+                [ 'id' => (int) $r->id ],
+                [ '%d' ],
+                [ '%d' ]
+            );
+            if ( $result !== false ) {
+                $filled++;
+            } elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log( sprintf(
+                    '[TalentTrack] repairFunctionalRoleBackfill: UPDATE failed on tt_team_people.id=%d. Last wpdb error: %s',
+                    (int) $r->id,
+                    (string) $wpdb->last_error
+                ) );
+            }
+        }
+
+        if ( $filled > 0 && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( sprintf( '[TalentTrack] repairFunctionalRoleBackfill: filled %d tt_team_people row(s).', $filled ) );
+        }
+    }
+
+    /**
+     * Helper: does a column exist on a table? Used by the repair
+     * routine above. Matches the pattern used in migration 0004's
+     * inline helpers.
+     */
+    private static function columnExists( string $table, string $column ): bool {
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare( "SHOW COLUMNS FROM `$table` LIKE %s", $column ) );
+        return $row !== null;
     }
 
     /**

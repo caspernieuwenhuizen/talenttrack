@@ -71,13 +71,12 @@ class RolesPage {
                         <th><?php esc_html_e( 'Key', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th>
                         <th style="width:100px;"><?php esc_html_e( 'Permissions', 'talenttrack' ); ?></th>
-                        <th style="width:100px;"><?php esc_html_e( 'Assignments', 'talenttrack' ); ?></th>
                         <th style="width:80px;"><?php esc_html_e( 'System', 'talenttrack' ); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                 <?php if ( empty( $roles ) ) : ?>
-                    <tr><td colspan="6"><?php esc_html_e( 'No roles configured.', 'talenttrack' ); ?></td></tr>
+                    <tr><td colspan="5"><?php esc_html_e( 'No roles configured.', 'talenttrack' ); ?></td></tr>
                 <?php else : foreach ( $roles as $r ) :
                     $detail_url = admin_url( 'admin.php?page=tt-roles&action=view&id=' . (int) $r->id );
                     ?>
@@ -86,7 +85,6 @@ class RolesPage {
                         <td><code><?php echo esc_html( (string) $r->role_key ); ?></code></td>
                         <td><?php echo esc_html( self::roleDescription( (string) $r->role_key ) ); ?></td>
                         <td><?php echo (int) $r->permission_count; ?></td>
-                        <td><?php echo (int) $r->assignment_count; ?></td>
                         <td>
                             <?php if ( (int) $r->is_system === 1 ) : ?>
                                 <span style="color:#00a32a;">✓</span>

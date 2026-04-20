@@ -4,24 +4,28 @@ namespace TT\Infrastructure\Database;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * MigrationRunner (v2.6.5)
+ * MigrationRunner (v2.10.1)
  *
- * Fix for v2.6.4 diagnostic finding: PHP's include/require tracks file
- * inclusion globally per-request. Once a migration file has been included
- * (typically by the boot-time runner in Kernel::boot), subsequent include
- * calls return int(1) instead of re-executing the file's `return` statement.
+ * v2.10.1 replaces the eval()-based loader with `include` inside an
+ * isolated closure scope. Rationale: eval()'d code runs in the global
+ * namespace regardless of the file's `namespace` declaration, and `use`
+ * statements at the top of an eval'd string are silently ignored. This
+ * meant migration files whose anonymous class extended `Migration` (i.e.
+ * the short name, resolved via `use TT\Infrastructure\Database\Migration`)
+ * got `Migration` resolved to `\Migration`, which either failed outright
+ * or — on some hosts — produced an object that didn't satisfy
+ * `instanceof Migration`, sending the runner down a fallback code path.
  *
- * v2.6.5 sidesteps this by reading the file contents and evaluating via
- * eval(). This is the rare legitimate use of eval: we explicitly want a
- * fresh evaluation scope every time, and PHP's include-tracking fights us.
+ * The runner already filters out applied migrations before calling
+ * runFile, so the original eval() rationale (PHP's per-request
+ * include-once tracking) is moot: runFile is never called twice for
+ * the same file in a single request. `include` with a closure scope is
+ * both simpler and correct.
  *
- * Safety notes:
- *   - Migration files are bundled with the plugin, not user input; no
- *     injection surface.
- *   - We strip the leading <?php tag before eval since eval expects
- *     statements, not file content.
- *   - Errors from eval (parse errors, fatal errors) are caught via
- *     ParseError and Throwable so the admin page can display them.
+ * Previous (v2.6.5) design notes retained for history:
+ *   v2.6.5 used eval() to sidestep PHP's include-once behavior. eval
+ *   is also a legitimate tool in general, but the downsides above make
+ *   it the wrong tool for this particular job.
  */
 class MigrationRunner {
 
@@ -149,32 +153,37 @@ class MigrationRunner {
     }
 
     /**
-     * Load and evaluate a migration file. Uses eval() because PHP's include
-     * tracking means a previously-included file won't re-execute its return
-     * statement. See class docblock for context.
+     * Load a migration file via `include` inside an isolated closure
+     * scope. Returns the object produced by the file's top-level
+     * `return` statement.
+     *
+     * Rationale for `include` (not `eval`): PHP's `use` statements are
+     * processed at file-compile time and are ignored inside eval'd
+     * strings, which breaks the common `use TT\Infrastructure\Database\Migration;
+     * return new class extends Migration { ... }` pattern used by every
+     * migration file in this plugin.
      *
      * @return array{ok:bool, migration?:object, error?:string}
      */
     private function loadMigrationFromFile( string $file ): array {
-        $contents = @file_get_contents( $file );
-        if ( $contents === false ) {
+        if ( ! is_readable( $file ) ) {
             return [ 'ok' => false, 'error' => "Could not read migration file: $file" ];
         }
 
-        // Strip leading PHP open tag (and any whitespace/BOM) so eval gets clean code.
-        $contents = preg_replace( '/^\xEF\xBB\xBF/', '', $contents ); // strip BOM
-        $contents = preg_replace( '/^\s*<\?php\s*/', '', $contents, 1 );
-        // Strip optional trailing PHP close tag if present.
-        $contents = preg_replace( '/\s*\?' . '>\s*$/', '', $contents );
+        // Closure gives us an isolated variable scope so the migration
+        // file's top-level `return` doesn't pollute the runner. The
+        // closure is bound to the current object so $this inside the
+        // include resolves cleanly, but in practice migration files
+        // don't reference $this — they return an anonymous class.
+        $loader = function ( string $migration_file ) {
+            return include $migration_file;
+        };
 
+        $thrown = null;
         ob_start();
         $maybe = null;
-        $thrown = null;
         try {
-            // eval returns the value from `return` statements at top level.
-            // Phpstan ignore — intentional use of eval for fresh execution.
-            /** @noinspection PhpUnusedLocalVariableInspection */
-            $maybe = eval( $contents );
+            $maybe = $loader( $file );
         } catch ( \ParseError $e ) {
             $thrown = $e;
         } catch ( \Throwable $e ) {
@@ -186,7 +195,7 @@ class MigrationRunner {
             return [
                 'ok'    => false,
                 'error' => sprintf(
-                    'Error evaluating migration: %s (%s:%d)',
+                    'Error loading migration: %s (%s:%d)',
                     $thrown->getMessage(),
                     basename( $thrown->getFile() ),
                     $thrown->getLine()
@@ -217,7 +226,7 @@ class MigrationRunner {
         return [
             'ok'    => false,
             'error' => sprintf(
-                'Migration evaluation returned %s (value: %s) instead of an object.%s',
+                'Migration file returned %s (value: %s) instead of an object.%s',
                 $type,
                 $repr,
                 $stray
