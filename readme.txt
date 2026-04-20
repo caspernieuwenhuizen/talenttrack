@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.6.5
+Stable tag: 2.6.6
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,12 +12,16 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 2.6.5 — Migration loader uses eval() for guaranteed fresh execution =
-* FIXED: Diagnostic output from v2.6.4 confirmed that the Kernel's boot-time MigrationRunner::run() call was including the migration file during page load. When the admin page then tried to run it again, PHP's include tracking returned int(1) instead of re-executing, so the file's return value (the migration object) was never seen. v2.6.5 reads the file contents via file_get_contents() and evaluates via eval(), which gives a fresh execution scope every call regardless of prior include history.
+= 2.6.6 — Schema reconciliation done directly via Activator =
+* Removed the failed file-based migration approach for schema reconciliation (v2.6.2–v2.6.5) which hit cascading issues with PHP's include cache, closure scoping, and eval().
+* Schema reconciliation is now performed directly in Activator::activate() using dbDelta (the WordPress-native, battle-tested tool for this exact job) plus explicit ALTER statements for legacy NOT NULL relaxation.
+* Trigger: deactivate and reactivate the plugin once after installing v2.6.6. That one click does everything the migration system was trying (and failing) to do.
+* The migration system (admin page, runner) remains in place for future use, but is bypassed for this specific schema fix. Migrations 0001-0004 are recorded as applied during activation, so the runner has nothing pending.
 
-= 2.6.4 — Migration loader hardening =
+= 2.6.5 — [failed] Migration loader via eval() =
+= 2.6.4 — [failed] Migration loader hardening =
 = 2.6.3 — Migrations admin page =
-= 2.6.2 — Schema reconciliation + fail-loud saves =
+= 2.6.2 — Fail-loud save handlers =
 = 2.6.1 — Sprint 1b part 2 (custom fields integration) =
 = 2.6.0 — Sprint 1b part 1 (custom fields foundation) =
 = 2.5.x — Sprint 1a (frontend-first application) =
