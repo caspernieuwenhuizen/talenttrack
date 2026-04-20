@@ -3,26 +3,35 @@ namespace TT\Modules\People;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Core\Container;
+use TT\Core\ModuleInterface;
 use TT\Modules\People\Admin\PeoplePage;
 
 /**
  * PeopleModule — registers the People admin page and its form handlers.
  *
- * Follows the existing module pattern: instantiated by ModuleRegistry via
- * config/modules.php, wires up hooks on boot.
+ * v2.7.1: Fixed to properly implement ModuleInterface. Previous version's
+ * register() and boot() had the wrong signatures and the class didn't
+ * declare `implements ModuleInterface`, causing ModuleRegistry to silently
+ * skip it during load().
  */
-class PeopleModule {
+class PeopleModule implements ModuleInterface {
 
-    public function register(): void {
-        add_action( 'admin_menu',           [ $this, 'registerMenu' ], 15 );
-        add_action( 'admin_post_tt_save_person',      [ PeoplePage::class, 'handleSave' ] );
-        add_action( 'admin_post_tt_set_person_status',[ PeoplePage::class, 'handleSetStatus' ] );
-        add_action( 'admin_post_tt_unassign_staff',   [ PeoplePage::class, 'handleUnassignStaff' ] );
-        add_action( 'admin_post_tt_assign_staff',     [ self::class, 'handleAssignStaff' ] );
+    public function getName(): string {
+        return 'people';
     }
 
-    public function boot(): void {
-        // Intentionally empty; hooks registered in register().
+    public function register( Container $container ): void {
+        // admin_menu registration is deferred to boot() since it must run
+        // inside the WP admin lifecycle.
+        add_action( 'admin_post_tt_save_person',       [ PeoplePage::class, 'handleSave' ] );
+        add_action( 'admin_post_tt_set_person_status', [ PeoplePage::class, 'handleSetStatus' ] );
+        add_action( 'admin_post_tt_unassign_staff',    [ PeoplePage::class, 'handleUnassignStaff' ] );
+        add_action( 'admin_post_tt_assign_staff',      [ self::class, 'handleAssignStaff' ] );
+    }
+
+    public function boot( Container $container ): void {
+        add_action( 'admin_menu', [ $this, 'registerMenu' ], 15 );
     }
 
     public function registerMenu(): void {
