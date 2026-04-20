@@ -1,130 +1,119 @@
-# TalentTrack v2.13.0 — Weighted overall rating per evaluation
+# TalentTrack v2.14.0 — Epic 2 Sprint 2A: Player Rate Card
 
 ## What's new
 
-Every evaluation now has a single headline number — the **overall rating** — computed as a weighted mean of the four main category effective ratings. The weights are configurable per age group, so "Tactical counts 40% for U16 but only 20% for U10" can be expressed once and applied automatically to every evaluation under each age group's players.
+First piece of Epic 2 lands: a proper **player rate card**. Every player now has a one-page summary synthesizing every evaluation that player has ever had — three headline numbers, per-main-category breakdown with trend arrows, expandable subcategory detail, a line chart showing rating evolution over time, and a radar chart showing the shape of the last few evaluations. Filterable by date range and evaluation type.
 
-## How it works
+Two ways to reach it:
+- **TalentTrack → Player Rate Cards** — top-level page with a player picker
+- **TalentTrack → Players → (click a player) → "Rate card" tab** — embedded
 
-When the evaluation form, detail view, or evaluation list needs an overall rating for a given evaluation, the compute pipeline runs like this:
+Both render the same component. Pick whichever fits your workflow.
 
-1. Resolve the evaluation's player → team → age group
-2. Look up the age group's configured weight set (four percentages, one per main category, summing to 100)
-3. If no weights configured, use equal fallback (25/25/25/25 for four mains)
-4. For each main category, read its effective rating: direct if the coach entered one, else mean of subcategory ratings, else skip (the null case)
-5. Compute the weighted mean: Σ(effective × weight) ÷ Σ(weight_of_rated), rounded to 1 decimal
-6. Return the value plus metadata: whether configured weights were used, how many mains contributed, what age group resolved
+## The headline
 
-The algorithm is the same on the server (`EvalRatingsRepository::overallRating`) and in the live-preview JavaScript on the evaluation form, so what the coach sees while editing matches what the detail view shows after save.
+Three big numbers at the top:
 
-## Weight configuration
+1. **Most recent** — that player's latest evaluation's overall rating, with the date. What you see if you just want "how did they do last time."
+2. **Rolling average** — mean of the last 5 evaluations' overalls. Degrades gracefully to "last 3" or whatever's available if fewer exist. The near-term performance signal — noise-filtered latest.
+3. **All-time average** — mean across every evaluation in the filtered range. The long-view number.
 
-**New admin page**: TalentTrack → Category Weights. One section per active age group, each with four weight inputs (one per main category). Real-time "Total: X%" indicator that's green at exactly 100% and red otherwise. Save button is disabled while the sum isn't 100, with a hint showing the current total. Server-side validation mirrors the client check — hard validation either way, no silent normalization.
+Side by side, these tell a story. Player with Most recent = 4.2, Rolling = 3.9, All-time = 3.5 is on an upward trajectory. Flip those numbers and you have a concern.
 
-Each section also shows a status badge:
-- **Configured** (green dot) — weights have been saved for this age group
-- **Equal fallback in use** (gray dot) — no weights saved; overall ratings for this age group's players use equal weights
+Each number is the weighted overall (uses whatever weight config the player's age group has) — same algorithm the evaluation form preview and the evaluation detail view use. No divergence.
 
-A "Reset to equal" link on each configured section deletes the weight rows, returning the age group to fallback.
+## Main category breakdown
 
-## Where the overall rating appears
+A 4-row table: Technisch, Tactisch, Fysiek, Mentaal, each showing:
+- **All-time** — mean of their effective ratings (direct or sub-rollup) across all filtered evaluations
+- **Most recent** — their effective rating in the most recent evaluation
+- **Trend** — arrow + label indicating whether they're improving, declining, stable, or on too-little data
 
-Every place a rating was previously shown, the overall now surfaces alongside:
+Trend detection is deliberately simple: split the player's filtered evaluations for that category into an older half and a newer half, compare their means, call it "up" if newer is 0.15+ higher, "down" if 0.15+ lower, "flat" otherwise. Single-rating noise shouldn't flip the arrow — 0.15 is roughly "more than one coach's 'good day' bias." Requires at least 2 data points per category.
 
-### Evaluation form (live preview)
-A blue-accent card above the per-category fieldsets shows the current weighted overall. Updates on every input event:
-- Typing a direct main rating
-- Typing any subcategory rating
-- Switching a main to/from subcategory mode
-- Changing the player selection (which changes the age group, which changes the weights)
+Each row is clickable (▸ / ▾) to expand a subcategory breakdown: per-sub mean across filtered evaluations, with an "N evaluations counted" hint (since not every sub gets rated in every evaluation). Collapsed by default — keeps the view clean.
 
-The live preview labels the mode — "(weighted by age group)" vs "(equal weights)" — and flags partial evaluations with "M of N categories rated".
+## Charts
 
-### Evaluation detail view (headline card)
-A larger version of the same card appears at the top of the ratings section. The per-main breakdown table with subcategory rows sits below as before.
+**Trend over time** (line chart, Chart.js): one line per main category. X-axis is evaluation date; Y-axis is the rating scale (1-5 by default). Legend at the bottom is clickable to toggle lines on and off — useful for isolating a single dimension's progression. Gaps (evaluations where a main wasn't rated) are drawn as continuous lines through the point.
 
-### Evaluation list (new "Overall" column)
-Sits between "Coach" and "Actions". Shows the computed value or `—` for unrated evaluations. Appends a small `*` for rows using equal-fallback weights (hover tooltip clarifies). All overalls on the page are computed in a single batch (`overallRatingsForEvaluations` — three SQL roundtrips total regardless of row count), so the column adds effectively no page-load cost.
+**Shape over last N evaluations** (radar chart, Chart.js): overlays the last 3 evaluations' per-main values on a radar. Shows how the player's "shape" has shifted — are they becoming more balanced, or more specialized in specific dimensions.
 
-## Compute-on-read, not stored
+Chart.js loads from a CDN (`cdn.jsdelivr.net`). If the CDN is blocked (some clubs have restrictive network policies), the canvases get replaced with a "chart library unavailable" message and the text tables still show everything. No hard dependency on the library loading successfully.
 
-No `overall_rating` column on `tt_evaluations`. The overall materializes at read time only. This means:
+## Filters
 
-- Changing weights for an age group immediately changes the overall for every evaluation under it — no stale cache to invalidate
-- Adding/removing main categories immediately shifts the denominator
-- The detail view always reflects current algorithm; no background job to keep things in sync
-- One extra query per display (three SQL roundtrips in the batched list case)
+A form bar above the content:
+- **Vanaf** (from date)
+- **T/m** (to date)
+- **Type** (evaluation type: all, training, match, friendly, or whatever types the admin has configured)
+- **Filters toepassen** / **Wissen**
 
-## Schema
+All filters combine (AND). Filter state lives in the URL so you can bookmark or share a filtered rate card. The same filters apply to the headline numbers, the main breakdown, the subcategory accordion, and both charts — everything reflects the filtered set consistently.
 
-**New table `tt_category_weights`:**
+## What's computed, what's stored
 
-```
-id                 BIGINT UNSIGNED PK
-age_group_id       BIGINT UNSIGNED  — references tt_lookups.id (lookup_type='age_group')
-main_category_id   BIGINT UNSIGNED  — references tt_eval_categories.id (parent_id IS NULL)
-weight             TINYINT UNSIGNED  — 0–100 percentage
-created_at, updated_at
-UNIQUE KEY (age_group_id, main_category_id)
-```
+Nothing new is stored. No `player_overall_rating` column, no aggregate cache table. Every number on the rate card is computed from existing `tt_evaluations` + `tt_eval_ratings` rows at read time.
 
-Indexes on `age_group_id` and `main_category_id` individually, plus the unique composite key.
+Performance: two SQL queries for the evaluation list, one per evaluation for the per-main effective ratings (via `effectiveMainRatingsFor`), one for the subcategory rollup. At typical club scale (50 evaluations per player tops, usually much less), this is noise on the page-load timing. If anyone ever has a player with hundreds of evaluations and the page slows, we batch — but the architecture reserves that as a future optimization rather than complicating the first cut.
 
-**Migration 0009** creates the table. No data migration — the table starts empty, and equal-fallback covers every evaluation until weights are explicitly configured.
+## Schema / migrations
 
-## Edge cases handled
+**None.** This release adds zero tables, zero columns, zero migrations. Pure analytics on existing data.
 
-- **Player with no team**: age group unresolvable → equal fallback
-- **Team with no age group set**: same — equal fallback
-- **Age group has partial weight set** (say only three of four mains configured): the missing main's weight is treated as 0, so it contributes nothing even if a coach rated it. Not recommended but doesn't crash.
-- **All four mains unrated on an evaluation**: overall returns `null`, list column shows `—`, detail view hides the headline card
-- **Weights change after evaluations exist**: all existing evaluations recompute their overall on next display, using the new weights. No migration needed.
-- **Main category deactivated**: its weight stops contributing. If the admin reactivates it later, weights resume without intervention.
+## The seed-guard fix
+
+Rolled in here rather than shipping as a separate point release: `Activator::seedEvalCategoriesIfEmpty()` now bails if any main category (in any language, with any key) already exists. Before, it checked each canonical English key individually and would re-insert English duplicates on sites where the admin had Dutch-keyed mains. Fixes the "Technisch, Tactisch, Fysiek, Mentaal appearing twice" symptom observed after 2.13.0 activation.
 
 ## Files in this release
 
 ### New
-- `src/Infrastructure/Evaluations/CategoryWeightsRepository.php`
-- `src/Modules/Evaluations/Admin/CategoryWeightsPage.php`
-- `database/migrations/0009_category_weights.php`
+- `src/Infrastructure/Stats/PlayerStatsService.php` — analytics service
+- `src/Infrastructure/Stats/index.php`
+- `src/Modules/Stats/StatsModule.php` — module wiring
+- `src/Modules/Stats/Admin/PlayerRateCardsPage.php` — top-level admin page
+- `src/Modules/Stats/Admin/PlayerRateCardView.php` — shared rendering component
+- `src/Modules/Stats/Admin/index.php`
+- `src/Modules/Stats/index.php`
 
 ### Modified
-- `talenttrack.php` — version 2.13.0
-- `src/Core/Activator.php` — `tt_category_weights` added to `ensureSchema`
-- `src/Infrastructure/Evaluations/EvalRatingsRepository.php` — `overallRating()`, `overallRatingsForEvaluations()`, `resolveAgeGroupForEvaluation()`
-- `src/Modules/Evaluations/EvaluationsModule.php` — registers save/reset handlers
-- `src/Modules/Evaluations/Admin/EvaluationsPage.php` — live preview card on form, headline card on detail view, new Overall column on list, batched lookup for the column
-- `src/Shared/Admin/Menu.php` — Category Weights submenu entry
-- `languages/talenttrack-nl_NL.po` + `.mo` — 24 new strings
+- `talenttrack.php` — version 2.14.0
+- `src/Core/Activator.php` — seed-guard fix
+- `src/Modules/Players/Admin/PlayersPage.php` — Rate card tab on edit view
+- `src/Shared/Admin/Menu.php` — Player Rate Cards submenu entry
+- `config/modules.php` — StatsModule registered
+- `languages/talenttrack-nl_NL.po` + `.mo` — ~30 new strings
 
 ### Deleted
 (none)
 
 ## Install
 
-Extract the patch ZIP into `/wp-content/plugins/`. Deactivate + reactivate the plugin. Activation sequence:
-
-1. `ensureSchema()` creates `tt_category_weights` on fresh installs
-2. Migration 0009 creates the table on upgrades (idempotent — no-op if the table exists)
-3. No seed — weights start empty, equal-fallback handles everything until an admin configures weights
+Extract the ZIP into `/wp-content/plugins/`, preserving the existing `talenttrack/` directory structure. Deactivate + reactivate the plugin. Activation is fast — no schema changes. The seed-guard fix applies immediately; any sites that had the duplicate-mains symptom but haven't been manually cleaned yet will still need the manual cleanup (see Sprint 2A pre-work notes), since the guard prevents future duplicates but doesn't remove past ones.
 
 ## Verify
 
-1. **TalentTrack → Category Weights** — new menu entry. One section per age group, all showing "Equal fallback in use" initially with inputs pre-filled at 25/25/25/25.
-2. Edit any age group's weights: try `40/20/20/20`. Total indicator shows red "80%, must equal 100 (current: 80)". Change to `40/30/20/10` — total turns green, save enabled. Save. Section now shows "Configured" status.
-3. Open an existing evaluation for a player whose team is in that age group. Overall card at top shows the weighted value using your 40/30/20/10 weights.
-4. Evaluations list — Overall column shows the new value. Hover a row's overall to see the "Weighted by age group" tooltip.
-5. Reset to equal via the link. The player's overall now reverts to equal-weights (the `*` marker appears in the list).
+1. **TalentTrack → Player Rate Cards** — new menu entry. Dropdown picks a player. Pick one who has evaluations and the card renders immediately below.
+2. **TalentTrack → Players → (open any player) → "Rate card" tab** — same card, embedded.
+3. Pick a player with 5+ evaluations across multiple dates. Headline shows Most recent, Rolling, All-time. Main table shows trend arrows. Click a main row — subs expand. Trend chart renders as a multi-line plot. Radar overlays the last 3 evaluations.
+4. Set Vanaf = 3 months ago. Rate card filters. Headline numbers update.
+5. Set Type = Match only. Numbers and charts now reflect only match evaluations.
+6. Wissen — back to unfiltered.
 
-## Out of scope (noted for later)
+## Out of scope (slated for future Epic 2 sprints)
 
-- Per-evaluation-type weight overrides (Match vs Training)
-- Per-team weight overrides
-- Weight profiles (reusable named weight sets)
-- Historical weight audit trail (snapshot weights per evaluation at save time)
-- Overall rating on player/coach dashboard cards — comes with Epic 2
-- Sortable/filterable list column — the current column is display-only
+- **Team rate card** — aggregate of all players in a team. Sprint 2B.
+- **Comparative views** — player A vs player B side by side. Sprint 2C.
+- **Attendance integration** — "player's rate card during the matches they actually played" etc. Later.
+- **Export / PDF / print** — rate card → paper. Later.
+- **Player-facing dashboard rate card** — logged-in player sees their own card on the player dashboard. Might slot in next or later.
+- **Sortable/exportable list columns from rate card data** — later.
 
-## Note
+## Design notes worth recording
 
-This release completes the "ratings infrastructure" Epic 3 was supposed to deliver. The plugin now has: custom fields on every entity (2.11.0), subcategories with either/or UX (2.12.0 — recovery through 2.12.2), live subcategory-to-main averaging preview (2.12.2), and now a weighted overall per evaluation. Epic 2 (player rate cards, stats dashboards, trend charts) can build on this cleanly — every evaluation has a consistent, unambiguous, translatable, live-updated rating surface at every level of detail the UI might need.
+- **Two entry points, one component.** `PlayerRateCardView::render()` is called from both `PlayerRateCardsPage::render()` and `PlayersPage::render_form()` (when `?tab=ratecard`). Adding a third entry point later (Epic 2 roadmap: a coach dashboard) is additive — new page, same render call.
+- **Filters are GET params, not POST.** Bookmarkable URLs. Refresh-safe. Same pattern used across the rest of the plugin.
+- **Trend detection's split-halves approach** was chosen over linear regression deliberately. Regression gives a slope that's hard to communicate ("slope +0.03 per evaluation" isn't meaningful to a coach). Split-halves gives a discrete signal (better / worse / same) that matches how humans actually reason about "are they improving."
+- **Chart.js 4.x via CDN.** No bundling yet. If any customer reports CDN restrictions, we'll ship a bundled copy in a later sprint.
+- **Canvas height fixed at 300px.** Looks right on desktop, still readable on tablet. Mobile display isn't a target for the admin surface (most admins work from desktop).
+- **Subcategory rollups filter on the same date/type range as mains.** This matters when a coach starts using subs partway through the season — the subcategory breakdown respects the filter so they don't see "Short pass: 3.2 (from 2 evaluations)" alongside "Tactical: 3.8 (from 40 evaluations)" without understanding why one count is so small.

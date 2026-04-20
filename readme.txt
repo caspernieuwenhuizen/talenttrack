@@ -4,13 +4,21 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.13.0
+Stable tag: 2.14.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.14.0 — Epic 2 Sprint 2A: Player Rate Card =
+* NEW: Player rate card — one-page summary per player. Three headline numbers (most recent / rolling average of last 5 / all-time average), per-main-category breakdown with trend arrows (improving / declining / stable), expandable subcategory accordion, trend line chart (Chart.js), radar chart overlaying last 3 evaluations, filterable by date range and evaluation type.
+* NEW: TalentTrack → Player Rate Cards — top-level admin page with player picker.
+* NEW: "Rate card" tab on the Players edit page, embedding the same component.
+* NEW: PlayerStatsService with composable analytics methods (headline numbers, main breakdown, sub breakdown, trend series, radar snapshots) — foundation for future Epic 2 sprints (team rate cards, comparative views).
+* INTERNAL: Chart.js 4.4 loaded from CDN; graceful fallback to text-only when CDN unreachable.
+* FIX: seedEvalCategoriesIfEmpty() now bails if any main category already exists in any language. Prevents the duplicate-mains bug where English canonical mains would appear alongside Dutch-keyed mains after reactivation.
 
 = 2.13.0 — Weighted overall rating per evaluation =
 * NEW: Every evaluation has a weighted overall rating — computed as the weighted mean of main category effective ratings. Weights configurable per age group via the new TalentTrack → Category Weights admin page. Equal fallback (25/25/25/25 for four mains) when no weights are configured.

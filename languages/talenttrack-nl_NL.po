@@ -1922,3 +1922,100 @@ msgstr "Moet 100 zijn (huidig: %d)"
 
 msgid "No weights configured for this age group — using equal weights"
 msgstr "Geen gewichten ingesteld voor deze leeftijdsgroep — gelijke gewichten worden gebruikt"
+
+# ===== v2.14.0 — Player rate card =====
+
+msgid "Player Rate Cards"
+msgstr "Speler rapporten"
+
+msgid "Rate card"
+msgstr "Rapport"
+
+msgid "Player not found."
+msgstr "Speler niet gevonden."
+
+msgid "Pick a player above to see their rate card."
+msgstr "Kies hierboven een speler om het rapport te zien."
+
+msgid "No evaluations in this range."
+msgstr "Geen evaluaties in dit bereik."
+
+msgid "Player:"
+msgstr "Speler:"
+
+msgid "— Select a player —"
+msgstr "— Selecteer een speler —"
+
+msgid "From"
+msgstr "Vanaf"
+
+msgid "To"
+msgstr "T/m"
+
+msgid "All types"
+msgstr "Alle types"
+
+msgid "Apply filters"
+msgstr "Filters toepassen"
+
+msgid "Clear"
+msgstr "Wissen"
+
+msgid "Most recent"
+msgstr "Meest recent"
+
+msgid "Rolling average"
+msgstr "Voortschrijdend gemiddelde"
+
+msgid "Last %d evaluation"
+msgid_plural "Last %d evaluations"
+msgstr[0] "Laatste %d evaluatie"
+msgstr[1] "Laatste %d evaluaties"
+
+msgid "All-time average"
+msgstr "Gemiddelde (totaal)"
+
+msgid "Based on %d evaluation"
+msgid_plural "Based on %d evaluations"
+msgstr[0] "Gebaseerd op %d evaluatie"
+msgstr[1] "Gebaseerd op %d evaluaties"
+
+msgid "Main category breakdown"
+msgstr "Uitsplitsing per hoofdcategorie"
+
+msgid "All-time"
+msgstr "Totaal"
+
+msgid "Trend"
+msgstr "Trend"
+
+msgid "Improving"
+msgstr "Verbeterend"
+
+msgid "Declining"
+msgstr "Dalend"
+
+msgid "Stable"
+msgstr "Stabiel"
+
+msgid "Not enough data"
+msgstr "Te weinig data"
+
+msgid "Subcategory breakdown"
+msgstr "Subcategorie uitsplitsing"
+
+msgid "%d evaluation counted"
+msgid_plural "%d evaluations counted"
+msgstr[0] "%d evaluatie meegenomen"
+msgstr[1] "%d evaluaties meegenomen"
+
+msgid "Trend over time"
+msgstr "Trend over tijd"
+
+msgid "Shape over last %d evaluation"
+msgid_plural "Shape over last %d evaluations"
+msgstr[0] "Vorm over laatste %d evaluatie"
+msgstr[1] "Vorm over laatste %d evaluaties"
+
+msgid "Chart library unavailable. Data tables above still show the same information."
+msgstr "Grafiekbibliotheek niet beschikbaar. De tabellen hierboven tonen dezelfde informatie."

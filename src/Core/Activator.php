@@ -722,6 +722,18 @@ class Activator {
             return;
         }
 
+        // v2.14.0 — respect existing admin intent. If ANY main category
+        // already exists (in any language, with any key), skip the
+        // canonical seed entirely. The per-key checks below would
+        // otherwise insert English "Technical/Tactical/Physical/Mental"
+        // alongside user-renamed or migration-seeded mains like the
+        // Dutch "Technisch/Tactisch/Fysiek/Mentaal", creating confusing
+        // duplicates.
+        $any_main_exists = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE parent_id IS NULL"
+        );
+        if ( $any_main_exists > 0 ) return;
+
         // The 4 canonical main categories.
         $mains = [
             [ 'technical', 'Technical', 'Ball control, passing, shooting, dribbling', 10 ],

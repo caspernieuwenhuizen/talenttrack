@@ -21,5 +21,6 @@ return [
     TT\Modules\Sessions\SessionsModule::class             => true,
     TT\Modules\Goals\GoalsModule::class                   => true,
     TT\Modules\Reports\ReportsModule::class               => true,
+    TT\Modules\Stats\StatsModule::class                   => true,
     TT\Modules\Documentation\DocumentationModule::class   => true,
 ];

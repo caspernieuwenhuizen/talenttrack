@@ -75,6 +75,18 @@ class PlayersPage {
 
     private static function render_form( ?object $player ): void {
         $is_edit   = $player !== null;
+
+        // v2.14.0: Rate Card tab embedded on the edit view. Only available
+        // when editing an existing player (no evaluations to rate-card on
+        // a new one). Default tab is 'edit' (the existing form).
+        $tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tab'] ) ) : 'edit';
+        if ( ! $is_edit ) $tab = 'edit'; // safety
+
+        // Chart.js enqueue when the Rate Card tab is active.
+        if ( $is_edit && $tab === 'ratecard' ) {
+            \TT\Modules\Stats\Admin\PlayerRateCardView::enqueueChartLibrary();
+        }
+
         $teams     = QueryHelpers::get_teams();
         $positions = QueryHelpers::get_lookup_names( 'position' );
         $foot_opts = QueryHelpers::get_lookup_names( 'foot_option' );
@@ -105,6 +117,30 @@ class PlayersPage {
         ?>
         <div class="wrap">
             <h1><?php echo $is_edit ? esc_html__( 'Edit Player', 'talenttrack' ) : esc_html__( 'Add Player', 'talenttrack' ); ?></h1>
+
+            <?php if ( $is_edit ) :
+                $edit_url     = admin_url( 'admin.php?page=tt-players&action=edit&id=' . (int) $player->id );
+                $ratecard_url = add_query_arg( 'tab', 'ratecard', $edit_url );
+                ?>
+                <nav class="nav-tab-wrapper" style="margin-top:12px;">
+                    <a href="<?php echo esc_url( $edit_url ); ?>" class="nav-tab <?php echo $tab === 'edit' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
+                    <a href="<?php echo esc_url( $ratecard_url ); ?>" class="nav-tab <?php echo $tab === 'ratecard' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Rate card', 'talenttrack' ); ?></a>
+                </nav>
+            <?php endif; ?>
+
+            <?php
+            if ( $is_edit && $tab === 'ratecard' ) {
+                $player_id = (int) $player->id;
+                $filters   = \TT\Infrastructure\Stats\PlayerStatsService::sanitizeFilters( $_GET );
+                $base_url  = add_query_arg(
+                    [ 'page' => 'tt-players', 'action' => 'edit', 'id' => $player_id, 'tab' => 'ratecard' ],
+                    admin_url( 'admin.php' )
+                );
+                \TT\Modules\Stats\Admin\PlayerRateCardView::render( $player_id, $filters, $base_url );
+                echo '</div>';
+                return;
+            }
+            ?>
 
             <?php if ( $state && ! empty( $state['errors'] ) ) : ?>
                 <div class="notice notice-error">

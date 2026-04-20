@@ -13,6 +13,7 @@ use TT\Modules\Goals\Admin\GoalsPage;
 use TT\Modules\Players\Admin\PlayersPage;
 use TT\Modules\Reports\Admin\ReportsPage;
 use TT\Modules\Sessions\Admin\SessionsPage;
+use TT\Modules\Stats\Admin\PlayerRateCardsPage;
 use TT\Modules\Teams\Admin\TeamsPage;
 
 /**
@@ -38,6 +39,7 @@ class Menu {
         add_submenu_page( 'talenttrack', __( 'Sessions', 'talenttrack' ), __( 'Sessions', 'talenttrack' ), 'tt_evaluate_players', 'tt-sessions', [ SessionsPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Goals', 'talenttrack' ), __( 'Goals', 'talenttrack' ), 'tt_evaluate_players', 'tt-goals', [ GoalsPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Reports', 'talenttrack' ), __( 'Reports', 'talenttrack' ), 'tt_view_reports', 'tt-reports', [ ReportsPage::class, 'render_page' ] );
+        add_submenu_page( 'talenttrack', __( 'Player Rate Cards', 'talenttrack' ), __( 'Player Rate Cards', 'talenttrack' ), 'tt_view_reports', 'tt-rate-cards', [ PlayerRateCardsPage::class, 'render' ] );
         add_submenu_page( 'talenttrack', __( 'Configuration', 'talenttrack' ), __( 'Configuration', 'talenttrack' ), 'tt_manage_settings', 'tt-config', [ ConfigurationPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Custom Fields', 'talenttrack' ), __( 'Custom Fields', 'talenttrack' ), 'tt_manage_settings', 'tt-custom-fields', [ CustomFieldsPage::class, 'render' ] );
         add_submenu_page( 'talenttrack', __( 'Evaluation Categories', 'talenttrack' ), __( 'Evaluation Categories', 'talenttrack' ), 'tt_manage_settings', 'tt-eval-categories', [ EvalCategoriesPage::class, 'render' ] );
