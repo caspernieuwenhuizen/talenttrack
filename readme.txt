@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.12.0
+Stable tag: 2.12.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.12.1 — Recovery release for 2.12.0's broken schema =
+* FIX: Renamed the `key` column on `tt_eval_categories` to `category_key`. The original column name was a MySQL reserved word that dbDelta silently dropped on some hosts (Strato / MariaDB), leaving the table in a corrupt state after activation and causing migration 0008 to fail with "Unknown column 'key' in 'INSERT INTO'".
+* NEW: Activator::repairEvalCategoriesTableIfCorrupt() — self-healing routine that runs on every activation. Detects the corrupt 2.12.0 table state (table exists but missing the new column), safety-checks that no ratings reference it, and drops it so ensureSchema can recreate it cleanly. No-op on healthy sites and fresh installs.
+* INTERNAL: All INSERT/SELECT statements and object-property accesses referencing the column updated across Activator, migration 0008, EvalCategoriesRepository, EvalRatingsRepository, QueryHelpers, and EvalCategoriesPage.
+* NOTE: No data loss on sites that hit the 2.12.0 bug — the migration's throw-before-delete safeguard prevented any changes to `tt_lookups` or `tt_eval_ratings`. On upgrade, the repair routine drops the corrupt table, ensureSchema recreates it, the seed populates the canonical rows, and migration 0008 runs cleanly against the correct schema.
 
 = 2.12.0 — Sprint 1I: Evaluation subcategories + Evaluations custom fields =
 * NEW: Evaluation categories are now hierarchical. Each of the four main categories (Technical, Tactical, Physical, Mental) can have subcategories — 21 standard ones are seeded (Short pass, Long pass, First touch, Dribbling, Shooting, Heading, Offensive positioning, Defensive positioning, Game reading, Decision making, Off-ball movement, Speed, Endurance, Strength, Agility, Coordination, Focus, Leadership, Attitude, Resilience, Coachability). Clubs can add their own, rename labels, reorder, or deactivate.

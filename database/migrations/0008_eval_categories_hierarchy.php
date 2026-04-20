@@ -79,7 +79,7 @@ return new class extends Migration {
         $wpdb->query( "CREATE TABLE IF NOT EXISTS {$p}tt_eval_categories (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             parent_id BIGINT UNSIGNED NULL,
-            `key` VARCHAR(64) NOT NULL,
+            category_key VARCHAR(64) NOT NULL,
             label VARCHAR(255) NOT NULL,
             description TEXT,
             display_order INT DEFAULT 0,
@@ -88,7 +88,7 @@ return new class extends Migration {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
-            UNIQUE KEY uniq_key (`key`),
+            UNIQUE KEY uniq_category_key (category_key),
             KEY idx_parent (parent_id),
             KEY idx_active (is_active)
         ) {$charset}" );
@@ -116,7 +116,7 @@ return new class extends Migration {
 
             // Does this key already exist in the new table? (Re-run safety.)
             $existing_new_id = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_eval_categories WHERE `key` = %s LIMIT 1",
+                "SELECT id FROM {$p}tt_eval_categories WHERE category_key = %s LIMIT 1",
                 $key
             ) );
             if ( $existing_new_id > 0 ) {
@@ -126,7 +126,7 @@ return new class extends Migration {
 
             $insert_ok = $wpdb->insert( "{$p}tt_eval_categories", [
                 'parent_id'     => null,
-                'key'           => $key,
+                'category_key'  => $key,
                 'label'         => $name,
                 'description'   => $description,
                 'display_order' => $sort_order,
@@ -234,7 +234,7 @@ return new class extends Migration {
 
             // Resolve parent by key.
             $parent_id = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_eval_categories WHERE `key` = %s LIMIT 1",
+                "SELECT id FROM {$p}tt_eval_categories WHERE category_key = %s LIMIT 1",
                 $main_key
             ) );
             if ( $parent_id <= 0 ) {
@@ -246,14 +246,14 @@ return new class extends Migration {
 
             // Already seeded?
             $exists = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE `key` = %s",
+                "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE category_key = %s",
                 $sub_key
             ) );
             if ( $exists > 0 ) continue;
 
             $wpdb->insert( "{$p}tt_eval_categories", [
                 'parent_id'     => $parent_id,
-                'key'           => $sub_key,
+                'category_key'  => $sub_key,
                 'label'         => $label,
                 'description'   => null,
                 'display_order' => $display_order,

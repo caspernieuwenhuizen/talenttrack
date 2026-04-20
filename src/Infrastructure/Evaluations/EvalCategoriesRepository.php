@@ -61,7 +61,7 @@ class EvalCategoriesRepository {
         global $wpdb;
         $t = $this->table();
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE `key` = %s LIMIT 1", $key
+            "SELECT * FROM {$t} WHERE category_key = %s LIMIT 1", $key
         ) );
         return $row ?: null;
     }
@@ -113,8 +113,8 @@ class EvalCategoriesRepository {
     /* ═══════════════ Writes ═══════════════ */
 
     /**
-     * Create a category (main or sub). If `key` is blank it's derived from
-     * the label. Returns the new id.
+     * Create a category (main or sub). If category_key is blank it's
+     * derived from the label. Returns the new id.
      *
      * @param array<string,mixed> $data
      */
@@ -126,7 +126,7 @@ class EvalCategoriesRepository {
     }
 
     /**
-     * Update a category. Locks `key` and `parent_id` after creation —
+     * Update a category. Locks category_key and parent_id after creation —
      * changing parent would invalidate any ratings referencing the old
      * path. (Admins who need to move subcategories can deactivate one and
      * create another.)
@@ -134,7 +134,7 @@ class EvalCategoriesRepository {
     public function update( int $id, array $data ): bool {
         global $wpdb;
         $normalized = $this->normalize( $data, false );
-        unset( $normalized['key'], $normalized['parent_id'] );
+        unset( $normalized['category_key'], $normalized['parent_id'] );
         return $wpdb->update( $this->table(), $normalized, [ 'id' => $id ] ) !== false;
     }
 
@@ -144,8 +144,8 @@ class EvalCategoriesRepository {
     }
 
     /**
-     * Normalize + sanitize incoming data. On insert requires `key` and
-     * `label`; on update only the provided keys are honored.
+     * Normalize + sanitize incoming data. On insert requires category_key
+     * and label; on update only the provided keys are honored.
      *
      * @param array<string,mixed> $data
      * @return array<string,mixed>
@@ -154,12 +154,20 @@ class EvalCategoriesRepository {
         $out = [];
         if ( $for_insert ) {
             $label = isset( $data['label'] ) ? sanitize_text_field( (string) $data['label'] ) : '';
-            $key   = isset( $data['key'] ) && $data['key'] !== ''
-                ? sanitize_key( (string) $data['key'] )
-                : sanitize_key( $label );
+            // Accept either 'category_key' (new canonical name) or 'key'
+            // (legacy call-site name) on create — keeps internal callers
+            // that haven't been rewritten yet working. Stored column is
+            // always category_key.
+            $raw_key = '';
+            if ( isset( $data['category_key'] ) && $data['category_key'] !== '' ) {
+                $raw_key = (string) $data['category_key'];
+            } elseif ( isset( $data['key'] ) && $data['key'] !== '' ) {
+                $raw_key = (string) $data['key'];
+            }
+            $key = $raw_key !== '' ? sanitize_key( $raw_key ) : sanitize_key( $label );
             if ( $key === '' ) $key = 'cat_' . substr( md5( $label . microtime( true ) ), 0, 8 );
-            $out['key']   = $key;
-            $out['label'] = $label;
+            $out['category_key'] = $key;
+            $out['label']        = $label;
 
             if ( array_key_exists( 'parent_id', $data ) ) {
                 $p = $data['parent_id'];

@@ -51,7 +51,7 @@ class EvalRatingsRepository {
                     r.evaluation_id,
                     r.category_id,
                     r.rating,
-                    c.`key`          AS category_key,
+                    c.category_key   AS category_key,
                     c.label          AS category_label,
                     c.parent_id      AS parent_id,
                     c.display_order  AS display_order

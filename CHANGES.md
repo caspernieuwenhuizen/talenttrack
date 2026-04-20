@@ -1,197 +1,99 @@
-# TalentTrack v2.12.0 — Sprint 1I: Evaluation subcategories + Evaluations custom fields
+# TalentTrack v2.12.1 — Recovery release for 2.12.0's broken schema
 
-## What this release does
+## What was broken in 2.12.0
 
-Evaluations get a two-level hierarchy. Each main category (Technical, Tactical, Physical, Mental by default) can have subcategories (Short pass, Long pass, Shooting, etc.) that a coach can rate individually. Per your either/or design, the coach picks per main category whether to rate the main directly OR drill into subcategories — the form lets them switch with a single click.
+v2.12.0 shipped with a critical bug: the new `tt_eval_categories` table defined a column literally named `key`, which is a MySQL reserved word. I quoted it with backticks in the schema, which is valid SQL — but `dbDelta` (the WordPress schema reconciliation tool the plugin uses on every activation) parses `CREATE TABLE` statements with its own rules and **silently drops backticked reserved-word columns** on some hosts. The column never got created on the Strato install.
 
-The Evaluations entity also picks up the full custom-fields machinery from Sprint 1H, so club admins can now add custom fields to the evaluation form just like Players/Teams/Sessions/Goals/People already support.
+That alone would have been annoying. But it got worse:
 
-## The either/or rating model
+- `dbDelta` on that host also attempted to reconcile the half-created table against the old `tt_lookups.eval_category` schema and inserted four garbage rows into `tt_eval_categories` with partial column population (`name` and `sort_order` from the old shape, `label` empty, `category_key` missing entirely).
+- Migration 0008 then tried to run on this corrupt table and failed with `Unknown column 'key' in 'INSERT INTO'` — its throw-before-delete safeguard correctly prevented any data loss from `tt_lookups` or `tt_eval_ratings`, but the migration stayed stuck in "pending" state.
+- Users on affected sites could not proceed past the 2.12.0 activation. The plugin was functional (since the old lookup rows were still intact), but no subcategories, no new admin UI, no progress.
 
-For any given (evaluation, main category), there are three possible states:
+## What 2.12.1 fixes
 
-1. **Direct rating only.** Coach entered a number for the main (e.g. Technical = 4). No subcategory ratings for that main. Display shows the direct number.
-2. **Subcategory ratings only.** Coach entered numbers for one or more subcategories (e.g. Short pass = 4, Long pass = 3, First touch = 5). The main's "effective" rating is **computed on read** as the mean of those subs — it's not stored as a separate row. Display shows the computed number with an "(averaged from 3 subcategories)" suffix and lists the sub ratings beneath.
-3. **Neither.** Main isn't rated at all.
+The column is renamed to `category_key` throughout. `category_key` is not a reserved word anywhere, so `dbDelta`, MySQL, and MariaDB all handle it consistently. The rename is the real fix — everything else is scaffolding to recover sites that already hit the broken state.
 
-A coach can mix modes across categories on a single evaluation — e.g. Technical in subcategory mode, Tactical in direct mode, Physical in direct mode, Mental skipped.
+### New self-healing routine
 
-Switching modes on the form discards the other mode's inputs silently (per the Sprint 1I design decision — the UI mode is the authoritative signal, no modal). The `tt_rating_mode[<main_id>]` hidden input tracks UI state per main and the save handler reads ratings from whichever bucket the mode points to.
+`Activator::repairEvalCategoriesTableIfCorrupt()` runs on every activation, **before** `ensureSchema`. Flow:
 
-## Schema changes
+1. Does `tt_eval_categories` exist? If no → return (fresh install, nothing to do).
+2. Does it have the `category_key` column? If yes → return (already on the 2.12.1 schema).
+3. Safety guard: refuse to drop if any `tt_eval_ratings` row references an ID in the table (would break referential integrity). Logs a WP_DEBUG warning and returns. Shouldn't happen on sites that hit the original bug — the migration throws before retargeting any ratings.
+4. `DROP TABLE tt_eval_categories`. Control then returns to `activate()` which calls `ensureSchema()` next — dbDelta recreates the table with the `category_key` column cleanly.
 
-Two schema changes in this release, both additive, both non-destructive.
+Idempotent. No-op on healthy sites. Fully self-diagnosing.
 
-### New table: `tt_eval_categories`
+### Schema rename
 
-Replaces the `lookup_type='eval_category'` rows in `tt_lookups`. Supports hierarchy via `parent_id` (nullable, self-referencing). Columns:
+`ensureSchema()` now defines the column as `category_key VARCHAR(64) NOT NULL` with a `uniq_category_key` unique index. No backticks, no reserved words, no dbDelta quirks.
 
-```
-id             BIGINT UNSIGNED  PK
-parent_id      BIGINT UNSIGNED  NULL   — main categories have NULL; subs point at their main
-key            VARCHAR(64)      UNIQUE — stable identifier like 'technical_short_pass'
-label          VARCHAR(255)             — display name (translatable via .po)
-description    TEXT             NULL
-display_order  INT              DEFAULT 0
-is_active      TINYINT(1)       DEFAULT 1
-is_system      TINYINT(1)       DEFAULT 0  — canonical system categories can be renamed but not deleted
-created_at     DATETIME
-updated_at     DATETIME
-```
+### Migration 0008 updated
 
-Indexes: `uniq_key`, `idx_parent`, `idx_active`.
+Every INSERT and SELECT inside migration 0008 now references `category_key`. The migration runs cleanly against the 2.12.1 schema once the repair routine has dropped the corrupt table.
 
-### Extended: `tt_custom_fields` accepts `ENTITY_EVALUATION`
+### Repositories updated
 
-No table change — the `entity_type` column was already a free-form `VARCHAR(50)`. The extension is purely in the domain layer (added `ENTITY_EVALUATION = 'evaluation'` constant + updated `allowedEntityTypes()`) plus the `FormSlugContract::evaluationSlugs()` map that drives the "Insert after" dropdown.
+- `EvalCategoriesRepository` — `getByKey()`, `update()` lock list, and `normalize()` all reference `category_key`. `normalize()` accepts either `'category_key'` (canonical) or the legacy `'key'` array-key on insert for backward compatibility.
+- `EvalRatingsRepository::getForEvaluation()` — SELECT aliases the column as `c.category_key AS category_key` (alias for consumer consistency — rating rows still expose `->category_key`).
+- `QueryHelpers::get_evaluation()` — same alias update in the join.
 
-## Migration 0008
+### Admin UI updated
 
-`0008_eval_categories_hierarchy.php` — handles the lookup-to-new-table transition idempotently:
+- `EvalCategoriesPage` list view — displays `$main->category_key` and `$sub->category_key` in the code column.
+- Edit form — field `name="category_key"`, save handler reads `$_POST['category_key']`, create call passes `'category_key' =>` to the repository.
 
-1. **Creates** `tt_eval_categories` if missing.
-2. **Copies** every `lookup_type='eval_category'` row from `tt_lookups` into `tt_eval_categories` as a main category (parent_id IS NULL). Builds an `old_lookup_id → new_category_id` remap while copying. `is_system=1` is set only for the canonical four keys (`technical`, `tactical`, `physical`, `mental`) — admin-added categories migrate as `is_system=0`.
-3. **Retargets** every `tt_eval_ratings.category_id` from its old lookup ID to the new category ID. Rows whose category_id already points at a new-table row (re-run scenario) are counted as already-retargeted.
-4. **Seeds** 21 subcategories as children of the canonical four main categories. Idempotent — skipped if a subcategory with the same key already exists or if its parent main category has been renamed/deleted.
-5. **Deletes** the old `lookup_type='eval_category'` rows from `tt_lookups` — but **only if** every rating successfully retargeted. If any orphan remains, the migration throws `RuntimeException` leaving the old lookup rows in place so no data is silently dropped.
+### Seed routine updated
 
-Safe to re-run; safe to fail half-way; additive to any rows an admin already created in the new table. Existing evaluations keep working throughout — their `tt_eval_ratings.category_id` values get retargeted during the migration and the JOIN in `QueryHelpers::get_evaluation()` now hits the new table.
+`Activator::seedEvalCategoriesIfEmpty()` now writes `category_key` (two loops: main categories, subcategories). Still idempotent.
 
-## Seed data
+## Upgrade path for your specific site
 
-On fresh installs, `Activator::seedEvalCategoriesIfEmpty()` populates the new table with:
+Because your site is in exactly the corrupted state this release is designed to recover:
 
-- **4 main categories**: Technical, Tactical, Physical, Mental (all with `is_system=1`)
-- **21 subcategories**:
-  - **Technical** (6): Short pass, Long pass, First touch, Dribbling, Shooting, Heading
-  - **Tactical** (5): Offensive positioning, Defensive positioning, Game reading, Decision making, Off-ball movement
-  - **Physical** (5): Speed, Endurance, Strength, Agility, Coordination
-  - **Mental** (5): Focus, Leadership, Attitude, Resilience, Coachability
+1. Extract the patch ZIP over `/wp-content/plugins/talenttrack/` (preserve tree structure).
+2. Deactivate the plugin in WP admin. Reactivate.
+3. On reactivation:
+   - `repairEvalCategoriesTableIfCorrupt()` detects the missing `category_key` column and the non-referencing state of the 4 corrupt rows, and drops the table.
+   - `ensureSchema()` recreates the table with the correct `category_key` column.
+   - `seedEvalCategoriesIfEmpty()` seeds 4 main + 21 sub rows into the fresh table.
+   - Migration 0008 runs successfully: finds the `tt_lookups.eval_category` rows, copies them (key collision detection will make them idempotent against the already-seeded rows), retargets the 28 `tt_eval_ratings` rows, and deletes the old `tt_lookups` rows.
+4. Verify by checking the Migrations admin page — no more "pending" for 0008.
+5. Verify by opening TalentTrack → Evaluation Categories — should show Technisch/Tactisch/Fysiek/Mentaal with their subcategories underneath.
+6. Verify by opening an existing evaluation — ratings should still display (they'll appear in the "direct main rating" mode since they were entered pre-2.12).
 
-All 25 seed entries have Dutch translations in `talenttrack-nl_NL.po`. Clubs can deactivate the ones they don't use, add their own, or rename any of them (keys stay stable — labels are free to change).
+## Upgrade path for fresh installs or sites that never hit the bug
 
-This seed routine also runs on every activation and is idempotent. If migration 0008 successfully ran but an admin had deleted the canonical main categories beforehand, the seed routine will re-create them — the seed never overwrites existing entries.
-
-## New admin page: TalentTrack → Evaluation Categories
-
-Replaces the old "Evaluation Categories" tab that lived under Configuration. The old tab couldn't express parent/child relationships; the new page is a dedicated tree view.
-
-- Main categories render as header rows with a subtle background.
-- Each main has its subcategories indented directly underneath with a `↳` prefix.
-- "Add main category" button at the top of the page.
-- "Add sub" link on each main row for adding subcategories under that specific parent.
-- Edit/Activate/Deactivate inline on every row.
-- Display order is a numeric field on the edit form (drag-and-drop deferred — convention is to use increments of 10 so new items can be inserted between existing ones).
-- System categories are marked with a ✓ and can be renamed/deactivated but not deleted (no Delete action is exposed for them).
-
-Anyone with a bookmark to the old Configuration tab URL (`?page=tt-config&tab=eval_categories`) gets redirected to the new page.
-
-## Compute-on-read rollup
-
-When a coach rates subcategories without entering a direct main rating, the main's effective rating is computed by `EvalRatingsRepository::effectiveMainRating($eval_id, $main_cat_id)`. Return shape:
-
-```php
-[ 'value' => float|null, 'source' => 'direct'|'computed'|'none', 'sub_count' => int ]
-```
-
-- `direct` — coach entered a main rating, returned as-is (sub_count is 0)
-- `computed` — no direct rating, mean of sub_count subcategory ratings
-- `none` — neither present, value is null
-
-This is what the evaluation detail page calls to display ratings, and what the radar chart feeds off. Epic 2 (statistics) will call this everywhere too so charts don't need to know which mode a given evaluation used.
-
-No computed rollup row is ever written to `tt_eval_ratings` — the table stores only what was entered. The rollup materializes only at read time. Means no staleness, no need to recompute when subcategories change, one source of truth.
-
-## Custom fields on Evaluations
-
-Mechanically identical to Sprint 1H's five other entities. Specifically:
-
-- `FormSlugContract::evaluationSlugs()` returns 9 native slugs: `player_id`, `eval_type_id`, `eval_date`, `opponent`, `competition`, `match_result`, `home_away`, `minutes_played`, `notes`.
-- The Evaluations admin form calls `CustomFieldsSlot::render()` after each native field and `renderAppend()` at the end of the form.
-- `CustomFieldValidator::persistFromPost(ENTITY_EVALUATION, $id, $_POST)` persists values after the native save.
-- Detail view calls `CustomFieldsSlot::renderReadonly(ENTITY_EVALUATION, $id)` below the ratings table.
-- `tt_cf_error` query flag triggers a warning notice on the edit form when a CF validation error happened.
-- TalentTrack → Custom Fields now has an "Evaluations" entity tab alongside the existing five.
-
-The ratings grid is explicitly NOT part of the slug contract — it's its own UI section, not a "field". Custom fields anchor to the native form fields around it.
-
-## Call-site redirects (from `tt_lookups` to `tt_eval_categories`)
-
-Six places that read `lookup_type='eval_category'` were rewired to the new table:
-
-1. `QueryHelpers::get_categories()` — now delegates to `EvalCategoriesRepository::getMainCategoriesLegacyShape()` which returns objects with the same fields (`->id`, `->name`, `->description`, `->sort_order`) the old lookup rows had. Existing callers of `get_categories()` don't need to change.
-2. `QueryHelpers::get_evaluation()` — the ratings JOIN now hits `tt_eval_categories` instead of `tt_lookups`, and the query exposes `->category_parent_id` and `->category_key` on each rating for hierarchy-aware consumers.
-3. `ConfigurationPage` — the `eval_categories` tab is gone from the tabs list and the switch. Old bookmarks redirect to `page=tt-eval-categories`.
-4. `ConfigurationPage::tab_key_for_type()` — `eval_category` entry removed from the map.
-5. `Activator::seedDefaultsIfEmpty()` — no longer seeds `eval_category` rows into `tt_lookups`. Delegates to `seedEvalCategoriesIfEmpty()`.
-6. The Evaluations form and detail view — fully rewritten to use the hierarchy-aware repositories.
-
-## The legacy-shape shim
-
-`EvalCategoriesRepository::getMainCategoriesLegacyShape()` exists specifically to keep `QueryHelpers::get_categories()` stable for any caller (including third-party code using the `tt_modify_categories` filter hook). The method returns main categories as plain objects with the pre-2.12 field names (`->name`, `->sort_order`, `->description`). New code should prefer `getMainCategories()` or `getTree()`, which expose the full new column set (`->label`, `->display_order`, `->key`, `->parent_id`, etc.).
+Install 2.12.1 directly. `repairEvalCategoriesTableIfCorrupt()` is a no-op for you. Everything works as it did in intended 2.12.0.
 
 ## Files in this release
 
-### New
-- `src/Infrastructure/Evaluations/EvalCategoriesRepository.php`
-- `src/Infrastructure/Evaluations/EvalRatingsRepository.php`
-- `src/Modules/Evaluations/Admin/EvalCategoriesPage.php`
-- `database/migrations/0008_eval_categories_hierarchy.php`
-
 ### Modified
-- `talenttrack.php` — version 2.12.0
-- `src/Core/Activator.php` — new `tt_eval_categories` schema; `seedEvalCategoriesIfEmpty()` helper; retired `eval_category` seed from `seedDefaultsIfEmpty()`
-- `src/Infrastructure/Query/QueryHelpers.php` — `get_categories()` and `get_evaluation()` rewired to the new table
-- `src/Infrastructure/CustomFields/CustomFieldsRepository.php` — added `ENTITY_EVALUATION` constant + entry in `allowedEntityTypes()`
-- `src/Modules/Configuration/Admin/ConfigurationPage.php` — dropped the `eval_categories` tab; redirects old URLs
-- `src/Modules/Configuration/Admin/CustomFieldsPage.php` — added "Evaluations" to the entity tabs and label map
-- `src/Modules/Configuration/Admin/FormSlugContract.php` — `evaluationSlugs()` method; dispatcher updated
-- `src/Modules/Evaluations/EvaluationsModule.php` — registers `EvalCategoriesPage` handlers
-- `src/Modules/Evaluations/Admin/EvaluationsPage.php` — form + view + save rewritten for hierarchy; custom fields wired
-- `src/Shared/Admin/Menu.php` — added "Evaluation Categories" submenu
-- `languages/talenttrack-nl_NL.po` + `.mo` — ~57 new strings (21 subcategory labels + UI chrome + 4 main-category labels + form UX strings + eval slug labels)
+- `talenttrack.php` — version 2.12.1
+- `src/Core/Activator.php` — column rename in `ensureSchema`; `repairEvalCategoriesTableIfCorrupt()` added; `seedEvalCategoriesIfEmpty()` updated to use the new column name; `activate()` order updated
+- `src/Infrastructure/Evaluations/EvalCategoriesRepository.php` — `getByKey()`, `update()`, `normalize()` updated; docblocks refreshed; `normalize()` accepts both old and new data-array key names
+- `src/Infrastructure/Evaluations/EvalRatingsRepository.php` — column reference updated in `getForEvaluation()` SELECT
+- `src/Infrastructure/Query/QueryHelpers.php` — column reference updated in `get_evaluation()` JOIN
+- `src/Modules/Evaluations/Admin/EvalCategoriesPage.php` — list view, edit form, and save handler all updated for the new column/property name
+- `database/migrations/0008_eval_categories_hierarchy.php` — `ensureCategoriesTable()`, `copyMainCategoriesFromLookups()`, `seedSubcategories()` all updated
+
+### New
+- (none — this is a pure recovery release, no new files)
 
 ### Deleted
-(None in this release.)
+- (none)
 
-## Install
+No new translations — the column rename is internal and doesn't surface any new UI strings.
 
-Per your earlier instruction, this release ships as a **patch ZIP** containing only new + modified files, not the full plugin tree. Extract over an existing 2.11.0 install preserving the `talenttrack/...` directory structure:
+## Post-mortem notes
 
-```
-unzip talenttrack-2.12.0-patch.zip -d /wp-content/plugins/
-# then activate/reactivate the plugin in WP admin
-```
+This is the second time in this plugin's history that a schema change got burned by `dbDelta`'s quirks (the first was the migration-loader eval() issue in v2.10.1). Different problem each time, same root cause: `dbDelta` is much less permissive than raw MySQL and much more permissive than its own documentation suggests.
 
-Fresh installs: still use a full plugin ZIP from the main release pipeline — the patch format only makes sense for upgrades.
+Lessons for next time:
 
-On activation the sequence is:
-1. `Activator::ensureSchema()` creates `tt_eval_categories` if missing (fresh installs)
-2. `MigrationRunner` runs migration 0008 — copies lookup rows over, retargets ratings, seeds subcategories, deletes old lookup rows on success
-3. `Activator::seedEvalCategoriesIfEmpty()` runs — no-op on sites where the migration already seeded everything; populates canonical mains + 21 subs on sites that didn't have the lookup rows at all
+1. **Never use MySQL reserved words as column names.** Even backticked. Even when the documentation suggests it'd be fine. The word list is short and avoidable. A 30-second `reserved-word grep` against any new `CREATE TABLE` statement would have caught this at author-time.
+2. **`dbDelta` silently drops columns it doesn't like.** It doesn't throw, doesn't warn, doesn't log. The only safe way to know a `dbDelta`-created table matches the expected schema is to verify column presence explicitly after activation. The `repairEvalCategoriesTableIfCorrupt()` routine does this now, but it'd be better to not need it.
+3. **Mid-release schema changes need end-to-end smoke tests on multiple hosts.** 2.12.0 was tested on a fresh install where everything worked. The real-world path (upgrade from 2.11.0, existing data, existing `tt_lookups` rows, migration 0008 running against a dbDelta-created table) was never exercised before release. Not good. Future schema-changing sprints will include an upgrade-from-previous test run.
 
-## Verify
-
-1. TalentTrack → Evaluation Categories — new menu entry. Should show four main categories (Technical, Tactical, Physical, Mental) each with their subcategories listed underneath.
-2. Configuration → the "Evaluation Categories" tab is gone. Navigate to `?page=tt-config&tab=eval_categories` in the URL bar and you should land on the new page.
-3. Add a new evaluation for any player. Each main category should render as a fieldset with a direct-rating input and a "rate subcategories instead" link. Click the link; it swaps to sub inputs. Click "rate main category directly instead"; it swaps back.
-4. Save the evaluation with Technical rated directly (4) and Tactical in subcategory mode (Offensive positioning = 3, Decision making = 5). View the evaluation.
-5. Detail view should show Technical = 4 (no suffix), Tactical = 4 (averaged from 2 subcategories) — each with their sub rows listed beneath.
-6. Radar chart should show all four dimensions, with Tactical using the computed 4.
-7. Existing pre-2.12 evaluations should still display correctly with their direct main ratings.
-8. TalentTrack → Custom Fields — new "Evaluations" tab in the entity tab bar. Add a custom field on Evaluations, insert after a native slug (say `minutes_played`), save. Edit an evaluation; the field appears in the right position.
-
-## Scope boundaries
-
-What's explicitly NOT in 2.12.0:
-
-- **Drag-and-drop reorder** of categories — still deferred. Display order is a number input. Convention is to use increments of 10 so you can insert items between existing ones.
-- **Deletion** of system categories — blocked by design. Use deactivate instead; stored ratings are preserved.
-- **Per-category weighting** in the rollup — the compute-on-read helper returns a simple mean. Weighted averages would need a `weight` column on `tt_eval_categories` plus UX to configure them, which is Epic 2 territory.
-- **Hierarchy deeper than two levels** — refused at create time. A sub-of-a-sub is not a thing in this schema.
-- **Importing subcategories from a CSV / external definition file** — not in scope. Admins add them one at a time via the admin UI.
-
-## Known follow-ups
-
-- Historical evaluations that only have main-category ratings don't get "upgraded" to subcategory detail — and that's intentional. No backfill was designed for them (per Sprint 1I decision). If a club wants subcategory detail on an old evaluation, they re-open it and rate the subs.
-- Epic 2 (statistics) will need new chart primitives for showing subcategory trends over time. Designed for, not built yet.
+No data was lost. The safeguards built in 2.10.1 (migration throws on partial failure, no deletion before retargeting succeeds) paid for themselves this time.

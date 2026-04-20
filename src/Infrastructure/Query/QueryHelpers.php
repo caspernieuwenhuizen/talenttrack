@@ -176,7 +176,7 @@ class QueryHelpers {
                 "SELECT r.*,
                         c.label      AS category_name,
                         c.parent_id  AS category_parent_id,
-                        c.`key`      AS category_key
+                        c.category_key AS category_key
                  FROM {$p}tt_eval_ratings r
                  LEFT JOIN {$p}tt_eval_categories c ON r.category_id = c.id
                  WHERE r.evaluation_id = %d

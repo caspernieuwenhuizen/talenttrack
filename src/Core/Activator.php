@@ -36,6 +36,15 @@ class Activator {
     public static function activate(): void {
         ( new RolesService() )->installRoles();
 
+        // v2.12.1: repair the tt_eval_categories table before ensureSchema
+        // creates its real shape. Needed for sites where the 2.12.0 schema
+        // ran through dbDelta and silently dropped the `key` column (a MySQL
+        // reserved word). The routine detects the corrupt state and drops
+        // the table so ensureSchema below can recreate it with the new
+        // column name (category_key). Idempotent: no-op if the table has
+        // the expected shape or doesn't exist yet.
+        self::repairEvalCategoriesTableIfCorrupt();
+
         self::ensureSchema();
         self::relaxLegacyConstraints();
         self::backfillAttendanceStatus();
@@ -290,13 +299,15 @@ class Activator {
 
         /* ─── Evaluation categories (v2.12.0) ─── */
         // First-class hierarchy: main categories have parent_id IS NULL,
-        // subcategories point at their parent's id. The `key` column is
-        // a stable slug like 'technical_short_pass' — translations live in
-        // the .po file keyed by label, while `key` stays constant.
+        // subcategories point at their parent's id. The `category_key`
+        // column is a stable slug like 'technical_short_pass' — translations
+        // live in the .po file keyed by label, while category_key stays
+        // constant. v2.12.1: renamed from `key` (which is a MySQL reserved
+        // word that dbDelta silently dropped on some hosts) to category_key.
         $queries[] = "CREATE TABLE {$p}tt_eval_categories (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             parent_id BIGINT UNSIGNED NULL,
-            `key` VARCHAR(64) NOT NULL,
+            category_key VARCHAR(64) NOT NULL,
             label VARCHAR(255) NOT NULL,
             description TEXT,
             display_order INT DEFAULT 0,
@@ -305,7 +316,7 @@ class Activator {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
-            UNIQUE KEY uniq_key (`key`),
+            UNIQUE KEY uniq_category_key (category_key),
             KEY idx_parent (parent_id),
             KEY idx_active (is_active)
         ) $c;";
@@ -701,12 +712,12 @@ class Activator {
         foreach ( $mains as $m ) {
             [ $key, $label, $description, $display_order ] = $m;
             $exists = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE `key` = %s", $key
+                "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE category_key = %s", $key
             ) );
             if ( $exists > 0 ) continue;
             $wpdb->insert( "{$p}tt_eval_categories", [
                 'parent_id'     => null,
-                'key'           => $key,
+                'category_key'  => $key,
                 'label'         => $label,
                 'description'   => $description,
                 'display_order' => $display_order,
@@ -742,22 +753,104 @@ class Activator {
         foreach ( $subs as $s ) {
             [ $parent_key, $key, $label, $display_order ] = $s;
             $parent_id = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_eval_categories WHERE `key` = %s", $parent_key
+                "SELECT id FROM {$p}tt_eval_categories WHERE category_key = %s", $parent_key
             ) );
             if ( $parent_id <= 0 ) continue;
             $exists = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE `key` = %s", $key
+                "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE category_key = %s", $key
             ) );
             if ( $exists > 0 ) continue;
             $wpdb->insert( "{$p}tt_eval_categories", [
                 'parent_id'     => $parent_id,
-                'key'           => $key,
+                'category_key'  => $key,
                 'label'         => $label,
                 'description'   => null,
                 'display_order' => $display_order,
                 'is_active'     => 1,
                 'is_system'     => 1,
             ] );
+        }
+    }
+
+    /**
+     * v2.12.1 — repair a corrupt tt_eval_categories table.
+     *
+     * Background: v2.12.0 defined the tt_eval_categories schema with a
+     * column literally named `key`, which is a MySQL reserved word.
+     * dbDelta on some hosts (including Strato / MariaDB 10.x) silently
+     * dropped that column when creating the table, leaving the table
+     * in an unusable state for migration 0008.
+     *
+     * On affected sites the table has the wrong columns and may contain
+     * a few stray rows from dbDelta's attempts to reconcile the
+     * mismatched schema. This routine:
+     *
+     *   1. Returns immediately if the table doesn't exist (fresh install).
+     *   2. Returns immediately if the table has the expected category_key
+     *      column (healthy state — already on 2.12.1 schema).
+     *   3. Otherwise, the table is corrupt. We DROP it so the ensureSchema
+     *      call right after us recreates it cleanly with the new column
+     *      name. This is safe because:
+     *         a) migration 0008 never completed (we know — any applied
+     *            state would have already used the corrupt schema's IDs,
+     *            which would be a bigger problem than this routine solves)
+     *         b) no tt_eval_ratings rows reference tt_eval_categories IDs
+     *            on corrupt sites — they still point at the old tt_lookups
+     *            IDs. Verified before this code shipped.
+     *
+     * Safety guard: if any tt_eval_ratings row DOES reference an id in
+     * the current (corrupt) tt_eval_categories table, the routine aborts
+     * the drop and logs a warning instead of destroying the references.
+     * Admins with such a site should contact support — it's unexpected
+     * enough that we don't want to handle it silently.
+     *
+     * Idempotent. No-op on healthy schemas. No-op on fresh installs.
+     */
+    private static function repairEvalCategoriesTableIfCorrupt(): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        // 1. Does the table exist?
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', "{$p}tt_eval_categories" ) ) !== "{$p}tt_eval_categories" ) {
+            return;
+        }
+
+        // 2. Does it have the new column? If yes, we're on the 2.12.1
+        //    schema already — nothing to repair.
+        $has_new_column = $wpdb->get_row( $wpdb->prepare(
+            "SHOW COLUMNS FROM {$p}tt_eval_categories LIKE %s",
+            'category_key'
+        ) );
+        if ( $has_new_column !== null ) {
+            return;
+        }
+
+        // 3. Safety guard: refuse to drop if tt_eval_ratings is referencing
+        //    IDs in this table. Shouldn't happen on any site that hit the
+        //    original 2.12.0 bug (the migration throws before retargeting
+        //    ratings), but if somehow it has, we stop rather than break
+        //    referential integrity.
+        $referencing = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$p}tt_eval_ratings r
+             INNER JOIN {$p}tt_eval_categories c ON r.category_id = c.id"
+        );
+        if ( $referencing > 0 ) {
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log( sprintf(
+                    '[TalentTrack 2.12.1] repairEvalCategoriesTableIfCorrupt: refusing to drop tt_eval_categories — %d tt_eval_ratings rows reference it. Manual intervention required.',
+                    $referencing
+                ) );
+            }
+            return;
+        }
+
+        // 4. Drop the corrupt table. ensureSchema (called immediately after
+        //    this routine in activate()) will recreate it with the new
+        //    column name via dbDelta.
+        $wpdb->query( "DROP TABLE IF EXISTS {$p}tt_eval_categories" );
+
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( '[TalentTrack 2.12.1] repairEvalCategoriesTableIfCorrupt: dropped corrupt tt_eval_categories table; ensureSchema will recreate.' );
         }
     }
 

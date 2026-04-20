@@ -101,7 +101,7 @@ class EvalCategoriesPage {
                                 <a href="<?php echo esc_url( $main_edit_url ); ?>"><?php echo esc_html( (string) $main->label ); ?></a>
                             </strong>
                         </td>
-                        <td><code><?php echo esc_html( (string) $main->key ); ?></code></td>
+                        <td><code><?php echo esc_html( (string) $main->category_key ); ?></code></td>
                         <td><?php echo (int) $main->display_order; ?></td>
                         <td>
                             <?php if ( (int) $main->is_system === 1 ) : ?>
@@ -141,7 +141,7 @@ class EvalCategoriesPage {
                                 <span style="color:#999;">↳</span>
                                 <a href="<?php echo esc_url( $sub_edit_url ); ?>"><?php echo esc_html( (string) $sub->label ); ?></a>
                             </td>
-                            <td><code><?php echo esc_html( (string) $sub->key ); ?></code></td>
+                            <td><code><?php echo esc_html( (string) $sub->category_key ); ?></code></td>
                             <td><?php echo (int) $sub->display_order; ?></td>
                             <td>
                                 <?php if ( (int) $sub->is_system === 1 ) : ?>
@@ -199,7 +199,7 @@ class EvalCategoriesPage {
         }
 
         $label       = $cat ? (string) $cat->label : '';
-        $key         = $cat ? (string) $cat->key   : '';
+        $key         = $cat ? (string) $cat->category_key : '';
         $description = $cat ? (string) ( $cat->description ?? '' ) : '';
         $display_order = $cat ? (int) $cat->display_order : 10;
         $is_active   = $cat ? (bool) $cat->is_active : true;
@@ -256,7 +256,7 @@ class EvalCategoriesPage {
                     <tr>
                         <th><label for="tt_evc_key"><?php esc_html_e( 'Key', 'talenttrack' ); ?></label></th>
                         <td>
-                            <input type="text" name="key" id="tt_evc_key" class="regular-text"
+                            <input type="text" name="category_key" id="tt_evc_key" class="regular-text"
                                    value="<?php echo esc_attr( $key ); ?>"
                                    <?php echo $cat ? 'readonly' : ''; ?> />
                             <p class="description">
@@ -343,7 +343,7 @@ class EvalCategoriesPage {
         $id            = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
         $parent_id     = isset( $_POST['parent_id'] ) ? absint( $_POST['parent_id'] ) : 0;
         $label         = isset( $_POST['label'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['label'] ) ) : '';
-        $key           = isset( $_POST['key'] ) ? sanitize_key( wp_unslash( (string) $_POST['key'] ) ) : '';
+        $key           = isset( $_POST['category_key'] ) ? sanitize_key( wp_unslash( (string) $_POST['category_key'] ) ) : '';
         $description   = isset( $_POST['description'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['description'] ) ) : '';
         $display_order = isset( $_POST['display_order'] ) ? (int) $_POST['display_order'] : 10;
         $is_active     = ! empty( $_POST['is_active'] );
@@ -355,7 +355,7 @@ class EvalCategoriesPage {
         $repo = new EvalCategoriesRepository();
 
         if ( $id > 0 ) {
-            // Update — key and parent are locked by the repository.
+            // Update — category_key and parent are locked by the repository.
             $ok = $repo->update( $id, [
                 'label'         => $label,
                 'description'   => $description,
@@ -381,7 +381,7 @@ class EvalCategoriesPage {
 
             $new_id = $repo->create( [
                 'parent_id'     => $parent_id > 0 ? $parent_id : null,
-                'key'           => $key,
+                'category_key'  => $key,
                 'label'         => $label,
                 'description'   => $description,
                 'display_order' => $display_order,
