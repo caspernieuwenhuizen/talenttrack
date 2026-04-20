@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Configuration\Admin\ConfigurationPage;
 use TT\Modules\Configuration\Admin\CustomFieldsPage;
 use TT\Modules\Documentation\Admin\DocumentationPage;
+use TT\Modules\Evaluations\Admin\EvalCategoriesPage;
 use TT\Modules\Evaluations\Admin\EvaluationsPage;
 use TT\Modules\Goals\Admin\GoalsPage;
 use TT\Modules\Players\Admin\PlayersPage;
@@ -38,6 +39,7 @@ class Menu {
         add_submenu_page( 'talenttrack', __( 'Reports', 'talenttrack' ), __( 'Reports', 'talenttrack' ), 'tt_view_reports', 'tt-reports', [ ReportsPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Configuration', 'talenttrack' ), __( 'Configuration', 'talenttrack' ), 'tt_manage_settings', 'tt-config', [ ConfigurationPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Custom Fields', 'talenttrack' ), __( 'Custom Fields', 'talenttrack' ), 'tt_manage_settings', 'tt-custom-fields', [ CustomFieldsPage::class, 'render' ] );
+        add_submenu_page( 'talenttrack', __( 'Evaluation Categories', 'talenttrack' ), __( 'Evaluation Categories', 'talenttrack' ), 'tt_manage_settings', 'tt-eval-categories', [ EvalCategoriesPage::class, 'render' ] );
         add_submenu_page( 'talenttrack', __( 'Help & Docs', 'talenttrack' ), __( 'Help & Docs', 'talenttrack' ), 'read', 'tt-docs', [ DocumentationPage::class, 'render_page' ] );
     }
 

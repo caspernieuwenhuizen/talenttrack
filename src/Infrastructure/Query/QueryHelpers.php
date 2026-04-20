@@ -72,7 +72,12 @@ class QueryHelpers {
 
     /** @return object[] */
     public static function get_categories(): array {
-        $cats = self::get_lookups( 'eval_category' );
+        // v2.12.0: main evaluation categories migrated out of tt_lookups
+        // into the dedicated tt_eval_categories table. This method keeps
+        // the pre-2.12 return shape (->id, ->name, ->description, ->sort_order)
+        // so existing consumers don't need to change.
+        $repo = new \TT\Infrastructure\Evaluations\EvalCategoriesRepository();
+        $cats = $repo->getMainCategoriesLegacyShape();
         /** @var object[] $filtered */
         $filtered = apply_filters( 'tt_modify_categories', $cats );
         return $filtered;
@@ -163,11 +168,21 @@ class QueryHelpers {
             $tm = json_decode( (string) ( $eval->type_meta ?? '{}' ), true ) ?: [];
             $eval->requires_match_details = ! empty( $tm['requires_match_details'] );
             $eval->ratings = $wpdb->get_results( $wpdb->prepare(
-                "SELECT r.*, lc.name AS category_name
+                // v2.12.0: category metadata now lives in tt_eval_categories.
+                // The JOIN exposes `category_name` (from tt_eval_categories.label),
+                // `parent_id` (so consumers can tell main-vs-sub), and
+                // `category_key` for stable identifiers. sort_order is
+                // display_order from the new table.
+                "SELECT r.*,
+                        c.label      AS category_name,
+                        c.parent_id  AS category_parent_id,
+                        c.`key`      AS category_key
                  FROM {$p}tt_eval_ratings r
-                 LEFT JOIN {$p}tt_lookups lc ON r.category_id = lc.id AND lc.lookup_type = 'eval_category'
-                 WHERE r.evaluation_id = %d ORDER BY lc.sort_order ASC", $id
-            ));
+                 LEFT JOIN {$p}tt_eval_categories c ON r.category_id = c.id
+                 WHERE r.evaluation_id = %d
+                 ORDER BY c.parent_id IS NULL DESC, c.display_order ASC",
+                $id
+            ) );
         }
         return $eval;
     }

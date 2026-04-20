@@ -36,11 +36,12 @@ class FormSlugContract {
      */
     public static function slugsForEntity( string $entity ): array {
         switch ( $entity ) {
-            case CustomFieldsRepository::ENTITY_PLAYER:  return self::playerSlugs();
-            case CustomFieldsRepository::ENTITY_PERSON:  return self::personSlugs();
-            case CustomFieldsRepository::ENTITY_TEAM:    return self::teamSlugs();
-            case CustomFieldsRepository::ENTITY_SESSION: return self::sessionSlugs();
-            case CustomFieldsRepository::ENTITY_GOAL:    return self::goalSlugs();
+            case CustomFieldsRepository::ENTITY_PLAYER:     return self::playerSlugs();
+            case CustomFieldsRepository::ENTITY_PERSON:     return self::personSlugs();
+            case CustomFieldsRepository::ENTITY_TEAM:       return self::teamSlugs();
+            case CustomFieldsRepository::ENTITY_SESSION:    return self::sessionSlugs();
+            case CustomFieldsRepository::ENTITY_GOAL:       return self::goalSlugs();
+            case CustomFieldsRepository::ENTITY_EVALUATION: return self::evaluationSlugs();
         }
         return [];
     }
@@ -110,6 +111,22 @@ class FormSlugContract {
             'status'      => __( 'Status', 'talenttrack' ),
             'priority'    => __( 'Priority', 'talenttrack' ),
             'due_date'    => __( 'Due date', 'talenttrack' ),
+        ];
+    }
+
+    private static function evaluationSlugs(): array {
+        // v2.12.0 — Evaluations got custom-field support in Sprint 1I.
+        // The ratings grid is NOT a slug (it's its own UI, not a "field").
+        return [
+            'player_id'      => __( 'Player', 'talenttrack' ),
+            'eval_type_id'   => __( 'Evaluation type', 'talenttrack' ),
+            'eval_date'      => __( 'Evaluation date', 'talenttrack' ),
+            'opponent'       => __( 'Opponent', 'talenttrack' ),
+            'competition'    => __( 'Competition', 'talenttrack' ),
+            'match_result'   => __( 'Match result', 'talenttrack' ),
+            'home_away'      => __( 'Home/Away', 'talenttrack' ),
+            'minutes_played' => __( 'Minutes played', 'talenttrack' ),
+            'notes'          => __( 'Notes', 'talenttrack' ),
         ];
     }
 }

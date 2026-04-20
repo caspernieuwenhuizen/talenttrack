@@ -33,9 +33,8 @@ class ConfigurationPage {
     }
 
     public static function render_page(): void {
-        $tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tab'] ) ) : 'eval_categories';
+        $tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tab'] ) ) : 'eval_types';
         $tabs = [
-            'eval_categories' => __( 'Evaluation Categories', 'talenttrack' ),
             'eval_types'      => __( 'Evaluation Types', 'talenttrack' ),
             'positions'       => __( 'Positions', 'talenttrack' ),
             'foot_options'    => __( 'Preferred Foot', 'talenttrack' ),
@@ -48,6 +47,14 @@ class ConfigurationPage {
             'toggles'         => __( 'Feature Toggles', 'talenttrack' ),
             'audit'           => __( 'Audit Log', 'talenttrack' ),
         ];
+
+        // v2.12.0: eval_categories retired as a Configuration tab — it now
+        // lives at TalentTrack → Evaluation Categories (top-level, supports
+        // hierarchy). Redirect anyone bookmarked on the old URL.
+        if ( $tab === 'eval_categories' ) {
+            wp_safe_redirect( admin_url( 'admin.php?page=tt-eval-categories' ) );
+            exit;
+        }
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'TalentTrack Configuration', 'talenttrack' ); ?></h1>
@@ -65,7 +72,6 @@ class ConfigurationPage {
             <div style="margin-top:20px;">
             <?php
             switch ( $tab ) {
-                case 'eval_categories': self::tab_lookup( 'eval_category', __( 'Evaluation Category', 'talenttrack' ), true, true ); break;
                 case 'eval_types':      self::tab_eval_types(); break;
                 case 'positions':       self::tab_lookup( 'position', __( 'Position', 'talenttrack' ), false, false ); break;
                 case 'foot_options':    self::tab_lookup( 'foot_option', __( 'Foot Option', 'talenttrack' ), false, false ); break;
@@ -398,8 +404,10 @@ class ConfigurationPage {
     }
 
     private static function tab_key_for_type( string $type ): string {
+        // v2.12.0: eval_category removed — main categories live in
+        // tt_eval_categories now, managed on a dedicated admin page.
         $map = [
-            'eval_category' => 'eval_categories', 'eval_type' => 'eval_types',
+            'eval_type' => 'eval_types',
             'position' => 'positions', 'foot_option' => 'foot_options',
             'age_group' => 'age_groups', 'goal_status' => 'goal_statuses',
             'goal_priority' => 'goal_priorities', 'attendance_status' => 'att_statuses',

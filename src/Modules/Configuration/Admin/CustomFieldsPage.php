@@ -444,6 +444,7 @@ another|Another label"><?php echo esc_textarea( self::optionsToText( $options ) 
             CustomFieldsRepository::ENTITY_TEAM,
             CustomFieldsRepository::ENTITY_SESSION,
             CustomFieldsRepository::ENTITY_GOAL,
+            CustomFieldsRepository::ENTITY_EVALUATION,
         ];
         ?>
         <nav class="nav-tab-wrapper" style="margin-top:12px;">
@@ -461,11 +462,12 @@ another|Another label"><?php echo esc_textarea( self::optionsToText( $options ) 
 
     public static function entityLabel( string $entity ): string {
         switch ( $entity ) {
-            case CustomFieldsRepository::ENTITY_PLAYER:  return __( 'Players', 'talenttrack' );
-            case CustomFieldsRepository::ENTITY_PERSON:  return __( 'People', 'talenttrack' );
-            case CustomFieldsRepository::ENTITY_TEAM:    return __( 'Teams', 'talenttrack' );
-            case CustomFieldsRepository::ENTITY_SESSION: return __( 'Sessions', 'talenttrack' );
-            case CustomFieldsRepository::ENTITY_GOAL:    return __( 'Goals', 'talenttrack' );
+            case CustomFieldsRepository::ENTITY_PLAYER:     return __( 'Players', 'talenttrack' );
+            case CustomFieldsRepository::ENTITY_PERSON:     return __( 'People', 'talenttrack' );
+            case CustomFieldsRepository::ENTITY_TEAM:       return __( 'Teams', 'talenttrack' );
+            case CustomFieldsRepository::ENTITY_SESSION:    return __( 'Sessions', 'talenttrack' );
+            case CustomFieldsRepository::ENTITY_GOAL:       return __( 'Goals', 'talenttrack' );
+            case CustomFieldsRepository::ENTITY_EVALUATION: return __( 'Evaluations', 'talenttrack' );
         }
         return ucfirst( $entity );
     }

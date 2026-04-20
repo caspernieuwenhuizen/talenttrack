@@ -1,121 +1,197 @@
-# TalentTrack v2.11.0 — Sprint 1H: Custom fields framework
+# TalentTrack v2.12.0 — Sprint 1I: Evaluation subcategories + Evaluations custom fields
 
 ## What this release does
 
-Lets a club admin define custom fields on any of five entities (Players, People, Teams, Sessions, Goals) and place each field at an arbitrary position on that entity's edit form — between two native fields, right after a specific native field, or at the end of the form.
+Evaluations get a two-level hierarchy. Each main category (Technical, Tactical, Physical, Mental by default) can have subcategories (Short pass, Long pass, Shooting, etc.) that a coach can rate individually. Per your either/or design, the coach picks per main category whether to rate the main directly OR drill into subcategories — the form lets them switch with a single click.
 
-Before 2.11.0, custom fields existed only for Players, as a fixed "Additional Fields" block at the bottom of the edit page. The feature had a working foundation (`tt_custom_fields` and `tt_custom_values` tables from v2.6.0, a `CustomFieldRenderer` and `CustomFieldValidator` already wired into `PlayersPage`) but never got further.
+The Evaluations entity also picks up the full custom-fields machinery from Sprint 1H, so club admins can now add custom fields to the evaluation form just like Players/Teams/Sessions/Goals/People already support.
 
-2.11.0 generalizes what was there, extends it with five more field types and four more entities, and lets admins position fields wherever they want on the form.
+## The either/or rating model
 
-## What's new for end users
+For any given (evaluation, main category), there are three possible states:
 
-**TalentTrack → Custom Fields** — a new top-level admin page. Pick the entity from a tab bar (Players / People / Teams / Sessions / Goals), see the list of defined custom fields for that entity, add or edit fields.
+1. **Direct rating only.** Coach entered a number for the main (e.g. Technical = 4). No subcategory ratings for that main. Display shows the direct number.
+2. **Subcategory ratings only.** Coach entered numbers for one or more subcategories (e.g. Short pass = 4, Long pass = 3, First touch = 5). The main's "effective" rating is **computed on read** as the mean of those subs — it's not stored as a separate row. Display shows the computed number with an "(averaged from 3 subcategories)" suffix and lists the sub ratings beneath.
+3. **Neither.** Main isn't rated at all.
 
-Each custom field now has:
+A coach can mix modes across categories on a single evaluation — e.g. Technical in subcategory mode, Tactical in direct mode, Physical in direct mode, Mental skipped.
 
-- **Type** — one of text, long text (textarea), number, date, select (dropdown), multi-select, checkbox, URL, email, phone. Type is chosen at creation and can't be changed afterward (changing a field's type mid-life would corrupt stored data).
-- **Insert after** — a dropdown listing every native field slug for the target entity, plus "(at end of form)". The chosen slug decides where on the edit form the custom field appears.
-- **Sort order** — tiebreaker when two custom fields target the same "Insert after" slug. Lower renders first.
-- **Required** flag — validated on save with a per-field error message.
-- **Options** (for select and multi-select) — one line per option, `value|Label` syntax.
-
-Existing custom fields from pre-2.11.0 installs continue to work. They retain their `sort_order` but have `insert_after = NULL`, which renders them at the end of the form (same position as before). Admins can open each existing field and re-position it if desired.
-
-## What's new for developers
-
-Three new framework pieces, all entity-agnostic:
-
-- **`FormSlugContract`** (`src/Modules/Configuration/Admin/`) — the single source of truth for native-field slugs per entity type. Each entity publishes an ordered `[slug => label]` map. Powers the "Insert after" dropdown on the admin page AND the slot positioning at render time.
-- **`CustomFieldsSlot`** (`src/Infrastructure/CustomFields/`) — the form-injection point. Each entity's edit page calls `CustomFieldsSlot::render( $entity, $id, $slug )` after each native `<tr>` row. Fields with `insert_after` matching the slug render inline. At the bottom of the form, `CustomFieldsSlot::renderAppend()` picks up fields with `insert_after IS NULL`.
-- **`CustomFieldValidator::persistFromPost()`** — new static entry point that combines validate + upsert for save handlers. Each module's save handler now calls this once after the native save succeeds. Validation errors accumulate but do not undo the native save — the save handler redirects with a `tt_cf_error` query flag which the edit form renders as a warning notice.
-
-The existing `TT\Shared\Frontend\CustomFieldRenderer` was extended with support for the five new field types (textarea, multi_select, url, email, phone) and a new `inputRow()` convenience that produces the full `<tr><th>…</th><td>…</td></tr>` wrapper for WP-admin `.form-table` layouts. The existing `input()` and `display()` methods keep working for anyone rendering in other contexts.
-
-The existing `TT\Shared\Validation\CustomFieldValidator` was rewritten to cover all ten field types and to distinguish "field wasn't on this form" (skip — don't touch stored value) from "field was on the form but submitted empty" (clear). The latter matters for multi-select, where no checkbox ticked means "clear"; the form emits a hidden marker input so the save layer can tell the two cases apart.
-
-The old `Infrastructure\CustomFields\CustomFieldRenderer` + `CustomValuesService` files that early drafts of this sprint created were removed — maintaining two parallel systems would have been a nightmare. Everything flows through `Shared\Frontend\CustomFieldRenderer` and `Shared\Validation\CustomFieldValidator` now.
-
-The old player-only `CustomFieldsTab` (configuration sub-tab) was retired. Its handlers were renamed into `CustomFieldsPage` under a new admin menu entry.
-
-## Bugs fixed along the way
-
-**`GoalsPage::handle_save()` didn't capture `$wpdb->insert_id` on new goal creation.** Pre-existing since v2.6.x. Any post-save integration that needed the new goal's ID (audit log, downstream hooks, and now custom fields) silently no-op'd on create. The 2.11.0 save handler captures `$id = (int) $wpdb->insert_id` after a successful insert. Existing goals are unaffected.
+Switching modes on the form discards the other mode's inputs silently (per the Sprint 1I design decision — the UI mode is the authoritative signal, no modal). The `tt_rating_mode[<main_id>]` hidden input tracks UI state per main and the save handler reads ratings from whichever bucket the mode points to.
 
 ## Schema changes
 
-Additive, non-destructive.
+Two schema changes in this release, both additive, both non-destructive.
 
-- `tt_custom_fields.insert_after VARCHAR(64) NULL` — the positioning slug. NULL means "append at end".
-- `idx_insert_after (entity_type, insert_after)` — index on the new column. Speeds up the slot lookup performed on every form render.
+### New table: `tt_eval_categories`
 
-Migration `0007_custom_fields_positioning.php` applies both changes with idempotent helpers. Per the v2.10.1 learning, this uses explicit ALTER and checks for pre-existing column/index — no `dbDelta` surprises.
+Replaces the `lookup_type='eval_category'` rows in `tt_lookups`. Supports hierarchy via `parent_id` (nullable, self-referencing). Columns:
 
-`Activator::ensureSchema()` has been updated to match so fresh installs get the column from the beginning.
+```
+id             BIGINT UNSIGNED  PK
+parent_id      BIGINT UNSIGNED  NULL   — main categories have NULL; subs point at their main
+key            VARCHAR(64)      UNIQUE — stable identifier like 'technical_short_pass'
+label          VARCHAR(255)             — display name (translatable via .po)
+description    TEXT             NULL
+display_order  INT              DEFAULT 0
+is_active      TINYINT(1)       DEFAULT 1
+is_system      TINYINT(1)       DEFAULT 0  — canonical system categories can be renamed but not deleted
+created_at     DATETIME
+updated_at     DATETIME
+```
 
-## UI changes per entity
+Indexes: `uniq_key`, `idx_parent`, `idx_active`.
 
-Native forms for Players, People, Teams, Sessions, and Goals now call `CustomFieldsSlot::render()` after every native field, and `renderAppend()` at the bottom of the form. The slug names exactly match what the "Insert after" dropdown offers. Forms without any custom fields render identically to pre-2.11.0.
+### Extended: `tt_custom_fields` accepts `ENTITY_EVALUATION`
 
-For Players, the "Additional Fields" block at the bottom of the edit form was removed — custom fields are now rendered via the slot mechanism throughout the form. The detail/view page uses `CustomFieldsSlot::renderReadonly()` which outputs an "Additional information" section showing only fields with non-empty values.
+No table change — the `entity_type` column was already a free-form `VARCHAR(50)`. The extension is purely in the domain layer (added `ENTITY_EVALUATION = 'evaluation'` constant + updated `allowedEntityTypes()`) plus the `FormSlugContract::evaluationSlugs()` map that drives the "Insert after" dropdown.
 
-For Teams, Sessions, Goals, and People, custom field values show up directly on the edit form (you see them as inputs when editing). None of these have a standalone detail view, so there's no separate readonly rendering.
+## Migration 0008
 
-## Scope boundaries
+`0008_eval_categories_hierarchy.php` — handles the lookup-to-new-table transition idempotently:
 
-What's explicitly NOT in 2.11.0:
+1. **Creates** `tt_eval_categories` if missing.
+2. **Copies** every `lookup_type='eval_category'` row from `tt_lookups` into `tt_eval_categories` as a main category (parent_id IS NULL). Builds an `old_lookup_id → new_category_id` remap while copying. `is_system=1` is set only for the canonical four keys (`technical`, `tactical`, `physical`, `mental`) — admin-added categories migrate as `is_system=0`.
+3. **Retargets** every `tt_eval_ratings.category_id` from its old lookup ID to the new category ID. Rows whose category_id already points at a new-table row (re-run scenario) are counted as already-retargeted.
+4. **Seeds** 21 subcategories as children of the canonical four main categories. Idempotent — skipped if a subcategory with the same key already exists or if its parent main category has been renamed/deleted.
+5. **Deletes** the old `lookup_type='eval_category'` rows from `tt_lookups` — but **only if** every rating successfully retargeted. If any orphan remains, the migration throws `RuntimeException` leaving the old lookup rows in place so no data is silently dropped.
 
-- **Custom fields on Evaluations** — ships in 2.12.0 (Sprint 1I) alongside the evaluation subcategory work. Doing both at once on the same form is cleaner than doing it twice in consecutive sprints.
-- **Drag-and-drop reorder** of custom fields within an "Insert after" group. Sort-order numeric input works today; drag-and-drop can come later.
-- **Search/filter** on list pages by custom field values. Not in scope. Edit pages show values; detail pages show values; list pages still show only the native columns.
-- **Custom fields in the REST API** response. Not touched this sprint.
-- **File upload, rich text, repeater field types.** The ten types shipped cover 99% of real-world use; the remaining types are each their own project.
-- **Audit log of custom value writes.** `tt_audit_log` doesn't capture `tt_custom_values` writes in 2.11.0.
+Safe to re-run; safe to fail half-way; additive to any rows an admin already created in the new table. Existing evaluations keep working throughout — their `tt_eval_ratings.category_id` values get retargeted during the migration and the JOIN in `QueryHelpers::get_evaluation()` now hits the new table.
+
+## Seed data
+
+On fresh installs, `Activator::seedEvalCategoriesIfEmpty()` populates the new table with:
+
+- **4 main categories**: Technical, Tactical, Physical, Mental (all with `is_system=1`)
+- **21 subcategories**:
+  - **Technical** (6): Short pass, Long pass, First touch, Dribbling, Shooting, Heading
+  - **Tactical** (5): Offensive positioning, Defensive positioning, Game reading, Decision making, Off-ball movement
+  - **Physical** (5): Speed, Endurance, Strength, Agility, Coordination
+  - **Mental** (5): Focus, Leadership, Attitude, Resilience, Coachability
+
+All 25 seed entries have Dutch translations in `talenttrack-nl_NL.po`. Clubs can deactivate the ones they don't use, add their own, or rename any of them (keys stay stable — labels are free to change).
+
+This seed routine also runs on every activation and is idempotent. If migration 0008 successfully ran but an admin had deleted the canonical main categories beforehand, the seed routine will re-create them — the seed never overwrites existing entries.
+
+## New admin page: TalentTrack → Evaluation Categories
+
+Replaces the old "Evaluation Categories" tab that lived under Configuration. The old tab couldn't express parent/child relationships; the new page is a dedicated tree view.
+
+- Main categories render as header rows with a subtle background.
+- Each main has its subcategories indented directly underneath with a `↳` prefix.
+- "Add main category" button at the top of the page.
+- "Add sub" link on each main row for adding subcategories under that specific parent.
+- Edit/Activate/Deactivate inline on every row.
+- Display order is a numeric field on the edit form (drag-and-drop deferred — convention is to use increments of 10 so new items can be inserted between existing ones).
+- System categories are marked with a ✓ and can be renamed/deactivated but not deleted (no Delete action is exposed for them).
+
+Anyone with a bookmark to the old Configuration tab URL (`?page=tt-config&tab=eval_categories`) gets redirected to the new page.
+
+## Compute-on-read rollup
+
+When a coach rates subcategories without entering a direct main rating, the main's effective rating is computed by `EvalRatingsRepository::effectiveMainRating($eval_id, $main_cat_id)`. Return shape:
+
+```php
+[ 'value' => float|null, 'source' => 'direct'|'computed'|'none', 'sub_count' => int ]
+```
+
+- `direct` — coach entered a main rating, returned as-is (sub_count is 0)
+- `computed` — no direct rating, mean of sub_count subcategory ratings
+- `none` — neither present, value is null
+
+This is what the evaluation detail page calls to display ratings, and what the radar chart feeds off. Epic 2 (statistics) will call this everywhere too so charts don't need to know which mode a given evaluation used.
+
+No computed rollup row is ever written to `tt_eval_ratings` — the table stores only what was entered. The rollup materializes only at read time. Means no staleness, no need to recompute when subcategories change, one source of truth.
+
+## Custom fields on Evaluations
+
+Mechanically identical to Sprint 1H's five other entities. Specifically:
+
+- `FormSlugContract::evaluationSlugs()` returns 9 native slugs: `player_id`, `eval_type_id`, `eval_date`, `opponent`, `competition`, `match_result`, `home_away`, `minutes_played`, `notes`.
+- The Evaluations admin form calls `CustomFieldsSlot::render()` after each native field and `renderAppend()` at the end of the form.
+- `CustomFieldValidator::persistFromPost(ENTITY_EVALUATION, $id, $_POST)` persists values after the native save.
+- Detail view calls `CustomFieldsSlot::renderReadonly(ENTITY_EVALUATION, $id)` below the ratings table.
+- `tt_cf_error` query flag triggers a warning notice on the edit form when a CF validation error happened.
+- TalentTrack → Custom Fields now has an "Evaluations" entity tab alongside the existing five.
+
+The ratings grid is explicitly NOT part of the slug contract — it's its own UI section, not a "field". Custom fields anchor to the native form fields around it.
+
+## Call-site redirects (from `tt_lookups` to `tt_eval_categories`)
+
+Six places that read `lookup_type='eval_category'` were rewired to the new table:
+
+1. `QueryHelpers::get_categories()` — now delegates to `EvalCategoriesRepository::getMainCategoriesLegacyShape()` which returns objects with the same fields (`->id`, `->name`, `->description`, `->sort_order`) the old lookup rows had. Existing callers of `get_categories()` don't need to change.
+2. `QueryHelpers::get_evaluation()` — the ratings JOIN now hits `tt_eval_categories` instead of `tt_lookups`, and the query exposes `->category_parent_id` and `->category_key` on each rating for hierarchy-aware consumers.
+3. `ConfigurationPage` — the `eval_categories` tab is gone from the tabs list and the switch. Old bookmarks redirect to `page=tt-eval-categories`.
+4. `ConfigurationPage::tab_key_for_type()` — `eval_category` entry removed from the map.
+5. `Activator::seedDefaultsIfEmpty()` — no longer seeds `eval_category` rows into `tt_lookups`. Delegates to `seedEvalCategoriesIfEmpty()`.
+6. The Evaluations form and detail view — fully rewritten to use the hierarchy-aware repositories.
+
+## The legacy-shape shim
+
+`EvalCategoriesRepository::getMainCategoriesLegacyShape()` exists specifically to keep `QueryHelpers::get_categories()` stable for any caller (including third-party code using the `tt_modify_categories` filter hook). The method returns main categories as plain objects with the pre-2.12 field names (`->name`, `->sort_order`, `->description`). New code should prefer `getMainCategories()` or `getTree()`, which expose the full new column set (`->label`, `->display_order`, `->key`, `->parent_id`, etc.).
 
 ## Files in this release
 
 ### New
-- `src/Modules/Configuration/Admin/CustomFieldsPage.php` — top-level admin page
-- `src/Modules/Configuration/Admin/FormSlugContract.php` — native slug map per entity
-- `src/Infrastructure/CustomFields/CustomFieldsSlot.php` — form injection point
-- `database/migrations/0007_custom_fields_positioning.php` — schema migration
+- `src/Infrastructure/Evaluations/EvalCategoriesRepository.php`
+- `src/Infrastructure/Evaluations/EvalRatingsRepository.php`
+- `src/Modules/Evaluations/Admin/EvalCategoriesPage.php`
+- `database/migrations/0008_eval_categories_hierarchy.php`
 
 ### Modified
-- `talenttrack.php` — version 2.11.0
-- `src/Core/Activator.php` — `ensureSchema()` adds `insert_after` + `idx_insert_after`
-- `src/Infrastructure/CustomFields/CustomFieldsRepository.php` — five entity constants, ten type constants, `allowedEntityTypes()`, `typeIsMulti()`, `insert_after` in `normalise()`, new `getActiveGroupedByInsertAfter()`
-- `src/Infrastructure/CustomFields/CustomValuesRepository.php` — `castForOutput()` handles multi_select
-- `src/Shared/Frontend/CustomFieldRenderer.php` — 10 types, new `inputRow()` method
-- `src/Shared/Validation/CustomFieldValidator.php` — 10 types, `persistFromPost()` entry point
-- `src/Modules/Configuration/Admin/ConfigurationPage.php` — dropped `custom_fields` tab + switch case; wired new handlers in `init()`
-- `src/Shared/Admin/Menu.php` — added "Custom Fields" submenu
-- `src/Modules/Players/Admin/PlayersPage.php` — slot calls at every native slug, `renderReadonly` on detail view, old "Additional Fields" block removed
-- `src/Modules/People/Admin/PeoplePage.php` — slot calls + `persistFromPost` + error notice
-- `src/Modules/Teams/Admin/TeamsPage.php` — slot calls + `persistFromPost` + error notice
-- `src/Modules/Sessions/Admin/SessionsPage.php` — slot calls + `persistFromPost` + error notice
-- `src/Modules/Goals/Admin/GoalsPage.php` — slot calls + `persistFromPost` + error notice + `insert_id` bug fix
-- `languages/talenttrack-nl_NL.po` + `.mo` — Dutch translations for 42 new strings
+- `talenttrack.php` — version 2.12.0
+- `src/Core/Activator.php` — new `tt_eval_categories` schema; `seedEvalCategoriesIfEmpty()` helper; retired `eval_category` seed from `seedDefaultsIfEmpty()`
+- `src/Infrastructure/Query/QueryHelpers.php` — `get_categories()` and `get_evaluation()` rewired to the new table
+- `src/Infrastructure/CustomFields/CustomFieldsRepository.php` — added `ENTITY_EVALUATION` constant + entry in `allowedEntityTypes()`
+- `src/Modules/Configuration/Admin/ConfigurationPage.php` — dropped the `eval_categories` tab; redirects old URLs
+- `src/Modules/Configuration/Admin/CustomFieldsPage.php` — added "Evaluations" to the entity tabs and label map
+- `src/Modules/Configuration/Admin/FormSlugContract.php` — `evaluationSlugs()` method; dispatcher updated
+- `src/Modules/Evaluations/EvaluationsModule.php` — registers `EvalCategoriesPage` handlers
+- `src/Modules/Evaluations/Admin/EvaluationsPage.php` — form + view + save rewritten for hierarchy; custom fields wired
+- `src/Shared/Admin/Menu.php` — added "Evaluation Categories" submenu
+- `languages/talenttrack-nl_NL.po` + `.mo` — ~57 new strings (21 subcategory labels + UI chrome + 4 main-category labels + form UX strings + eval slug labels)
 
-### Removed
-- `src/Modules/Configuration/Admin/CustomFieldsTab.php` — superseded by `CustomFieldsPage`
+### Deleted
+(None in this release.)
 
 ## Install
 
-Extract ZIP into `/wp-content/plugins/talenttrack/` overwriting. Commit, push, tag `v2.11.0`, release.
+Per your earlier instruction, this release ships as a **patch ZIP** containing only new + modified files, not the full plugin tree. Extract over an existing 2.11.0 install preserving the `talenttrack/...` directory structure:
 
-On reactivation, `Activator::ensureSchema()` adds the new column (no-op on fresh installs where the column is already in the CREATE TABLE statement). Migration `0007` applies for existing sites and is idempotent.
+```
+unzip talenttrack-2.12.0-patch.zip -d /wp-content/plugins/
+# then activate/reactivate the plugin in WP admin
+```
+
+Fresh installs: still use a full plugin ZIP from the main release pipeline — the patch format only makes sense for upgrades.
+
+On activation the sequence is:
+1. `Activator::ensureSchema()` creates `tt_eval_categories` if missing (fresh installs)
+2. `MigrationRunner` runs migration 0008 — copies lookup rows over, retargets ratings, seeds subcategories, deletes old lookup rows on success
+3. `Activator::seedEvalCategoriesIfEmpty()` runs — no-op on sites where the migration already seeded everything; populates canonical mains + 21 subs on sites that didn't have the lookup rows at all
 
 ## Verify
 
-1. TalentTrack → Custom Fields — new menu entry appears below Configuration. The old "Player Custom Fields" sub-tab under Configuration is gone (not a bug — it's been promoted).
-2. Entity tabs at top: Players, People, Teams, Sessions, Goals. Each tab shows its own field list.
-3. Add a test custom field on Players: label, key, type, set "Insert after: Nationality", save.
-4. Edit any player — the new field appears between Nationality and Height. Enter a value and save.
-5. View the player detail page — the field appears in the "Additional information" section.
-6. Edit the field, change "Insert after" to "(at end of form)" — now it appears below all native fields.
-7. Repeat the above on Teams, Sessions, Goals, People to confirm all five entities work.
-8. Try each of the ten field types. Multi-select values should round-trip correctly (save, reload, values preserved).
+1. TalentTrack → Evaluation Categories — new menu entry. Should show four main categories (Technical, Tactical, Physical, Mental) each with their subcategories listed underneath.
+2. Configuration → the "Evaluation Categories" tab is gone. Navigate to `?page=tt-config&tab=eval_categories` in the URL bar and you should land on the new page.
+3. Add a new evaluation for any player. Each main category should render as a fieldset with a direct-rating input and a "rate subcategories instead" link. Click the link; it swaps to sub inputs. Click "rate main category directly instead"; it swaps back.
+4. Save the evaluation with Technical rated directly (4) and Tactical in subcategory mode (Offensive positioning = 3, Decision making = 5). View the evaluation.
+5. Detail view should show Technical = 4 (no suffix), Tactical = 4 (averaged from 2 subcategories) — each with their sub rows listed beneath.
+6. Radar chart should show all four dimensions, with Tactical using the computed 4.
+7. Existing pre-2.12 evaluations should still display correctly with their direct main ratings.
+8. TalentTrack → Custom Fields — new "Evaluations" tab in the entity tab bar. Add a custom field on Evaluations, insert after a native slug (say `minutes_played`), save. Edit an evaluation; the field appears in the right position.
+
+## Scope boundaries
+
+What's explicitly NOT in 2.12.0:
+
+- **Drag-and-drop reorder** of categories — still deferred. Display order is a number input. Convention is to use increments of 10 so you can insert items between existing ones.
+- **Deletion** of system categories — blocked by design. Use deactivate instead; stored ratings are preserved.
+- **Per-category weighting** in the rollup — the compute-on-read helper returns a simple mean. Weighted averages would need a `weight` column on `tt_eval_categories` plus UX to configure them, which is Epic 2 territory.
+- **Hierarchy deeper than two levels** — refused at create time. A sub-of-a-sub is not a thing in this schema.
+- **Importing subcategories from a CSV / external definition file** — not in scope. Admins add them one at a time via the admin UI.
 
 ## Known follow-ups
 
-See "Scope boundaries" above. Everything noted there is deliberately deferred.
+- Historical evaluations that only have main-category ratings don't get "upgraded" to subcategory detail — and that's intentional. No backfill was designed for them (per Sprint 1I decision). If a club wants subcategory detail on an old evaluation, they re-open it and rate the subs.
+- Epic 2 (statistics) will need new chart primitives for showing subcategory trends over time. Designed for, not built yet.

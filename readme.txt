@@ -4,13 +4,23 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.11.0
+Stable tag: 2.12.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.12.0 — Sprint 1I: Evaluation subcategories + Evaluations custom fields =
+* NEW: Evaluation categories are now hierarchical. Each of the four main categories (Technical, Tactical, Physical, Mental) can have subcategories — 21 standard ones are seeded (Short pass, Long pass, First touch, Dribbling, Shooting, Heading, Offensive positioning, Defensive positioning, Game reading, Decision making, Off-ball movement, Speed, Endurance, Strength, Agility, Coordination, Focus, Leadership, Attitude, Resilience, Coachability). Clubs can add their own, rename labels, reorder, or deactivate.
+* NEW: Either/or rating UX on the evaluation form. Per main category, coaches choose to rate directly OR drill into subcategories. Single click swaps modes. Mix freely across categories on the same evaluation.
+* NEW: TalentTrack → Evaluation Categories admin page — dedicated tree view. Replaces the old Configuration sub-tab. Supports add-main, add-sub-under-main, edit, activate/deactivate. System categories (marked ✓) can be renamed but not deleted.
+* NEW: Custom fields on Evaluations — same mechanism as Sprint 1H's five other entities. Custom Fields admin page gains an "Evaluations" tab. Nine native slugs available for the "Insert after" dropdown (player_id, eval_type_id, eval_date, opponent, competition, match_result, home_away, minutes_played, notes).
+* NEW: New table tt_eval_categories with parent_id hierarchy. Migration 0008 copies existing lookup_type='eval_category' rows into it, retargets tt_eval_ratings.category_id, seeds the 21 subcategories, and deletes the old lookup rows only if every rating successfully retargeted. Idempotent; throws if any rating orphans so nothing is silently lost.
+* NEW: EvalRatingsRepository::effectiveMainRating() — compute-on-read rollup. Returns direct rating if present, else mean of subcategory ratings, else null. Exposes source ('direct'|'computed'|'none') + sub_count so display layers can show "(averaged from 3 subcategories)" where appropriate.
+* INTERNAL: QueryHelpers::get_categories() and get_evaluation() rewired to the new table. A legacy-shape shim on EvalCategoriesRepository keeps existing get_categories() callers working without changes. Dutch translations for ~57 new strings.
+* DEFERRED: Drag-and-drop reorder, weighted rollup, hierarchy deeper than two levels, backfill of historical evaluations with subcategory ratings.
 
 = 2.11.0 — Sprint 1H: Custom fields framework =
 * NEW: Custom fields can be defined for all five entities — Players, People, Teams, Sessions, Goals — from a new TalentTrack → Custom Fields admin page. Previously only Players had custom fields, and they lived under a Configuration sub-tab.

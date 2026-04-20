@@ -3,9 +3,14 @@ namespace TT\Modules\Evaluations\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\CustomFields\CustomFieldsRepository;
+use TT\Infrastructure\CustomFields\CustomFieldsSlot;
+use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
+use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Shared\Validation\CustomFieldValidator;
 
 /**
  * EvaluationsPage — admin CRUD for evaluations.
@@ -57,21 +62,57 @@ class EvaluationsPage {
     private static function render_form( int $eval_id ): void {
         $eval = $eval_id ? QueryHelpers::get_evaluation( $eval_id ) : null;
         $players    = QueryHelpers::get_players();
-        $categories = QueryHelpers::get_categories();
         $types      = QueryHelpers::get_eval_types();
-        $rmin = (float) QueryHelpers::get_config( 'rating_min', '1' );
-        $rmax = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $rmin  = (float) QueryHelpers::get_config( 'rating_min',  '1' );
+        $rmax  = (float) QueryHelpers::get_config( 'rating_max',  '5' );
         $rstep = (float) QueryHelpers::get_config( 'rating_step', '0.5' );
-        $existing = [];
-        if ( $eval && ! empty( $eval->ratings ) ) foreach ( $eval->ratings as $r ) $existing[ (int) $r->category_id ] = (float) $r->rating;
+
+        // Load the full category tree (mains + their subs) for the ratings UI.
+        $cats_repo = new EvalCategoriesRepository();
+        $tree      = $cats_repo->getTree( true );
+
+        // Existing ratings, split into main-direct vs subcategory.
+        // Keyed by category_id so the form can pre-fill either bucket.
+        $direct_ratings = [];   // main_cat_id => float
+        $sub_ratings    = [];   // sub_cat_id  => float
+        $main_has_subs_rated = []; // main_cat_id => true  (auto-expand mode)
+        if ( $eval && ! empty( $eval->ratings ) ) {
+            foreach ( $eval->ratings as $r ) {
+                $cid    = (int) $r->category_id;
+                $rating = (float) $r->rating;
+                $is_sub = isset( $r->category_parent_id ) && $r->category_parent_id !== null;
+                if ( $is_sub ) {
+                    $sub_ratings[ $cid ] = $rating;
+                    $main_has_subs_rated[ (int) $r->category_parent_id ] = true;
+                } else {
+                    $direct_ratings[ $cid ] = $rating;
+                }
+            }
+        }
+
         $type_meta = [];
-        foreach ( $types as $t ) { $m = QueryHelpers::lookup_meta( $t ); $type_meta[ (int) $t->id ] = ! empty( $m['requires_match_details'] ) ? 1 : 0; }
+        foreach ( $types as $t ) {
+            $m = QueryHelpers::lookup_meta( $t );
+            $type_meta[ (int) $t->id ] = ! empty( $m['requires_match_details'] ) ? 1 : 0;
+        }
 
         $state = self::popFormState();
+
+        // Pull transient-saved ratings_mode back into POST so the form
+        // re-renders in the same mode on a failed save.
+        if ( $state && isset( $state['submitted_custom_fields'] ) && is_array( $state['submitted_custom_fields'] ) ) {
+            $_POST['custom_fields'] = $state['submitted_custom_fields'];
+        }
         ?>
         <div class="wrap">
             <h1><?php echo $eval ? esc_html__( 'Edit Evaluation', 'talenttrack' ) : esc_html__( 'New Evaluation', 'talenttrack' ); ?>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-evaluations' ) ); ?>" class="page-title-action"><?php esc_html_e( '← Back', 'talenttrack' ); ?></a></h1>
+
+            <?php if ( ! empty( $_GET['tt_cf_error'] ) ) : ?>
+                <div class="notice notice-warning is-dismissible">
+                    <p><?php esc_html_e( 'The evaluation was saved, but one or more custom fields had invalid values and were not updated.', 'talenttrack' ); ?></p>
+                </div>
+            <?php endif; ?>
 
             <?php if ( $state && ! empty( $state['db_error'] ) ) : ?>
                 <div class="notice notice-error">
@@ -84,42 +125,165 @@ class EvaluationsPage {
                 <?php wp_nonce_field( 'tt_save_evaluation', 'tt_nonce' ); ?>
                 <input type="hidden" name="action" value="tt_save_evaluation" />
                 <?php if ( $eval ) : ?><input type="hidden" name="id" value="<?php echo (int) $eval->id; ?>" /><?php endif; ?>
+                <?php $eid = (int) ( $eval->id ?? 0 ); ?>
+
                 <table class="form-table">
                     <tr><th><?php esc_html_e( 'Player', 'talenttrack' ); ?> *</th><td><select name="player_id" required>
                         <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                         <?php foreach ( $players as $pl ) : ?><option value="<?php echo (int) $pl->id; ?>" <?php selected( $eval->player_id ?? 0, $pl->id ); ?>><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></option><?php endforeach; ?></select></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'player_id' ); ?>
                     <tr><th><?php esc_html_e( 'Type', 'talenttrack' ); ?> *</th><td><select name="eval_type_id" id="tt_eval_type" required>
                         <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                         <?php foreach ( $types as $t ) : ?><option value="<?php echo (int) $t->id; ?>" data-match="<?php echo (int) $type_meta[ (int) $t->id ]; ?>" <?php selected( $eval->eval_type_id ?? 0, $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option><?php endforeach; ?></select></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'eval_type_id' ); ?>
                     <tr><th><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</th><td><input type="date" name="eval_date" value="<?php echo esc_attr( $eval->eval_date ?? current_time( 'Y-m-d' ) ); ?>" required /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'eval_date' ); ?>
                 </table>
+
                 <table class="form-table" id="tt-match-fields" style="display:none;">
                     <tr><th><?php esc_html_e( 'Opponent', 'talenttrack' ); ?></th><td><input type="text" name="opponent" value="<?php echo esc_attr( $eval->opponent ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'opponent' ); ?>
                     <tr><th><?php esc_html_e( 'Competition', 'talenttrack' ); ?></th><td><input type="text" name="competition" value="<?php echo esc_attr( $eval->competition ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'competition' ); ?>
                     <tr><th><?php esc_html_e( 'Result', 'talenttrack' ); ?></th><td><input type="text" name="match_result" value="<?php echo esc_attr( $eval->match_result ?? '' ); ?>" style="width:80px" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'match_result' ); ?>
                     <tr><th><?php esc_html_e( 'Home/Away', 'talenttrack' ); ?></th><td><select name="home_away"><option value="">—</option><option value="home" <?php selected( $eval->home_away ?? '', 'home' ); ?>><?php esc_html_e( 'Home', 'talenttrack' ); ?></option><option value="away" <?php selected( $eval->home_away ?? '', 'away' ); ?>><?php esc_html_e( 'Away', 'talenttrack' ); ?></option></select></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'home_away' ); ?>
                     <tr><th><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></th><td><input type="number" name="minutes_played" value="<?php echo esc_attr( $eval->minutes_played ?? '' ); ?>" min="0" max="120" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'minutes_played' ); ?>
                 </table>
+
+                <h2 style="margin-top:30px;"><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h2>
+                <?php if ( empty( $tree ) ) : ?>
+                    <p style="color:#b32d2e;">
+                        <strong><?php esc_html_e( 'No evaluation categories configured.', 'talenttrack' ); ?></strong>
+                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-eval-categories' ) ); ?>"><?php esc_html_e( 'Configure categories', 'talenttrack' ); ?></a>
+                    </p>
+                <?php else : ?>
+                    <p class="description" style="margin-bottom:12px;">
+                        <?php esc_html_e( 'For each main category you can either rate it directly OR drill into its subcategories. Pick whichever makes sense — you can mix modes across categories.', 'talenttrack' ); ?>
+                    </p>
+
+                    <?php foreach ( $tree as $main ) :
+                        $main_id = (int) $main->id;
+                        $has_subs = ! empty( $main->children );
+                        // Default mode: subcategories iff existing sub ratings present.
+                        $mode_default = ( $has_subs && isset( $main_has_subs_rated[ $main_id ] ) ) ? 'subcategories' : 'direct';
+                        $direct_val = isset( $direct_ratings[ $main_id ] ) ? (string) $direct_ratings[ $main_id ] : '';
+                        ?>
+                        <fieldset class="tt-rating-block" data-main-id="<?php echo (int) $main_id; ?>"
+                                  data-mode="<?php echo esc_attr( $mode_default ); ?>"
+                                  style="border:1px solid #dcdcde; padding:12px 16px; margin-bottom:10px; background:#fff;">
+                            <legend style="font-weight:600; padding:0 6px;">
+                                <?php echo esc_html( (string) $main->label ); ?>
+                            </legend>
+
+                            <input type="hidden" name="tt_rating_mode[<?php echo $main_id; ?>]"
+                                   value="<?php echo esc_attr( $mode_default ); ?>"
+                                   class="tt-mode-input" />
+
+                            <!-- Direct mode -->
+                            <div class="tt-mode-direct" style="<?php echo $mode_default === 'direct' ? '' : 'display:none;'; ?>">
+                                <label>
+                                    <input type="number"
+                                           name="ratings[<?php echo $main_id; ?>]"
+                                           value="<?php echo esc_attr( $direct_val ); ?>"
+                                           min="<?php echo esc_attr( (string) $rmin ); ?>"
+                                           max="<?php echo esc_attr( (string) $rmax ); ?>"
+                                           step="<?php echo esc_attr( (string) $rstep ); ?>"
+                                           style="width:80px;" />
+                                    <span class="description">
+                                        (<?php echo esc_html( (string) $rmin ); ?>–<?php echo esc_html( (string) $rmax ); ?>)
+                                    </span>
+                                </label>
+                                <?php if ( $has_subs ) : ?>
+                                    <a href="#" class="tt-toggle-subs" style="margin-left:16px;">
+                                        + <?php esc_html_e( 'rate subcategories instead', 'talenttrack' ); ?>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Subcategories mode -->
+                            <?php if ( $has_subs ) : ?>
+                                <div class="tt-mode-subs" style="<?php echo $mode_default === 'subcategories' ? '' : 'display:none;'; ?>">
+                                    <table style="width:100%; border-collapse:collapse;">
+                                        <tbody>
+                                        <?php foreach ( $main->children as $sub ) :
+                                            $sub_id  = (int) $sub->id;
+                                            $sub_val = isset( $sub_ratings[ $sub_id ] ) ? (string) $sub_ratings[ $sub_id ] : '';
+                                            ?>
+                                            <tr>
+                                                <td style="padding:4px 12px 4px 16px; color:#555; width:60%;">
+                                                    <span style="color:#bbb;">↳</span>
+                                                    <?php echo esc_html( (string) $sub->label ); ?>
+                                                </td>
+                                                <td style="padding:4px 0;">
+                                                    <input type="number"
+                                                           name="ratings[<?php echo $sub_id; ?>]"
+                                                           value="<?php echo esc_attr( $sub_val ); ?>"
+                                                           min="<?php echo esc_attr( (string) $rmin ); ?>"
+                                                           max="<?php echo esc_attr( (string) $rmax ); ?>"
+                                                           step="<?php echo esc_attr( (string) $rstep ); ?>"
+                                                           style="width:80px;" />
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                    <p style="margin:8px 0 0;">
+                                        <a href="#" class="tt-toggle-direct">
+                                            ← <?php esc_html_e( 'rate main category directly instead', 'talenttrack' ); ?>
+                                        </a>
+                                    </p>
+                                </div>
+                            <?php endif; ?>
+                        </fieldset>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+
                 <table class="form-table">
-                    <tr><th><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></th><td>
-                        <?php if ( empty( $categories ) ) : ?>
-                            <p style="color:#b32d2e;"><strong><?php esc_html_e( 'No evaluation categories configured.', 'talenttrack' ); ?></strong> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-config&tab=eval_categories' ) ); ?>"><?php esc_html_e( 'Add some', 'talenttrack' ); ?></a>.</p>
-                        <?php else : foreach ( $categories as $cat ) : ?>
-                            <p><label><strong><?php echo esc_html( (string) $cat->name ); ?></strong></label><br/>
-                            <input type="number" name="ratings[<?php echo (int) $cat->id; ?>]" min="<?php echo esc_attr( (string) $rmin ); ?>" max="<?php echo esc_attr( (string) $rmax ); ?>" step="<?php echo esc_attr( (string) $rstep ); ?>" value="<?php echo esc_attr( (string) ( $existing[ (int) $cat->id ] ?? '' ) ); ?>" style="width:80px" required />
-                            <span class="description">(<?php echo esc_html( (string) $rmin ); ?>–<?php echo esc_html( (string) $rmax ); ?>)</span></p>
-                        <?php endforeach; endif; ?>
-                    </td></tr>
                     <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><textarea name="notes" rows="4" class="large-text"><?php echo esc_textarea( $eval->notes ?? '' ); ?></textarea></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'notes' ); ?>
+                    <?php CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_EVALUATION, $eid ); ?>
                 </table>
+
                 <?php submit_button( $eval ? __( 'Update', 'talenttrack' ) : __( 'Save', 'talenttrack' ) ); ?>
             </form>
         </div>
+
         <script>
         jQuery(function($){
+            // Match-fields show/hide based on eval type.
             var m = <?php echo wp_json_encode( $type_meta ); ?>;
             function t(){ var v = $('#tt_eval_type').val(); $('#tt-match-fields').toggle(v && m[v]==1); }
             $('#tt_eval_type').on('change', t); t();
+
+            // Either/or mode switching. Clicking "rate subcategories" clears
+            // the direct input (per design: discard silently on mode switch).
+            // Clicking "rate main directly" clears the subcategory inputs.
+            $('.tt-rating-block').each(function(){
+                var $block = $(this);
+                var $modeInput = $block.find('.tt-mode-input');
+                var $direct = $block.find('.tt-mode-direct');
+                var $subs   = $block.find('.tt-mode-subs');
+
+                $block.find('.tt-toggle-subs').on('click', function(e){
+                    e.preventDefault();
+                    $direct.find('input[type=number]').val('');
+                    $direct.hide();
+                    $subs.show();
+                    $modeInput.val('subcategories');
+                    $block.attr('data-mode', 'subcategories');
+                });
+                $block.find('.tt-toggle-direct').on('click', function(e){
+                    e.preventDefault();
+                    $subs.find('input[type=number]').val('');
+                    $subs.hide();
+                    $direct.show();
+                    $modeInput.val('direct');
+                    $block.attr('data-mode', 'direct');
+                });
+            });
         });
         </script>
         <?php
@@ -129,24 +293,104 @@ class EvaluationsPage {
         $eval = QueryHelpers::get_evaluation( $id );
         if ( ! $eval ) { echo '<div class="wrap"><p>' . esc_html__( 'Not found.', 'talenttrack' ) . '</p></div>'; return; }
         $player = QueryHelpers::get_player( (int) $eval->player_id );
-        $max = (float) QueryHelpers::get_config( 'rating_max', '5' );
-        $labels = []; $values = [];
-        if ( ! empty( $eval->ratings ) ) foreach ( $eval->ratings as $r ) { $labels[] = (string) $r->category_name; $values[] = (float) $r->rating; }
+        $max    = (float) QueryHelpers::get_config( 'rating_max', '5' );
+
+        // Compute effective rating per main category (direct value OR
+        // subcategory rollup). Also collect per-main subcategory ratings
+        // for the breakdown display.
+        $ratings_repo = new EvalRatingsRepository();
+        $effective    = $ratings_repo->effectiveMainRatingsFor( $id );
+
+        $sub_ratings_by_main = []; // main_id => [ [label, value], ... ]
+        if ( ! empty( $eval->ratings ) ) {
+            foreach ( $eval->ratings as $r ) {
+                if ( $r->category_parent_id === null ) continue;
+                $pid = (int) $r->category_parent_id;
+                $sub_ratings_by_main[ $pid ][] = [
+                    'label' => (string) $r->category_name,
+                    'value' => (float) $r->rating,
+                ];
+            }
+        }
+
+        // Radar chart uses effective ratings so subcategory-only evals still
+        // produce a chart with all four dimensions.
+        $radar_labels = [];
+        $radar_values = [];
+        foreach ( $effective as $row ) {
+            $radar_labels[] = $row['label'];
+            $radar_values[] = $row['value'] !== null ? $row['value'] : 0;
+        }
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Evaluation', 'talenttrack' ); ?> — <?php echo esc_html( $player ? QueryHelpers::player_display_name( $player ) : '' ); ?>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-evaluations' ) ); ?>" class="page-title-action"><?php esc_html_e( '← Back', 'talenttrack' ); ?></a></h1>
             <div style="display:flex;gap:30px;flex-wrap:wrap;margin-top:20px;">
-                <div style="flex:1;min-width:260px;">
+                <div style="flex:1;min-width:320px;">
                     <table class="form-table">
                         <tr><th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th><td><?php echo esc_html( (string) $eval->eval_date ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th><td><?php echo esc_html( $eval->type_name ?: '—' ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><?php echo nl2br( esc_html( $eval->notes ?: '—' ) ); ?></td></tr>
                     </table>
+
+                    <h3 style="margin-top:24px;"><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h3>
+                    <?php if ( empty( $effective ) ) : ?>
+                        <p><em><?php esc_html_e( 'No ratings recorded.', 'talenttrack' ); ?></em></p>
+                    <?php else : ?>
+                        <table class="widefat striped" style="max-width:500px;">
+                            <thead>
+                                <tr>
+                                    <th><?php esc_html_e( 'Category', 'talenttrack' ); ?></th>
+                                    <th style="width:80px; text-align:right;"><?php esc_html_e( 'Rating', 'talenttrack' ); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ( $effective as $main_id => $row ) :
+                                $val = $row['value'];
+                                $source = $row['source'];
+                                $subs_here = $sub_ratings_by_main[ $main_id ] ?? [];
+                                ?>
+                                <tr style="background:#f6f7f7;">
+                                    <td><strong><?php echo esc_html( $row['label'] ); ?></strong>
+                                        <?php if ( $source === 'computed' ) : ?>
+                                            <span style="color:#888; font-weight:400; font-size:12px; margin-left:8px;">
+                                                <?php printf(
+                                                    /* translators: %d is the number of subcategory ratings the rollup averages. */
+                                                    esc_html( _n( '(averaged from %d subcategory)', '(averaged from %d subcategories)', (int) $row['sub_count'], 'talenttrack' ) ),
+                                                    (int) $row['sub_count']
+                                                ); ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <?php echo $val === null
+                                            ? '<span style="color:#888;">—</span>'
+                                            : esc_html( (string) $val ); ?>
+                                    </td>
+                                </tr>
+                                <?php foreach ( $subs_here as $sub ) : ?>
+                                    <tr>
+                                        <td style="padding-left:30px; color:#555;">
+                                            <span style="color:#bbb;">↳</span>
+                                            <?php echo esc_html( $sub['label'] ); ?>
+                                        </td>
+                                        <td style="text-align:right; color:#555;">
+                                            <?php echo esc_html( (string) $sub['value'] ); ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+
+                    <?php CustomFieldsSlot::renderReadonly( CustomFieldsRepository::ENTITY_EVALUATION, $id ); ?>
                 </div>
                 <div style="flex:1;min-width:320px;">
                     <h3><?php esc_html_e( 'Radar Chart', 'talenttrack' ); ?></h3>
-                    <?php echo ! empty( $labels ) ? QueryHelpers::radar_chart_svg( $labels, [ [ 'label' => (string) $eval->eval_date, 'values' => $values ] ], $max ) : ''; ?>
+                    <?php echo ! empty( $radar_labels )
+                        ? QueryHelpers::radar_chart_svg( $radar_labels, [ [ 'label' => (string) $eval->eval_date, 'values' => $radar_values ] ], $max )
+                        : ''; ?>
                 </div>
             </div>
         </div>
@@ -161,27 +405,25 @@ class EvaluationsPage {
 
         // v2.8.0: entity-scoped authorization. Must be allowed to evaluate
         // THIS specific player (not just have the generic capability).
-        // Coaches are only allowed to evaluate players on their assigned teams.
         if ( ! AuthorizationService::canEvaluatePlayer( get_current_user_id(), $player_id ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
         $header = [
-            'player_id' => $player_id,
-            'coach_id' => get_current_user_id(),
+            'player_id'    => $player_id,
+            'coach_id'     => get_current_user_id(),
             'eval_type_id' => isset( $_POST['eval_type_id'] ) ? absint( $_POST['eval_type_id'] ) : 0,
-            'eval_date' => isset( $_POST['eval_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['eval_date'] ) ) : '',
-            'notes' => isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '',
-            'opponent' => isset( $_POST['opponent'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['opponent'] ) ) : '',
-            'competition' => isset( $_POST['competition'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['competition'] ) ) : '',
+            'eval_date'    => isset( $_POST['eval_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['eval_date'] ) ) : '',
+            'notes'        => isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '',
+            'opponent'     => isset( $_POST['opponent'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['opponent'] ) ) : '',
+            'competition'  => isset( $_POST['competition'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['competition'] ) ) : '',
             'match_result' => isset( $_POST['match_result'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['match_result'] ) ) : '',
-            'home_away' => isset( $_POST['home_away'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['home_away'] ) ) : '',
+            'home_away'    => isset( $_POST['home_away'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['home_away'] ) ) : '',
             'minutes_played' => ! empty( $_POST['minutes_played'] ) ? absint( $_POST['minutes_played'] ) : null,
         ];
 
         if ( $id ) {
             $ok = $wpdb->update( "{$p}tt_evaluations", $header, [ 'id' => $id ] );
-            if ( $ok !== false ) $wpdb->delete( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id ] );
         } else {
             do_action( 'tt_before_save_evaluation', $header['player_id'], 0, 0 );
             $ok = $wpdb->insert( "{$p}tt_evaluations", $header );
@@ -190,7 +432,10 @@ class EvaluationsPage {
 
         if ( $ok === false ) {
             Logger::error( 'admin.evaluation.save.failed', [ 'db_error' => (string) $wpdb->last_error, 'is_update' => (bool) $id ] );
-            self::saveFormState( [ 'db_error' => $wpdb->last_error ?: __( 'Unknown database error.', 'talenttrack' ) ] );
+            self::saveFormState( [
+                'db_error' => $wpdb->last_error ?: __( 'Unknown database error.', 'talenttrack' ),
+                'submitted_custom_fields' => isset( $_POST['custom_fields'] ) && is_array( $_POST['custom_fields'] ) ? wp_unslash( $_POST['custom_fields'] ) : [],
+            ] );
             $back = add_query_arg(
                 [ 'page' => 'tt-evaluations', 'action' => $id ? 'edit' : 'new', 'id' => $id ],
                 admin_url( 'admin.php' )
@@ -199,17 +444,76 @@ class EvaluationsPage {
             exit;
         }
 
+        // v2.12.0: hierarchy-aware ratings save.
+        //
+        // The form POSTs:
+        //   - tt_rating_mode[<main_id>]  = 'direct' | 'subcategories'
+        //   - ratings[<category_id>]     = number  (any category — main or sub)
+        //
+        // We wipe previous ratings for this evaluation, then re-insert based
+        // on mode per main category:
+        //   - mode=direct          → store ratings[main_id] only (ignore sub inputs)
+        //   - mode=subcategories   → store ratings[sub_id] for each sub (ignore main)
+        //
+        // Categories not represented in tt_rating_mode are handled as "direct"
+        // for back-compat (e.g. if an admin created a main with no subs, or
+        // JS failed to load and the fallback is the direct input).
         $rmin = (float) QueryHelpers::get_config( 'rating_min', '1' );
         $rmax = (float) QueryHelpers::get_config( 'rating_max', '5' );
-        $ratings = isset( $_POST['ratings'] ) && is_array( $_POST['ratings'] ) ? $_POST['ratings'] : [];
-        foreach ( $ratings as $cid => $val ) {
-            $r = max( $rmin, min( $rmax, floatval( $val ) ) );
-            $ok_rating = $wpdb->insert( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id, 'category_id' => absint( $cid ), 'rating' => $r ] );
-            if ( $ok_rating === false ) {
-                Logger::error( 'admin.evaluation.rating.save.failed', [ 'db_error' => (string) $wpdb->last_error, 'evaluation_id' => $id, 'category_id' => absint( $cid ) ] );
+
+        $ratings_repo = new EvalRatingsRepository();
+        $cats_repo    = new EvalCategoriesRepository();
+
+        $ratings_repo->deleteForEvaluation( $id );
+
+        $mode_map = isset( $_POST['tt_rating_mode'] ) && is_array( $_POST['tt_rating_mode'] )
+            ? wp_unslash( $_POST['tt_rating_mode'] )
+            : [];
+        $raw_ratings = isset( $_POST['ratings'] ) && is_array( $_POST['ratings'] )
+            ? wp_unslash( $_POST['ratings'] )
+            : [];
+
+        $tree = $cats_repo->getTree( true );
+        foreach ( $tree as $main ) {
+            $main_id = (int) $main->id;
+            $mode    = isset( $mode_map[ $main_id ] ) ? (string) $mode_map[ $main_id ] : 'direct';
+
+            if ( $mode === 'subcategories' && ! empty( $main->children ) ) {
+                foreach ( $main->children as $sub ) {
+                    $sub_id = (int) $sub->id;
+                    if ( ! isset( $raw_ratings[ $sub_id ] ) ) continue;
+                    $v = $raw_ratings[ $sub_id ];
+                    if ( $v === '' || $v === null ) continue;
+                    $clamped = max( $rmin, min( $rmax, floatval( $v ) ) );
+                    if ( ! $ratings_repo->upsert( $id, $sub_id, $clamped ) ) {
+                        Logger::error( 'admin.evaluation.rating.save.failed', [
+                            'db_error' => (string) $wpdb->last_error, 'evaluation_id' => $id, 'category_id' => $sub_id,
+                        ] );
+                    }
+                }
+            } else {
+                if ( ! isset( $raw_ratings[ $main_id ] ) ) continue;
+                $v = $raw_ratings[ $main_id ];
+                if ( $v === '' || $v === null ) continue;
+                $clamped = max( $rmin, min( $rmax, floatval( $v ) ) );
+                if ( ! $ratings_repo->upsert( $id, $main_id, $clamped ) ) {
+                    Logger::error( 'admin.evaluation.rating.save.failed', [
+                        'db_error' => (string) $wpdb->last_error, 'evaluation_id' => $id, 'category_id' => $main_id,
+                    ] );
+                }
             }
         }
-        wp_safe_redirect( admin_url( 'admin.php?page=tt-evaluations&tt_msg=saved' ) );
+
+        // Persist custom field values. Errors don't undo the evaluation save.
+        $cf_errors = CustomFieldValidator::persistFromPost( CustomFieldsRepository::ENTITY_EVALUATION, $id, $_POST );
+
+        $redirect_args = [ 'page' => 'tt-evaluations', 'tt_msg' => 'saved' ];
+        if ( ! empty( $cf_errors ) ) {
+            $redirect_args['tt_cf_error'] = 1;
+            $redirect_args['action']      = 'edit';
+            $redirect_args['id']          = $id;
+        }
+        wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'admin.php' ) ) );
         exit;
     }
 

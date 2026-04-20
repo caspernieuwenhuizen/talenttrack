@@ -1641,3 +1641,199 @@ msgstr "Vervaldatum"
 
 msgid "missing"
 msgstr "ontbreekt"
+
+# ===== v2.12.0 — Sprint 1I: Evaluation subcategories =====
+
+# Admin page chrome
+msgid "Evaluation Categories"
+msgstr "Evaluatiecategorieën"
+
+msgid "Add main category"
+msgstr "Hoofdcategorie toevoegen"
+
+msgid "Add subcategory"
+msgstr "Subcategorie toevoegen"
+
+msgid "Add sub"
+msgstr "Sub toevoegen"
+
+msgid "Main categories group high-level evaluation dimensions. Subcategories let coaches rate specific skills within each dimension. On the evaluation form, a coach can either rate the main category directly OR drill into its subcategories — both options are available per evaluation."
+msgstr "Hoofdcategorieën groeperen de grote evaluatiedimensies. Subcategorieën laten coaches specifieke vaardigheden binnen elke dimensie beoordelen. Op het evaluatieformulier kan een coach de hoofdcategorie direct beoordelen OF doorklikken naar de subcategorieën — beide opties zijn per evaluatie beschikbaar."
+
+msgid "No evaluation categories configured. This is unusual — the plugin normally seeds four defaults (Technical, Tactical, Physical, Mental) on activation. Add one to get started."
+msgstr "Geen evaluatiecategorieën ingesteld. Dat is ongebruikelijk — de plugin zet bij activatie normaal gesproken vier standaardwaarden klaar (Technisch, Tactisch, Fysiek, Mentaal). Voeg er een toe om te beginnen."
+
+msgid "Order"
+msgstr "Volgorde"
+
+msgid "System categories (marked ✓) are seeded by the plugin. They can be renamed, reordered, and deactivated but not deleted. Deactivating a category hides it from new evaluations while preserving the ratings already stored against it."
+msgstr "Systeemcategorieën (aangegeven met ✓) worden door de plugin aangemaakt. Ze kunnen worden hernoemd, opnieuw geordend en gedeactiveerd, maar niet verwijderd. Een categorie deactiveren verbergt deze in nieuwe evaluaties terwijl reeds vastgelegde beoordelingen behouden blijven."
+
+msgid "Edit main category"
+msgstr "Hoofdcategorie bewerken"
+
+msgid "Edit subcategory"
+msgstr "Subcategorie bewerken"
+
+msgid "This subcategory sits under: %s"
+msgstr "Deze subcategorie valt onder: %s"
+
+msgid "The display name coaches see on the evaluation form."
+msgstr "De naam die coaches zien op het evaluatieformulier."
+
+msgid "Stable identifier. Cannot be changed after creation (ratings reference it)."
+msgstr "Vaste identificatie. Kan na aanmaken niet worden gewijzigd (beoordelingen verwijzen ernaar)."
+
+msgid "Auto-generated from the label if blank. Must be globally unique across all categories."
+msgstr "Wordt automatisch gegenereerd uit het label als dit leeg blijft. Moet uniek zijn over alle categorieën."
+
+msgid "Optional. Not shown to coaches — for your own reference."
+msgstr "Optioneel. Niet zichtbaar voor coaches — voor je eigen referentie."
+
+msgid "Display order"
+msgstr "Weergavevolgorde"
+
+msgid "Lower numbers render first. Convention: increments of 10 so you have room to insert between items later."
+msgstr "Lagere getallen verschijnen eerst. Conventie: stappen van 10 zodat er ruimte is om later iets tussen te plaatsen."
+
+msgid "Active (shown on evaluation forms)"
+msgstr "Actief (zichtbaar op evaluatieformulieren)"
+
+msgid "This is a system category. It can be renamed and deactivated but not deleted."
+msgstr "Dit is een systeemcategorie. Deze kan worden hernoemd en gedeactiveerd, maar niet verwijderd."
+
+msgid "Update category"
+msgstr "Categorie bijwerken"
+
+msgid "Add category"
+msgstr "Categorie toevoegen"
+
+msgid "Cannot nest subcategories more than two levels deep."
+msgstr "Subcategorieën kunnen niet dieper dan twee niveaus worden genest."
+
+msgid "That key is already used by another category. Pick a different one."
+msgstr "Die sleutel is al in gebruik door een andere categorie. Kies een andere."
+
+msgid "The database rejected the save. Try again."
+msgstr "De database weigerde de opslag. Probeer het opnieuw."
+
+# Evaluation form UX
+msgid "For each main category you can either rate it directly OR drill into its subcategories. Pick whichever makes sense — you can mix modes across categories."
+msgstr "Voor elke hoofdcategorie kun je deze direct beoordelen OF doorklikken naar de subcategorieën. Kies wat past — je kunt per categorie wisselen van modus."
+
+msgid "rate subcategories instead"
+msgstr "beoordeel subcategorieën"
+
+msgid "rate main category directly instead"
+msgstr "beoordeel de hoofdcategorie direct"
+
+msgid "Configure categories"
+msgstr "Categorieën instellen"
+
+msgid "No ratings recorded."
+msgstr "Geen beoordelingen vastgelegd."
+
+msgid "(averaged from %d subcategory)"
+msgid_plural "(averaged from %d subcategories)"
+msgstr[0] "(gemiddelde van %d subcategorie)"
+msgstr[1] "(gemiddelde van %d subcategorieën)"
+
+msgid "The evaluation was saved, but one or more custom fields had invalid values and were not updated."
+msgstr "De evaluatie is opgeslagen, maar één of meer aangepaste velden hadden ongeldige waarden en zijn niet bijgewerkt."
+
+# Canonical main category labels (seed)
+msgid "Technical"
+msgstr "Technisch"
+
+msgid "Tactical"
+msgstr "Tactisch"
+
+msgid "Physical"
+msgstr "Fysiek"
+
+msgid "Mental"
+msgstr "Mentaal"
+
+# Subcategory seed labels — Technical
+msgid "Short pass"
+msgstr "Korte pass"
+
+msgid "Long pass"
+msgstr "Lange pass"
+
+msgid "First touch"
+msgstr "Aanname"
+
+msgid "Dribbling"
+msgstr "Dribbelen"
+
+msgid "Shooting"
+msgstr "Schieten"
+
+msgid "Heading"
+msgstr "Koppen"
+
+# Subcategory seed labels — Tactical
+msgid "Offensive positioning"
+msgstr "Aanvallende positionering"
+
+msgid "Defensive positioning"
+msgstr "Verdedigende positionering"
+
+msgid "Game reading"
+msgstr "Spelinzicht"
+
+msgid "Decision making"
+msgstr "Beslissingen nemen"
+
+msgid "Off-ball movement"
+msgstr "Loopacties zonder bal"
+
+# Subcategory seed labels — Physical
+msgid "Speed"
+msgstr "Snelheid"
+
+msgid "Endurance"
+msgstr "Uithoudingsvermogen"
+
+msgid "Strength"
+msgstr "Kracht"
+
+msgid "Agility"
+msgstr "Wendbaarheid"
+
+msgid "Coordination"
+msgstr "Coördinatie"
+
+# Subcategory seed labels — Mental
+msgid "Focus"
+msgstr "Focus"
+
+msgid "Leadership"
+msgstr "Leiderschap"
+
+msgid "Attitude"
+msgstr "Houding"
+
+msgid "Resilience"
+msgstr "Veerkracht"
+
+msgid "Coachability"
+msgstr "Coachbaarheid"
+
+# New entity slug labels (for Custom Fields "Insert after" dropdown)
+msgid "Evaluation type"
+msgstr "Evaluatietype"
+
+msgid "Evaluation date"
+msgstr "Evaluatiedatum"
+
+msgid "Match result"
+msgstr "Wedstrijdresultaat"
+
+msgid "Minutes played"
+msgstr "Gespeelde minuten"
+
+# Evaluations as a custom-fields entity
+msgid "Evaluations"
+msgstr "Evaluaties"

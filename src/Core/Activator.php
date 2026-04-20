@@ -43,6 +43,7 @@ class Activator {
         self::cleanupOrphanMigrationRecords();
         self::seedRolesIfEmpty();
         self::seedFunctionalRolesIfEmpty();
+        self::seedEvalCategoriesIfEmpty();
 
         try {
             ( new MigrationRunner() )->run();
@@ -287,6 +288,28 @@ class Activator {
             KEY idx_cat (category_id)
         ) $c;";
 
+        /* ─── Evaluation categories (v2.12.0) ─── */
+        // First-class hierarchy: main categories have parent_id IS NULL,
+        // subcategories point at their parent's id. The `key` column is
+        // a stable slug like 'technical_short_pass' — translations live in
+        // the .po file keyed by label, while `key` stays constant.
+        $queries[] = "CREATE TABLE {$p}tt_eval_categories (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            parent_id BIGINT UNSIGNED NULL,
+            `key` VARCHAR(64) NOT NULL,
+            label VARCHAR(255) NOT NULL,
+            description TEXT,
+            display_order INT DEFAULT 0,
+            is_active TINYINT(1) DEFAULT 1,
+            is_system TINYINT(1) DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_key (`key`),
+            KEY idx_parent (parent_id),
+            KEY idx_active (is_active)
+        ) $c;";
+
         /* ─── Sessions & attendance ─── */
         $queries[] = "CREATE TABLE {$p}tt_sessions (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -477,18 +500,14 @@ class Activator {
         $count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_lookups" );
         if ( $count > 0 ) return;
 
-        foreach ( [
-            [ 'Technical', 'Ball control, passing, shooting, dribbling', 1 ],
-            [ 'Tactical',  'Positioning, decision-making, game reading', 2 ],
-            [ 'Physical',  'Speed, endurance, strength, agility', 3 ],
-            [ 'Mental',    'Focus, leadership, attitude, resilience', 4 ],
-        ] as $cat ) {
-            $wpdb->insert( "{$p}tt_lookups", [
-                'lookup_type' => 'eval_category',
-                'name' => $cat[0], 'description' => $cat[1], 'sort_order' => $cat[2],
-            ] );
-        }
+        // v2.12.0: evaluation categories migrated out of tt_lookups into
+        // the dedicated tt_eval_categories table. The seed here populates
+        // the new table on fresh installs with the four canonical main
+        // categories AND all 21 subcategories in one pass, matching the
+        // end state that migration 0008 produces on upgrades.
+        self::seedEvalCategoriesIfEmpty();
 
+        // v2.6.0+: lookups for types, positions, foot, age groups, etc.
         foreach ( [
             [ 'Training', 'Regular training session evaluation', '{"requires_match_details":false}', 1 ],
             [ 'Match',    'Competitive match evaluation', '{"requires_match_details":true}', 2 ],
@@ -650,6 +669,98 @@ class Activator {
      * state; if convergence fails the user will still see the empty
      * assignment lists and can diagnose via the Permission Debug page.
      */
+    /**
+     * v2.12.0 — ensure tt_eval_categories is populated.
+     *
+     * Runs on every activation. Idempotent. On fresh installs this is what
+     * actually populates the new table (seedDefaultsIfEmpty calls this
+     * before seeding lookups). On upgraded sites migration 0008 already
+     * populated the table, so this is a no-op — but if migration 0008 ran
+     * before the four canonical main categories existed (because an admin
+     * had renamed or deleted them), this routine will still create the
+     * canonical set. Never overwrites existing entries.
+     *
+     * Mirrors the seed list in migration 0008_eval_categories_hierarchy.
+     */
+    private static function seedEvalCategoriesIfEmpty(): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        // Prereq: table must exist (ensureSchema ran).
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', "{$p}tt_eval_categories" ) ) !== "{$p}tt_eval_categories" ) {
+            return;
+        }
+
+        // The 4 canonical main categories.
+        $mains = [
+            [ 'technical', 'Technical', 'Ball control, passing, shooting, dribbling', 10 ],
+            [ 'tactical',  'Tactical',  'Positioning, decision-making, game reading', 20 ],
+            [ 'physical',  'Physical',  'Speed, endurance, strength, agility',        30 ],
+            [ 'mental',    'Mental',    'Focus, leadership, attitude, resilience',    40 ],
+        ];
+        foreach ( $mains as $m ) {
+            [ $key, $label, $description, $display_order ] = $m;
+            $exists = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE `key` = %s", $key
+            ) );
+            if ( $exists > 0 ) continue;
+            $wpdb->insert( "{$p}tt_eval_categories", [
+                'parent_id'     => null,
+                'key'           => $key,
+                'label'         => $label,
+                'description'   => $description,
+                'display_order' => $display_order,
+                'is_active'     => 1,
+                'is_system'     => 1,
+            ] );
+        }
+
+        // 21 subcategories seeded as children of the canonical mains.
+        $subs = [
+            [ 'technical', 'technical_short_pass',             'Short pass',            10 ],
+            [ 'technical', 'technical_long_pass',              'Long pass',             20 ],
+            [ 'technical', 'technical_first_touch',            'First touch',           30 ],
+            [ 'technical', 'technical_dribbling',              'Dribbling',             40 ],
+            [ 'technical', 'technical_shooting',               'Shooting',              50 ],
+            [ 'technical', 'technical_heading',                'Heading',               60 ],
+            [ 'tactical',  'tactical_positioning_offensive',   'Offensive positioning', 10 ],
+            [ 'tactical',  'tactical_positioning_defensive',   'Defensive positioning', 20 ],
+            [ 'tactical',  'tactical_game_reading',            'Game reading',          30 ],
+            [ 'tactical',  'tactical_decision_making',         'Decision making',       40 ],
+            [ 'tactical',  'tactical_off_ball_movement',       'Off-ball movement',     50 ],
+            [ 'physical',  'physical_speed',                   'Speed',                 10 ],
+            [ 'physical',  'physical_endurance',               'Endurance',             20 ],
+            [ 'physical',  'physical_strength',                'Strength',              30 ],
+            [ 'physical',  'physical_agility',                 'Agility',               40 ],
+            [ 'physical',  'physical_coordination',            'Coordination',          50 ],
+            [ 'mental',    'mental_focus',                     'Focus',                 10 ],
+            [ 'mental',    'mental_leadership',                'Leadership',            20 ],
+            [ 'mental',    'mental_attitude',                  'Attitude',              30 ],
+            [ 'mental',    'mental_resilience',                'Resilience',            40 ],
+            [ 'mental',    'mental_coachability',              'Coachability',          50 ],
+        ];
+        foreach ( $subs as $s ) {
+            [ $parent_key, $key, $label, $display_order ] = $s;
+            $parent_id = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$p}tt_eval_categories WHERE `key` = %s", $parent_key
+            ) );
+            if ( $parent_id <= 0 ) continue;
+            $exists = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$p}tt_eval_categories WHERE `key` = %s", $key
+            ) );
+            if ( $exists > 0 ) continue;
+            $wpdb->insert( "{$p}tt_eval_categories", [
+                'parent_id'     => $parent_id,
+                'key'           => $key,
+                'label'         => $label,
+                'description'   => null,
+                'display_order' => $display_order,
+                'is_active'     => 1,
+                'is_system'     => 1,
+            ] );
+        }
+    }
+
     private static function repairFunctionalRoleBackfill(): void {
         global $wpdb;
         $p = $wpdb->prefix;

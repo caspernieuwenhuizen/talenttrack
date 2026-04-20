@@ -20,11 +20,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 class CustomFieldsRepository {
 
-    public const ENTITY_PLAYER  = 'player';
-    public const ENTITY_PERSON  = 'person';
-    public const ENTITY_TEAM    = 'team';
-    public const ENTITY_SESSION = 'session';
-    public const ENTITY_GOAL    = 'goal';
+    public const ENTITY_PLAYER     = 'player';
+    public const ENTITY_PERSON     = 'person';
+    public const ENTITY_TEAM       = 'team';
+    public const ENTITY_SESSION    = 'session';
+    public const ENTITY_GOAL       = 'goal';
+    public const ENTITY_EVALUATION = 'evaluation';
 
     public const TYPE_TEXT         = 'text';
     public const TYPE_TEXTAREA     = 'textarea';
@@ -65,6 +66,7 @@ class CustomFieldsRepository {
             self::ENTITY_TEAM,
             self::ENTITY_SESSION,
             self::ENTITY_GOAL,
+            self::ENTITY_EVALUATION,
         ];
     }
 
