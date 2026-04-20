@@ -1334,3 +1334,45 @@ msgstr "Selecteer persoon"
 msgid "Grant role"
 msgstr "Rol verlenen"
 
+
+# ─── v2.9.1 — Role labels & descriptions translated at display time ───
+
+msgid "Assistant Coach"
+msgstr "Assistent-trainer"
+
+msgid "Audit"
+msgstr "Audit"
+
+msgid "All domains"
+msgstr "Alle domeinen"
+
+msgid "Role assignments"
+msgstr "Rol-toewijzingen"
+
+msgid "Full access across the academy. Can manage all entities, assign staff, and configure the system."
+msgstr "Volledige toegang binnen de academie. Kan alle entiteiten beheren, staf toewijzen en het systeem configureren."
+
+msgid "Shapes methodology and reviews output. Read-all across the academy plus evaluations management. No player-data editing, no staff reassignment."
+msgstr "Vormt de methodiek en beoordeelt de output. Leest alles binnen de academie plus evaluatiebeheer. Geen spelersdata-bewerking, geen staf-herindeling."
+
+msgid "Full control within assigned teams — players, evaluations, sessions, goals, and team settings. Scoped to team."
+msgstr "Volledige controle binnen toegewezen teams — spelers, evaluaties, sessies, doelen en teaminstellingen. Beperkt tot team."
+
+msgid "Evaluate and observe within assigned teams. Can create and edit own evaluations; cannot edit other coaches' evaluations. Scoped to team."
+msgstr "Evalueer en observeer binnen toegewezen teams. Kan eigen evaluaties aanmaken en bewerken; kan evaluaties van andere trainers niet bewerken. Beperkt tot team."
+
+msgid "Runs logistics within assigned teams — roster, sessions, team settings. No evaluation permissions. Scoped to team."
+msgstr "Regelt de logistiek binnen toegewezen teams — selectie, sessies, teaminstellingen. Geen evaluatie-rechten. Beperkt tot team."
+
+msgid "Read-only access to players and sessions within assigned teams."
+msgstr "Alleen-lezen toegang tot spelers en sessies binnen toegewezen teams."
+
+msgid "View any player and create scouting evaluations. Can be assigned globally or to specific teams."
+msgstr "Bekijk elke speler en maak scouting-evaluaties aan. Kan globaal of aan specifieke teams worden toegewezen."
+
+msgid "Read-only access to linked children's records. Scoped to specific players."
+msgstr "Alleen-lezen toegang tot gekoppelde gegevens van kinderen. Beperkt tot specifieke spelers."
+
+msgid "Read-only access to own profile. Auto-derived from tt_players.wp_user_id — not manually grantable."
+msgstr "Alleen-lezen toegang tot eigen profiel. Automatisch afgeleid van tt_players.wp_user_id — niet handmatig toekenbaar."
+

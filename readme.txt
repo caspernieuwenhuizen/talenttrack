@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.9.0
+Stable tag: 2.9.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,16 +12,14 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 2.9.0 — Sprint 1F: Roles as data + admin UI =
-* NEW: tt_roles, tt_role_permissions, tt_user_role_scopes tables. Authorization decisions are now data-driven; role-to-permission mapping lives in the database.
-* NEW: 9 system roles seeded on activation (club_admin, head_of_development, head_coach, assistant_coach, manager, physio, scout, parent, player) with a full permission matrix using the `<domain>.<action>` naming convention.
-* NEW: TalentTrack → Roles & Permissions admin page. Browse every role, see its permission matrix and current assignments.
-* NEW: "Role assignments" section on every Person edit page. Grant/revoke roles with optional scope (global / team / player / person) and start/end dates. Scope options restrict based on role type (head_coach can only be team-scoped, etc.).
-* NEW: TalentTrack → Permission Debug diagnostic. Pick any WordPress user, see every resolved scope with source attribution (data-driven assignment, legacy bridge, or derived) plus the flattened permission set.
-* NEW: Hooks for future extensibility — tt_role_granted, tt_role_revoked, tt_auth_resolve_permissions filter.
-* CHANGED: AuthorizationService internals rewritten to evaluate permissions from tt_user_role_scopes + legacy bridge. Public API is unchanged; every pilot site from Sprint 1E keeps working without modification.
-* Architectural: legacy bridge ensures zero data migration. Existing tt_team_people assignments and tt_teams.head_coach_id values continue to auto-grant equivalent permissions on the fly. Admins can progressively migrate to explicit role grants via the UI.
+= 2.9.1 — Role labels localized at display time =
+* FIXED: Role labels (Club Admin, Head Coach, etc.) and role descriptions were stored in the database in English and rendered raw in the Roles & Permissions UI. They now translate at display time via RolesPage::roleLabel($role_key) and RolesPage::roleDescription($role_key) helpers, so the Dutch site shows Dutch labels everywhere.
+* FIXED: Permission matrix domain headers (Players, Evaluations, Teams…) used ucfirst($domain) raw. Now go through RolesPage::domainLabel($domain_key) which returns translated strings.
+* FIXED: Added missing "Role assignments" translation that was present in code but not in the .po baseline.
+* Translation baseline now 449 entries. All role labels, descriptions, domain names, scope labels, and source-of-permission labels localize correctly in the Roles, Role Detail, Grant Form, and Permission Debug pages.
+* ARCHITECTURAL NOTE: Data in tt_roles (the .label and .description columns) stays in English. Those are stable identifiers for programmatic access. UI display always goes through the localization helpers keyed on role_key. This pattern should be applied to any future UI-facing data stored in database columns.
 
+= 2.9.0 — Sprint 1F: Roles as data + admin UI =
 = 2.8.0 — Sprint 1E: Authorization Core =
 = 2.7.2 — Full Dutch translations + People save-flow consistency =
 = 2.7.1 — Fix PeopleModule silent-skip =

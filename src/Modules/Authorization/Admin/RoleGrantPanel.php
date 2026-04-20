@@ -66,7 +66,7 @@ class RoleGrantPanel {
                     <tr>
                         <td>
                             <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-roles&action=view&id=' . (int) $a->role_id ) ); ?>">
-                                <?php echo esc_html( (string) $a->role_label ); ?>
+                                <?php echo esc_html( RolesPage::roleLabel( (string) $a->role_key ) ); ?>
                             </a>
                         </td>
                         <td><?php echo esc_html( $scope_label ); ?></td>
@@ -132,7 +132,7 @@ class RoleGrantPanel {
                             <?php foreach ( $roles as $r ) :
                                 if ( ! in_array( (int) $r->id, $grantable_role_ids, true ) ) continue; ?>
                                 <option value="<?php echo (int) $r->id; ?>" data-role-key="<?php echo esc_attr( (string) $r->role_key ); ?>">
-                                    <?php echo esc_html( (string) $r->label ); ?>
+                                    <?php echo esc_html( RolesPage::roleLabel( (string) $r->role_key ) ); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

@@ -82,9 +82,9 @@ class RolesPage {
                     $detail_url = admin_url( 'admin.php?page=tt-roles&action=view&id=' . (int) $r->id );
                     ?>
                     <tr>
-                        <td><strong><a href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( (string) $r->label ); ?></a></strong></td>
+                        <td><strong><a href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( self::roleLabel( (string) $r->role_key ) ); ?></a></strong></td>
                         <td><code><?php echo esc_html( (string) $r->role_key ); ?></code></td>
-                        <td><?php echo esc_html( (string) $r->description ); ?></td>
+                        <td><?php echo esc_html( self::roleDescription( (string) $r->role_key ) ); ?></td>
                         <td><?php echo (int) $r->permission_count; ?></td>
                         <td><?php echo (int) $r->assignment_count; ?></td>
                         <td>
@@ -115,7 +115,7 @@ class RolesPage {
         ?>
         <div class="wrap">
             <h1>
-                <?php echo esc_html( (string) $role->label ); ?>
+                <?php echo esc_html( self::roleLabel( (string) $role->role_key ) ); ?>
                 <code style="font-size:14px;color:#666;font-weight:normal;"><?php echo esc_html( (string) $role->role_key ); ?></code>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-roles' ) ); ?>" class="page-title-action">
                     <?php esc_html_e( '← Back to all roles', 'talenttrack' ); ?>
@@ -124,7 +124,7 @@ class RolesPage {
 
             <?php self::renderMessages(); ?>
 
-            <p class="description"><?php echo esc_html( (string) $role->description ); ?></p>
+            <p class="description"><?php echo esc_html( self::roleDescription( (string) $role->role_key ) ); ?></p>
 
             <h2><?php esc_html_e( 'Permissions granted by this role', 'talenttrack' ); ?></h2>
 
@@ -148,7 +148,7 @@ class RolesPage {
                     <tbody>
                         <?php foreach ( $grouped as $domain => $actions ) : ?>
                             <tr>
-                                <td><strong><?php echo esc_html( ucfirst( $domain ) ); ?></strong></td>
+                                <td><strong><?php echo esc_html( self::domainLabel( (string) $domain ) ); ?></strong></td>
                                 <td>
                                     <?php foreach ( $actions as $act ) : ?>
                                         <code style="margin-right:8px;"><?php echo esc_html( $act ); ?></code>
@@ -350,6 +350,76 @@ class RolesPage {
             'player'              => [], // not manually grantable
         ];
         return $map[ $role_key ] ?? [ 'global', 'team', 'player', 'person' ];
+    }
+
+    /**
+     * Translatable label for a role_key. Role labels seeded in tt_roles.label
+     * are in English (for programmatic stability); this method returns the
+     * localized display string.
+     */
+    public static function roleLabel( string $role_key ): string {
+        switch ( $role_key ) {
+            case 'club_admin':          return __( 'Club Admin', 'talenttrack' );
+            case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
+            case 'head_coach':          return __( 'Head Coach', 'talenttrack' );
+            case 'assistant_coach':     return __( 'Assistant Coach', 'talenttrack' );
+            case 'manager':             return __( 'Manager', 'talenttrack' );
+            case 'physio':              return __( 'Physio', 'talenttrack' );
+            case 'scout':               return __( 'Scout', 'talenttrack' );
+            case 'parent':              return __( 'Parent', 'talenttrack' );
+            case 'player':              return __( 'Player', 'talenttrack' );
+        }
+        // Fallback for any custom roles added via future UI.
+        return ucwords( str_replace( '_', ' ', $role_key ) );
+    }
+
+    /**
+     * Translatable description for a role_key. Same reason as roleLabel().
+     */
+    public static function roleDescription( string $role_key ): string {
+        switch ( $role_key ) {
+            case 'club_admin':
+                return __( 'Full access across the academy. Can manage all entities, assign staff, and configure the system.', 'talenttrack' );
+            case 'head_of_development':
+                return __( 'Shapes methodology and reviews output. Read-all across the academy plus evaluations management. No player-data editing, no staff reassignment.', 'talenttrack' );
+            case 'head_coach':
+                return __( 'Full control within assigned teams — players, evaluations, sessions, goals, and team settings. Scoped to team.', 'talenttrack' );
+            case 'assistant_coach':
+                return __( "Evaluate and observe within assigned teams. Can create and edit own evaluations; cannot edit other coaches' evaluations. Scoped to team.", 'talenttrack' );
+            case 'manager':
+                return __( 'Runs logistics within assigned teams — roster, sessions, team settings. No evaluation permissions. Scoped to team.', 'talenttrack' );
+            case 'physio':
+                return __( 'Read-only access to players and sessions within assigned teams.', 'talenttrack' );
+            case 'scout':
+                return __( 'View any player and create scouting evaluations. Can be assigned globally or to specific teams.', 'talenttrack' );
+            case 'parent':
+                return __( "Read-only access to linked children's records. Scoped to specific players.", 'talenttrack' );
+            case 'player':
+                return __( 'Read-only access to own profile. Auto-derived from tt_players.wp_user_id — not manually grantable.', 'talenttrack' );
+        }
+        return '';
+    }
+
+    /**
+     * Translatable label for a permission domain (the left side of
+     * `<domain>.<action>` permission strings). Used in the role detail
+     * page to group permissions.
+     */
+    public static function domainLabel( string $domain_key ): string {
+        switch ( $domain_key ) {
+            case 'players':     return __( 'Players', 'talenttrack' );
+            case 'teams':       return __( 'Teams', 'talenttrack' );
+            case 'team':        return __( 'Team', 'talenttrack' );
+            case 'evaluations': return __( 'Evaluations', 'talenttrack' );
+            case 'sessions':    return __( 'Sessions', 'talenttrack' );
+            case 'goals':       return __( 'Goals', 'talenttrack' );
+            case 'reports':     return __( 'Reports', 'talenttrack' );
+            case 'config':      return __( 'Configuration', 'talenttrack' );
+            case 'people':      return __( 'People', 'talenttrack' );
+            case 'audit':       return __( 'Audit', 'talenttrack' );
+            case '*':           return __( 'All domains', 'talenttrack' );
+        }
+        return ucfirst( $domain_key );
     }
 
     private static function renderMessages(): void {
