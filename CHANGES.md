@@ -1,55 +1,64 @@
-# TalentTrack v2.7.1 — Fix PeopleModule silent-skip
+# TalentTrack v2.7.2 — Full translations + UX consistency
 
-## What was wrong
+## What's fixed
 
-In v2.7.0, the People menu never appeared despite the tables being created and all files being in place. Diagnosis:
+### 1. Complete Dutch translation
 
-Your `ModuleInterface` requires this signature:
+The nl_NL `.mo` file now covers **all 385 translatable strings** in the plugin — every `__()`, `_e()`, `esc_html__()`, `esc_attr__()`, `_n()`, `_x()` call across all 130 PHP files.
 
-```php
-public function register( Container $container ): void;
-public function boot( Container $container ): void;
-public function getName(): string;
-```
+Previous releases shipped only the **new** strings added in that release. Because installing the new ZIP overwrote the `.mo` file, each release wiped out translations from earlier ones. After v2.7.1, most of the plugin was falling back to English because only the ~65 People-related strings had translations.
 
-My v2.7.0 PeopleModule had:
-- `public function register(): void` (missing `Container $container`)
-- `public function boot(): void` (missing `Container $container`)
-- No `getName()` method at all
-- **Didn't declare `implements ModuleInterface`**
+v2.7.2 ships a cumulative translation file built by scanning the entire deployed codebase. Going forward every release should inherit from this baseline.
 
-`ModuleRegistry::load()` checks `$module instanceof ModuleInterface` before registering. My PeopleModule wasn't an instance, so it got silently skipped — same shape of silent-skip bug we've fought before.
+### 2. People save-flow matches the rest of the plugin
 
-This is entirely my fault. I should have inspected `ModuleInterface` before writing the module.
+Creating a new person now redirects to the **People list page** with a green "Opgeslagen." / "Saved." notice at the top — exactly the same UX as Evaluations, Players, Teams, Sessions, and Goals.
 
-## What v2.7.1 does
+Previously it redirected to the edit page, which felt like nothing happened and was inconsistent with the rest of the admin.
 
-One file change: a corrected `src/Modules/People/PeopleModule.php` that:
-- Declares `implements ModuleInterface`
-- Uses the correct signatures with `Container $container`
-- Implements `getName()` returning `'people'`
-- Moves `add_action( 'admin_menu', ... )` from `register()` to `boot()` (the interface docblock says boot() is for "admin menus, hooks, shortcodes" — register() is for earlier registration)
+Specifically:
+- **Create person → success** → redirect to list with `tt_msg=saved`
+- **Update person → success** → redirect to list with `tt_msg=saved`
+- **Activate/deactivate → success** → redirect to list with `tt_msg=saved`
+- **Save failed** → redirect to list with `tt_msg=error` (red error notice)
+
+This matches the pattern every other admin page uses.
+
+## Files changed
+
+- `languages/talenttrack-nl_NL.po` — comprehensive Dutch translations (385 msgids, was ~65)
+- `languages/talenttrack-nl_NL.mo` — compiled .mo, 24KB (was ~4KB)
+- `src/Modules/People/Admin/PeoplePage.php` — save flow matches other modules
+- `talenttrack.php` — version 2.7.2
+- `readme.txt` — stable tag + changelog
+
+Nothing else changed. No schema changes, no database work, no need to deactivate/reactivate.
 
 ## Install
 
 1. Extract ZIP into `/wp-content/plugins/talenttrack/` overwriting.
-2. Commit, push, tag `v2.7.1`, create release.
-3. **No deactivate/reactivate needed** — just refresh wp-admin.
-4. TalentTrack → **People** should appear in the menu.
+2. Commit, push, tag `v2.7.2`, create release.
+3. WordPress updates → refresh wp-admin → everything should be in Dutch now.
+4. Go to People → Add New → create a person → submit → you land on the People list with a "Opgeslagen." notice at the top.
 
-## Verify
+## Translation coverage
 
-- TalentTrack → People renders an empty people list with an "Add New" button
-- TalentTrack → Teams → edit any team → scroll below the form → Staff section appears
-- Everything from v2.7.0's verification checklist should now work
+- Core admin: 100%
+- Players, Teams, Evaluations, Sessions, Goals modules: 100%
+- People & Staff (Sprint 1D): 100%
+- Configuration, Custom Fields, Migrations: 100%
+- Frontend dashboards (coach & player views): 100%
+- Auth (login, logout): 100%
+- Documentation / help pages: 100%
+- Audit log, feature toggles: 100%
 
-## Files in this release
+Every string in every PHP file scanned. If something still appears in English after this release, it means I missed a string during extraction — send me a screenshot and I'll patch it in the next release.
 
-Only one file changed:
-- `src/Modules/People/PeopleModule.php` — properly implements ModuleInterface
+## Going forward
 
-Plus version bumps:
-- `talenttrack.php` — 2.7.1
-- `readme.txt` — 2.7.1 stable tag
+This .po file is now the translation baseline. When future releases add new strings:
+- Each new release's `.po` will be the previous `.po` **plus** newly-added entries
+- Never shipping a slim delta `.po` again (that's what caused this problem)
+- Ideally we set up `.pot` extraction as part of CI so nothing new lands without being translatable
 
-Everything else unchanged from v2.7.0.
+That CI step is on the backlog — low urgency, but worth doing once the other backlog items settle.

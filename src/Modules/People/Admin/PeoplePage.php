@@ -8,15 +8,13 @@ use TT\Infrastructure\People\PeopleRepository;
 /**
  * PeoplePage — admin UI for the People module.
  *
- * Routes (all under admin.php?page=tt-people):
- *   - default (no action)     → render list
- *   - action=new              → render create form
- *   - action=edit&id=N        → render edit form
- *
- * Form submissions route to admin-post.php with actions:
- *   - tt_save_person          → create or update
- *   - tt_set_person_status    → activate/deactivate
- *   - tt_unassign_staff       → remove a team-staff assignment
+ * v2.7.2 changes from v2.7.1:
+ *   - handleSave(): on create AND update, redirect to the list page with
+ *     tt_msg=saved. Matches the pattern used by Evaluations/Players/Teams/etc.
+ *     Previously we redirected to the edit page on create, which was
+ *     inconsistent with the rest of the admin and made success less visible.
+ *   - renderMessages(): simplified to match other modules — a single
+ *     "Saved." notice on tt_msg=saved and "Deleted." on tt_msg=deleted.
  */
 class PeoplePage {
 
@@ -292,21 +290,16 @@ class PeoplePage {
 
         if ( $id > 0 ) {
             $ok = $repo->update( $id, $data );
-            $msg = $ok ? 'saved' : 'error';
         } else {
             $new_id = $repo->create( $data );
-            $ok  = $new_id !== false;
-            $msg = $ok ? 'created' : 'error';
-            $id  = $ok ? (int) $new_id : 0;
+            $ok = $new_id !== false;
         }
 
-        $redirect = admin_url( 'admin.php?page=tt-people' );
-        if ( $ok && $id > 0 ) {
-            $redirect = admin_url( 'admin.php?page=tt-people&action=edit&id=' . $id );
-        }
-        $redirect = add_query_arg( 'tt_msg', $msg, $redirect );
-
-        wp_safe_redirect( $redirect );
+        // Match the plugin-wide pattern: successful save redirects to the list
+        // with tt_msg=saved. Failed save also redirects to list but with
+        // tt_msg=error (rendered as an error notice there).
+        $msg = $ok ? 'saved' : 'error';
+        wp_safe_redirect( admin_url( 'admin.php?page=tt-people&tt_msg=' . $msg ) );
         exit;
     }
 
@@ -361,18 +354,20 @@ class PeoplePage {
         return $map[ $role ] ?? ucwords( str_replace( '_', ' ', $role ) );
     }
 
+    /**
+     * Render a success/error notice at the top of the list page.
+     * Matches the pattern used by EvaluationsPage, PlayersPage, etc.
+     */
     private static function renderMessages(): void {
         $msg = isset( $_GET['tt_msg'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tt_msg'] ) ) : '';
         if ( $msg === '' ) return;
 
-        $notices = [
-            'saved'   => [ 'success', __( 'Saved.', 'talenttrack' ) ],
-            'created' => [ 'success', __( 'Person created.', 'talenttrack' ) ],
-            'error'   => [ 'error',   __( 'Something went wrong.', 'talenttrack' ) ],
-        ];
-
-        if ( ! isset( $notices[ $msg ] ) ) return;
-        [ $kind, $text ] = $notices[ $msg ];
-        echo '<div class="notice notice-' . esc_attr( $kind ) . ' is-dismissible"><p>' . esc_html( $text ) . '</p></div>';
+        if ( $msg === 'saved' ) {
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Saved.', 'talenttrack' ) . '</p></div>';
+        } elseif ( $msg === 'deleted' ) {
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Deleted.', 'talenttrack' ) . '</p></div>';
+        } elseif ( $msg === 'error' ) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'Something went wrong.', 'talenttrack' ) . '</p></div>';
+        }
     }
 }

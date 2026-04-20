@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 2.7.0\n"
+"Project-Id-Version: TalentTrack 2.7.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-20 10:00+0000\n"
-"PO-Revision-Date: 2026-04-20 10:00+0000\n"
+"POT-Creation-Date: 2026-04-20 10:30+0000\n"
+"PO-Revision-Date: 2026-04-20 10:30+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
 "Language: nl_NL\n"
@@ -12,23 +12,680 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "People"
-msgstr "Personen"
+msgid "(directory not found!)"
+msgstr "(map niet gevonden!)"
 
-msgid "Staff"
-msgstr "Staf"
+msgid "+ Add option"
+msgstr "+ Optie toevoegen"
+
+msgid "Absent"
+msgstr "Afwezig"
+
+msgid "Academy Name"
+msgstr "Naam academie"
+
+msgid "Action"
+msgstr "Actie"
+
+msgid "Action (e.g. player.saved)"
+msgstr "Actie (bijv. player.saved)"
+
+msgid "Actions"
+msgstr "Acties"
+
+msgid "Activate"
+msgstr "Activeren"
+
+msgid "Active"
+msgstr "Actief"
+
+msgid "Add"
+msgstr "Toevoegen"
+
+msgid "Add Field"
+msgstr "Veld toevoegen"
+
+msgid "Add Goal"
+msgstr "Doel toevoegen"
 
 msgid "Add New"
-msgstr "Toevoegen"
+msgstr "Nieuw toevoegen"
 
 msgid "Add Person"
 msgstr "Persoon toevoegen"
 
+msgid "Add Player"
+msgstr "Speler toevoegen"
+
+msgid "Add Team"
+msgstr "Team toevoegen"
+
+msgid "Add a person first"
+msgstr "Voeg eerst een persoon toe"
+
+msgid "Add some"
+msgstr "Voeg enkele toe"
+
+msgid "Additional Fields"
+msgstr "Aanvullende velden"
+
+msgid "Additional Information"
+msgstr "Aanvullende informatie"
+
+msgid "Admin"
+msgstr "Beheerder"
+
+msgid "Administrator Guide"
+msgstr "Handleiding voor beheerders"
+
+msgid "After login, redirect players and coaches to the TalentTrack dashboard page instead of wp-admin."
+msgstr "Na inloggen spelers en trainers doorverwijzen naar de TalentTrack-dashboardpagina in plaats van wp-admin."
+
+msgid "Age Group"
+msgstr "Leeftijdscategorie"
+
+msgid "Age Groups"
+msgstr "Leeftijdscategorieën"
+
+msgid "All Migrations"
+msgstr "Alle migraties"
+
+msgid "All Teams"
+msgstr "Alle teams"
+
+msgid "All statuses"
+msgstr "Alle statussen"
+
+msgid "An error occurred."
+msgstr "Er is een fout opgetreden."
+
+msgid "Applied At"
+msgstr "Toegepast op"
+
+msgid "Assign"
+msgstr "Toewijzen"
+
+msgid "Assign staff to this team"
+msgstr "Staf toewijzen aan dit team"
+
+msgid "Assignment"
+msgstr "Toewijzing"
+
+msgid "Assistant coach"
+msgstr "Assistent-trainer"
+
+msgid "Attendance"
+msgstr "Aanwezigheid"
+
+msgid "Attendance Status"
+msgstr "Aanwezigheidsstatus"
+
+msgid "Attendance Statuses"
+msgstr "Aanwezigheidsstatussen"
+
+msgid "Audit Log"
+msgstr "Audit-log"
+
+msgid "Audit log"
+msgstr "Audit-log"
+
+msgid "Audit logging is currently disabled. Enable it under Feature Toggles to start recording entries."
+msgstr "Audit-logging is momenteel uitgeschakeld. Schakel dit in onder Functietoggles om vermeldingen vast te leggen."
+
+msgid "Auto-generated from Label when blank. Lower-case, snake_case. Locked after saving."
+msgstr "Automatisch gegenereerd uit Label indien leeg. Kleine letters, snake_case. Vergrendeld na opslaan."
+
+msgid "Away"
+msgstr "Uit"
+
+msgid "Branding"
+msgstr "Huisstijl"
+
+msgid "Cancelled"
+msgstr "Geannuleerd"
+
+msgid "Check your email for a password reset link."
+msgstr "Controleer uw e-mail voor een link om uw wachtwoord opnieuw in te stellen."
+
+msgid "Checkbox"
+msgstr "Aankruisvak"
+
+msgid "Clear"
+msgstr "Wissen"
+
+msgid "Club Admin"
+msgstr "Clubbeheerder"
+
+msgid "Coach"
+msgstr "Trainer"
+
+msgid "Coach Guide"
+msgstr "Trainersgids"
+
+msgid "Coach Quick Guide"
+msgstr "Snelstartgids trainer"
+
+msgid "Competition"
+msgstr "Competitie"
+
+msgid "Completed"
+msgstr "Voltooid"
+
+msgid "Configuration"
+msgstr "Configuratie"
+
+msgid "Current Goals"
+msgstr "Huidige doelen"
+
+msgid "DOB"
+msgstr "Geboortedatum"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Database Migrations"
+msgstr "Database-migraties"
+
+msgid "Database is up to date."
+msgstr "Database is up-to-date."
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Date Joined"
+msgstr "Aangesloten op"
+
+msgid "Date of Birth"
+msgstr "Geboortedatum"
+
+msgid "Deactivate"
+msgstr "Deactiveren"
+
+msgid "Default role if this person isn't assigned to a specific team. Team assignments can override this per-team."
+msgstr "Standaardrol als deze persoon niet aan een specifiek team is toegewezen. Teamtoewijzingen kunnen dit per team overschrijven."
+
+msgid "Define additional attributes you want to capture for each player. Fields you add here appear on the Add/Edit Player form."
+msgstr "Definieer aanvullende kenmerken die u voor elke speler wilt vastleggen. Velden die u hier toevoegt, verschijnen op het formulier Speler toevoegen/bewerken."
+
+msgid "Delete"
+msgstr "Verwijderen"
+
+msgid "Delete this goal?"
+msgstr "Dit doel verwijderen?"
+
+msgid "Delete?"
+msgstr "Verwijderen?"
+
+msgid "Deleted"
+msgstr "Verwijderd"
+
+msgid "Deleted."
+msgstr "Verwijderd."
+
+msgid "Description"
+msgstr "Beschrijving"
+
+msgid "Development Over Time"
+msgstr "Ontwikkeling in de tijd"
+
+msgid "Development Radar"
+msgstr "Ontwikkelingsradar"
+
+msgid "Diagnostic Information"
+msgstr "Diagnostische informatie"
+
+msgid "Disabled"
+msgstr "Uitgeschakeld"
+
+msgid "Drag rows to reorder, then click Save Order."
+msgstr "Sleep rijen om te herschikken, klik dan op Volgorde opslaan."
+
+msgid "Drag rows to reorder. Leave Value blank to auto-fill from Label."
+msgstr "Sleep rijen om te herschikken. Laat Waarde leeg om automatisch vanuit Label in te vullen."
+
+msgid "Due"
+msgstr "Deadline"
+
+msgid "Due Date"
+msgstr "Deadline"
+
+msgid "Due:"
+msgstr "Deadline:"
+
+msgid "Edit"
+msgstr "Bewerken"
+
+msgid "Edit Custom Field"
+msgstr "Aangepast veld bewerken"
+
+msgid "Edit Evaluation"
+msgstr "Evaluatie bewerken"
+
+msgid "Edit Goal"
+msgstr "Doel bewerken"
+
 msgid "Edit Person"
 msgstr "Persoon bewerken"
 
-msgid "Update Person"
-msgstr "Persoon bijwerken"
+msgid "Edit Player"
+msgstr "Speler bewerken"
+
+msgid "Edit Session"
+msgstr "Sessie bewerken"
+
+msgid "Edit Team"
+msgstr "Team bewerken"
+
+msgid "Edit profile"
+msgstr "Profiel bewerken"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Enable or disable specific TalentTrack features without code changes."
+msgstr "Specifieke TalentTrack-functies in- of uitschakelen zonder codewijzigingen."
+
+msgid "Enabled"
+msgstr "Ingeschakeld"
+
+msgid "End date"
+msgstr "Einddatum"
+
+msgid "Entity"
+msgstr "Entiteit"
+
+msgid "Entity type"
+msgstr "Entiteitstype"
+
+msgid "Error."
+msgstr "Fout."
+
+msgid "Evaluation"
+msgstr "Evaluatie"
+
+msgid "Evaluation Categories"
+msgstr "Evaluatie-categorieën"
+
+msgid "Evaluation Category"
+msgstr "Evaluatie-categorie"
+
+msgid "Evaluation Type"
+msgstr "Evaluatietype"
+
+msgid "Evaluation Types"
+msgstr "Evaluatietypes"
+
+msgid "Evaluation saved!"
+msgstr "Evaluatie opgeslagen!"
+
+msgid "Evaluations"
+msgstr "Evaluaties"
+
+msgid "Excused"
+msgstr "Afgemeld"
+
+msgid "Feature"
+msgstr "Functie"
+
+msgid "Feature Toggles"
+msgstr "Functietoggles"
+
+msgid "Field type is invalid."
+msgstr "Veldtype is ongeldig."
+
+msgid "Field type is locked once saved."
+msgstr "Veldtype wordt vergrendeld na opslaan."
+
+msgid "Filter"
+msgstr "Filteren"
+
+msgid "First Name"
+msgstr "Voornaam"
+
+msgid "First name"
+msgstr "Voornaam"
+
+msgid "Foot"
+msgstr "Voet"
+
+msgid "Foot Option"
+msgstr "Voetoptie"
+
+msgid "Foot:"
+msgstr "Voet:"
+
+msgid "From"
+msgstr "Vanaf"
+
+msgid "Go to Admin"
+msgstr "Naar beheer"
+
+msgid "Goal"
+msgstr "Doel"
+
+msgid "Goal Priorities"
+msgstr "Doelprioriteiten"
+
+msgid "Goal Priority"
+msgstr "Doelprioriteit"
+
+msgid "Goal Status"
+msgstr "Doelstatus"
+
+msgid "Goal Statuses"
+msgstr "Doelstatussen"
+
+msgid "Goal added!"
+msgstr "Doel toegevoegd!"
+
+msgid "Goal delete failed."
+msgstr "Verwijderen van doel mislukt."
+
+msgid "Goal deleted."
+msgstr "Doel verwijderd."
+
+msgid "Goals"
+msgstr "Doelen"
+
+msgid "Guardian Email"
+msgstr "E-mail voogd"
+
+msgid "Guardian Name"
+msgstr "Naam voogd"
+
+msgid "Guardian Phone"
+msgstr "Telefoon voogd"
+
+msgid "Head Coach"
+msgstr "Hoofdtrainer"
+
+msgid "Head coach"
+msgstr "Hoofdtrainer"
+
+msgid "Head of Development"
+msgstr "Hoofd opleiding"
+
+msgid "Height (cm)"
+msgstr "Lengte (cm)"
+
+msgid "Help"
+msgstr "Hulp"
+
+msgid "Help & Docs"
+msgstr "Hulp & documentatie"
+
+msgid "High"
+msgstr "Hoog"
+
+msgid "Home"
+msgstr "Thuis"
+
+msgid "Home/Away"
+msgstr "Thuis/Uit"
+
+msgid "How to use your dashboard"
+msgstr "Hoe u uw dashboard gebruikt"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "In Progress"
+msgstr "In uitvoering"
+
+msgid "Inactive"
+msgstr "Inactief"
+
+msgid "Injured"
+msgstr "Geblesseerd"
+
+msgid "Jersey Number"
+msgstr "Rugnummer"
+
+msgid "Key"
+msgstr "Sleutel"
+
+msgid "Keys are locked once saved (changing a key would orphan existing values)."
+msgstr "Sleutels worden vergrendeld na opslaan (een sleutel wijzigen zou bestaande waarden wees maken)."
+
+msgid "Label"
+msgstr "Label"
+
+msgid "Label is required."
+msgstr "Label is verplicht."
+
+msgid "Last Name"
+msgstr "Achternaam"
+
+msgid "Last name"
+msgstr "Achternaam"
+
+msgid "Late"
+msgstr "Laat"
+
+msgid "Legacy head_coach_id"
+msgstr "Verouderde hoofdtrainer-koppeling"
+
+msgid "Linked WP User"
+msgstr "Gekoppelde WP-gebruiker"
+
+msgid "Linked WordPress user"
+msgstr "Gekoppelde WordPress-gebruiker"
+
+msgid "Location"
+msgstr "Locatie"
+
+msgid "Log out"
+msgstr "Uitloggen"
+
+msgid "Login redirect"
+msgstr "Inlog-doorverwijzing"
+
+msgid "Logo"
+msgstr "Logo"
+
+msgid "Lost your password?"
+msgstr "Wachtwoord vergeten?"
+
+msgid "Low"
+msgstr "Laag"
+
+msgid "Manage Goals"
+msgstr "Doelen beheren"
+
+msgid "Manager"
+msgstr "Manager"
+
+msgid "Match Details?"
+msgstr "Wedstrijddetails?"
+
+msgid "Maximum"
+msgstr "Maximum"
+
+msgid "Medium"
+msgstr "Gemiddeld"
+
+msgid "Migration"
+msgstr "Migratie"
+
+msgid "Migration %1$s applied successfully in %2$dms."
+msgstr "Migratie %1$s met succes toegepast in %2$dms."
+
+msgid "Migration %s failed."
+msgstr "Migratie %s is mislukt."
+
+msgid "Migration %s was already applied."
+msgstr "Migratie %s was al toegepast."
+
+msgid "Migrations"
+msgstr "Migraties"
+
+msgid "Migrations directory"
+msgstr "Map met migraties"
+
+msgid "Minimum"
+msgstr "Minimum"
+
+msgid "Minutes Played"
+msgstr "Gespeelde minuten"
+
+msgid "Missing required fields."
+msgstr "Verplichte velden ontbreken."
+
+msgid "My Team"
+msgstr "Mijn team"
+
+msgid "My Team shows your players. New Evaluation submits training or match evaluations. New Session records attendance. Manage Goals assigns and tracks goals."
+msgstr "Mijn team toont uw spelers. Nieuwe evaluatie verstuurt training- of wedstrijdevaluaties. Nieuwe sessie registreert aanwezigheid. Doelen beheren wijst doelen toe en volgt deze."
+
+msgid "Name"
+msgstr "Naam"
+
+msgid "Nationality"
+msgstr "Nationaliteit"
+
+msgid "Network error."
+msgstr "Netwerkfout."
+
+msgid "New Custom Field"
+msgstr "Nieuw aangepast veld"
+
+msgid "New Evaluation"
+msgstr "Nieuwe evaluatie"
+
+msgid "New Session"
+msgstr "Nieuwe sessie"
+
+msgid "No"
+msgstr "Nee"
+
+msgid "No active people exist yet."
+msgstr "Er zijn nog geen actieve personen."
+
+msgid "No attendance records."
+msgstr "Geen aanwezigheidsregistraties."
+
+msgid "No audit entries match your filters."
+msgstr "Geen audit-vermeldingen voldoen aan uw filters."
+
+msgid "No custom fields defined yet."
+msgstr "Nog geen aangepaste velden gedefinieerd."
+
+msgid "No data."
+msgstr "Geen gegevens."
+
+msgid "No evaluation categories configured."
+msgstr "Geen evaluatie-categorieën geconfigureerd."
+
+msgid "No evaluation types."
+msgstr "Geen evaluatietypes."
+
+msgid "No evaluations yet."
+msgstr "Nog geen evaluaties."
+
+msgid "No evaluations."
+msgstr "Geen evaluaties."
+
+msgid "No goals assigned."
+msgstr "Geen doelen toegewezen."
+
+msgid "No goals yet."
+msgstr "Nog geen doelen."
+
+msgid "No goals."
+msgstr "Geen doelen."
+
+msgid "No items."
+msgstr "Geen items."
+
+msgid "No migrations found."
+msgstr "Geen migraties gevonden."
+
+msgid "No people yet."
+msgstr "Nog geen personen."
+
+msgid "No player profile is linked to your account. Please contact your administrator."
+msgstr "Er is geen spelersprofiel aan uw account gekoppeld. Neem contact op met uw beheerder."
+
+msgid "No players."
+msgstr "Geen spelers."
+
+msgid "No sessions."
+msgstr "Geen sessies."
+
+msgid "No staff assigned to this team yet."
+msgstr "Nog geen staf toegewezen aan dit team."
+
+msgid "No teams assigned."
+msgstr "Geen teams toegewezen."
+
+msgid "No teams."
+msgstr "Geen teams."
+
+msgid "Not enough data yet."
+msgstr "Nog niet genoeg gegevens."
+
+msgid "Not found."
+msgstr "Niet gevonden."
+
+msgid "Notes"
+msgstr "Notities"
+
+msgid "Number"
+msgstr "Getal"
+
+msgid "On Hold"
+msgstr "In de wacht"
+
+msgid "Only staff (assigned to at least one team)"
+msgstr "Alleen staf (gekoppeld aan minstens één team)"
+
+msgid "Only used for select-type fields."
+msgstr "Alleen gebruikt voor velden van het type selecteren."
+
+msgid "Opponent"
+msgstr "Tegenstander"
+
+msgid "Option label"
+msgstr "Optielabel"
+
+msgid "Optional. Link to a WordPress user account for login access."
+msgstr "Optioneel. Koppel aan een WordPress-gebruikersaccount voor inlogtoegang."
+
+msgid "Options"
+msgstr "Opties"
+
+msgid "Order"
+msgstr "Volgorde"
+
+msgid "Other"
+msgstr "Overig"
+
+msgid "Overview"
+msgstr "Overzicht"
+
+msgid "Overview shows your profile and latest radar chart. Evaluations lists every evaluation your coaches have recorded. Goals shows your development goals. Attendance tracks your sessions. Progress shows your trajectory."
+msgstr "Overzicht toont uw profiel en de nieuwste radargrafiek. Evaluaties lijst elke evaluatie op die uw trainers hebben vastgelegd. Doelen toont uw ontwikkelingsdoelen. Aanwezigheid volgt uw sessies. Voortgang toont uw ontwikkeling."
+
+msgid "Parent"
+msgstr "Ouder"
+
+msgid "Password"
+msgstr "Wachtwoord"
+
+msgid "Payload"
+msgstr "Payload"
+
+msgid "Pending"
+msgstr "In behandeling"
+
+msgid "Pending migrations typically ship new schema changes required by recent features. Apply them to keep your database in sync with the plugin code."
+msgstr "Migraties in behandeling bevatten doorgaans nieuwe schemawijzigingen die nodig zijn voor recente functies. Voer ze uit om uw database gelijk te houden met de plugincode."
+
+msgid "People"
+msgstr "Personen"
+
+msgid "Person"
+msgstr "Persoon"
 
 msgid "Person created."
 msgstr "Persoon aangemaakt."
@@ -36,170 +693,482 @@ msgstr "Persoon aangemaakt."
 msgid "Person not found."
 msgstr "Persoon niet gevonden."
 
-msgid "No people yet."
-msgstr "Nog geen personen."
-
-msgid "Search name or email"
-msgstr "Zoek naam of e-mail"
-
-msgid "All statuses"
-msgstr "Alle statussen"
-
-msgid "Active"
-msgstr "Actief"
-
-msgid "Inactive"
-msgstr "Inactief"
-
-msgid "Only staff (assigned to at least one team)"
-msgstr "Alleen staf (gekoppeld aan minstens één team)"
-
-msgid "Filter"
-msgstr "Filteren"
-
-msgid "Name"
-msgstr "Naam"
-
-msgid "Role"
-msgstr "Rol"
-
-msgid "Email"
-msgstr "E-mail"
-
 msgid "Phone"
 msgstr "Telefoon"
 
-msgid "Teams"
-msgstr "Teams"
-
-msgid "Status"
-msgstr "Status"
-
-msgid "Actions"
-msgstr "Acties"
-
-msgid "First name"
-msgstr "Voornaam"
-
-msgid "Last name"
-msgstr "Achternaam"
-
-msgid "Primary role"
-msgstr "Primaire rol"
-
-msgid "Default role if this person isn't assigned to a specific team. Team assignments can override this per-team."
-msgstr "Standaardrol als deze persoon niet aan een specifiek team is toegewezen. Teamtoewijzingen kunnen dit per team overschrijven."
-
-msgid "Linked WordPress user"
-msgstr "Gekoppelde WordPress-gebruiker"
-
-msgid "Optional. Link to a WordPress user account for login access."
-msgstr "Optioneel. Koppel aan een WordPress-gebruikersaccount voor inlogtoegang."
-
-msgid "— None —"
-msgstr "— Geen —"
-
-msgid "Activate"
-msgstr "Activeren"
-
-msgid "Deactivate"
-msgstr "Deactiveren"
-
-msgid "Team assignments"
-msgstr "Teamtoewijzingen"
-
-msgid "This person is not currently assigned to any team."
-msgstr "Deze persoon is momenteel niet toegewezen aan een team."
-
-msgid "To add new assignments, edit the team and use the Staff section there."
-msgstr "Om nieuwe toewijzingen toe te voegen, bewerk het team en gebruik de Staf-sectie daar."
-
-msgid "Team"
-msgstr "Team"
-
-msgid "From"
-msgstr "Vanaf"
-
-msgid "Until"
-msgstr "Tot"
-
-msgid "Source"
-msgstr "Bron"
-
-msgid "No staff assigned to this team yet."
-msgstr "Nog geen staf toegewezen aan dit team."
-
-msgid "Legacy head_coach_id"
-msgstr "Verouderde hoofdtrainer-koppeling"
-
-msgid "Assignment"
-msgstr "Toewijzing"
-
-msgid "Shown for backward compatibility. Add as an explicit assignment below to manage it here."
-msgstr "Getoond voor achterwaartse compatibiliteit. Voeg hieronder toe als expliciete toewijzing om deze hier te beheren."
-
-msgid "Remove this staff assignment?"
-msgstr "Deze staftoewijzing verwijderen?"
-
-msgid "Unassign"
-msgstr "Verwijderen"
-
-msgid "Assign staff to this team"
-msgstr "Staf toewijzen aan dit team"
-
-msgid "No active people exist yet."
-msgstr "Er zijn nog geen actieve personen."
-
-msgid "Add a person first"
-msgstr "Voeg eerst een persoon toe"
-
-msgid "Person"
-msgstr "Persoon"
-
-msgid "— Select —"
-msgstr "— Selecteer —"
-
-msgid "Role in team"
-msgstr "Rol in team"
-
-msgid "Start date"
-msgstr "Startdatum"
-
-msgid "End date"
-msgstr "Einddatum"
-
-msgid "Assign"
-msgstr "Toewijzen"
-
-msgid "Coach"
-msgstr "Trainer"
-
-msgid "Assistant coach"
-msgstr "Assistent-trainer"
-
-msgid "Head coach"
-msgstr "Hoofdtrainer"
-
-msgid "Manager"
-msgstr "Manager"
+msgid "Photo"
+msgstr "Foto"
 
 msgid "Physio"
 msgstr "Fysio"
 
-msgid "Scout"
-msgstr "Scout"
+msgid "Player"
+msgstr "Speler"
 
-msgid "Parent"
-msgstr "Ouder"
+msgid "Player Comparison"
+msgstr "Spelersvergelijking"
 
-msgid "Other"
-msgstr "Overig"
+msgid "Player Custom Fields"
+msgstr "Aangepaste spelersvelden"
+
+msgid "Player Detail"
+msgstr "Spelerdetail"
+
+msgid "Player Guide"
+msgstr "Spelersgids"
+
+msgid "Player Progress"
+msgstr "Spelersvoortgang"
+
+msgid "Player Progress Over Time"
+msgstr "Spelersvoortgang in de tijd"
+
+msgid "Player(s)"
+msgstr "Speler(s)"
+
+msgid "Players"
+msgstr "Spelers"
+
+msgid "Players cannot be saved without a value for this field."
+msgstr "Spelers kunnen niet worden opgeslagen zonder een waarde voor dit veld."
+
+msgid "Please fix the errors below:"
+msgstr "Herstel de onderstaande fouten:"
+
+msgid "Plugin version"
+msgstr "Plugin-versie"
+
+msgid "Pos:"
+msgstr "Pos:"
+
+msgid "Position"
+msgstr "Positie"
+
+msgid "Position(s)"
+msgstr "Positie(s)"
+
+msgid "Positions"
+msgstr "Posities"
+
+msgid "Preferred Foot"
+msgstr "Voorkeursvoet"
+
+msgid "Preferred Position(s)"
+msgstr "Voorkeurspositie(s)"
+
+msgid "Present"
+msgstr "Aanwezig"
+
+msgid "Primary Color"
+msgstr "Primaire kleur"
+
+msgid "Primary role"
+msgstr "Primaire rol"
+
+msgid "Priority"
+msgstr "Prioriteit"
+
+msgid "Progress"
+msgstr "Voortgang"
+
+msgid "Prompts for opponent, competition, result, home/away, minutes played"
+msgstr "Vraagt om tegenstander, competitie, uitslag, thuis/uit, gespeelde minuten"
+
+msgid "Radar Chart"
+msgstr "Radargrafiek"
+
+msgid "Rating Scale"
+msgstr "Beoordelingsschaal"
+
+msgid "Ratings"
+msgstr "Beoordelingen"
+
+msgid "Record Training Session"
+msgstr "Trainingssessie vastleggen"
+
+msgid "Record player, evaluation, team, session, goal, and configuration changes to the audit trail."
+msgstr "Leg wijzigingen aan spelers, evaluaties, teams, sessies, doelen en configuratie vast in het audit-spoor."
+
+msgid "Released"
+msgstr "Vrijgegeven"
+
+msgid "Remember me"
+msgstr "Onthoud mij"
+
+msgid "Remove"
+msgstr "Verwijderen"
+
+msgid "Remove this staff assignment?"
+msgstr "Deze staftoewijzing verwijderen?"
+
+msgid "Report Type"
+msgstr "Rapporttype"
+
+msgid "Reports"
+msgstr "Rapporten"
+
+msgid "Required"
+msgstr "Verplicht"
+
+msgid "Requires Match Details"
+msgstr "Vereist wedstrijddetails"
+
+msgid "Result"
+msgstr "Uitslag"
+
+msgid "Review and Apply"
+msgstr "Bekijken en toepassen"
+
+msgid "Role"
+msgstr "Rol"
+
+msgid "Role in team"
+msgstr "Rol in team"
+
+msgid "Run"
+msgstr "Uitvoeren"
+
+msgid "Run All Pending Migrations"
+msgstr "Alle openstaande migraties uitvoeren"
+
+msgid "Run Report"
+msgstr "Rapport uitvoeren"
+
+msgid "Save"
+msgstr "Opslaan"
+
+msgid "Save Evaluation"
+msgstr "Evaluatie opslaan"
+
+msgid "Save Order"
+msgstr "Volgorde opslaan"
+
+msgid "Save Session"
+msgstr "Sessie opslaan"
+
+msgid "Save Toggles"
+msgstr "Toggles opslaan"
 
 msgid "Saved."
 msgstr "Opgeslagen."
 
+msgid "Saving..."
+msgstr "Opslaan…"
+
+msgid "Scout"
+msgstr "Scout"
+
+msgid "Search name or email"
+msgstr "Zoek naam of e-mail"
+
+msgid "Secondary Color"
+msgstr "Secundaire kleur"
+
+msgid "Select (dropdown)"
+msgstr "Selecteren (keuzelijst)"
+
+msgid "Select Logo"
+msgstr "Logo selecteren"
+
+msgid "Select Photo"
+msgstr "Foto selecteren"
+
+msgid "Select a player from the roster."
+msgstr "Selecteer een speler uit de selectie."
+
+msgid "Select at least 2 players."
+msgstr "Selecteer minstens 2 spelers."
+
+msgid "Select-type fields require at least one option."
+msgstr "Velden van het type selecteren vereisen minstens één optie."
+
+msgid "Session"
+msgstr "Sessie"
+
+msgid "Session saved!"
+msgstr "Sessie opgeslagen!"
+
+msgid "Sessions"
+msgstr "Sessies"
+
+msgid "Set up your academy by visiting Configuration, adding Teams, creating Players, and linking WP user accounts to players."
+msgstr "Zet uw academie op door naar Configuratie te gaan, teams toe te voegen, spelers aan te maken en WP-gebruikersaccounts aan spelers te koppelen."
+
+msgid "Shown for backward compatibility. Add as an explicit assignment below to manage it here."
+msgstr "Getoond voor achterwaartse compatibiliteit. Voeg hieronder toe als expliciete toewijzing om deze hier te beheren."
+
+msgid "Sign in"
+msgstr "Inloggen"
+
+msgid "Sign in to continue"
+msgstr "Log in om verder te gaan"
+
 msgid "Something went wrong."
 msgstr "Er is iets misgegaan."
 
+msgid "Sort Order"
+msgstr "Sorteervolgorde"
+
+msgid "Source"
+msgstr "Bron"
+
+msgid "Staff"
+msgstr "Staf"
+
+msgid "Start date"
+msgstr "Startdatum"
+
+msgid "State"
+msgstr "Status"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Status update failed."
+msgstr "Status bijwerken mislukt."
+
+msgid "Status updated."
+msgstr "Status bijgewerkt."
+
+msgid "Step"
+msgstr "Stap"
+
+msgid "Submit Evaluation"
+msgstr "Evaluatie verzenden"
+
+msgid "Submit evaluations, manage goals, and record attendance from the frontend dashboard."
+msgstr "Evaluaties verzenden, doelen beheren en aanwezigheid vastleggen vanaf het frontend-dashboard."
+
+msgid "TalentTrack"
+msgstr "TalentTrack"
+
+msgid "TalentTrack Configuration"
+msgstr "TalentTrack-configuratie"
+
+msgid "TalentTrack Dashboard"
+msgstr "TalentTrack-dashboard"
+
+msgid "TalentTrack uses versioned database migrations to evolve its schema safely. This page shows every migration shipped with the plugin and its status."
+msgstr "TalentTrack gebruikt versiegebaseerde database-migraties om het databaseschema veilig te ontwikkelen. Deze pagina toont elke migratie die is meegeleverd met de plugin en de bijbehorende status."
+
+msgid "TalentTrack — Help & Documentation"
+msgstr "TalentTrack — Hulp & documentatie"
+
+msgid "TalentTrack: database migrations pending."
+msgstr "TalentTrack: database-migraties in behandeling."
+
+msgid "Team"
+msgstr "Team"
+
+msgid "Team Averages"
+msgstr "Teamgemiddelden"
+
+msgid "Team assignments"
+msgstr "Teamtoewijzingen"
+
+msgid "Team:"
+msgstr "Team:"
+
+msgid "Teams"
+msgstr "Teams"
+
+msgid "Text"
+msgstr "Tekst"
+
+msgid "The database rejected the save. No evaluation was created."
+msgstr "De database heeft het opslaan afgewezen. Er is geen evaluatie aangemaakt."
+
+msgid "The database rejected the save. No goal was created."
+msgstr "De database heeft het opslaan afgewezen. Er is geen doel aangemaakt."
+
+msgid "The database rejected the save. No session was created."
+msgstr "De database heeft het opslaan afgewezen. Er is geen sessie aangemaakt."
+
+msgid "The database rejected the save. Please contact your administrator."
+msgstr "De database heeft het opslaan afgewezen. Neem contact op met uw beheerder."
+
+msgid "The evaluation could not be created."
+msgstr "De evaluatie kon niet worden aangemaakt."
+
+msgid "The evaluation could not be deleted."
+msgstr "De evaluatie kon niet worden verwijderd."
+
+msgid "The evaluation could not be saved. The database rejected the operation."
+msgstr "De evaluatie kon niet worden opgeslagen. De database heeft de bewerking afgewezen."
+
+msgid "The evaluation was saved but some ratings failed."
+msgstr "De evaluatie is opgeslagen, maar sommige beoordelingen zijn mislukt."
+
+msgid "The evaluation was saved, but some ratings could not be stored."
+msgstr "De evaluatie is opgeslagen, maar sommige beoordelingen konden niet worden bewaard."
+
+msgid "The field \"%s\" has an invalid selection."
+msgstr "Het veld \"%s\" bevat een ongeldige selectie."
+
+msgid "The field \"%s\" is required."
+msgstr "Het veld \"%s\" is verplicht."
+
+msgid "The field \"%s\" must be a number."
+msgstr "Het veld \"%s\" moet een getal zijn."
+
+msgid "The field \"%s\" must be a valid date (YYYY-MM-DD)."
+msgstr "Het veld \"%s\" moet een geldige datum zijn (JJJJ-MM-DD)."
+
+msgid "The goal could not be saved. The database rejected the operation."
+msgstr "Het doel kon niet worden opgeslagen. De database heeft de bewerking afgewezen."
+
+msgid "The label shown next to the input on forms."
+msgstr "Het label dat naast het invoerveld op formulieren wordt getoond."
+
+msgid "The player could not be created."
+msgstr "De speler kon niet worden aangemaakt."
+
+msgid "The player could not be deleted."
+msgstr "De speler kon niet worden verwijderd."
+
+msgid "The player could not be updated."
+msgstr "De speler kon niet worden bijgewerkt."
+
+msgid "The session could not be saved. The database rejected the operation."
+msgstr "De sessie kon niet worden opgeslagen. De database heeft de bewerking afgewezen."
+
+msgid "The session was saved, but some attendance rows could not be stored."
+msgstr "De sessie is opgeslagen, maar sommige aanwezigheidsrijen konden niet worden bewaard."
+
+msgid "This is the legacy head coach field (kept for backward compatibility). Prefer assigning staff in the Staff section below — it supports multiple coaches, assistants, managers, and physios per team."
+msgstr "Dit is het verouderde hoofdtrainer-veld (behouden voor achterwaartse compatibiliteit). Gebruik liever de Staf-sectie hieronder — die ondersteunt meerdere trainers, assistenten, managers en fysio's per team."
+
+msgid "This person is not currently assigned to any team."
+msgstr "Deze persoon is momenteel niet toegewezen aan een team."
+
+msgid "This usually means migration files were deleted or never copied during manual installation. No action required unless you need to re-apply."
+msgstr "Dit betekent meestal dat migratiebestanden zijn verwijderd of niet zijn meegekopieerd tijdens een handmatige installatie. Geen actie vereist, tenzij u opnieuw wilt toepassen."
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "To add new assignments, edit the team and use the Staff section there."
+msgstr "Om nieuwe toewijzingen toe te voegen, bewerk het team en gebruik de Staf-sectie daar."
+
+msgid "Tracking table"
+msgstr "Volgsysteemtabel"
+
+msgid "Tracking table does not exist yet."
+msgstr "De volgsysteemtabel bestaat nog niet."
+
+msgid "Training Sessions"
+msgstr "Trainingssessies"
+
+msgid "Trial"
+msgstr "Proeftraining"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Unassign"
+msgstr "Verwijderen"
+
 msgid "Unauthorized"
 msgstr "Geen toegang"
+
+msgid "Unknown database error."
+msgstr "Onbekende databasefout."
+
+msgid "Until"
+msgstr "Tot"
+
+msgid "Update"
+msgstr "Bijwerken"
+
+msgid "Update Field"
+msgstr "Veld bijwerken"
+
+msgid "Update Person"
+msgstr "Persoon bijwerken"
+
+msgid "Update Player"
+msgstr "Speler bijwerken"
+
+msgid "Update Team"
+msgstr "Team bijwerken"
+
+msgid "Upload"
+msgstr "Uploaden"
+
+msgid "Use"
+msgstr "Gebruik"
+
+msgid "User"
+msgstr "Gebruiker"
+
+msgid "User ID"
+msgstr "Gebruikers-ID"
+
+msgid "Username or email"
+msgstr "Gebruikersnaam of e-mail"
+
+msgid "Value"
+msgstr "Waarde"
+
+msgid "Verbose logging"
+msgstr "Uitgebreide logging"
+
+msgid "View"
+msgstr "Bekijken"
+
+msgid "View your profile, evaluations, goals, and progress from the dashboard."
+msgstr "Bekijk uw profiel, evaluaties, doelen en voortgang vanuit het dashboard."
+
+msgid "Warning: migrations recorded as applied but missing from disk:"
+msgstr "Waarschuwing: migraties zijn als toegepast geregistreerd, maar de bestanden ontbreken op schijf:"
+
+msgid "Weight (kg)"
+msgstr "Gewicht (kg)"
+
+msgid "When"
+msgstr "Wanneer"
+
+msgid "Write additional debug-level messages to the error log. Non-production environments only."
+msgstr "Schrijf aanvullende debug-level berichten naar het foutlog. Alleen voor niet-productieomgevingen."
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "You can only evaluate players in your team."
+msgstr "U kunt alleen spelers in uw eigen team evalueren."
+
+msgid "auto"
+msgstr "auto"
+
+msgid "vs %s (%s)"
+msgstr "tegen %s (%s)"
+
+msgid "— All —"
+msgstr "— Alle —"
+
+msgid "— No Team —"
+msgstr "— Geen team —"
+
+msgid "— None —"
+msgstr "— Geen —"
+
+msgid "— Select —"
+msgstr "— Selecteer —"
+
+msgid "← Back"
+msgstr "← Terug"
+
+msgid "%d migration applied."
+msgid_plural "%d migrations applied."
+msgstr[0] "%d migratie toegepast."
+msgstr[1] "%d migraties toegepast."
+
+msgid "%d migration is waiting to be applied. Some features may not work until you apply it."
+msgid_plural "%d migrations are waiting to be applied. Some features may not work until you apply them."
+msgstr[0] "%d migratie wacht op uitvoering. Sommige functies werken mogelijk pas nadat u deze toepast."
+msgstr[1] "%d migraties wachten op uitvoering. Sommige functies werken mogelijk pas nadat u deze toepast."
+
+msgid "%d pending migration"
+msgid_plural "%d pending migrations"
+msgstr[0] "%d migratie in behandeling"
+msgstr[1] "%d migraties in behandeling"
