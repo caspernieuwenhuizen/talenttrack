@@ -36,6 +36,20 @@ class PlayerRateCardView {
             return;
         }
 
+        // v2.15.0: Standard vs Card view toggle. Card view is a visual
+        // presentation of the same data; Standard view is the analytical
+        // surface built in Sprint 2A.
+        $view_mode = isset( $_GET['view'] ) ? sanitize_key( wp_unslash( (string) $_GET['view'] ) ) : 'standard';
+        if ( $view_mode !== 'card' ) $view_mode = 'standard';
+
+        self::renderViewToggle( $view_mode, $base_url, $player_id );
+
+        if ( $view_mode === 'card' ) {
+            PlayerCardView::enqueueStyles();
+            self::renderCardView( $player_id );
+            return;
+        }
+
         $svc        = new PlayerStatsService();
         $evals      = $svc->getEvaluationsForPlayer( $player_id, $filters );
         $headline   = $svc->getHeadlineNumbers( $player_id, $filters, self::ROLLING_N );
@@ -55,6 +69,36 @@ class PlayerRateCardView {
         self::renderHeadline( $headline );
         self::renderMainBreakdown( $mains, $subs );
         self::renderCharts( $trend, $radar, (float) QueryHelpers::get_config( 'rating_max', '5' ) );
+    }
+
+    private static function renderViewToggle( string $current, string $base_url, int $player_id ): void {
+        $standard_url = remove_query_arg( 'view', $base_url );
+        $standard_url = add_query_arg( [ 'player_id' => $player_id ], $standard_url );
+        $card_url     = add_query_arg( [ 'player_id' => $player_id, 'view' => 'card' ], remove_query_arg( 'view', $base_url ) );
+
+        $btn_base = 'display:inline-block;padding:6px 14px;text-decoration:none;border:1px solid #c3c4c7;border-radius:4px;font-size:13px;';
+        $btn_on   = 'background:#2271b1;color:#fff;border-color:#2271b1;';
+        $btn_off  = 'background:#fff;color:#2271b1;';
+        ?>
+        <div style="margin:10px 0 14px; display:flex; gap:6px;">
+            <a href="<?php echo esc_url( $standard_url ); ?>"
+               style="<?php echo $btn_base . ( $current === 'standard' ? $btn_on : $btn_off ); ?>">
+                <?php esc_html_e( 'Standard view', 'talenttrack' ); ?>
+            </a>
+            <a href="<?php echo esc_url( $card_url ); ?>"
+               style="<?php echo $btn_base . ( $current === 'card' ? $btn_on : $btn_off ); ?>">
+                <?php esc_html_e( 'Card view', 'talenttrack' ); ?>
+            </a>
+        </div>
+        <?php
+    }
+
+    private static function renderCardView( int $player_id ): void {
+        ?>
+        <div style="padding:20px 0; display:flex; justify-content:center; background:#f0f1f3; border-radius:6px;">
+            <?php PlayerCardView::renderCard( $player_id, 'lg', true ); ?>
+        </div>
+        <?php
     }
 
     /* ═══════════════ Filters ═══════════════ */

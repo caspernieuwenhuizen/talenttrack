@@ -4,13 +4,24 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.14.0
+Stable tag: 2.15.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.15.0 — Epic 2 Sprint 2B: FIFA-style Player Cards + Team Podium =
+* NEW: Collectible-card visual summary per player, tiered gold / silver / bronze by rolling-average rating (≥4.0 / ≥3.0 / <3.0). Pure CSS — metallic gradients, crystalline facet overlay, animated shine sweep, staggered entrance animations, Oswald + Manrope typography via Google Fonts. Size variants sm / md / lg.
+* NEW: "Mijn team" tab on the player front-end dashboard. Shows own card centered, team top-3 podium below, teammate roster listed by name and photo only (no ratings exposed per privacy design decision).
+* NEW: Top-3 podium per coached team on the coach front-end dashboard's Roster tab. Podium arranged as 2-1-3 with 1st center and elevated.
+* NEW: FIFA-style card embedded on the Player Detail tab of the coach dashboard alongside the classic info block.
+* NEW: Player card embedded on the Overview tab of the player front-end dashboard, right side next to existing content.
+* NEW: Standard / Card view toggle on the admin rate card page (and Players edit → Rate card tab). Card view shows the large version of the tiered card centered.
+* NEW: TeamStatsService::getTopPlayersForTeam() for batched ranking; ::getTeammatesOfPlayer() for roster queries.
+* NEW: PlayerCardView::renderCard() + ::renderPodium() reusable across admin and front-end surfaces.
+* ACCESSIBILITY: Cards use role="img" with descriptive aria-label including tier and rating. prefers-reduced-motion honored — static cards without entrance animations, shine sweep, or hover transform for motion-sensitive users.
 
 = 2.14.0 — Epic 2 Sprint 2A: Player Rate Card =
 * NEW: Player rate card — one-page summary per player. Three headline numbers (most recent / rolling average of last 5 / all-time average), per-main-category breakdown with trend arrows (improving / declining / stable), expandable subcategory accordion, trend line chart (Chart.js), radar chart overlaying last 3 evaluations, filterable by date range and evaluation type.

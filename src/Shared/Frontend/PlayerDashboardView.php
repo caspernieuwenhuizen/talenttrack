@@ -15,9 +15,14 @@ class PlayerDashboardView {
         $max  = QueryHelpers::get_config( 'rating_max', '5' );
         $view = isset( $_GET['tt_view'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tt_view'] ) ) : 'overview';
 
+        // v2.15.0: enqueue the player-card stylesheet for this request.
+        // The card is used on Overview (right side) and Mijn team (own card).
+        \TT\Modules\Stats\Admin\PlayerCardView::enqueueStyles();
+
         echo '<div class="tt-tabs">';
         foreach ( [
             'overview'    => __( 'Overview', 'talenttrack' ),
+            'my_team'     => __( 'My team', 'talenttrack' ),
             'evaluations' => __( 'Evaluations', 'talenttrack' ),
             'goals'       => __( 'Goals', 'talenttrack' ),
             'attendance'  => __( 'Attendance', 'talenttrack' ),
@@ -28,14 +33,29 @@ class PlayerDashboardView {
         }
         echo '</div>';
 
-        // Overview
+        // Overview — v2.15.0 layout: existing info on the left, FIFA-style
+        // card on the right. On narrow screens the card drops below.
         echo '<div class="tt-tab-content' . ( $view === 'overview' ? ' tt-tab-content-active' : '' ) . '" data-tab="overview">';
+        echo '<div class="tt-overview-grid" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:30px;align-items:start;">';
+        echo '<div class="tt-overview-main">';
         $this->renderPlayerCard( $player );
         $this->renderCustomFields( (int) $player->id );
         $radar = QueryHelpers::player_radar_datasets( (int) $player->id, 3 );
         if ( ! empty( $radar['datasets'] ) ) {
             echo '<div class="tt-radar-wrap">' . QueryHelpers::radar_chart_svg( $radar['labels'], $radar['datasets'], (float) $max ) . '</div>';
         }
+        echo '</div>';
+        echo '<div class="tt-overview-card" style="flex-shrink:0;">';
+        \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true );
+        echo '</div>';
+        echo '</div>';
+        echo '<style>@media (max-width:820px){.tt-overview-grid{grid-template-columns:minmax(0,1fr) !important;}.tt-overview-card{display:flex;justify-content:center;}}</style>';
+        echo '</div>';
+
+        // Mijn team — player's own card centered, plus roster of teammates
+        // (names + photos only, no ratings — per Sprint 2B design decision).
+        echo '<div class="tt-tab-content' . ( $view === 'my_team' ? ' tt-tab-content-active' : '' ) . '" data-tab="my_team">';
+        $this->renderMyTeamTab( (int) $player->id, $player );
         echo '</div>';
 
         // Evaluations
@@ -130,6 +150,76 @@ class PlayerDashboardView {
         echo '<h3>' . esc_html__( 'How to use your dashboard', 'talenttrack' ) . '</h3>';
         echo '<p>' . esc_html__( 'Overview shows your profile and latest radar chart. Evaluations lists every evaluation your coaches have recorded. Goals shows your development goals. Attendance tracks your sessions. Progress shows your trajectory.', 'talenttrack' ) . '</p>';
         echo '</div>';
+    }
+
+    /**
+     * v2.15.0 — "Mijn team" tab. Shows the logged-in player's own card
+     * centered, plus a simple roster list of teammates (names + photos
+     * only, no ratings — per Sprint 2B decision to protect players who
+     * don't make the top 3). Below the roster, the team's top-3 podium
+     * surfaces the strongest current players for motivation.
+     */
+    private function renderMyTeamTab( int $player_id, object $player ): void {
+        $team_id = isset( $player->team_id ) ? (int) $player->team_id : 0;
+        if ( $team_id <= 0 ) {
+            echo '<p>' . esc_html__( 'You are not on a team yet.', 'talenttrack' ) . '</p>';
+            return;
+        }
+        $team = QueryHelpers::get_team( $team_id );
+        $team_name = $team ? (string) $team->name : '';
+
+        // Own card — centered.
+        echo '<div style="display:flex;justify-content:center;padding:20px 0;">';
+        \TT\Modules\Stats\Admin\PlayerCardView::renderCard( $player_id, 'md', true );
+        echo '</div>';
+
+        // Team podium — top 3 of the team.
+        $team_svc = new \TT\Infrastructure\Stats\TeamStatsService();
+        $top      = $team_svc->getTopPlayersForTeam( $team_id, 3, 5 );
+        if ( ! empty( $top ) ) {
+            echo '<h3 style="text-align:center;margin-top:10px;">' . esc_html__( 'Top players on the team', 'talenttrack' ) . '</h3>';
+            \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top );
+        }
+
+        // Teammate roster — names + photos only, no ratings.
+        $teammates = $team_svc->getTeammatesOfPlayer( $player_id );
+        if ( ! empty( $teammates ) ) {
+            echo '<h3 style="text-align:center;margin-top:30px;">';
+            printf(
+                /* translators: %s is the team name. */
+                esc_html__( 'Teammates on %s', 'talenttrack' ),
+                esc_html( $team_name )
+            );
+            echo '</h3>';
+            echo '<div class="tt-teammates" style="display:flex;flex-wrap:wrap;gap:18px;justify-content:center;padding:10px 0 30px;">';
+            foreach ( $teammates as $mate ) {
+                $photo_url = '';
+                if ( isset( $mate->photo_id ) && (int) $mate->photo_id > 0 ) {
+                    $photo_url = (string) wp_get_attachment_image_url( (int) $mate->photo_id, 'thumbnail' );
+                } elseif ( ! empty( $mate->photo_url ) ) {
+                    $photo_url = (string) $mate->photo_url;
+                }
+                $initials = strtoupper(
+                    mb_substr( (string) ( $mate->first_name ?? '' ), 0, 1 )
+                    . mb_substr( (string) ( $mate->last_name ?? '' ), 0, 1 )
+                );
+                ?>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:90px;text-align:center;">
+                    <div style="width:72px;height:72px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#d0d3d8,#8a8d93);display:flex;align-items:center;justify-content:center;border:2px solid #e5e7ea;">
+                        <?php if ( $photo_url ) : ?>
+                            <img src="<?php echo esc_url( $photo_url ); ?>" alt="" style="width:100%;height:100%;object-fit:cover;" />
+                        <?php else : ?>
+                            <span style="font-family:'Oswald',sans-serif;font-weight:700;font-size:22px;color:#fff;"><?php echo esc_html( $initials !== '' ? $initials : '?' ); ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div style="font-size:12px;color:#333;line-height:1.2;">
+                        <?php echo esc_html( QueryHelpers::player_display_name( $mate ) ); ?>
+                    </div>
+                </div>
+                <?php
+            }
+            echo '</div>';
+        }
     }
 
     private function renderPlayerCard( object $player ): void {

@@ -16,6 +16,9 @@ class CoachDashboardView {
         $max  = (float) QueryHelpers::get_config( 'rating_max', '5' );
         $teams = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
 
+        // v2.15.0: enqueue card stylesheet for the podium + player detail card.
+        \TT\Modules\Stats\Admin\PlayerCardView::enqueueStyles();
+
         $tabs = [
             'roster'   => __( 'My Team', 'talenttrack' ),
             'evaluate' => __( 'New Evaluation', 'talenttrack' ),
@@ -35,8 +38,14 @@ class CoachDashboardView {
         if ( empty( $teams ) ) {
             echo '<p>' . esc_html__( 'No teams assigned.', 'talenttrack' ) . '</p>';
         } else {
+            $team_svc = new \TT\Infrastructure\Stats\TeamStatsService();
             foreach ( $teams as $team ) {
                 echo '<h3>' . esc_html( (string) $team->name ) . ' <small>(' . esc_html( (string) $team->age_group ) . ')</small></h3>';
+                // v2.15.0: top-3 podium before the roster grid.
+                $top = $team_svc->getTopPlayersForTeam( (int) $team->id, 3, 5 );
+                if ( ! empty( $top ) ) {
+                    \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top );
+                }
                 $players = QueryHelpers::get_players( (int) $team->id );
                 if ( empty( $players ) ) { echo '<p>' . esc_html__( 'No players.', 'talenttrack' ) . '</p>'; continue; }
                 echo '<div class="tt-grid">';
@@ -65,10 +74,18 @@ class CoachDashboardView {
         $pid = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
         echo '<div class="tt-tab-content' . ( $view === 'player' ? ' tt-tab-content-active' : '' ) . '" data-tab="player">';
         if ( $pid && ( $pl = QueryHelpers::get_player( $pid ) ) ) {
+            // v2.15.0: FIFA-style card + the classic info block side by side.
+            echo '<div style="display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;">';
+            echo '<div>';
+            \TT\Modules\Stats\Admin\PlayerCardView::renderCard( $pid, 'md', true );
+            echo '</div>';
+            echo '<div style="flex:1;min-width:280px;">';
             $this->renderPlayerCard( $pl );
             $this->renderCustomFieldsBlock( $pid );
             $r = QueryHelpers::player_radar_datasets( $pid, 3 );
             if ( ! empty( $r['datasets'] ) ) echo '<div class="tt-radar-wrap">' . QueryHelpers::radar_chart_svg( $r['labels'], $r['datasets'], $max ) . '</div>';
+            echo '</div>';
+            echo '</div>';
         } else {
             echo '<p>' . esc_html__( 'Select a player from the roster.', 'talenttrack' ) . '</p>';
         }

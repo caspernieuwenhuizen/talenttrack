@@ -2019,3 +2019,41 @@ msgstr[1] "Vorm over laatste %d evaluaties"
 
 msgid "Chart library unavailable. Data tables above still show the same information."
 msgstr "Grafiekbibliotheek niet beschikbaar. De tabellen hierboven tonen dezelfde informatie."
+
+# ===== v2.15.0 — Player card + podium + Mijn team =====
+
+msgid "Standard view"
+msgstr "Standaardweergave"
+
+msgid "Card view"
+msgstr "Kaartweergave"
+
+msgid "Gold"
+msgstr "Goud"
+
+msgid "Silver"
+msgstr "Zilver"
+
+msgid "Bronze"
+msgstr "Brons"
+
+msgid "Unrated"
+msgstr "Niet beoordeeld"
+
+msgid "%1$s — %2$s tier, %3$s rolling average"
+msgstr "%1$s — niveau %2$s, voortschrijdend gemiddelde %3$s"
+
+msgid "Not enough ranked players yet"
+msgstr "Nog niet genoeg gerangschikte spelers"
+
+msgid "My team"
+msgstr "Mijn team"
+
+msgid "You are not on a team yet."
+msgstr "Je zit nog niet in een team."
+
+msgid "Top players on the team"
+msgstr "Topspelers in het team"
+
+msgid "Teammates on %s"
+msgstr "Teamgenoten in %s"

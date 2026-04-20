@@ -1,0 +1,549 @@
+/*
+ * TalentTrack — Player Card (v2.15.0)
+ *
+ * A sports-trading-card style player summary rendered purely in CSS.
+ * Three tiers by rolling average:
+ *   Gold   (>= 4.0): warm amber/champagne, high chroma
+ *   Silver (>= 3.0): cool platinum/steel, low chroma
+ *   Bronze (<  3.0): warm copper/rust, mid chroma
+ *
+ * Design principles:
+ *   - Original design (no EA/FIFA-copyrighted visual vocabulary).
+ *   - Pure CSS; no bitmap assets required. Gradients, blend modes, and
+ *     conic/radial layers create the "metallic" feel.
+ *   - Typography does heavy lifting: Oswald (display) + Manrope (body).
+ *   - Scoped class names (tt-pc-*) to survive third-party WordPress themes.
+ *   - Responsive scaling via three size variants: sm / md / lg.
+ *
+ * Loaded on both admin rate-card views and the front-end player/coach
+ * dashboards. Styling is identical across surfaces; only the container
+ * differs.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@500;600;700&display=swap');
+
+/* ═══════════════ Root: size + shared tokens ═══════════════ */
+
+.tt-pc {
+    --tt-pc-w: 280px;           /* md default */
+    --tt-pc-h: 400px;
+    --tt-pc-radius: 18px;
+    --tt-pc-font-display: 'Oswald', 'Arial Narrow', sans-serif;
+    --tt-pc-font-body: 'Manrope', system-ui, sans-serif;
+
+    /* Tier-specific tokens (overridden below) */
+    --tt-pc-bg-1: #e8b624;
+    --tt-pc-bg-2: #f8e08e;
+    --tt-pc-bg-3: #a87c1b;
+    --tt-pc-accent: #5a3d0a;
+    --tt-pc-ink: #3a2806;
+    --tt-pc-ink-soft: #5a3d0a;
+    --tt-pc-edge: rgba(255, 228, 150, 0.55);
+    --tt-pc-shine: rgba(255, 245, 200, 0.85);
+
+    position: relative;
+    display: inline-block;
+    width: var(--tt-pc-w);
+    height: var(--tt-pc-h);
+    font-family: var(--tt-pc-font-body);
+    color: var(--tt-pc-ink);
+    border-radius: var(--tt-pc-radius);
+    isolation: isolate;
+    transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                box-shadow 300ms ease;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.18))
+            drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+}
+
+.tt-pc:hover {
+    transform: translateY(-4px) rotate(-0.4deg) scale(1.015);
+}
+
+/* Size variants */
+.tt-pc--sm {
+    --tt-pc-w: 200px;
+    --tt-pc-h: 286px;
+    --tt-pc-radius: 14px;
+}
+.tt-pc--lg {
+    --tt-pc-w: 340px;
+    --tt-pc-h: 486px;
+    --tt-pc-radius: 22px;
+}
+
+/* ═══════════════ Tier colorways ═══════════════ */
+
+/* Gold — warm, high chroma, champagne highlights */
+.tt-pc--gold {
+    --tt-pc-bg-1: #c9962a;
+    --tt-pc-bg-2: #f7e09a;
+    --tt-pc-bg-3: #8a6112;
+    --tt-pc-accent: #5a3d0a;
+    --tt-pc-ink: #3a2806;
+    --tt-pc-ink-soft: #6a4810;
+    --tt-pc-edge: rgba(255, 228, 150, 0.65);
+    --tt-pc-shine: rgba(255, 245, 200, 0.95);
+}
+
+/* Silver — cool, low chroma, platinum highlights */
+.tt-pc--silver {
+    --tt-pc-bg-1: #8a8d93;
+    --tt-pc-bg-2: #e5e7ea;
+    --tt-pc-bg-3: #585c63;
+    --tt-pc-accent: #2a2c30;
+    --tt-pc-ink: #1d1f22;
+    --tt-pc-ink-soft: #44474c;
+    --tt-pc-edge: rgba(235, 237, 240, 0.65);
+    --tt-pc-shine: rgba(250, 252, 255, 0.92);
+}
+
+/* Bronze — warm, mid chroma, copper-to-rust */
+.tt-pc--bronze {
+    --tt-pc-bg-1: #9b5a2c;
+    --tt-pc-bg-2: #d89867;
+    --tt-pc-bg-3: #5e3415;
+    --tt-pc-accent: #3a1f0a;
+    --tt-pc-ink: #2a1608;
+    --tt-pc-ink-soft: #4a2a10;
+    --tt-pc-edge: rgba(230, 170, 110, 0.55);
+    --tt-pc-shine: rgba(250, 215, 170, 0.85);
+}
+
+/* Unrated — muted, desaturated (for players without enough data) */
+.tt-pc--none {
+    --tt-pc-bg-1: #4a4d52;
+    --tt-pc-bg-2: #6a6d74;
+    --tt-pc-bg-3: #2d2f33;
+    --tt-pc-accent: #1a1c1f;
+    --tt-pc-ink: #e0e2e6;
+    --tt-pc-ink-soft: #a8abb0;
+    --tt-pc-edge: rgba(200, 203, 208, 0.35);
+    --tt-pc-shine: rgba(230, 232, 236, 0.4);
+}
+
+/* ═══════════════ Card body: gradient + geometry ═══════════════ */
+
+/*
+ * The base surface is a layered gradient:
+ *  - A diagonal dark-to-light-to-dark pass (the "rolled metal" feel)
+ *  - A soft radial highlight in the upper-left corner
+ *  - A conic-gradient accent behind the rating that catches "light"
+ */
+.tt-pc__surface {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    z-index: 0;
+    background:
+        radial-gradient(
+            120% 80% at 22% 14%,
+            var(--tt-pc-shine) 0%,
+            transparent 40%
+        ),
+        conic-gradient(
+            from 210deg at 75% 28%,
+            transparent 0deg,
+            var(--tt-pc-bg-2) 40deg,
+            transparent 90deg
+        ),
+        linear-gradient(
+            135deg,
+            var(--tt-pc-bg-3) 0%,
+            var(--tt-pc-bg-1) 35%,
+            var(--tt-pc-bg-2) 55%,
+            var(--tt-pc-bg-1) 75%,
+            var(--tt-pc-bg-3) 100%
+        );
+}
+
+/* Faceted crystalline overlay built from stacked clip-path polygons.
+   Gives the card a geometric "cut gemstone" quality rather than a flat
+   gradient look. Very low opacity so it reads as subtle faceting. */
+.tt-pc__facets {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0.32;
+    z-index: 1;
+    mix-blend-mode: overlay;
+}
+
+.tt-pc__facets::before,
+.tt-pc__facets::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.7) 40%,
+        rgba(255, 255, 255, 0.3) 55%,
+        transparent 100%
+    );
+}
+
+.tt-pc__facets::before {
+    clip-path: polygon(0 0, 60% 0, 45% 55%, 0 40%);
+}
+.tt-pc__facets::after {
+    clip-path: polygon(100% 15%, 100% 65%, 65% 100%, 40% 70%);
+    opacity: 0.6;
+}
+
+/* Inner metallic frame — 2px inset, matching edge color.
+   The "engraved frame" feel common on premium sports cards. */
+.tt-pc__frame {
+    position: absolute;
+    inset: 6px;
+    border-radius: calc(var(--tt-pc-radius) - 4px);
+    border: 1px solid var(--tt-pc-edge);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12),
+                inset 0 0 30px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Shimmer — a diagonal highlight that sweeps across the card every
+   ~7s. Subtle. Kids notice it, adults don't, neither minds it. */
+.tt-pc__shine {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0.9;
+}
+.tt-pc__shine::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -80%;
+    width: 60%;
+    height: 200%;
+    background: linear-gradient(
+        110deg,
+        transparent 20%,
+        rgba(255, 255, 255, 0.25) 45%,
+        rgba(255, 255, 255, 0.55) 50%,
+        rgba(255, 255, 255, 0.25) 55%,
+        transparent 80%
+    );
+    transform: rotate(8deg);
+    animation: tt-pc-shine 7s ease-in-out infinite;
+}
+
+@keyframes tt-pc-shine {
+    0%, 15% { left: -80%; }
+    55%, 100% { left: 140%; }
+}
+
+/* ═══════════════ Content layer ═══════════════ */
+
+.tt-pc__content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 18px 20px;
+    display: grid;
+    grid-template-rows: auto 1fr auto auto;
+    gap: 6px;
+    z-index: 4;
+    box-sizing: border-box;
+}
+
+.tt-pc--sm .tt-pc__content { padding: 12px 14px; gap: 4px; }
+.tt-pc--lg .tt-pc__content { padding: 24px 26px; gap: 8px; }
+
+/* Top block: rating number + position abbreviation */
+.tt-pc__top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1;
+    animation: tt-pc-rise 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.tt-pc__rating {
+    font-family: var(--tt-pc-font-display);
+    font-weight: 700;
+    font-size: 64px;
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    color: var(--tt-pc-ink);
+    text-shadow: 0 1px 0 var(--tt-pc-shine),
+                 0 2px 2px rgba(0, 0, 0, 0.15);
+}
+.tt-pc--sm .tt-pc__rating { font-size: 48px; }
+.tt-pc--lg .tt-pc__rating { font-size: 80px; }
+
+.tt-pc__position {
+    font-family: var(--tt-pc-font-display);
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+    color: var(--tt-pc-ink-soft);
+    text-transform: uppercase;
+}
+.tt-pc--sm .tt-pc__position { font-size: 12px; }
+.tt-pc--lg .tt-pc__position { font-size: 18px; }
+
+/* Middle: photo/initials area, positioned with room for the rating */
+.tt-pc__photo {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 130px;
+    height: 165px;
+    border-radius: 50% 50% 45% 45% / 55% 55% 40% 40%;
+    overflow: hidden;
+    background: linear-gradient(160deg, var(--tt-pc-bg-2), var(--tt-pc-bg-3));
+    box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.2),
+                inset 0 4px 8px rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: tt-pc-rise 600ms 80ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.tt-pc--sm .tt-pc__photo {
+    width: 92px; height: 118px; top: 12px; right: 14px;
+}
+.tt-pc--lg .tt-pc__photo {
+    width: 165px; height: 208px; top: 24px; right: 26px;
+}
+
+.tt-pc__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    filter: saturate(1.05) contrast(1.02);
+}
+
+.tt-pc__initials {
+    font-family: var(--tt-pc-font-display);
+    font-weight: 700;
+    font-size: 52px;
+    line-height: 1;
+    color: var(--tt-pc-accent);
+    opacity: 0.75;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+.tt-pc--sm .tt-pc__initials { font-size: 38px; }
+.tt-pc--lg .tt-pc__initials { font-size: 64px; }
+
+/* Name block — big, confident, across the card */
+.tt-pc__name {
+    font-family: var(--tt-pc-font-display);
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 1.05;
+    letter-spacing: 0.01em;
+    color: var(--tt-pc-ink);
+    padding: 4px 0;
+    border-top: 1px solid var(--tt-pc-edge);
+    margin-top: auto;
+    align-self: end;
+    text-align: center;
+    animation: tt-pc-rise 600ms 160ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.tt-pc--sm .tt-pc__name { font-size: 17px; padding: 3px 0; }
+.tt-pc--lg .tt-pc__name { font-size: 30px; padding: 5px 0; }
+
+/* Stat grid — 4 cells, equal-spaced */
+.tt-pc__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding-top: 6px;
+    animation: tt-pc-rise 600ms 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.tt-pc__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+}
+
+.tt-pc__stat-value {
+    font-family: var(--tt-pc-font-display);
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--tt-pc-ink);
+    line-height: 1;
+    text-shadow: 0 1px 0 var(--tt-pc-shine);
+}
+.tt-pc--sm .tt-pc__stat-value { font-size: 15px; }
+.tt-pc--lg .tt-pc__stat-value { font-size: 26px; }
+
+.tt-pc__stat-label {
+    font-family: var(--tt-pc-font-body);
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--tt-pc-ink-soft);
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+.tt-pc--sm .tt-pc__stat-label { font-size: 8px; }
+.tt-pc--lg .tt-pc__stat-label { font-size: 12px; }
+
+/* Team badge line beneath the stats */
+.tt-pc__team {
+    font-family: var(--tt-pc-font-body);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--tt-pc-ink-soft);
+    text-align: center;
+    text-transform: uppercase;
+    padding-top: 6px;
+    border-top: 1px solid var(--tt-pc-edge);
+    opacity: 0.85;
+    animation: tt-pc-rise 600ms 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.tt-pc--sm .tt-pc__team { font-size: 9px; padding-top: 4px; }
+.tt-pc--lg .tt-pc__team { font-size: 13px; padding-top: 8px; }
+
+/* Optional small tier badge in corner */
+.tt-pc__tier {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 5;
+    font-family: var(--tt-pc-font-display);
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: var(--tt-pc-accent);
+    color: var(--tt-pc-bg-2);
+    opacity: 0.9;
+    display: none; /* hidden by default; podium adds .tt-pc--show-tier */
+}
+.tt-pc--show-tier .tt-pc__tier { display: block; }
+
+/* Entrance animation */
+@keyframes tt-pc-rise {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ═══════════════ Podium arrangement ═══════════════ */
+
+.tt-pc-podium {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 18px;
+    padding: 20px 0 32px;
+    flex-wrap: wrap;
+}
+
+.tt-pc-podium__slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.tt-pc-podium__rank {
+    font-family: var(--tt-pc-font-display, 'Oswald', sans-serif);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    color: #555;
+    text-transform: uppercase;
+}
+
+/* Podium position-2 and position-3 slots are smaller and nudged down */
+.tt-pc-podium__slot--2,
+.tt-pc-podium__slot--3 {
+    margin-top: 40px;
+}
+.tt-pc-podium__slot--2 .tt-pc-podium__rank { color: #8a8d93; }
+.tt-pc-podium__slot--3 .tt-pc-podium__rank { color: #9b5a2c; }
+.tt-pc-podium__slot--1 .tt-pc-podium__rank { color: #c9962a; }
+
+/* Empty-slot placeholder when the team has < 3 ranked players */
+.tt-pc-empty {
+    width: 200px;
+    height: 286px;
+    border-radius: 14px;
+    border: 2px dashed rgba(120, 120, 120, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-family: var(--tt-pc-font-body, 'Manrope', sans-serif);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* ═══════════════ Responsive fallback ═══════════════ */
+
+@media (max-width: 640px) {
+    .tt-pc-podium {
+        gap: 12px;
+        padding: 14px 0 20px;
+    }
+    .tt-pc-podium__slot--2,
+    .tt-pc-podium__slot--3 {
+        margin-top: 24px;
+    }
+    /* On very narrow screens drop the podium staggering entirely */
+    @media (max-width: 400px) {
+        .tt-pc-podium__slot--2,
+        .tt-pc-podium__slot--3 {
+            margin-top: 0;
+        }
+    }
+}
+
+/* ═══════════════ Print-friendliness ═══════════════ */
+
+@media print {
+    .tt-pc {
+        filter: none;
+        break-inside: avoid;
+    }
+    .tt-pc__shine { display: none; }
+}
+
+/* ═══════════════ Reduced motion ═══════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-pc,
+    .tt-pc__top,
+    .tt-pc__photo,
+    .tt-pc__name,
+    .tt-pc__stats,
+    .tt-pc__team {
+        animation: none !important;
+        transition: none !important;
+    }
+    .tt-pc__shine::before {
+        animation: none;
+        opacity: 0;
+    }
+    .tt-pc:hover {
+        transform: none;
+    }
+}
