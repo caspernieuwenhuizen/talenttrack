@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 
 /**
  * EvaluationsPage — admin CRUD for evaluations.
@@ -153,12 +154,20 @@ class EvaluationsPage {
     }
 
     public static function handle_save(): void {
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_evaluation', 'tt_nonce' );
         global $wpdb; $p = $wpdb->prefix;
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+        $player_id = isset( $_POST['player_id'] ) ? absint( $_POST['player_id'] ) : 0;
+
+        // v2.8.0: entity-scoped authorization. Must be allowed to evaluate
+        // THIS specific player (not just have the generic capability).
+        // Coaches are only allowed to evaluate players on their assigned teams.
+        if ( ! AuthorizationService::canEvaluatePlayer( get_current_user_id(), $player_id ) ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
+
         $header = [
-            'player_id' => isset( $_POST['player_id'] ) ? absint( $_POST['player_id'] ) : 0,
+            'player_id' => $player_id,
             'coach_id' => get_current_user_id(),
             'eval_type_id' => isset( $_POST['eval_type_id'] ) ? absint( $_POST['eval_type_id'] ) : 0,
             'eval_date' => isset( $_POST['eval_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['eval_date'] ) ) : '',
@@ -207,8 +216,19 @@ class EvaluationsPage {
     public static function handle_delete(): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         check_admin_referer( 'tt_del_eval_' . $id );
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+
+        // v2.8.0: check canEvaluatePlayer against the evaluation's player.
+        // Coaches can delete evaluations of players on their teams; admins
+        // can delete any.
         global $wpdb; $p = $wpdb->prefix;
+        $player_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT player_id FROM {$p}tt_evaluations WHERE id = %d",
+            $id
+        ) );
+        if ( ! AuthorizationService::canEvaluatePlayer( get_current_user_id(), $player_id ) ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
+
         $wpdb->delete( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id ] );
         $wpdb->delete( "{$p}tt_evaluations", [ 'id' => $id ] );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-evaluations&tt_msg=deleted' ) );

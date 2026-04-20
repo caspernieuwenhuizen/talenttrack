@@ -7,13 +7,17 @@ use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Shared\Validation\CustomFieldValidator;
 
 /**
  * PlayersRestController — /wp-json/talenttrack/v1/players
  *
- * v2.6.2: insert/update return values are checked. Failures return HTTP 500
- * with the DB error message and are logged via Logger.
+ * v2.8.0: permission_callback now uses AuthorizationService instead of raw
+ * current_user_can(). Individual routes are entity-scoped where appropriate
+ * (GET /players/{id} checks canViewPlayer for that specific player, etc.).
+ * The generic list GET remains gated on "logged in" because the
+ * results are filtered per-user further down the stack.
  */
 class PlayersRestController {
 
@@ -25,19 +29,68 @@ class PlayersRestController {
 
     public static function register(): void {
         register_rest_route( self::NS, '/players', [
-            [ 'methods' => 'GET',  'callback' => [ __CLASS__, 'list_players' ],  'permission_callback' => function () { return is_user_logged_in(); } ],
-            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'create_player' ], 'permission_callback' => function () { return current_user_can( 'tt_manage_players' ); } ],
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'list_players' ],
+                'permission_callback' => function () { return is_user_logged_in(); },
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'create_player' ],
+                'permission_callback' => function () {
+                    // Creating a new player is reserved for users with the
+                    // manage_players capability. AuthorizationService has no
+                    // per-entity check for creation (no target entity yet).
+                    return current_user_can( 'tt_manage_players' );
+                },
+            ],
         ]);
         register_rest_route( self::NS, '/players/(?P<id>\d+)', [
-            [ 'methods' => 'GET',    'callback' => [ __CLASS__, 'get_player' ],    'permission_callback' => function () { return is_user_logged_in(); } ],
-            [ 'methods' => 'PUT',    'callback' => [ __CLASS__, 'update_player' ], 'permission_callback' => function () { return current_user_can( 'tt_manage_players' ); } ],
-            [ 'methods' => 'DELETE', 'callback' => [ __CLASS__, 'delete_player' ], 'permission_callback' => function () { return current_user_can( 'tt_manage_players' ); } ],
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_player' ],
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    return AuthorizationService::canViewPlayer(
+                        get_current_user_id(),
+                        (int) $r['id']
+                    );
+                },
+            ],
+            [
+                'methods'             => 'PUT',
+                'callback'            => [ __CLASS__, 'update_player' ],
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    return AuthorizationService::canEditPlayer(
+                        get_current_user_id(),
+                        (int) $r['id']
+                    );
+                },
+            ],
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_player' ],
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    // Delete is strictly a manage_players capability since
+                    // it's destructive. Team-scoped editors (coaches) should
+                    // not be able to delete players they merely coach.
+                    return current_user_can( 'tt_manage_players' );
+                },
+            ],
         ]);
     }
 
     public static function list_players( \WP_REST_Request $r ) {
         $team_id = $r['team_id'] ? absint( $r['team_id'] ) : 0;
         $rows    = QueryHelpers::get_players( $team_id );
+
+        // Filter the list down to players this user can actually view.
+        // This is the "row-level security" layer: broad permission gate on
+        // the endpoint, per-row visibility filter here.
+        $user_id = get_current_user_id();
+        $rows = array_values( array_filter( (array) $rows, function ( $pl ) use ( $user_id ) {
+            return AuthorizationService::canViewPlayer( $user_id, (int) $pl->id );
+        } ) );
+
         return RestResponse::success( array_map( [ __CLASS__, 'fmt' ], $rows ) );
     }
 

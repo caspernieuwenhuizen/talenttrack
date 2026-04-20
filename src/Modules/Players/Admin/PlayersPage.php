@@ -9,6 +9,7 @@ use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Shared\Frontend\CustomFieldRenderer;
 use TT\Shared\Validation\CustomFieldValidator;
 
@@ -234,8 +235,22 @@ class PlayersPage {
     }
 
     public static function handle_save(): void {
-        if ( ! current_user_can( 'tt_manage_players' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_player', 'tt_nonce' );
+        $id_check = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+
+        // v2.8.0: entity-scoped auth when editing an existing player (coaches
+        // can edit players on their teams); capability-only for new players
+        // since there's no entity to scope against yet.
+        if ( $id_check > 0 ) {
+            if ( ! AuthorizationService::canEditPlayer( get_current_user_id(), $id_check ) ) {
+                wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+            }
+        } else {
+            if ( ! current_user_can( 'tt_manage_players' ) ) {
+                wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+            }
+        }
+
         global $wpdb;
 
         $fields = ( new CustomFieldsRepository() )->getActive( CustomFieldsRepository::ENTITY_PLAYER );
@@ -313,7 +328,14 @@ class PlayersPage {
     public static function handle_delete(): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         check_admin_referer( 'tt_delete_player_' . $id );
-        if ( ! current_user_can( 'tt_manage_players' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+
+        // v2.8.0: delete remains capability-only (not entity-scoped). Deleting
+        // a player is destructive, so team coaches shouldn't be able to delete
+        // players they only coach. Only users with tt_manage_players can delete.
+        if ( ! current_user_can( 'tt_manage_players' ) ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
+
         global $wpdb;
         $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => 'deleted' ], [ 'id' => $id ] );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-players&tt_msg=deleted' ) );

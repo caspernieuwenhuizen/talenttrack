@@ -4,6 +4,7 @@ namespace TT\Modules\Teams\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\People\Admin\TeamStaffPanel;
 
 class TeamsPage {
@@ -84,8 +85,22 @@ class TeamsPage {
     }
 
     public static function handle_save(): void {
-        if ( ! current_user_can( 'tt_manage_players' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_team', 'tt_nonce' );
+        $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+
+        // v2.8.0: entity-scoped auth when editing existing team. Head coach /
+        // manager of THIS team can edit it; admins can edit any. Creating a
+        // new team requires the base capability.
+        if ( $id > 0 ) {
+            if ( ! AuthorizationService::canManageTeam( get_current_user_id(), $id ) ) {
+                wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+            }
+        } else {
+            if ( ! current_user_can( 'tt_manage_players' ) ) {
+                wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+            }
+        }
+
         global $wpdb;
         $data = [
             'name' => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['name'] ) ) : '',
@@ -103,6 +118,9 @@ class TeamsPage {
     public static function handle_delete(): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         check_admin_referer( 'tt_delete_team_' . $id );
+        // v2.8.0: delete remains capability-only. Destructive ops should stay
+        // with users who have global tt_manage_players; coaches of a team
+        // shouldn't be able to delete the team they coach.
         if ( ! current_user_can( 'tt_manage_players' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         global $wpdb;
         // Also clean up any staff assignments pointing at this team, to avoid orphans.

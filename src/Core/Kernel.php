@@ -11,6 +11,7 @@ use TT\Infrastructure\Environment\EnvironmentService;
 use TT\Infrastructure\FeatureToggles\FeatureToggleService;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Shared\Admin\Menu;
 use TT\Shared\Frontend\BrandStyles;
@@ -21,9 +22,9 @@ use TT\Shared\Frontend\FrontendAjax;
 /**
  * Kernel — the system bootstrap.
  *
- * Sprint 1a addition: registers FrontendAccessControl service which gates
- * wp-admin access for non-administrators, hides admin bar, and routes
- * wp-login.php traffic back to the TalentTrack dashboard.
+ * v2.8.0: Registers AuthorizationService cache invalidators during boot so
+ * per-request authorization caches stay consistent when team assignments
+ * or person-user links change mid-request.
  */
 class Kernel {
 
@@ -61,6 +62,11 @@ class Kernel {
         /** @var ConfigService $config */
         $config = $this->container->get( 'config' );
         QueryHelpers::setConfigService( $config );
+
+        // Register AuthorizationService cache invalidator hooks early so
+        // any write happening during this request (e.g. staff assignment
+        // from admin-post.php flows) correctly invalidates the cache.
+        AuthorizationService::registerCacheInvalidators();
 
         $this->loadModules();
         $this->registry->registerAll();

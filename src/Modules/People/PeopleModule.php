@@ -55,10 +55,6 @@ class PeopleModule implements ModuleInterface {
      * Teams admin context, not the People page.
      */
     public static function handleAssignStaff(): void {
-        if ( ! current_user_can( 'tt_manage_players' ) ) {
-            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
-        }
-
         $team_id   = isset( $_POST['team_id'] ) ? absint( wp_unslash( (string) $_POST['team_id'] ) ) : 0;
         $person_id = isset( $_POST['person_id'] ) ? absint( wp_unslash( (string) $_POST['person_id'] ) ) : 0;
         $role      = isset( $_POST['role_in_team'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['role_in_team'] ) ) : '';
@@ -66,6 +62,13 @@ class PeopleModule implements ModuleInterface {
         $end       = isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['end_date'] ) ) : '';
 
         check_admin_referer( 'tt_assign_staff_' . $team_id, 'tt_nonce' );
+
+        // v2.8.0: entity-scoped authorization. Assigning staff is a stricter
+        // action than managing a team — only users who can also manage settings
+        // can reorganize team structure.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::canAssignStaff( get_current_user_id(), $team_id ) ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
 
         $repo = new \TT\Infrastructure\People\PeopleRepository();
         $ok = $team_id > 0 && $person_id > 0 && $role !== ''
