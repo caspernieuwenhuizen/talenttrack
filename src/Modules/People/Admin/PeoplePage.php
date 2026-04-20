@@ -230,6 +230,9 @@ class PeoplePage {
 
             <?php if ( $is_edit ) : ?>
                 <?php self::renderPersonTeams( (int) $person->id ); ?>
+                <?php if ( class_exists( '\\TT\\Modules\\Authorization\\Admin\\RoleGrantPanel' ) ) : ?>
+                    <?php \TT\Modules\Authorization\Admin\RoleGrantPanel::render( (int) $person->id ); ?>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
         <?php

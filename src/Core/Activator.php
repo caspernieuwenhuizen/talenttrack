@@ -9,9 +9,10 @@ use TT\Infrastructure\Security\RolesService;
 /**
  * Activator — runs on plugin activation.
  *
- * v2.7.0: Adds tt_people and tt_team_people tables to the authoritative
- * schema definition. Extends v2.6.6's approach of doing schema reconciliation
- * via dbDelta directly in activate() rather than via file-based migrations.
+ * v2.9.0 (Sprint 1F): Adds tt_roles, tt_role_permissions, and
+ * tt_user_role_scopes for the data-driven authorization model. Seeds the
+ * 9 system roles and their permission matrix on first activation.
+ * v2.7.0: Adds tt_people and tt_team_people tables.
  */
 class Activator {
 
@@ -22,6 +23,7 @@ class Activator {
         self::relaxLegacyConstraints();
         self::backfillAttendanceStatus();
         self::markMigrationsApplied();
+        self::seedRolesIfEmpty();
 
         try {
             ( new MigrationRunner() )->run();
@@ -118,7 +120,7 @@ class Activator {
             KEY idx_user (wp_user_id)
         ) $c;";
 
-        /* ─── People & team-staff assignments (NEW in v2.7.0) ─── */
+        /* ─── People & team-staff assignments ─── */
         $queries[] = "CREATE TABLE {$p}tt_people (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             first_name VARCHAR(255) NOT NULL,
@@ -148,6 +150,50 @@ class Activator {
             UNIQUE KEY uniq_team_person_role (team_id, person_id, role_in_team),
             KEY idx_team (team_id),
             KEY idx_person (person_id)
+        ) $c;";
+
+        /* ─── Roles, permissions, user-role scopes (NEW in v2.9.0) ─── */
+        $queries[] = "CREATE TABLE {$p}tt_roles (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            role_key VARCHAR(64) NOT NULL,
+            label VARCHAR(191) NOT NULL,
+            description TEXT,
+            is_system TINYINT(1) DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_role_key (role_key)
+        ) $c;";
+
+        $queries[] = "CREATE TABLE {$p}tt_role_permissions (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            role_id BIGINT UNSIGNED NOT NULL,
+            permission VARCHAR(128) NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_role_perm (role_id, permission),
+            KEY idx_role (role_id),
+            KEY idx_perm (permission)
+        ) $c;";
+
+        // scope_id is nullable for scope_type='global'. UNIQUE constraint
+        // across (person, role, scope_type, scope_id) prevents exact
+        // duplicates; MySQL treats NULLs as distinct so multiple global
+        // grants of the same role are technically allowed but not expected.
+        $queries[] = "CREATE TABLE {$p}tt_user_role_scopes (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            person_id BIGINT UNSIGNED NOT NULL,
+            role_id BIGINT UNSIGNED NOT NULL,
+            scope_type VARCHAR(20) NOT NULL DEFAULT 'global',
+            scope_id BIGINT UNSIGNED DEFAULT NULL,
+            start_date DATE DEFAULT NULL,
+            end_date DATE DEFAULT NULL,
+            granted_by_person_id BIGINT UNSIGNED DEFAULT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_person (person_id),
+            KEY idx_role (role_id),
+            KEY idx_scope (scope_type, scope_id)
         ) $c;";
 
         /* ─── Evaluations (FULL v2.x schema) ─── */
@@ -321,6 +367,7 @@ class Activator {
             '0002_create_audit_log',
             '0003_create_custom_fields',
             '0004_schema_reconciliation',
+            '0005_authorization_rbac',
         ];
 
         foreach ( $to_mark as $name ) {
@@ -392,7 +439,7 @@ class Activator {
             'season_label' => '2025/2026', 'academy_name' => 'Soccer Academy',
             'footer_text' => '', 'date_format' => 'Y-m-d',
             'default_report_range' => '3', 'composite_weights' => '{}',
-            'modules_enabled' => '["evaluations","goals","attendance","sessions","reports","people"]',
+            'modules_enabled' => '["evaluations","goals","attendance","sessions","reports","people","authorization"]',
             'primary_color' => '#0b3d2e', 'secondary_color' => '#e8b624',
             'logo_url' => '',
             'login_redirect_enabled' => '1',
@@ -401,5 +448,166 @@ class Activator {
         foreach ( $defaults as $k => $v ) {
             $wpdb->replace( "{$p}tt_config", [ 'config_key' => $k, 'config_value' => $v ] );
         }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+     *  v2.9.0 — seed 9 system roles + permission matrix
+     * ═══════════════════════════════════════════════════════════ */
+
+    private static function seedRolesIfEmpty(): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_roles" );
+        if ( $count > 0 ) return;
+
+        $roles = self::defaultRoleDefinitions();
+
+        foreach ( $roles as $role ) {
+            $wpdb->insert( "{$p}tt_roles", [
+                'role_key'    => $role['key'],
+                'label'       => $role['label'],
+                'description' => $role['description'],
+                'is_system'   => 1,
+            ] );
+            $role_id = (int) $wpdb->insert_id;
+            if ( $role_id <= 0 ) continue;
+
+            foreach ( $role['permissions'] as $perm ) {
+                $wpdb->insert( "{$p}tt_role_permissions", [
+                    'role_id'    => $role_id,
+                    'permission' => $perm,
+                ] );
+            }
+        }
+    }
+
+    /**
+     * The authoritative definition of the 9 system roles and their
+     * permission strings. This runs once on first activation; after that
+     * the data lives in the database and is editable (in a future release)
+     * via the admin UI.
+     *
+     * Permission naming convention: `<domain>.<action>`.
+     *
+     * Special tokens:
+     *   `*.*`       — grants everything (club_admin only)
+     *   `*.view`    — view across all domains
+     *
+     * @return array<int, array{key:string, label:string, description:string, permissions:string[]}>
+     */
+    public static function defaultRoleDefinitions(): array {
+        return [
+            [
+                'key'         => 'club_admin',
+                'label'       => 'Club Admin',
+                'description' => 'Full access across the academy. Can manage all entities, assign staff, and configure the system.',
+                'permissions' => [ '*.*' ],
+            ],
+            [
+                'key'         => 'head_of_development',
+                'label'       => 'Head of Development',
+                'description' => 'Shapes methodology and reviews output. Read-all across the academy plus evaluations management. No player-data editing, no staff reassignment.',
+                'permissions' => [
+                    'players.view',
+                    'evaluations.view',
+                    'evaluations.create',
+                    'evaluations.edit_any',
+                    'evaluations.delete',
+                    'reports.view',
+                    'config.view',
+                    'people.view',
+                    'teams.view',
+                    'goals.view',
+                    'sessions.view',
+                ],
+            ],
+            [
+                'key'         => 'head_coach',
+                'label'       => 'Head Coach',
+                'description' => 'Full control within assigned teams — players, evaluations, sessions, goals, and team settings. Scoped to team.',
+                'permissions' => [
+                    'players.view',
+                    'players.edit',
+                    'evaluations.view',
+                    'evaluations.create',
+                    'evaluations.edit_own',
+                    'evaluations.edit_any',
+                    'sessions.view',
+                    'sessions.manage',
+                    'goals.view',
+                    'goals.manage',
+                    'team.manage',
+                    'people.view',
+                ],
+            ],
+            [
+                'key'         => 'assistant_coach',
+                'label'       => 'Assistant Coach',
+                'description' => 'Evaluate and observe within assigned teams. Can create and edit own evaluations; cannot edit other coaches\' evaluations. Scoped to team.',
+                'permissions' => [
+                    'players.view',
+                    'evaluations.view',
+                    'evaluations.create',
+                    'evaluations.edit_own',
+                    'sessions.view',
+                    'goals.view',
+                ],
+            ],
+            [
+                'key'         => 'manager',
+                'label'       => 'Manager',
+                'description' => 'Runs logistics within assigned teams — roster, sessions, team settings. No evaluation permissions. Scoped to team.',
+                'permissions' => [
+                    'players.view',
+                    'players.edit',
+                    'team.manage',
+                    'sessions.view',
+                    'sessions.manage',
+                    'goals.view',
+                    'people.view',
+                ],
+            ],
+            [
+                'key'         => 'physio',
+                'label'       => 'Physio',
+                'description' => 'Read-only access to players and sessions within assigned teams.',
+                'permissions' => [
+                    'players.view',
+                    'sessions.view',
+                ],
+            ],
+            [
+                'key'         => 'scout',
+                'label'       => 'Scout',
+                'description' => 'View any player and create scouting evaluations. Can be assigned globally or to specific teams.',
+                'permissions' => [
+                    'players.view',
+                    'evaluations.view',
+                    'evaluations.create',
+                    'evaluations.edit_own',
+                ],
+            ],
+            [
+                'key'         => 'parent',
+                'label'       => 'Parent',
+                'description' => 'Read-only access to linked children\'s records. Scoped to specific players.',
+                'permissions' => [
+                    'players.view_own_children',
+                    'evaluations.view_own_children',
+                    'goals.view_own_children',
+                ],
+            ],
+            [
+                'key'         => 'player',
+                'label'       => 'Player',
+                'description' => 'Read-only access to own profile. Auto-derived from tt_players.wp_user_id — not manually grantable.',
+                'permissions' => [
+                    'players.view_own',
+                    'evaluations.view_own',
+                    'goals.view_own',
+                ],
+            ],
+        ];
     }
 }

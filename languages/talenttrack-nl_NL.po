@@ -1172,3 +1172,165 @@ msgid "%d pending migration"
 msgid_plural "%d pending migrations"
 msgstr[0] "%d migratie in behandeling"
 msgstr[1] "%d migraties in behandeling"
+
+# ─── v2.9.0 Sprint 1F — Authorization UI ───
+
+msgid "Roles & Permissions"
+msgstr "Rollen & rechten"
+
+msgid "Permission Debug"
+msgstr "Rechten-diagnose"
+
+msgid "Role not found."
+msgstr "Rol niet gevonden."
+
+msgid "No roles configured."
+msgstr "Geen rollen geconfigureerd."
+
+msgid "TalentTrack uses a role-based access system. Each role grants a set of permissions that can be scoped globally, to a team, or to a specific player. System roles are predefined and their permission sets are read-only."
+msgstr "TalentTrack gebruikt een rolgebaseerd toegangssysteem. Elke rol verleent een set rechten die globaal, aan een team of aan een specifieke speler kunnen worden gekoppeld. Systeemrollen zijn voorgedefinieerd en hun rechtensets zijn alleen-lezen."
+
+msgid "Open permission debugger"
+msgstr "Open rechten-diagnose"
+
+msgid "Permissions"
+msgstr "Rechten"
+
+msgid "Assignments"
+msgstr "Toewijzingen"
+
+msgid "System"
+msgstr "Systeem"
+
+msgid "Permissions granted by this role"
+msgstr "Rechten verleend door deze rol"
+
+msgid "This is a system role. Its permission set is read-only in Sprint 1F. Custom role editing will be available in a future release."
+msgstr "Dit is een systeemrol. De rechtenset is alleen-lezen in Sprint 1F. Aangepaste rolbewerking komt in een toekomstige release."
+
+msgid "No permissions configured for this role."
+msgstr "Geen rechten geconfigureerd voor deze rol."
+
+msgid "Domain"
+msgstr "Domein"
+
+msgid "Actions granted"
+msgstr "Verleende acties"
+
+msgid "Current assignments"
+msgstr "Huidige toewijzingen"
+
+msgid "This role is not currently assigned to anyone."
+msgstr "Deze rol is momenteel niet aan iemand toegewezen."
+
+msgid "Scope"
+msgstr "Bereik"
+
+msgid "Revoke"
+msgstr "Intrekken"
+
+msgid "Revoke this role assignment?"
+msgstr "Deze rol-toewijzing intrekken?"
+
+msgid "← Back to all roles"
+msgstr "← Terug naar alle rollen"
+
+msgid "Choose a WordPress user to see every role-scope they resolve to, the source of each scope (data-driven role assignment, legacy bridge, or derived), and the concrete permissions each scope grants."
+msgstr "Kies een WordPress-gebruiker om alle rol-bereiken te zien waar deze toe herleid wordt, de bron van elk bereik (datagestuurde rol-toewijzing, legacy-brug of afgeleid), en de concrete rechten die elk bereik verleent."
+
+msgid "WordPress user:"
+msgstr "WordPress-gebruiker:"
+
+msgid "Check"
+msgstr "Controleren"
+
+msgid "User not found."
+msgstr "Gebruiker niet gevonden."
+
+msgid "WordPress user ID"
+msgstr "WordPress-gebruikers-ID"
+
+msgid "WordPress roles"
+msgstr "WordPress-rollen"
+
+msgid "(none)"
+msgstr "(geen)"
+
+msgid "Linked tt_people record"
+msgstr "Gekoppeld tt_people-record"
+
+msgid "Not linked — this user has no tt_people record."
+msgstr "Niet gekoppeld — deze gebruiker heeft geen tt_people-record."
+
+msgid "Administrator override"
+msgstr "Beheerder-overschrijving"
+
+msgid "This user has the WordPress administrator role. AuthorizationService grants all permissions unconditionally, bypassing the role-scope lookup."
+msgstr "Deze gebruiker heeft de WordPress-administrator-rol. AuthorizationService verleent alle rechten onvoorwaardelijk en omzeilt daarmee het rol-bereik-onderzoek."
+
+msgid "Resolved scopes"
+msgstr "Herleide bereiken"
+
+msgid "No explicit role-scopes. (Administrator override grants everything anyway.)"
+msgstr "Geen expliciete rol-bereiken. (Beheerder-overschrijving verleent toch alles.)"
+
+msgid "This user has no active role-scopes. They have no TalentTrack permissions beyond what WordPress capabilities they directly hold."
+msgstr "Deze gebruiker heeft geen actieve rol-bereiken. Zij hebben geen TalentTrack-rechten buiten de WordPress-capabilities die zij direct bezitten."
+
+msgid "Permissions granted"
+msgstr "Verleende rechten"
+
+msgid "Flattened permissions"
+msgstr "Platte rechten-weergave"
+
+msgid "The union of all permissions above, grouped by domain. This is what AuthorizationService::userHasPermission() checks against when deciding access."
+msgstr "De vereniging van alle bovenstaande rechten, gegroepeerd per domein. Dit is waar AuthorizationService::userHasPermission() tegen controleert bij toegangsbeslissingen."
+
+msgid "Role assignment (data-driven)"
+msgstr "Rol-toewijzing (datagestuurd)"
+
+msgid "Legacy bridge: tt_team_people"
+msgstr "Legacy-brug: tt_team_people"
+
+msgid "Legacy bridge: head_coach_id"
+msgstr "Legacy-brug: head_coach_id"
+
+msgid "Derived: linked player record"
+msgstr "Afgeleid: gekoppeld spelersrecord"
+
+msgid "Grant this person one or more roles. Each role can be scoped globally, to a team, or to a specific player depending on the role type. Roles determine what this person can do in TalentTrack."
+msgstr "Verleen deze persoon één of meer rollen. Elke rol kan globaal, aan een team of aan een specifieke speler worden gekoppeld, afhankelijk van het roltype. Rollen bepalen wat deze persoon kan doen in TalentTrack."
+
+msgid "No role assignments yet."
+msgstr "Nog geen rol-toewijzingen."
+
+msgid "Grant a new role"
+msgstr "Nieuwe rol verlenen"
+
+msgid "No grantable roles available."
+msgstr "Geen verleenbare rollen beschikbaar."
+
+msgid "Global (everywhere)"
+msgstr "Globaal (overal)"
+
+msgid "Global"
+msgstr "Globaal"
+
+msgid "Pick a role first — the scope options will restrict to what makes sense for that role."
+msgstr "Kies eerst een rol — de bereik-opties worden beperkt tot wat zinvol is voor die rol."
+
+msgid "Allowed scopes for this role:"
+msgstr "Toegestane bereiken voor deze rol:"
+
+msgid "Select team"
+msgstr "Selecteer team"
+
+msgid "Select player"
+msgstr "Selecteer speler"
+
+msgid "Select person"
+msgstr "Selecteer persoon"
+
+msgid "Grant role"
+msgstr "Rol verlenen"
+
