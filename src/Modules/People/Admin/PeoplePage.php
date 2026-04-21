@@ -7,6 +7,7 @@ use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\People\PeopleRepository;
 use TT\Shared\Validation\CustomFieldValidator;
+use TT\Shared\Admin\BackButton;
 
 /**
  * PeoplePage — admin UI for the People module.
@@ -183,6 +184,8 @@ class PeoplePage {
         ];
         ?>
         <div class="wrap">
+            
+            <?php BackButton::render( admin_url( 'admin.php?page=tt-people' ) ); ?>
             <h1><?php echo $is_edit ? esc_html__( 'Edit Person', 'talenttrack' ) : esc_html__( 'Add Person', 'talenttrack' ); ?></h1>
 
             <?php if ( ! empty( $_GET['tt_cf_error'] ) ) : ?>

@@ -8,6 +8,7 @@ use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Validation\CustomFieldValidator;
+use TT\Shared\Admin\BackButton;
 
 /**
  * GoalsPage — admin CRUD for goals.
@@ -78,6 +79,8 @@ class GoalsPage {
         $state = self::popFormState();
         ?>
         <div class="wrap">
+            
+            <?php BackButton::render( admin_url( 'admin.php?page=tt-goals' ) ); ?>
             <h1><?php echo $goal ? esc_html__( 'Edit Goal', 'talenttrack' ) : esc_html__( 'Add Goal', 'talenttrack' ); ?></h1>
 
             <?php if ( ! empty( $_GET['tt_cf_error'] ) ) : ?>

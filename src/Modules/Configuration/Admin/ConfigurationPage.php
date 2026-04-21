@@ -218,18 +218,32 @@ class ConfigurationPage {
         $items = QueryHelpers::get_lookups( $type );
         ?>
         <h2><?php echo esc_html( $label ); ?>s <a href="<?php echo esc_url( admin_url( "admin.php?page=tt-config&tab=$tab&crud=new" ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a></h2>
-        <table class="widefat striped" style="max-width:700px;"><thead><tr>
+        <?php if ( $show_sort && ! empty( $items ) ) : ?>
+            <p style="color:#666; font-size:13px; max-width:700px;">
+                <?php esc_html_e( 'Drag rows by the handle on the left to reorder. Order is saved automatically.', 'talenttrack' ); ?>
+            </p>
+        <?php endif; ?>
+        <table class="widefat striped tt-sortable-table" style="max-width:760px;"><thead><tr>
+            <?php if ( $show_sort ) : ?><th style="width:30px;"></th><?php endif; ?>
             <th style="width:50px"><?php esc_html_e( 'Order', 'talenttrack' ); ?></th>
             <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
             <?php if ( $show_desc ) : ?><th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th><?php endif; ?>
             <th style="width:120px"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
-        </tr></thead><tbody>
-        <?php if ( empty( $items ) ) : ?><tr><td colspan="<?php echo $show_desc ? 4 : 3; ?>"><?php esc_html_e( 'No items.', 'talenttrack' ); ?></td></tr>
+        </tr></thead><tbody data-tt-sortable="<?php echo $show_sort ? '1' : '0'; ?>">
+        <?php if ( empty( $items ) ) : ?>
+            <tr><td colspan="<?php echo ( $show_desc ? 4 : 3 ) + ( $show_sort ? 1 : 0 ); ?>"><?php esc_html_e( 'No items.', 'talenttrack' ); ?></td></tr>
         <?php else : foreach ( $items as $item ) : ?>
-            <tr><td><?php echo (int) $item->sort_order; ?></td><td><strong><?php echo esc_html( (string) $item->name ); ?></strong></td>
+            <tr data-id="<?php echo (int) $item->id; ?>">
+                <?php if ( $show_sort ) : ?><td class="tt-drag-handle" title="<?php esc_attr_e( 'Drag to reorder', 'talenttrack' ); ?>">⋮⋮</td><?php endif; ?>
+                <td class="tt-sort-order-cell"><?php echo (int) $item->sort_order; ?></td>
+                <td><strong><?php echo esc_html( (string) $item->name ); ?></strong></td>
                 <?php if ( $show_desc ) : ?><td><?php echo esc_html( (string) $item->description ); ?></td><?php endif; ?>
-                <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-config&tab=$tab&crud=edit&lookup_id={$item->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_lookup&id={$item->id}&tab=$tab" ), 'tt_del_lookup_' . $item->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td></tr>
+                <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-config&tab=$tab&crud=edit&lookup_id={$item->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_lookup&id={$item->id}&tab=$tab" ), 'tt_del_lookup_' . $item->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td>
+            </tr>
         <?php endforeach; endif; ?></tbody></table>
+        <?php if ( $show_sort && ! empty( $items ) ) : ?>
+            <?php \TT\Shared\Admin\DragReorder::renderScript( 'lookup', $type ); ?>
+        <?php endif; ?>
         <?php
     }
 
@@ -284,19 +298,33 @@ class ConfigurationPage {
         $items = QueryHelpers::get_eval_types();
         ?>
         <h2><?php esc_html_e( 'Evaluation Types', 'talenttrack' ); ?> <a href="<?php echo esc_url( admin_url( "admin.php?page=tt-config&tab=$tab&crud=new" ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a></h2>
-        <table class="widefat striped" style="max-width:700px;"><thead><tr>
+        <?php if ( ! empty( $items ) ) : ?>
+            <p style="color:#666; font-size:13px; max-width:700px;">
+                <?php esc_html_e( 'Drag rows by the handle on the left to reorder. Order is saved automatically.', 'talenttrack' ); ?>
+            </p>
+        <?php endif; ?>
+        <table class="widefat striped tt-sortable-table" style="max-width:760px;"><thead><tr>
+            <th style="width:30px;"></th>
             <th style="width:50px"><?php esc_html_e( 'Order', 'talenttrack' ); ?></th>
             <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
             <th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th>
             <th><?php esc_html_e( 'Match Details?', 'talenttrack' ); ?></th>
             <th style="width:120px"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
-        </tr></thead><tbody>
-        <?php if ( empty( $items ) ) : ?><tr><td colspan="5"><?php esc_html_e( 'No evaluation types.', 'talenttrack' ); ?></td></tr>
+        </tr></thead><tbody data-tt-sortable="1">
+        <?php if ( empty( $items ) ) : ?><tr><td colspan="6"><?php esc_html_e( 'No evaluation types.', 'talenttrack' ); ?></td></tr>
         <?php else : foreach ( $items as $item ) : $meta = QueryHelpers::lookup_meta( $item ); ?>
-            <tr><td><?php echo (int) $item->sort_order; ?></td><td><strong><?php echo esc_html( (string) $item->name ); ?></strong></td><td><?php echo esc_html( (string) $item->description ); ?></td>
+            <tr data-id="<?php echo (int) $item->id; ?>">
+                <td class="tt-drag-handle" title="<?php esc_attr_e( 'Drag to reorder', 'talenttrack' ); ?>">⋮⋮</td>
+                <td class="tt-sort-order-cell"><?php echo (int) $item->sort_order; ?></td>
+                <td><strong><?php echo esc_html( (string) $item->name ); ?></strong></td>
+                <td><?php echo esc_html( (string) $item->description ); ?></td>
                 <td><?php echo ! empty( $meta['requires_match_details'] ) ? '✓' : '—'; ?></td>
-                <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-config&tab=$tab&crud=edit&lookup_id={$item->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_lookup&id={$item->id}&tab=$tab" ), 'tt_del_lookup_' . $item->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td></tr>
+                <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-config&tab=$tab&crud=edit&lookup_id={$item->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_lookup&id={$item->id}&tab=$tab" ), 'tt_del_lookup_' . $item->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td>
+            </tr>
         <?php endforeach; endif; ?></tbody></table>
+        <?php if ( ! empty( $items ) ) : ?>
+            <?php \TT\Shared\Admin\DragReorder::renderScript( 'lookup', 'eval_type' ); ?>
+        <?php endif; ?>
         <?php
     }
 

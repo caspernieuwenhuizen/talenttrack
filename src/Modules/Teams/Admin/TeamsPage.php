@@ -9,6 +9,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\People\Admin\TeamStaffPanel;
 use TT\Shared\Validation\CustomFieldValidator;
+use TT\Shared\Admin\BackButton;
 
 class TeamsPage {
     public static function init(): void {
@@ -77,6 +78,8 @@ class TeamsPage {
         $age_groups = QueryHelpers::get_lookup_names( 'age_group' );
         ?>
         <div class="wrap">
+            
+            <?php BackButton::render( admin_url( 'admin.php?page=tt-teams' ) ); ?>
             <h1><?php echo $is_edit ? esc_html__( 'Edit Team', 'talenttrack' ) : esc_html__( 'Add Team', 'talenttrack' ); ?></h1>
             <?php if ( ! empty( $_GET['tt_cf_error'] ) ) : ?>
                 <div class="notice notice-warning is-dismissible">

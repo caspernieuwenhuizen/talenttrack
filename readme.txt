@@ -4,13 +4,20 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.18.0
+Stable tag: 2.19.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.19.0 — Drag-reorder Lookups + Back Button + Clickable KPIs + Compact Stat Cards =
+* NEW: Drag-to-reorder on lookup tables. Positions, Age Groups, Foot Options, Goal Status, Goal Priority, Attendance Status, Evaluation Types — drag the ⋮⋮ handle to reorder. Saves via AJAX with a success toast; sort_order cells update live. Powered by SortableJS. Fixes the long-standing bug where the sort_order column existed but had no UI to set values.
+* NEW: "← Back" link at the top of every edit/detail admin page (Players form + view, Teams form, Evaluations form + view, Sessions form, Goals form, People form, Custom Fields form, Evaluation Categories form). Uses HTTP referer with safe fallbacks — never takes you out of the plugin.
+* NEW: Clickable KPIs on Usage Statistics. All 6 headline tiles link to event/user lists. Active-by-role bars link to role-filtered user lists. Top-pages rows link to per-page visit details. Inactive-user rows link to per-user event timelines. DAU + Evaluations charts are click-to-drill-down — click any day to see who/what. New hidden details page at tt-usage-stats-details handles all drill-down routes.
+* CHANGED: Dashboard stat cards redesigned. Compact horizontal layout (~58px tall vs ~130px), icon on the left + count + "+N this week" delta pill + label stacked right. Border-left accent stripe in per-entity color replaces the heavy gradient background. Delta shows row additions in the last 7 days; green pill for positive, gray for zero.
+* INTERNAL: New BackButton, DragReorder, UsageStatsDetailsPage classes. No schema changes.
 
 = 2.18.0 — Usage Statistics + Dashboard as Workspace =
 * NEW: Usage Statistics admin page (Analytics → Usage Statistics, admin-only). Tracks logins + admin page views. Headline tiles for 7/30/90-day login + active-user counts. Daily-active-users line chart (90 days). Evaluations-created-per-day bar chart (90 days, sourced from evaluations table so historical data appears immediately). Active-by-role breakdown (Admins/Coaches/Players/Other). Most-visited admin pages (top 10). Inactive-user nudge list (30+ day absence).

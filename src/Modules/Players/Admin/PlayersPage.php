@@ -12,6 +12,7 @@ use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Shared\Validation\CustomFieldValidator;
+use TT\Shared\Admin\BackButton;
 
 /**
  * PlayersPage — admin CRUD for players.
@@ -140,6 +141,8 @@ class PlayersPage {
         }
         ?>
         <div class="wrap">
+            
+            <?php BackButton::render( admin_url( 'admin.php?page=tt-players' ) ); ?>
             <h1><?php echo $is_edit ? esc_html__( 'Edit Player', 'talenttrack' ) : esc_html__( 'Add Player', 'talenttrack' ); ?></h1>
 
             <?php if ( $is_edit ) :
@@ -248,9 +251,9 @@ class PlayersPage {
         $pos   = json_decode( (string) $player->preferred_positions, true );
         ?>
         <div class="wrap">
+            <?php BackButton::render( admin_url( 'admin.php?page=tt-players' ) ); ?>
             <h1><?php echo esc_html( QueryHelpers::player_display_name( $player ) ); ?>
-                <a href="<?php echo esc_url( admin_url( "admin.php?page=tt-players&action=edit&id={$id}" ) ); ?>" class="page-title-action"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
-                <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-players' ) ); ?>" class="page-title-action"><?php esc_html_e( '← Back', 'talenttrack' ); ?></a></h1>
+                <a href="<?php echo esc_url( admin_url( "admin.php?page=tt-players&action=edit&id={$id}" ) ); ?>" class="page-title-action"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a></h1>
             <div style="display:flex;gap:30px;flex-wrap:wrap;margin-top:20px;">
                 <div style="flex:1;min-width:280px;">
                     <table class="form-table">

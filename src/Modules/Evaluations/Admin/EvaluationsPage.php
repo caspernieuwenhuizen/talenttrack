@@ -11,6 +11,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Shared\Validation\CustomFieldValidator;
+use TT\Shared\Admin\BackButton;
 
 /**
  * EvaluationsPage — admin CRUD for evaluations.
@@ -221,6 +222,8 @@ class EvaluationsPage {
         }
         ?>
         <div class="wrap">
+            
+            <?php BackButton::render( admin_url( 'admin.php?page=tt-evaluations' ) ); ?>
             <h1><?php echo $eval ? esc_html__( 'Edit Evaluation', 'talenttrack' ) : esc_html__( 'New Evaluation', 'talenttrack' ); ?>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-evaluations' ) ); ?>" class="page-title-action"><?php esc_html_e( '← Back', 'talenttrack' ); ?></a></h1>
 
@@ -605,8 +608,8 @@ class EvaluationsPage {
         }
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Evaluation', 'talenttrack' ); ?> — <?php echo esc_html( $player ? QueryHelpers::player_display_name( $player ) : '' ); ?>
-                <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-evaluations' ) ); ?>" class="page-title-action"><?php esc_html_e( '← Back', 'talenttrack' ); ?></a></h1>
+            <?php BackButton::render( admin_url( 'admin.php?page=tt-evaluations' ) ); ?>
+            <h1><?php esc_html_e( 'Evaluation', 'talenttrack' ); ?> — <?php echo esc_html( $player ? QueryHelpers::player_display_name( $player ) : '' ); ?></h1>
             <div style="display:flex;gap:30px;flex-wrap:wrap;margin-top:20px;">
                 <div style="flex:1;min-width:320px;">
                     <table class="form-table">

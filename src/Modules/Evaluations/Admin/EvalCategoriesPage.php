@@ -4,6 +4,7 @@ namespace TT\Modules\Evaluations\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
+use TT\Shared\Admin\BackButton;
 
 /**
  * EvalCategoriesPage — manages the hierarchical evaluation category tree.
@@ -206,6 +207,8 @@ class EvalCategoriesPage {
         $is_system   = $cat ? (int) $cat->is_system : 0;
         ?>
         <div class="wrap">
+            
+            <?php BackButton::render( admin_url( 'admin.php?page=tt-eval-categories' ) ); ?>
             <h1>
                 <?php if ( $cat ) : ?>
                     <?php echo $is_sub

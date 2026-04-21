@@ -1,189 +1,225 @@
-# TalentTrack v2.18.0 — Usage Statistics + Dashboard as Workspace
+# TalentTrack v2.19.0 — Drag-reorder Lookups + Back Button + Clickable KPIs + Compact Stat Cards
 
 ## Summary
 
-Two items:
+Four UX fixes and polish items in one release:
 
-1. **Usage Statistics** — new admin page with login / active-user metrics, DAU + evaluations-created charts, top-pages breakdown, inactive-user nudge list. 90-day rolling retention, privacy-first (no IPs / no user agents).
-2. **Admin Dashboard overhaul** — the formerly-inert 5-card stat page becomes a proper workspace: Overview (clickable gradient stat cards) + grouped tile navigation (People / Performance / Analytics / Configuration / Help) mirroring the menu structure. Cap-gated. Preparation for front-end admin work to come.
+1. **Lookup tables now have drag-to-reorder** — the "sort_order" column existed but had no UI to set values. Fixed with SortableJS drag handles.
+2. **Back button on every edit/detail admin page** — referer-based, never takes you out of the plugin.
+3. **Clickable KPIs on Usage Statistics** — every card, bar, and chart point drills into a detail page.
+4. **Dashboard stat cards redesigned** — compact horizontal layout, "+N this week" delta per card, tighter and more informative.
 
-## Item 1 — Usage Statistics
+Plus the usual translations + polish.
 
-### What gets tracked
+## Item 1 — Lookup drag-to-reorder
 
-Two event sources, kept lean:
+### The bug
 
-- **Login events** — captured on `wp_login`. One row per login, per user, timestamped.
-- **Admin page views** — on every TalentTrack admin page load. Skips separator slugs (`tt-sep-*`) so the menu separators don't inflate counters.
+Lookup tables (`tt_lookups`, e.g. position, age group, foot preference, eval type) had a `sort_order` column since way back. The Configuration page's list view showed "Volgorde / Order" column but all values read `0` because the **form to set them never exposed a usable input** — every new entry saved with the default. Reordering was effectively impossible without direct SQL.
 
-That's it. No IPs, no user agents, no fingerprinting. A dedicated `record($user_id, $type, $target)` method exists on `UsageTracker` for future instrumentation (e.g. "evaluation_saved" hooks could go here) but no other events are captured in this release.
+### The fix
 
-### Retention
+New shared `DragReorder` helper (`src/Shared/Admin/DragReorder.php`) that:
 
-Fixed 90-day window. Events older than 90 days are deleted by a daily WP-Cron job (`tt_usage_prune_daily`). The cron is scheduled on activation and unscheduled on deactivation.
+- Loads SortableJS 1.15.2 from jsDelivr (~15KB, cached across admin pages)
+- Adds a drag handle (`⋮⋮`) as the first column on sortable tables
+- Triggers an AJAX POST to `admin-ajax.php?action=tt_drag_reorder` with the new id order
+- Server validates nonce + cap (`tt_manage_settings`) + that all ids belong to the same scope (lookup_type), then assigns sequential 0..N values to `sort_order`
+- Shows a toast ("Order saved." / "Save failed.") so the user knows it worked
+- Updates the visible "Order" cell values live so you can see the new sort_order without refreshing
 
-### Schema
+### Where it's active
 
-Migration 0011 creates `tt_usage_events`:
-- `id BIGINT UNSIGNED AUTO_INCREMENT`
-- `user_id BIGINT UNSIGNED NOT NULL`
-- `event_type VARCHAR(50) NOT NULL`
-- `event_target VARCHAR(100) NULL`
-- `created_at DATETIME NOT NULL`
+- Configuration → Positions / Foot Options / Age Groups / Goal Status / Goal Priority / Attendance Status (the `tab_lookup` tabs)
+- Configuration → Evaluation Types (the `tab_eval_types` tab — same table, separate code path)
 
-Indexes on `(user_id, created_at)`, `(event_type, created_at)`, and `(created_at)` alone for the prune job.
+### Where it's deferred
 
-### Admin page: TalentTrack → Usage Statistics
+- Evaluation Categories & Subcategories — that page renders mains and their subs in a single interleaved table. Dragging across main/sub boundaries would be ambiguous. Leaving this one for a future sprint (the form's `display_order` input still works manually). Stated in `DragReorder::TABLES` config for when we implement.
 
-Admin-only (`tt_manage_settings`). Lives under the Analytics group in the admin menu.
+### Read side — verified
 
-**Headline row (6 tiles):**
-- Logins over 7 / 30 / 90 days
-- Unique active users over 7 / 30 / 90 days
+`QueryHelpers::get_lookups()` already does `ORDER BY sort_order ASC, name ASC` — correct since an earlier sprint. All consumers route through this helper (`get_lookup_names`, `get_eval_types`), so every dropdown in the plugin respects the new ordering the moment an admin drags rows around. No read-query fixes needed.
 
-Logins are blue-accented; active-user tiles green-accented. Big numbers, compact layout.
+## Item 2 — Back button
 
-**Daily active users (90 days):**
-Full-width filled line chart. Zero-filled days so sparse early weeks still render as a continuous series. Chart.js, ~260px tall.
+### The need
 
-**Evaluations created per day (90 days):**
-Full-width bar chart. Reads directly from `tt_evaluations.created_at` rather than an event, so existing historical data is visible immediately (no "post-install only" gap).
+Admin pages like player edit, evaluation view, session edit were reached from multiple places (list page, dashboard tile, cross-entity link). Users had no reliable way to get back to where they came from except the browser back button or the menu sidebar.
 
-**Two-column row:**
-- **Active users by role (30 days)** — breakdown into Admins / Coaches / Players / Other via capability checks + player-link lookup. Horizontal bars with counts.
-- **Most-visited admin pages (30 days)** — top 10, human-readable labels, progress-bar visualization of relative traffic.
+### Implementation
 
-**Inactive users table:**
-Users who've logged in at any point within the 90-day window but haven't logged in the last 30+ days. Shows display name + last-login timestamp. Up to 20 rows. When empty: green "everyone's active" message.
+New `BackButton` helper (`src/Shared/Admin/BackButton.php`) with a single static `render( $fallback_url )` method. Strategy:
 
-### Privacy posture
+- Reads `wp_get_referer()` server-side — no client-side history fuzziness
+- Only trusts referers within `/wp-admin/`
+- Checks for self-referer (page refresh / form resubmit) and falls back instead of looping
+- If referer is missing, external, or self, uses the caller's explicit fallback (typically the entity's list page)
+- If no fallback given, falls back to the TalentTrack dashboard
 
-- Admin-only visibility
-- No identifying info beyond user_id
-- No IPs, no user agents, no geolocation
-- Clear banner on the page stating the retention + what's captured
-- Events are auto-deleted at 90 days
+Rendered as a subtle link above the `<h1>`, not a bold button — understated.
 
-If a regulator ever asks, the answer is: "we log which authenticated user loaded which admin page and when; nothing else. Everything is purged after 90 days."
+### Applied to
 
-## Item 2 — Admin Dashboard as a workspace
+10 detail/edit render methods across 8 files:
 
-### The shift
+- Players — edit form, detail view
+- Teams — edit form
+- Evaluations — edit form, detail view
+- Sessions — edit form
+- Goals — edit form
+- People — edit form
+- Custom Fields — edit form
+- Evaluation Categories — edit form
 
-**Before:** 5 non-clickable stat cards showing counts. Dead-end page — admins had to go back to the menu to navigate anywhere.
+List pages don't get a back button — the sidebar menu serves that role, and list pages typically ARE where you go back to.
 
-**After:** Dashboard is a proper workspace. Two sections:
+### Redundant links removed
 
-**A. Overview (top):** 5 clickable gradient stat cards — Players, Teams, Evaluations, Sessions, Goals. Each:
-- Shows active count (now properly filtered on `archived_at IS NULL`)
-- Uses a per-entity gradient tint for visual identity (Players teal, Teams blue, Evaluations purple, Sessions gold, Goals red)
-- Links directly to its list page on click
-- Lifts on hover with shadow elevation
+Two pages had their own inline "← Back" `page-title-action` buttons. These were removed in favor of the new BackButton, since having two back links side by side looks weird.
 
-**B. Grouped tiles (below):** One section per menu group with its corresponding entries as tiles:
-- **People** — Teams, Players, People
-- **Performance** — Evaluations, Sessions, Goals
-- **Analytics** — Reports, Player Rate Cards, Usage Statistics
-- **Configuration** — Configuration, Custom Fields, Evaluation Categories, Category Weights
-- **Help** — Help & Docs
+## Item 3 — Clickable KPIs on Usage Statistics
 
-Each tile shows:
-- Icon (colored per group accent, gradient background)
-- Label (matches menu label)
-- One-line description (what you do on that page)
+### The need
 
-Tiles lift on hover. Section labels have a muted-gray uppercase treatment with a hairline divider extending right. Mobile-responsive: at 640px the tile grid collapses to 1 column and stat cards shrink.
+You noted: "whenever there are KPI cards a user expects them to be clickable to at least some more details." Agreed. The 2.18.0 Usage Statistics page had information-dense visuals but the numbers were dead-ends — seeing "42 logins this week" and having no way to click through to see which logins is a promise broken.
 
-### Design decisions (confirmed last sprint)
+### The fix
 
-- **A=ii** — Two sections (Overview stats at top, grouped tiles below) instead of one unified grid
-- **B=p** — Tile sections mirror the menu groups exactly
-- **C** — Icon + label + description + count (count only on Overview, where it's meaningful)
-- **D=x** — Primary entities appear in both Overview AND their group tiles (redundancy intentional; different purposes — survey vs navigate)
-- **E** — Tiles are cap-gated; users only see what they can access
-- **F=r** — More visual — gradients, colored icons per group, hover lift
-- **G** — Tiles are navigation only; no new admin functionality is introduced by this sprint
+New hidden admin page: `UsageStatsDetailsPage` at `?page=tt-usage-stats-details`. Registered via `add_submenu_page( null, ... )` so it doesn't clutter the menu but routes correctly. Admin-only.
 
-### Why
+Each Usage Statistics surface now drills into this page with a metric parameter:
 
-You asked for this specifically as "preparing for front end admin work options." That lands. A well-designed dashboard is the natural foundation for a front-end admin experience: the same tile-based navigation concept can port to the user-facing shortcode, with different tile sets per role. The admin dashboard establishes the visual language.
+| Metric | Parameter shape | Detail shown |
+|---|---|---|
+| `logins` | `?metric=logins&days=7|30|90` | Every login event in the window: user, role, timestamp |
+| `active_users` | `?metric=active_users&days=...` | Every active user: name, role, login count, total events, last-seen, → timeline link |
+| `dau_day` | `?metric=dau_day&date=YYYY-MM-DD` | Users active on that specific date with event counts and first/last activity times |
+| `evals_day` | `?metric=evals_day&date=...` | Every evaluation created that day with player, type, coach, → view link |
+| `active_by_role` | `?metric=active_by_role&role=admin|coach|player|other&days=...` | Users of that role active in the window |
+| `top_page` | `?metric=top_page&slug=tt-players&days=...` | Per-user visit counts to a specific admin page |
+| `user_timeline` | `?metric=user_timeline&uid=N` | Full event timeline for one user within the 90-day retention window |
 
-### Scope boundary (confirmed)
+### UX affordances
 
-Tiles link to existing admin pages. This sprint adds no new functionality behind tiles — no "quick-add evaluation from dashboard," no "recent activity feed," no "starred pages." Those are future work.
+- **Headline tiles** are now wrapped as `<a>` with hover lift + "See details →" hint line
+- **Role breakdown bars** are wrapped as links with a subtle hover background
+- **Top-pages table rows** get a hover tint and cursor:pointer; entire row navigates
+- **Inactive-users table rows** likewise clickable → user's timeline
+- **DAU line chart** — Chart.js `onClick` handler navigates to `dau_day` for the clicked data point; cursor changes to pointer on hover
+- **Evaluations bar chart** — same, to `evals_day`
+
+Each detail view uses the new BackButton so you always return to the Usage Statistics dashboard cleanly.
+
+### Privacy revisited
+
+Previous release's Usage Statistics page was "admin-only aggregate metrics, no drill-down" out of abundance of caution on GDPR. Drilling into per-user data is **fine** in this context because:
+
+- You're the data controller
+- Users are your own club members with a direct relationship
+- The data is already in WordPress (login times, admin URLs visited)
+- No IPs, no user agents, no third-party sharing
+- Still admin-only (`tt_manage_settings`) — only the club administrator sees this
+
+## Item 4 — Stat cards redesign
+
+### The complaint
+
+The 5 stat cards on the dashboard (Players / Teams / Evaluations / Sessions / Goals) were visually heavy — 220px wide, ~130px tall, lots of empty space per card, and only showing a count. Low data density.
+
+### The new design
+
+**Horizontal layout, compact:**
+- ~58px tall (down from ~130px)
+- ~200px min-width (down from 220px, fits more per row)
+- Icon left (34×34), body right — takes less vertical space
+- Border-left 3px accent stripe instead of full gradient background (cleaner, less noisy)
+
+**Weekly delta indicator:**
+- Small pill next to the count shows row additions in the last 7 days: "+3 this week"
+- Green pill if delta > 0, muted gray if 0
+- Delta computed server-side from `created_at`
+
+**Simpler visual identity:**
+- Dropped the background gradient in favor of a clean white card with colored accent stripe
+- Kept the per-entity color (teal Players, blue Teams, etc.) so each card still has its identity
+
+### Result
+
+Same information density × more cards per row + new delta data = actually looks like a dashboard. Less dead space per card.
 
 ## Files in this release
 
 ### New
-- `database/migrations/0011_usage_events.php` — `tt_usage_events` table
-- `src/Infrastructure/Usage/UsageTracker.php` — event capture service + query helpers
-- `src/Infrastructure/Usage/index.php`
-- `src/Modules/Stats/Admin/UsageStatsPage.php` — admin dashboard page
+- `src/Shared/Admin/BackButton.php` — referer-based back navigation helper
+- `src/Shared/Admin/DragReorder.php` — SortableJS-backed drag-reorder + AJAX handler, supports multiple tables
+- `src/Modules/Stats/Admin/UsageStatsDetailsPage.php` — drill-down views for all Usage Statistics KPIs
 
 ### Modified
-- `talenttrack.php` — version 2.18.0
-- `src/Core/Activator.php` — `ensureSchema` creates `tt_usage_events` for fresh installs
-- `src/Modules/Stats/StatsModule.php` — wires `UsageTracker::init()`
-- `src/Shared/Admin/Menu.php` — dashboard fully rewritten (Overview + grouped tiles with scoped CSS and `lighten()` helper); Usage Statistics submenu re-added in Analytics group
-- `languages/talenttrack-nl_NL.po` + `.mo` — 36 new strings
-
-### Deleted
-(none)
+- `talenttrack.php` — version 2.19.0
+- `src/Shared/Admin/Menu.php` — register DragReorder hook, register hidden `tt-usage-stats-details` page, redesigned stat-card render path with compact horizontal + delta + color accent
+- `src/Modules/Configuration/Admin/ConfigurationPage.php` — drag-handle column + SortableJS wiring in `tab_lookup` and `tab_eval_types`
+- `src/Modules/Stats/Admin/UsageStatsPage.php` — headline tiles now linked, role bars linked, top-pages rows linked, inactive-users rows linked, chart click handlers for day drill-downs, new CSS for hover affordances
+- `src/Modules/Players/Admin/PlayersPage.php` — BackButton on edit form + detail view, cleanup of redundant back-link
+- `src/Modules/Teams/Admin/TeamsPage.php` — BackButton on edit form
+- `src/Modules/Evaluations/Admin/EvaluationsPage.php` — BackButton on edit form + detail view, cleanup
+- `src/Modules/Sessions/Admin/SessionsPage.php` — BackButton on edit form
+- `src/Modules/Goals/Admin/GoalsPage.php` — BackButton on edit form
+- `src/Modules/People/Admin/PeoplePage.php` — BackButton on edit form
+- `src/Modules/Configuration/Admin/CustomFieldsPage.php` — BackButton on edit form
+- `src/Modules/Evaluations/Admin/EvalCategoriesPage.php` — BackButton on edit form
+- `languages/talenttrack-nl_NL.po` + `.mo` — 38 new strings
 
 ## Install
 
-Extract `talenttrack-v2_18_0.zip`. The folder inside is `talenttrack-v2.18.0/`. Move contents into your `talenttrack/` plugin directory preserving structure. Deactivate + reactivate.
+Extract `talenttrack-v2_19_0.zip`. Move `talenttrack-v2.19.0/` contents into your `talenttrack/` plugin folder. Deactivate + reactivate.
 
-**On activation:**
-- Migration 0011 creates `tt_usage_events` (idempotent — skipped if already present)
-- `ensureSchema` creates the same table on fresh installs
-- WP-Cron daily prune job (`tt_usage_prune_daily`) scheduled
-- No data migration needed
-
-**On deactivation:**
-- Cron job unscheduled
-- Events retained (reactivation picks up where things left off)
+**No schema migrations.** All changes are UI + service layer. `sort_order` columns already exist; `tt_usage_events` already exists from 2.18.0.
 
 ## Verify
 
-### Usage Statistics
-1. TalentTrack menu → Analytics → Usage Statistics. Page loads.
-2. Headline tiles show 7/30/90-day login + active-user counts. Immediately after install these are all zero; they grow as you and other users log in and browse.
-3. Daily-active-users chart renders as a filled line across 90 days (mostly zero initially).
-4. Evaluations-per-day chart renders as bars, populated from existing `tt_evaluations.created_at` — you'll see historical evaluation activity right away.
-5. Role breakdown shows your WP admin counted under "Admins."
-6. Most-visited pages populates after ≥2 page views on TalentTrack admin pages.
-7. Inactive users table is likely empty for a new install.
+### Drag-reorder
+1. Configuration → Positions tab. Hover any row — drag handle (⋮⋮) visible on the left.
+2. Drag a row up or down. Release. Toast in bottom-right: "Order saved." The numeric Order column updates live.
+3. Go to any player edit form — Position dropdown now reflects the new order immediately (no cache, no refresh).
+4. Same on Configuration → Age Groups, Foot Options, Evaluation Types, etc.
 
-### Dashboard
-8. Click the "Dashboard" menu entry (or the top-level TalentTrack item). New dashboard renders.
-9. Overview section shows 5 gradient stat cards. Count numbers reflect current active (non-archived) rows. Each card is clickable — lifts on hover, navigates to the corresponding list page.
-10. Below, grouped tiles appear: People (3 tiles), Performance (3 tiles), Analytics (3 tiles — Reports, Rate Cards, Usage Statistics), Configuration (4 tiles), Help (1 tile).
-11. Each tile shows an icon with gradient background + label + one-line description. Click any tile — goes to the corresponding page.
-12. Test with a non-admin user (coach): Configuration section is hidden entirely; only Performance + limited People tiles appear per capability.
-13. On a phone / narrow viewport, stat cards shrink and tiles stack 1-wide.
+### Back button
+5. Dashboard → click the Players stat card → Players list → click any player's Edit → you're on the edit form. Top of the page: "← Back" link.
+6. Click it — you're back on the Players list.
+7. Try from a different origin: open the edit URL directly (copy-paste). Click Back — falls back to the Players list (since there's no meaningful referer).
 
-### Menu separator rows (regression check)
-14. The People / Performance / Analytics / Configuration separator rows in the submenu still render as muted uppercase headings and aren't clickable. Unchanged from 2.17.0.
+### Clickable KPIs
+8. Analytics → Usage Statistics.
+9. Click "Logins (7 days)" tile → new page listing every login event in the last 7 days. Back button returns.
+10. Click the Role "Coaches" bar → list of active coaches. Back button returns.
+11. Click any data point on the DAU line chart → list of users active that specific day. Chart cursor is pointer on hover.
+12. Click any bar on the Evaluations chart → evaluations created that day.
+13. Click an Inactive user row → that user's event timeline.
+
+### Stat cards
+14. Dashboard top. Cards are compact horizontal, icon left, count + delta pill on top row, label below.
+15. Delta shows "+N this week" if any entity was created in the last 7 days. Green pill for positive, gray pill for zero.
+16. Cards fit more per row than before — 5 cards easily on a 1400px-wide screen, wrap gracefully on narrower.
 
 ## Known caveats
 
-- **Usage stats historical data is empty after first install.** Only events captured from this release forward are visible on the dashboard. Evaluations chart is the exception — it reads the evaluations table directly, so existing data appears immediately.
-- **WP-Cron reliability.** If the host has `DISABLE_WP_CRON` set, the daily prune won't fire automatically. The events table will grow unbounded until a cron run (manual or scheduled) trips it. For a typical club of 30 users this isn't urgent — table stays small — but worth knowing.
-- **Dashboard visual style is fixed.** No theming options yet. If a club wants a different color palette, it's a CSS edit in `Menu.php`. Dedicated theme configuration slated for later.
-- **Dashboard stat cards show active+non-archived.** Matches the list views. Inactive players (status≠'active') aren't counted; archived entities aren't counted.
+- **Eval Categories drag deferred.** The Eval Categories page renders mains + subs interleaved. Drag-reorder there requires either separating into two sortable scopes (per main) or a full UI redesign. Scheduled for a future sprint. The form's `display_order` input still works manually.
+- **Drag requires SortableJS from CDN.** If the admin's network blocks jsDelivr, drag won't work and admins fall back to editing `sort_order` via the edit form. No error surfaced (graceful degradation — SortableJS `if ( typeof Sortable === 'undefined' ) return` guard).
+- **Delta logic is additive only.** "+5 this week" counts rows created in the last 7 days. It doesn't count archives, deletions, or restores. Good enough for a dashboard signal; if a club wants churn metrics we can add that later.
+- **Clickable charts don't indicate the exact point on hover beyond the native Chart.js tooltip.** The cursor changes to pointer and a hint line says "click any day" — matches the intent without adding visual noise.
 
 ## Design notes
 
-- **Why a separate events table, not user meta.** User meta gives you one value per user at a time. We want a historical series — every login captured, queryable by time. The events table is the right shape. User-meta approach wouldn't answer "how many logins last week?"
-- **Why evaluations chart sources from `tt_evaluations` instead of events.** Historical data. If we sourced only from `evaluation_saved` events, the chart would show zero before today even though the club has been using the plugin for months. Reading `created_at` from the entity table gives correct historical counts.
-- **Why 90 days, not 180 or 365.** A practical privacy / storage / usefulness balance. 90 days is long enough to spot trends ("coaches stopped logging in 2 months ago") without becoming a long-term surveillance database. Can be adjusted (`UsageTracker::RETENTION_DAYS`) if a club has different needs.
-- **Why cap-gated tiles, not menu-mirroring (WP already hides menu items by cap).** WP hides menu items but still shows them in the secondary nav on certain themes. Dashboard tiles need their own `current_user_can()` check to guarantee parity. Cheap — one check per tile, sub-millisecond impact.
-- **Why gradient stat cards + plain gradient-icon tiles.** Stat cards need to stand out as the "top of the page" — so they get full gradient backgrounds, bigger numbers. Tiles are navigation — smaller, subtler, gradient only on the icon itself. The visual hierarchy communicates "these are different things."
+- **Why SortableJS over HTML5 drag API.** Native HTML5 drag is verbose, fragile across browsers, and doesn't give you smooth animations out of the box. SortableJS is 15KB minified, mature, and handles all the edge cases (auto-scroll on long lists, touch support for mobile admins, accessibility).
+- **Why hidden submenu for drill-downs rather than a separate top-level menu.** The drill-downs aren't a standalone feature — they're navigation depth from Usage Statistics. Cluttering the menu with "Usage Statistics — Logins", "Usage Statistics — Active Users" etc. would be a disaster. Hidden-page pattern via `add_submenu_page( null, ... )` routes correctly without menu pollution.
+- **Why BackButton over history.back().** `history.back()` can take users out of the plugin entirely if they arrived via bookmark or external link. Server-side referer check with fallback keeps navigation inside TalentTrack boundaries, matching WordPress's own list-action patterns.
+- **Why delta = 7-day window specifically.** Week is the shortest meaningful period for youth football activity (one training cycle). Monthly is too long to feel actionable. Daily would fluctuate too much with weekends. 7-day is right.
+- **Compact card redesign preserves the "lift on hover" affordance.** The interaction signal (these cards are clickable) is the same as before; only the visual size changed. Existing muscle memory transfers.
 
-## v2.19.0 preview
+## v2.20.0 preview
 
-- People page archive-view filter refactor (still pending from v2.17.0)
-- Optional bulk-delete cascade handling
-- Possibly: dashboard customization (pin favorite tiles, show/hide sections)
-- Front-end admin work (the actual feature this sprint prepared for)
+- Eval Categories drag-reorder (deferred from this sprint)
+- People page archive-view filter refactor (deferred from 2.17.0)
+- Front-end admin work (the large arc prepared by the 2.18.0 dashboard)
+- Possibly: cascade handling for bulk-delete of entities with dependents

@@ -4,6 +4,7 @@ namespace TT\Modules\Configuration\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
+use TT\Shared\Admin\BackButton;
 
 /**
  * CustomFieldsPage — Sprint 1H (v2.11.0).
@@ -155,6 +156,8 @@ class CustomFieldsPage {
         $current_type  = $field ? (string) $field->field_type : CustomFieldsRepository::TYPE_TEXT;
         ?>
         <div class="wrap">
+            
+            <?php BackButton::render( admin_url( 'admin.php?page=tt-custom-fields' ) ); ?>
             <h1>
                 <?php echo $field
                     ? esc_html__( 'Edit Custom Field', 'talenttrack' )

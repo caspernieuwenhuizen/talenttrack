@@ -2324,3 +2324,150 @@ msgstr "Weging per leeftijdscategorie voor totaalbeoordelingen."
 
 msgid "How to use TalentTrack."
 msgstr "Hoe je TalentTrack gebruikt."
+
+# ===== v2.19.0 — Lookup drag, back button, clickable KPIs, delta stats =====
+
+msgid "← Back"
+msgstr "← Terug"
+
+msgid "Drag to reorder"
+msgstr "Sleep om te sorteren"
+
+msgid "Drag rows by the handle on the left to reorder. Order is saved automatically."
+msgstr "Sleep rijen met de greep aan de linkerkant om ze opnieuw te sorteren. De volgorde wordt automatisch opgeslagen."
+
+msgid "Order saved."
+msgstr "Volgorde opgeslagen."
+
+msgid "Save failed."
+msgstr "Opslaan mislukt."
+
+msgid "Network error."
+msgstr "Netwerkfout."
+
+msgid "this week"
+msgstr "deze week"
+
+msgid "See details →"
+msgstr "Details bekijken →"
+
+msgid "Click any day to see who was active."
+msgstr "Klik op een dag om te zien wie actief was."
+
+msgid "Click any day to see the evaluations."
+msgstr "Klik op een dag om de evaluaties te zien."
+
+msgid "Usage Detail"
+msgstr "Gebruiksdetail"
+
+msgid "Unknown metric."
+msgstr "Onbekende maatstaf."
+
+msgid "Logins — last %d days"
+msgstr "Logins — laatste %d dagen"
+
+msgid "Active users — last %d days"
+msgstr "Actieve gebruikers — laatste %d dagen"
+
+msgid "Active %1$s — last %2$d days"
+msgstr "Actieve %1$s — laatste %2$d dagen"
+
+msgid "Active users on %s"
+msgstr "Actieve gebruikers op %s"
+
+msgid "Evaluations created on %s"
+msgstr "Evaluaties aangemaakt op %s"
+
+msgid "Visits to %1$s — last %2$d days"
+msgstr "Bezoeken aan %1$s — laatste %2$d dagen"
+
+msgid "Timeline — %s"
+msgstr "Tijdlijn — %s"
+
+msgid "%d login event."
+msgid_plural "%d login events."
+msgstr[0] "%d login-gebeurtenis."
+msgstr[1] "%d login-gebeurtenissen."
+
+msgid "%d event in the retention window (last 90 days)."
+msgid_plural "%d events in the retention window (last 90 days)."
+msgstr[0] "%d gebeurtenis in het bewaarvenster (laatste 90 dagen)."
+msgstr[1] "%d gebeurtenissen in het bewaarvenster (laatste 90 dagen)."
+
+msgid "Invalid date."
+msgstr "Ongeldige datum."
+
+msgid "Invalid role."
+msgstr "Ongeldige rol."
+
+msgid "Missing page slug."
+msgstr "Paginaslug ontbreekt."
+
+msgid "Missing user id."
+msgstr "Gebruikers-ID ontbreekt."
+
+msgid "None that day."
+msgstr "Geen op die dag."
+
+msgid "No active users in this role."
+msgstr "Geen actieve gebruikers in deze rol."
+
+msgid "No visits in this window."
+msgstr "Geen bezoeken in dit venster."
+
+msgid "No events recorded for this user in the retention window."
+msgstr "Geen gebeurtenissen geregistreerd voor deze gebruiker in het bewaarvenster."
+
+msgid "No events."
+msgstr "Geen gebeurtenissen."
+
+msgid "Logins"
+msgstr "Logins"
+
+msgid "Events"
+msgstr "Gebeurtenissen"
+
+msgid "Last seen"
+msgstr "Laatst actief"
+
+msgid "Timeline"
+msgstr "Tijdlijn"
+
+msgid "Timestamp"
+msgstr "Tijdstempel"
+
+msgid "Event"
+msgstr "Gebeurtenis"
+
+msgid "Target"
+msgstr "Doel"
+
+msgid "Role"
+msgstr "Rol"
+
+msgid "First"
+msgstr "Eerste"
+
+msgid "Last"
+msgstr "Laatste"
+
+msgid "Created"
+msgstr "Aangemaakt"
+
+msgid "Visits"
+msgstr "Bezoeken"
+
+msgid "Last visit"
+msgstr "Laatste bezoek"
+
+msgid "View"
+msgstr "Bekijken"
+
+msgid "Admin"
+msgstr "Beheerder"
+
+msgid "Coach"
+msgstr "Coach"
+
+msgid "Player"
+msgstr "Speler"

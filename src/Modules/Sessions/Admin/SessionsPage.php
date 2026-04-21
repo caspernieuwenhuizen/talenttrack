@@ -8,6 +8,7 @@ use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Validation\CustomFieldValidator;
+use TT\Shared\Admin\BackButton;
 
 /**
  * SessionsPage — admin CRUD for training sessions.
@@ -81,6 +82,8 @@ class SessionsPage {
         $state = self::popFormState();
         ?>
         <div class="wrap">
+            
+            <?php BackButton::render( admin_url( 'admin.php?page=tt-sessions' ) ); ?>
             <h1><?php echo $session ? esc_html__( 'Edit Session', 'talenttrack' ) : esc_html__( 'New Session', 'talenttrack' ); ?></h1>
 
             <?php if ( ! empty( $_GET['tt_cf_error'] ) ) : ?>

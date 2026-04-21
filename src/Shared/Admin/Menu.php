@@ -16,6 +16,7 @@ use TT\Modules\Sessions\Admin\SessionsPage;
 use TT\Modules\Stats\Admin\PlayerRateCardsPage;
 use TT\Modules\Teams\Admin\TeamsPage;
 use TT\Shared\Admin\BulkActionsHelper;
+use TT\Shared\Admin\DragReorder;
 
 /**
  * Menu — registers the top-level TalentTrack admin menu plus subpages.
@@ -31,6 +32,8 @@ class Menu {
         add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue' ] );
         // v2.17.0: wire bulk-action post handler + admin JS.
         BulkActionsHelper::init();
+        // v2.19.0: wire drag-to-reorder AJAX handler.
+        DragReorder::init();
     }
 
     public static function register(): void {
@@ -70,6 +73,10 @@ class Menu {
         add_submenu_page( 'talenttrack', __( 'Reports', 'talenttrack' ), __( 'Reports', 'talenttrack' ), 'tt_view_reports', 'tt-reports', [ ReportsPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Player Rate Cards', 'talenttrack' ), __( 'Player Rate Cards', 'talenttrack' ), 'tt_view_reports', 'tt-rate-cards', [ PlayerRateCardsPage::class, 'render' ] );
         add_submenu_page( 'talenttrack', __( 'Usage Statistics', 'talenttrack' ), __( 'Usage Statistics', 'talenttrack' ), 'tt_manage_settings', 'tt-usage-stats', [ \TT\Modules\Stats\Admin\UsageStatsPage::class, 'render' ] );
+        // v2.19.0: hidden details page for drill-down from KPI cards.
+        // Registered with null parent so it doesn't appear in the menu
+        // but the page slug routes correctly.
+        add_submenu_page( null, __( 'Usage Detail', 'talenttrack' ), __( 'Usage Detail', 'talenttrack' ), 'tt_manage_settings', 'tt-usage-stats-details', [ \TT\Modules\Stats\Admin\UsageStatsDetailsPage::class, 'render' ] );
 
         self::addSeparator( 'tt-sep-config', __( 'Configuration', 'talenttrack' ), 'tt_manage_settings' );
         add_submenu_page( 'talenttrack', __( 'Configuration', 'talenttrack' ), __( 'Configuration', 'talenttrack' ), 'tt_manage_settings', 'tt-config', [ ConfigurationPage::class, 'render_page' ] );
@@ -141,48 +148,66 @@ class Menu {
         // v2.18.0 — dashboard overhaul. Stats section (5 overview cards,
         // clickable) + tiles section (mirrors the menu groups, each tile
         // = one menu entry, cap-gated to respect user role).
+        //
+        // v2.19.0 — stat cards redesigned: horizontal layout, compact,
+        // each card shows a weekly delta ("+5 this week") computed from
+        // the entity's created_at column. Delta reflects row additions
+        // in the last 7 days.
+
+        $week_ago = gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS );
+
+        $delta_players = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_players WHERE status='active' AND archived_at IS NULL AND created_at >= %s", $week_ago ) );
+        $delta_teams   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_teams WHERE archived_at IS NULL AND created_at >= %s", $week_ago ) );
+        $delta_evals   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE archived_at IS NULL AND created_at >= %s", $week_ago ) );
+        $delta_sess    = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_sessions WHERE archived_at IS NULL AND created_at >= %s", $week_ago ) );
+        $delta_goals   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_goals WHERE archived_at IS NULL AND created_at >= %s", $week_ago ) );
 
         // Stats for the Overview section
         $stats = [
             [
                 'label'    => __( 'Players', 'talenttrack' ),
                 'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_players WHERE status='active' AND archived_at IS NULL" ),
+                'delta'    => $delta_players,
                 'icon'     => 'dashicons-admin-users',
                 'url'      => admin_url( 'admin.php?page=tt-players' ),
                 'cap'      => 'tt_manage_players',
-                'gradient' => 'linear-gradient(135deg, #1d7874 0%, #35a29f 100%)',
+                'color'    => '#1d7874',
             ],
             [
                 'label'    => __( 'Teams', 'talenttrack' ),
                 'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_teams WHERE archived_at IS NULL" ),
+                'delta'    => $delta_teams,
                 'icon'     => 'dashicons-shield',
                 'url'      => admin_url( 'admin.php?page=tt-teams' ),
                 'cap'      => 'tt_manage_players',
-                'gradient' => 'linear-gradient(135deg, #2271b1 0%, #5aa0d6 100%)',
+                'color'    => '#2271b1',
             ],
             [
                 'label'    => __( 'Evaluations', 'talenttrack' ),
                 'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE archived_at IS NULL" ),
+                'delta'    => $delta_evals,
                 'icon'     => 'dashicons-chart-bar',
                 'url'      => admin_url( 'admin.php?page=tt-evaluations' ),
                 'cap'      => 'tt_evaluate_players',
-                'gradient' => 'linear-gradient(135deg, #7c3a9e 0%, #b56cd8 100%)',
+                'color'    => '#7c3a9e',
             ],
             [
                 'label'    => __( 'Sessions', 'talenttrack' ),
                 'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_sessions WHERE archived_at IS NULL" ),
+                'delta'    => $delta_sess,
                 'icon'     => 'dashicons-calendar-alt',
                 'url'      => admin_url( 'admin.php?page=tt-sessions' ),
                 'cap'      => 'tt_evaluate_players',
-                'gradient' => 'linear-gradient(135deg, #c9962a 0%, #f7c85a 100%)',
+                'color'    => '#c9962a',
             ],
             [
                 'label'    => __( 'Goals', 'talenttrack' ),
                 'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_goals WHERE archived_at IS NULL" ),
+                'delta'    => $delta_goals,
                 'icon'     => 'dashicons-flag',
                 'url'      => admin_url( 'admin.php?page=tt-goals' ),
                 'cap'      => 'tt_evaluate_players',
-                'gradient' => 'linear-gradient(135deg, #b32d2e 0%, #e05858 100%)',
+                'color'    => '#b32d2e',
             ],
         ];
 
@@ -266,70 +291,82 @@ class Menu {
             background: #dcdcde;
         }
 
-        /* Stat cards (Overview section) */
+        /* Stat cards (Overview section) — v2.19.0 horizontal compact */
         .tt-dash-overview {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 14px;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
         }
         .tt-dash-stat {
             position: relative;
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             background: #fff;
-            border-radius: 10px;
-            padding: 18px 20px;
+            border-radius: 8px;
+            padding: 12px 14px;
             text-decoration: none;
             color: #1a1d21;
-            overflow: hidden;
-            transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
-                        box-shadow 220ms ease;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-            isolation: isolate;
+            border-left: 3px solid #ccc;
+            transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                        box-shadow 180ms ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            min-height: 58px;
         }
         .tt-dash-stat:hover, .tt-dash-stat:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             color: #1a1d21;
         }
-        .tt-dash-stat-bg {
-            position: absolute;
-            top: 0; right: 0;
-            width: 70%;
-            height: 100%;
-            opacity: 0.12;
-            z-index: 0;
-            pointer-events: none;
-        }
         .tt-dash-stat-icon {
-            position: relative;
-            z-index: 1;
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
+            width: 34px;
+            height: 34px;
+            border-radius: 7px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 10px;
+            flex-shrink: 0;
             color: #fff;
         }
         .tt-dash-stat-icon .dashicons {
-            font-size: 22px;
-            width: 22px;
-            height: 22px;
-            line-height: 22px;
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
         }
-        .tt-dash-stat-count {
-            position: relative;
-            z-index: 1;
-            font-size: 32px;
-            font-weight: 700;
+        .tt-dash-stat-body {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .tt-dash-stat-top {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
             line-height: 1.1;
         }
+        .tt-dash-stat-count {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1d21;
+        }
+        .tt-dash-stat-delta {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: #edf7ed;
+            color: #00a32a;
+            white-space: nowrap;
+        }
+        .tt-dash-stat-delta.is-zero {
+            background: #f0f0f1;
+            color: #888;
+        }
         .tt-dash-stat-label {
-            position: relative;
-            z-index: 1;
             color: #555;
-            font-size: 13px;
+            font-size: 12px;
             margin-top: 2px;
         }
 
@@ -413,14 +450,24 @@ class Menu {
                     <span><?php esc_html_e( 'Overview', 'talenttrack' ); ?></span>
                 </div>
                 <div class="tt-dash-overview">
-                    <?php foreach ( $visible_stats as $s ) : ?>
-                        <a class="tt-dash-stat" href="<?php echo esc_url( $s['url'] ); ?>">
-                            <span class="tt-dash-stat-bg" style="background:<?php echo esc_attr( $s['gradient'] ); ?>;"></span>
-                            <span class="tt-dash-stat-icon" style="background:<?php echo esc_attr( $s['gradient'] ); ?>;">
+                    <?php foreach ( $visible_stats as $s ) :
+                        $delta = (int) $s['delta'];
+                        $delta_class = $delta === 0 ? 'is-zero' : '';
+                        $delta_text = $delta > 0
+                            ? sprintf( '+%d %s', $delta, __( 'this week', 'talenttrack' ) )
+                            : sprintf( '%d %s', $delta, __( 'this week', 'talenttrack' ) );
+                        ?>
+                        <a class="tt-dash-stat" href="<?php echo esc_url( $s['url'] ); ?>" style="border-left-color:<?php echo esc_attr( $s['color'] ); ?>;">
+                            <span class="tt-dash-stat-icon" style="background:<?php echo esc_attr( $s['color'] ); ?>;">
                                 <span class="dashicons <?php echo esc_attr( $s['icon'] ); ?>"></span>
                             </span>
-                            <div class="tt-dash-stat-count"><?php echo esc_html( (string) $s['count'] ); ?></div>
-                            <div class="tt-dash-stat-label"><?php echo esc_html( $s['label'] ); ?></div>
+                            <div class="tt-dash-stat-body">
+                                <div class="tt-dash-stat-top">
+                                    <span class="tt-dash-stat-count"><?php echo esc_html( (string) $s['count'] ); ?></span>
+                                    <span class="tt-dash-stat-delta <?php echo esc_attr( $delta_class ); ?>"><?php echo esc_html( $delta_text ); ?></span>
+                                </div>
+                                <div class="tt-dash-stat-label"><?php echo esc_html( $s['label'] ); ?></div>
+                            </div>
                         </a>
                     <?php endforeach; ?>
                 </div>
