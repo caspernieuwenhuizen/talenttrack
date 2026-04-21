@@ -213,7 +213,7 @@ class FrontendTileGrid {
                 'desc'  => __( 'Ratings and feedback from your coaches.', 'talenttrack' ),
                 'emoji' => '📊',
                 'color' => '#7c3a9e',
-                'url'   => $url( 'evaluations' ),
+                'url'   => $url( 'my-evaluations' ),
                 'show'  => $is_player,
             ],
             [
@@ -221,7 +221,7 @@ class FrontendTileGrid {
                 'desc'  => __( 'Training sessions you\'ve attended.', 'talenttrack' ),
                 'emoji' => '🗓',
                 'color' => '#c9962a',
-                'url'   => $url( 'sessions' ),
+                'url'   => $url( 'my-sessions' ),
                 'show'  => $is_player,
             ],
             [
@@ -229,7 +229,7 @@ class FrontendTileGrid {
                 'desc'  => __( 'Development goals to work toward.', 'talenttrack' ),
                 'emoji' => '🎯',
                 'color' => '#b32d2e',
-                'url'   => $url( 'goals' ),
+                'url'   => $url( 'my-goals' ),
                 'show'  => $is_player,
             ],
             [

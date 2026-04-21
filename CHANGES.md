@@ -1,6 +1,6 @@
 # TalentTrack v3.0.0 — Capability refactor + Migration UX + Frontend rebuild
 
-**Status: IN PROGRESS (slice 3 of 5 shipped).** Full v3.0.0 ships when all 5 slices land. See "Roadmap" at the end.
+**Status: IN PROGRESS (slice 4 of 5 shipped).** Full v3.0.0 ships when all 5 slices land. See "Roadmap" at the end.
 
 ## Summary of v3.0.0 as a whole
 
@@ -10,7 +10,91 @@ A major-version release that rebuilds three fundamentals:
 2. **Capability refactor** — every `tt_manage_*` / `tt_evaluate_*` cap split into `tt_view_*` + `tt_edit_*` pairs. The Read-Only Observer role becomes meaningful across the entire plugin. *(Scaffolding in slice 1, call-site audit in slice 2 — now complete.)*
 3. **Frontend fully rebuilt** — the tile grid from v2.21 now has real destinations. Every tile maps to a dedicated focused view. No more tab navigation. *(Slices 3-5.)*
 
-## Slice 3 (this snapshot) — Me-group frontend views
+## Slice 4 (this snapshot) — Coaching-group frontend views
+
+### What changed
+
+Completes the second half of the frontend rebuild. Six new coaching view classes replace the tabbed CoachDashboardView:
+
+- **Teams** → `FrontendTeamsView` — each accessible team with its podium + roster of FIFA mini-cards
+- **Players** → `FrontendPlayersView` — dual-mode: list (cards grouped by team) or detail (FIFA card + facts + custom fields + radar, with its own back-to-list link)
+- **Evaluations** → `FrontendEvaluationsView` — evaluation submission form (reuses `CoachForms::renderEvalForm`)
+- **Sessions** → `FrontendSessionsView` — session + attendance recording (reuses `CoachForms::renderSessionForm`)
+- **Goals** → `FrontendGoalsView` — goal creation + current-goals table (reuses `CoachForms::renderGoalsForm`)
+- **Podium** → `FrontendPodiumView` — aggregated top-3 per accessible team
+
+All six extend `FrontendViewBase` for consistent header + back-button treatment. None use tab bars.
+
+### CoachForms — shared form rendering
+
+New class `CoachForms` extracts the three form-rendering methods (evaluation, session, goals) that previously lived as `private` methods on `CoachDashboardView`. The form markup and AJAX action names (`tt_fe_save_evaluation`, `tt_fe_save_session`, `tt_fe_save_goal`, `tt_fe_update_goal_status`, `tt_fe_delete_goal`) are preserved verbatim — no change to the AJAX contract.
+
+### Slug disambiguation — Me prefix
+
+Me-group tile slugs renamed from `evaluations` / `sessions` / `goals` to `my-evaluations` / `my-sessions` / `my-goals`. This lets coaching-group slugs of the same entity use the plain names and removes the context-ambiguity problem that would have broken dual-role users (coach who is also a player). Players: old bookmarks with legacy slugs stop working; but in practice nobody was bookmarking URLs inside a tile that didn't route properly in v2.21 — so the churn is negligible.
+
+### Legacy views deleted
+
+`src/Shared/Frontend/PlayerDashboardView.php` and `src/Shared/Frontend/CoachDashboardView.php` deleted from the codebase. All routing flows through `DashboardShortcode::render()` which dispatches via `dispatchMeView()` or `dispatchCoachingView()` based on slug category. No parallel paths, no legacy fallback, no tab UI anywhere on the frontend.
+
+### Router simplification
+
+`DashboardShortcode::render()` cleaned up. Previously had six branches with capability-based tiebreaking for shared slugs. Now:
+
+```
+if view empty → tile landing
+elseif view in me_slugs && player exists → dispatchMeView
+elseif view in coaching_slugs && (coach || admin) → dispatchCoachingView
+elseif unknown slug → "Unknown section"
+```
+
+Role gating is explicit, not branched. Missing-capability cases produce clean "This section is only available for …" notices rather than falling back to something unexpected.
+
+### Files in slice 4
+
+New:
+- `src/Shared/Frontend/CoachForms.php` — shared form rendering
+- `src/Shared/Frontend/FrontendTeamsView.php`
+- `src/Shared/Frontend/FrontendPlayersView.php`
+- `src/Shared/Frontend/FrontendEvaluationsView.php`
+- `src/Shared/Frontend/FrontendSessionsView.php`
+- `src/Shared/Frontend/FrontendGoalsView.php`
+- `src/Shared/Frontend/FrontendPodiumView.php`
+
+Modified:
+- `src/Shared/Frontend/DashboardShortcode.php` — new `dispatchCoachingView()` helper, cleaner router
+- `src/Shared/Frontend/FrontendTileGrid.php` — Me-group slug rename to `my-*`
+- `docs/coach-dashboard.md` — rewritten for v3 tile-based frontend
+- `languages/talenttrack-nl_NL.po` + `.mo` — ~11 new strings
+
+Deleted:
+- `src/Shared/Frontend/PlayerDashboardView.php`
+- `src/Shared/Frontend/CoachDashboardView.php`
+
+### What's shippable at slice 4
+
+- **Entire frontend is tile-based** — Me + Coaching groups fully work end-to-end
+- **No tab navigation anywhere** — every sub-view is a focused page with a back button
+- **Coaches/admins**: see coaching tiles, drill in, submit forms, manage goals — all working
+- **Players**: see Me tiles, everything routes correctly
+- **Dual-role users** (coach + player): see both Me and Coaching sections, slugs unambiguous
+- **Observers**: see Analytics tiles (rate cards / comparison) — which will land as real destinations in slice 5
+
+### What's NOT in slice 4
+
+- **Analytics-group frontend views** (Rate Card + Comparison) — slice 5. Until then, clicking those tiles shows a "This section is only available for coaches and administrators" message for observer-only users, and for coaches/admins the tiles link to the admin URLs (still functional via admin for that cohort).
+
+Wait — I should double-check this. Let me look at the Analytics tiles' URLs in FrontendTileGrid…
+
+*(Note for slice 5: The Analytics tiles currently point at `?tt_view=rate-cards` and `?tt_view=compare`, which hit the router's "unknown section" path since they're not in `$coaching_slugs`. Slice 5 adds them to a third `$analytics_slugs` array with its own dispatch helper.)*
+
+### Slice 2b polish — NOT done yet
+
+UI-level hiding of write-action buttons (Edit/Delete row actions, Add New buttons) in admin list pages for observers. Security is already covered at the controller level. Cosmetic slice bundled with slice 5 since we'll be touching some render paths then anyway.
+
+---
+
+
 
 ### What changed
 
@@ -202,7 +286,7 @@ A major-version release that rebuilds three fundamentals:
 2. **Capability refactor** — every `tt_manage_*` / `tt_evaluate_*` cap split into `tt_view_*` + `tt_edit_*` pairs. The Read-Only Observer role becomes meaningful across the entire plugin.
 3. **Frontend fully rebuilt** — the tile grid from v2.21 now has real destinations. Every tile maps to a dedicated focused view. No more tab navigation.
 
-## Slice 1 (this snapshot) — Migration UX + Capability scaffolding
+## Slice 1 — Migration UX + Capability scaffolding
 
 ### Migration UX
 

@@ -2916,3 +2916,38 @@ msgstr "Accountinstellingen bewerken"
 
 msgid "Unknown section."
 msgstr "Onbekend onderdeel."
+
+# ===== v3.0.0 slice 4 — Coaching-group frontend views =====
+
+msgid "My teams"
+msgstr "Mijn teams"
+
+msgid "No teams assigned."
+msgstr "Geen teams toegewezen."
+
+msgid "No players on this team yet."
+msgstr "Nog geen spelers in dit team."
+
+msgid "Roster"
+msgstr "Selectie"
+
+msgid "No teams assigned — no players to show."
+msgstr "Geen teams toegewezen — geen spelers om te tonen."
+
+msgid "← Back to players"
+msgstr "← Terug naar spelers"
+
+msgid "Top performers"
+msgstr "Top-spelers"
+
+msgid "Not enough evaluation data yet to compute podiums. Add at least a few evaluations per player to surface the top performers."
+msgstr "Nog niet genoeg evaluatiegegevens voor een podium. Voer minstens een paar evaluaties per speler in om de top-spelers te tonen."
+
+msgid "No players on your teams yet."
+msgstr "Nog geen spelers in je teams."
+
+msgid "This section is only available for users linked to a player record."
+msgstr "Dit onderdeel is alleen beschikbaar voor gebruikers die aan een speler zijn gekoppeld."
+
+msgid "This section is only available for coaches and administrators."
+msgstr "Dit onderdeel is alleen beschikbaar voor coaches en beheerders."

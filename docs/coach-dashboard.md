@@ -1,33 +1,43 @@
 # Coach dashboard (frontend)
 
-Coaches (users with the Coach, Head of Development, or similar evaluative roles) use the frontend shortcode as their daily workspace.
+Coaches and administrators logged into the frontend shortcode see a tile-based dashboard with the Coaching section visible. (v3.0.0 — full rebuild from the v2.x tab-based UI.)
 
 ## Getting there
 
-Same `[talenttrack_dashboard]` shortcode as players. The system recognizes the coach role and shows the **Coaching** + **Analytics** tile groups (plus **Me** if they're also linked as a player, plus **Administration** if they also have admin caps).
+The `[talenttrack_dashboard]` shortcode. When a coach (someone with `tt_edit_evaluations`) or an admin (someone with `tt_edit_settings`) visits that page, they land on the tile grid with the **Coaching** section visible. Coaches who are also linked to a player record additionally see the **Me** section.
 
-## Tiles
+## The Coaching tiles
 
-**Coaching:**
-- **My teams** — teams they coach: roster, podium, evaluation summaries
-- **Players** — all players they can evaluate
-- **Evaluations** — list view + add new
-- **Sessions** — log sessions and attendance
-- **Goals** — set and update development goals
-- **Podium** — team rankings and top performers
+### Teams
+Each team the coach has access to, shown with its top-3 podium and full roster of FIFA-style mini-cards. Tap any card to drill into the player detail.
 
-**Analytics:**
-- **Rate cards** — per-player deep dive (read-only from the frontend)
-- **Player comparison** — 4-player side-by-side
+### Players
+Flat list of every player across the coach's teams (or all players for admins). Grouped by team. Tap any card to drill into the player detail view — FIFA card, player facts, custom-field values, and the recent-history radar. Has its own "← Back to players" link that returns to the list, separate from the tile-landing back button.
 
-## Why the tile pattern matters here
+### Evaluations
+Evaluation-submission form with match-details section that shows only when an evaluation type requires it. All rating categories from your club configuration with min/max/step from your rating scale. AJAX-submitted — success message appears inline, no page reload.
 
-Coaches are often using TalentTrack on a phone during or right after training. The tile grid has tap targets sized for fingers (vs the mouse-sized links of WP admin). Critical actions like "add evaluation" are one-tap-deep from the landing.
+### Sessions
+Training session recording. Title, date, team, location, notes. Attendance matrix lists every player on the coach's teams with a status dropdown (Present / Absent / Late / Excused) and a notes field. AJAX-submitted.
+
+### Goals
+Dual form: add a new goal (player picker, title, description, priority, due date) on top, current goals table below with inline status dropdowns and delete buttons.
+
+### Podium
+Aggregated podium view — top-3 of every team the coach has access to. Visual focus, no forms.
+
+## For admins
+
+Admins see every team, every player, every evaluation. The forms also show an "all players" picker instead of being restricted to the coach's teams.
+
+## For the Read-Only Observer
+
+Observers see admin-side pages but none of the Coaching tiles on the frontend (they have no `tt_edit_*` caps). Analytics-group tiles (Rate cards, Player comparison) are their frontend entry point — that's slice 5.
+
+## Mobile
+
+The tile grid collapses responsively. All forms and tables use `frontend-mobile.css` for reasonable scaling on phones. Longer lists (players, evaluations) scroll horizontally when needed rather than cramming into narrow columns.
 
 ## Back navigation
 
-Every tile sub-view has a "← Back to dashboard" link at the top (v2.21.0 frontend back button). Tap it to return to the tile grid. Admin-style breadcrumb trails don't appear in the frontend — the frontend has a flat one-level hierarchy by design.
-
-## What coaches can't do
-
-No access to WordPress admin settings, users, or the TalentTrack Configuration pages. Those require `tt_manage_settings` which coaches don't have. Use the **Go to admin** tile from the Administration group (admin-only) to switch over when needed.
+Every tile destination shows a "← Back to dashboard" link at the top that returns to the tile landing page. The player-detail view inside Players has its own "← Back to players" link instead, so drilling card-to-card in the roster doesn't bounce you all the way out.

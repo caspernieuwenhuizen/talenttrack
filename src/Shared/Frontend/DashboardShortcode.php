@@ -72,40 +72,35 @@ class DashboardShortcode {
         $is_coach = current_user_can( 'tt_edit_evaluations' );
         $player   = QueryHelpers::get_player_for_user( $user_id );
 
-        // v3.0.0 slice 3: tile-based routing for the Me group.
-        // Each tile slug maps to a focused FrontendXyzView class. The
-        // ?tt_view param is the route. Coaching/Analytics slugs still
-        // fall through to the legacy dashboards until slices 4-5 land.
+        // v3.0.0 — tile-based routing. Each ?tt_view=<slug> maps to a
+        // focused FrontendXyzView class. Me-group slugs are prefixed
+        // with "my-" to disambiguate from the coaching slugs of the
+        // same entity (evaluations / sessions / goals).
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
+
+        $me_slugs       = [ 'overview', 'my-team', 'my-evaluations', 'my-sessions', 'my-goals', 'profile' ];
+        $coaching_slugs = [ 'teams', 'players', 'evaluations', 'sessions', 'goals', 'podium' ];
 
         if ( $view === '' ) {
             // Tile landing page.
             FrontendTileGrid::render();
-        } elseif ( $player && in_array( $view, [ 'overview', 'my-team', 'profile' ], true ) ) {
-            // Me-group views that are strictly player-context (not shared
-            // with coaching — even coaches who are also players see their
-            // "My card" here when the route is a Me slug).
-            self::dispatchMeView( $view, $player );
-        } elseif ( $player && ! $is_coach && ! $is_admin && in_array( $view, [ 'evaluations', 'sessions', 'goals' ], true ) ) {
-            // Shared slugs: pure-player context gets the My-* view.
-            // Coaches hitting these same slugs go to the coaching view
-            // below (slice 4).
-            self::dispatchMeView( $view, $player );
-        } elseif ( $player && ! $is_coach && ! $is_admin ) {
-            // Legacy fallback for any pure-player view we haven't
-            // migrated yet (currently none beyond the list above, so
-            // unreachable in practice, but kept for safety).
-            FrontendBackButton::render();
-            ( new PlayerDashboardView() )->render( $player );
-        } elseif ( $is_coach || $is_admin ) {
-            FrontendBackButton::render();
-            ( new CoachDashboardView() )->render( $user_id, $is_admin );
-        } elseif ( current_user_can( 'tt_view_reports' ) ) {
-            // Observer role: can view analytics even without a player link.
-            FrontendBackButton::render();
-            ( new CoachDashboardView() )->render( $user_id, false );
+        } elseif ( in_array( $view, $me_slugs, true ) ) {
+            if ( $player ) {
+                self::dispatchMeView( $view, $player );
+            } else {
+                FrontendBackButton::render();
+                echo '<p class="tt-notice">' . esc_html__( 'This section is only available for users linked to a player record.', 'talenttrack' ) . '</p>';
+            }
+        } elseif ( in_array( $view, $coaching_slugs, true ) ) {
+            if ( $is_coach || $is_admin ) {
+                self::dispatchCoachingView( $view, $user_id, $is_admin );
+            } else {
+                FrontendBackButton::render();
+                echo '<p class="tt-notice">' . esc_html__( 'This section is only available for coaches and administrators.', 'talenttrack' ) . '</p>';
+            }
         } else {
-            echo '<p class="tt-notice">' . esc_html__( 'No player profile is linked to your account. Please contact your administrator.', 'talenttrack' ) . '</p>';
+            FrontendBackButton::render();
+            echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
 
         echo '</div>';
@@ -118,9 +113,9 @@ class DashboardShortcode {
     }
 
     /**
-     * v3.0.0 slice 3 — dispatch a Me-group tile slug to its
-     * FrontendXyzView class. Called only when we know the user has a
-     * player record AND the view slug is a Me-group slug.
+     * v3.0.0 — dispatch a Me-group tile slug to its FrontendXyzView
+     * class. Called only when the user has a player record AND the
+     * view slug is a Me-group slug.
      */
     private static function dispatchMeView( string $view, object $player ): void {
         switch ( $view ) {
@@ -130,17 +125,54 @@ class DashboardShortcode {
             case 'my-team':
                 FrontendMyTeamView::render( $player );
                 break;
-            case 'evaluations':
+            case 'my-evaluations':
                 FrontendMyEvaluationsView::render( $player );
                 break;
-            case 'sessions':
+            case 'my-sessions':
                 FrontendMySessionsView::render( $player );
                 break;
-            case 'goals':
+            case 'my-goals':
                 FrontendMyGoalsView::render( $player );
                 break;
             case 'profile':
                 FrontendMyProfileView::render( $player );
+                break;
+            default:
+                FrontendBackButton::render();
+                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+        }
+    }
+
+    /**
+     * v3.0.0 slice 4 — dispatch a coaching-group tile slug.
+     * Only called when the user has coach or admin caps.
+     */
+    private static function dispatchCoachingView( string $view, int $user_id, bool $is_admin ): void {
+        switch ( $view ) {
+            case 'teams':
+                FrontendTeamsView::render( $user_id, $is_admin );
+                break;
+            case 'players':
+                // Players view handles its own back button in detail mode
+                // (drilling into a single player), so only render the
+                // tile-landing back button when in list mode.
+                if ( ! isset( $_GET['player_id'] ) || (int) $_GET['player_id'] <= 0 ) {
+                    // FrontendPlayersView::render() handles renderHeader
+                    // which includes the back button.
+                }
+                FrontendPlayersView::render( $user_id, $is_admin );
+                break;
+            case 'evaluations':
+                FrontendEvaluationsView::render( $user_id, $is_admin );
+                break;
+            case 'sessions':
+                FrontendSessionsView::render( $user_id, $is_admin );
+                break;
+            case 'goals':
+                FrontendGoalsView::render( $user_id, $is_admin );
+                break;
+            case 'podium':
+                FrontendPodiumView::render( $user_id, $is_admin );
                 break;
             default:
                 FrontendBackButton::render();
