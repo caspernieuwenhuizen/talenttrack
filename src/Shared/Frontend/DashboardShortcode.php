@@ -58,6 +58,49 @@ class DashboardShortcode {
             return $reset_notice . $form->render( $error );
         }
 
+        // v2.16.0 — print route for the front-end dashboard. When
+        // ?tt_print=<player_id> is set, render only the player report
+        // (skipping the dashboard chrome + tabs) and auto-invoke print.
+        // Permission matrix:
+        //   - WP admin            → any player
+        //   - Coach               → players on their coached teams
+        //   - Player (no coach)   → own record only
+        $print_pid = isset( $_GET['tt_print'] ) ? absint( $_GET['tt_print'] ) : 0;
+        if ( $print_pid > 0 ) {
+            $user_id_pc  = get_current_user_id();
+            $is_admin_pc = current_user_can( 'tt_manage_settings' );
+            $is_coach_pc = current_user_can( 'tt_evaluate_players' );
+            $own_player  = QueryHelpers::get_player_for_user( $user_id_pc );
+
+            $allowed = false;
+            if ( $is_admin_pc ) {
+                $allowed = true;
+            } elseif ( $is_coach_pc ) {
+                // Coach: allow if target player's team is one of their coached teams.
+                $target = QueryHelpers::get_player( $print_pid );
+                if ( $target && ! empty( $target->team_id ) ) {
+                    $coached = QueryHelpers::get_teams_for_coach( $user_id_pc );
+                    foreach ( $coached as $t ) {
+                        if ( (int) $t->id === (int) $target->team_id ) { $allowed = true; break; }
+                    }
+                }
+            } elseif ( $own_player && (int) $own_player->id === $print_pid ) {
+                $allowed = true;
+            }
+
+            if ( ! $allowed ) {
+                return '<p class="tt-notice">' . esc_html__( 'You do not have access to this player report.', 'talenttrack' ) . '</p>';
+            }
+
+            // Enqueue card styles for the embedded card in the report.
+            \TT\Modules\Stats\Admin\PlayerCardView::enqueueStyles();
+
+            $filters = \TT\Infrastructure\Stats\PlayerStatsService::sanitizeFilters( $_GET );
+            ob_start();
+            \TT\Modules\Stats\Admin\PlayerReportView::render( $print_pid, $filters );
+            return (string) ob_get_clean();
+        }
+
         // Authenticated dashboard.
         ob_start();
         echo '<div class="tt-dashboard">';

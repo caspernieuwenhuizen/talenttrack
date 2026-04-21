@@ -36,6 +36,22 @@ class PlayerRateCardView {
             return;
         }
 
+        // v2.16.0 — print route short-circuit. When print=1, render only
+        // the report view and auto-trigger the print dialog. The caller
+        // has already verified access before reaching here.
+        $print_mode = isset( $_GET['print'] ) && $_GET['print'] === '1';
+        if ( $print_mode ) {
+            PlayerReportView::render( $player_id, $filters );
+            return;
+        }
+
+        // v2.16.0 — responsive styles scoped to the rate card page.
+        // Done as inline <style> rather than a separate stylesheet because
+        // the existing markup uses inline styles everywhere; a stylesheet
+        // would need to fight specificity. These rules use !important
+        // defensively against the inline attribute values.
+        self::renderResponsiveStyles();
+
         // v2.15.0: Standard vs Card view toggle. Card view is a visual
         // presentation of the same data; Standard view is the analytical
         // surface built in Sprint 2A.
@@ -76,11 +92,22 @@ class PlayerRateCardView {
         $standard_url = add_query_arg( [ 'player_id' => $player_id ], $standard_url );
         $card_url     = add_query_arg( [ 'player_id' => $player_id, 'view' => 'card' ], remove_query_arg( 'view', $base_url ) );
 
+        // v2.16.0: print URL preserves currently-active filters so the
+        // report reflects the same period the user was viewing.
+        $print_args = [ 'player_id' => $player_id, 'print' => '1' ];
+        foreach ( [ 'date_from', 'date_to', 'eval_type_id' ] as $k ) {
+            if ( isset( $_GET[ $k ] ) && $_GET[ $k ] !== '' && $_GET[ $k ] !== '0' ) {
+                $print_args[ $k ] = sanitize_text_field( wp_unslash( (string) $_GET[ $k ] ) );
+            }
+        }
+        $print_url = add_query_arg( $print_args, remove_query_arg( [ 'view', 'print' ], $base_url ) );
+
         $btn_base = 'display:inline-block;padding:6px 14px;text-decoration:none;border:1px solid #c3c4c7;border-radius:4px;font-size:13px;';
         $btn_on   = 'background:#2271b1;color:#fff;border-color:#2271b1;';
         $btn_off  = 'background:#fff;color:#2271b1;';
+        $btn_print = 'background:#fff;color:#1a1d21;border-color:#c3c4c7;';
         ?>
-        <div style="margin:10px 0 14px; display:flex; gap:6px;">
+        <div style="margin:10px 0 14px; display:flex; gap:6px; flex-wrap:wrap;">
             <a href="<?php echo esc_url( $standard_url ); ?>"
                style="<?php echo $btn_base . ( $current === 'standard' ? $btn_on : $btn_off ); ?>">
                 <?php esc_html_e( 'Standard view', 'talenttrack' ); ?>
@@ -88,6 +115,10 @@ class PlayerRateCardView {
             <a href="<?php echo esc_url( $card_url ); ?>"
                style="<?php echo $btn_base . ( $current === 'card' ? $btn_on : $btn_off ); ?>">
                 <?php esc_html_e( 'Card view', 'talenttrack' ); ?>
+            </a>
+            <a href="<?php echo esc_url( $print_url ); ?>" target="_blank" rel="noopener"
+               style="<?php echo $btn_base . $btn_print; ?>; margin-left:auto;">
+                <?php echo esc_html_x( '🖨 Print report', 'button label', 'talenttrack' ); ?>
             </a>
         </div>
         <?php
@@ -101,6 +132,119 @@ class PlayerRateCardView {
         <?php
     }
 
+    /**
+     * v2.16.0 — responsive rules for the rate card page. Inline style
+     * block so they ship alongside the view regardless of whether a
+     * separate stylesheet got enqueued. Uses !important defensively
+     * against inline styles already present in the existing markup.
+     */
+    private static function renderResponsiveStyles(): void {
+        static $emitted = false;
+        if ( $emitted ) return;
+        $emitted = true;
+        ?>
+        <style>
+        .tt-rc-responsive-anchor { display: none; }
+
+        /* Tablet & phone */
+        @media (max-width: 820px) {
+            .tt-rc-filters {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+            }
+            .tt-rc-filters label {
+                margin-right: 0 !important;
+                display: block;
+            }
+            .tt-rc-filters input[type="date"],
+            .tt-rc-filters select {
+                width: 100%;
+                max-width: none;
+                min-height: 36px;
+                font-size: 15px;
+            }
+            .tt-rc-headline {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+            .tt-rc-headline > div {
+                flex: 1 1 auto !important;
+                min-width: 0 !important;
+            }
+            .tt-rc-charts {
+                flex-direction: column !important;
+            }
+            .tt-rc-charts > div {
+                flex: 1 1 auto !important;
+                min-width: 0 !important;
+                width: 100%;
+            }
+        }
+
+        /* Phone */
+        @media (max-width: 640px) {
+            /* Breakdown table: collapse to stacked cards. Each row becomes
+               a mini-card with the category name on top, stats in a 3-col
+               grid below. Subs stay as rows inside expansion. */
+            table.tt-main-breakdown,
+            table.tt-main-breakdown tbody,
+            table.tt-main-breakdown tr,
+            table.tt-main-breakdown td {
+                display: block !important;
+                width: 100% !important;
+                box-sizing: border-box;
+            }
+            table.tt-main-breakdown thead { display: none !important; }
+            table.tt-main-breakdown tr.tt-main-row {
+                border: 1px solid #dcdcde;
+                border-radius: 6px;
+                margin-bottom: 10px;
+                padding: 10px 12px;
+                background: #fff;
+            }
+            table.tt-main-breakdown tr.tt-main-row td {
+                padding: 4px 0 !important;
+                text-align: left !important;
+                border: none !important;
+            }
+            table.tt-main-breakdown tr.tt-main-row td:first-child {
+                font-size: 16px;
+                padding-bottom: 8px !important;
+                border-bottom: 1px solid #f0f0f1 !important;
+                margin-bottom: 6px;
+            }
+            table.tt-main-breakdown tr.tt-main-row td:nth-child(2)::before { content: "All-time: "; color: #666; font-weight: 400; }
+            table.tt-main-breakdown tr.tt-main-row td:nth-child(3)::before { content: "Recent: "; color: #666; font-weight: 400; }
+            table.tt-main-breakdown tr.tt-main-row td:nth-child(4) { display: inline-block !important; width: auto !important; margin-left: 0; }
+            table.tt-main-breakdown tr.tt-main-row td:nth-child(5) { display: inline-block !important; width: auto !important; float: right; }
+            table.tt-main-breakdown tr.tt-subs-row td {
+                padding: 8px 10px !important;
+            }
+
+            /* Filter form inputs grow touch-friendly */
+            .tt-rc-filters button {
+                width: 100%;
+                padding: 10px !important;
+                font-size: 15px !important;
+            }
+        }
+
+        /* Print — the full report layout */
+        @media print {
+            body * { visibility: hidden; }
+            .tt-report-wrap, .tt-report-wrap * { visibility: visible; }
+            .tt-report-wrap {
+                position: absolute;
+                left: 0; top: 0;
+                width: 100%;
+            }
+            .tt-pc__shine { display: none; }
+        }
+        </style>
+        <?php
+    }
+
     /* ═══════════════ Filters ═══════════════ */
 
     private static function renderFilters( array $filters, array $eval_types, string $base_url, int $player_id ): void {
@@ -108,7 +252,7 @@ class PlayerRateCardView {
         $to   = $filters['date_to']   ?? '';
         $tid  = (int) ( $filters['eval_type_id'] ?? 0 );
         ?>
-        <form method="get" action="<?php echo esc_url( $base_url ); ?>" style="margin:16px 0; padding:12px 16px; background:#f6f7f7; border:1px solid #dcdcde;">
+        <form method="get" action="<?php echo esc_url( $base_url ); ?>" class="tt-rc-filters" style="margin:16px 0; padding:12px 16px; background:#f6f7f7; border:1px solid #dcdcde; display:flex; flex-wrap:wrap; align-items:center;">
             <?php
             // Preserve page + other GET params the entry-point adds.
             $parsed = wp_parse_url( $base_url );
@@ -156,7 +300,7 @@ class PlayerRateCardView {
 
     private static function renderHeadline( array $h ): void {
         ?>
-        <div style="display:flex; gap:16px; flex-wrap:wrap; margin:10px 0 20px;">
+        <div class="tt-rc-headline" style="display:flex; gap:16px; flex-wrap:wrap; margin:10px 0 20px;">
             <?php
             self::renderHeadlineCard(
                 __( 'Most recent', 'talenttrack' ),
@@ -341,7 +485,7 @@ class PlayerRateCardView {
         ];
         $payload_id = 'tt_ratecard_data_' . wp_generate_uuid4();
         ?>
-        <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:24px;">
+        <div class="tt-rc-charts" style="display:flex; gap:20px; flex-wrap:wrap; margin-top:24px;">
             <?php if ( $has_trend ) : ?>
                 <div style="flex:2; min-width:360px; background:#fff; border:1px solid #dcdcde; padding:12px 16px;">
                     <h3 style="margin:0 0 8px;"><?php esc_html_e( 'Trend over time', 'talenttrack' ); ?></h3>

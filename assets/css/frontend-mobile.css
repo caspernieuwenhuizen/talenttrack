@@ -1,0 +1,217 @@
+/*
+ * TalentTrack — Frontend mobile responsive rules (v2.16.0).
+ *
+ * Scoped rules for the player/coach front-end dashboards. Targets
+ * 640px and 480px breakpoints. Tables collapse to card/stack layouts
+ * on narrow viewports; grids stack; forms become touch-friendly.
+ *
+ * Loaded by PlayerDashboardView and CoachDashboardView alongside the
+ * existing frontend.css.
+ */
+
+/* ═══════════════ Tabs: horizontal scroll on narrow ═══════════════ */
+@media (max-width: 640px) {
+    .tt-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+        padding-bottom: 4px;
+        scrollbar-width: thin;
+    }
+    .tt-tabs::-webkit-scrollbar { height: 4px; }
+    .tt-tabs::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+
+    .tt-tab {
+        flex: 0 0 auto;
+        min-height: 40px;
+        padding: 8px 14px;
+        font-size: 14px;
+    }
+}
+
+/* ═══════════════ Card grid: roster ═══════════════ */
+@media (max-width: 640px) {
+    .tt-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px;
+    }
+    .tt-card {
+        padding: 10px;
+    }
+    .tt-card h3 {
+        font-size: 15px;
+    }
+    .tt-card p {
+        font-size: 12px;
+        margin: 2px 0;
+    }
+    .tt-card-thumb img {
+        max-height: 120px;
+    }
+}
+@media (max-width: 400px) {
+    .tt-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ═══════════════ Tables: collapse to stack ═══════════════ */
+/*
+ * We target .tt-table directly — frontend dashboards use this class
+ * for evaluations, goals, attendance. On narrow viewports each row
+ * becomes a stacked mini-card with labeled cells.
+ *
+ * The data-label attribute pattern is the idiomatic approach but the
+ * existing PHP doesn't emit data-label. We use a fallback: nth-child
+ * selectors plus ::before pseudo-elements that supply the labels.
+ * Works only for known tables; listed per-table below.
+ */
+@media (max-width: 640px) {
+    .tt-table {
+        border: none;
+    }
+    .tt-table thead {
+        display: none;
+    }
+    .tt-table,
+    .tt-table tbody,
+    .tt-table tr,
+    .tt-table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .tt-table tr {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        padding: 8px 12px;
+    }
+    .tt-table td {
+        padding: 4px 0 !important;
+        border: none !important;
+        font-size: 13px;
+    }
+    .tt-table td:empty {
+        display: none;
+    }
+    /* Display the header label before each cell using data-label attr
+       OR a generic "—" separator. Since PHP doesn't yet emit data-label
+       we just visually separate cells with a thin line. */
+    .tt-table td + td {
+        border-top: 1px dashed #eee !important;
+        padding-top: 6px !important;
+        margin-top: 4px;
+    }
+
+    /* Rating pills wrap onto new lines instead of overflowing */
+    .tt-rating-pill {
+        display: inline-block;
+        margin: 2px 4px 2px 0;
+        padding: 3px 8px;
+        font-size: 11px;
+    }
+}
+
+/* ═══════════════ Goals list ═══════════════ */
+@media (max-width: 640px) {
+    .tt-goals-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .tt-goal-item {
+        padding: 12px;
+    }
+    .tt-goal-item h4 {
+        font-size: 15px;
+        margin: 0 0 6px;
+    }
+    .tt-goal-item p {
+        font-size: 13px;
+        margin: 4px 0;
+    }
+}
+
+/* ═══════════════ Forms (frontend) ═══════════════ */
+@media (max-width: 640px) {
+    .tt-form-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 10px;
+    }
+    .tt-form-row label {
+        font-size: 13px;
+        font-weight: 600;
+    }
+    .tt-form-row input[type="text"],
+    .tt-form-row input[type="number"],
+    .tt-form-row input[type="date"],
+    .tt-form-row textarea,
+    .tt-form-row select {
+        width: 100%;
+        min-height: 38px;
+        font-size: 15px;
+        padding: 6px 8px;
+        box-sizing: border-box;
+    }
+    .tt-form-row textarea {
+        min-height: 80px;
+    }
+    .tt-form-match-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .tt-btn,
+    .tt-btn-primary {
+        width: 100%;
+        padding: 12px;
+        font-size: 15px;
+        min-height: 44px;
+    }
+    .tt-btn-sm {
+        min-height: 32px;
+        padding: 4px 10px;
+    }
+}
+
+/* ═══════════════ Overview player info card (existing .tt-card) ═══════════════ */
+@media (max-width: 820px) {
+    .tt-overview-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+    .tt-overview-card {
+        display: flex;
+        justify-content: center;
+    }
+}
+
+/* ═══════════════ Radar chart ═══════════════ */
+@media (max-width: 640px) {
+    .tt-radar-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+    .tt-radar-wrap svg {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/* ═══════════════ Teammate avatars ═══════════════ */
+@media (max-width: 480px) {
+    .tt-teammates {
+        gap: 12px !important;
+    }
+    .tt-teammates > div {
+        width: 76px !important;
+    }
+    .tt-teammates > div > div:first-child {
+        width: 60px !important;
+        height: 60px !important;
+    }
+}

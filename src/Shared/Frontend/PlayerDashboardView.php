@@ -19,6 +19,14 @@ class PlayerDashboardView {
         // The card is used on Overview (right side) and Mijn team (own card).
         \TT\Modules\Stats\Admin\PlayerCardView::enqueueStyles();
 
+        // v2.16.0: enqueue the frontend mobile responsive layer.
+        wp_enqueue_style(
+            'tt-frontend-mobile',
+            TT_PLUGIN_URL . 'assets/css/frontend-mobile.css',
+            [],
+            TT_VERSION
+        );
+
         echo '<div class="tt-tabs">';
         foreach ( [
             'overview'    => __( 'Overview', 'talenttrack' ),
@@ -46,6 +54,12 @@ class PlayerDashboardView {
         }
         echo '</div>';
         echo '<div class="tt-overview-card" style="flex-shrink:0;">';
+        $_print_url_self = esc_url( add_query_arg( [ 'tt_print' => (int) $player->id ], remove_query_arg( [ 'tt_view' ] ) ) );
+        echo '<div style="text-align:right;margin-bottom:8px;">';
+        echo '<a href="' . $_print_url_self . '" target="_blank" rel="noopener" style="display:inline-block;padding:6px 12px;border:1px solid #c3c4c7;border-radius:4px;background:#fff;color:#1a1d21;font-size:12px;text-decoration:none;">';
+        echo esc_html__( '🖨 Print report', 'talenttrack' );
+        echo '</a>';
+        echo '</div>';
         \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true );
         echo '</div>';
         echo '</div>';

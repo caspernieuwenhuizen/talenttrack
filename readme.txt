@@ -4,13 +4,23 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.15.0
+Stable tag: 2.16.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.16.0 — Epic 2 Sprint 2C: Neutral Tier + Printable Report + Mobile Polish =
+* CHANGED: Gold/silver/bronze tiers are now podium-position awards, not rating-based. 1st place always gets a gold card regardless of absolute rating; 2nd silver; 3rd bronze. Matches how real podiums work.
+* NEW: Neutral dark-navy colorway for every card outside a ranking context (own dashboard, rate card Card view, etc.). Premium feel without claiming an unearned medal. Chrome alternative included as commented CSS for one-line swap.
+* NEW: Printable A4 player report. Single-page portrait layout with club header, FIFA-style card, three headline numbers, main/subcategory breakdown, trend line + radar charts, and signature footer. Triggered via "🖨 Print report" button on admin rate card page and both frontend dashboards. Auto-invokes browser print dialog; save-as-PDF works out of the box.
+* NEW: Print access control — admins print any player, coaches print players on their coached teams only, players print their own report only.
+* NEW: Frontend mobile responsive layer. Tabs scroll horizontally on narrow viewports, roster grid collapses to 2-col then 1-col, tables collapse to stacked mini-cards on phones, forms become touch-friendly with full-width inputs.
+* NEW: Player card mobile breakpoints — all variants collapse to sm-size on phones, podium stacks vertically under 480px with correct visual order.
+* NEW: Rate card page mobile behavior — filter bar, headline tiles, charts all stack on tablet; breakdown table collapses to mini-cards on phone.
+* INTERNAL: PlayerCardView::renderCard() gains $tier_override parameter. renderPodium() passes explicit positional tiers. tierForRating() retained but no longer called by default paths.
 
 = 2.15.0 — Epic 2 Sprint 2B: FIFA-style Player Cards + Team Podium =
 * NEW: Collectible-card visual summary per player, tiered gold / silver / bronze by rolling-average rating (≥4.0 / ≥3.0 / <3.0). Pure CSS — metallic gradients, crystalline facet overlay, animated shine sweep, staggered entrance animations, Oswald + Manrope typography via Google Fonts. Size variants sm / md / lg.

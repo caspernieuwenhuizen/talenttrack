@@ -19,6 +19,14 @@ class CoachDashboardView {
         // v2.15.0: enqueue card stylesheet for the podium + player detail card.
         \TT\Modules\Stats\Admin\PlayerCardView::enqueueStyles();
 
+        // v2.16.0: enqueue the frontend mobile responsive layer.
+        wp_enqueue_style(
+            'tt-frontend-mobile',
+            TT_PLUGIN_URL . 'assets/css/frontend-mobile.css',
+            [],
+            TT_VERSION
+        );
+
         $tabs = [
             'roster'   => __( 'My Team', 'talenttrack' ),
             'evaluate' => __( 'New Evaluation', 'talenttrack' ),
@@ -74,6 +82,14 @@ class CoachDashboardView {
         $pid = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
         echo '<div class="tt-tab-content' . ( $view === 'player' ? ' tt-tab-content-active' : '' ) . '" data-tab="player">';
         if ( $pid && ( $pl = QueryHelpers::get_player( $pid ) ) ) {
+            // v2.16.0: print-report button, preserves current context.
+            $_print_url = esc_url( add_query_arg( [ 'tt_print' => $pid ], remove_query_arg( [ 'tt_view', 'player_id' ] ) ) );
+            echo '<div style="margin-bottom:10px;">';
+            echo '<a href="' . $_print_url . '" target="_blank" rel="noopener" style="display:inline-block;padding:6px 12px;border:1px solid #c3c4c7;border-radius:4px;background:#fff;color:#1a1d21;font-size:13px;text-decoration:none;">';
+            echo esc_html__( '🖨 Print report', 'talenttrack' );
+            echo '</a>';
+            echo '</div>';
+
             // v2.15.0: FIFA-style card + the classic info block side by side.
             echo '<div style="display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;">';
             echo '<div>';

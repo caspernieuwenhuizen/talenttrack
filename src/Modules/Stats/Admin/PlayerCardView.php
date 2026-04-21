@@ -51,11 +51,18 @@ class PlayerCardView {
     /**
      * Render one player's card.
      *
-     * @param int    $player_id
-     * @param string $size     'sm' | 'md' | 'lg'
-     * @param bool   $show_tier  Show the tier badge ribbon in the corner
+     * @param int         $player_id
+     * @param string      $size          'sm' | 'md' | 'lg'
+     * @param bool        $show_tier     Show the tier badge ribbon in the corner
+     * @param string|null $tier_override When set (e.g. 'gold', 'silver', 'bronze'),
+     *                                   forces that tier regardless of rating. Used
+     *                                   by podium rendering where position, not
+     *                                   rating, determines tier. When null (default),
+     *                                   renders with the neutral colorway — v2.16.0
+     *                                   decision: tiers are a ranking signal, not an
+     *                                   intrinsic rating tier.
      */
-    public static function renderCard( int $player_id, string $size = 'md', bool $show_tier = false ): void {
+    public static function renderCard( int $player_id, string $size = 'md', bool $show_tier = false, ?string $tier_override = null ): void {
         $player = QueryHelpers::get_player( $player_id );
         if ( ! $player ) {
             echo '<p><em>' . esc_html__( 'Player not found.', 'talenttrack' ) . '</em></p>';
@@ -67,7 +74,18 @@ class PlayerCardView {
         $mains    = $svc->getMainCategoryBreakdown( $player_id, [] );
 
         $rolling = $headline['rolling']; // ?float
-        $tier    = self::tierForRating( $rolling );
+
+        // v2.16.0: tier is determined by explicit override (podium positions),
+        // else neutral. Rating-based tiering removed from the default path —
+        // see CHANGES.md 2.16.0 for the rationale.
+        if ( $tier_override !== null && in_array( $tier_override, [ 'gold', 'silver', 'bronze', 'none', 'neutral' ], true ) ) {
+            $tier = $tier_override;
+        } else {
+            // If the player has no rated evaluations at all, mark as 'none'
+            // (muted gray) so the card reads as "unrated" rather than
+            // pretending to be neutral-premium.
+            $tier = $rolling === null ? 'none' : 'neutral';
+        }
 
         $photo_url = self::resolvePhotoUrl( $player );
         $initials  = self::initialsFromPlayer( $player );
@@ -172,6 +190,11 @@ class PlayerCardView {
             1 => $top[0] ?? null,
             3 => $top[2] ?? null,
         ];
+        // v2.16.0: tier is determined by podium position, NOT by the player's
+        // rolling average. The #1 player always gets a gold card regardless
+        // of their actual rating. This means tier on a podium is a ranking
+        // award, not an intrinsic rating — matching how real podiums work.
+        $tier_by_rank = [ 1 => 'gold', 2 => 'silver', 3 => 'bronze' ];
         ?>
         <div class="tt-pc-podium">
             <?php foreach ( $slots as $rank => $entry ) : ?>
@@ -181,7 +204,7 @@ class PlayerCardView {
                     </div>
                     <?php if ( $entry && ! empty( $entry['player_id'] ) ) :
                         $size = $rank === 1 ? 'md' : 'sm';
-                        self::renderCard( (int) $entry['player_id'], $size, true );
+                        self::renderCard( (int) $entry['player_id'], $size, true, $tier_by_rank[ $rank ] );
                     else : ?>
                         <div class="tt-pc-empty">
                             <?php esc_html_e( 'Not enough ranked players yet', 'talenttrack' ); ?>
@@ -208,10 +231,11 @@ class PlayerCardView {
 
     private static function tierLabel( string $tier ): string {
         switch ( $tier ) {
-            case 'gold':   return __( 'Gold', 'talenttrack' );
-            case 'silver': return __( 'Silver', 'talenttrack' );
-            case 'bronze': return __( 'Bronze', 'talenttrack' );
-            default:       return __( 'Unrated', 'talenttrack' );
+            case 'gold':    return __( 'Gold', 'talenttrack' );
+            case 'silver':  return __( 'Silver', 'talenttrack' );
+            case 'bronze':  return __( 'Bronze', 'talenttrack' );
+            case 'neutral': return __( 'Player', 'talenttrack' );
+            default:        return __( 'Unrated', 'talenttrack' );
         }
     }
 

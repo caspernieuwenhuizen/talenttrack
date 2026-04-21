@@ -2057,3 +2057,47 @@ msgstr "Topspelers in het team"
 
 msgid "Teammates on %s"
 msgstr "Teamgenoten in %s"
+
+# ===== v2.16.0 — Tier-by-position + Print report + Mobile =====
+
+msgid "Player"
+msgstr "Speler"
+
+msgid "🖨 Print report"
+msgstr "🖨 Rapport printen"
+
+msgctxt "button label"
+msgid "🖨 Print report"
+msgstr "🖨 Rapport printen"
+
+msgid "Player Report — %s"
+msgstr "Spelerrapport — %s"
+
+msgid "Generated:"
+msgstr "Gemaakt:"
+
+msgid "Period:"
+msgstr "Periode:"
+
+msgid "All evaluations"
+msgstr "Alle evaluaties"
+
+msgid "Until"
+msgstr "T/m"
+
+msgid "Recent shape"
+msgstr "Recente vorm"
+
+msgid "Coach:"
+msgstr "Coach:"
+
+msgid "Date:"
+msgstr "Datum:"
+
+msgid "(%d eval)"
+msgid_plural "(%d evals)"
+msgstr[0] "(%d eval.)"
+msgstr[1] "(%d evals)"
+
+msgid "You do not have access to this player report."
+msgstr "Je hebt geen toegang tot dit spelerrapport."
