@@ -1,6 +1,6 @@
 # TalentTrack v3.0.0 — Capability refactor + Migration UX + Frontend rebuild
 
-**Status: IN PROGRESS (slice 2 of 5 shipped).** Full v3.0.0 ships when all 5 slices land. See "Roadmap" at the end.
+**Status: IN PROGRESS (slice 3 of 5 shipped).** Full v3.0.0 ships when all 5 slices land. See "Roadmap" at the end.
 
 ## Summary of v3.0.0 as a whole
 
@@ -10,7 +10,64 @@ A major-version release that rebuilds three fundamentals:
 2. **Capability refactor** — every `tt_manage_*` / `tt_evaluate_*` cap split into `tt_view_*` + `tt_edit_*` pairs. The Read-Only Observer role becomes meaningful across the entire plugin. *(Scaffolding in slice 1, call-site audit in slice 2 — now complete.)*
 3. **Frontend fully rebuilt** — the tile grid from v2.21 now has real destinations. Every tile maps to a dedicated focused view. No more tab navigation. *(Slices 3-5.)*
 
-## Slice 2 (this snapshot) — Capability call-site audit
+## Slice 3 (this snapshot) — Me-group frontend views
+
+### What changed
+
+The v2.21 tile landing page promised destinations that didn't exist — tapping "My goals" or "My evaluations" dropped you into a tab-heavy dashboard that ignored your tile choice. Slice 3 gives the Me-group tiles real destinations:
+
+- **My card** → `FrontendOverviewView` (FIFA card + custom fields + recent-history radar + print button)
+- **My team** → `FrontendMyTeamView` (own card + team podium + teammate roster, names-only)
+- **My evaluations** → `FrontendMyEvaluationsView` (table of evaluations, most-recent first, with rating pills and match context)
+- **My sessions** → `FrontendMySessionsView` (attendance log, color-coded by status)
+- **My goals** → `FrontendMyGoalsView` (goal cards with status badges and due dates)
+- **My profile** → `FrontendMyProfileView` — **new view**, didn't exist in v2.21. Read-friendly personal details with a link to edit WordPress account settings
+
+All six views extend a new shared `FrontendViewBase` which handles:
+- Idempotent asset enqueueing (player-card CSS + frontend-mobile CSS)
+- Consistent page header with back button + title
+- No tab bars — each view is one focused page
+
+### Tile-slug routing
+
+`DashboardShortcode::render()` now dispatches Me-group slugs (`overview`, `my-team`, `evaluations`, `sessions`, `goals`, `profile`) to the focused view classes via a new `dispatchMeView()` helper. The dispatch only fires for users with a linked player record (player-context routing). Coaches who are also players get the Me views when they hit a Me slug; when they hit a Coaching slug (same `evaluations` / `sessions` / `goals` words but with coach context) they still fall through to the legacy CoachDashboardView (slice 4 fixes that).
+
+### Legacy PlayerDashboardView still present
+
+Kept in place for now. When slice 4 removes the similar CoachDashboardView fallback, the Me-dispatch table above handles all player routes exclusively. `PlayerDashboardView` class will be **deleted in slice 4** along with CoachDashboardView.
+
+### Files in slice 3
+
+New:
+- `src/Shared/Frontend/FrontendViewBase.php` — shared abstract base with asset + header helpers
+- `src/Shared/Frontend/FrontendOverviewView.php` — My card
+- `src/Shared/Frontend/FrontendMyTeamView.php` — My team
+- `src/Shared/Frontend/FrontendMyEvaluationsView.php` — My evaluations
+- `src/Shared/Frontend/FrontendMySessionsView.php` — My sessions
+- `src/Shared/Frontend/FrontendMyGoalsView.php` — My goals
+- `src/Shared/Frontend/FrontendMyProfileView.php` — My profile (new view, didn't exist in v2.21)
+
+Modified:
+- `src/Shared/Frontend/DashboardShortcode.php` — new `dispatchMeView()` helper, Me-slug routing
+- `docs/player-dashboard.md` — updated for v3 tile-based frontend
+- `languages/talenttrack-nl_NL.po` + `.mo` — ~17 new strings
+
+### What's shippable at slice 3
+
+- Me-group tiles **work end-to-end**. Pure-player users see proper focused sub-pages, back button returns to tile landing.
+- Coach/admin users who are also players: see Me-group views when they navigate there.
+- Coach/admin users in coaching-context still use legacy CoachDashboardView. No regression, but that's slice 4's work.
+- Observer role: continues to see analytics tiles (slice 5 will give those real destinations too).
+
+### What's NOT in slice 3
+
+- Coaching-group frontend views (slice 4)
+- Analytics-group frontend views (slice 5)
+- Row-action UI hiding for observers on admin list pages (slice 2b polish, folded into slice 4/5 as we're already touching frontend)
+
+---
+
+
 
 ### The churn
 

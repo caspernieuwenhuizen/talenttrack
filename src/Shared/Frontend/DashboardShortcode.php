@@ -72,17 +72,29 @@ class DashboardShortcode {
         $is_coach = current_user_can( 'tt_edit_evaluations' );
         $player   = QueryHelpers::get_player_for_user( $user_id );
 
-        // v2.21.0: tile-based landing. When ?tt_view is not set, show
-        // the role-gated tile grid instead of the legacy tab-based
-        // dashboard. Tapping a tile sets ?tt_view=<slug> which hands
-        // off to the existing PlayerDashboardView / CoachDashboardView
-        // (which already handle the sub-sections via their tabs).
+        // v3.0.0 slice 3: tile-based routing for the Me group.
+        // Each tile slug maps to a focused FrontendXyzView class. The
+        // ?tt_view param is the route. Coaching/Analytics slugs still
+        // fall through to the legacy dashboards until slices 4-5 land.
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
         if ( $view === '' ) {
             // Tile landing page.
             FrontendTileGrid::render();
+        } elseif ( $player && in_array( $view, [ 'overview', 'my-team', 'profile' ], true ) ) {
+            // Me-group views that are strictly player-context (not shared
+            // with coaching — even coaches who are also players see their
+            // "My card" here when the route is a Me slug).
+            self::dispatchMeView( $view, $player );
+        } elseif ( $player && ! $is_coach && ! $is_admin && in_array( $view, [ 'evaluations', 'sessions', 'goals' ], true ) ) {
+            // Shared slugs: pure-player context gets the My-* view.
+            // Coaches hitting these same slugs go to the coaching view
+            // below (slice 4).
+            self::dispatchMeView( $view, $player );
         } elseif ( $player && ! $is_coach && ! $is_admin ) {
+            // Legacy fallback for any pure-player view we haven't
+            // migrated yet (currently none beyond the list above, so
+            // unreachable in practice, but kept for safety).
             FrontendBackButton::render();
             ( new PlayerDashboardView() )->render( $player );
         } elseif ( $is_coach || $is_admin ) {
@@ -103,6 +115,37 @@ class DashboardShortcode {
         /** @var string $filtered */
         $filtered = apply_filters( 'tt_dashboard_data', $output, $user_id );
         return $filtered;
+    }
+
+    /**
+     * v3.0.0 slice 3 — dispatch a Me-group tile slug to its
+     * FrontendXyzView class. Called only when we know the user has a
+     * player record AND the view slug is a Me-group slug.
+     */
+    private static function dispatchMeView( string $view, object $player ): void {
+        switch ( $view ) {
+            case 'overview':
+                FrontendOverviewView::render( $player );
+                break;
+            case 'my-team':
+                FrontendMyTeamView::render( $player );
+                break;
+            case 'evaluations':
+                FrontendMyEvaluationsView::render( $player );
+                break;
+            case 'sessions':
+                FrontendMySessionsView::render( $player );
+                break;
+            case 'goals':
+                FrontendMyGoalsView::render( $player );
+                break;
+            case 'profile':
+                FrontendMyProfileView::render( $player );
+                break;
+            default:
+                FrontendBackButton::render();
+                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+        }
     }
 
     private static function renderHeader(): void {

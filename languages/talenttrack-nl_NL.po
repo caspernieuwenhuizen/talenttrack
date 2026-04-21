@@ -2863,3 +2863,56 @@ msgstr "Migraties & updates"
 
 msgid "What happens when you update the plugin, and how to run migrations manually."
 msgstr "Wat er gebeurt wanneer je de plugin bijwerkt en hoe je migraties handmatig uitvoert."
+
+# ===== v3.0.0 slice 3 — Me-group frontend views =====
+
+msgid "No evaluations yet. Your coaches will record them here as training and matches progress."
+msgstr "Nog geen evaluaties. Je coaches noteren ze hier naarmate trainingen en wedstrijden vorderen."
+
+msgid "No attendance records yet."
+msgstr "Nog geen aanwezigheidsregistraties."
+
+msgid "No goals assigned yet. Your coaches will add development goals here as you progress."
+msgstr "Nog geen doelen toegewezen. Je coaches voegen hier ontwikkelingsdoelen toe naarmate je vordert."
+
+msgid "Playing details"
+msgstr "Speelgegevens"
+
+msgid "Age group"
+msgstr "Leeftijdscategorie"
+
+msgid "Positions"
+msgstr "Posities"
+
+msgid "Preferred foot"
+msgstr "Voorkeursvoet"
+
+msgid "Jersey #"
+msgstr "Rugnummer"
+
+msgid "Height"
+msgstr "Lengte"
+
+msgid "Weight"
+msgstr "Gewicht"
+
+msgid "Date of birth"
+msgstr "Geboortedatum"
+
+msgid "Playing details are maintained by your coach. Contact them for corrections."
+msgstr "Speelgegevens worden bijgehouden door je coach. Neem contact op voor correcties."
+
+msgid "Account"
+msgstr "Account"
+
+msgid "Display name"
+msgstr "Weergavenaam"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Edit account settings"
+msgstr "Accountinstellingen bewerken"
+
+msgid "Unknown section."
+msgstr "Onbekend onderdeel."
