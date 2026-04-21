@@ -2605,3 +2605,110 @@ msgstr "Onbekend rapporttype."
 
 msgid "? Help on this topic"
 msgstr "? Hulp bij dit onderwerp"
+
+# ===== v2.21.0 — Tile-based frontend + Read-Only Observer role =====
+
+msgid "Read-Only Observer"
+msgstr "Alleen-lezen Waarnemer"
+
+msgid "← Back to dashboard"
+msgstr "← Terug naar dashboard"
+
+msgid "Tap a tile to go straight to that section."
+msgstr "Tik op een tegel om direct naar dat onderdeel te gaan."
+
+msgid "Welcome, %s"
+msgstr "Welkom, %s"
+
+msgid "Welcome"
+msgstr "Welkom"
+
+msgid "Me"
+msgstr "Ik"
+
+msgid "Coaching"
+msgstr "Coaching"
+
+msgid "Analytics"
+msgstr "Analyses"
+
+msgid "Administration"
+msgstr "Beheer"
+
+msgid "My card"
+msgstr "Mijn kaart"
+
+msgid "Your FIFA-style card, ratings, and headline numbers."
+msgstr "Jouw FIFA-kaart, beoordelingen en kerncijfers."
+
+msgid "My team"
+msgstr "Mijn team"
+
+msgid "Your teammates and the team podium."
+msgstr "Jouw teamgenoten en het podium van het team."
+
+msgid "My evaluations"
+msgstr "Mijn evaluaties"
+
+msgid "Ratings and feedback from your coaches."
+msgstr "Beoordelingen en feedback van jouw coaches."
+
+msgid "My sessions"
+msgstr "Mijn sessies"
+
+msgid "Training sessions you've attended."
+msgstr "Trainingen die je hebt bijgewoond."
+
+msgid "My goals"
+msgstr "Mijn doelen"
+
+msgid "Development goals to work toward."
+msgstr "Ontwikkelingsdoelen om naartoe te werken."
+
+msgid "My profile"
+msgstr "Mijn profiel"
+
+msgid "Your personal details and contact info."
+msgstr "Jouw persoonlijke gegevens en contactinformatie."
+
+msgid "My teams"
+msgstr "Mijn teams"
+
+msgid "Teams you coach — roster, podium, evaluations."
+msgstr "Teams die je coacht — selectie, podium, evaluaties."
+
+msgid "Roster of all players on your coached teams."
+msgstr "Selectie van alle spelers in de teams die je coacht."
+
+msgid "Record player ratings, add notes and scores."
+msgstr "Registreer spelerbeoordelingen, voeg notities en scores toe."
+
+msgid "Log training sessions and attendance."
+msgstr "Registreer trainingen en aanwezigheid."
+
+msgid "Set and track player development goals."
+msgstr "Stel ontwikkelingsdoelen in en volg ze per speler."
+
+msgid "Podium"
+msgstr "Podium"
+
+msgid "Team rankings and top performers."
+msgstr "Teamranglijsten en topspelers."
+
+msgid "Rate cards"
+msgstr "Rapportkaarten"
+
+msgid "Per-player rating cards with trends."
+msgstr "Rapportkaarten per speler met trends."
+
+msgid "Player comparison"
+msgstr "Spelervergelijking"
+
+msgid "Compare up to 4 players side-by-side."
+msgstr "Vergelijk maximaal 4 spelers naast elkaar."
+
+msgid "Go to admin"
+msgstr "Naar beheer"
+
+msgid "Open the full WordPress admin dashboard."
+msgstr "Open het volledige WordPress-beheerdashboard."

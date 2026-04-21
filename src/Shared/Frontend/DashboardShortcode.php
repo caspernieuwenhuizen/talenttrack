@@ -61,8 +61,6 @@ class DashboardShortcode {
         // NOTE: v2.17.0 — the ?tt_print=<id> frontend short-circuit was
         // removed. The PrintRouter (hooked on template_redirect) now
         // intercepts print requests before the shortcode callback fires.
-        // If the router accepts the request it exits; if we get here,
-        // the request is a normal dashboard view.
 
         // Authenticated dashboard.
         ob_start();
@@ -74,10 +72,26 @@ class DashboardShortcode {
         $is_coach = current_user_can( 'tt_evaluate_players' );
         $player   = QueryHelpers::get_player_for_user( $user_id );
 
-        if ( $player && ! $is_coach && ! $is_admin ) {
+        // v2.21.0: tile-based landing. When ?tt_view is not set, show
+        // the role-gated tile grid instead of the legacy tab-based
+        // dashboard. Tapping a tile sets ?tt_view=<slug> which hands
+        // off to the existing PlayerDashboardView / CoachDashboardView
+        // (which already handle the sub-sections via their tabs).
+        $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
+
+        if ( $view === '' ) {
+            // Tile landing page.
+            FrontendTileGrid::render();
+        } elseif ( $player && ! $is_coach && ! $is_admin ) {
+            FrontendBackButton::render();
             ( new PlayerDashboardView() )->render( $player );
         } elseif ( $is_coach || $is_admin ) {
+            FrontendBackButton::render();
             ( new CoachDashboardView() )->render( $user_id, $is_admin );
+        } elseif ( current_user_can( 'tt_view_reports' ) ) {
+            // Observer role: can view analytics even without a player link.
+            FrontendBackButton::render();
+            ( new CoachDashboardView() )->render( $user_id, false );
         } else {
             echo '<p class="tt-notice">' . esc_html__( 'No player profile is linked to your account. Please contact your administrator.', 'talenttrack' ) . '</p>';
         }

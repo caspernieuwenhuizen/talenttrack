@@ -76,6 +76,22 @@ class RolesService {
                 'label' => __( 'Parent', 'talenttrack' ),
                 'caps'  => [ 'read' => true ],
             ],
+            // v2.21.0: narrow read-only role. Sees reports, teams, players,
+            // evaluations, sessions, and goals through the frontend tile
+            // grid — but has NO management or evaluation caps, so every
+            // write action (add/edit/delete) is blocked at controller
+            // level. Use for assistant coaches in training, scouts who
+            // should observe only, parent board members, external
+            // reviewers, etc. Full cap-split refactor (separate view/edit
+            // capabilities per entity) is slated for a future sprint;
+            // this role is the lightweight gate-keeper for now.
+            'tt_readonly_observer' => [
+                'label' => __( 'Read-Only Observer', 'talenttrack' ),
+                'caps'  => [
+                    'read'            => true,
+                    'tt_view_reports' => true,
+                ],
+            ],
         ];
     }
 

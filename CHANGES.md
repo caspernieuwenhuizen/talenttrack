@@ -1,181 +1,194 @@
-# TalentTrack v2.20.0 — Player Comparison + Access Control Tiles + Reports Tile Launcher
+# TalentTrack v2.21.0 — Tile-Based Frontend + Read-Only Observer Role
 
 ## Summary
 
-Three items, all UX-polish with concrete functional additions:
+Two items, both preparatory for the broader front-end admin arc:
 
-1. **Player Comparison** — new Analytics page for 4-player side-by-side comparison, cross-team supported
-2. **Access Control tiles + menu placement fix** — the Roles & Permissions, Functional Roles, and Permission Debug pages were orphaned from menu groups and from the dashboard tile grid; now properly grouped under an "Access Control" separator + dashboard tile group
-3. **Reports redesigned as tile launcher** — the old combined form is retained as a "legacy" tile; two new first-class report types shipped (Team rating averages, Coach activity)
+1. **Tile-based frontend landing page** — the frontend shortcode now opens onto a role-gated tile grid instead of dropping straight into a tab-heavy dashboard view. Same visual language as the admin dashboard (2.18.0) carried through to the public-facing experience.
+2. **`tt_readonly_observer` role** — new narrow WordPress role with `read` + `tt_view_reports` only. Gates the new tile grid for users who should see reports and analytics without getting any management or evaluation capabilities.
 
-No schema changes. No migrations.
+No schema changes. No migrations. No breaking changes to existing tab navigation — it still works when `?tt_view` is set.
 
-## Item 1 — Player Comparison
-
-### What it does
-
-Dedicated page at `Analytics → Player Comparison`. Four slot dropdowns, each with the full player roster searchable as `LastName, FirstName — Team (age group)`. Cross-team comparison works without constraint — comparing a U15 LB against a U13 ST is not only possible, it's the point.
-
-### Comparison surface
-
-Stacked vertically for readability:
-
-- **Cards row** — FIFA-style player cards (size `sm`) side-by-side at the top, visual anchor
-- **Basic facts table** — team, age group, positions, foot, jersey #, height, weight, DOB — one row per attribute, one column per player
-- **Headline numbers** — Most recent / Rolling (last 5) / All-time / Evaluation count — same shape as the Rate Card headline tiles
-- **Main category averages table** — union of all main categories with one row per category and one column per player, blank cells when a player has no data for that category
-- **Radar overlay chart** — all 4 players as coloured datasets on one radar, Chart.js
-- **Trend overlay chart** — all 4 players' overall rating over time on one line chart
-
-### Mixed age groups handling
-
-When the selected players span multiple age groups, a blue notice appears above the comparison:
-
-> Mixed age groups in this comparison. Overall ratings use age-group-specific category weights, so the numbers below are not perfectly apples-to-apples — they reflect what each player's own coaching staff uses.
-
-The numbers themselves use each player's age-group-weighted overall (honest — that's the real number; unweighted would be a fabrication). The notice makes the limitation explicit.
-
-### Filters
-
-Date range + evaluation type, same as the Rate Card page. All 4 slots use the same filter values so the comparison is consistent.
-
-### Permissions
-
-`tt_view_reports` (coaches + admins). Matches the Rate Card page.
-
-### Technical
-
-Reuses `PlayerStatsService` helpers — no new aggregation logic. `getHeadlineNumbers()`, `getMainCategoryBreakdown()`, `getTrendSeries()`, `getRadarSnapshots()` are called once per player. Chart.js for both overlay charts, loaded from the same CDN as the Rate Card page. Single JS block at the bottom of the page wires both charts from PHP-rendered JSON payloads.
-
-## Item 2 — Access Control tiles + menu placement fix
-
-### The problem
-
-TalentTrack has three admin pages that govern authorization:
-- **Roles & Permissions** (`tt-roles`) — grant/revoke TalentTrack caps per WP user
-- **Functional Roles** (`tt-functional-roles`) — map club roles (head coach, physio) to authorization roles
-- **Permission Debug** (`tt-roles-debug`) — "what can this user actually do?" inspector
-
-All three were registered by `AuthorizationModule::registerMenu()` — a self-contained module bootstrap that added them to the TalentTrack submenu at runtime. Same story for the People page via `PeopleModule::registerMenu()`.
-
-Two consequences of this pattern:
-
-1. The pages appeared in the admin **sidebar** but at the flat bottom, **below all the menu-group separators** established in 2.17.0 — not inside any visual group
-2. They were **invisible on the dashboard tile grid** because that grid was hardcoded in `Menu::dashboard()`, and the grid author (me) had no way of knowing these orphan pages existed
-
-A user complaint about "missing Authorization tiles" exposed this. I'd missed the whole module.
-
-### The fix
-
-**Menu registrations centralized.** `Menu::register()` now owns the submenu registrations for People (People group) and the three Authorization pages (new Access Control group). `AuthorizationModule::registerMenu()` and `PeopleModule::registerMenu()` are now no-ops — they still exist so any bootstrap order or external code that calls them doesn't fatal, but they do nothing. The admin_post handlers in `AuthorizationModule::register()` remain untouched.
-
-**New Access Control separator** added between Configuration and Help & Docs in the sidebar. Same fake-submenu-slug pattern as other group separators (`tt-sep-access`).
-
-**New Access Control tile group** on the dashboard, between Configuration and Help. Three tiles:
-- Roles & Permissions — `tt-roles`
-- Functional Roles — `tt-functional-roles`
-- Permission Debug — `tt-roles-debug`
-
-Red accent color (`#b32d2e`) distinguishes the group visually — access control has consequences, worth the attention-getting hue.
-
-### Group naming
-
-"Access Control" chosen over "Authorization" / "Roles & Permissions" — balances clarity with brevity. Non-technical club admins understand "who has access to what," which is exactly what the group is about.
-
-## Item 3 — Reports redesigned as tile launcher
+## Item 1 — Tile-based frontend
 
 ### Before
 
-Reports page was a single form: report-type dropdown, player multi-select, run button. Discoverability was bad — you had no visual sense of what the plugin could do without opening the dropdown. Adding a new report type meant cluttering the dropdown further.
+The frontend `[talenttrack_dashboard]` shortcode auto-dispatched to one of two heavy dashboard classes based on role:
+
+- `PlayerDashboardView::render()` for pure players — a 6-tab interface (Overview, Mijn team, Evaluaties, Sessies, Doelen, Profiel)
+- `CoachDashboardView::render()` for coaches + admins — a 7+ tab interface (Roster, Player Detail, Add evaluation, Attendance, etc.)
+
+Two problems:
+
+- On mobile, 7 tabs don't fit horizontally. Tabs were already scroll-shimmed in 2.16.0 mobile pass but remain cramped.
+- There was no landing page — users dropped straight into whatever tab happened to be first, with no overview of "what can I do here?"
 
 ### After
 
-Landing page is a tile grid. Three tiles to start:
+When the shortcode page is visited **without** `?tt_view`, it now renders a **tile landing page** with the same visual style as the 2.18.0 admin dashboard:
 
-1. **Player Progress & Radar** (icon: `dashicons-chart-line`) — blue. The former combined form, preserved so existing muscle memory and any bookmarks continue to work. Lives at `?report=legacy`.
-2. **Team rating averages** (icon: `dashicons-shield`) — green. NEW. A table: teams as rows × main categories as columns × average rating in each cell. Plus an Evaluation count column so you can gauge data density per team. Archived players and evaluations excluded.
-3. **Coach activity** (icon: `dashicons-welcome-write-blog`) — purple. NEW. Evaluations saved per coach over a configurable window (7 / 30 / 90 / 180 / 365 days). Sortable by volume; shows last-evaluation timestamp per coach.
+- Personalized greeting header ("Welcome, {Name}")
+- Section labels with fading-line accents
+- Tile grid with colored icon + label + one-line description
+- Hover lift + shadow elevation
+- Mobile: 1-column grid, tiles shrink appropriately
 
-Each tile routes to `?page=tt-reports&report=<slug>`. Back button returns to the launcher. Shell is minimal — each report is its own render method inside `ReportsPage`, easy to add more.
+Tapping a tile appends `?tt_view=<slug>` and reloads. The existing Player/Coach dashboard classes pick up from there — they already handle the sub-sections via their tabs, so nothing inside them needed to change.
 
-### Help link
+### Tile groups
 
-The launcher header gets a "? Help on this topic" link pointing at `?page=tt-docs&topic=reports`. The 2.21.0 help wiki will deliver the content; this sprint just wires the link.
+The tile grid is composed of 4 groups, each cap-gated so users only see what they can access:
 
-### Scope parked
+**Me** (visible when user is linked to a player record):
+- My card
+- My team
+- My evaluations
+- My sessions
+- My goals
+- My profile
 
-Per the sprint scope decision: build the shell + 2 new simple reports, don't try to pack more in. Future sprints add tiles without redesign work. Ideas on the shelf:
-- Attendance summary per session / per team
-- Goal progress by status per player
-- Evaluations per team per month (trend)
-- Player development timeline per team
-- Export-oriented reports (CSV/XLSX download of various datasets)
+**Coaching** (visible with `tt_evaluate_players` or `tt_manage_settings`):
+- My teams
+- Players
+- Evaluations
+- Sessions
+- Goals
+- Podium
 
-## Help link foundation
+**Analytics** (visible with `tt_view_reports`):
+- Rate cards
+- Player comparison
 
-Placeholder links added on Reports and Player Comparison pages pointing at `?page=tt-docs&topic=<slug>`. The 2.21.0 help wiki will render these. Links work today — they route to the existing Help & Docs page, which will be expanded in the next release.
+**Administration** (visible with `tt_manage_settings`):
+- Go to admin
+
+A user who is a player + coach sees both "Me" and "Coaching" groups. A read-only observer (new role in this release) sees "Analytics" only, with no write capabilities inside. An admin sees everything.
+
+### Frontend back navigation
+
+New `FrontendBackButton` helper renders "← Back to dashboard" at the top of any tile sub-view. Different from the admin `BackButton`:
+
+- Target is always the shortcode page sans query params rather than the HTTP referer
+- Frontend referers are less reliable (caching, CDN, theme quirks)
+- Fixed destination fits the tile-landing pattern: every sub-view has one clear home
+
+### Behavior matrix
+
+| `?tt_view` | Result |
+|---|---|
+| not set | Tile landing page |
+| set, user is pure player | `PlayerDashboardView::render()` with back button |
+| set, user is coach/admin | `CoachDashboardView::render()` with back button |
+| set, user has `tt_view_reports` only (observer) | `CoachDashboardView::render()` with `is_admin=false`, back button |
+| set, user has none of above | "No player profile linked" notice |
+
+Existing bookmarks to specific `?tt_view=X` URLs continue to work and skip the tile landing — transparent upgrade.
+
+## Item 2 — `tt_readonly_observer` role
+
+### Motivation
+
+The previous authorization model had these roles and their caps:
+
+| Role | `read` | manage_players | evaluate_players | manage_settings | view_reports |
+|---|---|---|---|---|---|
+| Head of Development | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Club Admin | ✓ | ✓ | — | ✓ | ✓ |
+| Coach | ✓ | — | ✓ | — | ✓ |
+| Scout | ✓ | — | ✓ | — | — |
+| Staff | ✓ | ✓ | — | — | — |
+| Player | ✓ | — | — | — | — |
+| Parent | ✓ | — | — | — | — |
+
+There was no role for someone who should **see reports and dashboards but never save anything**. Closest options:
+- Player/Parent — sees only their own data; can't see reports
+- Coach — sees reports but also has full evaluation write access
+- Scout — can evaluate players, so also a write role
+
+### The new role
+
+`tt_readonly_observer` — "Read-Only Observer" — with exactly `read` + `tt_view_reports`.
+
+- Can log into the frontend dashboard
+- Sees the Analytics tile group (Rate cards, Player comparison) on the frontend tile landing
+- Can view the rate card page, usage statistics, team ratings, coach activity reports
+- **Cannot** save evaluations, edit players, create sessions, set goals, or change configuration — every write surface is gated behind caps this role lacks
+
+### Use cases
+
+- Assistant coach in training — observing how evaluations work before being granted `tt_evaluate_players`
+- Board member or club president who should see team performance without ever editing data
+- External reviewer or auditor (e.g. federation/league assessment) brought in for a period
+- Parent-liaison with extra viewing rights vs. regular parents
+
+### Scope boundary (important)
+
+**This is a lightweight role, not a cap refactor.** The existing TalentTrack caps are binary "view + manage" pairs — e.g. `tt_evaluate_players` means "can see the evaluation UI AND can save/edit/delete evaluations." A proper "read-only coach" experience would split each cap into `tt_view_*` + `tt_edit_*` pairs, but that's a plugin-wide audit sprint of its own. The observer role works today using only the narrow `tt_view_reports` cap.
+
+Deep cap refactor is queued as a **v2.22.0 candidate item**. Flagged in this release's design notes.
 
 ## Files in this release
 
 ### New
-- `src/Modules/Stats/Admin/PlayerComparisonPage.php` — 4-player comparison admin page
+- `src/Shared/Frontend/FrontendTileGrid.php` — role-gated tile landing page
+- `src/Shared/Frontend/FrontendBackButton.php` — frontend back navigation helper
 
 ### Modified
-- `talenttrack.php` — version 2.20.0
-- `src/Shared/Admin/Menu.php` — People + 3 Authorization pages now registered here; Access Control separator + tile group; Player Comparison submenu + tile
-- `src/Modules/Authorization/AuthorizationModule.php` — `registerMenu` removed (boot no longer adds admin_menu hook); admin_post handlers retained
-- `src/Modules/People/PeopleModule.php` — `registerMenu` now a no-op
-- `src/Modules/Reports/Admin/ReportsPage.php` — full rewrite as tile launcher; legacy form retained at `?report=legacy`; two new reports added
-- `languages/talenttrack-nl_NL.po` + `.mo` — ~36 new strings
+- `talenttrack.php` — version 2.21.0
+- `src/Shared/Frontend/DashboardShortcode.php` — route to tile landing when `?tt_view` is absent; render back button otherwise; add observer-role fallback path
+- `src/Infrastructure/Security/RolesService.php` — add `tt_readonly_observer` role definition
+- `languages/talenttrack-nl_NL.po` + `.mo` — ~31 new strings
 
 ### Deleted
 (none)
 
 ## Install
 
-Extract `talenttrack-v2_20_0.zip`. Move contents into your `talenttrack/` folder. Deactivate + reactivate.
+Extract `talenttrack-v2_21_0.zip`. Move contents into your `talenttrack/` folder. Deactivate + reactivate.
 
-**No migrations.** All existing data carries forward. No breaking changes.
+**Activation installs the new role.** `RolesService::installRoles()` picks it up automatically — `add_role` is a no-op if the role already exists, so the migration is idempotent.
+
+**No schema migration.** No data changes.
 
 ## Verify
 
-### Access Control
-1. Dashboard. New "Access Control" tile group visible between Configuration and Help. Three red-accented tiles: Roles & Permissions / Functional Roles / Permission Debug.
-2. Submenu sidebar. New "ACCESS CONTROL" uppercase separator between Configuration and Help & Docs. Underneath: the same three links.
-3. Click each tile/link — the existing pages render (Roles & Permissions, Functional Roles, Permission Debug).
+### Tile landing
+1. Log out of WordPress. Navigate to the page with the `[talenttrack_dashboard]` shortcode.
+2. Log in as a player-only user. You see: greeting header, "Me" section with 6 tiles, no Coaching/Analytics/Administration sections.
+3. Tap "My evaluations" — you go into the existing Evaluaties tab with "← Back to dashboard" at the top. Click back — you return to the tile grid.
+4. Log in as a coach — now you see "Me" (if they're also a player) + "Coaching" (6 tiles) + "Analytics" (2 tiles). No Administration.
+5. Log in as an admin — all 4 sections visible.
+6. Existing `?tt_view=overview` bookmarks continue to work and skip the tile landing.
 
-### Player Comparison
-4. Analytics → Player Comparison. Page loads.
-5. Pick 2 players from different teams. Click Compare. Cards render side-by-side, facts table + headlines + categories + radar + trend all populate.
-6. Pick 4 players spanning multiple age groups. Notice: "Mixed age groups in this comparison..." appears.
-7. Apply a date-range filter. Comparison respects it consistently across all 4 players.
+### Read-only observer role
+7. In WP Users admin, create a new user and assign the "Read-Only Observer" role.
+8. Log in as that user. Go to the frontend dashboard.
+9. See: greeting + "Analytics" section only (Rate cards + Player comparison). No Me / Coaching / Administration.
+10. Tap "Rate cards" — can view the page but any edit/save buttons are absent (they're gated by `tt_evaluate_players` or `tt_manage_players`, which the observer lacks).
+11. Try a URL like `?tt_view=evaluations&action=new` — the controller blocks the action because the observer has no `tt_evaluate_players` cap.
 
-### Reports tile launcher
-8. Analytics → Reports. Tile launcher with 3 tiles.
-9. Click Team rating averages. Table renders with teams as rows, categories as columns.
-10. Click back. Launcher again.
-11. Click Coach activity. Window selector (7/30/90/180/365). Switch window — page reloads with new counts.
-12. Click back. Launcher again.
-13. Click Player Progress & Radar — old combined form appears. Run a progress report — still works.
-
-### Menu placement (regression check)
-14. Submenu sidebar reads top-to-bottom: Dashboard, PEOPLE / Teams Players **People**, PERFORMANCE / Evaluations Sessions Goals, ANALYTICS / Reports Player Rate Cards **Player Comparison** Usage Statistics, CONFIGURATION / Configuration Custom Fields Evaluation Categories Category Weights, **ACCESS CONTROL / Roles & Permissions Functional Roles Permission Debug**, Help & Docs.
+### Regression checks
+12. Player-only user without the observer role sees their normal tile set, unchanged.
+13. Coach sees all coaching functions normally, no permission regressions.
+14. Admin sees all tiles + Go to admin.
 
 ## Known caveats
 
-- **Comparison overall ratings are weighted per age group.** Not a bug, intentional — see the inline notice. If a club genuinely needs unweighted comparison, future work.
-- **Coach activity report counts by `coach_id`.** If a coach is the wp_user who saved the evaluation. Doesn't account for "this evaluation was about a player this coach trains" — that's a different metric.
-- **Team ratings report doesn't respect filters.** Shows lifetime averages. Adding a date-range filter is a future polish item.
-- **No PDF/export from new reports yet.** Browser print works reasonably for the two new reports but there's no dedicated export button. Candidate for a future sprint.
+- **Observer role sees analytics pages with edit buttons hidden, but the underlying render methods still include some UI chrome.** The write-block is at the cap-check level — the ReportsPage's "Run report" button works fine for the observer; the rate card's print button works; what's blocked is the `tt_manage_players` / `tt_evaluate_players` save actions. If you discover a write action that leaks through for an observer, the fix is adding a `current_user_can( 'tt_evaluate_players' )` guard around the render — report it.
+- **The tile grid is static for now.** No favoriting, no "recently used," no personalization. These are parked for future polish sprints.
+- **FrontendBackButton does not use HTTP referer.** Deliberate — frontend referers are unreliable (see design notes). Fixed destination matches the tile-landing pattern and is simpler to reason about.
+- **Greeting is plain user display name.** Could expand to team info, age group, etc. — future enhancement.
 
 ## Design notes
 
-- **Why centralize menu registration instead of letting modules self-register.** Modules still know their own pages (via their page classes, handlers, etc.) but sidebar grouping is a cross-cutting concern — who goes where, in what order, under which separator. Distributing that knowledge to each module would mean either duplicating the group list everywhere or losing grouping entirely (which is what happened). Centralizing it in `Menu::register` is the simplest fix and makes the grouping audit-able at a glance.
-- **Why retain the legacy Reports form instead of just replacing it.** Someone's depending on it. Sharp knife not in scope here. The tile label explicitly groups it as "Player Progress & Radar" so future users who expect charts know where they are.
-- **Why 4 slots on Player Comparison, not arbitrary N.** At N=2 or 3, table layouts work fine horizontally. At N=5+ the radar chart becomes visually unreadable (too many overlapping datasets) and the tables start needing horizontal scroll on normal screens. 4 is the Goldilocks number for side-by-side.
-- **Why "? Help on this topic" links are live now, not waiting for the 2.21.0 wiki.** Dead links are worse than placeholder links. The existing Help & Docs page accepts `topic` parameters (even if it doesn't use them yet); when the wiki ships, these links automatically start working properly. No page edits needed at that point.
+- **Why ship the tile frontend before the cap refactor.** The tile grid IS the new navigation; it should land first so there's a place where cap-granular visibility matters. Gating tiles today uses existing caps — fine. When cap refactor happens in 2.22.0, the tile grid gets more granular per-tile visibility without visual rework.
+- **Why observer role is so narrow (`read` + `tt_view_reports` only).** Broader observer caps would contradict "read-only" — anything that grants view-access to a surface where write UI exists creates a footgun. Narrow = correct.
+- **Why tile landing doesn't replace the tabs entirely.** Huge cost, zero functional gain. The tabs inside existing dashboard views work well once you're inside a section; the tile landing addresses "where should I go first?" which the tabs never answered.
+- **Why a new FrontendBackButton vs reusing the admin one.** Admin BackButton uses `wp_get_referer()`, which on frontend is unreliable due to caching, CDN, and theme variance. A frontend-specific helper with a known-safe target (shortcode page sans query params) is more predictable. Same visual pattern, different underlying logic.
 
-## v2.21.0 preview (confirmed)
+## v2.22.0 preview
 
-- **Help wiki** (item 3 from sprint 2.19 backlog) — markdown-based, 18 topics, contextual links on all admin pages, per-release update discipline
-- Possibly: additional report tiles now that the pattern exists
+- **Help wiki** (carryover from 2.19 + 2.20 backlog) — markdown-based, 18 topics, contextual links across admin pages, per-release update discipline
+- **Capability refactor** (Option B from the sprint brief) — split `tt_manage_*` and `tt_evaluate_*` into `tt_view_*` + `tt_edit_*` pairs so the Read-Only Observer experience covers all sections, not just analytics
+- Additional report types (carryover)
+- Any other items accumulated

@@ -4,13 +4,20 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.20.0
+Stable tag: 2.21.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.21.0 — Tile-Based Frontend + Read-Only Observer Role =
+* NEW: Tile-based frontend landing page. The [talenttrack_dashboard] shortcode now opens onto a role-gated tile grid (Me / Coaching / Analytics / Administration) with greeting, section labels, colored icon tiles, hover lift, and full mobile responsiveness. Tapping a tile drills into the existing PlayerDashboardView/CoachDashboardView — no break in existing tab navigation.
+* NEW: "← Back to dashboard" link at the top of every tile sub-view, via the new FrontendBackButton helper. Fixed destination (shortcode page sans query params) — more reliable than HTTP referer on frontend.
+* NEW: tt_readonly_observer role — "Read-Only Observer". Has `read` + `tt_view_reports` only. Sees the Analytics tile group (Rate cards, Player comparison) plus all rate card / report pages, but CANNOT save evaluations, edit players, create sessions, set goals, or change configuration. Use for assistant coaches in training, board members, external auditors, or parent-liaisons needing extra viewing rights.
+* INTERNAL: Tile visibility driven entirely by WordPress capabilities — the same tile set automatically respects the observer role. Deep capability refactor (splitting tt_manage_* into tt_view_* + tt_edit_* pairs) queued for v2.22.0.
+* No schema changes. No migrations. Existing ?tt_view bookmarks continue to work and skip the tile landing transparently.
 
 = 2.20.0 — Player Comparison + Access Control Tiles + Reports Tile Launcher =
 * NEW: Player Comparison admin page under Analytics. Side-by-side comparison of up to 4 players with cross-team support. Shows FIFA cards, basic facts, headline numbers, main category averages, overlay radar chart, overlay trend chart. Mixed-age-group comparisons get an inline notice about weighted overall ratings.
