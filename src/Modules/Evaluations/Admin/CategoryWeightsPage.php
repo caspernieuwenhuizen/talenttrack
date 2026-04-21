@@ -43,7 +43,7 @@ class CategoryWeightsPage {
         $all_weights = $weights_repo->getForAgeGroups( array_map( fn( $ag ) => (int) $ag->id, $age_groups ) );
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Category Weights', 'talenttrack' ); ?></h1>
+            <h1><?php esc_html_e( 'Category Weights', 'talenttrack' ); ?> <?php \TT\Shared\Admin\HelpLink::render( 'eval-categories-weights' ); ?></h1>
 
             <?php self::renderMessages(); ?>
 

@@ -57,7 +57,7 @@ class ConfigurationPage {
         }
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'TalentTrack Configuration', 'talenttrack' ); ?></h1>
+            <h1><?php esc_html_e( 'TalentTrack Configuration', 'talenttrack' ); ?> <?php \TT\Shared\Admin\HelpLink::render( 'configuration-branding' ); ?></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?>
                 <div class="notice notice-success is-dismissible"><p><?php echo $_GET['tt_msg'] === 'deleted' ? esc_html__( 'Deleted.', 'talenttrack' ) : esc_html__( 'Saved.', 'talenttrack' ); ?></p></div>
             <?php endif; ?>

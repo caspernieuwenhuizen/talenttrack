@@ -46,7 +46,7 @@ class PlayerRateCardsPage {
         $players   = QueryHelpers::get_players();
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Player Rate Cards', 'talenttrack' ); ?></h1>
+            <h1><?php esc_html_e( 'Player Rate Cards', 'talenttrack' ); ?> <?php \TT\Shared\Admin\HelpLink::render( 'rate-cards' ); ?></h1>
 
             <form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" style="margin:12px 0 20px;">
                 <input type="hidden" name="page" value="tt-rate-cards" />

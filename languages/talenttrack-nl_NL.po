@@ -2712,3 +2712,113 @@ msgstr "Naar beheer"
 
 msgid "Open the full WordPress admin dashboard."
 msgstr "Open het volledige WordPress-beheerdashboard."
+
+# ===== v2.22.0 — Hierarchical back button + Help wiki =====
+
+msgid "Breadcrumb"
+msgstr "Kruimelpad"
+
+msgid "Search topics…"
+msgstr "Zoek onderwerpen…"
+
+msgid "No matching topics."
+msgstr "Geen passende onderwerpen."
+
+msgid "This topic has no content yet."
+msgstr "Dit onderwerp heeft nog geen inhoud."
+
+msgid "This topic is empty."
+msgstr "Dit onderwerp is leeg."
+
+msgid "Help"
+msgstr "Help"
+
+msgid "Basics"
+msgstr "Basis"
+
+msgid "Performance"
+msgstr "Prestaties"
+
+msgid "Frontend & access"
+msgstr "Frontend & toegang"
+
+msgid "Getting started"
+msgstr "Aan de slag"
+
+msgid "Welcome to TalentTrack. The essentials to get going."
+msgstr "Welkom bij TalentTrack. De basis om van start te gaan."
+
+msgid "Teams & players"
+msgstr "Teams & spelers"
+
+msgid "How to create teams, add players, and assign players to teams."
+msgstr "Teams aanmaken, spelers toevoegen en spelers aan teams toewijzen."
+
+msgid "People (staff)"
+msgstr "Mensen (staf)"
+
+msgid "Coaches, physios, and other staff — add them as people and link to teams."
+msgstr "Coaches, fysio's en andere staf — voeg ze toe als mensen en koppel aan teams."
+
+msgid "Record player ratings with scores, notes, and categories."
+msgstr "Leg spelerbeoordelingen vast met scores, notities en categorieën."
+
+msgid "Evaluation categories & weights"
+msgstr "Evaluatiecategorieën & gewichten"
+
+msgid "Main categories, subcategories, and how per-age-group weighting works."
+msgstr "Hoofdcategorieën, subcategorieën en hoe de weging per leeftijdscategorie werkt."
+
+msgid "Training sessions, attendance tracking."
+msgstr "Trainingen en aanwezigheidsregistratie."
+
+msgid "Development goals per player with status and priority."
+msgstr "Ontwikkelingsdoelen per speler met status en prioriteit."
+
+msgid "The tile launcher — progress charts, team ratings, coach activity."
+msgstr "De tegellancher — voortgangsgrafieken, teambeoordelingen, coachactiviteit."
+
+msgid "Deep per-player dashboards with trends and charts."
+msgstr "Uitgebreide spelerdashboards met trends en grafieken."
+
+msgid "Compare up to 4 players side-by-side, cross-team."
+msgstr "Vergelijk tot 4 spelers naast elkaar, team-overstijgend."
+
+msgid "Logins, active users, DAU and evaluation trends."
+msgstr "Logins, actieve gebruikers, DAU en evaluatietrends."
+
+msgid "Academy name, logo, rating scale, color palette, lookup tables."
+msgstr "Academie-naam, logo, beoordelingsschaal, kleurenpalet, referentietabellen."
+
+msgid "Add club-specific fields to players, teams, and evaluations."
+msgstr "Voeg clubspecifieke velden toe aan spelers, teams en evaluaties."
+
+msgid "Bulk actions (archive & delete)"
+msgstr "Bulkacties (archiveren & verwijderen)"
+
+msgid "Selecting many rows at once. Archive vs. permanent delete."
+msgstr "Meerdere rijen tegelijk selecteren. Archiveren versus definitief verwijderen."
+
+msgid "Printing & PDF export"
+msgstr "Afdrukken & PDF-export"
+
+msgid "Clean printable reports and browser-native PDF export."
+msgstr "Opgeschoonde afdrukbare rapporten en native PDF-export van de browser."
+
+msgid "Player dashboard (frontend)"
+msgstr "Spelerdashboard (frontend)"
+
+msgid "What players see when they log into the frontend shortcode."
+msgstr "Wat spelers zien wanneer ze inloggen op de frontend-shortcode."
+
+msgid "Coach dashboard (frontend)"
+msgstr "Coachdashboard (frontend)"
+
+msgid "What coaches see in the frontend tile grid."
+msgstr "Wat coaches zien in het tegelraster van de frontend."
+
+msgid "Access control"
+msgstr "Toegangsbeheer"
+
+msgid "Roles, permissions, functional roles, and the Read-Only Observer."
+msgstr "Rollen, rechten, functionele rollen en de Alleen-lezen Waarnemer."

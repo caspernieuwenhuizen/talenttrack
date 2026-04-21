@@ -4,13 +4,21 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.21.0
+Stable tag: 2.22.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.22.0 — Hierarchical Back Button + Help Wiki =
+* FIXED: Back button no longer ping-pongs. Previously the v2.19 referer-based back button would return you to your edit form when clicked twice (because the target page's referer was the page you just came from). Rewrote to use an explicit parent-page hierarchy map. Clicking back now always walks one level closer to the dashboard; repeated clicks reliably reach home.
+* NEW: Breadcrumb UI above the back link on every admin page. Shows the trail from Dashboard down to the current page. Each segment is clickable — tap any ancestor to jump directly there.
+* NEW: Help & Docs is now a markdown-based wiki. 18 topic files authored (getting-started, teams-players, people-staff, evaluations, eval-categories-weights, sessions, goals, reports, rate-cards, player-comparison, usage-statistics, configuration-branding, custom-fields, bulk-actions, printing-pdf, player-dashboard, coach-dashboard, access-control). Two-pane layout with sticky TOC sidebar + content pane. Client-side search filters topics by title and summary. Wiki breadcrumb "Help › Group › Topic" on each topic page.
+* NEW: "? Help on this topic" contextual links on 13 admin pages (Players, Teams, Evaluations, Sessions, Goals, People, Reports, Rate Cards, Player Comparison, Evaluation Categories, Category Weights, Custom Fields, Configuration, Usage Statistics). Each links to the relevant wiki topic.
+* COMMITMENT: Going forward, every sprint that touches a feature also updates the relevant help topic(s) in the same ZIP. CHANGES.md will note which topics were updated.
+* INTERNAL: New BackNavigator class with hierarchical parent map. New Markdown renderer (minimal, Composer-free). New HelpTopics registry. All existing BackButton::render() call sites continue to work unchanged (legacy fallback_url parameter preserved for back-compat, now silently ignored in favor of the parent map).
 
 = 2.21.0 — Tile-Based Frontend + Read-Only Observer Role =
 * NEW: Tile-based frontend landing page. The [talenttrack_dashboard] shortcode now opens onto a role-gated tile grid (Me / Coaching / Analytics / Administration) with greeting, section labels, colored icon tiles, hover lift, and full mobile responsiveness. Tapping a tile drills into the existing PlayerDashboardView/CoachDashboardView — no break in existing tab navigation.

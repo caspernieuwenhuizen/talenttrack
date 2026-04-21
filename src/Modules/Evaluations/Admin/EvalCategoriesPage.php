@@ -63,6 +63,7 @@ class EvalCategoriesPage {
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-eval-categories&crud=new&parent_id=0' ) ); ?>" class="page-title-action">
                     <?php esc_html_e( 'Add main category', 'talenttrack' ); ?>
                 </a>
+                <?php \TT\Shared\Admin\HelpLink::render( 'eval-categories-weights' ); ?>
             </h1>
 
             <?php self::renderMessages(); ?>

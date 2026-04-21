@@ -1,194 +1,184 @@
-# TalentTrack v2.21.0 — Tile-Based Frontend + Read-Only Observer Role
+# TalentTrack v2.22.0 — Hierarchical Back Button + Help Wiki
 
 ## Summary
 
-Two items, both preparatory for the broader front-end admin arc:
+Two items shipped together — one a critical bug fix, one the long-carried help wiki from the 2.19/2.20 backlog:
 
-1. **Tile-based frontend landing page** — the frontend shortcode now opens onto a role-gated tile grid instead of dropping straight into a tab-heavy dashboard view. Same visual language as the admin dashboard (2.18.0) carried through to the public-facing experience.
-2. **`tt_readonly_observer` role** — new narrow WordPress role with `read` + `tt_view_reports` only. Gates the new tile grid for users who should see reports and analytics without getting any management or evaluation capabilities.
+1. **Back button rewritten as hierarchical parent-map navigation** — fixes a real bug where clicking back twice would ping-pong you back to your edit form. Adds breadcrumb UI above the back link.
+2. **Help wiki** — markdown-based, 18 topics, full TOC sidebar with search, "? Help on this topic" contextual links across 13 admin pages, release-discipline commitment going forward.
 
-No schema changes. No migrations. No breaking changes to existing tab navigation — it still works when `?tt_view` is set.
+No schema changes. No migrations.
 
-## Item 1 — Tile-based frontend
+## Item 1 — Hierarchical back button
 
-### Before
+### The bug
 
-The frontend `[talenttrack_dashboard]` shortcode auto-dispatched to one of two heavy dashboard classes based on role:
+The 2.19.0 back button used `wp_get_referer()` which has a fundamental flaw: every navigation sets itself as the next page's referer. So:
 
-- `PlayerDashboardView::render()` for pure players — a 6-tab interface (Overview, Mijn team, Evaluaties, Sessies, Doelen, Profiel)
-- `CoachDashboardView::render()` for coaches + admins — a 7+ tab interface (Roster, Player Detail, Add evaluation, Attendance, etc.)
+1. Dashboard → Players list (referer: dashboard)
+2. Players list → Edit player 42 (referer: Players list)
+3. Edit form → click "← Back" → returns to Players list ✓
+4. Back on Players list → click "← Back" (if the list had one) → **returns to Edit form, not dashboard** ✗
 
-Two problems:
+This is the bug you reported. The only navigation `wp_get_referer()` can see is the immediately previous page, which is always the page you just came from — meaning repeated back clicks bounce between two adjacent pages instead of walking home to the dashboard.
 
-- On mobile, 7 tabs don't fit horizontally. Tabs were already scroll-shimmed in 2.16.0 mobile pass but remain cramped.
-- There was no landing page — users dropped straight into whatever tab happened to be first, with no overview of "what can I do here?"
+### The fix
 
-### After
+New `BackNavigator` class holds an explicit parent map — every admin page declares its parent, and back buttons always navigate to the parent (never the referer). Walking back repeatedly climbs the hierarchy one level at a time until you reach the dashboard (home). No ping-pong, no cycles.
 
-When the shortcode page is visited **without** `?tt_view`, it now renders a **tile landing page** with the same visual style as the 2.18.0 admin dashboard:
+The map looks like:
 
-- Personalized greeting header ("Welcome, {Name}")
-- Section labels with fading-line accents
-- Tile grid with colored icon + label + one-line description
-- Hover lift + shadow elevation
-- Mobile: 1-column grid, tiles shrink appropriately
+```
+Dashboard                              (home, no back button)
+├── Players                            → back: Dashboard
+│   ├── Edit player                    → back: Players
+│   └── View player                    → back: Players
+├── Evaluations                        → back: Dashboard
+│   ├── Edit evaluation                → back: Evaluations
+│   └── View evaluation                → back: Evaluations
+├── Teams, Sessions, Goals, People     (similar pattern)
+├── Reports                            → back: Dashboard
+│   └── Report detail (legacy/etc)     → back: Reports
+├── Usage Statistics                   → back: Dashboard
+│   └── Usage detail (drill-downs)     → back: Usage Statistics
+└── ... (Configuration, Access Control, Help)
+```
 
-Tapping a tile appends `?tt_view=<slug>` and reloads. The existing Player/Coach dashboard classes pick up from there — they already handle the sub-sections via their tabs, so nothing inside them needed to change.
+### Breadcrumb UI
 
-### Tile groups
+Now that parent relationships are explicit, breadcrumbs become trivial. Every page renders a breadcrumb trail above the back link:
 
-The tile grid is composed of 4 groups, each cap-gated so users only see what they can access:
+```
+Dashboard › Players › Edit Player
+```
 
-**Me** (visible when user is linked to a player record):
-- My card
-- My team
-- My evaluations
-- My sessions
-- My goals
-- My profile
+Each segment except the current page is a clickable link. Tap "Dashboard" on any page to jump home; tap "Players" to jump to the list. The back button below the breadcrumb still walks one level (matches muscle memory) but now the user can also skip directly to any ancestor.
 
-**Coaching** (visible with `tt_evaluate_players` or `tt_manage_settings`):
-- My teams
-- Players
-- Evaluations
-- Sessions
-- Goals
-- Podium
+### Call site compatibility
 
-**Analytics** (visible with `tt_view_reports`):
-- Rate cards
-- Player comparison
+All ~13 existing `BackButton::render()` call sites from 2.19 continue to work unchanged. The legacy `$fallback_url` parameter is preserved in the signature for backward compatibility but is now silently ignored — the parent map is authoritative. No callers needed updating.
 
-**Administration** (visible with `tt_manage_settings`):
-- Go to admin
-
-A user who is a player + coach sees both "Me" and "Coaching" groups. A read-only observer (new role in this release) sees "Analytics" only, with no write capabilities inside. An admin sees everything.
-
-### Frontend back navigation
-
-New `FrontendBackButton` helper renders "← Back to dashboard" at the top of any tile sub-view. Different from the admin `BackButton`:
-
-- Target is always the shortcode page sans query params rather than the HTTP referer
-- Frontend referers are less reliable (caching, CDN, theme quirks)
-- Fixed destination fits the tile-landing pattern: every sub-view has one clear home
-
-### Behavior matrix
-
-| `?tt_view` | Result |
-|---|---|
-| not set | Tile landing page |
-| set, user is pure player | `PlayerDashboardView::render()` with back button |
-| set, user is coach/admin | `CoachDashboardView::render()` with back button |
-| set, user has `tt_view_reports` only (observer) | `CoachDashboardView::render()` with `is_admin=false`, back button |
-| set, user has none of above | "No player profile linked" notice |
-
-Existing bookmarks to specific `?tt_view=X` URLs continue to work and skip the tile landing — transparent upgrade.
-
-## Item 2 — `tt_readonly_observer` role
+## Item 2 — Help wiki
 
 ### Motivation
 
-The previous authorization model had these roles and their caps:
+Since 2.19 I've promised and deferred a proper help system. The placeholder "? Help on this topic" links shipped in 2.20 were technically wired but pointed at a stub page with barely any content. This release delivers the real wiki.
 
-| Role | `read` | manage_players | evaluate_players | manage_settings | view_reports |
-|---|---|---|---|---|---|
-| Head of Development | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Club Admin | ✓ | ✓ | — | ✓ | ✓ |
-| Coach | ✓ | — | ✓ | — | ✓ |
-| Scout | ✓ | — | ✓ | — | — |
-| Staff | ✓ | ✓ | — | — | — |
-| Player | ✓ | — | — | — | — |
-| Parent | ✓ | — | — | — | — |
+### Design
 
-There was no role for someone who should **see reports and dashboards but never save anything**. Closest options:
-- Player/Parent — sees only their own data; can't see reports
-- Coach — sees reports but also has full evaluation write access
-- Scout — can evaluate players, so also a write role
+**Markdown-sourced** — topic content lives in `docs/<slug>.md` files shipped with the plugin. Version-controlled, diffable, easy to write. No database storage, no WP-post-based content.
 
-### The new role
+**Minimal bundled renderer** — new `Markdown` class handles headings (H1/H2/H3), paragraphs, bullet/numbered lists, bold/italic/inline code, code fences, blockquotes, and links. Tight scope that covers what the topic files actually use; no Composer dependency.
 
-`tt_readonly_observer` — "Read-Only Observer" — with exactly `read` + `tt_view_reports`.
+**Topic registry** — `HelpTopics::all()` declares all 18 topics in code (slug, title, group, summary). Content comes from the markdown file; metadata from the registry. This split lets the sidebar render even before the Markdown renderer processes the body.
 
-- Can log into the frontend dashboard
-- Sees the Analytics tile group (Rate cards, Player comparison) on the frontend tile landing
-- Can view the rate card page, usage statistics, team ratings, coach activity reports
-- **Cannot** save evaluations, edit players, create sessions, set goals, or change configuration — every write surface is gated behind caps this role lacks
+**Two-pane wiki layout**:
+- Left: sticky TOC sidebar with topics grouped (Basics / Performance / Analytics / Configuration / Frontend & access). Search box at top filters the list client-side as you type.
+- Right: rendered markdown with breadcrumb "Help › Group › Topic" above.
+- Mobile: collapses to single column, TOC stacks above content.
 
-### Use cases
+### 18 topics authored
 
-- Assistant coach in training — observing how evaluations work before being granted `tt_evaluate_players`
-- Board member or club president who should see team performance without ever editing data
-- External reviewer or auditor (e.g. federation/league assessment) brought in for a period
-- Parent-liaison with extra viewing rights vs. regular parents
+**Basics:** Getting started · Teams & players · People (staff)
 
-### Scope boundary (important)
+**Performance:** Evaluations · Evaluation categories & weights · Sessions · Goals
 
-**This is a lightweight role, not a cap refactor.** The existing TalentTrack caps are binary "view + manage" pairs — e.g. `tt_evaluate_players` means "can see the evaluation UI AND can save/edit/delete evaluations." A proper "read-only coach" experience would split each cap into `tt_view_*` + `tt_edit_*` pairs, but that's a plugin-wide audit sprint of its own. The observer role works today using only the narrow `tt_view_reports` cap.
+**Analytics:** Reports · Player rate cards · Player comparison · Usage statistics
 
-Deep cap refactor is queued as a **v2.22.0 candidate item**. Flagged in this release's design notes.
+**Configuration:** Configuration & branding · Custom fields · Bulk actions (archive & delete) · Printing & PDF export
+
+**Frontend & access:** Player dashboard · Coach dashboard · Access control
+
+Each topic runs ~100-200 words. Purpose-oriented ("what this feature is for") + concrete actions ("how to do X") + cross-references via markdown links. No filler.
+
+### Contextual "? Help on this topic" links
+
+Added via a new `HelpLink` helper to 13 admin pages:
+
+- Players, Teams, Evaluations, Category Weights, Sessions, Goals, Configuration, Usage Statistics, Rate Cards, Custom Fields, Evaluation Categories, People
+- Plus Reports and Player Comparison which already had placeholder links from 2.20 (these now resolve to real content)
+
+The link sits next to each page's H1, small-size, non-intrusive. Clicking it navigates to the relevant topic in the wiki.
+
+### Search
+
+Client-side search across topic titles and summaries. Filters the TOC list live as you type. "No matching topics" shown when the query has no hits. Group labels auto-hide when all their topics are filtered out. Plenty for 18 topics; full-text search over topic bodies would be overkill.
+
+### Release discipline commitment
+
+Every future sprint that touches a feature area must also update the corresponding help topic(s) in the same ZIP. The CHANGES.md for each release will note which topics were updated.
+
+If a new feature lands without a topic written, the sprint isn't done. If a topic description no longer matches the shipped feature after a change, that's a bug fix item for the next release.
+
+The wiki is now the canonical source of user-facing documentation. The README is for developers; the wiki is for admins, coaches, and players.
 
 ## Files in this release
 
 ### New
-- `src/Shared/Frontend/FrontendTileGrid.php` — role-gated tile landing page
-- `src/Shared/Frontend/FrontendBackButton.php` — frontend back navigation helper
+- `src/Shared/Admin/BackNavigator.php` — hierarchical parent map + breadcrumb trail builder
+- `src/Shared/Admin/HelpLink.php` — renders "? Help on this topic" contextual links
+- `src/Modules/Documentation/Markdown.php` — minimal markdown renderer
+- `src/Modules/Documentation/HelpTopics.php` — topic registry with groups and metadata
+- `docs/getting-started.md`, `docs/teams-players.md`, `docs/people-staff.md`, `docs/evaluations.md`, `docs/eval-categories-weights.md`, `docs/sessions.md`, `docs/goals.md`, `docs/reports.md`, `docs/rate-cards.md`, `docs/player-comparison.md`, `docs/usage-statistics.md`, `docs/configuration-branding.md`, `docs/custom-fields.md`, `docs/bulk-actions.md`, `docs/printing-pdf.md`, `docs/player-dashboard.md`, `docs/coach-dashboard.md`, `docs/access-control.md` — 18 topic files
 
 ### Modified
-- `talenttrack.php` — version 2.21.0
-- `src/Shared/Frontend/DashboardShortcode.php` — route to tile landing when `?tt_view` is absent; render back button otherwise; add observer-role fallback path
-- `src/Infrastructure/Security/RolesService.php` — add `tt_readonly_observer` role definition
-- `languages/talenttrack-nl_NL.po` + `.mo` — ~31 new strings
+- `talenttrack.php` — version 2.22.0
+- `src/Shared/Admin/BackButton.php` — rewritten to use BackNavigator; renders breadcrumbs + back link
+- `src/Modules/Documentation/Admin/DocumentationPage.php` — complete rewrite as wiki page with TOC + content + search
+- `src/Modules/Players/Admin/PlayersPage.php`, `src/Modules/Teams/Admin/TeamsPage.php`, `src/Modules/Evaluations/Admin/EvaluationsPage.php`, `src/Modules/Evaluations/Admin/CategoryWeightsPage.php`, `src/Modules/Evaluations/Admin/EvalCategoriesPage.php`, `src/Modules/Sessions/Admin/SessionsPage.php`, `src/Modules/Goals/Admin/GoalsPage.php`, `src/Modules/Configuration/Admin/ConfigurationPage.php`, `src/Modules/Configuration/Admin/CustomFieldsPage.php`, `src/Modules/Stats/Admin/UsageStatsPage.php`, `src/Modules/Stats/Admin/PlayerRateCardsPage.php`, `src/Modules/People/Admin/PeoplePage.php` — added "? Help on this topic" link next to H1
+- `languages/talenttrack-nl_NL.po` + `.mo` — ~35 new strings
 
 ### Deleted
 (none)
 
 ## Install
 
-Extract `talenttrack-v2_21_0.zip`. Move contents into your `talenttrack/` folder. Deactivate + reactivate.
+Extract `talenttrack-v2_22_0.zip`. Move `talenttrack-v2.22.0/` contents into your `talenttrack/` folder. Deactivate + reactivate.
 
-**Activation installs the new role.** `RolesService::installRoles()` picks it up automatically — `add_role` is a no-op if the role already exists, so the migration is idempotent.
+**No migrations.** Purely additive plus one rewrite (BackButton).
 
-**No schema migration.** No data changes.
+**The `docs/` folder is new** — make sure the extract copies it in. The DocumentationPage reads markdown files from `TT_PATH . 'docs/'` (resolves from the plugin root).
 
 ## Verify
 
-### Tile landing
-1. Log out of WordPress. Navigate to the page with the `[talenttrack_dashboard]` shortcode.
-2. Log in as a player-only user. You see: greeting header, "Me" section with 6 tiles, no Coaching/Analytics/Administration sections.
-3. Tap "My evaluations" — you go into the existing Evaluaties tab with "← Back to dashboard" at the top. Click back — you return to the tile grid.
-4. Log in as a coach — now you see "Me" (if they're also a player) + "Coaching" (6 tiles) + "Analytics" (2 tiles). No Administration.
-5. Log in as an admin — all 4 sections visible.
-6. Existing `?tt_view=overview` bookmarks continue to work and skip the tile landing.
+### Back button
+1. Dashboard → Players → Edit player 42. See the breadcrumb: `Dashboard › Players › Edit Player`.
+2. Click "← Back" — you go to the Players list. Breadcrumb: `Dashboard › Players`.
+3. Click "← Back" again — **you go to the dashboard**, not back to the edit form. ✓ Bug fixed.
+4. Click any breadcrumb segment on any page — jumps directly to that ancestor.
+5. Open any edit URL directly (paste into a new tab). Breadcrumb renders correctly; back button goes to parent list.
 
-### Read-only observer role
-7. In WP Users admin, create a new user and assign the "Read-Only Observer" role.
-8. Log in as that user. Go to the frontend dashboard.
-9. See: greeting + "Analytics" section only (Rate cards + Player comparison). No Me / Coaching / Administration.
-10. Tap "Rate cards" — can view the page but any edit/save buttons are absent (they're gated by `tt_evaluate_players` or `tt_manage_players`, which the observer lacks).
-11. Try a URL like `?tt_view=evaluations&action=new` — the controller blocks the action because the observer has no `tt_evaluate_players` cap.
+### Help wiki
+6. Admin menu → Help & Docs. Wiki page loads with TOC on left, "Getting started" topic on the right.
+7. Click a topic in the TOC — it renders immediately.
+8. Use the search box. Type "eval" — only evaluation-related topics remain. Type "xxx" — "No matching topics" appears. Clear the search — full list returns.
+9. Click on any admin page's "? Help on this topic" link (top of page, next to title). Jumps to the relevant topic.
+10. Breadcrumb at top of each topic: `Help › Group › Topic`.
+11. On mobile/narrow window — TOC stacks above content. Everything still readable.
 
 ### Regression checks
-12. Player-only user without the observer role sees their normal tile set, unchanged.
-13. Coach sees all coaching functions normally, no permission regressions.
-14. Admin sees all tiles + Go to admin.
+12. All v2.20 and v2.21 functionality unchanged. Player Comparison, Access Control tiles, Reports tiles still work.
+13. Frontend tile grid from v2.21 unchanged. Frontend back button (different helper) unchanged.
+14. All existing BackButton::render() call sites still function — no PHP errors, no blank back buttons.
 
 ## Known caveats
 
-- **Observer role sees analytics pages with edit buttons hidden, but the underlying render methods still include some UI chrome.** The write-block is at the cap-check level — the ReportsPage's "Run report" button works fine for the observer; the rate card's print button works; what's blocked is the `tt_manage_players` / `tt_evaluate_players` save actions. If you discover a write action that leaks through for an observer, the fix is adding a `current_user_can( 'tt_evaluate_players' )` guard around the render — report it.
-- **The tile grid is static for now.** No favoriting, no "recently used," no personalization. These are parked for future polish sprints.
-- **FrontendBackButton does not use HTTP referer.** Deliberate — frontend referers are unreliable (see design notes). Fixed destination matches the tile-landing pattern and is simpler to reason about.
-- **Greeting is plain user display name.** Could expand to team info, age group, etc. — future enhancement.
+- **Wiki search is title+summary only, not full-text.** If you want to find every topic that mentions "radar chart", search won't help you — but 18 topics is small enough to skim visually, and the summary text covers the gist.
+- **Topic content is English-only for now.** The topic files live in `docs/<slug>.md`; Dutch (or other language) versions would require a parallel `docs/nl/` folder + language detection. Future work.
+- **Printing a wiki topic uses browser print.** Not print-optimized. For a dedicated printable help PDF you'd need a more ambitious layout. Not in scope here.
+- **No "was this helpful?" feedback mechanism.** No rating, no analytics on which topics get read. Could be added; would need a small tracking table.
+- **No edit capability for the admin.** Topics are file-based, so admins can't edit them from within WP. This is intentional — consistent docs across all installations — but if a club really wants to customize, they can edit the .md files directly (surviving plugin updates requires a copy to a safe path, which is a footgun).
 
 ## Design notes
 
-- **Why ship the tile frontend before the cap refactor.** The tile grid IS the new navigation; it should land first so there's a place where cap-granular visibility matters. Gating tiles today uses existing caps — fine. When cap refactor happens in 2.22.0, the tile grid gets more granular per-tile visibility without visual rework.
-- **Why observer role is so narrow (`read` + `tt_view_reports` only).** Broader observer caps would contradict "read-only" — anything that grants view-access to a surface where write UI exists creates a footgun. Narrow = correct.
-- **Why tile landing doesn't replace the tabs entirely.** Huge cost, zero functional gain. The tabs inside existing dashboard views work well once you're inside a section; the tile landing addresses "where should I go first?" which the tabs never answered.
-- **Why a new FrontendBackButton vs reusing the admin one.** Admin BackButton uses `wp_get_referer()`, which on frontend is unreliable due to caching, CDN, and theme variance. A frontend-specific helper with a known-safe target (shortcode page sans query params) is more predictable. Same visual pattern, different underlying logic.
+- **Why markdown instead of WP posts.** Posts are editable but would require database seeding on activation, drift from the shipped version as WP updates the posts, and break when the plugin updates. File-based docs ship with the plugin, update with it, and can't be accidentally deleted via WP admin.
+- **Why a minimal renderer instead of Parsedown or CommonMark.** Composer-free plugin, and we control the input. A 100-line renderer handles everything the topics actually use. Total cost: one file to maintain.
+- **Why 18 topics and not fewer.** Each topic maps roughly to one admin page or one cross-cutting concept. Fewer would mean stuffing multiple features into one topic (bad — search and navigation suffer). More would fragment related content. 18 is the shape of the current feature surface.
+- **Why no breadcrumbs on the frontend.** The frontend has a flat one-level hierarchy: tile landing + sub-view, with a fixed "← Back to dashboard" return path (v2.21 FrontendBackButton). Breadcrumbs would imply depth that doesn't exist. The admin has real hierarchy (Dashboard → List → Edit); breadcrumbs earn their place there.
+- **Why the release discipline matters.** The 2.19/2.20 backlog grew because "let's update docs next time" always deferred to "next time." Making docs a first-class sprint deliverable — shipped in the same ZIP as code changes — closes that loop. Docs that track code are trustworthy; docs that lag code become harmful misinformation.
 
-## v2.22.0 preview
+## v2.23.0 preview
 
-- **Help wiki** (carryover from 2.19 + 2.20 backlog) — markdown-based, 18 topics, contextual links across admin pages, per-release update discipline
-- **Capability refactor** (Option B from the sprint brief) — split `tt_manage_*` and `tt_evaluate_*` into `tt_view_*` + `tt_edit_*` pairs so the Read-Only Observer experience covers all sections, not just analytics
-- Additional report types (carryover)
-- Any other items accumulated
+- **Capability refactor** (the big one deferred across the last three sprints): split `tt_manage_*` and `tt_evaluate_*` caps into `tt_view_*` + `tt_edit_*` pairs. This enables proper read-only experiences across all sections, not just analytics. Every `current_user_can()` call site needs auditing — medium-large sprint on its own.
+- Additional report tiles (attendance summary, goal progress by status, etc.)
+- Whatever else accumulates

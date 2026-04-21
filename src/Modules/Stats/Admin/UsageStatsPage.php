@@ -54,7 +54,7 @@ class UsageStatsPage {
         $page_labels = self::adminPageLabels();
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Usage Statistics', 'talenttrack' ); ?></h1>
+            <h1><?php esc_html_e( 'Usage Statistics', 'talenttrack' ); ?> <?php \TT\Shared\Admin\HelpLink::render( 'usage-statistics' ); ?></h1>
             <p style="color:#666; max-width:760px;">
                 <?php esc_html_e( 'Overview of app usage across the last 90 days. Events older than 90 days are deleted automatically. No IP addresses or user agents are recorded.', 'talenttrack' ); ?>
             </p>

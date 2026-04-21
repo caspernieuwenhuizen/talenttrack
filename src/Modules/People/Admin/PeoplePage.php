@@ -84,6 +84,7 @@ class PeoplePage {
             <h1>
                 <?php esc_html_e( 'People', 'talenttrack' ); ?>
                 <a href="<?php echo esc_url( $new_url ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a>
+                <?php \TT\Shared\Admin\HelpLink::render( 'people-staff' ); ?>
             </h1>
 
             <?php self::renderMessages(); ?>

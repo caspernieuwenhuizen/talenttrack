@@ -66,7 +66,7 @@ class EvaluationsPage {
         $base_url = admin_url( 'admin.php?page=tt-evaluations' );
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Evaluations', 'talenttrack' ); ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-evaluations&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a></h1>
+            <h1><?php esc_html_e( 'Evaluations', 'talenttrack' ); ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-evaluations&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a> <?php \TT\Shared\Admin\HelpLink::render( 'evaluations' ); ?></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?><div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved.', 'talenttrack' ); ?></p></div><?php endif; ?>
             <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
 

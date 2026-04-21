@@ -72,6 +72,7 @@ class CustomFieldsPage {
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-custom-fields&entity=' . urlencode( $entity ) . '&crud=new' ) ); ?>" class="page-title-action">
                     <?php esc_html_e( 'Add New', 'talenttrack' ); ?>
                 </a>
+                <?php \TT\Shared\Admin\HelpLink::render( 'custom-fields' ); ?>
             </h1>
 
             <?php self::renderMessages(); ?>
