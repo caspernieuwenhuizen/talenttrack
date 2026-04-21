@@ -2951,3 +2951,110 @@ msgstr "Dit onderdeel is alleen beschikbaar voor gebruikers die aan een speler z
 
 msgid "This section is only available for coaches and administrators."
 msgstr "Dit onderdeel is alleen beschikbaar voor coaches en beheerders."
+
+# ===== v3.0.0 slice 5 — Analytics-group frontend views =====
+
+msgid "Rate cards"
+msgstr "Beoordelingskaarten"
+
+msgid "Pick a player above to see their rate card."
+msgstr "Kies hierboven een speler om de beoordelingskaart te zien."
+
+msgid "Player comparison"
+msgstr "Spelersvergelijking"
+
+msgid "Compare up to 4 players side-by-side. Cross-team is supported — pick any players from any team or age group."
+msgstr "Vergelijk tot 4 spelers naast elkaar. Over teams heen kan — kies spelers uit elk team of elke leeftijdscategorie."
+
+msgid "Select players"
+msgstr "Spelers selecteren"
+
+msgid "Slot %d"
+msgstr "Slot %d"
+
+msgid "— None —"
+msgstr "— Geen —"
+
+msgid "No team"
+msgstr "Geen team"
+
+msgid "Compare"
+msgstr "Vergelijken"
+
+msgid "Pick at least one player above and click Compare."
+msgstr "Kies minstens één speler hierboven en klik op Vergelijken."
+
+msgid "Mixed age groups in this comparison. Overall ratings use age-group-specific category weights, so the numbers below are not perfectly apples-to-apples — they reflect what each player's own coaching staff uses."
+msgstr "Gemengde leeftijdscategorieën in deze vergelijking. Totale beoordelingen gebruiken leeftijdsspecifieke categoriewegingen, dus de cijfers zijn niet perfect vergelijkbaar — ze weerspiegelen wat het eigen trainersteam van elke speler gebruikt."
+
+msgid "Cards"
+msgstr "Kaarten"
+
+msgid "Basic facts"
+msgstr "Basisgegevens"
+
+msgid "Attribute"
+msgstr "Kenmerk"
+
+msgid "Age group"
+msgstr "Leeftijdscategorie"
+
+msgid "Position(s)"
+msgstr "Positie(s)"
+
+msgid "Foot"
+msgstr "Voet"
+
+msgid "Jersey"
+msgstr "Rugnummer"
+
+msgid "Headline numbers"
+msgstr "Kerncijfers"
+
+msgid "Metric"
+msgstr "Metriek"
+
+msgid "Most recent"
+msgstr "Meest recent"
+
+msgid "Rolling (last 5)"
+msgstr "Voortschrijdend (laatste 5)"
+
+msgid "All-time"
+msgstr "Altijd"
+
+msgid "Evaluations"
+msgstr "Evaluaties"
+
+msgid "Main category averages"
+msgstr "Gemiddelden per hoofdcategorie"
+
+msgid "No category data yet for these filters."
+msgstr "Nog geen categoriegegevens voor deze filters."
+
+msgid "For radar overlay and trend charts, use the admin Player Comparison page."
+msgstr "Voor radar- en trendoverlay-grafieken, gebruik de admin-pagina Spelersvergelijking."
+
+msgid "Your role does not have access to analytics views."
+msgstr "Jouw rol heeft geen toegang tot analytische weergaven."
+
+msgid "Date from"
+msgstr "Datum vanaf"
+
+msgid "Date to"
+msgstr "Datum t/m"
+
+msgid "Evaluation Type"
+msgstr "Evaluatietype"
+
+msgid "All types"
+msgstr "Alle types"
+
+msgid "Player:"
+msgstr "Speler:"
+
+msgid "— Select a player —"
+msgstr "— Kies een speler —"
+
+msgid "Category"
+msgstr "Categorie"

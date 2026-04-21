@@ -4,13 +4,26 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.22.0
+Stable tag: 3.0.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.0.0 — Capability refactor + Migration UX + Frontend rebuild =
+* NEW: Migration UX overhaul — no more deactivate/reactivate. Admin notice with "Run migrations now" button appears automatically after plugin updates. Manual "Run Migrations" link always present on the Plugins page. Idempotent — safe to run repeatedly.
+* NEW: Granular capability system — every write-implying cap split into view + edit pairs. 8 view caps + 7 edit caps. Legacy caps (tt_manage_players, tt_evaluate_players, tt_manage_settings) continue to work via a user_has_cap alias filter for backward compatibility.
+* NEW: Read-Only Observer role works end-to-end. Full view access across admin + frontend, every write action blocked at the controller level, write UI controls hidden in admin list pages.
+* NEW: Frontend fully rebuilt tile-based. 14 new focused view classes replace the v2.x tab-based dashboards. Every tile has a real destination. Me group (6 tiles), Coaching group (6 tiles), Analytics group (2 tiles).
+* NEW: FrontendMyProfileView — new read-friendly personal details view with link to WP account settings. Didn't exist in v2.x.
+* NEW: FrontendRateCardView + FrontendComparisonView — observer role can now browse rate cards and compare players entirely from the frontend.
+* CHANGED: Me-group slugs prefixed "my-" (my-evaluations, my-sessions, my-goals) to disambiguate from Coaching slugs of the same entity.
+* CHANGED: DashboardShortcode router simplified — explicit dispatchMeView / dispatchCoachingView / dispatchAnalyticsView with no fallback paths.
+* DELETED: PlayerDashboardView and CoachDashboardView (legacy tab-based classes).
+* WIKI: access-control, player-dashboard, coach-dashboard, rate-cards, player-comparison rewritten. New migrations topic.
+* i18n: 90+ new Dutch translations.
 
 = 2.22.0 — Hierarchical Back Button + Help Wiki =
 * FIXED: Back button no longer ping-pongs. Previously the v2.19 referer-based back button would return you to your edit form when clicked twice (because the target page's referer was the page you just came from). Rewrote to use an explicit parent-page hierarchy map. Clicking back now always walks one level closer to the dashboard; repeated clicks reliably reach home.

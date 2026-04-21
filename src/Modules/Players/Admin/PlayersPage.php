@@ -55,7 +55,7 @@ class PlayersPage {
         if ( $ft ) $base_url = add_query_arg( 'team_id', $ft, $base_url );
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Players', 'talenttrack' ); ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-players&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a> <?php \TT\Shared\Admin\HelpLink::render( 'teams-players' ); ?></h1>
+            <h1><?php esc_html_e( 'Players', 'talenttrack' ); ?><?php if ( current_user_can( 'tt_edit_players' ) ) : ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-players&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a><?php endif; ?> <?php \TT\Shared\Admin\HelpLink::render( 'teams-players' ); ?></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?><div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved.', 'talenttrack' ); ?></p></div><?php endif; ?>
             <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
             <form method="get" style="margin:10px 0"><input type="hidden" name="page" value="tt-players"/>
@@ -88,7 +88,7 @@ class PlayersPage {
                     <td><?php echo esc_html( (string) $pl->preferred_foot ); ?></td>
                     <td><?php echo $pl->jersey_number ? (int) $pl->jersey_number : '—'; ?></td>
                     <td><?php echo esc_html( $pl->date_of_birth ?: '—' ); ?></td>
-                    <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-players&action=edit&id={$pl->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_player&id={$pl->id}" ), 'tt_delete_player_' . $pl->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td>
+                    <td><?php if ( current_user_can( 'tt_edit_players' ) ) : ?><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-players&action=edit&id={$pl->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_player&id={$pl->id}" ), 'tt_delete_player_' . $pl->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a><?php else : ?><span style="color:#999;">—</span><?php endif; ?></td>
                 </tr>
             <?php endforeach; endif; ?></tbody></table>
 

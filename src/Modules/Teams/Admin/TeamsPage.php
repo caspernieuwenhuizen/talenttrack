@@ -34,7 +34,7 @@ class TeamsPage {
         $base_url = admin_url( 'admin.php?page=tt-teams' );
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Teams', 'talenttrack' ); ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-teams&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a> <?php \TT\Shared\Admin\HelpLink::render( 'teams-players' ); ?></h1>
+            <h1><?php esc_html_e( 'Teams', 'talenttrack' ); ?><?php if ( current_user_can( 'tt_edit_teams' ) ) : ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-teams&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a><?php endif; ?> <?php \TT\Shared\Admin\HelpLink::render( 'teams-players' ); ?></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?><div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved.', 'talenttrack' ); ?></p></div><?php endif; ?>
             <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
 
@@ -63,7 +63,7 @@ class TeamsPage {
                     </td>
                     <td><?php echo esc_html( (string) $t->age_group ); ?></td>
                     <td><?php echo (int) $sc; ?></td><td><?php echo (int) $pc; ?></td>
-                    <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-teams&action=edit&id={$t->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_team&id={$t->id}" ), 'tt_delete_team_' . $t->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td>
+                    <td><?php if ( current_user_can( 'tt_edit_teams' ) ) : ?><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-teams&action=edit&id={$t->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_team&id={$t->id}" ), 'tt_delete_team_' . $t->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a><?php else : ?><span style="color:#999;">—</span><?php endif; ?></td>
                 </tr>
             <?php endforeach; endif; ?></tbody></table>
 

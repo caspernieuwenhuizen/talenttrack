@@ -1,32 +1,39 @@
 # Player comparison
 
-The **Player Comparison** page lets you view up to 4 players side-by-side. Cross-team is supported — compare a U15 left back against a U13 striker if that's useful.
+Compare up to 4 players side-by-side. Cross-team is the whole point — comparing a U15 LB against a U13 ST is valid for scouting, transfer decisions, and development conversations.
 
-## Picking players
+## Where to find it
 
-Four slot dropdowns, each with the full active-player roster. Each dropdown label shows:
+**Admin**: `TalentTrack → Player Comparison`. Full-featured version with radar overlay chart, trend overlay chart, and detailed main-category breakdown.
 
-`Last name, first name — Team (age group)`
+**Frontend (v3.0.0+)**: the **Player comparison** tile on the tile landing page. Streamlined mobile-first version with slot pickers, FIFA card row, basic facts, headline numbers, and main-category breakdown table. Skips the overlay charts — the admin version is still there when you need them.
 
-so you never accidentally pick the wrong "Jan de Vries".
+## Slot pickers
 
-## What's shown
+Four slots (p1 / p2 / p3 / p4). Pick any player in any slot; leave empty for fewer than 4. Picker labels show `Lastname, Firstname — Team (Age group)` for disambiguation — useful when two U13 teams each have an "A. Kovač" on the roster.
 
-1. **Cards row** — FIFA-style card for each player at the top.
-2. **Basic facts table** — team, age group, positions, foot, jersey, height, weight, DOB.
-3. **Headline numbers** — most recent / rolling / all-time / eval count, per player.
-4. **Main category averages** — union of all rated categories, one column per player.
-5. **Radar overlay** — all players on one radar with colored datasets.
-6. **Trend overlay** — overall rating over time, one line per player.
+## Filters apply to all slots
 
-## Mixed age groups
+Date from, Date to, Evaluation type — apply uniformly to every picked player so the headline numbers are computed on the same basis. Change a filter, all 4 players recompute.
 
-When your selected players span multiple age groups, a notice appears above:
+## What the frontend version shows
 
-> Mixed age groups — overall ratings use age-group-specific weights and aren't perfectly apples-to-apples.
+- **FIFA card row** — 4 small cards side by side (horizontal scroll on phones)
+- **Basic facts table** — Team, Age group, Positions, Foot, Jersey, Height — one column per player
+- **Headline numbers** — Most recent, Rolling (last 5), All-time, Evaluation count — one column per player
+- **Main category averages** — per-category avg rating, one column per player
 
-The numbers shown are each player's real weighted overall (the one their coaches see). Different age groups apply different [category weights](?page=tt-docs&topic=eval-categories-weights), so comparisons across age groups carry an inherent caveat.
+## What's on admin but not frontend
 
-## Filters
+- **Radar overlay** — all 4 players drawn on the same spider chart for shape-comparison
+- **Trend overlay** — all 4 players' trend lines on the same chart for trajectory-comparison
 
-Date range + evaluation type apply uniformly to all 4 players.
+These use Chart.js with a custom multi-dataset config. Adding them to frontend would be ~200 lines of extra JS — deliberately deferred. Admin users who want them go to `TalentTrack → Player Comparison`.
+
+## Mixed-age notice
+
+When you compare players from different age groups, the view surfaces a notice: overall ratings use per-age-group category weights, so the numbers aren't strictly apples-to-apples. They reflect each player's actual rating as their own coaching staff sees it — which is more useful than a normalized abstraction for most decisions.
+
+## Observer role
+
+Observers have `tt_view_reports` so they can use this tile. Cross-club comparison is exactly what observer role is designed for — a board member or external reviewer reviewing talent across the club, without needing to edit anything.

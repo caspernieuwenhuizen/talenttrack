@@ -83,7 +83,7 @@ class PeoplePage {
         <div class="wrap">
             <h1>
                 <?php esc_html_e( 'People', 'talenttrack' ); ?>
-                <a href="<?php echo esc_url( $new_url ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a>
+                <?php if ( current_user_can( 'tt_edit_people' ) ) : ?><a href="<?php echo esc_url( $new_url ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a><?php endif; ?>
                 <?php \TT\Shared\Admin\HelpLink::render( 'people-staff' ); ?>
             </h1>
 
@@ -159,7 +159,7 @@ class PeoplePage {
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
+                            <?php if ( current_user_can( 'tt_edit_people' ) ) : ?><a href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a><?php else : ?><span style="color:#999;">—</span><?php endif; ?>
                         </td>
                     </tr>
                 <?php endforeach; endif; ?>

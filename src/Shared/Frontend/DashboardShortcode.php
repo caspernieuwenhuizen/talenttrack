@@ -78,8 +78,9 @@ class DashboardShortcode {
         // same entity (evaluations / sessions / goals).
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
-        $me_slugs       = [ 'overview', 'my-team', 'my-evaluations', 'my-sessions', 'my-goals', 'profile' ];
-        $coaching_slugs = [ 'teams', 'players', 'evaluations', 'sessions', 'goals', 'podium' ];
+        $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-sessions', 'my-goals', 'profile' ];
+        $coaching_slugs  = [ 'teams', 'players', 'evaluations', 'sessions', 'goals', 'podium' ];
+        $analytics_slugs = [ 'rate-cards', 'compare' ];
 
         if ( $view === '' ) {
             // Tile landing page.
@@ -97,6 +98,15 @@ class DashboardShortcode {
             } else {
                 FrontendBackButton::render();
                 echo '<p class="tt-notice">' . esc_html__( 'This section is only available for coaches and administrators.', 'talenttrack' ) . '</p>';
+            }
+        } elseif ( in_array( $view, $analytics_slugs, true ) ) {
+            // Analytics slugs — tt_view_reports is the gate. Observer
+            // has it; so do coaches, admins, club admins, and head dev.
+            if ( current_user_can( 'tt_view_reports' ) ) {
+                self::dispatchAnalyticsView( $view );
+            } else {
+                FrontendBackButton::render();
+                echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to analytics views.', 'talenttrack' ) . '</p>';
             }
         } else {
             FrontendBackButton::render();
@@ -173,6 +183,26 @@ class DashboardShortcode {
                 break;
             case 'podium':
                 FrontendPodiumView::render( $user_id, $is_admin );
+                break;
+            default:
+                FrontendBackButton::render();
+                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+        }
+    }
+
+    /**
+     * v3.0.0 slice 5 — dispatch an analytics-group tile slug.
+     * Gate is tt_view_reports (the default Analytics separator cap),
+     * which the Read-Only Observer role has. This is the observer's
+     * primary frontend entry point.
+     */
+    private static function dispatchAnalyticsView( string $view ): void {
+        switch ( $view ) {
+            case 'rate-cards':
+                FrontendRateCardView::render();
+                break;
+            case 'compare':
+                FrontendComparisonView::render();
                 break;
             default:
                 FrontendBackButton::render();
