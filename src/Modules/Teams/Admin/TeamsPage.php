@@ -24,15 +24,27 @@ class TeamsPage {
             return;
         }
         global $wpdb; $p = $wpdb->prefix;
-        $teams = $wpdb->get_results( "SELECT t.*, u.display_name AS coach_name FROM {$p}tt_teams t LEFT JOIN {$wpdb->users} u ON t.head_coach_id = u.ID ORDER BY t.name ASC" );
+
+        // v2.17.0: archive view filter + bulk actions.
+        $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
+
+        $teams = $wpdb->get_results( "SELECT t.* FROM {$p}tt_teams t WHERE t.{$view_clause} ORDER BY t.name ASC" );
+        $base_url = admin_url( 'admin.php?page=tt-teams' );
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Teams', 'talenttrack' ); ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-teams&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?><div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved.', 'talenttrack' ); ?></p></div><?php endif; ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
+
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderStatusTabs( 'team', $view, $base_url ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::openForm( 'team', $view ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
+
             <table class="widefat striped"><thead><tr>
+                <th class="check-column" style="width:30px;"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
                 <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Age Group', 'talenttrack' ); ?></th>
-                <th><?php esc_html_e( 'Head Coach', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Staff', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Players', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
@@ -40,10 +52,22 @@ class TeamsPage {
             <?php if ( empty( $teams ) ) : ?><tr><td colspan="6"><?php esc_html_e( 'No teams.', 'talenttrack' ); ?></td></tr>
             <?php else : foreach ( $teams as $t ) :
                 $pc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_players WHERE team_id=%d AND status='active'", $t->id ) );
-                $sc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_team_people WHERE team_id=%d", $t->id ) ); ?>
-                <tr><td><strong><?php echo esc_html( (string) $t->name ); ?></strong></td><td><?php echo esc_html( (string) $t->age_group ); ?></td><td><?php echo esc_html( $t->coach_name ?: '—' ); ?></td><td><?php echo (int) $sc; ?></td><td><?php echo (int) $pc; ?></td>
-                    <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-teams&action=edit&id={$t->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_team&id={$t->id}" ), 'tt_delete_team_' . $t->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td></tr>
+                $sc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_team_people WHERE team_id=%d", $t->id ) );
+                $is_archived = $t->archived_at !== null;
+                ?>
+                <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
+                    <td class="check-column"><?php \TT\Shared\Admin\BulkActionsHelper::rowCheckbox( (int) $t->id ); ?></td>
+                    <td><strong><?php echo esc_html( (string) $t->name ); ?></strong>
+                        <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
+                    </td>
+                    <td><?php echo esc_html( (string) $t->age_group ); ?></td>
+                    <td><?php echo (int) $sc; ?></td><td><?php echo (int) $pc; ?></td>
+                    <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-teams&action=edit&id={$t->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_team&id={$t->id}" ), 'tt_delete_team_' . $t->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td>
+                </tr>
             <?php endforeach; endif; ?></tbody></table>
+
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::closeForm(); ?>
         </div>
         <?php
     }

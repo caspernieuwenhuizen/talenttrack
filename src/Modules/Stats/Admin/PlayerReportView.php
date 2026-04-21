@@ -224,27 +224,17 @@ class PlayerReportView {
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
         <script>
         (function(){
+            // v2.17.0: no auto-print. Charts render normally; user
+            // triggers print via the visible button on the print page.
             var payload = <?php echo wp_json_encode( $chart_payload ); ?>;
             var colors = ['#e8b624', '#3a86ff', '#ff595e', '#8ac926', '#6a4c93'];
-            var charts_ready = 0;
-            var charts_expected = 0;
-
-            function maybePrint(){
-                charts_ready++;
-                if (charts_ready < charts_expected) return;
-                // Small delay to let fonts settle.
-                setTimeout(function(){ window.print(); }, 400);
-            }
 
             if (typeof Chart === 'undefined') {
-                // Chart library failed; just print without charts.
-                setTimeout(function(){ window.print(); }, 400);
                 return;
             }
 
             var trendEl = document.getElementById('tt-report-trend');
             if (trendEl && payload.trend.labels.length > 0) {
-                charts_expected++;
                 var datasets = payload.trend.series.map(function(s, i){
                     return {
                         label: s.label,
@@ -260,7 +250,6 @@ class PlayerReportView {
                     data: { labels: payload.trend.labels, datasets: datasets },
                     options: {
                         responsive: false,
-                        animation: { onComplete: maybePrint },
                         scales: { y: { min: 0, max: payload.trend.rating_max, ticks: { stepSize: 1 } } },
                         plugins: { legend: { position: 'bottom' } }
                     }
@@ -269,7 +258,6 @@ class PlayerReportView {
 
             var radarEl = document.getElementById('tt-report-radar');
             if (radarEl && payload.radar.datasets.length > 0) {
-                charts_expected++;
                 var rdatasets = payload.radar.datasets.map(function(d, i){
                     var c = colors[i % colors.length];
                     return {
@@ -285,16 +273,10 @@ class PlayerReportView {
                     data: { labels: payload.radar.labels, datasets: rdatasets },
                     options: {
                         responsive: false,
-                        animation: { onComplete: maybePrint },
                         scales: { r: { min: 0, max: payload.radar.rating_max, ticks: { stepSize: 1 } } },
                         plugins: { legend: { position: 'bottom' } }
                     }
                 });
-            }
-
-            if (charts_expected === 0) {
-                // No charts to wait for.
-                setTimeout(function(){ window.print(); }, 400);
             }
         })();
         </script>

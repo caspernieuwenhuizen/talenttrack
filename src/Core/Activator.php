@@ -123,9 +123,12 @@ class Activator {
             age_group VARCHAR(100) DEFAULT '',
             head_coach_id BIGINT UNSIGNED DEFAULT 0,
             notes TEXT,
+            archived_at DATETIME NULL DEFAULT NULL,
+            archived_by BIGINT UNSIGNED NULL DEFAULT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id)
+            PRIMARY KEY (id),
+            KEY idx_archived_at (archived_at)
         ) $c;";
 
         $queries[] = "CREATE TABLE {$p}tt_players (
@@ -147,11 +150,14 @@ class Activator {
             guardian_phone VARCHAR(50) DEFAULT '',
             wp_user_id BIGINT UNSIGNED DEFAULT 0,
             status VARCHAR(50) DEFAULT 'active',
+            archived_at DATETIME NULL DEFAULT NULL,
+            archived_by BIGINT UNSIGNED NULL DEFAULT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             KEY idx_team (team_id),
-            KEY idx_user (wp_user_id)
+            KEY idx_user (wp_user_id),
+            KEY idx_archived_at (archived_at)
         ) $c;";
 
         /* ─── People & team-staff assignments ─── */
@@ -164,12 +170,15 @@ class Activator {
             role_type VARCHAR(50) DEFAULT 'other',
             wp_user_id BIGINT UNSIGNED DEFAULT NULL,
             status VARCHAR(20) DEFAULT 'active',
+            archived_at DATETIME NULL DEFAULT NULL,
+            archived_by BIGINT UNSIGNED NULL DEFAULT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             KEY idx_status (status),
             KEY idx_role_type (role_type),
-            KEY idx_wp_user (wp_user_id)
+            KEY idx_wp_user (wp_user_id),
+            KEY idx_archived_at (archived_at)
         ) $c;";
 
         $queries[] = "CREATE TABLE {$p}tt_team_people (
@@ -279,12 +288,15 @@ class Activator {
             minutes_played SMALLINT UNSIGNED DEFAULT NULL,
             category_id BIGINT UNSIGNED DEFAULT NULL,
             rating DECIMAL(3,1) DEFAULT NULL,
+            archived_at DATETIME NULL DEFAULT NULL,
+            archived_by BIGINT UNSIGNED NULL DEFAULT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             KEY idx_player (player_id),
             KEY idx_coach (coach_id),
-            KEY idx_type (eval_type_id)
+            KEY idx_type (eval_type_id),
+            KEY idx_archived_at (archived_at)
         ) $c;";
 
         $queries[] = "CREATE TABLE {$p}tt_eval_ratings (
@@ -350,10 +362,13 @@ class Activator {
             team_id BIGINT UNSIGNED DEFAULT 0,
             coach_id BIGINT UNSIGNED DEFAULT 0,
             notes TEXT,
+            archived_at DATETIME NULL DEFAULT NULL,
+            archived_by BIGINT UNSIGNED NULL DEFAULT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
-            KEY idx_team (team_id)
+            KEY idx_team (team_id),
+            KEY idx_archived_at (archived_at)
         ) $c;";
 
         $queries[] = "CREATE TABLE {$p}tt_attendance (
@@ -377,10 +392,13 @@ class Activator {
             priority VARCHAR(50) DEFAULT 'medium',
             due_date DATE,
             created_by BIGINT UNSIGNED NOT NULL,
+            archived_at DATETIME NULL DEFAULT NULL,
+            archived_by BIGINT UNSIGNED NULL DEFAULT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
-            KEY idx_player (player_id)
+            KEY idx_player (player_id),
+            KEY idx_archived_at (archived_at)
         ) $c;";
 
         /* ─── Reports ─── */

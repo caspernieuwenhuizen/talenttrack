@@ -29,17 +29,42 @@ class SessionsPage {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $action === 'new' || $action === 'edit' ) { self::render_form( $id ); return; }
         global $wpdb; $p = $wpdb->prefix;
-        $sessions = $wpdb->get_results( "SELECT s.*, t.name AS team_name, u.display_name AS coach_name FROM {$p}tt_sessions s LEFT JOIN {$p}tt_teams t ON s.team_id=t.id LEFT JOIN {$wpdb->users} u ON s.coach_id=u.ID ORDER BY s.session_date DESC LIMIT 50" );
+
+        // v2.17.0: archive view filter + bulk actions.
+        $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
+
+        $sessions = $wpdb->get_results( "SELECT s.*, t.name AS team_name, u.display_name AS coach_name FROM {$p}tt_sessions s LEFT JOIN {$p}tt_teams t ON s.team_id=t.id LEFT JOIN {$wpdb->users} u ON s.coach_id=u.ID WHERE s.{$view_clause} ORDER BY s.session_date DESC LIMIT 50" );
+        $base_url = admin_url( 'admin.php?page=tt-sessions' );
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Training Sessions', 'talenttrack' ); ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-sessions&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?><div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved.', 'talenttrack' ); ?></p></div><?php endif; ?>
-            <table class="widefat striped"><thead><tr><th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Title', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th></tr></thead><tbody>
-            <?php if ( empty( $sessions ) ) : ?><tr><td colspan="4"><?php esc_html_e( 'No sessions.', 'talenttrack' ); ?></td></tr>
-            <?php else : foreach ( $sessions as $s ) : ?>
-                <tr><td><?php echo esc_html( (string) $s->session_date ); ?></td><td><?php echo esc_html( (string) $s->title ); ?></td><td><?php echo esc_html( $s->team_name ?: '—' ); ?></td>
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
+
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderStatusTabs( 'session', $view, $base_url ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::openForm( 'session', $view ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
+
+            <table class="widefat striped"><thead><tr>
+                <th class="check-column" style="width:30px;"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
+                <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Title', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th></tr></thead><tbody>
+            <?php if ( empty( $sessions ) ) : ?><tr><td colspan="5"><?php esc_html_e( 'No sessions.', 'talenttrack' ); ?></td></tr>
+            <?php else : foreach ( $sessions as $s ) :
+                $is_archived = $s->archived_at !== null;
+                ?>
+                <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
+                    <td class="check-column"><?php \TT\Shared\Admin\BulkActionsHelper::rowCheckbox( (int) $s->id ); ?></td>
+                    <td><?php echo esc_html( (string) $s->session_date ); ?></td>
+                    <td><?php echo esc_html( (string) $s->title ); ?>
+                        <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
+                    </td>
+                    <td><?php echo esc_html( $s->team_name ?: '—' ); ?></td>
                     <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-sessions&action=edit&id={$s->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_session&id={$s->id}" ), 'tt_del_sess_' . $s->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td></tr>
             <?php endforeach; endif; ?></tbody></table>
+
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::closeForm(); ?>
         </div>
         <?php
     }

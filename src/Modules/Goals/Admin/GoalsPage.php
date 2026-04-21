@@ -29,17 +29,42 @@ class GoalsPage {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $action === 'new' || $action === 'edit' ) { self::render_form( $id ); return; }
         global $wpdb; $p = $wpdb->prefix;
-        $goals = $wpdb->get_results( "SELECT g.*, CONCAT(pl.first_name,' ',pl.last_name) AS player_name FROM {$p}tt_goals g LEFT JOIN {$p}tt_players pl ON g.player_id=pl.id ORDER BY g.created_at DESC LIMIT 50" );
+
+        // v2.17.0: archive view filter + bulk actions.
+        $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
+
+        $goals = $wpdb->get_results( "SELECT g.*, CONCAT(pl.first_name,' ',pl.last_name) AS player_name FROM {$p}tt_goals g LEFT JOIN {$p}tt_players pl ON g.player_id=pl.id WHERE g.{$view_clause} ORDER BY g.created_at DESC LIMIT 50" );
+        $base_url = admin_url( 'admin.php?page=tt-goals' );
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Goals', 'talenttrack' ); ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-goals&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?><div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved.', 'talenttrack' ); ?></p></div><?php endif; ?>
-            <table class="widefat striped"><thead><tr><th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Goal', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th></tr></thead><tbody>
-            <?php if ( empty( $goals ) ) : ?><tr><td colspan="4"><?php esc_html_e( 'No goals.', 'talenttrack' ); ?></td></tr>
-            <?php else : foreach ( $goals as $g ) : ?>
-                <tr><td><?php echo esc_html( $g->player_name ?: '—' ); ?></td><td><strong><?php echo esc_html( (string) $g->title ); ?></strong></td><td><?php echo esc_html( ucwords( str_replace( '_', ' ', (string) $g->status ) ) ); ?></td>
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
+
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderStatusTabs( 'goal', $view, $base_url ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::openForm( 'goal', $view ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
+
+            <table class="widefat striped"><thead><tr>
+                <th class="check-column" style="width:30px;"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
+                <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Goal', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th></tr></thead><tbody>
+            <?php if ( empty( $goals ) ) : ?><tr><td colspan="5"><?php esc_html_e( 'No goals.', 'talenttrack' ); ?></td></tr>
+            <?php else : foreach ( $goals as $g ) :
+                $is_archived = $g->archived_at !== null;
+                ?>
+                <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
+                    <td class="check-column"><?php \TT\Shared\Admin\BulkActionsHelper::rowCheckbox( (int) $g->id ); ?></td>
+                    <td><?php echo esc_html( $g->player_name ?: '—' ); ?></td>
+                    <td><strong><?php echo esc_html( (string) $g->title ); ?></strong>
+                        <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
+                    </td>
+                    <td><?php echo esc_html( ucwords( str_replace( '_', ' ', (string) $g->status ) ) ); ?></td>
                     <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-goals&action=edit&id={$g->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_goal&id={$g->id}" ), 'tt_del_goal_' . $g->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td></tr>
             <?php endforeach; endif; ?></tbody></table>
+
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::closeForm(); ?>
         </div>
         <?php
     }

@@ -4,13 +4,22 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.16.0
+Stable tag: 2.17.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.17.0 — Admin Menu Overhaul + Bulk Archive/Delete + Isolated Print =
+* NEW: Admin menu grouped into logical sections (People / Performance / Analytics / Configuration) with visual separator headings between groups.
+* NEW: Bulk archive and delete across Players, Teams, Evaluations, Sessions, Goals, People. Checkboxes per row, bulk action dropdown, status tabs (Active / Archived / All) with counts. Archive is reversible, Delete permanently is admin-only.
+* NEW: tt_players, tt_teams, tt_evaluations, tt_sessions, tt_goals, tt_people all get archived_at + archived_by columns via migration 0010 (idempotent).
+* CHANGED: Teams admin list no longer shows Head Coach column. Field still editable on the team edit form.
+* CHANGED: Print report route is now fully isolated from the WP admin shell and theme chrome. New PrintRouter intercepts print requests at admin_init and template_redirect, emits a standalone HTML document with visible 🖨 Print and 📄 Download PDF buttons (no more auto-fire). Download PDF uses html2canvas + jsPDF (raster A4 portrait, charts included, ~500KB JS loaded only on the print page).
+* DEFERRED: App usage statistics — grew into enough scope to deserve its own release. Slated for v2.18.0.
+* INTERNAL: ArchiveRepository and BulkActionsHelper provide reusable archive/restore/delete + bulk-action UI across every list page.
 
 = 2.16.0 — Epic 2 Sprint 2C: Neutral Tier + Printable Report + Mobile Polish =
 * CHANGED: Gold/silver/bronze tiers are now podium-position awards, not rating-based. 1st place always gets a gold card regardless of absolute rating; 2nd silver; 3rd bronze. Matches how real podiums work.

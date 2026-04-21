@@ -21,5 +21,7 @@ class StatsModule implements ModuleInterface {
         if ( is_admin() ) {
             Admin\PlayerRateCardsPage::init();
         }
+        // v2.17.0: isolated print route (admin + frontend entry points).
+        PrintRouter::init();
     }
 }

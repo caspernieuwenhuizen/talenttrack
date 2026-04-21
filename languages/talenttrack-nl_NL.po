@@ -2101,3 +2101,101 @@ msgstr[1] "(%d evals)"
 
 msgid "You do not have access to this player report."
 msgstr "Je hebt geen toegang tot dit spelerrapport."
+
+# ===== v2.17.0 — Menu groups + bulk archive/delete + isolated print =====
+
+msgid "People"
+msgstr "Personen"
+
+msgid "Performance"
+msgstr "Prestaties"
+
+msgid "Analytics"
+msgstr "Analyses"
+
+msgid "Configuration"
+msgstr "Configuratie"
+
+msgid "Active"
+msgstr "Actief"
+
+msgid "Archived"
+msgstr "Gearchiveerd"
+
+msgid "All"
+msgstr "Alle"
+
+msgid "Select bulk action"
+msgstr "Kies bulkactie"
+
+msgid "Bulk actions"
+msgstr "Bulkacties"
+
+msgid "Archive"
+msgstr "Archiveren"
+
+msgid "Restore"
+msgstr "Herstellen"
+
+msgid "Delete permanently"
+msgstr "Permanent verwijderen"
+
+msgid "Apply"
+msgstr "Toepassen"
+
+msgid "Select row %d"
+msgstr "Selecteer rij %d"
+
+msgid "Select all rows"
+msgstr "Selecteer alle rijen"
+
+msgid "Security check failed."
+msgstr "Veiligheidscontrole mislukt."
+
+msgid "Unauthorized"
+msgstr "Niet gemachtigd"
+
+msgid "No items selected."
+msgstr "Geen items geselecteerd."
+
+msgid "Select a bulk action first."
+msgstr "Kies eerst een bulkactie."
+
+msgid "Delete permanently? This cannot be undone."
+msgstr "Permanent verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+msgid "%d item archived."
+msgid_plural "%d items archived."
+msgstr[0] "%d item gearchiveerd."
+msgstr[1] "%d items gearchiveerd."
+
+msgid "%d item restored."
+msgid_plural "%d items restored."
+msgstr[0] "%d item hersteld."
+msgstr[1] "%d items hersteld."
+
+msgid "%d item permanently deleted."
+msgid_plural "%d items permanently deleted."
+msgstr[0] "%d item permanent verwijderd."
+msgstr[1] "%d items permanent verwijderd."
+
+msgid "Print this report"
+msgstr "Rapport printen"
+
+msgid "Download PDF"
+msgstr "PDF downloaden"
+
+msgid "Back"
+msgstr "Terug"
+
+msgid "Generating…"
+msgstr "Bezig met genereren…"
+
+msgid "PDF libraries did not load — use your browser's print dialog with \"Save as PDF\" instead."
+msgstr "PDF-bibliotheken konden niet worden geladen — gebruik in plaats daarvan het afdrukdialoogvenster van je browser met \"Opslaan als PDF\"."
+
+msgid "PDF generation failed. Try the Print button instead."
+msgstr "PDF-generatie mislukt. Probeer de Print-knop."
+
+msgid "Log in to view the report."
+msgstr "Log in om het rapport te bekijken."

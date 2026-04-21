@@ -58,13 +58,26 @@ class PeoplePage {
         $search     = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['s'] ) ) : '';
         $status     = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['status'] ) ) : '';
 
-        $people = $repo->list( [
-            'only_staff' => $only_staff,
-            'search'     => $search,
-            'status'     => $status !== '' ? $status : null,
-        ] );
+        // v2.17.0: archive view + bulk actions. PeopleRepository doesn't
+        // yet support the archive filter; we fetch via direct SQL for the
+        // archive/all views and fall back to the repo for active. A full
+        // PeopleRepository refactor is deferred to a future sprint.
+        $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
 
-        $new_url = admin_url( 'admin.php?page=tt-people&action=new' );
+        if ( $view === 'active' ) {
+            $people = $repo->list( [
+                'only_staff' => $only_staff,
+                'search'     => $search,
+                'status'     => $status !== '' ? $status : null,
+            ] );
+        } else {
+            global $wpdb; $p = $wpdb->prefix;
+            $people = $wpdb->get_results( "SELECT pe.*, 0 AS team_count FROM {$p}tt_people pe WHERE {$view_clause} ORDER BY pe.last_name, pe.first_name ASC" );
+        }
+
+        $new_url  = admin_url( 'admin.php?page=tt-people&action=new' );
+        $base_url = admin_url( 'admin.php?page=tt-people' );
         ?>
         <div class="wrap">
             <h1>
@@ -73,9 +86,11 @@ class PeoplePage {
             </h1>
 
             <?php self::renderMessages(); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
 
             <form method="get" style="margin:12px 0;">
                 <input type="hidden" name="page" value="tt-people" />
+                <input type="hidden" name="tt_view" value="<?php echo esc_attr( $view ); ?>" />
                 <input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search name or email', 'talenttrack' ); ?>" />
                 <select name="status">
                     <option value=""><?php esc_html_e( 'All statuses', 'talenttrack' ); ?></option>
@@ -89,9 +104,14 @@ class PeoplePage {
                 <?php submit_button( __( 'Filter', 'talenttrack' ), '', '', false ); ?>
             </form>
 
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderStatusTabs( 'person', $view, $base_url ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::openForm( 'person', $view ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
+
             <table class="widefat striped">
                 <thead>
                     <tr>
+                        <th class="check-column" style="width:30px;"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
                         <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Role', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Email', 'talenttrack' ); ?></th>
@@ -103,18 +123,21 @@ class PeoplePage {
                 </thead>
                 <tbody>
                 <?php if ( empty( $people ) ) : ?>
-                    <tr><td colspan="7"><?php esc_html_e( 'No people yet.', 'talenttrack' ); ?></td></tr>
+                    <tr><td colspan="8"><?php esc_html_e( 'No people yet.', 'talenttrack' ); ?></td></tr>
                 <?php else : foreach ( $people as $p ) :
                     $edit_url   = admin_url( 'admin.php?page=tt-people&action=edit&id=' . (int) $p->id );
                     $toggle_to  = $p->status === 'active' ? 'inactive' : 'active';
                     $toggle_lbl = $p->status === 'active' ? __( 'Deactivate', 'talenttrack' ) : __( 'Activate', 'talenttrack' );
                     $team_count = (int) ( $p->team_count ?? 0 );
+                    $is_archived = isset( $p->archived_at ) && $p->archived_at !== null;
                     ?>
-                    <tr>
+                    <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
+                        <td class="check-column"><?php \TT\Shared\Admin\BulkActionsHelper::rowCheckbox( (int) $p->id ); ?></td>
                         <td>
                             <strong><a href="<?php echo esc_url( $edit_url ); ?>"><?php
                                 echo esc_html( trim( $p->first_name . ' ' . $p->last_name ) );
                             ?></a></strong>
+                            <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
                         </td>
                         <td><?php echo esc_html( self::roleLabel( (string) $p->role_type ) ); ?></td>
                         <td><?php echo $p->email ? '<a href="mailto:' . esc_attr( $p->email ) . '">' . esc_html( $p->email ) . '</a>' : '—'; ?></td>
@@ -135,19 +158,14 @@ class PeoplePage {
                         </td>
                         <td>
                             <a href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
-                            |
-                            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline;">
-                                <?php wp_nonce_field( 'tt_set_person_status_' . (int) $p->id, 'tt_nonce' ); ?>
-                                <input type="hidden" name="action" value="tt_set_person_status" />
-                                <input type="hidden" name="id"     value="<?php echo (int) $p->id; ?>" />
-                                <input type="hidden" name="status" value="<?php echo esc_attr( $toggle_to ); ?>" />
-                                <button type="submit" class="button-link"><?php echo esc_html( $toggle_lbl ); ?></button>
-                            </form>
                         </td>
                     </tr>
                 <?php endforeach; endif; ?>
                 </tbody>
             </table>
+
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::closeForm(); ?>
         </div>
         <?php
     }

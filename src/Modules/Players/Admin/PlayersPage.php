@@ -41,27 +41,48 @@ class PlayersPage {
     private static function render_list(): void {
         global $wpdb; $p = $wpdb->prefix;
         $ft = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
-        $where = "WHERE pl.status='active'" . ( $ft ? $wpdb->prepare( " AND pl.team_id=%d", $ft ) : '' );
+
+        // v2.17.0: archive view filter.
+        $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
+
+        $where = "WHERE pl.status='active' AND pl.{$view_clause}" . ( $ft ? $wpdb->prepare( " AND pl.team_id=%d", $ft ) : '' );
         $players = $wpdb->get_results( "SELECT pl.*, t.name AS team_name FROM {$p}tt_players pl LEFT JOIN {$p}tt_teams t ON pl.team_id=t.id $where ORDER BY pl.last_name, pl.first_name ASC" );
         $teams = QueryHelpers::get_teams();
+
+        $base_url = admin_url( 'admin.php?page=tt-players' );
+        if ( $ft ) $base_url = add_query_arg( 'team_id', $ft, $base_url );
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Players', 'talenttrack' ); ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-players&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?><div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved.', 'talenttrack' ); ?></p></div><?php endif; ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
             <form method="get" style="margin:10px 0"><input type="hidden" name="page" value="tt-players"/>
+                <input type="hidden" name="tt_view" value="<?php echo esc_attr( $view ); ?>"/>
                 <select name="team_id" onchange="this.form.submit()"><option value="0"><?php esc_html_e( 'All Teams', 'talenttrack' ); ?></option>
                 <?php foreach ( $teams as $t ) : ?><option value="<?php echo (int) $t->id; ?>" <?php selected( $ft, (int) $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option><?php endforeach; ?></select>
             </form>
+
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderStatusTabs( 'player', $view, $base_url ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::openForm( 'player', $view ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
+
             <table class="widefat striped"><thead><tr>
+                <th class="check-column" style="width:30px;"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
                 <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Position(s)', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Foot', 'talenttrack' ); ?></th>
                 <th>#</th><th><?php esc_html_e( 'DOB', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
             </tr></thead><tbody>
-            <?php if ( empty( $players ) ) : ?><tr><td colspan="7"><?php esc_html_e( 'No players.', 'talenttrack' ); ?></td></tr>
+            <?php if ( empty( $players ) ) : ?><tr><td colspan="8"><?php esc_html_e( 'No players.', 'talenttrack' ); ?></td></tr>
             <?php else : foreach ( $players as $pl ) :
-                $pos = json_decode( (string) $pl->preferred_positions, true ); $pos_str = is_array( $pos ) ? implode( ', ', $pos ) : ''; ?>
-                <tr>
-                    <td><strong><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-players&action=view&id={$pl->id}" ) ); ?>"><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></a></strong></td>
+                $pos = json_decode( (string) $pl->preferred_positions, true ); $pos_str = is_array( $pos ) ? implode( ', ', $pos ) : '';
+                $is_archived = $pl->archived_at !== null;
+                ?>
+                <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
+                    <td class="check-column"><?php \TT\Shared\Admin\BulkActionsHelper::rowCheckbox( (int) $pl->id ); ?></td>
+                    <td><strong><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-players&action=view&id={$pl->id}" ) ); ?>"><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></a></strong>
+                        <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
+                    </td>
                     <td><?php echo esc_html( $pl->team_name ?: '—' ); ?></td><td><?php echo esc_html( $pos_str ); ?></td>
                     <td><?php echo esc_html( (string) $pl->preferred_foot ); ?></td>
                     <td><?php echo $pl->jersey_number ? (int) $pl->jersey_number : '—'; ?></td>
@@ -69,6 +90,9 @@ class PlayersPage {
                     <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-players&action=edit&id={$pl->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_player&id={$pl->id}" ), 'tt_delete_player_' . $pl->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td>
                 </tr>
             <?php endforeach; endif; ?></tbody></table>
+
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::closeForm(); ?>
         </div>
         <?php
     }

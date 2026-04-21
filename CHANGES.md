@@ -1,197 +1,211 @@
-# TalentTrack v2.16.0 — Epic 2 Sprint 2C: Neutral Tier, Printable Report, Mobile Polish
+# TalentTrack v2.17.0 — Admin Menu Overhaul + Bulk Archive/Delete + Isolated Print
 
-## Three items in this release
+## Summary
 
-This sprint bundles three related improvements under "how the product actually reaches the users' hands":
+This release bundles four changes that make the admin experience cleaner and more robust for daily club use:
 
-1. **Tier-by-position** — medals on the podium are now positional, not rating-driven
-2. **Printable A4 player report** — a proper paper deliverable that goes home with a player
-3. **Mobile readiness** — front-end surfaces work on a phone, which is where players actually use them
+1. **Admin menu overhauled** — flat 13-item menu grouped into logical sections with visual separators
+2. **Bulk archive & delete** across all list views — select many rows, archive them (reversible) or permanently delete (admins only)
+3. **Teams list** — Head Coach column removed from display (field still editable on the team form)
+4. **Printable report fixed** — print route is now fully isolated; no more WP admin chrome leaking into printed output. Visible Print button + Download PDF button. No more auto-fire.
 
-## Item 1: Tier-by-position + neutral colorway
+The usage-statistics item originally planned for this sprint has been **deferred to v2.18.0** — that one grew into enough scope to deserve its own release with proper implementation.
 
-### The change in one sentence
+## Item 1 — Admin menu overhaul
 
-Gold/silver/bronze are **podium awards**, not rating tiers. A new neutral colorway covers every card outside a ranking context.
+The TalentTrack admin menu was a flat list of ~13 submenu entries accumulated across sprints. It's now grouped:
 
-### Why
+```
+Dashboard
+─── People ─────────────────
+  Teams
+  Players
+─── Performance ────────────
+  Evaluations
+  Sessions
+  Goals
+─── Analytics ──────────────
+  Reports
+  Player Rate Cards
+─── Configuration ──────────
+  Configuration
+  Custom Fields
+  Evaluation Categories
+  Category Weights
+Help & Docs
+```
 
-Previously, a player's card tier was determined by their rolling-average overall (≥4.0 gold, ≥3.0 silver, <3.0 bronze). That conflated two different ideas: "your current level" and "your ranking among peers." On a podium, the #1 player might appear in a silver or bronze card even though they ranked first — confusing and visually deflating. On a player's own dashboard, the tier carried achievement connotations that felt arbitrary ("why am I bronze? what does that mean?").
+Separators are non-clickable heading rows styled via inline admin CSS (small caps, muted gray, thin top border). Clicking one does nothing visible; keyboard-nav accidentally landing on one redirects silently to the dashboard.
 
-We now separate the two:
+**Implementation note**: WordPress has no native grouped-submenu support. Separators are faked with `add_submenu_page` entries whose slug begins with `tt-sep-` and whose display is transformed entirely by CSS. The approach is resilient — plays well with WP's existing capability checks, bookmarks to real submenu pages keep working, admin themes that override the submenu list don't break.
 
-- **Podium rank → medal tier.** 1st place always gets a gold card, 2nd silver, 3rd bronze, regardless of any player's actual rolling average. Matches how real podiums work: you don't repaint the athlete gold because they won, they stand on the gold platform.
-- **Non-podium context → neutral tier.** The default card colorway is now a premium dark-navy design (platinum-on-navy). Feels like a product card without implying an achievement that wasn't earned.
-- **Zero rated evaluations → unrated (muted gray).** Unchanged; distinct visual signal for players with no data.
+## Item 2 — Bulk archive and delete
 
-### Visual neutral design
+Every major entity list view now supports bulk actions:
 
-The default neutral colorway is **dark navy** (`#243858` → `#4a6690` → `#152238`) with soft platinum highlights. Still uses the same faceted geometry, metallic shine, Oswald + Manrope typography as the tier variants — just in a color space that doesn't claim a medal. Feels appropriate for every player's "here is my card" moment regardless of performance.
+**Surfaces covered:**
+- Players
+- Teams
+- Evaluations
+- Sessions
+- Goals
+- People (bulk archive/delete only — full archive-view filtering on People deferred to v2.18.0 since it uses its own repository layer)
 
-An alternative **chrome** palette (off-white / light platinum) is included in the CSS as a commented-out block. To swap, edit `assets/css/player-card.css` — remove the navy `.tt-pc--neutral` block and uncomment the chrome one. One file, one block swap. Takes 30 seconds.
+**Actions available:**
+- **Archive** — soft-delete; row retained with `archived_at` timestamp + `archived_by` user id. Reversible.
+- **Restore** — clear archive stamp; row returns to active list. Only offered from the Archived view.
+- **Delete permanently** — hard delete from DB. Irreversible. Admin-only (requires `tt_manage_settings`).
 
-### Where this appears
+**UI shape:**
+- Checkbox column (30px wide) at left of every row
+- Master select-all checkbox in the table header
+- Bulk action dropdown + Apply button, rendered above AND below the table (standard WordPress list-table convention)
+- Status tab-bar above the table: **Active (N) | Archived (N) | All (N)**, each link counted. URL-driven (`?tt_view=active|archived|all`).
+- Archived rows in the "All" or "Archived" view render with 60% opacity + gray "Archived" badge next to the name
 
-Neutral now renders in:
-- Player dashboard — Overview tab, the own-card on the right
-- Player dashboard — Mijn team tab, the own-card above the podium
-- Coach dashboard — Player Detail tab, the FIFA-style card
-- Admin rate card page — Card view toggle
-- Printable report — the embedded card at the top
+**UX details:**
+- Select-all checkbox toggles every row checkbox in the same form
+- "Delete permanently" triggers a JS confirm with the selected count before submitting
+- Empty-selection submit shows a nudge ("No items selected.")
+- Non-admin user accidentally submitting "Delete permanently" (shouldn't appear in their dropdown but belt-and-braces) hits a server-side permission error
+- After any bulk action, a success notice shows at the top of the list: "3 items archived." etc.
 
-Gold/silver/bronze only render inside `renderPodium()`, where the position-to-tier mapping is hardcoded and explicit.
+**Schema:**
+- Migration 0010 adds `archived_at DATETIME NULL` + `archived_by BIGINT UNSIGNED NULL` + `idx_archived_at` index to `tt_players`, `tt_teams`, `tt_evaluations`, `tt_sessions`, `tt_goals`, `tt_people`
+- Idempotent — skips tables/columns that already have the columns
+- `ensureSchema` updated for fresh installs
+- Default list queries automatically append `AND archived_at IS NULL` so archived rows don't leak into the main views
 
-### API change
+**Permission model:**
+- Archive/restore — uses each entity's existing management cap (`tt_manage_players` for player/team/person, `tt_evaluate_players` for evaluation/session/goal)
+- Delete permanently — always requires `tt_manage_settings` (full admin), regardless of entity
+- Rationale: archiving is cheap + reversible, should flow naturally; permanent deletion is rare + destructive, belongs in admin hands only
 
-`PlayerCardView::renderCard()` now accepts an optional 4th parameter `$tier_override`. When set to `'gold'`, `'silver'`, or `'bronze'`, forces that tier regardless of the player's rating. When null (the default), renders neutral (or `'none'` if no rated evaluations). `renderPodium()` passes explicit tier per slot — callers outside the podium don't need to think about tier at all.
+**Cascade behavior:** archiving a team does NOT archive its players, sessions, or goals. Each entity is archived independently. An archived team's active players remain visible and editable; they just lose access to the team badge. Explicit independence avoids the "I archived one team and everything vanished" footgun.
 
-## Item 2: Printable A4 player report
+**Future work (v2.18.0):**
+- People page archive-view filtering (currently shows active-only in the Active tab, empty in Archived due to repo layer not yet supporting the filter)
+- Dependency warnings when archiving an entity with many active dependents
+- Cascade-on-delete for permanent deletes (currently orphans dependents)
 
-### What it is
+## Item 3 — Head Coach field removed from Teams display
 
-A one-sheet A4 portrait report suitable for printing or saving as PDF, containing:
+The Teams admin list no longer shows the Head Coach column. The underlying `head_coach_id` column on `tt_teams` is retained; the field is still editable on the team form. This is a pure display change — no schema migration, no data changes.
 
-- **Header**: club logo + academy name (both from `TalentTrack → Configuration`), report title with player name, generation date, period covered by the filters
-- **FIFA-style player card** (medium size, neutral colorway) — anchors the top of the page as the visual summary
-- **Three headline tiles**: Most recent, Rolling average, All-time average
-- **Main category breakdown table** with all subcategories expanded (no accordion behavior on paper)
-- **Trend line chart** + **radar chart** side by side, rendered by Chart.js, captured as raster in the printout
-- **Signature footer**: coach signature line + date line
+## Item 4 — Isolated print route
 
-### How to trigger
+The v2.16.0 print report leaked admin shell / theme chrome into printed output because the report rendered inside the regular admin/theme layout and relied on `@media print { visibility: hidden }` CSS tricks to hide surrounding elements. This didn't always work: admin notices, theme footers, and specific theme rules with high CSS specificity slipped through.
 
-A **"🖨 Print report"** button appears in three places:
+**v2.17.0 approach:** A new `PrintRouter` intercepts print requests at `admin_init` (for admin URLs) and `template_redirect` (for frontend URLs), **before** WordPress assembles any admin or theme chrome. It emits a completely standalone `<html>...</html>` document containing:
 
-- Admin rate card page (`TalentTrack → Player Rate Cards` and the Players edit "Rate card" tab) — button sits in the view-mode toggle bar, top-right
-- Player front-end dashboard Overview tab — button above the card on the right
-- Coach front-end dashboard Player Detail tab — button above the FIFA card
+1. A small fixed action bar at the top with three buttons:
+   - **🖨 Print this report** — triggers `window.print()` on a clean document
+   - **📄 Download PDF** — uses html2canvas + jsPDF (loaded from CDN) to generate a raster PDF and trigger browser download
+   - **← Back** — returns to the previous page
 
-All three open a new tab, render the report, and **auto-invoke `window.print()`** once Chart.js has finished rendering (~400ms delay to let fonts and animations settle). The browser's native print dialog handles PDF export.
+2. The actual report content (club header, FIFA card, headline tiles, breakdown, charts, signature footer)
 
-### Branding configuration
+3. Print-only CSS that hides the action bar during printing
 
-Uses existing `TalentTrack → Configuration → Academy` settings:
-- **Academy Name** → shown as the header club line
-- **Logo URL** → shown as the header logo (max 90×90)
+**Key changes from v2.16.0:**
+- No more auto-firing `window.print()` on page load — user sees the preview first, clicks Print when ready
+- No admin shell or theme chrome on the print page — what you see is what prints
+- Download PDF button generates an A4 portrait PDF named `TalentTrack-Report-<player>-<date>.pdf`. Output is raster (text not selectable in the PDF) — acceptable for a 1-page visual report. Library fails? Falls back to browser print dialog.
+- Works from every surface that had the 🖨 Print report button — just routes through the isolated page now
 
-Both are optional — the report omits the corresponding element gracefully if unset. No new configuration fields introduced.
+**Request shapes accepted by `PrintRouter`:**
+- `?tt_report=1&player_id=N` (preferred, new)
+- `?tt_print=N` (legacy frontend URL, still works)
+- `?print=1&player_id=N&page=tt-rate-cards` (legacy admin URL, still works)
 
-### Permissions
+**Permission checks on the isolated route:**
+- Admin entry (in wp-admin URLs): requires `tt_view_reports`
+- Frontend entry (on shortcode pages): admin any player, coach only players on coached teams, player own only
+- Unauthorized requests get `wp_die` with a localized message instead of rendering
 
-- **WP admin** (`tt_manage_settings`): any player's report
-- **Coach** (`tt_evaluate_players`): reports for players on their coached teams only
-- **Player** (no coach/admin caps): their own report only
-- Checked on the front-end print route (`?tt_print=<player_id>` on the dashboard shortcode); admin route inherits the surrounding `tt_view_reports` cap of `PlayerRateCardsPage`
-
-### Filter handling
-
-The print button on any page preserves the filters active at button-click time. If you had "Date from 2025-01-01, Type = Match" set on the rate card page, the printed report covers exactly that period and evaluation type, with the period shown in the header. If no filters were active, the header reads "All evaluations."
-
-### Chart rendering on paper
-
-Chart.js renders to canvas, which prints as raster graphics. Expect slightly pixelated charts on print — acceptable for an A4 report, the data is still legible. High-DPI printers produce very clean results; low-DPI output is noticeably rasterized.
-
-If Chart.js fails to load (CDN blocked), the report still prints — just without the charts. Text tables still carry all the information.
-
-### Why browser print, not a PDF library
-
-A PDF library (dompdf, mPDF) adds ~1MB of dependencies, complicates WordPress deployments, struggles with Chart.js output, and produces a result that's only marginally better than browser print-to-PDF. Browser-native print was the right level of complexity for this release. If customers report needing proper PDF generation later, it's a self-contained follow-up.
-
-## Item 3: Mobile readiness
-
-### Scope
-
-Front-end surfaces only. Admin pages got a light survival check (no horizontal-scroll overflow on tablet) but remain optimized for desktop — club staff use admin from laptops.
-
-### Player card mobile behavior
-
-- `< 820px`: `lg` cards shrink to `md`-size metrics. Podium still horizontal.
-- `< 640px`: all cards (regardless of variant) render at `sm`-size (200×286). Podium still horizontal with reduced stagger.
-- `< 480px`: podium **stacks vertically**, 1st on top, 2nd middle, 3rd bottom. DOM order in the 2|1|3 arrangement is overridden by CSS `order` so visual order matches semantic order.
-
-### Rate card page mobile
-
-Inline responsive `<style>` block scoped to the rate card surface:
-- **Filter bar**: stacks vertically on tablet, inputs become full-width with touch-friendly heights
-- **Headline 3-card row**: stacks vertically on tablet
-- **Charts row**: stacks vertically on tablet (was already `flex-wrap`, now forces single column)
-- **Main breakdown table**: on phone (< 640px), collapses to stacked mini-cards. Each row becomes a card with the category name on top and "All-time: X" / "Recent: Y" labels in the cells. Headers hidden since the inline labels make them redundant.
-
-### Frontend dashboards mobile
-
-New stylesheet `assets/css/frontend-mobile.css` enqueued by both `PlayerDashboardView::render()` and `CoachDashboardView::render()`. Covers:
-- **Tabs**: horizontal scroll with a custom slim scrollbar on narrow viewports so 7 tabs still fit on a phone
-- **Roster grid** (`.tt-grid`): 2-column on phone, 1-column on very small phones
-- **Tables** (`.tt-table`): collapse to stacked card layout on phone — rows become bordered mini-cards, headers hidden, cells wrap naturally
-- **Forms** (`.tt-form-row`): labels stack above inputs, inputs full-width, 38-44px touch-friendly heights, buttons full-width at 44px
-- **Radar chart wrapper**: horizontal scroll guard + `max-width:100%` SVG
-- **Teammate avatars**: shrink from 72px to 60px on very narrow screens
-
-### What's unchanged
-
-- Admin tables (evaluations list, players list, custom fields table): still desktop-optimized. They're heavy data tables that don't collapse well; admins work on laptops.
-- Other admin pages (Configuration, Custom Fields, Category Weights, Evaluation Categories): tablet-survivable but not phone-optimized. Same reasoning.
-
-## Schema / migrations
-
-**None.** Entirely additive UI + CSS + new view class. No activation changes.
+**Why raster PDF (html2canvas + jsPDF) rather than a server-side PDF library:**
+- html2canvas captures the already-rendered Chart.js canvases correctly; a server-side library like dompdf can't execute JS and would produce empty chart boxes
+- No server dependencies, no composer install needed, no PHP memory issues
+- ~500KB of JS loaded only on the print page (not globally)
+- Acceptable trade-off: PDFs aren't text-selectable, but the use case is "save a report to share," not "search through archives"
 
 ## Files in this release
 
 ### New
-- `assets/css/frontend-mobile.css` — frontend mobile responsive layer (~200 lines)
-- `src/Modules/Stats/Admin/PlayerReportView.php` — printable A4 report view (~500 lines)
+- `src/Infrastructure/Archive/ArchiveRepository.php` — archive/restore/delete + counts + filter clauses
+- `src/Infrastructure/Archive/index.php`
+- `src/Shared/Admin/BulkActionsHelper.php` — shared UI + post handler for bulk actions
+- `src/Modules/Stats/PrintRouter.php` — isolated print route handler
+- `database/migrations/0010_archive_support.php` — archive columns for 6 tables
 
 ### Modified
-- `talenttrack.php` — version 2.16.0
-- `assets/css/player-card.css` — neutral colorway (navy default, chrome alternative), mobile breakpoints at 820/640/480px, podium stacking behavior
-- `src/Modules/Stats/Admin/PlayerCardView.php` — `$tier_override` parameter on `renderCard()`, neutral default, podium passes explicit positional tiers
-- `src/Modules/Stats/Admin/PlayerRateCardView.php` — `?print=1` short-circuit, print button in toggle bar, inline responsive styles, filter-bar/headline/charts mobile markup classes
-- `src/Shared/Frontend/DashboardShortcode.php` — `?tt_print=<player_id>` route with permission check (admin/coach/player) and filter passthrough
-- `src/Shared/Frontend/PlayerDashboardView.php` — enqueue frontend-mobile.css, print button above own card on Overview
-- `src/Shared/Frontend/CoachDashboardView.php` — enqueue frontend-mobile.css, print button on Player Detail tab above FIFA card
-- `languages/talenttrack-nl_NL.po` + `.mo` — 14 new strings
+- `talenttrack.php` — version 2.17.0
+- `src/Core/Activator.php` — `ensureSchema` gets archive columns on 6 tables
+- `src/Shared/Admin/Menu.php` — grouped submenus with CSS-styled separators; BulkActionsHelper wired
+- `src/Modules/Teams/Admin/TeamsPage.php` — Head Coach column removed; archive tabs + bulk actions
+- `src/Modules/Players/Admin/PlayersPage.php` — archive tabs + bulk actions
+- `src/Modules/Evaluations/Admin/EvaluationsPage.php` — archive tabs + bulk actions
+- `src/Modules/Sessions/Admin/SessionsPage.php` — archive tabs + bulk actions
+- `src/Modules/Goals/Admin/GoalsPage.php` — archive tabs + bulk actions
+- `src/Modules/People/Admin/PeoplePage.php` — bulk actions (archive filter deferred)
+- `src/Modules/Stats/StatsModule.php` — wire PrintRouter
+- `src/Modules/Stats/Admin/PlayerRateCardView.php` — print button URL points at PrintRouter; old print=1 short-circuit removed
+- `src/Modules/Stats/Admin/PlayerReportView.php` — auto-fire print logic removed; charts render without post-render print trigger
+- `src/Shared/Frontend/DashboardShortcode.php` — old `?tt_print=N` short-circuit removed; PrintRouter handles it
+- `languages/talenttrack-nl_NL.po` + `.mo` — 30 new strings
 
 ### Deleted
 (none)
 
 ## Install
 
-Extract `talenttrack-v2_16_0.zip`. The folder inside is `talenttrack-v2.16.0/` — separate from your live `talenttrack/` for easy review. Move contents into your `talenttrack/` plugin directory preserving the tree. Deactivate + reactivate. No migrations.
+Extract the ZIP. Folder inside is `talenttrack-v2.17.0/` — separate from your live `talenttrack/` for review. Move contents into your `talenttrack/` plugin directory preserving tree structure. Deactivate + reactivate.
+
+**Activation runs:**
+- Migration 0010 → adds archive columns to 6 tables (idempotent — skipped if already present)
+- `ensureSchema` creates those columns on any fresh install
+- No data migration needed — existing rows get `archived_at = NULL` by default, meaning active
 
 ## Verify
 
-### Tier-by-position
-1. Open any team's podium (coach dashboard Roster tab, or player dashboard Mijn team tab). Top-left card (2nd slot) is silver, center-elevated (1st) is gold, right (3rd) is bronze — **regardless** of each player's actual rolling average.
-2. Open your own Overview card. Card is **neutral navy** — no medal implied.
-3. Open a player with zero rated evaluations. Card is **muted gray** ("unrated").
-4. Admin rate card Card view: card renders neutral.
+### Menu
+1. Open any TalentTrack admin page. Side menu is grouped with visual separators ("PEOPLE", "PERFORMANCE", "ANALYTICS", "CONFIGURATION") between related entries.
+2. Hover a separator — no link interaction, cursor stays default.
 
-### Printable report
-1. Go to Admin rate card page. Click 🖨 Print report button. New tab opens, report renders, print dialog fires automatically within ~1 second. Report shows header with club name/logo (if configured), FIFA card, three headline tiles, breakdown table, two charts, signature footer.
-2. Apply filters first (date range + type), then print. Report header shows "Period: 2025-01-01 — 2025-06-30" reflecting your filter.
-3. From player front-end Overview, click 🖨 Print report. Same result, restricted to own player.
-4. From coach front-end Player Detail, click 🖨 Print report. Same result for the selected player. Coach cannot print reports for players outside their coached teams (enforced by `DashboardShortcode` permission check — test by changing the URL `?tt_print=<id>` to a player not in coached teams; get "You do not have access" message).
+### Bulk actions
+3. Open TalentTrack → Players. At the top of the list: status tabs "Active (N) | Archived (0) | All (N)".
+4. Select 2-3 players via their row checkboxes. Pick "Archive" from the bulk actions dropdown above the table. Click Apply. Get a success notice "3 items archived." The archived rows disappear from the Active view.
+5. Click the "Archived" tab. The archived rows appear, rendered at 60% opacity with an "Archived" badge.
+6. Select them. Bulk action dropdown now offers "Restore" + "Delete permanently" (the latter only if you're an admin).
+7. Try "Delete permanently" with something selected — confirm dialog appears with the count. Cancel, then try "Restore" — rows return to Active.
+8. Repeat on Teams, Evaluations, Sessions, Goals to confirm the pattern works uniformly.
 
-### Mobile
-1. Open the player dashboard on a 375px-wide phone (or DevTools responsive mode). Tabs scroll horizontally. Overview card drops below player info. Mijn team podium stacks vertically.
-2. Open the rate card page on same narrow viewport. Filter bar stacks. Headline tiles stack. Breakdown table collapses to stacked mini-cards.
-3. Tables on Evaluations / Goals / Attendance tabs collapse to stacked mini-cards on phone. Forms are touch-friendly (big inputs, full-width buttons).
+### Teams — head coach removed
+9. Teams list: no "Head Coach" column. Edit any team: head-coach dropdown still present on the form.
 
-## Out of scope (slated for later)
+### Print report
+10. Go to TalentTrack → Player Rate Cards, pick a player, click "🖨 Print report". New tab opens.
+11. The page is clean — no WP admin menu, no theme header, just: action bar at top with [🖨 Print] [📄 Download PDF] [← Back], then the report below.
+12. Click the Print button — browser print dialog opens, preview shows ONLY the report (no ambient UI).
+13. Click Download PDF — a file named `TalentTrack-Report-<player>-<date>.pdf` downloads.
+14. Try the same from a player's frontend dashboard (Overview "🖨 Print report" button) and coach Player Detail button. Same clean output.
 
-- Admin tables responsive — laptop-only remains acceptable for this release
-- Proper PDF generation library (browser print-to-PDF is sufficient for now)
-- Custom report templates / multi-page reports
-- Team-level report (this release is player-only)
-- Configurable podium tier thresholds (permanently positional by design — intentional)
-- Admin-configurable neutral palette switcher (CSS-edit swap is good enough for now; revisit if multiple clubs want different looks)
-- Historical print archive — reports always re-render from current data; no saved-PDF audit trail
-- Comparative reports (player A vs B) — next sprint candidate
+## Known caveats
+
+- **People page archive view**: the Active tab works as expected; the Archived and All views query the table directly (bypassing `PeopleRepository::list()`) and don't yet support the repo's search/only-staff filters in combination with the archive view. Bulk actions still work in all views. Full repo refactor slated for v2.18.0.
+- **PDF output is raster, not vector**: text in the generated PDF isn't selectable. Use browser print-to-PDF (Ctrl+P → Save as PDF) if you need selectable text.
+- **Bulk delete doesn't cascade**: if you permanently delete a team, its player rows keep `team_id` pointing at the now-missing team (shown as "—" in the list). Dependent-row handling was deemed out of scope for this release.
 
 ## Design notes
 
-- **Positional tiers are a hard design rule.** Tier mapping (1→gold, 2→silver, 3→bronze) is hardcoded in `renderPodium()` and not configurable. This is intentional — any other mapping would reintroduce the "what does my tier mean?" ambiguity the neutral default was introduced to solve.
-- **Print uses native browser tooling deliberately.** No dependencies, no additional payload, works everywhere modern browsers run, produces PDF output via the OS print dialog's "Save as PDF" option. Result quality is "good enough for A4" — which is the bar for this release.
-- **Mobile table collapse uses generic CSS selectors**, not per-table `data-label` attributes. Means every `.tt-table` on the front-end collapses the same way — pro: zero markup changes, con: less ideal per-column labels. Can be upgraded per-table later if specific tables need richer mobile UX.
-- **Frontend mobile CSS is a separate stylesheet** (not inlined) because the front-end dashboard already loads external CSS, one more request is fine, and separation means the admin side doesn't pay for it.
+- **Separators as fake menu entries**: Chosen over CSS-injected DOM manipulation because WP's admin menu is dynamically rendered and manipulating it post-render fights the framework. Fake entries live inside WP's model, get the right keyboard-nav treatment, and degrade gracefully in themes that style the menu differently.
+- **Archive as column, not join table**: `archived_at` on the entity table itself keeps list queries simple (single `WHERE` clause, no extra JOIN). The archive pattern composes naturally with existing filters.
+- **Positional permission check on print route**: Checked before any rendering, by `PrintRouter`, rather than scattered across the old short-circuit code paths in admin + frontend. Single source of truth for "who can print what."
+- **Why defer usage stats**: It turned into a full new module — events table, capture tracker, daily prune cron, admin dashboard with multiple Chart.js visualizations, privacy documentation. Scoping it inside a sprint that already had four big items risked shipping something half-baked. Better to ship what's solid and take another run at stats in v2.18.0.
+
+## v2.18.0 preview
+
+- Usage statistics (the deferred item)
+- People page archive-view filtering to match the other 5 entities
+- Optional: bulk-delete cascade handling for entities with dependents
+- Whatever else accumulates

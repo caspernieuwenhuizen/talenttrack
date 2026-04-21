@@ -36,14 +36,10 @@ class PlayerRateCardView {
             return;
         }
 
-        // v2.16.0 — print route short-circuit. When print=1, render only
-        // the report view and auto-trigger the print dialog. The caller
-        // has already verified access before reaching here.
-        $print_mode = isset( $_GET['print'] ) && $_GET['print'] === '1';
-        if ( $print_mode ) {
-            PlayerReportView::render( $player_id, $filters );
-            return;
-        }
+        // NOTE: v2.17.0 removed the ?print=1 short-circuit here — the
+        // PrintRouter now intercepts print requests at admin_init before
+        // this view renders. The inline renderCardView() path remains
+        // for the ?view=card toggle.
 
         // v2.16.0 — responsive styles scoped to the rate card page.
         // Done as inline <style> rather than a separate stylesheet because
@@ -92,15 +88,17 @@ class PlayerRateCardView {
         $standard_url = add_query_arg( [ 'player_id' => $player_id ], $standard_url );
         $card_url     = add_query_arg( [ 'player_id' => $player_id, 'view' => 'card' ], remove_query_arg( 'view', $base_url ) );
 
-        // v2.16.0: print URL preserves currently-active filters so the
-        // report reflects the same period the user was viewing.
-        $print_args = [ 'player_id' => $player_id, 'print' => '1' ];
+        // v2.17.0: print URL routes through the isolated PrintRouter
+        // (?tt_report=1) instead of embedding in the admin shell. The
+        // router emits a standalone <html> page with visible Print +
+        // Download PDF buttons; no auto-fire printing.
+        $print_args = [ 'tt_report' => '1', 'player_id' => $player_id ];
         foreach ( [ 'date_from', 'date_to', 'eval_type_id' ] as $k ) {
             if ( isset( $_GET[ $k ] ) && $_GET[ $k ] !== '' && $_GET[ $k ] !== '0' ) {
                 $print_args[ $k ] = sanitize_text_field( wp_unslash( (string) $_GET[ $k ] ) );
             }
         }
-        $print_url = add_query_arg( $print_args, remove_query_arg( [ 'view', 'print' ], $base_url ) );
+        $print_url = add_query_arg( $print_args, admin_url( 'admin.php' ) );
 
         $btn_base = 'display:inline-block;padding:6px 14px;text-decoration:none;border:1px solid #c3c4c7;border-radius:4px;font-size:13px;';
         $btn_on   = 'background:#2271b1;color:#fff;border-color:#2271b1;';

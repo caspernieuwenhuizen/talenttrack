@@ -38,10 +38,16 @@ class EvaluationsPage {
 
     private static function render_list(): void {
         global $wpdb; $p = $wpdb->prefix;
+
+        // v2.17.0: archive view filter + bulk actions.
+        $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
+
         $evals = $wpdb->get_results(
             "SELECT e.*, lt.name AS type_name, CONCAT(pl.first_name,' ',pl.last_name) AS player_name, u.display_name AS coach_name
              FROM {$p}tt_evaluations e LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id=lt.id AND lt.lookup_type='eval_type'
              LEFT JOIN {$p}tt_players pl ON e.player_id=pl.id LEFT JOIN {$wpdb->users} u ON e.coach_id=u.ID
+             WHERE e.{$view_clause}
              ORDER BY e.eval_date DESC LIMIT 50"
         );
 
@@ -55,13 +61,22 @@ class EvaluationsPage {
                 array_map( fn( $ev ) => (int) $ev->id, $evals )
             );
         }
+
+        $base_url = admin_url( 'admin.php?page=tt-evaluations' );
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Evaluations', 'talenttrack' ); ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-evaluations&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?><div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved.', 'talenttrack' ); ?></p></div><?php endif; ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
+
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderStatusTabs( 'evaluation', $view, $base_url ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::openForm( 'evaluation', $view ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
+
             <table class="widefat striped">
                 <thead>
                     <tr>
+                        <th class="check-column" style="width:30px;"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
                         <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
@@ -72,12 +87,16 @@ class EvaluationsPage {
                 </thead>
                 <tbody>
                 <?php if ( empty( $evals ) ) : ?>
-                    <tr><td colspan="6"><?php esc_html_e( 'No evaluations.', 'talenttrack' ); ?></td></tr>
+                    <tr><td colspan="7"><?php esc_html_e( 'No evaluations.', 'talenttrack' ); ?></td></tr>
                 <?php else : foreach ( $evals as $ev ) :
                     $ov = $overalls[ (int) $ev->id ] ?? null;
+                    $is_archived = $ev->archived_at !== null;
                     ?>
-                    <tr>
-                        <td><?php echo esc_html( (string) $ev->eval_date ); ?></td>
+                    <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
+                        <td class="check-column"><?php \TT\Shared\Admin\BulkActionsHelper::rowCheckbox( (int) $ev->id ); ?></td>
+                        <td><?php echo esc_html( (string) $ev->eval_date ); ?>
+                            <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
+                        </td>
                         <td><?php echo esc_html( $ev->player_name ?: '—' ); ?></td>
                         <td><?php echo esc_html( $ev->type_name ?: '—' ); ?></td>
                         <td><?php echo esc_html( (string) $ev->coach_name ); ?></td>
@@ -115,6 +134,9 @@ class EvaluationsPage {
                 <?php endforeach; endif; ?>
                 </tbody>
             </table>
+
+            <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
+            <?php \TT\Shared\Admin\BulkActionsHelper::closeForm(); ?>
         </div>
         <?php
     }
