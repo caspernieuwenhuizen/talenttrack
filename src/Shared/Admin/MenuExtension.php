@@ -28,7 +28,7 @@ class MenuExtension {
 
     public static function register_submenu(): void {
         // Permissions: either tt_manage_settings OR administrator.
-        $cap = current_user_can( 'tt_manage_settings' ) ? 'tt_manage_settings' : 'administrator';
+        $cap = current_user_can( 'tt_view_settings' ) ? 'tt_view_settings' : 'administrator';
 
         add_submenu_page(
             'talenttrack',
@@ -59,7 +59,7 @@ class MenuExtension {
      * since auto-update + auto-migration can't always be relied on.
      */
     public static function render_pending_notice(): void {
-        if ( ! current_user_can( 'tt_manage_settings' ) && ! current_user_can( 'administrator' ) ) {
+        if ( ! current_user_can( 'tt_view_settings' ) && ! current_user_can( 'administrator' ) ) {
             return;
         }
 

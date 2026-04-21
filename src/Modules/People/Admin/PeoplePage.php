@@ -22,7 +22,7 @@ use TT\Shared\Admin\BackButton;
  */
 class PeoplePage {
 
-    private const CAP = 'tt_manage_players';
+    private const CAP = 'tt_view_people';
 
     public static function render(): void {
         if ( ! current_user_can( self::CAP ) ) {

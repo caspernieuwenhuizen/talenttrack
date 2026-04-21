@@ -133,7 +133,7 @@ class SessionsPage {
     }
 
     public static function handle_save(): void {
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_sessions' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_session', 'tt_nonce' );
         global $wpdb; $p = $wpdb->prefix;
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
@@ -192,7 +192,7 @@ class SessionsPage {
     public static function handle_delete(): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         check_admin_referer( 'tt_del_sess_' . $id );
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_sessions' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         global $wpdb; $p = $wpdb->prefix;
         $wpdb->delete( "{$p}tt_attendance", [ 'session_id' => $id ] );
         $wpdb->delete( "{$p}tt_sessions", [ 'id' => $id ] );

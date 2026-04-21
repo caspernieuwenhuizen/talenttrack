@@ -68,8 +68,8 @@ class DashboardShortcode {
         self::renderHeader();
 
         $user_id  = get_current_user_id();
-        $is_admin = current_user_can( 'tt_manage_settings' );
-        $is_coach = current_user_can( 'tt_evaluate_players' );
+        $is_admin = current_user_can( 'tt_edit_settings' );
+        $is_coach = current_user_can( 'tt_edit_evaluations' );
         $player   = QueryHelpers::get_player_for_user( $user_id );
 
         // v2.21.0: tile-based landing. When ?tt_view is not set, show

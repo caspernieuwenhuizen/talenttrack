@@ -216,9 +216,9 @@ class UsageTracker {
         foreach ( $user_ids as $uid ) {
             $user = get_userdata( (int) $uid );
             if ( ! $user ) { $buckets['other']++; continue; }
-            if ( user_can( $user, 'tt_manage_settings' ) ) {
+            if ( user_can( $user, 'tt_edit_settings' ) ) {
                 $buckets['admin']++;
-            } elseif ( user_can( $user, 'tt_evaluate_players' ) ) {
+            } elseif ( user_can( $user, 'tt_edit_evaluations' ) ) {
                 $buckets['coach']++;
             } else {
                 // Check player link.

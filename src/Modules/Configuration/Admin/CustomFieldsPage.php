@@ -34,7 +34,7 @@ use TT\Shared\Admin\BackButton;
  */
 class CustomFieldsPage {
 
-    private const CAP = 'tt_manage_settings';
+    private const CAP = 'tt_view_settings';
 
     /* ═══════════════ Router ═══════════════ */
 

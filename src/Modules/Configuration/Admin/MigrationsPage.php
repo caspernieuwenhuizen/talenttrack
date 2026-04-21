@@ -23,7 +23,7 @@ class MigrationsPage {
     }
 
     public static function render_page(): void {
-        if ( ! current_user_can( 'tt_manage_settings' ) && ! current_user_can( 'administrator' ) ) {
+        if ( ! current_user_can( 'tt_view_settings' ) && ! current_user_can( 'administrator' ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
@@ -207,7 +207,7 @@ class MigrationsPage {
     /* ═══ Handlers ═══ */
 
     public static function handle_run_one(): void {
-        if ( ! current_user_can( 'tt_manage_settings' ) && ! current_user_can( 'administrator' ) ) {
+        if ( ! current_user_can( 'tt_edit_settings' ) && ! current_user_can( 'administrator' ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         $name = isset( $_POST['migration'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['migration'] ) ) : '';
@@ -226,7 +226,7 @@ class MigrationsPage {
     }
 
     public static function handle_run_all(): void {
-        if ( ! current_user_can( 'tt_manage_settings' ) && ! current_user_can( 'administrator' ) ) {
+        if ( ! current_user_can( 'tt_edit_settings' ) && ! current_user_can( 'administrator' ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         check_admin_referer( 'tt_run_all_migrations', 'tt_nonce' );

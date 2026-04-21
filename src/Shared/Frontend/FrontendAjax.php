@@ -25,7 +25,7 @@ class FrontendAjax {
 
     public static function handle_save_evaluation(): void {
         check_ajax_referer( 'tt_frontend', 'nonce' );
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) {
+        if ( ! current_user_can( 'tt_edit_evaluations' ) ) {
             wp_send_json_error( [ 'message' => __( 'Unauthorized', 'talenttrack' ) ] );
         }
         global $wpdb; $p = $wpdb->prefix;
@@ -46,7 +46,7 @@ class FrontendAjax {
         if ( ! $header['player_id'] || ! $header['eval_date'] ) {
             wp_send_json_error( [ 'message' => __( 'Missing required fields.', 'talenttrack' ) ] );
         }
-        if ( ! current_user_can( 'tt_manage_settings' ) ) {
+        if ( ! current_user_can( 'tt_edit_settings' ) ) {
             if ( ! QueryHelpers::coach_owns_player( get_current_user_id(), (int) $header['player_id'] ) ) {
                 wp_send_json_error( [ 'message' => __( 'You can only evaluate players in your team.', 'talenttrack' ) ] );
             }
@@ -92,7 +92,7 @@ class FrontendAjax {
 
     public static function handle_save_session(): void {
         check_ajax_referer( 'tt_frontend', 'nonce' );
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) {
+        if ( ! current_user_can( 'tt_edit_sessions' ) ) {
             wp_send_json_error( [ 'message' => __( 'Unauthorized', 'talenttrack' ) ] );
         }
         global $wpdb; $p = $wpdb->prefix;
@@ -143,7 +143,7 @@ class FrontendAjax {
 
     public static function handle_save_goal(): void {
         check_ajax_referer( 'tt_frontend', 'nonce' );
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) {
+        if ( ! current_user_can( 'tt_edit_goals' ) ) {
             wp_send_json_error( [ 'message' => __( 'Unauthorized', 'talenttrack' ) ] );
         }
         global $wpdb;
@@ -170,7 +170,7 @@ class FrontendAjax {
 
     public static function handle_update_goal_status(): void {
         check_ajax_referer( 'tt_frontend', 'nonce' );
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) {
+        if ( ! current_user_can( 'tt_edit_goals' ) ) {
             wp_send_json_error( [ 'message' => __( 'Unauthorized', 'talenttrack' ) ] );
         }
         global $wpdb;
@@ -188,7 +188,7 @@ class FrontendAjax {
 
     public static function handle_delete_goal(): void {
         check_ajax_referer( 'tt_frontend', 'nonce' );
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) {
+        if ( ! current_user_can( 'tt_edit_goals' ) ) {
             wp_send_json_error( [ 'message' => __( 'Unauthorized', 'talenttrack' ) ] );
         }
         global $wpdb;

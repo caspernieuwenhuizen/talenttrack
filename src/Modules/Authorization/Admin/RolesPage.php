@@ -26,7 +26,7 @@ use TT\Infrastructure\Security\AuthorizationService;
  */
 class RolesPage {
 
-    private const CAP = 'tt_manage_settings';
+    private const CAP = 'tt_view_settings';
 
     /* ═══════════════ Router ═══════════════ */
 

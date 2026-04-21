@@ -126,7 +126,7 @@ class GoalsPage {
     }
 
     public static function handle_save(): void {
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_goals' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_goal', 'tt_nonce' );
         global $wpdb; $p = $wpdb->prefix;
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
@@ -178,7 +178,7 @@ class GoalsPage {
     public static function handle_delete(): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         check_admin_referer( 'tt_del_goal_' . $id );
-        if ( ! current_user_can( 'tt_evaluate_players' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_goals' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         global $wpdb;
         $wpdb->delete( $wpdb->prefix . 'tt_goals', [ 'id' => $id ] );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-goals&tt_msg=deleted' ) );

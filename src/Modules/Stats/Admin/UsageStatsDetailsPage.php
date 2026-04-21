@@ -27,7 +27,7 @@ use TT\Shared\Admin\BackButton;
  */
 class UsageStatsDetailsPage {
 
-    private const CAP = 'tt_manage_settings';
+    private const CAP = 'tt_view_settings';
 
     public static function render(): void {
         if ( ! current_user_can( self::CAP ) ) {
@@ -466,8 +466,8 @@ class UsageStatsDetailsPage {
     private static function userRoleKey( int $user_id ): string {
         $user = get_userdata( $user_id );
         if ( ! $user ) return 'other';
-        if ( user_can( $user, 'tt_manage_settings' ) ) return 'admin';
-        if ( user_can( $user, 'tt_evaluate_players' ) ) return 'coach';
+        if ( user_can( $user, 'tt_edit_settings' ) ) return 'admin';
+        if ( user_can( $user, 'tt_edit_evaluations' ) ) return 'coach';
         global $wpdb;
         $has_player = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d LIMIT 1",

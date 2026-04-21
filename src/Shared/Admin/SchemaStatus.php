@@ -55,7 +55,7 @@ class SchemaStatus {
      */
     public static function renderNotice(): void {
         if ( ! self::isPending() ) return;
-        if ( ! current_user_can( 'tt_manage_settings' ) && ! current_user_can( 'activate_plugins' ) ) return;
+        if ( ! current_user_can( 'tt_edit_settings' ) && ! current_user_can( 'activate_plugins' ) ) return;
 
         $stored = (string) get_option( self::OPTION_KEY, '' );
         $stored_display = $stored === '' ? __( '(never installed)', 'talenttrack' ) : $stored;
@@ -122,7 +122,7 @@ class SchemaStatus {
      */
     public static function handleRun(): void {
         check_admin_referer( self::ACTION );
-        if ( ! current_user_can( 'tt_manage_settings' ) && ! current_user_can( 'activate_plugins' ) ) {
+        if ( ! current_user_can( 'tt_edit_settings' ) && ! current_user_can( 'activate_plugins' ) ) {
             wp_die( esc_html__( 'Unauthorized.', 'talenttrack' ) );
         }
 

@@ -373,7 +373,7 @@ class ConfigurationPage {
     /* ═══ Handlers (unchanged from v2.3.0) ═══ */
 
     public static function handle_save_config(): void {
-        if ( ! current_user_can( 'tt_manage_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_config', 'tt_nonce' );
         $tab = isset( $_POST['tab'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['tab'] ) ) : '';
         $cfg = isset( $_POST['cfg'] ) && is_array( $_POST['cfg'] ) ? $_POST['cfg'] : [];
@@ -385,7 +385,7 @@ class ConfigurationPage {
     }
 
     public static function handle_save_toggles(): void {
-        if ( ! current_user_can( 'tt_manage_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_toggles', 'tt_nonce' );
         /** @var FeatureToggleService $toggles */
         $toggles = Kernel::instance()->container()->get( 'toggles' );
@@ -399,7 +399,7 @@ class ConfigurationPage {
     }
 
     public static function handle_save_lookup(): void {
-        if ( ! current_user_can( 'tt_manage_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_lookup', 'tt_nonce' );
         global $wpdb;
         $id   = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
@@ -424,7 +424,7 @@ class ConfigurationPage {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         $tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tab'] ) ) : '';
         check_admin_referer( 'tt_del_lookup_' . $id );
-        if ( ! current_user_can( 'tt_manage_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         global $wpdb;
         $wpdb->delete( $wpdb->prefix . 'tt_lookups', [ 'id' => $id ] );
         wp_safe_redirect( admin_url( "admin.php?page=tt-config&tab=$tab&tt_msg=deleted" ) );

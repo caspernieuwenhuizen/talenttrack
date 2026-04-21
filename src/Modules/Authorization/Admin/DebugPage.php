@@ -16,7 +16,7 @@ use TT\Infrastructure\Security\AuthorizationService;
  */
 class DebugPage {
 
-    private const CAP = 'tt_manage_settings';
+    private const CAP = 'tt_view_settings';
 
     public static function render(): void {
         if ( ! current_user_can( self::CAP ) ) {

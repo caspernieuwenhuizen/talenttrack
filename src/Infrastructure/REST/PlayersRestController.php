@@ -41,7 +41,7 @@ class PlayersRestController {
                     // Creating a new player is reserved for users with the
                     // manage_players capability. AuthorizationService has no
                     // per-entity check for creation (no target entity yet).
-                    return current_user_can( 'tt_manage_players' );
+                    return current_user_can( 'tt_edit_players' );
                 },
             ],
         ]);
@@ -73,7 +73,7 @@ class PlayersRestController {
                     // Delete is strictly a manage_players capability since
                     // it's destructive. Team-scoped editors (coaches) should
                     // not be able to delete players they merely coach.
-                    return current_user_can( 'tt_manage_players' );
+                    return current_user_can( 'tt_edit_players' );
                 },
             ],
         ]);

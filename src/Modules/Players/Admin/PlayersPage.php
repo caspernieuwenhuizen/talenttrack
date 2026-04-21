@@ -287,7 +287,7 @@ class PlayersPage {
                 wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
             }
         } else {
-            if ( ! current_user_can( 'tt_manage_players' ) ) {
+            if ( ! current_user_can( 'tt_edit_players' ) ) {
                 wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
             }
         }
@@ -382,7 +382,7 @@ class PlayersPage {
         // v2.8.0: delete remains capability-only (not entity-scoped). Deleting
         // a player is destructive, so team coaches shouldn't be able to delete
         // players they only coach. Only users with tt_manage_players can delete.
-        if ( ! current_user_can( 'tt_manage_players' ) ) {
+        if ( ! current_user_can( 'tt_edit_players' ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 

@@ -136,7 +136,7 @@ class TeamsPage {
                 wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
             }
         } else {
-            if ( ! current_user_can( 'tt_manage_players' ) ) {
+            if ( ! current_user_can( 'tt_edit_teams' ) ) {
                 wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
             }
         }
@@ -177,7 +177,7 @@ class TeamsPage {
         // v2.8.0: delete remains capability-only. Destructive ops should stay
         // with users who have global tt_manage_players; coaches of a team
         // shouldn't be able to delete the team they coach.
-        if ( ! current_user_can( 'tt_manage_players' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_teams' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         global $wpdb;
         // Also clean up any staff assignments pointing at this team, to avoid orphans.
         $wpdb->delete( $wpdb->prefix . 'tt_team_people', [ 'team_id' => $id ] );

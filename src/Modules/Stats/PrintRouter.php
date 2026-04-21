@@ -82,9 +82,9 @@ class PrintRouter {
 
     private static function frontendCanAccess( int $target_id ): bool {
         $user_id = get_current_user_id();
-        if ( current_user_can( 'tt_manage_settings' ) ) return true;
+        if ( current_user_can( 'tt_view_settings' ) ) return true;
 
-        if ( current_user_can( 'tt_evaluate_players' ) ) {
+        if ( current_user_can( 'tt_view_evaluations' ) ) {
             $target = QueryHelpers::get_player( $target_id );
             if ( $target && ! empty( $target->team_id ) ) {
                 $coached = QueryHelpers::get_teams_for_coach( $user_id );

@@ -156,7 +156,7 @@ class BulkActionsHelper {
      *                              'active' offers Archive + Delete permanently.
      */
     public static function renderActionBar( string $current_view ): void {
-        $can_hard_delete = current_user_can( 'tt_manage_settings' );
+        $can_hard_delete = current_user_can( 'tt_edit_settings' );
         ?>
         <div class="tablenav top" style="margin:8px 0;">
             <div class="alignleft actions bulkactions">
@@ -220,7 +220,7 @@ class BulkActionsHelper {
         if ( ! current_user_can( $required_cap ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
-        if ( $action === 'delete_permanent' && ! current_user_can( 'tt_manage_settings' ) ) {
+        if ( $action === 'delete_permanent' && ! current_user_can( 'tt_edit_settings' ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
@@ -296,13 +296,13 @@ class BulkActionsHelper {
 
     private static function capForEntity( string $entity ): string {
         switch ( $entity ) {
-            case 'player':
-            case 'team':
-            case 'person':     return 'tt_manage_players';
-            case 'evaluation':
-            case 'session':
-            case 'goal':       return 'tt_evaluate_players';
-            default:           return 'tt_manage_settings';
+            case 'player':     return 'tt_edit_players';
+            case 'team':       return 'tt_edit_teams';
+            case 'person':     return 'tt_edit_people';
+            case 'evaluation': return 'tt_edit_evaluations';
+            case 'session':    return 'tt_edit_sessions';
+            case 'goal':       return 'tt_edit_goals';
+            default:           return 'tt_edit_settings';
         }
     }
 

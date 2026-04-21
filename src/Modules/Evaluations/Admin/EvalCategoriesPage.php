@@ -27,7 +27,7 @@ use TT\Shared\Admin\BackButton;
  */
 class EvalCategoriesPage {
 
-    private const CAP = 'tt_manage_settings';
+    private const CAP = 'tt_view_settings';
 
     /* ═══════════════ Router ═══════════════ */
 

@@ -66,39 +66,39 @@ class Menu {
         add_menu_page( __( 'TalentTrack', 'talenttrack' ), __( 'TalentTrack', 'talenttrack' ), 'read', 'talenttrack', [ __CLASS__, 'dashboard' ], 'dashicons-groups', 26 );
         add_submenu_page( 'talenttrack', __( 'Dashboard', 'talenttrack' ), __( 'Dashboard', 'talenttrack' ), 'read', 'talenttrack', [ __CLASS__, 'dashboard' ] );
 
-        self::addSeparator( 'tt-sep-people', __( 'People', 'talenttrack' ), 'tt_manage_players' );
-        add_submenu_page( 'talenttrack', __( 'Teams', 'talenttrack' ), __( 'Teams', 'talenttrack' ), 'tt_manage_players', 'tt-teams', [ TeamsPage::class, 'render_page' ] );
-        add_submenu_page( 'talenttrack', __( 'Players', 'talenttrack' ), __( 'Players', 'talenttrack' ), 'tt_manage_players', 'tt-players', [ PlayersPage::class, 'render_page' ] );
+        self::addSeparator( 'tt-sep-people', __( 'People', 'talenttrack' ), 'tt_view_players' );
+        add_submenu_page( 'talenttrack', __( 'Teams', 'talenttrack' ), __( 'Teams', 'talenttrack' ), 'tt_view_teams', 'tt-teams', [ TeamsPage::class, 'render_page' ] );
+        add_submenu_page( 'talenttrack', __( 'Players', 'talenttrack' ), __( 'Players', 'talenttrack' ), 'tt_view_players', 'tt-players', [ PlayersPage::class, 'render_page' ] );
         // v2.20.0: People moved in from PeopleModule so it sits under the group.
-        add_submenu_page( 'talenttrack', __( 'People', 'talenttrack' ), __( 'People', 'talenttrack' ), 'tt_manage_players', 'tt-people', [ \TT\Modules\People\Admin\PeoplePage::class, 'render' ] );
+        add_submenu_page( 'talenttrack', __( 'People', 'talenttrack' ), __( 'People', 'talenttrack' ), 'tt_view_people', 'tt-people', [ \TT\Modules\People\Admin\PeoplePage::class, 'render' ] );
 
-        self::addSeparator( 'tt-sep-performance', __( 'Performance', 'talenttrack' ), 'tt_evaluate_players' );
-        add_submenu_page( 'talenttrack', __( 'Evaluations', 'talenttrack' ), __( 'Evaluations', 'talenttrack' ), 'tt_evaluate_players', 'tt-evaluations', [ EvaluationsPage::class, 'render_page' ] );
-        add_submenu_page( 'talenttrack', __( 'Sessions', 'talenttrack' ), __( 'Sessions', 'talenttrack' ), 'tt_evaluate_players', 'tt-sessions', [ SessionsPage::class, 'render_page' ] );
-        add_submenu_page( 'talenttrack', __( 'Goals', 'talenttrack' ), __( 'Goals', 'talenttrack' ), 'tt_evaluate_players', 'tt-goals', [ GoalsPage::class, 'render_page' ] );
+        self::addSeparator( 'tt-sep-performance', __( 'Performance', 'talenttrack' ), 'tt_view_evaluations' );
+        add_submenu_page( 'talenttrack', __( 'Evaluations', 'talenttrack' ), __( 'Evaluations', 'talenttrack' ), 'tt_view_evaluations', 'tt-evaluations', [ EvaluationsPage::class, 'render_page' ] );
+        add_submenu_page( 'talenttrack', __( 'Sessions', 'talenttrack' ), __( 'Sessions', 'talenttrack' ), 'tt_view_sessions', 'tt-sessions', [ SessionsPage::class, 'render_page' ] );
+        add_submenu_page( 'talenttrack', __( 'Goals', 'talenttrack' ), __( 'Goals', 'talenttrack' ), 'tt_view_goals', 'tt-goals', [ GoalsPage::class, 'render_page' ] );
 
         self::addSeparator( 'tt-sep-analytics', __( 'Analytics', 'talenttrack' ), 'tt_view_reports' );
         add_submenu_page( 'talenttrack', __( 'Reports', 'talenttrack' ), __( 'Reports', 'talenttrack' ), 'tt_view_reports', 'tt-reports', [ ReportsPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Player Rate Cards', 'talenttrack' ), __( 'Player Rate Cards', 'talenttrack' ), 'tt_view_reports', 'tt-rate-cards', [ PlayerRateCardsPage::class, 'render' ] );
         add_submenu_page( 'talenttrack', __( 'Player Comparison', 'talenttrack' ), __( 'Player Comparison', 'talenttrack' ), 'tt_view_reports', 'tt-compare', [ \TT\Modules\Stats\Admin\PlayerComparisonPage::class, 'render' ] );
-        add_submenu_page( 'talenttrack', __( 'Usage Statistics', 'talenttrack' ), __( 'Usage Statistics', 'talenttrack' ), 'tt_manage_settings', 'tt-usage-stats', [ \TT\Modules\Stats\Admin\UsageStatsPage::class, 'render' ] );
+        add_submenu_page( 'talenttrack', __( 'Usage Statistics', 'talenttrack' ), __( 'Usage Statistics', 'talenttrack' ), 'tt_view_settings', 'tt-usage-stats', [ \TT\Modules\Stats\Admin\UsageStatsPage::class, 'render' ] );
         // v2.19.0: hidden details page for drill-down from KPI cards.
         // Registered with null parent so it doesn't appear in the menu
         // but the page slug routes correctly.
-        add_submenu_page( null, __( 'Usage Detail', 'talenttrack' ), __( 'Usage Detail', 'talenttrack' ), 'tt_manage_settings', 'tt-usage-stats-details', [ \TT\Modules\Stats\Admin\UsageStatsDetailsPage::class, 'render' ] );
+        add_submenu_page( null, __( 'Usage Detail', 'talenttrack' ), __( 'Usage Detail', 'talenttrack' ), 'tt_view_settings', 'tt-usage-stats-details', [ \TT\Modules\Stats\Admin\UsageStatsDetailsPage::class, 'render' ] );
 
-        self::addSeparator( 'tt-sep-config', __( 'Configuration', 'talenttrack' ), 'tt_manage_settings' );
-        add_submenu_page( 'talenttrack', __( 'Configuration', 'talenttrack' ), __( 'Configuration', 'talenttrack' ), 'tt_manage_settings', 'tt-config', [ ConfigurationPage::class, 'render_page' ] );
-        add_submenu_page( 'talenttrack', __( 'Custom Fields', 'talenttrack' ), __( 'Custom Fields', 'talenttrack' ), 'tt_manage_settings', 'tt-custom-fields', [ CustomFieldsPage::class, 'render' ] );
-        add_submenu_page( 'talenttrack', __( 'Evaluation Categories', 'talenttrack' ), __( 'Evaluation Categories', 'talenttrack' ), 'tt_manage_settings', 'tt-eval-categories', [ EvalCategoriesPage::class, 'render' ] );
-        add_submenu_page( 'talenttrack', __( 'Category Weights', 'talenttrack' ), __( 'Category Weights', 'talenttrack' ), 'tt_manage_settings', 'tt-category-weights', [ CategoryWeightsPage::class, 'render' ] );
+        self::addSeparator( 'tt-sep-config', __( 'Configuration', 'talenttrack' ), 'tt_view_settings' );
+        add_submenu_page( 'talenttrack', __( 'Configuration', 'talenttrack' ), __( 'Configuration', 'talenttrack' ), 'tt_view_settings', 'tt-config', [ ConfigurationPage::class, 'render_page' ] );
+        add_submenu_page( 'talenttrack', __( 'Custom Fields', 'talenttrack' ), __( 'Custom Fields', 'talenttrack' ), 'tt_view_settings', 'tt-custom-fields', [ CustomFieldsPage::class, 'render' ] );
+        add_submenu_page( 'talenttrack', __( 'Evaluation Categories', 'talenttrack' ), __( 'Evaluation Categories', 'talenttrack' ), 'tt_view_settings', 'tt-eval-categories', [ EvalCategoriesPage::class, 'render' ] );
+        add_submenu_page( 'talenttrack', __( 'Category Weights', 'talenttrack' ), __( 'Category Weights', 'talenttrack' ), 'tt_view_settings', 'tt-category-weights', [ CategoryWeightsPage::class, 'render' ] );
 
         // v2.20.0: Access Control group — Authorization pages moved in
         // from AuthorizationModule so they sit under a proper separator.
-        self::addSeparator( 'tt-sep-access', __( 'Access Control', 'talenttrack' ), 'tt_manage_settings' );
-        add_submenu_page( 'talenttrack', __( 'Roles & Permissions', 'talenttrack' ), __( 'Roles & Permissions', 'talenttrack' ), 'tt_manage_settings', 'tt-roles', [ \TT\Modules\Authorization\Admin\RolesPage::class, 'render' ] );
-        add_submenu_page( 'talenttrack', __( 'Functional Roles', 'talenttrack' ), __( 'Functional Roles', 'talenttrack' ), 'tt_manage_settings', 'tt-functional-roles', [ \TT\Modules\Authorization\Admin\FunctionalRolesPage::class, 'render' ] );
-        add_submenu_page( 'talenttrack', __( 'Permission Debug', 'talenttrack' ), __( 'Permission Debug', 'talenttrack' ), 'tt_manage_settings', 'tt-roles-debug', [ \TT\Modules\Authorization\Admin\DebugPage::class, 'render' ] );
+        self::addSeparator( 'tt-sep-access', __( 'Access Control', 'talenttrack' ), 'tt_view_settings' );
+        add_submenu_page( 'talenttrack', __( 'Roles & Permissions', 'talenttrack' ), __( 'Roles & Permissions', 'talenttrack' ), 'tt_view_settings', 'tt-roles', [ \TT\Modules\Authorization\Admin\RolesPage::class, 'render' ] );
+        add_submenu_page( 'talenttrack', __( 'Functional Roles', 'talenttrack' ), __( 'Functional Roles', 'talenttrack' ), 'tt_view_settings', 'tt-functional-roles', [ \TT\Modules\Authorization\Admin\FunctionalRolesPage::class, 'render' ] );
+        add_submenu_page( 'talenttrack', __( 'Permission Debug', 'talenttrack' ), __( 'Permission Debug', 'talenttrack' ), 'tt_view_settings', 'tt-roles-debug', [ \TT\Modules\Authorization\Admin\DebugPage::class, 'render' ] );
 
         add_submenu_page( 'talenttrack', __( 'Help & Docs', 'talenttrack' ), __( 'Help & Docs', 'talenttrack' ), 'read', 'tt-docs', [ DocumentationPage::class, 'render_page' ] );
 
@@ -186,7 +186,7 @@ class Menu {
                 'delta'    => $delta_players,
                 'icon'     => 'dashicons-admin-users',
                 'url'      => admin_url( 'admin.php?page=tt-players' ),
-                'cap'      => 'tt_manage_players',
+                'cap'      => 'tt_view_players',
                 'color'    => '#1d7874',
             ],
             [
@@ -195,7 +195,7 @@ class Menu {
                 'delta'    => $delta_teams,
                 'icon'     => 'dashicons-shield',
                 'url'      => admin_url( 'admin.php?page=tt-teams' ),
-                'cap'      => 'tt_manage_players',
+                'cap'      => 'tt_view_teams',
                 'color'    => '#2271b1',
             ],
             [
@@ -204,7 +204,7 @@ class Menu {
                 'delta'    => $delta_evals,
                 'icon'     => 'dashicons-chart-bar',
                 'url'      => admin_url( 'admin.php?page=tt-evaluations' ),
-                'cap'      => 'tt_evaluate_players',
+                'cap'      => 'tt_view_evaluations',
                 'color'    => '#7c3a9e',
             ],
             [
@@ -213,7 +213,7 @@ class Menu {
                 'delta'    => $delta_sess,
                 'icon'     => 'dashicons-calendar-alt',
                 'url'      => admin_url( 'admin.php?page=tt-sessions' ),
-                'cap'      => 'tt_evaluate_players',
+                'cap'      => 'tt_view_sessions',
                 'color'    => '#c9962a',
             ],
             [
@@ -222,7 +222,7 @@ class Menu {
                 'delta'    => $delta_goals,
                 'icon'     => 'dashicons-flag',
                 'url'      => admin_url( 'admin.php?page=tt-goals' ),
-                'cap'      => 'tt_evaluate_players',
+                'cap'      => 'tt_view_goals',
                 'color'    => '#b32d2e',
             ],
         ];
@@ -236,9 +236,9 @@ class Menu {
                 'label'  => __( 'People', 'talenttrack' ),
                 'accent' => '#1d7874',
                 'tiles'  => [
-                    [ 'label' => __( 'Teams', 'talenttrack' ),   'icon' => 'dashicons-shield',       'url' => admin_url( 'admin.php?page=tt-teams' ),   'cap' => 'tt_manage_players', 'desc' => __( 'Manage teams, staff assignments, and age groups.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Players', 'talenttrack' ), 'icon' => 'dashicons-admin-users', 'url' => admin_url( 'admin.php?page=tt-players' ), 'cap' => 'tt_manage_players', 'desc' => __( 'Player roster, positions, photos, guardian info.', 'talenttrack' ) ],
-                    [ 'label' => __( 'People', 'talenttrack' ),  'icon' => 'dashicons-groups',      'url' => admin_url( 'admin.php?page=tt-people' ),  'cap' => 'tt_manage_players', 'desc' => __( 'Coaches, assistants, medical staff, volunteers.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Teams', 'talenttrack' ),   'icon' => 'dashicons-shield',       'url' => admin_url( 'admin.php?page=tt-teams' ),   'cap' => 'tt_view_teams', 'desc' => __( 'Manage teams, staff assignments, and age groups.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Players', 'talenttrack' ), 'icon' => 'dashicons-admin-users', 'url' => admin_url( 'admin.php?page=tt-players' ), 'cap' => 'tt_view_players', 'desc' => __( 'Player roster, positions, photos, guardian info.', 'talenttrack' ) ],
+                    [ 'label' => __( 'People', 'talenttrack' ),  'icon' => 'dashicons-groups',      'url' => admin_url( 'admin.php?page=tt-people' ),  'cap' => 'tt_view_people', 'desc' => __( 'Coaches, assistants, medical staff, volunteers.', 'talenttrack' ) ],
                 ],
             ],
             [
@@ -246,9 +246,9 @@ class Menu {
                 'label'  => __( 'Performance', 'talenttrack' ),
                 'accent' => '#7c3a9e',
                 'tiles'  => [
-                    [ 'label' => __( 'Evaluations', 'talenttrack' ), 'icon' => 'dashicons-chart-bar',     'url' => admin_url( 'admin.php?page=tt-evaluations' ), 'cap' => 'tt_evaluate_players', 'desc' => __( 'Rate players across training and match sessions.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Sessions', 'talenttrack' ),    'icon' => 'dashicons-calendar-alt', 'url' => admin_url( 'admin.php?page=tt-sessions' ),    'cap' => 'tt_evaluate_players', 'desc' => __( 'Record training sessions and attendance.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Goals', 'talenttrack' ),       'icon' => 'dashicons-flag',         'url' => admin_url( 'admin.php?page=tt-goals' ),       'cap' => 'tt_evaluate_players', 'desc' => __( 'Set and track development goals per player.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Evaluations', 'talenttrack' ), 'icon' => 'dashicons-chart-bar',     'url' => admin_url( 'admin.php?page=tt-evaluations' ), 'cap' => 'tt_view_evaluations', 'desc' => __( 'Rate players across training and match sessions.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Sessions', 'talenttrack' ),    'icon' => 'dashicons-calendar-alt', 'url' => admin_url( 'admin.php?page=tt-sessions' ),    'cap' => 'tt_view_sessions', 'desc' => __( 'Record training sessions and attendance.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Goals', 'talenttrack' ),       'icon' => 'dashicons-flag',         'url' => admin_url( 'admin.php?page=tt-goals' ),       'cap' => 'tt_view_goals', 'desc' => __( 'Set and track development goals per player.', 'talenttrack' ) ],
                 ],
             ],
             [
@@ -259,7 +259,7 @@ class Menu {
                     [ 'label' => __( 'Reports', 'talenttrack' ),           'icon' => 'dashicons-media-document', 'url' => admin_url( 'admin.php?page=tt-reports' ),      'cap' => 'tt_view_reports',    'desc' => __( 'Saved report presets and exports.', 'talenttrack' ) ],
                     [ 'label' => __( 'Player Rate Cards', 'talenttrack' ), 'icon' => 'dashicons-id-alt',         'url' => admin_url( 'admin.php?page=tt-rate-cards' ),   'cap' => 'tt_view_reports',    'desc' => __( 'Per-player rate cards with trends and charts.', 'talenttrack' ) ],
                     [ 'label' => __( 'Player Comparison', 'talenttrack' ), 'icon' => 'dashicons-randomize',      'url' => admin_url( 'admin.php?page=tt-compare' ),      'cap' => 'tt_view_reports',    'desc' => __( 'Side-by-side comparison of up to 4 players.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Usage Statistics', 'talenttrack' ),  'icon' => 'dashicons-chart-line',     'url' => admin_url( 'admin.php?page=tt-usage-stats' ),  'cap' => 'tt_manage_settings', 'desc' => __( 'Logins, active users, most-visited pages.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Usage Statistics', 'talenttrack' ),  'icon' => 'dashicons-chart-line',     'url' => admin_url( 'admin.php?page=tt-usage-stats' ),  'cap' => 'tt_view_settings', 'desc' => __( 'Logins, active users, most-visited pages.', 'talenttrack' ) ],
                 ],
             ],
             [
@@ -267,10 +267,10 @@ class Menu {
                 'label'  => __( 'Configuration', 'talenttrack' ),
                 'accent' => '#555',
                 'tiles'  => [
-                    [ 'label' => __( 'Configuration', 'talenttrack' ),        'icon' => 'dashicons-admin-settings',  'url' => admin_url( 'admin.php?page=tt-config' ),             'cap' => 'tt_manage_settings', 'desc' => __( 'Academy name, logo, rating scale, colors.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Custom Fields', 'talenttrack' ),        'icon' => 'dashicons-editor-table',    'url' => admin_url( 'admin.php?page=tt-custom-fields' ),      'cap' => 'tt_manage_settings', 'desc' => __( 'Add club-specific fields to any entity.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Evaluation Categories', 'talenttrack' ),'icon' => 'dashicons-category',        'url' => admin_url( 'admin.php?page=tt-eval-categories' ),    'cap' => 'tt_manage_settings', 'desc' => __( 'Main + subcategories used in evaluations.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Category Weights', 'talenttrack' ),     'icon' => 'dashicons-chart-pie',       'url' => admin_url( 'admin.php?page=tt-category-weights' ),   'cap' => 'tt_manage_settings', 'desc' => __( 'Per-age-group weighting for overall ratings.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Configuration', 'talenttrack' ),        'icon' => 'dashicons-admin-settings',  'url' => admin_url( 'admin.php?page=tt-config' ),             'cap' => 'tt_view_settings', 'desc' => __( 'Academy name, logo, rating scale, colors.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Custom Fields', 'talenttrack' ),        'icon' => 'dashicons-editor-table',    'url' => admin_url( 'admin.php?page=tt-custom-fields' ),      'cap' => 'tt_view_settings', 'desc' => __( 'Add club-specific fields to any entity.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Evaluation Categories', 'talenttrack' ),'icon' => 'dashicons-category',        'url' => admin_url( 'admin.php?page=tt-eval-categories' ),    'cap' => 'tt_view_settings', 'desc' => __( 'Main + subcategories used in evaluations.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Category Weights', 'talenttrack' ),     'icon' => 'dashicons-chart-pie',       'url' => admin_url( 'admin.php?page=tt-category-weights' ),   'cap' => 'tt_view_settings', 'desc' => __( 'Per-age-group weighting for overall ratings.', 'talenttrack' ) ],
                 ],
             ],
             [
@@ -278,9 +278,9 @@ class Menu {
                 'label'  => __( 'Access Control', 'talenttrack' ),
                 'accent' => '#b32d2e',
                 'tiles'  => [
-                    [ 'label' => __( 'Roles & Permissions', 'talenttrack' ), 'icon' => 'dashicons-lock',      'url' => admin_url( 'admin.php?page=tt-roles' ),           'cap' => 'tt_manage_settings', 'desc' => __( 'Who can do what — grant or revoke TalentTrack roles per user.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Functional Roles', 'talenttrack' ),   'icon' => 'dashicons-businessperson', 'url' => admin_url( 'admin.php?page=tt-functional-roles' ), 'cap' => 'tt_manage_settings', 'desc' => __( 'Head coach, assistant, physio — map club roles to permissions.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Permission Debug', 'talenttrack' ),   'icon' => 'dashicons-search',    'url' => admin_url( 'admin.php?page=tt-roles-debug' ),      'cap' => 'tt_manage_settings', 'desc' => __( 'Inspect any user\'s effective permissions.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Roles & Permissions', 'talenttrack' ), 'icon' => 'dashicons-lock',      'url' => admin_url( 'admin.php?page=tt-roles' ),           'cap' => 'tt_view_settings', 'desc' => __( 'Who can do what — grant or revoke TalentTrack roles per user.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Functional Roles', 'talenttrack' ),   'icon' => 'dashicons-businessperson', 'url' => admin_url( 'admin.php?page=tt-functional-roles' ), 'cap' => 'tt_view_settings', 'desc' => __( 'Head coach, assistant, physio — map club roles to permissions.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Permission Debug', 'talenttrack' ),   'icon' => 'dashicons-search',    'url' => admin_url( 'admin.php?page=tt-roles-debug' ),      'cap' => 'tt_view_settings', 'desc' => __( 'Inspect any user\'s effective permissions.', 'talenttrack' ) ],
                 ],
             ],
             [

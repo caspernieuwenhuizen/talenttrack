@@ -28,7 +28,7 @@ use TT\Infrastructure\Authorization\FunctionalRolesRepository;
  */
 class FunctionalRolesPage {
 
-    private const CAP = 'tt_manage_settings';
+    private const CAP = 'tt_view_settings';
 
     /* ═══════════════ Router ═══════════════ */
 

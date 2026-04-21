@@ -161,7 +161,7 @@ class DragReorder {
      */
     public static function handle(): void {
         check_ajax_referer( self::NONCE_ACTION );
-        if ( ! current_user_can( 'tt_manage_settings' ) ) {
+        if ( ! current_user_can( 'tt_edit_settings' ) ) {
             wp_send_json_error( [ 'message' => 'unauthorized' ], 403 );
         }
 
