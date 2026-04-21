@@ -23,5 +23,7 @@ class StatsModule implements ModuleInterface {
         }
         // v2.17.0: isolated print route (admin + frontend entry points).
         PrintRouter::init();
+        // v2.18.0: usage tracker — captures logins + admin page views.
+        \TT\Infrastructure\Usage\UsageTracker::init();
     }
 }

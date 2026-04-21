@@ -4,13 +4,22 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.17.0
+Stable tag: 2.18.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.18.0 — Usage Statistics + Dashboard as Workspace =
+* NEW: Usage Statistics admin page (Analytics → Usage Statistics, admin-only). Tracks logins + admin page views. Headline tiles for 7/30/90-day login + active-user counts. Daily-active-users line chart (90 days). Evaluations-created-per-day bar chart (90 days, sourced from evaluations table so historical data appears immediately). Active-by-role breakdown (Admins/Coaches/Players/Other). Most-visited admin pages (top 10). Inactive-user nudge list (30+ day absence).
+* NEW: 90-day rolling retention on usage events via daily WP-Cron prune job (tt_usage_prune_daily). No IP addresses or user agents captured — just user_id + event_type + optional target.
+* NEW: Migration 0011 creates tt_usage_events table (idempotent). ensureSchema handles fresh installs.
+* NEW: UsageTracker service with public record($user_id, $type, $target) method for future instrumentation hooks.
+* CHANGED: TalentTrack Dashboard fully rewritten. Overview section with 5 clickable gradient stat cards (Players / Teams / Evaluations / Sessions / Goals), each showing active-count and linking to its list page. Grouped tile sections below mirroring the admin menu structure: People / Performance / Analytics / Configuration / Help. Every tile is navigation with icon + label + one-line description. Cap-gated — users only see tiles they can access. Hover-lift, gradient-tinted icons per group. Mobile-responsive (collapses to single column under 640px).
+* CHANGED: Dashboard stat counts now filter on archived_at IS NULL (consistent with list views).
+* DESIGN: Dashboard prepared as foundation for upcoming front-end admin work.
 
 = 2.17.0 — Admin Menu Overhaul + Bulk Archive/Delete + Isolated Print =
 * NEW: Admin menu grouped into logical sections (People / Performance / Analytics / Configuration) with visual separator headings between groups.

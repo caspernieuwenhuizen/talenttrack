@@ -1,211 +1,189 @@
-# TalentTrack v2.17.0 — Admin Menu Overhaul + Bulk Archive/Delete + Isolated Print
+# TalentTrack v2.18.0 — Usage Statistics + Dashboard as Workspace
 
 ## Summary
 
-This release bundles four changes that make the admin experience cleaner and more robust for daily club use:
+Two items:
 
-1. **Admin menu overhauled** — flat 13-item menu grouped into logical sections with visual separators
-2. **Bulk archive & delete** across all list views — select many rows, archive them (reversible) or permanently delete (admins only)
-3. **Teams list** — Head Coach column removed from display (field still editable on the team form)
-4. **Printable report fixed** — print route is now fully isolated; no more WP admin chrome leaking into printed output. Visible Print button + Download PDF button. No more auto-fire.
+1. **Usage Statistics** — new admin page with login / active-user metrics, DAU + evaluations-created charts, top-pages breakdown, inactive-user nudge list. 90-day rolling retention, privacy-first (no IPs / no user agents).
+2. **Admin Dashboard overhaul** — the formerly-inert 5-card stat page becomes a proper workspace: Overview (clickable gradient stat cards) + grouped tile navigation (People / Performance / Analytics / Configuration / Help) mirroring the menu structure. Cap-gated. Preparation for front-end admin work to come.
 
-The usage-statistics item originally planned for this sprint has been **deferred to v2.18.0** — that one grew into enough scope to deserve its own release with proper implementation.
+## Item 1 — Usage Statistics
 
-## Item 1 — Admin menu overhaul
+### What gets tracked
 
-The TalentTrack admin menu was a flat list of ~13 submenu entries accumulated across sprints. It's now grouped:
+Two event sources, kept lean:
 
-```
-Dashboard
-─── People ─────────────────
-  Teams
-  Players
-─── Performance ────────────
-  Evaluations
-  Sessions
-  Goals
-─── Analytics ──────────────
-  Reports
-  Player Rate Cards
-─── Configuration ──────────
-  Configuration
-  Custom Fields
-  Evaluation Categories
-  Category Weights
-Help & Docs
-```
+- **Login events** — captured on `wp_login`. One row per login, per user, timestamped.
+- **Admin page views** — on every TalentTrack admin page load. Skips separator slugs (`tt-sep-*`) so the menu separators don't inflate counters.
 
-Separators are non-clickable heading rows styled via inline admin CSS (small caps, muted gray, thin top border). Clicking one does nothing visible; keyboard-nav accidentally landing on one redirects silently to the dashboard.
+That's it. No IPs, no user agents, no fingerprinting. A dedicated `record($user_id, $type, $target)` method exists on `UsageTracker` for future instrumentation (e.g. "evaluation_saved" hooks could go here) but no other events are captured in this release.
 
-**Implementation note**: WordPress has no native grouped-submenu support. Separators are faked with `add_submenu_page` entries whose slug begins with `tt-sep-` and whose display is transformed entirely by CSS. The approach is resilient — plays well with WP's existing capability checks, bookmarks to real submenu pages keep working, admin themes that override the submenu list don't break.
+### Retention
 
-## Item 2 — Bulk archive and delete
+Fixed 90-day window. Events older than 90 days are deleted by a daily WP-Cron job (`tt_usage_prune_daily`). The cron is scheduled on activation and unscheduled on deactivation.
 
-Every major entity list view now supports bulk actions:
+### Schema
 
-**Surfaces covered:**
-- Players
-- Teams
-- Evaluations
-- Sessions
-- Goals
-- People (bulk archive/delete only — full archive-view filtering on People deferred to v2.18.0 since it uses its own repository layer)
+Migration 0011 creates `tt_usage_events`:
+- `id BIGINT UNSIGNED AUTO_INCREMENT`
+- `user_id BIGINT UNSIGNED NOT NULL`
+- `event_type VARCHAR(50) NOT NULL`
+- `event_target VARCHAR(100) NULL`
+- `created_at DATETIME NOT NULL`
 
-**Actions available:**
-- **Archive** — soft-delete; row retained with `archived_at` timestamp + `archived_by` user id. Reversible.
-- **Restore** — clear archive stamp; row returns to active list. Only offered from the Archived view.
-- **Delete permanently** — hard delete from DB. Irreversible. Admin-only (requires `tt_manage_settings`).
+Indexes on `(user_id, created_at)`, `(event_type, created_at)`, and `(created_at)` alone for the prune job.
 
-**UI shape:**
-- Checkbox column (30px wide) at left of every row
-- Master select-all checkbox in the table header
-- Bulk action dropdown + Apply button, rendered above AND below the table (standard WordPress list-table convention)
-- Status tab-bar above the table: **Active (N) | Archived (N) | All (N)**, each link counted. URL-driven (`?tt_view=active|archived|all`).
-- Archived rows in the "All" or "Archived" view render with 60% opacity + gray "Archived" badge next to the name
+### Admin page: TalentTrack → Usage Statistics
 
-**UX details:**
-- Select-all checkbox toggles every row checkbox in the same form
-- "Delete permanently" triggers a JS confirm with the selected count before submitting
-- Empty-selection submit shows a nudge ("No items selected.")
-- Non-admin user accidentally submitting "Delete permanently" (shouldn't appear in their dropdown but belt-and-braces) hits a server-side permission error
-- After any bulk action, a success notice shows at the top of the list: "3 items archived." etc.
+Admin-only (`tt_manage_settings`). Lives under the Analytics group in the admin menu.
 
-**Schema:**
-- Migration 0010 adds `archived_at DATETIME NULL` + `archived_by BIGINT UNSIGNED NULL` + `idx_archived_at` index to `tt_players`, `tt_teams`, `tt_evaluations`, `tt_sessions`, `tt_goals`, `tt_people`
-- Idempotent — skips tables/columns that already have the columns
-- `ensureSchema` updated for fresh installs
-- Default list queries automatically append `AND archived_at IS NULL` so archived rows don't leak into the main views
+**Headline row (6 tiles):**
+- Logins over 7 / 30 / 90 days
+- Unique active users over 7 / 30 / 90 days
 
-**Permission model:**
-- Archive/restore — uses each entity's existing management cap (`tt_manage_players` for player/team/person, `tt_evaluate_players` for evaluation/session/goal)
-- Delete permanently — always requires `tt_manage_settings` (full admin), regardless of entity
-- Rationale: archiving is cheap + reversible, should flow naturally; permanent deletion is rare + destructive, belongs in admin hands only
+Logins are blue-accented; active-user tiles green-accented. Big numbers, compact layout.
 
-**Cascade behavior:** archiving a team does NOT archive its players, sessions, or goals. Each entity is archived independently. An archived team's active players remain visible and editable; they just lose access to the team badge. Explicit independence avoids the "I archived one team and everything vanished" footgun.
+**Daily active users (90 days):**
+Full-width filled line chart. Zero-filled days so sparse early weeks still render as a continuous series. Chart.js, ~260px tall.
 
-**Future work (v2.18.0):**
-- People page archive-view filtering (currently shows active-only in the Active tab, empty in Archived due to repo layer not yet supporting the filter)
-- Dependency warnings when archiving an entity with many active dependents
-- Cascade-on-delete for permanent deletes (currently orphans dependents)
+**Evaluations created per day (90 days):**
+Full-width bar chart. Reads directly from `tt_evaluations.created_at` rather than an event, so existing historical data is visible immediately (no "post-install only" gap).
 
-## Item 3 — Head Coach field removed from Teams display
+**Two-column row:**
+- **Active users by role (30 days)** — breakdown into Admins / Coaches / Players / Other via capability checks + player-link lookup. Horizontal bars with counts.
+- **Most-visited admin pages (30 days)** — top 10, human-readable labels, progress-bar visualization of relative traffic.
 
-The Teams admin list no longer shows the Head Coach column. The underlying `head_coach_id` column on `tt_teams` is retained; the field is still editable on the team form. This is a pure display change — no schema migration, no data changes.
+**Inactive users table:**
+Users who've logged in at any point within the 90-day window but haven't logged in the last 30+ days. Shows display name + last-login timestamp. Up to 20 rows. When empty: green "everyone's active" message.
 
-## Item 4 — Isolated print route
+### Privacy posture
 
-The v2.16.0 print report leaked admin shell / theme chrome into printed output because the report rendered inside the regular admin/theme layout and relied on `@media print { visibility: hidden }` CSS tricks to hide surrounding elements. This didn't always work: admin notices, theme footers, and specific theme rules with high CSS specificity slipped through.
+- Admin-only visibility
+- No identifying info beyond user_id
+- No IPs, no user agents, no geolocation
+- Clear banner on the page stating the retention + what's captured
+- Events are auto-deleted at 90 days
 
-**v2.17.0 approach:** A new `PrintRouter` intercepts print requests at `admin_init` (for admin URLs) and `template_redirect` (for frontend URLs), **before** WordPress assembles any admin or theme chrome. It emits a completely standalone `<html>...</html>` document containing:
+If a regulator ever asks, the answer is: "we log which authenticated user loaded which admin page and when; nothing else. Everything is purged after 90 days."
 
-1. A small fixed action bar at the top with three buttons:
-   - **🖨 Print this report** — triggers `window.print()` on a clean document
-   - **📄 Download PDF** — uses html2canvas + jsPDF (loaded from CDN) to generate a raster PDF and trigger browser download
-   - **← Back** — returns to the previous page
+## Item 2 — Admin Dashboard as a workspace
 
-2. The actual report content (club header, FIFA card, headline tiles, breakdown, charts, signature footer)
+### The shift
 
-3. Print-only CSS that hides the action bar during printing
+**Before:** 5 non-clickable stat cards showing counts. Dead-end page — admins had to go back to the menu to navigate anywhere.
 
-**Key changes from v2.16.0:**
-- No more auto-firing `window.print()` on page load — user sees the preview first, clicks Print when ready
-- No admin shell or theme chrome on the print page — what you see is what prints
-- Download PDF button generates an A4 portrait PDF named `TalentTrack-Report-<player>-<date>.pdf`. Output is raster (text not selectable in the PDF) — acceptable for a 1-page visual report. Library fails? Falls back to browser print dialog.
-- Works from every surface that had the 🖨 Print report button — just routes through the isolated page now
+**After:** Dashboard is a proper workspace. Two sections:
 
-**Request shapes accepted by `PrintRouter`:**
-- `?tt_report=1&player_id=N` (preferred, new)
-- `?tt_print=N` (legacy frontend URL, still works)
-- `?print=1&player_id=N&page=tt-rate-cards` (legacy admin URL, still works)
+**A. Overview (top):** 5 clickable gradient stat cards — Players, Teams, Evaluations, Sessions, Goals. Each:
+- Shows active count (now properly filtered on `archived_at IS NULL`)
+- Uses a per-entity gradient tint for visual identity (Players teal, Teams blue, Evaluations purple, Sessions gold, Goals red)
+- Links directly to its list page on click
+- Lifts on hover with shadow elevation
 
-**Permission checks on the isolated route:**
-- Admin entry (in wp-admin URLs): requires `tt_view_reports`
-- Frontend entry (on shortcode pages): admin any player, coach only players on coached teams, player own only
-- Unauthorized requests get `wp_die` with a localized message instead of rendering
+**B. Grouped tiles (below):** One section per menu group with its corresponding entries as tiles:
+- **People** — Teams, Players, People
+- **Performance** — Evaluations, Sessions, Goals
+- **Analytics** — Reports, Player Rate Cards, Usage Statistics
+- **Configuration** — Configuration, Custom Fields, Evaluation Categories, Category Weights
+- **Help** — Help & Docs
 
-**Why raster PDF (html2canvas + jsPDF) rather than a server-side PDF library:**
-- html2canvas captures the already-rendered Chart.js canvases correctly; a server-side library like dompdf can't execute JS and would produce empty chart boxes
-- No server dependencies, no composer install needed, no PHP memory issues
-- ~500KB of JS loaded only on the print page (not globally)
-- Acceptable trade-off: PDFs aren't text-selectable, but the use case is "save a report to share," not "search through archives"
+Each tile shows:
+- Icon (colored per group accent, gradient background)
+- Label (matches menu label)
+- One-line description (what you do on that page)
+
+Tiles lift on hover. Section labels have a muted-gray uppercase treatment with a hairline divider extending right. Mobile-responsive: at 640px the tile grid collapses to 1 column and stat cards shrink.
+
+### Design decisions (confirmed last sprint)
+
+- **A=ii** — Two sections (Overview stats at top, grouped tiles below) instead of one unified grid
+- **B=p** — Tile sections mirror the menu groups exactly
+- **C** — Icon + label + description + count (count only on Overview, where it's meaningful)
+- **D=x** — Primary entities appear in both Overview AND their group tiles (redundancy intentional; different purposes — survey vs navigate)
+- **E** — Tiles are cap-gated; users only see what they can access
+- **F=r** — More visual — gradients, colored icons per group, hover lift
+- **G** — Tiles are navigation only; no new admin functionality is introduced by this sprint
+
+### Why
+
+You asked for this specifically as "preparing for front end admin work options." That lands. A well-designed dashboard is the natural foundation for a front-end admin experience: the same tile-based navigation concept can port to the user-facing shortcode, with different tile sets per role. The admin dashboard establishes the visual language.
+
+### Scope boundary (confirmed)
+
+Tiles link to existing admin pages. This sprint adds no new functionality behind tiles — no "quick-add evaluation from dashboard," no "recent activity feed," no "starred pages." Those are future work.
 
 ## Files in this release
 
 ### New
-- `src/Infrastructure/Archive/ArchiveRepository.php` — archive/restore/delete + counts + filter clauses
-- `src/Infrastructure/Archive/index.php`
-- `src/Shared/Admin/BulkActionsHelper.php` — shared UI + post handler for bulk actions
-- `src/Modules/Stats/PrintRouter.php` — isolated print route handler
-- `database/migrations/0010_archive_support.php` — archive columns for 6 tables
+- `database/migrations/0011_usage_events.php` — `tt_usage_events` table
+- `src/Infrastructure/Usage/UsageTracker.php` — event capture service + query helpers
+- `src/Infrastructure/Usage/index.php`
+- `src/Modules/Stats/Admin/UsageStatsPage.php` — admin dashboard page
 
 ### Modified
-- `talenttrack.php` — version 2.17.0
-- `src/Core/Activator.php` — `ensureSchema` gets archive columns on 6 tables
-- `src/Shared/Admin/Menu.php` — grouped submenus with CSS-styled separators; BulkActionsHelper wired
-- `src/Modules/Teams/Admin/TeamsPage.php` — Head Coach column removed; archive tabs + bulk actions
-- `src/Modules/Players/Admin/PlayersPage.php` — archive tabs + bulk actions
-- `src/Modules/Evaluations/Admin/EvaluationsPage.php` — archive tabs + bulk actions
-- `src/Modules/Sessions/Admin/SessionsPage.php` — archive tabs + bulk actions
-- `src/Modules/Goals/Admin/GoalsPage.php` — archive tabs + bulk actions
-- `src/Modules/People/Admin/PeoplePage.php` — bulk actions (archive filter deferred)
-- `src/Modules/Stats/StatsModule.php` — wire PrintRouter
-- `src/Modules/Stats/Admin/PlayerRateCardView.php` — print button URL points at PrintRouter; old print=1 short-circuit removed
-- `src/Modules/Stats/Admin/PlayerReportView.php` — auto-fire print logic removed; charts render without post-render print trigger
-- `src/Shared/Frontend/DashboardShortcode.php` — old `?tt_print=N` short-circuit removed; PrintRouter handles it
-- `languages/talenttrack-nl_NL.po` + `.mo` — 30 new strings
+- `talenttrack.php` — version 2.18.0
+- `src/Core/Activator.php` — `ensureSchema` creates `tt_usage_events` for fresh installs
+- `src/Modules/Stats/StatsModule.php` — wires `UsageTracker::init()`
+- `src/Shared/Admin/Menu.php` — dashboard fully rewritten (Overview + grouped tiles with scoped CSS and `lighten()` helper); Usage Statistics submenu re-added in Analytics group
+- `languages/talenttrack-nl_NL.po` + `.mo` — 36 new strings
 
 ### Deleted
 (none)
 
 ## Install
 
-Extract the ZIP. Folder inside is `talenttrack-v2.17.0/` — separate from your live `talenttrack/` for review. Move contents into your `talenttrack/` plugin directory preserving tree structure. Deactivate + reactivate.
+Extract `talenttrack-v2_18_0.zip`. The folder inside is `talenttrack-v2.18.0/`. Move contents into your `talenttrack/` plugin directory preserving structure. Deactivate + reactivate.
 
-**Activation runs:**
-- Migration 0010 → adds archive columns to 6 tables (idempotent — skipped if already present)
-- `ensureSchema` creates those columns on any fresh install
-- No data migration needed — existing rows get `archived_at = NULL` by default, meaning active
+**On activation:**
+- Migration 0011 creates `tt_usage_events` (idempotent — skipped if already present)
+- `ensureSchema` creates the same table on fresh installs
+- WP-Cron daily prune job (`tt_usage_prune_daily`) scheduled
+- No data migration needed
+
+**On deactivation:**
+- Cron job unscheduled
+- Events retained (reactivation picks up where things left off)
 
 ## Verify
 
-### Menu
-1. Open any TalentTrack admin page. Side menu is grouped with visual separators ("PEOPLE", "PERFORMANCE", "ANALYTICS", "CONFIGURATION") between related entries.
-2. Hover a separator — no link interaction, cursor stays default.
+### Usage Statistics
+1. TalentTrack menu → Analytics → Usage Statistics. Page loads.
+2. Headline tiles show 7/30/90-day login + active-user counts. Immediately after install these are all zero; they grow as you and other users log in and browse.
+3. Daily-active-users chart renders as a filled line across 90 days (mostly zero initially).
+4. Evaluations-per-day chart renders as bars, populated from existing `tt_evaluations.created_at` — you'll see historical evaluation activity right away.
+5. Role breakdown shows your WP admin counted under "Admins."
+6. Most-visited pages populates after ≥2 page views on TalentTrack admin pages.
+7. Inactive users table is likely empty for a new install.
 
-### Bulk actions
-3. Open TalentTrack → Players. At the top of the list: status tabs "Active (N) | Archived (0) | All (N)".
-4. Select 2-3 players via their row checkboxes. Pick "Archive" from the bulk actions dropdown above the table. Click Apply. Get a success notice "3 items archived." The archived rows disappear from the Active view.
-5. Click the "Archived" tab. The archived rows appear, rendered at 60% opacity with an "Archived" badge.
-6. Select them. Bulk action dropdown now offers "Restore" + "Delete permanently" (the latter only if you're an admin).
-7. Try "Delete permanently" with something selected — confirm dialog appears with the count. Cancel, then try "Restore" — rows return to Active.
-8. Repeat on Teams, Evaluations, Sessions, Goals to confirm the pattern works uniformly.
+### Dashboard
+8. Click the "Dashboard" menu entry (or the top-level TalentTrack item). New dashboard renders.
+9. Overview section shows 5 gradient stat cards. Count numbers reflect current active (non-archived) rows. Each card is clickable — lifts on hover, navigates to the corresponding list page.
+10. Below, grouped tiles appear: People (3 tiles), Performance (3 tiles), Analytics (3 tiles — Reports, Rate Cards, Usage Statistics), Configuration (4 tiles), Help (1 tile).
+11. Each tile shows an icon with gradient background + label + one-line description. Click any tile — goes to the corresponding page.
+12. Test with a non-admin user (coach): Configuration section is hidden entirely; only Performance + limited People tiles appear per capability.
+13. On a phone / narrow viewport, stat cards shrink and tiles stack 1-wide.
 
-### Teams — head coach removed
-9. Teams list: no "Head Coach" column. Edit any team: head-coach dropdown still present on the form.
-
-### Print report
-10. Go to TalentTrack → Player Rate Cards, pick a player, click "🖨 Print report". New tab opens.
-11. The page is clean — no WP admin menu, no theme header, just: action bar at top with [🖨 Print] [📄 Download PDF] [← Back], then the report below.
-12. Click the Print button — browser print dialog opens, preview shows ONLY the report (no ambient UI).
-13. Click Download PDF — a file named `TalentTrack-Report-<player>-<date>.pdf` downloads.
-14. Try the same from a player's frontend dashboard (Overview "🖨 Print report" button) and coach Player Detail button. Same clean output.
+### Menu separator rows (regression check)
+14. The People / Performance / Analytics / Configuration separator rows in the submenu still render as muted uppercase headings and aren't clickable. Unchanged from 2.17.0.
 
 ## Known caveats
 
-- **People page archive view**: the Active tab works as expected; the Archived and All views query the table directly (bypassing `PeopleRepository::list()`) and don't yet support the repo's search/only-staff filters in combination with the archive view. Bulk actions still work in all views. Full repo refactor slated for v2.18.0.
-- **PDF output is raster, not vector**: text in the generated PDF isn't selectable. Use browser print-to-PDF (Ctrl+P → Save as PDF) if you need selectable text.
-- **Bulk delete doesn't cascade**: if you permanently delete a team, its player rows keep `team_id` pointing at the now-missing team (shown as "—" in the list). Dependent-row handling was deemed out of scope for this release.
+- **Usage stats historical data is empty after first install.** Only events captured from this release forward are visible on the dashboard. Evaluations chart is the exception — it reads the evaluations table directly, so existing data appears immediately.
+- **WP-Cron reliability.** If the host has `DISABLE_WP_CRON` set, the daily prune won't fire automatically. The events table will grow unbounded until a cron run (manual or scheduled) trips it. For a typical club of 30 users this isn't urgent — table stays small — but worth knowing.
+- **Dashboard visual style is fixed.** No theming options yet. If a club wants a different color palette, it's a CSS edit in `Menu.php`. Dedicated theme configuration slated for later.
+- **Dashboard stat cards show active+non-archived.** Matches the list views. Inactive players (status≠'active') aren't counted; archived entities aren't counted.
 
 ## Design notes
 
-- **Separators as fake menu entries**: Chosen over CSS-injected DOM manipulation because WP's admin menu is dynamically rendered and manipulating it post-render fights the framework. Fake entries live inside WP's model, get the right keyboard-nav treatment, and degrade gracefully in themes that style the menu differently.
-- **Archive as column, not join table**: `archived_at` on the entity table itself keeps list queries simple (single `WHERE` clause, no extra JOIN). The archive pattern composes naturally with existing filters.
-- **Positional permission check on print route**: Checked before any rendering, by `PrintRouter`, rather than scattered across the old short-circuit code paths in admin + frontend. Single source of truth for "who can print what."
-- **Why defer usage stats**: It turned into a full new module — events table, capture tracker, daily prune cron, admin dashboard with multiple Chart.js visualizations, privacy documentation. Scoping it inside a sprint that already had four big items risked shipping something half-baked. Better to ship what's solid and take another run at stats in v2.18.0.
+- **Why a separate events table, not user meta.** User meta gives you one value per user at a time. We want a historical series — every login captured, queryable by time. The events table is the right shape. User-meta approach wouldn't answer "how many logins last week?"
+- **Why evaluations chart sources from `tt_evaluations` instead of events.** Historical data. If we sourced only from `evaluation_saved` events, the chart would show zero before today even though the club has been using the plugin for months. Reading `created_at` from the entity table gives correct historical counts.
+- **Why 90 days, not 180 or 365.** A practical privacy / storage / usefulness balance. 90 days is long enough to spot trends ("coaches stopped logging in 2 months ago") without becoming a long-term surveillance database. Can be adjusted (`UsageTracker::RETENTION_DAYS`) if a club has different needs.
+- **Why cap-gated tiles, not menu-mirroring (WP already hides menu items by cap).** WP hides menu items but still shows them in the secondary nav on certain themes. Dashboard tiles need their own `current_user_can()` check to guarantee parity. Cheap — one check per tile, sub-millisecond impact.
+- **Why gradient stat cards + plain gradient-icon tiles.** Stat cards need to stand out as the "top of the page" — so they get full gradient backgrounds, bigger numbers. Tiles are navigation — smaller, subtler, gradient only on the icon itself. The visual hierarchy communicates "these are different things."
 
-## v2.18.0 preview
+## v2.19.0 preview
 
-- Usage statistics (the deferred item)
-- People page archive-view filtering to match the other 5 entities
-- Optional: bulk-delete cascade handling for entities with dependents
-- Whatever else accumulates
+- People page archive-view filter refactor (still pending from v2.17.0)
+- Optional bulk-delete cascade handling
+- Possibly: dashboard customization (pin favorite tiles, show/hide sections)
+- Front-end admin work (the actual feature this sprint prepared for)

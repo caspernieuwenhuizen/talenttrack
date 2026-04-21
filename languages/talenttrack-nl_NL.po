@@ -2199,3 +2199,128 @@ msgstr "PDF-generatie mislukt. Probeer de Print-knop."
 
 msgid "Log in to view the report."
 msgstr "Log in om het rapport te bekijken."
+
+# ===== v2.18.0 — Usage Statistics + Dashboard overhaul =====
+
+msgid "Usage Statistics"
+msgstr "Gebruiksstatistieken"
+
+msgid "Overview of app usage across the last 90 days. Events older than 90 days are deleted automatically. No IP addresses or user agents are recorded."
+msgstr "Overzicht van het app-gebruik over de laatste 90 dagen. Gebeurtenissen ouder dan 90 dagen worden automatisch verwijderd. Er worden geen IP-adressen of user agents opgeslagen."
+
+msgid "Logins (7 days)"
+msgstr "Logins (7 dagen)"
+
+msgid "Logins (30 days)"
+msgstr "Logins (30 dagen)"
+
+msgid "Logins (90 days)"
+msgstr "Logins (90 dagen)"
+
+msgid "Active users (7 days)"
+msgstr "Actieve gebruikers (7 dagen)"
+
+msgid "Active users (30 days)"
+msgstr "Actieve gebruikers (30 dagen)"
+
+msgid "Active users (90 days)"
+msgstr "Actieve gebruikers (90 dagen)"
+
+msgid "Daily active users (90 days)"
+msgstr "Dagelijks actieve gebruikers (90 dagen)"
+
+msgid "Daily active users"
+msgstr "Dagelijks actieve gebruikers"
+
+msgid "Evaluations created per day (90 days)"
+msgstr "Aangemaakte evaluaties per dag (90 dagen)"
+
+msgid "Evaluations created"
+msgstr "Aangemaakte evaluaties"
+
+msgid "Active users by role (30 days)"
+msgstr "Actieve gebruikers per rol (30 dagen)"
+
+msgid "Admins"
+msgstr "Beheerders"
+
+msgid "Coaches"
+msgstr "Coaches"
+
+msgid "Players"
+msgstr "Spelers"
+
+msgid "Other"
+msgstr "Overig"
+
+msgid "Most-visited admin pages (30 days)"
+msgstr "Meest bezochte beheerpagina's (30 dagen)"
+
+msgid "No page view data yet."
+msgstr "Nog geen paginabezoekgegevens."
+
+msgid "Users not seen in 30+ days"
+msgstr "Gebruikers al 30+ dagen niet gezien"
+
+msgid "Users who have logged in within the 90-day retention window but not in the last 30 days. A nudge list for follow-up."
+msgstr "Gebruikers die de afgelopen 90 dagen zijn ingelogd, maar niet de laatste 30 dagen. Een herinneringslijst voor opvolging."
+
+msgid "No inactive users — everyone has been active recently."
+msgstr "Geen inactieve gebruikers — iedereen is recent actief geweest."
+
+msgid "User"
+msgstr "Gebruiker"
+
+msgid "Last login"
+msgstr "Laatste login"
+
+msgid "Your club at a glance. Tap any card or tile to jump straight into that section."
+msgstr "Jouw club in één oogopslag. Tik op een kaart of tegel om direct naar dat onderdeel te gaan."
+
+msgid "Overview"
+msgstr "Overzicht"
+
+msgid "Help"
+msgstr "Help"
+
+msgid "Manage teams, staff assignments, and age groups."
+msgstr "Beheer teams, stafbezetting en leeftijdscategorieën."
+
+msgid "Player roster, positions, photos, guardian info."
+msgstr "Spelersselectie, posities, foto's, gegevens van ouders/voogden."
+
+msgid "Coaches, assistants, medical staff, volunteers."
+msgstr "Coaches, assistenten, medische staf, vrijwilligers."
+
+msgid "Rate players across training and match sessions."
+msgstr "Beoordeel spelers tijdens trainingen en wedstrijden."
+
+msgid "Record training sessions and attendance."
+msgstr "Registreer trainingen en aanwezigheid."
+
+msgid "Set and track development goals per player."
+msgstr "Stel ontwikkelingsdoelen in en volg ze per speler."
+
+msgid "Saved report presets and exports."
+msgstr "Opgeslagen rapportsjablonen en exports."
+
+msgid "Per-player rate cards with trends and charts."
+msgstr "Spelerrapportkaarten met trends en grafieken."
+
+msgid "Logins, active users, most-visited pages."
+msgstr "Logins, actieve gebruikers, meest bezochte pagina's."
+
+msgid "Academy name, logo, rating scale, colors."
+msgstr "Academienaam, logo, beoordelingsschaal, kleuren."
+
+msgid "Add club-specific fields to any entity."
+msgstr "Voeg clubspecifieke velden toe aan elk onderdeel."
+
+msgid "Main + subcategories used in evaluations."
+msgstr "Hoofd- en subcategorieën gebruikt in evaluaties."
+
+msgid "Per-age-group weighting for overall ratings."
+msgstr "Weging per leeftijdscategorie voor totaalbeoordelingen."
+
+msgid "How to use TalentTrack."
+msgstr "Hoe je TalentTrack gebruikt."

@@ -353,6 +353,22 @@ class Activator {
             KEY idx_main_category (main_category_id)
         ) $c;";
 
+        /* ─── Usage events (v2.18.0) ─── */
+        // Tracks login + admin page-view events for app-usage analytics.
+        // 90-day retention enforced by daily WP-Cron prune. No IPs, no
+        // user agents — just user id + event type + optional target.
+        $queries[] = "CREATE TABLE {$p}tt_usage_events (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            user_id BIGINT UNSIGNED NOT NULL,
+            event_type VARCHAR(50) NOT NULL,
+            event_target VARCHAR(100) DEFAULT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_user_time (user_id, created_at),
+            KEY idx_type_time (event_type, created_at),
+            KEY idx_created_at (created_at)
+        ) $c;";
+
         /* ─── Sessions & attendance ─── */
         $queries[] = "CREATE TABLE {$p}tt_sessions (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
