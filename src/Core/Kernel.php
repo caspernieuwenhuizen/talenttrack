@@ -12,6 +12,7 @@ use TT\Infrastructure\FeatureToggles\FeatureToggleService;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Security\CapabilityAliases;
 use TT\Infrastructure\Security\RolesService;
 use TT\Shared\Admin\Menu;
 use TT\Shared\Frontend\BrandStyles;
@@ -54,6 +55,12 @@ class Kernel {
 
     public function boot(): void {
         if ( $this->booted ) return;
+
+        // v3.0.0: soft-alias legacy caps to the new granular caps. Must
+        // register BEFORE any cap check fires anywhere in the plugin.
+        // The user_has_cap filter it installs is cheap (a dozen array
+        // lookups per cap resolve) and idempotent.
+        CapabilityAliases::init();
 
         ( new MigrationRunner() )->run();
 

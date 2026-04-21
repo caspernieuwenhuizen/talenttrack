@@ -3,7 +3,7 @@
  * Plugin Name: TalentTrack
  * Plugin URI:  https://github.com/caspernieuwenhuizen/talenttrack
  * Description: Frontend-first, modular youth football talent management system for a single club.
- * Version:     2.22.0
+ * Version:     3.0.0
  * Author:      Casper Nieuwenhuizen
  * Author URI:  https://github.com/caspernieuwenhuizen
  * License:     GPL-2.0+
@@ -19,11 +19,15 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'TT_VERSION',     '2.22.0' );
+define( 'TT_VERSION',     '3.0.0' );
 define( 'TT_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'TT_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );
 define( 'TT_PLUGIN_FILE', __FILE__ );
 define( 'TT_PLUGIN_SLUG', 'talenttrack' );
+// v2.22.0 / v3.0.0 aliases used by newer classes (HelpTopics, SchemaStatus)
+// so they don't need to choose between TT_PLUGIN_DIR / TT_PLUGIN_FILE naming.
+define( 'TT_PATH', TT_PLUGIN_DIR );
+define( 'TT_FILE', TT_PLUGIN_FILE );
 
 if ( file_exists( TT_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
     require_once TT_PLUGIN_DIR . 'vendor/autoload.php';

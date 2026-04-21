@@ -103,6 +103,11 @@ class HelpTopics {
                 'group'   => 'configuration',
                 'summary' => __( 'Clean printable reports and browser-native PDF export.', 'talenttrack' ),
             ],
+            'migrations' => [
+                'title'   => __( 'Migrations & updates', 'talenttrack' ),
+                'group'   => 'configuration',
+                'summary' => __( 'What happens when you update the plugin, and how to run migrations manually.', 'talenttrack' ),
+            ],
             'player-dashboard' => [
                 'title'   => __( 'Player dashboard (frontend)', 'talenttrack' ),
                 'group'   => 'frontend',

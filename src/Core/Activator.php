@@ -34,6 +34,23 @@ use TT\Infrastructure\Security\RolesService;
 class Activator {
 
     public static function activate(): void {
+        self::runMigrations();
+        flush_rewrite_rules();
+    }
+
+    /**
+     * v3.0.0 — extracted from activate() so it can be triggered on
+     * demand from the admin UI (Plugins page action link, or the
+     * "Run now" button in the schema-out-of-date admin notice).
+     *
+     * Idempotent: every step is a no-op when the target state is
+     * already reached. Safe to run at any time.
+     *
+     * After successful completion, stores TT_VERSION in the
+     * `tt_installed_version` option so the schema-check can detect
+     * whether further runs are needed after a code update.
+     */
+    public static function runMigrations(): void {
         ( new RolesService() )->installRoles();
 
         // v2.12.1: repair the tt_eval_categories table before ensureSchema
@@ -58,7 +75,7 @@ class Activator {
             ( new MigrationRunner() )->run();
         } catch ( \Throwable $e ) {
             if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                error_log( '[TalentTrack] Migration runner threw during activation: ' . $e->getMessage() );
+                error_log( '[TalentTrack] Migration runner threw during runMigrations(): ' . $e->getMessage() );
             }
         }
 
@@ -67,7 +84,7 @@ class Activator {
         // up any site where the backfill previously failed silently.
         self::repairFunctionalRoleBackfill();
 
-        flush_rewrite_rules();
+        update_option( 'tt_installed_version', TT_VERSION );
     }
 
     public static function deactivate(): void {

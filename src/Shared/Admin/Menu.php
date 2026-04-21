@@ -17,6 +17,7 @@ use TT\Modules\Stats\Admin\PlayerRateCardsPage;
 use TT\Modules\Teams\Admin\TeamsPage;
 use TT\Shared\Admin\BulkActionsHelper;
 use TT\Shared\Admin\DragReorder;
+use TT\Shared\Admin\SchemaStatus;
 
 /**
  * Menu — registers the top-level TalentTrack admin menu plus subpages.
@@ -34,6 +35,11 @@ class Menu {
         BulkActionsHelper::init();
         // v2.19.0: wire drag-to-reorder AJAX handler.
         DragReorder::init();
+        // v3.0.0: migration UX — admin notice + Plugins-page action link +
+        // admin-post handler for the "Run now" button.
+        SchemaStatus::init();
+        // Result notice for the redirect from the Run handler.
+        add_action( 'admin_notices', [ SchemaStatus::class, 'renderResultNotice' ] );
     }
 
     public static function register(): void {

@@ -1,32 +1,71 @@
 # Access control
 
-TalentTrack uses WordPress's capability system plus its own overlay of "functional roles" to decide who can do what.
+TalentTrack uses WordPress's capability system plus its own overlay of "functional roles" to decide who can do what. The v3.0.0 release refactored capabilities into granular view/edit pairs so read-only roles work properly across the whole plugin.
 
-## The capabilities
+## The capabilities (v3.0.0+)
 
-Four TalentTrack capabilities gate major features:
+Each major area has a **view** capability and, for writeable areas, a matching **edit** capability:
 
-- `tt_manage_players` — create/edit/delete players, teams, people
-- `tt_evaluate_players` — save evaluations, sessions, goals
-- `tt_manage_settings` — change configuration, branding, lookups; access admin-only reports like Usage Statistics
-- `tt_view_reports` — access rate cards, player comparison, reports
+| Area         | View cap              | Edit cap              |
+|--------------|-----------------------|-----------------------|
+| Teams        | `tt_view_teams`       | `tt_edit_teams`       |
+| Players      | `tt_view_players`     | `tt_edit_players`     |
+| People       | `tt_view_people`      | `tt_edit_people`      |
+| Evaluations  | `tt_view_evaluations` | `tt_edit_evaluations` |
+| Sessions     | `tt_view_sessions`    | `tt_edit_sessions`    |
+| Goals        | `tt_view_goals`       | `tt_edit_goals`       |
+| Settings     | `tt_view_settings`    | `tt_edit_settings`    |
+| Reports      | `tt_view_reports`     | *(no edit companion)* |
 
-Every TalentTrack user also needs WP's base `read` capability to log in.
+Every TalentTrack user also needs WordPress's base `read` capability to log in.
+
+## Legacy capabilities
+
+The pre-v3 capabilities still exist and still work:
+
+- `tt_manage_players` — now implicitly granted when a user has both `tt_view_players` AND `tt_edit_players`
+- `tt_evaluate_players` — implicitly granted with both `tt_view_evaluations` AND `tt_edit_evaluations`
+- `tt_manage_settings` — implicitly granted with both `tt_view_settings` AND `tt_edit_settings`
+- `tt_view_reports` — unchanged
+
+This means custom code or plugins checking legacy cap names continue to work without modification. Purely-view users (the Observer role) correctly fail legacy `manage` checks because they lack the edit counterpart.
 
 ## The pre-built roles
 
-| Role | Summary |
-|------|---------|
-| **Head of Development** | Full access (all four caps) |
-| **Club Admin** | Admin + report access, no direct evaluation saving |
-| **Coach** | Evaluate + view reports |
-| **Scout** | Evaluate (no reports) |
-| **Staff** | Manage players (no evaluation) |
-| **Player** | Read-only, sees own data only |
-| **Parent** | Read-only, sees child's data |
-| **Read-Only Observer** | Read + view reports, no write access |
+| Role                      | View               | Edit                                                   |
+|---------------------------|--------------------|--------------------------------------------------------|
+| **Head of Development**   | All areas          | All areas (incl. Evaluations, Settings)                |
+| **Club Admin**            | All areas          | Teams, Players, People, Sessions, Goals, Settings      |
+| **Coach**                 | All except Settings| Evaluations, Sessions, Goals                           |
+| **Scout**                 | Teams, Players, Evals | Evaluations                                         |
+| **Staff**                 | Teams, Players, People | Players, People                                    |
+| **Player**                | Own data only      | Own profile only                                       |
+| **Parent**                | Child's data only  | *(none)*                                               |
+| **Read-Only Observer**    | **All areas**      | **None**                                               |
 
-Assign roles via **Access Control → Roles & Permissions** or via WordPress's standard Users admin.
+Assign roles via **Access Control → Roles & Permissions** or WordPress's standard Users admin.
+
+## Read-Only Observer
+
+v3.0.0 makes this role meaningful across the whole plugin. An observer can:
+
+- See the full admin: teams, players, people, evaluations, sessions, goals, reports
+- See the frontend tile landing with every tile they have view access to
+- Open detail views and see all data
+
+But cannot:
+
+- Add, edit, or delete anything
+- Change configuration
+- Run administrative actions
+
+Every "edit", "add", "save", "delete" button is hidden for observers because it's cap-gated behind `tt_edit_*`. Direct URL access to edit actions is blocked at the controller level.
+
+Use cases:
+- Assistant coach in training (promote to Coach when ready)
+- Board member or club president who wants full visibility
+- External reviewer or auditor
+- Parent-liaison with broader viewing rights than regular parents
 
 ## Functional roles
 
@@ -36,12 +75,4 @@ Example: your "Head coach" functional role could automatically grant users the `
 
 ## Permission debug
 
-**Access Control → Permission Debug** lets you inspect any user's effective capabilities. Useful when a coach reports "I can't see X" — check what they actually have.
-
-## Read-Only Observer
-
-New in v2.21.0. Has `read` + `tt_view_reports` only. Sees the Analytics tile group and can view rate cards, comparisons, and reports, but every write surface is blocked. Use for assistant coaches in training, board members, external auditors, or parent-liaisons with extra viewing rights.
-
-## Current limitations (honest)
-
-The existing capability system is binary per function — `tt_manage_players` includes both view AND edit. A proper fine-grained split into `tt_view_*` + `tt_edit_*` pairs is planned for a future release so read-only experiences cover every section, not just analytics.
+**Access Control → Permission Debug** lets you inspect any user's effective capabilities. Useful when a user reports "I can't see X" — check what they actually have.

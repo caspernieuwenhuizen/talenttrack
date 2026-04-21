@@ -1,184 +1,122 @@
-# TalentTrack v2.22.0 — Hierarchical Back Button + Help Wiki
+# TalentTrack v3.0.0 — Capability refactor + Migration UX + Frontend rebuild
 
-## Summary
+**Status: IN PROGRESS (slice 1 of 5 shipped).** Full v3.0.0 ships when all 5 slices land. See "Roadmap" at the end.
 
-Two items shipped together — one a critical bug fix, one the long-carried help wiki from the 2.19/2.20 backlog:
+## Summary of v3.0.0 as a whole
 
-1. **Back button rewritten as hierarchical parent-map navigation** — fixes a real bug where clicking back twice would ping-pong you back to your edit form. Adds breadcrumb UI above the back link.
-2. **Help wiki** — markdown-based, 18 topics, full TOC sidebar with search, "? Help on this topic" contextual links across 13 admin pages, release-discipline commitment going forward.
+A major-version release that rebuilds three fundamentals:
 
-No schema changes. No migrations.
+1. **Migration UX** — admin-triggered migrations via a button instead of deactivate/reactivate, with automatic version tracking.
+2. **Capability refactor** — every `tt_manage_*` / `tt_evaluate_*` cap split into `tt_view_*` + `tt_edit_*` pairs. The Read-Only Observer role becomes meaningful across the entire plugin.
+3. **Frontend fully rebuilt** — the tile grid from v2.21 now has real destinations. Every tile maps to a dedicated focused view. No more tab navigation.
 
-## Item 1 — Hierarchical back button
+## Slice 1 (this snapshot) — Migration UX + Capability scaffolding
 
-### The bug
+### Migration UX
 
-The 2.19.0 back button used `wp_get_referer()` which has a fundamental flaw: every navigation sets itself as the next page's referer. So:
+Activating / updating TalentTrack used to require deactivate + reactivate to trigger migrations, which was easy to forget. No longer.
 
-1. Dashboard → Players list (referer: dashboard)
-2. Players list → Edit player 42 (referer: Players list)
-3. Edit form → click "← Back" → returns to Players list ✓
-4. Back on Players list → click "← Back" (if the list had one) → **returns to Edit form, not dashboard** ✗
+**Automatic pending detection.** `Activator::runMigrations()` now stores `TT_VERSION` in the `tt_installed_version` option on every successful run. On every admin page load, TalentTrack compares the stored value to the running `TT_VERSION`. Mismatch = pending migration.
 
-This is the bug you reported. The only navigation `wp_get_referer()` can see is the immediately previous page, which is always the page you just came from — meaning repeated back clicks bounce between two adjacent pages instead of walking home to the dashboard.
+**Admin notice.** When pending, a yellow banner at the top of every admin page: *"TalentTrack schema needs updating. Plugin version 3.0.0 is loaded but installed schema is 2.22.0."* with a **Run migrations now** button. One click, done.
 
-### The fix
+**Plugins-page action link.** Next to the TalentTrack row on the WordPress Plugins page, a **Run Migrations** link is always present (not only when pending) for manual re-runs — useful if you suspect a prior run partially failed.
 
-New `BackNavigator` class holds an explicit parent map — every admin page declares its parent, and back buttons always navigate to the parent (never the referer). Walking back repeatedly climbs the hierarchy one level at a time until you reach the dashboard (home). No ping-pong, no cycles.
+**Shared idempotent routine.** `Activator::runMigrations()` is callable from both the activation hook and the new admin-post handler. Every step inside (schema ensure, seed data, cap grants, self-healing) was already idempotent; the refactor just surfaces it as a first-class admin action.
 
-The map looks like:
+**Result notice.** After clicking "Run now", you're redirected back with a green success banner or a red error banner (with the error message). No silent failures.
 
-```
-Dashboard                              (home, no back button)
-├── Players                            → back: Dashboard
-│   ├── Edit player                    → back: Players
-│   └── View player                    → back: Players
-├── Evaluations                        → back: Dashboard
-│   ├── Edit evaluation                → back: Evaluations
-│   └── View evaluation                → back: Evaluations
-├── Teams, Sessions, Goals, People     (similar pattern)
-├── Reports                            → back: Dashboard
-│   └── Report detail (legacy/etc)     → back: Reports
-├── Usage Statistics                   → back: Dashboard
-│   └── Usage detail (drill-downs)     → back: Usage Statistics
-└── ... (Configuration, Access Control, Help)
-```
+### Capability refactor scaffolding
 
-### Breadcrumb UI
+The existing 4 capabilities (`tt_manage_players`, `tt_evaluate_players`, `tt_manage_settings`, `tt_view_reports`) were binary — each grant included both view AND write rights. This made proper read-only experiences impossible: a Read-Only Observer could be given `tt_view_reports` but nothing to see teams, players, or evaluations without also granting write access.
 
-Now that parent relationships are explicit, breadcrumbs become trivial. Every page renders a breadcrumb trail above the back link:
+**New granular caps.** Eight view caps and seven edit caps:
 
-```
-Dashboard › Players › Edit Player
-```
+| Area         | View                    | Edit                     |
+|--------------|-------------------------|--------------------------|
+| Teams        | `tt_view_teams`         | `tt_edit_teams`          |
+| Players      | `tt_view_players`       | `tt_edit_players`        |
+| People       | `tt_view_people`        | `tt_edit_people`         |
+| Evaluations  | `tt_view_evaluations`   | `tt_edit_evaluations`    |
+| Sessions     | `tt_view_sessions`      | `tt_edit_sessions`       |
+| Goals        | `tt_view_goals`         | `tt_edit_goals`          |
+| Settings     | `tt_view_settings`      | `tt_edit_settings`       |
+| Reports      | `tt_view_reports`       | *(no edit companion)*    |
 
-Each segment except the current page is a clickable link. Tap "Dashboard" on any page to jump home; tap "Players" to jump to the list. The back button below the breadcrumb still walks one level (matches muscle memory) but now the user can also skip directly to any ancestor.
+**Role updates.** Every pre-built role now has granular caps. The Observer role becomes meaningful: full view access across every area, zero edit caps.
 
-### Call site compatibility
+**Soft alias layer.** The legacy caps still work — a `user_has_cap` filter resolves them via the new granular caps under the hood. `tt_manage_players` is granted when a user has both `tt_view_players` AND `tt_edit_players`. This lets all existing ~60-80 `current_user_can()` call sites continue to work unchanged in slice 1. Slice 2 migrates them to granular caps.
 
-All ~13 existing `BackButton::render()` call sites from 2.19 continue to work unchanged. The legacy `$fallback_url` parameter is preserved in the signature for backward compatibility but is now silently ignored — the parent map is authoritative. No callers needed updating.
+**Observer correctly fails legacy checks.** Because observers have view-only caps, a check for `tt_manage_players` (= view + edit required) fails for them, which is the correct behaviour. Admins who relied on legacy cap names will see the exact same behaviour as before; new read-only scenarios now work properly.
 
-## Item 2 — Help wiki
+### Files in slice 1
 
-### Motivation
+New:
+- `src/Shared/Admin/SchemaStatus.php` — migration admin notice + Plugins-page action link + admin-post handler
+- `src/Infrastructure/Security/CapabilityAliases.php` — legacy cap → new cap resolution via `user_has_cap` filter
+- `docs/migrations.md` — new wiki topic
 
-Since 2.19 I've promised and deferred a proper help system. The placeholder "? Help on this topic" links shipped in 2.20 were technically wired but pointed at a stub page with barely any content. This release delivers the real wiki.
+Modified:
+- `talenttrack.php` — version 3.0.0, added `TT_PATH` + `TT_FILE` constant aliases
+- `src/Core/Activator.php` — `activate()` wraps new idempotent `runMigrations()`; `runMigrations()` stores `tt_installed_version` on success
+- `src/Core/Kernel.php` — registers CapabilityAliases filter at the top of `boot()`
+- `src/Infrastructure/Security/RolesService.php` — rewritten with granular VIEW_CAPS + EDIT_CAPS + LEGACY_CAPS class constants; all 8 roles updated; `ensureCapabilities()` grants full inventory to administrator
+- `src/Shared/Admin/Menu.php` — wires `SchemaStatus::init()` and result-notice listener
+- `src/Modules/Documentation/HelpTopics.php` — registers new migrations topic
+- `docs/access-control.md` — rewritten for the new cap matrix
+- `languages/talenttrack-nl_NL.po` + `.mo` — ~13 new strings
 
-### Design
+## What's shippable at slice 1
 
-**Markdown-sourced** — topic content lives in `docs/<slug>.md` files shipped with the plugin. Version-controlled, diffable, easy to write. No database storage, no WP-post-based content.
+- **Yes** — the plugin loads, all pre-existing functionality works because legacy caps are aliased
+- **Yes** — new migration notice and buttons work
+- **Yes** — new roles install on first activation after upgrade
+- **No regressions** expected — aliases preserve all pre-v3 behaviour
 
-**Minimal bundled renderer** — new `Markdown` class handles headings (H1/H2/H3), paragraphs, bullet/numbered lists, bold/italic/inline code, code fences, blockquotes, and links. Tight scope that covers what the topic files actually use; no Composer dependency.
+## What's NOT yet in v3.0.0 (slices 2-5)
 
-**Topic registry** — `HelpTopics::all()` declares all 18 topics in code (slug, title, group, summary). Content comes from the markdown file; metadata from the registry. This split lets the sidebar render even before the Markdown renderer processes the body.
+- **Slice 2: Capability call-site audit** — ~60-80 `current_user_can()` calls rewritten to granular caps so read-only observer is blocked from writes via cap checks (not just UI hiding). Currently the soft alias handles this transparently.
+- **Slice 3: Me-group frontend views** — 6 focused sub-page classes (Overview, My Team, My Evaluations, My Sessions, My Goals, My Profile). Replaces `PlayerDashboardView` tab UI.
+- **Slice 4: Coaching-group frontend views** — 6 focused sub-page classes (Teams, Players, Evaluations, Sessions, Goals, Podium). Replaces `CoachDashboardView` tab UI.
+- **Slice 5: Analytics-group frontend views** — 2 focused sub-page classes (Rate Card, Comparison) so Read-Only Observer has meaningful frontend experience.
 
-**Two-pane wiki layout**:
-- Left: sticky TOC sidebar with topics grouped (Basics / Performance / Analytics / Configuration / Frontend & access). Search box at top filters the list client-side as you type.
-- Right: rendered markdown with breadcrumb "Help › Group › Topic" above.
-- Mobile: collapses to single column, TOC stacks above content.
+Each slice ships as a new snapshot; final v3.0.0 ships after slice 5 lands.
 
-### 18 topics authored
+## Install (slice 1 snapshot)
 
-**Basics:** Getting started · Teams & players · People (staff)
+Extract `talenttrack-v3_0_0-alpha1.zip`. Move `talenttrack-v3.0.0-alpha1/` contents into your `talenttrack/` folder. Deactivate + reactivate (one-time, for the initial migration).
 
-**Performance:** Evaluations · Evaluation categories & weights · Sessions · Goals
+After reactivation: Plugins page has a new "Run Migrations" link next to the TalentTrack row.
 
-**Analytics:** Reports · Player rate cards · Player comparison · Usage statistics
-
-**Configuration:** Configuration & branding · Custom fields · Bulk actions (archive & delete) · Printing & PDF export
-
-**Frontend & access:** Player dashboard · Coach dashboard · Access control
-
-Each topic runs ~100-200 words. Purpose-oriented ("what this feature is for") + concrete actions ("how to do X") + cross-references via markdown links. No filler.
-
-### Contextual "? Help on this topic" links
-
-Added via a new `HelpLink` helper to 13 admin pages:
-
-- Players, Teams, Evaluations, Category Weights, Sessions, Goals, Configuration, Usage Statistics, Rate Cards, Custom Fields, Evaluation Categories, People
-- Plus Reports and Player Comparison which already had placeholder links from 2.20 (these now resolve to real content)
-
-The link sits next to each page's H1, small-size, non-intrusive. Clicking it navigates to the relevant topic in the wiki.
-
-### Search
-
-Client-side search across topic titles and summaries. Filters the TOC list live as you type. "No matching topics" shown when the query has no hits. Group labels auto-hide when all their topics are filtered out. Plenty for 18 topics; full-text search over topic bodies would be overkill.
-
-### Release discipline commitment
-
-Every future sprint that touches a feature area must also update the corresponding help topic(s) in the same ZIP. The CHANGES.md for each release will note which topics were updated.
-
-If a new feature lands without a topic written, the sprint isn't done. If a topic description no longer matches the shipped feature after a change, that's a bug fix item for the next release.
-
-The wiki is now the canonical source of user-facing documentation. The README is for developers; the wiki is for admins, coaches, and players.
-
-## Files in this release
-
-### New
-- `src/Shared/Admin/BackNavigator.php` — hierarchical parent map + breadcrumb trail builder
-- `src/Shared/Admin/HelpLink.php` — renders "? Help on this topic" contextual links
-- `src/Modules/Documentation/Markdown.php` — minimal markdown renderer
-- `src/Modules/Documentation/HelpTopics.php` — topic registry with groups and metadata
-- `docs/getting-started.md`, `docs/teams-players.md`, `docs/people-staff.md`, `docs/evaluations.md`, `docs/eval-categories-weights.md`, `docs/sessions.md`, `docs/goals.md`, `docs/reports.md`, `docs/rate-cards.md`, `docs/player-comparison.md`, `docs/usage-statistics.md`, `docs/configuration-branding.md`, `docs/custom-fields.md`, `docs/bulk-actions.md`, `docs/printing-pdf.md`, `docs/player-dashboard.md`, `docs/coach-dashboard.md`, `docs/access-control.md` — 18 topic files
-
-### Modified
-- `talenttrack.php` — version 2.22.0
-- `src/Shared/Admin/BackButton.php` — rewritten to use BackNavigator; renders breadcrumbs + back link
-- `src/Modules/Documentation/Admin/DocumentationPage.php` — complete rewrite as wiki page with TOC + content + search
-- `src/Modules/Players/Admin/PlayersPage.php`, `src/Modules/Teams/Admin/TeamsPage.php`, `src/Modules/Evaluations/Admin/EvaluationsPage.php`, `src/Modules/Evaluations/Admin/CategoryWeightsPage.php`, `src/Modules/Evaluations/Admin/EvalCategoriesPage.php`, `src/Modules/Sessions/Admin/SessionsPage.php`, `src/Modules/Goals/Admin/GoalsPage.php`, `src/Modules/Configuration/Admin/ConfigurationPage.php`, `src/Modules/Configuration/Admin/CustomFieldsPage.php`, `src/Modules/Stats/Admin/UsageStatsPage.php`, `src/Modules/Stats/Admin/PlayerRateCardsPage.php`, `src/Modules/People/Admin/PeoplePage.php` — added "? Help on this topic" link next to H1
-- `languages/talenttrack-nl_NL.po` + `.mo` — ~35 new strings
-
-### Deleted
-(none)
-
-## Install
-
-Extract `talenttrack-v2_22_0.zip`. Move `talenttrack-v2.22.0/` contents into your `talenttrack/` folder. Deactivate + reactivate.
-
-**No migrations.** Purely additive plus one rewrite (BackButton).
-
-**The `docs/` folder is new** — make sure the extract copies it in. The DocumentationPage reads markdown files from `TT_PATH . 'docs/'` (resolves from the plugin root).
+On any subsequent code update (e.g. when slice 2 ships), you'll see the admin notice with "Run migrations now" — click it, no deactivate needed.
 
 ## Verify
 
-### Back button
-1. Dashboard → Players → Edit player 42. See the breadcrumb: `Dashboard › Players › Edit Player`.
-2. Click "← Back" — you go to the Players list. Breadcrumb: `Dashboard › Players`.
-3. Click "← Back" again — **you go to the dashboard**, not back to the edit form. ✓ Bug fixed.
-4. Click any breadcrumb segment on any page — jumps directly to that ancestor.
-5. Open any edit URL directly (paste into a new tab). Breadcrumb renders correctly; back button goes to parent list.
+### Migration UX
+1. Deactivate + reactivate plugin once after install. Migration runs; `tt_installed_version` option is now `3.0.0`.
+2. Plugins page: see "Run Migrations" link next to the TalentTrack row.
+3. Click it — redirects with success banner ("TalentTrack migrations completed successfully").
 
-### Help wiki
-6. Admin menu → Help & Docs. Wiki page loads with TOC on left, "Getting started" topic on the right.
-7. Click a topic in the TOC — it renders immediately.
-8. Use the search box. Type "eval" — only evaluation-related topics remain. Type "xxx" — "No matching topics" appears. Clear the search — full list returns.
-9. Click on any admin page's "? Help on this topic" link (top of page, next to title). Jumps to the relevant topic.
-10. Breadcrumb at top of each topic: `Help › Group › Topic`.
-11. On mobile/narrow window — TOC stacks above content. Everything still readable.
+### Capability refactor
+4. Create a new user with the Read-Only Observer role. Log in as them.
+5. Frontend dashboard: observer sees the Analytics tile group (Rate cards, Player comparison) as they did in v2.21.
+6. No regressions: existing Coach, Admin, Scout, Staff users continue working exactly as before.
+7. Check `wp user list --field=ID` in WP-CLI, then `wp user get <id> --field=caps` — observer has the full `tt_view_*` set and no `tt_edit_*` caps.
 
-### Regression checks
-12. All v2.20 and v2.21 functionality unchanged. Player Comparison, Access Control tiles, Reports tiles still work.
-13. Frontend tile grid from v2.21 unchanged. Frontend back button (different helper) unchanged.
-14. All existing BackButton::render() call sites still function — no PHP errors, no blank back buttons.
+### Admin notice
+8. Simulate an outdated state: via phpMyAdmin, set `wp_options.tt_installed_version` to `'2.22.0'`. Reload any admin page. Yellow banner appears with "Run migrations now" button.
+9. Click it. Banner disappears, success notice shown, option resets to `3.0.0`.
 
-## Known caveats
+## Roadmap for the rest of v3.0.0
 
-- **Wiki search is title+summary only, not full-text.** If you want to find every topic that mentions "radar chart", search won't help you — but 18 topics is small enough to skim visually, and the summary text covers the gist.
-- **Topic content is English-only for now.** The topic files live in `docs/<slug>.md`; Dutch (or other language) versions would require a parallel `docs/nl/` folder + language detection. Future work.
-- **Printing a wiki topic uses browser print.** Not print-optimized. For a dedicated printable help PDF you'd need a more ambitious layout. Not in scope here.
-- **No "was this helpful?" feedback mechanism.** No rating, no analytics on which topics get read. Could be added; would need a small tracking table.
-- **No edit capability for the admin.** Topics are file-based, so admins can't edit them from within WP. This is intentional — consistent docs across all installations — but if a club really wants to customize, they can edit the .md files directly (surviving plugin updates requires a copy to a safe path, which is a footgun).
+- Slice 2: capability call-site audit (rewrite all `current_user_can()` calls)
+- Slice 3: 6 Me-group frontend views + delete PlayerDashboardView
+- Slice 4: 6 Coaching-group frontend views + delete CoachDashboardView
+- Slice 5: 2 Analytics-group frontend views (FrontendRateCardView, FrontendComparisonView) + final v3.0.0 ZIP
 
 ## Design notes
 
-- **Why markdown instead of WP posts.** Posts are editable but would require database seeding on activation, drift from the shipped version as WP updates the posts, and break when the plugin updates. File-based docs ship with the plugin, update with it, and can't be accidentally deleted via WP admin.
-- **Why a minimal renderer instead of Parsedown or CommonMark.** Composer-free plugin, and we control the input. A 100-line renderer handles everything the topics actually use. Total cost: one file to maintain.
-- **Why 18 topics and not fewer.** Each topic maps roughly to one admin page or one cross-cutting concept. Fewer would mean stuffing multiple features into one topic (bad — search and navigation suffer). More would fragment related content. 18 is the shape of the current feature surface.
-- **Why no breadcrumbs on the frontend.** The frontend has a flat one-level hierarchy: tile landing + sub-view, with a fixed "← Back to dashboard" return path (v2.21 FrontendBackButton). Breadcrumbs would imply depth that doesn't exist. The admin has real hierarchy (Dashboard → List → Edit); breadcrumbs earn their place there.
-- **Why the release discipline matters.** The 2.19/2.20 backlog grew because "let's update docs next time" always deferred to "next time." Making docs a first-class sprint deliverable — shipped in the same ZIP as code changes — closes that loop. Docs that track code are trustworthy; docs that lag code become harmful misinformation.
-
-## v2.23.0 preview
-
-- **Capability refactor** (the big one deferred across the last three sprints): split `tt_manage_*` and `tt_evaluate_*` caps into `tt_view_*` + `tt_edit_*` pairs. This enables proper read-only experiences across all sections, not just analytics. Every `current_user_can()` call site needs auditing — medium-large sprint on its own.
-- Additional report tiles (attendance summary, goal progress by status, etc.)
-- Whatever else accumulates
+- **Why aliases instead of rewriting call sites in slice 1.** 60-80 sites to rewrite is a lot of regression risk concentrated in one slice. Aliases make the new cap system active and observer-correct immediately, with no call-site churn. Slice 2 does the mechanical rewrite cleanly.
+- **Why the `tt_installed_version` check instead of a version diff table.** Simple state > clever state. One option, one comparison. If migration fails we know exactly what to do.
+- **Why SchemaStatus admin notice is persistent not dismissible.** Dismissible notices get dismissed and forgotten. A pending migration is something you want to act on; the banner stays until you click the button.
+- **Why "Run Migrations" action link is always shown, not only when pending.** Manual re-run is a recovery path, and having it always available means admins can test the flow before a real upgrade situation happens.

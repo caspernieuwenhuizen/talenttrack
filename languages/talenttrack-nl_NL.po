@@ -2822,3 +2822,44 @@ msgstr "Toegangsbeheer"
 
 msgid "Roles, permissions, functional roles, and the Read-Only Observer."
 msgstr "Rollen, rechten, functionele rollen en de Alleen-lezen Waarnemer."
+
+# ===== v3.0.0 (slice 1) — Migration infrastructure + capability refactor scaffolding =====
+
+msgid "TalentTrack schema needs updating."
+msgstr "TalentTrack-schema moet worden bijgewerkt."
+
+msgid "Plugin version %1$s is loaded but the installed schema is %2$s. Run the migration to bring the database up to date."
+msgstr "Plugin-versie %1$s is geladen maar het geïnstalleerde schema is %2$s. Voer de migratie uit om de database bij te werken."
+
+msgid "Run migrations now"
+msgstr "Migraties nu uitvoeren"
+
+msgid "Idempotent — safe to run repeatedly."
+msgstr "Idempotent — veilig om meerdere keren uit te voeren."
+
+msgid "(never installed)"
+msgstr "(nooit geïnstalleerd)"
+
+msgid "Run TalentTrack database migrations. Idempotent."
+msgstr "Voer TalentTrack-database-migraties uit. Idempotent."
+
+msgid "Run Migrations"
+msgstr "Migraties uitvoeren"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Unauthorized."
+msgstr "Niet geautoriseerd."
+
+msgid "TalentTrack migrations completed successfully."
+msgstr "TalentTrack-migraties zijn succesvol voltooid."
+
+msgid "TalentTrack migrations encountered an error."
+msgstr "TalentTrack-migraties zijn op een fout gestuit."
+
+msgid "Migrations & updates"
+msgstr "Migraties & updates"
+
+msgid "What happens when you update the plugin, and how to run migrations manually."
+msgstr "Wat er gebeurt wanneer je de plugin bijwerkt en hoe je migraties handmatig uitvoert."
