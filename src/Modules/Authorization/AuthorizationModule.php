@@ -35,39 +35,9 @@ class AuthorizationModule implements ModuleInterface {
     }
 
     public function boot( Container $container ): void {
-        add_action( 'admin_menu', [ $this, 'registerMenu' ], 20 );
-    }
-
-    public function registerMenu(): void {
-        // Gate on tt_manage_settings — this is admin-level configuration.
-        // Team managers (tt_manage_players only) should not see this UI.
-        $cap = 'tt_manage_settings';
-
-        add_submenu_page(
-            'talenttrack',
-            __( 'Roles & Permissions', 'talenttrack' ),
-            __( 'Roles & Permissions', 'talenttrack' ),
-            $cap,
-            'tt-roles',
-            [ RolesPage::class, 'render' ]
-        );
-
-        add_submenu_page(
-            'talenttrack',
-            __( 'Functional Roles', 'talenttrack' ),
-            __( 'Functional Roles', 'talenttrack' ),
-            $cap,
-            'tt-functional-roles',
-            [ FunctionalRolesPage::class, 'render' ]
-        );
-
-        add_submenu_page(
-            'talenttrack',
-            __( 'Permission Debug', 'talenttrack' ),
-            __( 'Permission Debug', 'talenttrack' ),
-            $cap,
-            'tt-roles-debug',
-            [ DebugPage::class, 'render' ]
-        );
+        // v2.20.0: menu page registration moved to Menu::register() so
+        // the Authorization pages live inside the proper "Access Control"
+        // group with other grouped submenus. The admin_post handlers
+        // registered in register() continue to work.
     }
 }

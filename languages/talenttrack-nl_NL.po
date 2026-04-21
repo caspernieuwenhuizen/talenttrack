@@ -2471,3 +2471,137 @@ msgstr "Coach"
 
 msgid "Player"
 msgstr "Speler"
+
+# ===== v2.20.0 — Player Comparison, Access Control tiles, Reports tile launcher =====
+
+msgid "Player Comparison"
+msgstr "Spelervergelijking"
+
+msgid "Side-by-side comparison of up to 4 players."
+msgstr "Vergelijking van maximaal 4 spelers naast elkaar."
+
+msgid "Compare up to 4 players side-by-side. Cross-team is supported — pick any players from any team or age group."
+msgstr "Vergelijk maximaal 4 spelers naast elkaar. Teamoverschrijdend is mogelijk — kies spelers uit elk team of elke leeftijdscategorie."
+
+msgid "Select players"
+msgstr "Selecteer spelers"
+
+msgid "Slot %d"
+msgstr "Slot %d"
+
+msgid "— None —"
+msgstr "— Geen —"
+
+msgid "No team"
+msgstr "Geen team"
+
+msgid "Compare"
+msgstr "Vergelijk"
+
+msgid "Pick at least one player above and click Compare."
+msgstr "Kies hierboven ten minste één speler en klik op Vergelijk."
+
+msgid "Mixed age groups in this comparison. Overall ratings use age-group-specific category weights, so the numbers below are not perfectly apples-to-apples — they reflect what each player's own coaching staff uses."
+msgstr "Gemengde leeftijdscategorieën in deze vergelijking. De totaalbeoordelingen gebruiken categoriegewichten per leeftijdscategorie, dus de cijfers hieronder zijn niet één-op-één vergelijkbaar — ze weerspiegelen wat de coachingstaf van elke speler gebruikt."
+
+msgid "Cards"
+msgstr "Kaarten"
+
+msgid "Basic facts"
+msgstr "Basisgegevens"
+
+msgid "Attribute"
+msgstr "Kenmerk"
+
+msgid "Headline numbers"
+msgstr "Kerncijfers"
+
+msgid "Metric"
+msgstr "Maatstaf"
+
+msgid "Main category averages"
+msgstr "Gemiddelden per hoofdcategorie"
+
+msgid "Radar overlay"
+msgstr "Radar-overlay"
+
+msgid "Trend overlay"
+msgstr "Trend-overlay"
+
+msgid "No rated evaluations in the current filter window."
+msgstr "Geen beoordeelde evaluaties in het huidige filtervenster."
+
+msgid "Most recent"
+msgstr "Meest recent"
+
+msgid "Rolling (last 5)"
+msgstr "Lopend gemiddelde (laatste 5)"
+
+msgid "All-time"
+msgstr "Altijd"
+
+msgid "Evaluations"
+msgstr "Evaluaties"
+
+msgid "Access Control"
+msgstr "Toegangsbeheer"
+
+msgid "Who can do what — grant or revoke TalentTrack roles per user."
+msgstr "Wie mag wat — ken TalentTrack-rollen per gebruiker toe of trek ze in."
+
+msgid "Head coach, assistant, physio — map club roles to permissions."
+msgstr "Hoofdcoach, assistent, fysio — koppel clubrollen aan rechten."
+
+msgid "Inspect any user's effective permissions."
+msgstr "Inspecteer de effectieve rechten van een gebruiker."
+
+msgid "Pick a report to run. Each tile opens a dedicated view with its own filters."
+msgstr "Kies een rapport om uit te voeren. Elke tegel opent een eigen weergave met eigen filters."
+
+msgid "Player Progress & Radar"
+msgstr "Spelersvoortgang & Radar"
+
+msgid "Player progress over time, radar comparisons, and team-average radar."
+msgstr "Spelersvoortgang over tijd, radar-vergelijkingen en team-gemiddelde radar."
+
+msgid "Team rating averages"
+msgstr "Team-beoordelingsgemiddelden"
+
+msgid "Average rating per team across all main categories."
+msgstr "Gemiddelde beoordeling per team over alle hoofdcategorieën."
+
+msgid "Coach activity"
+msgstr "Coachactiviteit"
+
+msgid "Evaluations saved per coach, last 30 / 90 days."
+msgstr "Evaluaties opgeslagen per coach, laatste 30 / 90 dagen."
+
+msgid "Average rating per team across main categories, computed from all evaluations of players currently assigned to each team. Archived players and archived evaluations are excluded."
+msgstr "Gemiddelde beoordeling per team over de hoofdcategorieën, berekend op basis van alle evaluaties van spelers die momenteel aan elk team zijn toegewezen. Gearchiveerde spelers en gearchiveerde evaluaties worden uitgesloten."
+
+msgid "No teams configured."
+msgstr "Geen teams geconfigureerd."
+
+msgid "Team"
+msgstr "Team"
+
+msgid "Evaluations saved per coach in the last %d days. Archived evaluations are excluded."
+msgstr "Evaluaties opgeslagen per coach in de laatste %d dagen. Gearchiveerde evaluaties worden uitgesloten."
+
+msgid "Window"
+msgstr "Venster"
+
+msgid "Last %d days"
+msgstr "Laatste %d dagen"
+
+msgid "No evaluations saved in this window."
+msgstr "Geen evaluaties opgeslagen in dit venster."
+
+msgid "Last evaluation"
+msgstr "Laatste evaluatie"
+
+msgid "Unknown report type."
+msgstr "Onbekend rapporttype."
+
+msgid "? Help on this topic"
+msgstr "? Hulp bij dit onderwerp"

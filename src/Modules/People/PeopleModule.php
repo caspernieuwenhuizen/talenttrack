@@ -35,18 +35,9 @@ class PeopleModule implements ModuleInterface {
     }
 
     public function registerMenu(): void {
-        // TODO: replace 'tt_manage_players' with a dedicated 'tt_manage_people'
-        // capability once the RBAC module is updated (post-v2.7.0 backlog).
-        $cap = 'tt_manage_players';
-
-        add_submenu_page(
-            'talenttrack',
-            __( 'People', 'talenttrack' ),
-            __( 'People', 'talenttrack' ),
-            $cap,
-            'tt-people',
-            [ PeoplePage::class, 'render' ]
-        );
+        // v2.20.0: People menu registration moved to Menu::register() so
+        // it appears under the People group separator. This method kept
+        // as a no-op for backward compatibility with bootstrap callers.
     }
 
     /**

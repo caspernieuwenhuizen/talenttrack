@@ -4,13 +4,21 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.19.0
+Stable tag: 2.20.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 2.20.0 — Player Comparison + Access Control Tiles + Reports Tile Launcher =
+* NEW: Player Comparison admin page under Analytics. Side-by-side comparison of up to 4 players with cross-team support. Shows FIFA cards, basic facts, headline numbers, main category averages, overlay radar chart, overlay trend chart. Mixed-age-group comparisons get an inline notice about weighted overall ratings.
+* NEW: Access Control group on the dashboard and in the admin submenu. The existing Roles & Permissions, Functional Roles, and Permission Debug pages — previously orphaned at the flat bottom of the TalentTrack submenu — now sit under a proper "Access Control" separator, with matching tile group on the dashboard (red accent).
+* CHANGED: Reports page redesigned as a tile launcher. Legacy combined form retained as the "Player Progress & Radar" tile. Two new first-class reports added: Team rating averages (per-team averages across main categories) and Coach activity (evaluations saved per coach, configurable 7/30/90/180/365-day window).
+* CHANGED: Menu registration centralized. People and Authorization pages no longer self-register via their module boot — Menu::register() owns all TalentTrack submenu entries, keeping group ordering and separators consistent. Existing admin_post handlers unchanged.
+* NEW: "? Help on this topic" placeholder links on Reports and Player Comparison pages. Wired to ?page=tt-docs&topic=<slug>; will light up once the 2.21.0 help wiki ships.
+* INTERNAL: No schema changes. No migrations. New PlayerComparisonPage class; AuthorizationModule and PeopleModule registerMenu methods neutered.
 
 = 2.19.0 — Drag-reorder Lookups + Back Button + Clickable KPIs + Compact Stat Cards =
 * NEW: Drag-to-reorder on lookup tables. Positions, Age Groups, Foot Options, Goal Status, Goal Priority, Attendance Status, Evaluation Types — drag the ⋮⋮ handle to reorder. Saves via AJAX with a success toast; sort_order cells update live. Powered by SortableJS. Fixes the long-standing bug where the sort_order column existed but had no UI to set values.
