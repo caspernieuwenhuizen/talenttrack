@@ -1,3 +1,22 @@
+# TalentTrack v3.1.0 — Documentation in Dutch
+
+**Minor release.** The in-app help/wiki now ships with full Dutch translations alongside the original English content.
+
+## What's new
+
+- **Locale-aware doc resolver.** `HelpTopics::filePath()` now tries `docs/<locale>/<slug>.md` first and falls back to the canonical English `docs/<slug>.md`. Locale comes from `determine_locale()`, so an individual WP user's preferred language wins over the site default. Two admins on the same site can each see docs in their own language.
+- **Full Dutch translations.** All 19 help topics translated into Dutch under `docs/nl_NL/`. Terminology aligned with the existing `talenttrack-nl_NL.po` glossary (Speler, Coach, Evaluatie, Hoofd opleiding, Alleen-lezen Waarnemer, Leeftijdscategorie, Rugnummer, etc.).
+
+## Adding another language
+
+Drop `docs/<locale>/<slug>.md` files. No code changes required. Any topic without a translation in the active locale falls back to English automatically.
+
+## Behind the scenes
+
+- Groundwork-only: `ideas/0008-bug-actions-node20-deprecation.md` logged so the next-gen GitHub Actions node deprecation (2026-06-02 soft / 2026-09-16 hard) doesn't get lost.
+
+No schema changes. No capability changes. No migrations.
+
 # TalentTrack v3.0.2 — PUC branch + rate-limit fixes
 
 Fixes two Plugin Update Checker issues that have been silently breaking auto-update for a long time:
