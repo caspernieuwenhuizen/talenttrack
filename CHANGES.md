@@ -1,3 +1,15 @@
+# TalentTrack v3.0.2 — PUC branch + rate-limit fixes
+
+Fixes two Plugin Update Checker issues that have been silently breaking auto-update for a long time:
+- PUC was defaulting to branch `master` (which doesn't exist on this repo — default is `main`). Explicit `setBranch('main')` added.
+- Unauthenticated GitHub API calls from shared hosting were hitting the 60/hour rate limit, producing HTTP 403 errors. PUC now reads an optional `TT_GITHUB_PAT` constant from wp-config.php and uses it to authenticate. For a public repo this token needs zero scopes.
+
+To enable authenticated API calls on a site, add to wp-config.php above the `/* That's all, stop editing! */` line:
+
+    define( 'TT_GITHUB_PAT', 'ghp_yourtokenhere' );
+
+No schema changes. No migrations.
+
 # TalentTrack v3.0.1 — PUC release-asset delivery fix
 
 **Patch release.** One-line PHP change: enables `getVcsApi()->enableReleaseAssets()` on the Plugin Update Checker instance so WordPress picks up the `talenttrack.zip` asset attached to each GitHub Release (rather than the source zipball, which has the wrong folder name and silently breaks the update).
