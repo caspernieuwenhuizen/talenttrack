@@ -47,11 +47,15 @@ if ( file_exists( TT_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
 
 if ( file_exists( TT_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.php' ) ) {
     require_once TT_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.php';
-    \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+    $tt_update_checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
         'https://github.com/caspernieuwenhuizen/talenttrack/',
         __FILE__,
         TT_PLUGIN_SLUG
     );
+    // Tell PUC to use release assets (talenttrack.zip attached to the GitHub release)
+    // rather than the auto-generated source zipball. Without this, PUC may try to
+    // install from the zipball, which has the wrong folder name and breaks the update.
+    $tt_update_checker->getVcsApi()->enableReleaseAssets();
 }
 
 register_activation_hook( __FILE__, [ 'TT\\Core\\Activator', 'activate' ] );
