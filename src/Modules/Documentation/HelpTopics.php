@@ -145,10 +145,20 @@ class HelpTopics {
     /**
      * Resolve a topic slug to its markdown file path, or null if the
      * slug is unknown.
+     *
+     * Locale-aware: if a translation exists at docs/<locale>/<slug>.md
+     * it is returned; otherwise falls back to the canonical English
+     * docs/<slug>.md. Locale is read via determine_locale() so an
+     * individual WP user's preferred language wins over the site locale.
      */
     public static function filePath( string $slug ): ?string {
         $topics = self::all();
         if ( ! isset( $topics[ $slug ] ) ) return null;
+        $locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
+        if ( $locale ) {
+            $localized = TT_PATH . 'docs/' . $locale . '/' . $slug . '.md';
+            if ( file_exists( $localized ) ) return $localized;
+        }
         $path = TT_PATH . 'docs/' . $slug . '.md';
         return file_exists( $path ) ? $path : null;
     }

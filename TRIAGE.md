@@ -11,6 +11,5 @@ The 3–7 items I'm thinking about for the next sprint. Short list, manually cur
 ## Parked / on deck
 
 - [#0004 — My card review](ideas/0004-needs-triage-my-card-review.md) — needs screenshot + error details first
-- [#0001 — Docs language support](ideas/0001-feat-docs-language-support.md) — medium feature, not urgent
 - [#0005 — Frontend full CRUD](ideas/0005-epic-frontend-full-crud.md) — epic, needs decomposition session
 - [#0006 — Team planning module](ideas/0006-epic-team-planning-module.md) — epic, needs design session
