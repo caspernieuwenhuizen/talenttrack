@@ -1,4 +1,4 @@
-<!-- type: feature -->
+<!-- type: feat -->
 
 # Documentation language support
 

@@ -1,4 +1,4 @@
-<!-- type: feature -->
+<!-- type: feat -->
 
 # Player "My evaluations" view polish
 

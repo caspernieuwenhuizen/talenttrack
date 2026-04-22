@@ -4,13 +4,13 @@ The 3–7 items I'm thinking about for the next sprint. Short list, manually cur
 
 ## Next up
 
-1. [Lookup reorder bug](ideas/lookup-reorder-not-working.md) — investigate + fix. Bug type, fast.
-2. [Access Control roles overview](ideas/access-control-roles-overview.md) — answers a real question with a small new admin page.
-3. [Player evaluations view polish](ideas/player-evaluations-view-polish.md) — visible UX pain.
+1. [#0007 — Lookup reorder bug](ideas/0007-bug-lookup-reorder-not-working.md) — investigate + fix. Bug type, fast.
+2. [#0002 — Access Control roles overview](ideas/0002-feat-access-control-roles-overview.md) — answers a real question with a small new admin page.
+3. [#0003 — Player evaluations view polish](ideas/0003-feat-player-evaluations-view-polish.md) — visible UX pain.
 
 ## Parked / on deck
 
-- [My card review](ideas/my-card-review.md) — needs screenshot + error details first
-- [Docs language support](ideas/docs-language-support.md) — medium feature, not urgent
-- [Frontend full CRUD](ideas/frontend-full-crud-epic.md) — epic, needs decomposition session
-- [Team planning module](ideas/team-planning-module-epic.md) — epic, needs design session
+- [#0004 — My card review](ideas/0004-needs-triage-my-card-review.md) — needs screenshot + error details first
+- [#0001 — Docs language support](ideas/0001-feat-docs-language-support.md) — medium feature, not urgent
+- [#0005 — Frontend full CRUD](ideas/0005-epic-frontend-full-crud.md) — epic, needs decomposition session
+- [#0006 — Team planning module](ideas/0006-epic-team-planning-module.md) — epic, needs design session

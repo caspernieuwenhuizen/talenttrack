@@ -8,41 +8,67 @@ This document describes how work moves from idea to shipped release. All automat
 
 ## Idea capture
 
-Any rough thought goes in `ideas/<slug>.md`. One file per idea. First heading is the title. Rest is freeform. Type marker at the top:
+Any rough thought goes in `ideas/NNNN-<type>-<slug>.md`. One file per idea. First heading is the title. Rest is freeform.
 
-- `<!-- type: feature -->` — standard spec-able feature
+**Filename:** `NNNN-<type>-<slug>.md` — e.g. `0012-bug-session-save-fails-on-empty-date.md`
+
+- `NNNN` — 4-digit zero-padded global ID. Assign the next unused (highest existing + 1). Permanent, never renumbered.
+- `<type>` — `feat` | `bug` | `epic` | `question` | `needs-triage`. Matches the marker inside the file.
+- `<slug>` — short kebab-case description.
+
+**Type marker at the top of the file** (must match the filename type segment):
+
+- `<!-- type: feat -->` — standard spec-able feature
 - `<!-- type: bug -->` — a bug that needs investigation
 - `<!-- type: epic -->` — too big for one sprint
 - `<!-- type: question -->` — a question, not an idea
 - `<!-- type: needs-triage -->` — unclear, more info needed
 
+Reference ideas in chat as `#0012` (or `#12` — Claude Code matches on the number). Full spec in `ideas/README.md`.
+
 Keep `TRIAGE.md` at repo root updated with the 3–7 ideas most relevant right now.
+
+## Picking up ideas by type
+
+Tell Claude Code in any of these forms:
+
+  pick up the next 4 bugs
+  grab 2 feats
+  shape the next epic
+
+Claude Code will:
+1. List `ideas/*-<type>-*.md` sorted by ID ascending
+2. Skip any that already have a matching file in `specs/` (same ID)
+3. Take the first N
+4. For each: confirm with you, then start shaping or implementing (your call per item)
+
+"Next" means lowest ID first — simple FIFO. Rearrange by editing `TRIAGE.md` if you want a different order for a specific batch.
 
 ## Shaping — idea → spec
 
 Open Claude Code at repo root. Ask:
 
-  help me turn ideas/<slug>.md into a proper spec — ask me whatever you need
+  help me turn #NNNN into a proper spec — ask me whatever you need
 
-Claude Code reads the file, asks clarifying questions, iterates with you until the spec is clear. When done, Claude Code:
+Claude Code reads `ideas/NNNN-*.md`, asks clarifying questions, iterates with you until the spec is clear. When done, Claude Code:
 
-1. Writes the shaped spec to specs/<slug>.md using the structure in specs/README.md
-2. Keeps the original in ideas/ for provenance (move it to ideas/shaped/ when that folder starts to make sense)
-3. Optionally: opens a GitHub issue referencing the spec path (ask Claude Code to do this if you want it)
+1. Writes the shaped spec to `specs/NNNN-<type>-<slug>.md` using the structure in `specs/README.md`. ID is preserved from the idea.
+2. Removes the original from `ideas/` (the spec is now the source of truth; git history preserves provenance).
+3. Optionally: opens a GitHub issue referencing the spec path (ask Claude Code to do this if you want it).
 
 ## Build — spec → feature branch → PR
 
 In Claude Code:
 
-  implement specs/<slug>.md
+  implement #NNNN
 
 Claude Code will:
-1. Create a feature branch: `git checkout -b feature/<slug>`
+1. Create a feature branch: `git checkout -b feature/NNNN-<slug>`
 2. Implement the code changes, editing files directly in the repo
 3. Run `composer install` and `vendor/bin/phpstan analyse` if those tools exist
 4. Run `find src -name "*.php" -print0 | xargs -0 -n1 php -l` for syntax check
-5. Commit: `git add . && git commit -m "feat: <title> (<slug>)"`
-6. Push: `git push origin feature/<slug>`
+5. Commit: `git add . && git commit -m "<type>: <title> (#NNNN)"`
+6. Push: `git push origin feature/NNNN-<slug>`
 7. Open a PR: `gh pr create --fill`
 
 Ask "show me what you did" before saying "ship it" if you want to review in the Claude Code chat. Or check the PR on github.com.
