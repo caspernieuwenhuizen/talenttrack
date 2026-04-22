@@ -3,7 +3,7 @@
  * Plugin Name: TalentTrack
  * Plugin URI:  https://github.com/caspernieuwenhuizen/talenttrack
  * Description: Frontend-first, modular youth football talent management system for a single club.
- * Version:     3.0.1
+ * Version:     3.0.2
  * Author:      Casper Nieuwenhuizen
  * Author URI:  https://github.com/caspernieuwenhuizen
  * License:     GPL-2.0+
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'TT_VERSION',     '3.0.1' );
+define( 'TT_VERSION',     '3.0.2' );
 define( 'TT_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'TT_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );
 define( 'TT_PLUGIN_FILE', __FILE__ );
@@ -52,10 +52,18 @@ if ( file_exists( TT_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.p
         __FILE__,
         TT_PLUGIN_SLUG
     );
-    // Tell PUC to use release assets (talenttrack.zip attached to the GitHub release)
-    // rather than the auto-generated source zipball. Without this, PUC may try to
-    // install from the zipball, which has the wrong folder name and breaks the update.
+    // Repo default branch is `main`; without this PUC falls back to `master` and 404s.
+    $tt_update_checker->setBranch( 'main' );
+    // Prefer the release asset (talenttrack.zip attached by the GH Action) over the
+    // auto-generated source zipball, which has the wrong folder name.
     $tt_update_checker->getVcsApi()->enableReleaseAssets();
+    // Authenticated GitHub API calls get 5000/hr instead of 60/hr unauthenticated.
+    // Token is read from wp-config.php so it never enters the repo. Define in wp-config:
+    //   define( 'TT_GITHUB_PAT', 'ghp_xxxxxx' );
+    // For a public repo this token needs ZERO scopes (just signed identity).
+    if ( defined( 'TT_GITHUB_PAT' ) && TT_GITHUB_PAT ) {
+        $tt_update_checker->setAuthentication( TT_GITHUB_PAT );
+    }
 }
 
 register_activation_hook( __FILE__, [ 'TT\\Core\\Activator', 'activate' ] );
