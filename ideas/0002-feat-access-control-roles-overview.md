@@ -1,4 +1,4 @@
-<!-- type: feature -->
+<!-- type: feat -->
 
 # Roles overview page in Access Control
 
