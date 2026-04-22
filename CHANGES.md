@@ -1,3 +1,11 @@
+# TalentTrack v3.0.1 — PUC release-asset delivery fix
+
+**Patch release.** One-line PHP change: enables `getVcsApi()->enableReleaseAssets()` on the Plugin Update Checker instance so WordPress picks up the `talenttrack.zip` asset attached to each GitHub Release (rather than the source zipball, which has the wrong folder name and silently breaks the update).
+
+Also lands the devops foundation scaffolding (ideas/, specs/, TRIAGE.md, DEVOPS.md, DEPLOY_DEBUG.md) that's been on main since the previous PR but didn't ship in a release. Those files are docs-only and have no runtime effect.
+
+No schema changes. No capability changes. No migrations.
+
 # TalentTrack v3.0.0 — Capability refactor + Migration UX + Frontend rebuild
 
 **Status: SHIPPED.** v3.0.0 is the first TalentTrack release with a fully tile-based frontend, a genuinely useful Read-Only Observer role, and a one-click migration workflow.
