@@ -26,14 +26,15 @@ class DemoGenerator {
     ];
 
     /**
-     * @param array{preset:string, domain:string, password:string, seed:int} $opts
+     * @param array{preset:string, domain:string, password:string, seed:int, club_name?:string} $opts
      * @return array{
      *   batch_id:string,
      *   users:array<string,int>,
      *   accounts:array<string,array{user_id:int,email:string}>,
      *   teams:object[],
      *   players:object[],
-     *   counts:array<string,int>
+     *   counts:array<string,int>,
+     *   user_stats:array{created:int, reused:int}
      * }
      */
     public static function run( array $opts ): array {
@@ -51,8 +52,9 @@ class DemoGenerator {
         $userGen  = new UserGenerator( $registry, (string) $opts['domain'], (string) $opts['password'] );
         $users    = $userGen->generate();
 
-        $teamGen  = new TeamGenerator( $registry, $users, (int) $config['teams'] );
-        $teams    = $teamGen->generate();
+        $club_name = isset( $opts['club_name'] ) ? (string) $opts['club_name'] : null;
+        $teamGen   = new TeamGenerator( $registry, $users, (int) $config['teams'], $club_name );
+        $teams     = $teamGen->generate();
 
         $playerGen = new PlayerGenerator( $registry, $teams, $users, (int) $config['players_per_team'] );
         $players   = $playerGen->generate();
@@ -72,7 +74,7 @@ class DemoGenerator {
             'accounts' => $userGen->accounts(),
             'teams'    => $teams,
             'players'  => $players,
-            'counts'   => [
+            'counts'     => [
                 'users'       => count( $users ),
                 'teams'       => count( $teams ),
                 'players'     => count( $players ),
@@ -80,7 +82,20 @@ class DemoGenerator {
                 'sessions'    => $session_count,
                 'goals'       => $goal_count,
             ],
+            'user_stats' => [
+                'created' => $userGen->createdCount(),
+                'reused'  => $userGen->reusedCount(),
+            ],
         ];
+    }
+
+    /**
+     * True when any persistent demo user already exists — used by the
+     * admin form to switch into "reuse only" messaging instead of the
+     * "36 welcome emails" warning.
+     */
+    public static function persistentUsersExist(): bool {
+        return DemoBatchRegistry::persistentEntityIds( 'wp_user' ) !== [];
     }
 
     private static function makeBatchId( string $preset, int $seed ): string {

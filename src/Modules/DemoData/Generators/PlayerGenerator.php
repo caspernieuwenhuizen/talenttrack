@@ -3,6 +3,7 @@ namespace TT\Modules\DemoData\Generators;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\SeedLoader;
 
@@ -14,16 +15,22 @@ use TT\Modules\DemoData\SeedLoader;
  *   1. Names come from 100×100 Dutch first/last seeds (see
  *      src/Modules/DemoData/seeds/). Duplicates allowed — that's
  *      realistic for a real club.
- *   2. Age is derived from the team's JOxx label (JO11 == 11-year-olds).
+ *   2. Age is derived from the team's age-group label (e.g. JO11 -> 11).
  *      DOB is set to a random day within a 12-month window around the
  *      nominal birth-year.
  *   3. Heights/weights scale with age using a simple lookup table.
- *   4. Archetype is assigned deterministically per player and stored
- *      in tt_demo_tags.extra_json so EvaluationGenerator (Checkpoint 2)
- *      can read it back. Distribution per spec:
+ *   4. Preferred foot is drawn from the configured `foot_option` lookup
+ *      so whatever the admin has stored (English "Right" / Dutch
+ *      "Rechts" / custom) is what ends up in tt_players.preferred_foot.
+ *      Uniform distribution across configured options — a richer
+ *      reality-reflecting weighting will come when the reference-data
+ *      translation feature lands.
+ *   5. Archetype is assigned deterministically per player and stored
+ *      in tt_demo_tags.extra_json so EvaluationGenerator can read it
+ *      back. Distribution:
  *        Rising star 15%, In-a-slump 10%, Steady-solid 30%,
  *        Late bloomer 15%, Inconsistent 15%, New arrival 15%.
- *   5. player1..player5 WP users are bound to the first 5 generated
+ *   6. player1..player5 WP users are bound to the first 5 generated
  *      players via wp_user_id so they can log in and see a real
  *      profile. Bindings are reset on re-run (users survive wipes;
  *      only the binding is transient).
@@ -41,7 +48,9 @@ class PlayerGenerator {
     ];
 
     private const POSITIONS = [ 'GK','CB','LB','RB','CDM','CM','CAM','LW','RW','ST' ];
-    private const FEET      = [ 'Right', 'Right', 'Right', 'Left', 'Both' ]; // weighted
+
+    /** @var string[]|null cached per-request list of foot-option labels from the lookup */
+    private ?array $foot_options = null;
 
     private DemoBatchRegistry $registry;
 
@@ -105,7 +114,7 @@ class PlayerGenerator {
                 $dob = $this->randomDobForAge( $age );
                 $height = $this->heightForAge( $age );
                 $weight = $this->weightForAge( $age, $height );
-                $foot = self::FEET[ mt_rand( 0, count( self::FEET ) - 1 ) ];
+                $foot = $this->pickFoot();
                 $pos  = $this->pickPositions();
                 $jersey = $this->pickJersey( $used_jerseys );
                 $used_jerseys[ $jersey ] = true;
@@ -150,6 +159,18 @@ class PlayerGenerator {
             }
         }
         return $all;
+    }
+
+    private function pickFoot(): string {
+        if ( $this->foot_options === null ) {
+            $this->foot_options = [];
+            foreach ( QueryHelpers::get_lookups( 'foot_option' ) as $row ) {
+                $name = trim( (string) $row->name );
+                if ( $name !== '' ) $this->foot_options[] = $name;
+            }
+        }
+        if ( ! $this->foot_options ) return '';
+        return $this->foot_options[ mt_rand( 0, count( $this->foot_options ) - 1 ) ];
     }
 
     private function ageFromGroup( string $group ): int {
