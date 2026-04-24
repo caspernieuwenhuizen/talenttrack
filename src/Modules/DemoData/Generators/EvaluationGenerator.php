@@ -145,19 +145,39 @@ class EvaluationGenerator {
                 $total_evals++;
 
                 foreach ( $categories as $cat ) {
-                    $bias   = self::CATEGORY_BIASES[ $cat->name ] ?? 0.0;
-                    $rating = $this->archetypeRating( $archetype, $t ) + $bias + ( mt_rand( -30, 30 ) / 100 );
-                    $rating = max( 1.0, min( 5.0, round( $rating, 1 ) ) );
+                    $bias       = self::CATEGORY_BIASES[ $cat->name ] ?? 0.0;
+                    $main_base  = $this->archetypeRating( $archetype, $t ) + $bias;
+                    $main_value = max( 1.0, min( 5.0, round( $main_base + ( mt_rand( -30, 30 ) / 100 ), 1 ) ) );
 
                     $wpdb->insert( "{$wpdb->prefix}tt_eval_ratings", [
                         'evaluation_id' => $eval_id,
                         'category_id'   => (int) $cat->id,
-                        'rating'        => $rating,
+                        'rating'        => $main_value,
                     ] );
                     $rating_id = (int) $wpdb->insert_id;
                     if ( $rating_id ) {
                         $this->registry->tag( 'eval_rating', $rating_id );
                         $total_ratings++;
+                    }
+
+                    // Subcategory ratings — give demo evaluations the same
+                    // shape a coach actually records when they drill into a
+                    // main. Values cluster around the main score with a
+                    // small ±0.4 noise, so radar/trend views stay coherent
+                    // with the main rating but the detail drill-in shows
+                    // plausible variation.
+                    foreach ( $this->subcategoriesFor( (int) $cat->id ) as $sub ) {
+                        $sub_value = max( 1.0, min( 5.0, round( $main_base + ( mt_rand( -40, 40 ) / 100 ), 1 ) ) );
+                        $wpdb->insert( "{$wpdb->prefix}tt_eval_ratings", [
+                            'evaluation_id' => $eval_id,
+                            'category_id'   => (int) $sub->id,
+                            'rating'        => $sub_value,
+                        ] );
+                        $sub_rating_id = (int) $wpdb->insert_id;
+                        if ( $sub_rating_id ) {
+                            $this->registry->tag( 'eval_rating', $sub_rating_id );
+                            $total_ratings++;
+                        }
                     }
                 }
             }
@@ -176,6 +196,28 @@ class EvaluationGenerator {
         } catch ( \Throwable $_ ) {
             return QueryHelpers::get_categories();
         }
+    }
+
+    /** @var array<int, object[]>|null per-request cache of subcategory rows keyed by parent id */
+    private ?array $subcat_cache = null;
+
+    /**
+     * @return object[] subcategory rows for the given main category
+     */
+    private function subcategoriesFor( int $parent_id ): array {
+        if ( $this->subcat_cache === null ) {
+            $this->subcat_cache = [];
+            try {
+                $repo = new EvalCategoriesRepository();
+                $mains = $repo->getMainCategories( true );
+                foreach ( $mains as $main ) {
+                    $this->subcat_cache[ (int) $main->id ] = $repo->getChildren( (int) $main->id, true );
+                }
+            } catch ( \Throwable $_ ) {
+                $this->subcat_cache = [];
+            }
+        }
+        return $this->subcat_cache[ $parent_id ] ?? [];
     }
 
     /**

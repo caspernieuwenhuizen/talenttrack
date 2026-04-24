@@ -22,11 +22,16 @@ class DemoBanner {
 
     public static function addAdminBarNode( \WP_Admin_Bar $bar ): void {
         if ( ! DemoMode::isOn() ) return;
+        // Placed under `top-secondary` so the node appears on the right
+        // side of the admin bar, adjacent to the user/howdy dropdown,
+        // instead of taking real estate on the left next to the site
+        // title. Compact: emoji + 4-letter label, no wordy "DEMO MODE".
         $bar->add_node( [
-            'id'    => 'tt-demo-mode',
-            'title' => '<span style="background:#b32d2e;color:#fff;padding:2px 10px;border-radius:3px;font-weight:600;">🎭 DEMO MODE</span>',
-            'href'  => admin_url( 'tools.php?page=tt-demo-data' ),
-            'meta'  => [ 'title' => __( 'TalentTrack is running in demo mode. Real data is hidden.', 'talenttrack' ) ],
+            'id'     => 'tt-demo-mode',
+            'parent' => 'top-secondary',
+            'title'  => '<span style="background:#b32d2e;color:#fff;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:0.05em;line-height:1.6;">🎭 DEMO</span>',
+            'href'   => admin_url( 'tools.php?page=tt-demo-data' ),
+            'meta'   => [ 'title' => __( 'TalentTrack is running in demo mode. Real data is hidden.', 'talenttrack' ) ],
         ] );
     }
 

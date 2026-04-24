@@ -27,7 +27,7 @@ class DemoGenerator {
     ];
 
     /**
-     * @param array{preset:string, domain:string, password:string, seed:int, club_name?:string} $opts
+     * @param array{preset:string, domain:string, password:string, seed:int, club_name?:string, content_language?:string} $opts
      * @return array{
      *   batch_id:string,
      *   users:array<string,int>,
@@ -69,7 +69,11 @@ class DemoGenerator {
         $sessionGen    = new SessionGenerator( $registry, $teams, $players, (int) $config['weeks'] );
         $session_count = $sessionGen->generate();
 
-        $goalGen    = new GoalGenerator( $registry, $players, $users );
+        $content_language = isset( $opts['content_language'] ) && (string) $opts['content_language'] !== ''
+            ? (string) $opts['content_language']
+            : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
+
+        $goalGen    = new GoalGenerator( $registry, $players, $users, $content_language );
         $goal_count = $goalGen->generate();
 
         return [

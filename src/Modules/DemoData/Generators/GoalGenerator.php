@@ -13,12 +13,17 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  * some completed, some pending, occasional on-hold. Priority mix
  * roughly 20% High / 60% Medium / 20% Low.
  *
- * Goal titles come from a short domain list; descriptions are
- * derivative of the title plus a neutral sentence.
+ * Goal titles come from a short translatable domain list. The generator
+ * stores whichever locale the operator chose on the Generate form
+ * (defaults to the site locale), so the data lands in DB in the
+ * language the audience of the demo will read — not the operator's
+ * browser locale. Implemented via switch_to_locale() around a set of
+ * __()-wrapped English source strings. Translations live in nl_NL.po.
  */
 class GoalGenerator {
 
-    private const TITLES = [
+    /** Source strings resolved per target locale via __(). */
+    private const TITLE_SOURCES = [
         'Improve weak foot passing',
         'First-touch control under pressure',
         'Consistency in 1v1 defending',
@@ -33,6 +38,8 @@ class GoalGenerator {
         'Leadership — communicate more on pitch',
     ];
 
+    private const DESCRIPTION_SUFFIX_SOURCE = 'Track progress weekly with the coach.';
+
     private DemoBatchRegistry $registry;
 
     /** @var object[] */
@@ -41,14 +48,18 @@ class GoalGenerator {
     /** @var array<string,int> */
     private array $users;
 
+    private string $language;
+
     /**
      * @param object[] $players
      * @param array<string,int> $users slot => user id
+     * @param string $language WP locale used as target for goal titles + description suffix.
      */
-    public function __construct( DemoBatchRegistry $registry, array $players, array $users ) {
+    public function __construct( DemoBatchRegistry $registry, array $players, array $users, string $language = '' ) {
         $this->registry = $registry;
         $this->players  = $players;
         $this->users    = $users;
+        $this->language = $language !== '' ? $language : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
     }
 
     public function generate(): int {
@@ -64,12 +75,30 @@ class GoalGenerator {
 
         $author_id = (int) ( $this->users['hjo'] ?? $this->users['admin'] ?? 0 );
 
+        // Resolve translated title + suffix pool under the target locale
+        // once, then restore. Demo rows end up stored in the demo-target
+        // language regardless of what the operator's browser is set to.
+        $switched = false;
+        if ( function_exists( 'switch_to_locale' ) && $this->language !== '' ) {
+            $switched = (bool) switch_to_locale( $this->language );
+        }
+
+        $titles = [];
+        foreach ( self::TITLE_SOURCES as $src ) {
+            $titles[] = (string) __( $src, 'talenttrack' );
+        }
+        $description_suffix = (string) __( self::DESCRIPTION_SUFFIX_SOURCE, 'talenttrack' );
+
+        if ( $switched && function_exists( 'restore_previous_locale' ) ) {
+            restore_previous_locale();
+        }
+
         $total = 0;
         foreach ( $this->players as $p ) {
             $goal_count = mt_rand( 1, 2 );
             $used_titles = [];
             for ( $i = 0; $i < $goal_count; $i++ ) {
-                $title = $this->pickTitle( $used_titles );
+                $title = $this->pickTitle( $titles, $used_titles );
                 $used_titles[ $title ] = true;
 
                 $status   = $this->pickStatus( $status_labels, $default_status );
@@ -81,7 +110,7 @@ class GoalGenerator {
                 $wpdb->insert( "{$wpdb->prefix}tt_goals", [
                     'player_id'   => (int) $p->id,
                     'title'       => $title,
-                    'description' => $title . '. Track progress weekly with the coach.',
+                    'description' => $title . '. ' . $description_suffix,
                     'status'      => $status,
                     'priority'    => $priority,
                     'due_date'    => $due_date,
@@ -92,6 +121,7 @@ class GoalGenerator {
                     $this->registry->tag( 'goal', $goal_id, [
                         'player_id' => (int) $p->id,
                         'status'    => $status,
+                        'language'  => $this->language,
                     ] );
                     $total++;
                 }
@@ -121,13 +151,17 @@ class GoalGenerator {
         return null;
     }
 
-    /** @param array<string,true> $used */
-    private function pickTitle( array $used ): string {
+    /**
+     * @param string[] $pool Translated title pool under the active language.
+     * @param array<string,true> $used
+     */
+    private function pickTitle( array $pool, array $used ): string {
+        if ( ! $pool ) return '';
         for ( $tries = 0; $tries < 40; $tries++ ) {
-            $title = self::TITLES[ mt_rand( 0, count( self::TITLES ) - 1 ) ];
+            $title = $pool[ mt_rand( 0, count( $pool ) - 1 ) ];
             if ( ! isset( $used[ $title ] ) ) return $title;
         }
-        return self::TITLES[0];
+        return $pool[0];
     }
 
     /** @param string[] $available */

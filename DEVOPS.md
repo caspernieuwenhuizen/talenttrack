@@ -89,7 +89,17 @@ Any change that adds, renames, or removes a `__()` / `_e()` / `esc_html__()` str
 **3. Documentation updated in the same PR.**
 If a change alters user-visible behaviour — new field, moved button, changed wording, new admin page, new workflow — the relevant topic in `docs/<slug>.md` **and** its Dutch translation `docs/nl_NL/<slug>.md` must be updated alongside the code. If there's no matching topic yet, add the topic entry in `src/Modules/Documentation/HelpTopics.php` and create both files. `CHANGES.md` is a separate artifact (per-release); the docs are the *current* state of the feature.
 
-PR review check: if a reviewer can't point at the `.po` lines and the `docs/*` lines, it's not done.
+**4. SEQUENCE.md kept current in the release commit.**
+When a release ships work on any item referenced by number or name in `SEQUENCE.md`, the release commit must update SEQUENCE.md alongside the version bump. The update shows:
+
+- What was done, tied to the release tag (short bullets).
+- Phase status moved forward where applicable (Phase 0 → Shipped, In progress → Done).
+- Remaining work phrased as "still to do", not a re-listing of everything ever planned.
+- Time — original estimate vs actual hours where known. Columns grow into a calibration tool over time.
+
+Default behaviour on every release that touches SEQUENCE.md-referenced work, not a conscious step.
+
+PR review check: if a reviewer can't point at the `.po` lines and the `docs/*` lines, it's not done. And a release that leaves SEQUENCE.md stale isn't done either.
 
 ## Release — tag a version, automation takes over
 
