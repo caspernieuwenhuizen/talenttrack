@@ -79,10 +79,11 @@ class PeopleRepository {
             $where[] = "EXISTS (SELECT 1 FROM {$p}tt_team_people tp WHERE tp.person_id = p.id)";
         }
 
+        $scope = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'p', 'person' );
         $sql = "SELECT p.*,
                   (SELECT COUNT(*) FROM {$p}tt_team_people tp WHERE tp.person_id = p.id) AS team_count
                 FROM {$p}tt_people p
-                WHERE " . implode( ' AND ', $where ) . "
+                WHERE " . implode( ' AND ', $where ) . " {$scope}
                 ORDER BY p.last_name ASC, p.first_name ASC";
 
         $query = $params ? $wpdb->prepare( $sql, $params ) : $sql;

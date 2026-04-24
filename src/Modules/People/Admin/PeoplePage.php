@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\People\PeopleRepository;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Validation\CustomFieldValidator;
 use TT\Shared\Admin\BackButton;
 
@@ -74,7 +75,8 @@ class PeoplePage {
             ] );
         } else {
             global $wpdb; $p = $wpdb->prefix;
-            $people = $wpdb->get_results( "SELECT pe.*, 0 AS team_count FROM {$p}tt_people pe WHERE {$view_clause} ORDER BY pe.last_name, pe.first_name ASC" );
+            $scope = QueryHelpers::apply_demo_scope( 'pe', 'person' );
+            $people = $wpdb->get_results( "SELECT pe.*, 0 AS team_count FROM {$p}tt_people pe WHERE {$view_clause} {$scope} ORDER BY pe.last_name, pe.first_name ASC" );
         }
 
         $new_url  = admin_url( 'admin.php?page=tt-people&action=new' );

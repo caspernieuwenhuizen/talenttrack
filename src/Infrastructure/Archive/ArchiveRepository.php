@@ -122,13 +122,8 @@ class ArchiveRepository {
 
         global $wpdb;
         // Scope filter keeps demo-mode isolation: when demo mode is on,
-        // counts reflect only demo rows; when off, only real rows. The
-        // 'person' entity isn't demo-generated, so it gets no scope
-        // (entity_type unknown → apply_demo_scope returns a fragment
-        // against an empty entity set, which would hide everything).
-        $scope = $entity === 'person'
-            ? ''
-            : \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'r', $entity );
+        // counts reflect only demo rows; when off, only real rows.
+        $scope = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'r', $entity );
         $all_sql      = "SELECT COUNT(*) FROM {$table} r WHERE 1=1 {$scope}";
         $archived_sql = "SELECT COUNT(*) FROM {$table} r WHERE r.archived_at IS NOT NULL {$scope}";
         $all      = (int) $wpdb->get_var( $all_sql );

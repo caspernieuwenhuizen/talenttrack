@@ -34,6 +34,7 @@ class DemoDataCleaner {
         'session',
         'goal',
         'player',
+        'team_person',
         'team',
     ];
 
@@ -45,7 +46,9 @@ class DemoDataCleaner {
         'session'     => [ 'tt_sessions',     'id' ],
         'goal'        => [ 'tt_goals',        'id' ],
         'player'      => [ 'tt_players',      'id' ],
+        'team_person' => [ 'tt_team_people',  'id' ],
         'team'        => [ 'tt_teams',        'id' ],
+        'person'      => [ 'tt_people',       'id' ],
     ];
 
     /**
@@ -108,14 +111,28 @@ class DemoDataCleaner {
             return [ 'deleted' => 0, 'refused' => [] ];
         }
 
+        // Persistent persons are tied to the user set — remove them
+        // before deleting the users so we don't leave orphan rows with
+        // wp_user_id pointing at nonexistent accounts.
+        global $wpdb;
+        $person_ids = DemoBatchRegistry::persistentEntityIds( 'person' );
+        if ( $person_ids ) {
+            $placeholders = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
+            $wpdb->query( $wpdb->prepare(
+                "DELETE FROM {$wpdb->prefix}tt_people WHERE id IN ({$placeholders})",
+                ...$person_ids
+            ) );
+            $wpdb->query(
+                "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = 'person'"
+            );
+        }
+
         $current_user_id = (int) get_current_user_id();
         $admin_count = self::countAdministrators();
 
         if ( ! function_exists( 'wp_delete_user' ) ) {
             require_once ABSPATH . 'wp-admin/includes/user.php';
         }
-
-        global $wpdb;
 
         foreach ( $persistent_ids as $user_id ) {
             $user = get_user_by( 'id', $user_id );

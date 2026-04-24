@@ -114,7 +114,7 @@ class DemoDataPage {
 
             // Split into data counts (created this run) vs user counts (created + reused)
             $data_parts = [];
-            foreach ( [ 'teams', 'players', 'evaluations', 'sessions', 'goals' ] as $k ) {
+            foreach ( [ 'teams', 'persons', 'players', 'evaluations', 'sessions', 'goals' ] as $k ) {
                 if ( isset( $counts[ $k ] ) ) {
                     $data_parts[] = (int) $counts[ $k ] . ' ' . $k;
                 }
@@ -249,7 +249,18 @@ class DemoDataPage {
             </div>
         <?php endif; ?>
 
-        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+        <div id="tt-demo-generating" style="display:none; position:fixed; inset:0; background:rgba(20,25,32,0.72); z-index:10000; align-items:center; justify-content:center;">
+            <div style="background:#fff; border-radius:10px; padding:32px 40px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.3); max-width:420px;">
+                <div style="width:48px; height:48px; border:4px solid #e5e7ea; border-top-color:#2271b1; border-radius:50%; margin:0 auto 18px; animation: tt-demo-spin 0.9s linear infinite;"></div>
+                <h3 style="margin:0 0 6px; font-size:18px;"><?php esc_html_e( 'Generating demo data…', 'talenttrack' ); ?></h3>
+                <p style="margin:0; color:#666; font-size:13px;">
+                    <?php esc_html_e( 'This usually takes 15–45 seconds depending on the preset. Leave this tab open until it finishes.', 'talenttrack' ); ?>
+                </p>
+            </div>
+        </div>
+        <style>@keyframes tt-demo-spin { to { transform: rotate(360deg); } }</style>
+
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="tt-demo-generate-form">
             <?php wp_nonce_field( 'tt_demo_generate', 'tt_demo_nonce' ); ?>
             <input type="hidden" name="action" value="tt_demo_generate" />
             <table class="form-table">
@@ -324,6 +335,21 @@ class DemoDataPage {
             </table>
             <?php submit_button( __( 'Generate demo data', 'talenttrack' ) ); ?>
         </form>
+        <script>
+            (function () {
+                var form = document.getElementById( 'tt-demo-generate-form' );
+                var overlay = document.getElementById( 'tt-demo-generating' );
+                if ( ! form || ! overlay ) return;
+                form.addEventListener( 'submit', function () {
+                    // Honour native validation: only show overlay if the form
+                    // will actually submit.
+                    if ( typeof form.checkValidity === 'function' && ! form.checkValidity() ) return;
+                    overlay.style.display = 'flex';
+                    var btn = form.querySelector( 'input[type="submit"]' );
+                    if ( btn ) btn.disabled = true;
+                } );
+            })();
+        </script>
         <?php
     }
 
@@ -412,6 +438,12 @@ class DemoDataPage {
             wp_die( esc_html__( 'Insufficient permissions.', 'talenttrack' ) );
         }
         check_admin_referer( 'tt_demo_generate', 'tt_demo_nonce' );
+
+        // Generating the Large preset can run 90+ seconds on shared hosts;
+        // raise the ceiling so we don't time out halfway through.
+        if ( function_exists( 'set_time_limit' ) ) {
+            @set_time_limit( 300 );
+        }
 
         $domain    = isset( $_POST['domain'] )    ? sanitize_text_field( wp_unslash( (string) $_POST['domain'] ) )    : '';
         $password  = isset( $_POST['password'] )  ? (string) wp_unslash( (string) $_POST['password'] )                : '';
