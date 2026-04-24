@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(gh:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(cp:*)",
+      "Bash(sed:*)",
+      "Bash(rm:*)",
+      "Bash(touch:*)",
+      "Bash(echo:*)",
+      "Bash(composer:*)",
+      "Bash(php:*)",
+      "Bash(npm:*)",
+      "Bash(which:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(diff:*)",
+      "Bash(awk:*)"
+    ]
+  }
+}
