@@ -1,4 +1,4 @@
-<!-- type: bug -->
+<!-- type: needs-triage -->
 
 # Lookup tables — drag-to-reorder not visible (investigation)
 
