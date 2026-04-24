@@ -73,12 +73,12 @@ class ConfigurationPage {
             <?php
             switch ( $tab ) {
                 case 'eval_types':      self::tab_eval_types(); break;
-                case 'positions':       self::tab_lookup( 'position', __( 'Position', 'talenttrack' ), false, false ); break;
-                case 'foot_options':    self::tab_lookup( 'foot_option', __( 'Foot Option', 'talenttrack' ), false, false ); break;
-                case 'age_groups':      self::tab_lookup( 'age_group', __( 'Age Group', 'talenttrack' ), false, false ); break;
-                case 'goal_statuses':   self::tab_lookup( 'goal_status', __( 'Goal Status', 'talenttrack' ), false, false ); break;
-                case 'goal_priorities': self::tab_lookup( 'goal_priority', __( 'Goal Priority', 'talenttrack' ), false, false ); break;
-                case 'att_statuses':    self::tab_lookup( 'attendance_status', __( 'Attendance Status', 'talenttrack' ), false, false ); break;
+                case 'positions':       self::tab_lookup( 'position', __( 'Position', 'talenttrack' ), false, true ); break;
+                case 'foot_options':    self::tab_lookup( 'foot_option', __( 'Foot Option', 'talenttrack' ), false, true ); break;
+                case 'age_groups':      self::tab_lookup( 'age_group', __( 'Age Group', 'talenttrack' ), false, true ); break;
+                case 'goal_statuses':   self::tab_lookup( 'goal_status', __( 'Goal Status', 'talenttrack' ), false, true ); break;
+                case 'goal_priorities': self::tab_lookup( 'goal_priority', __( 'Goal Priority', 'talenttrack' ), false, true ); break;
+                case 'att_statuses':    self::tab_lookup( 'attendance_status', __( 'Attendance Status', 'talenttrack' ), false, true ); break;
                 case 'rating':          self::tab_rating(); break;
                 case 'branding':        self::tab_branding(); break;
                 case 'toggles':         self::tab_toggles(); break;

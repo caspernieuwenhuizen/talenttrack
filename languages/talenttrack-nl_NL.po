@@ -3153,3 +3153,55 @@ msgstr "Vertaalde naam"
 
 msgid "Translated description"
 msgstr "Vertaalde omschrijving"
+
+# ===== v3.6.1 — demo prep follow-ups =====
+
+msgid "Content language"
+msgstr "Taal van de content"
+
+msgid "(site locale)"
+msgstr "(sitetaal)"
+
+msgid "Language the generated content is written in — goal titles, descriptions, any free-text seeded by the generators. Defaults to the site locale; override when the demo audience speaks a different language than the site admin's browser."
+msgstr "Taal waarin de gegenereerde content wordt geschreven — doeltitels, omschrijvingen en alle vrije tekst die de generatoren invullen. Standaard gelijk aan de sitetaal; overschrijf als je demo-publiek een andere taal spreekt dan de browser van de beheerder."
+
+# Goal title content (demo generator)
+
+msgid "Improve weak foot passing"
+msgstr "Passing met de zwakke voet verbeteren"
+
+msgid "First-touch control under pressure"
+msgstr "Aanname onder druk"
+
+msgid "Consistency in 1v1 defending"
+msgstr "Constantheid in 1-op-1 verdedigen"
+
+msgid "Build up attacking headers"
+msgstr "Opbouwend koppen"
+
+msgid "Off-the-ball positioning"
+msgstr "Positionering zonder bal"
+
+msgid "Scanning before receiving"
+msgstr "Scannen voor de aanname"
+
+msgid "Finishing from cutbacks"
+msgstr "Afronden vanuit terugleggers"
+
+msgid "Tracking runners in transition"
+msgstr "Loopacties volgen in de omschakeling"
+
+msgid "Set-piece delivery accuracy"
+msgstr "Nauwkeurigheid bij standaardsituaties"
+
+msgid "Shape under high press"
+msgstr "Ploegvorm onder hoge druk"
+
+msgid "Fitness — recover faster between sprints"
+msgstr "Conditie — sneller herstellen tussen sprints"
+
+msgid "Leadership — communicate more on pitch"
+msgstr "Leiderschap — meer communiceren op het veld"
+
+msgid "Track progress weekly with the coach."
+msgstr "Wekelijks voortgang bespreken met de coach."

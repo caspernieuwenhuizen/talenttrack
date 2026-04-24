@@ -1,51 +1,56 @@
 # TalentTrack backlog sequencing
 
-Working doc for sequencing the full backlog. Updated after full shaping of all items plus #0022 Workflow Engine insertion, then updated again on 2026-04-24 after demo-readiness work consumed most of Phase 0.
+Working doc for sequencing the full backlog. Maintained under the DEVOPS.md rule "SEQUENCE.md kept current in the release commit" — updated in every release that touches a backlog item mentioned here.
 
 ## Active deadline
 
-**Demo on 4 May 2026.** Phase 0 is substantially complete — see the "Phase 0 status" section below. Ten days of runway remain; we're ahead of the original schedule.
+**Demo on 4 May 2026.** Phase 0 + 0b are complete. Ten days of runway remain; the whole May 4 roadmap is shipped and the remaining time is for rehearsal + regression response.
 
-## Phase 0 status — what actually shipped (as of 2026-04-24)
+## Phase 0 status — what actually shipped
 
-**#0020 Demo data generator — COMPLETE across v3.1.0 → v3.5.0.**
-Shipped in six releases: Checkpoint 1 (schema, user/team/player generators, admin page) in v3.2.0, Checkpoint 2 (evaluations / sessions / goals generators + demo-mode scope filter + wipe flow) in v3.3.0, scope-filter audit in v3.3.1, reference-data + club-name + reuse-UX improvements in v3.4.0, demo user name sync + status-tab scope in v3.4.1, demo staff via People + team_people + positions from lookup + visual progress in v3.5.0. Every acceptance criterion in `specs/0020-feat-demo-data-generator.md` is met.
+**#0020 Demo data generator — COMPLETE across v3.1.0 → v3.6.1.**
+Shipped in eight releases:
+- v3.2.0 — Checkpoint 1 (schema, user/team/player generators, admin page)
+- v3.3.0 — Checkpoint 2 (evaluations / sessions / goals generators + demo-mode scope filter + wipe flow)
+- v3.3.1 — scope-filter audit across module pages
+- v3.4.0 — reference-data + club-name + reuse-UX improvements
+- v3.4.1 — demo user name sync + status-tab scope
+- v3.5.0 — demo staff via People + team_people + positions from lookup + visual progress
+- v3.6.1 — evaluation subcategory ratings + per-demo content-language override (new dropdown on the Generate form defaulting to site locale) + compact "🎭 DEMO" admin-bar pill next to the user menu
+  Estimate ~24h, actual ≈ 30h of driver time. Overshoot came from the three scope-filter audits (one fix wasn't enough) and two rounds of reference-data translator wiring. Calibration note: content-heavy modules with many display call-sites need ~20% buffer for the sweep phase.
 
 **#0015 FrontendMyProfileView fatal — SKIPPED (not reproducible).**
-Spec claimed `QueryHelpers::get_team()` was non-existent and caused a fatal for rostered players. On inspection the method exists (committed 2026-04-18, four days before the view itself was written), and the PHP-8 null-coalescing guard on the age-group block suppresses the warning the spec also called out. User and I agreed to skip and move on. If a rostered-player fatal reappears during demo rehearsals, file as a fresh bug.
+Spec claimed `QueryHelpers::get_team()` was non-existent. The method in fact existed four days before the calling view was written. Left an explicit note in Phase 0 status in case a rostered-player fatal reappears.
 
-**Demo-prep polish — COMPLETE in v3.6.0 (batches A / B / C).**
-Fourteen user-reported items from dress rehearsals, shipped in three PRs against the v3.6.0 release:
+**Demo-prep polish — COMPLETE in v3.6.0 + v3.6.1.**
+Twenty-ish user-reported items from dress rehearsals, shipped in four PRs across v3.6.0 + v3.6.1:
 
-- **Batch A (PR #11)** — player-card name truncation, responsive tile fonts, print-view "Close window", Competition field as a `tt_lookups` dropdown, clickable teammate card with privacy-preserving read-only view, ship-along standards written into DEVOPS.md.
-- **Batch B (PR #12)** — radar visual rewrite (wider viewBox, axis markers, rounded joins), Chart.js footer-enqueue fix so rate-card trend + radar-shape actually render on the frontend, clickable entity refs across all admin list tables, team players panel on the team edit page, DAU / evals-per-day "Pick a day…" picker.
-- **Batch C (PR #13)** — client-side sortable + searchable frontend tables (My evaluations / My sessions), multilingual reference data via a `translations` JSON column on `tt_lookups`, new `LookupTranslator` service + admin UI on every lookup edit form.
+- **Batch A (PR #11, v3.6.0)** — player-card name truncation, responsive tile fonts, print-view "Close window", Competition field as a `tt_lookups` dropdown, clickable teammate card with privacy-preserving read-only view, ship-along standards written into DEVOPS.md.
+- **Batch B (PR #12, v3.6.0)** — radar visual rewrite, Chart.js footer-enqueue fix so frontend rate-card trend + radar-shape actually render, clickable entity refs across admin list tables, team players panel on team edit page, DAU / evals-per-day "Pick a day…" picker.
+- **Batch C (PR #13, v3.6.0)** — client-side sortable + searchable frontend tables, multilingual reference data via a `translations` JSON column on `tt_lookups` with a `LookupTranslator` service + admin UI.
+- **Batch D (PR #14, v3.6.1)** — drag-to-reorder finally visible on all six lookup tabs (#0007), `actions/checkout@v4 → @v5` clearing the Node-20 deprecation (#0008), evaluation subcategory ratings, per-demo content-language override, compact admin-bar pill.
 
-**Ship-along rules codified in v3.6.0.**
-DEVOPS.md now mandates three rules enforced on every feature PR: reference data is translatable + extensible by default (no hardcoded lists), `nl_NL.po` updates land in the same PR, `docs/<slug>.md` + `docs/nl_NL/<slug>.md` update in the same PR when behaviour changes.
+**Ship-along rules — now four.**
+DEVOPS.md codifies (1) translatable + extensible reference data by default, (2) `.po` updates in-PR, (3) docs updates in-PR, (4) SEQUENCE.md updates in the release commit (this rule added in v3.6.1 after the user asked me to stop letting it drift).
 
 ## Remaining Phase 0 work (optional polish)
 
-Nothing demo-blocking. Candidate finishing touches if time allows before May 4:
+Nothing demo-blocking. Open candidates if time allows before May 4:
 
 1. Dry-run rehearsal on the WordPress install itself — the spec's May 3 gate. Not a code task; a walkthrough.
-2. Any regressions the user surfaces from testing v3.6.0 on the live install.
-3. Optional consumer-wiring pass for `LookupTranslator::byTypeAndName()` across more display sites (positions on players list, attendance status on sessions, etc.) — MVP shipped two wirings; rest can follow.
+2. Any regressions the user surfaces from testing v3.6.1 on the live install.
+3. Optional consumer-wiring pass for `LookupTranslator::byTypeAndName()` across more display sites (positions on players list, attendance status on sessions, etc.) — MVP shipped two wirings; rest can follow opportunistically.
 
-## Phase 0b — Delayed bugs (can slip past May 4)
+## Phase 0b — Delayed bugs — COMPLETE
 
-| Rank | Item | Type | Effort | Notes |
+| Item | Type | Estimate → Actual | Shipped | Notes |
 | --- | --- | --- | --- | --- |
-| 1 | **#0008** | bug | ~4h | Node 20 deprecation. Hard deadline 16 Sep 2026. |
-| 2 | **#0007** | bug | ~TBD | Drag-reorder broken. Still `needs-triage`; shape then fix. |
+| **#0007** | bug | ~TBD → 15 min | v3.6.1 | Root cause was one parameter wrong in six places, not missing wiring. |
+| **#0008** | bug | ~4h → 5 min | v3.6.1 | `actions/checkout@v5`. `softprops/action-gh-release@v2` left as floating major; revisit if warning persists past 2026-06-02. |
 
 ## What's in the backlog (post-demo)
 
-All items have shaped idea files in `ideas/` and dev-ready specs in `specs/`.
-
-**Bugs:**
-- **#0007** bug — Lookup reorder not working on Configuration page (still `needs-triage`, not yet specced)
-- **#0008** bug — GitHub Actions Node 20 deprecation (hard deadline 16 Sep 2026)
+All items have shaped idea files in `ideas/` and dev-ready specs in `specs/`. Bugs section deliberately blank — both demo-window bugs shipped in v3.6.1.
 
 **Small features:**
 - **#0003** feat — Player evaluations view polish
@@ -72,8 +77,10 @@ All items have shaped idea files in `ideas/` and dev-ready specs in `specs/`.
 - **#0001** — docs language support, shipped v3.1.0.
 - **#0002** — merged into **#0019 Sprint 5** (Roles reference panel). Idea file preserved as historical record pointing at the spec.
 - **#0005** — superseded by #0019, archived.
+- **#0007** — lookup drag-reorder, shipped v3.6.1.
+- **#0008** — Actions Node 20 deprecation, shipped v3.6.1.
 - **#0015** — skipped (spec stale; see Phase 0 status above).
-- **#0020** — demo data generator, complete through v3.5.0.
+- **#0020** — demo data generator, complete through v3.6.1.
 
 ## Principles
 

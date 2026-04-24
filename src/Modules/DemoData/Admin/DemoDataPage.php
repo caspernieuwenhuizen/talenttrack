@@ -320,6 +320,23 @@ class DemoDataPage {
                             <p class="description"><?php esc_html_e( 'Fixed default 20260504 — produces the same roster every run. Change for a different roster.', 'talenttrack' ); ?></p>
                         </td>
                     </tr>
+                    <tr>
+                        <th scope="row"><label for="tt_demo_content_language"><?php esc_html_e( 'Content language', 'talenttrack' ); ?></label></th>
+                        <td>
+                            <?php
+                            $tt_site_locale = function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US';
+                            $tt_locales = \TT\Infrastructure\Query\LookupTranslator::installedLocales();
+                            ?>
+                            <select id="tt_demo_content_language" name="content_language">
+                                <?php foreach ( $tt_locales as $loc ) : ?>
+                                    <option value="<?php echo esc_attr( $loc ); ?>" <?php selected( $loc, $tt_site_locale ); ?>>
+                                        <?php echo esc_html( $loc . ( $loc === $tt_site_locale ? ' ' . __( '(site locale)', 'talenttrack' ) : '' ) ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="description"><?php esc_html_e( 'Language the generated content is written in — goal titles, descriptions, any free-text seeded by the generators. Defaults to the site locale; override when the demo audience speaks a different language than the site admin\'s browser.', 'talenttrack' ); ?></p>
+                        </td>
+                    </tr>
                     <?php if ( ! $users_exist ) : ?>
                     <tr>
                         <th scope="row"><label for="tt_demo_confirm"><?php esc_html_e( 'I confirm this domain catches mail I own', 'talenttrack' ); ?></label></th>
@@ -449,8 +466,9 @@ class DemoDataPage {
         $password  = isset( $_POST['password'] )  ? (string) wp_unslash( (string) $_POST['password'] )                : '';
         $preset    = isset( $_POST['preset'] )    ? sanitize_key( (string) $_POST['preset'] )                         : 'small';
         $seed      = isset( $_POST['seed'] )      ? (int) $_POST['seed']                                              : 20260504;
-        $club_name = isset( $_POST['club_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['club_name'] ) ) : '';
-        $confirmed = ! empty( $_POST['domain_confirmed'] );
+        $club_name        = isset( $_POST['club_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['club_name'] ) ) : '';
+        $content_language = isset( $_POST['content_language'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['content_language'] ) ) : '';
+        $confirmed        = ! empty( $_POST['domain_confirmed'] );
 
         $redirect = admin_url( 'tools.php?page=' . self::SLUG );
         $users_exist = DemoGenerator::persistentUsersExist();
@@ -466,11 +484,12 @@ class DemoDataPage {
             // Generation paths should read tagged data across all batches.
             \TT\Modules\DemoData\DemoMode::overrideForRequest( \TT\Modules\DemoData\DemoMode::NEUTRAL );
             $result = DemoGenerator::run( [
-                'preset'    => $preset,
-                'domain'    => $domain,
-                'password'  => $password,
-                'seed'      => $seed,
-                'club_name' => $club_name,
+                'preset'           => $preset,
+                'domain'           => $domain,
+                'password'         => $password,
+                'seed'             => $seed,
+                'club_name'        => $club_name,
+                'content_language' => $content_language,
             ] );
             \TT\Modules\DemoData\DemoMode::clearOverride();
         } catch ( \Throwable $e ) {
