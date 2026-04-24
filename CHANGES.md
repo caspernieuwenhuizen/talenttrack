@@ -1,3 +1,39 @@
+# TalentTrack v3.7.0 — #0019 Sprint 1 foundation (session 1)
+
+**Minor release.** Opens Phase 1 — the #0019 frontend-first-admin epic. Session 1 of Sprint 1 lands the server-side foundation so follow-up sessions can do the client-side cutover in focused passes. Also carries a demo-generator language fix.
+
+## New REST API endpoints
+
+`includes/REST/` expanded with the full set of write endpoints that the old `FrontendAjax` / `includes/Frontend/Ajax` shims covered:
+
+- `POST /talenttrack/v1/sessions`, `PUT`/`DELETE /sessions/{id}` — `Sessions_Controller` (new). Handles attendance as a sub-resource inline on create/update. Fail-loud DB error handling.
+- `POST /talenttrack/v1/goals`, `PUT`/`DELETE /goals/{id}`, `PATCH /goals/{id}/status` — `Goals_Controller` (new). PATCH matches the inline status-select flow.
+- `POST /talenttrack/v1/evaluations` enriched — was running `$wpdb->insert` without checking the return; now matches FrontendAjax v2.6.2 safety net (fail-loud inserts, structured `WP_Error` with DB detail, cap upgraded from `tt_evaluate_players` to `tt_edit_evaluations`, coach-owns-player check, required-field validation).
+
+## Flash-message scaffold
+
+New `FlashMessages` service — user-meta-backed queue, `add`/`consume`/`peek`/`dismiss`/`render`/`init`. Dashboard shortcode renders pending messages at the top of the body. `?tt_flash_dismiss=<id>` no-JS dismiss works via `template_redirect`. Types: success/info/warning/error.
+
+## Intentionally NOT in this release
+
+Client-side cutover of `assets/js/public.js` + the `tt-ajax-form` handler. Keeps working via the existing AJAX endpoints until session 2. Both `FrontendAjax` classes still in place. Shared form components, CSS scaffold, localStorage drafts all land in session 3.
+
+## Demo generator: content language actually works now
+
+The v3.6.1 attempt routed goal titles + session title template through `__()` + `switch_to_locale()`. That only works when the compiled `.mo` is up to date — which this repo's workflow doesn't guarantee. Result: picking `nl_NL` on the Generate form silently fell back to English.
+
+**Fix:** swap the `__()`/`switch_to_locale()` approach for first-class per-language content dictionaries embedded in the generator classes:
+
+- `GoalGenerator::TITLES_BY_LANGUAGE` + `DESCRIPTION_SUFFIX_BY_LANGUAGE`
+- `SessionGenerator::SESSION_STRINGS_BY_LANGUAGE` (title template + default location)
+
+Both expose `supportedLanguages()` + `resolveLanguage()` statics. The **Content language** dropdown on the Generate form is now populated from `supportedLanguages()` so the operator can only pick locales where the generators actually ship content. Extending to a new language: add one key to each generator's constant array. No `.mo` recompile needed.
+
+## Ship-along
+
+- `.po` updated with new `WP_Error` + flash strings.
+- SEQUENCE.md tracks Sprint 1 as IN PROGRESS with a session log. Session 1 ~4h actual against a ~25–30h estimate.
+
 # TalentTrack v3.6.1 — Phase 0b bug fixes + demo-generator follow-ups
 
 **Patch release.** Clears both remaining Phase 0b bugs (#0007, #0008) and layers four demo-generator follow-ups identified during v3.6.0 testing. Adds a new SEQUENCE.md-maintenance ship-along rule.
