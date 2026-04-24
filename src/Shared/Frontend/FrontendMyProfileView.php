@@ -60,7 +60,7 @@ class FrontendMyProfileView extends FrontendViewBase {
 
                     <?php if ( $player->preferred_foot ) : ?>
                         <dt style="color:#666; font-size:13px;"><?php esc_html_e( 'Preferred foot', 'talenttrack' ); ?></dt>
-                        <dd style="margin:0;"><?php echo esc_html( (string) $player->preferred_foot ); ?></dd>
+                        <dd style="margin:0;"><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'foot_option', (string) $player->preferred_foot ) ); ?></dd>
                     <?php endif; ?>
 
                     <?php if ( $player->jersey_number ) : ?>

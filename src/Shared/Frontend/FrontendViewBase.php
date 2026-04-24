@@ -37,6 +37,26 @@ abstract class FrontendViewBase {
             TT_VERSION
         );
 
+        // Client-side table sort + search. Safe no-op on views without
+        // a .tt-table-sortable element; cheap to load once per request.
+        wp_enqueue_script(
+            'tt-table-tools',
+            TT_PLUGIN_URL . 'assets/js/tt-table-tools.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script(
+            'tt-table-tools',
+            'ttTableToolsStrings',
+            [
+                'search'            => __( 'Search:', 'talenttrack' ),
+                'searchPlaceholder' => __( 'Filter rows…', 'talenttrack' ),
+                'rowsTotal'         => __( '{n} row(s)', 'talenttrack' ),
+                'rowsFiltered'      => __( '{v} of {n}', 'talenttrack' ),
+            ]
+        );
+
         self::$assets_enqueued = true;
     }
 

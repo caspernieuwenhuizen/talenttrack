@@ -252,7 +252,7 @@ class ConfigurationPage {
         ?>
         <h2><?php echo $is_edit ? esc_html__( 'Edit', 'talenttrack' ) : esc_html__( 'Add', 'talenttrack' ); ?> <?php echo esc_html( $label ); ?>
             <a href="<?php echo esc_url( admin_url( "admin.php?page=tt-config&tab=$tab" ) ); ?>" class="page-title-action"><?php esc_html_e( '← Back', 'talenttrack' ); ?></a></h2>
-        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="max-width:500px;">
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="max-width:640px;">
             <?php wp_nonce_field( 'tt_save_lookup', 'tt_nonce' ); ?>
             <input type="hidden" name="action" value="tt_save_lookup" />
             <input type="hidden" name="lookup_type" value="<?php echo esc_attr( $type ); ?>" />
@@ -263,8 +263,58 @@ class ConfigurationPage {
                 <?php if ( $show_desc ) : ?><tr><th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th><td><input type="text" name="description" value="<?php echo esc_attr( $item->description ?? '' ); ?>" class="large-text" /></td></tr><?php endif; ?>
                 <?php if ( $show_sort ) : ?><tr><th><?php esc_html_e( 'Sort Order', 'talenttrack' ); ?></th><td><input type="number" name="sort_order" value="<?php echo (int) ( $item->sort_order ?? 0 ); ?>" min="0" /></td></tr><?php endif; ?>
             </table>
+
+            <?php self::renderTranslationsSection( $item, $show_desc ); ?>
+
             <?php submit_button( $is_edit ? __( 'Update', 'talenttrack' ) : __( 'Add', 'talenttrack' ) ); ?>
         </form>
+        <?php
+    }
+
+    /**
+     * v3.6.0 — per-locale translations block shown on every lookup edit
+     * form. One row per installed site locale, with Name and (when
+     * applicable) Description inputs. Leave a field empty to fall back
+     * to the canonical name + the `.po` translation. Everything lives
+     * under the `tt_i18n[<locale>][name|description]` input namespace
+     * so handle_save_lookup() can reconstruct the JSON cleanly.
+     */
+    private static function renderTranslationsSection( ?object $item, bool $show_desc ): void {
+        $translations = \TT\Infrastructure\Query\LookupTranslator::decode( $item );
+        $locales      = \TT\Infrastructure\Query\LookupTranslator::installedLocales();
+        if ( ! $locales ) return;
+        ?>
+        <h3 style="margin-top:18px;"><?php esc_html_e( 'Translations', 'talenttrack' ); ?></h3>
+        <p class="description" style="max-width:560px;">
+            <?php esc_html_e( 'Override the display name (and optionally description) per installed site locale. Leave a field empty to fall back to the canonical Name above and any matching translation shipped with the plugin.', 'talenttrack' ); ?>
+        </p>
+        <table class="form-table">
+            <?php foreach ( $locales as $locale ) :
+                $existing = $translations[ $locale ] ?? [ 'name' => '', 'description' => '' ];
+            ?>
+                <tr>
+                    <th style="vertical-align:top;">
+                        <label><code><?php echo esc_html( $locale ); ?></code></label>
+                    </th>
+                    <td>
+                        <input type="text"
+                               name="tt_i18n[<?php echo esc_attr( $locale ); ?>][name]"
+                               value="<?php echo esc_attr( (string) ( $existing['name'] ?? '' ) ); ?>"
+                               class="regular-text"
+                               placeholder="<?php esc_attr_e( 'Translated name', 'talenttrack' ); ?>" />
+                        <?php if ( $show_desc ) : ?>
+                            <br />
+                            <input type="text"
+                                   name="tt_i18n[<?php echo esc_attr( $locale ); ?>][description]"
+                                   value="<?php echo esc_attr( (string) ( $existing['description'] ?? '' ) ); ?>"
+                                   class="large-text"
+                                   placeholder="<?php esc_attr_e( 'Translated description', 'talenttrack' ); ?>"
+                                   style="margin-top:4px;" />
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
         <?php
     }
 
@@ -414,6 +464,25 @@ class ConfigurationPage {
         if ( $type === 'eval_type' ) {
             $data['meta'] = wp_json_encode( [ 'requires_match_details' => isset( $_POST['requires_match_details'] ) ] );
         }
+
+        // v3.6.0: per-locale translations posted as tt_i18n[<locale>][name|description].
+        // Stored as JSON in the new `translations` column so seeded .po translations
+        // keep working while admin-added values gain inline translation support.
+        if ( isset( $_POST['tt_i18n'] ) && is_array( $_POST['tt_i18n'] ) ) {
+            $raw_i18n = wp_unslash( (array) $_POST['tt_i18n'] );
+            $clean = [];
+            foreach ( $raw_i18n as $locale => $fields ) {
+                if ( ! is_string( $locale ) || ! is_array( $fields ) ) continue;
+                $locale_key = sanitize_text_field( (string) $locale );
+                if ( $locale_key === '' ) continue;
+                $clean[ $locale_key ] = [
+                    'name'        => isset( $fields['name'] ) ? sanitize_text_field( (string) $fields['name'] ) : '',
+                    'description' => isset( $fields['description'] ) ? sanitize_text_field( (string) $fields['description'] ) : '',
+                ];
+            }
+            $data['translations'] = \TT\Infrastructure\Query\LookupTranslator::encode( $clean );
+        }
+
         if ( $id ) $wpdb->update( $wpdb->prefix . 'tt_lookups', $data, [ 'id' => $id ] );
         else $wpdb->insert( $wpdb->prefix . 'tt_lookups', $data );
         wp_safe_redirect( admin_url( "admin.php?page=tt-config&tab=$tab&tt_msg=saved" ) );

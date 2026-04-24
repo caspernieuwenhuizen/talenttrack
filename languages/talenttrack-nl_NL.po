@@ -3125,3 +3125,31 @@ msgstr "Speler aan dit team toevoegen"
 
 msgid "Chart library unavailable. Data tables above still show the same information."
 msgstr "Grafiekbibliotheek niet beschikbaar. De tabellen hierboven tonen dezelfde informatie."
+
+# ===== v3.6.0 — demo prep batch C (tables + i18n) =====
+
+msgid "Search:"
+msgstr "Zoek:"
+
+msgid "Filter rows…"
+msgstr "Rijen filteren…"
+
+msgid "{n} row(s)"
+msgstr "{n} rij(en)"
+
+msgid "{v} of {n}"
+msgstr "{v} van {n}"
+
+# ===== v3.6.0 — multilingual reference data =====
+
+msgid "Translations"
+msgstr "Vertalingen"
+
+msgid "Override the display name (and optionally description) per installed site locale. Leave a field empty to fall back to the canonical Name above and any matching translation shipped with the plugin."
+msgstr "Overschrijf de weergavenaam (en optioneel de omschrijving) per geïnstalleerde sitetaal. Laat een veld leeg om terug te vallen op de Naam hierboven en een eventuele meegeleverde vertaling."
+
+msgid "Translated name"
+msgstr "Vertaalde naam"
+
+msgid "Translated description"
+msgstr "Vertaalde omschrijving"
