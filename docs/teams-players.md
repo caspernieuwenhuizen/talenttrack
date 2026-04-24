@@ -10,6 +10,14 @@ A **team** is a squad at a specific age group (e.g. "U13 Blue", "U15 Red"). Each
 
 Create teams in the **Teams** admin page. The age group field matters because [category weights](?page=tt-docs&topic=eval-categories-weights) are defined per age group.
 
+### The team edit page at a glance
+
+Opening a team for editing shows three blocks:
+
+1. **Team details** — name, age group, head coach, notes, custom fields.
+2. **Staff Assignments** — the people working with this team (coaches, assistants, physio, etc.). Add/remove assignments here.
+3. **Players on this team** — the current roster in a sortable table with jersey, positions, foot, date of birth. Each row links to the player's edit page. A "Add player to this team" button is at the bottom.
+
 ## Players
 
 A **player** is an individual footballer. Each player has:

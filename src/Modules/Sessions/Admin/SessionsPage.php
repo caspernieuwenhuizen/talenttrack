@@ -61,7 +61,16 @@ class SessionsPage {
                     <td><?php echo esc_html( (string) $s->title ); ?>
                         <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
                     </td>
-                    <td><?php echo esc_html( $s->team_name ?: '—' ); ?></td>
+                    <td><?php
+                        $sess_team_name = (string) ( $s->team_name ?? '' );
+                        $sess_team_id   = (int) ( $s->team_id ?? 0 );
+                        if ( $sess_team_name !== '' && $sess_team_id > 0 && current_user_can( 'tt_view_teams' ) ) {
+                            echo '<a href="' . esc_url( admin_url( 'admin.php?page=tt-teams&action=edit&id=' . $sess_team_id ) ) . '">'
+                                . esc_html( $sess_team_name ) . '</a>';
+                        } else {
+                            echo esc_html( $sess_team_name !== '' ? $sess_team_name : '—' );
+                        }
+                    ?></td>
                     <td><?php if ( current_user_can( 'tt_edit_sessions' ) ) : ?><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-sessions&action=edit&id={$s->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_session&id={$s->id}" ), 'tt_del_sess_' . $s->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a><?php else : ?><span style="color:#999;">—</span><?php endif; ?></td></tr>
             <?php endforeach; endif; ?></tbody></table>
 

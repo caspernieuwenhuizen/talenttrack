@@ -10,6 +10,14 @@ Een **team** is een selectie binnen een specifieke leeftijdscategorie (bijv. "U1
 
 Maak teams aan op de beheerpagina **Teams**. De leeftijdscategorie is belangrijk, omdat [categorie gewichten](?page=tt-docs&topic=eval-categories-weights) per leeftijdscategorie worden gedefinieerd.
 
+### De teambewerkpagina in één oogopslag
+
+Als je een team opent om te bewerken, zie je drie blokken:
+
+1. **Teamgegevens** — naam, leeftijdscategorie, hoofdcoach, notities, aangepaste velden.
+2. **Staftoewijzingen** — de mensen die met dit team werken (coaches, assistenten, fysio, enz.). Toewijzingen hier toevoegen/verwijderen.
+3. **Spelers in dit team** — de huidige selectie in een tabel met rugnummer, posities, voet, geboortedatum. Elke rij linkt naar de bewerkpagina van de speler. Onderaan staat een knop "Speler aan dit team toevoegen".
+
 ## Spelers
 
 Een **speler** is een individuele voetballer. Elke speler heeft:

@@ -26,6 +26,8 @@ Het dashboard toont:
 
 Elke tegel, elk grafiekpunt en elke rij is klikbaar. Klik op "Logins (7 dagen)" om elk login-event te zien. Klik op een punt in de DAU-grafiek om te zien welke gebruikers die specifieke dag actief waren. Klik op een rolbalk voor alleen die gebruikers. Elke detailweergave heeft een broodkruimel met een Terug-knop naar het dashboard.
 
+**Een specifieke dag kiezen:** naast elke grafiek (DAU en Evaluaties per dag) staat een knop **"Kies een dag…"**. Die opent de detailweergave met een datumkeuze die je kunt invullen of met ← / → knoppen dag voor dag kunt verschuiven — handig als de dag die je zoekt lastig te raken is op een grafiek met 90 staafjes.
+
 ## Rechten
 
 Alleen voor beheerders (`tt_manage_settings`). Niet zichtbaar voor coaches.
