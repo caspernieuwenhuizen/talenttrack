@@ -1,3 +1,18 @@
+# TalentTrack v3.3.1 — Demo-mode scope filter audit
+
+**Patch release.** Fixes a demo-blocking scope leak caught during v3.3.0 testing: with demo mode ON, the wp-admin Players page and several other surfaces still showed real club rows alongside the demo data.
+
+v3.3.0 wired `QueryHelpers::apply_demo_scope()` into the `QueryHelpers::*` entity methods, but a number of module admin pages and shared surfaces query the tables directly via `$wpdb`, bypassing the helper. This release routes those paths through the scope filter too.
+
+**Patched surfaces:**
+- `PlayersPage`, `TeamsPage` (list + per-team count), `GoalsPage`, `SessionsPage`, `ReportsPage` (Progress / Comparison / Team Averages)
+- Sidebar navigation badges (5 counts + 5 weekly deltas) — prevents inflated totals in demo mode
+- `RoleGrantPanel` teams + players dropdowns in Access Control
+- Frontend `[talenttrack_dashboard]` goals block
+- REST `GET /evaluations` endpoint
+
+**Known residual (not demo-blocking):** Direct URL access to edit-form detail views (e.g. `?page=tt-goals&action=edit&id=X`) still reads the raw row without the scope filter. Unreachable through normal UI flow since list views no longer surface IDs from the other side. Will tighten in post-demo cleanup.
+
 # TalentTrack v3.3.0 — Demo data generator complete (Checkpoint 2)
 
 **Minor release.** Completes spec #0020. A realistic Dutch academy can now be generated, scoped, and wiped end-to-end from one wp-admin page — ready for the 4 May 2026 demo.
