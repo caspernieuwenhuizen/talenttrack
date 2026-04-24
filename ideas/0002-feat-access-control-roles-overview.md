@@ -2,11 +2,17 @@
 
 # Roles overview page in Access Control
 
+**This idea has been merged into #0019 Sprint 5.** See `specs/0019-sprint-5-admin-tier-surfaces.md` under the "Roles + Capabilities" section.
+
+The idea is preserved below as historical record of the original raw question that motivated the feature.
+
+---
+
 Raw idea:
 
 Where does the observer role live? I do not see it as functional role. Can I assign it to people?
 
-## Answer (not an idea — Claude Code should record this and move on)
+## Answer (recorded during shaping)
 
 The Read-Only Observer lives as a WordPress role (`tt_readonly_observer`), not a Functional Role.
 
@@ -15,11 +21,12 @@ The Read-Only Observer lives as a WordPress role (`tt_readonly_observer`), not a
 
 A person can hold both (e.g. a head coach whose WP role is tt_coach).
 
-## The actual feature hiding in the question
+Note: as of shaping, `tt_readonly_observer` is claimed in the readme since v2.21.0 but was never actually registered in `Activator.php`. That bug is fixed in #0014 Sprint 5 (scout flow), which registers both `tt_readonly_observer` and the new `tt_scout` role properly.
 
-There is no page in the TT admin that lists the WordPress roles, their effective caps, and where to assign them. Admins have to infer this. Add an "Access Control → WordPress Roles" page that shows:
+## What was being asked for
 
-- All 8 TT WordPress roles (Head of Development / Club Admin / Coach / Scout / Staff / Player / Parent / Read-Only Observer)
-- For each: short description, the caps that role holds (collapsible detail), a "users with this role" count with a link to a filtered WP Users list, a "how to assign this role" note.
+A page in the TT admin that lists the WordPress roles, their effective caps, and where to assign them. Admins should have a canonical place to look up "what does this role do and how do I give it to someone?"
 
-Could sit as a tab on the existing Roles & Permissions page or as a new sibling page. Observer in particular gets a prominent card since it's the one most admins won't find otherwise.
+## Where this now lives
+
+Absorbed into #0019 Sprint 5's `FrontendRolesView` → Role reference panel. The intent is preserved, the scope is larger (it's one part of a broader admin-tier frontend migration), and the ship date is tied to Sprint 5's schedule rather than independent.
