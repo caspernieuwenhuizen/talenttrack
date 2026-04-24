@@ -183,7 +183,8 @@ class ReportsPage {
         echo '<div style="margin-top:30px;padding:20px;background:#fff;border:1px solid #ddd;border-radius:6px;">';
         if ( $type === 'progress' ) {
             echo '<h2>' . esc_html__( 'Player Progress Over Time', 'talenttrack' ) . '</h2>';
-            $pids = $player_ids ?: $wpdb->get_col( "SELECT id FROM {$p}tt_players WHERE status='active' LIMIT 10" );
+            $player_scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
+            $pids = $player_ids ?: $wpdb->get_col( "SELECT pl.id FROM {$p}tt_players pl WHERE pl.status='active' {$player_scope} LIMIT 10" );
             foreach ( $pids as $pid ) {
                 $pl = QueryHelpers::get_player( (int) $pid ); if ( ! $pl ) continue;
                 $rd = QueryHelpers::player_radar_datasets( (int) $pid, 5 );
@@ -197,7 +198,8 @@ class ReportsPage {
                 $datasets = [];
                 foreach ( $player_ids as $pid ) {
                     $pl = QueryHelpers::get_player( (int) $pid ); if ( ! $pl ) continue;
-                    $ev = $wpdb->get_row( $wpdb->prepare( "SELECT id FROM {$p}tt_evaluations WHERE player_id=%d ORDER BY eval_date DESC LIMIT 1", $pid ) );
+                    $eval_scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
+                    $ev = $wpdb->get_row( $wpdb->prepare( "SELECT e.id FROM {$p}tt_evaluations e WHERE e.player_id=%d {$eval_scope} ORDER BY e.eval_date DESC LIMIT 1", $pid ) );
                     if ( ! $ev ) continue;
                     $raw = $wpdb->get_results( $wpdb->prepare( "SELECT category_id, rating FROM {$p}tt_eval_ratings WHERE evaluation_id=%d", $ev->id ) );
                     $map = []; foreach ( $raw as $r ) $map[ (int) $r->category_id ] = (float) $r->rating;
@@ -212,7 +214,8 @@ class ReportsPage {
             foreach ( $teams as $team ) {
                 $vals = [];
                 foreach ( $cat_ids as $cid ) {
-                    $avg = $wpdb->get_var( $wpdb->prepare( "SELECT AVG(r.rating) FROM {$p}tt_eval_ratings r JOIN {$p}tt_evaluations e ON r.evaluation_id=e.id JOIN {$p}tt_players pl ON e.player_id=pl.id WHERE pl.team_id=%d AND r.category_id=%d", $team->id, $cid ) );
+                    $player_scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
+                    $avg = $wpdb->get_var( $wpdb->prepare( "SELECT AVG(r.rating) FROM {$p}tt_eval_ratings r JOIN {$p}tt_evaluations e ON r.evaluation_id=e.id JOIN {$p}tt_players pl ON e.player_id=pl.id WHERE pl.team_id=%d AND r.category_id=%d {$player_scope}", $team->id, $cid ) );
                     $vals[] = round( (float) $avg, 2 );
                 }
                 $datasets[] = [ 'label' => (string) $team->name, 'values' => $vals ];

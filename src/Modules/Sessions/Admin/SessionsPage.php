@@ -35,7 +35,8 @@ class SessionsPage {
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
 
-        $sessions = $wpdb->get_results( "SELECT s.*, t.name AS team_name, u.display_name AS coach_name FROM {$p}tt_sessions s LEFT JOIN {$p}tt_teams t ON s.team_id=t.id LEFT JOIN {$wpdb->users} u ON s.coach_id=u.ID WHERE s.{$view_clause} ORDER BY s.session_date DESC LIMIT 50" );
+        $scope = QueryHelpers::apply_demo_scope( 's', 'session' );
+        $sessions = $wpdb->get_results( "SELECT s.*, t.name AS team_name, u.display_name AS coach_name FROM {$p}tt_sessions s LEFT JOIN {$p}tt_teams t ON s.team_id=t.id LEFT JOIN {$wpdb->users} u ON s.coach_id=u.ID WHERE s.{$view_clause} {$scope} ORDER BY s.session_date DESC LIMIT 50" );
         $base_url = admin_url( 'admin.php?page=tt-sessions' );
         ?>
         <div class="wrap">

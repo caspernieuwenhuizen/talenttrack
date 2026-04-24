@@ -33,10 +33,11 @@ class EvaluationsRestController {
 
     public static function list_evals( \WP_REST_Request $r ) {
         global $wpdb; $p = $wpdb->prefix;
+        $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
         if ( $r['player_id'] ) {
-            $rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$p}tt_evaluations WHERE player_id=%d ORDER BY eval_date DESC LIMIT 100", absint( $r['player_id'] ) ) );
+            $rows = $wpdb->get_results( $wpdb->prepare( "SELECT e.* FROM {$p}tt_evaluations e WHERE e.player_id=%d {$scope} ORDER BY e.eval_date DESC LIMIT 100", absint( $r['player_id'] ) ) );
         } else {
-            $rows = $wpdb->get_results( "SELECT * FROM {$p}tt_evaluations ORDER BY eval_date DESC LIMIT 100" );
+            $rows = $wpdb->get_results( "SELECT e.* FROM {$p}tt_evaluations e WHERE 1=1 {$scope} ORDER BY e.eval_date DESC LIMIT 100" );
         }
         return RestResponse::success( array_map( function ( $e ) { return (array) $e; }, $rows ) );
     }

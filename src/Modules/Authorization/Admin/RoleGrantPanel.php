@@ -4,6 +4,7 @@ namespace TT\Modules\Authorization\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Authorization\AuthorizationRepository;
+use TT\Infrastructure\Query\QueryHelpers;
 
 /**
  * RoleGrantPanel — renders the "Role assignments" section on the Person
@@ -96,8 +97,10 @@ class RoleGrantPanel {
         global $wpdb;
 
         // Pre-fetch teams and players for the scope dropdowns.
-        $teams = $wpdb->get_results( "SELECT id, name FROM {$wpdb->prefix}tt_teams ORDER BY name ASC" );
-        $players = $wpdb->get_results( "SELECT id, first_name, last_name FROM {$wpdb->prefix}tt_players WHERE status = 'active' ORDER BY last_name ASC, first_name ASC" );
+        $team_scope   = QueryHelpers::apply_demo_scope( 't',  'team' );
+        $player_scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
+        $teams = $wpdb->get_results( "SELECT t.id, t.name FROM {$wpdb->prefix}tt_teams t WHERE 1=1 {$team_scope} ORDER BY t.name ASC" );
+        $players = $wpdb->get_results( "SELECT pl.id, pl.first_name, pl.last_name FROM {$wpdb->prefix}tt_players pl WHERE pl.status = 'active' {$player_scope} ORDER BY pl.last_name ASC, pl.first_name ASC" );
         $people_list = $wpdb->get_results( "SELECT id, first_name, last_name FROM {$wpdb->prefix}tt_people WHERE status = 'active' ORDER BY last_name ASC, first_name ASC" );
 
         // Build a JSON map of role_key → allowed scope types so the UI can
