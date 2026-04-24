@@ -15,6 +15,7 @@ use TT\Modules\Reports\Admin\ReportsPage;
 use TT\Modules\Sessions\Admin\SessionsPage;
 use TT\Modules\Stats\Admin\PlayerRateCardsPage;
 use TT\Modules\Teams\Admin\TeamsPage;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Admin\BulkActionsHelper;
 use TT\Shared\Admin\DragReorder;
 use TT\Shared\Admin\SchemaStatus;
@@ -172,17 +173,23 @@ class Menu {
 
         $week_ago = gmdate( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS );
 
-        $delta_players = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_players WHERE status='active' AND archived_at IS NULL AND created_at >= %s", $week_ago ) );
-        $delta_teams   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_teams WHERE archived_at IS NULL AND created_at >= %s", $week_ago ) );
-        $delta_evals   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE archived_at IS NULL AND created_at >= %s", $week_ago ) );
-        $delta_sess    = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_sessions WHERE archived_at IS NULL AND created_at >= %s", $week_ago ) );
-        $delta_goals   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_goals WHERE archived_at IS NULL AND created_at >= %s", $week_ago ) );
+        $player_scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
+        $team_scope   = QueryHelpers::apply_demo_scope( 't',  'team' );
+        $eval_scope   = QueryHelpers::apply_demo_scope( 'e',  'evaluation' );
+        $sess_scope   = QueryHelpers::apply_demo_scope( 's',  'session' );
+        $goal_scope   = QueryHelpers::apply_demo_scope( 'g',  'goal' );
+
+        $delta_players = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.status='active' AND pl.archived_at IS NULL AND pl.created_at >= %s {$player_scope}", $week_ago ) );
+        $delta_teams   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_teams t WHERE t.archived_at IS NULL AND t.created_at >= %s {$team_scope}", $week_ago ) );
+        $delta_evals   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_evaluations e WHERE e.archived_at IS NULL AND e.created_at >= %s {$eval_scope}", $week_ago ) );
+        $delta_sess    = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_sessions s WHERE s.archived_at IS NULL AND s.created_at >= %s {$sess_scope}", $week_ago ) );
+        $delta_goals   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_goals g WHERE g.archived_at IS NULL AND g.created_at >= %s {$goal_scope}", $week_ago ) );
 
         // Stats for the Overview section
         $stats = [
             [
                 'label'    => __( 'Players', 'talenttrack' ),
-                'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_players WHERE status='active' AND archived_at IS NULL" ),
+                'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.status='active' AND pl.archived_at IS NULL {$player_scope}" ),
                 'delta'    => $delta_players,
                 'icon'     => 'dashicons-admin-users',
                 'url'      => admin_url( 'admin.php?page=tt-players' ),
@@ -191,7 +198,7 @@ class Menu {
             ],
             [
                 'label'    => __( 'Teams', 'talenttrack' ),
-                'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_teams WHERE archived_at IS NULL" ),
+                'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_teams t WHERE t.archived_at IS NULL {$team_scope}" ),
                 'delta'    => $delta_teams,
                 'icon'     => 'dashicons-shield',
                 'url'      => admin_url( 'admin.php?page=tt-teams' ),
@@ -200,7 +207,7 @@ class Menu {
             ],
             [
                 'label'    => __( 'Evaluations', 'talenttrack' ),
-                'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE archived_at IS NULL" ),
+                'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_evaluations e WHERE e.archived_at IS NULL {$eval_scope}" ),
                 'delta'    => $delta_evals,
                 'icon'     => 'dashicons-chart-bar',
                 'url'      => admin_url( 'admin.php?page=tt-evaluations' ),
@@ -209,7 +216,7 @@ class Menu {
             ],
             [
                 'label'    => __( 'Sessions', 'talenttrack' ),
-                'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_sessions WHERE archived_at IS NULL" ),
+                'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_sessions s WHERE s.archived_at IS NULL {$sess_scope}" ),
                 'delta'    => $delta_sess,
                 'icon'     => 'dashicons-calendar-alt',
                 'url'      => admin_url( 'admin.php?page=tt-sessions' ),
@@ -218,7 +225,7 @@ class Menu {
             ],
             [
                 'label'    => __( 'Goals', 'talenttrack' ),
-                'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_goals WHERE archived_at IS NULL" ),
+                'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_goals g WHERE g.archived_at IS NULL {$goal_scope}" ),
                 'delta'    => $delta_goals,
                 'icon'     => 'dashicons-flag',
                 'url'      => admin_url( 'admin.php?page=tt-goals' ),

@@ -103,7 +103,8 @@ class PlayerDashboardView {
 
         // Goals
         echo '<div class="tt-tab-content' . ( $view === 'goals' ? ' tt-tab-content-active' : '' ) . '" data-tab="goals">';
-        $goals = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$p}tt_goals WHERE player_id=%d ORDER BY created_at DESC", $player->id ) );
+        $goal_scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
+        $goals = $wpdb->get_results( $wpdb->prepare( "SELECT g.* FROM {$p}tt_goals g WHERE g.player_id=%d {$goal_scope} ORDER BY g.created_at DESC", $player->id ) );
         if ( empty( $goals ) ) {
             echo '<p>' . esc_html__( 'No goals assigned.', 'talenttrack' ) . '</p>';
         } else {

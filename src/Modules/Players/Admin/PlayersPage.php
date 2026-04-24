@@ -47,7 +47,8 @@ class PlayersPage {
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
 
-        $where = "WHERE pl.status='active' AND pl.{$view_clause}" . ( $ft ? $wpdb->prepare( " AND pl.team_id=%d", $ft ) : '' );
+        $scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
+        $where = "WHERE pl.status='active' AND pl.{$view_clause}" . ( $ft ? $wpdb->prepare( " AND pl.team_id=%d", $ft ) : '' ) . $scope;
         $players = $wpdb->get_results( "SELECT pl.*, t.name AS team_name FROM {$p}tt_players pl LEFT JOIN {$p}tt_teams t ON pl.team_id=t.id $where ORDER BY pl.last_name, pl.first_name ASC" );
         $teams = QueryHelpers::get_teams();
 

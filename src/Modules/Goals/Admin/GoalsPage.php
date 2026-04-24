@@ -35,7 +35,8 @@ class GoalsPage {
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
 
-        $goals = $wpdb->get_results( "SELECT g.*, CONCAT(pl.first_name,' ',pl.last_name) AS player_name FROM {$p}tt_goals g LEFT JOIN {$p}tt_players pl ON g.player_id=pl.id WHERE g.{$view_clause} ORDER BY g.created_at DESC LIMIT 50" );
+        $scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
+        $goals = $wpdb->get_results( "SELECT g.*, CONCAT(pl.first_name,' ',pl.last_name) AS player_name FROM {$p}tt_goals g LEFT JOIN {$p}tt_players pl ON g.player_id=pl.id WHERE g.{$view_clause} {$scope} ORDER BY g.created_at DESC LIMIT 50" );
         $base_url = admin_url( 'admin.php?page=tt-goals' );
         ?>
         <div class="wrap">

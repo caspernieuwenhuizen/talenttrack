@@ -30,7 +30,8 @@ class TeamsPage {
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
 
-        $teams = $wpdb->get_results( "SELECT t.* FROM {$p}tt_teams t WHERE t.{$view_clause} ORDER BY t.name ASC" );
+        $scope = QueryHelpers::apply_demo_scope( 't', 'team' );
+        $teams = $wpdb->get_results( "SELECT t.* FROM {$p}tt_teams t WHERE t.{$view_clause} {$scope} ORDER BY t.name ASC" );
         $base_url = admin_url( 'admin.php?page=tt-teams' );
         ?>
         <div class="wrap">
@@ -52,7 +53,8 @@ class TeamsPage {
             </tr></thead><tbody>
             <?php if ( empty( $teams ) ) : ?><tr><td colspan="6"><?php esc_html_e( 'No teams.', 'talenttrack' ); ?></td></tr>
             <?php else : foreach ( $teams as $t ) :
-                $pc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_players WHERE team_id=%d AND status='active'", $t->id ) );
+                $player_scope = QueryHelpers::apply_demo_scope( 'p', 'player' );
+                $pc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_players p WHERE p.team_id=%d AND p.status='active' {$player_scope}", $t->id ) );
                 $sc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_team_people WHERE team_id=%d", $t->id ) );
                 $is_archived = $t->archived_at !== null;
                 ?>
