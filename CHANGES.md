@@ -1,3 +1,37 @@
+# TalentTrack v3.7.1 — #0019 Sprint 1 session 2: client REST cutover + session 1 REST-registration fix
+
+**Patch release.** Closes out session 2 of #0019 Sprint 1 and fixes a registration bug that shipped silently in v3.7.0.
+
+## Session 1's REST controllers were unreachable
+
+v3.7.0 added `Sessions_Controller` + `Goals_Controller` + an enriched `Evaluations_Controller` under `includes/REST/` with namespace `TT\REST\*`. The plugin's SPL autoloader maps `TT\\` → `src/` only, and the class that would have called their `::init()` (`includes/Core.php`) is never instantiated anywhere — it's leftover legacy scaffolding. So the new routes never registered. The live demo-install silently kept running on the old `FrontendAjax` / `includes/Frontend/Ajax` admin-ajax handlers and no one noticed until the client-side cutover forced the issue.
+
+**Fix:** re-homed the three controllers under `src/Infrastructure/REST/` (`SessionsRestController`, `GoalsRestController`, expanded `EvaluationsRestController`) and register them via the Sessions / Goals / Evaluations modules. They now share the `RestResponse` success/error envelope with the existing `PlayersRestController` + `EvaluationsRestController` so the client gets one shape to parse.
+
+## Client-side REST cutover
+
+`assets/js/public.js` rewritten as vanilla JS + `fetch()`:
+
+- jQuery is no longer a dependency of `tt-public`.
+- Forms declare targets with `data-rest-path="<sub-path>"` + `data-rest-method="POST|PUT"` — hidden `action` / `nonce` inputs removed.
+- REST nonce comes through `wp_localize_script('tt-public', 'TT', { rest_url, rest_nonce })` and is sent via the `X-WP-Nonce` header.
+- Nested bracket names (`ratings[12]`, `att[7][status]`) expand to nested JSON objects so the controllers see the same shape the AJAX handlers used to.
+- Inline goal status select → `PATCH /goals/{id}/status`. Inline goal delete → `DELETE /goals/{id}`.
+
+## Legacy code removed
+
+- `src/Shared/Frontend/FrontendAjax.php` — deleted. `FrontendAjax::register()` removed from `Kernel::boot()`.
+- `includes/Frontend/Ajax.php` — deleted (was dead-code since the Kernel bootstrap migration, duplicate hook registration if it had ever run).
+- `includes/REST/{Sessions,Goals,Evaluations}_Controller.php` — deleted (the broken session-1 files).
+- `includes/Core.php` — deleted (never instantiated, only called the deleted controllers + `Frontend\Ajax::init()`).
+
+The rest of `includes/` (`Helpers.php`, `Roles.php`, `Admin/*`, `Frontend/App.php`, `Frontend/Styles.php`, `REST/Players_Controller.php`, `REST/Config_Controller.php`, `Activator.php`) is also dead code but outside this release's scope — tracked separately.
+
+## Ship-along
+
+- `.po` updated with the new error-envelope strings.
+- SEQUENCE.md session log amended — Session 1 caveat noted, Session 2 summary added.
+
 # TalentTrack v3.7.0 — #0019 Sprint 1 foundation (session 1)
 
 **Minor release.** Opens Phase 1 — the #0019 frontend-first-admin epic. Session 1 of Sprint 1 lands the server-side foundation so follow-up sessions can do the client-side cutover in focused passes. Also carries a demo-generator language fix.

@@ -3252,3 +3252,18 @@ msgstr "Het doel kon niet worden bijgewerkt."
 
 msgid "Dismiss"
 msgstr "Verbergen"
+
+msgid "Title and date are required."
+msgstr "Titel en datum zijn verplicht."
+
+msgid "Evaluation not found."
+msgstr "Evaluatie niet gevonden."
+
+msgid "Invalid evaluation id."
+msgstr "Ongeldig evaluatie-id."
+
+msgid "The evaluation could not be updated."
+msgstr "De evaluatie kon niet worden bijgewerkt."
+
+msgid "The evaluation was updated but some ratings failed."
+msgstr "De evaluatie is bijgewerkt, maar sommige beoordelingen konden niet worden opgeslagen."

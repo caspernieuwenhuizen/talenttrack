@@ -18,7 +18,6 @@ use TT\Shared\Admin\Menu;
 use TT\Shared\Frontend\BrandStyles;
 use TT\Shared\Frontend\DashboardShortcode;
 use TT\Shared\Frontend\FrontendAccessControl;
-use TT\Shared\Frontend\FrontendAjax;
 
 /**
  * Kernel — the system bootstrap.
@@ -82,7 +81,6 @@ class Kernel {
         Menu::init();
         BrandStyles::init( $this->container );
         DashboardShortcode::register();
-        FrontendAjax::register();
         \TT\Shared\Frontend\FlashMessages::init();
 
         /** @var AuditSubscriber $subscriber */

@@ -25,12 +25,15 @@ class DashboardShortcode {
      */
     public static function render( $atts = [] ): string {
         wp_enqueue_style( 'tt-public', TT_PLUGIN_URL . 'assets/css/public.css', [], TT_VERSION );
-        wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [ 'jquery' ], TT_VERSION, true );
+        wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [], TT_VERSION, true );
 
+        // #0019 Sprint 1 session 2 — public.js uses fetch() against the
+        // REST API. Nonce is the standard WP REST `wp_rest` nonce,
+        // sent via the `X-WP-Nonce` header by the script.
         wp_localize_script( 'tt-public', 'TT', [
-            'ajax_url' => admin_url( 'admin-ajax.php' ),
-            'nonce'    => wp_create_nonce( 'tt_frontend' ),
-            'i18n'     => [
+            'rest_url'   => esc_url_raw( rest_url( 'talenttrack/v1/' ) ),
+            'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+            'i18n'       => [
                 'saving'               => __( 'Saving...', 'talenttrack' ),
                 'saved'                => __( 'Saved.', 'talenttrack' ),
                 'error_generic'        => __( 'Error.', 'talenttrack' ),
