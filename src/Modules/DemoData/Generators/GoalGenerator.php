@@ -13,32 +13,61 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  * some completed, some pending, occasional on-hold. Priority mix
  * roughly 20% High / 60% Medium / 20% Low.
  *
- * Goal titles come from a short translatable domain list. The generator
- * stores whichever locale the operator chose on the Generate form
- * (defaults to the site locale), so the data lands in DB in the
- * language the audience of the demo will read — not the operator's
- * browser locale. Implemented via switch_to_locale() around a set of
- * __()-wrapped English source strings. Translations live in nl_NL.po.
+ * **Content language:** the generator stores rows in the language the
+ * operator chose on the Generate form (defaults to site locale).
+ * Earlier implementations tried to route the titles through the plugin
+ * `.po` via `switch_to_locale()` + `__()`, but that only works when
+ * the `.mo` file has been recompiled — which is a manual tooling step
+ * and silently fails in development setups that edit the `.po` but
+ * never run `msgfmt`. So the content pool is now a first-class per-
+ * language array embedded in this class. Reliable regardless of
+ * translation-tooling state; easy to extend when a new locale is
+ * added.
+ *
+ * Adding a new language: add a key to `TITLES_BY_LANGUAGE` plus the
+ * matching `DESCRIPTION_SUFFIX_BY_LANGUAGE` entry. `resolveLanguage()`
+ * falls back from the full locale (`nl_NL`) → language prefix match
+ * (`nl_*` → `nl_NL`) → English canonical.
  */
 class GoalGenerator {
 
-    /** Source strings resolved per target locale via __(). */
-    private const TITLE_SOURCES = [
-        'Improve weak foot passing',
-        'First-touch control under pressure',
-        'Consistency in 1v1 defending',
-        'Build up attacking headers',
-        'Off-the-ball positioning',
-        'Scanning before receiving',
-        'Finishing from cutbacks',
-        'Tracking runners in transition',
-        'Set-piece delivery accuracy',
-        'Shape under high press',
-        'Fitness — recover faster between sprints',
-        'Leadership — communicate more on pitch',
+    /** @var array<string, string[]> */
+    private const TITLES_BY_LANGUAGE = [
+        'en_US' => [
+            'Improve weak foot passing',
+            'First-touch control under pressure',
+            'Consistency in 1v1 defending',
+            'Build up attacking headers',
+            'Off-the-ball positioning',
+            'Scanning before receiving',
+            'Finishing from cutbacks',
+            'Tracking runners in transition',
+            'Set-piece delivery accuracy',
+            'Shape under high press',
+            'Fitness — recover faster between sprints',
+            'Leadership — communicate more on pitch',
+        ],
+        'nl_NL' => [
+            'Passing met de zwakke voet verbeteren',
+            'Aanname onder druk',
+            'Constantheid in 1-op-1 verdedigen',
+            'Opbouwend koppen',
+            'Positionering zonder bal',
+            'Scannen voor de aanname',
+            'Afronden vanuit terugleggers',
+            'Loopacties volgen in de omschakeling',
+            'Nauwkeurigheid bij standaardsituaties',
+            'Ploegvorm onder hoge druk',
+            'Conditie — sneller herstellen tussen sprints',
+            'Leiderschap — meer communiceren op het veld',
+        ],
     ];
 
-    private const DESCRIPTION_SUFFIX_SOURCE = 'Track progress weekly with the coach.';
+    /** @var array<string, string> */
+    private const DESCRIPTION_SUFFIX_BY_LANGUAGE = [
+        'en_US' => 'Track progress weekly with the coach.',
+        'nl_NL' => 'Wekelijks voortgang bespreken met de coach.',
+    ];
 
     private DemoBatchRegistry $registry;
 
@@ -75,23 +104,9 @@ class GoalGenerator {
 
         $author_id = (int) ( $this->users['hjo'] ?? $this->users['admin'] ?? 0 );
 
-        // Resolve translated title + suffix pool under the target locale
-        // once, then restore. Demo rows end up stored in the demo-target
-        // language regardless of what the operator's browser is set to.
-        $switched = false;
-        if ( function_exists( 'switch_to_locale' ) && $this->language !== '' ) {
-            $switched = (bool) switch_to_locale( $this->language );
-        }
-
-        $titles = [];
-        foreach ( self::TITLE_SOURCES as $src ) {
-            $titles[] = (string) __( $src, 'talenttrack' );
-        }
-        $description_suffix = (string) __( self::DESCRIPTION_SUFFIX_SOURCE, 'talenttrack' );
-
-        if ( $switched && function_exists( 'restore_previous_locale' ) ) {
-            restore_previous_locale();
-        }
+        $resolved_language  = self::resolveLanguage( $this->language );
+        $titles             = self::TITLES_BY_LANGUAGE[ $resolved_language ];
+        $description_suffix = self::DESCRIPTION_SUFFIX_BY_LANGUAGE[ $resolved_language ];
 
         $total = 0;
         foreach ( $this->players as $p ) {
@@ -121,13 +136,36 @@ class GoalGenerator {
                     $this->registry->tag( 'goal', $goal_id, [
                         'player_id' => (int) $p->id,
                         'status'    => $status,
-                        'language'  => $this->language,
+                        'language'  => $resolved_language,
                     ] );
                     $total++;
                 }
             }
         }
         return $total;
+    }
+
+    /**
+     * Map a WP locale (e.g. `nl_NL`, `nl_BE`, `de_DE`) to the closest
+     * supported content-language key. Full locale match first, then
+     * language-prefix match against any installed key, then en_US.
+     */
+    public static function resolveLanguage( string $locale ): string {
+        if ( $locale !== '' && isset( self::TITLES_BY_LANGUAGE[ $locale ] ) ) {
+            return $locale;
+        }
+        $prefix = substr( $locale, 0, 2 );
+        if ( $prefix !== '' ) {
+            foreach ( array_keys( self::TITLES_BY_LANGUAGE ) as $key ) {
+                if ( substr( (string) $key, 0, 2 ) === $prefix ) return (string) $key;
+            }
+        }
+        return 'en_US';
+    }
+
+    /** @return string[] */
+    public static function supportedLanguages(): array {
+        return array_keys( self::TITLES_BY_LANGUAGE );
     }
 
     /** @return string[] */

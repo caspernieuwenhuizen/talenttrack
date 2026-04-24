@@ -2,6 +2,8 @@
 namespace TT\REST;
 
 use TT\Helpers;
+use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Query\QueryHelpers;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -15,12 +17,12 @@ class Evaluations_Controller {
     public static function register() {
         register_rest_route( self::NS, '/evaluations', [
             [ 'methods' => 'GET',  'callback' => [ __CLASS__, 'list_evals' ],  'permission_callback' => function () { return is_user_logged_in(); } ],
-            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'create_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_evaluate_players' ); } ],
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'create_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
         ]);
         register_rest_route( self::NS, '/evaluations/(?P<id>\d+)', [
             [ 'methods' => 'GET',    'callback' => [ __CLASS__, 'get_eval' ],    'permission_callback' => function () { return is_user_logged_in(); } ],
-            [ 'methods' => 'PUT',    'callback' => [ __CLASS__, 'update_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_evaluate_players' ); } ],
-            [ 'methods' => 'DELETE', 'callback' => [ __CLASS__, 'delete_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_evaluate_players' ); } ],
+            [ 'methods' => 'PUT',    'callback' => [ __CLASS__, 'update_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
+            [ 'methods' => 'DELETE', 'callback' => [ __CLASS__, 'delete_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
         ]);
     }
 
@@ -43,12 +45,55 @@ class Evaluations_Controller {
         global $wpdb; $p = $wpdb->prefix;
         $header = self::extract( $r );
         $header['coach_id'] = get_current_user_id();
-        do_action( 'tt_before_save_evaluation', $header['player_id'], 0, 0 );
-        $wpdb->insert( "{$p}tt_evaluations", $header );
-        $id = $wpdb->insert_id;
-        foreach ( (array) ( $r['ratings'] ?? [] ) as $cid => $val ) {
-            $wpdb->insert( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id, 'category_id' => absint( $cid ), 'rating' => floatval( $val ) ] );
+
+        // #0019 Sprint 1 — input validation and fail-loud behaviour
+        // ported from FrontendAjax::handle_save_evaluation.
+        if ( $header['player_id'] <= 0 || $header['eval_date'] === '' ) {
+            return new \WP_Error( 'rest_missing_fields', __( 'Player and date are required.', 'talenttrack' ), [ 'status' => 400 ] );
         }
+        if ( ! current_user_can( 'tt_edit_settings' ) ) {
+            if ( ! QueryHelpers::coach_owns_player( get_current_user_id(), (int) $header['player_id'] ) ) {
+                return new \WP_Error( 'rest_forbidden_player', __( 'You can only evaluate players in your team.', 'talenttrack' ), [ 'status' => 403 ] );
+            }
+        }
+
+        do_action( 'tt_before_save_evaluation', $header['player_id'], 0, 0 );
+
+        $ok = $wpdb->insert( "{$p}tt_evaluations", $header );
+        if ( $ok === false ) {
+            $err = (string) $wpdb->last_error;
+            Logger::error( 'evaluation.save.failed', [ 'db_error' => $err, 'payload' => $header ] );
+            return new \WP_Error(
+                'rest_evaluation_save_failed',
+                __( 'The evaluation could not be saved. The database rejected the operation.', 'talenttrack' ),
+                [ 'status' => 500, 'detail' => $err ]
+            );
+        }
+        $id = (int) $wpdb->insert_id;
+
+        $rmin = (float) QueryHelpers::get_config( 'rating_min', '1' );
+        $rmax = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $rating_failures = [];
+        foreach ( (array) ( $r['ratings'] ?? [] ) as $cid => $val ) {
+            $clamped = max( $rmin, min( $rmax, (float) $val ) );
+            $ok_rating = $wpdb->insert( "{$p}tt_eval_ratings", [
+                'evaluation_id' => $id,
+                'category_id'   => absint( $cid ),
+                'rating'        => $clamped,
+            ] );
+            if ( $ok_rating === false ) {
+                $rating_failures[] = [ 'category_id' => absint( $cid ), 'db_error' => (string) $wpdb->last_error ];
+            }
+        }
+        if ( $rating_failures ) {
+            Logger::error( 'evaluation.ratings.save.failed', [ 'evaluation_id' => $id, 'failures' => $rating_failures ] );
+            return new \WP_Error(
+                'rest_evaluation_ratings_failed',
+                __( 'The evaluation was saved, but some ratings could not be stored.', 'talenttrack' ),
+                [ 'status' => 500, 'detail' => $rating_failures[0]['db_error'] ?? '', 'evaluation_id' => $id ]
+            );
+        }
+
         return rest_ensure_response( self::fmt( Helpers::get_evaluation( $id ), true ) );
     }
 

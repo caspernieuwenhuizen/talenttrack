@@ -38,5 +38,7 @@ class Core {
         REST\Players_Controller::init();
         REST\Evaluations_Controller::init();
         REST\Config_Controller::init();
+        REST\Sessions_Controller::init();
+        REST\Goals_Controller::init();
     }
 }

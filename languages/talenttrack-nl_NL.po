@@ -3205,3 +3205,50 @@ msgstr "Leiderschap — meer communiceren op het veld"
 
 msgid "Track progress weekly with the coach."
 msgstr "Wekelijks voortgang bespreken met de coach."
+
+# ===== v3.7.0 — #0019 Sprint 1 (session 1): REST expansion + flash scaffold =====
+
+msgid "Player and date are required."
+msgstr "Speler en datum zijn verplicht."
+
+msgid "Player and title are required."
+msgstr "Speler en titel zijn verplicht."
+
+msgid "Invalid session id."
+msgstr "Ongeldig sessie-id."
+
+msgid "Invalid goal id."
+msgstr "Ongeldig doel-id."
+
+msgid "Status is required."
+msgstr "Status is verplicht."
+
+msgid "No fields to update."
+msgstr "Geen velden om bij te werken."
+
+msgid "Session saved."
+msgstr "Sessie opgeslagen."
+
+msgid "Session updated."
+msgstr "Sessie bijgewerkt."
+
+msgid "The session could not be updated. The database rejected the operation."
+msgstr "De sessie kon niet worden bijgewerkt. De database weigerde de bewerking."
+
+msgid "The session was updated, but some attendance rows could not be stored."
+msgstr "De sessie is bijgewerkt, maar sommige aanwezigheidsrijen konden niet worden opgeslagen."
+
+msgid "The session could not be deleted."
+msgstr "De sessie kon niet worden verwijderd."
+
+msgid "Goal added."
+msgstr "Doel toegevoegd."
+
+msgid "Goal updated."
+msgstr "Doel bijgewerkt."
+
+msgid "The goal could not be updated."
+msgstr "Het doel kon niet worden bijgewerkt."
+
+msgid "Dismiss"
+msgstr "Verbergen"

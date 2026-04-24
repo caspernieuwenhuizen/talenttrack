@@ -67,6 +67,10 @@ class DashboardShortcode {
         echo '<div class="tt-dashboard">';
         self::renderHeader();
 
+        // #0019 Sprint 1 — flush any queued flash messages ahead of the
+        // body so post-save redirects surface their result.
+        FlashMessages::render();
+
         $user_id  = get_current_user_id();
         $is_admin = current_user_can( 'tt_edit_settings' );
         $is_coach = current_user_can( 'tt_edit_evaluations' );

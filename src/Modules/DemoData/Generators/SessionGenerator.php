@@ -13,6 +13,12 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  * Attendance mix per session: 85% Present, 10% Absent, 5% Late, plus
  * a per-player tendency so the same player skews a little high or low
  * across all their sessions (more realistic than uniform random).
+ *
+ * Content language: session title template + default location render in
+ * whichever locale the demo operator picked on the Generate form. Uses
+ * the same first-class per-language dictionary pattern as
+ * GoalGenerator — not reliant on .po/.mo tooling. Extend by adding a
+ * key to SESSION_STRINGS_BY_LANGUAGE.
  */
 class SessionGenerator {
 
@@ -21,6 +27,18 @@ class SessionGenerator {
         [ 85, 'Present' ],
         [ 95, 'Absent'  ],
         [ 100, 'Late'   ],
+    ];
+
+    /** @var array<string, array{title_template:string, default_location:string}> */
+    private const SESSION_STRINGS_BY_LANGUAGE = [
+        'en_US' => [
+            'title_template'   => 'Training %d.%d',
+            'default_location' => 'Home pitch',
+        ],
+        'nl_NL' => [
+            'title_template'   => 'Training %d.%d',
+            'default_location' => 'Thuisveld',
+        ],
     ];
 
     private DemoBatchRegistry $registry;
@@ -33,6 +51,8 @@ class SessionGenerator {
 
     private int $weeks;
 
+    private string $language;
+
     /**
      * @param object[] $teams
      * @param object[] $players
@@ -41,12 +61,14 @@ class SessionGenerator {
         DemoBatchRegistry $registry,
         array $teams,
         array $players,
-        int $weeks
+        int $weeks,
+        string $language = ''
     ) {
         $this->registry = $registry;
         $this->teams    = $teams;
         $this->players  = $players;
         $this->weeks    = max( 1, $weeks );
+        $this->language = $language !== '' ? $language : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
     }
 
     public function generate(): int {
@@ -72,6 +94,9 @@ class SessionGenerator {
         $start_date = strtotime( '-' . $this->weeks . ' weeks' );
         if ( $start_date === false ) $start_date = time();
 
+        $resolved_language = self::resolveLanguage( $this->language );
+        $strings           = self::SESSION_STRINGS_BY_LANGUAGE[ $resolved_language ];
+
         $total = 0;
         foreach ( $this->teams as $team ) {
             $team_id  = (int) $team->id;
@@ -86,9 +111,9 @@ class SessionGenerator {
                     $when = $start_date + $day_offset * DAY_IN_SECONDS;
 
                     $wpdb->insert( "{$wpdb->prefix}tt_sessions", [
-                        'title'        => sprintf( 'Training %d.%d', $w + 1, $s + 1 ),
+                        'title'        => sprintf( $strings['title_template'], $w + 1, $s + 1 ),
                         'session_date' => gmdate( 'Y-m-d', $when ),
-                        'location'     => 'Home pitch',
+                        'location'     => $strings['default_location'],
                         'team_id'      => $team_id,
                         'coach_id'     => $coach_id,
                         'notes'        => '',
@@ -137,5 +162,22 @@ class SessionGenerator {
             if ( $roll <= $cut ) return $label;
         }
         return 'Present';
+    }
+
+    /**
+     * Full-locale match first, language-prefix match second (e.g.
+     * `nl_BE` → `nl_NL`), en_US last-resort.
+     */
+    public static function resolveLanguage( string $locale ): string {
+        if ( $locale !== '' && isset( self::SESSION_STRINGS_BY_LANGUAGE[ $locale ] ) ) {
+            return $locale;
+        }
+        $prefix = substr( $locale, 0, 2 );
+        if ( $prefix !== '' ) {
+            foreach ( array_keys( self::SESSION_STRINGS_BY_LANGUAGE ) as $key ) {
+                if ( substr( (string) $key, 0, 2 ) === $prefix ) return (string) $key;
+            }
+        }
+        return 'en_US';
     }
 }
