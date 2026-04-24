@@ -92,13 +92,19 @@ All items have shaped idea files in `ideas/` and dev-ready specs in `specs/`. Bu
 
 ## Phase 1 — Foundation (the #0019 bet)
 
-| Rank | Item | Type | Effort | Notes |
-| --- | --- | --- | --- | --- |
-| 5 | **#0019 Sprint 1** — foundation | epic | ~25h | REST expansion, component extraction, flash-message system, CSS scaffold. Unlocks everything downstream. |
-| 6 | **#0019 Sprint 2** — sessions + goals frontend | epic | ~25h | Highest-value daily coach work. |
-| 7 | **#0019 Sprint 3** — players + teams frontend | epic | ~30h | Second-most-touched coach work. |
+| Rank | Item | Type | Estimate | Actual | Status | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 5 | **#0019 Sprint 1** — foundation | epic | ~25–30h | ~3h so far | IN PROGRESS | REST expansion + flash scaffold shipped in v3.7.0 (session 1 of N). Remaining: client cutover, FrontendAjax deletion, shared components, CSS scaffold, localStorage drafts. |
+| 6 | **#0019 Sprint 2** — sessions + goals frontend | epic | ~25h | — | BLOCKED ON #0019 S1 | Highest-value daily coach work. |
+| 7 | **#0019 Sprint 3** — players + teams frontend | epic | ~30h | — | BLOCKED ON #0019 S1 | Second-most-touched coach work. |
 
-Phase 1 subtotal: ~80h.
+Phase 1 subtotal estimate: ~80h.
+
+### #0019 Sprint 1 session log
+
+- **Session 1 (v3.7.0, ~3h)** — `Sessions_Controller` + `Goals_Controller` under `includes/REST/` matching FrontendAjax parity including fail-loud DB error handling; `Evaluations_Controller::create_eval` enriched to match; new REST routes registered via `TT\REST\*::init()`; `FlashMessages` PHP scaffold (user-meta backed queue, server-rendered + dismiss link); init hook + render call wired into the dashboard shortcode. Old `FrontendAjax` + `includes/Frontend/Ajax` kept alive so the demo-install keeps working — client cutover in session 2.
+- **Session 2 (not started)** — migrate `assets/js/public.js` + `tt-ajax-form` handler + the goal status/delete inline handlers to REST fetches; delete both `FrontendAjax` classes; remove their registrations.
+- **Session 3 (not started)** — CSS scaffold, shared form components (PlayerPicker, DateInput, RatingInput, MultiSelectTag, FormSaveButton), localStorage drafts.
 
 ## Phase 2 — Visible polish (interleavable with Phase 1)
 

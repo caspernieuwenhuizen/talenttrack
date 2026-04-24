@@ -83,6 +83,7 @@ class Kernel {
         BrandStyles::init( $this->container );
         DashboardShortcode::register();
         FrontendAjax::register();
+        \TT\Shared\Frontend\FlashMessages::init();
 
         /** @var AuditSubscriber $subscriber */
         $subscriber = $this->container->get( 'audit.subscriber' );
