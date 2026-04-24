@@ -3084,3 +3084,44 @@ msgstr "Deze speler speelt niet in jouw team."
 
 msgid "Teammate details are read-only. Individual ratings, evaluations, and goals stay private."
 msgstr "Gegevens van teamgenoten zijn alleen-lezen. Individuele beoordelingen, evaluaties en doelen blijven privé."
+
+# ===== v3.6.0 — demo prep batch B (PR #12) =====
+
+msgid "Pick a day…"
+msgstr "Kies een dag…"
+
+msgid "Pick a day:"
+msgstr "Kies een dag:"
+
+msgid "Previous day"
+msgstr "Vorige dag"
+
+msgid "Next day"
+msgstr "Volgende dag"
+
+msgid "Go"
+msgstr "Ga"
+
+msgid "Click any day on the chart, or pick a specific day below."
+msgstr "Klik op een dag in de grafiek of kies hieronder een specifieke dag."
+
+msgid "Click any bar, or pick a specific day below."
+msgstr "Klik op een staaf of kies hieronder een specifieke dag."
+
+msgid "Players on this team (%d)"
+msgstr "Spelers in dit team (%d)"
+
+msgid "No active players are assigned to this team yet. Go to Players → Add New (or edit an existing player) and set this team as their team."
+msgstr "Er zijn nog geen actieve spelers aan dit team toegewezen. Ga naar Spelers → Nieuwe toevoegen (of bewerk een bestaande speler) en koppel dit team."
+
+msgid "Jersey"
+msgstr "Rugnummer"
+
+msgid "Date of birth"
+msgstr "Geboortedatum"
+
+msgid "Add player to this team"
+msgstr "Speler aan dit team toevoegen"
+
+msgid "Chart library unavailable. Data tables above still show the same information."
+msgstr "Grafiekbibliotheek niet beschikbaar. De tabellen hierboven tonen dezelfde informatie."

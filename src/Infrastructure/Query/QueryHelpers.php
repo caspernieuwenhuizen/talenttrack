@@ -268,12 +268,26 @@ class QueryHelpers {
     public static function radar_chart_svg( array $labels, array $datasets, float $max = 5.0 ): string {
         $n = count( $labels );
         if ( $n < 3 ) return '';
-        $size = 300; $cx = $size / 2; $cy = $size / 2; $radius = 115;
+
+        // Dimensions: wider viewBox + taller footer reserve for legend
+        // so long category/date labels don't clip off-screen at the
+        // left/right extremes of the web. Radius shrinks a touch to
+        // leave label breathing room.
+        $w = 400;
+        $chart_h = 340;                    // main chart area (plus ring + labels)
+        $legend_h = 36;                    // reserved strip for legend
+        $h = $chart_h + $legend_h;
+        $cx = $w / 2; $cy = $chart_h / 2;
+        $radius = 120;
         $step = ( 2 * M_PI ) / $n;
         $colors = [ '#e8b624', '#3a86ff', '#ff595e', '#8ac926', '#6a4c93' ];
 
-        $svg = '<svg viewBox="0 0 ' . $size . ' ' . $size . '" xmlns="http://www.w3.org/2000/svg" class="tt-radar">';
+        $svg  = '<svg viewBox="0 0 ' . $w . ' ' . $h . '" xmlns="http://www.w3.org/2000/svg" class="tt-radar" style="max-width:100%;height:auto;font-family:Manrope,system-ui,sans-serif;">';
+        // Soft backdrop circle behind the rings for a subtle "instrument" feel.
+        $svg .= '<circle cx="' . $cx . '" cy="' . $cy . '" r="' . ( $radius + 4 ) . '" fill="#fafbfc"/>';
 
+        // Concentric rings — 5 bands. Outermost is darker to emphasise
+        // the max. Ring labels on the vertical axis (1, 2, …).
         for ( $ring = 1; $ring <= 5; $ring++ ) {
             $r = $radius * ( $ring / 5 );
             $pts = [];
@@ -281,22 +295,33 @@ class QueryHelpers {
                 $a = -M_PI / 2 + $i * $step;
                 $pts[] = round( $cx + $r * cos( $a ), 2 ) . ',' . round( $cy + $r * sin( $a ), 2 );
             }
-            $svg .= '<polygon points="' . implode( ' ', $pts ) . '" fill="none" stroke="#d0d0d0" stroke-width="0.5"/>';
+            $stroke = $ring === 5 ? '#b8bec6' : '#d7dbe0';
+            $width  = $ring === 5 ? 1 : 0.75;
+            $svg .= '<polygon points="' . implode( ' ', $pts ) . '" fill="none" stroke="' . $stroke . '" stroke-width="' . $width . '"/>';
+            if ( $ring > 1 ) {
+                $ring_label_y = round( $cy - $r + 2, 2 );
+                $svg .= '<text x="' . ( $cx + 2 ) . '" y="' . $ring_label_y . '" font-size="8" fill="#a0a6ae">' . (int) $ring . '</text>';
+            }
         }
 
+        // Axis lines from centre to each category, then the category
+        // label. Label position uses text-anchor logic tuned for 4- to
+        // 8-category webs; the extra label offset (28px) combined with
+        // the 400×340 viewBox keeps labels inside.
         for ( $i = 0; $i < $n; $i++ ) {
             $a = -M_PI / 2 + $i * $step;
             $x2 = round( $cx + $radius * cos( $a ), 2 );
             $y2 = round( $cy + $radius * sin( $a ), 2 );
-            $svg .= '<line x1="' . $cx . '" y1="' . $cy . '" x2="' . $x2 . '" y2="' . $y2 . '" stroke="#ccc" stroke-width="0.5"/>';
-            $lx = round( $cx + ( $radius + 18 ) * cos( $a ), 2 );
-            $ly = round( $cy + ( $radius + 18 ) * sin( $a ), 2 );
+            $svg .= '<line x1="' . $cx . '" y1="' . $cy . '" x2="' . $x2 . '" y2="' . $y2 . '" stroke="#cfd4da" stroke-width="0.75"/>';
+            $lx = round( $cx + ( $radius + 22 ) * cos( $a ), 2 );
+            $ly = round( $cy + ( $radius + 22 ) * sin( $a ), 2 );
             $anc = 'middle';
             if ( cos( $a ) < -0.1 ) $anc = 'end';
             elseif ( cos( $a ) > 0.1 ) $anc = 'start';
-            $svg .= '<text x="' . $lx . '" y="' . $ly . '" text-anchor="' . $anc . '" dominant-baseline="middle" font-size="10" fill="#444">' . esc_html( $labels[ $i ] ) . '</text>';
+            $svg .= '<text x="' . $lx . '" y="' . $ly . '" text-anchor="' . $anc . '" dominant-baseline="middle" font-size="11" font-weight="600" fill="#2a2f36">' . esc_html( $labels[ $i ] ) . '</text>';
         }
 
+        // Dataset polygons + value dots.
         foreach ( $datasets as $di => $ds ) {
             $col = $colors[ $di % count( $colors ) ];
             $pts = [];
@@ -305,20 +330,32 @@ class QueryHelpers {
                 $a = -M_PI / 2 + $i * $step;
                 $pts[] = round( $cx + $r2 * cos( $a ), 2 ) . ',' . round( $cy + $r2 * sin( $a ), 2 );
             }
-            $svg .= '<polygon points="' . implode( ' ', $pts ) . '" fill="' . $col . '" fill-opacity="0.15" stroke="' . $col . '" stroke-width="2"/>';
+            $svg .= '<polygon points="' . implode( ' ', $pts ) . '" fill="' . $col . '" fill-opacity="0.18" stroke="' . $col . '" stroke-width="2.25" stroke-linejoin="round"/>';
             foreach ( $ds['values'] as $i => $val ) {
                 $r2 = $radius * ( min( (float) $val, $max ) / $max );
                 $a = -M_PI / 2 + $i * $step;
-                $svg .= '<circle cx="' . round( $cx + $r2 * cos( $a ), 2 ) . '" cy="' . round( $cy + $r2 * sin( $a ), 2 ) . '" r="3" fill="' . $col . '"/>';
+                $svg .= '<circle cx="' . round( $cx + $r2 * cos( $a ), 2 ) . '" cy="' . round( $cy + $r2 * sin( $a ), 2 ) . '" r="3.5" fill="#fff" stroke="' . $col . '" stroke-width="2"/>';
             }
         }
 
-        $ly = $size - 8;
-        foreach ( $datasets as $di => $ds ) {
-            $col = $colors[ $di % count( $colors ) ];
-            $lx = 10 + $di * 110;
-            $svg .= '<rect x="' . $lx . '" y="' . ( $ly - 6 ) . '" width="10" height="10" fill="' . $col . '" rx="2"/>';
-            $svg .= '<text x="' . ( $lx + 14 ) . '" y="' . ( $ly + 3 ) . '" font-size="9" fill="#555">' . esc_html( $ds['label'] ) . '</text>';
+        // Legend — row-wrapping friendly: computes x per item based on
+        // the previous item's label width estimate so it spreads evenly
+        // across the footer. Keeps one row for up to ~5 datasets, which
+        // is the current colour palette size.
+        $legend_y = $chart_h + 20;
+        $legend_count = count( $datasets );
+        if ( $legend_count > 0 ) {
+            $slot = $w / max( $legend_count, 1 );
+            foreach ( $datasets as $di => $ds ) {
+                $col = $colors[ $di % count( $colors ) ];
+                $slot_cx = ( $di * $slot ) + ( $slot / 2 );
+                $label   = (string) $ds['label'];
+                $lbl_estimate_w = 6 * mb_strlen( $label );
+                $rect_x  = $slot_cx - ( $lbl_estimate_w / 2 ) - 14;
+                $text_x  = $rect_x + 16;
+                $svg .= '<rect x="' . round( $rect_x, 2 ) . '" y="' . ( $legend_y - 8 ) . '" width="11" height="11" fill="' . $col . '" rx="2"/>';
+                $svg .= '<text x="' . round( $text_x, 2 ) . '" y="' . ( $legend_y + 1 ) . '" font-size="10.5" fill="#4a5057" dominant-baseline="middle">' . esc_html( $label ) . '</text>';
+            }
         }
 
         $svg .= '</svg>';

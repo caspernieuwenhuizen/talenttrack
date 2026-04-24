@@ -98,7 +98,16 @@ class EvaluationsPage {
                         <td><?php echo esc_html( (string) $ev->eval_date ); ?>
                             <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
                         </td>
-                        <td><?php echo esc_html( $ev->player_name ?: '—' ); ?></td>
+                        <td><?php
+                            $ev_player_name = (string) ( $ev->player_name ?? '' );
+                            $ev_player_id   = (int) ( $ev->player_id ?? 0 );
+                            if ( $ev_player_name !== '' && $ev_player_id > 0 && current_user_can( 'tt_view_players' ) ) {
+                                echo '<a href="' . esc_url( admin_url( 'admin.php?page=tt-players&action=edit&id=' . $ev_player_id ) ) . '">'
+                                    . esc_html( $ev_player_name ) . '</a>';
+                            } else {
+                                echo esc_html( $ev_player_name !== '' ? $ev_player_name : '—' );
+                            }
+                        ?></td>
                         <td><?php echo esc_html( $ev->type_name ?: '—' ); ?></td>
                         <td><?php echo esc_html( (string) $ev->coach_name ); ?></td>
                         <td>

@@ -122,6 +122,10 @@ class TeamsPage {
                 <?php TeamStaffPanel::render( (int) $team->id ); ?>
                 <?php TeamStaffPanel::renderAddForm( (int) $team->id ); ?>
             <?php endif; ?>
+
+            <?php if ( $is_edit && $team ) : ?>
+                <?php TeamPlayersPanel::render( (int) $team->id ); ?>
+            <?php endif; ?>
         </div>
         <?php
     }

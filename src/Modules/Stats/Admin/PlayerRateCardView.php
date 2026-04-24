@@ -514,6 +514,17 @@ class PlayerRateCardView {
 
         <script>
         (function(){
+            // Chart.js is enqueued in the footer; wait for DOMContentLoaded
+            // so the <script src=chart.js> tag has executed before we
+            // check for `window.Chart`. Running synchronously here would
+            // fire the fallback branch every time on the frontend.
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', bootRateCardCharts);
+            } else {
+                bootRateCardCharts();
+            }
+
+            function bootRateCardCharts() {
             if (typeof Chart === 'undefined') {
                 // Chart.js didn't load — show placeholders in place of canvases.
                 var msg = <?php echo wp_json_encode( __( 'Chart library unavailable. Data tables above still show the same information.', 'talenttrack' ) ); ?>;
@@ -581,14 +592,19 @@ class PlayerRateCardView {
                     }
                 });
             });
+            } // end bootRateCardCharts
         })();
         </script>
         <?php
     }
 
     /**
-     * Enqueue Chart.js from CDN on admin pages that render the rate card.
-     * Called by the two entry points via a shared helper.
+     * Enqueue Chart.js from CDN. Enqueued in the footer so the library
+     * lands before `</body>` even when called from a shortcode during
+     * `the_content` (which fires after `wp_head` has already flushed).
+     * The inline chart-init script below waits for DOMContentLoaded
+     * before reading `window.Chart`, so a footer-placed library still
+     * resolves in time.
      */
     public static function enqueueChartLibrary(): void {
         wp_enqueue_script(
@@ -596,7 +612,7 @@ class PlayerRateCardView {
             'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
             [],
             '4.4.0',
-            false
+            true
         );
     }
 }

@@ -102,8 +102,15 @@ class UsageStatsPage {
 
             <!-- DAU chart -->
             <div style="background:#fff; border:1px solid #dcdcde; padding:18px 22px; margin-bottom:16px;">
-                <h2 style="margin:0 0 6px; font-size:16px;"><?php esc_html_e( 'Daily active users (90 days)', 'talenttrack' ); ?></h2>
-                <p class="tt-chart-hint"><?php esc_html_e( 'Click any day to see who was active.', 'talenttrack' ); ?></p>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+                    <div>
+                        <h2 style="margin:0 0 6px; font-size:16px;"><?php esc_html_e( 'Daily active users (90 days)', 'talenttrack' ); ?></h2>
+                        <p class="tt-chart-hint"><?php esc_html_e( 'Click any day on the chart, or pick a specific day below.', 'talenttrack' ); ?></p>
+                    </div>
+                    <a class="button" href="<?php echo esc_url( self::detailUrl( 'dau_day' ) ); ?>">
+                        <?php esc_html_e( 'Pick a day…', 'talenttrack' ); ?>
+                    </a>
+                </div>
                 <div style="position:relative; height:260px;">
                     <canvas id="tt-dau-chart"></canvas>
                 </div>
@@ -111,8 +118,15 @@ class UsageStatsPage {
 
             <!-- Evaluations created chart -->
             <div style="background:#fff; border:1px solid #dcdcde; padding:18px 22px; margin-bottom:16px;">
-                <h2 style="margin:0 0 6px; font-size:16px;"><?php esc_html_e( 'Evaluations created per day (90 days)', 'talenttrack' ); ?></h2>
-                <p class="tt-chart-hint"><?php esc_html_e( 'Click any day to see the evaluations.', 'talenttrack' ); ?></p>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+                    <div>
+                        <h2 style="margin:0 0 6px; font-size:16px;"><?php esc_html_e( 'Evaluations created per day (90 days)', 'talenttrack' ); ?></h2>
+                        <p class="tt-chart-hint"><?php esc_html_e( 'Click any bar, or pick a specific day below.', 'talenttrack' ); ?></p>
+                    </div>
+                    <a class="button" href="<?php echo esc_url( self::detailUrl( 'evals_day' ) ); ?>">
+                        <?php esc_html_e( 'Pick a day…', 'talenttrack' ); ?>
+                    </a>
+                </div>
                 <div style="position:relative; height:220px;">
                     <canvas id="tt-evals-chart"></canvas>
                 </div>

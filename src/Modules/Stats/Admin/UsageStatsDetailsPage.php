@@ -144,12 +144,53 @@ class UsageStatsDetailsPage {
         <?php
     }
 
-    private static function renderDauDay(): void {
+    /**
+     * Resolve the `?date=YYYY-MM-DD` query param. If missing or malformed
+     * we fall back to today — this is the key difference from the
+     * pre-v3.6.0 behaviour where an absent / bad date bailed with an
+     * 'Invalid date' dead-end and no way to recover except editing the
+     * URL. Now the page always renders with a date picker so the admin
+     * can scrub days without touching the chart.
+     */
+    private static function resolveDayParam(): string {
         $date = isset( $_GET['date'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['date'] ) ) : '';
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) {
-            echo '<p>' . esc_html__( 'Invalid date.', 'talenttrack' ) . '</p>';
-            return;
+            $date = current_time( 'Y-m-d' );
         }
+        return $date;
+    }
+
+    /**
+     * Render the date picker + nav buttons shared by dau_day / evals_day.
+     * Posts via a GET form so the URL stays bookmarkable; prev/next
+     * buttons step one day at a time and anchor to the same metric.
+     */
+    private static function renderDayPicker( string $metric, string $date, string $heading ): void {
+        $prev = (string) gmdate( 'Y-m-d', (int) strtotime( $date . ' -1 day' ) );
+        $next = (string) gmdate( 'Y-m-d', (int) strtotime( $date . ' +1 day' ) );
+        $base = admin_url( 'admin.php' );
+        $prev_url = add_query_arg( [ 'page' => 'tt-usage-stats-details', 'metric' => $metric, 'date' => $prev ], $base );
+        $next_url = add_query_arg( [ 'page' => 'tt-usage-stats-details', 'metric' => $metric, 'date' => $next ], $base );
+        ?>
+        <h1><?php echo esc_html( $heading ); ?></h1>
+        <form method="get" action="<?php echo esc_url( $base ); ?>" style="display:flex; gap:8px; align-items:center; background:#fff; border:1px solid #dcdcde; padding:10px 14px; border-radius:4px; max-width:520px;">
+            <input type="hidden" name="page" value="tt-usage-stats-details" />
+            <input type="hidden" name="metric" value="<?php echo esc_attr( $metric ); ?>" />
+            <a href="<?php echo esc_url( $prev_url ); ?>" class="button" title="<?php esc_attr_e( 'Previous day', 'talenttrack' ); ?>">←</a>
+            <label for="tt-usage-date" style="font-size:13px;">
+                <?php esc_html_e( 'Pick a day:', 'talenttrack' ); ?>
+            </label>
+            <input type="date" id="tt-usage-date" name="date" value="<?php echo esc_attr( $date ); ?>" style="font-size:13px;" />
+            <button type="submit" class="button button-primary"><?php esc_html_e( 'Go', 'talenttrack' ); ?></button>
+            <a href="<?php echo esc_url( $next_url ); ?>" class="button" title="<?php esc_attr_e( 'Next day', 'talenttrack' ); ?>">→</a>
+        </form>
+        <?php
+    }
+
+    private static function renderDauDay(): void {
+        $date = self::resolveDayParam();
+        self::renderDayPicker( 'dau_day', $date, __( 'Daily active users', 'talenttrack' ) );
+
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT user_id, COUNT(*) AS event_count, MIN(created_at) AS first_event, MAX(created_at) AS last_event
@@ -160,13 +201,13 @@ class UsageStatsDetailsPage {
             $date
         ) );
         ?>
-        <h1><?php
+        <h2 style="margin-top:16px;"><?php
             printf(
                 /* translators: %s is a date string */
                 esc_html__( 'Active users on %s', 'talenttrack' ),
                 esc_html( $date )
             );
-        ?></h1>
+        ?></h2>
         <table class="widefat striped" style="max-width:900px;">
             <thead><tr>
                 <th><?php esc_html_e( 'User', 'talenttrack' ); ?></th>
@@ -192,11 +233,9 @@ class UsageStatsDetailsPage {
     }
 
     private static function renderEvalsDay(): void {
-        $date = isset( $_GET['date'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['date'] ) ) : '';
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) {
-            echo '<p>' . esc_html__( 'Invalid date.', 'talenttrack' ) . '</p>';
-            return;
-        }
+        $date = self::resolveDayParam();
+        self::renderDayPicker( 'evals_day', $date, __( 'Evaluations created per day', 'talenttrack' ) );
+
         global $wpdb;
         $p = $wpdb->prefix;
         $rows = $wpdb->get_results( $wpdb->prepare(
@@ -213,12 +252,13 @@ class UsageStatsDetailsPage {
             $date
         ) );
         ?>
-        <h1><?php
+        <h2 style="margin-top:16px;"><?php
             printf(
+                /* translators: %s is a date */
                 esc_html__( 'Evaluations created on %s', 'talenttrack' ),
                 esc_html( $date )
             );
-        ?></h1>
+        ?></h2>
         <?php if ( empty( $rows ) ) : ?>
             <p><em><?php esc_html_e( 'None that day.', 'talenttrack' ); ?></em></p>
         <?php else : ?>

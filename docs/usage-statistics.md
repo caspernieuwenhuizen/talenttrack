@@ -26,6 +26,8 @@ The dashboard shows:
 
 Every tile, chart data point, and row is clickable. Click "Logins (7 days)" to see every login event. Click a dot on the DAU chart to see which users were active that specific day. Click a role bar to see just those users. Every detail view has the breadcrumb back button to return to the dashboard.
 
+**Picking a specific day:** each chart (DAU and Evaluations per day) also has a **"Pick a day…"** button next to the title. That opens the detail view with a date input you can type or step through with ← / → buttons — handy when the exact day you want is hard to hit on a 90-bar chart.
+
 ## Permissions
 
 Admin-only (`tt_manage_settings`). Not visible to coaches.
