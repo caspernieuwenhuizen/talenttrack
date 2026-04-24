@@ -1,3 +1,39 @@
+# TalentTrack v3.2.0 — Demo data generator (Checkpoint 1)
+
+**Minor release.** First of two ship slices for spec #0020 — the demo data generator. After install + migration, `Tools → TalentTrack Demo` can spin up a realistic Dutch academy dataset in seconds.
+
+## What's new
+
+- **`tt_demo_tags` table** (migration 0012) — the provenance map that tags every generated entity to a batch. No changes to existing tables.
+- **Demo admin page** at `Tools → TalentTrack Demo` — single-screen form (preset, email domain, password, seed, confirmation) gated on `manage_options`. Shows current demo footprint and past batches.
+- **User generator** — creates the Rich set of 36 persistent demo WP users on first run (`admin`, `hjo`, `hjo2`, `scout`, `staff`, `observer`, `parent`, `coach1`–`coach12`, `assistant1`–`assistant12`, `player1`–`player5`). Idempotent on re-run: existing slots are reused by tag, with email-based fallback reclaim for pre-tag installs.
+- **Team generator** — Dutch JO-age-group teams (JO8 through JO19), head coach drawn from the `coach<N>@` slot pool. Team name shape: `<Academy Name> JOxx`.
+- **Player generator** — age-appropriate Dutch players with deterministic seeding (default seed `20260504`), realistic heights/weights, jersey-number uniqueness within team, archetype tagged for the upcoming evaluation generator. `player1`–`player5` WP users get bound to the first five generated players so they can log in.
+- **Seed files** under `src/Modules/DemoData/seeds/` — 100 first names, 100 last names, JO age groups, 35 Dutch opponents, W/V/G match-result notation. Plain text, easy to edit.
+
+## Preset sizes
+
+- **Tiny** — 1 team × 12 players / 4 weeks
+- **Small** — 3 teams × 12 players / 8 weeks *(default)*
+- **Medium** — 6 teams × 12 players / 16 weeks
+- **Large** — 12 teams × 12 players / 36 weeks
+
+(Week counts matter once the evaluation/session/goal generators ship in Checkpoint 2.)
+
+## What's explicitly still coming (Checkpoint 2)
+
+- Evaluation, session, and goal generators
+- Site-wide `apply_demo_scope()` filter + `tt_demo_mode` toggle with admin-bar / frontend banner
+- Wipe flow (two variants with typed confirmations and safety rails)
+- Four-step wizard UX with async progress polling
+
+## Known Checkpoint 1 limitations
+
+- Re-running generate accumulates teams/players on each run (users stay idempotent). The wipe flow in Checkpoint 2 handles this.
+- `player1`–`player5` bindings point at the newest generated player on each run; stale bindings on earlier demo players remain until wipe.
+
+No schema changes to existing tables. No capability changes. One migration.
+
 # TalentTrack v3.1.0 — Documentation in Dutch
 
 **Minor release.** The in-app help/wiki now ships with full Dutch translations alongside the original English content.
