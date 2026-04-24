@@ -12,7 +12,7 @@ Via de beheerpagina **Evaluaties** of het coach-dashboard op de frontend:
 4. Geef per hoofdcategorie een beoordeling op je geconfigureerde schaal (standaard 1–5).
 5. Duik optioneel in subcategorieën voor een gedetailleerdere score.
 6. Voeg vrije notities toe over wat je gezien hebt.
-7. Als het evaluatietype is ingesteld als "Wedstrijd", vul dan ook tegenstander, competitie, uitslag, thuis/uit en gespeelde minuten in.
+7. Als het evaluatietype is ingesteld als "Wedstrijd", vul dan ook tegenstander, competitie (keuzelijst met competitietypes die onder Configuratie → Lookups zijn ingesteld), uitslag, thuis/uit en gespeelde minuten in.
 
 ## Een categorie beoordelen
 

@@ -3058,3 +3058,29 @@ msgstr "— Kies een speler —"
 
 msgid "Category"
 msgstr "Categorie"
+
+# ===== v3.6.0 — demo prep batch A (PR #11) =====
+
+msgid "Close window"
+msgstr "Venster sluiten"
+
+msgid "— Select —"
+msgstr "— Kies —"
+
+msgid "League"
+msgstr "Competitie"
+
+msgid "Cup"
+msgstr "Beker"
+
+msgid "Teammate"
+msgstr "Teamgenoot"
+
+msgid "No teammate selected."
+msgstr "Geen teamgenoot gekozen."
+
+msgid "This player is not on your team."
+msgstr "Deze speler speelt niet in jouw team."
+
+msgid "Teammate details are read-only. Individual ratings, evaluations, and goals stay private."
+msgstr "Gegevens van teamgenoten zijn alleen-lezen. Individuele beoordelingen, evaluaties en doelen blijven privé."

@@ -12,7 +12,7 @@ From the **Evaluations** admin page or the coach frontend dashboard:
 4. For each main category, assign a rating on your configured scale (default 1–5).
 5. Optionally drill into subcategories for more granular scoring.
 6. Add free-text notes about what you saw.
-7. If the evaluation type is configured as "Match", also fill in opponent, competition, result, home/away, and minutes played.
+7. If the evaluation type is configured as "Match", also fill in opponent, competition (dropdown of competition types configured under Configuration → Lookups), result, home/away, and minutes played.
 
 ## Rating a category
 

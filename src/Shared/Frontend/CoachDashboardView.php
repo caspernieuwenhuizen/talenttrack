@@ -195,7 +195,15 @@ class CoachDashboardView {
             <div class="tt-form-row"><label><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" name="eval_date" value="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required /></div>
             <div id="tt-fe-match-fields" style="display:none;">
                 <div class="tt-form-row"><label><?php esc_html_e( 'Opponent', 'talenttrack' ); ?></label><input type="text" name="opponent" /></div>
-                <div class="tt-form-row"><label><?php esc_html_e( 'Competition', 'talenttrack' ); ?></label><input type="text" name="competition" /></div>
+                <div class="tt-form-row">
+                    <label><?php esc_html_e( 'Competition', 'talenttrack' ); ?></label>
+                    <select name="competition">
+                        <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
+                        <?php foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookups( 'competition_type' ) as $tt_ct ) : ?>
+                            <option value="<?php echo esc_attr( (string) $tt_ct->name ); ?>"><?php echo esc_html( __( (string) $tt_ct->name, 'talenttrack' ) ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
                 <div class="tt-form-row"><label><?php esc_html_e( 'Result', 'talenttrack' ); ?></label><input type="text" name="match_result" placeholder="2-1" style="width:80px" /></div>
                 <div class="tt-form-row"><label><?php esc_html_e( 'Home/Away', 'talenttrack' ); ?></label><select name="home_away"><option value="">—</option><option value="home"><?php esc_html_e( 'Home', 'talenttrack' ); ?></option><option value="away"><?php esc_html_e( 'Away', 'talenttrack' ); ?></option></select></div>
                 <div class="tt-form-row"><label><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></label><input type="number" name="minutes_played" min="0" max="120" /></div>

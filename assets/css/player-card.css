@@ -377,7 +377,11 @@
 .tt-pc--sm .tt-pc__initials { font-size: 38px; }
 .tt-pc--lg .tt-pc__initials { font-size: 64px; }
 
-/* Name block — big, confident, across the card */
+/* Name block — big, confident, across the card.
+   Long names truncate with ellipsis on a single line so every card keeps
+   the same height (grid-row 1fr + auto + auto + auto assumes it). The
+   full name is exposed via a `title` attribute at render time for a
+   hover/long-press tooltip. */
 .tt-pc__name {
     font-family: var(--tt-pc-font-display);
     font-weight: 600;
@@ -390,6 +394,10 @@
     margin-top: auto;
     align-self: end;
     text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
     animation: tt-pc-rise 600ms 160ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 .tt-pc--sm .tt-pc__name { font-size: 17px; padding: 3px 0; }

@@ -22,6 +22,8 @@ Clicking the print button navigates to a URL like `?tt_print=<id>` which:
 
 Use your browser's **Save as PDF** in the print dialog. Chrome, Safari, Firefox, and Edge all support this natively — no server-side PDF library needed.
 
+The print view opens in a new window with Print, Download PDF, and **Close window** buttons. Close when you're done — the main TalentTrack tab stays exactly where you left it.
+
 Set page size to A4 (or Letter for US). Set margins to "Default" or "Normal". Landscape works better for rate cards (more horizontal room for the radar + trend charts side-by-side).
 
 ## Styling

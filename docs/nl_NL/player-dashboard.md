@@ -14,7 +14,7 @@ Elke tegel duikt in een gerichte subweergave met bovenin een link "← Terug naa
 FIFA-achtige kaart met overall-beoordeling, radarchart per hoofdcategorie, belangrijkste attributen, aangepaste veldwaarden en een knop **Rapport afdrukken** voor een nette printversie.
 
 ### Mijn team
-Je eigen kaart centraal, gevolgd door het podium met de top-3 van het team (huidige topprestaties) en een roster van teamgenoten (namen + foto's, geen beoordelingen — om degenen die buiten de top-3 vallen te beschermen).
+Je eigen kaart centraal, gevolgd door het podium met de top-3 van het team (huidige topprestaties) en een roster van teamgenoten (namen + foto's, geen beoordelingen — om degenen die buiten de top-3 vallen te beschermen). Tik op een teamgenoot voor een alleen-lezen kaart met speelgegevens (positie, rugnummer, voet, lengte, gewicht). Individuele evaluaties, doelen en beoordelingen blijven privé.
 
 ### Mijn evaluaties
 Tabel van elke evaluatie die over jou is vastgelegd, meest recent eerst. Toont datum, type (Training / Wedstrijd / enz.), coach en de beoordelingen per categorie. Wedstrijd-evaluaties tonen ook tegenstander en uitslag.

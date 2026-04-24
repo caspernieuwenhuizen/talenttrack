@@ -149,7 +149,7 @@ class PlayerCardView {
 
                 <div></div><!-- photo sits absolutely positioned; grid placeholder -->
 
-                <div class="tt-pc__name">
+                <div class="tt-pc__name" title="<?php echo esc_attr( QueryHelpers::player_display_name( $player ) ); ?>">
                     <?php echo esc_html( QueryHelpers::player_display_name( $player ) ); ?>
                 </div>
 

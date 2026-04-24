@@ -67,13 +67,29 @@ Claude Code will:
 2. Implement the code changes, editing files directly in the repo
 3. Run `composer install` and `vendor/bin/phpstan analyse` if those tools exist
 4. Run `find src -name "*.php" -print0 | xargs -0 -n1 php -l` for syntax check
-5. Commit: `git add . && git commit -m "<type>: <title> (#NNNN)"`
-6. Push: `git push origin feature/NNNN-<slug>`
-7. Open a PR: `gh pr create --fill`
+5. **Update translations and docs in the same PR** (see Ship-along rules below)
+6. Commit: `git add . && git commit -m "<type>: <title> (#NNNN)"`
+7. Push: `git push origin feature/NNNN-<slug>`
+8. Open a PR: `gh pr create --fill`
 
 Ask "show me what you did" before saying "ship it" if you want to review in the Claude Code chat. Or check the PR on github.com.
 
 To ship: "merge the PR and delete the branch". Claude Code runs `gh pr merge --squash --delete-branch`.
+
+### Ship-along rules — non-optional, part of every feature PR
+
+These three are always bundled with the code change, not chased later.
+
+**1. Reference data is translatable and extensible by default.**
+Never hardcode a list of user-facing values. When you need a finite set the admin might edit, translate, or extend, use a `tt_lookups` lookup type (or `tt_config` for singletons). Strings that appear in the UI go through `__('...', 'talenttrack')`. If you're about to type a PHP `const ARR = ['Foo','Bar'];` for something a user might see, stop and add a lookup instead.
+
+**2. Translations updated in the same PR.**
+Any change that adds, renames, or removes a `__()` / `_e()` / `esc_html__()` string must also edit `languages/talenttrack-nl_NL.po`. Dutch msgstr filled in. If the repo has a `.pot` regeneration script, run it; otherwise edit the `.po` by hand. `.mo` recompile noted in the PR description if `msgfmt` isn't available locally.
+
+**3. Documentation updated in the same PR.**
+If a change alters user-visible behaviour — new field, moved button, changed wording, new admin page, new workflow — the relevant topic in `docs/<slug>.md` **and** its Dutch translation `docs/nl_NL/<slug>.md` must be updated alongside the code. If there's no matching topic yet, add the topic entry in `src/Modules/Documentation/HelpTopics.php` and create both files. `CHANGES.md` is a separate artifact (per-release); the docs are the *current* state of the feature.
+
+PR review check: if a reviewer can't point at the `.po` lines and the `docs/*` lines, it's not done.
 
 ## Release — tag a version, automation takes over
 

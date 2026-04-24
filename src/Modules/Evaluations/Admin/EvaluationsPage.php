@@ -262,7 +262,20 @@ class EvaluationsPage {
                 <table class="form-table" id="tt-match-fields" style="display:none;">
                     <tr><th><?php esc_html_e( 'Opponent', 'talenttrack' ); ?></th><td><input type="text" name="opponent" value="<?php echo esc_attr( $eval->opponent ?? '' ); ?>" class="regular-text" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'opponent' ); ?>
-                    <tr><th><?php esc_html_e( 'Competition', 'talenttrack' ); ?></th><td><input type="text" name="competition" value="<?php echo esc_attr( $eval->competition ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <tr>
+                        <th><?php esc_html_e( 'Competition', 'talenttrack' ); ?></th>
+                        <td>
+                            <?php $tt_comp_current = (string) ( $eval->competition ?? '' ); ?>
+                            <select name="competition">
+                                <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
+                                <?php foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookups( 'competition_type' ) as $tt_ct ) : ?>
+                                    <option value="<?php echo esc_attr( (string) $tt_ct->name ); ?>" <?php selected( $tt_comp_current, (string) $tt_ct->name ); ?>>
+                                        <?php echo esc_html( __( (string) $tt_ct->name, 'talenttrack' ) ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                    </tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'competition' ); ?>
                     <tr><th><?php esc_html_e( 'Result', 'talenttrack' ); ?></th><td><input type="text" name="match_result" value="<?php echo esc_attr( $eval->match_result ?? '' ); ?>" style="width:80px" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'match_result' ); ?>
