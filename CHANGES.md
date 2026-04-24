@@ -1,3 +1,32 @@
+# TalentTrack v3.6.1 — Phase 0b bug fixes + demo-generator follow-ups
+
+**Patch release.** Clears both remaining Phase 0b bugs (#0007, #0008) and layers four demo-generator follow-ups identified during v3.6.0 testing. Adds a new SEQUENCE.md-maintenance ship-along rule.
+
+## Bugs fixed
+
+- **#0007 — drag-reorder on all lookup tabs.** One parameter off in six `tab_lookup()` calls (`show_sort=false` → `true`). Positions, Foot Options, Age Groups, Goal Statuses, Goal Priorities and Attendance Statuses all get the drag handle + DragReorder script that Evaluation Types already had.
+- **#0008 — `actions/checkout@v4 → @v5`.** Runs on Node 24, clears the larger Node-20-deprecation annotation on every release workflow run. `softprops/action-gh-release@v2` stays on the floating major; its annotation is informational until 2026-06-02 and the float will pick up Node 24 when softprops patches.
+
+## Demo-generator additions
+
+- **Subcategory rating generation.** `EvaluationGenerator` now writes ratings for every subcategory of each configured main, clustered ±0.4 around the main score. Main-level radar + trend visuals stay coherent while the detail drill-in shows plausible per-subcategory variation. Subcategory tree cached once per request.
+- **Content language per demo.** New **Content language** dropdown on the Generate form (Tools → TalentTrack Demo), defaulted to the site locale, populated from `LookupTranslator::installedLocales()`. The chosen locale is threaded into `GoalGenerator` which wraps its source strings in `__()` and uses `switch_to_locale()` so generated rows land in the target language regardless of the operator's browser locale. Twelve goal titles + the description suffix translated to Dutch in the `.po`.
+- **Compact admin-bar pill.** Demo-mode indicator moved to the right side of the admin bar (`parent='top-secondary'`) so it sits next to the Howdy dropdown instead of crowding the left-hand menu area. Four-letter "🎭 DEMO" instead of the previous wordier label.
+
+## New ship-along rule
+
+DEVOPS.md now documents a fourth standard enforced on every release:
+
+> **SEQUENCE.md kept current in the release commit.** Every release that touches a backlog item referenced in SEQUENCE.md updates it in the release commit — showing what was done, moving phase status forward, noting estimated vs actual time. A release that leaves SEQUENCE.md stale isn't done.
+
+SEQUENCE.md itself refreshed to mark Phase 0 + 0b both COMPLETE through v3.6.1, with an estimate-vs-actual column that starts the calibration history (#0020 estimate 24h → actual ~30h, #0007 est TBD → actual 15 min, #0008 est 4h → actual 5 min).
+
+## Housekeeping
+
+Removed `ideas/0007-…md` and `ideas/0008-…md` (shipped). TRIAGE.md refreshed to show post-demo priorities: dry-run → #0019 Sprint 1 → #0003.
+
+No schema changes. No migrations.
+
 # TalentTrack v3.6.0 — Demo-prep polish bundle
 
 **Minor release.** Fourteen items bundled across three PRs — the demo-readiness polish pass for the 4 May 2026 showcase. Codifies three ship-along standards that apply to every future PR.
