@@ -47,10 +47,11 @@ class PlayerGenerator {
         [ 100, 'new_arrival' ],
     ];
 
-    private const POSITIONS = [ 'GK','CB','LB','RB','CDM','CM','CAM','LW','RW','ST' ];
-
     /** @var string[]|null cached per-request list of foot-option labels from the lookup */
     private ?array $foot_options = null;
+
+    /** @var string[]|null cached per-request list of position labels from the lookup */
+    private ?array $position_options = null;
 
     private DemoBatchRegistry $registry;
 
@@ -237,9 +238,21 @@ class PlayerGenerator {
      * @return string[]
      */
     private function pickPositions(): array {
-        $primary = self::POSITIONS[ mt_rand( 0, count( self::POSITIONS ) - 1 ) ];
-        if ( mt_rand( 0, 100 ) < 40 ) {
-            $secondary = self::POSITIONS[ mt_rand( 0, count( self::POSITIONS ) - 1 ) ];
+        if ( $this->position_options === null ) {
+            $this->position_options = [];
+            foreach ( QueryHelpers::get_lookups( 'position' ) as $row ) {
+                $name = trim( (string) $row->name );
+                if ( $name !== '' ) $this->position_options[] = $name;
+            }
+        }
+        if ( ! $this->position_options ) {
+            throw new \RuntimeException(
+                'No positions configured. Add entries under TalentTrack → Configuration → Positions before generating demo data.'
+            );
+        }
+        $primary = $this->position_options[ mt_rand( 0, count( $this->position_options ) - 1 ) ];
+        if ( mt_rand( 0, 100 ) < 40 && count( $this->position_options ) > 1 ) {
+            $secondary = $this->position_options[ mt_rand( 0, count( $this->position_options ) - 1 ) ];
             if ( $secondary !== $primary ) return [ $primary, $secondary ];
         }
         return [ $primary ];

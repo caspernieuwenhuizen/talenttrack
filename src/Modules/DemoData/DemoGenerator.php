@@ -4,6 +4,7 @@ namespace TT\Modules\DemoData;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\DemoData\Generators\UserGenerator;
+use TT\Modules\DemoData\Generators\PeopleGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
 use TT\Modules\DemoData\Generators\PlayerGenerator;
 use TT\Modules\DemoData\Generators\EvaluationGenerator;
@@ -52,8 +53,11 @@ class DemoGenerator {
         $userGen  = new UserGenerator( $registry, (string) $opts['domain'], (string) $opts['password'] );
         $users    = $userGen->generate();
 
+        $peopleGen = new PeopleGenerator( $registry, $users );
+        $persons   = $peopleGen->generate();
+
         $club_name = isset( $opts['club_name'] ) ? (string) $opts['club_name'] : null;
-        $teamGen   = new TeamGenerator( $registry, $users, (int) $config['teams'], $club_name );
+        $teamGen   = new TeamGenerator( $registry, $users, $persons, (int) $config['teams'], $club_name );
         $teams     = $teamGen->generate();
 
         $playerGen = new PlayerGenerator( $registry, $teams, $users, (int) $config['players_per_team'] );
@@ -76,6 +80,7 @@ class DemoGenerator {
             'players'  => $players,
             'counts'     => [
                 'users'       => count( $users ),
+                'persons'     => count( $persons ),
                 'teams'       => count( $teams ),
                 'players'     => count( $players ),
                 'evaluations' => $eval_count,
