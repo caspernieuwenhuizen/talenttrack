@@ -36,7 +36,7 @@ class FrontendMySessionsView extends FrontendViewBase {
         }
 
         ?>
-        <table class="tt-table">
+        <table class="tt-table tt-table-sortable">
             <thead>
                 <tr>
                     <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>

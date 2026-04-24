@@ -15,6 +15,8 @@ The **Configuration** page is where your academy's identity and the plugin's ope
 
 Each lookup tab (Position, Age Group, Foot Option, Goal Status, Goal Priority, Attendance Status) is a simple list you can edit, reorder via drag, and extend with new entries.
 
+**Translations** — every lookup edit form now has a Translations block with one row per installed site locale. Fill in the translated Name (and optionally Description) to control what your Dutch users see without shipping a plugin update. Leave a locale row empty to fall back to the canonical Name and any translation the plugin already ships in its `.po` file. Values you add yourself (e.g. a custom "Goalkeeper-Sweeper" position) can now be translated without touching code.
+
 ### Evaluation Types
 
 Different flavors of evaluation: Training, Match, Tournament. Match types can be flagged as "Requires match details" which prompts coaches for opponent, competition, result, home/away, and minutes played when they create a match eval.

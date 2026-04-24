@@ -37,13 +37,13 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
         }
 
         ?>
-        <table class="tt-table">
+        <table class="tt-table tt-table-sortable">
             <thead>
                 <tr>
                     <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'Coach', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></th>
+                    <th data-tt-sort="off"><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></th>
                 </tr>
             </thead>
             <tbody>

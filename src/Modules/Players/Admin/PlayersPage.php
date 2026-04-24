@@ -95,7 +95,11 @@ class PlayersPage {
                             echo esc_html( $pl_team_name !== '' ? $pl_team_name : '—' );
                         }
                     ?></td><td><?php echo esc_html( $pos_str ); ?></td>
-                    <td><?php echo esc_html( (string) $pl->preferred_foot ); ?></td>
+                    <td><?php
+                        $foot = (string) $pl->preferred_foot;
+                        echo esc_html( $foot !== '' ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'foot_option', $foot ) : '' );
+                    ?></td>
+
                     <td><?php echo $pl->jersey_number ? (int) $pl->jersey_number : '—'; ?></td>
                     <td><?php echo esc_html( $pl->date_of_birth ?: '—' ); ?></td>
                     <td><?php if ( current_user_can( 'tt_edit_players' ) ) : ?><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-players&action=edit&id={$pl->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_player&id={$pl->id}" ), 'tt_delete_player_' . $pl->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a><?php else : ?><span style="color:#999;">—</span><?php endif; ?></td>
