@@ -1,3 +1,29 @@
+# TalentTrack v3.5.0 — Demo staff, positions from lookup, visual progress
+
+**Minor release.** Four improvements to the demo data generator — the People directory now actually gets populated, teams get real Staff Assignments, positions follow the configured reference data, and the generate flow shows visible progress.
+
+## Staff actually populated via People + Staff Assignments
+
+Previously `TeamGenerator` only set the legacy `head_coach_id` column, which left the People directory empty and the Team Staff panel with nothing to show. Now:
+
+- New **`PeopleGenerator`** creates 28 persistent `tt_people` rows — `hjo`, `hjo2`, `scout`, `staff`, 12 coaches, 12 assistants. Coaches and assistants get Dutch first/last names drawn from the same seeds as players; their bound WP users' display names sync to match.
+- **`TeamGenerator`** now creates two `tt_team_people` rows per team with proper `functional_role_id`s — one `head_coach`, one `assistant_coach`. Open a team in the admin and you'll see both staff members on the Team Staff panel. `head_coach_id` is still set in parallel for backcompat.
+- People are persistent like users: `Wipe demo data` leaves them alone; only `Wipe demo users too` removes them (alongside the users, before them in order to avoid orphaned `wp_user_id` pointers).
+
+## Positions from the backend lookup
+
+`PlayerGenerator` no longer hard-codes `GK/CB/LB/...`. Positions are read from `tt_lookups.position` — matching the pattern already in place for age groups and foot. If your install has customized the position lookup (Dutch abbreviations, different role names), demo players now get positions from that set. Fails loudly with a clear "configure positions first" message if the lookup is empty.
+
+## Visual progress during generation
+
+When you click **Generate demo data**, a full-screen overlay with a spinner now appears immediately: *"Generating demo data… this usually takes 15–45 seconds. Leave this tab open."* No more staring at a frozen browser tab wondering if anything is happening. The handler also raises the PHP time limit to 300 seconds so the Large preset can't time out halfway through on shared hosts.
+
+## Scope filter covers the People directory
+
+`PeopleRepository::list()`, the `PeoplePage` archive-view fallback, `ArchiveRepository::counts()` (now includes `person`), and the `RoleGrantPanel` people dropdown all route through `QueryHelpers::apply_demo_scope('person')`. Demo mode ON hides real staff; demo mode OFF hides demo staff. No cross-bleed.
+
+New `tt_demo_tags` entity types: `person` and `team_person`. No schema changes, no migrations — the tag table was designed for this from the start.
+
 # TalentTrack v3.4.1 — Demo user name sync + status-tab scope
 
 **Patch release.** Two more fixes from demo-dress-rehearsal testing.
