@@ -143,6 +143,13 @@ class PlayerGenerator {
                 ] );
                 $player_id = (int) $wpdb->insert_id;
 
+                // Sync the bound WP user's names to the generated player so
+                // every frontend view that reads wp_user->display_name or
+                // the first/last user meta reflects the demo identity.
+                if ( $wp_user_id > 0 ) {
+                    $this->syncUserNames( $wp_user_id, $fn, $ln );
+                }
+
                 $archetype = $this->pickArchetype();
                 $this->registry->tag( 'player', $player_id, [
                     'archetype'    => $archetype,
@@ -159,6 +166,24 @@ class PlayerGenerator {
             }
         }
         return $all;
+    }
+
+    /**
+     * Update the bound WP user's first / last / display name so frontend
+     * views that read from wp_users show the demo player's identity
+     * rather than the generic "Demo Player 1" slot label. user_login
+     * and user_email stay put — those are bound to the persistent slot
+     * and must not change across regenerates.
+     */
+    private function syncUserNames( int $user_id, string $first, string $last ): void {
+        $display = trim( $first . ' ' . $last );
+        wp_update_user( [
+            'ID'           => $user_id,
+            'first_name'   => $first,
+            'last_name'    => $last,
+            'display_name' => $display !== '' ? $display : ( 'Demo Player ' . $user_id ),
+            'nickname'     => $first !== '' ? $first : 'Demo Player',
+        ] );
     }
 
     private function pickFoot(): string {
