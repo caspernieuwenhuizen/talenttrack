@@ -1,3 +1,21 @@
+# TalentTrack v3.4.1 — Demo user name sync + status-tab scope
+
+**Patch release.** Two more fixes from demo-dress-rehearsal testing.
+
+## WP users show the Dutch player name
+
+The five demo-player slot users (`tt_demo_player1` … `tt_demo_player5`) are bound via `wp_user_id` to the first five generated players. Previously their WP `display_name` / `first_name` / `last_name` stayed at the generic "Demo Player 1" slot label, so any frontend surface reading from `wp_users` showed the slot name while the TalentTrack player record showed e.g. "Daan De Jong" — and the two didn't line up.
+
+`PlayerGenerator` now syncs first_name / last_name / display_name / nickname on the bound user to the generated player's identity on every run. `user_login` and `user_email` stay fixed to the slot so the persistence contract holds.
+
+## Status-tab counts respect demo mode
+
+`ArchiveRepository::counts()` — the source of the "Active (N) | Archived (N) | All (N)" tabs above every admin list — was running raw `SELECT COUNT(*)` without the scope filter. In demo mode ON, the tabs silently included real club rows alongside demo rows. Example: "Active (37)" when the list below actually rendered 36 demo players, giving a ghost player that the operator couldn't account for.
+
+`ArchiveRepository::counts()` and `activeDependentsFor()` (the archive warning — *"18 players depend on this team"*) both now route through `QueryHelpers::apply_demo_scope()`. Counts match the list exactly.
+
+No schema changes. No migrations.
+
 # TalentTrack v3.4.0 — Demo generator: reference data + club name + reuse UX
 
 **Minor release.** Four improvements to the demo data generator driven by real demo-dress-rehearsal testing.
