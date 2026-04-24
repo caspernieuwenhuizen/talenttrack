@@ -25,7 +25,17 @@ class DashboardShortcode {
      */
     public static function render( $atts = [] ): string {
         wp_enqueue_style( 'tt-public', TT_PLUGIN_URL . 'assets/css/public.css', [], TT_VERSION );
+        // #0019 Sprint 1 session 3 — shared component + token stylesheet
+        // loaded alongside the legacy one. Every new component reads from
+        // tokens defined here; public.css keeps the legacy dashboard/login
+        // layout untouched.
+        wp_enqueue_style( 'tt-frontend-admin', TT_PLUGIN_URL . 'assets/css/frontend-admin.css', [ 'tt-public' ], TT_VERSION );
+
         wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [], TT_VERSION, true );
+        wp_enqueue_script( 'tt-flash',   TT_PLUGIN_URL . 'assets/js/components/flash.js',     [], TT_VERSION, true );
+        wp_enqueue_script( 'tt-drafts',  TT_PLUGIN_URL . 'assets/js/drafts.js',               [ 'tt-public' ], TT_VERSION, true );
+        wp_enqueue_script( 'tt-rating',  TT_PLUGIN_URL . 'assets/js/components/rating.js',    [], TT_VERSION, true );
+        wp_enqueue_script( 'tt-multitag', TT_PLUGIN_URL . 'assets/js/components/multitag.js', [], TT_VERSION, true );
 
         // #0019 Sprint 1 session 2 — public.js uses fetch() against the
         // REST API. Nonce is the standard WP REST `wp_rest` nonce,
@@ -43,6 +53,9 @@ class DashboardShortcode {
                 'save_session'         => __( 'Save Session', 'talenttrack' ),
                 'add_goal'             => __( 'Add Goal', 'talenttrack' ),
                 'save'                 => __( 'Save', 'talenttrack' ),
+                'draft_prompt'         => __( 'You have unsaved changes from an earlier session — restore?', 'talenttrack' ),
+                'draft_restore'        => __( 'Restore', 'talenttrack' ),
+                'draft_discard'        => __( 'Discard', 'talenttrack' ),
             ],
         ]);
 
