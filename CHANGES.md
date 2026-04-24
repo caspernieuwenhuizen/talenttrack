@@ -1,3 +1,45 @@
+# TalentTrack v3.6.0 — Demo-prep polish bundle
+
+**Minor release.** Fourteen items bundled across three PRs — the demo-readiness polish pass for the 4 May 2026 showcase. Codifies three ship-along standards that apply to every future PR.
+
+## Ship-along standards — new, enforced
+
+DEVOPS.md now calls out three rules that apply to every feature PR going forward:
+
+1. **Reference data is translatable + extensible by default.** No hardcoded lists of user-facing values. Go through `tt_lookups` / `__()` / `tt_config`.
+2. **Translations ship in the same PR.** Any `__()` / `_e()` / `esc_html__()` change touches `nl_NL.po`.
+3. **Docs ship in the same PR.** Behaviour changes touch `docs/<slug>.md` + `docs/nl_NL/<slug>.md`.
+
+## Batch A — quick wins (PR #11)
+
+- **Player card name wrap** — long names ellipsis-truncate on one line so every card keeps the same height. Full name exposed via `title=""` tooltip.
+- **Responsive tile fonts** — `clamp()` so tile labels + descriptions shrink smoothly at narrow widths.
+- **Print view "Close window"** — the print tab opens via `target=_blank`, so `history.back()` never worked after Save-as-PDF. Now a proper `window.close()` button.
+- **Competition as a lookup** — new `competition_type` lookup (migration 0013) seeded with **League** and **Cup**. All three Competition form fields + the EvaluationGenerator now read from it. Translated via `__()` so Dutch installs render "Competitie" / "Beker".
+- **Clickable teammate card** — new `FrontendTeammateView` renders a read-only card when a player taps a teammate on My team. Name, photo, team, age group, positions, jersey, foot, height, weight. Evaluations / goals / ratings stay private.
+
+## Batch B — visual + chart + navigation (PR #12)
+
+- **Radar visual rewrite** — 400×340 viewBox with a reserved 36px legend strip, axis markers 1–5, rounded polygon joins, hollow value dots with coloured borders. Labels stop clipping at narrow widths.
+- **Trend + radar charts render on the frontend.** Real bug fix. `enqueueChartLibrary()` now enqueues in the footer (the head had already flushed by the time the shortcode ran); the chart-init IIFE waits for `DOMContentLoaded` before checking `window.Chart`. Charts render wherever `PlayerRateCardView::render()` lands.
+- **DAU / evals-per-day "Pick a day…" picker** — detail pages no longer dead-end on "Invalid date." Each defaults to today and shows a **← Prev · date field · Next →** control. Main Usage Statistics page gets matching "Pick a day…" entry buttons next to each chart header.
+- **Team players panel** — team edit page now shows the current roster below Staff Assignments (jersey, positions, foot, DoB). Each name links to the player edit page.
+- **Clickable entity refs in list tables** — Players / Sessions / Goals / Evaluations list cells for the related entity now link to its edit page (cap-gated on `tt_view_*`).
+
+## Batch C — tables + multilingual reference data (PR #13)
+
+- **Sortable + searchable frontend tables.** New zero-dependency vanilla-JS helper at `assets/js/tt-table-tools.js`. Opt-in via class `tt-table-sortable`: adds a filter input + live row count, makes every `<th>` click-sortable with auto type detection (number / date / text), diacritic-insensitive search. Applied to **My evaluations** and **My sessions**.
+- **Multilingual reference data.** New nullable `translations` TEXT column on `tt_lookups` (migration 0014) stores per-locale name + description as JSON. New `LookupTranslator` service resolves the right text for the current user's locale with fallback through the `.po` for seeded values. Every lookup edit form under Configuration gets a **Translations** block with one row per installed locale. Admin-added lookup values can now be translated without a plug-in update. Two consumer sites wired (PlayersPage + FrontendMyProfileView for `preferred_foot`); rest follow opportunistically.
+
+## Migrations
+
+- **0013** — seeds the `competition_type` lookup with League + Cup.
+- **0014** — adds `translations` column to `tt_lookups`.
+
+Both idempotent; no-op if the state already exists.
+
+No capability changes.
+
 # TalentTrack v3.5.0 — Demo staff, positions from lookup, visual progress
 
 **Minor release.** Four improvements to the demo data generator — the People directory now actually gets populated, teams get real Staff Assignments, positions follow the configured reference data, and the generate flow shows visible progress.
