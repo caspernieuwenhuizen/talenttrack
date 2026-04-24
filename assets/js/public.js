@@ -1,7 +1,16 @@
-(function($){
+/**
+ * TalentTrack — frontend dashboard script.
+ *
+ * #0019 Sprint 1 session 2: rewritten as vanilla JS + fetch() against
+ * the REST API. jQuery is no longer a dependency. Forms declare their
+ * REST target via `data-rest-path` (path relative to
+ * `/wp-json/talenttrack/v1/`) plus optional `data-rest-method`
+ * (default POST). Inline goal status / delete handlers hit
+ * `/goals/{id}/status` (PATCH) and `/goals/{id}` (DELETE).
+ */
+(function(){
     'use strict';
 
-    // Default labels if localization fails for any reason
     var i18n = (window.TT && TT.i18n) ? TT.i18n : {
         saving: 'Saving...',
         saved: 'Saved.',
@@ -14,17 +23,105 @@
         save: 'Save'
     };
 
-    $(document).ready(function(){
+    /**
+     * Turn a submitted <form> into a plain object, expanding bracketed
+     * names (`ratings[12]=4.5`, `att[7][status]=Present`) into nested
+     * objects. The REST controllers read these as sub-resources, matching
+     * the shape the legacy admin-ajax handlers accepted.
+     */
+    function formToJSON(form) {
+        var out = {};
+        var fd = new FormData(form);
+        fd.forEach(function(value, key) {
+            // Skip the legacy hidden fields — REST uses headers + path.
+            if (key === 'action' || key === 'nonce' || key === '_wpnonce') return;
+            var match = key.match(/^([^\[]+)((?:\[[^\]]*\])*)$/);
+            if (!match) { out[key] = value; return; }
+            var base = match[1];
+            var rest = match[2];
+            if (!rest) { out[base] = value; return; }
+            var keys = [];
+            rest.replace(/\[([^\]]*)\]/g, function(_m, k) { keys.push(k); return ''; });
+            var cursor = out[base] = out[base] || {};
+            for (var i = 0; i < keys.length - 1; i++) {
+                var k = keys[i];
+                cursor[k] = cursor[k] || {};
+                cursor = cursor[k];
+            }
+            cursor[keys[keys.length - 1]] = value;
+        });
+        return out;
+    }
+
+    function restRequest(path, method, body) {
+        var base = (window.TT && TT.rest_url) ? TT.rest_url : '/wp-json/talenttrack/v1/';
+        var url = base.replace(/\/+$/, '/') + path.replace(/^\/+/, '');
+        var headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+        if (window.TT && TT.rest_nonce) headers['X-WP-Nonce'] = TT.rest_nonce;
+        return fetch(url, {
+            method: method,
+            credentials: 'same-origin',
+            headers: headers,
+            body: body ? JSON.stringify(body) : undefined
+        }).then(function(res) {
+            return res.json().then(function(json) { return { status: res.status, ok: res.ok, json: json }; });
+        });
+    }
+
+    function firstErrorMessage(json) {
+        if (json && Array.isArray(json.errors) && json.errors.length > 0 && json.errors[0].message) {
+            return json.errors[0].message;
+        }
+        if (json && json.message) return json.message;
+        return i18n.error_generic;
+    }
+
+    function showMsg(form, type, text) {
+        var el = form.querySelector('.tt-form-msg');
+        if (!el) return;
+        el.classList.remove('tt-success', 'tt-error');
+        el.classList.add(type === 'success' ? 'tt-success' : 'tt-error');
+        el.textContent = text;
+        el.style.display = '';
+    }
+
+    function clearMsg(form) {
+        var el = form.querySelector('.tt-form-msg');
+        if (!el) return;
+        el.classList.remove('tt-success', 'tt-error');
+        el.textContent = '';
+        el.style.display = 'none';
+    }
+
+    function defaultButtonLabel(formId) {
+        switch (formId) {
+            case 'tt-eval-form':    return i18n.save_evaluation;
+            case 'tt-session-form': return i18n.save_session;
+            case 'tt-goal-form':    return i18n.add_goal;
+            default:                return i18n.save;
+        }
+    }
+
+    function on(selector, event, handler) {
+        document.addEventListener(event, function(e) {
+            var target = e.target.closest(selector);
+            if (target) handler.call(target, e);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
 
         // Tab switching
-        $('.tt-dashboard').on('click', '.tt-tab', function(e){
+        on('.tt-dashboard .tt-tab', 'click', function(e) {
             e.preventDefault();
-            var tab = $(this).data('tab');
-            var $root = $(this).closest('.tt-dashboard');
-            $root.find('.tt-tab').removeClass('tt-tab-active');
-            $(this).addClass('tt-tab-active');
-            $root.find('.tt-tab-content').removeClass('tt-tab-content-active');
-            $root.find('.tt-tab-content[data-tab="' + tab + '"]').addClass('tt-tab-content-active');
+            var tab = this.getAttribute('data-tab');
+            var root = this.closest('.tt-dashboard');
+            if (!root) return;
+            root.querySelectorAll('.tt-tab').forEach(function(t) { t.classList.remove('tt-tab-active'); });
+            this.classList.add('tt-tab-active');
+            root.querySelectorAll('.tt-tab-content').forEach(function(c) { c.classList.remove('tt-tab-content-active'); });
+            var active = root.querySelector('.tt-tab-content[data-tab="' + tab + '"]');
+            if (active) active.classList.add('tt-tab-content-active');
             if (history.replaceState) {
                 var url = new URL(window.location.href);
                 url.searchParams.set('tt_view', tab);
@@ -32,54 +129,58 @@
             }
         });
 
-        // AJAX form submission
-        $('.tt-ajax-form').on('submit', function(e){
+        // REST form submission
+        on('.tt-ajax-form', 'submit', function(e) {
             e.preventDefault();
-            var $form = $(this);
-            var $msg = $form.find('.tt-form-msg').removeClass('tt-success tt-error').hide();
-            var $btn = $form.find('button[type="submit"]').prop('disabled', true).text(i18n.saving);
+            var form = this;
+            var path = form.getAttribute('data-rest-path');
+            if (!path) {
+                showMsg(form, 'error', i18n.error_generic);
+                return;
+            }
+            var method = (form.getAttribute('data-rest-method') || 'POST').toUpperCase();
+            var btn = form.querySelector('button[type="submit"]');
+            clearMsg(form);
+            if (btn) { btn.disabled = true; btn.textContent = i18n.saving; }
 
-            $.post(TT.ajax_url, $form.serialize())
-                .done(function(res){
-                    if (res.success) {
-                        $msg.addClass('tt-success').text((res.data && res.data.message) || i18n.saved).show();
-                        $form[0].reset();
-                    } else {
-                        $msg.addClass('tt-error').text((res.data && (res.data.message || res.data)) || i18n.error_generic).show();
-                    }
-                })
-                .fail(function(){ $msg.addClass('tt-error').text(i18n.network_error).show(); })
-                .always(function(){
-                    var labels = {
-                        'tt-eval-form':    i18n.save_evaluation,
-                        'tt-session-form': i18n.save_session,
-                        'tt-goal-form':    i18n.add_goal
-                    };
-                    $btn.prop('disabled', false).text(labels[$form.attr('id')] || i18n.save);
-                });
-        });
-
-        // Goal status inline update
-        $('.tt-dashboard').on('change', '.tt-goal-status-select', function(){
-            $.post(TT.ajax_url, {
-                action: 'tt_fe_update_goal_status',
-                nonce: TT.nonce,
-                goal_id: $(this).data('goal-id'),
-                status: $(this).val()
+            restRequest(path, method, formToJSON(form)).then(function(res) {
+                if (res.ok && res.json && res.json.success) {
+                    showMsg(form, 'success', i18n.saved);
+                    form.reset();
+                } else {
+                    showMsg(form, 'error', firstErrorMessage(res.json));
+                }
+            }).catch(function() {
+                showMsg(form, 'error', i18n.network_error);
+            }).then(function() {
+                if (btn) { btn.disabled = false; btn.textContent = defaultButtonLabel(form.id); }
             });
         });
 
-        // Goal delete
-        $('.tt-dashboard').on('click', '.tt-goal-delete', function(){
-            if (!confirm(i18n.confirm_delete_goal)) return;
-            var $btn = $(this);
-            $.post(TT.ajax_url, {
-                action: 'tt_fe_delete_goal',
-                nonce: TT.nonce,
-                goal_id: $btn.data('goal-id')
-            }).done(function(res){
-                if (res.success) $btn.closest('tr').fadeOut(250, function(){ $(this).remove(); });
+        // Goal status inline update — PATCH /goals/{id}/status
+        on('.tt-dashboard .tt-goal-status-select', 'change', function() {
+            var id = this.getAttribute('data-goal-id');
+            if (!id) return;
+            restRequest('goals/' + encodeURIComponent(id) + '/status', 'PATCH', { status: this.value });
+        });
+
+        // Goal delete — DELETE /goals/{id}
+        on('.tt-dashboard .tt-goal-delete', 'click', function(e) {
+            e.preventDefault();
+            if (!window.confirm(i18n.confirm_delete_goal)) return;
+            var id = this.getAttribute('data-goal-id');
+            if (!id) return;
+            var btn = this;
+            restRequest('goals/' + encodeURIComponent(id), 'DELETE', null).then(function(res) {
+                if (res.ok && res.json && res.json.success) {
+                    var row = btn.closest('tr');
+                    if (row) {
+                        row.style.transition = 'opacity 0.25s';
+                        row.style.opacity = '0';
+                        setTimeout(function() { if (row.parentNode) row.parentNode.removeChild(row); }, 260);
+                    }
+                }
             });
         });
     });
-})(jQuery);
+})();

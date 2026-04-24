@@ -1,34 +1,20 @@
 <?php
-namespace TT\REST;
-
-use TT\Infrastructure\Logging\Logger;
-use TT\Infrastructure\Query\QueryHelpers;
+namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Logging\Logger;
+
 /**
- * Sessions_Controller — REST endpoints for tt_sessions + tt_attendance.
+ * SessionsRestController — /wp-json/talenttrack/v1/sessions
  *
- * #0019 Sprint 1 introduces this alongside an expanded Goals_Controller
- * and enriched Evaluations_Controller to replace the legacy
- * FrontendAjax / includes/Frontend/Ajax shims. Every endpoint
- * replicates the fail-loud error handling that the newer
- * src/Shared/Frontend/FrontendAjax shim brought in during v2.6.2 —
- * $wpdb insert/update return values are checked, failures land in the
- * Logger with structured context, and the client gets a WP_Error-style
- * response with the DB error visible in `detail` rather than a silent
- * success.
- *
- * Routes:
- *   POST   /talenttrack/v1/sessions
- *   PUT    /talenttrack/v1/sessions/{id}
- *   DELETE /talenttrack/v1/sessions/{id}
- *
- * Attendance is a nested sub-resource handled inline on create/update
- * because the existing UI posts the full attendance matrix with the
- * session form. A future sprint may break it out.
+ * #0019 Sprint 1 — replaces the legacy `tt_fe_save_session` admin-ajax
+ * path. Attendance is a nested sub-resource handled inline on create
+ * and update because the UI posts the full attendance matrix with the
+ * session form. Fail-loud: every $wpdb write return value is checked
+ * and failures land in the Logger.
  */
-class Sessions_Controller {
+class SessionsRestController {
 
     const NS = 'talenttrack/v1';
 
@@ -42,7 +28,6 @@ class Sessions_Controller {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_session' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
-                'args'                => self::session_args(),
             ],
         ] );
         register_rest_route( self::NS, '/sessions/(?P<id>\d+)', [
@@ -50,13 +35,11 @@ class Sessions_Controller {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_session' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
-                'args'                => array_merge( self::session_args(), [ 'id' => [ 'required' => true, 'type' => 'integer' ] ] ),
             ],
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_session' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
-                'args'                => [ 'id' => [ 'required' => true, 'type' => 'integer' ] ],
             ],
         ] );
     }
@@ -71,14 +54,19 @@ class Sessions_Controller {
         $data = self::extract( $r );
         $data['coach_id'] = get_current_user_id();
 
+        if ( $data['title'] === '' || $data['session_date'] === '' ) {
+            return RestResponse::error( 'missing_fields', __( 'Title and date are required.', 'talenttrack' ), 400 );
+        }
+
         $ok = $wpdb->insert( "{$p}tt_sessions", $data );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'session.save.failed', [ 'db_error' => $err, 'payload' => $data ] );
-            return new \WP_Error(
-                'rest_session_save_failed',
+            return RestResponse::error(
+                'db_error',
                 __( 'The session could not be saved. The database rejected the operation.', 'talenttrack' ),
-                [ 'status' => 500, 'detail' => $err ]
+                500,
+                [ 'db_error' => $err ]
             );
         }
         $session_id = (int) $wpdb->insert_id;
@@ -86,17 +74,15 @@ class Sessions_Controller {
         $att_failures = self::write_attendance( $session_id, self::attendance_from_request( $r ) );
         if ( $att_failures ) {
             Logger::error( 'session.attendance.save.failed', [ 'session_id' => $session_id, 'failures' => $att_failures ] );
-            return new \WP_Error(
-                'rest_session_attendance_failed',
+            return RestResponse::error(
+                'partial_save',
                 __( 'The session was saved, but some attendance rows could not be stored.', 'talenttrack' ),
-                [ 'status' => 500, 'detail' => $att_failures[0]['db_error'] ?? '', 'session_id' => $session_id ]
+                500,
+                [ 'session_id' => $session_id, 'failures' => $att_failures ]
             );
         }
 
-        return rest_ensure_response( [
-            'id'      => $session_id,
-            'message' => __( 'Session saved.', 'talenttrack' ),
-        ] );
+        return RestResponse::success( [ 'id' => $session_id ] );
     }
 
     public static function update_session( \WP_REST_Request $r ) {
@@ -104,19 +90,22 @@ class Sessions_Controller {
 
         $session_id = absint( $r['id'] );
         if ( $session_id <= 0 ) {
-            return new \WP_Error( 'rest_bad_id', __( 'Invalid session id.', 'talenttrack' ), [ 'status' => 400 ] );
+            return RestResponse::error( 'bad_id', __( 'Invalid session id.', 'talenttrack' ), 400 );
         }
 
         $data = self::extract( $r );
-        unset( $data['coach_id'] ); // preserve original coach
+        // Preserve original coach on update.
+        unset( $data['coach_id'] );
+
         $ok = $wpdb->update( "{$p}tt_sessions", $data, [ 'id' => $session_id ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'session.update.failed', [ 'db_error' => $err, 'session_id' => $session_id ] );
-            return new \WP_Error(
-                'rest_session_update_failed',
+            return RestResponse::error(
+                'db_error',
                 __( 'The session could not be updated. The database rejected the operation.', 'talenttrack' ),
-                [ 'status' => 500, 'detail' => $err ]
+                500,
+                [ 'db_error' => $err ]
             );
         }
 
@@ -125,15 +114,16 @@ class Sessions_Controller {
             $att_failures = self::write_attendance( $session_id, self::attendance_from_request( $r ) );
             if ( $att_failures ) {
                 Logger::error( 'session.attendance.update.failed', [ 'session_id' => $session_id, 'failures' => $att_failures ] );
-                return new \WP_Error(
-                    'rest_session_attendance_update_failed',
+                return RestResponse::error(
+                    'partial_save',
                     __( 'The session was updated, but some attendance rows could not be stored.', 'talenttrack' ),
-                    [ 'status' => 500, 'detail' => $att_failures[0]['db_error'] ?? '', 'session_id' => $session_id ]
+                    500,
+                    [ 'session_id' => $session_id, 'failures' => $att_failures ]
                 );
             }
         }
 
-        return rest_ensure_response( [ 'id' => $session_id, 'message' => __( 'Session updated.', 'talenttrack' ) ] );
+        return RestResponse::success( [ 'id' => $session_id ] );
     }
 
     public static function delete_session( \WP_REST_Request $r ) {
@@ -141,7 +131,7 @@ class Sessions_Controller {
 
         $session_id = absint( $r['id'] );
         if ( $session_id <= 0 ) {
-            return new \WP_Error( 'rest_bad_id', __( 'Invalid session id.', 'talenttrack' ), [ 'status' => 400 ] );
+            return RestResponse::error( 'bad_id', __( 'Invalid session id.', 'talenttrack' ), 400 );
         }
 
         $wpdb->delete( "{$p}tt_attendance", [ 'session_id' => $session_id ] );
@@ -149,17 +139,16 @@ class Sessions_Controller {
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'session.delete.failed', [ 'db_error' => $err, 'session_id' => $session_id ] );
-            return new \WP_Error(
-                'rest_session_delete_failed',
+            return RestResponse::error(
+                'db_error',
                 __( 'The session could not be deleted.', 'talenttrack' ),
-                [ 'status' => 500, 'detail' => $err ]
+                500,
+                [ 'db_error' => $err ]
             );
         }
 
-        return rest_ensure_response( [ 'deleted' => true, 'id' => $session_id ] );
+        return RestResponse::success( [ 'deleted' => true, 'id' => $session_id ] );
     }
-
-    /* ═══ Helpers ═══ */
 
     /**
      * @return array<string, mixed>
@@ -176,6 +165,9 @@ class Sessions_Controller {
     }
 
     /**
+     * Accept attendance under either `attendance` (new name) or the
+     * legacy `att` key that the pre-REST form used.
+     *
      * @return array<int, array{status:string, notes:string}>
      */
     private static function attendance_from_request( \WP_REST_Request $r ): array {
@@ -218,19 +210,5 @@ class Sessions_Controller {
             }
         }
         return $failures;
-    }
-
-    /**
-     * @return array<string, array<string, mixed>>
-     */
-    private static function session_args(): array {
-        return [
-            'title'        => [ 'type' => 'string', 'required' => true ],
-            'session_date' => [ 'type' => 'string', 'required' => true ],
-            'team_id'      => [ 'type' => 'integer' ],
-            'location'     => [ 'type' => 'string' ],
-            'notes'        => [ 'type' => 'string' ],
-            'attendance'   => [ 'type' => 'object' ],
-        ];
     }
 }

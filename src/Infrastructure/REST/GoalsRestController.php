@@ -1,25 +1,20 @@
 <?php
-namespace TT\REST;
-
-use TT\Infrastructure\Logging\Logger;
+namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Logging\Logger;
+
 /**
- * Goals_Controller — REST endpoints for tt_goals.
+ * GoalsRestController — /wp-json/talenttrack/v1/goals
  *
- * Ships in #0019 Sprint 1 as part of the FrontendAjax retirement.
- * Behaviour-identical to the old `tt_fe_save_goal`, `tt_fe_update_goal_status`,
- * and `tt_fe_delete_goal` AJAX handlers, with fail-loud DB error
- * handling bolted on (the FrontendAjax v2.6.2 style).
- *
- * Routes:
- *   POST   /talenttrack/v1/goals
- *   PUT    /talenttrack/v1/goals/{id}
- *   PATCH  /talenttrack/v1/goals/{id}/status
- *   DELETE /talenttrack/v1/goals/{id}
+ * #0019 Sprint 1 — replaces the legacy `tt_fe_save_goal`,
+ * `tt_fe_update_goal_status`, and `tt_fe_delete_goal` admin-ajax
+ * handlers. The PATCH `/goals/{id}/status` route matches the inline
+ * status-select dropdown flow; the main PUT `/goals/{id}` is for
+ * future edit-goal views.
  */
-class Goals_Controller {
+class GoalsRestController {
 
     const NS = 'talenttrack/v1';
 
@@ -33,7 +28,6 @@ class Goals_Controller {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_goal' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
-                'args'                => self::goal_args(),
             ],
         ] );
         register_rest_route( self::NS, '/goals/(?P<id>\d+)', [
@@ -41,13 +35,11 @@ class Goals_Controller {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_goal' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
-                'args'                => array_merge( self::goal_args(), [ 'id' => [ 'required' => true, 'type' => 'integer' ] ] ),
             ],
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_goal' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
-                'args'                => [ 'id' => [ 'required' => true, 'type' => 'integer' ] ],
             ],
         ] );
         register_rest_route( self::NS, '/goals/(?P<id>\d+)/status', [
@@ -55,10 +47,6 @@ class Goals_Controller {
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'update_status' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
-                'args'                => [
-                    'id'     => [ 'required' => true, 'type' => 'integer' ],
-                    'status' => [ 'required' => true, 'type' => 'string' ],
-                ],
             ],
         ] );
     }
@@ -81,31 +69,29 @@ class Goals_Controller {
         ];
 
         if ( $data['player_id'] <= 0 || $data['title'] === '' ) {
-            return new \WP_Error( 'rest_missing_fields', __( 'Player and title are required.', 'talenttrack' ), [ 'status' => 400 ] );
+            return RestResponse::error( 'missing_fields', __( 'Player and title are required.', 'talenttrack' ), 400 );
         }
 
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_goals', $data );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'goal.save.failed', [ 'db_error' => $err, 'payload' => $data ] );
-            return new \WP_Error(
-                'rest_goal_save_failed',
+            return RestResponse::error(
+                'db_error',
                 __( 'The goal could not be saved. The database rejected the operation.', 'talenttrack' ),
-                [ 'status' => 500, 'detail' => $err ]
+                500,
+                [ 'db_error' => $err ]
             );
         }
 
-        return rest_ensure_response( [
-            'id'      => (int) $wpdb->insert_id,
-            'message' => __( 'Goal added.', 'talenttrack' ),
-        ] );
+        return RestResponse::success( [ 'id' => (int) $wpdb->insert_id ] );
     }
 
     public static function update_goal( \WP_REST_Request $r ) {
         global $wpdb;
         $goal_id = absint( $r['id'] );
         if ( $goal_id <= 0 ) {
-            return new \WP_Error( 'rest_bad_id', __( 'Invalid goal id.', 'talenttrack' ), [ 'status' => 400 ] );
+            return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
         }
 
         $data = [];
@@ -120,75 +106,64 @@ class Goals_Controller {
             $data['due_date'] = ! empty( $r['due_date'] ) ? sanitize_text_field( (string) $r['due_date'] ) : null;
         }
         if ( ! $data ) {
-            return new \WP_Error( 'rest_empty_update', __( 'No fields to update.', 'talenttrack' ), [ 'status' => 400 ] );
+            return RestResponse::error( 'empty_update', __( 'No fields to update.', 'talenttrack' ), 400 );
         }
 
         $ok = $wpdb->update( $wpdb->prefix . 'tt_goals', $data, [ 'id' => $goal_id ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'goal.update.failed', [ 'db_error' => $err, 'goal_id' => $goal_id ] );
-            return new \WP_Error(
-                'rest_goal_update_failed',
+            return RestResponse::error(
+                'db_error',
                 __( 'The goal could not be updated.', 'talenttrack' ),
-                [ 'status' => 500, 'detail' => $err ]
+                500,
+                [ 'db_error' => $err ]
             );
         }
-        return rest_ensure_response( [ 'id' => $goal_id, 'message' => __( 'Goal updated.', 'talenttrack' ) ] );
+        return RestResponse::success( [ 'id' => $goal_id ] );
     }
 
     public static function update_status( \WP_REST_Request $r ) {
         global $wpdb;
         $goal_id = absint( $r['id'] );
         if ( $goal_id <= 0 ) {
-            return new \WP_Error( 'rest_bad_id', __( 'Invalid goal id.', 'talenttrack' ), [ 'status' => 400 ] );
+            return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
         }
         $status = sanitize_text_field( (string) ( $r['status'] ?? '' ) );
         if ( $status === '' ) {
-            return new \WP_Error( 'rest_missing_fields', __( 'Status is required.', 'talenttrack' ), [ 'status' => 400 ] );
+            return RestResponse::error( 'missing_fields', __( 'Status is required.', 'talenttrack' ), 400 );
         }
         $ok = $wpdb->update( $wpdb->prefix . 'tt_goals', [ 'status' => $status ], [ 'id' => $goal_id ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'goal.status.update.failed', [ 'db_error' => $err, 'goal_id' => $goal_id ] );
-            return new \WP_Error(
-                'rest_goal_status_failed',
+            return RestResponse::error(
+                'db_error',
                 __( 'Status update failed.', 'talenttrack' ),
-                [ 'status' => 500, 'detail' => $err ]
+                500,
+                [ 'db_error' => $err ]
             );
         }
-        return rest_ensure_response( [ 'id' => $goal_id, 'status' => $status, 'message' => __( 'Status updated.', 'talenttrack' ) ] );
+        return RestResponse::success( [ 'id' => $goal_id, 'status' => $status ] );
     }
 
     public static function delete_goal( \WP_REST_Request $r ) {
         global $wpdb;
         $goal_id = absint( $r['id'] );
         if ( $goal_id <= 0 ) {
-            return new \WP_Error( 'rest_bad_id', __( 'Invalid goal id.', 'talenttrack' ), [ 'status' => 400 ] );
+            return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
         }
         $ok = $wpdb->delete( $wpdb->prefix . 'tt_goals', [ 'id' => $goal_id ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'goal.delete.failed', [ 'db_error' => $err, 'goal_id' => $goal_id ] );
-            return new \WP_Error(
-                'rest_goal_delete_failed',
+            return RestResponse::error(
+                'db_error',
                 __( 'Goal delete failed.', 'talenttrack' ),
-                [ 'status' => 500, 'detail' => $err ]
+                500,
+                [ 'db_error' => $err ]
             );
         }
-        return rest_ensure_response( [ 'deleted' => true, 'id' => $goal_id ] );
-    }
-
-    /**
-     * @return array<string, array<string, mixed>>
-     */
-    private static function goal_args(): array {
-        return [
-            'player_id'   => [ 'type' => 'integer', 'required' => true ],
-            'title'       => [ 'type' => 'string',  'required' => true ],
-            'description' => [ 'type' => 'string' ],
-            'status'      => [ 'type' => 'string' ],
-            'priority'    => [ 'type' => 'string' ],
-            'due_date'    => [ 'type' => 'string' ],
-        ];
+        return RestResponse::success( [ 'deleted' => true, 'id' => $goal_id ] );
     }
 }

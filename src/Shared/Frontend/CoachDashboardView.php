@@ -177,9 +177,7 @@ class CoachDashboardView {
         if ( ! $is_admin ) foreach ( $teams as $t ) $players = array_merge( $players, QueryHelpers::get_players( (int) $t->id ) );
         ?>
         <h3><?php esc_html_e( 'Submit Evaluation', 'talenttrack' ); ?></h3>
-        <form id="tt-eval-form" class="tt-ajax-form">
-            <input type="hidden" name="action" value="tt_fe_save_evaluation" />
-            <input type="hidden" name="nonce" value="<?php echo esc_attr( wp_create_nonce( 'tt_frontend' ) ); ?>" />
+        <form id="tt-eval-form" class="tt-ajax-form" data-rest-path="evaluations" data-rest-method="POST">
             <div class="tt-form-row"><label><?php esc_html_e( 'Player', 'talenttrack' ); ?> *</label><select name="player_id" required>
                 <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                 <?php foreach ( $players as $pl ) : ?>
@@ -237,9 +235,7 @@ class CoachDashboardView {
         foreach ( $teams as $t ) foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) $all_players[ (int) $pl->id ] = $pl;
         ?>
         <h3><?php esc_html_e( 'Record Training Session', 'talenttrack' ); ?></h3>
-        <form id="tt-session-form" class="tt-ajax-form">
-            <input type="hidden" name="action" value="tt_fe_save_session" />
-            <input type="hidden" name="nonce" value="<?php echo esc_attr( wp_create_nonce( 'tt_frontend' ) ); ?>" />
+        <form id="tt-session-form" class="tt-ajax-form" data-rest-path="sessions" data-rest-method="POST">
             <div class="tt-form-row"><label><?php esc_html_e( 'Title', 'talenttrack' ); ?> *</label><input type="text" name="title" required /></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" name="session_date" value="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required /></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Team', 'talenttrack' ); ?></label><select name="team_id">
@@ -282,9 +278,7 @@ class CoachDashboardView {
         }
         ?>
         <h3><?php esc_html_e( 'Add Goal', 'talenttrack' ); ?></h3>
-        <form id="tt-goal-form" class="tt-ajax-form">
-            <input type="hidden" name="action" value="tt_fe_save_goal" />
-            <input type="hidden" name="nonce" value="<?php echo esc_attr( wp_create_nonce( 'tt_frontend' ) ); ?>" />
+        <form id="tt-goal-form" class="tt-ajax-form" data-rest-path="goals" data-rest-method="POST">
             <div class="tt-form-row"><label><?php esc_html_e( 'Player', 'talenttrack' ); ?> *</label><select name="player_id" required>
                 <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                 <?php foreach ( $players as $pl ) : ?><option value="<?php echo (int) $pl->id; ?>"><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></option><?php endforeach; ?>
