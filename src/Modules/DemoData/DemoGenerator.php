@@ -63,15 +63,15 @@ class DemoGenerator {
         $playerGen = new PlayerGenerator( $registry, $teams, $users, (int) $config['players_per_team'] );
         $players   = $playerGen->generate();
 
-        $evalGen    = new EvaluationGenerator( $registry, $players, $teams, (int) $config['weeks'] );
-        $eval_count = $evalGen->generate();
-
-        $sessionGen    = new SessionGenerator( $registry, $teams, $players, (int) $config['weeks'] );
-        $session_count = $sessionGen->generate();
-
         $content_language = isset( $opts['content_language'] ) && (string) $opts['content_language'] !== ''
             ? (string) $opts['content_language']
             : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
+
+        $evalGen    = new EvaluationGenerator( $registry, $players, $teams, (int) $config['weeks'] );
+        $eval_count = $evalGen->generate();
+
+        $sessionGen    = new SessionGenerator( $registry, $teams, $players, (int) $config['weeks'], $content_language );
+        $session_count = $sessionGen->generate();
 
         $goalGen    = new GoalGenerator( $registry, $players, $users, $content_language );
         $goal_count = $goalGen->generate();

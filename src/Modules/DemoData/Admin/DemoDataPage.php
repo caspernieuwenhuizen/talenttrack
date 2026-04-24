@@ -324,17 +324,22 @@ class DemoDataPage {
                         <th scope="row"><label for="tt_demo_content_language"><?php esc_html_e( 'Content language', 'talenttrack' ); ?></label></th>
                         <td>
                             <?php
+                            // Supported set comes from the generators that actually have
+                            // a translated content dictionary. Showing every installed WP
+                            // locale would let the operator pick a language we'd silently
+                            // fall back from — worse than just listing what works.
                             $tt_site_locale = function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US';
-                            $tt_locales = \TT\Infrastructure\Query\LookupTranslator::installedLocales();
+                            $tt_supported   = \TT\Modules\DemoData\Generators\GoalGenerator::supportedLanguages();
+                            $tt_default     = in_array( $tt_site_locale, $tt_supported, true ) ? $tt_site_locale : 'en_US';
                             ?>
                             <select id="tt_demo_content_language" name="content_language">
-                                <?php foreach ( $tt_locales as $loc ) : ?>
-                                    <option value="<?php echo esc_attr( $loc ); ?>" <?php selected( $loc, $tt_site_locale ); ?>>
+                                <?php foreach ( $tt_supported as $loc ) : ?>
+                                    <option value="<?php echo esc_attr( $loc ); ?>" <?php selected( $loc, $tt_default ); ?>>
                                         <?php echo esc_html( $loc . ( $loc === $tt_site_locale ? ' ' . __( '(site locale)', 'talenttrack' ) : '' ) ); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <p class="description"><?php esc_html_e( 'Language the generated content is written in — goal titles, descriptions, any free-text seeded by the generators. Defaults to the site locale; override when the demo audience speaks a different language than the site admin\'s browser.', 'talenttrack' ); ?></p>
+                            <p class="description"><?php esc_html_e( 'Language the generated content (goal titles, descriptions, session titles, default location) is written in. Only languages the generators ship content dictionaries for are listed — add a key to GoalGenerator / SessionGenerator constants to support a new one.', 'talenttrack' ); ?></p>
                         </td>
                     </tr>
                     <?php if ( ! $users_exist ) : ?>
