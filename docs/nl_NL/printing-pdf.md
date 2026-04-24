@@ -22,6 +22,8 @@ Door op de printknop te klikken ga je naar een URL als `?tt_print=<id>`, die:
 
 Gebruik **Opslaan als PDF** in het printvenster van je browser. Chrome, Safari, Firefox en Edge ondersteunen dat native — geen PDF-bibliotheek aan serverzijde nodig.
 
+De printweergave opent in een nieuw venster met knoppen Afdrukken, PDF downloaden en **Venster sluiten**. Sluit het venster als je klaar bent — je oorspronkelijke TalentTrack-tab blijft op z'n plek.
+
 Stel de paginagrootte in op A4 (of Letter in de VS). Zet marges op "Standaard" of "Normaal". Liggend werkt beter voor rate cards (meer horizontale ruimte voor radar + trendgrafieken naast elkaar).
 
 ## Stijl

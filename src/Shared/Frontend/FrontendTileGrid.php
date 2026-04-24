@@ -120,21 +120,27 @@ class FrontendTileGrid {
         }
         .tt-ftile-label {
             font-weight: 600;
-            font-size: 16px;
+            font-size: clamp(13px, 1.4vw, 16px);
+            line-height: 1.25;
             margin: 0 0 4px;
             color: #1a1d21;
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
         .tt-ftile-desc {
             color: #666;
-            font-size: 13px;
+            font-size: clamp(11px, 1.1vw, 13px);
             line-height: 1.4;
             margin: 0;
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
         @media (max-width: 640px) {
             .tt-ftile-grid { grid-template-columns: 1fr; }
             .tt-ftile { padding: 14px 14px; min-height: 68px; }
             .tt-ftile-icon { width: 40px; height: 40px; font-size: 20px; }
-            .tt-ftile-label { font-size: 15px; }
+            .tt-ftile-label { font-size: clamp(14px, 4vw, 16px); }
+            .tt-ftile-desc { font-size: 12px; }
         }
         </style>
 

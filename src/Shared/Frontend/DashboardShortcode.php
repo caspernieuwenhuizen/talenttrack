@@ -135,6 +135,10 @@ class DashboardShortcode {
             case 'my-team':
                 FrontendMyTeamView::render( $player );
                 break;
+            case 'teammate':
+                $teammate_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
+                FrontendTeammateView::render( $player, $teammate_id );
+                break;
             case 'my-evaluations':
                 FrontendMyEvaluationsView::render( $player );
                 break;

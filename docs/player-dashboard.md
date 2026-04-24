@@ -14,7 +14,7 @@ Each tile drills into a focused sub-view with a "← Back to dashboard" link at 
 FIFA-style card with overall rating, main-category radar chart, key attributes, custom-field values, and a **Print report** button for a clean printable version.
 
 ### My team
-Your own card centered, followed by the team's top-3 podium (strongest current performers) and a roster of teammates (names + photos, no ratings — to protect those not in the top 3).
+Your own card centered, followed by the team's top-3 podium (strongest current performers) and a roster of teammates (names + photos, no ratings — to protect those not in the top 3). Tap a teammate to see a read-only card with their playing details (position, jersey, foot, height, weight). Their individual evaluations, goals, and ratings stay private.
 
 ### My evaluations
 Table of every evaluation recorded for you, most-recent first. Shows date, type (Training / Match / etc.), coach, and the ratings given across categories. Match-type evaluations also show opponent and result.

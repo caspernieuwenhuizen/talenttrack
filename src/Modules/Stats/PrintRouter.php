@@ -203,9 +203,9 @@ body { padding: 20px 0 60px; }
     <button type="button" class="tt-print-btn" id="tt-download-pdf">
         📄 <?php esc_html_e( 'Download PDF', 'talenttrack' ); ?>
     </button>
-    <a class="tt-print-btn" href="javascript:history.back();">
-        ← <?php esc_html_e( 'Back', 'talenttrack' ); ?>
-    </a>
+    <button type="button" class="tt-print-btn" onclick="window.close();">
+        ✕ <?php esc_html_e( 'Close window', 'talenttrack' ); ?>
+    </button>
 </div>
 
 <?php
