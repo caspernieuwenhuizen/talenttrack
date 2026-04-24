@@ -121,8 +121,18 @@ class ArchiveRepository {
         if ( $table === null ) return [ 'active' => 0, 'archived' => 0, 'all' => 0 ];
 
         global $wpdb;
-        $all      = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
-        $archived = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE archived_at IS NOT NULL" );
+        // Scope filter keeps demo-mode isolation: when demo mode is on,
+        // counts reflect only demo rows; when off, only real rows. The
+        // 'person' entity isn't demo-generated, so it gets no scope
+        // (entity_type unknown → apply_demo_scope returns a fragment
+        // against an empty entity set, which would hide everything).
+        $scope = $entity === 'person'
+            ? ''
+            : \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'r', $entity );
+        $all_sql      = "SELECT COUNT(*) FROM {$table} r WHERE 1=1 {$scope}";
+        $archived_sql = "SELECT COUNT(*) FROM {$table} r WHERE r.archived_at IS NOT NULL {$scope}";
+        $all      = (int) $wpdb->get_var( $all_sql );
+        $archived = (int) $wpdb->get_var( $archived_sql );
         return [
             'active'   => $all - $archived,
             'archived' => $archived,
@@ -168,21 +178,25 @@ class ArchiveRepository {
         $out = [];
 
         if ( $entity === 'team' ) {
+            $player_scope = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'pl', 'player' );
+            $sess_scope   = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 's',  'session' );
             $out['players'] = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_players WHERE team_id = %d AND archived_at IS NULL",
+                "SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = %d AND pl.archived_at IS NULL {$player_scope}",
                 $id
             ) );
             $out['sessions'] = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_sessions WHERE team_id = %d AND archived_at IS NULL",
+                "SELECT COUNT(*) FROM {$p}tt_sessions s WHERE s.team_id = %d AND s.archived_at IS NULL {$sess_scope}",
                 $id
             ) );
         } elseif ( $entity === 'player' ) {
+            $eval_scope = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
+            $goal_scope = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'g', 'goal' );
             $out['evaluations'] = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE player_id = %d AND archived_at IS NULL",
+                "SELECT COUNT(*) FROM {$p}tt_evaluations e WHERE e.player_id = %d AND e.archived_at IS NULL {$eval_scope}",
                 $id
             ) );
             $out['goals'] = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_goals WHERE player_id = %d AND archived_at IS NULL",
+                "SELECT COUNT(*) FROM {$p}tt_goals g WHERE g.player_id = %d AND g.archived_at IS NULL {$goal_scope}",
                 $id
             ) );
         }
