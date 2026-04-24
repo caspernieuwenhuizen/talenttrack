@@ -3267,3 +3267,12 @@ msgstr "De evaluatie kon niet worden bijgewerkt."
 
 msgid "The evaluation was updated but some ratings failed."
 msgstr "De evaluatie is bijgewerkt, maar sommige beoordelingen konden niet worden opgeslagen."
+
+msgid "Retry"
+msgstr "Opnieuw"
+
+msgid "Discard"
+msgstr "Verwerpen"
+
+msgid "You have unsaved changes from an earlier session — restore?"
+msgstr "Je hebt niet-opgeslagen wijzigingen uit een eerdere sessie — herstellen?"

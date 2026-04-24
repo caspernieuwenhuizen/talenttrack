@@ -1,3 +1,45 @@
+# TalentTrack v3.7.2 — #0019 Sprint 1 session 3: CSS scaffold, shared components, drafts
+
+**Patch release.** Closes out Sprint 1 of the #0019 frontend-first-admin epic. The foundation is now complete; Sprint 2 (sessions + goals frontend) is unblocked.
+
+## CSS scaffold — `assets/css/frontend-admin.css`
+
+New design-token + component stylesheet enqueued alongside `public.css`. Establishes CSS custom properties for colors, spacing, type scale, radii, focus ring, and breakpoints, plus base styles for forms, buttons, tables, panels, and grid helpers. Mobile-first with breakpoints at 640px / 960px. 16px minimum input font size prevents iOS zoom-on-focus. When the brand-identity work in #0011 eventually lands, only the tokens change — every component follows automatically.
+
+## Five shared form components
+
+Under `src/Shared/Frontend/Components/`, each with a `render(array $args): string` method. Docblocks carry example usage so the next Sprint's forms can reuse them without reading the implementation:
+
+- **`FormSaveButton`** — submit button with idle/saving/saved/error states. Data-attribute labels are localized server-side; `public.js` drives the `data-state` attribute through the fetch lifecycle, with a green "Saved" flash for 1.5s before reverting.
+- **`PlayerPickerComponent`** — dropdown respecting team-scoping for non-admin coaches (admin = all players; coach = players on their teams). Caller can override with an explicit `players` array.
+- **`DateInputComponent`** — wrapped native `<input type="date">`, default value "today" so logging a same-day session is zero-click.
+- **`RatingInputComponent`** — number input bound to an evaluation category, paired with a clickable dot track (sync lives in `assets/js/components/rating.js`). Range + step come from the `rating_min` / `rating_max` / `rating_step` config so a club on a 1–10 scale just changes config.
+- **`MultiSelectTagComponent`** — tag-style multi-select over a fixed option set, backed by a hidden `<select multiple>` so no-JS users still submit valid data.
+
+## Flash messages — JS layer
+
+`assets/js/components/flash.js` progressively enhances the server-rendered banners from v3.7.0:
+
+- Intercepts the `×` link; fires a background GET to the dismiss URL and fades the banner out in place. No reload.
+- Success banners auto-fade after 5 seconds.
+- Exposes `window.ttFlash.add(type, message)` so future JS-only success paths can surface feedback without a redirect.
+
+## localStorage drafts — `assets/js/drafts.js`
+
+Any form with a `data-draft-key="<key>"` attribute opts in. On input, a debounced JSON snapshot goes to `localStorage['tt_draft_' + key]`. On load, if a draft exists for that key, a Restore / Discard prompt renders above the form. A successful save (detected via the `tt:form-saved` custom event that `public.js` now dispatches) clears the draft. 14-day TTL for stale drafts. Private-mode / quota-exhausted localStorage failures silently no-op.
+
+The eval/session/goal coach forms (`CoachForms.php`) got `data-draft-key` wired in this release, so a coach who loses signal mid-entry at the pitch side won't lose what they typed.
+
+## Small things
+
+- `CoachForms` submit buttons migrated to `FormSaveButton::render()`. The three existing forms are the first consumers; future forms don't need to know the state-machine contract.
+- `public.js` dispatches `tt:form-saved` on successful REST save so drafts (and any future consumers) can hook in without being hard-wired to the submit handler.
+
+## Ship-along
+
+- `.po` updated with 3 new strings (Retry, Discard, draft-restore prompt).
+- SEQUENCE.md now marks #0019 Sprint 1 as **COMPLETE** — the foundation is done. Sprint 2 (sessions + goals frontend) is next.
+
 # TalentTrack v3.7.1 — #0019 Sprint 1 session 2: client REST cutover + session 1 REST-registration fix
 
 **Patch release.** Closes out session 2 of #0019 Sprint 1 and fixes a registration bug that shipped silently in v3.7.0.

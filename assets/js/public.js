@@ -102,6 +102,28 @@
         }
     }
 
+    /**
+     * Drive a FormSaveButton through its idle/saving/saved/error states.
+     * Falls back to the old behaviour (simple text swap) for plain
+     * `<button type="submit">` buttons without the component class.
+     */
+    function setSaveBtnState(btn, state) {
+        if (!btn) return;
+        if (!btn.classList.contains('tt-save-btn')) {
+            // Legacy button — just flip text + disabled.
+            if (state === 'saving') { btn.disabled = true; btn.textContent = i18n.saving; }
+            else { btn.disabled = false; btn.textContent = defaultButtonLabel(btn.form ? btn.form.id : ''); }
+            return;
+        }
+        btn.setAttribute('data-state', state);
+        btn.disabled = (state === 'saving');
+        var labelEl = btn.querySelector('.tt-save-btn-label');
+        if (!labelEl) return;
+        var key = 'data-label-' + state;
+        var label = btn.getAttribute(key);
+        if (label) labelEl.textContent = label;
+    }
+
     function on(selector, event, handler) {
         document.addEventListener(event, function(e) {
             var target = e.target.closest(selector);
@@ -141,19 +163,25 @@
             var method = (form.getAttribute('data-rest-method') || 'POST').toUpperCase();
             var btn = form.querySelector('button[type="submit"]');
             clearMsg(form);
-            if (btn) { btn.disabled = true; btn.textContent = i18n.saving; }
+            setSaveBtnState(btn, 'saving');
 
             restRequest(path, method, formToJSON(form)).then(function(res) {
                 if (res.ok && res.json && res.json.success) {
                     showMsg(form, 'success', i18n.saved);
                     form.reset();
+                    setSaveBtnState(btn, 'saved');
+                    // Drafts module listens for this to clear its stored snapshot.
+                    form.dispatchEvent(new CustomEvent('tt:form-saved', { bubbles: true }));
+                    setTimeout(function() { setSaveBtnState(btn, 'idle'); }, 1500);
                 } else {
                     showMsg(form, 'error', firstErrorMessage(res.json));
+                    setSaveBtnState(btn, 'error');
+                    setTimeout(function() { setSaveBtnState(btn, 'idle'); }, 2500);
                 }
             }).catch(function() {
                 showMsg(form, 'error', i18n.network_error);
-            }).then(function() {
-                if (btn) { btn.disabled = false; btn.textContent = defaultButtonLabel(form.id); }
+                setSaveBtnState(btn, 'error');
+                setTimeout(function() { setSaveBtnState(btn, 'idle'); }, 2500);
             });
         });
 

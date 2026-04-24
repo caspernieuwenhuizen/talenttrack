@@ -1,0 +1,367 @@
+/* ═══════════════════════════════════════════════════════════
+   TalentTrack — Frontend admin scaffold
+   #0019 Sprint 1 session 3
+   ───────────────────────────────────────────────────────────
+   Design tokens + base component styles for every frontend
+   coaching surface. Loaded alongside public.css on any page
+   that invokes [talenttrack_dashboard]. public.css keeps the
+   legacy dashboard/login layout; this file owns the newer
+   form + component vocabulary that Sprints 2+ build on.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Tokens ──────────────────────────────────────────────
+   Scoped to .tt-dashboard so theme CSS can't leak in.
+   Consumers should reference tokens (var(--tt-...)) rather
+   than hardcoding values. When the brand identity work in
+   #0011 lands, only the tokens change — component styles
+   follow automatically.
+   ───────────────────────────────────────────────────────── */
+.tt-dashboard {
+    /* Colors — pulled from existing public.css where possible. */
+    --tt-primary: #0b3d2e;
+    --tt-primary-ink: #0a5c1a;
+    --tt-secondary: #e8b624;
+    --tt-ink: #0e1a14;
+    --tt-muted: #6a6d66;
+    --tt-line: #e3e1d8;
+    --tt-bg-soft: #faf8f3;
+    --tt-danger: #b32d2e;
+    --tt-danger-soft: #fbebeb;
+    --tt-warning: #dba617;
+    --tt-warning-soft: #fef7e0;
+    --tt-success: #00a32a;
+    --tt-success-soft: #ebf7ee;
+    --tt-info: #2271b1;
+    --tt-info-soft: #eef6fb;
+
+    /* Spacing — 4px base unit scale, used by margins/padding/gaps. */
+    --tt-sp-1: 4px;
+    --tt-sp-2: 8px;
+    --tt-sp-3: 12px;
+    --tt-sp-4: 16px;
+    --tt-sp-5: 24px;
+    --tt-sp-6: 32px;
+    --tt-sp-7: 48px;
+
+    /* Radii. */
+    --tt-r-sm: 4px;
+    --tt-r-md: 6px;
+    --tt-r-lg: 10px;
+
+    /* Typography scale (rem-based, user-zoom friendly). */
+    --tt-fs-xs: 0.75rem;
+    --tt-fs-sm: 0.875rem;
+    --tt-fs-md: 1rem;
+    --tt-fs-lg: 1.125rem;
+    --tt-fs-xl: 1.5rem;
+
+    /* Focus ring. */
+    --tt-focus: 0 0 0 2px rgba(11, 61, 46, 0.35);
+}
+
+/* ─── Form layout primitives ──────────────────────────────
+   .tt-field is the shared field container used by all the
+   shared components (PlayerPicker, DateInput, RatingInput,
+   MultiSelectTag). Gives every input a consistent vertical
+   rhythm + error/hint slots.
+   ───────────────────────────────────────────────────────── */
+.tt-dashboard .tt-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+    margin-bottom: var(--tt-sp-4);
+}
+.tt-dashboard .tt-field-label {
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    color: var(--tt-ink);
+    letter-spacing: 0.02em;
+}
+.tt-dashboard .tt-field-required::after {
+    content: " *";
+    color: var(--tt-danger);
+}
+.tt-dashboard .tt-field-hint {
+    font-size: var(--tt-fs-xs);
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-field-error {
+    font-size: var(--tt-fs-xs);
+    color: var(--tt-danger);
+    font-weight: 500;
+}
+.tt-dashboard .tt-field-inline {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--tt-sp-2);
+}
+
+/* Unified input/select/textarea base. Mobile-first — 16px
+   min font size prevents iOS zoom-on-focus. */
+.tt-dashboard .tt-input,
+.tt-dashboard .tt-field input[type="text"],
+.tt-dashboard .tt-field input[type="email"],
+.tt-dashboard .tt-field input[type="number"],
+.tt-dashboard .tt-field input[type="date"],
+.tt-dashboard .tt-field input[type="time"],
+.tt-dashboard .tt-field input[type="search"],
+.tt-dashboard .tt-field select,
+.tt-dashboard .tt-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    font-family: inherit;
+    line-height: 1.4;
+    color: var(--tt-ink);
+    background: #fff;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-r-md);
+    box-shadow: none;
+    transition: border-color .12s, box-shadow .12s;
+}
+.tt-dashboard .tt-input:focus,
+.tt-dashboard .tt-field input:focus,
+.tt-dashboard .tt-field select:focus,
+.tt-dashboard .tt-field textarea:focus {
+    outline: none;
+    border-color: var(--tt-primary);
+    box-shadow: var(--tt-focus);
+}
+.tt-dashboard .tt-input[aria-invalid="true"],
+.tt-dashboard .tt-field input[aria-invalid="true"],
+.tt-dashboard .tt-field select[aria-invalid="true"],
+.tt-dashboard .tt-field textarea[aria-invalid="true"] {
+    border-color: var(--tt-danger);
+}
+
+/* ─── Buttons (shared — used by FormSaveButton + elsewhere) ─ */
+.tt-dashboard .tt-btn,
+.tt-dashboard .tt-btn-primary,
+.tt-dashboard .tt-btn-secondary,
+.tt-dashboard .tt-btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--tt-sp-2);
+    padding: 10px 18px;
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    line-height: 1.2;
+    border-radius: var(--tt-r-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background .12s, border-color .12s, opacity .12s;
+}
+.tt-dashboard .tt-btn-primary {
+    background: var(--tt-primary);
+    color: #fff;
+}
+.tt-dashboard .tt-btn-primary:hover:not([disabled]) { background: var(--tt-primary-ink); }
+.tt-dashboard .tt-btn-secondary {
+    background: #fff;
+    color: var(--tt-primary);
+    border-color: var(--tt-primary);
+}
+.tt-dashboard .tt-btn-secondary:hover:not([disabled]) { background: var(--tt-bg-soft); }
+.tt-dashboard .tt-btn-danger {
+    background: var(--tt-danger);
+    color: #fff;
+}
+.tt-dashboard .tt-btn-danger:hover:not([disabled]) { filter: brightness(0.92); }
+.tt-dashboard .tt-btn[disabled],
+.tt-dashboard .tt-btn-primary[disabled],
+.tt-dashboard .tt-btn-secondary[disabled],
+.tt-dashboard .tt-btn-danger[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+.tt-dashboard .tt-btn-block {
+    display: flex;
+    width: 100%;
+}
+
+/* FormSaveButton state variants — idle/saving/saved/error.
+   The button's data-state drives the visible treatment. */
+.tt-dashboard .tt-save-btn[data-state="saving"] { opacity: 0.75; cursor: progress; }
+.tt-dashboard .tt-save-btn[data-state="saved"] { background: var(--tt-success); border-color: var(--tt-success); color: #fff; }
+.tt-dashboard .tt-save-btn[data-state="error"] { background: var(--tt-danger); border-color: var(--tt-danger); color: #fff; }
+.tt-dashboard .tt-save-btn .tt-save-btn-spinner {
+    width: 14px; height: 14px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: tt-spin 0.7s linear infinite;
+}
+@keyframes tt-spin { to { transform: rotate(360deg); } }
+
+/* ─── Panels / cards ──────────────────────────────────── */
+.tt-dashboard .tt-panel {
+    background: #fff;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-r-lg);
+    padding: var(--tt-sp-5);
+    margin-bottom: var(--tt-sp-5);
+}
+.tt-dashboard .tt-panel-title {
+    font-size: var(--tt-fs-lg);
+    font-weight: 700;
+    margin: 0 0 var(--tt-sp-4);
+    color: var(--tt-primary);
+}
+
+/* ─── Tables (responsive) ──────────────────────────────── */
+.tt-dashboard .tt-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: var(--tt-sp-5); }
+.tt-dashboard .tt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--tt-fs-sm);
+}
+.tt-dashboard .tt-table th,
+.tt-dashboard .tt-table td {
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    text-align: left;
+    border-bottom: 1px solid var(--tt-line);
+    vertical-align: top;
+}
+.tt-dashboard .tt-table thead th {
+    font-weight: 600;
+    background: var(--tt-bg-soft);
+    color: var(--tt-muted);
+    text-transform: uppercase;
+    font-size: var(--tt-fs-xs);
+    letter-spacing: 0.04em;
+}
+.tt-dashboard .tt-table tbody tr:hover { background: var(--tt-bg-soft); }
+
+/* ─── Grid helpers ─────────────────────────────────────── */
+.tt-dashboard .tt-grid { display: grid; gap: var(--tt-sp-4); }
+.tt-dashboard .tt-grid-2 { grid-template-columns: 1fr; }
+.tt-dashboard .tt-grid-3 { grid-template-columns: 1fr; }
+@media (min-width: 640px) {
+    .tt-dashboard .tt-grid-2 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 960px) {
+    .tt-dashboard .tt-grid-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ─── Flash stack (bridges the inline PHP styles in
+   FlashMessages.php with JS-enhanced dismissal in flash.js) ─ */
+.tt-dashboard .tt-flash-stack { margin: 0 0 var(--tt-sp-4); display: flex; flex-direction: column; gap: var(--tt-sp-2); }
+.tt-dashboard .tt-flash {
+    display: flex; align-items: flex-start; gap: var(--tt-sp-3);
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    border-radius: var(--tt-r-md);
+    font-size: var(--tt-fs-sm);
+    transition: opacity .25s ease, transform .25s ease, max-height .25s ease, padding .25s ease, margin .25s ease;
+    max-height: 200px;
+    overflow: hidden;
+}
+.tt-dashboard .tt-flash-success { background: var(--tt-success-soft); border: 1px solid var(--tt-success); color: #0a5c1a; }
+.tt-dashboard .tt-flash-info    { background: var(--tt-info-soft);    border: 1px solid var(--tt-info);    color: #104f7a; }
+.tt-dashboard .tt-flash-warning { background: var(--tt-warning-soft); border: 1px solid var(--tt-warning); color: #7c5a00; }
+.tt-dashboard .tt-flash-error   { background: var(--tt-danger-soft);  border: 1px solid var(--tt-danger);  color: #7a1818; }
+.tt-dashboard .tt-flash-dismissing {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin: 0;
+    border-width: 0;
+}
+
+/* ─── Component-specific styles ──────────────────────────── */
+
+/* RatingInputComponent — number input + visual dot track. */
+.tt-dashboard .tt-rating {
+    display: flex; align-items: center; gap: var(--tt-sp-3);
+}
+.tt-dashboard .tt-rating input[type="number"] { width: 80px; }
+.tt-dashboard .tt-rating-track {
+    display: flex; gap: 4px;
+}
+.tt-dashboard .tt-rating-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--tt-line);
+    transition: background .12s;
+}
+.tt-dashboard .tt-rating-dot.is-on { background: var(--tt-primary); }
+.tt-dashboard .tt-rating-hint {
+    color: var(--tt-muted); font-size: var(--tt-fs-xs);
+}
+
+/* MultiSelectTagComponent — tag-list rendered from the
+   underlying <select multiple>. */
+.tt-dashboard .tt-multitag {
+    position: relative;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-r-md);
+    background: #fff;
+    padding: 6px 8px;
+    min-height: 42px;
+    cursor: text;
+}
+.tt-dashboard .tt-multitag:focus-within {
+    border-color: var(--tt-primary);
+    box-shadow: var(--tt-focus);
+}
+.tt-dashboard .tt-multitag-tags {
+    display: flex; flex-wrap: wrap; gap: 4px;
+}
+.tt-dashboard .tt-multitag-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px;
+    background: var(--tt-primary);
+    color: #fff;
+    font-size: var(--tt-fs-xs);
+    border-radius: 999px;
+    line-height: 1.4;
+}
+.tt-dashboard .tt-multitag-tag-remove {
+    background: none; border: none;
+    color: inherit; opacity: 0.7;
+    cursor: pointer; padding: 0;
+    font-size: var(--tt-fs-md); line-height: 1;
+}
+.tt-dashboard .tt-multitag-tag-remove:hover { opacity: 1; }
+.tt-dashboard .tt-multitag select { display: none; }
+.tt-dashboard .tt-multitag-picker {
+    display: flex; gap: 6px; margin-top: 6px;
+    flex-wrap: wrap;
+}
+.tt-dashboard .tt-multitag-option {
+    padding: 2px 8px;
+    background: var(--tt-bg-soft);
+    border: 1px solid var(--tt-line);
+    border-radius: 999px;
+    font-size: var(--tt-fs-xs);
+    cursor: pointer;
+}
+.tt-dashboard .tt-multitag-option:hover { border-color: var(--tt-primary); }
+.tt-dashboard .tt-multitag-option.is-selected { display: none; }
+
+/* PlayerPickerComponent — inherits .tt-field + .tt-input.
+   Only adds an optional search-icon slot. */
+.tt-dashboard .tt-player-picker { position: relative; }
+
+/* Draft-restore prompt — rendered by drafts.js */
+.tt-dashboard .tt-draft-prompt {
+    display: flex; align-items: center; gap: var(--tt-sp-3);
+    padding: var(--tt-sp-3);
+    background: var(--tt-warning-soft);
+    border: 1px solid var(--tt-warning);
+    border-radius: var(--tt-r-md);
+    margin-bottom: var(--tt-sp-3);
+    font-size: var(--tt-fs-sm);
+}
+.tt-dashboard .tt-draft-prompt-body { flex: 1; }
+.tt-dashboard .tt-draft-prompt button { font-size: var(--tt-fs-xs); padding: 4px 10px; }
+
+/* ─── Responsive: below 640px, tighten spacing. ─────────── */
+@media (max-width: 639px) {
+    .tt-dashboard .tt-panel { padding: var(--tt-sp-4); }
+    .tt-dashboard .tt-btn,
+    .tt-dashboard .tt-btn-primary,
+    .tt-dashboard .tt-btn-secondary,
+    .tt-dashboard .tt-btn-danger { width: 100%; }
+}

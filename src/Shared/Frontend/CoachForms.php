@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Query\LabelTranslator;
+use TT\Shared\Frontend\Components\FormSaveButton;
 
 /**
  * CoachForms — shared form-rendering helpers for coaching actions.
@@ -47,7 +48,7 @@ class CoachForms {
         }
         ?>
         <h3><?php esc_html_e( 'Submit Evaluation', 'talenttrack' ); ?></h3>
-        <form id="tt-eval-form" class="tt-ajax-form" data-rest-path="evaluations" data-rest-method="POST">
+        <form id="tt-eval-form" class="tt-ajax-form" data-rest-path="evaluations" data-rest-method="POST" data-draft-key="eval-form">
             <div class="tt-form-row"><label><?php esc_html_e( 'Player', 'talenttrack' ); ?> *</label><select name="player_id" required>
                 <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                 <?php foreach ( $players as $pl ) : ?>
@@ -83,7 +84,7 @@ class CoachForms {
                     <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span></div>
             <?php endforeach; ?>
             <div class="tt-form-row"><label><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label><textarea name="notes" rows="3"></textarea></div>
-            <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save Evaluation', 'talenttrack' ); ?></button>
+            <?php echo FormSaveButton::render( [ 'label' => __( 'Save Evaluation', 'talenttrack' ) ] ); ?>
             <div class="tt-form-msg"></div>
         </form>
         <script>
@@ -109,7 +110,7 @@ class CoachForms {
         }
         ?>
         <h3><?php esc_html_e( 'Record Training Session', 'talenttrack' ); ?></h3>
-        <form id="tt-session-form" class="tt-ajax-form" data-rest-path="sessions" data-rest-method="POST">
+        <form id="tt-session-form" class="tt-ajax-form" data-rest-path="sessions" data-rest-method="POST" data-draft-key="session-form">
             <div class="tt-form-row"><label><?php esc_html_e( 'Title', 'talenttrack' ); ?> *</label><input type="text" name="title" required /></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" name="session_date" value="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required /></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Team', 'talenttrack' ); ?></label><select name="team_id">
@@ -135,7 +136,7 @@ class CoachForms {
                 <?php endforeach; ?>
                 </tbody></table>
             <?php endif; ?>
-            <button type="submit" class="tt-btn tt-btn-primary" style="margin-top:10px;"><?php esc_html_e( 'Save Session', 'talenttrack' ); ?></button>
+            <?php echo FormSaveButton::render( [ 'label' => __( 'Save Session', 'talenttrack' ) ] ); ?>
             <div class="tt-form-msg"></div>
         </form>
         <?php
@@ -169,7 +170,7 @@ class CoachForms {
         }
         ?>
         <h3><?php esc_html_e( 'Add Goal', 'talenttrack' ); ?></h3>
-        <form id="tt-goal-form" class="tt-ajax-form" data-rest-path="goals" data-rest-method="POST">
+        <form id="tt-goal-form" class="tt-ajax-form" data-rest-path="goals" data-rest-method="POST" data-draft-key="goal-form">
             <div class="tt-form-row"><label><?php esc_html_e( 'Player', 'talenttrack' ); ?> *</label><select name="player_id" required>
                 <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                 <?php foreach ( $players as $pl ) : ?>
@@ -184,7 +185,7 @@ class CoachForms {
                 <?php endforeach; ?>
             </select></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Due Date', 'talenttrack' ); ?></label><input type="date" name="due_date" /></div>
-            <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Add Goal', 'talenttrack' ); ?></button>
+            <?php echo FormSaveButton::render( [ 'label' => __( 'Add Goal', 'talenttrack' ) ] ); ?>
             <div class="tt-form-msg"></div>
         </form>
         <h3 style="margin-top:20px;"><?php esc_html_e( 'Current Goals', 'talenttrack' ); ?></h3>
