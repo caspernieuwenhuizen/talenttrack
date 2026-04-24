@@ -11,9 +11,7 @@ use TT\Core\ModuleInterface;
  *
  * Self-contained wp-admin module for generating, toggling, and wiping
  * a realistic academy dataset. See specs/0020-feat-demo-data-generator.md
- * for the full design. Checkpoint 1 ships schema, admin skeleton, and
- * the user/team/player generators. Scope filter + eval/session/goal
- * generators + wipe flow land in Checkpoint 2.
+ * for the full design.
  *
  * Stays wp-admin-only forever, even after #0019 migrates other surfaces.
  */
@@ -27,5 +25,6 @@ class DemoDataModule implements ModuleInterface {
         if ( is_admin() ) {
             Admin\DemoDataPage::init();
         }
+        DemoBanner::init();
     }
 }

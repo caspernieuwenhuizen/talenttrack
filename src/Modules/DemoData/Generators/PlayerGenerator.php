@@ -81,6 +81,17 @@ class PlayerGenerator {
             throw new \RuntimeException( 'Demo name seeds are missing or empty.' );
         }
 
+        // Clear stale player<N> bindings on any pre-existing demo players
+        // so only the freshest batch owns those wp_user_id values.
+        $prior_ids = DemoBatchRegistry::allEntityIds( 'player' );
+        if ( $prior_ids ) {
+            $placeholders = implode( ',', array_fill( 0, count( $prior_ids ), '%d' ) );
+            $wpdb->query( $wpdb->prepare(
+                "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = 0 WHERE id IN ({$placeholders})",
+                ...$prior_ids
+            ) );
+        }
+
         $player_binding_slot = 1;
         $all = [];
 

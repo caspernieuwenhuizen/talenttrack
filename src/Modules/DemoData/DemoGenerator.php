@@ -6,15 +6,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\DemoData\Generators\UserGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
 use TT\Modules\DemoData\Generators\PlayerGenerator;
+use TT\Modules\DemoData\Generators\EvaluationGenerator;
+use TT\Modules\DemoData\Generators\SessionGenerator;
+use TT\Modules\DemoData\Generators\GoalGenerator;
 
 /**
- * DemoGenerator — Checkpoint 1 orchestrator.
+ * DemoGenerator — orchestrates all six generators in dependency order.
  *
- * Runs user → team → player generation in order, seeding the MT RNG
- * up front so a given (seed, preset, domain) tuple is reproducible.
- *
- * Checkpoint 2 will extend this with EvaluationGenerator,
- * SessionGenerator, GoalGenerator and the demo-mode scope filter.
+ * MT RNG is seeded up front so (seed, preset, domain) is reproducible
+ * byte-for-byte across runs.
  */
 class DemoGenerator {
 
@@ -33,7 +33,7 @@ class DemoGenerator {
      *   accounts:array<string,array{user_id:int,email:string}>,
      *   teams:object[],
      *   players:object[],
-     *   counts:array{users:int,teams:int,players:int}
+     *   counts:array<string,int>
      * }
      */
     public static function run( array $opts ): array {
@@ -57,6 +57,15 @@ class DemoGenerator {
         $playerGen = new PlayerGenerator( $registry, $teams, $users, (int) $config['players_per_team'] );
         $players   = $playerGen->generate();
 
+        $evalGen    = new EvaluationGenerator( $registry, $players, $teams, (int) $config['weeks'] );
+        $eval_count = $evalGen->generate();
+
+        $sessionGen    = new SessionGenerator( $registry, $teams, $players, (int) $config['weeks'] );
+        $session_count = $sessionGen->generate();
+
+        $goalGen    = new GoalGenerator( $registry, $players, $users );
+        $goal_count = $goalGen->generate();
+
         return [
             'batch_id' => $batch_id,
             'users'    => $users,
@@ -64,9 +73,12 @@ class DemoGenerator {
             'teams'    => $teams,
             'players'  => $players,
             'counts'   => [
-                'users'   => count( $users ),
-                'teams'   => count( $teams ),
-                'players' => count( $players ),
+                'users'       => count( $users ),
+                'teams'       => count( $teams ),
+                'players'     => count( $players ),
+                'evaluations' => $eval_count,
+                'sessions'    => $session_count,
+                'goals'       => $goal_count,
             ],
         ];
     }

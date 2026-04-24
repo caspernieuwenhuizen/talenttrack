@@ -95,34 +95,97 @@ class QueryHelpers {
         return ! empty( $m['requires_match_details'] );
     }
 
+    /* ═══ Demo-mode scope filter ══════════════════════════ */
+
+    /**
+     * Site-level scope fragment to append to SELECTs against core tables.
+     *
+     * Returns an SQL fragment like
+     *
+     *   AND t.id NOT IN (SELECT entity_id FROM wp_tt_demo_tags WHERE entity_type = 'team')
+     *
+     * that hides demo rows when demo mode is OFF, or
+     *
+     *   AND t.id IN (SELECT ...)
+     *
+     * when demo mode is ON. Returns an empty string when the caller is
+     * the demo admin page itself (request-scoped neutral override) or
+     * when the tt_demo_tags table doesn't exist yet on very old installs.
+     *
+     * @see \TT\Modules\DemoData\DemoMode
+     */
+    public static function apply_demo_scope( string $table_alias, string $entity_type ): string {
+        global $wpdb;
+
+        if ( ! class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
+            return '';
+        }
+        $mode = \TT\Modules\DemoData\DemoMode::effective();
+        if ( $mode === \TT\Modules\DemoData\DemoMode::NEUTRAL ) {
+            return '';
+        }
+        $tag_table = $wpdb->prefix . 'tt_demo_tags';
+        // Pre-migration safety: if the tag table doesn't exist yet, skip
+        // the scope to avoid fatal SQL errors.
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tag_table ) ) !== $tag_table ) {
+            return '';
+        }
+
+        $op     = $mode === \TT\Modules\DemoData\DemoMode::ON ? 'IN' : 'NOT IN';
+        $alias  = preg_replace( '/[^a-zA-Z0-9_]/', '', $table_alias ) ?: 't';
+        $prepared_type = $wpdb->prepare( '%s', $entity_type );
+        return " AND {$alias}.id {$op} (SELECT entity_id FROM {$tag_table} WHERE entity_type = {$prepared_type}) ";
+    }
+
     /* ═══ Entity queries ══════════════════════════════════ */
 
     /** @return object[] */
     public static function get_teams(): array {
         global $wpdb;
-        return $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}tt_teams ORDER BY name ASC" );
+        $scope = self::apply_demo_scope( 't', 'team' );
+        return $wpdb->get_results(
+            "SELECT t.* FROM {$wpdb->prefix}tt_teams t WHERE 1=1 {$scope} ORDER BY t.name ASC"
+        );
     }
 
     public static function get_team( int $id ): ?object {
         global $wpdb;
+        $scope = self::apply_demo_scope( 't', 'team' );
         /** @var object|null $r */
-        $r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}tt_teams WHERE id=%d", $id ) );
+        $r = $wpdb->get_row( $wpdb->prepare(
+            "SELECT t.* FROM {$wpdb->prefix}tt_teams t WHERE t.id = %d {$scope}",
+            $id
+        ) );
         return $r;
     }
 
     /** @return object[] */
     public static function get_players( int $team_id = 0 ): array {
         global $wpdb;
-        $where = $team_id
-            ? $wpdb->prepare( "WHERE team_id = %d AND status='active'", $team_id )
-            : "WHERE status='active'";
-        return $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}tt_players $where ORDER BY last_name, first_name ASC" );
+        $scope = self::apply_demo_scope( 'p', 'player' );
+        if ( $team_id ) {
+            return $wpdb->get_results( $wpdb->prepare(
+                "SELECT p.* FROM {$wpdb->prefix}tt_players p
+                 WHERE p.team_id = %d AND p.status = 'active' {$scope}
+                 ORDER BY p.last_name, p.first_name ASC",
+                $team_id
+            ) );
+        }
+        return $wpdb->get_results(
+            "SELECT p.* FROM {$wpdb->prefix}tt_players p
+             WHERE p.status = 'active' {$scope}
+             ORDER BY p.last_name, p.first_name ASC"
+        );
     }
 
     public static function get_player( int $id ): ?object {
         global $wpdb;
+        $scope = self::apply_demo_scope( 'p', 'player' );
         /** @var object|null $r */
-        $r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}tt_players WHERE id=%d", $id ) );
+        $r = $wpdb->get_row( $wpdb->prepare(
+            "SELECT p.* FROM {$wpdb->prefix}tt_players p WHERE p.id = %d {$scope}",
+            $id
+        ) );
         return $r;
     }
 
@@ -132,9 +195,13 @@ class QueryHelpers {
 
     public static function get_player_for_user( int $user_id ): ?object {
         global $wpdb;
+        $scope = self::apply_demo_scope( 'p', 'player' );
         /** @var object|null $r */
         $r = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND status='active' LIMIT 1", $user_id
+            "SELECT p.* FROM {$wpdb->prefix}tt_players p
+             WHERE p.wp_user_id = %d AND p.status = 'active' {$scope}
+             LIMIT 1",
+            $user_id
         ));
         return $r;
     }
@@ -142,8 +209,12 @@ class QueryHelpers {
     /** @return object[] */
     public static function get_teams_for_coach( int $user_id ): array {
         global $wpdb;
+        $scope = self::apply_demo_scope( 't', 'team' );
         return $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tt_teams WHERE head_coach_id = %d ORDER BY name ASC", $user_id
+            "SELECT t.* FROM {$wpdb->prefix}tt_teams t
+             WHERE t.head_coach_id = %d {$scope}
+             ORDER BY t.name ASC",
+            $user_id
         ));
     }
 
@@ -156,12 +227,13 @@ class QueryHelpers {
 
     public static function get_evaluation( int $id ): ?object {
         global $wpdb; $p = $wpdb->prefix;
+        $scope = self::apply_demo_scope( 'e', 'evaluation' );
         /** @var object|null $eval */
         $eval = $wpdb->get_row( $wpdb->prepare(
             "SELECT e.*, lt.name AS type_name, lt.meta AS type_meta
              FROM {$p}tt_evaluations e
              LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id = lt.id AND lt.lookup_type = 'eval_type'
-             WHERE e.id = %d", $id
+             WHERE e.id = %d {$scope}", $id
         ));
         if ( $eval ) {
             /** @var array<string,mixed> $tm */
