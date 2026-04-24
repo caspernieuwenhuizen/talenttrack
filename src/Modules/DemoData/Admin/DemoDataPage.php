@@ -26,8 +26,9 @@ class DemoDataPage {
 
     private const CAP  = 'manage_options';
     private const SLUG = 'tt-demo-data';
-    private const TRANSIENT_ACCOUNTS = 'tt_demo_last_accounts';
-    private const TRANSIENT_COUNTS   = 'tt_demo_last_counts';
+    private const TRANSIENT_ACCOUNTS   = 'tt_demo_last_accounts';
+    private const TRANSIENT_COUNTS     = 'tt_demo_last_counts';
+    private const TRANSIENT_USER_STATS = 'tt_demo_last_user_stats';
 
     public static function init(): void {
         add_action( 'admin_menu', [ self::class, 'registerMenu' ] );
@@ -64,13 +65,16 @@ class DemoDataPage {
         $mode    = DemoMode::current();
 
         // Transient is populated by a successful generate and consumed once.
-        $raw_accounts  = get_transient( self::TRANSIENT_ACCOUNTS );
-        $raw_counts    = get_transient( self::TRANSIENT_COUNTS );
-        $last_accounts = is_array( $raw_accounts ) ? $raw_accounts : [];
-        $last_counts   = is_array( $raw_counts )   ? $raw_counts   : [];
+        $raw_accounts    = get_transient( self::TRANSIENT_ACCOUNTS );
+        $raw_counts      = get_transient( self::TRANSIENT_COUNTS );
+        $raw_user_stats  = get_transient( self::TRANSIENT_USER_STATS );
+        $last_accounts   = is_array( $raw_accounts )   ? $raw_accounts   : [];
+        $last_counts     = is_array( $raw_counts )     ? $raw_counts     : [];
+        $last_user_stats = is_array( $raw_user_stats ) ? $raw_user_stats : [];
         if ( $notice === 'generated' ) {
             delete_transient( self::TRANSIENT_ACCOUNTS );
             delete_transient( self::TRANSIENT_COUNTS );
+            delete_transient( self::TRANSIENT_USER_STATS );
         }
 
         ?>
@@ -84,7 +88,7 @@ class DemoDataPage {
                 ); ?>
             </p>
 
-            <?php self::renderNotices( $notice, $batch, $error, $last_counts ); ?>
+            <?php self::renderNotices( $notice, $batch, $error, $last_counts, $last_user_stats ); ?>
             <?php self::renderModeSection( $mode ); ?>
             <?php self::renderFootprint( $counts ); ?>
             <?php self::renderCredentials( $last_accounts ); ?>
@@ -99,23 +103,40 @@ class DemoDataPage {
 
     /* ═══ Render partials ═══ */
 
-    /** @param array<string,int> $counts */
-    private static function renderNotices( string $notice, string $batch, string $error, array $counts ): void {
+    /**
+     * @param array<string,int> $counts
+     * @param array<string,int> $user_stats
+     */
+    private static function renderNotices( string $notice, string $batch, string $error, array $counts, array $user_stats ): void {
         if ( $notice === 'generated' && $batch ) {
-            $total_line = '';
-            if ( $counts ) {
-                $parts = [];
-                foreach ( $counts as $k => $v ) $parts[] = $v . ' ' . $k;
-                $total_line = implode( ', ', $parts );
+            $created_users = (int) ( $user_stats['created'] ?? 0 );
+            $reused_users  = (int) ( $user_stats['reused'] ?? 0 );
+
+            // Split into data counts (created this run) vs user counts (created + reused)
+            $data_parts = [];
+            foreach ( [ 'teams', 'players', 'evaluations', 'sessions', 'goals' ] as $k ) {
+                if ( isset( $counts[ $k ] ) ) {
+                    $data_parts[] = (int) $counts[ $k ] . ' ' . $k;
+                }
+            }
+            $data_line = implode( ', ', $data_parts );
+
+            if ( $created_users === 0 && $reused_users > 0 ) {
+                $user_line = sprintf( '%d users reused (0 created)', $reused_users );
+            } elseif ( $created_users > 0 && $reused_users === 0 ) {
+                $user_line = sprintf( '%d users created', $created_users );
+            } else {
+                $user_line = sprintf( '%d users created, %d reused', $created_users, $reused_users );
             }
             ?>
             <div class="notice notice-success">
                 <p>
                     <?php printf(
-                        /* translators: 1: batch id, 2: summary like "36 users, 3 teams, ..." */
-                        esc_html__( 'Generation complete. Batch: %1$s. Created: %2$s.', 'talenttrack' ),
+                        /* translators: 1: batch id, 2: data counts, 3: user counts */
+                        esc_html__( 'Generation complete. Batch: %1$s. Data: %2$s. %3$s.', 'talenttrack' ),
                         '<code>' . esc_html( $batch ) . '</code>',
-                        esc_html( $total_line )
+                        esc_html( $data_line ),
+                        esc_html( $user_line )
                     ); ?>
                 </p>
             </div>
@@ -207,8 +228,27 @@ class DemoDataPage {
     }
 
     private static function renderGenerateSection(): void {
+        $users_exist       = DemoGenerator::persistentUsersExist();
+        $default_club_name = self::defaultClubName();
         ?>
         <h2 style="margin-top:32px;"><?php esc_html_e( 'Generate', 'talenttrack' ); ?></h2>
+
+        <?php if ( $users_exist ) : ?>
+            <div class="notice notice-info inline" style="margin:8px 0 16px;">
+                <p>
+                    <strong><?php esc_html_e( 'Demo users already exist from a previous run.', 'talenttrack' ); ?></strong>
+                    <?php esc_html_e( 'No new WP users will be created and no welcome emails will be sent. This run only creates data rows (teams, players, evaluations, sessions, goals).', 'talenttrack' ); ?>
+                </p>
+            </div>
+        <?php else : ?>
+            <div class="notice notice-warning inline" style="margin:8px 0 16px;">
+                <p>
+                    <strong><?php esc_html_e( 'First run.', 'talenttrack' ); ?></strong>
+                    <?php esc_html_e( 'This run will create 36 persistent demo WP users and send them WordPress welcome emails. The email domain must catch mail you control.', 'talenttrack' ); ?>
+                </p>
+            </div>
+        <?php endif; ?>
+
         <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
             <?php wp_nonce_field( 'tt_demo_generate', 'tt_demo_nonce' ); ?>
             <input type="hidden" name="action" value="tt_demo_generate" />
@@ -230,17 +270,36 @@ class DemoDataPage {
                         </td>
                     </tr>
                     <tr>
+                        <th scope="row"><label for="tt_demo_club_name"><?php esc_html_e( 'Club name for this demo', 'talenttrack' ); ?></label></th>
+                        <td>
+                            <input type="text" id="tt_demo_club_name" name="club_name" value="<?php echo esc_attr( $default_club_name ); ?>" class="regular-text" />
+                            <p class="description"><?php esc_html_e( 'Used as the prefix for every generated team name (e.g. "FC Groningen JO11"). Defaults to the academy name from Configuration. Only affects this generate run — your Configuration setting is not changed.', 'talenttrack' ); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
                         <th scope="row"><label for="tt_demo_domain"><?php esc_html_e( 'Demo email domain', 'talenttrack' ); ?></label></th>
                         <td>
-                            <input type="text" id="tt_demo_domain" name="domain" value="demo.talenttrack.local" class="regular-text" required />
-                            <p class="description"><?php esc_html_e( 'Every demo account will be <slot>@<this-domain>. Use a catch-all address you control.', 'talenttrack' ); ?></p>
+                            <input type="text" id="tt_demo_domain" name="domain" value="demo.talenttrack.local" class="regular-text" <?php echo $users_exist ? '' : 'required'; ?> />
+                            <p class="description">
+                                <?php if ( $users_exist ) :
+                                    esc_html_e( 'Ignored — users already exist. Kept for reference; change only if you plan to wipe users and recreate.', 'talenttrack' );
+                                else :
+                                    esc_html_e( 'Every demo account will be <slot>@<this-domain>. Use a catch-all address you control.', 'talenttrack' );
+                                endif; ?>
+                            </p>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="tt_demo_password"><?php esc_html_e( 'Shared password', 'talenttrack' ); ?></label></th>
                         <td>
-                            <input type="text" id="tt_demo_password" name="password" value="demo1234!" class="regular-text" required />
-                            <p class="description"><?php esc_html_e( 'Applied to all 36 demo accounts on first creation. Existing accounts are not updated.', 'talenttrack' ); ?></p>
+                            <input type="text" id="tt_demo_password" name="password" value="demo1234!" class="regular-text" <?php echo $users_exist ? '' : 'required'; ?> />
+                            <p class="description">
+                                <?php if ( $users_exist ) :
+                                    esc_html_e( 'Ignored — existing accounts keep their current password. Only used when new users are created.', 'talenttrack' );
+                                else :
+                                    esc_html_e( 'Applied to all 36 demo accounts on first creation.', 'talenttrack' );
+                                endif; ?>
+                            </p>
                         </td>
                     </tr>
                     <tr>
@@ -250,20 +309,32 @@ class DemoDataPage {
                             <p class="description"><?php esc_html_e( 'Fixed default 20260504 — produces the same roster every run. Change for a different roster.', 'talenttrack' ); ?></p>
                         </td>
                     </tr>
+                    <?php if ( ! $users_exist ) : ?>
                     <tr>
                         <th scope="row"><label for="tt_demo_confirm"><?php esc_html_e( 'I confirm this domain catches mail I own', 'talenttrack' ); ?></label></th>
                         <td>
                             <label>
                                 <input type="checkbox" id="tt_demo_confirm" name="domain_confirmed" value="1" required />
-                                <?php esc_html_e( 'Required on first run — 36 WP welcome emails are sent. Subsequent runs reuse existing users and send no new mail.', 'talenttrack' ); ?>
+                                <?php esc_html_e( 'Required — 36 WP welcome emails will be sent.', 'talenttrack' ); ?>
                             </label>
                         </td>
                     </tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
             <?php submit_button( __( 'Generate demo data', 'talenttrack' ) ); ?>
         </form>
         <?php
+    }
+
+    private static function defaultClubName(): string {
+        global $wpdb;
+        $name = $wpdb->get_var( $wpdb->prepare(
+            "SELECT config_value FROM {$wpdb->prefix}tt_config WHERE config_key = %s",
+            'academy_name'
+        ) );
+        $n = $name ? trim( (string) $name ) : '';
+        return $n !== '' ? $n : 'Demo Academy';
     }
 
     private static function renderWipeSection(): void {
@@ -342,29 +413,32 @@ class DemoDataPage {
         }
         check_admin_referer( 'tt_demo_generate', 'tt_demo_nonce' );
 
-        $domain    = isset( $_POST['domain'] )   ? sanitize_text_field( wp_unslash( (string) $_POST['domain'] ) ) : '';
-        $password  = isset( $_POST['password'] ) ? (string) wp_unslash( (string) $_POST['password'] ) : '';
-        $preset    = isset( $_POST['preset'] )   ? sanitize_key( (string) $_POST['preset'] ) : 'small';
-        $seed      = isset( $_POST['seed'] )     ? (int) $_POST['seed'] : 20260504;
+        $domain    = isset( $_POST['domain'] )    ? sanitize_text_field( wp_unslash( (string) $_POST['domain'] ) )    : '';
+        $password  = isset( $_POST['password'] )  ? (string) wp_unslash( (string) $_POST['password'] )                : '';
+        $preset    = isset( $_POST['preset'] )    ? sanitize_key( (string) $_POST['preset'] )                         : 'small';
+        $seed      = isset( $_POST['seed'] )      ? (int) $_POST['seed']                                              : 20260504;
+        $club_name = isset( $_POST['club_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['club_name'] ) ) : '';
         $confirmed = ! empty( $_POST['domain_confirmed'] );
 
         $redirect = admin_url( 'tools.php?page=' . self::SLUG );
+        $users_exist = DemoGenerator::persistentUsersExist();
 
-        if ( ! $confirmed ) {
+        if ( ! $users_exist && ! $confirmed ) {
             self::bounce( $redirect, 'Please confirm the demo email domain is yours.' );
         }
-        if ( ! $domain || ! $password ) {
-            self::bounce( $redirect, 'Domain and password are required.' );
+        if ( ! $users_exist && ( ! $domain || ! $password ) ) {
+            self::bounce( $redirect, 'Domain and password are required for the first run.' );
         }
 
         try {
             // Generation paths should read tagged data across all batches.
             \TT\Modules\DemoData\DemoMode::overrideForRequest( \TT\Modules\DemoData\DemoMode::NEUTRAL );
             $result = DemoGenerator::run( [
-                'preset'   => $preset,
-                'domain'   => $domain,
-                'password' => $password,
-                'seed'     => $seed,
+                'preset'    => $preset,
+                'domain'    => $domain,
+                'password'  => $password,
+                'seed'      => $seed,
+                'club_name' => $club_name,
             ] );
             \TT\Modules\DemoData\DemoMode::clearOverride();
         } catch ( \Throwable $e ) {
@@ -372,8 +446,9 @@ class DemoDataPage {
             self::bounce( $redirect, $e->getMessage() );
         }
 
-        set_transient( self::TRANSIENT_ACCOUNTS, $result['accounts'], 10 * MINUTE_IN_SECONDS );
-        set_transient( self::TRANSIENT_COUNTS,   $result['counts'],   10 * MINUTE_IN_SECONDS );
+        set_transient( self::TRANSIENT_ACCOUNTS,   $result['accounts'],   10 * MINUTE_IN_SECONDS );
+        set_transient( self::TRANSIENT_COUNTS,     $result['counts'],     10 * MINUTE_IN_SECONDS );
+        set_transient( self::TRANSIENT_USER_STATS, $result['user_stats'], 10 * MINUTE_IN_SECONDS );
 
         $redirect = add_query_arg(
             [ 'tt_demo_msg' => 'generated', 'tt_demo_batch' => rawurlencode( $result['batch_id'] ) ],

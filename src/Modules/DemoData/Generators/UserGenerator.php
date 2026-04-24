@@ -45,11 +45,17 @@ class UserGenerator {
      */
     private array $users = [];
 
+    private int $created_count = 0;
+    private int $reused_count  = 0;
+
     public function __construct( DemoBatchRegistry $registry, string $domain, string $password ) {
         $this->registry = $registry;
         $this->domain   = ltrim( $domain, '@' );
         $this->password = $password;
     }
+
+    public function createdCount(): int { return $this->created_count; }
+    public function reusedCount(): int  { return $this->reused_count; }
 
     /**
      * Create or reuse all 36 accounts. Idempotent: every slot existing
@@ -93,6 +99,7 @@ class UserGenerator {
     private function ensureUser( string $slot, string $role ): int {
         $existing = $this->findExistingUserForSlot( $slot );
         if ( $existing !== null ) {
+            $this->reused_count++;
             return $existing;
         }
 
@@ -119,6 +126,7 @@ class UserGenerator {
             'slot'       => $slot,
             'role'       => $role,
         ] );
+        $this->created_count++;
         return $uid;
     }
 

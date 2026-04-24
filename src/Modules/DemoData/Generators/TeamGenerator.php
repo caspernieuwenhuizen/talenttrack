@@ -3,20 +3,23 @@ namespace TT\Modules\DemoData\Generators;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\DemoData\DemoBatchRegistry;
-use TT\Modules\DemoData\SeedLoader;
 
 /**
- * TeamGenerator — creates the academy's teams, one per age group.
+ * TeamGenerator — creates the academy's teams, one per configured age group.
  *
- * Head coach is drawn from coach<N>@ slot pool. Assistant coach
- * assignment (via Functional Roles module) is Checkpoint 2 — Checkpoint
- * 1 just leaves the tt_team_people entry empty, which the plugin
- * tolerates.
+ * Age groups are read from `tt_lookups.age_group` so the generator
+ * always matches whatever reference data the current install has
+ * configured. If the lookup is empty, generation fails loudly with a
+ * helpful error pointing at Configuration → Age Groups.
  *
- * Team name shape: "{Academy} {JOxx}" (e.g. "Academy JO11"). Academy
- * is pulled from tt_config.academy_name, defaulting to "Demo Academy"
- * if unset.
+ * Team name shape: `{club name} {age group}` (e.g. "FC Groningen JO11").
+ * Club name is provided per-generate via the admin form; if blank the
+ * stored `academy_name` config is used; if that's also unset, the
+ * placeholder "Demo Academy" is used.
+ *
+ * Head coach comes from the coach<N>@ slot pool.
  */
 class TeamGenerator {
 
@@ -27,10 +30,23 @@ class TeamGenerator {
 
     private int $count;
 
-    public function __construct( DemoBatchRegistry $registry, array $users, int $count ) {
-        $this->registry = $registry;
-        $this->users    = $users;
-        $this->count    = $count;
+    private ?string $club_name_override;
+
+    /**
+     * @param array<string,int> $users
+     */
+    public function __construct(
+        DemoBatchRegistry $registry,
+        array $users,
+        int $count,
+        ?string $club_name_override = null
+    ) {
+        $this->registry           = $registry;
+        $this->users              = $users;
+        $this->count              = $count;
+        $this->club_name_override = $club_name_override !== null && trim( $club_name_override ) !== ''
+            ? trim( $club_name_override )
+            : null;
     }
 
     /**
@@ -39,21 +55,23 @@ class TeamGenerator {
     public function generate(): array {
         global $wpdb;
 
-        $age_groups = SeedLoader::ageGroups();
+        $age_groups = $this->ageGroupsFromLookup();
         if ( ! $age_groups ) {
-            throw new \RuntimeException( 'Demo seed team_age_groups.txt is missing or empty.' );
+            throw new \RuntimeException(
+                'No age groups configured. Add entries under TalentTrack → Configuration → Age Groups before generating demo data.'
+            );
         }
 
-        $academy = $this->academyName();
-        $teams   = [];
-        $count   = min( $this->count, count( $age_groups ), 12 ); // cap at coach pool size
+        $club_name = $this->clubName();
+        $teams     = [];
+        $count     = min( $this->count, count( $age_groups ), 12 ); // cap at coach pool size
 
         for ( $i = 0; $i < $count; $i++ ) {
             $age_group = $age_groups[ $i ];
             $coach_slot = 'coach' . ( $i + 1 );
             $head_coach_id = (int) ( $this->users[ $coach_slot ] ?? 0 );
 
-            $name = trim( $academy . ' ' . $age_group );
+            $name = trim( $club_name . ' ' . $age_group );
             $wpdb->insert( "{$wpdb->prefix}tt_teams", [
                 'name'          => $name,
                 'age_group'     => $age_group,
@@ -77,7 +95,23 @@ class TeamGenerator {
         return $teams;
     }
 
-    private function academyName(): string {
+    /**
+     * @return string[]
+     */
+    private function ageGroupsFromLookup(): array {
+        $rows = QueryHelpers::get_lookups( 'age_group' );
+        $out = [];
+        foreach ( $rows as $r ) {
+            $name = trim( (string) $r->name );
+            if ( $name !== '' ) $out[] = $name;
+        }
+        return $out;
+    }
+
+    private function clubName(): string {
+        if ( $this->club_name_override !== null ) {
+            return $this->club_name_override;
+        }
         global $wpdb;
         $name = $wpdb->get_var( $wpdb->prepare(
             "SELECT config_value FROM {$wpdb->prefix}tt_config WHERE config_key = %s",
