@@ -1,3 +1,64 @@
+# TalentTrack v3.7.4 — #0019 Sprint 2 session 2: FrontendListTable component
+
+**Patch release.** Ships the keystone of Sprint 2: the reusable `FrontendListTable` component that Sessions (2.3), Goals (2.4), Players + Teams (Sprint 3), People (Sprint 4), and admin-tier surfaces (Sprint 5) all build their list views on top of.
+
+## `FrontendListTable` — `src/Shared/Frontend/Components/FrontendListTable.php`
+
+Declarative API. A list view tells the component its REST path, columns, filters, and row actions; the component handles everything else.
+
+```php
+FrontendListTable::render([
+    'rest_path' => 'sessions',
+    'columns'   => [
+        'session_date' => [ 'label' => __('Date',  'talenttrack'), 'sortable' => true ],
+        'team_name'    => [ 'label' => __('Team',  'talenttrack') ],
+        'attendance'   => [ 'label' => __('Att.%', 'talenttrack'), 'render' => 'percent', 'value_key' => 'attendance_pct' ],
+    ],
+    'filters' => [
+        'team_id' => [ 'type' => 'select',     'options' => $team_options ],
+        'date'    => [ 'type' => 'date_range', 'param_from' => 'date_from', 'param_to' => 'date_to' ],
+    ],
+    'row_actions' => [
+        'edit'   => [ 'label' => __('Edit',   'talenttrack'), 'href' => '?tt_view=sessions&edit={id}' ],
+        'delete' => [ 'label' => __('Delete', 'talenttrack'), 'rest_method' => 'DELETE', 'rest_path' => 'sessions/{id}', 'confirm' => __('Delete?', 'talenttrack'), 'variant' => 'danger' ],
+    ],
+    'default_sort' => [ 'orderby' => 'session_date', 'order' => 'desc' ],
+    'empty_state'  => __('No sessions match your filters.', 'talenttrack'),
+    'search'       => [ 'placeholder' => __('Search…', 'talenttrack') ],
+]);
+```
+
+### Architecture
+
+- **Server renders the shell.** Filter form, table head, footer (per-page selector, pagination scaffold), and a JSON `<script type="application/json">` block carrying the declarative config + initial state. No-JS users see the filter form and can submit it as a normal page reload — `passthroughQueryArgs()` preserves `tt_view` and any other non-list-table query params so the tile router still routes correctly.
+- **JS hydrates.** [`assets/js/components/frontend-list-table.js`](assets/js/components/frontend-list-table.js) reads the embedded config + state, fetches the first page from REST, and binds all interactivity: live filtering (300ms debounce on the search box), sort header clicks, per-page selector, pagination, row-action buttons (including DELETE-style buttons that confirm + refresh on success). URL state stays in sync via `history.replaceState`.
+
+### Filters supported in v1
+
+- `select` — dropdown over a value→label map.
+- `date_range` — two date inputs that emit `filter[<from>]` / `filter[<to>]`. Param names overridable via `param_from` / `param_to`.
+- `text` — free-text input.
+
+Adding a new filter type is a small additive change in `renderFilterControl()` + the JS `readFiltersFromForm()` helper.
+
+### Mobile reflow — CSS-only
+
+Below 640px the table swaps to stacked cards (one row = one card, headers become labels via `data-label`). Pure CSS — no JS branching for layout (Q7 in the Sprint 2 plan). Each `<td data-label="Date">` renders its label as a pseudo-element when the table-display switches to block.
+
+### Row actions
+
+Two flavours: a link (`href` template with `{id}` substitution) or a button that fires a REST request (`rest_path` + `rest_method` template + optional `confirm` text). On 200, the table refreshes itself. On error, the inline status line surfaces the server's error message — uses the `RestResponse` envelope from Sprint 1.
+
+## Validator wiring
+
+The existing `FrontendSessionsView::render()` (the `?tt_view=sessions` tile destination) now embeds a `FrontendListTable` configured for sessions above the existing record-session form. This proves the component end-to-end against the `GET /sessions` endpoint that v3.7.3 added. Session 2.3 will replace this view with a dedicated `FrontendSessionsManageView` and remove the temporary embed.
+
+## Ship-along
+
+- `assets/css/frontend-admin.css` — `~/* ─── FrontendListTable ─── */` block (filters, table, footer, mobile card reflow, status indicators).
+- `tt-list-table` script enqueued from `DashboardShortcode`.
+- 9 new Dutch strings.
+
 # TalentTrack v3.7.3 — #0019 Sprint 2 session 1: REST list endpoints
 
 **Patch release.** Opens Sprint 2 of the #0019 frontend-first-admin epic. Server-side first — adds the REST list contract that the upcoming `FrontendListTable` component (session 2.2) will consume.
