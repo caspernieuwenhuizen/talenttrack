@@ -3279,3 +3279,30 @@ msgstr "Je hebt niet-opgeslagen wijzigingen uit een eerdere sessie — herstelle
 
 msgid "Unknown orderby column."
 msgstr "Onbekende sorteerkolom."
+
+msgid "Loading…"
+msgstr "Bezig met laden…"
+
+msgid "Could not load — retry?"
+msgstr "Laden mislukt — opnieuw proberen?"
+
+msgid "Page %1$d of %2$d"
+msgstr "Pagina %1$d van %2$d"
+
+msgid "Showing %1$d–%2$d of %3$d"
+msgstr "%1$d–%2$d van %3$d weergegeven"
+
+msgid "Per page"
+msgstr "Per pagina"
+
+msgid "Att. %"
+msgstr "Aanw. %"
+
+msgid "Partial"
+msgstr "Gedeeltelijk"
+
+msgid "Search title, location, team…"
+msgstr "Zoek op titel, locatie of team…"
+
+msgid "No sessions match your filters."
+msgstr "Geen sessies passen bij je filters."
