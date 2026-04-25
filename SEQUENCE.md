@@ -30,6 +30,11 @@ Lean per-topic table. Updated in every release commit per the DEVOPS.md ship-alo
 | 0022 | Workflow & tasks engine | epic | Not started | ~62h (Phase 1) | — |
 | 0023 | Styling options + theme inheritance | feat | **Done** (v3.8.0) | ~8h | ~6h |
 | 0024 | Setup wizard / onboarding | feat | Not started — **needs shaping** | ~10-30h | — |
+| 0025 | Multilingual auto-translate flow | feat | Not started — **needs shaping** | ~20-30h | — |
+| 0026 | Guest-player attendance | feat | Not started — **needs shaping** | ~8-12h | — |
+| 0027 | Football methodology module | feat | Not started — **needs shaping** | ~50-70h | — |
+| 0028 | Goals as conversational thread | feat | Blocked on #0022 Phase 1 | ~12-18h | — |
+| 0029 | Documentation split (user / admin / dev) | feat | Not started — **needs shaping** | ~15-20h | — |
 
 ## What's next
 
