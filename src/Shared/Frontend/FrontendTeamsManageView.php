@@ -3,6 +3,8 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Authorization\FunctionalRolesRepository;
+use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendListTable;
@@ -180,6 +182,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
 
         <?php if ( $is_edit ) : ?>
             <?php self::renderRosterSection( (int) $team->id ); ?>
+            <?php self::renderStaffSection( (int) $team->id ); ?>
             <?php self::renderFormationPlaceholder(); ?>
         <?php endif; ?>
         <?php
@@ -248,6 +251,53 @@ class FrontendTeamsManageView extends FrontendViewBase {
             <?php endif; ?>
         </div>
         <?php
+    }
+
+    /**
+     * Read-only "who's on staff" summary for this team — Sprint 4 Q7.
+     * Deep-links into the FunctionalRoles assignments view filtered by
+     * this team for managing.
+     */
+    private static function renderStaffSection( int $team_id ): void {
+        $grouped = ( new PeopleRepository() )->getTeamStaff( $team_id );
+        $manage_url = add_query_arg(
+            [ 'tt_view' => 'functional-roles', 'tab' => 'assignments', 'filter' => [ 'team_id' => $team_id ] ],
+            remove_query_arg( [ 'action', 'id', 'tab' ] )
+        );
+
+        echo '<h3 style="margin:24px 0 12px;">' . esc_html__( 'Staff', 'talenttrack' ) . '</h3>';
+
+        if ( ! $grouped ) {
+            echo '<p><em>' . esc_html__( 'No staff assigned to this team yet.', 'talenttrack' ) . '</em></p>';
+        } else {
+            $roles_repo = new FunctionalRolesRepository();
+            echo '<table class="tt-table"><thead><tr>';
+            echo '<th>' . esc_html__( 'Role',    'talenttrack' ) . '</th>';
+            echo '<th>' . esc_html__( 'Person',  'talenttrack' ) . '</th>';
+            echo '<th>' . esc_html__( 'Email',   'talenttrack' ) . '</th>';
+            echo '</tr></thead><tbody>';
+            foreach ( $grouped as $role_key => $rows ) {
+                foreach ( $rows as $row ) {
+                    $role = $roles_repo->findRoleByKey( (string) $role_key );
+                    $role_label = $role ? (string) $role->label : ucwords( str_replace( '_', ' ', (string) $role_key ) );
+                    $person = $row['person'] ?? null;
+                    $name   = $person ? trim( ( (string) $person->first_name ) . ' ' . ( (string) $person->last_name ) ) : '';
+                    $email  = $person ? (string) ( $person->email ?? '' ) : '';
+                    echo '<tr>';
+                    echo '<td>' . esc_html( $role_label ) . '</td>';
+                    echo '<td>' . esc_html( $name ) . '</td>';
+                    echo '<td>' . esc_html( $email ) . '</td>';
+                    echo '</tr>';
+                }
+            }
+            echo '</tbody></table>';
+        }
+
+        if ( current_user_can( 'tt_edit_people' ) ) {
+            echo '<p style="margin-top:8px;"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $manage_url ) . '">'
+                . esc_html__( 'Manage team assignments', 'talenttrack' )
+                . '</a></p>';
+        }
     }
 
     private static function renderFormationPlaceholder(): void {

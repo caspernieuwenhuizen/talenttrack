@@ -121,7 +121,7 @@ Phase 2 subtotal: ~23h.
 
 | Rank | Item | Type | Effort | Notes |
 | --- | --- | --- | --- | --- |
-| 11 | **#0019 Sprint 4** — people + functional roles + reports | epic | ~20h | HoD-facing surfaces. Prerequisite for #0017's staff assignment. |
+| 11 | **#0019 Sprint 4** — people + functional roles | epic | ~12h actual | **COMPLETE** in v3.10.0. Reports deferred to #0014. People REST + frontend; FunctionalRoles tile with Roles + Assignments tabs; team-edit cross-link summary. Single PR per Casper's Q8 preference. Prerequisite for #0017 unblocked. |
 | 12 | **#0019 Sprint 5** — admin-tier frontend | epic | ~25h | Configuration, migrations, roles (absorbs #0002), custom fields, usage stats. |
 | 13 | **#0019 Sprint 6** — cleanup + legacy UI toggle | epic | ~10h | Removes/deprecates old wp-admin pages. Default-OFF toggle preserves access. |
 | 14 | **#0021** — audit log viewer | feat | ~10h | Carved out during shaping. Adjacent to Sprint 6's cleanup. |

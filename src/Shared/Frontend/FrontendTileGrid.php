@@ -307,6 +307,22 @@ class FrontendTileGrid {
                 'url'   => $url( 'podium' ),
                 'show'  => $is_coach || $is_admin,
             ],
+            [
+                'label' => __( 'People', 'talenttrack' ),
+                'desc'  => __( 'Staff, parents, scouts and other non-player records.', 'talenttrack' ),
+                'emoji' => '🧑‍💼',
+                'color' => '#5b6e75',
+                'url'   => $url( 'people' ),
+                'show'  => current_user_can( 'tt_view_people' ) || current_user_can( 'tt_edit_people' ),
+            ],
+            [
+                'label' => __( 'Functional roles', 'talenttrack' ),
+                'desc'  => __( 'Manage role types and team assignments.', 'talenttrack' ),
+                'emoji' => '🛠',
+                'color' => '#5b6e75',
+                'url'   => $url( 'functional-roles' ),
+                'show'  => current_user_can( 'tt_manage_functional_roles' ) || current_user_can( 'tt_view_people' ),
+            ],
         ];
 
         // "Analytics" — requires tt_view_reports. Covers observer role too.
