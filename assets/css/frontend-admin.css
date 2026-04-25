@@ -699,3 +699,285 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
     font-style: italic;
     font-size: var(--tt-fs-sm, 13px);
 }
+
+/* ─────────────────────────────────────────────────────────
+   RatingPillComponent — shared rating pill / badge / chip
+   #0003 + #0004 (v3.18.0)
+   ───────────────────────────────────────────────────────── */
+.tt-dashboard .tt-rp {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: var(--tt-fs-sm, 13px);
+    font-weight: 600;
+    line-height: 1.4;
+    border: 1px solid transparent;
+    background: var(--tt-bg-soft, #f6f7f9);
+    color: var(--tt-text, #1a1d21);
+}
+.tt-dashboard .tt-rp .tt-rp-label { font-weight: 500; color: var(--tt-muted, #5b6470); }
+.tt-dashboard .tt-rp .tt-rp-value { font-variant-numeric: tabular-nums; }
+.tt-dashboard .tt-rp-strong     { background: rgba(29, 120, 116, 0.10); border-color: rgba(29, 120, 116, 0.30); color: #0f5e5a; }
+.tt-dashboard .tt-rp-developing { background: rgba(201, 150, 42, 0.12); border-color: rgba(201, 150, 42, 0.32); color: #845f10; }
+.tt-dashboard .tt-rp-attention  { background: rgba(179, 45, 46, 0.10); border-color: rgba(179, 45, 46, 0.30); color: #8a1f20; }
+
+.tt-dashboard .tt-rp-chip {
+    padding: 6px 14px;
+    font-size: var(--tt-fs-md, 14px);
+}
+
+.tt-dashboard .tt-rp-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 22px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    border: 2px solid currentColor;
+    line-height: 1;
+}
+.tt-dashboard .tt-rp-badge.tt-rp-strong     { background: rgba(29, 120, 116, 0.10); color: #0f5e5a; }
+.tt-dashboard .tt-rp-badge.tt-rp-developing { background: rgba(201, 150, 42, 0.12); color: #845f10; }
+.tt-dashboard .tt-rp-badge.tt-rp-attention  { background: rgba(179, 45, 46, 0.10); color: #8a1f20; }
+
+/* ─────────────────────────────────────────────────────────
+   FrontendMyEvaluationsView — #0003 layout
+   ───────────────────────────────────────────────────────── */
+.tt-dashboard .tt-mye-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.tt-dashboard .tt-mye-item {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 18px;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid var(--tt-border, #e5e7ea);
+    border-radius: 10px;
+    align-items: start;
+}
+.tt-dashboard .tt-mye-badge-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+}
+.tt-dashboard .tt-mye-meta {
+    font-size: var(--tt-fs-xs, 12px);
+    color: var(--tt-muted, #5b6470);
+    line-height: 1.4;
+}
+.tt-dashboard .tt-mye-date {
+    font-weight: 600;
+    color: var(--tt-text, #1a1d21);
+    font-size: var(--tt-fs-sm, 13px);
+}
+.tt-dashboard .tt-mye-body { min-width: 0; }
+.tt-dashboard .tt-mye-match {
+    margin: 0 0 8px;
+    color: var(--tt-muted, #5b6470);
+    font-size: var(--tt-fs-sm, 13px);
+}
+.tt-dashboard .tt-mye-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 10px;
+}
+.tt-dashboard .tt-mye-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--tt-primary, #0b3d2e);
+    font-size: var(--tt-fs-sm, 13px);
+    text-decoration: underline;
+    cursor: pointer;
+}
+.tt-dashboard .tt-mye-toggle:hover { text-decoration: none; }
+.tt-dashboard .tt-mye-toggle .tt-mye-toggle-hide { display: none; }
+.tt-dashboard .tt-mye-toggle[aria-expanded="true"] .tt-mye-toggle-show { display: none; }
+.tt-dashboard .tt-mye-toggle[aria-expanded="true"] .tt-mye-toggle-hide { display: inline; }
+.tt-dashboard .tt-mye-detail {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--tt-border, #e5e7ea);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.tt-dashboard .tt-mye-detail-heading {
+    font-weight: 600;
+    font-size: var(--tt-fs-sm, 13px);
+    color: var(--tt-muted, #5b6470);
+    margin-bottom: 4px;
+}
+.tt-dashboard .tt-mye-detail-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 4px 18px;
+    font-size: var(--tt-fs-sm, 13px);
+}
+.tt-dashboard .tt-mye-detail-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    border-bottom: 1px dotted var(--tt-border, #e5e7ea);
+    padding: 2px 0;
+}
+.tt-dashboard .tt-mye-detail-rating {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+@media (max-width: 640px) {
+    .tt-dashboard .tt-mye-item {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 14px;
+    }
+    .tt-dashboard .tt-mye-badge-wrap {
+        flex-direction: row;
+        justify-content: flex-start;
+        text-align: left;
+        gap: 12px;
+    }
+    .tt-dashboard .tt-mye-meta { text-align: left; }
+    .tt-dashboard .tt-rp-badge { width: 54px; height: 54px; font-size: 19px; }
+    .tt-dashboard .tt-mye-detail-list { grid-template-columns: 1fr; }
+}
+
+/* ─────────────────────────────────────────────────────────
+   FrontendOverviewView — #0004 My card tile
+   ───────────────────────────────────────────────────────── */
+.tt-dashboard .tt-mc { display: block; }
+.tt-dashboard .tt-mc-hero {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid var(--tt-border, #e5e7ea);
+    border-radius: 10px;
+    margin-bottom: 18px;
+}
+.tt-dashboard .tt-mc-hero-photo {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--tt-bg-soft, #f6f7f9);
+}
+.tt-dashboard .tt-mc-hero-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.tt-dashboard .tt-mc-hero-photo-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--tt-muted, #6b7177);
+    background: var(--tt-bg-soft, #f6f7f9);
+}
+.tt-dashboard .tt-mc-hero-body { flex: 1; min-width: 0; }
+.tt-dashboard .tt-mc-hero-name {
+    margin: 0;
+    font-size: var(--tt-fs-lg, 18px);
+    line-height: 1.2;
+    color: var(--tt-text, #1a1d21);
+}
+.tt-dashboard .tt-mc-hero-meta {
+    margin: 4px 0 0;
+    font-size: var(--tt-fs-sm, 13px);
+    color: var(--tt-muted, #5b6470);
+}
+.tt-dashboard .tt-mc-hero-rating {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    text-align: right;
+}
+.tt-dashboard .tt-mc-hero-rating-label {
+    font-size: var(--tt-fs-xs, 12px);
+    color: var(--tt-muted, #5b6470);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.tt-dashboard .tt-mc-hero-rating-empty {
+    font-size: var(--tt-fs-sm, 13px);
+    color: var(--tt-muted, #5b6470);
+    font-style: italic;
+}
+.tt-dashboard .tt-mc-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px;
+    align-items: start;
+}
+.tt-dashboard .tt-mc-side { min-width: 0; }
+.tt-dashboard .tt-mc-card { flex-shrink: 0; }
+.tt-dashboard .tt-mc-cf {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    background: var(--tt-bg-soft, #f6f7f9);
+    border-radius: 8px;
+}
+.tt-dashboard .tt-mc-cf-heading {
+    margin: 0 0 8px;
+    font-size: var(--tt-fs-sm, 13px);
+    font-weight: 600;
+    color: var(--tt-muted, #5b6470);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.tt-dashboard .tt-mc-cf-list {
+    margin: 0;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 4px 14px;
+}
+.tt-dashboard .tt-mc-cf-list dt { font-weight: 600; color: var(--tt-muted, #5b6470); }
+.tt-dashboard .tt-mc-cf-list dd { margin: 0; }
+.tt-dashboard .tt-mc-radar { margin-bottom: 16px; }
+.tt-dashboard .tt-mc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0 0;
+}
+@media (max-width: 820px) {
+    .tt-dashboard .tt-mc-grid { grid-template-columns: 1fr; }
+    .tt-dashboard .tt-mc-card { display: flex; justify-content: center; }
+}
+@media (max-width: 540px) {
+    .tt-dashboard .tt-mc-hero { flex-wrap: wrap; }
+    .tt-dashboard .tt-mc-hero-rating {
+        flex-basis: 100%;
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+    }
+}

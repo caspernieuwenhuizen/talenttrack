@@ -2,6 +2,10 @@
 
 # My card tile — visual polish and consistency
 
+## Status
+
+**Done.** Shipped in v3.18.0 alongside #0003. Reuses the `RatingPillComponent` introduced by #0003. A pre-existing `CustomFieldRenderer` namespace bug was caught + fixed during the rebuild (the original use statement pointed at a non-existent path, which would have erupted as a fatal whenever a player had populated custom fields).
+
 ## Problem
 
 The "My card" tile on `FrontendOverviewView` — the player's quick at-a-glance card on their own dashboard — was flagged as having "technical errors and does not look at all appealing." The specific errors were never documented (the idea sat in `needs-triage` without ever being reproduced in detail).

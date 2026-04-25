@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 3.17.0\n"
+"Project-Id-Version: TalentTrack 3.18.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-04-25 10:00+0000\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
@@ -11,7 +11,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
 
 
 msgid "(directory not found!)"
@@ -4481,4 +4480,50 @@ msgstr "Overridemechanisme niet beschikbaar op deze installatie."
 
 msgid "Developer license override is active. Click to manage."
 msgstr "Ontwikkelaarslicentie-override is actief. Klik om te beheren."
+
+
+msgid "Evaluations, newest first"
+msgstr "Evaluaties, nieuwste eerst"
+
+msgid "No overall rating yet"
+msgstr "Nog geen totaalbeoordeling"
+
+msgid "by %s"
+msgstr "door %s"
+
+msgid "Show detail"
+msgstr "Details tonen"
+
+msgid "Hide detail"
+msgstr "Details verbergen"
+
+msgid "Last 5"
+msgstr "Laatste 5"
+
+msgid "First evaluation coming soon"
+msgstr "Eerste evaluatie volgt binnenkort"
+
+msgid "View full profile"
+msgstr "Volledig profiel bekijken"
+
+msgid "%s foot"
+msgstr "%s voet"
+
+msgid "strong"
+msgstr "sterk"
+
+msgid "developing"
+msgstr "in ontwikkeling"
+
+msgid "needs attention"
+msgstr "aandacht nodig"
+
+msgid "%1$s, rating %2$s out of %3$s, %4$s"
+msgstr "%1$s, beoordeling %2$s op %3$s, %4$s"
+
+msgid "Rating %1$s out of %2$s, %3$s"
+msgstr "Beoordeling %1$s op %2$s, %3$s"
+
+msgid "Overall rating: %1$s out of %2$s"
+msgstr "Totaalbeoordeling: %1$s op %2$s"
 

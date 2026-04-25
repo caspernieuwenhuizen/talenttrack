@@ -24,8 +24,6 @@ _None — pick the next item from "Needs shaping" or "Not started" below._
 
 | # | Topic | Type | Estimated |
 | - | - | - | - |
-| 0003 | Player evaluations view polish | feat | ~6h |
-| 0004 | My card tile polish | feat | ~5h |
 | 0006 | Team planning module | epic | ~55h |
 | 0009 | Development management | epic | ~30h |
 | 0010 | Multi-language (FR/DE/ES) | feat | ~80-140h |
@@ -47,6 +45,8 @@ _None — pick the next item from "Needs shaping" or "Not started" below._
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
+| 0003 | Player evaluations view polish | feat | v3.18.0 | ~6h | ~3h |
+| 0004 | My card tile polish | feat | v3.18.0 | ~5h | ~2h |
 | 0011 | Monetization (licensing + tiers + caps + trial) | epic | v3.17.0 | ~44-55h | ~30h |
 | 0013 | Backup + disaster recovery | epic | v3.15.0–v3.16.0 | ~50-63h | ~50h |
 | 0024 | Setup wizard / onboarding | feat | v3.14.0 | ~10-30h | ~10-12h |
