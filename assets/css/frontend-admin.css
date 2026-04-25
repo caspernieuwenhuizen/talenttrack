@@ -624,3 +624,78 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
     border-color: revert;
     font-family: inherit;
 }
+
+/* ─────────────────────────────────────────────────────────
+   PlayerSearchPickerComponent — autocomplete picker
+   F2 of the post-#0019 feature sprint.
+   ───────────────────────────────────────────────────────── */
+.tt-dashboard .tt-psp {
+    position: relative;
+}
+.tt-dashboard .tt-psp .tt-psp-search {
+    width: 100%;
+}
+.tt-dashboard .tt-psp .tt-psp-selected {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: var(--tt-bg-soft, #f6f7f9);
+    border: 1px solid var(--tt-border, #dcdcde);
+    border-radius: 4px;
+    font-size: var(--tt-fs-sm, 13px);
+    line-height: 1.4;
+    max-width: 100%;
+}
+.tt-dashboard .tt-psp .tt-psp-selected-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 320px;
+}
+.tt-dashboard .tt-psp .tt-psp-clear {
+    background: none;
+    border: none;
+    color: var(--tt-muted, #6b7177);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 2px;
+    line-height: 1;
+}
+.tt-dashboard .tt-psp .tt-psp-clear:hover {
+    color: var(--tt-danger, #b32d2e);
+}
+.tt-dashboard .tt-psp .tt-psp-results {
+    position: absolute;
+    z-index: 50;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin: 2px 0 0;
+    padding: 0;
+    list-style: none;
+    background: #fff;
+    border: 1px solid var(--tt-border, #dcdcde);
+    border-radius: 4px;
+    max-height: 240px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.tt-dashboard .tt-psp .tt-psp-results[hidden] {
+    display: none;
+}
+.tt-dashboard .tt-psp .tt-psp-row {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: var(--tt-fs-sm, 13px);
+}
+.tt-dashboard .tt-psp .tt-psp-row:hover,
+.tt-dashboard .tt-psp .tt-psp-row:focus {
+    background: var(--tt-bg-soft, #f6f7f9);
+}
+.tt-dashboard .tt-psp .tt-psp-empty {
+    padding: 8px 12px;
+    color: var(--tt-muted, #6b7177);
+    font-style: italic;
+    font-size: var(--tt-fs-sm, 13px);
+}

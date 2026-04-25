@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
+use TT\Infrastructure\Evaluations\EvalDisplayMode;
 use TT\Infrastructure\Query\QueryHelpers;
 
 /**
@@ -68,8 +69,12 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                                     ?>
                                 </small><br/>
                             <?php endif; ?>
-                            <?php if ( $full && ! empty( $full->ratings ) ) : ?>
-                                <?php foreach ( $full->ratings as $r ) : ?>
+                            <?php if ( $full && ! empty( $full->ratings ) ) :
+                                $show_subs = EvalDisplayMode::showSubcategories( get_current_user_id() );
+                                ?>
+                                <?php foreach ( $full->ratings as $r ) :
+                                    if ( ! $show_subs && ! empty( $r->category_parent_id ) ) continue;
+                                    ?>
                                     <span class="tt-rating-pill"><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $r->category_name ) ); ?>: <?php echo esc_html( (string) $r->rating ); ?></span>
                                 <?php endforeach; ?>
                             <?php endif; ?>

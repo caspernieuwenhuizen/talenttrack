@@ -36,6 +36,8 @@ class DashboardShortcode {
         wp_enqueue_script( 'tt-drafts',  TT_PLUGIN_URL . 'assets/js/drafts.js',               [ 'tt-public' ], TT_VERSION, true );
         wp_enqueue_script( 'tt-rating',  TT_PLUGIN_URL . 'assets/js/components/rating.js',    [], TT_VERSION, true );
         wp_enqueue_script( 'tt-multitag', TT_PLUGIN_URL . 'assets/js/components/multitag.js', [], TT_VERSION, true );
+        // F1-F6 sprint — autocomplete-driven player picker.
+        wp_enqueue_script( 'tt-player-search-picker', TT_PLUGIN_URL . 'assets/js/components/player-search-picker.js', [], TT_VERSION, true );
         // #0019 Sprint 2 session 2 — FrontendListTable hydrator. The PHP
         // shell embeds its own config/state JSON; this script binds to
         // every `.tt-list-table` on the page and takes over filter/sort/
