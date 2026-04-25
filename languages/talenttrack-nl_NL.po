@@ -12,6 +12,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+
 msgid "(directory not found!)"
 msgstr "(map niet gevonden!)"
 
@@ -1549,18 +1550,9 @@ msgstr "Meervoudige keuze"
 msgid "URL"
 msgstr "URL"
 
-msgid "Phone"
-msgstr "Telefoon"
-
 # Entity labels
 
-msgid "People"
-msgstr "Personen"
-
 # Error / notice messages
-
-msgid "Label is required."
-msgstr "Label is verplicht."
 
 msgid "That field type is not supported."
 msgstr "Dit veldtype wordt niet ondersteund."
@@ -1570,9 +1562,6 @@ msgstr "Dit entiteitstype wordt niet ondersteund."
 
 msgid "Select and multi-select fields require at least one option."
 msgstr "Keuze- en meervoudige-keuzevelden vereisen minimaal één optie."
-
-msgid "Something went wrong."
-msgstr "Er is iets misgegaan."
 
 msgid "The team was saved, but one or more custom fields had invalid values and were not updated."
 msgstr "Het team is opgeslagen, maar één of meer aangepaste velden hadden ongeldige waarden en zijn niet bijgewerkt."
@@ -1589,15 +1578,6 @@ msgstr "De persoon is opgeslagen, maar één of meer aangepaste velden hadden on
 msgid "Additional information"
 msgstr "Aanvullende informatie"
 
-msgid "The field \"%s\" must be a number."
-msgstr "Het veld \"%s\" moet een getal zijn."
-
-msgid "The field \"%s\" must be a valid date (YYYY-MM-DD)."
-msgstr "Het veld \"%s\" moet een geldige datum zijn (JJJJ-MM-DD)."
-
-msgid "The field \"%s\" has an invalid selection."
-msgstr "Het veld \"%s\" heeft een ongeldige keuze."
-
 msgid "The field \"%s\" must be a valid URL."
 msgstr "Het veld \"%s\" moet een geldige URL zijn."
 
@@ -1608,12 +1588,6 @@ msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 # Native field slug labels (for "Insert after" dropdown)
-
-msgid "Height (cm)"
-msgstr "Lengte (cm)"
-
-msgid "Weight (kg)"
-msgstr "Gewicht (kg)"
 
 msgid "Preferred positions"
 msgstr "Voorkeursposities"
@@ -1644,10 +1618,6 @@ msgstr "ontbreekt"
 
 # ===== v2.12.0 — Sprint 1I: Evaluation subcategories =====
 
-# Admin page chrome
-msgid "Evaluation Categories"
-msgstr "Evaluatiecategorieën"
-
 msgid "Add main category"
 msgstr "Hoofdcategorie toevoegen"
 
@@ -1662,9 +1632,6 @@ msgstr "Hoofdcategorieën groeperen de grote evaluatiedimensies. Subcategorieën
 
 msgid "No evaluation categories configured. This is unusual — the plugin normally seeds four defaults (Technical, Tactical, Physical, Mental) on activation. Add one to get started."
 msgstr "Geen evaluatiecategorieën ingesteld. Dat is ongebruikelijk — de plugin zet bij activatie normaal gesproken vier standaardwaarden klaar (Technisch, Tactisch, Fysiek, Mentaal). Voeg er een toe om te beginnen."
-
-msgid "Order"
-msgstr "Volgorde"
 
 msgid "System categories (marked ✓) are seeded by the plugin. They can be renamed, reordered, and deactivated but not deleted. Deactivating a category hides it from new evaluations while preserving the ratings already stored against it."
 msgstr "Systeemcategorieën (aangegeven met ✓) worden door de plugin aangemaakt. Ze kunnen worden hernoemd, opnieuw geordend en gedeactiveerd, maar niet verwijderd. Een categorie deactiveren verbergt deze in nieuwe evaluaties terwijl reeds vastgelegde beoordelingen behouden blijven."
@@ -1834,10 +1801,6 @@ msgstr "Wedstrijdresultaat"
 msgid "Minutes played"
 msgstr "Gespeelde minuten"
 
-# Evaluations as a custom-fields entity
-msgid "Evaluations"
-msgstr "Evaluaties"
-
 # ===== v2.12.2 — Live average preview on evaluation form =====
 
 msgid "Main category average (computed):"
@@ -1946,9 +1909,6 @@ msgstr "Speler:"
 msgid "— Select a player —"
 msgstr "— Selecteer een speler —"
 
-msgid "From"
-msgstr "Vanaf"
-
 msgid "To"
 msgstr "T/m"
 
@@ -1957,9 +1917,6 @@ msgstr "Alle types"
 
 msgid "Apply filters"
 msgstr "Filters toepassen"
-
-msgid "Clear"
-msgstr "Wissen"
 
 msgid "Most recent"
 msgstr "Meest recent"
@@ -2060,13 +2017,6 @@ msgstr "Teamgenoten in %s"
 
 # ===== v2.16.0 — Tier-by-position + Print report + Mobile =====
 
-msgid "Player"
-msgstr "Speler"
-
-msgid "🖨 Print report"
-msgstr "🖨 Rapport printen"
-
-msgctxt "button label"
 msgid "🖨 Print report"
 msgstr "🖨 Rapport printen"
 
@@ -2081,9 +2031,6 @@ msgstr "Periode:"
 
 msgid "All evaluations"
 msgstr "Alle evaluaties"
-
-msgid "Until"
-msgstr "T/m"
 
 msgid "Recent shape"
 msgstr "Recente vorm"
@@ -2104,20 +2051,11 @@ msgstr "Je hebt geen toegang tot dit spelerrapport."
 
 # ===== v2.17.0 — Menu groups + bulk archive/delete + isolated print =====
 
-msgid "People"
-msgstr "Personen"
-
 msgid "Performance"
 msgstr "Prestaties"
 
 msgid "Analytics"
 msgstr "Analyses"
-
-msgid "Configuration"
-msgstr "Configuratie"
-
-msgid "Active"
-msgstr "Actief"
 
 msgid "Archived"
 msgstr "Gearchiveerd"
@@ -2151,9 +2089,6 @@ msgstr "Selecteer alle rijen"
 
 msgid "Security check failed."
 msgstr "Veiligheidscontrole mislukt."
-
-msgid "Unauthorized"
-msgstr "Niet gemachtigd"
 
 msgid "No items selected."
 msgstr "Geen items geselecteerd."
@@ -2247,12 +2182,6 @@ msgstr "Beheerders"
 msgid "Coaches"
 msgstr "Coaches"
 
-msgid "Players"
-msgstr "Spelers"
-
-msgid "Other"
-msgstr "Overig"
-
 msgid "Most-visited admin pages (30 days)"
 msgstr "Meest bezochte beheerpagina's (30 dagen)"
 
@@ -2268,20 +2197,11 @@ msgstr "Gebruikers die de afgelopen 90 dagen zijn ingelogd, maar niet de laatste
 msgid "No inactive users — everyone has been active recently."
 msgstr "Geen inactieve gebruikers — iedereen is recent actief geweest."
 
-msgid "User"
-msgstr "Gebruiker"
-
 msgid "Last login"
 msgstr "Laatste login"
 
 msgid "Your club at a glance. Tap any card or tile to jump straight into that section."
 msgstr "Jouw club in één oogopslag. Tik op een kaart of tegel om direct naar dat onderdeel te gaan."
-
-msgid "Overview"
-msgstr "Overzicht"
-
-msgid "Help"
-msgstr "Help"
 
 msgid "Manage teams, staff assignments, and age groups."
 msgstr "Beheer teams, stafbezetting en leeftijdscategorieën."
@@ -2327,9 +2247,6 @@ msgstr "Hoe je TalentTrack gebruikt."
 
 # ===== v2.19.0 — Lookup drag, back button, clickable KPIs, delta stats =====
 
-msgid "← Back"
-msgstr "← Terug"
-
 msgid "Drag to reorder"
 msgstr "Sleep om te sorteren"
 
@@ -2341,9 +2258,6 @@ msgstr "Volgorde opgeslagen."
 
 msgid "Save failed."
 msgstr "Opslaan mislukt."
-
-msgid "Network error."
-msgstr "Netwerkfout."
 
 msgid "this week"
 msgstr "deze week"
@@ -2442,9 +2356,6 @@ msgstr "Gebeurtenis"
 msgid "Target"
 msgstr "Doel"
 
-msgid "Role"
-msgstr "Rol"
-
 msgid "First"
 msgstr "Eerste"
 
@@ -2460,22 +2371,7 @@ msgstr "Bezoeken"
 msgid "Last visit"
 msgstr "Laatste bezoek"
 
-msgid "View"
-msgstr "Bekijken"
-
-msgid "Admin"
-msgstr "Beheerder"
-
-msgid "Coach"
-msgstr "Coach"
-
-msgid "Player"
-msgstr "Speler"
-
 # ===== v2.20.0 — Player Comparison, Access Control tiles, Reports tile launcher =====
-
-msgid "Player Comparison"
-msgstr "Spelervergelijking"
 
 msgid "Side-by-side comparison of up to 4 players."
 msgstr "Vergelijking van maximaal 4 spelers naast elkaar."
@@ -2488,9 +2384,6 @@ msgstr "Selecteer spelers"
 
 msgid "Slot %d"
 msgstr "Slot %d"
-
-msgid "— None —"
-msgstr "— Geen —"
 
 msgid "No team"
 msgstr "Geen team"
@@ -2531,17 +2424,8 @@ msgstr "Trend-overlay"
 msgid "No rated evaluations in the current filter window."
 msgstr "Geen beoordeelde evaluaties in het huidige filtervenster."
 
-msgid "Most recent"
-msgstr "Meest recent"
-
 msgid "Rolling (last 5)"
 msgstr "Lopend gemiddelde (laatste 5)"
-
-msgid "All-time"
-msgstr "Altijd"
-
-msgid "Evaluations"
-msgstr "Evaluaties"
 
 msgid "Access Control"
 msgstr "Toegangsbeheer"
@@ -2581,9 +2465,6 @@ msgstr "Gemiddelde beoordeling per team over de hoofdcategorieën, berekend op b
 
 msgid "No teams configured."
 msgstr "Geen teams geconfigureerd."
-
-msgid "Team"
-msgstr "Team"
 
 msgid "Evaluations saved per coach in the last %d days. Archived evaluations are excluded."
 msgstr "Evaluaties opgeslagen per coach in de laatste %d dagen. Gearchiveerde evaluaties worden uitgesloten."
@@ -2629,9 +2510,6 @@ msgstr "Ik"
 msgid "Coaching"
 msgstr "Coaching"
 
-msgid "Analytics"
-msgstr "Analyses"
-
 msgid "Administration"
 msgstr "Beheer"
 
@@ -2640,9 +2518,6 @@ msgstr "Mijn kaart"
 
 msgid "Your FIFA-style card, ratings, and headline numbers."
 msgstr "Jouw FIFA-kaart, beoordelingen en kerncijfers."
-
-msgid "My team"
-msgstr "Mijn team"
 
 msgid "Your teammates and the team podium."
 msgstr "Jouw teamgenoten en het podium van het team."
@@ -2730,14 +2605,8 @@ msgstr "Dit onderwerp heeft nog geen inhoud."
 msgid "This topic is empty."
 msgstr "Dit onderwerp is leeg."
 
-msgid "Help"
-msgstr "Help"
-
 msgid "Basics"
 msgstr "Basis"
-
-msgid "Performance"
-msgstr "Prestaties"
 
 msgid "Frontend & access"
 msgstr "Frontend & toegang"
@@ -2846,9 +2715,6 @@ msgstr "Voer TalentTrack-database-migraties uit. Idempotent."
 msgid "Run Migrations"
 msgstr "Migraties uitvoeren"
 
-msgid "Dashboard"
-msgstr "Dashboard"
-
 msgid "Unauthorized."
 msgstr "Niet geautoriseerd."
 
@@ -2881,9 +2747,6 @@ msgstr "Speelgegevens"
 msgid "Age group"
 msgstr "Leeftijdscategorie"
 
-msgid "Positions"
-msgstr "Posities"
-
 msgid "Preferred foot"
 msgstr "Voorkeursvoet"
 
@@ -2908,9 +2771,6 @@ msgstr "Account"
 msgid "Display name"
 msgstr "Weergavenaam"
 
-msgid "Email"
-msgstr "E-mail"
-
 msgid "Edit account settings"
 msgstr "Accountinstellingen bewerken"
 
@@ -2918,12 +2778,6 @@ msgid "Unknown section."
 msgstr "Onbekend onderdeel."
 
 # ===== v3.0.0 slice 4 — Coaching-group frontend views =====
-
-msgid "My teams"
-msgstr "Mijn teams"
-
-msgid "No teams assigned."
-msgstr "Geen teams toegewezen."
 
 msgid "No players on this team yet."
 msgstr "Nog geen spelers in dit team."
@@ -2954,80 +2808,8 @@ msgstr "Dit onderdeel is alleen beschikbaar voor coaches en beheerders."
 
 # ===== v3.0.0 slice 5 — Analytics-group frontend views =====
 
-msgid "Rate cards"
-msgstr "Beoordelingskaarten"
-
-msgid "Pick a player above to see their rate card."
-msgstr "Kies hierboven een speler om de beoordelingskaart te zien."
-
-msgid "Player comparison"
-msgstr "Spelersvergelijking"
-
-msgid "Compare up to 4 players side-by-side. Cross-team is supported — pick any players from any team or age group."
-msgstr "Vergelijk tot 4 spelers naast elkaar. Over teams heen kan — kies spelers uit elk team of elke leeftijdscategorie."
-
-msgid "Select players"
-msgstr "Spelers selecteren"
-
-msgid "Slot %d"
-msgstr "Slot %d"
-
-msgid "— None —"
-msgstr "— Geen —"
-
-msgid "No team"
-msgstr "Geen team"
-
-msgid "Compare"
-msgstr "Vergelijken"
-
-msgid "Pick at least one player above and click Compare."
-msgstr "Kies minstens één speler hierboven en klik op Vergelijken."
-
-msgid "Mixed age groups in this comparison. Overall ratings use age-group-specific category weights, so the numbers below are not perfectly apples-to-apples — they reflect what each player's own coaching staff uses."
-msgstr "Gemengde leeftijdscategorieën in deze vergelijking. Totale beoordelingen gebruiken leeftijdsspecifieke categoriewegingen, dus de cijfers zijn niet perfect vergelijkbaar — ze weerspiegelen wat het eigen trainersteam van elke speler gebruikt."
-
-msgid "Cards"
-msgstr "Kaarten"
-
-msgid "Basic facts"
-msgstr "Basisgegevens"
-
-msgid "Attribute"
-msgstr "Kenmerk"
-
-msgid "Age group"
-msgstr "Leeftijdscategorie"
-
-msgid "Position(s)"
-msgstr "Positie(s)"
-
-msgid "Foot"
-msgstr "Voet"
-
 msgid "Jersey"
 msgstr "Rugnummer"
-
-msgid "Headline numbers"
-msgstr "Kerncijfers"
-
-msgid "Metric"
-msgstr "Metriek"
-
-msgid "Most recent"
-msgstr "Meest recent"
-
-msgid "Rolling (last 5)"
-msgstr "Voortschrijdend (laatste 5)"
-
-msgid "All-time"
-msgstr "Altijd"
-
-msgid "Evaluations"
-msgstr "Evaluaties"
-
-msgid "Main category averages"
-msgstr "Gemiddelden per hoofdcategorie"
 
 msgid "No category data yet for these filters."
 msgstr "Nog geen categoriegegevens voor deze filters."
@@ -3044,18 +2826,6 @@ msgstr "Datum vanaf"
 msgid "Date to"
 msgstr "Datum t/m"
 
-msgid "Evaluation Type"
-msgstr "Evaluatietype"
-
-msgid "All types"
-msgstr "Alle types"
-
-msgid "Player:"
-msgstr "Speler:"
-
-msgid "— Select a player —"
-msgstr "— Kies een speler —"
-
 msgid "Category"
 msgstr "Categorie"
 
@@ -3063,9 +2833,6 @@ msgstr "Categorie"
 
 msgid "Close window"
 msgstr "Venster sluiten"
-
-msgid "— Select —"
-msgstr "— Kies —"
 
 msgid "League"
 msgstr "Competitie"
@@ -3114,17 +2881,8 @@ msgstr "Spelers in dit team (%d)"
 msgid "No active players are assigned to this team yet. Go to Players → Add New (or edit an existing player) and set this team as their team."
 msgstr "Er zijn nog geen actieve spelers aan dit team toegewezen. Ga naar Spelers → Nieuwe toevoegen (of bewerk een bestaande speler) en koppel dit team."
 
-msgid "Jersey"
-msgstr "Rugnummer"
-
-msgid "Date of birth"
-msgstr "Geboortedatum"
-
 msgid "Add player to this team"
 msgstr "Speler aan dit team toevoegen"
-
-msgid "Chart library unavailable. Data tables above still show the same information."
-msgstr "Grafiekbibliotheek niet beschikbaar. De tabellen hierboven tonen dezelfde informatie."
 
 # ===== v3.6.0 — demo prep batch C (tables + i18n) =====
 
@@ -3967,9 +3725,6 @@ msgstr "Huidige demogegevens"
 msgid "No demo data exists yet."
 msgstr "Er zijn nog geen demogegevens."
 
-msgid "Entity type"
-msgstr "Soort entiteit"
-
 msgid "Tagged rows"
 msgstr "Gemarkeerde rijen"
 
@@ -4029,9 +3784,6 @@ msgstr "Seed"
 
 msgid "Fixed default 20260504 — produces the same roster every run. Change for a different roster."
 msgstr "Vaste standaard 20260504 — produceert iedere run dezelfde selectie. Wijzig voor een andere selectie."
-
-msgid "(site locale)"
-msgstr "(sitetaal)"
 
 msgid "Language the generated content (goal titles, descriptions, session titles, default location) is written in. Only languages the generators ship content dictionaries for are listed — add a key to GoalGenerator / SessionGenerator constants to support a new one."
 msgstr "Taal waarin de gegenereerde inhoud (doeltitels, beschrijvingen, sessietitels, standaardlocatie) is geschreven. Alleen talen waarvoor de generators inhoudsdictionaries leveren, staan in de lijst — voeg een sleutel toe aan de GoalGenerator-/SessionGenerator-constanten om een nieuwe taal te ondersteunen."
@@ -4098,3 +3850,4 @@ msgstr "Geen activiteit op deze dag."
 
 msgid "Open in wp-admin"
 msgstr "In wp-admin openen"
+
