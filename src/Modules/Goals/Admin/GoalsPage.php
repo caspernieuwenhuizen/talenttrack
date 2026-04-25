@@ -127,6 +127,29 @@ class GoalsPage {
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ), 'status' ); ?>
                     <tr><th><?php esc_html_e( 'Due Date', 'talenttrack' ); ?></th><td><input type="date" name="due_date" value="<?php echo esc_attr( $goal->due_date ?? '' ); ?>" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ), 'due_date' ); ?>
+                    <?php
+                    // #0027 — optional principle linkage.
+                    if ( class_exists( '\TT\Modules\Methodology\Repositories\PrinciplesRepository' ) ) :
+                        $principles = ( new \TT\Modules\Methodology\Repositories\PrinciplesRepository() )->listFiltered();
+                        $linked     = (int) ( $goal->linked_principle_id ?? 0 );
+                        if ( ! empty( $principles ) ) : ?>
+                            <tr>
+                                <th><?php esc_html_e( 'Linked principle', 'talenttrack' ); ?></th>
+                                <td>
+                                    <select name="linked_principle_id">
+                                        <option value=""><?php esc_html_e( '— None —', 'talenttrack' ); ?></option>
+                                        <?php foreach ( $principles as $pr ) :
+                                            $title = \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
+                                            ?>
+                                            <option value="<?php echo (int) $pr->id; ?>" <?php selected( $linked, (int) $pr->id ); ?>>
+                                                <?php echo esc_html( $pr->code . ' · ' . ( $title ?: '—' ) ); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <p class="description"><?php esc_html_e( 'Optional. Links this goal to a methodology principle.', 'talenttrack' ); ?></p>
+                                </td>
+                            </tr>
+                    <?php endif; endif; ?>
                     <?php CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ) ); ?>
                 </table>
                 <?php submit_button( $goal ? __( 'Update', 'talenttrack' ) : __( 'Add', 'talenttrack' ) ); ?>
@@ -147,6 +170,9 @@ class GoalsPage {
             'status' => isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['status'] ) ) : 'pending',
             'priority' => isset( $_POST['priority'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['priority'] ) ) : 'medium',
             'due_date' => ! empty( $_POST['due_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['due_date'] ) ) : null,
+            'linked_principle_id' => isset( $_POST['linked_principle_id'] ) && (int) $_POST['linked_principle_id'] > 0
+                ? (int) $_POST['linked_principle_id']
+                : null,
             'created_by' => get_current_user_id(),
         ];
 

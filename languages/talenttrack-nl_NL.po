@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 3.18.0\n"
+"Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-04-25 10:00+0000\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
@@ -11,6 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 
 
 msgid "(directory not found!)"
@@ -4526,4 +4527,395 @@ msgstr "Beoordeling %1$s op %2$s, %3$s"
 
 msgid "Overall rating: %1$s out of %2$s"
 msgstr "Totaalbeoordeling: %1$s op %2$s"
+
+
+msgid "Methodology"
+msgstr "Methodologie"
+
+msgid "Spelprincipes"
+msgstr "Spelprincipes"
+
+msgid "Formaties & Posities"
+msgstr "Formaties & Posities"
+
+msgid "Spelhervattingen"
+msgstr "Spelhervattingen"
+
+msgid "Visie"
+msgstr "Visie"
+
+msgid "Aanvallen"
+msgstr "Aanvallen"
+
+msgid "Omschakelen naar verdedigen"
+msgstr "Omschakelen naar verdedigen"
+
+msgid "Omschakelen naar aanvallen"
+msgstr "Omschakelen naar aanvallen"
+
+msgid "Verdedigen"
+msgstr "Verdedigen"
+
+msgid "Opbouwen"
+msgstr "Opbouwen"
+
+msgid "Scoren"
+msgstr "Scoren"
+
+msgid "Overgang na balverlies"
+msgstr "Overgang na balverlies"
+
+msgid "Overgang na balwinst"
+msgstr "Overgang na balwinst"
+
+msgid "Storen"
+msgstr "Storen"
+
+msgid "Doelpunten voorkomen"
+msgstr "Doelpunten voorkomen"
+
+msgid "Vrije trap (direct)"
+msgstr "Vrije trap (direct)"
+
+msgid "Vrije trap (voorzet)"
+msgstr "Vrije trap (voorzet)"
+
+msgid "Inworp"
+msgstr "Inworp"
+
+msgid "Aanvallend"
+msgstr "Aanvallend"
+
+msgid "Verdedigend"
+msgstr "Verdedigend"
+
+msgid "Aanvallend positiespel"
+msgstr "Aanvallend positiespel"
+
+msgid "Dominant balbezit"
+msgstr "Dominant balbezit"
+
+msgid "Reactief / counter"
+msgstr "Reactief / counter"
+
+msgid "High press"
+msgstr "High press"
+
+msgid "Pragmatisch"
+msgstr "Pragmatisch"
+
+msgid "Aanvallers"
+msgstr "Aanvallers"
+
+msgid "Middenvelders"
+msgstr "Middenvelders"
+
+msgid "Verdedigers"
+msgstr "Verdedigers"
+
+msgid "Add principle"
+msgstr "Principe toevoegen"
+
+msgid "Team-function"
+msgstr "Team-functie"
+
+msgid "Team-task"
+msgstr "Team-taak"
+
+msgid "Shipped + club"
+msgstr "Geleverd + club"
+
+msgid "Shipped only"
+msgstr "Alleen geleverd"
+
+msgid "Club-authored only"
+msgstr "Alleen club-eigen"
+
+msgid "Code or title"
+msgstr "Code of titel"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "No principles match these filters."
+msgstr "Geen principes passen bij deze filters."
+
+msgid "Function"
+msgstr "Functie"
+
+msgid "Task"
+msgstr "Taak"
+
+msgid "Shipped"
+msgstr "Geleverd"
+
+msgid "Club"
+msgstr "Club"
+
+msgid "Clone & edit"
+msgstr "Klonen & bewerken"
+
+msgid "Archive this principle?"
+msgstr "Dit principe archiveren?"
+
+msgid "Archive this set piece?"
+msgstr "Deze spelhervatting archiveren?"
+
+msgid "Toelichting"
+msgstr "Toelichting"
+
+msgid "Per linie"
+msgstr "Per linie"
+
+msgid "Usage"
+msgstr "Gebruik"
+
+msgid "Sessions referencing: %d"
+msgstr "Sessies die verwijzen: %d"
+
+msgid "Goals linked: %d"
+msgstr "Doelen gekoppeld: %d"
+
+msgid "Team plans (when #0006 ships): 0"
+msgstr "Teamplannen (zodra #0006 wordt opgeleverd): 0"
+
+msgid "Edit principle"
+msgstr "Principe bewerken"
+
+msgid "Edit position"
+msgstr "Positie bewerken"
+
+msgid "Edit set piece"
+msgstr "Spelhervatting bewerken"
+
+msgid "Edit vision"
+msgstr "Visie bewerken"
+
+msgid "Add position"
+msgstr "Positie toevoegen"
+
+msgid "Add set piece"
+msgstr "Spelhervatting toevoegen"
+
+msgid "Define vision"
+msgstr "Visie definiëren"
+
+msgid "Author your own vision"
+msgstr "Eigen visie schrijven"
+
+msgid "Back to library"
+msgstr "Terug naar bibliotheek"
+
+msgid "Back to formations"
+msgstr "Terug naar formaties"
+
+msgid "Back to set pieces"
+msgstr "Terug naar spelhervattingen"
+
+msgid "Back to vision"
+msgstr "Terug naar visie"
+
+msgid "Back to principles"
+msgstr "Terug naar principes"
+
+msgid "(untitled)"
+msgstr "(geen titel)"
+
+msgid "Default formation"
+msgstr "Standaardformatie"
+
+msgid "Title (NL)"
+msgstr "Titel (NL)"
+
+msgid "Title (EN)"
+msgstr "Titel (EN)"
+
+msgid "Explanation (NL)"
+msgstr "Toelichting (NL)"
+
+msgid "Explanation (EN)"
+msgstr "Toelichting (EN)"
+
+msgid "Team (NL)"
+msgstr "Team (NL)"
+
+msgid "Team (EN)"
+msgstr "Team (EN)"
+
+msgid "Team-level guidance"
+msgstr "Sturing op teamniveau"
+
+msgid "Per-line guidance"
+msgstr "Sturing per linie"
+
+msgid "Save changes"
+msgstr "Wijzigingen opslaan"
+
+msgid "Create principle"
+msgstr "Principe aanmaken"
+
+msgid "Create position"
+msgstr "Positie aanmaken"
+
+msgid "Create set piece"
+msgstr "Spelhervatting aanmaken"
+
+msgid "Save vision"
+msgstr "Visie opslaan"
+
+msgid "Short name (NL)"
+msgstr "Korte naam (NL)"
+
+msgid "Short name (EN)"
+msgstr "Korte naam (EN)"
+
+msgid "Long name (NL)"
+msgstr "Lange naam (NL)"
+
+msgid "Long name (EN)"
+msgstr "Lange naam (EN)"
+
+msgid "Attacking tasks (NL — one per line)"
+msgstr "Aanvallende taken (NL — één per regel)"
+
+msgid "Attacking tasks (EN — one per line)"
+msgstr "Aanvallende taken (EN — één per regel)"
+
+msgid "Defending tasks (NL — one per line)"
+msgstr "Verdedigende taken (NL — één per regel)"
+
+msgid "Defending tasks (EN — one per line)"
+msgstr "Verdedigende taken (EN — één per regel)"
+
+msgid "Slug"
+msgstr "Slug"
+
+msgid "Kind"
+msgstr "Soort"
+
+msgid "Side"
+msgstr "Kant"
+
+msgid "Bullets (NL — one per line)"
+msgstr "Punten (NL — één per regel)"
+
+msgid "Bullets (EN — one per line)"
+msgstr "Punten (EN — één per regel)"
+
+msgid "Way of playing (NL)"
+msgstr "Speelwijze (NL)"
+
+msgid "Way of playing (EN)"
+msgstr "Speelwijze (EN)"
+
+msgid "Important traits (NL — one per line)"
+msgstr "Belangrijke eigenschappen (NL — één per regel)"
+
+msgid "Important traits (EN — one per line)"
+msgstr "Belangrijke eigenschappen (EN — één per regel)"
+
+msgid "Notes (NL)"
+msgstr "Notities (NL)"
+
+msgid "Notes (EN)"
+msgstr "Notities (EN)"
+
+msgid "Style of play"
+msgstr "Speelwijze"
+
+msgid "Speelwijze"
+msgstr "Speelwijze"
+
+msgid "Belangrijke eigenschappen"
+msgstr "Belangrijke eigenschappen"
+
+msgid "Style of play:"
+msgstr "Speelwijze:"
+
+msgid "(not yet articulated)"
+msgstr "(nog niet uitgewerkt)"
+
+msgid "No vision recorded yet."
+msgstr "Nog geen visie vastgelegd."
+
+msgid "No principles available."
+msgstr "Geen principes beschikbaar."
+
+msgid "No set pieces available."
+msgstr "Geen spelhervattingen beschikbaar."
+
+msgid "No formations available."
+msgstr "Geen formaties beschikbaar."
+
+msgid "No formations available yet."
+msgstr "Nog geen formaties beschikbaar."
+
+msgid "Vision not yet recorded."
+msgstr "Visie nog niet vastgelegd."
+
+msgid "tasks"
+msgstr "taken"
+
+msgid "Linked principle"
+msgstr "Gekoppeld principe"
+
+msgid "Optional. Links this goal to a methodology principle."
+msgstr "Optioneel. Koppelt dit doel aan een methodologiepricipe."
+
+msgid "Principles practiced"
+msgstr "Geoefende principes"
+
+msgid "Optional. Hold Ctrl/Cmd to select multiple."
+msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
+
+msgid "Principles, formations, positions and set pieces."
+msgstr "Principes, formaties, posities en spelhervattingen."
+
+msgid "Principles"
+msgstr "Principes"
+
+msgid "Formations & positions"
+msgstr "Formaties & posities"
+
+msgid "Set pieces"
+msgstr "Spelhervattingen"
+
+msgid "Vision"
+msgstr "Visie"
+
+msgid "Formation diagram: %s"
+msgstr "Formatiediagram: %s"
+
+msgid "Cloned. Edit the new copy."
+msgstr "Gekloond. Bewerk de nieuwe kopie."
+
+msgid "Clone failed."
+msgstr "Klonen mislukt."
+
+msgid "Archived."
+msgstr "Gearchiveerd."
+
+msgid "No formation diagram authored for this principle."
+msgstr "Geen formatiediagram bij dit principe aangemaakt."
+
+msgid "Shipped principles are read-only. Use Clone & Edit instead."
+msgstr "Geleverde principes zijn alleen-lezen. Gebruik Klonen & bewerken."
+
+msgid "Shipped positions are read-only. Use Clone & Edit instead."
+msgstr "Geleverde posities zijn alleen-lezen. Gebruik Klonen & bewerken."
+
+msgid "Shipped set pieces are read-only. Use Clone & Edit instead."
+msgstr "Geleverde spelhervattingen zijn alleen-lezen. Gebruik Klonen & bewerken."
+
+msgid "The shipped sample vision is read-only. Create a new club vision instead."
+msgstr "De geleverde voorbeeldvisie is alleen-lezen. Maak een eigen clubvisie aan."
+
+msgid "Invalid team-function or team-task."
+msgstr "Ongeldige team-functie of team-taak."
+
+msgid "Invalid kind or side."
+msgstr "Ongeldige soort of kant."
+
+msgid "You do not have permission to view the methodology library."
+msgstr "Je hebt geen rechten om de methodologiebibliotheek te bekijken."
 

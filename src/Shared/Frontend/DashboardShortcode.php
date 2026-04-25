@@ -126,7 +126,7 @@ class DashboardShortcode {
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
         $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-sessions', 'my-goals', 'profile' ];
-        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'sessions', 'goals', 'podium' ];
+        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'sessions', 'goals', 'podium', 'methodology' ];
         $analytics_slugs = [ 'rate-cards', 'compare' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
         $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details' ];
@@ -244,6 +244,9 @@ class DashboardShortcode {
                 break;
             case 'podium':
                 FrontendPodiumView::render( $user_id, $is_admin );
+                break;
+            case 'methodology':
+                \TT\Modules\Methodology\Frontend\MethodologyView::render();
                 break;
             default:
                 FrontendBackButton::render();
