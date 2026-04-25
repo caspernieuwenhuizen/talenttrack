@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 3.14.0\n"
+"Project-Id-Version: TalentTrack 3.15.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-04-25 10:00+0000\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
@@ -11,6 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 
 
 msgid "(directory not found!)"
@@ -4085,3 +4086,181 @@ msgstr "Installatie starten"
 
 msgid "Skip for now"
 msgstr "Sla nu over"
+
+msgid "Backups"
+msgstr "Back-ups"
+
+msgid "Schedule snapshots of your TalentTrack data and restore them when needed. Backups cover the plugin's own tables only — not WordPress users or media uploads."
+msgstr "Plan momentopnamen van je TalentTrack-gegevens en zet ze terug wanneer nodig. Back-ups dekken alleen de eigen tabellen van de plugin — geen WordPress-gebruikers of media-uploads."
+
+msgid "Last run:"
+msgstr "Laatste run:"
+
+msgid "%s ago — success."
+msgstr "%s geleden — succesvol."
+
+msgid "%1$s ago — failed (%2$s)."
+msgstr "%1$s geleden — mislukt (%2$s)."
+
+msgid "Minimal: core data only. Standard: everyday operational data. Thorough: everything including audit log and lookups."
+msgstr "Minimaal: alleen basisgegevens. Standaard: dagelijkse operationele gegevens. Uitgebreid: alles inclusief auditlog en opzoeklijsten."
+
+msgid "Custom tables"
+msgstr "Aangepaste tabellen"
+
+msgid "Only used when preset is \"Custom\". One table per line, including the tt_ prefix but not the WordPress prefix."
+msgstr "Alleen gebruikt als de preset \"Aangepast\" is. Eén tabel per regel, inclusief de tt_-prefix maar zonder de WordPress-prefix."
+
+msgid "Schedule"
+msgstr "Schema"
+
+msgid "Daily"
+msgstr "Dagelijks"
+
+msgid "Weekly"
+msgstr "Wekelijks"
+
+msgid "On demand"
+msgstr "Op aanvraag"
+
+msgid "Retention"
+msgstr "Bewaartermijn"
+
+msgid "Keep this many local backups before purging the oldest."
+msgstr "Bewaar zoveel lokale back-ups voordat de oudste worden verwijderd."
+
+msgid "Local destination"
+msgstr "Lokale bestemming"
+
+msgid "Save backups to %s"
+msgstr "Sla back-ups op in %s"
+
+msgid "Save backups to wp-content/uploads/talenttrack-backups/"
+msgstr "Sla back-ups op in wp-content/uploads/talenttrack-backups/"
+
+msgid "Email destination"
+msgstr "E-mailbestemming"
+
+msgid "Email each backup to the recipients below"
+msgstr "E-mail elke back-up naar onderstaande ontvangers"
+
+msgid "Comma-separated list. Files larger than 10 MB will not be attached — recipients receive a notice instead."
+msgstr "Lijst gescheiden door komma's. Bestanden groter dan 10 MB worden niet meegestuurd — ontvangers krijgen alleen een melding."
+
+msgid "Save backup settings"
+msgstr "Back-upinstellingen opslaan"
+
+msgid "Run a backup now"
+msgstr "Maak nu een back-up"
+
+msgid "Triggers a backup with the current settings without waiting for the scheduled run. Useful for testing, before risky operations, or on low-traffic sites where WP-cron does not fire reliably."
+msgstr "Start een back-up met de huidige instellingen zonder op het geplande moment te wachten. Handig voor testen, voor risicovolle handelingen, of op sites met weinig verkeer waar WP-cron onbetrouwbaar is."
+
+msgid "Run backup now"
+msgstr "Nu back-up maken"
+
+msgid "Stored backups (local)"
+msgstr "Opgeslagen back-ups (lokaal)"
+
+msgid "No local backups yet."
+msgstr "Nog geen lokale back-ups."
+
+msgid "Filename"
+msgstr "Bestandsnaam"
+
+msgid "Size"
+msgstr "Grootte"
+
+msgid "Download"
+msgstr "Downloaden"
+
+msgid "Delete this backup file?"
+msgstr "Dit back-upbestand verwijderen?"
+
+msgid "Restore from backup"
+msgstr "Terugzetten vanuit back-up"
+
+msgid "Backup not found."
+msgstr "Back-up niet gevonden."
+
+msgid "This action will replace the current data with the contents of the backup."
+msgstr "Deze actie vervangt de huidige gegevens door de inhoud van de back-up."
+
+msgid " Snapshot created %1$s on plugin version %2$s."
+msgstr " Momentopname gemaakt %1$s met plugin-versie %2$s."
+
+msgid "Table"
+msgstr "Tabel"
+
+msgid "Rows"
+msgstr "Rijen"
+
+msgid "Type RESTORE to confirm:"
+msgstr "Typ RESTORE ter bevestiging:"
+
+msgid "Restore from this backup"
+msgstr "Vanuit deze back-up terugzetten"
+
+msgid "Backup file not readable."
+msgstr "Back-upbestand kan niet worden gelezen."
+
+msgid "Backup file is not a valid TalentTrack snapshot."
+msgstr "Back-upbestand is geen geldige TalentTrack-snapshot."
+
+msgid "Backup checksum failed verification."
+msgstr "Controlesom van de back-up is niet correct."
+
+msgid "Cannot restore: snapshot is from version %1$s, this site runs %2$s. Cross-major-version restores are not supported."
+msgstr "Kan niet terugzetten: snapshot is van versie %1$s, deze site draait %2$s. Terugzetten tussen verschillende hoofdversies wordt niet ondersteund."
+
+msgid "Backup file is not valid."
+msgstr "Back-upbestand is ongeldig."
+
+msgid "Restore completed but row counts do not match: %s"
+msgstr "Terugzetten voltooid maar rijaantallen komen niet overeen: %s"
+
+msgid "Backups:"
+msgstr "Back-ups:"
+
+msgid "Next backup: %s."
+msgstr "Volgende back-up: %s."
+
+msgid "Backup settings →"
+msgstr "Back-upinstellingen →"
+
+msgid "No destinations enabled."
+msgstr "Geen bestemmingen ingeschakeld."
+
+msgid "No backup has run yet."
+msgstr "Er is nog geen back-up uitgevoerd."
+
+msgid "Last backup failed %1$s ago (%2$s)."
+msgstr "Laatste back-up mislukt %1$s geleden (%2$s)."
+
+msgid "Last backup %s ago."
+msgstr "Laatste back-up %s geleden."
+
+msgid "Last backup %s ago — past schedule."
+msgstr "Laatste back-up %s geleden — schema overschreden."
+
+msgid "Last backup %s ago — backups are stale."
+msgstr "Laatste back-up %s geleden — back-ups zijn verouderd."
+
+msgid "Set up backups"
+msgstr "Back-ups instellen"
+
+msgid "Schedule daily backups so a hosting hiccup does not lose your data."
+msgstr "Plan dagelijkse back-ups zodat een hosting-hapering geen gegevens kost."
+
+msgid "[%1$s] TalentTrack backup ready (too large to email): %2$s"
+msgstr "[%1$s] TalentTrack-back-up klaar (te groot voor e-mail): %2$s"
+
+msgid "A TalentTrack backup was created at %1$s but is too large to email (%2$.1f MB > %3$.0f MB cap).\n\nThe backup is stored locally. Sign in to wp-admin to download or restore it."
+msgstr "Er is op %1$s een TalentTrack-back-up gemaakt, maar deze is te groot om te e-mailen (%2$.1f MB > %3$.0f MB-limiet).\n\nDe back-up is lokaal opgeslagen. Log in op wp-admin om hem te downloaden of terug te zetten."
+
+msgid "[%1$s] TalentTrack backup: %2$s"
+msgstr "[%1$s] TalentTrack-back-up: %2$s"
+
+msgid "Attached: TalentTrack backup for %1$s.\nPreset: %2$s. Size: %3$.1f MB.\n\nKeep this file safe — it contains personal data subject to your retention policy."
+msgstr "Bijgevoegd: TalentTrack-back-up voor %1$s.\nPreset: %2$s. Grootte: %3$.1f MB.\n\nBewaar dit bestand veilig — het bevat persoonsgegevens die onder je bewaarbeleid vallen."
+
