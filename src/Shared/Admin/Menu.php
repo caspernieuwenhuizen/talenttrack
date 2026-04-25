@@ -67,6 +67,21 @@ class Menu {
         add_menu_page( __( 'TalentTrack', 'talenttrack' ), __( 'TalentTrack', 'talenttrack' ), 'read', 'talenttrack', [ __CLASS__, 'dashboard' ], 'dashicons-groups', 26 );
         add_submenu_page( 'talenttrack', __( 'Dashboard', 'talenttrack' ), __( 'Dashboard', 'talenttrack' ), 'read', 'talenttrack', [ __CLASS__, 'dashboard' ] );
 
+        // #0024 — Setup wizard menu entry. Visible only while the
+        // wizard hasn't been completed (or the admin came in via the
+        // ?force_welcome=1 reset flow). Sits directly under Dashboard
+        // so it's the first thing a fresh installer sees.
+        if ( self::shouldShowWelcome() ) {
+            add_submenu_page(
+                'talenttrack',
+                __( 'Welcome', 'talenttrack' ),
+                __( 'Welcome', 'talenttrack' ),
+                \TT\Modules\Onboarding\Admin\OnboardingPage::CAP,
+                \TT\Modules\Onboarding\Admin\OnboardingPage::SLUG,
+                [ \TT\Modules\Onboarding\Admin\OnboardingPage::class, 'render' ]
+            );
+        }
+
         // #0019 Sprint 6 — legacy-UI toggle. When `tt_show_legacy_menus`
         // is OFF (default), the migrated wp-admin pages are hidden from
         // the menu; direct URLs still work as an emergency fallback.
@@ -185,6 +200,17 @@ class Menu {
     public static function shouldShowLegacyMenus(): bool {
         $value = QueryHelpers::get_config( 'show_legacy_menus', '0' );
         return $value === '1' || $value === 1 || $value === true;
+    }
+
+    /**
+     * #0024 — show the Welcome submenu while the setup wizard hasn't
+     * been completed/dismissed. Force-on via `?force_welcome=1` so the
+     * Reset link can re-enter the wizard from a completed install.
+     */
+    public static function shouldShowWelcome(): bool {
+        if ( isset( $_GET['force_welcome'] ) && $_GET['force_welcome'] === '1' ) return true;
+        if ( ! class_exists( '\TT\Modules\Onboarding\OnboardingState' ) ) return false;
+        return \TT\Modules\Onboarding\OnboardingState::shouldShowWelcome();
     }
 
     public static function dashboard(): void {

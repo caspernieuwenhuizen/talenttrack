@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 3.12.1\n"
+"Project-Id-Version: TalentTrack 3.14.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-04-25 10:00+0000\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
@@ -11,7 +11,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
 
 
 msgid "(directory not found!)"
@@ -3918,3 +3917,171 @@ msgstr "TalentTrack-voorkeuren"
 msgid "⚠ One or more ratings are at or below %s — please add a comment explaining the low score."
 msgstr "⚠ Eén of meer beoordelingen liggen op of onder %s — voeg een toelichting toe waarom."
 
+
+msgid "Setup wizard"
+msgstr "Installatiewizard"
+
+msgid "Setup is complete."
+msgstr "Installatie is voltooid."
+
+msgid "Reset wizard"
+msgstr "Wizard opnieuw starten"
+
+msgid "Unknown step."
+msgstr "Onbekende stap."
+
+msgid "Set up your academy"
+msgstr "Stel je academie in"
+
+msgid "TalentTrack is a youth football talent management plugin. This wizard creates your first team, your admin profile, and a few defaults so you can start tracking players today. Each step takes about a minute."
+msgstr "TalentTrack is een plugin voor talentmanagement bij jeugdvoetbal. Deze wizard maakt je eerste team, je beheerprofiel en enkele standaardwaarden aan zodat je vandaag kunt beginnen met spelers volgen. Elke stap duurt ongeveer een minuut."
+
+msgid "If you would rather see what TalentTrack looks like with sample data first, the demo button below loads a realistic academy dataset. You can wipe it and start over at any time."
+msgstr "Wil je liever eerst zien hoe TalentTrack eruitziet met voorbeeldgegevens? Dan laadt de demo-knop hieronder een realistische academiedataset. Je kunt deze op elk moment wissen en opnieuw beginnen."
+
+msgid "Set up my academy"
+msgstr "Mijn academie instellen"
+
+msgid "Try with sample data"
+msgstr "Probeer met voorbeeldgegevens"
+
+msgid "Academy basics"
+msgstr "Basisgegevens academie"
+
+msgid "These show up across the plugin: in the dashboard header, on player rate cards, and in printed reports. You can change them later under Configuration."
+msgstr "Deze gegevens verschijnen overal in de plugin: in de dashboardkop, op rate cards van spelers en in afgedrukte rapporten. Je kunt ze later wijzigen onder Configuratie."
+
+msgid "Academy name"
+msgstr "Naam academie"
+
+msgid "Primary color"
+msgstr "Primaire kleur"
+
+msgid "Used for headers, links, and the FIFA-style player card."
+msgstr "Gebruikt voor koppen, links en de FIFA-achtige spelerskaart."
+
+msgid "Season label"
+msgstr "Seizoenlabel"
+
+msgid "Free-form. Most clubs use \"2025/2026\" or similar."
+msgstr "Vrije tekst. De meeste clubs gebruiken \"2025/2026\" of vergelijkbaar."
+
+msgid "Date format"
+msgstr "Datumnotatie"
+
+msgid "Continue"
+msgstr "Doorgaan"
+
+msgid "First team"
+msgstr "Eerste team"
+
+msgid "Add one team now. You can add more later under Teams. Players, evaluations, sessions, and goals all attach to a team, so we need at least one to make the rest of the plugin useful."
+msgstr "Voeg nu één team toe. Meer toevoegen kan later onder Teams. Spelers, evaluaties, sessies en doelen horen allemaal bij een team, dus we hebben er minstens één nodig om de rest van de plugin nuttig te maken."
+
+msgid "Pick the closest match. New age groups can be added under Configuration → Lookups."
+msgstr "Kies de dichtstbijzijnde match. Nieuwe leeftijdscategorieën kunnen worden toegevoegd onder Configuratie → Opzoeklijsten."
+
+msgid "Skip"
+msgstr "Overslaan"
+
+msgid "First admin"
+msgstr "Eerste beheerder"
+
+msgid "You are signed in as %s. We will create a TalentTrack staff record for you and link it to your WP account so evaluations, sessions, and notifications all reference the right person."
+msgstr "Je bent ingelogd als %s. We maken een TalentTrack-stafrecord voor je en koppelen dit aan je WP-account zodat evaluaties, sessies en meldingen allemaal naar de juiste persoon verwijzen."
+
+msgid "Club admin role"
+msgstr "Rol Clubbeheerder"
+
+msgid "Grant me the Club Admin role (recommended)"
+msgstr "Ken mij de rol Clubbeheerder toe (aanbevolen)"
+
+msgid "Club Admins can manage all teams, players, evaluations, and configuration."
+msgstr "Clubbeheerders kunnen alle teams, spelers, evaluaties en configuratie beheren."
+
+msgid "Setup complete"
+msgstr "Installatie voltooid"
+
+msgid "You are ready to use TalentTrack. Here is what was set up:"
+msgstr "Je bent klaar om TalentTrack te gebruiken. Dit is wat is ingesteld:"
+
+msgid "Academy: %s"
+msgstr "Academie: %s"
+
+msgid "Team: %1$s (%2$s)"
+msgstr "Team: %1$s (%2$s)"
+
+msgid "Admin: %s"
+msgstr "Beheerder: %s"
+
+msgid "Recommended next steps"
+msgstr "Aanbevolen vervolgstappen"
+
+msgid "Add players"
+msgstr "Spelers toevoegen"
+
+msgid "Build out your roster — by hand or via CSV import."
+msgstr "Bouw je selectie op — handmatig of via CSV-import."
+
+msgid "Invite first coach"
+msgstr "Eerste coach uitnodigen"
+
+msgid "Add a coach as a staff record so they can record evaluations."
+msgstr "Voeg een coach toe als stafrecord zodat hij/zij evaluaties kan vastleggen."
+
+msgid "Customize branding"
+msgstr "Branding aanpassen"
+
+msgid "Logo, colors, secondary palette, theme inheritance."
+msgstr "Logo, kleuren, secundair palet, thema-overerving."
+
+msgid "Create dashboard page"
+msgstr "Dashboardpagina aanmaken"
+
+msgid "A frontend page with the [talenttrack_dashboard] shortcode so coaches and players can sign in."
+msgstr "Een frontend-pagina met de shortcode [talenttrack_dashboard] zodat coaches en spelers kunnen inloggen."
+
+msgid "Go to dashboard"
+msgstr "Ga naar dashboard"
+
+msgid "TalentTrack — Setup wizard"
+msgstr "TalentTrack — Installatiewizard"
+
+msgid "1. Welcome"
+msgstr "1. Welkom"
+
+msgid "2. Academy basics"
+msgstr "2. Basisgegevens academie"
+
+msgid "3. First team"
+msgstr "3. Eerste team"
+
+msgid "4. First admin"
+msgstr "4. Eerste beheerder"
+
+msgid "5. Done"
+msgstr "5. Klaar"
+
+msgid "Team created."
+msgstr "Team aangemaakt."
+
+msgid "Admin record created."
+msgstr "Beheerdersrecord aangemaakt."
+
+msgid "Wizard reset."
+msgstr "Wizard opnieuw gestart."
+
+msgid "Frontend dashboard page created."
+msgstr "Frontend-dashboardpagina aangemaakt."
+
+msgid "Welcome to TalentTrack"
+msgstr "Welkom bij TalentTrack"
+
+msgid "A short setup wizard creates your first team and admin profile so you can start tracking players."
+msgstr "Een korte installatiewizard maakt je eerste team en beheerprofiel aan zodat je kunt beginnen met spelers volgen."
+
+msgid "Start setup"
+msgstr "Installatie starten"
+
+msgid "Skip for now"
+msgstr "Sla nu over"
