@@ -8,16 +8,17 @@ _None._
 
 ## Ready (shaped, decisions locked)
 
-_None — pick the next item from "Needs shaping" or "Not started" below._
+| # | Topic | Type | Spec | Estimated |
+| - | - | - | - | - |
+| 0026 | Guest-player attendance | feat | [specs/0026-feat-guest-player-attendance.md](specs/0026-feat-guest-player-attendance.md) | ~10h |
+| 0029 | Documentation split (user / admin / dev) | feat | [specs/0029-feat-documentation-split-user-admin.md](specs/0029-feat-documentation-split-user-admin.md) | ~17h |
+| 0025 | Multilingual auto-translate flow | feat | [specs/0025-feat-multilingual-auto-translate.md](specs/0025-feat-multilingual-auto-translate.md) | ~26h |
+| 0027 | Football methodology module | feat | [specs/0027-feat-football-methodology-module.md](specs/0027-feat-football-methodology-module.md) | ~52h (4 sprints) |
 
 ## Needs refinement / shaping
 
 | # | Topic | Type | Open questions | Estimated |
 | - | - | - | - | - |
-| 0025 | Multilingual auto-translate flow | feat | Engine cost ceiling, cache invalidation, GDPR sub-processor, localization touch-list | ~20-30h |
-| 0026 | Guest-player attendance | feat | Cap interaction, anonymous-trial cleanup, eval ownership | ~8-12h |
-| 0027 | Football methodology module | feat | Catalogue scope, update mechanics, namespacing, sharing across clubs | ~50-70h |
-| 0029 | Documentation split (user / admin / dev) | feat | Folder vs manifest, translation priority, in-product viewer integration | ~15-20h |
 | 0030 | Branding + go-to-market | epic | Brand voice, logo sourcing, site tech, domain, pricing copy, screenshots, pilot recruitment, launch channel (Q1-Q8) | ~45-65h |
 
 ## Not started (no shaping needed before build)
@@ -67,10 +68,10 @@ _None — pick the next item from "Needs shaping" or "Not started" below._
 
 ## What's next
 
-#0011 monetization closed in v3.17.0; #0013 closed in v3.16.0; #0024 closed in v3.14.0; #0019 closed in v3.12.0. Three multi-sprint epics shaped + shipped on the same day. Realistic next moves:
+#0011 monetization closed in v3.17.0; #0013 closed in v3.16.0; #0024 closed in v3.14.0; #0019 closed in v3.12.0; #0003 + #0004 shipped in v3.18.0. Four items now shaped and Ready (#0025, #0026, #0027, #0029). Realistic next moves:
 
-1. **Shape #0030** — branding + go-to-market (Q1-Q8 from the new idea file). The natural follow-on to monetization; without it, the licensing scaffold has nothing to direct people to.
-2. **Shape #0025-#0029** — each has open questions; tackle one at a time.
+1. **Implement from Ready** — pick the smallest first (#0026 ~10h) for momentum, or the highest-value (#0027 methodology, ~52h across 4 sprints) for a bigger pay-off. #0029 (~17h) unblocks the multi-language scope on #0010. #0025 (~26h) delivers most value alongside or after #0010.
+2. **Shape #0030** — branding + go-to-market (Q1-Q8 from the new idea file). The natural follow-on to monetization; without it, the licensing scaffold has nothing to direct people to.
 3. **Pick from "Not started"** — #0014 Player profile rebuild is the highest-leverage next epic since it unblocks #0017.
 
 ## Total backlog effort estimate
