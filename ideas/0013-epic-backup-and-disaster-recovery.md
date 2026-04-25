@@ -229,3 +229,87 @@ Schema: probably no new tables needed — backup state (last run, last success, 
 Hooks into bulk operation endpoints across existing modules for the pre-bulk auto-backup trigger.
 Config constants in `wp-config.php`: `TT_BACKUP_S3_KEY`, `TT_BACKUP_S3_SECRET`, `TT_BACKUP_S3_BUCKET`, `TT_BACKUP_S3_REGION`, `TT_BACKUP_S3_ENDPOINT` (for non-AWS S3-compatible).
 DEVOPS.md: document WP-Cron reliability + real-cron fallback.
+
+---
+
+## Idea-funnel additions (April 2026 v3)
+
+Additions from a separate strategic-thinking pass (the "idea funnel" doc, since merged in). They sharpen the existing scope and surface a few decisions worth making explicitly.
+
+### DR as the strongest monetization argument
+
+Worth stating plainly: **clubs pay for data safety in a way they don't pay for features**. Tiered backup feature levels map cleanly onto Free / Pro / Business pricing and are likely the single strongest upgrade trigger in the eventual #0011 monetization model.
+
+| Tier | Backup features |
+| - | - |
+| Free | Local backups (server filesystem), daily, last 7 retained. Manual restore. |
+| Pro | Scheduled backups to cloud drive of choice. 30-day retention. Email notifications. One-click restore. |
+| Business | Hourly backups. Selective restore (per-table, per-team). 90-day retention. SLA. |
+| Enterprise / Managed | Point-in-time recovery (requires managed hosting tier from #0011 Path B). Unlimited retention. Dedicated support. |
+
+This shapes which of the existing sprints in this epic ships at which tier — confirm during shaping.
+
+### OAuth ownership question — plugin-owned vs club-owned
+
+The existing scope mentions Dropbox / Google Drive as cloud destinations but doesn't surface this architectural choice. It matters:
+
+- **Plugin-owned OAuth app**: We register the OAuth app once with each provider. All clubs use our credentials. Quick setup, lower club friction, but we maintain OAuth consent, pass verification (Google especially), and bear consequences if API quota is exhausted or our app is suspended.
+- **Club-owned OAuth credentials**: Each club registers their own app and pastes credentials. Higher friction, but no central dependency on us, no quota issues, no review process. Fine for power-user tier. Blocker for average clubs.
+
+**Recommended approach (matches existing spec's S3-first ordering)**: ship S3-compatible as the first-class cloud destination (universal, lowest friction, no OAuth dance), then add Google Drive / OneDrive / Dropbox as Pro-tier convenience integrations once the core feature is proven. Use plugin-owned OAuth apps for those — friction matters more than maintenance burden at the small scale.
+
+### Wizard UX vs single settings page
+
+Existing spec has a single settings view. Funnel suggests a 5-step "next-next-finish" wizard:
+
+1. **What to back up** — TalentTrack data / WordPress DB / media uploads / full site (advanced)
+2. **When to back up** — daily / weekly / before plugin updates (always on) / before migrations (always on) / retention
+3. **Where to send it** — local / email / Google Drive / Dropbox / OneDrive / S3-compatible / SFTP
+4. **Notifications** — email on success (off by default) / email on failure (on by default)
+5. **Review & finish** — summary + "Run a test backup now" button
+
+The wizard matches the mental model of WP admins who've used UpdraftPlus or similar. **The decision: wizard for first-time setup, settings page for ongoing tweaks.** Same 3 presets (Minimal / Standard / Thorough) appear at step 1 of the wizard as quick-start options.
+
+### Selective restore as a differentiating feature
+
+The existing partial-restore sprint is the right scope but it's worth naming what makes it competitive:
+
+- "Only restore `tt_evaluations`" — undo a bad bulk evaluation import without losing other changes
+- "Only restore Team X's data" — fix a scoped incident without reverting everyone
+- "Only restore to before date Y" — time-travel for specific data without touching users / settings
+
+**Generic backup plugins (UpdraftPlus, BackWPup, etc.) can't do this** because they don't understand the schema. TalentTrack's backup module does, because it's domain-aware. This is the headline Pro-tier selling point in the eventual marketing copy.
+
+### Point-in-time recovery — the honest framing
+
+Real PITR (restore to any second in the retention window) requires MySQL binary log archiving, which requires server-level access most WordPress hosts don't provide. This is why every serious SaaS uses managed databases (RDS, Cloud SQL, Supabase) — they handle PITR at the infrastructure layer.
+
+**What's possible in a self-hosted plugin:**
+- Daily / hourly snapshots → restore to one of those discrete points
+- Pre-bulk-action snapshots (already in the existing spec)
+- Transaction-log-based approaches are essentially out of scope for plugin-level code
+
+**"Restore to date X" in the plugin context therefore means**: "Restore to the nearest scheduled snapshot before X" — typically accurate to the day or hour depending on schedule. Not second-level PITR. Acceptable for the target customer segment; "restore to yesterday's 3am backup" solves 95% of real-world cases.
+
+True PITR becomes viable only if/when #0011 Path B (managed hosting) ships.
+
+### GDPR — concrete obligations beyond "encrypt + control access"
+
+The existing spec mentions GDPR retention; the funnel articulates the specific obligations:
+
+- **Article 32** — "appropriate technical and organizational measures" for data security. Backups with encryption + access controls are explicitly relevant. Documenting our crypto-at-rest + transit posture publicly is a sales asset.
+- **Article 33** — breach notification within 72 hours. Backup strategy is relevant to impact assessment ("we have backups from before the breach, exposure is bounded").
+- **Right to erasure (Article 17)** — when a parent requests their child's data be erased, that erasure must propagate to backups eventually. Retention policies need to consider this — e.g., backups older than 30 days automatically purge PII, or retention logs track erasure obligations.
+
+These aren't blockers — they shape retention and encryption requirements. The backup feature should document its GDPR posture clearly so clubs that do their own GDPR assessments appreciate the clarity.
+
+### Revised sprint sequencing notes
+
+Cross-reference with #0011 (the funnel's path through monetization):
+
+- **Sprint 1 (Backup foundation)** ships free — every club gets reasonable data safety regardless of tier.
+- **Sprint 4 (Cloud destinations)** becomes a Pro-tier feature once #0011 monetization ships.
+- **Sprint 5 (Selective restore)** is Business-tier differentiation.
+- True PITR is **out of scope for the plugin epic** — it requires #0011 Path B.
+
+**Alternative ordering worth considering** (raised by the funnel): swap the order of #0011 Sprint 2B (payment infrastructure) and the cloud-destinations sprint here. Ship the local-backup foundation as a free feature first (clear user value, no commercial risk), build community goodwill, *then* add the payment rails with cloud backups as the first thing to sell. Slightly more circuitous but lower risk. Revisit when the time comes.
