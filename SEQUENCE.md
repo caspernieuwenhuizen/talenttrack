@@ -122,7 +122,7 @@ Phase 2 subtotal: ~23h.
 | Rank | Item | Type | Effort | Notes |
 | --- | --- | --- | --- | --- |
 | 11 | **#0019 Sprint 4** — people + functional roles | epic | ~12h actual | **COMPLETE** in v3.10.0. Reports deferred to #0014. People REST + frontend; FunctionalRoles tile with Roles + Assignments tabs; team-edit cross-link summary. Single PR per Casper's Q8 preference. Prerequisite for #0017 unblocked. |
-| 12 | **#0019 Sprint 5** — admin-tier frontend | epic | ~25h | Configuration, migrations, roles (absorbs #0002), custom fields, usage stats. |
+| 12 | **#0019 Sprint 5** — admin-tier frontend | epic | ~14h actual | **COMPLETE** in v3.11.0. Single PR per Casper's Q8. New `tt_access_frontend_admin` cap; Administration tile group with 6 tiles (Configuration, Custom Fields, Eval Categories, Roles, Migrations, Usage Stats). Audit viewer deferred to #0021; CategoryWeights + Roles cap-edit deep-link to wp-admin. |
 | 13 | **#0019 Sprint 6** — cleanup + legacy UI toggle | epic | ~10h | Removes/deprecates old wp-admin pages. Default-OFF toggle preserves access. |
 | 14 | **#0021** — audit log viewer | feat | ~10h | Carved out during shaping. Adjacent to Sprint 6's cleanup. |
 

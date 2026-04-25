@@ -1,3 +1,57 @@
+# TalentTrack v3.11.0 — #0019 Sprint 5: Admin-tier surfaces on the frontend
+
+**Minor release.** Closes Sprint 5 of the #0019 frontend-first-admin epic. Six wp-admin-only surfaces become first-class frontend tiles, gated by a new `tt_access_frontend_admin` capability. Single PR per Q8 in shaping. ~14h actual against ~28-32h spec — the existing repositories (`PeopleRepository`, `FunctionalRolesRepository`, `CustomFieldsRepository`, `EvalCategoriesRepository`, `MigrationRunner`, `UsageTracker`) carried most of the domain logic.
+
+## New `tt_access_frontend_admin` capability
+
+Added to `RolesService::roleDefinitions()` for `tt_head_dev` and to the `ensureCapabilities()` loop for the WP `administrator` role. Activation and existing installs both pick it up automatically (the migration runner re-runs `ensureCapabilities()` on every plugin upgrade).
+
+## Administration tile group
+
+The dashboard's "Administration" group used to be a single tile that punted to wp-admin. It now holds six first-class tiles plus the wp-admin link as a fallback escape hatch.
+
+## The six surfaces
+
+### Configuration — `?tt_view=configuration`
+Branding (academy, logo, primary/secondary colors), the full #0023 theme-inheritance + curated styling fields, and rating-scale tuning. Logo upload via `wp_enqueue_media()` (Sprint 3 pattern). Saves through `POST /talenttrack/v1/config` — a new whitelisted-keys endpoint gated on `tt_edit_settings`. Lookup tables, evaluation types, feature toggles and the audit log link out to wp-admin (Q2 in shaping kept the port focused on the most-changed fields).
+
+### Custom Fields — `?tt_view=custom-fields`
+List via `FrontendListTable` with entity-type filter; create/edit/delete via separate `?action=new` / `?id=N` routes; up/down arrow reorder per the Sprint 4 pattern. Hidden `options[]` array is built from a textarea on submit so list-style fields (select, multi-select, checkbox-group) get one-option-per-line input. Delete is rejected with a `409 in_use` when stored values exist — operator is told to deactivate instead.
+
+### Eval Categories — `?tt_view=eval-categories`
+Hierarchical tree (main + sub) rendered via repository's `getTree()`. Per-level up/down arrow reorder. Delete is rejected if children exist or if any rating still references the category. Per-age-group weight editing (the v2.13.0 `CategoryWeightsPage` UI) keeps living in wp-admin — deep-link button at the top of the view.
+
+### Roles — `?tt_view=roles`
+Read-only reference panel for the eight TalentTrack roles. Read-Only Observer card is highlighted with a gold border + "often-missed" badge per the spec. Each card shows: role label + slug, plain-language description, count of users with the role (deep-link to the wp-admin Users list filtered by role), collapsible capabilities detail, "How to assign" inline note. Cap grant/revoke editing keeps living in the existing wp-admin `RolesPage` for Sprint 5 — deep-link surfaces it.
+
+### Migrations — `?tt_view=migrations`
+Read-only status. Lists applied + pending migrations. Pending migrations surface a prominent warning banner with a "Open wp-admin to run them" deep-link. Spec was emphatic about NOT exposing migration execution on the frontend (forced friction on irreversible operations is the right design); this view honors that.
+
+### Usage Stats — `?tt_view=usage-stats`
+Six headline KPI tiles (logins / active users at 7/30/90 day windows), DAU line chart, evaluations-per-day bar chart, and active-users-by-role table. Reuses Chart.js from the wp-admin page (Q7 in shaping). Drill-down detail pages (per-day user lists) link out to wp-admin.
+
+## REST controllers
+
+Three new + extensions to existing:
+
+| Controller | Routes | Notes |
+| --- | --- | --- |
+| `ConfigRestController` | `GET/POST /config` | Whitelisted keys; `tt_edit_settings`. |
+| `CustomFieldsRestController` | `GET/POST /custom-fields`, `PUT/DELETE /custom-fields/{id}`, `POST /custom-fields/{id}/move` | Wraps `CustomFieldsRepository`. Refuses delete when values exist. |
+| `EvalCategoriesRestController` | `GET/POST /eval-categories`, `PUT/DELETE /eval-categories/{id}`, `POST /eval-categories/{id}/move` | Wraps `EvalCategoriesRepository`. Refuses delete with children or ratings. |
+
+Registered in `ConfigurationModule::boot()` (Config + CustomFields) and `EvaluationsModule::boot()` (EvalCategories). Existing PeopleModule + AuthorizationModule stay unchanged from Sprint 4.
+
+## Wired up
+
+- `tt_access_frontend_admin` cap added to RolesService for `tt_head_dev` + administrator grant.
+- New `assets/js/components/admin-reorder.js` — generic up/down arrow + delete handler used by the Eval Categories tree.
+- 60+ new Dutch strings; one new TT JS i18n key.
+
+## Sprint 5 — done
+
+Per SEQUENCE.md, Sprint 5 is now COMPLETE. Sprint 6 (cleanup + legacy-UI toggle — removes / deprecates the now-redundant wp-admin pages behind a default-OFF toggle) is the last sprint in the epic. The #0019 frontend-first vision is essentially landed.
+
 # TalentTrack v3.10.0 — #0019 Sprint 4: People + Functional Roles
 
 **Minor release.** Closes Sprint 4 of the #0019 frontend-first-admin epic. Single-PR session per shaping. People (staff records) and Functional Roles (the "who does what on which team" layer) get full CRUD on the frontend. The HoD weekly workflow of assigning staff to teams now works on a phone. #0017 (Trial player module) is unblocked.

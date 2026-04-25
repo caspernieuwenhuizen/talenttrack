@@ -345,13 +345,65 @@ class FrontendTileGrid {
             ],
         ];
 
-        // "Admin" — admins only, redirect to wp-admin.
+        // "Administration" — admins only. v3.11.0 (#0019 Sprint 5)
+        // promoted these surfaces from wp-admin only into first-class
+        // frontend tiles. Gated by tt_access_frontend_admin (granted to
+        // administrator + tt_head_dev by default).
+        $can_frontend_admin = current_user_can( 'tt_access_frontend_admin' );
         $admin_tiles = [
             [
-                'label' => __( 'Go to admin', 'talenttrack' ),
-                'desc'  => __( 'Open the full WordPress admin dashboard.', 'talenttrack' ),
+                'label' => __( 'Configuration', 'talenttrack' ),
+                'desc'  => __( 'Branding, theme inheritance, rating scale.', 'talenttrack' ),
                 'emoji' => '⚙',
                 'color' => '#555',
+                'url'   => $url( 'configuration' ),
+                'show'  => $can_frontend_admin,
+            ],
+            [
+                'label' => __( 'Custom fields', 'talenttrack' ),
+                'desc'  => __( 'Add per-entity custom fields.', 'talenttrack' ),
+                'emoji' => '🧩',
+                'color' => '#555',
+                'url'   => $url( 'custom-fields' ),
+                'show'  => $can_frontend_admin,
+            ],
+            [
+                'label' => __( 'Eval categories', 'talenttrack' ),
+                'desc'  => __( 'Manage the evaluation category tree.', 'talenttrack' ),
+                'emoji' => '🌳',
+                'color' => '#555',
+                'url'   => $url( 'eval-categories' ),
+                'show'  => $can_frontend_admin,
+            ],
+            [
+                'label' => __( 'Roles', 'talenttrack' ),
+                'desc'  => __( 'Reference for the eight TalentTrack roles.', 'talenttrack' ),
+                'emoji' => '🛡',
+                'color' => '#555',
+                'url'   => $url( 'roles' ),
+                'show'  => $can_frontend_admin,
+            ],
+            [
+                'label' => __( 'Migrations', 'talenttrack' ),
+                'desc'  => __( 'Database migration status (read-only).', 'talenttrack' ),
+                'emoji' => '🗄',
+                'color' => '#555',
+                'url'   => $url( 'migrations' ),
+                'show'  => $can_frontend_admin,
+            ],
+            [
+                'label' => __( 'Usage statistics', 'talenttrack' ),
+                'desc'  => __( 'Logins, active users, evaluations per day.', 'talenttrack' ),
+                'emoji' => '📈',
+                'color' => '#555',
+                'url'   => $url( 'usage-stats' ),
+                'show'  => $can_frontend_admin,
+            ],
+            [
+                'label' => __( 'Open wp-admin', 'talenttrack' ),
+                'desc'  => __( 'Drop into the full WordPress admin dashboard.', 'talenttrack' ),
+                'emoji' => '↗',
+                'color' => '#888',
                 'url'   => admin_url( 'admin.php?page=talenttrack' ),
                 'show'  => $is_admin,
             ],
