@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\REST\FunctionalRolesRestController;
 use TT\Modules\Authorization\Admin\RolesPage;
 use TT\Modules\Authorization\Admin\FunctionalRolesPage;
 use TT\Modules\Authorization\Admin\DebugPage;
@@ -39,5 +40,6 @@ class AuthorizationModule implements ModuleInterface {
         // the Authorization pages live inside the proper "Access Control"
         // group with other grouped submenus. The admin_post handlers
         // registered in register() continue to work.
+        FunctionalRolesRestController::init();
     }
 }

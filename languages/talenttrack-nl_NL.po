@@ -3582,3 +3582,99 @@ msgstr "Je hebt geen rechten om spelers te importeren."
 
 msgid "Team formation board coming with %s — team development. The placeholder lives here so the layout is ready for it."
 msgstr "Opstellingsbord komt met %s — teamontwikkeling. De placeholder staat hier zodat de layout er klaar voor is."
+
+msgid "New person"
+msgstr "Nieuw persoon"
+
+msgid "Edit person — %s"
+msgstr "Persoon bewerken — %s"
+
+msgid "That person no longer exists."
+msgstr "Die persoon bestaat niet meer."
+
+msgid "Archive this person? They can be restored later by a site admin."
+msgstr "Deze persoon archiveren? Een sitebeheerder kan ze later herstellen."
+
+msgid "Search name or email…"
+msgstr "Zoek op naam of e-mail…"
+
+msgid "No people match your filters."
+msgstr "Geen personen passen bij je filters."
+
+msgid "Update person"
+msgstr "Persoon bijwerken"
+
+msgid "Save person"
+msgstr "Persoon opslaan"
+
+msgid "Optional. Links this person to a login on the site."
+msgstr "Optioneel. Koppelt deze persoon aan een login op de site."
+
+msgid "Current roles"
+msgstr "Huidige rollen"
+
+msgid "Staff, parents, scouts and other non-player records."
+msgstr "Staf, ouders, scouts en andere niet-speler records."
+
+msgid "Manage role types and team assignments."
+msgstr "Beheer roltypes en team-toewijzingen."
+
+msgid "New role type"
+msgstr "Nieuw roltype"
+
+msgid "No role types defined yet."
+msgstr "Nog geen roltypes gedefinieerd."
+
+msgid "system"
+msgstr "systeem"
+
+msgid "Current team assignments"
+msgstr "Huidige team-toewijzingen"
+
+msgid "Not assigned to any team."
+msgstr "Aan geen enkel team toegewezen."
+
+msgid "Manage assignments"
+msgstr "Toewijzingen beheren"
+
+msgid "Role type not found"
+msgstr "Roltype niet gevonden"
+
+msgid "Lowercase, digits, and underscores only. Cannot be changed later."
+msgstr "Alleen kleine letters, cijfers en underscores. Kan later niet meer aangepast worden."
+
+msgid "Edit role type — %s"
+msgstr "Roltype bewerken — %s"
+
+msgid "That role type no longer exists."
+msgstr "Dat roltype bestaat niet meer."
+
+msgid "Update role type"
+msgstr "Roltype bijwerken"
+
+msgid "Save role type"
+msgstr "Roltype opslaan"
+
+msgid "New assignment"
+msgstr "Nieuwe toewijzing"
+
+msgid "Search team, person, role…"
+msgstr "Zoek op team, persoon, rol…"
+
+msgid "No assignments match your filters."
+msgstr "Geen toewijzingen passen bij je filters."
+
+msgid "Save assignment"
+msgstr "Toewijzing opslaan"
+
+msgid "Role types"
+msgstr "Roltypes"
+
+msgid "Manage team assignments"
+msgstr "Team-toewijzingen beheren"
+
+msgid "You do not have permission to view this section."
+msgstr "Je hebt geen rechten om deze sectie te bekijken."
+
+msgid "Delete this role type?"
+msgstr "Dit roltype verwijderen?"

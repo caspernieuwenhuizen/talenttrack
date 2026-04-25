@@ -47,6 +47,8 @@ class DashboardShortcode {
         // #0019 Sprint 3 session 3.2 — team roster add/remove + CSV import flow.
         wp_enqueue_script( 'tt-team-roster', TT_PLUGIN_URL . 'assets/js/components/team-roster.js', [], TT_VERSION, true );
         wp_enqueue_script( 'tt-csv-import',  TT_PLUGIN_URL . 'assets/js/components/csv-import.js',  [], TT_VERSION, true );
+        // #0019 Sprint 4 — functional roles reorder + delete buttons.
+        wp_enqueue_script( 'tt-functional-roles', TT_PLUGIN_URL . 'assets/js/components/functional-roles.js', [], TT_VERSION, true );
 
         // #0019 Sprint 1 session 2 — public.js uses fetch() against the
         // REST API. Nonce is the standard WP REST `wp_rest` nonce,
@@ -75,6 +77,7 @@ class DashboardShortcode {
                 'csv_updated'          => __( 'Updated: %d', 'talenttrack' ),
                 'csv_skipped'          => __( 'Skipped (dupes): %d', 'talenttrack' ),
                 'csv_errored'          => __( 'Errors: %d', 'talenttrack' ),
+                'fnrole_delete_confirm' => __( 'Delete this role type?', 'talenttrack' ),
             ],
         ]);
 
@@ -118,7 +121,7 @@ class DashboardShortcode {
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
         $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-sessions', 'my-goals', 'profile' ];
-        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'evaluations', 'sessions', 'goals', 'podium' ];
+        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'sessions', 'goals', 'podium' ];
         $analytics_slugs = [ 'rate-cards', 'compare' ];
 
         if ( $view === '' ) {
@@ -210,6 +213,12 @@ class DashboardShortcode {
                 break;
             case 'players-import':
                 FrontendPlayersCsvImportView::render( $user_id, $is_admin );
+                break;
+            case 'people':
+                FrontendPeopleManageView::render( $user_id, $is_admin );
+                break;
+            case 'functional-roles':
+                FrontendFunctionalRolesView::render( $user_id, $is_admin );
                 break;
             case 'evaluations':
                 FrontendEvaluationsView::render( $user_id, $is_admin );

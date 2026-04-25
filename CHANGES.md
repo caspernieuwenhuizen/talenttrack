@@ -1,3 +1,62 @@
+# TalentTrack v3.10.0 — #0019 Sprint 4: People + Functional Roles
+
+**Minor release.** Closes Sprint 4 of the #0019 frontend-first-admin epic. Single-PR session per shaping. People (staff records) and Functional Roles (the "who does what on which team" layer) get full CRUD on the frontend. The HoD weekly workflow of assigning staff to teams now works on a phone. #0017 (Trial player module) is unblocked.
+
+Sprint 4's Reports deliverable was deferred to #0014 entirely during shaping — this release ships People + Functional Roles only, ~12h actual against ~16-20h estimate.
+
+## People
+
+- **`PeopleRestController`** (new) — thin wrapper around the existing `PeopleRepository`. Sprint 2 list contract: `?search` across name/email; filter by `role_type` / `team_id` / `archived`; whitelisted `?orderby` (last_name / first_name / email / role_type); pagination + envelope. Per Q5, every row carries a `current_roles` string concatenating the person's active assignments (e.g. `Head coach @ U13 · Physio @ U15`).
+- **`FrontendPeopleManageView`** at `?tt_view=people` — list / create / edit / archive (soft, sets `archived_at` + `status='inactive'`). Form has first/last name (required), email, phone, type (`role_type` lookup), optional WP-user linkage (excludes users already linked to a player). Edit mode adds a read-only "Current team assignments" section with a deep-link into the FunctionalRoles assignments view filtered by this person.
+- **People tile** added to the dashboard for users with `tt_view_people` or `tt_edit_people`.
+
+## Functional Roles
+
+One tile, two tabs (per Q1):
+
+### Role types tab
+- `tt_manage_functional_roles`-gated. CRUD for the role-type catalogue (head coach, assistant coach, physio, manager, …).
+- Reorder via **up/down arrow buttons** (per Q2 — no DragReorder; works on every viewport). `POST /functional-roles/{id}/move` swaps `sort_order` with the adjacent row.
+- `role_key` is set on create and never editable (referenced by `tt_team_people.role_in_team` + the auth-role mapping). Built-in / "system" roles get a badge and can't be deleted; a role with active assignments returns `409 in_use` with the count attached for the UI to surface.
+
+### Assignments tab
+- `tt_view_people` / `tt_edit_people` gated. List view (per Q3) via `FrontendListTable` with team / role filters, `?search` across team/person/role names, sortable by team / role / person / start date, Unassign row action. "New assignment" button opens a separate `?action=new` form (per Q4) with team, role, person, optional start date.
+- Reuses the existing unique-key on `tt_team_people` (team × person × role) for dupe protection — surfaces as a friendly 409 message rather than a silent failure.
+
+## REST endpoints summary
+
+| Route | Method | Notes |
+| --- | --- | --- |
+| `/people` | GET | Sprint 2 list contract. |
+| `/people` | POST | Create. |
+| `/people/{id}` | GET | Single. |
+| `/people/{id}` | PUT | Update. |
+| `/people/{id}` | DELETE | Soft-archive. |
+| `/functional-roles` | GET | Role types list. |
+| `/functional-roles` | POST | Create role type. |
+| `/functional-roles/{id}` | PUT | Update label / description. |
+| `/functional-roles/{id}` | DELETE | Delete; rejected if `is_system` or assignments reference it. |
+| `/functional-roles/{id}/move` | POST | Reorder up/down. |
+| `/functional-roles/assignments` | GET | Assignments list (Sprint 2 contract). |
+| `/functional-roles/assignments` | POST | Create assignment. |
+| `/functional-roles/assignments/{id}` | DELETE | Unassign. |
+
+## Team edit cross-link
+
+The team edit view from Sprint 3 gets a new **Staff** section (per Q7) — a read-only "who's on staff for this team" table grouped by role, with email, plus a "Manage team assignments" button that deep-links into `?tt_view=functional-roles&tab=assignments&filter[team_id]=<id>` for users with `tt_edit_people`. Reuses `PeopleRepository::getTeamStaff` — no new query path.
+
+## Wired up
+
+- `PeopleRestController` registered in `PeopleModule::boot()`.
+- `FunctionalRolesRestController` registered in `AuthorizationModule::boot()`.
+- New `assets/js/components/functional-roles.js` for the reorder + delete buttons.
+- Two new tiles on the dashboard (gated by capability).
+- 32 new Dutch strings.
+
+## Sprint 4 — done
+
+Per SEQUENCE.md, Sprint 4 is now COMPLETE. Sprint 5 (admin-tier frontend — Configuration, migrations, roles, custom fields, usage stats) is the next epic on the queue. #0017 (Trial player module) is also unblocked.
+
 # TalentTrack v3.9.1 — #0019 Sprint 3 session 3.2: Teams + CSV import (closes Sprint 3)
 
 **Patch release.** Closes Sprint 3 of the #0019 frontend-first-admin epic. Teams get a real CRUD frontend with roster management and a placeholder for the #0018 formation board; club admins get bulk CSV import for players. Sprint 4 (people + functional roles + reports) is now unblocked.

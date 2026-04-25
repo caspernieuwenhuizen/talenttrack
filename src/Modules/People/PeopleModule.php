@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\REST\PeopleRestController;
 use TT\Modules\People\Admin\PeoplePage;
 
 /**
@@ -32,6 +33,7 @@ class PeopleModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         add_action( 'admin_menu', [ $this, 'registerMenu' ], 15 );
+        PeopleRestController::init();
     }
 
     public function registerMenu(): void {
