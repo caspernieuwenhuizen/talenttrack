@@ -55,7 +55,28 @@
         var v = row[col.value_key];
         if (col.render === 'percent') return v == null ? '—' : (v + '%');
         if (col.render === 'date')    return v == null ? '—' : escapeHtml(v);
+        if (col.render === 'inline_select') return renderInlineSelect(col, row, v);
         return escapeHtml(v == null ? '' : v);
+    }
+
+    /**
+     * Inline-select cell — emits a select bound to a REST PATCH
+     * endpoint via data-attributes. Change event handler is bound
+     * once at hydration time (see bindInlineSelects below).
+     */
+    function renderInlineSelect(col, row, current) {
+        var path = (col.patch_path || '').replace(/\{([a-zA-Z0-9_]+)\}/g, function(_m, k) { return row[k] == null ? '' : encodeURIComponent(String(row[k])); });
+        var opts = col.options || {};
+        var html = '<select class="tt-list-inline-select"'
+                 + ' data-tt-list-inline-select="1"'
+                 + ' data-patch-path="' + escapeHtml(path) + '"'
+                 + ' data-patch-field="' + escapeHtml(col.patch_field || col.value_key) + '">';
+        Object.keys(opts).forEach(function(value) {
+            var sel = String(current) === String(value) ? ' selected' : '';
+            html += '<option value="' + escapeHtml(value) + '"' + sel + '>' + escapeHtml(opts[value]) + '</option>';
+        });
+        html += '</select>';
+        return html;
     }
 
     /**
@@ -228,6 +249,42 @@
         return { search: String(search), filter: filter };
     }
 
+    function bindInlineSelects(root) {
+        var tbody = root.querySelector('[data-tt-list-body="1"]');
+        if (!tbody) return;
+        tbody.addEventListener('change', function(e) {
+            var sel = e.target.closest('select[data-tt-list-inline-select="1"]');
+            if (!sel || !tbody.contains(sel)) return;
+            var path  = sel.getAttribute('data-patch-path');
+            var field = sel.getAttribute('data-patch-field');
+            if (!path || !field) return;
+            var rest = getRest();
+            var headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' };
+            if (rest.nonce) headers['X-WP-Nonce'] = rest.nonce;
+            var body = {};
+            body[field] = sel.value;
+            sel.disabled = true;
+            fetch(rest.url + path.replace(/^\/+/, ''), {
+                method: 'PATCH',
+                credentials: 'same-origin',
+                headers: headers,
+                body: JSON.stringify(body)
+            })
+                .then(function(res) { return res.json().then(function(json) { return { ok: res.ok, json: json }; }); })
+                .then(function(r) {
+                    sel.disabled = false;
+                    if (!r.ok || !r.json || !r.json.success) {
+                        var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || root._ttListConfig.i18n.error;
+                        setStatus(root, 'error', msg);
+                    }
+                })
+                .catch(function() {
+                    sel.disabled = false;
+                    setStatus(root, 'error', root._ttListConfig.i18n.error);
+                });
+        });
+    }
+
     function bindRowActions(root) {
         var tbody = root.querySelector('[data-tt-list-body="1"]');
         if (!tbody) return;
@@ -338,6 +395,7 @@
         }
 
         bindRowActions(root);
+        bindInlineSelects(root);
 
         // First fetch.
         refresh(root);

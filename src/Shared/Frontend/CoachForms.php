@@ -11,10 +11,12 @@ use TT\Shared\Frontend\Components\FormSaveButton;
  * CoachForms — shared form-rendering helpers for coaching actions.
  *
  * v3.0.0 slice 4. Extracted from the legacy CoachDashboardView so
- * the new focused FrontendEvaluationsView / FrontendGoalsView can
- * use the same form markup without duplication. The session form
- * helper was retired in Sprint 2 session 2.3; FrontendSessionsManageView
- * now renders its own form against the REST endpoints.
+ * the new focused FrontendEvaluationsView could share the eval form
+ * markup. The session form helper was retired in Sprint 2 session
+ * 2.3 (FrontendSessionsManageView renders its own form); the goals
+ * form helper was retired in Sprint 2 session 2.4
+ * (FrontendGoalsManageView renders its own form). Only renderEvalForm
+ * has a live caller now.
  *
  * Form submissions go through the TalentTrack REST API; each form
  * declares its endpoint via `data-rest-path` (relative to

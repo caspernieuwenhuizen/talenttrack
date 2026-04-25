@@ -3387,3 +3387,36 @@ msgstr "Sessie bijwerken"
 
 msgid "Save session"
 msgstr "Sessie opslaan"
+
+msgid "New goal"
+msgstr "Nieuw doel"
+
+msgid "Edit goal — %s"
+msgstr "Doel bewerken — %s"
+
+msgid "Goal not found"
+msgstr "Doel niet gevonden"
+
+msgid "That goal no longer exists."
+msgstr "Dat doel bestaat niet meer."
+
+msgid "Delete this goal? It will be archived."
+msgstr "Dit doel verwijderen? Het wordt gearchiveerd."
+
+msgid "Search title, description, player…"
+msgstr "Zoek op titel, omschrijving of speler…"
+
+msgid "No goals match your filters."
+msgstr "Geen doelen passen bij je filters."
+
+msgid "Update goal"
+msgstr "Doel bijwerken"
+
+msgid "Add goal"
+msgstr "Doel toevoegen"
+
+msgid "Due from"
+msgstr "Deadline vanaf"
+
+msgid "Due to"
+msgstr "Deadline tot"
