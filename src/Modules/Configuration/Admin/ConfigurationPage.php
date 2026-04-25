@@ -46,6 +46,7 @@ class ConfigurationPage {
             'rating'          => __( 'Rating Scale', 'talenttrack' ),
             'branding'        => __( 'Branding', 'talenttrack' ),
             'toggles'         => __( 'Feature Toggles', 'talenttrack' ),
+            'backups'         => __( 'Backups', 'talenttrack' ),
             'audit'           => __( 'Audit Log', 'talenttrack' ),
         ];
 
@@ -83,6 +84,7 @@ class ConfigurationPage {
                 case 'rating':          self::tab_rating(); break;
                 case 'branding':        self::tab_branding(); break;
                 case 'toggles':         self::tab_toggles(); break;
+                case 'backups':         \TT\Modules\Backup\Admin\BackupSettingsPage::render(); break;
                 case 'audit':           self::tab_audit(); break;
             }
             ?>

@@ -2,6 +2,19 @@
 
 # #0013 — Backup + disaster recovery
 
+## Status
+
+**Ready.** Q1-Q4 locked 2026-04-25 (evening). Compressed to **2 sprints** per Casper's request.
+
+## Locked decisions
+
+| Q | Decision | Rationale |
+| - | - | - |
+| Q1 | **Defer S3** to a post-#0011 follow-on | Email covers 80% of clubs at zero credential friction; S3 ships as a paid-tier add-on when monetization can charge for it |
+| Q2 | **Single settings page** with smart defaults, not a wizard | Backup config is 5 inputs; #0024's Done screen "Recommended next steps" handles the activation hand-off |
+| Q3 | **Free baseline locked now**; Pro/Business assignment with #0011 | Sprint 1 is unconditional Free; Sprint 2 is Pro/Business candidate but unconditional until #0011 ships gates |
+| Q4 | **5th deep-link card** on #0024 Done screen → backup settings | No standalone backup wizard; thin integration with the onboarding wizard |
+
 ## Problem
 
 A TalentTrack install accumulates real operational data over months: players, evaluations, goals, sessions, reports. If a site gets hacked, a cheap hosting provider loses data, a plugin conflict corrupts a table, or an admin runs a destructive action by accident, there's currently **no recovery path**. The plugin's existing `archived_at` soft-archive pattern (migration 0010) handles single-record accidents, but not table-wide or site-wide loss.
@@ -12,151 +25,184 @@ Who feels it: academy admins who lose data. In practice, invisible until the mom
 
 ## Proposal
 
-A TalentTrack-scoped backup and disaster-recovery module with snapshot-based recovery as the primary strategy. JSON + gzip format, local disk and email destinations, preset presets for common use cases, partial restore with dependency resolution.
+A TalentTrack-scoped backup and disaster-recovery module with snapshot-based recovery as the primary strategy. JSON + gzip format, local disk and email destinations in v1, partial restore with dependency resolution in v2.
 
 **Explicitly scoped to `tt_*` tables only** — no `wp_users`, no uploads directory. Site-clone functionality is a future concern.
 
-## Scope
+## Scope (compressed to 2 sprints)
 
-Five sprints:
+| Sprint | Focus | Tier | Effort |
+| - | - | - | - |
+| 1 | Engine + serializer + local + email + full restore + presets + settings + health + scheduler | **Free baseline** | ~28-35h |
+| 2 | Partial restore with diff + pre-bulk auto-backup + undo shortcut | **Pro/Business candidate** | ~22-28h |
 
-| Sprint | Focus | Effort |
-| --- | --- | --- |
-| 1 | Engine + JSON/gzip serializer + local destination + full restore flow | ~12–15h |
-| 2 | Presets (Minimal/Standard/Thorough) + settings UI + health-indicator tile | ~8–10h |
-| 3 | Partial restore with dependency resolution + dry-run preview | ~14–18h |
-| 4 | Email destination + adapter pattern (S3 deferred to follow-up) | ~8–10h |
-| 5 | Pre-bulk auto-backup + "undo last 100 deletions" shortcut | ~8–10h |
+**Total: ~50-63 hours** — same as the original 5-sprint estimate; the compression reflects that several of the original sprints had no hard dependencies between them.
 
-**Total: ~50–63 hours.**
+---
 
-### Sprint 1 — Engine + local backup + full restore
+### Sprint 1 — Free-tier backup baseline
 
-**Serializer**: one `BackupSerializer` class that takes a list of `tt_*` table names, queries them, emits a single JSON document with schema:
+A complete, usable backup system at the free-tier level. After Sprint 1 lands, every install can take, schedule, and restore full backups locally and via email.
+
+#### Engine
+
+**`BackupSerializer`** — emits a JSON document over a list of `tt_*` table names:
+
 ```json
 {
   "version": "1.0",
-  "plugin_version": "3.1.0",
+  "plugin_version": "3.14.0",
   "created_at": "2026-05-20T10:00:00Z",
+  "preset": "standard",
   "tables": {
-    "tt_players": {"columns": [...], "rows": [...]},
-    "tt_teams": {...},
-    ...
+    "tt_players":      {"columns": [...], "rows": [...]},
+    "tt_teams":        {...},
+    "tt_evaluations":  {...}
   },
   "checksum": "sha256-of-tables-content"
 }
 ```
 
-**Compression**: gzip after JSON. File naming: `talenttrack-backup-YYYYMMDD-HHMMSS.json.gz`.
+**Compression**: gzip after JSON. File naming: `talenttrack-backup-YYYYMMDD-HHMMSS-<preset>.json.gz`.
 
-**Local destination**: files written to `wp-content/uploads/talenttrack-backups/` (or a configurable path). Last N backups retained; older auto-purged (setting: retention count, default 30).
-
-**Full restore flow**:
-- Upload a `.json.gz` backup file, or pick one from the local store.
-- Dry-run first: show a diff summary ("47 players would be restored, 3 teams, 205 evaluations — this will replace all current tt_* data").
-- Confirmation with typed "RESTORE" (similar to #0020's wipe confirmation).
-- On confirm: truncate `tt_*` tables → replay the JSON. Wrapped in a transaction where possible.
-- Post-restore check: verify checksum, validate row counts match backup metadata.
-
-**Scheduling**: WP-cron-based. Daily default, configurable frequency. Unreliable on low-traffic sites — same mitigation as #0017: "Run backup now" button + daily-trigger preference.
+**`BackupRestorer`** — accepts a `.json.gz` file path; flow:
+1. Decompress + JSON-decode.
+2. Verify checksum + schema version.
+3. Reject if `plugin_version` major doesn't match (v2.x → v3.x rejected).
+4. Dry-run summary first: "X players, Y teams, Z evaluations would be replaced."
+5. Confirmation: typed "RESTORE" string (mirrors #0020's wipe confirmation).
+6. Truncate target `tt_*` tables → replay the JSON. Wrapped in a transaction where MySQL allows.
+7. Post-restore: re-verify row counts match metadata, surface warnings if not.
 
 **Capability**: `tt_manage_backups` (new). Granted to `tt_head_dev` and `administrator`.
 
-### Sprint 2 — Presets + settings + health
+#### Destinations (adapter pattern)
 
-**Three presets**:
-- **Minimal** — `tt_players`, `tt_teams`, `tt_evaluations`, `tt_eval_ratings`. The core operational data.
-- **Standard** — Minimal + sessions, attendance, goals, people, functional roles. Typical daily state.
-- **Thorough** — Standard + lookups, custom fields, eval categories, audit log, usage events. Complete state.
+```php
+interface BackupDestinationInterface {
+    public function store( string $backup_path, array $metadata ): StoreResult;
+    public function list(): array;          // metadata of stored backups
+    public function fetch( string $id ): string; // returns local path
+    public function purge( string $id ): bool;
+}
+```
 
-Custom mode: checkboxes for each `tt_*` table.
+**`LocalDestination`** — files written to `wp-content/uploads/talenttrack-backups/`. Last N retained (default 30); older auto-purged.
 
-**Settings UI** (frontend Administration tile, under `tt_manage_backups`):
-- Preset selector (Minimal / Standard / Thorough / Custom).
-- Schedule: daily / weekly / on-demand.
-- Retention: keep last N (default 30).
-- Destinations: local on, email on, add email address(es).
-- "Run backup now" button.
-- "Restore from backup" link (to Sprint 1's flow).
+**`EmailDestination`** — attaches the `.json.gz` via `wp_mail`. Settings: recipient(s), subject template (`{site_name}`, `{backup_date}`). Size cap ~10MB; over that, email gets a truncated summary + local-only notice. Retry once on failure (after 1 hour).
 
-**Health indicator tile**: on the Administration tile group, a small "Backups" card showing:
-- Last successful backup: "3 hours ago" (green) / "2 days ago" (yellow, ≥24h past schedule) / "8 days ago" (red, 7+ days stale).
-- Next scheduled: "tomorrow 02:00."
-- Quick link to settings.
+S3 / Dropbox / GDrive / SFTP: interface only, implementations deferred (Q1 decision).
 
-### Sprint 3 — Partial restore + dependency resolution
+#### Presets
 
-The hard sprint.
+| Preset | Tables |
+| - | - |
+| **Minimal** | `tt_players`, `tt_teams`, `tt_evaluations`, `tt_eval_ratings` |
+| **Standard** | Minimal + `tt_sessions`, `tt_attendance`, `tt_goals`, `tt_people`, `tt_team_people`, `tt_functional_role_*` |
+| **Thorough** | Standard + `tt_lookups`, `tt_custom_fields`, `tt_custom_values`, `tt_eval_categories`, `tt_audit_log`, `tt_usage_events`, `tt_demo_tags`, `tt_config` |
+| **Custom** | Per-table checkboxes |
 
-**Partial restore**: from a backup, select specific records to restore — not the whole snapshot.
+#### Scheduler
 
-Flow:
-1. User uploads backup + selects scope: "Restore just this player" or "Restore all players from this team."
-2. System computes the **dependency closure**: if restoring a player, we also need their team (if missing), their evaluations (if desired), referenced eval-categories (if desired), etc.
-3. **Diff view**: UI shows per-record:
-   - Green: in backup, not current. → Will be restored.
-   - Yellow: in backup AND current, differ. → User picks: keep-current / overwrite-with-backup / skip.
-   - Red: in current, not in backup. → User picks: leave / delete-to-match-backup.
-4. User reviews the diff, confirms, restore executes.
+WP-cron-based. `tt_backup_run` action runs the configured preset to all enabled destinations. Default schedule: daily 02:00. Frequencies: daily / weekly / on-demand. "Run backup now" button on the settings page bypasses the schedule.
 
-**Dependency resolver**: depth-first walk starting from the selected records, following foreign-key-like references defined in a new `BackupDependencyMap`. Closure is presented to the user as "you'll also be restoring: 3 teams, 45 evaluations, 12 goals" with a chance to uncheck dependencies.
+#### Settings page
 
-**Integrity checks**: after restore, validate foreign-key-like consistency (every `player_id` in `tt_evaluations` refers to an existing row in `tt_players`, etc.). Any broken refs are flagged as warnings post-restore.
+A single wp-admin page under `Configuration` (or a frontend Administration tile if #0019 Sprint 5 patterns make that cleaner — decide during build). Fields:
 
-**Dry-run preview**: "Show me what would happen without actually doing it." Renders the full diff without writes.
+- Preset selector (Minimal / Standard / Thorough / Custom + per-table checkboxes when Custom)
+- Schedule (daily / weekly / on-demand)
+- Retention count (default 30)
+- Local destination toggle
+- Email destination toggle + recipient list
+- "Run backup now" button
+- Restore-from-backup link (uploads a `.json.gz` or picks from local store)
 
-### Sprint 4 — Email destination
+#### Health indicator
 
-**Adapter pattern**: `BackupDestinationInterface` with `store(string $backupPath, array $metadata): StoreResult`. Implementations:
-- `LocalDestination` (from Sprint 1).
-- `EmailDestination` (this sprint).
-- `S3Destination` (deferred to post-v1 follow-on — interface is there, implementation is not).
-- Future: Dropbox, GDrive, SFTP. Each is a new adapter.
+Small "Backups" card on the wp-admin TalentTrack dashboard (and the frontend Administration tile group when present). Shows:
 
-**Email destination**:
-- Settings: recipient email(s), plain-text or HTML body, subject template with variables (`{site_name}`, `{backup_date}`).
-- On backup: attaches the `.json.gz` file, sends via WP's `wp_mail`.
-- Size cap: ~10MB attachment. If backup exceeds, email gets a truncated summary and a local-storage-only notice; UI shows "Backup exceeds email limit; stored locally only."
-- Retry: if email send fails, retry once after 1 hour. Then fail permanently for that run.
+- Last successful backup: relative time, color-coded (green ≤24h, yellow ≤7d, red >7d)
+- Next scheduled time
+- Quick link to the settings page
 
-### Sprint 5 — Pre-bulk auto-backup + undo shortcut
+#### #0024 integration
 
-**Pre-bulk auto-backup**: before any operation deleting or archiving >N rows (default N=10; configurable), automatically snapshot the current state first.
+Add a 5th "Recommended next steps" card on `OnboardingPage::renderDone()`:
+> **Set up backups** — Schedule daily backups so a hosting hiccup doesn't lose your data.
+> Links to: `wp-admin/admin.php?page=tt-config&tab=backups`
+
+Three-line change to the existing wizard. No structural impact.
+
+---
+
+### Sprint 2 — Pro/Business candidate features
+
+Builds on Sprint 1's engine. Every feature in this sprint is unconditional until #0011 ships gates; the spec just identifies them as paid-tier candidates so #0011's tier audit can flip them in one place.
+
+#### Partial restore with dependency resolution
+
+The headline differentiator vs general-purpose backup plugins.
+
+**Flow**:
+1. User uploads backup or picks from local store + selects scope: "Restore just this player," "Restore all players from this team," etc.
+2. **`BackupDependencyMap`**: depth-first walk of foreign-key-like references — a player needs their team (if missing); evaluations need the player AND eval-categories; goals need the player.
+3. **Diff view** per record:
+   - **Green** — in backup, not current. Will be restored.
+   - **Yellow** — in both, differ. User picks: keep-current / overwrite-with-backup / skip.
+   - **Red** — in current, not in backup. User picks: leave / delete-to-match-backup.
+4. Dependency closure presented to user with chance to uncheck.
+5. **Dry-run preview** ("show me what would happen without writing").
+6. Confirm → restore executes. Post-restore integrity scan validates foreign-key-like consistency; broken refs surface as warnings.
+
+#### Pre-bulk auto-backup
+
+Before any operation deleting/archiving >N rows (default N=10; configurable):
+
+- Snapshot the current state via the Sprint 1 engine.
+- Tag in metadata `auto_bulk_safety: true`.
+- Retention shorter than scheduled backups (default 14 days).
 
 Hooks into:
-- CSV import with dupe-overwrite mode (Sprint 3 of #0019).
-- Bulk archive actions (any module that adds them).
-- The `#0020` demo-wipe actions (belt-and-braces).
+- CSV import with dupe-overwrite mode (#0019 Sprint 3).
+- Bulk archive actions across modules.
+- #0020 demo-wipe actions (belt-and-braces).
 
-The snapshot is marked `auto_bulk_safety` in metadata, retained for a shorter window (default 14 days) so it doesn't eat storage.
+#### Undo shortcut
 
-**Undo shortcut**: after a bulk operation completes, the resulting admin notice includes:
+Bulk operations that triggered a pre-bulk safety snapshot get an admin-notice augmentation:
 > **500 rows archived.** [Undo via backup] (expires in 14 days)
 
-Clicking "Undo" opens the partial-restore flow from Sprint 3, pre-scoped to the affected rows.
+Click → opens the partial-restore flow pre-scoped to the affected rows.
+
+---
 
 ## Out of scope
 
-- **S3 destination implementation** (interface shipped, adapter deferred).
+- **S3 destination implementation** (interface shipped in Sprint 1, adapter deferred until #0011 — see Q1).
 - **Dropbox / Google Drive / SFTP destinations**. Post-v1.
 - **Full-site clone**. This is a TalentTrack-data tool only.
-- **Encryption of backup files**. Flagged as open question; skip for v1. Adds key-loss risk.
-- **Cross-major-version migration during restore**. Reject v3.x backup into v2.x; accept v2.x into v3.x if schema migrations handle it.
-- **Including `wp_users`, `wp_usermeta`, or uploads** in the backup. Scope limited to `tt_*`.
-- **Web UI for running `wp-cli`-style backup commands**. WP-cron + "run now" button only.
-- **Audit-log-driven undo as an alternative model**. Considered during shaping; deferred.
+- **Encryption of backup files**. Adds key-loss risk for marginal value at the v1 trust level.
+- **Cross-major-version migration during restore**. Reject v3.x backup into v2.x; accept v2.x → v3.x if migrations handle it.
+- **Including `wp_users`, `wp_usermeta`, or uploads** in the backup.
+- **Web UI for `wp-cli`-style backup commands**. WP-cron + "run now" button only.
+- **Audit-log-driven undo as an alternative model**. Considered during shaping; deferred (revisit if #0021 audit log is rich enough).
 
 ## Acceptance criteria
 
-The epic is done when:
-
+### Sprint 1
 - [ ] Daily scheduled backup runs and persists to local storage.
+- [ ] Email destination attaches and sends within size limits.
 - [ ] Admin can restore a full backup with a typed confirmation.
-- [ ] Presets (Minimal/Standard/Thorough) work; custom mode works.
+- [ ] Presets (Minimal/Standard/Thorough) work; Custom mode works.
 - [ ] Health indicator accurately reflects backup status.
+- [ ] `tt_manage_backups` capability registered + assigned to head_dev + administrator.
+- [ ] #0024 Done screen has the 5th "Set up backups" card.
+- [ ] Dutch translations + docs in the same PR.
+
+### Sprint 2
 - [ ] Partial restore with diff view and dependency resolution works.
 - [ ] Dry-run preview shows correct diff without writing.
-- [ ] Email destination attaches backup file and sends successfully within size limits.
 - [ ] Pre-bulk safety snapshot fires on operations deleting/archiving >10 rows.
 - [ ] Undo shortcut in admin notices works for recent bulk operations.
 - [ ] No regression: existing data untouched unless restore is explicitly invoked.
@@ -165,61 +211,35 @@ The epic is done when:
 
 ### Cross-epic interactions
 
-- **#0020 (demo data generator)** — this module can automate the "regenerate known-state" pattern. #0020's data generator could become a test fixture factory for the DR module.
-- **#0017 (trials)** — denied trial players' 2-year retention policy interacts with backup retention. Flag: a deleted trial case is GDPR-obligated to purge from backups too. Documented as an operational concern, not a code gate.
-- **#0021 (audit log viewer)** — if/when that ships and the audit log turns out rich enough to support undo, the audit-log-driven undo model could supplement or replace pre-bulk auto-backup. Revisit then.
+- **#0024 (setup wizard)** — already shipped; integration is the 5th Recommended Next Step card.
+- **#0020 (demo data generator)** — Sprint 2's pre-bulk auto-backup hooks into demo-wipe.
+- **#0017 (trials)** — denied trial players' 2-year retention policy interacts with backup retention. Operational concern, not a code gate.
+- **#0021 (audit log viewer)** — if/when ships, audit-log-driven undo could supplement Sprint 2's pre-bulk model.
+- **#0011 (monetization)** — Sprint 2's three features are paid-tier candidates. Cap checks go through `TT\License::can()` once that abstraction exists. Today they're unconditional.
 
 ### Retention + GDPR
 
-Backup files contain real personal data (minors' names, ratings, evaluations). Clubs are responsible for backup retention within their site storage. Default: backups older than 90 days auto-purged. Configurable.
-
-When a GDPR deletion request arrives:
-- The deleted-person's data must be purged from all backups too. Settings-UI mentions this; implementation-wise, this is a full-scan-and-rewrite of old backups, which is expensive. v1 provides a manual "regenerate all backups post-deletion" button; automation is a future enhancement.
+Backup files contain real personal data. Default retention 90 days; configurable. GDPR deletion requests must purge from backups too — v1 ships a manual "regenerate all backups post-deletion" button; full automation is a future enhancement.
 
 ### Depends on
 
-- #0019 Sprints 1, 2, 5 for frontend conventions and Administration tile placement.
+- #0019 Sprints 1, 2, 5 — for frontend conventions and Administration tile placement (already shipped).
 - Nothing schema-blocking.
-
-### Blocks
-
-Nothing strictly, but ideally ships before clubs start accumulating real operational data (i.e. before #0011 monetization goes live and paid customers show up).
 
 ### Touches
 
 - New module: `src/Modules/Backup/`
   - `BackupModule.php`
-  - `BackupSerializer.php`
-  - `BackupRestorer.php`
-  - `BackupDependencyMap.php`
-  - `Destinations/LocalDestination.php`
-  - `Destinations/EmailDestination.php`
+  - `BackupSerializer.php`, `BackupRestorer.php`
   - `Destinations/BackupDestinationInterface.php`
-  - `Scheduler.php` (WP-cron)
-- Admin surfaces:
-  - Settings view (Administration tile)
-  - Full-restore view
-  - Partial-restore view (with diff UI)
-  - Health indicator (tile component)
-- Hooks:
-  - Pre-bulk interception (at the REST controller level for Players CSV import, etc.)
-  - Admin-notice augmentation with undo links
-- Capability registration: `tt_manage_backups`
+  - `Destinations/LocalDestination.php`, `Destinations/EmailDestination.php`
+  - `Scheduler.php`
+  - `Admin/BackupSettingsPage.php`, `Admin/BackupHealthBlock.php`
+  - Sprint 2: `BackupDependencyMap.php`, `Admin/PartialRestoreView.php`, `Admin/BulkSafetyHook.php`
+- Capability registration: `tt_manage_backups` in `RolesService`
+- `wp-content/uploads/talenttrack-backups/` directory created on first run with a stub `index.php` + `.htaccess`
+- Hooks into existing CSV import + demo-wipe + bulk archive flows (Sprint 2)
 
-## Refinement needed before this becomes Ready
+## Sequence position
 
-The April 2026 idea-funnel pass surfaced four conflicts between this spec and the funnel framing. Decisions to make before Sprint 1 starts.
-
-1. **Cloud-destination ordering.** This spec defers S3 to a follow-on after Sprint 4's email destination. The funnel argues S3-first because it's the universal lowest-friction option and unblocks backup-as-Pro-feature pricing.
-   → **Recommended for shaping**: bump S3 from "deferred" to **Sprint 4 alongside email**. Cloud cost is the same; the architecture is identical.
-
-2. **Wizard UX vs single settings page.** Sprint 2's settings UI is currently a single page with preset selector + form fields. The funnel suggests a 5-step "next-next-finish" wizard for first-time setup, with the settings page kept for ongoing tweaks.
-   → **Recommended for shaping**: ship the wizard for first-time setup; the settings page is the "edit existing config" path. Adds ~1-2h of UX work to Sprint 2.
-
-3. **Free-tier vs paid-tier feature split.** This spec doesn't currently split features across tiers — it's a "build once, gate later via #0011" approach. Funnel argues the tier split should be **decided up front** because it shapes which sprints ship as free baseline vs Pro/Business features.
-   → **Recommended for shaping**: lock the tier split now (Sprint 1 = Free baseline; Sprints 4 cloud + 5 selective restore = Pro/Business). Drives where to put cap checks vs unconditional execution.
-
-4. **Wizard placement vs setup-wizard #0024.** If #0024 (Setup Wizard) ships first, the backup wizard becomes a step inside the broader onboarding wizard rather than a standalone flow. If #0024 ships after, the backup wizard is standalone first and gets folded into onboarding later.
-   → **Recommended for shaping**: ship backup wizard standalone first (timing-independent of #0024). When #0024 ships, the backup-config step there becomes a thin link out to the existing wizard.
-
-These are decidable inline; tee them up at the start of shaping.
+Insert ahead of #0011 in SEQUENCE.md. Backup safety should be in place before paid customers show up.

@@ -299,6 +299,11 @@ class OnboardingPage {
                 __( 'A frontend page with the [talenttrack_dashboard] shortcode so coaches and players can sign in.', 'talenttrack' ),
                 self::actionUrl( 'tt_onboarding_create_dashboard_page' )
             );
+            self::renderNextStepCard(
+                __( 'Set up backups', 'talenttrack' ),
+                __( 'Schedule daily backups so a hosting hiccup does not lose your data.', 'talenttrack' ),
+                admin_url( 'admin.php?page=tt-config&tab=backups' )
+            );
             ?>
         </div>
 
