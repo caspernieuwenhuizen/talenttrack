@@ -31,6 +31,10 @@ class BackupModule implements ModuleInterface {
         // Cron handler is registered everywhere so the scheduled event
         // fires whether the request is admin or front-end.
         Scheduler::init();
+        // Pre-bulk safety hook fires from BulkActionsHelper which runs
+        // on admin-post.php (admin context), but registering here is
+        // free and keeps wiring in one place.
+        BulkSafetyHook::init();
         // Make sure the cap exists for any user-cap check that runs
         // before an admin loads the settings page.
         add_action( 'init', [ self::class, 'ensureCapability' ] );
@@ -38,6 +42,7 @@ class BackupModule implements ModuleInterface {
         if ( is_admin() ) {
             Admin\BackupSettingsPage::init();
             Admin\BackupHealthNotice::init();
+            Admin\BulkUndoNotice::init();
         }
     }
 

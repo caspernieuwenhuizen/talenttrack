@@ -27,11 +27,14 @@ class BackupSettingsPage {
     public const CAP    = 'tt_manage_backups';
 
     public static function init(): void {
-        add_action( 'admin_post_tt_backup_save_settings', [ self::class, 'handleSaveSettings' ] );
-        add_action( 'admin_post_tt_backup_run_now',       [ self::class, 'handleRunNow' ] );
-        add_action( 'admin_post_tt_backup_delete',        [ self::class, 'handleDelete' ] );
-        add_action( 'admin_post_tt_backup_download',      [ self::class, 'handleDownload' ] );
-        add_action( 'admin_post_tt_backup_restore',       [ self::class, 'handleRestore' ] );
+        add_action( 'admin_post_tt_backup_save_settings',     [ self::class, 'handleSaveSettings' ] );
+        add_action( 'admin_post_tt_backup_run_now',           [ self::class, 'handleRunNow' ] );
+        add_action( 'admin_post_tt_backup_delete',            [ self::class, 'handleDelete' ] );
+        add_action( 'admin_post_tt_backup_download',          [ self::class, 'handleDownload' ] );
+        add_action( 'admin_post_tt_backup_restore',           [ self::class, 'handleRestore' ] );
+        add_action( 'admin_post_tt_backup_bulk_undo',         [ self::class, 'handleBulkUndo' ] );
+        add_action( 'admin_post_tt_backup_bulk_undo_dismiss', [ self::class, 'handleBulkUndoDismiss' ] );
+        add_action( 'admin_post_tt_backup_partial_execute',   [ self::class, 'handlePartialExecute' ] );
     }
 
     /* ═══════════════ Render ═══════════════ */
@@ -39,6 +42,14 @@ class BackupSettingsPage {
     public static function render(): void {
         if ( ! current_user_can( self::CAP ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
+
+        // Partial restore mode is reachable via ?partial=<backup-id>
+        // from the stored-backups list. Render that view in place of
+        // the settings form so the admin focuses on the restore.
+        if ( isset( $_GET['partial'] ) ) {
+            self::renderPartialRestore( sanitize_text_field( wp_unslash( (string) $_GET['partial'] ) ) );
+            return;
         }
 
         $settings = BackupSettings::get();
@@ -221,6 +232,8 @@ class BackupSettingsPage {
                             |
                             <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-config&tab=backups&restore=' . rawurlencode( $id ) ) ); ?>"><?php esc_html_e( 'Restore', 'talenttrack' ); ?></a>
                             |
+                            <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-config&tab=backups&partial=' . rawurlencode( $id ) ) ); ?>"><?php esc_html_e( 'Partial restore', 'talenttrack' ); ?></a>
+                            |
                             <a href="<?php echo esc_url( self::actionUrl( 'tt_backup_delete', [ 'id' => $id ] ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete this backup file?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a>
                         </td>
                     </tr>
@@ -357,6 +370,90 @@ class BackupSettingsPage {
         self::redirectBack( [ 'tt_bk_msg' => $r['ok'] ? 'restored' : 'restore_failed' ] );
     }
 
+    /**
+     * Bulk-undo handler — pulls the pending payload from BulkSafetyHook
+     * and runs a partial restore on the affected rows only. The
+     * transient is consumed after a successful restore so the notice
+     * disappears.
+     */
+    public static function handleBulkUndo(): void {
+        if ( ! current_user_can( self::CAP ) ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
+        check_admin_referer( 'tt_backup_bulk_undo', 'tt_backup_undo_nonce' );
+
+        $user_id = get_current_user_id();
+        $payload = \TT\Modules\Backup\BulkSafetyHook::peekPending( $user_id );
+        if ( ! $payload ) {
+            self::redirectBack( [ 'tt_bk_msg' => 'undo_missing' ] );
+        }
+
+        $local = new LocalDestination();
+        $path  = $local->fetchLocalPath( (string) ( $payload['backup_id'] ?? '' ) );
+        if ( $path === '' ) {
+            self::redirectBack( [ 'tt_bk_msg' => 'undo_missing' ] );
+        }
+
+        $bytes    = (string) file_get_contents( $path );
+        $snapshot = \TT\Modules\Backup\BackupSerializer::fromGzippedJson( $bytes );
+        if ( ! is_array( $snapshot ) || ! isset( $snapshot['tables'] ) ) {
+            self::redirectBack( [ 'tt_bk_msg' => 'undo_failed' ] );
+        }
+
+        // Resolve the closure: just the affected ids in the entity's
+        // table. (No down-walk for v1 — undo is targeted and small.)
+        $entity_to_table = self::entityToTable();
+        $bare = $entity_to_table[ (string) ( $payload['entity'] ?? '' ) ] ?? '';
+        if ( $bare === '' ) {
+            self::redirectBack( [ 'tt_bk_msg' => 'undo_failed' ] );
+        }
+        $closure = [ $bare => array_map( 'intval', (array) ( $payload['ids'] ?? [] ) ) ];
+
+        // Restore = green → restore, yellow → overwrite. The whole
+        // point of "undo" is to bring the rows back to their pre-bulk
+        // state.
+        $actions = [
+            $bare => [
+                'green'  => \TT\Modules\Backup\PartialRestorer::ACTION_RESTORE,
+                'yellow' => \TT\Modules\Backup\PartialRestorer::ACTION_OVERWRITE,
+            ],
+        ];
+        $result = \TT\Modules\Backup\PartialRestorer::execute( $snapshot, $closure, $actions );
+
+        if ( ! empty( $result['ok'] ) ) {
+            \TT\Modules\Backup\BulkSafetyHook::popPending( $user_id );
+        }
+
+        self::redirectBack( [ 'tt_bk_msg' => $result['ok'] ? 'undone' : 'undo_failed' ] );
+    }
+
+    public static function handleBulkUndoDismiss(): void {
+        if ( ! current_user_can( self::CAP ) ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
+        check_admin_referer( 'tt_backup_bulk_undo_dismiss', 'tt_backup_undo_nonce' );
+        \TT\Modules\Backup\BulkSafetyHook::popPending( get_current_user_id() );
+        $back = wp_get_referer() ?: admin_url( 'admin.php?page=talenttrack' );
+        wp_safe_redirect( $back );
+        exit;
+    }
+
+    /**
+     * Map BulkActionsHelper entity slugs to bare tt_* table names.
+     *
+     * @return array<string,string>
+     */
+    private static function entityToTable(): array {
+        return [
+            'player'     => 'tt_players',
+            'team'       => 'tt_teams',
+            'evaluation' => 'tt_evaluations',
+            'session'    => 'tt_sessions',
+            'goal'       => 'tt_goals',
+            'person'     => 'tt_people',
+        ];
+    }
+
     /* ═══════════════ Helpers ═══════════════ */
 
     private static function guard( string $action ): void {
@@ -386,5 +483,226 @@ class BackupSettingsPage {
         );
         wp_safe_redirect( $url );
         exit;
+    }
+
+    /* ═══════════════ Partial restore ═══════════════ */
+
+    /**
+     * Render the partial-restore picker + diff view.
+     *
+     * Two-step flow stuffed into one page:
+     *   1. No `?scope_table` yet → render the scope picker (entity table
+     *      + optional id list).
+     *   2. Scope picked → compute closure + diff, show counts, render
+     *      the per-table action form, submit to handlePartialExecute.
+     */
+    private static function renderPartialRestore( string $backup_id ): void {
+        $local = new LocalDestination();
+        $path  = $local->fetchLocalPath( $backup_id );
+        if ( $path === '' ) {
+            echo '<div class="notice notice-error"><p>' . esc_html__( 'Backup not found.', 'talenttrack' ) . '</p></div>';
+            return;
+        }
+        $bytes    = (string) file_get_contents( $path );
+        $snapshot = \TT\Modules\Backup\BackupSerializer::fromGzippedJson( $bytes );
+        if ( ! is_array( $snapshot ) || ! isset( $snapshot['tables'] ) || ! is_array( $snapshot['tables'] ) ) {
+            echo '<div class="notice notice-error"><p>' . esc_html__( 'Backup file is not valid.', 'talenttrack' ) . '</p></div>';
+            return;
+        }
+
+        $tables       = $snapshot['tables'];
+        $scope_table  = isset( $_GET['scope_table'] ) ? sanitize_key( (string) $_GET['scope_table'] ) : '';
+        $scope_id_raw = isset( $_GET['scope_ids'] )   ? (string) wp_unslash( (string) $_GET['scope_ids'] ) : '';
+        $include_kids = isset( $_GET['include_children'] ) && is_array( $_GET['include_children'] )
+            ? array_map( 'sanitize_key', (array) wp_unslash( $_GET['include_children'] ) )
+            : [];
+
+        ?>
+        <h2><?php esc_html_e( 'Partial restore', 'talenttrack' ); ?></h2>
+        <p style="max-width:760px;">
+            <?php esc_html_e( 'Pick a scope from this backup. We resolve the dependency closure (parent rows the scope needs to be consistent) and show a per-table diff against the current database. Only the rows in scope are touched — other rows stay as they are.', 'talenttrack' ); ?>
+        </p>
+        <p>
+            <a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=tt-config&tab=backups' ) ); ?>">
+                ← <?php esc_html_e( 'Back to backups', 'talenttrack' ); ?>
+            </a>
+        </p>
+
+        <?php
+        // Step 1 — scope picker
+        ?>
+        <h3><?php esc_html_e( '1. Choose scope', 'talenttrack' ); ?></h3>
+        <form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" style="background:#fff; border:1px solid #dcdcde; border-radius:6px; padding:16px; max-width:760px;">
+            <input type="hidden" name="page"    value="tt-config" />
+            <input type="hidden" name="tab"     value="backups" />
+            <input type="hidden" name="partial" value="<?php echo esc_attr( $backup_id ); ?>" />
+            <table class="form-table">
+                <tr>
+                    <th><label for="tt_scope_table"><?php esc_html_e( 'Entity table', 'talenttrack' ); ?></label></th>
+                    <td>
+                        <select id="tt_scope_table" name="scope_table">
+                            <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
+                            <?php foreach ( array_keys( $tables ) as $tbl ) : ?>
+                                <option value="<?php echo esc_attr( (string) $tbl ); ?>" <?php selected( $scope_table, $tbl ); ?>>
+                                    <?php echo esc_html( (string) $tbl ); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="tt_scope_ids"><?php esc_html_e( 'Row IDs', 'talenttrack' ); ?></label></th>
+                    <td>
+                        <input type="text" id="tt_scope_ids" name="scope_ids" class="regular-text" value="<?php echo esc_attr( $scope_id_raw ); ?>" />
+                        <p class="description"><?php esc_html_e( 'Comma-separated. Leave empty to include every row of this table from the backup.', 'talenttrack' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th><?php esc_html_e( 'Include children', 'talenttrack' ); ?></th>
+                    <td>
+                        <?php foreach ( array_keys( \TT\Modules\Backup\BackupDependencyMap::inverse() ) as $parent ) : ?>
+                            <?php if ( $parent !== $scope_table ) continue; ?>
+                            <?php foreach ( ( \TT\Modules\Backup\BackupDependencyMap::inverse()[ $parent ] ?? [] ) as $child => $cols ) : ?>
+                                <label style="display:block; margin-bottom:4px;">
+                                    <input type="checkbox" name="include_children[]" value="<?php echo esc_attr( $child ); ?>" <?php checked( in_array( $child, $include_kids, true ) ); ?> />
+                                    <code><?php echo esc_html( $child ); ?></code>
+                                </label>
+                            <?php endforeach; ?>
+                        <?php endforeach; ?>
+                        <p class="description"><?php esc_html_e( 'Tick the child tables to follow downward from the chosen scope.', 'talenttrack' ); ?></p>
+                    </td>
+                </tr>
+            </table>
+            <p>
+                <button type="submit" class="button button-primary"><?php esc_html_e( 'Compute diff', 'talenttrack' ); ?></button>
+            </p>
+        </form>
+        <?php
+
+        // Step 2 — diff + execute
+        if ( $scope_table === '' || ! isset( $tables[ $scope_table ] ) ) return;
+
+        $scope_ids = self::parseIdList( $scope_id_raw );
+        if ( empty( $scope_ids ) ) {
+            // No ids picked → take every row of the chosen table.
+            foreach ( $tables[ $scope_table ]['rows'] ?? [] as $r ) {
+                if ( is_array( $r ) && isset( $r['id'] ) ) $scope_ids[] = (int) $r['id'];
+            }
+        }
+        if ( empty( $scope_ids ) ) {
+            echo '<p><em>' . esc_html__( 'No rows in this table.', 'talenttrack' ) . '</em></p>';
+            return;
+        }
+
+        $closure = \TT\Modules\Backup\PartialRestoreScope::compute(
+            $tables,
+            [ $scope_table => $scope_ids ],
+            $include_kids
+        );
+        $diff = \TT\Modules\Backup\DiffComputer::compute( $tables, $closure );
+
+        ?>
+        <h3 style="margin-top:32px;"><?php esc_html_e( '2. Review diff and choose actions', 'talenttrack' ); ?></h3>
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="background:#fff; border:1px solid #dcdcde; border-radius:6px; padding:16px; max-width:980px;">
+            <?php wp_nonce_field( 'tt_backup_partial_execute', 'tt_backup_nonce' ); ?>
+            <input type="hidden" name="action"      value="tt_backup_partial_execute" />
+            <input type="hidden" name="backup_id"   value="<?php echo esc_attr( $backup_id ); ?>" />
+            <input type="hidden" name="closure"     value="<?php echo esc_attr( (string) wp_json_encode( $closure ) ); ?>" />
+            <table class="widefat striped">
+                <thead><tr>
+                    <th><?php esc_html_e( 'Table', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'In scope', 'talenttrack' ); ?></th>
+                    <th><span style="color:#1d7874;">●</span> <?php esc_html_e( 'New (green)', 'talenttrack' ); ?></th>
+                    <th><span style="color:#c9962a;">●</span> <?php esc_html_e( 'Differ (yellow)', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Action for green', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Action for yellow', 'talenttrack' ); ?></th>
+                </tr></thead>
+                <tbody>
+                <?php foreach ( $closure as $tbl => $ids ) :
+                    $green  = (int) ( $diff[ $tbl ]['green']  ?? 0 );
+                    $yellow = (int) ( $diff[ $tbl ]['yellow'] ?? 0 );
+                    ?>
+                    <tr>
+                        <td><code><?php echo esc_html( (string) $tbl ); ?></code></td>
+                        <td><?php echo (int) count( $ids ); ?></td>
+                        <td><?php echo $green; ?></td>
+                        <td><?php echo $yellow; ?></td>
+                        <td>
+                            <select name="actions[<?php echo esc_attr( $tbl ); ?>][green]">
+                                <option value="restore"><?php esc_html_e( 'Restore', 'talenttrack' ); ?></option>
+                                <option value="skip"><?php esc_html_e( 'Skip',    'talenttrack' ); ?></option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="actions[<?php echo esc_attr( $tbl ); ?>][yellow]">
+                                <option value="keep-current"><?php esc_html_e( 'Keep current', 'talenttrack' ); ?></option>
+                                <option value="overwrite"><?php esc_html_e( 'Overwrite with backup', 'talenttrack' ); ?></option>
+                                <option value="skip"><?php esc_html_e( 'Skip', 'talenttrack' ); ?></option>
+                            </select>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+            <p style="margin-top:14px;">
+                <label>
+                    <input type="checkbox" name="dry_run" value="1" />
+                    <?php esc_html_e( 'Dry run (compute changes without writing)', 'talenttrack' ); ?>
+                </label>
+            </p>
+            <p>
+                <button type="submit" class="button button-primary"><?php esc_html_e( 'Execute partial restore', 'talenttrack' ); ?></button>
+            </p>
+        </form>
+        <?php
+    }
+
+    public static function handlePartialExecute(): void {
+        self::guard( 'tt_backup_partial_execute' );
+
+        $backup_id = sanitize_text_field( wp_unslash( (string) ( $_POST['backup_id'] ?? '' ) ) );
+        $closure   = json_decode( (string) wp_unslash( $_POST['closure'] ?? '' ), true );
+        $actions   = isset( $_POST['actions'] ) && is_array( $_POST['actions'] ) ? wp_unslash( $_POST['actions'] ) : [];
+        $dry_run   = ! empty( $_POST['dry_run'] );
+
+        if ( ! is_array( $closure ) ) {
+            self::redirectBack( [ 'tt_bk_msg' => 'partial_failed' ] );
+        }
+
+        $local = new LocalDestination();
+        $path  = $local->fetchLocalPath( $backup_id );
+        if ( $path === '' ) {
+            self::redirectBack( [ 'tt_bk_msg' => 'restore_missing' ] );
+        }
+        $bytes    = (string) file_get_contents( $path );
+        $snapshot = \TT\Modules\Backup\BackupSerializer::fromGzippedJson( $bytes );
+        if ( ! is_array( $snapshot ) ) {
+            self::redirectBack( [ 'tt_bk_msg' => 'partial_failed' ] );
+        }
+
+        if ( $dry_run ) {
+            // Dry run = just compute the diff again and surface counts
+            // in a transient so the redirect target can render them.
+            $diff = \TT\Modules\Backup\DiffComputer::compute( $snapshot['tables'] ?? [], $closure );
+            set_transient( 'tt_partial_dry_run_' . get_current_user_id(), [
+                'backup_id' => $backup_id,
+                'diff'      => $diff,
+            ], 5 * MINUTE_IN_SECONDS );
+            self::redirectBack( [ 'tt_bk_msg' => 'partial_dry_run' ] );
+        }
+
+        $result = \TT\Modules\Backup\PartialRestorer::execute( $snapshot, $closure, $actions );
+        self::redirectBack( [ 'tt_bk_msg' => $result['ok'] ? 'partial_done' : 'partial_failed' ] );
+    }
+
+    /** @return int[] */
+    private static function parseIdList( string $raw ): array {
+        $parts = preg_split( '/[\s,;]+/', $raw ) ?: [];
+        $out   = [];
+        foreach ( $parts as $p ) {
+            $p = (int) $p;
+            if ( $p > 0 ) $out[] = $p;
+        }
+        return array_values( array_unique( $out ) );
     }
 }

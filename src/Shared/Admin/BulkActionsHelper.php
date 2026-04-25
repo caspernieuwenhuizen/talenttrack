@@ -224,6 +224,13 @@ class BulkActionsHelper {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
+        // #0013 Sprint 2 — fire a pre-bulk action so the Backup module
+        // can take an auto-safety snapshot when the affected row count
+        // exceeds the configured threshold. The undo notice on the
+        // next pageload picks up the snapshot id from a per-user
+        // transient set by BulkSafetyHook.
+        do_action( 'tt_pre_bulk_destructive', $entity, $action, $ids );
+
         $repo = new ArchiveRepository();
         $count = 0;
         $msg_key = '';

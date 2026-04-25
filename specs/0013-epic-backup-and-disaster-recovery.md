@@ -4,7 +4,7 @@
 
 ## Status
 
-**Ready.** Q1-Q4 locked 2026-04-25 (evening). Compressed to **2 sprints** per Casper's request.
+**Done.** Sprint 1 shipped in v3.15.0. Sprint 2 shipped in v3.16.0. Both sprints complete; epic closed.
 
 ## Locked decisions
 
