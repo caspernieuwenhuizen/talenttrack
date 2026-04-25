@@ -1,3 +1,48 @@
+# TalentTrack v3.9.0 — #0019 Sprint 3 session 3.1: Players full frontend
+
+**Minor release.** Opens Sprint 3 (Players + Teams + CSV import). Players get a real CRUD frontend on `?tt_view=players` — list with filters, create/edit/delete forms, photo upload via WP's media uploader, custom fields, and a link through to the existing rate-card view. Sprint 3 is shaped into two sessions per Casper's preference; this is the first.
+
+## `FrontendPlayersManageView` — four routes via query string
+
+- **`?tt_view=players`** — list view via `FrontendListTable` with five filters (team, position, preferred foot, age group, archived) + name search + sortable columns. Edit / Rate card / Delete row actions. "New player" CTA above.
+- **`?tt_view=players&action=new`** — create form.
+- **`?tt_view=players&id=N`** — edit form (prefilled).
+- **`?tt_view=players&player_id=N`** — detail / rate-card view. Preserved unchanged for deep links from search, podium, etc. The new manage UI uses `id` (not `player_id`) so the two modes never collide.
+
+## `PlayersRestController::list_players` — full Sprint 2 contract
+
+The v2.x list endpoint took only `?team_id=` and returned every matching player flat. Replaced with the same query-param shape Sessions/Goals use:
+
+- `?search=` first/last name LIKE.
+- `?filter[team_id|position|preferred_foot|age_group|archived]=…` — five filters.
+- `?orderby=` whitelisted to last_name / first_name / team_name / jersey_number / date_of_birth / date_joined.
+- `?page=&per_page=10|25|50|100`.
+- Response envelope `{ rows, total, page, per_page }`.
+
+Row-level visibility filter via `AuthorizationService::canViewPlayer` is preserved post-fetch (page-level cap bounds the cost). Demo-mode scope applied. Position filter matches against the JSON-encoded `preferred_positions` column. Age-group filter joins through `tt_teams.age_group`.
+
+## Photo upload via `wp_enqueue_media()`
+
+Frontend-compatible per the epic-shaping audit. The form opens the WP media library modal, lets the user pick or upload an image, and writes the URL into a hidden `photo_url` input. A "Remove" button clears it. The modal carries some wp-admin styling but lays out cleanly — no full reset needed.
+
+## Custom fields
+
+Player custom fields (configured under TalentTrack → Custom Fields) render on the create/edit form via the existing `CustomFieldRenderer::input()`. Edit mode prefills from `tt_custom_values`. Save passes them through `Players_Controller::create_player` / `update_player` which already handle validation + upsert via `CustomFieldValidator` + `CustomValuesRepository`.
+
+## Rate-card link
+
+A "View rate card" button at the top of the edit form links to `?tt_view=players&player_id=N` (the existing detail surface) — per Q7 in the Sprint 3 shaping, no new tile.
+
+## Wired up
+
+- `DashboardShortcode::dispatchCoachingView` flips `players` slug to `FrontendPlayersManageView`.
+- The legacy `FrontendPlayersView` placeholder is deleted; its detail-rendering code (rate card + radar + facts + custom fields display) moved into the new view's `renderDetail()`.
+- 13 new Dutch strings.
+
+## Sprint 3 shape — two sessions
+
+Session 3.2 (next, ~12h) closes Sprint 3 with: `TeamsRestController` from scratch (no existing) + Teams full frontend with roster management + sync CSV import (spec's async per-row dupe UI dropped per Q1 in shaping; ~5h vs ~10h).
+
 # TalentTrack v3.8.2 — #0019 Sprint 2 session 2.4: Goals full frontend (closes Sprint 2)
 
 **Patch release.** Last session of Sprint 2. Goals join Sessions on the full-CRUD frontend track; the `?tt_view=goals` tile gets a list / create / edit / delete UI. Sprint 3 (Players + Teams) is now unblocked.

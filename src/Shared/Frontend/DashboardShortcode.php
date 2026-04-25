@@ -197,14 +197,7 @@ class DashboardShortcode {
                 FrontendTeamsView::render( $user_id, $is_admin );
                 break;
             case 'players':
-                // Players view handles its own back button in detail mode
-                // (drilling into a single player), so only render the
-                // tile-landing back button when in list mode.
-                if ( ! isset( $_GET['player_id'] ) || (int) $_GET['player_id'] <= 0 ) {
-                    // FrontendPlayersView::render() handles renderHeader
-                    // which includes the back button.
-                }
-                FrontendPlayersView::render( $user_id, $is_admin );
+                FrontendPlayersManageView::render( $user_id, $is_admin );
                 break;
             case 'evaluations':
                 FrontendEvaluationsView::render( $user_id, $is_admin );
