@@ -2,6 +2,10 @@
 
 # Player "My evaluations" view — visual polish
 
+## Status
+
+**Done.** Shipped in v3.18.0 alongside #0004. The shared `RatingPillComponent` was introduced here and is reused by the My card tile.
+
 ## Problem
 
 The player-facing "My evaluations" view (`src/Shared/Frontend/FrontendMyEvaluationsView.php`) is functionally correct but visually poor. Three specific complaints from real players:
