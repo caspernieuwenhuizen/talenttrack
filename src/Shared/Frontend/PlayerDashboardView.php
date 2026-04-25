@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
+use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 
@@ -94,7 +95,7 @@ class PlayerDashboardView {
                 if ( $ev->opponent ) {
                     echo '<small>' . esc_html( sprintf( __( 'vs %s (%s)', 'talenttrack' ), $ev->opponent, $ev->match_result ?: '—' ) ) . '</small><br/>';
                 }
-                if ( $full && ! empty( $full->ratings ) ) foreach ( $full->ratings as $r ) echo '<span class="tt-rating-pill">' . esc_html( $r->category_name ) . ': ' . esc_html( (string) $r->rating ) . '</span> ';
+                if ( $full && ! empty( $full->ratings ) ) foreach ( $full->ratings as $r ) echo '<span class="tt-rating-pill">' . esc_html( EvalCategoriesRepository::displayLabel( (string) $r->category_name ) ) . ': ' . esc_html( (string) $r->rating ) . '</span> ';
                 echo '</td></tr>';
             }
             echo '</tbody></table>';

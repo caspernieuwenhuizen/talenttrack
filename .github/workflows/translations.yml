@@ -1,0 +1,62 @@
+name: Translations
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'languages/**.po'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'languages/**.po'
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    name: Validate .po syntax
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install gettext
+        run: sudo apt-get update && sudo apt-get install -y gettext
+      - name: Verify each .po file compiles
+        run: |
+          set -e
+          for po in languages/*.po; do
+            echo "Checking $po"
+            msgfmt --check --statistics -o /tmp/test.mo "$po"
+          done
+
+  compile:
+    name: Auto-compile .po → .mo
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install gettext
+        run: sudo apt-get update && sudo apt-get install -y gettext
+      - name: Regenerate .mo files
+        run: |
+          for po in languages/*.po; do
+            mo="${po%.po}.mo"
+            echo "Compiling $po → $mo"
+            msgfmt -o "$mo" "$po"
+          done
+      - name: Commit regenerated .mo files if changed
+        run: |
+          if [ -n "$(git status --porcelain languages/)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add languages/*.mo
+            git commit -m "chore(i18n): regenerate .mo files from .po"
+            git push
+          else
+            echo "No .mo changes; skipping commit."
+          fi

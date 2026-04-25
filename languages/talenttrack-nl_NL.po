@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 2.10.0\n"
+"Project-Id-Version: TalentTrack 3.12.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-20 10:30+0000\n"
-"PO-Revision-Date: 2026-04-20 10:30+0000\n"
+"POT-Creation-Date: 2026-04-25 10:00+0000\n"
+"PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
 "Language: nl_NL\n"
@@ -3912,3 +3912,189 @@ msgstr "TalentTrack → Configuratie"
 
 msgid "Got it, dismiss"
 msgstr "Begrepen, sluit"
+
+msgid "🎭 DEMO"
+msgstr "🎭 DEMO"
+
+msgid "TalentTrack is running in demo mode. Real club records are hidden."
+msgstr "TalentTrack draait in demomodus. Echte clubgegevens zijn verborgen."
+
+msgid "TalentTrack is running in demo mode. Real data is hidden."
+msgstr "TalentTrack draait in demomodus. Echte gegevens zijn verborgen."
+
+msgid "TalentTrack Demo"
+msgstr "TalentTrack-demo"
+
+msgid "Insufficient permissions."
+msgstr "Onvoldoende rechten."
+
+msgid "TalentTrack Demo Data"
+msgstr "TalentTrack-demogegevens"
+
+msgid "Generation complete. Batch: %1$s. Data: %2$s. %3$s."
+msgstr "Generatie voltooid. Batch: %1$s. Gegevens: %2$s. %3$s."
+
+msgid "Demo data wiped."
+msgstr "Demogegevens gewist."
+
+msgid "Demo users removed."
+msgstr "Demogebruikers verwijderd."
+
+msgid "Demo mode updated."
+msgstr "Demomodus bijgewerkt."
+
+msgid "Demo mode"
+msgstr "Demomodus"
+
+msgid " — real club data is hidden from every read path. Only demo rows are visible elsewhere in the plugin."
+msgstr " — echte clubgegevens zijn overal in de plugin verborgen. Alleen demogegevens zijn elders zichtbaar."
+
+msgid "OFF"
+msgstr "UIT"
+
+msgid " — demo data is hidden from every read path. Normal operation."
+msgstr " — demogegevens zijn overal verborgen. Normale werking."
+
+msgid "Exit demo mode"
+msgstr "Demomodus verlaten"
+
+msgid "Enter demo mode"
+msgstr "Demomodus starten"
+
+msgid "Current demo footprint"
+msgstr "Huidige demogegevens"
+
+msgid "No demo data exists yet."
+msgstr "Er zijn nog geen demogegevens."
+
+msgid "Entity type"
+msgstr "Soort entiteit"
+
+msgid "Tagged rows"
+msgstr "Gemarkeerde rijen"
+
+msgid "Accounts from the last run"
+msgstr "Accounts uit de laatste run"
+
+msgid "Shown once, then cleared on next page load. Copy these now if you need them."
+msgstr "Eenmalig getoond — bij de volgende paginalading verdwijnen ze. Kopieer ze nu als je ze nodig hebt."
+
+msgid "Generate"
+msgstr "Genereren"
+
+msgid "Demo users already exist from a previous run."
+msgstr "Demogebruikers bestaan al van een vorige run."
+
+msgid "No new WP users will be created and no welcome emails will be sent. This run only creates data rows (teams, players, evaluations, sessions, goals)."
+msgstr "Er worden geen nieuwe WP-gebruikers aangemaakt en geen welkomstmails verstuurd. Deze run maakt alleen gegevensrijen (teams, spelers, evaluaties, sessies, doelen)."
+
+msgid "First run."
+msgstr "Eerste run."
+
+msgid "This run will create 36 persistent demo WP users and send them WordPress welcome emails. The email domain must catch mail you control."
+msgstr "Deze run maakt 36 vaste demo-WP-gebruikers aan en stuurt ze WordPress-welkomstmails. Het mailadresdomein moet mail opvangen die jij beheert."
+
+msgid "Generating demo data…"
+msgstr "Demogegevens genereren…"
+
+msgid "This usually takes 15–45 seconds depending on the preset. Leave this tab open until it finishes."
+msgstr "Duurt meestal 15–45 seconden afhankelijk van de preset. Laat dit tabblad open tot het klaar is."
+
+msgid "Preset"
+msgstr "Preset"
+
+msgid "Club name for this demo"
+msgstr "Clubnaam voor deze demo"
+
+msgid "Demo email domain"
+msgstr "Mailadresdomein demo"
+
+msgid "Ignored — users already exist. Kept for reference; change only if you plan to wipe users and recreate."
+msgstr "Genegeerd — gebruikers bestaan al. Bewaard ter referentie; wijzig alleen als je de gebruikers wilt wissen en opnieuw aanmaken."
+
+msgid "Every demo account will be <slot>@<this-domain>. Use a catch-all address you control."
+msgstr "Elk demoaccount krijgt <slot>@<dit-domein>. Gebruik een catch-all-adres dat jij beheert."
+
+msgid "Shared password"
+msgstr "Gedeeld wachtwoord"
+
+msgid "Ignored — existing accounts keep their current password. Only used when new users are created."
+msgstr "Genegeerd — bestaande accounts behouden hun huidige wachtwoord. Wordt alleen gebruikt bij het aanmaken van nieuwe gebruikers."
+
+msgid "Applied to all 36 demo accounts on first creation."
+msgstr "Toegepast op alle 36 demoaccounts bij de eerste aanmaak."
+
+msgid "Seed"
+msgstr "Seed"
+
+msgid "Fixed default 20260504 — produces the same roster every run. Change for a different roster."
+msgstr "Vaste standaard 20260504 — produceert iedere run dezelfde selectie. Wijzig voor een andere selectie."
+
+msgid "(site locale)"
+msgstr "(sitetaal)"
+
+msgid "Language the generated content (goal titles, descriptions, session titles, default location) is written in. Only languages the generators ship content dictionaries for are listed — add a key to GoalGenerator / SessionGenerator constants to support a new one."
+msgstr "Taal waarin de gegenereerde inhoud (doeltitels, beschrijvingen, sessietitels, standaardlocatie) is geschreven. Alleen talen waarvoor de generators inhoudsdictionaries leveren, staan in de lijst — voeg een sleutel toe aan de GoalGenerator-/SessionGenerator-constanten om een nieuwe taal te ondersteunen."
+
+msgid "I confirm this domain catches mail I own"
+msgstr "Ik bevestig dat dit domein mail opvangt die ik beheer"
+
+msgid "Required — 36 WP welcome emails will be sent."
+msgstr "Verplicht — er worden 36 WP-welkomstmails verstuurd."
+
+msgid "Generate demo data"
+msgstr "Demogegevens genereren"
+
+msgid "Wipe"
+msgstr "Wissen"
+
+msgid "Wipe demo data"
+msgstr "Demogegevens wissen"
+
+msgid "Removes every demo-tagged row (evaluations, sessions, goals, attendance, ratings, players, teams) in dependency order. The 36 persistent demo WP users are preserved. Non-demo data is never touched."
+msgstr "Verwijdert elke als demo gemarkeerde rij (evaluaties, sessies, doelen, aanwezigheid, beoordelingen, spelers, teams) in afhankelijkheidsvolgorde. De 36 vaste demo-WP-gebruikers blijven behouden. Niet-demogegevens worden nooit aangeraakt."
+
+msgid "Wipe demo users too"
+msgstr "Demogebruikers ook wissen"
+
+msgid "Removes the persistent set of %d demo WP users. Rare — typically only when changing demo domain or uninstalling. Three safety rails fire per user (domain match, not-current-user, not-last-admin)."
+msgstr "Verwijdert de vaste set van %d demo-WP-gebruikers. Zelden gebruikt — meestal alleen bij wisselen van demodomein of bij verwijderen. Per gebruiker werken drie veiligheidschecks (domein-match, niet huidige gebruiker, niet laatste beheerder)."
+
+msgid "Wipe demo users"
+msgstr "Demogebruikers wissen"
+
+msgid "Past batches"
+msgstr "Eerdere batches"
+
+msgid "No batches yet."
+msgstr "Nog geen batches."
+
+msgid "Batch id"
+msgstr "Batch-id"
+
+msgid "Tagged entities"
+msgstr "Gemarkeerde entiteiten"
+
+msgid "Type EXIT DEMO to confirm"
+msgstr "Typ EXIT DEMO ter bevestiging"
+
+msgid "Type WIPE to confirm"
+msgstr "Typ WIPE ter bevestiging"
+
+msgid "Type WIPE USERS to confirm"
+msgstr "Typ WIPE USERS ter bevestiging"
+
+msgid "Expected email domain (e.g. demo.talenttrack.local)"
+msgstr "Verwacht mailadresdomein (bijv. demo.talenttrack.local)"
+
+msgid "← Back to usage statistics"
+msgstr "← Terug naar gebruiksstatistieken"
+
+msgid "Usage detail"
+msgstr "Gebruiksdetail"
+
+msgid "No activity on this day."
+msgstr "Geen activiteit op deze dag."
+
+msgid "Open in wp-admin"
+msgstr "In wp-admin openen"

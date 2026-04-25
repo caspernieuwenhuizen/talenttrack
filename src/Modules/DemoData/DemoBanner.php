@@ -37,8 +37,9 @@ class DemoBanner {
 
     public static function prependFrontendBanner( string $html ): string {
         if ( ! DemoMode::isOn() ) return $html;
-        $msg = esc_html__( '🎭 This is TalentTrack demo data. Real club records are hidden while demo mode is on.', 'talenttrack' );
-        $banner = '<div style="background:#b32d2e;color:#fff;padding:10px 16px;border-radius:6px;margin-bottom:16px;font-weight:600;">' . $msg . '</div>';
-        return $banner . $html;
+        $label   = esc_html__( '🎭 DEMO', 'talenttrack' );
+        $tooltip = esc_attr__( 'TalentTrack is running in demo mode. Real club records are hidden.', 'talenttrack' );
+        $pill    = '<div style="text-align:right;margin-bottom:8px;"><span title="' . $tooltip . '" style="display:inline-block;background:#b32d2e;color:#fff;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:0.05em;line-height:1.6;">' . $label . '</span></div>';
+        return $pill . $html;
     }
 }
