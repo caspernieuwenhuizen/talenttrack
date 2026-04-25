@@ -26,4 +26,5 @@ return [
     TT\Modules\DemoData\DemoDataModule::class             => true,
     TT\Modules\Onboarding\OnboardingModule::class         => true,
     TT\Modules\Backup\BackupModule::class                 => true,
+    TT\Modules\License\LicenseModule::class               => true,
 ];

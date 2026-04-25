@@ -82,6 +82,18 @@ class Menu {
             );
         }
 
+        // #0011 Sprint 1 — Account submenu (tier, trial state, usage vs
+        // caps, upgrade CTA). Always visible regardless of the legacy
+        // menus toggle since billing/account info is critical.
+        add_submenu_page(
+            'talenttrack',
+            __( 'Account', 'talenttrack' ),
+            __( 'Account', 'talenttrack' ),
+            \TT\Modules\License\Admin\AccountPage::CAP,
+            \TT\Modules\License\Admin\AccountPage::SLUG,
+            [ \TT\Modules\License\Admin\AccountPage::class, 'render' ]
+        );
+
         // #0019 Sprint 6 — legacy-UI toggle. When `tt_show_legacy_menus`
         // is OFF (default), the migrated wp-admin pages are hidden from
         // the menu; direct URLs still work as an emergency fallback.

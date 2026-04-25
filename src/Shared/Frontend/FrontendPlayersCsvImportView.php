@@ -36,6 +36,18 @@ class FrontendPlayersCsvImportView extends FrontendViewBase {
             return;
         }
 
+        // #0011 — feature gate. CSV import is Standard-tier.
+        if ( class_exists( '\TT\Modules\License\LicenseGate' )
+             && ! \TT\Modules\License\LicenseGate::can( 'csv_import' )
+        ) {
+            FrontendBackButton::render();
+            echo \TT\Modules\License\Admin\UpgradeNudge::inline(
+                __( 'CSV bulk import', 'talenttrack' ),
+                'standard'
+            );
+            return;
+        }
+
         self::enqueueAssets();
         self::renderHeader( __( 'Import players from CSV', 'talenttrack' ) );
 

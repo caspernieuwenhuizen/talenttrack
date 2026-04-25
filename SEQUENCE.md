@@ -4,7 +4,9 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 
 ## In progress
 
-_None._
+| # | Topic | Type | Status | Estimated | Actual |
+| - | - | - | - | - | - |
+| 0011 | Monetization + branding | epic | **Sprint 1 in v3.17.0** (Freemius adapter dormant, LicenseGate, FeatureMap, 30+14 trial, Free-tier caps, dev override, 3 keystone gates); Sprint 2 (branding) + Sprint 3 (pilot+launch) pending | ~84-110h | Sprint 1: ~30h |
 
 ## Ready (shaped, decisions locked)
 
@@ -14,7 +16,6 @@ _None — pick the next item from "Needs shaping" or "Not started" below._
 
 | # | Topic | Type | Open questions | Estimated |
 | - | - | - | - | - |
-| 0011 | Monetization + branding | epic | Trial length (14d vs 30d), free-tier limits, tier naming, sprint ordering vs setup wizard | ~84-110h |
 | 0025 | Multilingual auto-translate flow | feat | Engine cost ceiling, cache invalidation, GDPR sub-processor, localization touch-list | ~20-30h |
 | 0026 | Guest-player attendance | feat | Cap interaction, anonymous-trial cleanup, eval ownership | ~8-12h |
 | 0027 | Football methodology module | feat | Catalogue scope, update mechanics, namespacing, sharing across clubs | ~50-70h |

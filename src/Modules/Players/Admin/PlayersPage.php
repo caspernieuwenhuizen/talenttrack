@@ -304,6 +304,16 @@ class PlayersPage {
             if ( ! current_user_can( 'tt_edit_players' ) ) {
                 wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
             }
+            // #0011 — free-tier cap. Block creation past the player cap.
+            if ( class_exists( '\TT\Modules\License\LicenseGate' )
+                 && \TT\Modules\License\LicenseGate::capsExceeded( 'players' )
+            ) {
+                wp_safe_redirect( add_query_arg(
+                    [ 'page' => 'tt-account', 'tt_msg' => 'cap_players' ],
+                    admin_url( 'admin.php' )
+                ) );
+                exit;
+            }
         }
 
         global $wpdb;

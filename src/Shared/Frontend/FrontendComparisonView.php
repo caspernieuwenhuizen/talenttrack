@@ -32,6 +32,19 @@ class FrontendComparisonView extends FrontendViewBase {
 
         self::renderHeader( __( 'Player comparison', 'talenttrack' ) );
 
+        // #0011 — feature gate. Player comparison is a Standard-tier
+        // feature; on Free, surface an upgrade nudge instead of the
+        // analytics body.
+        if ( class_exists( '\TT\Modules\License\LicenseGate' )
+             && ! \TT\Modules\License\LicenseGate::can( 'player_comparison' )
+        ) {
+            echo \TT\Modules\License\Admin\UpgradeNudge::inline(
+                __( 'Player comparison', 'talenttrack' ),
+                'standard'
+            );
+            return;
+        }
+
         // Pick up to 4 players from ?p1, ?p2, ?p3, ?p4
         $picked = [];
         for ( $i = 1; $i <= 4; $i++ ) {
