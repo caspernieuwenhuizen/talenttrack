@@ -4,9 +4,7 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 
 ## In progress
 
-| # | Topic | Type | Status | Estimated | Actual |
-| - | - | - | - | - | - |
-| 0011 | Monetization + branding | epic | **Sprint 1 in v3.17.0** (Freemius adapter dormant, LicenseGate, FeatureMap, 30+14 trial, Free-tier caps, dev override, 3 keystone gates); Sprint 2 (branding) + Sprint 3 (pilot+launch) pending | ~84-110h | Sprint 1: ~30h |
+_None._
 
 ## Ready (shaped, decisions locked)
 
@@ -20,6 +18,7 @@ _None — pick the next item from "Needs shaping" or "Not started" below._
 | 0026 | Guest-player attendance | feat | Cap interaction, anonymous-trial cleanup, eval ownership | ~8-12h |
 | 0027 | Football methodology module | feat | Catalogue scope, update mechanics, namespacing, sharing across clubs | ~50-70h |
 | 0029 | Documentation split (user / admin / dev) | feat | Folder vs manifest, translation priority, in-product viewer integration | ~15-20h |
+| 0030 | Branding + go-to-market | epic | Brand voice, logo sourcing, site tech, domain, pricing copy, screenshots, pilot recruitment, launch channel (Q1-Q8) | ~45-65h |
 
 ## Not started (no shaping needed before build)
 
@@ -48,6 +47,7 @@ _None — pick the next item from "Needs shaping" or "Not started" below._
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
+| 0011 | Monetization (licensing + tiers + caps + trial) | epic | v3.17.0 | ~44-55h | ~30h |
 | 0013 | Backup + disaster recovery | epic | v3.15.0–v3.16.0 | ~50-63h | ~50h |
 | 0024 | Setup wizard / onboarding | feat | v3.14.0 | ~10-30h | ~10-12h |
 | **0019** | **Frontend-first admin migration** | **epic** | v3.7.0–v3.12.0 | ~120-150h | **~73h** |
@@ -67,9 +67,9 @@ _None — pick the next item from "Needs shaping" or "Not started" below._
 
 ## What's next
 
-#0013 closed in v3.16.0. Realistic next moves:
+#0011 monetization closed in v3.17.0; #0013 closed in v3.16.0; #0024 closed in v3.14.0; #0019 closed in v3.12.0. Three multi-sprint epics shaped + shipped on the same day. Realistic next moves:
 
-1. **Lock #0011** — answer the four refinement questions, then the monetization track can start.
+1. **Shape #0030** — branding + go-to-market (Q1-Q8 from the new idea file). The natural follow-on to monetization; without it, the licensing scaffold has nothing to direct people to.
 2. **Shape #0025-#0029** — each has open questions; tackle one at a time.
 3. **Pick from "Not started"** — #0014 Player profile rebuild is the highest-leverage next epic since it unblocks #0017.
 

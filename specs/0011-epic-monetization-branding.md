@@ -1,21 +1,20 @@
 <!-- type: epic -->
 
-# #0011 — Monetization + branding
+# #0011 — Monetization (licensing + tiers + caps + trial)
+
+> **Scope split (2026-04-25 late evening):** the original spec covered both monetization and branding/go-to-market. Branding + marketing site + pilot + launch were carved out into [#0030](0030-epic-branding-and-go-to-market.md). This epic now covers the **monetization code only**.
 
 ## Problem
 
-TalentTrack is a capable, focused plugin with a real user problem to solve. To sustain development beyond one maintainer, it needs to generate revenue. Today it's free, self-installed via GitHub release zips, with no pricing infrastructure, no branding, no marketing site, no license management.
+TalentTrack is a capable, focused plugin with a real user problem to solve. To sustain development beyond one maintainer, it needs to generate revenue. Today it's free, self-installed via GitHub release zips, with no pricing infrastructure, no license management.
 
-Two distinct problems under one epic:
+This epic covers: **pricing, tiers, licensing, payment, feature gating, trial flow, free-tier caps, developer override**.
 
-1. **Monetization** — pricing, tiers, licensing, payment, feature gating.
-2. **Branding** — logo, website, marketing copy, screenshots, positioning.
-
-These are separable workstreams. Each can progress without the other, but both should be done before any public launch.
+Branding, marketing site, pilot recruitment, and public launch live in [#0030](0030-epic-branding-and-go-to-market.md).
 
 ## Status
 
-**Ready.** Q1-Q8 locked 2026-04-25 (late evening). Compressed to **3 sprints** per Casper's request.
+**Done.** Shipped in v3.17.0 (single sprint). Q1-Q8 locked 2026-04-25.
 
 ## Locked decisions
 
@@ -32,8 +31,6 @@ These are separable workstreams. Each can progress without the other, but both s
 
 ## Proposal
 
-Three sprints + a parallel branding workstream:
-
 - **Freemius-first** licensing (handles EU VAT, 7–20% revenue share). Migration path to self-hosted documented from day one via the `TT\License\LicenseGate` abstraction.
 - **Free tier**: 1 team / 25 players / unlimited evaluations. Feature gates drive conversion, not numeric scarcity.
 - **Tiers**: Free (€0) / Standard (€399/yr) / Pro (€699/yr).
@@ -42,15 +39,14 @@ Three sprints + a parallel branding workstream:
 - **Developer override** for local demos.
 - **No existing-user migration** — clean slate ship.
 
-## Scope
+## Scope (single sprint, shipped in v3.17.0)
 
-| Sprint | Focus | Effort |
-| --- | --- | --- |
-| 1 | Freemius SDK + `LicenseGate` + `FeatureMap` (default + Freemius-override) + free-tier caps + 30+14 trial state machine + account menu + dev override + feature gate sweep across modules | ~44-55h |
-| 2 | Branding + marketing site (parallel track — can start during Sprint 1) | ~30-40h |
-| 3 | Pilot + launch | ~10-15h |
+Freemius SDK adapter (dormant by default) + `LicenseGate` + `FeatureMap` (default + Freemius-override) + free-tier caps + 30+14 trial state machine + Account menu + dev override + 3 keystone feature gates (player comparison, rate cards full, CSV import). **Effort: ~30h.**
 
-**Total: ~84-110 hours** across two tracks (code + branding/marketing).
+Deferred to a follow-up gate-sweep PR (separate from #0011 / #0030):
+- Radar chart gating across the 3 render sites
+- Functional roles tile gating
+- Backup partial-restore + undo gating
 
 ### Sprint 1 — Code (foundation + caps + trial + gates + dev override)
 
@@ -149,38 +145,11 @@ Each gated feature gets a `LicenseGate::can()` check at the entry point (view re
 
 **Events**: track license activation, trial start, grace start, trial expiry, upgrade, cancellation, dev-override-toggle in `tt_usage_events`.
 
-### Sprint 2 — Branding + marketing site (parallel track)
+### Branding + marketing site + pilot + launch
 
-Runs as its own workstream, can start in Sprint 1 if delegable.
+→ Carved out into [#0030 — Branding and go-to-market](0030-epic-branding-and-go-to-market.md).
 
-**Branding**:
-- Logo (wordmark + icon variants).
-- Color palette.
-- Typography choices.
-- Apply across: plugin header in wp-admin, readme.txt banner, marketing site, any Freemius-customizable surfaces.
-
-**Marketing site** (separate from the plugin):
-- Landing page (hero, pricing tiers, feature matrix).
-- Documentation (largely re-uses existing `docs/`).
-- Blog / updates.
-- Case studies (populated by Sprint 5 pilots).
-
-Tech choice: static site generator (Hugo/Astro) or WordPress itself. Claude Code can draft either; aesthetics matter most.
-
-**Copy**: positioning, tier descriptions, social proof. Written in concert with #0012 Part A's anti-AI-fingerprint pass — both work shapes the same voice.
-
-### Sprint 3 — Pilot + launch
-
-**Pilot**: 3–5 real academies get free Pro tier for 6 months in exchange for:
-- Case study (logo + quote + one-paragraph story).
-- Feedback on rough edges.
-- Reference permission.
-
-**Launch**:
-- Public announcement (social + relevant forums).
-- Freemius listing goes live.
-- Monitor conversion funnel: trial starts, trial-to-paid conversion, cap hits → upgrade conversion.
-- First-month metrics review: tune pricing / caps / trial length based on data.
+The original spec coupled them into Sprints 2 and 3 here, but they're a different skill set (design + marketing + sales) on a different cadence (calendar time, not driver-time). #0030 owns them as a separate epic with its own shaping pass.
 
 ## Out of scope
 
@@ -193,15 +162,15 @@ Tech choice: static site generator (Hugo/Astro) or WordPress itself. Claude Code
 
 ## Acceptance criteria
 
-- [ ] `TT\License::can()` abstraction centralizes every gating check.
-- [ ] Freemius integrated; trial and purchase flows work end-to-end.
-- [ ] Free tier caps enforced softly with upgrade nudges.
-- [ ] 14-day Academy trial works with email reminders and graceful downgrade.
-- [ ] Every feature is categorized to a tier; gates in place.
-- [ ] Branding consistently applied across plugin + marketing site.
-- [ ] Marketing site live with pricing, docs, case studies.
-- [ ] 3–5 pilot academies running; initial case studies published.
-- [ ] Launch executed; first-month metrics captured.
+- [x] `TT\License\LicenseGate::can()` abstraction centralizes every gating check.
+- [x] Freemius SDK adapter wired; dormant until credentials defined; ready for end-to-end purchase flow once Casper opens the account.
+- [x] Free tier caps enforced softly with upgrade nudges (1 team / 25 players).
+- [x] 30-day trial + 14-day grace state machine; graceful downgrade to Free.
+- [x] Three keystone features categorized to tier and gated (player comparison, rate cards full, CSV import). Remaining feature gates land in a separate sweep PR.
+- [x] Tier→feature map editable via Freemius dashboard at runtime; PHP defaults as fallback.
+- [x] Developer override mechanism for owner-only demos.
+
+Acceptance items related to **branding consistency, marketing site, pilot academies, and launch execution** moved to [#0030](0030-epic-branding-and-go-to-market.md).
 
 ## Notes
 
@@ -228,7 +197,7 @@ If/when self-hosted makes sense (typically at ~€50-100k ARR):
 
 ### Sequence position
 
-Late in SEQUENCE.md — after product maturity achieved via #0019, #0014, #0017. Specifically: don't launch with a weak product. The branding/marketing track (Sprint 4) can start earlier if you want to run it in parallel; the code track (Sprints 1–3, 5) should wait until the product justifies the price.
+**Done** in v3.17.0. The branding + go-to-market work that historically sat under this epic is now [#0030](0030-epic-branding-and-go-to-market.md); sequencing for that lives there.
 
 ### Cross-epic interactions
 
