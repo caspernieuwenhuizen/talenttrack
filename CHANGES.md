@@ -1,3 +1,70 @@
+# TalentTrack v3.12.0 — #0019 Sprint 6: Legacy UI toggle (closes the epic)
+
+**Minor release.** Closes Sprint 6 of the #0019 frontend-first-admin epic and finishes the epic itself. The migration is complete: every TalentTrack admin surface now lives on the frontend, and the wp-admin menu entries for those migrated pages are hidden by default behind a per-site toggle.
+
+~5h actual against ~8-10h spec — the existing `Menu::register()` already had the entire submenu set in one method, so the gate collapsed to a single `if`-block instead of the per-page wrapping the spec described.
+
+## What changed
+
+### `tt_show_legacy_menus` toggle
+
+New config key (stored in the plugin's `tt_config` table — *not* `wp_options` — so it lives alongside every other TalentTrack setting). Default **off**. Direct URLs to legacy pages keep working regardless; the toggle only controls menu visibility.
+
+### Menu suppression
+
+Single chokepoint:
+- `src/Shared/Admin/Menu.php` — wraps the migrated submenu block (Teams, Players, People, Evaluations, Sessions, Goals, Reports, Player Rate Cards, Player Comparison, Usage Statistics, Configuration, Custom Fields, Eval Categories, Category Weights, Roles & Permissions, Functional Roles, Permission Debug) in a single `if ( shouldShowLegacyMenus() )` gate.
+- `src/Shared/Admin/MenuExtension.php` — same gate around the Migrations submenu.
+- The parent **TalentTrack** menu point + **Help & Docs** submenu remain always visible. Help & Docs is the always-visible landmark for documentation; the parent links to the wp-admin Dashboard view which now carries a frontend-discovery splash.
+
+### Toggle UI on **both** surfaces
+
+Per Casper's session-feedback ("I expect a lot of stuff to be further improved on frontend and backend is therefore still needed"):
+
+- **Frontend Configuration view** (`?tt_view=configuration`) — new "wp-admin menus" panel with the toggle.
+- **wp-admin Configuration → Branding tab** — new "Legacy wp-admin menus" section with the same toggle.
+
+Both write to the same `tt_config.show_legacy_menus` key. Saving from either surface flips menu visibility immediately on the next admin page load.
+
+### wp-admin dashboard splash
+
+When the toggle is OFF, the wp-admin TalentTrack Dashboard shows a top-of-page banner explaining the move with two buttons:
+- **Open the frontend dashboard** — primary CTA, links to the public site.
+- **Re-enable legacy menus (wp-admin Configuration)** — direct-URL link to `?page=tt-config` so admins who prefer the wp-admin path can flip the toggle without going to the frontend at all.
+
+The grouped tile dashboard below still renders, so direct-URL navigation to any legacy page works.
+
+### One-time upgrade notice
+
+`src/Shared/Admin/UpgradeNotice.php` — admin notice on the first wp-admin load after upgrade. Cap-gated on `tt_access_frontend_admin` (administrator + tt_head_dev). Per-user dismissal via `_tt_upgrade_notice_v3_12_0_dismissed` user-meta. Versioned by the meta-key suffix so a future epic-equivalent change can ship a fresh notice without re-displaying this one.
+
+Wired into the Kernel's `boot()` so the notice surfaces on every admin page load until each user dismisses it.
+
+## Direct-URL fallback (always works)
+
+Every legacy wp-admin page (`?page=tt-players`, `?page=tt-config`, etc.) keeps working when typed/bookmarked, regardless of toggle state. This is the emergency fallback if a head-dev hides menus and then needs to reach a legacy surface that hasn't been ported.
+
+## Consistency cleanup
+
+Did a 30-minute pass across the Sprints 2–5 frontend views. Findings:
+- Headers ("New X" / "Edit X — name" / "X") consistent across all 7 manage views.
+- Empty-state copy ("No X match your filters.") consistent across all `FrontendListTable` consumers; the lone exception is `FrontendCustomFieldsView` ("No custom fields defined yet.") which is intentional — it reads better when no entity-type filter is applied.
+- `data-rest-path` / `data-rest-method` form attributes uniform.
+- Cancel buttons present on every edit form.
+
+No material drift; nothing that justified a refactor.
+
+## Out of scope (intentionally deferred)
+
+- **Removing legacy pages from the codebase entirely** — emergency fallback requirement keeps them.
+- **Sprint 7 (PWA + offline + docs)** — separate sprint, future work.
+
+## Sprint 6 — done. #0019 epic — done.
+
+Per SEQUENCE.md, **Sprint 6 is COMPLETE and the entire #0019 frontend-first-admin epic is now closed**. Six sprints across ~73h actual run-time (well under the original ~120-150h estimate, mostly because the Sprint 4-6 wraps around existing repositories were thin).
+
+Next epic on the queue: **#0014** (report generator rebuild) and **#0021** (audit log viewer). Sprint 7 of #0019 (PWA + offline + docs) is also on the docket as a clean-room follow-on.
+
 # TalentTrack v3.11.0 — #0019 Sprint 5: Admin-tier surfaces on the frontend
 
 **Minor release.** Closes Sprint 5 of the #0019 frontend-first-admin epic. Six wp-admin-only surfaces become first-class frontend tiles, gated by a new `tt_access_frontend_admin` capability. Single PR per Q8 in shaping. ~14h actual against ~28-32h spec — the existing repositories (`PeopleRepository`, `FunctionalRolesRepository`, `CustomFieldsRepository`, `EvalCategoriesRepository`, `MigrationRunner`, `UsageTracker`) carried most of the domain logic.

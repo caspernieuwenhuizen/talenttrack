@@ -27,6 +27,10 @@ class MenuExtension {
     }
 
     public static function register_submenu(): void {
+        // #0019 Sprint 6 — gated on the same legacy-menu toggle as the
+        // rest of the migrated wp-admin pages. Direct URL still works.
+        if ( ! \TT\Shared\Admin\Menu::shouldShowLegacyMenus() ) return;
+
         // Permissions: either tt_manage_settings OR administrator.
         $cap = current_user_can( 'tt_view_settings' ) ? 'tt_view_settings' : 'administrator';
 

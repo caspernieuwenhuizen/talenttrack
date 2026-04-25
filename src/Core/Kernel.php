@@ -82,6 +82,9 @@ class Kernel {
         BrandStyles::init( $this->container );
         DashboardShortcode::register();
         \TT\Shared\Frontend\FlashMessages::init();
+        // #0019 Sprint 6 — one-time admin notice announcing the
+        // frontend-first migration. Dismissed per-user via meta.
+        \TT\Shared\Admin\UpgradeNotice::init();
 
         /** @var AuditSubscriber $subscriber */
         $subscriber = $this->container->get( 'audit.subscriber' );

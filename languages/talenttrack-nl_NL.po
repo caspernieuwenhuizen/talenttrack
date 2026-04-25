@@ -3861,3 +3861,54 @@ msgstr "Open wp-admin om ze uit te voeren"
 
 msgid "Missing migration files"
 msgstr "Ontbrekende migratiebestanden"
+
+msgid "wp-admin menus"
+msgstr "wp-admin menu's"
+
+msgid "TalentTrack admin tools moved to the frontend in v3.12.0. The legacy wp-admin menu entries (Players, Teams, Configuration, …) are hidden by default. Direct URLs to those pages still work as an emergency fallback."
+msgstr "De TalentTrack-beheertools zijn in v3.12.0 naar de frontend verhuisd. De oude wp-admin menu-items (Spelers, Teams, Configuratie, …) zijn standaard verborgen. Directe URL's naar die pagina's werken nog steeds als noodvang."
+
+msgid "Show legacy wp-admin menus"
+msgstr "Oude wp-admin menu's tonen"
+
+msgid "Re-expose the legacy menu entries in wp-admin for users who prefer them. Plugin still works on both surfaces; this just controls menu visibility."
+msgstr "Maak de oude menu-items in wp-admin opnieuw zichtbaar voor wie ze prefereert. De plugin werkt aan beide kanten; dit stuurt alleen de zichtbaarheid van het menu."
+
+msgid "Legacy wp-admin menus"
+msgstr "Oude wp-admin menu's"
+
+msgid "TalentTrack admin tools moved to the frontend in v3.12.0. The legacy wp-admin menu entries (Players, Teams, Configuration, etc.) are hidden by default. Direct URLs continue to work — this toggle only controls menu visibility."
+msgstr "De TalentTrack-beheertools zijn in v3.12.0 naar de frontend verhuisd. De oude wp-admin menu-items (Spelers, Teams, Configuratie, enz.) zijn standaard verborgen. Directe URL's werken gewoon — deze schakelaar regelt alleen de zichtbaarheid van het menu."
+
+msgid "Re-expose the legacy menu entries."
+msgstr "Maak de oude menu-items opnieuw zichtbaar."
+
+msgid "Per-site setting. The frontend admin tier remains primary; this is for users who prefer the wp-admin path while the frontend continues to mature."
+msgstr "Instelling per site. De frontend-beheertools blijven primair; dit is voor gebruikers die de wp-admin-route prefereren zolang de frontend verder rijpt."
+
+msgid "TalentTrack admin tools have moved to the frontend."
+msgstr "De TalentTrack-beheertools zijn naar de frontend verhuisd."
+
+msgid "Coaches, HoD and admins manage everything from the frontend dashboard now. Direct URLs to legacy wp-admin pages keep working as an emergency fallback — the tiles below still work, and the Configuration page (where this toggle lives) is reachable via direct URL."
+msgstr "Coaches, hoofd opleidingen en beheerders regelen alles vanaf het frontend-dashboard. Directe URL's naar oude wp-admin-pagina's blijven werken als noodvang — de tegels hieronder werken nog en de Configuratiepagina (waar deze schakelaar leeft) is via een directe URL bereikbaar."
+
+msgid "Open the frontend dashboard"
+msgstr "Open het frontend-dashboard"
+
+msgid "Re-enable legacy menus (wp-admin Configuration)"
+msgstr "Oude menu's opnieuw inschakelen (wp-admin Configuratie)"
+
+msgid "TalentTrack admin tools have moved to the frontend"
+msgstr "De TalentTrack-beheertools zijn naar de frontend verhuisd"
+
+msgid "We've migrated all TalentTrack admin tools to the frontend, behind a new Administration tile group. Legacy wp-admin menu entries are hidden by default. Direct URLs to legacy pages keep working as an emergency fallback."
+msgstr "We hebben alle TalentTrack-beheertools naar de frontend verplaatst, achter een nieuwe groep Beheer-tegels. De oude wp-admin-menu-items zijn standaard verborgen. Directe URL's naar oude pagina's blijven werken als noodvang."
+
+msgid "If you prefer the legacy menus, visit %s and tick \"Show legacy wp-admin menus\" — that field is also available on the frontend Configuration view."
+msgstr "Als je de oude menu's prefereert, ga naar %s en vink \"Oude wp-admin menu's tonen\" aan — dat veld staat ook op de frontend-Configuratiepagina."
+
+msgid "TalentTrack → Configuration"
+msgstr "TalentTrack → Configuratie"
+
+msgid "Got it, dismiss"
+msgstr "Begrepen, sluit"

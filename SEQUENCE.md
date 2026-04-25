@@ -123,7 +123,7 @@ Phase 2 subtotal: ~23h.
 | --- | --- | --- | --- | --- |
 | 11 | **#0019 Sprint 4** — people + functional roles | epic | ~12h actual | **COMPLETE** in v3.10.0. Reports deferred to #0014. People REST + frontend; FunctionalRoles tile with Roles + Assignments tabs; team-edit cross-link summary. Single PR per Casper's Q8 preference. Prerequisite for #0017 unblocked. |
 | 12 | **#0019 Sprint 5** — admin-tier frontend | epic | ~14h actual | **COMPLETE** in v3.11.0. Single PR per Casper's Q8. New `tt_access_frontend_admin` cap; Administration tile group with 6 tiles (Configuration, Custom Fields, Eval Categories, Roles, Migrations, Usage Stats). Audit viewer deferred to #0021; CategoryWeights + Roles cap-edit deep-link to wp-admin. |
-| 13 | **#0019 Sprint 6** — cleanup + legacy UI toggle | epic | ~10h | Removes/deprecates old wp-admin pages. Default-OFF toggle preserves access. |
+| 13 | **#0019 Sprint 6** — cleanup + legacy UI toggle | epic | ~5h actual | **COMPLETE** in v3.12.0. New `tt_show_legacy_menus` config key (stored in `tt_config`, default off). Single chokepoint in `Menu::register()` + `MenuExtension::register_submenu()`. Toggle visible on BOTH the frontend Configuration view AND the wp-admin Configuration → Branding tab (per Casper's preference for keeping the wp-admin path real while the frontend matures). Wp-admin parent dashboard shows a splash banner pointing to frontend + wp-admin Configuration when toggle off. One-time per-user upgrade notice via `UpgradeNotice`. Direct URLs to all legacy pages keep working. **#0019 epic is now complete** — only Sprint 7 (PWA + docs) remains. |
 | 14 | **#0021** — audit log viewer | feat | ~10h | Carved out during shaping. Adjacent to Sprint 6's cleanup. |
 
 Phase 3 subtotal: ~65h.
