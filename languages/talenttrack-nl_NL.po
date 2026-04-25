@@ -3354,3 +3354,36 @@ msgstr "(Overnemen van thema)"
 
 msgid "Inheritance applies to fonts, colors, and basic links/buttons. TalentTrack’s structural design (spacing, layout, player cards) is unchanged. Pick fonts and accent colors below — fields left as “(System default)” or empty fall back to TalentTrack’s defaults."
 msgstr "Overerving geldt voor lettertypen, kleuren en standaard links/knoppen. De structurele opmaak van TalentTrack (witruimte, layout, spelerkaarten) blijft ongewijzigd. Kies hieronder lettertypen en accentkleuren — velden die op “(Systeemstandaard)” of leeg blijven, vallen terug op de TalentTrack-standaarden."
+
+msgid "New session"
+msgstr "Nieuwe sessie"
+
+msgid "Edit session — %s"
+msgstr "Sessie bewerken — %s"
+
+msgid "Session not found"
+msgstr "Sessie niet gevonden"
+
+msgid "That session no longer exists."
+msgstr "Die sessie bestaat niet meer."
+
+msgid "Delete this session? It will be archived."
+msgstr "Deze sessie verwijderen? De sessie wordt gearchiveerd."
+
+msgid "Mark all present"
+msgstr "Iedereen aanwezig"
+
+msgid "Show all"
+msgstr "Toon alles"
+
+msgid "Show all (%d)"
+msgstr "Toon alles (%d)"
+
+msgid "%1$d of %2$d marked Present"
+msgstr "%1$d van %2$d gemarkeerd als Aanwezig"
+
+msgid "Update session"
+msgstr "Sessie bijwerken"
+
+msgid "Save session"
+msgstr "Sessie opslaan"
