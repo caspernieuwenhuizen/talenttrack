@@ -1,3 +1,41 @@
+# TalentTrack v3.7.3 — #0019 Sprint 2 session 1: REST list endpoints
+
+**Patch release.** Opens Sprint 2 of the #0019 frontend-first-admin epic. Server-side first — adds the REST list contract that the upcoming `FrontendListTable` component (session 2.2) will consume.
+
+## New `GET /sessions` and `GET /goals`
+
+Both endpoints live alongside their existing create/update/delete siblings under `talenttrack/v1/`. They share an identical query-param shape so the list-table component doesn't need entity-specific knowledge:
+
+| Param | Behaviour |
+| --- | --- |
+| `?search=<text>` | LIKE across the obvious columns. Sessions: `title` + `location` + team name. Goals: `title` + `description` + player first/last name. |
+| `?filter[<key>]=<value>` | Entity-specific. Sessions: `team_id`, `date_from`, `date_to`, `attendance` (`complete\|partial\|none`). Goals: `team_id`, `player_id`, `status`, `priority`, `due_from`, `due_to`. |
+| `?orderby=<col>` | Whitelisted server-side. Unknown columns → 400 with a `bad_orderby` error code that lists what's allowed. |
+| `?order=asc\|desc` | Default depends on the column (sessions sort newest-first by date; goals soonest-first by due date). |
+| `?page=<n>&per_page=10\|25\|50\|100` | Defaults `page=1`, `per_page=25`. Other `per_page` values clamp to 25. |
+| `?include_archived=1` | Default hides archived rows. |
+
+Response uses the `RestResponse` envelope — `{ success, data: { rows, total, page, per_page }, errors }`.
+
+## Sessions list — attendance-completeness filter
+
+`?filter[attendance]=` is computed on the fly per row from `tt_attendance` row count vs the team roster size at query time. Wraps in `HAVING` so the total row count reflects the post-filter slice. Each row in the response also carries `attendance_count`, `roster_size`, and `attendance_pct` so the eventual UI can render an "Att. %" column without a follow-up query. Lists are capped at 100/page; if performance becomes a problem we add a cached completeness column on save.
+
+## Authorization
+
+- New permission callbacks `can_view()` on both controllers — gated on `tt_view_sessions` / `tt_view_goals` (or the corresponding `tt_edit_*` cap). Existing create/update/delete still require `tt_edit_*`.
+- Non-admin coaches only see sessions/goals for teams they head-coach — same rule the existing dashboard surfaces enforce. If a coach has zero teams, both endpoints return an empty list (no row leak).
+- Demo-mode scope (`QueryHelpers::apply_demo_scope`) applied to both queries — demo data stays hidden when demo mode is off.
+
+## Sprint 2 plan
+
+Companion doc at [`specs/0019-sprint-2-session-plan.md`](specs/0019-sprint-2-session-plan.md) breaks the sprint into four reviewable PRs (2.1 REST endpoints — this release; 2.2 `FrontendListTable` component; 2.3 Sessions full frontend; 2.4 Goals full frontend). Seven open questions from the shaping pass were resolved in conversation and recorded in the doc.
+
+## Ship-along
+
+- `.po` adds one new string (`Unknown orderby column.`).
+- `SEQUENCE.md` marks Sprint 2 as IN PROGRESS with a session log.
+
 # TalentTrack v3.7.2 — #0019 Sprint 1 session 3: CSS scaffold, shared components, drafts
 
 **Patch release.** Closes out Sprint 1 of the #0019 frontend-first-admin epic. The foundation is now complete; Sprint 2 (sessions + goals frontend) is unblocked.
