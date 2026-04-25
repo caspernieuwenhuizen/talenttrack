@@ -1,3 +1,65 @@
+# TalentTrack v3.9.1 — #0019 Sprint 3 session 3.2: Teams + CSV import (closes Sprint 3)
+
+**Patch release.** Closes Sprint 3 of the #0019 frontend-first-admin epic. Teams get a real CRUD frontend with roster management and a placeholder for the #0018 formation board; club admins get bulk CSV import for players. Sprint 4 (people + functional roles + reports) is now unblocked.
+
+## `TeamsRestController` (new)
+
+Built from scratch — there was no v2.x equivalent. Full CRUD plus a roster sub-resource:
+
+| Route | Method | Notes |
+| --- | --- | --- |
+| `/teams` | GET | Sprint 2 contract: `?search`, `?filter[age_group\|archived]`, whitelisted `?orderby` (name / age_group / player_count), pagination. Returns `{ rows, total, page, per_page }`. Coach scoping for non-admins; demo-mode scope applied. |
+| `/teams` | POST | Create. Capability: `tt_edit_teams`. |
+| `/teams/{id}` | GET | Single team. |
+| `/teams/{id}` | PUT | Update. Per-team auth via `AuthorizationService::canManageTeam`. |
+| `/teams/{id}` | DELETE | Soft-archive (sets `archived_at` + `archived_by`). |
+| `/teams/{id}/players/{player_id}` | POST | Add player to roster. |
+| `/teams/{id}/players/{player_id}` | DELETE | Remove player from roster (sets `team_id = 0`; player row stays). |
+
+Per Sprint 3 plan Q3, roster is a sub-resource — cleaner for the autocomplete-add UI and avoids re-sending the full team payload on every roster change.
+
+## `FrontendTeamsManageView`
+
+Three modes via query string: list (`FrontendListTable` with age-group + archived filters and Edit/Delete row actions) / `?action=new` / `?id=N`. Edit form has:
+
+- Team name, age group, head coach (dropdown of users with `tt_edit_evaluations`), notes.
+- **Roster section** — current players list with a "Remove" action + an "Add player" dropdown of unaffiliated/cross-team candidates. Per Q4 the picker is a plain dropdown, no autocomplete.
+- **Formation placeholder** — a dashed-border panel with a link to `ideas/0018-epic-team-development.md`. No functional UI.
+
+Roster ops backed by `assets/js/components/team-roster.js` — vanilla, hits the sub-resource endpoints, reloads on success.
+
+The v3.0.0 `FrontendTeamsView` placeholder is deleted. Its podium-per-team display is dropped; coaches can still see player cards via the players surface or the rate-cards analytics tile.
+
+## CSV import for players (sync version)
+
+Per Q1 in the Sprint 3 shaping: the spec's 5-step async flow with per-row dupe UI is dropped in favor of a simpler sync version that covers the 80% case.
+
+**Endpoint** — `POST /talenttrack/v1/players/import` (multipart/form-data). One endpoint backs both preview (`?dry_run=1`, default) and commit (`?dry_run=0`). Client re-uploads the file on commit; cheap for typical CSVs (≤1MB). Capability: `tt_edit_players`.
+
+**Service** — `src/Modules/Players/PlayerCsvImporter.php`:
+
+- `parse()` — opens the file, normalizes headers (lowercase, BOM-strip), warns on unknown columns.
+- `preview()` — first 20 rows with per-row validation status (`valid` / `warning` for dupes / `error`) + dupe detection by `first_name + last_name + date_of_birth`.
+- `commit()` — validates each row, applies the chosen dupe strategy (`skip` / `update` / `create`), commits row-by-row. Accept-what-worked: errors don't abort; rows 1–46 stay if row 47 fails.
+- `errorRowsToCsv()` — emits a corrected-input CSV the user can download, fix, and re-upload.
+
+**Accepted columns** (header row required, case-insensitive): `first_name` (required), `last_name` (required), `date_of_birth` (YYYY-MM-DD), `nationality`, `height_cm`, `weight_kg`, `preferred_foot`, `preferred_positions` (comma-separated), `jersey_number`, `team_id` *or* `team_name`, `date_joined`, `photo_url`, `guardian_name`, `guardian_email`, `guardian_phone`, `status`.
+
+**View** — `FrontendPlayersCsvImportView` at the new `?tt_view=players-import` tile slug. Three steps: upload (file input + dupe-strategy radio), preview (header warnings + first 20 rows with per-row status), result (created/updated/skipped/errored counts + a "Download error rows" CTA when any row failed).
+
+**Tile** — "Import players" appears on the dashboard tile grid for users with `tt_edit_players`.
+
+## Wired up
+
+- `TeamsRestController` registered in `TeamsModule::boot()`.
+- `csv-import.js` and `team-roster.js` enqueued from `DashboardShortcode`.
+- 6 new TT JS i18n strings localized.
+- 41 new Dutch strings.
+
+## Sprint 3 — done
+
+Per SEQUENCE.md, Sprint 3 is now COMPLETE (~22h actual against ~22h estimate; original spec was ~30–35h before the simplifications locked in shaping). Sprint 4 (people + functional roles + reports — HoD-facing surfaces, prerequisite for #0017) is the next epic on the queue.
+
 # TalentTrack v3.9.0 — #0019 Sprint 3 session 3.1: Players full frontend
 
 **Minor release.** Opens Sprint 3 (Players + Teams + CSV import). Players get a real CRUD frontend on `?tt_view=players` — list with filters, create/edit/delete forms, photo upload via WP's media uploader, custom fields, and a link through to the existing rate-card view. Sprint 3 is shaped into two sessions per Casper's preference; this is the first.

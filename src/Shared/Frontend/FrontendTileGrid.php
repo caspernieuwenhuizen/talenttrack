@@ -268,6 +268,14 @@ class FrontendTileGrid {
                 'show'  => $is_coach || $is_admin,
             ],
             [
+                'label' => __( 'Import players', 'talenttrack' ),
+                'desc'  => __( 'Bulk import players from a CSV file.', 'talenttrack' ),
+                'emoji' => '⬆',
+                'color' => '#1d7874',
+                'url'   => $url( 'players-import' ),
+                'show'  => $is_admin || current_user_can( 'tt_edit_players' ),
+            ],
+            [
                 'label' => __( 'Evaluations', 'talenttrack' ),
                 'desc'  => __( 'Record player ratings, add notes and scores.', 'talenttrack' ),
                 'emoji' => '📝',

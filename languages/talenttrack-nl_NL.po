@@ -3459,3 +3459,126 @@ msgstr "Kies foto…"
 
 msgid "Select photo"
 msgstr "Foto kiezen"
+
+msgid "New team"
+msgstr "Nieuw team"
+
+msgid "Edit team — %s"
+msgstr "Team bewerken — %s"
+
+msgid "Team not found"
+msgstr "Team niet gevonden"
+
+msgid "That team no longer exists."
+msgstr "Dat team bestaat niet meer."
+
+msgid "Delete this team? It will be archived."
+msgstr "Dit team verwijderen? Het wordt gearchiveerd."
+
+msgid "Search team name or age group…"
+msgstr "Zoek op teamnaam of leeftijdscategorie…"
+
+msgid "No teams match your filters."
+msgstr "Geen teams passen bij je filters."
+
+msgid "Update team"
+msgstr "Team bijwerken"
+
+msgid "Save team"
+msgstr "Team opslaan"
+
+msgid "Team name"
+msgstr "Teamnaam"
+
+msgid "— Add player —"
+msgstr "— Speler toevoegen —"
+
+msgid "Formation"
+msgstr "Opstelling"
+
+msgid "Import players"
+msgstr "Spelers importeren"
+
+msgid "Bulk import players from a CSV file."
+msgstr "Spelers in bulk importeren uit een CSV-bestand."
+
+msgid "Import players from CSV"
+msgstr "Spelers importeren vanuit CSV"
+
+msgid "1. Upload your CSV"
+msgstr "1. Upload je CSV"
+
+msgid "CSV file (max 5 MB)"
+msgstr "CSV-bestand (max 5 MB)"
+
+msgid "When a row matches an existing player"
+msgstr "Als een rij een bestaande speler matcht"
+
+msgid "Skip the row (default)"
+msgstr "Rij overslaan (standaard)"
+
+msgid "Update the existing player"
+msgstr "Bestaande speler bijwerken"
+
+msgid "Create a new player anyway"
+msgstr "Toch een nieuwe speler aanmaken"
+
+msgid "A row matches an existing player when first_name + last_name + date_of_birth all match."
+msgstr "Een rij matcht een bestaande speler wanneer first_name + last_name + date_of_birth alledrie overeenkomen."
+
+msgid "Preview"
+msgstr "Voorbeeld"
+
+msgid "2. Preview"
+msgstr "2. Voorbeeld"
+
+msgid "Import"
+msgstr "Importeren"
+
+msgid "Pick a different file"
+msgstr "Ander bestand kiezen"
+
+msgid "3. Result"
+msgstr "3. Resultaat"
+
+msgid "Download error rows"
+msgstr "Foutrijen downloaden"
+
+msgid "Import another file"
+msgstr "Nog een bestand importeren"
+
+msgid "Accepted columns"
+msgstr "Toegestane kolommen"
+
+msgid "comma-separated"
+msgstr "komma-gescheiden"
+
+msgid "or"
+msgstr "of"
+
+msgid "Row"
+msgstr "Rij"
+
+msgid "Showing %1$d of %2$d rows."
+msgstr "%1$d van %2$d rijen weergegeven."
+
+msgid "Matches existing player #%d"
+msgstr "Komt overeen met bestaande speler #%d"
+
+msgid "Created: %d"
+msgstr "Aangemaakt: %d"
+
+msgid "Updated: %d"
+msgstr "Bijgewerkt: %d"
+
+msgid "Skipped (dupes): %d"
+msgstr "Overgeslagen (duplicaten): %d"
+
+msgid "Errors: %d"
+msgstr "Fouten: %d"
+
+msgid "You do not have permission to import players."
+msgstr "Je hebt geen rechten om spelers te importeren."
+
+msgid "Team formation board coming with %s — team development. The placeholder lives here so the layout is ready for it."
+msgstr "Opstellingsbord komt met %s — teamontwikkeling. De placeholder staat hier zodat de layout er klaar voor is."
