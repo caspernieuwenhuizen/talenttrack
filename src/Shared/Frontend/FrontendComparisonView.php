@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
+use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
 
 /**
  * FrontendComparisonView — the "Player comparison" tile destination
@@ -82,32 +83,14 @@ class FrontendComparisonView extends FrontendViewBase {
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:10px;">
                 <?php for ( $i = 1; $i <= 4; $i++ ) :
                     $current = $picked[ $i - 1 ] ?? 0;
-                    ?>
-                    <div>
-                        <label style="font-size:12px; color:#555; display:block; margin-bottom:3px;">
-                            <?php
-                            /* translators: %d is slot number */
-                            printf( esc_html__( 'Slot %d', 'talenttrack' ), $i );
-                            ?>
-                        </label>
-                        <select name="p<?php echo $i; ?>" style="width:100%; padding:6px;">
-                            <option value="0"><?php esc_html_e( '— None —', 'talenttrack' ); ?></option>
-                            <?php foreach ( $all_players as $pl ) :
-                                $label = sprintf(
-                                    '%s, %s — %s%s',
-                                    $pl->last_name,
-                                    $pl->first_name,
-                                    (string) ( $pl->team_name ?: __( 'No team', 'talenttrack' ) ),
-                                    $pl->age_group ? " ({$pl->age_group})" : ''
-                                );
-                                ?>
-                                <option value="<?php echo (int) $pl->id; ?>" <?php selected( $current, (int) $pl->id ); ?>>
-                                    <?php echo esc_html( $label ); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                <?php endfor; ?>
+                    echo PlayerSearchPickerComponent::render( [
+                        'name'        => 'p' . $i,
+                        'label'       => sprintf( /* translators: %d is slot number */ __( 'Slot %d', 'talenttrack' ), $i ),
+                        'players'     => $all_players,
+                        'selected'    => (int) $current,
+                        'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
+                    ] );
+                endfor; ?>
             </div>
 
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-top:12px;">

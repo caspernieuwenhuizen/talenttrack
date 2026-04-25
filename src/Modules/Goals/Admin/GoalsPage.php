@@ -48,9 +48,9 @@ class GoalsPage {
             <?php \TT\Shared\Admin\BulkActionsHelper::openForm( 'goal', $view ); ?>
             <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
 
-            <table class="widefat striped"><thead><tr>
-                <th class="check-column" style="width:30px;"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
-                <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Goal', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th></tr></thead><tbody>
+            <table class="widefat striped tt-table-sortable"><thead><tr>
+                <th class="check-column" style="width:30px;" data-tt-sort="off"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
+                <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Goal', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><th data-tt-sort="off"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th></tr></thead><tbody>
             <?php if ( empty( $goals ) ) : ?><tr><td colspan="5"><?php esc_html_e( 'No goals.', 'talenttrack' ); ?></td></tr>
             <?php else : foreach ( $goals as $g ) :
                 $is_archived = $g->archived_at !== null;

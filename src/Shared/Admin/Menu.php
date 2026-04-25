@@ -617,6 +617,28 @@ class Menu {
         wp_enqueue_style( 'tt-admin', TT_PLUGIN_URL . 'assets/css/admin.css', [], TT_VERSION );
         wp_enqueue_script( 'tt-admin', TT_PLUGIN_URL . 'assets/js/admin.js', [ 'jquery' ], TT_VERSION, true );
 
+        // F4 — client-side search + sort + filter on TT admin tables.
+        // Tables opt in by adding the `tt-table-sortable` class to the
+        // <table> element. The script auto-adds a search input above
+        // and makes every <th> sortable on click.
+        wp_enqueue_script(
+            'tt-table-tools',
+            TT_PLUGIN_URL . 'assets/js/tt-table-tools.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script(
+            'tt-table-tools',
+            'ttTableToolsStrings',
+            [
+                'search'            => __( 'Search:', 'talenttrack' ),
+                'searchPlaceholder' => __( 'Filter rows…', 'talenttrack' ),
+                'rowsTotal'         => __( '{n} row(s)', 'talenttrack' ),
+                'rowsFiltered'      => __( '{v} of {n}', 'talenttrack' ),
+            ]
+        );
+
         // Register (not auto-enqueue) the sortable script. The CustomFieldsTab
         // and OptionSetEditor call wp_enqueue_script('tt-admin-sortable') on
         // demand — this registration makes that call effective.

@@ -69,8 +69,8 @@ class PlayersPage {
             <?php \TT\Shared\Admin\BulkActionsHelper::openForm( 'player', $view ); ?>
             <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
 
-            <table class="widefat striped"><thead><tr>
-                <th class="check-column" style="width:30px;"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
+            <table class="widefat striped tt-table-sortable"><thead><tr>
+                <th class="check-column" style="width:30px;" data-tt-sort="off"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
                 <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Position(s)', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Foot', 'talenttrack' ); ?></th>
                 <th>#</th><th><?php esc_html_e( 'DOB', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>

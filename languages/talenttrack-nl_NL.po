@@ -13,6 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 
+
 msgid "(directory not found!)"
 msgstr "(map niet gevonden!)"
 
@@ -3850,4 +3851,70 @@ msgstr "Geen activiteit op deze dag."
 
 msgid "Open in wp-admin"
 msgstr "In wp-admin openen"
+
+msgid "Type a name to search…"
+msgstr "Typ een naam om te zoeken…"
+
+msgid "Clear selection"
+msgstr "Selectie wissen"
+
+msgid "— Select team first —"
+msgstr "— Kies eerst een team —"
+
+msgid "Show rate card"
+msgstr "Rate card tonen"
+
+msgid "All teams"
+msgstr "Alle teams"
+
+msgid "— Select team —"
+msgstr "— Kies een team —"
+
+msgid "Use club default (%s)"
+msgstr "Clubstandaard gebruiken (%s)"
+
+msgid "Detailed"
+msgstr "Gedetailleerd"
+
+msgid "Summary"
+msgstr "Samenvatting"
+
+msgid "Detailed — show every subcategory rating"
+msgstr "Gedetailleerd — toon elke subcategorie-beoordeling"
+
+msgid "Summary — show only main categories"
+msgstr "Samenvatting — toon alleen hoofdcategorieën"
+
+msgid "Evaluation display"
+msgstr "Weergave evaluaties"
+
+msgid "Detailed — show every subcategory rating."
+msgstr "Gedetailleerd — toon elke subcategorie-beoordeling."
+
+msgid "Summary — show only the four main categories (Technical, Tactical, Physical, Mental)."
+msgstr "Samenvatting — toon alleen de vier hoofdcategorieën (Technisch, Tactisch, Fysiek, Mentaal)."
+
+msgid "Club-wide default. Each coach can override their own preference under Profile."
+msgstr "Standaardinstelling voor de hele club. Elke coach kan deze voor zichzelf overschrijven onder Profiel."
+
+msgid "Low-rating comment"
+msgstr "Toelichting bij lage beoordeling"
+
+msgid "Threshold:"
+msgstr "Drempelwaarde:"
+
+msgid "Ratings at or below this value trigger a \"consider adding a comment\" prompt."
+msgstr "Beoordelingen op of onder deze waarde activeren een melding om een toelichting toe te voegen."
+
+msgid "Soft — show a warning but allow saving without a comment."
+msgstr "Zacht — toon een waarschuwing maar sta opslaan zonder toelichting toe."
+
+msgid "Hard — block save until a comment is provided."
+msgstr "Hard — blokkeer opslaan totdat een toelichting is ingevuld."
+
+msgid "TalentTrack preferences"
+msgstr "TalentTrack-voorkeuren"
+
+msgid "⚠ One or more ratings are at or below %s — please add a comment explaining the low score."
+msgstr "⚠ Eén of meer beoordelingen liggen op of onder %s — voeg een toelichting toe waarom."
 

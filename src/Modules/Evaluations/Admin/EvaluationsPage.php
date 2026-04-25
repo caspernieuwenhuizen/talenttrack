@@ -74,10 +74,10 @@ class EvaluationsPage {
             <?php \TT\Shared\Admin\BulkActionsHelper::openForm( 'evaluation', $view ); ?>
             <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
 
-            <table class="widefat striped">
+            <table class="widefat striped tt-table-sortable">
                 <thead>
                     <tr>
-                        <th class="check-column" style="width:30px;"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
+                        <th class="check-column" style="width:30px;" data-tt-sort="off"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
                         <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>

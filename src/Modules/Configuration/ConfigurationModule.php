@@ -13,6 +13,7 @@ class ConfigurationModule implements ModuleInterface {
     public function register( Container $container ): void {}
     public function boot( Container $container ): void {
         if ( is_admin() ) Admin\ConfigurationPage::init();
+        if ( is_admin() ) Admin\UserProfileExtensions::init();
         ConfigRestController::init();
         CustomFieldsRestController::init();
     }

@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
+use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
+use TT\Shared\Frontend\Components\TeamPickerComponent;
 
 /**
  * FrontendRateCardView — the "Rate cards" tile destination
@@ -32,38 +34,99 @@ class FrontendRateCardView extends FrontendViewBase {
         self::renderHeader( __( 'Rate cards', 'talenttrack' ) );
 
         $player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
+        $team_id   = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
         $filters   = PlayerStatsService::sanitizeFilters( $_GET );
 
-        // Full roster — cross-club visibility. Observer use case is
-        // club-wide, not team-scoped.
-        $players = QueryHelpers::get_players();
+        // F3 — when the user coaches multiple teams, ask for a team
+        // first; the player picker is then filtered to that team.
+        // Admins and observers see cross-team and don't need the
+        // upfront team filter, but it remains available as an opt-in
+        // narrowing.
+        $user_id    = get_current_user_id();
+        $is_admin   = current_user_can( 'tt_edit_settings' );
+        $coach_teams = TeamPickerComponent::resolveTeams( $user_id, $is_admin );
+
+        // Auto-select the only team if the user has just one — saves
+        // the click without changing the model.
+        if ( $team_id <= 0 && count( $coach_teams ) === 1 ) {
+            $team_id = (int) $coach_teams[0]->id;
+        }
+
+        // Resolve the candidate player set:
+        //   - team_id given → that team
+        //   - admin without team → all players
+        //   - non-admin without team → coach's teams' players
+        if ( $team_id > 0 ) {
+            $players = QueryHelpers::get_players( $team_id );
+        } elseif ( $is_admin ) {
+            $players = QueryHelpers::get_players();
+        } else {
+            $players = [];
+            foreach ( $coach_teams as $t ) {
+                foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) {
+                    $players[] = $pl;
+                }
+            }
+        }
 
         // Picker form. Preserves the current page URL (wherever the
         // [talenttrack_dashboard] shortcode lives) and swaps player_id.
-        $current_url = remove_query_arg( [ 'player_id', 'date_from', 'date_to', 'eval_type_id' ] );
+        $current_url = remove_query_arg( [ 'player_id', 'team_id', 'date_from', 'date_to', 'eval_type_id' ] );
         ?>
-        <form method="get" action="" style="margin:8px 0 20px;">
+        <form method="get" action="" class="tt-grid tt-grid-2" style="margin:8px 0 20px; gap:12px; max-width:680px;">
             <?php
             // Preserve non-filter query args (page, tt_view) as hidden inputs
             foreach ( $_GET as $k => $v ) {
-                if ( in_array( $k, [ 'player_id', 'date_from', 'date_to', 'eval_type_id' ], true ) ) continue;
+                if ( in_array( $k, [ 'player_id', 'team_id', 'date_from', 'date_to', 'eval_type_id' ], true ) ) continue;
                 if ( is_string( $v ) ) {
                     echo '<input type="hidden" name="' . esc_attr( (string) $k ) . '" value="' . esc_attr( wp_unslash( $v ) ) . '" />';
                 }
             }
+
+            // Team picker: required for multi-team coaches; optional
+            // for admins/observers (a "(all teams)" option is still
+            // available via the placeholder).
+            echo TeamPickerComponent::render( [
+                'name'        => 'team_id',
+                'label'       => __( 'Team', 'talenttrack' ),
+                'teams'       => $coach_teams,
+                'selected'    => $team_id,
+                'placeholder' => $is_admin
+                    ? __( 'All teams', 'talenttrack' )
+                    : __( '— Select team —', 'talenttrack' ),
+                'required'    => ! $is_admin && count( $coach_teams ) > 1,
+            ] );
+
+            echo PlayerSearchPickerComponent::render( [
+                'name'     => 'player_id',
+                'label'    => __( 'Player', 'talenttrack' ),
+                'required' => true,
+                'players'  => $players,
+                'selected' => $player_id,
+            ] );
             ?>
-            <label style="display:inline-flex; align-items:center; gap:8px;">
-                <strong><?php esc_html_e( 'Player:', 'talenttrack' ); ?></strong>
-                <select name="player_id" onchange="this.form.submit()" style="min-width:220px; padding:6px;">
-                    <option value="0"><?php esc_html_e( '— Select a player —', 'talenttrack' ); ?></option>
-                    <?php foreach ( $players as $pl ) : ?>
-                        <option value="<?php echo (int) $pl->id; ?>" <?php selected( $player_id, (int) $pl->id ); ?>>
-                            <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </label>
+            <div class="tt-field" style="grid-column: 1 / -1;">
+                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Show rate card', 'talenttrack' ); ?></button>
+            </div>
         </form>
+        <script>
+        (function(){
+            // F3 — when team changes, refresh the player picker; if the
+            // user has only the coach scope, also auto-submit so the
+            // server reloads the candidate roster from the DB. Admins
+            // can stay client-side filtering.
+            var form = document.querySelector('form');
+            if (!form) return;
+            var teamSel = form.querySelector('select[name="team_id"]');
+            var playerWrap = form.querySelector('[data-tt-psp]');
+            if (teamSel && playerWrap) {
+                teamSel.addEventListener('change', function(){
+                    var teamId = parseInt(teamSel.value, 10) || 0;
+                    playerWrap.dispatchEvent(new CustomEvent('tt-psp:set-team', { detail: { team_id: teamId } }));
+                });
+            }
+        })();
+        </script>
         <?php
 
         if ( $player_id <= 0 ) {

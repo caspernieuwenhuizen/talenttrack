@@ -389,6 +389,45 @@ class ConfigurationPage {
                 <tr><th><?php esc_html_e( 'Minimum', 'talenttrack' ); ?></th><td><input type="number" name="cfg[rating_min]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_min', '1' ) ); ?>" min="0" max="10" step="0.5" /></td></tr>
                 <tr><th><?php esc_html_e( 'Maximum', 'talenttrack' ); ?></th><td><input type="number" name="cfg[rating_max]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_max', '5' ) ); ?>" min="1" max="100" step="0.5" /></td></tr>
                 <tr><th><?php esc_html_e( 'Step', 'talenttrack' ); ?></th><td><input type="number" name="cfg[rating_step]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_step', '0.5' ) ); ?>" min="0.1" max="1" step="0.1" /></td></tr>
+                <tr>
+                    <th><?php esc_html_e( 'Evaluation display', 'talenttrack' ); ?></th>
+                    <td>
+                        <?php $eval_display = QueryHelpers::get_config( 'eval_display_mode', 'detailed' ); ?>
+                        <label style="display:block;margin-bottom:4px;">
+                            <input type="radio" name="cfg[eval_display_mode]" value="detailed" <?php checked( $eval_display, 'detailed' ); ?> />
+                            <?php esc_html_e( 'Detailed — show every subcategory rating.', 'talenttrack' ); ?>
+                        </label>
+                        <label style="display:block;">
+                            <input type="radio" name="cfg[eval_display_mode]" value="summary" <?php checked( $eval_display, 'summary' ); ?> />
+                            <?php esc_html_e( 'Summary — show only the four main categories (Technical, Tactical, Physical, Mental).', 'talenttrack' ); ?>
+                        </label>
+                        <p class="description">
+                            <?php esc_html_e( 'Club-wide default. Each coach can override their own preference under Profile.', 'talenttrack' ); ?>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <th><?php esc_html_e( 'Low-rating comment', 'talenttrack' ); ?></th>
+                    <td>
+                        <?php $low_threshold = (float) QueryHelpers::get_config( 'eval_low_rating_threshold', '3' ); ?>
+                        <?php $low_required  = QueryHelpers::get_config( 'eval_low_rating_require_comment', 'soft' ); ?>
+                        <label>
+                            <?php esc_html_e( 'Threshold:', 'talenttrack' ); ?>
+                            <input type="number" name="cfg[eval_low_rating_threshold]" value="<?php echo esc_attr( (string) $low_threshold ); ?>" min="0" max="10" step="0.5" style="width:80px;" />
+                        </label>
+                        <p class="description" style="margin:6px 0;">
+                            <?php esc_html_e( 'Ratings at or below this value trigger a "consider adding a comment" prompt.', 'talenttrack' ); ?>
+                        </p>
+                        <label style="display:block;margin-top:6px;">
+                            <input type="radio" name="cfg[eval_low_rating_require_comment]" value="soft" <?php checked( $low_required, 'soft' ); ?> />
+                            <?php esc_html_e( 'Soft — show a warning but allow saving without a comment.', 'talenttrack' ); ?>
+                        </label>
+                        <label style="display:block;">
+                            <input type="radio" name="cfg[eval_low_rating_require_comment]" value="hard" <?php checked( $low_required, 'hard' ); ?> />
+                            <?php esc_html_e( 'Hard — block save until a comment is provided.', 'talenttrack' ); ?>
+                        </label>
+                    </td>
+                </tr>
             </table>
             <?php submit_button( __( 'Save', 'talenttrack' ) ); ?>
         </form>
