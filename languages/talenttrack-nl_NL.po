@@ -3306,3 +3306,51 @@ msgstr "Zoek op titel, locatie of team…"
 
 msgid "No sessions match your filters."
 msgstr "Geen sessies passen bij je filters."
+
+msgid "Theme inheritance & curated styling"
+msgstr "Theme-overerving & gecureerde stijlen"
+
+msgid "Inherit WordPress theme styles"
+msgstr "WP-themastijlen overerven"
+
+msgid "Defer typography, link color, headings and plain buttons to the active WP theme."
+msgstr "Laat typografie, link-kleur, koppen en standaard­knoppen over aan het actieve WP-thema."
+
+msgid "Display font"
+msgstr "Display-lettertype"
+
+msgid "Body font"
+msgstr "Body-lettertype"
+
+msgid "Used for headings, tile titles, and player card numbers."
+msgstr "Gebruikt voor koppen, tegeltitels en de nummers op spelerkaarten."
+
+msgid "Used for paragraphs, tables, and form fields."
+msgstr "Gebruikt voor paragrafen, tabellen en formuliervelden."
+
+msgid "Accent color"
+msgstr "Accentkleur"
+
+msgid "Danger color"
+msgstr "Gevarenkleur"
+
+msgid "Warning color"
+msgstr "Waarschuwingskleur"
+
+msgid "Success color"
+msgstr "Succeskleur"
+
+msgid "Info color"
+msgstr "Infokleur"
+
+msgid "Focus ring color"
+msgstr "Focus-ringkleur"
+
+msgid "(System default)"
+msgstr "(Systeemstandaard)"
+
+msgid "(Inherit from theme)"
+msgstr "(Overnemen van thema)"
+
+msgid "Inheritance applies to fonts, colors, and basic links/buttons. TalentTrack’s structural design (spacing, layout, player cards) is unchanged. Pick fonts and accent colors below — fields left as “(System default)” or empty fall back to TalentTrack’s defaults."
+msgstr "Overerving geldt voor lettertypen, kleuren en standaard links/knoppen. De structurele opmaak van TalentTrack (witruimte, layout, spelerkaarten) blijft ongewijzigd. Kies hieronder lettertypen en accentkleuren — velden die op “(Systeemstandaard)” of leeg blijven, vallen terug op de TalentTrack-standaarden."
