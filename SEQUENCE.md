@@ -13,7 +13,6 @@ _None._
 | 0026 | Guest-player attendance | feat | [specs/0026-feat-guest-player-attendance.md](specs/0026-feat-guest-player-attendance.md) | ~10h |
 | 0029 | Documentation split (user / admin / dev) | feat | [specs/0029-feat-documentation-split-user-admin.md](specs/0029-feat-documentation-split-user-admin.md) | ~17h |
 | 0025 | Multilingual auto-translate flow | feat | [specs/0025-feat-multilingual-auto-translate.md](specs/0025-feat-multilingual-auto-translate.md) | ~26h |
-| 0027 | Football methodology module | feat | [specs/0027-feat-football-methodology-module.md](specs/0027-feat-football-methodology-module.md) | ~52h (4 sprints) |
 
 ## Needs refinement / shaping
 
@@ -46,6 +45,7 @@ _None._
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
+| 0027 | Football methodology module (framework + sample seed) | feat | v3.19.0 | ~52h (4 sprints) | ~32h framework; ~12h content authoring still TBD by Casper |
 | 0003 | Player evaluations view polish | feat | v3.18.0 | ~6h | ~3h |
 | 0004 | My card tile polish | feat | v3.18.0 | ~5h | ~2h |
 | 0011 | Monetization (licensing + tiers + caps + trial) | epic | v3.17.0 | ~44-55h | ~30h |

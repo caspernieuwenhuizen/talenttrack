@@ -2,6 +2,12 @@
 
 # #0027 — Football methodology module
 
+## Status
+
+**Framework done in v3.19.0.** Schema, repositories, admin browser + 4 edit pages + clone-to-edit, frontend read-only view, FormationDiagram SVG component, Goal + Session linkage, capabilities, tile + admin menu, sample seed migration (1 of each type as a worked template).
+
+**Casper's seed-content authoring** — translating the full PDF (10 more position cards, 17-19 more principles, 6 more set pieces, the actual club vision) — is a separate ~12h authoring PR that uses the wp-admin Clone & Edit + Add buttons to populate the rest. Drills + session templates remain v2 scope.
+
 ## Problem
 
 TalentTrack today is strong on player tracking (evaluations, goals, attendance) but light on the **coaching content** side: principles, formations, position-specific role definitions, set-piece intent. Coaches at most academies work from external PDFs and personal notes; the plugin doesn't help them codify, share, and operationalize their methodology.

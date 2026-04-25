@@ -328,6 +328,14 @@ class FrontendTileGrid {
                 'url'   => $url( 'podium' ),
                 'show'  => $is_coach || $is_admin,
             ],
+            [
+                'label' => __( 'Methodology', 'talenttrack' ),
+                'desc'  => __( 'Principles, formations, positions and set pieces.', 'talenttrack' ),
+                'emoji' => '📘',
+                'color' => '#1d7874',
+                'url'   => $url( 'methodology' ),
+                'show'  => current_user_can( 'tt_view_methodology' ),
+            ],
         ];
 
         // "Analytics" — requires tt_view_reports. Covers observer role too.

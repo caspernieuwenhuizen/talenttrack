@@ -125,6 +125,30 @@ class SessionsPage {
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_SESSION, (int) ( $session->id ?? 0 ), 'team_id' ); ?>
                     <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><textarea name="notes" rows="3" class="large-text"><?php echo esc_textarea( $session->notes ?? '' ); ?></textarea></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_SESSION, (int) ( $session->id ?? 0 ), 'notes' ); ?>
+                    <?php
+                    // #0027 — optional principle linkage. Multi-select.
+                    if ( class_exists( '\TT\Modules\Methodology\Repositories\PrinciplesRepository' ) ) :
+                        $all_principles = ( new \TT\Modules\Methodology\Repositories\PrinciplesRepository() )->listFiltered();
+                        $linked_ids     = ( $session && (int) $session->id > 0 )
+                            ? ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )->principlesForSession( (int) $session->id )
+                            : [];
+                        if ( ! empty( $all_principles ) ) : ?>
+                            <tr>
+                                <th><?php esc_html_e( 'Principles practiced', 'talenttrack' ); ?></th>
+                                <td>
+                                    <select name="session_principle_ids[]" multiple size="6" style="min-width:320px;">
+                                        <?php foreach ( $all_principles as $pr ) :
+                                            $title = \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
+                                            ?>
+                                            <option value="<?php echo (int) $pr->id; ?>" <?php selected( in_array( (int) $pr->id, $linked_ids, true ) ); ?>>
+                                                <?php echo esc_html( $pr->code . ' · ' . ( $title ?: '—' ) ); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <p class="description"><?php esc_html_e( 'Optional. Hold Ctrl/Cmd to select multiple.', 'talenttrack' ); ?></p>
+                                </td>
+                            </tr>
+                    <?php endif; endif; ?>
                     <?php CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_SESSION, (int) ( $session->id ?? 0 ) ); ?>
                 </table>
                 <?php if ( ! empty( $players ) ) : ?>
@@ -161,6 +185,15 @@ class SessionsPage {
         } else {
             $ok = $wpdb->insert( "{$p}tt_sessions", $data );
             if ( $ok !== false ) $id = (int) $wpdb->insert_id;
+        }
+
+        // #0027 — persist linked principles. The submitted ids are
+        // sanitized in the repository's setSessionPrinciples().
+        if ( $ok !== false && $id > 0 && class_exists( '\TT\Modules\Methodology\Repositories\PrincipleLinksRepository' ) ) {
+            $submitted = isset( $_POST['session_principle_ids'] ) && is_array( $_POST['session_principle_ids'] )
+                ? array_map( 'intval', (array) $_POST['session_principle_ids'] )
+                : [];
+            ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )->setSessionPrinciples( $id, $submitted );
         }
 
         if ( $ok === false ) {

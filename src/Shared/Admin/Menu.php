@@ -117,6 +117,13 @@ class Menu {
         add_submenu_page( 'talenttrack', __( 'Evaluations', 'talenttrack' ), __( 'Evaluations', 'talenttrack' ), 'tt_view_evaluations', 'tt-evaluations', [ EvaluationsPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Sessions', 'talenttrack' ), __( 'Sessions', 'talenttrack' ), 'tt_view_sessions', 'tt-sessions', [ SessionsPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Goals', 'talenttrack' ), __( 'Goals', 'talenttrack' ), 'tt_view_goals', 'tt-goals', [ GoalsPage::class, 'render_page' ] );
+        add_submenu_page( 'talenttrack', __( 'Methodology', 'talenttrack' ), __( 'Methodology', 'talenttrack' ), \TT\Modules\Methodology\Admin\MethodologyPage::CAP_VIEW, \TT\Modules\Methodology\Admin\MethodologyPage::SLUG, [ \TT\Modules\Methodology\Admin\MethodologyPage::class, 'render' ] );
+        // Hidden edit pages — registered with parent = null so they
+        // route via slug but no menu item appears.
+        add_submenu_page( null, __( 'Edit principle', 'talenttrack' ), __( 'Edit principle', 'talenttrack' ), \TT\Modules\Methodology\Admin\PrincipleEditPage::CAP, \TT\Modules\Methodology\Admin\PrincipleEditPage::SLUG, [ \TT\Modules\Methodology\Admin\PrincipleEditPage::class, 'render' ] );
+        add_submenu_page( null, __( 'Edit position',  'talenttrack' ), __( 'Edit position',  'talenttrack' ), \TT\Modules\Methodology\Admin\PositionEditPage::CAP,  \TT\Modules\Methodology\Admin\PositionEditPage::SLUG,  [ \TT\Modules\Methodology\Admin\PositionEditPage::class,  'render' ] );
+        add_submenu_page( null, __( 'Edit set piece', 'talenttrack' ), __( 'Edit set piece', 'talenttrack' ), \TT\Modules\Methodology\Admin\SetPieceEditPage::CAP,  \TT\Modules\Methodology\Admin\SetPieceEditPage::SLUG,  [ \TT\Modules\Methodology\Admin\SetPieceEditPage::class,  'render' ] );
+        add_submenu_page( null, __( 'Edit vision',    'talenttrack' ), __( 'Edit vision',    'talenttrack' ), \TT\Modules\Methodology\Admin\VisionEditPage::CAP,    \TT\Modules\Methodology\Admin\VisionEditPage::SLUG,    [ \TT\Modules\Methodology\Admin\VisionEditPage::class,    'render' ] );
 
         self::addSeparator( 'tt-sep-analytics', __( 'Analytics', 'talenttrack' ), 'tt_view_reports' );
         add_submenu_page( 'talenttrack', __( 'Reports', 'talenttrack' ), __( 'Reports', 'talenttrack' ), 'tt_view_reports', 'tt-reports', [ ReportsPage::class, 'render_page' ] );

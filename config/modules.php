@@ -27,4 +27,5 @@ return [
     TT\Modules\Onboarding\OnboardingModule::class         => true,
     TT\Modules\Backup\BackupModule::class                 => true,
     TT\Modules\License\LicenseModule::class               => true,
+    TT\Modules\Methodology\MethodologyModule::class       => true,
 ];
