@@ -207,3 +207,20 @@ Late in SEQUENCE.md — after product maturity achieved via #0019, #0014, #0017.
 - New marketing site in a separate repo or subfolder
 - Branding assets — new `assets/brand/` folder
 - `readme.txt` / plugin description — final pricing-aware copy
+
+## Refinement needed before this becomes Ready
+
+The April 2026 idea-funnel pass surfaced four conflicts between this spec and the funnel framing. They need decisions before Sprint 1 can start.
+
+1. **Trial length.** This spec says **14 days**; the funnel argues **30 days** with a 14-day read-only grace + later hard degrade. 30 days is more humane for clubs with seasonal usage cycles; 14 days converts faster on average.
+   → **Recommended for shaping**: 30-day full trial → 14-day read-only grace → free tier. Total 44 days from install to hard degrade. Adjust based on early conversion data.
+
+2. **Free-tier limits.** This spec says **1 team / 15 players / 30 evaluations** (tight, designed for extended demo). Funnel suggests **1 team / 25 players / 2 staff / "Basic list view (no radar charts)"** (slightly more generous, also gates radar charts behind paid). The radar-chart gate is interesting because it's a high-perceived-value visual feature.
+   → **Recommended for shaping**: 1 team / 25 players / no cap on evaluations but **radar charts gated behind Pro**. Charts are the obvious "wow this is useful" moment that converts.
+
+3. **Pro vs Academy naming + tier count.** This spec proposes Free / **Club** (€149) / **Academy** (€399) / Multi-site (€899). Funnel uses Free / **Pro** / **Business** with prices as placeholders. Both are workable; "Pro" is more familiar to non-football SaaS buyers, "Club"/"Academy" matches the football vocabulary clubs use about themselves.
+   → **Recommended for shaping**: keep this spec's **Club / Academy / Multi-site** naming — it speaks the customer's language. Confirm the prices.
+
+4. **Sprint ordering vs the rest of the backlog.** This spec sits in Phase 5 of SEQUENCE.md (after most product work). Funnel argues the Setup Wizard (#0024, new) should ship before monetization for activation reasons. Acceptance: place #0024 between Phase 4 and Phase 5, ahead of #0011.
+
+These four are inline-decidable; tee them up at the start of shaping rather than mid-Sprint-1.

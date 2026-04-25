@@ -205,3 +205,21 @@ Nothing strictly, but ideally ships before clubs start accumulating real operati
   - Pre-bulk interception (at the REST controller level for Players CSV import, etc.)
   - Admin-notice augmentation with undo links
 - Capability registration: `tt_manage_backups`
+
+## Refinement needed before this becomes Ready
+
+The April 2026 idea-funnel pass surfaced four conflicts between this spec and the funnel framing. Decisions to make before Sprint 1 starts.
+
+1. **Cloud-destination ordering.** This spec defers S3 to a follow-on after Sprint 4's email destination. The funnel argues S3-first because it's the universal lowest-friction option and unblocks backup-as-Pro-feature pricing.
+   → **Recommended for shaping**: bump S3 from "deferred" to **Sprint 4 alongside email**. Cloud cost is the same; the architecture is identical.
+
+2. **Wizard UX vs single settings page.** Sprint 2's settings UI is currently a single page with preset selector + form fields. The funnel suggests a 5-step "next-next-finish" wizard for first-time setup, with the settings page kept for ongoing tweaks.
+   → **Recommended for shaping**: ship the wizard for first-time setup; the settings page is the "edit existing config" path. Adds ~1-2h of UX work to Sprint 2.
+
+3. **Free-tier vs paid-tier feature split.** This spec doesn't currently split features across tiers — it's a "build once, gate later via #0011" approach. Funnel argues the tier split should be **decided up front** because it shapes which sprints ship as free baseline vs Pro/Business features.
+   → **Recommended for shaping**: lock the tier split now (Sprint 1 = Free baseline; Sprints 4 cloud + 5 selective restore = Pro/Business). Drives where to put cap checks vs unconditional execution.
+
+4. **Wizard placement vs setup-wizard #0024.** If #0024 (Setup Wizard) ships first, the backup wizard becomes a step inside the broader onboarding wizard rather than a standalone flow. If #0024 ships after, the backup wizard is standalone first and gets folded into onboarding later.
+   → **Recommended for shaping**: ship backup wizard standalone first (timing-independent of #0024). When #0024 ships, the backup-config step there becomes a thin link out to the existing wizard.
+
+These are decidable inline; tee them up at the start of shaping.

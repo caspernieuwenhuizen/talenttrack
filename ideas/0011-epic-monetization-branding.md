@@ -179,3 +179,131 @@ Replaces or augments `plugin-update-checker` (Freemius has its own updater)
 New marketing site: separate repo, not in this plugin
 Config constants in `wp-config.php`: `TT_LICENSE_BACKEND` (freemius / self / none — for dev), `TT_LICENSE_SERVER_URL` if self-hosted
 DEVOPS.md — document build pipeline for free vs premium builds (the `@fs_premium_only` mechanism if using Freemius)
+
+---
+
+## Idea-funnel additions (April 2026 v3)
+
+These additions came from a separate strategic-thinking pass (the "idea funnel" doc, since merged in). They don't replace the Freemius-first plan above; they sharpen it and add depth on what self-hosted *would* look like if we ever switched.
+
+### Hybrid trial → grace → degraded free tier (refined trial mechanics)
+
+The trial-and-free-tier model in this idea is sound but the lifecycle was under-specified. The funnel framing:
+
+- **30-day full trial** (slightly longer than the 14-day this idea proposes — see Refinement Needed in the spec)
+- **14-day read-only grace period** when the trial ends — all data visible, nothing editable
+- **Hard degrade to feature-limited free tier** after the grace period
+- **Forever after** — usable at the free-tier scope; upgrade available from Account page anytime
+
+Day-by-day events worth nailing into Sprint 2's implementation:
+- Day 23 → friendly email with usage summary
+- Day 28 → in-admin banner: "Trial ending in 2 days"
+- Day 30 → trial ends, read-only grace begins
+- Day 44 → hard degrade to free tier
+- 7-day milestone email after free-tier downgrade — final upgrade nudge before they forget the plugin exists
+
+The case for the read-only grace period: a club whose trial just expired hasn't paid yet, but if their data suddenly becomes editable-only-after-payment, they may panic-uninstall. Grace period preserves the warm-lead status.
+
+### Trial-reset protection — site-fingerprint phone-home
+
+A club can delete and reinstall the plugin to reset the trial timer. Mitigation:
+- On activation, plugin posts site fingerprint (`site_url` hash + DB UUID + install timestamp) to the licensing server
+- Server tracks which sites have already consumed their trial
+- Reinstall → server responds "already had trial" → plugin starts in free mode, skips trial state
+
+Not bulletproof (a domain change bypasses it), but good enough for the target segment.
+
+### License-server architecture (only relevant if self-hosted)
+
+If/when we leave Freemius, the self-hosted license server has minimal endpoints:
+
+| Endpoint | Purpose |
+| - | - |
+| `POST /trial/register` | Plugin activation reports site fingerprint, server issues trial credentials |
+| `POST /license/validate` | Plugin periodically confirms license is still valid, returns tier info |
+| `POST /webhook/stripe` | Stripe events (payment succeeded, subscription cancelled, etc.) update license state |
+
+Stores: sites (fingerprint, first-seen, trial-start), customers (email, Stripe customer ID), licenses (key, tier, status, expiry, linked site fingerprint).
+
+Two viable implementations:
+- **EDD + Software Licensing addon** on a dedicated WP site. ~€129/year, battle-tested, saves weeks of code. **Recommended for speed if Freemius doesn't fit.**
+- **Custom Laravel + Stripe Cashier**. More flexible, ~2 weeks of focused work before anything ships.
+
+### Subscription lifecycle — the edge cases
+
+If we ever go self-hosted, every Stripe webhook event needs a handler. Missing one creates a customer-support ticket:
+
+- Initial subscription → license created, welcome email
+- Successful renewal → license validity extended silently
+- Failed renewal → retry sequence (Stripe Smart Retries), license enters 14-day "grace" state
+- Cancellation (with end of period) → active until period ends, then lapses to free
+- Cancellation (immediate) → license expires at next validation
+- Refund → same as cancellation
+- Chargeback → license invalidated immediately, customer flagged
+- Payment method expired → grace + email reminders
+- Upgrade mid-cycle → Stripe handles proration, new tier active immediately
+- Downgrade mid-cycle → new tier active at next renewal (don't refund mid-cycle)
+
+**Recommendation: use Stripe Billing rather than hand-rolling.** It handles all of this through their dashboard + webhooks. Same applies if Freemius is the chosen path — they wrap most of this for us.
+
+### Stripe Customer Portal
+
+Hosted page where customers update payment method, see invoices, cancel subscriptions, download receipts. Single API integration call. Saves building all that UI ourselves. Use it whether self-hosted or via Freemius (Freemius equivalent: their hosted account portal).
+
+### Tax + invoicing — the hidden complexity
+
+EU VAT must be charged at the customer's rate, B2B sales use reverse-charge, invoices have per-country legal requirements, and OSS registration is required to handle non-Netherlands EU VAT centrally.
+
+**Stripe Tax** handles all of this for ~0.5% of transaction value if self-hosted. **Freemius is Merchant of Record** which removes the burden entirely (their cut covers tax compliance).
+
+This single consideration is the strongest argument for staying with Freemius.
+
+### Failure modes to plan for
+
+- License server down → plugin caches last-known-good state, doesn't lock users out (already in this idea above; reinforced)
+- Stripe webhook failures → implement webhook replay endpoint; log all events regardless of processing success
+- License key mismatches → clear error messages, support contact
+- Site migration → "re-bind license to new site" flow in the Customer Portal
+- Refunds / disputes → documented support process, audit-trail logged
+- Offline activation (rare; air-gapped deployments) → manual license-delivery path
+
+**Support volume estimate**: ~50 paying customers → 2-5 billing-related tickets per month at steady state.
+
+### Paths beyond the plugin (Path B + Path C)
+
+The plugin (Path A) is the focus of this epic, but it's worth keeping the longer arc in view:
+
+- **Path B — Managed hosting.** Same plugin, but TalentTrack hosts the WordPress install. Different pricing (~€29-99/month including hosting + updates + DR). Becomes viable after Path A has 20+ paying customers as demand validation.
+- **Path C — Full SaaS rewrite.** Multi-tenant rebuild, no WordPress underneath. Different pricing again (~€49-249/month or per-seat). Becomes relevant only after 1-2 years of plugin-tier data shows strong demand that justifies the rebuild cost.
+
+Updated path economics:
+
+| Path | Year 1 realistic revenue | Year 3 ceiling | Time to first €1k MRR |
+| - | - | - | - |
+| **A — Plugin (freemium + paid tiers)** | €5-20k | €50-150k | 6-12 months |
+| **B — Managed hosting** (upsell from A) | n/a yet | €100-300k | Dependent on A traction |
+| **C — SaaS rebuild** | Likely negative | €300k-millions | 18-36 months if everything works |
+
+The case for staying in Path A longer than feels comfortable: margin structure is excellent (high fixed cost up-front, near-zero marginal cost per customer), and the product gets better at our actual pace of work rather than hiring ahead of revenue.
+
+### Revised staged path
+
+- **Months 1-3** — finish the product. (As of April 2026: #0019 frontend-first migration is COMPLETE, so this gate is essentially passed.)
+- **Months 4-5** — Sprint 2A: Freemium/trial foundation. License infrastructure, module gating, trial clock, free tier enforcement, Account page. **No checkout yet.** Ship as v3.x with trial active and a "Coming soon" upgrade button. Collect emails from interested trials.
+- **Months 5-6** — Sprint 2B: Payment pipeline. Freemius (or EDD self-hosted). Stripe integration. Webhook handlers. Customer Portal. Launch at a single Pro tier (~€149/year). Monitor.
+- **Months 6-9** — learn from real usage. Talk to users who did and didn't convert. Iterate on free tier limits. Add Business tier only if demand shows up. **Don't add tiers/features yet.**
+- **Months 9-12** — decide on Paths B/C based on real signal.
+
+The key discipline: **don't widen scope prematurely**. A single Pro tier sold well beats three tiers with complex pricing and no traction.
+
+### Pre-launch checklist (Sprint 2B gate)
+
+- [ ] Company structure and bank account ready to receive Stripe payouts (Freemius pays out separately)
+- [ ] VAT registration complete (Netherlands + EU OSS) — moot if Freemius MoR
+- [ ] Terms of Service published
+- [ ] Privacy Policy published, GDPR-compliant
+- [ ] Refund policy documented (recommend 30-day money-back no-questions for first year; 14 days standard otherwise)
+- [ ] Support email monitored (target: 24h response)
+- [ ] License server monitored — uptime alerting (license server down = all paying customers break)
+- [ ] Backup strategy for license server database (customer data + billing history)
+- [ ] Stripe dispute and chargeback response process documented
