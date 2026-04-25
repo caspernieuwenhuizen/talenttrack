@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
 
@@ -48,14 +49,16 @@ class FrontendComparisonView extends FrontendViewBase {
             if ( $pl ) $players[] = $pl;
         }
 
-        // All players for slot selectors (cross-club — observer's scope)
+        // All players for slot selectors (cross-club — observer's scope).
+        // Demo-mode scope applied so demo runs only show demo-tagged players.
         global $wpdb;
         $p = $wpdb->prefix;
+        $player_scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
         $all_players = $wpdb->get_results(
             "SELECT pl.id, pl.first_name, pl.last_name, pl.team_id, t.name AS team_name, t.age_group
              FROM {$p}tt_players pl
              LEFT JOIN {$p}tt_teams t ON pl.team_id = t.id
-             WHERE pl.status = 'active' AND pl.archived_at IS NULL
+             WHERE pl.status = 'active' AND pl.archived_at IS NULL {$player_scope}
              ORDER BY pl.last_name, pl.first_name ASC"
         );
 
@@ -284,7 +287,7 @@ class FrontendComparisonView extends FrontendViewBase {
                 <tbody>
                     <?php foreach ( array_keys( $all_cats ) as $cat_label ) : ?>
                         <tr>
-                            <td style="font-weight:600;"><?php echo esc_html( $cat_label ); ?></td>
+                            <td style="font-weight:600;"><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $cat_label ) ); ?></td>
                             <?php foreach ( $players as $pl ) :
                                 $pid = (int) $pl->id;
                                 $val = '—';

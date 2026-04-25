@@ -12,9 +12,10 @@ use TT\Infrastructure\Usage\UsageTracker;
  * wp-admin page) via the same CDN. Renders the headline KPIs +
  * DAU + evaluations-per-day charts + role breakdown.
  *
- * Drill-down detail pages (per-day user lists, etc.) stay in
- * wp-admin — they're admin-tier and only HoD/admin will reach them.
- * Surfaces a "Detailed view" button that deep-links into wp-admin.
+ * Drill-downs are native frontend views via FrontendUsageStatsDetailsView.
+ * KPI cards link into per-metric lists; role rows link to per-role
+ * lists; chart points link to per-day breakdowns. The wp-admin page
+ * remains available for admins who prefer it.
  */
 class FrontendUsageStatsView extends FrontendViewBase {
 
@@ -54,17 +55,17 @@ class FrontendUsageStatsView extends FrontendViewBase {
         </p>
         <p style="margin:0 0 var(--tt-sp-4);">
             <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $admin_url ); ?>">
-                <?php esc_html_e( 'Open detailed view in wp-admin', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Open in wp-admin', 'talenttrack' ); ?>
             </a>
         </p>
 
         <div class="tt-grid tt-grid-3" style="margin-bottom:var(--tt-sp-4);">
-            <?php self::kpi( __( 'Logins (7d)',        'talenttrack' ), $logins_7d ); ?>
-            <?php self::kpi( __( 'Logins (30d)',       'talenttrack' ), $logins_30d ); ?>
-            <?php self::kpi( __( 'Logins (90d)',       'talenttrack' ), $logins_90d ); ?>
-            <?php self::kpi( __( 'Active users (7d)',  'talenttrack' ), $active_7d ); ?>
-            <?php self::kpi( __( 'Active users (30d)', 'talenttrack' ), $active_30d ); ?>
-            <?php self::kpi( __( 'Active users (90d)', 'talenttrack' ), $active_90d ); ?>
+            <?php self::kpi( __( 'Logins (7d)',        'talenttrack' ), $logins_7d,  FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'logins',       'days' => 7  ] ) ); ?>
+            <?php self::kpi( __( 'Logins (30d)',       'talenttrack' ), $logins_30d, FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'logins',       'days' => 30 ] ) ); ?>
+            <?php self::kpi( __( 'Logins (90d)',       'talenttrack' ), $logins_90d, FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'logins',       'days' => 90 ] ) ); ?>
+            <?php self::kpi( __( 'Active users (7d)',  'talenttrack' ), $active_7d,  FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'active_users', 'days' => 7  ] ) ); ?>
+            <?php self::kpi( __( 'Active users (30d)', 'talenttrack' ), $active_30d, FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'active_users', 'days' => 30 ] ) ); ?>
+            <?php self::kpi( __( 'Active users (90d)', 'talenttrack' ), $active_90d, FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'active_users', 'days' => 90 ] ) ); ?>
         </div>
 
         <div class="tt-panel">
@@ -90,9 +91,20 @@ class FrontendUsageStatsView extends FrontendViewBase {
                         <th style="text-align:right;"><?php esc_html_e( 'Users', 'talenttrack' ); ?></th>
                     </tr></thead>
                     <tbody>
-                    <?php foreach ( $roles as $role => $count ) : ?>
+                    <?php foreach ( $roles as $role => $count ) :
+                        $role_key = self::roleSlug( (string) $role );
+                        $url = $role_key
+                            ? FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'active_by_role', 'role' => $role_key, 'days' => 30 ] )
+                            : '';
+                        ?>
                         <tr>
-                            <td><?php echo esc_html( (string) $role ); ?></td>
+                            <td>
+                                <?php if ( $url ) : ?>
+                                    <a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( (string) $role ); ?></a>
+                                <?php else : ?>
+                                    <?php echo esc_html( (string) $role ); ?>
+                                <?php endif; ?>
+                            </td>
                             <td style="text-align:right;"><?php echo (int) $count; ?></td>
                         </tr>
                     <?php endforeach; ?>
@@ -103,11 +115,17 @@ class FrontendUsageStatsView extends FrontendViewBase {
 
         <script>
         (function(){
+            var dauDrillBase  = <?php echo wp_json_encode( FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'dau_day' ] ) ); ?>;
+            var evalDrillBase = <?php echo wp_json_encode( FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'evals_day' ] ) ); ?>;
+            function drillTo(base, date){
+                var sep = base.indexOf('?') >= 0 ? '&' : '?';
+                window.location.href = base + sep + 'date=' + encodeURIComponent(date);
+            }
             function ready(fn){ if (window.Chart) fn(); else setTimeout(function(){ ready(fn); }, 50); }
             ready(function(){
                 var dauCanvas = document.getElementById('tt-fe-dau-chart');
                 if (dauCanvas) {
-                    new Chart(dauCanvas.getContext('2d'), {
+                    var dauChart = new Chart(dauCanvas.getContext('2d'), {
                         type: 'line',
                         data: { labels: <?php echo wp_json_encode( $dau_labels ); ?>, datasets: [{
                             label: '<?php echo esc_js( __( 'Active users', 'talenttrack' ) ); ?>',
@@ -116,20 +134,34 @@ class FrontendUsageStatsView extends FrontendViewBase {
                             backgroundColor: 'rgba(11, 61, 46, 0.18)',
                             fill: true, tension: 0.25
                         }] },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            onClick: function(evt, els){
+                                if (els && els[0]) drillTo(dauDrillBase, dauChart.data.labels[els[0].index]);
+                            }
+                        }
                     });
+                    dauCanvas.style.cursor = 'pointer';
                 }
                 var evCanvas = document.getElementById('tt-fe-evals-chart');
                 if (evCanvas) {
-                    new Chart(evCanvas.getContext('2d'), {
+                    var evChart = new Chart(evCanvas.getContext('2d'), {
                         type: 'bar',
                         data: { labels: <?php echo wp_json_encode( $ev_labels ); ?>, datasets: [{
                             label: '<?php echo esc_js( __( 'Evaluations', 'talenttrack' ) ); ?>',
                             data: <?php echo wp_json_encode( $ev_values ); ?>,
                             backgroundColor: 'rgba(232, 182, 36, 0.85)'
                         }] },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            onClick: function(evt, els){
+                                if (els && els[0]) drillTo(evalDrillBase, evChart.data.labels[els[0].index]);
+                            }
+                        }
                     });
+                    evCanvas.style.cursor = 'pointer';
                 }
             });
         })();
@@ -137,10 +169,32 @@ class FrontendUsageStatsView extends FrontendViewBase {
         <?php
     }
 
-    private static function kpi( string $label, int $value ): void {
-        echo '<div class="tt-panel" style="text-align:center;">';
+    private static function kpi( string $label, int $value, string $href = '' ): void {
+        $open  = $href !== ''
+            ? '<a class="tt-panel" style="text-align:center; display:block; text-decoration:none; color:inherit;" href="' . esc_url( $href ) . '">'
+            : '<div class="tt-panel" style="text-align:center;">';
+        $close = $href !== '' ? '</a>' : '</div>';
+        echo $open;
         echo '<div style="font-size:var(--tt-fs-xl); font-weight:700; color:var(--tt-primary);">' . esc_html( (string) $value ) . '</div>';
         echo '<div style="font-size:var(--tt-fs-xs); color:var(--tt-muted); text-transform:uppercase; letter-spacing:0.04em;">' . esc_html( $label ) . '</div>';
-        echo '</div>';
+        echo $close;
+    }
+
+    /**
+     * Resolve a translated role label back to its slug for drill-down
+     * URLs. UsageTracker::activeByRole() returns translated keys (Admin,
+     * Coach, Player, Other), and the drill-down expects an English slug.
+     */
+    private static function roleSlug( string $label ): string {
+        $map = [
+            __( 'Admin',  'talenttrack' ) => 'admin',
+            __( 'Admins', 'talenttrack' ) => 'admin',
+            __( 'Coach',  'talenttrack' ) => 'coach',
+            __( 'Coaches','talenttrack' ) => 'coach',
+            __( 'Player', 'talenttrack' ) => 'player',
+            __( 'Players','talenttrack' ) => 'player',
+            __( 'Other',  'talenttrack' ) => 'other',
+        ];
+        return $map[ $label ] ?? '';
     }
 }

@@ -127,7 +127,7 @@ class DashboardShortcode {
         $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'sessions', 'goals', 'podium' ];
         $analytics_slugs = [ 'rate-cards', 'compare' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
-        $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats' ];
+        $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details' ];
 
         if ( $view === '' ) {
             // Tile landing page.
@@ -293,6 +293,9 @@ class DashboardShortcode {
                 break;
             case 'usage-stats':
                 FrontendUsageStatsView::render( $user_id, $is_admin );
+                break;
+            case 'usage-stats-details':
+                FrontendUsageStatsDetailsView::render( $user_id, $is_admin );
                 break;
             default:
                 FrontendBackButton::render();

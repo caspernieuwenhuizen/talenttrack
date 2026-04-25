@@ -52,7 +52,11 @@ class FrontendBackButton {
         }
         // Strip params that put us inside a sub-view.
         return remove_query_arg(
-            [ 'tt_view', 'player_id', 'eval_id', 'session_id', 'goal_id', 'team_id' ],
+            [
+                'tt_view',
+                'player_id', 'eval_id', 'session_id', 'goal_id', 'team_id',
+                'id', 'action', 'tab', 'type_id',
+            ],
             $current ?: home_url( '/' )
         );
     }

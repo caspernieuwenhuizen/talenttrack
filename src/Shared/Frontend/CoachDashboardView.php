@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
+use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 
@@ -208,7 +209,7 @@ class CoachDashboardView {
             </div>
             <h4><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h4>
             <?php foreach ( $categories as $cat ) : ?>
-                <div class="tt-form-row"><label><?php echo esc_html( (string) $cat->name ); ?></label>
+                <div class="tt-form-row"><label><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $cat->name ) ); ?></label>
                     <input type="number" name="ratings[<?php echo (int) $cat->id; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" required style="width:80px" />
                     <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span></div>
             <?php endforeach; ?>

@@ -178,7 +178,7 @@ class DemoDataPage {
             <?php if ( $is_on ) : ?>
                 <input type="hidden" name="target" value="off" />
                 <label>
-                    <input type="text" name="confirm_text" placeholder="Type EXIT DEMO to confirm" class="regular-text" />
+                    <input type="text" name="confirm_text" placeholder="<?php esc_attr_e( 'Type EXIT DEMO to confirm', 'talenttrack' ); ?>" class="regular-text" />
                 </label>
                 <?php submit_button( __( 'Exit demo mode', 'talenttrack' ), 'secondary', '', false ); ?>
             <?php else : ?>
@@ -398,7 +398,7 @@ class DemoDataPage {
             <?php wp_nonce_field( 'tt_demo_wipe_data', 'tt_demo_nonce' ); ?>
             <input type="hidden" name="action" value="tt_demo_wipe_data" />
             <label>
-                <input type="text" name="confirm_text" placeholder="Type WIPE to confirm" class="regular-text" />
+                <input type="text" name="confirm_text" placeholder="<?php esc_attr_e( 'Type WIPE to confirm', 'talenttrack' ); ?>" class="regular-text" />
             </label>
             <?php submit_button( __( 'Wipe demo data', 'talenttrack' ), 'delete', '', false ); ?>
         </form>
@@ -415,10 +415,10 @@ class DemoDataPage {
             <?php wp_nonce_field( 'tt_demo_wipe_users', 'tt_demo_nonce' ); ?>
             <input type="hidden" name="action" value="tt_demo_wipe_users" />
             <label style="display:block; margin-bottom:6px;">
-                <input type="text" name="expected_domain" placeholder="Expected email domain (e.g. demo.talenttrack.local)" class="regular-text" />
+                <input type="text" name="expected_domain" placeholder="<?php esc_attr_e( 'Expected email domain (e.g. demo.talenttrack.local)', 'talenttrack' ); ?>" class="regular-text" />
             </label>
             <label style="display:block; margin-bottom:6px;">
-                <input type="text" name="confirm_text" placeholder="Type WIPE USERS to confirm" class="regular-text" />
+                <input type="text" name="confirm_text" placeholder="<?php esc_attr_e( 'Type WIPE USERS to confirm', 'talenttrack' ); ?>" class="regular-text" />
             </label>
             <?php submit_button( __( 'Wipe demo users', 'talenttrack' ), 'delete', '', false ); ?>
         </form>

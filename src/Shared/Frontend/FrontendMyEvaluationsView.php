@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 
 /**
@@ -69,7 +70,7 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                             <?php endif; ?>
                             <?php if ( $full && ! empty( $full->ratings ) ) : ?>
                                 <?php foreach ( $full->ratings as $r ) : ?>
-                                    <span class="tt-rating-pill"><?php echo esc_html( (string) $r->category_name ); ?>: <?php echo esc_html( (string) $r->rating ); ?></span>
+                                    <span class="tt-rating-pill"><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $r->category_name ) ); ?>: <?php echo esc_html( (string) $r->rating ); ?></span>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </td>
