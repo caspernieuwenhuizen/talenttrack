@@ -1,3 +1,43 @@
+# TalentTrack v3.8.1 — #0019 Sprint 2 session 2.3: Sessions full frontend
+
+**Patch release.** Resumes Sprint 2 after the v3.8.0 styling preemption. Sessions get a real CRUD frontend: a filtered/sortable list, a create form, an edit form, and a delete (soft-archive) row action. The keystone work was done in 2.2 (FrontendListTable + REST endpoints); this session ties it all together for the Sessions entity.
+
+## `FrontendSessionsManageView` — three modes
+
+Driven by query params on the `?tt_view=sessions` tile:
+
+- **List** (default) — `FrontendListTable` with team / date-range / attendance-completeness filters and Edit / Delete row actions. "New session" CTA above the table.
+- **Create** (`?tt_view=sessions&action=new`) — full form rendered by the new view (CoachForms helper retired for sessions).
+- **Edit** (`?tt_view=sessions&id=<int>`) — same form prefilled with the session row + attendance, hitting `PUT /sessions/{id}` instead of `POST`.
+
+Saves use the REST endpoints from Sprint 1 / 2.1; deletes hit `DELETE /sessions/{id}` which the controller treats as a soft-archive (sets `archived_at`, doesn't drop the row).
+
+## `TeamPickerComponent`
+
+New shared component at `src/Shared/Frontend/Components/TeamPickerComponent.php`. Mirrors `PlayerPickerComponent` but with team-scoping (admin sees all teams; non-admin coach sees only teams they head-coach — different scoping rules from players, hence a separate component per the Sprint 2 plan Q3). Carries a `filterOptions()` static for use as a `FrontendListTable` `select` filter source. Will be reused by the Goals view in 2.4.
+
+## Bulk attendance + mobile pagination — `assets/js/components/attendance.js`
+
+Three concerns the new attendance UI handles:
+
+- **"Mark all present"** sticky button at the top of the attendance list. Sets every visible row's status to `Present` in one tap. The sticky positioning means a coach scrolling 30 players keeps it within thumb reach. Spec's 80% case: most show, mark exceptions.
+- **Live "X of Y marked Present" summary** updates as the coach edits.
+- **Team filter** — the form pre-renders attendance rows for every team the coach has access to (so flipping the team dropdown doesn't lose state); JS hides rows for non-current teams via `data-team-id`. Status changes survive the toggle.
+- **Mobile pagination at 15** — below 640px, the first 15 visible rows render; a "Show all (N)" button reveals the rest. Desktop always shows the full roster. CSS-only stacked-card reflow for the table on mobile (matching the FrontendListTable pattern).
+
+## Wired up
+
+- `DashboardShortcode::dispatchCoachingView` now points the `sessions` tile slug at `FrontendSessionsManageView` (v3.0.0 placeholder `FrontendSessionsView` deleted).
+- `tt-attendance` script enqueued by `DashboardShortcode`.
+- Two new TT i18n strings (`show_all_count`, `attendance_summary`) in the localized JS bundle.
+- 11 new Dutch strings.
+
+## Out of this PR (deferred to 2.4 / later)
+
+- **Goals full frontend** — Sprint 2 session 2.4.
+- **`CoachDashboardView` + `CoachForms::renderSessionForm` removal** — both are dead code (only self-references). Sprint 6's legacy-UI-toggle scope; left alone here.
+- **Pretty-URL routing for the action / id query params** — Sprint 2 plan keeps the existing `?tt_view=...&action=...` pattern.
+
 # TalentTrack v3.8.0 — #0023 Styling options + WP-theme inheritance
 
 **Minor release.** Carved out during the JG4IT theme build on 25 April 2026. The Branding tab in **Configuration** gets a second section with a single global toggle to defer fonts/colors/links/buttons to the surrounding WordPress theme, plus curated Google Fonts dropdowns and six semantic color pickers — all without writing CSS or building a custom theme.

@@ -41,6 +41,9 @@ class DashboardShortcode {
         // every `.tt-list-table` on the page and takes over filter/sort/
         // pagination so changes happen without a full reload.
         wp_enqueue_script( 'tt-list-table', TT_PLUGIN_URL . 'assets/js/components/frontend-list-table.js', [], TT_VERSION, true );
+        // #0019 Sprint 2 session 2.3 — attendance helpers (bulk-present,
+        // mobile pagination at 15, team filter, live summary).
+        wp_enqueue_script( 'tt-attendance', TT_PLUGIN_URL . 'assets/js/components/attendance.js', [], TT_VERSION, true );
 
         // #0019 Sprint 1 session 2 — public.js uses fetch() against the
         // REST API. Nonce is the standard WP REST `wp_rest` nonce,
@@ -61,6 +64,8 @@ class DashboardShortcode {
                 'draft_prompt'         => __( 'You have unsaved changes from an earlier session — restore?', 'talenttrack' ),
                 'draft_restore'        => __( 'Restore', 'talenttrack' ),
                 'draft_discard'        => __( 'Discard', 'talenttrack' ),
+                'show_all_count'       => __( 'Show all (%d)', 'talenttrack' ),
+                'attendance_summary'   => __( '%1$d of %2$d marked Present', 'talenttrack' ),
             ],
         ]);
 
@@ -205,7 +210,7 @@ class DashboardShortcode {
                 FrontendEvaluationsView::render( $user_id, $is_admin );
                 break;
             case 'sessions':
-                FrontendSessionsView::render( $user_id, $is_admin );
+                FrontendSessionsManageView::render( $user_id, $is_admin );
                 break;
             case 'goals':
                 FrontendGoalsView::render( $user_id, $is_admin );

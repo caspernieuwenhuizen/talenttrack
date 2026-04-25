@@ -498,6 +498,72 @@
     .tt-dashboard .tt-list-table-empty td::before { content: none; }
 }
 
+/* ─── Attendance (session create/edit form) ──────────────
+   Sprint 2 session 2.3. The bulk-present button is sticky
+   on mobile so a coach scrolling through 30 players keeps
+   it within thumb reach. Mobile reflow on the table rows
+   is handled by attendance.js (rows beyond the first 15
+   pick up `.is-mobile-hidden`).
+   ───────────────────────────────────────────────────────── */
+.tt-dashboard .tt-attendance { margin-bottom: var(--tt-sp-5); }
+.tt-dashboard .tt-attendance-toolbar {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: var(--tt-sp-3);
+    padding: var(--tt-sp-3) 0;
+    background: var(--tt-bg-soft);
+    border-bottom: 1px solid var(--tt-line);
+    position: sticky; top: 0; z-index: 2;
+}
+.tt-dashboard .tt-attendance-toolbar .tt-btn { margin-left: var(--tt-sp-3); }
+.tt-dashboard .tt-attendance-summary {
+    flex: 1;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+    text-align: right;
+    padding-right: var(--tt-sp-3);
+}
+.tt-dashboard .tt-attendance-table { width: 100%; }
+.tt-dashboard .tt-attendance-row.is-mobile-hidden { display: none; }
+.tt-dashboard .tt-attendance-show-all { text-align: center; margin: var(--tt-sp-3) 0 0; }
+
+@media (max-width: 639px) {
+    /* Stack the attendance table like the list-table reflow. */
+    .tt-dashboard .tt-attendance-table thead { display: none; }
+    .tt-dashboard .tt-attendance-table,
+    .tt-dashboard .tt-attendance-table tbody,
+    .tt-dashboard .tt-attendance-table tr,
+    .tt-dashboard .tt-attendance-table td { display: block; width: 100%; }
+    .tt-dashboard .tt-attendance-table tr {
+        border: 1px solid var(--tt-line);
+        border-radius: var(--tt-r-md);
+        background: #fff;
+        margin-bottom: var(--tt-sp-3);
+        padding: var(--tt-sp-3);
+    }
+    .tt-dashboard .tt-attendance-table td {
+        border-bottom: none;
+        padding: 4px 0;
+        display: flex;
+        align-items: center;
+        gap: var(--tt-sp-3);
+    }
+    .tt-dashboard .tt-attendance-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: var(--tt-fs-xs);
+        color: var(--tt-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        flex: 0 0 80px;
+    }
+    .tt-dashboard .tt-attendance-toolbar { padding: var(--tt-sp-3) 0; }
+    .tt-dashboard .tt-attendance-summary { text-align: left; padding: 0; }
+}
+
+.tt-dashboard .tt-form-actions {
+    display: flex; gap: var(--tt-sp-3); align-items: center;
+}
+
 /* ─── Responsive: below 640px, tighten spacing. ─────────── */
 @media (max-width: 639px) {
     .tt-dashboard .tt-panel { padding: var(--tt-sp-4); }
