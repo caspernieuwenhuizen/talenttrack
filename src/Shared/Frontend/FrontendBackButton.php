@@ -34,7 +34,7 @@ class FrontendBackButton {
         }
         ?>
         <p class="tt-back-link" style="margin:6px 0 12px;">
-            <a href="<?php echo esc_url( $target ); ?>" style="text-decoration:none; color:#555; font-size:14px;">
+            <a href="<?php echo esc_url( $target ); ?>" class="tt-btn tt-btn-secondary">
                 <?php echo esc_html( $label ); ?>
             </a>
         </p>

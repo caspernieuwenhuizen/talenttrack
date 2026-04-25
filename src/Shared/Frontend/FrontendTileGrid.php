@@ -248,9 +248,9 @@ class FrontendTileGrid {
             ],
         ];
 
-        // "Coaching" group — visible to coaches + admins. Observer also
-        // gets the reports tile since tt_view_reports is granted.
-        $coaching_tiles = [
+        // "People" group — teams, players, people records, roles.
+        // Mirrors the wp-admin People menu section.
+        $people_tiles = [
             [
                 'label' => __( 'My teams', 'talenttrack' ),
                 'desc'  => __( 'Teams you coach — roster, podium, evaluations.', 'talenttrack' ),
@@ -275,6 +275,27 @@ class FrontendTileGrid {
                 'url'   => $url( 'players-import' ),
                 'show'  => $is_admin || current_user_can( 'tt_edit_players' ),
             ],
+            [
+                'label' => __( 'People', 'talenttrack' ),
+                'desc'  => __( 'Staff, parents, scouts and other non-player records.', 'talenttrack' ),
+                'emoji' => '🧑‍💼',
+                'color' => '#5b6e75',
+                'url'   => $url( 'people' ),
+                'show'  => current_user_can( 'tt_view_people' ) || current_user_can( 'tt_edit_people' ),
+            ],
+            [
+                'label' => __( 'Functional roles', 'talenttrack' ),
+                'desc'  => __( 'Manage role types and team assignments.', 'talenttrack' ),
+                'emoji' => '🛠',
+                'color' => '#5b6e75',
+                'url'   => $url( 'functional-roles' ),
+                'show'  => current_user_can( 'tt_manage_functional_roles' ) || current_user_can( 'tt_view_people' ),
+            ],
+        ];
+
+        // "Performance" group — evaluations, sessions, goals, podium.
+        // Mirrors the wp-admin Performance menu section.
+        $performance_tiles = [
             [
                 'label' => __( 'Evaluations', 'talenttrack' ),
                 'desc'  => __( 'Record player ratings, add notes and scores.', 'talenttrack' ),
@@ -307,25 +328,11 @@ class FrontendTileGrid {
                 'url'   => $url( 'podium' ),
                 'show'  => $is_coach || $is_admin,
             ],
-            [
-                'label' => __( 'People', 'talenttrack' ),
-                'desc'  => __( 'Staff, parents, scouts and other non-player records.', 'talenttrack' ),
-                'emoji' => '🧑‍💼',
-                'color' => '#5b6e75',
-                'url'   => $url( 'people' ),
-                'show'  => current_user_can( 'tt_view_people' ) || current_user_can( 'tt_edit_people' ),
-            ],
-            [
-                'label' => __( 'Functional roles', 'talenttrack' ),
-                'desc'  => __( 'Manage role types and team assignments.', 'talenttrack' ),
-                'emoji' => '🛠',
-                'color' => '#5b6e75',
-                'url'   => $url( 'functional-roles' ),
-                'show'  => current_user_can( 'tt_manage_functional_roles' ) || current_user_can( 'tt_view_people' ),
-            ],
         ];
 
         // "Analytics" — requires tt_view_reports. Covers observer role too.
+        // Usage statistics moved here to match wp-admin Analytics section.
+        $can_frontend_admin = current_user_can( 'tt_access_frontend_admin' );
         $analytics_tiles = [
             [
                 'label' => __( 'Rate cards', 'talenttrack' ),
@@ -343,13 +350,20 @@ class FrontendTileGrid {
                 'url'   => $url( 'compare' ),
                 'show'  => $can_report,
             ],
+            [
+                'label' => __( 'Usage statistics', 'talenttrack' ),
+                'desc'  => __( 'Logins, active users, evaluations per day.', 'talenttrack' ),
+                'emoji' => '📈',
+                'color' => '#555',
+                'url'   => $url( 'usage-stats' ),
+                'show'  => $can_frontend_admin,
+            ],
         ];
 
         // "Administration" — admins only. v3.11.0 (#0019 Sprint 5)
         // promoted these surfaces from wp-admin only into first-class
         // frontend tiles. Gated by tt_access_frontend_admin (granted to
         // administrator + tt_head_dev by default).
-        $can_frontend_admin = current_user_can( 'tt_access_frontend_admin' );
         $admin_tiles = [
             [
                 'label' => __( 'Configuration', 'talenttrack' ),
@@ -392,14 +406,6 @@ class FrontendTileGrid {
                 'show'  => $can_frontend_admin,
             ],
             [
-                'label' => __( 'Usage statistics', 'talenttrack' ),
-                'desc'  => __( 'Logins, active users, evaluations per day.', 'talenttrack' ),
-                'emoji' => '📈',
-                'color' => '#555',
-                'url'   => $url( 'usage-stats' ),
-                'show'  => $can_frontend_admin,
-            ],
-            [
                 'label' => __( 'Open wp-admin', 'talenttrack' ),
                 'desc'  => __( 'Drop into the full WordPress admin dashboard.', 'talenttrack' ),
                 'emoji' => '↗',
@@ -415,8 +421,12 @@ class FrontendTileGrid {
                 'tiles' => $me_tiles,
             ],
             [
-                'label' => __( 'Coaching', 'talenttrack' ),
-                'tiles' => $coaching_tiles,
+                'label' => __( 'People', 'talenttrack' ),
+                'tiles' => $people_tiles,
+            ],
+            [
+                'label' => __( 'Performance', 'talenttrack' ),
+                'tiles' => $performance_tiles,
             ],
             [
                 'label' => __( 'Analytics', 'talenttrack' ),
