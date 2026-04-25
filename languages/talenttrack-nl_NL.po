@@ -3276,3 +3276,6 @@ msgstr "Verwerpen"
 
 msgid "You have unsaved changes from an earlier session — restore?"
 msgstr "Je hebt niet-opgeslagen wijzigingen uit een eerdere sessie — herstellen?"
+
+msgid "Unknown orderby column."
+msgstr "Onbekende sorteerkolom."

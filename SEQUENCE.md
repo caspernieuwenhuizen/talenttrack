@@ -95,7 +95,7 @@ All items have shaped idea files in `ideas/` and dev-ready specs in `specs/`. Bu
 | Rank | Item | Type | Estimate | Actual | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | 5 | **#0019 Sprint 1** — foundation | epic | ~25–30h | ~9h | **COMPLETE** | REST + flash scaffold in v3.7.0; v3.7.1 fixed broken-registration bug + client cutover; v3.7.2 landed CSS scaffold, five shared components (FormSaveButton, PlayerPicker, DateInput, RatingInput, MultiSelectTag), flash JS layer, localStorage drafts. Sprint 2 unblocked. |
-| 6 | **#0019 Sprint 2** — sessions + goals frontend | epic | ~25h | — | BLOCKED ON #0019 S1 | Highest-value daily coach work. |
+| 6 | **#0019 Sprint 2** — sessions + goals frontend | epic | ~22h | ~3h so far | IN PROGRESS | Shaped into 4 sessions in [`specs/0019-sprint-2-session-plan.md`](specs/0019-sprint-2-session-plan.md). v3.7.3 ships session 2.1: REST list endpoints (search/filter/sort/paginate) for `/sessions` + `/goals`. Remaining: 2.2 FrontendListTable, 2.3 Sessions full frontend, 2.4 Goals full frontend. |
 | 7 | **#0019 Sprint 3** — players + teams frontend | epic | ~30h | — | BLOCKED ON #0019 S1 | Second-most-touched coach work. |
 
 Phase 1 subtotal estimate: ~80h.
