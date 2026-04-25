@@ -33,6 +33,18 @@ class FrontendRateCardView extends FrontendViewBase {
 
         self::renderHeader( __( 'Rate cards', 'talenttrack' ) );
 
+        // #0011 — feature gate. Full rate card analytics (trends + radar +
+        // comparison panels) is Standard-tier; Free sees an upgrade nudge.
+        if ( class_exists( '\TT\Modules\License\LicenseGate' )
+             && ! \TT\Modules\License\LicenseGate::can( 'rate_cards_full' )
+        ) {
+            echo \TT\Modules\License\Admin\UpgradeNudge::inline(
+                __( 'Rate cards (full analytics)', 'talenttrack' ),
+                'standard'
+            );
+            return;
+        }
+
         $player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
         $team_id   = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
         $filters   = PlayerStatsService::sanitizeFilters( $_GET );

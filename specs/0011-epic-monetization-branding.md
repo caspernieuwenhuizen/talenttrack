@@ -13,104 +13,143 @@ Two distinct problems under one epic:
 
 These are separable workstreams. Each can progress without the other, but both should be done before any public launch.
 
+## Status
+
+**Ready.** Q1-Q8 locked 2026-04-25 (late evening). Compressed to **3 sprints** per Casper's request.
+
+## Locked decisions
+
+| Q | Decision |
+| - | - |
+| Q1 | **30-day full trial → 14-day read-only grace → free tier**. 44 days from install to hard degrade. |
+| Q2 | **1 team / 25 players / unlimited evaluations** for free; numeric caps prevent abuse, **feature gates** drive conversion. Gated behind paid: radar charts, player comparison, rate cards, CSV import, functional roles, partial restore + 14-day undo (#0013 Sprint 2). |
+| Q3 | **Free / Standard / Pro at €0 / €399 / €699 per year.** Three tiers. Freemius-default currencies (EUR / USD / GBP). |
+| Q4 | **3 sprints** (code / branding / pilot+launch) instead of the original 5. |
+| Q5 | **Option A** — Standard = single-academy use; Pro = multi-academy + future epics (#0016 photo-to-session, #0017 trial module, scout flow, S3 backup destinations). |
+| Q6 | **Tier→feature map editable via Freemius dashboard** at runtime; PHP `FeatureMap::DEFAULT_MAP` as fallback for offline/cold-start. **Customers cannot edit the matrix** — edits flow only from the Freemius merchant dashboard. |
+| Q7 | **Merchant ops dashboard = Freemius dashboard alone for v1.** No merchant analytics inside the customer plugin. A separate `talenttrack-ops` plugin on Casper's own site is a v2 option once the Freemius dashboard's gaps are concrete. |
+| Q8 | **Developer tier override** for demos: gated by `TT_DEV_OVERRIDE_SECRET` wp-config.php constant + per-session password. 24h transient timebox; "DEV OVERRIDE" pill in the admin bar while active. Override never reaches customer installs (constant absent → override path 404s). |
+
 ## Proposal
 
-Five sprints combining payment/licensing infrastructure, feature gating pass, and the parallel branding/marketing work. Locked during shaping:
+Three sprints + a parallel branding workstream:
 
-- **Freemius-first** licensing (handles EU VAT, 7–20% revenue share). Migration path to self-hosted documented from day one via the `TT\License::can()` abstraction.
-- **Tight free tier**: 1 team / 15 players / 30 evaluations. Designed for extended-demo rather than indefinite free use.
-- **Tiers**: Free / Club (€149/yr) / Academy (€399/yr) / Multi-site (€899/yr) per idea file.
-- **14-day Academy trial** on top of the feature-limited free tier.
-- **Freemius-default currencies** (EUR / USD / GBP).
+- **Freemius-first** licensing (handles EU VAT, 7–20% revenue share). Migration path to self-hosted documented from day one via the `TT\License\LicenseGate` abstraction.
+- **Free tier**: 1 team / 25 players / unlimited evaluations. Feature gates drive conversion, not numeric scarcity.
+- **Tiers**: Free (€0) / Standard (€399/yr) / Pro (€699/yr).
+- **30+14 trial path** on top of the feature-limited free tier.
+- **Tier→feature map editable via Freemius dashboard** with PHP fallback.
+- **Developer override** for local demos.
 - **No existing-user migration** — clean slate ship.
 
 ## Scope
 
 | Sprint | Focus | Effort |
 | --- | --- | --- |
-| 1 | Decisions lock + Freemius integration + `TT\License::can()` abstraction | ~14–18h |
-| 2 | Free tier caps + 14-day trial + account menu | ~12–15h |
-| 3 | Feature audit + gate implementation across modules | ~18–22h |
-| 4 | Branding + marketing site (parallel track) | ~30–40h |
-| 5 | Pilot + launch | ~10–15h |
+| 1 | Freemius SDK + `LicenseGate` + `FeatureMap` (default + Freemius-override) + free-tier caps + 30+14 trial state machine + account menu + dev override + feature gate sweep across modules | ~44-55h |
+| 2 | Branding + marketing site (parallel track — can start during Sprint 1) | ~30-40h |
+| 3 | Pilot + launch | ~10-15h |
 
-**Total: ~84–110 hours** across two tracks (code + branding/marketing).
+**Total: ~84-110 hours** across two tracks (code + branding/marketing).
 
-### Sprint 1 — Freemius integration + License abstraction
+### Sprint 1 — Code (foundation + caps + trial + gates + dev override)
 
-**`TT\License::can()` abstraction** — central gatekeeper:
+The combined code sprint, replacing the original spec's Sprints 1+2+3.
+
+**`TT\License\LicenseGate` abstraction** — central gatekeeper:
 ```php
 namespace TT\License;
 
 class LicenseGate {
-    public static function can(string $feature): bool;
-    public static function capsExceeded(string $cap_type): bool;  // 'teams', 'players', 'evaluations'
-    public static function tier(): string;  // 'free' | 'club' | 'academy' | 'multisite'
+    public static function can( string $feature ): bool;
+    public static function capsExceeded( string $cap_type ): bool;  // 'teams' | 'players' | 'evaluations'
+    public static function tier(): string;       // 'free' | 'standard' | 'pro'
     public static function isInTrial(): bool;
+    public static function isInGrace(): bool;    // 14-day read-only grace after trial
     public static function trialDaysRemaining(): int;
+    public static function graceDaysRemaining(): int;
 }
 ```
 
-Every future gate call goes through `TT\License::can('feature_name')`. Swapping Freemius for self-hosted later is a single-module change.
+Every gate call goes through `LicenseGate::can( 'feature_key' )`. Swapping Freemius for self-hosted later is a single-module change.
+
+**`TT\License\FeatureMap`** — defaults + Freemius override:
+
+```php
+namespace TT\License;
+
+class FeatureMap {
+    public const DEFAULT_MAP = [
+        'free'     => [ /* core_evaluations, basic_dashboard, ... */ ],
+        'standard' => [ /* + radar_charts, player_comparison, rate_cards, csv_import, functional_roles, partial_restore, undo */ ],
+        'pro'      => [ /* + multi_academy, photo_session, trial_module, scout_access, s3_backup */ ],
+    ];
+
+    public static function can( string $tier, string $feature ): bool;
+    public static function syncFromFreemius( array $plan_features ): void; // called by SDK webhook
+}
+```
+
+Inheritance: Pro inherits Standard inherits Free. The Freemius dashboard's plan-features matrix overrides the PHP defaults at runtime; if Freemius is unsynced/unavailable, fallback to defaults.
 
 **Freemius SDK integration**:
-- Install SDK, configure with product ID + API key.
-- Pricing page on Freemius dashboard: tiers, prices, trial config.
-- Feature toggles: 2–3 pilot features gated behind the abstraction to prove the wiring (e.g., CSV import, advanced reports from #0014).
-- License key entry: TalentTrack → License submenu in wp-admin, status indicator on main dashboard tile grid.
+- Install SDK, configure with product ID + API key (read from wp-config.php constants so credentials never enter the repo).
+- Wire init **conditionally**: if `TT_FREEMIUS_PRODUCT_ID` isn't defined yet, the SDK is dormant and `LicenseGate::tier()` returns `free` (no monetization until Casper opens the Freemius account and defines the constants).
+- Pricing page configured on the Freemius dashboard.
+- 30-day trial + 14-day grace mapped onto Freemius's trial primitives + a custom grace state machine.
 
-**Events**: track license activation, trial start, trial expiry, upgrade, cancellation in `tt_usage_events` for analytics.
+**Free-tier caps** (soft enforcement):
+- 1 team max — creating a 2nd shows upgrade modal.
+- 25 players max across the club.
+- No evaluation cap.
+- Hitting a cap shows an "upgrade to continue" modal with the tier options. Existing data above-cap is never blocked.
 
-### Sprint 2 — Free tier caps + trial + account
+**30+14 trial state machine**:
+- On install (with Freemius active): user sees a "Start 30-day Standard trial" CTA on the TalentTrack dashboard.
+- During trial: Standard tier features unlocked. Reminder emails at T-7, T-3, T-0 via `wp_mail`.
+- On day 30: enters 14-day **read-only grace**. Existing data accessible; no new writes to gated features. Persistent banner: "Trial ended. Upgrade to keep adding evaluations" + days-remaining counter.
+- On day 44: hard degrade to Free. Data preserved; gated features hidden again.
 
-**Free tier cap enforcement**:
-- 1 team max (creating a 2nd shows upgrade prompt).
-- 15 players max across the club.
-- 30 evaluations max total.
-- Cap check on every relevant create/import action.
+**Feature gates across modules** (the grind):
 
-**Soft enforcement**:
-- Hitting a cap doesn't error — it shows an "upgrade to continue" modal with the tier options.
-- Existing data above-cap is never truncated or blocked. A user who drops from Club → Free (rare) keeps their data, just can't add more until they upgrade back.
-
-**14-day Academy trial**:
-- Auto-available on activation OR explicit "start trial" action — decide during implementation.
-- Full Academy tier features during trial.
-- Reminder emails at T-7, T-3, T-0 via WP mail.
-- On expiry: gracefully downgrades to Free; data preserved; upgrade nudge.
-
-**Account menu** in wp-admin:
-- TalentTrack → Account: shows current tier, license status, trial days remaining, upgrade/manage links to Freemius.
-- Usage summary: teams / players / evaluations used vs. cap.
-
-### Sprint 3 — Feature audit + gating
-
-The grindy sprint.
-
-**Feature audit**: walk every existing feature and assign to tier.
-
-Starting categorization (adjustable in implementation):
-
-| Feature | Free | Club | Academy | Multi-site |
+| Feature | Free | Standard | Pro | Notes |
 | --- | --- | --- | --- | --- |
-| Core players/teams/sessions/goals | ✓ | ✓ | ✓ | ✓ |
-| Basic evaluations | ✓ | ✓ | ✓ | ✓ |
-| Rate cards / FIFA cards | ✓ | ✓ | ✓ | ✓ |
-| Functional Roles (#0019 Sprint 4) | — | ✓ | ✓ | ✓ |
-| CSV bulk import (#0019 Sprint 3) | — | ✓ | ✓ | ✓ |
-| Advanced reports (#0014 Parts B) | — | ✓ | ✓ | ✓ |
-| Scout access (#0014 Sprint 5) | — | — | ✓ | ✓ |
-| Trial module (#0017) | — | — | ✓ | ✓ |
-| Team chemistry (#0018) | — | — | ✓ | ✓ |
-| Photo-to-session (#0016) | — | — | ✓ | ✓ |
-| Backup + DR (#0013) | — | ✓ | ✓ | ✓ |
-| Multi-site licensing | — | — | — | ✓ |
+| Core players / teams / sessions / goals / basic evaluations / rate-card view | ✓ | ✓ | ✓ | |
+| Players above 25 / teams above 1 | — | ✓ | ✓ | |
+| Radar charts | — | ✓ | ✓ | |
+| Player comparison | — | ✓ | ✓ | |
+| Rate cards (full analytics) | — | ✓ | ✓ | |
+| CSV bulk import (#0019 Sprint 3) | — | ✓ | ✓ | |
+| Functional Roles (#0019 Sprint 4) | — | ✓ | ✓ | |
+| Backup partial restore + 14-day undo (#0013 Sprint 2) | — | ✓ | ✓ | |
+| Backup local + email destinations (#0013 Sprint 1) | ✓ | ✓ | ✓ | Free (basic safety) |
+| Backup S3 / Dropbox / GDrive | — | — | ✓ | (Future) |
+| Multi-academy / federation | — | — | ✓ | |
+| Photo-to-session (#0016) | — | — | ✓ | Per-photo cost; naturally Pro |
+| Trial module (#0017) | — | — | ✓ | |
+| Scout access (#0014 Sprint 5) | — | — | ✓ | |
+| Team chemistry (#0018) | — | — | ✓ | |
 
-**Gate implementation**: each listed feature gets a `TT\License::can('feature_key')` call at the appropriate entry point (view rendering, REST endpoint, admin menu registration).
+Each gated feature gets a `LicenseGate::can()` check at the entry point (view rendering, REST endpoint, admin menu registration). Features that aren't shipped yet (#0016, #0017, etc.) just get the key reserved in `FeatureMap`; gates land when the feature ships.
 
-**Upgrade nudges**: features gated out for the current tier show a small "Upgrade to unlock" overlay with the tier that enables them.
+**Upgrade nudges**: gated-out features show a small "Upgrade to unlock — Standard / Pro" overlay with a link to the Freemius checkout.
 
-### Sprint 4 — Branding + marketing site (parallel track)
+**Account menu** in wp-admin (`TalentTrack → Account`):
+- Current tier + license status + trial/grace days remaining (or "Free")
+- Upgrade / manage / open-customer-portal links to Freemius
+- Usage summary: teams / players used vs. caps
+- Visible "DEV OVERRIDE" notice if active
+
+**Developer override (Q8)**:
+- Hidden admin page `wp-admin/admin.php?page=tt-dev-license` registered ONLY if `TT_DEV_OVERRIDE_SECRET` is defined in wp-config.php
+- Form requires a password whose bcrypt hash matches the constant
+- On match: select tier (free / standard / pro / trial) → 24h transient set
+- "DEV OVERRIDE" pill in the wp-admin top bar while active
+- `LicenseGate::tier()` checks the override transient before Freemius
+
+**Events**: track license activation, trial start, grace start, trial expiry, upgrade, cancellation, dev-override-toggle in `tt_usage_events`.
+
+### Sprint 2 — Branding + marketing site (parallel track)
 
 Runs as its own workstream, can start in Sprint 1 if delegable.
 
@@ -130,9 +169,9 @@ Tech choice: static site generator (Hugo/Astro) or WordPress itself. Claude Code
 
 **Copy**: positioning, tier descriptions, social proof. Written in concert with #0012 Part A's anti-AI-fingerprint pass — both work shapes the same voice.
 
-### Sprint 5 — Pilot + launch
+### Sprint 3 — Pilot + launch
 
-**Pilot**: 3–5 real academies get free Academy tier for 6 months in exchange for:
+**Pilot**: 3–5 real academies get free Pro tier for 6 months in exchange for:
 - Case study (logo + quote + one-paragraph story).
 - Feedback on rough edges.
 - Reference permission.

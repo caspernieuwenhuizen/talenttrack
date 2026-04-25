@@ -145,6 +145,16 @@ class TeamsPage {
             if ( ! current_user_can( 'tt_edit_teams' ) ) {
                 wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
             }
+            // #0011 — free-tier cap. Block creation past the team cap.
+            if ( class_exists( '\TT\Modules\License\LicenseGate' )
+                 && \TT\Modules\License\LicenseGate::capsExceeded( 'teams' )
+            ) {
+                wp_safe_redirect( add_query_arg(
+                    [ 'page' => 'tt-account', 'tt_msg' => 'cap_teams' ],
+                    admin_url( 'admin.php' )
+                ) );
+                exit;
+            }
         }
 
         global $wpdb;

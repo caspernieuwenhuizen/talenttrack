@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 3.16.0\n"
+"Project-Id-Version: TalentTrack 3.17.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-04-25 10:00+0000\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
@@ -11,6 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 
 
 msgid "(directory not found!)"
@@ -4338,3 +4339,146 @@ msgstr "definitief verwijderd"
 
 msgid "Undo via backup →"
 msgstr "Ongedaan maken via back-up →"
+
+msgid "TalentTrack — Account"
+msgstr "TalentTrack — Account"
+
+msgid "Trial started."
+msgstr "Trial gestart."
+
+msgid "Trial state cleared."
+msgstr "Trialstatus gewist."
+
+msgid "Developer override active."
+msgstr "Ontwikkelaarsoverride actief."
+
+msgid "Tier forced to %1$s; expires in %2$s."
+msgstr "Tier geforceerd op %1$s; verloopt over %2$s."
+
+msgid "Monetization not yet configured."
+msgstr "Monetisatie is nog niet geconfigureerd."
+
+msgid "Until the Freemius credentials are defined in wp-config.php, this install runs on the Free tier (or a trial / dev override if active). Paid plans become available once the SDK is wired up."
+msgstr "Totdat de Freemius-gegevens zijn gedefinieerd in wp-config.php draait deze installatie op de Free-tier (of een trial / dev-override indien actief). Betaalde plannen worden beschikbaar zodra de SDK is aangesloten."
+
+msgid "Current tier"
+msgstr "Huidige tier"
+
+msgid "effective: %s (read-only grace)"
+msgstr "effectief: %s (alleen-lezen overgangstermijn)"
+
+msgid "Trial: %d day remaining."
+msgid_plural "Trial: %d days remaining."
+msgstr[0] "Trial: nog %d dag."
+msgstr[1] "Trial: nog %d dagen."
+
+msgid "Trial ended — %d day of read-only access remaining. Upgrade to keep adding new evaluations."
+msgid_plural "Trial ended — %d days of read-only access remaining. Upgrade to keep adding new evaluations."
+msgstr[0] "Trial beëindigd — nog %d dag alleen-lezen toegang. Upgrade om nieuwe evaluaties te blijven toevoegen."
+msgstr[1] "Trial beëindigd — nog %d dagen alleen-lezen toegang. Upgrade om nieuwe evaluaties te blijven toevoegen."
+
+msgid "Start 30-day Standard trial"
+msgstr "Start 30-daagse Standard-trial"
+
+msgid "Unlocks every Standard-tier feature for 30 days, then 14 days of read-only grace, then back to Free."
+msgstr "Ontgrendelt 30 dagen lang elke Standard-tier-functie, daarna 14 dagen alleen-lezen overgangstermijn, daarna terug naar Free."
+
+msgid "Usage vs free-tier caps"
+msgstr "Gebruik versus free-tier limieten"
+
+msgid "Resource"
+msgstr "Bron"
+
+msgid "In use"
+msgstr "In gebruik"
+
+msgid "Free cap"
+msgstr "Free-limiet"
+
+msgid "Unlimited on every tier."
+msgstr "Onbeperkt op elke tier."
+
+msgid "Trial state"
+msgstr "Trialstatus"
+
+msgid "Started %1$s, expires %2$s, grace ends %3$s."
+msgstr "Gestart %1$s, verloopt %2$s, overgangstermijn eindigt %3$s."
+
+msgid "Reset trial state (dev only)"
+msgstr "Trialstatus resetten (alleen dev)"
+
+msgid "%s is a paid feature."
+msgstr "%s is een betaalde functie."
+
+msgid "Available on %s and above. Open your account page to start a 30-day trial or upgrade."
+msgstr "Beschikbaar vanaf %s. Open je accountpagina om een 30-daagse trial te starten of te upgraden."
+
+msgid "Open account page"
+msgstr "Accountpagina openen"
+
+msgid "You have reached the free-tier limit of 1 team. Upgrade to Standard to add more."
+msgstr "Je hebt de Free-tier-limiet van 1 team bereikt. Upgrade naar Standard om meer toe te voegen."
+
+msgid "You have reached the free-tier limit of 25 players. Upgrade to Standard to add more."
+msgstr "Je hebt de Free-tier-limiet van 25 spelers bereikt. Upgrade naar Standard om meer toe te voegen."
+
+msgid "Upgrade to continue"
+msgstr "Upgrade om door te gaan"
+
+msgid "Free"
+msgstr "Free"
+
+msgid "Standard"
+msgstr "Standard"
+
+msgid "Pro"
+msgstr "Pro"
+
+msgid "Rate cards (full analytics)"
+msgstr "Rate cards (volledige analyses)"
+
+msgid "CSV bulk import"
+msgstr "CSV-bulkimport"
+
+msgid "Developer license override"
+msgstr "Ontwikkelaarslicentie-override"
+
+msgid "TalentTrack — Developer License Override"
+msgstr "TalentTrack — Ontwikkelaarslicentie-override"
+
+msgid "TalentTrack Developer License Override"
+msgstr "TalentTrack Ontwikkelaarslicentie-override"
+
+msgid "Hidden override for owner-side demos and testing. Active for 24 hours, then expires automatically. Never reaches customer installs."
+msgstr "Verborgen override voor eigen demo's en tests. 24 uur actief, dan automatisch verlopen. Bereikt nooit installaties van klanten."
+
+msgid "Override activated."
+msgstr "Override geactiveerd."
+
+msgid "Override cleared."
+msgstr "Override gewist."
+
+msgid "Wrong password."
+msgstr "Verkeerd wachtwoord."
+
+msgid "Current override"
+msgstr "Huidige override"
+
+msgid "Clear override"
+msgstr "Override wissen"
+
+msgid "Set override"
+msgstr "Override instellen"
+
+msgid "Tier"
+msgstr "Tier"
+
+msgid "Activate (24h)"
+msgstr "Activeren (24u)"
+
+msgid "Override mechanism not available on this install."
+msgstr "Overridemechanisme niet beschikbaar op deze installatie."
+
+msgid "Developer license override is active. Click to manage."
+msgstr "Ontwikkelaarslicentie-override is actief. Klik om te beheren."
+
