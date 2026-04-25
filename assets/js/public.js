@@ -168,11 +168,26 @@
             restRequest(path, method, formToJSON(form)).then(function(res) {
                 if (res.ok && res.json && res.json.success) {
                     showMsg(form, 'success', i18n.saved);
-                    form.reset();
                     setSaveBtnState(btn, 'saved');
                     // Drafts module listens for this to clear its stored snapshot.
                     form.dispatchEvent(new CustomEvent('tt:form-saved', { bubbles: true }));
-                    setTimeout(function() { setSaveBtnState(btn, 'idle'); }, 1500);
+                    if (form.getAttribute('data-redirect-after-save') === '1') {
+                        // Show the success briefly, then return to the dashboard tile
+                        // entry (drop tt_view + edit so the user lands on the tile grid).
+                        setTimeout(function() {
+                            try {
+                                var url = new URL(window.location.href);
+                                url.searchParams.delete('tt_view');
+                                url.searchParams.delete('edit');
+                                window.location.href = url.toString();
+                            } catch (e) {
+                                window.location.href = window.location.pathname;
+                            }
+                        }, 1200);
+                    } else {
+                        form.reset();
+                        setTimeout(function() { setSaveBtnState(btn, 'idle'); }, 1500);
+                    }
                 } else {
                     showMsg(form, 'error', firstErrorMessage(res.json));
                     setSaveBtnState(btn, 'error');

@@ -13,6 +13,7 @@ From the **Evaluations** admin page or the coach frontend dashboard:
 5. Optionally drill into subcategories for more granular scoring.
 6. Add free-text notes about what you saw.
 7. If the evaluation type is configured as "Match", also fill in opponent, competition (dropdown of competition types configured under Configuration → Lookups), result, home/away, and minutes played.
+8. Save. The form briefly confirms the save and you're returned to the dashboard tile grid — pick the Evaluations tile again if you want to add another.
 
 ## Rating a category
 
