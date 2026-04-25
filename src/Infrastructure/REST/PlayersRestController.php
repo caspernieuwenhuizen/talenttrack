@@ -8,6 +8,7 @@ use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Players\PlayerCsvImporter;
 use TT\Shared\Validation\CustomFieldValidator;
 
 /**
@@ -43,6 +44,13 @@ class PlayersRestController {
                     // per-entity check for creation (no target entity yet).
                     return current_user_can( 'tt_edit_players' );
                 },
+            ],
+        ]);
+        register_rest_route( self::NS, '/players/import', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'import_players' ],
+                'permission_callback' => function () { return current_user_can( 'tt_edit_players' ); },
             ],
         ]);
         register_rest_route( self::NS, '/players/(?P<id>\d+)', [
@@ -214,6 +222,71 @@ class PlayersRestController {
         $n = absint( $value );
         if ( ! in_array( $n, [ 10, 25, 50, 100 ], true ) ) return 25;
         return $n;
+    }
+
+    /**
+     * POST /players/import — multipart upload of a CSV.
+     *
+     * Single endpoint for both preview (dry_run=1, default) and commit
+     * (dry_run=0). The client re-uploads the file on commit; cheap for
+     * typical CSVs (≤1MB, few hundred rows) and keeps the endpoint
+     * stateless. See `PlayerCsvImporter` for the parsing/validation/
+     * dupe logic.
+     *
+     * Request fields:
+     *   file            — CSV upload (multipart/form-data)
+     *   dry_run         — '1' for preview, '0' for commit (default '1')
+     *   dupe_strategy   — 'skip' | 'update' | 'create' (default 'skip')
+     *
+     * Preview response: { header_warnings, total, preview: [...] }
+     * Commit response: { created, updated, skipped, errored, error_rows, error_csv }
+     */
+    public static function import_players( \WP_REST_Request $r ) {
+        $files = $r->get_file_params();
+        if ( empty( $files['file'] ) || ! is_array( $files['file'] ) ) {
+            return RestResponse::error( 'no_file', __( 'No CSV file uploaded.', 'talenttrack' ), 400 );
+        }
+        $upload = $files['file'];
+        if ( ( $upload['error'] ?? UPLOAD_ERR_OK ) !== UPLOAD_ERR_OK ) {
+            return RestResponse::error( 'upload_error', __( 'The upload failed.', 'talenttrack' ), 400 );
+        }
+        if ( ( $upload['size'] ?? 0 ) > 5 * 1024 * 1024 ) {
+            return RestResponse::error( 'file_too_large', __( 'CSV files larger than 5MB are not accepted.', 'talenttrack' ), 400 );
+        }
+        if ( ! is_uploaded_file( $upload['tmp_name'] ) ) {
+            return RestResponse::error( 'upload_invalid', __( 'Uploaded file could not be read.', 'talenttrack' ), 400 );
+        }
+        $ext = strtolower( pathinfo( (string) $upload['name'], PATHINFO_EXTENSION ) );
+        if ( $ext !== 'csv' ) {
+            return RestResponse::error( 'bad_extension', __( 'Only .csv files are accepted.', 'talenttrack' ), 400 );
+        }
+
+        $dry_run       = ( $r['dry_run'] ?? '1' ) !== '0';
+        $dupe_strategy = sanitize_key( (string) ( $r['dupe_strategy'] ?? PlayerCsvImporter::DUPE_SKIP ) );
+        if ( ! in_array( $dupe_strategy, [ PlayerCsvImporter::DUPE_SKIP, PlayerCsvImporter::DUPE_UPDATE, PlayerCsvImporter::DUPE_CREATE ], true ) ) {
+            $dupe_strategy = PlayerCsvImporter::DUPE_SKIP;
+        }
+
+        $tmp_path = (string) $upload['tmp_name'];
+
+        if ( $dry_run ) {
+            $preview = PlayerCsvImporter::preview( $tmp_path );
+            return RestResponse::success( $preview );
+        }
+
+        $summary = PlayerCsvImporter::commit( $tmp_path, $dupe_strategy );
+        // Attach a CSV string of error rows the client can offer for re-download.
+        $summary['error_csv'] = PlayerCsvImporter::errorRowsToCsv( $summary['error_rows'] );
+
+        Logger::info( 'csv.player.import.completed', [
+            'created'  => $summary['created'],
+            'updated'  => $summary['updated'],
+            'skipped'  => $summary['skipped'],
+            'errored'  => $summary['errored'],
+            'strategy' => $dupe_strategy,
+        ] );
+
+        return RestResponse::success( $summary );
     }
 
     /** Compact row format for list responses (no custom fields). */

@@ -44,6 +44,9 @@ class DashboardShortcode {
         // #0019 Sprint 2 session 2.3 — attendance helpers (bulk-present,
         // mobile pagination at 15, team filter, live summary).
         wp_enqueue_script( 'tt-attendance', TT_PLUGIN_URL . 'assets/js/components/attendance.js', [], TT_VERSION, true );
+        // #0019 Sprint 3 session 3.2 — team roster add/remove + CSV import flow.
+        wp_enqueue_script( 'tt-team-roster', TT_PLUGIN_URL . 'assets/js/components/team-roster.js', [], TT_VERSION, true );
+        wp_enqueue_script( 'tt-csv-import',  TT_PLUGIN_URL . 'assets/js/components/csv-import.js',  [], TT_VERSION, true );
 
         // #0019 Sprint 1 session 2 — public.js uses fetch() against the
         // REST API. Nonce is the standard WP REST `wp_rest` nonce,
@@ -66,6 +69,12 @@ class DashboardShortcode {
                 'draft_discard'        => __( 'Discard', 'talenttrack' ),
                 'show_all_count'       => __( 'Show all (%d)', 'talenttrack' ),
                 'attendance_summary'   => __( '%1$d of %2$d marked Present', 'talenttrack' ),
+                'csv_preview_summary'  => __( 'Showing %1$d of %2$d rows.', 'talenttrack' ),
+                'csv_dupe_of'          => __( 'Matches existing player #%d', 'talenttrack' ),
+                'csv_created'          => __( 'Created: %d', 'talenttrack' ),
+                'csv_updated'          => __( 'Updated: %d', 'talenttrack' ),
+                'csv_skipped'          => __( 'Skipped (dupes): %d', 'talenttrack' ),
+                'csv_errored'          => __( 'Errors: %d', 'talenttrack' ),
             ],
         ]);
 
@@ -109,7 +118,7 @@ class DashboardShortcode {
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
         $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-sessions', 'my-goals', 'profile' ];
-        $coaching_slugs  = [ 'teams', 'players', 'evaluations', 'sessions', 'goals', 'podium' ];
+        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'evaluations', 'sessions', 'goals', 'podium' ];
         $analytics_slugs = [ 'rate-cards', 'compare' ];
 
         if ( $view === '' ) {
@@ -194,10 +203,13 @@ class DashboardShortcode {
     private static function dispatchCoachingView( string $view, int $user_id, bool $is_admin ): void {
         switch ( $view ) {
             case 'teams':
-                FrontendTeamsView::render( $user_id, $is_admin );
+                FrontendTeamsManageView::render( $user_id, $is_admin );
                 break;
             case 'players':
                 FrontendPlayersManageView::render( $user_id, $is_admin );
+                break;
+            case 'players-import':
+                FrontendPlayersCsvImportView::render( $user_id, $is_admin );
                 break;
             case 'evaluations':
                 FrontendEvaluationsView::render( $user_id, $is_admin );

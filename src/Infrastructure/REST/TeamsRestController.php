@@ -1,0 +1,311 @@
+<?php
+namespace TT\Infrastructure\REST;
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
+use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
+
+/**
+ * TeamsRestController — /wp-json/talenttrack/v1/teams
+ *
+ * #0019 Sprint 3 session 3.2. Built from scratch — no v2.x equivalent.
+ * Mirrors the Sprint 2 contract used by `FrontendListTable`.
+ *
+ * Routes:
+ *   GET    /teams                          — paginated list (search/filter/sort/paginate envelope)
+ *   POST   /teams                          — create
+ *   GET    /teams/{id}                     — single
+ *   PUT    /teams/{id}                     — update
+ *   DELETE /teams/{id}                     — soft-archive
+ *   POST   /teams/{id}/players/{player_id} — add player to team's roster
+ *   DELETE /teams/{id}/players/{player_id} — remove player from team's roster
+ *
+ * Roster management is a sub-resource (Q3 in the Sprint 3 plan):
+ * separate add/remove endpoints rather than embedding the roster in
+ * the team payload. Cleaner for the autocomplete-add UI on the team
+ * edit form, doesn't require sending the full team payload on every
+ * roster change.
+ *
+ * Roster removal sets `tt_players.team_id = 0` rather than deleting
+ * the player row — same model the existing wp-admin roster surface
+ * uses.
+ */
+class TeamsRestController {
+
+    const NS = 'talenttrack/v1';
+
+    public static function init(): void {
+        add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
+    }
+
+    public static function register(): void {
+        register_rest_route( self::NS, '/teams', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'list_teams' ],
+                'permission_callback' => function () { return current_user_can( 'tt_view_teams' ) || current_user_can( 'tt_edit_teams' ); },
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'create_team' ],
+                'permission_callback' => function () { return current_user_can( 'tt_edit_teams' ); },
+            ],
+        ] );
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_team' ],
+                'permission_callback' => function () { return current_user_can( 'tt_view_teams' ) || current_user_can( 'tt_edit_teams' ); },
+            ],
+            [
+                'methods'             => 'PUT',
+                'callback'            => [ __CLASS__, 'update_team' ],
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    return AuthorizationService::canManageTeam( get_current_user_id(), (int) $r['id'] );
+                },
+            ],
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_team' ],
+                'permission_callback' => function () { return current_user_can( 'tt_edit_teams' ); },
+            ],
+        ] );
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/players/(?P<player_id>\d+)', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'add_player_to_team' ],
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    return AuthorizationService::canManageTeam( get_current_user_id(), (int) $r['id'] );
+                },
+            ],
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'remove_player_from_team' ],
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    return AuthorizationService::canManageTeam( get_current_user_id(), (int) $r['id'] );
+                },
+            ],
+        ] );
+    }
+
+    /** Whitelist of columns the `orderby` query param accepts. */
+    private const LIST_ORDERBY_WHITELIST = [
+        'name'         => 't.name',
+        'age_group'    => 't.age_group',
+        'player_count' => 'player_count',
+    ];
+
+    public static function list_teams( \WP_REST_Request $r ) {
+        global $wpdb; $p = $wpdb->prefix;
+
+        $page     = max( 1, absint( $r['page'] ?? 1 ) );
+        $per_page = self::clamp_per_page( $r['per_page'] ?? 25 );
+
+        $orderby_key = sanitize_key( (string) ( $r['orderby'] ?? 'name' ) );
+        if ( ! isset( self::LIST_ORDERBY_WHITELIST[ $orderby_key ] ) ) {
+            return RestResponse::error(
+                'bad_orderby',
+                __( 'Unknown orderby column.', 'talenttrack' ),
+                400,
+                [ 'allowed' => array_keys( self::LIST_ORDERBY_WHITELIST ) ]
+            );
+        }
+        $orderby = self::LIST_ORDERBY_WHITELIST[ $orderby_key ];
+        $order   = strtolower( (string) ( $r['order'] ?? 'asc' ) );
+        if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'asc';
+
+        $where  = [ '1=1' ];
+        $params = [];
+
+        $scope = QueryHelpers::apply_demo_scope( 't', 'team' );
+
+        $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
+        $archived = isset( $filter['archived'] ) ? sanitize_key( (string) $filter['archived'] ) : 'active';
+        if ( $archived === 'archived' ) {
+            $where[] = 't.archived_at IS NOT NULL';
+        } else {
+            $where[] = 't.archived_at IS NULL';
+        }
+
+        if ( ! empty( $filter['age_group'] ) ) {
+            $where[]  = 't.age_group = %s';
+            $params[] = sanitize_text_field( (string) $filter['age_group'] );
+        }
+
+        // Coach-scoping for non-admins.
+        if ( ! current_user_can( 'tt_edit_settings' ) ) {
+            $coach_teams = QueryHelpers::get_teams_for_coach( get_current_user_id() );
+            if ( ! $coach_teams ) {
+                return RestResponse::success( [
+                    'rows' => [], 'total' => 0, 'page' => $page, 'per_page' => $per_page,
+                ] );
+            }
+            $team_ids = array_map( static function ( $t ) { return (int) $t->id; }, $coach_teams );
+            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+            $where[] = "t.id IN ($placeholders)";
+            $params  = array_merge( $params, $team_ids );
+        }
+
+        if ( ! empty( $r['search'] ) ) {
+            $like = '%' . $wpdb->esc_like( (string) $r['search'] ) . '%';
+            $where[]  = '(t.name LIKE %s OR t.age_group LIKE %s)';
+            $params[] = $like; $params[] = $like;
+        }
+
+        $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
+
+        $list_sql = "SELECT t.*,
+                            u.display_name AS coach_name,
+                            (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = t.id AND pl.archived_at IS NULL) AS player_count
+                     FROM {$p}tt_teams t
+                     LEFT JOIN {$wpdb->users} u ON u.ID = t.head_coach_id
+                     WHERE {$where_sql}
+                     ORDER BY {$orderby} {$order}
+                     LIMIT %d OFFSET %d";
+        $offset = ( $page - 1 ) * $per_page;
+        $list_params = array_merge( $params, [ $per_page, $offset ] );
+
+        $rows = $wpdb->get_results( $wpdb->prepare( $list_sql, ...$list_params ) ) ?: [];
+
+        $count_sql = "SELECT COUNT(*) FROM {$p}tt_teams t WHERE {$where_sql}";
+        $total = $params
+            ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) )
+            : (int) $wpdb->get_var( $count_sql );
+
+        return RestResponse::success( [
+            'rows'     => array_map( [ __CLASS__, 'fmtRow' ], $rows ),
+            'total'    => $total,
+            'page'     => $page,
+            'per_page' => $per_page,
+        ] );
+    }
+
+    public static function get_team( \WP_REST_Request $r ) {
+        global $wpdb; $p = $wpdb->prefix;
+        $id = absint( $r['id'] );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT t.*, u.display_name AS coach_name FROM {$p}tt_teams t LEFT JOIN {$wpdb->users} u ON u.ID = t.head_coach_id WHERE t.id = %d",
+            $id
+        ) );
+        if ( ! $row ) return RestResponse::error( 'not_found', __( 'Team not found.', 'talenttrack' ), 404 );
+        return RestResponse::success( self::fmtRow( $row ) );
+    }
+
+    public static function create_team( \WP_REST_Request $r ) {
+        global $wpdb;
+        $data = self::extract( $r );
+        if ( $data['name'] === '' ) {
+            return RestResponse::error( 'missing_fields', __( 'Team name is required.', 'talenttrack' ), 400 );
+        }
+        $ok = $wpdb->insert( $wpdb->prefix . 'tt_teams', $data );
+        if ( $ok === false ) {
+            $err = (string) $wpdb->last_error;
+            Logger::error( 'team.create.failed', [ 'db_error' => $err, 'payload' => $data ] );
+            return RestResponse::error( 'db_error', __( 'The team could not be created.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
+        }
+        return RestResponse::success( [ 'id' => (int) $wpdb->insert_id ] );
+    }
+
+    public static function update_team( \WP_REST_Request $r ) {
+        global $wpdb;
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid team id.', 'talenttrack' ), 400 );
+        $data = self::extract( $r );
+        if ( $data['name'] === '' ) {
+            return RestResponse::error( 'missing_fields', __( 'Team name is required.', 'talenttrack' ), 400 );
+        }
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_teams', $data, [ 'id' => $id ] );
+        if ( $ok === false ) {
+            $err = (string) $wpdb->last_error;
+            Logger::error( 'team.update.failed', [ 'db_error' => $err, 'team_id' => $id ] );
+            return RestResponse::error( 'db_error', __( 'The team could not be updated.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
+        }
+        return RestResponse::success( [ 'id' => $id ] );
+    }
+
+    /**
+     * DELETE /teams/{id} — soft-archive. Sets archived_at; the row
+     * stays in the DB so foreign references in evaluations / sessions
+     * / staff assignments don't dangle.
+     */
+    public static function delete_team( \WP_REST_Request $r ) {
+        global $wpdb;
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid team id.', 'talenttrack' ), 400 );
+        $ok = $wpdb->update(
+            $wpdb->prefix . 'tt_teams',
+            [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id() ],
+            [ 'id' => $id ]
+        );
+        if ( $ok === false ) {
+            $err = (string) $wpdb->last_error;
+            Logger::error( 'team.archive.failed', [ 'db_error' => $err, 'team_id' => $id ] );
+            return RestResponse::error( 'db_error', __( 'The team could not be archived.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
+        }
+        return RestResponse::success( [ 'archived' => true, 'id' => $id ] );
+    }
+
+    public static function add_player_to_team( \WP_REST_Request $r ) {
+        global $wpdb;
+        $team_id   = absint( $r['id'] );
+        $player_id = absint( $r['player_id'] );
+        if ( $team_id <= 0 || $player_id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid team or player id.', 'talenttrack' ), 400 );
+        }
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', [ 'team_id' => $team_id ], [ 'id' => $player_id ] );
+        if ( $ok === false ) {
+            $err = (string) $wpdb->last_error;
+            Logger::error( 'team.roster.add.failed', [ 'db_error' => $err, 'team_id' => $team_id, 'player_id' => $player_id ] );
+            return RestResponse::error( 'db_error', __( 'The player could not be added to the team.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
+        }
+        return RestResponse::success( [ 'team_id' => $team_id, 'player_id' => $player_id ] );
+    }
+
+    public static function remove_player_from_team( \WP_REST_Request $r ) {
+        global $wpdb;
+        $team_id   = absint( $r['id'] );
+        $player_id = absint( $r['player_id'] );
+        if ( $team_id <= 0 || $player_id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid team or player id.', 'talenttrack' ), 400 );
+        }
+        // Only clear if the player is actually on that team (no-op otherwise).
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', [ 'team_id' => 0 ], [ 'id' => $player_id, 'team_id' => $team_id ] );
+        if ( $ok === false ) {
+            $err = (string) $wpdb->last_error;
+            Logger::error( 'team.roster.remove.failed', [ 'db_error' => $err, 'team_id' => $team_id, 'player_id' => $player_id ] );
+            return RestResponse::error( 'db_error', __( 'The player could not be removed from the team.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
+        }
+        return RestResponse::success( [ 'team_id' => $team_id, 'player_id' => $player_id ] );
+    }
+
+    /** @return array<string, mixed> */
+    private static function extract( \WP_REST_Request $r ): array {
+        return [
+            'name'          => sanitize_text_field( (string) ( $r['name'] ?? '' ) ),
+            'age_group'     => sanitize_text_field( (string) ( $r['age_group'] ?? '' ) ),
+            'head_coach_id' => absint( $r['head_coach_id'] ?? 0 ),
+            'notes'         => sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) ),
+        ];
+    }
+
+    private static function clamp_per_page( $value ): int {
+        $n = absint( $value );
+        if ( ! in_array( $n, [ 10, 25, 50, 100 ], true ) ) return 25;
+        return $n;
+    }
+
+    private static function fmtRow( object $t ): array {
+        return [
+            'id'            => (int) $t->id,
+            'name'          => (string) $t->name,
+            'age_group'     => (string) ( $t->age_group ?? '' ),
+            'head_coach_id' => (int) ( $t->head_coach_id ?? 0 ),
+            'coach_name'    => (string) ( $t->coach_name ?? '' ),
+            'notes'         => (string) ( $t->notes ?? '' ),
+            'player_count'  => isset( $t->player_count ) ? (int) $t->player_count : null,
+            'archived_at'   => $t->archived_at ?? null,
+        ];
+    }
+}
