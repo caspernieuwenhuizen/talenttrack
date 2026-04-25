@@ -1,3 +1,64 @@
+# TalentTrack v3.8.0 — #0023 Styling options + WP-theme inheritance
+
+**Minor release.** Carved out during the JG4IT theme build on 25 April 2026. The Branding tab in **Configuration** gets a second section with a single global toggle to defer fonts/colors/links/buttons to the surrounding WordPress theme, plus curated Google Fonts dropdowns and six semantic color pickers — all without writing CSS or building a custom theme.
+
+#0019 Sprint 2 (sessions/goals frontend) is paused after session 2.2 while this preempts; sessions 2.3 + 2.4 resume after v3.8.0 ships.
+
+## What's new on the Branding tab
+
+A second section appears below the existing Academy / Logo / Primary / Secondary fields:
+
+| Field | Storage | Default |
+| --- | --- | --- |
+| Inherit WordPress theme styles (toggle) | `theme_inherit` | off |
+| Display font | `font_display` | (System default) |
+| Body font | `font_body` | (System default) |
+| Accent / Danger / Warning / Success / Info / Focus ring colors | `color_accent` etc. | `#1e88e5` / `#b32d2e` / `#dba617` / `#00a32a` / `#2271b1` / `#1e88e5` |
+
+Existing `primary_color` and `secondary_color` keys are preserved unchanged — installs that don't touch the new section see no visual difference.
+
+## What "inherit" actually does
+
+When the toggle is ON, `BrandStyles::addBodyClass` adds `tt-theme-inherit` to `<body>`. The new `/* ─── Theme inheritance ─── */` section in `assets/css/frontend-admin.css` keys off that class:
+
+- Body text, paragraphs, table cells, form labels → inherit `font-family` + `color`.
+- Headings (h1–h6) → inherit `font-family` + `color`.
+- Links → inherit `color`.
+- Plain submit / `button-primary` buttons → background / color / border revert to the host theme.
+
+Intentionally *not* inherited:
+
+- Player card tier styling (gold / silver / bronze stays locked — it's part of the product identity).
+- Tile grid borders + accents.
+- The `FrontendListTable` component.
+- `FormSaveButton` state colors (the green "Saved" / red "Retry" pulse depends on plugin tokens).
+- Spacing, layout, structural CSS.
+
+## Curated Google Fonts
+
+`src/Shared/Frontend/BrandFonts.php` carries the catalogue:
+
+- **Display** (10 candidates): Barlow Condensed, Oswald, Bebas Neue, Anton, Saira Condensed, Fjalla One, Archivo Black, Teko, Big Shoulders Display, Russo One.
+- **Body** (12 candidates): Inter, Manrope, Plus Jakarta Sans, DM Sans, Work Sans, IBM Plex Sans, Source Sans 3, Nunito Sans, Outfit, Sora, Merriweather, Source Serif 4.
+
+Plus `(System default)` and `(Inherit from theme)` sentinels. When at least one dropdown picks a curated family, `BrandStyles::enqueueFonts` makes a single combined `fonts.googleapis.com/css2?family=…&family=…&display=swap` request with the weights TalentTrack actually uses. System / Inherit triggers no font request.
+
+## Token emission — additive only
+
+`BrandStyles::injectVars()` now emits the new tokens (`--tt-accent`, `--tt-danger`, `--tt-warning`, `--tt-success`, `--tt-info`, `--tt-focus-ring`, `--tt-font-display`, `--tt-font-body`) **only when the operator set a non-empty value**. Empty fields fall through to the defaults declared in `frontend-admin.css`. This keeps the CSS architecture clean: `BrandStyles` overrides via `:root`, but only when there's something to say.
+
+`frontend-admin.css` gains `--tt-font-display` and `--tt-font-body` token defaults that match the legacy stack used in `public.css`, so a club that doesn't pick fonts looks exactly like before.
+
+## Custom-theme escape hatch unchanged
+
+Clubs running a custom theme that adds `body .tt-dashboard { ... }` overrides (the JG4IT pattern from `marketing/themes/talenttrack-demo/`) keep working — those rules win at higher specificity than `BrandStyles`'s `:root` injection. The toggle is the easier path; the override path is still there if a club wants pixel-level control.
+
+## Ship-along
+
+- `docs/configuration-branding.md` + `docs/nl_NL/configuration-branding.md` — full coverage of the new section, including the honest "what inherit actually does" framing (some properties cascade, others don't — buttons are best-effort).
+- `languages/talenttrack-nl_NL.po` — 16 new Dutch strings.
+- SEQUENCE.md — adds #0023 row at rank 6.5; #0019 Sprint 2 marked PAUSED at 2.2 with the resume context.
+
 # TalentTrack v3.7.4 — #0019 Sprint 2 session 2: FrontendListTable component
 
 **Patch release.** Ships the keystone of Sprint 2: the reusable `FrontendListTable` component that Sessions (2.3), Goals (2.4), Players + Teams (Sprint 3), People (Sprint 4), and admin-tier surfaces (Sprint 5) all build their list views on top of.

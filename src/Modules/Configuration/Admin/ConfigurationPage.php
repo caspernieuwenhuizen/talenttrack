@@ -7,6 +7,7 @@ use TT\Core\Kernel;
 use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\FeatureToggles\FeatureToggleService;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Shared\Frontend\BrandFonts;
 
 /**
  * ConfigurationPage — admin tabs for every config surface.
@@ -411,6 +412,67 @@ class ConfigurationPage {
                 </td></tr>
                 <tr><th><?php esc_html_e( 'Primary Color', 'talenttrack' ); ?></th><td><input type="color" name="cfg[primary_color]" value="<?php echo esc_attr( QueryHelpers::get_config( 'primary_color', '#0b3d2e' ) ); ?>" /></td></tr>
                 <tr><th><?php esc_html_e( 'Secondary Color', 'talenttrack' ); ?></th><td><input type="color" name="cfg[secondary_color]" value="<?php echo esc_attr( QueryHelpers::get_config( 'secondary_color', '#e8b624' ) ); ?>" /></td></tr>
+            </table>
+
+            <?php
+            // ─── #0023 Sprint 1 — Theme inheritance + curated styling ───
+            $theme_inherit = (string) QueryHelpers::get_config( 'theme_inherit', '0' );
+            $font_display  = (string) QueryHelpers::get_config( 'font_display',  BrandFonts::SYSTEM_DEFAULT );
+            $font_body     = (string) QueryHelpers::get_config( 'font_body',     BrandFonts::SYSTEM_DEFAULT );
+            $colors = [
+                'color_accent'  => [ __( 'Accent color',     'talenttrack' ), '#1e88e5' ],
+                'color_danger'  => [ __( 'Danger color',     'talenttrack' ), '#b32d2e' ],
+                'color_warning' => [ __( 'Warning color',    'talenttrack' ), '#dba617' ],
+                'color_success' => [ __( 'Success color',    'talenttrack' ), '#00a32a' ],
+                'color_info'    => [ __( 'Info color',       'talenttrack' ), '#2271b1' ],
+                'color_focus'   => [ __( 'Focus ring color', 'talenttrack' ), '#1e88e5' ],
+            ];
+            ?>
+            <h3 style="margin-top:2.5rem;"><?php esc_html_e( 'Theme inheritance & curated styling', 'talenttrack' ); ?></h3>
+            <p class="description" style="max-width:680px;">
+                <?php esc_html_e( 'Inheritance applies to fonts, colors, and basic links/buttons. TalentTrack’s structural design (spacing, layout, player cards) is unchanged. Pick fonts and accent colors below — fields left as “(System default)” or empty fall back to TalentTrack’s defaults.', 'talenttrack' ); ?>
+            </p>
+            <table class="form-table">
+                <tr>
+                    <th><?php esc_html_e( 'Inherit WordPress theme styles', 'talenttrack' ); ?></th>
+                    <td>
+                        <?php // Hidden 0 first so unchecking persists. ?>
+                        <input type="hidden" name="cfg[theme_inherit]" value="0" />
+                        <label>
+                            <input type="checkbox" name="cfg[theme_inherit]" value="1" <?php checked( $theme_inherit, '1' ); ?> />
+                            <?php esc_html_e( 'Defer typography, link color, headings and plain buttons to the active WP theme.', 'talenttrack' ); ?>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <th><?php esc_html_e( 'Display font', 'talenttrack' ); ?></th>
+                    <td>
+                        <select name="cfg[font_display]">
+                            <?php foreach ( BrandFonts::displayOptions() as $value => $label ) : ?>
+                                <option value="<?php echo esc_attr( (string) $value ); ?>" <?php selected( $font_display, (string) $value ); ?>><?php echo esc_html( (string) $label ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p class="description"><?php esc_html_e( 'Used for headings, tile titles, and player card numbers.', 'talenttrack' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th><?php esc_html_e( 'Body font', 'talenttrack' ); ?></th>
+                    <td>
+                        <select name="cfg[font_body]">
+                            <?php foreach ( BrandFonts::bodyOptions() as $value => $label ) : ?>
+                                <option value="<?php echo esc_attr( (string) $value ); ?>" <?php selected( $font_body, (string) $value ); ?>><?php echo esc_html( (string) $label ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p class="description"><?php esc_html_e( 'Used for paragraphs, tables, and form fields.', 'talenttrack' ); ?></p>
+                    </td>
+                </tr>
+                <?php foreach ( $colors as $key => $meta ) :
+                    [ $label, $default ] = $meta; ?>
+                    <tr>
+                        <th><?php echo esc_html( $label ); ?></th>
+                        <td><input type="color" name="cfg[<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( QueryHelpers::get_config( $key, $default ) ); ?>" /></td>
+                    </tr>
+                <?php endforeach; ?>
             </table>
             <?php submit_button( __( 'Save', 'talenttrack' ) ); ?>
         </form>

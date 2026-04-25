@@ -57,6 +57,12 @@
 
     /* Focus ring. */
     --tt-focus: 0 0 0 2px rgba(11, 61, 46, 0.35);
+
+    /* #0023 — font tokens. Defaults match the legacy stack used in
+       public.css; BrandStyles overrides via `:root` when the
+       Branding tab picks a curated family. */
+    --tt-font-display: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    --tt-font-body:    Georgia, "Iowan Old Style", "Palatino Linotype", serif;
 }
 
 /* ─── Form layout primitives ──────────────────────────────
@@ -499,4 +505,56 @@
     .tt-dashboard .tt-btn-primary,
     .tt-dashboard .tt-btn-secondary,
     .tt-dashboard .tt-btn-danger { width: 100%; }
+}
+
+/* ─── Theme inheritance ──────────────────────────────────
+   #0023 Sprint 1. Active only when the Branding-tab toggle
+   is ON — `BrandStyles::addBodyClass` adds `tt-theme-inherit`
+   to <body>, which scopes the rules below.
+
+   Goal: typography, link color, and plain button styling
+   defer to the host WordPress theme. TalentTrack's
+   structural design (player cards, tile grid, list table,
+   spacing, layout) is intentionally NOT inherited — clubs
+   get a brand-matched dashboard without losing the product's
+   visual identity.
+
+   See specs/0023-feat-styling-options-and-theme-inheritance.md
+   for the locked decisions and the honest framing of what
+   "inherit" actually does (some properties cascade, others
+   don't — buttons are best-effort).
+   ───────────────────────────────────────────────────────── */
+body.tt-theme-inherit .tt-dashboard,
+body.tt-theme-inherit .tt-dashboard p,
+body.tt-theme-inherit .tt-dashboard li,
+body.tt-theme-inherit .tt-dashboard td,
+body.tt-theme-inherit .tt-dashboard label {
+    font-family: inherit;
+    color: inherit;
+}
+body.tt-theme-inherit .tt-dashboard h1,
+body.tt-theme-inherit .tt-dashboard h2,
+body.tt-theme-inherit .tt-dashboard h3,
+body.tt-theme-inherit .tt-dashboard h4,
+body.tt-theme-inherit .tt-dashboard h5,
+body.tt-theme-inherit .tt-dashboard h6 {
+    font-family: inherit;
+    color: inherit;
+}
+body.tt-theme-inherit .tt-dashboard a {
+    color: inherit;
+}
+
+/* Plain submit / primary buttons revert to the host theme's
+   button styling. TT-only surfaces (player card, tile grid,
+   list-table actions) are explicitly excluded so their tokens
+   keep working. `.tt-save-btn` is also excluded because it
+   has its own state machine that depends on the green/red
+   transition tokens. */
+body.tt-theme-inherit .tt-dashboard button.button-primary:not(.tt-save-btn),
+body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(.tt-pc *):not(.tt-tile *):not(.tt-list-table *) {
+    background: revert;
+    color: revert;
+    border-color: revert;
+    font-family: inherit;
 }
