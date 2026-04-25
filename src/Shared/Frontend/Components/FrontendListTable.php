@@ -295,12 +295,24 @@ class FrontendListTable {
     private static function columnsForJs( array $columns ): array {
         $out = [];
         foreach ( $columns as $key => $col ) {
-            $out[ (string) $key ] = [
+            $entry = [
                 'label'     => (string) ( $col['label'] ?? $key ),
                 'sortable'  => ! empty( $col['sortable'] ),
                 'render'    => (string) ( $col['render']    ?? 'text' ),
                 'value_key' => (string) ( $col['value_key'] ?? $key ),
             ];
+            // #0019 Sprint 2 session 2.4 — inline_select renders an
+            // editable dropdown in the cell. The hydrator binds change
+            // events to PATCH the configured endpoint with the chosen
+            // value. Used by the goals list for inline status edits;
+            // generic enough that Sprint 3+ players/positions etc. can
+            // reuse it.
+            if ( ( $col['render'] ?? '' ) === 'inline_select' ) {
+                $entry['options']     = is_array( $col['options'] ?? null ) ? $col['options'] : [];
+                $entry['patch_path']  = (string) ( $col['patch_path']  ?? '' );
+                $entry['patch_field'] = (string) ( $col['patch_field'] ?? $key );
+            }
+            $out[ (string) $key ] = $entry;
         }
         return $out;
     }

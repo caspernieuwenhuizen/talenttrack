@@ -1,3 +1,49 @@
+# TalentTrack v3.8.2 — #0019 Sprint 2 session 2.4: Goals full frontend (closes Sprint 2)
+
+**Patch release.** Last session of Sprint 2. Goals join Sessions on the full-CRUD frontend track; the `?tt_view=goals` tile gets a list / create / edit / delete UI. Sprint 3 (Players + Teams) is now unblocked.
+
+## `FrontendGoalsManageView` — three modes
+
+Same shape as the Sessions view from v3.8.1:
+
+- **List** — `FrontendListTable` with team / player / status / priority / due-date filters, Edit / Delete row actions, and an inline status select on every row.
+- **Create** (`?tt_view=goals&action=new`) — form with `PlayerPickerComponent` + `DateInputComponent` + priority dropdown. Posts to `POST /goals`.
+- **Edit** (`?tt_view=goals&id=<int>`) — form prefilled from the row; adds a status field (create defaults to `pending` server-side). Saves via `PUT /goals/{id}`.
+
+Delete = soft-archive via `DELETE /goals/{id}`.
+
+## `FrontendListTable` — new `inline_select` render type
+
+Generic enough for Sprint 3+ to reuse. Configure a column with:
+
+```php
+'status' => [
+    'render'      => 'inline_select',
+    'options'     => $status_options,        // value => label
+    'patch_path'  => 'goals/{id}/status',    // template (`{id}` etc.)
+    'patch_field' => 'status',               // body key
+],
+```
+
+The hydrator emits an editable `<select>` in each cell. On change, the JS `bindInlineSelects()` handler PATCHes the configured endpoint with `{ <field>: <value> }`. The dropdown disables itself during the request and shows the row-level error in the table's status line on failure (no row-level retry yet — failed PATCH leaves the user on the new value but surfaces the message).
+
+This replaces the legacy `.tt-goal-status-select` jQuery handler from `public.js` for the goals view (the legacy handler stays for any caller that still uses the class, which is now zero after this PR).
+
+## Lookup-driven status / priority
+
+Status and priority filter options + the inline select options are built from `goal_status` / `goal_priority` lookups (`QueryHelpers::get_lookup_names`). A club running custom statuses (Achieved, Cancelled, On Hold, …) sees its own values without code changes.
+
+## Wired up
+
+- `DashboardShortcode::dispatchCoachingView` flips the `goals` slug to `FrontendGoalsManageView`.
+- `FrontendGoalsView` placeholder deleted.
+- `CoachForms` docblock cleaned up — `renderGoalsForm` and `renderSessionForm` are dead helpers (only `CoachDashboardView`, itself dead, references them); their removal is Sprint 6's legacy-UI scope.
+- 11 new Dutch strings.
+
+## Sprint 2 — done
+
+Per SEQUENCE.md, Sprint 2 is now COMPLETE (~20h actual vs ~22h estimate across four sessions). Sprint 3 (Players + Teams) is next; the keystone components are all in place — `FrontendListTable` (2.2), `TeamPickerComponent` (2.3), and the new `inline_select` render type (2.4) cover the full surface area Sprint 3 needs.
+
 # TalentTrack v3.8.1 — #0019 Sprint 2 session 2.3: Sessions full frontend
 
 **Patch release.** Resumes Sprint 2 after the v3.8.0 styling preemption. Sessions get a real CRUD frontend: a filtered/sortable list, a create form, an edit form, and a delete (soft-archive) row action. The keystone work was done in 2.2 (FrontendListTable + REST endpoints); this session ties it all together for the Sessions entity.

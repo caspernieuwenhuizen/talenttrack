@@ -213,7 +213,7 @@ class DashboardShortcode {
                 FrontendSessionsManageView::render( $user_id, $is_admin );
                 break;
             case 'goals':
-                FrontendGoalsView::render( $user_id, $is_admin );
+                FrontendGoalsManageView::render( $user_id, $is_admin );
                 break;
             case 'podium':
                 FrontendPodiumView::render( $user_id, $is_admin );

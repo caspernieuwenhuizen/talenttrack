@@ -95,9 +95,9 @@ All items have shaped idea files in `ideas/` and dev-ready specs in `specs/`. Bu
 | Rank | Item | Type | Estimate | Actual | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | 5 | **#0019 Sprint 1** — foundation | epic | ~25–30h | ~9h | **COMPLETE** | REST + flash scaffold in v3.7.0; v3.7.1 fixed broken-registration bug + client cutover; v3.7.2 landed CSS scaffold, five shared components (FormSaveButton, PlayerPicker, DateInput, RatingInput, MultiSelectTag), flash JS layer, localStorage drafts. Sprint 2 unblocked. |
-| 6 | **#0019 Sprint 2** — sessions + goals frontend | epic | ~22h | ~16h so far | IN PROGRESS | v3.7.3 = session 2.1 (REST list endpoints). v3.7.4 = session 2.2 (`FrontendListTable` keystone). v3.8.1 = session 2.3 (Sessions full frontend: list+create+edit+delete, bulk attendance, mobile pagination). Remaining: 2.4 Goals full frontend. Plan in [`specs/0019-sprint-2-session-plan.md`](specs/0019-sprint-2-session-plan.md). |
+| 6 | **#0019 Sprint 2** — sessions + goals frontend | epic | ~22h | ~20h | **COMPLETE** | v3.7.3 = 2.1 (REST list endpoints). v3.7.4 = 2.2 (`FrontendListTable` keystone). v3.8.1 = 2.3 (Sessions full frontend). v3.8.2 = 2.4 (Goals full frontend; closes Sprint 2). Sprint 3 unblocked. Plan in [`specs/0019-sprint-2-session-plan.md`](specs/0019-sprint-2-session-plan.md). |
 | 6.5 | **#0023** — styling options + WP-theme inheritance | feat | ~8h | ~6h | IN PROGRESS | Carved out during the JG4IT theme build (25 Apr 2026). Single PR, single release v3.8.0. Branding-tab toggle + curated Google Fonts dropdowns + 6 semantic color pickers + theme-inheritance CSS section. Spec at [`specs/0023-feat-styling-options-and-theme-inheritance.md`](specs/0023-feat-styling-options-and-theme-inheritance.md). |
-| 7 | **#0019 Sprint 3** — players + teams frontend | epic | ~30h | — | BLOCKED ON #0019 S2 | Second-most-touched coach work. |
+| 7 | **#0019 Sprint 3** — players + teams frontend | epic | ~30h | — | NEXT | Sprint 2 unblocked it. Players + teams list views reuse `FrontendListTable` (and its new `inline_select` render type from 2.4). |
 
 Phase 1 subtotal estimate: ~80h.
 
