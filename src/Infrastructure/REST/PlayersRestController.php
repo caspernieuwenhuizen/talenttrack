@@ -79,19 +79,160 @@ class PlayersRestController {
         ]);
     }
 
-    public static function list_players( \WP_REST_Request $r ) {
-        $team_id = $r['team_id'] ? absint( $r['team_id'] ) : 0;
-        $rows    = QueryHelpers::get_players( $team_id );
+    /** Whitelist of columns the `orderby` query param accepts. */
+    private const LIST_ORDERBY_WHITELIST = [
+        'last_name'     => 'p.last_name',
+        'first_name'    => 'p.first_name',
+        'team_name'     => 't.name',
+        'jersey_number' => 'p.jersey_number',
+        'date_of_birth' => 'p.date_of_birth',
+        'date_joined'   => 'p.date_joined',
+    ];
 
-        // Filter the list down to players this user can actually view.
-        // This is the "row-level security" layer: broad permission gate on
-        // the endpoint, per-row visibility filter here.
+    /**
+     * GET /players — paginated list with search, filters, sort.
+     *
+     * #0019 Sprint 3 session 3.1 — replaces the v2.x bare-bones list
+     * with the Sprint 2 contract that `FrontendListTable` consumes.
+     *
+     * Query params:
+     *   ?search=<text>             — first/last name LIKE
+     *   ?filter[team_id]=<int>
+     *   ?filter[position]=<string> — matches anywhere in preferred_positions JSON array
+     *   ?filter[preferred_foot]=<string>
+     *   ?filter[age_group]=<string> — matches the team's age_group (e.g. "U13")
+     *   ?filter[archived]=<active|archived> — default active only
+     *   ?orderby=last_name|first_name|team_name|jersey_number|date_of_birth|date_joined
+     *   ?order=asc|desc                                   (default: asc on last_name, desc otherwise)
+     *   ?page=<int>                                       (default 1)
+     *   ?per_page=10|25|50|100                            (default 25)
+     *
+     * Authorization: row-level visibility filter via AuthorizationService.
+     */
+    public static function list_players( \WP_REST_Request $r ) {
+        global $wpdb; $p = $wpdb->prefix;
+
+        $page     = max( 1, absint( $r['page'] ?? 1 ) );
+        $per_page = self::clamp_per_page( $r['per_page'] ?? 25 );
+
+        $orderby_key = sanitize_key( (string) ( $r['orderby'] ?? 'last_name' ) );
+        if ( ! isset( self::LIST_ORDERBY_WHITELIST[ $orderby_key ] ) ) {
+            return RestResponse::error(
+                'bad_orderby',
+                __( 'Unknown orderby column.', 'talenttrack' ),
+                400,
+                [ 'allowed' => array_keys( self::LIST_ORDERBY_WHITELIST ) ]
+            );
+        }
+        $orderby = self::LIST_ORDERBY_WHITELIST[ $orderby_key ];
+        $order   = strtolower( (string) ( $r['order'] ?? ( $orderby_key === 'last_name' ? 'asc' : 'desc' ) ) );
+        if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'asc';
+
+        $where  = [ '1=1' ];
+        $params = [];
+
+        $scope = QueryHelpers::apply_demo_scope( 'p', 'player' );
+
+        $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
+        $archived = isset( $filter['archived'] ) ? sanitize_key( (string) $filter['archived'] ) : 'active';
+        if ( $archived === 'archived' ) {
+            $where[] = 'p.archived_at IS NOT NULL';
+        } else {
+            $where[] = 'p.archived_at IS NULL';
+        }
+
+        if ( ! empty( $filter['team_id'] ) ) {
+            $where[]  = 'p.team_id = %d';
+            $params[] = absint( $filter['team_id'] );
+        }
+        if ( ! empty( $filter['preferred_foot'] ) ) {
+            $where[]  = 'p.preferred_foot = %s';
+            $params[] = sanitize_text_field( (string) $filter['preferred_foot'] );
+        }
+        if ( ! empty( $filter['position'] ) ) {
+            // preferred_positions is a JSON array — match the value as a
+            // standalone token in the JSON string. Good enough for the
+            // typical 4-6 element arrays this column carries.
+            $where[]  = 'p.preferred_positions LIKE %s';
+            $params[] = '%"' . $wpdb->esc_like( (string) $filter['position'] ) . '"%';
+        }
+        if ( ! empty( $filter['age_group'] ) ) {
+            $where[]  = 't.age_group = %s';
+            $params[] = sanitize_text_field( (string) $filter['age_group'] );
+        }
+
+        if ( ! empty( $r['search'] ) ) {
+            $like = '%' . $wpdb->esc_like( (string) $r['search'] ) . '%';
+            $where[]  = '(p.first_name LIKE %s OR p.last_name LIKE %s)';
+            $params[] = $like; $params[] = $like;
+        }
+
+        $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
+
+        $list_sql = "SELECT p.*, t.name AS team_name, t.age_group AS team_age_group
+                     FROM {$p}tt_players p
+                     LEFT JOIN {$p}tt_teams t ON t.id = p.team_id
+                     WHERE {$where_sql}
+                     ORDER BY {$orderby} {$order}
+                     LIMIT %d OFFSET %d";
+        $offset = ( $page - 1 ) * $per_page;
+        $list_params = array_merge( $params, [ $per_page, $offset ] );
+
+        $rows = $wpdb->get_results( $wpdb->prepare( $list_sql, ...$list_params ) ) ?: [];
+
+        // Row-level visibility filter — same as v2.x but applied
+        // post-fetch. AuthorizationService is per-player; checking it
+        // pre-fetch would require either inlining its logic or N+1
+        // queries. With the page-level cap (100/page max) the post-fetch
+        // filter cost is bounded.
         $user_id = get_current_user_id();
-        $rows = array_values( array_filter( (array) $rows, function ( $pl ) use ( $user_id ) {
+        $rows = array_values( array_filter( $rows, function ( $pl ) use ( $user_id ) {
             return AuthorizationService::canViewPlayer( $user_id, (int) $pl->id );
         } ) );
 
-        return RestResponse::success( array_map( [ __CLASS__, 'fmt' ], $rows ) );
+        // Total count — same WHERE clause, post-AuthZ.
+        $count_sql = "SELECT p.id FROM {$p}tt_players p
+                      LEFT JOIN {$p}tt_teams t ON t.id = p.team_id
+                      WHERE {$where_sql}";
+        $all_ids = $params
+            ? $wpdb->get_col( $wpdb->prepare( $count_sql, ...$params ) )
+            : $wpdb->get_col( $count_sql );
+        $total = 0;
+        foreach ( (array) $all_ids as $pid ) {
+            if ( AuthorizationService::canViewPlayer( $user_id, (int) $pid ) ) $total++;
+        }
+
+        return RestResponse::success( [
+            'rows'     => array_map( [ __CLASS__, 'fmtRow' ], $rows ),
+            'total'    => $total,
+            'page'     => $page,
+            'per_page' => $per_page,
+        ] );
+    }
+
+    private static function clamp_per_page( $value ): int {
+        $n = absint( $value );
+        if ( ! in_array( $n, [ 10, 25, 50, 100 ], true ) ) return 25;
+        return $n;
+    }
+
+    /** Compact row format for list responses (no custom fields). */
+    private static function fmtRow( object $pl ): array {
+        return [
+            'id'             => (int) $pl->id,
+            'first_name'     => (string) $pl->first_name,
+            'last_name'      => (string) $pl->last_name,
+            'name'           => trim( ( (string) $pl->first_name ) . ' ' . ( (string) $pl->last_name ) ),
+            'team_id'        => (int) $pl->team_id,
+            'team_name'      => (string) ( $pl->team_name ?? '' ),
+            'team_age_group' => (string) ( $pl->team_age_group ?? '' ),
+            'jersey_number'  => $pl->jersey_number !== null ? (int) $pl->jersey_number : null,
+            'preferred_foot' => (string) ( $pl->preferred_foot ?? '' ),
+            'photo_url'      => (string) ( $pl->photo_url ?? '' ),
+            'date_of_birth'  => $pl->date_of_birth ?: null,
+            'archived_at'    => $pl->archived_at ?? null,
+            'status'         => (string) ( $pl->status ?? 'active' ),
+        ];
     }
 
     public static function get_player( \WP_REST_Request $r ) {

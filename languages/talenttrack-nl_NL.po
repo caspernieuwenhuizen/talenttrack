@@ -3420,3 +3420,42 @@ msgstr "Deadline vanaf"
 
 msgid "Due to"
 msgstr "Deadline tot"
+
+msgid "New player"
+msgstr "Nieuwe speler"
+
+msgid "Edit player — %s"
+msgstr "Speler bewerken — %s"
+
+msgid "Edit player"
+msgstr "Speler bewerken"
+
+msgid "That player no longer exists."
+msgstr "Die speler bestaat niet meer."
+
+msgid "Delete this player? They will be archived."
+msgstr "Deze speler verwijderen? De speler wordt gearchiveerd."
+
+msgid "Search by name…"
+msgstr "Zoek op naam…"
+
+msgid "No players match your filters."
+msgstr "Geen spelers passen bij je filters."
+
+msgid "Update player"
+msgstr "Speler bijwerken"
+
+msgid "Save player"
+msgstr "Speler opslaan"
+
+msgid "View rate card"
+msgstr "Speelkaart bekijken"
+
+msgid "Jersey number"
+msgstr "Rugnummer"
+
+msgid "Choose photo…"
+msgstr "Kies foto…"
+
+msgid "Select photo"
+msgstr "Foto kiezen"
