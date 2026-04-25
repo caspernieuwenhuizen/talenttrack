@@ -415,6 +415,28 @@ class ConfigurationPage {
             </table>
 
             <?php
+            // ─── #0019 Sprint 6 — Legacy wp-admin menu toggle ───
+            $show_legacy = (string) QueryHelpers::get_config( 'show_legacy_menus', '0' );
+            ?>
+            <h3 style="margin-top:2.5rem;"><?php esc_html_e( 'Legacy wp-admin menus', 'talenttrack' ); ?></h3>
+            <p class="description" style="max-width:680px;">
+                <?php esc_html_e( 'TalentTrack admin tools moved to the frontend in v3.12.0. The legacy wp-admin menu entries (Players, Teams, Configuration, etc.) are hidden by default. Direct URLs continue to work — this toggle only controls menu visibility.', 'talenttrack' ); ?>
+            </p>
+            <table class="form-table">
+                <tr>
+                    <th><?php esc_html_e( 'Show legacy wp-admin menus', 'talenttrack' ); ?></th>
+                    <td>
+                        <input type="hidden" name="cfg[show_legacy_menus]" value="0" />
+                        <label>
+                            <input type="checkbox" name="cfg[show_legacy_menus]" value="1" <?php checked( $show_legacy, '1' ); ?> />
+                            <?php esc_html_e( 'Re-expose the legacy menu entries.', 'talenttrack' ); ?>
+                        </label>
+                        <p class="description"><?php esc_html_e( 'Per-site setting. The frontend admin tier remains primary; this is for users who prefer the wp-admin path while the frontend continues to mature.', 'talenttrack' ); ?></p>
+                    </td>
+                </tr>
+            </table>
+
+            <?php
             // ─── #0023 Sprint 1 — Theme inheritance + curated styling ───
             $theme_inherit = (string) QueryHelpers::get_config( 'theme_inherit', '0' );
             $font_display  = (string) QueryHelpers::get_config( 'font_display',  BrandFonts::SYSTEM_DEFAULT );

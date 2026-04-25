@@ -133,6 +133,23 @@ class FrontendConfigurationView extends FrontendViewBase {
             </div>
 
             <div class="tt-panel">
+                <h3 class="tt-panel-title"><?php esc_html_e( 'wp-admin menus', 'talenttrack' ); ?></h3>
+                <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);">
+                    <?php esc_html_e( 'TalentTrack admin tools moved to the frontend in v3.12.0. The legacy wp-admin menu entries (Players, Teams, Configuration, …) are hidden by default. Direct URLs to those pages still work as an emergency fallback.', 'talenttrack' ); ?>
+                </p>
+                <div class="tt-field">
+                    <input type="hidden" name="config[show_legacy_menus]" value="0" />
+                    <label>
+                        <input type="checkbox" name="config[show_legacy_menus]" value="1" <?php checked( QueryHelpers::get_config( 'show_legacy_menus', '0' ), '1' ); ?> />
+                        <?php esc_html_e( 'Show legacy wp-admin menus', 'talenttrack' ); ?>
+                    </label>
+                    <p class="tt-field-hint" style="margin-top:6px;">
+                        <?php esc_html_e( 'Re-expose the legacy menu entries in wp-admin for users who prefer them. Plugin still works on both surfaces; this just controls menu visibility.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+            </div>
+
+            <div class="tt-panel">
                 <h3 class="tt-panel-title"><?php esc_html_e( 'Rating scale', 'talenttrack' ); ?></h3>
                 <div class="tt-grid tt-grid-3">
                     <div class="tt-field">
@@ -203,8 +220,9 @@ class FrontendConfigurationView extends FrontendViewBase {
                     var m = /^config\[(.+)\]$/.exec(key);
                     if (m) config[m[1]] = value;
                 });
-                // Hidden 0 trick for the toggle — if the box wasn't checked, send 0.
+                // Hidden 0 trick for the toggles — if the box wasn't checked, send 0.
                 if (config.theme_inherit === undefined || config.theme_inherit === '') config.theme_inherit = '0';
+                if (config.show_legacy_menus === undefined || config.show_legacy_menus === '') config.show_legacy_menus = '0';
 
                 var url = (rest.rest_url || '/wp-json/talenttrack/v1/').replace(/\/+$/, '/') + 'config';
                 var headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' };

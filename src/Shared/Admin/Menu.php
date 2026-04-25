@@ -67,6 +67,19 @@ class Menu {
         add_menu_page( __( 'TalentTrack', 'talenttrack' ), __( 'TalentTrack', 'talenttrack' ), 'read', 'talenttrack', [ __CLASS__, 'dashboard' ], 'dashicons-groups', 26 );
         add_submenu_page( 'talenttrack', __( 'Dashboard', 'talenttrack' ), __( 'Dashboard', 'talenttrack' ), 'read', 'talenttrack', [ __CLASS__, 'dashboard' ] );
 
+        // #0019 Sprint 6 — legacy-UI toggle. When `tt_show_legacy_menus`
+        // is OFF (default), the migrated wp-admin pages are hidden from
+        // the menu; direct URLs still work as an emergency fallback.
+        // The parent menu + dashboard page + Help & Docs are always
+        // visible regardless. Help & Docs is the always-visible
+        // landmark so admins can still reach the documentation when
+        // legacy menus are hidden.
+        if ( ! self::shouldShowLegacyMenus() ) {
+            add_submenu_page( 'talenttrack', __( 'Help & Docs', 'talenttrack' ), __( 'Help & Docs', 'talenttrack' ), 'read', 'tt-docs', [ DocumentationPage::class, 'render_page' ] );
+            add_action( 'admin_head', [ __CLASS__, 'injectMenuCss' ] );
+            return;
+        }
+
         self::addSeparator( 'tt-sep-people', __( 'People', 'talenttrack' ), 'tt_view_players' );
         add_submenu_page( 'talenttrack', __( 'Teams', 'talenttrack' ), __( 'Teams', 'talenttrack' ), 'tt_view_teams', 'tt-teams', [ TeamsPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Players', 'talenttrack' ), __( 'Players', 'talenttrack' ), 'tt_view_players', 'tt-players', [ PlayersPage::class, 'render_page' ] );
@@ -157,6 +170,21 @@ class Menu {
         }
         </style>
         <?php
+    }
+
+    /**
+     * Whether the legacy wp-admin menu entries should be shown.
+     * Default false (Sprint 6's aggressive-push policy). Direct URLs
+     * to legacy pages keep working regardless of this option.
+     *
+     * Stored in `tt_config` (the plugin's central key-value table)
+     * under the `show_legacy_menus` key. Both the frontend
+     * Configuration view (REST POST /config) and the wp-admin
+     * Configuration page write here.
+     */
+    public static function shouldShowLegacyMenus(): bool {
+        $value = QueryHelpers::get_config( 'show_legacy_menus', '0' );
+        return $value === '1' || $value === 1 || $value === true;
     }
 
     public static function dashboard(): void {
@@ -474,6 +502,28 @@ class Menu {
             <p class="tt-dash-intro">
                 <?php esc_html_e( 'Your club at a glance. Tap any card or tile to jump straight into that section.', 'talenttrack' ); ?>
             </p>
+
+            <?php if ( ! self::shouldShowLegacyMenus() ) :
+                $frontend_url    = home_url( '/' );
+                $admin_config    = admin_url( 'admin.php?page=tt-config' );
+                ?>
+                <div class="notice notice-info" style="margin:0 0 24px; padding:14px 18px; border-left-color:#0b3d2e;">
+                    <p style="margin:0 0 6px; font-size:14px;">
+                        <strong><?php esc_html_e( 'TalentTrack admin tools have moved to the frontend.', 'talenttrack' ); ?></strong>
+                    </p>
+                    <p style="margin:0 0 8px; color:#555;">
+                        <?php esc_html_e( 'Coaches, HoD and admins manage everything from the frontend dashboard now. Direct URLs to legacy wp-admin pages keep working as an emergency fallback — the tiles below still work, and the Configuration page (where this toggle lives) is reachable via direct URL.', 'talenttrack' ); ?>
+                    </p>
+                    <p style="margin:0;">
+                        <a class="button button-primary" href="<?php echo esc_url( $frontend_url ); ?>">
+                            <?php esc_html_e( 'Open the frontend dashboard', 'talenttrack' ); ?>
+                        </a>
+                        <a class="button" href="<?php echo esc_url( $admin_config ); ?>" style="margin-left:6px;">
+                            <?php esc_html_e( 'Re-enable legacy menus (wp-admin Configuration)', 'talenttrack' ); ?>
+                        </a>
+                    </p>
+                </div>
+            <?php endif; ?>
 
             <!-- Overview stats -->
             <?php

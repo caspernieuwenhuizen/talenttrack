@@ -43,6 +43,8 @@ class ConfigRestController {
         'rating_min',
         'rating_max',
         'rating_step',
+        // #0019 Sprint 6 — wp-admin legacy-menu toggle
+        'show_legacy_menus',
     ];
 
     public static function init(): void {
