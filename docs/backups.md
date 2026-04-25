@@ -56,11 +56,26 @@ Each backup is a gzipped JSON document with:
 
 The checksum is computed over the `tables` subtree only — restore verifies it before touching the database.
 
-## What's not in v1
+## Partial restore (v3.16.0+)
 
-The Sprint 2 follow-up adds:
-- **Partial restore with diff view** — pick specific records, see green/yellow/red diff against current state, with dependency closure.
-- **Pre-bulk auto-backup** — automatic safety snapshot before any operation deleting/archiving more than 10 rows.
-- **Undo shortcut** — the admin notice after a bulk operation includes a one-click "Undo via backup" link valid for 14 days.
+Click **Partial restore** on any stored backup to bring back specific rows without replacing everything. The flow:
 
-S3, Dropbox, GDrive, and SFTP destinations are not in this release; the destination interface is in place so they're a one-class-each addition when the time is right.
+1. **Choose scope** — pick a table from the backup and either a comma-separated list of row IDs or leave the IDs empty to include every row of that table. Optionally tick child tables to follow downward (e.g. start from a player and bring along their evaluations).
+2. **Review diff** — for each table in the resolved closure, see how many rows are *new* (in backup, not currently in DB) and how many *differ*. Pick an action per table:
+   - Green rows: **Restore** or **Skip**.
+   - Yellow rows: **Keep current**, **Overwrite with backup**, or **Skip**.
+3. **Execute** — submits the chosen actions. Tick **Dry run** first if you want to compute the changes without writing.
+
+The dependency map is small: it covers players, teams, evaluations, ratings, sessions, attendance, goals, people, team-people, functional roles, custom values, and category weights. Adding a table is a one-row entry in `BackupDependencyMap::refs()`.
+
+## Pre-bulk safety + undo (v3.16.0+)
+
+Before any wp-admin bulk action that *archives* or *permanently deletes* more than 10 rows, TalentTrack takes an automatic safety snapshot. The snapshot is a regular backup tagged in metadata so retention can be tuned separately.
+
+Right after the bulk operation finishes, an admin notice appears with an **Undo via backup →** link. The link runs a partial restore against the safety snapshot, scoped to exactly the rows that were affected. The notice stays for 14 days; click **Dismiss** to consume it without restoring.
+
+The 10-row threshold is filterable via `tt_backup_bulk_safety_threshold`.
+
+## What's still deferred
+
+S3, Dropbox, GDrive, and SFTP destinations are not in v1; the destination interface is in place so each is a one-class addition when the time is right (likely bundled with #0011 monetization as a Pro-tier feature).

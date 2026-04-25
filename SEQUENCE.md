@@ -4,9 +4,7 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 
 ## In progress
 
-| # | Topic | Type | Status | Estimated | Actual |
-| - | - | - | - | - | - |
-| 0013 | Backup + DR | epic | **Sprint 1 in v3.15.0**; Sprint 2 (partial restore + pre-bulk safety + undo) pending | ~50-63h | Sprint 1: ~28-35h |
+_None._
 
 ## Ready (shaped, decisions locked)
 
@@ -49,6 +47,7 @@ _None — pick the next item from "Needs shaping" or "Not started" below._
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
+| 0013 | Backup + disaster recovery | epic | v3.15.0–v3.16.0 | ~50-63h | ~50h |
 | 0024 | Setup wizard / onboarding | feat | v3.14.0 | ~10-30h | ~10-12h |
 | **0019** | **Frontend-first admin migration** | **epic** | v3.7.0–v3.12.0 | ~120-150h | **~73h** |
 | 0023 | Styling options + theme inheritance | feat | v3.8.0 | ~8h | ~6h |
@@ -67,7 +66,7 @@ _None — pick the next item from "Needs shaping" or "Not started" below._
 
 ## What's next
 
-After #0013 Sprint 2 lands, the realistic next moves:
+#0013 closed in v3.16.0. Realistic next moves:
 
 1. **Lock #0011** — answer the four refinement questions, then the monetization track can start.
 2. **Shape #0025-#0029** — each has open questions; tackle one at a time.

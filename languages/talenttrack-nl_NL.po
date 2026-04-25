@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 3.15.0\n"
+"Project-Id-Version: TalentTrack 3.16.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-04-25 10:00+0000\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
@@ -11,7 +11,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
 
 
 msgid "(directory not found!)"
@@ -4264,3 +4263,78 @@ msgstr "[%1$s] TalentTrack-back-up: %2$s"
 msgid "Attached: TalentTrack backup for %1$s.\nPreset: %2$s. Size: %3$.1f MB.\n\nKeep this file safe — it contains personal data subject to your retention policy."
 msgstr "Bijgevoegd: TalentTrack-back-up voor %1$s.\nPreset: %2$s. Grootte: %3$.1f MB.\n\nBewaar dit bestand veilig — het bevat persoonsgegevens die onder je bewaarbeleid vallen."
 
+
+msgid "Partial restore"
+msgstr "Gedeeltelijk terugzetten"
+
+msgid "Pick a scope from this backup. We resolve the dependency closure (parent rows the scope needs to be consistent) and show a per-table diff against the current database. Only the rows in scope are touched — other rows stay as they are."
+msgstr "Kies een scope binnen deze back-up. We berekenen de afhankelijkheidssluiting (de bovenliggende rijen die de scope nodig heeft om consistent te zijn) en tonen per tabel een diff tegenover de huidige database. Alleen de rijen in de scope worden geraakt — andere rijen blijven onaangeroerd."
+
+msgid "← Back to backups"
+msgstr "← Terug naar back-ups"
+
+msgid "1. Choose scope"
+msgstr "1. Scope kiezen"
+
+msgid "Entity table"
+msgstr "Entiteitstabel"
+
+msgid "Row IDs"
+msgstr "Rij-id's"
+
+msgid "Comma-separated. Leave empty to include every row of this table from the backup."
+msgstr "Door komma's gescheiden. Laat leeg om elke rij van deze tabel uit de back-up mee te nemen."
+
+msgid "Include children"
+msgstr "Kindertabellen meenemen"
+
+msgid "Tick the child tables to follow downward from the chosen scope."
+msgstr "Vink de kindertabellen aan om vanuit de gekozen scope naar beneden te volgen."
+
+msgid "Compute diff"
+msgstr "Diff berekenen"
+
+msgid "No rows in this table."
+msgstr "Geen rijen in deze tabel."
+
+msgid "2. Review diff and choose actions"
+msgstr "2. Diff bekijken en acties kiezen"
+
+msgid "In scope"
+msgstr "In scope"
+
+msgid "New (green)"
+msgstr "Nieuw (groen)"
+
+msgid "Differ (yellow)"
+msgstr "Verschillen (geel)"
+
+msgid "Action for green"
+msgstr "Actie voor groen"
+
+msgid "Action for yellow"
+msgstr "Actie voor geel"
+
+msgid "Keep current"
+msgstr "Huidige behouden"
+
+msgid "Overwrite with backup"
+msgstr "Overschrijven met back-up"
+
+msgid "Dry run (compute changes without writing)"
+msgstr "Proefdraai (wijzigingen berekenen zonder weg te schrijven)"
+
+msgid "Execute partial restore"
+msgstr "Gedeeltelijk terugzetten uitvoeren"
+
+msgid "%1$d %3$s %2$s. A safety backup was taken — you can undo this for the next 14 days."
+msgstr "%1$d %3$s %2$s. Er is een veiligheidsback-up gemaakt — je kunt dit de komende 14 dagen ongedaan maken."
+
+msgid "archived"
+msgstr "gearchiveerd"
+
+msgid "permanently deleted"
+msgstr "definitief verwijderd"
+
+msgid "Undo via backup →"
+msgstr "Ongedaan maken via back-up →"

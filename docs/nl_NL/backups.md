@@ -56,11 +56,26 @@ Elke back-up is een gzipped-JSON-document met:
 
 De controlesom wordt berekend over alleen de `tables`-subboom — terugzetten verifieert deze voordat de database wordt aangeraakt.
 
-## Wat zit er niet in v1
+## Gedeeltelijk terugzetten (v3.16.0+)
 
-Sprint 2 voegt toe:
-- **Gedeeltelijk terugzetten met diff-weergave** — selecteer specifieke records, bekijk groen/geel/rood-diff tegen de huidige status, inclusief afhankelijkheidssluiting.
-- **Automatische pre-bulk-back-up** — automatische veiligheidsmomentopname voor elke operatie die meer dan 10 rijen verwijdert/archiveert.
-- **Ongedaan-makenkortlink** — de admin-melding na een bulkoperatie bevat een 1-klik "Ongedaan maken via back-up"-link die 14 dagen geldig is.
+Klik **Gedeeltelijk terugzetten** bij een opgeslagen back-up om specifieke rijen terug te halen zonder alles te overschrijven. De flow:
 
-S3, Dropbox, GDrive en SFTP-bestemmingen zitten niet in deze release; de bestemmingsinterface is al aanwezig, dus zij zijn een toevoeging van één klasse per stuk wanneer de tijd er rijp voor is.
+1. **Scope kiezen** — selecteer een tabel uit de back-up en geef een door komma's gescheiden lijst rij-id's op, of laat de id's leeg om alle rijen uit die tabel mee te nemen. Vink optioneel kindertabellen aan om naar beneden te volgen (bijv. begin bij een speler en neem zijn evaluaties mee).
+2. **Diff bekijken** — voor elke tabel in de berekende sluiting zie je hoeveel rijen *nieuw* zijn (in back-up, niet in DB) en hoeveel *verschillen*. Kies per tabel een actie:
+   - Groen: **Terugzetten** of **Overslaan**.
+   - Geel: **Huidige behouden**, **Overschrijven met back-up**, of **Overslaan**.
+3. **Uitvoeren** — verstuur de gekozen acties. Vink eerst **Proefdraai** aan als je de wijzigingen wilt berekenen zonder ze weg te schrijven.
+
+De afhankelijkheidsmap is klein: spelers, teams, evaluaties, beoordelingen, sessies, aanwezigheid, doelen, personen, team-personen, functionele rollen, custom values en categoriegewichten. Een tabel toevoegen is één regel in `BackupDependencyMap::refs()`.
+
+## Pre-bulk-veiligheid + ongedaan maken (v3.16.0+)
+
+Vóór elke wp-admin-bulkactie die meer dan 10 rijen *archiveert* of *definitief verwijdert*, maakt TalentTrack automatisch een veiligheidsmomentopname. De snapshot is een gewone back-up, in metadata gemarkeerd zodat de bewaartermijn apart afgesteld kan worden.
+
+Direct na afloop van de bulkactie verschijnt een melding met de link **Ongedaan maken via back-up →**. Die link voert een gedeeltelijk terugzetten uit op de veiligheids-back-up, beperkt tot exact de rijen die geraakt waren. De melding blijft 14 dagen staan; klik **Sluiten** om hem op te ruimen zonder terug te zetten.
+
+De drempel van 10 rijen is filterbaar via `tt_backup_bulk_safety_threshold`.
+
+## Wat blijft uitgesteld
+
+S3, Dropbox, GDrive en SFTP-bestemmingen zitten niet in v1; de bestemmingsinterface is al aanwezig, dus elk daarvan is een toevoeging van één klasse wanneer de tijd er rijp voor is (waarschijnlijk gebundeld met #0011 monetisatie als Pro-feature).
