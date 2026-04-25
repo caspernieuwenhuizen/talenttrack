@@ -3678,3 +3678,186 @@ msgstr "Je hebt geen rechten om deze sectie te bekijken."
 
 msgid "Delete this role type?"
 msgstr "Dit roltype verwijderen?"
+
+msgid "Custom fields"
+msgstr "Eigen velden"
+
+msgid "Eval categories"
+msgstr "Evaluatiecategorieën"
+
+msgid "Usage statistics"
+msgstr "Gebruiksstatistieken"
+
+msgid "Open wp-admin"
+msgstr "Open wp-admin"
+
+msgid "Drop into the full WordPress admin dashboard."
+msgstr "Spring naar het volledige WordPress-beheerscherm."
+
+msgid "Branding, theme inheritance, rating scale."
+msgstr "Branding, theme-overerving, beoordelingsschaal."
+
+msgid "Add per-entity custom fields."
+msgstr "Eigen velden per entiteit toevoegen."
+
+msgid "Manage the evaluation category tree."
+msgstr "Beheer de boom van evaluatiecategorieën."
+
+msgid "Reference for the eight TalentTrack roles."
+msgstr "Naslag voor de acht TalentTrack-rollen."
+
+msgid "Database migration status (read-only)."
+msgstr "Status van database-migraties (alleen-lezen)."
+
+msgid "Logins, active users, evaluations per day."
+msgstr "Logins, actieve gebruikers, evaluaties per dag."
+
+msgid "Rating scale"
+msgstr "Beoordelingsschaal"
+
+msgid "Save configuration"
+msgstr "Configuratie opslaan"
+
+msgid "Select logo"
+msgstr "Logo kiezen"
+
+msgid "Choose logo…"
+msgstr "Kies logo…"
+
+msgid "New custom field"
+msgstr "Nieuw eigen veld"
+
+msgid "Edit custom field — %s"
+msgstr "Eigen veld bewerken — %s"
+
+msgid "Custom field not found"
+msgstr "Eigen veld niet gevonden"
+
+msgid "That custom field no longer exists."
+msgstr "Dat eigen veld bestaat niet meer."
+
+msgid "Delete this custom field? Any existing values will block the delete."
+msgstr "Dit eigen veld verwijderen? Bestaande waarden blokkeren de verwijdering."
+
+msgid "Search label or key…"
+msgstr "Zoek op label of key…"
+
+msgid "Save field"
+msgstr "Veld opslaan"
+
+msgid "Entity type cannot be changed after creation."
+msgstr "Het entiteittype kan na aanmaak niet gewijzigd worden."
+
+msgid "Optional. Auto-generated from the label if empty. Cannot be changed once created."
+msgstr "Optioneel. Wordt afgeleid van het label indien leeg. Kan na aanmaak niet meer gewijzigd worden."
+
+msgid "Options (one per line, for select / multi-select / checkbox group)"
+msgstr "Opties (één per regel, voor select / multi-select / checkbox-groep)"
+
+msgid "Ignored for non-list field types."
+msgstr "Genegeerd voor veldtypes zonder lijst."
+
+msgid "Required field"
+msgstr "Verplicht veld"
+
+msgid "Active (uncheck to soft-disable without deleting stored values)"
+msgstr "Actief (uitvinken om soft-uit te zetten zonder waarden te verwijderen)"
+
+msgid "New evaluation category"
+msgstr "Nieuwe evaluatiecategorie"
+
+msgid "Edit category — %s"
+msgstr "Categorie bewerken — %s"
+
+msgid "Category not found"
+msgstr "Categorie niet gevonden"
+
+msgid "That category no longer exists."
+msgstr "Die categorie bestaat niet meer."
+
+msgid "New category"
+msgstr "Nieuwe categorie"
+
+msgid "Edit per-age-group weights (wp-admin)"
+msgstr "Wegingen per leeftijdscategorie aanpassen (wp-admin)"
+
+msgid "No evaluation categories defined yet."
+msgstr "Nog geen evaluatiecategorieën gedefinieerd."
+
+msgid "Save category"
+msgstr "Categorie opslaan"
+
+msgid "Parent category"
+msgstr "Bovenliggende categorie"
+
+msgid "— None (top-level) —"
+msgstr "— Geen (top-niveau) —"
+
+msgid "inactive"
+msgstr "inactief"
+
+msgid "Roles & capabilities"
+msgstr "Rollen & rechten"
+
+msgid "Edit capabilities in wp-admin"
+msgstr "Rechten bewerken in wp-admin"
+
+msgid "WordPress → Users → Edit user → Role."
+msgstr "WordPress → Gebruikers → Gebruiker bewerken → Rol."
+
+msgid "How to assign:"
+msgstr "Toekennen:"
+
+msgid "users"
+msgstr "gebruikers"
+
+msgid "often-missed"
+msgstr "vaak vergeten"
+
+msgid "Capabilities (%d)"
+msgstr "Rechten (%d)"
+
+msgid "No explicit capabilities — uses WP defaults only."
+msgstr "Geen expliciete rechten — gebruikt alleen WordPress-standaard."
+
+msgid "Logins (7d)"
+msgstr "Logins (7d)"
+
+msgid "Logins (30d)"
+msgstr "Logins (30d)"
+
+msgid "Logins (90d)"
+msgstr "Logins (90d)"
+
+msgid "Active users (7d)"
+msgstr "Actieve gebruikers (7d)"
+
+msgid "Active users (30d)"
+msgstr "Actieve gebruikers (30d)"
+
+msgid "Active users (90d)"
+msgstr "Actieve gebruikers (90d)"
+
+msgid "Open detailed view in wp-admin"
+msgstr "Open gedetailleerd overzicht in wp-admin"
+
+msgid "Applied at"
+msgstr "Toegepast op"
+
+msgid "Applied migrations"
+msgstr "Toegepaste migraties"
+
+msgid "None applied yet."
+msgstr "Nog niets toegepast."
+
+msgid "None pending."
+msgstr "Niets in afwachting."
+
+msgid "Open wp-admin to run pending migrations"
+msgstr "Open wp-admin om migraties uit te voeren"
+
+msgid "Open wp-admin to run them"
+msgstr "Open wp-admin om ze uit te voeren"
+
+msgid "Missing migration files"
+msgstr "Ontbrekende migratiebestanden"

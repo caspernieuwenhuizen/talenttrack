@@ -49,6 +49,8 @@ class DashboardShortcode {
         wp_enqueue_script( 'tt-csv-import',  TT_PLUGIN_URL . 'assets/js/components/csv-import.js',  [], TT_VERSION, true );
         // #0019 Sprint 4 — functional roles reorder + delete buttons.
         wp_enqueue_script( 'tt-functional-roles', TT_PLUGIN_URL . 'assets/js/components/functional-roles.js', [], TT_VERSION, true );
+        // #0019 Sprint 5 — admin-tier reorder helper (eval categories).
+        wp_enqueue_script( 'tt-admin-reorder', TT_PLUGIN_URL . 'assets/js/components/admin-reorder.js', [], TT_VERSION, true );
 
         // #0019 Sprint 1 session 2 — public.js uses fetch() against the
         // REST API. Nonce is the standard WP REST `wp_rest` nonce,
@@ -78,6 +80,7 @@ class DashboardShortcode {
                 'csv_skipped'          => __( 'Skipped (dupes): %d', 'talenttrack' ),
                 'csv_errored'          => __( 'Errors: %d', 'talenttrack' ),
                 'fnrole_delete_confirm' => __( 'Delete this role type?', 'talenttrack' ),
+                'eval_cat_delete_confirm' => __( 'Delete this category?', 'talenttrack' ),
             ],
         ]);
 
@@ -123,6 +126,8 @@ class DashboardShortcode {
         $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-sessions', 'my-goals', 'profile' ];
         $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'sessions', 'goals', 'podium' ];
         $analytics_slugs = [ 'rate-cards', 'compare' ];
+        // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
+        $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats' ];
 
         if ( $view === '' ) {
             // Tile landing page.
@@ -150,6 +155,12 @@ class DashboardShortcode {
                 FrontendBackButton::render();
                 echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to analytics views.', 'talenttrack' ) . '</p>';
             }
+        } elseif ( in_array( $view, $admin_slugs, true ) ) {
+            // #0019 Sprint 5 — admin-tier surfaces. The view classes
+            // each re-check the cap, so dispatching unauthenticated
+            // is safe; the early-return there shows the friendly
+            // "no permission" notice with a back button.
+            self::dispatchAdminView( $view, $user_id, $is_admin );
         } else {
             FrontendBackButton::render();
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
@@ -251,6 +262,37 @@ class DashboardShortcode {
                 break;
             case 'compare':
                 FrontendComparisonView::render();
+                break;
+            default:
+                FrontendBackButton::render();
+                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+        }
+    }
+
+    /**
+     * #0019 Sprint 5 — dispatch an admin-tier slug. Cap re-check
+     * happens inside each view so the friendly back-button + notice
+     * pattern is consistent.
+     */
+    private static function dispatchAdminView( string $view, int $user_id, bool $is_admin ): void {
+        switch ( $view ) {
+            case 'configuration':
+                FrontendConfigurationView::render( $user_id, $is_admin );
+                break;
+            case 'custom-fields':
+                FrontendCustomFieldsView::render( $user_id, $is_admin );
+                break;
+            case 'eval-categories':
+                FrontendEvalCategoriesView::render( $user_id, $is_admin );
+                break;
+            case 'roles':
+                FrontendRolesView::render( $user_id, $is_admin );
+                break;
+            case 'migrations':
+                FrontendMigrationsView::render( $user_id, $is_admin );
+                break;
+            case 'usage-stats':
+                FrontendUsageStatsView::render( $user_id, $is_admin );
                 break;
             default:
                 FrontendBackButton::render();

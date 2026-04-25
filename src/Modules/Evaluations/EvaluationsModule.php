@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\REST\EvalCategoriesRestController;
 use TT\Infrastructure\REST\EvaluationsRestController;
 
 class EvaluationsModule implements ModuleInterface {
@@ -21,5 +22,6 @@ class EvaluationsModule implements ModuleInterface {
             add_action( 'admin_post_tt_reset_category_weights', [ Admin\CategoryWeightsPage::class, 'handleReset' ] );
         }
         EvaluationsRestController::init();
+        EvalCategoriesRestController::init();
     }
 }

@@ -80,7 +80,11 @@ class RolesService {
                 'caps'  => array_merge(
                     [ 'read' => true ],
                     self::allCapsTrue(),  // everything: view + edit everywhere
-                    self::legacyCapsTrue()
+                    self::legacyCapsTrue(),
+                    // #0019 Sprint 5 — frontend admin tier access. Granted
+                    // by default to head-dev + administrator. Other roles
+                    // never get this cap unless explicitly assigned.
+                    [ 'tt_access_frontend_admin' => true ]
                 ),
             ],
             'tt_club_admin' => [
@@ -206,7 +210,7 @@ class RolesService {
      * intervention.
      */
     public function ensureCapabilities(): void {
-        $all = array_merge( self::VIEW_CAPS, self::EDIT_CAPS, self::LEGACY_CAPS, [ 'tt_view_reports' ] );
+        $all = array_merge( self::VIEW_CAPS, self::EDIT_CAPS, self::LEGACY_CAPS, [ 'tt_view_reports', 'tt_access_frontend_admin' ] );
 
         $administrator = get_role( 'administrator' );
         if ( $administrator ) {
