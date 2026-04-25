@@ -31,35 +31,49 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  */
 class GoalGenerator {
 
-    /** @var array<string, string[]> */
+    /**
+     * @var array<string, string[]>
+     *
+     * Pool curated for youth football (JO8–JO19): technical fundamentals,
+     * age-appropriate decision-making, youth-relevant physical work
+     * (acceleration, body shielding — not senior-football "VO2 recovery"
+     * vocabulary), and concrete behaviour goals. Heading-related goals
+     * are deliberately absent because heading is restricted/banned in
+     * most youth football regulations (FA, KNVB, UEFA) under U12 and
+     * limited U13–U18.
+     */
     private const TITLES_BY_LANGUAGE = [
         'en_US' => [
             'Improve weak foot passing',
             'First-touch control under pressure',
-            'Consistency in 1v1 defending',
-            'Build up attacking headers',
-            'Off-the-ball positioning',
-            'Scanning before receiving',
-            'Finishing from cutbacks',
-            'Tracking runners in transition',
+            'Close ball control while dribbling at speed',
+            'Receiving and turning out of pressure',
+            'Acceleration over the first 5 metres',
+            'Striking technique — placing shots into the corners',
+            '1v1 defending consistency',
+            'Choosing when to dribble vs when to pass',
+            'Tracking opponents in transition',
+            'Composure when behind in a match',
+            'Communication when defending',
+            'Bouncing back after a mistake — focus on the next play',
+            'Shielding the ball using body position',
             'Set-piece delivery accuracy',
-            'Shape under high press',
-            'Fitness — recover faster between sprints',
-            'Leadership — communicate more on pitch',
         ],
         'nl_NL' => [
             'Passing met de zwakke voet verbeteren',
             'Aanname onder druk',
+            'Bal aan de voet houden tijdens snel dribbelen',
+            'Aannemen en uit de druk draaien',
+            'Acceleratie over de eerste 5 meter',
+            'Schiettechniek — schoten in de hoeken plaatsen',
             'Constantheid in 1-op-1 verdedigen',
-            'Opbouwend koppen',
-            'Positionering zonder bal',
-            'Scannen voor de aanname',
-            'Afronden vanuit terugleggers',
+            'Kiezen tussen dribbelen of passen',
             'Loopacties volgen in de omschakeling',
+            'Kalmte bewaren bij een achterstand',
+            'Communicatie tijdens het verdedigen',
+            'Herstellen na een fout — meteen weer scherp',
+            'De bal afschermen met je lichaam',
             'Nauwkeurigheid bij standaardsituaties',
-            'Ploegvorm onder hoge druk',
-            'Conditie — sneller herstellen tussen sprints',
-            'Leiderschap — meer communiceren op het veld',
         ],
     ];
 
