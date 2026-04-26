@@ -150,6 +150,38 @@ class GoalsPage {
                                 </td>
                             </tr>
                     <?php endif; endif; ?>
+                    <?php
+                    // #0027 expansion — optional football action linkage.
+                    if ( class_exists( '\TT\Modules\Methodology\Repositories\FootballActionsRepository' ) ) :
+                        $actions       = ( new \TT\Modules\Methodology\Repositories\FootballActionsRepository() )->listAll();
+                        $linked_action = (int) ( $goal->linked_action_id ?? 0 );
+                        $action_cats   = \TT\Modules\Methodology\Repositories\FootballActionsRepository::categories();
+                        if ( ! empty( $actions ) ) : ?>
+                            <tr>
+                                <th><?php esc_html_e( 'Linked football action', 'talenttrack' ); ?></th>
+                                <td>
+                                    <select name="linked_action_id">
+                                        <option value=""><?php esc_html_e( '— None —', 'talenttrack' ); ?></option>
+                                        <?php
+                                        $by_cat = [];
+                                        foreach ( $actions as $a ) $by_cat[ (string) $a->category_key ][] = $a;
+                                        foreach ( $action_cats as $cat_key => $cat_label ) :
+                                            if ( empty( $by_cat[ $cat_key ] ) ) continue; ?>
+                                            <optgroup label="<?php echo esc_attr( $cat_label ); ?>">
+                                                <?php foreach ( $by_cat[ $cat_key ] as $a ) :
+                                                    $name = \TT\Modules\Methodology\Helpers\MultilingualField::string( $a->name_json );
+                                                    ?>
+                                                    <option value="<?php echo (int) $a->id; ?>" <?php selected( $linked_action, (int) $a->id ); ?>>
+                                                        <?php echo esc_html( $name ?: $a->slug ); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </optgroup>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <p class="description"><?php esc_html_e( 'Optional. Links this goal to a single football action (voetbalhandeling).', 'talenttrack' ); ?></p>
+                                </td>
+                            </tr>
+                    <?php endif; endif; ?>
                     <?php CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ) ); ?>
                 </table>
                 <?php submit_button( $goal ? __( 'Update', 'talenttrack' ) : __( 'Add', 'talenttrack' ) ); ?>
@@ -172,6 +204,9 @@ class GoalsPage {
             'due_date' => ! empty( $_POST['due_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['due_date'] ) ) : null,
             'linked_principle_id' => isset( $_POST['linked_principle_id'] ) && (int) $_POST['linked_principle_id'] > 0
                 ? (int) $_POST['linked_principle_id']
+                : null,
+            'linked_action_id'    => isset( $_POST['linked_action_id'] ) && (int) $_POST['linked_action_id'] > 0
+                ? (int) $_POST['linked_action_id']
                 : null,
             'created_by' => get_current_user_id(),
         ];
