@@ -5147,9 +5147,6 @@ msgstr "Identiteit"
 msgid "Sections"
 msgstr "Secties"
 
-msgid "Title"
-msgstr "Titel"
-
 msgid "Tagline"
 msgstr "Slogan"
 
@@ -5237,15 +5234,6 @@ msgstr "Leerdoel toevoegen"
 msgid "Linked team-task (optional)"
 msgstr "Gekoppelde teamtaak (optioneel)"
 
-msgid "Bullets (NL — one per line)"
-msgstr "Punten (NL — één per regel)"
-
-msgid "Bullets (EN — one per line)"
-msgstr "Punten (EN — één per regel)"
-
-msgid "Sort order"
-msgstr "Volgorde"
-
 msgid "Create learning goal"
 msgstr "Leerdoel aanmaken"
 
@@ -5285,12 +5273,6 @@ msgstr "De voetbalhandelingen vormen de harde kern van het voetbalmodel: concret
 msgid "No football actions yet."
 msgstr "Nog geen voetbalhandelingen."
 
-msgid "Slug"
-msgstr "Slug"
-
-msgid "Description"
-msgstr "Beschrijving"
-
 msgid "Read-only"
 msgstr "Alleen-lezen"
 
@@ -5305,9 +5287,6 @@ msgstr "Voetbalhandeling toevoegen"
 
 msgid "Back to football actions"
 msgstr "Terug naar voetbalhandelingen"
-
-msgid "Category"
-msgstr "Categorie"
 
 msgid "Name (NL)"
 msgstr "Naam (NL)"
@@ -5330,26 +5309,8 @@ msgstr "Optioneel. Koppelt dit doel aan één voetbalhandeling."
 msgid "Sub-cards"
 msgstr "Sub-kaarten"
 
-msgid "Goal"
-msgstr "Doel"
-
 msgid "Bullets"
 msgstr "Punten"
-
-msgid "Speelwijze"
-msgstr "Speelwijze"
-
-msgid "Belangrijke eigenschappen"
-msgstr "Belangrijke eigenschappen"
-
-msgid "No formations available."
-msgstr "Geen formaties beschikbaar."
-
-msgid "No principles available."
-msgstr "Geen spelprincipes beschikbaar."
-
-msgid "No set pieces available."
-msgstr "Geen spelhervattingen beschikbaar."
 
 msgid "No football actions available."
 msgstr "Geen voetbalhandelingen beschikbaar."
@@ -5357,23 +5318,8 @@ msgstr "Geen voetbalhandelingen beschikbaar."
 msgid "Set piece not found."
 msgstr "Spelhervatting niet gevonden."
 
-msgid "Vision not yet recorded."
-msgstr "Visie nog niet vastgelegd."
-
-msgid "Back to set pieces"
-msgstr "Terug naar spelhervattingen"
-
-msgid "Spelprincipes"
-msgstr "Spelprincipes"
-
 msgid "Formaties"
 msgstr "Formaties"
-
-msgid "Spelhervattingen"
-msgstr "Spelhervattingen"
-
-msgid "Visie"
-msgstr "Visie"
 
 msgid "No framework illustrations attached yet."
 msgstr "Nog geen raamwerk-illustraties gekoppeld."
