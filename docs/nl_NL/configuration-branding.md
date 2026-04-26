@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Configuratie & branding
 
 Op de pagina **Configuratie** leven de identiteit van je academie en de operationele knoppen van de plugin.

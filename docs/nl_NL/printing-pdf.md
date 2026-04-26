@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Afdrukken & PDF-export
 
 TalentTrack kan nette, print-geoptimaliseerde weergaven genereren voor spelerrapporten — handig voor oudergesprekken, uitdelen tijdens evaluaties of het archiveren van papieren trails.

@@ -113,7 +113,18 @@ class PlayersPage {
     }
 
     private static function render_form( ?object $player ): void {
-        $is_edit   = $player !== null;
+        // #0026 — promotion flow: when arriving from an anonymous
+        // guest attendance row (?from_attendance_id=), build a stub
+        // player object so the form pre-fills first_name / position.
+        // The hidden input below carries the attendance row id through
+        // to handle_save() which writes the backlink after insert.
+        // The stub has id=0 so $is_edit stays false and the save path
+        // creates a new row.
+        $from_attendance_id = isset( $_GET['from_attendance_id'] ) ? absint( $_GET['from_attendance_id'] ) : 0;
+        if ( $player === null && $from_attendance_id > 0 ) {
+            $player = self::stubPlayerFromGuest( $from_attendance_id );
+        }
+        $is_edit = $player !== null && (int) ( $player->id ?? 0 ) > 0;
 
         // v2.14.0: Rate Card tab embedded on the edit view. Only available
         // when editing an existing player (no evaluations to rate-card on
@@ -205,6 +216,7 @@ class PlayersPage {
                 <?php wp_nonce_field( 'tt_save_player', 'tt_nonce' ); ?>
                 <input type="hidden" name="action" value="tt_save_player" />
                 <?php if ( $is_edit ) : ?><input type="hidden" name="id" value="<?php echo (int) $player->id; ?>" /><?php endif; ?>
+                <?php if ( ! $is_edit && $from_attendance_id > 0 ) : ?><input type="hidden" name="from_attendance_id" value="<?php echo (int) $from_attendance_id; ?>" /><?php endif; ?>
                 <table class="form-table">
                     <tr><th><?php esc_html_e( 'First Name', 'talenttrack' ); ?> *</th><td><input type="text" name="first_name" value="<?php echo esc_attr( $player->first_name ?? '' ); ?>" class="regular-text" required /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'first_name' ); ?>
@@ -395,8 +407,66 @@ class PlayersPage {
         }
 
         do_action( 'tt_after_player_save', $id, $data );
+
+        // #0026 — promotion backlink. When this player was created
+        // from an anonymous guest attendance row, repoint that row to
+        // the new player and clear the anonymous fields so the
+        // historical guest visit is preserved with a real reference.
+        $from_attendance_id = isset( $_POST['from_attendance_id'] ) ? absint( $_POST['from_attendance_id'] ) : 0;
+        if ( $from_attendance_id > 0 && $id > 0 ) {
+            $wpdb->update(
+                $wpdb->prefix . 'tt_attendance',
+                [
+                    'guest_player_id' => $id,
+                    'guest_name'      => null,
+                    'guest_age'       => null,
+                    'guest_position'  => null,
+                ],
+                [ 'id' => $from_attendance_id, 'is_guest' => 1 ]
+            );
+        }
+
         wp_safe_redirect( admin_url( 'admin.php?page=tt-players&tt_msg=saved' ) );
         exit;
+    }
+
+    /**
+     * #0026 — build a stub `$player` object out of an anonymous guest
+     * attendance row so the player-create form pre-fills first_name
+     * (split on space if a last name was typed too), date_of_birth
+     * (rough — current year minus age), and pre-checks the position.
+     */
+    private static function stubPlayerFromGuest( int $attendance_id ): ?object {
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tt_attendance WHERE id = %d AND is_guest = 1 LIMIT 1",
+            $attendance_id
+        ) );
+        if ( ! $row || empty( $row->guest_name ) ) return null;
+
+        $first = (string) $row->guest_name;
+        $last  = '';
+        if ( strpos( $first, ' ' ) !== false ) {
+            $parts = explode( ' ', $first, 2 );
+            $first = trim( (string) $parts[0] );
+            $last  = trim( (string) $parts[1] );
+        }
+        $dob = '';
+        if ( ! empty( $row->guest_age ) ) {
+            $year = (int) wp_date( 'Y' ) - (int) $row->guest_age;
+            $dob  = sprintf( '%04d-01-01', $year );
+        }
+
+        $stub                = new \stdClass();
+        $stub->id            = 0;
+        $stub->first_name    = $first;
+        $stub->last_name     = $last;
+        $stub->date_of_birth = $dob;
+        $stub->preferred_positions = ! empty( $row->guest_position )
+            ? wp_json_encode( [ (string) $row->guest_position ] )
+            : '[]';
+        $stub->status        = 'active';
+        return $stub;
     }
 
     public static function handle_delete(): void {

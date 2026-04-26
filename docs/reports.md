@@ -1,3 +1,5 @@
+<!-- audience: user, admin -->
+
 # Reports
 
 The **Reports** page is a tile launcher for different report flavors. As of v2.20.0, three tiles are available:

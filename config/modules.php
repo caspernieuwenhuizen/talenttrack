@@ -28,5 +28,6 @@ return [
     TT\Modules\Backup\BackupModule::class                 => true,
     TT\Modules\License\LicenseModule::class               => true,
     TT\Modules\Methodology\MethodologyModule::class       => true,
+    TT\Modules\Workflow\WorkflowModule::class             => true,
     TT\Modules\Development\DevelopmentModule::class       => true,
 ];

@@ -5579,6 +5579,227 @@ msgstr "Afwijzen met notitie"
 
 msgid "Tell the author why"
 msgstr "Vertel de auteur waarom"
+# Workflow & tasks engine (#0022 Sprint 1)
+msgid "Workflow & tasks engine"
+msgstr "Workflow- en takenmotor"
+
+msgid "Scheduled tasks landing in the inbox: post-match evals, self-evals, goal-setting, HoD reviews."
+msgstr "Ingeplande taken die in de inbox belanden: wedstrijdevaluaties, zelfevaluaties, doelen stellen, HoD-reviews."
+
+# Workflow engine — Sprint 2 (inbox + bell + email + cron diagnostics)
+msgid "My tasks"
+msgstr "Mijn taken"
+
+msgid "Tasks"
+msgstr "Taken"
+
+msgid "Open tasks waiting on you — evaluations, goals, reviews."
+msgstr "Openstaande taken die op je wachten — evaluaties, doelen, reviews."
+
+msgid "Open and in progress"
+msgstr "Openstaand en in behandeling"
+
+msgid "Recently completed"
+msgstr "Recent voltooid"
+
+msgid "No open tasks. You're all caught up."
+msgstr "Geen openstaande taken. Helemaal bij."
+
+msgid "Open"
+msgstr "Openen"
+
+msgid "Submit"
+msgstr "Versturen"
+
+msgid "Task completed."
+msgstr "Taak voltooid."
+
+msgid "Task not found"
+msgstr "Taak niet gevonden"
+
+msgid "This task does not exist (or has been removed)."
+msgstr "Deze taak bestaat niet (of is verwijderd)."
+
+msgid "Task not yours"
+msgstr "Niet jouw taak"
+
+msgid "This task is not assigned to you."
+msgstr "Deze taak is niet aan jou toegewezen."
+
+msgid "Task template missing"
+msgstr "Taaksjabloon ontbreekt"
+
+msgid "The template for this task is no longer registered. Contact an administrator."
+msgstr "Het sjabloon van deze taak is niet meer geregistreerd. Neem contact op met een beheerder."
+
+msgid "This task has no form configured."
+msgstr "Deze taak heeft geen formulier geconfigureerd."
+
+msgid "Security check failed. Please refresh the page and try again."
+msgstr "Beveiligingscontrole mislukt. Vernieuw de pagina en probeer opnieuw."
+
+msgid "Could not save the task. Please try again."
+msgstr "De taak kon niet worden opgeslagen. Probeer opnieuw."
+
+msgid "This task has already been completed. Below is the response that was submitted."
+msgstr "Deze taak is al voltooid. Hieronder staat het antwoord dat is verstuurd."
+
+msgid "Your role does not have access to tasks."
+msgstr "Jouw rol heeft geen toegang tot taken."
+
+msgid "overdue"
+msgstr "te laat"
+
+msgid "in %d hour"
+msgid_plural "in %d hours"
+msgstr[0] "over %d uur"
+msgstr[1] "over %d uur"
+
+msgid "%d open task"
+msgid_plural "%d open tasks"
+msgstr[0] "%d openstaande taak"
+msgstr[1] "%d openstaande taken"
+
+msgid "No open tasks"
+msgstr "Geen openstaande taken"
+
+#. translators: %d: number of open tasks
+msgid "My tasks (%d)"
+msgstr "Mijn taken (%d)"
+
+#. translators: %s: assignee display name
+msgid "Hi %s,"
+msgstr "Hallo %s,"
+
+#. translators: 1: task name, 2: deadline
+msgid "A new task has been assigned to you: %1$s. Deadline: %2$s."
+msgstr "Er is een nieuwe taak aan je toegewezen: %1$s. Deadline: %2$s."
+
+msgid "Open your task inbox:"
+msgstr "Open je takeninbox:"
+
+msgid "no deadline"
+msgstr "geen deadline"
+
+#. translators: 1: site name, 2: template name
+msgid "[%1$s] New task: %2$s"
+msgstr "[%1$s] Nieuwe taak: %2$s"
+
+#. translators: %s: site name
+msgid "— %s"
+msgstr "— %s"
+
+msgid "TalentTrack workflow:"
+msgstr "TalentTrack workflow:"
+
+msgid "Scheduled tasks don't appear to be running reliably on this install. Your host's WordPress cron may need attention."
+msgstr "Ingeplande taken lijken niet betrouwbaar te draaien op deze installatie. De WP-cron van je host heeft mogelijk aandacht nodig."
+
+msgid "Learn how to fix →"
+msgstr "Lees hoe je dit oplost →"
+
+msgid "Dismiss for 7 days"
+msgstr "7 dagen wegklikken"
+
+msgid "You do not have permission."
+msgstr "Je hebt geen toestemming."
+
+msgid "Workflow engine — cron setup"
+msgstr "Workflow-motor — cron-instellingen"
+
+msgid "How WP-cron drives scheduled tasks on this install, and how to fix it when it stops firing."
+msgstr "Hoe WP-cron geplande taken op deze installatie aanstuurt, en hoe je het herstelt als het stopt met afvuren."
+
+# Workflow engine — Sprint 3 (post-match + weekly self-eval)
+msgid "Post-match coach evaluation"
+msgstr "Coach-evaluatie na wedstrijd"
+
+msgid "Quick reflection on each player's match performance — overall feel plus what went well and what to work on. Due 72 hours after the match."
+msgstr "Korte reflectie per speler na de wedstrijd — algemene indruk plus wat goed ging en waar nog aan gewerkt moet worden. Deadline 72 uur na de wedstrijd."
+
+msgid "Weekly self-evaluation"
+msgstr "Wekelijkse zelfevaluatie"
+
+msgid "How did this week feel? Quick self-rating plus what went well and what to work on next week."
+msgstr "Hoe voelde deze week? Snelle zelfbeoordeling plus wat goed ging en waar volgende week aandacht naar uitgaat."
+
+#. translators: %s: player full name
+msgid "Player: %s"
+msgstr "Speler: %s"
+
+#. translators: 1: min rating, 2: max rating
+msgid "Overall rating (%1$s–%2$s)"
+msgstr "Algemene beoordeling (%1$s–%2$s)"
+
+msgid "What went well"
+msgstr "Wat ging goed"
+
+msgid "What to work on"
+msgstr "Waaraan werken"
+
+#. translators: 1: min rating, 2: max rating
+msgid "How was this week? (%1$s–%2$s)"
+msgstr "Hoe was deze week? (%1$s–%2$s)"
+
+msgid "What went well this week"
+msgstr "Wat ging goed deze week"
+
+msgid "What to work on next week"
+msgstr "Waaraan werken volgende week"
+
+msgid "Quick weekly check-in. Be honest — this is for your development."
+msgstr "Korte wekelijkse check-in. Wees eerlijk — dit is voor jouw ontwikkeling."
+
+msgid "Rating is outside the configured range."
+msgstr "De beoordeling valt buiten het ingestelde bereik."
+
+#. translators: %d: session ID
+msgid "session #%d"
+msgstr "sessie #%d"
+
+# Workflow engine — Sprint 4 (goal-setting chain + HoD review)
+msgid "Quarterly goal-setting"
+msgstr "Kwartaaldoelen"
+
+msgid "Draft up to three development goals for the next quarter. Your coach reviews and approves them after submission."
+msgstr "Stel maximaal drie ontwikkelingsdoelen voor het komende kwartaal op. Je coach bekijkt en keurt ze goed na inzending."
+
+msgid "Goal approval"
+msgstr "Doelgoedkeuring"
+
+msgid "Approve or comment on a player's draft quarterly goals. Spawned automatically when the player submits their goals."
+msgstr "Keur de conceptdoelen van een speler goed of geef commentaar. Wordt automatisch aangemaakt wanneer de speler doelen indient."
+
+msgid "Quarterly Head of Development review"
+msgstr "Kwartaalreview Hoofd Opleidingen"
+
+msgid "Reflect on the past quarter across the academy: what worked, what didn't, what to focus on next."
+msgstr "Reflecteer op het afgelopen kwartaal in de hele opleiding: wat werkte, wat niet, waar nu op te focussen."
+
+msgid "Set up to three goals for the next quarter. Your coach reviews them after you submit."
+msgstr "Stel maximaal drie doelen voor het komende kwartaal. Je coach bekijkt ze nadat je hebt ingediend."
+
+#. translators: %d: goal index (1, 2, 3)
+msgid "Goal %d"
+msgstr "Doel %d"
+
+msgid "Why this matters / how I'll work on it"
+msgstr "Waarom dit belangrijk is / hoe ik eraan ga werken"
+
+msgid "Set at least one goal before submitting."
+msgstr "Stel minstens één doel in voordat je indient."
+
+msgid "No goals were submitted in the parent task."
+msgstr "Er zijn geen doelen ingediend in de bovenliggende taak."
+
+msgid "Decision"
+msgstr "Beslissing"
+
+msgid "Approve"
+msgstr "Goedkeuren"
+
+msgid "Approve with amendment"
+msgstr "Goedkeuren met aanpassing"
 
 msgid "Reject"
 msgstr "Afwijzen"
@@ -5663,3 +5884,301 @@ msgstr "Twee ID-toewijzingsbotsingen op rij — promotie afgebroken. Probeer opn
 
 msgid "You're about to commit this idea to %s. Continue?"
 msgstr "Je staat op het punt dit idee naar %s te committen. Doorgaan?"
+msgid "Note (optional)"
+msgstr "Notitie (optioneel)"
+
+msgid "Pick a decision for every goal."
+msgstr "Kies een beslissing voor elk doel."
+
+msgid "Invalid decision value."
+msgstr "Ongeldige beslissingswaarde."
+
+msgid "Past quarter at a glance"
+msgstr "Afgelopen kwartaal in één oogopslag"
+
+msgid "Evaluations recorded"
+msgstr "Evaluaties vastgelegd"
+
+msgid "Sessions logged"
+msgstr "Sessies gelogd"
+
+msgid "Goals set"
+msgstr "Doelen opgesteld"
+
+msgid "Tasks completed on time"
+msgstr "Taken op tijd afgerond"
+
+msgid "What worked"
+msgstr "Wat werkte"
+
+msgid "What didn't"
+msgstr "Wat niet werkte"
+
+msgid "Focus for next quarter"
+msgstr "Focus voor volgend kwartaal"
+
+msgid "Please write something in at least one field before submitting."
+msgstr "Schrijf iets in minstens één veld voordat je indient."
+
+msgid "no tasks yet"
+msgstr "nog geen taken"
+
+# Workflow engine — Sprint 5 (HoD dashboard + admin config UI)
+msgid "Tasks dashboard"
+msgstr "Takendashboard"
+
+msgid "Per-template and per-coach completion rates plus currently overdue tasks."
+msgstr "Voltooiingspercentages per template en per coach plus huidige te late taken."
+
+msgid "Workflow templates"
+msgstr "Workflow-templates"
+
+msgid "Enable or disable templates and override their cadence + deadline."
+msgstr "Templates aan/uit zetten en hun cadens + deadline overschrijven."
+
+msgid "Your role does not have access to the tasks dashboard."
+msgstr "Jouw rol heeft geen toegang tot het takendashboard."
+
+msgid "By template — last 90 days"
+msgstr "Per template — laatste 90 dagen"
+
+msgid "Completed on time"
+msgstr "Op tijd afgerond"
+
+msgid "Rate"
+msgstr "Percentage"
+
+msgid "No tasks created in the last 90 days."
+msgstr "Geen taken aangemaakt in de laatste 90 dagen."
+
+msgid "By coach — last 90 days"
+msgstr "Per coach — laatste 90 dagen"
+
+msgid "Assigned"
+msgstr "Toegewezen"
+
+msgid "No coach-assigned tasks in the last 90 days."
+msgstr "Geen aan coaches toegewezen taken in de laatste 90 dagen."
+
+msgid "Currently overdue"
+msgstr "Momenteel te laat"
+
+msgid "Template"
+msgstr "Template"
+
+msgid "Assignee"
+msgstr "Toegewezen aan"
+
+msgid "Days overdue"
+msgstr "Dagen te laat"
+
+msgid "No overdue tasks. Nicely done."
+msgstr "Geen te late taken. Mooi werk."
+
+#. translators: %d: user ID
+msgid "User #%d"
+msgstr "Gebruiker #%d"
+
+msgid "Your role does not have access to workflow configuration."
+msgstr "Jouw rol heeft geen toegang tot workflow-configuratie."
+
+msgid "Configuration saved."
+msgstr "Configuratie opgeslagen."
+
+msgid "Security check failed. Please refresh and try again."
+msgstr "Beveiligingscontrole mislukt. Vernieuw en probeer opnieuw."
+
+msgid "Enable or disable shipped templates and override their cadence and deadline. Changes take effect on the next cron tick or trigger."
+msgstr "Schakel meegeleverde templates in/uit en overschrijf hun cadens en deadline. Wijzigingen worden van kracht bij de volgende cron-tik of trigger."
+
+msgid "Cadence"
+msgstr "Cadens"
+
+msgid "Deadline offset"
+msgstr "Deadline-offset"
+
+msgid "On"
+msgstr "Aan"
+
+msgid "Minors assignment policy"
+msgstr "Toewijzingsbeleid minderjarigen"
+
+msgid "How tasks for under-18 players are routed. Affects new tasks only — existing open tasks keep their original assignee."
+msgstr "Hoe taken voor spelers onder de 18 worden gerouteerd. Geldt alleen voor nieuwe taken — bestaande open taken behouden hun oorspronkelijke toegewezen persoon."
+
+msgid "Age-based (default) — under 13: parent. 13-15: player + parent visibility. 16+: player only."
+msgstr "Leeftijdsgebonden (standaard) — onder 13: ouder. 13-15: speler + ouder ziet mee. 16+: alleen speler."
+
+msgid "Direct only — task always goes to the player."
+msgstr "Alleen direct — taak gaat altijd naar de speler."
+
+msgid "Parent proxy — task always goes to the parent."
+msgstr "Ouder als proxy — taak gaat altijd naar de ouder."
+
+msgid "Player with parent visibility — task to the player; parent has read-only view."
+msgstr "Speler met ouderzicht — taak voor de speler; ouder heeft alleen leestoegang."
+
+msgid "How was this week?"
+msgstr "Hoe was deze week?"
+# v3.22.0 — Guest-player attendance (#0026)
+
+msgid "A guest is either linked OR anonymous, not both."
+msgstr "Een gast is óf gekoppeld óf anoniem, niet beide tegelijk."
+
+msgid "Pick a player or enter a guest name."
+msgstr "Kies een speler of vul een gastnaam in."
+
+msgid "Linked player does not exist."
+msgstr "Gekoppelde speler bestaat niet."
+
+msgid "The guest could not be added."
+msgstr "De gast kon niet worden toegevoegd."
+
+msgid "Invalid attendance id."
+msgstr "Ongeldig aanwezigheids-id."
+
+msgid "Attendance row not found."
+msgstr "Aanwezigheidsregel niet gevonden."
+
+msgid "The attendance row could not be updated."
+msgstr "De aanwezigheidsregel kon niet worden bijgewerkt."
+
+msgid "The attendance row could not be deleted."
+msgstr "De aanwezigheidsregel kon niet worden verwijderd."
+
+msgid "Guests"
+msgstr "Gasten"
+
+msgid "Spelers van buiten de selectie. Gasten tellen niet mee in teamstats."
+msgstr "Spelers van buiten de selectie. Gasten tellen niet mee in teamstats."
+
+msgid "Nog geen gasten toegevoegd."
+msgstr "Nog geen gasten toegevoegd."
+
+msgid "Save the session first; gasten kunnen daarna worden toegevoegd."
+msgstr "Save the session first; gasten kunnen daarna worden toegevoegd."
+
+msgid "Guest"
+msgstr "Gast"
+
+msgid "(unaffiliated)"
+msgstr "(geen team)"
+
+msgid "Notes…"
+msgstr "Notities…"
+
+msgid "Add as player"
+msgstr "Promoveer naar speler"
+
+msgid "Add guest"
+msgstr "Gast toevoegen"
+
+msgid "Gast toevoegen"
+msgstr "Gast toevoegen"
+
+msgid "Sluiten"
+msgstr "Sluiten"
+
+msgid "Gekoppelde speler"
+msgstr "Gekoppelde speler"
+
+msgid "Anonieme gast"
+msgstr "Anonieme gast"
+
+msgid "Kies een speler van een ander team. De evaluatie van vandaag verschijnt op zijn/haar profiel."
+msgstr "Kies een speler van een ander team. De evaluatie van vandaag verschijnt op zijn/haar profiel."
+
+msgid "Speler"
+msgstr "Speler"
+
+msgid "— Kies speler —"
+msgstr "— Kies speler —"
+
+msgid "Geen TalentTrack-record nodig. Vul de basisgegevens in; je kunt deze gast later promoveren naar een echte speler."
+msgstr "Geen TalentTrack-record nodig. Vul de basisgegevens in; je kunt deze gast later promoveren naar een echte speler."
+
+msgid "Naam"
+msgstr "Naam"
+
+msgid "Leeftijd"
+msgstr "Leeftijd"
+
+msgid "Positie"
+msgstr "Positie"
+
+msgid "— Onbekend —"
+msgstr "— Onbekend —"
+
+msgid "Annuleren"
+msgstr "Annuleren"
+
+msgid "Toevoegen"
+msgstr "Toevoegen"
+
+msgid "(as guest)"
+msgstr "(als gast)"
+
+msgid "Pick a player."
+msgstr "Kies een speler."
+
+msgid "Name is required."
+msgstr "Naam is verplicht."
+
+msgid "Could not add guest."
+msgstr "Gast toevoegen is niet gelukt."
+
+msgid "Save the session first, then add guests."
+msgstr "Sla de sessie eerst op en voeg daarna gasten toe."
+
+msgid "Remove this guest?"
+msgstr "Deze gast verwijderen?"
+
+# v3.22.0 — Documentation split (#0029) audience labels
+
+msgid "Dev"
+msgstr "Ontwikkelaar"
+
+msgid "License & account"
+msgstr "Licentie & account"
+
+msgid "Backups & disaster recovery"
+msgstr "Back-ups & disaster recovery"
+
+msgid "REST API reference"
+msgstr "REST API reference"
+
+msgid "Hooks & filters"
+msgstr "Hooks & filters"
+
+msgid "Architecture"
+msgstr "Architectuur"
+
+msgid "Theme integration"
+msgstr "Theme-integratie"
+
+msgid "Developer"
+msgstr "Ontwikkelaar"
+
+msgid "Tier, trial state, usage caps, upgrade flow."
+msgstr "Tier, trial-status, gebruikslimieten, upgrade-flow."
+
+msgid "Scheduled exports, partial restore, the 14-day undo window."
+msgstr "Geplande exports, gedeeltelijk herstel, het 14-daagse undo-venster."
+
+msgid "Football framework primer, principles, set pieces, positions, voetbalhandelingen."
+msgstr "Voetbal-raamwerk introductie, spelprincipes, spelhervattingen, posities, voetbalhandelingen."
+
+msgid "The first-run guided installer that hands you off into TalentTrack."
+msgstr "De begeleide eerste-installatie die je TalentTrack inleidt."
+
+msgid "Plugin REST endpoints, payload shapes and capability scopes."
+msgstr "REST-endpoints van de plugin, payload-vormen en capability-scopes."
+
+msgid "Every action and filter the plugin exposes for extension."
+msgstr "Elke actie en filter die de plugin blootstelt voor uitbreiding."
+
+msgid "Module pattern, Kernel boot order, capability model, design tokens."
+msgstr "Module-patroon, Kernel boot-volgorde, capability-model, design tokens."
+
+msgid "Override design tokens from a theme and the body.tt-theme-inherit contract."
+msgstr "Design tokens overschrijven vanuit een theme en het body.tt-theme-inherit contract."

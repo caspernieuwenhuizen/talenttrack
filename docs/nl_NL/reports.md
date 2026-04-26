@@ -1,3 +1,5 @@
+<!-- audience: user, admin -->
+
 # Rapporten
 
 De pagina **Rapporten** is een tegel-launcher voor verschillende rapportvarianten. Vanaf v2.20.0 zijn er drie tegels beschikbaar:

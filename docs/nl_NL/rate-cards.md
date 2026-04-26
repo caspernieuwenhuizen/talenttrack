@@ -1,3 +1,5 @@
+<!-- audience: user, admin -->
+
 # Speler rate cards
 
 Een rate card is een blik-in-één-oogopslag op de huidige stand en recente ontwikkeling van een speler: een FIFA-achtige kaart, kerncijfers (meest recente, rollend gemiddelde, all-time), een radarchart over de hoofdcategorieën en een trendlijn over de tijd.

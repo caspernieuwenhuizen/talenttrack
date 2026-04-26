@@ -423,6 +423,49 @@ class FrontendTileGrid {
             ],
         ];
 
+        // "Tasks" group — #0022 Sprint 2/5. Inbox for every user with
+        // tt_view_own_tasks; HoD dashboard for tt_view_tasks_dashboard;
+        // template config for tt_configure_workflow_templates.
+        $tasks_tiles = [];
+        if ( current_user_can( 'tt_view_own_tasks' ) ) {
+            $open_count = \TT\Modules\Workflow\Frontend\FrontendMyTasksView::openCountForUser( $ctx['user_id'] );
+            $label = $open_count > 0
+                ? sprintf(
+                    /* translators: %d: number of open tasks */
+                    __( 'My tasks (%d)', 'talenttrack' ),
+                    $open_count
+                )
+                : __( 'My tasks', 'talenttrack' );
+            $tasks_tiles[] = [
+                'label' => $label,
+                'desc'  => __( 'Open tasks waiting on you — evaluations, goals, reviews.', 'talenttrack' ),
+                'emoji' => '📥',
+                'color' => $open_count > 0 ? '#b32d2e' : '#5b6e75',
+                'url'   => $url( 'my-tasks' ),
+                'show'  => true,
+            ];
+        }
+        if ( current_user_can( 'tt_view_tasks_dashboard' ) ) {
+            $tasks_tiles[] = [
+                'label' => __( 'Tasks dashboard', 'talenttrack' ),
+                'desc'  => __( 'Per-template and per-coach completion rates plus currently overdue tasks.', 'talenttrack' ),
+                'emoji' => '📋',
+                'color' => '#2271b1',
+                'url'   => $url( 'tasks-dashboard' ),
+                'show'  => true,
+            ];
+        }
+        if ( current_user_can( 'tt_configure_workflow_templates' ) ) {
+            $tasks_tiles[] = [
+                'label' => __( 'Workflow templates', 'talenttrack' ),
+                'desc'  => __( 'Enable or disable templates and override their cadence + deadline.', 'talenttrack' ),
+                'emoji' => '⚙',
+                'color' => '#5b6e75',
+                'url'   => $url( 'workflow-config' ),
+                'show'  => true,
+            ];
+        }
+
         // "Development" group (#0009). Visible to roles that can submit
         // (everyone except player/parent) plus admin/refiners who get
         // the board/approval/tracks tiles.
@@ -468,6 +511,10 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Me', 'talenttrack' ),
                 'tiles' => $me_tiles,
+            ],
+            [
+                'label' => __( 'Tasks', 'talenttrack' ),
+                'tiles' => $tasks_tiles,
             ],
             [
                 'label' => __( 'People', 'talenttrack' ),

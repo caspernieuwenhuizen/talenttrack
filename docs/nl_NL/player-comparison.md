@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Spelervergelijking
 
 Vergelijk tot 4 spelers naast elkaar. Over teams heen vergelijken is juist het doel — een U15 LB vergelijken met een U13 ST is valide voor scouting, transferbeslissingen en ontwikkelingsgesprekken.

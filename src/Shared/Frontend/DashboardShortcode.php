@@ -136,6 +136,8 @@ class DashboardShortcode {
         $analytics_slugs = [ 'rate-cards', 'compare' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
         $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details' ];
+        // #0022 Sprint 2/5 — workflow surfaces, each cap-gated in dispatch.
+        $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config' ];
         // #0009 — Development management slugs. Each view re-checks its
         // own capability so dispatching here is safe.
         $dev_slugs       = [ 'submit-idea', 'ideas-board', 'ideas-refine', 'ideas-approval', 'dev-tracks' ];
@@ -172,6 +174,12 @@ class DashboardShortcode {
             // is safe; the early-return there shows the friendly
             // "no permission" notice with a back button.
             self::dispatchAdminView( $view, $user_id, $is_admin );
+        } elseif ( in_array( $view, $workflow_slugs, true ) ) {
+            // #0022 Sprint 2/5 — workflow surfaces. Each slug enforces its
+            // own cap inside dispatch (my-tasks → tt_view_own_tasks,
+            // tasks-dashboard → tt_view_tasks_dashboard, workflow-config
+            // → tt_configure_workflow_templates).
+            self::dispatchWorkflowView( $view, $user_id );
         } elseif ( in_array( $view, $dev_slugs, true ) ) {
             self::dispatchDevView( $view );
         } else {
@@ -216,6 +224,42 @@ class DashboardShortcode {
                 break;
             case 'profile':
                 FrontendMyProfileView::render( $player );
+                break;
+            default:
+                FrontendBackButton::render();
+                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+        }
+    }
+
+    /**
+     * #0022 Sprint 2 — dispatch a workflow-group tile slug. Currently
+     * one slug (`my-tasks`); the inbox doubles as the task-detail
+     * surface when `?task_id=N` is present.
+     */
+    private static function dispatchWorkflowView( string $view, int $user_id ): void {
+        switch ( $view ) {
+            case 'my-tasks':
+                if ( ! current_user_can( 'tt_view_own_tasks' ) ) {
+                    FrontendBackButton::render();
+                    echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to tasks.', 'talenttrack' ) . '</p>';
+                    return;
+                }
+                $task_id = isset( $_GET['task_id'] ) ? absint( $_GET['task_id'] ) : 0;
+                if ( $task_id > 0 ) {
+                    \TT\Modules\Workflow\Frontend\FrontendTaskDetailView::render( $user_id, $task_id );
+                } else {
+                    if ( ! empty( $_GET['tt_workflow_done'] ) ) {
+                        echo '<div class="tt-notice notice-success" style="background:#e9f5e9; border-left:4px solid #2c8a2c; padding:8px 12px; margin: 8px 0 16px;">'
+                            . esc_html__( 'Task completed.', 'talenttrack' ) . '</div>';
+                    }
+                    \TT\Modules\Workflow\Frontend\FrontendMyTasksView::render( $user_id );
+                }
+                break;
+            case 'tasks-dashboard':
+                \TT\Modules\Workflow\Frontend\FrontendTasksDashboardView::render( $user_id );
+                break;
+            case 'workflow-config':
+                \TT\Modules\Workflow\Frontend\FrontendWorkflowConfigView::render( $user_id );
                 break;
             default:
                 FrontendBackButton::render();

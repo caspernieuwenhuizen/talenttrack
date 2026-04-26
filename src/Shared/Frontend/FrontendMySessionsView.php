@@ -21,13 +21,16 @@ class FrontendMySessionsView extends FrontendViewBase {
         global $wpdb;
         $p = $wpdb->prefix;
 
+        // #0026 — surface guest appearances on the player's own
+        // sessions list too. Match either roster (player_id) or
+        // linked-guest (guest_player_id) entries for this player.
         $att = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.*, s.title AS session_title, s.session_date
              FROM {$p}tt_attendance a
              LEFT JOIN {$p}tt_sessions s ON a.session_id = s.id
-             WHERE a.player_id = %d
+             WHERE a.player_id = %d OR a.guest_player_id = %d
              ORDER BY s.session_date DESC",
-            (int) $player->id
+            (int) $player->id, (int) $player->id
         ) );
 
         if ( empty( $att ) ) {

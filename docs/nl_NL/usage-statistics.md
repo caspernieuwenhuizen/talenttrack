@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Gebruiksstatistieken
 
 Via **Analyse → Gebruiksstatistieken** krijg je een beeld van hoe je club de plugin daadwerkelijk gebruikt.

@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Player dashboard (frontend)
 
 Players logged into the frontend shortcode see a tile-based dashboard scoped entirely to themselves. (v3.0.0 — the tile grid now has real destinations; v2.21's tile landing is a legitimate landing page, not just decoration.)
