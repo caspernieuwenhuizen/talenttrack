@@ -69,10 +69,17 @@
             if (deleteBtn && root.contains(deleteBtn)) {
                 e.preventDefault();
                 var i18n = (window.TT && window.TT.i18n) || {};
-                if (!window.confirm(i18n.fnrole_delete_confirm || 'Delete this role type?')) return;
                 var id = deleteBtn.getAttribute('data-tt-fnrole-delete');
                 if (!id) return;
-                call('functional-roles/' + encodeURIComponent(id), 'DELETE', null, deleteBtn, root);
+                var msg = i18n.fnrole_delete_confirm || 'Delete this role type?';
+                var doDelete = function() {
+                    call('functional-roles/' + encodeURIComponent(id), 'DELETE', null, deleteBtn, root);
+                };
+                if (typeof window.ttConfirm === 'function') {
+                    window.ttConfirm({ message: msg, danger: true }).then(function(ok) { if (ok) doDelete(); });
+                } else if (window.confirm(msg)) {
+                    doDelete();
+                }
                 return;
             }
         });

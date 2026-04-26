@@ -981,3 +981,79 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
         text-align: left;
     }
 }
+
+/* ─── Confirm dialog + near-action flash (#3) ─────────────────
+   Generic UX primitives: a promise-based modal that replaces
+   browser window.confirm() (used for role revoke, goal delete,
+   list-table delete, etc.) and a near-the-action toast for the
+   post-event "X deleted" feedback.
+   ───────────────────────────────────────────────────────────── */
+.tt-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 14, 16, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+    padding: 16px;
+}
+.tt-confirm-overlay[hidden] { display: none; }
+.tt-confirm-dialog {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.25);
+    max-width: 460px;
+    width: 100%;
+    padding: 24px 24px 20px;
+    font-family: inherit;
+}
+.tt-confirm-title {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-confirm-message {
+    margin: 0 0 20px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--tt-muted, #4a5258);
+}
+.tt-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.tt-confirm-actions .button { min-width: 88px; }
+.tt-confirm-overlay.tt-confirm-danger .tt-confirm-ok.button-primary {
+    background: var(--tt-danger, #b32d2e);
+    border-color: var(--tt-danger, #b32d2e);
+    color: #fff;
+}
+.tt-confirm-overlay.tt-confirm-danger .tt-confirm-ok.button-primary:hover {
+    background: #8c2424;
+    border-color: #8c2424;
+}
+
+.tt-flash-near {
+    background: var(--tt-info, #2271b1);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    max-width: 280px;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    pointer-events: none;
+}
+.tt-flash-near.tt-flash-near-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.tt-flash-near-success { background: var(--tt-success, #00a32a); }
+.tt-flash-near-warning { background: var(--tt-warning, #dba617); color: #1f1300; }
+.tt-flash-near-error   { background: var(--tt-danger,  #b32d2e); }

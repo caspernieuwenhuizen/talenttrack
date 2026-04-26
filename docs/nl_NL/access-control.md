@@ -76,3 +76,11 @@ Voorbeeld: je functionele rol "Hoofdcoach" kan gebruikers automatisch de WordPre
 ## Permission debug
 
 Via **Toegangsbeheer → Permission Debug** kun je de effectieve rechten van een willekeurige gebruiker inspecteren. Handig als een gebruiker meldt "ik kan X niet zien" — controleer wat hij/zij daadwerkelijk heeft.
+
+## Een rol-toewijzing intrekken
+
+Via **Toegangsbeheer → Rollen** (of het bewerkpaneel per persoon) heeft elke toegekende rol een **Intrekken**-actie.
+
+Een klik op Intrekken opent een bevestigingsvenster binnen de app (niet de standaard browserprompt) — bevestig met de rode **Intrekken**-knop, annuleer via **Annuleren**, een klik op de achtergrond of de Escape-toets. Na bevestiging wordt de toewijzing verwijderd en kom je terug op dezelfde pagina met een succesmelding.
+
+Hetzelfde bevestigingspatroon wordt overal gebruikt waar een destructieve actie om je akkoord vraagt (een doel verwijderen vanaf het dashboard, een evaluatiecategorie verwijderen, enz.).

@@ -81,7 +81,10 @@ class RoleGrantPanel {
                                 <input type="hidden" name="person_id"   value="<?php echo (int) $person_id; ?>" />
                                 <input type="hidden" name="redirect_to" value="person_edit" />
                                 <button type="submit" class="button-link" style="color:#b32d2e;"
-                                    onclick="return confirm('<?php echo esc_js( __( 'Revoke this role assignment?', 'talenttrack' ) ); ?>');">
+                                    data-tt-confirm-message="<?php echo esc_attr__( 'Revoke this role assignment? This cannot be undone.', 'talenttrack' ); ?>"
+                                    data-tt-confirm-title="<?php echo esc_attr__( 'Revoke role?', 'talenttrack' ); ?>"
+                                    data-tt-confirm-confirm-label="<?php echo esc_attr__( 'Revoke', 'talenttrack' ); ?>"
+                                    data-tt-confirm-danger>
                                     <?php esc_html_e( 'Revoke', 'talenttrack' ); ?>
                                 </button>
                             </form>

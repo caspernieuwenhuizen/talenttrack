@@ -1231,8 +1231,23 @@ msgstr "Bereik"
 msgid "Revoke"
 msgstr "Intrekken"
 
-msgid "Revoke this role assignment?"
-msgstr "Deze rol-toewijzing intrekken?"
+msgid "Revoke role?"
+msgstr "Rol intrekken?"
+
+msgid "Revoke this role assignment? This cannot be undone."
+msgstr "Deze rol-toewijzing intrekken? Dit kan niet ongedaan worden gemaakt."
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Cancel"
+msgstr "Annuleren"
+
+msgid "Delete goal?"
+msgstr "Doel verwijderen?"
+
+msgid "Goal deleted."
+msgstr "Doel verwijderd."
 
 msgid "← Back to all roles"
 msgstr "← Terug naar alle rollen"
