@@ -78,7 +78,20 @@ class TaskEngine {
                         'due_at'           => $this->computeDueAt( $deadline_offset ),
                     ]
                 ) );
-                if ( $id > 0 ) $created[] = $id;
+                if ( $id > 0 ) {
+                    $created[] = $id;
+                    /**
+                     * Fires after a workflow task is persisted. Listeners
+                     * (TaskMailer in Sprint 2; future notification bell
+                     * pushers, audit-log entries, etc.) subscribe here
+                     * rather than touching dispatch() directly.
+                     *
+                     * @param int    $task_id
+                     * @param string $template_key
+                     * @param int    $assignee_user_id
+                     */
+                    do_action( 'tt_workflow_task_created', $id, $template_key, (int) $user_id );
+                }
             }
         }
 
@@ -105,6 +118,16 @@ class TaskEngine {
             $persisted = $this->tasks->find( $task_id );
             if ( is_array( $persisted ) ) {
                 $template->onComplete( $persisted, $response );
+                /**
+                 * Fires after a workflow task is completed and the
+                 * template's onComplete() hook has run. The audit log
+                 * subscribes here per the spec's "task history lives in
+                 * audit log" decision.
+                 *
+                 * @param array<string,mixed> $task     Persisted row.
+                 * @param array<string,mixed> $response Form response payload.
+                 */
+                do_action( 'tt_workflow_task_completed', $persisted, $response );
             }
         }
         return true;
