@@ -123,6 +123,11 @@ class HelpTopics {
                 'group'   => 'frontend',
                 'summary' => __( 'Roles, permissions, functional roles, and the Read-Only Observer.', 'talenttrack' ),
             ],
+            'development-management' => [
+                'title'   => __( 'Development management', 'talenttrack' ),
+                'group'   => 'development',
+                'summary' => __( 'Submit, refine, and promote ideas straight to GitHub from the dashboard.', 'talenttrack' ),
+            ],
         ];
     }
 
@@ -139,6 +144,7 @@ class HelpTopics {
             'analytics'     => __( 'Analytics', 'talenttrack' ),
             'configuration' => __( 'Configuration', 'talenttrack' ),
             'frontend'      => __( 'Frontend & access', 'talenttrack' ),
+            'development'   => __( 'Development', 'talenttrack' ),
         ];
     }
 

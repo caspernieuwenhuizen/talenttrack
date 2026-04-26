@@ -136,6 +136,9 @@ class DashboardShortcode {
         $analytics_slugs = [ 'rate-cards', 'compare' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
         $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details' ];
+        // #0009 — Development management slugs. Each view re-checks its
+        // own capability so dispatching here is safe.
+        $dev_slugs       = [ 'submit-idea', 'ideas-board', 'ideas-refine', 'ideas-approval', 'dev-tracks' ];
 
         if ( $view === '' ) {
             // Tile landing page.
@@ -169,6 +172,8 @@ class DashboardShortcode {
             // is safe; the early-return there shows the friendly
             // "no permission" notice with a back button.
             self::dispatchAdminView( $view, $user_id, $is_admin );
+        } elseif ( in_array( $view, $dev_slugs, true ) ) {
+            self::dispatchDevView( $view );
         } else {
             FrontendBackButton::render();
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
@@ -307,6 +312,34 @@ class DashboardShortcode {
                 break;
             case 'usage-stats-details':
                 FrontendUsageStatsDetailsView::render( $user_id, $is_admin );
+                break;
+            default:
+                FrontendBackButton::render();
+                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+        }
+    }
+
+    /**
+     * #0009 — dispatch a development-management slug. Each view inside
+     * the Development module re-checks its capability and renders the
+     * "no permission" back-button pattern for non-eligible roles.
+     */
+    private static function dispatchDevView( string $view ): void {
+        switch ( $view ) {
+            case 'submit-idea':
+                \TT\Modules\Development\Frontend\IdeaSubmitView::render();
+                break;
+            case 'ideas-board':
+                \TT\Modules\Development\Frontend\IdeasBoardView::render();
+                break;
+            case 'ideas-refine':
+                \TT\Modules\Development\Frontend\IdeasRefineView::render();
+                break;
+            case 'ideas-approval':
+                \TT\Modules\Development\Frontend\IdeasApprovalView::render();
+                break;
+            case 'dev-tracks':
+                \TT\Modules\Development\Frontend\TracksView::render();
                 break;
             default:
                 FrontendBackButton::render();
