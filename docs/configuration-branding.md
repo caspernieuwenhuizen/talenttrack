@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Configuration & branding
 
 The **Configuration** page is where your academy's identity and the plugin's operational knobs live.

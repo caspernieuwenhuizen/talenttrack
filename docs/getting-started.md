@@ -1,3 +1,5 @@
+<!-- audience: user, admin -->
+
 # Getting started
 
 Welcome to TalentTrack. This is your academy's youth football talent management system.

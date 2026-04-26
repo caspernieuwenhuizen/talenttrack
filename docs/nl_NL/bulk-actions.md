@@ -1,3 +1,5 @@
+<!-- audience: user, admin -->
+
 # Bulkacties (archiveren & verwijderen)
 
 De meeste lijstpagina's in TalentTrack ondersteunen bulkacties — handig als je veel rijen tegelijk wilt archiveren of verwijderen.

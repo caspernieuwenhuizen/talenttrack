@@ -1,3 +1,5 @@
+<!-- audience: admin, dev -->
+
 # Migrations & updates
 
 When you update TalentTrack via the WordPress plugin updater, the plugin code changes instantly — but the database sometimes needs follow-up work: new columns, renamed tables, new capability grants, seeded data. That follow-up is a **migration**.

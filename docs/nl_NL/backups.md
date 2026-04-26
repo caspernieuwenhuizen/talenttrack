@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Back-ups
 
 TalentTrack heeft een eigen back-upmodule (los van een eventuele algemene WordPress-back-upplugin die je ook gebruikt). Snapshots dekken alleen de eigen `tt_*`-tabellen van de plugin — geen WordPress-gebruikers, geen media-uploads. Het doel is om je academiegegevens snel terug te kunnen zetten zonder de rest van de site mee te slepen.

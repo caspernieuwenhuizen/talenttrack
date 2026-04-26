@@ -1,3 +1,5 @@
+<!-- audience: user, admin -->
+
 # Methodologie
 
 In de Methodologie-bibliotheek leeft het coachingsraamwerk van je academie in TalentTrack: het raamwerk per club, spelprincipes, formaties + positiekaarten, spelhervattingen, de clubvisie en de catalogus voetbalhandelingen. Coaches gebruiken deze als naslag tijdens sessieplanning en speelgesprekken.

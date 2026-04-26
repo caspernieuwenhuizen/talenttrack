@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Evaluatiecategorieën & gewichten
 
 ## Hoofdcategorieën

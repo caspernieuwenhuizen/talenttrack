@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Setup wizard
 
 The setup wizard is the first thing a fresh TalentTrack install shows. It creates the minimum a club needs to start using the plugin: an academy name, a first team, and your admin profile.
