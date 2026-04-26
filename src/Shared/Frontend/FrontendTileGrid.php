@@ -423,9 +423,9 @@ class FrontendTileGrid {
             ],
         ];
 
-        // "Tasks" group — #0022 Sprint 2. The inbox tile shows for every
-        // user with tt_view_own_tasks. When the user has open tasks the
-        // tile carries a count badge appended to its label.
+        // "Tasks" group — #0022 Sprint 2/5. Inbox for every user with
+        // tt_view_own_tasks; HoD dashboard for tt_view_tasks_dashboard;
+        // template config for tt_configure_workflow_templates.
         $tasks_tiles = [];
         if ( current_user_can( 'tt_view_own_tasks' ) ) {
             $open_count = \TT\Modules\Workflow\Frontend\FrontendMyTasksView::openCountForUser( $ctx['user_id'] );
@@ -442,6 +442,26 @@ class FrontendTileGrid {
                 'emoji' => '📥',
                 'color' => $open_count > 0 ? '#b32d2e' : '#5b6e75',
                 'url'   => $url( 'my-tasks' ),
+                'show'  => true,
+            ];
+        }
+        if ( current_user_can( 'tt_view_tasks_dashboard' ) ) {
+            $tasks_tiles[] = [
+                'label' => __( 'Tasks dashboard', 'talenttrack' ),
+                'desc'  => __( 'Per-template and per-coach completion rates plus currently overdue tasks.', 'talenttrack' ),
+                'emoji' => '📋',
+                'color' => '#2271b1',
+                'url'   => $url( 'tasks-dashboard' ),
+                'show'  => true,
+            ];
+        }
+        if ( current_user_can( 'tt_configure_workflow_templates' ) ) {
+            $tasks_tiles[] = [
+                'label' => __( 'Workflow templates', 'talenttrack' ),
+                'desc'  => __( 'Enable or disable templates and override their cadence + deadline.', 'talenttrack' ),
+                'emoji' => '⚙',
+                'color' => '#5b6e75',
+                'url'   => $url( 'workflow-config' ),
                 'show'  => true,
             ];
         }

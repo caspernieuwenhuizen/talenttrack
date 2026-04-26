@@ -8,16 +8,19 @@ Deze pagina is de overzichtspagina. De implementatiedetails voor cron-betrouwbaa
 
 Templates beschrijven een terugkerende of gebeurtenis-gestuurde taak ("een coach-evaluatie na een wedstrijd, deadline 72 uur na de sessie, één taak per geëvalueerde speler"), plus hoe de juiste persoon wordt gevonden ("de hoofdcoach van het team") en welk formulier wordt ingevuld. De motor activeert het template op het rooster (cron, event of handmatige knop), maakt één taak per (toegewezen persoon × betrokken entiteit) aan en routeert die naar de juiste inbox. Het invullen van de taak slaat het antwoord op en activeert eventueel vervolgwerk.
 
-## Wat v1 oplevert
+## Wat Phase 1 oplevert
 
-- **Motor + schema (Sprint 1, deze release)** — de fundamenttabellen (`tt_workflow_tasks`, `tt_workflow_triggers`, `tt_workflow_template_config`), de kolom `parent_user_id` op `tt_players` en de PHP-API. Nog geen live taken — templates die ze aanmaken landen in Sprint 3.
-- **Inbox + bel + e-mail + self-diagnostics (Sprint 2)** — elke gebruiker met een TalentTrack-rol krijgt een "Mijn taken"-scherm; een onopvallende bel toont het openstaande aantal; e-mails verzenden bij taakaanmaak en kort vóór een deadline. Een self-diagnostic banner waarschuwt op hosts waar WP-cron niet betrouwbaar draait.
-- **Vier meegeleverde templates (Sprint 3-4)**
-  - **Coach-evaluatie na wedstrijd** — activeert wanneer een wedstrijd-sessie wordt afgesloten; fan-out van één taak per geëvalueerde speler; deadline 72 uur.
-  - **Wekelijkse zelfevaluatie speler** — zondagavond 18:00; één taak per ingedeelde speler; deadline 7 dagen.
-  - **Kwartaaldoelen met goedkeuringsketen** — begin van elk kwartaal; de inzending van de speler activeert een goedkeuringstaak voor de coach.
-  - **Kwartaalreview Hoofd Opleidingen** — begin van elk kwartaal; één taak voor elk Hoofd Opleidingen; deadline 14 dagen.
-- **Dashboard + templateconfiguratie (Sprint 5)** — het HoD-overzicht (afrondingspercentage per coach/team, gebruik per template) en een academy-admin-pagina om templates aan/uit te zetten en cadens / deadlines te overschrijven.
+Alle vijf sprints staan live:
+
+- **Motor + schema** — `tt_workflow_tasks`, `tt_workflow_triggers`, `tt_workflow_template_config`, de kolom `parent_user_id` op `tt_players` en de publieke PHP-API (`WorkflowModule::engine()->dispatch(...)`).
+- **Inbox + bel + e-mail + self-diagnostic** — elke gebruiker met `tt_view_own_tasks` ziet zijn taken op `?tt_view=my-tasks`; een discrete bel toont de openstaande teller op het dashboard; bij aanmaak ontvangt de toegewezen persoon een e-mail. Een wp-admin-banner waarschuwt wanneer WP-cron stopt met afvuren (linkt naar [de cron-instellingengids](workflow-engine-cron-setup.md)).
+- **Vijf meegeleverde templates**
+  - **Coach-evaluatie na wedstrijd** — handmatige trigger in v1 (een event-hook abonneert zodra `SessionsModule` `tt_session_completed` afvuurt). Fan-out: één taak per actieve speler op het team voor de hoofdcoach, deadline 72 uur.
+  - **Wekelijkse zelfevaluatie speler** — cron `0 18 * * 0` (zondag 18:00). Eén taak per actieve speler, gerouteerd via het toewijzingsbeleid voor minderjarigen. Deadline 7 dagen.
+  - **Kwartaaldoelen** — cron op de 1e van elke 3e maand. Speler schrijft maximaal drie doelen; bij voltooiing wordt automatisch een goedkeuringstaak voor de coach aangemaakt.
+  - **Doelgoedkeuring** — wordt alleen gespawnd door het kwartaaldoelen-template. Coach keurt elk doel goed / wijzigt / wijst af met optionele notitie. Leest het concept via `parent_task_id`.
+  - **Kwartaalreview Hoofd Opleidingen** — zelfde kwartaalcadens. Eén taak per HoD, deadline 14 dagen. Live-data formulier: toont de afgelopen 90 dagen aan evaluaties / sessies / doelen / taakvoltooiing bij rendering.
+- **HoD-dashboard + admin-configuratie** — `?tt_view=tasks-dashboard` (HoD-overzicht: voltooiingspercentages per template + per coach + lijst van te late taken); `?tt_view=workflow-config` (academy admin: per template aan/uit, cadens en deadline overschrijven, beleidschakelaar voor minderjarigen).
 
 ## Rechten
 

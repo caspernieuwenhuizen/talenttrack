@@ -8,16 +8,19 @@ This page is the high-level overview. Implementation details for cron reliabilit
 
 Templates describe a recurring or event-driven task ("a post-match coach evaluation, due 72 hours after the session, one task per player evaluated") plus how to find the right assignee ("the team's head coach") and what form they fill in. The engine fires the template on its schedule (cron, event, or manual button), creates one task per (assignee × affected entity), and routes it to the right person's inbox. Completing the task stores the response and runs any follow-up the template defines.
 
-## What it ships in v1
+## What ships in Phase 1
 
-- **Engine + schema (Sprint 1, this release)** — the foundation tables (`tt_workflow_tasks`, `tt_workflow_triggers`, `tt_workflow_template_config`), the `parent_user_id` column on `tt_players`, and the PHP API. No live tasks yet — templates that create them land in Sprint 3.
-- **Inbox + bell + email + self-diagnostics (Sprint 2)** — every user with a TalentTrack role gets a "My tasks" surface; an unobtrusive bell shows the open count; emails fire when a task is created or about to be overdue. A self-diagnostic banner flags hosts where WP-cron isn't running reliably.
-- **Four shipped templates (Sprints 3-4)**
-  - **Post-match coach evaluation** — fires when a match-type session is completed, fans out one task per player evaluated, due in 72 hours.
-  - **Player self-evaluation (weekly)** — Sundays 18:00, one task per rostered player, due in 7 days.
-  - **Quarterly goal-setting (with approval chain)** — start of each quarter; the player's submission spawns an approval task for their coach.
-  - **Quarterly HoD review** — start of each quarter; one task to every Head of Development; 14-day deadline.
-- **Dashboard + template config (Sprint 5)** — the HoD overview (completion rate per coach/team, per-template usage) and an academy-admin page to enable/disable templates, override cadence, and override deadlines.
+All five sprints are now live:
+
+- **Engine + schema** — `tt_workflow_tasks`, `tt_workflow_triggers`, `tt_workflow_template_config`, the `parent_user_id` column on `tt_players`, and the public PHP API (`WorkflowModule::engine()->dispatch(...)`).
+- **Inbox + bell + email + self-diagnostic** — every user with `tt_view_own_tasks` sees their tasks at `?tt_view=my-tasks`; an unobtrusive bell shows the open count on the dashboard; the assignee gets an email when a task is created. A wp-admin banner warns when WP-cron has stopped firing reliably (links to [the cron setup guide](workflow-engine-cron-setup.md)).
+- **Five shipped templates**
+  - **Post-match coach evaluation** — manual trigger in v1 (an event hook will subscribe once `SessionsModule` fires `tt_session_completed`). Fans out one task per active player on the team to the head coach, due in 72 hours.
+  - **Player self-evaluation (weekly)** — cron `0 18 * * 0` (Sundays 18:00). One task per active rostered player, routed via the minors-assignment policy. Due in 7 days.
+  - **Quarterly goal-setting** — cron `0 0 1 step-month wildcard` at start of each quarter. Player drafts up to three goals; on completion, automatically spawns a goal-approval task for the coach.
+  - **Goal approval** — only spawned by the goal-setting template. Coach approves / amends / rejects each goal with optional notes. Reads the player's draft via `parent_task_id`.
+  - **Quarterly Head of Development review** — same quarterly cadence. One task per HoD, 14-day deadline. Live-data form: shows the last 90 days of evaluations / sessions / goals / on-time task completion at render time.
+- **HoD dashboard + admin config UI** — `?tt_view=tasks-dashboard` (HoD overview: per-template + per-coach completion rates + currently-overdue list); `?tt_view=workflow-config` (academy admin: enable/disable each template, override cadence and deadline, switch the minors-assignment policy).
 
 ## Permissions
 
