@@ -13,6 +13,7 @@ Via de beheerpagina **Evaluaties** of het coach-dashboard op de frontend:
 5. Duik optioneel in subcategorieën voor een gedetailleerdere score.
 6. Voeg vrije notities toe over wat je gezien hebt.
 7. Als het evaluatietype is ingesteld als "Wedstrijd", vul dan ook tegenstander, competitie (keuzelijst met competitietypes die onder Configuratie → Lookups zijn ingesteld), uitslag, thuis/uit en gespeelde minuten in.
+8. Opslaan. Het formulier bevestigt kort het opslaan en je keert terug naar het tegelraster van het dashboard — klik opnieuw op de Evaluaties-tegel als je nog een evaluatie wilt toevoegen.
 
 ## Een categorie beoordelen
 

@@ -61,7 +61,7 @@ class CoachForms {
         }
         ?>
         <h3><?php esc_html_e( 'Submit Evaluation', 'talenttrack' ); ?></h3>
-        <form id="tt-eval-form" class="tt-ajax-form" data-rest-path="evaluations" data-rest-method="POST" data-draft-key="eval-form">
+        <form id="tt-eval-form" class="tt-ajax-form" data-rest-path="evaluations" data-rest-method="POST" data-draft-key="eval-form" data-redirect-after-save="1">
             <?php // F1 — team-first eval flow. Coach picks team first; player picker is filtered to that team. ?>
             <div class="tt-field" data-tt-eval-team-wrap>
                 <?php echo TeamPickerComponent::render( [
