@@ -4,9 +4,7 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 
 ## In progress
 
-| # | Topic | Type | Branch | Notes |
-| - | - | - | - | - |
-| 0025 | Multilingual auto-translate flow | feat | `feat/0025-multilingual-auto-translate-v2` (PR #61) | Casper's open PR — opt-in layer, default OFF |
+_None._
 
 ## Ready (shaped, decisions locked)
 
@@ -45,6 +43,7 @@ _None._
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
+| 0025 | Multilingual auto-translate (opt-in, default OFF) | feat | v3.23.0 | ~26h | ~12h (single-PR build, two engine adapters + cap nudge + privacy hook) |
 | 0009 | Development management (submit → refine → approve → promote-to-GitHub + tracks) | epic | v3.22.0 | ~30h | ~6h (one-PR build, full epic, scope locked via 8 inline shaping Qs) |
 | 0022 | Workflow & tasks engine (Phase 1 — engine + 5 templates + inbox + dashboard + admin config) | epic | v3.22.0 | ~62h | ~14h across 5 sprints in 3 stacked PRs |
 | 0029 | Documentation split (audience markers + role-filtered TOC + dev-tier docs) | feat | v3.22.0 | ~17h | ~6h |
@@ -79,29 +78,30 @@ v3.22.0 closed five items in a single release: #0026 (~10h), #0022 Phase 1 (~14h
 2. Inline-shaping with bolded recommendations resolved 8 open questions on #0009 in seconds.
 3. Stacked PRs (#54 → #56 → #57) avoided the rebase-conflict cost most teams pay on stacks.
 
+v3.23.0 lands #0025 standalone (~12h actual vs ~26h estimate). The translation layer is the scope-multiplier that downsizes #0010 (multi-language UI) — clubs can now opt in to auto-translation for user-entered text and #0010's manual-translation scope shrinks to just the bundled UI strings.
+
 Realistic next moves:
 
-1. **Land #0025** — Casper's open PR #61. The auto-translate layer is the next scope-multiplier; once landed it changes the size of #0010 (multi-language).
-2. **Pick from "Not started"** — best-leverage candidates:
+1. **Pick from "Not started"** — best-leverage candidates:
    - **#0014 Player profile rebuild (~58h)** — unblocks #0017 (trial player module, ~72h after this).
    - **#0021 Audit log viewer (~10h)** — small, high-utility for a paying customer install, hooks into the workflow-engine + #0009 promote actions naturally.
    - **#0006 Team planning module (~55h)** — pairs well with #0022 (sessions are templated, scheduling on a calendar is the obvious next surface).
-3. **Shape #0030** — branding + go-to-market. The licensing scaffold from #0011 still has nothing to direct people to. Casper-side authoring is on the critical path here, not engineering.
-4. **Shape #0028** — goals as conversational thread. #0022 Phase 1 unblocked it; rough estimate ~20-30h pending the shaping pass.
+   - **#0010 Multi-language (FR/DE/ES) (~80-140h, likely lower)** — re-estimate now that #0025 + #0029 ship; the manual-translation surface is much smaller than originally scoped.
+2. **Shape #0030** — branding + go-to-market. The licensing scaffold from #0011 still has nothing to direct people to. Casper-side authoring is on the critical path here, not engineering.
+3. **Shape #0028** — goals as conversational thread. #0022 Phase 1 unblocked it; rough estimate ~20-30h pending the shaping pass.
 
 ## Total backlog effort estimate
 
-### Remaining work (excluding #0025 which is in PR review)
+### Remaining work (post-v3.23.0)
 
 | Bucket | Low | High |
 | - | - | - |
-| In progress (#0025) | 26 | 26 |
 | Ready (#0028) | 20 | 30 |
 | Needs shaping (#0030, #0031, #0032, #0033) | 117 | 173 |
 | Not started (#0006, #0010, #0012, #0014, #0016, #0017, #0018, #0021, #0022 Phase 2) | 495 | 590 |
-| **Total remaining** | **~658h** | **~819h** |
+| **Total remaining** | **~632h** | **~793h** |
 
-Was ~700-870h at end of v3.21.0; this release cleared ~119h of estimate (vs ~41h actual). Remaining estimates intentionally conservative — empirical 1.4× under-shoot rate from this release suggests a realistic floor of **~470h** if the compression pattern holds.
+Was ~700-870h at end of v3.21.0; v3.22.0 cleared ~119h of estimate (vs ~41h actual); v3.23.0 cleared another ~26h (vs ~12h actual). Remaining estimates intentionally conservative — empirical 1.4× under-shoot rate from this release suggests a realistic floor of **~470h** if the compression pattern holds.
 
 ### Lead time projection
 

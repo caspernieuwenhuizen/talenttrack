@@ -1,3 +1,63 @@
+# TalentTrack v3.23.0 — Multilingual auto-translate (#0025)
+
+Single-feature minor release. Adds an opt-in render-time translation cache for user-entered free text — goal titles, evaluation notes, session descriptions, attendance notes. **Default OFF**: no API calls, no transmission of source text until an admin opts in via Configuration → Translations and confirms the engine acts as a GDPR Article 28 sub-processor.
+
+## What changed
+
+### Schema (migration 0021)
+
+- `tt_translations_cache` — render-time lookup keyed on (source_hash, source_lang, target_lang, engine).
+- `tt_translations_usage` — per-month, per-engine character counters for the soft cost cap.
+- `tt_translation_source_meta` — per-source-string detected language so re-saves of unchanged text dont pay for a re-detection.
+
+### Engines
+
+- `TranslationEngineInterface` — the contract third-party engines implement.
+- `DeepLEngine` — REST adapter; auto-routes free-tier (`:fx` keys) to `api-free.deepl.com` and paid keys to `api.deepl.com`.
+- `GoogleTranslateEngine` — Cloud Translation v3, hand-rolled service-account JWT exchange (no Composer dep on `google/auth`).
+- `tt_translation_engine_factory` filter for slotting in additional engines without modifying core.
+
+### Service
+
+- `TranslationLayer::render()` — cache-first translate with short-circuits when disabled, when source = target, when the user prefers the original, when the cap is hit, or when both engines fail.
+- `detectAndCache()` — wired into `GoalsRestController` + `SessionsRestController` save paths so source-meta is populated at write time, not read time.
+- `invalidateSource()` — called implicitly on content change inside `detectAndCache`.
+- `purgeAllCaches()` — invoked on opt-out per the GDPR posture.
+
+### Admin surfaces
+
+- **Configuration → Translations** tab with opt-in flow (Article 28 confirmation + credentials), engine + fallback selection, monthly character cap, threshold percentage, sub-processor disclosure block, usage-this-month table, clear-cache button. Saving with Enable=ON refuses without the subprocessor checkbox or without engine credentials.
+- **CapThresholdNotice** — persistent dashboard banner. Warning tone (dismissible) at threshold; error tone (persistent, "Raise the cap →" link) at 100%.
+- **UserProfilePreference** — radio on the wp-admin profile screen for `tt_translation_pref` (translated / original / side-by-side). Side-by-side renders `[translated] (original: [source])`.
+
+### Privacy
+
+- `TranslationsModule::registerPrivacyContent()` appends a sub-processor paragraph to the WP privacy-policy editor whenever the layer is enabled. Disabling stops appending; the cache and source-meta truncate.
+
+### Inventory wired
+
+- `FrontendMyGoalsView`, `FrontendMySessionsView`, `PlayerDashboardView` (goals + attendance) render through `TranslationLayer::render()`.
+- `GoalsRestController` + `SessionsRestController` call `detectAndCache()` on title, description, notes for create + update.
+- Other free-text surfaces (custom fields, evaluation notes) layer in cleanly via the same wrap pattern.
+
+### Extensibility
+
+- `ConfigurationPage` gains a `tt_config_tabs` filter + `tt_config_tab_<key>` action so future modules register tabs without editing core.
+
+### Ship-along
+
+- `nl_NL.po` extended with all new admin + user-pref strings.
+- `docs/translations.md` (audience: admin) + `docs/nl_NL/translations.md` cover opt-in, costs, GDPR, troubleshooting.
+- HelpTopics registers the new `translations` slug under the Configuration group.
+- `SEQUENCE.md` flips #0025 from In progress to Done.
+
+## Versioning note
+
+v3.23.0 is a clean single-feature release on top of v3.22.0s multi-PR bundle. The next deployment via PUC picks it up on its 12h poll, or force-check with `wp-admin → Dashboard → Updates → Check again`.
+
+---
+
+
 # TalentTrack v3.22.0 — Workflow & tasks engine + Development management + Guest-player attendance + Documentation split + Icon system
 
 The biggest single release since v3.12.0. Eight PRs land together: two full-blown epics (#0022 workflow & tasks engine, Phase 1 complete in 5 sprints; #0009 development management, full epic in one PR), two shipped features (#0026 guest-player attendance; #0029 documentation split with audience markers), Casper's hand-authored icon system (#0034) replacing dashicons + emoji across the dashboard, and shaping captures for three new ideas.
