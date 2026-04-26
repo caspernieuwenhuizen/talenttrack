@@ -1,56 +1,92 @@
-# TalentTrack v3.22.0 — Guest-player attendance (#0026)
+# TalentTrack v3.22.0 — Workflow & tasks engine + Development management + Guest-player attendance + Documentation split + Icon system
 
-Adds first-class support for off-roster attendance: U-younger players promoted up for an injury cover, players from another club doing a trial day, off-roster guests at friendlies. Coaches can now record their presence without polluting team statistics or the team roster.
+The biggest single release since v3.12.0. Eight PRs land together: two full-blown epics (#0022 workflow & tasks engine, Phase 1 complete in 5 sprints; #0009 development management, full epic in one PR), two shipped features (#0026 guest-player attendance; #0029 documentation split with audience markers), Casper's hand-authored icon system (#0034) replacing dashicons + emoji across the dashboard, and shaping captures for three new ideas.
 
-## What changed
+## #0022 — Workflow & tasks engine, Phase 1 (PRs #54, #56, #57)
 
-### Schema (migration 0020)
+The orchestration layer that turns "we should evaluate after every match" into a scheduled, visible task with a deadline.
 
-- `tt_attendance` gains `is_guest`, `guest_player_id`, `guest_name`, `guest_age`, `guest_position`, `guest_notes` (all nullable, default-safe — existing rows are unaffected).
-- `player_id` relaxed from NOT NULL to NULL so guest rows do not need a sentinel value.
-- New index `idx_session_guest (session_id, is_guest)` keeps the per-session guest fetch and the `is_guest = 0` filter cheap.
-- Application invariant on the save path: `is_guest = 1` requires either `guest_player_id` OR `guest_name`, never both, never neither.
+### Engine + schema (Sprint 1, PR #54)
 
-### REST endpoints
+- Migration `0021_workflow_engine` — `tt_workflow_tasks`, `tt_workflow_triggers`, `tt_workflow_template_config`, plus `parent_user_id` on `tt_players` for the minors-policy resolver.
+- Public PHP API: `WorkflowModule::engine()->dispatch( $template_key, TaskContext )`.
+- Contracts under `Contracts/`: `TaskTemplateInterface`, `FormInterface`, `AssigneeResolver`.
+- Resolvers under `Resolvers/`: `RoleBasedResolver`, `TeamHeadCoachResolver`, `PlayerOrParentResolver` (reads `tt_workflow_minors_assignment_policy` from `tt_config` — four values: `direct_only`, `parent_proxy`, `direct_with_parent_visibility`, `age_based` default), `LambdaResolver`.
+- Four reserved capabilities: `tt_view_own_tasks`, `tt_view_tasks_dashboard`, `tt_configure_workflow_templates`, `tt_manage_workflow_templates`.
 
-- `POST /sessions/{id}/guests` — add a linked or anonymous guest. Body shape: linked = `{ guest_player_id }`; anonymous = `{ guest_name, guest_age?, guest_position?, guest_notes? }`.
-- `PATCH /attendance/{id}` — partial update of an attendance row (status, notes, guest_notes, guest_name/age/position).
-- `DELETE /attendance/{id}` — remove an attendance row outright.
-- The session `PUT` cycle was updated to wipe only roster rows (`is_guest = 0`), so guest rows survive a session edit.
+### Inbox + dispatchers + email + cron diagnostic (Sprints 2-3, PR #56)
 
-### Frontend session edit page
+- `?tt_view=my-tasks` — every user with `tt_view_own_tasks` sees their inbox; the dashboard tile carries an open-count badge.
+- `CronDispatcher` — hourly tick; `EventDispatcher` — subscribes to `event_hook` triggers on `init` priority 20.
+- `TaskMailer` — fires on `tt_workflow_task_created`, sends `wp_mail` plain-text to assignee.
+- `CronHealthNotice` — wp-admin banner when scheduled tasks are 24h overdue (per-user 7-day dismiss).
+- Two shipped templates: post-match coach evaluation (manual trigger v1, 72h deadline, fans out per active player to head coach) and weekly player self-evaluation (cron `0 18 * * 0`, 7-day deadline, minors-policy aware routing).
 
-- New **Guests** section under the existing roster table, with a **+ Add guest** button that opens a modal with two tabs: linked (cross-team player picker) and anonymous (name + age + position).
-- Guest rows render distinctly: italic name, "Guest" badge, home-team subline for linked guests, "(unaffiliated)" for anonymous.
-- Linked-guest rows expose an **Evaluate** link that drops the coach into the normal evaluation form for that player; the resulting evaluation appears on the players own profile.
-- Anonymous-guest rows have an inline notes input that PATCH-saves on blur, plus an **Add as player** action that promotes the row to a real `tt_players` record without losing attendance history.
+### Goal-setting chain + HoD review + dashboard + admin config (Sprints 4-5, PR #57)
 
-### Promotion flow
+- Three more templates: quarterly goal-setting (player drafts up to 3 goals; on completion auto-spawns a goal-approval task for the coach via `parent_task_id`); goal-approval (chain-spawned only); quarterly HoD review (live-data form aggregating last 90 days of evaluations / sessions / goals / on-time task completion).
+- `?tt_view=tasks-dashboard` — HoD overview with per-template + per-coach completion rates and currently-overdue list (top 25, color-coded).
+- `?tt_view=workflow-config` — academy admin: per-template enable/disable, cadence + deadline overrides, minors-policy switch.
+- Migration `0022_workflow_default_triggers` + `0023_workflow_quarterly_triggers` seed the cron triggers.
 
-- A guest rows **Add as player** link opens the player-create form pre-filled with the guests name, derived date of birth, and position. After save, the original attendance row is updated to set `guest_player_id` to the new id and clear the anonymous fields; `is_guest` stays at 1 (the historical fact that they joined as a guest is preserved).
+## #0009 — Development management (PR #59)
 
-### Stats isolation
+Submit ideas from inside the dashboard. Lead-dev approves and the plugin auto-commits to the `ideas/` folder on GitHub.
 
-- The session-list `attendance_count` subquery now filters by `is_guest = 0` so the **Att. %** column reflects roster turnout only — guests no longer push the percentage past 100%.
-- The legacy wp-admin session save path also marks roster rows with `is_guest = 0` and only wipes roster rows on update, mirroring the REST behaviour.
+- Migration `0024_development_management` — `tt_dev_ideas` + `tt_dev_tracks` + four caps (`tt_submit_idea` granted to every TalentTrack role except `tt_player` and `tt_parent`; `tt_refine_idea` + `tt_view_dev_board` to admin / head-dev / club-admin; `tt_promote_idea` admin-only).
+- `GitHubPromoter` — REST API client that lists `ideas/`, `specs/`, and `specs/shipped/`, allocates the next free `NNNN`, and `PUT`s `ideas/NNNN-<type>-<slug>.md` straight to `main` via `wp_remote_*()`. Auto-retries once on 422 (race), surfaces clear errors otherwise.
+- `wp-config.php` constants: `TT_GITHUB_TOKEN` (required, fine-grained PAT with `Contents: Read & write`), `TT_IDEAS_REPO` (optional override), `TT_IDEAS_BASE_BRANCH` (optional).
+- Five frontend views: Submit-an-idea form, Development board (kanban), per-card Refine, Approval queue (with disabled-when-no-token state + confirm modal on promote + retry section for failed promotions), and Development tracks.
+- Author notifications via `wp_mail` on `rejected` / `promoted` / `in-progress` transitions.
+- Goals integration — promoting an idea to `in-progress` with a tagged player auto-spawns a row in `tt_goals` linked to that player.
+- Player-facing labels collapse internal states to four buckets: *Submitted* / *In review* / *Accepted* / *Not accepted*. `promoting` and `promotion-failed` never leak.
+- New "Development" tile group in the dashboard tile grid; players + parents see nothing.
 
-### Player profile
+## #0026 — Guest-player attendance (PR #55)
 
-- The Attendance tab on a player profile (and the **My sessions** view) now matches on either `player_id` or `guest_player_id`. Guest visits surface with an **(as guest)** marker on the session label.
+First-class support for off-roster attendance: U-younger players promoted up for injury cover, players from another club doing a trial day, off-roster guests at friendlies. Coaches record their presence without polluting team statistics or the roster.
 
-### Components + assets
+- Migration `0020_attendance_guests` — `tt_attendance` gains `is_guest`, `guest_player_id`, `guest_name`, `guest_age`, `guest_position`, `guest_notes` (all nullable). `player_id` relaxed to NULL. Index `idx_session_guest (session_id, is_guest)`.
+- REST: `POST /sessions/{id}/guests` (linked or anonymous), `PATCH /attendance/{id}`, `DELETE /attendance/{id}`. Session `PUT` wipes only roster rows (`is_guest = 0`), so guests survive an edit.
+- Frontend session edit page: new **Guests** section under the roster, **+ Add guest** modal with linked / anonymous tabs. Guest rows render distinctly (italic name, "Guest" badge). Linked guests have an **Evaluate** link; anonymous guests have inline-PATCHing notes + an **Add as player** promotion that pre-fills the player-create form and re-anchors the attendance row to the new id.
+- Stats isolation: session-list `attendance_count` filters `is_guest = 0` so **Att. %** reflects roster turnout only.
+- Player profile: Attendance tab + **My sessions** view match on either `player_id` or `guest_player_id`; guest visits show an **(as guest)** marker.
+- New `GuestAddModal` component, extended `PlayerPickerComponent` with `cross_team` + `exclude_team_id` modes, new `assets/js/components/guest-add.js`.
 
-- New `GuestAddModal` component with the linked / anonymous tabs.
-- Extended `PlayerPickerComponent` with `cross_team` and `exclude_team_id` modes for the linked-guest picker.
-- New `assets/js/components/guest-add.js` for modal interactions + REST calls.
-- New CSS in `assets/css/frontend-admin.css` for the guest row, badge, modal, and the **(as guest)** marker on the player profile.
+## #0029 — Documentation split (PR #58)
 
-### Ship-along
+The wiki gains audience labels so users see only docs aimed at their role.
 
-- `languages/talenttrack-nl_NL.po` extended with the new strings (NL primary). `.mo` regenerated by the Translations workflow on merge.
-- `docs/sessions.md` + `docs/nl_NL/sessions.md` extended with a Guest attendance section covering the two flavours, add flow, promotion, and stats isolation.
-- `SEQUENCE.md` flips #0026 from Ready to Done.
-- Plugin version + readme.txt stable tag → 3.22.0.
+- Every `docs/*.md` and `docs/**/*.md` declares an `<!-- audience: user | admin | dev | user, admin -->` marker; CI fails the build if any doc is missing one.
+- New `Documentation\AudienceResolver` filters the TOC sidebar by current user role; wp-admin docs page shows audience-tagged search + filter.
+- New developer-tier docs (English-only by design): `docs/architecture.md`, `docs/contributing.md`, `docs/hooks-and-filters.md`, `docs/index.md`, `docs/rest-api.md`, `docs/theme-integration.md`.
+- New "Developer" group in `HelpTopics::groups()` covering REST API reference, hooks & filters, architecture, theme integration.
+- `.github/workflows/release.yml` gains a `docs-audience` job that runs on every PR.
+
+## #0034 — Custom icon system (PR #60)
+
+Casper's hand-authored SVG set replaces dashicons (admin) + emoji (frontend) across the dashboard tile grid and admin menu.
+
+- New `assets/icons/<name>.svg` — 24×24 viewBox, single-path silhouettes, `fill="currentColor"` so existing tile accent colors drive the rendering.
+- New `Shared\Icons\IconRenderer` helper inlines SVGs at render time with a static per-request cache.
+- Both `Shared\Admin\Menu.php` and `Shared\Frontend\FrontendTileGrid.php` switch from `'icon' => 'dashicons-shield'` / `'emoji' => '🛡'` to `'icon' => 'teams'` lookups.
+- Coverage is exactly the surfaces that ship today; future features add their icon at the time they ship. Dashicons stay in the codebase for WP-admin core surfaces outside our control.
+
+## Idea backlog (PR #53)
+
+Captured shaping decisions for three new ideas:
+
+- **#0031** — Spond calendar integration. iCal-feed scope, poll frequency, write-back, match-vs-training detection still open.
+- **#0032** — User invitation flow (player / parent / staff via shareable WhatsApp-friendly link). Trigger surfaces, token TTL, parent-role question (reuse `tt_player` or new `tt_parent`?) still open.
+- **#0033** — Authorization review (8 personas × 3 activities × ~25 entities matrix). Storage model, multi-persona resolution, scope model, tile/menu rendering still open.
+
+## Ship-along
+
+- `languages/talenttrack-nl_NL.po` extended with all new strings across all eight PRs. `.mo` regenerated by the Translations workflow on each merge.
+- `docs/workflow-engine.md`, `docs/workflow-engine-cron-setup.md`, `docs/development-management.md`, `docs/sessions.md` (extended), all with their `nl_NL` translations and audience markers.
+- `HelpTopics` gains `workflow-engine`, `workflow-engine-cron-setup`, `development-management`, plus the developer-tier topics.
+- `DEVOPS.md` gets a "Plugin constants in `wp-config.php`" section documenting the three #0009 constants + a link to the fine-grained PAT creation page.
+- `SEQUENCE.md` flips #0026, #0022 (Phase 1), #0029, #0009, #0034 from Ready / Not started → Done; promotes #0028 from Blocked to Ready (#0022 Phase 1 unblocked it).
 
 ---
 

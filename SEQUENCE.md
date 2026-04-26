@@ -4,14 +4,15 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 
 ## In progress
 
-_None._
+| # | Topic | Type | Branch | Notes |
+| - | - | - | - | - |
+| 0025 | Multilingual auto-translate flow | feat | `feat/0025-multilingual-auto-translate-v2` (PR #61) | Casper's open PR — opt-in layer, default OFF |
 
 ## Ready (shaped, decisions locked)
 
 | # | Topic | Type | Spec | Estimated |
 | - | - | - | - | - |
-| 0029 | Documentation split (user / admin / dev) | feat | [specs/0029-feat-documentation-split-user-admin.md](specs/0029-feat-documentation-split-user-admin.md) | ~17h |
-| 0025 | Multilingual auto-translate flow | feat | [specs/0025-feat-multilingual-auto-translate.md](specs/0025-feat-multilingual-auto-translate.md) | ~26h |
+| 0028 | Goals as conversational thread | feat | (spec TBD; #0022 Phase 1 unblocked) | ~20-30h |
 
 ## Needs refinement / shaping
 
@@ -27,28 +28,29 @@ _None._
 | # | Topic | Type | Estimated |
 | - | - | - | - |
 | 0006 | Team planning module | epic | ~55h |
-| 0009 | Development management | epic | ~30h |
-| 0010 | Multi-language (FR/DE/ES) | feat | ~80-140h |
+| 0010 | Multi-language (FR/DE/ES) | feat | ~80-140h (likely lower now that #0029 split + #0025 auto-translate land first) |
 | 0012 | Anti-AI fingerprint pass | epic | ~50-75h |
 | 0014 | Player profile + report generator | epic | ~58h |
 | 0016 | Photo-to-session capture | epic | ~80h |
-| 0017 | Trial player module | epic | ~72h (blocked behind #0014 Sprint 3 + #0022 Phase 1) |
+| 0017 | Trial player module | epic | ~72h (still blocked behind #0014 Sprint 3; #0022 Phase 1 dep cleared) |
 | 0018 | Team development / chemistry | epic | ~60h |
 | 0021 | Audit log viewer | feat | ~10h |
-| 0022 | Workflow & tasks engine | epic | ~62h (Phase 1) |
+| 0022 | Workflow & tasks engine — Phase 2 | epic | ~30-40h (multi-step chains as first-class primitive, browser-push notifications, formulier-builder primer) |
 
 ## Blocked
 
-| # | Topic | Blocked on |
-| - | - | - |
-| 0028 | Goals as conversational thread | #0022 Phase 1 (needs the thread/notification primitives) |
+_None._
 
 ## Done
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
+| 0009 | Development management (submit → refine → approve → promote-to-GitHub + tracks) | epic | v3.22.0 | ~30h | ~6h (one-PR build, full epic, scope locked via 8 inline shaping Qs) |
+| 0022 | Workflow & tasks engine (Phase 1 — engine + 5 templates + inbox + dashboard + admin config) | epic | v3.22.0 | ~62h | ~14h across 5 sprints in 3 stacked PRs |
+| 0029 | Documentation split (audience markers + role-filtered TOC + dev-tier docs) | feat | v3.22.0 | ~17h | ~6h |
+| 0034 | Custom icon system (replace dashicons + emoji) | feat | v3.22.0 | (no estimate; shaped + shipped same day) | ~5h |
 | 0026 | Guest-player attendance | feat | v3.22.0 | ~10h | ~10h |
-| 0027 | Football methodology module (framework + full PDF content + visuals + per-club primer + football actions) | feat | v3.19.0 + v3.21.0 | ~52h initial + expansion | ~32h framework; ~50h expansion (assets table, framework primer schema, edit pages, frontend, content seed, image extraction) |
+| 0027 | Football methodology module (framework + full PDF content + visuals + per-club primer + football actions) | feat | v3.19.0 + v3.21.0 | ~52h initial + expansion | ~32h framework; ~50h expansion |
 | 0003 | Player evaluations view polish | feat | v3.18.0 | ~6h | ~3h |
 | 0004 | My card tile polish | feat | v3.18.0 | ~5h | ~2h |
 | 0011 | Monetization (licensing + tiers + caps + trial) | epic | v3.17.0 | ~44-55h | ~30h |
@@ -71,19 +73,61 @@ _None._
 
 ## What's next
 
-#0011 monetization closed in v3.17.0; #0013 closed in v3.16.0; #0024 closed in v3.14.0; #0019 closed in v3.12.0; #0003 + #0004 shipped in v3.18.0. Four items now shaped and Ready (#0025, #0026, #0027, #0029). Realistic next moves:
+v3.22.0 closed five items in a single release: #0026 (~10h), #0022 Phase 1 (~14h), #0029 (~6h), #0009 (~6h), #0034 (~5h) — **~41h of work, vs ~119h estimate**. The estimation gap is mostly because:
 
-1. **Implement from Ready** — pick the smallest first (#0026 ~10h) for momentum, or the highest-value (#0027 methodology, ~52h across 4 sprints) for a bigger pay-off. #0029 (~17h) unblocks the multi-language scope on #0010. #0025 (~26h) delivers most value alongside or after #0010.
-2. **Shape #0030** — branding + go-to-market (Q1-Q8 from the new idea file). The natural follow-on to monetization; without it, the licensing scaffold has nothing to direct people to.
-3. **Pick from "Not started"** — #0014 Player profile rebuild is the highest-leverage next epic since it unblocks #0017.
+1. Compressed sprints into single PRs (the #0011 / #0013 / #0027 pattern continues).
+2. Inline-shaping with bolded recommendations resolved 8 open questions on #0009 in seconds.
+3. Stacked PRs (#54 → #56 → #57) avoided the rebase-conflict cost most teams pay on stacks.
+
+Realistic next moves:
+
+1. **Land #0025** — Casper's open PR #61. The auto-translate layer is the next scope-multiplier; once landed it changes the size of #0010 (multi-language).
+2. **Pick from "Not started"** — best-leverage candidates:
+   - **#0014 Player profile rebuild (~58h)** — unblocks #0017 (trial player module, ~72h after this).
+   - **#0021 Audit log viewer (~10h)** — small, high-utility for a paying customer install, hooks into the workflow-engine + #0009 promote actions naturally.
+   - **#0006 Team planning module (~55h)** — pairs well with #0022 (sessions are templated, scheduling on a calendar is the obvious next surface).
+3. **Shape #0030** — branding + go-to-market. The licensing scaffold from #0011 still has nothing to direct people to. Casper-side authoring is on the critical path here, not engineering.
+4. **Shape #0028** — goals as conversational thread. #0022 Phase 1 unblocked it; rough estimate ~20-30h pending the shaping pass.
 
 ## Total backlog effort estimate
 
-Rough driver-time across all not-done items: **~700-870h**. At 2 hours/day with empirical 1.2-1.5× iteration multiplier, roughly **2.5-3 years of elapsed time** to ship the full backlog.
+### Remaining work (excluding #0025 which is in PR review)
+
+| Bucket | Low | High |
+| - | - | - |
+| In progress (#0025) | 26 | 26 |
+| Ready (#0028) | 20 | 30 |
+| Needs shaping (#0030, #0031, #0032, #0033) | 117 | 173 |
+| Not started (#0006, #0010, #0012, #0014, #0016, #0017, #0018, #0021, #0022 Phase 2) | 495 | 590 |
+| **Total remaining** | **~658h** | **~819h** |
+
+Was ~700-870h at end of v3.21.0; this release cleared ~119h of estimate (vs ~41h actual). Remaining estimates intentionally conservative — empirical 1.4× under-shoot rate from this release suggests a realistic floor of **~470h** if the compression pattern holds.
+
+### Lead time projection
+
+At Casper's empirical pace (~6-8 effective driver-hours per evening on busy weeks; ~15-20h per week sustainable), and applying the iteration multiplier:
+
+| Pace | Hours/week | Weeks remaining (low / high) | Months (low / high) |
+| - | - | - | - |
+| Optimistic — compression holds, 1.0× multiplier | 20 | 33 / 41 | ~7-9 |
+| Realistic — 1.2× iteration multiplier | 15 | 53 / 65 | ~12-15 |
+| Conservative — 1.5× multiplier on Casper-side authoring tasks (#0030, #0027 content, multi-language) | 12 | 82 / 102 | ~19-24 |
+
+**Lead time floor: ~7-9 months** if the v3.22.0 compression pattern holds (single-PR epics, stacked sprints, inline shaping). **Realistic median: ~12-15 months** — late-2027. The conservative upper bound (~24 months) reflects the reality that #0030 branding and #0010 multi-language depend on Casper-side authoring throughput, not engineering throughput.
+
+### Throughput calibration
+
+This session's data is the largest single observation we have:
+
+- **41h actual vs 119h estimate** → 1 / 2.9 multiplier (under-shoot by 65%).
+- Driven by: stacking PRs, decision compression, and the empirical "an agent can ship a full epic in one PR if the spec is locked" pattern.
+- Not all backlog items will compress this aggressively. Authoring-heavy work (#0030 brand voice + screenshots, #0010 translations to FR/DE/ES, #0027 PDF content authoring) is bound by Casper's own writing pace, not engineering velocity.
+- Pure engineering items (#0014, #0021, #0006) are the most likely to repeat the v3.22.0 compression.
 
 ## Principles
 
 1. Don't widen scope prematurely. Single tier sold well beats three tiers with no traction (#0011).
 2. Activation matters most. #0024 shipped first (v3.14.0); #0013 backup ships next; #0011 monetization after.
-3. Track actual throughput. By end of May 2026 there's ~80h of real data (Phase 0–1); use it to validate or revise the rest of the sequence.
-4. Deps are real. #0017 depends on #0014 Sprint 3 + #0022 Phase 1; don't start it before both ship.
+3. Track actual throughput. v3.22.0 is the largest single calibration data point — use the 1/2.9 ratio carefully (it doesn't generalise to authoring tasks).
+4. Deps are real, but they fall fast. #0017 was blocked behind #0022 Phase 1 + #0014 Sprint 3 — Phase 1 cleared this release; #0014 is now the only remaining gate.
+5. Compress sprints aggressively. v3.22.0 demonstrates the pattern at scale — five distinct epics + features + shaping in a single release.
