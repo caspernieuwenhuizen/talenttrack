@@ -55,6 +55,13 @@ class DemoDataPage {
         }
         // The demo admin page always sees everything, regardless of toggle.
         DemoMode::overrideForRequest( DemoMode::NEUTRAL );
+        wp_enqueue_script(
+            'tt-demo-page',
+            TT_PLUGIN_URL . 'assets/js/demo-page.js',
+            [],
+            TT_VERSION,
+            true
+        );
 
         $notice = isset( $_GET['tt_demo_msg'] )   ? sanitize_text_field( wp_unslash( (string) $_GET['tt_demo_msg'] ) )   : '';
         $batch  = isset( $_GET['tt_demo_batch'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tt_demo_batch'] ) ) : '';
@@ -231,50 +238,70 @@ class DemoDataPage {
         $users_exist       = DemoGenerator::persistentUsersExist();
         $default_club_name = self::defaultClubName();
         ?>
-        <h2 style="margin-top:32px;"><?php esc_html_e( 'Generate', 'talenttrack' ); ?></h2>
+        <h2 class="tt-demo-h2"><?php esc_html_e( 'Generate', 'talenttrack' ); ?></h2>
 
         <?php if ( $users_exist ) : ?>
-            <div class="notice notice-info inline" style="margin:8px 0 16px;">
+            <div class="notice notice-info inline tt-demo-leadnote">
                 <p>
                     <strong><?php esc_html_e( 'Demo users already exist from a previous run.', 'talenttrack' ); ?></strong>
                     <?php esc_html_e( 'No new WP users will be created and no welcome emails will be sent. This run only creates data rows (teams, players, evaluations, sessions, goals).', 'talenttrack' ); ?>
                 </p>
             </div>
         <?php else : ?>
-            <div class="notice notice-warning inline" style="margin:8px 0 16px;">
+            <div class="notice notice-warning inline tt-demo-leadnote">
                 <p>
                     <strong><?php esc_html_e( 'First run.', 'talenttrack' ); ?></strong>
-                    <?php esc_html_e( 'This run will create 36 persistent demo WP users and send them WordPress welcome emails. The email domain must catch mail you control.', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'This run will create 36 persistent demo WP users and send them WordPress welcome emails. The email domain must be one whose inbox you control (a catch-all is best — see below for details).', 'talenttrack' ); ?>
                 </p>
             </div>
         <?php endif; ?>
 
-        <div id="tt-demo-generating" style="display:none; position:fixed; inset:0; background:rgba(20,25,32,0.72); z-index:10000; align-items:center; justify-content:center;">
-            <div style="background:#fff; border-radius:10px; padding:32px 40px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.3); max-width:420px;">
-                <div style="width:48px; height:48px; border:4px solid #e5e7ea; border-top-color:#2271b1; border-radius:50%; margin:0 auto 18px; animation: tt-demo-spin 0.9s linear infinite;"></div>
-                <h3 style="margin:0 0 6px; font-size:18px;"><?php esc_html_e( 'Generating demo data…', 'talenttrack' ); ?></h3>
-                <p style="margin:0; color:#666; font-size:13px;">
-                    <?php esc_html_e( 'This usually takes 15–45 seconds depending on the preset. Leave this tab open until it finishes.', 'talenttrack' ); ?>
-                </p>
+        <div class="tt-runner-overlay" data-tt-demo-overlay hidden role="alertdialog" aria-live="assertive" aria-labelledby="tt-demo-overlay-title">
+            <div class="tt-runner-overlay-card">
+                <div class="tt-runner-overlay-spinner" aria-hidden="true"></div>
+                <h3 id="tt-demo-overlay-title" class="tt-runner-overlay-title"><?php esc_html_e( 'Generating demo data…', 'talenttrack' ); ?></h3>
+                <p class="tt-runner-overlay-msg"><?php esc_html_e( 'This usually takes 15–45 seconds depending on the preset. Leave this tab open until it finishes.', 'talenttrack' ); ?></p>
             </div>
         </div>
-        <style>@keyframes tt-demo-spin { to { transform: rotate(360deg); } }</style>
 
-        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="tt-demo-generate-form">
+        <div class="tt-demo-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Generate-form layout', 'talenttrack' ); ?>">
+            <button type="button" class="tt-demo-tab tt-demo-tab-active" data-tt-demo-tab="basic" role="tab" aria-selected="true">
+                <?php esc_html_e( 'Basic', 'talenttrack' ); ?>
+            </button>
+            <button type="button" class="tt-demo-tab" data-tt-demo-tab="advanced" role="tab" aria-selected="false">
+                <?php esc_html_e( 'Advanced', 'talenttrack' ); ?>
+            </button>
+        </div>
+
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="tt-demo-generate-form" class="tt-demo-form" data-tt-demo-form>
             <?php wp_nonce_field( 'tt_demo_generate', 'tt_demo_nonce' ); ?>
             <input type="hidden" name="action" value="tt_demo_generate" />
+
             <table class="form-table">
-                <tbody>
+                <tbody data-tt-demo-tab-pane="basic">
                     <tr>
                         <th scope="row"><label for="tt_demo_preset"><?php esc_html_e( 'Preset', 'talenttrack' ); ?></label></th>
                         <td>
                             <select id="tt_demo_preset" name="preset">
-                                <?php foreach ( DemoGenerator::PRESETS as $key => $cfg ) : ?>
+                                <?php foreach ( DemoGenerator::PRESETS as $key => $cfg ) :
+                                    $preset_label = self::presetLabel( (string) $key );
+                                    ?>
                                     <option value="<?php echo esc_attr( $key ); ?>" <?php selected( $key, 'small' ); ?>>
-                                        <?php echo esc_html( sprintf(
-                                            '%s — %d team(s), %d players/team, %d weeks',
-                                            ucfirst( $key ), $cfg['teams'], $cfg['players_per_team'], $cfg['weeks']
-                                        ) ); ?>
+                                        <?php
+                                        echo esc_html( sprintf(
+                                            /* translators: 1: preset name, 2: number of teams, 3: players per team, 4: weeks of activity */
+                                            _n(
+                                                '%1$s — %2$d team, %3$d players/team, %4$d weeks',
+                                                '%1$s — %2$d teams, %3$d players/team, %4$d weeks',
+                                                (int) $cfg['teams'],
+                                                'talenttrack'
+                                            ),
+                                            $preset_label,
+                                            (int) $cfg['teams'],
+                                            (int) $cfg['players_per_team'],
+                                            (int) $cfg['weeks']
+                                        ) );
+                                        ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -292,11 +319,13 @@ class DemoDataPage {
                         <td>
                             <input type="text" id="tt_demo_domain" name="domain" value="demo.talenttrack.local" class="regular-text" <?php echo $users_exist ? '' : 'required'; ?> />
                             <p class="description">
-                                <?php if ( $users_exist ) :
-                                    esc_html_e( 'Ignored — users already exist. Kept for reference; change only if you plan to wipe users and recreate.', 'talenttrack' );
-                                else :
-                                    esc_html_e( 'Every demo account will be <slot>@<this-domain>. Use a catch-all address you control.', 'talenttrack' );
-                                endif; ?>
+                                <?php if ( $users_exist ) : ?>
+                                    <?php esc_html_e( 'Ignored — users already exist. Kept for reference; change only if you plan to wipe users and recreate.', 'talenttrack' ); ?>
+                                <?php else : ?>
+                                    <?php esc_html_e( 'Every demo account will be <slot>@<this-domain> (e.g. coach1@demo.example.com).', 'talenttrack' ); ?>
+                                    <strong><?php esc_html_e( 'WordPress will email welcome credentials to each address.', 'talenttrack' ); ?></strong>
+                                    <?php esc_html_e( 'Pick a domain whose inbox you actually receive — a catch-all (anything@yourdomain.tld → real inbox) is the safest, since 36 different addresses are generated. Loopback values like demo.talenttrack.local work locally but bounce on a real server. If your DNS doesn\'t support catch-all, see the manual user list below and create the WordPress users yourself first.', 'talenttrack' ); ?>
+                                <?php endif; ?>
                             </p>
                         </td>
                     </tr>
@@ -313,6 +342,41 @@ class DemoDataPage {
                             </p>
                         </td>
                     </tr>
+                    <?php if ( ! $users_exist ) : ?>
+                    <tr>
+                        <th scope="row"><label for="tt_demo_confirm"><?php esc_html_e( 'I confirm this domain catches mail I own', 'talenttrack' ); ?></label></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" id="tt_demo_confirm" name="domain_confirmed" value="1" required />
+                                <?php esc_html_e( 'Required — 36 WP welcome emails will be sent.', 'talenttrack' ); ?>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"></th>
+                        <td>
+                            <details class="tt-demo-manual-users">
+                                <summary><?php esc_html_e( 'Skip user creation — show me the list to create manually', 'talenttrack' ); ?></summary>
+                                <div class="tt-demo-manual-users-body">
+                                    <p>
+                                        <?php esc_html_e( 'Prefer to create the WordPress users yourself (e.g. your hosting environment doesn\'t support catch-all email)? Create the 36 accounts below before running the generator. Use any role for now — TalentTrack reassigns roles based on slot during data generation. Once they all exist, this page will detect them and skip the user-creation step automatically.', 'talenttrack' ); ?>
+                                    </p>
+                                    <pre class="tt-demo-manual-users-list"><?php
+                                        $slots = self::expectedDemoSlots();
+                                        foreach ( $slots as $slot ) {
+                                            echo esc_html( $slot . '@<your-domain>' ) . "\n";
+                                        }
+                                    ?></pre>
+                                    <p class="description">
+                                        <?php esc_html_e( 'Replace <your-domain> with the value you typed in the field above. After creating them, refresh this page — the warning above turns to "Demo users already exist".', 'talenttrack' ); ?>
+                                    </p>
+                                </div>
+                            </details>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                </tbody>
+                <tbody data-tt-demo-tab-pane="advanced" hidden>
                     <tr>
                         <th scope="row"><label for="tt_demo_seed"><?php esc_html_e( 'Seed', 'talenttrack' ); ?></label></th>
                         <td>
@@ -342,37 +406,40 @@ class DemoDataPage {
                             <p class="description"><?php esc_html_e( 'Language the generated content (goal titles, descriptions, session titles, default location) is written in. Only languages the generators ship content dictionaries for are listed — add a key to GoalGenerator / SessionGenerator constants to support a new one.', 'talenttrack' ); ?></p>
                         </td>
                     </tr>
-                    <?php if ( ! $users_exist ) : ?>
-                    <tr>
-                        <th scope="row"><label for="tt_demo_confirm"><?php esc_html_e( 'I confirm this domain catches mail I own', 'talenttrack' ); ?></label></th>
-                        <td>
-                            <label>
-                                <input type="checkbox" id="tt_demo_confirm" name="domain_confirmed" value="1" required />
-                                <?php esc_html_e( 'Required — 36 WP welcome emails will be sent.', 'talenttrack' ); ?>
-                            </label>
-                        </td>
-                    </tr>
-                    <?php endif; ?>
                 </tbody>
             </table>
             <?php submit_button( __( 'Generate demo data', 'talenttrack' ) ); ?>
         </form>
-        <script>
-            (function () {
-                var form = document.getElementById( 'tt-demo-generate-form' );
-                var overlay = document.getElementById( 'tt-demo-generating' );
-                if ( ! form || ! overlay ) return;
-                form.addEventListener( 'submit', function () {
-                    // Honour native validation: only show overlay if the form
-                    // will actually submit.
-                    if ( typeof form.checkValidity === 'function' && ! form.checkValidity() ) return;
-                    overlay.style.display = 'flex';
-                    var btn = form.querySelector( 'input[type="submit"]' );
-                    if ( btn ) btn.disabled = true;
-                } );
-            })();
-        </script>
         <?php
+    }
+
+    /** Localised label for a preset slug. */
+    private static function presetLabel( string $key ): string {
+        switch ( $key ) {
+            case 'small':  return __( 'Small',  'talenttrack' );
+            case 'medium': return __( 'Medium', 'talenttrack' );
+            case 'large':  return __( 'Large',  'talenttrack' );
+        }
+        return ucfirst( $key );
+    }
+
+    /**
+     * The 36 demo-account slot prefixes we'd create on first run.
+     * Surfaced in the "skip user creation" disclosure so admins who
+     * prefer to create the WP users themselves (e.g. no catch-all
+     * available) know which addresses to set up before continuing.
+     *
+     * @return string[]
+     */
+    private static function expectedDemoSlots(): array {
+        $slots = [
+            'admin', 'hod', 'coach1', 'coach2', 'coach3', 'coach4',
+            'physio', 'team-manager', 'scout', 'observer',
+        ];
+        for ( $i = 1; $i <= 26; $i++ ) {
+            $slots[] = sprintf( 'player%02d', $i );
+        }
+        return $slots;
     }
 
     private static function defaultClubName(): string {

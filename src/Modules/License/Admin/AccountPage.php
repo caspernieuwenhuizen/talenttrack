@@ -91,6 +91,25 @@ class AccountPage {
                 </div>
             <?php endif; ?>
 
+            <?php
+            // Setup-wizard hand-off (#5). If the wizard is incomplete, show a
+            // small in-page notice with a Resume button so admins finding their
+            // way to Account can pick it up here too — same as on the
+            // Configuration → Setup wizard tab.
+            if ( class_exists( '\\TT\\Modules\\Onboarding\\OnboardingState' )
+                && ! \TT\Modules\Onboarding\OnboardingState::isCompleted() ) :
+                $wizard_url = admin_url( 'admin.php?page=tt-welcome' );
+                ?>
+                <div class="notice notice-info">
+                    <p><strong><?php esc_html_e( 'Finish setting up TalentTrack.', 'talenttrack' ); ?></strong>
+                       <?php esc_html_e( 'The setup wizard is still in progress — pick it up where you left off any time.', 'talenttrack' ); ?>
+                       <a href="<?php echo esc_url( $wizard_url ); ?>" class="button button-small" style="margin-left:8px;">
+                           <?php esc_html_e( 'Resume setup wizard', 'talenttrack' ); ?>
+                       </a>
+                    </p>
+                </div>
+            <?php endif; ?>
+
             <h2><?php esc_html_e( 'Current tier', 'talenttrack' ); ?></h2>
             <p style="font-size:18px;">
                 <strong><?php echo esc_html( FeatureMap::tierLabel( $tier ) ); ?></strong>

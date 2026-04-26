@@ -47,6 +47,7 @@ class ConfigurationPage {
             'branding'        => __( 'Branding', 'talenttrack' ),
             'toggles'         => __( 'Feature Toggles', 'talenttrack' ),
             'backups'         => __( 'Backups', 'talenttrack' ),
+            'wizard'          => __( 'Setup wizard', 'talenttrack' ),
             'audit'           => __( 'Audit Log', 'talenttrack' ),
         ];
 
@@ -85,6 +86,7 @@ class ConfigurationPage {
                 case 'branding':        self::tab_branding(); break;
                 case 'toggles':         self::tab_toggles(); break;
                 case 'backups':         \TT\Modules\Backup\Admin\BackupSettingsPage::render(); break;
+                case 'wizard':          self::tab_wizard(); break;
                 case 'audit':           self::tab_audit(); break;
             }
             ?>
@@ -142,6 +144,60 @@ class ConfigurationPage {
             </table>
             <?php submit_button( __( 'Save Toggles', 'talenttrack' ) ); ?>
         </form>
+        <?php
+    }
+
+    /* ═══ Setup wizard tab ═══ */
+
+    private static function tab_wizard(): void {
+        $state         = \TT\Modules\Onboarding\OnboardingState::get();
+        $is_completed  = \TT\Modules\Onboarding\OnboardingState::isCompleted();
+        $current_step  = (string) ( $state['step'] ?? 'welcome' );
+        $wizard_url    = admin_url( 'admin.php?page=tt-welcome' );
+        $resume_url    = $wizard_url;
+        $restart_url   = admin_url( 'admin.php?page=tt-welcome&force_welcome=1' );
+        $step_labels   = [
+            'welcome'     => __( 'Welcome', 'talenttrack' ),
+            'academy'     => __( 'Academy basics', 'talenttrack' ),
+            'first_team'  => __( 'First team', 'talenttrack' ),
+            'first_admin' => __( 'First admin', 'talenttrack' ),
+            'done'        => __( 'Done', 'talenttrack' ),
+        ];
+        $current_label = $step_labels[ $current_step ] ?? $current_step;
+        ?>
+        <h2><?php esc_html_e( 'Setup wizard', 'talenttrack' ); ?></h2>
+        <p style="max-width:680px;">
+            <?php esc_html_e( 'The setup wizard walks you through naming your academy, picking a primary colour, creating your first team, and registering your first administrator. You can stop and resume at any point — your progress is saved automatically.', 'talenttrack' ); ?>
+        </p>
+
+        <?php if ( $is_completed ) : ?>
+            <div class="notice notice-success inline" style="margin:16px 0;">
+                <p>
+                    <strong><?php esc_html_e( 'Wizard completed.', 'talenttrack' ); ?></strong>
+                    <?php esc_html_e( 'You can run it again any time — restarting won\'t delete the data you already entered.', 'talenttrack' ); ?>
+                </p>
+            </div>
+            <p>
+                <a href="<?php echo esc_url( $restart_url ); ?>" class="button"><?php esc_html_e( 'Run wizard again', 'talenttrack' ); ?></a>
+            </p>
+        <?php else : ?>
+            <div class="notice notice-info inline" style="margin:16px 0;">
+                <p>
+                    <strong><?php esc_html_e( 'In progress.', 'talenttrack' ); ?></strong>
+                    <?php
+                    printf(
+                        /* translators: %s is the current wizard step label. */
+                        esc_html__( 'Last step you were on: %s.', 'talenttrack' ),
+                        '<em>' . esc_html( $current_label ) . '</em>'
+                    );
+                    ?>
+                </p>
+            </div>
+            <p>
+                <a href="<?php echo esc_url( $resume_url ); ?>" class="button button-primary"><?php esc_html_e( 'Resume setup wizard', 'talenttrack' ); ?></a>
+                <a href="<?php echo esc_url( $restart_url ); ?>" class="button" style="margin-left:8px;"><?php esc_html_e( 'Start over', 'talenttrack' ); ?></a>
+            </p>
+        <?php endif; ?>
         <?php
     }
 

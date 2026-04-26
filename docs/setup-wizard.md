@@ -4,9 +4,13 @@ The setup wizard is the first thing a fresh TalentTrack install shows. It create
 
 ## Where to find it
 
+The wizard is reachable from four places — pick whichever you find first.
+
 - **First-time install**: a banner appears on the wp-admin TalentTrack dashboard with a "Start setup" button.
 - **Returning to it**: while the wizard is still incomplete, a `TalentTrack → Welcome` menu entry sits directly under Dashboard.
-- **After completing**: the menu entry and banner disappear. To re-enter, click "Reset wizard" — that returns you to step 1 and clears any stored progress.
+- **Configuration tab**: `Configuration → Setup wizard` shows the current wizard state (in-progress / completed) with **Resume** and **Start over** buttons.
+- **Account page**: when the wizard isn't completed, `TalentTrack → Account` shows a small "Finish setting up TalentTrack" notice with a Resume button.
+- **After completing**: the banner and `Welcome` menu entry disappear, but the Configuration tab and Account-page notice continue to offer "Run wizard again" / "Start over". Restarting the wizard does **not** delete data you already entered — it just walks the form steps again.
 
 ## What the five steps do
 
