@@ -5066,3 +5066,314 @@ msgstr "Ongeldige soort of kant."
 msgid "You do not have permission to view the methodology library."
 msgstr "Je hebt geen rechten om de methodologiebibliotheek te bekijken."
 
+
+# v3.20.0 — methodology framework expansion (#0027 follow-up)
+
+msgid "Diagrammen en afbeeldingen"
+msgstr "Diagrammen en afbeeldingen"
+
+msgid "De primaire afbeelding wordt boven aan deze entiteit getoond. Klik op een thumbnail om 'm als primair te markeren of te archiveren."
+msgstr "De primaire afbeelding wordt boven aan deze entiteit getoond. Klik op een thumbnail om 'm als primair te markeren of te archiveren."
+
+msgid "Nog geen afbeeldingen toegevoegd. Voeg een diagram toe via \"Afbeelding kiezen\" hieronder."
+msgstr "Nog geen afbeeldingen toegevoegd. Voeg een diagram toe via \"Afbeelding kiezen\" hieronder."
+
+msgid "Primair"
+msgstr "Primair"
+
+msgid "Bijschrift bewerken"
+msgstr "Bijschrift bewerken"
+
+msgid "Maak primair"
+msgstr "Maak primair"
+
+msgid "Verwijder deze afbeelding?"
+msgstr "Verwijder deze afbeelding?"
+
+msgid "Archiveren"
+msgstr "Archiveren"
+
+msgid "Afbeelding kiezen…"
+msgstr "Afbeelding kiezen…"
+
+msgid "Opent de WordPress mediabibliotheek. Geüploade afbeeldingen zijn meteen herbruikbaar."
+msgstr "Opent de WordPress mediabibliotheek. Geüploade afbeeldingen zijn meteen herbruikbaar."
+
+msgid "Selecteer een diagram of afbeelding"
+msgstr "Selecteer een diagram of afbeelding"
+
+msgid "Toevoegen aan methodologie"
+msgstr "Toevoegen aan methodologie"
+
+msgid "Raamwerk"
+msgstr "Raamwerk"
+
+msgid "Voetbalhandelingen"
+msgstr "Voetbalhandelingen"
+
+msgid "Voetbalmodel"
+msgstr "Voetbalmodel"
+
+msgid "Vier fasen"
+msgstr "Vier fasen"
+
+msgid "Leerdoelen"
+msgstr "Leerdoelen"
+
+msgid "Factoren van invloed"
+msgstr "Factoren van invloed"
+
+msgid "Met balcontact"
+msgstr "Met balcontact"
+
+msgid "Zonder balcontact"
+msgstr "Zonder balcontact"
+
+msgid "Ondersteunend"
+msgstr "Ondersteunend"
+
+msgid "Inleiding"
+msgstr "Inleiding"
+
+msgid "Reflectie"
+msgstr "Reflectie"
+
+msgid "De toekomst"
+msgstr "De toekomst"
+
+msgid "Identity"
+msgstr "Identiteit"
+
+msgid "Sections"
+msgstr "Secties"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Tagline"
+msgstr "Slogan"
+
+msgid "Voetbalmodel — toelichting"
+msgstr "Voetbalmodel — toelichting"
+
+msgid "Voetbalhandelingen — toelichting"
+msgstr "Voetbalhandelingen — toelichting"
+
+msgid "Vier fasen — toelichting"
+msgstr "Vier fasen — toelichting"
+
+msgid "Leerdoelen — toelichting"
+msgstr "Leerdoelen — toelichting"
+
+msgid "Factoren van invloed — toelichting"
+msgstr "Factoren van invloed — toelichting"
+
+msgid "Define methodology framework"
+msgstr "Methodologie-raamwerk definiëren"
+
+msgid "Edit methodology framework"
+msgstr "Methodologie-raamwerk bewerken"
+
+msgid "Back to framework"
+msgstr "Terug naar raamwerk"
+
+msgid "Define framework"
+msgstr "Raamwerk definiëren"
+
+msgid "Author my own framework"
+msgstr "Eigen raamwerk schrijven"
+
+msgid "Edit framework"
+msgstr "Raamwerk bewerken"
+
+msgid "No framework primer recorded yet."
+msgstr "Nog geen raamwerk-introductie vastgelegd."
+
+msgid "No framework primer authored yet."
+msgstr "Nog geen raamwerk-introductie geschreven."
+
+msgid "(untitled framework)"
+msgstr "(naamloos raamwerk)"
+
+msgid "Create framework primer"
+msgstr "Raamwerk-introductie aanmaken"
+
+msgid "The shipped framework primer is read-only. Use \"Author my own\" to clone it for editing."
+msgstr "Het geleverde raamwerk is alleen-lezen. Gebruik \"Eigen raamwerk schrijven\" om het te klonen en te bewerken."
+
+msgid "The shipped framework primer is read-only."
+msgstr "Het geleverde raamwerk is alleen-lezen."
+
+msgid "Edit phase"
+msgstr "Fase bewerken"
+
+msgid "Add phase"
+msgstr "Fase toevoegen"
+
+msgid "Phase number (1–4)"
+msgstr "Fase-nummer (1–4)"
+
+msgid "Goal (NL)"
+msgstr "Doel (NL)"
+
+msgid "Goal (EN)"
+msgstr "Doel (EN)"
+
+msgid "Create phase"
+msgstr "Fase aanmaken"
+
+msgid "Shipped phases are read-only. Clone the framework primer first."
+msgstr "Geleverde fasen zijn alleen-lezen. Kloon eerst het raamwerk."
+
+msgid "Shipped phases are read-only."
+msgstr "Geleverde fasen zijn alleen-lezen."
+
+msgid "Edit learning goal"
+msgstr "Leerdoel bewerken"
+
+msgid "Add learning goal"
+msgstr "Leerdoel toevoegen"
+
+msgid "Linked team-task (optional)"
+msgstr "Gekoppelde teamtaak (optioneel)"
+
+msgid "Bullets (NL — one per line)"
+msgstr "Punten (NL — één per regel)"
+
+msgid "Bullets (EN — one per line)"
+msgstr "Punten (EN — één per regel)"
+
+msgid "Sort order"
+msgstr "Volgorde"
+
+msgid "Create learning goal"
+msgstr "Leerdoel aanmaken"
+
+msgid "Shipped learning goals are read-only."
+msgstr "Geleverde leerdoelen zijn alleen-lezen."
+
+msgid "Edit influence factor"
+msgstr "Factor van invloed bewerken"
+
+msgid "Add influence factor"
+msgstr "Factor van invloed toevoegen"
+
+msgid "Description (NL)"
+msgstr "Beschrijving (NL)"
+
+msgid "Description (EN)"
+msgstr "Beschrijving (EN)"
+
+msgid "Sub-factors (JSON)"
+msgstr "Sub-factoren (JSON)"
+
+msgid "Optional JSON array of sub-cards. Each entry needs slug + title (nl/en) + description (nl/en). Leave empty for no sub-cards."
+msgstr "Optionele JSON-array van sub-kaarten. Elke entry heeft slug + title (nl/en) + description (nl/en). Laat leeg voor geen sub-kaarten."
+
+msgid "Create influence factor"
+msgstr "Factor aanmaken"
+
+msgid "Shipped influence factors are read-only."
+msgstr "Geleverde factoren zijn alleen-lezen."
+
+msgid "Add action"
+msgstr "Handeling toevoegen"
+
+msgid "De voetbalhandelingen vormen de harde kern van het voetbalmodel: concrete handelingen die spelers uitvoeren binnen elke teamtaak. Doelen kunnen worden gekoppeld aan één voetbalhandeling om verbeterde uitvoering meetbaar te maken."
+msgstr "De voetbalhandelingen vormen de harde kern van het voetbalmodel: concrete handelingen die spelers uitvoeren binnen elke teamtaak. Doelen kunnen worden gekoppeld aan één voetbalhandeling om verbeterde uitvoering meetbaar te maken."
+
+msgid "No football actions yet."
+msgstr "Nog geen voetbalhandelingen."
+
+msgid "Slug"
+msgstr "Slug"
+
+msgid "Description"
+msgstr "Beschrijving"
+
+msgid "Read-only"
+msgstr "Alleen-lezen"
+
+msgid "Archive this action?"
+msgstr "Deze handeling archiveren?"
+
+msgid "Edit football action"
+msgstr "Voetbalhandeling bewerken"
+
+msgid "Add football action"
+msgstr "Voetbalhandeling toevoegen"
+
+msgid "Back to football actions"
+msgstr "Terug naar voetbalhandelingen"
+
+msgid "Category"
+msgstr "Categorie"
+
+msgid "Name (NL)"
+msgstr "Naam (NL)"
+
+msgid "Name (EN)"
+msgstr "Naam (EN)"
+
+msgid "Create football action"
+msgstr "Voetbalhandeling aanmaken"
+
+msgid "Shipped football actions are read-only."
+msgstr "Geleverde voetbalhandelingen zijn alleen-lezen."
+
+msgid "Linked football action"
+msgstr "Gekoppelde voetbalhandeling"
+
+msgid "Optional. Links this goal to a single football action (voetbalhandeling)."
+msgstr "Optioneel. Koppelt dit doel aan één voetbalhandeling."
+
+msgid "Sub-cards"
+msgstr "Sub-kaarten"
+
+msgid "Goal"
+msgstr "Doel"
+
+msgid "Bullets"
+msgstr "Punten"
+
+msgid "Speelwijze"
+msgstr "Speelwijze"
+
+msgid "Belangrijke eigenschappen"
+msgstr "Belangrijke eigenschappen"
+
+msgid "No formations available."
+msgstr "Geen formaties beschikbaar."
+
+msgid "No principles available."
+msgstr "Geen spelprincipes beschikbaar."
+
+msgid "No set pieces available."
+msgstr "Geen spelhervattingen beschikbaar."
+
+msgid "No football actions available."
+msgstr "Geen voetbalhandelingen beschikbaar."
+
+msgid "Set piece not found."
+msgstr "Spelhervatting niet gevonden."
+
+msgid "Vision not yet recorded."
+msgstr "Visie nog niet vastgelegd."
+
+msgid "Back to set pieces"
+msgstr "Terug naar spelhervattingen"
+
+msgid "Spelprincipes"
+msgstr "Spelprincipes"
+
+msgid "Formaties"
+msgstr "Formaties"
+
+msgid "Spelhervattingen"
+msgstr "Spelhervattingen"
+
+msgid "Visie"
+msgstr "Visie"
+
+msgid "No framework illustrations attached yet."
+msgstr "Nog geen raamwerk-illustraties gekoppeld."

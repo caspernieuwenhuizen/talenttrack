@@ -19,6 +19,9 @@ _None._
 | # | Topic | Type | Open questions | Estimated |
 | - | - | - | - | - |
 | 0030 | Branding + go-to-market | epic | Brand voice, logo sourcing, site tech, domain, pricing copy, screenshots, pilot recruitment, launch channel (Q1-Q8) | ~45-65h |
+| 0031 | Spond calendar integration | feat | iCal feed scope (per-team vs personal), poll frequency, write-back vs read-only, match-vs-training detection, conflict handling, attendance via API (defer?) | ~12-18h v1 |
+| 0032 | User invitation flow (player / parent / staff via shareable WhatsApp-friendly link) | feat | Trigger surfaces (manual / bulk / auto), token TTL + reuse, channel mix, existing-account handling, parent role question (reuse `tt_player` or new `tt_parent`?), cap interaction with #0011 | ~14-20h v1 |
+| 0033 | Authorization review — persona × activity × entity matrix | epic | 8 personas × 3 activities × ~25 entities; matrix storage (caps vs config table), multi-persona resolution, scope model (global/team/player), tile/menu rendering per persona, backwards compat with WP roles | ~46-70h |
 
 ## Not started (no shaping needed before build)
 
@@ -45,7 +48,7 @@ _None._
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
-| 0027 | Football methodology module (framework + sample seed) | feat | v3.19.0 | ~52h (4 sprints) | ~32h framework; ~12h content authoring still TBD by Casper |
+| 0027 | Football methodology module (framework + full PDF content + visuals + per-club primer + football actions) | feat | v3.19.0 + v3.21.0 | ~52h initial + expansion | ~32h framework; ~50h expansion (assets table, framework primer schema, edit pages, frontend, content seed, image extraction) |
 | 0003 | Player evaluations view polish | feat | v3.18.0 | ~6h | ~3h |
 | 0004 | My card tile polish | feat | v3.18.0 | ~5h | ~2h |
 | 0011 | Monetization (licensing + tiers + caps + trial) | epic | v3.17.0 | ~44-55h | ~30h |
