@@ -3,6 +3,7 @@ namespace TT\Modules\Documentation\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Documentation\AudienceResolver;
 use TT\Modules\Documentation\HelpTopics;
 use TT\Modules\Documentation\Markdown;
 
@@ -33,6 +34,17 @@ class DocumentationPage {
         $requested = isset( $_GET['topic'] ) ? sanitize_key( (string) $_GET['topic'] ) : '';
         $slug = isset( $topics[ $requested ] ) ? $requested : HelpTopics::defaultSlug();
         $topic = $topics[ $slug ];
+
+        // #0029 — resolve viewer's allowed audiences + each topic's
+        // declared audience set. The sidebar TOC filters to topics
+        // whose audiences intersect the viewer's allowed set; direct
+        // URL access (?topic=<slug>) is always honoured regardless.
+        $viewer_audiences = AudienceResolver::allowedFor( get_current_user_id() );
+        $topic_audiences  = [];
+        foreach ( $topics as $s => $_t ) {
+            $topic_audiences[ $s ] = AudienceResolver::readFromFile( HelpTopics::filePath( $s ) );
+        }
+        $audience_labels = AudienceResolver::labels();
 
         ?>
         <div class="wrap">
@@ -117,6 +129,21 @@ class DocumentationPage {
                 display: none;
             }
             .tt-docs-hidden { display: none !important; }
+            .tt-docs-audience {
+                display: inline-block;
+                margin-left: 6px;
+                padding: 1px 6px;
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+                border-radius: 3px;
+                background: #e0e8f0;
+                color: #1a4a8a;
+                vertical-align: middle;
+            }
+            .tt-docs-audience--admin { background: #f5e6c3; color: #6b5614; }
+            .tt-docs-audience--dev   { background: #d8e8d6; color: #2c5e2c; }
             </style>
 
             <div class="tt-docs-layout">
@@ -125,9 +152,14 @@ class DocumentationPage {
                     <div class="tt-docs-no-results" id="tt-docs-no-results"><?php esc_html_e( 'No matching topics.', 'talenttrack' ); ?></div>
                     <div id="tt-docs-toc">
                         <?php foreach ( $groups as $gkey => $glabel ) :
-                            $group_topics = array_filter( $topics, function ( $t ) use ( $gkey ) {
-                                return $t['group'] === $gkey;
-                            } );
+                            $group_topics = array_filter( $topics, function ( $t, $s ) use ( $gkey, $topic_audiences, $viewer_audiences ) {
+                                if ( $t['group'] !== $gkey ) return false;
+                                $aud = $topic_audiences[ $s ] ?? [];
+                                // Always show the currently-active topic so direct URL navigation
+                                // doesn't surface "no matching topics". The audience filter is a
+                                // sidebar nicety, not an access control.
+                                return AudienceResolver::isVisible( $aud, $viewer_audiences );
+                            }, ARRAY_FILTER_USE_BOTH );
                             if ( empty( $group_topics ) ) continue;
                             ?>
                             <div class="tt-docs-group" data-group="<?php echo esc_attr( $gkey ); ?>">
@@ -135,6 +167,7 @@ class DocumentationPage {
                                 <?php foreach ( $group_topics as $s => $t ) :
                                     $is_active = ( $s === $slug );
                                     $url = admin_url( 'admin.php?page=tt-docs&topic=' . $s );
+                                    $aud = $topic_audiences[ $s ] ?? [];
                                     ?>
                                     <a href="<?php echo esc_url( $url ); ?>"
                                        class="tt-docs-topic-link<?php echo $is_active ? ' is-active' : ''; ?>"
@@ -142,6 +175,11 @@ class DocumentationPage {
                                        data-summary="<?php echo esc_attr( strtolower( $t['summary'] ) ); ?>"
                                        title="<?php echo esc_attr( $t['summary'] ); ?>">
                                         <?php echo esc_html( $t['title'] ); ?>
+                                        <?php foreach ( $aud as $a ) : ?>
+                                            <span class="tt-docs-audience tt-docs-audience--<?php echo esc_attr( $a ); ?>"><?php
+                                                echo esc_html( (string) ( $audience_labels[ $a ] ?? $a ) );
+                                            ?></span>
+                                        <?php endforeach; ?>
                                     </a>
                                 <?php endforeach; ?>
                             </div>

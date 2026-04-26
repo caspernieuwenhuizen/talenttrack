@@ -1,3 +1,5 @@
+<!-- audience: admin, dev -->
+
 # Workflow- en takenmotor
 
 De workflow-motor zet "we zouden eigenlijk na elke wedstrijd moeten evalueren" om in een ingeplande, zichtbare taak die met een deadline in iemands inbox belandt. De motor draagt de orkestratielaag die coaches, spelers en het Hoofd Opleidingen op tijd aan hun rol in de systematische ontwikkeling herinnert.

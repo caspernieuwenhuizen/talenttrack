@@ -48,6 +48,29 @@ class SessionsRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+        // #0026 — guest attendance endpoints. Guests live alongside
+        // roster rows in `tt_attendance` but are managed independently
+        // of the session PUT cycle so the historical fact of a guest
+        // visit (incl. promoted-to-real-player) survives session edits.
+        register_rest_route( self::NS, '/sessions/(?P<id>\d+)/guests', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'add_guest' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/attendance/(?P<id>\d+)', [
+            [
+                'methods'             => 'PATCH',
+                'callback'            => [ __CLASS__, 'patch_attendance' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_attendance' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
     }
 
     public static function can_view(): bool {
@@ -166,7 +189,7 @@ class SessionsRestController {
         // OK for the 100-row max; if perf becomes a problem we revisit
         // (Q2 in the Sprint 2 plan accepts that risk).
         $select_cols = "s.*, t.name AS team_name,
-            (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.session_id = s.id) AS attendance_count,
+            (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.session_id = s.id AND a.is_guest = 0) AS attendance_count,
             (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id) AS roster_size";
 
         $having = '';
@@ -198,7 +221,7 @@ class SessionsRestController {
         if ( $having !== '' ) {
             $count_sql = "SELECT COUNT(*) FROM (
                 SELECT s.id,
-                    (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.session_id = s.id) AS attendance_count,
+                    (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.session_id = s.id AND a.is_guest = 0) AS attendance_count,
                     (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id) AS roster_size
                 FROM {$p}tt_sessions s
                 LEFT JOIN {$p}tt_teams t ON t.id = s.team_id
@@ -312,7 +335,10 @@ class SessionsRestController {
         }
 
         if ( self::request_has_attendance( $r ) ) {
-            $wpdb->delete( "{$p}tt_attendance", [ 'session_id' => $session_id ] );
+            // #0026 — only wipe the roster rows; guest rows are
+            // managed via the dedicated guest endpoints and must
+            // survive a session update.
+            $wpdb->delete( "{$p}tt_attendance", [ 'session_id' => $session_id, 'is_guest' => 0 ] );
             $att_failures = self::write_attendance( $session_id, self::attendance_from_request( $r ) );
             if ( $att_failures ) {
                 Logger::error( 'session.attendance.update.failed', [ 'session_id' => $session_id, 'failures' => $att_failures ] );
@@ -406,11 +432,189 @@ class SessionsRestController {
                 'player_id'  => (int) $pid,
                 'status'     => $fields['status'],
                 'notes'      => $fields['notes'],
+                'is_guest'   => 0,
             ] );
             if ( $ok === false ) {
                 $failures[] = [ 'player_id' => (int) $pid, 'db_error' => (string) $wpdb->last_error ];
             }
         }
         return $failures;
+    }
+
+    /* ───────────────── Guest endpoints (#0026) ───────────────── */
+
+    /**
+     * POST /sessions/{id}/guests — add a linked or anonymous guest to
+     * a session's attendance. Body shape:
+     *
+     *   Linked   : { guest_player_id: <int>, status?: <str>, notes?: <str> }
+     *   Anonymous: { guest_name: <str>, guest_age?: <int>,
+     *                guest_position?: <str>, guest_notes?: <str>,
+     *                status?: <str> }
+     *
+     * Application invariant: linked XOR anonymous. Both populated, or
+     * neither, → 400.
+     */
+    public static function add_guest( \WP_REST_Request $r ) {
+        global $wpdb; $p = $wpdb->prefix;
+        $session_id = absint( $r['id'] );
+        if ( $session_id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid session id.', 'talenttrack' ), 400 );
+        }
+        $exists = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_sessions WHERE id = %d", $session_id
+        ) );
+        if ( $exists === 0 ) {
+            return RestResponse::error( 'not_found', __( 'Session not found.', 'talenttrack' ), 404 );
+        }
+
+        $linked_id = absint( $r['guest_player_id'] ?? 0 );
+        $name      = sanitize_text_field( (string) ( $r['guest_name'] ?? '' ) );
+        $age_raw   = $r['guest_age'] ?? '';
+        $age       = ( $age_raw === '' || $age_raw === null ) ? null : max( 0, min( 99, absint( $age_raw ) ) );
+        $position  = sanitize_text_field( (string) ( $r['guest_position'] ?? '' ) );
+        $status    = sanitize_text_field( (string) ( $r['status'] ?? 'Present' ) );
+        $g_notes   = sanitize_textarea_field( (string) ( $r['guest_notes'] ?? '' ) );
+
+        if ( $linked_id > 0 && $name !== '' ) {
+            return RestResponse::error( 'invariant',
+                __( 'A guest is either linked OR anonymous, not both.', 'talenttrack' ), 400 );
+        }
+        if ( $linked_id <= 0 && $name === '' ) {
+            return RestResponse::error( 'invariant',
+                __( 'Pick a player or enter a guest name.', 'talenttrack' ), 400 );
+        }
+        if ( $linked_id > 0 ) {
+            $player_exists = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$p}tt_players WHERE id = %d", $linked_id
+            ) );
+            if ( $player_exists === 0 ) {
+                return RestResponse::error( 'bad_player', __( 'Linked player does not exist.', 'talenttrack' ), 400 );
+            }
+        }
+
+        $row = [
+            'session_id'      => $session_id,
+            'player_id'       => null,
+            'status'          => $status,
+            'notes'           => '',
+            'is_guest'        => 1,
+            'guest_player_id' => $linked_id > 0 ? $linked_id : null,
+            'guest_name'      => $linked_id > 0 ? null : $name,
+            'guest_age'       => $linked_id > 0 ? null : $age,
+            'guest_position'  => $linked_id > 0 ? null : ( $position !== '' ? $position : null ),
+            'guest_notes'     => $linked_id > 0 ? null : ( $g_notes !== '' ? $g_notes : null ),
+        ];
+        $ok = $wpdb->insert( "{$p}tt_attendance", $row );
+        if ( $ok === false ) {
+            $err = (string) $wpdb->last_error;
+            Logger::error( 'attendance.guest.add.failed', [ 'db_error' => $err, 'session_id' => $session_id ] );
+            return RestResponse::error( 'db_error',
+                __( 'The guest could not be added.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
+        }
+        $id = (int) $wpdb->insert_id;
+        return RestResponse::success( [ 'id' => $id ] + self::format_guest_row( self::find_attendance( $id ) ) );
+    }
+
+    /**
+     * PATCH /attendance/{id} — partial update of an attendance row.
+     * Today only edits guest fields (status, guest_notes, guest_name/
+     * age/position) on guest rows; reuses the same handler so the
+     * frontend doesn't need a parallel "edit roster row" pathway.
+     */
+    public static function patch_attendance( \WP_REST_Request $r ) {
+        global $wpdb; $p = $wpdb->prefix;
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid attendance id.', 'talenttrack' ), 400 );
+        $row = self::find_attendance( $id );
+        if ( ! $row ) return RestResponse::error( 'not_found', __( 'Attendance row not found.', 'talenttrack' ), 404 );
+
+        $update = [];
+        if ( isset( $r['status'] ) )         $update['status']         = sanitize_text_field( (string) $r['status'] );
+        if ( isset( $r['notes'] ) )          $update['notes']          = sanitize_text_field( (string) $r['notes'] );
+        if ( isset( $r['guest_notes'] ) )    $update['guest_notes']    = sanitize_textarea_field( (string) $r['guest_notes'] );
+        if ( isset( $r['guest_name'] ) )     $update['guest_name']     = sanitize_text_field( (string) $r['guest_name'] );
+        if ( isset( $r['guest_position'] ) ) $update['guest_position'] = sanitize_text_field( (string) $r['guest_position'] );
+        if ( array_key_exists( 'guest_age', (array) $r->get_params() ) ) {
+            $age_raw = $r['guest_age'];
+            $update['guest_age'] = ( $age_raw === '' || $age_raw === null ) ? null : max( 0, min( 99, absint( $age_raw ) ) );
+        }
+        if ( empty( $update ) ) {
+            return RestResponse::success( [ 'id' => $id, 'unchanged' => true ] );
+        }
+        $ok = $wpdb->update( "{$p}tt_attendance", $update, [ 'id' => $id ] );
+        if ( $ok === false ) {
+            $err = (string) $wpdb->last_error;
+            Logger::error( 'attendance.patch.failed', [ 'db_error' => $err, 'id' => $id ] );
+            return RestResponse::error( 'db_error',
+                __( 'The attendance row could not be updated.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
+        }
+        return RestResponse::success( self::format_guest_row( self::find_attendance( $id ) ) );
+    }
+
+    /**
+     * DELETE /attendance/{id} — remove an attendance row outright.
+     * Used by the guest UI's "remove" affordance. Roster rows can
+     * also be deleted this way (rare; the session PUT cycle is the
+     * usual path).
+     */
+    public static function delete_attendance( \WP_REST_Request $r ) {
+        global $wpdb; $p = $wpdb->prefix;
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid attendance id.', 'talenttrack' ), 400 );
+        $ok = $wpdb->delete( "{$p}tt_attendance", [ 'id' => $id ] );
+        if ( $ok === false ) {
+            return RestResponse::error( 'db_error',
+                __( 'The attendance row could not be deleted.', 'talenttrack' ), 500 );
+        }
+        return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
+    }
+
+    private static function find_attendance( int $id ): ?object {
+        global $wpdb; $p = $wpdb->prefix;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$p}tt_attendance WHERE id = %d LIMIT 1", $id
+        ) );
+        return $row ?: null;
+    }
+
+    /**
+     * Shape a guest attendance row for JSON. Resolves the linked
+     * player's display name when present so the frontend can append
+     * the new row without an extra round-trip.
+     *
+     * @return array<string, mixed>
+     */
+    private static function format_guest_row( ?object $row ): array {
+        if ( ! $row ) return [];
+        global $wpdb; $p = $wpdb->prefix;
+        $player_name = '';
+        $home_team   = '';
+        if ( ! empty( $row->guest_player_id ) ) {
+            $hit = $wpdb->get_row( $wpdb->prepare(
+                "SELECT pl.first_name, pl.last_name, t.name AS team_name
+                 FROM {$p}tt_players pl
+                 LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id
+                 WHERE pl.id = %d LIMIT 1",
+                (int) $row->guest_player_id
+            ) );
+            if ( $hit ) {
+                $player_name = trim( (string) $hit->first_name . ' ' . (string) $hit->last_name );
+                $home_team   = (string) ( $hit->team_name ?? '' );
+            }
+        }
+        return [
+            'id'              => (int) $row->id,
+            'session_id'      => (int) $row->session_id,
+            'is_guest'        => (int) $row->is_guest,
+            'guest_player_id' => $row->guest_player_id !== null ? (int) $row->guest_player_id : null,
+            'guest_name'      => $row->guest_name,
+            'guest_age'       => $row->guest_age !== null ? (int) $row->guest_age : null,
+            'guest_position'  => $row->guest_position,
+            'guest_notes'     => $row->guest_notes,
+            'status'          => (string) $row->status,
+            'player_name'     => $player_name,
+            'home_team'       => $home_team,
+        ];
     }
 }

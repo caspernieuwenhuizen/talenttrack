@@ -128,9 +128,14 @@ class PlayerDashboardView {
 
         // Attendance
         echo '<div class="tt-tab-content' . ( $view === 'attendance' ? ' tt-tab-content-active' : '' ) . '" data-tab="attendance">';
+        // #0026 — guest appearances surface on the player's own profile.
+        // A row matches if the player either was on the roster
+        // (player_id = X) or attended as a linked guest (guest_player_id = X).
         $att = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.*, s.title AS session_title, s.session_date FROM {$p}tt_attendance a
-             LEFT JOIN {$p}tt_sessions s ON a.session_id=s.id WHERE a.player_id=%d ORDER BY s.session_date DESC", $player->id
+             LEFT JOIN {$p}tt_sessions s ON a.session_id=s.id
+             WHERE a.player_id=%d OR a.guest_player_id=%d
+             ORDER BY s.session_date DESC", $player->id, $player->id
         ));
         if ( empty( $att ) ) {
             echo '<p>' . esc_html__( 'No attendance records.', 'talenttrack' ) . '</p>';
@@ -144,9 +149,14 @@ class PlayerDashboardView {
             foreach ( $att as $a ) {
                 $status_lower = strtolower( (string) $a->status );
                 $cls = $status_lower === 'present' ? 'tt-att-present' : ( $status_lower === 'absent' ? 'tt-att-absent' : 'tt-att-other' );
-                echo '<tr class="' . esc_attr( $cls ) . '">'
+                $is_guest_visit = ! empty( $a->is_guest );
+                $session_label  = (string) $a->session_title;
+                if ( $is_guest_visit ) {
+                    $session_label .= ' ' . __( '(as guest)', 'talenttrack' );
+                }
+                echo '<tr class="' . esc_attr( $cls ) . ( $is_guest_visit ? ' tt-att-guest' : '' ) . '">'
                     . '<td>' . esc_html( (string) $a->session_date ) . '</td>'
-                    . '<td>' . esc_html( (string) $a->session_title ) . '</td>'
+                    . '<td>' . esc_html( $session_label ) . '</td>'
                     . '<td>' . esc_html( LabelTranslator::attendanceStatus( (string) $a->status ) ) . '</td>'
                     . '<td>' . esc_html( $a->notes ?: '—' ) . '</td>'
                     . '</tr>';

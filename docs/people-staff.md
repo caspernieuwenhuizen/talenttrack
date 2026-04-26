@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # People (staff)
 
 The **People** page is your roster of non-player humans: head coaches, assistant coaches, physios, goalkeeper coaches, team managers, board members.

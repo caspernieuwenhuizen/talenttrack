@@ -86,7 +86,7 @@ class SessionsPage {
         $teams = QueryHelpers::get_teams();
         $att_statuses = QueryHelpers::get_lookup_names( 'attendance_status' );
         $attendance = [];
-        if ( $session ) foreach ( $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$p}tt_attendance WHERE session_id=%d", $session->id ) ) as $r ) $attendance[ (int) $r->player_id ] = $r;
+        if ( $session ) foreach ( $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$p}tt_attendance WHERE session_id=%d AND is_guest=0", $session->id ) ) as $r ) $attendance[ (int) $r->player_id ] = $r;
         $team_id = (int) ( $session->team_id ?? 0 );
         $players = $team_id ? QueryHelpers::get_players( $team_id ) : QueryHelpers::get_players();
         $state = self::popFormState();
@@ -207,13 +207,17 @@ class SessionsPage {
             exit;
         }
 
-        $wpdb->delete( "{$p}tt_attendance", [ 'session_id' => $id ] );
+        // #0026 — only wipe roster rows; guest rows (is_guest=1) are
+        // managed via the frontend / REST endpoints and survive a
+        // legacy admin save cycle.
+        $wpdb->delete( "{$p}tt_attendance", [ 'session_id' => $id, 'is_guest' => 0 ] );
         $att_raw = isset( $_POST['att'] ) && is_array( $_POST['att'] ) ? $_POST['att'] : [];
         foreach ( $att_raw as $pid => $d ) {
             $ok_att = $wpdb->insert( "{$p}tt_attendance", [
                 'session_id' => $id, 'player_id' => absint( $pid ),
                 'status' => isset( $d['status'] ) ? sanitize_text_field( wp_unslash( (string) $d['status'] ) ) : 'Present',
                 'notes' => isset( $d['notes'] ) ? sanitize_text_field( wp_unslash( (string) $d['notes'] ) ) : '',
+                'is_guest' => 0,
             ]);
             if ( $ok_att === false ) {
                 Logger::error( 'admin.session.attendance.save.failed', [ 'db_error' => (string) $wpdb->last_error, 'session_id' => $id, 'player_id' => absint( $pid ) ] );
