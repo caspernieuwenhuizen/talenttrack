@@ -8,7 +8,7 @@ TalentTrack ships its own backup module (separate from any general-purpose WordP
 
 ## Settings
 
-- **Preset** — *Minimal* (core operational data), *Standard* (everyday data including sessions/goals/people), *Thorough* (everything including audit log + lookups), or *Custom* (per-table list).
+- **Preset** — *Minimal* (core operational data), *Standard* (everyday data including sessions/goals/people), *Thorough* (everything including audit log + lookups), or *Custom* (per-table list). The description below the dropdown updates automatically as you change selection.
 - **Schedule** — daily, weekly, or on-demand (no automatic runs).
 - **Retention** — how many local backups to keep before purging the oldest. Default 30.
 - **Local destination** — writes `.json.gz` files to `wp-content/uploads/talenttrack-backups/`. The directory is auto-created with an `index.php` + `.htaccess` blocking direct browser access.
@@ -21,13 +21,16 @@ A "Run backup now" button on the settings page bypasses the schedule. Useful for
 - Just before a risky operation (a CSV import, a bulk archive).
 - Sites where WP-cron is unreliable (low traffic, aggressive caching).
 
+While the backup runs, a full-screen "Backup in progress…" overlay covers the page. It can't be dismissed — when the server finishes (usually a few seconds for small academies, longer for Thorough on a busy install) the page reloads and the overlay is gone.
+
 ## Restoring
 
-1. Pick a backup from the local list and click **Restore**.
+1. Pick a backup from the local list and click **Restore**. A confirmation dialog asks you to acknowledge that you're entering the restore preview.
 2. The page shows a per-table summary of what will be replaced and the snapshot's plugin version.
 3. Type **RESTORE** in the confirmation field.
-4. The action truncates each table in the snapshot and replays the rows. Tables present on disk but missing from the snapshot are not touched.
-5. If row counts don't match expectations after replay, an error surfaces.
+4. Submit. The same "in progress…" overlay covers the page during the restore — non-dismissible until the server completes.
+5. The action truncates each table in the snapshot and replays the rows. Tables present on disk but missing from the snapshot are not touched.
+6. If row counts don't match expectations after replay, an error surfaces.
 
 Cross-major-version restores are rejected (a v2.x snapshot won't restore on a v3.x site). Same-major (e.g. v3.12 → v3.14) is allowed; schema migrations handle differences.
 

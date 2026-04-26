@@ -81,4 +81,23 @@ class PresetRegistry {
         }
         return $preset;
     }
+
+    /**
+     * Translated description per preset — surfaced under the dropdown
+     * on the backup-settings page, swapped client-side as the
+     * selection changes.
+     */
+    public static function description( string $preset ): string {
+        switch ( $preset ) {
+            case self::MINIMAL:
+                return __( 'Core data only: players, teams, evaluations and ratings. Smallest archive, fastest to restore.', 'talenttrack' );
+            case self::STANDARD:
+                return __( 'Everyday operational data: everything in Minimal plus sessions, attendance, goals, people, team-assignments and functional roles. Recommended default.', 'talenttrack' );
+            case self::THOROUGH:
+                return __( 'Everything: Standard plus lookups, custom-field definitions and values, evaluation categories and weights, audit log, usage stats, demo tags and config. Largest archive, slowest to restore.', 'talenttrack' );
+            case self::CUSTOM:
+                return __( 'Use the table list below. Only the tables you list are backed up.', 'talenttrack' );
+        }
+        return '';
+    }
 }
