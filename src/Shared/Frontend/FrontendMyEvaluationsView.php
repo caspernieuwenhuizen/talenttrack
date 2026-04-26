@@ -150,14 +150,20 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
         </ol>
 
         <script>
+        // Document-level delegation so the toggle keeps working when the
+        // dashboard is rendered (or re-rendered) via REST/fetch — the
+        // previous querySelectorAll-on-IIFE only bound on initial DOM
+        // parse and the click silently failed after any re-render.
         (function(){
-            document.querySelectorAll('[data-tt-mye-toggle]').forEach(function(btn){
-                btn.addEventListener('click', function(){
-                    var open = btn.getAttribute('aria-expanded') === 'true';
-                    btn.setAttribute('aria-expanded', open ? 'false' : 'true');
-                    var detail = document.getElementById(btn.getAttribute('aria-controls'));
-                    if (detail) detail.hidden = open;
-                });
+            if (window.__ttMyEvalsBound) return;
+            window.__ttMyEvalsBound = true;
+            document.addEventListener('click', function(e){
+                var btn = e.target && e.target.closest ? e.target.closest('[data-tt-mye-toggle]') : null;
+                if (!btn) return;
+                var open = btn.getAttribute('aria-expanded') === 'true';
+                btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+                var detail = document.getElementById(btn.getAttribute('aria-controls'));
+                if (detail) detail.hidden = open;
             });
         })();
         </script>
