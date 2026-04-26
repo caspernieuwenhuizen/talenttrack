@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Methodology\Helpers\MultilingualField;
 use TT\Modules\Methodology\MethodologyEnums;
 use TT\Modules\Methodology\Repositories\FormationsRepository;
+use TT\Modules\Methodology\Repositories\MethodologyAssetsRepository;
 use TT\Modules\Methodology\Repositories\SetPiecesRepository;
 
 /**
@@ -38,6 +39,8 @@ class SetPieceEditPage {
         if ( $row && $row->is_shipped ) {
             wp_die( esc_html__( 'Shipped set pieces are read-only. Use Clone & Edit instead.', 'talenttrack' ) );
         }
+
+        MediaPicker::enqueueAssets();
 
         $formations = ( new FormationsRepository() )->listAll();
         $title_nl = $title_en = '';
@@ -114,6 +117,7 @@ class SetPieceEditPage {
                         <td><textarea name="bullets_en" rows="6" class="large-text"><?php echo esc_textarea( $bullets_en ); ?></textarea></td>
                     </tr>
                 </table>
+                <?php if ( $row ) MediaPicker::render( MethodologyAssetsRepository::TYPE_SET_PIECE, (int) $row->id ); ?>
                 <?php submit_button( $row ? __( 'Save changes', 'talenttrack' ) : __( 'Create set piece', 'talenttrack' ) ); ?>
             </form>
         </div>
@@ -156,6 +160,8 @@ class SetPieceEditPage {
             $payload['is_shipped'] = 0;
             $id = $repo->create( $payload );
         }
+
+        MediaPicker::handleSave( MethodologyAssetsRepository::TYPE_SET_PIECE, (int) $id );
 
         wp_safe_redirect( add_query_arg(
             [ 'page' => MethodologyPage::SLUG, 'tab' => 'set_pieces', 'tt_msg' => 'saved' ],

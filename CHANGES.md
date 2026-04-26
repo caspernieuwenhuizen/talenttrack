@@ -1,3 +1,50 @@
+# TalentTrack v3.21.0 — Methodology framework expansion (#0027)
+
+Major content release. The methodology module now ships as a full coaching framework — not just a principles + set-pieces + positions library, but a per-club methodology primer with phases, learning goals, factors of influence, and a football actions catalogue. Each entity supports illustrated diagrams via the WordPress media library, and the seed PNGs from the source PDF auto-attach as primary images.
+
+## What changed
+
+### Schema (migration 0017 + 0018 + 0019)
+
+- Six new tables: `tt_methodology_assets` (polymorphic image attachments), `tt_methodology_framework_primers`, `tt_methodology_phases`, `tt_methodology_learning_goals`, `tt_methodology_influence_factors`, `tt_football_actions`.
+- One column added: `tt_goals.linked_action_id` (sibling to `linked_principle_id`) — a goal can now link to a football action in addition to a principle.
+- Migration 0018 seeds the full methodology content from the source document: vision row, 18 principles (AO/AS/OV/VS/VV/OA), 8 set pieces (4 attacking + 4 defending), 11 position cards on 1:4:2:3:1, framework primer, 8 phases (4 attacking + 4 defending), 10 learning goals, 7 influence factors, and 11 football actions.
+- Migration 0019 copies the 66 PDF page PNGs into `wp-content/uploads/talenttrack-methodology/`, registers each as a WP attachment, and links each to the matching shipped entity as the primary asset.
+
+### Admin
+
+- New "Raamwerk" tab on the Methodology page (now the default) showing the primer body, illustrations, phases, learning goals and influence factors with Clone & Edit links.
+- New visible Voetbalhandelingen page (TalentTrack → Voetbalhandelingen) listing all football actions grouped by category.
+- New hidden edit pages: framework primer, phase, learning goal, influence factor, football action.
+- Shared `MediaPicker` component on every methodology edit form: WordPress media library button, primary/archive/caption controls, multilingual captions.
+- Goal edit gains an optional "Linked football action" select grouped by category.
+
+### Frontend
+
+- The Methodology view picks up the new "Raamwerk" tab as default and renders a polished primer landing: intro hero illustration, framework sections, phase cards (color-coded green for attacking, red for defending), learning goal cards with bullets, influence factor cards with sub-cards.
+- Every detail view (principle / set piece / position / vision) now shows the entity primary image as a hero above the existing text + diagram.
+- New Voetbalhandelingen tab grouped by category (with-ball, without-ball, supporting).
+
+### Content
+
+- Faithful translation of the source methodology document into the catalogue tables. Dutch is the source language with English translations on every shipped row.
+- 66 PDF pages extracted as PNGs (150 DPI) and committed to `assets/methodology/seed/`. Auto-mapped to entities by migration 0019. Casper can replace any individual diagram via the admin picker; archive on the shipped one to keep your replacement.
+
+### Migrations + ship-along
+
+- Three new migrations (0017, 0018, 0019) — all idempotent; reruns are safe.
+- `languages/talenttrack-nl_NL.po` extended with all the new methodology strings; `.mo` recompiled.
+- `docs/methodology.md` + `docs/nl_NL/methodology.md` updated with the six-tab story, image upload workflow and goal→action linkage.
+- `SEQUENCE.md` flips #0027 from "32h framework + content authoring TBD" to "framework + full PDF content + visuals + per-club primer + football actions, all delivered".
+
+## Notes
+
+- v3.20.0 was reserved for an in-flight UX polish bundle; this release jumps to v3.21.0 to avoid stepping on that release plan.
+- The seed images are 23MB total (66 PNGs at 150 DPI). Acceptable one-time addition for a content release where the visuals are core to the feature.
+
+---
+
+
 # TalentTrack v3.12.0 — #0019 Sprint 6: Legacy UI toggle (closes the epic)
 
 **Minor release.** Closes Sprint 6 of the #0019 frontend-first-admin epic and finishes the epic itself. The migration is complete: every TalentTrack admin surface now lives on the frontend, and the wp-admin menu entries for those migrated pages are hidden by default behind a per-site toggle.

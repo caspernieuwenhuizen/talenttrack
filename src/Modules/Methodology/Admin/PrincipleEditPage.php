@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Methodology\Helpers\MultilingualField;
 use TT\Modules\Methodology\MethodologyEnums;
 use TT\Modules\Methodology\Repositories\FormationsRepository;
+use TT\Modules\Methodology\Repositories\MethodologyAssetsRepository;
 use TT\Modules\Methodology\Repositories\PrinciplesRepository;
 
 /**
@@ -45,6 +46,8 @@ class PrincipleEditPage {
         if ( $row && $row->is_shipped ) {
             wp_die( esc_html__( 'Shipped principles are read-only. Use Clone & Edit instead.', 'talenttrack' ) );
         }
+
+        MediaPicker::enqueueAssets();
 
         $formations = ( new FormationsRepository() )->listAll();
         $title_nl   = '';
@@ -166,6 +169,7 @@ class PrincipleEditPage {
                         </tr>
                     <?php endforeach; ?>
                 </table>
+                <?php if ( $row ) MediaPicker::render( MethodologyAssetsRepository::TYPE_PRINCIPLE, (int) $row->id ); ?>
                 <?php submit_button( $row ? __( 'Save changes', 'talenttrack' ) : __( 'Create principle', 'talenttrack' ) ); ?>
             </form>
         </div>
@@ -217,6 +221,8 @@ class PrincipleEditPage {
             $payload['is_shipped'] = 0;
             $id = $repo->create( $payload );
         }
+
+        MediaPicker::handleSave( MethodologyAssetsRepository::TYPE_PRINCIPLE, (int) $id );
 
         wp_safe_redirect( add_query_arg(
             [ 'page' => MethodologyPage::SLUG, 'tab' => 'principles', 'principle_id' => $id, 'tt_msg' => 'saved' ],

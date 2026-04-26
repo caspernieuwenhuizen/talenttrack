@@ -6,8 +6,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Methodology\Components\FormationDiagram;
 use TT\Modules\Methodology\Helpers\MultilingualField;
 use TT\Modules\Methodology\MethodologyEnums;
+use TT\Modules\Methodology\Repositories\FootballActionsRepository;
 use TT\Modules\Methodology\Repositories\FormationsRepository;
+use TT\Modules\Methodology\Repositories\FrameworkPrimerRepository;
+use TT\Modules\Methodology\Repositories\InfluenceFactorsRepository;
+use TT\Modules\Methodology\Repositories\LearningGoalsRepository;
+use TT\Modules\Methodology\Repositories\MethodologyAssetsRepository;
 use TT\Modules\Methodology\Repositories\MethodologyVisionRepository;
+use TT\Modules\Methodology\Repositories\PhasesRepository;
 use TT\Modules\Methodology\Repositories\PrincipleLinksRepository;
 use TT\Modules\Methodology\Repositories\PrinciplesRepository;
 use TT\Modules\Methodology\Repositories\SetPiecesRepository;
@@ -52,12 +58,13 @@ class MethodologyPage {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
-        $tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : 'principles';
+        $tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : 'framework';
         $tabs = [
-            'principles' => __( 'Spelprincipes',     'talenttrack' ),
+            'framework'  => __( 'Raamwerk',           'talenttrack' ),
+            'principles' => __( 'Spelprincipes',      'talenttrack' ),
             'formations' => __( 'Formaties & Posities', 'talenttrack' ),
-            'set_pieces' => __( 'Spelhervattingen',  'talenttrack' ),
-            'vision'     => __( 'Visie',             'talenttrack' ),
+            'set_pieces' => __( 'Spelhervattingen',   'talenttrack' ),
+            'vision'     => __( 'Visie',              'talenttrack' ),
         ];
 
         ?>
@@ -84,17 +91,20 @@ class MethodologyPage {
             <div style="margin-top:20px;">
                 <?php
                 switch ( $tab ) {
-                    case 'formations': self::renderFormationsTab(); break;
-                    case 'set_pieces': self::renderSetPiecesTab(); break;
-                    case 'vision':     self::renderVisionTab();     break;
                     case 'principles':
-                    default:
                         $principle_id = isset( $_GET['principle_id'] ) ? absint( $_GET['principle_id'] ) : 0;
                         if ( $principle_id > 0 ) {
                             self::renderPrincipleDetail( $principle_id );
                         } else {
                             self::renderPrinciplesTab();
                         }
+                        break;
+                    case 'formations': self::renderFormationsTab(); break;
+                    case 'set_pieces': self::renderSetPiecesTab();  break;
+                    case 'vision':     self::renderVisionTab();     break;
+                    case 'framework':
+                    default:
+                        self::renderFrameworkTab();
                 }
                 ?>
             </div>
@@ -509,6 +519,195 @@ class MethodologyPage {
                 endif; ?>
             </div>
         </div>
+        <?php
+    }
+
+    private static function renderFrameworkTab(): void {
+        $repo   = new FrameworkPrimerRepository();
+        $primer = $repo->activeForClub();
+
+        if ( ! $primer ) {
+            echo '<p>' . esc_html__( 'No framework primer recorded yet.', 'talenttrack' ) . '</p>';
+            if ( current_user_can( self::CAP_EDIT ) ) {
+                echo '<p><a class="button button-primary" href="' . esc_url( admin_url( 'admin.php?page=' . FrameworkPrimerEditPage::SLUG . '&action=new' ) ) . '">' . esc_html__( 'Define framework', 'talenttrack' ) . '</a></p>';
+            }
+            return;
+        }
+
+        $assets   = ( new MethodologyAssetsRepository() )->listFor( MethodologyAssetsRepository::TYPE_FRAMEWORK, (int) $primer->id );
+        $title    = MultilingualField::string( $primer->title_json );
+        $tagline  = MultilingualField::string( $primer->tagline_json );
+        $intro    = MultilingualField::string( $primer->intro_json );
+        $sections = [
+            'voetbalmodel_intro'        => __( 'Voetbalmodel',         'talenttrack' ),
+            'voetbalhandelingen_intro'  => __( 'Voetbalhandelingen',   'talenttrack' ),
+            'phases_intro'              => __( 'Vier fasen',           'talenttrack' ),
+            'learning_goals_intro'      => __( 'Leerdoelen',           'talenttrack' ),
+            'influence_factors_intro'   => __( 'Factoren van invloed', 'talenttrack' ),
+            'reflection'                => __( 'Reflectie',            'talenttrack' ),
+            'future'                    => __( 'De toekomst',          'talenttrack' ),
+        ];
+        ?>
+        <div style="display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:24px; align-items:start;">
+            <div>
+                <h2 style="margin-top:0;"><?php echo esc_html( $title ?: __( '(untitled framework)', 'talenttrack' ) ); ?></h2>
+                <?php if ( $tagline !== '' ) : ?><p style="font-size:14px; color:#5b6470;"><?php echo esc_html( $tagline ); ?></p><?php endif; ?>
+                <?php if ( $intro !== '' ) : ?>
+                    <h3><?php esc_html_e( 'Inleiding', 'talenttrack' ); ?></h3>
+                    <p style="white-space:pre-wrap;"><?php echo esc_html( $intro ); ?></p>
+                <?php endif; ?>
+                <?php foreach ( $sections as $field => $label ) :
+                    $val = MultilingualField::string( $primer->{$field . '_json'} ?? null );
+                    if ( $val === '' ) continue; ?>
+                    <h3><?php echo esc_html( $label ); ?></h3>
+                    <p style="white-space:pre-wrap;"><?php echo esc_html( $val ); ?></p>
+                <?php endforeach; ?>
+                <p style="margin-top:24px;">
+                    <?php if ( current_user_can( self::CAP_EDIT ) ) : ?>
+                        <?php if ( $primer->is_shipped ) : ?>
+                            <a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . FrameworkPrimerEditPage::SLUG . '&action=new' ) ); ?>">
+                                <?php esc_html_e( 'Author my own framework', 'talenttrack' ); ?>
+                            </a>
+                        <?php else : ?>
+                            <a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . FrameworkPrimerEditPage::SLUG . '&action=edit&id=' . (int) $primer->id ) ); ?>">
+                                <?php esc_html_e( 'Edit framework', 'talenttrack' ); ?>
+                            </a>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </p>
+            </div>
+            <div>
+                <?php if ( ! empty( $assets ) ) :
+                    foreach ( $assets as $asset ) :
+                        $img = wp_get_attachment_image( (int) $asset->attachment_id, 'medium', false, [ 'style' => 'max-width:100%; height:auto; border:1px solid #e0e2e7; border-radius:6px; margin-bottom:8px;' ] );
+                        $caption = MultilingualField::string( $asset->caption_json );
+                        if ( $img ) echo $img;
+                        if ( $caption !== '' ) echo '<p style="font-size:12px; color:#5b6470; margin:0 0 12px;">' . esc_html( $caption ) . '</p>';
+                    endforeach;
+                else : ?>
+                    <p style="color:#5b6470; font-style:italic;"><?php esc_html_e( 'No framework illustrations attached yet.', 'talenttrack' ); ?></p>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <?php
+        self::renderFrameworkPhases( (int) $primer->id );
+        self::renderFrameworkLearningGoals( (int) $primer->id );
+        self::renderFrameworkInfluenceFactors( (int) $primer->id );
+    }
+
+    private static function renderFrameworkPhases( int $primer_id ): void {
+        $rows = ( new PhasesRepository() )->listForPrimer( $primer_id );
+        if ( empty( $rows ) ) return;
+        $by_side = [];
+        foreach ( $rows as $r ) $by_side[ (string) $r->side ][] = $r;
+        ?>
+        <h2 style="margin-top:32px;"><?php esc_html_e( 'Vier fasen', 'talenttrack' ); ?></h2>
+        <?php foreach ( MethodologyEnums::sides() as $key => $label ) :
+            if ( empty( $by_side[ $key ] ) ) continue; ?>
+            <h3 style="margin-top:14px;"><?php echo esc_html( $label ); ?></h3>
+            <table class="widefat striped">
+                <thead><tr>
+                    <th style="width:60px;">#</th>
+                    <th><?php esc_html_e( 'Title', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Goal', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Source', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
+                </tr></thead>
+                <tbody>
+                <?php foreach ( $by_side[ $key ] as $r ) : ?>
+                    <tr>
+                        <td><strong><?php echo (int) $r->phase_number; ?></strong></td>
+                        <td><?php echo esc_html( MultilingualField::string( $r->title_json ) ?: '—' ); ?></td>
+                        <td><?php echo esc_html( MultilingualField::string( $r->goal_json )  ?: '—' ); ?></td>
+                        <td><?php echo $r->is_shipped ? esc_html__( 'Shipped', 'talenttrack' ) : esc_html__( 'Club', 'talenttrack' ); ?></td>
+                        <td>
+                            <?php if ( current_user_can( self::CAP_EDIT ) && empty( $r->is_shipped ) ) : ?>
+                                <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . PhaseEditPage::SLUG . '&action=edit&id=' . (int) $r->id ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endforeach;
+    }
+
+    private static function renderFrameworkLearningGoals( int $primer_id ): void {
+        $rows = ( new LearningGoalsRepository() )->listForPrimer( $primer_id );
+        if ( empty( $rows ) ) return;
+        $by_side = [];
+        foreach ( $rows as $r ) $by_side[ (string) $r->side ][] = $r;
+        ?>
+        <h2 style="margin-top:32px;"><?php esc_html_e( 'Leerdoelen', 'talenttrack' ); ?></h2>
+        <?php foreach ( MethodologyEnums::sides() as $key => $label ) :
+            if ( empty( $by_side[ $key ] ) ) continue; ?>
+            <h3 style="margin-top:14px;"><?php echo esc_html( $label ); ?></h3>
+            <table class="widefat striped">
+                <thead><tr>
+                    <th><?php esc_html_e( 'Title', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Bullets', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Source', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
+                </tr></thead>
+                <tbody>
+                <?php foreach ( $by_side[ $key ] as $r ) :
+                    $bullets = MultilingualField::stringList( $r->bullets_json );
+                    ?>
+                    <tr>
+                        <td><strong><?php echo esc_html( MultilingualField::string( $r->title_json ) ?: $r->slug ); ?></strong></td>
+                        <td>
+                            <?php if ( ! empty( $bullets ) ) : ?>
+                                <ul style="margin:0 0 0 18px;">
+                                    <?php foreach ( $bullets as $b ) echo '<li>' . esc_html( $b ) . '</li>'; ?>
+                                </ul>
+                            <?php else : ?>—<?php endif; ?>
+                        </td>
+                        <td><?php echo $r->is_shipped ? esc_html__( 'Shipped', 'talenttrack' ) : esc_html__( 'Club', 'talenttrack' ); ?></td>
+                        <td>
+                            <?php if ( current_user_can( self::CAP_EDIT ) && empty( $r->is_shipped ) ) : ?>
+                                <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . LearningGoalEditPage::SLUG . '&action=edit&id=' . (int) $r->id ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endforeach;
+    }
+
+    private static function renderFrameworkInfluenceFactors( int $primer_id ): void {
+        $rows = ( new InfluenceFactorsRepository() )->listForPrimer( $primer_id );
+        if ( empty( $rows ) ) return;
+        ?>
+        <h2 style="margin-top:32px;"><?php esc_html_e( 'Factoren van invloed', 'talenttrack' ); ?></h2>
+        <table class="widefat striped">
+            <thead><tr>
+                <th><?php esc_html_e( 'Title', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Sub-cards', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Source', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
+            </tr></thead>
+            <tbody>
+            <?php foreach ( $rows as $r ) :
+                $sub = ! empty( $r->sub_factors_json ) ? json_decode( $r->sub_factors_json, true ) : [];
+                $count = is_array( $sub ) ? count( $sub ) : 0;
+                ?>
+                <tr>
+                    <td><strong><?php echo esc_html( MultilingualField::string( $r->title_json ) ?: $r->slug ); ?></strong></td>
+                    <td><?php echo esc_html( MultilingualField::string( $r->description_json ) ?: '—' ); ?></td>
+                    <td><?php echo (int) $count; ?></td>
+                    <td><?php echo $r->is_shipped ? esc_html__( 'Shipped', 'talenttrack' ) : esc_html__( 'Club', 'talenttrack' ); ?></td>
+                    <td>
+                        <?php if ( current_user_can( self::CAP_EDIT ) && empty( $r->is_shipped ) ) : ?>
+                            <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . InfluenceFactorEditPage::SLUG . '&action=edit&id=' . (int) $r->id ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
         <?php
     }
 

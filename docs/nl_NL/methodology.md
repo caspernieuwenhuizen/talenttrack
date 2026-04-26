@@ -1,18 +1,20 @@
 # Methodologie
 
-In de Methodologie-bibliotheek leeft het coachingsraamwerk van je academie in TalentTrack: spelprincipes, formaties + positiekaarten, spelhervattingen en de clubvisie. Coaches gebruiken deze als naslag tijdens sessieplanning en speelgesprekken.
+In de Methodologie-bibliotheek leeft het coachingsraamwerk van je academie in TalentTrack: het raamwerk per club, spelprincipes, formaties + positiekaarten, spelhervattingen, de clubvisie en de catalogus voetbalhandelingen. Coaches gebruiken deze als naslag tijdens sessieplanning en speelgesprekken.
 
 ## Waar je hem vindt
 
-- **wp-admin**: TalentTrack → Methodology (Performance-groep).
+- **wp-admin**: TalentTrack → Methodology (Performance-groep). Voetbalhandelingen heeft een eigen ingang onder TalentTrack.
 - **Frontend**: de Methodology-tegel onder Performance.
 
-## Vier tabbladen
+## Zes tabbladen
 
-1. **Spelprincipes** — gecodeerde principes zoals AO-01 (opbouw), VS-02 (storen). Elk bevat toelichting, sturing op teamniveau, sturing per linie (Aanvallers / Middenvelders / Verdedigers / Keeper) en een formatiediagram.
-2. **Formaties & posities** — de formatievisual + rolkaarten per rugnummer. Elke positiekaart toont aanvallende en verdedigende taken.
-3. **Spelhervattingen** — corners, vrije trappen (direct + voorzet), penalty's, inworpen. Aanvallend + verdedigend.
-4. **Visie** — het overkoepelende record van de club: gekozen formatie, speelstijl, speelwijze en belangrijke spelerseigenschappen.
+1. **Raamwerk** — de methodologische intro per club: inleiding, het voetbalmodel op hoofdlijnen, voetbalhandelingen, de vier fasen van aanvallen en verdedigen, leerdoelen, factoren van invloed en reflectie / toekomst. Elke sectie kan illustraties dragen.
+2. **Spelprincipes** — gecodeerde principes zoals AO-01 (opbouw), VS-02 (storen). Elk bevat toelichting, sturing op teamniveau, sturing per linie (Aanvallers / Middenvelders / Verdedigers / Keeper), een formatiediagram en een primaire illustratie.
+3. **Formaties & posities** — de formatievisual + rolkaarten per rugnummer. Elke positiekaart toont aanvallende en verdedigende taken plus een optioneel diagram.
+4. **Spelhervattingen** — corners, vrije trappen (direct + voorzet), penalty's, inworpen. Aanvallend + verdedigend, met illustraties.
+5. **Visie** — het overkoepelende record van de club: gekozen formatie, speelstijl, speelwijze en belangrijke spelerseigenschappen.
+6. **Voetbalhandelingen** — de catalogus voetbalhandelingen (aannemen, passen, dribbelen, schieten, koppen — plus vrijlopen, knijpen, jagen, dekken en ondersteunende handelingen zoals spelinzicht / communicatie).
 
 ## Twee bronnen van inhoud
 
@@ -23,9 +25,15 @@ Om vanuit geleverde inhoud te starten zonder het origineel aan te raken: klik **
 
 ## Hoe het aansluit op de rest van TalentTrack
 
-- **Doelen**: een doel kan optioneel aan één principe worden gekoppeld. Maakt ontwikkelingsdoelen concreet: "deze speler werkt aan AO-02 — Verzorgde diepte."
+- **Doelen**: een doel kan optioneel aan één principe en aan één voetbalhandeling worden gekoppeld. Gebruik een of beide om ontwikkelingsdoelen concreet te maken — "deze speler werkt aan AO-02 (opbouw via de zijkanten)" of "deze speler verbetert dribbelen".
 - **Sessies**: een sessie kan meerdere principes opnoemen die worden geoefend. Coaches zien in één oogopslag welke principes ze in een week behandelen.
 - **Teamplannen (#0006, toekomstig)**: zodra teamplanning wordt geleverd, leest die direct uit principes.
+
+## Diagrammen en afbeeldingen toevoegen
+
+Elke entiteit in de bibliotheek (spelprincipe, spelhervatting, positie, visie, raamwerk-introductie, fase, leerdoel, factor van invloed, voetbalhandeling) heeft op de bewerkpagina een sectie "Diagrammen en afbeeldingen". Klik op **Afbeelding kiezen…** om de WordPress mediabibliotheek te openen, een afbeelding te uploaden of te selecteren; bij opslaan wordt een record aangemaakt in `tt_methodology_assets`. De eerste afbeelding wordt de primaire (de hero), bijkomende kunnen worden toegevoegd, voorzien van een NL/EN bijschrift, gepromoveerd of gearchiveerd.
+
+De plugin levert diagrammen aan vanuit het oorspronkelijke methodologiedocument; ze worden automatisch gekoppeld aan de bijbehorende geleverde entiteit. Wil je een geleverde diagram vervangen door je eigen versie? Archiveer het geleverde beeld en voeg je eigen toe — het formulier houdt beide totdat je de ongewenste archiveert.
 
 ## Meertalige inhoud
 
