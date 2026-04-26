@@ -43,6 +43,7 @@ class BackupSettingsPage {
         if ( ! current_user_can( self::CAP ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
+        self::enqueuePageAssets();
 
         // Partial restore mode is reachable via ?partial=<backup-id>
         // from the stored-backups list. Render that view in place of
@@ -89,7 +90,30 @@ class BackupSettingsPage {
         <?php self::renderSettingsForm( $settings ); ?>
         <?php self::renderRunNowButton(); ?>
         <?php self::renderBackupsList( $list ); ?>
+        <?php self::renderRunningOverlay(); ?>
         <?php
+    }
+
+    /**
+     * Enqueue the small backup-page.js + the per-preset description data
+     * it consumes. Confirm.js + admin-confirm.js are already enqueued by
+     * Menu::enqueue() on every TT-prefixed admin page.
+     */
+    private static function enqueuePageAssets(): void {
+        wp_enqueue_script(
+            'tt-backup-page',
+            TT_PLUGIN_URL . 'assets/js/backup-page.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        $descriptions = [];
+        foreach ( PresetRegistry::all() as $p ) {
+            $descriptions[ $p ] = PresetRegistry::description( $p );
+        }
+        wp_localize_script( 'tt-backup-page', 'TT_BACKUP', [
+            'preset_descriptions' => $descriptions,
+        ] );
     }
 
     /**
@@ -113,15 +137,15 @@ class BackupSettingsPage {
                 <tr>
                     <th scope="row"><label for="tt_bk_preset"><?php esc_html_e( 'Preset', 'talenttrack' ); ?></label></th>
                     <td>
-                        <select id="tt_bk_preset" name="preset">
+                        <select id="tt_bk_preset" name="preset" data-tt-bk-preset-select>
                             <?php foreach ( PresetRegistry::all() as $p ) : ?>
                                 <option value="<?php echo esc_attr( $p ); ?>" <?php selected( $preset, $p ); ?>>
                                     <?php echo esc_html( PresetRegistry::label( $p ) ); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <p class="description">
-                            <?php esc_html_e( 'Minimal: core data only. Standard: everyday operational data. Thorough: everything including audit log and lookups.', 'talenttrack' ); ?>
+                        <p class="description" data-tt-bk-preset-description>
+                            <?php echo esc_html( PresetRegistry::description( $preset ) ); ?>
                         </p>
                     </td>
                 </tr>
@@ -192,11 +216,33 @@ class BackupSettingsPage {
         <p style="max-width:680px;">
             <?php esc_html_e( 'Triggers a backup with the current settings without waiting for the scheduled run. Useful for testing, before risky operations, or on low-traffic sites where WP-cron does not fire reliably.', 'talenttrack' ); ?>
         </p>
-        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" data-tt-bk-run-now-form>
             <?php wp_nonce_field( 'tt_backup_run_now', 'tt_backup_nonce' ); ?>
             <input type="hidden" name="action" value="tt_backup_run_now" />
             <?php submit_button( __( 'Run backup now', 'talenttrack' ), 'primary', '', false ); ?>
         </form>
+        <?php
+    }
+
+    /**
+     * Full-screen "in progress" overlay shown by JS while a Run-Now or
+     * Restore submit is in flight. Non-dismissible by design — once the
+     * server responds (admin-post redirects back), the page reloads
+     * and the overlay is gone naturally.
+     */
+    private static function renderRunningOverlay(): void {
+        ?>
+        <div class="tt-bk-overlay" data-tt-bk-overlay hidden role="alertdialog" aria-live="assertive" aria-labelledby="tt-bk-overlay-title">
+            <div class="tt-bk-overlay-card">
+                <div class="tt-bk-spinner" aria-hidden="true"></div>
+                <h3 id="tt-bk-overlay-title" class="tt-bk-overlay-title">
+                    <?php esc_html_e( 'Backup in progress…', 'talenttrack' ); ?>
+                </h3>
+                <p class="tt-bk-overlay-msg" data-tt-bk-overlay-msg>
+                    <?php esc_html_e( 'Hang on while we snapshot your TalentTrack tables. This usually takes a few seconds — please don\'t close this tab.', 'talenttrack' ); ?>
+                </p>
+            </div>
+        </div>
         <?php
     }
 
@@ -230,11 +276,19 @@ class BackupSettingsPage {
                         <td>
                             <a href="<?php echo esc_url( self::actionUrl( 'tt_backup_download', [ 'id' => $id ] ) ); ?>"><?php esc_html_e( 'Download', 'talenttrack' ); ?></a>
                             |
-                            <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-config&tab=backups&restore=' . rawurlencode( $id ) ) ); ?>"><?php esc_html_e( 'Restore', 'talenttrack' ); ?></a>
+                            <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-config&tab=backups&restore=' . rawurlencode( $id ) ) ); ?>"
+                               data-tt-confirm-message="<?php echo esc_attr__( 'Open the restore preview for this backup? You will be asked to confirm again before any data is replaced.', 'talenttrack' ); ?>"
+                               data-tt-confirm-title="<?php echo esc_attr__( 'Open restore preview?', 'talenttrack' ); ?>"
+                               data-tt-confirm-confirm-label="<?php echo esc_attr__( 'Open preview', 'talenttrack' ); ?>"><?php esc_html_e( 'Restore', 'talenttrack' ); ?></a>
                             |
                             <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-config&tab=backups&partial=' . rawurlencode( $id ) ) ); ?>"><?php esc_html_e( 'Partial restore', 'talenttrack' ); ?></a>
                             |
-                            <a href="<?php echo esc_url( self::actionUrl( 'tt_backup_delete', [ 'id' => $id ] ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete this backup file?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a>
+                            <a href="<?php echo esc_url( self::actionUrl( 'tt_backup_delete', [ 'id' => $id ] ) ); ?>"
+                               data-tt-confirm-message="<?php echo esc_attr__( 'Delete this backup file? This cannot be undone.', 'talenttrack' ); ?>"
+                               data-tt-confirm-title="<?php echo esc_attr__( 'Delete backup file?', 'talenttrack' ); ?>"
+                               data-tt-confirm-confirm-label="<?php echo esc_attr__( 'Delete', 'talenttrack' ); ?>"
+                               data-tt-confirm-danger
+                               style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -278,7 +332,9 @@ class BackupSettingsPage {
                 <?php endforeach; ?>
                 </tbody>
             </table>
-            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:14px;">
+            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:14px;"
+                  data-tt-bk-restore-form
+                  data-tt-bk-restore-msg="<?php echo esc_attr__( 'Restoring your TalentTrack tables from the snapshot. This usually takes a few seconds — please don\'t close this tab.', 'talenttrack' ); ?>">
                 <?php wp_nonce_field( 'tt_backup_restore', 'tt_backup_nonce' ); ?>
                 <input type="hidden" name="action" value="tt_backup_restore" />
                 <input type="hidden" name="id" value="<?php echo esc_attr( $id ); ?>" />

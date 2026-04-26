@@ -4332,6 +4332,55 @@ msgstr "Volgende back-up: %s."
 msgid "Backup settings →"
 msgstr "Back-upinstellingen →"
 
+# Backup preset labels (#6).
+msgid "Minimal"
+msgstr "Minimaal"
+
+msgid "Thorough"
+msgstr "Volledig"
+
+msgid "Custom"
+msgstr "Aangepast"
+
+# Backup preset descriptions — dynamically swapped client-side (#6).
+msgid "Core data only: players, teams, evaluations and ratings. Smallest archive, fastest to restore."
+msgstr "Alleen kerndata: spelers, teams, evaluaties en beoordelingen. Kleinste archief, snelst te herstellen."
+
+msgid "Everyday operational data: everything in Minimal plus sessions, attendance, goals, people, team-assignments and functional roles. Recommended default."
+msgstr "Dagelijkse operationele data: alles uit Minimaal plus trainingen, aanwezigheid, doelen, personen, team-toewijzingen en functionele rollen. Aanbevolen standaard."
+
+msgid "Everything: Standard plus lookups, custom-field definitions and values, evaluation categories and weights, audit log, usage stats, demo tags and config. Largest archive, slowest to restore."
+msgstr "Alles: Standaard plus lookups, definities en waarden van aangepaste velden, evaluatiecategorieën en gewichten, auditlog, gebruiksstatistieken, demo-tags en config. Grootste archief, langzaamst te herstellen."
+
+msgid "Use the table list below. Only the tables you list are backed up."
+msgstr "Gebruik de tabellijst hieronder. Alleen de opgegeven tabellen worden meegenomen in de back-up."
+
+# Backup running overlay (#6 + #7).
+msgid "Backup in progress…"
+msgstr "Bezig met back-up…"
+
+msgid "Hang on while we snapshot your TalentTrack tables. This usually takes a few seconds — please don't close this tab."
+msgstr "Even geduld terwijl we een momentopname maken van je TalentTrack-tabellen. Dit duurt meestal een paar seconden — sluit dit tabblad niet."
+
+msgid "Restoring your TalentTrack tables from the snapshot. This usually takes a few seconds — please don't close this tab."
+msgstr "Bezig met herstellen van je TalentTrack-tabellen vanuit de snapshot. Dit duurt meestal een paar seconden — sluit dit tabblad niet."
+
+# Backup confirm prompts (#3 + #6).
+msgid "Open the restore preview for this backup? You will be asked to confirm again before any data is replaced."
+msgstr "Het herstelvoorbeeld voor deze back-up openen? Je krijgt nog een tweede bevestiging voordat er data wordt vervangen."
+
+msgid "Open restore preview?"
+msgstr "Herstelvoorbeeld openen?"
+
+msgid "Open preview"
+msgstr "Voorbeeld openen"
+
+msgid "Delete this backup file? This cannot be undone."
+msgstr "Dit back-upbestand verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+msgid "Delete backup file?"
+msgstr "Back-upbestand verwijderen?"
+
 msgid "No destinations enabled."
 msgstr "Geen bestemmingen ingeschakeld."
 

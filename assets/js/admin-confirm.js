@@ -31,35 +31,44 @@
     'use strict';
 
     document.addEventListener('click', function (e) {
-        var btn = e.target && e.target.closest ? e.target.closest('[data-tt-confirm-message]') : null;
-        if (!btn) return;
-        // Only handle submit-style buttons or links inside a form.
-        var form = btn.closest('form');
-        if (!form) return;
+        var trig = e.target && e.target.closest ? e.target.closest('[data-tt-confirm-message]') : null;
+        if (!trig) return;
+
+        // Two supported triggers:
+        //   1. Submit button inside a <form>  → confirm, then submit the form.
+        //   2. An <a> link with an href       → confirm, then navigate.
+        var form    = trig.closest('form');
+        var isLink  = trig.tagName === 'A' && trig.getAttribute('href');
+        if (!form && !isLink) return;
         e.preventDefault();
 
-        var message      = btn.getAttribute('data-tt-confirm-message') || '';
-        var title        = btn.getAttribute('data-tt-confirm-title') || '';
-        var confirmLabel = btn.getAttribute('data-tt-confirm-confirm-label') || '';
-        var cancelLabel  = btn.getAttribute('data-tt-confirm-cancel-label') || '';
-        var danger       = btn.hasAttribute('data-tt-confirm-danger');
+        var message      = trig.getAttribute('data-tt-confirm-message') || '';
+        var title        = trig.getAttribute('data-tt-confirm-title') || '';
+        var confirmLabel = trig.getAttribute('data-tt-confirm-confirm-label') || '';
+        var cancelLabel  = trig.getAttribute('data-tt-confirm-cancel-label') || '';
+        var danger       = trig.hasAttribute('data-tt-confirm-danger');
 
-        var submit = function () {
-            // If the button has a name/value, replicate the standard
-            // form-button submit by adding it as a hidden input first.
-            var name = btn.getAttribute('name');
-            if (name) {
-                var hidden = document.createElement('input');
-                hidden.type  = 'hidden';
-                hidden.name  = name;
-                hidden.value = btn.getAttribute('value') || '';
-                form.appendChild(hidden);
+        var commit = function () {
+            if (form) {
+                // If the trigger is a button with name/value, replicate the
+                // native submit by adding it as a hidden input first.
+                var name = trig.getAttribute('name');
+                if (name) {
+                    var hidden = document.createElement('input');
+                    hidden.type  = 'hidden';
+                    hidden.name  = name;
+                    hidden.value = trig.getAttribute('value') || '';
+                    form.appendChild(hidden);
+                }
+                form.submit();
+                return;
             }
-            form.submit();
+            // Link trigger.
+            window.location.href = trig.getAttribute('href');
         };
 
         if (typeof window.ttConfirm !== 'function') {
-            if (window.confirm(message)) submit();
+            if (window.confirm(message)) commit();
             return;
         }
         window.ttConfirm({
@@ -68,6 +77,6 @@
             confirmLabel: confirmLabel,
             cancelLabel:  cancelLabel,
             danger:       danger
-        }).then(function (ok) { if (ok) submit(); });
+        }).then(function (ok) { if (ok) commit(); });
     });
 })();

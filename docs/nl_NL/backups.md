@@ -8,7 +8,7 @@ TalentTrack heeft een eigen back-upmodule (los van een eventuele algemene WordPr
 
 ## Instellingen
 
-- **Preset** — *Minimaal* (basisgegevens), *Standaard* (dagelijkse gegevens inclusief sessies/doelen/personen), *Uitgebreid* (alles inclusief auditlog + opzoeklijsten), of *Aangepast* (lijst per tabel).
+- **Preset** — *Minimaal* (basisgegevens), *Standaard* (dagelijkse gegevens inclusief sessies/doelen/personen), *Uitgebreid* (alles inclusief auditlog + opzoeklijsten), of *Aangepast* (lijst per tabel). De omschrijving onder de keuzelijst werkt automatisch bij wanneer je een andere preset selecteert.
 - **Schema** — dagelijks, wekelijks of op aanvraag (geen automatische runs).
 - **Bewaartermijn** — hoeveel lokale back-ups bewaard worden voor de oudste verwijderd wordt. Standaard 30.
 - **Lokale bestemming** — schrijft `.json.gz`-bestanden naar `wp-content/uploads/talenttrack-backups/`. De map wordt automatisch aangemaakt met een `index.php` + `.htaccess` die directe browsertoegang blokkeert.
@@ -21,13 +21,16 @@ De knop "Nu back-up maken" op de instellingenpagina draait een back-up zonder op
 - Net vóór een risicovolle handeling (CSV-import, bulk-archief).
 - Sites waar WP-cron onbetrouwbaar is (weinig verkeer, agressieve caching).
 
+Tijdens de back-up komt er een schermvullende "Bezig met back-up…"-overlay over de pagina. Deze kan niet worden weggeklikt — zodra de server klaar is (meestal een paar seconden voor kleine academies, langer voor Volledig op een drukke installatie) wordt de pagina herladen en is de overlay verdwenen.
+
 ## Terugzetten
 
-1. Kies een back-up uit de lokale lijst en klik **Terugzetten**.
+1. Kies een back-up uit de lokale lijst en klik **Terugzetten**. Een bevestigingsvenster vraagt of je het herstelvoorbeeld wilt openen.
 2. De pagina toont een overzicht per tabel van wat vervangen wordt plus de pluginversie van de snapshot.
 3. Typ **RESTORE** in het bevestigingsveld.
-4. De actie maakt elke tabel in de snapshot leeg en speelt de rijen opnieuw in. Tabellen die op de site bestaan maar niet in de snapshot staan, worden niet aangeraakt.
-5. Als rij-aantallen na het terugzetten niet overeenkomen met de verwachting verschijnt er een foutmelding.
+4. Verstuur. Tijdens het terugzetten verschijnt dezelfde "Bezig met…"-overlay over de pagina — niet weg te klikken totdat de server klaar is.
+5. De actie maakt elke tabel in de snapshot leeg en speelt de rijen opnieuw in. Tabellen die op de site bestaan maar niet in de snapshot staan, worden niet aangeraakt.
+6. Als rij-aantallen na het terugzetten niet overeenkomen met de verwachting verschijnt er een foutmelding.
 
 Terugzetten tussen verschillende hoofdversies wordt geweigerd (een v2.x-snapshot zet niet terug op een v3.x-site). Binnen dezelfde hoofdversie (bijv. v3.12 → v3.14) is het toegestaan; schemamigraties dekken verschillen.
 
