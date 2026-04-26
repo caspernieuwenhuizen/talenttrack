@@ -179,6 +179,11 @@ class HelpTopics {
                 'group'   => 'development',
                 'summary' => __( 'Submit, refine, and promote ideas straight to GitHub from the dashboard.', 'talenttrack' ),
             ],
+            'translations' => [
+                'title'   => __( 'Auto-translation', 'talenttrack' ),
+                'group'   => 'configuration',
+                'summary' => __( 'Opt-in DeepL / Google translation of user-entered free text.', 'talenttrack' ),
+            ],
         ];
     }
 

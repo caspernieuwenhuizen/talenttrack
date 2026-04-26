@@ -116,8 +116,8 @@ class PlayerDashboardView {
         } else {
             echo '<div class="tt-goals-list">';
             foreach ( $goals as $g ) {
-                echo '<div class="tt-goal-item tt-status-' . esc_attr( $g->status ) . '"><h4>' . esc_html( $g->title ) . '</h4>';
-                if ( $g->description ) echo '<p>' . esc_html( $g->description ) . '</p>';
+                echo '<div class="tt-goal-item tt-status-' . esc_attr( $g->status ) . '"><h4>' . esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $g->title ) ) . '</h4>';
+                if ( $g->description ) echo '<p>' . esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $g->description ) ) . '</p>';
                 echo '<span class="tt-status-badge">' . esc_html( LabelTranslator::goalStatus( (string) $g->status ) ) . '</span>';
                 if ( $g->due_date ) echo ' <small>' . esc_html__( 'Due:', 'talenttrack' ) . ' ' . esc_html( $g->due_date ) . '</small>';
                 echo '</div>';
@@ -156,9 +156,9 @@ class PlayerDashboardView {
                 }
                 echo '<tr class="' . esc_attr( $cls ) . ( $is_guest_visit ? ' tt-att-guest' : '' ) . '">'
                     . '<td>' . esc_html( (string) $a->session_date ) . '</td>'
-                    . '<td>' . esc_html( $session_label ) . '</td>'
+                    . '<td>' . esc_html( \TT\Modules\Translations\TranslationLayer::render( $session_label ) ) . '</td>'
                     . '<td>' . esc_html( LabelTranslator::attendanceStatus( (string) $a->status ) ) . '</td>'
-                    . '<td>' . esc_html( $a->notes ?: '—' ) . '</td>'
+                    . '<td>' . ( $a->notes ? esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $a->notes ) ) : '—' ) . '</td>'
                     . '</tr>';
             }
             echo '</tbody></table>';

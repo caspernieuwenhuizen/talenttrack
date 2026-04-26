@@ -36,9 +36,9 @@ class FrontendMyGoalsView extends FrontendViewBase {
         <div class="tt-goals-list">
             <?php foreach ( $goals as $g ) : ?>
                 <div class="tt-goal-item tt-status-<?php echo esc_attr( (string) $g->status ); ?>">
-                    <h4><?php echo esc_html( (string) $g->title ); ?></h4>
+                    <h4><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $g->title ) ); ?></h4>
                     <?php if ( ! empty( $g->description ) ) : ?>
-                        <p><?php echo esc_html( (string) $g->description ); ?></p>
+                        <p><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $g->description ) ); ?></p>
                     <?php endif; ?>
                     <span class="tt-status-badge"><?php echo esc_html( LabelTranslator::goalStatus( (string) $g->status ) ); ?></span>
                     <?php if ( ! empty( $g->due_date ) ) : ?>

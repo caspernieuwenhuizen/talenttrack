@@ -259,7 +259,12 @@ class GoalsRestController {
             );
         }
 
-        return RestResponse::success( [ 'id' => (int) $wpdb->insert_id ] );
+        $goal_id = (int) $wpdb->insert_id;
+        // #0025 — detect source language for the new free-text fields.
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'title',       (string) $data['title'] );
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'description', (string) $data['description'] );
+
+        return RestResponse::success( [ 'id' => $goal_id ] );
     }
 
     public static function update_goal( \WP_REST_Request $r ) {
@@ -294,6 +299,14 @@ class GoalsRestController {
                 500,
                 [ 'db_error' => $err ]
             );
+        }
+        // #0025 — re-detect source language for any updated free-text
+        // fields. detectAndCache is idempotent on unchanged content.
+        if ( isset( $data['title'] ) ) {
+            \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'title', (string) $data['title'] );
+        }
+        if ( isset( $data['description'] ) ) {
+            \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'description', (string) $data['description'] );
         }
         return RestResponse::success( [ 'id' => $goal_id ] );
     }

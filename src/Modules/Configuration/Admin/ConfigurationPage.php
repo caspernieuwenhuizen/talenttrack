@@ -48,8 +48,12 @@ class ConfigurationPage {
             'toggles'         => __( 'Feature Toggles', 'talenttrack' ),
             'backups'         => __( 'Backups', 'talenttrack' ),
             'wizard'          => __( 'Setup wizard', 'talenttrack' ),
+            'translations'    => __( 'Translations', 'talenttrack' ),
             'audit'           => __( 'Audit Log', 'talenttrack' ),
         ];
+        // #0025 — let other modules append config tabs without
+        // editing this file. Existing keys win on collision.
+        $tabs = apply_filters( 'tt_config_tabs', $tabs );
 
         // v2.12.0: eval_categories retired as a Configuration tab — it now
         // lives at TalentTrack → Evaluation Categories (top-level, supports
@@ -87,7 +91,12 @@ class ConfigurationPage {
                 case 'toggles':         self::tab_toggles(); break;
                 case 'backups':         \TT\Modules\Backup\Admin\BackupSettingsPage::render(); break;
                 case 'wizard':          self::tab_wizard(); break;
+                case 'translations':    \TT\Modules\Translations\Admin\TranslationsConfigTab::render(); break;
                 case 'audit':           self::tab_audit(); break;
+                default:
+                    // #0025 — tab key registered by another module.
+                    // Modules listen on `tt_config_tab_<key>` to render.
+                    if ( isset( $tabs[ $tab ] ) ) do_action( 'tt_config_tab_' . $tab );
             }
             ?>
             </div>
