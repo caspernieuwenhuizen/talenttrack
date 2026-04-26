@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Goals
 
 A **goal** is a development target for a specific player. Goals track what a player is working on — they're the narrative companion to the numerical evaluations.

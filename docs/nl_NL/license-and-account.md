@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Licentie en account
 
 TalentTrack draait op drie tiers — **Free**, **Standard** (€399/jr) en **Pro** (€699/jr). De license- en accountmodule die in v3.17.0 is gereleased legt de basis; de daadwerkelijke facturatie start zodra de Freemius-gegevens in een release zitten.

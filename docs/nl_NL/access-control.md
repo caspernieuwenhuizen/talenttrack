@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Toegangsbeheer
 
 TalentTrack gebruikt het rechten-systeem van WordPress, plus een eigen overlay van "functionele rollen", om te bepalen wie wat mag. De release v3.0.0 refactorde rechten naar granulaire view/edit-paren, waardoor alleen-lezen rollen nu echt over de hele plug-in heen werken.

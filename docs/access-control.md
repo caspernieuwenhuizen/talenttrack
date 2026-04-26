@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Access control
 
 TalentTrack uses WordPress's capability system plus its own overlay of "functional roles" to decide who can do what. The v3.0.0 release refactored capabilities into granular view/edit pairs so read-only roles work properly across the whole plugin.

@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Evaluations
 
 An **evaluation** is a coach's rated assessment of a player on a specific date, across the configured [evaluation categories](?page=tt-docs&topic=eval-categories-weights).

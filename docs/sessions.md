@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Sessions
 
 A **session** is a training event. Each session has:

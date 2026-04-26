@@ -1,3 +1,5 @@
+<!-- audience: admin, dev -->
+
 # Migraties & updates
 
 Als je TalentTrack bijwerkt via de WordPress-plug-in-updater, verandert de plug-in-code meteen — maar de database heeft soms vervolgwerk nodig: nieuwe kolommen, hernoemde tabellen, nieuwe rechten, seeddata. Dat vervolgwerk is een **migratie**.

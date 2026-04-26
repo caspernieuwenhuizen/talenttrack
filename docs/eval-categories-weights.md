@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Evaluation categories & weights
 
 ## Main categories

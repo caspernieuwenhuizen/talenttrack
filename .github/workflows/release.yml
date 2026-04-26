@@ -42,6 +42,38 @@ jobs:
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress || true
 
+  docs-audience:
+    name: Docs audience markers (#0029)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify every docs/*.md declares an audience
+        run: |
+          set -e
+          missing=()
+          # English + per-locale doc trees. New locale folders inherit the rule
+          # automatically because the loop matches docs/*.md and docs/*/*.md.
+          for f in docs/*.md docs/*/*.md; do
+            [ -f "$f" ] || continue
+            if ! head -5 "$f" | grep -qE '^<!--\s*audience\s*:\s*([a-z, ]+)\s*-->'; then
+              missing+=("$f")
+            fi
+          done
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing audience marker on:"
+            printf '  %s\n' "${missing[@]}"
+            echo ""
+            echo "Add a marker to the top of each file:"
+            echo "  <!-- audience: user -->"
+            echo "  <!-- audience: admin -->"
+            echo "  <!-- audience: dev -->"
+            echo "  <!-- audience: user, admin -->"
+            echo ""
+            echo "See docs/contributing.md for the full rule."
+            exit 1
+          fi
+          echo "All docs declare an audience marker."
+
   release:
     name: Build & Release ZIP
     needs: [lint]

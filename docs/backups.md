@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Backups
 
 TalentTrack ships its own backup module (separate from any general-purpose WordPress backup plugin you may also be running). Snapshots cover the plugin's own `tt_*` tables only — not WordPress users, not media uploads. The point is to give you a fast restore path for academy data without dragging the rest of the site along.

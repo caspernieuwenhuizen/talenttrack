@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Custom fields
 
 Need to track something TalentTrack doesn't ship with? Add a custom field.

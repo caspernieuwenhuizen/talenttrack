@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Player comparison
 
 Compare up to 4 players side-by-side. Cross-team is the whole point — comparing a U15 LB against a U13 ST is valid for scouting, transfer decisions, and development conversations.

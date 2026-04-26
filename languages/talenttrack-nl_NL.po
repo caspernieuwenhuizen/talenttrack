@@ -5323,3 +5323,62 @@ msgstr "Formaties"
 
 msgid "No framework illustrations attached yet."
 msgstr "Nog geen raamwerk-illustraties gekoppeld."
+
+# v3.22.0 — Documentation split (#0029) audience labels
+
+msgid "User"
+msgstr "Gebruiker"
+
+msgid "Admin"
+msgstr "Beheerder"
+
+msgid "Dev"
+msgstr "Ontwikkelaar"
+
+msgid "Setup wizard"
+msgstr "Setup-wizard"
+
+msgid "License & account"
+msgstr "Licentie & account"
+
+msgid "Backups & disaster recovery"
+msgstr "Back-ups & disaster recovery"
+
+msgid "REST API reference"
+msgstr "REST API reference"
+
+msgid "Hooks & filters"
+msgstr "Hooks & filters"
+
+msgid "Architecture"
+msgstr "Architectuur"
+
+msgid "Theme integration"
+msgstr "Theme-integratie"
+
+msgid "Developer"
+msgstr "Ontwikkelaar"
+
+msgid "Tier, trial state, usage caps, upgrade flow."
+msgstr "Tier, trial-status, gebruikslimieten, upgrade-flow."
+
+msgid "Scheduled exports, partial restore, the 14-day undo window."
+msgstr "Geplande exports, gedeeltelijk herstel, het 14-daagse undo-venster."
+
+msgid "Football framework primer, principles, set pieces, positions, voetbalhandelingen."
+msgstr "Voetbal-raamwerk introductie, spelprincipes, spelhervattingen, posities, voetbalhandelingen."
+
+msgid "The first-run guided installer that hands you off into TalentTrack."
+msgstr "De begeleide eerste-installatie die je TalentTrack inleidt."
+
+msgid "Plugin REST endpoints, payload shapes and capability scopes."
+msgstr "REST-endpoints van de plugin, payload-vormen en capability-scopes."
+
+msgid "Every action and filter the plugin exposes for extension."
+msgstr "Elke actie en filter die de plugin blootstelt voor uitbreiding."
+
+msgid "Module pattern, Kernel boot order, capability model, design tokens."
+msgstr "Module-patroon, Kernel boot-volgorde, capability-model, design tokens."
+
+msgid "Override design tokens from a theme and the body.tt-theme-inherit contract."
+msgstr "Design tokens overschrijven vanuit een theme en het body.tt-theme-inherit contract."
