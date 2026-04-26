@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Personen (staf)
 
 De pagina **Personen** is je register van niet-spelende mensen: hoofdcoaches, assistent-coaches, fysiotherapeuten, keeperstrainers, teammanagers, bestuursleden.

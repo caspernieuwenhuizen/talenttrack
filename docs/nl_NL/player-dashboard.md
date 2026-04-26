@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Speler-dashboard (frontend)
 
 Spelers die inloggen op de frontend-shortcode zien een tegelgebaseerd dashboard dat volledig op henzelf is gericht. (v3.0.0 — het tegelraster heeft nu echte bestemmingen; v2.21's tegellanding is een volwaardige landingspagina, niet meer louter decoratie.)

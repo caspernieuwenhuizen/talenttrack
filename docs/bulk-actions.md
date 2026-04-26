@@ -1,3 +1,5 @@
+<!-- audience: user, admin -->
+
 # Bulk actions (archive & delete)
 
 Most list pages in TalentTrack support bulk actions — useful when you need to archive or delete many rows at once.

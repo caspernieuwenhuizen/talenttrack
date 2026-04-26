@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Evaluaties
 
 Een **evaluatie** is de beoordeling van een coach van een speler op een specifieke datum, op basis van de geconfigureerde [evaluatiecategorieën](?page=tt-docs&topic=eval-categories-weights).

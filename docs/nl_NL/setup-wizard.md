@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Installatiewizard
 
 De installatiewizard is het eerste wat een verse TalentTrack-installatie toont. De wizard maakt het minimum aan dat een club nodig heeft om met de plugin te beginnen: een academienaam, een eerste team en je beheerprofiel.

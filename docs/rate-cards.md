@@ -1,3 +1,5 @@
+<!-- audience: user, admin -->
+
 # Player rate cards
 
 A rate card is a one-glance view of a player's current standing and recent trajectory: FIFA-style card, headline numbers (most recent, rolling average, all-time), radar chart across main categories, and a trend line over time.
