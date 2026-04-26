@@ -79,10 +79,17 @@
             if (deleteBtn && root.contains(deleteBtn)) {
                 e.preventDefault();
                 var i18n = (window.TT && window.TT.i18n) || {};
-                if (!window.confirm(i18n.eval_cat_delete_confirm || 'Delete this category?')) return;
                 var id = deleteBtn.getAttribute('data-tt-eval-cat-delete');
                 if (!id) return;
-                call('eval-categories/' + encodeURIComponent(id), 'DELETE', null, deleteBtn, root);
+                var msg = i18n.eval_cat_delete_confirm || 'Delete this category?';
+                var doDelete = function() {
+                    call('eval-categories/' + encodeURIComponent(id), 'DELETE', null, deleteBtn, root);
+                };
+                if (typeof window.ttConfirm === 'function') {
+                    window.ttConfirm({ message: msg, danger: true }).then(function(ok) { if (ok) doDelete(); });
+                } else if (window.confirm(msg)) {
+                    doDelete();
+                }
             }
         });
     }

@@ -195,20 +195,34 @@
         // Goal delete — DELETE /goals/{id}
         on('.tt-dashboard .tt-goal-delete', 'click', function(e) {
             e.preventDefault();
-            if (!window.confirm(i18n.confirm_delete_goal)) return;
-            var id = this.getAttribute('data-goal-id');
-            if (!id) return;
             var btn = this;
-            restRequest('goals/' + encodeURIComponent(id), 'DELETE', null).then(function(res) {
-                if (res.ok && res.json && res.json.success) {
-                    var row = btn.closest('tr');
-                    if (row) {
-                        row.style.transition = 'opacity 0.25s';
-                        row.style.opacity = '0';
-                        setTimeout(function() { if (row.parentNode) row.parentNode.removeChild(row); }, 260);
+            var id = btn.getAttribute('data-goal-id');
+            if (!id) return;
+            var doDelete = function() {
+                restRequest('goals/' + encodeURIComponent(id), 'DELETE', null).then(function(res) {
+                    if (res.ok && res.json && res.json.success) {
+                        if (window.ttFlash && window.ttFlash.addNear) {
+                            window.ttFlash.addNear(btn, 'success', i18n.deleted_goal || 'Goal deleted.');
+                        }
+                        var row = btn.closest('tr');
+                        if (row) {
+                            row.style.transition = 'opacity 0.25s';
+                            row.style.opacity = '0';
+                            setTimeout(function() { if (row.parentNode) row.parentNode.removeChild(row); }, 260);
+                        }
                     }
-                }
-            });
+                });
+            };
+            if (typeof window.ttConfirm === 'function') {
+                window.ttConfirm({
+                    title:        i18n.confirm_delete_goal_title || 'Delete goal?',
+                    message:      i18n.confirm_delete_goal || 'Are you sure you want to delete this goal?',
+                    confirmLabel: i18n.delete_label || 'Delete',
+                    danger:       true
+                }).then(function(ok) { if (ok) doDelete(); });
+            } else if (window.confirm(i18n.confirm_delete_goal || 'Delete this goal?')) {
+                doDelete();
+            }
         });
     });
 })();

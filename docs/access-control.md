@@ -76,3 +76,11 @@ Example: your "Head coach" functional role could automatically grant users the `
 ## Permission debug
 
 **Access Control → Permission Debug** lets you inspect any user's effective capabilities. Useful when a user reports "I can't see X" — check what they actually have.
+
+## Revoking a role assignment
+
+From **Access Control → Roles** (or the per-person edit panel) every assigned role has a **Revoke** action.
+
+Clicking Revoke opens an in-app confirmation dialog (not the browser's native popup) — confirm with the red **Revoke** button, cancel with **Cancel** or by clicking the overlay / pressing Escape. After confirming, the assignment is removed and you land back on the same page with a success notice.
+
+The same in-app confirm pattern is used wherever a destructive action needs your acknowledgement (deleting a goal from the dashboard, deleting an evaluation category, etc.).

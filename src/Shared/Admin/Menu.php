@@ -660,7 +660,19 @@ class Menu {
     public static function enqueue( string $hook ): void {
         if ( strpos( $hook, 'talenttrack' ) === false && strpos( $hook, 'tt-' ) === false ) return;
         wp_enqueue_style( 'tt-admin', TT_PLUGIN_URL . 'assets/css/admin.css', [], TT_VERSION );
+        // Pull frontend-admin.css so the .tt-confirm-overlay / .tt-flash-near
+        // styles are available on wp-admin pages that use admin-confirm.js
+        // (they're scoped to .tt-confirm-* / .tt-flash-near-* selectors and
+        // don't bleed into core admin styles).
+        wp_enqueue_style( 'tt-frontend-admin', TT_PLUGIN_URL . 'assets/css/frontend-admin.css', [ 'tt-admin' ], TT_VERSION );
         wp_enqueue_script( 'tt-admin', TT_PLUGIN_URL . 'assets/js/admin.js', [ 'jquery' ], TT_VERSION, true );
+
+        // Confirm + flash bridge: shipped on every TT-prefixed admin page so
+        // any button can declare data-tt-confirm-* attributes and get the
+        // in-app modal instead of browser window.confirm(). (#3)
+        wp_enqueue_script( 'tt-confirm',       TT_PLUGIN_URL . 'assets/js/components/confirm.js', [], TT_VERSION, true );
+        wp_enqueue_script( 'tt-flash',         TT_PLUGIN_URL . 'assets/js/components/flash.js',   [], TT_VERSION, true );
+        wp_enqueue_script( 'tt-admin-confirm', TT_PLUGIN_URL . 'assets/js/admin-confirm.js', [ 'tt-confirm', 'tt-flash' ], TT_VERSION, true );
 
         // F4 — client-side search + sort + filter on TT admin tables.
         // Tables opt in by adding the `tt-table-sortable` class to the

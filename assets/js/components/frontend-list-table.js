@@ -294,26 +294,37 @@
             var path = btn.getAttribute('data-rest-path');
             var method = btn.getAttribute('data-rest-method') || 'POST';
             var confirmText = btn.getAttribute('data-confirm');
-            if (confirmText && !window.confirm(confirmText)) return;
-            var rest = getRest();
-            var headers = { 'Accept': 'application/json' };
-            if (rest.nonce) headers['X-WP-Nonce'] = rest.nonce;
-            btn.disabled = true;
-            fetch(rest.url + path.replace(/^\/+/, ''), { method: method, credentials: 'same-origin', headers: headers })
-                .then(function(res) { return res.json().then(function(json) { return { ok: res.ok, json: json }; }); })
-                .then(function(r) {
-                    if (r.ok && r.json && r.json.success) {
-                        refresh(root);
-                    } else {
-                        var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || 'Error';
-                        setStatus(root, 'error', msg);
+            var successMsg = btn.getAttribute('data-success-message');
+            var doAction = function() {
+                var rest = getRest();
+                var headers = { 'Accept': 'application/json' };
+                if (rest.nonce) headers['X-WP-Nonce'] = rest.nonce;
+                btn.disabled = true;
+                fetch(rest.url + path.replace(/^\/+/, ''), { method: method, credentials: 'same-origin', headers: headers })
+                    .then(function(res) { return res.json().then(function(json) { return { ok: res.ok, json: json }; }); })
+                    .then(function(r) {
+                        if (r.ok && r.json && r.json.success) {
+                            if (successMsg && window.ttFlash && window.ttFlash.addNear) {
+                                window.ttFlash.addNear(btn, 'success', successMsg);
+                            }
+                            refresh(root);
+                        } else {
+                            var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || 'Error';
+                            setStatus(root, 'error', msg);
+                            btn.disabled = false;
+                        }
+                    })
+                    .catch(function() {
+                        setStatus(root, 'error', root._ttListConfig.i18n.error);
                         btn.disabled = false;
-                    }
-                })
-                .catch(function() {
-                    setStatus(root, 'error', root._ttListConfig.i18n.error);
-                    btn.disabled = false;
-                });
+                    });
+            };
+            if (!confirmText) { doAction(); return; }
+            if (typeof window.ttConfirm === 'function') {
+                window.ttConfirm({ message: confirmText, danger: true }).then(function(ok) { if (ok) doAction(); });
+            } else if (window.confirm(confirmText)) {
+                doAction();
+            }
         });
     }
 

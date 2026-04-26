@@ -83,6 +83,12 @@ class DashboardShortcode {
                 'csv_errored'          => __( 'Errors: %d', 'talenttrack' ),
                 'fnrole_delete_confirm' => __( 'Delete this role type?', 'talenttrack' ),
                 'eval_cat_delete_confirm' => __( 'Delete this category?', 'talenttrack' ),
+                // #3 — confirm dialog + post-event flash strings.
+                'confirm_ok'                => __( 'OK', 'talenttrack' ),
+                'confirm_cancel'            => __( 'Cancel', 'talenttrack' ),
+                'confirm_delete_goal_title' => __( 'Delete goal?', 'talenttrack' ),
+                'delete_label'              => __( 'Delete', 'talenttrack' ),
+                'deleted_goal'              => __( 'Goal deleted.', 'talenttrack' ),
             ],
         ]);
 
