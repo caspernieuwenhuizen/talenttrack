@@ -37,6 +37,12 @@ class MethodologyModule implements ModuleInterface {
             Admin\PositionEditPage::init();
             Admin\SetPieceEditPage::init();
             Admin\VisionEditPage::init();
+            Admin\FrameworkPrimerEditPage::init();
+            Admin\PhaseEditPage::init();
+            Admin\LearningGoalEditPage::init();
+            Admin\InfluenceFactorEditPage::init();
+            Admin\FootballActionsPage::init();
+            Admin\FootballActionEditPage::init();
         }
     }
 
