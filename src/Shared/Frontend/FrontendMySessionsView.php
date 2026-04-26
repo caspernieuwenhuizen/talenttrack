@@ -57,9 +57,12 @@ class FrontendMySessionsView extends FrontendViewBase {
                     ?>
                     <tr class="<?php echo esc_attr( $cls ); ?>">
                         <td><?php echo esc_html( (string) $a->session_date ); ?></td>
-                        <td><?php echo esc_html( (string) $a->session_title ); ?></td>
+                        <td><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $a->session_title ) ); ?></td>
                         <td><?php echo esc_html( LabelTranslator::attendanceStatus( (string) $a->status ) ); ?></td>
-                        <td><?php echo esc_html( (string) ( $a->notes ?: '—' ) ); ?></td>
+                        <td><?php
+                            $notes = (string) ( $a->notes ?: '' );
+                            echo $notes !== '' ? esc_html( \TT\Modules\Translations\TranslationLayer::render( $notes ) ) : '—';
+                        ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

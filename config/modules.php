@@ -30,4 +30,5 @@ return [
     TT\Modules\Methodology\MethodologyModule::class       => true,
     TT\Modules\Workflow\WorkflowModule::class             => true,
     TT\Modules\Development\DevelopmentModule::class       => true,
+    TT\Modules\Translations\TranslationsModule::class     => true,
 ];

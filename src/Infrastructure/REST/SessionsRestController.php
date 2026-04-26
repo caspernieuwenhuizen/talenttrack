@@ -296,6 +296,11 @@ class SessionsRestController {
         }
         $session_id = (int) $wpdb->insert_id;
 
+        // #0025 — detect source language for free-text session fields.
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'session', $session_id, 'title',    (string) $data['title'] );
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'session', $session_id, 'notes',    (string) $data['notes'] );
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'session', $session_id, 'location', (string) $data['location'] );
+
         $att_failures = self::write_attendance( $session_id, self::attendance_from_request( $r ) );
         if ( $att_failures ) {
             Logger::error( 'session.attendance.save.failed', [ 'session_id' => $session_id, 'failures' => $att_failures ] );
@@ -333,6 +338,12 @@ class SessionsRestController {
                 [ 'db_error' => $err ]
             );
         }
+
+        // #0025 — re-detect source language on update; idempotent on
+        // unchanged content via the source_hash check inside.
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'session', $session_id, 'title',    (string) $data['title'] );
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'session', $session_id, 'notes',    (string) $data['notes'] );
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'session', $session_id, 'location', (string) $data['location'] );
 
         if ( self::request_has_attendance( $r ) ) {
             // #0026 — only wipe the roster rows; guest rows are

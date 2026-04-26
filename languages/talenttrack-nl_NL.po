@@ -6182,3 +6182,166 @@ msgstr "Module-patroon, Kernel boot-volgorde, capability-model, design tokens."
 
 msgid "Override design tokens from a theme and the body.tt-theme-inherit contract."
 msgstr "Design tokens overschrijven vanuit een theme en het body.tt-theme-inherit contract."
+# v3.22.0 — Multilingual auto-translate (#0025)
+
+msgid "Auto-translation"
+msgstr "Auto-vertaling"
+
+msgid "Translation display"
+msgstr "Vertalingsweergave"
+
+msgid "Translated (default)"
+msgstr "Vertaald (standaard)"
+
+msgid "Show translated content; hide the source."
+msgstr "Toon vertaalde inhoud; verberg de bron."
+
+msgid "Original"
+msgstr "Origineel"
+
+msgid "Never translate. Always show source text."
+msgstr "Nooit vertalen. Toon altijd brontekst."
+
+msgid "Side-by-side"
+msgstr "Naast elkaar"
+
+msgid "Show translated text followed by the source in parentheses. Useful for verifying accuracy."
+msgstr "Toon vertaalde tekst gevolgd door de bron tussen haakjes. Handig om accuraatheid te verifiëren."
+
+msgid "TalentTrack — translations"
+msgstr "TalentTrack — vertalingen"
+
+msgid "DeepL"
+msgstr "DeepL"
+
+msgid "Google Translate"
+msgstr "Google Translate"
+
+msgid "Lazily translate user-entered free text (goal titles, evaluation notes, session descriptions, …) at render time when a viewer's locale differs from the source. Default OFF. Translations are cached and re-used; the cap below limits per-month engine spend."
+msgstr "Vertaal vrij ingevoerde tekst (doel-titels, evaluatienotities, sessiebeschrijvingen, …) lazy bij weergave wanneer de locale van de lezer verschilt van de bron. Standaard UIT. Vertalingen worden gecacht en hergebruikt; de cap hieronder beperkt per-maand engine-uitgaven."
+
+msgid "Enable auto-translation"
+msgstr "Auto-vertaling aanzetten"
+
+msgid "Translate user-entered free text at render time"
+msgstr "Vertaal gebruikersgegenereerde vrije tekst bij weergave"
+
+msgid "GDPR Article 28"
+msgstr "GDPR Artikel 28"
+
+msgid "I confirm the chosen engine acts as a sub-processor on our behalf and our DPA is in place."
+msgstr "Ik bevestig dat de gekozen engine als sub-processor namens ons optreedt en dat onze DPA in place is."
+
+msgid "Required when enabling. See the disclosure block below for current DPA links."
+msgstr "Verplicht bij aanzetten. Zie het disclosure-blok hieronder voor actuele DPA-links."
+
+msgid "Primary engine"
+msgstr "Primary engine"
+
+msgid "Fallback engine"
+msgstr "Fallback engine"
+
+msgid "Used only when the primary engine returns a recoverable error (rate limit / 5xx)."
+msgstr "Alleen gebruikt wanneer de primary engine een herstelbare fout teruggeeft (rate limit / 5xx)."
+
+msgid "DeepL API key"
+msgstr "DeepL API-sleutel"
+
+msgid "(set — leave blank to keep)"
+msgstr "(ingesteld — laat leeg om te bewaren)"
+
+msgid "Free-tier keys end with `:fx`. The plugin auto-routes to api-free.deepl.com for free keys."
+msgstr "Free-tier sleutels eindigen op `:fx`. De plugin routeert automatisch naar api-free.deepl.com voor free keys."
+
+msgid "Google service-account JSON"
+msgstr "Google service-account JSON"
+
+msgid "Paste the full service-account JSON. The Cloud Translation API must be enabled on the project."
+msgstr "Plak de volledige service-account JSON. De Cloud Translation API moet ingeschakeld zijn op het project."
+
+msgid "Site default content language"
+msgstr "Standaard contenttaal site"
+
+msgid "Used as the source-language fallback when auto-detection confidence is below the floor (0.6). ISO 639-1 short code (nl, en, fr, de, es, …)."
+msgstr "Gebruikt als brontaal-fallback wanneer auto-detectie confidence onder de drempel (0.6) ligt. ISO 639-1 short code (nl, en, fr, de, es, …)."
+
+msgid "Monthly character cap"
+msgstr "Maandelijkse tekenlimiet"
+
+msgid "Notify admin at"
+msgstr "Notificeer admin op"
+
+msgid "A persistent dashboard notice appears the first time you cross this percentage in a given month."
+msgstr "Een persistente dashboard-notice verschijnt de eerste keer dat je dit percentage in een gegeven maand kruist."
+
+msgid "Sub-processor disclosure"
+msgstr "Sub-processor disclosure"
+
+msgid "Verify the current DPA links at the provider before relying on these."
+msgstr "Verifieer de huidige DPA-links bij de aanbieder voordat je hier op steunt."
+
+msgid "Save translation settings"
+msgstr "Vertaalinstellingen opslaan"
+
+msgid "Usage this month"
+msgstr "Gebruik deze maand"
+
+msgid "Engine"
+msgstr "Engine"
+
+msgid "Characters billed"
+msgstr "Verbruikte tekens"
+
+msgid "% of cap"
+msgstr "% van cap"
+
+msgid "Threshold hit at"
+msgstr "Threshold bereikt op"
+
+msgid "primary"
+msgstr "primary"
+
+msgid "fallback"
+msgstr "fallback"
+
+msgid "Cache"
+msgstr "Cache"
+
+msgid "%s cached translations."
+msgstr "%s gecachte vertalingen."
+
+msgid "Clear cache now"
+msgstr "Cache nu wissen"
+
+msgid "Clear all cached translations? Each subsequent read will re-call the engine."
+msgstr "Alle gecachte vertalingen wissen? Elke volgende lees roept opnieuw de engine aan."
+
+msgid "Tick the Article 28 sub-processor confirmation before enabling."
+msgstr "Vink de Artikel 28 sub-processor confirmatie aan voordat je inschakelt."
+
+msgid "Add credentials for the selected primary engine before enabling."
+msgstr "Voeg credentials toe voor de geselecteerde primary engine voordat je inschakelt."
+
+msgid "Translation settings could not be saved."
+msgstr "Vertaalinstellingen konden niet worden opgeslagen."
+
+msgid "TalentTrack — translation cap reached."
+msgstr "TalentTrack — vertaalcap bereikt."
+
+msgid "%1$s of %2$s characters used this month (%3$s). Translations are paused; viewers see source text until the cap is raised or the month rolls over."
+msgstr "%1$s van %2$s tekens gebruikt deze maand (%3$s). Vertalingen zijn gepauzeerd; lezers zien brontekst tot de cap wordt verhoogd of de maand omslaat."
+
+msgid "Raise the cap →"
+msgstr "Verhoog de cap →"
+
+msgid "TalentTrack — translation usage at threshold."
+msgstr "TalentTrack — vertaalgebruik op drempel."
+
+msgid "%1$s%% used (%2$s / %3$s) for the configured monthly cap."
+msgstr "%1$s%% gebruikt (%2$s / %3$s) voor de ingestelde maandelijkse cap."
+
+msgid "Review settings →"
+msgstr "Bekijk instellingen →"
+
+msgid "Opt-in DeepL / Google translation of user-entered free text."
+msgstr "Opt-in DeepL / Google vertaling van gebruikersgegenereerde vrije tekst."
