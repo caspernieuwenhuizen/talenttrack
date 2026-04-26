@@ -12,11 +12,16 @@ use TT\Shared\Frontend\Components\FrontendListTable;
 /**
  * FrontendTeamsManageView — full-CRUD frontend for teams.
  *
- * #0019 Sprint 3 session 3.2. Three modes:
+ * #0019 Sprint 3 session 3.2. Four modes:
  *
- *   ?tt_view=teams              — list view
- *   ?tt_view=teams&action=new   — create form
- *   ?tt_view=teams&id=<int>     — edit form (with roster + formation placeholder)
+ *   ?tt_view=teams                            — list view
+ *   ?tt_view=teams&action=new                 — create form
+ *   ?tt_view=teams&id=<int>                   — read-only team page
+ *                                                (entity-page pattern, with
+ *                                                role-aware Edit button)
+ *   ?tt_view=teams&id=<int>&action=edit       — edit form (with roster
+ *                                                management + formation
+ *                                                placeholder)
  *
  * Saves go through `TeamsRestController` (POST/PUT /teams).
  * Delete = soft-archive via DELETE /teams/{id}.
@@ -27,7 +32,9 @@ use TT\Shared\Frontend\Components\FrontendListTable;
  * roster lists rows with a Remove button hitting DELETE
  * /teams/{id}/players/{player_id}. Per Sprint 3 plan Q4 the picker
  * is a plain dropdown (no autocomplete) — adequate for a club's
- * 100–300 player pool.
+ * 100–300 player pool. The read-only team page reuses the same
+ * roster + staff rendering helpers, with the action affordances
+ * suppressed via a $readonly flag.
  *
  * Formation placeholder: a "Coming with #0018" panel with a link to
  * the team-development idea — no functional UI, just the placeholder
@@ -49,12 +56,18 @@ class FrontendTeamsManageView extends FrontendViewBase {
 
         if ( $id > 0 ) {
             $team = self::loadTeam( $id );
-            self::renderHeader( $team ? sprintf( __( 'Edit team — %s', 'talenttrack' ), (string) $team->name ) : __( 'Team not found', 'talenttrack' ) );
             if ( ! $team ) {
+                self::renderHeader( __( 'Team not found', 'talenttrack' ) );
                 echo '<p class="tt-notice">' . esc_html__( 'That team no longer exists.', 'talenttrack' ) . '</p>';
                 return;
             }
-            self::renderForm( $user_id, $is_admin, $team );
+            if ( $action === 'edit' ) {
+                self::renderHeader( sprintf( __( 'Edit team — %s', 'talenttrack' ), (string) $team->name ) );
+                self::renderForm( $user_id, $is_admin, $team );
+                return;
+            }
+            self::renderHeader( (string) $team->name );
+            self::renderDetail( $user_id, $is_admin, $team );
             return;
         }
 
@@ -76,9 +89,13 @@ class FrontendTeamsManageView extends FrontendViewBase {
         }
 
         $row_actions = [
+            'view' => [
+                'label' => __( 'View', 'talenttrack' ),
+                'href'  => add_query_arg( [ 'tt_view' => 'teams', 'id' => '{id}' ], $base_url ),
+            ],
             'edit' => [
                 'label' => __( 'Edit', 'talenttrack' ),
-                'href'  => add_query_arg( [ 'tt_view' => 'teams', 'id' => '{id}' ], $base_url ),
+                'href'  => add_query_arg( [ 'tt_view' => 'teams', 'id' => '{id}', 'action' => 'edit' ], $base_url ),
             ],
             'delete' => [
                 'label'       => __( 'Delete', 'talenttrack' ),
@@ -192,32 +209,37 @@ class FrontendTeamsManageView extends FrontendViewBase {
      * Roster management — list current players + "Add player" dropdown.
      * Hits the team/player sub-resource endpoints; refresh on success.
      */
-    private static function renderRosterSection( int $team_id ): void {
+    private static function renderRosterSection( int $team_id, bool $readonly = false ): void {
         $current = QueryHelpers::get_players( $team_id );
-        // Pool of addable players: anyone NOT currently on this team
-        // (admins see all, but the eligible pool is the same — the
-        // entry point is what's gated, not the pool).
-        $all = QueryHelpers::get_players();
-        $current_ids = array_map( static function ( $p ) { return (int) $p->id; }, (array) $current );
-        $addable = [];
-        foreach ( (array) $all as $p ) {
-            if ( in_array( (int) $p->id, $current_ids, true ) ) continue;
-            $addable[ (int) $p->id ] = QueryHelpers::player_display_name( $p );
+
+        if ( ! $readonly ) {
+            // Pool of addable players: anyone NOT currently on this team
+            // (admins see all, but the eligible pool is the same — the
+            // entry point is what's gated, not the pool).
+            $all         = QueryHelpers::get_players();
+            $current_ids = array_map( static function ( $p ) { return (int) $p->id; }, (array) $current );
+            $addable     = [];
+            foreach ( (array) $all as $p ) {
+                if ( in_array( (int) $p->id, $current_ids, true ) ) continue;
+                $addable[ (int) $p->id ] = QueryHelpers::player_display_name( $p );
+            }
+            asort( $addable );
         }
-        asort( $addable );
         ?>
         <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Roster', 'talenttrack' ); ?></h3>
         <div class="tt-team-roster" data-tt-team-roster="1" data-team-id="<?php echo (int) $team_id; ?>">
-            <div class="tt-team-roster-add" style="display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
-                <select class="tt-input" data-tt-roster-picker="1" style="max-width:300px;">
-                    <option value=""><?php esc_html_e( '— Add player —', 'talenttrack' ); ?></option>
-                    <?php foreach ( $addable as $pid => $name ) : ?>
-                        <option value="<?php echo (int) $pid; ?>"><?php echo esc_html( (string) $name ); ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <button type="button" class="tt-btn tt-btn-secondary" data-tt-roster-add="1"><?php esc_html_e( 'Add', 'talenttrack' ); ?></button>
-                <span class="tt-form-msg" data-tt-roster-msg="1"></span>
-            </div>
+            <?php if ( ! $readonly ) : ?>
+                <div class="tt-team-roster-add" style="display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+                    <select class="tt-input" data-tt-roster-picker="1" style="max-width:300px;">
+                        <option value=""><?php esc_html_e( '— Add player —', 'talenttrack' ); ?></option>
+                        <?php foreach ( $addable as $pid => $name ) : ?>
+                            <option value="<?php echo (int) $pid; ?>"><?php echo esc_html( (string) $name ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="button" class="tt-btn tt-btn-secondary" data-tt-roster-add="1"><?php esc_html_e( 'Add', 'talenttrack' ); ?></button>
+                    <span class="tt-form-msg" data-tt-roster-msg="1"></span>
+                </div>
+            <?php endif; ?>
 
             <?php if ( ! $current ) : ?>
                 <p><em><?php esc_html_e( 'No players on this team yet.', 'talenttrack' ); ?></em></p>
@@ -227,7 +249,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
                         <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( '#', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Foot', 'talenttrack' ); ?></th>
-                        <th></th>
+                        <?php if ( ! $readonly ) : ?><th></th><?php endif; ?>
                     </tr></thead>
                     <tbody>
                     <?php foreach ( $current as $pl ) : ?>
@@ -239,11 +261,13 @@ class FrontendTeamsManageView extends FrontendViewBase {
                             </td>
                             <td><?php echo esc_html( (string) ( $pl->jersey_number ?? '' ) ); ?></td>
                             <td><?php echo esc_html( (string) ( $pl->preferred_foot ?? '' ) ); ?></td>
-                            <td>
-                                <button type="button" class="tt-list-table-action tt-list-table-action-danger" data-tt-roster-remove="1" data-player-id="<?php echo (int) $pl->id; ?>">
-                                    <?php esc_html_e( 'Remove', 'talenttrack' ); ?>
-                                </button>
-                            </td>
+                            <?php if ( ! $readonly ) : ?>
+                                <td>
+                                    <button type="button" class="tt-list-table-action tt-list-table-action-danger" data-tt-roster-remove="1" data-player-id="<?php echo (int) $pl->id; ?>">
+                                        <?php esc_html_e( 'Remove', 'talenttrack' ); ?>
+                                    </button>
+                                </td>
+                            <?php endif; ?>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -251,6 +275,55 @@ class FrontendTeamsManageView extends FrontendViewBase {
             <?php endif; ?>
         </div>
         <?php
+    }
+
+    /**
+     * Read-only "team page": header + meta + roster + staff. Edit button
+     * shown only when the viewer has tt_edit_teams (or is admin) — coaches
+     * without that cap see the same page minus the Edit affordance.
+     */
+    private static function renderDetail( int $user_id, bool $is_admin, object $team ): void {
+        $can_edit = $is_admin || current_user_can( 'tt_edit_teams' );
+        $base_url = remove_query_arg( [ 'action' ] );
+        $edit_url = add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id, 'action' => 'edit' ], $base_url );
+
+        $coach_name = '';
+        if ( ! empty( $team->head_coach_id ) ) {
+            $u = get_userdata( (int) $team->head_coach_id );
+            if ( $u ) $coach_name = (string) $u->display_name;
+        }
+        ?>
+        <div class="tt-team-detail-meta" style="display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin-bottom:8px;">
+            <?php if ( ! empty( $team->age_group ) ) : ?>
+                <span class="tt-pill"><?php echo esc_html( (string) $team->age_group ); ?></span>
+            <?php endif; ?>
+            <?php if ( $coach_name !== '' ) : ?>
+                <span style="color:var(--tt-muted, #6a6d66); font-size:0.95rem;">
+                    <?php
+                    printf(
+                        /* translators: %s is the head coach's display name. */
+                        esc_html__( 'Head coach: %s', 'talenttrack' ),
+                        esc_html( $coach_name )
+                    );
+                    ?>
+                </span>
+            <?php endif; ?>
+            <?php if ( $can_edit ) : ?>
+                <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $edit_url ); ?>" style="margin-left:auto;">
+                    <?php esc_html_e( 'Edit team', 'talenttrack' ); ?>
+                </a>
+            <?php endif; ?>
+        </div>
+
+        <?php if ( ! empty( $team->notes ) ) : ?>
+            <div class="tt-panel" style="margin-bottom:8px;">
+                <p style="margin:0;"><?php echo esc_html( (string) $team->notes ); ?></p>
+            </div>
+        <?php endif; ?>
+
+        <?php
+        self::renderRosterSection( (int) $team->id, true );
+        self::renderStaffSection( (int) $team->id );
     }
 
     /**

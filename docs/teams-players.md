@@ -10,13 +10,23 @@ A **team** is a squad at a specific age group (e.g. "U13 Blue", "U15 Red"). Each
 
 Create teams in the **Teams** admin page. The age group field matters because [category weights](?page=tt-docs&topic=eval-categories-weights) are defined per age group.
 
+### The team page
+
+Clicking a team — from the Teams list, a player profile, or anywhere a team name is linked — opens the team's own page. It shows:
+
+- **Header**: team name, age-group pill, head coach.
+- **Notes**, if any are set.
+- **Roster**: read-only player list (jersey, foot). Each player links to their own page.
+- **Staff**: the people assigned to the team via Functional Roles.
+- **Edit team** button (top-right) — only visible if you have the team-edit capability. Click it to open the management form below.
+
 ### The team edit page at a glance
 
-Opening a team for editing shows three blocks:
+The Edit form is reached by the **Edit team** button on the team page (or the "Edit" row action in the Teams list for users with the cap). It shows three blocks:
 
 1. **Team details** — name, age group, head coach, notes, custom fields.
 2. **Staff Assignments** — the people working with this team (coaches, assistants, physio, etc.). Add/remove assignments here.
-3. **Players on this team** — the current roster in a sortable table with jersey, positions, foot, date of birth. Each row links to the player's edit page. A "Add player to this team" button is at the bottom.
+3. **Players on this team** — the current roster in a sortable table with jersey, positions, foot, date of birth. Each row links to the player's own page. A "Add player to this team" button is at the top.
 
 ## Players
 
