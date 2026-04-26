@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Methodology\Helpers\MultilingualField;
 use TT\Modules\Methodology\Repositories\FormationsRepository;
+use TT\Modules\Methodology\Repositories\MethodologyAssetsRepository;
 
 /**
  * PositionEditPage — wp-admin form for a club-authored position
@@ -37,6 +38,8 @@ class PositionEditPage {
         if ( $row && $row->is_shipped ) {
             wp_die( esc_html__( 'Shipped positions are read-only. Use Clone & Edit instead.', 'talenttrack' ) );
         }
+
+        MediaPicker::enqueueAssets();
 
         $formations = $repo->listAll();
         $short_nl = $short_en = $long_nl = $long_en = '';
@@ -114,6 +117,7 @@ class PositionEditPage {
                         <td><textarea name="def_en" rows="6" class="large-text"><?php echo esc_textarea( $def_en ); ?></textarea></td>
                     </tr>
                 </table>
+                <?php if ( $row ) MediaPicker::render( MethodologyAssetsRepository::TYPE_POSITION, (int) $row->id ); ?>
                 <?php submit_button( $row ? __( 'Save changes', 'talenttrack' ) : __( 'Create position', 'talenttrack' ) ); ?>
             </form>
         </div>
@@ -157,6 +161,8 @@ class PositionEditPage {
             $payload['is_shipped'] = 0;
             $id = $repo->createPosition( $payload );
         }
+
+        MediaPicker::handleSave( MethodologyAssetsRepository::TYPE_POSITION, (int) $id );
 
         wp_safe_redirect( add_query_arg(
             [ 'page' => MethodologyPage::SLUG, 'tab' => 'formations', 'formation_id' => $payload['formation_id'], 'position_id' => $id, 'tt_msg' => 'saved' ],

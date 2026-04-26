@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Methodology\Helpers\MultilingualField;
 use TT\Modules\Methodology\MethodologyEnums;
 use TT\Modules\Methodology\Repositories\FormationsRepository;
+use TT\Modules\Methodology\Repositories\MethodologyAssetsRepository;
 use TT\Modules\Methodology\Repositories\MethodologyVisionRepository;
 
 /**
@@ -37,6 +38,8 @@ class VisionEditPage {
         if ( $row && $row->is_shipped ) {
             wp_die( esc_html__( 'The shipped sample vision is read-only. Create a new club vision instead.', 'talenttrack' ) );
         }
+
+        MediaPicker::enqueueAssets();
 
         $formations = ( new FormationsRepository() )->listAll();
         $way_nl = $way_en = $notes_nl = $notes_en = '';
@@ -113,6 +116,7 @@ class VisionEditPage {
                         <td><textarea name="notes_en" rows="3" class="large-text"><?php echo esc_textarea( $notes_en ); ?></textarea></td>
                     </tr>
                 </table>
+                <?php if ( $row ) MediaPicker::render( MethodologyAssetsRepository::TYPE_VISION, (int) $row->id ); ?>
                 <?php submit_button( $row ? __( 'Save changes', 'talenttrack' ) : __( 'Save vision', 'talenttrack' ) ); ?>
             </form>
         </div>
@@ -153,6 +157,8 @@ class VisionEditPage {
             $payload['club_scope'] = 'site';
             $id = $repo->create( $payload );
         }
+
+        MediaPicker::handleSave( MethodologyAssetsRepository::TYPE_VISION, (int) $id );
 
         wp_safe_redirect( add_query_arg(
             [ 'page' => MethodologyPage::SLUG, 'tab' => 'vision', 'tt_msg' => 'saved' ],
