@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Usage statistics
 
 **Analytics → Usage Statistics** gives you a read-out of how your club is actually using the plugin.

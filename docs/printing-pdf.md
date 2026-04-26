@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Printing & PDF export
 
 TalentTrack can generate clean, print-optimized views for player reports — useful for meetings with parents, handouts during evaluations, or archiving paper trails.

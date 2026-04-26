@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Teams & players
 
 ## Teams

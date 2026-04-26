@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Coach dashboard (frontend)
 
 Coaches and administrators logged into the frontend shortcode see a tile-based dashboard with the Coaching section visible. (v3.0.0 — full rebuild from the v2.x tab-based UI.)

@@ -1,3 +1,5 @@
+<!-- audience: user, admin -->
+
 # Methodology
 
 The Methodology library is where your academy's coaching framework lives in TalentTrack: the per-club framework primer, principles, formations + position cards, set pieces, the vision, and the football actions catalogue. Coaches reference these during session planning and player conversations.

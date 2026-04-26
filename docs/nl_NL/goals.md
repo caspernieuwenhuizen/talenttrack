@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Doelen
 
 Een **doel** is een ontwikkelingsdoel voor een specifieke speler. Doelen registreren waar een speler aan werkt — ze vormen de verhalende tegenhanger van de numerieke evaluaties.

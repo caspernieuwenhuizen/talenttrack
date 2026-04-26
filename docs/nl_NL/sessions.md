@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Sessies
 
 Een **sessie** is een trainingsmoment. Elke sessie heeft:
