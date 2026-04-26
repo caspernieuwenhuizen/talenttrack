@@ -1,3 +1,5 @@
+<!-- audience: admin, dev -->
+
 # Workflow engine — cron setup
 
 The workflow engine uses WordPress's built-in cron (WP-cron) to fire scheduled triggers. WP-cron is "good enough" on most managed hosts but is not a real cron — it only fires when someone visits the site. On a low-traffic site or a host with aggressive caching, scheduled tasks can stop firing entirely. This page explains how to detect that and how to fix it.

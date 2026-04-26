@@ -133,6 +133,47 @@ class HelpTopics {
                 'group'   => 'configuration',
                 'summary' => __( 'How WP-cron drives scheduled tasks on this install, and how to fix it when it stops firing.', 'talenttrack' ),
             ],
+            'setup-wizard' => [
+                'title'   => __( 'Setup wizard', 'talenttrack' ),
+                'group'   => 'basics',
+                'summary' => __( 'The first-run guided installer that hands you off into TalentTrack.', 'talenttrack' ),
+            ],
+            'license-and-account' => [
+                'title'   => __( 'License & account', 'talenttrack' ),
+                'group'   => 'configuration',
+                'summary' => __( 'Tier, trial state, usage caps, upgrade flow.', 'talenttrack' ),
+            ],
+            'backups' => [
+                'title'   => __( 'Backups & disaster recovery', 'talenttrack' ),
+                'group'   => 'configuration',
+                'summary' => __( 'Scheduled exports, partial restore, the 14-day undo window.', 'talenttrack' ),
+            ],
+            'methodology' => [
+                'title'   => __( 'Methodology', 'talenttrack' ),
+                'group'   => 'performance',
+                'summary' => __( 'Football framework primer, principles, set pieces, positions, voetbalhandelingen.', 'talenttrack' ),
+            ],
+            // #0029 dev tier — English-only by design.
+            'rest-api' => [
+                'title'   => __( 'REST API reference', 'talenttrack' ),
+                'group'   => 'developer',
+                'summary' => __( 'Plugin REST endpoints, payload shapes and capability scopes.', 'talenttrack' ),
+            ],
+            'hooks-and-filters' => [
+                'title'   => __( 'Hooks & filters', 'talenttrack' ),
+                'group'   => 'developer',
+                'summary' => __( 'Every action and filter the plugin exposes for extension.', 'talenttrack' ),
+            ],
+            'architecture' => [
+                'title'   => __( 'Architecture', 'talenttrack' ),
+                'group'   => 'developer',
+                'summary' => __( 'Module pattern, Kernel boot order, capability model, design tokens.', 'talenttrack' ),
+            ],
+            'theme-integration' => [
+                'title'   => __( 'Theme integration', 'talenttrack' ),
+                'group'   => 'developer',
+                'summary' => __( 'Override design tokens from a theme and the body.tt-theme-inherit contract.', 'talenttrack' ),
+            ],
         ];
     }
 
@@ -149,6 +190,7 @@ class HelpTopics {
             'analytics'     => __( 'Analytics', 'talenttrack' ),
             'configuration' => __( 'Configuration', 'talenttrack' ),
             'frontend'      => __( 'Frontend & access', 'talenttrack' ),
+            'developer'     => __( 'Developer', 'talenttrack' ),
         ];
     }
 

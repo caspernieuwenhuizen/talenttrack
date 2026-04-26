@@ -5501,3 +5501,166 @@ msgstr "De beoordeling valt buiten het ingestelde bereik."
 #. translators: %d: session ID
 msgid "session #%d"
 msgstr "sessie #%d"
+
+# v3.22.0 — Guest-player attendance (#0026)
+
+msgid "A guest is either linked OR anonymous, not both."
+msgstr "Een gast is óf gekoppeld óf anoniem, niet beide tegelijk."
+
+msgid "Pick a player or enter a guest name."
+msgstr "Kies een speler of vul een gastnaam in."
+
+msgid "Linked player does not exist."
+msgstr "Gekoppelde speler bestaat niet."
+
+msgid "The guest could not be added."
+msgstr "De gast kon niet worden toegevoegd."
+
+msgid "Invalid attendance id."
+msgstr "Ongeldig aanwezigheids-id."
+
+msgid "Attendance row not found."
+msgstr "Aanwezigheidsregel niet gevonden."
+
+msgid "The attendance row could not be updated."
+msgstr "De aanwezigheidsregel kon niet worden bijgewerkt."
+
+msgid "The attendance row could not be deleted."
+msgstr "De aanwezigheidsregel kon niet worden verwijderd."
+
+msgid "Guests"
+msgstr "Gasten"
+
+msgid "Spelers van buiten de selectie. Gasten tellen niet mee in teamstats."
+msgstr "Spelers van buiten de selectie. Gasten tellen niet mee in teamstats."
+
+msgid "Nog geen gasten toegevoegd."
+msgstr "Nog geen gasten toegevoegd."
+
+msgid "Save the session first; gasten kunnen daarna worden toegevoegd."
+msgstr "Save the session first; gasten kunnen daarna worden toegevoegd."
+
+msgid "Guest"
+msgstr "Gast"
+
+msgid "(unaffiliated)"
+msgstr "(geen team)"
+
+msgid "Notes…"
+msgstr "Notities…"
+
+msgid "Add as player"
+msgstr "Promoveer naar speler"
+
+msgid "Add guest"
+msgstr "Gast toevoegen"
+
+msgid "Gast toevoegen"
+msgstr "Gast toevoegen"
+
+msgid "Sluiten"
+msgstr "Sluiten"
+
+msgid "Gekoppelde speler"
+msgstr "Gekoppelde speler"
+
+msgid "Anonieme gast"
+msgstr "Anonieme gast"
+
+msgid "Kies een speler van een ander team. De evaluatie van vandaag verschijnt op zijn/haar profiel."
+msgstr "Kies een speler van een ander team. De evaluatie van vandaag verschijnt op zijn/haar profiel."
+
+msgid "Speler"
+msgstr "Speler"
+
+msgid "— Kies speler —"
+msgstr "— Kies speler —"
+
+msgid "Geen TalentTrack-record nodig. Vul de basisgegevens in; je kunt deze gast later promoveren naar een echte speler."
+msgstr "Geen TalentTrack-record nodig. Vul de basisgegevens in; je kunt deze gast later promoveren naar een echte speler."
+
+msgid "Naam"
+msgstr "Naam"
+
+msgid "Leeftijd"
+msgstr "Leeftijd"
+
+msgid "Positie"
+msgstr "Positie"
+
+msgid "— Onbekend —"
+msgstr "— Onbekend —"
+
+msgid "Annuleren"
+msgstr "Annuleren"
+
+msgid "Toevoegen"
+msgstr "Toevoegen"
+
+msgid "(as guest)"
+msgstr "(als gast)"
+
+msgid "Pick a player."
+msgstr "Kies een speler."
+
+msgid "Name is required."
+msgstr "Naam is verplicht."
+
+msgid "Could not add guest."
+msgstr "Gast toevoegen is niet gelukt."
+
+msgid "Save the session first, then add guests."
+msgstr "Sla de sessie eerst op en voeg daarna gasten toe."
+
+msgid "Remove this guest?"
+msgstr "Deze gast verwijderen?"
+
+# v3.22.0 — Documentation split (#0029) audience labels
+
+msgid "Dev"
+msgstr "Ontwikkelaar"
+
+msgid "License & account"
+msgstr "Licentie & account"
+
+msgid "Backups & disaster recovery"
+msgstr "Back-ups & disaster recovery"
+
+msgid "REST API reference"
+msgstr "REST API reference"
+
+msgid "Hooks & filters"
+msgstr "Hooks & filters"
+
+msgid "Architecture"
+msgstr "Architectuur"
+
+msgid "Theme integration"
+msgstr "Theme-integratie"
+
+msgid "Developer"
+msgstr "Ontwikkelaar"
+
+msgid "Tier, trial state, usage caps, upgrade flow."
+msgstr "Tier, trial-status, gebruikslimieten, upgrade-flow."
+
+msgid "Scheduled exports, partial restore, the 14-day undo window."
+msgstr "Geplande exports, gedeeltelijk herstel, het 14-daagse undo-venster."
+
+msgid "Football framework primer, principles, set pieces, positions, voetbalhandelingen."
+msgstr "Voetbal-raamwerk introductie, spelprincipes, spelhervattingen, posities, voetbalhandelingen."
+
+msgid "The first-run guided installer that hands you off into TalentTrack."
+msgstr "De begeleide eerste-installatie die je TalentTrack inleidt."
+
+msgid "Plugin REST endpoints, payload shapes and capability scopes."
+msgstr "REST-endpoints van de plugin, payload-vormen en capability-scopes."
+
+msgid "Every action and filter the plugin exposes for extension."
+msgstr "Elke actie en filter die de plugin blootstelt voor uitbreiding."
+
+msgid "Module pattern, Kernel boot order, capability model, design tokens."
+msgstr "Module-patroon, Kernel boot-volgorde, capability-model, design tokens."
+
+msgid "Override design tokens from a theme and the body.tt-theme-inherit contract."
+msgstr "Design tokens overschrijven vanuit een theme en het body.tt-theme-inherit contract."

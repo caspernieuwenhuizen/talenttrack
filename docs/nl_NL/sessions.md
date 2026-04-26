@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Sessies
 
 Een **sessie** is een trainingsmoment. Elke sessie heeft:
@@ -28,3 +30,35 @@ Sessieaantallen vloeien momenteel niet in de hoofdanalytics (Rate Card, Vergelij
 ## Archiveren
 
 Net als andere entiteiten kunnen sessies worden gearchiveerd om oude seizoenen op te ruimen zonder de historie te verliezen.
+
+## Gastaanwezigheid (v3.22.0)
+
+Een sessie kan ook spelers registreren die niet op de selectie staan — een JO13 die invalt bij JO14, een speler van een andere club op proef, een gast bij een oefenwedstrijd. Gasten staan naast de reguliere selectie op het aanwezigheidsformulier maar tellen niet mee in teamstatistieken.
+
+### Twee varianten
+
+- **Gekoppelde gast** — een echt `tt_players`-record (meestal van een ander team). Kies de speler uit de cross-team picker; de regel verwijst naar zijn/haar profiel en een eventuele evaluatie wordt normaal aan die speler gekoppeld.
+- **Anonieme gast** — naam + optioneel leeftijd + optioneel positie, geen `tt_players`-record. Vrije-tekst notities van de coach zijn de enige gestructureerde observatie. Een anonieme gast kan later worden gepromoveerd naar een echte speler via "Promoveer naar speler" — de aanwezigheidsgeschiedenis blijft bewaard.
+
+### Een gast toevoegen
+
+1. Open de sessie-bewerkpagina.
+2. Sla de sessie eerst op als die nieuw is (gasten hebben een sessie-id nodig).
+3. Scroll naar het kopje **Gasten** onder de reguliere aanwezigheidstabel.
+4. Klik **+ Gast toevoegen**, kies tabblad **Gekoppelde speler** of **Anonieme gast**, vul de velden in, klik **Toevoegen**.
+
+De nieuwe regel verschijnt direct in de Gasten-tabel.
+
+### Een anonieme gast promoveren
+
+Bij anonieme gastregels zit een actie **Promoveer naar speler**. Daarmee opent het spelersformulier voorgevuld met de naam, geboortejaar (huidig jaar minus leeftijd) en positie. Na opslaan wordt de oorspronkelijke aanwezigheidsregel bijgewerkt om naar de nieuwe speler te verwijzen; de anonieme velden worden gewist maar `is_guest` blijft 1 staan (de historische gastvisite blijft bewaard).
+
+### Stats-isolatie
+
+Teamaggregaten (aanwezigheid %, podium, rolling stats, teamchemie wanneer die arriveert) sluiten gastregels automatisch uit — ze worden gefilterd op `is_guest = 0`. De kolom "Att. %" in de sessielijst toont alleen selectie-aanwezigheid. Gasten verschijnen wél op:
+
+- De sessie-bewerkpagina van de hostcoach (Gasten-sectie).
+- Het profiel van de gekoppelde gastspeler zelf (Aanwezigheid-tab — gemarkeerd met "(als gast)").
+- De evaluatielijst van de hostclub als de hostcoach een gekoppelde gast evalueert.
+
+Anonieme gasten hebben geen eigen profiel totdat ze gepromoveerd worden.

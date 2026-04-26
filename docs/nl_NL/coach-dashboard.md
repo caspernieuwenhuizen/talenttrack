@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Coach-dashboard (frontend)
 
 Coaches en beheerders die inloggen op de frontend-shortcode zien een tegelgebaseerd dashboard met de sectie Coaching zichtbaar. (v3.0.0 — volledige rebuild van de tab-gebaseerde UI uit v2.x.)

@@ -1,3 +1,5 @@
+<!-- audience: admin, dev -->
+
 # Workflow-motor — cron-instellingen
 
 De workflow-motor gebruikt de ingebouwde cron van WordPress (WP-cron) om geplande triggers af te vuren. WP-cron is op de meeste gehoste sites "goed genoeg", maar het is geen echte cron — het draait alleen wanneer iemand de site bezoekt. Op een site met weinig verkeer of een host met agressieve caching kunnen geplande taken volledig stoppen met afvuren. Deze pagina legt uit hoe je dat detecteert en oplost.
