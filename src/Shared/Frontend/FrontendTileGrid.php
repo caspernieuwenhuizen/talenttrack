@@ -466,6 +466,47 @@ class FrontendTileGrid {
             ];
         }
 
+        // "Development" group (#0009). Visible to roles that can submit
+        // (everyone except player/parent) plus admin/refiners who get
+        // the board/approval/tracks tiles.
+        $can_submit_idea = current_user_can( 'tt_submit_idea' );
+        $can_view_board  = current_user_can( 'tt_view_dev_board' );
+        $can_promote     = current_user_can( 'tt_promote_idea' );
+        $development_tiles = [
+            [
+                'label' => __( 'Submit an idea', 'talenttrack' ),
+                'desc'  => __( 'Spotted a bug or feature? Send it to the development queue.', 'talenttrack' ),
+                'emoji' => '💡',
+                'color' => '#c9962a',
+                'url'   => $url( 'submit-idea' ),
+                'show'  => $can_submit_idea,
+            ],
+            [
+                'label' => __( 'Development board', 'talenttrack' ),
+                'desc'  => __( 'Kanban view of every staged idea — submitted through done.', 'talenttrack' ),
+                'emoji' => '🗂',
+                'color' => '#7c3a9e',
+                'url'   => $url( 'ideas-board' ),
+                'show'  => $can_view_board,
+            ],
+            [
+                'label' => __( 'Approval queue', 'talenttrack' ),
+                'desc'  => __( 'Approve & promote ideas straight to GitHub, or reject with a note.', 'talenttrack' ),
+                'emoji' => '✅',
+                'color' => '#1d7874',
+                'url'   => $url( 'ideas-approval' ),
+                'show'  => $can_promote,
+            ],
+            [
+                'label' => __( 'Development tracks', 'talenttrack' ),
+                'desc'  => __( 'Group ideas into a player-development roadmap.', 'talenttrack' ),
+                'emoji' => '🛤',
+                'color' => '#2271b1',
+                'url'   => $url( 'dev-tracks' ),
+                'show'  => $can_view_board,
+            ],
+        ];
+
         return [
             [
                 'label' => __( 'Me', 'talenttrack' ),
@@ -486,6 +527,10 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Analytics', 'talenttrack' ),
                 'tiles' => $analytics_tiles,
+            ],
+            [
+                'label' => __( 'Development', 'talenttrack' ),
+                'tiles' => $development_tiles,
             ],
             [
                 'label' => __( 'Administration', 'talenttrack' ),

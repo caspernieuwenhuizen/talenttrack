@@ -174,6 +174,11 @@ class HelpTopics {
                 'group'   => 'developer',
                 'summary' => __( 'Override design tokens from a theme and the body.tt-theme-inherit contract.', 'talenttrack' ),
             ],
+            'development-management' => [
+                'title'   => __( 'Development management', 'talenttrack' ),
+                'group'   => 'development',
+                'summary' => __( 'Submit, refine, and promote ideas straight to GitHub from the dashboard.', 'talenttrack' ),
+            ],
         ];
     }
 
@@ -191,6 +196,7 @@ class HelpTopics {
             'configuration' => __( 'Configuration', 'talenttrack' ),
             'frontend'      => __( 'Frontend & access', 'talenttrack' ),
             'developer'     => __( 'Developer', 'talenttrack' ),
+            'development'   => __( 'Development', 'talenttrack' ),
         ];
     }
 

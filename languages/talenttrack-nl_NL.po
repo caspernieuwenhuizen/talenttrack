@@ -5324,6 +5324,261 @@ msgstr "Formaties"
 msgid "No framework illustrations attached yet."
 msgstr "Nog geen raamwerk-illustraties gekoppeld."
 
+# === #0009 Development management ===
+
+msgid "Submitted"
+msgstr "Ingediend"
+
+msgid "Refining"
+msgstr "Verfijnen"
+
+msgid "Ready for approval"
+msgstr "Klaar voor goedkeuring"
+
+msgid "Rejected"
+msgstr "Afgewezen"
+
+msgid "Promoting…"
+msgstr "Promoten…"
+
+msgid "Accepted"
+msgstr "Geaccepteerd"
+
+msgid "Promotion failed"
+msgstr "Promotie mislukt"
+
+msgid "In progress"
+msgstr "In uitvoering"
+
+msgid "Done"
+msgstr "Klaar"
+
+msgid "In review"
+msgstr "In beoordeling"
+
+msgid "Not accepted"
+msgstr "Niet geaccepteerd"
+
+msgid "Bug"
+msgstr "Bug"
+
+msgid "Epic"
+msgstr "Epic"
+
+msgid "Needs triage"
+msgstr "Vereist triage"
+
+msgid "Title is required."
+msgstr "Titel is verplicht."
+
+msgid "Idea submitted. Thanks — it will appear in the staging queue for review."
+msgstr "Idee ingediend. Bedankt — het verschijnt in de beoordelingswachtrij."
+
+msgid "Idea updated."
+msgstr "Idee bijgewerkt."
+
+msgid "Cannot promote: TT_GITHUB_TOKEN constant is not defined in wp-config.php."
+msgstr "Kan niet promoten: de constante TT_GITHUB_TOKEN is niet gedefinieerd in wp-config.php."
+
+msgid "Idea is not in \"Ready for approval\" — refresh and try again."
+msgstr "Idee staat niet op \"Klaar voor goedkeuring\" — vernieuw en probeer opnieuw."
+
+msgid "Another promotion is in flight for this idea."
+msgstr "Er loopt al een promotie voor dit idee."
+
+msgid "Promoted to GitHub as %s."
+msgstr "Gepromoot naar GitHub als %s."
+
+msgid "Promotion failed: %s"
+msgstr "Promotie mislukt: %s"
+
+msgid "Idea rejected. Author has been notified."
+msgstr "Idee afgewezen. Auteur is op de hoogte gebracht."
+
+msgid "Track name is required."
+msgstr "Naam van het spoor is verplicht."
+
+msgid "Track updated."
+msgstr "Spoor bijgewerkt."
+
+msgid "Track created."
+msgstr "Spoor aangemaakt."
+
+msgid "Track deleted."
+msgstr "Spoor verwijderd."
+
+msgid "[TalentTrack] Your idea \"%s\" was not accepted"
+msgstr "[TalentTrack] Je idee \"%s\" is niet geaccepteerd"
+
+msgid "[TalentTrack] Your idea \"%s\" was accepted"
+msgstr "[TalentTrack] Je idee \"%s\" is geaccepteerd"
+
+msgid "[TalentTrack] Work has started on \"%s\""
+msgstr "[TalentTrack] Er wordt gewerkt aan \"%s\""
+
+msgid "(no note provided)"
+msgstr "(geen notitie meegegeven)"
+
+msgid ""
+"Hi,\n"
+"\n"
+"Your submitted idea \"%1$s\" was reviewed and not accepted.\n"
+"\n"
+"Note from the reviewer:\n"
+"%2$s\n"
+"\n"
+"You can submit a new idea at any time."
+msgstr ""
+"Hoi,\n"
+"\n"
+"Je ingediende idee \"%1$s\" is beoordeeld en niet geaccepteerd.\n"
+"\n"
+"Notitie van de beoordelaar:\n"
+"%2$s\n"
+"\n"
+"Je kunt op elk moment een nieuw idee indienen."
+
+msgid ""
+"Hi,\n"
+"\n"
+"Your submitted idea \"%1$s\" was accepted and is now in the development queue as %2$s.\n"
+"\n"
+"You'll get another email when work starts on it."
+msgstr ""
+"Hoi,\n"
+"\n"
+"Je ingediende idee \"%1$s\" is geaccepteerd en staat nu in de ontwikkelwachtrij als %2$s.\n"
+"\n"
+"Je krijgt nog een e-mail wanneer er aan begonnen wordt."
+
+msgid ""
+"Hi,\n"
+"\n"
+"Work has started on your accepted idea \"%s\". You'll see it move to Done once shipped."
+msgstr ""
+"Hoi,\n"
+"\n"
+"Er wordt gewerkt aan je geaccepteerde idee \"%s\". Het schuift door naar Klaar zodra het is uitgeleverd."
+
+msgid "Submit an idea"
+msgstr "Idee indienen"
+
+msgid "Your role does not allow submitting ideas."
+msgstr "Je rol mag geen ideeën indienen."
+
+msgid "Spotted something to fix or build? Drop a short title and as much detail as you have. The lead developer reviews submissions and either rejects with a note or promotes them straight into the development queue on GitHub."
+msgstr "Iets opgemerkt om op te lossen of te bouwen? Geef een korte titel en zoveel detail als je hebt. De hoofdontwikkelaar beoordeelt inzendingen en wijst ze af met een notitie of promoot ze rechtstreeks in de ontwikkelwachtrij op GitHub."
+
+msgid "A short summary of the idea"
+msgstr "Een korte samenvatting van het idee"
+
+msgid "Details"
+msgstr "Details"
+
+msgid "What's the problem, who is affected, what do you want to happen?"
+msgstr "Wat is het probleem, wie heeft er last van, wat moet er gebeuren?"
+
+msgid "Development track (optional)"
+msgstr "Ontwikkelspoor (optioneel)"
+
+msgid "No track"
+msgstr "Geen spoor"
+
+msgid "Submit idea"
+msgstr "Idee indienen"
+
+msgid "My recent submissions"
+msgstr "Mijn recente inzendingen"
+
+msgid "Development board"
+msgstr "Ontwikkelbord"
+
+msgid "You do not have access to the development board."
+msgstr "Je hebt geen toegang tot het ontwikkelbord."
+
+msgid "Submitted ideas flow left-to-right. Drop a card into Ready for approval to send it to the lead developer; rejections and promotions happen on the Approval queue."
+msgstr "Ingediende ideeën stromen van links naar rechts. Verplaats een kaart naar Klaar voor goedkeuring om hem naar de hoofdontwikkelaar te sturen; afwijzingen en promoties gebeuren in de Goedkeuringswachtrij."
+
+msgid "Open approval queue"
+msgstr "Open goedkeuringswachtrij"
+
+msgid "Manage tracks"
+msgstr "Sporen beheren"
+
+msgid "Move"
+msgstr "Verplaatsen"
+
+msgid "Refine"
+msgstr "Verfijnen"
+
+msgid "Refine idea"
+msgstr "Idee verfijnen"
+
+msgid "You do not have permission to refine ideas."
+msgstr "Je hebt geen rechten om ideeën te verfijnen."
+
+msgid "Idea id missing from URL."
+msgstr "Idee-id ontbreekt in de URL."
+
+msgid "Idea not found."
+msgstr "Idee niet gevonden."
+
+msgid "Body"
+msgstr "Inhoud"
+
+msgid "auto from title if empty"
+msgstr "auto uit titel als leeg"
+
+msgid "Track (optional)"
+msgstr "Spoor (optioneel)"
+
+msgid "Player ID (optional)"
+msgstr "Speler-ID (optioneel)"
+
+msgid "Team ID (optional)"
+msgstr "Team-ID (optioneel)"
+
+msgid "Promoted as"
+msgstr "Gepromoot als"
+
+msgid "view commit"
+msgstr "commit bekijken"
+
+msgid "Last promotion attempt failed:"
+msgstr "Laatste promotiepoging mislukt:"
+
+msgid "Submitted by"
+msgstr "Ingediend door"
+
+msgid "Approval queue"
+msgstr "Goedkeuringswachtrij"
+
+msgid "Only administrators can promote ideas."
+msgstr "Alleen administrators kunnen ideeën promoten."
+
+msgid "Approve to commit the idea straight to the talenttrack ideas/ folder on GitHub. The plugin assigns the next free #NNNN automatically."
+msgstr "Goedkeuren commit het idee direct naar de talenttrack ideas/-map op GitHub. De plugin reserveert automatisch de volgende vrije #NNNN."
+
+msgid "GitHub token not configured."
+msgstr "GitHub-token niet geconfigureerd."
+
+msgid "Set %1$s in %2$s with a fine-grained PAT scoped to \"contents: write\" on the talenttrack repo. Until that is done, promotion is disabled."
+msgstr "Stel %1$s in in %2$s met een fine-grained PAT met \"contents: write\" op de talenttrack-repo. Zolang dat niet is gedaan, is promotie uitgeschakeld."
+
+msgid "Queue is empty."
+msgstr "Wachtrij is leeg."
+
+msgid "Retry promotion to re-attempt the GitHub commit. The error from the last attempt is shown on each card."
+msgstr "Probeer promotie opnieuw om de GitHub-commit nog eens uit te voeren. De fout van de laatste poging staat op elke kaart."
+
+msgid "Last error:"
+msgstr "Laatste fout:"
+
+msgid "Reject with note"
+msgstr "Afwijzen met notitie"
+
+msgid "Tell the author why"
+msgstr "Vertel de auteur waarom"
 # Workflow & tasks engine (#0022 Sprint 1)
 msgid "Workflow & tasks engine"
 msgstr "Workflow- en takenmotor"
@@ -5549,6 +5804,86 @@ msgstr "Goedkeuren met aanpassing"
 msgid "Reject"
 msgstr "Afwijzen"
 
+msgid "TT_GITHUB_TOKEN constant must be set in wp-config.php."
+msgstr "TT_GITHUB_TOKEN-constante moet in wp-config.php staan."
+
+msgid "Approve & promote"
+msgstr "Goedkeuren & promoten"
+
+msgid "Retry promotion"
+msgstr "Promotie opnieuw proberen"
+
+msgid "Development tracks"
+msgstr "Ontwikkelsporen"
+
+msgid "You do not have access to development tracks."
+msgstr "Je hebt geen toegang tot ontwikkelsporen."
+
+msgid "Add a track"
+msgstr "Spoor toevoegen"
+
+msgid "Description (optional)"
+msgstr "Omschrijving (optioneel)"
+
+msgid "Add track"
+msgstr "Spoor toevoegen"
+
+msgid "No tracks yet. Add one above to start grouping ideas into a roadmap."
+msgstr "Nog geen sporen. Voeg er hierboven één toe om ideeën te groeperen tot een roadmap."
+
+msgid "Delete this track? Tagged ideas will be detached but not deleted."
+msgstr "Dit spoor verwijderen? Gekoppelde ideeën worden losgekoppeld, niet verwijderd."
+
+msgid "Delete track"
+msgstr "Spoor verwijderen"
+
+msgid "No ideas tagged to this track yet."
+msgstr "Nog geen ideeën gekoppeld aan dit spoor."
+
+msgid "Spotted a bug or feature? Send it to the development queue."
+msgstr "Een bug of feature opgemerkt? Stuur hem naar de ontwikkelwachtrij."
+
+msgid "Kanban view of every staged idea — submitted through done."
+msgstr "Kanban-overzicht van elk staged idee — van ingediend tot klaar."
+
+msgid "Approve & promote ideas straight to GitHub, or reject with a note."
+msgstr "Goedkeuren & ideeën rechtstreeks naar GitHub promoten, of afwijzen met een notitie."
+
+msgid "Group ideas into a player-development roadmap."
+msgstr "Groepeer ideeën tot een spelersontwikkelings-roadmap."
+
+msgid "Development"
+msgstr "Ontwikkeling"
+
+msgid "Development management"
+msgstr "Ontwikkelingsbeheer"
+
+msgid "Submit, refine, and promote ideas straight to GitHub from the dashboard."
+msgstr "Ideeën indienen, verfijnen en rechtstreeks vanaf het dashboard naar GitHub promoten."
+
+msgid "Idea row not found."
+msgstr "Ideerij niet gevonden."
+
+msgid "TT_GITHUB_TOKEN is not configured in wp-config.php."
+msgstr "TT_GITHUB_TOKEN is niet geconfigureerd in wp-config.php."
+
+msgid "Invalid type \"%s\"."
+msgstr "Ongeldig type \"%s\"."
+
+msgid "Slug is empty — set a title or slug before promoting."
+msgstr "Slug is leeg — geef een titel of slug op voordat je promoot."
+
+msgid "Could not list existing ideas/specs to allocate an ID."
+msgstr "Kon bestaande ideas/specs niet ophalen om een ID te reserveren."
+
+msgid "GitHub API returned %1$d: %2$s"
+msgstr "GitHub API gaf %1$d terug: %2$s"
+
+msgid "Two ID-allocation collisions in a row — promotion aborted. Retry from the approval queue."
+msgstr "Twee ID-toewijzingsbotsingen op rij — promotie afgebroken. Probeer opnieuw vanaf de goedkeuringswachtrij."
+
+msgid "You're about to commit this idea to %s. Continue?"
+msgstr "Je staat op het punt dit idee naar %s te committen. Doorgaan?"
 msgid "Note (optional)"
 msgstr "Notitie (optioneel)"
 

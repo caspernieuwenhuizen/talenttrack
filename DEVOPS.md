@@ -101,6 +101,26 @@ Default behaviour on every release that touches SEQUENCE.md-referenced work, not
 
 PR review check: if a reviewer can't point at the `.po` lines and the `docs/*` lines, it's not done. And a release that leaves SEQUENCE.md stale isn't done either.
 
+## Plugin constants in wp-config.php
+
+Some features rely on secrets that must never live in the database (DB values leak into backups, staging clones, and migration exports). Add these to `wp-config.php` on the server, not via wp-admin.
+
+| Constant | Required for | Notes |
+| --- | --- | --- |
+| `TT_GITHUB_TOKEN` | #0009 Development management — promoting ideas to GitHub | Fine-grained PAT scoped to the talenttrack repo with `Contents: Read & write`. Until set, the **Approve & promote** button is disabled and a banner shows on the Approval queue. Submitting and refining still work. |
+| `TT_IDEAS_REPO` | #0009 (optional) | Override the target repo, e.g. `myorg/myrepo`. Defaults to `caspernieuwenhuizen/talenttrack`. |
+| `TT_IDEAS_BASE_BRANCH` | #0009 (optional) | Override the branch the promoter commits to. Defaults to `main`. The branch must not have protection enabled — if it does, the GitHub API `PUT` returns 422 and a fallback PR-flow would be needed (not currently implemented). |
+
+Example block at the bottom of `wp-config.php`:
+
+```php
+define('TT_GITHUB_TOKEN', 'github_pat_...');
+// define('TT_IDEAS_REPO',        'caspernieuwenhuizen/talenttrack'); // optional
+// define('TT_IDEAS_BASE_BRANCH', 'main'); // optional
+```
+
+The fine-grained PAT creation page is at https://github.com/settings/personal-access-tokens/new. Pick **Only select repositories** → talenttrack, **Repository permissions** → Contents: Read & write. Nothing else.
+
 ## Release — tag a version, automation takes over
 
 After merging, in Claude Code:
