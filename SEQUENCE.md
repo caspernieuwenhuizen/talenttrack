@@ -10,7 +10,6 @@ _None._
 
 | # | Topic | Type | Spec | Estimated |
 | - | - | - | - | - |
-| 0026 | Guest-player attendance | feat | [specs/0026-feat-guest-player-attendance.md](specs/0026-feat-guest-player-attendance.md) | ~10h |
 | 0029 | Documentation split (user / admin / dev) | feat | [specs/0029-feat-documentation-split-user-admin.md](specs/0029-feat-documentation-split-user-admin.md) | ~17h |
 | 0025 | Multilingual auto-translate flow | feat | [specs/0025-feat-multilingual-auto-translate.md](specs/0025-feat-multilingual-auto-translate.md) | ~26h |
 
@@ -48,6 +47,7 @@ _None._
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
+| 0026 | Guest-player attendance | feat | v3.22.0 | ~10h | ~10h |
 | 0027 | Football methodology module (framework + full PDF content + visuals + per-club primer + football actions) | feat | v3.19.0 + v3.21.0 | ~52h initial + expansion | ~32h framework; ~50h expansion (assets table, framework primer schema, edit pages, frontend, content seed, image extraction) |
 | 0003 | Player evaluations view polish | feat | v3.18.0 | ~6h | ~3h |
 | 0004 | My card tile polish | feat | v3.18.0 | ~5h | ~2h |

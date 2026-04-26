@@ -8,6 +8,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendListTable;
+use TT\Shared\Frontend\Components\GuestAddModal;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
 
 /**
@@ -40,19 +41,20 @@ class FrontendSessionsManageView extends FrontendViewBase {
 
         if ( $action === 'new' ) {
             self::renderHeader( __( 'New session', 'talenttrack' ) );
-            self::renderForm( $user_id, $is_admin, null, [] );
+            self::renderForm( $user_id, $is_admin, null, [], [] );
             return;
         }
 
         if ( $id > 0 ) {
             $session    = self::loadSession( $id );
             $attendance = $session ? self::loadAttendance( $id ) : [];
+            $guests     = $session ? self::loadGuests( $id )     : [];
             self::renderHeader( $session ? sprintf( __( 'Edit session — %s', 'talenttrack' ), (string) $session->title ) : __( 'Session not found', 'talenttrack' ) );
             if ( ! $session ) {
                 echo '<p class="tt-notice">' . esc_html__( 'That session no longer exists.', 'talenttrack' ) . '</p>';
                 return;
             }
-            self::renderForm( $user_id, $is_admin, $session, $attendance );
+            self::renderForm( $user_id, $is_admin, $session, $attendance, $guests );
             return;
         }
 
@@ -129,9 +131,10 @@ class FrontendSessionsManageView extends FrontendViewBase {
      * POST is decided by whether `$session` is set.
      *
      * @param object|null $session
-     * @param array<int,object> $attendance keyed by player_id
+     * @param array<int,object> $attendance roster rows keyed by player_id
+     * @param array<int,object> $guests     guest attendance rows (#0026)
      */
-    private static function renderForm( int $user_id, bool $is_admin, ?object $session, array $attendance ): void {
+    private static function renderForm( int $user_id, bool $is_admin, ?object $session, array $attendance, array $guests ): void {
         $teams         = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
         $selected_team = (int) ( $session->team_id ?? ( $teams ? $teams[0]->id : 0 ) );
 
@@ -238,6 +241,14 @@ class FrontendSessionsManageView extends FrontendViewBase {
                 </div>
             <?php endif; ?>
 
+            <?php if ( $is_edit ) :
+                self::renderGuestSection( (int) $session->id, $guests );
+            else : ?>
+                <p class="tt-help-text" style="margin-top:18px; font-size:12px; color:#5b6470;">
+                    <?php esc_html_e( 'Save the session first; gasten kunnen daarna worden toegevoegd.', 'talenttrack' ); ?>
+                </p>
+            <?php endif; ?>
+
             <div class="tt-form-actions" style="margin-top:16px;">
                 <?php echo FormSaveButton::render( [ 'label' => $is_edit ? __( 'Update session', 'talenttrack' ) : __( 'Save session', 'talenttrack' ) ] ); ?>
                 <a href="<?php echo esc_url( remove_query_arg( [ 'action', 'id' ] ) ); ?>" class="tt-btn tt-btn-secondary">
@@ -247,6 +258,143 @@ class FrontendSessionsManageView extends FrontendViewBase {
             <div class="tt-form-msg"></div>
         </form>
         <?php
+
+        // Guest add modal — outside the form so its inputs don't get
+        // serialized into the session PUT payload. The JS handler
+        // POSTs to /sessions/{id}/guests on submit.
+        if ( $is_edit ) {
+            echo GuestAddModal::render( [
+                'user_id'         => $user_id,
+                'is_admin'        => $is_admin,
+                'exclude_team_id' => $selected_team,
+            ] );
+            self::enqueueGuestAddAssets();
+        }
+    }
+
+    /**
+     * Guest attendance section — linked + anonymous rows under the
+     * roster, plus the "+ Add guest" button.
+     *
+     * @param array<int, object> $guests
+     */
+    private static function renderGuestSection( int $session_id, array $guests ): void {
+        ?>
+        <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Guests', 'talenttrack' ); ?></h3>
+        <p class="tt-help-text" style="margin:-6px 0 12px; font-size:12px; color:#5b6470;">
+            <?php esc_html_e( 'Spelers van buiten de selectie. Gasten tellen niet mee in teamstats.', 'talenttrack' ); ?>
+        </p>
+        <div class="tt-attendance" data-tt-guest-session-id="<?php echo (int) $session_id; ?>">
+            <table class="tt-table tt-attendance-table" data-tt-guest-table>
+                <thead><tr>
+                    <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
+                </tr></thead>
+                <tbody>
+                <?php if ( empty( $guests ) ) : ?>
+                    <tr class="tt-attendance-row tt-attendance-row--empty" data-tt-guest-empty>
+                        <td colspan="3" style="text-align:center; color:#5b6470; font-style:italic; padding:18px;">
+                            <?php esc_html_e( 'Nog geen gasten toegevoegd.', 'talenttrack' ); ?>
+                        </td>
+                    </tr>
+                <?php else : foreach ( $guests as $g ) :
+                    $is_linked = ! empty( $g->guest_player_id );
+                    if ( $is_linked ) {
+                        $label = trim( (string) ( $g->_player_name ?? '' ) );
+                        if ( $label === '' ) $label = __( 'Guest', 'talenttrack' );
+                        $sub = (string) ( $g->_home_team ?? '' );
+                    } else {
+                        $label = (string) ( $g->guest_name ?? __( 'Guest', 'talenttrack' ) );
+                        $sub   = __( '(unaffiliated)', 'talenttrack' );
+                    }
+                    ?>
+                    <tr class="tt-attendance-row tt-attendance-row--guest" data-tt-attendance-id="<?php echo (int) $g->id; ?>" data-is-guest="1">
+                        <td data-label="<?php esc_attr_e( 'Player', 'talenttrack' ); ?>">
+                            <em><?php echo esc_html( $label ); ?></em>
+                            <span class="tt-guest-badge"><?php esc_html_e( 'Guest', 'talenttrack' ); ?></span>
+                            <?php if ( $sub !== '' ) : ?>
+                                <div class="tt-guest-subline"><?php echo esc_html( $sub ); ?></div>
+                            <?php endif; ?>
+                        </td>
+                        <td data-label="<?php esc_attr_e( 'Status', 'talenttrack' ); ?>">
+                            <?php echo esc_html( LabelTranslator::attendanceStatus( (string) ( $g->status ?? 'Present' ) ) ); ?>
+                        </td>
+                        <td data-label="<?php esc_attr_e( 'Notes', 'talenttrack' ); ?>">
+                            <?php if ( $is_linked ) :
+                                $eval_url = add_query_arg(
+                                    [ 'tt_view' => 'evaluation_form', 'player_id' => (int) $g->guest_player_id ],
+                                    remove_query_arg( [ 'action', 'id' ] )
+                                );
+                                ?>
+                                <a href="<?php echo esc_url( $eval_url ); ?>"><?php esc_html_e( 'Evaluate', 'talenttrack' ); ?></a>
+                                <button type="button" class="tt-btn-link" data-tt-guest-remove="<?php echo (int) $g->id; ?>" style="margin-left:8px; color:#b32d2e;">
+                                    <?php esc_html_e( 'Remove', 'talenttrack' ); ?>
+                                </button>
+                            <?php else :
+                                $promote_url = add_query_arg( [
+                                    'page'               => 'tt-players',
+                                    'action'             => 'new',
+                                    'from_attendance_id' => (int) $g->id,
+                                ], admin_url( 'admin.php' ) );
+                                ?>
+                                <input type="text" class="tt-input tt-guest-notes-input"
+                                       data-tt-guest-notes-id="<?php echo (int) $g->id; ?>"
+                                       data-initial="<?php echo esc_attr( (string) ( $g->guest_notes ?? '' ) ); ?>"
+                                       value="<?php echo esc_attr( (string) ( $g->guest_notes ?? '' ) ); ?>"
+                                       placeholder="<?php esc_attr_e( 'Notes…', 'talenttrack' ); ?>" />
+                                <div class="tt-guest-row-actions" style="margin-top:6px; font-size:12px;">
+                                    <a href="<?php echo esc_url( $promote_url ); ?>"><?php esc_html_e( 'Add as player', 'talenttrack' ); ?></a> ·
+                                    <button type="button" class="tt-btn-link" data-tt-guest-remove="<?php echo (int) $g->id; ?>" style="color:#b32d2e;">
+                                        <?php esc_html_e( 'Remove', 'talenttrack' ); ?>
+                                    </button>
+                                </div>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; endif; ?>
+                </tbody>
+            </table>
+            <p style="margin-top:8px;">
+                <button type="button" class="tt-btn tt-btn-secondary" data-tt-guest-modal-open>
+                    + <?php esc_html_e( 'Add guest', 'talenttrack' ); ?>
+                </button>
+            </p>
+        </div>
+        <?php
+    }
+
+    private static function enqueueGuestAddAssets(): void {
+        wp_enqueue_script(
+            'tt-guest-add',
+            plugins_url( 'assets/js/components/guest-add.js', TT_PLUGIN_FILE ),
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-guest-add', 'TT_GuestAdd', [
+            'restNs'  => rest_url( 'talenttrack/v1' ),
+            'nonce'   => wp_create_nonce( 'wp_rest' ),
+            'strings' => [
+                'guestBadge'      => __( 'Guest',          'talenttrack' ),
+                'unaffiliated'    => __( '(unaffiliated)', 'talenttrack' ),
+                'player'          => __( 'Player',         'talenttrack' ),
+                'status'          => __( 'Status',         'talenttrack' ),
+                'notes'           => __( 'Notes',          'talenttrack' ),
+                'evaluate'        => __( 'Evaluate',       'talenttrack' ),
+                'promote'         => __( 'Add as player',  'talenttrack' ),
+                'remove'          => __( 'Remove',         'talenttrack' ),
+                'confirmRemove'   => __( 'Remove this guest?',          'talenttrack' ),
+                'linkedRequired'  => __( 'Pick a player.',              'talenttrack' ),
+                'nameRequired'    => __( 'Name is required.',           'talenttrack' ),
+                'saveFailed'      => __( 'Could not add guest.',        'talenttrack' ),
+                'saveFirst'       => __( 'Save the session first, then add guests.', 'talenttrack' ),
+                'networkError'    => __( 'Network error.',              'talenttrack' ),
+                'notesPlaceholder'=> __( 'Notes…',                      'talenttrack' ),
+                'linkedFallback'  => __( 'Guest',                       'talenttrack' ),
+                'anonFallback'    => __( 'Guest',                       'talenttrack' ),
+            ],
+        ] );
     }
 
     private static function loadSession( int $id ): ?object {
@@ -261,17 +409,45 @@ class FrontendSessionsManageView extends FrontendViewBase {
     }
 
     /**
-     * @return array<int, object> attendance rows keyed by player_id.
+     * @return array<int, object> roster attendance rows keyed by player_id (excludes guests).
      */
     private static function loadAttendance( int $session_id ): array {
         global $wpdb; $p = $wpdb->prefix;
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_attendance WHERE session_id = %d",
+            "SELECT * FROM {$p}tt_attendance WHERE session_id = %d AND is_guest = 0",
             $session_id
         ) );
         $out = [];
         foreach ( $rows ?: [] as $r ) {
-            $out[ (int) $r->player_id ] = $r;
+            if ( $r->player_id !== null ) $out[ (int) $r->player_id ] = $r;
+        }
+        return $out;
+    }
+
+    /**
+     * #0026 — Guest attendance rows for a session, decorated with the
+     * linked player's display name + home team for render.
+     *
+     * @return array<int, object>
+     */
+    private static function loadGuests( int $session_id ): array {
+        global $wpdb; $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.*, pl.first_name, pl.last_name, t.name AS home_team_name
+             FROM {$p}tt_attendance a
+             LEFT JOIN {$p}tt_players pl ON pl.id = a.guest_player_id
+             LEFT JOIN {$p}tt_teams   t  ON t.id  = pl.team_id
+             WHERE a.session_id = %d AND a.is_guest = 1
+             ORDER BY a.id ASC",
+            $session_id
+        ) );
+        $out = [];
+        foreach ( $rows ?: [] as $r ) {
+            if ( ! empty( $r->guest_player_id ) ) {
+                $r->_player_name = trim( (string) $r->first_name . ' ' . (string) $r->last_name );
+                $r->_home_team   = (string) ( $r->home_team_name ?? '' );
+            }
+            $out[] = $r;
         }
         return $out;
     }
