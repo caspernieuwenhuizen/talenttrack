@@ -20,3 +20,52 @@
 .tt-formation-diagram #tt-fp-arrow-head path { fill: #b32d2e; }
 .tt-formation-diagram .tt-fp-zone     { fill: rgba(11, 61, 46, 0.10); stroke: rgba(11, 61, 46, 0.30); stroke-width: 0.3; }
 .tt-dashboard .tt-formation-diagram   { color: var(--tt-primary, #0b3d2e); }
+
+/* ─── Backup running overlay (#6 + #7) ─────────────────────────
+   Shown on the Backup admin page while a Run-Now or Restore submit
+   is in flight. Non-dismissible — disappears naturally when the
+   server redirects back. */
+.tt-bk-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 14, 16, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    padding: 16px;
+}
+.tt-bk-overlay[hidden] { display: none; }
+.tt-bk-overlay-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 32px 28px 24px;
+    max-width: 460px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.3);
+}
+.tt-bk-overlay-title {
+    margin: 16px 0 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #0e1a14;
+}
+.tt-bk-overlay-msg {
+    margin: 0;
+    color: #4a5258;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+.tt-bk-spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid rgba(11, 61, 46, 0.18);
+    border-top-color: #0b3d2e;
+    border-radius: 50%;
+    margin: 0 auto;
+    animation: tt-bk-spin 0.9s linear infinite;
+}
+@keyframes tt-bk-spin {
+    to { transform: rotate(360deg); }
+}
