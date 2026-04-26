@@ -5434,8 +5434,5 @@ msgstr "Gast toevoegen is niet gelukt."
 msgid "Save the session first, then add guests."
 msgstr "Sla de sessie eerst op en voeg daarna gasten toe."
 
-msgid "Network error."
-msgstr "Netwerkfout."
-
 msgid "Remove this guest?"
 msgstr "Deze gast verwijderen?"
