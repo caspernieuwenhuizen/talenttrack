@@ -423,10 +423,37 @@ class FrontendTileGrid {
             ],
         ];
 
+        // "Tasks" group — #0022 Sprint 2. The inbox tile shows for every
+        // user with tt_view_own_tasks. When the user has open tasks the
+        // tile carries a count badge appended to its label.
+        $tasks_tiles = [];
+        if ( current_user_can( 'tt_view_own_tasks' ) ) {
+            $open_count = \TT\Modules\Workflow\Frontend\FrontendMyTasksView::openCountForUser( $ctx['user_id'] );
+            $label = $open_count > 0
+                ? sprintf(
+                    /* translators: %d: number of open tasks */
+                    __( 'My tasks (%d)', 'talenttrack' ),
+                    $open_count
+                )
+                : __( 'My tasks', 'talenttrack' );
+            $tasks_tiles[] = [
+                'label' => $label,
+                'desc'  => __( 'Open tasks waiting on you — evaluations, goals, reviews.', 'talenttrack' ),
+                'emoji' => '📥',
+                'color' => $open_count > 0 ? '#b32d2e' : '#5b6e75',
+                'url'   => $url( 'my-tasks' ),
+                'show'  => true,
+            ];
+        }
+
         return [
             [
                 'label' => __( 'Me', 'talenttrack' ),
                 'tiles' => $me_tiles,
+            ],
+            [
+                'label' => __( 'Tasks', 'talenttrack' ),
+                'tiles' => $tasks_tiles,
             ],
             [
                 'label' => __( 'People', 'talenttrack' ),

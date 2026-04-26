@@ -128,6 +128,11 @@ class HelpTopics {
                 'group'   => 'configuration',
                 'summary' => __( 'Scheduled tasks landing in the inbox: post-match evals, self-evals, goal-setting, HoD reviews.', 'talenttrack' ),
             ],
+            'workflow-engine-cron-setup' => [
+                'title'   => __( 'Workflow engine — cron setup', 'talenttrack' ),
+                'group'   => 'configuration',
+                'summary' => __( 'How WP-cron drives scheduled tasks on this install, and how to fix it when it stops firing.', 'talenttrack' ),
+            ],
         ];
     }
 

@@ -5330,3 +5330,174 @@ msgstr "Workflow- en takenmotor"
 
 msgid "Scheduled tasks landing in the inbox: post-match evals, self-evals, goal-setting, HoD reviews."
 msgstr "Ingeplande taken die in de inbox belanden: wedstrijdevaluaties, zelfevaluaties, doelen stellen, HoD-reviews."
+
+# Workflow engine — Sprint 2 (inbox + bell + email + cron diagnostics)
+msgid "My tasks"
+msgstr "Mijn taken"
+
+msgid "Tasks"
+msgstr "Taken"
+
+msgid "Open tasks waiting on you — evaluations, goals, reviews."
+msgstr "Openstaande taken die op je wachten — evaluaties, doelen, reviews."
+
+msgid "Open and in progress"
+msgstr "Openstaand en in behandeling"
+
+msgid "Recently completed"
+msgstr "Recent voltooid"
+
+msgid "No open tasks. You're all caught up."
+msgstr "Geen openstaande taken. Helemaal bij."
+
+msgid "Open"
+msgstr "Openen"
+
+msgid "Submit"
+msgstr "Versturen"
+
+msgid "Task completed."
+msgstr "Taak voltooid."
+
+msgid "Task not found"
+msgstr "Taak niet gevonden"
+
+msgid "This task does not exist (or has been removed)."
+msgstr "Deze taak bestaat niet (of is verwijderd)."
+
+msgid "Task not yours"
+msgstr "Niet jouw taak"
+
+msgid "This task is not assigned to you."
+msgstr "Deze taak is niet aan jou toegewezen."
+
+msgid "Task template missing"
+msgstr "Taaksjabloon ontbreekt"
+
+msgid "The template for this task is no longer registered. Contact an administrator."
+msgstr "Het sjabloon van deze taak is niet meer geregistreerd. Neem contact op met een beheerder."
+
+msgid "This task has no form configured."
+msgstr "Deze taak heeft geen formulier geconfigureerd."
+
+msgid "Security check failed. Please refresh the page and try again."
+msgstr "Beveiligingscontrole mislukt. Vernieuw de pagina en probeer opnieuw."
+
+msgid "Could not save the task. Please try again."
+msgstr "De taak kon niet worden opgeslagen. Probeer opnieuw."
+
+msgid "This task has already been completed. Below is the response that was submitted."
+msgstr "Deze taak is al voltooid. Hieronder staat het antwoord dat is verstuurd."
+
+msgid "Your role does not have access to tasks."
+msgstr "Jouw rol heeft geen toegang tot taken."
+
+msgid "overdue"
+msgstr "te laat"
+
+msgid "in %d hour"
+msgid_plural "in %d hours"
+msgstr[0] "over %d uur"
+msgstr[1] "over %d uur"
+
+msgid "%d open task"
+msgid_plural "%d open tasks"
+msgstr[0] "%d openstaande taak"
+msgstr[1] "%d openstaande taken"
+
+msgid "No open tasks"
+msgstr "Geen openstaande taken"
+
+#. translators: %d: number of open tasks
+msgid "My tasks (%d)"
+msgstr "Mijn taken (%d)"
+
+#. translators: %s: assignee display name
+msgid "Hi %s,"
+msgstr "Hallo %s,"
+
+#. translators: 1: task name, 2: deadline
+msgid "A new task has been assigned to you: %1$s. Deadline: %2$s."
+msgstr "Er is een nieuwe taak aan je toegewezen: %1$s. Deadline: %2$s."
+
+msgid "Open your task inbox:"
+msgstr "Open je takeninbox:"
+
+msgid "no deadline"
+msgstr "geen deadline"
+
+#. translators: 1: site name, 2: template name
+msgid "[%1$s] New task: %2$s"
+msgstr "[%1$s] Nieuwe taak: %2$s"
+
+#. translators: %s: site name
+msgid "— %s"
+msgstr "— %s"
+
+msgid "TalentTrack workflow:"
+msgstr "TalentTrack workflow:"
+
+msgid "Scheduled tasks don't appear to be running reliably on this install. Your host's WordPress cron may need attention."
+msgstr "Ingeplande taken lijken niet betrouwbaar te draaien op deze installatie. De WP-cron van je host heeft mogelijk aandacht nodig."
+
+msgid "Learn how to fix →"
+msgstr "Lees hoe je dit oplost →"
+
+msgid "Dismiss for 7 days"
+msgstr "7 dagen wegklikken"
+
+msgid "You do not have permission."
+msgstr "Je hebt geen toestemming."
+
+msgid "Workflow engine — cron setup"
+msgstr "Workflow-motor — cron-instellingen"
+
+msgid "How WP-cron drives scheduled tasks on this install, and how to fix it when it stops firing."
+msgstr "Hoe WP-cron geplande taken op deze installatie aanstuurt, en hoe je het herstelt als het stopt met afvuren."
+
+# Workflow engine — Sprint 3 (post-match + weekly self-eval)
+msgid "Post-match coach evaluation"
+msgstr "Coach-evaluatie na wedstrijd"
+
+msgid "Quick reflection on each player's match performance — overall feel plus what went well and what to work on. Due 72 hours after the match."
+msgstr "Korte reflectie per speler na de wedstrijd — algemene indruk plus wat goed ging en waar nog aan gewerkt moet worden. Deadline 72 uur na de wedstrijd."
+
+msgid "Weekly self-evaluation"
+msgstr "Wekelijkse zelfevaluatie"
+
+msgid "How did this week feel? Quick self-rating plus what went well and what to work on next week."
+msgstr "Hoe voelde deze week? Snelle zelfbeoordeling plus wat goed ging en waar volgende week aandacht naar uitgaat."
+
+#. translators: %s: player full name
+msgid "Player: %s"
+msgstr "Speler: %s"
+
+#. translators: 1: min rating, 2: max rating
+msgid "Overall rating (%1$s–%2$s)"
+msgstr "Algemene beoordeling (%1$s–%2$s)"
+
+msgid "What went well"
+msgstr "Wat ging goed"
+
+msgid "What to work on"
+msgstr "Waaraan werken"
+
+#. translators: 1: min rating, 2: max rating
+msgid "How was this week? (%1$s–%2$s)"
+msgstr "Hoe was deze week? (%1$s–%2$s)"
+
+msgid "What went well this week"
+msgstr "Wat ging goed deze week"
+
+msgid "What to work on next week"
+msgstr "Waaraan werken volgende week"
+
+msgid "Quick weekly check-in. Be honest — this is for your development."
+msgstr "Korte wekelijkse check-in. Wees eerlijk — dit is voor jouw ontwikkeling."
+
+msgid "Rating is outside the configured range."
+msgstr "De beoordeling valt buiten het ingestelde bereik."
+
+#. translators: %d: session ID
+msgid "session #%d"
+msgstr "sessie #%d"

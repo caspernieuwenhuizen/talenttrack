@@ -5,9 +5,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Modules\Workflow\Diagnostics\CronHealthNotice;
+use TT\Modules\Workflow\Dispatchers\CronDispatcher;
+use TT\Modules\Workflow\Dispatchers\EventDispatcher;
+use TT\Modules\Workflow\Frontend\NotificationBell;
+use TT\Modules\Workflow\Notifications\TaskMailer;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
 use TT\Modules\Workflow\Repositories\TriggersRepository;
+use TT\Modules\Workflow\Templates\PlayerSelfEvaluationTemplate;
+use TT\Modules\Workflow\Templates\PostMatchEvaluationTemplate;
 
 /**
  * WorkflowModule (#0022 Sprint 1) — workflow & tasks engine.
@@ -40,6 +47,35 @@ class WorkflowModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
+
+        // Sprint 3 — register Phase 1 templates with the registry on
+        // every request so dispatchers + the inbox + the detail view
+        // can resolve them. Cheap (one map insert per template).
+        add_action( 'init', [ self::class, 'registerShippedTemplates' ], 5 );
+
+        // Sprint 2 — live wiring. Each component subscribes to its own
+        // hooks; ordering between them doesn't matter here because the
+        // hooks fire on different events.
+        CronDispatcher::init();
+        EventDispatcher::init();
+        TaskMailer::init();
+
+        if ( ! is_admin() ) {
+            NotificationBell::init();
+        } else {
+            CronHealthNotice::init();
+        }
+    }
+
+    /**
+     * Register the Phase 1 templates. Called from boot() on init priority 5
+     * so dispatchers (priority 20) see them. Idempotent — TemplateRegistry
+     * keys by template->key() so repeated registration just overwrites.
+     */
+    public static function registerShippedTemplates(): void {
+        $registry = self::registry();
+        $registry->register( new PostMatchEvaluationTemplate() );
+        $registry->register( new PlayerSelfEvaluationTemplate() );
     }
 
     /**
