@@ -5502,6 +5502,189 @@ msgstr "De beoordeling valt buiten het ingestelde bereik."
 msgid "session #%d"
 msgstr "sessie #%d"
 
+# Workflow engine — Sprint 4 (goal-setting chain + HoD review)
+msgid "Quarterly goal-setting"
+msgstr "Kwartaaldoelen"
+
+msgid "Draft up to three development goals for the next quarter. Your coach reviews and approves them after submission."
+msgstr "Stel maximaal drie ontwikkelingsdoelen voor het komende kwartaal op. Je coach bekijkt en keurt ze goed na inzending."
+
+msgid "Goal approval"
+msgstr "Doelgoedkeuring"
+
+msgid "Approve or comment on a player's draft quarterly goals. Spawned automatically when the player submits their goals."
+msgstr "Keur de conceptdoelen van een speler goed of geef commentaar. Wordt automatisch aangemaakt wanneer de speler doelen indient."
+
+msgid "Quarterly Head of Development review"
+msgstr "Kwartaalreview Hoofd Opleidingen"
+
+msgid "Reflect on the past quarter across the academy: what worked, what didn't, what to focus on next."
+msgstr "Reflecteer op het afgelopen kwartaal in de hele opleiding: wat werkte, wat niet, waar nu op te focussen."
+
+msgid "Set up to three goals for the next quarter. Your coach reviews them after you submit."
+msgstr "Stel maximaal drie doelen voor het komende kwartaal. Je coach bekijkt ze nadat je hebt ingediend."
+
+#. translators: %d: goal index (1, 2, 3)
+msgid "Goal %d"
+msgstr "Doel %d"
+
+msgid "Why this matters / how I'll work on it"
+msgstr "Waarom dit belangrijk is / hoe ik eraan ga werken"
+
+msgid "Set at least one goal before submitting."
+msgstr "Stel minstens één doel in voordat je indient."
+
+msgid "No goals were submitted in the parent task."
+msgstr "Er zijn geen doelen ingediend in de bovenliggende taak."
+
+msgid "Decision"
+msgstr "Beslissing"
+
+msgid "Approve"
+msgstr "Goedkeuren"
+
+msgid "Approve with amendment"
+msgstr "Goedkeuren met aanpassing"
+
+msgid "Reject"
+msgstr "Afwijzen"
+
+msgid "Note (optional)"
+msgstr "Notitie (optioneel)"
+
+msgid "Pick a decision for every goal."
+msgstr "Kies een beslissing voor elk doel."
+
+msgid "Invalid decision value."
+msgstr "Ongeldige beslissingswaarde."
+
+msgid "Past quarter at a glance"
+msgstr "Afgelopen kwartaal in één oogopslag"
+
+msgid "Evaluations recorded"
+msgstr "Evaluaties vastgelegd"
+
+msgid "Sessions logged"
+msgstr "Sessies gelogd"
+
+msgid "Goals set"
+msgstr "Doelen opgesteld"
+
+msgid "Tasks completed on time"
+msgstr "Taken op tijd afgerond"
+
+msgid "What worked"
+msgstr "Wat werkte"
+
+msgid "What didn't"
+msgstr "Wat niet werkte"
+
+msgid "Focus for next quarter"
+msgstr "Focus voor volgend kwartaal"
+
+msgid "Please write something in at least one field before submitting."
+msgstr "Schrijf iets in minstens één veld voordat je indient."
+
+msgid "no tasks yet"
+msgstr "nog geen taken"
+
+# Workflow engine — Sprint 5 (HoD dashboard + admin config UI)
+msgid "Tasks dashboard"
+msgstr "Takendashboard"
+
+msgid "Per-template and per-coach completion rates plus currently overdue tasks."
+msgstr "Voltooiingspercentages per template en per coach plus huidige te late taken."
+
+msgid "Workflow templates"
+msgstr "Workflow-templates"
+
+msgid "Enable or disable templates and override their cadence + deadline."
+msgstr "Templates aan/uit zetten en hun cadens + deadline overschrijven."
+
+msgid "Your role does not have access to the tasks dashboard."
+msgstr "Jouw rol heeft geen toegang tot het takendashboard."
+
+msgid "By template — last 90 days"
+msgstr "Per template — laatste 90 dagen"
+
+msgid "Completed on time"
+msgstr "Op tijd afgerond"
+
+msgid "Rate"
+msgstr "Percentage"
+
+msgid "No tasks created in the last 90 days."
+msgstr "Geen taken aangemaakt in de laatste 90 dagen."
+
+msgid "By coach — last 90 days"
+msgstr "Per coach — laatste 90 dagen"
+
+msgid "Assigned"
+msgstr "Toegewezen"
+
+msgid "No coach-assigned tasks in the last 90 days."
+msgstr "Geen aan coaches toegewezen taken in de laatste 90 dagen."
+
+msgid "Currently overdue"
+msgstr "Momenteel te laat"
+
+msgid "Template"
+msgstr "Template"
+
+msgid "Assignee"
+msgstr "Toegewezen aan"
+
+msgid "Days overdue"
+msgstr "Dagen te laat"
+
+msgid "No overdue tasks. Nicely done."
+msgstr "Geen te late taken. Mooi werk."
+
+#. translators: %d: user ID
+msgid "User #%d"
+msgstr "Gebruiker #%d"
+
+msgid "Your role does not have access to workflow configuration."
+msgstr "Jouw rol heeft geen toegang tot workflow-configuratie."
+
+msgid "Configuration saved."
+msgstr "Configuratie opgeslagen."
+
+msgid "Security check failed. Please refresh and try again."
+msgstr "Beveiligingscontrole mislukt. Vernieuw en probeer opnieuw."
+
+msgid "Enable or disable shipped templates and override their cadence and deadline. Changes take effect on the next cron tick or trigger."
+msgstr "Schakel meegeleverde templates in/uit en overschrijf hun cadens en deadline. Wijzigingen worden van kracht bij de volgende cron-tik of trigger."
+
+msgid "Cadence"
+msgstr "Cadens"
+
+msgid "Deadline offset"
+msgstr "Deadline-offset"
+
+msgid "On"
+msgstr "Aan"
+
+msgid "Minors assignment policy"
+msgstr "Toewijzingsbeleid minderjarigen"
+
+msgid "How tasks for under-18 players are routed. Affects new tasks only — existing open tasks keep their original assignee."
+msgstr "Hoe taken voor spelers onder de 18 worden gerouteerd. Geldt alleen voor nieuwe taken — bestaande open taken behouden hun oorspronkelijke toegewezen persoon."
+
+msgid "Age-based (default) — under 13: parent. 13-15: player + parent visibility. 16+: player only."
+msgstr "Leeftijdsgebonden (standaard) — onder 13: ouder. 13-15: speler + ouder ziet mee. 16+: alleen speler."
+
+msgid "Direct only — task always goes to the player."
+msgstr "Alleen direct — taak gaat altijd naar de speler."
+
+msgid "Parent proxy — task always goes to the parent."
+msgstr "Ouder als proxy — taak gaat altijd naar de ouder."
+
+msgid "Player with parent visibility — task to the player; parent has read-only view."
+msgstr "Speler met ouderzicht — taak voor de speler; ouder heeft alleen leestoegang."
+
+msgid "How was this week?"
+msgstr "Hoe was deze week?"
 # v3.22.0 — Guest-player attendance (#0026)
 
 msgid "A guest is either linked OR anonymous, not both."

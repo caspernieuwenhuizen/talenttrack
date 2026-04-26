@@ -13,8 +13,11 @@ use TT\Modules\Workflow\Notifications\TaskMailer;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
 use TT\Modules\Workflow\Repositories\TriggersRepository;
+use TT\Modules\Workflow\Templates\GoalApprovalTemplate;
 use TT\Modules\Workflow\Templates\PlayerSelfEvaluationTemplate;
 use TT\Modules\Workflow\Templates\PostMatchEvaluationTemplate;
+use TT\Modules\Workflow\Templates\QuarterlyGoalSettingTemplate;
+use TT\Modules\Workflow\Templates\QuarterlyHoDReviewTemplate;
 
 /**
  * WorkflowModule (#0022 Sprint 1) — workflow & tasks engine.
@@ -76,6 +79,9 @@ class WorkflowModule implements ModuleInterface {
         $registry = self::registry();
         $registry->register( new PostMatchEvaluationTemplate() );
         $registry->register( new PlayerSelfEvaluationTemplate() );
+        $registry->register( new QuarterlyGoalSettingTemplate() );
+        $registry->register( new GoalApprovalTemplate() );
+        $registry->register( new QuarterlyHoDReviewTemplate() );
     }
 
     /**
