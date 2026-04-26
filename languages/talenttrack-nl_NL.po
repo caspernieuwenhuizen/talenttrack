@@ -1125,9 +1125,6 @@ msgstr "Waarde"
 msgid "Verbose logging"
 msgstr "Uitgebreide logging"
 
-msgid "View"
-msgstr "Bekijken"
-
 msgid "View your profile, evaluations, goals, and progress from the dashboard."
 msgstr "Bekijk uw profiel, evaluaties, doelen en voortgang vanuit het dashboard."
 
@@ -1255,9 +1252,6 @@ msgstr "Annuleren"
 
 msgid "Delete goal?"
 msgstr "Doel verwijderen?"
-
-msgid "Goal deleted."
-msgstr "Doel verwijderd."
 
 msgid "← Back to all roles"
 msgstr "← Terug naar alle rollen"
