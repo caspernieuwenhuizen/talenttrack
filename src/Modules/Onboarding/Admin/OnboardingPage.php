@@ -319,25 +319,41 @@ class OnboardingPage {
 
     private static function renderHeader( string $step ): void {
         $titles = [
-            'welcome'     => __( '1. Welcome', 'talenttrack' ),
-            'academy'     => __( '2. Academy basics', 'talenttrack' ),
-            'first_team'  => __( '3. First team', 'talenttrack' ),
-            'first_admin' => __( '4. First admin', 'talenttrack' ),
-            'done'        => __( '5. Done', 'talenttrack' ),
+            'welcome'     => __( 'Welcome', 'talenttrack' ),
+            'academy'     => __( 'Academy basics', 'talenttrack' ),
+            'first_team'  => __( 'First team', 'talenttrack' ),
+            'first_admin' => __( 'First admin', 'talenttrack' ),
+            'done'        => __( 'Done', 'talenttrack' ),
         ];
         $current_idx = array_search( $step, OnboardingState::STEPS, true );
+        $resume_url  = admin_url( 'admin.php?page=tt-welcome' );
         ?>
         <h1><?php esc_html_e( 'TalentTrack — Setup wizard', 'talenttrack' ); ?></h1>
-        <ol style="display:flex; gap:16px; padding:0; margin:8px 0 24px; list-style:none; flex-wrap:wrap;">
-            <?php foreach ( $titles as $slug => $label ) :
+        <p class="tt-onboarding-resume-card">
+            <strong><?php esc_html_e( 'Stop and resume any time.', 'talenttrack' ); ?></strong>
+            <?php
+            printf(
+                /* translators: %s is the bookmarkable URL of the wizard. */
+                esc_html__( 'Close this tab and your progress is kept. Pick it up again from %s, the Configuration → Setup wizard tab, or your TalentTrack account menu.', 'talenttrack' ),
+                '<code>' . esc_html( $resume_url ) . '</code>'
+            );
+            ?>
+        </p>
+        <ol class="tt-onboarding-stepper">
+            <?php
+            $i = 0;
+            foreach ( $titles as $slug => $label ) :
+                $i++;
                 $idx     = array_search( $slug, OnboardingState::STEPS, true );
                 $is_curr = $slug === $step;
                 $is_done = is_int( $idx ) && is_int( $current_idx ) && $idx < $current_idx;
-                $color   = $is_curr ? '#0b3d2e' : ( $is_done ? '#1d7874' : '#aaa' );
-                $weight  = $is_curr ? '600' : '400';
+                $cls     = '';
+                if ( $is_curr ) $cls = 'tt-onboarding-step-current';
+                elseif ( $is_done ) $cls = 'tt-onboarding-step-done';
                 ?>
-                <li style="color:<?php echo esc_attr( $color ); ?>; font-weight:<?php echo esc_attr( $weight ); ?>; font-size:13px;">
-                    <?php echo $is_done ? '✓ ' : ''; ?><?php echo esc_html( $label ); ?>
+                <li class="<?php echo esc_attr( $cls ); ?>" aria-current="<?php echo $is_curr ? 'step' : 'false'; ?>">
+                    <span aria-hidden="true"><?php echo $is_done ? '✓' : (string) $i; ?></span>
+                    <span><?php echo esc_html( $label ); ?></span>
                 </li>
             <?php endforeach; ?>
         </ol>

@@ -4,9 +4,13 @@ De installatiewizard is het eerste wat een verse TalentTrack-installatie toont. 
 
 ## Waar je hem vindt
 
+De wizard is bereikbaar vanuit vier plekken — kies welke je het eerst tegenkomt.
+
 - **Eerste installatie**: een banner verschijnt op het wp-admin TalentTrack-dashboard met een knop "Installatie starten".
 - **Terugkomen**: zolang de wizard nog niet voltooid is, staat er een menu-item `TalentTrack → Welkom` direct onder Dashboard.
-- **Na voltooiing**: het menu-item en de banner verdwijnen. Om opnieuw in te stappen klik je op "Wizard opnieuw starten" — dat brengt je terug naar stap 1 en wist eventueel opgeslagen voortgang.
+- **Configuratietab**: `Configuratie → Installatiewizard` toont de huidige status (bezig / afgerond) met knoppen **Hervatten** en **Opnieuw beginnen**.
+- **Accountpagina**: zolang de wizard niet is afgerond toont `TalentTrack → Account` een kleine melding "Maak het opzetten van TalentTrack af." met een Hervatten-knop.
+- **Na voltooiing**: de banner en het `Welkom`-menu-item verdwijnen, maar de Configuratietab en de melding op de Accountpagina blijven "Wizard opnieuw uitvoeren" / "Opnieuw beginnen" aanbieden. Opnieuw starten verwijdert **geen** gegevens die je al hebt ingevuld — je doorloopt alleen weer de stappen.
 
 ## Wat de vijf stappen doen
 

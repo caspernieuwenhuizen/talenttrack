@@ -3943,6 +3943,85 @@ msgstr "Installatie is voltooid."
 msgid "Reset wizard"
 msgstr "Wizard opnieuw starten"
 
+# #5 — wizard polish + resume entry points.
+msgid "Stop and resume any time."
+msgstr "Stop en hervat wanneer het uitkomt."
+
+msgid "Close this tab and your progress is kept. Pick it up again from %s, the Configuration → Setup wizard tab, or your TalentTrack account menu."
+msgstr "Sluit dit tabblad en je voortgang blijft bewaard. Hervat via %s, het tabblad Configuratie → Installatiewizard, of via het TalentTrack-accountmenu."
+
+msgid "Resume setup wizard"
+msgstr "Installatiewizard hervatten"
+
+msgid "Run wizard again"
+msgstr "Wizard opnieuw uitvoeren"
+
+msgid "Wizard completed."
+msgstr "Wizard afgerond."
+
+msgid "You can run it again any time — restarting won't delete the data you already entered."
+msgstr "Je kunt hem altijd opnieuw uitvoeren — opnieuw starten verwijdert geen gegevens die je al hebt ingevuld."
+
+msgid "In progress."
+msgstr "Bezig."
+
+msgid "Last step you were on: %s."
+msgstr "Laatste stap waar je was: %s."
+
+msgid "Start over"
+msgstr "Opnieuw beginnen"
+
+msgid "The setup wizard walks you through naming your academy, picking a primary colour, creating your first team, and registering your first administrator. You can stop and resume at any point — your progress is saved automatically."
+msgstr "De installatiewizard begeleidt je bij het benoemen van je academie, het kiezen van een primaire kleur, het aanmaken van je eerste team en het registreren van je eerste beheerder. Je kunt op elk moment stoppen en hervatten — je voortgang wordt automatisch opgeslagen."
+
+msgid "Finish setting up TalentTrack."
+msgstr "Maak het opzetten van TalentTrack af."
+
+msgid "The setup wizard is still in progress — pick it up where you left off any time."
+msgstr "De installatiewizard is nog niet afgerond — hervat hem altijd waar je gebleven was."
+
+# #5 — DemoData wizard polish.
+msgid "Generate-form layout"
+msgstr "Indeling genereerformulier"
+
+msgid "Basic"
+msgstr "Basis"
+
+msgid "Advanced"
+msgstr "Geavanceerd"
+
+msgid "Small"
+msgstr "Klein"
+
+msgid "Large"
+msgstr "Groot"
+
+msgid "%1$s — %2$d team, %3$d players/team, %4$d weeks"
+msgid_plural "%1$s — %2$d teams, %3$d players/team, %4$d weeks"
+msgstr[0] "%1$s — %2$d team, %3$d spelers/team, %4$d weken"
+msgstr[1] "%1$s — %2$d teams, %3$d spelers/team, %4$d weken"
+
+msgid "This run will create 36 persistent demo WP users and send them WordPress welcome emails. The email domain must be one whose inbox you control (a catch-all is best — see below for details)."
+msgstr "Deze run maakt 36 permanente demo-WordPress-gebruikers aan en verstuurt welkomstmails. Het mail-domein moet er één zijn waar je de inbox van beheert (een catch-all is het beste — zie hieronder)."
+
+msgid "Every demo account will be <slot>@<this-domain> (e.g. coach1@demo.example.com)."
+msgstr "Elk demo-account wordt <slot>@<dit-domein> (bijv. coach1@demo.example.com)."
+
+msgid "WordPress will email welcome credentials to each address."
+msgstr "WordPress mailt naar elk adres een welkomstbericht met inloggegevens."
+
+msgid "Pick a domain whose inbox you actually receive — a catch-all (anything@yourdomain.tld → real inbox) is the safest, since 36 different addresses are generated. Loopback values like demo.talenttrack.local work locally but bounce on a real server. If your DNS doesn't support catch-all, see the manual user list below and create the WordPress users yourself first."
+msgstr "Kies een domein waarvan je de inbox echt ontvangt — een catch-all (alles@jouwdomein.tld → echte inbox) is het veiligst, omdat er 36 verschillende adressen worden aangemaakt. Loopback-waarden als demo.talenttrack.local werken lokaal maar bouncen op een echte server. Ondersteunt je DNS geen catch-all? Bekijk dan de handmatige gebruikerslijst hieronder en maak de WordPress-gebruikers zelf eerst aan."
+
+msgid "Skip user creation — show me the list to create manually"
+msgstr "Gebruikerscreatie overslaan — toon mij de lijst om handmatig aan te maken"
+
+msgid "Prefer to create the WordPress users yourself (e.g. your hosting environment doesn't support catch-all email)? Create the 36 accounts below before running the generator. Use any role for now — TalentTrack reassigns roles based on slot during data generation. Once they all exist, this page will detect them and skip the user-creation step automatically."
+msgstr "Liever zelf de WordPress-gebruikers aanmaken (bijv. omdat je hostingomgeving geen catch-all e-mail ondersteunt)? Maak de 36 accounts hieronder aan voordat je de generator draait. Een willekeurige rol is nu prima — TalentTrack wijst tijdens het genereren de juiste rol per slot toe. Zodra ze allemaal bestaan, herkent deze pagina ze en wordt de gebruikerscreatie-stap automatisch overgeslagen."
+
+msgid "Replace <your-domain> with the value you typed in the field above. After creating them, refresh this page — the warning above turns to \"Demo users already exist\"."
+msgstr "Vervang <jouw-domein> door de waarde die je hierboven hebt ingevuld. Ververs daarna deze pagina — de waarschuwing hierboven verandert dan in \"Demo-gebruikers bestaan al\"."
+
 msgid "Unknown step."
 msgstr "Onbekende stap."
 
