@@ -10,13 +10,23 @@ Een **team** is een selectie binnen een specifieke leeftijdscategorie (bijv. "U1
 
 Maak teams aan op de beheerpagina **Teams**. De leeftijdscategorie is belangrijk, omdat [categorie gewichten](?page=tt-docs&topic=eval-categories-weights) per leeftijdscategorie worden gedefinieerd.
 
+### De teampagina
+
+Als je op een team klikt — vanuit de Teams-lijst, een spelersprofiel of waar dan ook een teamnaam gelinkt is — opent de eigen pagina van dat team. Deze toont:
+
+- **Header**: teamnaam, pil met leeftijdscategorie, hoofdcoach.
+- **Notities**, indien aanwezig.
+- **Selectie**: alleen-lezen spelerslijst (rugnummer, voet). Elke speler linkt naar de eigen pagina.
+- **Staf**: de mensen die via Functionele rollen aan het team zijn toegewezen.
+- **Team bewerken**-knop (rechtsboven) — alleen zichtbaar als je het bewerkrecht voor teams hebt. Klik om het beheerformulier hieronder te openen.
+
 ### De teambewerkpagina in één oogopslag
 
-Als je een team opent om te bewerken, zie je drie blokken:
+Het bewerkformulier bereik je via de knop **Team bewerken** op de teampagina (of de "Edit"-rij-actie in de Teams-lijst voor gebruikers met het recht). Het toont drie blokken:
 
 1. **Teamgegevens** — naam, leeftijdscategorie, hoofdcoach, notities, aangepaste velden.
 2. **Staftoewijzingen** — de mensen die met dit team werken (coaches, assistenten, fysio, enz.). Toewijzingen hier toevoegen/verwijderen.
-3. **Spelers in dit team** — de huidige selectie in een tabel met rugnummer, posities, voet, geboortedatum. Elke rij linkt naar de bewerkpagina van de speler. Onderaan staat een knop "Speler aan dit team toevoegen".
+3. **Spelers in dit team** — de huidige selectie in een tabel met rugnummer, posities, voet, geboortedatum. Elke rij linkt naar de eigen pagina van de speler. Bovenaan staat een knop "Speler aan dit team toevoegen".
 
 ## Spelers
 

@@ -974,6 +974,16 @@ msgstr "Team:"
 msgid "Teams"
 msgstr "Teams"
 
+msgid "Edit team"
+msgstr "Team bewerken"
+
+msgid "View"
+msgstr "Bekijken"
+
+#. translators: %s is the head coach's display name.
+msgid "Head coach: %s"
+msgstr "Hoofdcoach: %s"
+
 msgid "Text"
 msgstr "Tekst"
 
