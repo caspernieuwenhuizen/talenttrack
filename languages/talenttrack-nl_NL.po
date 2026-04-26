@@ -5326,17 +5326,8 @@ msgstr "Nog geen raamwerk-illustraties gekoppeld."
 
 # v3.22.0 — Documentation split (#0029) audience labels
 
-msgid "User"
-msgstr "Gebruiker"
-
-msgid "Admin"
-msgstr "Beheerder"
-
 msgid "Dev"
 msgstr "Ontwikkelaar"
-
-msgid "Setup wizard"
-msgstr "Setup-wizard"
 
 msgid "License & account"
 msgstr "Licentie & account"
