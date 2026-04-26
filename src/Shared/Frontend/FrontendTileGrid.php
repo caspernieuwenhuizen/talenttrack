@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Shared\Icons\IconRenderer;
 
 /**
  * FrontendTileGrid — v2.21.0 tile landing page for the frontend
@@ -139,6 +140,7 @@ class FrontendTileGrid {
             .tt-ftile-grid { grid-template-columns: 1fr; }
             .tt-ftile { padding: 14px 14px; min-height: 68px; }
             .tt-ftile-icon { width: 40px; height: 40px; font-size: 20px; }
+            .tt-ftile-icon .tt-icon { width: 20px; height: 20px; }
             .tt-ftile-label { font-size: clamp(14px, 4vw, 16px); }
             .tt-ftile-desc { font-size: 12px; }
         }
@@ -160,7 +162,7 @@ class FrontendTileGrid {
                 <?php foreach ( $visible as $tile ) : ?>
                     <a class="tt-ftile" href="<?php echo esc_url( $tile['url'] ); ?>">
                         <span class="tt-ftile-icon" style="background:<?php echo esc_attr( $tile['color'] ); ?>;">
-                            <?php echo esc_html( $tile['emoji'] ?? '•' ); ?>
+                            <?php echo IconRenderer::render( $tile['icon'] ?? '' ); ?>
                         </span>
                         <div class="tt-ftile-body">
                             <div class="tt-ftile-label"><?php echo esc_html( $tile['label'] ); ?></div>
@@ -201,7 +203,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'My card', 'talenttrack' ),
                 'desc'  => __( 'Your FIFA-style card, ratings, and headline numbers.', 'talenttrack' ),
-                'emoji' => '🪪',
+                'icon'  => 'rate-card',
                 'color' => '#1d7874',
                 'url'   => $url( 'overview' ),
                 'show'  => $is_player,
@@ -209,7 +211,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'My team', 'talenttrack' ),
                 'desc'  => __( 'Your teammates and the team podium.', 'talenttrack' ),
-                'emoji' => '🛡',
+                'icon'  => 'teams',
                 'color' => '#2271b1',
                 'url'   => $url( 'my-team' ),
                 'show'  => $is_player,
@@ -217,7 +219,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'My evaluations', 'talenttrack' ),
                 'desc'  => __( 'Ratings and feedback from your coaches.', 'talenttrack' ),
-                'emoji' => '📊',
+                'icon'  => 'evaluations',
                 'color' => '#7c3a9e',
                 'url'   => $url( 'my-evaluations' ),
                 'show'  => $is_player,
@@ -225,7 +227,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'My sessions', 'talenttrack' ),
                 'desc'  => __( 'Training sessions you\'ve attended.', 'talenttrack' ),
-                'emoji' => '🗓',
+                'icon'  => 'sessions',
                 'color' => '#c9962a',
                 'url'   => $url( 'my-sessions' ),
                 'show'  => $is_player,
@@ -233,7 +235,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'My goals', 'talenttrack' ),
                 'desc'  => __( 'Development goals to work toward.', 'talenttrack' ),
-                'emoji' => '🎯',
+                'icon'  => 'goals',
                 'color' => '#b32d2e',
                 'url'   => $url( 'my-goals' ),
                 'show'  => $is_player,
@@ -241,7 +243,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'My profile', 'talenttrack' ),
                 'desc'  => __( 'Your personal details and contact info.', 'talenttrack' ),
-                'emoji' => '👤',
+                'icon'  => 'profile',
                 'color' => '#555',
                 'url'   => $url( 'profile' ),
                 'show'  => $is_player,
@@ -254,7 +256,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'My teams', 'talenttrack' ),
                 'desc'  => __( 'Teams you coach — roster, podium, evaluations.', 'talenttrack' ),
-                'emoji' => '🛡',
+                'icon'  => 'teams',
                 'color' => '#2271b1',
                 'url'   => $url( 'teams' ),
                 'show'  => $is_coach || $is_admin,
@@ -262,7 +264,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Players', 'talenttrack' ),
                 'desc'  => __( 'Roster of all players on your coached teams.', 'talenttrack' ),
-                'emoji' => '👥',
+                'icon'  => 'players',
                 'color' => '#1d7874',
                 'url'   => $url( 'players' ),
                 'show'  => $is_coach || $is_admin,
@@ -270,7 +272,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Import players', 'talenttrack' ),
                 'desc'  => __( 'Bulk import players from a CSV file.', 'talenttrack' ),
-                'emoji' => '⬆',
+                'icon'  => 'import',
                 'color' => '#1d7874',
                 'url'   => $url( 'players-import' ),
                 'show'  => $is_admin || current_user_can( 'tt_edit_players' ),
@@ -278,7 +280,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'People', 'talenttrack' ),
                 'desc'  => __( 'Staff, parents, scouts and other non-player records.', 'talenttrack' ),
-                'emoji' => '🧑‍💼',
+                'icon'  => 'people',
                 'color' => '#5b6e75',
                 'url'   => $url( 'people' ),
                 'show'  => current_user_can( 'tt_view_people' ) || current_user_can( 'tt_edit_people' ),
@@ -286,7 +288,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Functional roles', 'talenttrack' ),
                 'desc'  => __( 'Manage role types and team assignments.', 'talenttrack' ),
-                'emoji' => '🛠',
+                'icon'  => 'functional-roles',
                 'color' => '#5b6e75',
                 'url'   => $url( 'functional-roles' ),
                 'show'  => current_user_can( 'tt_manage_functional_roles' ) || current_user_can( 'tt_view_people' ),
@@ -299,7 +301,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Evaluations', 'talenttrack' ),
                 'desc'  => __( 'Record player ratings, add notes and scores.', 'talenttrack' ),
-                'emoji' => '📝',
+                'icon'  => 'evaluations',
                 'color' => '#7c3a9e',
                 'url'   => $url( 'evaluations' ),
                 'show'  => $is_coach || $is_admin,
@@ -307,7 +309,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Sessions', 'talenttrack' ),
                 'desc'  => __( 'Log training sessions and attendance.', 'talenttrack' ),
-                'emoji' => '🗓',
+                'icon'  => 'sessions',
                 'color' => '#c9962a',
                 'url'   => $url( 'sessions' ),
                 'show'  => $is_coach || $is_admin,
@@ -315,7 +317,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Goals', 'talenttrack' ),
                 'desc'  => __( 'Set and track player development goals.', 'talenttrack' ),
-                'emoji' => '🎯',
+                'icon'  => 'goals',
                 'color' => '#b32d2e',
                 'url'   => $url( 'goals' ),
                 'show'  => $is_coach || $is_admin,
@@ -323,7 +325,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Podium', 'talenttrack' ),
                 'desc'  => __( 'Team rankings and top performers.', 'talenttrack' ),
-                'emoji' => '🏆',
+                'icon'  => 'podium',
                 'color' => '#e8b624',
                 'url'   => $url( 'podium' ),
                 'show'  => $is_coach || $is_admin,
@@ -331,7 +333,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Methodology', 'talenttrack' ),
                 'desc'  => __( 'Principles, formations, positions and set pieces.', 'talenttrack' ),
-                'emoji' => '📘',
+                'icon'  => 'methodology',
                 'color' => '#1d7874',
                 'url'   => $url( 'methodology' ),
                 'show'  => current_user_can( 'tt_view_methodology' ),
@@ -345,7 +347,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Rate cards', 'talenttrack' ),
                 'desc'  => __( 'Per-player rating cards with trends.', 'talenttrack' ),
-                'emoji' => '📇',
+                'icon'  => 'rate-card',
                 'color' => '#2271b1',
                 'url'   => $url( 'rate-cards' ),
                 'show'  => $can_report,
@@ -353,7 +355,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Player comparison', 'talenttrack' ),
                 'desc'  => __( 'Compare up to 4 players side-by-side.', 'talenttrack' ),
-                'emoji' => '⚖',
+                'icon'  => 'compare',
                 'color' => '#7c3a9e',
                 'url'   => $url( 'compare' ),
                 'show'  => $can_report,
@@ -361,7 +363,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Usage statistics', 'talenttrack' ),
                 'desc'  => __( 'Logins, active users, evaluations per day.', 'talenttrack' ),
-                'emoji' => '📈',
+                'icon'  => 'usage-stats',
                 'color' => '#555',
                 'url'   => $url( 'usage-stats' ),
                 'show'  => $can_frontend_admin,
@@ -376,7 +378,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Configuration', 'talenttrack' ),
                 'desc'  => __( 'Branding, theme inheritance, rating scale.', 'talenttrack' ),
-                'emoji' => '⚙',
+                'icon'  => 'settings',
                 'color' => '#555',
                 'url'   => $url( 'configuration' ),
                 'show'  => $can_frontend_admin,
@@ -384,7 +386,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Custom fields', 'talenttrack' ),
                 'desc'  => __( 'Add per-entity custom fields.', 'talenttrack' ),
-                'emoji' => '🧩',
+                'icon'  => 'custom-fields',
                 'color' => '#555',
                 'url'   => $url( 'custom-fields' ),
                 'show'  => $can_frontend_admin,
@@ -392,7 +394,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Eval categories', 'talenttrack' ),
                 'desc'  => __( 'Manage the evaluation category tree.', 'talenttrack' ),
-                'emoji' => '🌳',
+                'icon'  => 'categories',
                 'color' => '#555',
                 'url'   => $url( 'eval-categories' ),
                 'show'  => $can_frontend_admin,
@@ -400,7 +402,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Roles', 'talenttrack' ),
                 'desc'  => __( 'Reference for the eight TalentTrack roles.', 'talenttrack' ),
-                'emoji' => '🛡',
+                'icon'  => 'roles',
                 'color' => '#555',
                 'url'   => $url( 'roles' ),
                 'show'  => $can_frontend_admin,
@@ -408,7 +410,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Migrations', 'talenttrack' ),
                 'desc'  => __( 'Database migration status (read-only).', 'talenttrack' ),
-                'emoji' => '🗄',
+                'icon'  => 'migrations',
                 'color' => '#555',
                 'url'   => $url( 'migrations' ),
                 'show'  => $can_frontend_admin,
@@ -416,7 +418,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Open wp-admin', 'talenttrack' ),
                 'desc'  => __( 'Drop into the full WordPress admin dashboard.', 'talenttrack' ),
-                'emoji' => '↗',
+                'icon'  => 'external-link',
                 'color' => '#888',
                 'url'   => admin_url( 'admin.php?page=talenttrack' ),
                 'show'  => $is_admin,

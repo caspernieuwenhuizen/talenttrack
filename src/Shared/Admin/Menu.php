@@ -19,6 +19,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Admin\BulkActionsHelper;
 use TT\Shared\Admin\DragReorder;
 use TT\Shared\Admin\SchemaStatus;
+use TT\Shared\Icons\IconRenderer;
 
 /**
  * Menu — registers the top-level TalentTrack admin menu plus subpages.
@@ -273,7 +274,7 @@ class Menu {
                 'label'    => __( 'Players', 'talenttrack' ),
                 'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.status='active' AND pl.archived_at IS NULL {$player_scope}" ),
                 'delta'    => $delta_players,
-                'icon'     => 'dashicons-admin-users',
+                'icon'     => 'players',
                 'url'      => admin_url( 'admin.php?page=tt-players' ),
                 'cap'      => 'tt_view_players',
                 'color'    => '#1d7874',
@@ -282,7 +283,7 @@ class Menu {
                 'label'    => __( 'Teams', 'talenttrack' ),
                 'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_teams t WHERE t.archived_at IS NULL {$team_scope}" ),
                 'delta'    => $delta_teams,
-                'icon'     => 'dashicons-shield',
+                'icon'     => 'teams',
                 'url'      => admin_url( 'admin.php?page=tt-teams' ),
                 'cap'      => 'tt_view_teams',
                 'color'    => '#2271b1',
@@ -291,7 +292,7 @@ class Menu {
                 'label'    => __( 'Evaluations', 'talenttrack' ),
                 'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_evaluations e WHERE e.archived_at IS NULL {$eval_scope}" ),
                 'delta'    => $delta_evals,
-                'icon'     => 'dashicons-chart-bar',
+                'icon'     => 'evaluations',
                 'url'      => admin_url( 'admin.php?page=tt-evaluations' ),
                 'cap'      => 'tt_view_evaluations',
                 'color'    => '#7c3a9e',
@@ -300,7 +301,7 @@ class Menu {
                 'label'    => __( 'Sessions', 'talenttrack' ),
                 'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_sessions s WHERE s.archived_at IS NULL {$sess_scope}" ),
                 'delta'    => $delta_sess,
-                'icon'     => 'dashicons-calendar-alt',
+                'icon'     => 'sessions',
                 'url'      => admin_url( 'admin.php?page=tt-sessions' ),
                 'cap'      => 'tt_view_sessions',
                 'color'    => '#c9962a',
@@ -309,7 +310,7 @@ class Menu {
                 'label'    => __( 'Goals', 'talenttrack' ),
                 'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_goals g WHERE g.archived_at IS NULL {$goal_scope}" ),
                 'delta'    => $delta_goals,
-                'icon'     => 'dashicons-flag',
+                'icon'     => 'goals',
                 'url'      => admin_url( 'admin.php?page=tt-goals' ),
                 'cap'      => 'tt_view_goals',
                 'color'    => '#b32d2e',
@@ -325,9 +326,9 @@ class Menu {
                 'label'  => __( 'People', 'talenttrack' ),
                 'accent' => '#1d7874',
                 'tiles'  => [
-                    [ 'label' => __( 'Teams', 'talenttrack' ),   'icon' => 'dashicons-shield',       'url' => admin_url( 'admin.php?page=tt-teams' ),   'cap' => 'tt_view_teams', 'desc' => __( 'Manage teams, staff assignments, and age groups.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Players', 'talenttrack' ), 'icon' => 'dashicons-admin-users', 'url' => admin_url( 'admin.php?page=tt-players' ), 'cap' => 'tt_view_players', 'desc' => __( 'Player roster, positions, photos, guardian info.', 'talenttrack' ) ],
-                    [ 'label' => __( 'People', 'talenttrack' ),  'icon' => 'dashicons-groups',      'url' => admin_url( 'admin.php?page=tt-people' ),  'cap' => 'tt_view_people', 'desc' => __( 'Coaches, assistants, medical staff, volunteers.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Teams', 'talenttrack' ),   'icon' => 'teams',   'url' => admin_url( 'admin.php?page=tt-teams' ),   'cap' => 'tt_view_teams', 'desc' => __( 'Manage teams, staff assignments, and age groups.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Players', 'talenttrack' ), 'icon' => 'players', 'url' => admin_url( 'admin.php?page=tt-players' ), 'cap' => 'tt_view_players', 'desc' => __( 'Player roster, positions, photos, guardian info.', 'talenttrack' ) ],
+                    [ 'label' => __( 'People', 'talenttrack' ),  'icon' => 'people',  'url' => admin_url( 'admin.php?page=tt-people' ),  'cap' => 'tt_view_people', 'desc' => __( 'Coaches, assistants, medical staff, volunteers.', 'talenttrack' ) ],
                 ],
             ],
             [
@@ -335,9 +336,9 @@ class Menu {
                 'label'  => __( 'Performance', 'talenttrack' ),
                 'accent' => '#7c3a9e',
                 'tiles'  => [
-                    [ 'label' => __( 'Evaluations', 'talenttrack' ), 'icon' => 'dashicons-chart-bar',     'url' => admin_url( 'admin.php?page=tt-evaluations' ), 'cap' => 'tt_view_evaluations', 'desc' => __( 'Rate players across training and match sessions.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Sessions', 'talenttrack' ),    'icon' => 'dashicons-calendar-alt', 'url' => admin_url( 'admin.php?page=tt-sessions' ),    'cap' => 'tt_view_sessions', 'desc' => __( 'Record training sessions and attendance.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Goals', 'talenttrack' ),       'icon' => 'dashicons-flag',         'url' => admin_url( 'admin.php?page=tt-goals' ),       'cap' => 'tt_view_goals', 'desc' => __( 'Set and track development goals per player.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Evaluations', 'talenttrack' ), 'icon' => 'evaluations', 'url' => admin_url( 'admin.php?page=tt-evaluations' ), 'cap' => 'tt_view_evaluations', 'desc' => __( 'Rate players across training and match sessions.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Sessions', 'talenttrack' ),    'icon' => 'sessions',    'url' => admin_url( 'admin.php?page=tt-sessions' ),    'cap' => 'tt_view_sessions', 'desc' => __( 'Record training sessions and attendance.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Goals', 'talenttrack' ),       'icon' => 'goals',       'url' => admin_url( 'admin.php?page=tt-goals' ),       'cap' => 'tt_view_goals', 'desc' => __( 'Set and track development goals per player.', 'talenttrack' ) ],
                 ],
             ],
             [
@@ -345,10 +346,10 @@ class Menu {
                 'label'  => __( 'Analytics', 'talenttrack' ),
                 'accent' => '#2271b1',
                 'tiles'  => [
-                    [ 'label' => __( 'Reports', 'talenttrack' ),           'icon' => 'dashicons-media-document', 'url' => admin_url( 'admin.php?page=tt-reports' ),      'cap' => 'tt_view_reports',    'desc' => __( 'Saved report presets and exports.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Player Rate Cards', 'talenttrack' ), 'icon' => 'dashicons-id-alt',         'url' => admin_url( 'admin.php?page=tt-rate-cards' ),   'cap' => 'tt_view_reports',    'desc' => __( 'Per-player rate cards with trends and charts.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Player Comparison', 'talenttrack' ), 'icon' => 'dashicons-randomize',      'url' => admin_url( 'admin.php?page=tt-compare' ),      'cap' => 'tt_view_reports',    'desc' => __( 'Side-by-side comparison of up to 4 players.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Usage Statistics', 'talenttrack' ),  'icon' => 'dashicons-chart-line',     'url' => admin_url( 'admin.php?page=tt-usage-stats' ),  'cap' => 'tt_view_settings', 'desc' => __( 'Logins, active users, most-visited pages.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Reports', 'talenttrack' ),           'icon' => 'reports',     'url' => admin_url( 'admin.php?page=tt-reports' ),      'cap' => 'tt_view_reports',    'desc' => __( 'Saved report presets and exports.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Player Rate Cards', 'talenttrack' ), 'icon' => 'rate-card',   'url' => admin_url( 'admin.php?page=tt-rate-cards' ),   'cap' => 'tt_view_reports',    'desc' => __( 'Per-player rate cards with trends and charts.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Player Comparison', 'talenttrack' ), 'icon' => 'compare',     'url' => admin_url( 'admin.php?page=tt-compare' ),      'cap' => 'tt_view_reports',    'desc' => __( 'Side-by-side comparison of up to 4 players.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Usage Statistics', 'talenttrack' ),  'icon' => 'usage-stats', 'url' => admin_url( 'admin.php?page=tt-usage-stats' ),  'cap' => 'tt_view_settings', 'desc' => __( 'Logins, active users, most-visited pages.', 'talenttrack' ) ],
                 ],
             ],
             [
@@ -356,10 +357,10 @@ class Menu {
                 'label'  => __( 'Configuration', 'talenttrack' ),
                 'accent' => '#555',
                 'tiles'  => [
-                    [ 'label' => __( 'Configuration', 'talenttrack' ),        'icon' => 'dashicons-admin-settings',  'url' => admin_url( 'admin.php?page=tt-config' ),             'cap' => 'tt_view_settings', 'desc' => __( 'Academy name, logo, rating scale, colors.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Custom Fields', 'talenttrack' ),        'icon' => 'dashicons-editor-table',    'url' => admin_url( 'admin.php?page=tt-custom-fields' ),      'cap' => 'tt_view_settings', 'desc' => __( 'Add club-specific fields to any entity.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Evaluation Categories', 'talenttrack' ),'icon' => 'dashicons-category',        'url' => admin_url( 'admin.php?page=tt-eval-categories' ),    'cap' => 'tt_view_settings', 'desc' => __( 'Main + subcategories used in evaluations.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Category Weights', 'talenttrack' ),     'icon' => 'dashicons-chart-pie',       'url' => admin_url( 'admin.php?page=tt-category-weights' ),   'cap' => 'tt_view_settings', 'desc' => __( 'Per-age-group weighting for overall ratings.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Configuration', 'talenttrack' ),        'icon' => 'settings',       'url' => admin_url( 'admin.php?page=tt-config' ),             'cap' => 'tt_view_settings', 'desc' => __( 'Academy name, logo, rating scale, colors.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Custom Fields', 'talenttrack' ),        'icon' => 'custom-fields',  'url' => admin_url( 'admin.php?page=tt-custom-fields' ),      'cap' => 'tt_view_settings', 'desc' => __( 'Add club-specific fields to any entity.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Evaluation Categories', 'talenttrack' ),'icon' => 'categories',     'url' => admin_url( 'admin.php?page=tt-eval-categories' ),    'cap' => 'tt_view_settings', 'desc' => __( 'Main + subcategories used in evaluations.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Category Weights', 'talenttrack' ),     'icon' => 'weights',        'url' => admin_url( 'admin.php?page=tt-category-weights' ),   'cap' => 'tt_view_settings', 'desc' => __( 'Per-age-group weighting for overall ratings.', 'talenttrack' ) ],
                 ],
             ],
             [
@@ -367,9 +368,9 @@ class Menu {
                 'label'  => __( 'Access Control', 'talenttrack' ),
                 'accent' => '#b32d2e',
                 'tiles'  => [
-                    [ 'label' => __( 'Roles & Permissions', 'talenttrack' ), 'icon' => 'dashicons-lock',      'url' => admin_url( 'admin.php?page=tt-roles' ),           'cap' => 'tt_view_settings', 'desc' => __( 'Who can do what — grant or revoke TalentTrack roles per user.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Functional Roles', 'talenttrack' ),   'icon' => 'dashicons-businessperson', 'url' => admin_url( 'admin.php?page=tt-functional-roles' ), 'cap' => 'tt_view_settings', 'desc' => __( 'Head coach, assistant, physio — map club roles to permissions.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Permission Debug', 'talenttrack' ),   'icon' => 'dashicons-search',    'url' => admin_url( 'admin.php?page=tt-roles-debug' ),      'cap' => 'tt_view_settings', 'desc' => __( 'Inspect any user\'s effective permissions.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Roles & Permissions', 'talenttrack' ), 'icon' => 'roles',             'url' => admin_url( 'admin.php?page=tt-roles' ),           'cap' => 'tt_view_settings', 'desc' => __( 'Who can do what — grant or revoke TalentTrack roles per user.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Functional Roles', 'talenttrack' ),   'icon' => 'functional-roles',  'url' => admin_url( 'admin.php?page=tt-functional-roles' ), 'cap' => 'tt_view_settings', 'desc' => __( 'Head coach, assistant, physio — map club roles to permissions.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Permission Debug', 'talenttrack' ),   'icon' => 'permission-debug',  'url' => admin_url( 'admin.php?page=tt-roles-debug' ),      'cap' => 'tt_view_settings', 'desc' => __( 'Inspect any user\'s effective permissions.', 'talenttrack' ) ],
                 ],
             ],
             [
@@ -377,7 +378,7 @@ class Menu {
                 'label'  => __( 'Help', 'talenttrack' ),
                 'accent' => '#888',
                 'tiles'  => [
-                    [ 'label' => __( 'Help & Docs', 'talenttrack' ), 'icon' => 'dashicons-book', 'url' => admin_url( 'admin.php?page=tt-docs' ), 'cap' => 'read', 'desc' => __( 'How to use TalentTrack.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Help & Docs', 'talenttrack' ), 'icon' => 'docs', 'url' => admin_url( 'admin.php?page=tt-docs' ), 'cap' => 'read', 'desc' => __( 'How to use TalentTrack.', 'talenttrack' ) ],
                 ],
             ],
         ];
@@ -450,6 +451,7 @@ class Menu {
             height: 18px;
             line-height: 18px;
         }
+        .tt-dash-stat-icon .tt-icon { width: 18px; height: 18px; }
         .tt-dash-stat-body {
             flex: 1;
             min-width: 0;
@@ -530,6 +532,7 @@ class Menu {
             height: 20px;
             line-height: 20px;
         }
+        .tt-dash-tile-icon .tt-icon { width: 20px; height: 20px; }
         .tt-dash-tile-body { flex: 1; min-width: 0; }
         .tt-dash-tile-label {
             font-weight: 600;
@@ -597,7 +600,7 @@ class Menu {
                         ?>
                         <a class="tt-dash-stat" href="<?php echo esc_url( $s['url'] ); ?>" style="border-left-color:<?php echo esc_attr( $s['color'] ); ?>;">
                             <span class="tt-dash-stat-icon" style="background:<?php echo esc_attr( $s['color'] ); ?>;">
-                                <span class="dashicons <?php echo esc_attr( $s['icon'] ); ?>"></span>
+                                <?php echo IconRenderer::render( $s['icon'] ); ?>
                             </span>
                             <div class="tt-dash-stat-body">
                                 <div class="tt-dash-stat-top">
@@ -631,7 +634,7 @@ class Menu {
                             ?>
                             <a class="tt-dash-tile" href="<?php echo esc_url( $tile['url'] ); ?>">
                                 <span class="tt-dash-tile-icon" style="background:<?php echo esc_attr( $icon_bg ); ?>;">
-                                    <span class="dashicons <?php echo esc_attr( $tile['icon'] ); ?>"></span>
+                                    <?php echo IconRenderer::render( $tile['icon'] ); ?>
                                 </span>
                                 <div class="tt-dash-tile-body">
                                     <div class="tt-dash-tile-label"><?php echo esc_html( $tile['label'] ); ?></div>
