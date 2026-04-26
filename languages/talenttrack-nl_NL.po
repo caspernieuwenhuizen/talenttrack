@@ -5323,3 +5323,10 @@ msgstr "Formaties"
 
 msgid "No framework illustrations attached yet."
 msgstr "Nog geen raamwerk-illustraties gekoppeld."
+
+# Workflow & tasks engine (#0022 Sprint 1)
+msgid "Workflow & tasks engine"
+msgstr "Workflow- en takenmotor"
+
+msgid "Scheduled tasks landing in the inbox: post-match evals, self-evals, goal-setting, HoD reviews."
+msgstr "Ingeplande taken die in de inbox belanden: wedstrijdevaluaties, zelfevaluaties, doelen stellen, HoD-reviews."

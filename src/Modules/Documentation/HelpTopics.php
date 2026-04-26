@@ -123,6 +123,11 @@ class HelpTopics {
                 'group'   => 'frontend',
                 'summary' => __( 'Roles, permissions, functional roles, and the Read-Only Observer.', 'talenttrack' ),
             ],
+            'workflow-engine' => [
+                'title'   => __( 'Workflow & tasks engine', 'talenttrack' ),
+                'group'   => 'configuration',
+                'summary' => __( 'Scheduled tasks landing in the inbox: post-match evals, self-evals, goal-setting, HoD reviews.', 'talenttrack' ),
+            ],
         ];
     }
 
