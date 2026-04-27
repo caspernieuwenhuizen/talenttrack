@@ -1,3 +1,67 @@
+# TalentTrack v3.26.0 — #0033 authorization epic complete (sprints 6 / 7 / 8 / 9)
+
+Closes the 9-sprint #0033 authorization epic that started in v3.24.0 (sprints 1+2) and continued through v3.25.0 (sprints 3+4+5). This release lands the final four sprints in a single PR.
+
+The architecture is now in place: every `tt_*` capability check can route through a persona × entity × activity × scope matrix, modules can be toggled at runtime, the dashboard splits work tiles from setup tiles, and a multi-persona user gets a session-storage lens to view as one persona at a time. The dormant-by-default `tt_authorization_active` flag (default 0) keeps every behavior change opt-in until an admin clicks Apply on the migration preview.
+
+## What changed
+
+### Sprint 6 — `ConfigTabRegistry`
+
+- New `TT\Modules\Configuration\Admin\ConfigTabRegistry` typed wrapper around the existing `tt_config_tabs` + `tt_config_tab_<key>` filter pattern (added in #0025).
+- Modules call `register()` from their `boot()` instead of hooking the filter directly.
+- Reads `ModuleRegistry::isEnabled()` so a disabled module's tabs disappear from the Configuration page sidebar.
+- Migration of the 14 historically-hardcoded ConfigurationPage tabs is intentionally deferred — the registry coexists with the static switch block; per-module migration is opportunistic.
+
+### Sprint 7 — New + refined roles
+
+- New `tt_team_manager` WP role (Team Manager). Capabilities scoped to team-level coordination: read across team-scoped surfaces, edit activities, send invitations. NO `tt_evaluate_players`, no goal edit.
+- New column `tt_team_people.is_head_coach`. Migration `0030` backfills `is_head_coach = 1` on the OLDEST coach assignment per team.
+- `PersonaResolver::personasFor()` rewritten to split a `tt_coach` WP user into `head_coach` + `assistant_coach` personas based on the FR flag. A coach who head-coaches one team and assists another gets BOTH personas.
+- Refined `tt_scout` capabilities to match the matrix-declared cross-team read intent.
+
+### Sprint 8 — Migration preview + apply / rollback
+
+- New `Authorization → Migration preview` admin page (administrator-only). Per-user diff: legacy capability result vs `MatrixGate::can()` result for every cap in `LegacyCapMapper::knownCaps()`. **Gained** = matrix grants something legacy didn't. **Revoked** = the dangerous column.
+- Downloadable CSV.
+- **Apply matrix** button flips `tt_authorization_active` from 0 to 1. The user_has_cap filter from Sprint 2 wakes up; legacy `tt_*` cap checks route through MatrixGate. **Rollback** flips it back. One-click reversibility.
+
+### Sprint 9 — Docs + i18n
+
+- New `docs/authorization-matrix.md` + `docs/nl_NL/authorization-matrix.md` — admin guide for the matrix editor.
+- New `docs/modules.md` + `docs/nl_NL/modules.md` — per-module toggle UX, always-on modules, License pre-launch caveat, dependency graph status.
+- `HelpTopics` adds `authorization-matrix` + `modules` topics in the access-control group.
+- ~50 new strings translated in `nl_NL.po`.
+
+## #0033 epic — final tally
+
+| Sprint | Spec | Actual | Release |
+| - | - | - | - |
+| 1 — Schema + matrix gate read API | ~10h | (pre-bundle) | v3.24.0 |
+| 2 — Migration + WP cap compat (dormant bridge) | ~8h | ~3h | v3.24.0 |
+| 3+4+5 — Matrix UI + TileRegistry + Modules toggles | ~38h | ~6h | v3.25.0 |
+| 6+7+8+9 — Config registry + roles + preview + docs | ~34h | ~5h | **v3.26.0** |
+| **Total** | **~90h** | **~14h** | — |
+
+**~1/6.4 ratio** — the best compression on the project to date. Single-PR sprint bundling, dormant-by-default safety net, and the CI grep gate from #0035 all hold up under the aggressive bundling.
+
+## Deferred follow-ups (not blocking)
+
+- Per-module migration of the 14 hardcoded ConfigurationPage tabs to `ConfigTabRegistry::register()` calls (opportunistic).
+- Per-module migration of static tile literals to `TileRegistry::register()` calls (opportunistic).
+- 16 persona-quickstart docs (8 personas × 2 languages).
+- Per-team customization of personas (out-of-scope per spec).
+
+The architecture is in place; the user-facing features (matrix editor, module toggles, migration preview, apply / rollback, persona switcher, work / setup dashboard split) all work.
+
+## Ship-along
+
+- Plugin version + readme.txt stable tag → 3.26.0.
+- SEQUENCE.md flips #0033 from In progress → Done.
+
+---
+
+
 # TalentTrack v3.23.0 — Multilingual auto-translate (#0025)
 
 Single-feature minor release. Adds an opt-in render-time translation cache for user-entered free text — goal titles, evaluation notes, session descriptions, attendance notes. **Default OFF**: no API calls, no transmission of source text until an admin opts in via Configuration → Translations and confirms the engine acts as a GDPR Article 28 sub-processor.

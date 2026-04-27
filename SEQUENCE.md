@@ -4,9 +4,7 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 
 ## In progress
 
-| # | Topic | Sprint | Status |
-| - | - | - | - |
-| 0033 | Authorization matrix + module toggles + per-module config + dashboard tile split | Sprint 5 of 9 — matrix admin UI + tile registry + dashboard split + module toggles live | Sprints 6-9 (per-module config split, new/refined roles, migration preview, cross-persona test/docs/i18n) ahead |
+_None._
 
 ## Ready (shaped, decisions locked)
 
@@ -41,6 +39,7 @@ _None._
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
+| 0033 | Authorization matrix + module toggles + per-module config + dashboard tile split (full 9-sprint epic — schema + MatrixGate + LegacyCapMapper bridge + admin UI + TileRegistry + work/setup split + ModuleRegistry runtime toggles + ConfigTabRegistry + tt_team_manager role + is_head_coach split + migration preview + apply/rollback + docs) | epic | v3.24.0–v3.26.0 | ~90h | ~14h across 4 PRs (#69 / #71 / #73 + sprint 1 pre-bundle); ~1/6.4 ratio — best compression on the project to date |
 | 0021 | Audit log viewer (frontend page + filters + pagination + AuditService extensions; also fixed a long-running schema drift that silently broke audit writes on fresh installs) | feat | v3.25.0 | ~10h | ~2h (server-rendered, no REST surface needed; bundled the audit_log schema fix in the same PR since the viewer would have shown empty results without it) |
 | 0038 | Fresh install has no usable surface out of the box (Activator auto-page + Menu parent=null pattern, restoring the URL-fallback the in-code comment always promised) | bug | v3.24.2 | ~1-2h | ~45min |
 | 0037 | Guest-attendance fatal fix + UX polish (button on create, fuzzy + team-filter picker, stronger row marker, CI gate tightened) | bug | v3.24.1 | ~1-2h | ~1.5h |
@@ -99,17 +98,16 @@ Realistic next moves:
 
 ## Total backlog effort estimate
 
-### Remaining work (post-v3.24.2)
+### Remaining work (post-v3.26.0)
 
 | Bucket | Low | High |
 | - | - | - |
-| In progress (#0033 sprints 6-9) | 35 | 45 |
 | Ready (#0028) | 20 | 30 |
 | Needs shaping (#0031) | 12 | 18 |
 | Not started (#0006, #0010, #0012, #0014, #0016, #0017, #0018, #0022 Phase 2) | 485 | 580 |
-| **Total remaining** | **~552h** | **~673h** |
+| **Total remaining** | **~517h** | **~628h** |
 
-Was ~700-870h at end of v3.21.0; v3.22.0 cleared ~119h of estimate (vs ~41h actual); v3.23.0 cleared another ~26h (vs ~12h actual); v3.24.0 cleared another ~32-42h estimate (vs ~16h actual); v3.24.1 + v3.24.2 + #0033 sprints 2-5 cleared another ~37-47h estimate (vs ~14h actual). Post-v3.23.0 the picture also moved: #0033 promoted from "Needs shaping" to "Ready" with a locked ~90h estimate, and #0030 dropped out entirely (extracted to talenttrack-branding repo, ~3h scaffold actual vs ~45-65h estimate). Remaining estimates intentionally conservative — empirical ~1/2 under-shoot rate across the last four releases suggests a realistic floor of **~340-410h** if the compression pattern holds.
+Was ~700-870h at end of v3.21.0; v3.22.0 cleared ~119h of estimate (vs ~41h actual); v3.23.0 cleared another ~26h (vs ~12h actual); v3.24.0 cleared another ~32-42h estimate (vs ~16h actual); v3.24.1 + v3.24.2 + #0033 sprints 2-5 cleared another ~37-47h estimate (vs ~14h actual); v3.26.0 closed the #0033 epic with sprints 6-9 (~34h estimate vs ~5h actual). Post-v3.23.0 the picture also moved: #0033 promoted from "Needs shaping" to "Ready" with a locked ~90h estimate then ran the full epic (~90h estimate / ~14h actual / ~1/6.4 ratio); #0030 dropped out entirely (extracted to talenttrack-branding repo). Remaining estimates intentionally conservative — empirical ~1/2.5 under-shoot rate across five releases suggests a realistic floor of **~310-380h** if the compression pattern holds.
 
 ### Lead time projection
 
