@@ -50,26 +50,28 @@ class FrontendTileGrid {
             'is_player'  => $is_player,
         ] );
 
+        // #0036 — tile scale (50–150) drives padding, icon, and font sizes
+        // via a single CSS custom property. 100 = baseline.
+        $scale = (int) QueryHelpers::get_config( 'tile_scale', '100' );
+        if ( $scale < 50 || $scale > 150 ) $scale = 100;
+        $scale_factor = $scale / 100;
+
         ?>
         <style>
+        .tt-ftile-grid-wrap { --tt-tile-scale: <?php echo esc_html( (string) $scale_factor ); ?>; }
         .tt-ftile-greeting {
-            font-size: 20px;
+            font-size: calc(17px * var(--tt-tile-scale));
             font-weight: 600;
-            margin: 20px 0 6px;
+            margin: 16px 0 14px;
             color: #1a1d21;
         }
-        .tt-ftile-hint {
-            color: #666;
-            font-size: 14px;
-            margin: 0 0 24px;
-        }
         .tt-ftile-section-label {
-            font-size: 11px;
+            font-size: calc(10px * var(--tt-tile-scale));
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             color: #8a9099;
-            margin: 24px 0 10px;
+            margin: calc(18px * var(--tt-tile-scale)) 0 calc(8px * var(--tt-tile-scale));
             display: flex;
             align-items: center;
             gap: 10px;
@@ -82,38 +84,43 @@ class FrontendTileGrid {
         }
         .tt-ftile-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(calc(220px * var(--tt-tile-scale)), 1fr));
+            gap: calc(10px * var(--tt-tile-scale));
         }
         .tt-ftile {
             display: flex;
-            align-items: flex-start;
-            gap: 14px;
+            align-items: center;
+            gap: calc(11px * var(--tt-tile-scale));
             background: #fff;
             border: 1px solid #e5e7ea;
-            border-radius: 10px;
-            padding: 18px 18px;
+            border-radius: 8px;
+            padding: calc(12px * var(--tt-tile-scale)) calc(14px * var(--tt-tile-scale));
             text-decoration: none;
             color: #1a1d21;
-            min-height: 80px;
-            transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
-                        box-shadow 200ms ease;
+            min-height: calc(60px * var(--tt-tile-scale));
+            transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                        box-shadow 180ms ease,
+                        border-color 180ms ease;
         }
         .tt-ftile:hover, .tt-ftile:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-color: #d0d4d8;
             color: #1a1d21;
         }
         .tt-ftile-icon {
             flex-shrink: 0;
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
+            width: calc(38px * var(--tt-tile-scale));
+            height: calc(38px * var(--tt-tile-scale));
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
-            font-size: 24px;
+        }
+        .tt-ftile-icon .tt-icon {
+            width: calc(20px * var(--tt-tile-scale));
+            height: calc(20px * var(--tt-tile-scale));
         }
         .tt-ftile-body {
             flex: 1;
@@ -121,35 +128,28 @@ class FrontendTileGrid {
         }
         .tt-ftile-label {
             font-weight: 600;
-            font-size: clamp(13px, 1.4vw, 16px);
+            font-size: calc(14px * var(--tt-tile-scale));
             line-height: 1.25;
-            margin: 0 0 4px;
+            margin: 0 0 calc(2px * var(--tt-tile-scale));
             color: #1a1d21;
             word-break: break-word;
             overflow-wrap: anywhere;
         }
         .tt-ftile-desc {
-            color: #666;
-            font-size: clamp(11px, 1.1vw, 13px);
-            line-height: 1.4;
+            color: #6b7280;
+            font-size: calc(12px * var(--tt-tile-scale));
+            line-height: 1.35;
             margin: 0;
             word-break: break-word;
             overflow-wrap: anywhere;
         }
         @media (max-width: 640px) {
             .tt-ftile-grid { grid-template-columns: 1fr; }
-            .tt-ftile { padding: 14px 14px; min-height: 68px; }
-            .tt-ftile-icon { width: 40px; height: 40px; font-size: 20px; }
-            .tt-ftile-icon .tt-icon { width: 20px; height: 20px; }
-            .tt-ftile-label { font-size: clamp(14px, 4vw, 16px); }
-            .tt-ftile-desc { font-size: 12px; }
         }
         </style>
 
+        <div class="tt-ftile-grid-wrap">
         <div class="tt-ftile-greeting"><?php echo esc_html( $greeting ); ?></div>
-        <p class="tt-ftile-hint">
-            <?php esc_html_e( 'Tap a tile to go straight to that section.', 'talenttrack' ); ?>
-        </p>
 
         <?php foreach ( $groups as $group ) :
             $visible = array_filter( $group['tiles'], function ( $t ) { return ! isset( $t['show'] ) || $t['show']; } );
@@ -172,6 +172,7 @@ class FrontendTileGrid {
                 <?php endforeach; ?>
             </div>
         <?php endforeach; ?>
+        </div>
         <?php
     }
 

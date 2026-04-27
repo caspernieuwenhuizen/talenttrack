@@ -44,6 +44,7 @@ _None._
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
+| 0036 | Dashboard UI polish (smaller tiles, configurable scale, modern icons, demo pill, help icon, optional logo) | feat | v3.24.0 | ~2-3h | ~2h |
 | 0030 | Branding + go-to-market site (separate plugin) | epic | external — [caspernieuwenhuizen/talenttrack-branding](https://github.com/caspernieuwenhuizen/talenttrack-branding) | ~45-65h | ~3h scaffold (7 shortcode pages, wp-admin settings, branding CSS); ongoing copy iterations live in the separate repo |
 | 0025 | Multilingual auto-translate (opt-in, default OFF) | feat | v3.23.0 | ~26h | ~12h (single-PR build, two engine adapters + cap nudge + privacy hook) |
 | 0009 | Development management (submit → refine → approve → promote-to-GitHub + tracks) | epic | v3.22.0 | ~30h | ~6h (one-PR build, full epic, scope locked via 8 inline shaping Qs) |

@@ -4,13 +4,24 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.23.0
+Stable tag: 3.24.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.24.0 — Dashboard polish (#0036) =
+* CHANGED: Tile grid shrunk — tighter padding, smaller icons, smaller body text — so demo screenshots fit more on a screen without horizontal scroll.
+* CHANGED: All 25 tile-grid icons redrawn from filled silhouettes to a Lucide-style outline aesthetic (1.5–2px strokes, geometric, consistent). New `activities.svg` added (was previously missing — the icon would silently render empty).
+* CHANGED: Dashboard header title is smaller and the logo is hidden by default. Re-enable the logo via TalentTrack → Configuration → Branding → "Show logo on dashboard".
+* NEW: Tile size is configurable via TalentTrack → Configuration → Branding → "Tile size" (50–150 %, default 100 %). Single CSS custom property scales padding, icons, and typography in lockstep.
+* NEW: Help icon button in the dashboard header (admin-only) — links straight to TalentTrack's Help & Docs.
+* CHANGED: Demo-mode indicator on the frontend dashboard moved from a prepended banner above the header into a small "DEMO" pill in the header actions row, next to the user menu. The wp-admin bar node is unchanged.
+* CHANGED: Removed the redundant "Tap a tile to go straight to that section" hint above the tile grid — the tiles read as clickable on sight.
+* INTERNAL: `tt_dashboard_data` filter no longer used by the demo banner (DemoBanner is admin-bar-only now). `IconRenderer` doc updated to reflect the new outline convention; old fill-based icons still render correctly because `currentColor` works for both.
+* i18n: 6 new Dutch strings.
 
 = 3.0.0 — Capability refactor + Migration UX + Frontend rebuild =
 * NEW: Migration UX overhaul — no more deactivate/reactivate. Admin notice with "Run migrations now" button appears automatically after plugin updates. Manual "Run Migrations" link always present on the Plugins page. Idempotent — safe to run repeatedly.

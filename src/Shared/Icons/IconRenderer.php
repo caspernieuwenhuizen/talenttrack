@@ -7,9 +7,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * IconRenderer — inline-SVG helper for the plugin's icon set.
  *
  * Icons live as individual SVGs in `assets/icons/<name>.svg`, hand-authored
- * as solid silhouettes with `fill="currentColor"` so wrapper CSS drives
- * their color. Callers reference an icon by name (`teams`, `players`, etc.);
+ * as outline strokes with `stroke="currentColor" fill="none"` (refreshed
+ * to a Lucide-style line aesthetic in #0036) so wrapper CSS drives their
+ * color. Callers reference an icon by name (`teams`, `players`, etc.);
  * this class loads the file once per request and inlines it into HTML.
+ *
+ * Earlier (pre-#0036) icons were filled silhouettes with `fill="currentColor"`.
+ * Both shapes still render correctly because `currentColor` works for both
+ * fill and stroke — but new icons should follow the outline convention for
+ * visual consistency.
  *
  * Why inline SVG and not <img>:
  *   - <img src="..."> drops `currentColor`; we'd lose tile re-coloring.

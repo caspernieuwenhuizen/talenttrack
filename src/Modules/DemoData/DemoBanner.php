@@ -6,18 +6,19 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * DemoBanner — visible "DEMO MODE" indicators.
  *
- * - WordPress admin bar: a bright red "🎭 DEMO MODE" item for any user
- *   whose admin bar is showing (admin or frontend).
- * - Frontend shortcode output: a banner prepended to the output of
- *   `[talenttrack_dashboard]` when demo mode is ON.
+ * Renders the wp-admin bar node only. The frontend dashboard's own
+ * header pulls a "DEMO" pill into its actions row when DemoMode::isOn()
+ * (see DashboardShortcode::renderHeader, #0036). Previously a separate
+ * banner was prepended via the `tt_dashboard_data` filter; that's been
+ * dropped in favour of the in-header pill so the dashboard saves
+ * vertical space.
  *
- * Both only render when DemoMode::isOn() returns true.
+ * Renders only when DemoMode::isOn() returns true.
  */
 class DemoBanner {
 
     public static function init(): void {
         add_action( 'admin_bar_menu', [ self::class, 'addAdminBarNode' ], 100 );
-        add_filter( 'tt_dashboard_data', [ self::class, 'prependFrontendBanner' ], 10, 1 );
     }
 
     public static function addAdminBarNode( \WP_Admin_Bar $bar ): void {
@@ -33,13 +34,5 @@ class DemoBanner {
             'href'   => admin_url( 'tools.php?page=tt-demo-data' ),
             'meta'   => [ 'title' => __( 'TalentTrack is running in demo mode. Real data is hidden.', 'talenttrack' ) ],
         ] );
-    }
-
-    public static function prependFrontendBanner( string $html ): string {
-        if ( ! DemoMode::isOn() ) return $html;
-        $label   = esc_html__( '🎭 DEMO', 'talenttrack' );
-        $tooltip = esc_attr__( 'TalentTrack is running in demo mode. Real club records are hidden.', 'talenttrack' );
-        $pill    = '<div style="text-align:right;margin-bottom:8px;"><span title="' . $tooltip . '" style="display:inline-block;background:#b32d2e;color:#fff;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:0.05em;line-height:1.6;">' . $label . '</span></div>';
-        return $pill . $html;
     }
 }

@@ -628,6 +628,8 @@ class Activator {
             'modules_enabled' => '["evaluations","goals","attendance","activities","reports","people","authorization"]',
             'primary_color' => '#0b3d2e', 'secondary_color' => '#e8b624',
             'logo_url' => '',
+            'show_logo' => '0',
+            'tile_scale' => '100',
             'login_redirect_enabled' => '1',
             'dashboard_page_id' => '0',
         ];
