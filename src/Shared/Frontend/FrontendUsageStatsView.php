@@ -3,21 +3,26 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Usage\UsageTracker;
 
 /**
- * FrontendUsageStatsView — frontend mirror of the wp-admin usage page.
+ * FrontendUsageStatsView — Application KPIs dashboard (#0012 v2).
  *
- * #0019 Sprint 5. Per Q7: reuses Chart.js (already loaded by the
- * wp-admin page) via the same CDN. Renders the headline KPIs +
- * DAU + evaluations-per-day charts + role breakdown.
+ * Renamed from "Usage statistics" because what's shown here are
+ * application-level KPIs the head of academy uses to judge whether
+ * the tool is being used as designed: active users, evaluations
+ * per coach, attendance %, top-5 most-evaluated players, goal
+ * completion rate, plus a logins counter as the activity sanity
+ * check. Period is selectable (30 / 60 / 90 days, default 30).
  *
- * Drill-downs are native frontend views via FrontendUsageStatsDetailsView.
- * KPI cards link into per-metric lists; role rows link to per-role
- * lists; chart points link to per-day breakdowns. The wp-admin page
- * remains available for admins who prefer it.
+ * The route slug stays `usage-stats` so existing URLs / tiles /
+ * docs links don't break.
  */
 class FrontendUsageStatsView extends FrontendViewBase {
+
+    /** Period choices in days. */
+    private const PERIODS = [ 30, 60, 90 ];
 
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_access_frontend_admin' ) ) {
@@ -27,84 +32,85 @@ class FrontendUsageStatsView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
-        self::renderHeader( __( 'Usage statistics', 'talenttrack' ) );
+        self::renderHeader( __( 'Application KPIs', 'talenttrack' ) );
+
+        $days = self::periodFromQuery();
 
         wp_enqueue_script( 'tt-chartjs', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js', [], '4.4.0', true );
 
-        $logins_7d  = UsageTracker::countEvents( 'login', 7 );
-        $logins_30d = UsageTracker::countEvents( 'login', 30 );
-        $logins_90d = UsageTracker::countEvents( 'login', 90 );
-        $active_7d  = UsageTracker::uniqueActiveUsers( 7 );
-        $active_30d = UsageTracker::uniqueActiveUsers( 30 );
-        $active_90d = UsageTracker::uniqueActiveUsers( 90 );
+        $kpis = [
+            'active_users'  => UsageTracker::uniqueActiveUsers( $days ),
+            'logins'        => UsageTracker::countEvents( 'login', $days ),
+            'evals_per_coach'  => self::evaluationsPerActiveCoach( $days ),
+            'attendance_pct'   => self::attendancePercentage( $days ),
+            'goal_completion'  => self::goalCompletionRate( $days ),
+        ];
+        $top_players = self::topEvaluatedPlayers( $days, 5 );
 
-        $dau   = UsageTracker::dailyActiveUsers( 90 );
-        $evals = UsageTracker::evaluationsCreatedDaily( 90 );
-        $roles = UsageTracker::activeByRole( 30 );
-
-        $dau_labels = array_keys( (array) $dau );
-        $dau_values = array_values( (array) $dau );
-        $ev_labels  = array_keys( (array) $evals );
-        $ev_values  = array_values( (array) $evals );
+        $dau   = UsageTracker::dailyActiveUsers( $days );
+        $roles = UsageTracker::activeByRole( $days );
 
         $admin_url = admin_url( 'admin.php?page=tt-usage-stats' );
+        $base_url  = remove_query_arg( 'days' );
 
         ?>
-        <p style="color:var(--tt-muted); max-width:760px; margin:0 0 var(--tt-sp-4);">
-            <?php esc_html_e( 'Overview of app usage across the last 90 days. Events older than 90 days are deleted automatically. No IP addresses or user agents are recorded.', 'talenttrack' ); ?>
-        </p>
-        <p style="margin:0 0 var(--tt-sp-4);">
-            <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $admin_url ); ?>">
-                <?php esc_html_e( 'Open in wp-admin', 'talenttrack' ); ?>
-            </a>
+        <p style="color:var(--tt-muted); max-width:760px; margin:0 0 var(--tt-sp-3);">
+            <?php esc_html_e( 'Application-level KPIs over the selected window. Events older than 90 days are deleted automatically. No IP addresses or user agents are recorded.', 'talenttrack' ); ?>
         </p>
 
+        <div class="tt-period-selector" style="display:flex; gap:6px; align-items:center; margin:0 0 var(--tt-sp-4);">
+            <span style="font-size:13px; color:var(--tt-muted); margin-right:6px;"><?php esc_html_e( 'Period:', 'talenttrack' ); ?></span>
+            <?php foreach ( self::PERIODS as $opt ) :
+                $active = $opt === $days;
+                $url    = add_query_arg( 'days', $opt, $base_url );
+                $cls    = $active ? 'tt-btn tt-btn-primary' : 'tt-btn tt-btn-secondary';
+                ?>
+                <a class="<?php echo esc_attr( $cls ); ?>" href="<?php echo esc_url( $url ); ?>"><?php
+                    /* translators: %d is the number of days */
+                    printf( esc_html__( 'Last %d days', 'talenttrack' ), (int) $opt );
+                ?></a>
+            <?php endforeach; ?>
+            <a class="tt-btn tt-btn-secondary" style="margin-left:auto;" href="<?php echo esc_url( $admin_url ); ?>">
+                <?php esc_html_e( 'Open in wp-admin', 'talenttrack' ); ?>
+            </a>
+        </div>
+
         <div class="tt-grid tt-grid-3" style="margin-bottom:var(--tt-sp-4);">
-            <?php self::kpi( __( 'Logins (7d)',        'talenttrack' ), $logins_7d,  FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'logins',       'days' => 7  ] ) ); ?>
-            <?php self::kpi( __( 'Logins (30d)',       'talenttrack' ), $logins_30d, FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'logins',       'days' => 30 ] ) ); ?>
-            <?php self::kpi( __( 'Logins (90d)',       'talenttrack' ), $logins_90d, FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'logins',       'days' => 90 ] ) ); ?>
-            <?php self::kpi( __( 'Active users (7d)',  'talenttrack' ), $active_7d,  FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'active_users', 'days' => 7  ] ) ); ?>
-            <?php self::kpi( __( 'Active users (30d)', 'talenttrack' ), $active_30d, FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'active_users', 'days' => 30 ] ) ); ?>
-            <?php self::kpi( __( 'Active users (90d)', 'talenttrack' ), $active_90d, FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'active_users', 'days' => 90 ] ) ); ?>
+            <?php
+            self::kpi( __( 'Active users',          'talenttrack' ), (string) $kpis['active_users'],     '' );
+            self::kpi( __( 'Logins',                'talenttrack' ), (string) $kpis['logins'],           '' );
+            self::kpi( __( 'Evaluations / coach',   'talenttrack' ), self::formatNumber( $kpis['evals_per_coach'], 1 ),     '' );
+            self::kpi( __( 'Attendance %',          'talenttrack' ), self::formatPct( $kpis['attendance_pct'] ),            '' );
+            self::kpi( __( 'Goal completion %',     'talenttrack' ), self::formatPct( $kpis['goal_completion'] ),           '' );
+            self::renderTopPlayersTile( $top_players );
+            ?>
         </div>
 
         <div class="tt-panel">
-            <h3 class="tt-panel-title"><?php esc_html_e( 'Daily active users (90 days)', 'talenttrack' ); ?></h3>
+            <h3 class="tt-panel-title"><?php
+                /* translators: %d is the number of days */
+                printf( esc_html__( 'Daily active users (%d days)', 'talenttrack' ), (int) $days );
+            ?></h3>
             <div style="position:relative; height:240px;">
                 <canvas id="tt-fe-dau-chart"></canvas>
             </div>
         </div>
 
-        <div class="tt-panel">
-            <h3 class="tt-panel-title"><?php esc_html_e( 'Evaluations created per day (90 days)', 'talenttrack' ); ?></h3>
-            <div style="position:relative; height:220px;">
-                <canvas id="tt-fe-evals-chart"></canvas>
-            </div>
-        </div>
-
         <?php if ( $roles ) : ?>
             <div class="tt-panel">
-                <h3 class="tt-panel-title"><?php esc_html_e( 'Active users by role (30 days)', 'talenttrack' ); ?></h3>
+                <h3 class="tt-panel-title"><?php
+                    /* translators: %d is the number of days */
+                    printf( esc_html__( 'Active users by role (%d days)', 'talenttrack' ), (int) $days );
+                ?></h3>
                 <table class="tt-table">
                     <thead><tr>
                         <th><?php esc_html_e( 'Role', 'talenttrack' ); ?></th>
                         <th style="text-align:right;"><?php esc_html_e( 'Users', 'talenttrack' ); ?></th>
                     </tr></thead>
                     <tbody>
-                    <?php foreach ( $roles as $role => $count ) :
-                        $role_key = self::roleSlug( (string) $role );
-                        $url = $role_key
-                            ? FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'active_by_role', 'role' => $role_key, 'days' => 30 ] )
-                            : '';
-                        ?>
+                    <?php foreach ( $roles as $role => $count ) : ?>
                         <tr>
-                            <td>
-                                <?php if ( $url ) : ?>
-                                    <a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( (string) $role ); ?></a>
-                                <?php else : ?>
-                                    <?php echo esc_html( (string) $role ); ?>
-                                <?php endif; ?>
-                            </td>
+                            <td><?php echo esc_html( (string) $role ); ?></td>
                             <td style="text-align:right;"><?php echo (int) $count; ?></td>
                         </tr>
                     <?php endforeach; ?>
@@ -115,86 +121,173 @@ class FrontendUsageStatsView extends FrontendViewBase {
 
         <script>
         (function(){
-            var dauDrillBase  = <?php echo wp_json_encode( FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'dau_day' ] ) ); ?>;
-            var evalDrillBase = <?php echo wp_json_encode( FrontendUsageStatsDetailsView::detailsUrl( [ 'metric' => 'evals_day' ] ) ); ?>;
-            function drillTo(base, date){
-                var sep = base.indexOf('?') >= 0 ? '&' : '?';
-                window.location.href = base + sep + 'date=' + encodeURIComponent(date);
-            }
+            var dauLabels = <?php echo wp_json_encode( array_keys( (array) $dau ) ); ?>;
+            var dauValues = <?php echo wp_json_encode( array_values( (array) $dau ) ); ?>;
             function ready(fn){ if (window.Chart) fn(); else setTimeout(function(){ ready(fn); }, 50); }
             ready(function(){
-                var dauCanvas = document.getElementById('tt-fe-dau-chart');
-                if (dauCanvas) {
-                    var dauChart = new Chart(dauCanvas.getContext('2d'), {
-                        type: 'line',
-                        data: { labels: <?php echo wp_json_encode( $dau_labels ); ?>, datasets: [{
-                            label: '<?php echo esc_js( __( 'Active users', 'talenttrack' ) ); ?>',
-                            data: <?php echo wp_json_encode( $dau_values ); ?>,
-                            borderColor: 'rgba(11, 61, 46, 0.85)',
-                            backgroundColor: 'rgba(11, 61, 46, 0.18)',
-                            fill: true, tension: 0.25
-                        }] },
-                        options: {
-                            responsive: true, maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            onClick: function(evt, els){
-                                if (els && els[0]) drillTo(dauDrillBase, dauChart.data.labels[els[0].index]);
-                            }
-                        }
-                    });
-                    dauCanvas.style.cursor = 'pointer';
-                }
-                var evCanvas = document.getElementById('tt-fe-evals-chart');
-                if (evCanvas) {
-                    var evChart = new Chart(evCanvas.getContext('2d'), {
-                        type: 'bar',
-                        data: { labels: <?php echo wp_json_encode( $ev_labels ); ?>, datasets: [{
-                            label: '<?php echo esc_js( __( 'Evaluations', 'talenttrack' ) ); ?>',
-                            data: <?php echo wp_json_encode( $ev_values ); ?>,
-                            backgroundColor: 'rgba(232, 182, 36, 0.85)'
-                        }] },
-                        options: {
-                            responsive: true, maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            onClick: function(evt, els){
-                                if (els && els[0]) drillTo(evalDrillBase, evChart.data.labels[els[0].index]);
-                            }
-                        }
-                    });
-                    evCanvas.style.cursor = 'pointer';
-                }
+                var c = document.getElementById('tt-fe-dau-chart');
+                if (!c) return;
+                new Chart(c.getContext('2d'), {
+                    type: 'line',
+                    data: { labels: dauLabels, datasets: [{
+                        label: '<?php echo esc_js( __( 'Active users', 'talenttrack' ) ); ?>',
+                        data: dauValues,
+                        borderColor: 'rgba(11, 61, 46, 0.85)',
+                        backgroundColor: 'rgba(11, 61, 46, 0.18)',
+                        fill: true, tension: 0.25
+                    }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
             });
         })();
         </script>
         <?php
     }
 
-    private static function kpi( string $label, int $value, string $href = '' ): void {
-        $open  = $href !== ''
+    private static function periodFromQuery(): int {
+        $raw = isset( $_GET['days'] ) ? (int) $_GET['days'] : 30;
+        return in_array( $raw, self::PERIODS, true ) ? $raw : 30;
+    }
+
+    private static function kpi( string $label, string $value, string $href = '' ): void {
+        $tag_open  = $href !== ''
             ? '<a class="tt-panel" style="text-align:center; display:block; text-decoration:none; color:inherit;" href="' . esc_url( $href ) . '">'
             : '<div class="tt-panel" style="text-align:center;">';
-        $close = $href !== '' ? '</a>' : '</div>';
-        echo $open;
-        echo '<div style="font-size:var(--tt-fs-xl); font-weight:700; color:var(--tt-primary);">' . esc_html( (string) $value ) . '</div>';
+        $tag_close = $href !== '' ? '</a>' : '</div>';
+        echo $tag_open;
+        echo '<div style="font-size:var(--tt-fs-xl); font-weight:700; color:var(--tt-primary);">' . esc_html( $value ) . '</div>';
         echo '<div style="font-size:var(--tt-fs-xs); color:var(--tt-muted); text-transform:uppercase; letter-spacing:0.04em;">' . esc_html( $label ) . '</div>';
-        echo $close;
+        echo $tag_close;
     }
 
     /**
-     * Resolve a translated role label back to its slug for drill-down
-     * URLs. UsageTracker::activeByRole() returns translated keys (Admin,
-     * Coach, Player, Other), and the drill-down expects an English slug.
+     * @param array<int, array{name: string, count: int}> $players
      */
-    private static function roleSlug( string $label ): string {
-        $map = [
-            __( 'Admin',  'talenttrack' ) => 'admin',
-            __( 'Admins', 'talenttrack' ) => 'admin',
-            __( 'Coach',  'talenttrack' ) => 'coach',
-            __( 'Coaches','talenttrack' ) => 'coach',
-            __( 'Player', 'talenttrack' ) => 'player',
-            __( 'Players','talenttrack' ) => 'player',
-            __( 'Other',  'talenttrack' ) => 'other',
-        ];
-        return $map[ $label ] ?? '';
+    private static function renderTopPlayersTile( array $players ): void {
+        echo '<div class="tt-panel" style="text-align:left;">';
+        echo '<div style="font-size:var(--tt-fs-xs); color:var(--tt-muted); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">'
+            . esc_html__( 'Top 5 most-evaluated', 'talenttrack' ) . '</div>';
+        if ( empty( $players ) ) {
+            echo '<div style="font-size:13px; color:var(--tt-muted); font-style:italic;">'
+                . esc_html__( 'No evaluations in this window.', 'talenttrack' ) . '</div>';
+        } else {
+            echo '<ol style="margin:0; padding-left:18px; font-size:13px; line-height:1.6;">';
+            foreach ( $players as $p ) {
+                printf(
+                    '<li>%s <span style="color:var(--tt-muted);">(%d)</span></li>',
+                    esc_html( $p['name'] ),
+                    (int) $p['count']
+                );
+            }
+            echo '</ol>';
+        }
+        echo '</div>';
+    }
+
+    private static function formatNumber( float $val, int $decimals = 1 ): string {
+        return number_format_i18n( $val, $decimals );
+    }
+
+    private static function formatPct( float $val ): string {
+        return number_format_i18n( $val, 1 ) . '%';
+    }
+
+    /**
+     * Evaluations created in the period divided by the count of distinct
+     * coaches who created at least one. Returns 0.0 when no coaches
+     * were active.
+     */
+    private static function evaluationsPerActiveCoach( int $days ): float {
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $cutoff = gmdate( 'Y-m-d 00:00:00', time() - $days * DAY_IN_SECONDS );
+
+        $rows = $wpdb->get_row( $wpdb->prepare(
+            "SELECT COUNT(*) AS evals, COUNT(DISTINCT coach_id) AS coaches
+              FROM {$p}tt_evaluations
+              WHERE created_at >= %s AND archived_at IS NULL",
+            $cutoff
+        ) );
+        if ( ! $rows || (int) $rows->coaches === 0 ) return 0.0;
+        return round( ( (int) $rows->evals ) / max( 1, (int) $rows->coaches ), 1 );
+    }
+
+    /**
+     * Average attendance % across all activities in the period —
+     * "present" rows divided by all attendance rows on those activities.
+     */
+    private static function attendancePercentage( int $days ): float {
+        global $wpdb;
+        $p      = $wpdb->prefix;
+        $cutoff = gmdate( 'Y-m-d', time() - $days * DAY_IN_SECONDS );
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT
+                SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) AS present_rows,
+                COUNT(*) AS total_rows
+              FROM {$p}tt_attendance a
+              INNER JOIN {$p}tt_activities act ON act.id = a.activity_id
+              WHERE act.session_date >= %s AND act.archived_at IS NULL",
+            $cutoff
+        ) );
+        if ( ! $row || (int) $row->total_rows === 0 ) return 0.0;
+        return round( ( (int) $row->present_rows / (int) $row->total_rows ) * 100, 1 );
+    }
+
+    /**
+     * % of goals due in the period (or open during it) that reached a
+     * "completed" status. Goal status comes from the goal_status lookup
+     * — "Completed" is the canonical row.
+     */
+    private static function goalCompletionRate( int $days ): float {
+        global $wpdb;
+        $p      = $wpdb->prefix;
+        $cutoff = gmdate( 'Y-m-d', time() - $days * DAY_IN_SECONDS );
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT
+                SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed,
+                COUNT(*) AS total
+              FROM {$p}tt_goals
+              WHERE archived_at IS NULL
+                AND ( due_date >= %s OR ( due_date IS NULL AND created_at >= %s ) )",
+            $cutoff,
+            gmdate( 'Y-m-d 00:00:00', time() - $days * DAY_IN_SECONDS )
+        ) );
+        if ( ! $row || (int) $row->total === 0 ) return 0.0;
+        return round( ( (int) $row->completed / (int) $row->total ) * 100, 1 );
+    }
+
+    /**
+     * @return array<int, array{name: string, count: int}>
+     */
+    private static function topEvaluatedPlayers( int $days, int $limit = 5 ): array {
+        global $wpdb;
+        $p      = $wpdb->prefix;
+        $cutoff = gmdate( 'Y-m-d 00:00:00', time() - $days * DAY_IN_SECONDS );
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT pl.id, pl.first_name, pl.last_name, COUNT(e.id) AS eval_count
+              FROM {$p}tt_evaluations e
+              INNER JOIN {$p}tt_players pl ON pl.id = e.player_id
+              WHERE e.created_at >= %s AND e.archived_at IS NULL
+              GROUP BY pl.id, pl.first_name, pl.last_name
+              ORDER BY eval_count DESC, pl.last_name ASC
+              LIMIT %d",
+            $cutoff,
+            $limit
+        ) );
+        if ( ! is_array( $rows ) ) return [];
+
+        $out = [];
+        foreach ( $rows as $r ) {
+            $name = trim( ( $r->first_name ?? '' ) . ' ' . ( $r->last_name ?? '' ) );
+            if ( $name === '' ) $name = '#' . (int) $r->id;
+            $out[] = [ 'name' => $name, 'count' => (int) $r->eval_count ];
+        }
+        return $out;
     }
 }

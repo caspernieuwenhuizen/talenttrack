@@ -4,13 +4,20 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.27.0
+Stable tag: 3.28.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.28.0 — Demo-readiness follow-up (the deferred four) =
+* CHANGED: Usage statistics → Application KPIs. Page renamed, tile renamed, period selector at the top (30 / 60 / 90 days, default 30). Six metric tiles all respect the chosen period: Active users, Logins, Evaluations per active coach, Attendance %, Goal completion %, and a Top-5 most-evaluated players list. The "Evaluations per day" chart was dropped — it added noise without telling the user anything actionable. The DAU line chart and Active-by-role table are kept and now match the selected period.
+* NEW: Context-aware help drawer. Click the Help icon in the dashboard header from any view; the drawer slides in from the right and loads the topic that matches the current `?tt_view=` slug (with a default-topic fallback). Capability-gated server-side via the new `/wp-json/talenttrack/v1/docs` endpoint — a player only sees user-tier docs even if they construct an admin-tier slug. Middle-click / cmd-click on the Help icon falls through to the full Help & Docs page in a new tab.
+* CHANGED: My sessions player view picks up the rich filter pattern used elsewhere — search box (title + notes), status dropdown, date-from / date-to. Same look-and-feel as the coach evaluation list and the audit-log viewer.
+* NEW: Linked parent accounts surface on the player edit form. Read-only summary of any users currently linked via the `tt_player_parents` pivot, with guidance pointing at the People page for adding new links. The inline guardian name / email / phone fields stay as the path for parents who don't have an account yet — both paths now coexist clearly.
+* INTERNAL: New `DocsRestController` (GET /docs list, GET /docs/{slug} body) wired through `DocumentationModule::boot`. JS hydrator at `assets/js/components/docs-drawer.js`. CSS for the drawer panel + animation lives in `public.css`.
 
 = 3.27.0 — Demo-readiness omnibus =
 * NEW: Frontend evaluations tile now opens a filterable list (date range + team filter, last 100 entries) with a "New evaluation" CTA, instead of dropping straight into the form. After saving, the form returns to the list rather than the tile grid.

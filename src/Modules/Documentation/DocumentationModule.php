@@ -11,5 +11,6 @@ class DocumentationModule implements ModuleInterface {
     public function register( Container $container ): void {}
     public function boot( Container $container ): void {
         if ( is_admin() ) Admin\DocumentationPage::init();
+        DocsRestController::init();
     }
 }

@@ -6904,3 +6904,66 @@ msgstr "TalentTrack draait in demomodus. Echte clubgegevens zijn verborgen totda
 
 msgid "No documentation topics are available."
 msgstr "Geen documentatieonderwerpen beschikbaar."
+
+# v3.28.0 — deferred follow-up
+# 'Logins', 'Loading…', 'Help', 'Period:', 'Last %d days' already translated earlier in this file.
+
+msgid "Application KPIs"
+msgstr "Applicatie-KPIs"
+
+msgid "Active users"
+msgstr "Actieve gebruikers"
+
+msgid "Evaluations / coach"
+msgstr "Evaluaties per coach"
+
+msgid "Attendance %"
+msgstr "Aanwezigheid %"
+
+msgid "Goal completion %"
+msgstr "Doelvoltooiing %"
+
+msgid "Top 5 most-evaluated"
+msgstr "Top 5 meest geëvalueerd"
+
+msgid "No evaluations in this window."
+msgstr "Geen evaluaties in deze periode."
+
+msgid "Daily active users (%d days)"
+msgstr "Dagelijks actieve gebruikers (%d dagen)"
+
+msgid "Active users by role (%d days)"
+msgstr "Actieve gebruikers per rol (%d dagen)"
+
+msgid "Application-level KPIs over the selected window. Events older than 90 days are deleted automatically. No IP addresses or user agents are recorded."
+msgstr "Applicatie-niveau KPIs over de gekozen periode. Gebeurtenissen ouder dan 90 dagen worden automatisch verwijderd. Geen IP-adressen of user agents opgeslagen."
+
+msgid "Could not load this topic. Try the full Help & Docs page."
+msgstr "Kon dit onderwerp niet laden. Probeer de volledige Help & Docs-pagina."
+
+msgid "No matching topic for this section. Showing the default."
+msgstr "Geen onderwerp gevonden voor dit onderdeel. Standaardonderwerp getoond."
+
+msgid "Open full Help & Docs"
+msgstr "Volledige Help & Docs openen"
+
+msgid "Parent / guardian"
+msgstr "Ouder / verzorger"
+
+msgid "Link a parent account after saving the player from the People page. Otherwise, fill in their name + contact below; a coach can convert them to a real account later."
+msgstr "Koppel een ouderaccount na het opslaan via de Personen-pagina. Vul anders hieronder de contactgegevens in; een coach kan deze later omzetten naar een echt account."
+
+msgid "No parent accounts linked yet. Either link an existing user from the People page, or fill in the contact details below."
+msgstr "Nog geen ouderaccounts gekoppeld. Koppel een bestaande gebruiker via de Personen-pagina of vul de contactgegevens hieronder in."
+
+msgid "Linked parent accounts: %s. Manage from People → user → Edit. The contact fields below are still useful for any parent without an account."
+msgstr "Gekoppelde ouderaccounts: %s. Beheer via Personen → gebruiker → Bewerken. De contactvelden hieronder blijven nuttig voor ouders zonder account."
+
+msgid "Title or notes…"
+msgstr "Titel of notities…"
+
+msgid "Any"
+msgstr "Alle"
+
+msgid "No attendance records match these filters."
+msgstr "Geen aanwezigheidsrecords voor deze filters."

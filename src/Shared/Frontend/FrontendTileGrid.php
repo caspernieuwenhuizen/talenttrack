@@ -427,8 +427,8 @@ class FrontendTileGrid {
                 'show'  => $can_report,
             ],
             [
-                'label' => __( 'Usage statistics', 'talenttrack' ),
-                'desc'  => __( 'Logins, active users, evaluations per day.', 'talenttrack' ),
+                'label' => __( 'Application KPIs', 'talenttrack' ),
+                'desc'  => __( 'Active users, evaluations per coach, attendance %, top players, goal completion.', 'talenttrack' ),
                 'icon'  => 'usage-stats',
                 'color' => '#555',
                 'url'   => $url( 'usage-stats' ),

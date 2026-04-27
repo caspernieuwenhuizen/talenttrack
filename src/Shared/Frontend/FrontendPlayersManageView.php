@@ -266,6 +266,19 @@ class FrontendPlayersManageView extends FrontendViewBase {
 
             <?php self::renderCustomFields( (int) ( $player->id ?? 0 ) ); ?>
 
+            <h4 style="margin: 18px 0 6px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--tt-muted);">
+                <?php esc_html_e( 'Parent / guardian', 'talenttrack' ); ?>
+            </h4>
+            <p class="tt-help-text" style="font-size:12px; color:var(--tt-muted, #5b6470); margin: 0 0 10px; max-width: 720px;">
+                <?php
+                if ( $is_edit ) {
+                    self::renderLinkedParents( (int) $player->id );
+                } else {
+                    esc_html_e( 'Link a parent account after saving the player from the People page. Otherwise, fill in their name + contact below; a coach can convert them to a real account later.', 'talenttrack' );
+                }
+                ?>
+            </p>
+
             <div class="tt-grid tt-grid-2">
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-player-guardian-name"><?php esc_html_e( 'Guardian name', 'talenttrack' ); ?></label>
@@ -473,5 +486,36 @@ class FrontendPlayersManageView extends FrontendViewBase {
             $id
         ) );
         return $row ?: null;
+    }
+
+    /**
+     * Read-only summary of WP user accounts currently linked to this
+     * player as parents (#0008). Linking + unlinking happens on the
+     * People page; the inline guardian_* fields below stay the path
+     * for "this parent doesn't have an account yet".
+     */
+    private static function renderLinkedParents( int $player_id ): void {
+        if ( $player_id <= 0 ) return;
+
+        $repo = new \TT\Modules\Invitations\PlayerParentsRepository();
+        $parent_ids = $repo->parentsForPlayer( $player_id );
+
+        if ( empty( $parent_ids ) ) {
+            esc_html_e( 'No parent accounts linked yet. Either link an existing user from the People page, or fill in the contact details below.', 'talenttrack' );
+            return;
+        }
+
+        $names = [];
+        foreach ( $parent_ids as $uid ) {
+            $u = get_userdata( (int) $uid );
+            if ( $u ) $names[] = sprintf( '%s (%s)', $u->display_name, $u->user_email );
+        }
+        if ( empty( $names ) ) return;
+
+        printf(
+            /* translators: %s is a comma-separated list of "Name (email)" entries. */
+            esc_html__( 'Linked parent accounts: %s. Manage from People → user → Edit. The contact fields below are still useful for any parent without an account.', 'talenttrack' ),
+            esc_html( implode( ', ', $names ) )
+        );
     }
 }

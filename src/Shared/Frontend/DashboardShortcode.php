@@ -53,6 +53,19 @@ class DashboardShortcode {
         wp_enqueue_script( 'tt-functional-roles', TT_PLUGIN_URL . 'assets/js/components/functional-roles.js', [], TT_VERSION, true );
         // #0019 Sprint 5 — admin-tier reorder helper (eval categories).
         wp_enqueue_script( 'tt-admin-reorder', TT_PLUGIN_URL . 'assets/js/components/admin-reorder.js', [], TT_VERSION, true );
+        // #0016 Part B — context-aware help drawer.
+        wp_enqueue_script( 'tt-docs-drawer', TT_PLUGIN_URL . 'assets/js/components/docs-drawer.js', [], TT_VERSION, true );
+        wp_localize_script( 'tt-docs-drawer', 'TT_DocsDrawer', [
+            'rest_url'   => esc_url_raw( rest_url( 'talenttrack/v1/docs' ) ),
+            'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+            'view_to_topic' => self::viewToTopicMap(),
+            'default_slug'  => 'getting-started',
+            'i18n' => [
+                'loading'   => __( 'Loading…', 'talenttrack' ),
+                'failed'    => __( 'Could not load this topic. Try the full Help & Docs page.', 'talenttrack' ),
+                'no_topic'  => __( 'No matching topic for this section. Showing the default.', 'talenttrack' ),
+            ],
+        ] );
 
         // #0019 Sprint 1 session 2 — public.js uses fetch() against the
         // REST API. Nonce is the standard WP REST `wp_rest` nonce,
@@ -463,20 +476,22 @@ class DashboardShortcode {
                 . '</span>';
         }
 
-        // Help icon — links to wp-admin Help & Docs. Only useful for
-        // admins; FrontendAccessControl bounces non-admins back to the
-        // dashboard, so the icon only renders for them.
-        if ( $is_wp_admin ) {
-            echo '<a href="' . esc_url( $help_url ) . '" class="tt-dash-help" '
-                . 'title="' . esc_attr__( 'Help & docs', 'talenttrack' ) . '" '
-                . 'aria-label="' . esc_attr__( 'Help & docs', 'talenttrack' ) . '">'
-                . '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
-                . '<circle cx="12" cy="12" r="10"></circle>'
-                . '<path d="M9.5 9a2.5 2.5 0 0 1 4.9.7c0 1.7-2.5 2.3-2.5 4"></path>'
-                . '<circle cx="12" cy="17.5" r="0.6" fill="currentColor"></circle>'
-                . '</svg>'
-                . '</a>';
-        }
+        // Help icon — opens the context-aware docs drawer. Visible to
+        // every logged-in user; the drawer's REST endpoint enforces
+        // the audience-based cap gate so non-admins only see topics
+        // their role can read. The href falls back to the full
+        // ?tt_view=docs page so middle-click / right-click "open in
+        // new tab" still works without JS.
+        echo '<a href="' . esc_url( $help_url ) . '" class="tt-dash-help" '
+            . 'data-tt-docs-drawer-open '
+            . 'title="' . esc_attr__( 'Help & docs', 'talenttrack' ) . '" '
+            . 'aria-label="' . esc_attr__( 'Help & docs', 'talenttrack' ) . '">'
+            . '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
+            . '<circle cx="12" cy="12" r="10"></circle>'
+            . '<path d="M9.5 9a2.5 2.5 0 0 1 4.9.7c0 1.7-2.5 2.3-2.5 4"></path>'
+            . '<circle cx="12" cy="17.5" r="0.6" fill="currentColor"></circle>'
+            . '</svg>'
+            . '</a>';
 
         echo '<div class="tt-user-menu">';
         echo '<button type="button" class="tt-user-menu-trigger" aria-haspopup="true" aria-expanded="false">';
@@ -534,6 +549,25 @@ class DashboardShortcode {
         echo '</div>';
         echo '</div>'; // .tt-dash-actions
         echo '</div>'; // .tt-dash-header
+
+        // #0016 Part B — context-aware docs drawer. Hidden by default;
+        // opens when the help icon is clicked. The drawer fetches the
+        // matching topic for the current ?tt_view= slug via REST and
+        // renders inline. CSS lives in public.css; the small hydrator
+        // is at assets/js/components/docs-drawer.js.
+        echo '<aside class="tt-docs-drawer" data-tt-docs-drawer hidden aria-hidden="true" aria-labelledby="tt-docs-drawer-title">';
+        echo '<div class="tt-docs-drawer__backdrop" data-tt-docs-drawer-close></div>';
+        echo '<div class="tt-docs-drawer__panel" role="dialog">';
+        echo '<header class="tt-docs-drawer__head">';
+        echo '<h3 id="tt-docs-drawer-title" data-tt-docs-drawer-title>' . esc_html__( 'Help', 'talenttrack' ) . '</h3>';
+        echo '<a href="' . esc_url( $help_url ) . '" class="tt-docs-drawer__expand" data-tt-docs-drawer-expand title="' . esc_attr__( 'Open full Help & Docs', 'talenttrack' ) . '" aria-label="' . esc_attr__( 'Open full Help & Docs', 'talenttrack' ) . '">↗</a>';
+        echo '<button type="button" class="tt-docs-drawer__close" data-tt-docs-drawer-close aria-label="' . esc_attr__( 'Close', 'talenttrack' ) . '">×</button>';
+        echo '</header>';
+        echo '<div class="tt-docs-drawer__body" data-tt-docs-drawer-body>';
+        echo '<p class="tt-docs-drawer__loading">' . esc_html__( 'Loading…', 'talenttrack' ) . '</p>';
+        echo '</div>';
+        echo '</div>';
+        echo '</aside>';
 
         // Inline dropdown behaviour.
         ?>
@@ -608,5 +642,43 @@ class DashboardShortcode {
         })();
         </script>
         <?php
+    }
+
+    /**
+     * tt_view slug → docs topic slug map for the context-aware help
+     * drawer (#0016 part B). Slugs missing from this map fall back to
+     * `default_slug` (getting-started) on the JS side. Add new
+     * mappings here whenever a new view ships with its own help topic.
+     *
+     * @return array<string, string>
+     */
+    private static function viewToTopicMap(): array {
+        return [
+            'players'             => 'teams-players',
+            'players-import'      => 'teams-players',
+            'teams'               => 'teams-players',
+            'people'              => 'people-staff',
+            'functional-roles'    => 'people-staff',
+            'evaluations'         => 'evaluations',
+            'eval-categories'     => 'eval-categories-weights',
+            'activities'          => 'activities',
+            'goals'               => 'goals',
+            'reports'             => 'reports',
+            'rate-cards'          => 'rate-cards',
+            'compare'             => 'player-comparison',
+            'methodology'         => 'methodology',
+            'configuration'       => 'configuration-branding',
+            'custom-fields'       => 'custom-fields',
+            'roles'               => 'access-control',
+            'overview'            => 'player-dashboard',
+            'my-team'             => 'player-dashboard',
+            'my-evaluations'      => 'player-dashboard',
+            'my-activities'       => 'player-dashboard',
+            'my-goals'            => 'player-dashboard',
+            'profile'             => 'player-dashboard',
+            'my-tasks'            => 'workflow-tasks',
+            'tasks-dashboard'     => 'workflow-tasks',
+            'workflow-config'     => 'workflow-tasks',
+        ];
     }
 }
