@@ -117,6 +117,105 @@ class MatrixRepository {
     }
 
     /**
+     * Sprint 3: insert OR update a matrix row. Sets `is_default = 0`
+     * to mark it admin-edited.
+     *
+     * `module_class` is preserved if a row already exists; for new
+     * rows the caller must provide it (resolved from the seed file).
+     */
+    public function setRow( string $persona, string $entity, string $activity, string $scope_kind, string $module_class ): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $existing = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, module_class FROM {$p}tt_authorization_matrix
+             WHERE persona = %s AND entity = %s AND activity = %s AND scope_kind = %s",
+            $persona, $entity, $activity, $scope_kind
+        ) );
+        if ( $existing ) {
+            $wpdb->update(
+                "{$p}tt_authorization_matrix",
+                [ 'is_default' => 0 ],
+                [ 'id' => (int) $existing->id ]
+            );
+        } else {
+            $wpdb->insert( "{$p}tt_authorization_matrix", [
+                'persona'      => $persona,
+                'entity'       => $entity,
+                'activity'     => $activity,
+                'scope_kind'   => $scope_kind,
+                'module_class' => $module_class,
+                'is_default'   => 0,
+            ] );
+        }
+        self::clearCache();
+    }
+
+    /**
+     * Sprint 3: remove a matrix row (revoke the persona's permission
+     * for this tuple). No-op if the row doesn't exist.
+     */
+    public function removeRow( string $persona, string $entity, string $activity, string $scope_kind ): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $wpdb->delete( "{$p}tt_authorization_matrix", [
+            'persona'    => $persona,
+            'entity'     => $entity,
+            'activity'   => $activity,
+            'scope_kind' => $scope_kind,
+        ] );
+        self::clearCache();
+    }
+
+    /**
+     * @return list<string> distinct persona keys present in the matrix.
+     */
+    public function personas(): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $rows = $wpdb->get_col( "SELECT DISTINCT persona FROM {$p}tt_authorization_matrix ORDER BY persona ASC" );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * @return list<array{entity:string, module_class:string}> distinct (entity, module) pairs.
+     */
+    public function entities(): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( "SELECT DISTINCT entity, module_class FROM {$p}tt_authorization_matrix ORDER BY module_class ASC, entity ASC" );
+        if ( ! is_array( $rows ) ) return [];
+        $out = [];
+        foreach ( $rows as $r ) {
+            $out[] = [
+                'entity'       => (string) $r->entity,
+                'module_class' => (string) $r->module_class,
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * @return array<string, array<string, array{scope_kind:string, is_default:int}>>
+     *         persona => entity => activity => details.
+     */
+    public function asGrid(): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( "SELECT persona, entity, activity, scope_kind, is_default FROM {$p}tt_authorization_matrix" );
+        $out = [];
+        if ( is_array( $rows ) ) {
+            foreach ( $rows as $r ) {
+                $out[ (string) $r->persona ][ (string) $r->entity ][ (string) $r->activity ] = [
+                    'scope_kind' => (string) $r->scope_kind,
+                    'is_default' => (int) $r->is_default,
+                ];
+            }
+        }
+        return $out;
+    }
+
+    /**
      * Lazy load + cache the full matrix once per request.
      *
      * @return array<string, array<string, array<string, array<string, string>>>>

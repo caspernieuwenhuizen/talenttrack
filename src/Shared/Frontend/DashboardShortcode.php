@@ -477,6 +477,41 @@ class DashboardShortcode {
         echo '<a href="' . esc_url( $profile_url ) . '" class="tt-user-menu-item" role="menuitem">';
         echo esc_html__( 'Edit profile', 'talenttrack' );
         echo '</a>';
+
+        // #0033 Sprint 4 — persona switcher. Visible only when the user
+        // resolves to 2+ personas. The switch is a client-side
+        // sessionStorage lens; it resets on browser close. Default view
+        // is the union (no active persona).
+        if ( class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) {
+            $personas = \TT\Modules\Authorization\PersonaResolver::personasFor( (int) $user->ID );
+            if ( count( $personas ) >= 2 ) {
+                echo '<div class="tt-user-menu-section" style="border-top:1px solid #e5e7ea; padding-top:6px; margin-top:6px;">';
+                echo '<div class="tt-user-menu-section-label" style="font-size:11px; color:#888; text-transform:uppercase; letter-spacing:0.05em; padding:0 12px 4px;">'
+                    . esc_html__( 'View as', 'talenttrack' )
+                    . '</div>';
+                echo '<a href="#" class="tt-user-menu-item tt-persona-switch" data-persona="" role="menuitem">'
+                    . esc_html__( 'All personas (default)', 'talenttrack' )
+                    . '</a>';
+                $persona_labels = [
+                    'player'              => __( 'Player', 'talenttrack' ),
+                    'parent'              => __( 'Parent', 'talenttrack' ),
+                    'assistant_coach'     => __( 'Assistant Coach', 'talenttrack' ),
+                    'head_coach'          => __( 'Head Coach', 'talenttrack' ),
+                    'head_of_development' => __( 'Head of Development', 'talenttrack' ),
+                    'scout'               => __( 'Scout', 'talenttrack' ),
+                    'team_manager'        => __( 'Team Manager', 'talenttrack' ),
+                    'academy_admin'       => __( 'Academy Admin', 'talenttrack' ),
+                ];
+                foreach ( $personas as $p ) {
+                    $label = $persona_labels[ $p ] ?? $p;
+                    echo '<a href="#" class="tt-user-menu-item tt-persona-switch" data-persona="' . esc_attr( $p ) . '" role="menuitem">'
+                        . esc_html( $label )
+                        . '</a>';
+                }
+                echo '</div>';
+            }
+        }
+
         if ( $is_wp_admin ) {
             echo '<a href="' . esc_url( admin_url() ) . '" class="tt-user-menu-item" role="menuitem">';
             echo esc_html__( 'Go to Admin', 'talenttrack' );
@@ -524,6 +559,42 @@ class DashboardShortcode {
                     trigger.focus();
                 }
             });
+
+            // #0033 Sprint 4 — persona switcher. Stores the active lens
+            // in sessionStorage so it resets on browser close. A banner
+            // surfaces at the top of the dashboard showing the active
+            // persona until the user clicks "back to all".
+            var STORAGE_KEY = 'tt_active_persona';
+            menu.querySelectorAll('.tt-persona-switch').forEach(function(link){
+                link.addEventListener('click', function(e){
+                    e.preventDefault();
+                    var p = link.dataset.persona || '';
+                    if (p) {
+                        sessionStorage.setItem(STORAGE_KEY, p);
+                    } else {
+                        sessionStorage.removeItem(STORAGE_KEY);
+                    }
+                    location.reload();
+                });
+            });
+
+            var active = sessionStorage.getItem(STORAGE_KEY);
+            if (active) {
+                var dash = document.querySelector('.tt-dashboard');
+                if (dash) {
+                    var banner = document.createElement('div');
+                    banner.style.cssText = 'background:#fff7e6; border:1px solid #f0c890; border-radius:6px; padding:8px 12px; margin:6px 0 12px; font-size:13px; display:flex; justify-content:space-between; align-items:center;';
+                    banner.innerHTML = '<span><?php echo esc_js( __( 'You are viewing as', 'talenttrack' ) ); ?> <strong>' + active.replace(/_/g, ' ') + '</strong>.</span>'
+                        + '<a href="#" id="tt-persona-reset" style="text-decoration:none;"><?php echo esc_js( __( 'Switch back to all personas', 'talenttrack' ) ); ?></a>';
+                    dash.insertBefore(banner, dash.firstChild.nextSibling);
+                    var reset = document.getElementById('tt-persona-reset');
+                    if (reset) reset.addEventListener('click', function(e){
+                        e.preventDefault();
+                        sessionStorage.removeItem(STORAGE_KEY);
+                        location.reload();
+                    });
+                }
+            }
         })();
         </script>
         <?php

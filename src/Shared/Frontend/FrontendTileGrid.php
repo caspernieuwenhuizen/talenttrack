@@ -151,29 +151,94 @@ class FrontendTileGrid {
         <div class="tt-ftile-grid-wrap">
         <div class="tt-ftile-greeting"><?php echo esc_html( $greeting ); ?></div>
 
-        <?php foreach ( $groups as $group ) :
+        <?php
+        // #0033 Sprint 4 — split groups into "Today's work" + "Setup &
+        // administration" sections. Daily-use tiles (Me / Tasks / People
+        // / Performance / Analytics) go up top, open by default;
+        // admin/configuration tiles (Development / Administration) go
+        // into a collapsible section, open only for admin personas.
+        [ $work_groups, $setup_groups ] = self::splitByKind( $groups );
+        $is_admin_persona = current_user_can( 'tt_edit_settings' );
+        ?>
+
+        <details class="tt-ftile-section" open>
+            <summary class="tt-ftile-section-summary"><?php esc_html_e( "Today's work", 'talenttrack' ); ?></summary>
+            <?php self::renderGroups( $work_groups ); ?>
+        </details>
+
+        <?php if ( ! empty( $setup_groups ) ) : ?>
+            <details class="tt-ftile-section"<?php echo $is_admin_persona ? ' open' : ''; ?>>
+                <summary class="tt-ftile-section-summary"><?php esc_html_e( 'Setup & administration', 'talenttrack' ); ?></summary>
+                <?php self::renderGroups( $setup_groups ); ?>
+            </details>
+        <?php endif; ?>
+        </div>
+        <style>
+        .tt-ftile-section { margin-top: calc(14px * var(--tt-tile-scale)); }
+        .tt-ftile-section-summary {
+            font-size: calc(13px * var(--tt-tile-scale));
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: #1a1d21;
+            margin: 0 0 calc(8px * var(--tt-tile-scale));
+            cursor: pointer;
+            user-select: none;
+        }
+        .tt-ftile-section[open] > .tt-ftile-section-summary { color: #0a0d12; }
+        </style>
+        <?php
+    }
+
+    /**
+     * Sprint 4 — split rendered groups into work + setup buckets by
+     * label. Groups not declared in either map default to work.
+     *
+     * @param array<int, array{label:string, tiles:array}> $groups
+     * @return array{0: array<int, array>, 1: array<int, array>}
+     */
+    private static function splitByKind( array $groups ): array {
+        $setup_labels = [
+            __( 'Development', 'talenttrack' ),
+            __( 'Administration', 'talenttrack' ),
+        ];
+        $work = [];
+        $setup = [];
+        foreach ( $groups as $g ) {
+            if ( in_array( (string) $g['label'], $setup_labels, true ) ) {
+                $setup[] = $g;
+            } else {
+                $work[] = $g;
+            }
+        }
+        return [ $work, $setup ];
+    }
+
+    /**
+     * @param array<int, array{label:string, tiles:array}> $groups
+     */
+    private static function renderGroups( array $groups ): void {
+        foreach ( $groups as $group ) {
             $visible = array_filter( $group['tiles'], function ( $t ) { return ! isset( $t['show'] ) || $t['show']; } );
             if ( empty( $visible ) ) continue;
             ?>
             <div class="tt-ftile-section-label">
-                <span><?php echo esc_html( $group['label'] ); ?></span>
+                <span><?php echo esc_html( (string) $group['label'] ); ?></span>
             </div>
             <div class="tt-ftile-grid">
                 <?php foreach ( $visible as $tile ) : ?>
-                    <a class="tt-ftile" href="<?php echo esc_url( $tile['url'] ); ?>">
-                        <span class="tt-ftile-icon" style="background:<?php echo esc_attr( $tile['color'] ); ?>;">
-                            <?php echo IconRenderer::render( $tile['icon'] ?? '' ); ?>
+                    <a class="tt-ftile" href="<?php echo esc_url( (string) $tile['url'] ); ?>">
+                        <span class="tt-ftile-icon" style="background:<?php echo esc_attr( (string) $tile['color'] ); ?>;">
+                            <?php echo IconRenderer::render( (string) ( $tile['icon'] ?? '' ) ); ?>
                         </span>
                         <div class="tt-ftile-body">
-                            <div class="tt-ftile-label"><?php echo esc_html( $tile['label'] ); ?></div>
-                            <p class="tt-ftile-desc"><?php echo esc_html( $tile['desc'] ); ?></p>
+                            <div class="tt-ftile-label"><?php echo esc_html( (string) $tile['label'] ); ?></div>
+                            <p class="tt-ftile-desc"><?php echo esc_html( (string) $tile['desc'] ); ?></p>
                         </div>
                     </a>
                 <?php endforeach; ?>
             </div>
-        <?php endforeach; ?>
-        </div>
-        <?php
+            <?php
+        }
     }
 
     /* ═══════════════ Tile definitions ═══════════════ */
