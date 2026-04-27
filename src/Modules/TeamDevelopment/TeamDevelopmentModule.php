@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Modules\TeamDevelopment\CompatibilityEngine;
+use TT\Modules\TeamDevelopment\Frontend\PlayerTeamFitPanel;
 use TT\Modules\TeamDevelopment\Rest\TeamDevelopmentRestController;
 
 /**
@@ -33,6 +35,17 @@ class TeamDevelopmentModule implements ModuleInterface {
     public function boot( Container $container ): void {
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
         TeamDevelopmentRestController::init();
+        PlayerTeamFitPanel::init();
+
+        // Sprint 2 — invalidate per-player fit cache whenever an
+        // evaluation save crosses the boundary. The eval REST + admin
+        // forms both fire `tt_evaluation_saved` with the player id.
+        add_action( 'tt_evaluation_saved', [ self::class, 'invalidatePlayerFit' ], 10, 1 );
+    }
+
+    public static function invalidatePlayerFit( int $player_id ): void {
+        if ( $player_id <= 0 ) return;
+        ( new CompatibilityEngine() )->invalidateCache( $player_id );
     }
 
     /**

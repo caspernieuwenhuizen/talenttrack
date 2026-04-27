@@ -158,7 +158,7 @@ class DashboardShortcode {
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
         $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'my-pdp', 'profile' ];
-        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'podium', 'methodology' ];
+        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'team-chemistry', 'podium', 'methodology' ];
         $analytics_slugs = [ 'rate-cards', 'compare' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
         // #0021 — `audit-log` added; uses the same admin tier (cap-checked
@@ -335,6 +335,14 @@ class DashboardShortcode {
                 break;
             case 'pdp':
                 \TT\Modules\Pdp\Frontend\FrontendPdpManageView::render( $user_id, $is_admin );
+                break;
+            case 'team-chemistry':
+                if ( ! current_user_can( 'tt_view_team_chemistry' ) ) {
+                    FrontendBackButton::render();
+                    echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to team chemistry boards.', 'talenttrack' ) . '</p>';
+                    break;
+                }
+                \TT\Modules\TeamDevelopment\Frontend\FrontendTeamChemistryView::render( $user_id, $is_admin );
                 break;
             case 'podium':
                 FrontendPodiumView::render( $user_id, $is_admin );

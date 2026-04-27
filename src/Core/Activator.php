@@ -680,8 +680,36 @@ class Activator {
             KEY idx_active (left_at)
         ) $c;";
 
+        // #0018 sprint 4 — coach-marked pairings.
+        $queries[] = "CREATE TABLE {$p}tt_team_chemistry_pairings (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            team_id BIGINT UNSIGNED NOT NULL,
+            player_a_id BIGINT UNSIGNED NOT NULL,
+            player_b_id BIGINT UNSIGNED NOT NULL,
+            note VARCHAR(500) DEFAULT NULL,
+            created_by BIGINT UNSIGNED DEFAULT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_pairing (team_id, player_a_id, player_b_id),
+            KEY idx_team (team_id),
+            KEY idx_player_a (player_a_id),
+            KEY idx_player_b (player_b_id)
+        ) $c;";
+
         foreach ( $queries as $sql ) {
             dbDelta( $sql );
+        }
+
+        // #0018 sprint 2 — side-preference column on tt_players.
+        $players_table = $p . 'tt_players';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $players_table ) ) === $players_table ) {
+            $has_side = $wpdb->get_row( $wpdb->prepare(
+                "SHOW COLUMNS FROM `$players_table` LIKE %s",
+                'position_side_preference'
+            ) );
+            if ( $has_side === null ) {
+                $wpdb->query( "ALTER TABLE `$players_table` ADD COLUMN `position_side_preference` VARCHAR(10) DEFAULT NULL" );
+            }
         }
 
         // Per-team override column on tt_teams (#0044). dbDelta doesn't

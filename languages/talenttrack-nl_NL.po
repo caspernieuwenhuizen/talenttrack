@@ -7637,3 +7637,130 @@ msgstr "(onbekend)"
 
 msgid "%s logged"
 msgstr "%s vastgelegd"
+
+# #0018 — team development sprints 2-5 (engine + UI + pairings + team-fit)
+msgid "Team chemistry"
+msgstr "Teamchemie"
+
+msgid "Formation board with auto-suggested XI, depth chart, and chemistry breakdown."
+msgstr "Formatiebord met automatisch voorgestelde basiself, dieptestaat en chemie-opbouw."
+
+msgid "Formation board with auto-suggested XI, depth chart, paired-player overrides, and traceable fit scores."
+msgstr "Formatiebord met automatisch voorgestelde basiself, dieptestaat, koppel­overrides en traceerbare fit-scores."
+
+msgid "Pick a team to open the formation board with auto-suggested XI, depth chart, and chemistry breakdown."
+msgstr "Kies een team om het formatiebord te openen met automatisch voorgestelde basiself, dieptestaat en chemie-opbouw."
+
+msgid "Open chemistry board →"
+msgstr "Open chemie-bord →"
+
+msgid "No teams to show. Coaches see chemistry boards for teams they head-coach."
+msgstr "Geen teams te tonen. Coaches zien chemie-borden voor teams waarvan ze hoofdcoach zijn."
+
+msgid "Team chemistry — %s"
+msgstr "Teamchemie — %s"
+
+msgid "← Back to team picker"
+msgstr "← Terug naar team­keuze"
+
+msgid "You do not coach this team."
+msgstr "Je bent geen coach van dit team."
+
+msgid "No formation template configured. Configure one in Settings → Team development."
+msgstr "Geen formatie­sjabloon ingesteld. Configureer er een in Instellingen → Team development."
+
+msgid "No formation template available. Run migrations to seed defaults."
+msgstr "Geen formatie­sjabloon beschikbaar. Voer migraties uit om standaarden te zaaien."
+
+msgid "Formation: %s"
+msgstr "Formatie: %s"
+
+msgid "Style: possession %1$d / counter %2$d / press %3$d"
+msgstr "Stijl: balbezit %1$d / counter %2$d / press %3$d"
+
+msgid "%1$s — best fit at %2$s (%3$.2f)"
+msgstr "%1$s — beste fit op %2$s (%3$.2f)"
+
+msgid "No suggested player for %s"
+msgstr "Geen voorgestelde speler voor %s"
+
+msgid "Team chemistry: %s / 5"
+msgstr "Teamchemie: %s / 5"
+
+msgid "Formation fit"
+msgstr "Formatie-fit"
+
+msgid "Style fit"
+msgstr "Stijl-fit"
+
+msgid "Depth"
+msgstr "Diepte"
+
+msgid "Paired bonus"
+msgstr "Koppel­bonus"
+
+msgid "Depth chart"
+msgstr "Dieptestaat"
+
+msgid "Slot"
+msgstr "Slot"
+
+msgid "1st choice"
+msgstr "1e keuze"
+
+msgid "2nd choice"
+msgstr "2e keuze"
+
+msgid "3rd choice"
+msgstr "3e keuze"
+
+msgid "Coach-marked pairings"
+msgstr "Coach-gemarkeerde koppels"
+
+msgid "No pairings yet. Mark \"always start these two together\" pairs to factor into the chemistry score."
+msgstr "Nog geen koppels. Markeer \"altijd samen opstellen\"-koppels om mee te tellen in de chemie­score."
+
+msgid "Player A"
+msgstr "Speler A"
+
+msgid "Player B"
+msgstr "Speler B"
+
+msgid "Remove this pairing?"
+msgstr "Dit koppel verwijderen?"
+
+msgid "— Player A —"
+msgstr "— Speler A —"
+
+msgid "— Player B —"
+msgstr "— Speler B —"
+
+msgid "Optional note"
+msgstr "Optionele notitie"
+
+msgid "Add pairing"
+msgstr "Koppel toevoegen"
+
+msgid "Pick two different players."
+msgstr "Kies twee verschillende spelers."
+
+msgid "Could not save the pairing."
+msgstr "Kon het koppel niet opslaan."
+
+msgid "Invalid pairing id."
+msgstr "Ongeldig koppel-id."
+
+msgid "Could not delete the pairing."
+msgstr "Kon het koppel niet verwijderen."
+
+msgid "Best fit positions"
+msgstr "Beste posities"
+
+msgid "Hover an entry to see the underlying rating breakdown. Computed against the team's active formation template."
+msgstr "Houd de muis op een regel om de onderliggende beoordelings­opbouw te zien. Berekend tegen het actieve formatie­sjabloon van het team."
+
+msgid "Fit for %1$s: %2$s"
+msgstr "Fit voor %1$s: %2$s"
+
+msgid "Your role does not have access to team chemistry boards."
+msgstr "Jouw rol heeft geen toegang tot teamchemie-borden."

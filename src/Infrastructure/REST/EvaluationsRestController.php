@@ -94,6 +94,11 @@ class EvaluationsRestController {
             );
         }
 
+        // #0018 — let downstream listeners (e.g. CompatibilityEngine
+        // cache invalidation) know the player's evaluation surface
+        // changed.
+        do_action( 'tt_evaluation_saved', (int) $header['player_id'], $id );
+
         return RestResponse::success( [ 'id' => $id ] );
     }
 
@@ -129,6 +134,12 @@ class EvaluationsRestController {
                     [ 'evaluation_id' => $id, 'failures' => $rating_failures ]
                 );
             }
+        }
+
+        // #0018 — same hook as create_eval; let cache invalidators
+        // know the player's evaluation surface changed.
+        if ( ! empty( $header['player_id'] ) ) {
+            do_action( 'tt_evaluation_saved', (int) $header['player_id'], $id );
         }
 
         return RestResponse::success( [ 'id' => $id ] );
