@@ -34,7 +34,16 @@ class ConfigurationPage {
     }
 
     public static function render_page(): void {
-        $tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tab'] ) ) : 'eval_types';
+        $tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tab'] ) ) : '';
+
+        // v2.12.0: eval_categories retired as a Configuration tab — it now
+        // lives at TalentTrack → Evaluation Categories (top-level, supports
+        // hierarchy). Redirect anyone bookmarked on the old URL.
+        if ( $tab === 'eval_categories' ) {
+            wp_safe_redirect( admin_url( 'admin.php?page=tt-eval-categories' ) );
+            exit;
+        }
+
         $tabs = [
             'eval_types'      => __( 'Evaluation Types', 'talenttrack' ),
             'positions'       => __( 'Positions', 'talenttrack' ),
@@ -51,31 +60,28 @@ class ConfigurationPage {
             'translations'    => __( 'Translations', 'talenttrack' ),
             'audit'           => __( 'Audit Log', 'talenttrack' ),
         ];
-        // #0025 — let other modules append config tabs without
-        // editing this file. Existing keys win on collision.
+        // #0025 — let other modules append config tabs without editing
+        // this file. Existing keys win on collision.
         $tabs = apply_filters( 'tt_config_tabs', $tabs );
 
-        // v2.12.0: eval_categories retired as a Configuration tab — it now
-        // lives at TalentTrack → Evaluation Categories (top-level, supports
-        // hierarchy). Redirect anyone bookmarked on the old URL.
-        if ( $tab === 'eval_categories' ) {
-            wp_safe_redirect( admin_url( 'admin.php?page=tt-eval-categories' ) );
-            exit;
+        if ( $tab === '' ) {
+            self::render_tile_landing( $tabs );
+            return;
         }
+
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'TalentTrack Configuration', 'talenttrack' ); ?> <?php \TT\Shared\Admin\HelpLink::render( 'configuration-branding' ); ?></h1>
+            <h1>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-config' ) ); ?>" class="page-title-action" style="margin-right:10px;">← <?php esc_html_e( 'Configuration', 'talenttrack' ); ?></a>
+                <?php echo esc_html( (string) ( $tabs[ $tab ] ?? __( 'TalentTrack Configuration', 'talenttrack' ) ) ); ?>
+                <?php \TT\Shared\Admin\HelpLink::render( 'configuration-branding' ); ?>
+            </h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?>
                 <div class="notice notice-success is-dismissible"><p><?php echo $_GET['tt_msg'] === 'deleted' ? esc_html__( 'Deleted.', 'talenttrack' ) : esc_html__( 'Saved.', 'talenttrack' ); ?></p></div>
             <?php endif; ?>
             <?php if ( isset( $_GET['tt_error'] ) ) : ?>
                 <div class="notice notice-error is-dismissible"><p><?php echo esc_html( self::errorMessage( (string) $_GET['tt_error'] ) ); ?></p></div>
             <?php endif; ?>
-            <nav class="nav-tab-wrapper">
-                <?php foreach ( $tabs as $k => $l ) : ?>
-                    <a href="<?php echo esc_url( admin_url( "admin.php?page=tt-config&tab=$k" ) ); ?>" class="nav-tab <?php echo $tab === $k ? 'nav-tab-active' : ''; ?>"><?php echo esc_html( $l ); ?></a>
-                <?php endforeach; ?>
-            </nav>
             <div style="margin-top:20px;">
             <?php
             switch ( $tab ) {
@@ -102,6 +108,197 @@ class ConfigurationPage {
             </div>
         </div>
         <?php
+    }
+
+    /**
+     * Tile-grid landing for ?page=tt-config without a ?tab= param (#0040).
+     * Replaces the previous default-to-eval_types tab strip.
+     *
+     * @param array<string,string> $tabs slug => label of in-page tabs.
+     */
+    private static function render_tile_landing( array $tabs ): void {
+        $groups = self::tile_groups( $tabs );
+        ?>
+        <div class="wrap tt-config-landing">
+            <h1><?php esc_html_e( 'TalentTrack Configuration', 'talenttrack' ); ?> <?php \TT\Shared\Admin\HelpLink::render( 'configuration-branding' ); ?></h1>
+            <?php if ( isset( $_GET['tt_msg'] ) ) : ?>
+                <div class="notice notice-success is-dismissible"><p><?php echo $_GET['tt_msg'] === 'deleted' ? esc_html__( 'Deleted.', 'talenttrack' ) : esc_html__( 'Saved.', 'talenttrack' ); ?></p></div>
+            <?php endif; ?>
+            <p class="description" style="max-width:740px;margin:8px 0 24px;">
+                <?php esc_html_e( 'Pick a topic to configure. Each tile opens the dedicated screen for that area. Use the back link on any screen to return here.', 'talenttrack' ); ?>
+            </p>
+
+            <?php foreach ( $groups as $group ) :
+                if ( empty( $group['tiles'] ) ) continue;
+            ?>
+                <h2 style="margin-top:24px;border-bottom:1px solid #dcdcde;padding-bottom:6px;"><?php echo esc_html( (string) $group['label'] ); ?></h2>
+                <div class="tt-config-tile-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin:14px 0;">
+                    <?php foreach ( $group['tiles'] as $tile ) : ?>
+                        <a href="<?php echo esc_url( (string) $tile['url'] ); ?>" class="tt-config-tile" style="display:block;background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:16px;text-decoration:none;color:inherit;transition:box-shadow .15s,border-color .15s;"
+                           onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,.08)';this.style.borderColor='#2271b1';"
+                           onmouseout="this.style.boxShadow='none';this.style.borderColor='#dcdcde';">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                                <span style="font-size:22px;line-height:1;" aria-hidden="true"><?php echo esc_html( (string) ( $tile['icon'] ?? '' ) ); ?></span>
+                                <strong style="font-size:14px;"><?php echo esc_html( (string) $tile['label'] ); ?></strong>
+                            </div>
+                            <?php if ( ! empty( $tile['description'] ) ) : ?>
+                                <span style="display:block;font-size:12px;color:#646970;line-height:1.45;"><?php echo esc_html( (string) $tile['description'] ); ?></span>
+                            <?php endif; ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php
+    }
+
+    /**
+     * Builds the tile groups for the Configuration landing.
+     *
+     * Each tile has: label, description, icon, url, and an optional
+     * `cap` (defaults to tt_view_settings — tile is filtered out if
+     * the current user lacks the cap).
+     *
+     * Filterable via `tt_config_tile_groups` so other modules can
+     * append tiles without editing this file.
+     *
+     * @param array<string,string> $tabs slug => label of in-page tabs.
+     * @return array<int, array{label: string, tiles: array<int, array{label:string, description:string, icon:string, url:string, cap?:string}>}>
+     */
+    private static function tile_groups( array $tabs ): array {
+        $tab_url = static fn ( string $slug ): string => admin_url( 'admin.php?page=tt-config&tab=' . $slug );
+        $page_url = static fn ( string $slug ): string => admin_url( 'admin.php?page=' . $slug );
+
+        $tab_label = static function ( string $slug, string $fallback ) use ( $tabs ): string {
+            return isset( $tabs[ $slug ] ) ? (string) $tabs[ $slug ] : $fallback;
+        };
+
+        $groups = [
+            [
+                'label' => __( 'Lookups & reference data', 'talenttrack' ),
+                'tiles' => [
+                    [ 'label' => $tab_label( 'eval_types', __( 'Evaluation Types', 'talenttrack' ) ),
+                      'description' => __( 'The kinds of evaluation a coach can record (Training, Match, etc.).', 'talenttrack' ),
+                      'icon' => '📋', 'url' => $tab_url( 'eval_types' ) ],
+                    [ 'label' => $tab_label( 'positions', __( 'Positions', 'talenttrack' ) ),
+                      'description' => __( 'Player positions used on profiles, line-ups, and reports.', 'talenttrack' ),
+                      'icon' => '🧭', 'url' => $tab_url( 'positions' ) ],
+                    [ 'label' => $tab_label( 'foot_options', __( 'Preferred Foot', 'talenttrack' ) ),
+                      'description' => __( 'Left / right / both — used on the player profile.', 'talenttrack' ),
+                      'icon' => '🦶', 'url' => $tab_url( 'foot_options' ) ],
+                    [ 'label' => $tab_label( 'age_groups', __( 'Age Groups', 'talenttrack' ) ),
+                      'description' => __( 'Age categories your academy uses (U10, U12, etc.).', 'talenttrack' ),
+                      'icon' => '👥', 'url' => $tab_url( 'age_groups' ) ],
+                    [ 'label' => $tab_label( 'goal_statuses', __( 'Goal Statuses', 'talenttrack' ) ),
+                      'description' => __( 'Lifecycle states a development goal can be in.', 'talenttrack' ),
+                      'icon' => '🎯', 'url' => $tab_url( 'goal_statuses' ) ],
+                    [ 'label' => $tab_label( 'goal_priorities', __( 'Goal Priorities', 'talenttrack' ) ),
+                      'description' => __( 'Priority levels for goals (low / medium / high).', 'talenttrack' ),
+                      'icon' => '🚦', 'url' => $tab_url( 'goal_priorities' ) ],
+                    [ 'label' => $tab_label( 'att_statuses', __( 'Attendance Statuses', 'talenttrack' ) ),
+                      'description' => __( 'Values shown in the attendance dropdown (present, absent, …).', 'talenttrack' ),
+                      'icon' => '✅', 'url' => $tab_url( 'att_statuses' ) ],
+                    [ 'label' => $tab_label( 'rating', __( 'Rating Scale', 'talenttrack' ) ),
+                      'description' => __( 'Min / max / step for evaluation ratings; low-rating comment policy.', 'talenttrack' ),
+                      'icon' => '⭐', 'url' => $tab_url( 'rating' ) ],
+                    [ 'label' => __( 'Evaluation Categories', 'talenttrack' ),
+                      'description' => __( 'Hierarchy of evaluation categories (Technical, Tactical, …).', 'talenttrack' ),
+                      'icon' => '🌳', 'url' => $page_url( 'tt-eval-categories' ) ],
+                    [ 'label' => __( 'Category Weights', 'talenttrack' ),
+                      'description' => __( 'How heavily each main category counts towards the overall score.', 'talenttrack' ),
+                      'icon' => '⚖️', 'url' => $page_url( 'tt-category-weights' ) ],
+                ],
+            ],
+            [
+                'label' => __( 'Branding & display', 'talenttrack' ),
+                'tiles' => [
+                    [ 'label' => $tab_label( 'branding', __( 'Branding', 'talenttrack' ) ),
+                      'description' => __( 'Academy name, logo, primary colours, fonts, theme inheritance.', 'talenttrack' ),
+                      'icon' => '🎨', 'url' => $tab_url( 'branding' ) ],
+                    [ 'label' => $tab_label( 'toggles', __( 'Feature Toggles', 'talenttrack' ) ),
+                      'description' => __( 'Enable or disable individual features without code changes.', 'talenttrack' ),
+                      'icon' => '🔀', 'url' => $tab_url( 'toggles' ) ],
+                    [ 'label' => $tab_label( 'translations', __( 'Translations', 'talenttrack' ) ),
+                      'description' => __( 'Per-locale overrides for built-in text.', 'talenttrack' ),
+                      'icon' => '🌐', 'url' => $tab_url( 'translations' ) ],
+                ],
+            ],
+            [
+                'label' => __( 'Authorization', 'talenttrack' ),
+                'tiles' => [
+                    [ 'label' => __( 'Authorization Matrix', 'talenttrack' ),
+                      'description' => __( 'Capability-by-persona matrix that drives access control.', 'talenttrack' ),
+                      'icon' => '🔐', 'url' => $page_url( 'tt-matrix' ),
+                      'cap' => 'administrator' ],
+                    [ 'label' => __( 'Functional Roles', 'talenttrack' ),
+                      'description' => __( 'Per-team functional roles assignable to staff (Head Coach, …).', 'talenttrack' ),
+                      'icon' => '🧩', 'url' => $page_url( 'tt-functional-roles' ) ],
+                    [ 'label' => __( 'Roles & Permissions', 'talenttrack' ),
+                      'description' => __( 'Inspect the WordPress roles and capabilities TalentTrack uses.', 'talenttrack' ),
+                      'icon' => '👤', 'url' => $page_url( 'tt-roles' ) ],
+                    [ 'label' => __( 'Migration preview', 'talenttrack' ),
+                      'description' => __( 'Preview of cap changes before activating the matrix.', 'talenttrack' ),
+                      'icon' => '🔍', 'url' => $page_url( 'tt-matrix-preview' ),
+                      'cap' => 'administrator' ],
+                    [ 'label' => __( 'Modules', 'talenttrack' ),
+                      'description' => __( 'Enable or disable optional TalentTrack modules.', 'talenttrack' ),
+                      'icon' => '🧱', 'url' => $page_url( 'tt-modules' ),
+                      'cap' => 'administrator' ],
+                    [ 'label' => __( 'Permission Debug', 'talenttrack' ),
+                      'description' => __( 'Debug screen showing which capabilities the current user has.', 'talenttrack' ),
+                      'icon' => '🐛', 'url' => $page_url( 'tt-roles-debug' ) ],
+                ],
+            ],
+            [
+                'label' => __( 'System', 'talenttrack' ),
+                'tiles' => [
+                    [ 'label' => $tab_label( 'backups', __( 'Backups', 'talenttrack' ) ),
+                      'description' => __( 'Schedule and download SQL backups of the TalentTrack tables.', 'talenttrack' ),
+                      'icon' => '💾', 'url' => $tab_url( 'backups' ) ],
+                    [ 'label' => $tab_label( 'wizard', __( 'Setup wizard', 'talenttrack' ) ),
+                      'description' => __( 'Re-run the first-launch wizard (academy basics, first team, first admin).', 'talenttrack' ),
+                      'icon' => '🪄', 'url' => $tab_url( 'wizard' ) ],
+                    [ 'label' => $tab_label( 'audit', __( 'Audit Log', 'talenttrack' ) ),
+                      'description' => __( 'Recent recorded changes (saves, deletions, role updates).', 'talenttrack' ),
+                      'icon' => '📜', 'url' => $tab_url( 'audit' ) ],
+                    [ 'label' => __( 'Migrations', 'talenttrack' ),
+                      'description' => __( 'Apply pending database migrations.', 'talenttrack' ),
+                      'icon' => '🛠️', 'url' => $page_url( 'tt-migrations' ) ],
+                ],
+            ],
+            [
+                'label' => __( 'Custom data', 'talenttrack' ),
+                'tiles' => [
+                    [ 'label' => __( 'Custom Fields', 'talenttrack' ),
+                      'description' => __( 'Add club-specific fields to the player profile form.', 'talenttrack' ),
+                      'icon' => '✏️', 'url' => $page_url( 'tt-custom-fields' ) ],
+                ],
+            ],
+            [
+                'label' => __( 'Players & bulk actions', 'talenttrack' ),
+                'tiles' => [
+                    [ 'label' => __( 'Bulk player import', 'talenttrack' ),
+                      'description' => __( 'Upload a CSV to create players in bulk.', 'talenttrack' ),
+                      'icon' => '📥', 'url' => home_url( '/?tt_view=players-import' ) ],
+                ],
+            ],
+        ];
+
+        $groups = (array) apply_filters( 'tt_config_tile_groups', $groups );
+
+        // Filter tiles by capability (default: tt_view_settings).
+        foreach ( $groups as $gi => $group ) {
+            if ( empty( $group['tiles'] ) || ! is_array( $group['tiles'] ) ) {
+                $groups[ $gi ]['tiles'] = [];
+                continue;
+            }
+            $groups[ $gi ]['tiles'] = array_values( array_filter( $group['tiles'], static function ( $tile ) {
+                $cap = (string) ( $tile['cap'] ?? 'tt_view_settings' );
+                return current_user_can( $cap );
+            } ) );
+        }
+
+        return $groups;
     }
 
     private static function errorMessage( string $code ): string {

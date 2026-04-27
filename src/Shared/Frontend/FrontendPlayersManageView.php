@@ -68,7 +68,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
             return;
         }
 
-        self::renderHeader( __( 'Players', 'talenttrack' ) );
+        self::renderHeader( $is_admin ? __( 'Players', 'talenttrack' ) : __( 'My players', 'talenttrack' ) );
         self::renderList( $user_id, $is_admin );
     }
 
@@ -79,9 +79,28 @@ class FrontendPlayersManageView extends FrontendViewBase {
         $base_url = remove_query_arg( [ 'action', 'id', 'player_id' ] );
         $new_url  = add_query_arg( [ 'tt_view' => 'players', 'action' => 'new' ], $base_url );
 
-        echo '<p style="margin:0 0 var(--tt-sp-3, 12px);"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
+        // #0040 — non-admin "My players" empty state when the user
+        // coaches no teams. Without it the FrontendListTable would
+        // render an empty grid with no explanation.
+        if ( ! $is_admin && empty( QueryHelpers::get_teams_for_coach( $user_id ) ) ) {
+            echo '<p class="tt-notice">'
+                . esc_html__( "You don't coach any teams yet, so you don't have any players to view here. Ask an administrator to assign you to a team.", 'talenttrack' )
+                . '</p>';
+            return;
+        }
+
+        $primary_actions = '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
             . esc_html__( 'New player', 'talenttrack' )
-            . '</a></p>';
+            . '</a>';
+        // #0040 — bulk import shortcut surfaces above the list when
+        // the user has the cap, replacing the dashboard tile.
+        if ( current_user_can( 'tt_edit_players' ) ) {
+            $import_url = add_query_arg( [ 'tt_view' => 'players-import' ], $base_url );
+            $primary_actions .= ' <a class="tt-btn tt-btn-secondary" href="' . esc_url( $import_url ) . '">'
+                . esc_html__( 'Import from CSV', 'talenttrack' )
+                . '</a>';
+        }
+        echo '<p style="margin:0 0 var(--tt-sp-3, 12px);">' . $primary_actions . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped above.
 
         $position_options = [];
         foreach ( QueryHelpers::get_lookup_names( 'position' ) as $pos ) {

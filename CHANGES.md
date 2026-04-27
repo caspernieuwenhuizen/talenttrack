@@ -1,3 +1,68 @@
+# TalentTrack v3.29.0 — Dashboard regroup + Configuration tile-landing + i18n cleanup (#0040)
+
+A bundled hygiene release: ten paper-cut UX + i18n issues surfaced in the 2026-04-27 review session, all small individually but mutually reinforcing. Single PR.
+
+## What changed
+
+### Configuration tile-landing
+
+- Visiting `?page=tt-config` (no `?tab=` param) now renders a tile-grid landing instead of dropping straight into the first tab.
+- Six groups: **Lookups & reference data**, **Branding & display**, **Authorization**, **System**, **Custom data**, **Players & bulk actions**. Each group's tiles drill into either an in-page tab (the historical 14 lookup + branding + system tabs) or an existing top-level admin page (Custom Fields, Evaluation Categories, Authorization Matrix, Modules, etc.) — one place to discover everything.
+- Old `?page=tt-config&tab=<slug>` URLs still resolve. The tab strip is gone; from any tab the page-title gains a "← Configuration" back link.
+- Filterable via a new `tt_config_tile_groups` filter so future modules can append tiles.
+
+### Dashboard tile cleanup
+
+- Pruned: Custom fields, Eval categories, Roles, and Import players tiles removed from the dashboard tile grid. Custom Fields + Eval Categories are reachable via the new Configuration landing. The Roles surface is admin-only and reached via the Matrix help icon.
+- Methodology moved out of the **Performance** group into a new dedicated **Reference** group.
+- "Players" tile re-labels to **My players** for non-admin users and uses a description matching the coach-team-scoped data path. Admins still see "Players" with the full academy roster.
+
+### Players + Teams views — bulk import surfaces
+
+- Bulk player import tile no longer in the dashboard People group.
+- Players list page: an "Import from CSV" button next to "New player" (cap-gated on `tt_edit_players`).
+- Teams list page: an "Import players from CSV" button next to "New team".
+- Configuration tile-grid landing: a "Bulk player import" tile under the "Players & bulk actions" group.
+
+### Activity-type filter
+
+- Admin Activities page chip-strip ("All · Games · Trainings · Other") replaced with a `<select>` dropdown that submits on change.
+- Storage column `activity_type_key` still enforces the three hardcoded keys (game / training / other); a future enhancement could move them to a lookup-driven set if academies want custom activity types.
+
+### Attendance status translation
+
+- The attendance dropdown in both wp-admin Activities form and the frontend Activities form now wraps the displayed name through `LabelTranslator::attendanceStatus( $name )`. The four shipped values (Present / Absent / Late / Excused) get translated via the .po file (Aanwezig / Afwezig / Te laat / Afgemeld in nl_NL). Admin-added values fall through to the literal name.
+
+### Guest-add modal — i18n cleanup
+
+- Modal had Dutch msgids (`__('Gast toevoegen')`, `__('Sluiten')`, …) — non-Dutch users would have seen literal Dutch. All msgids translated to English with Dutch translations in the .po.
+- Two stray hardcoded Dutch strings in the activity Guests section ("Spelers van buiten de selectie." help line and "Nog geen gasten toegevoegd." empty-state) translated as well.
+- The fuzzy player picker + team filter inside the modal — already shipped in v3.22.0 / #0037, so the spec line item ("confirm fuzzy is wired") was already true. No code change needed there.
+
+### Authorization Matrix help icon
+
+- Page title now carries a "? Help on this topic" link that deep-links to `docs/access-control.md`, matching the pattern on Configuration / Players / Activities.
+
+### Deferred (need reproducer data)
+
+- **#8 — Admin sees no activities, player does.** Will land once the user provides URL + DB count.
+- **#12 — Workflow shipped templates not visible on the frontend.** Needs three diagnostic data points (template list state in `?tt_view=workflow-config`, contents of `tt_workflow_triggers`, state of `?tt_view=my-tasks`).
+
+## Files of note
+
+- `src/Modules/Configuration/Admin/ConfigurationPage.php` — tile-landing + 6-group definitions + per-tile capability filter.
+- `src/Shared/Frontend/FrontendTileGrid.php` — tile prune + Reference group + conditional Players label.
+- `src/Shared/Frontend/FrontendPlayersManageView.php` — "My players" header + empty state + Import from CSV button.
+- `src/Shared/Frontend/FrontendTeamsManageView.php` — Import players from CSV button.
+- `src/Modules/Activities/Admin/ActivitiesPage.php` — type-filter dropdown + LabelTranslator wrap on attendance.
+- `src/Shared/Frontend/Components/GuestAddModal.php` — i18n cleanup.
+- `src/Modules/Authorization/Admin/MatrixPage.php` — help-icon deep-link.
+- `languages/talenttrack-nl_NL.po` — new Dutch msgstr block for the new strings.
+- `docs/configuration-branding.md` + nl_NL — tile-grid landing documented.
+- `docs/coach-dashboard.md` + nl_NL — My players + Reference group + bulk import button.
+
+---
+
 # TalentTrack v3.26.0 — #0033 authorization epic complete (sprints 6 / 7 / 8 / 9)
 
 Closes the 9-sprint #0033 authorization epic that started in v3.24.0 (sprints 1+2) and continued through v3.25.0 (sprints 3+4+5). This release lands the final four sprints in a single PR.

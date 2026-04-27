@@ -6967,3 +6967,149 @@ msgstr "Alle"
 
 msgid "No attendance records match these filters."
 msgstr "Geen aanwezigheidsrecords voor deze filters."
+
+# === #0040 — dashboard regroup + Configuration tile-landing + i18n cleanup ===
+
+msgid "My players"
+msgstr "Mijn spelers"
+
+msgid "Full academy roster."
+msgstr "Volledige spelerslijst van de academie."
+
+msgid "Players on the teams you coach."
+msgstr "Spelers van de teams die jij coacht."
+
+msgid "Reference"
+msgstr "Naslag"
+
+msgid "Lookups, branding, authorization, system settings."
+msgstr "Lookups, branding, autorisatie en systeeminstellingen."
+
+msgid "Pick a topic to configure. Each tile opens the dedicated screen for that area. Use the back link on any screen to return here."
+msgstr "Kies een onderwerp om in te stellen. Elke tegel opent het bijbehorende scherm. Gebruik de terug-link bovenaan elk scherm om hier terug te komen."
+
+msgid "Lookups & reference data"
+msgstr "Lookups & naslag­gegevens"
+
+msgid "Branding & display"
+msgstr "Branding & weergave"
+
+msgid "Authorization"
+msgstr "Autorisatie"
+
+msgid "Custom data"
+msgstr "Aangepaste gegevens"
+
+msgid "Players & bulk actions"
+msgstr "Spelers & bulkacties"
+
+msgid "The kinds of evaluation a coach can record (Training, Match, etc.)."
+msgstr "De soorten evaluaties die een coach kan vastleggen (training, wedstrijd, etc.)."
+
+msgid "Player positions used on profiles, line-ups, and reports."
+msgstr "Posities die gebruikt worden in profielen, opstellingen en rapporten."
+
+msgid "Left / right / both — used on the player profile."
+msgstr "Links / rechts / beide — gebruikt in het spelerprofiel."
+
+msgid "Age categories your academy uses (U10, U12, etc.)."
+msgstr "Leeftijdscategorieën die jouw academie gebruikt (O10, O12, etc.)."
+
+msgid "Lifecycle states a development goal can be in."
+msgstr "Statussen die een ontwikkelingsdoel kan hebben."
+
+msgid "Priority levels for goals (low / medium / high)."
+msgstr "Prioriteitsniveaus voor doelen (laag / middel / hoog)."
+
+msgid "Values shown in the attendance dropdown (present, absent, …)."
+msgstr "Waarden in de aanwezigheidskeuze (aanwezig, afwezig, …)."
+
+msgid "Min / max / step for evaluation ratings; low-rating comment policy."
+msgstr "Min / max / stap voor evaluatiebeoordelingen; commentaarbeleid bij lage score."
+
+msgid "Hierarchy of evaluation categories (Technical, Tactical, …)."
+msgstr "Hiërarchie van evaluatiecategorieën (Technisch, Tactisch, …)."
+
+msgid "How heavily each main category counts towards the overall score."
+msgstr "Hoe zwaar elke hoofdcategorie meetelt in de totaalscore."
+
+msgid "Academy name, logo, primary colours, fonts, theme inheritance."
+msgstr "Naam academie, logo, primaire kleuren, lettertypen, thema-overerving."
+
+msgid "Enable or disable individual features without code changes."
+msgstr "Schakel afzonderlijke functies in of uit zonder code­wijzigingen."
+
+msgid "Per-locale overrides for built-in text."
+msgstr "Per-taal overrides voor ingebouwde teksten."
+
+msgid "Capability-by-persona matrix that drives access control."
+msgstr "Persona-per-bevoegdheid matrix die de toegangscontrole stuurt."
+
+msgid "Per-team functional roles assignable to staff (Head Coach, …)."
+msgstr "Per-team functionele rollen die toewijsbaar zijn aan staf (hoofdcoach, …)."
+
+msgid "Inspect the WordPress roles and capabilities TalentTrack uses."
+msgstr "Bekijk de WordPress-rollen en bevoegdheden die TalentTrack gebruikt."
+
+msgid "Preview of cap changes before activating the matrix."
+msgstr "Voorbeeld van rechten­wijzigingen voordat je de matrix activeert."
+
+msgid "Enable or disable optional TalentTrack modules."
+msgstr "Schakel optionele TalentTrack-modules in of uit."
+
+msgid "Debug screen showing which capabilities the current user has."
+msgstr "Debugscherm dat toont welke bevoegdheden de huidige gebruiker heeft."
+
+msgid "Schedule and download SQL backups of the TalentTrack tables."
+msgstr "Plan en download SQL-backups van de TalentTrack-tabellen."
+
+msgid "Re-run the first-launch wizard (academy basics, first team, first admin)."
+msgstr "Doorloop de installatie-wizard opnieuw (basisgegevens, eerste team, eerste beheerder)."
+
+msgid "Recent recorded changes (saves, deletions, role updates)."
+msgstr "Recent vastgelegde wijzigingen (opslagen, verwijderingen, rolwijzigingen)."
+
+msgid "Apply pending database migrations."
+msgstr "Voer openstaande database­migraties uit."
+
+msgid "Add club-specific fields to the player profile form."
+msgstr "Voeg club­specifieke velden toe aan het spelerprofiel­formulier."
+
+msgid "Upload a CSV to create players in bulk."
+msgstr "Upload een CSV om in één keer meerdere spelers aan te maken."
+
+msgid "Bulk player import"
+msgstr "Bulk spelerimport"
+
+msgid "You don't coach any teams yet, so you don't have any players to view here. Ask an administrator to assign you to a team."
+msgstr "Je coacht nog geen teams, dus je hebt hier geen spelers om te bekijken. Vraag een beheerder om je aan een team toe te wijzen."
+
+msgid "Import from CSV"
+msgstr "Importeer uit CSV"
+
+msgid "Players from outside the squad. Guests do not count toward team stats."
+msgstr "Spelers van buiten de selectie. Gasten tellen niet mee in teamstatistieken."
+
+msgid "No guests added yet."
+msgstr "Nog geen gasten toegevoegd."
+
+msgid "Linked player"
+msgstr "Gekoppelde speler"
+
+msgid "Anonymous guest"
+msgstr "Anonieme gast"
+
+msgid "Pick a player from another team. Today's evaluation will appear on their profile."
+msgstr "Kies een speler van een ander team. De evaluatie van vandaag verschijnt op zijn/haar profiel."
+
+msgid "No TalentTrack record needed. Fill in the basics; you can promote this guest to a real player later."
+msgstr "Geen TalentTrack-record nodig. Vul de basisgegevens in; je kunt deze gast later promoveren naar een echte speler."
+
+msgid "Age"
+msgstr "Leeftijd"
+
+msgid "Close"
+msgstr "Sluiten"
+
+msgid "— Unknown —"
+msgstr "— Onbekend —"

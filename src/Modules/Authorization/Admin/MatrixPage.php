@@ -47,7 +47,7 @@ class MatrixPage {
         $msg = isset( $_GET['tt_msg'] ) ? sanitize_key( (string) wp_unslash( $_GET['tt_msg'] ) ) : '';
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Authorization Matrix', 'talenttrack' ); ?></h1>
+            <h1><?php esc_html_e( 'Authorization Matrix', 'talenttrack' ); ?> <?php \TT\Shared\Admin\HelpLink::render( 'access-control' ); ?></h1>
             <p style="color:#5b6e75; max-width: 800px;">
                 <?php esc_html_e( 'Define what each persona can do on each entity. R = read, C = change (edit), D = create/delete. Scope narrows the grant: "global" applies everywhere; "team" or "player" require the user to also have that scope assignment.', 'talenttrack' ); ?>
             </p>

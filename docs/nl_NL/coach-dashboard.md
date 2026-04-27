@@ -13,8 +13,8 @@ De shortcode `[talenttrack_dashboard]`. Als een coach (iemand met `tt_edit_evalu
 ### Teams
 Elk team waarvoor de coach rechten heeft, weergegeven met zijn top-3 podium en de volledige roster in FIFA-achtige mini-kaarten. Tik op een kaart om in te duiken op het spelerdetail.
 
-### Spelers
-Platte lijst van elke speler over de teams van de coach (of alle spelers voor beheerders). Gegroepeerd per team. Tik op een kaart om in te duiken op de spelerdetailweergave — FIFA-kaart, spelergegevens, aangepaste veldwaarden en de recent-historie radar. Heeft een eigen link "← Terug naar spelers" die terugkeert naar de lijst, los van de Terug-knop op de tegellanding.
+### Mijn spelers
+Spelers van de teams die jij coacht. Beheerders zien deze tegel als **Spelers** met de volledige spelerslijst van de academie. Tik op een kaart om in te duiken op de spelerdetailweergave — FIFA-kaart, spelergegevens, aangepaste veldwaarden en de recent-historie radar. Heeft een eigen link "← Terug naar spelers" die terugkeert naar de lijst, los van de Terug-knop op de tegellanding. De lijstpagina heeft naast "Nieuwe speler" ook een **Importeer uit CSV**-knop voor beheerders en iedereen met `tt_edit_players`.
 
 ### Evaluaties
 Formulier om evaluaties in te dienen met een wedstrijddetail-sectie die alleen verschijnt als een evaluatietype dat vereist. Alle beoordelingscategorieën uit jouw clubconfiguratie met min/max/stap uit je beoordelingsschaal. Verzonden via AJAX — succesmelding verschijnt inline, geen pagina-herlaad.
@@ -27,6 +27,13 @@ Dubbel formulier: bovenaan een nieuw doel toevoegen (speler-kiezer, titel, omsch
 
 ### Podium
 Geaggregeerde podiumweergave — top-3 van elk team waarvoor de coach rechten heeft. Visueel gericht, geen formulieren.
+
+## Naslag
+
+Naslagmateriaal dat de coach raadpleegt tijdens het dagelijkse werk — los gehouden van de Performance-groep omdat het read-only kennis is, geen transactie.
+
+### Methodologie
+Principes, formaties, posities en standaardsituaties die de trainingsfilosofie van de academie sturen.
 
 ## Voor beheerders
 

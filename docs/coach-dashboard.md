@@ -13,8 +13,8 @@ The `[talenttrack_dashboard]` shortcode. When a coach (someone with `tt_edit_eva
 ### Teams
 Each team the coach has access to, shown with its top-3 podium and full roster of FIFA-style mini-cards. Tap any card to drill into the player detail.
 
-### Players
-Flat list of every player across the coach's teams (or all players for admins). Grouped by team. Tap any card to drill into the player detail view — FIFA card, player facts, custom-field values, and the recent-history radar. Has its own "← Back to players" link that returns to the list, separate from the tile-landing back button.
+### My players
+Players on the teams you coach. Admins see this tile labelled simply **Players** with the full academy roster instead. Tap any card to drill into the player detail view — FIFA card, player facts, custom-field values, and the recent-history radar. Has its own "← Back to players" link that returns to the list, separate from the tile-landing back button. The list page has an **Import from CSV** button next to "New player" for admins and anyone with `tt_edit_players`.
 
 ### Evaluations
 Evaluation-submission form with match-details section that shows only when an evaluation type requires it. All rating categories from your club configuration with min/max/step from your rating scale. AJAX-submitted — success message appears inline, no page reload.
@@ -27,6 +27,13 @@ Dual form: add a new goal (player picker, title, description, priority, due date
 
 ### Podium
 Aggregated podium view — top-3 of every team the coach has access to. Visual focus, no forms.
+
+## Reference
+
+Reference material the coach consults during the daily work — kept separate from the Performance group since it's read-only knowledge, not transactional.
+
+### Methodology
+Principles, formations, positions, and set pieces that drive the academy's training philosophy.
 
 ## For admins
 
