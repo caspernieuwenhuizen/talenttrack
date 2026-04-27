@@ -645,6 +645,22 @@ class DashboardShortcode {
     }
 
     /**
+     * Current page URL with TT-specific query args stripped. Used as
+     * the base for the help link. Duplicate of the same helper on
+     * FrontendTileGrid so this class stays self-contained.
+     */
+    private static function shortcodeBaseUrl(): string {
+        $current = '';
+        if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+            $current = esc_url_raw( (string) wp_unslash( $_SERVER['REQUEST_URI'] ) );
+        }
+        return remove_query_arg(
+            [ 'tt_view', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id', 'tab' ],
+            $current ?: home_url( '/' )
+        );
+    }
+
+    /**
      * tt_view slug → docs topic slug map for the context-aware help
      * drawer (#0016 part B). Slugs missing from this map fall back to
      * `default_slug` (getting-started) on the JS side. Add new

@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.28.0
+Stable tag: 3.28.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.28.1 — Frontend dashboard fatal hotfix =
+* FIXED: "There has been a critical error on this website" on every authenticated frontend dashboard render. `DashboardShortcode::renderHeader()` called `self::shortcodeBaseUrl()`, but the helper was only defined on `FrontendTileGrid` — the call was added in v3.27.0 alongside the new help link without bringing the method along. Added a copy of `shortcodeBaseUrl()` to `DashboardShortcode` so the class is self-contained. Logged-out (login form) was unaffected because the call sat behind the `is_user_logged_in()` guard.
 
 = 3.28.0 — Demo-readiness follow-up (the deferred four) =
 * CHANGED: Usage statistics → Application KPIs. Page renamed, tile renamed, period selector at the top (30 / 60 / 90 days, default 30). Six metric tiles all respect the chosen period: Active users, Logins, Evaluations per active coach, Attendance %, Goal completion %, and a Top-5 most-evaluated players list. The "Evaluations per day" chart was dropped — it added noise without telling the user anything actionable. The DAU line chart and Active-by-role table are kept and now match the selected period.
