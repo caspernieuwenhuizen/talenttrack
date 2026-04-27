@@ -3,20 +3,8 @@ namespace TT\Shared\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Core\ModuleSurfaceMap;
-use TT\Modules\Configuration\Admin\ConfigurationPage;
-use TT\Modules\Configuration\Admin\CustomFieldsPage;
-use TT\Modules\Documentation\Admin\DocumentationPage;
-use TT\Modules\Evaluations\Admin\CategoryWeightsPage;
-use TT\Modules\Evaluations\Admin\EvalCategoriesPage;
-use TT\Modules\Evaluations\Admin\EvaluationsPage;
-use TT\Modules\Goals\Admin\GoalsPage;
-use TT\Modules\Players\Admin\PlayersPage;
-use TT\Modules\Reports\Admin\ReportsPage;
-use TT\Modules\Activities\Admin\ActivitiesPage;
-use TT\Modules\Stats\Admin\PlayerRateCardsPage;
-use TT\Modules\Teams\Admin\TeamsPage;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Shared\Admin\AdminMenuRegistry;
 use TT\Shared\Admin\BulkActionsHelper;
 use TT\Shared\Admin\DragReorder;
 use TT\Shared\Admin\SchemaStatus;
@@ -46,177 +34,16 @@ class Menu {
     }
 
     public static function register(): void {
-        // v2.17.0 — admin menu overhaul. WordPress has no native grouped
-        // submenus, so we fake it with CSS-styled separator entries. The
-        // separators are functional submenu pages whose callback redirects
-        // back to the dashboard (in case someone clicks one anyway) and
-        // whose rendered <li> is styled via the admin_head CSS emitted in
-        // injectMenuCss() below to look like a heading row, not a link.
-        //
-        // Group order (top → bottom):
-        //   Dashboard
-        //   People
-        //     Teams, Players
-        //   Performance
-        //     Evaluations, Sessions, Goals
-        //   Analytics
-        //     Reports, Player Rate Cards, Usage Statistics
-        //   Configuration (admin-only)
-        //     Configuration, Custom Fields, Evaluation Categories,
-        //     Category Weights, Archived items
-        //   Help & Docs
-
+        // #0033 finalisation — every submenu page + non-clickable
+        // separator row registered with `AdminMenuRegistry` (seeded
+        // from `CoreSurfaceRegistration`) is emitted here, with
+        // disabled-module entries skipped automatically. The top-level
+        // `add_menu_page` is the only literal that stays — it owns
+        // the menu icon position + slug bootstrap that WordPress
+        // requires before any submenu can attach.
         add_menu_page( __( 'TalentTrack', 'talenttrack' ), __( 'TalentTrack', 'talenttrack' ), 'read', 'talenttrack', [ __CLASS__, 'dashboard' ], 'dashicons-groups', 26 );
-        self::addSubmenu( 'talenttrack', __( 'Dashboard', 'talenttrack' ), __( 'Dashboard', 'talenttrack' ), 'read', 'talenttrack', [ __CLASS__, 'dashboard' ] );
-
-        // #0024 — Setup wizard menu entry. Visible only while the
-        // wizard hasn't been completed (or the admin came in via the
-        // ?force_welcome=1 reset flow). Sits directly under Dashboard
-        // so it's the first thing a fresh installer sees.
-        //
-        // #0038 — when the wizard is dismissed/completed, the page is
-        // STILL registered (via parent=null) so direct URLs like
-        // `?page=tt-welcome&force_welcome=1` keep working. Previously
-        // the conditional skipped registration entirely, leaving the
-        // wizard stranded once dismissed.
-        $welcome_parent = self::shouldShowWelcome() ? 'talenttrack' : null;
-        self::addSubmenu(
-            $welcome_parent,
-            __( 'Welcome', 'talenttrack' ),
-            __( 'Welcome', 'talenttrack' ),
-            \TT\Modules\Onboarding\Admin\OnboardingPage::CAP,
-            \TT\Modules\Onboarding\Admin\OnboardingPage::SLUG,
-            [ \TT\Modules\Onboarding\Admin\OnboardingPage::class, 'render' ]
-        );
-
-        // #0011 Sprint 1 — Account submenu (tier, trial state, usage vs
-        // caps, upgrade CTA). Always visible regardless of the legacy
-        // menus toggle since billing/account info is critical.
-        self::addSubmenu(
-            'talenttrack',
-            __( 'Account', 'talenttrack' ),
-            __( 'Account', 'talenttrack' ),
-            \TT\Modules\License\Admin\AccountPage::CAP,
-            \TT\Modules\License\Admin\AccountPage::SLUG,
-            [ \TT\Modules\License\Admin\AccountPage::class, 'render' ]
-        );
-
-        // #0019 Sprint 6 — legacy-UI toggle. When `tt_show_legacy_menus`
-        // is OFF (default), the migrated wp-admin pages are hidden from
-        // the menu; direct URLs still work as an emergency fallback.
-        //
-        // #0038 — previously this was an early `return` after registering
-        // only Help & Docs, which meant `?page=tt-players` etc. 404'd
-        // with WP's standard "not allowed" message — directly contra-
-        // dicting the comment above. Now we register every page, but
-        // pass `parent = null` when the toggle is off so the pages stay
-        // URL-reachable but don't appear in the menu. Separators are
-        // skipped when hidden because they're pure UI noise without
-        // children below them.
-        $show_legacy = self::shouldShowLegacyMenus();
-        $parent = $show_legacy ? 'talenttrack' : null;
-
-        if ( $show_legacy ) self::addSeparator( 'tt-sep-people', __( 'People', 'talenttrack' ), 'tt_view_players' );
-        self::addSubmenu( $parent, __( 'Teams', 'talenttrack' ), __( 'Teams', 'talenttrack' ), 'tt_view_teams', 'tt-teams', [ TeamsPage::class, 'render_page' ] );
-        self::addSubmenu( $parent, __( 'Players', 'talenttrack' ), __( 'Players', 'talenttrack' ), 'tt_view_players', 'tt-players', [ PlayersPage::class, 'render_page' ] );
-        // v2.20.0: People moved in from PeopleModule so it sits under the group.
-        self::addSubmenu( $parent, __( 'People', 'talenttrack' ), __( 'People', 'talenttrack' ), 'tt_view_people', 'tt-people', [ \TT\Modules\People\Admin\PeoplePage::class, 'render' ] );
-
-        if ( $show_legacy ) self::addSeparator( 'tt-sep-performance', __( 'Performance', 'talenttrack' ), 'tt_view_evaluations' );
-        self::addSubmenu( $parent, __( 'Evaluations', 'talenttrack' ), __( 'Evaluations', 'talenttrack' ), 'tt_view_evaluations', 'tt-evaluations', [ EvaluationsPage::class, 'render_page' ] );
-        self::addSubmenu( $parent, __( 'Activities', 'talenttrack' ), __( 'Activities', 'talenttrack' ), 'tt_view_activities', 'tt-activities', [ ActivitiesPage::class, 'render_page' ] );
-        self::addSubmenu( $parent, __( 'Goals', 'talenttrack' ), __( 'Goals', 'talenttrack' ), 'tt_view_goals', 'tt-goals', [ GoalsPage::class, 'render_page' ] );
-        self::addSubmenu( $parent, __( 'Seasons', 'talenttrack' ), __( 'Seasons', 'talenttrack' ), 'tt_edit_settings', 'tt-seasons', [ \TT\Modules\Pdp\Admin\SeasonsPage::class, 'render' ] );
-        self::addSubmenu( $parent, __( 'Methodology', 'talenttrack' ), __( 'Methodology', 'talenttrack' ), \TT\Modules\Methodology\Admin\MethodologyPage::CAP_VIEW, \TT\Modules\Methodology\Admin\MethodologyPage::SLUG, [ \TT\Modules\Methodology\Admin\MethodologyPage::class, 'render' ] );
-        // Hidden edit pages — registered with parent = null so they
-        // route via slug but no menu item appears.
-        self::addSubmenu( null, __( 'Edit principle', 'talenttrack' ), __( 'Edit principle', 'talenttrack' ), \TT\Modules\Methodology\Admin\PrincipleEditPage::CAP, \TT\Modules\Methodology\Admin\PrincipleEditPage::SLUG, [ \TT\Modules\Methodology\Admin\PrincipleEditPage::class, 'render' ] );
-        self::addSubmenu( null, __( 'Edit position',  'talenttrack' ), __( 'Edit position',  'talenttrack' ), \TT\Modules\Methodology\Admin\PositionEditPage::CAP,  \TT\Modules\Methodology\Admin\PositionEditPage::SLUG,  [ \TT\Modules\Methodology\Admin\PositionEditPage::class,  'render' ] );
-        self::addSubmenu( null, __( 'Edit set piece', 'talenttrack' ), __( 'Edit set piece', 'talenttrack' ), \TT\Modules\Methodology\Admin\SetPieceEditPage::CAP,  \TT\Modules\Methodology\Admin\SetPieceEditPage::SLUG,  [ \TT\Modules\Methodology\Admin\SetPieceEditPage::class,  'render' ] );
-        self::addSubmenu( null, __( 'Edit vision',    'talenttrack' ), __( 'Edit vision',    'talenttrack' ), \TT\Modules\Methodology\Admin\VisionEditPage::CAP,    \TT\Modules\Methodology\Admin\VisionEditPage::SLUG,    [ \TT\Modules\Methodology\Admin\VisionEditPage::class,    'render' ] );
-        // Methodology framework primer + sub-rows (#0027 expansion).
-        self::addSubmenu( null, __( 'Edit framework',         'talenttrack' ), __( 'Edit framework',         'talenttrack' ), \TT\Modules\Methodology\Admin\FrameworkPrimerEditPage::CAP, \TT\Modules\Methodology\Admin\FrameworkPrimerEditPage::SLUG, [ \TT\Modules\Methodology\Admin\FrameworkPrimerEditPage::class, 'render' ] );
-        self::addSubmenu( null, __( 'Edit phase',             'talenttrack' ), __( 'Edit phase',             'talenttrack' ), \TT\Modules\Methodology\Admin\PhaseEditPage::CAP,           \TT\Modules\Methodology\Admin\PhaseEditPage::SLUG,           [ \TT\Modules\Methodology\Admin\PhaseEditPage::class, 'render' ] );
-        self::addSubmenu( null, __( 'Edit learning goal',     'talenttrack' ), __( 'Edit learning goal',     'talenttrack' ), \TT\Modules\Methodology\Admin\LearningGoalEditPage::CAP,    \TT\Modules\Methodology\Admin\LearningGoalEditPage::SLUG,    [ \TT\Modules\Methodology\Admin\LearningGoalEditPage::class, 'render' ] );
-        self::addSubmenu( null, __( 'Edit influence factor',  'talenttrack' ), __( 'Edit influence factor',  'talenttrack' ), \TT\Modules\Methodology\Admin\InfluenceFactorEditPage::CAP, \TT\Modules\Methodology\Admin\InfluenceFactorEditPage::SLUG, [ \TT\Modules\Methodology\Admin\InfluenceFactorEditPage::class, 'render' ] );
-        // Football actions (voetbalhandelingen) — own top-level page
-        // next to Methodology, plus its hidden edit page.
-        self::addSubmenu( $parent, __( 'Voetbalhandelingen', 'talenttrack' ), __( 'Voetbalhandelingen', 'talenttrack' ), \TT\Modules\Methodology\Admin\FootballActionsPage::CAP_VIEW, \TT\Modules\Methodology\Admin\FootballActionsPage::SLUG, [ \TT\Modules\Methodology\Admin\FootballActionsPage::class, 'render' ] );
-        self::addSubmenu( null, __( 'Edit football action', 'talenttrack' ), __( 'Edit football action', 'talenttrack' ), \TT\Modules\Methodology\Admin\FootballActionEditPage::CAP, \TT\Modules\Methodology\Admin\FootballActionEditPage::SLUG, [ \TT\Modules\Methodology\Admin\FootballActionEditPage::class, 'render' ] );
-
-        if ( $show_legacy ) self::addSeparator( 'tt-sep-analytics', __( 'Analytics', 'talenttrack' ), 'tt_view_reports' );
-        self::addSubmenu( $parent, __( 'Reports', 'talenttrack' ), __( 'Reports', 'talenttrack' ), 'tt_view_reports', 'tt-reports', [ ReportsPage::class, 'render_page' ] );
-        self::addSubmenu( $parent, __( 'Player Rate Cards', 'talenttrack' ), __( 'Player Rate Cards', 'talenttrack' ), 'tt_view_reports', 'tt-rate-cards', [ PlayerRateCardsPage::class, 'render' ] );
-        self::addSubmenu( $parent, __( 'Player Comparison', 'talenttrack' ), __( 'Player Comparison', 'talenttrack' ), 'tt_view_reports', 'tt-compare', [ \TT\Modules\Stats\Admin\PlayerComparisonPage::class, 'render' ] );
-        self::addSubmenu( $parent, __( 'Usage Statistics', 'talenttrack' ), __( 'Usage Statistics', 'talenttrack' ), 'tt_view_settings', 'tt-usage-stats', [ \TT\Modules\Stats\Admin\UsageStatsPage::class, 'render' ] );
-        // v2.19.0: hidden details page for drill-down from KPI cards.
-        // Registered with null parent so it doesn't appear in the menu
-        // but the page slug routes correctly.
-        self::addSubmenu( null, __( 'Usage Detail', 'talenttrack' ), __( 'Usage Detail', 'talenttrack' ), 'tt_view_settings', 'tt-usage-stats-details', [ \TT\Modules\Stats\Admin\UsageStatsDetailsPage::class, 'render' ] );
-
-        if ( $show_legacy ) self::addSeparator( 'tt-sep-config', __( 'Configuration', 'talenttrack' ), 'tt_view_settings' );
-        self::addSubmenu( $parent, __( 'Configuration', 'talenttrack' ), __( 'Configuration', 'talenttrack' ), 'tt_view_settings', 'tt-config', [ ConfigurationPage::class, 'render_page' ] );
-        self::addSubmenu( $parent, __( 'Custom Fields', 'talenttrack' ), __( 'Custom Fields', 'talenttrack' ), 'tt_view_settings', 'tt-custom-fields', [ CustomFieldsPage::class, 'render' ] );
-        self::addSubmenu( $parent, __( 'Evaluation Categories', 'talenttrack' ), __( 'Evaluation Categories', 'talenttrack' ), 'tt_view_settings', 'tt-eval-categories', [ EvalCategoriesPage::class, 'render' ] );
-        self::addSubmenu( $parent, __( 'Category Weights', 'talenttrack' ), __( 'Category Weights', 'talenttrack' ), 'tt_view_settings', 'tt-category-weights', [ CategoryWeightsPage::class, 'render' ] );
-
-        // v2.20.0: Access Control group — Authorization pages moved in
-        // from AuthorizationModule so they sit under a proper separator.
-        if ( $show_legacy ) self::addSeparator( 'tt-sep-access', __( 'Access Control', 'talenttrack' ), 'tt_view_settings' );
-        self::addSubmenu( $parent, __( 'Roles & Permissions', 'talenttrack' ), __( 'Roles & Permissions', 'talenttrack' ), 'tt_view_settings', 'tt-roles', [ \TT\Modules\Authorization\Admin\RolesPage::class, 'render' ] );
-        self::addSubmenu( $parent, __( 'Functional Roles', 'talenttrack' ), __( 'Functional Roles', 'talenttrack' ), 'tt_view_settings', 'tt-functional-roles', [ \TT\Modules\Authorization\Admin\FunctionalRolesPage::class, 'render' ] );
-        self::addSubmenu( $parent, __( 'Permission Debug', 'talenttrack' ), __( 'Permission Debug', 'talenttrack' ), 'tt_view_settings', 'tt-roles-debug', [ \TT\Modules\Authorization\Admin\DebugPage::class, 'render' ] );
-        // #0033 Sprint 3 + 5 + 8 — matrix editor + module toggles +
-        // migration preview. All gated to administrator-only.
-        self::addSubmenu( $parent, __( 'Authorization Matrix', 'talenttrack' ), __( 'Authorization Matrix', 'talenttrack' ), 'administrator', 'tt-matrix', [ \TT\Modules\Authorization\Admin\MatrixPage::class, 'render' ] );
-        self::addSubmenu( $parent, __( 'Migration preview', 'talenttrack' ), __( 'Migration preview', 'talenttrack' ), 'administrator', 'tt-matrix-preview', [ \TT\Modules\Authorization\Admin\PreviewPage::class, 'render' ] );
-        self::addSubmenu( $parent, __( 'Modules', 'talenttrack' ), __( 'Modules', 'talenttrack' ), 'administrator', 'tt-modules', [ \TT\Modules\Authorization\Admin\ModulesPage::class, 'render' ] );
-
-        // Help & Docs — always visible regardless of the legacy toggle
-        // so admins always have a landmark in the menu.
-        self::addSubmenu( 'talenttrack', __( 'Help & Docs', 'talenttrack' ), __( 'Help & Docs', 'talenttrack' ), 'read', 'tt-docs', [ DocumentationPage::class, 'render_page' ] );
-
+        AdminMenuRegistry::applyAll();
         add_action( 'admin_head', [ __CLASS__, 'injectMenuCss' ] );
-    }
-
-    /**
-     * #0051 — wp-admin submenu registration that consults
-     * ModuleSurfaceMap before forwarding to add_submenu_page. Slugs
-     * owned by a disabled module are skipped entirely (no menu item,
-     * URL stops resolving). Unmapped slugs (top-level, separators,
-     * cross-cutting surfaces) pass through unchanged.
-     *
-     * Mirrors the signature of WordPress's add_submenu_page so call
-     * sites read identically.
-     *
-     * @param string|null   $parent   Parent slug, or null for hidden pages.
-     * @param string        $title    Page title.
-     * @param string        $label    Menu label.
-     * @param string        $cap      Capability required.
-     * @param string        $slug     Page slug (the `?page=` value).
-     * @param callable|null $callback Render callback.
-     */
-    private static function addSubmenu( ?string $parent, string $title, string $label, string $cap, string $slug, ?callable $callback ): void {
-        if ( ModuleSurfaceMap::isAdminSlugDisabled( $slug ) ) return;
-        add_submenu_page( $parent, $title, $label, $cap, $slug, $callback );
-    }
-
-    /**
-     * Add a fake-separator submenu row. It's a real submenu entry (so
-     * WordPress renders it in the right place), but the slug begins with
-     * "tt-sep-" and the CSS in injectMenuCss() styles it as a non-clickable
-     * heading. The callback redirects to the dashboard as a fallback if
-     * someone manages to click it anyway (e.g. keyboard navigation).
-     */
-    private static function addSeparator( string $slug, string $label, string $cap ): void {
-        add_submenu_page(
-            'talenttrack',
-            $label,
-            '<span class="tt-menu-separator-label">' . esc_html( $label ) . '</span>',
-            $cap,
-            $slug,
-            function() { wp_safe_redirect( admin_url( 'admin.php?page=talenttrack' ) ); exit; }
-        );
     }
 
     /**
@@ -355,71 +182,12 @@ class Menu {
             ],
         ];
 
-        // Grouped tiles section — mirrors the menu structure. Per decision
-        // D-x: primary entities appear both in Overview (top) AND in their
-        // corresponding Performance/People tiles here.
-        $groups = [
-            [
-                'id'     => 'people',
-                'label'  => __( 'People', 'talenttrack' ),
-                'accent' => '#1d7874',
-                'tiles'  => [
-                    [ 'label' => __( 'Teams', 'talenttrack' ),   'icon' => 'teams',   'url' => admin_url( 'admin.php?page=tt-teams' ),   'cap' => 'tt_view_teams', 'desc' => __( 'Manage teams, staff assignments, and age groups.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Players', 'talenttrack' ), 'icon' => 'players', 'url' => admin_url( 'admin.php?page=tt-players' ), 'cap' => 'tt_view_players', 'desc' => __( 'Player roster, positions, photos, guardian info.', 'talenttrack' ) ],
-                    [ 'label' => __( 'People', 'talenttrack' ),  'icon' => 'people',  'url' => admin_url( 'admin.php?page=tt-people' ),  'cap' => 'tt_view_people', 'desc' => __( 'Coaches, assistants, medical staff, volunteers.', 'talenttrack' ) ],
-                ],
-            ],
-            [
-                'id'     => 'performance',
-                'label'  => __( 'Performance', 'talenttrack' ),
-                'accent' => '#7c3a9e',
-                'tiles'  => [
-                    [ 'label' => __( 'Evaluations', 'talenttrack' ), 'icon' => 'evaluations', 'url' => admin_url( 'admin.php?page=tt-evaluations' ), 'cap' => 'tt_view_evaluations', 'desc' => __( 'Rate players across training and match sessions.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Activities', 'talenttrack' ),    'icon' => 'activities',    'url' => admin_url( 'admin.php?page=tt-activities' ),    'cap' => 'tt_view_activities', 'desc' => __( 'Record training sessions and attendance.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Goals', 'talenttrack' ),       'icon' => 'goals',       'url' => admin_url( 'admin.php?page=tt-goals' ),       'cap' => 'tt_view_goals', 'desc' => __( 'Set and track development goals per player.', 'talenttrack' ) ],
-                ],
-            ],
-            [
-                'id'     => 'analytics',
-                'label'  => __( 'Analytics', 'talenttrack' ),
-                'accent' => '#2271b1',
-                'tiles'  => [
-                    [ 'label' => __( 'Reports', 'talenttrack' ),           'icon' => 'reports',     'url' => admin_url( 'admin.php?page=tt-reports' ),      'cap' => 'tt_view_reports',    'desc' => __( 'Saved report presets and exports.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Player Rate Cards', 'talenttrack' ), 'icon' => 'rate-card',   'url' => admin_url( 'admin.php?page=tt-rate-cards' ),   'cap' => 'tt_view_reports',    'desc' => __( 'Per-player rate cards with trends and charts.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Player Comparison', 'talenttrack' ), 'icon' => 'compare',     'url' => admin_url( 'admin.php?page=tt-compare' ),      'cap' => 'tt_view_reports',    'desc' => __( 'Side-by-side comparison of up to 4 players.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Usage Statistics', 'talenttrack' ),  'icon' => 'usage-stats', 'url' => admin_url( 'admin.php?page=tt-usage-stats' ),  'cap' => 'tt_view_settings', 'desc' => __( 'Logins, active users, most-visited pages.', 'talenttrack' ) ],
-                ],
-            ],
-            [
-                'id'     => 'configuration',
-                'label'  => __( 'Configuration', 'talenttrack' ),
-                'accent' => '#555',
-                'tiles'  => [
-                    [ 'label' => __( 'Configuration', 'talenttrack' ),        'icon' => 'settings',       'url' => admin_url( 'admin.php?page=tt-config' ),             'cap' => 'tt_view_settings', 'desc' => __( 'Academy name, logo, rating scale, colors.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Custom Fields', 'talenttrack' ),        'icon' => 'custom-fields',  'url' => admin_url( 'admin.php?page=tt-custom-fields' ),      'cap' => 'tt_view_settings', 'desc' => __( 'Add club-specific fields to any entity.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Evaluation Categories', 'talenttrack' ),'icon' => 'categories',     'url' => admin_url( 'admin.php?page=tt-eval-categories' ),    'cap' => 'tt_view_settings', 'desc' => __( 'Main + subcategories used in evaluations.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Category Weights', 'talenttrack' ),     'icon' => 'weights',        'url' => admin_url( 'admin.php?page=tt-category-weights' ),   'cap' => 'tt_view_settings', 'desc' => __( 'Per-age-group weighting for overall ratings.', 'talenttrack' ) ],
-                ],
-            ],
-            [
-                'id'     => 'access',
-                'label'  => __( 'Access Control', 'talenttrack' ),
-                'accent' => '#b32d2e',
-                'tiles'  => [
-                    [ 'label' => __( 'Roles & Permissions', 'talenttrack' ), 'icon' => 'roles',             'url' => admin_url( 'admin.php?page=tt-roles' ),           'cap' => 'tt_view_settings', 'desc' => __( 'Who can do what — grant or revoke TalentTrack roles per user.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Functional Roles', 'talenttrack' ),   'icon' => 'functional-roles',  'url' => admin_url( 'admin.php?page=tt-functional-roles' ), 'cap' => 'tt_view_settings', 'desc' => __( 'Head coach, assistant, physio — map club roles to permissions.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Permission Debug', 'talenttrack' ),   'icon' => 'permission-debug',  'url' => admin_url( 'admin.php?page=tt-roles-debug' ),      'cap' => 'tt_view_settings', 'desc' => __( 'Inspect any user\'s effective permissions.', 'talenttrack' ) ],
-                ],
-            ],
-            [
-                'id'     => 'help',
-                'label'  => __( 'Help', 'talenttrack' ),
-                'accent' => '#888',
-                'tiles'  => [
-                    [ 'label' => __( 'Help & Docs', 'talenttrack' ), 'icon' => 'docs', 'url' => admin_url( 'admin.php?page=tt-docs' ), 'cap' => 'read', 'desc' => __( 'How to use TalentTrack.', 'talenttrack' ) ],
-                ],
-            ],
-        ];
+        // #0033 finalisation — grouped tiles come from
+        // `AdminMenuRegistry`, seeded by `CoreSurfaceRegistration`.
+        // Disabled-module tiles are filtered out by the registry; we
+        // still apply the per-tile capability check at render time so
+        // each user only sees what their role permits.
+        $groups = AdminMenuRegistry::dashboardTilesForUser();
         ?>
 
         <style>
@@ -624,8 +392,10 @@ class Menu {
             <?php
             $visible_stats = array_filter( $stats, function ( $s ) {
                 if ( ! current_user_can( $s['cap'] ) ) return false;
-                // #0051 — drop stat cards whose backing module is off.
-                return ! self::adminTileBelongsToDisabledModule( (string) $s['url'] );
+                // Stat cards are not registry-managed (they couple to
+                // entity-specific COUNT queries). Gate them via the
+                // owning module looked up from the URL slug.
+                return ! self::statCardBelongsToDisabledModule( (string) $s['url'] );
             } );
             if ( ! empty( $visible_stats ) ) :
                 ?>
@@ -656,35 +426,31 @@ class Menu {
                 </div>
             <?php endif; ?>
 
-            <!-- Grouped tiles -->
+            <!-- Grouped tiles — registry-driven (#0033 finalisation). -->
             <?php foreach ( $groups as $group ) :
                 $visible_tiles = array_filter( $group['tiles'], function ( $t ) {
-                    if ( ! current_user_can( $t['cap'] ) ) return false;
-                    // #0051 — drop tiles whose backing module is off.
-                    return ! self::adminTileBelongsToDisabledModule( (string) $t['url'] );
+                    return current_user_can( (string) ( $t['cap'] ?? '' ) );
                 } );
                 if ( empty( $visible_tiles ) ) continue;
+                $accent = (string) ( $group['accent'] ?? '#5b6e75' );
+                $icon_bg = sprintf( 'linear-gradient(135deg, %s 0%%, %s 100%%)',
+                    $accent,
+                    self::lighten( $accent, 25 )
+                );
                 ?>
                 <div class="tt-dash-group">
                     <div class="tt-dash-section-label">
-                        <span><?php echo esc_html( $group['label'] ); ?></span>
+                        <span><?php echo esc_html( (string) $group['label'] ); ?></span>
                     </div>
                     <div class="tt-dash-tiles">
-                        <?php foreach ( $visible_tiles as $tile ) :
-                            // Tint the tile icon by the group's accent color, with
-                            // a subtle gradient towards white for visual depth.
-                            $icon_bg = sprintf( 'linear-gradient(135deg, %s 0%%, %s 100%%)',
-                                $group['accent'],
-                                self::lighten( $group['accent'], 25 )
-                            );
-                            ?>
-                            <a class="tt-dash-tile" href="<?php echo esc_url( $tile['url'] ); ?>">
+                        <?php foreach ( $visible_tiles as $tile ) : ?>
+                            <a class="tt-dash-tile" href="<?php echo esc_url( (string) $tile['url'] ); ?>">
                                 <span class="tt-dash-tile-icon" style="background:<?php echo esc_attr( $icon_bg ); ?>;">
-                                    <?php echo IconRenderer::render( $tile['icon'] ); ?>
+                                    <?php echo IconRenderer::render( (string) ( $tile['icon'] ?? '' ) ); ?>
                                 </span>
                                 <div class="tt-dash-tile-body">
-                                    <div class="tt-dash-tile-label"><?php echo esc_html( $tile['label'] ); ?></div>
-                                    <p class="tt-dash-tile-desc"><?php echo esc_html( $tile['desc'] ); ?></p>
+                                    <div class="tt-dash-tile-label"><?php echo esc_html( (string) $tile['label'] ); ?></div>
+                                    <p class="tt-dash-tile-desc"><?php echo esc_html( (string) ( $tile['desc'] ?? '' ) ); ?></p>
                                 </div>
                             </a>
                         <?php endforeach; ?>
@@ -696,12 +462,13 @@ class Menu {
     }
 
     /**
-     * #0051 — pull the `page=` slug out of a wp-admin URL and ask
-     * ModuleSurfaceMap whether its owning module is currently disabled.
-     * URLs without a `page=` (or with an unmapped slug) are never
-     * gated.
+     * Pull the `page=` slug out of a stat-card URL and consult the
+     * `AdminMenuRegistry` to discover whether its owning module is
+     * currently disabled. Stat cards aren't registry-managed (they
+     * couple to entity-specific COUNT queries), so this lookup keeps
+     * them gated by reusing the same source of truth.
      */
-    private static function adminTileBelongsToDisabledModule( string $url ): bool {
+    private static function statCardBelongsToDisabledModule( string $url ): bool {
         if ( $url === '' ) return false;
         $query = (string) wp_parse_url( $url, PHP_URL_QUERY );
         if ( $query === '' ) return false;
@@ -709,7 +476,7 @@ class Menu {
         wp_parse_str( $query, $params );
         $slug = isset( $params['page'] ) ? sanitize_key( (string) $params['page'] ) : '';
         if ( $slug === '' ) return false;
-        return ModuleSurfaceMap::isAdminSlugDisabled( $slug );
+        return AdminMenuRegistry::isAdminSlugDisabled( $slug );
     }
 
     /**

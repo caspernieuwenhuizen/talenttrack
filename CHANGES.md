@@ -1,3 +1,65 @@
+# TalentTrack v3.36.0 — #0033 finalisation: every tile + admin-menu surface comes from a registry (#0033)
+
+Closes the long-standing #0033 Sprint 4 acceptance criterion: *"Every tile rendered on admin + frontend comes from `TileRegistry::tilesForUser()`. No tile literals remain in `Menu.php` or `FrontendTileGrid.php`."*
+
+v3.35.0 plugged the bug (disabled modules now actually disappear from the UI) via a centralised `ModuleSurfaceMap` lookup. This release re-homes the underlying tile + menu data into proper registries that the renderers iterate, retiring `ModuleSurfaceMap` along the way.
+
+## What changed
+
+### Two registries are now the source of truth
+
+- **`TileRegistry`** — extended with `module_class`, `view_slug`, `cap_callback`, `label_callback`, `color_callback`, `url_callback`, plus a new `tilesForUserGrouped()` that returns groups in registration order with all dynamic fields resolved per-user. Disabled modules' tiles are filtered out at read time. A new `registerSlugOwnership()` covers tile-less sub-views (Configuration tile-landing's children, hidden drill-downs).
+- **`AdminMenuRegistry`** — new, parallel registry for the wp-admin sidebar. Manages submenu pages, separator rows, and dashboard quick-link tiles. Separators auto-hide when their group has no visible children. Dashboard tiles inherit the same module-enabled filter.
+
+### One declarative seed file
+
+- **`CoreSurfaceRegistration`** — single PHP class that calls `TileRegistry::register()` and `AdminMenuRegistry::register()` for every shipped frontend tile, wp-admin sidebar page, and wp-admin dashboard tile. Tagged with `module_class` so the registries' built-in `ModuleRegistry::isEnabled` filter does its work. Called from `Kernel::boot()` after `bootAll()`.
+
+### Renderers slimmed down
+
+- **`FrontendTileGrid::buildGroups()` deleted.** ~370 lines of tile literals gone. `render()` now reads from `TileRegistry::tilesForUserGrouped()`, computes URLs from each tile's `view_slug` against the request's base URL, and paints the markup.
+- **`Menu::register()` is 6 lines.** Top-level `add_menu_page` plus `AdminMenuRegistry::applyAll()`. ~110 lines of `add_submenu_page` literals + a custom `addSubmenu()` helper + the `addSeparator()` method gone (separator emission is registry-owned now).
+- **`Menu::dashboard()` tile groups deleted.** ~80 lines of grouped-tile literals gone. The dashboard now reads from `AdminMenuRegistry::dashboardTilesForUser()`. Stat cards stay in place — they couple to entity-specific COUNT/delta queries, which remain a poor fit for a generic registry.
+
+### Friendly behaviour preserved
+
+- Disabled-module direct-URL hits (`?tt_view=evaluations` after Evaluations is toggled off) continue to render the v3.35.0 "this section is currently unavailable" notice. The lookup is now `TileRegistry::isViewSlugDisabled()` instead of the retired `ModuleSurfaceMap::isViewSlugDisabled()`.
+- Always-on modules (Auth, Configuration, Authorization) pass through unconditionally — their surfaces always render.
+
+### `ModuleSurfaceMap` retired
+
+`src/Core/ModuleSurfaceMap.php` deleted. Every call site now consults the corresponding registry's lookup helper. Net code change is ~−500 lines despite adding two new registries + one provider class — the literals' size dwarfed the bookkeeping.
+
+## Files
+
+**New**
+- `src/Shared/Admin/AdminMenuRegistry.php` — submenu + dashboard-tile registry.
+- `src/Shared/CoreSurfaceRegistration.php` — single declarative seed.
+- `specs/0033-finalization-tile-and-menu-registries.md` — sub-spec capturing the closure work.
+
+**Modified**
+- `src/Shared/Tiles/TileRegistry.php` — module-aware filtering + `tilesForUserGrouped()` + `registerSlugOwnership()`.
+- `src/Shared/Frontend/FrontendTileGrid.php` — `buildGroups()` deleted, `render()` registry-driven.
+- `src/Shared/Frontend/DashboardShortcode.php` — dispatcher gate now uses `TileRegistry::isViewSlugDisabled`.
+- `src/Shared/Admin/Menu.php` — `register()` collapses to `AdminMenuRegistry::applyAll()`; `dashboard()` tile groups registry-driven; `addSubmenu`/`addSeparator` helpers retired; stat-card gate routes via the new registry.
+- `src/Shared/Admin/MenuExtension.php` — `tt-migrations` gate uses `AdminMenuRegistry::isAdminSlugDisabled`.
+- `src/Core/Kernel.php` — calls `CoreSurfaceRegistration::register()` after module boot.
+- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — release.
+
+**Deleted**
+- `src/Core/ModuleSurfaceMap.php` — superseded by registry lookups.
+
+## Behaviour parity
+
+The migration is intentionally a refactor, not a feature change. The v3.34.0 dashboard, the v3.35.0 module-disabled gating, and every existing capability check render identically. The acceptance test is "no behavioural diff" plus "no tile literals in `Menu.php` or `FrontendTileGrid.php`".
+
+## Out of scope
+
+- Persona-aware tile labels (`HIDDEN` marker, per-persona alt labels). The infrastructure was already in `TileRegistry` since #0033 Sprint 4; no shipped tile uses it yet, and this release doesn't add the first one.
+- Dashboard stat cards. Their per-entity COUNT + delta queries make a generic registry awkward; they stay literal in `Menu::dashboard()` with the same module-enabled gate (now via `AdminMenuRegistry`).
+
+---
+
 # TalentTrack v3.35.0 — Module surface gating: disabled modules disappear from frontend tiles, wp-admin menu, and view dispatch (#0051)
 
 The "Modules" admin page (Authorization → Modules) lets administrators turn non-core modules off. Until now the toggle correctly stopped the module from booting (REST routes, hooks, capabilities all went dark) but the surfaces a user actually sees — frontend tiles, wp-admin sidebar entries, wp-admin dashboard tiles — were unaware of the toggle and kept rendering. Direct URLs to disabled modules' views still resolved.

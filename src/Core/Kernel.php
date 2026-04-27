@@ -15,6 +15,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\CapabilityAliases;
 use TT\Infrastructure\Security\RolesService;
 use TT\Shared\Admin\Menu;
+use TT\Shared\CoreSurfaceRegistration;
 use TT\Shared\Frontend\BrandStyles;
 use TT\Shared\Frontend\DashboardShortcode;
 use TT\Shared\Frontend\FrontendAccessControl;
@@ -77,6 +78,13 @@ class Kernel {
         $this->loadModules();
         $this->registry->registerAll();
         $this->registry->bootAll();
+
+        // #0033 finalisation — populate the tile + admin-menu registries
+        // with all shipped surfaces. Runs after `bootAll()` so any module
+        // that itself wants to register additional tiles in the future
+        // can do so from its own `boot()` first; the registries are
+        // append-only and module-enabled state is checked at read time.
+        CoreSurfaceRegistration::register();
 
         Menu::init();
         BrandStyles::init( $this->container );
