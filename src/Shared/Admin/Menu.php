@@ -125,6 +125,7 @@ class Menu {
         add_submenu_page( $parent, __( 'Evaluations', 'talenttrack' ), __( 'Evaluations', 'talenttrack' ), 'tt_view_evaluations', 'tt-evaluations', [ EvaluationsPage::class, 'render_page' ] );
         add_submenu_page( $parent, __( 'Activities', 'talenttrack' ), __( 'Activities', 'talenttrack' ), 'tt_view_activities', 'tt-activities', [ ActivitiesPage::class, 'render_page' ] );
         add_submenu_page( $parent, __( 'Goals', 'talenttrack' ), __( 'Goals', 'talenttrack' ), 'tt_view_goals', 'tt-goals', [ GoalsPage::class, 'render_page' ] );
+        add_submenu_page( $parent, __( 'Seasons', 'talenttrack' ), __( 'Seasons', 'talenttrack' ), 'tt_edit_settings', 'tt-seasons', [ \TT\Modules\Pdp\Admin\SeasonsPage::class, 'render' ] );
         add_submenu_page( $parent, __( 'Methodology', 'talenttrack' ), __( 'Methodology', 'talenttrack' ), \TT\Modules\Methodology\Admin\MethodologyPage::CAP_VIEW, \TT\Modules\Methodology\Admin\MethodologyPage::SLUG, [ \TT\Modules\Methodology\Admin\MethodologyPage::class, 'render' ] );
         // Hidden edit pages — registered with parent = null so they
         // route via slug but no menu item appears.

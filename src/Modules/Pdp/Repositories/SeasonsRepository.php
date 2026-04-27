@@ -63,6 +63,8 @@ class SeasonsRepository {
 
     /**
      * Mark a single season as current. Atomically demotes any other.
+     * Fires the `tt_pdp_season_set_current` action so the carryover
+     * job can roll open goals into the new season.
      */
     public function setCurrent( int $season_id ): bool {
         if ( $season_id <= 0 || ! $this->find( $season_id ) ) return false;
@@ -70,6 +72,7 @@ class SeasonsRepository {
             "UPDATE {$this->table} SET is_current = CASE WHEN id = %d THEN 1 ELSE 0 END",
             $season_id
         ) );
+        do_action( 'tt_pdp_season_set_current', $season_id );
         return true;
     }
 }
