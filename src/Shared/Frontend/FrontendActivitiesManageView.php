@@ -12,24 +12,29 @@ use TT\Shared\Frontend\Components\GuestAddModal;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
 
 /**
- * FrontendActivitiesManageView — full-CRUD frontend for training sessions.
+ * FrontendActivitiesManageView — full-CRUD frontend for training activities.
  *
  * #0019 Sprint 2 session 2.3. Replaces the v3.0.0 placeholder
  * `FrontendSessionsView` (which only rendered a create form). Three
  * modes selected via query string:
  *
- *   ?tt_view=sessions               — list (FrontendListTable) + Create CTA
- *   ?tt_view=sessions&action=new    — create form
- *   ?tt_view=sessions&id=<int>      — edit form (loads existing row + attendance)
+ *   ?tt_view=activities               — list (FrontendListTable) + Create CTA
+ *   ?tt_view=activities&action=new    — create form
+ *   ?tt_view=activities&id=<int>      — edit form (loads existing row + attendance)
  *
  * Saves go through the REST endpoints introduced in Sprint 1
- * (`POST/PUT /sessions`, attendance handled inline). Delete is wired
- * as a row action on the list view, hitting `DELETE /sessions/{id}`
- * which the controller treats as a soft-archive: `archived_at` gets
- * set rather than the row being removed.
+ * (`POST/PUT /activities`, attendance handled inline). Delete is
+ * wired as a row action on the list view, hitting
+ * `DELETE /activities/{id}` which the controller treats as a soft-
+ * archive: `archived_at` gets set rather than the row being removed.
  *
  * Bulk attendance + mobile pagination behaviour lives in
  * `assets/js/components/attendance.js` (loaded by DashboardShortcode).
+ *
+ * #0037 — guest section now renders on create AND edit. On create,
+ * the "+ Add guest" button auto-saves the activity first, redirects
+ * to the edit URL with `&open_guest=1`, and re-opens the modal so the
+ * coach can pick a guest in one fluid flow.
  */
 class FrontendActivitiesManageView extends FrontendViewBase {
 
@@ -40,7 +45,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 
         if ( $action === 'new' ) {
-            self::renderHeader( __( 'New session', 'talenttrack' ) );
+            self::renderHeader( __( 'New activity', 'talenttrack' ) );
             self::renderForm( $user_id, $is_admin, null, [], [] );
             return;
         }
@@ -49,9 +54,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $session    = self::loadSession( $id );
             $attendance = $session ? self::loadAttendance( $id ) : [];
             $guests     = $session ? self::loadGuests( $id )     : [];
-            self::renderHeader( $session ? sprintf( __( 'Edit session — %s', 'talenttrack' ), (string) $session->title ) : __( 'Session not found', 'talenttrack' ) );
+            self::renderHeader( $session ? sprintf( __( 'Edit activity — %s', 'talenttrack' ), (string) $session->title ) : __( 'Activity not found', 'talenttrack' ) );
             if ( ! $session ) {
-                echo '<p class="tt-notice">' . esc_html__( 'That session no longer exists.', 'talenttrack' ) . '</p>';
+                echo '<p class="tt-notice">' . esc_html__( 'That activity no longer exists.', 'talenttrack' ) . '</p>';
                 return;
             }
             self::renderForm( $user_id, $is_admin, $session, $attendance, $guests );
@@ -71,7 +76,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $new_url  = add_query_arg( [ 'tt_view' => 'activities', 'action' => 'new' ], $base_url );
 
         echo '<p style="margin:0 0 var(--tt-sp-3, 12px);"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
-            . esc_html__( 'New session', 'talenttrack' )
+            . esc_html__( 'New activity', 'talenttrack' )
             . '</a></p>';
 
         $row_actions = [
@@ -82,8 +87,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             'delete' => [
                 'label'       => __( 'Delete', 'talenttrack' ),
                 'rest_method' => 'DELETE',
-                'rest_path'   => 'sessions/{id}',
-                'confirm'     => __( 'Delete this session? It will be archived.', 'talenttrack' ),
+                'rest_path'   => 'activities/{id}',
+                'confirm'     => __( 'Delete this activity? It will be archived.', 'talenttrack' ),
                 'variant'     => 'danger',
             ],
         ];
@@ -122,7 +127,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             'row_actions'  => $row_actions,
             'search'       => [ 'placeholder' => __( 'Search title, location, team…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'session_date', 'order' => 'desc' ],
-            'empty_state'  => __( 'No sessions match your filters.', 'talenttrack' ),
+            'empty_state'  => __( 'No activities match your filters.', 'talenttrack' ),
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
     }
 
@@ -153,9 +158,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         $statuses = QueryHelpers::get_lookup_names( 'attendance_status' );
 
-        // Edit mode → PUT /sessions/{id}; create → POST /sessions.
+        // Edit mode → PUT /activities/{id}; create → POST /activities.
         $is_edit   = $session !== null;
-        $rest_path = $is_edit ? 'sessions/' . (int) $session->id : 'activities';
+        $rest_path = $is_edit ? 'activities/' . (int) $session->id : 'activities';
         $rest_meth = $is_edit ? 'PUT' : 'POST';
         $form_id   = 'tt-activity-form';
         $draft_key = $is_edit ? '' : 'activity-form'; // edit forms don't draft — the row is the source of truth
@@ -241,16 +246,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 </div>
             <?php endif; ?>
 
-            <?php if ( $is_edit ) :
-                self::renderGuestSection( (int) $session->id, $guests );
-            else : ?>
-                <p class="tt-help-text" style="margin-top:18px; font-size:12px; color:#5b6470;">
-                    <?php esc_html_e( 'Save the session first; gasten kunnen daarna worden toegevoegd.', 'talenttrack' ); ?>
-                </p>
-            <?php endif; ?>
+            <?php
+            // #0037 — guest section renders in both modes. On create it
+            // shows the table + button just like edit; the "+ Add guest"
+            // click auto-saves the activity first (see guest-add.js),
+            // redirects to the edit URL with `&open_guest=1`, and the
+            // modal re-opens so the coach picks a guest in one motion.
+            self::renderGuestSection( $is_edit ? (int) $session->id : 0, $guests );
+            ?>
 
             <div class="tt-form-actions" style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => $is_edit ? __( 'Update session', 'talenttrack' ) : __( 'Save session', 'talenttrack' ) ] ); ?>
+                <?php echo FormSaveButton::render( [ 'label' => $is_edit ? __( 'Update activity', 'talenttrack' ) : __( 'Save activity', 'talenttrack' ) ] ); ?>
                 <a href="<?php echo esc_url( remove_query_arg( [ 'action', 'id' ] ) ); ?>" class="tt-btn tt-btn-secondary">
                     <?php esc_html_e( 'Cancel', 'talenttrack' ); ?>
                 </a>
@@ -260,16 +266,15 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         <?php
 
         // Guest add modal — outside the form so its inputs don't get
-        // serialized into the session PUT payload. The JS handler
-        // POSTs to /sessions/{id}/guests on submit.
-        if ( $is_edit ) {
-            echo GuestAddModal::render( [
-                'user_id'         => $user_id,
-                'is_admin'        => $is_admin,
-                'exclude_team_id' => $selected_team,
-            ] );
-            self::enqueueGuestAddAssets();
-        }
+        // serialized into the activity PUT payload. The JS handler
+        // POSTs to /activities/{id}/guests on submit; on create it
+        // first auto-saves the activity then opens the modal.
+        echo GuestAddModal::render( [
+            'user_id'         => $user_id,
+            'is_admin'        => $is_admin,
+            'exclude_team_id' => $selected_team,
+        ] );
+        self::enqueueGuestAddAssets();
     }
 
     /**
@@ -388,7 +393,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 'linkedRequired'  => __( 'Pick a player.',              'talenttrack' ),
                 'nameRequired'    => __( 'Name is required.',           'talenttrack' ),
                 'saveFailed'      => __( 'Could not add guest.',        'talenttrack' ),
-                'saveFirst'       => __( 'Save the session first, then add guests.', 'talenttrack' ),
+                'saveFirst'       => __( 'Saving activity first…', 'talenttrack' ),
                 'networkError'    => __( 'Network error.',              'talenttrack' ),
                 'notesPlaceholder'=> __( 'Notes…',                      'talenttrack' ),
                 'linkedFallback'  => __( 'Guest',                       'talenttrack' ),

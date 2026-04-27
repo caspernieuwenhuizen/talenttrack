@@ -38,10 +38,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *       'date'    => [ 'type' => 'date_range', 'label_from' => __('From', 'talenttrack'), 'label_to' => __('To', 'talenttrack'), 'param_from' => 'date_from', 'param_to' => 'date_to' ],
  *     ],
  *     'row_actions' => [
- *       'edit'   => [ 'label' => __('Edit',   'talenttrack'), 'href' => '?tt_view=sessions&edit={id}' ],
- *       'delete' => [ 'label' => __('Delete', 'talenttrack'), 'rest_method' => 'DELETE', 'rest_path' => 'sessions/{id}', 'confirm' => __('Delete this session?', 'talenttrack') ],
+ *       'edit'   => [ 'label' => __('Edit',   'talenttrack'), 'href' => '?tt_view=activities&edit={id}' ],
+ *       'delete' => [ 'label' => __('Delete', 'talenttrack'), 'rest_method' => 'DELETE', 'rest_path' => 'activities/{id}', 'confirm' => __('Delete this activity?', 'talenttrack') ],
  *     ],
- *     'empty_state' => __('No sessions match your filters.', 'talenttrack'),
+ *     'empty_state' => __('No activities match your filters.', 'talenttrack'),
  *     'search'      => [ 'placeholder' => __('Search sessions…', 'talenttrack') ],
  *     'default_sort' => [ 'orderby' => 'session_date', 'order' => 'desc' ],
  *   ]);

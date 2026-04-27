@@ -52,7 +52,10 @@ class PlayerSearchPickerComponent {
      *   players?:array<int,object>,
      *   team_id?:int,
      *   selected?:int,
-     *   placeholder?:string
+     *   placeholder?:string,
+     *   cross_team?:bool,
+     *   exclude_team_id?:int,
+     *   show_team_filter?:bool
      * } $args
      */
     public static function render( array $args = [] ): string {
@@ -62,12 +65,17 @@ class PlayerSearchPickerComponent {
         $placeholder = (string) ( $args['placeholder'] ?? __( 'Type a name to search…', 'talenttrack' ) );
         $selected    = (int) ( $args['selected'] ?? 0 );
         $team_id     = (int) ( $args['team_id'] ?? 0 );
+        $cross_team  = ! empty( $args['cross_team'] );
+        $exclude     = (int) ( $args['exclude_team_id'] ?? 0 );
+        $show_team   = ! empty( $args['show_team_filter'] );
 
         /** @var array<int, object> $players */
         $players = $args['players'] ?? self::resolvePlayers(
             (int) ( $args['user_id'] ?? get_current_user_id() ),
             (bool) ( $args['is_admin'] ?? false ),
-            $team_id
+            $team_id,
+            $cross_team,
+            $exclude
         );
 
         $rows = self::buildRows( $players );
@@ -80,6 +88,8 @@ class PlayerSearchPickerComponent {
         }
 
         $instance = 'tt-psp-' . wp_generate_uuid4();
+        $teams_for_filter = $show_team ? self::teamsForFilter( $players ) : [];
+
         ob_start();
         ?>
         <div class="tt-field tt-psp" data-tt-psp data-instance="<?php echo esc_attr( $instance ); ?>">
@@ -102,6 +112,16 @@ class PlayerSearchPickerComponent {
                 <button type="button" class="tt-psp-clear" data-tt-psp-clear aria-label="<?php esc_attr_e( 'Clear selection', 'talenttrack' ); ?>">×</button>
             </div>
 
+            <?php if ( $show_team && ! empty( $teams_for_filter ) ) : ?>
+                <select class="tt-input tt-psp-team-filter" data-tt-psp-team-filter
+                        style="margin-bottom:6px; <?php echo $selected ? 'display:none;' : ''; ?>">
+                    <option value="0"><?php esc_html_e( 'All teams', 'talenttrack' ); ?></option>
+                    <?php foreach ( $teams_for_filter as $tid => $tname ) : ?>
+                        <option value="<?php echo (int) $tid; ?>"><?php echo esc_html( $tname ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            <?php endif; ?>
+
             <input
                 type="text"
                 id="<?php echo esc_attr( $instance . '-search' ); ?>"
@@ -120,6 +140,26 @@ class PlayerSearchPickerComponent {
         </div>
         <?php
         return (string) ob_get_clean();
+    }
+
+    /**
+     * Build a {team_id: team_name} map from the candidate player rows so
+     * the filter dropdown only lists teams that actually have pickable
+     * players. Sorted alphabetically.
+     *
+     * @param object[] $players
+     * @return array<int, string>
+     */
+    private static function teamsForFilter( array $players ): array {
+        $out = [];
+        foreach ( $players as $pl ) {
+            $tid = (int) ( $pl->team_id ?? 0 );
+            if ( $tid <= 0 || isset( $out[ $tid ] ) ) continue;
+            $t = QueryHelpers::get_team( $tid );
+            if ( $t ) $out[ $tid ] = (string) $t->name;
+        }
+        asort( $out, SORT_NATURAL | SORT_FLAG_CASE );
+        return $out;
     }
 
     /**
@@ -154,16 +194,25 @@ class PlayerSearchPickerComponent {
     /**
      * Resolve the player list for the current user. Mirrors the
      * resolution logic in the existing PlayerPickerComponent but
-     * accepts an optional team filter.
+     * accepts an optional team filter, plus a `cross_team` flag that
+     * widens scope to every player in the academy (used by the
+     * #0026 / #0037 guest-attendance picker so a coach can pick a
+     * guest from a team they don't manage).
      *
      * @return array<int, object>
      */
-    private static function resolvePlayers( int $user_id, bool $is_admin, int $team_id ): array {
+    private static function resolvePlayers( int $user_id, bool $is_admin, int $team_id, bool $cross_team = false, int $exclude_team_id = 0 ): array {
         if ( $team_id > 0 ) {
             return QueryHelpers::get_players( $team_id );
         }
-        if ( $is_admin ) {
-            return QueryHelpers::get_players();
+        if ( $is_admin || $cross_team ) {
+            $rows = QueryHelpers::get_players();
+            if ( $exclude_team_id > 0 ) {
+                $rows = array_values( array_filter( $rows, static function ( $pl ) use ( $exclude_team_id ) {
+                    return (int) ( $pl->team_id ?? 0 ) !== $exclude_team_id;
+                } ) );
+            }
+            return $rows;
         }
         $teams = QueryHelpers::get_teams_for_coach( $user_id );
         $out = [];

@@ -7,13 +7,19 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 
 /**
- * ActivitiesRestController — /wp-json/talenttrack/v1/sessions
+ * ActivitiesRestController — /wp-json/talenttrack/v1/activities
  *
  * #0019 Sprint 1 — replaces the legacy `tt_fe_save_session` admin-ajax
  * path. Attendance is a nested sub-resource handled inline on create
  * and update because the UI posts the full attendance matrix with the
- * session form. Fail-loud: every $wpdb write return value is checked
+ * activity form. Fail-loud: every $wpdb write return value is checked
  * and failures land in the Logger.
+ *
+ * #0037 — three REST routes that #0035 missed (the rename gate didn't
+ * cover REST URL segments). Routes were registered as /sessions* and
+ * the JS client at guest-add.js POSTs to /activities/{id}/guests, so
+ * adding a guest 404'd and the modal got stuck in the "kritieke fout"
+ * state. Routes are now /activities*.
  */
 class ActivitiesRestController {
 
@@ -24,7 +30,7 @@ class ActivitiesRestController {
     }
 
     public static function register(): void {
-        register_rest_route( self::NS, '/sessions', [
+        register_rest_route( self::NS, '/activities', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_sessions' ],
@@ -36,7 +42,7 @@ class ActivitiesRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
-        register_rest_route( self::NS, '/sessions/(?P<id>\d+)', [
+        register_rest_route( self::NS, '/activities/(?P<id>\d+)', [
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_session' ],
@@ -50,9 +56,9 @@ class ActivitiesRestController {
         ] );
         // #0026 — guest attendance endpoints. Guests live alongside
         // roster rows in `tt_attendance` but are managed independently
-        // of the session PUT cycle so the historical fact of a guest
-        // visit (incl. promoted-to-real-player) survives session edits.
-        register_rest_route( self::NS, '/sessions/(?P<id>\d+)/guests', [
+        // of the activity PUT cycle so the historical fact of a guest
+        // visit (incl. promoted-to-real-player) survives activity edits.
+        register_rest_route( self::NS, '/activities/(?P<id>\d+)/guests', [
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'add_guest' ],

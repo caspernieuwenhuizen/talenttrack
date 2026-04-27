@@ -1058,12 +1058,14 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
 .tt-flash-near-warning { background: var(--tt-warning, #dba617); color: #1f1300; }
 .tt-flash-near-error   { background: var(--tt-danger,  #b32d2e); }
 
-/* ========== #0026 Guest attendance ========== */
+/* ========== #0026 / #0037 Guest attendance ========== */
 .tt-attendance-row--guest {
     background: #fcfaf3;
+    box-shadow: inset 3px 0 0 #f0c14b;
 }
 .tt-attendance-row--guest td:first-child em {
     font-style: italic;
+    font-weight: 600;
     color: #1a1d21;
 }
 .tt-guest-badge {
@@ -1074,9 +1076,10 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
     background: #f0c14b;
     color: #1f1300;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
+    vertical-align: 1px;
 }
 .tt-guest-subline {
     font-size: 11px;

@@ -7,12 +7,18 @@ use TT\Infrastructure\Query\QueryHelpers;
 
 /**
  * GuestAddModal — markup for the "+ Add guest" panel rendered inside
- * the session-edit form (#0026).
+ * the activity create / edit form (#0026, #0037).
  *
- * Two tabs: linked (cross-team player picker) and anonymous (text
- * inputs). The component emits a hidden `<dialog>`-style block; the
- * paired JS in `assets/js/components/guest-add.js` toggles visibility,
- * switches tabs, and POSTs to `/sessions/{id}/guests`.
+ * Two tabs: linked (cross-team fuzzy player search) and anonymous
+ * (text inputs). The component emits a hidden `<dialog>`-style block;
+ * the paired JS in `assets/js/components/guest-add.js` toggles
+ * visibility, switches tabs, and POSTs to `/activities/{id}/guests`.
+ *
+ * #0037 — the linked-tab picker now uses PlayerSearchPickerComponent
+ * with cross_team + show_team_filter, so a coach can either fuzzy-
+ * search by name or first narrow by team (including teams they don't
+ * manage). Replaces the long unfiltered <select> the v3.22.0 build
+ * shipped with.
  *
  * Server-render so the player list ships in the page payload — no
  * extra fetch needed when the modal opens.
@@ -57,15 +63,16 @@ final class GuestAddModal {
                         <p class="tt-help-text" style="margin:0 0 8px; font-size:12px; color:#5b6470;">
                             <?php esc_html_e( 'Kies een speler van een ander team. De evaluatie van vandaag verschijnt op zijn/haar profiel.', 'talenttrack' ); ?>
                         </p>
-                        <?php echo PlayerPickerComponent::render( [
-                            'name'            => 'tt_guest_linked_player_id',
-                            'label'           => __( 'Speler', 'talenttrack' ),
-                            'required'        => false,
-                            'user_id'         => $user_id,
-                            'is_admin'        => $is_admin,
-                            'cross_team'      => true,
-                            'exclude_team_id' => $exclude,
-                            'placeholder'     => __( '— Kies speler —', 'talenttrack' ),
+                        <?php echo PlayerSearchPickerComponent::render( [
+                            'name'             => 'tt_guest_linked_player_id',
+                            'label'            => __( 'Speler', 'talenttrack' ),
+                            'required'         => false,
+                            'user_id'          => $user_id,
+                            'is_admin'         => $is_admin,
+                            'cross_team'       => true,
+                            'exclude_team_id'  => $exclude,
+                            'show_team_filter' => true,
+                            'placeholder'      => __( 'Type een naam om te zoeken…', 'talenttrack' ),
                         ] ); ?>
                     </div>
 
