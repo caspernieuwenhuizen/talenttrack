@@ -82,6 +82,15 @@ final class TileRegistry {
                 $tile['labels']['*'] = $tile['label'];
             }
         }
+        // #0033 finalisation — fall back to `view_slug` as the unique
+        // tile identifier when no explicit `slug` is given. The
+        // CoreSurfaceRegistration seed registers each tile with a
+        // `view_slug` (the `tt_view=` route) and treats it as the
+        // identifier; without this fallback every tile in the seed was
+        // silently dropped by the empty-slug check below.
+        if ( empty( $tile['slug'] ) && ! empty( $tile['view_slug'] ) ) {
+            $tile['slug'] = (string) $tile['view_slug'];
+        }
         if ( empty( $tile['slug'] ) || empty( $tile['kind'] ) || empty( $tile['labels'] ) ) {
             return;
         }

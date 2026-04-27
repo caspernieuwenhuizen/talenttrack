@@ -1,3 +1,22 @@
+# TalentTrack v3.36.1 — Hotfix: frontend dashboard tiles disappeared after v3.36.0 (#0033 finalisation regression)
+
+v3.36.0 introduced a regression where every frontend dashboard tile except "Open wp-admin" silently disappeared. Admins and players alike saw an empty (or near-empty) tile grid after updating.
+
+## Cause
+
+`TileRegistry::register()` predates this work and gates registrations on `empty($tile['slug'])` — the original Sprint 4 design used `slug` as the tile identifier. The new `CoreSurfaceRegistration` seed file uses `view_slug` (the `tt_view=` route) as the per-tile identifier and doesn't pass an explicit `slug`, so every seeded tile was silently dropped by the empty-slug check. The "Open wp-admin" tile happened to set `slug` explicitly (because it has no `view_slug`) and was the only one that survived.
+
+## Fix
+
+`TileRegistry::register()` now falls back to `view_slug` as the tile's unique slug when no explicit `slug` is given. One-line change. Restores every tile that was missing.
+
+## Files
+
+- `src/Shared/Tiles/TileRegistry.php` — slug fallback.
+- `talenttrack.php`, `readme.txt`, `CHANGES.md` — release.
+
+---
+
 # TalentTrack v3.36.0 — #0033 finalisation: every tile + admin-menu surface comes from a registry (#0033)
 
 Closes the long-standing #0033 Sprint 4 acceptance criterion: *"Every tile rendered on admin + frontend comes from `TileRegistry::tilesForUser()`. No tile literals remain in `Menu.php` or `FrontendTileGrid.php`."*
