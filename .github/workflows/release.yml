@@ -96,6 +96,7 @@ jobs:
           rsync -av \
             --exclude='.git' --exclude='.github' --exclude='.gitignore' \
             --exclude='tests' --exclude='vendor' --exclude='phpstan*' \
+            --exclude='branding-plugin' \
             ./ /tmp/build/talenttrack/
           cd /tmp/build
           zip -r talenttrack.zip talenttrack
