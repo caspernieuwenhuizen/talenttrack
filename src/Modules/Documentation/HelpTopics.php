@@ -68,6 +68,11 @@ class HelpTopics {
                 'group'   => 'performance',
                 'summary' => __( 'Per-season development files, conversation cadence, end-of-season verdict.', 'talenttrack' ),
             ],
+            'team-chemistry' => [
+                'title'   => __( 'Team chemistry', 'talenttrack' ),
+                'group'   => 'performance',
+                'summary' => __( 'Formation board with auto-suggested XI, depth chart, paired-player overrides, and traceable fit scores.', 'talenttrack' ),
+            ],
             'reports' => [
                 'title'   => __( 'Reports', 'talenttrack' ),
                 'group'   => 'analytics',

@@ -4,9 +4,7 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 
 ## In progress
 
-| # | Topic | Type | Spec | Status |
-| - | - | - | - | - |
-| 0018 | Team development + chemistry | epic | [specs/0018-epic-team-development-chemistry.md](specs/0018-epic-team-development-chemistry.md) | Sprint 1 shipped v3.32.0 (schema + 4 seeded 4-3-3 templates + caps + REST stubs + history backfill). Sprint 2 next: CompatibilityEngine (pure-logic service, scoring algorithm, cache strategy). Then Sprint 3 isometric formation board UI, Sprint 4 chemistry aggregator, Sprint 5 player-side Team-fit panel. |
+_None._
 
 ## Ready (shaped, decisions locked)
 
@@ -42,6 +40,7 @@ _None._
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
 | 0050 | Activity Type is lookup-driven, with per-type workflow policy and per-type HoD rollup. Adds an `activity_type` lookup with three locked seed rows (training / game / other), each carrying `meta.workflow_template_slug` to pick which workflow template fires when an activity of that type is saved. Admin-extensible — a fourth type appears in both forms automatically. PostGameEvaluationTemplate's hardcoded type filter replaced with a lookup-meta read. HoD quarterly rollup switched from hardcoded Games / Trainings / Other to a `GROUP BY activity_type_key`. Strict REST validation on `activity_type_key` (400 on unknown). New tabs + tiles for Activity Types and Game Subtypes under Configuration. | feat | v3.33.0 | ~10h spec / ~5-7h compressed actual | _TBD_ |
+| 0018 | Team development + chemistry (CompatibilityEngine pure-logic service, FitResult VO with traceable per-category breakdown, 24h FitScoreCache invalidated on `tt_evaluation_saved`, ChemistryAggregator with formation/style/depth/pairing composite, isometric SVG formation board with auto-suggested XI + depth chart, PairingsRepository + REST CRUD, Player profile Team-fit panel via `tt_player_profile_extra_panels` filter, side-preference column on tt_players, docs topic) | epic | v3.32.0 (sprint 1) → v3.34.0 (sprints 2-5 bundled) | ~56-70h across 5 sprints | ~3h sprint 1 + ~6h sprints 2-5 = ~9h total — ~7x compression vs estimate |
 | 0049 | Frontend activity form was missing the Type / Game subtype / Other label fields (the wp-admin form had them since #0035; the frontend was silently defaulting to Training). Added them, wired REST `extract()` to persist them. Also fixed: adding a guest to a freshly-saved activity in Demo mode produced "That activity no longer exists" because user-created activities weren't being tagged in `tt_demo_tags`; `create_session` now inserts the tag. | bug | v3.31.1 | ~1h | ~45min |
 | 0048 | User docs cleanup — fixed the rendered `<!-- audience: user -->` comment leak on every doc page; rewrote 13 EN + 12 NL user-tier docs in plain language for end users (often children), stripping version-history references, WordPress-specific terminology, and internal technical names. | feat | v3.30.1 | ~2h | ~1.5h |
 | 0044 | PDP cycle (per-(player, season) development file: configurable 2/3/4 conversations, polymorphic goal links to methodology + values, end-of-season verdict, workflow-engine cadence, native + Spond calendar hooks, frontend tile + my-pdp + print + carryover one-shot + wp-admin Seasons CRUD + docs topic) | epic | v3.30.0 (sprint 1) → v3.31.0 (sprint 2) | ~30-42h across 2 sprints | ~3h sprint 1 + ~5h sprint 2 = ~8h total — ~5x compression vs estimate |

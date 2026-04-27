@@ -399,6 +399,14 @@ class FrontendTileGrid {
                 'show'  => ( $is_coach || $is_admin ) && current_user_can( 'tt_view_pdp' ),
             ],
             [
+                'label' => __( 'Team chemistry', 'talenttrack' ),
+                'desc'  => __( 'Formation board with auto-suggested XI, depth chart, and chemistry breakdown.', 'talenttrack' ),
+                'icon'  => 'teams',
+                'color' => '#3a6f8f',
+                'url'   => $url( 'team-chemistry' ),
+                'show'  => ( $is_coach || $is_admin ) && current_user_can( 'tt_view_team_chemistry' ),
+            ],
+            [
                 'label' => __( 'Podium', 'talenttrack' ),
                 'desc'  => __( 'Team rankings and top performers.', 'talenttrack' ),
                 'icon'  => 'podium',

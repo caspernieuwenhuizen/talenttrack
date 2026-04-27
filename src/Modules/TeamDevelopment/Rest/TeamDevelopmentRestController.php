@@ -6,6 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\RestResponse;
+use TT\Modules\TeamDevelopment\ChemistryAggregator;
+use TT\Modules\TeamDevelopment\CompatibilityEngine;
+use TT\Modules\TeamDevelopment\Repositories\PairingsRepository;
 
 /**
  * TeamDevelopmentRestController — sprint 1 stubs.
@@ -61,6 +64,41 @@ class TeamDevelopmentRestController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_templates' ],
+                'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+        ] );
+
+        // Sprint 2-5 — chemistry, pairings, team-fit.
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/chemistry', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_chemistry' ],
+                'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/pairings', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'list_pairings' ],
+                'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'add_pairing' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/pairings/(?P<id>\d+)', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_pairing' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/players/(?P<id>\d+)/team-fit', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_team_fit' ],
                 'permission_callback' => [ __CLASS__, 'can_view' ],
             ],
         ] );
@@ -233,5 +271,142 @@ class TeamDevelopmentRestController {
         if ( $json === '' ) return [];
         $decoded = json_decode( $json, true );
         return is_array( $decoded ) ? $decoded : [];
+    }
+
+    // Sprint 2-5 handlers
+
+    public static function get_chemistry( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = absint( $r['id'] );
+        if ( $team_id <= 0 || ! QueryHelpers::get_team( $team_id ) ) {
+            return RestResponse::error( 'bad_team', __( 'Team not found.', 'talenttrack' ), 404 );
+        }
+        global $wpdb; $p = $wpdb->prefix;
+
+        // Resolve formation. If the team hasn't picked one, fall back to
+        // the first seeded template so the board still renders.
+        $template_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT formation_template_id FROM {$p}tt_team_formations WHERE team_id = %d",
+            $team_id
+        ) );
+        if ( $template_id <= 0 ) {
+            $template_id = (int) $wpdb->get_var(
+                "SELECT id FROM {$p}tt_formation_templates WHERE is_seeded = 1 AND archived_at IS NULL ORDER BY id ASC LIMIT 1"
+            );
+        }
+        if ( $template_id <= 0 ) {
+            return RestResponse::error( 'no_template',
+                __( 'No formation template available. Run migrations to seed defaults.', 'talenttrack' ), 500 );
+        }
+
+        $style = $wpdb->get_row( $wpdb->prepare(
+            "SELECT possession_weight, counter_weight, press_weight FROM {$p}tt_team_playing_styles WHERE team_id = %d",
+            $team_id
+        ) );
+        $poss = $style ? (int) $style->possession_weight : 33;
+        $cntr = $style ? (int) $style->counter_weight    : 33;
+        $prss = $style ? (int) $style->press_weight      : 34;
+
+        $aggregator = new ChemistryAggregator();
+        $payload = $aggregator->teamChemistry( $team_id, $template_id, $poss, $cntr, $prss );
+
+        return RestResponse::success( [
+            'team_id'              => $team_id,
+            'formation_template_id' => $template_id,
+            'style'                => [ 'possession' => $poss, 'counter' => $cntr, 'press' => $prss ],
+        ] + $payload );
+    }
+
+    public static function list_pairings( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = absint( $r['id'] );
+        if ( $team_id <= 0 || ! QueryHelpers::get_team( $team_id ) ) {
+            return RestResponse::error( 'bad_team', __( 'Team not found.', 'talenttrack' ), 404 );
+        }
+        $rows = ( new PairingsRepository() )->listForTeam( $team_id );
+        // Enrich with player names so the UI doesn't need a second round-trip.
+        foreach ( $rows as &$row ) {
+            $a = QueryHelpers::get_player( (int) $row['player_a_id'] );
+            $b = QueryHelpers::get_player( (int) $row['player_b_id'] );
+            $row['player_a_name'] = $a ? QueryHelpers::player_display_name( $a ) : '';
+            $row['player_b_name'] = $b ? QueryHelpers::player_display_name( $b ) : '';
+        }
+        unset( $row );
+        return RestResponse::success( [ 'rows' => $rows ] );
+    }
+
+    public static function add_pairing( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = absint( $r['id'] );
+        if ( $team_id <= 0 || ! QueryHelpers::get_team( $team_id ) ) {
+            return RestResponse::error( 'bad_team', __( 'Team not found.', 'talenttrack' ), 404 );
+        }
+        $a = absint( $r['player_a_id'] ?? 0 );
+        $b = absint( $r['player_b_id'] ?? 0 );
+        if ( $a <= 0 || $b <= 0 || $a === $b ) {
+            return RestResponse::error( 'bad_players',
+                __( 'Pick two different players.', 'talenttrack' ), 400 );
+        }
+        $note = isset( $r['note'] ) ? sanitize_text_field( (string) $r['note'] ) : null;
+        $id = ( new PairingsRepository() )->add( $team_id, $a, $b, $note, get_current_user_id() );
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'db_error',
+                __( 'Could not save the pairing.', 'talenttrack' ), 500 );
+        }
+        return RestResponse::success( [ 'id' => $id ] );
+    }
+
+    public static function delete_pairing( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid pairing id.', 'talenttrack' ), 400 );
+        }
+        $ok = ( new PairingsRepository() )->remove( $id );
+        if ( ! $ok ) {
+            return RestResponse::error( 'db_error', __( 'Could not delete the pairing.', 'talenttrack' ), 500 );
+        }
+        return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
+    }
+
+    public static function get_team_fit( \WP_REST_Request $r ): \WP_REST_Response {
+        $player_id = absint( $r['id'] );
+        $player = QueryHelpers::get_player( $player_id );
+        if ( ! $player ) {
+            return RestResponse::error( 'bad_player', __( 'Player not found.', 'talenttrack' ), 404 );
+        }
+
+        global $wpdb; $p = $wpdb->prefix;
+        // Use the team's assigned formation if any, else the first seeded one.
+        $template_id = 0;
+        $team_id = (int) ( $player->team_id ?? 0 );
+        if ( $team_id > 0 ) {
+            $template_id = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT formation_template_id FROM {$p}tt_team_formations WHERE team_id = %d",
+                $team_id
+            ) );
+        }
+        if ( $template_id <= 0 ) {
+            $template_id = (int) $wpdb->get_var(
+                "SELECT id FROM {$p}tt_formation_templates WHERE is_seeded = 1 AND archived_at IS NULL ORDER BY id ASC LIMIT 1"
+            );
+        }
+        if ( $template_id <= 0 ) {
+            return RestResponse::success( [ 'player_id' => $player_id, 'rows' => [] ] );
+        }
+
+        $engine = new CompatibilityEngine();
+        $all = $engine->allSlotsFor( $player_id, $template_id );
+        $rows = [];
+        foreach ( $all as $label => $result ) {
+            $rows[] = [
+                'slot'      => $label,
+                'score'     => round( $result->score, 2 ),
+                'rationale' => $result->rationale,
+            ];
+        }
+        usort( $rows, static fn( $a, $b ) => $b['score'] <=> $a['score'] );
+        return RestResponse::success( [
+            'player_id'             => $player_id,
+            'formation_template_id' => $template_id,
+            'rows'                  => $rows,
+            'top_3'                 => array_slice( $rows, 0, 3 ),
+        ] );
     }
 }
