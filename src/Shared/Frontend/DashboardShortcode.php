@@ -424,19 +424,49 @@ class DashboardShortcode {
     }
 
     private static function renderHeader(): void {
-        $logo = QueryHelpers::get_config( 'logo_url', '' );
-        $name = QueryHelpers::get_config( 'academy_name', 'TalentTrack' );
-        $user = wp_get_current_user();
+        $logo      = QueryHelpers::get_config( 'logo_url', '' );
+        $show_logo = QueryHelpers::get_config( 'show_logo', '0' ) === '1';
+        $name      = QueryHelpers::get_config( 'academy_name', 'TalentTrack' );
+        $user      = wp_get_current_user();
 
         $profile_url = get_edit_profile_url( (int) $user->ID );
         $logout_url  = LogoutHandler::url();
         $is_wp_admin = current_user_can( 'administrator' );
+        $help_url    = admin_url( 'admin.php?page=tt-docs' );
+        $demo_on     = class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) && \TT\Modules\DemoData\DemoMode::isOn();
+        $demo_tip    = __( 'TalentTrack is running in demo mode. Real club records are hidden.', 'talenttrack' );
 
         echo '<div class="tt-dash-header">';
         echo '<div class="tt-dash-brand">';
-        if ( $logo ) echo '<img src="' . esc_url( $logo ) . '" class="tt-dash-logo" alt="" />';
+        if ( $show_logo && $logo ) echo '<img src="' . esc_url( $logo ) . '" class="tt-dash-logo" alt="" />';
         echo '<h2 class="tt-dash-title">' . esc_html( $name ) . '</h2>';
         echo '</div>';
+
+        echo '<div class="tt-dash-actions">';
+
+        // #0036 — DEMO pill replaces the standalone DemoBanner that
+        // used to prepend itself via the tt_dashboard_data filter.
+        if ( $demo_on ) {
+            echo '<a href="' . esc_url( admin_url( 'tools.php?page=tt-demo-data' ) )
+                . '" class="tt-dash-demo-pill" title="' . esc_attr( $demo_tip ) . '">'
+                . esc_html__( 'DEMO', 'talenttrack' )
+                . '</a>';
+        }
+
+        // Help icon — links to wp-admin Help & Docs. Only useful for
+        // admins; FrontendAccessControl bounces non-admins back to the
+        // dashboard, so the icon only renders for them.
+        if ( $is_wp_admin ) {
+            echo '<a href="' . esc_url( $help_url ) . '" class="tt-dash-help" '
+                . 'title="' . esc_attr__( 'Help & docs', 'talenttrack' ) . '" '
+                . 'aria-label="' . esc_attr__( 'Help & docs', 'talenttrack' ) . '">'
+                . '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
+                . '<circle cx="12" cy="12" r="10"></circle>'
+                . '<path d="M9.5 9a2.5 2.5 0 0 1 4.9.7c0 1.7-2.5 2.3-2.5 4"></path>'
+                . '<circle cx="12" cy="17.5" r="0.6" fill="currentColor"></circle>'
+                . '</svg>'
+                . '</a>';
+        }
 
         echo '<div class="tt-user-menu">';
         echo '<button type="button" class="tt-user-menu-trigger" aria-haspopup="true" aria-expanded="false">';
@@ -457,7 +487,8 @@ class DashboardShortcode {
         echo '</a>';
         echo '</div>';
         echo '</div>';
-        echo '</div>';
+        echo '</div>'; // .tt-dash-actions
+        echo '</div>'; // .tt-dash-header
 
         // Inline dropdown behaviour.
         ?>

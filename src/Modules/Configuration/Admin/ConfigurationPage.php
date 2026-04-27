@@ -516,8 +516,21 @@ class ConfigurationPage {
                     <input type="hidden" name="cfg[logo_url]" id="tt_logo_url" value="<?php echo esc_url( $logo ); ?>" />
                     <button type="button" class="button" id="tt-upload-logo"><?php esc_html_e( 'Upload', 'talenttrack' ); ?></button>
                 </td></tr>
+                <?php $show_logo = (string) QueryHelpers::get_config( 'show_logo', '0' ); ?>
+                <tr><th><?php esc_html_e( 'Show logo on dashboard', 'talenttrack' ); ?></th><td>
+                    <input type="hidden" name="cfg[show_logo]" value="0" />
+                    <label>
+                        <input type="checkbox" name="cfg[show_logo]" value="1" <?php checked( $show_logo, '1' ); ?> />
+                        <?php esc_html_e( 'Render the logo image in the dashboard header. Off by default — the academy name is the primary brand mark.', 'talenttrack' ); ?>
+                    </label>
+                </td></tr>
                 <tr><th><?php esc_html_e( 'Primary Color', 'talenttrack' ); ?></th><td><input type="color" name="cfg[primary_color]" value="<?php echo esc_attr( QueryHelpers::get_config( 'primary_color', '#0b3d2e' ) ); ?>" /></td></tr>
                 <tr><th><?php esc_html_e( 'Secondary Color', 'talenttrack' ); ?></th><td><input type="color" name="cfg[secondary_color]" value="<?php echo esc_attr( QueryHelpers::get_config( 'secondary_color', '#e8b624' ) ); ?>" /></td></tr>
+                <?php $tile_scale = (int) QueryHelpers::get_config( 'tile_scale', '100' ); ?>
+                <tr><th><?php esc_html_e( 'Tile size', 'talenttrack' ); ?></th><td>
+                    <input type="number" name="cfg[tile_scale]" value="<?php echo esc_attr( (string) $tile_scale ); ?>" min="50" max="150" step="5" style="width:80px;" /> %
+                    <p class="description"><?php esc_html_e( 'Scales padding, icons, and typography of the dashboard tiles. 50–150%, default 100%.', 'talenttrack' ); ?></p>
+                </td></tr>
             </table>
 
             <?php

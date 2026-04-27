@@ -6643,3 +6643,21 @@ msgstr "Alles anders (team-building, clubvergadering, toernooi). Vrije tekst."
 
 msgid "Pre-season friendly or non-competitive match."
 msgstr "Oefenwedstrijd of niet-competitieve wedstrijd."
+# #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
+msgid "DEMO"
+msgstr "DEMO"
+
+msgid "Help & docs"
+msgstr "Help & docs"
+
+msgid "Show logo on dashboard"
+msgstr "Logo tonen op dashboard"
+
+msgid "Render the logo image in the dashboard header. Off by default — the academy name is the primary brand mark."
+msgstr "Toon het logo in de dashboardkop. Standaard uit — de naam van de academie is het primaire merkonderdeel."
+
+msgid "Tile size"
+msgstr "Tegelgrootte"
+
+msgid "Scales padding, icons, and typography of the dashboard tiles. 50–150%, default 100%."
+msgstr "Schaalt de marges, iconen en typografie van de dashboardtegels. 50–150%, standaard 100%."
