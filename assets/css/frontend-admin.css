@@ -1136,6 +1136,7 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
     justify-content: center;
     padding: 16px;
 }
+.tt-guest-modal[hidden] { display: none; }
 .tt-guest-modal-backdrop {
     position: absolute;
     inset: 0;

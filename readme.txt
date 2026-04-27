@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.28.1
+Stable tag: 3.28.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.28.2 — Guest-add modal pops up on page load =
+* FIXED: Opening the New activity form (and the Edit activity form) immediately popped up the "Add guest" modal without the user clicking anything. The modal markup correctly uses the `hidden` HTML attribute, but `.tt-guest-modal { display: flex }` in `frontend-admin.css` has equal specificity to the UA `[hidden] { display: none }` and wins by author-stylesheet priority. Added `.tt-guest-modal[hidden] { display: none }` so the attribute keeps the modal closed until the "+ Add guest" button is clicked. Same template pattern in v3.28.0's docs drawer already had this line — the guest modal (#0026 / #0037) was missing it since v3.22.0.
 
 = 3.28.1 — Frontend dashboard fatal hotfix =
 * FIXED: "There has been a critical error on this website" on every authenticated frontend dashboard render. `DashboardShortcode::renderHeader()` called `self::shortcodeBaseUrl()`, but the helper was only defined on `FrontendTileGrid` — the call was added in v3.27.0 alongside the new help link without bringing the method along. Added a copy of `shortcodeBaseUrl()` to `DashboardShortcode` so the class is self-contained. Logged-out (login form) was unaffected because the call sat behind the `is_user_logged_in()` guard.
