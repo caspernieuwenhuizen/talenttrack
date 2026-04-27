@@ -1,3 +1,74 @@
+# TalentTrack v3.39.0 — Authorization matrix is trustworthy: scope-aware bridge + complete seed (#0033 follow-up)
+
+After v3.35.0 + v3.36.0 + v3.37.0 the matrix was active in production but didn't behave the way the matrix admin UI suggested it should. Three latent issues compounded:
+
+1. **The `user_has_cap` bridge always asked the matrix at `SCOPE_GLOBAL`.** Any persona whose grant was at `team` / `player` / `self` scope (head_coach, team_manager, scout, parent, player) silently failed every legacy `tt_*` cap check — tiles vanished, REST routes 403'd, admin-page entries unregistered. The matrix view kept showing the green ticks at team scope, but the runtime ignored them.
+2. **Academy admin's seed was incomplete.** Six entities the legacy cap vocabulary points at were missing: `frontend_admin`, `settings`, `workflow_tasks`, `tasks_dashboard`, `workflow_templates`, `dev_ideas`. With matrix active, the WP `administrator` lost the Configuration / Migrations / Audit log / Open wp-admin tiles + every wp-admin sidebar entry that gates on `tt_view_settings` / `tt_edit_settings` / `tt_access_frontend_admin`.
+3. **Two entity names were inconsistent between the cap mapper and the seed.** `tt_manage_functional_roles` mapped to entity `functional_roles` but the seed used `functional_role_assignments`. Same for `tt_manage_backups` → `backups` vs seed's `backup`. Whichever name the admin clicked in the matrix grid couldn't satisfy the cap check; the other half of the bridge looked at the other key.
+
+This release closes all three. After updating, the matrix UI is the authoritative description of what each persona can do — **R + C + D ticked at any scope = the role has full access on that entity**, scope-permitting. No scope-aware mental gymnastics required to read the grid.
+
+## What changed
+
+### Scope-aware bridge — `MatrixGate::canAnyScope()`
+
+New helper that evaluates "does the user have this access at any scope they hold an assignment for?" rather than the global-only check the bridge previously made:
+
+- `global`  → grants regardless of any other state.
+- `team`    → grants when the user has at least one assignment in `tt_user_role_scopes` (active per `start_date` / `end_date`).
+- `player`  → grants when the user is a player themselves or a linked parent via `tt_player_parents`.
+- `self`    → always grants for the asking user.
+
+`LegacyCapMapper::evaluate()` and `PreviewPage::computeDiff()` both route through `canAnyScope` now, so the cap-bridge AND the migration-preview diff stop over-reporting "Revoked" for team-scoped permissions that work fine in practice. The `user_has_cap` filter callback is unchanged at the WP level — only the predicate it asks the matrix.
+
+### Seed completion
+
+`config/authorization_seed.php` adds the missing rows:
+
+| Persona | Added rows |
+|---|---|
+| `academy_admin` | `frontend_admin [r global]`, `settings [rcd global]`, `workflow_tasks [r self]`, `tasks_dashboard [r global]`, `workflow_templates [rcd global]`, `dev_ideas [rcd global]` |
+| `head_of_development` | same six |
+| `head_coach` / `assistant_coach` / `team_manager` | `workflow_tasks [r self]`, `frontend_admin [r global]`, `dev_ideas [c global]` |
+| `scout` | `workflow_tasks [r self]`, `frontend_admin [r global]`, `dev_ideas [c global]` |
+
+### Entity-name alignment
+
+- `tt_manage_functional_roles` now maps to entity `functional_role_assignments` (matches the seed).
+- `tt_manage_backups` now maps to entity `backup` (matches the seed; aligns with the singular naming used for every other domain table).
+
+### Migration
+
+`database/migrations/0035_authorization_seed_backfill.php` — `INSERT IGNORE`s every seed row into `tt_authorization_matrix` for existing installs. Admin edits to existing rows are preserved (the unique key `(persona, entity, activity, scope_kind)` makes the insert a no-op for any row already present); only the genuinely missing rows are added. Idempotent, safe to re-run.
+
+## Effect
+
+For an `administrator` user:
+- Configuration, Migrations, Audit log, Open wp-admin frontend tiles return.
+- The full wp-admin sidebar returns (Configuration, Custom Fields, Eval Categories, Reports, Rate Cards, Roles, etc.).
+- The Application KPIs tile in Analytics returns.
+
+For a `tt_coach` (head or assistant) with team assignments:
+- All coaching tiles + admin pages return because team-scoped grants now satisfy the bridge.
+- The "My tasks" inbox tile shows up (workflow_tasks at self scope).
+- The "Submit an idea" tile shows up.
+
+For `tt_player` / `tt_parent` / `tt_scout` / `tt_team_manager`:
+- Legacy cap checks no longer require a global-scope row that was never going to exist for these personas. Their team / player / self rows now grant the matching legacy caps directly.
+
+The migration preview's "Revoked" column now reflects only genuine seed gaps, not scope mismatches. If the column is empty after this release, the matrix is genuinely matching the previous-cap world.
+
+## Files
+
+- `src/Modules/Authorization/MatrixGate.php` — new `canAnyScope()` + `userHasAnyScope()` helper.
+- `src/Modules/Authorization/LegacyCapMapper.php` — bridge predicate + entity-name alignment.
+- `src/Modules/Authorization/Admin/PreviewPage.php` — diff predicate aligned.
+- `config/authorization_seed.php` — new entity rows for six personas.
+- `database/migrations/0035_authorization_seed_backfill.php` — idempotent backfill for existing installs.
+- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — release.
+
+---
+
 # TalentTrack v3.38.0 — My profile rebuild (#0014 Sprint 2)
 
 The player-facing **My profile** view, previously functional-but-spartan (avatar + definition list + WP edit-account button), is rebuilt as a six-section dashboard. A player opening it now sees their FIFA card, their recent rating trajectory, what they're working on, what's coming up, and their account — all on one screen.

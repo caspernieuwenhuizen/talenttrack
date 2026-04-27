@@ -198,7 +198,10 @@ class PreviewPage {
                 if ( $tuple === null ) continue;
                 [ $entity, $activity ] = $tuple;
                 $legacy = isset( $wp_user->allcaps[ $cap ] ) && (bool) $wp_user->allcaps[ $cap ];
-                $matrix = MatrixGate::can( $user_id, $entity, $activity, MatrixGate::SCOPE_GLOBAL );
+                // #0033 follow-up — match the runtime bridge (canAnyScope)
+                // so the diff stops over-reporting "Revoked" for
+                // team-scoped permissions that work fine in practice.
+                $matrix = MatrixGate::canAnyScope( $user_id, $entity, $activity );
                 if ( $matrix && ! $legacy ) $gained[]  = $cap;
                 if ( ! $matrix && $legacy ) $revoked[] = $cap;
             }

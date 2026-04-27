@@ -51,6 +51,40 @@ class MatrixGate {
      * @param int|null $scope_target_id  team_id when scope='team'; player_id when 'player';
      *                                   user_id when 'self'. Required for non-global scopes.
      */
+    /**
+     * "Does the user have this access at *any* scope where they hold a
+     * matching assignment?" — answers the question the legacy capability
+     * vocabulary asks. Used by the user_has_cap bridge and the migration
+     * preview so a head-coach who has `evaluations [rcd, team]` returns
+     * true for `tt_view_evaluations` (because they have at least one
+     * team assignment), not false because the matrix has no global row.
+     *
+     * Order: global → team (any assignment) → player (any link) → self.
+     */
+    public static function canAnyScope( int $user_id, string $entity, string $activity ): bool {
+        if ( $user_id <= 0 ) return false;
+
+        $personas = PersonaResolver::effectivePersonas( $user_id );
+        if ( empty( $personas ) ) return false;
+
+        $repo = new MatrixRepository();
+
+        foreach ( $personas as $persona ) {
+            foreach ( [ self::SCOPE_GLOBAL, self::SCOPE_TEAM, self::SCOPE_PLAYER, self::SCOPE_SELF ] as $scope_kind ) {
+                if ( ! $repo->lookup( $persona, $entity, $activity, $scope_kind ) ) continue;
+
+                $module_class = $repo->moduleFor( $persona, $entity, $activity, $scope_kind );
+                if ( $module_class !== null && ! \TT\Core\ModuleRegistry::isEnabled( $module_class ) ) continue;
+
+                if ( $scope_kind === self::SCOPE_GLOBAL ) return true;
+                if ( $scope_kind === self::SCOPE_SELF )   return true;
+                if ( self::userHasAnyScope( $user_id, $scope_kind ) )    return true;
+            }
+        }
+
+        return false;
+    }
+
     public static function can(
         int $user_id,
         string $entity,
@@ -107,6 +141,52 @@ class MatrixGate {
      *             no surface to exercise that path.
      *   - self:   $target_id matches the user_id.
      */
+    /**
+     * Does the user hold ANY assignment of the given scope kind? Used
+     * by `canAnyScope()` where the question is "is there any team /
+     * any linked player at all", not "the specific team N".
+     */
+    private static function userHasAnyScope( int $user_id, string $scope_kind ): bool {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        if ( $scope_kind === self::SCOPE_PLAYER ) {
+            $self_player = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d LIMIT 1",
+                $user_id
+            ) );
+            if ( $self_player > 0 ) return true;
+
+            $is_parent = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT 1 FROM {$p}tt_player_parents WHERE parent_user_id = %d LIMIT 1",
+                $user_id
+            ) );
+            return $is_parent === 1;
+        }
+
+        if ( $scope_kind === self::SCOPE_TEAM ) {
+            $person_id = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d LIMIT 1",
+                $user_id
+            ) );
+            if ( $person_id <= 0 ) return false;
+
+            $today = current_time( 'Y-m-d' );
+            $hit = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT 1 FROM {$p}tt_user_role_scopes
+                  WHERE person_id = %d
+                    AND scope_type = 'team'
+                    AND ( start_date IS NULL OR start_date <= %s )
+                    AND ( end_date   IS NULL OR end_date   >= %s )
+                  LIMIT 1",
+                $person_id, $today, $today
+            ) );
+            return $hit === 1;
+        }
+
+        return false;
+    }
+
     private static function userHasScope( int $user_id, string $scope_kind, int $target_id ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
