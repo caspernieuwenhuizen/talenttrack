@@ -157,10 +157,10 @@ class Menu {
         add_submenu_page( 'talenttrack', __( 'Roles & Permissions', 'talenttrack' ), __( 'Roles & Permissions', 'talenttrack' ), 'tt_view_settings', 'tt-roles', [ \TT\Modules\Authorization\Admin\RolesPage::class, 'render' ] );
         add_submenu_page( 'talenttrack', __( 'Functional Roles', 'talenttrack' ), __( 'Functional Roles', 'talenttrack' ), 'tt_view_settings', 'tt-functional-roles', [ \TT\Modules\Authorization\Admin\FunctionalRolesPage::class, 'render' ] );
         add_submenu_page( 'talenttrack', __( 'Permission Debug', 'talenttrack' ), __( 'Permission Debug', 'talenttrack' ), 'tt_view_settings', 'tt-roles-debug', [ \TT\Modules\Authorization\Admin\DebugPage::class, 'render' ] );
-        // #0033 Sprint 3 + 5 — matrix editor + module toggles. Both
-        // gated to administrator-only at the page level (sharper than
-        // tt_view_settings for "redefine what every role can do").
+        // #0033 Sprint 3 + 5 + 8 — matrix editor + module toggles +
+        // migration preview. All gated to administrator-only.
         add_submenu_page( 'talenttrack', __( 'Authorization Matrix', 'talenttrack' ), __( 'Authorization Matrix', 'talenttrack' ), 'administrator', 'tt-matrix', [ \TT\Modules\Authorization\Admin\MatrixPage::class, 'render' ] );
+        add_submenu_page( 'talenttrack', __( 'Migration preview', 'talenttrack' ), __( 'Migration preview', 'talenttrack' ), 'administrator', 'tt-matrix-preview', [ \TT\Modules\Authorization\Admin\PreviewPage::class, 'render' ] );
         add_submenu_page( 'talenttrack', __( 'Modules', 'talenttrack' ), __( 'Modules', 'talenttrack' ), 'administrator', 'tt-modules', [ \TT\Modules\Authorization\Admin\ModulesPage::class, 'render' ] );
 
         add_submenu_page( 'talenttrack', __( 'Help & Docs', 'talenttrack' ), __( 'Help & Docs', 'talenttrack' ), 'read', 'tt-docs', [ DocumentationPage::class, 'render_page' ] );

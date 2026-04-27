@@ -6679,3 +6679,177 @@ msgstr "Die activiteit bestaat niet meer."
 
 msgid "Delete this activity? It will be archived."
 msgstr "Activiteit verwijderen? Hij wordt gearchiveerd."
+
+# === #0033 Sprints 3+4+5+6+7+8+9 — Authorization matrix admin strings ===
+
+msgid "Authorization Matrix"
+msgstr "Authorisatie­matrix"
+
+msgid "Authorization matrix"
+msgstr "Authorisatie­matrix"
+
+msgid "Define what each persona can do on each entity. R = read, C = change (edit), D = create/delete. Scope narrows the grant: \"global\" applies everywhere; \"team\" or \"player\" require the user to also have that scope assignment."
+msgstr "Definieer wat elke persona mag doen op elke entiteit. R = lezen, C = wijzigen, D = aanmaken/verwijderen. Scope perkt de toekenning in: \"global\" geldt overal; \"team\" of \"player\" vereisen dat de gebruiker die scope-toewijzing ook heeft."
+
+msgid "Matrix saved."
+msgstr "Matrix opgeslagen."
+
+msgid "Matrix reset to defaults."
+msgstr "Matrix gereset naar standaarden."
+
+msgid "Reset to defaults"
+msgstr "Reset naar standaarden"
+
+msgid "Reseeds the matrix from the shipped seed file. Any admin-edited rows are lost. Logged in the changelog."
+msgstr "Herseed't de matrix vanuit het meegeleverde seed-bestand. Eventueel handmatig bewerkte rijen gaan verloren. Geregistreerd in de changelog."
+
+msgid "Reset every persona\\'s permissions to the shipped defaults? This cannot be undone (except by re-editing)."
+msgstr "Alle persona-rechten resetten naar de meegeleverde standaarden? Dit kan niet ongedaan gemaakt worden (behalve door opnieuw te bewerken)."
+
+msgid "Recent changes"
+msgstr "Recente wijzigingen"
+
+msgid "Save matrix"
+msgstr "Matrix opslaan"
+
+msgid "Persona"
+msgstr "Persona"
+msgid "Change"
+msgstr "Wijziging"
+msgid "Actor"
+msgstr "Actor"
+
+msgid "Note"
+msgstr "Notitie"
+
+msgid "Changelog table not found. Run pending migrations."
+msgstr "Changelog-tabel niet gevonden. Draai openstaande migraties."
+
+msgid "No matrix changes yet."
+msgstr "Nog geen matrix-wijzigingen."
+
+msgid "You must be an administrator to view this page."
+msgstr "Je moet administrator zijn om deze pagina te bekijken."
+
+msgid "Modules"
+msgstr "Modules"
+
+msgid "Each TalentTrack module can be turned off here. Disabled modules don\\'t register hooks, REST routes, admin pages, or capabilities — they\\'re completely invisible until re-enabled. Core modules (Auth, Configuration, Authorization) cannot be disabled."
+msgstr "Elke TalentTrack-module kan hier worden uitgeschakeld. Uitgeschakelde modules registreren geen hooks, REST-routes, beheerpagina's of capabilities — ze zijn volledig onzichtbaar tot ze weer worden ingeschakeld. Core modules (Auth, Configuration, Authorization) kunnen niet worden uitgeschakeld."
+
+msgid "Module state saved. Reload any open admin tabs to see the effect."
+msgstr "Modulestatus opgeslagen. Herlaad open beheer-tabs om het effect te zien."
+
+msgid "License module is disabled."
+msgstr "License-module is uitgeschakeld."
+
+msgid "All monetization gates are off (LicenseGate::* returns true unconditionally). Pre-launch this is fine for demos and dev. Before public launch, hardcode LicenseModule enabled or implement a %s constant that disables this toggle in production."
+msgstr "Alle monetisatie-gates staan uit (LicenseGate::* geeft onvoorwaardelijk true terug). Pre-launch is dit prima voor demo's en dev. Voor de publieke launch moet je LicenseModule hardcoded inschakelen of een %s-constante implementeren die deze toggle in productie uitschakelt."
+
+msgid "Module"
+msgstr "Module"
+
+msgid "Class"
+msgstr "Klasse"
+msgid "(core — cannot be disabled)"
+msgstr "(core — kan niet worden uitgeschakeld)"
+
+msgid "(monetization gates — see warning above when disabled)"
+msgstr "(monetisatie-gates — zie waarschuwing hierboven bij uitschakelen)"
+
+msgid "Core module — cannot be disabled."
+msgstr "Core module — kan niet worden uitgeschakeld."
+msgid "Off"
+msgstr "Uit"
+
+msgid "Save module state"
+msgstr "Modulestatus opslaan"
+
+msgid "Note: dependencies between modules are not yet enforced. Disabling a module that another depends on may break the dependent module silently. The Module Registry will surface a dependency graph in a later sprint."
+msgstr "Let op: afhankelijkheden tussen modules worden nog niet afgedwongen. Een module uitschakelen waarvan een andere module afhangt, kan de afhankelijke stilzwijgend breken. De Module Registry oppervlakt in een latere sprint een afhankelijkheidsgrafiek."
+
+msgid "Migration preview"
+msgstr "Migratiepreview"
+
+msgid "Migration preview — Authorization Matrix"
+msgstr "Migratiepreview — Authorisatie­matrix"
+
+msgid "Compare each user\\'s legacy (capability-based) and new (matrix-based) effective permissions. \"Gained\" means the matrix grants something the old caps didn\\'t. \"Revoked\" means the opposite — review carefully before applying."
+msgstr "Vergelijk per gebruiker de legacy (cap-gebaseerde) en nieuwe (matrix-gebaseerde) effectieve rechten. \"Gained\" betekent dat de matrix iets verleent dat de oude caps niet deden. \"Revoked\" betekent het tegenovergestelde — beoordeel zorgvuldig vóór toepassen."
+
+msgid "Authorization matrix is now active. The user_has_cap filter routes legacy capability checks through MatrixGate."
+msgstr "Authorisatie­matrix is nu actief. De user_has_cap-filter routeert legacy cap-checks via MatrixGate."
+
+msgid "Authorization matrix rollback complete. The user_has_cap filter is dormant; native WP capability checks decide again."
+msgstr "Authorisatie­matrix-rollback voltooid. De user_has_cap-filter is slapend; native WP cap-checks beslissen weer."
+
+msgid "Current state:"
+msgstr "Huidige status:"
+
+msgid "Matrix-driven authorization is ACTIVE. Legacy cap checks route through MatrixGate."
+msgstr "Matrix-gedreven autorisatie is ACTIEF. Legacy cap-checks routeren via MatrixGate."
+
+msgid "Matrix is in shadow mode. Legacy cap checks decide; the matrix is data-only."
+msgstr "Matrix is in shadow-modus. Legacy cap-checks beslissen; de matrix is alleen data."
+
+msgid "Activate matrix-driven authorization? Every legacy tt_* capability check will route through MatrixGate. You can roll back at any time."
+msgstr "Matrix-gedreven autorisatie activeren? Elke legacy tt_*-cap-check zal via MatrixGate routeren. Je kunt op elk moment terugrollen."
+
+msgid "Apply matrix"
+msgstr "Matrix toepassen"
+
+msgid "Roll back to legacy capability checks? Matrix data is preserved; only the routing flag flips."
+msgstr "Terugrollen naar legacy cap-checks? Matrixdata blijft bewaard; alleen de routing-vlag draait om."
+
+msgid "Rollback to legacy"
+msgstr "Terugrollen naar legacy"
+
+msgid "Download diff (CSV)"
+msgstr "Diff downloaden (CSV)"
+
+msgid "Per-user diff"
+msgstr "Diff per gebruiker"
+
+msgid "No TT-role users found."
+msgstr "Geen gebruikers met TT-rol gevonden."
+msgid "Personas"
+msgstr "Persona's"
+
+msgid "Gained (matrix grants new)"
+msgstr "Gained (matrix verleent nieuw)"
+
+msgid "Revoked (matrix denies)"
+msgstr "Revoked (matrix weigert)"
+
+msgid "View as"
+msgstr "Bekijken als"
+
+msgid "All personas (default)"
+msgstr "Alle persona's (standaard)"
+
+msgid "You are viewing as"
+msgstr "Je bekijkt als"
+
+msgid "Switch back to all personas"
+msgstr "Terug naar alle persona's"
+
+msgid "Today's work"
+msgstr "Werk van vandaag"
+
+msgid "Setup & administration"
+msgstr "Setup & beheer"
+
+msgid "Persona × entity × activity × scope grid — what each persona can do, with shadow-mode preview before applying."
+msgstr "Persona × entiteit × activiteit × scope-raster — wat elke persona mag, met shadow-modus preview vóór toepassen."
+
+msgid "Per-install module toggles — disable Methodology, Workflow, License, etc. without touching code."
+msgstr "Module-toggles per installatie — schakel Methodology, Workflow, License, etc. uit zonder code aan te raken."
+
+msgid "Head of Dev"
+msgstr "Hoofd Opleidingen"
+
+msgid "Academy Admin"
+msgstr "Academy Admin"
+
+msgid "Team Manager"
+msgstr "Team Manager"

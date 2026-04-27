@@ -33,9 +33,11 @@ class AuthorizationModule implements ModuleInterface {
         add_action( 'admin_post_tt_revoke_role', [ RolesPage::class, 'handleRevoke' ] );
         add_action( 'admin_post_tt_save_functional_role_mapping',
             [ FunctionalRolesPage::class, 'handleSaveMapping' ] );
-        // #0033 Sprint 3 + 5 — matrix editor + module toggles handlers.
+        // #0033 Sprint 3 + 5 + 8 — matrix editor + module toggles +
+        // migration preview handlers.
         Admin\MatrixPage::init();
         Admin\ModulesPage::init();
+        Admin\PreviewPage::init();
     }
 
     public function boot( Container $container ): void {
