@@ -328,20 +328,14 @@ class FrontendTileGrid {
                 'show'  => $is_coach || $is_admin,
             ],
             [
-                'label' => __( 'Players', 'talenttrack' ),
-                'desc'  => __( 'Roster of all players on your coached teams.', 'talenttrack' ),
+                'label' => $is_admin ? __( 'Players', 'talenttrack' ) : __( 'My players', 'talenttrack' ),
+                'desc'  => $is_admin
+                    ? __( 'Full academy roster.', 'talenttrack' )
+                    : __( 'Players on the teams you coach.', 'talenttrack' ),
                 'icon'  => 'players',
                 'color' => '#1d7874',
                 'url'   => $url( 'players' ),
                 'show'  => $is_coach || $is_admin,
-            ],
-            [
-                'label' => __( 'Import players', 'talenttrack' ),
-                'desc'  => __( 'Bulk import players from a CSV file.', 'talenttrack' ),
-                'icon'  => 'import',
-                'color' => '#1d7874',
-                'url'   => $url( 'players-import' ),
-                'show'  => $is_admin || current_user_can( 'tt_edit_players' ),
             ],
             [
                 'label' => __( 'People', 'talenttrack' ),
@@ -396,6 +390,11 @@ class FrontendTileGrid {
                 'url'   => $url( 'podium' ),
                 'show'  => $is_coach || $is_admin,
             ],
+        ];
+
+        // "Reference / Knowledge" group (#0040) — non-transactional
+        // reference material consulted while doing the daily work.
+        $reference_tiles = [
             [
                 'label' => __( 'Methodology', 'talenttrack' ),
                 'desc'  => __( 'Principles, formations, positions and set pieces.', 'talenttrack' ),
@@ -443,34 +442,10 @@ class FrontendTileGrid {
         $admin_tiles = [
             [
                 'label' => __( 'Configuration', 'talenttrack' ),
-                'desc'  => __( 'Branding, theme inheritance, rating scale.', 'talenttrack' ),
+                'desc'  => __( 'Lookups, branding, authorization, system settings.', 'talenttrack' ),
                 'icon'  => 'settings',
                 'color' => '#555',
                 'url'   => $url( 'configuration' ),
-                'show'  => $can_frontend_admin,
-            ],
-            [
-                'label' => __( 'Custom fields', 'talenttrack' ),
-                'desc'  => __( 'Add per-entity custom fields.', 'talenttrack' ),
-                'icon'  => 'custom-fields',
-                'color' => '#555',
-                'url'   => $url( 'custom-fields' ),
-                'show'  => $can_frontend_admin,
-            ],
-            [
-                'label' => __( 'Eval categories', 'talenttrack' ),
-                'desc'  => __( 'Manage the evaluation category tree.', 'talenttrack' ),
-                'icon'  => 'categories',
-                'color' => '#555',
-                'url'   => $url( 'eval-categories' ),
-                'show'  => $can_frontend_admin,
-            ],
-            [
-                'label' => __( 'Roles', 'talenttrack' ),
-                'desc'  => __( 'Reference for the eight TalentTrack roles.', 'talenttrack' ),
-                'icon'  => 'roles',
-                'color' => '#555',
-                'url'   => $url( 'roles' ),
                 'show'  => $can_frontend_admin,
             ],
             [
@@ -607,6 +582,10 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Performance', 'talenttrack' ),
                 'tiles' => $performance_tiles,
+            ],
+            [
+                'label' => __( 'Reference', 'talenttrack' ),
+                'tiles' => $reference_tiles,
             ],
             [
                 'label' => __( 'Analytics', 'talenttrack' ),

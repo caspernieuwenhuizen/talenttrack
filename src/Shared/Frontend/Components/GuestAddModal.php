@@ -44,16 +44,16 @@ final class GuestAddModal {
             <div class="tt-guest-modal-backdrop" data-tt-guest-modal-close></div>
             <div class="tt-guest-modal-panel">
                 <div class="tt-guest-modal-header">
-                    <h3 id="tt-guest-modal-title" style="margin:0;"><?php esc_html_e( 'Gast toevoegen', 'talenttrack' ); ?></h3>
-                    <button type="button" class="tt-guest-modal-close" data-tt-guest-modal-close aria-label="<?php esc_attr_e( 'Sluiten', 'talenttrack' ); ?>">×</button>
+                    <h3 id="tt-guest-modal-title" style="margin:0;"><?php esc_html_e( 'Add guest', 'talenttrack' ); ?></h3>
+                    <button type="button" class="tt-guest-modal-close" data-tt-guest-modal-close aria-label="<?php esc_attr_e( 'Close', 'talenttrack' ); ?>">×</button>
                 </div>
 
                 <div class="tt-guest-modal-tabs" role="tablist">
                     <button type="button" class="tt-guest-modal-tab tt-guest-modal-tab--active" data-tt-guest-tab="linked" role="tab">
-                        <?php esc_html_e( 'Gekoppelde speler', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'Linked player', 'talenttrack' ); ?>
                     </button>
                     <button type="button" class="tt-guest-modal-tab" data-tt-guest-tab="anonymous" role="tab">
-                        <?php esc_html_e( 'Anonieme gast', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'Anonymous guest', 'talenttrack' ); ?>
                     </button>
                 </div>
 
@@ -61,40 +61,40 @@ final class GuestAddModal {
                     <!-- Linked tab -->
                     <div data-tt-guest-pane="linked">
                         <p class="tt-help-text" style="margin:0 0 8px; font-size:12px; color:#5b6470;">
-                            <?php esc_html_e( 'Kies een speler van een ander team. De evaluatie van vandaag verschijnt op zijn/haar profiel.', 'talenttrack' ); ?>
+                            <?php esc_html_e( "Pick a player from another team. Today's evaluation will appear on their profile.", 'talenttrack' ); ?>
                         </p>
                         <?php echo PlayerSearchPickerComponent::render( [
                             'name'             => 'tt_guest_linked_player_id',
-                            'label'            => __( 'Speler', 'talenttrack' ),
+                            'label'            => __( 'Player', 'talenttrack' ),
                             'required'         => false,
                             'user_id'          => $user_id,
                             'is_admin'         => $is_admin,
                             'cross_team'       => true,
                             'exclude_team_id'  => $exclude,
                             'show_team_filter' => true,
-                            'placeholder'      => __( 'Type een naam om te zoeken…', 'talenttrack' ),
+                            'placeholder'      => __( 'Type a name to search…', 'talenttrack' ),
                         ] ); ?>
                     </div>
 
                     <!-- Anonymous tab -->
                     <div data-tt-guest-pane="anonymous" hidden>
                         <p class="tt-help-text" style="margin:0 0 8px; font-size:12px; color:#5b6470;">
-                            <?php esc_html_e( 'Geen TalentTrack-record nodig. Vul de basisgegevens in; je kunt deze gast later promoveren naar een echte speler.', 'talenttrack' ); ?>
+                            <?php esc_html_e( 'No TalentTrack record needed. Fill in the basics; you can promote this guest to a real player later.', 'talenttrack' ); ?>
                         </p>
                         <div class="tt-field">
-                            <label class="tt-field-label tt-field-required" for="tt-guest-anon-name"><?php esc_html_e( 'Naam', 'talenttrack' ); ?></label>
+                            <label class="tt-field-label tt-field-required" for="tt-guest-anon-name"><?php esc_html_e( 'Name', 'talenttrack' ); ?></label>
                             <input type="text" id="tt-guest-anon-name" class="tt-input" maxlength="120" />
                         </div>
                         <div class="tt-grid tt-grid-2">
                             <div class="tt-field">
-                                <label class="tt-field-label" for="tt-guest-anon-age"><?php esc_html_e( 'Leeftijd', 'talenttrack' ); ?></label>
+                                <label class="tt-field-label" for="tt-guest-anon-age"><?php esc_html_e( 'Age', 'talenttrack' ); ?></label>
                                 <input type="number" id="tt-guest-anon-age" class="tt-input" min="6" max="19" />
                             </div>
                             <div class="tt-field">
-                                <label class="tt-field-label" for="tt-guest-anon-position"><?php esc_html_e( 'Positie', 'talenttrack' ); ?></label>
+                                <label class="tt-field-label" for="tt-guest-anon-position"><?php esc_html_e( 'Position', 'talenttrack' ); ?></label>
                                 <?php if ( ! empty( $positions ) ) : ?>
                                     <select id="tt-guest-anon-position" class="tt-input">
-                                        <option value=""><?php esc_html_e( '— Onbekend —', 'talenttrack' ); ?></option>
+                                        <option value=""><?php esc_html_e( '— Unknown —', 'talenttrack' ); ?></option>
                                         <?php foreach ( $positions as $pos ) : ?>
                                             <option value="<?php echo esc_attr( $pos ); ?>"><?php echo esc_html( $pos ); ?></option>
                                         <?php endforeach; ?>
@@ -109,10 +109,10 @@ final class GuestAddModal {
 
                 <div class="tt-guest-modal-actions">
                     <button type="button" class="tt-btn tt-btn-secondary" data-tt-guest-modal-close>
-                        <?php esc_html_e( 'Annuleren', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'Cancel', 'talenttrack' ); ?>
                     </button>
                     <button type="button" class="tt-btn tt-btn-primary" data-tt-guest-modal-submit>
-                        <?php esc_html_e( 'Toevoegen', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'Add', 'talenttrack' ); ?>
                     </button>
                 </div>
 

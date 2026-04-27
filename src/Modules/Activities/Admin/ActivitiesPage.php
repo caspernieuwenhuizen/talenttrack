@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Validation\CustomFieldValidator;
 use TT\Shared\Admin\BackButton;
@@ -45,9 +46,16 @@ class ActivitiesPage {
         }
         $activities = $wpdb->get_results( "SELECT a.*, t.name AS team_name, u.display_name AS coach_name FROM {$p}tt_activities a LEFT JOIN {$p}tt_teams t ON a.team_id=t.id LEFT JOIN {$wpdb->users} u ON a.coach_id=u.ID WHERE a.{$view_clause} {$scope} {$type_clause} ORDER BY a.session_date DESC LIMIT 50" );
         $base_url = admin_url( 'admin.php?page=tt-activities' );
-        $type_url = function ( string $t ) use ( $base_url ) {
-            return $t === '' ? $base_url : add_query_arg( 'type', $t, $base_url );
-        };
+        // #0040 — type filter as a <select> instead of the chip-strip.
+        // Three hardcoded options for now (game/training/other) since the
+        // storage column `activity_type_key` enforces those three values;
+        // moving to a lookup-driven set would require an entity migration.
+        $type_options = [
+            ''         => __( 'All types', 'talenttrack' ),
+            'game'     => __( 'Games', 'talenttrack' ),
+            'training' => __( 'Trainings', 'talenttrack' ),
+            'other'    => __( 'Other', 'talenttrack' ),
+        ];
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Activities', 'talenttrack' ); ?><?php if ( current_user_can( 'tt_edit_activities' ) ) : ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-activities&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a><?php endif; ?> <?php \TT\Shared\Admin\HelpLink::render( 'activities' ); ?></h1>
@@ -55,13 +63,19 @@ class ActivitiesPage {
             <?php self::renderMigrationNotice(); ?>
             <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
 
-            <p class="tt-activities-filter" style="margin:8px 0 12px; font-size:13px;">
-                <strong><?php esc_html_e( 'Type:', 'talenttrack' ); ?></strong>
-                <a href="<?php echo esc_url( $type_url( '' ) ); ?>" <?php echo $type_filter === '' ? 'style="font-weight:600;"' : ''; ?>><?php esc_html_e( 'All', 'talenttrack' ); ?></a> ·
-                <a href="<?php echo esc_url( $type_url( 'game' ) ); ?>" <?php echo $type_filter === 'game' ? 'style="font-weight:600;"' : ''; ?>><?php esc_html_e( 'Games', 'talenttrack' ); ?></a> ·
-                <a href="<?php echo esc_url( $type_url( 'training' ) ); ?>" <?php echo $type_filter === 'training' ? 'style="font-weight:600;"' : ''; ?>><?php esc_html_e( 'Trainings', 'talenttrack' ); ?></a> ·
-                <a href="<?php echo esc_url( $type_url( 'other' ) ); ?>" <?php echo $type_filter === 'other' ? 'style="font-weight:600;"' : ''; ?>><?php esc_html_e( 'Other', 'talenttrack' ); ?></a>
-            </p>
+            <form method="get" action="<?php echo esc_url( $base_url ); ?>" class="tt-activities-filter" style="margin:8px 0 12px; font-size:13px; display:flex; gap:8px; align-items:center;">
+                <input type="hidden" name="page" value="tt-activities" />
+                <?php if ( ! empty( $_GET['tt_view'] ) ) : ?>
+                    <input type="hidden" name="tt_view" value="<?php echo esc_attr( sanitize_key( (string) $_GET['tt_view'] ) ); ?>" />
+                <?php endif; ?>
+                <label for="tt-activities-type-filter"><strong><?php esc_html_e( 'Type:', 'talenttrack' ); ?></strong></label>
+                <select id="tt-activities-type-filter" name="type" onchange="this.form.submit();">
+                    <?php foreach ( $type_options as $opt_key => $opt_label ) : ?>
+                        <option value="<?php echo esc_attr( (string) $opt_key ); ?>" <?php selected( $type_filter, $opt_key ); ?>><?php echo esc_html( (string) $opt_label ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <noscript><button type="submit" class="button"><?php esc_html_e( 'Filter', 'talenttrack' ); ?></button></noscript>
+            </form>
 
             <?php \TT\Shared\Admin\BulkActionsHelper::renderStatusTabs( 'activity', $view, $base_url ); ?>
             <?php \TT\Shared\Admin\BulkActionsHelper::openForm( 'activity', $view ); ?>
@@ -263,7 +277,7 @@ class ActivitiesPage {
                 <table class="widefat striped" style="max-width:600px;"><thead><tr><th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th></tr></thead><tbody>
                 <?php foreach ( $players as $pl ) : $att = $attendance[ (int) $pl->id ] ?? null; ?>
                     <tr><td><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></td>
-                        <td><select name="att[<?php echo (int) $pl->id; ?>][status]"><?php foreach ( $att_statuses as $as ) : ?><option value="<?php echo esc_attr( $as ); ?>" <?php selected( $att->status ?? 'Present', $as ); ?>><?php echo esc_html( $as ); ?></option><?php endforeach; ?></select></td>
+                        <td><select name="att[<?php echo (int) $pl->id; ?>][status]"><?php foreach ( $att_statuses as $as ) : ?><option value="<?php echo esc_attr( $as ); ?>" <?php selected( $att->status ?? 'Present', $as ); ?>><?php echo esc_html( LabelTranslator::attendanceStatus( (string) $as ) ); ?></option><?php endforeach; ?></select></td>
                         <td><input type="text" name="att[<?php echo (int) $pl->id; ?>][notes]" value="<?php echo esc_attr( $att->notes ?? '' ); ?>" style="width:200px" /></td></tr>
                 <?php endforeach; ?></tbody></table>
                 <?php endif; ?>

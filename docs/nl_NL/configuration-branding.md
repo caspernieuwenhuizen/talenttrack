@@ -4,6 +4,12 @@
 
 Op de pagina **Configuratie** leven de identiteit van je academie en de operationele knoppen van de plugin.
 
+## Tegellanding (v3.28.0+)
+
+Wanneer je **Configuratie** opent zonder een `?tab=`-parameter krijg je een tegelraster, gegroepeerd op onderwerp — Lookups & naslag­gegevens, Branding & weergave, Autorisatie, Systeem, Aangepaste gegevens en Spelers & bulkacties. Elke tegel opent ofwel een tab op deze pagina (de historische 14 lookup-, branding- en systeem­tabs) ofwel een bestaande top-level admin­pagina (Custom Fields, Evaluatie­categorieën, Autorisatie­matrix, Modules, etc.). Oude `?page=tt-config&tab=<slug>`-bladwijzers blijven werken.
+
+De tabstrip bovenaan is verdwenen; gebruik vanuit elk tabblad de **← Configuratie**-link in de paginatitel om terug naar het tegelraster te gaan.
+
 ## Tabbladen
 
 ### Algemeen

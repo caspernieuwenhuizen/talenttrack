@@ -4,13 +4,26 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.28.2
+Stable tag: 3.29.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.29.0 — Dashboard regroup + Configuration tile-landing + i18n cleanup (#0040) =
+* NEW: Configuration page (`?page=tt-config`) now opens on a tile-grid landing grouped by topic — Lookups & reference data, Branding & display, Authorization, System, Custom data, Players & bulk actions. Each tile drills into the dedicated screen. Old `?tab=<slug>` bookmarks still resolve.
+* CHANGED: Dashboard Administration group pruned — Custom fields, Eval categories, and Roles tiles removed. Custom Fields and Evaluation Categories are reachable from the new Configuration landing; the Roles surface is admin-only and reached via the help icon on the Authorization Matrix.
+* CHANGED: Methodology moved out of the Performance group into a new dedicated **Reference** group on the dashboard, alongside future read-only knowledge surfaces.
+* CHANGED: The "Players" tile now reads **My players** for non-admin users and uses a description that reflects the team-scoped roster. Administrators still see "Players" with the full academy list. Empty-state message ("You don't coach any teams yet…") renders for non-admin users without coached teams.
+* CHANGED: Bulk player import is no longer a dashboard tile in the People group. It surfaces as an "Import from CSV" button on the Players list, an "Import players from CSV" button on the Teams list, and as a tile under "Players & bulk actions" in the Configuration landing.
+* CHANGED: Activity-type filter on the wp-admin Activities page is now a `<select>` dropdown (All types / Games / Trainings / Other) instead of the chip-strip. Submits on change.
+* CHANGED: Attendance-status dropdowns in both wp-admin and frontend activity forms now render translated labels (Aanwezig / Afwezig / Te laat / Afgemeld in nl_NL) via `LabelTranslator::attendanceStatus()`. Admin-added attendance values continue to render their literal name.
+* FIXED: Guest-add modal had Dutch msgids (`__('Gast toevoegen')`, `__('Sluiten')`, etc.) — non-Dutch users would have seen literal Dutch. Replaced with English msgids and Dutch translations in the .po. Two stray hardcoded Dutch strings in the Guests section header (the help line and the empty-state row) translated as well.
+* NEW: Authorization Matrix admin page header now carries a "? Help on this topic" link that deep-links to the access-control documentation, the same pattern used on Configuration / Players / Activities.
+* CHANGED: Tab pages inside Configuration gained a "← Configuration" back-link in the page title to return to the tile grid.
+* DEFERRED: Admin-sees-no-activities investigation (#8) and workflow-shipped-templates-not-visible (#12) — both need reproducer data and will land in a follow-up.
 
 = 3.28.2 — Guest-add modal pops up on page load =
 * FIXED: Opening the New activity form (and the Edit activity form) immediately popped up the "Add guest" modal without the user clicking anything. The modal markup correctly uses the `hidden` HTML attribute, but `.tt-guest-modal { display: flex }` in `frontend-admin.css` has equal specificity to the UA `[hidden] { display: none }` and wins by author-stylesheet priority. Added `.tt-guest-modal[hidden] { display: none }` so the attribute keeps the modal closed until the "+ Add guest" button is clicked. Same template pattern in v3.28.0's docs drawer already had this line — the guest modal (#0026 / #0037) was missing it since v3.22.0.

@@ -287,7 +287,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         ?>
         <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Guests', 'talenttrack' ); ?></h3>
         <p class="tt-help-text" style="margin:-6px 0 12px; font-size:12px; color:#5b6470;">
-            <?php esc_html_e( 'Spelers van buiten de selectie. Gasten tellen niet mee in teamstats.', 'talenttrack' ); ?>
+            <?php esc_html_e( 'Players from outside the squad. Guests do not count toward team stats.', 'talenttrack' ); ?>
         </p>
         <div class="tt-attendance" data-tt-guest-session-id="<?php echo (int) $activity_id; ?>">
             <table class="tt-table tt-attendance-table" data-tt-guest-table>
@@ -300,7 +300,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 <?php if ( empty( $guests ) ) : ?>
                     <tr class="tt-attendance-row tt-attendance-row--empty" data-tt-guest-empty>
                         <td colspan="3" style="text-align:center; color:#5b6470; font-style:italic; padding:18px;">
-                            <?php esc_html_e( 'Nog geen gasten toegevoegd.', 'talenttrack' ); ?>
+                            <?php esc_html_e( 'No guests added yet.', 'talenttrack' ); ?>
                         </td>
                     </tr>
                 <?php else : foreach ( $guests as $g ) :

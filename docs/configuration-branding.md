@@ -4,6 +4,12 @@
 
 The **Configuration** page is where your academy's identity and the plugin's operational knobs live.
 
+## Tile-grid landing (v3.28.0+)
+
+Visiting **Configuration** with no `?tab=` parameter shows a tile grid grouped by topic — Lookups & reference data, Branding & display, Authorization, System, Custom data, and Players & bulk actions. Each tile drills into either an in-page tab (the historical 14 lookup + branding + system tabs) or an existing top-level admin page (Custom Fields, Evaluation Categories, Authorization Matrix, Modules, etc.). Old `?page=tt-config&tab=<slug>` bookmarks still resolve.
+
+The tab strip at the top is gone; from any in-page tab use the **← Configuration** link in the page title to return to the tile grid.
+
 ## Tabs
 
 ### General

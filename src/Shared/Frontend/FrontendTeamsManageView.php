@@ -79,9 +79,18 @@ class FrontendTeamsManageView extends FrontendViewBase {
         $base_url = remove_query_arg( [ 'action', 'id' ] );
         $new_url  = add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url );
 
-        echo '<p style="margin:0 0 var(--tt-sp-3, 12px);"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
+        $primary_actions = '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
             . esc_html__( 'New team', 'talenttrack' )
-            . '</a></p>';
+            . '</a>';
+        // #0040 — bulk player import surfaces here too; replaces the
+        // dashboard tile that lived in the People group.
+        if ( current_user_can( 'tt_edit_players' ) ) {
+            $import_url = add_query_arg( [ 'tt_view' => 'players-import' ], $base_url );
+            $primary_actions .= ' <a class="tt-btn tt-btn-secondary" href="' . esc_url( $import_url ) . '">'
+                . esc_html__( 'Import players from CSV', 'talenttrack' )
+                . '</a>';
+        }
+        echo '<p style="margin:0 0 var(--tt-sp-3, 12px);">' . $primary_actions . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped above.
 
         $age_group_options = [];
         foreach ( QueryHelpers::get_lookup_names( 'age_group' ) as $ag ) {
