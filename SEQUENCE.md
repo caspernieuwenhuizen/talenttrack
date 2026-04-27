@@ -83,6 +83,8 @@ v3.22.0 closed five items in a single release: #0026 (~10h), #0022 Phase 1 (~14h
 
 v3.23.0 lands #0025 standalone (~12h actual vs ~26h estimate). The translation layer is the scope-multiplier that downsizes #0010 (multi-language UI) — clubs can now opt in to auto-translation for user-entered text and #0010's manual-translation scope shrinks to just the bundled UI strings.
 
+v3.24.0 (post-v3.23.0, sitting on main awaiting tag) bundles four items: #0032 invitation flow (~8h actual vs ~14-20h estimate), #0033 sprint 1 of 9 (authorization-matrix schema + read API), #0035 sessions→activities rename (~8h actual vs ~18-22h estimate, 73 files touched, no-legacy CI gate now active), and #0036 dashboard polish (~2h). Two new compression data points: #0032 came in within the *low* estimate, and #0035 — the largest single find/replace + module move yet attempted — came in **at half** of its low estimate. The CI grep gate on #0035 is the first guardrail against regression of a no-legacy rename; future rename-style changes can borrow the pattern.
+
 Realistic next moves:
 
 1. **Pick from "Not started"** — best-leverage candidates:
@@ -94,16 +96,17 @@ Realistic next moves:
 
 ## Total backlog effort estimate
 
-### Remaining work (post-v3.23.0)
+### Remaining work (post-v3.24.0)
 
 | Bucket | Low | High |
 | - | - | - |
-| Ready (#0028, #0033) | 110 | 120 |
-| Needs shaping (#0031, #0032) | 26 | 38 |
+| In progress (#0033 sprints 2-9) | 70 | 80 |
+| Ready (#0028) | 20 | 30 |
+| Needs shaping (#0031, #0035 bug) | 13 | 20 |
 | Not started (#0006, #0010, #0012, #0014, #0016, #0017, #0018, #0021, #0022 Phase 2) | 495 | 590 |
-| **Total remaining** | **~631h** | **~748h** |
+| **Total remaining** | **~598h** | **~720h** |
 
-Was ~700-870h at end of v3.21.0; v3.22.0 cleared ~119h of estimate (vs ~41h actual); v3.23.0 cleared another ~26h (vs ~12h actual). Post-v3.23.0 the picture also moved: #0033 promoted from "Needs shaping" to "Ready" with a locked ~90h estimate, and #0030 dropped out entirely (extracted to talenttrack-branding repo, ~3h scaffold actual vs ~45-65h estimate). Remaining estimates intentionally conservative — empirical 1.4× under-shoot rate from this release suggests a realistic floor of **~450h** if the compression pattern holds.
+Was ~700-870h at end of v3.21.0; v3.22.0 cleared ~119h of estimate (vs ~41h actual); v3.23.0 cleared another ~26h (vs ~12h actual); v3.24.0 clears another ~32-42h estimate (vs ~16h actual) plus advances #0033 by Sprint 1 of 9 (~10h of its ~90h scope). Post-v3.23.0 the picture also moved: #0033 promoted from "Needs shaping" to "Ready" with a locked ~90h estimate, and #0030 dropped out entirely (extracted to talenttrack-branding repo, ~3h scaffold actual vs ~45-65h estimate). Remaining estimates intentionally conservative — empirical ~1/2 under-shoot rate across the last three releases suggests a realistic floor of **~360-430h** if the compression pattern holds.
 
 ### Lead time projection
 
@@ -111,25 +114,28 @@ At Casper's empirical pace (~6-8 effective driver-hours per evening on busy week
 
 | Pace | Hours/week | Weeks remaining (low / high) | Months (low / high) |
 | - | - | - | - |
-| Optimistic — compression holds, 1.0× multiplier | 20 | 33 / 41 | ~7-9 |
-| Realistic — 1.2× iteration multiplier | 15 | 53 / 65 | ~12-15 |
-| Conservative — 1.5× multiplier on Casper-side authoring tasks (#0027 content, multi-language) | 12 | 82 / 102 | ~19-24 |
+| Optimistic — compression holds, 1.0× multiplier | 20 | 30 / 36 | ~7-8 |
+| Realistic — 1.2× iteration multiplier | 15 | 48 / 58 | ~11-13 |
+| Conservative — 1.5× multiplier on Casper-side authoring tasks (#0027 content, multi-language) | 12 | 75 / 90 | ~17-21 |
 
-**Lead time floor: ~7-9 months** if the v3.22.0 compression pattern holds (single-PR epics, stacked sprints, inline shaping). **Realistic median: ~12-15 months** — late-2027. The conservative upper bound (~24 months) reflects the reality that #0010 multi-language depends on Casper-side translation throughput, not engineering throughput. (#0030 was previously listed here too, but the marketing site has been extracted to its own repo and is now decoupled from this backlog's lead time.)
+**Lead time floor: ~7-8 months** if the compression pattern holds (single-PR epics, stacked sprints, inline shaping, no-legacy renames with CI guardrails). **Realistic median: ~11-13 months** — mid-to-late-2027. The conservative upper bound (~21 months) reflects the reality that #0010 multi-language depends on Casper-side translation throughput, not engineering throughput. (#0030 was previously listed here too, but the marketing site has been extracted to its own repo and is now decoupled from this backlog's lead time.)
 
 ### Throughput calibration
 
-This session's data is the largest single observation we have:
+Three releases of compounding data:
 
-- **41h actual vs 119h estimate** → 1 / 2.9 multiplier (under-shoot by 65%).
-- Driven by: stacking PRs, decision compression, and the empirical "an agent can ship a full epic in one PR if the spec is locked" pattern.
+- **v3.22.0** — 41h actual vs 119h estimate → 1 / 2.9 multiplier (65% under-shoot).
+- **v3.23.0** — 12h actual vs 26h estimate → 1 / 2.2 multiplier (54% under-shoot).
+- **v3.24.0** — 16h actual vs 32-42h estimate → ~1 / 2.0-2.6 multiplier (50-62% under-shoot).
+- **Cumulative across the three releases**: ~69h actual vs ~177-187h estimate → consistent ~1/2.5 ratio.
+- Driven by: stacking PRs, decision compression (inline shaping with bolded recommendations), single-PR epics, and the new no-legacy-rename pattern (#0035) where a CI grep gate catches regression risk so the rename can be aggressive without manual review of every callsite.
 - Not all backlog items will compress this aggressively. Authoring-heavy work (#0010 translations to FR/DE/ES, #0027 PDF content authoring) is bound by Casper's own writing pace, not engineering velocity.
-- Pure engineering items (#0014, #0021, #0006) are the most likely to repeat the v3.22.0 compression.
+- Pure engineering items (#0014, #0021, #0006) are the most likely to repeat the compression.
 
 ## Principles
 
 1. Don't widen scope prematurely. Single tier sold well beats three tiers with no traction (#0011).
 2. Activation matters most. #0024 shipped first (v3.14.0); #0013 backup ships next; #0011 monetization after.
-3. Track actual throughput. v3.22.0 is the largest single calibration data point — use the 1/2.9 ratio carefully (it doesn't generalise to authoring tasks).
-4. Deps are real, but they fall fast. #0017 was blocked behind #0022 Phase 1 + #0014 Sprint 3 — Phase 1 cleared this release; #0014 is now the only remaining gate.
-5. Compress sprints aggressively. v3.22.0 demonstrates the pattern at scale — five distinct epics + features + shaping in a single release.
+3. Track actual throughput. Three releases (v3.22.0, v3.23.0, v3.24.0) now show a consistent ~1/2.5 estimate-to-actual ratio — apply the discount carefully (it doesn't generalise to authoring tasks).
+4. Deps are real, but they fall fast. #0017 was blocked behind #0022 Phase 1 + #0014 Sprint 3 — Phase 1 cleared in v3.22.0; #0014 is now the only remaining gate.
+5. Compress sprints aggressively. Single-PR epics keep working: v3.22.0 had five-in-one, v3.24.0 had a 73-file no-legacy rename in one PR with a CI guardrail to prevent regression.
