@@ -80,6 +80,13 @@ jobs:
             'SessionGenerator'
             '\bmatch_result\b'
             '\bcompetition_type\b'
+            # #0037 — REST URL segments. The original gate caught caps
+            # and slugs but missed REST paths, which is how the guest-
+            # attendance fatal slipped through (controller registered
+            # /sessions while the JS client POSTed to /activities).
+            "register_rest_route\\([^,]*,[ ]*'/sessions"
+            "'sessions/'"
+            "'sessions/\\{id\\}'"
           )
           excludes=(
             -e 'database/migrations/0001'

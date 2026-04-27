@@ -4,13 +4,21 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.24.0
+Stable tag: 3.24.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.24.1 — Guest-attendance fatal + UX polish (#0037) =
+* FIXED: Adding a guest player no longer triggers the WP "kritieke fout" page. #0035 (sessions → activities rename) missed three REST paths in the guest-attendance code path: ActivitiesRestController registered /sessions* routes while the JS client POSTed to /activities/{id}/guests, so guest add 404'd silently and the modal got stuck. Routes are now /activities*; the row-delete and edit-form rest_path attributes match.
+* CHANGED: "+ Add guest" button now appears on the activity *create* form too — not only on edit. Click while the activity is unsaved triggers a one-click auto-save, redirects to the edit URL with `&open_guest=1`, and re-opens the modal so picking a guest is a single fluid flow with no extra clicks.
+* CHANGED: Linked-guest picker upgraded from a long unfiltered <select> to PlayerSearchPickerComponent — fuzzy name search plus an optional "filter by team first" dropdown that includes teams the coach doesn't manage. Cross-club guest discovery now scales past 50 players per dropdown.
+* CHANGED: Guest rows in the attendance table get a stronger visual marker — left-border accent strip + bolder badge — so guest rows read as guest at a glance instead of blending into the roster.
+* INTERNAL: legacy-sessions-gate (CI) now also bans the literal REST URL segment `/sessions` (registration) and `'sessions/'` / `'sessions/{id}'` (rest_path values). This regression class can't recur silently.
+* i18n: 1 string updated, 2 added.
 
 = 3.24.0 — Dashboard polish (#0036) =
 * CHANGED: Tile grid shrunk — tighter padding, smaller icons, smaller body text — so demo screenshots fit more on a screen without horizontal scroll.

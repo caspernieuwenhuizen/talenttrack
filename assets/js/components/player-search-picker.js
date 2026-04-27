@@ -40,14 +40,25 @@
         var labelEl    = root.querySelector( '[data-tt-psp-selected-label]' );
         var clearEl    = root.querySelector( '[data-tt-psp-clear]' );
         var dataEl     = root.querySelector( '[data-tt-psp-data]' );
+        var teamFilter = root.querySelector( '[data-tt-psp-team-filter]' );
 
         if ( ! searchEl || ! resultsEl || ! valueEl || ! dataEl ) return;
 
-        var rows = [];
+        // Source-of-truth row list (immutable). `rows` below is the
+        // currently-active filtered subset.
+        var allRows = [];
         try {
-            rows = JSON.parse( dataEl.textContent || '[]' );
+            allRows = JSON.parse( dataEl.textContent || '[]' );
         } catch ( _ ) {
-            rows = [];
+            allRows = [];
+        }
+        var rows = allRows.slice();
+
+        function applyTeamFilter() {
+            var tid = teamFilter ? parseInt( teamFilter.value || '0', 10 ) : 0;
+            rows = tid > 0
+                ? allRows.filter( function ( r ) { return r.team_id === tid; } )
+                : allRows.slice();
         }
 
         function setSelection( id, label ) {
@@ -56,10 +67,12 @@
                 if ( labelEl ) labelEl.textContent = label;
                 if ( selectedEl ) selectedEl.style.display = '';
                 searchEl.style.display = 'none';
+                if ( teamFilter ) teamFilter.style.display = 'none';
                 searchEl.value = '';
             } else {
                 if ( selectedEl ) selectedEl.style.display = 'none';
                 searchEl.style.display = '';
+                if ( teamFilter ) teamFilter.style.display = '';
                 searchEl.focus();
             }
             resultsEl.hidden = true;
@@ -92,6 +105,14 @@
         searchEl.addEventListener( 'input', function () {
             renderResults( searchEl.value );
         } );
+
+        if ( teamFilter ) {
+            teamFilter.addEventListener( 'change', function () {
+                applyTeamFilter();
+                // Re-render the visible result list against the new filter.
+                renderResults( searchEl.value );
+            } );
+        }
 
         searchEl.addEventListener( 'focus', function () {
             if ( searchEl.value ) renderResults( searchEl.value );

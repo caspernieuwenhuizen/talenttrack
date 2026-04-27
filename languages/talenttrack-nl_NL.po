@@ -6661,3 +6661,21 @@ msgstr "Tegelgrootte"
 
 msgid "Scales padding, icons, and typography of the dashboard tiles. 50–150%, default 100%."
 msgstr "Schaalt de marges, iconen en typografie van de dashboardtegels. 50–150%, standaard 100%."
+
+# #0037 — guest-attendance polish (autosave + fuzzy picker + team filter)
+# 'All teams' already translated above (line ~3882); not duplicated here.
+
+msgid "Type een naam om te zoeken…"
+msgstr "Type een naam om te zoeken…"
+
+msgid "Saving activity first…"
+msgstr "Activiteit wordt eerst opgeslagen…"
+
+msgid "Could not save activity."
+msgstr "Activiteit opslaan mislukt."
+
+msgid "That activity no longer exists."
+msgstr "Die activiteit bestaat niet meer."
+
+msgid "Delete this activity? It will be archived."
+msgstr "Activiteit verwijderen? Hij wordt gearchiveerd."

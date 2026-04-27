@@ -1,9 +1,18 @@
-/* TalentTrack — Guest add modal (#0026).
+/* TalentTrack — Guest add modal (#0026, #0037).
  *
- * Hooks the "+ Add guest" button on an activity-edit form to the guest
- * modal: tab switching, validation, REST POST to
+ * Hooks the "+ Add guest" button on an activity create / edit form
+ * to the guest modal: tab switching, validation, REST POST to
  * /activities/{id}/guests, and an inline DOM append on success so the
- * coach sees the new row immediately. */
+ * coach sees the new row immediately.
+ *
+ * #0037 — create-flow support: when the button is clicked on a not-
+ * yet-saved activity (activity_id = 0), we trigger the activity form's
+ * own save, listen for the response on tt:form-saved, and redirect
+ * the page to the edit URL with `&open_guest=1`. The DOMContentLoaded
+ * handler at the bottom honours that query param by auto-clicking the
+ * "+ Add guest" button on edit-page load. The result is a single fluid
+ * "create activity → add guest" flow with no manual second click.
+ */
 ( function () {
     'use strict';
 
@@ -22,11 +31,23 @@
         var nameInput = modal.querySelector( '#tt-guest-anon-name' );
         var ageInput  = modal.querySelector( '#tt-guest-anon-age' );
         var posInput  = modal.querySelector( '#tt-guest-anon-position' );
-        var linkedSel = modal.querySelector( '#tt_guest_linked_player_id' );
+        // PlayerSearchPickerComponent (#0037) — clear via its own clear
+        // button so the search input + selected-chip state both reset.
+        var clearBtn  = modal.querySelector( '[data-tt-psp-clear]' );
+        var linkedHidden = modal.querySelector( 'input[name="tt_guest_linked_player_id"]' );
         if ( nameInput ) nameInput.value = '';
         if ( ageInput )  ageInput.value  = '';
         if ( posInput )  posInput.value  = '';
-        if ( linkedSel ) linkedSel.value = '';
+        if ( clearBtn ) clearBtn.click();
+        else if ( linkedHidden ) linkedHidden.value = '';
+    }
+
+    function readSessionId( modalEl ) {
+        var attr = modalEl.getAttribute( 'data-session-id' );
+        if ( attr ) return parseInt( attr, 10 ) || 0;
+        var holder = document.querySelector( '[data-tt-guest-session-id]' );
+        if ( holder ) return parseInt( holder.getAttribute( 'data-tt-guest-session-id' ), 10 ) || 0;
+        return 0;
     }
 
     function switchTab( modal, target ) {
@@ -55,7 +76,10 @@
     function buildPayload( modal ) {
         var tab = activeTab( modal );
         if ( tab === 'linked' ) {
-            var pid = parseInt( modal.querySelector( '#tt_guest_linked_player_id' ).value || '0', 10 );
+            // PlayerSearchPickerComponent renders a hidden input keyed by
+            // name (no static id), so we look it up by name attribute.
+            var hidden = modal.querySelector( 'input[name="tt_guest_linked_player_id"]' );
+            var pid = hidden ? parseInt( hidden.value || '0', 10 ) : 0;
             if ( ! pid ) return { error: STR.linkedRequired || 'Pick a player.' };
             return { guest_player_id: pid };
         }
@@ -165,6 +189,76 @@
         } );
     }
 
+    /* #0037 — when the activity hasn't been saved yet, the "+ Add guest"
+     * trigger needs to do two things:
+     *   1. Save the activity form (POST /activities)
+     *   2. Redirect to the edit URL with `&open_guest=1` so the modal
+     *      pops back open with the new activity id wired in.
+     * The redirect is the cheap way to avoid in-place state surgery on
+     * the form (data-rest-method PUT vs POST, data-rest-path, the
+     * guest-section data-attr, the URL bar). One full page nav, then
+     * everything is "edit mode" and the existing flow takes over.
+     */
+    function saveActivityThenOpenGuest( modalEl, btn ) {
+        var form = document.querySelector( 'form.tt-activity-form' );
+        if ( ! form ) { openModal( modalEl ); return; }
+
+        // Validate required fields up-front so we don't POST a partial.
+        if ( typeof form.reportValidity === 'function' && ! form.reportValidity() ) {
+            return;
+        }
+
+        if ( btn ) btn.disabled = true;
+        var sub = function ( r ) {
+            if ( btn ) btn.disabled = false;
+            var newId = r && r.json && r.json.data && r.json.data.id;
+            if ( ! r.ok || ! newId ) {
+                showMsg( modalEl, ( r && r.json && r.json.message ) || ( STR.saveFailed || 'Could not save activity.' ), true );
+                openModal( modalEl );
+                return;
+            }
+            try {
+                var url = new URL( window.location.href );
+                url.searchParams.set( 'tt_view',    'activities' );
+                url.searchParams.set( 'id',         String( newId ) );
+                url.searchParams.set( 'open_guest', '1' );
+                url.searchParams.delete( 'action' );
+                window.location.href = url.toString();
+            } catch ( _e ) {
+                window.location.search = '?tt_view=activities&id=' + newId + '&open_guest=1';
+            }
+        };
+
+        // Mirror public.js's formToJSON helper inline (avoids cross-file
+        // coupling). att[<pid>][status]/[notes] arrays handled.
+        var data = {};
+        Array.prototype.forEach.call( form.querySelectorAll( 'input,select,textarea' ), function ( el ) {
+            if ( ! el.name || el.disabled ) return;
+            var m = el.name.match( /^([^\[]+)\[(\d+)\]\[([^\]]+)\]$/ );
+            if ( m ) {
+                if ( ! data[ m[1] ] ) data[ m[1] ] = {};
+                if ( ! data[ m[1] ][ m[2] ] ) data[ m[1] ][ m[2] ] = {};
+                data[ m[1] ][ m[2] ][ m[3] ] = el.value;
+                return;
+            }
+            if ( el.type === 'checkbox' ) { data[ el.name ] = el.checked; return; }
+            data[ el.name ] = el.value;
+        } );
+
+        fetch( REST_NS + '/activities', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': NONCE },
+            credentials: 'same-origin',
+            body: JSON.stringify( data ),
+        } ).then( function ( r ) {
+            return r.json().then( function ( j ) { sub( { ok: r.ok, status: r.status, json: j } ); } );
+        } ).catch( function () {
+            if ( btn ) btn.disabled = false;
+            showMsg( modalEl, STR.networkError || 'Network error.', true );
+            openModal( modalEl );
+        } );
+    }
+
     document.addEventListener( 'click', function ( e ) {
         var target = e.target;
 
@@ -173,7 +267,14 @@
         if ( trigger ) {
             e.preventDefault();
             var modal = $( '[data-tt-guest-modal]' );
-            if ( modal ) openModal( modal );
+            if ( ! modal ) return;
+            if ( readSessionId( modal ) > 0 ) {
+                openModal( modal );
+            } else {
+                // Create-mode: save the activity first, then come back via
+                // the open_guest=1 query param.
+                saveActivityThenOpenGuest( modal, trigger );
+            }
             return;
         }
 
@@ -199,9 +300,13 @@
         if ( submitBtn ) {
             e.preventDefault();
             var modalEl = submitBtn.closest( '[data-tt-guest-modal]' );
-            var sessionId = parseInt( ( modalEl.getAttribute( 'data-session-id' ) || document.querySelector( '[data-tt-guest-session-id]' ) && document.querySelector( '[data-tt-guest-session-id]' ).getAttribute( 'data-tt-guest-session-id' ) || '0' ), 10 );
+            var sessionId = readSessionId( modalEl );
             if ( ! sessionId ) {
-                showMsg( modalEl, STR.saveFirst || 'Save the session first, then add guests.', true );
+                // Defensive: in normal create flow the modal can't open
+                // without an id (saveActivityThenOpenGuest redirects
+                // first). If a caller forces it open manually, tell
+                // them to save and bail out.
+                showMsg( modalEl, STR.saveFirst || 'Saving activity first…', true );
                 return;
             }
             var payload = buildPayload( modalEl );
@@ -253,5 +358,21 @@
             var initial = inp.getAttribute( 'data-initial' );
             if ( initial != null ) inp.value = initial;
         } );
+
+        // #0037 — landing on edit URL with `?open_guest=1` (set by the
+        // create-flow auto-save) auto-opens the modal so the user
+        // continues straight into picking a guest.
+        try {
+            var url = new URL( window.location.href );
+            if ( url.searchParams.get( 'open_guest' ) === '1' ) {
+                var modal = $( '[data-tt-guest-modal]' );
+                if ( modal && readSessionId( modal ) > 0 ) {
+                    openModal( modal );
+                    // Clean the URL so a refresh doesn't re-pop the modal.
+                    url.searchParams.delete( 'open_guest' );
+                    window.history.replaceState( {}, '', url.toString() );
+                }
+            }
+        } catch ( _e ) { /* noop */ }
     } );
 } )();
