@@ -57,11 +57,20 @@ De motor leunt op WP-cron voor ingeplande triggers en `wp_mail()` voor notificat
 
 Beide linken naar speciale instelhandleidingen voor hosts waar WP-cron of `wp_mail()` niet werkt.
 
-## Wat zit niet in v1
+## Phase 2 + 3 toevoegingen (v3.37.0)
 
-- Geen formulierenbouwer — elk formulier is een PHP-klasse die met de plugin meekomt of door een developer wordt toegevoegd.
-- Geen browser-push — alleen bel + e-mail tot de PWA-pass (apart epic) is geland.
-- Geen meerstaps-ketens als first-class primitive — Phase 1 lost goal-setting op met een handmatige `onComplete`-hook; Phase 2 generaliseert dit.
+De resterende fases van het epic landden in één release. De vorm blijft hetzelfde — dezelfde templates, dezelfde inbox, dezelfde adminschermen — maar vier onderdelen zijn nu first-class:
+
+- **Chain steps** — declaratieve `spawns_on_complete`. Een template kan één of meer `ChainStep`s teruggeven uit `chainSteps()`; de motor doorloopt ze na voltooiing van de bovenliggende taak. Het kwartaal-doelen → doel-goedkeuring duo gebruikt dit nu (de oude `onComplete`-handmatige aanpak is opgeruimd). Chain steps verschijnen in het admin-configscherm zodat je in één oogopslag ziet welke voltooiing wat opstart.
+- **Inboxfilters** — beperk de inbox per template, per status (open / bezig / overdue), per termijn (24u / 3 dagen / 7 dagen). De toestand blijft in de URL, dus een filter-view is bookmarkbaar.
+- **Bulkacties + snooze** — vinkjes op elke actiebare rij plus een bulk-balk met **Geselecteerde overslaan**, **1 dag snoozen** en **7 dagen snoozen**. Per-rij `1d` en `7d` knoppen verbergen een enkele taak zonder selectie. Gesnoozede taken keren automatisch terug zodra de snooze verloopt; een *Toon gesnoozede* vinkje haalt ze eerder terug.
+- **Event log + retry** — elke event-typed trigger schrijft een rij naar `tt_workflow_event_log`. Geslaagde dispatches gaan over naar `processed`; opgegooide fouten landen als `failed` met de melding bewaard. Het admin-configscherm toont de laatste 25 rijen met een **Retry**-knop op gefaalde rijen die de dispatch opnieuw uitvoert en een retry-teller verhoogt.
+
+## Wat nog niet geleverd is (Phase 4)
+
+- **Formulierenbouwer** — elk formulier is nog steeds een PHP-klasse die met de plugin meekomt of door een developer wordt toegevoegd.
+- **Browser-push** — alleen bel + e-mail tot de PWA-pass landt.
+- **Niet-ontwikkelings­workflows** (uitrustingsretour, medische checks, betalings­herinneringen) — de motor ondersteunt ze in principe, maar nog geen meegeleverde templates. Phase 4 was afhankelijk van Phase 1-3 gebruiksdata; pak op als academies erom vragen.
 
 ## Zie ook
 

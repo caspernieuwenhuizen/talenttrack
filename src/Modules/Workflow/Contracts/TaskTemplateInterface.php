@@ -100,13 +100,25 @@ interface TaskTemplateInterface {
 
     /**
      * Optional callback after a task is completed. The default no-op is
-     * fine for most templates; goal-setting overrides this in Phase 1 to
-     * spawn its approval-chain second task (the tactical hack flagged
-     * in the spec — graduates to a first-class `spawns_on_complete`
-     * primitive in Phase 2).
+     * fine for most templates; templates with bespoke post-completion
+     * side effects can hook in here. Prefer `chainSteps()` for declarative
+     * spawns_on_complete chains — this hook is the imperative escape
+     * hatch for the rare cases the chain primitive can't model.
      *
      * @param array<string,mixed> $task     The completed task row (associative).
      * @param array<string,mixed> $response The response payload from the form.
      */
     public function onComplete( array $task, array $response ): void;
+
+    /**
+     * #0022 Phase 2 — declarative chain steps. Returns the follow-up
+     * tasks to spawn when a task of this template is completed. The
+     * engine walks the array, evaluates each step's condition (if any),
+     * and dispatches the matching template with the derived context.
+     *
+     * Empty array means "no chain" (the default for most templates).
+     *
+     * @return list<\TT\Modules\Workflow\Chain\ChainStep>
+     */
+    public function chainSteps(): array;
 }

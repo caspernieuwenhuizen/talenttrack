@@ -3,12 +3,12 @@ namespace TT\Modules\Workflow\Templates;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Workflow\Chain\ChainStep;
 use TT\Modules\Workflow\Contracts\AssigneeResolver;
 use TT\Modules\Workflow\Forms\GoalSettingForm;
 use TT\Modules\Workflow\Resolvers\PlayerOrParentResolver;
 use TT\Modules\Workflow\TaskContext;
 use TT\Modules\Workflow\TaskTemplate;
-use TT\Modules\Workflow\WorkflowModule;
 
 /**
  * QuarterlyGoalSettingTemplate — fans out one task per active rostered
@@ -17,10 +17,10 @@ use TT\Modules\Workflow\WorkflowModule;
  * to three goals for the next quarter; on completion, the template
  * spawns a follow-up GoalApproval task on the team's head coach.
  *
- * The "spawn on complete" mechanic is the tactical Phase 1 hack flagged
- * in the spec: rather than inventing a `spawns_on_complete` first-class
- * primitive, this template hand-rolls the chain via onComplete(). Phase 2
- * generalises it.
+ * Phase 2 — the "spawn on complete" mechanic now uses the first-class
+ * `chainSteps()` primitive. The follow-up GoalApproval task is declared
+ * in chainSteps(); the engine walks it after onComplete() runs. Old
+ * onComplete() hand-roll deleted.
  *
  * Default deadline: 14 days from creation. Coaches can disable the
  * template entirely from the Sprint 5 config UI (drops to 0 quarterly
@@ -84,34 +84,35 @@ class QuarterlyGoalSettingTemplate extends TaskTemplate {
     }
 
     /**
-     * After the player submits goals, spawn a GoalApproval task for
-     * the team's head coach. Carries the player_id + parent_task_id
-     * so the approval form can read the original goals from the
-     * parent task's response_json.
+     * Phase 2 chain: spawn a GoalApproval task on completion. The
+     * step's contextBuilder resolves the team_id from the player's
+     * roster row at chain-time so a re-rostered player still routes
+     * to the right coach.
+     *
+     * @return list<ChainStep>
      */
-    public function onComplete( array $task, array $response ): void {
-        $player_id = (int) ( $task['player_id'] ?? 0 );
-        if ( $player_id <= 0 ) return;
-
-        global $wpdb;
-        $team_id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT team_id FROM {$wpdb->prefix}tt_players WHERE id = %d LIMIT 1",
-            $player_id
-        ) );
-        if ( $team_id <= 0 ) return;
-
-        $approval_context = new TaskContext(
-            $player_id,
-            $team_id,
-            null,
-            null,
-            null,
-            null,
-            (int) ( $task['id'] ?? 0 )
-        );
-        WorkflowModule::engine()->dispatch(
-            GoalApprovalTemplate::KEY,
-            $approval_context
-        );
+    public function chainSteps(): array {
+        return [
+            new ChainStep(
+                id: 'goal_approval',
+                template_key: GoalApprovalTemplate::KEY,
+                contextBuilder: static function ( array $task, array $response ): TaskContext {
+                    $player_id = (int) ( $task['player_id'] ?? 0 );
+                    if ( $player_id <= 0 ) return ChainStep::inheritContext( $task );
+                    global $wpdb;
+                    $team_id = (int) $wpdb->get_var( $wpdb->prepare(
+                        "SELECT team_id FROM {$wpdb->prefix}tt_players WHERE id = %d LIMIT 1",
+                        $player_id
+                    ) );
+                    return new TaskContext(
+                        $player_id,
+                        $team_id > 0 ? $team_id : null,
+                        null, null, null, null,
+                        (int) ( $task['id'] ?? 0 )
+                    );
+                },
+                description: __( 'Coach reviews and approves the player\'s submitted goals.', 'talenttrack' )
+            ),
+        ];
     }
 }
