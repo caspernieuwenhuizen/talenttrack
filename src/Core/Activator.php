@@ -525,16 +525,24 @@ class Activator {
         ) $c;";
 
         /* ─── Audit log ─── */
+        // #0021 — column names match migration 0002 + AuditService::record:
+        // `payload` (not `details`) + `ip_address`. Fresh-install schema
+        // previously diverged on both, which silently broke audit logging
+        // on any post-rename fresh install. Migration 0030 catches the
+        // existing-site upgrade path; this CREATE TABLE catches the
+        // fresh-install path going forward.
         $queries[] = "CREATE TABLE {$p}tt_audit_log (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             user_id BIGINT UNSIGNED DEFAULT 0,
             action VARCHAR(100) NOT NULL,
-            entity_type VARCHAR(50) NOT NULL,
+            entity_type VARCHAR(64) DEFAULT '',
             entity_id BIGINT UNSIGNED DEFAULT 0,
-            details LONGTEXT,
+            payload LONGTEXT,
+            ip_address VARCHAR(45) DEFAULT '',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             KEY idx_user (user_id),
+            KEY idx_action (action),
             KEY idx_entity (entity_type, entity_id),
             KEY idx_created (created_at)
         ) $c;";

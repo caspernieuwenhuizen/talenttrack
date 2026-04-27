@@ -32,7 +32,6 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 | 0016 | Photo-to-session capture | epic | ~80h |
 | 0017 | Trial player module | epic | ~72h (still blocked behind #0014 Sprint 3; #0022 Phase 1 dep cleared) |
 | 0018 | Team development / chemistry | epic | ~60h |
-| 0021 | Audit log viewer | feat | ~10h |
 | 0022 | Workflow & tasks engine — Phase 2 | epic | ~30-40h (multi-step chains as first-class primitive, browser-push notifications, formulier-builder primer) |
 
 ## Blocked
@@ -43,6 +42,7 @@ _None._
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
+| 0021 | Audit log viewer (frontend page + filters + pagination + AuditService extensions; also fixed a long-running schema drift that silently broke audit writes on fresh installs) | feat | v3.25.0 | ~10h | ~2h (server-rendered, no REST surface needed; bundled the audit_log schema fix in the same PR since the viewer would have shown empty results without it) |
 | 0038 | Fresh install has no usable surface out of the box (Activator auto-page + Menu parent=null pattern, restoring the URL-fallback the in-code comment always promised) | bug | v3.24.2 | ~1-2h | ~45min |
 | 0037 | Guest-attendance fatal fix + UX polish (button on create, fuzzy + team-filter picker, stronger row marker, CI gate tightened) | bug | v3.24.1 | ~1-2h | ~1.5h |
 | 0036 | Dashboard UI polish (smaller tiles, configurable scale, modern icons, demo pill, help icon, optional logo) | feat | v3.24.0 | ~2-3h | ~2h |
@@ -90,7 +90,6 @@ Realistic next moves:
 
 1. **Pick from "Not started"** — best-leverage candidates:
    - **#0014 Player profile rebuild (~58h)** — unblocks #0017 (trial player module, ~72h after this).
-   - **#0021 Audit log viewer (~10h)** — small, high-utility for a paying customer install, hooks into the workflow-engine + #0009 promote actions naturally.
    - **#0006 Team planning module (~55h)** — pairs well with #0022 (sessions are templated, scheduling on a calendar is the obvious next surface).
    - **#0010 Multi-language (FR/DE/ES) (~80-140h, likely lower)** — re-estimate now that #0025 + #0029 ship; the manual-translation surface is much smaller than originally scoped.
 2. **Shape #0028** — goals as conversational thread. #0022 Phase 1 unblocked it; rough estimate ~20-30h pending the shaping pass.
@@ -104,7 +103,7 @@ Realistic next moves:
 | In progress (#0033 sprints 2-9) | 70 | 80 |
 | Ready (#0028) | 20 | 30 |
 | Needs shaping (#0031) | 12 | 18 |
-| Not started (#0006, #0010, #0012, #0014, #0016, #0017, #0018, #0021, #0022 Phase 2) | 495 | 590 |
+| Not started (#0006, #0010, #0012, #0014, #0016, #0017, #0018, #0022 Phase 2) | 485 | 580 |
 | **Total remaining** | **~598h** | **~720h** |
 
 Was ~700-870h at end of v3.21.0; v3.22.0 cleared ~119h of estimate (vs ~41h actual); v3.23.0 cleared another ~26h (vs ~12h actual); v3.24.0 clears another ~32-42h estimate (vs ~16h actual) plus advances #0033 by Sprint 1 of 9 (~10h of its ~90h scope). Post-v3.23.0 the picture also moved: #0033 promoted from "Needs shaping" to "Ready" with a locked ~90h estimate, and #0030 dropped out entirely (extracted to talenttrack-branding repo, ~3h scaffold actual vs ~45-65h estimate). Remaining estimates intentionally conservative — empirical ~1/2 under-shoot rate across the last three releases suggests a realistic floor of **~360-430h** if the compression pattern holds.
