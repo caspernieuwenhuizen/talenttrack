@@ -168,7 +168,35 @@ class PlayersPage {
         <div class="wrap">
             
             <?php BackButton::render( admin_url( 'admin.php?page=tt-players' ) ); ?>
-            <h1><?php echo $is_edit ? esc_html__( 'Edit Player', 'talenttrack' ) : esc_html__( 'Add Player', 'talenttrack' ); ?></h1>
+            <h1>
+                <?php echo $is_edit ? esc_html__( 'Edit Player', 'talenttrack' ) : esc_html__( 'Add Player', 'talenttrack' ); ?>
+                <?php
+                // #0032 — InviteButton inline next to the title. Renders
+                // for player + parent invites when the row exists.
+                if ( $is_edit && current_user_can( 'tt_send_invitation' ) ) {
+                    $here = admin_url( 'admin.php?page=tt-players&action=edit&id=' . (int) $player->id );
+                    echo '<span style="margin-left:12px; font-size:13px; font-weight:normal; vertical-align:middle;">';
+                    \TT\Modules\Invitations\Frontend\InviteButton::render( [
+                        'kind'              => \TT\Modules\Invitations\InvitationKind::PLAYER,
+                        'target_player_id'  => (int) $player->id,
+                        'target_team_id'    => (int) ( $player->team_id ?? 0 ),
+                        'prefill_first_name'=> (string) ( $player->first_name ?? '' ),
+                        'prefill_last_name' => (string) ( $player->last_name ?? '' ),
+                        'redirect'          => $here,
+                    ] );
+                    echo ' &nbsp; ';
+                    \TT\Modules\Invitations\Frontend\InviteButton::render( [
+                        'kind'              => \TT\Modules\Invitations\InvitationKind::PARENT,
+                        'target_player_id'  => (int) $player->id,
+                        'target_team_id'    => (int) ( $player->team_id ?? 0 ),
+                        'prefill_first_name'=> (string) ( $player->guardian_name ?? '' ),
+                        'prefill_email'     => (string) ( $player->guardian_email ?? '' ),
+                        'redirect'          => $here,
+                    ] );
+                    echo '</span>';
+                }
+                ?>
+            </h1>
 
             <?php if ( $is_edit ) :
                 $edit_url     = admin_url( 'admin.php?page=tt-players&action=edit&id=' . (int) $player->id );

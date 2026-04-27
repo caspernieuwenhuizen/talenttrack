@@ -244,11 +244,19 @@ class FrontendTeamsManageView extends FrontendViewBase {
             <?php if ( ! $current ) : ?>
                 <p><em><?php esc_html_e( 'No players on this team yet.', 'talenttrack' ); ?></em></p>
             <?php else : ?>
+                <?php
+                // #0032 — invite button on each roster row when the
+                // viewer has the cap. Mobile-friendly: lets a coach
+                // share an invite from the sideline without a desktop.
+                $can_invite_inline = current_user_can( 'tt_send_invitation' );
+                $here = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( (string) wp_unslash( $_SERVER['REQUEST_URI'] ) ) : home_url( '/' );
+                ?>
                 <table class="tt-table">
                     <thead><tr>
                         <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( '#', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Foot', 'talenttrack' ); ?></th>
+                        <?php if ( $can_invite_inline ) : ?><th><?php esc_html_e( 'Invite', 'talenttrack' ); ?></th><?php endif; ?>
                         <?php if ( ! $readonly ) : ?><th></th><?php endif; ?>
                     </tr></thead>
                     <tbody>
@@ -261,6 +269,20 @@ class FrontendTeamsManageView extends FrontendViewBase {
                             </td>
                             <td><?php echo esc_html( (string) ( $pl->jersey_number ?? '' ) ); ?></td>
                             <td><?php echo esc_html( (string) ( $pl->preferred_foot ?? '' ) ); ?></td>
+                            <?php if ( $can_invite_inline ) : ?>
+                                <td>
+                                    <?php
+                                    \TT\Modules\Invitations\Frontend\InviteButton::render( [
+                                        'kind'              => \TT\Modules\Invitations\InvitationKind::PLAYER,
+                                        'target_player_id'  => (int) $pl->id,
+                                        'target_team_id'    => (int) $team_id,
+                                        'prefill_first_name'=> (string) ( $pl->first_name ?? '' ),
+                                        'prefill_last_name' => (string) ( $pl->last_name ?? '' ),
+                                        'redirect'          => $here,
+                                    ] );
+                                    ?>
+                                </td>
+                            <?php endif; ?>
                             <?php if ( ! $readonly ) : ?>
                                 <td>
                                     <button type="button" class="tt-list-table-action tt-list-table-action-danger" data-tt-roster-remove="1" data-player-id="<?php echo (int) $pl->id; ?>">
