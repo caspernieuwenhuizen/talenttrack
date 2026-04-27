@@ -4,10 +4,10 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Kernel;
-use TT\Core\ModuleSurfaceMap;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Auth\LoginForm;
 use TT\Modules\Auth\LogoutHandler;
+use TT\Shared\Tiles\TileRegistry;
 
 /**
  * DashboardShortcode — owns [talenttrack_dashboard].
@@ -177,10 +177,12 @@ class DashboardShortcode {
         if ( $view === '' ) {
             // Tile landing page.
             FrontendTileGrid::render();
-        } elseif ( ModuleSurfaceMap::isViewSlugDisabled( $view ) ) {
-            // #0051 — slug is owned by a module that's currently
-            // disabled. Surface a friendly notice rather than dispatch
-            // through to a view whose backing module didn't boot.
+        } elseif ( TileRegistry::isViewSlugDisabled( $view ) ) {
+            // #0033 finalisation — slug is owned by a module that is
+            // currently disabled. Surface a friendly notice rather
+            // than dispatching to a view whose backing module didn't
+            // boot. Owner is resolved from the TileRegistry entry whose
+            // `view_slug` matches.
             self::renderModuleDisabledNotice();
         } elseif ( in_array( $view, $me_slugs, true ) ) {
             if ( $player ) {

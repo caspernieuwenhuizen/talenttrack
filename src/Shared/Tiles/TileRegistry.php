@@ -3,6 +3,7 @@ namespace TT\Shared\Tiles;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Core\ModuleRegistry;
 use TT\Modules\Authorization\PersonaResolver;
 
 /**
@@ -58,14 +59,29 @@ final class TileRegistry {
      */
     public static function register( array $tile ): void {
         $defaults = [
-            'entity'      => '',
-            'icon'        => '',
-            'color'       => '#5b6e75',
-            'description' => '',
-            'order'       => 100,
-            'cap'         => '',
+            'entity'       => '',
+            'icon'         => '',
+            'color'        => '#5b6e75',
+            'description'  => '',
+            'order'        => 100,
+            'cap'          => '',
+            'cap_callback' => null,
+            'module_class' => null,
+            'view_slug'    => '',
         ];
         $tile = array_merge( $defaults, $tile );
+        // #0033 finalisation — accept the simpler `label` (string) form
+        // alongside the persona-aware `labels` (array) form. When `label`
+        // is given, treat it as the union default ('*') and drop into
+        // `labels` so the rest of the resolver works unchanged.
+        if ( ! isset( $tile['labels'] ) || ! is_array( $tile['labels'] ) ) {
+            $tile['labels'] = [];
+        }
+        if ( isset( $tile['label'] ) && is_string( $tile['label'] ) && $tile['label'] !== '' ) {
+            if ( ! isset( $tile['labels']['*'] ) ) {
+                $tile['labels']['*'] = $tile['label'];
+            }
+        }
         if ( empty( $tile['slug'] ) || empty( $tile['kind'] ) || empty( $tile['labels'] ) ) {
             return;
         }
@@ -78,7 +94,24 @@ final class TileRegistry {
     /** Drop all registered tiles. Tests use this between scenarios. */
     public static function clear(): void {
         self::$tiles = [];
+        self::$slug_ownership = [];
     }
+
+    /**
+     * Register a `tt_view=<slug>` ownership mapping without a visible
+     * tile. Used for sub-views the dispatcher reaches directly (e.g.
+     * `?tt_view=eval-categories` from the Configuration tile-landing)
+     * so their owning module can be looked up by `moduleForViewSlug()`
+     * and gated by `isViewSlugDisabled()`. A `null` owner is allowed
+     * for infrastructure surfaces that should never be gated.
+     */
+    public static function registerSlugOwnership( string $view_slug, ?string $module_class ): void {
+        if ( $view_slug === '' ) return;
+        self::$slug_ownership[ $view_slug ] = $module_class;
+    }
+
+    /** @var array<string, ?string> */
+    private static array $slug_ownership = [];
 
     /**
      * Returns visible tiles for a user, split by kind. Kind keys are
@@ -95,9 +128,7 @@ final class TileRegistry {
         $persona = self::resolveActivePersona( $user_id );
         $out = [ 'work' => [], 'setup' => [] ];
         foreach ( self::$tiles as $tile ) {
-            if ( ! empty( $tile['cap'] ) && ! user_can( $user_id, (string) $tile['cap'] ) ) {
-                continue;
-            }
+            if ( ! self::tileVisibleFor( $tile, $user_id ) ) continue;
             $label = self::resolveLabel( $tile['labels'], $persona );
             if ( $label === self::HIDDEN ) continue;
             $rendered = $tile;
@@ -115,6 +146,124 @@ final class TileRegistry {
             } );
         }
         return $out;
+    }
+
+    /**
+     * #0033 finalisation — return tiles grouped by their `group` label,
+     * preserving registration order within each group. Used by the
+     * frontend dashboard renderer (FrontendTileGrid).
+     *
+     * Each group is `[ 'label' => string, 'tiles' => list<array> ]`.
+     * Tiles inherit all registered fields plus a resolved `label` and
+     * `desc` (mapped from `description`).
+     *
+     * @return list<array{label: string, tiles: list<array>}>
+     */
+    public static function tilesForUserGrouped( int $user_id ): array {
+        $persona = self::resolveActivePersona( $user_id );
+
+        // Preserve declaration order of groups (first registration wins).
+        $group_order = [];
+        $by_group = [];
+        foreach ( self::$tiles as $tile ) {
+            if ( ! self::tileVisibleFor( $tile, $user_id ) ) continue;
+            $label = self::resolveLabel( $tile['labels'], $persona );
+            if ( $label === self::HIDDEN ) continue;
+
+            $group_label = (string) ( $tile['group'] ?? '' );
+            if ( ! isset( $by_group[ $group_label ] ) ) {
+                $group_order[]              = $group_label;
+                $by_group[ $group_label ]   = [];
+            }
+            $rendered                   = $tile;
+            // Resolve dynamic decorators that depend on the current user.
+            if ( isset( $tile['label_callback'] ) && is_callable( $tile['label_callback'] ) ) {
+                $resolved_label = (string) ( $tile['label_callback'] )( $user_id );
+                if ( $resolved_label !== '' ) $label = $resolved_label;
+            }
+            if ( isset( $tile['color_callback'] ) && is_callable( $tile['color_callback'] ) ) {
+                $rendered['color'] = (string) ( $tile['color_callback'] )( $user_id );
+            }
+            if ( isset( $tile['url_callback'] ) && is_callable( $tile['url_callback'] ) ) {
+                $rendered['url'] = (string) ( $tile['url_callback'] )( $user_id );
+            }
+            $rendered['label']          = $label;
+            $rendered['desc']           = (string) ( $tile['description'] ?? '' );
+            $by_group[ $group_label ][] = $rendered;
+        }
+
+        // Sort each group by `order` then label.
+        $out = [];
+        foreach ( $group_order as $g ) {
+            $tiles = $by_group[ $g ];
+            usort( $tiles, static function ( $a, $b ) {
+                $o = ( (int) $a['order'] ) <=> ( (int) $b['order'] );
+                if ( $o !== 0 ) return $o;
+                return strcmp( (string) $a['label'], (string) $b['label'] );
+            } );
+            $out[] = [ 'label' => $g, 'tiles' => $tiles ];
+        }
+        return $out;
+    }
+
+    /**
+     * Visibility rules per tile:
+     *   1. `module_class` (when set) must point at an enabled module.
+     *   2. `cap` (string) must pass `user_can($user_id, $cap)` if set.
+     *   3. `cap_callback` (callable) must return true if set.
+     *
+     * Persona-driven `__hidden__` resolution is handled by the caller
+     * after this gate, since it depends on the resolved label.
+     */
+    private static function tileVisibleFor( array $tile, int $user_id ): bool {
+        $owner = $tile['module_class'] ?? null;
+        if ( $owner !== null && $owner !== '' ) {
+            if ( ! ModuleRegistry::isEnabled( (string) $owner ) ) return false;
+        }
+        if ( ! empty( $tile['cap'] ) && ! user_can( $user_id, (string) $tile['cap'] ) ) {
+            return false;
+        }
+        $cb = $tile['cap_callback'] ?? null;
+        if ( is_callable( $cb ) && ! (bool) $cb( $user_id ) ) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Lookup helper used by the dispatcher to refuse `tt_view=<slug>`
+     * URLs whose owning module is currently disabled. Returns the
+     * owning module class for a given view slug, or null if no tile
+     * declares that slug.
+     */
+    public static function moduleForViewSlug( string $slug ): ?string {
+        if ( $slug === '' ) return null;
+        foreach ( self::$tiles as $tile ) {
+            $tile_slug = (string) ( $tile['view_slug'] ?? '' );
+            if ( $tile_slug === $slug ) {
+                $owner = $tile['module_class'] ?? null;
+                return ( $owner !== null && $owner !== '' ) ? (string) $owner : null;
+            }
+        }
+        // Tile-less surfaces (sub-views the dispatcher reaches directly)
+        // can declare their owning module via `registerSlugOwnership`.
+        if ( array_key_exists( $slug, self::$slug_ownership ) ) {
+            $owner = self::$slug_ownership[ $slug ];
+            return ( $owner !== null && $owner !== '' ) ? (string) $owner : null;
+        }
+        return null;
+    }
+
+    /**
+     * Convenience predicate: should this view slug be hidden because
+     * its owning module is currently disabled? Returns false when no
+     * single module owns the slug (cross-cutting / personal /
+     * always-on surfaces) — those are never gated.
+     */
+    public static function isViewSlugDisabled( string $slug ): bool {
+        $owner = self::moduleForViewSlug( $slug );
+        if ( $owner === null ) return false;
+        return ! ModuleRegistry::isEnabled( $owner );
     }
 
     /**
