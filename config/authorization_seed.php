@@ -58,6 +58,8 @@ $mod_onboarding    = TT\Modules\Onboarding\OnboardingModule::class;
 $mod_demo          = TT\Modules\DemoData\DemoDataModule::class;
 $mod_pdp           = TT\Modules\Pdp\PdpModule::class;
 $mod_team_dev      = TT\Modules\TeamDevelopment\TeamDevelopmentModule::class;
+$mod_workflow      = TT\Modules\Workflow\WorkflowModule::class;
+$mod_development   = TT\Modules\Development\DevelopmentModule::class;
 
 /**
  * Helper: build a rows[] array from a compact spec.
@@ -148,6 +150,9 @@ return array_merge(
         'pdp_file'          => [ 'rc',  'team', $mod_pdp ],
         'pdp_verdict'       => [ 'r',   'team', $mod_pdp ],
         'team_chemistry'    => [ 'r',   'team', $mod_team_dev ],
+        'workflow_tasks'    => [ 'r',   'self', $mod_workflow ],
+        'frontend_admin'    => [ 'r',   'global', $mod_authorization ],
+        'dev_ideas'         => [ 'c',   'global', $mod_development ],
     ] ),
 
     // ─── HEAD COACH ─────────────────────────────────────────────────
@@ -170,6 +175,9 @@ return array_merge(
         'pdp_file'          => [ 'rcd', 'team', $mod_pdp ],
         'pdp_verdict'       => [ 'rc',  'team', $mod_pdp ],
         'team_chemistry'    => [ 'rc',  'team', $mod_team_dev ],
+        'workflow_tasks'    => [ 'r',   'self', $mod_workflow ],
+        'frontend_admin'    => [ 'r',   'global', $mod_authorization ],
+        'dev_ideas'         => [ 'c',   'global', $mod_development ],
     ] ),
 
     // ─── HEAD OF DEVELOPMENT ────────────────────────────────────────
@@ -195,6 +203,12 @@ return array_merge(
         'pdp_file'                   => [ 'rcd', 'global', $mod_pdp ],
         'pdp_verdict'                => [ 'rcd', 'global', $mod_pdp ],
         'team_chemistry'             => [ 'rcd', 'global', $mod_team_dev ],
+        'frontend_admin'             => [ 'r',   'global', $mod_authorization ],
+        'settings'                   => [ 'rc',  'global', $mod_configuration ],
+        'workflow_tasks'             => [ 'r',   'self',   $mod_workflow ],
+        'tasks_dashboard'            => [ 'r',   'global', $mod_workflow ],
+        'workflow_templates'         => [ 'rcd', 'global', $mod_workflow ],
+        'dev_ideas'                  => [ 'rcd', 'global', $mod_development ],
     ] ),
 
     // ─── SCOUT (refined) ────────────────────────────────────────────
@@ -215,6 +229,9 @@ return array_merge(
         'pdp_file'      => [ 'r',  'global', $mod_pdp ],
         'pdp_verdict'   => [ 'r',  'global', $mod_pdp ],
         'team_chemistry'=> [ 'r',  'global', $mod_team_dev ],
+        'workflow_tasks'=> [ 'r',  'self',   $mod_workflow ],
+        'frontend_admin'=> [ 'r',  'global', $mod_authorization ],
+        'dev_ideas'     => [ 'c',  'global', $mod_development ],
     ] ),
 
     // ─── TEAM MANAGER ───────────────────────────────────────────────
@@ -233,6 +250,9 @@ return array_merge(
         'pdp_file'      => [ 'r',   'team', $mod_pdp ],
         'pdp_verdict'   => [ 'r',   'team', $mod_pdp ],
         'team_chemistry'=> [ 'r',   'team', $mod_team_dev ],
+        'workflow_tasks'=> [ 'r',   'self', $mod_workflow ],
+        'frontend_admin'=> [ 'r',   'global', $mod_authorization ],
+        'dev_ideas'     => [ 'c',   'global', $mod_development ],
     ] ),
 
     // ─── ACADEMY ADMIN ──────────────────────────────────────────────
@@ -273,5 +293,17 @@ return array_merge(
         'pdp_file'                    => [ 'rcd', 'global', $mod_pdp ],
         'pdp_verdict'                 => [ 'rcd', 'global', $mod_pdp ],
         'team_chemistry'              => [ 'rcd', 'global', $mod_team_dev ],
+        // #0033 follow-up — meta-entities the legacy cap vocabulary
+        // routes through. Without these rows an `administrator` user
+        // loses the Configuration / Migrations / Audit log / Open
+        // wp-admin tiles + every wp-admin sidebar entry that gates on
+        // tt_view_settings / tt_edit_settings / tt_access_frontend_admin
+        // when the matrix is active.
+        'frontend_admin'              => [ 'r',   'global', $mod_authorization ],
+        'settings'                    => [ 'rcd', 'global', $mod_configuration ],
+        'workflow_tasks'              => [ 'r',   'self',   $mod_workflow ],
+        'tasks_dashboard'             => [ 'r',   'global', $mod_workflow ],
+        'workflow_templates'          => [ 'rcd', 'global', $mod_workflow ],
+        'dev_ideas'                   => [ 'rcd', 'global', $mod_development ],
     ] )
 );

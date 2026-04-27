@@ -65,8 +65,8 @@ final class LegacyCapMapper {
         'tt_edit_settings'               => [ 'settings',       'change' ],
         'tt_manage_settings'             => [ 'settings',       'create_delete' ],
         'tt_access_frontend_admin'       => [ 'frontend_admin', 'read' ],
-        'tt_manage_functional_roles'     => [ 'functional_roles', 'create_delete' ],
-        'tt_manage_backups'              => [ 'backups',        'create_delete' ],
+        'tt_manage_functional_roles'     => [ 'functional_role_assignments', 'create_delete' ],
+        'tt_manage_backups'              => [ 'backup',         'create_delete' ],
 
         // Workflow (#0022)
         'tt_view_own_tasks'              => [ 'workflow_tasks', 'read' ],
@@ -117,12 +117,17 @@ final class LegacyCapMapper {
 
         [ $entity, $activity ] = $tuple;
 
-        // Sprint 2 always evaluates as global scope. Per-team / per-player
-        // scope checks are deferred to caller-aware sites (e.g. the
-        // PlayerOrParentResolver from #0022, or the per-team check in
-        // FrontendTeamsManageView). Sprint 7's FR head/assistant split
-        // refines persona resolution but does not change scope_kind here.
-        return MatrixGate::can( (int) $user->ID, $entity, $activity, MatrixGate::SCOPE_GLOBAL );
+        // #0033 follow-up — answer the cap with `canAnyScope`. The
+        // legacy `tt_*` cap vocabulary asks "does this user have this
+        // ability anywhere?", which maps to "in any scope where they
+        // hold a matching assignment". Returning the global-only check
+        // here would silently revoke every team-scoped permission
+        // (head_coach with `evaluations [rcd, team]` would fail
+        // `tt_view_evaluations` because they have no global row), even
+        // though the runtime gate at the actual write site would let
+        // them through. `canAnyScope` keeps the matrix view trustworthy:
+        // green ticks at any scope = true, no scope = false.
+        return MatrixGate::canAnyScope( (int) $user->ID, $entity, $activity );
     }
 
     /**
