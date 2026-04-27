@@ -11,6 +11,7 @@ _None._
 | # | Topic | Type | Spec | Estimated |
 | - | - | - | - | - |
 | 0028 | Goals as conversational thread | feat | (spec TBD; #0022 Phase 1 unblocked) | ~20-30h |
+| 0033 | Authorization matrix + module toggles + per-module config + dashboard tile split | epic | [specs/0033-epic-authorization-and-module-management.md](specs/0033-epic-authorization-and-module-management.md) | ~90h (9 sprints; ships AFTER #0032) |
 
 ## Needs refinement / shaping
 
@@ -19,7 +20,6 @@ _None._
 | 0030 | Branding + go-to-market | epic | Brand voice, logo sourcing, site tech, domain, pricing copy, screenshots, pilot recruitment, launch channel (Q1-Q8) | ~45-65h |
 | 0031 | Spond calendar integration | feat | iCal feed scope (per-team vs personal), poll frequency, write-back vs read-only, match-vs-training detection, conflict handling, attendance via API (defer?) | ~12-18h v1 |
 | 0032 | User invitation flow (player / parent / staff via shareable WhatsApp-friendly link) | feat | Trigger surfaces (manual / bulk / auto), token TTL + reuse, channel mix, existing-account handling, parent role question (reuse `tt_player` or new `tt_parent`?), cap interaction with #0011 | ~14-20h v1 |
-| 0033 | Authorization review — persona × activity × entity matrix | epic | 8 personas × 3 activities × ~25 entities; matrix storage (caps vs config table), multi-persona resolution, scope model (global/team/player), tile/menu rendering per persona, backwards compat with WP roles | ~46-70h |
 
 ## Not started (no shaping needed before build)
 
