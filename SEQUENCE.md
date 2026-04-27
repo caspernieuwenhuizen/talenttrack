@@ -17,7 +17,6 @@ _None._
 
 | # | Topic | Type | Open questions | Estimated |
 | - | - | - | - | - |
-| 0030 | Branding + go-to-market | epic | Brand voice, logo sourcing, site tech, domain, pricing copy, screenshots, pilot recruitment, launch channel (Q1-Q8) | ~45-65h |
 | 0031 | Spond calendar integration | feat | iCal feed scope (per-team vs personal), poll frequency, write-back vs read-only, match-vs-training detection, conflict handling, attendance via API (defer?) | ~12-18h v1 |
 | 0032 | User invitation flow (player / parent / staff via shareable WhatsApp-friendly link) | feat | Trigger surfaces (manual / bulk / auto), token TTL + reuse, channel mix, existing-account handling, parent role question (reuse `tt_player` or new `tt_parent`?), cap interaction with #0011 | ~14-20h v1 |
 
@@ -43,6 +42,7 @@ _None._
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
+| 0030 | Branding + go-to-market site (separate plugin) | epic | external — [caspernieuwenhuizen/talenttrack-branding](https://github.com/caspernieuwenhuizen/talenttrack-branding) | ~45-65h | ~3h scaffold (7 shortcode pages, wp-admin settings, branding CSS); ongoing copy iterations live in the separate repo |
 | 0025 | Multilingual auto-translate (opt-in, default OFF) | feat | v3.23.0 | ~26h | ~12h (single-PR build, two engine adapters + cap nudge + privacy hook) |
 | 0009 | Development management (submit → refine → approve → promote-to-GitHub + tracks) | epic | v3.22.0 | ~30h | ~6h (one-PR build, full epic, scope locked via 8 inline shaping Qs) |
 | 0022 | Workflow & tasks engine (Phase 1 — engine + 5 templates + inbox + dashboard + admin config) | epic | v3.22.0 | ~62h | ~14h across 5 sprints in 3 stacked PRs |
@@ -87,8 +87,7 @@ Realistic next moves:
    - **#0021 Audit log viewer (~10h)** — small, high-utility for a paying customer install, hooks into the workflow-engine + #0009 promote actions naturally.
    - **#0006 Team planning module (~55h)** — pairs well with #0022 (sessions are templated, scheduling on a calendar is the obvious next surface).
    - **#0010 Multi-language (FR/DE/ES) (~80-140h, likely lower)** — re-estimate now that #0025 + #0029 ship; the manual-translation surface is much smaller than originally scoped.
-2. **Shape #0030** — branding + go-to-market. The licensing scaffold from #0011 still has nothing to direct people to. Casper-side authoring is on the critical path here, not engineering.
-3. **Shape #0028** — goals as conversational thread. #0022 Phase 1 unblocked it; rough estimate ~20-30h pending the shaping pass.
+2. **Shape #0028** — goals as conversational thread. #0022 Phase 1 unblocked it; rough estimate ~20-30h pending the shaping pass.
 
 ## Total backlog effort estimate
 
@@ -96,12 +95,12 @@ Realistic next moves:
 
 | Bucket | Low | High |
 | - | - | - |
-| Ready (#0028) | 20 | 30 |
-| Needs shaping (#0030, #0031, #0032, #0033) | 117 | 173 |
+| Ready (#0028, #0033) | 110 | 120 |
+| Needs shaping (#0031, #0032) | 26 | 38 |
 | Not started (#0006, #0010, #0012, #0014, #0016, #0017, #0018, #0021, #0022 Phase 2) | 495 | 590 |
-| **Total remaining** | **~632h** | **~793h** |
+| **Total remaining** | **~631h** | **~748h** |
 
-Was ~700-870h at end of v3.21.0; v3.22.0 cleared ~119h of estimate (vs ~41h actual); v3.23.0 cleared another ~26h (vs ~12h actual). Remaining estimates intentionally conservative — empirical 1.4× under-shoot rate from this release suggests a realistic floor of **~470h** if the compression pattern holds.
+Was ~700-870h at end of v3.21.0; v3.22.0 cleared ~119h of estimate (vs ~41h actual); v3.23.0 cleared another ~26h (vs ~12h actual). Post-v3.23.0 the picture also moved: #0033 promoted from "Needs shaping" to "Ready" with a locked ~90h estimate, and #0030 dropped out entirely (extracted to talenttrack-branding repo, ~3h scaffold actual vs ~45-65h estimate). Remaining estimates intentionally conservative — empirical 1.4× under-shoot rate from this release suggests a realistic floor of **~450h** if the compression pattern holds.
 
 ### Lead time projection
 
@@ -111,9 +110,9 @@ At Casper's empirical pace (~6-8 effective driver-hours per evening on busy week
 | - | - | - | - |
 | Optimistic — compression holds, 1.0× multiplier | 20 | 33 / 41 | ~7-9 |
 | Realistic — 1.2× iteration multiplier | 15 | 53 / 65 | ~12-15 |
-| Conservative — 1.5× multiplier on Casper-side authoring tasks (#0030, #0027 content, multi-language) | 12 | 82 / 102 | ~19-24 |
+| Conservative — 1.5× multiplier on Casper-side authoring tasks (#0027 content, multi-language) | 12 | 82 / 102 | ~19-24 |
 
-**Lead time floor: ~7-9 months** if the v3.22.0 compression pattern holds (single-PR epics, stacked sprints, inline shaping). **Realistic median: ~12-15 months** — late-2027. The conservative upper bound (~24 months) reflects the reality that #0030 branding and #0010 multi-language depend on Casper-side authoring throughput, not engineering throughput.
+**Lead time floor: ~7-9 months** if the v3.22.0 compression pattern holds (single-PR epics, stacked sprints, inline shaping). **Realistic median: ~12-15 months** — late-2027. The conservative upper bound (~24 months) reflects the reality that #0010 multi-language depends on Casper-side translation throughput, not engineering throughput. (#0030 was previously listed here too, but the marketing site has been extracted to its own repo and is now decoupled from this backlog's lead time.)
 
 ### Throughput calibration
 
@@ -121,7 +120,7 @@ This session's data is the largest single observation we have:
 
 - **41h actual vs 119h estimate** → 1 / 2.9 multiplier (under-shoot by 65%).
 - Driven by: stacking PRs, decision compression, and the empirical "an agent can ship a full epic in one PR if the spec is locked" pattern.
-- Not all backlog items will compress this aggressively. Authoring-heavy work (#0030 brand voice + screenshots, #0010 translations to FR/DE/ES, #0027 PDF content authoring) is bound by Casper's own writing pace, not engineering velocity.
+- Not all backlog items will compress this aggressively. Authoring-heavy work (#0010 translations to FR/DE/ES, #0027 PDF content authoring) is bound by Casper's own writing pace, not engineering velocity.
 - Pure engineering items (#0014, #0021, #0006) are the most likely to repeat the v3.22.0 compression.
 
 ## Principles
