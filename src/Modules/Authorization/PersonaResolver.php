@@ -38,15 +38,22 @@ class PersonaResolver {
         'administrator'   => 'academy_admin',
         'tt_club_admin'   => 'academy_admin',
         'tt_head_dev'     => 'head_of_development',
-        'tt_coach'        => 'head_coach',     // Sprint 7 splits via FR flag.
+        // tt_coach splits in Sprint 7 via the tt_team_people.is_head_coach
+        // flag — see resolveCoachPersona() below.
         'tt_scout'        => 'scout',
         'tt_player'       => 'player',
         'tt_parent'       => 'parent',
-        // 'tt_team_manager' => 'team_manager',  // added in Sprint 7
+        'tt_team_manager' => 'team_manager',  // #0033 Sprint 7
     ];
 
     /**
      * Personas the user holds. Multi-persona users get multiple entries.
+     *
+     * #0033 Sprint 7: a `tt_coach` user is split into `head_coach` (when
+     * any `tt_team_people` row for the linked person has
+     * `is_head_coach = 1`) or `assistant_coach` (otherwise). A user can
+     * end up with both personas if they head-coach one team and assist
+     * another.
      *
      * @return string[]
      */
@@ -58,11 +65,76 @@ class PersonaResolver {
 
         $personas = [];
         foreach ( $user->roles as $role_slug ) {
+            if ( $role_slug === 'tt_coach' ) {
+                foreach ( self::resolveCoachPersona( $user_id ) as $p ) {
+                    $personas[] = $p;
+                }
+                continue;
+            }
             if ( isset( self::WP_ROLE_TO_PERSONA[ $role_slug ] ) ) {
                 $personas[] = self::WP_ROLE_TO_PERSONA[ $role_slug ];
             }
         }
         return array_values( array_unique( $personas ) );
+    }
+
+    /**
+     * #0033 Sprint 7: split a `tt_coach` WP role into head_coach and/or
+     * assistant_coach personas based on the `tt_team_people.is_head_coach`
+     * flag. A coach with no tt_team_people rows still gets head_coach
+     * (defensive default — better to over-grant than to lock them out
+     * during the matrix bridge's dormant phase).
+     *
+     * @return string[]
+     */
+    private static function resolveCoachPersona( int $user_id ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        // Find the person record(s) linked to this WP user.
+        $person_ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d",
+            $user_id
+        ) );
+        if ( empty( $person_ids ) ) {
+            return [ 'head_coach' ]; // defensive default
+        }
+
+        $tp_table = "{$p}tt_team_people";
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tp_table ) ) !== $tp_table ) {
+            return [ 'head_coach' ];
+        }
+
+        // Check if the is_head_coach column even exists yet (guarded for
+        // installs where Sprint 7's migration hasn't run).
+        $col = $wpdb->get_var( $wpdb->prepare(
+            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'is_head_coach'",
+            $tp_table
+        ) );
+        if ( $col === null ) return [ 'head_coach' ];
+
+        $placeholders = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT is_head_coach, COUNT(*) AS n
+               FROM {$tp_table}
+              WHERE person_id IN ({$placeholders})
+              GROUP BY is_head_coach",
+            $person_ids
+        ) );
+
+        $has_head = false;
+        $has_assistant = false;
+        foreach ( (array) $rows as $r ) {
+            if ( (int) $r->is_head_coach === 1 && (int) $r->n > 0 ) $has_head = true;
+            if ( (int) $r->is_head_coach === 0 && (int) $r->n > 0 ) $has_assistant = true;
+        }
+        $out = [];
+        if ( $has_head )      $out[] = 'head_coach';
+        if ( $has_assistant ) $out[] = 'assistant_coach';
+        if ( empty( $out ) )  $out[] = 'head_coach'; // no team assignments — defensive default
+        return $out;
     }
 
     /**

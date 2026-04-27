@@ -128,6 +128,16 @@ class HelpTopics {
                 'group'   => 'frontend',
                 'summary' => __( 'Roles, permissions, functional roles, and the Read-Only Observer.', 'talenttrack' ),
             ],
+            'authorization-matrix' => [
+                'title'   => __( 'Authorization matrix', 'talenttrack' ),
+                'group'   => 'frontend',
+                'summary' => __( 'Persona × entity × activity × scope grid — what each persona can do, with shadow-mode preview before applying.', 'talenttrack' ),
+            ],
+            'modules' => [
+                'title'   => __( 'Modules', 'talenttrack' ),
+                'group'   => 'frontend',
+                'summary' => __( 'Per-install module toggles — disable Methodology, Workflow, License, etc. without touching code.', 'talenttrack' ),
+            ],
             'workflow-engine' => [
                 'title'   => __( 'Workflow & tasks engine', 'talenttrack' ),
                 'group'   => 'configuration',
