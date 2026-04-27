@@ -4,14 +4,15 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 
 ## In progress
 
-_None._
+| # | Topic | Sprint | Status |
+| - | - | - | - |
+| 0033 | Authorization matrix + module toggles + per-module config + dashboard tile split | Sprint 1 of 9 — schema + MatrixGate + PersonaResolver + seed | PR open; purely additive, no callers yet |
 
 ## Ready (shaped, decisions locked)
 
 | # | Topic | Type | Spec | Estimated |
 | - | - | - | - | - |
 | 0028 | Goals as conversational thread | feat | (spec TBD; #0022 Phase 1 unblocked) | ~20-30h |
-| 0033 | Authorization matrix + module toggles + per-module config + dashboard tile split | epic | [specs/0033-epic-authorization-and-module-management.md](specs/0033-epic-authorization-and-module-management.md) | ~90h (9 sprints; ships AFTER #0032) |
 
 ## Needs refinement / shaping
 
