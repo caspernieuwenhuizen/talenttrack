@@ -492,7 +492,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Invitations', 'talenttrack' ),
                 'desc'  => __( 'Pending invites + WhatsApp message templates.', 'talenttrack' ),
-                'emoji' => '✉',
+                'icon'  => 'invitation',
                 'color' => '#5b6e75',
                 'url'   => $url( 'invitations-config' ),
                 'show'  => current_user_can( 'tt_manage_invite_messages' ),
@@ -523,7 +523,7 @@ class FrontendTileGrid {
             $tasks_tiles[] = [
                 'label' => $label,
                 'desc'  => __( 'Open tasks waiting on you — evaluations, goals, reviews.', 'talenttrack' ),
-                'emoji' => '📥',
+                'icon'  => 'inbox',
                 'color' => $open_count > 0 ? '#b32d2e' : '#5b6e75',
                 'url'   => $url( 'my-tasks' ),
                 'show'  => true,
@@ -533,7 +533,7 @@ class FrontendTileGrid {
             $tasks_tiles[] = [
                 'label' => __( 'Tasks dashboard', 'talenttrack' ),
                 'desc'  => __( 'Per-template and per-coach completion rates plus currently overdue tasks.', 'talenttrack' ),
-                'emoji' => '📋',
+                'icon'  => 'kanban',
                 'color' => '#2271b1',
                 'url'   => $url( 'tasks-dashboard' ),
                 'show'  => true,
@@ -543,7 +543,7 @@ class FrontendTileGrid {
             $tasks_tiles[] = [
                 'label' => __( 'Workflow templates', 'talenttrack' ),
                 'desc'  => __( 'Enable or disable templates and override their cadence + deadline.', 'talenttrack' ),
-                'emoji' => '⚙',
+                'icon'  => 'workflow',
                 'color' => '#5b6e75',
                 'url'   => $url( 'workflow-config' ),
                 'show'  => true,
@@ -560,7 +560,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Submit an idea', 'talenttrack' ),
                 'desc'  => __( 'Spotted a bug or feature? Send it to the development queue.', 'talenttrack' ),
-                'emoji' => '💡',
+                'icon'  => 'lightbulb',
                 'color' => '#c9962a',
                 'url'   => $url( 'submit-idea' ),
                 'show'  => $can_submit_idea,
@@ -568,7 +568,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Development board', 'talenttrack' ),
                 'desc'  => __( 'Kanban view of every staged idea — submitted through done.', 'talenttrack' ),
-                'emoji' => '🗂',
+                'icon'  => 'kanban',
                 'color' => '#7c3a9e',
                 'url'   => $url( 'ideas-board' ),
                 'show'  => $can_view_board,
@@ -576,7 +576,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Approval queue', 'talenttrack' ),
                 'desc'  => __( 'Approve & promote ideas straight to GitHub, or reject with a note.', 'talenttrack' ),
-                'emoji' => '✅',
+                'icon'  => 'approval',
                 'color' => '#1d7874',
                 'url'   => $url( 'ideas-approval' ),
                 'show'  => $can_promote,
@@ -584,7 +584,7 @@ class FrontendTileGrid {
             [
                 'label' => __( 'Development tracks', 'talenttrack' ),
                 'desc'  => __( 'Group ideas into a player-development roadmap.', 'talenttrack' ),
-                'emoji' => '🛤',
+                'icon'  => 'track',
                 'color' => '#2271b1',
                 'url'   => $url( 'dev-tracks' ),
                 'show'  => $can_view_board,

@@ -29,18 +29,47 @@ class FrontendMyTeamView extends FrontendViewBase {
         $team = QueryHelpers::get_team( $team_id );
         $team_name = $team ? (string) $team->name : '';
 
-        // Own card — centered.
-        echo '<div style="display:flex; justify-content:center; padding:20px 0;">';
-        \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true );
-        echo '</div>';
-
-        // Team podium — top 3 of the team.
+        // Own card alongside the team podium, separated by a vertical
+        // rule so they read as two related-but-distinct units. Stacks
+        // vertically below 880px (the rule renders horizontal there).
         $team_svc = new TeamStatsService();
         $top = $team_svc->getTopPlayersForTeam( $team_id, 3, 5 );
-        if ( ! empty( $top ) ) {
-            echo '<h3 style="text-align:center; margin-top:10px;">' . esc_html__( 'Top players on the team', 'talenttrack' ) . '</h3>';
-            \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top );
+        ?>
+        <style>
+        .tt-mt-grid {
+            display: grid;
+            grid-template-columns: auto 1px 1fr;
+            align-items: start;
+            gap: 24px;
+            padding: 8px 0 16px;
+            max-width: 980px;
+            margin: 0 auto;
         }
+        .tt-mt-grid .tt-mt-rule { background: var(--tt-line, #e3e1d8); align-self: stretch; }
+        .tt-mt-own { font-size: 75%; }
+        .tt-mt-own .tt-pc { transform: scale(0.75); transform-origin: top left; margin-bottom: -54px; margin-right: -50px; }
+        .tt-mt-podium-wrap { min-width: 0; }
+        .tt-mt-podium-wrap h3 { text-align: center; margin: 0 0 6px; font-size: 14px; }
+        @media (max-width: 880px) {
+            .tt-mt-grid { grid-template-columns: 1fr; }
+            .tt-mt-grid .tt-mt-rule { height: 1px; width: 100%; }
+        }
+        </style>
+        <div class="tt-mt-grid">
+            <div class="tt-mt-own">
+                <?php \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true ); ?>
+            </div>
+            <div class="tt-mt-rule" aria-hidden="true"></div>
+            <div class="tt-mt-podium-wrap">
+                <?php if ( ! empty( $top ) ) : ?>
+                    <h3><?php esc_html_e( 'Top players on the team', 'talenttrack' ); ?></h3>
+                    <?php \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top ); ?>
+                <?php else : ?>
+                    <p style="text-align:center; color:var(--tt-muted, #6a6d66); margin:30px 0;"><em><?php esc_html_e( 'Not enough rated teammates yet for a podium.', 'talenttrack' ); ?></em></p>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php
 
         // Teammate roster — names + photos only, no ratings.
         $teammates = $team_svc->getTeammatesOfPlayer( (int) $player->id );

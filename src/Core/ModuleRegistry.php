@@ -40,19 +40,25 @@ class ModuleRegistry {
     }
 
     /**
-     * Call register() on every loaded module.
+     * Call register() on every loaded module that is currently enabled.
+     * Disabled modules (per ModuleRegistry::isEnabled) skip the register
+     * step entirely — their hooks, REST routes, and admin pages stay
+     * dark until the toggle flips back on. Always-on core modules
+     * register regardless.
      */
     public function registerAll(): void {
         foreach ( $this->modules as $module ) {
+            if ( ! self::isEnabled( get_class( $module ) ) ) continue;
             $module->register( $this->container );
         }
     }
 
     /**
-     * Call boot() on every loaded module.
+     * Call boot() on every loaded module that is currently enabled.
      */
     public function bootAll(): void {
         foreach ( $this->modules as $module ) {
+            if ( ! self::isEnabled( get_class( $module ) ) ) continue;
             $module->boot( $this->container );
         }
     }

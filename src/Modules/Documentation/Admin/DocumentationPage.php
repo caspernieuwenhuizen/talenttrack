@@ -31,20 +31,27 @@ class DocumentationPage {
         $topics = HelpTopics::all();
         $groups = HelpTopics::groups();
 
-        $requested = isset( $_GET['topic'] ) ? sanitize_key( (string) $_GET['topic'] ) : '';
-        $slug = isset( $topics[ $requested ] ) ? $requested : HelpTopics::defaultSlug();
-        $topic = $topics[ $slug ];
-
-        // #0029 — resolve viewer's allowed audiences + each topic's
-        // declared audience set. The sidebar TOC filters to topics
-        // whose audiences intersect the viewer's allowed set; direct
-        // URL access (?topic=<slug>) is always honoured regardless.
+        // #0006 — capability-gated topics. The viewer's allowed audience
+        // set is derived from caps (admin / dev / user); if a requested
+        // topic falls outside that set we silently fall back to the
+        // default rather than render content the user shouldn't see.
+        // Sidebar topics outside the allowed set don't render at all.
         $viewer_audiences = AudienceResolver::allowedFor( get_current_user_id() );
+
         $topic_audiences  = [];
         foreach ( $topics as $s => $_t ) {
             $topic_audiences[ $s ] = AudienceResolver::readFromFile( HelpTopics::filePath( $s ) );
         }
         $audience_labels = AudienceResolver::labels();
+        $can_see_audience_badges = in_array( AudienceResolver::ADMIN, $viewer_audiences, true );
+
+        $requested = isset( $_GET['topic'] ) ? sanitize_key( (string) $_GET['topic'] ) : '';
+        $slug = HelpTopics::defaultSlug();
+        if ( isset( $topics[ $requested ] )
+             && AudienceResolver::isVisible( $topic_audiences[ $requested ] ?? [], $viewer_audiences ) ) {
+            $slug = $requested;
+        }
+        $topic = $topics[ $slug ];
 
         ?>
         <div class="wrap">
@@ -155,9 +162,10 @@ class DocumentationPage {
                             $group_topics = array_filter( $topics, function ( $t, $s ) use ( $gkey, $topic_audiences, $viewer_audiences ) {
                                 if ( $t['group'] !== $gkey ) return false;
                                 $aud = $topic_audiences[ $s ] ?? [];
-                                // Always show the currently-active topic so direct URL navigation
-                                // doesn't surface "no matching topics". The audience filter is a
-                                // sidebar nicety, not an access control.
+                                // #0006 — strict cap gate. Topics whose
+                                // audiences don't intersect the viewer's
+                                // allowed set are filtered out entirely
+                                // (TOC + direct URL).
                                 return AudienceResolver::isVisible( $aud, $viewer_audiences );
                             }, ARRAY_FILTER_USE_BOTH );
                             if ( empty( $group_topics ) ) continue;
@@ -175,11 +183,11 @@ class DocumentationPage {
                                        data-summary="<?php echo esc_attr( strtolower( $t['summary'] ) ); ?>"
                                        title="<?php echo esc_attr( $t['summary'] ); ?>">
                                         <?php echo esc_html( $t['title'] ); ?>
-                                        <?php foreach ( $aud as $a ) : ?>
+                                        <?php if ( $can_see_audience_badges ) : foreach ( $aud as $a ) : ?>
                                             <span class="tt-docs-audience tt-docs-audience--<?php echo esc_attr( $a ); ?>"><?php
                                                 echo esc_html( (string) ( $audience_labels[ $a ] ?? $a ) );
                                             ?></span>
-                                        <?php endforeach; ?>
+                                        <?php endforeach; endif; ?>
                                     </a>
                                 <?php endforeach; ?>
                             </div>
