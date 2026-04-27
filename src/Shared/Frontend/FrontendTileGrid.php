@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Core\ModuleSurfaceMap;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Icons\IconRenderer;
 
@@ -218,7 +219,18 @@ class FrontendTileGrid {
      */
     private static function renderGroups( array $groups ): void {
         foreach ( $groups as $group ) {
-            $visible = array_filter( $group['tiles'], function ( $t ) { return ! isset( $t['show'] ) || $t['show']; } );
+            $visible = array_filter( $group['tiles'], function ( $t ) {
+                if ( isset( $t['show'] ) && ! $t['show'] ) return false;
+                // #0051 — drop tiles whose owning module is currently
+                // disabled. Owner is derived from the tt_view slug
+                // embedded in the tile URL; tiles without a tt_view
+                // slug (e.g. "Open wp-admin") are never module-gated.
+                $slug = self::extractViewSlug( (string) ( $t['url'] ?? '' ) );
+                if ( $slug !== '' && ModuleSurfaceMap::isViewSlugDisabled( $slug ) ) {
+                    return false;
+                }
+                return true;
+            } );
             if ( empty( $visible ) ) continue;
             ?>
             <div class="tt-ftile-section-label">
@@ -636,6 +648,21 @@ class FrontendTileGrid {
                 $name
             )
             : __( 'Welcome', 'talenttrack' );
+    }
+
+    /**
+     * Pull the `tt_view` slug out of a tile URL, or return '' if the
+     * tile doesn't route via `?tt_view=`. Used by the module-enabled
+     * filter in renderGroups() so disabled modules' tiles disappear.
+     */
+    private static function extractViewSlug( string $url ): string {
+        if ( $url === '' ) return '';
+        $query = (string) wp_parse_url( $url, PHP_URL_QUERY );
+        if ( $query === '' ) return '';
+        $params = [];
+        wp_parse_str( $query, $params );
+        $slug = isset( $params['tt_view'] ) ? (string) $params['tt_view'] : '';
+        return sanitize_key( $slug );
     }
 
     /**

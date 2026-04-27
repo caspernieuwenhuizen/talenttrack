@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Kernel;
+use TT\Core\ModuleSurfaceMap;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Auth\LoginForm;
 use TT\Modules\Auth\LogoutHandler;
@@ -176,6 +177,11 @@ class DashboardShortcode {
         if ( $view === '' ) {
             // Tile landing page.
             FrontendTileGrid::render();
+        } elseif ( ModuleSurfaceMap::isViewSlugDisabled( $view ) ) {
+            // #0051 — slug is owned by a module that's currently
+            // disabled. Surface a friendly notice rather than dispatch
+            // through to a view whose backing module didn't boot.
+            self::renderModuleDisabledNotice();
         } elseif ( in_array( $view, $me_slugs, true ) ) {
             if ( $player ) {
                 self::dispatchMeView( $view, $player );
@@ -456,6 +462,24 @@ class DashboardShortcode {
                 FrontendBackButton::render();
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
+    }
+
+    /**
+     * #0051 — friendly back-button + notice rendered when the user
+     * lands on a `tt_view=<slug>` whose owning module is disabled.
+     * Mirrors the "no permission" / "unknown section" pattern used
+     * elsewhere in the dispatcher so the surface stays consistent.
+     */
+    private static function renderModuleDisabledNotice(): void {
+        FrontendBackButton::render();
+        echo '<div class="tt-notice" style="background:#fff7e6; border-left:4px solid #f0c890; padding:12px 16px; margin:8px 0 16px;">';
+        echo '<p style="margin:0 0 6px; font-weight:600;">'
+            . esc_html__( 'This section is currently unavailable.', 'talenttrack' )
+            . '</p>';
+        echo '<p style="margin:0; color:#5b6e75;">'
+            . esc_html__( 'The administrator has temporarily turned off this part of TalentTrack. Please check back later, or ask your administrator if you need access.', 'talenttrack' )
+            . '</p>';
+        echo '</div>';
     }
 
     private static function renderHeader(): void {

@@ -18,7 +18,11 @@ Each TalentTrack module can be turned off here. Disabled modules don't `register
 When a module is disabled, **on the next page load**:
 
 - `Kernel::loadModules()` skips the class entirely — `register()` + `boot()` never run.
-- Admin pages, hooks, REST routes, capability declarations, scheduled events the module owns — all silently absent.
+- Hooks, REST routes, capability declarations, scheduled events the module owns — all silently absent.
+- **Frontend dashboard tiles** the module owns disappear from the user's tile grid.
+- **wp-admin sidebar entries** the module owns disappear from the menu, and their direct URLs stop resolving.
+- **wp-admin dashboard tiles + stat cards** for the module's entity hide.
+- A user who lands on `?tt_view=<slug>` for a disabled module's surface (bookmarked link, stale tab) sees a friendly "this section is currently unavailable" notice with a back button — not a 404 or fatal.
 - `MatrixGate::can()` short-circuits any matrix row whose `module_class` is the disabled module — even if a persona has the permission, the entity is unreachable. One auth check, no parallel "is this on?" branch.
 - Existing data rows in the module's tables are **untouched** — turning the module back on later restores access to all historical data.
 
