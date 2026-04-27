@@ -80,6 +80,8 @@ jobs:
             'SessionGenerator'
             '\bmatch_result\b'
             '\bcompetition_type\b'
+            'TT\\Modules\\Sessions'
+            'my_sessions'
           )
           excludes=(
             -e 'database/migrations/0001'
@@ -93,6 +95,7 @@ jobs:
             -e 'database/migrations/0022_workflow_default_triggers'
             -e 'database/migrations/0026'
             -e 'database/migrations/0027_rename_sessions_to_activities'
+            -e 'database/migrations/0028_authorization_user_walk'
             -e 'src/Core/Activator.php'
             -e 'specs/0035'
             -e 'languages/talenttrack-nl_NL.po'
