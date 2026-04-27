@@ -18,7 +18,11 @@ Elke TalentTrack-module kan hier worden uitgeschakeld. Uitgeschakelde modules `r
 Wanneer een module wordt uitgeschakeld, **bij de volgende paginalaad**:
 
 - `Kernel::loadModules()` slaat de klasse volledig over — `register()` + `boot()` draaien nooit.
-- Beheerpagina's, hooks, REST-routes, capability-declaraties, geplande events van die module — alle stilzwijgend afwezig.
+- Hooks, REST-routes, capability-declaraties, geplande events van die module — alle stilzwijgend afwezig.
+- **Tegels op het frontend-dashboard** die bij de module horen verdwijnen uit het tegelraster.
+- **wp-admin sidebarregels** van de module verdwijnen uit het menu, en hun directe URL's stoppen met werken.
+- **Tegels + statkaarten op het wp-admin dashboard** voor de entiteit van de module verdwijnen.
+- Een gebruiker die op `?tt_view=<slug>` van een uitgeschakelde module landt (bookmark, oude tab) ziet een vriendelijke "dit onderdeel is momenteel niet beschikbaar"-melding met een terugknop — geen 404 of fatal.
 - `MatrixGate::can()` kortsluit elke matrixrij waarvan de `module_class` is uitgeschakeld — zelfs als een persona de toestemming heeft, is de entiteit onbereikbaar. Eén autorisatiecheck, geen parallel "staat dit aan?"-pad.
 - Bestaande datarijen in de tabellen van de module zijn **onaangeroerd** — de module weer aanzetten herstelt toegang tot alle historische data.
 

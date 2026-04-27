@@ -3,6 +3,7 @@ namespace TT\Shared\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Core\ModuleSurfaceMap;
 use TT\Infrastructure\Database\MigrationRunner;
 use TT\Modules\Configuration\Admin\MigrationsPage;
 
@@ -30,6 +31,12 @@ class MenuExtension {
         // #0019 Sprint 6 — gated on the same legacy-menu toggle as the
         // rest of the migrated wp-admin pages. Direct URL still works.
         if ( ! \TT\Shared\Admin\Menu::shouldShowLegacyMenus() ) return;
+
+        // #0051 — also gate on the owning module's enabled state.
+        // Configuration is always-on so this is a no-op today, but
+        // keeping the check here means the registration stays correct
+        // if always-on policy changes.
+        if ( ModuleSurfaceMap::isAdminSlugDisabled( 'tt-migrations' ) ) return;
 
         // Permissions: either tt_manage_settings OR administrator.
         $cap = current_user_can( 'tt_view_settings' ) ? 'tt_view_settings' : 'administrator';

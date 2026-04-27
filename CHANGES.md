@@ -1,3 +1,53 @@
+# TalentTrack v3.35.0 — Module surface gating: disabled modules disappear from frontend tiles, wp-admin menu, and view dispatch (#0051)
+
+The "Modules" admin page (Authorization → Modules) lets administrators turn non-core modules off. Until now the toggle correctly stopped the module from booting (REST routes, hooks, capabilities all went dark) but the surfaces a user actually sees — frontend tiles, wp-admin sidebar entries, wp-admin dashboard tiles — were unaware of the toggle and kept rendering. Direct URLs to disabled modules' views still resolved.
+
+This release closes that gap. One central source of truth (`ModuleSurfaceMap`) declares which module owns which `tt_view=<slug>` and `?page=<slug>` surface; three rendering layers consult it.
+
+## What changed
+
+### Frontend dashboard
+
+- `FrontendTileGrid::renderGroups()` now drops every tile whose owning module is currently disabled. The slug is parsed from the tile's URL; tiles without a `tt_view=` (e.g. "Open wp-admin") are never gated.
+- `DashboardShortcode::render()` short-circuits before dispatching: a `?tt_view=<slug>` for a disabled module's view now renders a friendly **"This section is currently unavailable"** notice with a back button, rather than dispatching to a view whose backing module never booted.
+
+### wp-admin sidebar
+
+- `Menu::register()` routes every `add_submenu_page()` call through a new `addSubmenu()` helper that consults `ModuleSurfaceMap`. Slugs owned by a disabled module skip registration entirely — the menu item disappears AND the URL stops resolving.
+- The same gate covers `MenuExtension`'s Migrations submenu (always-on owner today, kept consistent for future-proofing).
+
+### wp-admin dashboard
+
+- `Menu::dashboard()` filters its 5 stat cards and grouped tiles by the same lookup. Players / Teams / Evaluations / Activities / Goals stat cards hide when their module is off; group tiles do too.
+
+### Single source of truth
+
+`src/Core/ModuleSurfaceMap.php` is one declarative file: two arrays mapping `tt_view` slugs and `?page=` slugs to fully-qualified module class names, plus a one-prefix family for the methodology edit pages. Both lookups return `null` for surfaces that aren't gated by any single module (player-personal landings, audit log, infra). All call sites combine the lookup with `ModuleRegistry::isEnabled()` — always-on modules pass through unconditionally.
+
+## Behaviour
+
+- **Disable Methodology** → frontend "Methodology" tile gone, wp-admin Methodology + Voetbalhandelingen + 8 hidden edit subpages all unregistered, REST stays dark, direct URL `?page=tt-methodology` no longer resolves.
+- **Disable Workflow** → "My tasks" / "Tasks dashboard" / "Workflow templates" tiles gone, dispatcher refuses those slugs with the friendly notice.
+- **Disable Team Development** → "Team chemistry" tile gone, dispatcher refuses `?tt_view=team-chemistry`.
+- **Always-on (Auth, Configuration, Authorization)** can't be disabled at the data layer (`ModuleRegistry::setEnabled` refuses), and even if a row got hand-edited, `isEnabled` still returns true. Their surfaces always render.
+
+## Translations + docs
+
+- `languages/talenttrack-nl_NL.po` — two new strings (notice title + body) translated to Dutch. Already in main from the same author since the previous release; this PR re-confirms them.
+- `docs/modules.md` + `docs/nl_NL/modules.md` — "What the toggle actually does" section expanded to enumerate each affected surface and the friendly-notice behaviour.
+
+## Out of scope
+
+- Full `TileRegistry` migration — every tile literal moving to per-module `boot()` calls — stays a future cleanup tracked under #0033 follow-ups. The map approach buys correctness now without paying that migration tax.
+- Module dependency graph (e.g. "disabling Players auto-disables Teams") — `ModulesPage` already warns that dependencies aren't enforced; that's a separate task.
+
+## Files changed
+
+- New: `src/Core/ModuleSurfaceMap.php`, `specs/0051-feat-module-surface-gating.md`
+- Modified: `src/Shared/Frontend/FrontendTileGrid.php`, `src/Shared/Frontend/DashboardShortcode.php`, `src/Shared/Admin/Menu.php`, `src/Shared/Admin/MenuExtension.php`, `docs/modules.md`, `docs/nl_NL/modules.md`, `readme.txt` (stable tag bump 3.33 → 3.35), `talenttrack.php`, `SEQUENCE.md`.
+
+---
+
 # TalentTrack v3.33.0 — Activity Type is lookup-driven, with per-type workflow policy (#0050)
 
 The Activity Type dropdown was the last entity in TalentTrack with a hardcoded set of values. This release lifts it into the same lookup-driven pattern that Game Subtype, Attendance Status, and Position already use — and goes one step further: each row picks which workflow template fires when an activity of that type is saved.
