@@ -69,8 +69,16 @@ class AuditService {
     /**
      * Retrieve recent audit entries, most recent first.
      *
+     * Supports filters: action, entity_type, user_id, date_from
+     * (inclusive), date_to (inclusive). Date filters accept Y-m-d
+     * strings; non-parseable values are silently dropped.
+     *
+     * Pagination: pass `offset` for the page cursor. Used by the
+     * frontend audit-log viewer (#0021) which needs server-side
+     * paging because the table is unbounded (no retention yet).
+     *
      * @param int                       $limit
-     * @param array<string, string|int> $filters Optional: action, entity_type, user_id
+     * @param array<string, mixed>      $filters action | entity_type | user_id | date_from | date_to | offset
      * @return object[]
      */
     public function recent( int $limit = 50, array $filters = [] ): array {
@@ -82,6 +90,72 @@ class AuditService {
             return [];
         }
 
+        [ $where, $params ] = self::buildWhere( $filters );
+
+        $offset = isset( $filters['offset'] ) ? max( 0, (int) $filters['offset'] ) : 0;
+
+        $params[] = max( 1, $limit );
+        $params[] = $offset;
+        $sql = "SELECT a.*, u.display_name AS user_name "
+             . "FROM $table a "
+             . "LEFT JOIN {$wpdb->users} u ON a.user_id = u.ID "
+             . "WHERE $where "
+             . "ORDER BY a.created_at DESC, a.id DESC "
+             . "LIMIT %d OFFSET %d";
+
+        return $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
+    }
+
+    /**
+     * Count rows matching the same filters `recent()` accepts. Used by
+     * the viewer's pagination header.
+     *
+     * @param array<string, mixed> $filters
+     */
+    public function count( array $filters = [] ): int {
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_audit_log';
+
+        $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
+        if ( ! $exists ) {
+            return 0;
+        }
+
+        [ $where, $params ] = self::buildWhere( $filters );
+        $sql = "SELECT COUNT(*) FROM $table a WHERE $where";
+
+        return (int) ( $params
+            ? $wpdb->get_var( $wpdb->prepare( $sql, ...$params ) )
+            : $wpdb->get_var( $sql ) );
+    }
+
+    /**
+     * Distinct values for a given filter column. Powers the dropdowns
+     * on the viewer (action / entity_type) so users see what values
+     * actually exist in their log instead of typing free-text.
+     *
+     * @return string[]
+     */
+    public function distinctValues( string $column ): array {
+        global $wpdb;
+        if ( ! in_array( $column, [ 'action', 'entity_type' ], true ) ) return [];
+        $table = $wpdb->prefix . 'tt_audit_log';
+
+        $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
+        if ( ! $exists ) return [];
+
+        $rows = $wpdb->get_col( "SELECT DISTINCT $column FROM $table WHERE $column <> '' ORDER BY $column ASC" );
+        return is_array( $rows ) ? array_map( 'strval', $rows ) : [];
+    }
+
+    /**
+     * Build the shared WHERE clause + parameter array used by
+     * `recent()` and `count()`.
+     *
+     * @param array<string,mixed> $filters
+     * @return array{0: string, 1: array<int, mixed>}
+     */
+    private static function buildWhere( array $filters ): array {
         $where  = '1=1';
         $params = [];
         if ( ! empty( $filters['action'] ) ) {
@@ -96,11 +170,29 @@ class AuditService {
             $where   .= ' AND user_id = %d';
             $params[] = (int) $filters['user_id'];
         }
+        if ( ! empty( $filters['date_from'] ) ) {
+            $df = self::parseDate( (string) $filters['date_from'] );
+            if ( $df !== '' ) {
+                $where   .= ' AND created_at >= %s';
+                $params[] = $df . ' 00:00:00';
+            }
+        }
+        if ( ! empty( $filters['date_to'] ) ) {
+            $dt = self::parseDate( (string) $filters['date_to'] );
+            if ( $dt !== '' ) {
+                $where   .= ' AND created_at <= %s';
+                $params[] = $dt . ' 23:59:59';
+            }
+        }
+        return [ $where, $params ];
+    }
 
-        $params[] = max( 1, $limit );
-        $sql = "SELECT a.*, u.display_name AS user_name FROM $table a LEFT JOIN {$wpdb->users} u ON a.user_id = u.ID WHERE $where ORDER BY a.created_at DESC LIMIT %d";
-
-        return $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
+    /** Y-m-d guard. Returns the input unchanged when valid, '' otherwise. */
+    private static function parseDate( string $raw ): string {
+        $raw = trim( $raw );
+        if ( $raw === '' ) return '';
+        $d = \DateTime::createFromFormat( 'Y-m-d', $raw );
+        return ( $d && $d->format( 'Y-m-d' ) === $raw ) ? $raw : '';
     }
 
     private static function currentIp(): string {
