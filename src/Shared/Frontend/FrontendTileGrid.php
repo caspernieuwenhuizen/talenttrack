@@ -416,6 +416,14 @@ class FrontendTileGrid {
                 'show'  => $can_frontend_admin,
             ],
             [
+                'label' => __( 'Invitations', 'talenttrack' ),
+                'desc'  => __( 'Pending invites + WhatsApp message templates.', 'talenttrack' ),
+                'emoji' => '✉',
+                'color' => '#5b6e75',
+                'url'   => $url( 'invitations-config' ),
+                'show'  => current_user_can( 'tt_manage_invite_messages' ),
+            ],
+            [
                 'label' => __( 'Open wp-admin', 'talenttrack' ),
                 'desc'  => __( 'Drop into the full WordPress admin dashboard.', 'talenttrack' ),
                 'icon'  => 'external-link',

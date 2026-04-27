@@ -6345,3 +6345,236 @@ msgstr "Bekijk instellingen →"
 
 msgid "Opt-in DeepL / Google translation of user-entered free text."
 msgstr "Opt-in DeepL / Google vertaling van gebruikersgegenereerde vrije tekst."
+
+# === #0032 Invitation flow ===
+
+msgid "Expired"
+msgstr "Verlopen"
+
+msgid "Revoked"
+msgstr "Ingetrokken"
+
+msgid "Mother"
+msgstr "Moeder"
+
+msgid "Father"
+msgstr "Vader"
+
+msgid "Guardian"
+msgstr "Voogd"
+
+msgid "Invalid invitation kind."
+msgstr "Ongeldig type uitnodiging."
+
+msgid "Not logged in."
+msgstr "Niet ingelogd."
+
+msgid "Daily invitation cap reached (%1$d). Already created %2$d in the last 24 hours."
+msgstr "Dagelijkse uitnodigingslimiet bereikt (%1$d). Al %2$d aangemaakt in de afgelopen 24 uur."
+
+msgid "The invitation could not be saved."
+msgstr "De uitnodiging kon niet worden opgeslagen."
+
+msgid "This invitation is no longer pending."
+msgstr "Deze uitnodiging is niet meer in afwachting."
+
+msgid "This invitation has expired."
+msgstr "Deze uitnodiging is verlopen."
+
+msgid "Please provide a valid recovery email."
+msgstr "Geef een geldig recovery-e-mailadres op."
+
+msgid "Password must be at least 8 characters."
+msgstr "Het wachtwoord moet minstens 8 tekens lang zijn."
+
+msgid "An account with that email already exists. Sign in instead and the invitation will link silently."
+msgstr "Er bestaat al een account met dat e-mailadres. Log in en de uitnodiging wordt stilzwijgend gekoppeld."
+
+msgid "This invitation was just accepted by someone else."
+msgstr "Deze uitnodiging is zojuist door iemand anders geaccepteerd."
+
+msgid "Already accepted."
+msgstr "Al geaccepteerd."
+
+msgid "Could not revoke this invitation. It may already be accepted, expired, or revoked."
+msgstr "Kon deze uitnodiging niet intrekken. Mogelijk al geaccepteerd, verlopen of ingetrokken."
+
+msgid "Invitation generated. Share it via WhatsApp or copy the link."
+msgstr "Uitnodiging aangemaakt. Deel hem via WhatsApp of kopieer de link."
+
+msgid "Invitation revoked."
+msgstr "Uitnodiging ingetrokken."
+
+msgid "Invitation accepted. Welcome aboard."
+msgstr "Uitnodiging geaccepteerd. Welkom aan boord."
+
+msgid "Welcome aboard. Your account is set up."
+msgstr "Welkom aan boord. Je account is ingesteld."
+
+msgid "Invitation message saved."
+msgstr "Uitnodigingsbericht opgeslagen."
+
+msgid "The message must include the {url} placeholder so the recipient can open the invitation."
+msgstr "Het bericht moet de placeholder {url} bevatten zodat de ontvanger de uitnodiging kan openen."
+
+msgid "Bad input."
+msgstr "Ongeldige invoer."
+
+msgid "Invitation not found or already consumed."
+msgstr "Uitnodiging niet gevonden of al gebruikt."
+
+msgid "This invitation link is invalid."
+msgstr "Deze uitnodigingslink is ongeldig."
+
+msgid "This invitation could not be found. It may have been revoked."
+msgstr "Deze uitnodiging kon niet worden gevonden. Hij is mogelijk ingetrokken."
+
+msgid "This invitation has already been accepted. Sign in to your account."
+msgstr "Deze uitnodiging is al geaccepteerd. Log in op je account."
+
+msgid "This invitation was revoked."
+msgstr "Deze uitnodiging is ingetrokken."
+
+msgid "This invitation has expired. Ask the inviter to send a new one."
+msgstr "Deze uitnodiging is verlopen. Vraag de uitnodiger om een nieuwe te sturen."
+
+msgid "Welcome to %1$s on TalentTrack — accepting your %2$s invitation"
+msgstr "Welkom bij %1$s op TalentTrack — je %2$s-uitnodiging accepteren"
+
+msgid "Set up your account in 30 seconds. We only collect what we need to log you in and recover your account if you forget the password."
+msgstr "Stel je account in in 30 seconden. We verzamelen alleen wat we nodig hebben om je in te loggen en je account te herstellen als je je wachtwoord vergeet."
+
+msgid "Your account"
+msgstr "Je account"
+
+msgid "Email (for password recovery)"
+msgstr "E-mail (voor wachtwoordherstel)"
+
+msgid "Password (8+ characters)"
+msgstr "Wachtwoord (8+ tekens)"
+
+msgid "Player details"
+msgstr "Spelergegevens"
+
+msgid "Your relationship"
+msgstr "Jouw relatie"
+
+msgid "Your role"
+msgstr "Jouw rol"
+
+msgid "Jersey number (optional)"
+msgstr "Rugnummer (optioneel)"
+
+msgid "Your profile is already set up as %s. You can edit your photo + DOB after sign-in."
+msgstr "Je profiel staat al ingesteld als %s. Je kunt je foto + geboortedatum bewerken na het inloggen."
+
+msgid "Your relationship to the player"
+msgstr "Je relatie tot de speler"
+
+msgid "Email me when there are new evaluations or goals."
+msgstr "E-mail me bij nieuwe evaluaties of doelen."
+
+msgid "You are joining as %1$s%2$s. The role + team are confirmed by your inviter."
+msgstr "Je voegt je toe als %1$s%2$s. De rol + team zijn bevestigd door je uitnodiger."
+
+msgid "Your role + team are confirmed by your inviter."
+msgstr "Je rol + team zijn bevestigd door je uitnodiger."
+
+msgid "Create account & sign in"
+msgstr "Account aanmaken & inloggen"
+
+msgid "Accept invitation"
+msgstr "Uitnodiging accepteren"
+
+msgid "You are signed in. Tap accept to link the %s invitation to your existing account."
+msgstr "Je bent ingelogd. Tik op accepteren om de %s-uitnodiging aan je bestaande account te koppelen."
+
+msgid "Accept and continue"
+msgstr "Accepteren en doorgaan"
+
+msgid "Sign out to accept this invitation?"
+msgstr "Uitloggen om deze uitnodiging te accepteren?"
+
+msgid "You are signed in as %1$s, but this invitation is addressed to %2$s. Sign out and accept as the invited user, or open the link from a different browser."
+msgstr "Je bent ingelogd als %1$s, maar deze uitnodiging is gericht aan %2$s. Log uit en accepteer als de uitgenodigde gebruiker, of open de link in een andere browser."
+
+msgid "a different account"
+msgstr "een ander account"
+
+msgid "Sign out and accept"
+msgstr "Uitloggen en accepteren"
+
+msgid "Generate invite"
+msgstr "Uitnodiging genereren"
+
+msgid "Share invite"
+msgstr "Uitnodiging delen"
+
+msgid "Invite"
+msgstr "Uitnodigen"
+
+msgid "Share invitation"
+msgstr "Uitnodiging delen"
+
+msgid "Valid until %s."
+msgstr "Geldig tot %s."
+
+msgid "Acceptance URL"
+msgstr "Accept-URL"
+
+msgid "Message preview"
+msgstr "Berichtvoorbeeld"
+
+msgid "Share via WhatsApp"
+msgstr "Delen via WhatsApp"
+
+msgid "Generate %s invitation"
+msgstr "%s-uitnodiging genereren"
+
+msgid "Creates a token + share link. The recipient picks their password on first follow-through."
+msgstr "Maakt een token + deellink aan. De ontvanger kiest zijn wachtwoord bij de eerste opvolging."
+
+msgid "Daily invitation cap reached. Continue anyway with a reason for the audit log:"
+msgstr "Dagelijkse uitnodigingslimiet bereikt. Toch doorgaan met een reden voor de audit log:"
+
+msgid "e.g. season kick-off onboarding for 60 players"
+msgstr "bijv. seizoensstart-onboarding voor 60 spelers"
+
+msgid "Create invitation"
+msgstr "Uitnodiging aanmaken"
+
+msgid "Revoke this invitation? The link will stop working immediately."
+msgstr "Deze uitnodiging intrekken? De link werkt onmiddellijk niet meer."
+
+msgid "Confirm revoke"
+msgstr "Intrekken bevestigen"
+
+msgid "Revoke this invitation?"
+msgstr "Deze uitnodiging intrekken?"
+
+msgid "You do not have permission to manage invitations."
+msgstr "Je hebt geen rechten om uitnodigingen te beheren."
+
+msgid "Pending invites + WhatsApp message templates."
+msgstr "Wachtende uitnodigingen + WhatsApp-berichtsjablonen."
+
+msgid "Filter:"
+msgstr "Filter:"
+
+msgid "No invitations match the filter."
+msgstr "Geen uitnodigingen voldoen aan het filter."
+
+msgid "Inviter"
+msgstr "Uitnodiger"
+
+msgid "Expires"
+msgstr "Vervalt"
+
+msgid "%1$s by %2$s"
+msgstr "%1$s door %2$s"
+
+msgid "Six message templates — three role variants × two locales. Placeholders: {club} {role} {team} {player} {sender} {url} {ttl_days}. The {url} placeholder is required so the recipient can open the invitation."
+msgstr "Zes berichtsjablonen — drie rolvarianten × twee locales. Placeholders: {club} {role} {team} {player} {sender} {url} {ttl_days}. De placeholder {url} is verplicht zodat de ontvanger de uitnodiging kan openen."
+
+msgid "Invite players, parents, and staff via shareable WhatsApp links — set passwords on first follow-through."
+msgstr "Nodig spelers, ouders en staf uit via deelbare WhatsApp-links — wachtwoorden worden bij de eerste opvolging ingesteld."

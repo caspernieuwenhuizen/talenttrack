@@ -31,4 +31,5 @@ return [
     TT\Modules\Workflow\WorkflowModule::class             => true,
     TT\Modules\Development\DevelopmentModule::class       => true,
     TT\Modules\Translations\TranslationsModule::class     => true,
+    TT\Modules\Invitations\InvitationsModule::class       => true,
 ];

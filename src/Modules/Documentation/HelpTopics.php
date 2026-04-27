@@ -108,6 +108,11 @@ class HelpTopics {
                 'group'   => 'configuration',
                 'summary' => __( 'What happens when you update the plugin, and how to run migrations manually.', 'talenttrack' ),
             ],
+            'invitations' => [
+                'title'   => __( 'Invitations', 'talenttrack' ),
+                'group'   => 'configuration',
+                'summary' => __( 'Invite players, parents, and staff via shareable WhatsApp links — set passwords on first follow-through.', 'talenttrack' ),
+            ],
             'player-dashboard' => [
                 'title'   => __( 'Player dashboard (frontend)', 'talenttrack' ),
                 'group'   => 'frontend',

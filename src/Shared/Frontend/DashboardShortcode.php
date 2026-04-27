@@ -92,6 +92,19 @@ class DashboardShortcode {
             ],
         ]);
 
+        // #0032 — invitation acceptance must render before the login
+        // guard. Token is the credential; the recipient may not have
+        // an account yet.
+        $tt_view_param = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
+        if ( $tt_view_param === 'accept-invite' ) {
+            ob_start();
+            echo '<div class="tt-dashboard">';
+            FlashMessages::render();
+            \TT\Modules\Invitations\Frontend\AcceptanceView::render();
+            echo '</div>';
+            return (string) ob_get_clean();
+        }
+
         // Route guard — no partial render for logged-out users.
         if ( ! is_user_logged_in() ) {
             /** @var LoginForm $form */
@@ -141,6 +154,9 @@ class DashboardShortcode {
         // #0009 — Development management slugs. Each view re-checks its
         // own capability so dispatching here is safe.
         $dev_slugs       = [ 'submit-idea', 'ideas-board', 'ideas-refine', 'ideas-approval', 'dev-tracks' ];
+        // #0032 — Invitation flow surfaces (logged-in admin tab; the
+        // accept-invite route is handled before the login guard above).
+        $invitation_slugs = [ 'invitations-config' ];
 
         if ( $view === '' ) {
             // Tile landing page.
@@ -182,6 +198,8 @@ class DashboardShortcode {
             self::dispatchWorkflowView( $view, $user_id );
         } elseif ( in_array( $view, $dev_slugs, true ) ) {
             self::dispatchDevView( $view );
+        } elseif ( in_array( $view, $invitation_slugs, true ) ) {
+            self::dispatchInvitationView( $view );
         } else {
             FrontendBackButton::render();
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
@@ -356,6 +374,20 @@ class DashboardShortcode {
                 break;
             case 'usage-stats-details':
                 FrontendUsageStatsDetailsView::render( $user_id, $is_admin );
+                break;
+            default:
+                FrontendBackButton::render();
+                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+        }
+    }
+
+    /**
+     * #0032 — dispatch an invitation-management slug.
+     */
+    private static function dispatchInvitationView( string $view ): void {
+        switch ( $view ) {
+            case 'invitations-config':
+                \TT\Modules\Invitations\Frontend\InvitationsConfigView::render();
                 break;
             default:
                 FrontendBackButton::render();

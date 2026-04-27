@@ -189,7 +189,25 @@ class PeoplePage {
         <div class="wrap">
             
             <?php BackButton::render( admin_url( 'admin.php?page=tt-people' ) ); ?>
-            <h1><?php echo $is_edit ? esc_html__( 'Edit Person', 'talenttrack' ) : esc_html__( 'Add Person', 'talenttrack' ); ?></h1>
+            <h1>
+                <?php echo $is_edit ? esc_html__( 'Edit Person', 'talenttrack' ) : esc_html__( 'Add Person', 'talenttrack' ); ?>
+                <?php
+                // #0032 — Staff invite button on the people edit form.
+                if ( $is_edit && current_user_can( 'tt_send_invitation' ) ) {
+                    $here = admin_url( 'admin.php?page=tt-people&action=edit&id=' . (int) $person->id );
+                    echo '<span style="margin-left:12px; font-size:13px; font-weight:normal; vertical-align:middle;">';
+                    \TT\Modules\Invitations\Frontend\InviteButton::render( [
+                        'kind'               => \TT\Modules\Invitations\InvitationKind::STAFF,
+                        'target_person_id'   => (int) $person->id,
+                        'prefill_first_name' => (string) ( $person->first_name ?? '' ),
+                        'prefill_last_name'  => (string) ( $person->last_name ?? '' ),
+                        'prefill_email'      => (string) ( $person->email ?? '' ),
+                        'redirect'           => $here,
+                    ] );
+                    echo '</span>';
+                }
+                ?>
+            </h1>
 
             <?php if ( ! empty( $_GET['tt_cf_error'] ) ) : ?>
                 <div class="notice notice-warning is-dismissible">
