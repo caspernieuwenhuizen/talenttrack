@@ -84,11 +84,91 @@ class Activator {
         // up any site where the backfill previously failed silently.
         self::repairFunctionalRoleBackfill();
 
+        // #0038 — make sure a frontend dashboard page exists so a fresh
+        // install has a working surface even before the Setup Wizard
+        // runs. Idempotent: skips when `dashboard_page_id` is already
+        // valid, or when any published page already contains the
+        // [talenttrack_dashboard] shortcode.
+        self::seedDashboardPageIfMissing();
+
         update_option( 'tt_installed_version', TT_VERSION );
     }
 
     public static function deactivate(): void {
         flush_rewrite_rules();
+    }
+
+    /**
+     * #0038 — auto-create a frontend dashboard page on activation so a
+     * brand-new install has a usable surface even before the Setup
+     * Wizard runs. The previous default left `dashboard_page_id = 0`,
+     * which meant `?tt_view=*` URLs hit whatever page the active
+     * theme rendered at the site root — typically the blog index, not
+     * the TalentTrack dashboard.
+     *
+     * Idempotent in three ways:
+     *   1. If `tt_config.dashboard_page_id` already points at a real
+     *      published post, do nothing.
+     *   2. Otherwise, if any published page already contains the
+     *      `[talenttrack_dashboard]` shortcode, adopt its ID.
+     *   3. Otherwise, insert a new "TalentTrack" page with the
+     *      shortcode as its sole content.
+     *
+     * Never sets the page as the WP front-page — too presumptuous;
+     * that's a deliberate choice the admin should make if they want
+     * to. The page is simply reachable via its permalink.
+     */
+    private static function seedDashboardPageIfMissing(): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        // 1. Already configured + page still exists?
+        $configured = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT config_value FROM {$p}tt_config WHERE config_key = %s",
+            'dashboard_page_id'
+        ) );
+        if ( $configured > 0 ) {
+            $post = get_post( $configured );
+            if ( $post && $post->post_status === 'publish' ) return;
+        }
+
+        // 2. Any other published page already has the shortcode?
+        $existing = $wpdb->get_var( $wpdb->prepare(
+            "SELECT ID FROM {$p}posts
+              WHERE post_type    = 'page'
+                AND post_status  = 'publish'
+                AND post_content LIKE %s
+              ORDER BY ID ASC LIMIT 1",
+            '%' . $wpdb->esc_like( '[talenttrack_dashboard]' ) . '%'
+        ) );
+
+        if ( $existing ) {
+            $page_id = (int) $existing;
+        } else {
+            // 3. Create the page.
+            $page_id = wp_insert_post( [
+                'post_type'    => 'page',
+                'post_title'   => __( 'TalentTrack', 'talenttrack' ),
+                'post_name'    => 'talenttrack',
+                'post_status'  => 'publish',
+                'post_content' => '[talenttrack_dashboard]',
+                'comment_status' => 'closed',
+                'ping_status'    => 'closed',
+            ], true );
+            if ( is_wp_error( $page_id ) || $page_id <= 0 ) {
+                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                    $msg = is_wp_error( $page_id ) ? $page_id->get_error_message() : 'wp_insert_post returned <= 0';
+                    error_log( '[TalentTrack #0038] seedDashboardPageIfMissing: ' . $msg );
+                }
+                return;
+            }
+        }
+
+        // Persist the link.
+        $wpdb->replace( "{$p}tt_config", [
+            'config_key'   => 'dashboard_page_id',
+            'config_value' => (string) (int) $page_id,
+        ] );
     }
 
     /* ═══════════════════════════════════════════════════════════
