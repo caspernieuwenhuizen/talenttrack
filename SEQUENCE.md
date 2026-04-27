@@ -4,9 +4,7 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 
 ## In progress
 
-| # | Topic | Type | Spec | Status |
-| - | - | - | - | - |
-| 0044 | PDP cycle | epic | [specs/0044-epic-pdp-cycle.md](specs/0044-epic-pdp-cycle.md) | Sprint 1 shipped v3.30.0 (schema + repos + REST + calendar interface + auth-matrix + workflow scaffold). Sprint 2 next: UX surfaces, live workflow cadence, carryover one-shot, print template, dashboard tile. |
+_None._
 
 ## Ready (shaped, decisions locked)
 
@@ -43,6 +41,7 @@ _None._
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
 | 0048 | User docs cleanup — fixed the rendered `<!-- audience: user -->` comment leak on every doc page; rewrote 13 EN + 12 NL user-tier docs in plain language for end users (often children), stripping version-history references, WordPress-specific terminology, and internal technical names. | feat | v3.30.1 | ~2h | ~1.5h |
+| 0044 | PDP cycle (per-(player, season) development file: configurable 2/3/4 conversations, polymorphic goal links to methodology + values, end-of-season verdict, workflow-engine cadence, native + Spond calendar hooks, frontend tile + my-pdp + print + carryover one-shot + wp-admin Seasons CRUD + docs topic) | epic | v3.30.0 (sprint 1) → v3.31.0 (sprint 2) | ~30-42h across 2 sprints | ~3h sprint 1 + ~5h sprint 2 = ~8h total — ~5x compression vs estimate |
 | 0047 | Dashboard regroup + Configuration tile-landing + i18n cleanup (Configuration tile-grid landing replacing the 14-tab strip; dashboard tile prune of Custom fields/Eval categories/Roles/Import; new Reference group hosting Methodology; Players → "My players" for non-admin with empty-state; bulk import surfaced on Teams + Players + Configuration; activity-type chip-strip → dropdown; attendance dropdown wired through LabelTranslator; guest-add modal i18n cleanup; Authorization Matrix help icon → access-control docs). Spec file shipped as `specs/0040-…` before the SEQUENCE.md retroactive renumbering; the work is the same. | feat | v3.29.0 | ~11h spec / ~5-7h compressed actual | _TBD_ |
 | 0046 | Guest-add modal pops up on page load — `.tt-guest-modal { display: flex }` overrode the `hidden` HTML attribute (UA `[hidden] { display: none }` has equal specificity but lower priority). Added `.tt-guest-modal[hidden] { display: none }` to frontend-admin.css. Bug existed since #0026 (v3.22.0); only surfaced visibly after #0037 (v3.24.1) made the modal markup render on the create form too. | bug | v3.28.2 | ~10min | ~5min |
 | 0045 | Frontend dashboard fatal — `DashboardShortcode::renderHeader()` called undefined `self::shortcodeBaseUrl()`. Helper lived on `FrontendTileGrid` only; the call was added in v3.27.0 without bringing the method along. Logged-out users were unaffected (login form short-circuits before the header). Hotfix copies the helper into `DashboardShortcode`. | bug | v3.28.1 | ~15min | ~10min |

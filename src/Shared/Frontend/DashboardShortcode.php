@@ -157,8 +157,8 @@ class DashboardShortcode {
         // same entity (evaluations / sessions / goals).
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
-        $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'profile' ];
-        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'podium', 'methodology' ];
+        $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'my-pdp', 'profile' ];
+        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'podium', 'methodology' ];
         $analytics_slugs = [ 'rate-cards', 'compare' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
         // #0021 — `audit-log` added; uses the same admin tier (cap-checked
@@ -255,6 +255,9 @@ class DashboardShortcode {
             case 'my-goals':
                 FrontendMyGoalsView::render( $player );
                 break;
+            case 'my-pdp':
+                \TT\Modules\Pdp\Frontend\FrontendMyPdpView::render( $player );
+                break;
             case 'profile':
                 FrontendMyProfileView::render( $player );
                 break;
@@ -329,6 +332,9 @@ class DashboardShortcode {
                 break;
             case 'goals':
                 FrontendGoalsManageView::render( $user_id, $is_admin );
+                break;
+            case 'pdp':
+                \TT\Modules\Pdp\Frontend\FrontendPdpManageView::render( $user_id, $is_admin );
                 break;
             case 'podium':
                 FrontendPodiumView::render( $user_id, $is_admin );

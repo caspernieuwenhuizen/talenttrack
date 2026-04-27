@@ -63,6 +63,11 @@ class HelpTopics {
                 'group'   => 'performance',
                 'summary' => __( 'Development goals per player with status and priority.', 'talenttrack' ),
             ],
+            'pdp-cycle' => [
+                'title'   => __( 'Player Development Plan (PDP)', 'talenttrack' ),
+                'group'   => 'performance',
+                'summary' => __( 'Per-season development files, conversation cadence, end-of-season verdict.', 'talenttrack' ),
+            ],
             'reports' => [
                 'title'   => __( 'Reports', 'talenttrack' ),
                 'group'   => 'analytics',

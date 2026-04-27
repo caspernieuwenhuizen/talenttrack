@@ -307,6 +307,14 @@ class FrontendTileGrid {
                 'show'  => $is_player,
             ],
             [
+                'label' => __( 'My PDP', 'talenttrack' ),
+                'desc'  => __( 'Your development plan: conversations, reflections, end-of-season verdict.', 'talenttrack' ),
+                'icon'  => 'goals',
+                'color' => '#1d7874',
+                'url'   => $url( 'my-pdp' ),
+                'show'  => ( $is_player || current_user_can( 'tt_parent' ) ) && current_user_can( 'tt_view_pdp' ),
+            ],
+            [
                 'label' => __( 'My profile', 'talenttrack' ),
                 'desc'  => __( 'Your personal details and contact info.', 'talenttrack' ),
                 'icon'  => 'profile',
@@ -381,6 +389,14 @@ class FrontendTileGrid {
                 'color' => '#b32d2e',
                 'url'   => $url( 'goals' ),
                 'show'  => $is_coach || $is_admin,
+            ],
+            [
+                'label' => __( 'PDP', 'talenttrack' ),
+                'desc'  => __( 'Per-season development files: conversations, goals, end-of-season verdict.', 'talenttrack' ),
+                'icon'  => 'goals',
+                'color' => '#1d7874',
+                'url'   => $url( 'pdp' ),
+                'show'  => ( $is_coach || $is_admin ) && current_user_can( 'tt_view_pdp' ),
             ],
             [
                 'label' => __( 'Podium', 'talenttrack' ),

@@ -5,6 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Modules\Pdp\Admin\SeasonsPage;
+use TT\Modules\Pdp\Carryover\SeasonCarryover;
+use TT\Modules\Pdp\Print\PdpPrintRouter;
 use TT\Modules\Pdp\Rest\PdpConversationsRestController;
 use TT\Modules\Pdp\Rest\PdpFilesRestController;
 use TT\Modules\Pdp\Rest\PdpVerdictsRestController;
@@ -44,6 +47,11 @@ class PdpModule implements ModuleInterface {
         PdpFilesRestController::init();
         PdpConversationsRestController::init();
         PdpVerdictsRestController::init();
+
+        // Sprint 2 — wp-admin Seasons page + carryover hook + print route.
+        if ( is_admin() ) SeasonsPage::init();
+        SeasonCarryover::init();
+        PdpPrintRouter::init();
 
         // Register workflow templates. Same priority as WorkflowModule's
         // registerShippedTemplates so dispatchers (priority 20) see them.

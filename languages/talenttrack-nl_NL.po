@@ -7198,3 +7198,373 @@ msgstr "Eindeseizoensbeslissing per PDP-dossier. Toegewezen aan het hoofd academ
 
 msgid "The PDP workflow surface ships in the next release. For now, open the player's PDP file directly."
 msgstr "Het PDP-werkflowscherm volgt in de volgende release. Open voor nu het PDP-dossier van de speler direct."
+
+# #0044 — PDP cycle (Sprint 2: UX surfaces)
+msgid "Player Development Plan (PDP)"
+msgstr "Persoonlijk Ontwikkelplan (PDP)"
+
+msgid "Per-season development files, conversation cadence, end-of-season verdict."
+msgstr "Seizoens­gebonden ontwikkeldossiers, gespreks­cadans, eindeseizoens­oordeel."
+
+msgid "PDP"
+msgstr "PDP"
+
+msgid "Per-season development files: conversations, goals, end-of-season verdict."
+msgstr "Seizoens­gebonden ontwikkeldossiers: gesprekken, doelen, eindeseizoens­oordeel."
+
+msgid "My PDP"
+msgstr "Mijn PDP"
+
+msgid "Your development plan: conversations, reflections, end-of-season verdict."
+msgstr "Jouw ontwikkelplan: gesprekken, reflecties, eindeseizoens­oordeel."
+
+msgid "Player Development Plans"
+msgstr "Persoonlijke Ontwikkelplannen"
+
+msgid "Showing PDP files for the current season (%s)."
+msgstr "PDP-dossiers voor het huidige seizoen (%s)."
+
+msgid "Open new PDP file"
+msgstr "Nieuw PDP-dossier openen"
+
+msgid "No PDP files in this season yet. Open one above for any player you coach."
+msgstr "Nog geen PDP-dossiers dit seizoen. Open er hierboven één voor een speler die je coacht."
+
+msgid "Cycle"
+msgstr "Cyclus"
+
+msgid "Next conversation"
+msgstr "Volgend gesprek"
+
+msgid "Updated"
+msgstr "Bijgewerkt"
+
+msgid "Open file"
+msgstr "Open dossier"
+
+msgid "Use club / team default"
+msgstr "Gebruik club- / teamstandaard"
+
+msgid "Conversations this season"
+msgstr "Gesprekken dit seizoen"
+
+msgid "No players available. Coaches can only open PDP files for players on their own teams."
+msgstr "Geen spelers beschikbaar. Coaches kunnen alleen PDP-dossiers openen voor spelers van hun eigen teams."
+
+msgid "PDP file — %s"
+msgstr "PDP-dossier — %s"
+
+msgid "PDP file"
+msgstr "PDP-dossier"
+
+msgid "PDP file not found"
+msgstr "PDP-dossier niet gevonden"
+
+msgid "That PDP file no longer exists."
+msgstr "Dat PDP-dossier bestaat niet meer."
+
+msgid "Access denied"
+msgstr "Toegang geweigerd"
+
+msgid "← Back to list"
+msgstr "← Terug naar lijst"
+
+msgid "← Back to file"
+msgstr "← Terug naar dossier"
+
+msgid "Print / PDF"
+msgstr "Printen / PDF"
+
+msgid "Record verdict"
+msgstr "Eindoordeel vastleggen"
+
+msgid "Status:"
+msgstr "Status:"
+
+msgid "Cycle size:"
+msgstr "Cyclus­grootte:"
+
+msgid "Notes:"
+msgstr "Notities:"
+
+msgid "Conversations"
+msgstr "Gesprekken"
+
+msgid "Scheduled"
+msgstr "Gepland"
+
+msgid "Conducted"
+msgstr "Gevoerd"
+
+msgid "Signed off"
+msgstr "Ondertekend"
+
+msgid "Linked goals"
+msgstr "Gekoppelde doelen"
+
+msgid "No active goals for this player yet."
+msgstr "Nog geen actieve doelen voor deze speler."
+
+msgid "End-of-season verdict"
+msgstr "Eindeseizoens­oordeel"
+
+msgid "Decision:"
+msgstr "Beslissing:"
+
+msgid "Signed off on %s"
+msgstr "Ondertekend op %s"
+
+msgid "Conversation %1$d (%2$s)"
+msgstr "Gesprek %1$d (%2$s)"
+
+msgid "Conversation not found"
+msgstr "Gesprek niet gevonden"
+
+msgid "That conversation no longer exists."
+msgstr "Dat gesprek bestaat niet meer."
+
+msgid "Scheduled at"
+msgstr "Gepland op"
+
+msgid "Conducted at"
+msgstr "Gevoerd op"
+
+msgid "Fill in once the conversation has happened."
+msgstr "Vul in zodra het gesprek heeft plaatsgevonden."
+
+msgid "Agenda (pre-meeting)"
+msgstr "Agenda (voor het gesprek)"
+
+msgid "Notes (post-meeting)"
+msgstr "Notities (na het gesprek)"
+
+msgid "Agreed actions"
+msgstr "Afgesproken acties"
+
+msgid "Player self-reflection"
+msgstr "Zelfreflectie van de speler"
+
+msgid "Sign off this conversation now"
+msgstr "Onderteken dit gesprek nu"
+
+msgid "Save conversation"
+msgstr "Gesprek opslaan"
+
+msgid "Verdict"
+msgstr "Eindoordeel"
+
+msgid "Only head of academy or head coach roles can record a verdict."
+msgstr "Alleen het hoofd academie of hoofdcoach kunnen een eindoordeel vastleggen."
+
+msgid "Edit end-of-season verdict"
+msgstr "Eindeseizoens­oordeel bewerken"
+
+msgid "Record end-of-season verdict"
+msgstr "Eindeseizoens­oordeel vastleggen"
+
+msgid "— Select decision —"
+msgstr "— Kies beslissing —"
+
+msgid "Promote to next age group"
+msgstr "Doorstroom naar volgende leeftijdscategorie"
+
+msgid "Retain in current group"
+msgstr "Behouden in huidige groep"
+
+msgid "Release from academy"
+msgstr "Uitsluiten uit academie"
+
+msgid "Transfer to another team / club"
+msgstr "Transfer naar ander team / club"
+
+msgid "Summary / rationale"
+msgstr "Samenvatting / motivatie"
+
+msgid "Sign off this verdict now"
+msgstr "Onderteken dit eindoordeel nu"
+
+msgid "Save verdict"
+msgstr "Eindoordeel opslaan"
+
+msgid "Promote"
+msgstr "Doorstroom"
+
+msgid "Retain"
+msgstr "Behouden"
+
+msgid "Release"
+msgstr "Uitsluiten"
+
+msgid "Transfer"
+msgstr "Transfer"
+
+msgid "Evidence"
+msgstr "Bewijs"
+
+msgid "Since %s"
+msgstr "Sinds %s"
+
+msgid "No activities in this window."
+msgstr "Geen activiteiten in dit venster."
+
+msgid "Goal changes"
+msgstr "Doelwijzigingen"
+
+msgid "No goal changes in this window."
+msgstr "Geen doelwijzigingen in dit venster."
+
+msgid "Start of season"
+msgstr "Begin seizoen"
+
+msgid "Mid season"
+msgstr "Mid-seizoen"
+
+msgid "Mid-season A"
+msgstr "Mid-seizoen A"
+
+msgid "Mid-season B"
+msgstr "Mid-seizoen B"
+
+msgid "End of season"
+msgstr "Einde seizoen"
+
+msgid "— complete —"
+msgstr "— afgerond —"
+
+msgid "My development plan"
+msgstr "Mijn ontwikkelplan"
+
+msgid "No current season is set."
+msgstr "Er is geen huidig seizoen ingesteld."
+
+msgid "No PDP file has been opened for you this season yet."
+msgstr "Er is nog geen PDP-dossier voor je geopend dit seizoen."
+
+msgid "Season: %s"
+msgstr "Seizoen: %s"
+
+msgid "Scheduled %s"
+msgstr "Gepland %s"
+
+msgid "Conducted %s"
+msgstr "Gevoerd %s"
+
+msgid "Agenda"
+msgstr "Agenda"
+
+msgid "Self-reflection"
+msgstr "Zelfreflectie"
+
+msgid "Add or update your self-reflection"
+msgstr "Voeg je zelfreflectie toe of werk hem bij"
+
+msgid "Save reflection"
+msgstr "Reflectie opslaan"
+
+msgid "I acknowledge this conversation"
+msgstr "Ik bevestig dit gesprek"
+
+msgid "You acknowledged this conversation."
+msgstr "Je hebt dit gesprek bevestigd."
+
+msgid "Acknowledge as parent / guardian"
+msgstr "Bevestigen als ouder / verzorger"
+
+msgid "A parent acknowledged this conversation."
+msgstr "Een ouder heeft dit gesprek bevestigd."
+
+msgid "Seasons"
+msgstr "Seizoenen"
+
+msgid "You do not have permission to manage seasons."
+msgstr "Je hebt geen toestemming om seizoenen te beheren."
+
+msgid "Exactly one season can be marked current. PDP files are scoped to a season, and the carryover job runs whenever you change the current season."
+msgstr "Slechts één seizoen kan als huidig zijn gemarkeerd. PDP-dossiers horen bij een seizoen, en de carryover-taak draait elke keer dat je het huidige seizoen wijzigt."
+
+msgid "Start"
+msgstr "Start"
+
+msgid "End"
+msgstr "Einde"
+
+msgid "Current?"
+msgstr "Huidig?"
+
+msgid "No seasons yet — add the first below."
+msgstr "Nog geen seizoenen — voeg hieronder de eerste toe."
+
+msgid "Set as current"
+msgstr "Als huidig instellen"
+
+msgid "Make this the current season? Carryover will run for any open PDP file from the previous season."
+msgstr "Dit seizoen als huidig instellen? De carryover-taak draait voor elk open PDP-dossier uit het vorige seizoen."
+
+msgid "Add a season"
+msgstr "Seizoen toevoegen"
+
+msgid "2026/2027"
+msgstr "2026/2027"
+
+msgid "Add season"
+msgstr "Seizoen toevoegen"
+
+msgid "Forbidden."
+msgstr "Niet toegestaan."
+
+msgid "Invalid season data — name, start date, and end date are required, and end date must follow start date."
+msgstr "Ongeldige seizoens­gegevens — naam, startdatum en einddatum zijn verplicht, en de einddatum moet na de startdatum liggen."
+
+msgid "Database refused the save."
+msgstr "De database wees de actie af."
+
+msgid "Could not set current season."
+msgstr "Kon het huidige seizoen niet instellen."
+
+msgid "Log in to print this PDP file."
+msgstr "Log in om dit PDP-dossier te printen."
+
+msgid "PDP — %s"
+msgstr "PDP — %s"
+
+msgid "Print"
+msgstr "Printen"
+
+msgid "Re-render with evidence page"
+msgstr "Opnieuw renderen met bewijspagina"
+
+msgid "Single A4 only"
+msgstr "Alleen één A4"
+
+msgid "Season:"
+msgstr "Seizoen:"
+
+msgid "Current goals"
+msgstr "Huidige doelen"
+
+msgid "No active goals."
+msgstr "Geen actieve doelen."
+
+msgid "Conversation %d"
+msgstr "Gesprek %d"
+
+msgid "No agreed actions recorded yet."
+msgstr "Nog geen afgesproken acties vastgelegd."
+
+msgid "Coach signature"
+msgstr "Handtekening coach"
+
+msgid "Player signature"
+msgstr "Handtekening speler"
+
+msgid "Parent signature"
+msgstr "Handtekening ouder"
+
+msgid "Recent evaluations"
+msgstr "Recente evaluaties"
+
+msgid "No evaluations on record."
+msgstr "Geen evaluaties geregistreerd."
+
+msgid "Recent activities"
+msgstr "Recente activiteiten"
