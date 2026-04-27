@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   'player'     → tt_players
  *   'team'       → tt_teams
  *   'evaluation' → tt_evaluations
- *   'session'    → tt_sessions
+ *   'activity'    → tt_activities
  *   'goal'       → tt_goals
  *   'person'     → tt_people
  *
@@ -31,7 +31,7 @@ class ArchiveRepository {
         'player'     => 'tt_players',
         'team'       => 'tt_teams',
         'evaluation' => 'tt_evaluations',
-        'session'    => 'tt_sessions',
+        'activity'    => 'tt_activities',
         'goal'       => 'tt_goals',
         'person'     => 'tt_people',
     ];
@@ -42,7 +42,7 @@ class ArchiveRepository {
      * Archive N rows. Stamps archived_at + archived_by. Rows that are
      * already archived are left untouched (idempotent).
      *
-     * @param string $entity  'player'|'team'|'evaluation'|'session'|'goal'|'person'
+     * @param string $entity  'player'|'team'|'evaluation'|'activity'|'goal'|'person'
      * @param int[]  $ids
      * @param int    $by_user_id  wp user id of the person archiving
      * @return int  Number of rows affected.
@@ -174,13 +174,13 @@ class ArchiveRepository {
 
         if ( $entity === 'team' ) {
             $player_scope = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'pl', 'player' );
-            $sess_scope   = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 's',  'session' );
+            $sess_scope   = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 's',  'activity' );
             $out['players'] = (int) $wpdb->get_var( $wpdb->prepare(
                 "SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = %d AND pl.archived_at IS NULL {$player_scope}",
                 $id
             ) );
-            $out['sessions'] = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_sessions s WHERE s.team_id = %d AND s.archived_at IS NULL {$sess_scope}",
+            $out['activities'] = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$p}tt_activities s WHERE s.team_id = %d AND s.archived_at IS NULL {$sess_scope}",
                 $id
             ) );
         } elseif ( $entity === 'player' ) {

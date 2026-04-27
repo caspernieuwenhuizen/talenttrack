@@ -105,7 +105,7 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                                     /* translators: 1: opponent name, 2: match result */
                                     esc_html__( 'vs %1$s (%2$s)', 'talenttrack' ),
                                     esc_html( (string) $ev->opponent ),
-                                    esc_html( (string) ( $ev->match_result ?: '—' ) )
+                                    esc_html( (string) ( $ev->game_result ?: '—' ) )
                                 );
                                 ?>
                             </p>

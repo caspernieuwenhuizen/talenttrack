@@ -12,7 +12,7 @@ use TT\Shared\Frontend\Components\GuestAddModal;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
 
 /**
- * FrontendSessionsManageView — full-CRUD frontend for training sessions.
+ * FrontendActivitiesManageView — full-CRUD frontend for training sessions.
  *
  * #0019 Sprint 2 session 2.3. Replaces the v3.0.0 placeholder
  * `FrontendSessionsView` (which only rendered a create form). Three
@@ -31,7 +31,7 @@ use TT\Shared\Frontend\Components\TeamPickerComponent;
  * Bulk attendance + mobile pagination behaviour lives in
  * `assets/js/components/attendance.js` (loaded by DashboardShortcode).
  */
-class FrontendSessionsManageView extends FrontendViewBase {
+class FrontendActivitiesManageView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
@@ -59,7 +59,7 @@ class FrontendSessionsManageView extends FrontendViewBase {
         }
 
         // Default: list view.
-        self::renderHeader( __( 'Sessions', 'talenttrack' ) );
+        self::renderHeader( __( 'Activities', 'talenttrack' ) );
         self::renderList( $user_id, $is_admin );
     }
 
@@ -68,7 +68,7 @@ class FrontendSessionsManageView extends FrontendViewBase {
      */
     private static function renderList( int $user_id, bool $is_admin ): void {
         $base_url = remove_query_arg( [ 'action', 'id' ] );
-        $new_url  = add_query_arg( [ 'tt_view' => 'sessions', 'action' => 'new' ], $base_url );
+        $new_url  = add_query_arg( [ 'tt_view' => 'activities', 'action' => 'new' ], $base_url );
 
         echo '<p style="margin:0 0 var(--tt-sp-3, 12px);"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
             . esc_html__( 'New session', 'talenttrack' )
@@ -77,7 +77,7 @@ class FrontendSessionsManageView extends FrontendViewBase {
         $row_actions = [
             'edit' => [
                 'label' => __( 'Edit', 'talenttrack' ),
-                'href'  => add_query_arg( [ 'tt_view' => 'sessions', 'id' => '{id}' ], $base_url ),
+                'href'  => add_query_arg( [ 'tt_view' => 'activities', 'id' => '{id}' ], $base_url ),
             ],
             'delete' => [
                 'label'       => __( 'Delete', 'talenttrack' ),
@@ -89,7 +89,7 @@ class FrontendSessionsManageView extends FrontendViewBase {
         ];
 
         echo FrontendListTable::render( [
-            'rest_path' => 'sessions',
+            'rest_path' => 'activities',
             'columns' => [
                 'session_date' => [ 'label' => __( 'Date',   'talenttrack' ), 'sortable' => true ],
                 'team_name'    => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true ],
@@ -155,17 +155,17 @@ class FrontendSessionsManageView extends FrontendViewBase {
 
         // Edit mode → PUT /sessions/{id}; create → POST /sessions.
         $is_edit   = $session !== null;
-        $rest_path = $is_edit ? 'sessions/' . (int) $session->id : 'sessions';
+        $rest_path = $is_edit ? 'sessions/' . (int) $session->id : 'activities';
         $rest_meth = $is_edit ? 'PUT' : 'POST';
-        $form_id   = 'tt-session-form';
-        $draft_key = $is_edit ? '' : 'session-form'; // edit forms don't draft — the row is the source of truth
+        $form_id   = 'tt-activity-form';
+        $draft_key = $is_edit ? '' : 'activity-form'; // edit forms don't draft — the row is the source of truth
 
         ?>
-        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form tt-session-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>"<?php if ( $draft_key !== '' ) : ?> data-draft-key="<?php echo esc_attr( $draft_key ); ?>"<?php endif; ?>>
+        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form tt-activity-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>"<?php if ( $draft_key !== '' ) : ?> data-draft-key="<?php echo esc_attr( $draft_key ); ?>"<?php endif; ?>>
             <div class="tt-grid tt-grid-2">
                 <div class="tt-field">
-                    <label class="tt-field-label tt-field-required" for="tt-session-title"><?php esc_html_e( 'Title', 'talenttrack' ); ?></label>
-                    <input type="text" id="tt-session-title" class="tt-input" name="title" required value="<?php echo esc_attr( (string) ( $session->title ?? '' ) ); ?>" />
+                    <label class="tt-field-label tt-field-required" for="tt-activity-title"><?php esc_html_e( 'Title', 'talenttrack' ); ?></label>
+                    <input type="text" id="tt-activity-title" class="tt-input" name="title" required value="<?php echo esc_attr( (string) ( $session->title ?? '' ) ); ?>" />
                 </div>
                 <?php echo DateInputComponent::render( [
                     'name'     => 'session_date',
@@ -181,14 +181,14 @@ class FrontendSessionsManageView extends FrontendViewBase {
                     'selected' => $selected_team,
                 ] ); ?>
                 <div class="tt-field">
-                    <label class="tt-field-label" for="tt-session-location"><?php esc_html_e( 'Location', 'talenttrack' ); ?></label>
-                    <input type="text" id="tt-session-location" class="tt-input" name="location" value="<?php echo esc_attr( (string) ( $session->location ?? '' ) ); ?>" />
+                    <label class="tt-field-label" for="tt-activity-location"><?php esc_html_e( 'Location', 'talenttrack' ); ?></label>
+                    <input type="text" id="tt-activity-location" class="tt-input" name="location" value="<?php echo esc_attr( (string) ( $session->location ?? '' ) ); ?>" />
                 </div>
             </div>
 
             <div class="tt-field">
-                <label class="tt-field-label" for="tt-session-notes"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label>
-                <textarea id="tt-session-notes" class="tt-input" name="notes" rows="2"><?php echo esc_textarea( (string) ( $session->notes ?? '' ) ); ?></textarea>
+                <label class="tt-field-label" for="tt-activity-notes"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label>
+                <textarea id="tt-activity-notes" class="tt-input" name="notes" rows="2"><?php echo esc_textarea( (string) ( $session->notes ?? '' ) ); ?></textarea>
             </div>
 
             <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></h3>
@@ -278,13 +278,13 @@ class FrontendSessionsManageView extends FrontendViewBase {
      *
      * @param array<int, object> $guests
      */
-    private static function renderGuestSection( int $session_id, array $guests ): void {
+    private static function renderGuestSection( int $activity_id, array $guests ): void {
         ?>
         <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Guests', 'talenttrack' ); ?></h3>
         <p class="tt-help-text" style="margin:-6px 0 12px; font-size:12px; color:#5b6470;">
             <?php esc_html_e( 'Spelers van buiten de selectie. Gasten tellen niet mee in teamstats.', 'talenttrack' ); ?>
         </p>
-        <div class="tt-attendance" data-tt-guest-session-id="<?php echo (int) $session_id; ?>">
+        <div class="tt-attendance" data-tt-guest-session-id="<?php echo (int) $activity_id; ?>">
             <table class="tt-table tt-attendance-table" data-tt-guest-table>
                 <thead><tr>
                     <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
@@ -399,10 +399,10 @@ class FrontendSessionsManageView extends FrontendViewBase {
 
     private static function loadSession( int $id ): ?object {
         global $wpdb; $p = $wpdb->prefix;
-        $scope = QueryHelpers::apply_demo_scope( 's', 'session' );
+        $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
         /** @var object|null $row */
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT s.* FROM {$p}tt_sessions s WHERE s.id = %d AND s.archived_at IS NULL {$scope}",
+            "SELECT s.* FROM {$p}tt_activities s WHERE s.id = %d AND s.archived_at IS NULL {$scope}",
             $id
         ) );
         return $row ?: null;
@@ -411,11 +411,11 @@ class FrontendSessionsManageView extends FrontendViewBase {
     /**
      * @return array<int, object> roster attendance rows keyed by player_id (excludes guests).
      */
-    private static function loadAttendance( int $session_id ): array {
+    private static function loadAttendance( int $activity_id ): array {
         global $wpdb; $p = $wpdb->prefix;
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_attendance WHERE session_id = %d AND is_guest = 0",
-            $session_id
+            "SELECT * FROM {$p}tt_attendance WHERE activity_id = %d AND is_guest = 0",
+            $activity_id
         ) );
         $out = [];
         foreach ( $rows ?: [] as $r ) {
@@ -430,16 +430,16 @@ class FrontendSessionsManageView extends FrontendViewBase {
      *
      * @return array<int, object>
      */
-    private static function loadGuests( int $session_id ): array {
+    private static function loadGuests( int $activity_id ): array {
         global $wpdb; $p = $wpdb->prefix;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.*, pl.first_name, pl.last_name, t.name AS home_team_name
              FROM {$p}tt_attendance a
              LEFT JOIN {$p}tt_players pl ON pl.id = a.guest_player_id
              LEFT JOIN {$p}tt_teams   t  ON t.id  = pl.team_id
-             WHERE a.session_id = %d AND a.is_guest = 1
+             WHERE a.activity_id = %d AND a.is_guest = 1
              ORDER BY a.id ASC",
-            $session_id
+            $activity_id
         ) );
         $out = [];
         foreach ( $rows ?: [] as $r ) {

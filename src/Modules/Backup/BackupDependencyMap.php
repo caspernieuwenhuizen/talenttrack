@@ -57,11 +57,11 @@ class BackupDependencyMap {
                 [ 'column' => 'evaluation_id', 'parent_table' => 'tt_evaluations',     'parent_column' => 'id' ],
                 [ 'column' => 'category_id',   'parent_table' => 'tt_eval_categories', 'parent_column' => 'id' ],
             ],
-            'tt_sessions' => [
+            'tt_activities' => [
                 [ 'column' => 'team_id', 'parent_table' => 'tt_teams', 'parent_column' => 'id' ],
             ],
             'tt_attendance' => [
-                [ 'column' => 'session_id', 'parent_table' => 'tt_sessions', 'parent_column' => 'id' ],
+                [ 'column' => 'activity_id', 'parent_table' => 'tt_activities', 'parent_column' => 'id' ],
                 [ 'column' => 'player_id',  'parent_table' => 'tt_players',  'parent_column' => 'id' ],
             ],
             'tt_goals' => [

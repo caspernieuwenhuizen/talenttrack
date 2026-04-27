@@ -458,7 +458,7 @@ class RolesPage {
             case 'teams':       return __( 'Teams', 'talenttrack' );
             case 'team':        return __( 'Team', 'talenttrack' );
             case 'evaluations': return __( 'Evaluations', 'talenttrack' );
-            case 'sessions':    return __( 'Sessions', 'talenttrack' );
+            case 'activities':    return __( 'Activities', 'talenttrack' );
             case 'goals':       return __( 'Goals', 'talenttrack' );
             case 'reports':     return __( 'Reports', 'talenttrack' );
             case 'config':      return __( 'Configuration', 'talenttrack' );

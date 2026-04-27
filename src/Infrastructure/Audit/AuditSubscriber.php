@@ -45,7 +45,7 @@ class AuditSubscriber {
             'tt_delete_player'      => [ 'player',      'player.deleted' ],
             'tt_delete_team'        => [ 'team',        'team.deleted' ],
             'tt_delete_evaluation'  => [ 'evaluation',  'evaluation.deleted' ],
-            'tt_delete_session'     => [ 'session',     'session.deleted' ],
+            'tt_delete_activity'     => [ 'activity',     'session.deleted' ],
             'tt_delete_goal'        => [ 'goal',        'goal.deleted' ],
             'tt_delete_lookup'      => [ 'lookup',      'lookup.deleted' ],
         ];

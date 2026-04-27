@@ -272,8 +272,8 @@ msgstr "Persoon bewerken"
 msgid "Edit Player"
 msgstr "Speler bewerken"
 
-msgid "Edit Session"
-msgstr "Sessie bewerken"
+msgid "Edit Activity"
+msgstr "Activiteit bewerken"
 
 msgid "Edit Team"
 msgstr "Team bewerken"
@@ -536,8 +536,8 @@ msgstr "Verplichte velden ontbreken."
 msgid "My Team"
 msgstr "Mijn team"
 
-msgid "My Team shows your players. New Evaluation submits training or match evaluations. New Session records attendance. Manage Goals assigns and tracks goals."
-msgstr "Mijn team toont uw spelers. Nieuwe evaluatie verstuurt training- of wedstrijdevaluaties. Nieuwe sessie registreert aanwezigheid. Doelen beheren wijst doelen toe en volgt deze."
+msgid "My Team shows your players. New Evaluation submits training or match evaluations. New Activity records attendance. Manage Goals assigns and tracks goals."
+msgstr "Mijn team toont uw spelers. Nieuwe evaluatie verstuurt training- of wedstrijdevaluaties. Nieuwe activiteit registreert aanwezigheid. Doelen beheren wijst doelen toe en volgt deze."
 
 msgid "Name"
 msgstr "Naam"
@@ -554,8 +554,8 @@ msgstr "Nieuw aangepast veld"
 msgid "New Evaluation"
 msgstr "Nieuwe evaluatie"
 
-msgid "New Session"
-msgstr "Nieuwe sessie"
+msgid "New Activity"
+msgstr "Nieuwe activiteit"
 
 msgid "No"
 msgstr "Nee"
@@ -611,8 +611,8 @@ msgstr "Er is geen spelersprofiel aan uw account gekoppeld. Neem contact op met 
 msgid "No players."
 msgstr "Geen spelers."
 
-msgid "No sessions."
-msgstr "Geen sessies."
+msgid "No activities."
+msgstr "Geen activiteiten."
 
 msgid "No staff assigned to this team yet."
 msgstr "Nog geen staf toegewezen aan dit team."
@@ -665,8 +665,8 @@ msgstr "Overig"
 msgid "Overview"
 msgstr "Overzicht"
 
-msgid "Overview shows your profile and latest radar chart. Evaluations lists every evaluation your coaches have recorded. Goals shows your development goals. Attendance tracks your sessions. Progress shows your trajectory."
-msgstr "Overzicht toont uw profiel en de nieuwste radargrafiek. Evaluaties lijst elke evaluatie op die uw trainers hebben vastgelegd. Doelen toont uw ontwikkelingsdoelen. Aanwezigheid volgt uw sessies. Voortgang toont uw ontwikkeling."
+msgid "Overview shows your profile and latest radar chart. Evaluations lists every evaluation your coaches have recorded. Goals shows your development goals. Attendance tracks your activities. Progress shows your trajectory."
+msgstr "Overzicht toont uw profiel en de nieuwste radargrafiek. Evaluaties lijst elke evaluatie op die uw trainers hebben vastgelegd. Doelen toont uw ontwikkelingsdoelen. Aanwezigheid volgt uw activiteiten. Voortgang toont uw ontwikkeling."
 
 msgid "Parent"
 msgstr "Ouder"
@@ -785,11 +785,11 @@ msgstr "Beoordelingsschaal"
 msgid "Ratings"
 msgstr "Beoordelingen"
 
-msgid "Record Training Session"
-msgstr "Trainingssessie vastleggen"
+msgid "Record Activity"
+msgstr "Trainingsactiviteit vastleggen"
 
 msgid "Record player, evaluation, team, session, goal, and configuration changes to the audit trail."
-msgstr "Leg wijzigingen aan spelers, evaluaties, teams, sessies, doelen en configuratie vast in het audit-spoor."
+msgstr "Leg wijzigingen aan spelers, evaluaties, teams, activiteiten, doelen en configuratie vast in het audit-spoor."
 
 msgid "Released"
 msgstr "Vrijgegeven"
@@ -845,8 +845,8 @@ msgstr "Evaluatie opslaan"
 msgid "Save Order"
 msgstr "Volgorde opslaan"
 
-msgid "Save Session"
-msgstr "Sessie opslaan"
+msgid "Save Activity"
+msgstr "Activiteit opslaan"
 
 msgid "Save Toggles"
 msgstr "Toggles opslaan"
@@ -884,14 +884,14 @@ msgstr "Selecteer minstens 2 spelers."
 msgid "Select-type fields require at least one option."
 msgstr "Velden van het type selecteren vereisen minstens één optie."
 
-msgid "Session"
-msgstr "Sessie"
+msgid "Activity"
+msgstr "Activiteit"
 
-msgid "Session saved!"
-msgstr "Sessie opgeslagen!"
+msgid "Activity saved!"
+msgstr "Activiteit opgeslagen!"
 
-msgid "Sessions"
-msgstr "Sessies"
+msgid "Activities"
+msgstr "Activiteiten"
 
 msgid "Set up your academy by visiting Configuration, adding Teams, creating Players, and linking WP user accounts to players."
 msgstr "Zet uw academie op door naar Configuratie te gaan, teams toe te voegen, spelers aan te maken en WP-gebruikersaccounts aan spelers te koppelen."
@@ -994,7 +994,7 @@ msgid "The database rejected the save. No goal was created."
 msgstr "De database heeft het opslaan afgewezen. Er is geen doel aangemaakt."
 
 msgid "The database rejected the save. No session was created."
-msgstr "De database heeft het opslaan afgewezen. Er is geen sessie aangemaakt."
+msgstr "De database heeft het opslaan afgewezen. Er is geen activiteit aangemaakt."
 
 msgid "The database rejected the save. Please contact your administrator."
 msgstr "De database heeft het opslaan afgewezen. Neem contact op met uw beheerder."
@@ -1042,10 +1042,10 @@ msgid "The player could not be updated."
 msgstr "De speler kon niet worden bijgewerkt."
 
 msgid "The session could not be saved. The database rejected the operation."
-msgstr "De sessie kon niet worden opgeslagen. De database heeft de bewerking afgewezen."
+msgstr "De activiteit kon niet worden opgeslagen. De database heeft de bewerking afgewezen."
 
 msgid "The session was saved, but some attendance rows could not be stored."
-msgstr "De sessie is opgeslagen, maar sommige aanwezigheidsrijen konden niet worden bewaard."
+msgstr "De activiteit is opgeslagen, maar sommige aanwezigheidsrijen konden niet worden bewaard."
 
 msgid "This is the legacy head coach field (kept for backward compatibility). Prefer assigning staff in the Staff section below — it supports multiple coaches, assistants, managers, and physios per team."
 msgstr "Dit is het verouderde hoofdtrainer-veld (behouden voor achterwaartse compatibiliteit). Gebruik liever de Staf-sectie hieronder — die ondersteunt meerdere trainers, assistenten, managers en fysio's per team."
@@ -1067,10 +1067,6 @@ msgstr "Volgsysteemtabel"
 
 msgid "Tracking table does not exist yet."
 msgstr "De volgsysteemtabel bestaat nog niet."
-
-msgid "Training Sessions"
-msgstr "Trainingssessies"
-
 msgid "Trial"
 msgstr "Proeftraining"
 
@@ -1376,17 +1372,17 @@ msgstr "Volledige toegang binnen de academie. Kan alle entiteiten beheren, staf 
 msgid "Shapes methodology and reviews output. Read-all across the academy plus evaluations management. No player-data editing, no staff reassignment."
 msgstr "Vormt de methodiek en beoordeelt de output. Leest alles binnen de academie plus evaluatiebeheer. Geen spelersdata-bewerking, geen staf-herindeling."
 
-msgid "Full control within assigned teams — players, evaluations, sessions, goals, and team settings. Scoped to team."
-msgstr "Volledige controle binnen toegewezen teams — spelers, evaluaties, sessies, doelen en teaminstellingen. Beperkt tot team."
+msgid "Full control within assigned teams — players, evaluations, activities, goals, and team settings. Scoped to team."
+msgstr "Volledige controle binnen toegewezen teams — spelers, evaluaties, activiteiten, doelen en teaminstellingen. Beperkt tot team."
 
 msgid "Evaluate and observe within assigned teams. Can create and edit own evaluations; cannot edit other coaches' evaluations. Scoped to team."
 msgstr "Evalueer en observeer binnen toegewezen teams. Kan eigen evaluaties aanmaken en bewerken; kan evaluaties van andere trainers niet bewerken. Beperkt tot team."
 
-msgid "Runs logistics within assigned teams — roster, sessions, team settings. No evaluation permissions. Scoped to team."
-msgstr "Regelt de logistiek binnen toegewezen teams — selectie, sessies, teaminstellingen. Geen evaluatie-rechten. Beperkt tot team."
+msgid "Runs logistics within assigned teams — roster, activities, team settings. No evaluation permissions. Scoped to team."
+msgstr "Regelt de logistiek binnen toegewezen teams — selectie, activiteiten, teaminstellingen. Geen evaluatie-rechten. Beperkt tot team."
 
-msgid "Read-only access to players and sessions within assigned teams."
-msgstr "Alleen-lezen toegang tot spelers en sessies binnen toegewezen teams."
+msgid "Read-only access to players and activities within assigned teams."
+msgstr "Alleen-lezen toegang tot spelers en activiteiten binnen toegewezen teams."
 
 msgid "View any player and create scouting evaluations. Can be assigned globally or to specific teams."
 msgstr "Bekijk elke speler en maak scouting-evaluaties aan. Kan globaal of aan specifieke teams worden toegewezen."
@@ -1443,13 +1439,13 @@ msgid "No one is currently assigned to a team with this functional role."
 msgstr "Er is momenteel niemand aan een team toegewezen met deze functionele rol."
 
 msgid "Lead coach for a team. Owns methodology, selection, and session planning."
-msgstr "Hoofdverantwoordelijke trainer van een team. Eigenaar van methodiek, selectie en sessieplanning."
+msgstr "Hoofdverantwoordelijke trainer van een team. Eigenaar van methodiek, selectie en activiteitplanning."
 
 msgid "Supports the head coach with training and evaluations within a team."
 msgstr "Ondersteunt de hoofdtrainer bij trainingen en evaluaties binnen een team."
 
-msgid "Handles logistics, roster, sessions, and team settings. Not an evaluator."
-msgstr "Regelt logistiek, selectie, sessies en teaminstellingen. Geen evaluator."
+msgid "Handles logistics, roster, activities, and team settings. Not an evaluator."
+msgstr "Regelt logistiek, selectie, activiteiten en teaminstellingen. Geen evaluator."
 
 msgid "Medical / physical support staff attached to a team."
 msgstr "Medische / fysieke ondersteuningsstaf gekoppeld aan een team."
@@ -1469,8 +1465,8 @@ msgstr "Indirecte toekenningen komen voort uit een functionele-rolkoppeling. Om 
 msgid "Team Member"
 msgstr "Teamlid"
 
-msgid "Minimal read-only access within assigned teams. Default authorization for the \"Other\" functional role — see only players and sessions of the teams you are assigned to, nothing more."
-msgstr "Minimale alleen-lezen toegang binnen toegewezen teams. Standaardautorisatie voor de functionele rol \"Overig\" — bekijk alleen spelers en sessies van de teams waaraan je bent toegewezen, niets meer."
+msgid "Minimal read-only access within assigned teams. Default authorization for the \"Other\" functional role — see only players and activities of the teams you are assigned to, nothing more."
+msgstr "Minimale alleen-lezen toegang binnen toegewezen teams. Standaardautorisatie voor de functionele rol \"Overig\" — bekijk alleen spelers en activiteiten van de teams waaraan je bent toegewezen, niets meer."
 
 msgid "This is a system role. Its permission set is read-only. Custom role editing will be available in a future release."
 msgstr "Dit is een systeemrol. De rechtenset is alleen-lezen. Het bewerken van eigen rollen komt beschikbaar in een toekomstige release."
@@ -1587,7 +1583,7 @@ msgid "The team was saved, but one or more custom fields had invalid values and 
 msgstr "Het team is opgeslagen, maar één of meer aangepaste velden hadden ongeldige waarden en zijn niet bijgewerkt."
 
 msgid "The session was saved, but one or more custom fields had invalid values and were not updated."
-msgstr "De sessie is opgeslagen, maar één of meer aangepaste velden hadden ongeldige waarden en zijn niet bijgewerkt."
+msgstr "De activiteit is opgeslagen, maar één of meer aangepaste velden hadden ongeldige waarden en zijn niet bijgewerkt."
 
 msgid "The goal was saved, but one or more custom fields had invalid values and were not updated."
 msgstr "Het doel is opgeslagen, maar één of meer aangepaste velden hadden ongeldige waarden en zijn niet bijgewerkt."
@@ -1627,8 +1623,8 @@ msgstr "Foto-URL"
 msgid "Role type"
 msgstr "Roltype"
 
-msgid "Session date"
-msgstr "Sessiedatum"
+msgid "Activity date"
+msgstr "Activiteitdatum"
 
 msgid "Due date"
 msgstr "Vervaldatum"
@@ -2232,10 +2228,10 @@ msgstr "Spelersselectie, posities, foto's, gegevens van ouders/voogden."
 msgid "Coaches, assistants, medical staff, volunteers."
 msgstr "Coaches, assistenten, medische staf, vrijwilligers."
 
-msgid "Rate players across training and match sessions."
+msgid "Rate players across training and match activities."
 msgstr "Beoordeel spelers tijdens trainingen en wedstrijden."
 
-msgid "Record training sessions and attendance."
+msgid "Record training activities and attendance."
 msgstr "Registreer trainingen en aanwezigheid."
 
 msgid "Set and track development goals per player."
@@ -2548,10 +2544,10 @@ msgstr "Mijn evaluaties"
 msgid "Ratings and feedback from your coaches."
 msgstr "Beoordelingen en feedback van jouw coaches."
 
-msgid "My sessions"
-msgstr "Mijn sessies"
+msgid "My activities"
+msgstr "Mijn activiteiten"
 
-msgid "Training sessions you've attended."
+msgid "Activities you've attended."
 msgstr "Trainingen die je hebt bijgewoond."
 
 msgid "My goals"
@@ -2578,7 +2574,7 @@ msgstr "Selectie van alle spelers in de teams die je coacht."
 msgid "Record player ratings, add notes and scores."
 msgstr "Registreer spelerbeoordelingen, voeg notities en scores toe."
 
-msgid "Log training sessions and attendance."
+msgid "Log training activities and attendance."
 msgstr "Registreer trainingen en aanwezigheid."
 
 msgid "Set and track player development goals."
@@ -2658,7 +2654,7 @@ msgstr "Evaluatiecategorieën & gewichten"
 msgid "Main categories, subcategories, and how per-age-group weighting works."
 msgstr "Hoofdcategorieën, subcategorieën en hoe de weging per leeftijdscategorie werkt."
 
-msgid "Training sessions, attendance tracking."
+msgid "Activities, attendance tracking."
 msgstr "Trainingen en aanwezigheidsregistratie."
 
 msgid "Development goals per player with status and priority."
@@ -2992,8 +2988,8 @@ msgstr "Speler en datum zijn verplicht."
 msgid "Player and title are required."
 msgstr "Speler en titel zijn verplicht."
 
-msgid "Invalid session id."
-msgstr "Ongeldig sessie-id."
+msgid "Invalid activity id."
+msgstr "Ongeldig activiteit-id."
 
 msgid "Invalid goal id."
 msgstr "Ongeldig doel-id."
@@ -3004,20 +3000,20 @@ msgstr "Status is verplicht."
 msgid "No fields to update."
 msgstr "Geen velden om bij te werken."
 
-msgid "Session saved."
-msgstr "Sessie opgeslagen."
+msgid "Activity saved."
+msgstr "Activiteit opgeslagen."
 
-msgid "Session updated."
-msgstr "Sessie bijgewerkt."
+msgid "Activity updated."
+msgstr "Activiteit bijgewerkt."
 
 msgid "The session could not be updated. The database rejected the operation."
-msgstr "De sessie kon niet worden bijgewerkt. De database weigerde de bewerking."
+msgstr "De activiteit kon niet worden bijgewerkt. De database weigerde de bewerking."
 
 msgid "The session was updated, but some attendance rows could not be stored."
-msgstr "De sessie is bijgewerkt, maar sommige aanwezigheidsrijen konden niet worden opgeslagen."
+msgstr "De activiteit is bijgewerkt, maar sommige aanwezigheidsrijen konden niet worden opgeslagen."
 
 msgid "The session could not be deleted."
-msgstr "De sessie kon niet worden verwijderd."
+msgstr "De activiteit kon niet worden verwijderd."
 
 msgid "Goal added."
 msgstr "Doel toegevoegd."
@@ -3082,8 +3078,8 @@ msgstr "Gedeeltelijk"
 msgid "Search title, location, team…"
 msgstr "Zoek op titel, locatie of team…"
 
-msgid "No sessions match your filters."
-msgstr "Geen sessies passen bij je filters."
+msgid "No activities match your filters."
+msgstr "Geen activiteiten passen bij je filters."
 
 msgid "Theme inheritance & curated styling"
 msgstr "Theme-overerving & gecureerde stijlen"
@@ -3133,20 +3129,20 @@ msgstr "(Overnemen van thema)"
 msgid "Inheritance applies to fonts, colors, and basic links/buttons. TalentTrack’s structural design (spacing, layout, player cards) is unchanged. Pick fonts and accent colors below — fields left as “(System default)” or empty fall back to TalentTrack’s defaults."
 msgstr "Overerving geldt voor lettertypen, kleuren en standaard links/knoppen. De structurele opmaak van TalentTrack (witruimte, layout, spelerkaarten) blijft ongewijzigd. Kies hieronder lettertypen en accentkleuren — velden die op “(Systeemstandaard)” of leeg blijven, vallen terug op de TalentTrack-standaarden."
 
-msgid "New session"
-msgstr "Nieuwe sessie"
+msgid "New activity"
+msgstr "Nieuwe activiteit"
 
-msgid "Edit session — %s"
-msgstr "Sessie bewerken — %s"
+msgid "Edit activity — %s"
+msgstr "Activiteit bewerken — %s"
 
-msgid "Session not found"
-msgstr "Sessie niet gevonden"
+msgid "Activity not found"
+msgstr "Activiteit niet gevonden"
 
 msgid "That session no longer exists."
-msgstr "Die sessie bestaat niet meer."
+msgstr "Die activiteit bestaat niet meer."
 
 msgid "Delete this session? It will be archived."
-msgstr "Deze sessie verwijderen? De sessie wordt gearchiveerd."
+msgstr "Deze activiteit verwijderen? De activiteit wordt gearchiveerd."
 
 msgid "Mark all present"
 msgstr "Iedereen aanwezig"
@@ -3160,11 +3156,11 @@ msgstr "Toon alles (%d)"
 msgid "%1$d of %2$d marked Present"
 msgstr "%1$d van %2$d gemarkeerd als Aanwezig"
 
-msgid "Update session"
-msgstr "Sessie bijwerken"
+msgid "Update activity"
+msgstr "Activiteit bijwerken"
 
-msgid "Save session"
-msgstr "Sessie opslaan"
+msgid "Save activity"
+msgstr "Activiteit opslaan"
 
 msgid "New goal"
 msgstr "Nieuw doel"
@@ -3760,8 +3756,8 @@ msgstr "Genereren"
 msgid "Demo users already exist from a previous run."
 msgstr "Demogebruikers bestaan al van een vorige run."
 
-msgid "No new WP users will be created and no welcome emails will be sent. This run only creates data rows (teams, players, evaluations, sessions, goals)."
-msgstr "Er worden geen nieuwe WP-gebruikers aangemaakt en geen welkomstmails verstuurd. Deze run maakt alleen gegevensrijen (teams, spelers, evaluaties, sessies, doelen)."
+msgid "No new WP users will be created and no welcome emails will be sent. This run only creates data rows (teams, players, evaluations, activities, goals)."
+msgstr "Er worden geen nieuwe WP-gebruikers aangemaakt en geen welkomstmails verstuurd. Deze run maakt alleen gegevensrijen (teams, spelers, evaluaties, activiteiten, doelen)."
 
 msgid "First run."
 msgstr "Eerste run."
@@ -3805,8 +3801,8 @@ msgstr "Seed"
 msgid "Fixed default 20260504 — produces the same roster every run. Change for a different roster."
 msgstr "Vaste standaard 20260504 — produceert iedere run dezelfde selectie. Wijzig voor een andere selectie."
 
-msgid "Language the generated content (goal titles, descriptions, session titles, default location) is written in. Only languages the generators ship content dictionaries for are listed — add a key to GoalGenerator / SessionGenerator constants to support a new one."
-msgstr "Taal waarin de gegenereerde inhoud (doeltitels, beschrijvingen, sessietitels, standaardlocatie) is geschreven. Alleen talen waarvoor de generators inhoudsdictionaries leveren, staan in de lijst — voeg een sleutel toe aan de GoalGenerator-/SessionGenerator-constanten om een nieuwe taal te ondersteunen."
+msgid "Language the generated content (goal titles, descriptions, session titles, default location) is written in. Only languages the generators ship content dictionaries for are listed — add a key to GoalGenerator / ActivityGenerator constants to support a new one."
+msgstr "Taal waarin de gegenereerde inhoud (doeltitels, beschrijvingen, activiteittitels, standaardlocatie) is geschreven. Alleen talen waarvoor de generators inhoudsdictionaries leveren, staan in de lijst — voeg een sleutel toe aan de GoalGenerator-/ActivityGenerator-constanten om een nieuwe taal te ondersteunen."
 
 msgid "I confirm this domain catches mail I own"
 msgstr "Ik bevestig dat dit domein mail opvangt die ik beheer"
@@ -3823,8 +3819,8 @@ msgstr "Wissen"
 msgid "Wipe demo data"
 msgstr "Demogegevens wissen"
 
-msgid "Removes every demo-tagged row (evaluations, sessions, goals, attendance, ratings, players, teams) in dependency order. The 36 persistent demo WP users are preserved. Non-demo data is never touched."
-msgstr "Verwijdert elke als demo gemarkeerde rij (evaluaties, sessies, doelen, aanwezigheid, beoordelingen, spelers, teams) in afhankelijkheidsvolgorde. De 36 vaste demo-WP-gebruikers blijven behouden. Niet-demogegevens worden nooit aangeraakt."
+msgid "Removes every demo-tagged row (evaluations, activities, goals, attendance, ratings, players, teams) in dependency order. The 36 persistent demo WP users are preserved. Non-demo data is never touched."
+msgstr "Verwijdert elke als demo gemarkeerde rij (evaluaties, activiteiten, doelen, aanwezigheid, beoordelingen, spelers, teams) in afhankelijkheidsvolgorde. De 36 vaste demo-WP-gebruikers blijven behouden. Niet-demogegevens worden nooit aangeraakt."
 
 msgid "Wipe demo users too"
 msgstr "Demogebruikers ook wissen"
@@ -4074,8 +4070,8 @@ msgstr "Doorgaan"
 msgid "First team"
 msgstr "Eerste team"
 
-msgid "Add one team now. You can add more later under Teams. Players, evaluations, sessions, and goals all attach to a team, so we need at least one to make the rest of the plugin useful."
-msgstr "Voeg nu één team toe. Meer toevoegen kan later onder Teams. Spelers, evaluaties, sessies en doelen horen allemaal bij een team, dus we hebben er minstens één nodig om de rest van de plugin nuttig te maken."
+msgid "Add one team now. You can add more later under Teams. Players, evaluations, activities, and goals all attach to a team, so we need at least one to make the rest of the plugin useful."
+msgstr "Voeg nu één team toe. Meer toevoegen kan later onder Teams. Spelers, evaluaties, activiteiten en doelen horen allemaal bij een team, dus we hebben er minstens één nodig om de rest van de plugin nuttig te maken."
 
 msgid "Pick the closest match. New age groups can be added under Configuration → Lookups."
 msgstr "Kies de dichtstbijzijnde match. Nieuwe leeftijdscategorieën kunnen worden toegevoegd onder Configuratie → Opzoeklijsten."
@@ -4086,8 +4082,8 @@ msgstr "Overslaan"
 msgid "First admin"
 msgstr "Eerste beheerder"
 
-msgid "You are signed in as %s. We will create a TalentTrack staff record for you and link it to your WP account so evaluations, sessions, and notifications all reference the right person."
-msgstr "Je bent ingelogd als %s. We maken een TalentTrack-stafrecord voor je en koppelen dit aan je WP-account zodat evaluaties, sessies en meldingen allemaal naar de juiste persoon verwijzen."
+msgid "You are signed in as %s. We will create a TalentTrack staff record for you and link it to your WP account so evaluations, activities, and notifications all reference the right person."
+msgstr "Je bent ingelogd als %s. We maken een TalentTrack-stafrecord voor je en koppelen dit aan je WP-account zodat evaluaties, activiteiten en meldingen allemaal naar de juiste persoon verwijzen."
 
 msgid "Club admin role"
 msgstr "Rol Clubbeheerder"
@@ -4340,7 +4336,7 @@ msgstr "Aangepast"
 msgid "Core data only: players, teams, evaluations and ratings. Smallest archive, fastest to restore."
 msgstr "Alleen kerndata: spelers, teams, evaluaties en beoordelingen. Kleinste archief, snelst te herstellen."
 
-msgid "Everyday operational data: everything in Minimal plus sessions, attendance, goals, people, team-assignments and functional roles. Recommended default."
+msgid "Everyday operational data: everything in Minimal plus activities, attendance, goals, people, team-assignments and functional roles. Recommended default."
 msgstr "Dagelijkse operationele data: alles uit Minimaal plus trainingen, aanwezigheid, doelen, personen, team-toewijzingen en functionele rollen. Aanbevolen standaard."
 
 msgid "Everything: Standard plus lookups, custom-field definitions and values, evaluation categories and weights, audit log, usage stats, demo tags and config. Largest archive, slowest to restore."
@@ -4817,8 +4813,8 @@ msgstr "Per linie"
 msgid "Usage"
 msgstr "Gebruik"
 
-msgid "Sessions referencing: %d"
-msgstr "Sessies die verwijzen: %d"
+msgid "Activities referencing: %d"
+msgstr "Activiteiten die verwijzen: %d"
 
 msgid "Goals linked: %d"
 msgstr "Doelen gekoppeld: %d"
@@ -5754,8 +5750,8 @@ msgid "Rating is outside the configured range."
 msgstr "De beoordeling valt buiten het ingestelde bereik."
 
 #. translators: %d: session ID
-msgid "session #%d"
-msgstr "sessie #%d"
+msgid "activity #%d"
+msgstr "activiteit #%d"
 
 # Workflow engine — Sprint 4 (goal-setting chain + HoD review)
 msgid "Quarterly goal-setting"
@@ -5899,8 +5895,8 @@ msgstr "Afgelopen kwartaal in één oogopslag"
 msgid "Evaluations recorded"
 msgstr "Evaluaties vastgelegd"
 
-msgid "Sessions logged"
-msgstr "Sessies gelogd"
+msgid "Activities logged"
+msgstr "Activiteiten gelogd"
 
 msgid "Goals set"
 msgstr "Doelen opgesteld"
@@ -6128,7 +6124,7 @@ msgid "Could not add guest."
 msgstr "Gast toevoegen is niet gelukt."
 
 msgid "Save the session first, then add guests."
-msgstr "Sla de sessie eerst op en voeg daarna gasten toe."
+msgstr "Sla de activiteit eerst op en voeg daarna gasten toe."
 
 msgid "Remove this guest?"
 msgstr "Deze gast verwijderen?"
@@ -6218,7 +6214,7 @@ msgid "Google Translate"
 msgstr "Google Translate"
 
 msgid "Lazily translate user-entered free text (goal titles, evaluation notes, session descriptions, …) at render time when a viewer's locale differs from the source. Default OFF. Translations are cached and re-used; the cap below limits per-month engine spend."
-msgstr "Vertaal vrij ingevoerde tekst (doel-titels, evaluatienotities, sessiebeschrijvingen, …) lazy bij weergave wanneer de locale van de lezer verschilt van de bron. Standaard UIT. Vertalingen worden gecacht en hergebruikt; de cap hieronder beperkt per-maand engine-uitgaven."
+msgstr "Vertaal vrij ingevoerde tekst (doel-titels, evaluatienotities, activiteitbeschrijvingen, …) lazy bij weergave wanneer de locale van de lezer verschilt van de bron. Standaard UIT. Vertalingen worden gecacht en hergebruikt; de cap hieronder beperkt per-maand engine-uitgaven."
 
 msgid "Enable auto-translation"
 msgstr "Auto-vertaling aanzetten"
@@ -6578,3 +6574,72 @@ msgstr "Zes berichtsjablonen — drie rolvarianten × twee locales. Placeholders
 
 msgid "Invite players, parents, and staff via shareable WhatsApp links — set passwords on first follow-through."
 msgstr "Nodig spelers, ouders en staf uit via deelbare WhatsApp-links — wachtwoorden worden bij de eerste opvolging ingesteld."
+msgid "Game"
+msgstr "Wedstrijd"
+
+msgid "Games"
+msgstr "Wedstrijden"
+
+msgid "Training"
+msgstr "Training"
+
+msgid "Trainings"
+msgstr "Trainingen"
+msgid "Friendly"
+msgstr "Oefen"
+msgid "Game subtype"
+msgstr "Wedstrijd-subtype"
+
+msgid "Other label"
+msgstr "Andere label"
+
+msgid "— Choose —"
+msgstr "— Kies —"
+
+msgid "Optional: friendly, cup, or league."
+msgstr "Optioneel: oefen, beker of competitie."
+
+msgid "Required when Type is \"Other\". Free text — e.g. team-building day, club meeting."
+msgstr "Verplicht als Type \"Anders\" is. Vrije tekst — bijv. team-buildingdag, clubvergadering."
+
+msgid "Game · %s"
+msgstr "Wedstrijd · %s"
+
+msgid "Type:"
+msgstr "Type:"
+msgid "%d existing activities were migrated from sessions and default to type \"Training\". Reclassify any historical games via the edit form."
+msgstr "%d bestaande activiteiten zijn gemigreerd vanuit sessies en hebben standaard type \"Training\". Herclassificeer eventuele historische wedstrijden via het bewerkformulier."
+msgid "The activity was saved, but one or more custom fields had invalid values and were not updated."
+msgstr "De activiteit is opgeslagen, maar één of meer aangepaste velden hadden ongeldige waarden en zijn niet bijgewerkt."
+
+msgid "The database rejected the save. No activity was created."
+msgstr "De database heeft de opslag geweigerd. Er is geen activiteit aangemaakt."
+
+msgid "Post-game coach evaluation"
+msgstr "Coach-evaluatie na wedstrijd"
+
+msgid "Quick reflection on each player's game performance — overall feel plus what went well and what to work on. Due 72 hours after the game."
+msgstr "Korte reflectie per speler na de wedstrijd — algemene indruk plus wat goed ging en waar nog aan gewerkt moet worden. Deadline 72 uur na de wedstrijd."
+
+msgid "Games logged"
+msgstr "Wedstrijden geregistreerd"
+
+msgid "Trainings logged"
+msgstr "Trainingen geregistreerd"
+
+msgid "Other activities"
+msgstr "Andere activiteiten"
+msgid "Games, trainings, and other activities — typing, attendance, and post-game evaluations."
+msgstr "Wedstrijden, trainingen en andere activiteiten — typering, aanwezigheid en evaluaties na wedstrijden."
+
+msgid "A match — friendly, cup, or league."
+msgstr "Een wedstrijd — oefen, beker of competitie."
+
+msgid "A training session — the default for most activities."
+msgstr "Een training — de standaard voor de meeste activiteiten."
+
+msgid "Anything else (team-building, club meeting, tournament). Free-form."
+msgstr "Alles anders (team-building, clubvergadering, toernooi). Vrije tekst."
+
+msgid "Pre-season friendly or non-competitive match."
+msgstr "Oefenwedstrijd of niet-competitieve wedstrijd."

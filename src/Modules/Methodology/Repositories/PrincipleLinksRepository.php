@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * PrincipleLinksRepository — handles two cross-module link surfaces:
  *
- *   1. **Session ↔ Principle pivot** (`tt_session_principles`) — the
+ *   1. **Session ↔ Principle pivot** (`tt_activity_principles`) — the
  *      multi-select on the session form attaches one or more principles
  *      to a session, "what principles are we practicing today."
  *
@@ -25,7 +25,7 @@ class PrincipleLinksRepository {
 
     private function sessionPivot(): string {
         global $wpdb;
-        return $wpdb->prefix . 'tt_session_principles';
+        return $wpdb->prefix . 'tt_activity_principles';
     }
 
     private function reverseTable(): string {
@@ -36,12 +36,12 @@ class PrincipleLinksRepository {
     /* ═══════════════ Session ↔ Principle ═══════════════ */
 
     /** @return int[] principle ids attached to this session, in stored order */
-    public function principlesForSession( int $session_id ): array {
+    public function principlesForActivity( int $activity_id ): array {
         global $wpdb;
         $t = $this->sessionPivot();
         $rows = $wpdb->get_col( $wpdb->prepare(
-            "SELECT principle_id FROM {$t} WHERE session_id = %d ORDER BY sort_order ASC, id ASC",
-            $session_id
+            "SELECT principle_id FROM {$t} WHERE activity_id = %d ORDER BY sort_order ASC, id ASC",
+            $activity_id
         ) );
         return array_map( 'intval', (array) $rows );
     }
@@ -51,11 +51,11 @@ class PrincipleLinksRepository {
      *
      * @param int[] $principle_ids
      */
-    public function setSessionPrinciples( int $session_id, array $principle_ids ): void {
+    public function setActivityPrinciples( int $activity_id, array $principle_ids ): void {
         global $wpdb;
         $t = $this->sessionPivot();
 
-        $wpdb->delete( $t, [ 'session_id' => $session_id ] );
+        $wpdb->delete( $t, [ 'activity_id' => $activity_id ] );
 
         $clean = array_values( array_unique( array_filter( array_map( 'intval', $principle_ids ), fn( $v ) => $v > 0 ) ) );
         if ( empty( $clean ) ) return;
@@ -63,7 +63,7 @@ class PrincipleLinksRepository {
         $sort = 0;
         foreach ( $clean as $pid ) {
             $wpdb->insert( $t, [
-                'session_id'   => $session_id,
+                'activity_id'   => $activity_id,
                 'principle_id' => $pid,
                 'sort_order'   => $sort++,
             ] );
@@ -75,7 +75,7 @@ class PrincipleLinksRepository {
         global $wpdb;
         $t = $this->sessionPivot();
         return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(DISTINCT session_id) FROM {$t} WHERE principle_id = %d",
+            "SELECT COUNT(DISTINCT activity_id) FROM {$t} WHERE principle_id = %d",
             $principle_id
         ) );
     }
@@ -119,7 +119,7 @@ class PrincipleLinksRepository {
         $out = [];
 
         // Sessions
-        $out['session'] = $this->sessionCountForPrinciple( $principle_id );
+        $out['activity'] = $this->sessionCountForPrinciple( $principle_id );
 
         // Goals — direct column, not pivot
         $goals_table = $wpdb->prefix . 'tt_goals';

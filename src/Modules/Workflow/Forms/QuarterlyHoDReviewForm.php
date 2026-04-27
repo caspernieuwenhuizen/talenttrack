@@ -33,8 +33,16 @@ class QuarterlyHoDReviewForm implements FormInterface {
                         <td style="padding: 6px 0; text-align: right; font-weight: 600;"><?php echo esc_html( (string) $stats['evaluations'] ); ?></td>
                     </tr>
                     <tr>
-                        <td style="padding: 6px 0; color:#5b6e75;"><?php esc_html_e( 'Sessions logged', 'talenttrack' ); ?></td>
-                        <td style="padding: 6px 0; text-align: right; font-weight: 600;"><?php echo esc_html( (string) $stats['sessions'] ); ?></td>
+                        <td style="padding: 6px 0; color:#5b6e75;"><?php esc_html_e( 'Games logged', 'talenttrack' ); ?></td>
+                        <td style="padding: 6px 0; text-align: right; font-weight: 600;"><?php echo esc_html( (string) $stats['games'] ); ?></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 0; color:#5b6e75;"><?php esc_html_e( 'Trainings logged', 'talenttrack' ); ?></td>
+                        <td style="padding: 6px 0; text-align: right; font-weight: 600;"><?php echo esc_html( (string) $stats['trainings'] ); ?></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 0; color:#5b6e75;"><?php esc_html_e( 'Other activities', 'talenttrack' ); ?></td>
+                        <td style="padding: 6px 0; text-align: right; font-weight: 600;"><?php echo esc_html( (string) $stats['other'] ); ?></td>
                     </tr>
                     <tr>
                         <td style="padding: 6px 0; color:#5b6e75;"><?php esc_html_e( 'Goals set', 'talenttrack' ); ?></td>
@@ -103,8 +111,10 @@ class QuarterlyHoDReviewForm implements FormInterface {
 
     /**
      * Quarterly aggregates. Counts cover the 90 days preceding now.
+     * #0035: split the activity count by activity_type_key so the HoD
+     * sees games / trainings / other separately.
      *
-     * @return array{evaluations:int, sessions:int, goals:int, tasks_completed:int, tasks_total:int, tasks_label:string}
+     * @return array{evaluations:int, games:int, trainings:int, other:int, goals:int, tasks_completed:int, tasks_total:int, tasks_label:string}
      */
     private static function quarterlyStats(): array {
         global $wpdb;
@@ -116,8 +126,18 @@ class QuarterlyHoDReviewForm implements FormInterface {
             "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE archived_at IS NULL AND eval_date >= %s",
             $threshold_date
         ) );
-        $sessions = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_sessions WHERE archived_at IS NULL AND session_date >= %s",
+        $games = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_activities WHERE archived_at IS NULL AND session_date >= %s AND activity_type_key = %s",
+            $threshold_date,
+            'game'
+        ) );
+        $trainings = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_activities WHERE archived_at IS NULL AND session_date >= %s AND activity_type_key = %s",
+            $threshold_date,
+            'training'
+        ) );
+        $other = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_activities WHERE archived_at IS NULL AND session_date >= %s AND activity_type_key NOT IN ('game','training')",
             $threshold_date
         ) );
         $goals = (int) $wpdb->get_var( $wpdb->prepare(
@@ -145,7 +165,9 @@ class QuarterlyHoDReviewForm implements FormInterface {
 
         return [
             'evaluations'     => $evaluations,
-            'sessions'        => $sessions,
+            'games'           => $games,
+            'trainings'       => $trainings,
+            'other'           => $other,
             'goals'           => $goals,
             'tasks_completed' => $tasks_completed,
             'tasks_total'     => $tasks_total,

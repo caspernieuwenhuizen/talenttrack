@@ -43,7 +43,7 @@ $mod_players       = TT\Modules\Players\PlayersModule::class;
 $mod_teams         = TT\Modules\Teams\TeamsModule::class;
 $mod_people        = TT\Modules\People\PeopleModule::class;
 $mod_evals         = TT\Modules\Evaluations\EvaluationsModule::class;
-$mod_sessions      = TT\Modules\Sessions\SessionsModule::class;
+$mod_sessions      = TT\Modules\Sessions\ActivitiesModule::class;
 $mod_goals         = TT\Modules\Goals\GoalsModule::class;
 $mod_methodology   = TT\Modules\Methodology\MethodologyModule::class;
 $mod_documentation = TT\Modules\Documentation\DocumentationModule::class;
@@ -112,7 +112,7 @@ return array_merge(
         'players'        => [ 'r',  'player', $mod_players ],
         'evaluations'    => [ 'r',  'player', $mod_evals ],
         'goals'          => [ 'r',  'player', $mod_goals ],
-        'sessions'       => [ 'r',  'player', $mod_sessions ],
+        'activities'       => [ 'r',  'player', $mod_sessions ],
         'attendance'     => [ 'r',  'player', $mod_sessions ],
         'team'           => [ 'r',  'player', $mod_teams ],
         'methodology'    => [ 'r',  'global', $mod_methodology ],
@@ -131,7 +131,7 @@ return array_merge(
         'players'           => [ 'r',   'team', $mod_players ],
         'people'            => [ 'r',   'team', $mod_people ],
         'evaluations'       => [ 'rc',  'team', $mod_evals ],
-        'sessions'          => [ 'rc',  'team', $mod_sessions ],
+        'activities'          => [ 'rc',  'team', $mod_sessions ],
         'goals'             => [ 'rc',  'team', $mod_goals ],
         'attendance'        => [ 'rc',  'team', $mod_sessions ],
         'methodology'       => [ 'r',   'global', $mod_methodology ],
@@ -149,7 +149,7 @@ return array_merge(
         'players'           => [ 'r',   'team', $mod_players ],
         'people'            => [ 'r',   'team', $mod_people ],
         'evaluations'       => [ 'rcd', 'team', $mod_evals ],
-        'sessions'          => [ 'rcd', 'team', $mod_sessions ],
+        'activities'          => [ 'rcd', 'team', $mod_sessions ],
         'goals'             => [ 'rcd', 'team', $mod_goals ],
         'attendance'        => [ 'rcd', 'team', $mod_sessions ],
         'methodology'       => [ 'r',   'global', $mod_methodology ],
@@ -167,7 +167,7 @@ return array_merge(
         'players'                    => [ 'rcd', 'global', $mod_players ],
         'people'                     => [ 'rcd', 'global', $mod_people ],
         'evaluations'                => [ 'rcd', 'global', $mod_evals ],
-        'sessions'                   => [ 'rcd', 'global', $mod_sessions ],
+        'activities'                   => [ 'rcd', 'global', $mod_sessions ],
         'goals'                      => [ 'rcd', 'global', $mod_goals ],
         'attendance'                 => [ 'rcd', 'global', $mod_sessions ],
         'methodology'                => [ 'rcd', 'global', $mod_methodology ],
@@ -189,7 +189,7 @@ return array_merge(
         'players'       => [ 'r',  'global', $mod_players ],
         'team'          => [ 'r',  'global', $mod_teams ],
         'evaluations'   => [ 'r',  'global', $mod_evals ],
-        'sessions'      => [ 'r',  'global', $mod_sessions ],
+        'activities'      => [ 'r',  'global', $mod_sessions ],
         'goals'         => [ 'r',  'global', $mod_goals ],
         'reports'       => [ 'r',  'global', $mod_reports ],
         'rate_cards'    => [ 'r',  'global', $mod_stats ],
@@ -206,7 +206,7 @@ return array_merge(
         'team'          => [ 'r',   'team', $mod_teams ],
         'players'       => [ 'r',   'team', $mod_players ],
         'people'        => [ 'r',   'team', $mod_people ],
-        'sessions'      => [ 'rcd', 'team', $mod_sessions ],
+        'activities'      => [ 'rcd', 'team', $mod_sessions ],
         'attendance'    => [ 'rc',  'team', $mod_sessions ],
         'goals'         => [ 'r',   'team', $mod_goals ],
         'evaluations'   => [ 'r',   'team', $mod_evals ],
@@ -221,7 +221,7 @@ return array_merge(
         'players'                     => [ 'rcd', 'global', $mod_players ],
         'people'                      => [ 'rcd', 'global', $mod_people ],
         'evaluations'                 => [ 'rcd', 'global', $mod_evals ],
-        'sessions'                    => [ 'rcd', 'global', $mod_sessions ],
+        'activities'                    => [ 'rcd', 'global', $mod_sessions ],
         'goals'                       => [ 'rcd', 'global', $mod_goals ],
         'attendance'                  => [ 'rcd', 'global', $mod_sessions ],
         'methodology'                 => [ 'rcd', 'global', $mod_methodology ],

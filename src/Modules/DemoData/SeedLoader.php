@@ -54,5 +54,5 @@ class SeedLoader {
     public static function opponents(): array { return self::load( 'opponents.txt' ); }
 
     /** @return string[] */
-    public static function matchResults(): array { return self::load( 'match_results.txt' ); }
+    public static function matchResults(): array { return self::load( 'game_results.txt' ); }
 }

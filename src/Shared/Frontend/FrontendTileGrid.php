@@ -227,9 +227,9 @@ class FrontendTileGrid {
             [
                 'label' => __( 'My sessions', 'talenttrack' ),
                 'desc'  => __( 'Training sessions you\'ve attended.', 'talenttrack' ),
-                'icon'  => 'sessions',
+                'icon'  => 'activities',
                 'color' => '#c9962a',
-                'url'   => $url( 'my-sessions' ),
+                'url'   => $url( 'my-activities' ),
                 'show'  => $is_player,
             ],
             [
@@ -307,11 +307,11 @@ class FrontendTileGrid {
                 'show'  => $is_coach || $is_admin,
             ],
             [
-                'label' => __( 'Sessions', 'talenttrack' ),
+                'label' => __( 'Activities', 'talenttrack' ),
                 'desc'  => __( 'Log training sessions and attendance.', 'talenttrack' ),
-                'icon'  => 'sessions',
+                'icon'  => 'activities',
                 'color' => '#c9962a',
-                'url'   => $url( 'sessions' ),
+                'url'   => $url( 'activities' ),
                 'show'  => $is_coach || $is_admin,
             ],
             [
@@ -571,7 +571,7 @@ class FrontendTileGrid {
             $current = esc_url_raw( (string) wp_unslash( $_SERVER['REQUEST_URI'] ) );
         }
         return remove_query_arg(
-            [ 'tt_view', 'player_id', 'eval_id', 'session_id', 'goal_id', 'team_id', 'tab' ],
+            [ 'tt_view', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id', 'tab' ],
             $current ?: home_url( '/' )
         );
     }

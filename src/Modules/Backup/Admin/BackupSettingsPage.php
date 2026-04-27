@@ -504,7 +504,7 @@ class BackupSettingsPage {
             'player'     => 'tt_players',
             'team'       => 'tt_teams',
             'evaluation' => 'tt_evaluations',
-            'session'    => 'tt_sessions',
+            'activity'    => 'tt_activities',
             'goal'       => 'tt_goals',
             'person'     => 'tt_people',
         ];

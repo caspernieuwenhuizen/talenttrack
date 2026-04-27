@@ -121,7 +121,7 @@ class DemoDataPage {
 
             // Split into data counts (created this run) vs user counts (created + reused)
             $data_parts = [];
-            foreach ( [ 'teams', 'persons', 'players', 'evaluations', 'sessions', 'goals' ] as $k ) {
+            foreach ( [ 'teams', 'persons', 'players', 'evaluations', 'activities', 'goals' ] as $k ) {
                 if ( isset( $counts[ $k ] ) ) {
                     $data_parts[] = (int) $counts[ $k ] . ' ' . $k;
                 }
@@ -403,7 +403,7 @@ class DemoDataPage {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <p class="description"><?php esc_html_e( 'Language the generated content (goal titles, descriptions, session titles, default location) is written in. Only languages the generators ship content dictionaries for are listed — add a key to GoalGenerator / SessionGenerator constants to support a new one.', 'talenttrack' ); ?></p>
+                            <p class="description"><?php esc_html_e( 'Language the generated content (goal titles, descriptions, session titles, default location) is written in. Only languages the generators ship content dictionaries for are listed — add a key to GoalGenerator / ActivityGenerator constants to support a new one.', 'talenttrack' ); ?></p>
                         </td>
                     </tr>
                 </tbody>

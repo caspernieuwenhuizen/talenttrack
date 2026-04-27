@@ -128,7 +128,7 @@ class EvaluationGenerator {
                 if ( $is_match ) {
                     $eval_row['opponent']       = $opponents[ mt_rand( 0, max( 0, count( $opponents ) - 1 ) ) ] ?? '';
                     $eval_row['competition']    = $this->pickCompetition();
-                    $eval_row['match_result']   = $results[ mt_rand( 0, max( 0, count( $results ) - 1 ) ) ] ?? '';
+                    $eval_row['game_result']   = $results[ mt_rand( 0, max( 0, count( $results ) - 1 ) ) ] ?? '';
                     $eval_row['home_away']      = mt_rand( 0, 1 ) ? 'H' : 'A';
                     $eval_row['minutes_played'] = mt_rand( 45, 90 );
                 }
@@ -240,7 +240,7 @@ class EvaluationGenerator {
     private function pickCompetition(): string {
         if ( $this->competition_options === null ) {
             $this->competition_options = [];
-            foreach ( QueryHelpers::get_lookups( 'competition_type' ) as $row ) {
+            foreach ( QueryHelpers::get_lookups( 'game_subtype' ) as $row ) {
                 $name = trim( (string) $row->name );
                 if ( $name !== '' ) $this->competition_options[] = $name;
             }

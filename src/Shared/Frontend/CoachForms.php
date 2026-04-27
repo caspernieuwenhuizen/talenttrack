@@ -16,7 +16,7 @@ use TT\Shared\Frontend\Components\TeamPickerComponent;
  * v3.0.0 slice 4. Extracted from the legacy CoachDashboardView so
  * the new focused FrontendEvaluationsView could share the eval form
  * markup. The session form helper was retired in Sprint 2 session
- * 2.3 (FrontendSessionsManageView renders its own form); the goals
+ * 2.3 (FrontendActivitiesManageView renders its own form); the goals
  * form helper was retired in Sprint 2 session 2.4
  * (FrontendGoalsManageView renders its own form). Only renderEvalForm
  * has a live caller now.
@@ -94,12 +94,12 @@ class CoachForms {
                     <label><?php esc_html_e( 'Competition', 'talenttrack' ); ?></label>
                     <select name="competition">
                         <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
-                        <?php foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookups( 'competition_type' ) as $tt_ct ) : ?>
+                        <?php foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookups( 'game_subtype' ) as $tt_ct ) : ?>
                             <option value="<?php echo esc_attr( (string) $tt_ct->name ); ?>"><?php echo esc_html( __( (string) $tt_ct->name, 'talenttrack' ) ); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="tt-form-row"><label><?php esc_html_e( 'Result', 'talenttrack' ); ?></label><input type="text" name="match_result" placeholder="2-1" style="width:80px" /></div>
+                <div class="tt-form-row"><label><?php esc_html_e( 'Result', 'talenttrack' ); ?></label><input type="text" name="game_result" placeholder="2-1" style="width:80px" /></div>
                 <div class="tt-form-row"><label><?php esc_html_e( 'Home/Away', 'talenttrack' ); ?></label><select name="home_away"><option value="">—</option><option value="home"><?php esc_html_e( 'Home', 'talenttrack' ); ?></option><option value="away"><?php esc_html_e( 'Away', 'talenttrack' ); ?></option></select></div>
                 <div class="tt-form-row"><label><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></label><input type="number" name="minutes_played" min="0" max="120" /></div>
             </div>
@@ -188,7 +188,7 @@ class CoachForms {
         }
         ?>
         <h3><?php esc_html_e( 'Record Training Session', 'talenttrack' ); ?></h3>
-        <form id="tt-session-form" class="tt-ajax-form" data-rest-path="sessions" data-rest-method="POST" data-draft-key="session-form">
+        <form id="tt-activity-form" class="tt-ajax-form" data-rest-path="activities" data-rest-method="POST" data-draft-key="activity-form">
             <div class="tt-form-row"><label><?php esc_html_e( 'Title', 'talenttrack' ); ?> *</label><input type="text" name="title" required /></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" name="session_date" value="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required /></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Team', 'talenttrack' ); ?></label><select name="team_id">

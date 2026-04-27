@@ -14,7 +14,7 @@ Each major area has a **view** capability and, for writeable areas, a matching *
 | Players      | `tt_view_players`     | `tt_edit_players`     |
 | People       | `tt_view_people`      | `tt_edit_people`      |
 | Evaluations  | `tt_view_evaluations` | `tt_edit_evaluations` |
-| Sessions     | `tt_view_sessions`    | `tt_edit_sessions`    |
+| Sessions     | `tt_view_activities`    | `tt_edit_activities`    |
 | Goals        | `tt_view_goals`       | `tt_edit_goals`       |
 | Settings     | `tt_view_settings`    | `tt_edit_settings`    |
 | Reports      | `tt_view_reports`     | *(no edit companion)* |

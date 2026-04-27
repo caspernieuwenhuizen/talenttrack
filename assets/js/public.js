@@ -96,7 +96,7 @@
     function defaultButtonLabel(formId) {
         switch (formId) {
             case 'tt-eval-form':    return i18n.save_evaluation;
-            case 'tt-session-form': return i18n.save_session;
+            case 'tt-activity-form': return i18n.save_session;
             case 'tt-goal-form':    return i18n.add_goal;
             default:                return i18n.save;
         }

@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Usage:
  *
  *   FrontendListTable::render([
- *     'rest_path' => 'sessions',
+ *     'rest_path' => 'activities',
  *     'columns'   => [
  *       'session_date' => [ 'label' => __('Date',  'talenttrack'), 'sortable' => true ],
  *       'team_name'    => [ 'label' => __('Team',  'talenttrack') ],

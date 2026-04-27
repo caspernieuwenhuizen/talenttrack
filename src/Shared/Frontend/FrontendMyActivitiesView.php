@@ -6,13 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\LabelTranslator;
 
 /**
- * FrontendMySessionsView — the "My sessions" tile destination.
+ * FrontendMyActivitiesView — the "My sessions" tile destination.
  *
  * v3.0.0 slice 3. Lists training sessions attended by the logged-in
  * player, most-recent first. Shows date, session title, status
  * (present / absent / other, color-coded), and notes.
  */
-class FrontendMySessionsView extends FrontendViewBase {
+class FrontendMyActivitiesView extends FrontendViewBase {
 
     public static function render( object $player ): void {
         self::enqueueAssets();
@@ -27,7 +27,7 @@ class FrontendMySessionsView extends FrontendViewBase {
         $att = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.*, s.title AS session_title, s.session_date
              FROM {$p}tt_attendance a
-             LEFT JOIN {$p}tt_sessions s ON a.session_id = s.id
+             LEFT JOIN {$p}tt_activities s ON a.activity_id = s.id
              WHERE a.player_id = %d OR a.guest_player_id = %d
              ORDER BY s.session_date DESC",
             (int) $player->id, (int) $player->id
@@ -43,7 +43,7 @@ class FrontendMySessionsView extends FrontendViewBase {
             <thead>
                 <tr>
                     <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Session', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Activity', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
                 </tr>
