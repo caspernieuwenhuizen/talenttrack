@@ -1,33 +1,32 @@
 <!-- audience: user -->
 
-# Afdrukken & PDF-export
+# Afdrukken en PDF's
 
-TalentTrack kan nette, print-geoptimaliseerde weergaven genereren voor spelerrapporten — handig voor oudergesprekken, uitdelen tijdens evaluaties of het archiveren van papieren trails.
+TalentTrack maakt nette, print-klare weergaven van spelerrapporten — handig voor oudergesprekken, uitdelen tijdens evaluaties of voor de papieren administratie.
 
-## Printknoppen
+## Wat je kunt afdrukken
 
-Pagina's die afdrukken ondersteunen, hebben rechtsboven een printicoon:
+Pagina's met een printicoon rechtsboven:
 
-- **Speler rate cards** — volledige rate card met FIFA-kaart, radar, trends
-- **Evaluatiedetailweergave** — één evaluatie met al zijn categorieën en notities
+- **Speler rate cards** — de volledige kaart, radar en trendlijn.
+- **Evaluatiedetails** — één evaluatie met alle categorieën en notities.
 
-## Wat er gebeurt bij afdrukken
+## Hoe je afdrukt
 
-Door op de printknop te klikken ga je naar een URL als `?tt_print=<id>`, die:
+Klik op het printicoon. Er opent een nette versie van de pagina in een nieuw venster zonder menu's of zijbalken, en het printvenster van de browser verschijnt.
 
-1. Wordt onderschept door de PrintRouter (vroeg in de request-pipeline van WordPress)
-2. Een standalone HTML-pagina rendert zonder beheerderskader, zonder thema en zonder zijbalk
-3. Logo van de academie, huisstijlkleuren, nette typografie gebruikt
-4. Automatisch het printvenster van de browser opent via JavaScript
+## Hoe je opslaat als PDF
 
-## Exporteren naar PDF
+Kies in het printvenster **Opslaan als PDF** als bestemming. Elke moderne browser kan dat.
 
-Gebruik **Opslaan als PDF** in het printvenster van je browser. Chrome, Safari, Firefox en Edge ondersteunen dat native — geen PDF-bibliotheek aan serverzijde nodig.
+Tips:
 
-De printweergave opent in een nieuw venster met knoppen Afdrukken, PDF downloaden en **Venster sluiten**. Sluit het venster als je klaar bent — je oorspronkelijke TalentTrack-tab blijft op z'n plek.
+- Zet de paginagrootte op A4 (of Letter in de VS).
+- Zet marges op **Standaard** of **Normaal**.
+- Liggend werkt beter voor rate cards omdat de radar- en trendgrafieken meer ruimte krijgen.
 
-Stel de paginagrootte in op A4 (of Letter in de VS). Zet marges op "Standaard" of "Normaal". Liggend werkt beter voor rate cards (meer horizontale ruimte voor radar + trendgrafieken naast elkaar).
+Klaar? Sluit het printvenster. Je oorspronkelijke TalentTrack-tab blijft precies waar hij was.
 
-## Stijl
+## Huisstijl
 
-De printlayout is puur CSS; wat je ziet is wat er wordt afgedrukt. Kleuren en logo komen uit je [Configuratie](?page=tt-docs&topic=configuration-branding). Als je PDF er bleek uitziet, controleer dan of je primaire kleur en logo ingesteld zijn.
+De printlayout gebruikt de primaire kleur en het logo van je academie. Ziet een afdruk er kaal uit? Vraag een beheerder om in **Configuratie → Branding** het logo en de primaire kleur in te stellen.

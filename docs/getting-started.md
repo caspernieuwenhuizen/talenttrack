@@ -4,24 +4,29 @@
 
 Welcome to TalentTrack. This is your academy's youth football talent management system.
 
-## First steps
+## Your first time
 
-1. Visit **Configuration** to set your academy name, logo, rating scale, and color palette.
-2. Create your **Teams** — start with the teams you'll actively manage this season.
-3. Add your **Players** and assign each to a team.
-4. Link each player's record to a WordPress user account if they should be able to log in and see their own dashboard.
-5. Give your coaches WordPress accounts with the `Coach` role so they can record evaluations.
+1. Open the dashboard and you'll see a tile grid with everything you can do.
+2. The greeting at the top tells you whose dashboard you're looking at.
+3. Tap a tile to drill into that area. Use the back link at the top of every page to return here.
 
-## The dashboard
+## What can I do?
 
-The TalentTrack admin dashboard is your home base. Tiles are organized into groups (People, Performance, Analytics, Configuration, Access Control, Help) and only show entries you have permission to use.
+It depends on your role. Most people see one or more of these tiles:
 
-## The frontend
+- **My card** — your own player card, ratings and headline numbers.
+- **My team** — your teammates and the team podium.
+- **My evaluations** — feedback from your coaches.
+- **My sessions** — training sessions you've attended.
+- **My goals** — what you're working on.
+- **My profile** — your contact details.
 
-Use the `[talenttrack_dashboard]` shortcode on any WordPress page to give players and coaches a tile-based landing. From there they drill into evaluations, goals, sessions, and more.
+Coaches additionally see Teams, Players, Evaluations, Activities, Goals and Podium.
 
-## Where to go next
+Admins see everything plus configuration tiles for academy-wide settings.
 
-- Adding players: [Teams & players](?page=tt-docs&topic=teams-players)
+## Where to next
+
 - Recording evaluations: [Evaluations](?page=tt-docs&topic=evaluations)
-- Managing permissions: [Access control](?page=tt-docs&topic=access-control)
+- Logging a training or game: [Activities and attendance](?page=tt-docs&topic=activities)
+- Setting development goals: [Player goals](?page=tt-docs&topic=goals)

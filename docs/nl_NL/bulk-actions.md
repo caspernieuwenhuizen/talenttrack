@@ -1,37 +1,35 @@
 <!-- audience: user, admin -->
 
-# Bulkacties (archiveren & verwijderen)
+# Bulkacties
 
-De meeste lijstpagina's in TalentTrack ondersteunen bulkacties — handig als je veel rijen tegelijk wilt archiveren of verwijderen.
+De meeste lijstpagina's ondersteunen bulkacties — handig als je veel rijen tegelijk wilt archiveren of verwijderen.
 
 ## Hoe het werkt
 
-1. Vink het selectievakje linksboven aan elke rij die je wilt bewerken (of het selectievakje in de kop om alles op de pagina te selecteren).
-2. Kies een actie in de dropdown bulkacties bovenaan de tabel.
+1. Vink het selectievakje aan op elke rij die je wilt bewerken, of gebruik het selectievakje in de koprij om alles op de pagina te selecteren.
+2. Kies een actie uit de keuzelijst boven de tabel.
 3. Klik op **Toepassen**.
-4. Een bevestigingspagina toont wat er zal gebeuren. Bevestig of annuleer.
+4. Een bevestigingspagina laat zien wat er gaat gebeuren. Bevestig of annuleer.
 
-## Archiveren versus permanent verwijderen
+## Archiveren versus verwijderen
 
 ### Archiveren
 
-- Zet een `archived_at`-tijdstempel en `archived_by`-gebruiker op het record
-- De rij verdwijnt uit actieve lijsten (de standaardweergave verbergt gearchiveerd)
-- **Behoudt alle relaties** — evaluaties verwijzen nog steeds naar de speler, rapporten bevatten nog historische data, aggregaties blijven werken
-- Omkeerbaar via de actie "Dearchiveren" op het tabblad Gearchiveerd
-- **Dit is de standaardactie, aanbevolen voor de meeste gevallen**
+- Verbergt de rij uit de actieve lijst.
+- Behoudt alle koppelingen — evaluaties blijven aan de speler hangen, rapporten blijven de historie meenemen, totalen blijven kloppen.
+- Omkeerbaar — gearchiveerde rijen herstel je vanuit het tabblad **Gearchiveerd**.
+- In bijna elk geval de aanbevolen keuze.
 
 ### Permanent verwijderen
 
-- Verwijdert de rij daadwerkelijk uit de database
-- **Geblokkeerd** als het record afhankelijke data heeft (bijv. je kunt een speler niet verwijderen die evaluaties heeft)
-- De controle op afhankelijke data voorkomt dat er per ongeluk evaluaties, doelen, sessies, enz. wees achterblijven
-- **Onomkeerbaar**
+- Verwijdert de rij.
+- Geblokkeerd zodra de rij gekoppelde gegevens heeft (een speler met evaluaties kun je niet permanent verwijderen).
+- Niet meer terug te draaien.
 
 ## Best practice
 
-Archiveer eerst. Verwijder alleen permanent als je zeker weet dat de data voor altijd weg moet zijn (bijv. een AVG-verzoek, opruimen van testdata).
+Archiveer eerst. Verwijder alleen permanent als je zeker weet (testdata opruimen, of een privacyverzoek).
 
-## Filteren
+## Gearchiveerde rijen vinden
 
-Het tabblad Gearchiveerd op elke lijstpagina toont gearchiveerde records. Het standaardtabblad Actief verbergt ze.
+Elke lijstpagina heeft een tabblad **Gearchiveerd**. Het standaard-tabblad **Actief** verbergt gearchiveerde rijen.

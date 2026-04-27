@@ -2,28 +2,24 @@
 
 # Rapporten
 
-De pagina **Rapporten** is een tegel-launcher voor verschillende rapportvarianten. Vanaf v2.20.0 zijn er drie tegels beschikbaar:
+De tegel **Rapporten** is een launcher voor verschillende manieren om naar je gegevens te kijken.
 
-## Spelersvoortgang & Radar (legacy)
+## Spelersvoortgang
 
-Het oorspronkelijke gecombineerde formulier. Drie subrapporten:
+Snelle visuele rapporten voor coaches:
 
-- **Spelersvoortgang** — radarcharts van topspelers
-- **Spelervergelijking (radar)** — kies 2+ spelers en zie hun laatste evaluaties als overlappende radar
-- **Teamgemiddelden (radar)** — gemiddelden per team over alle categorieën
+- **Spelersvoortgang** — radarcharts van je topspelers.
+- **Spelervergelijking** — kies twee of meer spelers en zie hun laatste evaluaties als overlappende radars.
+- **Teamgemiddelden** — gemiddelden per team over de hoofdcategorieën.
 
-Handig voor coaches die een snel visueel beeld willen. Diepere per-speler-analyses vind je in [Rate cards](?page=tt-docs&topic=rate-cards) en [Spelervergelijking](?page=tt-docs&topic=player-comparison).
+Voor diepere weergaven per speler, zie [Rate cards](?page=tt-docs&topic=rate-cards) en [Spelervergelijking](?page=tt-docs&topic=player-comparison).
 
 ## Teambeoordeling gemiddelden
 
-Een tabel. Rijen: teams. Kolommen: iedere hoofdcategorie + een evaluatietelling. Toont levenslange gemiddelden over alle actieve evaluaties voor spelers in elk team. Gearchiveerde spelers en gearchiveerde evaluaties worden uitgesloten.
+Een eenvoudige tabel — één rij per team, één kolom per hoofdcategorie, plus een evaluatietelling. Toont het levenslange gemiddelde over actieve evaluaties van elk team. Gearchiveerde spelers en evaluaties tellen niet mee.
 
-Goed voor een snelle "welk team is dit seizoen het sterkst?"-blik.
+Een snelle manier om te zien welk team dit seizoen het sterkst is.
 
-## Coach-activiteit
+## Coachactiviteit
 
-Aantal evaluaties dat elke coach heeft opgeslagen in een configureerbaar venster (7, 30, 90, 180 of 365 dagen). Handig om coaches te signaleren die hun evaluatieritme niet volgen, of om te controleren of een geïntensiveerde beoordelingsperiode daadwerkelijk plaatsvindt.
-
-## Toekomstige tegels
-
-Rapport-tegels zijn additief. Als de academie behoefte heeft aan aanwezigheidsoverzichten, doelvoortgang op status, per-coach overzichten van spelertoewijzingen, of CSV/XLSX-export van evaluatiegegevens, dan worden dat nieuwe tegels zonder de bestaande rapporten te verstoren.
+Hoeveel evaluaties elke coach heeft opgeslagen in het gekozen venster (laatste 7, 30, 90, 180 of 365 dagen). Handig om coaches te signaleren die achterlopen, of om te bevestigen dat een geplande beoordelingsperiode echt heeft plaatsgevonden.

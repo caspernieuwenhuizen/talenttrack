@@ -1,43 +1,33 @@
 <!-- audience: user -->
 
-# Speler-dashboard (frontend)
+# Speler-dashboard
 
-Spelers die inloggen op de frontend-shortcode zien een tegelgebaseerd dashboard dat volledig op henzelf is gericht. (v3.0.0 — het tegelraster heeft nu echte bestemmingen; v2.21's tegellanding is een volwaardige landingspagina, niet meer louter decoratie.)
+Wanneer je inlogt als speler kom je op een tegelraster dat helemaal op jou is gericht. Elke tegel opent een onderdeel van je eigen profiel. Gebruik bovenaan elke pagina de **← Terug**-link om hier terug te keren.
 
-## Hoe kom je er
-
-De shortcode `[talenttrack_dashboard]`. Als een speler (gekoppeld aan een WordPress-gebruiker via `wp_user_id`) inlogt en die pagina bezoekt, komt hij/zij op het tegelraster met de sectie **Mij** zichtbaar.
-
-## De Mij-tegels
-
-Elke tegel duikt in een gerichte subweergave met bovenin een link "← Terug naar dashboard".
+## Jouw tegels
 
 ### Mijn kaart
-FIFA-achtige kaart met overall-beoordeling, radarchart per hoofdcategorie, belangrijkste attributen, aangepaste veldwaarden en een knop **Rapport afdrukken** voor een nette printversie.
+Je FIFA-achtige spelerskaart met overall-score, een radarchart van je hoofdcategorieën, je belangrijkste attributen en een knop **Rapport afdrukken** voor een nette printversie.
 
 ### Mijn team
-Je eigen kaart centraal, gevolgd door het podium met de top-3 van het team (huidige topprestaties) en een roster van teamgenoten (namen + foto's, geen beoordelingen — om degenen die buiten de top-3 vallen te beschermen). Tik op een teamgenoot voor een alleen-lezen kaart met speelgegevens (positie, rugnummer, voet, lengte, gewicht). Individuele evaluaties, doelen en beoordelingen blijven privé.
+Je eigen kaart in het midden, met daaronder het top-3 podium van je team. Je ziet ook een lijst met teamgenoten met naam en foto. Tik op een teamgenoot om hun basisgegevens te zien (positie, rugnummer, voet, lengte, gewicht). Hun evaluaties en doelen blijven privé.
 
 ### Mijn evaluaties
-Tabel van elke evaluatie die over jou is vastgelegd, meest recent eerst. Toont datum, type (Training / Wedstrijd / enz.), coach en de beoordelingen per categorie. Wedstrijd-evaluaties tonen ook tegenstander en uitslag.
+Elke evaluatie die een coach over jou heeft vastgelegd, meest recent eerst. Per rij zie je de datum, het type, de coach en de scores.
 
 ### Mijn sessies
-Aanwezigheidslogboek van trainingen. Tabel met datum, sessietitel, aanwezigheidsstatus (Aanwezig / Afwezig / Laat / Afgemeld — in kleur gecodeerd) en eventuele notities.
+De trainingen en wedstrijden waar je bij was. Met de zoekbalk en het datumfilter vind je snel een specifieke.
 
 ### Mijn doelen
-Ontwikkelingsdoelen die je coaches voor je hebben gesteld, gegroepeerd op status. Elke doelkaart toont titel, omschrijving, statusbadge en, indien ingesteld, een streefdatum.
+De ontwikkelingsdoelen die je coaches voor jou hebben opgesteld, gegroepeerd op status.
 
 ### Mijn profiel
-Je persoonlijke gegevens (naam, team, leeftijdscategorie, posities, voet, rugnummer, lengte, gewicht, geboortedatum) in alleen-lezen layout. Onderhouden door je coaches — neem contact op voor correcties. Ook een link om WordPress-account-instellingen (weergavenaam, e-mail, wachtwoord) te bewerken.
+Je contactgegevens en speelgegevens, zoals je coaches die hebben ingevoerd. Klopt iets niet? Vraag het je coach. Je eigen e-mailadres, naam en wachtwoord pas je aan via je accountmenu.
 
 ## Privacy
 
-Spelers zien **alleen hun eigen gegevens**. Ze kunnen de evaluaties of persoonlijke info van andere spelers niet zien. De teamroster toont de namen van teamgenoten, maar niet hun individuele beoordelingen.
+Je ziet alleen je eigen gegevens. De evaluaties, doelen en persoonlijke info van andere spelers blijven privé.
 
-## Mobiel
+## Op een telefoon
 
-Het tegelraster valt terug naar 1 kolom op telefoons, 2 op tablets. Alle subweergaven zijn responsief — ontworpen voor een speler die op een telefoon kijkt tijdens of na de training.
-
-## Wat spelers niet kunnen
-
-Spelers hebben alleen `read` — geen `tt_manage_*`- of `tt_evaluate_*`-rechten en geen `tt_edit_*`-rechten. Ze kunnen hun eigen WordPress-account (weergavenaam, e-mail, wachtwoord) bewerken, maar geen evaluaties of sessies aanmaken en niets aan het team wijzigen. Zelfs het lezen van pagina's van andere spelers wordt op controller-niveau geblokkeerd.
+Het dashboard werkt op telefoons, tablets en computers. Op een telefoon stapelen de tegels in één kolom en scrollen tabellen zijwaarts wanneer dat nodig is.
