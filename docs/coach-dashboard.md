@@ -1,52 +1,36 @@
 <!-- audience: user -->
 
-# Coach dashboard (frontend)
+# Coach dashboard
 
-Coaches and administrators logged into the frontend shortcode see a tile-based dashboard with the Coaching section visible. (v3.0.0 — full rebuild from the v2.x tab-based UI.)
+When you log in as a coach you land on a tile grid. Each tile opens one part of the app. Use the **← Back** link at the top of every page to return here.
 
-## Getting there
-
-The `[talenttrack_dashboard]` shortcode. When a coach (someone with `tt_edit_evaluations`) or an admin (someone with `tt_edit_settings`) visits that page, they land on the tile grid with the **Coaching** section visible. Coaches who are also linked to a player record additionally see the **Me** section.
-
-## The Coaching tiles
+## Tiles you'll use most
 
 ### Teams
-Each team the coach has access to, shown with its top-3 podium and full roster of FIFA-style mini-cards. Tap any card to drill into the player detail.
+The teams you coach. Each one shows its top-3 podium and the full roster. Tap any player card to see their detail page.
 
 ### My players
-Players on the teams you coach. Admins see this tile labelled simply **Players** with the full academy roster instead. Tap any card to drill into the player detail view — FIFA card, player facts, custom-field values, and the recent-history radar. Has its own "← Back to players" link that returns to the list, separate from the tile-landing back button. The list page has an **Import from CSV** button next to "New player" for admins and anyone with `tt_edit_players`.
+Players on the teams you coach. Admins see this tile labelled **Players** and get the full academy roster instead. Tap a card to open the player detail page. The list page also has an **Import from CSV** button.
 
 ### Evaluations
-Evaluation-submission form with match-details section that shows only when an evaluation type requires it. All rating categories from your club configuration with min/max/step from your rating scale. AJAX-submitted — success message appears inline, no page reload.
+Form to record an evaluation. Pick a player, an evaluation type, a date, then rate them on every category. Save and you're done.
 
-### Sessions
-Training session recording. Title, date, team, location, notes. Attendance matrix lists every player on the coach's teams with a status dropdown (Present / Absent / Late / Excused) and a notes field. AJAX-submitted.
+### Activities
+Log a training, game or other event. Pick the team, the date, optional location and notes, then mark each player's attendance.
 
 ### Goals
-Dual form: add a new goal (player picker, title, description, priority, due date) on top, current goals table below with inline status dropdowns and delete buttons.
+Add development goals for a player and track their progress.
 
 ### Podium
-Aggregated podium view — top-3 of every team the coach has access to. Visual focus, no forms.
+Top-3 of every team you coach, on one screen.
 
 ## Reference
 
-Reference material the coach consults during the daily work — kept separate from the Performance group since it's read-only knowledge, not transactional.
+The **Reference** group holds materials you read but don't fill in.
 
 ### Methodology
-Principles, formations, positions, and set pieces that drive the academy's training philosophy.
+Your academy's principles, formations, positions and set pieces.
 
-## For admins
+## On a phone
 
-Admins see every team, every player, every evaluation. The forms also show an "all players" picker instead of being restricted to the coach's teams.
-
-## For the Read-Only Observer
-
-Observers see admin-side pages but none of the Coaching tiles on the frontend (they have no `tt_edit_*` caps). Analytics-group tiles (Rate cards, Player comparison) are their frontend entry point — that's slice 5.
-
-## Mobile
-
-The tile grid collapses responsively. All forms and tables use `frontend-mobile.css` for reasonable scaling on phones. Longer lists (players, evaluations) scroll horizontally when needed rather than cramming into narrow columns.
-
-## Back navigation
-
-Every tile destination shows a "← Back to dashboard" link at the top that returns to the tile landing page. The player-detail view inside Players has its own "← Back to players" link instead, so drilling card-to-card in the roster doesn't bounce you all the way out.
+Tiles stack into one column on phones, two on tablets. Long tables scroll sideways instead of squeezing into narrow columns.

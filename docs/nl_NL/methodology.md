@@ -2,41 +2,33 @@
 
 # Methodologie
 
-In de Methodologie-bibliotheek leeft het coachingsraamwerk van je academie in TalentTrack: het raamwerk per club, spelprincipes, formaties + positiekaarten, spelhervattingen, de clubvisie en de catalogus voetbalhandelingen. Coaches gebruiken deze als naslag tijdens sessieplanning en speelgesprekken.
+In de Methodologie-bibliotheek leeft het coachingsraamwerk van je academie: de raamwerk-introductie, spelprincipes, formaties en positiekaarten, spelhervattingen, de clubvisie en de catalogus voetbalhandelingen. Coaches gebruiken dit als naslag bij sessieplanning en speelgesprekken.
 
-## Waar je hem vindt
+## Hoe je het vindt
 
-- **wp-admin**: TalentTrack → Methodology (Performance-groep). Voetbalhandelingen heeft een eigen ingang onder TalentTrack.
-- **Frontend**: de Methodology-tegel onder Performance.
+Open de tegel **Methodologie** in de groep **Naslag** van het dashboard.
 
 ## Zes tabbladen
 
-1. **Raamwerk** — de methodologische intro per club: inleiding, het voetbalmodel op hoofdlijnen, voetbalhandelingen, de vier fasen van aanvallen en verdedigen, leerdoelen, factoren van invloed en reflectie / toekomst. Elke sectie kan illustraties dragen.
-2. **Spelprincipes** — gecodeerde principes zoals AO-01 (opbouw), VS-02 (storen). Elk bevat toelichting, sturing op teamniveau, sturing per linie (Aanvallers / Middenvelders / Verdedigers / Keeper), een formatiediagram en een primaire illustratie.
-3. **Formaties & posities** — de formatievisual + rolkaarten per rugnummer. Elke positiekaart toont aanvallende en verdedigende taken plus een optioneel diagram.
-4. **Spelhervattingen** — corners, vrije trappen (direct + voorzet), penalty's, inworpen. Aanvallend + verdedigend, met illustraties.
+1. **Raamwerk** — de introductie van je academie: inleiding, het voetbalmodel, voetbalhandelingen, de vier fasen van aanvallen en verdedigen, leerdoelen, factoren van invloed en reflectie. Elke sectie kan illustraties dragen.
+2. **Spelprincipes** — gecodeerde principes zoals AO-01 (opbouw) of VS-02 (storen). Elk bevat toelichting, sturing op teamniveau, sturing per linie (aanvallers / middenvelders / verdedigers / keeper), een formatiediagram en een primaire illustratie.
+3. **Formaties & posities** — de formatievisual plus een rolkaart per rugnummer. Positiekaarten tonen aanvallende en verdedigende taken en een optioneel diagram.
+4. **Spelhervattingen** — corners, vrije trappen, penalty's en inworpen, met illustraties, in aanvallende en verdedigende varianten.
 5. **Visie** — het overkoepelende record van de club: gekozen formatie, speelstijl, speelwijze en belangrijke spelerseigenschappen.
-6. **Voetbalhandelingen** — de catalogus voetbalhandelingen (aannemen, passen, dribbelen, schieten, koppen — plus vrijlopen, knijpen, jagen, dekken en ondersteunende handelingen zoals spelinzicht / communicatie).
+6. **Voetbalhandelingen** — de catalogus voetbalhandelingen (aannemen, passen, dribbelen, schieten, koppen, plus vrijlopen, knijpen, jagen, dekken en ondersteunende handelingen zoals spelinzicht en communicatie).
 
-## Twee bronnen van inhoud
+## Twee soorten inhoud
 
-- **Geleverd** door TalentTrack. Standaard alleen-lezen — clubs kunnen het niet wijzigen of breken. Plugin-updates kunnen nieuwe geleverde inhoud toevoegen.
-- **Club-eigen** inhoud, aangemaakt in wp-admin door clubbeheerders. Verschijnt naast geleverde inhoud in de bibliotheek.
+- **Geleverd** — door TalentTrack samengestelde inhoud, standaard alleen-lezen zodat je niets per ongeluk kapotmaakt.
+- **Club-eigen** — toegevoegd door je beheerders, naast de geleverde inhoud.
 
-Om vanuit geleverde inhoud te starten zonder het origineel aan te raken: klik **Klonen & bewerken** — je krijgt een club-eigen kopie om aan te passen; de geleverde regel blijft ongewijzigd.
+Wil je vanuit een geleverde regel beginnen zonder het origineel aan te raken? Klik op **Klonen & bewerken** — je krijgt een eigen kopie en de geleverde regel blijft ongewijzigd.
 
 ## Hoe het aansluit op de rest van TalentTrack
 
-- **Doelen**: een doel kan optioneel aan één principe en aan één voetbalhandeling worden gekoppeld. Gebruik een of beide om ontwikkelingsdoelen concreet te maken — "deze speler werkt aan AO-02 (opbouw via de zijkanten)" of "deze speler verbetert dribbelen".
-- **Sessies**: een sessie kan meerdere principes opnoemen die worden geoefend. Coaches zien in één oogopslag welke principes ze in een week behandelen.
-- **Teamplannen (#0006, toekomstig)**: zodra teamplanning wordt geleverd, leest die direct uit principes.
+- **Doelen** — een doel kan gekoppeld worden aan één principe en één voetbalhandeling, om het ontwikkelingsdoel concreet te maken.
+- **Activiteiten** — een activiteit kan de principes opnoemen die worden geoefend, zodat coaches in één oogopslag zien welke principes hun week behandelt.
 
-## Diagrammen en afbeeldingen toevoegen
+## Diagrammen en afbeeldingen
 
-Elke entiteit in de bibliotheek (spelprincipe, spelhervatting, positie, visie, raamwerk-introductie, fase, leerdoel, factor van invloed, voetbalhandeling) heeft op de bewerkpagina een sectie "Diagrammen en afbeeldingen". Klik op **Afbeelding kiezen…** om de WordPress mediabibliotheek te openen, een afbeelding te uploaden of te selecteren; bij opslaan wordt een record aangemaakt in `tt_methodology_assets`. De eerste afbeelding wordt de primaire (de hero), bijkomende kunnen worden toegevoegd, voorzien van een NL/EN bijschrift, gepromoveerd of gearchiveerd.
-
-De plugin levert diagrammen aan vanuit het oorspronkelijke methodologiedocument; ze worden automatisch gekoppeld aan de bijbehorende geleverde entiteit. Wil je een geleverde diagram vervangen door je eigen versie? Archiveer het geleverde beeld en voeg je eigen toe — het formulier houdt beide totdat je de ongewenste archiveert.
-
-## Meertalige inhoud
-
-Elk catalogusveld wordt opgeslagen als JSON per taal. Vandaag is de bibliotheek geleverd in het Nederlands (de brontaal van het methodologiedocument) met Engelse vertalingen op geleverde rijen; club-eigen inhoud ondersteunt beide. De bibliotheek toont in de taal van de bezoeker en valt terug op NL → EN → leeg als een vertaling ontbreekt.
+Bij elke regel kun je diagrammen en afbeeldingen toevoegen. Op de bewerkpagina zit een sectie waar je beelden kunt kiezen of uploaden. De eerste afbeelding wordt het hero-beeld; je kunt bijschriften toevoegen en wisselen welk beeld primair is.

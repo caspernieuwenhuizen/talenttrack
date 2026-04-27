@@ -1,32 +1,31 @@
 <!-- audience: user -->
 
-# Goals
+# Player goals
 
-A **goal** is a development target for a specific player. Goals track what a player is working on — they're the narrative companion to the numerical evaluations.
+A **goal** is something a player is working on — for example "improve weak-foot accuracy" or "be on time for every training". Goals sit alongside the numerical ratings as the narrative side of player development.
 
-## Goal fields
+## What's on a goal
 
-- **Player** — the goal's owner.
-- **Title** — a short description ("Improve weak foot accuracy").
-- **Description** — free-text for context, drills, coaching notes.
-- **Status** — e.g. Not started, In progress, Achieved, Abandoned. Configurable in Configuration → Goal Status.
-- **Priority** — e.g. Low, Medium, High. Configurable in Configuration → Goal Priority.
-- **Target date** — optional.
-- **Created by** — the coach who set the goal.
+- The **player** the goal is for.
+- A short **title**.
+- A **description** with detail, drills or coaching notes.
+- A **status** (Not started, In progress, Achieved, Abandoned).
+- A **priority** (Low, Medium, High).
+- An optional **target date**.
 
-## Creating goals
+## Adding a goal
 
-From the **Goals** admin page or the coach frontend:
-
-1. Pick a player.
-2. Fill in title, description, status, priority.
-3. Optional target date.
+1. Open the **Goals** tile.
+2. Pick the player.
+3. Fill in title, description, status, priority and optionally a target date.
 4. Save.
 
-## Goal progress
+## Tracking progress
 
-A coach can update the status and description over time as the player works on it. The **Goals** list filter by status lets you quickly find in-progress work.
+Update the status and description over time as the player makes progress. Use the status filter on the Goals list to find what's still in progress at a glance.
 
-## Visibility
+## Who sees what
 
-Players see their own goals on the frontend dashboard. Coaches see goals for players on their coached teams. Admins see everything.
+- Players see their own goals.
+- Coaches see goals for the players on the teams they coach.
+- Admins see all goals.

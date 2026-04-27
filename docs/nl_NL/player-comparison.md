@@ -1,41 +1,29 @@
 <!-- audience: user -->
 
-# Spelervergelijking
+# Spelers vergelijken
 
-Vergelijk tot 4 spelers naast elkaar. Over teams heen vergelijken is juist het doel — een U15 LB vergelijken met een U13 ST is valide voor scouting, transferbeslissingen en ontwikkelingsgesprekken.
+Vergelijk tot vier spelers naast elkaar. Vergelijken over teams heen mag zonder problemen — een U15-linksachter naast een U13-spits leggen is prima voor scouting en ontwikkelingsgesprekken.
 
-## Waar vind je het
+## Hoe het werkt
 
-**Beheer**: `TalentTrack → Spelervergelijking`. Volledige versie met overlappende radarchart, overlappende trendchart en gedetailleerde uitsplitsing naar hoofdcategorie.
+Open de tegel **Spelervergelijking**. Je ziet vier slots: kies de spelers die je wilt vergelijken. Laat een slot leeg als je er minder dan vier wilt.
 
-**Frontend (v3.0.0+)**: de tegel **Spelervergelijking** op de tegellandingspagina. Gestroomlijnde mobile-first versie met slot-kiezers, rij FIFA-kaarten, basisgegevens, kerncijfers en een uitsplitsingstabel op hoofdcategorie. Zonder de overlay-charts — daarvoor blijft de beheer-versie bestaan.
+## Filters
 
-## Slot-kiezers
+De filters werken op alle gekozen spelers tegelijk:
 
-Vier slots (p1 / p2 / p3 / p4). Kies een willekeurige speler in een willekeurig slot; laat leeg voor minder dan 4. Labels in de kiezer tonen `Achternaam, Voornaam — Team (Leeftijdscategorie)` om verwarring te voorkomen — handig als twee U13-teams elk een "A. Kovač" in de selectie hebben.
+- **Datumbereik** — beperk tot evaluaties in een periode.
+- **Evaluatietype** — bijvoorbeeld alleen wedstrijden.
 
-## Filters werken op alle slots
+Verander een filter en alle cijfers updaten meteen.
 
-Datum van, Datum tot, Evaluatietype — werken uniform op elke gekozen speler zodat de kerncijfers op dezelfde basis worden berekend. Verander een filter en alle 4 spelers worden opnieuw doorgerekend.
+## Wat je ziet
 
-## Wat de frontend-versie toont
+- De vier spelerskaarten naast elkaar.
+- Een feiten-tabel — team, leeftijdscategorie, posities, voet, rugnummer, lengte — één kolom per speler.
+- Kerncijfers — meest recent, rollend gemiddelde, all-time, en het aantal evaluaties.
+- Een uitsplitsing per hoofdcategorie.
 
-- **Rij FIFA-kaarten** — 4 kleine kaarten naast elkaar (horizontaal scrollen op telefoons)
-- **Basisgegevens-tabel** — Team, Leeftijdscategorie, Posities, Voet, Rugnummer, Lengte — één kolom per speler
-- **Kerncijfers** — Meest recente, Rollend (laatste 5), All-time, Aantal evaluaties — één kolom per speler
-- **Gemiddelden per hoofdcategorie** — gemiddelde beoordeling per categorie, één kolom per speler
+## Bij gemengde leeftijdscategorieën
 
-## Wat in beheer zit maar niet in de frontend
-
-- **Radar-overlay** — alle 4 spelers getekend op dezelfde spin-grafiek voor een vormvergelijking
-- **Trend-overlay** — alle 4 spelerstrendlijnen op dezelfde grafiek voor een trajectvergelijking
-
-Deze gebruiken Chart.js met een aangepaste multi-dataset-configuratie. Toevoeging aan de frontend zou ~200 regels extra JS betekenen — bewust uitgesteld. Beheerders die ze willen gaan naar `TalentTrack → Spelervergelijking`.
-
-## Melding bij gemengde leeftijdscategorieën
-
-Als je spelers uit verschillende leeftijdscategorieën vergelijkt, toont de view een melding: overall-beoordelingen gebruiken per leeftijdscategorie categoriegewichten, waardoor de cijfers niet strikt appels met appels zijn. Ze geven de werkelijke beoordeling van elke speler weer zoals zijn/haar eigen coachstaf hem/haar ziet — dat is voor de meeste beslissingen nuttiger dan een genormaliseerde abstractie.
-
-## Rol Waarnemer
-
-Waarnemers hebben `tt_view_reports`, dus zij kunnen deze tegel gebruiken. Vergelijken over teams heen is precies waar de rol Waarnemer voor bedoeld is — een bestuurslid of externe beoordelaar die talent over de hele club beoordeelt, zonder iets te hoeven bewerken.
+Vergelijk je spelers uit verschillende leeftijdscategorieën, dan gebruiken de overall-scores het gewicht van elke leeftijdscategorie afzonderlijk. De cijfers zijn dus niet strikt appels met appels — ze geven elke speler weer zoals hij in zijn eigen categorie staat. Voor de meeste beslissingen is dat juist de bruikbaarste blik.

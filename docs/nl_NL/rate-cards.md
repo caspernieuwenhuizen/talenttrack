@@ -2,34 +2,22 @@
 
 # Speler rate cards
 
-Een rate card is een blik-in-één-oogopslag op de huidige stand en recente ontwikkeling van een speler: een FIFA-achtige kaart, kerncijfers (meest recente, rollend gemiddelde, all-time), een radarchart over de hoofdcategorieën en een trendlijn over de tijd.
+Een **rate card** is een blik-in-één-oogopslag op de huidige stand en recente ontwikkeling van een speler.
 
-## Waar vind je het
+## Wat je ziet
 
-**Beheer**: `TalentTrack → Speler rate cards`. Speler-kiezer bovenaan; kies een speler en zie zijn/haar kaart met optionele filters op datumbereik en evaluatietype.
+- **De kaart** — kleur naar positie, overall-score, kernattributen, naam, team en foto.
+- **Kerncijfers** — de meest recente score, het rollend gemiddelde over de laatste vijf evaluaties, het all-time gemiddelde en het totale aantal evaluaties.
+- **Radarchart** — de hoofdcategorieën als spinnenweb, zodat je de vorm van het spelersprofiel ziet.
+- **Trendlijn** — het rollend gemiddelde over de tijd, zodat je dalen, vlakke periodes en klims herkent.
 
-**Frontend (v3.0.0+)**: de tegel **Rate cards** op de tegellandingspagina. Tik erop voor dezelfde functionaliteit in een mobile-first layout. Iedereen met `tt_view_reports` heeft hier toegang toe — Waarnemer, Coach, Scout, Clubbeheerder, Hoofd opleiding.
+## Hoe vind je het
 
-## Wat er te zien is
-
-- **FIFA-achtige kaart** — positiekleur, overall-beoordeling, belangrijkste attribuutwaarden, naam, team, foto
-- **Kerncijfers** — Meest recente beoordeling (enkele laatste eval), Rollend (gemiddelde van laatste 5 evals), All-time gemiddelde, aantal evaluaties
-- **Radarchart** — hoofdcategorieën als spinnenweb, laat de vorm van het spelersprofiel zien
-- **Trendlijn** — rollende gemiddelden in de tijd uitgezet; lange vlakke stukken versus dalen en klims vertellen in één oogopslag ontwikkelingsverhalen
+Open de tegel **Rate cards** en kies de speler die je wilt bekijken.
 
 ## Filters
 
-Zowel op beheer- als op frontend-zijde:
+- **Datumbereik** — beperk tot een periode.
+- **Evaluatietype** — bijvoorbeeld alleen wedstrijden of alleen trainingen.
 
-- **Datum van / tot** — beperk tot evaluaties in een tijdvenster
-- **Evaluatietype** — bijv. alleen Wedstrijden, alleen Trainingen, of beide
-
-Filters werken consistent op alle vier de panelen.
-
-## Frontend versus beheer
-
-De frontend-versie gebruikt dezelfde rendering-klasse intern — geen functionaliteitsverschil. Het verschil is de omkadering: het beheer heeft het standaard WP-admin kader met tabs en broodkruimels, de frontend heeft de header van de tegellanding met een Terug-knop. Beide tonen dezelfde content onder de speler-kiezer.
-
-## Rol Waarnemer
-
-De belangrijkste reden dat deze tegel op de frontend bestaat. Alleen-lezen Waarnemers (bestuursleden, assistent-coaches in opleiding, externe beoordelaars) kunnen nu de rate card van elke speler bekijken zonder beheerderstoegang nodig te hebben. Hun rol geeft leesrechten over de hele plugin; deze tegel is hun dagelijkse ingang.
+De filters werken op alle vier de panelen tegelijk, zodat het beeld consistent blijft.

@@ -27,7 +27,11 @@ class Markdown {
 
     public static function render( string $source ): string {
         $source = str_replace( [ "\r\n", "\r" ], "\n", $source );
-        $lines = explode( "\n", $source );
+        // #0048 — strip audience metadata HTML comments before render.
+        // The line-based renderer would otherwise pass them to inline()
+        // where esc_html turns them into visible literal text.
+        $source = preg_replace( '/^\s*<!--\s*audience:.*?-->\s*$/mi', '', (string) $source );
+        $lines = explode( "\n", (string) $source );
 
         $out = [];
         $in_ul = false;

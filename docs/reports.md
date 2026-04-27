@@ -2,28 +2,24 @@
 
 # Reports
 
-The **Reports** page is a tile launcher for different report flavors. As of v2.20.0, three tiles are available:
+The **Reports** tile is a launcher for different ways of looking at your data.
 
-## Player Progress & Radar (legacy)
+## Player progress
 
-The original combined form. Three sub-reports:
+Quick visual reports for coaches:
 
-- **Player Progress** — radar charts of top players
-- **Player Comparison (radar)** — select 2+ players, see their latest evaluations as overlapping radar
-- **Team Averages (radar)** — per-team average across all categories
+- **Player progress** — radar charts of your top players.
+- **Player comparison** — pick two or more players and see their latest evaluations as overlapping radars.
+- **Team averages** — per-team averages across the main categories.
 
-Useful for coaches who want a quick visual. Deeper per-player dives live in [Rate cards](?page=tt-docs&topic=rate-cards) and [Player comparison](?page=tt-docs&topic=player-comparison).
+For deeper per-player views, see [Rate cards](?page=tt-docs&topic=rate-cards) and [Player comparison](?page=tt-docs&topic=player-comparison).
 
 ## Team rating averages
 
-A table. Rows: teams. Columns: each main category + an evaluation count. Shows lifetime averages across all active evaluations for players on each team. Archived players and archived evaluations are excluded.
+A simple table — one row per team, one column per main category, plus an evaluation count. Shows the lifetime average across active evaluations on each team. Archived players and archived evaluations are left out.
 
-Good for a quick "who's the strongest team this season" readout.
+A quick way to see which team is strongest this season.
 
 ## Coach activity
 
-Number of evaluations each coach has saved in a configurable window (7, 30, 90, 180, or 365 days). Good for spotting coaches who aren't keeping up with their evaluation cadence, or validating that an intensified assessment period is happening.
-
-## Future tiles
-
-Report tiles are additive. If the academy wants attendance summaries, goal progress by status, per-coach player assignment overviews, or CSV/XLSX export of evaluation data, those become new tiles without disrupting existing reports.
+How many evaluations each coach has saved in the chosen window (last 7, 30, 90, 180 or 365 days). Useful for spotting a coach who has fallen behind, or for confirming that a planned assessment period actually happened.

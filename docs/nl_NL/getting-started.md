@@ -4,24 +4,29 @@
 
 Welkom bij TalentTrack. Dit is het systeem voor het beheren van voetbaltalent in de jeugd van jouw academie.
 
-## Eerste stappen
+## De eerste keer
 
-1. Ga naar **Configuratie** om de naam van je academie, logo, beoordelingsschaal en kleurenpalet in te stellen.
-2. Maak je **Teams** aan — begin met de teams die je dit seizoen actief gaat beheren.
-3. Voeg je **Spelers** toe en koppel iedere speler aan een team.
-4. Koppel elk spelersrecord aan een WordPress-gebruikersaccount als die speler moet kunnen inloggen en zijn eigen dashboard moet kunnen zien.
-5. Geef je coaches WordPress-accounts met de rol `Coach` zodat zij evaluaties kunnen vastleggen.
+1. Open het dashboard en je ziet een tegelraster met alles wat je kunt doen.
+2. De begroeting bovenaan vertelt wiens dashboard je bekijkt.
+3. Tik op een tegel om dat onderdeel te openen. Bovenaan elke pagina staat een terug-link om hier terug te keren.
 
-## Het dashboard
+## Wat kan ik doen?
 
-Het TalentTrack-beheerdashboard is je thuisbasis. Tegels zijn gegroepeerd (Personen, Prestaties, Analyse, Configuratie, Toegangsbeheer, Help) en tonen alleen onderdelen waarvoor je rechten hebt.
+Dat hangt af van je rol. De meeste mensen zien een of meer van deze tegels:
 
-## De frontend
+- **Mijn kaart** — je eigen spelerskaart, beoordelingen en kerncijfers.
+- **Mijn team** — je teamgenoten en het podium van het team.
+- **Mijn evaluaties** — feedback van je coaches.
+- **Mijn sessies** — trainingen waar je bij was.
+- **Mijn doelen** — waar je aan werkt.
+- **Mijn profiel** — je contactgegevens.
 
-Gebruik de shortcode `[talenttrack_dashboard]` op een willekeurige WordPress-pagina om spelers en coaches een tegelgebaseerde landingspagina te geven. Van daaruit duiken ze de evaluaties, doelen, sessies en meer in.
+Coaches zien daarnaast Teams, Spelers, Evaluaties, Activiteiten, Doelen en Podium.
+
+Beheerders zien dat alles plus configuratietegels voor de academie-brede instellingen.
 
 ## Waar naartoe
 
-- Spelers toevoegen: [Teams & spelers](?page=tt-docs&topic=teams-players)
 - Evaluaties vastleggen: [Evaluaties](?page=tt-docs&topic=evaluations)
-- Rechten beheren: [Toegangsbeheer](?page=tt-docs&topic=access-control)
+- Een training of wedstrijd loggen: [Activiteiten en aanwezigheid](?page=tt-docs&topic=activities)
+- Ontwikkelingsdoelen instellen: [Doelen](?page=tt-docs&topic=goals)

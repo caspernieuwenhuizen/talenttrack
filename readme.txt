@@ -4,13 +4,18 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.29.0
+Stable tag: 3.30.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.30.1 — User docs cleanup (#0048) =
+* FIXED: Each documentation page rendered an HTML comment as visible literal text at the top (`<!-- audience: user -->`). The line-based markdown renderer fed the comment through `esc_html` instead of skipping it. Stripped audience-metadata comments before render.
+* CHANGED: Every user-tier documentation page rewritten in plain language. Removed version-history references, WordPress-specific terminology, and internal technical names (database column names, capability slugs, controller details). Audience: anyone reading TalentTrack day-to-day, including children and parents.
+* CHANGED: Dutch translations rewritten to match the simplified English versions.
 
 = 3.29.0 — Dashboard regroup + Configuration tile-landing + i18n cleanup (#0040) =
 * NEW: Configuration page (`?page=tt-config`) now opens on a tile-grid landing grouped by topic — Lookups & reference data, Branding & display, Authorization, System, Custom data, Players & bulk actions. Each tile drills into the dedicated screen. Old `?tab=<slug>` bookmarks still resolve.

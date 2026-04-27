@@ -2,34 +2,24 @@
 
 # Evaluaties
 
-Een **evaluatie** is de beoordeling van een coach van een speler op een specifieke datum, op basis van de geconfigureerde [evaluatiecategorieën](?page=tt-docs&topic=eval-categories-weights).
+Een **evaluatie** is je beoordeling van een speler op een specifieke datum, op basis van de categorieën die de academie gebruikt (meestal Technisch, Tactisch, Fysiek, Mentaal).
 
-## Een evaluatie aanmaken
+## Een evaluatie vastleggen
 
-Via de beheerpagina **Evaluaties** of het coach-dashboard op de frontend:
-
-1. Kies een speler.
-2. Kies een type evaluatie (Training, Wedstrijd, Toernooi, enz.).
-3. Kies een datum.
-4. Geef per hoofdcategorie een beoordeling op je geconfigureerde schaal (standaard 1–5).
-5. Duik optioneel in subcategorieën voor een gedetailleerdere score.
-6. Voeg vrije notities toe over wat je gezien hebt.
-7. Als het evaluatietype is ingesteld als "Wedstrijd", vul dan ook tegenstander, competitie (keuzelijst met competitietypes die onder Configuratie → Lookups zijn ingesteld), uitslag, thuis/uit en gespeelde minuten in.
-8. Opslaan. Het formulier bevestigt kort het opslaan en je keert terug naar het tegelraster van het dashboard — klik opnieuw op de Evaluaties-tegel als je nog een evaluatie wilt toevoegen.
-
-## Een categorie beoordelen
-
-Je kunt op twee niveaus beoordelen:
-
-- **Alleen hoofdcategorie** — bijv. "Technisch: 4" — prima voor snelle beoordelingen.
-- **Uitsplitsing naar subcategorieën** — bijv. "Technisch → Passen: 3, Aanname: 4" — de score op de hoofdcategorie wordt dan het gewogen gemiddelde van de subcategorieën.
-
-Beide werken per evaluatie. Mix naar wens.
+1. Open de tegel **Evaluaties**.
+2. Kies de speler.
+3. Kies een type evaluatie (bijv. Training, Wedstrijd).
+4. Kies de datum.
+5. Geef elke hoofdcategorie een score. De schaal (vaak 1–5) is door de academie ingesteld.
+6. Wil je preciezer zijn? Duik in de subcategorieën — je hoofdcategorie wordt dan het gemiddelde.
+7. Voeg een notitie toe over wat je hebt gezien.
+8. Bij een wedstrijd vul je ook tegenstander, competitie, uitslag, thuis/uit en gespeelde minuten in.
+9. Opslaan.
 
 ## Een evaluatie bekijken
 
-Klik op de rij van een evaluatie om de volledige uitsplitsing te zien — categorieën en beoordelingen weergegeven als radarchart, notities in context, metadata (wie coachte, wanneer).
+Klik op een rij in de evaluatielijst om de volledige uitsplitsing te zien — een radarchart van je scores, je notities en de datum.
 
-## Archiveren
+## Oude evaluaties opruimen
 
-Evaluaties kunnen gearchiveerd (verborgen in lijsten maar aanwezig voor aggregaties) of verwijderd worden. Aggregatiequeries op de Rate Card-pagina sluiten gearchiveerde evaluaties automatisch uit.
+Je kunt een evaluatie **archiveren** om hem uit lijsten te halen maar in de historie van de speler te bewaren, of **verwijderen** als hij per ongeluk is aangemaakt. Gearchiveerde evaluaties tellen niet mee voor de spelerskaarten.

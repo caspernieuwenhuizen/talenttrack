@@ -1,3 +1,30 @@
+# TalentTrack v3.30.1 — User docs cleanup (#0048)
+
+A small docs-only release that fixes a visible-comment bug and rewrites every user-tier documentation page in plain language.
+
+## Bug fixed
+
+Every documentation page rendered an HTML comment as literal text at the top — for example `<!-- audience: user -->` would appear visibly above the page title. The line-based markdown renderer fed the comment line through `esc_html` instead of recognising it as metadata. `Markdown::render()` now strips audience comments before tokenising.
+
+## User docs rewrite
+
+Every page tagged `audience: user` (or cross-cutting `user, admin`) was rewritten with a single principle: the reader is anyone using TalentTrack day-to-day, often a child or a parent. So the new copy:
+
+- Drops version-history references (`v3.x`, `v3.24.0`, "since v2.21.0", …) — those belong in this CHANGES.md, not in the user-facing pages.
+- Drops WordPress-specific terminology (`[talenttrack_dashboard] shortcode`, "WordPress user account", "wp-admin"). The product is just "the app" from the user's perspective.
+- Drops internal technical names (database table names like `tt_players`, capability slugs like `tt_edit_evaluations`, column names like `is_guest`, controller class names, AJAX/REST plumbing).
+- Drops references to features that aren't shipped or are wrong post-rename (e.g. "sessions" → "activities").
+
+What stays: how to use each feature, what each tile does, how filters and statuses behave, what's private vs shared.
+
+## Files touched
+
+13 English pages and 12 Dutch pages: getting-started, coach-dashboard, player-dashboard, evaluations, activities, goals, reports, rate-cards, player-comparison, methodology, bulk-actions, printing-pdf, plus the docs index.
+
+`docs/contributing.md` is dev-tier and stays unchanged.
+
+---
+
 # TalentTrack v3.29.0 — Dashboard regroup + Configuration tile-landing + i18n cleanup (#0040)
 
 A bundled hygiene release: ten paper-cut UX + i18n issues surfaced in the 2026-04-27 review session, all small individually but mutually reinforcing. Single PR.
