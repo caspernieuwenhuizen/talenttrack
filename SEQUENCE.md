@@ -4,7 +4,9 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 
 ## In progress
 
-_None._
+| # | Topic | Type | Spec | Status |
+| - | - | - | - | - |
+| 0018 | Team development + chemistry | epic | [specs/0018-epic-team-development-chemistry.md](specs/0018-epic-team-development-chemistry.md) | Sprint 1 shipped v3.32.0 (schema + 4 seeded 4-3-3 templates + caps + REST stubs + history backfill). Sprint 2 next: CompatibilityEngine (pure-logic service, scoring algorithm, cache strategy). Then Sprint 3 isometric formation board UI, Sprint 4 chemistry aggregator, Sprint 5 player-side Team-fit panel. |
 
 ## Ready (shaped, decisions locked)
 
@@ -29,7 +31,6 @@ _None._
 | 0014 | Player profile + report generator | epic | ~58h |
 | 0016 | Photo-to-session capture | epic | ~80h |
 | 0017 | Trial player module | epic | ~72h (still blocked behind #0014 Sprint 3; #0022 Phase 1 dep cleared) |
-| 0018 | Team development / chemistry | epic | ~60h |
 | 0022 | Workflow & tasks engine — Phase 2 | epic | ~30-40h (multi-step chains as first-class primitive, browser-push notifications, formulier-builder primer) |
 
 ## Blocked

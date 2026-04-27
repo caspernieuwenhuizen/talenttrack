@@ -57,6 +57,7 @@ $mod_backup        = TT\Modules\Backup\BackupModule::class;
 $mod_onboarding    = TT\Modules\Onboarding\OnboardingModule::class;
 $mod_demo          = TT\Modules\DemoData\DemoDataModule::class;
 $mod_pdp           = TT\Modules\Pdp\PdpModule::class;
+$mod_team_dev      = TT\Modules\TeamDevelopment\TeamDevelopmentModule::class;
 
 /**
  * Helper: build a rows[] array from a compact spec.
@@ -146,6 +147,7 @@ return array_merge(
         'documentation'     => [ 'r',   'global', $mod_documentation ],
         'pdp_file'          => [ 'rc',  'team', $mod_pdp ],
         'pdp_verdict'       => [ 'r',   'team', $mod_pdp ],
+        'team_chemistry'    => [ 'r',   'team', $mod_team_dev ],
     ] ),
 
     // ─── HEAD COACH ─────────────────────────────────────────────────
@@ -167,6 +169,7 @@ return array_merge(
         'documentation'     => [ 'r',   'global', $mod_documentation ],
         'pdp_file'          => [ 'rcd', 'team', $mod_pdp ],
         'pdp_verdict'       => [ 'rc',  'team', $mod_pdp ],
+        'team_chemistry'    => [ 'rc',  'team', $mod_team_dev ],
     ] ),
 
     // ─── HEAD OF DEVELOPMENT ────────────────────────────────────────
@@ -191,6 +194,7 @@ return array_merge(
         'documentation'              => [ 'rc',  'global', $mod_documentation ],
         'pdp_file'                   => [ 'rcd', 'global', $mod_pdp ],
         'pdp_verdict'                => [ 'rcd', 'global', $mod_pdp ],
+        'team_chemistry'             => [ 'rcd', 'global', $mod_team_dev ],
     ] ),
 
     // ─── SCOUT (refined) ────────────────────────────────────────────
@@ -210,6 +214,7 @@ return array_merge(
         'documentation' => [ 'r',  'global', $mod_documentation ],
         'pdp_file'      => [ 'r',  'global', $mod_pdp ],
         'pdp_verdict'   => [ 'r',  'global', $mod_pdp ],
+        'team_chemistry'=> [ 'r',  'global', $mod_team_dev ],
     ] ),
 
     // ─── TEAM MANAGER ───────────────────────────────────────────────
@@ -227,6 +232,7 @@ return array_merge(
         'documentation' => [ 'r',   'global', $mod_documentation ],
         'pdp_file'      => [ 'r',   'team', $mod_pdp ],
         'pdp_verdict'   => [ 'r',   'team', $mod_pdp ],
+        'team_chemistry'=> [ 'r',   'team', $mod_team_dev ],
     ] ),
 
     // ─── ACADEMY ADMIN ──────────────────────────────────────────────
@@ -266,5 +272,6 @@ return array_merge(
         'documentation'               => [ 'rcd', 'global', $mod_documentation ],
         'pdp_file'                    => [ 'rcd', 'global', $mod_pdp ],
         'pdp_verdict'                 => [ 'rcd', 'global', $mod_pdp ],
+        'team_chemistry'              => [ 'rcd', 'global', $mod_team_dev ],
     ] )
 );

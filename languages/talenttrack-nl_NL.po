@@ -7568,3 +7568,28 @@ msgstr "Geen evaluaties geregistreerd."
 
 msgid "Recent activities"
 msgstr "Recente activiteiten"
+
+msgid "This section is currently unavailable."
+msgstr "Dit onderdeel is momenteel niet beschikbaar."
+
+msgid "The administrator has temporarily turned off this part of TalentTrack. Please check back later, or ask your administrator if you need access."
+msgstr "De beheerder heeft dit onderdeel van TalentTrack tijdelijk uitgeschakeld. Probeer het later opnieuw, of neem contact op met je beheerder als je toegang nodig hebt."
+
+# #0018 — team development sprint 1 (REST stubs)
+msgid "Team not found."
+msgstr "Team niet gevonden."
+
+msgid "formation_template_id is required."
+msgstr "formation_template_id is verplicht."
+
+msgid "Formation template not found."
+msgstr "Formatiesjabloon niet gevonden."
+
+msgid "The formation could not be saved."
+msgstr "De formatie kon niet worden opgeslagen."
+
+msgid "Possession + counter + press must sum to 100."
+msgstr "Balbezit + counter + press moeten samen 100 zijn."
+
+msgid "The style blend could not be saved."
+msgstr "De stijl­mix kon niet worden opgeslagen."
