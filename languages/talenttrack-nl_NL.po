@@ -7877,3 +7877,43 @@ msgstr[1] "Opnieuw uitgevoerd: %d taken aangemaakt."
 
 msgid "Replay attempted but produced no tasks. Check the log row's error message."
 msgstr "Replay uitgevoerd maar leverde geen taken op. Bekijk de foutmelding van de logregel."
+
+# === #0014 Sprint 2 — My profile rebuild ===
+
+msgid "Recent performance"
+msgstr "Recente prestaties"
+
+msgid "Active goals"
+msgstr "Actieve doelen"
+
+msgid "Upcoming"
+msgstr "Aankomend"
+
+msgid "Playing details are maintained by your coach. Ask them if anything is wrong."
+msgstr "Speelgegevens worden bijgehouden door je coach. Klopt iets niet? Vraag het je coach."
+
+msgid "No evaluations yet — your first review will appear here once your coach completes one."
+msgstr "Nog geen evaluaties — zodra je coach er een afrondt verschijnt die hier."
+
+msgid "Rolling average over your last %1$d evaluation. %2$d total recorded."
+msgid_plural "Rolling average over your last %1$d evaluations. %2$d total recorded."
+msgstr[0] "Voortschrijdend gemiddelde over je laatste %1$d evaluatie. %2$d in totaal vastgelegd."
+msgstr[1] "Voortschrijdend gemiddelde over je laatste %1$d evaluaties. %2$d in totaal vastgelegd."
+
+msgid "No active goals right now. Your coach will set new ones during the next review."
+msgstr "Nu geen actieve doelen. Je coach stelt nieuwe doelen tijdens het volgende gesprek."
+
+msgid "Due %s"
+msgstr "Streefdatum %s"
+
+msgid "See all %d goals"
+msgstr "Alle %d doelen bekijken"
+
+msgid "You're not on a team yet, so there's nothing scheduled."
+msgstr "Je staat nog niet in een team, dus er is nog niets gepland."
+
+msgid "Nothing on the calendar in the next few weeks."
+msgstr "Niets op de agenda in de komende weken."
+
+msgid "See all sessions"
+msgstr "Alle sessies bekijken"

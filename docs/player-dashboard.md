@@ -22,7 +22,13 @@ The training sessions and games you've attended. Use the search box and the date
 The development goals your coaches have set for you, grouped by status.
 
 ### My profile
-Your contact details and playing details, as your coaches have entered them. Ask your coach if anything's wrong. You can change your own login email, name and password from your account menu.
+A combined snapshot of who you are as a player. The hero strip at the top shows your photo, name, team, and your FIFA-style player card. Below that you'll find:
+
+- **Playing details** — position, foot, jersey, height, weight (your coach maintains these).
+- **Recent performance** — your rolling rating average and a small trend chart of your last evaluations.
+- **Active goals** — the top three goals you're working on, with priority and due date.
+- **Upcoming** — the next sessions on your team's calendar.
+- **Account** — your login name, email, and a button to change your password.
 
 ## Privacy
 
