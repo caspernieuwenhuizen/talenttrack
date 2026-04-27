@@ -1,3 +1,61 @@
+# TalentTrack v3.38.0 — My profile rebuild (#0014 Sprint 2)
+
+The player-facing **My profile** view, previously functional-but-spartan (avatar + definition list + WP edit-account button), is rebuilt as a six-section dashboard. A player opening it now sees their FIFA card, their recent rating trajectory, what they're working on, what's coming up, and their account — all on one screen.
+
+## What changed
+
+### `FrontendMyProfileView` rewrite
+
+Previously: ~110 lines, all inline-styled, two cards (Playing details + Account).
+
+Now: six sections, each with a purpose-built render method, all styles in CSS:
+
+- **Hero strip** — photo (or initials placeholder), name, team and age group, jersey number, plus the FIFA-style player card embedded via `PlayerCardView::renderCard('sm', show_tier=true)`. Same renderer the rate-card page uses, no parallel implementation.
+- **Playing details** — same fields as before (team, age group, positions, foot, jersey, height, weight, DOB), wrapped in a clean definition list. Coach-maintained-by note retained.
+- **Recent performance** — rolling rating average over the last 5 evaluations (matching `PlayerStatsService::getHeadlineNumbers`'s rolling window), a trend arrow (up / down / flat / insufficient), a 240×56 inline-SVG sparkline of the last 10 overall ratings, and a meta line ("Rolling average over your last N evaluations. M total recorded."). 0.15 dead-zone for trend matches the rate-card breakdown logic.
+- **Active goals** — top three goals with status NOT IN (completed, cancelled), ordered by due date ascending (NULL last). Each row shows title, due date, and a priority pill. "See all N goals" link when more than three exist.
+- **Upcoming** — next three team activities with `session_date >= today`, archive-aware. Date / title / location per row, "See all sessions" link to the My sessions view.
+- **Account** — display name, email, "Edit account settings" button. Unchanged from before.
+
+### CSS extraction
+
+New file `assets/css/frontend-profile.css`. All profile-specific styles live here; consumes the spacing tokens from `frontend-admin.css`. Responsive at three breakpoints (≥960px desktop, 640–959px tablet, <640px mobile). The FIFA card scales cleanly on phones because it owns its own size variants.
+
+### Data sources
+
+No new tables, no new repositories. Everything uses existing services:
+
+- `PlayerStatsService::getHeadlineNumbers` for the rolling rating.
+- `EvalRatingsRepository::overallRatingsForEvaluations` for the sparkline points.
+- Direct queries against `tt_goals` (with archived + status guards) for active goals.
+- Direct queries against `tt_activities` (with archived + future-date guard) for upcoming.
+- `PlayerCardView::renderCard` for the embedded FIFA card.
+- `LookupTranslator::byTypeAndName` for the translated foot label, `LabelTranslator::goalPriority` for priority chips.
+
+### Empty states
+
+Every section has a deliberate empty state for newly-rostered players:
+
+- No evaluations: "No evaluations yet — your first review will appear here once your coach completes one."
+- No goals: "No active goals right now. Your coach will set new ones during the next review."
+- No team: "You're not on a team yet, so there's nothing scheduled."
+- No upcoming on a team with one: "Nothing on the calendar in the next few weeks."
+- No photo: initials placeholder in a navy circle.
+
+## Files of note
+
+- `src/Shared/Frontend/FrontendMyProfileView.php` — full rewrite, signature stable.
+- `assets/css/frontend-profile.css` — new.
+- `docs/player-dashboard.md` + `docs/nl_NL/player-dashboard.md` — My profile section rewritten to describe the new layout.
+
+## Out of scope (rest of the #0014 epic)
+
+- **Sprint 3** — generalize `PlayerReportView` into a configurable renderer. Plumbing-only, no new output.
+- **Sprint 4** — report wizard + three audience templates (parent monthly / internal detailed / player personal).
+- **Sprint 5** — scout flow (new `tt_scout` role, emailed one-time links, persisted scout-reports table).
+
+---
+
 # TalentTrack v3.36.1 — Hotfix: frontend dashboard tiles disappeared after v3.36.0 (#0033 finalisation regression)
 
 v3.36.0 introduced a regression where every frontend dashboard tile except "Open wp-admin" silently disappeared. Admins and players alike saw an empty (or near-empty) tile grid after updating.

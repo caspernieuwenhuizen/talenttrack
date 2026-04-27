@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.36.1
+Stable tag: 3.38.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.38.0 — My profile rebuild (#0014 Sprint 2) =
+* NEW: The **My profile** view is rebuilt as a six-section dashboard. Hero strip with photo + name + team + the FIFA-style player card (embedded, not linked). Cards below: playing details, recent performance (rolling rating + sparkline of last 10 evaluations + trend arrow), top three active goals (with priority + due date), upcoming team sessions (next three), and account.
+* NEW: Graceful empty states throughout — newly-rostered players see helpful copy ("No evaluations yet — your first review will appear here once your coach completes one") instead of empty containers.
+* CHANGED: Inline styles extracted into `assets/css/frontend-profile.css`. Responsive at desktop (≥960px), tablet (640–959px), and mobile (<640px) breakpoints; FIFA card scales cleanly on phones.
+* INTERNAL: Reuses `PlayerStatsService::getHeadlineNumbers` for the rolling average and `PlayerCardView::renderCard('sm', show_tier=true)` for the embedded card. Sparkline is a small inline SVG (no external chart lib). Goal + upcoming queries pull from `tt_goals` and `tt_activities` directly with archived/status guards. No new schema.
 
 = 3.33.0 — Activity Type is lookup-driven, with per-type workflow policy (#0050) =
 * NEW: **Activity Types** is now a configurable lookup at Configuration → Activity Types. Three rows are seeded (Training / Game / Other), each carrying a workflow-template select that decides which task fires when an activity of that type is saved. Game seeds with `post_game_evaluation`; Training and Other seed empty (no auto-task). Admins can add a 4th type ("Tournament", "Open day", …) and pick whichever template should fire — or none.

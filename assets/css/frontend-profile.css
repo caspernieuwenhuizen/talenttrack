@@ -1,0 +1,340 @@
+/*
+ * TalentTrack — My profile (#0014 Sprint 2).
+ *
+ * Six sections: hero (photo + identity + FIFA card), playing details,
+ * recent performance, active goals, upcoming activities, account.
+ * Loaded by FrontendMyProfileView; consumes the spacing tokens set by
+ * frontend-admin.css.
+ *
+ * Breakpoints:
+ *   Desktop (>= 960px) — hero is horizontal; cards are 2-column.
+ *   Tablet  (640..959) — hero stacks; cards are 2-column.
+ *   Mobile  (< 640px)  — everything stacks one column; FIFA card scales.
+ */
+
+.tt-profile {
+    --tt-profile-ink:        #1a1d21;
+    --tt-profile-ink-soft:   #5b6470;
+    --tt-profile-line:       var(--tt-line, #e5e7ea);
+    --tt-profile-bg:         #fff;
+    --tt-profile-accent:     #2271b1;
+    --tt-profile-warn:       #b32d2e;
+    --tt-profile-positive:   #2c8c4a;
+    --tt-profile-flat:       #5b6470;
+
+    color: var(--tt-profile-ink);
+    max-width: 1080px;
+}
+
+/* Hero */
+
+.tt-profile-hero {
+    background: var(--tt-profile-bg);
+    border: 1px solid var(--tt-profile-line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: center;
+}
+
+.tt-profile-hero-identity {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-width: 0;
+}
+
+.tt-profile-photo {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #f6f7f7;
+    border: 1px solid var(--tt-profile-line);
+}
+.tt-profile-photo--placeholder {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #1d3a4a;
+    color: #fff;
+    font-weight: 700;
+    font-size: 32px;
+    letter-spacing: 0.5px;
+    border-color: transparent;
+}
+
+.tt-profile-hero-text { min-width: 0; }
+.tt-profile-name {
+    margin: 0 0 4px;
+    font-size: 22px;
+    line-height: 1.2;
+    color: var(--tt-profile-ink);
+    word-break: break-word;
+}
+.tt-profile-meta {
+    margin: 0;
+    font-size: 13px;
+    color: var(--tt-profile-ink-soft);
+}
+
+.tt-profile-hero-card {
+    flex-shrink: 0;
+}
+.tt-profile-hero-card .tt-pc {
+    margin: 0;
+}
+
+/* Card grid */
+
+.tt-profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.tt-profile-card {
+    background: var(--tt-profile-bg);
+    border: 1px solid var(--tt-profile-line);
+    border-radius: 12px;
+    padding: 18px 22px;
+    min-width: 0;
+}
+
+.tt-profile-card-title {
+    margin: 0 0 14px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--tt-profile-ink);
+}
+
+.tt-profile-empty {
+    margin: 0;
+    color: var(--tt-profile-ink-soft);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.tt-profile-note {
+    margin: 12px 0 0;
+    font-size: 12px;
+    color: #888;
+    font-style: italic;
+}
+
+/* Playing-details + account use the same simple definition list. */
+
+.tt-profile-dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    row-gap: 6px;
+    column-gap: 14px;
+}
+.tt-profile-dl dt {
+    color: var(--tt-profile-ink-soft);
+    font-size: 13px;
+    margin: 0;
+}
+.tt-profile-dl dd {
+    margin: 0;
+    font-weight: 500;
+    word-break: break-word;
+}
+
+/* Recent performance */
+
+.tt-profile-perf-headline {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+.tt-profile-perf-rating {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--tt-profile-ink);
+}
+.tt-profile-perf-trend {
+    font-size: 22px;
+    line-height: 1;
+}
+.tt-profile-perf-trend--up   { color: var(--tt-profile-positive); }
+.tt-profile-perf-trend--down { color: var(--tt-profile-warn); }
+.tt-profile-perf-trend--flat,
+.tt-profile-perf-trend--insufficient { color: var(--tt-profile-flat); }
+.tt-profile-perf-meta {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: var(--tt-profile-ink-soft);
+}
+.tt-profile-spark {
+    display: block;
+    color: var(--tt-profile-accent);
+    max-width: 100%;
+    height: auto;
+}
+
+/* Active goals */
+
+.tt-profile-goals {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.tt-profile-goal {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-auto-rows: auto;
+    column-gap: 12px;
+    row-gap: 2px;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f7f9fb;
+    border-radius: 8px;
+}
+.tt-profile-goal-title {
+    grid-column: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--tt-profile-ink);
+}
+.tt-profile-goal-due {
+    grid-column: 1;
+    font-size: 12px;
+    color: var(--tt-profile-ink-soft);
+}
+.tt-profile-goal-priority {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #e0e7ef;
+    color: #1d3a4a;
+    white-space: nowrap;
+}
+.tt-profile-goal-priority--high   { background: #fde2e2; color: #8a1f1f; }
+.tt-profile-goal-priority--medium { background: #fff3d6; color: #6b5614; }
+.tt-profile-goal-priority--low    { background: #e0f0e8; color: #1f5a36; }
+
+.tt-profile-card-link {
+    margin: 12px 0 0;
+    font-size: 13px;
+}
+.tt-profile-card-link a {
+    color: var(--tt-profile-accent);
+    text-decoration: none;
+}
+.tt-profile-card-link a:hover { text-decoration: underline; }
+
+/* Upcoming */
+
+.tt-profile-upcoming {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.tt-profile-upcoming-row {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    column-gap: 12px;
+    row-gap: 2px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--tt-profile-line);
+}
+.tt-profile-upcoming-row:last-child { border-bottom: 0; }
+.tt-profile-upcoming-date {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--tt-profile-ink);
+    font-size: 13px;
+}
+.tt-profile-upcoming-title {
+    grid-column: 2;
+    font-size: 14px;
+    color: var(--tt-profile-ink);
+}
+.tt-profile-upcoming-loc {
+    grid-column: 2;
+    font-size: 12px;
+    color: var(--tt-profile-ink-soft);
+}
+
+/* Account */
+
+.tt-profile-account-edit {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 8px 16px;
+    background: var(--tt-profile-accent);
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+.tt-profile-account-edit:hover { filter: brightness(1.05); color: #fff; }
+
+/* Tablet — hero stacks */
+
+@media (max-width: 960px) {
+    .tt-profile-hero {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+        gap: 16px;
+    }
+    .tt-profile-hero-identity {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* Mobile — single-column cards, full-width FIFA */
+
+@media (max-width: 640px) {
+    .tt-profile-hero {
+        padding: 16px;
+    }
+    .tt-profile-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .tt-profile-card {
+        padding: 14px 16px;
+    }
+    .tt-profile-dl {
+        grid-template-columns: 110px 1fr;
+        column-gap: 10px;
+    }
+    .tt-profile-photo {
+        width: 80px;
+        height: 80px;
+    }
+    .tt-profile-photo--placeholder {
+        font-size: 28px;
+    }
+    .tt-profile-name {
+        font-size: 19px;
+    }
+}

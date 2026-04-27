@@ -22,7 +22,13 @@ De trainingen en wedstrijden waar je bij was. Met de zoekbalk en het datumfilter
 De ontwikkelingsdoelen die je coaches voor jou hebben opgesteld, gegroepeerd op status.
 
 ### Mijn profiel
-Je contactgegevens en speelgegevens, zoals je coaches die hebben ingevoerd. Klopt iets niet? Vraag het je coach. Je eigen e-mailadres, naam en wachtwoord pas je aan via je accountmenu.
+Een verzameld overzicht van wie je bent als speler. Bovenaan zie je je foto, naam, team en je FIFA-spelerskaart. Daaronder:
+
+- **Speelgegevens** — positie, voet, rugnummer, lengte, gewicht (je coach houdt deze bij).
+- **Recente prestaties** — je voortschrijdend gemiddelde en een mini-grafiek van je laatste evaluaties.
+- **Actieve doelen** — de drie doelen waaraan je werkt, met prioriteit en streefdatum.
+- **Aankomend** — de volgende activiteiten op de teamagenda.
+- **Account** — je naam, e-mailadres en een knop om je wachtwoord aan te passen.
 
 ## Privacy
 
