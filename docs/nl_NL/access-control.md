@@ -14,7 +14,7 @@ Elk groot onderdeel heeft een **view**-recht en, voor schrijfbare onderdelen, ee
 | Spelers      | `tt_view_players`     | `tt_edit_players`     |
 | Personen     | `tt_view_people`      | `tt_edit_people`      |
 | Evaluaties   | `tt_view_evaluations` | `tt_edit_evaluations` |
-| Sessies      | `tt_view_sessions`    | `tt_edit_sessions`    |
+| Sessies      | `tt_view_activities`    | `tt_edit_activities`    |
 | Doelen       | `tt_view_goals`       | `tt_edit_goals`       |
 | Instellingen | `tt_view_settings`    | `tt_edit_settings`    |
 | Rapporten    | `tt_view_reports`     | *(geen edit-tegenhanger)* |

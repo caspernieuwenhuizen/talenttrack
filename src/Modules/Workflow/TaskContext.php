@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * fields null (e.g. the Quarterly HoD review).
  *
  * `extras` is an open map for trigger-specific data that isn't an
- * entity FK (e.g. a session-completed event might pass `match_result`
+ * entity FK (e.g. a session-completed event might pass `game_result`
  * if useful). Resolvers are free to consult it; the engine doesn't
  * persist it.
  */
@@ -22,7 +22,7 @@ final class TaskContext {
     public function __construct(
         public readonly ?int $player_id     = null,
         public readonly ?int $team_id       = null,
-        public readonly ?int $session_id    = null,
+        public readonly ?int $activity_id    = null,
         public readonly ?int $evaluation_id = null,
         public readonly ?int $goal_id       = null,
         public readonly ?int $trial_case_id = null,
@@ -42,7 +42,7 @@ final class TaskContext {
         return [
             'player_id'      => $this->player_id,
             'team_id'        => $this->team_id,
-            'session_id'     => $this->session_id,
+            'activity_id'     => $this->activity_id,
             'evaluation_id'  => $this->evaluation_id,
             'goal_id'        => $this->goal_id,
             'trial_case_id'  => $this->trial_case_id,
@@ -59,7 +59,7 @@ final class TaskContext {
         return new self(
             $overrides['player_id']      ?? $this->player_id,
             $overrides['team_id']        ?? $this->team_id,
-            $overrides['session_id']     ?? $this->session_id,
+            $overrides['activity_id']     ?? $this->activity_id,
             $overrides['evaluation_id']  ?? $this->evaluation_id,
             $overrides['goal_id']        ?? $this->goal_id,
             $overrides['trial_case_id']  ?? $this->trial_case_id,

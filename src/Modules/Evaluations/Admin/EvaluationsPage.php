@@ -277,7 +277,7 @@ class EvaluationsPage {
                             <?php $tt_comp_current = (string) ( $eval->competition ?? '' ); ?>
                             <select name="competition">
                                 <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
-                                <?php foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookups( 'competition_type' ) as $tt_ct ) : ?>
+                                <?php foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookups( 'game_subtype' ) as $tt_ct ) : ?>
                                     <option value="<?php echo esc_attr( (string) $tt_ct->name ); ?>" <?php selected( $tt_comp_current, (string) $tt_ct->name ); ?>>
                                         <?php echo esc_html( __( (string) $tt_ct->name, 'talenttrack' ) ); ?>
                                     </option>
@@ -286,8 +286,8 @@ class EvaluationsPage {
                         </td>
                     </tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'competition' ); ?>
-                    <tr><th><?php esc_html_e( 'Result', 'talenttrack' ); ?></th><td><input type="text" name="match_result" value="<?php echo esc_attr( $eval->match_result ?? '' ); ?>" style="width:80px" /></td></tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'match_result' ); ?>
+                    <tr><th><?php esc_html_e( 'Result', 'talenttrack' ); ?></th><td><input type="text" name="game_result" value="<?php echo esc_attr( $eval->game_result ?? '' ); ?>" style="width:80px" /></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'game_result' ); ?>
                     <tr><th><?php esc_html_e( 'Home/Away', 'talenttrack' ); ?></th><td><select name="home_away"><option value="">—</option><option value="home" <?php selected( $eval->home_away ?? '', 'home' ); ?>><?php esc_html_e( 'Home', 'talenttrack' ); ?></option><option value="away" <?php selected( $eval->home_away ?? '', 'away' ); ?>><?php esc_html_e( 'Away', 'talenttrack' ); ?></option></select></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'home_away' ); ?>
                     <tr><th><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></th><td><input type="number" name="minutes_played" value="<?php echo esc_attr( $eval->minutes_played ?? '' ); ?>" min="0" max="120" /></td></tr>
@@ -752,7 +752,7 @@ class EvaluationsPage {
             'notes'        => isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '',
             'opponent'     => isset( $_POST['opponent'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['opponent'] ) ) : '',
             'competition'  => isset( $_POST['competition'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['competition'] ) ) : '',
-            'match_result' => isset( $_POST['match_result'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['match_result'] ) ) : '',
+            'game_result' => isset( $_POST['game_result'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['game_result'] ) ) : '',
             'home_away'    => isset( $_POST['home_away'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['home_away'] ) ) : '',
             'minutes_played' => ! empty( $_POST['minutes_played'] ) ? absint( $_POST['minutes_played'] ) : null,
         ];

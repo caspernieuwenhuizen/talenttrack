@@ -387,7 +387,7 @@ class Activator {
         ) $c;";
 
         /* ─── Sessions & attendance ─── */
-        $queries[] = "CREATE TABLE {$p}tt_sessions (
+        $queries[] = "CREATE TABLE {$p}tt_activitys (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             title VARCHAR(255) NOT NULL,
             session_date DATE NOT NULL,
@@ -625,7 +625,7 @@ class Activator {
             'season_label' => '2025/2026', 'academy_name' => 'Soccer Academy',
             'footer_text' => '', 'date_format' => 'Y-m-d',
             'default_report_range' => '3', 'composite_weights' => '{}',
-            'modules_enabled' => '["evaluations","goals","attendance","sessions","reports","people","authorization"]',
+            'modules_enabled' => '["evaluations","goals","attendance","activities","reports","people","authorization"]',
             'primary_color' => '#0b3d2e', 'secondary_color' => '#e8b624',
             'logo_url' => '',
             'login_redirect_enabled' => '1',

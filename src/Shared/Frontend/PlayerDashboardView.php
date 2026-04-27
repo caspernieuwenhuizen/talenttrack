@@ -94,7 +94,7 @@ class PlayerDashboardView {
                 $full = QueryHelpers::get_evaluation( (int) $ev->id );
                 echo '<tr><td>' . esc_html( $ev->eval_date ) . '</td><td>' . esc_html( $ev->type_name ?: '—' ) . '</td><td>' . esc_html( $ev->coach_name ) . '</td><td>';
                 if ( $ev->opponent ) {
-                    echo '<small>' . esc_html( sprintf( __( 'vs %s (%s)', 'talenttrack' ), $ev->opponent, $ev->match_result ?: '—' ) ) . '</small><br/>';
+                    echo '<small>' . esc_html( sprintf( __( 'vs %s (%s)', 'talenttrack' ), $ev->opponent, $ev->game_result ?: '—' ) ) . '</small><br/>';
                 }
                 $show_subs = EvalDisplayMode::showSubcategories( get_current_user_id() );
                 if ( $full && ! empty( $full->ratings ) ) foreach ( $full->ratings as $r ) {
@@ -133,7 +133,7 @@ class PlayerDashboardView {
         // (player_id = X) or attended as a linked guest (guest_player_id = X).
         $att = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.*, s.title AS session_title, s.session_date FROM {$p}tt_attendance a
-             LEFT JOIN {$p}tt_sessions s ON a.session_id=s.id
+             LEFT JOIN {$p}tt_activities s ON a.activity_id=s.id
              WHERE a.player_id=%d OR a.guest_player_id=%d
              ORDER BY s.session_date DESC", $player->id, $player->id
         ));
@@ -142,7 +142,7 @@ class PlayerDashboardView {
         } else {
             echo '<table class="tt-table"><thead><tr>'
                 . '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>'
-                . '<th>' . esc_html__( 'Session', 'talenttrack' ) . '</th>'
+                . '<th>' . esc_html__( 'Activity', 'talenttrack' ) . '</th>'
                 . '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>'
                 . '<th>' . esc_html__( 'Notes', 'talenttrack' ) . '</th>'
                 . '</tr></thead><tbody>';

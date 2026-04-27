@@ -7,7 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\DemoData\DemoBatchRegistry;
 
 /**
- * SessionGenerator — fills tt_sessions + tt_attendance.
+ * ActivityGenerator — fills tt_activities + tt_attendance.
  *
  * Cadence: 2 sessions per team per week across the activity window.
  * Attendance mix per session: 85% Present, 10% Absent, 5% Late, plus
@@ -20,7 +20,7 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  * GoalGenerator — not reliant on .po/.mo tooling. Extend by adding a
  * key to SESSION_STRINGS_BY_LANGUAGE.
  */
-class SessionGenerator {
+class ActivityGenerator {
 
     /** Attendance distribution as cumulative weights. */
     private const ATTENDANCE = [
@@ -106,21 +106,36 @@ class SessionGenerator {
 
             for ( $w = 0; $w < $this->weeks; $w++ ) {
                 for ( $s = 0; $s < 2; $s++ ) {
-                    // 2 sessions per week, spaced Tue / Thu-ish
+                    // 2 activities per week, spaced Tue / Thu-ish
+                    // — second slot of every 3rd week becomes a game.
                     $day_offset = ( $w * 7 ) + ( $s === 0 ? 1 : 3 );
                     $when = $start_date + $day_offset * DAY_IN_SECONDS;
 
-                    $wpdb->insert( "{$wpdb->prefix}tt_sessions", [
-                        'title'        => sprintf( $strings['title_template'], $w + 1, $s + 1 ),
-                        'session_date' => gmdate( 'Y-m-d', $when ),
-                        'location'     => $strings['default_location'],
-                        'team_id'      => $team_id,
-                        'coach_id'     => $coach_id,
-                        'notes'        => '',
+                    $is_game = ( $s === 1 && ( $w % 3 ) === 2 );
+                    $type    = $is_game ? 'game' : 'training';
+                    $subtype = null;
+                    if ( $is_game ) {
+                        $sub_pool = [ 'League', 'League', 'Cup', 'Friendly' ];
+                        $subtype  = $sub_pool[ $w % count( $sub_pool ) ];
+                    }
+                    $title = $is_game
+                        ? sprintf( 'Game %d.%d', $w + 1, $s + 1 )
+                        : sprintf( $strings['title_template'], $w + 1, $s + 1 );
+
+                    $wpdb->insert( "{$wpdb->prefix}tt_activities", [
+                        'title'             => $title,
+                        'session_date'      => gmdate( 'Y-m-d', $when ),
+                        'location'          => $strings['default_location'],
+                        'team_id'           => $team_id,
+                        'coach_id'          => $coach_id,
+                        'notes'             => '',
+                        'activity_type_key' => $type,
+                        'game_subtype_key'  => $subtype,
+                        'other_label'       => null,
                     ] );
-                    $session_id = (int) $wpdb->insert_id;
-                    if ( ! $session_id ) continue;
-                    $this->registry->tag( 'session', $session_id, [ 'team_id' => $team_id ] );
+                    $activity_id = (int) $wpdb->insert_id;
+                    if ( ! $activity_id ) continue;
+                    $this->registry->tag( 'activity', $activity_id, [ 'team_id' => $team_id ] );
                     $total++;
 
                     foreach ( $roster as $player_id ) {
@@ -128,7 +143,7 @@ class SessionGenerator {
                         $status = $attendance_lookup[ $label ] ?? $label;
 
                         $wpdb->insert( "{$wpdb->prefix}tt_attendance", [
-                            'session_id' => $session_id,
+                            'activity_id' => $activity_id,
                             'player_id'  => $player_id,
                             'status'     => $status,
                             'notes'      => '',

@@ -12,7 +12,7 @@ use TT\Modules\Evaluations\Admin\EvaluationsPage;
 use TT\Modules\Goals\Admin\GoalsPage;
 use TT\Modules\Players\Admin\PlayersPage;
 use TT\Modules\Reports\Admin\ReportsPage;
-use TT\Modules\Sessions\Admin\SessionsPage;
+use TT\Modules\Activities\Admin\ActivitiesPage;
 use TT\Modules\Stats\Admin\PlayerRateCardsPage;
 use TT\Modules\Teams\Admin\TeamsPage;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -116,7 +116,7 @@ class Menu {
 
         self::addSeparator( 'tt-sep-performance', __( 'Performance', 'talenttrack' ), 'tt_view_evaluations' );
         add_submenu_page( 'talenttrack', __( 'Evaluations', 'talenttrack' ), __( 'Evaluations', 'talenttrack' ), 'tt_view_evaluations', 'tt-evaluations', [ EvaluationsPage::class, 'render_page' ] );
-        add_submenu_page( 'talenttrack', __( 'Sessions', 'talenttrack' ), __( 'Sessions', 'talenttrack' ), 'tt_view_sessions', 'tt-sessions', [ SessionsPage::class, 'render_page' ] );
+        add_submenu_page( 'talenttrack', __( 'Activities', 'talenttrack' ), __( 'Activities', 'talenttrack' ), 'tt_view_activities', 'tt-activities', [ ActivitiesPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Goals', 'talenttrack' ), __( 'Goals', 'talenttrack' ), 'tt_view_goals', 'tt-goals', [ GoalsPage::class, 'render_page' ] );
         add_submenu_page( 'talenttrack', __( 'Methodology', 'talenttrack' ), __( 'Methodology', 'talenttrack' ), \TT\Modules\Methodology\Admin\MethodologyPage::CAP_VIEW, \TT\Modules\Methodology\Admin\MethodologyPage::SLUG, [ \TT\Modules\Methodology\Admin\MethodologyPage::class, 'render' ] );
         // Hidden edit pages — registered with parent = null so they
@@ -259,13 +259,13 @@ class Menu {
         $player_scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
         $team_scope   = QueryHelpers::apply_demo_scope( 't',  'team' );
         $eval_scope   = QueryHelpers::apply_demo_scope( 'e',  'evaluation' );
-        $sess_scope   = QueryHelpers::apply_demo_scope( 's',  'session' );
+        $sess_scope   = QueryHelpers::apply_demo_scope( 's',  'activity' );
         $goal_scope   = QueryHelpers::apply_demo_scope( 'g',  'goal' );
 
         $delta_players = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.status='active' AND pl.archived_at IS NULL AND pl.created_at >= %s {$player_scope}", $week_ago ) );
         $delta_teams   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_teams t WHERE t.archived_at IS NULL AND t.created_at >= %s {$team_scope}", $week_ago ) );
         $delta_evals   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_evaluations e WHERE e.archived_at IS NULL AND e.created_at >= %s {$eval_scope}", $week_ago ) );
-        $delta_sess    = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_sessions s WHERE s.archived_at IS NULL AND s.created_at >= %s {$sess_scope}", $week_ago ) );
+        $delta_sess    = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_activities s WHERE s.archived_at IS NULL AND s.created_at >= %s {$sess_scope}", $week_ago ) );
         $delta_goals   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_goals g WHERE g.archived_at IS NULL AND g.created_at >= %s {$goal_scope}", $week_ago ) );
 
         // Stats for the Overview section
@@ -298,12 +298,12 @@ class Menu {
                 'color'    => '#7c3a9e',
             ],
             [
-                'label'    => __( 'Sessions', 'talenttrack' ),
-                'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_sessions s WHERE s.archived_at IS NULL {$sess_scope}" ),
+                'label'    => __( 'Activities', 'talenttrack' ),
+                'count'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_activities s WHERE s.archived_at IS NULL {$sess_scope}" ),
                 'delta'    => $delta_sess,
-                'icon'     => 'sessions',
-                'url'      => admin_url( 'admin.php?page=tt-sessions' ),
-                'cap'      => 'tt_view_sessions',
+                'icon'     => 'activities',
+                'url'      => admin_url( 'admin.php?page=tt-activities' ),
+                'cap'      => 'tt_view_activities',
                 'color'    => '#c9962a',
             ],
             [
@@ -337,7 +337,7 @@ class Menu {
                 'accent' => '#7c3a9e',
                 'tiles'  => [
                     [ 'label' => __( 'Evaluations', 'talenttrack' ), 'icon' => 'evaluations', 'url' => admin_url( 'admin.php?page=tt-evaluations' ), 'cap' => 'tt_view_evaluations', 'desc' => __( 'Rate players across training and match sessions.', 'talenttrack' ) ],
-                    [ 'label' => __( 'Sessions', 'talenttrack' ),    'icon' => 'sessions',    'url' => admin_url( 'admin.php?page=tt-sessions' ),    'cap' => 'tt_view_sessions', 'desc' => __( 'Record training sessions and attendance.', 'talenttrack' ) ],
+                    [ 'label' => __( 'Activities', 'talenttrack' ),    'icon' => 'activities',    'url' => admin_url( 'admin.php?page=tt-activities' ),    'cap' => 'tt_view_activities', 'desc' => __( 'Record training sessions and attendance.', 'talenttrack' ) ],
                     [ 'label' => __( 'Goals', 'talenttrack' ),       'icon' => 'goals',       'url' => admin_url( 'admin.php?page=tt-goals' ),       'cap' => 'tt_view_goals', 'desc' => __( 'Set and track development goals per player.', 'talenttrack' ) ],
                 ],
             ],

@@ -14,9 +14,9 @@ use TT\Modules\Workflow\WorkflowModule;
  * engine when the event fires.
  *
  * Sprint 2 ships the wiring; the post-match evaluation template (which
- * subscribes to `tt_session_completed`) is added in Sprint 3 but the
- * actual `do_action('tt_session_completed', ...)` lives in
- * SessionsModule and is *not* wired in Sprint 3 (would conflict with
+ * subscribes to `tt_activity_completed`) is added in Sprint 3 but the
+ * actual `do_action('tt_activity_completed', ...)` lives in
+ * ActivitiesModule and is *not* wired in Sprint 3 (would conflict with
  * the parallel #0026 branch). The hook will be added by whoever lands
  * #0026 + the event-fire change together post-merge — until then,
  * post-match tasks fire via manual or polling.
@@ -44,7 +44,7 @@ class EventDispatcher {
      *
      * Convention for event arguments: the first argument may be a
      * TaskContext (cleanest), or an associative array of (player_id,
-     * team_id, session_id, evaluation_id, goal_id, trial_case_id) keys.
+     * team_id, activity_id, evaluation_id, goal_id, trial_case_id) keys.
      * Anything else gets wrapped as `extras` on an empty context.
      *
      * @param mixed[] $args
@@ -63,7 +63,7 @@ class EventDispatcher {
             return new TaskContext(
                 isset( $first['player_id'] ) ? (int) $first['player_id'] : null,
                 isset( $first['team_id'] ) ? (int) $first['team_id'] : null,
-                isset( $first['session_id'] ) ? (int) $first['session_id'] : null,
+                isset( $first['activity_id'] ) ? (int) $first['activity_id'] : null,
                 isset( $first['evaluation_id'] ) ? (int) $first['evaluation_id'] : null,
                 isset( $first['goal_id'] ) ? (int) $first['goal_id'] : null,
                 isset( $first['trial_case_id'] ) ? (int) $first['trial_case_id'] : null,

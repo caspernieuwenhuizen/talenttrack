@@ -33,7 +33,7 @@ class PresetRegistry {
             'tt_eval_ratings',
         ];
         $standard = array_merge( $minimal, [
-            'tt_sessions',
+            'tt_activities',
             'tt_attendance',
             'tt_goals',
             'tt_people',

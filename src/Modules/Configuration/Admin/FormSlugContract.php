@@ -39,7 +39,7 @@ class FormSlugContract {
             case CustomFieldsRepository::ENTITY_PLAYER:     return self::playerSlugs();
             case CustomFieldsRepository::ENTITY_PERSON:     return self::personSlugs();
             case CustomFieldsRepository::ENTITY_TEAM:       return self::teamSlugs();
-            case CustomFieldsRepository::ENTITY_SESSION:    return self::sessionSlugs();
+            case CustomFieldsRepository::ENTITY_ACTIVITY:    return self::sessionSlugs();
             case CustomFieldsRepository::ENTITY_GOAL:       return self::goalSlugs();
             case CustomFieldsRepository::ENTITY_EVALUATION: return self::evaluationSlugs();
         }
@@ -123,7 +123,7 @@ class FormSlugContract {
             'eval_date'      => __( 'Evaluation date', 'talenttrack' ),
             'opponent'       => __( 'Opponent', 'talenttrack' ),
             'competition'    => __( 'Competition', 'talenttrack' ),
-            'match_result'   => __( 'Match result', 'talenttrack' ),
+            'game_result'   => __( 'Match result', 'talenttrack' ),
             'home_away'      => __( 'Home/Away', 'talenttrack' ),
             'minutes_played' => __( 'Minutes played', 'talenttrack' ),
             'notes'          => __( 'Notes', 'talenttrack' ),

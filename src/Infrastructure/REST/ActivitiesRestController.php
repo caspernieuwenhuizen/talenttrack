@@ -7,7 +7,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 
 /**
- * SessionsRestController — /wp-json/talenttrack/v1/sessions
+ * ActivitiesRestController — /wp-json/talenttrack/v1/sessions
  *
  * #0019 Sprint 1 — replaces the legacy `tt_fe_save_session` admin-ajax
  * path. Attendance is a nested sub-resource handled inline on create
@@ -15,7 +15,7 @@ use TT\Infrastructure\Query\QueryHelpers;
  * session form. Fail-loud: every $wpdb write return value is checked
  * and failures land in the Logger.
  */
-class SessionsRestController {
+class ActivitiesRestController {
 
     const NS = 'talenttrack/v1';
 
@@ -74,11 +74,11 @@ class SessionsRestController {
     }
 
     public static function can_view(): bool {
-        return current_user_can( 'tt_view_sessions' ) || current_user_can( 'tt_edit_sessions' );
+        return current_user_can( 'tt_view_activities' ) || current_user_can( 'tt_edit_activities' );
     }
 
     public static function can_edit(): bool {
-        return current_user_can( 'tt_edit_sessions' );
+        return current_user_can( 'tt_edit_activities' );
     }
 
     /** Whitelist of columns the `orderby` query param accepts. */
@@ -138,7 +138,7 @@ class SessionsRestController {
         $where  = [ '1=1' ];
         $params = [];
 
-        $scope = QueryHelpers::apply_demo_scope( 's', 'session' );
+        $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
 
         // Archived filter — default hides archived rows.
         if ( empty( $r['include_archived'] ) ) {
@@ -189,7 +189,7 @@ class SessionsRestController {
         // OK for the 100-row max; if perf becomes a problem we revisit
         // (Q2 in the Sprint 2 plan accepts that risk).
         $select_cols = "s.*, t.name AS team_name,
-            (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.session_id = s.id AND a.is_guest = 0) AS attendance_count,
+            (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.is_guest = 0) AS attendance_count,
             (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id) AS roster_size";
 
         $having = '';
@@ -203,7 +203,7 @@ class SessionsRestController {
         }
 
         $list_sql = "SELECT {$select_cols}
-                     FROM {$p}tt_sessions s
+                     FROM {$p}tt_activities s
                      LEFT JOIN {$p}tt_teams t ON t.id = s.team_id
                      WHERE {$where_sql}
                      {$having}
@@ -221,15 +221,15 @@ class SessionsRestController {
         if ( $having !== '' ) {
             $count_sql = "SELECT COUNT(*) FROM (
                 SELECT s.id,
-                    (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.session_id = s.id AND a.is_guest = 0) AS attendance_count,
+                    (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.is_guest = 0) AS attendance_count,
                     (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id) AS roster_size
-                FROM {$p}tt_sessions s
+                FROM {$p}tt_activities s
                 LEFT JOIN {$p}tt_teams t ON t.id = s.team_id
                 WHERE {$where_sql}
                 {$having}
             ) AS sub";
         } else {
-            $count_sql = "SELECT COUNT(*) FROM {$p}tt_sessions s
+            $count_sql = "SELECT COUNT(*) FROM {$p}tt_activities s
                           LEFT JOIN {$p}tt_teams t ON t.id = s.team_id
                           WHERE {$where_sql}";
         }
@@ -283,7 +283,7 @@ class SessionsRestController {
             return RestResponse::error( 'missing_fields', __( 'Title and date are required.', 'talenttrack' ), 400 );
         }
 
-        $ok = $wpdb->insert( "{$p}tt_sessions", $data );
+        $ok = $wpdb->insert( "{$p}tt_activities", $data );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'session.save.failed', [ 'db_error' => $err, 'payload' => $data ] );
@@ -294,32 +294,32 @@ class SessionsRestController {
                 [ 'db_error' => $err ]
             );
         }
-        $session_id = (int) $wpdb->insert_id;
+        $activity_id = (int) $wpdb->insert_id;
 
         // #0025 — detect source language for free-text session fields.
-        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'session', $session_id, 'title',    (string) $data['title'] );
-        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'session', $session_id, 'notes',    (string) $data['notes'] );
-        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'session', $session_id, 'location', (string) $data['location'] );
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'title',    (string) $data['title'] );
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'notes',    (string) $data['notes'] );
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'location', (string) $data['location'] );
 
-        $att_failures = self::write_attendance( $session_id, self::attendance_from_request( $r ) );
+        $att_failures = self::write_attendance( $activity_id, self::attendance_from_request( $r ) );
         if ( $att_failures ) {
-            Logger::error( 'session.attendance.save.failed', [ 'session_id' => $session_id, 'failures' => $att_failures ] );
+            Logger::error( 'session.attendance.save.failed', [ 'activity_id' => $activity_id, 'failures' => $att_failures ] );
             return RestResponse::error(
                 'partial_save',
                 __( 'The session was saved, but some attendance rows could not be stored.', 'talenttrack' ),
                 500,
-                [ 'session_id' => $session_id, 'failures' => $att_failures ]
+                [ 'activity_id' => $activity_id, 'failures' => $att_failures ]
             );
         }
 
-        return RestResponse::success( [ 'id' => $session_id ] );
+        return RestResponse::success( [ 'id' => $activity_id ] );
     }
 
     public static function update_session( \WP_REST_Request $r ) {
         global $wpdb; $p = $wpdb->prefix;
 
-        $session_id = absint( $r['id'] );
-        if ( $session_id <= 0 ) {
+        $activity_id = absint( $r['id'] );
+        if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid session id.', 'talenttrack' ), 400 );
         }
 
@@ -327,10 +327,10 @@ class SessionsRestController {
         // Preserve original coach on update.
         unset( $data['coach_id'] );
 
-        $ok = $wpdb->update( "{$p}tt_sessions", $data, [ 'id' => $session_id ] );
+        $ok = $wpdb->update( "{$p}tt_activities", $data, [ 'id' => $activity_id ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
-            Logger::error( 'session.update.failed', [ 'db_error' => $err, 'session_id' => $session_id ] );
+            Logger::error( 'session.update.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
             return RestResponse::error(
                 'db_error',
                 __( 'The session could not be updated. The database rejected the operation.', 'talenttrack' ),
@@ -341,43 +341,43 @@ class SessionsRestController {
 
         // #0025 — re-detect source language on update; idempotent on
         // unchanged content via the source_hash check inside.
-        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'session', $session_id, 'title',    (string) $data['title'] );
-        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'session', $session_id, 'notes',    (string) $data['notes'] );
-        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'session', $session_id, 'location', (string) $data['location'] );
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'title',    (string) $data['title'] );
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'notes',    (string) $data['notes'] );
+        \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'location', (string) $data['location'] );
 
         if ( self::request_has_attendance( $r ) ) {
             // #0026 — only wipe the roster rows; guest rows are
             // managed via the dedicated guest endpoints and must
             // survive a session update.
-            $wpdb->delete( "{$p}tt_attendance", [ 'session_id' => $session_id, 'is_guest' => 0 ] );
-            $att_failures = self::write_attendance( $session_id, self::attendance_from_request( $r ) );
+            $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'is_guest' => 0 ] );
+            $att_failures = self::write_attendance( $activity_id, self::attendance_from_request( $r ) );
             if ( $att_failures ) {
-                Logger::error( 'session.attendance.update.failed', [ 'session_id' => $session_id, 'failures' => $att_failures ] );
+                Logger::error( 'session.attendance.update.failed', [ 'activity_id' => $activity_id, 'failures' => $att_failures ] );
                 return RestResponse::error(
                     'partial_save',
                     __( 'The session was updated, but some attendance rows could not be stored.', 'talenttrack' ),
                     500,
-                    [ 'session_id' => $session_id, 'failures' => $att_failures ]
+                    [ 'activity_id' => $activity_id, 'failures' => $att_failures ]
                 );
             }
         }
 
-        return RestResponse::success( [ 'id' => $session_id ] );
+        return RestResponse::success( [ 'id' => $activity_id ] );
     }
 
     public static function delete_session( \WP_REST_Request $r ) {
         global $wpdb; $p = $wpdb->prefix;
 
-        $session_id = absint( $r['id'] );
-        if ( $session_id <= 0 ) {
+        $activity_id = absint( $r['id'] );
+        if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid session id.', 'talenttrack' ), 400 );
         }
 
-        $wpdb->delete( "{$p}tt_attendance", [ 'session_id' => $session_id ] );
-        $ok = $wpdb->delete( "{$p}tt_sessions", [ 'id' => $session_id ] );
+        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id ] );
+        $ok = $wpdb->delete( "{$p}tt_activities", [ 'id' => $activity_id ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
-            Logger::error( 'session.delete.failed', [ 'db_error' => $err, 'session_id' => $session_id ] );
+            Logger::error( 'session.delete.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
             return RestResponse::error(
                 'db_error',
                 __( 'The session could not be deleted.', 'talenttrack' ),
@@ -386,7 +386,7 @@ class SessionsRestController {
             );
         }
 
-        return RestResponse::success( [ 'deleted' => true, 'id' => $session_id ] );
+        return RestResponse::success( [ 'deleted' => true, 'id' => $activity_id ] );
     }
 
     /**
@@ -433,13 +433,13 @@ class SessionsRestController {
      * @param array<int, array{status:string, notes:string}> $rows
      * @return array<int, array{player_id:int, db_error:string}>
      */
-    private static function write_attendance( int $session_id, array $rows ): array {
+    private static function write_attendance( int $activity_id, array $rows ): array {
         if ( ! $rows ) return [];
         global $wpdb; $p = $wpdb->prefix;
         $failures = [];
         foreach ( $rows as $pid => $fields ) {
             $ok = $wpdb->insert( "{$p}tt_attendance", [
-                'session_id' => $session_id,
+                'activity_id' => $activity_id,
                 'player_id'  => (int) $pid,
                 'status'     => $fields['status'],
                 'notes'      => $fields['notes'],
@@ -468,12 +468,12 @@ class SessionsRestController {
      */
     public static function add_guest( \WP_REST_Request $r ) {
         global $wpdb; $p = $wpdb->prefix;
-        $session_id = absint( $r['id'] );
-        if ( $session_id <= 0 ) {
+        $activity_id = absint( $r['id'] );
+        if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid session id.', 'talenttrack' ), 400 );
         }
         $exists = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_sessions WHERE id = %d", $session_id
+            "SELECT COUNT(*) FROM {$p}tt_activities WHERE id = %d", $activity_id
         ) );
         if ( $exists === 0 ) {
             return RestResponse::error( 'not_found', __( 'Session not found.', 'talenttrack' ), 404 );
@@ -505,7 +505,7 @@ class SessionsRestController {
         }
 
         $row = [
-            'session_id'      => $session_id,
+            'activity_id'      => $activity_id,
             'player_id'       => null,
             'status'          => $status,
             'notes'           => '',
@@ -519,7 +519,7 @@ class SessionsRestController {
         $ok = $wpdb->insert( "{$p}tt_attendance", $row );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
-            Logger::error( 'attendance.guest.add.failed', [ 'db_error' => $err, 'session_id' => $session_id ] );
+            Logger::error( 'attendance.guest.add.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
             return RestResponse::error( 'db_error',
                 __( 'The guest could not be added.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
         }
@@ -616,7 +616,7 @@ class SessionsRestController {
         }
         return [
             'id'              => (int) $row->id,
-            'session_id'      => (int) $row->session_id,
+            'activity_id'      => (int) $row->activity_id,
             'is_guest'        => (int) $row->is_guest,
             'guest_player_id' => $row->guest_player_id !== null ? (int) $row->guest_player_id : null,
             'guest_name'      => $row->guest_name,

@@ -44,7 +44,7 @@ interface TaskTemplateInterface {
      * Default cadence config. Returns one of:
      *   - ['type' => 'manual']
      *   - ['type' => 'cron', 'expression' => '0 18 * * 0']  (WP-cron-flavoured)
-     *   - ['type' => 'event', 'hook' => 'tt_session_completed']
+     *   - ['type' => 'event', 'hook' => 'tt_activity_completed']
      *
      * Per-install overrides live in tt_workflow_template_config.cadence_override.
      *
@@ -76,7 +76,7 @@ interface TaskTemplateInterface {
 
     /**
      * Which TT entity types this template links to. Each value names a
-     * tt_workflow_tasks column (e.g. 'player_id', 'team_id', 'session_id',
+     * tt_workflow_tasks column (e.g. 'player_id', 'team_id', 'activity_id',
      * 'evaluation_id', 'goal_id', 'trial_case_id'). The engine populates
      * those columns from the trigger context.
      *

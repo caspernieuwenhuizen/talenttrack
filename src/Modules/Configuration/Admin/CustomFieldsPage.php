@@ -446,7 +446,7 @@ another|Another label"><?php echo esc_textarea( self::optionsToText( $options ) 
             CustomFieldsRepository::ENTITY_PLAYER,
             CustomFieldsRepository::ENTITY_PERSON,
             CustomFieldsRepository::ENTITY_TEAM,
-            CustomFieldsRepository::ENTITY_SESSION,
+            CustomFieldsRepository::ENTITY_ACTIVITY,
             CustomFieldsRepository::ENTITY_GOAL,
             CustomFieldsRepository::ENTITY_EVALUATION,
         ];
@@ -469,7 +469,7 @@ another|Another label"><?php echo esc_textarea( self::optionsToText( $options ) 
             case CustomFieldsRepository::ENTITY_PLAYER:     return __( 'Players', 'talenttrack' );
             case CustomFieldsRepository::ENTITY_PERSON:     return __( 'People', 'talenttrack' );
             case CustomFieldsRepository::ENTITY_TEAM:       return __( 'Teams', 'talenttrack' );
-            case CustomFieldsRepository::ENTITY_SESSION:    return __( 'Sessions', 'talenttrack' );
+            case CustomFieldsRepository::ENTITY_ACTIVITY:    return __( 'Activities', 'talenttrack' );
             case CustomFieldsRepository::ENTITY_GOAL:       return __( 'Goals', 'talenttrack' );
             case CustomFieldsRepository::ENTITY_EVALUATION: return __( 'Evaluations', 'talenttrack' );
         }

@@ -11,7 +11,7 @@ use TT\Modules\Workflow\Contracts\FormInterface;
  * by the player (or parent, depending on minors policy): how did the
  * week feel, what went well, what to work on next week.
  *
- * Same shape as PostMatchEvaluationForm, intentionally — the visual
+ * Same shape as PostGameEvaluationForm, intentionally — the visual
  * language is identical so players + coaches recognise the pattern
  * across both tasks.
  */

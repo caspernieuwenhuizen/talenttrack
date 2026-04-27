@@ -8,7 +8,7 @@ use TT\Modules\DemoData\Generators\PeopleGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
 use TT\Modules\DemoData\Generators\PlayerGenerator;
 use TT\Modules\DemoData\Generators\EvaluationGenerator;
-use TT\Modules\DemoData\Generators\SessionGenerator;
+use TT\Modules\DemoData\Generators\ActivityGenerator;
 use TT\Modules\DemoData\Generators\GoalGenerator;
 
 /**
@@ -70,7 +70,7 @@ class DemoGenerator {
         $evalGen    = new EvaluationGenerator( $registry, $players, $teams, (int) $config['weeks'] );
         $eval_count = $evalGen->generate();
 
-        $sessionGen    = new SessionGenerator( $registry, $teams, $players, (int) $config['weeks'], $content_language );
+        $sessionGen    = new ActivityGenerator( $registry, $teams, $players, (int) $config['weeks'], $content_language );
         $session_count = $sessionGen->generate();
 
         $goalGen    = new GoalGenerator( $registry, $players, $users, $content_language );
@@ -88,7 +88,7 @@ class DemoGenerator {
                 'teams'       => count( $teams ),
                 'players'     => count( $players ),
                 'evaluations' => $eval_count,
-                'sessions'    => $session_count,
+                'activities'    => $session_count,
                 'goals'       => $goal_count,
             ],
             'user_stats' => [

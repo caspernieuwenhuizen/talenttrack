@@ -17,7 +17,7 @@ Alle vijf sprints staan live:
 - **Motor + schema** — `tt_workflow_tasks`, `tt_workflow_triggers`, `tt_workflow_template_config`, de kolom `parent_user_id` op `tt_players` en de publieke PHP-API (`WorkflowModule::engine()->dispatch(...)`).
 - **Inbox + bel + e-mail + self-diagnostic** — elke gebruiker met `tt_view_own_tasks` ziet zijn taken op `?tt_view=my-tasks`; een discrete bel toont de openstaande teller op het dashboard; bij aanmaak ontvangt de toegewezen persoon een e-mail. Een wp-admin-banner waarschuwt wanneer WP-cron stopt met afvuren (linkt naar [de cron-instellingengids](workflow-engine-cron-setup.md)).
 - **Vijf meegeleverde templates**
-  - **Coach-evaluatie na wedstrijd** — handmatige trigger in v1 (een event-hook abonneert zodra `SessionsModule` `tt_session_completed` afvuurt). Fan-out: één taak per actieve speler op het team voor de hoofdcoach, deadline 72 uur.
+  - **Coach-evaluatie na wedstrijd** — handmatige trigger in v1 (een event-hook abonneert zodra `ActivitiesModule` `tt_activity_completed` afvuurt). Fan-out: één taak per actieve speler op het team voor de hoofdcoach, deadline 72 uur.
   - **Wekelijkse zelfevaluatie speler** — cron `0 18 * * 0` (zondag 18:00). Eén taak per actieve speler, gerouteerd via het toewijzingsbeleid voor minderjarigen. Deadline 7 dagen.
   - **Kwartaaldoelen** — cron op de 1e van elke 3e maand. Speler schrijft maximaal drie doelen; bij voltooiing wordt automatisch een goedkeuringstaak voor de coach aangemaakt.
   - **Doelgoedkeuring** — wordt alleen gespawnd door het kwartaaldoelen-template. Coach keurt elk doel goed / wijzigt / wijst af met optionele notitie. Leest het concept via `parent_task_id`.

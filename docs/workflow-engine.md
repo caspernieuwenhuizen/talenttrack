@@ -17,7 +17,7 @@ All five sprints are now live:
 - **Engine + schema** — `tt_workflow_tasks`, `tt_workflow_triggers`, `tt_workflow_template_config`, the `parent_user_id` column on `tt_players`, and the public PHP API (`WorkflowModule::engine()->dispatch(...)`).
 - **Inbox + bell + email + self-diagnostic** — every user with `tt_view_own_tasks` sees their tasks at `?tt_view=my-tasks`; an unobtrusive bell shows the open count on the dashboard; the assignee gets an email when a task is created. A wp-admin banner warns when WP-cron has stopped firing reliably (links to [the cron setup guide](workflow-engine-cron-setup.md)).
 - **Five shipped templates**
-  - **Post-match coach evaluation** — manual trigger in v1 (an event hook will subscribe once `SessionsModule` fires `tt_session_completed`). Fans out one task per active player on the team to the head coach, due in 72 hours.
+  - **Post-match coach evaluation** — manual trigger in v1 (an event hook will subscribe once `ActivitiesModule` fires `tt_activity_completed`). Fans out one task per active player on the team to the head coach, due in 72 hours.
   - **Player self-evaluation (weekly)** — cron `0 18 * * 0` (Sundays 18:00). One task per active rostered player, routed via the minors-assignment policy. Due in 7 days.
   - **Quarterly goal-setting** — cron `0 0 1 step-month wildcard` at start of each quarter. Player drafts up to three goals; on completion, automatically spawns a goal-approval task for the coach.
   - **Goal approval** — only spawned by the goal-setting template. Coach approves / amends / rejects each goal with optional notes. Reads the player's draft via `parent_task_id`.

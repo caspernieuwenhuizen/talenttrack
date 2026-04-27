@@ -7,7 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
- * PostMatchEvaluationForm — three-question reflection form: overall
+ * PostGameEvaluationForm — three-question reflection form: overall
  * rating, what went well, what to work on. Lightweight on purpose —
  * coaches can still go to the full evaluation flow for the per-category
  * rating set; this is the deadline-bound nudge to capture the gist.
@@ -17,7 +17,7 @@ use TT\Modules\Workflow\Contracts\FormInterface;
  * action would create an evaluation with an `eval_type=match` tag,
  * letting the eval show up in the player's history).
  */
-class PostMatchEvaluationForm implements FormInterface {
+class PostGameEvaluationForm implements FormInterface {
 
     public function render( array $task ): string {
         $existing = self::decodeResponse( $task );

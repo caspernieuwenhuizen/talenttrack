@@ -15,7 +15,7 @@ use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
 use TT\Modules\Workflow\Repositories\TriggersRepository;
 use TT\Modules\Workflow\Templates\GoalApprovalTemplate;
 use TT\Modules\Workflow\Templates\PlayerSelfEvaluationTemplate;
-use TT\Modules\Workflow\Templates\PostMatchEvaluationTemplate;
+use TT\Modules\Workflow\Templates\PostGameEvaluationTemplate;
 use TT\Modules\Workflow\Templates\QuarterlyGoalSettingTemplate;
 use TT\Modules\Workflow\Templates\QuarterlyHoDReviewTemplate;
 
@@ -77,7 +77,7 @@ class WorkflowModule implements ModuleInterface {
      */
     public static function registerShippedTemplates(): void {
         $registry = self::registry();
-        $registry->register( new PostMatchEvaluationTemplate() );
+        $registry->register( new PostGameEvaluationTemplate() );
         $registry->register( new PlayerSelfEvaluationTemplate() );
         $registry->register( new QuarterlyGoalSettingTemplate() );
         $registry->register( new GoalApprovalTemplate() );

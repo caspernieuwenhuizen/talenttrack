@@ -42,6 +42,84 @@ jobs:
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress || true
 
+  legacy-sessions-gate:
+    name: No legacy 'sessions' strings (#0035)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify no Sessions terminology snuck back in
+        run: |
+          set -e
+          # Forbidden tokens — these should not exist anywhere outside
+          # historical migrations + the Activator's initial schema +
+          # docblock notes that reference the rename.
+          # The pattern intentionally excludes:
+          #   - database/migrations/0001_*.php through 0026_*.php (frozen history)
+          #   - src/Core/Activator.php (initial-schema CREATE TABLE statements)
+          #   - the rename migration itself
+          #   - the spec
+          #   - .po file (translation msgid history)
+          #   - explicit docblock comments mentioning the rename
+          forbidden=(
+            'tt_sessions'
+            '\bsession_id\b'
+            'FrontendMySessionsView'
+            'FrontendSessionsManageView'
+            'tt_view_sessions'
+            'tt_edit_sessions'
+            'tt-sessions'
+            'tt_session_completed'
+            'post_match_evaluation'
+            'PostMatchEvaluationTemplate'
+            'PostMatchEvaluationForm'
+            'tt_save_session'
+            'tt_delete_session'
+            'SessionsRestController'
+            'class SessionsModule'
+            'class SessionsPage'
+            'SessionGenerator'
+            '\bmatch_result\b'
+            '\bcompetition_type\b'
+          )
+          excludes=(
+            -e 'database/migrations/0001'
+            -e 'database/migrations/0002'
+            -e 'database/migrations/0004'
+            -e 'database/migrations/0010'
+            -e 'database/migrations/0013'
+            -e 'database/migrations/0015'
+            -e 'database/migrations/0020'
+            -e 'database/migrations/0021_workflow_engine'
+            -e 'database/migrations/0022_workflow_default_triggers'
+            -e 'database/migrations/0026'
+            -e 'database/migrations/0027_rename_sessions_to_activities'
+            -e 'src/Core/Activator.php'
+            -e 'specs/0035'
+            -e 'languages/talenttrack-nl_NL.po'
+            -e 'languages/talenttrack-nl_NL.mo'
+            -e 'CHANGES.md'
+            -e 'SEQUENCE.md'
+            -e 'src/Modules/Activities/ActivitiesModule.php'
+            -e 'src/Modules/Activities/Admin/ActivitiesPage.php'
+            -e '.github/workflows/release.yml'
+          )
+          fail=0
+          for tok in "${forbidden[@]}"; do
+            hits=$(grep -rnE "$tok" src/ database/ docs/ assets/js/ config/ 2>/dev/null | grep -v "${excludes[@]}" || true)
+            if [ -n "$hits" ]; then
+              echo "::error::Legacy token '$tok' reappeared in:"
+              echo "$hits"
+              fail=1
+            fi
+          done
+          if [ $fail -eq 1 ]; then
+            echo ""
+            echo "Legacy 'sessions' tokens cannot reappear after #0035 (no-legacy rule)."
+            echo "Use the activities vocabulary: tt_activities, activity_id, FrontendMyActivitiesView, etc."
+            exit 1
+          fi
+          echo "No legacy sessions tokens found — clean."
+
   docs-audience:
     name: Docs audience markers (#0029)
     runs-on: ubuntu-latest

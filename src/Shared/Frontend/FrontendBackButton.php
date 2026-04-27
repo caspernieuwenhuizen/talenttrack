@@ -54,7 +54,7 @@ class FrontendBackButton {
         return remove_query_arg(
             [
                 'tt_view',
-                'player_id', 'eval_id', 'session_id', 'goal_id', 'team_id',
+                'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id',
                 'id', 'action', 'tab', 'type_id',
             ],
             $current ?: home_url( '/' )

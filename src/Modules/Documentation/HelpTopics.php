@@ -53,10 +53,10 @@ class HelpTopics {
                 'group'   => 'performance',
                 'summary' => __( 'Main categories, subcategories, and how per-age-group weighting works.', 'talenttrack' ),
             ],
-            'sessions' => [
-                'title'   => __( 'Sessions', 'talenttrack' ),
+            'activities' => [
+                'title'   => __( 'Activities', 'talenttrack' ),
                 'group'   => 'performance',
-                'summary' => __( 'Training sessions, attendance tracking.', 'talenttrack' ),
+                'summary' => __( 'Games, trainings, and other activities — typing, attendance, and post-game evaluations.', 'talenttrack' ),
             ],
             'goals' => [
                 'title'   => __( 'Goals', 'talenttrack' ),

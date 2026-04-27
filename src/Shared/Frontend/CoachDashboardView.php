@@ -31,7 +31,7 @@ class CoachDashboardView {
         $tabs = [
             'roster'   => __( 'My Team', 'talenttrack' ),
             'evaluate' => __( 'New Evaluation', 'talenttrack' ),
-            'session'  => __( 'New Session', 'talenttrack' ),
+            'activity'  => __( 'New Activity', 'talenttrack' ),
             'goals'    => __( 'Manage Goals', 'talenttrack' ),
             'player'   => __( 'Player Detail', 'talenttrack' ),
             'help'     => __( 'Help', 'talenttrack' ),
@@ -70,7 +70,7 @@ class CoachDashboardView {
         echo '</div>';
 
         // Session
-        echo '<div class="tt-tab-content' . ( $view === 'session' ? ' tt-tab-content-active' : '' ) . '" data-tab="session">';
+        echo '<div class="tt-tab-content' . ( $view === 'activity' ? ' tt-tab-content-active' : '' ) . '" data-tab="activity">';
         $this->renderSessionForm( $teams );
         echo '</div>';
 
@@ -198,12 +198,12 @@ class CoachDashboardView {
                     <label><?php esc_html_e( 'Competition', 'talenttrack' ); ?></label>
                     <select name="competition">
                         <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
-                        <?php foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookups( 'competition_type' ) as $tt_ct ) : ?>
+                        <?php foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookups( 'game_subtype' ) as $tt_ct ) : ?>
                             <option value="<?php echo esc_attr( (string) $tt_ct->name ); ?>"><?php echo esc_html( __( (string) $tt_ct->name, 'talenttrack' ) ); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="tt-form-row"><label><?php esc_html_e( 'Result', 'talenttrack' ); ?></label><input type="text" name="match_result" placeholder="2-1" style="width:80px" /></div>
+                <div class="tt-form-row"><label><?php esc_html_e( 'Result', 'talenttrack' ); ?></label><input type="text" name="game_result" placeholder="2-1" style="width:80px" /></div>
                 <div class="tt-form-row"><label><?php esc_html_e( 'Home/Away', 'talenttrack' ); ?></label><select name="home_away"><option value="">—</option><option value="home"><?php esc_html_e( 'Home', 'talenttrack' ); ?></option><option value="away"><?php esc_html_e( 'Away', 'talenttrack' ); ?></option></select></div>
                 <div class="tt-form-row"><label><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></label><input type="number" name="minutes_played" min="0" max="120" /></div>
             </div>
@@ -236,7 +236,7 @@ class CoachDashboardView {
         foreach ( $teams as $t ) foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) $all_players[ (int) $pl->id ] = $pl;
         ?>
         <h3><?php esc_html_e( 'Record Training Session', 'talenttrack' ); ?></h3>
-        <form id="tt-session-form" class="tt-ajax-form" data-rest-path="sessions" data-rest-method="POST">
+        <form id="tt-activity-form" class="tt-ajax-form" data-rest-path="activities" data-rest-method="POST">
             <div class="tt-form-row"><label><?php esc_html_e( 'Title', 'talenttrack' ); ?> *</label><input type="text" name="title" required /></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" name="session_date" value="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required /></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Team', 'talenttrack' ); ?></label><select name="team_id">

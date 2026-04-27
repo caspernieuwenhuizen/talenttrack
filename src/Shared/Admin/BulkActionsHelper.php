@@ -307,7 +307,7 @@ class BulkActionsHelper {
             case 'team':       return 'tt_edit_teams';
             case 'person':     return 'tt_edit_people';
             case 'evaluation': return 'tt_edit_evaluations';
-            case 'session':    return 'tt_edit_sessions';
+            case 'activity':    return 'tt_edit_activities';
             case 'goal':       return 'tt_edit_goals';
             default:           return 'tt_edit_settings';
         }
@@ -318,7 +318,7 @@ class BulkActionsHelper {
             case 'player':     return 'tt-players';
             case 'team':       return 'tt-teams';
             case 'evaluation': return 'tt-evaluations';
-            case 'session':    return 'tt-sessions';
+            case 'activity':    return 'tt-activities';
             case 'goal':       return 'tt-goals';
             case 'person':     return 'tt-people';
             default:           return 'talenttrack';

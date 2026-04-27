@@ -1,8 +1,8 @@
 /* TalentTrack — Guest add modal (#0026).
  *
- * Hooks the "+ Add guest" button on a session-edit form to the guest
+ * Hooks the "+ Add guest" button on an activity-edit form to the guest
  * modal: tab switching, validation, REST POST to
- * /sessions/{id}/guests, and an inline DOM append on success so the
+ * /activities/{id}/guests, and an inline DOM append on success so the
  * coach sees the new row immediately. */
 ( function () {
     'use strict';
@@ -70,7 +70,7 @@
     }
 
     function postGuest( sessionId, body ) {
-        return fetch( REST_NS + '/sessions/' + sessionId + '/guests', {
+        return fetch( REST_NS + '/activities/' + sessionId + '/guests', {
             method:  'POST',
             headers: {
                 'Content-Type': 'application/json',

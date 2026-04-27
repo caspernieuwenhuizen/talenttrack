@@ -523,7 +523,7 @@ class UsageStatsDetailsPage {
             'tt-players'           => __( 'Players', 'talenttrack' ),
             'tt-people'            => __( 'People', 'talenttrack' ),
             'tt-evaluations'       => __( 'Evaluations', 'talenttrack' ),
-            'tt-sessions'          => __( 'Sessions', 'talenttrack' ),
+            'tt-activities'          => __( 'Activities', 'talenttrack' ),
             'tt-goals'             => __( 'Goals', 'talenttrack' ),
             'tt-reports'           => __( 'Reports', 'talenttrack' ),
             'tt-rate-cards'        => __( 'Player Rate Cards', 'talenttrack' ),

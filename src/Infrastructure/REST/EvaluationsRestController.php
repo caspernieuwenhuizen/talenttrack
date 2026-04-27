@@ -13,7 +13,7 @@ use TT\Infrastructure\Query\QueryHelpers;
  * the DB error message and are logged via Logger.
  *
  * #0019 Sprint 1 session 2: create_eval now carries the full legacy
- * payload (opponent, competition, match_result, home_away, minutes_played)
+ * payload (opponent, competition, game_result, home_away, minutes_played)
  * and enforces the coach-owns-player check that FrontendAjax ran. An
  * update endpoint was added so the future edit-evaluation view has an
  * API to hit.
@@ -166,7 +166,7 @@ class EvaluationsRestController {
             'notes'          => sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) ),
             'opponent'       => sanitize_text_field( (string) ( $r['opponent'] ?? '' ) ),
             'competition'    => sanitize_text_field( (string) ( $r['competition'] ?? '' ) ),
-            'match_result'   => sanitize_text_field( (string) ( $r['match_result'] ?? '' ) ),
+            'game_result'   => sanitize_text_field( (string) ( $r['game_result'] ?? '' ) ),
             'home_away'      => sanitize_text_field( (string) ( $r['home_away'] ?? '' ) ),
             'minutes_played' => ! empty( $r['minutes_played'] ) ? absint( $r['minutes_played'] ) : null,
         ];

@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   OLD (pre-3.0)               NEW (3.0+)
  *   tt_manage_players       →   tt_view_players + tt_edit_players
  *   tt_evaluate_players     →   tt_view_evaluations + tt_edit_evaluations
- *                           +   tt_view_sessions + tt_edit_sessions
+ *                           +   tt_view_activities + tt_edit_activities
  *                           +   tt_view_goals + tt_edit_goals
  *   tt_manage_settings      →   tt_view_settings + tt_edit_settings
  *   tt_view_reports         →   tt_view_reports (kept; no write companion)
@@ -43,7 +43,7 @@ class RolesService {
         'tt_view_players',
         'tt_view_people',
         'tt_view_evaluations',
-        'tt_view_sessions',
+        'tt_view_activities',
         'tt_view_goals',
         'tt_view_reports',
         'tt_view_settings',
@@ -54,7 +54,7 @@ class RolesService {
         'tt_edit_players',
         'tt_edit_people',
         'tt_edit_evaluations',
-        'tt_edit_sessions',
+        'tt_edit_activities',
         'tt_edit_goals',
         'tt_edit_settings',
     ];
@@ -96,7 +96,7 @@ class RolesService {
                         'tt_edit_teams'      => true,
                         'tt_edit_players'    => true,
                         'tt_edit_people'     => true,
-                        'tt_edit_sessions'   => true,
+                        'tt_edit_activities'   => true,
                         'tt_edit_goals'      => true,
                         'tt_edit_settings'   => true,
                         // NOT tt_edit_evaluations — Club Admin doesn't evaluate
@@ -116,14 +116,14 @@ class RolesService {
                         'tt_view_players'     => true,
                         'tt_view_people'      => true,
                         'tt_view_evaluations' => true,
-                        'tt_view_sessions'    => true,
+                        'tt_view_activities'    => true,
                         'tt_view_goals'       => true,
                         'tt_view_reports'     => true,
                         // NOT tt_view_settings — coaches don't touch config
                     ],
                     [
                         'tt_edit_evaluations' => true,
-                        'tt_edit_sessions'    => true,
+                        'tt_edit_activities'    => true,
                         'tt_edit_goals'       => true,
                         // NOT tt_edit_players/teams/people/settings
                     ],

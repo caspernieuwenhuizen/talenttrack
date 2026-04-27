@@ -10,7 +10,7 @@ Every endpoint authenticates via the standard WordPress REST flow — pass the `
 
 | Resource         | Routes                                                                                        | Source                                                  |
 | ---              | ---                                                                                           | ---                                                     |
-| Sessions         | `GET/POST /sessions`, `PUT/DELETE /sessions/{id}`                                             | `src/Infrastructure/REST/SessionsRestController.php`    |
+| Sessions         | `GET/POST /sessions`, `PUT/DELETE /sessions/{id}`                                             | `src/Infrastructure/REST/ActivitiesRestController.php`    |
 | Attendance (#0026) | `POST /sessions/{id}/guests`, `PATCH /attendance/{id}`, `DELETE /attendance/{id}`            | same controller                                         |
 | Players          | `GET/POST /players`, `PUT/DELETE /players/{id}`, `POST /players/import`                       | `PlayersRestController.php`                             |
 | Teams            | `GET/POST /teams`, `PUT/DELETE /teams/{id}`, roster ops at `/teams/{id}/players/{player_id}` | `TeamsRestController.php`                               |
@@ -54,7 +54,7 @@ Each controller exposes `can_view()` and `can_edit()` permission callbacks that 
 
 | Resource     | View cap                | Edit cap          |
 | ---          | ---                     | ---               |
-| Sessions     | `tt_view_sessions`      | `tt_edit_sessions` |
+| Sessions     | `tt_view_activities`      | `tt_edit_activities` |
 | Players      | `tt_view_players`       | `tt_edit_players`  |
 | Teams        | `tt_view_teams`         | `tt_edit_teams`    |
 | Evaluations  | `tt_view_evaluations`   | `tt_edit_evaluations` |
@@ -112,4 +112,4 @@ Removes a single attendance row. Used by the guest UI's Remove affordance.
 3. Update this doc with the new routes + payload shape.
 4. If the resource is consumed by `FrontendListTable`, document the orderby whitelist and any computed columns (e.g. `attendance_count`).
 
-See `SessionsRestController.php` as the canonical reference.
+See `ActivitiesRestController.php` as the canonical reference.

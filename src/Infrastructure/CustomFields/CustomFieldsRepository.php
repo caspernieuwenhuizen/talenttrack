@@ -23,7 +23,7 @@ class CustomFieldsRepository {
     public const ENTITY_PLAYER     = 'player';
     public const ENTITY_PERSON     = 'person';
     public const ENTITY_TEAM       = 'team';
-    public const ENTITY_SESSION    = 'session';
+    public const ENTITY_ACTIVITY    = 'activity';
     public const ENTITY_GOAL       = 'goal';
     public const ENTITY_EVALUATION = 'evaluation';
 
@@ -64,7 +64,7 @@ class CustomFieldsRepository {
             self::ENTITY_PLAYER,
             self::ENTITY_PERSON,
             self::ENTITY_TEAM,
-            self::ENTITY_SESSION,
+            self::ENTITY_ACTIVITY,
             self::ENTITY_GOAL,
             self::ENTITY_EVALUATION,
         ];
