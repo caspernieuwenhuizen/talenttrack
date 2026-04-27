@@ -282,6 +282,9 @@ class ActivitiesRestController {
     public static function create_session( \WP_REST_Request $r ) {
         global $wpdb; $p = $wpdb->prefix;
 
+        $type_error = self::validateActivityType( $r );
+        if ( $type_error !== null ) return $type_error;
+
         $data = self::extract( $r );
         $data['coach_id'] = get_current_user_id();
 
@@ -348,6 +351,9 @@ class ActivitiesRestController {
         if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid session id.', 'talenttrack' ), 400 );
         }
+
+        $type_error = self::validateActivityType( $r );
+        if ( $type_error !== null ) return $type_error;
 
         $data = self::extract( $r );
         // Preserve original coach on update.
@@ -419,14 +425,11 @@ class ActivitiesRestController {
      * @return array<string, mixed>
      */
     private static function extract( \WP_REST_Request $r ): array {
-        // #0049 — type fields are now part of the frontend form too.
-        // activity_type_key is enforced as one of game/training/other;
-        // game_subtype_key only set when type is game; other_label only
-        // set when type is other.
-        $type = sanitize_key( (string) ( $r['activity_type_key'] ?? 'training' ) );
-        if ( ! in_array( $type, [ 'game', 'training', 'other' ], true ) ) {
-            $type = 'training';
-        }
+        // #0050 — Type comes from the activity_type lookup. Empty value
+        // falls back to the seeded 'training'; an unknown value is the
+        // caller's responsibility to reject (see validateActivityType).
+        $type    = sanitize_text_field( (string) ( $r['activity_type_key'] ?? '' ) );
+        if ( $type === '' ) $type = 'training';
         $subtype = sanitize_text_field( (string) ( $r['game_subtype_key'] ?? '' ) );
         $other   = sanitize_text_field( (string) ( $r['other_label'] ?? '' ) );
 
@@ -441,6 +444,25 @@ class ActivitiesRestController {
             'game_subtype_key'  => $type === 'game' && $subtype !== '' ? $subtype : null,
             'other_label'       => $type === 'other' && $other !== ''   ? $other   : null,
         ];
+    }
+
+    /**
+     * #0050 — strict-mode validation: reject unknown type values with
+     * 400 instead of silently falling back. Returns null when the type
+     * is valid (or empty — empty falls back to 'training' inside
+     * extract()), or a WP_REST_Response error to short-circuit on.
+     */
+    private static function validateActivityType( \WP_REST_Request $r ): ?\WP_REST_Response {
+        $type = sanitize_text_field( (string) ( $r['activity_type_key'] ?? '' ) );
+        if ( $type === '' ) return null;
+        $valid = QueryHelpers::get_lookup_names( 'activity_type' );
+        if ( in_array( $type, $valid, true ) ) return null;
+        return RestResponse::error(
+            'bad_activity_type',
+            __( 'Unknown activity type. Pick one from the configured list.', 'talenttrack' ),
+            400,
+            [ 'allowed' => array_values( $valid ) ]
+        );
     }
 
     /**

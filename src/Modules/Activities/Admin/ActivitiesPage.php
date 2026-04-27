@@ -149,24 +149,28 @@ class ActivitiesPage {
 
     private static function renderTypeBadge( object $row ): string {
         $type = (string) ( $row->activity_type_key ?? 'training' );
-        switch ( $type ) {
-            case 'game':
-                $sub = (string) ( $row->game_subtype_key ?? '' );
-                if ( $sub !== '' ) {
-                    return sprintf(
-                        /* translators: %s: game subtype label (Friendly / Cup / League) */
-                        __( 'Game · %s', 'talenttrack' ),
-                        $sub
-                    );
-                }
-                return __( 'Game', 'talenttrack' );
-            case 'training':
-                return __( 'Training', 'talenttrack' );
-            case 'other':
-                $label = (string) ( $row->other_label ?? '' );
-                return $label !== '' ? $label : __( 'Other', 'talenttrack' );
+        // #0050 — pull the translated label from the activity_type
+        // lookup. Cases for game subtype / other-label still apply
+        // because those carry extra context the lookup name lacks.
+        if ( $type === 'game' ) {
+            $sub = (string) ( $row->game_subtype_key ?? '' );
+            if ( $sub !== '' ) {
+                return sprintf(
+                    /* translators: %s: game subtype label (Friendly / Cup / League) */
+                    __( 'Game · %s', 'talenttrack' ),
+                    $sub
+                );
+            }
+            return __( 'Game', 'talenttrack' );
         }
-        return $type;
+        if ( $type === 'other' ) {
+            $label = (string) ( $row->other_label ?? '' );
+            return $label !== '' ? $label : __( 'Other', 'talenttrack' );
+        }
+        // Training and admin-added types — pull the translated label
+        // from the lookup, fall back to humanised key when the row was
+        // somehow removed.
+        return \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'activity_type', $type ) ?: $type;
     }
 
     private static function render_form( int $id ): void {
@@ -174,7 +178,10 @@ class ActivitiesPage {
         $activity = $id ? $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$p}tt_activities WHERE id=%d", $id ) ) : null;
         $teams = QueryHelpers::get_teams();
         $att_statuses = QueryHelpers::get_lookup_names( 'attendance_status' );
-        $game_subtypes = QueryHelpers::get_lookup_names( 'game_subtype' );
+        // #0050 — Type now lookup-driven; existing rows store the seed
+        // names (training/game/other) so no data migration was needed.
+        $activity_type_rows = QueryHelpers::get_lookups( 'activity_type' );
+        $game_subtypes      = QueryHelpers::get_lookup_names( 'game_subtype' );
         $attendance = [];
         if ( $activity ) foreach ( $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$p}tt_attendance WHERE activity_id=%d AND is_guest=0", $activity->id ) ) as $r ) $attendance[ (int) $r->player_id ] = $r;
         $team_id = (int) ( $activity->team_id ?? 0 );
@@ -211,9 +218,9 @@ class ActivitiesPage {
                         <th><?php esc_html_e( 'Type', 'talenttrack' ); ?> *</th>
                         <td>
                             <select name="activity_type_key" id="tt-activity-type" required>
-                                <option value="training" <?php selected( $current_type, 'training' ); ?>><?php esc_html_e( 'Training', 'talenttrack' ); ?></option>
-                                <option value="game" <?php selected( $current_type, 'game' ); ?>><?php esc_html_e( 'Game', 'talenttrack' ); ?></option>
-                                <option value="other" <?php selected( $current_type, 'other' ); ?>><?php esc_html_e( 'Other', 'talenttrack' ); ?></option>
+                                <?php foreach ( $activity_type_rows as $type_row ) : ?>
+                                    <option value="<?php echo esc_attr( (string) $type_row->name ); ?>" <?php selected( $current_type, (string) $type_row->name ); ?>><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $type_row ) ); ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </td>
                     </tr>
@@ -291,6 +298,9 @@ class ActivitiesPage {
             var subRow = document.getElementById('tt-activity-subtype-row');
             var otherRow = document.getElementById('tt-activity-other-row');
             sel.addEventListener('change', function(){
+                // The seeded keys 'game' and 'other' anchor the conditional
+                // rows; admin-added types behave like neither (no subtype,
+                // no other-label).
                 if ( subRow )   subRow.style.display   = ( sel.value === 'game' )  ? '' : 'none';
                 if ( otherRow ) otherRow.style.display = ( sel.value === 'other' ) ? '' : 'none';
             });
@@ -305,8 +315,12 @@ class ActivitiesPage {
         global $wpdb; $p = $wpdb->prefix;
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
 
-        $type = isset( $_POST['activity_type_key'] ) ? sanitize_key( (string) wp_unslash( $_POST['activity_type_key'] ) ) : 'training';
-        if ( ! in_array( $type, [ 'game', 'training', 'other' ], true ) ) $type = 'training';
+        $type = isset( $_POST['activity_type_key'] ) ? sanitize_text_field( (string) wp_unslash( $_POST['activity_type_key'] ) ) : 'training';
+        // #0050 — validate against the live lookup; unknown values fall
+        // back to 'training' silently (wp-admin path stays lenient; REST
+        // path returns 400 for the same case).
+        $valid_types = QueryHelpers::get_lookup_names( 'activity_type' );
+        if ( ! in_array( $type, $valid_types, true ) ) $type = 'training';
 
         $data = [
             'title' => isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['title'] ) ) : '',

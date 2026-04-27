@@ -7593,3 +7593,47 @@ msgstr "Balbezit + counter + press moeten samen 100 zijn."
 
 msgid "The style blend could not be saved."
 msgstr "De stijl­mix kon niet worden opgeslagen."
+
+# === #0050 — activity Type lookup-driven ===
+
+msgid "Activity Types"
+msgstr "Activiteittypes"
+
+msgid "Activity Type"
+msgstr "Activiteittype"
+
+msgid "Game Subtypes"
+msgstr "Wedstrijdsubtypes"
+
+msgid "The kinds of activity (Training / Game / Other). Each picks a workflow template that fires when an activity of that type is saved."
+msgstr "De soorten activiteit (Training / Wedstrijd / Overig). Elk type kiest een workflow-sjabloon dat afgaat wanneer een activiteit van dat type wordt opgeslagen."
+
+msgid "Friendly / Cup / League — used when an activity is type Game."
+msgstr "Oefen / Beker / Competitie — gebruikt als een activiteit van het type Wedstrijd is."
+
+msgid "Workflow template on save"
+msgstr "Workflow-sjabloon bij opslaan"
+
+msgid "— No automatic task —"
+msgstr "— Geen automatische taak —"
+
+msgid "When an activity of this type is saved, the picked template fires for every player on the team. Leave empty for no automatic task."
+msgstr "Als een activiteit van dit type wordt opgeslagen, gaat het gekozen sjabloon af voor elke speler in het team. Laat leeg voor geen automatische taak."
+
+msgid "Locked — cannot be deleted because workflow rules depend on it."
+msgstr "Vergrendeld — kan niet verwijderd worden omdat workflow-regels ervan afhankelijk zijn."
+
+msgid "This row is locked and cannot be deleted. Workflow rules depend on it."
+msgstr "Deze rij is vergrendeld en kan niet verwijderd worden. Workflow-regels zijn ervan afhankelijk."
+
+msgid "Deletion blocked"
+msgstr "Verwijdering geblokkeerd"
+
+msgid "Unknown activity type. Pick one from the configured list."
+msgstr "Onbekend activiteittype. Kies er een uit de ingestelde lijst."
+
+msgid "(unknown)"
+msgstr "(onbekend)"
+
+msgid "%s logged"
+msgstr "%s vastgelegd"

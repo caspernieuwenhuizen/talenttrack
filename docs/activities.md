@@ -7,17 +7,23 @@ An **activity** is anything on the calendar — a training, a game, or any other
 ## Creating an activity
 
 1. Open the **Activities** tile.
-2. Pick the **type** — Training, Game or Other. Training is the default.
-3. If it's a game, optionally pick the subtype (Friendly, Cup, League).
-4. If it's "Other", give it a short label.
+2. Pick the **type** from the dropdown. Three types ship by default — Training, Game and Other — and your academy can rename or add new ones.
+3. If you picked **Game**, optionally pick the subtype (Friendly, Cup, League).
+4. If you picked **Other**, give it a short label.
 5. Pick the team, set the date, and optionally add a location and notes.
 6. Save. The player list fills in automatically from the team roster.
 7. Mark each player as Present, Absent, Late or Excused. Add a note next to a row when useful.
 
 ## Why the type matters
 
-- After saving a **game**, every player on the team gets a post-game evaluation task in their coach's inbox. Trainings and other events don't trigger this.
-- The Head of Development sees a 90-day rollup split by Games / Trainings / Other.
+Each activity type can be linked to a workflow template that fires when you save an activity of that type. By default:
+
+- **Game** spawns a post-game evaluation task per player on the team.
+- **Training** and **Other** don't spawn anything.
+
+Your academy admin can change which template fires for each type — or add a new type and pick its workflow template — under **Configuration → Activity Types**. The seeded three types can't be deleted because the post-game evaluation rule depends on the **Game** type existing.
+
+The Head of Development's 90-day quarterly rollup also uses these types: it shows one row per type in use, so renaming or adding types reflects there automatically.
 
 ## Guests
 

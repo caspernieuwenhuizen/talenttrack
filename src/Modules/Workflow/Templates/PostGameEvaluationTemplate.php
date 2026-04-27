@@ -63,10 +63,13 @@ class PostGameEvaluationTemplate extends TaskTemplate {
      * Fan-out: one task per active player on the team. Each carries
      * the original activity + team and the per-player player_id.
      *
-     * #0035: only fires when the activity is type=game (any subtype —
-     * friendly / cup / league all spawn the eval). Trainings + other
-     * activities short-circuit to an empty array, so the dispatcher
-     * never creates tasks for them.
+     * #0050 — per-type policy: this template only spawns when the
+     * activity's type lookup row points workflow_template_slug at
+     * this template's KEY. The migration seeds 'game' to that slug,
+     * preserving the historical "post-game eval fires only for game
+     * type" behaviour. Admins can opt other types into the same
+     * template (or pick a different one) via Configuration → Activity
+     * Types → Workflow template on save.
      */
     public function expandTrigger( TaskContext $context ): array {
         if ( ! $context->team_id || ! $context->activity_id ) return [];
@@ -76,7 +79,15 @@ class PostGameEvaluationTemplate extends TaskTemplate {
             "SELECT activity_type_key FROM {$wpdb->prefix}tt_activities WHERE id = %d",
             (int) $context->activity_id
         ) );
-        if ( $type !== 'game' ) return [];
+        if ( $type === '' ) return [];
+
+        $type_row = null;
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookups( 'activity_type' ) as $row ) {
+            if ( (string) $row->name === $type ) { $type_row = $row; break; }
+        }
+        $meta = \TT\Infrastructure\Query\QueryHelpers::lookup_meta( $type_row );
+        $configured_slug = (string) ( $meta['workflow_template_slug'] ?? '' );
+        if ( $configured_slug !== self::KEY ) return [];
 
         $player_ids = $wpdb->get_col( $wpdb->prepare(
             "SELECT id FROM {$wpdb->prefix}tt_players

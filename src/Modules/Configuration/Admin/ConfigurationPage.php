@@ -46,6 +46,8 @@ class ConfigurationPage {
 
         $tabs = [
             'eval_types'      => __( 'Evaluation Types', 'talenttrack' ),
+            'activity_types'  => __( 'Activity Types', 'talenttrack' ),
+            'game_subtypes'   => __( 'Game Subtypes', 'talenttrack' ),
             'positions'       => __( 'Positions', 'talenttrack' ),
             'foot_options'    => __( 'Preferred Foot', 'talenttrack' ),
             'age_groups'      => __( 'Age Groups', 'talenttrack' ),
@@ -86,6 +88,8 @@ class ConfigurationPage {
             <?php
             switch ( $tab ) {
                 case 'eval_types':      self::tab_eval_types(); break;
+                case 'activity_types':  self::tab_lookup( 'activity_type', __( 'Activity Type', 'talenttrack' ), true, true ); break;
+                case 'game_subtypes':   self::tab_lookup( 'game_subtype', __( 'Game Subtype', 'talenttrack' ), false, true ); break;
                 case 'positions':       self::tab_lookup( 'position', __( 'Position', 'talenttrack' ), false, true ); break;
                 case 'foot_options':    self::tab_lookup( 'foot_option', __( 'Foot Option', 'talenttrack' ), false, true ); break;
                 case 'age_groups':      self::tab_lookup( 'age_group', __( 'Age Group', 'talenttrack' ), false, true ); break;
@@ -180,6 +184,12 @@ class ConfigurationPage {
                     [ 'label' => $tab_label( 'eval_types', __( 'Evaluation Types', 'talenttrack' ) ),
                       'description' => __( 'The kinds of evaluation a coach can record (Training, Match, etc.).', 'talenttrack' ),
                       'icon' => '📋', 'url' => $tab_url( 'eval_types' ) ],
+                    [ 'label' => $tab_label( 'activity_types', __( 'Activity Types', 'talenttrack' ) ),
+                      'description' => __( 'The kinds of activity (Training / Game / Other). Each picks a workflow template that fires when an activity of that type is saved.', 'talenttrack' ),
+                      'icon' => '🏃', 'url' => $tab_url( 'activity_types' ) ],
+                    [ 'label' => $tab_label( 'game_subtypes', __( 'Game Subtypes', 'talenttrack' ) ),
+                      'description' => __( 'Friendly / Cup / League — used when an activity is type Game.', 'talenttrack' ),
+                      'icon' => '⚽', 'url' => $tab_url( 'game_subtypes' ) ],
                     [ 'label' => $tab_label( 'positions', __( 'Positions', 'talenttrack' ) ),
                       'description' => __( 'Player positions used on profiles, line-ups, and reports.', 'talenttrack' ),
                       'icon' => '🧭', 'url' => $tab_url( 'positions' ) ],
@@ -497,13 +507,29 @@ class ConfigurationPage {
         </tr></thead><tbody data-tt-sortable="<?php echo $show_sort ? '1' : '0'; ?>">
         <?php if ( empty( $items ) ) : ?>
             <tr><td colspan="<?php echo ( $show_desc ? 4 : 3 ) + ( $show_sort ? 1 : 0 ); ?>"><?php esc_html_e( 'No items.', 'talenttrack' ); ?></td></tr>
-        <?php else : foreach ( $items as $item ) : ?>
+        <?php else : foreach ( $items as $item ) :
+            // #0050 — locked rows hide Delete (workflow rules depend on
+            // these existing). Friction, not security: a determined
+            // admin can flip is_locked via direct DB edit.
+            $meta_row     = QueryHelpers::lookup_meta( $item );
+            $is_locked    = ! empty( $meta_row['is_locked'] );
+            ?>
             <tr data-id="<?php echo (int) $item->id; ?>">
                 <?php if ( $show_sort ) : ?><td class="tt-drag-handle" title="<?php esc_attr_e( 'Drag to reorder', 'talenttrack' ); ?>">⋮⋮</td><?php endif; ?>
                 <td class="tt-sort-order-cell"><?php echo (int) $item->sort_order; ?></td>
-                <td><strong><?php echo esc_html( (string) $item->name ); ?></strong></td>
+                <td>
+                    <strong><?php echo esc_html( (string) $item->name ); ?></strong>
+                    <?php if ( $is_locked ) : ?>
+                        <span title="<?php esc_attr_e( 'Locked — cannot be deleted because workflow rules depend on it.', 'talenttrack' ); ?>" style="margin-left:6px; color:#888; font-size:11px;">🔒</span>
+                    <?php endif; ?>
+                </td>
                 <?php if ( $show_desc ) : ?><td><?php echo esc_html( (string) $item->description ); ?></td><?php endif; ?>
-                <td><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-config&tab=$tab&crud=edit&lookup_id={$item->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_lookup&id={$item->id}&tab=$tab" ), 'tt_del_lookup_' . $item->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td>
+                <td>
+                    <a href="<?php echo esc_url( admin_url( "admin.php?page=tt-config&tab=$tab&crud=edit&lookup_id={$item->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
+                    <?php if ( ! $is_locked ) : ?>
+                        | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_lookup&id={$item->id}&tab=$tab" ), 'tt_del_lookup_' . $item->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a>
+                    <?php endif; ?>
+                </td>
             </tr>
         <?php endforeach; endif; ?></tbody></table>
         <?php if ( $show_sort && ! empty( $items ) ) : ?>
@@ -513,7 +539,8 @@ class ConfigurationPage {
     }
 
     private static function render_lookup_form( string $type, string $label, ?object $item, bool $show_desc, bool $show_sort, string $tab ): void {
-        $is_edit = $item !== null;
+        $is_edit  = $item !== null;
+        $meta_row = $is_edit ? QueryHelpers::lookup_meta( $item ) : [];
         ?>
         <h2><?php echo $is_edit ? esc_html__( 'Edit', 'talenttrack' ) : esc_html__( 'Add', 'talenttrack' ); ?> <?php echo esc_html( $label ); ?>
             <a href="<?php echo esc_url( admin_url( "admin.php?page=tt-config&tab=$tab" ) ); ?>" class="page-title-action"><?php esc_html_e( '← Back', 'talenttrack' ); ?></a></h2>
@@ -527,12 +554,48 @@ class ConfigurationPage {
                 <tr><th><?php esc_html_e( 'Name', 'talenttrack' ); ?> *</th><td><input type="text" name="name" value="<?php echo esc_attr( $item->name ?? '' ); ?>" class="regular-text" required /></td></tr>
                 <?php if ( $show_desc ) : ?><tr><th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th><td><input type="text" name="description" value="<?php echo esc_attr( $item->description ?? '' ); ?>" class="large-text" /></td></tr><?php endif; ?>
                 <?php if ( $show_sort ) : ?><tr><th><?php esc_html_e( 'Sort Order', 'talenttrack' ); ?></th><td><input type="number" name="sort_order" value="<?php echo (int) ( $item->sort_order ?? 0 ); ?>" min="0" /></td></tr><?php endif; ?>
+                <?php if ( $type === 'activity_type' ) : self::renderActivityTypeWorkflowField( $meta_row ); endif; ?>
             </table>
 
             <?php self::renderTranslationsSection( $item, $show_desc ); ?>
 
             <?php submit_button( $is_edit ? __( 'Update', 'talenttrack' ) : __( 'Add', 'talenttrack' ) ); ?>
         </form>
+        <?php
+    }
+
+    /**
+     * #0050 — workflow-template select for the activity_type lookup.
+     * Each row picks which workflow template fires when an activity of
+     * that type is saved. Empty = no auto-task. Reads available
+     * templates from WorkflowModule::registry().
+     *
+     * @param array<string,mixed> $meta_row decoded `tt_lookups.meta` JSON.
+     */
+    private static function renderActivityTypeWorkflowField( array $meta_row ): void {
+        $current_slug = (string) ( $meta_row['workflow_template_slug'] ?? '' );
+
+        $templates = [];
+        if ( class_exists( '\\TT\\Modules\\Workflow\\WorkflowModule' ) ) {
+            foreach ( \TT\Modules\Workflow\WorkflowModule::registry()->all() as $tpl ) {
+                $templates[ $tpl->key() ] = $tpl->name();
+            }
+        }
+        ?>
+        <tr>
+            <th><?php esc_html_e( 'Workflow template on save', 'talenttrack' ); ?></th>
+            <td>
+                <select name="meta[workflow_template_slug]">
+                    <option value=""><?php esc_html_e( '— No automatic task —', 'talenttrack' ); ?></option>
+                    <?php foreach ( $templates as $slug => $tpl_name ) : ?>
+                        <option value="<?php echo esc_attr( (string) $slug ); ?>" <?php selected( $current_slug, (string) $slug ); ?>><?php echo esc_html( (string) $tpl_name ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="description" style="max-width:540px;">
+                    <?php esc_html_e( 'When an activity of this type is saved, the picked template fires for every player on the team. Leave empty for no automatic task.', 'talenttrack' ); ?>
+                </p>
+            </td>
+        </tr>
         <?php
     }
 
@@ -865,6 +928,23 @@ class ConfigurationPage {
             $data['meta'] = wp_json_encode( [ 'requires_match_details' => isset( $_POST['requires_match_details'] ) ] );
         }
 
+        // #0050 — activity_type rows carry workflow_template_slug + a
+        // preserved is_locked flag. Merge the new slug with whatever
+        // meta the existing row already has so the lock survives saves.
+        if ( $type === 'activity_type' ) {
+            $existing_meta = [];
+            if ( $id ) {
+                $existing = QueryHelpers::get_lookup( $id );
+                $existing_meta = QueryHelpers::lookup_meta( $existing );
+            }
+            $submitted_slug = isset( $_POST['meta']['workflow_template_slug'] )
+                ? sanitize_key( (string) wp_unslash( $_POST['meta']['workflow_template_slug'] ) )
+                : '';
+            $merged_meta = $existing_meta;
+            $merged_meta['workflow_template_slug'] = $submitted_slug;
+            $data['meta'] = wp_json_encode( $merged_meta );
+        }
+
         // v3.6.0: per-locale translations posted as tt_i18n[<locale>][name|description].
         // Stored as JSON in the new `translations` column so seeded .po translations
         // keep working while admin-added values gain inline translation support.
@@ -894,6 +974,24 @@ class ConfigurationPage {
         $tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tab'] ) ) : '';
         check_admin_referer( 'tt_del_lookup_' . $id );
         if ( ! current_user_can( 'tt_edit_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+
+        // #0050 — refuse to delete locked rows (the seeded activity_type
+        // rows mark themselves as is_locked because workflow rules
+        // depend on them existing). Direct-URL hits land here too — the
+        // list view hides the link but a determined admin could craft
+        // the URL by hand.
+        $existing = QueryHelpers::get_lookup( $id );
+        if ( $existing ) {
+            $meta_row = QueryHelpers::lookup_meta( $existing );
+            if ( ! empty( $meta_row['is_locked'] ) ) {
+                wp_die(
+                    esc_html__( 'This row is locked and cannot be deleted. Workflow rules depend on it.', 'talenttrack' ),
+                    esc_html__( 'Deletion blocked', 'talenttrack' ),
+                    [ 'response' => 403, 'back_link' => true ]
+                );
+            }
+        }
+
         global $wpdb;
         $wpdb->delete( $wpdb->prefix . 'tt_lookups', [ 'id' => $id ] );
         wp_safe_redirect( admin_url( "admin.php?page=tt-config&tab=$tab&tt_msg=deleted" ) );
@@ -905,6 +1003,8 @@ class ConfigurationPage {
         // tt_eval_categories now, managed on a dedicated admin page.
         $map = [
             'eval_type' => 'eval_types',
+            'activity_type' => 'activity_types',
+            'game_subtype' => 'game_subtypes',
             'position' => 'positions', 'foot_option' => 'foot_options',
             'age_group' => 'age_groups', 'goal_status' => 'goal_statuses',
             'goal_priority' => 'goal_priorities', 'attendance_status' => 'att_statuses',

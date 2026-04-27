@@ -4,13 +4,22 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.31.1
+Stable tag: 3.33.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.33.0 — Activity Type is lookup-driven, with per-type workflow policy (#0050) =
+* NEW: **Activity Types** is now a configurable lookup at Configuration → Activity Types. Three rows are seeded (Training / Game / Other), each carrying a workflow-template select that decides which task fires when an activity of that type is saved. Game seeds with `post_game_evaluation`; Training and Other seed empty (no auto-task). Admins can add a 4th type ("Tournament", "Open day", …) and pick whichever template should fire — or none.
+* CHANGED: Both the wp-admin and frontend Activity create / edit forms now read Type options from the lookup, with translated labels via the per-locale lookup-translation block. Conditional Game-subtype + Other-label rows stay anchored to the seeded `game` and `other` keys.
+* CHANGED: The post-game evaluation template's "only fire for type=game" hardcode is gone — `expandTrigger()` now reads the activity-type lookup row's `meta.workflow_template_slug` and only fans out when the configured slug matches its own KEY. Existing behaviour is preserved because the `game` seed points at `post_game_evaluation`.
+* CHANGED: HoD quarterly review rollup splits its 90-day activity volume by `GROUP BY activity_type_key`, with one row per active type ordered by the lookup's sort_order. Admin-added types appear automatically; orphan rows (a `tt_activities.activity_type_key` value with no matching lookup row) surface as a literal-key bucket so totals reconcile.
+* CHANGED: REST `POST /activities` and `PUT /activities/{id}` now reject unknown `activity_type_key` values with HTTP 400 (`code=bad_activity_type`). Empty value still falls back to the seeded `training`. wp-admin path stays lenient (silent fallback) for old-form back-compat.
+* CHANGED: Lookup admin list view shows a 🔒 icon on locked rows and hides the Delete action; direct-URL deletion of a locked row returns 403. The seeded Activity Type rows ship locked because the workflow trigger depends on them existing.
+* INTERNAL: New migration `0033_activity_type_lookup.php` (idempotent — re-running leaves existing rows alone). New `Game Subtypes` tab on the Configuration page surfaces the existing `game_subtype` lookup that admins could only edit indirectly before.
 
 = 3.31.1 — Activity type field on frontend + demo-mode guest add fix (#0049) =
 * FIXED: Frontend activity create / edit form was missing the **Type** dropdown (Training / Game / Other), the conditional **Game subtype** dropdown, and the conditional **Other label** field. The wp-admin form has had these since #0035; the frontend was never updated. Without the field, every frontend-created activity defaulted to Training silently, so post-game evaluation tasks weren't being spawned for games created from the frontend. Form now matches the wp-admin version. Game subtype options come from the `game_subtype` lookup so admins can rename / extend them in Configuration.

@@ -1,3 +1,57 @@
+# TalentTrack v3.33.0 — Activity Type is lookup-driven, with per-type workflow policy (#0050)
+
+The Activity Type dropdown was the last entity in TalentTrack with a hardcoded set of values. This release lifts it into the same lookup-driven pattern that Game Subtype, Attendance Status, and Position already use — and goes one step further: each row picks which workflow template fires when an activity of that type is saved.
+
+## What changed
+
+### Configuration → Activity Types
+
+A new tab under the Configuration tile-landing's **Lookups & reference data** group. Three rows ship seeded:
+
+- **Training** — locked, no workflow on save.
+- **Game** — locked, fires the post-game evaluation template.
+- **Other** — locked, no workflow on save.
+
+Locked means the seeded rows can't be deleted (a 🔒 badge appears, the Delete link disappears, direct-URL deletion returns 403). Admins can rename them, translate them per locale, change the workflow-template selection, and add new types alongside.
+
+Game Subtypes also gets its own tab while we're here — it was already lookup-driven but only reachable indirectly through the activity edit form's hint.
+
+### Per-type workflow policy
+
+Each Activity Type row carries a **Workflow template on save** select — the dropdown lists every registered workflow template by its display name. Pick one and saving an activity of that type fans the template out per active player on the team. Pick none and saving creates no task. Adding a "Tournament" type and pointing it at the post-game evaluation template, for instance, is now a configuration change instead of a code change.
+
+The post-game evaluation template's hardcoded `if ($type !== 'game') return [];` is gone. `expandTrigger()` reads the activity's type lookup row, pulls `meta.workflow_template_slug`, and only fans out when the slug matches its own KEY. The existing seed (`game → post_game_evaluation`) preserves the historical behaviour.
+
+### HoD quarterly rollup
+
+The 90-day activity volume in the Quarterly HoD Review form switched from a hardcoded Games / Trainings / Other split to a `GROUP BY activity_type_key`. Each active type appears as its own row, ordered by the lookup's sort_order, with translated labels. Admin-added types appear automatically. Orphan rows (an activity row whose key no longer matches any lookup row) get a literal-key bucket so totals reconcile.
+
+### Activity forms
+
+Both the wp-admin and frontend Activity create / edit forms read Type options from the lookup. Conditional Game-subtype and Other-label rows stay anchored to the seeded `game` and `other` keys, so admin-added types behave like neither (no subtype, no other-label) until per-type form policy is added.
+
+### REST validation strict-mode
+
+`POST /activities` and `PUT /activities/{id}` validate `activity_type_key` against the live lookup. Unknown values return HTTP 400 with `code=bad_activity_type` and an `allowed` field listing the valid names. Empty values still fall back to the seeded `training` for back-compat with old clients that omit the field. wp-admin path stays lenient (silent fallback) — direct-URL submissions there mostly come from older bookmarks, not script callers.
+
+## Files of note
+
+- `database/migrations/0033_activity_type_lookup.php` — new, idempotent.
+- `src/Modules/Configuration/Admin/ConfigurationPage.php` — new tabs + tiles + lookup edit form gains workflow-template field + locked-delete.
+- `src/Modules/Activities/Admin/ActivitiesPage.php` — wp-admin form reads from lookup + lenient validation.
+- `src/Shared/Frontend/FrontendActivitiesManageView.php` — frontend form reads from lookup.
+- `src/Infrastructure/REST/ActivitiesRestController.php` — strict validation on REST.
+- `src/Modules/Workflow/Templates/PostGameEvaluationTemplate.php` — per-type filter via lookup meta.
+- `src/Modules/Workflow/Forms/QuarterlyHoDReviewForm.php` — per-type rollup rows.
+
+## Out of scope (follow-up)
+
+- **Per-type form policy** — admin-added types currently can't ask for a subtype dropdown or an other-label input. The two conditional rows stay anchored to `game` / `other` keys. A future spec could add a per-type "extra fields" config to the lookup row's meta.
+- **Per-type workflow policy v2** — multiple templates per type, scheduled offsets per type, etc. Today each row picks one slug.
+- **Locking via UI** — no admin-facing toggle to mark a row as `is_locked`. The flag is migration-set today; admins who want to lock a custom row would need direct DB access.
+
+---
+
 # TalentTrack v3.31.1 — Activity type field on frontend + demo-mode guest add fix (#0049)
 
 Two related bugs surfaced together: the frontend activity form was missing the type field, and adding a guest in demo mode failed with a confusing "no longer exists" message.
