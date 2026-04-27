@@ -28,7 +28,7 @@ class RolesPage {
 
     private const CAP = 'tt_view_settings';
 
-    /* ═══════════════ Router ═══════════════ */
+    // Router
 
     public static function render(): void {
         if ( ! current_user_can( self::CAP ) ) {
@@ -46,7 +46,7 @@ class RolesPage {
         self::renderList();
     }
 
-    /* ═══════════════ Views ═══════════════ */
+    // Views
 
     private static function renderList(): void {
         $repo  = new AuthorizationRepository();
@@ -257,7 +257,7 @@ class RolesPage {
         <?php
     }
 
-    /* ═══════════════ Handlers ═══════════════ */
+    // Handlers
 
     public static function handleGrant(): void {
         if ( ! current_user_can( self::CAP ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
@@ -317,7 +317,7 @@ class RolesPage {
         exit;
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     /**
      * Produce a readable scope label, e.g. "Team: U14 A", "Player: Jan Jansen",

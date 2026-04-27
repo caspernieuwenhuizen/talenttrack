@@ -74,7 +74,7 @@ class FrontendPlayersCsvImportView extends FrontendViewBase {
                 </p>
             </details>
 
-            <?php // ─── Step 1: upload ─── ?>
+            <?php // Step 1: upload ?>
             <div class="tt-panel" data-step="upload">
                 <h3 class="tt-panel-title"><?php esc_html_e( '1. Upload your CSV', 'talenttrack' ); ?></h3>
                 <form data-tt-csv-form="1" enctype="multipart/form-data">
@@ -98,7 +98,7 @@ class FrontendPlayersCsvImportView extends FrontendViewBase {
                 </form>
             </div>
 
-            <?php // ─── Step 2: preview (rendered by JS) ─── ?>
+            <?php // Step 2: preview (rendered by JS) ?>
             <div class="tt-panel" data-step="preview" hidden>
                 <h3 class="tt-panel-title"><?php esc_html_e( '2. Preview', 'talenttrack' ); ?></h3>
                 <div data-tt-csv-header-warnings="1"></div>
@@ -122,7 +122,7 @@ class FrontendPlayersCsvImportView extends FrontendViewBase {
                 </div>
             </div>
 
-            <?php // ─── Step 3: result (rendered by JS) ─── ?>
+            <?php // Step 3: result (rendered by JS) ?>
             <div class="tt-panel" data-step="result" hidden>
                 <h3 class="tt-panel-title"><?php esc_html_e( '3. Result', 'talenttrack' ); ?></h3>
                 <ul data-tt-csv-result-summary="1" style="font-size:var(--tt-fs-md); line-height:1.7;"></ul>

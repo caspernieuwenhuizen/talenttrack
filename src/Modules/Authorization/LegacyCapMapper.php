@@ -41,7 +41,7 @@ final class LegacyCapMapper {
      *      cap_slug => [ entity, activity ]
      */
     private const MAPPING = [
-        // ── Core domain entities ──────────────────────────────────────
+        // Core domain entities
         'tt_view_teams'                  => [ 'team',           'read' ],
         'tt_edit_teams'                  => [ 'team',           'change' ],
         'tt_view_players'                => [ 'players',        'read' ],
@@ -60,7 +60,7 @@ final class LegacyCapMapper {
         'tt_edit_methodology'            => [ 'methodology',    'change' ],
         'tt_view_reports'                => [ 'reports',        'read' ],
 
-        // ── Settings + admin ──────────────────────────────────────────
+        // Settings + admin
         'tt_view_settings'               => [ 'settings',       'read' ],
         'tt_edit_settings'               => [ 'settings',       'change' ],
         'tt_manage_settings'             => [ 'settings',       'create_delete' ],
@@ -68,19 +68,19 @@ final class LegacyCapMapper {
         'tt_manage_functional_roles'     => [ 'functional_roles', 'create_delete' ],
         'tt_manage_backups'              => [ 'backups',        'create_delete' ],
 
-        // ── Workflow (#0022) ──────────────────────────────────────────
+        // Workflow (#0022)
         'tt_view_own_tasks'              => [ 'workflow_tasks', 'read' ],
         'tt_view_tasks_dashboard'        => [ 'tasks_dashboard','read' ],
         'tt_configure_workflow_templates'=> [ 'workflow_templates','change' ],
         'tt_manage_workflow_templates'   => [ 'workflow_templates','create_delete' ],
 
-        // ── Development management (#0009) ────────────────────────────
+        // Development management (#0009)
         'tt_submit_idea'                 => [ 'dev_ideas',      'change' ],
         'tt_refine_idea'                 => [ 'dev_ideas',      'change' ],
         'tt_view_dev_board'              => [ 'dev_ideas',      'read' ],
         'tt_promote_idea'                => [ 'dev_ideas',      'create_delete' ],
 
-        // ── Invitations (#0032) ───────────────────────────────────────
+        // Invitations (#0032)
         'tt_send_invitation'             => [ 'invitations',    'create_delete' ],
         'tt_revoke_invitation'           => [ 'invitations',    'create_delete' ],
         'tt_manage_invite_messages'      => [ 'invitations',    'change' ],

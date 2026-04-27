@@ -53,7 +53,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
         }
     }
 
-    /* ═══════════════ Renderers ═══════════════ */
+    // Renderers
 
     private static function renderLogins( int $days ): void {
         global $wpdb;
@@ -444,7 +444,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
         <?php
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     private static function renderUserTimeTable( array $rows ): void {
         ?>

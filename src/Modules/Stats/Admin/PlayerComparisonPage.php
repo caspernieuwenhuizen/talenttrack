@@ -305,7 +305,7 @@ class PlayerComparisonPage {
         <?php
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     private static function renderMainBreakdownTable( array $players, array $mains ): void {
         // Collect union of category keys across all players (each player's

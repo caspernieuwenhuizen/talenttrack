@@ -24,7 +24,6 @@ _None._
 | - | - | - | - |
 | 0006 | Team planning module | epic | ~55h |
 | 0010 | Multi-language (FR/DE/ES) | feat | ~80-140h (likely lower now that #0029 split + #0025 auto-translate land first) |
-| 0012 | Anti-AI fingerprint pass | epic | ~50-75h |
 | 0014 | Player profile + report generator | epic | ~58h |
 | 0016 | Photo-to-session capture | epic | ~80h |
 | 0017 | Trial player module | epic | ~72h (still blocked behind #0014 Sprint 3; #0022 Phase 1 dep cleared) |
@@ -39,6 +38,7 @@ _None._
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
+| 0012 | Anti-AI fingerprint pass — first sweep (Unicode comment banners stripped from PHP/JS/CSS, version-history docblocks trimmed, DEVOPS.md "no AI fingerprints" rule codified) | epic | v3.26.1 | ~50-75h | ~1.5h first pass — perl batch on the obvious LLM tells; remaining over-explanatory comments left for follow-up |
 | 0033 | Authorization matrix + module toggles + per-module config + dashboard tile split (full 9-sprint epic — schema + MatrixGate + LegacyCapMapper bridge + admin UI + TileRegistry + work/setup split + ModuleRegistry runtime toggles + ConfigTabRegistry + tt_team_manager role + is_head_coach split + migration preview + apply/rollback + docs) | epic | v3.24.0–v3.26.0 | ~90h | ~14h across 4 PRs (#69 / #71 / #73 + sprint 1 pre-bundle); ~1/6.4 ratio — best compression on the project to date |
 | 0021 | Audit log viewer (frontend page + filters + pagination + AuditService extensions; also fixed a long-running schema drift that silently broke audit writes on fresh installs) | feat | v3.25.0 | ~10h | ~2h (server-rendered, no REST surface needed; bundled the audit_log schema fix in the same PR since the viewer would have shown empty results without it) |
 | 0038 | Fresh install has no usable surface out of the box (Activator auto-page + Menu parent=null pattern, restoring the URL-fallback the in-code comment always promised) | bug | v3.24.2 | ~1-2h | ~45min |
@@ -104,7 +104,7 @@ Realistic next moves:
 | - | - | - |
 | Ready (#0028) | 20 | 30 |
 | Needs shaping (#0031) | 12 | 18 |
-| Not started (#0006, #0010, #0012, #0014, #0016, #0017, #0018, #0022 Phase 2) | 485 | 580 |
+| Not started (#0006, #0010, #0014, #0016, #0017, #0018, #0022 Phase 2) | 435 | 505 |
 | **Total remaining** | **~517h** | **~628h** |
 
 Was ~700-870h at end of v3.21.0; v3.22.0 cleared ~119h of estimate (vs ~41h actual); v3.23.0 cleared another ~26h (vs ~12h actual); v3.24.0 cleared another ~32-42h estimate (vs ~16h actual); v3.24.1 + v3.24.2 + #0033 sprints 2-5 cleared another ~37-47h estimate (vs ~14h actual); v3.26.0 closed the #0033 epic with sprints 6-9 (~34h estimate vs ~5h actual). Post-v3.23.0 the picture also moved: #0033 promoted from "Needs shaping" to "Ready" with a locked ~90h estimate then ran the full epic (~90h estimate / ~14h actual / ~1/6.4 ratio); #0030 dropped out entirely (extracted to talenttrack-branding repo). Remaining estimates intentionally conservative — empirical ~1/2.5 under-shoot rate across five releases suggests a realistic floor of **~310-380h** if the compression pattern holds.

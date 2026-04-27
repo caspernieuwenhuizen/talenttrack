@@ -30,7 +30,7 @@ class FunctionalRolesPage {
 
     private const CAP = 'tt_view_settings';
 
-    /* ═══════════════ Router ═══════════════ */
+    // Router
 
     public static function render(): void {
         if ( ! current_user_can( self::CAP ) ) {
@@ -48,7 +48,7 @@ class FunctionalRolesPage {
         self::renderList();
     }
 
-    /* ═══════════════ Views ═══════════════ */
+    // Views
 
     private static function renderList(): void {
         $repo  = new FunctionalRolesRepository();
@@ -259,7 +259,7 @@ class FunctionalRolesPage {
         <?php
     }
 
-    /* ═══════════════ Handlers ═══════════════ */
+    // Handlers
 
     public static function handleSaveMapping(): void {
         if ( ! current_user_can( self::CAP ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
@@ -280,7 +280,7 @@ class FunctionalRolesPage {
         exit;
     }
 
-    /* ═══════════════ Localization helpers ═══════════════ */
+    // Localization helpers
 
     /**
      * Translatable label for a functional role key. tt_functional_roles.label

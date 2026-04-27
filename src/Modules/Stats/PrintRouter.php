@@ -70,7 +70,7 @@ class PrintRouter {
         self::emit( $player_id );
     }
 
-    /* ═══════════════ Request detection ═══════════════ */
+    // Request detection
 
     private static function isReportRequest(): bool {
         if ( isset( $_GET['tt_report'] ) && $_GET['tt_report'] === '1' ) return true;
@@ -99,7 +99,7 @@ class PrintRouter {
         return $own && (int) $own->id === $target_id;
     }
 
-    /* ═══════════════ Emit ═══════════════ */
+    // Emit
 
     private static function emit( int $player_id ): void {
         // Resolve filters from query string (same shape as rate card).

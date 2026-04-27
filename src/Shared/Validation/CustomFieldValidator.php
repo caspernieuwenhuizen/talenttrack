@@ -145,7 +145,7 @@ class CustomFieldValidator {
         return $result['errors'];
     }
 
-    /* ═══════════════ Internals ═══════════════ */
+    // Internals
 
     /**
      * Was this field on the submitted form? Absent → skip (don't wipe

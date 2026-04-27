@@ -21,7 +21,7 @@
 .tt-formation-diagram .tt-fp-zone     { fill: rgba(11, 61, 46, 0.10); stroke: rgba(11, 61, 46, 0.30); stroke-width: 0.3; }
 .tt-dashboard .tt-formation-diagram   { color: var(--tt-primary, #0b3d2e); }
 
-/* ─── DemoData admin: tabs + runner overlay (#5) ──────────────
+/*  DemoData admin: tabs + runner overlay (#5) 
    Basic / Advanced switcher on the Generate form, plus a
    non-dismissible "Generating…" overlay during the synchronous
    admin-post submit. Distinct namespace (.tt-runner-overlay) so
@@ -123,7 +123,7 @@
     to { transform: rotate(360deg); }
 }
 
-/* ─── Onboarding wizard polish (#5) ───────────────────────────
+/*  Onboarding wizard polish (#5) 
    Replaces the inline style attributes peppered through
    OnboardingPage.php with a tt- namespaced layer. Visually still
    close to wp-admin defaults — we're polishing, not redesigning. */
@@ -188,7 +188,7 @@
 .tt-onboarding-resume-card p { margin: 0 0 6px; }
 .tt-onboarding-resume-card p:last-child { margin-bottom: 0; }
 
-/* ─── Backup running overlay (#6 + #7) ─────────────────────────
+/*  Backup running overlay (#6 + #7) 
    Shown on the Backup admin page while a Run-Now or Restore submit
    is in flight. Non-dismissible — disappears naturally when the
    server redirects back. Same shape as .tt-runner-overlay above

@@ -36,7 +36,7 @@ class ArchiveRepository {
         'person'     => 'tt_people',
     ];
 
-    /* ═══════════════ Public API ═══════════════ */
+    // Public API
 
     /**
      * Archive N rows. Stamps archived_at + archived_by. Rows that are
@@ -159,7 +159,7 @@ class ArchiveRepository {
         return in_array( $v, [ 'active', 'archived', 'all' ], true ) ? $v : 'active';
     }
 
-    /* ═══════════════ Dependency checks ═══════════════ */
+    // Dependency checks
 
     /**
      * Count active dependents of an entity — used for warnings before
@@ -199,7 +199,7 @@ class ArchiveRepository {
         return $out;
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     private function resolveTable( string $entity ): ?string {
         if ( ! isset( self::TABLE_MAP[ $entity ] ) ) return null;

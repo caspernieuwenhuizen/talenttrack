@@ -251,7 +251,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 </div>
             </div>
 
-            <?php // ─── Photo (WP media uploader) ─── ?>
+            <?php // Photo (WP media uploader) ?>
             <div class="tt-field tt-player-photo">
                 <span class="tt-field-label"><?php esc_html_e( 'Photo', 'talenttrack' ); ?></span>
                 <input type="hidden" name="photo_url" id="tt-player-photo-url" value="<?php echo esc_attr( (string) ( $player->photo_url ?? '' ) ); ?>" />

@@ -31,7 +31,7 @@ class UsageTracker {
     private const RETENTION_DAYS = 90;
     private const CRON_HOOK = 'tt_usage_prune_daily';
 
-    /* ═══════════════ Registration ═══════════════ */
+    // Registration
 
     public static function init(): void {
         // Login capture
@@ -55,7 +55,7 @@ class UsageTracker {
         if ( $timestamp ) wp_unschedule_event( $timestamp, self::CRON_HOOK );
     }
 
-    /* ═══════════════ Event capture ═══════════════ */
+    // Event capture
 
     public static function onLogin( string $user_login, $user ): void {
         if ( ! is_object( $user ) ) return;
@@ -97,7 +97,7 @@ class UsageTracker {
         ], [ '%d', '%s', '%s', '%s' ] );
     }
 
-    /* ═══════════════ Prune ═══════════════ */
+    // Prune
 
     public static function pruneOldEvents(): int {
         global $wpdb;
@@ -108,7 +108,7 @@ class UsageTracker {
         ) );
     }
 
-    /* ═══════════════ Queries for dashboard ═══════════════ */
+    // Queries for dashboard
 
     /**
      * Events of a given type within the last N days.

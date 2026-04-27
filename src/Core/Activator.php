@@ -9,27 +9,9 @@ use TT\Infrastructure\Security\RolesService;
 /**
  * Activator — runs on plugin activation.
  *
- * v2.10.1: Adds a self-healing repair routine (repairFunctionalRoleBackfill)
- * that detects tt_team_people rows where role_in_team is set but
- * functional_role_id is NULL and backfills them directly. This is the
- * belt to migration 0006's suspenders: if the migration ever fails to
- * persist (as it did on at least one host under the pre-2.10.1
- * eval-based migration loader), every subsequent activation catches up.
- * Idempotent — does nothing if all rows are already backfilled. Also
- * removes 0005_authorization_rbac from the pre-applied migrations list
- * (it never had a file on disk) and cleans up its orphan row.
- * v2.10.0 (Sprint 1G): Adds tt_functional_roles and
- * tt_functional_role_auth_roles tables plus a functional_role_id column on
- * tt_team_people. Separates "what is this person's job" (functional role)
- * from "what are they allowed to do" (authorization role). One functional
- * role can map to multiple authorization roles, enabling cases like
- * "Head Coach who also does physio". Seeds 5 system functional roles,
- * a new `team_member` authorization role (for the `other` functional
- * role), and the default 1-to-1 functional→auth mapping.
- * v2.9.0 (Sprint 1F): Adds tt_roles, tt_role_permissions, and
- * tt_user_role_scopes for the data-driven authorization model. Seeds the
- * 9 system roles and their permission matrix on first activation.
- * v2.7.0: Adds tt_people and tt_team_people tables.
+ * Owns the fresh-install schema (ensureSchema), the seed-once defaults,
+ * and the self-healing routines that catch up sites where a migration
+ * silently failed. Version-by-version history lives in CHANGES.md.
  */
 class Activator {
 
@@ -39,27 +21,17 @@ class Activator {
     }
 
     /**
-     * v3.0.0 — extracted from activate() so it can be triggered on
-     * demand from the admin UI (Plugins page action link, or the
-     * "Run now" button in the schema-out-of-date admin notice).
-     *
-     * Idempotent: every step is a no-op when the target state is
-     * already reached. Safe to run at any time.
-     *
-     * After successful completion, stores TT_VERSION in the
-     * `tt_installed_version` option so the schema-check can detect
-     * whether further runs are needed after a code update.
+     * Idempotent. Triggerable on demand from the Plugins page or the
+     * schema-out-of-date admin notice. Stores TT_VERSION on success so
+     * the schema-check knows whether another run is needed after an
+     * update.
      */
     public static function runMigrations(): void {
         ( new RolesService() )->installRoles();
 
-        // v2.12.1: repair the tt_eval_categories table before ensureSchema
-        // creates its real shape. Needed for sites where the 2.12.0 schema
-        // ran through dbDelta and silently dropped the `key` column (a MySQL
-        // reserved word). The routine detects the corrupt state and drops
-        // the table so ensureSchema below can recreate it with the new
-        // column name (category_key). Idempotent: no-op if the table has
-        // the expected shape or doesn't exist yet.
+        // v2.12.0 dbDelta silently dropped the `key` column on some
+        // hosts (MySQL reserved word). Detect that corrupt state and
+        // drop the table so ensureSchema below can recreate it.
         self::repairEvalCategoriesTableIfCorrupt();
 
         self::ensureSchema();
@@ -99,24 +71,13 @@ class Activator {
     }
 
     /**
-     * #0038 — auto-create a frontend dashboard page on activation so a
-     * brand-new install has a usable surface even before the Setup
-     * Wizard runs. The previous default left `dashboard_page_id = 0`,
-     * which meant `?tt_view=*` URLs hit whatever page the active
-     * theme rendered at the site root — typically the blog index, not
-     * the TalentTrack dashboard.
+     * Auto-create a frontend dashboard page so a fresh install has a
+     * usable surface even before the Setup Wizard runs (#0038).
      *
-     * Idempotent in three ways:
-     *   1. If `tt_config.dashboard_page_id` already points at a real
-     *      published post, do nothing.
-     *   2. Otherwise, if any published page already contains the
-     *      `[talenttrack_dashboard]` shortcode, adopt its ID.
-     *   3. Otherwise, insert a new "TalentTrack" page with the
-     *      shortcode as its sole content.
-     *
-     * Never sets the page as the WP front-page — too presumptuous;
-     * that's a deliberate choice the admin should make if they want
-     * to. The page is simply reachable via its permalink.
+     * Idempotent: skip if `dashboard_page_id` already points at a real
+     * published post; otherwise adopt any existing page that already
+     * has the [talenttrack_dashboard] shortcode; otherwise create a
+     * new "TalentTrack" page. Never touches `show_on_front`.
      */
     private static function seedDashboardPageIfMissing(): void {
         global $wpdb;
@@ -171,10 +132,6 @@ class Activator {
         ] );
     }
 
-    /* ═══════════════════════════════════════════════════════════
-     *  Schema: the full authoritative definition of every table
-     * ═══════════════════════════════════════════════════════════ */
-
     private static function ensureSchema(): void {
         global $wpdb;
         $c = $wpdb->get_charset_collate();
@@ -184,7 +141,7 @@ class Activator {
 
         $queries = [];
 
-        /* ─── Migration tracking ─── */
+        // Migration tracking
         $queries[] = "CREATE TABLE {$p}tt_migrations (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             migration VARCHAR(191) NOT NULL,
@@ -193,7 +150,7 @@ class Activator {
             UNIQUE KEY uniq_migration (migration)
         ) $c;";
 
-        /* ─── Lookups & config ─── */
+        // Lookups & config
         $queries[] = "CREATE TABLE {$p}tt_lookups (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             lookup_type VARCHAR(100) NOT NULL,
@@ -213,7 +170,7 @@ class Activator {
             PRIMARY KEY (config_key)
         ) $c;";
 
-        /* ─── Teams & players ─── */
+        // Teams & players
         $queries[] = "CREATE TABLE {$p}tt_teams (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             name VARCHAR(255) NOT NULL,
@@ -257,7 +214,7 @@ class Activator {
             KEY idx_archived_at (archived_at)
         ) $c;";
 
-        /* ─── People & team-staff assignments ─── */
+        // People & team-staff assignments
         $queries[] = "CREATE TABLE {$p}tt_people (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             first_name VARCHAR(255) NOT NULL,
@@ -295,7 +252,7 @@ class Activator {
             KEY idx_functional_role (functional_role_id)
         ) $c;";
 
-        /* ─── Functional roles (NEW in v2.10.0, Sprint 1G) ─── */
+        // Functional roles (NEW in v2.10.0, Sprint 1G)
         // Catalogue of jobs people can hold on a team. Decouples "what is this
         // person's job" from "what are they allowed to do". The mapping table
         // below defines which authorization roles each functional role grants.
@@ -326,7 +283,7 @@ class Activator {
             KEY idx_authrole (auth_role_id)
         ) $c;";
 
-        /* ─── Roles, permissions, user-role scopes (NEW in v2.9.0) ─── */
+        // Roles, permissions, user-role scopes (NEW in v2.9.0)
         $queries[] = "CREATE TABLE {$p}tt_roles (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             role_key VARCHAR(64) NOT NULL,
@@ -370,7 +327,7 @@ class Activator {
             KEY idx_scope (scope_type, scope_id)
         ) $c;";
 
-        /* ─── Evaluations (FULL v2.x schema) ─── */
+        // Evaluations (FULL v2.x schema)
         $queries[] = "CREATE TABLE {$p}tt_evaluations (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             player_id BIGINT UNSIGNED NOT NULL,
@@ -406,7 +363,7 @@ class Activator {
             KEY idx_cat (category_id)
         ) $c;";
 
-        /* ─── Evaluation categories (v2.12.0) ─── */
+        // Evaluation categories (v2.12.0)
         // First-class hierarchy: main categories have parent_id IS NULL,
         // subcategories point at their parent's id. The `category_key`
         // column is a stable slug like 'technical_short_pass' — translations
@@ -430,7 +387,7 @@ class Activator {
             KEY idx_active (is_active)
         ) $c;";
 
-        /* ─── Category weights per age group (v2.13.0) ─── */
+        // Category weights per age group (v2.13.0)
         // Per-(age_group, main_category) percentage weight used to compute
         // an overall rating per evaluation. Weights sum to 100 for a given
         // age group when configured; sites without weights for an age
@@ -450,7 +407,7 @@ class Activator {
             KEY idx_main_category (main_category_id)
         ) $c;";
 
-        /* ─── Usage events (v2.18.0) ─── */
+        // Usage events (v2.18.0)
         // Tracks login + admin page-view events for app-usage analytics.
         // 90-day retention enforced by daily WP-Cron prune. No IPs, no
         // user agents — just user id + event type + optional target.
@@ -466,7 +423,7 @@ class Activator {
             KEY idx_created_at (created_at)
         ) $c;";
 
-        /* ─── Sessions & attendance ─── */
+        // Sessions & attendance
         $queries[] = "CREATE TABLE {$p}tt_activitys (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             title VARCHAR(255) NOT NULL,
@@ -495,7 +452,7 @@ class Activator {
             KEY idx_player (player_id)
         ) $c;";
 
-        /* ─── Goals ─── */
+        // Goals
         $queries[] = "CREATE TABLE {$p}tt_goals (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             player_id BIGINT UNSIGNED NOT NULL,
@@ -514,7 +471,7 @@ class Activator {
             KEY idx_archived_at (archived_at)
         ) $c;";
 
-        /* ─── Reports ─── */
+        // Reports
         $queries[] = "CREATE TABLE {$p}tt_report_presets (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             name VARCHAR(255) NOT NULL,
@@ -524,7 +481,7 @@ class Activator {
             PRIMARY KEY (id)
         ) $c;";
 
-        /* ─── Audit log ─── */
+        // Audit log
         // #0021 — column names match migration 0002 + AuditService::record:
         // `payload` (not `details`) + `ip_address`. Fresh-install schema
         // previously diverged on both, which silently broke audit logging
@@ -547,7 +504,7 @@ class Activator {
             KEY idx_created (created_at)
         ) $c;";
 
-        /* ─── Custom fields ─── */
+        // Custom fields
         $queries[] = "CREATE TABLE {$p}tt_custom_fields (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             entity_type VARCHAR(50) NOT NULL,
@@ -726,12 +683,6 @@ class Activator {
         }
     }
 
-    /* ═══════════════════════════════════════════════════════════
-     *  v2.9.0 — seed 9 system roles + permission matrix
-     *  v2.10.0 — top up missing system roles on existing sites
-     *            (so team_member lands on Sprint 1F installs)
-     * ═══════════════════════════════════════════════════════════ */
-
     private static function seedRolesIfEmpty(): void {
         global $wpdb;
         $p = $wpdb->prefix;
@@ -761,10 +712,6 @@ class Activator {
             }
         }
     }
-
-    /* ═══════════════════════════════════════════════════════════
-     *  v2.10.0 (Sprint 1G) — seed functional roles + default mapping
-     * ═══════════════════════════════════════════════════════════ */
 
     /**
      * Seed the 5 system functional roles (head_coach, assistant_coach,

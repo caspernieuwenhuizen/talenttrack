@@ -44,7 +44,7 @@ class FunctionalRolesRestController {
     }
 
     public static function register(): void {
-        // ─── Role types ───
+        // Role types
         register_rest_route( self::NS, '/functional-roles', [
             [
                 'methods'             => 'GET',
@@ -77,7 +77,7 @@ class FunctionalRolesRestController {
             ],
         ] );
 
-        // ─── Assignments ───
+        // Assignments
         register_rest_route( self::NS, '/functional-roles/assignments', [
             [
                 'methods'             => 'GET',
@@ -99,7 +99,7 @@ class FunctionalRolesRestController {
         ] );
     }
 
-    /* ═══════════════ Role types ═══════════════ */
+    // Role types
 
     public static function list_role_types( \WP_REST_Request $r ) {
         $repo = new FunctionalRolesRepository();
@@ -234,7 +234,7 @@ class FunctionalRolesRestController {
         return RestResponse::success( [ 'id' => $id, 'swapped_with' => (int) $neighbor->id ] );
     }
 
-    /* ═══════════════ Assignments ═══════════════ */
+    // Assignments
 
     private const ASSIGNMENT_ORDERBY_WHITELIST = [
         'team_name'   => 't.name',
@@ -360,7 +360,7 @@ class FunctionalRolesRestController {
         return RestResponse::success( [ 'deleted' => true, 'assignment_id' => $assignment_id ] );
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     private static function clamp_per_page( $value ): int {
         $n = absint( $value );

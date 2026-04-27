@@ -20,9 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * is plugin-internal. This decouples the trial mechanics from
  * Freemius's specific implementation.
  *
- * Plan-to-tier mapping:
- *   Freemius slug  →  TT tier
- *   ─────────────────────────
+ * Plan-to-tier mapping (Freemius slug → TT tier):
  *   (no license)   →  free
  *   "standard"     →  standard
  *   "pro"          →  pro

@@ -112,7 +112,7 @@ class MethodologyPage {
         <?php
     }
 
-    /* ═══════════════ Tabs ═══════════════ */
+    // Tabs
 
     private static function renderPrinciplesTab(): void {
         $repo = new PrinciplesRepository();
@@ -711,7 +711,7 @@ class MethodologyPage {
         <?php
     }
 
-    /* ═══════════════ Action handlers ═══════════════ */
+    // Action handlers
 
     public static function handleClone(): void {
         if ( ! current_user_can( self::CAP_EDIT ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
@@ -760,7 +760,7 @@ class MethodologyPage {
         exit;
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     private static function renderNotices(): void {
         if ( ! isset( $_GET['tt_msg'] ) ) return;

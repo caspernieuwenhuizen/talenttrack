@@ -283,7 +283,7 @@ class PlayerReportView {
         <?php
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     private static function renderHeadlineTile( string $title, ?float $value, string $subtext ): void {
         ?>
@@ -337,7 +337,7 @@ class PlayerReportView {
     private static function renderPrintStyles(): void {
         ?>
         <style>
-        /* ═════ Screen preview + print ═════ */
+        // Screen preview + print
         .tt-report-wrap {
             max-width: 780px;
             margin: 24px auto;
@@ -509,7 +509,7 @@ class PlayerReportView {
             height: 20px;
         }
 
-        /* ═════ A4 print ═════ */
+        // A4 print
         @media print {
             @page {
                 size: A4 portrait;
@@ -544,7 +544,7 @@ class PlayerReportView {
             .tt-report-print-btn { display: none; }
         }
 
-        /* ═════ Responsive preview on mobile ═════ */
+        // Responsive preview on mobile
         @media (max-width: 640px) {
             .tt-report-wrap { padding: 16px; margin: 10px; }
             .tt-report-headline { grid-template-columns: 1fr; }

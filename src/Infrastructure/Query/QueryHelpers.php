@@ -27,7 +27,7 @@ class QueryHelpers {
         return self::$config;
     }
 
-    /* ═══ Config passthrough ══════════════════════════════ */
+    // Config passthrough
 
     public static function get_config( string $key, string $default = '' ): string {
         return self::config()->get( $key, $default );
@@ -37,7 +37,7 @@ class QueryHelpers {
         self::config()->set( $key, $value );
     }
 
-    /* ═══ Lookups ═════════════════════════════════════════ */
+    // Lookups
 
     /** @return object[] */
     public static function get_lookups( string $type ): array {
@@ -95,7 +95,7 @@ class QueryHelpers {
         return ! empty( $m['requires_match_details'] );
     }
 
-    /* ═══ Demo-mode scope filter ══════════════════════════ */
+    // Demo-mode scope filter
 
     /**
      * Site-level scope fragment to append to SELECTs against core tables.
@@ -137,7 +137,7 @@ class QueryHelpers {
         return " AND {$alias}.id {$op} (SELECT entity_id FROM {$tag_table} WHERE entity_type = {$prepared_type}) ";
     }
 
-    /* ═══ Entity queries ══════════════════════════════════ */
+    // Entity queries
 
     /** @return object[] */
     public static function get_teams(): array {
@@ -259,7 +259,7 @@ class QueryHelpers {
         return $eval;
     }
 
-    /* ═══ Radar chart SVG ═════════════════════════════════ */
+    // Radar chart SVG
 
     /**
      * @param string[] $labels

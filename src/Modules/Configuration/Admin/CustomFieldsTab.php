@@ -254,7 +254,7 @@ class CustomFieldsTab {
         <?php
     }
 
-    /* ═══ Handlers ═══ */
+    // Handlers
 
     public static function handle_save(): void {
         if ( ! current_user_can( 'tt_manage_players' ) ) {
@@ -371,7 +371,7 @@ class CustomFieldsTab {
         exit;
     }
 
-    /* ═══ Helpers ═══ */
+    // Helpers
 
     private static function redirectWithError( string $code, int $id ): void {
         $url = add_query_arg(

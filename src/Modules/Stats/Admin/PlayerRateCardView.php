@@ -243,7 +243,7 @@ class PlayerRateCardView {
         <?php
     }
 
-    /* ═══════════════ Filters ═══════════════ */
+    // Filters
 
     private static function renderFilters( array $filters, array $eval_types, string $base_url, int $player_id ): void {
         $from = $filters['date_from'] ?? '';
@@ -294,7 +294,7 @@ class PlayerRateCardView {
         <?php
     }
 
-    /* ═══════════════ Headline ═══════════════ */
+    // Headline
 
     private static function renderHeadline( array $h ): void {
         ?>
@@ -339,7 +339,7 @@ class PlayerRateCardView {
         <?php
     }
 
-    /* ═══════════════ Main category breakdown ═══════════════ */
+    // Main category breakdown
 
     private static function renderMainBreakdown( array $mains, array $subs ): void {
         ?>
@@ -449,7 +449,7 @@ class PlayerRateCardView {
         <?php
     }
 
-    /* ═══════════════ Charts ═══════════════ */
+    // Charts
 
     private static function renderCharts( array $trend, array $radar, float $rating_max ): void {
         $has_trend = ! empty( $trend['labels'] );

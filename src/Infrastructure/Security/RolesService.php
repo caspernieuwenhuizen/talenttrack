@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 class RolesService {
 
-    /* ═══════════════ Capability inventory ═══════════════ */
+    // Capability inventory
 
     /**
      * All TalentTrack capabilities, grouped by area. The right-hand
@@ -187,7 +187,7 @@ class RolesService {
         ];
     }
 
-    /* ═══════════════ Role + cap installation ═══════════════ */
+    // Role + cap installation
 
     /**
      * Install all TT roles + ensure administrator has every TT cap.
@@ -241,7 +241,7 @@ class RolesService {
         }
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     /** @return array<string,bool> */
     private static function allViewCapsTrue(): array {

@@ -51,7 +51,7 @@ class PeoplePage {
         self::renderList();
     }
 
-    /* ═══════════════ Views ═══════════════ */
+    // Views
 
     private static function renderList(): void {
         $repo = new PeopleRepository();
@@ -333,7 +333,7 @@ class PeoplePage {
         <?php endif;
     }
 
-    /* ═══════════════ Handlers ═══════════════ */
+    // Handlers
 
     public static function handleSave(): void {
         if ( ! current_user_can( self::CAP ) ) {
@@ -415,7 +415,7 @@ class PeoplePage {
         exit;
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     public static function roleLabel( string $role ): string {
         $map = [

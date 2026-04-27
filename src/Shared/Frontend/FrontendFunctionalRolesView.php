@@ -96,7 +96,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         echo '</div>';
     }
 
-    /* ═══════════════ Role types tab ═══════════════ */
+    // Role types tab
 
     private static function renderRoleTypesList(): void {
         $base    = remove_query_arg( [ 'action', 'type_id' ] );
@@ -194,7 +194,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         <?php
     }
 
-    /* ═══════════════ Assignments tab ═══════════════ */
+    // Assignments tab
 
     private static function renderAssignmentsList( int $user_id, bool $is_admin ): void {
         $base    = remove_query_arg( [ 'action', 'id', 'type_id' ] );

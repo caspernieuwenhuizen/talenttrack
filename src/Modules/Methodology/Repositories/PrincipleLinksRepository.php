@@ -33,7 +33,7 @@ class PrincipleLinksRepository {
         return $wpdb->prefix . 'tt_methodology_principle_links';
     }
 
-    /* ═══════════════ Session ↔ Principle ═══════════════ */
+    // Session ↔ Principle
 
     /** @return int[] principle ids attached to this session, in stored order */
     public function principlesForActivity( int $activity_id ): array {
@@ -80,7 +80,7 @@ class PrincipleLinksRepository {
         ) );
     }
 
-    /* ═══════════════ Reverse index ═══════════════ */
+    // Reverse index
 
     /** @param string $entity_type 'team_plan' | 'trial_decision' | future */
     public function recordLink( int $principle_id, string $entity_type, int $entity_id ): void {

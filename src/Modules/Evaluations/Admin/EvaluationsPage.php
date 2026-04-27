@@ -494,16 +494,11 @@ class EvaluationsPage {
                 });
             });
 
-            /* ═══════════════════════════════════════════════════════════
-             * v2.13.0 — Live overall rating preview.
-             *
-             * Computes the weighted mean of main-category effective
-             * ratings using the weight set for the currently-selected
-             * player's age group. Matches the server algorithm in
-             * EvalRatingsRepository::overallRating(): effective = direct
-             * if present, else mean of sub ratings; skip nulls from both
-             * numerator and denominator.
-             * ═══════════════════════════════════════════════════════════ */
+            // Live overall-rating preview. Mirrors the server algorithm
+            // in EvalRatingsRepository::overallRating(): weighted mean of
+            // main-category effective ratings (direct if set, else mean
+            // of subs); nulls skipped from both numerator and denominator.
+            // Weight set is the one for the selected player's age group.
             var mainIds       = <?php echo wp_json_encode( array_values( $main_cat_ids ) ); ?>;
             var childToParent = <?php echo wp_json_encode( $child_to_parent ); ?>;
             var playerAgeMap  = <?php echo wp_json_encode( $player_age_map ); ?>;

@@ -64,7 +64,7 @@ class ModuleRegistry {
         return $this->modules;
     }
 
-    /* ════════ #0033 Sprint 5 — runtime module state ════════ */
+    // #0033 Sprint 5 — runtime module state
 
     /**
      * Modules that cannot be disabled. Toggle button renders inert

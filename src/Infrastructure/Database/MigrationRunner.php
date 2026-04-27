@@ -112,7 +112,7 @@ class MigrationRunner {
         ];
     }
 
-    /* ═══ internals ═══ */
+    // internals
 
     private function runFile( string $file, string $name ): array {
         $start = microtime( true );

@@ -1,21 +1,21 @@
-/* ═══════════════════════════════════════════════════════════
+/* 
    TalentTrack — Frontend admin scaffold
    #0019 Sprint 1 session 3
-   ───────────────────────────────────────────────────────────
+   
    Design tokens + base component styles for every frontend
    coaching surface. Loaded alongside public.css on any page
    that invokes [talenttrack_dashboard]. public.css keeps the
    legacy dashboard/login layout; this file owns the newer
    form + component vocabulary that Sprints 2+ build on.
-   ═══════════════════════════════════════════════════════════ */
+    */
 
-/* ─── Tokens ──────────────────────────────────────────────
+/*  Tokens 
    Scoped to .tt-dashboard so theme CSS can't leak in.
    Consumers should reference tokens (var(--tt-...)) rather
    than hardcoding values. When the brand identity work in
    #0011 lands, only the tokens change — component styles
    follow automatically.
-   ───────────────────────────────────────────────────────── */
+    */
 .tt-dashboard {
     /* Colors — pulled from existing public.css where possible. */
     --tt-primary: #0b3d2e;
@@ -65,12 +65,12 @@
     --tt-font-body:    Georgia, "Iowan Old Style", "Palatino Linotype", serif;
 }
 
-/* ─── Form layout primitives ──────────────────────────────
+/*  Form layout primitives 
    .tt-field is the shared field container used by all the
    shared components (PlayerPicker, DateInput, RatingInput,
    MultiSelectTag). Gives every input a consistent vertical
    rhythm + error/hint slots.
-   ───────────────────────────────────────────────────────── */
+    */
 .tt-dashboard .tt-field {
     display: flex;
     flex-direction: column;
@@ -140,7 +140,7 @@
     border-color: var(--tt-danger);
 }
 
-/* ─── Buttons (shared — used by FormSaveButton + elsewhere) ─ */
+/* Buttons (shared — used by FormSaveButton + elsewhere) */
 .tt-dashboard .tt-btn,
 .tt-dashboard .tt-btn-primary,
 .tt-dashboard .tt-btn-secondary,
@@ -200,7 +200,7 @@
 }
 @keyframes tt-spin { to { transform: rotate(360deg); } }
 
-/* ─── Panels / cards ──────────────────────────────────── */
+/* Panels / cards */
 .tt-dashboard .tt-panel {
     background: #fff;
     border: 1px solid var(--tt-line);
@@ -215,7 +215,7 @@
     color: var(--tt-primary);
 }
 
-/* ─── Tables (responsive) ──────────────────────────────── */
+/* Tables (responsive) */
 .tt-dashboard .tt-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: var(--tt-sp-5); }
 .tt-dashboard .tt-table {
     width: 100%;
@@ -239,7 +239,7 @@
 }
 .tt-dashboard .tt-table tbody tr:hover { background: var(--tt-bg-soft); }
 
-/* ─── Grid helpers ─────────────────────────────────────── */
+/* Grid helpers */
 .tt-dashboard .tt-grid { display: grid; gap: var(--tt-sp-4); }
 .tt-dashboard .tt-grid-2 { grid-template-columns: 1fr; }
 .tt-dashboard .tt-grid-3 { grid-template-columns: 1fr; }
@@ -250,8 +250,8 @@
     .tt-dashboard .tt-grid-3 { grid-template-columns: repeat(3, 1fr); }
 }
 
-/* ─── Flash stack (bridges the inline PHP styles in
-   FlashMessages.php with JS-enhanced dismissal in flash.js) ─ */
+/*  Flash stack (bridges the inline PHP styles in
+   FlashMessages.php with JS-enhanced dismissal in flash.js)  */
 .tt-dashboard .tt-flash-stack { margin: 0 0 var(--tt-sp-4); display: flex; flex-direction: column; gap: var(--tt-sp-2); }
 .tt-dashboard .tt-flash {
     display: flex; align-items: flex-start; gap: var(--tt-sp-3);
@@ -275,7 +275,7 @@
     border-width: 0;
 }
 
-/* ─── Component-specific styles ──────────────────────────── */
+/* Component-specific styles */
 
 /* RatingInputComponent — number input + visual dot track. */
 .tt-dashboard .tt-rating {
@@ -363,13 +363,13 @@
 .tt-dashboard .tt-draft-prompt-body { flex: 1; }
 .tt-dashboard .tt-draft-prompt button { font-size: var(--tt-fs-xs); padding: 4px 10px; }
 
-/* ─── FrontendListTable ──────────────────────────────────
+/*  FrontendListTable 
    Reusable list/search/filter/sort/paginate shell. The PHP
    shell server-renders the chrome; frontend-list-table.js
    hydrates rows + URL state. Mobile reflow at 640px swaps
    the table for stacked cards (one row = one card, headers
    become labels via `data-label`).
-   ───────────────────────────────────────────────────────── */
+    */
 .tt-dashboard .tt-list-table { margin: 0 0 var(--tt-sp-5); }
 
 .tt-dashboard .tt-list-table-filters {
@@ -498,13 +498,13 @@
     .tt-dashboard .tt-list-table-empty td::before { content: none; }
 }
 
-/* ─── Attendance (session create/edit form) ──────────────
+/*  Attendance (session create/edit form) 
    Sprint 2 session 2.3. The bulk-present button is sticky
    on mobile so a coach scrolling through 30 players keeps
    it within thumb reach. Mobile reflow on the table rows
    is handled by attendance.js (rows beyond the first 15
    pick up `.is-mobile-hidden`).
-   ───────────────────────────────────────────────────────── */
+    */
 .tt-dashboard .tt-attendance { margin-bottom: var(--tt-sp-5); }
 .tt-dashboard .tt-attendance-toolbar {
     display: flex; flex-wrap: wrap; align-items: center;
@@ -564,7 +564,7 @@
     display: flex; gap: var(--tt-sp-3); align-items: center;
 }
 
-/* ─── Responsive: below 640px, tighten spacing. ─────────── */
+/* Responsive: below 640px, tighten spacing. */
 @media (max-width: 639px) {
     .tt-dashboard .tt-panel { padding: var(--tt-sp-4); }
     .tt-dashboard .tt-btn,
@@ -573,7 +573,7 @@
     .tt-dashboard .tt-btn-danger { width: 100%; }
 }
 
-/* ─── Theme inheritance ──────────────────────────────────
+/*  Theme inheritance 
    #0023 Sprint 1. Active only when the Branding-tab toggle
    is ON — `BrandStyles::addBodyClass` adds `tt-theme-inherit`
    to <body>, which scopes the rules below.
@@ -589,7 +589,7 @@
    for the locked decisions and the honest framing of what
    "inherit" actually does (some properties cascade, others
    don't — buttons are best-effort).
-   ───────────────────────────────────────────────────────── */
+    */
 body.tt-theme-inherit .tt-dashboard,
 body.tt-theme-inherit .tt-dashboard p,
 body.tt-theme-inherit .tt-dashboard li,
@@ -625,10 +625,10 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
     font-family: inherit;
 }
 
-/* ─────────────────────────────────────────────────────────
+/* 
    PlayerSearchPickerComponent — autocomplete picker
    F2 of the post-#0019 feature sprint.
-   ───────────────────────────────────────────────────────── */
+    */
 .tt-dashboard .tt-psp {
     position: relative;
 }
@@ -700,10 +700,10 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
     font-size: var(--tt-fs-sm, 13px);
 }
 
-/* ─────────────────────────────────────────────────────────
+/* 
    RatingPillComponent — shared rating pill / badge / chip
    #0003 + #0004 (v3.18.0)
-   ───────────────────────────────────────────────────────── */
+    */
 .tt-dashboard .tt-rp {
     display: inline-flex;
     align-items: center;
@@ -745,9 +745,9 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
 .tt-dashboard .tt-rp-badge.tt-rp-developing { background: rgba(201, 150, 42, 0.12); color: #845f10; }
 .tt-dashboard .tt-rp-badge.tt-rp-attention  { background: rgba(179, 45, 46, 0.10); color: #8a1f20; }
 
-/* ─────────────────────────────────────────────────────────
+/* 
    FrontendMyEvaluationsView — #0003 layout
-   ───────────────────────────────────────────────────────── */
+    */
 .tt-dashboard .tt-mye-list {
     list-style: none;
     margin: 0;
@@ -861,9 +861,9 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
     .tt-dashboard .tt-mye-detail-list { grid-template-columns: 1fr; }
 }
 
-/* ─────────────────────────────────────────────────────────
+/* 
    FrontendOverviewView — #0004 My card tile
-   ───────────────────────────────────────────────────────── */
+    */
 .tt-dashboard .tt-mc { display: block; }
 .tt-dashboard .tt-mc-hero {
     display: flex;
@@ -982,12 +982,12 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
     }
 }
 
-/* ─── Confirm dialog + near-action flash (#3) ─────────────────
+/*  Confirm dialog + near-action flash (#3) 
    Generic UX primitives: a promise-based modal that replaces
    browser window.confirm() (used for role revoke, goal delete,
    list-table delete, etc.) and a near-the-action toast for the
    post-event "X deleted" feedback.
-   ───────────────────────────────────────────────────────────── */
+    */
 .tt-confirm-overlay {
     position: fixed;
     inset: 0;

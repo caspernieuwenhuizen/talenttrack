@@ -48,7 +48,7 @@ class PeopleRepository {
         'other',
     ];
 
-    /* ═══════════════ People CRUD ═══════════════ */
+    // People CRUD
 
     /**
      * @param array{only_staff?:bool, status?:string, search?:string} $filters
@@ -137,7 +137,7 @@ class PeopleRepository {
         return $this->update( $id, [ 'status' => $status ] );
     }
 
-    /* ═══════════════ Team-staff assignments ═══════════════ */
+    // Team-staff assignments
 
     /**
      * Return staff for a team, grouped by functional role key.
@@ -278,7 +278,7 @@ class PeopleRepository {
         return $result !== false;
     }
 
-    /* ═══════════════ Internal helpers ═══════════════ */
+    // Internal helpers
 
     /**
      * Accepts raw admin input and returns a sanitized associative array

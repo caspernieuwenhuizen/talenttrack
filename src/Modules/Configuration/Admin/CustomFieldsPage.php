@@ -36,7 +36,7 @@ class CustomFieldsPage {
 
     private const CAP = 'tt_view_settings';
 
-    /* ═══════════════ Router ═══════════════ */
+    // Router
 
     public static function render(): void {
         if ( ! current_user_can( self::CAP ) ) {
@@ -59,7 +59,7 @@ class CustomFieldsPage {
         self::renderList( $entity );
     }
 
-    /* ═══════════════ Views ═══════════════ */
+    // Views
 
     private static function renderList( string $entity ): void {
         $repo   = new CustomFieldsRepository();
@@ -329,7 +329,7 @@ another|Another label"><?php echo esc_textarea( self::optionsToText( $options ) 
         <?php
     }
 
-    /* ═══════════════ Handlers ═══════════════ */
+    // Handlers
 
     public static function handleSave(): void {
         if ( ! current_user_can( self::CAP ) ) {
@@ -431,7 +431,7 @@ another|Another label"><?php echo esc_textarea( self::optionsToText( $options ) 
         exit;
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     private static function resolveEntity(): string {
         $raw = isset( $_GET['entity'] ) ? sanitize_key( (string) wp_unslash( $_GET['entity'] ) ) : '';

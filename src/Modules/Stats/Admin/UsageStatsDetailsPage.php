@@ -59,7 +59,7 @@ class UsageStatsDetailsPage {
         <?php
     }
 
-    /* ═══════════════ Renderers ═══════════════ */
+    // Renderers
 
     private static function renderLogins( int $days ): void {
         global $wpdb;
@@ -464,7 +464,7 @@ class UsageStatsDetailsPage {
         <?php
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     /** Render a user+timestamp table — shared shape for login lists. */
     private static function renderUserTimeTable( array $rows ): void {

@@ -163,7 +163,7 @@ class FlashMessages {
         }
     }
 
-    /* ═══ Internals ═══ */
+    // Internals
 
     /**
      * @return array<int, array{id:string,type:string,message:string,at:int}>

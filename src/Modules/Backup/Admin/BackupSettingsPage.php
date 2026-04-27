@@ -37,7 +37,7 @@ class BackupSettingsPage {
         add_action( 'admin_post_tt_backup_partial_execute',   [ self::class, 'handlePartialExecute' ] );
     }
 
-    /* ═══════════════ Render ═══════════════ */
+    // Render
 
     public static function render(): void {
         if ( ! current_user_can( self::CAP ) ) {
@@ -349,7 +349,7 @@ class BackupSettingsPage {
         <?php endif;
     }
 
-    /* ═══════════════ Handlers ═══════════════ */
+    // Handlers
 
     public static function handleSaveSettings(): void {
         self::guard( 'tt_backup_save_settings' );
@@ -510,7 +510,7 @@ class BackupSettingsPage {
         ];
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     private static function guard( string $action ): void {
         if ( ! current_user_can( self::CAP ) ) {
@@ -541,7 +541,7 @@ class BackupSettingsPage {
         exit;
     }
 
-    /* ═══════════════ Partial restore ═══════════════ */
+    // Partial restore
 
     /**
      * Render the partial-restore picker + diff view.

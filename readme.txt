@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.26.0
+Stable tag: 3.26.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.26.1 — Anti-AI-fingerprint sweep, first pass (#0012) =
+* CHANGED: Stripped Unicode box-drawing comment banners (`/* ═══ Foo ═══ */`, `/* ─── Foo ─── */`) from PHP, JS, and CSS source files across the plugin. Section headings retained in plain comment form where they earned their keep. No behaviour changes.
+* CHANGED: Trimmed multi-paragraph version-history docblocks on Activator and other classes — per-version rationale belongs in CHANGES.md, not the source.
+* CHANGED: DEVOPS.md gains a "Coding style — no AI fingerprints" section codifying the rule going forward (no `Co-Authored-By: Claude` trailers, no `🤖 Generated with Claude Code` PR footers, no decorative banners, short docblocks, why-comments only).
+* INTERNAL: First pass only. Over-explanatory inline comments and remaining bloated docblocks across less-touched files are left for follow-up sweeps.
 
 = 3.25.0 — Audit log viewer (#0021) =
 * NEW: Frontend audit log viewer at TalentTrack dashboard → Audit log tile (?tt_view=audit-log). Server-rendered, paginated (50 per page), filter by action / entity_type (dropdowns of distinct values), user_id, date range. Capability: tt_view_settings (read-only — sharper than the wp-admin Configuration → Audit tab which inherits tt_edit_settings). The wp-admin tab is unchanged for users who already use it.

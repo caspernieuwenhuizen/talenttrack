@@ -74,7 +74,7 @@ class OnboardingPage {
         echo '</div>';
     }
 
-    /* ═══════════════ Step renderers ═══════════════ */
+    // Step renderers
 
     private static function renderWelcome(): void {
         ?>
@@ -315,7 +315,7 @@ class OnboardingPage {
         <?php
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     private static function renderHeader( string $step ): void {
         $titles = [

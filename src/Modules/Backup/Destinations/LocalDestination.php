@@ -111,7 +111,7 @@ class LocalDestination implements BackupDestinationInterface {
         return @unlink( $path );
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     /**
      * Absolute filesystem path of the backups directory. Returns empty

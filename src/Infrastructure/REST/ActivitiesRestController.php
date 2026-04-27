@@ -458,7 +458,7 @@ class ActivitiesRestController {
         return $failures;
     }
 
-    /* ───────────────── Guest endpoints (#0026) ───────────────── */
+    // Guest endpoints (#0026)
 
     /**
      * POST /sessions/{id}/guests — add a linked or anonymous guest to

@@ -113,7 +113,7 @@ class ConfigurationPage {
         }
     }
 
-    /* ═══ Feature Toggles tab ═══ */
+    // Feature Toggles tab
 
     private static function tab_toggles(): void {
         /** @var FeatureToggleService $toggles */
@@ -156,7 +156,7 @@ class ConfigurationPage {
         <?php
     }
 
-    /* ═══ Setup wizard tab ═══ */
+    // Setup wizard tab
 
     private static function tab_wizard(): void {
         $state         = \TT\Modules\Onboarding\OnboardingState::get();
@@ -210,7 +210,7 @@ class ConfigurationPage {
         <?php
     }
 
-    /* ═══ Audit Log tab ═══ */
+    // Audit Log tab
 
     private static function tab_audit(): void {
         /** @var AuditService $audit */
@@ -270,7 +270,7 @@ class ConfigurationPage {
         <?php
     }
 
-    /* ═══ Lookup-table tabs (unchanged) ═══ */
+    // Lookup-table tabs (unchanged)
 
     private static function tab_lookup( string $type, string $label, bool $show_desc, bool $show_sort ): void {
         $action = isset( $_GET['crud'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['crud'] ) ) : 'list';
@@ -534,7 +534,7 @@ class ConfigurationPage {
             </table>
 
             <?php
-            // ─── #0019 Sprint 6 — Legacy wp-admin menu toggle ───
+            // #0019 Sprint 6 — Legacy wp-admin menu toggle
             $show_legacy = (string) QueryHelpers::get_config( 'show_legacy_menus', '0' );
             ?>
             <h3 style="margin-top:2.5rem;"><?php esc_html_e( 'Legacy wp-admin menus', 'talenttrack' ); ?></h3>
@@ -556,7 +556,7 @@ class ConfigurationPage {
             </table>
 
             <?php
-            // ─── #0023 Sprint 1 — Theme inheritance + curated styling ───
+            // #0023 Sprint 1 — Theme inheritance + curated styling
             $theme_inherit = (string) QueryHelpers::get_config( 'theme_inherit', '0' );
             $font_display  = (string) QueryHelpers::get_config( 'font_display',  BrandFonts::SYSTEM_DEFAULT );
             $font_body     = (string) QueryHelpers::get_config( 'font_body',     BrandFonts::SYSTEM_DEFAULT );
@@ -623,7 +623,7 @@ class ConfigurationPage {
         <?php
     }
 
-    /* ═══ Handlers (unchanged from v2.3.0) ═══ */
+    // Handlers (unchanged from v2.3.0)
 
     public static function handle_save_config(): void {
         if ( ! current_user_can( 'tt_edit_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
