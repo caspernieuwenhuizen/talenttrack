@@ -1,3 +1,31 @@
+# TalentTrack v3.31.1 — Activity type field on frontend + demo-mode guest add fix (#0049)
+
+Two related bugs surfaced together: the frontend activity form was missing the type field, and adding a guest in demo mode failed with a confusing "no longer exists" message.
+
+## Bugs fixed
+
+### Frontend activity form was missing the type dropdown
+
+The wp-admin Activities form gained Type / Game subtype / Other label fields back in #0035 (sessions → activities rename, v3.24.0). The frontend equivalent was never updated, so the only way a coach could pick "Game" instead of the default "Training" was through wp-admin. Worse: every frontend-created activity defaulted to Training silently — so post-game evaluation tasks weren't being spawned for games created from the frontend.
+
+The frontend form now matches the wp-admin version: Type dropdown (Training / Game / Other), conditional Game subtype dropdown when type is Game, conditional Other label input when type is Other. Game subtype options come from the `game_subtype` lookup so admins can rename or extend them in **Configuration → Game Subtypes**.
+
+REST `extract()` now persists `activity_type_key`, `game_subtype_key`, and `other_label` from the request alongside the existing title / date / team / location / notes fields.
+
+### "That activity no longer exists" after adding a guest in demo mode
+
+Adding a guest to a freshly-saved activity while running in Demo mode would land on a page that read "That activity no longer exists." The activity *did* exist; the row was just being filtered out of the load query.
+
+Root cause: the activity-create REST endpoint inserted into `tt_activities` but never tagged the row in `tt_demo_tags`. The frontend `loadSession()` applies a demo scope clause (`id IN (SELECT entity_id FROM tt_demo_tags WHERE entity_type = 'activity')` when Demo mode is ON), so freshly-created untagged rows were correctly considered "real" data and hidden from the demo viewer.
+
+`create_session` now inserts a `tt_demo_tags` row with `batch_id='user-created'` whenever Demo mode is ON, so user-created activities behave like generator-created ones inside the demo sandbox.
+
+## Out of scope
+
+- Making the **Type** dropdown itself lookup-driven (admin-extensible). The storage column `activity_type_key` is enforced as one of `game` / `training` / `other` because downstream behavior switches on those values (post-game evaluation workflow only fires for `game`; HoD quarterly rollup splits Games / Trainings / Other). Lookup-driven types would need either careful key-vs-name separation or downstream behavior changes — a sprint-sized chunk, not a hotfix.
+
+---
+
 # TalentTrack v3.30.1 — User docs cleanup (#0048)
 
 A small docs-only release that fixes a visible-comment bug and rewrites every user-tier documentation page in plain language.
