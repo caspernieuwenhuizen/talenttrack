@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.24.1
+Stable tag: 3.24.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.24.2 — Fresh-install usable out of the box (#0038) =
+* FIXED: A fresh WordPress install with TalentTrack activated now has a working surface immediately — no Setup Wizard required. Activator auto-creates a "TalentTrack" page containing the [talenttrack_dashboard] shortcode and stores its ID in tt_config.dashboard_page_id. Idempotent: skips if already configured, or adopts an existing page that already has the shortcode.
+* FIXED: wp-admin direct URLs (?page=tt-players, ?page=tt-teams, etc.) now resolve when the legacy-menus toggle is OFF (the default). Previously the early-return in Menu::register() skipped registration entirely, so direct URLs hit WP's standard "you are not allowed to access this page" — directly contradicting the in-code comment that promised emergency-fallback URL access. Pages are now registered with parent=null when the toggle is off, so they stay reachable via direct URL but don't appear in the menu.
+* FIXED: Setup Wizard at ?page=tt-welcome is reachable again even after dismissal. Previously the Welcome submenu was conditional on shouldShowWelcome() returning true, so once dismissed/completed the URL 404'd. The page is now registered with parent=null when hidden, and OnboardingPage::render's existing `?force_welcome=1` mechanism handles re-entry.
+* INTERNAL: No schema changes. activate() / runMigrations() picks up the new seedDashboardPageIfMissing() step; existing installs are unaffected (the routine is idempotent).
 
 = 3.24.1 — Guest-attendance fatal + UX polish (#0037) =
 * FIXED: Adding a guest player no longer triggers the WP "kritieke fout" page. #0035 (sessions → activities rename) missed three REST paths in the guest-attendance code path: ActivitiesRestController registered /sessions* routes while the JS client POSTed to /activities/{id}/guests, so guest add 404'd silently and the modal got stuck. Routes are now /activities*; the row-delete and edit-form rest_path attributes match.
