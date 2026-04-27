@@ -17,6 +17,8 @@ _None._
 | # | Topic | Type | Open questions | Estimated |
 | - | - | - | - | - |
 | 0031 | Spond calendar integration | feat | iCal feed scope (per-team vs personal), poll frequency, write-back vs read-only, match-vs-training detection, conflict handling, attendance via API (defer?) | ~12-18h v1 |
+| 0042 | Youth-aware contact strategy (phone-as-alt-to-email + PWA push + KB articles for mobile install) | feat | Phone field placement, validation method (deferred to refinement — needs better understanding), PushDispatcher fallback chain, push subscription lifecycle, KB infrastructure (markdown-in-`docs/` v1; heavyweight platform parked as #0043), mobile platform coverage, onboarding nudge, privacy posture, multilingual, audience-marker prerequisite | ~24-36h v1 |
+| 0043 | Knowledge Base platform (searchable article CMS for end-user content — heavyweight successor to #0042's markdown-in-`docs/` surface) | feat | Where it lives (subdomain vs plugin CPT vs marketing-site embed), public vs auth-gated, search engine choice, content authorship (TalentTrack-only vs community), multilingual approach, in-app contextual embed, versioning, taxonomy, migration path, telemetry — parked until trigger fires (article count >30, or customer ask, or marketing/SEO push) | ~40-60h |
 
 ## Not started (no shaping needed before build)
 
@@ -105,11 +107,11 @@ Realistic next moves:
 | Bucket | Low | High |
 | - | - | - |
 | Ready (#0028) | 20 | 30 |
-| Needs shaping (#0031) | 12 | 18 |
+| Needs shaping (#0031, #0042, #0043) | 76 | 114 |
 | Not started (#0006, #0010, #0014, #0016, #0017, #0018, #0022 Phase 2) | 435 | 505 |
-| **Total remaining** | **~517h** | **~628h** |
+| **Total remaining** | **~581h** | **~724h** |
 
-Was ~700-870h at end of v3.21.0; v3.22.0 cleared ~119h of estimate (vs ~41h actual); v3.23.0 cleared another ~26h (vs ~12h actual); v3.24.0 cleared another ~32-42h estimate (vs ~16h actual); v3.24.1 + v3.24.2 + #0033 sprints 2-5 cleared another ~37-47h estimate (vs ~14h actual); v3.26.0 closed the #0033 epic with sprints 6-9 (~34h estimate vs ~5h actual). Post-v3.23.0 the picture also moved: #0033 promoted from "Needs shaping" to "Ready" with a locked ~90h estimate then ran the full epic (~90h estimate / ~14h actual / ~1/6.4 ratio); #0030 dropped out entirely (extracted to talenttrack-branding repo). Remaining estimates intentionally conservative — empirical ~1/2.5 under-shoot rate across five releases suggests a realistic floor of **~310-380h** if the compression pattern holds.
+Was ~700-870h at end of v3.21.0; v3.22.0 cleared ~119h of estimate (vs ~41h actual); v3.23.0 cleared another ~26h (vs ~12h actual); v3.24.0 cleared another ~32-42h estimate (vs ~16h actual); v3.24.1 + v3.24.2 + #0033 sprints 2-5 cleared another ~37-47h estimate (vs ~14h actual); v3.26.0 closed the #0033 epic with sprints 6-9 (~34h estimate vs ~5h actual). Post-v3.23.0 the picture also moved: #0033 promoted from "Needs shaping" to "Ready" with a locked ~90h estimate then ran the full epic (~90h estimate / ~14h actual / ~1/6.4 ratio); #0030 dropped out entirely (extracted to talenttrack-branding repo); #0042 (youth contact strategy) and #0043 (KB platform) were captured into "Needs shaping" on 27 April 2026, adding ~64-96h of estimate to the backlog. Remaining estimates intentionally conservative — empirical ~1/2.5 under-shoot rate across five releases suggests a realistic floor of **~350-435h** if the compression pattern holds.
 
 ### Lead time projection
 
@@ -117,11 +119,11 @@ At Casper's empirical pace (~6-8 effective driver-hours per evening on busy week
 
 | Pace | Hours/week | Weeks remaining (low / high) | Months (low / high) |
 | - | - | - | - |
-| Optimistic — compression holds, 1.0× multiplier | 20 | 28 / 34 | ~6-8 |
-| Realistic — 1.2× iteration multiplier | 15 | 45 / 55 | ~10-13 |
-| Conservative — 1.5× multiplier on Casper-side authoring tasks (#0027 content, multi-language) | 12 | 70 / 85 | ~16-20 |
+| Optimistic — compression holds, 1.0× multiplier | 20 | 32 / 39 | ~7-9 |
+| Realistic — 1.2× iteration multiplier | 15 | 51 / 63 | ~12-15 |
+| Conservative — 1.5× multiplier on Casper-side authoring tasks (#0027 content, multi-language) | 12 | 79 / 98 | ~18-23 |
 
-**Lead time floor: ~6-8 months** if the compression pattern holds (single-PR epics, stacked sprints, inline shaping, no-legacy renames with CI guardrails). **Realistic median: ~10-13 months** — mid-to-late-2027. The conservative upper bound (~20 months) reflects the reality that #0010 multi-language depends on Casper-side translation throughput, not engineering throughput. (#0030 was previously listed here too, but the marketing site has been extracted to its own repo and is now decoupled from this backlog's lead time.)
+**Lead time floor: ~7-9 months** if the compression pattern holds (single-PR epics, stacked sprints, inline shaping, no-legacy renames with CI guardrails). **Realistic median: ~12-15 months** — mid-to-late-2027. The conservative upper bound (~23 months) reflects the reality that #0010 multi-language depends on Casper-side translation throughput, not engineering throughput. (#0030 was previously listed here too, but the marketing site has been extracted to its own repo and is now decoupled from this backlog's lead time.)
 
 ### Throughput calibration
 
