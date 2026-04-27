@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Workflow\Chain\ChainStep;
 use TT\Modules\Workflow\Contracts\TaskTemplateInterface;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
@@ -37,9 +38,13 @@ class TaskEngine {
      * responsible for their own dedup (e.g. "session X already had a
      * post-match eval task created").
      *
+     * @param string|null $spawned_by_step Phase 2 chain primitive — the
+     *     parent template's step id when this dispatch comes from a
+     *     chain step. Persisted onto the spawned task for retry +
+     *     dashboard provenance.
      * @return int[]
      */
-    public function dispatch( string $template_key, TaskContext $context ): array {
+    public function dispatch( string $template_key, TaskContext $context, ?string $spawned_by_step = null ): array {
         $template = $this->registry->get( $template_key );
         if ( $template === null ) {
             $this->log( sprintf( 'dispatch: unknown template_key %s', $template_key ) );
@@ -70,14 +75,18 @@ class TaskEngine {
                 continue;
             }
             foreach ( $user_ids as $user_id ) {
-                $id = $this->tasks->create( array_merge(
+                $row = array_merge(
                     $task_context->toEntityLinks(),
                     [
                         'template_key'     => $template_key,
                         'assignee_user_id' => (int) $user_id,
                         'due_at'           => $this->computeDueAt( $deadline_offset ),
                     ]
-                ) );
+                );
+                if ( $spawned_by_step !== null && $spawned_by_step !== '' ) {
+                    $row['spawned_by_step'] = $spawned_by_step;
+                }
+                $id = $this->tasks->create( $row );
                 if ( $id > 0 ) {
                     $created[] = $id;
                     /**
@@ -118,11 +127,12 @@ class TaskEngine {
             $persisted = $this->tasks->find( $task_id );
             if ( is_array( $persisted ) ) {
                 $template->onComplete( $persisted, $response );
+                $this->runChainSteps( $template, $persisted, $response );
                 /**
                  * Fires after a workflow task is completed and the
-                 * template's onComplete() hook has run. The audit log
-                 * subscribes here per the spec's "task history lives in
-                 * audit log" decision.
+                 * template's onComplete() hook + chain steps have run.
+                 * The audit log subscribes here per the spec's "task
+                 * history lives in audit log" decision.
                  *
                  * @param array<string,mixed> $task     Persisted row.
                  * @param array<string,mixed> $response Form response payload.
@@ -131,6 +141,26 @@ class TaskEngine {
             }
         }
         return true;
+    }
+
+    /**
+     * Walk a template's `chainSteps()` and dispatch each step whose
+     * condition holds. Each spawned task gets the parent's `id` as
+     * `parent_task_id` (via the default ChainStep::inheritContext) and
+     * the step's `id` as `spawned_by_step`.
+     *
+     * @param array<string,mixed> $task
+     * @param array<string,mixed> $response
+     */
+    private function runChainSteps( TaskTemplateInterface $template, array $task, array $response ): void {
+        $steps = $template->chainSteps();
+        if ( empty( $steps ) ) return;
+        foreach ( $steps as $step ) {
+            if ( ! ( $step instanceof ChainStep ) ) continue;
+            if ( ! $step->shouldSpawn( $task, $response ) ) continue;
+            $context = $step->buildContext( $task, $response );
+            $this->dispatch( $step->template_key, $context, $step->id );
+        }
     }
 
     private function computeDueAt( string $offset ): string {

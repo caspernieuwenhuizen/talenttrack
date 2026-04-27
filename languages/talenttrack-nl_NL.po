@@ -7764,3 +7764,116 @@ msgstr "Fit voor %1$s: %2$s"
 
 msgid "Your role does not have access to team chemistry boards."
 msgstr "Jouw rol heeft geen toegang tot teamchemie-borden."
+
+# #0022 — workflow phase 2 + 3 (chain primitive, snooze, bulk, event log)
+msgid "selected"
+msgstr "geselecteerd"
+
+msgid "Skip selected"
+msgstr "Geselecteerde overslaan"
+
+msgid "Skip the selected tasks? They will be marked as no-longer-applicable."
+msgstr "Geselecteerde taken overslaan? Ze worden gemarkeerd als niet meer van toepassing."
+
+msgid "Snooze 1 day"
+msgstr "1 dag snoozen"
+
+msgid "Snooze 7 days"
+msgstr "7 dagen snoozen"
+
+msgid "Snooze for 1 day"
+msgstr "Snooze voor 1 dag"
+
+msgid "Snooze for 7 days"
+msgstr "Snooze voor 7 dagen"
+
+msgid "1d"
+msgstr "1d"
+
+msgid "7d"
+msgstr "7d"
+
+msgid "Task snoozed."
+msgstr "Taak gesnoozed."
+
+msgid "%d task skipped."
+msgid_plural "%d tasks skipped."
+msgstr[0] "%d taak overgeslagen."
+msgstr[1] "%d taken overgeslagen."
+
+msgid "%d task snoozed for 1 day."
+msgid_plural "%d tasks snoozed for 1 day."
+msgstr[0] "%d taak voor 1 dag gesnoozed."
+msgstr[1] "%d taken voor 1 dag gesnoozed."
+
+msgid "%d task snoozed for 7 days."
+msgid_plural "%d tasks snoozed for 7 days."
+msgstr[0] "%d taak voor 7 dagen gesnoozed."
+msgstr[1] "%d taken voor 7 dagen gesnoozed."
+
+msgid "All actionable"
+msgstr "Alle actiebaar"
+
+msgid "Overdue"
+msgstr "Te laat"
+
+msgid "Due within"
+msgstr "Vervalt binnen"
+
+msgid "24 hours"
+msgstr "24 uur"
+
+msgid "3 days"
+msgstr "3 dagen"
+
+msgid "7 days"
+msgstr "7 dagen"
+
+msgid "Show snoozed"
+msgstr "Toon gesnoozede"
+
+msgid "Chain steps"
+msgstr "Chain steps"
+
+msgid "Parent template"
+msgstr "Bovenliggend template"
+
+msgid "Step id"
+msgstr "Stap-id"
+
+msgid "Spawns"
+msgstr "Start"
+
+msgid "When the parent task is completed, the engine spawns the listed follow-up template. Disabling the spawned template suppresses the chain step automatically."
+msgstr "Wanneer de bovenliggende taak is voltooid, start de motor het vermelde vervolg­template. Het uitschakelen van het gestarte template onderdrukt de chain step automatisch."
+
+msgid "Coach reviews and approves the player's submitted goals."
+msgstr "De coach beoordeelt en keurt de ingediende doelen van de speler goed."
+
+msgid "Event log"
+msgstr "Event-log"
+
+msgid "Last 25 event firings. Processed: %1$d · Failed: %2$d. Use Retry on a failed row to re-run the dispatch."
+msgstr "Laatste 25 events. Verwerkt: %1$d · Mislukt: %2$d. Gebruik Retry op een gefaalde rij om de dispatch opnieuw uit te voeren."
+
+msgid "No events fired yet."
+msgstr "Nog geen events afgevuurd."
+
+msgid "Event hook"
+msgstr "Event-hook"
+
+msgid "Retries"
+msgstr "Retries"
+
+msgid "%d task created"
+msgid_plural "%d tasks created"
+msgstr[0] "%d taak aangemaakt"
+msgstr[1] "%d taken aangemaakt"
+
+msgid "Replayed: %d task created."
+msgid_plural "Replayed: %d tasks created."
+msgstr[0] "Opnieuw uitgevoerd: %d taak aangemaakt."
+msgstr[1] "Opnieuw uitgevoerd: %d taken aangemaakt."
+
+msgid "Replay attempted but produced no tasks. Check the log row's error message."
+msgstr "Replay uitgevoerd maar leverde geen taken op. Bekijk de foutmelding van de logregel."

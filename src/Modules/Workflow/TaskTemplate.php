@@ -35,4 +35,18 @@ abstract class TaskTemplate implements TaskTemplateInterface {
     public function defaultSchedule(): array {
         return [ 'type' => 'manual' ];
     }
+
+    /**
+     * #0022 Phase 2 — declarative chain primitive. Templates whose
+     * completion should spawn follow-up tasks return ChainStep[] here.
+     * The engine walks the steps after onComplete() and dispatches each
+     * one whose condition holds.
+     *
+     * Default empty array; templates with chains override.
+     *
+     * @return list<\TT\Modules\Workflow\Chain\ChainStep>
+     */
+    public function chainSteps(): array {
+        return [];
+    }
 }

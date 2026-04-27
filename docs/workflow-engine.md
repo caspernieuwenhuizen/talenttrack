@@ -57,11 +57,20 @@ The engine relies on WP-cron for scheduled triggers and `wp_mail()` for notifica
 
 Both link to dedicated setup guides for hosts where WP-cron or `wp_mail()` is broken.
 
-## What's not in v1
+## Phase 2 + 3 additions (v3.37.0)
 
-- No form builder — every form is a PHP class shipped with the plugin or added by a developer.
-- No browser push notifications — bell + email only until the PWA pass (separate epic) lands.
-- No multi-step chains as a first-class primitive — Phase 1 special-cases goal-setting with a manual `onComplete` hook; Phase 2 generalises this.
+The remaining phases of the epic landed in one release. The shape stays the same — same templates, same inbox, same admin UI — but four pieces got first-class status:
+
+- **Chain steps** — declarative `spawns_on_complete`. A template can return one or more `ChainStep`s from `chainSteps()`; the engine walks them after the parent task is completed. The Quarterly goal-setting → Goal approval pair is now expressed this way (the old `onComplete` hand-roll is retired). Chain steps appear in the admin config view so you can see at a glance which completion will spawn what.
+- **Inbox filters** — narrow the inbox by template, by status (open / in progress / overdue), by due window (24h / 3 days / 7 days). State persists in the URL so a filter view is bookmarkable.
+- **Bulk actions + snooze** — checkboxes on every actionable row plus a bulk bar with **Skip selected**, **Snooze 1 day**, and **Snooze 7 days**. Per-row `1d` and `7d` buttons hide a single task without selecting it. Snoozed tasks reappear automatically once the snooze elapses; a *Show snoozed* checkbox brings them back early.
+- **Event log + retry** — every event-typed trigger firing writes a row to `tt_workflow_event_log`. Successful dispatches transition `processed`; thrown errors land as `failed` with the message captured. The admin config view surfaces the last 25 entries with a **Retry** button on failed rows that re-runs the dispatch and increments a retry counter.
+
+## What's still not shipped (Phase 4)
+
+- **Form builder** — every form is still a PHP class shipped with the plugin or added by a developer.
+- **Browser push notifications** — bell + email only until the PWA pass lands.
+- **Non-development workflow types** (kit returns, medical check-ins, payment reminders) — the engine supports them in principle, but no shipped templates yet. Phase 4 was gated on Phase 1-3 usage data; revisit when academies start asking for it.
 
 ## See also
 

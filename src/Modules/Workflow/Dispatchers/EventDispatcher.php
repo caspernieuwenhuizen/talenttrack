@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Dispatchers;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Workflow\Repositories\EventLogRepository;
 use TT\Modules\Workflow\Repositories\TriggersRepository;
 use TT\Modules\Workflow\TaskContext;
 use TT\Modules\Workflow\WorkflowModule;
@@ -33,25 +34,61 @@ class EventDispatcher {
             $hook = (string) ( $trigger['event_hook'] ?? '' );
             $template_key = (string) ( $trigger['template_key'] ?? '' );
             if ( $hook === '' || $template_key === '' ) continue;
-            add_action( $hook, function ( ...$args ) use ( $template_key ) {
-                self::handle( $template_key, $args );
+            add_action( $hook, function ( ...$args ) use ( $template_key, $hook ) {
+                self::handle( $template_key, $args, $hook );
             }, 10, 4 );
         }
     }
 
     /**
-     * Translate event arguments into a TaskContext and dispatch.
-     *
-     * Convention for event arguments: the first argument may be a
-     * TaskContext (cleanest), or an associative array of (player_id,
-     * team_id, activity_id, evaluation_id, goal_id, trial_case_id) keys.
-     * Anything else gets wrapped as `extras` on an empty context.
+     * Translate event arguments into a TaskContext and dispatch. Phase 3
+     * adds event-log writes around the dispatch so a failed dispatch
+     * (template threw, DB write rejected, etc.) lands in the log as
+     * `failed` and can be replayed via `replay()`.
      *
      * @param mixed[] $args
      */
-    private static function handle( string $template_key, array $args ): void {
-        $context = self::contextFromArgs( $args );
-        WorkflowModule::engine()->dispatch( $template_key, $context );
+    private static function handle( string $template_key, array $args, string $event_hook ): void {
+        $log = new EventLogRepository();
+        $log_id = $log->recordFiring( $event_hook, $template_key, $args );
+        try {
+            $context = self::contextFromArgs( $args );
+            $task_ids = WorkflowModule::engine()->dispatch( $template_key, $context );
+            if ( $log_id > 0 ) $log->markProcessed( $log_id, $task_ids );
+        } catch ( \Throwable $e ) {
+            if ( $log_id > 0 ) {
+                $log->markFailed( $log_id, $e->getMessage() );
+            }
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log( '[TalentTrack workflow] event dispatch failed: ' . $e->getMessage() );
+            }
+        }
+    }
+
+    /**
+     * Replay a previously-failed event log row. Increments retries and
+     * runs the dispatch path again. Returns the task IDs created on
+     * success, or an empty array on failure (the log row's status is
+     * updated either way).
+     *
+     * @return int[]
+     */
+    public static function replay( int $log_id ): array {
+        $log = new EventLogRepository();
+        $row = $log->find( $log_id );
+        if ( ! $row ) return [];
+
+        $log->incrementRetries( $log_id );
+        try {
+            $args = EventLogRepository::decodeArgs( (string) ( $row['args_json'] ?? '' ) );
+            $context = self::contextFromArgs( $args );
+            $task_ids = WorkflowModule::engine()->dispatch( (string) $row['template_key'], $context );
+            $log->markProcessed( $log_id, $task_ids );
+            return $task_ids;
+        } catch ( \Throwable $e ) {
+            $log->markFailed( $log_id, $e->getMessage() );
+            return [];
+        }
     }
 
     /** @param mixed[] $args */

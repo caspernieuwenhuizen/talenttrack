@@ -3,6 +3,8 @@ namespace TT\Modules\Workflow\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Workflow\Dispatchers\EventDispatcher;
+use TT\Modules\Workflow\Repositories\EventLogRepository;
 use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
 use TT\Modules\Workflow\Repositories\TriggersRepository;
 use TT\Modules\Workflow\WorkflowModule;
@@ -43,6 +45,22 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
                 $flash = __( 'Configuration saved.', 'talenttrack' );
             } else {
                 $flash = __( 'Security check failed. Please refresh and try again.', 'talenttrack' );
+            }
+        }
+
+        // #0022 Phase 3 — event log replay button.
+        if ( $_SERVER['REQUEST_METHOD'] === 'POST' && ! empty( $_POST['tt_workflow_replay_log_id'] ) ) {
+            if ( isset( $_POST[ self::NONCE_FIELD ] )
+                && wp_verify_nonce( sanitize_text_field( (string) $_POST[ self::NONCE_FIELD ] ), self::NONCE_ACTION ) ) {
+                $log_id = absint( $_POST['tt_workflow_replay_log_id'] );
+                $task_ids = $log_id > 0 ? EventDispatcher::replay( $log_id ) : [];
+                $flash = empty( $task_ids )
+                    ? __( 'Replay attempted but produced no tasks. Check the log row\'s error message.', 'talenttrack' )
+                    : sprintf(
+                        /* translators: %d task count */
+                        _n( 'Replayed: %d task created.', 'Replayed: %d tasks created.', count( $task_ids ), 'talenttrack' ),
+                        count( $task_ids )
+                    );
             }
         }
 
@@ -161,7 +179,132 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
                 </button>
             </p>
         </form>
+
+        <?php self::renderChainStepsSummary( $templates ); ?>
+        <?php self::renderEventLog(); ?>
         <?php
+    }
+
+    /**
+     * Phase 2 — show every chain step declared by a template, so admins
+     * can see at a glance which completion will spawn what. Read-only.
+     *
+     * @param array<string, \TT\Modules\Workflow\Contracts\TaskTemplateInterface> $templates
+     */
+    private static function renderChainStepsSummary( array $templates ): void {
+        $rows = [];
+        foreach ( $templates as $template ) {
+            $steps = $template->chainSteps();
+            if ( empty( $steps ) ) continue;
+            foreach ( $steps as $step ) {
+                $rows[] = [
+                    'parent'      => $template->name(),
+                    'step_id'     => $step->id,
+                    'spawns'      => $step->template_key,
+                    'description' => $step->description,
+                ];
+            }
+        }
+        if ( empty( $rows ) ) return;
+
+        echo '<h2 style="font-size:16px; margin: 28px 0 8px;">' . esc_html__( 'Chain steps', 'talenttrack' ) . '</h2>';
+        echo '<p style="color:#5b6e75; margin: 0 0 8px; font-size:13px;">'
+            . esc_html__( 'When the parent task is completed, the engine spawns the listed follow-up template. Disabling the spawned template suppresses the chain step automatically.', 'talenttrack' )
+            . '</p>';
+        echo '<table class="tt-wcfg-table"><thead><tr>';
+        echo '<th>' . esc_html__( 'Parent template', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Step id', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Spawns', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Description', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
+        foreach ( $rows as $r ) {
+            echo '<tr>';
+            echo '<td>' . esc_html( (string) $r['parent'] ) . '</td>';
+            echo '<td><code>' . esc_html( (string) $r['step_id'] ) . '</code></td>';
+            echo '<td><code>' . esc_html( (string) $r['spawns'] ) . '</code></td>';
+            echo '<td>' . esc_html( (string) $r['description'] ) . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+    }
+
+    /**
+     * Phase 3 — event log table with retry buttons for failed rows.
+     */
+    private static function renderEventLog(): void {
+        $log = new EventLogRepository();
+        $counts = $log->counts();
+        $recent = $log->listRecent( [], 25 );
+
+        echo '<h2 style="font-size:16px; margin: 28px 0 8px;">' . esc_html__( 'Event log', 'talenttrack' ) . '</h2>';
+        echo '<p style="color:#5b6e75; margin: 0 0 8px; font-size:13px;">'
+            . esc_html( sprintf(
+                /* translators: 1: processed count 2: failed count */
+                __( 'Last 25 event firings. Processed: %1$d · Failed: %2$d. Use Retry on a failed row to re-run the dispatch.', 'talenttrack' ),
+                (int) $counts[ EventLogRepository::STATUS_PROCESSED ],
+                (int) $counts[ EventLogRepository::STATUS_FAILED ]
+            ) )
+            . '</p>';
+
+        if ( empty( $recent ) ) {
+            echo '<p style="color:#5b6e75;"><em>' . esc_html__( 'No events fired yet.', 'talenttrack' ) . '</em></p>';
+            return;
+        }
+
+        echo '<table class="tt-wcfg-table"><thead><tr>';
+        echo '<th>' . esc_html__( 'When', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Event hook', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Template', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Retries', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Result', 'talenttrack' ) . '</th>';
+        echo '<th></th>';
+        echo '</tr></thead><tbody>';
+
+        foreach ( $recent as $row ) {
+            $status = (string) ( $row['status'] ?? '' );
+            $color = match ( $status ) {
+                EventLogRepository::STATUS_PROCESSED => '#2c8a2c',
+                EventLogRepository::STATUS_FAILED    => '#b32d2e',
+                default                              => '#5b6e75',
+            };
+            $created = (string) ( $row['created_at'] ?? '' );
+            $tasks_created = json_decode( (string) ( $row['tasks_created'] ?? '[]' ), true );
+            $task_count = is_array( $tasks_created ) ? count( $tasks_created ) : 0;
+
+            echo '<tr>';
+            echo '<td style="font-family:monospace; font-size:12px;">' . esc_html( $created ) . '</td>';
+            echo '<td><code>' . esc_html( (string) $row['event_hook'] ) . '</code></td>';
+            echo '<td><code>' . esc_html( (string) $row['template_key'] ) . '</code></td>';
+            echo '<td style="color:' . esc_attr( $color ) . '; font-weight:600;">' . esc_html( $status ) . '</td>';
+            echo '<td>' . (int) ( $row['retries'] ?? 0 ) . '</td>';
+            echo '<td>';
+            if ( $status === EventLogRepository::STATUS_FAILED ) {
+                echo '<span style="color:#b32d2e; font-size:12px;">' . esc_html( (string) ( $row['error_message'] ?? '' ) ) . '</span>';
+            } elseif ( $status === EventLogRepository::STATUS_PROCESSED ) {
+                echo esc_html( sprintf(
+                    /* translators: %d task count */
+                    _n( '%d task created', '%d tasks created', $task_count, 'talenttrack' ),
+                    $task_count
+                ) );
+            }
+            echo '</td>';
+            echo '<td>';
+            if ( $status === EventLogRepository::STATUS_FAILED ) {
+                ?>
+                <form method="post" style="display:inline;">
+                    <?php wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD ); ?>
+                    <input type="hidden" name="tt_workflow_replay_log_id" value="<?php echo (int) $row['id']; ?>" />
+                    <button type="submit" class="button button-secondary" style="padding:2px 8px; font-size:12px;">
+                        <?php esc_html_e( 'Retry', 'talenttrack' ); ?>
+                    </button>
+                </form>
+                <?php
+            }
+            echo '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
     }
 
     /** @param array<string,mixed> $post */

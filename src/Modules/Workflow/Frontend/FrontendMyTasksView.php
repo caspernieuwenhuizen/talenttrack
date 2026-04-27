@@ -17,23 +17,35 @@ use TT\Shared\Frontend\FrontendViewBase;
  * Each row links to the focused task page where the form is rendered
  * + submitted (FrontendTaskDetailView). The form rendering itself
  * lives behind the FormInterface contract — see Sprint 3 templates.
+ *
+ * #0022 Phase 2 additions:
+ *   - Filters: by template, by status, by due-window.
+ *   - Bulk actions: skip multiple tasks at once.
+ *   - Snooze: per-row "snooze 1d / 3d / 7d" buttons that hide the task
+ *     until snoozed_until elapses. Hidden tasks reappear automatically.
  */
 class FrontendMyTasksView extends FrontendViewBase {
 
+    public const NONCE_ACTION = 'tt_workflow_inbox_action';
+    public const NONCE_FIELD  = '_tt_workflow_inbox_nonce';
+
     /**
      * Render the inbox for the current user.
-     *
-     * @param int $user_id Current user (passed by the dispatcher rather
-     *                     than re-derived so the dispatcher's auth gate
-     *                     stays the source of truth).
      */
     public static function render( int $user_id ): void {
         self::enqueueAssets();
+
+        // Process bulk / snooze actions before listing — keeps the view a
+        // simple "load → render" flow and avoids redirect churn.
+        $flash = self::handleSubmission( $user_id );
+
         self::renderHeader( __( 'My tasks', 'talenttrack' ) );
 
         $repo = new TasksRepository();
-        $actionable = $repo->listActionableForUser( $user_id );
+        $filters = self::filtersFromQuery();
+        $actionable = $repo->listActionableForUser( $user_id, $filters );
         $recent_done = self::recentlyCompletedForUser( $user_id, 5 );
+        $template_keys = $repo->templateKeysForUser( $user_id );
 
         ?>
         <style>
@@ -45,16 +57,20 @@ class FrontendMyTasksView extends FrontendViewBase {
             }
             .tt-mtasks-row.tt-overdue { border-color: #b32d2e; background: #fff6f6; }
             .tt-mtasks-row.tt-completed { background: #f4f6f4; opacity: 0.85; }
+            .tt-mtasks-checkbox { flex: 0 0 auto; }
             .tt-mtasks-meta { flex: 1; min-width: 0; }
             .tt-mtasks-title { font-weight: 600; font-size: 15px; color: #1a1d21; margin: 0 0 2px; }
             .tt-mtasks-sub { font-size: 12px; color: #5b6e75; margin: 0; }
             .tt-mtasks-due { font-size: 12px; color: #444; white-space: nowrap; }
             .tt-mtasks-due.tt-overdue-text { color: #b32d2e; font-weight: 600; }
-            .tt-mtasks-action a {
-                display: inline-block; padding: 6px 12px;
+            .tt-mtasks-action a, .tt-mtasks-snooze button {
+                display: inline-block; padding: 6px 10px;
                 background: #2271b1; color: #fff; border-radius: 5px;
-                text-decoration: none; font-size: 13px;
+                text-decoration: none; font-size: 12px;
+                border: 0; cursor: pointer;
             }
+            .tt-mtasks-snooze button { background: #5b6e75; margin-left: 4px; }
+            .tt-mtasks-snooze button:hover { background: #444; }
             .tt-mtasks-action a:hover { background: #195a8e; color: #fff; }
             .tt-mtasks-section-label {
                 font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
@@ -62,8 +78,43 @@ class FrontendMyTasksView extends FrontendViewBase {
                 margin: 24px 0 10px;
             }
             .tt-mtasks-empty { color: #5b6e75; font-style: italic; padding: 12px 0; }
+            .tt-mtasks-filters {
+                background: #fff; border: 1px solid #e5e7ea; border-radius: 8px;
+                padding: 10px 14px; margin: 0 0 16px;
+                display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+            }
+            .tt-mtasks-filters label { font-size: 12px; color: #5b6e75; }
+            .tt-mtasks-filters select { font-size: 13px; padding: 4px 6px; }
+            .tt-mtasks-bulkbar {
+                background: #fafbfc; border: 1px solid #e5e7ea; border-radius: 6px;
+                padding: 8px 12px; margin: 0 0 12px; display: none; align-items: center; gap: 12px;
+            }
+            .tt-mtasks-bulkbar.tt-active { display: flex; }
+            .tt-mtasks-flash {
+                background:#e9f5e9; border-left:4px solid #2c8a2c; padding:8px 12px;
+                margin: 0 0 12px; font-size: 13px;
+            }
         </style>
         <?php
+
+        if ( $flash !== '' ) {
+            echo '<div class="tt-mtasks-flash">' . esc_html( $flash ) . '</div>';
+        }
+
+        self::renderFilters( $template_keys, $filters );
+
+        echo '<form method="post" data-tt-mtasks-form="1">';
+        wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD );
+        // Preserve filter state through the bulk submit.
+        foreach ( self::passThroughFilters( $filters ) as $k => $v ) {
+            printf( '<input type="hidden" name="%s" value="%s" />', esc_attr( $k ), esc_attr( $v ) );
+        }
+        echo '<div class="tt-mtasks-bulkbar" data-tt-mtasks-bulkbar="1">';
+        echo '<span data-tt-mtasks-count="0" style="font-size:13px; color:#5b6e75;">0 ' . esc_html__( 'selected', 'talenttrack' ) . '</span>';
+        echo '<button type="submit" name="tt_inbox_action" value="bulk_skip" class="tt-btn tt-btn-secondary tt-btn-sm" onclick="return confirm(\'' . esc_js( __( 'Skip the selected tasks? They will be marked as no-longer-applicable.', 'talenttrack' ) ) . '\')">' . esc_html__( 'Skip selected', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" name="tt_inbox_action" value="bulk_snooze_1d" class="tt-btn tt-btn-secondary tt-btn-sm">' . esc_html__( 'Snooze 1 day', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" name="tt_inbox_action" value="bulk_snooze_7d" class="tt-btn tt-btn-secondary tt-btn-sm">' . esc_html__( 'Snooze 7 days', 'talenttrack' ) . '</button>';
+        echo '</div>';
 
         echo '<div class="tt-mtasks-section-label">' . esc_html__( 'Open and in progress', 'talenttrack' ) . '</div>';
         if ( empty( $actionable ) ) {
@@ -76,6 +127,8 @@ class FrontendMyTasksView extends FrontendViewBase {
             echo '</ul>';
         }
 
+        echo '</form>';
+
         if ( ! empty( $recent_done ) ) {
             echo '<div class="tt-mtasks-section-label">' . esc_html__( 'Recently completed', 'talenttrack' ) . '</div>';
             echo '<ul class="tt-mtasks-list">';
@@ -84,6 +137,25 @@ class FrontendMyTasksView extends FrontendViewBase {
             }
             echo '</ul>';
         }
+
+        // Tiny inline JS hooks the bulk-bar visibility to checkbox state.
+        ?>
+        <script>
+        (function () {
+            var form = document.querySelector('[data-tt-mtasks-form]');
+            if (!form) return;
+            var bar = form.querySelector('[data-tt-mtasks-bulkbar]');
+            var count = bar ? bar.querySelector('[data-tt-mtasks-count]') : null;
+            if (!bar || !count) return;
+            form.addEventListener('change', function () {
+                var checks = form.querySelectorAll('.tt-mtasks-checkbox input[type=checkbox]:checked');
+                count.setAttribute('data-tt-mtasks-count', checks.length);
+                count.textContent = checks.length + ' <?php echo esc_js( __( 'selected', 'talenttrack' ) ); ?>';
+                bar.classList.toggle('tt-active', checks.length > 0);
+            });
+        })();
+        </script>
+        <?php
     }
 
     /** @param array<string,mixed> $task */
@@ -101,9 +173,15 @@ class FrontendMyTasksView extends FrontendViewBase {
         elseif ( $is_overdue ) $row_class .= ' tt-overdue';
 
         $context_label = self::contextLabel( $task );
+        $task_id = (int) ( $task['id'] ?? 0 );
 
         ?>
         <li class="<?php echo esc_attr( $row_class ); ?>">
+            <?php if ( ! $completed ) : ?>
+                <div class="tt-mtasks-checkbox">
+                    <input type="checkbox" name="task_ids[]" value="<?php echo (int) $task_id; ?>" />
+                </div>
+            <?php endif; ?>
             <div class="tt-mtasks-meta">
                 <p class="tt-mtasks-title"><?php echo esc_html( $title ); ?></p>
                 <?php if ( $context_label !== '' ) : ?>
@@ -123,13 +201,178 @@ class FrontendMyTasksView extends FrontendViewBase {
             <?php endif; ?>
             <?php if ( ! $completed ) : ?>
                 <div class="tt-mtasks-action">
-                    <a href="<?php echo esc_url( self::detailUrl( (int) $task['id'] ) ); ?>">
+                    <a href="<?php echo esc_url( self::detailUrl( $task_id ) ); ?>">
                         <?php esc_html_e( 'Open', 'talenttrack' ); ?>
                     </a>
+                </div>
+                <div class="tt-mtasks-snooze">
+                    <button type="submit" name="tt_inbox_action" value="snooze_1d:<?php echo (int) $task_id; ?>" title="<?php esc_attr_e( 'Snooze for 1 day', 'talenttrack' ); ?>"><?php esc_html_e( '1d', 'talenttrack' ); ?></button>
+                    <button type="submit" name="tt_inbox_action" value="snooze_7d:<?php echo (int) $task_id; ?>" title="<?php esc_attr_e( 'Snooze for 7 days', 'talenttrack' ); ?>"><?php esc_html_e( '7d', 'talenttrack' ); ?></button>
                 </div>
             <?php endif; ?>
         </li>
         <?php
+    }
+
+    /** @param list<string> $template_keys @param array<string,mixed> $filters */
+    private static function renderFilters( array $template_keys, array $filters ): void {
+        $base = self::dashboardBaseUrl();
+        ?>
+        <form class="tt-mtasks-filters" method="get" action="<?php echo esc_url( $base ); ?>">
+            <input type="hidden" name="tt_view" value="my-tasks" />
+            <label>
+                <?php esc_html_e( 'Template', 'talenttrack' ); ?>:
+                <select name="filter_template">
+                    <option value=""><?php esc_html_e( 'All', 'talenttrack' ); ?></option>
+                    <?php foreach ( $template_keys as $tk ) :
+                        $template = WorkflowModule::registry()->get( $tk );
+                        $label = $template ? $template->name() : $tk;
+                        ?>
+                        <option value="<?php echo esc_attr( $tk ); ?>" <?php selected( ( $filters['template_key'] ?? '' ), $tk ); ?>><?php echo esc_html( $label ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label>
+                <?php esc_html_e( 'Status', 'talenttrack' ); ?>:
+                <select name="filter_status">
+                    <option value=""><?php esc_html_e( 'All actionable', 'talenttrack' ); ?></option>
+                    <option value="open" <?php selected( implode( ',', $filters['status'] ?? [] ), 'open' ); ?>><?php esc_html_e( 'Open', 'talenttrack' ); ?></option>
+                    <option value="in_progress" <?php selected( implode( ',', $filters['status'] ?? [] ), 'in_progress' ); ?>><?php esc_html_e( 'In progress', 'talenttrack' ); ?></option>
+                    <option value="overdue" <?php selected( implode( ',', $filters['status'] ?? [] ), 'overdue' ); ?>><?php esc_html_e( 'Overdue', 'talenttrack' ); ?></option>
+                </select>
+            </label>
+            <label>
+                <?php esc_html_e( 'Due within', 'talenttrack' ); ?>:
+                <select name="filter_due_within">
+                    <option value=""><?php esc_html_e( 'Any', 'talenttrack' ); ?></option>
+                    <option value="1" <?php selected( ( $filters['due_within_days'] ?? '' ), 1 ); ?>><?php esc_html_e( '24 hours', 'talenttrack' ); ?></option>
+                    <option value="3" <?php selected( ( $filters['due_within_days'] ?? '' ), 3 ); ?>><?php esc_html_e( '3 days', 'talenttrack' ); ?></option>
+                    <option value="7" <?php selected( ( $filters['due_within_days'] ?? '' ), 7 ); ?>><?php esc_html_e( '7 days', 'talenttrack' ); ?></option>
+                </select>
+            </label>
+            <label>
+                <input type="checkbox" name="show_snoozed" value="1" <?php checked( ! empty( $filters['include_snoozed'] ) ); ?> />
+                <?php esc_html_e( 'Show snoozed', 'talenttrack' ); ?>
+            </label>
+            <button type="submit" class="tt-btn tt-btn-secondary tt-btn-sm"><?php esc_html_e( 'Apply', 'talenttrack' ); ?></button>
+        </form>
+        <?php
+    }
+
+    /** @return array<string,mixed> */
+    private static function filtersFromQuery(): array {
+        $out = [];
+        if ( ! empty( $_GET['filter_template'] ) ) {
+            $out['template_key'] = sanitize_key( (string) $_GET['filter_template'] );
+        }
+        if ( ! empty( $_GET['filter_status'] ) ) {
+            $s = sanitize_key( (string) $_GET['filter_status'] );
+            if ( $s !== '' ) $out['status'] = [ $s ];
+        }
+        if ( ! empty( $_GET['filter_due_within'] ) ) {
+            $out['due_within_days'] = (int) $_GET['filter_due_within'];
+        }
+        if ( ! empty( $_GET['show_snoozed'] ) ) {
+            $out['include_snoozed'] = true;
+        }
+        return $out;
+    }
+
+    /**
+     * @param array<string,mixed> $filters
+     * @return array<string,string>
+     */
+    private static function passThroughFilters( array $filters ): array {
+        $out = [ 'tt_view' => 'my-tasks' ];
+        if ( ! empty( $filters['template_key'] ) ) $out['filter_template'] = (string) $filters['template_key'];
+        if ( ! empty( $filters['status'] ) ) $out['filter_status'] = (string) $filters['status'][0];
+        if ( ! empty( $filters['due_within_days'] ) ) $out['filter_due_within'] = (string) $filters['due_within_days'];
+        if ( ! empty( $filters['include_snoozed'] ) ) $out['show_snoozed'] = '1';
+        return $out;
+    }
+
+    /**
+     * Process bulk + snooze submissions. Returns a flash message on
+     * success, empty string otherwise.
+     */
+    private static function handleSubmission( int $user_id ): string {
+        if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) return '';
+        if ( empty( $_POST['tt_inbox_action'] ) ) return '';
+        if ( ! isset( $_POST[ self::NONCE_FIELD ] )
+            || ! wp_verify_nonce( sanitize_text_field( (string) $_POST[ self::NONCE_FIELD ] ), self::NONCE_ACTION ) ) {
+            return __( 'Security check failed. Please refresh and try again.', 'talenttrack' );
+        }
+
+        $action = sanitize_text_field( (string) $_POST['tt_inbox_action'] );
+        $repo = new TasksRepository();
+
+        // Per-row snooze actions: "snooze_1d:123" / "snooze_7d:123".
+        if ( strpos( $action, ':' ) !== false ) {
+            [ $kind, $id_str ] = explode( ':', $action, 2 );
+            $task_id = (int) $id_str;
+            if ( $task_id > 0 ) {
+                $task = $repo->find( $task_id );
+                if ( $task && (int) $task['assignee_user_id'] === $user_id ) {
+                    $until = self::snoozeUntil( $kind );
+                    if ( $until !== null ) {
+                        $repo->snooze( $task_id, $until );
+                        return __( 'Task snoozed.', 'talenttrack' );
+                    }
+                }
+            }
+            return '';
+        }
+
+        $ids = isset( $_POST['task_ids'] ) && is_array( $_POST['task_ids'] )
+            ? array_map( 'absint', $_POST['task_ids'] )
+            : [];
+        $ids = array_filter( $ids );
+        if ( empty( $ids ) ) return '';
+
+        // Owner-check every id before mutating.
+        $own_ids = [];
+        foreach ( $ids as $id ) {
+            $task = $repo->find( $id );
+            if ( $task && (int) $task['assignee_user_id'] === $user_id ) {
+                $own_ids[] = $id;
+            }
+        }
+        if ( empty( $own_ids ) ) return '';
+
+        switch ( $action ) {
+            case 'bulk_skip':
+                foreach ( $own_ids as $id ) $repo->skip( $id );
+                return sprintf(
+                    /* translators: %d task count */
+                    _n( '%d task skipped.', '%d tasks skipped.', count( $own_ids ), 'talenttrack' ),
+                    count( $own_ids )
+                );
+            case 'bulk_snooze_1d':
+                $until = self::snoozeUntil( 'snooze_1d' );
+                foreach ( $own_ids as $id ) $repo->snooze( $id, $until );
+                return sprintf(
+                    _n( '%d task snoozed for 1 day.', '%d tasks snoozed for 1 day.', count( $own_ids ), 'talenttrack' ),
+                    count( $own_ids )
+                );
+            case 'bulk_snooze_7d':
+                $until = self::snoozeUntil( 'snooze_7d' );
+                foreach ( $own_ids as $id ) $repo->snooze( $id, $until );
+                return sprintf(
+                    _n( '%d task snoozed for 7 days.', '%d tasks snoozed for 7 days.', count( $own_ids ), 'talenttrack' ),
+                    count( $own_ids )
+                );
+        }
+        return '';
+    }
+
+    private static function snoozeUntil( string $kind ): ?string {
+        $now = current_time( 'timestamp' );
+        switch ( $kind ) {
+            case 'snooze_1d': return date( 'Y-m-d H:i:s', $now + 86400 );
+            case 'snooze_3d': return date( 'Y-m-d H:i:s', $now + 3 * 86400 );
+            case 'snooze_7d': return date( 'Y-m-d H:i:s', $now + 7 * 86400 );
+        }
+        return null;
     }
 
     /** @param array<string,mixed> $task */
@@ -203,7 +446,10 @@ class FrontendMyTasksView extends FrontendViewBase {
     private static function dashboardBaseUrl(): string {
         if ( isset( $_SERVER['REQUEST_URI'] ) ) {
             $current = esc_url_raw( (string) wp_unslash( $_SERVER['REQUEST_URI'] ) );
-            return remove_query_arg( [ 'tt_view', 'task_id' ], $current );
+            return remove_query_arg(
+                [ 'tt_view', 'task_id', 'filter_template', 'filter_status', 'filter_due_within', 'show_snoozed' ],
+                $current
+            );
         }
         return home_url( '/' );
     }
@@ -232,8 +478,10 @@ class FrontendMyTasksView extends FrontendViewBase {
         global $wpdb;
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_workflow_tasks
-             WHERE assignee_user_id = %d AND status IN ('open','in_progress','overdue')",
-            $user_id
+             WHERE assignee_user_id = %d
+               AND status IN ('open','in_progress','overdue')
+               AND (snoozed_until IS NULL OR snoozed_until <= %s)",
+            $user_id, current_time( 'mysql' )
         ) );
     }
 }
