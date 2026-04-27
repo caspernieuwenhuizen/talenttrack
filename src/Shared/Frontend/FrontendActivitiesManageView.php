@@ -156,7 +156,16 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             }
         }
 
-        $statuses = QueryHelpers::get_lookup_names( 'attendance_status' );
+        $statuses      = QueryHelpers::get_lookup_names( 'attendance_status' );
+        $game_subtypes = QueryHelpers::get_lookup_names( 'game_subtype' );
+
+        // #0049 — type dropdown was missing from the frontend form;
+        // the wp-admin form had it since #0035. Storage column enforces
+        // game/training/other so options stay hardcoded for now (game
+        // subtype comes from a lookup; admin-extensible).
+        $current_type    = (string) ( $session->activity_type_key ?? 'training' );
+        $current_subtype = (string) ( $session->game_subtype_key ?? '' );
+        $current_other   = (string) ( $session->other_label ?? '' );
 
         // Edit mode → PUT /activities/{id}; create → POST /activities.
         $is_edit   = $session !== null;
@@ -169,8 +178,29 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form tt-activity-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>"<?php if ( $draft_key !== '' ) : ?> data-draft-key="<?php echo esc_attr( $draft_key ); ?>"<?php endif; ?>>
             <div class="tt-grid tt-grid-2">
                 <div class="tt-field">
+                    <label class="tt-field-label tt-field-required" for="tt-activity-type"><?php esc_html_e( 'Type', 'talenttrack' ); ?></label>
+                    <select id="tt-activity-type" class="tt-input" name="activity_type_key" required>
+                        <option value="training" <?php selected( $current_type, 'training' ); ?>><?php esc_html_e( 'Training', 'talenttrack' ); ?></option>
+                        <option value="game" <?php selected( $current_type, 'game' ); ?>><?php esc_html_e( 'Game', 'talenttrack' ); ?></option>
+                        <option value="other" <?php selected( $current_type, 'other' ); ?>><?php esc_html_e( 'Other', 'talenttrack' ); ?></option>
+                    </select>
+                </div>
+                <div class="tt-field">
                     <label class="tt-field-label tt-field-required" for="tt-activity-title"><?php esc_html_e( 'Title', 'talenttrack' ); ?></label>
                     <input type="text" id="tt-activity-title" class="tt-input" name="title" required value="<?php echo esc_attr( (string) ( $session->title ?? '' ) ); ?>" />
+                </div>
+                <div class="tt-field" id="tt-activity-subtype-row" style="<?php echo $current_type === 'game' ? '' : 'display:none;'; ?>">
+                    <label class="tt-field-label" for="tt-activity-subtype"><?php esc_html_e( 'Game subtype', 'talenttrack' ); ?></label>
+                    <select id="tt-activity-subtype" class="tt-input" name="game_subtype_key">
+                        <option value=""><?php esc_html_e( '— Choose —', 'talenttrack' ); ?></option>
+                        <?php foreach ( $game_subtypes as $sub ) : ?>
+                            <option value="<?php echo esc_attr( (string) $sub ); ?>" <?php selected( $current_subtype, (string) $sub ); ?>><?php echo esc_html( (string) $sub ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="tt-field" id="tt-activity-other-row" style="<?php echo $current_type === 'other' ? '' : 'display:none;'; ?>">
+                    <label class="tt-field-label tt-field-required" for="tt-activity-other-label"><?php esc_html_e( 'Other label', 'talenttrack' ); ?></label>
+                    <input type="text" id="tt-activity-other-label" class="tt-input" name="other_label" maxlength="120" value="<?php echo esc_attr( $current_other ); ?>" placeholder="<?php esc_attr_e( 'e.g. Team-building day', 'talenttrack' ); ?>" />
                 </div>
                 <?php echo DateInputComponent::render( [
                     'name'     => 'session_date',
@@ -195,6 +225,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 <label class="tt-field-label" for="tt-activity-notes"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label>
                 <textarea id="tt-activity-notes" class="tt-input" name="notes" rows="2"><?php echo esc_textarea( (string) ( $session->notes ?? '' ) ); ?></textarea>
             </div>
+
+            <script>
+            (function(){
+                var sel = document.getElementById('tt-activity-type');
+                if ( ! sel ) return;
+                var subRow   = document.getElementById('tt-activity-subtype-row');
+                var otherRow = document.getElementById('tt-activity-other-row');
+                sel.addEventListener('change', function(){
+                    if ( subRow )   subRow.style.display   = ( sel.value === 'game' )  ? '' : 'none';
+                    if ( otherRow ) otherRow.style.display = ( sel.value === 'other' ) ? '' : 'none';
+                });
+            })();
+            </script>
 
             <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></h3>
 

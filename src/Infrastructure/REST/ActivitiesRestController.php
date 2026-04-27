@@ -302,6 +302,26 @@ class ActivitiesRestController {
         }
         $activity_id = (int) $wpdb->insert_id;
 
+        // #0049 — when demo mode is ON, manually-created activities
+        // need to be tagged in tt_demo_tags so they're visible to
+        // demo-scoped queries (apply_demo_scope filters by IN/NOT IN
+        // that table). Without the tag, loadSession() returns null
+        // immediately after the auto-save redirect and the user sees
+        // "That activity no longer exists" on the edit page.
+        if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' )
+             && \TT\Modules\DemoData\DemoMode::effective() === \TT\Modules\DemoData\DemoMode::ON
+        ) {
+            $tag_table = $wpdb->prefix . 'tt_demo_tags';
+            if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tag_table ) ) === $tag_table ) {
+                $wpdb->insert( $tag_table, [
+                    'batch_id'    => 'user-created',
+                    'entity_type' => 'activity',
+                    'entity_id'   => $activity_id,
+                    'extra_json'  => null,
+                ] );
+            }
+        }
+
         // #0025 — detect source language for free-text session fields.
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'title',    (string) $data['title'] );
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'notes',    (string) $data['notes'] );
@@ -399,13 +419,27 @@ class ActivitiesRestController {
      * @return array<string, mixed>
      */
     private static function extract( \WP_REST_Request $r ): array {
+        // #0049 — type fields are now part of the frontend form too.
+        // activity_type_key is enforced as one of game/training/other;
+        // game_subtype_key only set when type is game; other_label only
+        // set when type is other.
+        $type = sanitize_key( (string) ( $r['activity_type_key'] ?? 'training' ) );
+        if ( ! in_array( $type, [ 'game', 'training', 'other' ], true ) ) {
+            $type = 'training';
+        }
+        $subtype = sanitize_text_field( (string) ( $r['game_subtype_key'] ?? '' ) );
+        $other   = sanitize_text_field( (string) ( $r['other_label'] ?? '' ) );
+
         return [
-            'title'        => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
-            'session_date' => sanitize_text_field( (string) ( $r['session_date'] ?? '' ) ),
-            'team_id'      => absint( $r['team_id'] ?? 0 ),
-            'coach_id'     => get_current_user_id(),
-            'location'     => sanitize_text_field( (string) ( $r['location'] ?? '' ) ),
-            'notes'        => sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) ),
+            'title'             => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
+            'session_date'      => sanitize_text_field( (string) ( $r['session_date'] ?? '' ) ),
+            'team_id'           => absint( $r['team_id'] ?? 0 ),
+            'coach_id'          => get_current_user_id(),
+            'location'          => sanitize_text_field( (string) ( $r['location'] ?? '' ) ),
+            'notes'             => sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) ),
+            'activity_type_key' => $type,
+            'game_subtype_key'  => $type === 'game' && $subtype !== '' ? $subtype : null,
+            'other_label'       => $type === 'other' && $other !== ''   ? $other   : null,
         ];
     }
 

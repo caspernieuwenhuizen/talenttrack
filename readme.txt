@@ -4,13 +4,18 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.30.1
+Stable tag: 3.31.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.31.1 — Activity type field on frontend + demo-mode guest add fix (#0049) =
+* FIXED: Frontend activity create / edit form was missing the **Type** dropdown (Training / Game / Other), the conditional **Game subtype** dropdown, and the conditional **Other label** field. The wp-admin form has had these since #0035; the frontend was never updated. Without the field, every frontend-created activity defaulted to Training silently, so post-game evaluation tasks weren't being spawned for games created from the frontend. Form now matches the wp-admin version. Game subtype options come from the `game_subtype` lookup so admins can rename / extend them in Configuration.
+* FIXED: Adding a guest player to a freshly-saved activity in Demo mode showed "That activity no longer exists" on the page reload. Root cause: the auto-save POST created a real `tt_activities` row but didn't tag it in `tt_demo_tags`, so `apply_demo_scope` filtered it out of the loadSession query (Demo mode = `IN (demo_set)`). The REST `create_session` endpoint now adds a `tt_demo_tags` row tagged `batch_id='user-created'` whenever Demo mode is ON, so user-created activities behave like generator-created ones inside the demo sandbox.
+* INTERNAL: REST `extract()` now persists `activity_type_key`, `game_subtype_key`, and `other_label` from the request alongside title/date/team/location/notes. Storage column still enforces game/training/other for downstream behavior (post-game eval workflow, HoD rollups); the lookup-driven set discussion stays open as a follow-up.
 
 = 3.30.1 — User docs cleanup (#0048) =
 * FIXED: Each documentation page rendered an HTML comment as visible literal text at the top (`<!-- audience: user -->`). The line-based markdown renderer fed the comment through `esc_html` instead of skipping it. Stripped audience-metadata comments before render.
