@@ -139,6 +139,19 @@
 .tt-dashboard .tt-field textarea[aria-invalid="true"] {
     border-color: var(--tt-danger);
 }
+/* Native HTML5 validation feedback (#0010). Only paints once the user
+   has interacted with the field — :invalid alone fires immediately on
+   render, which would flag every empty required field on page load.
+   The :user-invalid pseudo waits for focus/blur/submit cycles. Falls
+   back gracefully on browsers that don't support :user-invalid
+   (Firefox <88, Safari <16) — there it just stays the default border. */
+.tt-dashboard .tt-input:user-invalid,
+.tt-dashboard .tt-field input:user-invalid,
+.tt-dashboard .tt-field select:user-invalid,
+.tt-dashboard .tt-field textarea:user-invalid {
+    border-color: var(--tt-danger);
+    box-shadow: 0 0 0 1px var(--tt-danger);
+}
 
 /* Buttons (shared — used by FormSaveButton + elsewhere) */
 .tt-dashboard .tt-btn,
@@ -344,7 +357,12 @@
     cursor: pointer;
 }
 .tt-dashboard .tt-multitag-option:hover { border-color: var(--tt-primary); }
-.tt-dashboard .tt-multitag-option.is-selected { display: none; }
+.tt-dashboard .tt-multitag-option.is-selected {
+    background: var(--tt-primary, #0b3d2e);
+    border-color: var(--tt-primary, #0b3d2e);
+    color: #fff;
+    font-weight: 600;
+}
 
 /* PlayerPickerComponent — inherits .tt-field + .tt-input.
    Only adds an optional search-icon slot. */

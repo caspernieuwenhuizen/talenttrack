@@ -127,10 +127,38 @@ class MatrixPage {
                     </tbody>
                 </table>
 
-                <p style="margin-top:14px;">
+                <p style="margin-top:14px; display:flex; align-items:center; gap:12px;">
                     <?php submit_button( __( 'Save matrix', 'talenttrack' ), 'primary', 'submit', false ); ?>
+                    <span id="tt-matrix-dirty-pill" style="display:none; background:#dba617; color:#1f1300; font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; letter-spacing:0.04em;">
+                        <?php esc_html_e( 'UNSAVED CHANGES', 'talenttrack' ); ?>
+                    </span>
                 </p>
             </form>
+
+            <script>
+            // Inline visual feedback on cell click. The form is save-on-submit
+            // (no per-click AJAX), so without this the labels look unchanged
+            // and the user can't tell if their click registered.
+            (function(){
+                var ON_DEFAULT  = 'background:#c5e8d2; color:#196a32; opacity:0.7;';
+                var ON_EDITED   = 'background:#196a32; color:#fff; font-weight:700;';
+                var OFF         = 'background:#f0f0f1; color:#999;';
+                var BASE        = 'display:inline-block; padding:2px 4px; margin:0 1px; border-radius:3px; cursor:pointer; font-family:monospace; font-size:11px; ';
+                var pill = document.getElementById('tt-matrix-dirty-pill');
+                document.querySelectorAll('input[type="checkbox"][name^="cell["]').forEach(function(cb){
+                    cb.addEventListener('change', function(){
+                        var label = cb.closest('label');
+                        if (!label) return;
+                        // After admin edits, the cell is no longer "default" — paint it edited (or off).
+                        label.setAttribute('style', BASE + (cb.checked ? ON_EDITED : OFF));
+                        if (pill) pill.style.display = 'inline-block';
+                    });
+                });
+                document.querySelectorAll('select[name^="scope["]').forEach(function(sel){
+                    sel.addEventListener('change', function(){ if (pill) pill.style.display = 'inline-block'; });
+                });
+            })();
+            </script>
 
             <hr style="margin:24px 0;" />
 

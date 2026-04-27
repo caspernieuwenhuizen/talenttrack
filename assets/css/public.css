@@ -78,13 +78,14 @@
 .tt-dash-actions { display: inline-flex; align-items: center; gap: .55rem; }
 .tt-dash-demo-pill {
     display: inline-flex; align-items: center;
-    background: #b32d2e; color: #fff !important;
+    background: #b32d2e; color: #fff;
     padding: 3px 10px; border-radius: 999px;
     font-family: "Helvetica Neue", Arial, sans-serif;
     font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
-    text-decoration: none !important;
+    cursor: help;
+    user-select: none;
 }
-.tt-dash-demo-pill:hover, .tt-dash-demo-pill:focus { background: #8a1f1f; color: #fff !important; }
+.tt-dash-demo-pill:focus { outline: 2px solid #b32d2e; outline-offset: 2px; }
 .tt-dash-help {
     display: inline-flex; align-items: center; justify-content: center;
     width: 32px; height: 32px;

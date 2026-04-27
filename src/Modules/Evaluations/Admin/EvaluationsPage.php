@@ -320,8 +320,12 @@ class EvaluationsPage {
                     <?php foreach ( $tree as $main ) :
                         $main_id = (int) $main->id;
                         $has_subs = ! empty( $main->children );
-                        // Default mode: subcategories iff existing sub ratings present.
-                        $mode_default = ( $has_subs && isset( $main_has_subs_rated[ $main_id ] ) ) ? 'subcategories' : 'direct';
+                        // Default mode: subcategories whenever they exist
+                        // (drill-down is the intended primary path); direct
+                        // is the explicit opt-out via the inline toggle. New
+                        // evaluations therefore open with subs visible
+                        // instead of hiding them behind a toggle.
+                        $mode_default = $has_subs ? 'subcategories' : 'direct';
                         $direct_val = isset( $direct_ratings[ $main_id ] ) ? (string) $direct_ratings[ $main_id ] : '';
                         ?>
                         <fieldset class="tt-rating-block" data-main-id="<?php echo (int) $main_id; ?>"

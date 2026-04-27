@@ -6883,3 +6883,24 @@ msgstr "Ouder"
 
 msgid "User #"
 msgstr "Gebruiker #"
+
+# v3.27.0 — demo-readiness omnibus
+# 'New evaluation', 'Top players on the team', 'All teams' already translated earlier in this file.
+
+msgid "Not enough rated teammates yet for a podium."
+msgstr "Nog niet genoeg beoordeelde teamgenoten voor een podium."
+
+msgid "You are not assigned to any teams yet."
+msgstr "Je bent nog niet aan een team toegewezen."
+
+msgid "No evaluations match these filters yet."
+msgstr "Geen evaluaties gevonden voor deze filters."
+
+msgid "UNSAVED CHANGES"
+msgstr "ONOPGESLAGEN WIJZIGINGEN"
+
+msgid "TalentTrack is running in demo mode. Real club records are hidden until demo mode is turned off."
+msgstr "TalentTrack draait in demomodus. Echte clubgegevens zijn verborgen totdat demomodus wordt uitgeschakeld."
+
+msgid "No documentation topics are available."
+msgstr "Geen documentatieonderwerpen beschikbaar."

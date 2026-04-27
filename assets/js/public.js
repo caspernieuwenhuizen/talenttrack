@@ -171,13 +171,18 @@
                     setSaveBtnState(btn, 'saved');
                     // Drafts module listens for this to clear its stored snapshot.
                     form.dispatchEvent(new CustomEvent('tt:form-saved', { bubbles: true }));
-                    if (form.getAttribute('data-redirect-after-save') === '1') {
-                        // Show the success briefly, then return to the dashboard tile
-                        // entry (drop tt_view + edit so the user lands on the tile grid).
+                    var redirect = form.getAttribute('data-redirect-after-save');
+                    if (redirect === '1' || redirect === 'list') {
+                        // Briefly show success, then drop the form-mode query
+                        // params so the user lands back on the section's list
+                        // view. `tt_view` is preserved so they don't get
+                        // bounced to the tile grid (which was the old "1"
+                        // behaviour and meant "save & lose context").
                         setTimeout(function() {
                             try {
                                 var url = new URL(window.location.href);
-                                url.searchParams.delete('tt_view');
+                                url.searchParams.delete('action');
+                                url.searchParams.delete('id');
                                 url.searchParams.delete('edit');
                                 window.location.href = url.toString();
                             } catch (e) {

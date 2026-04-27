@@ -150,7 +150,7 @@ class DashboardShortcode {
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
         // #0021 — `audit-log` added; uses the same admin tier (cap-checked
         // again inside FrontendAuditLogView::render).
-        $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details', 'audit-log' ];
+        $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details', 'audit-log', 'docs' ];
         // #0022 Sprint 2/5 — workflow surfaces, each cap-gated in dispatch.
         $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config' ];
         // #0009 — Development management slugs. Each view re-checks its
@@ -380,6 +380,9 @@ class DashboardShortcode {
             case 'audit-log':
                 FrontendAuditLogView::render( $user_id, $is_admin );
                 break;
+            case 'docs':
+                FrontendDocsView::render( $user_id, $is_admin );
+                break;
             default:
                 FrontendBackButton::render();
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
@@ -437,9 +440,10 @@ class DashboardShortcode {
         $profile_url = get_edit_profile_url( (int) $user->ID );
         $logout_url  = LogoutHandler::url();
         $is_wp_admin = current_user_can( 'administrator' );
-        $help_url    = admin_url( 'admin.php?page=tt-docs' );
+        $base_url    = self::shortcodeBaseUrl();
+        $help_url    = $base_url ? add_query_arg( 'tt_view', 'docs', $base_url ) : admin_url( 'admin.php?page=tt-docs' );
         $demo_on     = class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) && \TT\Modules\DemoData\DemoMode::isOn();
-        $demo_tip    = __( 'TalentTrack is running in demo mode. Real club records are hidden.', 'talenttrack' );
+        $demo_tip    = __( 'TalentTrack is running in demo mode. Real club records are hidden until demo mode is turned off.', 'talenttrack' );
 
         echo '<div class="tt-dash-header">';
         echo '<div class="tt-dash-brand">';
@@ -449,13 +453,14 @@ class DashboardShortcode {
 
         echo '<div class="tt-dash-actions">';
 
-        // #0036 — DEMO pill replaces the standalone DemoBanner that
-        // used to prepend itself via the tt_dashboard_data filter.
+        // DEMO indicator. Info-only span (not a link) — hover or focus
+        // for the explanation. The wp-admin Tools page is reachable from
+        // the user dropdown if an admin actually wants to manage demo
+        // data.
         if ( $demo_on ) {
-            echo '<a href="' . esc_url( admin_url( 'tools.php?page=tt-demo-data' ) )
-                . '" class="tt-dash-demo-pill" title="' . esc_attr( $demo_tip ) . '">'
+            echo '<span class="tt-dash-demo-pill" tabindex="0" title="' . esc_attr( $demo_tip ) . '" aria-label="' . esc_attr( $demo_tip ) . '">'
                 . esc_html__( 'DEMO', 'talenttrack' )
-                . '</a>';
+                . '</span>';
         }
 
         // Help icon — links to wp-admin Help & Docs. Only useful for

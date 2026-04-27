@@ -244,7 +244,7 @@ class DemoDataPage {
             <div class="notice notice-info inline tt-demo-leadnote">
                 <p>
                     <strong><?php esc_html_e( 'Demo users already exist from a previous run.', 'talenttrack' ); ?></strong>
-                    <?php esc_html_e( 'No new WP users will be created and no welcome emails will be sent. This run only creates data rows (teams, players, evaluations, sessions, goals).', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'No new WP users will be created and no welcome emails will be sent. This run only creates data rows (teams, players, evaluations, activities, goals).', 'talenttrack' ); ?>
                 </p>
             </div>
         <?php else : ?>
@@ -403,7 +403,7 @@ class DemoDataPage {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <p class="description"><?php esc_html_e( 'Language the generated content (goal titles, descriptions, session titles, default location) is written in. Only languages the generators ship content dictionaries for are listed — add a key to GoalGenerator / ActivityGenerator constants to support a new one.', 'talenttrack' ); ?></p>
+                            <p class="description"><?php esc_html_e( 'Language the generated content (goal titles, descriptions, activity titles, default location) is written in. Only languages the generators ship content dictionaries for are listed — add a key to GoalGenerator / ActivityGenerator constants to support a new one.', 'talenttrack' ); ?></p>
                         </td>
                     </tr>
                 </tbody>
@@ -459,7 +459,7 @@ class DemoDataPage {
 
         <h3><?php esc_html_e( 'Wipe demo data', 'talenttrack' ); ?></h3>
         <p style="max-width:720px;">
-            <?php esc_html_e( 'Removes every demo-tagged row (evaluations, sessions, goals, attendance, ratings, players, teams) in dependency order. The 36 persistent demo WP users are preserved. Non-demo data is never touched.', 'talenttrack' ); ?>
+            <?php esc_html_e( 'Removes every demo-tagged row (evaluations, activities, goals, attendance, ratings, players, teams) in dependency order. The 36 persistent demo WP users are preserved. Non-demo data is never touched.', 'talenttrack' ); ?>
         </p>
         <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
             <?php wp_nonce_field( 'tt_demo_wipe_data', 'tt_demo_nonce' ); ?>

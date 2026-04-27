@@ -4,13 +4,30 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.26.1
+Stable tag: 3.27.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.27.0 — Demo-readiness omnibus =
+* NEW: Frontend evaluations tile now opens a filterable list (date range + team filter, last 100 entries) with a "New evaluation" CTA, instead of dropping straight into the form. After saving, the form returns to the list rather than the tile grid.
+* NEW: Frontend Help & Docs page at ?tt_view=docs — same markdown topics + sidebar TOC as the wp-admin docs, but reachable to coaches, observers and players without a redirect through wp-admin.
+* CHANGED: Documentation is now strictly capability-gated. Topics whose audience markers don't intersect the viewer's allowed audience set (admin / dev / user) are filtered out of the TOC AND from direct URL access; the requested-topic fallback no longer leaks admin docs to non-admins. Audience badges next to topic links only render for admins.
+* CHANGED: Disabling a module via Authorization → Modules now actually hides the module on the frontend. Disabled modules skip register() and boot() entirely, so their hooks, REST routes, and admin pages stay dark until the toggle flips back. Always-on core modules (Auth / Configuration / Authorization) bypass the gate.
+* CHANGED: Module toggle, save redirects, redirect-after-save tightened. The form-attribute `data-redirect-after-save="list"` (or the legacy `"1"`) now drops `action`, `id`, `edit` from the URL — preserving `tt_view` so saving an evaluation or player returns to the list view, not the tile grid.
+* CHANGED: Authorization Matrix admin page now gives immediate visual feedback on cell clicks — labels recolour as the underlying checkbox toggles, and an "UNSAVED CHANGES" pill appears next to Save matrix until the form posts. Backend write path was always working; the page just looked unwired.
+* FIXED: Player position chips disappeared on click. CSS `.tt-multitag-option.is-selected { display: none; }` literally hid them; replaced with a "selected" highlight treatment.
+* FIXED: Evaluation entry form now defaults to subcategory mode whenever subcategories exist, instead of starting in direct-only mode and tucking subs behind a toggle.
+* FIXED: My-team page (player view) — own card and podium are now side-by-side with a vertical separator, both rendered ~75 % of full size so the layout fits without scroll.
+* CHANGED: Podium cards rendered at 70 % size on every podium surface (My team, Performance dashboard, etc.) so multiple cards fit without horizontal scroll.
+* CHANGED: Demo pill in the dashboard header is no longer a link. Hover or focus shows the "demo mode is on" tooltip; the wp-admin Tools page is reachable via the user-menu dropdown if an admin needs to toggle demo mode off.
+* NEW: Inline form validation paints invalid `:user-invalid` fields with a red border once the user has interacted with them. Empty required fields no longer flash red on initial render.
+* NEW: 8 tile icons that previously rendered as Unicode emoji (📥 📋 ⚙ 💡 🗂 ✅ 🛤 ✉) replaced with proper outline SVGs matching the #0036 icon set: My tasks, Tasks dashboard, Workflow templates, Submit an idea, Development board, Approval queue, Development tracks, Invitations.
+* INTERNAL: DemoData admin copy refreshed post sessions→activities rename. Frontend evaluations and player save flows now use the redirect-to-list pattern.
+* DEFERRED: Player → parent inline-fill flow (#8), 5 new application KPIs + period selector + rename Usage Statistics → App KPIs (#12), context-aware sidebar drawer for docs (#16 part B), and rich filtering on the My sessions player view (#18). All shaped, none in this PR.
 
 = 3.26.1 — Anti-AI-fingerprint sweep, first pass (#0012) =
 * CHANGED: Stripped Unicode box-drawing comment banners (`/* ═══ Foo ═══ */`, `/* ─── Foo ─── */`) from PHP, JS, and CSS source files across the plugin. Section headings retained in plain comment form where they earned their keep. No behaviour changes.
