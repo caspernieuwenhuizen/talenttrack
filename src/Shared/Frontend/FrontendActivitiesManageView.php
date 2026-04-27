@@ -158,11 +158,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         $statuses      = QueryHelpers::get_lookup_names( 'attendance_status' );
         $game_subtypes = QueryHelpers::get_lookup_names( 'game_subtype' );
+        // #0050 — Type lookup-driven; admins can rename or add types
+        // via Configuration → Activity Types. Conditional Subtype /
+        // Other-label rows stay anchored to the seeded keys.
+        $activity_type_rows = QueryHelpers::get_lookups( 'activity_type' );
 
-        // #0049 — type dropdown was missing from the frontend form;
-        // the wp-admin form had it since #0035. Storage column enforces
-        // game/training/other so options stay hardcoded for now (game
-        // subtype comes from a lookup; admin-extensible).
         $current_type    = (string) ( $session->activity_type_key ?? 'training' );
         $current_subtype = (string) ( $session->game_subtype_key ?? '' );
         $current_other   = (string) ( $session->other_label ?? '' );
@@ -180,9 +180,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 <div class="tt-field">
                     <label class="tt-field-label tt-field-required" for="tt-activity-type"><?php esc_html_e( 'Type', 'talenttrack' ); ?></label>
                     <select id="tt-activity-type" class="tt-input" name="activity_type_key" required>
-                        <option value="training" <?php selected( $current_type, 'training' ); ?>><?php esc_html_e( 'Training', 'talenttrack' ); ?></option>
-                        <option value="game" <?php selected( $current_type, 'game' ); ?>><?php esc_html_e( 'Game', 'talenttrack' ); ?></option>
-                        <option value="other" <?php selected( $current_type, 'other' ); ?>><?php esc_html_e( 'Other', 'talenttrack' ); ?></option>
+                        <?php foreach ( $activity_type_rows as $type_row ) : ?>
+                            <option value="<?php echo esc_attr( (string) $type_row->name ); ?>" <?php selected( $current_type, (string) $type_row->name ); ?>><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $type_row ) ); ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="tt-field">
