@@ -148,7 +148,9 @@ class DashboardShortcode {
         $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'podium', 'methodology' ];
         $analytics_slugs = [ 'rate-cards', 'compare' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
-        $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details' ];
+        // #0021 — `audit-log` added; uses the same admin tier (cap-checked
+        // again inside FrontendAuditLogView::render).
+        $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details', 'audit-log' ];
         // #0022 Sprint 2/5 — workflow surfaces, each cap-gated in dispatch.
         $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config' ];
         // #0009 — Development management slugs. Each view re-checks its
@@ -374,6 +376,9 @@ class DashboardShortcode {
                 break;
             case 'usage-stats-details':
                 FrontendUsageStatsDetailsView::render( $user_id, $is_admin );
+                break;
+            case 'audit-log':
+                FrontendAuditLogView::render( $user_id, $is_admin );
                 break;
             default:
                 FrontendBackButton::render();

@@ -482,6 +482,14 @@ class FrontendTileGrid {
                 'show'  => $can_frontend_admin,
             ],
             [
+                'label' => __( 'Audit log', 'talenttrack' ),
+                'desc'  => __( 'Who changed what, when. Filterable, paginated.', 'talenttrack' ),
+                'icon'  => 'audit-log',
+                'color' => '#5b6e75',
+                'url'   => $url( 'audit-log' ),
+                'show'  => current_user_can( 'tt_view_settings' ),
+            ],
+            [
                 'label' => __( 'Invitations', 'talenttrack' ),
                 'desc'  => __( 'Pending invites + WhatsApp message templates.', 'talenttrack' ),
                 'emoji' => '✉',

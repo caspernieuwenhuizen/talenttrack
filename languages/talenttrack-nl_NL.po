@@ -6679,3 +6679,34 @@ msgstr "Die activiteit bestaat niet meer."
 
 msgid "Delete this activity? It will be archived."
 msgstr "Activiteit verwijderen? Hij wordt gearchiveerd."
+
+# #0021 — frontend audit-log viewer (only the strings new to this view —
+# Audit log / When / Entity / Payload / No audit entries match... /
+# Page %1$d of %2$d already translated above)
+
+msgid "Who changed what, when. Filterable, paginated."
+msgstr "Wie wat wanneer wijzigde. Filterbaar, gepagineerd."
+
+msgid "Audit logging is disabled."
+msgstr "Auditlogboek is uitgeschakeld."
+
+msgid "Enable it under Configuration → Feature Toggles to start recording entries."
+msgstr "Schakel in via Configuratie → Functietoggles om vermeldingen te registreren."
+
+msgid "(system)"
+msgstr "(systeem)"
+
+msgid "Showing %1$d–%2$d of %3$d entries."
+msgstr "%1$d–%2$d van %3$d vermeldingen."
+
+msgid "Clear filters"
+msgstr "Filters wissen"
+
+msgid "Newer"
+msgstr "Nieuwer"
+
+msgid "Older"
+msgstr "Ouder"
+
+msgid "User #"
+msgstr "Gebruiker #"

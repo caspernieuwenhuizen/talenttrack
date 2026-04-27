@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.24.2
+Stable tag: 3.25.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.25.0 — Audit log viewer (#0021) =
+* NEW: Frontend audit log viewer at TalentTrack dashboard → Audit log tile (?tt_view=audit-log). Server-rendered, paginated (50 per page), filter by action / entity_type (dropdowns of distinct values), user_id, date range. Capability: tt_view_settings (read-only — sharper than the wp-admin Configuration → Audit tab which inherits tt_edit_settings). The wp-admin tab is unchanged for users who already use it.
+* FIXED: Audit logging was silently broken on fresh installs since the column rename. Activator::ensureSchema declared a `details` LONGTEXT column and omitted ip_address, while migration 0002 (auto-marked as applied without running on fresh installs) declared `payload` + `ip_address`. AuditService::record() writes to `payload` + `ip_address`, so wpdb->insert silently failed on every audit attempt for fresh-installed sites. New migration 0030 renames `details` → `payload` and adds `ip_address` if missing; Activator::ensureSchema corrected to match. Idempotent both ways — sites with the correct schema already (upgrades from migration 0002) skip the rename.
+* INTERNAL: AuditService::recent() extended to support date_from / date_to / offset filters. New AuditService::count() for pagination. New AuditService::distinctValues() for filter-dropdown population.
+* i18n: ~10 new strings.
 
 = 3.24.2 — Fresh-install usable out of the box (#0038) =
 * FIXED: A fresh WordPress install with TalentTrack activated now has a working surface immediately — no Setup Wizard required. Activator auto-creates a "TalentTrack" page containing the [talenttrack_dashboard] shortcode and stores its ID in tt_config.dashboard_page_id. Idempotent: skips if already configured, or adopts an existing page that already has the shortcode.
