@@ -175,7 +175,7 @@ class CategoryWeightsPage {
         <?php
     }
 
-    /* ═══════════════ Handlers ═══════════════ */
+    // Handlers
 
     public static function handleSave(): void {
         if ( ! current_user_can( self::CAP ) ) {
@@ -231,7 +231,7 @@ class CategoryWeightsPage {
         exit;
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     private static function redirectWithError( string $code, ?int $detail = null ): void {
         $args = [ 'page' => 'tt-category-weights', 'tt_error' => $code ];

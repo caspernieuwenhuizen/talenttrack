@@ -101,6 +101,21 @@ Default behaviour on every release that touches SEQUENCE.md-referenced work, not
 
 PR review check: if a reviewer can't point at the `.po` lines and the `docs/*` lines, it's not done. And a release that leaves SEQUENCE.md stale isn't done either.
 
+## Coding style — no AI fingerprints
+
+Best-practice code quality is non-negotiable: docblocks for public APIs, sensible naming, type hints, tests where they earn their keep. *Showing* that the code was machine-generated is not part of "best practice" — it's noise. Every PR should read like a human wrote it carefully.
+
+Concretely, drop these LLM signatures:
+
+- **Commit trailers** — no `Co-Authored-By: Claude …` lines. Just the change summary and the why.
+- **PR bodies** — no `🤖 Generated with [Claude Code]` footer. Section structure (Summary / Test plan) is fine when it serves the reader; cut whatever doesn't.
+- **Comment banners** — no Unicode box-drawing (`/* ═══════ Foo ═══════ */`). When a heading genuinely helps, use plain ASCII (`// ===== Foo =====`); usually you don't need one at all.
+- **Class docblocks** — keep them short (3–5 lines for most classes). Multi-paragraph "v2.10.1: …; v2.10.0: …; v2.9.0: …" version-history recaps belong in `CHANGES.md`, not the source.
+- **Inline comments** — keep the *why* (constraint, gotcha, non-obvious invariant). Drop the over-explanatory *what* — the code says what it does. "Idempotent: every step is a no-op when the target state is already reached" is the kind of line to delete; "Refuse to drop if rows still reference this table" is the kind to keep.
+- **Method docblocks** — 2–4 lines for public methods. If the method's name + signature + parameter types already tell the story, a docblock is optional.
+
+When in doubt: would a careful senior engineer write this? If the answer is "they'd compress it" or "they'd skip it", compress or skip.
+
 ## Plugin constants in wp-config.php
 
 Some features rely on secrets that must never live in the database (DB values leak into backups, staging clones, and migration exports). Add these to `wp-config.php` on the server, not via wp-admin.

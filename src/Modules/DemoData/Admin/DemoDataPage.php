@@ -108,7 +108,7 @@ class DemoDataPage {
         DemoMode::clearOverride();
     }
 
-    /* ═══ Render partials ═══ */
+    // Render partials
 
     /**
      * @param array<string,int> $counts
@@ -520,7 +520,7 @@ class DemoDataPage {
         <?php endif;
     }
 
-    /* ═══ Action handlers ═══ */
+    // Action handlers
 
     public static function handleGenerate(): void {
         if ( ! current_user_can( self::CAP ) ) {

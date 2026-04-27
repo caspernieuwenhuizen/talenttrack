@@ -54,13 +54,13 @@ class Menu {
         //
         // Group order (top → bottom):
         //   Dashboard
-        //   ── People ──
+        //   People
         //     Teams, Players
-        //   ── Performance ──
+        //   Performance
         //     Evaluations, Sessions, Goals
-        //   ── Analytics ──
+        //   Analytics
         //     Reports, Player Rate Cards, Usage Statistics
-        //   ── Configuration ── (admin-only)
+        //   Configuration (admin-only)
         //     Configuration, Custom Fields, Evaluation Categories,
         //     Category Weights, Archived items
         //   Help & Docs

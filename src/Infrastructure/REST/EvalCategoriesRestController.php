@@ -171,7 +171,7 @@ class EvalCategoriesRestController {
         return RestResponse::success( [ 'id' => $id, 'swapped_with' => (int) $neighbor->id ] );
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     /**
      * @return array<string, mixed>

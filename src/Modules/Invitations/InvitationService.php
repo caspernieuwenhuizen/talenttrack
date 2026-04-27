@@ -32,7 +32,7 @@ class InvitationService {
         $this->config  = $config  ?? new ConfigService();
     }
 
-    /* ═══════════════ Create ═══════════════ */
+    // Create
 
     /**
      * Generate a new invitation. Returns ['ok'=>bool, 'id'=>?int,
@@ -139,7 +139,7 @@ class InvitationService {
         ];
     }
 
-    /* ═══════════════ Accept ═══════════════ */
+    // Accept
 
     /**
      * Accept a pending invitation. Caller has already validated the
@@ -223,7 +223,7 @@ class InvitationService {
         return [ 'ok' => true, 'user_id' => $existingUserId, 'error' => null ];
     }
 
-    /* ═══════════════ Revoke ═══════════════ */
+    // Revoke
 
     public function revoke( int $invitationId ): bool {
         $row = $this->repo->find( $invitationId );
@@ -240,7 +240,7 @@ class InvitationService {
         return $ok;
     }
 
-    /* ═══════════════ Linking ═══════════════ */
+    // Linking
 
     /**
      * Attach the new (or existing) WP user to the right entity row.
@@ -274,7 +274,7 @@ class InvitationService {
         }
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     /**
      * Locale precedence: target row's `locale` → club default → inviter's WP locale.

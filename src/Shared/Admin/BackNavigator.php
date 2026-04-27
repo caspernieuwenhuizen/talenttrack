@@ -144,7 +144,7 @@ class BackNavigator {
         ];
     }
 
-    /* ═══════════════ Public API ═══════════════ */
+    // Public API
 
     /**
      * Return the URL of the parent page for a given page + action, or
@@ -219,7 +219,7 @@ class BackNavigator {
         return $page === self::HOME_PAGE && $action === '';
     }
 
-    /* ═══════════════ Lookup ═══════════════ */
+    // Lookup
 
     /**
      * Look up the map entry for a page + action combo. Action-specific

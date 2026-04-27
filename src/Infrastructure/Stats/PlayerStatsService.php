@@ -39,7 +39,7 @@ class PlayerStatsService {
         $this->cats_repo    = new EvalCategoriesRepository();
     }
 
-    /* ═══════════════ Raw evaluations ═══════════════ */
+    // Raw evaluations
 
     /**
      * Evaluations matching the filters, oldest first (so time-series
@@ -74,7 +74,7 @@ class PlayerStatsService {
         return is_array( $rows ) ? $rows : [];
     }
 
-    /* ═══════════════ Headline numbers ═══════════════ */
+    // Headline numbers
 
     /**
      * The three summary numbers at the top of the rate card.
@@ -144,7 +144,7 @@ class PlayerStatsService {
         ];
     }
 
-    /* ═══════════════ Main category breakdown ═══════════════ */
+    // Main category breakdown
 
     /**
      * Per-main-category all-time mean, most recent value, and trend
@@ -239,7 +239,7 @@ class PlayerStatsService {
         return $out;
     }
 
-    /* ═══════════════ Subcategory breakdown ═══════════════ */
+    // Subcategory breakdown
 
     /**
      * All-time mean per subcategory, grouped under parent main.
@@ -322,7 +322,7 @@ class PlayerStatsService {
         return $out;
     }
 
-    /* ═══════════════ Time-series (for line chart) ═══════════════ */
+    // Time-series (for line chart)
 
     /**
      * Per-main, per-evaluation values suitable for a Chart.js line chart.
@@ -366,7 +366,7 @@ class PlayerStatsService {
         return [ 'labels' => $labels, 'series' => $series ];
     }
 
-    /* ═══════════════ Radar snapshots ═══════════════ */
+    // Radar snapshots
 
     /**
      * Last N evaluations' per-main effective rating — one dataset per
@@ -402,7 +402,7 @@ class PlayerStatsService {
         return [ 'labels' => $labels, 'datasets' => $datasets ];
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     /**
      * Normalize + sanitize filter input (from $_GET or an array).

@@ -1,16 +1,8 @@
-/* ═══════════════════════════════════════════════════════════════════════════
- * TalentTrack — admin-sortable.js
- *
- * Tiny vanilla-JS drag reorder for any <tbody data-sortable="1"> or any
- * element with [data-sortable="1"]. Uses HTML5 Drag and Drop.
- *
- * After a successful reorder, the container fires a bubbling
- *   'tt:sortable:end'
- * custom event. Consumers (e.g. OptionSetEditor) listen for this and
- * serialise their state.
- *
- * Zero dependencies. No jQuery.
- * ═══════════════════════════════════════════════════════════════════════════ */
+/* admin-sortable.js — vanilla-JS drag reorder for any
+ * <tbody data-sortable="1"> or [data-sortable="1"] element via HTML5
+ * Drag and Drop. After a successful reorder the container fires a
+ * bubbling `tt:sortable:end` custom event so consumers (e.g.
+ * OptionSetEditor) can serialise their state. Zero dependencies. */
 
 (function(){
     'use strict';

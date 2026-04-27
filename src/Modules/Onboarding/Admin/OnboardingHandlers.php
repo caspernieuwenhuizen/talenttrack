@@ -35,7 +35,7 @@ class OnboardingHandlers {
         add_action( 'admin_post_tt_onboarding_create_dashboard_page',[ self::class, 'handleCreateDashboardPage' ] );
     }
 
-    /* ═══════════════ Step submit handlers ═══════════════ */
+    // Step submit handlers
 
     public static function handleAdvance(): void {
         self::guard( 'tt_onboarding_advance' );
@@ -139,7 +139,7 @@ class OnboardingHandlers {
         self::redirectToPage( [ 'tt_ob_msg' => 'admin_made' ] );
     }
 
-    /* ═══════════════ Auxiliary handlers ═══════════════ */
+    // Auxiliary handlers
 
     public static function handleReset(): void {
         self::guard( 'tt_onboarding_reset' );
@@ -194,7 +194,7 @@ class OnboardingHandlers {
         exit;
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     private static function guard( string $action ): void {
         if ( ! current_user_can( self::CAP ) ) {

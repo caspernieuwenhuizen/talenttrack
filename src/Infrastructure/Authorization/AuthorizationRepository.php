@@ -15,7 +15,7 @@ class AuthorizationRepository {
 
     public const SCOPE_TYPES = [ 'global', 'team', 'player', 'person' ];
 
-    /* ═══════════════ Roles ═══════════════ */
+    // Roles
 
     /** @return array<int, object> */
     public function listRoles(): array {
@@ -48,7 +48,7 @@ class AuthorizationRepository {
         return $row ?: null;
     }
 
-    /* ═══════════════ Permissions ═══════════════ */
+    // Permissions
 
     /** @return string[] */
     public function getPermissionsForRole( int $role_id ): array {
@@ -79,7 +79,7 @@ class AuthorizationRepository {
         return is_array( $rows ) ? array_map( 'strval', $rows ) : [];
     }
 
-    /* ═══════════════ User role scopes (assignments) ═══════════════ */
+    // User role scopes (assignments)
 
     /**
      * Full list of a person's role assignments, joined with role metadata.

@@ -131,7 +131,7 @@ class MethodologyView extends FrontendViewBase {
         <?php
     }
 
-    /* ───────────── Framework primer ───────────── */
+    // Framework primer
 
     private static function renderFramework(): void {
         $primer = ( new FrameworkPrimerRepository() )->activeForClub();
@@ -272,7 +272,7 @@ class MethodologyView extends FrontendViewBase {
         <?php
     }
 
-    /* ───────────── Principles ───────────── */
+    // Principles
 
     private static function renderPrinciples(): void {
         $repo = new PrinciplesRepository();
@@ -370,7 +370,7 @@ class MethodologyView extends FrontendViewBase {
         <?php
     }
 
-    /* ───────────── Formations / Positions ───────────── */
+    // Formations / Positions
 
     private static function renderFormations(): void {
         $repo = new FormationsRepository();
@@ -429,7 +429,7 @@ class MethodologyView extends FrontendViewBase {
         <?php endforeach;
     }
 
-    /* ───────────── Set pieces ───────────── */
+    // Set pieces
 
     private static function renderSetPieces(): void {
         $repo  = new SetPiecesRepository();
@@ -495,7 +495,7 @@ class MethodologyView extends FrontendViewBase {
         <?php
     }
 
-    /* ───────────── Vision ───────────── */
+    // Vision
 
     private static function renderVision(): void {
         $vision = ( new MethodologyVisionRepository() )->activeForClub();
@@ -533,7 +533,7 @@ class MethodologyView extends FrontendViewBase {
         <?php
     }
 
-    /* ───────────── Football actions ───────────── */
+    // Football actions
 
     private static function renderFootballActions(): void {
         $rows = ( new FootballActionsRepository() )->listAll();
@@ -559,7 +559,7 @@ class MethodologyView extends FrontendViewBase {
         <?php endforeach;
     }
 
-    /* ───────────── Asset rendering helpers ───────────── */
+    // Asset rendering helpers
 
     private static function renderAssetHero( int $attachment_id, string $caption = '' ): void {
         if ( $attachment_id <= 0 ) return;

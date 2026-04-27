@@ -29,7 +29,7 @@ use TT\Infrastructure\Archive\ArchiveRepository;
  */
 class BulkActionsHelper {
 
-    /* ═══════════════ Registration ═══════════════ */
+    // Registration
 
     public static function init(): void {
         add_action( 'admin_post_tt_bulk_action', [ __CLASS__, 'handle' ] );
@@ -80,7 +80,7 @@ class BulkActionsHelper {
         <?php
     }
 
-    /* ═══════════════ Rendering ═══════════════ */
+    // Rendering
 
     /**
      * Status tab bar — "Active (N) | Archived (N) | All (N)" links.
@@ -194,7 +194,7 @@ class BulkActionsHelper {
         <?php
     }
 
-    /* ═══════════════ Handler ═══════════════ */
+    // Handler
 
     /**
      * Process a bulk-action POST. Validates nonce, permissions, and

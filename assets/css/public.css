@@ -1,6 +1,6 @@
-/* ═══════════════════════════════════════════════════════════
+/* 
    TalentTrack — Frontend stylesheet (v2.6.1)
-   ═══════════════════════════════════════════════════════════ */
+    */
 .tt-dashboard {
     --tt-ink: #0e1a14;
     --tt-line: #e3e1d8;
@@ -14,7 +14,7 @@
 }
 .tt-dashboard *, .tt-dashboard *::before, .tt-dashboard *::after { box-sizing: border-box; }
 
-/* ─── Login shell ─────────────────────────────────────── */
+/* Login shell */
 .tt-login-shell {
     display: flex; align-items: center; justify-content: center;
     min-height: 60vh; padding: 2rem 0;
@@ -56,7 +56,7 @@
     color: var(--tt-ink);
 }
 
-/* ─── Dashboard header ────────────────────────────────── */
+/* Dashboard header */
 .tt-dash-header {
     display: flex;
     align-items: center;
@@ -73,7 +73,7 @@
 .tt-dash-logo { max-height: 44px; width: auto; }
 .tt-dash-title { font-family: "Playfair Display", Georgia, serif; font-size: 1.4rem; font-weight: 700; margin: 0; color: var(--tt-primary, #0b3d2e); line-height: 1.2; }
 
-/* ─── Dashboard actions cluster (#0036) ───────────────── */
+/* Dashboard actions cluster (#0036) */
 /* Sits opposite the brand block: optional DEMO pill, help icon, user menu. */
 .tt-dash-actions { display: inline-flex; align-items: center; gap: .55rem; }
 .tt-dash-demo-pill {
@@ -99,7 +99,7 @@
     outline: none;
 }
 
-/* ─── User menu (dropdown) ────────────────────────────── */
+/* User menu (dropdown) */
 .tt-user-menu { position: relative; font-family: "Helvetica Neue", Arial, sans-serif; }
 .tt-user-menu-trigger {
     display: inline-flex; align-items: center; gap: .5rem;
@@ -138,7 +138,7 @@
     background: rgba(179, 45, 46, 0.08); color: #8a1f1f;
 }
 
-/* ─── Custom fields (v2.6.1) ──────────────────────────── */
+/* Custom fields (v2.6.1) */
 .tt-custom-fields {
     margin-top: 1.5rem;
     padding: 1rem 1.25rem;
@@ -182,7 +182,7 @@
     .tt-custom-fields-list dd { margin-bottom: .5rem; }
 }
 
-/* ─── Rest of stylesheet (unchanged from v2.5.1) ─── */
+/* Rest of stylesheet (unchanged from v2.5.1) */
 .tt-notice { padding: 2.5rem 1.5rem; text-align: center; background: #fff7e0; border-left: 4px solid var(--tt-secondary, #e8b624); font-style: italic; }
 
 .tt-tabs { display: flex; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 1px solid var(--tt-line); }

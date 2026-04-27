@@ -22,7 +22,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@500;600;700&display=swap');
 
-/* ═══════════════ Root: size + shared tokens ═══════════════ */
+/* Root: size + shared tokens */
 
 .tt-pc {
     --tt-pc-w: 280px;           /* md default */
@@ -71,7 +71,7 @@
     --tt-pc-radius: 22px;
 }
 
-/* ═══════════════ Tier colorways ═══════════════ */
+/* Tier colorways */
 
 /* Gold — warm, high chroma, champagne highlights */
 .tt-pc--gold {
@@ -161,7 +161,7 @@
 }
  */
 
-/* ═══════════════ Card body: gradient + geometry ═══════════════ */
+/* Card body: gradient + geometry */
 
 /*
  * The base surface is a layered gradient:
@@ -281,7 +281,7 @@
     55%, 100% { left: 140%; }
 }
 
-/* ═══════════════ Content layer ═══════════════ */
+/* Content layer */
 
 .tt-pc__content {
     position: relative;
@@ -491,7 +491,7 @@
     }
 }
 
-/* ═══════════════ Podium arrangement ═══════════════ */
+/* Podium arrangement */
 
 .tt-pc-podium {
     display: flex;
@@ -545,7 +545,7 @@
     box-sizing: border-box;
 }
 
-/* ═══════════════ Responsive ═══════════════ */
+/* Responsive */
 
 /* Tablet: scale down lg to md, keep other sizes */
 @media (max-width: 820px) {
@@ -638,7 +638,7 @@
     .tt-pc-podium__slot--3 { order: 3; }
 }
 
-/* ═══════════════ Print-friendliness ═══════════════ */
+/* Print-friendliness */
 
 @media print {
     .tt-pc {
@@ -648,7 +648,7 @@
     .tt-pc__shine { display: none; }
 }
 
-/* ═══════════════ Reduced motion ═══════════════ */
+/* Reduced motion */
 
 @media (prefers-reduced-motion: reduce) {
     .tt-pc,

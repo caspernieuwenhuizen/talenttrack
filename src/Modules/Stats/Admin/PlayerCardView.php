@@ -46,7 +46,7 @@ class PlayerCardView {
         );
     }
 
-    /* ═══════════════ Single card ═══════════════ */
+    // Single card
 
     /**
      * Render one player's card.
@@ -172,7 +172,7 @@ class PlayerCardView {
         <?php
     }
 
-    /* ═══════════════ Podium ═══════════════ */
+    // Podium
 
     /**
      * Render a top-3 podium for a team. Slot 1 in the middle (larger),
@@ -216,7 +216,7 @@ class PlayerCardView {
         <?php
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     /**
      * Tier from rolling average. Returns the token used as the CSS class

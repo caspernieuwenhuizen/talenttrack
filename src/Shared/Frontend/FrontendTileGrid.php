@@ -241,7 +241,7 @@ class FrontendTileGrid {
         }
     }
 
-    /* ═══════════════ Tile definitions ═══════════════ */
+    // Tile definitions
 
     /**
      * Build the tile groups for the current user. Groups are ordered

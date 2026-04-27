@@ -41,7 +41,7 @@ use TT\Infrastructure\Authorization\FunctionalRolesRepository;
  */
 class AuthorizationService {
 
-    /* ═══════════════ Per-request caches ═══════════════ */
+    // Per-request caches
 
     /** @var array<int, int|null> */
     private static $cache_person = [];
@@ -88,7 +88,7 @@ class AuthorizationService {
         add_action( 'wp_logout',                  [ __CLASS__, 'flushCache' ], 10, 0 );
     }
 
-    /* ═══════════════ Public API — entity-scoped decisions ═══════════════ */
+    // Public API — entity-scoped decisions
 
     public static function canViewPlayer( int $user_id, int $player_id ): bool {
         return self::decide( 'view_player', $user_id, 'player', $player_id, function () use ( $user_id, $player_id ) {
@@ -148,7 +148,7 @@ class AuthorizationService {
         } );
     }
 
-    /* ═══════════════ Public API — the core primitive ═══════════════ */
+    // Public API — the core primitive
 
     /**
      * Does this user have the given permission?
@@ -213,7 +213,7 @@ class AuthorizationService {
         return false;
     }
 
-    /* ═══════════════ Public API — helpers used by UI / debug page ═══════════════ */
+    // Public API — helpers used by UI / debug page
 
     public static function getPersonIdByUserId( int $user_id ): ?int {
         if ( $user_id <= 0 ) return null;
@@ -289,7 +289,7 @@ class AuthorizationService {
         return self::resolveScopesForUser( $user_id );
     }
 
-    /* ═══════════════ Internals ═══════════════ */
+    // Internals
 
     /**
      * Build the full set of scope entries for a user, combining:
@@ -315,7 +315,7 @@ class AuthorizationService {
         $scopes = [];
         $person_id = self::getPersonIdByUserId( $user_id );
 
-        /* ─── Source 1: tt_user_role_scopes (data-driven) ─── */
+        // Source 1: tt_user_role_scopes (data-driven)
         if ( $person_id ) {
             $repo = new AuthorizationRepository();
             foreach ( $repo->getActiveScopesForPerson( $person_id ) as $row ) {
@@ -332,7 +332,7 @@ class AuthorizationService {
             }
         }
 
-        /* ─── Source 2: functional role → auth role mapping ─── */
+        // Source 2: functional role → auth role mapping
         // For each team the person is assigned to, look up their functional
         // role and follow the mapping table to the set of auth roles. One
         // functional role can map to multiple auth roles (e.g. head_coach
@@ -387,7 +387,7 @@ class AuthorizationService {
             }
         }
 
-        /* ─── Source 3: derived `player` role ─── */
+        // Source 3: derived `player` role
         // If this WP user is linked to a tt_players row, grant the player
         // role scoped to that player. Not stored in tt_user_role_scopes —
         // derived at runtime.

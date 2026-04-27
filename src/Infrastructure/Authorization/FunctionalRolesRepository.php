@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 class FunctionalRolesRepository {
 
-    /* ═══════════════ Functional roles ═══════════════ */
+    // Functional roles
 
     /**
      * @return array<int, object>  Ordered by sort_order, then label.
@@ -55,7 +55,7 @@ class FunctionalRolesRepository {
         return $row ?: null;
     }
 
-    /* ═══════════════ Auth role mapping ═══════════════ */
+    // Auth role mapping
 
     /**
      * Return the set of auth_role_ids a given functional role maps to.
@@ -155,7 +155,7 @@ class FunctionalRolesRepository {
         return count( $desired );
     }
 
-    /* ═══════════════ Assignments (reverse lookups) ═══════════════ */
+    // Assignments (reverse lookups)
 
     /**
      * Return every tt_team_people assignment whose functional role maps

@@ -187,7 +187,7 @@ class CustomFieldsRestController {
         return RestResponse::success( [ 'id' => $id, 'swapped_with' => (int) $neighbor->id ] );
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     private static function clamp_per_page( $value ): int {
         $n = absint( $value );

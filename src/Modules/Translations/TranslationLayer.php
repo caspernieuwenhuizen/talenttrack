@@ -54,7 +54,7 @@ final class TranslationLayer {
     public const PREF_SIDE_BY_SIDE = 'side-by-side';
     public const USER_META_PREF    = 'tt_translation_pref';
 
-    /* ───────────────── Configuration accessors ───────────────── */
+    // Configuration accessors
 
     public static function isEnabled(): bool {
         return QueryHelpers::get_config( self::CFG_ENABLED, '' ) === '1';
@@ -102,7 +102,7 @@ final class TranslationLayer {
         ];
     }
 
-    /* ───────────────── User preference ───────────────── */
+    // User preference
 
     public static function userPreference( int $user_id = 0 ): string {
         $user_id = $user_id > 0 ? $user_id : get_current_user_id();
@@ -114,7 +114,7 @@ final class TranslationLayer {
         return self::PREF_TRANSLATED;
     }
 
-    /* ───────────────── Hot path: render ───────────────── */
+    // Hot path: render
 
     /**
      * Translate `$source` for the current viewer. Returns the source
@@ -219,7 +219,7 @@ final class TranslationLayer {
         return self::usageThisMonth( $engine ) >= self::monthlyCharCap();
     }
 
-    /* ───────────────── Internal helpers ───────────────── */
+    // Internal helpers
 
     private static function resolveSourceLang( string $source, string $hash ): string {
         // Look up the detected lang via meta — but the meta is keyed on

@@ -163,7 +163,7 @@ class EvalRatingsRepository {
         $wpdb->delete( $this->table(), [ 'evaluation_id' => $eval_id ] );
     }
 
-    /* ═══════════════ Overall rating (v2.13.0) ═══════════════ */
+    // Overall rating (v2.13.0)
 
     /**
      * Weighted overall rating for a single evaluation.

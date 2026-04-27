@@ -50,7 +50,7 @@ class EvalCategoriesRepository {
         return __( $raw, 'talenttrack' );
     }
 
-    /* ═══════════════ Fetchers ═══════════════ */
+    // Fetchers
 
     /** Main categories only. Ordered for rendering. */
     public function getMainCategories( bool $active_only = true ): array {
@@ -137,7 +137,7 @@ class EvalCategoriesRepository {
         return $main;
     }
 
-    /* ═══════════════ Writes ═══════════════ */
+    // Writes
 
     /**
      * Create a category (main or sub). If category_key is blank it's
@@ -223,7 +223,7 @@ class EvalCategoriesRepository {
         return $out;
     }
 
-    /* ═══════════════ Legacy-shape shim ═══════════════ */
+    // Legacy-shape shim
 
     /**
      * Returns main categories in the same shape as the pre-2.12 lookup

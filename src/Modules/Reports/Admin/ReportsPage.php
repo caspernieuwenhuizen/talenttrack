@@ -38,7 +38,7 @@ class ReportsPage {
         self::renderLauncher();
     }
 
-    /* ═══════════════ Launcher ═══════════════ */
+    // Launcher
 
     private static function renderLauncher(): void {
         $tiles = [
@@ -124,7 +124,7 @@ class ReportsPage {
         <?php
     }
 
-    /* ═══════════════ Report views ═══════════════ */
+    // Report views
 
     private static function renderReportView( string $report ): void {
         echo '<div class="wrap">';
@@ -140,7 +140,7 @@ class ReportsPage {
         echo '</div>';
     }
 
-    /* ═══════════════ Legacy combined form ═══════════════ */
+    // Legacy combined form
 
     private static function renderLegacy(): void {
         global $wpdb; $p = $wpdb->prefix;
@@ -225,7 +225,7 @@ class ReportsPage {
         echo '</div>';
     }
 
-    /* ═══════════════ Team rating averages ═══════════════ */
+    // Team rating averages
 
     private static function renderTeamRatings(): void {
         global $wpdb; $p = $wpdb->prefix;
@@ -290,7 +290,7 @@ class ReportsPage {
         <?php
     }
 
-    /* ═══════════════ Coach activity ═══════════════ */
+    // Coach activity
 
     private static function renderCoachActivity(): void {
         global $wpdb; $p = $wpdb->prefix;

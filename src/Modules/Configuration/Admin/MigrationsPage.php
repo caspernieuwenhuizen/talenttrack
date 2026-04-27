@@ -204,7 +204,7 @@ class MigrationsPage {
         }
     }
 
-    /* ═══ Handlers ═══ */
+    // Handlers
 
     public static function handle_run_one(): void {
         if ( ! current_user_can( 'tt_edit_settings' ) && ! current_user_can( 'administrator' ) ) {

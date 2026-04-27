@@ -29,7 +29,7 @@ class EvalCategoriesPage {
 
     private const CAP = 'tt_view_settings';
 
-    /* ═══════════════ Router ═══════════════ */
+    // Router
 
     public static function render(): void {
         if ( ! current_user_can( self::CAP ) ) {
@@ -51,7 +51,7 @@ class EvalCategoriesPage {
         self::renderTree();
     }
 
-    /* ═══════════════ Views ═══════════════ */
+    // Views
 
     private static function renderTree(): void {
         $repo = new EvalCategoriesRepository();
@@ -336,7 +336,7 @@ class EvalCategoriesPage {
         <?php
     }
 
-    /* ═══════════════ Handlers ═══════════════ */
+    // Handlers
 
     public static function handleSave(): void {
         if ( ! current_user_can( self::CAP ) ) {
@@ -416,7 +416,7 @@ class EvalCategoriesPage {
         exit;
     }
 
-    /* ═══════════════ Helpers ═══════════════ */
+    // Helpers
 
     private static function redirectWithError( string $code, int $id, int $parent_id ): void {
         $args = [

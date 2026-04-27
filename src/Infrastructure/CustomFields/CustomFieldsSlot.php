@@ -109,7 +109,7 @@ class CustomFieldsSlot {
         <?php
     }
 
-    /* ═══════════════ Internals ═══════════════ */
+    // Internals
 
     private static function loadFields( string $entity_type ): array {
         if ( ! isset( self::$fields_cache[ $entity_type ] ) ) {

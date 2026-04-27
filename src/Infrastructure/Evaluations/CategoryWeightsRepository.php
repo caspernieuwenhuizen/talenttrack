@@ -23,7 +23,7 @@ class CategoryWeightsRepository {
         return $wpdb->prefix . 'tt_category_weights';
     }
 
-    /* ═══════════════ Reads ═══════════════ */
+    // Reads
 
     /**
      * Weights for a specific age group, keyed by main_category_id.
@@ -72,7 +72,7 @@ class CategoryWeightsRepository {
         return $out;
     }
 
-    /* ═══════════════ Writes ═══════════════ */
+    // Writes
 
     /**
      * Replace the weights for an age group in a single transaction-like
@@ -109,7 +109,7 @@ class CategoryWeightsRepository {
         return $wpdb->delete( $this->table(), [ 'age_group_id' => $age_group_id ], [ '%d' ] ) !== false;
     }
 
-    /* ═══════════════ Fallback ═══════════════ */
+    // Fallback
 
     /**
      * Equal weights across the given main category IDs, summing to 100
