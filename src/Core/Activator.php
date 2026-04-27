@@ -630,6 +630,56 @@ class Activator {
             KEY idx_provider (provider)
         ) $c;";
 
+        // #0018 sprint 1 — team development + chemistry foundation.
+        $queries[] = "CREATE TABLE {$p}tt_team_formations (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            team_id BIGINT UNSIGNED NOT NULL,
+            formation_template_id BIGINT UNSIGNED NOT NULL,
+            assigned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            assigned_by BIGINT UNSIGNED DEFAULT NULL,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_team (team_id),
+            KEY idx_template (formation_template_id)
+        ) $c;";
+
+        $queries[] = "CREATE TABLE {$p}tt_team_playing_styles (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            team_id BIGINT UNSIGNED NOT NULL,
+            possession_weight TINYINT UNSIGNED NOT NULL DEFAULT 33,
+            counter_weight TINYINT UNSIGNED NOT NULL DEFAULT 33,
+            press_weight TINYINT UNSIGNED NOT NULL DEFAULT 34,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            updated_by BIGINT UNSIGNED DEFAULT NULL,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_team (team_id)
+        ) $c;";
+
+        $queries[] = "CREATE TABLE {$p}tt_formation_templates (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            name VARCHAR(120) NOT NULL,
+            formation_shape VARCHAR(16) NOT NULL,
+            slots_json LONGTEXT NOT NULL,
+            is_seeded TINYINT(1) NOT NULL DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            archived_at DATETIME DEFAULT NULL,
+            PRIMARY KEY (id),
+            KEY idx_shape (formation_shape),
+            KEY idx_archived (archived_at)
+        ) $c;";
+
+        $queries[] = "CREATE TABLE {$p}tt_player_team_history (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            player_id BIGINT UNSIGNED NOT NULL,
+            team_id BIGINT UNSIGNED NOT NULL,
+            joined_at DATE NOT NULL,
+            left_at DATE DEFAULT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_player (player_id),
+            KEY idx_team (team_id),
+            KEY idx_active (left_at)
+        ) $c;";
+
         foreach ( $queries as $sql ) {
             dbDelta( $sql );
         }
@@ -819,6 +869,92 @@ class Activator {
                 'start_date' => $year_start . '-08-01',
                 'end_date'   => ( $year_start + 1 ) . '-06-30',
                 'is_current' => 1,
+            ] );
+        }
+
+        // #0018 sprint 1 — seed the four shipped 4-3-3 templates on
+        // fresh installs. The migration handles upgrades; this mirror
+        // lets activate-without-migrations sites land usable defaults.
+        $tpl_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_formation_templates" );
+        if ( $tpl_count === 0 ) {
+            self::seedFormationTemplatesInline();
+        }
+    }
+
+    /**
+     * #0018 — fresh-install fallback that mirrors migration 0032's
+     * seeded 4-3-3 templates. Source of truth lives in the migration;
+     * if you change the templates, change them in both places (both
+     * sites guard on `is_seeded` / count == 0 so admin edits survive).
+     */
+    private static function seedFormationTemplatesInline(): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $table = $p . 'tt_formation_templates';
+
+        $base_slots = [
+            [ 'GK',  0.50, 0.95, 'center' ],
+            [ 'LB',  0.15, 0.75, 'left'   ],
+            [ 'LCB', 0.35, 0.80, 'left'   ],
+            [ 'RCB', 0.65, 0.80, 'right'  ],
+            [ 'RB',  0.85, 0.75, 'right'  ],
+            [ 'CDM', 0.50, 0.60, 'center' ],
+            [ 'LCM', 0.30, 0.50, 'left'   ],
+            [ 'RCM', 0.70, 0.50, 'right'  ],
+            [ 'LW',  0.20, 0.25, 'left'   ],
+            [ 'ST',  0.50, 0.15, 'center' ],
+            [ 'RW',  0.80, 0.25, 'right'  ],
+        ];
+
+        // weights: [GK, LB, LCB, RCB, RB, CDM, LCM, RCM, LW, ST, RW]
+        $profiles = [
+            'Neutral 4-3-3' => [
+                [ 0.20, 0.40, 0.20, 0.20 ], [ 0.25, 0.30, 0.30, 0.15 ], [ 0.20, 0.40, 0.30, 0.10 ],
+                [ 0.20, 0.40, 0.30, 0.10 ], [ 0.25, 0.30, 0.30, 0.15 ], [ 0.30, 0.40, 0.20, 0.10 ],
+                [ 0.30, 0.35, 0.25, 0.10 ], [ 0.30, 0.35, 0.25, 0.10 ], [ 0.40, 0.20, 0.30, 0.10 ],
+                [ 0.40, 0.25, 0.25, 0.10 ], [ 0.40, 0.20, 0.30, 0.10 ],
+            ],
+            'Possession 4-3-3' => [
+                [ 0.30, 0.40, 0.15, 0.15 ], [ 0.35, 0.35, 0.20, 0.10 ], [ 0.35, 0.40, 0.15, 0.10 ],
+                [ 0.35, 0.40, 0.15, 0.10 ], [ 0.35, 0.35, 0.20, 0.10 ], [ 0.40, 0.40, 0.10, 0.10 ],
+                [ 0.40, 0.35, 0.15, 0.10 ], [ 0.40, 0.35, 0.15, 0.10 ], [ 0.50, 0.20, 0.20, 0.10 ],
+                [ 0.45, 0.25, 0.20, 0.10 ], [ 0.50, 0.20, 0.20, 0.10 ],
+            ],
+            'Counter 4-3-3' => [
+                [ 0.15, 0.35, 0.30, 0.20 ], [ 0.20, 0.25, 0.45, 0.10 ], [ 0.15, 0.30, 0.45, 0.10 ],
+                [ 0.15, 0.30, 0.45, 0.10 ], [ 0.20, 0.25, 0.45, 0.10 ], [ 0.20, 0.30, 0.40, 0.10 ],
+                [ 0.25, 0.25, 0.40, 0.10 ], [ 0.25, 0.25, 0.40, 0.10 ], [ 0.25, 0.15, 0.50, 0.10 ],
+                [ 0.30, 0.20, 0.40, 0.10 ], [ 0.25, 0.15, 0.50, 0.10 ],
+            ],
+            'Press-heavy 4-3-3' => [
+                [ 0.20, 0.35, 0.25, 0.20 ], [ 0.20, 0.25, 0.40, 0.15 ], [ 0.15, 0.30, 0.40, 0.15 ],
+                [ 0.15, 0.30, 0.40, 0.15 ], [ 0.20, 0.25, 0.40, 0.15 ], [ 0.20, 0.30, 0.35, 0.15 ],
+                [ 0.20, 0.30, 0.35, 0.15 ], [ 0.20, 0.30, 0.35, 0.15 ], [ 0.25, 0.15, 0.45, 0.15 ],
+                [ 0.30, 0.20, 0.35, 0.15 ], [ 0.25, 0.15, 0.45, 0.15 ],
+            ],
+        ];
+
+        foreach ( $profiles as $name => $weight_grid ) {
+            $slots = [];
+            foreach ( $base_slots as $i => $bs ) {
+                $w = $weight_grid[ $i ];
+                $slots[] = [
+                    'label' => $bs[0],
+                    'pos'   => [ 'x' => $bs[1], 'y' => $bs[2] ],
+                    'side'  => $bs[3],
+                    'weights' => [
+                        'technical' => $w[0],
+                        'tactical'  => $w[1],
+                        'physical'  => $w[2],
+                        'mental'    => $w[3],
+                    ],
+                ];
+            }
+            $wpdb->insert( $table, [
+                'name'            => $name,
+                'formation_shape' => '4-3-3',
+                'slots_json'      => wp_json_encode( $slots ),
+                'is_seeded'       => 1,
             ] );
         }
     }
