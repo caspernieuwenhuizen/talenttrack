@@ -32,4 +32,5 @@ return [
     TT\Modules\Development\DevelopmentModule::class       => true,
     TT\Modules\Translations\TranslationsModule::class     => true,
     TT\Modules\Invitations\InvitationsModule::class       => true,
+    TT\Modules\Pdp\PdpModule::class                       => true,
 ];

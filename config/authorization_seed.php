@@ -56,6 +56,7 @@ $mod_license       = TT\Modules\License\LicenseModule::class;
 $mod_backup        = TT\Modules\Backup\BackupModule::class;
 $mod_onboarding    = TT\Modules\Onboarding\OnboardingModule::class;
 $mod_demo          = TT\Modules\DemoData\DemoDataModule::class;
+$mod_pdp           = TT\Modules\Pdp\PdpModule::class;
 
 /**
  * Helper: build a rows[] array from a compact spec.
@@ -97,6 +98,8 @@ return array_merge(
         'my_profile'     => [ 'rc', 'self', $mod_players ],
         'methodology'    => [ 'r',  'global', $mod_methodology ],
         'documentation'  => [ 'r',  'global', $mod_documentation ],
+        'pdp_file'       => [ 'r',  'self', $mod_pdp ],
+        'pdp_verdict'    => [ 'r',  'self', $mod_pdp ],
     ] ),
 
     // ─── PARENT ─────────────────────────────────────────────────────
@@ -119,6 +122,8 @@ return array_merge(
         'documentation'  => [ 'r',  'global', $mod_documentation ],
         // Re-invite the other guardian for their child.
         'invitations'    => [ 'c',  'player', $mod_invitations ],
+        'pdp_file'       => [ 'r',  'player', $mod_pdp ],
+        'pdp_verdict'    => [ 'r',  'player', $mod_pdp ],
     ] ),
 
     // ─── ASSISTANT COACH ────────────────────────────────────────────
@@ -139,6 +144,8 @@ return array_merge(
         'rate_cards'        => [ 'r',   'team', $mod_stats ],
         'compare'           => [ 'r',   'team', $mod_stats ],
         'documentation'     => [ 'r',   'global', $mod_documentation ],
+        'pdp_file'          => [ 'rc',  'team', $mod_pdp ],
+        'pdp_verdict'       => [ 'r',   'team', $mod_pdp ],
     ] ),
 
     // ─── HEAD COACH ─────────────────────────────────────────────────
@@ -158,6 +165,8 @@ return array_merge(
         'compare'           => [ 'r',   'team', $mod_stats ],
         'invitations'       => [ 'c',   'team', $mod_invitations ],
         'documentation'     => [ 'r',   'global', $mod_documentation ],
+        'pdp_file'          => [ 'rcd', 'team', $mod_pdp ],
+        'pdp_verdict'       => [ 'rc',  'team', $mod_pdp ],
     ] ),
 
     // ─── HEAD OF DEVELOPMENT ────────────────────────────────────────
@@ -180,6 +189,8 @@ return array_merge(
         'functional_role_assignments'=> [ 'rc',  'global', $mod_authorization ],
         'invitations'                => [ 'c',   'global', $mod_invitations ],
         'documentation'              => [ 'rc',  'global', $mod_documentation ],
+        'pdp_file'                   => [ 'rcd', 'global', $mod_pdp ],
+        'pdp_verdict'                => [ 'rcd', 'global', $mod_pdp ],
     ] ),
 
     // ─── SCOUT (refined) ────────────────────────────────────────────
@@ -197,6 +208,8 @@ return array_merge(
         'methodology'   => [ 'r',  'global', $mod_methodology ],
         'trial_cases'   => [ 'rc', 'player', $mod_authorization ],
         'documentation' => [ 'r',  'global', $mod_documentation ],
+        'pdp_file'      => [ 'r',  'global', $mod_pdp ],
+        'pdp_verdict'   => [ 'r',  'global', $mod_pdp ],
     ] ),
 
     // ─── TEAM MANAGER ───────────────────────────────────────────────
@@ -212,6 +225,8 @@ return array_merge(
         'evaluations'   => [ 'r',   'team', $mod_evals ],
         'invitations'   => [ 'c',   'team', $mod_invitations ],
         'documentation' => [ 'r',   'global', $mod_documentation ],
+        'pdp_file'      => [ 'r',   'team', $mod_pdp ],
+        'pdp_verdict'   => [ 'r',   'team', $mod_pdp ],
     ] ),
 
     // ─── ACADEMY ADMIN ──────────────────────────────────────────────
@@ -249,5 +264,7 @@ return array_merge(
         'migrations'                  => [ 'rc',  'global', $mod_configuration ],
         'audit_log'                   => [ 'r',   'global', $mod_configuration ],
         'documentation'               => [ 'rcd', 'global', $mod_documentation ],
+        'pdp_file'                    => [ 'rcd', 'global', $mod_pdp ],
+        'pdp_verdict'                 => [ 'rcd', 'global', $mod_pdp ],
     ] )
 );

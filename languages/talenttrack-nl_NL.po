@@ -7113,3 +7113,88 @@ msgstr "Sluiten"
 
 msgid "— Unknown —"
 msgstr "— Onbekend —"
+
+# #0044 — PDP cycle (Sprint 1)
+msgid "Invalid season id."
+msgstr "Ongeldig seizoens-id."
+
+msgid "Name, start date, and end date are required."
+msgstr "Naam, startdatum en einddatum zijn verplicht."
+
+msgid "End date must be after start date."
+msgstr "De einddatum moet na de startdatum liggen."
+
+msgid "The season could not be created."
+msgstr "Het seizoen kon niet worden aangemaakt."
+
+msgid "Season not found."
+msgstr "Seizoen niet gevonden."
+
+msgid "Invalid PDP file id."
+msgstr "Ongeldig PDP-dossier-id."
+
+msgid "Player is required."
+msgstr "Speler is verplicht."
+
+msgid "No current season is set. Configure a season before creating PDP files."
+msgstr "Er is geen huidig seizoen ingesteld. Stel eerst een seizoen in voordat je PDP-dossiers aanmaakt."
+
+msgid "You can only create PDP files for players on your own teams."
+msgstr "Je kunt alleen PDP-dossiers aanmaken voor spelers in je eigen teams."
+
+msgid "A PDP file already exists for this player and season, or the database refused the write."
+msgstr "Er bestaat al een PDP-dossier voor deze speler en dit seizoen, of de database wees de actie af."
+
+msgid "PDP file not found."
+msgstr "PDP-dossier niet gevonden."
+
+msgid "You do not have access to this PDP file."
+msgstr "Je hebt geen toegang tot dit PDP-dossier."
+
+msgid "You do not have permission to edit this PDP file."
+msgstr "Je hebt geen toestemming om dit PDP-dossier te bewerken."
+
+msgid "Owner update failed."
+msgstr "Bijwerken van eigenaar is mislukt."
+
+msgid "Invalid status. Use open, completed, or archived."
+msgstr "Ongeldige status. Gebruik open, afgerond of gearchiveerd."
+
+msgid "Invalid conversation id."
+msgstr "Ongeldig gespreks-id."
+
+msgid "Conversation not found."
+msgstr "Gesprek niet gevonden."
+
+msgid "Parent PDP file not found."
+msgstr "Bovenliggend PDP-dossier niet gevonden."
+
+msgid "You do not have permission to update this conversation."
+msgstr "Je hebt geen toestemming om dit gesprek bij te werken."
+
+msgid "The conversation could not be updated."
+msgstr "Het gesprek kon niet worden bijgewerkt."
+
+msgid "You do not have access to this PDP verdict."
+msgstr "Je hebt geen toegang tot dit PDP-eindoordeel."
+
+msgid "Decision must be one of promote, retain, release, transfer."
+msgstr "Beslissing moet promote, retain, release of transfer zijn."
+
+msgid "The verdict could not be saved."
+msgstr "Het eindoordeel kon niet worden opgeslagen."
+
+msgid "PDP conversation due"
+msgstr "PDP-gesprek staat klaar"
+
+msgid "Reminder for the owning coach that a PDP conversation is coming up."
+msgstr "Herinnering voor de verantwoordelijke coach dat er een PDP-gesprek aankomt."
+
+msgid "PDP verdict due"
+msgstr "PDP-eindoordeel staat klaar"
+
+msgid "End-of-season decision for each player's PDP file. Assigned to the head of academy."
+msgstr "Eindeseizoensbeslissing per PDP-dossier. Toegewezen aan het hoofd academie."
+
+msgid "The PDP workflow surface ships in the next release. For now, open the player's PDP file directly."
+msgstr "Het PDP-werkflowscherm volgt in de volgende release. Open voor nu het PDP-dossier van de speler direct."

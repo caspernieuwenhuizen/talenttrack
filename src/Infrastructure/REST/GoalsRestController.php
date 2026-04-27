@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Pdp\Repositories\GoalLinksRepository;
 
 /**
  * GoalsRestController — /wp-json/talenttrack/v1/goals
@@ -264,7 +265,41 @@ class GoalsRestController {
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'title',       (string) $data['title'] );
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'description', (string) $data['description'] );
 
+        // #0044 — polymorphic links to methodology principles, football
+        // actions, positions, player values. Optional; absent on legacy
+        // goal save flows.
+        if ( isset( $r['links'] ) && is_array( $r['links'] ) ) {
+            ( new GoalLinksRepository() )->sync( $goal_id, self::extractLinks( $r['links'] ) );
+        }
+
         return RestResponse::success( [ 'id' => $goal_id ] );
+    }
+
+    /**
+     * Normalise a free-form links array into the shape GoalLinksRepository
+     * expects. Accepts either:
+     *   - [ ['type' => 'principle', 'id' => 12], ... ]
+     *   - [ 'principle' => [12, 13], 'value' => [4] ]    (grouped form)
+     *
+     * @param array<mixed> $raw
+     * @return list<array{type:string, id:int}>
+     */
+    private static function extractLinks( array $raw ): array {
+        $out = [];
+        foreach ( $raw as $key => $value ) {
+            // Grouped form: { principle: [1,2], value: [3] }
+            if ( is_string( $key ) && is_array( $value ) ) {
+                foreach ( $value as $id ) {
+                    $out[] = [ 'type' => $key, 'id' => (int) $id ];
+                }
+                continue;
+            }
+            // List form: [ {type, id}, ... ]
+            if ( is_array( $value ) && isset( $value['type'], $value['id'] ) ) {
+                $out[] = [ 'type' => (string) $value['type'], 'id' => (int) $value['id'] ];
+            }
+        }
+        return $out;
     }
 
     public static function update_goal( \WP_REST_Request $r ) {
@@ -308,6 +343,13 @@ class GoalsRestController {
         if ( isset( $data['description'] ) ) {
             \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'description', (string) $data['description'] );
         }
+
+        // #0044 — replace the link set when the client sends one. Absent
+        // `links` means "leave existing links alone."
+        if ( isset( $r['links'] ) && is_array( $r['links'] ) ) {
+            ( new GoalLinksRepository() )->sync( $goal_id, self::extractLinks( $r['links'] ) );
+        }
+
         return RestResponse::success( [ 'id' => $goal_id ] );
     }
 
