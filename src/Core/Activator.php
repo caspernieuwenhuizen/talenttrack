@@ -539,8 +539,113 @@ class Activator {
             KEY idx_field (field_id)
         ) $c;";
 
+        // PDP cycle (#0044). Mirrors migration 0031.
+        $queries[] = "CREATE TABLE {$p}tt_seasons (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            name VARCHAR(120) NOT NULL,
+            start_date DATE NOT NULL,
+            end_date DATE NOT NULL,
+            is_current TINYINT(1) NOT NULL DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_current (is_current),
+            KEY idx_dates (start_date, end_date)
+        ) $c;";
+
+        $queries[] = "CREATE TABLE {$p}tt_pdp_files (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            player_id BIGINT UNSIGNED NOT NULL,
+            season_id BIGINT UNSIGNED NOT NULL,
+            owner_coach_id BIGINT UNSIGNED DEFAULT NULL,
+            cycle_size TINYINT UNSIGNED DEFAULT NULL,
+            status VARCHAR(20) NOT NULL DEFAULT 'open',
+            notes LONGTEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_player_season (player_id, season_id),
+            KEY idx_owner (owner_coach_id),
+            KEY idx_status (status)
+        ) $c;";
+
+        $queries[] = "CREATE TABLE {$p}tt_pdp_conversations (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            pdp_file_id BIGINT UNSIGNED NOT NULL,
+            sequence TINYINT UNSIGNED NOT NULL,
+            template_key VARCHAR(20) NOT NULL,
+            scheduled_at DATETIME DEFAULT NULL,
+            conducted_at DATETIME DEFAULT NULL,
+            agenda LONGTEXT,
+            notes LONGTEXT,
+            agreed_actions LONGTEXT,
+            player_reflection LONGTEXT,
+            coach_signoff_at DATETIME DEFAULT NULL,
+            parent_ack_at DATETIME DEFAULT NULL,
+            player_ack_at DATETIME DEFAULT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_file_sequence (pdp_file_id, sequence),
+            KEY idx_file (pdp_file_id),
+            KEY idx_scheduled (scheduled_at)
+        ) $c;";
+
+        $queries[] = "CREATE TABLE {$p}tt_pdp_verdicts (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            pdp_file_id BIGINT UNSIGNED NOT NULL,
+            decision VARCHAR(20) NOT NULL,
+            summary LONGTEXT,
+            coach_id BIGINT UNSIGNED DEFAULT NULL,
+            head_of_academy_id BIGINT UNSIGNED DEFAULT NULL,
+            signed_off_at DATETIME DEFAULT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_file (pdp_file_id),
+            KEY idx_decision (decision)
+        ) $c;";
+
+        $queries[] = "CREATE TABLE {$p}tt_goal_links (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            goal_id BIGINT UNSIGNED NOT NULL,
+            link_type VARCHAR(32) NOT NULL,
+            link_id BIGINT UNSIGNED NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_goal_target (goal_id, link_type, link_id),
+            KEY idx_goal (goal_id),
+            KEY idx_target (link_type, link_id)
+        ) $c;";
+
+        $queries[] = "CREATE TABLE {$p}tt_pdp_calendar_links (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            conversation_id BIGINT UNSIGNED NOT NULL,
+            provider VARCHAR(20) NOT NULL DEFAULT 'native',
+            provider_event_id VARCHAR(191) DEFAULT NULL,
+            provider_payload LONGTEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY uniq_conv_provider (conversation_id, provider),
+            KEY idx_conversation (conversation_id),
+            KEY idx_provider (provider)
+        ) $c;";
+
         foreach ( $queries as $sql ) {
             dbDelta( $sql );
+        }
+
+        // Per-team override column on tt_teams (#0044). dbDelta doesn't
+        // touch existing tables predictably, so handle this one with a
+        // direct guarded ALTER.
+        $teams_table = $p . 'tt_teams';
+        if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $teams_table ) ) === $teams_table ) {
+            $has_col = $wpdb->get_row( $wpdb->prepare(
+                "SHOW COLUMNS FROM `$teams_table` LIKE %s",
+                'pdp_cycle_size'
+            ) );
+            if ( $has_col === null ) {
+                $wpdb->query( "ALTER TABLE `$teams_table` ADD COLUMN `pdp_cycle_size` TINYINT UNSIGNED DEFAULT NULL" );
+            }
         }
     }
 
@@ -664,6 +769,24 @@ class Activator {
         foreach ( [ 'Present','Absent','Late','Injured','Excused' ] as $i => $a ) {
             $wpdb->insert( "{$p}tt_lookups", [ 'lookup_type' => 'attendance_status', 'name' => $a, 'sort_order' => $i + 1 ] );
         }
+        // #0044 — player values lookup. 8 starters; per-club editable.
+        foreach ( [
+            [ 'commitment',    'Commitment',    10 ],
+            [ 'coachability',  'Coachability',  20 ],
+            [ 'leadership',    'Leadership',    30 ],
+            [ 'resilience',    'Resilience',    40 ],
+            [ 'communication', 'Communication', 50 ],
+            [ 'work_ethic',    'Work ethic',    60 ],
+            [ 'fair_play',     'Fair play',     70 ],
+            [ 'ambition',      'Ambition',      80 ],
+        ] as $v ) {
+            $wpdb->insert( "{$p}tt_lookups", [
+                'lookup_type' => 'player_value',
+                'name'        => $v[1],
+                'meta'        => wp_json_encode( [ 'key' => $v[0] ] ),
+                'sort_order'  => $v[2],
+            ] );
+        }
 
         $defaults = [
             'rating_min' => '1', 'rating_max' => '5', 'rating_step' => '0.5',
@@ -677,9 +800,26 @@ class Activator {
             'tile_scale' => '100',
             'login_redirect_enabled' => '1',
             'dashboard_page_id' => '0',
+            'pdp_cycle_default'           => '3',
+            'pdp_print_include_evidence'  => '0',
         ];
         foreach ( $defaults as $k => $v ) {
             $wpdb->replace( "{$p}tt_config", [ 'config_key' => $k, 'config_value' => $v ] );
+        }
+
+        // #0044 — seed one current season on fresh installs so the
+        // PDP module always has somewhere to anchor. Mirrors the
+        // back-fill in migration 0031 but runs only when the seasons
+        // table starts empty.
+        $season_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$p}tt_seasons" );
+        if ( $season_count === 0 ) {
+            $year_start = (int) gmdate( 'n' ) >= 7 ? (int) gmdate( 'Y' ) : ( (int) gmdate( 'Y' ) - 1 );
+            $wpdb->insert( "{$p}tt_seasons", [
+                'name'       => $year_start . '/' . ( $year_start + 1 ),
+                'start_date' => $year_start . '-08-01',
+                'end_date'   => ( $year_start + 1 ) . '-06-30',
+                'is_current' => 1,
+            ] );
         }
     }
 

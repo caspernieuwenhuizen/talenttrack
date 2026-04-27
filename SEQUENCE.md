@@ -4,13 +4,14 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 
 ## In progress
 
-_None._
+| # | Topic | Type | Spec | Status |
+| - | - | - | - | - |
+| 0044 | PDP cycle | epic | [specs/0044-epic-pdp-cycle.md](specs/0044-epic-pdp-cycle.md) | Sprint 1 shipped v3.30.0 (schema + repos + REST + calendar interface + auth-matrix + workflow scaffold). Sprint 2 next: UX surfaces, live workflow cadence, carryover one-shot, print template, dashboard tile. |
 
 ## Ready (shaped, decisions locked)
 
 | # | Topic | Type | Spec | Estimated |
 | - | - | - | - | - |
-| 0044 | PDP cycle (per-(player, season) development file: configurable 2/3/4 conversations, end-of-season verdict, polymorphic goal links to methodology + values, workflow-engine cadence, native + Spond calendar hooks, frontend tile + print) | epic | [specs/0044-epic-pdp-cycle.md](specs/0044-epic-pdp-cycle.md) | ~30-42h across 2 sprints |
 | 0028 | Goals as conversational thread | feat | (spec TBD; #0022 Phase 1 unblocked) | ~20-30h |
 
 ## Needs refinement / shaping
