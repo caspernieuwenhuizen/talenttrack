@@ -151,9 +151,13 @@ class Kernel {
         $enabled = require $config_file;
         $classes = [];
         foreach ( $enabled as $class => $is_on ) {
-            if ( $is_on ) {
-                $classes[] = $class;
-            }
+            if ( ! $is_on ) continue;
+            // #0033 Sprint 5 — runtime module-toggle layer. Modules
+            // disabled via the Modules admin tab don't load. Core
+            // modules (Auth, Configuration, Authorization) are
+            // always-on regardless of the table row.
+            if ( ! ModuleRegistry::isEnabled( (string) $class ) ) continue;
+            $classes[] = $class;
         }
         $this->registry->load( $classes );
     }

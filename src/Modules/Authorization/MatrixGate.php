@@ -70,10 +70,13 @@ class MatrixGate {
                 continue;
             }
 
-            // Sprint 5 hook (intentionally left as a comment to keep the
-            // gate dependency-free until ModuleRegistry::isEnabled() lands):
-            //   $module_class = $repo->moduleFor( $persona, $entity, $activity, $scope_kind );
-            //   if ( $module_class && ! \TT\Core\ModuleRegistry::isEnabled( $module_class ) ) continue;
+            // #0033 Sprint 5 — short-circuit if the entity's owning
+            // module is disabled. One auth check, no parallel "is the
+            // module on?" branch in callers.
+            $module_class = $repo->moduleFor( $persona, $entity, $activity, $scope_kind );
+            if ( $module_class !== null && ! \TT\Core\ModuleRegistry::isEnabled( $module_class ) ) {
+                continue;
+            }
 
             if ( $scope_kind === self::SCOPE_GLOBAL ) {
                 return true;
