@@ -20,6 +20,7 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 | - | - | - | - | - |
 | 0031 | Spond calendar integration | feat | iCal feed scope (per-team vs personal), poll frequency, write-back vs read-only, match-vs-training detection, conflict handling, attendance via API (defer?) | ~12-18h v1 |
 | 0032 | User invitation flow (player / parent / staff via shareable WhatsApp-friendly link) | feat | Trigger surfaces (manual / bulk / auto), token TTL + reuse, channel mix, existing-account handling, parent role question (reuse `tt_player` or new `tt_parent`?), cap interaction with #0011 | ~14-20h v1 |
+| 0035 | Fresh install has no usable surface out of the box | bug | Auto-create dashboard page on activation? Front-page assignment? Re-default `show_legacy_menus` vs honor the in-code comment via `parent=null`? | ~1-2h |
 
 ## Not started (no shaping needed before build)
 
