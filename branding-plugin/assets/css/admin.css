@@ -1,0 +1,27 @@
+/* TalentTrack Branding — wp-admin settings page styles. */
+
+.wrap.ttb-admin h1 {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.wrap.ttb-admin > .description {
+    margin: 0 0 24px;
+    color: #50575e;
+    max-width: 720px;
+}
+.ttb-admin__form h2 {
+    margin: 32px 0 8px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e0e0e0;
+}
+.ttb-admin__form .form-table th {
+    width: 220px;
+    font-weight: 500;
+}
+.ttb-admin__form .description {
+    color: #6b7280;
+}
+.ttb-admin__pages { max-width: 760px; margin-top: 12px; }
+.ttb-admin__pages code { background: #f3f4f6; padding: 2px 6px; border-radius: 3px; }

@@ -26,6 +26,12 @@ jobs:
       - name: PHP syntax check
         run: |
           find src -name "*.php" -print0 | xargs -0 -n1 -P4 php -l
+          # branding-plugin/ ships separately (#0030 marketing site, own repo plan
+          # eventually) but living in this repo for now — lint it too so a broken
+          # PR can't merge.
+          if [ -d branding-plugin ]; then
+            find branding-plugin -name "*.php" -print0 | xargs -0 -n1 -P4 php -l
+          fi
 
   phpstan:
     name: PHPStan Static Analysis (level 8)
@@ -96,6 +102,7 @@ jobs:
           rsync -av \
             --exclude='.git' --exclude='.github' --exclude='.gitignore' \
             --exclude='tests' --exclude='vendor' --exclude='phpstan*' \
+            --exclude='branding-plugin' \
             ./ /tmp/build/talenttrack/
           cd /tmp/build
           zip -r talenttrack.zip talenttrack
