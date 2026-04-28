@@ -17,13 +17,13 @@ _None._
 | 0052 (PR-B) | SaaS-readiness baseline — REST gap closure + auth portability. Three new REST controllers (lookups, audit-log, invitations); port-on-touch policy + 3 high-value `admin_post_*` ports + documented backlog; role-string `in_array` compares eliminated across 5 files; over-broad `is_user_logged_in()` gates converted to capability checks. Blocks on PR-A. | feat | [specs/0052-feat-saas-readiness-rest-and-auth.md](specs/0052-feat-saas-readiness-rest-and-auth.md) | ~10-14h |
 | 0052 (PR-C) | SaaS-readiness baseline — assets + cron + OpenAPI. 3 `uploads/` references audited; ~7-9 of 13 `wp_cron` calls migrated to the workflow engine; hand-written `docs/openapi.yaml` for `talenttrack/v1`; `bin/contract-test.php` validation script; v1→v2 migration policy documented. Blocks on PR-A; parallel with PR-B. | feat | [specs/0052-feat-saas-readiness-assets-cron-openapi.md](specs/0052-feat-saas-readiness-assets-cron-openapi.md) | ~8-12h |
 | 0054 | PDP planning windows + HoD dashboard (3-week window per cycle block; HoD sees per-team-per-block planned vs conducted matrix) | feat | [ideas/0054-feat-pdp-planning-windows-and-dashboard.md](ideas/0054-feat-pdp-planning-windows-and-dashboard.md) | ~3-4h actual |
+| 0031 | Spond calendar integration — read-only iCal sync per team, hourly poll, soft-archive on UID removal | feat | [specs/0031-feat-spond-calendar-integration.md](specs/0031-feat-spond-calendar-integration.md) | ~12-18h v1 |
+| 0042 | Youth-aware contact strategy — `tt_phone` user-meta + PWA PushDispatcher + KB install articles, 5-sprint epic | feat | [specs/0042-feat-youth-contact-strategy.md](specs/0042-feat-youth-contact-strategy.md) | ~24-36h v1 |
 
 ## Needs refinement / shaping
 
 | # | Topic | Type | Open questions | Estimated |
 | - | - | - | - | - |
-| 0031 | Spond calendar integration | feat | iCal feed scope (per-team vs personal), poll frequency, write-back vs read-only, match-vs-training detection, conflict handling, attendance via API (defer?) | ~12-18h v1 |
-| 0042 | Youth-aware contact strategy (phone-as-alt-to-email + PWA push + KB articles for mobile install) | feat | Phone field placement, validation method (deferred to refinement — needs better understanding), PushDispatcher fallback chain, push subscription lifecycle, KB infrastructure (markdown-in-`docs/` v1; heavyweight platform parked as #0043), mobile platform coverage, onboarding nudge, privacy posture, multilingual, audience-marker prerequisite | ~24-36h v1 |
 | 0043 | Knowledge Base platform (searchable article CMS for end-user content — heavyweight successor to #0042's markdown-in-`docs/` surface) | feat | Where it lives (subdomain vs plugin CPT vs marketing-site embed), public vs auth-gated, search engine choice, content authorship (TalentTrack-only vs community), multilingual approach, in-app contextual embed, versioning, taxonomy, migration path, telemetry — parked until trigger fires (article count >30, or customer ask, or marketing/SEO push) | ~40-60h |
 
 ## Not started (no shaping needed before build)
