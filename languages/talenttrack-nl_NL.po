@@ -8591,3 +8591,197 @@ msgstr "Stage-input gevraagd: %1$s (%2$d dagen)"
 
 msgid "Hi %1$s,\n\nThe trial period for %2$s is ending. Your input on the case is still needed.\n\nGo to the case here: %3$s\n\nThanks,\n%4$s"
 msgstr "Hoi %1$s,\n\nDe stageperiode voor %2$s loopt af. Jouw input op het dossier is nog nodig.\n\nGa naar het dossier hier: %3$s\n\nGroet,\n%4$s"
+
+# #0055 — Record creation wizards
+
+msgid "Wizards"
+msgstr "Wizards"
+
+msgid "Wizard"
+msgstr "Wizard"
+
+msgid "New evaluation"
+msgstr "Nieuwe evaluatie"
+
+msgid "Wizard not found"
+msgstr "Wizard niet gevonden"
+
+msgid "Unknown wizard."
+msgstr "Onbekende wizard."
+
+msgid "You do not have permission to use this wizard, or it is currently disabled."
+msgstr "Je hebt geen toegang tot deze wizard, of de wizard staat momenteel uit."
+
+msgid "Wizard misconfigured (no steps)."
+msgstr "Wizard onjuist geconfigureerd (geen stappen)."
+
+msgid "Wizard steps"
+msgstr "Wizard-stappen"
+
+msgid "Skip step"
+msgstr "Stap overslaan"
+
+msgid "Next"
+msgstr "Volgende"
+
+msgid "Create"
+msgstr "Aanmaken"
+
+msgid "Open the relevant help topic"
+msgstr "Open het bijbehorende help-onderwerp"
+
+msgid "Type of player"
+msgstr "Type speler"
+
+msgid "Are you adding a player who is joining the academy, or someone coming in for a trial period?"
+msgstr "Voeg je een speler toe die zich aansluit bij de academie, of iemand die op stage komt?"
+
+msgid "Choose one"
+msgstr "Kies één"
+
+msgid "Roster player"
+msgstr "Selectiespeler"
+
+msgid "has been signed and is joining a team."
+msgstr "is gecontracteerd en sluit aan bij een team."
+
+msgid "Trial player"
+msgstr "Stage-speler"
+
+msgid "is coming in for a 2 to 6 week look."
+msgstr "komt 2 tot 6 weken meedoen."
+
+msgid "Please choose roster or trial."
+msgstr "Kies selectie of stage."
+
+msgid "First and last name are required."
+msgstr "Voornaam en achternaam zijn verplicht."
+
+msgid "Trial details"
+msgstr "Stagedetails"
+
+msgid "Team being trialed for"
+msgstr "Team waar voor stage gelopen wordt"
+
+msgid "Trial track"
+msgstr "Stagetraject"
+
+msgid "The Trials module is not active. The trial case won't be created — the player will get status \"trial\" so you can come back later."
+msgstr "De Stagemodule staat niet aan. Er wordt geen stagedossier aangemaakt — de speler krijgt status \"stage\" zodat je later terug kunt komen."
+
+msgid "Trial start date"
+msgstr "Startdatum stage"
+
+msgid "Trial end date"
+msgstr "Einddatum stage"
+
+msgid "Check the details below before creating the record."
+msgstr "Controleer de gegevens hieronder voordat het record wordt aangemaakt."
+
+msgid "Trial start"
+msgstr "Start stage"
+
+msgid "Trial end"
+msgstr "Einde stage"
+
+msgid "Could not create the player record."
+msgstr "Het speler-record kon niet worden aangemaakt."
+
+msgid "Check the team details before creating it."
+msgstr "Controleer de teamgegevens voordat het team wordt aangemaakt."
+
+msgid "— pick an age group —"
+msgstr "— kies een leeftijdsgroep —"
+
+msgid "Team name is required."
+msgstr "Teamnaam is verplicht."
+
+msgid "Could not create the team."
+msgstr "Het team kon niet worden aangemaakt."
+
+msgid "Assign staff to this team. Each slot is optional — you can fill it in later from the People page."
+msgstr "Wijs staf toe aan dit team. Elke positie is optioneel — je kunt dit later op de Personen-pagina invullen."
+
+msgid "Team manager"
+msgstr "Teammanager"
+
+msgid "— none —"
+msgstr "— geen —"
+
+msgid "Which player are you evaluating?"
+msgstr "Welke speler beoordeel je?"
+
+msgid "Pick the evaluation type. The form on the next page will match."
+msgstr "Kies het evaluatietype. Het formulier op de volgende pagina past zich daarop aan."
+
+msgid "Please pick a player."
+msgstr "Kies een speler."
+
+msgid "Please pick an evaluation type."
+msgstr "Kies een evaluatietype."
+
+msgid "Which player is this goal for?"
+msgstr "Voor welke speler is dit doel?"
+
+msgid "Optionally link this goal to a methodology entity. Skip to leave the goal unlinked."
+msgstr "Koppel dit doel optioneel aan een methodologie-entiteit. Sla over om het doel niet te koppelen."
+
+msgid "Link type"
+msgstr "Soort koppeling"
+
+msgid "— no link —"
+msgstr "— geen koppeling —"
+
+msgid "— pick one —"
+msgstr "— kies er een —"
+
+msgid "Pick the entity to link"
+msgstr "Kies de entiteit om aan te koppelen"
+
+msgid "Goal title"
+msgstr "Doeltitel"
+
+msgid "Goal title is required."
+msgstr "Doeltitel is verplicht."
+
+msgid "Could not create the goal."
+msgstr "Het doel kon niet worden aangemaakt."
+
+msgid "Toggle the create-record wizards on or off, and see completion analytics."
+msgstr "Zet de wizards voor record-aanmaak aan of uit en bekijk de completion-statistieken."
+
+msgid "You do not have permission to configure wizards."
+msgstr "Je hebt geen rechten om wizards te configureren."
+
+msgid "Wizards replace the flat create-form for the listed entries. Use \"all\" for every wizard, \"off\" to disable, or a comma-separated list of slugs."
+msgstr "Wizards vervangen het oude formulier voor de genoemde records. Gebruik \"all\" voor alle wizards, \"off\" om uit te zetten, of een lijst slugs gescheiden door komma's."
+
+msgid "tt_wizards_enabled"
+msgstr "tt_wizards_enabled"
+
+msgid "Available wizard slugs"
+msgstr "Beschikbare wizard-slugs"
+
+msgid "Completion analytics"
+msgstr "Completion-statistieken"
+
+msgid "Started"
+msgstr "Gestart"
+
+msgid "Completion rate"
+msgstr "Completion-percentage"
+
+msgid "Most-skipped step"
+msgstr "Meest overgeslagen stap"
+
+msgid "Use the new-team wizard instead"
+msgstr "Gebruik in plaats daarvan de wizard voor nieuw team"
+
+msgid "opens the frontend wizard with staff assignment built in. Come back here when done."
+msgstr "opent de frontend-wizard met stafkoppeling. Kom hier terug als je klaar bent."
+
+msgid "Step-by-step forms that replace the flat create form for new players, teams, evaluations, and goals."
+msgstr "Stapsgewijze formulieren die het oude formulier vervangen voor nieuwe spelers, teams, evaluaties en doelen."
+
+msgid "Record creation wizards"
+msgstr "Wizards voor record-aanmaak"

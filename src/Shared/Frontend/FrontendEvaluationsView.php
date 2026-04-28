@@ -32,7 +32,8 @@ class FrontendEvaluationsView extends FrontendViewBase {
         self::renderHeader( __( 'Evaluations', 'talenttrack' ) );
 
         $base_url = remove_query_arg( [ 'action', 'id', 'f_team_id', 'f_player_id', 'f_date_from', 'f_date_to' ] );
-        $new_url  = add_query_arg( [ 'tt_view' => 'evaluations', 'action' => 'new' ], $base_url );
+        $flat_url = add_query_arg( [ 'tt_view' => 'evaluations', 'action' => 'new' ], $base_url );
+        $new_url  = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-evaluation', $flat_url );
 
         echo '<p style="margin:0 0 12px;"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
             . esc_html__( 'New evaluation', 'talenttrack' )
