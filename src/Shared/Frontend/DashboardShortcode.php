@@ -173,6 +173,8 @@ class DashboardShortcode {
         // #0032 — Invitation flow surfaces (logged-in admin tab; the
         // accept-invite route is handled before the login guard above).
         $invitation_slugs = [ 'invitations-config' ];
+        // #0014 Sprints 4+5 — Reports wizard + scout flow.
+        $report_slugs = [ 'report-wizard', 'scout-access', 'scout-history', 'scout-my-players' ];
 
         if ( $view === '' ) {
             // Tile landing page.
@@ -223,6 +225,8 @@ class DashboardShortcode {
             self::dispatchDevView( $view );
         } elseif ( in_array( $view, $invitation_slugs, true ) ) {
             self::dispatchInvitationView( $view );
+        } elseif ( in_array( $view, $report_slugs, true ) ) {
+            self::dispatchReportView( $view, $user_id, $is_admin );
         } else {
             FrontendBackButton::render();
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
@@ -459,6 +463,45 @@ class DashboardShortcode {
                 break;
             case 'dev-tracks':
                 \TT\Modules\Development\Frontend\TracksView::render();
+                break;
+            default:
+                FrontendBackButton::render();
+                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+        }
+    }
+
+    /**
+     * #0014 Sprints 4+5 — Reports wizard + scout flow surfaces. Each
+     * view re-checks its own capability so dispatching here is safe.
+     */
+    private static function dispatchReportView( string $view, int $user_id, bool $is_admin ): void {
+        switch ( $view ) {
+            case 'report-wizard':
+                FrontendReportWizardView::render( $user_id, $is_admin );
+                break;
+            case 'scout-access':
+                if ( ! current_user_can( 'tt_generate_scout_report' ) ) {
+                    FrontendBackButton::render();
+                    echo '<p class="tt-notice">' . esc_html__( 'You need scout-management permission to view this page.', 'talenttrack' ) . '</p>';
+                    return;
+                }
+                \TT\Modules\Reports\Frontend\FrontendScoutAccessView::render( $user_id, $is_admin );
+                break;
+            case 'scout-history':
+                if ( ! current_user_can( 'tt_generate_scout_report' ) ) {
+                    FrontendBackButton::render();
+                    echo '<p class="tt-notice">' . esc_html__( 'You need scout-management permission to view this page.', 'talenttrack' ) . '</p>';
+                    return;
+                }
+                \TT\Modules\Reports\Frontend\FrontendScoutHistoryView::render( $user_id, $is_admin );
+                break;
+            case 'scout-my-players':
+                if ( ! current_user_can( 'tt_view_scout_assignments' ) ) {
+                    FrontendBackButton::render();
+                    echo '<p class="tt-notice">' . esc_html__( 'This area is for scout users.', 'talenttrack' ) . '</p>';
+                    return;
+                }
+                \TT\Modules\Reports\Frontend\FrontendScoutMyPlayersView::render( $user_id );
                 break;
             default:
                 FrontendBackButton::render();

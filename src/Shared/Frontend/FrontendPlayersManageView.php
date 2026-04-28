@@ -404,9 +404,10 @@ class FrontendPlayersManageView extends FrontendViewBase {
      * at `?tt_view=players&player_id=N`.
      */
     private static function renderDetail( object $player ): void {
-        $list_url  = add_query_arg( [ 'tt_view' => 'players' ], remove_query_arg( [ 'tt_view', 'player_id', 'id', 'action' ] ) );
-        $edit_url  = add_query_arg( [ 'tt_view' => 'players', 'id' => (int) $player->id ], remove_query_arg( [ 'tt_view', 'player_id' ] ) );
-        $print_url = add_query_arg( [ 'tt_print' => (int) $player->id ], remove_query_arg( [ 'tt_view', 'player_id' ] ) );
+        $list_url   = add_query_arg( [ 'tt_view' => 'players' ], remove_query_arg( [ 'tt_view', 'player_id', 'id', 'action' ] ) );
+        $edit_url   = add_query_arg( [ 'tt_view' => 'players', 'id' => (int) $player->id ], remove_query_arg( [ 'tt_view', 'player_id' ] ) );
+        $print_url  = add_query_arg( [ 'tt_print' => (int) $player->id ], remove_query_arg( [ 'tt_view', 'player_id' ] ) );
+        $wizard_url = add_query_arg( [ 'tt_view' => 'report-wizard', 'player_id' => (int) $player->id ], remove_query_arg( [ 'tt_view', 'player_id', 'id', 'action' ] ) );
         ?>
         <p class="tt-back-link" style="margin:6px 0 12px;">
             <a href="<?php echo esc_url( $list_url ); ?>" style="text-decoration:none; color:#555; font-size:14px;">
@@ -419,6 +420,9 @@ class FrontendPlayersManageView extends FrontendViewBase {
         <div style="margin-bottom:10px; display:flex; gap:8px; flex-wrap:wrap;">
             <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit player', 'talenttrack' ); ?></a>
             <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $print_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( '🖨 Print report', 'talenttrack' ); ?></a>
+            <?php if ( current_user_can( 'tt_generate_report' ) ) : ?>
+                <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $wizard_url ); ?>"><?php esc_html_e( 'Generate report…', 'talenttrack' ); ?></a>
+            <?php endif; ?>
         </div>
 
         <?php

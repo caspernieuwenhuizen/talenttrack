@@ -30,6 +30,19 @@ A combined snapshot of who you are as a player. The hero strip at the top shows 
 - **Upcoming** — the next sessions on your team's calendar.
 - **Account** — your login name, email, and a button to change your password.
 
+## Reports
+
+If you're a coach or administrator, the player detail page has a **Generate report…** button. It opens a four-step wizard:
+
+1. **Audience** — Standard, Parent monthly, Internal coaches, Player keepsake, or Scout.
+2. **Scope** — last month, last season, year to date, all time, or a custom range.
+3. **Sections** — pick what to include: profile, ratings, goals, sessions, attendance, coach notes.
+4. **Privacy** — opt in to contact details, full date of birth, photo, coach free-text notes, or set a minimum rating threshold.
+
+Each audience pre-fills sensible defaults. Click **Preview report** to see the result inline; print it from your browser to save as PDF.
+
+For scouts, you can additionally enter the recipient's email address and a link expiry, and the report is sent as a one-time link with a confidential watermark. Active links can be revoked at any time from the **Scout reports history** page.
+
 ## Privacy
 
 You only see your own data. Other players' evaluations, goals and personal info stay private.
