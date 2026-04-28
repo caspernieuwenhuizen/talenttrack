@@ -7956,8 +7956,6 @@ msgstr "Kies welke onderdelen meegaan. Standaardwaarden passen bij de doelgroep.
 msgid "Defaults are conservative. Tick a box to include extra data on this report only."
 msgstr "Standaard alleen het minimum. Vink een vakje aan om extra gegevens mee te nemen, alleen voor dit rapport."
 
-msgid "Standard"
-msgstr "Standaard"
 
 msgid "Parent (monthly summary)"
 msgstr "Ouder (maandelijks overzicht)"
@@ -7986,8 +7984,6 @@ msgstr "Aangepast bereik"
 msgid "Profile"
 msgstr "Profiel"
 
-msgid "Ratings"
-msgstr "Beoordelingen"
 
 msgid "Coach notes"
 msgstr "Coachnotities"
@@ -8010,11 +8006,7 @@ msgstr "Verberg beoordelingen onder"
 msgid "Preview report"
 msgstr "Rapport voorbeeld"
 
-msgid "Preview"
-msgstr "Voorbeeld"
 
-msgid "Print this report"
-msgstr "Rapport afdrukken"
 
 msgid "Use your browser's print dialog (Save as PDF) to keep a copy."
 msgstr "Gebruik het printvenster van je browser (Opslaan als PDF) om een kopie te bewaren."
@@ -8067,8 +8059,6 @@ msgstr "Nog geen spelers toegewezen."
 msgid "— Pick a player to assign —"
 msgstr "— Kies een speler om toe te wijzen —"
 
-msgid "Assign"
-msgstr "Toewijzen"
 
 msgid "Player assigned."
 msgstr "Speler toegewezen."
@@ -8094,11 +8084,7 @@ msgstr "Doelgroep"
 msgid "Sent"
 msgstr "Verstuurd"
 
-msgid "Expires"
-msgstr "Verloopt"
 
-msgid "Status"
-msgstr "Status"
 
 msgid "Views"
 msgstr "Weergaven"
@@ -8109,17 +8095,9 @@ msgstr "Link via e-mail"
 msgid "Assigned account"
 msgstr "Toegewezen account"
 
-msgid "Active"
-msgstr "Actief"
 
-msgid "Expired"
-msgstr "Verlopen"
 
-msgid "Revoked"
-msgstr "Ingetrokken"
 
-msgid "Revoke"
-msgstr "Intrekken"
 
 msgid "Revoke this report? The link will stop working immediately."
 msgstr "Dit rapport intrekken? De link werkt onmiddellijk niet meer."
