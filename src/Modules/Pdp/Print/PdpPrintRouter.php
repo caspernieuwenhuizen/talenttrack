@@ -129,12 +129,15 @@ class PdpPrintRouter {
 </head>
 <body>
     <div class="toolbar">
-        <button onclick="window.print();"><?php esc_html_e( 'Print', 'talenttrack' ); ?></button>
+        <button type="button" onclick="window.print();"><?php esc_html_e( 'Print', 'talenttrack' ); ?></button>
         <?php if ( ! $include_evidence ) : ?>
             <a href="<?php echo esc_url( add_query_arg( 'include_evidence', '1' ) ); ?>"><?php esc_html_e( 'Re-render with evidence page', 'talenttrack' ); ?></a>
         <?php else : ?>
             <a href="<?php echo esc_url( remove_query_arg( 'include_evidence' ) ); ?>"><?php esc_html_e( 'Single A4 only', 'talenttrack' ); ?></a>
         <?php endif; ?>
+        <button type="button" onclick="if (window.opener) { window.close(); } else { history.back(); }">
+            <?php esc_html_e( 'Close', 'talenttrack' ); ?>
+        </button>
     </div>
 
     <div class="header">

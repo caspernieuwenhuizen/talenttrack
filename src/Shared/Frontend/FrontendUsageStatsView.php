@@ -119,6 +119,54 @@ class FrontendUsageStatsView extends FrontendViewBase {
             </div>
         <?php endif; ?>
 
+        <?php
+        // Player distribution by team — answers "where are my players?"
+        // for the head of academy in one glance. Counts active players
+        // grouped by team; un-rostered active players collapse into
+        // "Unassigned". Most-populous team first.
+        $distribution = self::playersByTeam();
+        $total_active = array_sum( array_map( static fn( $r ) => (int) $r['count'], $distribution ) );
+        ?>
+        <div class="tt-panel">
+            <h3 class="tt-panel-title"><?php esc_html_e( 'Players by team', 'talenttrack' ); ?></h3>
+            <p style="color:var(--tt-muted); font-size:13px; margin: 0 0 8px;">
+                <?php echo esc_html( sprintf(
+                    /* translators: %d active players */
+                    __( '%d active players across the academy.', 'talenttrack' ),
+                    (int) $total_active
+                ) ); ?>
+            </p>
+            <?php if ( empty( $distribution ) ) : ?>
+                <p><em><?php esc_html_e( 'No active players yet.', 'talenttrack' ); ?></em></p>
+            <?php else : ?>
+                <table class="tt-table">
+                    <thead><tr>
+                        <th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
+                        <th style="text-align:right;"><?php esc_html_e( 'Players', 'talenttrack' ); ?></th>
+                        <th style="text-align:right;"><?php esc_html_e( 'Share', 'talenttrack' ); ?></th>
+                        <th><span class="screen-reader-text"><?php esc_html_e( 'Distribution', 'talenttrack' ); ?></span></th>
+                    </tr></thead>
+                    <tbody>
+                    <?php foreach ( $distribution as $row ) :
+                        $count = (int) $row['count'];
+                        $pct = $total_active > 0 ? ( $count / $total_active ) * 100 : 0;
+                        ?>
+                        <tr>
+                            <td><?php echo esc_html( (string) $row['team_name'] ); ?></td>
+                            <td style="text-align:right; font-variant-numeric: tabular-nums;"><?php echo (int) $count; ?></td>
+                            <td style="text-align:right; font-variant-numeric: tabular-nums;"><?php echo esc_html( number_format_i18n( $pct, 0 ) ); ?>%</td>
+                            <td style="width: 30%;">
+                                <div style="background:#eef0f2; border-radius:4px; height:10px; overflow:hidden;">
+                                    <div style="background:#0b3d2e; height:100%; width:<?php echo esc_attr( (string) $pct ); ?>%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+
         <script>
         (function(){
             var dauLabels = <?php echo wp_json_encode( array_keys( (array) $dau ) ); ?>;
@@ -287,6 +335,35 @@ class FrontendUsageStatsView extends FrontendViewBase {
             $name = trim( ( $r->first_name ?? '' ) . ' ' . ( $r->last_name ?? '' ) );
             if ( $name === '' ) $name = '#' . (int) $r->id;
             $out[] = [ 'name' => $name, 'count' => (int) $r->eval_count ];
+        }
+        return $out;
+    }
+
+    /**
+     * Active players grouped by team. Un-rostered active players (no
+     * team_id, or team_id pointing at a deleted team) collapse into a
+     * single "Unassigned" bucket so the head of academy can spot
+     * orphans at a glance.
+     *
+     * @return list<array{team_name:string, count:int}>
+     */
+    private static function playersByTeam(): array {
+        global $wpdb; $p = $wpdb->prefix;
+        $rows = $wpdb->get_results(
+            "SELECT t.name AS team_name, COUNT(pl.id) AS player_count
+               FROM {$p}tt_players pl
+               LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id
+              WHERE pl.archived_at IS NULL
+                AND ( pl.status IS NULL OR pl.status = '' OR pl.status = 'active' )
+              GROUP BY t.id, t.name
+              ORDER BY player_count DESC, t.name ASC"
+        );
+        if ( ! is_array( $rows ) ) return [];
+        $out = [];
+        foreach ( $rows as $r ) {
+            $name = trim( (string) ( $r->team_name ?? '' ) );
+            if ( $name === '' ) $name = __( 'Unassigned', 'talenttrack' );
+            $out[] = [ 'team_name' => $name, 'count' => (int) $r->player_count ];
         }
         return $out;
     }

@@ -332,6 +332,7 @@ class PlayersRestController {
         $id = (int) $wpdb->insert_id;
 
         self::upsertCustomValues( $id, $validation['sanitized'] );
+        self::maybeLinkParent( $id, $r );
         do_action( 'tt_after_player_save', $id, $data );
 
         $pl = QueryHelpers::get_player( $id );
@@ -359,10 +360,43 @@ class PlayersRestController {
         }
 
         self::upsertCustomValues( $id, $validation['sanitized'] );
+        self::maybeLinkParent( $id, $r );
         do_action( 'tt_after_player_save', $id, $data );
 
         $pl = QueryHelpers::get_player( $id );
         return RestResponse::success( self::fmt( $pl ) );
+    }
+
+    /**
+     * If the request carries a non-empty `link_parent_user_id`, attach
+     * the chosen parent WP user to this player via PlayerParentsRepository.
+     * Idempotent — link() handles re-linking gracefully. Validates that
+     * the user is a TT person tagged as parent before linking, so the
+     * dropdown UX (parents-only) can't be bypassed by a hand-crafted
+     * payload.
+     */
+    private static function maybeLinkParent( int $player_id, \WP_REST_Request $r ): void {
+        $parent_user_id = absint( $r['link_parent_user_id'] ?? 0 );
+        if ( $player_id <= 0 || $parent_user_id <= 0 ) return;
+
+        global $wpdb; $p = $wpdb->prefix;
+        $is_parent = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT 1 FROM {$p}tt_people
+              WHERE wp_user_id = %d
+                AND role_type = 'parent'
+                AND archived_at IS NULL
+              LIMIT 1",
+            $parent_user_id
+        ) );
+        if ( $is_parent !== 1 ) {
+            Logger::error( 'rest.player.link_parent.not_parent', [
+                'player_id'      => $player_id,
+                'parent_user_id' => $parent_user_id,
+            ] );
+            return;
+        }
+
+        ( new \TT\Modules\Invitations\PlayerParentsRepository() )->link( $player_id, $parent_user_id );
     }
 
     public static function delete_player( \WP_REST_Request $r ) {

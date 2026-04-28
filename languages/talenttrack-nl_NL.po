@@ -7131,28 +7131,28 @@ msgid "Season not found."
 msgstr "Seizoen niet gevonden."
 
 msgid "Invalid PDP file id."
-msgstr "Ongeldig PDP-dossier-id."
+msgstr "Ongeldig POP-dossier-id."
 
 msgid "Player is required."
 msgstr "Speler is verplicht."
 
 msgid "No current season is set. Configure a season before creating PDP files."
-msgstr "Er is geen huidig seizoen ingesteld. Stel eerst een seizoen in voordat je PDP-dossiers aanmaakt."
+msgstr "Er is geen huidig seizoen ingesteld. Stel eerst een seizoen in voordat je POP-dossiers aanmaakt."
 
 msgid "You can only create PDP files for players on your own teams."
-msgstr "Je kunt alleen PDP-dossiers aanmaken voor spelers in je eigen teams."
+msgstr "Je kunt alleen POP-dossiers aanmaken voor spelers in je eigen teams."
 
 msgid "A PDP file already exists for this player and season, or the database refused the write."
-msgstr "Er bestaat al een PDP-dossier voor deze speler en dit seizoen, of de database wees de actie af."
+msgstr "Er bestaat al een POP-dossier voor deze speler en dit seizoen, of de database wees de actie af."
 
 msgid "PDP file not found."
-msgstr "PDP-dossier niet gevonden."
+msgstr "POP-dossier niet gevonden."
 
 msgid "You do not have access to this PDP file."
-msgstr "Je hebt geen toegang tot dit PDP-dossier."
+msgstr "Je hebt geen toegang tot dit POP-dossier."
 
 msgid "You do not have permission to edit this PDP file."
-msgstr "Je hebt geen toestemming om dit PDP-dossier te bewerken."
+msgstr "Je hebt geen toestemming om dit POP-dossier te bewerken."
 
 msgid "Owner update failed."
 msgstr "Bijwerken van eigenaar is mislukt."
@@ -7167,7 +7167,7 @@ msgid "Conversation not found."
 msgstr "Gesprek niet gevonden."
 
 msgid "Parent PDP file not found."
-msgstr "Bovenliggend PDP-dossier niet gevonden."
+msgstr "Bovenliggend POP-dossier niet gevonden."
 
 msgid "You do not have permission to update this conversation."
 msgstr "Je hebt geen toestemming om dit gesprek bij te werken."
@@ -7176,7 +7176,7 @@ msgid "The conversation could not be updated."
 msgstr "Het gesprek kon niet worden bijgewerkt."
 
 msgid "You do not have access to this PDP verdict."
-msgstr "Je hebt geen toegang tot dit PDP-eindoordeel."
+msgstr "Je hebt geen toegang tot dit POP-eindoordeel."
 
 msgid "Decision must be one of promote, retain, release, transfer."
 msgstr "Beslissing moet promote, retain, release of transfer zijn."
@@ -7185,35 +7185,35 @@ msgid "The verdict could not be saved."
 msgstr "Het eindoordeel kon niet worden opgeslagen."
 
 msgid "PDP conversation due"
-msgstr "PDP-gesprek staat klaar"
+msgstr "POP-gesprek staat klaar"
 
 msgid "Reminder for the owning coach that a PDP conversation is coming up."
-msgstr "Herinnering voor de verantwoordelijke coach dat er een PDP-gesprek aankomt."
+msgstr "Herinnering voor de verantwoordelijke coach dat er een POP-gesprek aankomt."
 
 msgid "PDP verdict due"
-msgstr "PDP-eindoordeel staat klaar"
+msgstr "POP-eindoordeel staat klaar"
 
 msgid "End-of-season decision for each player's PDP file. Assigned to the head of academy."
-msgstr "Eindeseizoensbeslissing per PDP-dossier. Toegewezen aan het hoofd academie."
+msgstr "Eindeseizoensbeslissing per POP-dossier. Toegewezen aan het hoofd academie."
 
 msgid "The PDP workflow surface ships in the next release. For now, open the player's PDP file directly."
-msgstr "Het PDP-werkflowscherm volgt in de volgende release. Open voor nu het PDP-dossier van de speler direct."
+msgstr "Het POP-werkflowscherm volgt in de volgende release. Open voor nu het POP-dossier van de speler direct."
 
 # #0044 — PDP cycle (Sprint 2: UX surfaces)
 msgid "Player Development Plan (PDP)"
-msgstr "Persoonlijk Ontwikkelplan (PDP)"
+msgstr "Persoonlijk Ontwikkelingsplan (POP)"
 
 msgid "Per-season development files, conversation cadence, end-of-season verdict."
 msgstr "Seizoens­gebonden ontwikkeldossiers, gespreks­cadans, eindeseizoens­oordeel."
 
 msgid "PDP"
-msgstr "PDP"
+msgstr "POP"
 
 msgid "Per-season development files: conversations, goals, end-of-season verdict."
 msgstr "Seizoens­gebonden ontwikkeldossiers: gesprekken, doelen, eindeseizoens­oordeel."
 
 msgid "My PDP"
-msgstr "Mijn PDP"
+msgstr "Mijn POP"
 
 msgid "Your development plan: conversations, reflections, end-of-season verdict."
 msgstr "Jouw ontwikkelplan: gesprekken, reflecties, eindeseizoens­oordeel."
@@ -7222,13 +7222,13 @@ msgid "Player Development Plans"
 msgstr "Persoonlijke Ontwikkelplannen"
 
 msgid "Showing PDP files for the current season (%s)."
-msgstr "PDP-dossiers voor het huidige seizoen (%s)."
+msgstr "POP-dossiers voor het huidige seizoen (%s)."
 
 msgid "Open new PDP file"
-msgstr "Nieuw PDP-dossier openen"
+msgstr "Nieuw POP-dossier openen"
 
 msgid "No PDP files in this season yet. Open one above for any player you coach."
-msgstr "Nog geen PDP-dossiers dit seizoen. Open er hierboven één voor een speler die je coacht."
+msgstr "Nog geen POP-dossiers dit seizoen. Open er hierboven één voor een speler die je coacht."
 
 msgid "Cycle"
 msgstr "Cyclus"
@@ -7249,19 +7249,19 @@ msgid "Conversations this season"
 msgstr "Gesprekken dit seizoen"
 
 msgid "No players available. Coaches can only open PDP files for players on their own teams."
-msgstr "Geen spelers beschikbaar. Coaches kunnen alleen PDP-dossiers openen voor spelers van hun eigen teams."
+msgstr "Geen spelers beschikbaar. Coaches kunnen alleen POP-dossiers openen voor spelers van hun eigen teams."
 
 msgid "PDP file — %s"
-msgstr "PDP-dossier — %s"
+msgstr "POP-dossier — %s"
 
 msgid "PDP file"
-msgstr "PDP-dossier"
+msgstr "POP-dossier"
 
 msgid "PDP file not found"
-msgstr "PDP-dossier niet gevonden"
+msgstr "POP-dossier niet gevonden"
 
 msgid "That PDP file no longer exists."
-msgstr "Dat PDP-dossier bestaat niet meer."
+msgstr "Dat POP-dossier bestaat niet meer."
 
 msgid "Access denied"
 msgstr "Toegang geweigerd"
@@ -7438,7 +7438,7 @@ msgid "No current season is set."
 msgstr "Er is geen huidig seizoen ingesteld."
 
 msgid "No PDP file has been opened for you this season yet."
-msgstr "Er is nog geen PDP-dossier voor je geopend dit seizoen."
+msgstr "Er is nog geen POP-dossier voor je geopend dit seizoen."
 
 msgid "Season: %s"
 msgstr "Seizoen: %s"
@@ -7480,7 +7480,7 @@ msgid "You do not have permission to manage seasons."
 msgstr "Je hebt geen toestemming om seizoenen te beheren."
 
 msgid "Exactly one season can be marked current. PDP files are scoped to a season, and the carryover job runs whenever you change the current season."
-msgstr "Slechts één seizoen kan als huidig zijn gemarkeerd. PDP-dossiers horen bij een seizoen, en de carryover-taak draait elke keer dat je het huidige seizoen wijzigt."
+msgstr "Slechts één seizoen kan als huidig zijn gemarkeerd. POP-dossiers horen bij een seizoen, en de carryover-taak draait elke keer dat je het huidige seizoen wijzigt."
 
 msgid "Start"
 msgstr "Start"
@@ -7498,7 +7498,7 @@ msgid "Set as current"
 msgstr "Als huidig instellen"
 
 msgid "Make this the current season? Carryover will run for any open PDP file from the previous season."
-msgstr "Dit seizoen als huidig instellen? De carryover-taak draait voor elk open PDP-dossier uit het vorige seizoen."
+msgstr "Dit seizoen als huidig instellen? De carryover-taak draait voor elk open POP-dossier uit het vorige seizoen."
 
 msgid "Add a season"
 msgstr "Seizoen toevoegen"
@@ -7522,10 +7522,10 @@ msgid "Could not set current season."
 msgstr "Kon het huidige seizoen niet instellen."
 
 msgid "Log in to print this PDP file."
-msgstr "Log in om dit PDP-dossier te printen."
+msgstr "Log in om dit POP-dossier te printen."
 
 msgid "PDP — %s"
-msgstr "PDP — %s"
+msgstr "POP — %s"
 
 msgid "Print"
 msgstr "Printen"
@@ -8131,3 +8131,56 @@ msgstr "Deze scoutlink is ingetrokken."
 
 msgid "This scout link has expired."
 msgstr "Deze scoutlink is verlopen."
+
+# PDP quality pass + coach auth bug fix
+msgid "Type a player name…"
+msgstr "Typ een spelersnaam…"
+
+msgid "Last mentioned in conversation on %s"
+msgstr "Laatst genoemd in gesprek op %s"
+
+msgid "No goals match this filter."
+msgstr "Geen doelen die aan dit filter voldoen."
+
+msgid "Show:"
+msgstr "Toon:"
+
+msgid "Principle"
+msgstr "Principe"
+
+msgid "Football action"
+msgstr "Voetbalhandeling"
+
+msgctxt "PDP file status"
+msgid "Open"
+msgstr "Open"
+
+msgid "Connect a parent account"
+msgstr "Koppel een ouderaccount"
+
+msgid "Type a parent's name…"
+msgstr "Typ de naam van een ouder…"
+
+msgid "Only people whose role is set to \"parent\" appear here. Manage parent role assignments on the People page."
+msgstr "Alleen mensen met rol \"ouder\" verschijnen hier. Beheer de rol via de Personen-pagina."
+
+msgid "Link a parent account on save (dropdown below) or fill in name + contact below; a coach can convert them to a real account later."
+msgstr "Koppel een ouderaccount bij opslaan (dropdown hieronder) of vul hieronder de naam + contactgegevens in; een coach kan deze later omzetten naar een echt account."
+
+msgid "Players by team"
+msgstr "Spelers per team"
+
+msgid "%d active players across the academy."
+msgstr "%d actieve spelers in de academie."
+
+msgid "No active players yet."
+msgstr "Nog geen actieve spelers."
+
+msgid "Share"
+msgstr "Aandeel"
+
+msgid "Distribution"
+msgstr "Verdeling"
+
+msgid "Unassigned"
+msgstr "Niet toegewezen"

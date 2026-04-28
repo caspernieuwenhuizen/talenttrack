@@ -8,6 +8,7 @@ use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
+use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
 use TT\Shared\Frontend\FrontendBackButton;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -137,22 +138,35 @@ class FrontendPdpManageView extends FrontendViewBase {
             return;
         }
 
-        $players = self::eligiblePlayers( $user_id, $is_admin );
+        // Resolve the player roster the picker can search across.
+        // PlayerSearchPickerComponent does its own autocomplete client-
+        // side; passing the full player list lets it filter by name +
+        // team without REST round-trips. Coach scope is enforced
+        // upstream by `eligiblePlayers()`.
+        $players = self::eligiblePlayerObjects( $user_id, $is_admin );
         if ( empty( $players ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'No players available. Coaches can only open PDP files for players on their own teams.', 'talenttrack' ) . '</p>';
             return;
         }
+
+        // Pre-fill team filter when the user landed here from a team
+        // page (?team_id=N).
+        $preset_team = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
         ?>
-        <form class="tt-ajax-form" data-rest-path="pdp-files" data-rest-method="POST" data-redirect-after-save="1">
-            <div class="tt-field">
-                <label class="tt-field-label tt-field-required" for="tt-pdp-player"><?php esc_html_e( 'Player', 'talenttrack' ); ?></label>
-                <select id="tt-pdp-player" name="player_id" class="tt-input" required>
-                    <option value=""><?php esc_html_e( '— Select a player —', 'talenttrack' ); ?></option>
-                    <?php foreach ( $players as $pid => $label ) : ?>
-                        <option value="<?php echo (int) $pid; ?>"><?php echo esc_html( $label ); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+        <form class="tt-ajax-form" data-rest-path="pdp-files" data-rest-method="POST" data-redirect-after-save="list">
+            <?php
+            // Fuzzy-search picker with built-in team filter dropdown.
+            // The "team_id" filter is purely UI — only player_id posts.
+            echo PlayerSearchPickerComponent::render( [
+                'name'             => 'player_id',
+                'label'            => __( 'Player', 'talenttrack' ),
+                'required'         => true,
+                'players'          => $players,
+                'team_id'          => $preset_team,
+                'show_team_filter' => true,
+                'placeholder'      => __( 'Type a player name…', 'talenttrack' ),
+            ] );
+            ?>
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-pdp-cycle"><?php esc_html_e( 'Conversations this season', 'talenttrack' ); ?></label>
                 <select id="tt-pdp-cycle" name="cycle_size" class="tt-input">
@@ -173,6 +187,29 @@ class FrontendPdpManageView extends FrontendViewBase {
             <div class="tt-form-msg"></div>
         </form>
         <?php
+    }
+
+    /**
+     * Same coach-scope rules as `eligiblePlayers()` but returns the raw
+     * player objects (so PlayerSearchPickerComponent can derive labels
+     * + team metadata for its team-filter dropdown).
+     *
+     * @return array<int, object>
+     */
+    private static function eligiblePlayerObjects( int $user_id, bool $is_admin ): array {
+        $out = [];
+        if ( $is_admin ) {
+            foreach ( QueryHelpers::get_players() as $pl ) {
+                $out[ (int) $pl->id ] = $pl;
+            }
+            return $out;
+        }
+        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
+            foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) {
+                $out[ (int) $pl->id ] = $pl;
+            }
+        }
+        return $out;
     }
 
     private static function renderFileDetail( object $file, int $user_id, bool $is_admin ): void {
@@ -487,36 +524,226 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '</aside>';
     }
 
+    /**
+     * Linked goals block on the PDP detail. Shows each goal with the
+     * polymorphic links it carries (principles / football actions /
+     * positions / values), plus the conversation footprint — the most
+     * recent agreed-action note from any conversation that mentions
+     * the goal title (case-insensitive substring match) anchors the
+     * "what was said about it last" question without requiring the
+     * coach to explicitly tag conversations to goals.
+     *
+     * Filter UI: a "Show" dropdown (active / all / completed) on top.
+     * State is in the URL (?goals=active|all|completed) so a coach can
+     * deep-link to a "completed goals" view from a parent message.
+     */
     private static function renderGoalsBlock( int $player_id ): void {
         global $wpdb; $p = $wpdb->prefix;
+
+        $filter = isset( $_GET['goals'] ) ? sanitize_key( (string) $_GET['goals'] ) : 'active';
+        if ( ! in_array( $filter, [ 'active', 'all', 'completed' ], true ) ) $filter = 'active';
+
+        $where_status = match ( $filter ) {
+            'completed' => "AND g.status = 'completed'",
+            'all'       => '',
+            default     => "AND g.status NOT IN ('completed','archived')",
+        };
+
         $goals = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, title, status, priority, due_date FROM {$p}tt_goals
-              WHERE player_id = %d AND archived_at IS NULL
-              ORDER BY due_date ASC, created_at DESC",
+            "SELECT g.id, g.title, g.description, g.status, g.priority, g.due_date, g.created_at
+               FROM {$p}tt_goals g
+              WHERE g.player_id = %d AND g.archived_at IS NULL
+                {$where_status}
+              ORDER BY g.due_date ASC, g.created_at DESC",
             $player_id
         ) );
 
         echo '<h2 style="font-size:16px; margin:24px 0 8px;">' . esc_html__( 'Linked goals', 'talenttrack' ) . '</h2>';
+
+        // Filter dropdown — submit on change to keep the URL the source
+        // of truth. Mobile-friendly: native select.
+        $base = remove_query_arg( [ 'goals' ] );
+        echo '<form method="get" action="' . esc_url( $base ) . '" style="margin-bottom:8px;">';
+        // Preserve current view + id query args.
+        foreach ( [ 'tt_view', 'id' ] as $k ) {
+            if ( isset( $_GET[ $k ] ) ) {
+                printf( '<input type="hidden" name="%s" value="%s" />', esc_attr( $k ), esc_attr( (string) $_GET[ $k ] ) );
+            }
+        }
+        echo '<label style="font-size:12px; color:#5b6e75;">' . esc_html__( 'Show:', 'talenttrack' ) . ' ';
+        echo '<select name="goals" class="tt-input" onchange="this.form.submit();" style="display:inline-block; width:auto;">';
+        printf( '<option value="active" %s>%s</option>',     selected( $filter, 'active', false ),    esc_html__( 'Active', 'talenttrack' ) );
+        printf( '<option value="completed" %s>%s</option>',  selected( $filter, 'completed', false ), esc_html__( 'Completed', 'talenttrack' ) );
+        printf( '<option value="all" %s>%s</option>',        selected( $filter, 'all', false ),       esc_html__( 'All', 'talenttrack' ) );
+        echo '</select></label>';
+        echo '</form>';
+
         if ( empty( $goals ) ) {
-            echo '<p><em>' . esc_html__( 'No active goals for this player yet.', 'talenttrack' ) . '</em></p>';
+            echo '<p><em>' . esc_html__( 'No goals match this filter.', 'talenttrack' ) . '</em></p>';
             return;
         }
-        echo '<table class="tt-list-table-table">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__( 'Title', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Priority', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Due', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
+
+        // Pre-fetch conversation snippets per file so we look up once,
+        // not per-goal. Most-recent-first, capped at 20 conversations.
+        $convs = $wpdb->get_results( $wpdb->prepare(
+            "SELECT c.notes, c.agreed_actions, COALESCE(c.conducted_at, c.scheduled_at) AS when_at
+               FROM {$p}tt_pdp_conversations c
+               JOIN {$p}tt_pdp_files f ON f.id = c.pdp_file_id
+              WHERE f.player_id = %d
+                AND ( c.notes IS NOT NULL OR c.agreed_actions IS NOT NULL )
+              ORDER BY when_at DESC LIMIT 20",
+            $player_id
+        ) );
+
+        // Goal links — fetch all in one query keyed by goal_id.
+        $goal_ids = array_map( static fn( $g ) => (int) $g->id, $goals );
+        $links_by_goal = self::loadGoalLinks( $goal_ids );
+
+        echo '<div class="tt-pdp-goals-list" style="display:flex; flex-direction:column; gap:10px;">';
         foreach ( $goals as $g ) {
-            echo '<tr>';
-            echo '<td>' . esc_html( (string) $g->title ) . '</td>';
-            echo '<td>' . esc_html( (string) $g->status ) . '</td>';
-            echo '<td>' . esc_html( (string) $g->priority ) . '</td>';
-            echo '<td>' . esc_html( self::shortDate( $g->due_date ) ) . '</td>';
-            echo '</tr>';
+            $title = (string) $g->title;
+            $status = (string) $g->status;
+            $priority = (string) ( $g->priority ?? '' );
+            $due = self::shortDate( $g->due_date );
+            $links = $links_by_goal[ (int) $g->id ] ?? [];
+
+            $latest_mention = self::findLatestMention( (string) $title, $convs );
+
+            echo '<div class="tt-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:12px;">';
+            echo '<div style="display:flex; justify-content:space-between; gap:8px; align-items:flex-start;">';
+            echo '<div style="flex:1; min-width:0;"><strong>' . esc_html( $title ) . '</strong>';
+            if ( ! empty( $g->description ) ) {
+                echo '<div style="font-size:12px; color:#5b6e75; margin-top:2px;">' . esc_html( (string) $g->description ) . '</div>';
+            }
+            echo '</div>';
+            echo '<div style="text-align:right; font-size:12px; color:#5b6e75; white-space:nowrap;">';
+            echo '<span class="tt-status-badge tt-status-' . esc_attr( $status ) . '">' . esc_html( $status ) . '</span>';
+            if ( $priority !== '' ) echo ' · ' . esc_html( $priority );
+            if ( ! empty( $g->due_date ) ) {
+                echo '<br>' . esc_html( sprintf( /* translators: %s = date */ __( 'Due %s', 'talenttrack' ), $due ) );
+            }
+            echo '</div>';
+            echo '</div>';
+
+            if ( ! empty( $links ) ) {
+                echo '<div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:4px;">';
+                foreach ( $links as $l ) {
+                    echo '<span style="display:inline-block; padding:2px 8px; background:#f0f7f6; color:#1d7874; border-radius:10px; font-size:11px;">'
+                        . esc_html( self::linkLabel( (string) $l['type'] ) ) . ': ' . esc_html( (string) $l['name'] )
+                        . '</span>';
+                }
+                echo '</div>';
+            }
+
+            if ( $latest_mention !== null ) {
+                echo '<div style="margin-top:8px; padding:8px; background:#fafbfc; border-left:3px solid #1d7874; font-size:12px; color:#3a4047;">';
+                echo '<div style="font-weight:600; margin-bottom:2px;">' . esc_html( sprintf(
+                    /* translators: %s = date */
+                    __( 'Last mentioned in conversation on %s', 'talenttrack' ),
+                    self::shortDate( $latest_mention['when_at'] )
+                ) ) . '</div>';
+                echo '<div>' . esc_html( $latest_mention['snippet'] ) . '</div>';
+                echo '</div>';
+            }
+
+            echo '</div>';
         }
-        echo '</tbody></table>';
+        echo '</div>';
+    }
+
+    /**
+     * @param list<int> $goal_ids
+     * @return array<int, list<array{type:string, name:string}>>
+     */
+    private static function loadGoalLinks( array $goal_ids ): array {
+        if ( empty( $goal_ids ) ) return [];
+        global $wpdb; $p = $wpdb->prefix;
+        $placeholders = implode( ',', array_fill( 0, count( $goal_ids ), '%d' ) );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT goal_id, link_type, link_id FROM {$p}tt_goal_links
+              WHERE goal_id IN ($placeholders)",
+            ...$goal_ids
+        ) );
+        // Resolve a name per (link_type, link_id). Cheap loop — typical
+        // PDP file has <20 links across all goals.
+        $names = [];
+        foreach ( (array) $rows as $r ) {
+            $key = (string) $r->link_type . ':' . (int) $r->link_id;
+            if ( ! isset( $names[ $key ] ) ) {
+                $names[ $key ] = self::resolveLinkName( (string) $r->link_type, (int) $r->link_id );
+            }
+        }
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $out[ (int) $r->goal_id ][] = [
+                'type' => (string) $r->link_type,
+                'name' => $names[ (string) $r->link_type . ':' . (int) $r->link_id ] ?? '',
+            ];
+        }
+        return $out;
+    }
+
+    private static function resolveLinkName( string $type, int $id ): string {
+        global $wpdb; $p = $wpdb->prefix;
+        switch ( $type ) {
+            case 'principle':
+                return (string) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT name FROM {$p}tt_principles WHERE id = %d", $id
+                ) );
+            case 'football_action':
+                return (string) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT name FROM {$p}tt_football_actions WHERE id = %d", $id
+                ) );
+            case 'position':
+                return (string) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT name FROM {$p}tt_lookups WHERE id = %d", $id
+                ) );
+            case 'value':
+                return (string) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT name FROM {$p}tt_lookups WHERE id = %d", $id
+                ) );
+        }
+        return '';
+    }
+
+    private static function linkLabel( string $type ): string {
+        switch ( $type ) {
+            case 'principle':       return __( 'Principle', 'talenttrack' );
+            case 'football_action': return __( 'Football action', 'talenttrack' );
+            case 'position':        return __( 'Position', 'talenttrack' );
+            case 'value':           return __( 'Value', 'talenttrack' );
+        }
+        return $type;
+    }
+
+    /**
+     * Walk the player's conversation history (most recent first) and
+     * return a snippet of the first conversation where the goal title
+     * appears in either the notes or agreed_actions field. Returns
+     * null when nothing matches.
+     *
+     * @param array<int, object> $convs
+     * @return array{when_at:string, snippet:string}|null
+     */
+    private static function findLatestMention( string $title, array $convs ): ?array {
+        $title = trim( $title );
+        if ( $title === '' || empty( $convs ) ) return null;
+        $needle = mb_strtolower( $title );
+        foreach ( $convs as $c ) {
+            $haystack = mb_strtolower( (string) ( $c->notes ?? '' ) . ' ' . (string) ( $c->agreed_actions ?? '' ) );
+            $pos = mb_strpos( $haystack, $needle );
+            if ( $pos === false ) continue;
+            $source = (string) ( $c->agreed_actions ?? $c->notes ?? '' );
+            $start = max( 0, $pos - 40 );
+            $snippet = mb_substr( $source, $start, 160 );
+            if ( $start > 0 ) $snippet = '…' . $snippet;
+            if ( mb_strlen( $source ) > $start + 160 ) $snippet .= '…';
+            return [
+                'when_at' => (string) $c->when_at,
+                'snippet' => $snippet,
+            ];
+        }
+        return null;
     }
 
     /**
@@ -568,8 +795,10 @@ class FrontendPdpManageView extends FrontendViewBase {
     }
 
     private static function statusLabel( string $status ): string {
+        // _x() — the noun "Open" (status), distinct from the verb "Open"
+        // (action) that already lives in the .po as "Openen".
         switch ( $status ) {
-            case 'open':      return __( 'Open', 'talenttrack' );
+            case 'open':      return _x( 'Open', 'PDP file status', 'talenttrack' );
             case 'completed': return __( 'Completed', 'talenttrack' );
             case 'archived':  return __( 'Archived', 'talenttrack' );
         }
