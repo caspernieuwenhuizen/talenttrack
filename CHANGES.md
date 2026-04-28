@@ -1,3 +1,105 @@
+# TalentTrack v3.44.0 — Player journey: chronological events spine + injuries + cohort transitions (#0053 epic)
+
+Closes the #0053 Player journey epic. Brings the player-centricity principle codified in `CLAUDE.md` § 1 from aspirational to enforceable: every player now has a chronological journey that's queryable, filterable, and visibility-scoped. The journey is a read-side aggregate — Evaluations, Goals, PDP, Players, Trials all keep their own UIs and own their data; this release subscribes to those modules' hooks and projects events into a new spine.
+
+## Schema
+
+Migration `0037_player_journey.php` adds two tables:
+
+- **`tt_player_events`** — the journey spine. One row per event with `uuid`, `club_id` (per CLAUDE.md § 3 SaaS-readiness), `event_type`, `event_date`, `summary`, JSON `payload`, four-level `visibility`, and `superseded_by_event_id` for soft-correct. The `uk_natural (source_module, source_entity_type, source_entity_id, event_type)` unique key makes re-emission a no-op.
+- **`tt_player_injuries`** — minimal injury record (started / expected / actual return + body-part / severity / type lookups + notes). Carries `club_id`. Three lookups (`injury_type`, `body_part`, `injury_severity`) seeded.
+
+A fourth lookup `journey_event_type` carries the 14 v1 event types (joined_academy / trial_started / trial_ended / signed / released / graduated / team_changed / age_group_promoted / position_changed / injury_started / injury_ended / evaluation_completed / pdp_verdict_recorded / note_added) with `meta.icon` / `meta.color` / `meta.severity` / `meta.default_visibility` / `meta.group`. Per-club editable.
+
+One-shot backfill: every existing evaluation → `evaluation_completed`, every signed-off PDP verdict → `pdp_verdict_recorded`, every goal → `goal_set`, every player.date_joined → `joined_academy`, every non-draft trial case → `trial_started` (+ `trial_ended` where decided). Idempotent — re-running adds nothing.
+
+Skipped backfills (current-state-only sources): team changes, position changes, injuries, pre-migration `signed`. Documented as known gaps; from-now-on tracking only.
+
+## Module + emission
+
+New `TT\Modules\Journey\JourneyModule` registered in `config/modules.php`. Boot hooks `JourneyEventSubscriber::init()` against existing module hooks:
+
+- `tt_evaluation_saved` (existing) → emit `evaluation_completed`
+- `tt_goal_saved` (new — fired from `GoalsRestController::create_goal`) → emit `goal_set`
+- `tt_pdp_verdict_signed_off` (new — fired from `PdpVerdictsRepository::upsertForFile` on transition to signed-off) → emit `pdp_verdict_recorded`
+- `tt_player_created` (new — fired from `PlayersRestController::create_player`) → emit `joined_academy`
+- `tt_player_save_diff` (new — fired from `PlayersRestController::update_player` with old + new) → diff-based emission of `team_changed`, `age_group_promoted`, `position_changed`, `signed`, `released`, `graduated`
+- `tt_trial_started` (new — fired from `TrialsRestController::create_case`) → emit `trial_started`
+- `tt_trial_decision_recorded` (new — fired from `TrialsRestController::record_decision`) → emit `trial_ended` (+ `signed` on admit, `released` on deny_final)
+
+Plus injury repository emissions: `injury_started` on insert, `injury_ended` on `actual_return` set.
+
+`EventEmitter::emit()` is idempotent via `uk_natural`; defensive payload validation with `payload_valid=0` for schema drift instead of rejection. `do_action( 'tt_player_event_emitted', $event_id, $event_type, $player_id )` fires after every successful emit for downstream subscribers.
+
+`EventTypeRegistry` loads taxonomy from `tt_lookups` (cached per request) plus per-type payload schemas defined in PHP.
+
+## REST
+
+New `PlayerJourneyRestController` registered under `talenttrack/v1`:
+
+- `GET /players/{id}/timeline` — cursor-paginated, default 12-month window, server-side visibility filtering, returns `hidden_count` for honest UI placeholders.
+- `GET /players/{id}/transitions` — milestone-severity events only.
+- `POST /players/{id}/events` — manual events (e.g. `note_added`).
+- `PUT /player-events/{id}` — soft-correct (creates replacement event, marks original superseded).
+- `GET /journey/event-types` — taxonomy with rendering meta.
+- `GET /journey/cohort-transitions` — HoD cohort queries with date + team filters.
+- `GET/POST /players/{id}/injuries`, `PUT/DELETE /player-injuries/{id}` — injury CRUD.
+
+All declare `permission_callback` against capabilities. Per-row visibility filtered against the viewer's caps via `PlayerEventsRepository::visibilitiesForUser`. Coaches without `tt_view_player_medical` see medical events as `hidden_count` placeholders, never as raw data.
+
+## Capabilities
+
+Two new caps in `RolesService::JOURNEY_CAPS`:
+
+- `tt_view_player_medical` — granted to `tt_head_dev`, `tt_club_admin`, `administrator`. Coaches do NOT get it by default; clubs grant per-coach via the matrix admin UI.
+- `tt_view_player_safeguarding` — granted only to `tt_head_dev` + `administrator`. Reserved for sensitive entries.
+
+Public + coaching_staff visibility levels are gated by existing caps (`tt_view_players` + `tt_edit_evaluations`).
+
+## Frontend
+
+Three new dispatcher slugs:
+
+- `?tt_view=my-journey` — player-side, in the Me group. Tile registered.
+- `?tt_view=player-journey&player_id=N` — coach-side, reached from the new **Journey** button on the player detail view.
+- `?tt_view=cohort-transitions` — HoD-only, in Analytics group. Tile registered with `cap=tt_view_settings`.
+
+`FrontendJourneyView` renders both player- and coach-side journeys (the only difference is which player object is passed). Two view modes (Timeline / Transitions). Filter chips by event type. "1 entry hidden" placeholders for masked rows. Default 12-month window with "Show full history" toggle.
+
+`FrontendCohortTransitionsView` is a form-driven cohort query — pick event type + date range + optional team, drill into any player's full journey from the result rows.
+
+Mobile-first 360px base, 48px touch targets, no hover-only interactions. Visible on the new tiles and the player-detail button via `tt_view_settings` / `is_player_cb` callbacks.
+
+## Workflow integration
+
+New `injury_recovery_due` template registered against the workflow engine on module boot. Migration seeds the `tt_journey_injury_logged` → `injury_recovery_due` trigger row. When `InjuryRepository::create()` succeeds with an `expected_return` set, the engine spawns a task on the player's head coach: "Confirm [player] is on track for recovery / extend / unsure." Reuses the existing `TeamHeadCoachResolver`.
+
+The `pdp_verdict_due_for_journey` template the spec mentioned was not built — #0044 already covers PDP verdict cadence via its own workflow.
+
+## Documentation
+
+- New `docs/player-journey.md` (EN) + `docs/nl_NL/player-journey.md` (NL), both `<!-- audience: user -->`.
+- New `HelpTopics::all()` row `player-journey` under the `performance` group.
+- New "Journey events" section in `docs/architecture.md` documenting the workflow-vs-journey and audit-log-vs-journey boundaries.
+- `docs/rest-api.md` resources table updated with the journey endpoints.
+
+## Translations
+
+NL `.po` updated with ~70 new msgids covering UI strings, lookup labels (Dutch translations seeded into `tt_lookups.translations` JSON for all 14 event types + 7 injury types + 13 body parts + 4 severities), workflow form copy, REST error messages.
+
+## SaaS-readiness
+
+Both new tables carry `club_id INT UNSIGNED NOT NULL DEFAULT 1`. `tt_player_events` carries `uuid CHAR(36)` (root entity in the journey domain). All new repositories filter by `club_id` even though it's a no-op today — when #0052 lands, no schema change is needed in this module.
+
+## Cross-references
+
+- **#0017** — trial module (shipped v3.42.0). New domain hooks `tt_trial_started` and `tt_trial_decision_recorded` fired from `TrialsRestController`.
+- **#0022** — workflow engine. New `injury_recovery_due` template + seeded trigger row.
+- **#0044** — PDP cycle. New `tt_pdp_verdict_signed_off` action added to `PdpVerdictsRepository`.
+- **#0033** — authorization matrix. Two new `tt_view_player_medical` / `tt_view_player_safeguarding` caps.
+- **#0052** — SaaS-readiness baseline. This release ships ahead of #0052 with the scaffold inline.
+
+---
 # TalentTrack v3.43.0 — Record-creation wizards: framework + four wizards (#0055 epic)
 
 Closes the #0055 Record-creation wizards epic. All four phases bundled — framework + new-player (Phase 1), new-team + setup-wizard hook (Phase 2), new-evaluation + new-goal (Phase 3), polish + analytics (Phase 4).
@@ -81,6 +183,8 @@ Tiny one-line change per manage view: the existing "+ New X" button URL goes thr
 - **Multi-tenant wizard customization** — covered by #0052 SaaS readiness when it lands.
 - **Wizard for editing existing records** — value is at creation; editing stays as the flat form.
 - **Heavy form steps inside the wizard** — evaluation wizard hands off to the existing eval form; the wizard isn't trying to absorb that weight.
+
+---
 
 ---
 

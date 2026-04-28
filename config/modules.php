@@ -36,4 +36,5 @@ return [
     TT\Modules\TeamDevelopment\TeamDevelopmentModule::class => true,
     TT\Modules\Trials\TrialsModule::class                 => true,
     TT\Modules\Wizards\WizardsModule::class               => true,
+    TT\Modules\Journey\JourneyModule::class               => true,
 ];

@@ -73,6 +73,11 @@ class HelpTopics {
                 'group'   => 'performance',
                 'summary' => __( 'Formation board with auto-suggested XI, depth chart, paired-player overrides, and traceable fit scores.', 'talenttrack' ),
             ],
+            'player-journey' => [
+                'title'   => __( 'Player journey', 'talenttrack' ),
+                'group'   => 'performance',
+                'summary' => __( 'A chronological view of every player\'s academy story — milestones, evaluations, injuries, transitions.', 'talenttrack' ),
+            ],
             'reports' => [
                 'title'   => __( 'Reports', 'talenttrack' ),
                 'group'   => 'analytics',

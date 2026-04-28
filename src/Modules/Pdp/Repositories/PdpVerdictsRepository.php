@@ -54,11 +54,20 @@ class PdpVerdictsRepository {
         ];
 
         $existing = $this->findForFile( $file_id );
+        $was_signed_off = $existing && ! empty( $existing->signed_off_at );
+        $now_signed_off = ! empty( $payload['signed_off_at'] );
+
         if ( $existing ) {
             $ok = $this->wpdb->update( $this->table, $payload, [ 'id' => (int) $existing->id ] );
+            if ( $ok !== false && ! $was_signed_off && $now_signed_off ) {
+                do_action( 'tt_pdp_verdict_signed_off', (int) $existing->id, $file_id );
+            }
             return $ok !== false;
         }
         $ok = $this->wpdb->insert( $this->table, $payload );
+        if ( $ok !== false && $now_signed_off ) {
+            do_action( 'tt_pdp_verdict_signed_off', (int) $this->wpdb->insert_id, $file_id );
+        }
         return $ok !== false;
     }
 }

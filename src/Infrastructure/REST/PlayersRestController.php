@@ -334,6 +334,9 @@ class PlayersRestController {
         self::upsertCustomValues( $id, $validation['sanitized'] );
         self::maybeLinkParent( $id, $r );
         do_action( 'tt_after_player_save', $id, $data );
+        // #0053 — separate hook so journey subscribers can react to
+        // creation specifically (not every save).
+        do_action( 'tt_player_created', $id, $data );
 
         $pl = QueryHelpers::get_player( $id );
         return RestResponse::success( self::fmt( $pl ) );
@@ -343,6 +346,7 @@ class PlayersRestController {
         $id = (int) $r['id'];
         $existing = QueryHelpers::get_player( $id );
         if ( ! $existing ) return RestResponse::notFound();
+        $previous = (array) $existing;
 
         $validation = self::validateCustomFields( $r );
         if ( ! empty( $validation['errors'] ) ) {
@@ -362,6 +366,9 @@ class PlayersRestController {
         self::upsertCustomValues( $id, $validation['sanitized'] );
         self::maybeLinkParent( $id, $r );
         do_action( 'tt_after_player_save', $id, $data );
+        // #0053 — diff hook so the journey subscriber can detect status /
+        // team / position transitions.
+        do_action( 'tt_player_save_diff', $id, $previous, $data );
 
         $pl = QueryHelpers::get_player( $id );
         return RestResponse::success( self::fmt( $pl ) );

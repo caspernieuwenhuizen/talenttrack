@@ -8785,3 +8785,195 @@ msgstr "Stapsgewijze formulieren die het oude formulier vervangen voor nieuwe sp
 
 msgid "Record creation wizards"
 msgstr "Wizards voor record-aanmaak"
+
+# #0053 — Player journey
+
+msgid "My journey"
+msgstr "Mijn reis"
+
+msgid "Your story at the academy — milestones, evaluations, goals."
+msgstr "Je verhaal bij de academie — mijlpalen, evaluaties, doelen."
+
+msgid "Cohort transitions"
+msgstr "Cohort-overgangen"
+
+msgid "Find every player whose journey contains a particular event in a date range."
+msgstr "Vind elke speler met een specifieke gebeurtenis in een datumbereik."
+
+msgid "Player journey"
+msgstr "Spelersreis"
+
+msgid "A chronological view of every player's academy story — milestones, evaluations, injuries, transitions."
+msgstr "Een chronologisch overzicht van het verhaal van elke speler — mijlpalen, evaluaties, blessures, overgangen."
+
+msgid "Journey"
+msgstr "Reis"
+
+msgid "Journey — %s"
+msgstr "Reis — %s"
+
+msgid "Chronological story for this player. Filter by type or switch to milestones-only for the parent meeting."
+msgstr "Chronologisch verhaal van deze speler. Filter op type of schakel over op alleen mijlpalen voor het oudergesprek."
+
+msgid "Transitions"
+msgstr "Mijlpalen"
+
+msgid "Show full history"
+msgstr "Volledige geschiedenis tonen"
+
+msgid "No journey entries yet."
+msgstr "Nog geen reis-regels."
+
+msgid "Milestone"
+msgstr "Mijlpaal"
+
+msgid "Warning"
+msgstr "Waarschuwing"
+
+msgid "Retracted — replaced by a corrected entry."
+msgstr "Ingetrokken — vervangen door een gecorrigeerde regel."
+
+msgid "%d entry hidden — visible to other roles only."
+msgid_plural "%d entries hidden — visible to other roles only."
+msgstr[0] "%d regel verborgen — alleen zichtbaar voor andere rollen."
+msgstr[1] "%d regels verborgen — alleen zichtbaar voor andere rollen."
+
+msgid "Event type"
+msgstr "Gebeurtenistype"
+
+msgid "Team (optional)"
+msgstr "Team (optioneel)"
+
+msgid "Run query"
+msgstr "Zoekopdracht uitvoeren"
+
+msgid "— Select an event type —"
+msgstr "— Kies een gebeurtenistype —"
+
+msgid "Detail"
+msgstr "Detail"
+
+msgid "Open journey"
+msgstr "Reis openen"
+
+msgid "Pick an event type and a date range to begin."
+msgstr "Kies een gebeurtenistype en een datumbereik om te beginnen."
+
+msgid "No matching events in the selected range."
+msgstr "Geen matchende gebeurtenissen in het gekozen bereik."
+
+msgid "%d match."
+msgid_plural "%d matches."
+msgstr[0] "%d match."
+msgstr[1] "%d matches."
+
+msgid "You need head-of-academy access to use cohort transitions."
+msgstr "Je hebt hoofd-opleidingen-toegang nodig om cohort-overgangen te gebruiken."
+
+msgid "Joined the academy"
+msgstr "Bij de academie gekomen"
+
+msgid "Trial started"
+msgstr "Stage gestart"
+
+msgid "Trial ended: %s"
+msgstr "Stage afgerond: %s"
+
+msgid "Signed after trial"
+msgstr "Vastgelegd na stage"
+
+msgid "Released after trial"
+msgstr "Afscheid genomen na stage"
+
+msgid "Goal set"
+msgstr "Doel gesteld"
+
+msgid "Goal set: %s"
+msgstr "Doel gesteld: %s"
+
+msgid "Signed"
+msgstr "Vastgelegd"
+
+msgid "Graduated"
+msgstr "Doorgestroomd"
+
+msgid "Evaluation on %s"
+msgstr "Evaluatie op %s"
+
+msgid "PDP verdict: %s"
+msgstr "POP-eindbeoordeling: %s"
+
+msgid "Position: %1$s → %2$s"
+msgstr "Positie: %1$s → %2$s"
+
+msgid "Team: %1$s → %2$s"
+msgstr "Team: %1$s → %2$s"
+
+msgid "Age group: %1$s → %2$s"
+msgstr "Leeftijd: %1$s → %2$s"
+
+msgid "unset"
+msgstr "leeg"
+
+msgid "Injury: %s"
+msgstr "Blessure: %s"
+
+msgid "Injury started"
+msgstr "Blessure ingetreden"
+
+msgid "Injury recovered"
+msgstr "Blessure hersteld"
+
+msgid "Injury recovery check"
+msgstr "Controle herstel blessure"
+
+msgid "A player on your team is due back from injury soon. Confirm they are on track or update the expected return date."
+msgstr "Een speler in jouw team is bijna terug van blessure. Bevestig dat ze op schema liggen of werk de verwachte terugkeer bij."
+
+msgid "Confirm whether this player is on track to return from injury."
+msgstr "Bevestig of deze speler op schema ligt om terug te komen van blessure."
+
+msgid "On track — back as expected"
+msgstr "Op schema — terug zoals verwacht"
+
+msgid "Extend — needs more time"
+msgstr "Verlengen — heeft meer tijd nodig"
+
+msgid "Unsure — flag for medical review"
+msgstr "Onzeker — markeer voor medische review"
+
+msgid "Notes (optional)"
+msgstr "Notities (optioneel)"
+
+msgid "Pick one of: on track / extend / unsure."
+msgstr "Kies een optie: op schema / verlengen / onzeker."
+
+msgid "You cannot add events for this player."
+msgstr "Je kunt geen gebeurtenissen toevoegen voor deze speler."
+
+msgid "A summary is required."
+msgstr "Een samenvatting is verplicht."
+
+msgid "Could not record the event."
+msgstr "Kon de gebeurtenis niet vastleggen."
+
+msgid "Event not found."
+msgstr "Gebeurtenis niet gevonden."
+
+msgid "You cannot retract events for this player."
+msgstr "Je kunt geen gebeurtenissen intrekken voor deze speler."
+
+msgid "Could not record the corrected event."
+msgstr "Kon de gecorrigeerde gebeurtenis niet vastleggen."
+
+msgid "event_type, from and to are required."
+msgstr "event_type, from en to zijn verplicht."
+
+msgid "Could not record injury."
+msgstr "Kon blessure niet vastleggen."
+
+msgid "No fields to update or update failed."
+msgstr "Geen velden om bij te werken of bijwerken mislukt."
+
+msgid "Injury not found."
+msgstr "Blessure niet gevonden."

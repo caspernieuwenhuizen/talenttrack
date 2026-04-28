@@ -155,6 +155,8 @@ class TrialsRestController {
             return RestResponse::error( 'bad_request', __( 'Could not create trial case.', 'talenttrack' ), 400 );
         }
         $case = $repo->find( $id );
+        // #0053 — journey subscriber emits trial_started against this hook.
+        do_action( 'tt_trial_started', $id, (int) ( $case->player_id ?? 0 ) );
         return RestResponse::success( [ 'case' => self::format( $case ) ] );
     }
 
@@ -208,11 +210,24 @@ class TrialsRestController {
         if ( strlen( $notes ) < 30 ) {
             return RestResponse::error( 'bad_request', __( 'Justification must be at least 30 characters.', 'talenttrack' ), 400 );
         }
-        $ok = ( new TrialCasesRepository() )->recordDecision(
+        $repo = new TrialCasesRepository();
+        $ok = $repo->recordDecision(
             $id, $decision, get_current_user_id(), $notes,
             isset( $payload['strengths_summary'] ) ? sanitize_textarea_field( (string) $payload['strengths_summary'] ) : null,
             isset( $payload['growth_areas'] )      ? sanitize_textarea_field( (string) $payload['growth_areas'] )      : null
         );
+        if ( $ok ) {
+            $case = $repo->find( $id );
+            // #0053 — journey subscriber emits trial_ended (+ signed/released
+            // depending on decision) against this hook.
+            do_action(
+                'tt_trial_decision_recorded',
+                $id,
+                (int) ( $case->player_id ?? 0 ),
+                $decision,
+                (string) ( $case->decision_made_at ?? '' )
+            );
+        }
         return $ok ? RestResponse::success( [ 'recorded' => true ] )
                    : RestResponse::error( 'bad_request', __( 'Could not record decision.', 'talenttrack' ), 400 );
     }

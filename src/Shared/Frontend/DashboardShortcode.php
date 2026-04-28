@@ -158,13 +158,13 @@ class DashboardShortcode {
         // same entity (evaluations / sessions / goals).
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
-        $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'my-pdp', 'profile' ];
-        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'team-chemistry', 'podium', 'methodology' ];
+        $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'my-pdp', 'profile', 'my-journey' ];
+        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'team-chemistry', 'podium', 'methodology', 'player-journey' ];
         $analytics_slugs = [ 'rate-cards', 'compare' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
         // #0021 — `audit-log` added; uses the same admin tier (cap-checked
         // again inside FrontendAuditLogView::render).
-        $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details', 'audit-log', 'docs' ];
+        $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details', 'audit-log', 'docs', 'cohort-transitions' ];
         // #0022 Sprint 2/5 — workflow surfaces, each cap-gated in dispatch.
         $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config' ];
         // #0009 — Development management slugs. Each view re-checks its
@@ -287,6 +287,9 @@ class DashboardShortcode {
             case 'profile':
                 FrontendMyProfileView::render( $player );
                 break;
+            case 'my-journey':
+                \TT\Modules\Journey\Frontend\FrontendJourneyView::render( $player );
+                break;
             default:
                 FrontendBackButton::render();
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
@@ -376,6 +379,16 @@ class DashboardShortcode {
             case 'methodology':
                 \TT\Modules\Methodology\Frontend\MethodologyView::render();
                 break;
+            case 'player-journey':
+                $journey_player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
+                $journey_player = $journey_player_id > 0 ? QueryHelpers::get_player( $journey_player_id ) : null;
+                if ( ! $journey_player ) {
+                    FrontendBackButton::render();
+                    echo '<p class="tt-notice">' . esc_html__( 'Player not found.', 'talenttrack' ) . '</p>';
+                } else {
+                    \TT\Modules\Journey\Frontend\FrontendJourneyView::render( $journey_player );
+                }
+                break;
             default:
                 FrontendBackButton::render();
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
@@ -435,6 +448,9 @@ class DashboardShortcode {
                 break;
             case 'docs':
                 FrontendDocsView::render( $user_id, $is_admin );
+                break;
+            case 'cohort-transitions':
+                \TT\Modules\Journey\Frontend\FrontendCohortTransitionsView::render( $user_id, $is_admin );
                 break;
             default:
                 FrontendBackButton::render();
