@@ -17,13 +17,13 @@ _None._
 | 0054 | PDP planning windows + HoD dashboard (3-week window per cycle block; HoD sees per-team-per-block planned vs conducted matrix) | feat | [ideas/0054-feat-pdp-planning-windows-and-dashboard.md](ideas/0054-feat-pdp-planning-windows-and-dashboard.md) | ~3-4h actual |
 | 0031 | Spond calendar integration — read-only iCal sync per team, hourly poll, soft-archive on UID removal | feat | [specs/0031-feat-spond-calendar-integration.md](specs/0031-feat-spond-calendar-integration.md) | ~12-18h v1 |
 | 0042 | Youth-aware contact strategy — `tt_phone` user-meta + PWA PushDispatcher + KB install articles, 5-sprint epic | feat | [specs/0042-feat-youth-contact-strategy.md](specs/0042-feat-youth-contact-strategy.md) | ~24-36h v1 |
+| 0056 | Mobile-first cleanup pass — quick wins (legacy form font-size, `inputmode`, `touch-action`, `:focus-visible`, safe-area) + 48px tap-target floor + `desktop_preferred` TileRegistry flag with on-mobile banner + Activities pilot rewritten mobile-first + CLAUDE.md § 2 rule tightening | feat | [specs/0056-feat-mobile-first-cleanup.md](specs/0056-feat-mobile-first-cleanup.md) | ~14-19h |
 
 ## Needs refinement / shaping
 
 | # | Topic | Type | Open questions | Estimated |
 | - | - | - | - | - |
 | 0043 | Knowledge Base platform (searchable article CMS for end-user content — heavyweight successor to #0042's markdown-in-`docs/` surface) | feat | Where it lives (subdomain vs plugin CPT vs marketing-site embed), public vs auth-gated, search engine choice, content authorship (TalentTrack-only vs community), multilingual approach, in-app contextual embed, versioning, taxonomy, migration path, telemetry — parked until trigger fires (article count >30, or customer ask, or marketing/SEO push) | ~40-60h |
-| 0056 | Mobile-first cleanup pass — close the gap between `CLAUDE.md` § 2 and the codebase | epic | Sprint 4 pilot view (Activities / Players / Goals?), CI gate scope, "best on desktop" notice form (banner vs toast), tap-target gating breakpoint, form-system migration deferral confirmed | ~13-18h v1 / [ideas/0056-epic-mobile-first-cleanup.md](ideas/0056-epic-mobile-first-cleanup.md) |
 
 ## Not started (no shaping needed before build)
 
