@@ -10,7 +10,7 @@ _None._
 
 | # | Topic | Type | Spec | Estimated |
 | - | - | - | - | - |
-| 0028 | Goals as conversational thread | feat | (spec TBD; #0022 Phase 1 unblocked) | ~20-30h |
+| 0028 | Goals as conversational thread — polymorphic `tt_thread_messages` primitive + goal adapter + chat-style mobile UI | feat | [specs/0028-feat-conversational-goals.md](specs/0028-feat-conversational-goals.md) | ~20-25h |
 | 0039 | Staff development module — personal goals + evaluations + certifications + PDP for coaches/scouts/staff. Five new tables, four workflow templates, new "Mentor" functional role, new "Staff development" tile group. | feat | [specs/0039-feat-staff-development-module.md](specs/0039-feat-staff-development-module.md) | ~30-38h / ~4-6h compressed |
 | 0052 (PR-A) | SaaS-readiness baseline — tenancy scaffold + repository enforcement. New migration `0036_tenancy_scaffold.php` adds `club_id` to ~25 tenant-scoped tables and `uuid` to 5 root entities; new migration `0037_tt_config_tenancy.php` reshapes `tt_config` with composite `(club_id, config_key)` UNIQUE; new `Infrastructure\Tenancy\CurrentClub` helper; every repository's reads filtered by `club_id`. Solo per AGENTS.md; blocks PR-B and PR-C. | feat | [specs/0052-feat-saas-readiness-tenancy-and-repos.md](specs/0052-feat-saas-readiness-tenancy-and-repos.md) | ~12-18h |
 | 0052 (PR-B) | SaaS-readiness baseline — REST gap closure + auth portability. Three new REST controllers (lookups, audit-log, invitations); port-on-touch policy + 3 high-value `admin_post_*` ports + documented backlog; role-string `in_array` compares eliminated across 5 files; over-broad `is_user_logged_in()` gates converted to capability checks. Blocks on PR-A. | feat | [specs/0052-feat-saas-readiness-rest-and-auth.md](specs/0052-feat-saas-readiness-rest-and-auth.md) | ~10-14h |
@@ -118,7 +118,7 @@ Realistic next moves:
    - **#0014 Player profile rebuild (~58h)** — unblocks #0017 (trial player module, ~72h after this).
    - **#0006 Team planning module (~55h)** — pairs well with #0022 (sessions are templated, scheduling on a calendar is the obvious next surface).
    - **#0010 Multi-language (FR/DE/ES) (~80-140h, likely lower)** — re-estimate now that #0025 + #0029 ship; the manual-translation surface is much smaller than originally scoped.
-2. **Shape #0028** — goals as conversational thread. #0022 Phase 1 unblocked it; rough estimate ~20-30h pending the shaping pass.
+2. **#0028 shaped** — goals as conversational thread (~20-25h, polymorphic thread primitive + goal adapter); ready to build.
 
 ## Total backlog effort estimate
 
