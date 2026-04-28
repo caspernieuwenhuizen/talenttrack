@@ -206,23 +206,71 @@ class QueryHelpers {
         return $r;
     }
 
-    /** @return object[] */
+    /**
+     * Teams a user coaches. Consults both:
+     *
+     *   1. Legacy: `tt_teams.head_coach_id` (the v2.x assignment path).
+     *   2. Modern: `tt_user_role_scopes` with `scope_type='team'` for any
+     *      team-scoped role (head coach, assistant coach, manager). Pre-
+     *      v3.x staff panel writes go here, not the legacy column.
+     *
+     * The two paths union-merge so a user assigned via the new staff
+     * panel sees their team under "My teams" / can create PDP files,
+     * even though the legacy column wasn't updated. Without this, the
+     * staff panel and "My teams" disagree — the player surface uses
+     * the modern path (AuthorizationService) but `get_teams_for_coach`
+     * was reading only the legacy column.
+     *
+     * @return object[]
+     */
     public static function get_teams_for_coach( int $user_id ): array {
         global $wpdb;
+        if ( $user_id <= 0 ) return [];
+
         $scope = self::apply_demo_scope( 't', 'team' );
-        return $wpdb->get_results( $wpdb->prepare(
-            "SELECT t.* FROM {$wpdb->prefix}tt_teams t
-             WHERE t.head_coach_id = %d {$scope}
-             ORDER BY t.name ASC",
+        $person_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d LIMIT 1",
             $user_id
+        ) );
+
+        // Fast path: just the legacy column.
+        if ( $person_id <= 0 ) {
+            return $wpdb->get_results( $wpdb->prepare(
+                "SELECT t.* FROM {$wpdb->prefix}tt_teams t
+                 WHERE t.head_coach_id = %d {$scope}
+                 ORDER BY t.name ASC",
+                $user_id
+            ));
+        }
+
+        // Union path: legacy column OR active team-scoped role.
+        $today = current_time( 'Y-m-d' );
+        return $wpdb->get_results( $wpdb->prepare(
+            "SELECT DISTINCT t.* FROM {$wpdb->prefix}tt_teams t
+              LEFT JOIN {$wpdb->prefix}tt_user_role_scopes urs
+                ON urs.scope_type = 'team' AND urs.scope_id = t.id
+                AND urs.person_id = %d
+                AND ( urs.start_date IS NULL OR urs.start_date <= %s )
+                AND ( urs.end_date   IS NULL OR urs.end_date   >= %s )
+              WHERE ( t.head_coach_id = %d OR urs.id IS NOT NULL )
+                {$scope}
+              ORDER BY t.name ASC",
+            $person_id, $today, $today, $user_id
         ));
     }
 
+    /**
+     * Does this user coach a team that the player is on? Same union-merge
+     * as `get_teams_for_coach()` so legacy and modern assignment paths
+     * converge.
+     */
     public static function coach_owns_player( int $coach_user_id, int $player_id ): bool {
         $player = self::get_player( $player_id );
-        if ( ! $player || ! $player->team_id ) return false;
-        $team = self::get_team( (int) $player->team_id );
-        return $team && (int) $team->head_coach_id === $coach_user_id;
+        if ( ! $player || empty( $player->team_id ) ) return false;
+        foreach ( self::get_teams_for_coach( $coach_user_id ) as $t ) {
+            if ( (int) $t->id === (int) $player->team_id ) return true;
+        }
+        return false;
     }
 
     public static function get_evaluation( int $id ): ?object {

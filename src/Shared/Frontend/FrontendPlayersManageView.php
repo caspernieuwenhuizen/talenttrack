@@ -293,10 +293,60 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 if ( $is_edit ) {
                     self::renderLinkedParents( (int) $player->id );
                 } else {
-                    esc_html_e( 'Link a parent account after saving the player from the People page. Otherwise, fill in their name + contact below; a coach can convert them to a real account later.', 'talenttrack' );
+                    esc_html_e( 'Link a parent account on save (dropdown below) or fill in name + contact below; a coach can convert them to a real account later.', 'talenttrack' );
                 }
                 ?>
             </p>
+
+            <?php
+            // #PDP-quality-pass: connect-parent dropdown. Shows people
+            // with role_type='parent' that have a linked WP user; on
+            // save, the player REST controller links the chosen parent
+            // via PlayerParentsRepository::link(). Native select with
+            // datalist for filter-as-you-type — meets the mobile-first
+            // touch-target rule without bringing in a custom picker.
+            $parent_options = self::availableParents( (int) ( $player->id ?? 0 ) );
+            ?>
+            <div class="tt-field">
+                <label class="tt-field-label" for="tt-player-link-parent">
+                    <?php esc_html_e( 'Connect a parent account', 'talenttrack' ); ?>
+                </label>
+                <input type="text"
+                       id="tt-player-link-parent-search"
+                       class="tt-input"
+                       list="tt-player-link-parent-options"
+                       placeholder="<?php esc_attr_e( 'Type a parent\'s name…', 'talenttrack' ); ?>"
+                       autocomplete="off"
+                       inputmode="search"
+                       data-tt-parent-picker="1" />
+                <datalist id="tt-player-link-parent-options">
+                    <?php foreach ( $parent_options as $opt ) : ?>
+                        <option data-user-id="<?php echo (int) $opt['user_id']; ?>" value="<?php echo esc_attr( $opt['label'] ); ?>"></option>
+                    <?php endforeach; ?>
+                </datalist>
+                <input type="hidden" name="link_parent_user_id" id="tt-player-link-parent" value="" />
+                <small style="font-size:12px; color:#5b6e75; display:block; margin-top:2px;">
+                    <?php esc_html_e( 'Only people whose role is set to "parent" appear here. Manage parent role assignments on the People page.', 'talenttrack' ); ?>
+                </small>
+            </div>
+            <script>
+            (function(){
+                var search = document.getElementById('tt-player-link-parent-search');
+                var hidden = document.getElementById('tt-player-link-parent');
+                var list = document.getElementById('tt-player-link-parent-options');
+                if (!search || !hidden || !list) return;
+                var lookup = {};
+                Array.prototype.forEach.call(list.options, function(opt) {
+                    lookup[opt.value] = opt.getAttribute('data-user-id') || '';
+                });
+                search.addEventListener('change', function() {
+                    hidden.value = lookup[search.value] || '';
+                });
+                search.addEventListener('input', function() {
+                    if (!lookup[search.value]) hidden.value = '';
+                });
+            })();
+            </script>
 
             <div class="tt-grid tt-grid-2">
                 <div class="tt-field">
@@ -540,5 +590,45 @@ class FrontendPlayersManageView extends FrontendViewBase {
             esc_html__( 'Linked parent accounts: %s. Manage from People → user → Edit. The contact fields below are still useful for any parent without an account.', 'talenttrack' ),
             esc_html( implode( ', ', $names ) )
         );
+    }
+
+    /**
+     * People with role_type='parent' that have a linked WP user, minus
+     * any already linked to this player. The REST `update_player`
+     * handler reads `link_parent_user_id` from the payload and feeds it
+     * to `PlayerParentsRepository::link()`.
+     *
+     * @return list<array{user_id:int, label:string}>
+     */
+    private static function availableParents( int $player_id ): array {
+        global $wpdb; $p = $wpdb->prefix;
+
+        $already_linked = [];
+        if ( $player_id > 0 ) {
+            $already_linked = ( new \TT\Modules\Invitations\PlayerParentsRepository() )
+                ->parentsForPlayer( $player_id );
+        }
+
+        $rows = $wpdb->get_results(
+            "SELECT pe.id, pe.first_name, pe.last_name, pe.email, pe.wp_user_id
+               FROM {$p}tt_people pe
+              WHERE pe.role_type = 'parent'
+                AND pe.archived_at IS NULL
+                AND pe.wp_user_id IS NOT NULL AND pe.wp_user_id > 0
+              ORDER BY pe.last_name ASC, pe.first_name ASC"
+        );
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $uid = (int) $r->wp_user_id;
+            if ( in_array( $uid, $already_linked, true ) ) continue;
+            $name = trim( (string) $r->first_name . ' ' . (string) $r->last_name );
+            if ( $name === '' ) continue;
+            $email = (string) ( $r->email ?? '' );
+            $out[] = [
+                'user_id' => $uid,
+                'label'   => $email !== '' ? sprintf( '%s (%s)', $name, $email ) : $name,
+            ];
+        }
+        return $out;
     }
 }

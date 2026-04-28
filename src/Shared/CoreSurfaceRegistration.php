@@ -327,7 +327,7 @@ final class CoreSurfaceRegistration {
             'kind'         => 'work',
             'order'        => 20,
             'label'        => __( 'Activities', 'talenttrack' ),
-            'description'  => __( 'Log training sessions and attendance.', 'talenttrack' ),
+            'description'  => __( 'Log training activities and attendance.', 'talenttrack' ),
             'icon'         => 'activities',
             'color'        => '#c9962a',
             'cap_callback' => $is_coach_or_admin_cb,

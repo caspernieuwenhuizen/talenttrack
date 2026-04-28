@@ -72,13 +72,21 @@
         });
     }
 
+    function presentValueFor(root) {
+        // The PHP layer passes the canonical "Present" value via
+        // data-tt-attendance-present-value. Falls back to literal 'Present'
+        // for older renders that haven't been re-saved.
+        return root.getAttribute('data-tt-attendance-present-value') || 'Present';
+    }
+
     function updateSummary(root) {
         var rows = visibleRowsForCurrentTeam(root);
         var total = rows.length;
+        var presentValue = presentValueFor(root);
         var present = 0;
         rows.forEach(function(r) {
             var sel = r.querySelector('[data-tt-attendance-status="1"]');
-            if (sel && sel.value === 'Present') present++;
+            if (sel && sel.value === presentValue) present++;
         });
         var summary = root.querySelector('[data-tt-attendance-summary="1"]');
         if (!summary) return;
@@ -88,15 +96,15 @@
     }
 
     function markAllPresent(root) {
+        var presentValue = presentValueFor(root);
         visibleRowsForCurrentTeam(root).forEach(function(row) {
             var sel = row.querySelector('[data-tt-attendance-status="1"]');
             if (!sel) return;
-            // Find the option whose value matches "Present" — fall back
-            // to the first option if no exact match (some installs have
-            // localized lookup names).
+            // Match against the localized "Present" value first; fall back
+            // to the first option if the lookup table has shifted under us.
             var matched = false;
             for (var i = 0; i < sel.options.length; i++) {
-                if (sel.options[i].value === 'Present') {
+                if (sel.options[i].value === presentValue) {
                     sel.selectedIndex = i;
                     matched = true;
                     break;

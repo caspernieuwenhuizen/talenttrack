@@ -175,7 +175,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $draft_key = $is_edit ? '' : 'activity-form'; // edit forms don't draft — the row is the source of truth
 
         ?>
-        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form tt-activity-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>"<?php if ( $draft_key !== '' ) : ?> data-draft-key="<?php echo esc_attr( $draft_key ); ?>"<?php endif; ?>>
+        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form tt-activity-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list"<?php if ( $draft_key !== '' ) : ?> data-draft-key="<?php echo esc_attr( $draft_key ); ?>"<?php endif; ?>>
             <div class="tt-grid tt-grid-2">
                 <div class="tt-field">
                     <label class="tt-field-label tt-field-required" for="tt-activity-type"><?php esc_html_e( 'Type', 'talenttrack' ); ?></label>
@@ -244,7 +244,16 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             <?php if ( ! $all_players ) : ?>
                 <p><em><?php esc_html_e( 'No players on your teams yet.', 'talenttrack' ); ?></em></p>
             <?php else : ?>
-                <div class="tt-attendance" data-tt-attendance="1" data-current-team="<?php echo (int) $selected_team; ?>">
+                <?php
+                // Tell the JS which option value counts as "Present" for
+                // the live summary count + Mark-all-present default. Defaults
+                // to the literal English seed name; if the admin renamed the
+                // first attendance_status row (e.g. to 'Aanwezig'), we use
+                // that — the first row in sort_order is the canonical
+                // "present" by convention (#0019 Sprint 2 lookup contract).
+                $present_value = ! empty( $statuses ) ? (string) $statuses[0] : 'Present';
+                ?>
+                <div class="tt-attendance" data-tt-attendance="1" data-current-team="<?php echo (int) $selected_team; ?>" data-tt-attendance-present-value="<?php echo esc_attr( $present_value ); ?>">
                     <div class="tt-attendance-toolbar">
                         <button type="button" class="tt-btn tt-btn-secondary tt-attendance-mark-all" data-tt-attendance-mark-all="1">
                             <?php esc_html_e( 'Mark all present', 'talenttrack' ); ?>
