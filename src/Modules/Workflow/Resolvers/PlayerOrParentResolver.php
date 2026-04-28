@@ -74,12 +74,7 @@ class PlayerOrParentResolver implements AssigneeResolver {
     }
 
     private function loadPolicy(): string {
-        global $wpdb;
-        $value = $wpdb->get_var( $wpdb->prepare(
-            "SELECT config_value FROM {$wpdb->prefix}tt_config WHERE config_key = %s LIMIT 1",
-            'tt_workflow_minors_assignment_policy'
-        ) );
-        $value = is_string( $value ) && $value !== '' ? $value : 'age_based';
+        $value = \TT\Infrastructure\Query\QueryHelpers::get_config( 'tt_workflow_minors_assignment_policy', 'age_based' );
         $valid = [ 'direct_only', 'parent_proxy', 'direct_with_parent_visibility', 'age_based' ];
         return in_array( $value, $valid, true ) ? $value : 'age_based';
     }

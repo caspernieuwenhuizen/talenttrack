@@ -4,6 +4,7 @@ namespace TT\Infrastructure\Query;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Config\ConfigService;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * QueryHelpers — shared read-side queries and presentation helpers.
@@ -25,6 +26,41 @@ class QueryHelpers {
             self::$config = new ConfigService();
         }
         return self::$config;
+    }
+
+    // Tenancy scoping (#0052 PR-A)
+
+    /**
+     * Build a SQL `WHERE` fragment that scopes a query to the active
+     * club. Returns a prepared string suitable for inlining into a
+     * larger SQL statement; the int placeholder is filled at format
+     * time so the value is injection-safe.
+     *
+     *   $where = QueryHelpers::clubScopeWhere();           // "club_id = 1"
+     *   $where = QueryHelpers::clubScopeWhere( 'p' );      // "p.club_id = 1"
+     *
+     * Today the int is always `1`. Once a SaaS auth layer hooks into
+     * `tt_current_club_id` the value resolves per-request.
+     */
+    public static function clubScopeWhere( string $alias = '' ): string {
+        $col = $alias !== '' ? "{$alias}.club_id" : 'club_id';
+        return sprintf( '%s = %d', $col, CurrentClub::id() );
+    }
+
+    /**
+     * Insert payload fragment carrying `club_id` for the active club.
+     * Spread into a `$wpdb->insert()` data array so write-side queries
+     * pick up the scope automatically.
+     *
+     *   $wpdb->insert( $table, array_merge(
+     *       $row,
+     *       QueryHelpers::clubScopeInsertColumn()
+     *   ) );
+     *
+     * @return array{club_id:int}
+     */
+    public static function clubScopeInsertColumn(): array {
+        return [ 'club_id' => CurrentClub::id() ];
     }
 
     // Config passthrough

@@ -83,10 +83,13 @@ class Activator {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        // 1. Already configured + page still exists?
+        // 1. Already configured + page still exists? Scoped to club_id=1
+        // because Activator runs install-time before any auth context;
+        // single-tenant installs are always club 1.
         $configured = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT config_value FROM {$p}tt_config WHERE config_key = %s",
-            'dashboard_page_id'
+            "SELECT config_value FROM {$p}tt_config
+              WHERE club_id = %d AND config_key = %s",
+            1, 'dashboard_page_id'
         ) );
         if ( $configured > 0 ) {
             $post = get_post( $configured );
@@ -127,6 +130,7 @@ class Activator {
 
         // Persist the link.
         $wpdb->replace( "{$p}tt_config", [
+            'club_id'      => 1,
             'config_key'   => 'dashboard_page_id',
             'config_value' => (string) (int) $page_id,
         ] );
@@ -164,10 +168,15 @@ class Activator {
             KEY idx_type (lookup_type)
         ) $c;";
 
+        // #0052 PR-A — composite (club_id, config_key) primary key for
+        // SaaS-readiness tenancy scoping. Existing single-tenant installs
+        // get all rows tagged club_id=1 via the column default; migration
+        // 0039 reshapes the PK on already-installed sites.
         $queries[] = "CREATE TABLE {$p}tt_config (
+            club_id INT UNSIGNED NOT NULL DEFAULT 1,
             config_key VARCHAR(191) NOT NULL,
             config_value LONGTEXT,
-            PRIMARY KEY (config_key)
+            PRIMARY KEY (club_id, config_key)
         ) $c;";
 
         // Teams & players
@@ -882,7 +891,7 @@ class Activator {
             'pdp_print_include_evidence'  => '0',
         ];
         foreach ( $defaults as $k => $v ) {
-            $wpdb->replace( "{$p}tt_config", [ 'config_key' => $k, 'config_value' => $v ] );
+            $wpdb->replace( "{$p}tt_config", [ 'club_id' => 1, 'config_key' => $k, 'config_value' => $v ] );
         }
 
         // #0044 — seed one current season on fresh installs so the

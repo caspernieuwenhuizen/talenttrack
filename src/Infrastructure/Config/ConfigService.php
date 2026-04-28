@@ -3,10 +3,17 @@ namespace TT\Infrastructure\Config;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * ConfigService — reads and writes key-value config from tt_config.
  *
  * Replaces the scattered static helpers from v1.x. Injected via the container.
+ *
+ * Tenant-scoped via composite primary key `(club_id, config_key)` since
+ * #0052 PR-A. `CurrentClub::id()` returns `1` today; a future SaaS auth
+ * layer hooks the `tt_current_club_id` filter and this class will pick
+ * up per-tenant values without code changes.
  */
 class ConfigService {
 
@@ -14,25 +21,38 @@ class ConfigService {
     private $cache = [];
 
     public function get( string $key, string $default = '' ): string {
-        if ( array_key_exists( $key, $this->cache ) ) {
-            return $this->cache[ $key ];
+        $cache_key = $this->cacheKey( $key );
+        if ( array_key_exists( $cache_key, $this->cache ) ) {
+            return $this->cache[ $cache_key ];
         }
         global $wpdb;
         /** @var string|null $val */
         $val = $wpdb->get_var( $wpdb->prepare(
-            "SELECT config_value FROM {$wpdb->prefix}tt_config WHERE config_key = %s", $key
+            "SELECT config_value FROM {$wpdb->prefix}tt_config
+              WHERE club_id = %d AND config_key = %s",
+            CurrentClub::id(), $key
         ));
         $result = ( $val !== null ) ? (string) $val : $default;
-        $this->cache[ $key ] = $result;
+        $this->cache[ $cache_key ] = $result;
         return $result;
     }
 
     public function set( string $key, string $value ): void {
         global $wpdb;
         $wpdb->replace( $wpdb->prefix . 'tt_config', [
-            'config_key' => $key, 'config_value' => $value,
+            'club_id'      => CurrentClub::id(),
+            'config_key'   => $key,
+            'config_value' => $value,
         ]);
-        $this->cache[ $key ] = $value;
+        $this->cache[ $this->cacheKey( $key ) ] = $value;
+    }
+
+    /**
+     * Per-club cache namespace so multiple clubs in the same request
+     * (test or future SaaS) don't return stale reads.
+     */
+    private function cacheKey( string $config_key ): string {
+        return CurrentClub::id() . ':' . $config_key;
     }
 
     /**

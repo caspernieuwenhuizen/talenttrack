@@ -387,21 +387,13 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
     }
 
     private static function loadMinorsPolicy(): string {
-        global $wpdb;
-        $value = $wpdb->get_var( $wpdb->prepare(
-            "SELECT config_value FROM {$wpdb->prefix}tt_config WHERE config_key = %s LIMIT 1",
-            'tt_workflow_minors_assignment_policy'
-        ) );
+        $value = \TT\Infrastructure\Query\QueryHelpers::get_config( 'tt_workflow_minors_assignment_policy', '' );
         $valid = [ 'direct_only', 'parent_proxy', 'direct_with_parent_visibility', 'age_based' ];
-        return in_array( (string) $value, $valid, true ) ? (string) $value : 'age_based';
+        return in_array( $value, $valid, true ) ? $value : 'age_based';
     }
 
     private static function saveMinorsPolicy( string $policy ): void {
-        global $wpdb;
-        $wpdb->replace( $wpdb->prefix . 'tt_config', [
-            'config_key'   => 'tt_workflow_minors_assignment_policy',
-            'config_value' => $policy,
-        ] );
+        \TT\Infrastructure\Query\QueryHelpers::set_config( 'tt_workflow_minors_assignment_policy', $policy );
     }
 
     /** @return array<string,string> */

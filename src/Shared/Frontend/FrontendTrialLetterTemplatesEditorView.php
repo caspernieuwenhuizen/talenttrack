@@ -75,8 +75,10 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
     private static function renderSettings(): void {
         echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Acceptance slip', 'talenttrack' ) . '</h2>';
         $enabled  = LetterTemplateEngine::acceptanceSlipEnabled();
-        $deadline = (int) get_option( 'tt_trial_acceptance_response_days', 14 );
-        $address  = (string) get_option( 'tt_trial_acceptance_club_address', '' );
+        // #0052 PR-A — read tenant-scoped settings from tt_config.
+        $deadline = (int) \TT\Infrastructure\Query\QueryHelpers::get_config( 'tt_trial_acceptance_response_days', '14' );
+        if ( $deadline <= 0 ) $deadline = 14;
+        $address  = \TT\Infrastructure\Query\QueryHelpers::get_config( 'tt_trial_acceptance_club_address', '' );
         echo '<form method="post"><input type="hidden" name="tt_trial_letter_action" value="save_settings">';
         wp_nonce_field( 'tt_trial_letter_settings', 'tt_trial_letter_settings_nonce' );
         echo '<label><input type="checkbox" name="acceptance_slip_enabled" ' . checked( $enabled, true, false ) . '> ' . esc_html__( 'Include the acceptance slip on admittance letters', 'talenttrack' ) . '</label>';
@@ -154,9 +156,19 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
 
         if ( $action === 'save_settings' ) {
             if ( ! isset( $_POST['tt_trial_letter_settings_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_trial_letter_settings_nonce'] ) ), 'tt_trial_letter_settings' ) ) return;
-            update_option( 'tt_trial_admittance_include_acceptance_slip', ! empty( $_POST['acceptance_slip_enabled'] ) );
-            update_option( 'tt_trial_acceptance_response_days', max( 1, (int) ( $_POST['acceptance_response_days'] ?? 14 ) ) );
-            update_option( 'tt_trial_acceptance_club_address', sanitize_textarea_field( wp_unslash( (string) ( $_POST['acceptance_club_address'] ?? '' ) ) ) );
+            // #0052 PR-A — write tenant-scoped settings to tt_config.
+            \TT\Infrastructure\Query\QueryHelpers::set_config(
+                'tt_trial_admittance_include_acceptance_slip',
+                ! empty( $_POST['acceptance_slip_enabled'] ) ? '1' : '0'
+            );
+            \TT\Infrastructure\Query\QueryHelpers::set_config(
+                'tt_trial_acceptance_response_days',
+                (string) max( 1, (int) ( $_POST['acceptance_response_days'] ?? 14 ) )
+            );
+            \TT\Infrastructure\Query\QueryHelpers::set_config(
+                'tt_trial_acceptance_club_address',
+                sanitize_textarea_field( wp_unslash( (string) ( $_POST['acceptance_club_address'] ?? '' ) ) )
+            );
             return;
         }
 

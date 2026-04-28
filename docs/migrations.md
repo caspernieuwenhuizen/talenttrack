@@ -46,3 +46,15 @@ All steps are **idempotent** — running migrations when nothing has changed is 
 - Deactivate + reactivate (old workflow, no longer required)
 - Edit the database manually
 - Worry about "running the wrong migration" — the system figures out what needs applying
+
+## SaaS-readiness audit script (#0052 PR-A)
+
+A one-shot script `bin/audit-tenancy.php` ships with the plugin to verify the SaaS-readiness scaffold added by migrations 0038 + 0039. It checks every tenant-scoped table for a populated `club_id` column, the five root entities for unique populated `uuid` values, and the `tt_config` composite primary key.
+
+Run it via WP-CLI on the host:
+
+```
+wp eval-file wp-content/plugins/talenttrack/bin/audit-tenancy.php
+```
+
+Exit code `0` on success, `1` on failure with a per-row report. Intended as a sanity check after the migrations run; the future SaaS-migration sprint will resurrect it as part of pre-go-live validation.

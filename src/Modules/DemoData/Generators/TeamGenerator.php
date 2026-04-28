@@ -166,11 +166,7 @@ class TeamGenerator {
         if ( $this->club_name_override !== null ) {
             return $this->club_name_override;
         }
-        global $wpdb;
-        $name = $wpdb->get_var( $wpdb->prepare(
-            "SELECT config_value FROM {$wpdb->prefix}tt_config WHERE config_key = %s",
-            'academy_name'
-        ) );
-        return $name ? (string) $name : 'Demo Academy';
+        $name = \TT\Infrastructure\Query\QueryHelpers::get_config( 'academy_name', '' );
+        return $name !== '' ? $name : 'Demo Academy';
     }
 }

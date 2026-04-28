@@ -97,6 +97,25 @@ Two storage layers for configurable reference data:
 
 Code that needs a translatable user-facing value pulls it via `tt_lookups`; never hard-coded PHP arrays of UI strings (per the Ship-along rule in DEVOPS.md).
 
+## SaaS-readiness scaffold (#0052 PR-A)
+
+Per `CLAUDE.md` § 3, every new tenant-scoped table carries a `club_id INT UNSIGNED NOT NULL DEFAULT 1` and root entities carry a `uuid CHAR(36) UNIQUE`. PR-A backfills the same scaffold across the existing schema:
+
+- **Tenancy column.** Migration `0038_tenancy_scaffold.php` adds `club_id` to ~50 tenant-scoped `tt_*` tables. Idempotent — already-shipped tables (trial cases, journey events) are skipped via `SHOW COLUMNS`.
+- **UUID column.** Same migration adds `uuid VARCHAR(36) UNIQUE` to the five root entities (`tt_players`, `tt_teams`, `tt_evaluations`, `tt_activities`, `tt_goals`) and backfills existing rows in 500-row batches with `wp_generate_uuid4()`.
+- **`tt_config` reshape.** Migration `0039_tt_config_tenancy.php` adds `club_id` to `tt_config` and replaces `PRIMARY KEY (config_key)` with `PRIMARY KEY (club_id, config_key)`. Tenant-scoped `wp_options` (the three trial-letter settings) get copied into `tt_config` keyed by `club_id=1`.
+- **Resolver.** `Infrastructure\Tenancy\CurrentClub::id()` returns `1` today and is filterable via `tt_current_club_id`. A future SaaS auth backend (session / JWT / subdomain) hooks the filter; this class stays as the single chokepoint.
+- **Helpers.** `QueryHelpers::clubScopeWhere()` returns the `club_id = N` SQL fragment; `QueryHelpers::clubScopeInsertColumn()` returns the insert-payload fragment. New repositories use these from day one; legacy repository sweep is deferred (see § Known SaaS-readiness gaps below).
+- **`ConfigService`.** Already updated to filter by `CurrentClub::id()` on every read + write. Per-club cache namespace prevents stale cross-club reads.
+
+The scaffold is invisible at runtime today (every row carries `club_id = 1`, every read implicitly returns the same single tenant). Verification via `bin/audit-tenancy.php` (run via `wp eval-file`).
+
+### Known SaaS-readiness gaps (deferred to PR-B / PR-C / SaaS migration)
+
+- **Repository read-side filter sweep.** Most repositories (`src/Modules/*/Repositories/`) still execute SQL like `SELECT ... FROM tt_xxx WHERE id = %d` without a `club_id` filter. Today this is correct (one tenant, all rows have `club_id=1`); a future second tenant would leak across boundaries. The mechanical sweep happens in PR-B + module-by-module follow-ups before any SaaS go-live. The audit script flags data-integrity violations; the read-side gap is documented here, not detected automatically.
+- **Wizard analytics counters.** `tt_wizard_started_*` / `_completed_*` / `_skipped_*` rows in `wp_options` use dynamic keys and remain install-global. Per-club analytics is a separate refactor (small surface; not blocking).
+- **`tt_user_id` resolver.** Player records still reference `wp_user_id` directly. The future SaaS auth model substitutes a portable identity; documented as intent in `docs/access-control.md`.
+
 ## Journey events (#0053)
 
 The journey is a read-side aggregate, not a fifth modeling pillar. Per `CLAUDE.md` § 1, every player has a chronological story — the journey makes that story queryable without rewriting the modules that own the underlying records.

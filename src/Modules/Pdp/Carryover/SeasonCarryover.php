@@ -145,11 +145,7 @@ class SeasonCarryover {
     }
 
     private static function resolveClubCycleDefault(): int {
-        global $wpdb; $p = $wpdb->prefix;
-        $val = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT config_value FROM {$p}tt_config WHERE config_key = %s",
-            'pdp_cycle_default'
-        ) );
+        $val = (int) \TT\Infrastructure\Query\QueryHelpers::get_config( 'pdp_cycle_default', '3' );
         return in_array( $val, [ 2, 3, 4 ], true ) ? $val : 3;
     }
 }
