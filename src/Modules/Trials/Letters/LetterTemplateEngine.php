@@ -138,7 +138,9 @@ final class LetterTemplateEngine {
     }
 
     private static function responseDeadlineFor( object $case ): string {
-        $days  = (int) get_option( 'tt_trial_acceptance_response_days', 14 );
+        // #0052 PR-A — moved from wp_options into tt_config (per-tenant).
+        $days  = (int) \TT\Infrastructure\Query\QueryHelpers::get_config( 'tt_trial_acceptance_response_days', '14' );
+        if ( $days <= 0 ) $days = 14;
         $start = time();
         if ( ! empty( $case->decision_made_at ) ) {
             $ts = strtotime( (string) $case->decision_made_at );
@@ -148,7 +150,8 @@ final class LetterTemplateEngine {
     }
 
     public static function acceptanceSlipEnabled(): bool {
-        return (bool) get_option( 'tt_trial_admittance_include_acceptance_slip', false );
+        $val = \TT\Infrastructure\Query\QueryHelpers::get_config( 'tt_trial_admittance_include_acceptance_slip', '' );
+        return $val === '1' || $val === 'true' || $val === 'on';
     }
 
     /**

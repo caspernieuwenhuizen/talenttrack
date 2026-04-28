@@ -443,13 +443,8 @@ class DemoDataPage {
     }
 
     private static function defaultClubName(): string {
-        global $wpdb;
-        $name = $wpdb->get_var( $wpdb->prepare(
-            "SELECT config_value FROM {$wpdb->prefix}tt_config WHERE config_key = %s",
-            'academy_name'
-        ) );
-        $n = $name ? trim( (string) $name ) : '';
-        return $n !== '' ? $n : 'Demo Academy';
+        $name = trim( \TT\Infrastructure\Query\QueryHelpers::get_config( 'academy_name', '' ) );
+        return $name !== '' ? $name : 'Demo Academy';
     }
 
     private static function renderWipeSection(): void {

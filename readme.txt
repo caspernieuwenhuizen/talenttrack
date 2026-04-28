@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.44.0
+Stable tag: 3.45.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.45.0 — SaaS-readiness baseline (PR-A): tenancy scaffold + tt_config reshape (#0052) =
+
+One-time backfill bringing the existing schema into compliance with `CLAUDE.md` § 3. Adds `club_id INT UNSIGNED NOT NULL DEFAULT 1` to ~50 tenant-scoped `tt_*` tables and `uuid VARCHAR(36) UNIQUE` to the five root entities (`tt_players`, `tt_teams`, `tt_evaluations`, `tt_activities`, `tt_goals`). Reshapes `tt_config` with a composite `(club_id, config_key)` primary key and copies the three trial-letter `wp_options` into `tt_config` for per-tenant scoping. New `Infrastructure\Tenancy\CurrentClub` resolver (returns `1` today, filterable via `tt_current_club_id`); `QueryHelpers::clubScopeWhere()` and `QueryHelpers::clubScopeInsertColumn()` helpers; `ConfigService` reads + writes filter by `CurrentClub::id()`. Behaviour-identical at runtime — every row carries `club_id = 1`, every read implicitly returns the same single tenant. Verification via the new `bin/audit-tenancy.php` (run via `wp eval-file`). Repository read-side filter sweep is deferred to PR-B + module-by-module follow-ups before SaaS go-live; the gap is documented in `docs/architecture.md` § Known SaaS-readiness gaps. Unblocks PR-B (REST + auth portability) and PR-C (assets + cron + OpenAPI).
 
 = 3.44.0 — Player journey: chronological events spine + injuries + cohort transitions (#0053 epic) =
 

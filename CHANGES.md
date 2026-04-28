@@ -1,3 +1,114 @@
+# TalentTrack v3.45.0 — SaaS-readiness baseline (PR-A): tenancy scaffold + tt_config reshape (#0052)
+
+First of three independently-shippable PRs that bring the existing schema into compliance with `CLAUDE.md` § 3. PR-A is the only one that touches schema, so it ships solo per AGENTS.md and unblocks PR-B (REST gap closure + auth portability) and PR-C (assets + cron + OpenAPI).
+
+## What this release does NOT do
+
+- Change runtime behaviour. Every existing row carries `club_id = 1`, every existing read returns the same single tenant. The scaffold is invisible at runtime today.
+- Sweep every repository to add `WHERE club_id = N` to read-side queries. Deferred to PR-B + module-by-module follow-ups (see § Known gaps below). The audit script flags data-integrity violations; the read-side gap is documented in `docs/architecture.md`.
+- Build the `tt_user_id` resolver. Documented intent only.
+- Multi-tenant the WP plugin. Single-tenant after this release; `CurrentClub::id()` returns `1`.
+
+## Schema
+
+Two new migrations.
+
+### `0038_tenancy_scaffold.php`
+
+Adds `club_id INT UNSIGNED NOT NULL DEFAULT 1` to ~50 tenant-scoped `tt_*` tables. Idempotent — already-shipped tables (#0017 trial cases, #0053 journey events) are skipped via `SHOW COLUMNS`. A best-effort `idx_club_id` index is added per table; failures (innodb 64-index ceiling, duplicate name on fresh install) are swallowed because the column is what matters.
+
+Adds `uuid VARCHAR(36) UNIQUE` to the five root entities — `tt_players`, `tt_teams`, `tt_evaluations`, `tt_activities`, `tt_goals` — with `UNIQUE INDEX uniq_uuid`. Backfills existing rows in 500-row batches via `wp_generate_uuid4()` so a 5,000-row table doesn't lock the DB. Already-set rows are skipped on the WHERE clause.
+
+The list of tables is enumerated in the migration's `tablesNeedingClubId()` method. ~50 tables once subordinate / leaf tables are counted; the spec's "~25 tenant-scoped" rounds the conceptual top-level count.
+
+### `0039_tt_config_tenancy.php`
+
+Reshapes `tt_config`:
+
+- Adds `club_id INT UNSIGNED NOT NULL DEFAULT 1` column.
+- Drops `PRIMARY KEY (config_key)`.
+- Adds new `PRIMARY KEY (club_id, config_key)`.
+
+Existing rows pick up `club_id = 1` from the column default. Code already filters by `config_key`; this migration is invisible at runtime today, but `(club_id, config_key)` is the natural per-tenant scope when SaaS migration lands.
+
+Tenant-scoped `wp_options` migrated into `tt_config`:
+
+- `tt_trial_acceptance_club_address`
+- `tt_trial_acceptance_response_days`
+- `tt_trial_admittance_include_acceptance_slip`
+
+Each option's value is copied via `INSERT IGNORE` keyed by `(1, <option_name>)`. The `wp_options` row is left in place so a rollback is trivial; cleanup of the wp_options rows is a follow-up.
+
+Install-global options stay in wp_options:
+- `tt_installed_version` (which version of plugin schema is installed).
+- `tt_wizard_started_*` / `_completed_*` / `_skipped_*` (analytics counters; per-club analytics is a separate refactor — documented gap).
+
+The Activator's `CREATE TABLE tt_config` statement was also updated to ship the composite primary key on fresh installs.
+
+## Tenancy infrastructure
+
+New `TT\Infrastructure\Tenancy\CurrentClub::id()` returns the active club. Today: always `1`. Filterable via `apply_filters( 'tt_current_club_id', 1 )` so a future SaaS auth backend (session / JWT / subdomain) hooks in without touching this class. Single-source chokepoint.
+
+Two new helpers on `QueryHelpers`:
+
+- `QueryHelpers::clubScopeWhere( ?string $alias = '' )` — returns `"club_id = N"` (or `"alias.club_id = N"`) as a SQL fragment. Inline into existing query builders.
+- `QueryHelpers::clubScopeInsertColumn()` — returns `[ 'club_id' => N ]`. Spread into `$wpdb->insert` data arrays.
+
+Today both call `CurrentClub::id()` which returns `1`; tomorrow they pick up the active tenant for free.
+
+## ConfigService update
+
+`ConfigService::get()` and `ConfigService::set()` now filter by `CurrentClub::id()`:
+
+```php
+SELECT config_value FROM tt_config WHERE club_id = %d AND config_key = %s
+```
+
+`replace()` includes `club_id` in the data array. The internal cache is namespaced per-club (`<club_id>:<config_key>`) so multiple clubs in the same request (test or future SaaS) don't return stale reads.
+
+## Call-site refactors
+
+Five direct `tt_config` reads outside `ConfigService` were switched to `QueryHelpers::get_config()` / `set_config()` so the per-tenant scope works automatically:
+
+- `Activator::seedDashboardPageIfMissing()` — direct SELECT now scoped to `club_id = 1`.
+- `DemoDataPage::defaultClubName()` — `academy_name` read.
+- `TeamGenerator::clubName()` — `academy_name` read.
+- `SeasonCarryover::resolveClubCycleDefault()` — `pdp_cycle_default` read.
+- `FrontendWorkflowConfigView::loadMinorsPolicy()` / `saveMinorsPolicy()` — minors policy read + write.
+- `PlayerOrParentResolver::loadPolicy()` — minors policy read.
+
+The three trial-letter `wp_options` call sites (`LetterTemplateEngine::responseDeadlineFor()` / `acceptanceSlipEnabled()`, `FrontendTrialLetterTemplatesEditorView::renderSettings()` + `handlePost()`) now read + write via `QueryHelpers::get_config()` / `set_config()` against `tt_config`.
+
+## Verification
+
+`bin/audit-tenancy.php` ships with the plugin. One-shot script verifying:
+
+1. Every tenant-scoped table has a populated `club_id` column.
+2. Every root entity has a populated, unique `uuid` column.
+3. `tt_config` has the composite `(club_id, config_key)` primary key.
+
+Run via `wp eval-file wp-content/plugins/talenttrack/bin/audit-tenancy.php`. Exit `0` on success, `1` on failure with per-table report.
+
+## Known gaps (deferred — documented)
+
+These are intentionally not addressed in PR-A and don't block PR-B/C from starting:
+
+- **Repository read-side filter sweep.** Most repositories under `src/Modules/*/Repositories/` execute SQL like `SELECT ... FROM tt_xxx WHERE id = %d` without a `club_id` filter. Today this is correct (one tenant, all rows have `club_id=1`); a second tenant would leak. Mechanical sweep happens in PR-B + module-by-module follow-ups before SaaS go-live. The audit script catches data-integrity violations; the read-side gap is documented in `docs/architecture.md` § Known SaaS-readiness gaps.
+- **Wizard analytics counters.** `tt_wizard_*_<slug>` rows in wp_options use dynamic keys; per-club analytics is a separate refactor.
+- **`tt_user_id` resolver.** Documented intent in `docs/access-control.md` § Deferred.
+
+## Documentation
+
+- `docs/architecture.md` — new "SaaS-readiness scaffold (#0052 PR-A)" section with the contract + the known-gaps list.
+- `docs/migrations.md` — new "SaaS-readiness audit script" section explaining `bin/audit-tenancy.php`.
+- `docs/access-control.md` — new "Capabilities are the contract" section codifying the auth-portability rule + deferred-resolver note.
+
+## SEQUENCE.md
+
+`#0052 (PR-A)` moves from Ready → Done. PR-B + PR-C remain in Ready, both unblocked by this release.
+
+---
+
 # TalentTrack v3.44.0 — Player journey: chronological events spine + injuries + cohort transitions (#0053 epic)
 
 Closes the #0053 Player journey epic. Brings the player-centricity principle codified in `CLAUDE.md` § 1 from aspirational to enforceable: every player now has a chronological journey that's queryable, filterable, and visibility-scoped. The journey is a read-side aggregate — Evaluations, Goals, PDP, Players, Trials all keep their own UIs and own their data; this release subscribes to those modules' hooks and projects events into a new spine.
