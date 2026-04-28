@@ -95,6 +95,17 @@ class RolesService {
         'tt_view_trial_synthesis',
     ];
 
+    /**
+     * #0053 — Player journey visibility caps. Both gate per-row
+     * visibility on tt_player_events (medical and safeguarding events
+     * only render for viewers holding the matching cap). Public +
+     * coaching_staff visibility levels are gated by existing caps.
+     */
+    public const JOURNEY_CAPS = [
+        'tt_view_player_medical',
+        'tt_view_player_safeguarding',
+    ];
+
     /** @return array<string, array<string, string|array<string,bool>>> */
     public function roleDefinitions(): array {
         return [
@@ -254,6 +265,7 @@ class RolesService {
             self::LEGACY_CAPS,
             self::REPORT_CAPS,
             self::TRIAL_CAPS,
+            self::JOURNEY_CAPS,
             [ 'tt_view_reports', 'tt_access_frontend_admin' ]
         );
 

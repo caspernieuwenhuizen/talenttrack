@@ -54,6 +54,7 @@ final class CoreSurfaceRegistration {
     private const M_TRIALS        = 'TT\\Modules\\Trials\\TrialsModule';
     private const M_WIZARDS       = 'TT\\Modules\\Wizards\\WizardsModule';
     private const M_WORKFLOW      = 'TT\\Modules\\Workflow\\WorkflowModule';
+    private const M_JOURNEY       = 'TT\\Modules\\Journey\\JourneyModule';
 
     /**
      * Run all registrations. Idempotent — call once during boot.
@@ -188,6 +189,18 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Your personal details and contact info.', 'talenttrack' ),
             'icon'         => 'profile',
             'color'        => '#555',
+            'cap_callback' => $is_player_cb,
+        ]);
+        TileRegistry::register([
+            'module_class' => self::M_JOURNEY,
+            'view_slug'    => 'my-journey',
+            'group'        => $me_group,
+            'kind'         => 'work',
+            'order'        => 80,
+            'label'        => __( 'My journey', 'talenttrack' ),
+            'description'  => __( 'Your story at the academy — milestones, evaluations, goals.', 'talenttrack' ),
+            'icon'         => 'goals',
+            'color'        => '#0d9488',
             'cap_callback' => $is_player_cb,
         ]);
 
@@ -484,6 +497,23 @@ final class CoreSurfaceRegistration {
             'color'        => '#555',
             'cap'          => 'tt_access_frontend_admin',
         ]);
+        TileRegistry::register([
+            'module_class' => self::M_JOURNEY,
+            'view_slug'    => 'cohort-transitions',
+            'group'        => $analytics_group,
+            'kind'         => 'work',
+            'order'        => 40,
+            'label'        => __( 'Cohort transitions', 'talenttrack' ),
+            'description'  => __( 'Find every player whose journey contains a particular event in a date range.', 'talenttrack' ),
+            'icon'         => 'inbox',
+            'color'        => '#0d9488',
+            'cap'          => 'tt_view_settings',
+        ]);
+
+        // Coach-side player journey is reached from a player detail link;
+        // no tile needed, but the slug must be owned so the
+        // module-disabled gate works for direct URLs.
+        TileRegistry::registerSlugOwnership( 'player-journey', self::M_JOURNEY );
 
         // ── Development group ──
         $dev_group = __( 'Development', 'talenttrack' );

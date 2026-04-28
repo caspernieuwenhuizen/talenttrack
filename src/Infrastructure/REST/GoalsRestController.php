@@ -265,6 +265,11 @@ class GoalsRestController {
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'title',       (string) $data['title'] );
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'description', (string) $data['description'] );
 
+        // #0053 — journey event hook so subscribers (currently
+        // JourneyEventSubscriber) can emit `goal_set` exactly once per
+        // goal creation. uk_natural keeps re-fires from multiplying.
+        do_action( 'tt_goal_saved', (int) $data['player_id'], $goal_id, $data );
+
         // #0044 — polymorphic links to methodology principles, football
         // actions, positions, player values. Optional; absent on legacy
         // goal save flows.

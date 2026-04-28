@@ -97,6 +97,18 @@ Two storage layers for configurable reference data:
 
 Code that needs a translatable user-facing value pulls it via `tt_lookups`; never hard-coded PHP arrays of UI strings (per the Ship-along rule in DEVOPS.md).
 
+## Journey events (#0053)
+
+The journey is a read-side aggregate, not a fifth modeling pillar. Per `CLAUDE.md` § 1, every player has a chronological story — the journey makes that story queryable without rewriting the modules that own the underlying records.
+
+- **Schema:** `tt_player_events` is the spine. `tt_player_injuries` is a leaf table (the one major data source the codebase didn't already have).
+- **Emission:** existing module hooks (`tt_evaluation_saved`, `tt_goal_saved`, `tt_pdp_verdict_signed_off`, `tt_player_save_diff`, `tt_trial_started`, `tt_trial_decision_recorded`) fire on lifecycle changes. `JourneyEventSubscriber` listens and projects each fire into a `tt_player_events` row via `EventEmitter::emit()`.
+- **Idempotency:** `uk_natural (source_module, source_entity_type, source_entity_id, event_type)` makes re-emission a no-op. Repository hooks can fire on every save.
+- **Visibility:** each row carries `visibility ∈ {public, coaching_staff, medical, safeguarding}`. Server-side filtering in `PlayerEventsRepository::timelineForPlayer` scopes the result to the viewer's caps and returns a `hidden_count` so the UI can render placeholders honestly.
+- **Soft-correct:** `superseded_by_event_id` + `superseded_at` columns. Default reads filter superseded rows; `?include_superseded=1` reveals them.
+- **Boundary with workflow tasks:** workflow tasks are **reminders** (someone needs to do something); journey events are **records** (something happened). Some triggers fan out both — an injury insert spawns a recovery-due workflow task *and* a journey event; that's coincidence, not coupling. Don't reuse one for the other.
+- **Boundary with audit log:** `tt_audit_log` is operational telemetry (who changed what column when, for security investigation). The journey is the player-development story (what's happened to this player, in player-friendly language). Both can record an evaluation save; their consumers are different.
+
 ## Testing surface
 
 There's no PHPUnit harness checked in (yet). The CI workflow runs:

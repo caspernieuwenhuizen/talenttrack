@@ -4,13 +4,31 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.43.0
+Stable tag: 3.44.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.44.0 — Player journey: chronological events spine + injuries + cohort transitions (#0053 epic) =
+
+Adds the journey aggregate codified in `CLAUDE.md` § 1 ("the player is the center of the system"): every player gets a chronological timeline that's queryable, filterable, and visibility-scoped. The journey is a read-side projection — Evaluations, Goals, PDP, Players, Trials all keep their own UIs and hooks; this release subscribes to those hooks and writes events to a new `tt_player_events` spine.
+
+Two new tables: `tt_player_events` (the spine, with `uuid` + `club_id` per CLAUDE.md § 3 SaaS-readiness) and `tt_player_injuries` (the one major data source the codebase didn't have). Migration backfills five sources at install: every existing evaluation, signed-off PDP verdict, goal, player.date_joined, and trial case lands as the matching event. Idempotent via `uk_natural` so re-running adds nothing.
+
+14 v1 event types in a new `journey_event_type` lookup with admin-extensible icon / color / severity / default-visibility meta. New `injury_type` / `body_part` / `injury_severity` lookups. Two new caps `tt_view_player_medical` + `tt_view_player_safeguarding` for per-row visibility scoping; coaches see public + coaching_staff by default, medical view requires the new cap. The repository returns a `hidden_count` so the UI renders honest "1 entry hidden" placeholders instead of silent omissions.
+
+Cross-module hooks added: `tt_goal_saved`, `tt_pdp_verdict_signed_off`, `tt_player_created`, `tt_player_save_diff` (status / team / position / age-group transitions), `tt_trial_started`, `tt_trial_decision_recorded`. `JourneyEventSubscriber` listens to all of them plus the existing `tt_evaluation_saved` and projects each fire into a journey event.
+
+REST surface at `/wp-json/talenttrack/v1`: `GET /players/{id}/timeline` (cursor-paginated, server-side visibility filtering), `GET /players/{id}/transitions` (milestones-only), `POST /players/{id}/events` (manual notes), `PUT /player-events/{id}` (soft-correct via `superseded_by_event_id`), `GET /journey/event-types`, `GET /journey/cohort-transitions` (HoD cohort queries), `GET/POST /players/{id}/injuries`, `PUT/DELETE /player-injuries/{id}`. All gated by `AuthorizationService` capability checks.
+
+Three frontend surfaces: a player-side **My journey** tile in the Me group, a coach-side **Journey** button on the player detail view, and a head-of-academy **Cohort transitions** tile in Analytics. Two view modes (timeline / transitions). Filter chips by event type. Mobile-first 360px base, 48px touch targets, no hover-only interactions.
+
+Workflow integration: when an injury is logged via `POST /players/{id}/injuries`, the new `injury_recovery_due` workflow template fires `tt_journey_injury_logged` and the engine spawns a task on the player's head coach (`Confirm [player] is on track for recovery — on track / extend / unsure`). Trigger row seeded by migration 0037.
+
+Documentation: new `docs/player-journey.md` (EN + NL), new "Journey events" section in `docs/architecture.md` documenting the workflow-vs-journey and audit-log-vs-journey boundaries, REST table updated.
 
 = 3.43.0 — Record-creation wizards: framework + four wizards in one PR (#0055 epic) =
 * NEW: **Record-creation wizards** at `?tt_view=wizard&slug=<wizard-slug>`. A reusable framework (`WizardInterface` + `WizardStepInterface` + `WizardRegistry` + `WizardState` transient store) plus four shipped wizards: `new-player` (trial vs. roster branching), `new-team` (basics → staff → review), `new-evaluation` (player → type → handoff to existing eval form), `new-goal` (player → optional methodology link → details).
