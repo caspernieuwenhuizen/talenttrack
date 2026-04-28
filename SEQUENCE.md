@@ -24,6 +24,7 @@ _None._
 | # | Topic | Type | Open questions | Estimated |
 | - | - | - | - | - |
 | 0043 | Knowledge Base platform (searchable article CMS for end-user content — heavyweight successor to #0042's markdown-in-`docs/` surface) | feat | Where it lives (subdomain vs plugin CPT vs marketing-site embed), public vs auth-gated, search engine choice, content authorship (TalentTrack-only vs community), multilingual approach, in-app contextual embed, versioning, taxonomy, migration path, telemetry — parked until trigger fires (article count >30, or customer ask, or marketing/SEO push) | ~40-60h |
+| 0056 | Mobile-first cleanup pass — close the gap between `CLAUDE.md` § 2 and the codebase | epic | Sprint 4 pilot view (Activities / Players / Goals?), CI gate scope, "best on desktop" notice form (banner vs toast), tap-target gating breakpoint, form-system migration deferral confirmed | ~13-18h v1 / [ideas/0056-epic-mobile-first-cleanup.md](ideas/0056-epic-mobile-first-cleanup.md) |
 
 ## Not started (no shaping needed before build)
 
