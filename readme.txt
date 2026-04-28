@@ -4,13 +4,21 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.39.0
+Stable tag: 3.40.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.40.0 — Report generator: configurable renderer, audience wizard, scout flow (#0014 Sprints 3+4+5) =
+* NEW: `ReportConfig` value object captures audience + scope + sections + privacy + tone variant. The renderer becomes one consumer; `PlayerReportRenderer` replaces the monolithic `PlayerReportView` (kept as a thin shim for back-compat). `?tt_report=1` and `?tt_print=N` URLs continue to work unchanged.
+* NEW: Four-step report wizard at `?tt_view=report-wizard&player_id=N`. Pick audience (Standard / Parent monthly / Internal coaches / Player keepsake / Scout), scope (last month / last season / YTD / all time / custom range), sections (profile / ratings / goals / sessions / attendance / coach notes), and privacy (contact details / full DOB / photo / coach notes / minimum-rating threshold). Sensible defaults per audience; user can override; previewing renders the report inline. New `tt_generate_report` cap granted to head_dev + coach.
+* NEW: Tone variants — Parent reports show warm "How things are going" prose; Internal shows formal numbers + subcategory rows; Player keepsake shows top attributes only (no weak-spot callouts).
+* NEW: Scout flow — emailed one-time links and assigned scout accounts both work. Migration `0035_player_reports.php` adds `tt_player_reports` for persistence. `ScoutDelivery` generates a 64-char token, base64-inlines photos, persists the rendered HTML, and sends `wp_mail`. `ScoutLinkRouter` intercepts `?tt_scout_token=…` for chrome-free viewing with a per-recipient watermark. Two scout admin pages: **Scout access** (assign players to scout users) and **Scout reports history** (revoke active links). New caps: `tt_generate_scout_report` (head_dev) and `tt_view_scout_assignments` (scout role).
+* CHANGED: Existing `?tt_print=N` legacy print route preserved unchanged.
+* DOCS: New section in player-dashboard docs covering the wizard. Configuration-branding doc unchanged (no admin-tier surfaces moved).
 
 = 3.38.0 — My profile rebuild (#0014 Sprint 2) =
 * NEW: The **My profile** view is rebuilt as a six-section dashboard. Hero strip with photo + name + team + the FIFA-style player card (embedded, not linked). Cards below: playing details, recent performance (rolling rating + sparkline of last 10 evaluations + trend arrow), top three active goals (with priority + due date), upcoming team sessions (next three), and account.

@@ -1,3 +1,90 @@
+# TalentTrack v3.40.0 — Report generator: configurable renderer, audience wizard, scout flow (#0014 Sprints 3+4+5)
+
+Closes the #0014 Player profile + report generator epic. Sprint 2 (v3.38.0) rebuilt the player profile; this release lands the three back-end / wizard / scout sprints in one PR.
+
+## Sprint 3 — `ReportConfig` plumbing
+
+Pure refactor. `PlayerReportView` was a single class that produced one report shape. Three new value objects capture every decision the wizard will eventually make:
+
+- `ReportConfig` — audience + filters + sections + privacy + player_id + tone_variant.
+- `PrivacySettings` — five flags / threshold (contact details, full DOB, photo, coach notes, min rating).
+- `AudienceType` — string-backed pseudo-enum for the five audiences.
+
+The renderer is now `PlayerReportRenderer::render( ReportConfig )`. The legacy `PlayerReportView::render( $player_id, $filters )` is a thin shim that builds a `ReportConfig::standard(…)` and feeds the renderer; behaviour for `?tt_print=N` URLs is preserved.
+
+Section render methods are explicit: `renderHeader / renderPlayerCard / renderHeadlineSection / renderRatingsBreakdown / renderCharts / renderGoals / renderAttendance / renderSessions / renderCoachNotes / renderFooter`. Each respects `$config->sections` whitelist and the privacy flags.
+
+## Sprint 4 — Wizard + audience templates
+
+`FrontendReportWizardView` at `?tt_view=report-wizard&player_id=N`. Four steps on one page (single-form pattern, no JS step transitions): Audience → Scope → Sections → Privacy. "Preview report" submits, renders the report inline below the form.
+
+Audience defaults preselected per choice via `AudienceDefaults::defaultsFor( $audience )`:
+
+| Audience | Scope | Sections | Tone |
+|---|---|---|---|
+| Standard | All time | All | default |
+| Parent monthly | Last month | profile / ratings / goals / attendance | warm |
+| Internal detailed | All time | All | formal |
+| Player personal | Last season | profile / ratings / goals | fun |
+| Scout | All time | profile / ratings | formal |
+
+Tone variants change the headline copy ("Player Report — Max" → "Max's progress" / "Max — your season highlights") and the section headings ("Main category breakdown" → "How things are going" / "Top attributes"). The Player keepsake variant skips main categories with all-time average below 3.0 — no weak-spot callouts on a player's own keepsake.
+
+Role gating: new `tt_generate_report` cap granted to head_dev + coach. Coaches are additionally per-team-scoped — `FrontendReportWizardView::canGenerateForPlayer()` walks coached teams. Players generating their own report pass the player-id check via `QueryHelpers::get_player_for_user()`.
+
+Entry point: a "Generate report…" button on the player rate-card detail (`renderDetail`) for any user with `tt_generate_report`.
+
+## Sprint 5 — Scout flow
+
+The largest sprint of the epic. Two access paths plus persistence + audit:
+
+### Schema
+
+`tt_player_reports` (migration `0035_player_reports.php`) — id, player_id, generated_by, audience (`scout_emailed_link` | `scout_assigned_account`), config_json, rendered_html, access_token, scout_user_id, recipient_email, cover_message, expires_at, revoked_at, first_accessed_at, access_count, created_at. Indexed on player, token, scout, expiry. Idempotent on re-run.
+
+### Path A — Emailed one-time link
+
+Wizard surfaces a Scout delivery block when audience = Scout (gated on `tt_generate_scout_report`). Recipient email + 7/14/30-day expiry + optional cover message. On Preview-with-send-checked: `ScoutDelivery::emailLink()` generates a 64-char token, base64-inlines photos via `PhotoInliner`, persists the rendered HTML, and `wp_mail`s the link.
+
+`ScoutLinkRouter` intercepts `?tt_scout_token=…` on `template_redirect`, validates against `tt_player_reports`, increments access_count + sets first_accessed_at, and emits the stored HTML in a chrome-free standalone document with a confidential watermark for the recipient. Expired / revoked / unknown tokens land on a clean boundary page.
+
+### Path B — Assigned scout account
+
+`FrontendScoutAccessView` (HoD-only, `?tt_view=scout-access`) lists every WP user with the `tt_scout` role and lets HoD assign players to each. Assignments live in user-meta `tt_scout_player_ids` (JSON array of int) — simpler than a separate table for v1.
+
+`FrontendScoutMyPlayersView` (`?tt_view=scout-my-players`) is the scout-side "My players" list. Each click renders the player's scout-audience report inline and writes an audit row with `audience='scout_assigned_account'`. Scout user can never see un-assigned players (capability + assignment check on every render).
+
+### Audit + revoke
+
+`FrontendScoutHistoryView` (`?tt_view=scout-history`) lists every persisted report — player, recipient, audience, sent date, expiry, status (Active / Expired / Revoked), access count. Revoke action on active emailed-link rows sets `revoked_at = NOW()`.
+
+### Roles
+
+`tt_readonly_observer` was already registered (the spec's "missing observer role" was already fixed in earlier work). `tt_scout` was already registered too. New caps added in `RolesService::REPORT_CAPS`: `tt_generate_report`, `tt_generate_scout_report`, `tt_view_scout_assignments`. Wired into the role merge so an existing install picks up the new caps on the next `runMigrations()`.
+
+## Files of note
+
+- `src/Modules/Reports/ReportConfig.php`, `PrivacySettings.php`, `AudienceType.php`, `AudienceDefaults.php` — value objects.
+- `src/Modules/Reports/PlayerReportRenderer.php` — the configurable renderer.
+- `src/Modules/Reports/ScoutReportsRepository.php`, `ScoutDelivery.php`, `ScoutLinkRouter.php`, `PhotoInliner.php` — scout flow.
+- `src/Modules/Reports/Frontend/FrontendScoutAccessView.php`, `FrontendScoutHistoryView.php`, `FrontendScoutMyPlayersView.php` — scout admin + side.
+- `src/Shared/Frontend/FrontendReportWizardView.php` — the wizard.
+- `src/Shared/Frontend/DashboardShortcode.php` — new dispatcher entry for `report-wizard`, `scout-access`, `scout-history`, `scout-my-players`.
+- `src/Modules/Stats/Admin/PlayerReportView.php` — reduced to a thin shim that delegates to the renderer.
+- `database/migrations/0035_player_reports.php` — new table.
+- `src/Infrastructure/Security/RolesService.php` — three new report caps + grants.
+
+## Out of scope (not regressed)
+
+- **PDF generation** — HTML-print stays the output, browser print dialog handles "Save as PDF". (Existing PrintRouter html2canvas+jsPDF download path retained.)
+- **Bulk report generation** — one player per generation.
+- **Scout messaging back to club** — one-way information flow.
+- **Real-time access notifications** — audit table records every view; no push.
+- **Two-factor auth for scout accounts** — uses WP's standard auth.
+- **Saved wizard presets** — single-shot generation; presets deferred to a future iteration if demand emerges.
+
+---
+
 # TalentTrack v3.39.0 — Authorization matrix is trustworthy: scope-aware bridge + complete seed (#0033 follow-up)
 
 After v3.35.0 + v3.36.0 + v3.37.0 the matrix was active in production but didn't behave the way the matrix admin UI suggested it should. Three latent issues compounded:

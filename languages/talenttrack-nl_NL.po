@@ -7917,3 +7917,239 @@ msgstr "Niets op de agenda in de komende weken."
 
 msgid "See all sessions"
 msgstr "Alle sessies bekijken"
+
+# === #0014 Sprints 3+4+5 — Report generator + wizard + scout flow ===
+
+msgid "Generate report"
+msgstr "Rapport genereren"
+
+msgid "Generate report…"
+msgstr "Rapport genereren…"
+
+msgid "Pick a player from their profile or rate-card page first."
+msgstr "Kies eerst een speler vanuit hun profiel- of rate-cardpagina."
+
+msgid "You don't have permission to generate a report for this player."
+msgstr "Je hebt geen rechten om een rapport voor deze speler te genereren."
+
+msgid "1. Audience"
+msgstr "1. Doelgroep"
+
+msgid "2. Scope"
+msgstr "2. Periode"
+
+msgid "3. Sections"
+msgstr "3. Onderdelen"
+
+msgid "4. Privacy"
+msgstr "4. Privacy"
+
+msgid "Pick who the report is for. Sensible defaults for sections and privacy are pre-selected."
+msgstr "Kies voor wie het rapport is. Standaardwaarden voor onderdelen en privacy worden automatisch gekozen."
+
+msgid "Time window for the data on the report."
+msgstr "Periode voor de gegevens in het rapport."
+
+msgid "Pick which parts to include. Defaults match the audience."
+msgstr "Kies welke onderdelen meegaan. Standaardwaarden passen bij de doelgroep."
+
+msgid "Defaults are conservative. Tick a box to include extra data on this report only."
+msgstr "Standaard alleen het minimum. Vink een vakje aan om extra gegevens mee te nemen, alleen voor dit rapport."
+
+msgid "Standard"
+msgstr "Standaard"
+
+msgid "Parent (monthly summary)"
+msgstr "Ouder (maandelijks overzicht)"
+
+msgid "Internal coaches (detailed)"
+msgstr "Interne coaches (uitgebreid)"
+
+msgid "Player (personal keepsake)"
+msgstr "Speler (persoonlijke versie)"
+
+msgid "Last month"
+msgstr "Afgelopen maand"
+
+msgid "Last season (9 months)"
+msgstr "Afgelopen seizoen (9 maanden)"
+
+msgid "Year to date"
+msgstr "Dit jaar tot nu"
+
+msgid "All time"
+msgstr "Alle tijd"
+
+msgid "Custom range"
+msgstr "Aangepast bereik"
+
+msgid "Profile"
+msgstr "Profiel"
+
+msgid "Ratings"
+msgstr "Beoordelingen"
+
+msgid "Coach notes"
+msgstr "Coachnotities"
+
+msgid "Include contact details (guardian email/phone)"
+msgstr "Contactgegevens meenemen (e-mail/telefoon van ouder/verzorger)"
+
+msgid "Include full date of birth"
+msgstr "Volledige geboortedatum meenemen"
+
+msgid "Include the player's photo"
+msgstr "Foto van de speler meenemen"
+
+msgid "Include coach free-text notes"
+msgstr "Vrije coachnotities meenemen"
+
+msgid "Hide ratings below"
+msgstr "Verberg beoordelingen onder"
+
+msgid "Preview report"
+msgstr "Rapport voorbeeld"
+
+msgid "Preview"
+msgstr "Voorbeeld"
+
+msgid "Print this report"
+msgstr "Rapport afdrukken"
+
+msgid "Use your browser's print dialog (Save as PDF) to keep a copy."
+msgstr "Gebruik het printvenster van je browser (Opslaan als PDF) om een kopie te bewaren."
+
+msgid "Scout delivery"
+msgstr "Verzenden naar scout"
+
+msgid "After previewing, send the report as a one-time emailed link."
+msgstr "Verstuur het rapport na het voorbeeld als eenmalige link per e-mail."
+
+msgid "Recipient email"
+msgstr "E-mailadres ontvanger"
+
+msgid "Link expires after"
+msgstr "Link verloopt na"
+
+msgid "days"
+msgstr "dagen"
+
+msgid "Optional message to scout"
+msgstr "Optioneel bericht aan de scout"
+
+msgid "Tick the box below to send when you click Preview."
+msgstr "Vink onderstaand vakje aan om te versturen zodra je op Voorbeeld klikt."
+
+msgid "Send link to the recipient on Preview"
+msgstr "Stuur de link naar de ontvanger bij Voorbeeld"
+
+msgid "Recipient email is missing or invalid."
+msgstr "E-mailadres van ontvanger ontbreekt of is ongeldig."
+
+msgid "Could not send the link. Check the email address and your site mail settings, then try again."
+msgstr "De link kon niet verstuurd worden. Controleer het e-mailadres en de e-mailinstellingen van de site en probeer opnieuw."
+
+msgid "Scout access"
+msgstr "Scouttoegang"
+
+msgid "Scout reports history"
+msgstr "Geschiedenis scoutrapporten"
+
+msgid "Assign specific players to a scout user. The scout sees only the players you assign here, on demand."
+msgstr "Wijs specifieke spelers toe aan een scoutgebruiker. De scout ziet alleen de spelers die je hier toewijst."
+
+msgid "No scout users yet. Create a WordPress user and assign them the Scout role to get started."
+msgstr "Nog geen scoutgebruikers. Maak eerst een gebruiker aan en geef die de rol Scout."
+
+msgid "No players assigned yet."
+msgstr "Nog geen spelers toegewezen."
+
+msgid "— Pick a player to assign —"
+msgstr "— Kies een speler om toe te wijzen —"
+
+msgid "Assign"
+msgstr "Toewijzen"
+
+msgid "Player assigned."
+msgstr "Speler toegewezen."
+
+msgid "Assignment removed."
+msgstr "Toewijzing verwijderd."
+
+msgid "You need scout-management permission to view this page."
+msgstr "Je hebt scout-beheerrechten nodig om deze pagina te bekijken."
+
+msgid "Every scout report sent or assigned. Revoke an emailed link to invalidate it immediately."
+msgstr "Alle verzonden of toegewezen scoutrapporten. Trek een e-maillink in om deze direct ongeldig te maken."
+
+msgid "No scout reports yet."
+msgstr "Nog geen scoutrapporten."
+
+msgid "Recipient"
+msgstr "Ontvanger"
+
+msgid "Audience"
+msgstr "Doelgroep"
+
+msgid "Sent"
+msgstr "Verstuurd"
+
+msgid "Expires"
+msgstr "Verloopt"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Views"
+msgstr "Weergaven"
+
+msgid "Emailed link"
+msgstr "Link via e-mail"
+
+msgid "Assigned account"
+msgstr "Toegewezen account"
+
+msgid "Active"
+msgstr "Actief"
+
+msgid "Expired"
+msgstr "Verlopen"
+
+msgid "Revoked"
+msgstr "Ingetrokken"
+
+msgid "Revoke"
+msgstr "Intrekken"
+
+msgid "Revoke this report? The link will stop working immediately."
+msgstr "Dit rapport intrekken? De link werkt onmiddellijk niet meer."
+
+msgid "Report revoked."
+msgstr "Rapport ingetrokken."
+
+msgid "No players assigned to you yet. Reach out to the head of development if you expected access."
+msgstr "Nog geen spelers aan jou toegewezen. Neem contact op met het hoofd opleidingen als je toegang verwacht."
+
+msgid "Select a player to view the scout report."
+msgstr "Kies een speler om het scoutrapport te bekijken."
+
+msgid "You do not have access to this player."
+msgstr "Je hebt geen toegang tot deze speler."
+
+msgid "Back to my players"
+msgstr "Terug naar mijn spelers"
+
+msgid "This area is for scout users."
+msgstr "Dit deel is voor scoutgebruikers."
+
+msgid "Link unavailable"
+msgstr "Link niet beschikbaar"
+
+msgid "This scout link is unknown or has been removed."
+msgstr "Deze scoutlink is onbekend of verwijderd."
+
+msgid "This scout link has been revoked."
+msgstr "Deze scoutlink is ingetrokken."
+
+msgid "This scout link has expired."
+msgstr "Deze scoutlink is verlopen."

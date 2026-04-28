@@ -72,6 +72,17 @@ class RolesService {
         // 'tt_view_reports' kept as-is — no change
     ];
 
+    /**
+     * #0014 Sprint 4+5 caps. Generate-report is the wizard gate;
+     * generate-scout-report is the wizard's scout-delivery gate;
+     * view-scout-assignments is the scout-side "My players" gate.
+     */
+    public const REPORT_CAPS = [
+        'tt_generate_report',
+        'tt_generate_scout_report',
+        'tt_view_scout_assignments',
+    ];
+
     /** @return array<string, array<string, string|array<string,bool>>> */
     public function roleDefinitions(): array {
         return [
@@ -84,7 +95,12 @@ class RolesService {
                     // #0019 Sprint 5 — frontend admin tier access. Granted
                     // by default to head-dev + administrator. Other roles
                     // never get this cap unless explicitly assigned.
-                    [ 'tt_access_frontend_admin' => true ]
+                    [ 'tt_access_frontend_admin' => true ],
+                    // #0014 Sprint 4+5 — report generation + scout flow.
+                    [
+                        'tt_generate_report'       => true,
+                        'tt_generate_scout_report' => true,
+                    ]
                 ),
             ],
             'tt_club_admin' => [
@@ -129,7 +145,11 @@ class RolesService {
                     ],
                     [
                         'tt_evaluate_players' => true,
-                    ]
+                    ],
+                    // #0014 Sprint 4 — coaches can generate reports for
+                    // players on their own teams. Per-player gating
+                    // happens in FrontendReportWizardView.
+                    [ 'tt_generate_report' => true ]
                 ),
             ],
             'tt_scout' => [
@@ -146,7 +166,13 @@ class RolesService {
                     ],
                     [
                         'tt_evaluate_players' => true,
-                    ]
+                    ],
+                    // #0014 Sprint 5 — scout-side "My players" gate.
+                    // Scout users still go through the assignment check
+                    // in FrontendScoutMyPlayersView (assignment lives in
+                    // user meta), so this cap alone doesn't grant
+                    // visibility into any specific player.
+                    [ 'tt_view_scout_assignments' => true ]
                 ),
             ],
             'tt_staff' => [
@@ -210,7 +236,13 @@ class RolesService {
      * intervention.
      */
     public function ensureCapabilities(): void {
-        $all = array_merge( self::VIEW_CAPS, self::EDIT_CAPS, self::LEGACY_CAPS, [ 'tt_view_reports', 'tt_access_frontend_admin' ] );
+        $all = array_merge(
+            self::VIEW_CAPS,
+            self::EDIT_CAPS,
+            self::LEGACY_CAPS,
+            self::REPORT_CAPS,
+            [ 'tt_view_reports', 'tt_access_frontend_admin' ]
+        );
 
         $administrator = get_role( 'administrator' );
         if ( $administrator ) {

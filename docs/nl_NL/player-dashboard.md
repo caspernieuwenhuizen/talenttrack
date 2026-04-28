@@ -30,6 +30,19 @@ Een verzameld overzicht van wie je bent als speler. Bovenaan zie je je foto, naa
 - **Aankomend** — de volgende activiteiten op de teamagenda.
 - **Account** — je naam, e-mailadres en een knop om je wachtwoord aan te passen.
 
+## Rapporten
+
+Coaches en beheerders zien op de detailpagina van een speler een knop **Rapport genereren…**. Die opent een vierstapswizard:
+
+1. **Doelgroep** — Standaard, Ouder (maandelijks), Interne coaches, Speler-versie of Scout.
+2. **Periode** — afgelopen maand, afgelopen seizoen, dit jaar tot nu, alle tijd of aangepast bereik.
+3. **Onderdelen** — kies wat je meeneemt: profiel, beoordelingen, doelen, sessies, aanwezigheid, coachnotities.
+4. **Privacy** — vink aan: contactgegevens, volledige geboortedatum, foto, vrije coachnotities; of stel een minimum­drempel voor beoordelingen in.
+
+Elke doelgroep krijgt zinvolle standaardwaarden. Klik **Rapport voorbeeld** om het resultaat in te zien; print via je browser om een PDF te bewaren.
+
+Voor scouts kun je daarnaast een ontvanger­e-mailadres en een vervaldatum opgeven; het rapport wordt als eenmalige link verstuurd met een vertrouwelijk watermerk. Actieve links zijn op elk moment in te trekken via **Geschiedenis scoutrapporten**.
+
 ## Privacy
 
 Je ziet alleen je eigen gegevens. De evaluaties, doelen en persoonlijke info van andere spelers blijven privé.
