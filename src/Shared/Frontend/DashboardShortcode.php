@@ -175,6 +175,8 @@ class DashboardShortcode {
         $invitation_slugs = [ 'invitations-config' ];
         // #0014 Sprints 4+5 — Reports wizard + scout flow.
         $report_slugs = [ 'report-wizard', 'scout-access', 'scout-history', 'scout-my-players' ];
+        // #0017 — Trial player module surfaces.
+        $trial_slugs = [ 'trials', 'trial-case', 'trial-parent-meeting', 'trial-tracks-editor', 'trial-letter-templates-editor' ];
 
         if ( $view === '' ) {
             // Tile landing page.
@@ -227,6 +229,8 @@ class DashboardShortcode {
             self::dispatchInvitationView( $view );
         } elseif ( in_array( $view, $report_slugs, true ) ) {
             self::dispatchReportView( $view, $user_id, $is_admin );
+        } elseif ( in_array( $view, $trial_slugs, true ) ) {
+            self::dispatchTrialView( $view, $user_id, $is_admin );
         } else {
             FrontendBackButton::render();
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
@@ -502,6 +506,33 @@ class DashboardShortcode {
                     return;
                 }
                 \TT\Modules\Reports\Frontend\FrontendScoutMyPlayersView::render( $user_id );
+                break;
+            default:
+                FrontendBackButton::render();
+                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+        }
+    }
+
+    /**
+     * #0017 — Trial player module surfaces. Each view re-checks its
+     * own capability so dispatching here is safe.
+     */
+    private static function dispatchTrialView( string $view, int $user_id, bool $is_admin ): void {
+        switch ( $view ) {
+            case 'trials':
+                FrontendTrialsManageView::render( $user_id, $is_admin );
+                break;
+            case 'trial-case':
+                FrontendTrialCaseView::render( $user_id, $is_admin );
+                break;
+            case 'trial-parent-meeting':
+                FrontendTrialParentMeetingView::render( $user_id, $is_admin );
+                break;
+            case 'trial-tracks-editor':
+                FrontendTrialTracksEditorView::render( $user_id, $is_admin );
+                break;
+            case 'trial-letter-templates-editor':
+                FrontendTrialLetterTemplatesEditorView::render( $user_id, $is_admin );
                 break;
             default:
                 FrontendBackButton::render();

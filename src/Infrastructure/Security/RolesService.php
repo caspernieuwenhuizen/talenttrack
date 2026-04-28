@@ -83,6 +83,18 @@ class RolesService {
         'tt_view_scout_assignments',
     ];
 
+    /**
+     * #0017 — Trial player module. `manage_trials` is the HoD-only
+     * gate (open / extend / decide / archive cases, edit tracks +
+     * letters); `submit_trial_input` is per-coach; `view_synthesis`
+     * is the read gate (per-case visibility narrowed in code).
+     */
+    public const TRIAL_CAPS = [
+        'tt_manage_trials',
+        'tt_submit_trial_input',
+        'tt_view_trial_synthesis',
+    ];
+
     /** @return array<string, array<string, string|array<string,bool>>> */
     public function roleDefinitions(): array {
         return [
@@ -241,6 +253,7 @@ class RolesService {
             self::EDIT_CAPS,
             self::LEGACY_CAPS,
             self::REPORT_CAPS,
+            self::TRIAL_CAPS,
             [ 'tt_view_reports', 'tt_access_frontend_admin' ]
         );
 

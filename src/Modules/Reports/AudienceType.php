@@ -18,6 +18,10 @@ final class AudienceType {
     public const PLAYER_PERSONAL   = 'player_personal';
     public const SCOUT             = 'scout';
 
+    public const TRIAL_ADMITTANCE          = 'trial_admittance';
+    public const TRIAL_DENIAL_FINAL        = 'trial_denial_final';
+    public const TRIAL_DENIAL_ENCOURAGE    = 'trial_denial_encouragement';
+
     /**
      * @return string[]
      */
@@ -28,7 +32,29 @@ final class AudienceType {
             self::INTERNAL_DETAILED,
             self::PLAYER_PERSONAL,
             self::SCOUT,
+            self::TRIAL_ADMITTANCE,
+            self::TRIAL_DENIAL_FINAL,
+            self::TRIAL_DENIAL_ENCOURAGE,
         ];
+    }
+
+    /**
+     * Trial-letter audiences — used by #0017 to tag persisted letter
+     * rows and to route renderer calls through the letter template engine
+     * instead of the ratings-and-charts renderer path.
+     *
+     * @return string[]
+     */
+    public static function trialLetters(): array {
+        return [
+            self::TRIAL_ADMITTANCE,
+            self::TRIAL_DENIAL_FINAL,
+            self::TRIAL_DENIAL_ENCOURAGE,
+        ];
+    }
+
+    public static function isTrialLetter( string $value ): bool {
+        return in_array( $value, self::trialLetters(), true );
     }
 
     public static function isValid( string $value ): bool {
@@ -42,6 +68,9 @@ final class AudienceType {
             case self::INTERNAL_DETAILED: return __( 'Internal coaches (detailed)', 'talenttrack' );
             case self::PLAYER_PERSONAL:   return __( 'Player (personal keepsake)', 'talenttrack' );
             case self::SCOUT:             return __( 'Scout', 'talenttrack' );
+            case self::TRIAL_ADMITTANCE:        return __( 'Trial admittance letter', 'talenttrack' );
+            case self::TRIAL_DENIAL_FINAL:      return __( 'Trial denial letter (final)', 'talenttrack' );
+            case self::TRIAL_DENIAL_ENCOURAGE:  return __( 'Trial denial letter (with encouragement)', 'talenttrack' );
             default:                      return $value;
         }
     }
@@ -58,6 +87,12 @@ final class AudienceType {
                 return __( "A friendly, visual keepsake for the player. Top attributes and progress, no weak-spot callouts.", 'talenttrack' );
             case self::SCOUT:
                 return __( 'A privacy-aware report for an external scout. Photo and ratings included; contact details, full date of birth, and coach notes off by default.', 'talenttrack' );
+            case self::TRIAL_ADMITTANCE:
+                return __( 'Warm welcome letter offering a place after a successful trial. Optional acceptance slip on page 2.', 'talenttrack' );
+            case self::TRIAL_DENIAL_FINAL:
+                return __( 'Respectful, definitive letter declining a place after the trial.', 'talenttrack' );
+            case self::TRIAL_DENIAL_ENCOURAGE:
+                return __( 'Respectful denial letter that names strengths and growth areas, and invites a re-application next season.', 'talenttrack' );
             default:
                 return '';
         }

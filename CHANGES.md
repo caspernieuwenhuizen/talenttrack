@@ -1,3 +1,126 @@
+# TalentTrack v3.42.0 — Trial player module: case workflow, letters, parent-meeting mode (#0017 epic)
+
+Closes the #0017 Trial player module epic. All six sprints bundled — schema + case CRUD (Sprint 1), execution view (Sprint 2), staff input flow (Sprint 3), decision + letters (Sprint 4), parent-meeting mode (Sprint 5), track + letter template editor (Sprint 6).
+
+The plugin previously only acknowledged trials with a player status value of `trial`. Now there's a structured workflow around it: who is trialing, on which track, with which staff, what they observed, what was decided, and what letter was sent.
+
+## Sprint 1 — Schema + case CRUD
+
+Migration `0036_trial_module.php` adds six tables in one go:
+
+- **`tt_trial_cases`** — the core entity (player + track + dates + status + decision + retention metadata).
+- **`tt_trial_tracks`** — track templates with default duration; three seeded (Standard / Scout / Goalkeeper).
+- **`tt_trial_case_staff`** — assigned staff per case with optional role label.
+- **`tt_trial_extensions`** — audit trail for extensions (justification mandatory).
+- **`tt_trial_case_staff_inputs`** — per-staff submissions, draft / submitted / released states.
+- **`tt_trial_letter_templates`** — per-locale custom overrides of the three letter templates.
+
+`tt_trial_cases` includes `club_id` + `uuid` columns per the SaaS-readiness scaffold.
+
+`FrontendTrialsManageView` ships the list + create form. The list filters by status, track, decision, and archived state. Creating a case auto-flips the player's status to `trial`.
+
+`FrontendTrialCaseView` is the six-tab edit surface (Overview, Execution, Staff inputs, Decision, Letter, Parent meeting). The first tab — Overview — shows the summary, assigned staff, and extension history. Extending the trial requires a non-empty justification note (logged with previous_end_date / new_end_date / by-whom).
+
+Three new capabilities (`tt_manage_trials`, `tt_submit_trial_input`, `tt_view_trial_synthesis`) declared in `RolesService::TRIAL_CAPS` and granted via `TrialsModule::ensureCapabilities()`.
+
+## Sprint 2 — Execution view
+
+Execution tab synthesizes everything that happened during the trial window:
+
+- **Sessions** — `tt_activities` rows whose `activity_date` falls in `[start_date, end_date]`, joined with the player's `tt_attendance` row.
+- **Evaluations** — `tt_evaluations` rows with `eval_date` in the window.
+- **Goals** — `tt_goals` rows with `created_at` or `updated_at` in the window.
+- **Synthesis** — rolling rating + evaluation count, computed by reusing `PlayerStatsService::getHeadlineNumbers( $player_id, [ date_from, date_to ] )` instead of adding a new method.
+
+Nothing is duplicated. The data sits in the existing tables — the Execution tab is just smart filtering.
+
+## Sprint 3 — Staff input flow
+
+`FrontendTrialCaseView::renderInputsTab` plus `TrialStaffInputsRepository` deliver:
+
+- **Per-staff input form** — assigned staff submit overall rating + free-text notes. Draft / submit transitions track separately.
+- **Visibility rules** — own input always visible (draft or submitted); others' inputs visible to a coach only after the head of development clicks **Release submitted inputs to assigned staff**. Manager always sees everything.
+- **Aggregation** — manager view shows side-by-side cards per submitting staff member with rating + notes.
+- **Reminders** — `TrialReminderScheduler` runs daily, emails assigned staff at T-7 / T-3 / T-0 if they haven't submitted. Per-(case, user, bucket) tracking via usermeta prevents duplicate sends. Manual trigger via REST `POST /trial-reminders/run` for testing.
+
+## Sprint 4 — Decision + letters
+
+Decision tab on the case view:
+
+- HoD picks one of three outcomes: **admit** / **deny_final** / **deny_encouragement**.
+- Justification note required (≥ 30 characters, internal record).
+- For deny-with-encouragement: a strengths summary + growth areas field. Both flow directly into the letter via `{strengths_summary}` and `{growth_areas}` substitution.
+- On submit: `TrialCasesRepository::recordDecision()` writes the decision, sets `status = 'decided'`. Player status atomically transitions: admit → `active`, deny_* → `archived`.
+- `TrialLetterService::generate()` immediately renders the appropriate letter via `LetterTemplateEngine`, persists to `tt_player_reports` (the table reused from #0014 Sprint 5) with `expires_at = NOW() + 2 years`. Older letter versions for the same case are revoked.
+
+`AudienceType` (#0014 Sprint 3) extended with `TRIAL_ADMITTANCE`, `TRIAL_DENIAL_FINAL`, `TRIAL_DENIAL_ENCOURAGE`. The trial flow doesn't go through the chart-and-rating renderer path — letters render via `LetterTemplateEngine` and `DefaultLetterTemplates` directly.
+
+`DefaultLetterTemplates` ships English + Dutch defaults for all three templates. `{player_first_name}`, `{trial_start_date}`, `{trial_end_date}`, `{club_name}`, `{head_of_development_name}`, `{current_season}`, `{next_season}`, `{strengths_summary}`, `{growth_areas}`, `{response_deadline}` all substitute. Unknown variables are left literal so missing fields are visible in the preview.
+
+`acceptance_slip_returned_at` column on `tt_trial_cases`. When the per-club setting is on, admittance letters get a page 2 with a tear-off-style acceptance slip; HoD marks received from the Decision tab.
+
+## Sprint 5 — Parent-meeting mode
+
+`FrontendTrialParentMeetingView` is the sanitized fullscreen view for the conversation with parents. Allow-list rendering: photo, name + age, trial dates, decision outcome with color-coded framing, optional strengths + growth areas (only on deny-with-encouragement), buttons for view / print / email letter, fullscreen launcher.
+
+Explicitly NOT shown: individual staff inputs, attendance %, aggregation stats, justification notes, free-text evaluator comments. The design principle is allow-list — new fields added later default to invisible.
+
+## Sprint 6 — Track + letter template editor
+
+`FrontendTrialTracksEditorView` — list + create + edit + archive for tracks. Seeded tracks have a locked slug but their name + description + default duration are editable. Archiving hides a track from new-case flow but doesn't break existing cases.
+
+`FrontendTrialLetterTemplatesEditorView` — three templates × per-locale editor. HTML source textarea, side-panel variable legend, sample preview rendered via `LetterTemplateEngine` with placeholder data. Save / Reset to default. Acceptance-slip settings (toggle + response deadline + club return address) live on the same page.
+
+`TrialLetterTemplatesRepository::getForKey()` resolves: custom row for current locale → custom row for `en_US` → shipped default for current locale → shipped default for `en_US`. Clubs that haven't customized never hit the table.
+
+## REST surface
+
+`/wp-json/talenttrack/v1/trial-cases/*` resource-oriented endpoints:
+
+- `GET    /trial-cases`
+- `POST   /trial-cases`
+- `GET    /trial-cases/{id}`
+- `PUT    /trial-cases/{id}`
+- `POST   /trial-cases/{id}/extend`
+- `POST   /trial-cases/{id}/decision`
+- `GET    /trial-cases/{id}/staff`
+- `POST   /trial-cases/{id}/staff`
+- `POST   /trial-cases/{id}/inputs`
+- `POST   /trial-cases/{id}/inputs/release`
+- `GET    /trial-tracks`
+- `POST   /trial-reminders/run`
+
+Every endpoint declares its `permission_callback` against the cap layer; per-case visibility is enforced by `TrialCaseAccessPolicy`.
+
+## Files of note
+
+- `src/Modules/Trials/TrialsModule.php` — module bootstrap.
+- `src/Modules/Trials/Repositories/*` — six repositories (Cases, Tracks, CaseStaff, Extensions, StaffInputs, LetterTemplates).
+- `src/Modules/Trials/Letters/LetterTemplateEngine.php`, `DefaultLetterTemplates.php`, `TrialLetterService.php` — letter rendering and persistence.
+- `src/Modules/Trials/Reminders/TrialReminderScheduler.php` — daily cron.
+- `src/Modules/Trials/Rest/TrialsRestController.php` — REST surface.
+- `src/Modules/Trials/Security/TrialCaseAccessPolicy.php` — per-case visibility decisions.
+- `src/Shared/Frontend/FrontendTrialsManageView.php`, `FrontendTrialCaseView.php`, `FrontendTrialParentMeetingView.php`, `FrontendTrialTracksEditorView.php`, `FrontendTrialLetterTemplatesEditorView.php`.
+- `database/migrations/0036_trial_module.php` — schema + seed.
+- `src/Modules/Reports/AudienceType.php` — three new trial audiences.
+- `src/Infrastructure/Security/RolesService.php` — `TRIAL_CAPS` constant + admin grant.
+- `config/modules.php` — TrialsModule registered.
+- `src/Shared/CoreSurfaceRegistration.php` — Trials tile group with Trial cases / Trial tracks / Letter templates tiles.
+- `src/Shared/Frontend/DashboardShortcode.php` — five new view-slug routes (`trials`, `trial-case`, `trial-parent-meeting`, `trial-tracks-editor`, `trial-letter-templates-editor`).
+- `docs/trials.md` + `docs/nl_NL/trials.md` — user-facing docs.
+
+## Out of scope (not regressed)
+
+- **Public-facing trial application form** — separate future idea.
+- **Multi-academy / multi-location** — single-tenant scaffolding only (`club_id` column reserved).
+- **Trial-specific evaluation dimensions** — reuses existing eval categories per shaping.
+- **Auto-emailing letters to parents** — HoD downloads / mailto's manually.
+- **WYSIWYG letter editor** — HTML source textarea only in v1.
+- **Per-track letter overrides** — same three templates regardless of track.
+- **Retracting a decision** — once recorded, decision is final. Open a new case to re-trial.
+
+---
+
 # TalentTrack v3.40.0 — Report generator: configurable renderer, audience wizard, scout flow (#0014 Sprints 3+4+5)
 
 Closes the #0014 Player profile + report generator epic. Sprint 2 (v3.38.0) rebuilt the player profile; this release lands the three back-end / wizard / scout sprints in one PR.

@@ -51,6 +51,7 @@ final class CoreSurfaceRegistration {
     private const M_STATS         = 'TT\\Modules\\Stats\\StatsModule';
     private const M_TEAMDEV       = 'TT\\Modules\\TeamDevelopment\\TeamDevelopmentModule';
     private const M_TEAMS         = 'TT\\Modules\\Teams\\TeamsModule';
+    private const M_TRIALS        = 'TT\\Modules\\Trials\\TrialsModule';
     private const M_WORKFLOW      = 'TT\\Modules\\Workflow\\WorkflowModule';
 
     /**
@@ -398,6 +399,49 @@ final class CoreSurfaceRegistration {
             'color'        => '#1d7874',
             'cap'          => 'tt_view_methodology',
         ]);
+
+        // ── Trials group (#0017) ──
+        $trials_group = __( 'Trials', 'talenttrack' );
+        TileRegistry::register([
+            'module_class' => self::M_TRIALS,
+            'view_slug'    => 'trials',
+            'group'        => $trials_group,
+            'kind'         => 'work',
+            'order'        => 10,
+            'label'        => __( 'Trial cases', 'talenttrack' ),
+            'description'  => __( 'Manage prospective players: track, dates, staff input, and decisions.', 'talenttrack' ),
+            'icon'         => 'players',
+            'color'        => '#c9962a',
+            'cap'          => 'tt_view_trial_synthesis',
+        ]);
+        TileRegistry::register([
+            'module_class' => self::M_TRIALS,
+            'view_slug'    => 'trial-tracks-editor',
+            'group'        => $trials_group,
+            'kind'         => 'setup',
+            'order'        => 20,
+            'label'        => __( 'Trial tracks', 'talenttrack' ),
+            'description'  => __( 'Edit the track templates new trial cases use as defaults.', 'talenttrack' ),
+            'icon'         => 'lookup',
+            'color'        => '#5b6e75',
+            'cap'          => 'tt_manage_trials',
+        ]);
+        TileRegistry::register([
+            'module_class' => self::M_TRIALS,
+            'view_slug'    => 'trial-letter-templates-editor',
+            'group'        => $trials_group,
+            'kind'         => 'setup',
+            'order'        => 30,
+            'label'        => __( 'Letter templates', 'talenttrack' ),
+            'description'  => __( 'Customize the admit / decline letter wording per locale.', 'talenttrack' ),
+            'icon'         => 'docs',
+            'color'        => '#5b6e75',
+            'cap'          => 'tt_manage_trials',
+        ]);
+
+        // Sub-views without their own tile.
+        TileRegistry::registerSlugOwnership( 'trial-case',           self::M_TRIALS );
+        TileRegistry::registerSlugOwnership( 'trial-parent-meeting', self::M_TRIALS );
 
         // ── Analytics group ──
         $analytics_group = __( 'Analytics', 'talenttrack' );
