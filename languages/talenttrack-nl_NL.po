@@ -8184,3 +8184,410 @@ msgstr "Verdeling"
 
 msgid "Unassigned"
 msgstr "Niet toegewezen"
+
+# #0017 — Trial player module
+
+msgid "Trials"
+msgstr "Stagedossiers"
+
+msgid "Trial cases"
+msgstr "Stagedossiers"
+
+msgid "Trial case"
+msgstr "Stagedossier"
+
+msgid "Trial: %s"
+msgstr "Stage: %s"
+
+msgid "Trial case not found"
+msgstr "Stagedossier niet gevonden"
+
+msgid "New trial case"
+msgstr "Nieuw stagedossier"
+
+msgid "Trial tracks"
+msgstr "Stagetrajecten"
+
+msgid "New trial track"
+msgstr "Nieuw stagetraject"
+
+msgid "Trial admittance letter"
+msgstr "Aanbodbrief stage"
+
+msgid "Trial denial letter (final)"
+msgstr "Afwijzingsbrief stage (definitief)"
+
+msgid "Trial denial letter (with encouragement)"
+msgstr "Afwijzingsbrief stage (met aanmoediging)"
+
+msgid "Track"
+msgstr "Traject"
+
+msgid "Track:"
+msgstr "Traject:"
+
+msgid "Window:"
+msgstr "Periode:"
+
+msgid "Track not found"
+msgstr "Traject niet gevonden"
+
+msgid "Edit track — %s"
+msgstr "Traject bewerken — %s"
+
+msgid "New track"
+msgstr "Nieuw traject"
+
+msgid "Default duration"
+msgstr "Standaardduur"
+
+msgid "Default duration in days"
+msgstr "Standaardduur in dagen"
+
+msgid "Seeded?"
+msgstr "Standaard?"
+
+msgid "Save track"
+msgstr "Traject opslaan"
+
+msgid "Seeded tracks have a locked slug."
+msgstr "Standaardtrajecten hebben een vaste slug."
+
+msgid "No tracks exist yet."
+msgstr "Er bestaan nog geen trajecten."
+
+msgid "Archive this track?"
+msgstr "Dit traject archiveren?"
+
+msgid "Manage prospective players: track, dates, staff input, and decisions."
+msgstr "Beheer aspirant-spelers: traject, datums, staf-input en beslissingen."
+
+msgid "Edit the track templates new trial cases use as defaults."
+msgstr "Bewerk de standaard-trajecten die nieuwe stagedossiers gebruiken."
+
+msgid "Customize the admit / decline letter wording per locale."
+msgstr "Pas de bewoording van de aanbod- of afwijzingsbrief aan per taal."
+
+msgid "You do not have permission to manage trial cases."
+msgstr "Je hebt geen rechten om stagedossiers te beheren."
+
+msgid "You do not have permission to edit trial tracks."
+msgstr "Je hebt geen rechten om stagetrajecten te bewerken."
+
+msgid "You do not have permission to edit letter templates."
+msgstr "Je hebt geen rechten om briefsjablonen te bewerken."
+
+msgid "You do not have permission to use parent-meeting mode."
+msgstr "Je hebt geen rechten voor het oudergesprek-scherm."
+
+msgid "You are not assigned to this case."
+msgstr "Je bent niet toegewezen aan dit dossier."
+
+msgid "Manager only."
+msgstr "Alleen voor beheerders."
+
+msgid "Please pick a player, a track, and start/end dates."
+msgstr "Kies een speler, een traject en start- en einddatum."
+
+msgid "Could not create the case. Please try again."
+msgstr "Het dossier kon niet worden aangemaakt. Probeer het opnieuw."
+
+msgid "— pick a player —"
+msgstr "— kies een speler —"
+
+msgid "— pick a staff member —"
+msgstr "— kies een staflid —"
+
+msgid "Initial staff (optional)"
+msgstr "Aanvankelijke staf (optioneel)"
+
+msgid "Role label (optional)"
+msgstr "Rolomschrijving (optioneel)"
+
+msgid "Create case"
+msgstr "Dossier aanmaken"
+
+msgid "Trial:"
+msgstr "Stage:"
+
+msgid "Assigned staff"
+msgstr "Toegewezen staf"
+
+msgid "No staff assigned yet."
+msgstr "Nog geen staf toegewezen."
+
+msgid "Extension history"
+msgstr "Geschiedenis verlengingen"
+
+msgid "No extensions yet."
+msgstr "Nog geen verlengingen."
+
+msgid "Extended at"
+msgstr "Verlengd op"
+
+msgid "Previous end"
+msgstr "Vorige einddatum"
+
+msgid "New end"
+msgstr "Nieuwe einddatum"
+
+msgid "Justification"
+msgstr "Motivatie"
+
+msgid "New end date"
+msgstr "Nieuwe einddatum"
+
+msgid "Justification (required)"
+msgstr "Motivatie (verplicht)"
+
+msgid "Extend trial"
+msgstr "Stage verlengen"
+
+msgid "Archive case"
+msgstr "Dossier archiveren"
+
+msgid "Archive this case?"
+msgstr "Dit dossier archiveren?"
+
+msgid "Execution"
+msgstr "Uitvoering"
+
+msgid "Staff inputs"
+msgstr "Staf-input"
+
+msgid "Letter"
+msgstr "Brief"
+
+msgid "Parent meeting"
+msgstr "Oudergesprek"
+
+msgid "Synthesis"
+msgstr "Synthese"
+
+msgid "No evaluations during the trial window yet."
+msgstr "Nog geen evaluaties tijdens deze stageperiode."
+
+msgid "Rolling rating"
+msgstr "Voortschrijdende beoordeling"
+
+msgid "Evaluations in window"
+msgstr "Evaluaties in deze periode"
+
+msgid "Sessions"
+msgstr "Sessies"
+
+msgid "No sessions yet during this trial period."
+msgstr "Nog geen sessies tijdens deze stageperiode."
+
+msgid "Evaluator"
+msgstr "Beoordelaar"
+
+msgid "No evaluations yet during this trial period."
+msgstr "Nog geen evaluaties tijdens deze stageperiode."
+
+msgid "No goals yet during this trial period."
+msgstr "Nog geen doelen tijdens deze stageperiode."
+
+msgid "Submitted inputs"
+msgstr "Ingediende input"
+
+msgid "%1$d of %2$d assigned staff have submitted."
+msgstr "%1$d van %2$d toegewezen stafleden hebben ingediend."
+
+msgid "Release submitted inputs to assigned staff"
+msgstr "Ingediende input vrijgeven aan toegewezen staf"
+
+msgid "Inputs released on:"
+msgstr "Input vrijgegeven op:"
+
+msgid "No submitted inputs visible to you yet."
+msgstr "Er is nog geen voor jou zichtbare input ingediend."
+
+msgid "Your input"
+msgstr "Jouw input"
+
+msgid "You submitted on:"
+msgstr "Je hebt ingediend op:"
+
+msgid "To edit after submit, ask the head of development."
+msgstr "Voor wijzigingen na het indienen: vraag het hoofd opleiding."
+
+msgid "Overall rating (1–5)"
+msgstr "Algemene beoordeling (1–5)"
+
+msgid "Save draft"
+msgstr "Concept opslaan"
+
+msgid "Submit input"
+msgstr "Input indienen"
+
+msgid "Record decision"
+msgstr "Beslissing vastleggen"
+
+msgid "Outcome"
+msgstr "Uitkomst"
+
+msgid "Admit (offer a place)"
+msgstr "Aanbieden (plek aanbieden)"
+
+msgid "Decline (final)"
+msgstr "Afwijzen (definitief)"
+
+msgid "Decline (with encouragement to re-apply)"
+msgstr "Afwijzen (met aanmoediging om opnieuw te solliciteren)"
+
+msgid "Justification (internal record, ≥ 30 characters)"
+msgstr "Motivatie (interne registratie, ≥ 30 tekens)"
+
+msgid "Strengths (used in the encouragement letter)"
+msgstr "Sterke punten (voor de aanmoedigingsbrief)"
+
+msgid "Growth areas (used in the encouragement letter)"
+msgstr "Groeimogelijkheden (voor de aanmoedigingsbrief)"
+
+msgid "Record decision and generate letter"
+msgstr "Beslissing vastleggen en brief genereren"
+
+msgid "Decision recorded"
+msgstr "Beslissing vastgelegd"
+
+msgid "Recorded at"
+msgstr "Vastgelegd op"
+
+msgid "Acceptance slip received on:"
+msgstr "Acceptatiestrook ontvangen op:"
+
+msgid "Mark acceptance slip as received"
+msgstr "Acceptatiestrook als ontvangen markeren"
+
+msgid "Regenerate letter"
+msgstr "Brief opnieuw genereren"
+
+msgid "No letter generated yet. Record a decision on the Decision tab to produce one."
+msgstr "Nog geen brief gegenereerd. Leg een beslissing vast op het tabblad Beslissing om er een te maken."
+
+msgid "Open print-ready view"
+msgstr "Afdrukweergave openen"
+
+msgid "Letter history"
+msgstr "Briefgeschiedenis"
+
+msgid "Generated at"
+msgstr "Gegenereerd op"
+
+msgid "Parent meeting mode"
+msgstr "Oudergesprek-modus"
+
+msgid "A sanitized fullscreen view for the conversation with the parents. No internal data is shown — only the decision, the player photo and basics, and the letter."
+msgstr "Een opgeschoonde, schermvullende weergave voor het gesprek met de ouders. Er wordt geen interne data getoond — alleen de beslissing, de foto en basisgegevens van de speler, en de brief."
+
+msgid "Open meeting view"
+msgstr "Gespreksweergave openen"
+
+msgid "We are offering a place"
+msgstr "We bieden een plek aan"
+
+msgid "Welcome to the squad. Pre-season starts in early August; the age-group coach will share the schedule."
+msgstr "Welkom bij de selectie. De voorbereiding start begin augustus; de leeftijdsgroep-trainer deelt het programma."
+
+msgid "Not this season — but we encourage trying again"
+msgstr "Dit seizoen niet — maar we moedigen aan het opnieuw te proberen"
+
+msgid "A \"no\" today is not a \"no\" forever. We will share what stood out and where to keep working."
+msgstr "Een \"nee\" vandaag is geen \"nee\" voor altijd. We delen wat positief opviel en waar nog aan gewerkt mag worden."
+
+msgid "We are not offering a place this season"
+msgstr "We bieden dit seizoen geen plek aan"
+
+msgid "Thank you for the energy and commitment shown during the trial period."
+msgstr "Bedankt voor de inzet en het plezier tijdens de stageperiode."
+
+msgid "What stood out positively"
+msgstr "Wat positief opviel"
+
+msgid "Areas to keep working on"
+msgstr "Punten om aan te blijven werken"
+
+msgid "Open letter"
+msgstr "Brief openen"
+
+msgid "Email letter"
+msgstr "Brief e-mailen"
+
+msgid "Letter regarding %s"
+msgstr "Brief over %s"
+
+msgid "Enter fullscreen"
+msgstr "Volledig scherm"
+
+msgid "Age %d"
+msgstr "Leeftijd %d"
+
+msgid "Track: %s"
+msgstr "Traject: %s"
+
+msgid "%s — %s"
+msgstr "%s — %s"
+
+msgid "Letter templates"
+msgstr "Briefsjablonen"
+
+msgid "Edit letter — %s (%s)"
+msgstr "Brief bewerken — %s (%s)"
+
+msgid "Locale"
+msgstr "Taal"
+
+msgid "Switch locale"
+msgstr "Taal wisselen"
+
+msgid "Customized?"
+msgstr "Aangepast?"
+
+msgid "Customized"
+msgstr "Aangepast"
+
+msgid "Default (shipped)"
+msgstr "Standaard (meegeleverd)"
+
+msgid "Acceptance slip"
+msgstr "Acceptatiestrook"
+
+msgid "Include the acceptance slip on admittance letters"
+msgstr "Acceptatiestrook meesturen met aanbodbrieven"
+
+msgid "Response deadline (days from letter date)"
+msgstr "Antwoordtermijn (dagen vanaf de briefdatum)"
+
+msgid "Club return address"
+msgstr "Retouradres van de club"
+
+msgid "Save settings"
+msgstr "Instellingen opslaan"
+
+msgid "Template HTML"
+msgstr "HTML-sjabloon"
+
+msgid "Variable legend"
+msgstr "Variabelen-legenda"
+
+msgid "Save template"
+msgstr "Sjabloon opslaan"
+
+msgid "Reset this template to the shipped default?"
+msgstr "Dit sjabloon terugzetten naar de meegeleverde versie?"
+
+msgid "Reset to default"
+msgstr "Terug naar standaard"
+
+msgid "Preview (sample data)"
+msgstr "Voorbeeld (testgegevens)"
+
+msgid "Sample"
+msgstr "Test"
+
+msgid "Trial input needed: %1$s (%2$d days)"
+msgstr "Stage-input gevraagd: %1$s (%2$d dagen)"
+
+msgid "Hi %1$s,\n\nThe trial period for %2$s is ending. Your input on the case is still needed.\n\nGo to the case here: %3$s\n\nThanks,\n%4$s"
+msgstr "Hoi %1$s,\n\nDe stageperiode voor %2$s loopt af. Jouw input op het dossier is nog nodig.\n\nGa naar het dossier hier: %3$s\n\nGroet,\n%4$s"

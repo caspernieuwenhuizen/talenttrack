@@ -34,4 +34,5 @@ return [
     TT\Modules\Invitations\InvitationsModule::class       => true,
     TT\Modules\Pdp\PdpModule::class                       => true,
     TT\Modules\TeamDevelopment\TeamDevelopmentModule::class => true,
+    TT\Modules\Trials\TrialsModule::class                 => true,
 ];

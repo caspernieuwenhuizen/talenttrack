@@ -78,6 +78,11 @@ class HelpTopics {
                 'group'   => 'analytics',
                 'summary' => __( 'The tile launcher — progress charts, team ratings, coach activity.', 'talenttrack' ),
             ],
+            'trials' => [
+                'title'   => __( 'Trial cases', 'talenttrack' ),
+                'group'   => 'people',
+                'summary' => __( 'Run a structured trial period: track templates, staff input, decision and the letter that goes to parents.', 'talenttrack' ),
+            ],
             'rate-cards' => [
                 'title'   => __( 'Player rate cards', 'talenttrack' ),
                 'group'   => 'analytics',

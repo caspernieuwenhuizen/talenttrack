@@ -4,13 +4,24 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.40.0
+Stable tag: 3.42.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.42.0 — Trial player module: case workflow + letters + parent-meeting mode (#0017 epic) =
+* NEW: **Trial cases** is a full workflow for prospective players. Open a case (player + track + dates), assign staff, watch the trial play out via the **Execution** tab (sessions, evaluations, goals filtered to the trial window), collect per-staff input on the **Staff inputs** tab (with a manager-only release control to prevent groupthink), record a decision on the **Decision** tab, and the **Letter** is generated automatically from one of three audience-aware templates. Migration `0036_trial_module.php` adds six new tables (`tt_trial_cases`, `tt_trial_tracks`, `tt_trial_case_staff`, `tt_trial_extensions`, `tt_trial_case_staff_inputs`, `tt_trial_letter_templates`). Three tracks seeded: Standard / Scout / Goalkeeper.
+* NEW: **Three letter templates** — admittance (warm welcome, optional acceptance slip on page 2), denial-final (respectful and definitive), denial-with-encouragement (names strengths and growth areas, invites a re-application). Each template ships in English and Dutch. The `LetterTemplateEngine` substitutes `{player_first_name}`, `{trial_end_date}`, `{strengths_summary}`, … against the case context; unknown variables are left literal so missing fields are visible in the preview.
+* NEW: **Parent-meeting mode** — fullscreen, sanitized view of the case outcome for the conversation with parents. Allow-list rendering: photo, name+age, decision outcome, the appropriate framing, and the letter ready to print or email. No internal staff data, attendance percentages, or justification notes are shown.
+* NEW: **Track editor** + **Letter template editor** under the Trials tile group. HoDs can add new tracks, customize letter wording per locale (HTML source with a variable legend and a sample preview), and toggle the optional acceptance slip per club (response deadline + return address configurable).
+* NEW: **Reminder cron** — `tt_trial_send_reminders` fires daily and emails assigned staff who haven't submitted input at T-7, T-3, and T-0 of the trial end date. Per-(case, user, bucket) tracking via usermeta prevents duplicate sends.
+* NEW: REST surface at `/wp-json/talenttrack/v1/trial-cases/*` — list, create, extend, decide, assign staff, upsert/release inputs. Capability-gated.
+* NEW: Three new caps in `RolesService::TRIAL_CAPS` — `tt_manage_trials` (head_dev + club_admin), `tt_submit_trial_input` (coaches + above), `tt_view_trial_synthesis` (per-case scoping enforced via `TrialCaseAccessPolicy`).
+* NEW: Audience system in `AudienceType` extended with three trial audiences (`trial_admittance`, `trial_denial_final`, `trial_denial_encouragement`). Generated letters persist to `tt_player_reports` (reused from #0014 Sprint 5) with `expires_at = NOW() + 2 years` per the retention policy.
+* DOCS: New `docs/trials.md` (EN) + `docs/nl_NL/trials.md` (Dutch) under the People help group.
 
 = 3.40.0 — Report generator: configurable renderer, audience wizard, scout flow (#0014 Sprints 3+4+5) =
 * NEW: `ReportConfig` value object captures audience + scope + sections + privacy + tone variant. The renderer becomes one consumer; `PlayerReportRenderer` replaces the monolithic `PlayerReportView` (kept as a thin shim for back-compat). `?tt_report=1` and `?tt_print=N` URLs continue to work unchanged.
