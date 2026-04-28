@@ -83,6 +83,11 @@ class HelpTopics {
                 'group'   => 'people',
                 'summary' => __( 'Run a structured trial period: track templates, staff input, decision and the letter that goes to parents.', 'talenttrack' ),
             ],
+            'wizards' => [
+                'title'   => __( 'Record creation wizards', 'talenttrack' ),
+                'group'   => 'configuration',
+                'summary' => __( 'Step-by-step forms that replace the flat create form for new players, teams, evaluations, and goals.', 'talenttrack' ),
+            ],
             'rate-cards' => [
                 'title'   => __( 'Player rate cards', 'talenttrack' ),
                 'group'   => 'analytics',

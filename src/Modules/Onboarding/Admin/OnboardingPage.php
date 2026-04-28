@@ -162,6 +162,14 @@ class OnboardingPage {
         <p style="max-width:680px;">
             <?php esc_html_e( 'Add one team now. You can add more later under Teams. Players, evaluations, sessions, and goals all attach to a team, so we need at least one to make the rest of the plugin useful.', 'talenttrack' ); ?>
         </p>
+        <?php if ( class_exists( '\\TT\\Shared\\Wizards\\WizardRegistry' ) && \TT\Shared\Wizards\WizardRegistry::isAvailable( 'new-team' ) ) : ?>
+            <p style="max-width:680px;">
+                <a class="button" href="<?php echo esc_url( add_query_arg( [ 'tt_view' => 'wizard', 'slug' => 'new-team' ], home_url( '/' ) ) ); ?>" target="_blank" rel="noopener">
+                    <?php esc_html_e( 'Use the new-team wizard instead', 'talenttrack' ); ?>
+                </a>
+                <span class="description"> &mdash; <?php esc_html_e( 'opens the frontend wizard with staff assignment built in. Come back here when done.', 'talenttrack' ); ?></span>
+            </p>
+        <?php endif; ?>
         <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
             <?php wp_nonce_field( 'tt_onboarding_first_team', 'tt_onboarding_nonce' ); ?>
             <input type="hidden" name="action" value="tt_onboarding_first_team" />

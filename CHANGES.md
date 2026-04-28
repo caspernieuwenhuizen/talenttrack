@@ -1,3 +1,89 @@
+# TalentTrack v3.43.0 — Record-creation wizards: framework + four wizards (#0055 epic)
+
+Closes the #0055 Record-creation wizards epic. All four phases bundled — framework + new-player (Phase 1), new-team + setup-wizard hook (Phase 2), new-evaluation + new-goal (Phase 3), polish + analytics (Phase 4).
+
+The flat "+ New X" forms across Players, Teams, Evaluations, and Goals get a step-by-step alternative that branches on key answers, pre-fills sensible defaults, and renders mobile-first. Each entry point auto-routes to the wizard when enabled and falls back to the original form when disabled — flipping the toggle is one config write.
+
+## Phase 1 — Framework + new-player wizard
+
+Five primitives under `src/Shared/Wizards/`:
+
+- **`WizardStepInterface`** — `slug() / label() / render() / validate() / nextStep() / submit()`. Branching happens via `nextStep()` returning a non-default slug; the framework drives the loop.
+- **`WizardInterface`** — `slug() / label() / requiredCap() / steps() / firstStepSlug()`. A wizard is a collection of steps with a cap gate.
+- **`WizardRegistry`** — module-registered wizards looked up by slug. `isAvailable($slug, $user)` checks both cap and `tt_wizards_enabled` config (`all` / `off` / CSV).
+- **`WizardState`** — transient-backed accumulator keyed on `(user_id, wizard_slug)`. Each step's `validate()` return is merged into state. TTL = 1 hour, so abandoned sessions clean themselves up.
+- **`WizardAnalytics`** — three rolled-up counters per wizard slug in `wp_options` (started / completed / per-step skip count). No new table; the cardinality is small.
+
+Generic driver at `src/Shared/Frontend/FrontendWizardView.php` renders any wizard, validates POST, advances or submits, redirects on completion. Mobile-first inline CSS (single column, 48px targets, 16px fonts, progress strip).
+
+**New-player wizard** with trial vs roster branching:
+
+- Step 1 (path) — radio: roster / trial.
+- Step 2 (roster) — name, DOB, team, jersey number, preferred foot.
+- Step 2 (trial) — name, DOB, team, trial track, start/end dates.
+- Step 3 (review) — confirm + create.
+
+Trial path creates a real `tt_trial_cases` row via `TrialCasesRepository::create()` from #0017 — same workflow as opening a case directly. Without the Trials module, the player still gets `status='trial'` so the user can pick it up later. The wizard redirects to either the new player detail page (roster) or the new trial-case detail (trial).
+
+## Phase 2 — New-team wizard + setup wizard hook
+
+Three steps: basics → staff → review.
+
+The staff step has four independent slots (head coach / assistant coach / team manager / physio), each skippable. On submit, each filled slot becomes a `tt_team_people` row pointing at the appropriate functional role (looked up via `FunctionalRolesRepository::findRoleByKey()`); if the WP user has no `tt_people` row yet, one is created from their profile.
+
+Setup wizard hook: `OnboardingPage::renderFirstTeam()` now offers a "Use the new-team wizard instead" link when the wizard is registered and the cap is held. The link opens the wizard in a new tab and the user comes back to the onboarding flow when done.
+
+## Phase 3 — New-evaluation + new-goal wizards
+
+`new-evaluation` is a thin two-step (player → type) that hands off to the existing evaluation create form with `?action=new&player_id=…&eval_type_id=…&eval_date=…` pre-filled. The full eval-categories + sub-ratings + attachments form is too heavy to live in a wizard step; the wizard's job is just to land you at the right form first time.
+
+`new-goal` is a self-contained three-step (player → methodology link → details) that writes the goal directly. The link step is polymorphic — pick a type (principle / football_action / position / value) and the candidate list refreshes on the next render. Optional `tt_goal_links` row inserted after the goal write.
+
+## Phase 4 — Polish: admin + analytics
+
+`FrontendWizardsAdminView` at `?tt_view=wizards-admin` (gated on `tt_edit_settings`):
+
+- Top section: edit `tt_wizards_enabled` (text input — `all`, `off`, or CSV of registered slugs). Available slugs listed in a `<details>` block.
+- Bottom section: per-wizard analytics — Started, Completed, Completion rate (%), Most-skipped step (with skip count).
+
+Per-step skip events are recorded by `WizardAnalytics::recordSkipped()` when the user clicks the "Skip step" button. Completion rate is `completed / started`; both are integer counters in `wp_options`.
+
+Help-topic sidebar per wizard — opens the relevant `docs/<topic>.md` in a new tab.
+
+## Entry-point gating on existing manage views
+
+Tiny one-line change per manage view: the existing "+ New X" button URL goes through `WizardEntryPoint::urlFor( $wizard_slug, $fallback )`, which returns the wizard URL when available + enabled, or the existing flat-form URL otherwise. Touched: `FrontendPlayersManageView`, `FrontendTeamsManageView`, `FrontendEvaluationsView`, `FrontendGoalsManageView`. Reverting per-wizard is just flipping the config.
+
+## Default config
+
+`tt_wizards_enabled` defaults to `'all'` — fresh installs see the wizards out of the box. Clubs that prefer the flat forms set it to `'off'`. Per-wizard opt-in via CSV list (e.g. `'new-player,new-team'`).
+
+## Files of note
+
+- `src/Shared/Wizards/*` — five framework primitives + `WizardEntryPoint` helper.
+- `src/Shared/Frontend/FrontendWizardView.php` — generic driver.
+- `src/Shared/Frontend/FrontendWizardsAdminView.php` — admin + analytics page.
+- `src/Modules/Wizards/WizardsModule.php` — module bootstrap, registers four shipped wizards.
+- `src/Modules/Wizards/Player/*` — `NewPlayerWizard` + 4 steps (Path, RosterDetails, TrialDetails, Review).
+- `src/Modules/Wizards/Team/*` — `NewTeamWizard` + 3 steps (Basics, Staff, Review).
+- `src/Modules/Wizards/Evaluation/*` — `NewEvaluationWizard` + 2 steps (Player, Type).
+- `src/Modules/Wizards/Goal/*` — `NewGoalWizard` + 3 steps (Player, Link, Details).
+- `src/Modules/Onboarding/Admin/OnboardingPage.php` — setup wizard hook.
+- `src/Shared/Frontend/{FrontendPlayers,FrontendTeams,FrontendEvaluations,FrontendGoals}*View.php` — `WizardEntryPoint::urlFor()` swap on the new-button URLs.
+- `config/modules.php` — WizardsModule registered.
+- `src/Shared/CoreSurfaceRegistration.php` — Wizards admin tile + slug ownership.
+- `src/Shared/Frontend/DashboardShortcode.php` — `wizard` + `wizards-admin` slug routing.
+- `docs/wizards.md` + `docs/nl_NL/wizards.md` — user-facing docs.
+
+## Out of scope (per spec)
+
+- **Drag-drop wizard authoring** — academies can't author wizards; they're code.
+- **Multi-tenant wizard customization** — covered by #0052 SaaS readiness when it lands.
+- **Wizard for editing existing records** — value is at creation; editing stays as the flat form.
+- **Heavy form steps inside the wizard** — evaluation wizard hands off to the existing eval form; the wizard isn't trying to absorb that weight.
+
+---
+
 # TalentTrack v3.42.0 — Trial player module: case workflow, letters, parent-meeting mode (#0017 epic)
 
 Closes the #0017 Trial player module epic. All six sprints bundled — schema + case CRUD (Sprint 1), execution view (Sprint 2), staff input flow (Sprint 3), decision + letters (Sprint 4), parent-meeting mode (Sprint 5), track + letter template editor (Sprint 6).

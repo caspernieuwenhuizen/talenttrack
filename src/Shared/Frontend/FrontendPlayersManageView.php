@@ -77,7 +77,8 @@ class FrontendPlayersManageView extends FrontendViewBase {
      */
     private static function renderList( int $user_id, bool $is_admin ): void {
         $base_url = remove_query_arg( [ 'action', 'id', 'player_id' ] );
-        $new_url  = add_query_arg( [ 'tt_view' => 'players', 'action' => 'new' ], $base_url );
+        $flat_url = add_query_arg( [ 'tt_view' => 'players', 'action' => 'new' ], $base_url );
+        $new_url  = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-player', $flat_url );
 
         // #0040 — non-admin "My players" empty state when the user
         // coaches no teams. Without it the FrontendListTable would

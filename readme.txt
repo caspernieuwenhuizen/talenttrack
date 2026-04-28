@@ -4,13 +4,23 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.42.0
+Stable tag: 3.43.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.43.0 — Record-creation wizards: framework + four wizards in one PR (#0055 epic) =
+* NEW: **Record-creation wizards** at `?tt_view=wizard&slug=<wizard-slug>`. A reusable framework (`WizardInterface` + `WizardStepInterface` + `WizardRegistry` + `WizardState` transient store) plus four shipped wizards: `new-player` (trial vs. roster branching), `new-team` (basics → staff → review), `new-evaluation` (player → type → handoff to existing eval form), `new-goal` (player → optional methodology link → details).
+* NEW: **The `+ New X` buttons on the existing Players, Teams, Evaluations, and Goals manage views auto-route to the wizard** when it's enabled, fall back to the original flat form when it's not. Switch via `WizardEntryPoint::urlFor( $slug, $fallback )` — one line per call site.
+* NEW: Trial branch of the new-player wizard creates a real **#0017 trial case** automatically (track + dates), so the new player shows up under Trial cases without a second hop. Without the Trials module, the player still gets `status='trial'` so the user can come back later.
+* NEW: New-team wizard maps each filled staff slot (head coach / assistant / team manager / physio) to a `tt_team_people` row via the appropriate functional role; people-records are auto-created from the WP user when missing.
+* NEW: **Wizards admin view** at `?tt_view=wizards-admin`: edit `tt_wizards_enabled` config (`all` / `off` / CSV slug list), see started / completed / completion-rate / most-skipped-step per wizard. Counters in `wp_options`, no new table.
+* NEW: **Setup wizard hook (#0024 integration)** — the wp-admin first-team step now offers an "Use the new-team wizard instead" link that opens the frontend wizard with staff assignment built in.
+* NEW: Mobile-first wizard styling (single column, 48px touch targets, 16px input fonts, progress strip), help-topic sidebar per wizard, abandon-and-resume via 1-hour transient.
+* DOCS: New `docs/wizards.md` (EN) + `docs/nl_NL/wizards.md` (Dutch) under the Configuration help group.
 
 = 3.42.0 — Trial player module: case workflow + letters + parent-meeting mode (#0017 epic) =
 * NEW: **Trial cases** is a full workflow for prospective players. Open a case (player + track + dates), assign staff, watch the trial play out via the **Execution** tab (sessions, evaluations, goals filtered to the trial window), collect per-staff input on the **Staff inputs** tab (with a manager-only release control to prevent groupthink), record a decision on the **Decision** tab, and the **Letter** is generated automatically from one of three audience-aware templates. Migration `0036_trial_module.php` adds six new tables (`tt_trial_cases`, `tt_trial_tracks`, `tt_trial_case_staff`, `tt_trial_extensions`, `tt_trial_case_staff_inputs`, `tt_trial_letter_templates`). Three tracks seeded: Standard / Scout / Goalkeeper.

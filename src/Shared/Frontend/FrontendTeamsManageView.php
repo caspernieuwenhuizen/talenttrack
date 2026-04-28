@@ -77,7 +77,8 @@ class FrontendTeamsManageView extends FrontendViewBase {
 
     private static function renderList( int $user_id, bool $is_admin ): void {
         $base_url = remove_query_arg( [ 'action', 'id' ] );
-        $new_url  = add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url );
+        $flat_url = add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url );
+        $new_url  = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-team', $flat_url );
 
         $primary_actions = '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
             . esc_html__( 'New team', 'talenttrack' )

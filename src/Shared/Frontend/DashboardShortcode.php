@@ -177,6 +177,10 @@ class DashboardShortcode {
         $report_slugs = [ 'report-wizard', 'scout-access', 'scout-history', 'scout-my-players' ];
         // #0017 — Trial player module surfaces.
         $trial_slugs = [ 'trials', 'trial-case', 'trial-parent-meeting', 'trial-tracks-editor', 'trial-letter-templates-editor' ];
+        // #0055 — Record-creation wizards. Single slug; the actual
+        // wizard is selected via &slug=… on the query string.
+        // `wizards-admin` is the configuration + analytics surface.
+        $wizard_slugs = [ 'wizard', 'wizards-admin' ];
 
         if ( $view === '' ) {
             // Tile landing page.
@@ -231,6 +235,12 @@ class DashboardShortcode {
             self::dispatchReportView( $view, $user_id, $is_admin );
         } elseif ( in_array( $view, $trial_slugs, true ) ) {
             self::dispatchTrialView( $view, $user_id, $is_admin );
+        } elseif ( in_array( $view, $wizard_slugs, true ) ) {
+            if ( $view === 'wizards-admin' ) {
+                FrontendWizardsAdminView::render( $user_id, $is_admin );
+            } else {
+                FrontendWizardView::render( $user_id, $is_admin );
+            }
         } else {
             FrontendBackButton::render();
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';

@@ -52,6 +52,7 @@ final class CoreSurfaceRegistration {
     private const M_TEAMDEV       = 'TT\\Modules\\TeamDevelopment\\TeamDevelopmentModule';
     private const M_TEAMS         = 'TT\\Modules\\Teams\\TeamsModule';
     private const M_TRIALS        = 'TT\\Modules\\Trials\\TrialsModule';
+    private const M_WIZARDS       = 'TT\\Modules\\Wizards\\WizardsModule';
     private const M_WORKFLOW      = 'TT\\Modules\\Workflow\\WorkflowModule';
 
     /**
@@ -80,6 +81,8 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'roles',              self::M_AUTHORIZATION );
         TileRegistry::registerSlugOwnership( 'usage-stats-details', self::M_STATS );
         TileRegistry::registerSlugOwnership( 'docs',               self::M_DOCUMENTATION );
+        TileRegistry::registerSlugOwnership( 'wizard',             self::M_WIZARDS );
+        TileRegistry::registerSlugOwnership( 'wizards-admin',      self::M_WIZARDS );
         // `accept-invite` and `audit-log` are intentionally absent —
         // the first must keep working for not-yet-registered
         // recipients, the second is infrastructure (no module owner).
@@ -558,6 +561,18 @@ final class CoreSurfaceRegistration {
             'icon'         => 'migrations',
             'color'        => '#555',
             'cap'          => 'tt_access_frontend_admin',
+        ]);
+        TileRegistry::register([
+            'module_class' => self::M_WIZARDS,
+            'view_slug'    => 'wizards-admin',
+            'group'        => $admin_group,
+            'kind'         => 'setup',
+            'order'        => 25,
+            'label'        => __( 'Wizards', 'talenttrack' ),
+            'description'  => __( 'Toggle the create-record wizards on or off, and see completion analytics.', 'talenttrack' ),
+            'icon'         => 'lightbulb',
+            'color'        => '#5b6e75',
+            'cap'          => 'tt_edit_settings',
         ]);
         // Audit log is infra (no module owner). Always renders for users
         // with tt_view_settings.
