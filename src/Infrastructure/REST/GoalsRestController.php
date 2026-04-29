@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Pdp\Repositories\GoalLinksRepository;
 
 /**
@@ -116,8 +117,8 @@ class GoalsRestController {
         $order   = strtolower( (string) ( $r['order'] ?? ( $orderby_key === 'due_date' ? 'asc' : 'desc' ) ) );
         if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'asc';
 
-        $where  = [ '1=1' ];
-        $params = [];
+        $where  = [ '1=1', 'g.club_id = %d' ];
+        $params = [ CurrentClub::id() ];
 
         $scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
 
@@ -177,8 +178,8 @@ class GoalsRestController {
                             pl.first_name, pl.last_name, pl.team_id,
                             t.name AS team_name
                      FROM {$p}tt_goals g
-                     LEFT JOIN {$p}tt_players pl ON pl.id = g.player_id
-                     LEFT JOIN {$p}tt_teams   t  ON t.id = pl.team_id
+                     LEFT JOIN {$p}tt_players pl ON pl.id = g.player_id AND pl.club_id = g.club_id
+                     LEFT JOIN {$p}tt_teams   t  ON t.id = pl.team_id AND t.club_id = pl.club_id
                      WHERE {$where_sql}
                      ORDER BY {$orderby} {$order}
                      LIMIT %d OFFSET %d";
@@ -189,8 +190,8 @@ class GoalsRestController {
             : $wpdb->get_results( $list_sql );
 
         $count_sql = "SELECT COUNT(*) FROM {$p}tt_goals g
-                      LEFT JOIN {$p}tt_players pl ON pl.id = g.player_id
-                      LEFT JOIN {$p}tt_teams   t  ON t.id = pl.team_id
+                      LEFT JOIN {$p}tt_players pl ON pl.id = g.player_id AND pl.club_id = g.club_id
+                      LEFT JOIN {$p}tt_teams   t  ON t.id = pl.team_id AND t.club_id = pl.club_id
                       WHERE {$where_sql}";
 
         $total = $params ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) )
@@ -235,6 +236,7 @@ class GoalsRestController {
         global $wpdb;
 
         $data = [
+            'club_id'     => CurrentClub::id(),
             'player_id'   => absint( $r['player_id'] ?? 0 ),
             'title'       => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
             'description' => sanitize_textarea_field( (string) ( $r['description'] ?? '' ) ),
@@ -329,7 +331,7 @@ class GoalsRestController {
             return RestResponse::error( 'empty_update', __( 'No fields to update.', 'talenttrack' ), 400 );
         }
 
-        $ok = $wpdb->update( $wpdb->prefix . 'tt_goals', $data, [ 'id' => $goal_id ] );
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_goals', $data, [ 'id' => $goal_id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'goal.update.failed', [ 'db_error' => $err, 'goal_id' => $goal_id ] );
@@ -368,7 +370,7 @@ class GoalsRestController {
         if ( $status === '' ) {
             return RestResponse::error( 'missing_fields', __( 'Status is required.', 'talenttrack' ), 400 );
         }
-        $ok = $wpdb->update( $wpdb->prefix . 'tt_goals', [ 'status' => $status ], [ 'id' => $goal_id ] );
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_goals', [ 'status' => $status ], [ 'id' => $goal_id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'goal.status.update.failed', [ 'db_error' => $err, 'goal_id' => $goal_id ] );
@@ -388,7 +390,7 @@ class GoalsRestController {
         if ( $goal_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
         }
-        $ok = $wpdb->delete( $wpdb->prefix . 'tt_goals', [ 'id' => $goal_id ] );
+        $ok = $wpdb->delete( $wpdb->prefix . 'tt_goals', [ 'id' => $goal_id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'goal.delete.failed', [ 'db_error' => $err, 'goal_id' => $goal_id ] );

@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Goal;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -71,29 +72,31 @@ final class LinkStep implements WizardStepInterface {
         $rows = [];
         switch ( $type ) {
             case 'principle':
-                $rows = $wpdb->get_results(
+                $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT id, CONCAT(code, ' — ', name) AS label FROM {$wpdb->prefix}tt_principles
-                     WHERE archived_at IS NULL ORDER BY code"
-                );
+                     WHERE archived_at IS NULL AND club_id = %d ORDER BY code",
+                    CurrentClub::id()
+                ) );
                 break;
             case 'football_action':
-                $rows = $wpdb->get_results(
+                $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT id, name AS label FROM {$wpdb->prefix}tt_football_actions
-                     WHERE archived_at IS NULL ORDER BY sort_order, name"
-                );
+                     WHERE archived_at IS NULL AND club_id = %d ORDER BY sort_order, name",
+                    CurrentClub::id()
+                ) );
                 break;
             case 'position':
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT id, name AS label FROM {$wpdb->prefix}tt_lookups
-                     WHERE lookup_type = %s AND archived_at IS NULL ORDER BY sort_order, name",
-                    'position'
+                     WHERE lookup_type = %s AND archived_at IS NULL AND club_id = %d ORDER BY sort_order, name",
+                    'position', CurrentClub::id()
                 ) );
                 break;
             case 'value':
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT id, name AS label FROM {$wpdb->prefix}tt_lookups
-                     WHERE lookup_type = %s AND archived_at IS NULL ORDER BY sort_order, name",
-                    'club_value'
+                     WHERE lookup_type = %s AND archived_at IS NULL AND club_id = %d ORDER BY sort_order, name",
+                    'club_value', CurrentClub::id()
                 ) );
                 break;
         }

@@ -3,6 +3,8 @@ namespace TT\Infrastructure\People;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * PeopleRepository — data access for the People/Staff domain.
  *
@@ -58,8 +60,8 @@ class PeopleRepository {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $where  = [ '1=1' ];
-        $params = [];
+        $where  = [ 'p.club_id = %d' ];
+        $params = [ CurrentClub::id() ];
 
         if ( ! empty( $filters['status'] ) ) {
             $where[]  = 'p.status = %s';
@@ -76,17 +78,17 @@ class PeopleRepository {
 
         if ( ! empty( $filters['only_staff'] ) ) {
             // Only people who have at least one team assignment.
-            $where[] = "EXISTS (SELECT 1 FROM {$p}tt_team_people tp WHERE tp.person_id = p.id)";
+            $where[] = "EXISTS (SELECT 1 FROM {$p}tt_team_people tp WHERE tp.person_id = p.id AND tp.club_id = p.club_id)";
         }
 
         $scope = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'p', 'person' );
         $sql = "SELECT p.*,
-                  (SELECT COUNT(*) FROM {$p}tt_team_people tp WHERE tp.person_id = p.id) AS team_count
+                  (SELECT COUNT(*) FROM {$p}tt_team_people tp WHERE tp.person_id = p.id AND tp.club_id = p.club_id) AS team_count
                 FROM {$p}tt_people p
                 WHERE " . implode( ' AND ', $where ) . " {$scope}
                 ORDER BY p.last_name ASC, p.first_name ASC";
 
-        $query = $params ? $wpdb->prepare( $sql, $params ) : $sql;
+        $query = $wpdb->prepare( $sql, $params );
         $rows  = $wpdb->get_results( $query );
         return is_array( $rows ) ? $rows : [];
     }
@@ -94,7 +96,10 @@ class PeopleRepository {
     public function find( int $id ): ?object {
         global $wpdb;
         $p = $wpdb->prefix;
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$p}tt_people WHERE id = %d", $id ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$p}tt_people WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
@@ -107,6 +112,7 @@ class PeopleRepository {
         $p = $wpdb->prefix;
 
         $row = self::sanitizeForStorage( $data );
+        $row['club_id'] = CurrentClub::id();
         $result = $wpdb->insert( "{$p}tt_people", $row );
         if ( $result === false ) return false;
 
@@ -128,7 +134,7 @@ class PeopleRepository {
         $p = $wpdb->prefix;
         $row = self::sanitizeForStorage( $data, true );
         if ( empty( $row ) ) return true;
-        $result = $wpdb->update( "{$p}tt_people", $row, [ 'id' => $id ] );
+        $result = $wpdb->update( "{$p}tt_people", $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         return $result !== false;
     }
 
@@ -180,11 +186,11 @@ class PeopleRepository {
                     fr.role_key AS functional_role_key,
                     p.*
              FROM {$p}tt_team_people tp
-             INNER JOIN {$p}tt_people p ON p.id = tp.person_id
-             LEFT  JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id
-             WHERE tp.team_id = %d
+             INNER JOIN {$p}tt_people p ON p.id = tp.person_id AND p.club_id = tp.club_id
+             LEFT  JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id AND fr.club_id = tp.club_id
+             WHERE tp.team_id = %d AND tp.club_id = %d
              ORDER BY p.last_name ASC",
-            $team_id
+            $team_id, CurrentClub::id()
         ) );
 
         if ( is_array( $rows ) ) {
@@ -219,11 +225,11 @@ class PeopleRepository {
             "SELECT tp.*, t.name AS team_name, t.age_group,
                     fr.role_key AS functional_role_key
              FROM {$p}tt_team_people tp
-             INNER JOIN {$p}tt_teams t ON t.id = tp.team_id
-             LEFT  JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id
-             WHERE tp.person_id = %d
+             INNER JOIN {$p}tt_teams t ON t.id = tp.team_id AND t.club_id = tp.club_id
+             LEFT  JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id AND fr.club_id = tp.club_id
+             WHERE tp.person_id = %d AND tp.club_id = %d
              ORDER BY t.name ASC",
-            $person_id
+            $person_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
     }
@@ -243,12 +249,13 @@ class PeopleRepository {
         if ( $team_id <= 0 || $person_id <= 0 || $functional_role_id <= 0 ) return false;
 
         $fn_role_key = (string) $wpdb->get_var( $wpdb->prepare(
-            "SELECT role_key FROM {$p}tt_functional_roles WHERE id = %d",
-            $functional_role_id
+            "SELECT role_key FROM {$p}tt_functional_roles WHERE id = %d AND club_id = %d",
+            $functional_role_id, CurrentClub::id()
         ) );
         if ( $fn_role_key === '' ) return false;
 
         $result = $wpdb->insert( "{$p}tt_team_people", [
+            'club_id'            => CurrentClub::id(),
             'team_id'            => $team_id,
             'person_id'          => $person_id,
             'functional_role_id' => $functional_role_id,
@@ -274,7 +281,7 @@ class PeopleRepository {
     public function unassign( int $assignment_id ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
-        $result = $wpdb->delete( "{$p}tt_team_people", [ 'id' => $assignment_id ] );
+        $result = $wpdb->delete( "{$p}tt_team_people", [ 'id' => $assignment_id, 'club_id' => CurrentClub::id() ] );
         return $result !== false;
     }
 

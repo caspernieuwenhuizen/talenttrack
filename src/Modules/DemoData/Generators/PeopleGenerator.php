@@ -3,6 +3,7 @@ namespace TT\Modules\DemoData\Generators;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\SeedLoader;
 
@@ -133,12 +134,13 @@ class PeopleGenerator {
                     'wp_user_id' => $wp_user_id > 0 ? $wp_user_id : null,
                     'status'     => 'active',
                 ],
-                [ 'id' => $person_id ]
+                [ 'id' => $person_id, 'club_id' => CurrentClub::id() ]
             );
             return $person_id;
         }
 
         $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id'    => CurrentClub::id(),
             'first_name' => $first,
             'last_name'  => $last,
             'email'      => $email,
@@ -167,8 +169,8 @@ class PeopleGenerator {
 
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT entity_id, extra_json FROM {$wpdb->prefix}tt_demo_tags
-             WHERE entity_type = %s",
-            'person'
+             WHERE entity_type = %s AND club_id = %d",
+            'person', CurrentClub::id()
         ) );
         foreach ( (array) $rows as $r ) {
             $extra = $r->extra_json ? json_decode( (string) $r->extra_json, true ) : [];
@@ -179,8 +181,8 @@ class PeopleGenerator {
 
         if ( $wp_user_id > 0 ) {
             $existing = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d LIMIT 1",
-                $wp_user_id
+                "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+                $wp_user_id, CurrentClub::id()
             ) );
             if ( $existing > 0 ) {
                 $this->registry->tag( 'person', $existing, [

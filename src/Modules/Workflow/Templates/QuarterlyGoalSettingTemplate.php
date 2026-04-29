@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Templates;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Workflow\Chain\ChainStep;
 use TT\Modules\Workflow\Contracts\AssigneeResolver;
 use TT\Modules\Workflow\Forms\GoalSettingForm;
@@ -67,13 +68,15 @@ class QuarterlyGoalSettingTemplate extends TaskTemplate {
      */
     public function expandTrigger( TaskContext $context ): array {
         global $wpdb;
-        $player_ids = $wpdb->get_col(
+        $player_ids = $wpdb->get_col( $wpdb->prepare(
             "SELECT id FROM {$wpdb->prefix}tt_players
              WHERE archived_at IS NULL
                AND ( status IS NULL OR status = '' OR status = 'active' )
                AND team_id IS NOT NULL AND team_id > 0
-             ORDER BY id ASC"
-        );
+               AND club_id = %d
+             ORDER BY id ASC",
+            CurrentClub::id()
+        ) );
         if ( ! is_array( $player_ids ) || empty( $player_ids ) ) return [];
 
         $contexts = [];
@@ -101,8 +104,8 @@ class QuarterlyGoalSettingTemplate extends TaskTemplate {
                     if ( $player_id <= 0 ) return ChainStep::inheritContext( $task );
                     global $wpdb;
                     $team_id = (int) $wpdb->get_var( $wpdb->prepare(
-                        "SELECT team_id FROM {$wpdb->prefix}tt_players WHERE id = %d LIMIT 1",
-                        $player_id
+                        "SELECT team_id FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d LIMIT 1",
+                        $player_id, CurrentClub::id()
                     ) );
                     return new TaskContext(
                         $player_id,

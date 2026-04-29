@@ -3,6 +3,8 @@ namespace TT\Modules\Trials\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 class TrialCasesRepository {
 
     public const STATUS_OPEN     = 'open';
@@ -26,7 +28,8 @@ class TrialCasesRepository {
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE id = %d", $id
+            "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -35,9 +38,9 @@ class TrialCasesRepository {
         if ( $player_id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
             "SELECT * FROM {$this->table}
-             WHERE player_id = %d AND status IN ('open','extended')
+             WHERE player_id = %d AND club_id = %d AND status IN ('open','extended')
              ORDER BY id DESC LIMIT 1",
-            $player_id
+            $player_id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -47,8 +50,8 @@ class TrialCasesRepository {
      * @return object[]
      */
     public function search( array $filters = [] ): array {
-        $where  = [ '1=1' ];
-        $params = [];
+        $where  = [ 'club_id = %d' ];
+        $params = [ CurrentClub::id() ];
 
         if ( ! empty( $filters['status'] ) ) {
             $where[]  = 'status = %s';
@@ -93,6 +96,7 @@ class TrialCasesRepository {
      */
     public function create( array $data ): int {
         $insert = [
+            'club_id'     => CurrentClub::id(),
             'player_id'   => (int) ( $data['player_id'] ?? 0 ),
             'track_id'    => (int) ( $data['track_id'] ?? 0 ),
             'start_date'  => (string) ( $data['start_date'] ?? gmdate( 'Y-m-d' ) ),
@@ -121,7 +125,7 @@ class TrialCasesRepository {
         ];
         $clean = array_intersect_key( $patch, array_flip( $allowed ) );
         if ( ! $clean ) return false;
-        return (bool) $this->wpdb->update( $this->table, $clean, [ 'id' => $id ] );
+        return (bool) $this->wpdb->update( $this->table, $clean, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
     }
 
     public function archive( int $id, int $user_id ): bool {
@@ -166,9 +170,10 @@ class TrialCasesRepository {
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
             "SELECT * FROM {$this->table}
              WHERE status IN ('open','extended')
+               AND club_id = %d
                AND end_date BETWEEN %s AND %s
                AND archived_at IS NULL",
-            $from_date, $to_date
+            CurrentClub::id(), $from_date, $to_date
         ) );
         return is_array( $rows ) ? $rows : [];
     }

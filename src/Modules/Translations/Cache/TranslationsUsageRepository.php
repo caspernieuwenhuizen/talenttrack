@@ -3,6 +3,8 @@ namespace TT\Modules\Translations\Cache;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * TranslationsUsageRepository — per-month, per-engine usage tracking
  * for the soft cost cap (#0025).
@@ -30,8 +32,8 @@ final class TranslationsUsageRepository {
         $period = self::periodStart();
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COALESCE(chars_billed, 0) FROM {$this->table()}
-             WHERE period_start = %s AND engine = %s LIMIT 1",
-            $period, $engine
+             WHERE period_start = %s AND engine = %s AND club_id = %d LIMIT 1",
+            $period, $engine, CurrentClub::id()
         ) );
     }
 
@@ -41,16 +43,17 @@ final class TranslationsUsageRepository {
         $period = self::periodStart();
         $row    = $wpdb->get_row( $wpdb->prepare(
             "SELECT id, chars_billed, api_calls FROM {$this->table()}
-             WHERE period_start = %s AND engine = %s LIMIT 1",
-            $period, $engine
+             WHERE period_start = %s AND engine = %s AND club_id = %d LIMIT 1",
+            $period, $engine, CurrentClub::id()
         ) );
         if ( $row ) {
             $wpdb->update( $this->table(), [
                 'chars_billed' => (int) $row->chars_billed + $chars,
                 'api_calls'    => (int) $row->api_calls + 1,
-            ], [ 'id' => (int) $row->id ] );
+            ], [ 'id' => (int) $row->id, 'club_id' => CurrentClub::id() ] );
         } else {
             $wpdb->insert( $this->table(), [
+                'club_id'      => CurrentClub::id(),
                 'period_start' => $period,
                 'engine'       => $engine,
                 'chars_billed' => $chars,
@@ -65,8 +68,8 @@ final class TranslationsUsageRepository {
         $period = self::periodStart();
         $val = $wpdb->get_var( $wpdb->prepare(
             "SELECT threshold_hit_at FROM {$this->table()}
-             WHERE period_start = %s AND engine = %s LIMIT 1",
-            $period, $engine
+             WHERE period_start = %s AND engine = %s AND club_id = %d LIMIT 1",
+            $period, $engine, CurrentClub::id()
         ) );
         return $val ? (string) $val : null;
     }
@@ -76,8 +79,8 @@ final class TranslationsUsageRepository {
         $period = self::periodStart();
         $wpdb->query( $wpdb->prepare(
             "UPDATE {$this->table()} SET threshold_hit_at = %s
-             WHERE period_start = %s AND engine = %s AND threshold_hit_at IS NULL",
-            current_time( 'mysql', true ), $period, $engine
+             WHERE period_start = %s AND engine = %s AND threshold_hit_at IS NULL AND club_id = %d",
+            current_time( 'mysql', true ), $period, $engine, CurrentClub::id()
         ) );
     }
 
@@ -85,8 +88,9 @@ final class TranslationsUsageRepository {
     public function recent( int $months = 6 ): array {
         global $wpdb;
         $months = max( 1, min( 24, $months ) );
-        return (array) $wpdb->get_results(
-            "SELECT * FROM {$this->table()} ORDER BY period_start DESC LIMIT " . ( $months * 4 )
-        );
+        return (array) $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$this->table()} WHERE club_id = %d ORDER BY period_start DESC LIMIT " . ( $months * 4 ),
+            CurrentClub::id()
+        ) );
     }
 }

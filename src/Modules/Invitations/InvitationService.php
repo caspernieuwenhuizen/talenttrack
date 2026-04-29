@@ -4,6 +4,7 @@ namespace TT\Modules\Invitations;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Config\ConfigService;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * InvitationService — create / accept / revoke / list orchestration.
@@ -259,13 +260,13 @@ class InvitationService {
             if ( $jersey !== '' ) {
                 $update['jersey_number'] = $jersey;
             }
-            $wpdb->update( $wpdb->prefix . 'tt_players', $update, [ 'id' => $playerId ] );
+            $wpdb->update( $wpdb->prefix . 'tt_players', $update, [ 'id' => $playerId, 'club_id' => CurrentClub::id() ] );
         } elseif ( $kind === InvitationKind::PARENT && $playerId > 0 ) {
             $existing = $this->parents->parentsForPlayer( $playerId );
             $isPrimary = empty( $existing );
             $this->parents->link( $playerId, $userId, $isPrimary );
         } elseif ( $kind === InvitationKind::STAFF && $personId > 0 ) {
-            $wpdb->update( $wpdb->prefix . 'tt_people', [ 'wp_user_id' => $userId ], [ 'id' => $personId ] );
+            $wpdb->update( $wpdb->prefix . 'tt_people', [ 'wp_user_id' => $userId ], [ 'id' => $personId, 'club_id' => CurrentClub::id() ] );
             // Functional-role assignment is left to whoever wires the
             // PeopleModule's assignment surface; the invitation only
             // records the *intent* via target_functional_role_key, the
@@ -287,8 +288,8 @@ class InvitationService {
         if ( in_array( $kind, [ InvitationKind::PLAYER, InvitationKind::PARENT ], true )
             && ! empty( $args['target_player_id'] ) ) {
             $row_locale = $wpdb->get_var( $wpdb->prepare(
-                "SELECT locale FROM {$wpdb->prefix}tt_players WHERE id = %d",
-                (int) $args['target_player_id']
+                "SELECT locale FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+                (int) $args['target_player_id'], CurrentClub::id()
             ) );
             if ( $row_locale && is_string( $row_locale ) && $row_locale !== '' ) {
                 return $row_locale;
@@ -296,8 +297,8 @@ class InvitationService {
         }
         if ( $kind === InvitationKind::STAFF && ! empty( $args['target_person_id'] ) ) {
             $row_locale = $wpdb->get_var( $wpdb->prepare(
-                "SELECT locale FROM {$wpdb->prefix}tt_people WHERE id = %d",
-                (int) $args['target_person_id']
+                "SELECT locale FROM {$wpdb->prefix}tt_people WHERE id = %d AND club_id = %d",
+                (int) $args['target_person_id'], CurrentClub::id()
             ) );
             if ( $row_locale && is_string( $row_locale ) && $row_locale !== '' ) {
                 return $row_locale;
@@ -415,8 +416,8 @@ class InvitationService {
     private function playerName( int $playerId ): string {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT first_name, last_name FROM {$wpdb->prefix}tt_players WHERE id = %d",
-            $playerId
+            "SELECT first_name, last_name FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+            $playerId, CurrentClub::id()
         ) );
         if ( ! $row ) return '';
         return trim( (string) $row->first_name . ' ' . (string) $row->last_name );
@@ -425,8 +426,8 @@ class InvitationService {
     private function teamName( int $teamId ): string {
         global $wpdb;
         $name = $wpdb->get_var( $wpdb->prepare(
-            "SELECT name FROM {$wpdb->prefix}tt_teams WHERE id = %d",
-            $teamId
+            "SELECT name FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d",
+            $teamId, CurrentClub::id()
         ) );
         return $name ? (string) $name : '';
     }

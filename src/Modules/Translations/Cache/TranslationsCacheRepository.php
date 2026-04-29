@@ -3,6 +3,8 @@ namespace TT\Modules\Translations\Cache;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * TranslationsCacheRepository — `tt_translations_cache` data access.
  *
@@ -26,9 +28,9 @@ final class TranslationsCacheRepository {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$this->table()}
-             WHERE source_hash = %s AND source_lang = %s AND target_lang = %s AND engine = %s
+             WHERE source_hash = %s AND source_lang = %s AND target_lang = %s AND engine = %s AND club_id = %d
              LIMIT 1",
-            $source_hash, $source_lang, $target_lang, $engine
+            $source_hash, $source_lang, $target_lang, $engine, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -43,6 +45,7 @@ final class TranslationsCacheRepository {
     ): bool {
         global $wpdb;
         $ok = $wpdb->insert( $this->table(), [
+            'club_id'         => CurrentClub::id(),
             'source_hash'     => $source_hash,
             'source_lang'     => $source_lang,
             'target_lang'     => $target_lang,
@@ -56,7 +59,7 @@ final class TranslationsCacheRepository {
     /** Drop every cache row for a source string — invoked when the source is edited. */
     public function deleteForHash( string $source_hash ): int {
         global $wpdb;
-        return (int) $wpdb->delete( $this->table(), [ 'source_hash' => $source_hash ] );
+        return (int) $wpdb->delete( $this->table(), [ 'source_hash' => $source_hash, 'club_id' => CurrentClub::id() ] );
     }
 
     /** Wipe the entire cache — invoked on opt-out per #0025 GDPR posture. */
@@ -69,13 +72,14 @@ final class TranslationsCacheRepository {
     public function listRecent( int $limit = 50 ): array {
         global $wpdb;
         $limit = max( 1, min( 500, $limit ) );
-        return (array) $wpdb->get_results(
-            "SELECT * FROM {$this->table()} ORDER BY created_at DESC LIMIT {$limit}"
-        );
+        return (array) $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$this->table()} WHERE club_id = %d ORDER BY created_at DESC LIMIT {$limit}",
+            CurrentClub::id()
+        ) );
     }
 
     public function size(): int {
         global $wpdb;
-        return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$this->table()}" );
+        return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$this->table()} WHERE club_id = %d", CurrentClub::id() ) );
     }
 }

@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Workflow\Dispatchers\EventDispatcher;
 use TT\Modules\Workflow\Repositories\EventLogRepository;
 use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
@@ -351,7 +352,7 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
         $wpdb->update(
             $wpdb->prefix . 'tt_workflow_triggers',
             [ 'cron_expression' => $expression ],
-            [ 'template_key' => $template_key, 'trigger_type' => 'cron' ]
+            [ 'template_key' => $template_key, 'trigger_type' => 'cron', 'club_id' => CurrentClub::id() ]
         );
     }
 
@@ -360,7 +361,7 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
         $wpdb->update(
             $wpdb->prefix . 'tt_workflow_triggers',
             [ 'enabled' => $enabled ? 1 : 0 ],
-            [ 'template_key' => $template_key ]
+            [ 'template_key' => $template_key, 'club_id' => CurrentClub::id() ]
         );
     }
 
@@ -373,8 +374,10 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
         }
         // Also include rows that may currently be disabled — admin needs to see them to re-enable.
         global $wpdb;
-        $disabled = $wpdb->get_results(
-            "SELECT * FROM {$wpdb->prefix}tt_workflow_triggers WHERE trigger_type = 'cron' AND enabled = 0",
+        $disabled = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tt_workflow_triggers WHERE trigger_type = 'cron' AND enabled = 0 AND club_id = %d",
+            CurrentClub::id()
+        ),
             ARRAY_A
         );
         if ( is_array( $disabled ) ) {

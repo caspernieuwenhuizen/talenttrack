@@ -3,6 +3,8 @@ namespace TT\Modules\Pdp\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * PdpVerdictsRepository — at-most-one verdict per PDP file.
  *
@@ -26,8 +28,8 @@ class PdpVerdictsRepository {
     public function findForFile( int $file_id ): ?object {
         if ( $file_id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE pdp_file_id = %d",
-            $file_id
+            "SELECT * FROM {$this->table} WHERE pdp_file_id = %d AND club_id = %d",
+            $file_id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -45,6 +47,7 @@ class PdpVerdictsRepository {
         if ( ! in_array( $decision, self::ALLOWED_DECISIONS, true ) ) return false;
 
         $payload = [
+            'club_id'            => CurrentClub::id(),
             'pdp_file_id'        => $file_id,
             'decision'           => $decision,
             'summary'            => isset( $data['summary'] ) ? (string) $data['summary'] : null,
@@ -58,7 +61,7 @@ class PdpVerdictsRepository {
         $now_signed_off = ! empty( $payload['signed_off_at'] );
 
         if ( $existing ) {
-            $ok = $this->wpdb->update( $this->table, $payload, [ 'id' => (int) $existing->id ] );
+            $ok = $this->wpdb->update( $this->table, $payload, [ 'id' => (int) $existing->id, 'club_id' => CurrentClub::id() ] );
             if ( $ok !== false && ! $was_signed_off && $now_signed_off ) {
                 do_action( 'tt_pdp_verdict_signed_off', (int) $existing->id, $file_id );
             }

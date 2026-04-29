@@ -3,6 +3,8 @@ namespace TT\Modules\Methodology\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * PrincipleLinksRepository — handles two cross-module link surfaces:
  *
@@ -88,11 +90,12 @@ class PrincipleLinksRepository {
         $t = $this->reverseTable();
         // Avoid duplicate rows.
         $exists = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$t} WHERE principle_id = %d AND entity_type = %s AND entity_id = %d",
-            $principle_id, $entity_type, $entity_id
+            "SELECT COUNT(*) FROM {$t} WHERE principle_id = %d AND entity_type = %s AND entity_id = %d AND club_id = %d",
+            $principle_id, $entity_type, $entity_id, CurrentClub::id()
         ) );
         if ( $exists > 0 ) return;
         $wpdb->insert( $t, [
+            'club_id'      => CurrentClub::id(),
             'principle_id' => $principle_id,
             'entity_type'  => sanitize_key( $entity_type ),
             'entity_id'    => $entity_id,
@@ -105,6 +108,7 @@ class PrincipleLinksRepository {
         $wpdb->delete( $t, [
             'entity_type' => sanitize_key( $entity_type ),
             'entity_id'   => $entity_id,
+            'club_id'     => CurrentClub::id(),
         ] );
     }
 
@@ -131,8 +135,8 @@ class PrincipleLinksRepository {
         if ( $col_exists > 0 ) {
             $out['goal'] = (int) $wpdb->get_var( $wpdb->prepare(
                 "SELECT COUNT(*) FROM {$goals_table}
-                 WHERE linked_principle_id = %d AND archived_at IS NULL",
-                $principle_id
+                 WHERE linked_principle_id = %d AND club_id = %d AND archived_at IS NULL",
+                $principle_id, CurrentClub::id()
             ) );
         }
 
@@ -140,9 +144,9 @@ class PrincipleLinksRepository {
         $t = $this->reverseTable();
         $rows = (array) $wpdb->get_results( $wpdb->prepare(
             "SELECT entity_type, COUNT(DISTINCT entity_id) AS c
-             FROM {$t} WHERE principle_id = %d
+             FROM {$t} WHERE principle_id = %d AND club_id = %d
              GROUP BY entity_type",
-            $principle_id
+            $principle_id, CurrentClub::id()
         ) );
         foreach ( $rows as $r ) {
             $out[ (string) $r->entity_type ] = (int) $r->c;

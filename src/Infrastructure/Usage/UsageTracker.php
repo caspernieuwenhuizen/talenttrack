@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Usage;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * UsageTracker — captures + queries app-usage events.
  *
@@ -90,11 +92,12 @@ class UsageTracker {
 
         global $wpdb;
         $wpdb->insert( $wpdb->prefix . 'tt_usage_events', [
+            'club_id'      => CurrentClub::id(),
             'user_id'      => $user_id,
             'event_type'   => substr( $type, 0, 50 ),
             'event_target' => $target !== null ? substr( $target, 0, 100 ) : null,
             'created_at'   => current_time( 'mysql' ),
-        ], [ '%d', '%s', '%s', '%s' ] );
+        ], [ '%d', '%d', '%s', '%s', '%s' ] );
     }
 
     // Prune
@@ -120,8 +123,8 @@ class UsageTracker {
         $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_usage_events
-             WHERE event_type = %s AND created_at >= %s",
-            $type, $cutoff
+             WHERE event_type = %s AND created_at >= %s AND club_id = %d",
+            $type, $cutoff, CurrentClub::id()
         ) );
     }
 
@@ -136,8 +139,8 @@ class UsageTracker {
         $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(DISTINCT user_id) FROM {$wpdb->prefix}tt_usage_events
-             WHERE created_at >= %s",
-            $cutoff
+             WHERE created_at >= %s AND club_id = %d",
+            $cutoff, CurrentClub::id()
         ) );
     }
 
@@ -154,10 +157,10 @@ class UsageTracker {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT DATE(created_at) AS d, COUNT(DISTINCT user_id) AS c
              FROM {$wpdb->prefix}tt_usage_events
-             WHERE created_at >= %s
+             WHERE created_at >= %s AND club_id = %d
              GROUP BY DATE(created_at)
              ORDER BY d ASC",
-            $cutoff
+            $cutoff, CurrentClub::id()
         ) );
 
         // Fill zero days.
@@ -186,10 +189,11 @@ class UsageTracker {
              FROM {$wpdb->prefix}tt_usage_events
              WHERE event_type = 'admin_page_view'
                AND created_at >= %s
+               AND club_id = %d
              GROUP BY event_target
              ORDER BY c DESC
              LIMIT %d",
-            $cutoff, $limit
+            $cutoff, CurrentClub::id(), $limit
         ) );
         $out = [];
         foreach ( (array) $rows as $r ) {
@@ -209,8 +213,8 @@ class UsageTracker {
         $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
         $user_ids = $wpdb->get_col( $wpdb->prepare(
             "SELECT DISTINCT user_id FROM {$wpdb->prefix}tt_usage_events
-             WHERE created_at >= %s",
-            $cutoff
+             WHERE created_at >= %s AND club_id = %d",
+            $cutoff, CurrentClub::id()
         ) );
         $buckets = [ 'admin' => 0, 'coach' => 0, 'player' => 0, 'other' => 0 ];
         foreach ( $user_ids as $uid ) {
@@ -223,8 +227,8 @@ class UsageTracker {
             } else {
                 // Check player link.
                 $pid = (int) $wpdb->get_var( $wpdb->prepare(
-                    "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d LIMIT 1",
-                    (int) $uid
+                    "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+                    (int) $uid, CurrentClub::id()
                 ) );
                 if ( $pid > 0 ) $buckets['player']++;
                 else $buckets['other']++;
@@ -246,12 +250,12 @@ class UsageTracker {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT user_id, MAX(created_at) AS last_login
              FROM {$wpdb->prefix}tt_usage_events
-             WHERE event_type = 'login'
+             WHERE event_type = 'login' AND club_id = %d
              GROUP BY user_id
              HAVING last_login < %s
              ORDER BY last_login DESC
              LIMIT %d",
-            $cutoff, $limit
+            CurrentClub::id(), $cutoff, $limit
         ) );
         $out = [];
         foreach ( (array) $rows as $r ) {
@@ -278,10 +282,10 @@ class UsageTracker {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT DATE(created_at) AS d, COUNT(*) AS c
              FROM {$wpdb->prefix}tt_evaluations
-             WHERE created_at >= %s
+             WHERE created_at >= %s AND club_id = %d
              GROUP BY DATE(created_at)
              ORDER BY d ASC",
-            $cutoff
+            $cutoff, CurrentClub::id()
         ) );
         $series = [];
         $start  = strtotime( $cutoff );

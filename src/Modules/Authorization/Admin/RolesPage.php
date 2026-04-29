@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Authorization\AuthorizationRepository;
 use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * RolesPage — admin UI at TalentTrack → Roles & Permissions.
@@ -332,21 +333,21 @@ class RolesPage {
         switch ( $scope_type ) {
             case 'team':
                 $name = $wpdb->get_var( $wpdb->prepare(
-                    "SELECT name FROM {$wpdb->prefix}tt_teams WHERE id = %d",
-                    $scope_id
+                    "SELECT name FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d",
+                    $scope_id, CurrentClub::id()
                 ) );
                 return sprintf( '%s: %s', __( 'Team', 'talenttrack' ), $name ?: '#' . $scope_id );
             case 'player':
                 $row = $wpdb->get_row( $wpdb->prepare(
-                    "SELECT first_name, last_name FROM {$wpdb->prefix}tt_players WHERE id = %d",
-                    $scope_id
+                    "SELECT first_name, last_name FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+                    $scope_id, CurrentClub::id()
                 ) );
                 $name = $row ? trim( $row->first_name . ' ' . $row->last_name ) : '';
                 return sprintf( '%s: %s', __( 'Player', 'talenttrack' ), $name ?: '#' . $scope_id );
             case 'person':
                 $row = $wpdb->get_row( $wpdb->prepare(
-                    "SELECT first_name, last_name FROM {$wpdb->prefix}tt_people WHERE id = %d",
-                    $scope_id
+                    "SELECT first_name, last_name FROM {$wpdb->prefix}tt_people WHERE id = %d AND club_id = %d",
+                    $scope_id, CurrentClub::id()
                 ) );
                 $name = $row ? trim( $row->first_name . ' ' . $row->last_name ) : '';
                 return sprintf( '%s: %s', __( 'Person', 'talenttrack' ), $name ?: '#' . $scope_id );

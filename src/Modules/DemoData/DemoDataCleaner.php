@@ -3,6 +3,8 @@ namespace TT\Modules\DemoData;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * DemoDataCleaner — deletes demo-tagged content.
  *
@@ -64,8 +66,8 @@ class DemoDataCleaner {
         if ( $player_ids ) {
             $placeholders = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
             $wpdb->query( $wpdb->prepare(
-                "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = 0 WHERE id IN ({$placeholders})",
-                ...$player_ids
+                "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = 0 WHERE id IN ({$placeholders}) AND club_id = %d",
+                ...array_merge( $player_ids, [ CurrentClub::id() ] )
             ) );
         }
 
@@ -79,15 +81,15 @@ class DemoDataCleaner {
             $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 
             $n = $wpdb->query( $wpdb->prepare(
-                "DELETE FROM {$wpdb->prefix}{$table} WHERE {$id_col} IN ({$placeholders})",
-                ...$ids
+                "DELETE FROM {$wpdb->prefix}{$table} WHERE {$id_col} IN ({$placeholders}) AND club_id = %d",
+                ...array_merge( $ids, [ CurrentClub::id() ] )
             ) );
             $deleted[ $type ] = (int) $n;
 
             // Drop the tags for the same type.
             $wpdb->query( $wpdb->prepare(
-                "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = %s",
-                $type
+                "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = %s AND club_id = %d",
+                $type, CurrentClub::id()
             ) );
         }
         return $deleted;
@@ -119,12 +121,13 @@ class DemoDataCleaner {
         if ( $person_ids ) {
             $placeholders = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
             $wpdb->query( $wpdb->prepare(
-                "DELETE FROM {$wpdb->prefix}tt_people WHERE id IN ({$placeholders})",
-                ...$person_ids
+                "DELETE FROM {$wpdb->prefix}tt_people WHERE id IN ({$placeholders}) AND club_id = %d",
+                ...array_merge( $person_ids, [ CurrentClub::id() ] )
             ) );
-            $wpdb->query(
-                "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = 'person'"
-            );
+            $wpdb->query( $wpdb->prepare(
+                "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = 'person' AND club_id = %d",
+                CurrentClub::id()
+            ) );
         }
 
         $current_user_id = (int) get_current_user_id();
@@ -141,6 +144,7 @@ class DemoDataCleaner {
                 $wpdb->delete( $wpdb->prefix . 'tt_demo_tags', [
                     'entity_type' => 'wp_user',
                     'entity_id'   => $user_id,
+                    'club_id'     => CurrentClub::id(),
                 ] );
                 continue;
             }
@@ -164,6 +168,7 @@ class DemoDataCleaner {
                 $wpdb->delete( $wpdb->prefix . 'tt_demo_tags', [
                     'entity_type' => 'wp_user',
                     'entity_id'   => $user_id,
+                    'club_id'     => CurrentClub::id(),
                 ] );
                 $deleted++;
                 if ( in_array( 'administrator', (array) $user->roles, true ) ) {

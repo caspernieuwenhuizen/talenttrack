@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * ActivitiesRestController — /wp-json/talenttrack/v1/activities
@@ -141,8 +142,8 @@ class ActivitiesRestController {
         $order   = strtolower( (string) ( $r['order'] ?? ( $orderby_key === 'session_date' ? 'desc' : 'asc' ) ) );
         if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'desc';
 
-        $where  = [ '1=1' ];
-        $params = [];
+        $where  = [ '1=1', 's.club_id = %d' ];
+        $params = [ CurrentClub::id() ];
 
         $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
 
@@ -195,8 +196,8 @@ class ActivitiesRestController {
         // OK for the 100-row max; if perf becomes a problem we revisit
         // (Q2 in the Sprint 2 plan accepts that risk).
         $select_cols = "s.*, t.name AS team_name,
-            (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.is_guest = 0) AS attendance_count,
-            (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id) AS roster_size";
+            (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id) AS attendance_count,
+            (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id) AS roster_size";
 
         $having = '';
         $att_filter = isset( $filter['attendance'] ) ? sanitize_key( (string) $filter['attendance'] ) : '';
@@ -210,7 +211,7 @@ class ActivitiesRestController {
 
         $list_sql = "SELECT {$select_cols}
                      FROM {$p}tt_activities s
-                     LEFT JOIN {$p}tt_teams t ON t.id = s.team_id
+                     LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
                      WHERE {$where_sql}
                      {$having}
                      ORDER BY {$orderby} {$order}
@@ -227,16 +228,16 @@ class ActivitiesRestController {
         if ( $having !== '' ) {
             $count_sql = "SELECT COUNT(*) FROM (
                 SELECT s.id,
-                    (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.is_guest = 0) AS attendance_count,
-                    (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id) AS roster_size
+                    (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id) AS attendance_count,
+                    (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id) AS roster_size
                 FROM {$p}tt_activities s
-                LEFT JOIN {$p}tt_teams t ON t.id = s.team_id
+                LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
                 WHERE {$where_sql}
                 {$having}
             ) AS sub";
         } else {
             $count_sql = "SELECT COUNT(*) FROM {$p}tt_activities s
-                          LEFT JOIN {$p}tt_teams t ON t.id = s.team_id
+                          LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
                           WHERE {$where_sql}";
         }
         $total = $params ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) )
@@ -287,6 +288,7 @@ class ActivitiesRestController {
 
         $data = self::extract( $r );
         $data['coach_id'] = get_current_user_id();
+        $data['club_id']  = CurrentClub::id();
 
         if ( $data['title'] === '' || $data['session_date'] === '' ) {
             return RestResponse::error( 'missing_fields', __( 'Title and date are required.', 'talenttrack' ), 400 );
@@ -317,6 +319,7 @@ class ActivitiesRestController {
             $tag_table = $wpdb->prefix . 'tt_demo_tags';
             if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tag_table ) ) === $tag_table ) {
                 $wpdb->insert( $tag_table, [
+                    'club_id'     => CurrentClub::id(),
                     'batch_id'    => 'user-created',
                     'entity_type' => 'activity',
                     'entity_id'   => $activity_id,
@@ -359,7 +362,7 @@ class ActivitiesRestController {
         // Preserve original coach on update.
         unset( $data['coach_id'] );
 
-        $ok = $wpdb->update( "{$p}tt_activities", $data, [ 'id' => $activity_id ] );
+        $ok = $wpdb->update( "{$p}tt_activities", $data, [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'session.update.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
@@ -381,7 +384,7 @@ class ActivitiesRestController {
             // #0026 — only wipe the roster rows; guest rows are
             // managed via the dedicated guest endpoints and must
             // survive a session update.
-            $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'is_guest' => 0 ] );
+            $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'is_guest' => 0, 'club_id' => CurrentClub::id() ] );
             $att_failures = self::write_attendance( $activity_id, self::attendance_from_request( $r ) );
             if ( $att_failures ) {
                 Logger::error( 'session.attendance.update.failed', [ 'activity_id' => $activity_id, 'failures' => $att_failures ] );
@@ -405,8 +408,8 @@ class ActivitiesRestController {
             return RestResponse::error( 'bad_id', __( 'Invalid session id.', 'talenttrack' ), 400 );
         }
 
-        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id ] );
-        $ok = $wpdb->delete( "{$p}tt_activities", [ 'id' => $activity_id ] );
+        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'club_id' => CurrentClub::id() ] );
+        $ok = $wpdb->delete( "{$p}tt_activities", [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'session.delete.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
@@ -501,6 +504,7 @@ class ActivitiesRestController {
         $failures = [];
         foreach ( $rows as $pid => $fields ) {
             $ok = $wpdb->insert( "{$p}tt_attendance", [
+                'club_id'     => CurrentClub::id(),
                 'activity_id' => $activity_id,
                 'player_id'  => (int) $pid,
                 'status'     => $fields['status'],
@@ -535,7 +539,7 @@ class ActivitiesRestController {
             return RestResponse::error( 'bad_id', __( 'Invalid session id.', 'talenttrack' ), 400 );
         }
         $exists = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_activities WHERE id = %d", $activity_id
+            "SELECT COUNT(*) FROM {$p}tt_activities WHERE id = %d AND club_id = %d", $activity_id, CurrentClub::id()
         ) );
         if ( $exists === 0 ) {
             return RestResponse::error( 'not_found', __( 'Session not found.', 'talenttrack' ), 404 );
@@ -559,7 +563,7 @@ class ActivitiesRestController {
         }
         if ( $linked_id > 0 ) {
             $player_exists = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_players WHERE id = %d", $linked_id
+                "SELECT COUNT(*) FROM {$p}tt_players WHERE id = %d AND club_id = %d", $linked_id, CurrentClub::id()
             ) );
             if ( $player_exists === 0 ) {
                 return RestResponse::error( 'bad_player', __( 'Linked player does not exist.', 'talenttrack' ), 400 );
@@ -567,6 +571,7 @@ class ActivitiesRestController {
         }
 
         $row = [
+            'club_id'          => CurrentClub::id(),
             'activity_id'      => $activity_id,
             'player_id'       => null,
             'status'          => $status,
@@ -615,7 +620,7 @@ class ActivitiesRestController {
         if ( empty( $update ) ) {
             return RestResponse::success( [ 'id' => $id, 'unchanged' => true ] );
         }
-        $ok = $wpdb->update( "{$p}tt_attendance", $update, [ 'id' => $id ] );
+        $ok = $wpdb->update( "{$p}tt_attendance", $update, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'attendance.patch.failed', [ 'db_error' => $err, 'id' => $id ] );
@@ -635,7 +640,7 @@ class ActivitiesRestController {
         global $wpdb; $p = $wpdb->prefix;
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid attendance id.', 'talenttrack' ), 400 );
-        $ok = $wpdb->delete( "{$p}tt_attendance", [ 'id' => $id ] );
+        $ok = $wpdb->delete( "{$p}tt_attendance", [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             return RestResponse::error( 'db_error',
                 __( 'The attendance row could not be deleted.', 'talenttrack' ), 500 );
@@ -646,7 +651,7 @@ class ActivitiesRestController {
     private static function find_attendance( int $id ): ?object {
         global $wpdb; $p = $wpdb->prefix;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_attendance WHERE id = %d LIMIT 1", $id
+            "SELECT * FROM {$p}tt_attendance WHERE id = %d AND club_id = %d LIMIT 1", $id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -667,9 +672,9 @@ class ActivitiesRestController {
             $hit = $wpdb->get_row( $wpdb->prepare(
                 "SELECT pl.first_name, pl.last_name, t.name AS team_name
                  FROM {$p}tt_players pl
-                 LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id
-                 WHERE pl.id = %d LIMIT 1",
-                (int) $row->guest_player_id
+                 LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
+                 WHERE pl.id = %d AND pl.club_id = %d LIMIT 1",
+                (int) $row->guest_player_id, CurrentClub::id()
             ) );
             if ( $hit ) {
                 $player_name = trim( (string) $hit->first_name . ' ' . (string) $hit->last_name );

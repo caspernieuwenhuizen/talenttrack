@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Authorization\AuthorizationRepository;
 use TT\Infrastructure\Authorization\FunctionalRolesRepository;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * FunctionalRolesPage — admin UI at TalentTrack → Functional Roles.
@@ -215,11 +216,11 @@ class FunctionalRolesPage {
                     p.id AS person_id, p.first_name, p.last_name, p.email,
                     t.id AS team_id, t.name AS team_name
              FROM {$wpdb->prefix}tt_team_people tp
-             INNER JOIN {$wpdb->prefix}tt_people p ON p.id = tp.person_id
-             INNER JOIN {$wpdb->prefix}tt_teams  t ON t.id = tp.team_id
-             WHERE tp.functional_role_id = %d
+             INNER JOIN {$wpdb->prefix}tt_people p ON p.id = tp.person_id AND p.club_id = tp.club_id
+             INNER JOIN {$wpdb->prefix}tt_teams  t ON t.id = tp.team_id   AND t.club_id = tp.club_id
+             WHERE tp.functional_role_id = %d AND tp.club_id = %d
              ORDER BY p.last_name ASC, p.first_name ASC, t.name ASC",
-            $functional_role_id
+            $functional_role_id, CurrentClub::id()
         ) );
 
         if ( empty( $rows ) ) {

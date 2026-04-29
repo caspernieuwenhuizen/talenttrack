@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Authorization;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * FunctionalRolesRepository — data access for tt_functional_roles and
  * tt_functional_role_auth_roles (Sprint 1G, v2.10.0).
@@ -25,23 +27,25 @@ class FunctionalRolesRepository {
      */
     public function listRoles(): array {
         global $wpdb;
-        $rows = $wpdb->get_results(
+        $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT fr.*,
                     (SELECT COUNT(*) FROM {$wpdb->prefix}tt_functional_role_auth_roles
-                     WHERE functional_role_id = fr.id) AS mapping_count,
+                     WHERE functional_role_id = fr.id AND club_id = %d) AS mapping_count,
                     (SELECT COUNT(*) FROM {$wpdb->prefix}tt_team_people
-                     WHERE functional_role_id = fr.id) AS assignment_count
+                     WHERE functional_role_id = fr.id AND club_id = %d) AS assignment_count
              FROM {$wpdb->prefix}tt_functional_roles fr
-             ORDER BY fr.sort_order ASC, fr.label ASC"
-        );
+             WHERE fr.club_id = %d
+             ORDER BY fr.sort_order ASC, fr.label ASC",
+            CurrentClub::id(), CurrentClub::id(), CurrentClub::id()
+        ) );
         return is_array( $rows ) ? $rows : [];
     }
 
     public function findRole( int $id ): ?object {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tt_functional_roles WHERE id = %d",
-            $id
+            "SELECT * FROM {$wpdb->prefix}tt_functional_roles WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -49,8 +53,8 @@ class FunctionalRolesRepository {
     public function findRoleByKey( string $key ): ?object {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tt_functional_roles WHERE role_key = %s",
-            $key
+            "SELECT * FROM {$wpdb->prefix}tt_functional_roles WHERE role_key = %s AND club_id = %d",
+            $key, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -66,8 +70,8 @@ class FunctionalRolesRepository {
         global $wpdb;
         $rows = $wpdb->get_col( $wpdb->prepare(
             "SELECT auth_role_id FROM {$wpdb->prefix}tt_functional_role_auth_roles
-             WHERE functional_role_id = %d",
-            $functional_role_id
+             WHERE functional_role_id = %d AND club_id = %d",
+            $functional_role_id, CurrentClub::id()
         ) );
         if ( ! is_array( $rows ) ) return [];
         return array_map( 'intval', $rows );
@@ -84,10 +88,10 @@ class FunctionalRolesRepository {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT r.*, fram.id AS mapping_id
              FROM {$wpdb->prefix}tt_functional_role_auth_roles fram
-             INNER JOIN {$wpdb->prefix}tt_roles r ON r.id = fram.auth_role_id
-             WHERE fram.functional_role_id = %d
+             INNER JOIN {$wpdb->prefix}tt_roles r ON r.id = fram.auth_role_id AND r.club_id = fram.club_id
+             WHERE fram.functional_role_id = %d AND fram.club_id = %d
              ORDER BY r.label ASC",
-            $functional_role_id
+            $functional_role_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
     }
@@ -113,8 +117,8 @@ class FunctionalRolesRepository {
         if ( ! empty( $desired ) ) {
             $placeholders = implode( ',', array_fill( 0, count( $desired ), '%d' ) );
             $valid = $wpdb->get_col( $wpdb->prepare(
-                "SELECT id FROM {$p}tt_roles WHERE id IN ($placeholders)",
-                $desired
+                "SELECT id FROM {$p}tt_roles WHERE id IN ($placeholders) AND club_id = %d",
+                array_merge( $desired, [ CurrentClub::id() ] )
             ) );
             $valid = is_array( $valid ) ? array_map( 'intval', $valid ) : [];
             $desired = array_values( array_intersect( $desired, $valid ) );
@@ -127,6 +131,7 @@ class FunctionalRolesRepository {
 
         foreach ( $to_add as $auth_role_id ) {
             $wpdb->insert( "{$p}tt_functional_role_auth_roles", [
+                'club_id'            => CurrentClub::id(),
                 'functional_role_id' => $functional_role_id,
                 'auth_role_id'       => (int) $auth_role_id,
             ] );
@@ -134,10 +139,10 @@ class FunctionalRolesRepository {
 
         if ( ! empty( $to_remove ) ) {
             $placeholders = implode( ',', array_fill( 0, count( $to_remove ), '%d' ) );
-            $params = array_merge( [ $functional_role_id ], array_map( 'intval', $to_remove ) );
+            $params = array_merge( [ $functional_role_id, CurrentClub::id() ], array_map( 'intval', $to_remove ) );
             $wpdb->query( $wpdb->prepare(
                 "DELETE FROM {$p}tt_functional_role_auth_roles
-                 WHERE functional_role_id = %d AND auth_role_id IN ($placeholders)",
+                 WHERE functional_role_id = %d AND club_id = %d AND auth_role_id IN ($placeholders)",
                 $params
             ) );
         }
@@ -184,15 +189,15 @@ class FunctionalRolesRepository {
                     fr.role_key AS functional_role_key,
                     fr.label    AS functional_role_label
              FROM {$wpdb->prefix}tt_team_people tp
-             INNER JOIN {$wpdb->prefix}tt_people p ON p.id = tp.person_id
-             INNER JOIN {$wpdb->prefix}tt_teams  t ON t.id = tp.team_id
+             INNER JOIN {$wpdb->prefix}tt_people p ON p.id = tp.person_id AND p.club_id = tp.club_id
+             INNER JOIN {$wpdb->prefix}tt_teams  t ON t.id = tp.team_id AND t.club_id = tp.club_id
              INNER JOIN {$wpdb->prefix}tt_functional_roles fr
-                     ON fr.id = tp.functional_role_id
+                     ON fr.id = tp.functional_role_id AND fr.club_id = tp.club_id
              INNER JOIN {$wpdb->prefix}tt_functional_role_auth_roles fram
-                     ON fram.functional_role_id = fr.id
-             WHERE fram.auth_role_id = %d
+                     ON fram.functional_role_id = fr.id AND fram.club_id = fr.club_id
+             WHERE fram.auth_role_id = %d AND tp.club_id = %d
              ORDER BY p.last_name ASC, p.first_name ASC, t.name ASC",
-            $auth_role_id
+            $auth_role_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
     }
@@ -214,10 +219,11 @@ class FunctionalRolesRepository {
                     fr.role_key AS functional_role_key
              FROM {$wpdb->prefix}tt_team_people tp
              INNER JOIN {$wpdb->prefix}tt_functional_roles fr
-                     ON fr.id = tp.functional_role_id
+                     ON fr.id = tp.functional_role_id AND fr.club_id = tp.club_id
              WHERE tp.person_id = %d
+               AND tp.club_id = %d
                AND tp.functional_role_id IS NOT NULL",
-            $person_id
+            $person_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
     }

@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Workflow\TaskStatus;
 
 /**
@@ -40,6 +41,7 @@ class TasksRepository {
     public function create( array $data ): int {
         global $wpdb;
         $row = [
+            'club_id'          => CurrentClub::id(),
             'template_key'     => (string) $data['template_key'],
             'assignee_user_id' => (int) $data['assignee_user_id'],
             'due_at'           => (string) $data['due_at'],
@@ -65,7 +67,8 @@ class TasksRepository {
     public function find( int $id ): ?array {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$this->table()} WHERE id = %d LIMIT 1", $id
+            "SELECT * FROM {$this->table()} WHERE id = %d AND club_id = %d LIMIT 1",
+            $id, CurrentClub::id()
         ), ARRAY_A );
         return is_array( $row ) ? $row : null;
     }
@@ -79,7 +82,7 @@ class TasksRepository {
     public function update( int $id, array $changes ): bool {
         global $wpdb;
         if ( empty( $changes ) ) return true;
-        $result = $wpdb->update( $this->table(), $changes, [ 'id' => $id ] );
+        $result = $wpdb->update( $this->table(), $changes, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         return $result !== false;
     }
 
@@ -112,8 +115,8 @@ class TasksRepository {
      */
     public function listActionableForUser( int $user_id, array $filters = [] ): array {
         global $wpdb;
-        $where = [ 'assignee_user_id = %d' ];
-        $params = [ $user_id ];
+        $where = [ 'assignee_user_id = %d', 'club_id = %d' ];
+        $params = [ $user_id, CurrentClub::id() ];
 
         $statuses = is_array( $filters['status'] ?? null ) ? $filters['status'] : null;
         if ( $statuses ) {
@@ -188,9 +191,10 @@ class TasksRepository {
         $rows = $wpdb->get_col( $wpdb->prepare(
             "SELECT DISTINCT template_key FROM {$this->table()}
               WHERE assignee_user_id = %d
+                AND club_id = %d
                 AND status IN ('open','in_progress','overdue')
               ORDER BY template_key ASC",
-            $user_id
+            $user_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? array_map( 'strval', $rows ) : [];
     }

@@ -3,6 +3,8 @@ namespace TT\Modules\Methodology\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * InfluenceFactorsRepository — `tt_methodology_influence_factors`.
  *
@@ -24,15 +26,18 @@ final class InfluenceFactorsRepository {
         $t = $this->table();
         $where = $include_archived ? '' : ' AND archived_at IS NULL';
         return (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE primer_id = %d{$where} ORDER BY sort_order ASC, id ASC",
-            $primer_id
+            "SELECT * FROM {$t} WHERE primer_id = %d AND club_id = %d{$where} ORDER BY sort_order ASC, id ASC",
+            $primer_id, CurrentClub::id()
         ) );
     }
 
     public function find( int $id ): ?object {
         global $wpdb;
         $t = $this->table();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE id = %d", $id ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
@@ -40,6 +45,7 @@ final class InfluenceFactorsRepository {
     public function create( array $data ): int {
         global $wpdb;
         $row = $this->normalize( $data, true );
+        $row['club_id'] = CurrentClub::id();
         $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }
@@ -49,12 +55,12 @@ final class InfluenceFactorsRepository {
         global $wpdb;
         $row = $this->normalize( $data, false );
         if ( empty( $row ) ) return true;
-        return $wpdb->update( $this->table(), $row, [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->table(), $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     public function archive( int $id ): bool {
         global $wpdb;
-        return $wpdb->update( $this->table(), [ 'archived_at' => current_time( 'mysql', true ) ], [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->table(), [ 'archived_at' => current_time( 'mysql', true ) ], [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     /**

@@ -3,6 +3,8 @@ namespace TT\Modules\Pdp\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * GoalLinksRepository — polymorphic goal → (principle | football_action |
  * position | value) join. Single row per (goal, type, target).
@@ -28,8 +30,8 @@ class GoalLinksRepository {
     public function listForGoal( int $goal_id ): array {
         if ( $goal_id <= 0 ) return [];
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT link_type, link_id FROM {$this->table} WHERE goal_id = %d ORDER BY link_type ASC, link_id ASC",
-            $goal_id
+            "SELECT link_type, link_id FROM {$this->table} WHERE goal_id = %d AND club_id = %d ORDER BY link_type ASC, link_id ASC",
+            $goal_id, CurrentClub::id()
         ) );
         $out = [];
         foreach ( (array) $rows as $r ) {
@@ -56,9 +58,10 @@ class GoalLinksRepository {
         }
 
         // Wipe + insert. Cheap at this scale; avoids diff bookkeeping.
-        $this->wpdb->delete( $this->table, [ 'goal_id' => $goal_id ] );
+        $this->wpdb->delete( $this->table, [ 'goal_id' => $goal_id, 'club_id' => CurrentClub::id() ] );
         foreach ( $clean as $row ) {
             $this->wpdb->insert( $this->table, [
+                'club_id'   => CurrentClub::id(),
                 'goal_id'   => $goal_id,
                 'link_type' => $row['type'],
                 'link_id'   => $row['id'],

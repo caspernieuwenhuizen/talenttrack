@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialCaseStaffRepository;
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
@@ -73,7 +74,7 @@ class FrontendTrialsManageView extends FrontendViewBase {
 
         // Mark player as trial.
         global $wpdb;
-        $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => 'trial' ], [ 'id' => $player_id ] );
+        $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => 'trial' ], [ 'id' => $player_id, 'club_id' => CurrentClub::id() ] );
 
         // Initial staff assignments (parallel arrays).
         $staff_ids   = isset( $_POST['staff_user_id'] )    ? (array) $_POST['staff_user_id']    : [];
@@ -183,7 +184,10 @@ class FrontendTrialsManageView extends FrontendViewBase {
         $tracks      = $tracks_repo->listAll( false );
 
         global $wpdb;
-        $players = $wpdb->get_results( "SELECT id, first_name, last_name, status FROM {$wpdb->prefix}tt_players WHERE archived_at IS NULL ORDER BY last_name, first_name LIMIT 500" );
+        $players = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, first_name, last_name, status FROM {$wpdb->prefix}tt_players WHERE archived_at IS NULL AND club_id = %d ORDER BY last_name, first_name LIMIT 500",
+            CurrentClub::id()
+        ) );
         $coaches = get_users( [ 'role__in' => [ 'tt_coach', 'tt_head_dev', 'tt_club_admin', 'administrator' ], 'fields' => [ 'ID', 'display_name' ] ] );
 
         $today = gmdate( 'Y-m-d' );

@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Dispatchers;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Workflow\Repositories\TriggersRepository;
 use TT\Modules\Workflow\TaskContext;
 use TT\Modules\Workflow\WorkflowModule;
@@ -165,7 +166,7 @@ class CronDispatcher {
         $wpdb->update(
             $wpdb->prefix . 'tt_workflow_triggers',
             [ 'config_json' => wp_json_encode( $config ) ],
-            [ 'id' => $trigger_id ]
+            [ 'id' => $trigger_id, 'club_id' => CurrentClub::id() ]
         );
     }
 

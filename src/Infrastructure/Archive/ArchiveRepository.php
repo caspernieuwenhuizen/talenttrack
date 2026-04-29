@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Archive;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * ArchiveRepository — archive / restore / hard-delete across entity tables.
  *
@@ -57,8 +59,8 @@ class ArchiveRepository {
         $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         $sql = "UPDATE {$table}
                 SET archived_at = %s, archived_by = %d
-                WHERE id IN ({$ph}) AND archived_at IS NULL";
-        $args = array_merge( [ current_time( 'mysql' ), $by_user_id ], $ids );
+                WHERE id IN ({$ph}) AND club_id = %d AND archived_at IS NULL";
+        $args = array_merge( [ current_time( 'mysql' ), $by_user_id ], $ids, [ CurrentClub::id() ] );
         return (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
     }
 
@@ -79,8 +81,9 @@ class ArchiveRepository {
         $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         $sql = "UPDATE {$table}
                 SET archived_at = NULL, archived_by = NULL
-                WHERE id IN ({$ph}) AND archived_at IS NOT NULL";
-        return (int) $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
+                WHERE id IN ({$ph}) AND club_id = %d AND archived_at IS NOT NULL";
+        $args = array_merge( $ids, [ CurrentClub::id() ] );
+        return (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
     }
 
     /**
@@ -106,8 +109,9 @@ class ArchiveRepository {
 
         global $wpdb;
         $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-        $sql = "DELETE FROM {$table} WHERE id IN ({$ph})";
-        return (int) $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
+        $sql = "DELETE FROM {$table} WHERE id IN ({$ph}) AND club_id = %d";
+        $args = array_merge( $ids, [ CurrentClub::id() ] );
+        return (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
     }
 
     /**
@@ -124,8 +128,8 @@ class ArchiveRepository {
         // Scope filter keeps demo-mode isolation: when demo mode is on,
         // counts reflect only demo rows; when off, only real rows.
         $scope = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'r', $entity );
-        $all_sql      = "SELECT COUNT(*) FROM {$table} r WHERE 1=1 {$scope}";
-        $archived_sql = "SELECT COUNT(*) FROM {$table} r WHERE r.archived_at IS NOT NULL {$scope}";
+        $all_sql      = $wpdb->prepare( "SELECT COUNT(*) FROM {$table} r WHERE r.club_id = %d {$scope}", CurrentClub::id() );
+        $archived_sql = $wpdb->prepare( "SELECT COUNT(*) FROM {$table} r WHERE r.club_id = %d AND r.archived_at IS NOT NULL {$scope}", CurrentClub::id() );
         $all      = (int) $wpdb->get_var( $all_sql );
         $archived = (int) $wpdb->get_var( $archived_sql );
         return [
@@ -176,23 +180,23 @@ class ArchiveRepository {
             $player_scope = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'pl', 'player' );
             $sess_scope   = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 's',  'activity' );
             $out['players'] = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = %d AND pl.archived_at IS NULL {$player_scope}",
-                $id
+                "SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = %d AND pl.club_id = %d AND pl.archived_at IS NULL {$player_scope}",
+                $id, CurrentClub::id()
             ) );
             $out['activities'] = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_activities s WHERE s.team_id = %d AND s.archived_at IS NULL {$sess_scope}",
-                $id
+                "SELECT COUNT(*) FROM {$p}tt_activities s WHERE s.team_id = %d AND s.club_id = %d AND s.archived_at IS NULL {$sess_scope}",
+                $id, CurrentClub::id()
             ) );
         } elseif ( $entity === 'player' ) {
             $eval_scope = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
             $goal_scope = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'g', 'goal' );
             $out['evaluations'] = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_evaluations e WHERE e.player_id = %d AND e.archived_at IS NULL {$eval_scope}",
-                $id
+                "SELECT COUNT(*) FROM {$p}tt_evaluations e WHERE e.player_id = %d AND e.club_id = %d AND e.archived_at IS NULL {$eval_scope}",
+                $id, CurrentClub::id()
             ) );
             $out['goals'] = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_goals g WHERE g.player_id = %d AND g.archived_at IS NULL {$goal_scope}",
-                $id
+                "SELECT COUNT(*) FROM {$p}tt_goals g WHERE g.player_id = %d AND g.club_id = %d AND g.archived_at IS NULL {$goal_scope}",
+                $id, CurrentClub::id()
             ) );
         }
 

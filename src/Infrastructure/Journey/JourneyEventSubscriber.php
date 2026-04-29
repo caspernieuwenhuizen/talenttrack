@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Journey;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * JourneyEventSubscriber — subscribes to existing module hooks and emits
  * journey events as a side-effect.
@@ -28,8 +30,8 @@ final class JourneyEventSubscriber {
     public static function on_evaluation_saved( int $player_id, int $evaluation_id ): void {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT id, eval_date, overall_rating FROM {$wpdb->prefix}tt_evaluations WHERE id = %d",
-            $evaluation_id
+            "SELECT id, eval_date, overall_rating FROM {$wpdb->prefix}tt_evaluations WHERE id = %d AND club_id = %d",
+            $evaluation_id, CurrentClub::id()
         ) );
         if ( ! $row ) return;
         $eval_date = (string) $row->eval_date;
@@ -72,9 +74,9 @@ final class JourneyEventSubscriber {
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT v.signed_off_at, v.decision, f.player_id
                FROM {$wpdb->prefix}tt_pdp_verdicts v
-               JOIN {$wpdb->prefix}tt_pdp_files f ON f.id = v.pdp_file_id
-              WHERE v.id = %d",
-            $verdict_id
+               JOIN {$wpdb->prefix}tt_pdp_files f ON f.id = v.pdp_file_id AND f.club_id = v.club_id
+              WHERE v.id = %d AND v.club_id = %d",
+            $verdict_id, CurrentClub::id()
         ) );
         if ( ! $row ) return;
 
@@ -227,8 +229,8 @@ final class JourneyEventSubscriber {
         $synthetic_id = (int) ( ( $player_id * 1000000 ) + ( $new_team_id * 1000 ) + ( $old_team_id ) );
 
         $teams = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, name, age_group FROM {$wpdb->prefix}tt_teams WHERE id IN (%d, %d)",
-            $old_team_id, $new_team_id
+            "SELECT id, name, age_group FROM {$wpdb->prefix}tt_teams WHERE id IN (%d, %d) AND club_id = %d",
+            $old_team_id, $new_team_id, CurrentClub::id()
         ) );
         $by_id = [];
         foreach ( (array) $teams as $t ) $by_id[ (int) $t->id ] = $t;

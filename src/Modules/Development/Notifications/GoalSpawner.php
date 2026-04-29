@@ -3,6 +3,7 @@ namespace TT\Modules\Development\Notifications;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Development\IdeaRepository;
 use TT\Modules\Development\IdeaStatus;
 
@@ -36,6 +37,7 @@ class GoalSpawner {
 
         global $wpdb;
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_goals', [
+            'club_id'     => CurrentClub::id(),
             'player_id'   => $playerId,
             'title'       => (string) $idea->title,
             'description' => (string) ( $idea->body ?? '' ),

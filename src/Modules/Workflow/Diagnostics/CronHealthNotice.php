@@ -3,6 +3,8 @@ namespace TT\Modules\Workflow\Diagnostics;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * CronHealthNotice — wp-admin banner that flags hosts where WP-cron
  * has stopped firing. Renders on TalentTrack admin pages only,
@@ -88,8 +90,9 @@ class CronHealthNotice {
         $count = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$table}
              WHERE status IN ('open','in_progress')
-               AND due_at < %s",
-            $threshold
+               AND due_at < %s
+               AND club_id = %d",
+            $threshold, CurrentClub::id()
         ) );
         return $count > 0;
     }

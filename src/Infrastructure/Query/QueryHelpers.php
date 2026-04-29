@@ -79,8 +79,8 @@ class QueryHelpers {
     public static function get_lookups( string $type ): array {
         global $wpdb;
         return $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tt_lookups WHERE lookup_type = %s ORDER BY sort_order ASC, name ASC",
-            $type
+            "SELECT * FROM {$wpdb->prefix}tt_lookups WHERE lookup_type = %s AND club_id = %d ORDER BY sort_order ASC, name ASC",
+            $type, CurrentClub::id()
         ));
     }
 
@@ -88,7 +88,7 @@ class QueryHelpers {
         global $wpdb;
         /** @var object|null $r */
         $r = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tt_lookups WHERE id = %d", $id
+            "SELECT * FROM {$wpdb->prefix}tt_lookups WHERE id = %d AND club_id = %d", $id, CurrentClub::id()
         ));
         return $r;
     }
@@ -179,9 +179,10 @@ class QueryHelpers {
     public static function get_teams(): array {
         global $wpdb;
         $scope = self::apply_demo_scope( 't', 'team' );
-        return $wpdb->get_results(
-            "SELECT t.* FROM {$wpdb->prefix}tt_teams t WHERE 1=1 {$scope} ORDER BY t.name ASC"
-        );
+        return $wpdb->get_results( $wpdb->prepare(
+            "SELECT t.* FROM {$wpdb->prefix}tt_teams t WHERE 1=1 AND t.club_id = %d {$scope} ORDER BY t.name ASC",
+            CurrentClub::id()
+        ) );
     }
 
     public static function get_team( int $id ): ?object {
@@ -189,8 +190,8 @@ class QueryHelpers {
         $scope = self::apply_demo_scope( 't', 'team' );
         /** @var object|null $r */
         $r = $wpdb->get_row( $wpdb->prepare(
-            "SELECT t.* FROM {$wpdb->prefix}tt_teams t WHERE t.id = %d {$scope}",
-            $id
+            "SELECT t.* FROM {$wpdb->prefix}tt_teams t WHERE t.id = %d AND t.club_id = %d {$scope}",
+            $id, CurrentClub::id()
         ) );
         return $r;
     }
@@ -202,16 +203,17 @@ class QueryHelpers {
         if ( $team_id ) {
             return $wpdb->get_results( $wpdb->prepare(
                 "SELECT p.* FROM {$wpdb->prefix}tt_players p
-                 WHERE p.team_id = %d AND p.status = 'active' {$scope}
+                 WHERE p.team_id = %d AND p.status = 'active' AND p.club_id = %d {$scope}
                  ORDER BY p.last_name, p.first_name ASC",
-                $team_id
+                $team_id, CurrentClub::id()
             ) );
         }
-        return $wpdb->get_results(
+        return $wpdb->get_results( $wpdb->prepare(
             "SELECT p.* FROM {$wpdb->prefix}tt_players p
-             WHERE p.status = 'active' {$scope}
-             ORDER BY p.last_name, p.first_name ASC"
-        );
+             WHERE p.status = 'active' AND p.club_id = %d {$scope}
+             ORDER BY p.last_name, p.first_name ASC",
+            CurrentClub::id()
+        ) );
     }
 
     public static function get_player( int $id ): ?object {
@@ -219,8 +221,8 @@ class QueryHelpers {
         $scope = self::apply_demo_scope( 'p', 'player' );
         /** @var object|null $r */
         $r = $wpdb->get_row( $wpdb->prepare(
-            "SELECT p.* FROM {$wpdb->prefix}tt_players p WHERE p.id = %d {$scope}",
-            $id
+            "SELECT p.* FROM {$wpdb->prefix}tt_players p WHERE p.id = %d AND p.club_id = %d {$scope}",
+            $id, CurrentClub::id()
         ) );
         return $r;
     }
@@ -235,9 +237,9 @@ class QueryHelpers {
         /** @var object|null $r */
         $r = $wpdb->get_row( $wpdb->prepare(
             "SELECT p.* FROM {$wpdb->prefix}tt_players p
-             WHERE p.wp_user_id = %d AND p.status = 'active' {$scope}
+             WHERE p.wp_user_id = %d AND p.status = 'active' AND p.club_id = %d {$scope}
              LIMIT 1",
-            $user_id
+            $user_id, CurrentClub::id()
         ));
         return $r;
     }
@@ -265,17 +267,17 @@ class QueryHelpers {
 
         $scope = self::apply_demo_scope( 't', 'team' );
         $person_id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d LIMIT 1",
-            $user_id
+            "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+            $user_id, CurrentClub::id()
         ) );
 
         // Fast path: just the legacy column.
         if ( $person_id <= 0 ) {
             return $wpdb->get_results( $wpdb->prepare(
                 "SELECT t.* FROM {$wpdb->prefix}tt_teams t
-                 WHERE t.head_coach_id = %d {$scope}
+                 WHERE t.head_coach_id = %d AND t.club_id = %d {$scope}
                  ORDER BY t.name ASC",
-                $user_id
+                $user_id, CurrentClub::id()
             ));
         }
 
@@ -286,12 +288,14 @@ class QueryHelpers {
               LEFT JOIN {$wpdb->prefix}tt_user_role_scopes urs
                 ON urs.scope_type = 'team' AND urs.scope_id = t.id
                 AND urs.person_id = %d
+                AND urs.club_id = t.club_id
                 AND ( urs.start_date IS NULL OR urs.start_date <= %s )
                 AND ( urs.end_date   IS NULL OR urs.end_date   >= %s )
               WHERE ( t.head_coach_id = %d OR urs.id IS NOT NULL )
+                AND t.club_id = %d
                 {$scope}
               ORDER BY t.name ASC",
-            $person_id, $today, $today, $user_id
+            $person_id, $today, $today, $user_id, CurrentClub::id()
         ));
     }
 
@@ -316,8 +320,8 @@ class QueryHelpers {
         $eval = $wpdb->get_row( $wpdb->prepare(
             "SELECT e.*, lt.name AS type_name, lt.meta AS type_meta
              FROM {$p}tt_evaluations e
-             LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id = lt.id AND lt.lookup_type = 'eval_type'
-             WHERE e.id = %d {$scope}", $id
+             LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id = lt.id AND lt.lookup_type = 'eval_type' AND lt.club_id = e.club_id
+             WHERE e.id = %d AND e.club_id = %d {$scope}", $id, CurrentClub::id()
         ));
         if ( $eval ) {
             /** @var array<string,mixed> $tm */
@@ -334,10 +338,10 @@ class QueryHelpers {
                         c.parent_id  AS category_parent_id,
                         c.category_key AS category_key
                  FROM {$p}tt_eval_ratings r
-                 LEFT JOIN {$p}tt_eval_categories c ON r.category_id = c.id
-                 WHERE r.evaluation_id = %d
+                 LEFT JOIN {$p}tt_eval_categories c ON r.category_id = c.id AND c.club_id = r.club_id
+                 WHERE r.evaluation_id = %d AND r.club_id = %d
                  ORDER BY c.parent_id IS NULL DESC, c.display_order ASC",
-                $id
+                $id, CurrentClub::id()
             ) );
         }
         return $eval;
@@ -452,8 +456,8 @@ class QueryHelpers {
     public static function player_radar_datasets( int $player_id, int $limit = 3 ): array {
         global $wpdb; $p = $wpdb->prefix;
         $evals = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, eval_date FROM {$p}tt_evaluations WHERE player_id=%d ORDER BY eval_date DESC LIMIT %d",
-            $player_id, $limit
+            "SELECT id, eval_date FROM {$p}tt_evaluations WHERE player_id=%d AND club_id = %d ORDER BY eval_date DESC LIMIT %d",
+            $player_id, CurrentClub::id(), $limit
         ));
         $evals = array_reverse( $evals );
         $categories = self::get_categories();
@@ -468,7 +472,7 @@ class QueryHelpers {
         $datasets = [];
         foreach ( $evals as $ev ) {
             $raw = $wpdb->get_results( $wpdb->prepare(
-                "SELECT category_id, rating FROM {$p}tt_eval_ratings WHERE evaluation_id=%d", $ev->id
+                "SELECT category_id, rating FROM {$p}tt_eval_ratings WHERE evaluation_id=%d AND club_id = %d", $ev->id, CurrentClub::id()
             ));
             $map = [];
             foreach ( $raw as $r ) $map[ (int) $r->category_id ] = (float) $r->rating;

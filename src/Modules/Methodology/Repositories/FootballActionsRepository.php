@@ -3,6 +3,8 @@ namespace TT\Modules\Methodology\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * FootballActionsRepository — `tt_football_actions`.
  *
@@ -38,21 +40,32 @@ final class FootballActionsRepository {
     public function listAll( bool $include_archived = false ): array {
         global $wpdb;
         $t = $this->table();
-        $where = $include_archived ? '' : ' WHERE archived_at IS NULL';
-        return (array) $wpdb->get_results( "SELECT * FROM {$t}{$where} ORDER BY category_key ASC, sort_order ASC, slug ASC" );
+        $where = $include_archived
+            ? ' WHERE club_id = %d'
+            : ' WHERE club_id = %d AND archived_at IS NULL';
+        return (array) $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$t}{$where} ORDER BY category_key ASC, sort_order ASC, slug ASC",
+            CurrentClub::id()
+        ) );
     }
 
     public function find( int $id ): ?object {
         global $wpdb;
         $t = $this->table();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE id = %d", $id ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
     public function findBySlug( string $slug ): ?object {
         global $wpdb;
         $t = $this->table();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE slug = %s LIMIT 1", $slug ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE slug = %s AND club_id = %d LIMIT 1",
+            $slug, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
@@ -60,6 +73,7 @@ final class FootballActionsRepository {
     public function create( array $data ): int {
         global $wpdb;
         $row = $this->normalize( $data, true );
+        $row['club_id'] = CurrentClub::id();
         $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }
@@ -69,12 +83,16 @@ final class FootballActionsRepository {
         global $wpdb;
         $row = $this->normalize( $data, false );
         if ( empty( $row ) ) return true;
-        return $wpdb->update( $this->table(), $row, [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->table(), $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     public function archive( int $id ): bool {
         global $wpdb;
-        return $wpdb->update( $this->table(), [ 'archived_at' => current_time( 'mysql', true ) ], [ 'id' => $id ] ) !== false;
+        return $wpdb->update(
+            $this->table(),
+            [ 'archived_at' => current_time( 'mysql', true ) ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        ) !== false;
     }
 
     /**

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Translations\Cache\SourceMetaRepository;
 use TT\Modules\Translations\Cache\TranslationsCacheRepository;
 use TT\Modules\Translations\Cache\TranslationsUsageRepository;
@@ -229,8 +230,8 @@ final class TranslationLayer {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT detected_lang, detection_confidence FROM {$wpdb->prefix}tt_translation_source_meta
-             WHERE source_hash = %s LIMIT 1",
-            $hash
+             WHERE source_hash = %s AND club_id = %d LIMIT 1",
+            $hash, CurrentClub::id()
         ) );
         if ( $row && (float) $row->detection_confidence >= self::DETECTION_CONFIDENCE_FLOOR ) {
             return (string) $row->detected_lang;

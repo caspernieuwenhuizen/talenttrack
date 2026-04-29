@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Evaluations;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * EvalCategoriesRepository — data access for tt_eval_categories.
  *
@@ -56,22 +58,23 @@ class EvalCategoriesRepository {
     public function getMainCategories( bool $active_only = true ): array {
         global $wpdb;
         $t = $this->table();
-        $where = 'parent_id IS NULL';
+        $where = 'parent_id IS NULL AND club_id = %d';
         if ( $active_only ) $where .= ' AND is_active = 1';
-        return $wpdb->get_results(
-            "SELECT * FROM {$t} WHERE {$where} ORDER BY display_order ASC, id ASC"
-        );
+        return $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE {$where} ORDER BY display_order ASC, id ASC",
+            CurrentClub::id()
+        ) );
     }
 
     /** Subcategories of a given parent. Ordered for rendering. */
     public function getChildren( int $parent_id, bool $active_only = true ): array {
         global $wpdb;
         $t = $this->table();
-        $where = 'parent_id = %d';
+        $where = 'parent_id = %d AND club_id = %d';
         if ( $active_only ) $where .= ' AND is_active = 1';
         return $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$t} WHERE {$where} ORDER BY display_order ASC, id ASC",
-            $parent_id
+            $parent_id, CurrentClub::id()
         ) );
     }
 
@@ -79,7 +82,8 @@ class EvalCategoriesRepository {
         global $wpdb;
         $t = $this->table();
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE id = %d LIMIT 1", $id
+            "SELECT * FROM {$t} WHERE id = %d AND club_id = %d LIMIT 1",
+            $id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -88,7 +92,8 @@ class EvalCategoriesRepository {
         global $wpdb;
         $t = $this->table();
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE category_key = %s LIMIT 1", $key
+            "SELECT * FROM {$t} WHERE category_key = %s AND club_id = %d LIMIT 1",
+            $key, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -100,10 +105,12 @@ class EvalCategoriesRepository {
     public function getAll( bool $active_only = true ): array {
         global $wpdb;
         $t = $this->table();
-        $where = $active_only ? 'WHERE is_active = 1' : '';
-        return $wpdb->get_results(
-            "SELECT * FROM {$t} {$where} ORDER BY parent_id IS NULL DESC, parent_id ASC, display_order ASC, id ASC"
-        );
+        $where = 'club_id = %d';
+        if ( $active_only ) $where .= ' AND is_active = 1';
+        return $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE {$where} ORDER BY parent_id IS NULL DESC, parent_id ASC, display_order ASC, id ASC",
+            CurrentClub::id()
+        ) );
     }
 
     /**
@@ -120,11 +127,12 @@ class EvalCategoriesRepository {
         // One query for all children rather than N.
         global $wpdb;
         $t = $this->table();
-        $where = 'parent_id IS NOT NULL';
+        $where = 'parent_id IS NOT NULL AND club_id = %d';
         if ( $active_only ) $where .= ' AND is_active = 1';
-        $all_children = $wpdb->get_results(
-            "SELECT * FROM {$t} WHERE {$where} ORDER BY display_order ASC, id ASC"
-        );
+        $all_children = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE {$where} ORDER BY display_order ASC, id ASC",
+            CurrentClub::id()
+        ) );
         if ( is_array( $all_children ) ) {
             foreach ( $all_children as $c ) {
                 $children_by_parent[ (int) $c->parent_id ][] = $c;
@@ -148,6 +156,7 @@ class EvalCategoriesRepository {
     public function create( array $data ): int {
         global $wpdb;
         $normalized = $this->normalize( $data, true );
+        $normalized['club_id'] = CurrentClub::id();
         $wpdb->insert( $this->table(), $normalized );
         return (int) $wpdb->insert_id;
     }
@@ -162,12 +171,12 @@ class EvalCategoriesRepository {
         global $wpdb;
         $normalized = $this->normalize( $data, false );
         unset( $normalized['category_key'], $normalized['parent_id'] );
-        return $wpdb->update( $this->table(), $normalized, [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->table(), $normalized, [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     public function setActive( int $id, bool $active ): bool {
         global $wpdb;
-        return $wpdb->update( $this->table(), [ 'is_active' => $active ? 1 : 0 ], [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->table(), [ 'is_active' => $active ? 1 : 0 ], [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     /**

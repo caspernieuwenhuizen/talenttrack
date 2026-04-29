@@ -3,11 +3,14 @@ namespace TT\Modules\Pdp\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * PdpConversationsRepository — N conversations per PDP file.
  *
  * createCycle() seeds the full set of N rows when a file is opened.
- * Subsequent calls update individual rows by id.
+ * Subsequent calls update individual rows by id. All reads + writes
+ * are club-scoped per #0052 PR-A.
  */
 class PdpConversationsRepository {
 
@@ -23,8 +26,8 @@ class PdpConversationsRepository {
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE id = %d",
-            $id
+            "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -33,8 +36,10 @@ class PdpConversationsRepository {
     public function listForFile( int $file_id ): array {
         if ( $file_id <= 0 ) return [];
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE pdp_file_id = %d ORDER BY sequence ASC",
-            $file_id
+            "SELECT * FROM {$this->table}
+              WHERE pdp_file_id = %d AND club_id = %d
+              ORDER BY sequence ASC",
+            $file_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
     }
@@ -66,6 +71,7 @@ class PdpConversationsRepository {
         for ( $i = 1; $i <= $cycle_size; $i++ ) {
             $when = gmdate( 'Y-m-d H:i:s', $start_ts + $step * $i );
             $ok = $this->wpdb->insert( $this->table, [
+                'club_id'      => CurrentClub::id(),
                 'pdp_file_id'  => $file_id,
                 'sequence'     => $i,
                 'template_key' => $template_keys[ $i - 1 ] ?? 'mid',
@@ -93,7 +99,7 @@ class PdpConversationsRepository {
         }
         if ( empty( $clean ) ) return false;
 
-        $ok = $this->wpdb->update( $this->table, $clean, [ 'id' => $id ] );
+        $ok = $this->wpdb->update( $this->table, $clean, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         return $ok !== false;
     }
 

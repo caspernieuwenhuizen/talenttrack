@@ -3,6 +3,8 @@ namespace TT\Modules\Pdp\Calendar;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * NativeCalendarWriter — default implementation. Records the event in
  * tt_pdp_calendar_links with provider='native'; no external API call.
@@ -18,8 +20,9 @@ class NativeCalendarWriter implements PdpCalendarWriter {
         $table = $wpdb->prefix . 'tt_pdp_calendar_links';
         $wpdb->query( $wpdb->prepare(
             "INSERT IGNORE INTO {$table}
-                (conversation_id, provider, provider_event_id, provider_payload, created_at)
-             VALUES (%d, %s, NULL, NULL, %s)",
+                (club_id, conversation_id, provider, provider_event_id, provider_payload, created_at)
+             VALUES (%d, %d, %s, NULL, NULL, %s)",
+            CurrentClub::id(),
             $conversation_id,
             'native',
             current_time( 'mysql', true )

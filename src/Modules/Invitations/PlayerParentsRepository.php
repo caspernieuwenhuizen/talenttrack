@@ -3,6 +3,8 @@ namespace TT\Modules\Invitations;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * PlayerParentsRepository — many-to-many pivot between players and
  * parent WP users.
@@ -34,8 +36,8 @@ class PlayerParentsRepository {
         if ( $playerId <= 0 || $parentUserId <= 0 ) return false;
 
         $existing = $this->wpdb->get_var( $this->wpdb->prepare(
-            "SELECT COUNT(*) FROM {$this->table} WHERE player_id = %d",
-            $playerId
+            "SELECT COUNT(*) FROM {$this->table} WHERE player_id = %d AND club_id = %d",
+            $playerId, CurrentClub::id()
         ) );
         $becomes_primary = $isPrimary || (int) $existing === 0;
 
@@ -44,14 +46,15 @@ class PlayerParentsRepository {
             $this->wpdb->update(
                 $this->table,
                 [ 'is_primary' => 0 ],
-                [ 'player_id' => $playerId, 'is_primary' => 1 ]
+                [ 'player_id' => $playerId, 'is_primary' => 1, 'club_id' => CurrentClub::id() ]
             );
         }
 
         $this->wpdb->query( $this->wpdb->prepare(
-            "INSERT INTO {$this->table} (player_id, parent_user_id, is_primary)
-             VALUES (%d, %d, %d)
+            "INSERT INTO {$this->table} (club_id, player_id, parent_user_id, is_primary)
+             VALUES (%d, %d, %d, %d)
              ON DUPLICATE KEY UPDATE is_primary = VALUES(is_primary)",
+            CurrentClub::id(),
             $playerId,
             $parentUserId,
             $becomes_primary ? 1 : 0
@@ -65,30 +68,32 @@ class PlayerParentsRepository {
         if ( $playerId <= 0 || $parentUserId <= 0 ) return false;
 
         $was_primary = (int) $this->wpdb->get_var( $this->wpdb->prepare(
-            "SELECT is_primary FROM {$this->table} WHERE player_id = %d AND parent_user_id = %d",
+            "SELECT is_primary FROM {$this->table} WHERE player_id = %d AND parent_user_id = %d AND club_id = %d",
             $playerId,
-            $parentUserId
+            $parentUserId,
+            CurrentClub::id()
         ) );
 
         $this->wpdb->delete( $this->table, [
             'player_id'      => $playerId,
             'parent_user_id' => $parentUserId,
+            'club_id'        => CurrentClub::id(),
         ] );
 
         if ( $was_primary === 1 ) {
             // Promote another linked parent (oldest first) to primary.
             $next = (int) $this->wpdb->get_var( $this->wpdb->prepare(
                 "SELECT parent_user_id FROM {$this->table}
-                  WHERE player_id = %d
+                  WHERE player_id = %d AND club_id = %d
                   ORDER BY created_at ASC
                   LIMIT 1",
-                $playerId
+                $playerId, CurrentClub::id()
             ) );
             if ( $next > 0 ) {
                 $this->wpdb->update(
                     $this->table,
                     [ 'is_primary' => 1 ],
-                    [ 'player_id' => $playerId, 'parent_user_id' => $next ]
+                    [ 'player_id' => $playerId, 'parent_user_id' => $next, 'club_id' => CurrentClub::id() ]
                 );
             }
         }
@@ -101,8 +106,8 @@ class PlayerParentsRepository {
     public function playersForParent( int $parentUserId ): array {
         if ( $parentUserId <= 0 ) return [];
         $rows = $this->wpdb->get_col( $this->wpdb->prepare(
-            "SELECT player_id FROM {$this->table} WHERE parent_user_id = %d",
-            $parentUserId
+            "SELECT player_id FROM {$this->table} WHERE parent_user_id = %d AND club_id = %d",
+            $parentUserId, CurrentClub::id()
         ) );
         return array_map( 'intval', (array) $rows );
     }
@@ -111,8 +116,8 @@ class PlayerParentsRepository {
     public function parentsForPlayer( int $playerId ): array {
         if ( $playerId <= 0 ) return [];
         $rows = $this->wpdb->get_col( $this->wpdb->prepare(
-            "SELECT parent_user_id FROM {$this->table} WHERE player_id = %d",
-            $playerId
+            "SELECT parent_user_id FROM {$this->table} WHERE player_id = %d AND club_id = %d",
+            $playerId, CurrentClub::id()
         ) );
         return array_map( 'intval', (array) $rows );
     }
@@ -124,14 +129,14 @@ class PlayerParentsRepository {
     private function reprojectPrimary( int $playerId ): void {
         $primary = $this->wpdb->get_var( $this->wpdb->prepare(
             "SELECT parent_user_id FROM {$this->table}
-              WHERE player_id = %d AND is_primary = 1
+              WHERE player_id = %d AND is_primary = 1 AND club_id = %d
               LIMIT 1",
-            $playerId
+            $playerId, CurrentClub::id()
         ) );
         $this->wpdb->update(
             $this->players_table,
             [ 'parent_user_id' => $primary !== null ? (int) $primary : null ],
-            [ 'id' => $playerId ]
+            [ 'id' => $playerId, 'club_id' => CurrentClub::id() ]
         );
     }
 }

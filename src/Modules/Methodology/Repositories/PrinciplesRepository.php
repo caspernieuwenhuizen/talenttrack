@@ -3,6 +3,8 @@ namespace TT\Modules\Methodology\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * PrinciplesRepository — data access for `tt_principles`.
  *
@@ -37,8 +39,8 @@ class PrinciplesRepository {
         global $wpdb;
         $t = $this->table();
 
-        $where = [];
-        $args  = [];
+        $where = [ 'club_id = %d' ];
+        $args  = [ CurrentClub::id() ];
 
         if ( empty( $filters['include_archived'] ) ) {
             $where[] = 'archived_at IS NULL';
@@ -79,14 +81,20 @@ class PrinciplesRepository {
     public function find( int $id ): ?object {
         global $wpdb;
         $t = $this->table();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE id = %d", $id ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
     public function findByCode( string $code ): ?object {
         global $wpdb;
         $t = $this->table();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE code = %s LIMIT 1", $code ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE code = %s AND club_id = %d LIMIT 1",
+            $code, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
@@ -94,6 +102,7 @@ class PrinciplesRepository {
     public function create( array $data ): int {
         global $wpdb;
         $row = $this->normalize( $data, true );
+        $row['club_id'] = CurrentClub::id();
         $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }
@@ -103,7 +112,7 @@ class PrinciplesRepository {
         global $wpdb;
         $row = $this->normalize( $data, false );
         if ( empty( $row ) ) return true;
-        return $wpdb->update( $this->table(), $row, [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->table(), $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     public function archive( int $id ): bool {
@@ -111,7 +120,7 @@ class PrinciplesRepository {
         return $wpdb->update(
             $this->table(),
             [ 'archived_at' => current_time( 'mysql', true ) ],
-            [ 'id' => $id ]
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         ) !== false;
     }
 
@@ -129,6 +138,7 @@ class PrinciplesRepository {
         unset( $insert['id'], $insert['created_at'], $insert['updated_at'] );
         $insert['is_shipped']     = 0;
         $insert['cloned_from_id'] = (int) $id;
+        $insert['club_id']        = CurrentClub::id();
         $wpdb->insert( $this->table(), $insert );
         return (int) $wpdb->insert_id;
     }

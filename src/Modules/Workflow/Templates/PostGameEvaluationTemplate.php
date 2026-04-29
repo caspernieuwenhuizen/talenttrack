@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Templates;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Workflow\Contracts\AssigneeResolver;
 use TT\Modules\Workflow\Forms\PostGameEvaluationForm;
 use TT\Modules\Workflow\Resolvers\TeamHeadCoachResolver;
@@ -76,8 +77,8 @@ class PostGameEvaluationTemplate extends TaskTemplate {
 
         global $wpdb;
         $type = (string) $wpdb->get_var( $wpdb->prepare(
-            "SELECT activity_type_key FROM {$wpdb->prefix}tt_activities WHERE id = %d",
-            (int) $context->activity_id
+            "SELECT activity_type_key FROM {$wpdb->prefix}tt_activities WHERE id = %d AND club_id = %d",
+            (int) $context->activity_id, CurrentClub::id()
         ) );
         if ( $type === '' ) return [];
 
@@ -94,8 +95,9 @@ class PostGameEvaluationTemplate extends TaskTemplate {
              WHERE team_id = %d
                AND archived_at IS NULL
                AND ( status IS NULL OR status = '' OR status = 'active' )
+               AND club_id = %d
              ORDER BY id ASC",
-            (int) $context->team_id
+            (int) $context->team_id, CurrentClub::id()
         ) );
         if ( ! is_array( $player_ids ) || empty( $player_ids ) ) return [];
 

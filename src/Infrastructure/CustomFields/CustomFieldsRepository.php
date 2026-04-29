@@ -3,6 +3,8 @@ namespace TT\Infrastructure\CustomFields;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * CustomFieldsRepository — typed data access for tt_custom_fields.
  *
@@ -91,8 +93,8 @@ class CustomFieldsRepository {
         global $wpdb;
         $t = $this->table();
         return $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE entity_type = %s AND is_active = 1 ORDER BY sort_order ASC, id ASC",
-            $entity_type
+            "SELECT * FROM {$t} WHERE entity_type = %s AND club_id = %d AND is_active = 1 ORDER BY sort_order ASC, id ASC",
+            $entity_type, CurrentClub::id()
         ) );
     }
 
@@ -117,8 +119,8 @@ class CustomFieldsRepository {
         global $wpdb;
         $t = $this->table();
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE entity_type = %s AND is_active = 1 ORDER BY sort_order ASC, id ASC",
-            $entity_type
+            "SELECT * FROM {$t} WHERE entity_type = %s AND club_id = %d AND is_active = 1 ORDER BY sort_order ASC, id ASC",
+            $entity_type, CurrentClub::id()
         ) );
 
         $groups = [];
@@ -140,15 +142,18 @@ class CustomFieldsRepository {
         global $wpdb;
         $t = $this->table();
         return $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE entity_type = %s ORDER BY sort_order ASC, id ASC",
-            $entity_type
+            "SELECT * FROM {$t} WHERE entity_type = %s AND club_id = %d ORDER BY sort_order ASC, id ASC",
+            $entity_type, CurrentClub::id()
         ) );
     }
 
     public function get( int $id ): ?object {
         global $wpdb;
         $t = $this->table();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE id = %d", $id ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
@@ -156,8 +161,8 @@ class CustomFieldsRepository {
         global $wpdb;
         $t = $this->table();
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE entity_type = %s AND field_key = %s",
-            $entity_type, $field_key
+            "SELECT * FROM {$t} WHERE entity_type = %s AND field_key = %s AND club_id = %d",
+            $entity_type, $field_key, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -169,7 +174,9 @@ class CustomFieldsRepository {
      */
     public function create( array $data ): int {
         global $wpdb;
-        $wpdb->insert( $this->table(), $this->normalise( $data, true ) );
+        $row = $this->normalise( $data, true );
+        $row['club_id'] = CurrentClub::id();
+        $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }
 
@@ -184,12 +191,12 @@ class CustomFieldsRepository {
         // field_key is locked after creation — see the Admin page — so strip it here defensively.
         unset( $normalised['field_key'] );
         unset( $normalised['entity_type'] );
-        return $wpdb->update( $this->table(), $normalised, [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->table(), $normalised, [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     public function setActive( int $id, bool $active ): bool {
         global $wpdb;
-        return $wpdb->update( $this->table(), [ 'is_active' => $active ? 1 : 0 ], [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->table(), [ 'is_active' => $active ? 1 : 0 ], [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     /**
@@ -201,7 +208,7 @@ class CustomFieldsRepository {
         global $wpdb;
         $t = $this->table();
         foreach ( $pairs as $id => $order ) {
-            $wpdb->update( $t, [ 'sort_order' => (int) $order ], [ 'id' => (int) $id ] );
+            $wpdb->update( $t, [ 'sort_order' => (int) $order ], [ 'id' => (int) $id, 'club_id' => CurrentClub::id() ] );
         }
     }
 

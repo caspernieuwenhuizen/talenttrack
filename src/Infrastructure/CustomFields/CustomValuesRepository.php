@@ -3,6 +3,8 @@ namespace TT\Infrastructure\CustomFields;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * CustomValuesRepository — typed data access for tt_custom_values.
  *
@@ -26,8 +28,8 @@ class CustomValuesRepository {
         global $wpdb;
         $t = $this->table();
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT field_id, value FROM {$t} WHERE entity_type = %s AND entity_id = %d",
-            $entity_type, $entity_id
+            "SELECT field_id, value FROM {$t} WHERE entity_type = %s AND entity_id = %d AND club_id = %d",
+            $entity_type, $entity_id, CurrentClub::id()
         ) );
         $out = [];
         foreach ( $rows as $r ) {
@@ -50,9 +52,9 @@ class CustomValuesRepository {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT f.field_key, f.field_type, v.value
              FROM {$values_t} v
-             INNER JOIN {$fields_t} f ON v.field_id = f.id
-             WHERE v.entity_type = %s AND v.entity_id = %d AND f.is_active = 1",
-            $entity_type, $entity_id
+             INNER JOIN {$fields_t} f ON v.field_id = f.id AND f.club_id = v.club_id
+             WHERE v.entity_type = %s AND v.entity_id = %d AND v.club_id = %d AND f.is_active = 1",
+            $entity_type, $entity_id, CurrentClub::id()
         ) );
 
         $out = [];
@@ -75,20 +77,22 @@ class CustomValuesRepository {
                 'entity_type' => $entity_type,
                 'entity_id'   => $entity_id,
                 'field_id'    => $field_id,
+                'club_id'     => CurrentClub::id(),
             ] );
             return;
         }
 
         // Does a row already exist? Use UNIQUE KEY lookup.
         $existing_id = $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$t} WHERE entity_type = %s AND entity_id = %d AND field_id = %d",
-            $entity_type, $entity_id, $field_id
+            "SELECT id FROM {$t} WHERE entity_type = %s AND entity_id = %d AND field_id = %d AND club_id = %d",
+            $entity_type, $entity_id, $field_id, CurrentClub::id()
         ) );
 
         if ( $existing_id ) {
-            $wpdb->update( $t, [ 'value' => $value ], [ 'id' => (int) $existing_id ] );
+            $wpdb->update( $t, [ 'value' => $value ], [ 'id' => (int) $existing_id, 'club_id' => CurrentClub::id() ] );
         } else {
             $wpdb->insert( $t, [
+                'club_id'     => CurrentClub::id(),
                 'entity_type' => $entity_type,
                 'entity_id'   => $entity_id,
                 'field_id'    => $field_id,
@@ -105,6 +109,7 @@ class CustomValuesRepository {
         $wpdb->delete( $this->table(), [
             'entity_type' => $entity_type,
             'entity_id'   => $entity_id,
+            'club_id'     => CurrentClub::id(),
         ] );
     }
 

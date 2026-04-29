@@ -4,6 +4,7 @@ namespace TT\Modules\DemoData\Generators;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
 
 /**
@@ -137,6 +138,7 @@ class GoalGenerator {
                 $due_date = gmdate( 'Y-m-d', strtotime( "+{$days_ahead} days" ) ?: time() );
 
                 $wpdb->insert( "{$wpdb->prefix}tt_goals", [
+                    'club_id'     => CurrentClub::id(),
                     'player_id'   => (int) $p->id,
                     'title'       => $title,
                     'description' => $title . '. ' . $description_suffix,

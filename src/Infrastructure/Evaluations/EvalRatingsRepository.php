@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Evaluations;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * EvalRatingsRepository — data access for tt_eval_ratings with hierarchy awareness.
  *
@@ -56,10 +58,10 @@ class EvalRatingsRepository {
                     c.parent_id      AS parent_id,
                     c.display_order  AS display_order
              FROM {$this->table()} r
-             LEFT JOIN {$this->catTable()} c ON r.category_id = c.id
-             WHERE r.evaluation_id = %d
+             LEFT JOIN {$this->catTable()} c ON r.category_id = c.id AND c.club_id = r.club_id
+             WHERE r.evaluation_id = %d AND r.club_id = %d
              ORDER BY c.parent_id IS NULL DESC, c.display_order ASC, r.id ASC",
-            $eval_id
+            $eval_id, CurrentClub::id()
         ) );
     }
 
@@ -81,8 +83,8 @@ class EvalRatingsRepository {
 
         // 1. Direct rating?
         $direct = $wpdb->get_var( $wpdb->prepare(
-            "SELECT rating FROM {$this->table()} WHERE evaluation_id = %d AND category_id = %d LIMIT 1",
-            $eval_id, $main_category_id
+            "SELECT rating FROM {$this->table()} WHERE evaluation_id = %d AND category_id = %d AND club_id = %d LIMIT 1",
+            $eval_id, $main_category_id, CurrentClub::id()
         ) );
         if ( $direct !== null ) {
             return [ 'value' => (float) $direct, 'source' => 'direct', 'sub_count' => 0 ];
@@ -92,9 +94,9 @@ class EvalRatingsRepository {
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT AVG(r.rating) AS avg_rating, COUNT(*) AS n
              FROM {$this->table()} r
-             INNER JOIN {$this->catTable()} c ON r.category_id = c.id
-             WHERE r.evaluation_id = %d AND c.parent_id = %d",
-            $eval_id, $main_category_id
+             INNER JOIN {$this->catTable()} c ON r.category_id = c.id AND c.club_id = r.club_id
+             WHERE r.evaluation_id = %d AND c.parent_id = %d AND r.club_id = %d",
+            $eval_id, $main_category_id, CurrentClub::id()
         ) );
         if ( $row && (int) $row->n > 0 ) {
             return [
@@ -145,22 +147,23 @@ class EvalRatingsRepository {
         $t = $this->table();
 
         $existing = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$t} WHERE evaluation_id = %d AND category_id = %d LIMIT 1",
-            $eval_id, $category_id
+            "SELECT id FROM {$t} WHERE evaluation_id = %d AND category_id = %d AND club_id = %d LIMIT 1",
+            $eval_id, $category_id, CurrentClub::id()
         ) );
         if ( $existing > 0 ) {
-            return $wpdb->update( $t, [ 'rating' => $rating ], [ 'id' => $existing ], [ '%f' ], [ '%d' ] ) !== false;
+            return $wpdb->update( $t, [ 'rating' => $rating ], [ 'id' => $existing, 'club_id' => CurrentClub::id() ], [ '%f' ], [ '%d', '%d' ] ) !== false;
         }
         return $wpdb->insert( $t, [
+            'club_id'       => CurrentClub::id(),
             'evaluation_id' => $eval_id,
             'category_id'   => $category_id,
             'rating'        => $rating,
-        ], [ '%d', '%d', '%f' ] ) !== false;
+        ], [ '%d', '%d', '%d', '%f' ] ) !== false;
     }
 
     public function deleteForEvaluation( int $eval_id ): void {
         global $wpdb;
-        $wpdb->delete( $this->table(), [ 'evaluation_id' => $eval_id ] );
+        $wpdb->delete( $this->table(), [ 'evaluation_id' => $eval_id, 'club_id' => CurrentClub::id() ] );
     }
 
     // Overall rating (v2.13.0)
@@ -262,10 +265,10 @@ class EvalRatingsRepository {
         $ag_rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT e.id AS eval_id, t.age_group_id AS age_group_id
              FROM {$p}tt_evaluations e
-             LEFT JOIN {$p}tt_players pl ON e.player_id = pl.id
-             LEFT JOIN {$p}tt_teams t ON pl.team_id = t.id
-             WHERE e.id IN ($placeholders)",
-            ...$clean
+             LEFT JOIN {$p}tt_players pl ON e.player_id = pl.id AND pl.club_id = e.club_id
+             LEFT JOIN {$p}tt_teams t ON pl.team_id = t.id AND t.club_id = e.club_id
+             WHERE e.id IN ($placeholders) AND e.club_id = %d",
+            ...array_merge( $clean, [ CurrentClub::id() ] )
         ) );
         $age_group_by_eval = [];
         $age_groups_in_play = [];
@@ -277,8 +280,8 @@ class EvalRatingsRepository {
 
         // Ratings for all evaluations (single roundtrip).
         $rating_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT evaluation_id, category_id, rating FROM {$p}tt_eval_ratings WHERE evaluation_id IN ($placeholders)",
-            ...$clean
+            "SELECT evaluation_id, category_id, rating FROM {$p}tt_eval_ratings WHERE evaluation_id IN ($placeholders) AND club_id = %d",
+            ...array_merge( $clean, [ CurrentClub::id() ] )
         ) );
 
         // Weights for all age groups involved (single roundtrip, already batched).
@@ -354,10 +357,10 @@ class EvalRatingsRepository {
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT t.age_group_id AS age_group_id
              FROM {$p}tt_evaluations e
-             LEFT JOIN {$p}tt_players pl ON e.player_id = pl.id
-             LEFT JOIN {$p}tt_teams t ON pl.team_id = t.id
-             WHERE e.id = %d LIMIT 1",
-            $eval_id
+             LEFT JOIN {$p}tt_players pl ON e.player_id = pl.id AND pl.club_id = e.club_id
+             LEFT JOIN {$p}tt_teams t ON pl.team_id = t.id AND t.club_id = e.club_id
+             WHERE e.id = %d AND e.club_id = %d LIMIT 1",
+            $eval_id, CurrentClub::id()
         ) );
         if ( ! $row || $row->age_group_id === null ) return 0;
         return (int) $row->age_group_id;

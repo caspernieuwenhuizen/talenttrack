@@ -3,6 +3,8 @@ namespace TT\Modules\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * ScoutReportsRepository — CRUD over `tt_player_reports`.
  *
@@ -34,6 +36,7 @@ class ScoutReportsRepository {
     ) {
         global $wpdb;
         $ok = $wpdb->insert( $this->table, [
+            'club_id'         => CurrentClub::id(),
             'player_id'       => $player_id,
             'generated_by'    => $generated_by,
             'audience'        => 'scout_emailed_link',
@@ -60,6 +63,7 @@ class ScoutReportsRepository {
     ) {
         global $wpdb;
         $ok = $wpdb->insert( $this->table, [
+            'club_id'       => CurrentClub::id(),
             'player_id'     => $player_id,
             'generated_by'  => $generated_by,
             'audience'      => 'scout_assigned_account',
@@ -75,8 +79,8 @@ class ScoutReportsRepository {
         global $wpdb;
         if ( $token === '' ) return null;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE access_token = %s LIMIT 1",
-            $token
+            "SELECT * FROM {$this->table} WHERE access_token = %s AND club_id = %d LIMIT 1",
+            $token, CurrentClub::id()
         ) );
         return $row ? (object) $row : null;
     }
@@ -100,9 +104,10 @@ class ScoutReportsRepository {
             "UPDATE {$this->table}
                 SET first_accessed_at = COALESCE( first_accessed_at, %s ),
                     access_count = access_count + 1
-              WHERE id = %d",
+              WHERE id = %d AND club_id = %d",
             $now,
-            $id
+            $id,
+            CurrentClub::id()
         ) );
     }
 
@@ -111,7 +116,7 @@ class ScoutReportsRepository {
         $ok = $wpdb->update(
             $this->table,
             [ 'revoked_at' => current_time( 'mysql' ) ],
-            [ 'id' => $id ]
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         );
         return $ok !== false;
     }
@@ -123,10 +128,11 @@ class ScoutReportsRepository {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$this->table}
-              WHERE generated_by = %d
+              WHERE generated_by = %d AND club_id = %d
               ORDER BY created_at DESC
               LIMIT %d",
             $generated_by,
+            CurrentClub::id(),
             max( 1, $limit )
         ) );
         return is_array( $rows ) ? $rows : [];
@@ -139,8 +145,10 @@ class ScoutReportsRepository {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$this->table}
+              WHERE club_id = %d
               ORDER BY created_at DESC
               LIMIT %d",
+            CurrentClub::id(),
             max( 1, $limit )
         ) );
         return is_array( $rows ) ? $rows : [];

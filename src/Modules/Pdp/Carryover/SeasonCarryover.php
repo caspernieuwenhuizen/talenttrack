@@ -4,6 +4,7 @@ namespace TT\Modules\Pdp\Carryover;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Pdp\Calendar\PdpCalendarWriters;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
@@ -92,8 +93,8 @@ class SeasonCarryover {
     private static function previousSeason( int $exclude_id ): ?object {
         global $wpdb; $p = $wpdb->prefix;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_seasons WHERE id <> %d ORDER BY start_date DESC, id DESC LIMIT 1",
-            $exclude_id
+            "SELECT * FROM {$p}tt_seasons WHERE id <> %d AND club_id = %d ORDER BY start_date DESC, id DESC LIMIT 1",
+            $exclude_id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -114,13 +115,15 @@ class SeasonCarryover {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT title, description, priority, created_by FROM {$p}tt_goals
               WHERE player_id = %d
+                AND club_id = %d
                 AND archived_at IS NULL
                 AND status NOT IN ('completed', 'archived')",
-            $player_id
+            $player_id, CurrentClub::id()
         ) );
         if ( ! is_array( $rows ) ) return;
         foreach ( $rows as $g ) {
             $wpdb->insert( $p . 'tt_goals', [
+                'club_id'     => CurrentClub::id(),
                 'player_id'   => $player_id,
                 'title'       => (string) $g->title,
                 'description' => (string) ( $g->description ?? '' ),
@@ -137,9 +140,9 @@ class SeasonCarryover {
         $size = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT t.pdp_cycle_size
                FROM {$p}tt_players pl
-               LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id
-              WHERE pl.id = %d",
-            $player_id
+               LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
+              WHERE pl.id = %d AND pl.club_id = %d",
+            $player_id, CurrentClub::id()
         ) );
         return in_array( $size, [ 2, 3, 4 ], true ) ? $size : null;
     }

@@ -3,6 +3,8 @@ namespace TT\Modules\Workflow\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * TriggersRepository — data access for tt_workflow_triggers.
  *
@@ -29,6 +31,7 @@ class TriggersRepository {
     public function create( array $data ): int {
         global $wpdb;
         $row = [
+            'club_id'         => CurrentClub::id(),
             'template_key'    => (string) $data['template_key'],
             'trigger_type'    => (string) $data['trigger_type'],
             'cron_expression' => $data['cron_expression'] ?? null,
@@ -49,9 +52,9 @@ class TriggersRepository {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$this->table()}
-             WHERE trigger_type = %s AND enabled = 1
+             WHERE trigger_type = %s AND club_id = %d AND enabled = 1
              ORDER BY id ASC",
-            $trigger_type
+            $trigger_type, CurrentClub::id()
         ), ARRAY_A );
         return is_array( $rows ) ? $rows : [];
     }

@@ -4,6 +4,7 @@ namespace TT\Modules\Workflow\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\TaskStatus;
 use TT\Modules\Workflow\WorkflowModule;
@@ -395,8 +396,8 @@ class FrontendMyTasksView extends FrontendViewBase {
     private static function playerName( int $player_id ): string {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT first_name, last_name FROM {$wpdb->prefix}tt_players WHERE id = %d LIMIT 1",
-            $player_id
+            "SELECT first_name, last_name FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d LIMIT 1",
+            $player_id, CurrentClub::id()
         ) );
         if ( ! $row ) return '';
         return trim( ( $row->first_name ?? '' ) . ' ' . ( $row->last_name ?? '' ) );
@@ -405,8 +406,8 @@ class FrontendMyTasksView extends FrontendViewBase {
     private static function teamName( int $team_id ): string {
         global $wpdb;
         $name = $wpdb->get_var( $wpdb->prepare(
-            "SELECT name FROM {$wpdb->prefix}tt_teams WHERE id = %d LIMIT 1",
-            $team_id
+            "SELECT name FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d LIMIT 1",
+            $team_id, CurrentClub::id()
         ) );
         return is_string( $name ) ? $name : '';
     }
@@ -463,10 +464,10 @@ class FrontendMyTasksView extends FrontendViewBase {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}tt_workflow_tasks
-             WHERE assignee_user_id = %d AND status = %s
+             WHERE assignee_user_id = %d AND status = %s AND club_id = %d
              ORDER BY completed_at DESC, id DESC
              LIMIT %d",
-            $user_id, TaskStatus::COMPLETED, $limit
+            $user_id, TaskStatus::COMPLETED, CurrentClub::id(), $limit
         ), ARRAY_A );
         return is_array( $rows ) ? $rows : [];
     }
@@ -479,9 +480,10 @@ class FrontendMyTasksView extends FrontendViewBase {
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_workflow_tasks
              WHERE assignee_user_id = %d
+               AND club_id = %d
                AND status IN ('open','in_progress','overdue')
                AND (snoozed_until IS NULL OR snoozed_until <= %s)",
-            $user_id, current_time( 'mysql' )
+            $user_id, CurrentClub::id(), current_time( 'mysql' )
         ) );
     }
 }

@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Journey;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * PlayerEventsRepository — read API for journey events.
  *
@@ -113,6 +115,7 @@ final class PlayerEventsRepository {
 
         $sql = "SELECT * FROM {$this->table}
                  WHERE player_id = %d
+                   AND club_id = %d
                    AND superseded_by_event_id IS NULL
                    AND event_type IN ($type_placeholders)
                    AND visibility IN ($vis_placeholders)
@@ -122,7 +125,7 @@ final class PlayerEventsRepository {
         /** @var list<object> $rows */
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
             $sql,
-            ...array_merge( [ $player_id ], $milestone_keys, $allowed_visibilities )
+            ...array_merge( [ $player_id, CurrentClub::id() ], $milestone_keys, $allowed_visibilities )
         ) );
         return $rows ?: [];
     }
@@ -139,7 +142,7 @@ final class PlayerEventsRepository {
 
         $vis_placeholders = implode( ',', array_fill( 0, count( $allowed_visibilities ), '%s' ) );
 
-        $params = [ $event_type, $from, $to ];
+        $params = [ $event_type, $from, $to, CurrentClub::id() ];
         $extra  = '';
         if ( $team_id !== null && $team_id > 0 ) {
             $extra = 'AND p.team_id = %d';
@@ -149,10 +152,11 @@ final class PlayerEventsRepository {
         $sql = "SELECT e.id, e.player_id, e.event_type, e.event_date, e.summary, e.payload,
                        p.first_name, p.last_name, p.team_id
                   FROM {$this->table} e
-                  JOIN {$this->wpdb->prefix}tt_players p ON p.id = e.player_id
+                  JOIN {$this->wpdb->prefix}tt_players p ON p.id = e.player_id AND p.club_id = e.club_id
                  WHERE e.event_type = %s
                    AND e.event_date >= %s
                    AND e.event_date <= %s
+                   AND e.club_id = %d
                    AND e.superseded_by_event_id IS NULL
                    AND e.visibility IN ($vis_placeholders)
                    {$extra}
@@ -170,7 +174,8 @@ final class PlayerEventsRepository {
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE id = %d", $id
+            "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -199,8 +204,8 @@ final class PlayerEventsRepository {
      * @return array{0:string, 1:list<int|string>}
      */
     private function buildWhereForTimeline( int $player_id, array $filters ): array {
-        $clauses = [ 'player_id = %d' ];
-        $params  = [ $player_id ];
+        $clauses = [ 'player_id = %d', 'club_id = %d' ];
+        $params  = [ $player_id, CurrentClub::id() ];
 
         if ( empty( $filters['include_superseded'] ) ) {
             $clauses[] = 'superseded_by_event_id IS NULL';

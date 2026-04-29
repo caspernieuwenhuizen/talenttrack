@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * CustomFieldsRestController — /wp-json/talenttrack/v1/custom-fields
@@ -68,15 +69,15 @@ class CustomFieldsRestController {
             return RestResponse::error( 'bad_entity', __( 'Unknown entity type.', 'talenttrack' ), 400 );
         }
 
-        $where = [];
-        $params = [];
+        $where = [ 'club_id = %d' ];
+        $params = [ CurrentClub::id() ];
         if ( $entity !== '' ) { $where[] = 'entity_type = %s'; $params[] = $entity; }
         if ( ! empty( $r['search'] ) ) {
             $like = '%' . $wpdb->esc_like( (string) $r['search'] ) . '%';
             $where[] = '(label LIKE %s OR field_key LIKE %s)';
             $params[] = $like; $params[] = $like;
         }
-        $where_sql = $where ? ( 'WHERE ' . implode( ' AND ', $where ) ) : '';
+        $where_sql = 'WHERE ' . implode( ' AND ', $where );
 
         $list_sql = "SELECT * FROM {$wpdb->prefix}tt_custom_fields {$where_sql}
                      ORDER BY entity_type ASC, sort_order ASC, id ASC
@@ -139,8 +140,8 @@ class CustomFieldsRestController {
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid field id.', 'talenttrack' ), 400 );
         $values = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_custom_values WHERE field_id = %d",
-            $id
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_custom_values WHERE field_id = %d AND club_id = %d",
+            $id, CurrentClub::id()
         ) );
         if ( $values > 0 ) {
             return RestResponse::error(
@@ -151,7 +152,7 @@ class CustomFieldsRestController {
                 [ 'value_count' => $values ]
             );
         }
-        $ok = $wpdb->delete( $wpdb->prefix . 'tt_custom_fields', [ 'id' => $id ] );
+        $ok = $wpdb->delete( $wpdb->prefix . 'tt_custom_fields', [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             Logger::error( 'rest.custom_field.delete.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
             return RestResponse::error( 'db_error', __( 'The field could not be deleted.', 'talenttrack' ), 500 );
@@ -166,24 +167,24 @@ class CustomFieldsRestController {
         if ( $id <= 0 || ! in_array( $direction, [ 'up', 'down' ], true ) ) {
             return RestResponse::error( 'bad_request', __( 'Invalid move parameters.', 'talenttrack' ), 400 );
         }
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}tt_custom_fields WHERE id = %d", $id ) );
+        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}tt_custom_fields WHERE id = %d AND club_id = %d", $id, CurrentClub::id() ) );
         if ( ! $row ) return RestResponse::error( 'not_found', __( 'Field not found.', 'talenttrack' ), 404 );
 
         $compare = $direction === 'up' ? '<' : '>';
         $order   = $direction === 'up' ? 'DESC' : 'ASC';
         $neighbor = $wpdb->get_row( $wpdb->prepare(
             "SELECT id, sort_order FROM {$wpdb->prefix}tt_custom_fields
-             WHERE entity_type = %s AND sort_order {$compare} %d
+             WHERE entity_type = %s AND sort_order {$compare} %d AND club_id = %d
              ORDER BY sort_order {$order}, id {$order}
              LIMIT 1",
-            $row->entity_type, (int) $row->sort_order
+            $row->entity_type, (int) $row->sort_order, CurrentClub::id()
         ) );
         if ( ! $neighbor ) {
             return RestResponse::success( [ 'id' => $id, 'no_op' => true ] );
         }
 
-        $wpdb->update( $wpdb->prefix . 'tt_custom_fields', [ 'sort_order' => (int) $neighbor->sort_order ], [ 'id' => $id ] );
-        $wpdb->update( $wpdb->prefix . 'tt_custom_fields', [ 'sort_order' => (int) $row->sort_order ], [ 'id' => (int) $neighbor->id ] );
+        $wpdb->update( $wpdb->prefix . 'tt_custom_fields', [ 'sort_order' => (int) $neighbor->sort_order ], [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+        $wpdb->update( $wpdb->prefix . 'tt_custom_fields', [ 'sort_order' => (int) $row->sort_order ], [ 'id' => (int) $neighbor->id, 'club_id' => CurrentClub::id() ] );
         return RestResponse::success( [ 'id' => $id, 'swapped_with' => (int) $neighbor->id ] );
     }
 

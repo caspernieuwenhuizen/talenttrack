@@ -3,6 +3,7 @@ namespace TT\Modules\Invitations\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Invitations\InvitationKind;
 use TT\Modules\Invitations\InvitationsRepository;
 use TT\Modules\Invitations\InvitationStatus;
@@ -260,8 +261,8 @@ class AcceptanceView {
         if ( $teamId <= 0 ) return '';
         global $wpdb;
         $name = $wpdb->get_var( $wpdb->prepare(
-            "SELECT name FROM {$wpdb->prefix}tt_teams WHERE id = %d",
-            $teamId
+            "SELECT name FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d",
+            $teamId, CurrentClub::id()
         ) );
         return $name ? (string) $name : '';
     }
@@ -272,8 +273,8 @@ class AcceptanceView {
         $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', "{$wpdb->prefix}tt_functional_roles" ) );
         if ( $exists !== "{$wpdb->prefix}tt_functional_roles" ) return $key;
         $label = $wpdb->get_var( $wpdb->prepare(
-            "SELECT name FROM {$wpdb->prefix}tt_functional_roles WHERE role_key = %s",
-            $key
+            "SELECT name FROM {$wpdb->prefix}tt_functional_roles WHERE role_key = %s AND club_id = %d",
+            $key, CurrentClub::id()
         ) );
         return $label ? (string) $label : $key;
     }
