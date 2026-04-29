@@ -1933,14 +1933,8 @@ msgstr "Wedstrijdsubtypes"
 msgid "Friendly, league, cup, tournament. Filters game-only reports."
 msgstr "Oefenwedstrijd, competitie, beker, toernooi. Filtert wedstrijdrapporten."
 
-msgid "Positions"
-msgstr "Posities"
-
 msgid "Football positions players can be tagged with."
 msgstr "Voetbalposities die aan spelers kunnen worden toegekend."
-
-msgid "Preferred foot"
-msgstr "Voorkeursvoet"
 
 msgid "Left, right, both — used on the player edit form."
 msgstr "Links, rechts, beide — gebruikt op het spelerbewerkformulier."
@@ -1986,9 +1980,6 @@ msgstr "Nog geen teams. Spond werkt per team — voeg eerst een team toe en plak
 
 msgid "Not configured"
 msgstr "Niet ingesteld"
-
-msgid "Partial"
-msgstr "Gedeeltelijk"
 
 msgid "Your attendance"
 msgstr "Jouw aanwezigheid"
