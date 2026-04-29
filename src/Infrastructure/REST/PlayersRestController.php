@@ -34,7 +34,11 @@ class PlayersRestController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_players' ],
-                'permission_callback' => function () { return is_user_logged_in(); },
+                // #0052 PR-B — gate on `tt_view_players` instead of bare
+                // login. The list query already filters per-row by team
+                // scoping; this prevents a logged-in user without any
+                // player-view rights from hitting the endpoint at all.
+                'permission_callback' => function () { return current_user_can( 'tt_view_players' ); },
             ],
             [
                 'methods'             => 'POST',

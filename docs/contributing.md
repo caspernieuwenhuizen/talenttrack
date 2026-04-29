@@ -65,3 +65,25 @@ Slugs go in `HelpTopics::all()`. The pattern is kebab-case, matching the filenam
 ## When you add a feature
 
 The release-discipline commitment from v2.22.0+ : every PR that ships user-facing change updates the relevant doc(s) in the same PR. The doc is the *current* state of the feature; `CHANGES.md` is the per-release diff, not a substitute.
+
+## REST port-on-touch policy (#0052 PR-B)
+
+When you touch a file that registers `admin_post_*` or `wp_ajax_*` handlers, port the handler to a REST endpoint in the same PR if the change is non-trivial. Trivial changes (typo fix, copy edit) don't trigger the port.
+
+- The shared base lives at `src/Infrastructure/REST/BaseController.php` + `RestResponse.php` — every new controller extends them.
+- The cap goes in `permission_callback` via `BaseController::permCan( 'tt_xyz' )` — never `__return_true` (except for legitimately-public endpoints where the URL token is the auth, like the invitation acceptance read).
+- The remaining backlog of admin-post handlers is tracked in [`dev-tier-rest-port-backlog.md`](dev-tier-rest-port-backlog.md).
+
+The REST surface gets stronger with every port; the admin-post surface shrinks.
+
+## Running the REST contract test
+
+`bin/contract-test.php` walks every read endpoint and verifies it returns the standard `RestResponse` envelope shape. Run it before a release or whenever a controller has been touched:
+
+```
+wp eval-file bin/contract-test.php
+# or, raw php:
+WP_LOAD=/path/to/wp-load.php php bin/contract-test.php
+```
+
+Auth-required endpoints register as `SKIP` when run unauthenticated; that's expected. The script exits non-zero if any endpoint fails the envelope check or returns ≥ 400 unauthenticated.

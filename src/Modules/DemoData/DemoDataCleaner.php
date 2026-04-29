@@ -158,7 +158,8 @@ class DemoDataCleaner {
                 $refused[ $user_id ] = 'is-current-user';
                 continue;
             }
-            if ( in_array( 'administrator', (array) $user->roles, true ) && $admin_count <= 1 ) {
+            $is_admin_user = \TT\Infrastructure\Security\RoleResolver::userHasRole( $user_id, 'administrator' );
+            if ( $is_admin_user && $admin_count <= 1 ) {
                 $refused[ $user_id ] = 'last-admin';
                 continue;
             }
@@ -171,7 +172,7 @@ class DemoDataCleaner {
                     'club_id'     => CurrentClub::id(),
                 ] );
                 $deleted++;
-                if ( in_array( 'administrator', (array) $user->roles, true ) ) {
+                if ( $is_admin_user ) {
                     $admin_count--;
                 }
             } else {

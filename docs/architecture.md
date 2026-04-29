@@ -128,6 +128,33 @@ The journey is a read-side aggregate, not a fifth modeling pillar. Per `CLAUDE.m
 - **Boundary with workflow tasks:** workflow tasks are **reminders** (someone needs to do something); journey events are **records** (something happened). Some triggers fan out both — an injury insert spawns a recovery-due workflow task *and* a journey event; that's coincidence, not coupling. Don't reuse one for the other.
 - **Boundary with audit log:** `tt_audit_log` is operational telemetry (who changed what column when, for security investigation). The journey is the player-development story (what's happened to this player, in player-friendly language). Both can record an evaluation save; their consumers are different.
 
+## Storage (#0052 PR-C)
+
+Asset URLs are the contract. The plugin must never assume `wp-content/uploads/` is the storage backend; SaaS deployments will use object storage (S3, R2). Helpers that read or transform images take a URL, not a server path; new code that needs to compose an asset URL goes through `wp_get_attachment_url()` or the dedicated REST endpoint, never through `WP_CONTENT_DIR . '/uploads/...'`.
+
+The Backup module is the one place that legitimately writes to the local filesystem. `BackupDestinationInterface` abstracts the destination — `LocalDestination` writes to `wp-content/uploads/talenttrack-backups/`; SaaS deployments register an `S3Destination` (or similar) that implements the same interface. Audit pass for #0052 PR-C confirmed `BackupSettingsPage`'s `wp-content/uploads/...` reference is a UI label, the interface docblock is documentation, and `LocalDestination` is by design the local-FS backend — no migration is needed for `LocalDestination` itself.
+
+Player photos (`tt_players.photo_url`) and club logo (`tt_config.logo_url`) are URL-only.
+
+## Background work (#0052 PR-C)
+
+Two scheduling layers coexist:
+
+- **`wp_cron`** — infrastructure: usage telemetry rollups, backup cron, external-integration polling (Spond), the workflow engine's own cron tick. The user wouldn't recognise these as "tasks".
+- **Workflow engine** (`src/Modules/Workflow/`) — domain tasks a coach / HoD / admin would recognise: post-match evaluation reminders, quarterly goal-setting cadence, PDP-verdict deadlines, trial-decision reminders, certification-expiry warnings.
+
+The line is "would a coach / HoD / admin recognise this task?" — if yes, it's domain and lands in the workflow engine. SaaS migration replaces the scheduler underneath the workflow engine; one chokepoint is replaceable, fifty `wp_cron` registrations are not.
+
+Five `wp_schedule_event()` callsites today (audit frozen as of v3.52.x):
+
+| File | Category | Notes |
+| - | - | - |
+| `Infrastructure/Usage/UsageTracker.php` | Infrastructure | Stays. Rollup of plugin-internal counters. |
+| `Modules/Backup/Scheduler.php` | Infrastructure | Stays. Backup cron is plumbing. |
+| `Modules/Spond/SpondModule.php` | Infrastructure | Stays. External-integration polling, hourly. |
+| `Modules/Workflow/Dispatchers/CronDispatcher.php` | Infrastructure | Stays. This *is* the workflow engine's own tick. |
+| `Modules/Trials/Reminders/TrialReminderScheduler.php` | Domain (port-on-touch) | Coaches recognise "remind me about trial decisions". The `t-7 / t-3 / t-0` bucket logic + per-(case, user, bucket) state should migrate to a workflow template when Trials is next non-trivially edited. |
+
 ## Testing surface
 
 There's no PHPUnit harness checked in (yet). The CI workflow runs:

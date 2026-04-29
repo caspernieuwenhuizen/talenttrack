@@ -6,6 +6,14 @@ Plugin namespace: `talenttrack/v1` (full base: `/wp-json/talenttrack/v1`).
 
 Every endpoint authenticates via the standard WordPress REST flow — pass the `X-WP-Nonce` header carrying a `wp_rest` nonce on logged-in browser requests, or use application passwords / OAuth for external integrations. Capability checks happen in each controller's `permission_callback`; a user without the required cap gets a 401/403 from WP itself before the handler runs.
 
+The canonical machine-readable contract lives in [`docs/openapi.yaml`](openapi.yaml). This document is the human-readable narrative; if the two disagree, treat the OpenAPI spec as authoritative and open an issue. A self-contained contract test ships at [`bin/contract-test.php`](../bin/contract-test.php) — run it with `wp eval-file bin/contract-test.php` (or `WP_LOAD=/path/to/wp-load.php php bin/contract-test.php`) to verify every read endpoint returns the standard envelope shape.
+
+## v1 → v2 migration policy (#0052 PR-C)
+
+Breaking changes to a `talenttrack/v1` endpoint shape bump the namespace to `talenttrack/v2`. The v1 namespace is supported for at least one release after v2 ships, with `Deprecation: true` headers on the v1 responses. Additive changes (new optional field, new endpoint) **don't** trigger a bump — they go into v1 as before.
+
+This policy is **codified but not yet exercised** — every change to v1 so far has been backwards-compatible.
+
 ## Resources
 
 | Resource         | Routes                                                                                        | Source                                                  |
