@@ -9760,11 +9760,7 @@ msgstr "zojuist"
 msgid "Coaches only"
 msgstr "Alleen trainers"
 
-msgid "Edit"
-msgstr "Bewerken"
 
-msgid "Save"
-msgstr "Opslaan"
 
 msgid "Delete this message?"
 msgstr "Dit bericht verwijderen?"
@@ -9834,3 +9830,134 @@ msgstr "Chat-achtige gesprekken op elk spelersdoel — dialoog tussen trainer, s
 
 msgid "%1$s's goal: %2$s"
 msgstr "Doel van %1$s: %2$s"
+
+# v3.53.0 — PDP planning windows (#0054)
+
+msgid "PDP planning"
+msgstr "POP-planning"
+
+msgid "HoD matrix: per-team-per-block planned vs conducted conversations."
+msgstr "HO-matrix: per team per blok geplande vs uitgevoerde gesprekken."
+
+msgid "How many conversations are planned in their window, and how many have a recorded result. Click a cell to drill into the underlying files."
+msgstr "Hoeveel gesprekken zijn ingepland in het venster en hoeveel hebben een resultaat. Klik op een cel om de onderliggende dossiers te openen."
+
+msgid "Block %d"
+msgstr "Blok %d"
+
+msgid "%1$d/%2$d planned · %3$d/%4$d conducted"
+msgstr "%1$d/%2$d gepland · %3$d/%4$d uitgevoerd"
+
+msgid "window not yet open"
+msgstr "venster nog niet geopend"
+
+msgid "No PDP files for this season yet."
+msgstr "Nog geen POP-dossiers voor dit seizoen."
+
+msgid "You do not have permission to view PDP planning."
+msgstr "Je hebt geen rechten om de POP-planning te bekijken."
+
+msgid "players"
+msgstr "spelers"
+
+# v3.52.0 — Player status methodology (#0057 Sprint 3)
+
+msgid "Player status methodology"
+msgstr "Methodiek spelerstatus"
+
+msgid "Per-age-group input weights, thresholds, and behaviour-floor rule for the traffic-light status."
+msgstr "Per leeftijdscategorie: weging van inputs, drempels en gedragsbodemregel voor de stoplichtstatus."
+
+msgid "Configure how the traffic-light status is calculated. The shipped default (40% ratings / 25% behaviour / 20% attendance / 15% potential, amber below 60, red below 40, behaviour floor at 3.0) applies until you save an override."
+msgstr "Stel in hoe de stoplichtstatus berekend wordt. De standaardinstelling (40% evaluaties / 25% gedrag / 20% aanwezigheid / 15% potentieel, oranje onder 60, rood onder 40, gedragsbodem op 3.0) geldt totdat je een override opslaat."
+
+msgid "Club-wide default"
+msgstr "Standaard voor de hele club"
+
+msgid "Age group: %s"
+msgstr "Leeftijdscategorie: %s"
+
+msgid "override"
+msgstr "override"
+
+msgid "Inputs and weights"
+msgstr "Inputs en weging"
+
+msgid "Input"
+msgstr "Input"
+
+msgid "Weight (%)"
+msgstr "Weging (%)"
+
+msgid "Evaluation ratings"
+msgstr "Evaluatiescores"
+
+msgid "Behaviour observations"
+msgstr "Gedragsobservaties"
+
+msgid "Trainer-stated potential"
+msgstr "Door trainer aangegeven potentieel"
+
+msgid "Thresholds"
+msgstr "Drempels"
+
+msgid "Amber below"
+msgstr "Oranje onder"
+
+msgid "Red below"
+msgstr "Rood onder"
+
+msgid "Behaviour floor"
+msgstr "Gedragsbodem"
+
+msgid "Cap status at amber when behaviour is below"
+msgstr "Plafonneer status op oranje als gedrag lager is dan"
+
+msgid "0 disables the floor rule."
+msgstr "0 schakelt de bodemregel uit."
+
+msgid "Reset this override to the default?"
+msgstr "Override terugzetten naar standaard?"
+
+msgid "You do not have permission to edit the player-status methodology."
+msgstr "Je hebt geen rechten om de methodiek voor de spelerstatus te bewerken."
+
+# v3.52.0 — PDP integration (#0057 Sprint 5)
+
+msgid "A divergence note is required when the human decision differs from the system recommendation."
+msgstr "Een afwijkings-notitie is verplicht wanneer het menselijke besluit afwijkt van de systeemaanbeveling."
+
+msgid "Could not assemble the evidence packet."
+msgstr "Kon het bewijsdossier niet samenstellen."
+
+msgid "You do not have access to this evidence packet."
+msgstr "Je hebt geen toegang tot dit bewijsdossier."
+
+# v3.52.0 — Excel-driven demo data (#0059)
+
+msgid "PhpSpreadsheet is not installed. Run `composer install --no-dev` from the plugin root."
+msgstr "PhpSpreadsheet is niet geïnstalleerd. Voer `composer install --no-dev` uit vanuit de plugin-root."
+
+msgid "Could not read the workbook: %s"
+msgstr "Kon het werkboek niet lezen: %s"
+
+msgid "Sheet \"%1$s\": required column \"%2$s\" missing."
+msgstr "Tabblad \"%1$s\": verplichte kolom \"%2$s\" ontbreekt."
+
+msgid "Sheet \"%1$s\" row %2$d: %3$s is required."
+msgstr "Tabblad \"%1$s\" rij %2$d: %3$s is verplicht."
+
+msgid "Players row %1$d references team_key \"%2$s\" but no Teams row matches."
+msgstr "Players-rij %1$d verwijst naar team_key \"%2$s\" maar er is geen overeenkomende Teams-rij."
+
+msgid "Or upload an Excel template (#0059)"
+msgstr "Of upload een Excel-template (#0059)"
+
+msgid "Walk in with the prospect's own team names and players. Download the template, fill it in offline, upload it back. v1 covers the Teams and Players sheets; the procedural generator handles everything else."
+msgstr "Loop een demo binnen met de teamnamen en spelers van de prospect zelf. Download het template, vul het offline in, upload het terug. v1 dekt de Teams- en Players-tabbladen; de procedurele generator vult de rest."
+
+msgid "Download template (.xlsx)"
+msgstr "Template downloaden (.xlsx)"
+
+msgid "Upload + import"
+msgstr "Uploaden + importeren"

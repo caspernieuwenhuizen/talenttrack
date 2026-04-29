@@ -97,8 +97,8 @@ class SystemHealthStripWidget extends AbstractWidget {
         $status = class_exists( InvitationStatus::class ) ? InvitationStatus::PENDING : 'pending';
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} WHERE status = %s",
-            $status
+            "SELECT COUNT(*) FROM {$table} WHERE status = %s AND club_id = %d",
+            $status, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
     }
 

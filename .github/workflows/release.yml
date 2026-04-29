@@ -171,6 +171,16 @@ jobs:
       - uses: actions/checkout@v5
       - name: Install gettext
         run: sudo apt-get update && sudo apt-get install -y gettext
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+      - name: Install production dependencies
+        run: |
+          if [ -f composer.json ] && grep -q '"require"' composer.json && ! grep -q '"require": *{ *}' composer.json; then
+            composer install --no-dev --no-interaction --no-progress --prefer-dist --optimize-autoloader
+          fi
       - name: Regenerate .mo files from .po (always fresh in release ZIP)
         run: |
           for po in languages/*.po; do
@@ -181,9 +191,11 @@ jobs:
       - name: Build plugin ZIP
         run: |
           mkdir -p /tmp/build
+          # vendor/ is bundled (production deps only — phpstan + szepeviktor are dev-only).
           rsync -av \
             --exclude='.git' --exclude='.github' --exclude='.gitignore' \
-            --exclude='tests' --exclude='vendor' --exclude='phpstan*' \
+            --exclude='tests' --exclude='phpstan*' \
+            --exclude='vendor/bin' --exclude='vendor/phpstan' --exclude='vendor/szepeviktor' \
             --exclude='branding-plugin' \
             ./ /tmp/build/talenttrack/
           cd /tmp/build

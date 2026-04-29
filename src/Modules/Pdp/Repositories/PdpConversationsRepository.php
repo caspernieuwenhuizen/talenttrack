@@ -67,15 +67,27 @@ class PdpConversationsRepository {
 
         $template_keys = $this->templateKeysFor( $cycle_size );
 
+        // #0054 — planning window length is admin-configurable (default 21 days).
+        $window_days = (int) \TT\Infrastructure\Query\QueryHelpers::get_config( 'pdp_planning_window_days', '21' );
+        if ( $window_days < 7 ) $window_days = 21;
+        $half = (int) floor( $window_days / 2 );
+
         $inserted = 0;
         for ( $i = 1; $i <= $cycle_size; $i++ ) {
-            $when = gmdate( 'Y-m-d H:i:s', $start_ts + $step * $i );
+            $when_ts = $start_ts + $step * $i;
+            $when    = gmdate( 'Y-m-d H:i:s', $when_ts );
+
+            $win_start = max( $start_ts, $when_ts - $half * 86400 );
+            $win_end   = min( $end_ts,   $when_ts + $half * 86400 );
+
             $ok = $this->wpdb->insert( $this->table, [
-                'club_id'      => CurrentClub::id(),
-                'pdp_file_id'  => $file_id,
-                'sequence'     => $i,
-                'template_key' => $template_keys[ $i - 1 ] ?? 'mid',
-                'scheduled_at' => $when,
+                'club_id'               => CurrentClub::id(),
+                'pdp_file_id'           => $file_id,
+                'sequence'              => $i,
+                'template_key'          => $template_keys[ $i - 1 ] ?? 'mid',
+                'scheduled_at'          => $when,
+                'planning_window_start' => gmdate( 'Y-m-d', $win_start ),
+                'planning_window_end'   => gmdate( 'Y-m-d', $win_end ),
             ] );
             if ( $ok ) $inserted++;
         }
@@ -92,6 +104,7 @@ class PdpConversationsRepository {
             'scheduled_at', 'conducted_at', 'agenda', 'notes',
             'agreed_actions', 'player_reflection',
             'coach_signoff_at', 'parent_ack_at', 'player_ack_at',
+            'planning_window_start', 'planning_window_end',
         ];
         $clean = [];
         foreach ( $patch as $k => $v ) {
