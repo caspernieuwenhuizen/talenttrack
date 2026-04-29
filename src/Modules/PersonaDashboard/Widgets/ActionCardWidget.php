@@ -19,7 +19,7 @@ class ActionCardWidget extends AbstractWidget {
     private const ACTIONS = [
         'new_evaluation' => [ 'label_key' => 'New evaluation', 'view' => 'evaluations',  'icon' => '+', 'cap' => 'tt_create_evaluations' ],
         'new_goal'       => [ 'label_key' => 'New goal',       'view' => 'goals',        'icon' => '+', 'cap' => 'tt_create_goals' ],
-        'new_activity'   => [ 'label_key' => 'New activity',   'view' => 'activities',   'icon' => '+', 'cap' => 'tt_edit_sessions' ],
+        'new_activity'   => [ 'label_key' => 'New activity',   'view' => 'activities',   'icon' => '+', 'cap' => 'tt_edit_activities' ],
         'new_player'     => [ 'label_key' => 'Add player',     'view' => 'players',      'icon' => '+', 'cap' => 'tt_edit_players' ],
         'new_team'       => [ 'label_key' => 'Add team',       'view' => 'teams',        'icon' => '+', 'cap' => 'tt_edit_teams' ],
         'scout_report'   => [ 'label_key' => 'New scout report', 'view' => 'scout-history', 'icon' => '+', 'cap' => 'tt_generate_scout_report' ],

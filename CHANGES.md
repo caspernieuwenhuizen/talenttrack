@@ -1,3 +1,9 @@
+# TalentTrack v3.50.1 — Hotfix: legacy `tt_edit_sessions` cap reference
+
+One-line fix to `src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php` — the new-activity action card referenced the legacy `tt_edit_sessions` capability that was renamed to `tt_edit_activities` in v3.24.0 (#0035 sessions → activities rename). The CI no-legacy gate caught it on every release attempt and blocked the `talenttrack.zip` build for both #0060 sprint 3 and v3.50.0. Same content as v3.50.0 otherwise; this re-cuts the omnibus release with a working asset.
+
+---
+
 # TalentTrack v3.50.0 — Wizard-first standard, Spond integration, player status core, mobile-first quick wins
 
 Five-spec omnibus, scoped down to what fit cleanly in one PR. Two specs descoped explicitly to follow-up releases.
