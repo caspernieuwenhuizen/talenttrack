@@ -10174,3 +10174,179 @@ msgstr "Activiteit verwijderen?"
 
 msgid "Delete the activity \"%s\"?"
 msgstr "Activiteit \"%s\" verwijderen?"
+
+# v3.59.0 — Staff development module (#0039)
+
+msgid "Staff development"
+msgstr "Stafontwikkeling"
+
+msgid "Staff overview"
+msgstr "Stafoverzicht"
+
+msgid "Your personal development plan."
+msgstr "Je persoonlijke ontwikkelingsplan."
+
+msgid "My staff goals"
+msgstr "Mijn stafdoelen"
+
+msgid "Personal development goals — optionally linked to a certification."
+msgstr "Persoonlijke ontwikkelingsdoelen — optioneel gekoppeld aan een certificering."
+
+msgid "My staff evaluations"
+msgstr "Mijn stafevaluaties"
+
+msgid "Self and top-down staff evaluations."
+msgstr "Zelf- en top-down stafevaluaties."
+
+msgid "My certifications"
+msgstr "Mijn certificeringen"
+
+msgid "Coaching badges, first aid, GDPR and more — with expiry tracking."
+msgstr "Coachingbadges, EHBO, AVG en meer — met verloopbewaking."
+
+msgid "Open goals, overdue reviews, expiring certifications across the academy."
+msgstr "Open doelen, verlopen reviews en verlopende certificeringen door de hele academie."
+
+msgid "Strengths"
+msgstr "Sterke punten"
+
+msgid "Development areas"
+msgstr "Ontwikkelpunten"
+
+msgid "Actions next quarter"
+msgstr "Acties komend kwartaal"
+
+msgid "Narrative (optional)"
+msgstr "Narratief (optioneel)"
+
+msgid "Save PDP"
+msgstr "POP opslaan"
+
+msgid "Last reviewed:"
+msgstr "Laatst beoordeeld:"
+
+msgid "No goals yet. Add one below."
+msgstr "Nog geen doelen. Voeg er hieronder een toe."
+
+msgid "Add a goal"
+msgstr "Doel toevoegen"
+
+msgid "Targets a certification (optional)"
+msgstr "Gericht op een certificering (optioneel)"
+
+msgid "No evaluations recorded yet."
+msgstr "Nog geen evaluaties vastgelegd."
+
+msgid "Record a new evaluation"
+msgstr "Nieuwe evaluatie vastleggen"
+
+msgid "Self-evaluation"
+msgstr "Zelf-evaluatie"
+
+msgid "Top-down (head of development)"
+msgstr "Top-down (hoofd ontwikkeling)"
+
+msgid "Save evaluation"
+msgstr "Evaluatie opslaan"
+
+msgid "Targets cert"
+msgstr "Gerichte cert"
+
+msgid "No certifications on file yet."
+msgstr "Nog geen certificeringen geregistreerd."
+
+msgid "Add a certification"
+msgstr "Certificering toevoegen"
+
+msgid "Certification"
+msgstr "Certificering"
+
+msgid "Issuer"
+msgstr "Uitgever"
+
+msgid "Issued on"
+msgstr "Uitgegeven op"
+
+msgid "Expires on"
+msgstr "Verloopt op"
+
+msgid "Document URL (optional)"
+msgstr "Document-URL (optioneel)"
+
+msgid "Add certification"
+msgstr "Certificering opslaan"
+
+msgid "no expiry"
+msgstr "geen verloopdatum"
+
+msgid "expired"
+msgstr "verlopen"
+
+msgid "< 30 days"
+msgstr "< 30 dagen"
+
+msgid "< 90 days"
+msgstr "< 90 dagen"
+
+msgid "Issued"
+msgstr "Uitgegeven"
+
+msgid "Document"
+msgstr "Document"
+
+msgid "open"
+msgstr "openen"
+
+msgid "Open staff goals"
+msgstr "Open stafdoelen"
+
+msgid "No open goals."
+msgstr "Geen open doelen."
+
+msgid "Top-down review overdue"
+msgstr "Top-down review te oud"
+
+msgid "Everyone reviewed within the last year."
+msgstr "Iedereen is in het afgelopen jaar beoordeeld."
+
+msgid "last reviewed:"
+msgstr "laatst beoordeeld:"
+
+msgid "never"
+msgstr "nooit"
+
+msgid "Certifications expiring in 90 days"
+msgstr "Certificeringen verlopen binnen 90 dagen"
+
+msgid "No certifications expiring soon."
+msgstr "Geen certificeringen die binnenkort verlopen."
+
+msgid "This section is only available for staff members linked to a People record."
+msgstr "Dit onderdeel is alleen beschikbaar voor stafleden met een gekoppelde Mensen-rij."
+
+msgid "Open the staff-development tile group on your dashboard to complete this task."
+msgstr "Open de tegelgroep Stafontwikkeling op je dashboard om deze taak af te ronden."
+
+msgid "Annual staff self-evaluation"
+msgstr "Jaarlijkse stafzelfevaluatie"
+
+msgid "Self-rate against the staff evaluation categories at the start of every academy year."
+msgstr "Beoordeel jezelf tegen de evaluatiecategorieën voor staf aan het begin van elk academiejaar."
+
+msgid "Top-down staff review"
+msgstr "Top-down staf review"
+
+msgid "Head of Development reviews each staff member against the staff evaluation categories."
+msgstr "Het hoofd ontwikkeling beoordeelt elke stafmedewerker tegen de evaluatiecategorieën voor staf."
+
+msgid "Staff certification expiring"
+msgstr "Stafcertificering verloopt"
+
+msgid "A certification (UEFA, first aid, GDPR, etc.) is approaching expiry; confirm or renew."
+msgstr "Een certificering (UEFA, EHBO, AVG, enz.) loopt bijna af; bevestig of vernieuw."
+
+msgid "Staff PDP season review"
+msgstr "POP-review nieuw seizoen"
+
+msgid "Refresh your personal development plan now that a new season has started."
+msgstr "Werk je persoonlijke ontwikkelingsplan bij nu er een nieuw seizoen is gestart."

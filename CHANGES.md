@@ -1,3 +1,25 @@
+# TalentTrack v3.60.0 — Staff development module (#0039)
+
+The plugin tracks players in detail. From this release it tracks the **people who coach those players** with the same primitives — goals, evaluations, a personal-development plan — plus a certification register that has no player-side equivalent. One PR, one release.
+
+## Schema
+
+Migration `0048_staff_development.php` creates six new tables and adds an `is_staff_tree TINYINT(1)` column to `tt_eval_categories`. See the v3.60.0 entry below for the table list and column shapes.
+
+## What ships
+
+- Six new tables (`tt_staff_goals`, `tt_staff_evaluations`, `tt_staff_eval_ratings`, `tt_staff_certifications`, `tt_staff_pdp` (root, uuid), `tt_staff_mentorships`) plus the `is_staff_tree` flag column.
+- Seeds: `cert_type` lookup with six standard rows; five staff eval-category roots flagged `is_staff_tree=1`; new Mentor functional role.
+- Three caps: `tt_view_staff_development`, `tt_manage_staff_development`, `tt_view_staff_certifications_expiry`.
+- Consolidated REST controller covering all five resources at `talenttrack/v1/staff/...`. `permission_callback` against the capability layer.
+- Five frontend tile views (`my-staff-pdp`, `my-staff-goals`, `my-staff-evaluations`, `my-staff-certifications`, `staff-overview`).
+- Four workflow templates registered with the engine — annual self-eval (Sept 1, 30-day deadline), top-down review (Sept 1, head-of-development assignee, 60-day), certification expiring (daily 06:00, 90/60/30/0 thresholds with engine dedup), PDP season review (event-driven on `tt_pdp_season_set_current`). All four use a shared `StaffStubForm` placeholder for v1.
+- ~50 NL strings; new `docs/staff-development.md` (EN + NL).
+
+Migration is numbered 0048 because the parallel agent's #0042 work claimed 0046 (`tt_push_subscriptions`) and the parallel agent's #0061 polish bundle claimed 0046 (`activity_lookup_translations` backfill) + 0047 (`activity_status_draft`). Numbering past those keeps the migration order stable and avoids cosmetic noise.
+
+---
+
 # TalentTrack v3.59.0 — #0061 polish + bug bundle (round 1)
 
 Captures the user's punch-list as `ideas/0061-feat-minor-polish-bundle.md` (13 items) and ships the bug-priority subset + smaller polish wins. New-activity wizard + authorization-matrix tile coverage + logical grouping stay deferred for a focused follow-up.
@@ -37,6 +59,104 @@ Adds migrations 0046 + 0047 alongside the v3.58.0 push migrations also numbered 
 ## SEQUENCE.md
 
 New `v3.59.0-bundle` row under Done.
+
+- **`tt_staff_goals`** — title / description / status (pending / in_progress / completed / archived) / priority / due_date / optional `cert_type_lookup_id` link.
+- **`tt_staff_evaluations`** — header row, one per (person, reviewer, eval_date). `review_kind` is `self` or `top_down` for v1 (peer deferred).
+- **`tt_staff_eval_ratings`** — leaf rows, one per category-rated cell. Reuses the existing `tt_eval_categories` table via the new `is_staff_tree=1` flag.
+- **`tt_staff_certifications`** — cert register. Optional `expires_on` drives the daily 06:00 expiring-certifications workflow.
+- **`tt_staff_pdp`** — root entity (uuid). Unique `(person_id, season_id)`. Three structured fields (strengths / development_areas / actions_next_quarter) + an optional narrative.
+- **`tt_staff_mentorships`** — pivot: `(mentor_person_id, mentee_person_id)` + lifecycle dates. Drives the Mentor functional role's manage-scope.
+
+All tenancy-ready (`club_id`); `tt_staff_pdp` is the only root entity and gets a `uuid CHAR(36) UNIQUE`.
+
+## Seeds
+
+- **`cert_type` lookup** — six standard rows (UEFA-A, UEFA-B, UEFA-C, first aid, GDPR awareness, child safeguarding). Per-club editable via the existing lookup admin.
+- **Staff eval-category roots** — five mains (Coaching craft / Communication / Methodology fluency / Mentorship / Reliability) inserted with `is_staff_tree=1`. The eval-category tree UI gates by the flag so the staff and player trees never collide visually.
+- **Mentor functional role** — new row in `tt_functional_roles` with `role_key='mentor'`. Admin-grant via the People page (same flow as Head Coach / Assistant). Mentor pairs with a mentee via `tt_staff_mentorships`.
+
+## Capabilities
+
+- `tt_view_staff_development` — own data for staff personas, anyone for managers. Granted to administrator + tt_head_dev + tt_club_admin + tt_coach + tt_scout + tt_staff.
+- `tt_manage_staff_development` — full edit on any staff member's records. Administrator + tt_head_dev + tt_club_admin.
+- `tt_view_staff_certifications_expiry` — see the org-wide expiring-certifications roll-up. Administrator + tt_head_dev + tt_club_admin.
+
+Plus a per-record self-or-manager gate inside the REST controller's `can_manage_target` / `can_evaluate_target` callbacks: a non-manager user can only write to records on their own `tt_people` row, and a non-manager can only post `self` evaluations.
+
+## REST
+
+Under `talenttrack/v1`, resource-oriented:
+
+```
+GET    /staff/{person_id}/goals           POST   /staff/{person_id}/goals
+PUT    /staff-goals/{id}                   DELETE /staff-goals/{id}
+
+GET    /staff/{person_id}/evaluations     POST   /staff/{person_id}/evaluations
+PUT    /staff-evaluations/{id}             DELETE /staff-evaluations/{id}
+
+GET    /staff/{person_id}/certifications  POST   /staff/{person_id}/certifications
+PUT    /staff-certifications/{id}          DELETE /staff-certifications/{id}
+
+GET    /staff/{person_id}/pdp             PUT    /staff/{person_id}/pdp     (upsert)
+
+GET    /staff/expiring-certifications     (manager-only roll-up)
+
+GET    /staff/{person_id}/mentorships     POST   /staff/{person_id}/mentorships
+                                          DELETE /staff-mentorships/{id}
+```
+
+All endpoints declare `permission_callback` against the capability layer (no role-string compares). Bundled in one `StaffDevelopmentRestController` for v1 (mirrors `TrialsRestController`'s approach); per-resource controllers can be split out in v2 if any grows beyond ~100 LOC of route logic.
+
+## Frontend surfaces
+
+New "Staff development" tile group with five tiles:
+
+- **`?tt_view=my-staff-pdp`** — staff member's PDP form. Upserts via `StaffPdpRepository::upsert()` keyed on `(person_id, season_id)`.
+- **`?tt_view=my-staff-goals`** — list + add form. Optional `cert_type_lookup_id` link surfaces on both the goals list and the certifications list.
+- **`?tt_view=my-staff-evaluations`** — list + add form. Non-managers see only the `self` kind option; managers also see `top_down`.
+- **`?tt_view=my-staff-certifications`** — list with traffic-light expiry pill (green / amber 90d / red 30d / grey expired) + add form. Document URL field is optional and external — the plugin doesn't host the file.
+- **`?tt_view=staff-overview`** — HoD / academy-admin roll-up. Three cards: open staff goals, top-down reviews overdue (>365 days), certifications expiring in 90 days. Gated on `tt_view_staff_certifications_expiry`.
+
+## Workflow templates
+
+Four templates register with the engine on module boot via the shared `TaskTemplateRegistry`:
+
+1. **`staff_annual_self_eval`** — Sept 1 at 00:00 (`0 0 1 9 *`). 30-day deadline. Assignee resolves to the staff member's WP user id via `tt_people.wp_user_id`.
+2. **`staff_top_down_review`** — same Sept 1 cron. Assigned to `tt_head_dev` via `RoleBasedResolver`. 60-day deadline.
+3. **`staff_certification_expiring`** — daily 06:00 cron. Engine-side dedup prevents the same `(certification_id, threshold)` firing twice. Assignee resolves from `extras.certification_id` → `tt_staff_certifications.person_id` → WP user id.
+4. **`staff_pdp_season_review`** — event-driven (`type: 'manual'`) on `tt_pdp_season_set_current` from #0044's PDP cycle module. Fans out one task per non-archived staff member.
+
+All four use a shared `StaffStubForm` placeholder — completing the task takes the user to the relevant tile, where they fill in the data through the regular UI. Dedicated task forms can be added in a follow-up PR if usage signal warrants the extra surface (mirrors how PdpStubForm got incrementally upgraded).
+
+## Frontend dispatch
+
+`DashboardShortcode` gets a new `$staff_dev_slugs` array + `dispatchStaffDevelopmentView()` method. The five tile slugs route to their respective `FrontendMyStaff*View` / `FrontendStaffOverviewView` classes.
+
+## Translations + docs
+
+~50 new NL msgstrs. New `docs/staff-development.md` + `docs/nl_NL/staff-development.md` (audience marker `<!-- audience: user -->`). The doc explains the new tile group, the Mentor functional role, the four workflow templates, the capability matrix, and the REST surface.
+
+## Module registration
+
+`StaffDevelopmentModule.php` implements `ModuleInterface`. Registered in `config/modules.php` between Trials and Wizards. Tile registrations live in `CoreSurfaceRegistration::registerFrontendTiles()` via the `M_STAFF_DEV` constant.
+
+## Acceptance criteria (manually verified)
+
+- [ ] Migration `0048_staff_development.php` creates all six new tables + `tt_eval_categories.is_staff_tree` on a fresh install. Idempotent on re-run.
+- [ ] `cert_type` lookup seeded with the six standard certifications.
+- [ ] Staff eval-category tree seeded with five mains, `is_staff_tree=1`.
+- [ ] Mentor functional role available in `tt_functional_roles`.
+- [ ] Three new caps install on plugin boot via `StaffDevelopmentModule::ensureCapabilities`.
+- [ ] REST endpoints exist and are gated by capabilities.
+- [ ] "Staff development" tile group renders for users with `tt_view_staff_development`.
+- [ ] Each "My" surface renders at 360px width with no horizontal scroll, no hover-only interactions.
+- [ ] PDP form upserts by `(person_id, season_id)`.
+- [ ] Goal form supports the optional `cert_type_lookup_id` link.
+- [ ] Evaluation form gates `review_kind` by who's looking.
+- [ ] Certification list shows colour pills based on `expires_on`.
+- [ ] HoD overview surface shows three roll-up cards.
+- [ ] Four workflow templates register on boot.
+- [ ] CI green.
 
 ---
 

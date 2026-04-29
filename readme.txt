@@ -4,13 +4,28 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.59.0
+Stable tag: 3.60.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.60.0 — Staff development module (#0039) =
+
+A new tile group for the people who coach the players. Mirrors the player module's primitives (goals, evaluations, PDP) applied to `tt_people` rows, plus a certifications register that has no player-side equivalent.
+
+* **NEW:** Six new tables under migration 0048 (`tt_staff_goals`, `tt_staff_evaluations`, `tt_staff_eval_ratings`, `tt_staff_certifications`, `tt_staff_pdp`, `tt_staff_mentorships`) plus an `is_staff_tree` flag on `tt_eval_categories`. All tenancy-ready (`club_id`); `tt_staff_pdp` is the root entity and gets a `uuid`.
+* **NEW:** `cert_type` lookup seeded with six standard certifications (UEFA-A/B/C, first aid, GDPR, child safeguarding). Per-club editable.
+* **NEW:** Staff eval-category tree seeded with five mains (Coaching craft / Communication / Methodology fluency / Mentorship / Reliability). Reuses the existing eval-category tree UI behind the new `is_staff_tree` flag.
+* **NEW:** Mentor functional role added to `tt_functional_roles`. Mentor → mentee pairs live in the new `tt_staff_mentorships` pivot.
+* **NEW:** Three capabilities — `tt_view_staff_development`, `tt_manage_staff_development`, `tt_view_staff_certifications_expiry`. Granted to the matching personas via the standard role-cap install.
+* **NEW:** Five frontend views — `My PDP`, `My staff goals`, `My staff evaluations`, `My certifications`, `Staff overview` (HoD-only roll-up). Each gated by capability; staff members see their own data, managers see anyone.
+* **NEW:** REST surface under `talenttrack/v1/staff/...` with the same shape as the PHP views — list/post/put/delete per resource plus a `staff/expiring-certifications` roll-up. All endpoints use `permission_callback` against the capability layer.
+* **NEW:** Four workflow templates — annual self-evaluation (Sept 1 cron, 30-day deadline), top-down review (Sept 1 cron, head-of-development assignee, 60-day deadline), certification-expiring (daily 06:00, fires at 90/60/30/0-day thresholds with engine-side dedup), PDP season review (event-driven on `tt_pdp_season_set_current`). All four use a shared `StaffStubForm` placeholder for v1.
+* **NEW DOCS:** `docs/staff-development.md` (EN + NL).
+* **TRANSLATIONS:** ~50 new NL strings.
 
 = 3.59.0 — #0061 polish + bug bundle (round 1) =
 
