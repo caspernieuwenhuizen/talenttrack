@@ -1,3 +1,32 @@
+# TalentTrack v3.57.0 — Mobile-first activities pilot (#0056 Sprint D)
+
+Closes the deferred slice of the mobile-first cleanup epic. The Activities surface is the first frontend view authored under the mobile-first rule; the migration recipe is now documented so the remaining desktop-first sheets can be retired one view per release.
+
+## What's new
+
+- **`assets/css/frontend-activities-manage.css`** — brand-new partial that owns the responsive layout for the activity form + attendance table. Authored mobile-first per `CLAUDE.md` § 2. Base CSS targets 360px-wide phones (single-column form, attendance table reflows into stacked cards with `data-label` legends); `@media (min-width: 768px)` switches the attendance editor back to a real `display: table` row layout; `@media (min-width: 1024px)` tightens cell padding for desktop.
+- **`FrontendActivitiesManageView::enqueueAssets()`** — overrides the parent to enqueue the new partial after `parent::enqueueAssets()`. Dependency `[ 'tt-frontend-mobile' ]` keeps source order stable. Idempotent across the request via a private static flag.
+- **`docs/architecture-mobile-first.md`** + **`docs/nl_NL/architecture-mobile-first.md`** — explains the authoring rule, why mobile-first beats `max-width` for compositional reasons, and the four-step recipe for migrating the next view.
+
+## What changed
+
+- **`assets/css/frontend-admin.css`** — removed the `@media (max-width: 639px)` block for `.tt-attendance-table` plus the `.is-mobile-hidden` / `.tt-attendance-show-all` helpers. Replaced with a one-line comment pointing at the new sheet. Net visual outcome unchanged; source order corrected.
+- **`CLAUDE.md` § 2 tightening** (3 lines):
+  - Legacy-stylesheet migration is now anchored to #0056 cadence: "one view per release until SEQUENCE.md shows zero legacy desktop-first sheets". Pilot called out by name.
+  - The `inputmode` rule promoted from "fix as you touch" to "treat missing `inputmode` on a numeric / tel input as a bug".
+  - The `.tt-form-row input` font-size note replaced with a closure note (legacy class was bumped to 16px in v3.50.0).
+
+## Acceptance criteria (manually verified)
+
+- [ ] At 360px viewport, the attendance editor renders as stacked cards with `data-label` legends; tap targets ≥ 48px.
+- [ ] At 768px+, the attendance editor renders as a `display: table` row layout with header row visible.
+- [ ] At 1024px+, cell padding tightens.
+- [ ] Activity-create form's two-column layout (`.tt-grid-2`) collapses to single column < 768px and to two columns at 768px+.
+- [ ] Removing `frontend-activities-manage.css` would not break the desktop view (smaller viewports inherit base stacked layout).
+- [ ] CI green.
+
+---
+
 # TalentTrack v3.56.0 — Excel-driven demo data finished (#0059)
 
 Closes the #0059 deferrals from v3.53.0. The demo-data generator now ships three sources unified under one form: **Procedural only** (existing flow), **Excel upload** (workbook is the source of truth), and **Hybrid: upload + procedural top-up** (Excel wins; procedural fills empty sheets).

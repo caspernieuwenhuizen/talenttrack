@@ -38,6 +38,23 @@ use TT\Shared\Frontend\Components\TeamPickerComponent;
  */
 class FrontendActivitiesManageView extends FrontendViewBase {
 
+    private static bool $activities_css_enqueued = false;
+
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        if ( self::$activities_css_enqueued ) return;
+        // #0056 Sprint D — pilot mobile-first stylesheet for the
+        // activities surface. Owns the responsive treatment of the
+        // attendance table (was a max-width block in frontend-admin.css).
+        wp_enqueue_style(
+            'tt-frontend-activities-manage',
+            TT_PLUGIN_URL . 'assets/css/frontend-activities-manage.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
+        self::$activities_css_enqueued = true;
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
 

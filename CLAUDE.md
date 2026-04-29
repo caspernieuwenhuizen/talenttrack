@@ -90,8 +90,11 @@ follow the rules below.
   queries to scale UP. Never start desktop and patch downward.
   - **Note:** the legacy stylesheets (`public.css`, `frontend-admin.css`,
     `frontend-mobile.css`) were authored desktop-first. Don't extend that
-    pattern — new components are mobile-first. Migrate legacy rules
-    opportunistically when touching them.
+    pattern — new components are mobile-first. **Tracked in #0056.** New
+    components are mobile-first; legacy migrations happen one view per
+    release until SEQUENCE.md shows zero legacy desktop-first sheets. The
+    pilot rewrite is `assets/css/frontend-activities-manage.css` — see
+    `docs/architecture-mobile-first.md` for the migration recipe.
 - Breakpoints: 480px (large phone), 768px (tablet), 1024px (desktop). Don't
   invent new ones without justification.
 - Never rely on hover for critical actions — hover does not exist on touch.
@@ -111,13 +114,15 @@ follow the rules below.
 - Inputs must use the correct `type` AND `inputmode` so mobile keyboards are
   right: `type="email"` + `inputmode="email"`, `type="tel"`,
   `inputmode="numeric"` (jersey numbers, age), `inputmode="decimal"` (height,
-  weight, ratings), `autocomplete="..."`. The codebase currently has zero
-  `inputmode` attributes — fix them as you touch the surrounding code.
+  weight, ratings), `autocomplete="..."`. **Enforced via the v3.50.0
+  `inputmode` retrofit** (#0056) — all new `<input type="number|tel">`
+  elements MUST include `inputmode`. Treat missing `inputmode` on a numeric
+  / tel input as a bug; fix as you touch the surrounding code.
 - Never disable zoom (`maximum-scale=1` / `user-scalable=no`) — accessibility
   violation.
-- Set font-size ≥ 16px on inputs to prevent iOS auto-zoom on focus. The new
-  `.tt-input` / `.tt-field` system already does this; the legacy
-  `.tt-form-row input` does not — bump it when you touch it.
+- Set font-size ≥ 16px on inputs to prevent iOS auto-zoom on focus. Both
+  the modern `.tt-input` / `.tt-field` system and the legacy `.tt-form-row`
+  inputs honour this rule (the legacy bump landed in v3.50.0 #0056).
 - Use `:focus-visible` for keyboard focus rings; do not remove focus outlines.
 
 ### Gestures & interaction

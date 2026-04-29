@@ -1,0 +1,158 @@
+/*
+ * frontend-activities-manage.css — pilot mobile-first stylesheet (#0056).
+ *
+ * Owns the responsive layout for the Activities surface (list + form +
+ * attendance table). Replaces the previous activity-specific rules in
+ * frontend-admin.css (lines ~543-579, the .tt-attendance-table @media
+ * (max-width: 639px) block + the is-mobile-hidden / show-all helpers).
+ *
+ * Authoring rule (CLAUDE.md § 2): mobile-first. Base = 360px viewport;
+ * breakpoints scale UP via `min-width`. No `max-width` queries here.
+ *
+ * Class contract — these classes are owned by FrontendActivitiesManageView
+ * and the attendance.js hydrator. Other views must not depend on them
+ * for layout.
+ *
+ *   .tt-activity-form                 — top-level form wrapper
+ *   .tt-attendance-table              — attendance editor table
+ *   .tt-attendance-row                — one row per player
+ *   .tt-attendance-row.is-mobile-hidden — hidden until "Show all" tapped on phone
+ *   .tt-attendance-show-all           — phone-only "show remaining N" link
+ *   .tt-attendance-toolbar            — mark-all + show-all toolbar
+ *   .tt-attendance-summary            — "12 of 18 present" caption
+ *
+ * Guest-attendance styling (.tt-attendance-row--guest, .tt-guest-badge,
+ * .tt-guest-modal etc.) stays in frontend-admin.css — those rules are
+ * stylistic, not responsive, and apply wherever attendance is shown.
+ */
+
+/* ===== Base (360px+) — single column, generous tap targets ===== */
+
+.tt-dashboard .tt-activity-form .tt-grid {
+    /* Stack form pairs vertically on phones. */
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.tt-dashboard .tt-attendance-table {
+    width: 100%;
+}
+
+.tt-dashboard .tt-attendance-row.is-mobile-hidden {
+    display: none;
+}
+
+.tt-dashboard .tt-attendance-show-all {
+    text-align: center;
+    margin: 12px 0 0;
+}
+
+/* Phone: stack the table — thead hidden, each <tr> renders as a card,
+ * each <td> uses its data-label as a left-side legend.  This is the
+ * canonical "list-table reflow" pattern from frontend-admin.css, just
+ * authored mobile-first instead of inside a max-width query. */
+
+.tt-dashboard .tt-attendance-table thead {
+    display: none;
+}
+
+.tt-dashboard .tt-attendance-table,
+.tt-dashboard .tt-attendance-table tbody,
+.tt-dashboard .tt-attendance-table tr,
+.tt-dashboard .tt-attendance-table td {
+    display: block;
+    width: 100%;
+}
+
+.tt-dashboard .tt-attendance-table tr {
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-r-md);
+    background: #fff;
+    margin-bottom: 12px;
+    padding: 12px;
+}
+
+.tt-dashboard .tt-attendance-table td {
+    border-bottom: none;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;          /* CLAUDE.md § 2 — 48px tap-target floor */
+}
+
+.tt-dashboard .tt-attendance-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: var(--tt-fs-xs, 12px);
+    color: var(--tt-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex: 0 0 80px;
+}
+
+.tt-dashboard .tt-attendance-toolbar {
+    padding: 12px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tt-dashboard .tt-attendance-summary {
+    text-align: left;
+    padding: 0;
+}
+
+/* ===== Large phone landscape (480px+) ===== */
+
+@media (min-width: 480px) {
+    .tt-dashboard .tt-attendance-table tr {
+        padding: 14px;
+    }
+}
+
+/* ===== Tablet (768px+) — switch attendance to a real row table ===== */
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-activity-form .tt-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .tt-dashboard .tt-attendance-table thead {
+        display: table-header-group;
+    }
+    .tt-dashboard .tt-attendance-table {
+        display: table;
+    }
+    .tt-dashboard .tt-attendance-table tbody {
+        display: table-row-group;
+    }
+    .tt-dashboard .tt-attendance-table tr {
+        display: table-row;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        margin: 0;
+        padding: 0;
+        border-bottom: 1px solid var(--tt-line);
+    }
+    .tt-dashboard .tt-attendance-table td {
+        display: table-cell;
+        padding: 8px 12px;
+        min-height: 0;
+    }
+    .tt-dashboard .tt-attendance-table td::before {
+        content: none;
+    }
+    .tt-dashboard .tt-attendance-toolbar {
+        padding: 12px 0;
+    }
+}
+
+/* ===== Desktop (1024px+) — tighten cell padding ===== */
+
+@media (min-width: 1024px) {
+    .tt-dashboard .tt-attendance-table td {
+        padding: 6px 12px;
+    }
+}

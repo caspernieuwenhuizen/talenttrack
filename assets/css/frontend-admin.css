@@ -540,43 +540,10 @@
     text-align: right;
     padding-right: var(--tt-sp-3);
 }
-.tt-dashboard .tt-attendance-table { width: 100%; }
-.tt-dashboard .tt-attendance-row.is-mobile-hidden { display: none; }
-.tt-dashboard .tt-attendance-show-all { text-align: center; margin: var(--tt-sp-3) 0 0; }
-
-@media (max-width: 639px) {
-    /* Stack the attendance table like the list-table reflow. */
-    .tt-dashboard .tt-attendance-table thead { display: none; }
-    .tt-dashboard .tt-attendance-table,
-    .tt-dashboard .tt-attendance-table tbody,
-    .tt-dashboard .tt-attendance-table tr,
-    .tt-dashboard .tt-attendance-table td { display: block; width: 100%; }
-    .tt-dashboard .tt-attendance-table tr {
-        border: 1px solid var(--tt-line);
-        border-radius: var(--tt-r-md);
-        background: #fff;
-        margin-bottom: var(--tt-sp-3);
-        padding: var(--tt-sp-3);
-    }
-    .tt-dashboard .tt-attendance-table td {
-        border-bottom: none;
-        padding: 4px 0;
-        display: flex;
-        align-items: center;
-        gap: var(--tt-sp-3);
-    }
-    .tt-dashboard .tt-attendance-table td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        font-size: var(--tt-fs-xs);
-        color: var(--tt-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        flex: 0 0 80px;
-    }
-    .tt-dashboard .tt-attendance-toolbar { padding: var(--tt-sp-3) 0; }
-    .tt-dashboard .tt-attendance-summary { text-align: left; padding: 0; }
-}
+/* Activity attendance-table styles moved to assets/css/frontend-activities-manage.css
+ * (#0056 Sprint D — mobile-first pilot rewrite). The new sheet is
+ * enqueued by FrontendActivitiesManageView and owns the attendance
+ * surface end-to-end. */
 
 .tt-dashboard .tt-form-actions {
     display: flex; gap: var(--tt-sp-3); align-items: center;
