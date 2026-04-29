@@ -1,0 +1,628 @@
+openapi: 3.1.0
+info:
+  title: TalentTrack REST API
+  version: '1.0.0'
+  description: |
+    Hand-maintained OpenAPI 3.1 contract for TalentTrack `/wp-json/talenttrack/v1`.
+
+    The plugin's REST surface is the contract a non-WordPress front end consumes.
+    Server-rendered HTML inside the plugin is one consumer; SaaS clients are
+    another. If this document and `docs/rest-api.md` disagree, treat this as
+    authoritative and open an issue.
+
+    Capabilities are checked in every endpoint's `permission_callback`. The cap
+    name appears in the endpoint description below; the WP user must have it
+    or the endpoint returns 401/403 via `permission_callback`'s standard
+    response shape.
+
+    Pagination uses standard WP REST headers — `X-WP-Total` and
+    `X-WP-TotalPages` — on endpoints that support it.
+
+    See `docs/rest-api.md` for the human-readable narrative and
+    `bin/contract-test.php` for the validation script.
+servers:
+  - url: '{base}/wp-json/talenttrack/v1'
+    description: TalentTrack v1 namespace.
+    variables:
+      base:
+        default: 'https://example.test'
+        description: Base URL of the WordPress install.
+security:
+  - WPNonce: []
+  - ApplicationPassword: []
+tags:
+  - name: players
+  - name: teams
+  - name: people
+  - name: activities
+  - name: evaluations
+  - name: goals
+  - name: pdp
+  - name: trials
+  - name: journey
+  - name: status
+  - name: lookups
+  - name: audit-log
+  - name: invitations
+  - name: threads
+  - name: personas
+  - name: docs
+  - name: config
+
+components:
+  securitySchemes:
+    WPNonce:
+      type: apiKey
+      in: header
+      name: X-WP-Nonce
+      description: |
+        Standard WordPress REST nonce. Required for browser clients on every
+        write request.
+    ApplicationPassword:
+      type: http
+      scheme: basic
+      description: |
+        WordPress application password (Basic auth). Used by integrations and
+        scripts that don't have a session cookie.
+
+  schemas:
+    Envelope:
+      type: object
+      description: |
+        TalentTrack standard REST envelope. Every response body matches this
+        shape — see `RestResponse` in `src/Infrastructure/REST/RestResponse.php`.
+      properties:
+        success:
+          type: boolean
+        data:
+          description: Response payload. `null` on error.
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+      required: [success, data, errors]
+
+    Error:
+      type: object
+      properties:
+        code: { type: string, description: 'snake_case error code; consumers key UI off this' }
+        message: { type: string }
+        details: { type: object, additionalProperties: true }
+      required: [code, message]
+
+    Player:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        first_name: { type: string }
+        last_name: { type: string }
+        date_of_birth: { type: string, format: date, nullable: true }
+        nationality: { type: string }
+        height_cm: { type: integer, nullable: true }
+        weight_kg: { type: integer, nullable: true }
+        preferred_foot: { type: string }
+        preferred_positions: { type: string }
+        jersey_number: { type: integer, nullable: true }
+        team_id: { type: integer }
+        date_joined: { type: string, format: date, nullable: true }
+        photo_url: { type: string, format: uri }
+        guardian_name: { type: string }
+        guardian_email: { type: string, format: email }
+        guardian_phone: { type: string }
+        wp_user_id: { type: integer }
+        status: { type: string, enum: [active, archived, trial] }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    Team:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        age_group: { type: string }
+        head_coach_id: { type: integer, nullable: true }
+        season_id: { type: integer, nullable: true }
+        notes: { type: string }
+        created_at: { type: string, format: date-time }
+
+    Activity:
+      type: object
+      description: 'Renamed from "session" in #0035 (post v3.24.0).'
+      properties:
+        id: { type: integer, format: int64 }
+        title: { type: string }
+        session_date: { type: string, format: date }
+        location: { type: string }
+        team_id: { type: integer }
+        coach_id: { type: integer }
+        notes: { type: string }
+        type: { type: string }
+        subtype: { type: string }
+        status: { type: string }
+
+    Evaluation:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        player_id: { type: integer }
+        coach_id: { type: integer }
+        eval_type_id: { type: integer }
+        eval_date: { type: string, format: date }
+        notes: { type: string }
+        opponent: { type: string }
+        competition: { type: string }
+        match_result: { type: string }
+        created_at: { type: string, format: date-time }
+
+    Goal:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        player_id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        status: { type: string }
+        priority: { type: string }
+        due_date: { type: string, format: date, nullable: true }
+        created_by: { type: integer }
+        created_at: { type: string, format: date-time }
+
+    Lookup:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        description: { type: string }
+        meta:
+          oneOf:
+            - { type: string }
+            - { type: object, additionalProperties: true }
+        sort_order: { type: integer }
+
+    LookupType:
+      type: object
+      properties:
+        type: { type: string }
+        count: { type: integer }
+
+    AuditLogEntry:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        user_id: { type: integer }
+        action: { type: string }
+        entity_type: { type: string }
+        entity_id: { type: integer }
+        payload:
+          oneOf:
+            - { type: string }
+            - { type: object, additionalProperties: true }
+        ip_address: { type: string }
+        created_at: { type: string, format: date-time }
+
+    Invitation:
+      type: object
+      properties:
+        id: { type: integer }
+        kind: { type: string, enum: [player, parent, staff, scout] }
+        status: { type: string, enum: [pending, accepted, revoked, expired] }
+        email: { type: string, format: email }
+        player_id: { type: integer }
+        person_id: { type: integer }
+        created_by: { type: integer }
+        created_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+
+    InvitationPublic:
+      type: object
+      description: 'Reduced public-facing payload for token reads (no internal ids).'
+      properties:
+        kind: { type: string }
+        status: { type: string }
+        expires_at: { type: string, format: date-time }
+        is_pending: { type: boolean }
+
+    ThreadMessage:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        thread_type: { type: string }
+        thread_id: { type: integer }
+        author_user_id: { type: integer }
+        author_name: { type: string }
+        body: { type: string }
+        visibility: { type: string, enum: [public, private_to_coach] }
+        is_system: { type: boolean }
+        created_at: { type: string, format: date-time }
+        edited_at: { type: string, format: date-time, nullable: true }
+        deleted_at: { type: string, format: date-time, nullable: true }
+
+    PersonaTemplate:
+      type: object
+      properties:
+        version: { type: integer }
+        persona_slug: { type: string }
+        club_id: { type: integer }
+        status: { type: string, enum: [draft, published] }
+        hero: { type: object, nullable: true }
+        task: { type: object, nullable: true }
+        grid:
+          type: array
+          items:
+            type: object
+
+paths:
+
+  /players:
+    get:
+      tags: [players]
+      summary: List players
+      description: 'Cap required: `tt_view_players`.'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } } }
+    post:
+      tags: [players]
+      summary: Create player
+      description: 'Cap required: `tt_edit_players` (or `tt_manage_players`).'
+      responses:
+        '201': { description: Created }
+
+  /players/{id}:
+    get:
+      tags: [players]
+      summary: Get player
+      description: 'Cap required: `tt_view_players`.'
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+    put:
+      tags: [players]
+      summary: Update player
+      description: 'Cap required: `tt_edit_players`.'
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+    delete:
+      tags: [players]
+      summary: Delete player
+      description: 'Cap required: `tt_edit_players`.'
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+
+  /players/{id}/timeline:
+    get:
+      tags: [journey]
+      summary: Player journey timeline (chronological events)
+      description: 'Cap required: `tt_view_players` plus event-visibility caps for medical / safeguarding rows.'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK } }
+
+  /players/{id}/status:
+    get:
+      tags: [status]
+      summary: Player status (#0057 traffic light)
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK } }
+
+  /players/{id}/behaviour-ratings:
+    get: { tags: [status], summary: Behaviour rating history, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    post: { tags: [status], summary: Record behaviour rating, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '201': { description: Created } } }
+
+  /players/{id}/potential:
+    get: { tags: [status], summary: Potential history, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    post: { tags: [status], summary: Record potential band, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '201': { description: Created } } }
+
+  /players/import:
+    post:
+      tags: [players]
+      summary: Bulk-import players via CSV
+      description: 'Cap required: `tt_edit_players`.'
+      responses: { '200': { description: OK } }
+
+  /teams:
+    get: { tags: [teams], summary: List teams, responses: { '200': { description: OK } } }
+    post: { tags: [teams], summary: Create team, responses: { '201': { description: Created } } }
+
+  /teams/{id}:
+    get: { tags: [teams], summary: Get team, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    put: { tags: [teams], summary: Update team, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    delete: { tags: [teams], summary: Delete team, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /teams/{id}/chemistry:
+    get: { tags: [teams], summary: Team chemistry pairings, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /teams/{id}/formation:
+    get: { tags: [teams], summary: Team formation board, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /people:
+    get: { tags: [people], summary: List people (staff), responses: { '200': { description: OK } } }
+    post: { tags: [people], summary: Create person, responses: { '201': { description: Created } } }
+
+  /people/{id}:
+    get: { tags: [people], summary: Get person, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    put: { tags: [people], summary: Update person, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    delete: { tags: [people], summary: Delete person, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /functional-roles:
+    get: { tags: [people], summary: List functional roles, responses: { '200': { description: OK } } }
+    post: { tags: [people], summary: Create functional role, responses: { '201': { description: Created } } }
+
+  /functional-roles/{id}:
+    put: { tags: [people], summary: Update functional role, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    delete: { tags: [people], summary: Delete functional role, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /functional-roles/assignments:
+    post: { tags: [people], summary: Assign person to a team in a functional role, responses: { '201': { description: Created } } }
+
+  /activities:
+    get: { tags: [activities], summary: List activities, responses: { '200': { description: OK } } }
+    post: { tags: [activities], summary: Create activity, responses: { '201': { description: Created } } }
+
+  /activities/{id}:
+    get: { tags: [activities], summary: Get activity, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    put: { tags: [activities], summary: Update activity, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    delete: { tags: [activities], summary: Delete activity, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /attendance/{id}:
+    put: { tags: [activities], summary: Set attendance status for one row, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /evaluations:
+    get:
+      tags: [evaluations]
+      summary: List evaluations
+      description: 'Cap required: `tt_view_evaluations` (tightened in #0052 PR-B from bare `is_user_logged_in`).'
+      responses: { '200': { description: OK } }
+    post:
+      tags: [evaluations]
+      summary: Create evaluation
+      description: 'Cap required: `tt_edit_evaluations`.'
+      responses: { '201': { description: Created } }
+
+  /evaluations/{id}:
+    get:
+      tags: [evaluations]
+      summary: Get evaluation
+      description: 'Cap required: `tt_view_evaluations` (tightened in #0052 PR-B from bare `is_user_logged_in`).'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK } }
+    put: { tags: [evaluations], summary: Update evaluation, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    delete: { tags: [evaluations], summary: Delete evaluation, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /eval-categories:
+    get: { tags: [evaluations], summary: List eval categories, responses: { '200': { description: OK } } }
+
+  /goals:
+    get: { tags: [goals], summary: List goals, responses: { '200': { description: OK } } }
+    post: { tags: [goals], summary: Create goal, responses: { '201': { description: Created } } }
+
+  /goals/{id}:
+    get: { tags: [goals], summary: Get goal, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    put: { tags: [goals], summary: Update goal, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    delete: { tags: [goals], summary: Delete goal, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /goals/{id}/status:
+    put: { tags: [goals], summary: Update goal status, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /pdp-conversations/{id}:
+    get: { tags: [pdp], summary: Get PDP conversation, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    put: { tags: [pdp], summary: Update PDP conversation, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /pdp-files:
+    get: { tags: [pdp], summary: List PDP files, responses: { '200': { description: OK } } }
+    post: { tags: [pdp], summary: Create PDP file, responses: { '201': { description: Created } } }
+
+  /pdp-files/{id}:
+    get: { tags: [pdp], summary: Get PDP file, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    put: { tags: [pdp], summary: Update PDP file, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /pdp-files/{id}/verdict:
+    put: { tags: [pdp], summary: Sign off the PDP verdict, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /seasons:
+    get: { tags: [pdp], summary: List seasons, responses: { '200': { description: OK } } }
+
+  /journey/event-types:
+    get: { tags: [journey], summary: Journey event-type catalog, responses: { '200': { description: OK } } }
+
+  /journey/cohort-transitions:
+    get: { tags: [journey], summary: Cohort transitions index, responses: { '200': { description: OK } } }
+
+  /lookups:
+    get:
+      tags: [lookups]
+      summary: List lookup types
+      description: 'Cap required: `tt_view_settings`. New in #0052 PR-B.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Envelope' }
+
+  /lookups/{type}:
+    get:
+      tags: [lookups]
+      summary: List values for a lookup type
+      description: 'Cap required: `tt_view_settings`.'
+      parameters:
+        - { in: path, name: type, required: true, schema: { type: string } }
+      responses: { '200': { description: OK } }
+    post:
+      tags: [lookups]
+      summary: Create a lookup value
+      description: 'Cap required: `tt_edit_settings`.'
+      parameters: [{ in: path, name: type, required: true, schema: { type: string } }]
+      responses: { '201': { description: Created } }
+
+  /lookups/{type}/{id}:
+    put:
+      tags: [lookups]
+      summary: Update a lookup value
+      description: 'Cap required: `tt_edit_settings`.'
+      parameters:
+        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: id, required: true, schema: { type: integer } }
+      responses: { '200': { description: OK } }
+    delete:
+      tags: [lookups]
+      summary: Delete a lookup value
+      description: 'Cap required: `tt_edit_settings`.'
+      parameters:
+        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: id, required: true, schema: { type: integer } }
+      responses: { '200': { description: OK } }
+
+  /audit-log:
+    get:
+      tags: [audit-log]
+      summary: Read paginated audit log
+      description: |
+        Cap required: `tt_view_audit_log`. New in #0052 PR-B.
+        Supports filters `entity_type`, `entity_id`, `user_id`, `action`,
+        `date_from`, `date_to`, `page`, `per_page`.
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-WP-Total:
+              schema: { type: integer }
+              description: Total matching rows.
+            X-WP-TotalPages:
+              schema: { type: integer }
+              description: Total pages at the given `per_page`.
+
+  /invitations:
+    get:
+      tags: [invitations]
+      summary: List invitations
+      description: 'Cap required: `tt_manage_invitations`. New in #0052 PR-B.'
+      responses: { '200': { description: OK } }
+    post:
+      tags: [invitations]
+      summary: Create invitation
+      description: 'Cap required: `tt_manage_invitations`.'
+      responses: { '201': { description: Created } }
+
+  /invitations/{token}:
+    get:
+      tags: [invitations]
+      summary: Read invitation by token (public — token is the auth)
+      parameters: [{ in: path, name: token, required: true, schema: { type: string } }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvitationPublic' }
+
+  /invitations/{token}/accept:
+    post:
+      tags: [invitations]
+      summary: Accept invitation (logged-in user claims it)
+      parameters: [{ in: path, name: token, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /invitations/{id}:
+    delete:
+      tags: [invitations]
+      summary: Revoke invitation
+      description: 'Cap required: invitation creator OR `tt_manage_invitations`.'
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK } }
+
+  /threads/{type}/{id}:
+    get:
+      tags: [threads]
+      summary: List messages and mark thread as read (#0028)
+      parameters:
+        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: id, required: true, schema: { type: integer } }
+      responses: { '200': { description: OK } }
+    post:
+      tags: [threads]
+      summary: Mark thread as read (alternative to GET side-effect)
+      parameters:
+        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: id, required: true, schema: { type: integer } }
+      responses: { '200': { description: OK } }
+
+  /threads/{type}/{id}/messages:
+    post:
+      tags: [threads]
+      summary: Post message to thread
+      parameters:
+        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: id, required: true, schema: { type: integer } }
+      responses: { '201': { description: Created } }
+
+  /threads/{type}/{id}/messages/{msg_id}:
+    put:
+      tags: [threads]
+      summary: Edit message (5-minute window, author-only)
+      parameters:
+        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: id, required: true, schema: { type: integer } }
+        - { in: path, name: msg_id, required: true, schema: { type: integer } }
+      responses: { '200': { description: OK }, '403': { description: Edit window expired } }
+    delete:
+      tags: [threads]
+      summary: Soft-delete message
+      parameters:
+        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: id, required: true, schema: { type: integer } }
+        - { in: path, name: msg_id, required: true, schema: { type: integer } }
+      responses: { '200': { description: OK } }
+
+  /threads/{type}/{id}/read:
+    post:
+      tags: [threads]
+      summary: Explicit read marker
+      parameters:
+        - { in: path, name: type, required: true, schema: { type: string } }
+        - { in: path, name: id, required: true, schema: { type: integer } }
+      responses: { '200': { description: OK } }
+
+  /personas/{slug}/template:
+    get:
+      tags: [personas]
+      summary: Resolve persona dashboard layout (#0060)
+      parameters: [{ in: path, name: slug, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+    put:
+      tags: [personas]
+      summary: Save persona layout draft
+      parameters: [{ in: path, name: slug, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+    delete:
+      tags: [personas]
+      summary: Reset persona to ship default
+      parameters: [{ in: path, name: slug, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /personas/{slug}/template/publish:
+    post:
+      tags: [personas]
+      summary: Publish persona draft
+      parameters: [{ in: path, name: slug, required: true, schema: { type: string } }]
+      responses: { '200': { description: OK } }
+
+  /me/active-persona:
+    post: { tags: [personas], summary: Set active persona lens, responses: { '200': { description: OK } } }
+    delete: { tags: [personas], summary: Clear active persona lens, responses: { '200': { description: OK } } }
+
+  /docs:
+    get: { tags: [docs], summary: List docs index, responses: { '200': { description: OK } } }
+  /docs/{slug}:
+    get: { tags: [docs], summary: Read one doc topic, parameters: [{ in: path, name: slug, required: true, schema: { type: string } }], responses: { '200': { description: OK } } }
+
+  /config:
+    get: { tags: [config], summary: Read config keys, responses: { '200': { description: OK } } }
+    put: { tags: [config], summary: Update config keys, responses: { '200': { description: OK } } }
+
+  /custom-fields:
+    get: { tags: [config], summary: List custom fields, responses: { '200': { description: OK } } }
+    post: { tags: [config], summary: Create custom field, responses: { '201': { description: Created } } }

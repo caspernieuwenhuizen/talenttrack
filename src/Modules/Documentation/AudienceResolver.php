@@ -83,10 +83,12 @@ final class AudienceResolver {
      */
     public static function allowedFor( int $user_id = 0 ): array {
         $user_id = $user_id > 0 ? $user_id : get_current_user_id();
-        $user    = $user_id > 0 ? get_userdata( $user_id ) : null;
         $allowed = [ self::USER ];
 
-        if ( $user && in_array( 'administrator', (array) $user->roles, true ) ) {
+        // Admin docs include the dev audience by exception. The role
+        // check goes through RoleResolver per #0052 PR-B so any future
+        // SaaS auth backend re-implements this in one place.
+        if ( $user_id > 0 && \TT\Infrastructure\Security\RoleResolver::userHasRole( $user_id, 'administrator' ) ) {
             return [ self::USER, self::ADMIN, self::DEV ];
         }
         if ( user_can( $user_id, 'tt_head_dev' ) || user_can( $user_id, 'tt_edit_settings' ) ) {

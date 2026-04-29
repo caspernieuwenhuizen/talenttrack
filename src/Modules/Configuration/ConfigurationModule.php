@@ -5,8 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\REST\AuditLogRestController;
 use TT\Infrastructure\REST\ConfigRestController;
 use TT\Infrastructure\REST\CustomFieldsRestController;
+use TT\Infrastructure\REST\LookupsRestController;
 
 class ConfigurationModule implements ModuleInterface {
     public function getName(): string { return 'configuration'; }
@@ -16,5 +18,11 @@ class ConfigurationModule implements ModuleInterface {
         if ( is_admin() ) Admin\UserProfileExtensions::init();
         ConfigRestController::init();
         CustomFieldsRestController::init();
+        // #0052 PR-B — REST gap closure: lookups + audit-log surfaces
+        // exposed for the future SaaS frontend. PHP-side readers
+        // (QueryHelpers::get_lookups, FrontendAuditLogView) keep
+        // their own query layer.
+        LookupsRestController::init();
+        AuditLogRestController::init();
     }
 }

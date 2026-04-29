@@ -123,7 +123,8 @@ class OnboardingHandlers {
             'status'     => 'active',
         ] );
 
-        if ( $grant_role && $user instanceof \WP_User && ! in_array( 'tt_club_admin', (array) $user->roles, true ) ) {
+        if ( $grant_role && $user instanceof \WP_User
+             && ! \TT\Infrastructure\Security\RoleResolver::userHasRole( (int) $user->ID, 'tt_club_admin' ) ) {
             $user->add_role( 'tt_club_admin' );
         }
 

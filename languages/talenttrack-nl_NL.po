@@ -9834,3 +9834,32 @@ msgstr "Chat-achtige gesprekken op elk spelersdoel — dialoog tussen trainer, s
 
 msgid "%1$s's goal: %2$s"
 msgstr "Doel van %1$s: %2$s"
+
+# #0052 PR-B/PR-C — REST gap closure + auth portability + asset/cron/openapi
+
+msgid "Could not create lookup value."
+msgstr "Lookup-waarde kon niet worden aangemaakt."
+
+msgid "No fields to update."
+msgstr "Geen velden om bij te werken."
+
+msgid "Could not update lookup value."
+msgstr "Lookup-waarde kon niet worden bijgewerkt."
+
+msgid "Could not delete lookup value."
+msgstr "Lookup-waarde kon niet worden verwijderd."
+
+msgid "Could not create invitation."
+msgstr "Uitnodiging kon niet worden aangemaakt."
+
+msgid "Invitation not found."
+msgstr "Uitnodiging niet gevonden."
+
+msgid "Invitation is no longer pending."
+msgstr "Uitnodiging is niet meer in afwachting."
+
+msgid "Could not accept invitation."
+msgstr "Uitnodiging kon niet worden geaccepteerd."
+
+msgid "Could not revoke invitation."
+msgstr "Uitnodiging kon niet worden ingetrokken."

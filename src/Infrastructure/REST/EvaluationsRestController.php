@@ -27,12 +27,16 @@ class EvaluationsRestController {
     }
 
     public static function register(): void {
+        // #0052 PR-B — read endpoints gated on `tt_view_evaluations`
+        // (the existing read cap) instead of bare `is_user_logged_in()`.
+        // Prevents bare-login users from listing evaluations they don't
+        // have visibility on.
         register_rest_route( self::NS, '/evaluations', [
-            [ 'methods' => 'GET',  'callback' => [ __CLASS__, 'list_evals' ],  'permission_callback' => function () { return is_user_logged_in(); } ],
+            [ 'methods' => 'GET',  'callback' => [ __CLASS__, 'list_evals' ],  'permission_callback' => function () { return current_user_can( 'tt_view_evaluations' ); } ],
             [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'create_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
         ]);
         register_rest_route( self::NS, '/evaluations/(?P<id>\d+)', [
-            [ 'methods' => 'GET',    'callback' => [ __CLASS__, 'get_eval' ],    'permission_callback' => function () { return is_user_logged_in(); } ],
+            [ 'methods' => 'GET',    'callback' => [ __CLASS__, 'get_eval' ],    'permission_callback' => function () { return current_user_can( 'tt_view_evaluations' ); } ],
             [ 'methods' => 'PUT',    'callback' => [ __CLASS__, 'update_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
             [ 'methods' => 'DELETE', 'callback' => [ __CLASS__, 'delete_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
         ]);

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\REST\InvitationsRestController;
 use TT\Modules\Invitations\Notifications\InvitationAuditLogger;
 
 /**
@@ -35,6 +36,11 @@ class InvitationsModule implements ModuleInterface {
     public function boot( Container $container ): void {
         add_action( 'init', [ self::class, 'ensureCaps' ] );
         add_action( 'init', [ InvitationAuditLogger::class, 'register' ] );
+
+        // #0052 PR-B — REST surface so the future SaaS frontend can drive
+        // invitation create / accept / revoke without going through the
+        // admin-post handlers below.
+        InvitationsRestController::init();
 
         // Form-post handlers — frontend posts to admin-post.php for a
         // clean redirect after the write.
