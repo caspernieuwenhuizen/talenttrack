@@ -8,9 +8,7 @@ _None._
 
 ## Ready (shaped, decisions locked)
 
-| # | Topic | Type | Spec | Estimated |
-| - | - | - | - | - |
-| 0059 (remainder) | Excel-driven demo data — Teams + Players sheets shipped in v3.53.0; what's left is the **wizard "Source" step restructure** and **hybrid procedural-fill mode** (Excel-uploaded rows + procedural backfill for the rest) | feat | [specs/0059-feat-demo-data-excel-upload.md](specs/0059-feat-demo-data-excel-upload.md) | ~3-5h remaining |
+_None._ Every shaped spec has shipped. Pick from "Not started" below or shape a new idea.
 
 ## Parked (shaped, awaiting trigger)
 
