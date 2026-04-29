@@ -265,18 +265,24 @@ class ActivitiesRestController {
         $count  = (int) ( $row->attendance_count ?? 0 );
         if ( $roster > 0 ) $attendance_pct = (int) round( ( $count / $roster ) * 100 );
 
+        $type_key = (string) ( $row->activity_type_key ?? 'training' );
+
         return [
-            'id'               => (int) $row->id,
-            'title'            => (string) $row->title,
-            'session_date'     => (string) $row->session_date,
-            'location'         => (string) ( $row->location ?? '' ),
-            'team_id'          => (int) ( $row->team_id ?? 0 ),
-            'team_name'        => (string) ( $row->team_name ?? '' ),
-            'coach_id'         => (int) ( $row->coach_id ?? 0 ),
-            'attendance_count' => $count,
-            'roster_size'      => $roster,
-            'attendance_pct'   => $attendance_pct,
-            'archived_at'      => $row->archived_at ?? null,
+            'id'                       => (int) $row->id,
+            'title'                    => (string) $row->title,
+            'session_date'             => (string) $row->session_date,
+            'location'                 => (string) ( $row->location ?? '' ),
+            'team_id'                  => (int) ( $row->team_id ?? 0 ),
+            'team_name'                => (string) ( $row->team_name ?? '' ),
+            'coach_id'                 => (int) ( $row->coach_id ?? 0 ),
+            'activity_type_key'        => $type_key,
+            'activity_type_pill_html'  => \TT\Infrastructure\Query\LookupPill::render( 'activity_type', $type_key ),
+            'activity_status_key'      => (string) ( $row->activity_status_key ?? 'planned' ),
+            'activity_source_key'      => (string) ( $row->activity_source_key ?? 'manual' ),
+            'attendance_count'         => $count,
+            'roster_size'              => $roster,
+            'attendance_pct'           => $attendance_pct,
+            'archived_at'              => $row->archived_at ?? null,
         ];
     }
 
@@ -289,6 +295,9 @@ class ActivitiesRestController {
         $data = self::extract( $r );
         $data['coach_id'] = get_current_user_id();
         $data['club_id']  = CurrentClub::id();
+        // Source defaults to 'manual' on REST creation. Spond import +
+        // demo-data writes set this from their own code paths.
+        $data['activity_source_key'] = 'manual';
 
         if ( $data['title'] === '' || $data['session_date'] === '' ) {
             return RestResponse::error( 'missing_fields', __( 'Title and date are required.', 'talenttrack' ), 400 );
@@ -436,16 +445,21 @@ class ActivitiesRestController {
         $subtype = sanitize_text_field( (string) ( $r['game_subtype_key'] ?? '' ) );
         $other   = sanitize_text_field( (string) ( $r['other_label'] ?? '' ) );
 
+        $status = sanitize_text_field( (string) ( $r['activity_status_key'] ?? '' ) );
+        $valid_statuses = QueryHelpers::get_lookup_names( 'activity_status' );
+        if ( $status === '' || ! in_array( $status, $valid_statuses, true ) ) $status = 'planned';
+
         return [
-            'title'             => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
-            'session_date'      => sanitize_text_field( (string) ( $r['session_date'] ?? '' ) ),
-            'team_id'           => absint( $r['team_id'] ?? 0 ),
-            'coach_id'          => get_current_user_id(),
-            'location'          => sanitize_text_field( (string) ( $r['location'] ?? '' ) ),
-            'notes'             => sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) ),
-            'activity_type_key' => $type,
-            'game_subtype_key'  => $type === 'game' && $subtype !== '' ? $subtype : null,
-            'other_label'       => $type === 'other' && $other !== ''   ? $other   : null,
+            'title'               => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
+            'session_date'        => sanitize_text_field( (string) ( $r['session_date'] ?? '' ) ),
+            'team_id'             => absint( $r['team_id'] ?? 0 ),
+            'coach_id'            => get_current_user_id(),
+            'location'            => sanitize_text_field( (string) ( $r['location'] ?? '' ) ),
+            'notes'               => sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) ),
+            'activity_type_key'   => $type,
+            'activity_status_key' => $status,
+            'game_subtype_key'    => $type === 'game' && $subtype !== '' ? $subtype : null,
+            'other_label'         => $type === 'other' && $other !== ''   ? $other   : null,
         ];
     }
 

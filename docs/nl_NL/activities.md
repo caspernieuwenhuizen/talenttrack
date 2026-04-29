@@ -7,12 +7,15 @@ Een **activiteit** is alles wat in de agenda staat — een training, een wedstri
 ## Een activiteit aanmaken
 
 1. Open de tegel **Activiteiten**.
-2. Kies het **type** uit de keuzelijst. Drie types staan standaard klaar (Training, Wedstrijd, Overig) en je academie kan ze hernoemen of nieuwe toevoegen.
-3. Bij een **wedstrijd**: kies optioneel het subtype (Oefen, Beker, Competitie).
-4. Bij **Overig**: geef het een korte omschrijving.
-5. Kies het team, stel de datum in en voeg eventueel een locatie en notities toe.
-6. Opslaan. De spelerslijst wordt automatisch gevuld vanuit het team.
-7. Markeer iedere speler als Aanwezig, Afwezig, Te laat of Afgemeld. Zet er een notitie bij waar handig.
+2. Kies het **type** uit de keuzelijst. Vijf types staan standaard klaar (Training, Wedstrijd, Toernooi, Bespreking, Overig) en je academie kan ze hernoemen of nieuwe toevoegen.
+3. Kies de **status** — Gepland, Voltooid of Geannuleerd. Nieuwe activiteiten staan standaard op Gepland; zet hem op Voltooid zodra de activiteit is geweest, of op Geannuleerd als hij niet doorging.
+4. Bij een **wedstrijd**: kies optioneel het subtype (Oefen, Beker, Competitie).
+5. Bij **Overig**: geef het een korte omschrijving.
+6. Kies het team, stel de datum in en voeg eventueel een locatie en notities toe.
+7. Opslaan. De spelerslijst wordt automatisch gevuld vanuit het team.
+8. Markeer iedere speler als Aanwezig, Afwezig, Te laat of Afgemeld. Zet er een notitie bij waar handig.
+
+In het overzicht zie je het type als een gekleurde pill, zodat trainingen, wedstrijden, toernooien, besprekingen en overige activiteiten in één oogopslag te onderscheiden zijn.
 
 ## Waarom het type ertoe doet
 
@@ -21,7 +24,14 @@ Elk activiteittype kan gekoppeld worden aan een workflow-sjabloon dat afgaat zod
 - **Wedstrijd** maakt een evaluatietaak per speler in de inbox van de coach.
 - **Training** en **Overig** maken geen automatische taak.
 
-Je beheerder kan via **Configuratie → Activiteittypes** wijzigen welk sjabloon bij welk type hoort, of een nieuw type toevoegen en daar een sjabloon aan koppelen. De drie standaardtypes kunnen niet verwijderd worden omdat de evaluatietaak afhankelijk is van het bestaan van **Wedstrijd**.
+Je beheerder kan via **Configuratie → Activiteittypes** wijzigen welk sjabloon bij welk type hoort, of een nieuw type toevoegen en daar een sjabloon aan koppelen. De standaardtypes kunnen niet verwijderd worden omdat de evaluatietaak afhankelijk is van het bestaan van **Wedstrijd**.
+
+## Status en bron
+
+Naast het type heeft elke activiteit twee extra velden:
+
+- **Status** — waar de activiteit zich in de levenscyclus bevindt. **Gepland** is de standaard bij nieuwe activiteiten; zet hem op **Voltooid** zodra de activiteit is geweest zodat rapportages en KPI's hem als historisch behandelen, of op **Geannuleerd** als hij niet doorging. De lijst statuswaarden is uitbreidbaar via **Configuratie → Lookups** (lookup-type `activity_status`).
+- **Bron** — wie of wat de activiteit heeft aangemaakt. **Handmatig** voor activiteiten die in de app zijn gemaakt, **Gegenereerd** voor activiteiten van de demo-data-generator, en **Spond** voor activiteiten die uit een Spond-agenda zijn gesynchroniseerd (zodra de integratie aanstaat). De bron wordt automatisch gezet, niet handmatig op het formulier. Net als status is de lijst bronnen uitbreidbaar.
 
 De 90-daagse rollup die het Hoofd Opleidingen gebruikt toont één regel per actief type — hernoem of voeg types toe en de rollup volgt automatisch.
 

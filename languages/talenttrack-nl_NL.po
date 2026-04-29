@@ -8982,3 +8982,17 @@ msgstr "Blessure niet gevonden."
 
 msgid "Training sessions and games you've attended."
 msgstr "Trainingen en wedstrijden die je hebt bijgewoond."
+
+# v3.47.0 — activity status + wizard config UX
+
+msgid "Lifecycle of the activity. Defaults to \"Planned\" on create."
+msgstr "Levensfase van de activiteit. Standaard \"Gepland\" bij aanmaken."
+
+msgid "No wizards registered yet."
+msgstr "Nog geen wizards geregistreerd."
+
+msgid "Enable all wizards"
+msgstr "Alle wizards inschakelen"
+
+msgid "Tick the wizards you want surfaced as the entry-point on their respective list views. Unticked wizards fall back to the flat create form."
+msgstr "Vink de wizards aan die je als startpunt wilt tonen op de bijbehorende overzichten. Niet-aangevinkte wizards vallen terug op het standaard aanmaakformulier."

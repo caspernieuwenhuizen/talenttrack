@@ -7,12 +7,15 @@ An **activity** is anything on the calendar — a training, a game, or any other
 ## Creating an activity
 
 1. Open the **Activities** tile.
-2. Pick the **type** from the dropdown. Three types ship by default — Training, Game and Other — and your academy can rename or add new ones.
-3. If you picked **Game**, optionally pick the subtype (Friendly, Cup, League).
-4. If you picked **Other**, give it a short label.
-5. Pick the team, set the date, and optionally add a location and notes.
-6. Save. The player list fills in automatically from the team roster.
-7. Mark each player as Present, Absent, Late or Excused. Add a note next to a row when useful.
+2. Pick the **type** from the dropdown. Five types ship by default — Training, Game, Tournament, Meeting and Other — and your academy can rename or add new ones.
+3. Pick the **status** — Planned, Completed or Cancelled. New activities default to Planned; flip to Completed once the activity has happened, or to Cancelled if it didn't go ahead.
+4. If you picked **Game**, optionally pick the subtype (Friendly, Cup, League).
+5. If you picked **Other**, give it a short label.
+6. Pick the team, set the date, and optionally add a location and notes.
+7. Save. The player list fills in automatically from the team roster.
+8. Mark each player as Present, Absent, Late or Excused. Add a note next to a row when useful.
+
+The activity list shows the type as a colour-coded pill so trainings, games, tournaments, meetings and other activities are easy to scan at a glance.
 
 ## Why the type matters
 
@@ -21,7 +24,14 @@ Each activity type can be linked to a workflow template that fires when you save
 - **Game** spawns a post-game evaluation task per player on the team.
 - **Training** and **Other** don't spawn anything.
 
-Your academy admin can change which template fires for each type — or add a new type and pick its workflow template — under **Configuration → Activity Types**. The seeded three types can't be deleted because the post-game evaluation rule depends on the **Game** type existing.
+Your academy admin can change which template fires for each type — or add a new type and pick its workflow template — under **Configuration → Activity Types**. The seeded types can't be deleted because the post-game evaluation rule depends on the **Game** type existing.
+
+## Status and source
+
+Every activity carries two extra fields beyond the headline type:
+
+- **Status** — where the activity is in its lifecycle. **Planned** is the default for newly-created activities; flip to **Completed** when the activity has happened so reports and KPIs treat it as historical, or to **Cancelled** if it didn't go ahead. Status values are admin-extensible under **Configuration → Lookups** (lookup type `activity_status`).
+- **Source** — who or what created the activity. **Manual** for activities created in the app, **Generated** for ones produced by the demo-data generator, and **Spond** for activities synced from a Spond calendar (when the integration is enabled). Source is set automatically; you don't pick it on the form. Like status, the list of sources is admin-extensible.
 
 The Head of Development's 90-day quarterly rollup also uses these types: it shows one row per type in use, so renaming or adding types reflects there automatically.
 

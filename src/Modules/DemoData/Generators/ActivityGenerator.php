@@ -124,16 +124,18 @@ class ActivityGenerator {
                         : sprintf( $strings['title_template'], $w + 1, $s + 1 );
 
                     $wpdb->insert( "{$wpdb->prefix}tt_activities", [
-                        'club_id'           => CurrentClub::id(),
-                        'title'             => $title,
-                        'session_date'      => gmdate( 'Y-m-d', $when ),
-                        'location'          => $strings['default_location'],
-                        'team_id'           => $team_id,
-                        'coach_id'          => $coach_id,
-                        'notes'             => '',
-                        'activity_type_key' => $type,
-                        'game_subtype_key'  => $subtype,
-                        'other_label'       => null,
+                        'club_id'             => CurrentClub::id(),
+                        'title'               => $title,
+                        'session_date'        => gmdate( 'Y-m-d', $when ),
+                        'location'            => $strings['default_location'],
+                        'team_id'             => $team_id,
+                        'coach_id'            => $coach_id,
+                        'notes'               => '',
+                        'activity_type_key'   => $type,
+                        'activity_status_key' => $when < time() ? 'completed' : 'planned',
+                        'activity_source_key' => 'generated',
+                        'game_subtype_key'    => $subtype,
+                        'other_label'         => null,
                     ] );
                     $activity_id = (int) $wpdb->insert_id;
                     if ( ! $activity_id ) continue;

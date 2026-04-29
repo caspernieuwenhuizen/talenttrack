@@ -56,6 +56,10 @@
         if (col.render === 'percent') return v == null ? '—' : (v + '%');
         if (col.render === 'date')    return v == null ? '—' : escapeHtml(v);
         if (col.render === 'inline_select') return renderInlineSelect(col, row, v);
+        // 'html' — emit a server-rendered HTML fragment verbatim. The
+        // server is responsible for escaping; this mode bypasses the
+        // per-cell escapeHtml() so things like coloured pills render.
+        if (col.render === 'html') return v == null ? '' : String(v);
         return escapeHtml(v == null ? '' : v);
     }
 
