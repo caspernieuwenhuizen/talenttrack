@@ -10510,3 +10510,112 @@ msgstr "Het concept kon niet worden opgeslagen."
 
 msgid "The activity is missing required fields."
 msgstr "Verplichte velden ontbreken."
+
+# v3.62.0 — Me-group rework (#0061 round 3)
+
+msgid "Back to My activities"
+msgstr "Terug naar Mijn activiteiten"
+
+msgid "No activity selected."
+msgstr "Geen activiteit geselecteerd."
+
+msgid "Activity not found."
+msgstr "Activiteit niet gevonden."
+
+msgid "You do not have access to this activity."
+msgstr "Je hebt geen toegang tot deze activiteit."
+
+msgid "My attendance"
+msgstr "Mijn aanwezigheid"
+
+msgid "Capacity"
+msgstr "Hoedanigheid"
+
+msgid "Note from coach (about you)"
+msgstr "Notitie van de coach (over jou)"
+
+msgid "No goal selected."
+msgstr "Geen doel geselecteerd."
+
+msgid "You do not have access to this goal."
+msgstr "Je hebt geen toegang tot dit doel."
+
+msgid "Back to My goals"
+msgstr "Terug naar Mijn doelen"
+
+msgid "Priority: %s"
+msgstr "Prioriteit: %s"
+
+msgid "Open goal &amp; start the conversation"
+msgstr "Doel openen &amp; gesprek starten"
+
+msgid "Open conversation (%d message)"
+msgid_plural "Open conversation (%d messages)"
+msgstr[0] "Open gesprek (%d bericht)"
+msgstr[1] "Open gesprek (%d berichten)"
+
+msgid "rank shows after the first evaluation"
+msgstr "rang verschijnt na je eerste evaluatie"
+
+msgid "Not yet rated"
+msgstr "Nog niet beoordeeld"
+
+msgid "of %d on the team"
+msgstr "van %d in het team"
+
+msgid "#%d"
+msgstr "#%d"
+
+msgid "My settings"
+msgstr "Mijn instellingen"
+
+msgid "You need to be logged in to manage your settings."
+msgstr "Je moet ingelogd zijn om je instellingen te beheren."
+
+msgid "Could not load your account."
+msgstr "Kon je account niet laden."
+
+msgid "How your name appears to coaches and teammates."
+msgstr "Hoe je naam getoond wordt aan coaches en teamgenoten."
+
+msgid "Save profile"
+msgstr "Profiel opslaan"
+
+msgid "Change password"
+msgstr "Wachtwoord wijzigen"
+
+msgid "Current password"
+msgstr "Huidig wachtwoord"
+
+msgid "New password"
+msgstr "Nieuw wachtwoord"
+
+msgid "Confirm new password"
+msgstr "Nieuw wachtwoord bevestigen"
+
+msgid "At least 8 characters. Saving will end any other active sessions."
+msgstr "Minimaal 8 tekens. Opslaan beëindigt alle andere actieve sessies."
+
+msgid "Security check failed. Reload and try again."
+msgstr "Beveiligingscontrole mislukt. Herlaad en probeer opnieuw."
+
+msgid "Please enter a valid email address."
+msgstr "Vul een geldig e-mailadres in."
+
+msgid "Profile saved."
+msgstr "Profiel opgeslagen."
+
+msgid "Please fill in both your current and new password."
+msgstr "Vul je huidige en je nieuwe wachtwoord beide in."
+
+msgid "New password must be at least 8 characters."
+msgstr "Het nieuwe wachtwoord moet minimaal 8 tekens hebben."
+
+msgid "New password and confirmation do not match."
+msgstr "Het nieuwe wachtwoord en de bevestiging komen niet overeen."
+
+msgid "Current password is incorrect."
+msgstr "Het huidige wachtwoord klopt niet."
+
+msgid "Password changed. Other devices have been logged out."
+msgstr "Wachtwoord gewijzigd. Andere apparaten zijn uitgelogd."

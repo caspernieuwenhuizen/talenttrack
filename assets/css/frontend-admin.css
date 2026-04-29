@@ -610,6 +610,71 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
     font-family: inherit;
 }
 
+/* ===== #0061 round 3 — Hostile-theme isolation =====
+ *
+ * Active themes vary wildly. The .tt-dashboard namespace shields most
+ * TT styles, but a handful of properties cascade through the namespace
+ * boundary because they're inherited (line-height, letter-spacing,
+ * text-transform), or because hostile themes set them at body / global
+ * scope with high specificity. Lock them down here so TT surfaces
+ * render predictably even on opinionated themes (mediamaniacs.nl /
+ * jg4it / other client themes). The `body:not(.tt-theme-inherit)`
+ * gating means academies that explicitly opt into theme inheritance
+ * still see their theme's typography. */
+body:not(.tt-theme-inherit) .tt-dashboard,
+body:not(.tt-theme-inherit) .tt-dashboard p,
+body:not(.tt-theme-inherit) .tt-dashboard h1,
+body:not(.tt-theme-inherit) .tt-dashboard h2,
+body:not(.tt-theme-inherit) .tt-dashboard h3,
+body:not(.tt-theme-inherit) .tt-dashboard h4,
+body:not(.tt-theme-inherit) .tt-dashboard h5,
+body:not(.tt-theme-inherit) .tt-dashboard h6,
+body:not(.tt-theme-inherit) .tt-dashboard li,
+body:not(.tt-theme-inherit) .tt-dashboard td,
+body:not(.tt-theme-inherit) .tt-dashboard label,
+body:not(.tt-theme-inherit) .tt-dashboard button,
+body:not(.tt-theme-inherit) .tt-dashboard input,
+body:not(.tt-theme-inherit) .tt-dashboard select,
+body:not(.tt-theme-inherit) .tt-dashboard textarea {
+    line-height: 1.5;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+/* Headings get a tighter line-height for visual rhythm. */
+body:not(.tt-theme-inherit) .tt-dashboard h1,
+body:not(.tt-theme-inherit) .tt-dashboard h2,
+body:not(.tt-theme-inherit) .tt-dashboard h3 {
+    line-height: 1.25;
+}
+
+/* Placeholder visibility — hostile themes sometimes set placeholder
+ * colour to white-on-white or to opacity:0.3 which hides it. */
+.tt-dashboard input::placeholder,
+.tt-dashboard textarea::placeholder {
+    color: var(--tt-muted, #5b6e75);
+    opacity: 1;
+}
+
+/* Ensure dropdowns + popovers float above hostile-theme modals.
+ * Themes commonly use z-index up to ~1000 for sticky headers and
+ * up to ~9000 for cookie banners; 99999 keeps TT chrome on top. */
+.tt-dashboard .tt-psp-results,
+.tt-dashboard .tt-user-menu-dropdown,
+.tt-dashboard .tt-modal,
+.tt-dashboard .tt-confirm-dialog,
+.tt-dashboard .tt-guest-modal {
+    z-index: 99999;
+}
+
+/* Form-row collapse guard — themes with `* { margin: 0 }` or aggressive
+ * `:where(form) > * { margin-bottom: 0 }` resets break .tt-field
+ * spacing. Re-assert with the var so academies can still tune via
+ * Configuration → Theme. */
+body:not(.tt-theme-inherit) .tt-dashboard .tt-field {
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
 /* 
    PlayerSearchPickerComponent — autocomplete picker
    F2 of the post-#0019 feature sprint.
@@ -743,13 +808,16 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
 }
 .tt-dashboard .tt-mye-item {
     display: grid;
-    grid-template-columns: 110px 1fr;
-    gap: 18px;
-    padding: 16px;
+    /* #0061 round 3 — shrink default row from 110px badge to 80px and
+     * tighten gap+padding so each row reads as ~95px tall instead of
+     * ~140px. Disclosure still expands subcategory detail. */
+    grid-template-columns: 80px 1fr;
+    gap: 14px;
+    padding: 12px 14px;
     background: #fff;
     border: 1px solid var(--tt-border, #e5e7ea);
     border-radius: 10px;
-    align-items: start;
+    align-items: center;
 }
 .tt-dashboard .tt-mye-badge-wrap {
     display: flex;
@@ -778,8 +846,15 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin: 0 0 10px;
+    /* Tighter bottom margin so the toggle hugs the pills row. */
+    margin: 0 0 6px;
 }
+/* Match label shrinkage — date stacked above the type/coach line, both
+ * smaller, sits inside the 80px badge column. Keeps all info but
+ * uses the column more efficiently. */
+.tt-dashboard .tt-mye-badge-wrap .tt-mye-meta { font-size: 11px; }
+.tt-dashboard .tt-mye-badge-wrap .tt-mye-date { font-size: 12px; }
+.tt-dashboard .tt-mye-match { margin: 0 0 4px; }
 .tt-dashboard .tt-mye-toggle {
     background: none;
     border: none;

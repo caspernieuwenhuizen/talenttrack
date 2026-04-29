@@ -1,3 +1,42 @@
+# TalentTrack v3.63.0 — Me-group rework + theme isolation (#0061 round 3 companion)
+
+Eight-item player-surface rework that lands alongside v3.62.0's #0061 gap follow-up. The two PRs were authored in parallel; this one focuses on the player-card / journey / team / settings surfaces while v3.62.0 covered the editor polish + Configuration parity.
+
+A nine-item rework of the player-facing dashboard surfaces, plus an explicit theme-isolation pass for installs running under hostile / opinionated WordPress themes. One bundled PR.
+
+## Frontend surface changes
+
+- **My card + My profile merged.** The four developer-facing sections (Playing details, Recent performance, Active goals, Upcoming) fold into My card, composed via a new `FrontendMyProfileView::renderSections()` helper. Hero strip + FIFA card stay at the top; "View full profile" link removed. `?tt_view=profile` still routes to My card so bookmarks keep working.
+- **New My settings surface** at `?tt_view=my-settings`. TT-rendered, never bounces to `wp-admin/profile.php`. Two narrow forms: Profile (name + display name + email) and Change password (current-password confirmed). Saves through `wp_update_user` / `wp_set_password`; re-auths the current session after a password change. The header "Edit profile" dropdown link now points here. Application passwords + colour palettes intentionally out of scope.
+- **My team rework.** Podium first. Below it the user's own card sits with a **#N of M** rank badge — surfacing the viewer's rank without ever exposing other teammates' rankings. New `TeamStatsService::getRankInTeam()` reuses the existing top-N pipeline.
+- **My journey** renders as a true vertical timeline. New `assets/css/frontend-journey.css` partial replaces the inline left-stripe styling with a continuous rail + per-event coloured nodes. Mobile-first.
+- **My evaluations row shrink.** Default badge column drops 110px → 80px, padding tightens. ~30% vertical saving without losing info — disclosure still expands the subcategory detail.
+- **My activities detail surface.** Each row links to `?tt_view=my-activity&attendance_id=N` — a new view showing date / type / status / location / coach / activity notes plus the player's own attendance status and any per-row note. Header renamed from "My sessions" to "My activities".
+- **My goals → conversation entry point.** Each card links to `?tt_view=my-goal&id=N` — a new player-side goal-detail surface that gates ownership, shows the goal header, and embeds `FrontendThreadView` so the player can post comments without going through the coach-side cap-gated route. Comment count on the card.
+
+## Theme-isolation pass
+
+`assets/css/frontend-admin.css` gets a new block under `body:not(.tt-theme-inherit) .tt-dashboard …` that locks down the properties hostile themes most often leak through: line-height + letter-spacing + text-transform on body/headings/buttons/inputs, placeholder colour, z-index baseline 99999 on dropdowns + modals, `.tt-field` margin-bottom asserted against `* { margin: 0 }` resets. Locked behind `body:not(.tt-theme-inherit)` so academies that explicitly opt into theme inheritance still get their theme's typography.
+
+## Documentation
+
+`docs/player-dashboard.md` + Dutch counterpart rewritten to match the new Me-group layout. ~30 new NL translations.
+
+## Acceptance criteria (manually verified)
+
+- [ ] My card renders the FIFA card + hero strip + four folded sections.
+- [ ] `?tt_view=profile` redirects to My card.
+- [ ] My settings opens inline (no wp-admin redirect); password change re-auths the session.
+- [ ] My team shows the podium first + the viewer's #N badge; other teammates' ranks are not visible.
+- [ ] My journey renders as a centered-node vertical timeline.
+- [ ] My evaluations rows render shorter than before.
+- [ ] Clicking a My activities row opens the detail surface.
+- [ ] Clicking a goal card opens the player-side goal detail with the conversation thread.
+- [ ] On a hostile theme TT surfaces render with consistent line-height + dropdown stacking.
+- [ ] CI green.
+
+---
+
 # TalentTrack v3.61.0 — #0061 polish + bug bundle (round 2)
 
 Closes the deferred half of idea #0061: the missing new-activity wizard, the framework piece that makes Cancel preserve in-progress work as a draft, and a logical grouping for the Authorization Matrix rows. No DB migrations.

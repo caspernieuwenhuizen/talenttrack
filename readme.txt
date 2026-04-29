@@ -4,13 +4,27 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.61.0
+Stable tag: 3.63.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.63.0 — Me-group rework + theme isolation (#0061 round 3 companion) =
+
+A nine-item rework of the player-facing dashboard surfaces, plus an explicit theme-isolation pass for installs running under hostile / opinionated WordPress themes.
+
+* **NEW:** "My settings" surface at `?tt_view=my-settings` — TT-rendered profile + change-password forms. Replaces the old "Edit profile" link in the user dropdown that bounced to wp-admin/profile.php. Application passwords + colour palettes intentionally omitted.
+* **CHANGED:** "My profile" tile retired; its four developer-facing sections (Playing details / Recent performance / Active goals / Upcoming) fold into "My card". Hero strip + FIFA card stay at the top. `?tt_view=profile` still routes to My card so bookmarks keep working.
+* **CHANGED:** "My team" — podium first, viewer's own card below with a #N of M rank badge that surfaces the viewer's rank without exposing rankings of other teammates.
+* **CHANGED:** "My journey" rendered as a true vertical timeline (centered nodes on a continuous rail) via the new `assets/css/frontend-journey.css` partial.
+* **CHANGED:** "My evaluations" rows shrunk ~30% by default — same info, less vertical space.
+* **NEW:** "My activity detail" surface at `?tt_view=my-activity&attendance_id=N` — full context for a single attendance row.
+* **NEW:** "My goal detail" surface at `?tt_view=my-goal&id=N` — player-side ownership-gated detail with the conversational thread (#0028) embedded so players can comment on their own goals.
+* **CHANGED:** Theme-isolation block in `frontend-admin.css` — locks line-height, letter-spacing, text-transform, placeholder colour, dropdown z-index against opinionated themes (gated on `body:not(.tt-theme-inherit)` so the inherit toggle still works).
+* **DOCS:** `docs/player-dashboard.md` (EN + NL) rewritten to match the new layout. ~30 new NL strings.
 
 = 3.61.0 — #0061 polish + bug bundle (round 2) =
 

@@ -100,6 +100,43 @@ class TeamStatsService {
     }
 
     /**
+     * Resolve a player's rank within their team's rolling-rating order.
+     * Returns null when the player has no team, no evaluations yet, or
+     * isn't on an active roster. Otherwise returns a small array with
+     * the player's 1-based rank and the team's rated-player count —
+     * the My team view uses this for the "you're #N of M" badge
+     * **without** exposing individual rankings of other teammates.
+     *
+     * @return null|array{rank:int,total:int,rolling:float}
+     */
+    public function getRankInTeam( int $player_id, int $rolling_n = 5 ): ?array {
+        if ( $player_id <= 0 ) return null;
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $team_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT team_id FROM {$p}tt_players WHERE id = %d LIMIT 1",
+            $player_id
+        ) );
+        if ( $team_id <= 0 ) return null;
+
+        // Reuse the ranked list. Pass a large N so every rated player
+        // is in the result. The list is already sorted desc-by-rolling.
+        $ranked = $this->getTopPlayersForTeam( $team_id, 999, $rolling_n );
+        if ( empty( $ranked ) ) return null;
+
+        foreach ( $ranked as $i => $row ) {
+            if ( (int) $row['player_id'] === $player_id ) {
+                return [
+                    'rank'    => $i + 1,
+                    'total'   => count( $ranked ),
+                    'rolling' => (float) $row['rolling'],
+                ];
+            }
+        }
+        return null;
+    }
+
+    /**
      * All active teammates of a given player, EXCLUDING the player
      * themselves. Used by the "Mijn team" front-end tab to list
      * teammates without exposing their ratings.

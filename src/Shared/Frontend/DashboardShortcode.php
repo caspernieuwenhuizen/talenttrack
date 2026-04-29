@@ -158,7 +158,7 @@ class DashboardShortcode {
         // same entity (evaluations / sessions / goals).
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
-        $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'my-pdp', 'profile', 'my-journey' ];
+        $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'my-pdp', 'profile', 'my-settings', 'my-journey' ];
         $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'pdp-planning', 'player-status-methodology', 'team-chemistry', 'podium', 'methodology', 'player-journey' ];
         $analytics_slugs = [ 'rate-cards', 'compare' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
@@ -310,7 +310,12 @@ class DashboardShortcode {
                 \TT\Modules\Pdp\Frontend\FrontendMyPdpView::render( $player );
                 break;
             case 'profile':
-                FrontendMyProfileView::render( $player );
+                // Legacy slug — folded into My card in v3.62.0. Redirect
+                // to keep bookmarks alive.
+                FrontendOverviewView::render( $player );
+                break;
+            case 'my-settings':
+                FrontendMySettingsView::render( $player );
                 break;
             case 'my-journey':
                 \TT\Modules\Journey\Frontend\FrontendJourneyView::render( $player );
@@ -649,7 +654,13 @@ class DashboardShortcode {
         $name      = QueryHelpers::get_config( 'academy_name', 'TalentTrack' );
         $user      = wp_get_current_user();
 
-        $profile_url = get_edit_profile_url( (int) $user->ID );
+        // v3.62.0 — frontend-rendered settings instead of bouncing to
+        // wp-admin/profile.php. The TT-internal screen handles only
+        // the fields end users care about (name / email / password).
+        $profile_url = add_query_arg(
+            [ 'tt_view' => 'my-settings' ],
+            self::shortcodeBaseUrl()
+        );
         $logout_url  = LogoutHandler::url();
         $is_wp_admin = current_user_can( 'administrator' );
         $base_url    = self::shortcodeBaseUrl();
@@ -699,7 +710,7 @@ class DashboardShortcode {
         echo '</button>';
         echo '<div class="tt-user-menu-dropdown" role="menu">';
         echo '<a href="' . esc_url( $profile_url ) . '" class="tt-user-menu-item" role="menuitem">';
-        echo esc_html__( 'Edit profile', 'talenttrack' );
+        echo esc_html__( 'My settings', 'talenttrack' );
         echo '</a>';
 
         // #0033 Sprint 4 — persona switcher. Visible only when the user
