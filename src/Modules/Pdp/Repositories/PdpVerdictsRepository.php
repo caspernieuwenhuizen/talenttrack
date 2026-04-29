@@ -47,13 +47,18 @@ class PdpVerdictsRepository {
         if ( ! in_array( $decision, self::ALLOWED_DECISIONS, true ) ) return false;
 
         $payload = [
-            'club_id'            => CurrentClub::id(),
-            'pdp_file_id'        => $file_id,
-            'decision'           => $decision,
-            'summary'            => isset( $data['summary'] ) ? (string) $data['summary'] : null,
-            'coach_id'           => isset( $data['coach_id'] ) ? (int) $data['coach_id'] : null,
-            'head_of_academy_id' => isset( $data['head_of_academy_id'] ) ? (int) $data['head_of_academy_id'] : null,
-            'signed_off_at'      => $data['signed_off_at'] ?? null,
+            'club_id'                   => CurrentClub::id(),
+            'pdp_file_id'               => $file_id,
+            'decision'                  => $decision,
+            'summary'                   => isset( $data['summary'] ) ? (string) $data['summary'] : null,
+            'coach_id'                  => isset( $data['coach_id'] ) ? (int) $data['coach_id'] : null,
+            'head_of_academy_id'        => isset( $data['head_of_academy_id'] ) ? (int) $data['head_of_academy_id'] : null,
+            'signed_off_at'             => $data['signed_off_at'] ?? null,
+            // #0057 Sprint 5 — system status snapshot. NULL on legacy
+            // verdicts; populated when the PDP integration writes them.
+            'system_recommended_status' => isset( $data['system_recommended_status'] ) ? (string) $data['system_recommended_status'] : null,
+            'methodology_version_id'    => isset( $data['methodology_version_id'] )    ? (string) $data['methodology_version_id']    : null,
+            'divergence_notes'          => isset( $data['divergence_notes'] )          ? (string) $data['divergence_notes']          : null,
         ];
 
         $existing = $this->findForFile( $file_id );
