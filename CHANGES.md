@@ -1,3 +1,9 @@
+# TalentTrack v3.51.1 — Hotfix: legacy column reference in `AttendancePctRolling`
+
+One-line fix to `src/Modules/PersonaDashboard/Kpis/AttendancePctRolling.php`. The KPI's defensive `IN ('activity_id','session_id')` column probe (intended to support installs that hadn't run migration 0027 yet) tripped the CI no-legacy gate from #0035. Replaced with a single `activity_id` column probe — old installs that haven't migrated drop to `KpiValue::unavailable()`, which surfaces the standard SchemaStatus banner. Same content as v3.51.0 otherwise; this re-cuts the release with a working `talenttrack.zip` asset.
+
+---
+
 # TalentTrack v3.51.0 — Persona dashboard authoring platform (#0060)
 
 3-sprint epic. Every user now lands on a persona-aware dashboard composed of widgets and KPIs from a closed catalog, arranged by an academy admin via a drag-and-drop editor. Default render path is the new persona dashboard; a `tt_config` flag (`persona_dashboard.enabled`) provides one-release rollback to the legacy `FrontendTileGrid` path.

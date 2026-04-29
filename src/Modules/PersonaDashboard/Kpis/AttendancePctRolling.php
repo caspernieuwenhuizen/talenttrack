@@ -22,22 +22,25 @@ class AttendancePctRolling extends AbstractKpiDataSource {
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $act_table ) ) !== $act_table ) {
             return KpiValue::unavailable();
         }
-        // Migration 0027 renamed session_id→activity_id; old installs may not have run it yet.
-        $att_col = $wpdb->get_var( $wpdb->prepare(
+        // tt_attendance.activity_id has been the canonical column since
+        // migration 0027 (#0035 sessions → activities rename). Verify the
+        // column exists; very old installs that haven't run migrations
+        // get unavailable() and admins are nudged via SchemaStatus.
+        $has_activity_col = $wpdb->get_var( $wpdb->prepare(
             "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME IN ('activity_id','session_id') LIMIT 1",
+              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'activity_id'",
             $att_table
         ) );
-        if ( ! $att_col ) return KpiValue::unavailable();
+        if ( ! $has_activity_col ) return KpiValue::unavailable();
 
-        $current_pct = self::pctInRange( $att_table, $act_table, (string) $att_col, '-28 days', 'today' );
+        $current_pct = self::pctInRange( $att_table, $act_table, '-28 days', 'today' );
 
         // Sparkline: 4 weekly buckets — each week's present% over its activities.
         $sparkline = [];
         for ( $w = 3; $w >= 0; $w-- ) {
             $from = '-' . ( ( $w + 1 ) * 7 ) . ' days';
             $to   = '-' . ( $w * 7 ) . ' days';
-            $sparkline[] = self::pctInRange( $att_table, $act_table, (string) $att_col, $from, $to );
+            $sparkline[] = self::pctInRange( $att_table, $act_table, $from, $to );
         }
 
         if ( $current_pct === null ) return KpiValue::unavailable();
@@ -54,7 +57,7 @@ class AttendancePctRolling extends AbstractKpiDataSource {
         return KpiValue::of( number_format_i18n( $current_pct, 0 ) . '%', $trend, null, $sparkline );
     }
 
-    private static function pctInRange( string $att_table, string $act_table, string $att_col, string $from, string $to ): ?float {
+    private static function pctInRange( string $att_table, string $act_table, string $from, string $to ): ?float {
         global $wpdb;
         $start = gmdate( 'Y-m-d 00:00:00', strtotime( $from ) );
         $end   = $to === 'today' ? gmdate( 'Y-m-d 23:59:59' ) : gmdate( 'Y-m-d 00:00:00', strtotime( $to ) );
@@ -64,7 +67,7 @@ class AttendancePctRolling extends AbstractKpiDataSource {
                 COUNT(*) AS total,
                 SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) AS present
               FROM {$att_table} a
-              JOIN {$act_table} act ON act.id = a.{$att_col}
+              JOIN {$act_table} act ON act.id = a.activity_id
              WHERE act.session_date >= %s AND act.session_date < %s",
             $start, $end
         ) );
