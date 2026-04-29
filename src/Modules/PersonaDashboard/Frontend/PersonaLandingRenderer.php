@@ -27,8 +27,11 @@ final class PersonaLandingRenderer {
 
     public static function shouldRender(): bool {
         if ( ! function_exists( 'is_user_logged_in' ) || ! is_user_logged_in() ) return false;
-        $flag = \TT\Infrastructure\Query\QueryHelpers::get_config( 'persona_dashboard.enabled', '' );
-        return $flag === '1';
+        // Sprint 3 flag flip — default ON. Sites that need to roll back to
+        // the legacy FrontendTileGrid path can set persona_dashboard.enabled
+        // to '0' in tt_config (one-release rollback window).
+        $flag = \TT\Infrastructure\Query\QueryHelpers::get_config( 'persona_dashboard.enabled', '1' );
+        return $flag !== '0';
     }
 
     public static function render( int $user_id, string $base_url ): void {
@@ -51,6 +54,9 @@ final class PersonaLandingRenderer {
 
         echo '<div class="tt-pd-landing" data-tt-pd-persona="' . esc_attr( $persona ) . '">';
         self::renderRoleSwitcher( $user_id, $persona );
+        if ( in_array( $persona, [ 'head_coach', 'assistant_coach' ], true ) ) {
+            self::renderTeamTabs( $user_id );
+        }
         GridRenderer::render( $template, $ctx );
         echo '</div>';
 
@@ -94,6 +100,55 @@ final class PersonaLandingRenderer {
             return (int) \TT\Infrastructure\Tenancy\CurrentClub::id();
         }
         return 1;
+    }
+
+    /**
+     * Coach landings render team tabs above the grid (sprint 3).
+     * Tabs are driven by QueryHelpers::get_teams_for_coach($user_id);
+     * the active tab is persisted via user-meta `tt_active_team_tab`
+     * and picked up via the ?tt_team_tab= query arg. Sprint 3 ships
+     * the visual + persistence; downstream widgets that want to
+     * filter by team read the active tab the same way.
+     */
+    private static function renderTeamTabs( int $user_id ): void {
+        if ( ! class_exists( '\\TT\\Infrastructure\\Query\\QueryHelpers' ) ) return;
+        $teams = \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id );
+        if ( ! is_array( $teams ) || count( $teams ) < 2 ) return;
+
+        $active = self::activeTeamTab( $user_id, $teams );
+        echo '<nav class="tt-pd-team-tabs" role="tablist" aria-label="' . esc_attr__( 'My teams', 'talenttrack' ) . '">';
+        $all_cls = $active === 0 ? 'tt-pd-team-tab is-active' : 'tt-pd-team-tab';
+        echo '<a class="' . esc_attr( $all_cls ) . '" role="tab" aria-selected="' . ( $active === 0 ? 'true' : 'false' ) . '" href="?tt_team_tab=0">'
+            . esc_html__( 'All', 'talenttrack' )
+            . '</a>';
+        foreach ( $teams as $t ) {
+            $tid = (int) $t->id;
+            $cls = $tid === $active ? 'tt-pd-team-tab is-active' : 'tt-pd-team-tab';
+            $name = (string) ( $t->name ?? $t->team_name ?? '' );
+            echo '<a class="' . esc_attr( $cls ) . '" role="tab" aria-selected="' . ( $tid === $active ? 'true' : 'false' ) . '" href="?tt_team_tab=' . (int) $tid . '">'
+                . esc_html( $name )
+                . '</a>';
+        }
+        echo '</nav>';
+    }
+
+    /**
+     * @param array<int,object> $teams
+     */
+    private static function activeTeamTab( int $user_id, array $teams ): int {
+        $valid_ids = array_map( static fn( $t ): int => (int) $t->id, $teams );
+        if ( isset( $_GET['tt_team_tab'] ) ) {
+            $picked = absint( $_GET['tt_team_tab'] );
+            if ( $picked === 0 || in_array( $picked, $valid_ids, true ) ) {
+                update_user_meta( $user_id, 'tt_active_team_tab', $picked );
+                return $picked;
+            }
+        }
+        $stored = (int) get_user_meta( $user_id, 'tt_active_team_tab', true );
+        if ( $stored === 0 || in_array( $stored, $valid_ids, true ) ) {
+            return $stored;
+        }
+        return 0;
     }
 
     private static function renderRoleSwitcher( int $user_id, string $active ): void {

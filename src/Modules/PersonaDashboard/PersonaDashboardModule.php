@@ -65,6 +65,39 @@ class PersonaDashboardModule implements ModuleInterface {
             'group'        => 'configuration',
             'order'        => 30,
         ] );
+
+        // Surface the editor on the Configuration tile-landing so admins
+        // discover it the same way they reach Branding / Translations.
+        add_filter( 'tt_config_tile_groups', [ self::class, 'addEditorTile' ], 10, 1 );
+    }
+
+    /**
+     * @param array<int, array{label: string, tiles: array<int, array<string,mixed>>}> $groups
+     * @return array<int, array{label: string, tiles: array<int, array<string,mixed>>}>
+     */
+    public static function addEditorTile( array $groups ): array {
+        $tile = [
+            'label'       => __( 'Dashboard layouts', 'talenttrack' ),
+            'description' => __( 'Drag-and-drop editor — tune what each persona sees on their landing page.', 'talenttrack' ),
+            'icon'        => '🧩',
+            'url'         => admin_url( 'admin.php?page=' . EditorPage::SLUG ),
+            'cap'         => 'tt_edit_persona_templates',
+        ];
+        foreach ( $groups as &$group ) {
+            if ( ! is_array( $group ) ) continue;
+            $label = (string) ( $group['label'] ?? '' );
+            if ( strpos( $label, 'Branding' ) !== false ) {
+                $group['tiles'][] = $tile;
+                return $groups;
+            }
+        }
+        unset( $group );
+        // Fallback — add a new group if "Branding & display" isn't present.
+        $groups[] = [
+            'label' => __( 'Personas', 'talenttrack' ),
+            'tiles' => [ $tile ],
+        ];
+        return $groups;
     }
 
     /**
