@@ -383,6 +383,31 @@ final class CoreSurfaceRegistration {
             },
         ]);
         TileRegistry::register([
+            'module_class' => self::M_PDP,
+            'view_slug'    => 'pdp-planning',
+            'group'        => $performance_group,
+            'kind'         => 'work',
+            'order'        => 41,
+            'label'        => __( 'PDP planning', 'talenttrack' ),
+            'description'  => __( 'HoD matrix: per-team-per-block planned vs conducted conversations.', 'talenttrack' ),
+            'icon'         => 'goals',
+            'color'        => '#1d7874',
+            'cap'          => 'tt_view_pdp',
+        ]);
+        TileRegistry::register([
+            'module_class' => self::M_PLAYERS,
+            'view_slug'    => 'player-status-methodology',
+            'group'        => $performance_group,
+            'kind'         => 'setup',
+            'order'        => 60,
+            'label'        => __( 'Player status methodology', 'talenttrack' ),
+            'description'  => __( 'Per-age-group input weights, thresholds, and behaviour-floor rule for the traffic-light status.', 'talenttrack' ),
+            'icon'         => 'settings',
+            'color'        => '#7c3aed',
+            'cap'          => 'tt_edit_settings',
+            'desktop_preferred' => true,
+        ]);
+        TileRegistry::register([
             'module_class' => self::M_TEAMDEV,
             'view_slug'    => 'team-chemistry',
             'group'        => $performance_group,

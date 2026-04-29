@@ -4,13 +4,24 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.52.0
+Stable tag: 3.54.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.54.0 — Surface the persona / classic dashboard switch in Configuration =
+
+Adds a user-facing on/off control for the `persona_dashboard.enabled` flag introduced in v3.51.0. Previously the only way to fall back from the new persona dashboard to the legacy tile grid was a direct `tt_config` write — fine for emergencies, not fine for an admin who wants to opt out without touching the database.
+
+* **NEW:** "Default dashboard" sub-tile under the frontend Configuration view. Two-radio chooser between **Persona dashboard (recommended)** and **Classic tile grid**, with explanatory copy for each. Saves through the existing `/wp-json/talenttrack/v1/config` endpoint (`persona_dashboard.enabled` whitelisted, dot-key handling fixed). Default stays "persona dashboard"; flipping to "classic tile grid" routes every user back to `FrontendTileGrid`.
+* **CHANGED:** `ConfigRestController::save_config` no longer runs `sanitize_key()` on the incoming key — the whitelist is the security boundary, and `sanitize_key()` would strip the dot in `persona_dashboard.enabled`. The whitelist still gates everything; only the on-the-wire key shape changed to support dotted config keys.
+
+= 3.53.0 — PDP planning + player-status methodology config + PDP integration + Excel demo data =
+
+Bundles four asks into one release. **#0054** ships planning windows on PDP conversations (3-week default, configurable via `pdp_planning_window_days`) plus an HoD `?tt_view=pdp-planning` matrix dashboard showing per-team-per-block planned vs conducted with click-to-drill. **#0057 Sprint 3** adds the methodology config admin UI at `?tt_view=player-status-methodology` — per age group, configure input weights (ratings/behaviour/attendance/potential), amber + red thresholds, and behaviour-floor rule. **#0057 Sprint 5** wires the PDP integration: a new `EvidencePacket` aggregates the data the HoD needs (current StatusVerdict, behaviour ratings, potential history, finalised evals, attendance, recent journey events); the verdict upsert captures `system_recommended_status` + `methodology_version_id` automatically and rejects with HTTP 400 when the human decision differs from the system suggestion and `divergence_notes` is empty. **#0059** ships Excel-driven demo data for Teams + Players: composer adds `phpoffice/phpspreadsheet`, the release workflow now bundles production vendor in `talenttrack.zip`, and the demo admin page gains a download-template + upload-and-import details section. The wizard "Source" step restructure and hybrid procedural-fill mode are deferred. Plus one side fix: missed `club_id` scope on `SystemHealthStripWidget::countPendingInvitations()`.
 
 = 3.51.2 — Hotfix: dedupe duplicate msgids in talenttrack-nl_NL.po =
 

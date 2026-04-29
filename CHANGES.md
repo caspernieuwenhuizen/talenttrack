@@ -1,3 +1,73 @@
+# TalentTrack v3.54.0 — Default-dashboard chooser in Configuration
+
+Adds a user-facing on/off control for the `persona_dashboard.enabled` flag introduced in v3.51.0. Previously the only way to fall back from the persona dashboard to the legacy `FrontendTileGrid` was a direct `tt_config` write — fine for incident response, not fine for a club admin who wants to opt out without touching the database. The flag's wiring (DashboardShortcode dispatch + PersonaLandingRenderer) is unchanged; this PR only adds the UI surface and unblocks dotted config keys on the REST save path.
+
+## What's new
+
+- **Default dashboard sub-tile** in [FrontendConfigurationView.php](src/Shared/Frontend/FrontendConfigurationView.php). Slots in alongside Branding / Theme & fonts / Rating scale / wp-admin menus. Two-radio form: **Persona dashboard (recommended)** vs **Classic tile grid**, each with descriptive hint text. Default radio reflects the current `persona_dashboard.enabled` value (default `'1'` since v3.51.0 sprint 3 flipped the flag on).
+- **`persona_dashboard.enabled` added to `ConfigRestController::ALLOWED_KEYS`**, so the `/wp-json/talenttrack/v1/config` POST handler accepts the flag.
+
+## What changed
+
+- **`ConfigRestController::save_config` stops running `sanitize_key()` on the incoming key.** That helper strips dots, which would silently corrupt `persona_dashboard.enabled` to `persona_dashboardenabled` and miss the whitelist entry. The whitelist (`in_array( $key, ALLOWED_KEYS, true )`) is the actual security boundary; `sanitize_text_field` still runs on the value.
+
+## Translations
+
+Eight new NL strings covering the new sub-tile title, the radio labels, and the explanatory copy.
+
+## Acceptance criteria (manually verified)
+
+- [ ] Frontend Configuration → Default dashboard shows two radios, current value pre-selected.
+- [ ] Selecting "Classic tile grid" + Save makes the dashboard root render `FrontendTileGrid` for every user.
+- [ ] Selecting "Persona dashboard" + Save makes the dashboard root render the per-persona landing again.
+- [ ] CI green.
+
+---
+
+# TalentTrack v3.53.0 — PDP planning + player-status methodology config + PDP integration + Excel demo data
+
+Four asks bundled. Two sit on the PDP surface, one finishes the player-status epic, one ships a long-deferred demo-prep tool.
+
+## #0054 — PDP planning windows + HoD dashboard
+
+Migration `0043` adds `planning_window_start` + `planning_window_end` to `tt_pdp_conversations`. Backfill: every existing row gets a 21-day window centred on `scheduled_at`, clamped to the parent season's bounds. `PdpConversationsRepository::createCycle()` now writes the window alongside `scheduled_at`; window length is admin-configurable via `tt_config.pdp_planning_window_days` (default 21).
+
+New `FrontendPdpPlanningView` at `?tt_view=pdp-planning`. The HoD picks a season and sees a per-team-per-block matrix: each cell shows `<planned-in-window>/<roster-size> · <conducted>/<planned>` (once the window has passed). Cells colour green / amber / red depending on planning + conducted ratios; click any cell to drill into the underlying file list. New tile in the Performance group, gated on `tt_view_pdp`.
+
+## #0057 Sprint 3 — methodology config admin UI
+
+Migration `0044` creates `tt_player_status_methodology` (one row per `(club_id, age_group_id)`; `age_group_id = 0` = club-wide default). New `FrontendPlayerStatusMethodologyView` at `?tt_view=player-status-methodology` renders a collapsible form per age group plus the club-wide default. Each form carries per-input enabled/weight checkboxes (ratings / behaviour / attendance / potential), amber + red thresholds, and the behaviour-floor rule. Weights normalise to sum to 100 on save. `MethodologyResolver::forPlayer()` already reads from the new table — no calculator change needed. New tile in the Performance group, `desktop_preferred` flag set, gated on `tt_edit_settings`.
+
+## #0057 Sprint 5 — PDP verdict integration
+
+Migration `0045` adds three columns to `tt_pdp_verdicts`: `system_recommended_status`, `methodology_version_id`, `divergence_notes`. New `Modules\Pdp\EvidencePacket` aggregates everything the HoD needs at verdict time — current `StatusVerdict`, behaviour ratings + potential history in the cycle window, finalised evaluations, attendance counts, recent journey events. New REST endpoint `GET /pdp-files/{id}/evidence-packet` exposes the packet.
+
+The verdict upsert REST handler captures `system_recommended_status` + `methodology_version_id` automatically and **rejects with HTTP 400** when the human decision differs from the system-suggested decision and `divergence_notes` is empty. Divergence is never silent.
+
+## #0059 — Excel-driven demo data (Teams + Players)
+
+Composer now requires `phpoffice/phpspreadsheet ^1.29` (PHP 7.4+ compatible). The release workflow runs `composer install --no-dev` and bundles production vendor in `talenttrack.zip`; `vendor/phpstan` and `vendor/szepeviktor` (dev-only) are excluded. New `Modules\DemoData\Excel` namespace: `SheetSchemas` (sheet/column layout), `ExcelImporter` (parse + validate + import), `TemplateBuilder` (streams a fresh `.xlsx` on every download — no checked-in template).
+
+V1 covers Teams + Players sheets. The wizard "Source" step restructure and hybrid procedural-fill mode are deferred. The demo admin page gains a details section with Download template + Upload-and-import controls.
+
+## Side fix
+
+Caught one missed `club_id` filter in `Modules\PersonaDashboard\Widgets\SystemHealthStripWidget::countPendingInvitations()` (audit script flagged it).
+
+## Translations + docs
+
+40+ new `nl_NL` msgstrs. New `docs/pdp-planning.md` (EN + NL).
+
+## Build pipeline change
+
+`release.yml` runs `composer install --no-dev --optimize-autoloader` and includes production vendor in the zip.
+
+## SEQUENCE.md
+
+New `v3.53.0-bundle` row under Done.
+
+---
+
 # TalentTrack v3.52.0 — Goals as a conversation (#0028)
 
 Each player development goal carries a chat-style conversation thread that lives **inside** the goal record. Coach, player, and linked parents post short messages; the dialogue stays attached to the work instead of leaking into WhatsApp / email. The thread primitive is polymorphic — `tt_thread_messages` keyed on `(thread_type, thread_id)` — so future PRs can adopt it for trial cases (#0017), scout reports (#0014), and PDP conversations (#0044) without schema changes.

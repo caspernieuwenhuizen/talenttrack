@@ -39,6 +39,30 @@ class PdpVerdictsRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+        register_rest_route( self::NS, '/pdp-files/(?P<id>\d+)/evidence-packet', [
+            'methods'             => 'GET',
+            'callback'            => [ __CLASS__, 'get_evidence_packet' ],
+            'permission_callback' => [ __CLASS__, 'can_view' ],
+        ] );
+    }
+
+    public static function get_evidence_packet( \WP_REST_Request $r ): \WP_REST_Response {
+        $file_id = absint( $r['id'] );
+        if ( $file_id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid PDP file id.', 'talenttrack' ), 400 );
+        }
+        $file = ( new PdpFilesRepository() )->find( $file_id );
+        if ( ! $file ) {
+            return RestResponse::error( 'not_found', __( 'PDP file not found.', 'talenttrack' ), 404 );
+        }
+        if ( ! self::canSeeFile( $file ) ) {
+            return RestResponse::error( 'forbidden', __( 'You do not have access to this evidence packet.', 'talenttrack' ), 403 );
+        }
+        $packet = \TT\Modules\Pdp\EvidencePacket::forFile( $file_id );
+        if ( ! $packet ) {
+            return RestResponse::error( 'packet_unavailable', __( 'Could not assemble the evidence packet.', 'talenttrack' ), 500 );
+        }
+        return RestResponse::success( $packet );
     }
 
     public static function can_view(): bool {
@@ -102,6 +126,27 @@ class PdpVerdictsRestController {
             $payload['signed_off_at'] = current_time( 'mysql', true );
         }
 
+        // #0057 Sprint 5 — capture the system-recommended status at
+        // meeting time so historical verdicts preserve the methodology
+        // they were calculated under. Divergence note required when
+        // human and system disagree.
+        $verdict_calc = new \TT\Infrastructure\PlayerStatus\PlayerStatusCalculator();
+        $verdict      = $verdict_calc->calculate( (int) $file->player_id );
+        $suggested    = \TT\Modules\Pdp\EvidencePacket::suggestDecisionFromStatus( $verdict->color );
+        $payload['system_recommended_status'] = $verdict->color;
+        $payload['methodology_version_id']    = $verdict->methodology_version;
+
+        $divergence = isset( $r['divergence_notes'] ) ? wp_kses_post( (string) $r['divergence_notes'] ) : '';
+        if ( $suggested !== '' && $suggested !== $decision && $divergence === '' ) {
+            return RestResponse::error(
+                'divergence_note_required',
+                __( 'A divergence note is required when the human decision differs from the system recommendation.', 'talenttrack' ),
+                400,
+                [ 'suggested' => $suggested, 'decision' => $decision, 'system_recommended_status' => $verdict->color ]
+            );
+        }
+        $payload['divergence_notes'] = $divergence !== '' ? $divergence : null;
+
         $ok = ( new PdpVerdictsRepository() )->upsertForFile( $file_id, $payload );
         if ( ! $ok ) {
             Logger::error( 'pdp.verdict.upsert.failed', [ 'file_id' => $file_id ] );
@@ -125,15 +170,19 @@ class PdpVerdictsRestController {
     private static function format( ?object $row ): array {
         if ( ! $row ) return [];
         return [
-            'id'                  => (int) $row->id,
-            'pdp_file_id'         => (int) $row->pdp_file_id,
-            'decision'            => (string) $row->decision,
-            'summary'             => $row->summary,
-            'coach_id'            => $row->coach_id !== null ? (int) $row->coach_id : null,
-            'head_of_academy_id'  => $row->head_of_academy_id !== null ? (int) $row->head_of_academy_id : null,
-            'signed_off_at'       => $row->signed_off_at,
-            'created_at'          => $row->created_at ?? null,
-            'updated_at'          => $row->updated_at ?? null,
+            'id'                        => (int) $row->id,
+            'pdp_file_id'               => (int) $row->pdp_file_id,
+            'decision'                  => (string) $row->decision,
+            'summary'                   => $row->summary,
+            'coach_id'                  => $row->coach_id !== null ? (int) $row->coach_id : null,
+            'head_of_academy_id'        => $row->head_of_academy_id !== null ? (int) $row->head_of_academy_id : null,
+            'signed_off_at'             => $row->signed_off_at,
+            // #0057 Sprint 5 — system snapshot. Null on legacy rows.
+            'system_recommended_status' => $row->system_recommended_status ?? null,
+            'methodology_version_id'    => $row->methodology_version_id    ?? null,
+            'divergence_notes'          => $row->divergence_notes          ?? null,
+            'created_at'                => $row->created_at ?? null,
+            'updated_at'                => $row->updated_at ?? null,
         ];
     }
 }

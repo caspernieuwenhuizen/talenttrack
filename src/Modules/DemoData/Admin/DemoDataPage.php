@@ -36,6 +36,9 @@ class DemoDataPage {
         add_action( 'admin_post_tt_demo_wipe_data', [ self::class, 'handleWipeData'  ] );
         add_action( 'admin_post_tt_demo_wipe_users',[ self::class, 'handleWipeUsers' ] );
         add_action( 'admin_post_tt_demo_mode',      [ self::class, 'handleModeToggle'] );
+        // #0059 — Excel-driven demo data.
+        add_action( 'admin_post_tt_demo_excel_template', [ self::class, 'handleTemplateDownload' ] );
+        add_action( 'admin_post_tt_demo_excel_import',   [ self::class, 'handleExcelImport' ] );
     }
 
     public static function registerMenu(): void {
@@ -272,6 +275,24 @@ class DemoDataPage {
                 <?php esc_html_e( 'Advanced', 'talenttrack' ); ?>
             </button>
         </div>
+
+        <details style="margin:16px 0;border:1px solid #d6dadd;border-radius:6px;padding:12px 14px;background:#f8fafc;">
+            <summary style="cursor:pointer;font-weight:600;"><?php esc_html_e( 'Or upload an Excel template (#0059)', 'talenttrack' ); ?></summary>
+            <p style="margin:8px 0;color:#5b6e75;">
+                <?php esc_html_e( 'Walk in with the prospect\'s own team names and players. Download the template, fill it in offline, upload it back. v1 covers the Teams and Players sheets; the procedural generator handles everything else.', 'talenttrack' ); ?>
+            </p>
+            <p style="margin:0 0 12px;">
+                <a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=tt_demo_excel_template' ), 'tt_demo_excel_template' ) ); ?>">
+                    <?php esc_html_e( 'Download template (.xlsx)', 'talenttrack' ); ?>
+                </a>
+            </p>
+            <form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                <?php wp_nonce_field( 'tt_demo_excel_import', 'tt_demo_nonce' ); ?>
+                <input type="hidden" name="action" value="tt_demo_excel_import" />
+                <input type="file" name="demo_excel" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required />
+                <button type="submit" class="button button-secondary"><?php esc_html_e( 'Upload + import', 'talenttrack' ); ?></button>
+            </form>
+        </details>
 
         <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="tt-demo-generate-form" class="tt-demo-form" data-tt-demo-form>
             <?php wp_nonce_field( 'tt_demo_generate', 'tt_demo_nonce' ); ?>
@@ -657,6 +678,64 @@ class DemoDataPage {
 
     private static function bounce( string $url, string $error ): void {
         wp_safe_redirect( add_query_arg( 'tt_demo_error', rawurlencode( $error ), $url ) );
+        exit;
+    }
+
+    /**
+     * #0059 — stream the .xlsx template built fresh from `SheetSchemas`.
+     */
+    public static function handleTemplateDownload(): void {
+        if ( ! current_user_can( self::CAP ) ) {
+            wp_die( esc_html__( 'Insufficient permissions.', 'talenttrack' ) );
+        }
+        check_admin_referer( 'tt_demo_excel_template' );
+
+        $ok = \TT\Modules\DemoData\Excel\TemplateBuilder::streamDownload();
+        if ( ! $ok ) {
+            self::bounce(
+                admin_url( 'tools.php?page=' . self::SLUG ),
+                'PhpSpreadsheet is not installed. Run `composer install --no-dev` from the plugin root.'
+            );
+        }
+        exit;
+    }
+
+    /**
+     * #0059 — accept an uploaded .xlsx, validate, import literally.
+     */
+    public static function handleExcelImport(): void {
+        if ( ! current_user_can( self::CAP ) ) {
+            wp_die( esc_html__( 'Insufficient permissions.', 'talenttrack' ) );
+        }
+        check_admin_referer( 'tt_demo_excel_import', 'tt_demo_nonce' );
+
+        $redirect = admin_url( 'tools.php?page=' . self::SLUG );
+        if ( ! isset( $_FILES['demo_excel'] ) || ! is_array( $_FILES['demo_excel'] ) ) {
+            self::bounce( $redirect, 'No file uploaded.' );
+        }
+        $file = $_FILES['demo_excel'];
+        if ( ( $file['error'] ?? UPLOAD_ERR_OK ) !== UPLOAD_ERR_OK ) {
+            self::bounce( $redirect, 'Upload failed (error code ' . (int) $file['error'] . ').' );
+        }
+        $tmp_path      = (string) ( $file['tmp_name'] ?? '' );
+        $original_name = (string) ( $file['name'] ?? 'upload.xlsx' );
+        if ( ! is_uploaded_file( $tmp_path ) ) {
+            self::bounce( $redirect, 'Invalid upload.' );
+        }
+
+        $importer = new \TT\Modules\DemoData\Excel\ExcelImporter();
+        $result   = $importer->importFile( $tmp_path, $original_name );
+
+        if ( ! $result['ok'] ) {
+            $msg = $result['blockers'][0] ?? 'Import failed.';
+            self::bounce( $redirect, (string) $msg );
+        }
+
+        $redirect_with_msg = add_query_arg( [
+            'tt_demo_msg'   => 'excel_imported',
+            'tt_demo_batch' => $result['batch_id'],
+        ], $redirect );
+        wp_safe_redirect( $redirect_with_msg );
         exit;
     }
 }
