@@ -71,6 +71,11 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         }
 
         self::renderHeader( __( 'Functional roles', 'talenttrack' ) );
+        echo '<p class="tt-meta" style="margin:0 0 var(--tt-sp-3, 12px); color: var(--tt-muted, #5b6e75);">';
+        echo esc_html__( 'Per-team staff assignments — head coach, assistant, manager, physio. A user can hold many at once. Different from academy-wide ', 'talenttrack' );
+        $auth_url = admin_url( 'admin.php?page=tt-roles' );
+        echo '<a href="' . esc_url( $auth_url ) . '">' . esc_html__( 'Roles & rights', 'talenttrack' ) . '</a>.';
+        echo '</p>';
         self::renderTabs( $tab, $can_manage_types, $can_view_assign );
 
         if ( $tab === 'types' ) {

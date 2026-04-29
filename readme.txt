@@ -4,13 +4,38 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.46.0
+Stable tag: 3.49.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.49.0 — Trial inline-create flow, StaffPickerComponent, Configuration sub-grid =
+
+Closes the three deferred items called out at the bottom of v3.48.0. Each shipped as new code rather than tweaks.
+
+* **NEW:** `StaffPickerComponent` — autocomplete-driven staff/coach picker that mirrors `PlayerSearchPickerComponent`. Reuses the same `.tt-psp` JS hydrator, so staff and player pickers stay visually + behaviourally consistent. Replaces plain `<select>` user dropdowns in the trial-case staff assignment form, the trial-case create form's three initial-staff slots, and the new-team wizard's four staff slots. Ambiguous display names get a role-label suffix (e.g. "Jan Jansen — Coach").
+* **NEW:** Trial player inline-create flow. The trial-case create form now uses the autocomplete player picker plus a "Or create a new player here" disclosure block with first-name / last-name / DOB fields. Filling the inline fields without picking an existing player creates a `tt_players` row with `status = 'trial'` first and uses that ID for the case. The HoD no longer has to bounce out to the New Player wizard.
+* **NEW:** Configuration tile sub-page. The frontend Configuration view now opens to a sub-tile grid mirroring the wp-admin Configuration submenu. Branding, Theme & fonts, Rating scale, and wp-admin menus render as inline forms with their own save buttons; Lookups, Feature toggles, Backups, Translations, Audit log, and Setup wizard link out to wp-admin where those areas already live.
+
+= 3.48.0 — Demo-readiness round 2: monetization gate fix, parents see Me-group, cadence relabel, journey filter declutter, trial form CSS, role labelling =
+
+Six fixes from the user's demo-install review (continues v3.46.0's bundle):
+
+* **FIX:** Disabling the License module no longer leaves tier checks firing on Player comparison, Rate cards, and CSV import. `class_exists()` was always true; added a `ModuleRegistry::isEnabled('LicenseModule')` guard before each gate. Now you can hide tier-locked features by toggling the module off, as expected.
+* **FIX:** Parents land on a populated dashboard. Six Me-group tiles (My card, My team, My evaluations, My activities, My goals, My journey) used `is_player_cb` which excludes parents; now use `is_player_or_parent_cb` so parents see their child's data via the existing `parent` matrix scope. My PDP already worked.
+* **CHANGED:** Workflow templates config — "Cadence" relabelled to "How often (cron)" with an inline help tooltip showing the cron-expression format. "Deadline offset" relabelled to "Deadline (days)" with help. The intro paragraph rewritten in plainer language.
+* **CHANGED:** Player journey filter bar collapsed. Three primary filters (`evaluation_completed`, `injury_started`, `trial_ended`) stay visible; the rest go behind a "More filters (N)" toggle. Auto-opens if any secondary filter is active.
+* **CHANGED:** Trial cases create form gets a proper desktop layout — 2-column grid (Player + Track / Start + End), full-width staff fieldset and notes, 48px touch targets, Roboto-friendly spacing. Mobile stays single-column.
+* **CHANGED:** "Roles & Permissions" admin menu renamed to "Roles & rights"; both Roles & rights and Functional roles pages now explain themselves and cross-link. (Already merged ahead of this release; rolled into the changelog here for completeness.)
+
+Translations: 7 new NL strings.
+
+= 3.47.0 — Activity status + source, colour pills, cohort tile fix, wizard config UX =
+
+Five small fixes shipped together. **Activity model:** new `activity_status_key` (planned / completed / cancelled, default planned) and `activity_source_key` (manual / spond / generated, default manual) columns on `tt_activities`, with matching admin-extensible `activity_status` + `activity_source` lookups. Status appears as a form field on the create/edit views; source is set automatically (REST + admin → manual, demo-data → generated, future Spond → spond). **Activity types:** added `tournament` + `meeting` to the seeded set, backfilled `meta.color` on the existing types. The admin list filter dropdown was hardcoded to game/training/other; it's now lookup-driven so admin-added types surface there too. **List type pill:** colour-coded inline pill rendered via a new shared `LookupPill::render()` helper, used by both the admin and frontend activity lists. **Wizard config UX:** the text input for `tt_wizards_enabled` is replaced with a checkbox grid — one card per registered wizard plus an "Enable all wizards" master toggle; the form serialises into the existing `'all' / 'off' / 'slug,slug,…'` shape so `WizardRegistry::isEnabled()` keeps working unchanged. **Cohort transitions tile:** two bugs fixed — the frontend view accessed `$row['x']` on `wpdb->get_results()` rows (which return objects), causing `Cannot use object as array` fatals on every result; and the repository's `cohortByType()` appended `team_id` to `$params` before the visibility IN-list, misaligning bound parameters when the team filter was applied.
 
 = 3.46.0 — Demo-readiness hotfix bundle: auth + wizards + tiles =
 

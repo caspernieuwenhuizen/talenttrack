@@ -52,13 +52,11 @@ De wizard maakt het doel direct aan. Heb je in stap 2 een link gekozen, dan word
 
 ## Wizards aan- of uitzetten
 
-Beheerders gaan naar **Beheer → Wizards**:
-
-- `all` — alle geregistreerde wizards staan aan (standaard).
-- `off` — alle wizards uit; de oorspronkelijke formulieren komen terug.
-- Een door komma's gescheiden lijst van wizard-slugs (bijv. `new-player,new-team`) — alleen de genoemde staan aan.
+Beheerders gaan naar **Beheer → Wizards**. Iedere geregistreerde wizard staat als aanvinkbaar kaartje op de pagina, met label en slug; de hoofd-vink **Alle wizards inschakelen** bovenaan zet ze allemaal aan of uit in één klik. Klik onderaan op opslaan — er hoeft niets getypt te worden.
 
 Beschikbare slugs: `new-player`, `new-team`, `new-evaluation`, `new-goal`.
+
+Onder water wordt de keuze opgeslagen als `'all'` (alles aan), `'off'` (niets aan) of een door komma's gescheiden lijst slugs ertussenin — dezelfde vorm als `WizardRegistry::isEnabled()` verwacht, dus puur een cosmetische verandering.
 
 ## Completion-analytics
 

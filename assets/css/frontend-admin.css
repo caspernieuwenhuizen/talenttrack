@@ -1211,3 +1211,79 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
         flex-wrap: wrap;
     }
 }
+
+/* #0017 / v3.48 — Trial cases create form. Was previously unstyled and
+   rendered as a stack of full-width inputs with no spacing. Now uses
+   a 2-column grid on desktop (player + track / start + end) with the
+   staff fieldset spanning full-width. */
+.tt-dashboard .tt-trial-create-form {
+    max-width: 720px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
+.tt-dashboard .tt-trial-create-form > label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+.tt-dashboard .tt-trial-create-form > label > select,
+.tt-dashboard .tt-trial-create-form > label > input,
+.tt-dashboard .tt-trial-create-form > label > textarea {
+    font-weight: normal;
+    font-size: 1rem;
+    padding: 10px 12px;
+    border: 1px solid #c4c7c5;
+    border-radius: 6px;
+    min-height: 48px;
+}
+.tt-dashboard .tt-trial-create-form > label > textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+.tt-dashboard .tt-trial-staff-rows {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 14px;
+    margin: 0;
+}
+.tt-dashboard .tt-trial-staff-rows legend {
+    font-weight: 600;
+    padding: 0 6px;
+    font-size: 0.95rem;
+}
+.tt-dashboard .tt-trial-staff-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+.tt-dashboard .tt-trial-staff-row:last-child {
+    margin-bottom: 0;
+}
+.tt-dashboard .tt-trial-staff-row select,
+.tt-dashboard .tt-trial-staff-row input {
+    font-size: 1rem;
+    padding: 10px 12px;
+    border: 1px solid #c4c7c5;
+    border-radius: 6px;
+    min-height: 48px;
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-trial-create-form {
+        grid-template-columns: 1fr 1fr;
+    }
+    /* Player + Track on row 1, Start + End on row 2, Staff full-width. */
+    .tt-dashboard .tt-trial-create-form > .tt-trial-staff-rows,
+    .tt-dashboard .tt-trial-create-form > label:has(textarea),
+    .tt-dashboard .tt-trial-create-form > .tt-form-actions {
+        grid-column: 1 / -1;
+    }
+    .tt-dashboard .tt-trial-staff-row {
+        flex-direction: row;
+    }
+    .tt-dashboard .tt-trial-staff-row select { flex: 1 1 60%; }
+    .tt-dashboard .tt-trial-staff-row input { flex: 1 1 40%; }
+}

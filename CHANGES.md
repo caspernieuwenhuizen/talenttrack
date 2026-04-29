@@ -1,3 +1,157 @@
+# TalentTrack v3.49.0 — Trial inline-create + StaffPicker + Configuration sub-grid
+
+Closes the three deferred items called out at the bottom of v3.48.0. Each
+shipped as new code rather than tweaks.
+
+## New: StaffPickerComponent
+
+`src/Shared/Frontend/Components/StaffPickerComponent.php` — autocomplete-driven staff/coach picker, mirror of `PlayerSearchPickerComponent` but the candidate set is WP users with TalentTrack staff roles (`tt_coach`, `tt_head_dev`, `tt_club_admin`, `administrator` by default). Reuses the same `.tt-psp` DOM contract + the existing `assets/js/components/player-search-picker.js` hydrator so staff and player pickers stay visually + behaviourally consistent. Includes a `primaryRoleLabel()` disambiguator that suffixes the user's display name with their highest-trust role (Head of Development > Club Admin > Coach > Scout > Staff > Administrator) so two coaches with the same display name can still be told apart.
+
+Replaces plain `<select>` user dropdowns in three places:
+
+- `FrontendTrialCaseView::renderAssignStaffForm` — trial case staff assignment
+- `FrontendTrialsManageView::renderCreateForm` — three initial-staff slots on the trial-case create form
+- `Modules/Wizards/Team/StaffStep` — head coach / assistant coach / team manager / physio slots in the new-team wizard
+
+## New: Trial player inline-create flow
+
+`FrontendTrialsManageView::renderCreateForm` + `handlePost` — the trial-case create form now uses `PlayerSearchPickerComponent` for the player picker (replacing the long select-of-all-players). Underneath it, a `<details>` block titled "Or create a new player here" exposes three fields: first name, last name, date of birth. When the existing-player picker is left empty and all three inline fields are filled, the POST handler creates a `tt_players` row with `status = 'trial'` first and uses that ID for the trial case. The HoD no longer has to bounce out to the New Player wizard before opening a trial.
+
+## New: Configuration tile sub-page
+
+`FrontendConfigurationView` refactored to render a sub-tile landing instead of a single mega-form. Routing via `?config_sub=…`. Three frontend-supported sub-tiles render inline forms (Branding, Theme & fonts, Rating scale, wp-admin menus); the heavier admin areas (Lookups & evaluation types, Feature toggles, Backups, Translations, Audit log, Setup wizard) link out to the existing wp-admin Configuration tabs, which is where they actually live. The previous flat mega-form is gone; each sub-form has its own save button and its own POST round-trip.
+
+## Translations
+
+31 new NL strings covering staff picker, trial inline-create copy, and the Configuration sub-tile labels + descriptions.
+
+## Acceptance criteria (manually verified)
+
+- [ ] Trial case → assigned staff → "Assign" form uses the autocomplete picker, not a long select.
+- [ ] Trials → New trial case → 3 initial-staff rows use the autocomplete picker.
+- [ ] New-team wizard → staff step → 4 slots use the autocomplete picker, each with the slot label preserved.
+- [ ] Trial-case create form: filling first name + last name + DOB without picking an existing player creates the player and opens the case.
+- [ ] Configuration tile shows a sub-tile grid; Branding / Theme / Rating / Menus open inline forms; Lookups / Feature toggles / Backups / Translations / Audit log / Setup wizard open in wp-admin.
+
+---
+
+# TalentTrack v3.48.0 — Demo-readiness round 2
+
+Continues the v3.46.0 hotfix bundle with six more user-reported fixes. v3.47.0 (parallel agent) shipped activity polish + cohort fix + wizard config UX in between.
+
+## Fixes
+
+### Monetization gate honours module-disabled state
+
+`src/Shared/Frontend/FrontendComparisonView.php`, `FrontendRateCardView.php`, `FrontendPlayersCsvImportView.php` — three frontend views had `class_exists('\\TT\\Modules\\License\\LicenseGate')` as the gate, which is always true because PHP autoload makes the class loadable regardless of whether the module booted. Added a `\TT\Core\ModuleRegistry::isEnabled('TT\\Modules\\License\\LicenseModule')` guard before the gate fires. When the License module is toggled off in the Modules admin, tier checks are skipped and the feature renders unconditionally.
+
+### Parents see the Me-group dashboard
+
+`src/Shared/CoreSurfaceRegistration.php` — added `is_player_or_parent_cb` callback (`is_player_cb($uid) || user_can($uid, 'tt_parent')`). Six Me-group tiles updated to use it: My card, My team, My evaluations, My activities, My goals, My journey. My PDP already had a parent branch. My profile stays player-only because the view expects a player record. The `parent` matrix scope (in `config/authorization_seed.php`) already grants parents read access to their child's data, so the tile views resolve correctly.
+
+### Workflow cadence + deadline relabelled
+
+`src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php` — "Cadence" → "How often (cron)" with an inline `?` help tooltip explaining the cron-expression format and the "leave placeholder unchanged" hint. "Deadline offset" → "Deadline (days)" with a help tooltip. Page intro paragraph rewritten in plainer language ("Turn templates on or off, and override how often they run + how long users have to act").
+
+### Journey filter bar collapsed
+
+`src/Modules/Journey/Frontend/FrontendJourneyView.php` — three primary chips (`evaluation_completed` / `injury_started` / `trial_ended`) stay visible; the rest of the event types are wrapped in a `<details>` element labelled "More filters (N)". Auto-opens if any secondary filter is currently active. Reset and Filter buttons unchanged.
+
+### Trial cases create form has a proper desktop layout
+
+`assets/css/frontend-admin.css` — new CSS block under `.tt-dashboard .tt-trial-create-form`. 2-column grid at 768px+ (Player + Track on row 1, Start + End on row 2), full-width staff fieldset + notes + actions. Inputs styled at 48px min-height with `font-size: 1rem` (no iOS auto-zoom). Mobile stays single-column.
+
+### Roles & rights vs Functional roles labelling
+
+Already merged ahead of this release in PR #115. Rolled into the v3.48.0 release for changelog continuity. "Roles & Permissions" admin menu → "Roles & rights"; intro paragraphs rewritten on both pages with cross-links pointing at the other surface; tile description tightened.
+
+## Translations
+
+7 new NL strings: cadence + deadline labels and tooltips, journey "More filters (%d)".
+
+## What's deferred to v3.49.0
+
+Three larger items still queued — they each need real new code rather than tweaks:
+
+- **Trial player inline-create flow** (#1, Option A): embed a player-create mini-form inside the trial-case create UI so users don't need a pre-existing player record.
+- **`StaffPickerComponent`** (#3): mirror `PlayerSearchPickerComponent` for picking staff, replacing plain `<select>` user dropdowns in 3 places (trial case staff assignment, new-team wizard staff step, etc.).
+- **Configuration tile sub-page** (#8): the frontend Configuration tile currently links out to wp-admin; should open a sub-tile grid mirroring the wp-admin Configuration submenu (lookups, branding, toggles, backups, etc.).
+
+These are real product features, not config tweaks. Each is 1-3h compressed.
+
+## Acceptance criteria (manually verified)
+
+- [ ] Disabling License module hides upgrade nudges on Player comparison, Rate cards, CSV import.
+- [ ] Parent role sees the Me group on dashboard with their child's data.
+- [ ] Workflow templates config shows "How often (cron)" + "Deadline (days)" labels + help tooltips.
+- [ ] Player journey shows 3 primary chips + "More filters (N)" toggle.
+- [ ] Trial cases create form renders 2-column on desktop, single-column on mobile.
+- [ ] Roles & rights admin menu reads "Roles & rights" + has cross-links.
+
+---
+
+# TalentTrack v3.47.0 — Activity status + source, colour pills, cohort tile fix, wizard config UX
+
+Five small asks bundled together. Each lands on the activity surface or polishes an admin UX paper-cut.
+
+## Activity model — status + source
+
+Two new columns on `tt_activities`, both lookup-driven and admin-extensible:
+
+- `activity_status_key VARCHAR(50) NOT NULL DEFAULT 'planned'` — lifecycle (planned / completed / cancelled). Surfaces as a form field on the admin and frontend create/edit views; flips from `planned` (the default) to `completed` once the activity has happened, or to `cancelled` if it didn't go ahead.
+- `activity_source_key VARCHAR(50) NOT NULL DEFAULT 'manual'` — who or what created the activity (manual / spond / generated). Set automatically: REST and admin paths set `manual`; the demo-data generator sets `generated`; the future Spond integration will set `spond`. Not exposed on the form.
+
+Both come with a matching `tt_lookups` seed (`activity_status` and `activity_source`) carrying `meta.color` for pill rendering, `meta.is_locked = 1` so the seeded rows can't be deleted, and Dutch translations.
+
+## Activity types — seed extended + filter dropdown unwired from hardcode
+
+- New seeded types: **`tournament`** (orange) and **`meeting`** (purple). Idempotent — re-running the migration leaves any admin renames alone.
+- Existing `training` / `game` / `other` get `meta.color` backfilled (teal / blue / grey) so the new type-pill renderer always has a colour.
+- `ActivitiesPage` (admin) filter dropdown was hardcoded to `[game, training, other]` — admin-added types were invisible on the filter even though the form dropdown was already lookup-driven from #0050. Filter now reads from `QueryHelpers::get_lookups('activity_type')` like the form does, with translated labels via `LookupTranslator::name()`.
+
+## Type pill in lists
+
+A new shared helper `LookupPill::render( lookup_type, name )` returns a colour-coded inline `<span class="tt-pill">` using the lookup row's `meta.color` (falling back to neutral grey when absent). Used by:
+
+- The admin activities list — replaces the plain-text `renderTypeBadge()` output. The Game subtype + Other free-text label still render alongside the pill.
+- The frontend activities list — new `Type` column. The REST list response carries an `activity_type_pill_html` field with the server-rendered pill; the column uses a new `'render' => 'html'` mode on `FrontendListTable` (assets/js/components/frontend-list-table.js) that emits the value verbatim.
+
+## Wizard config UX — text input → checkbox grid
+
+`FrontendWizardsAdminView` (`?tt_view=wizards-admin`) used to ask admins to type `'all'` / `'off'` / a comma-separated list of slugs into a free-text field, with the available slugs hidden behind a `<details>` panel. It's now a checkbox grid:
+
+- One tickable card per registered wizard (label + slug + 48px tap target).
+- An **Enable all wizards** master toggle at the top syncs every checkbox.
+- On save, the form serialises back to the existing storage shape (`'all'` when every wizard is checked, `'off'` when none are, comma-separated slug list otherwise) so `WizardRegistry::isEnabled()` is unchanged. Cosmetic on storage, real on UX.
+
+## Cohort transitions tile — two bugs fixed
+
+The HoD-facing **Cohort transitions** tile (added in v3.44.0 with the #0053 player-journey epic) was throwing critical errors when filters were applied. Two distinct bugs:
+
+- **Bug A — array-vs-object access (white screen).** `FrontendCohortTransitionsView` accessed `$row['first_name']`, `$row['player_id']`, `$row['event_date']`, `$row['summary']` array-style — but `PlayerEventsRepository::cohortByType()` calls `wpdb->get_results()` without the `ARRAY_A` flag and returns `list<object>`. PHP fatal `Cannot use object of type stdClass as array` on every result row. Switched the four sites to object syntax (`$row->first_name`, etc.).
+- **Bug B — parameter order on team_id filter.** `cohortByType()` built `$params` as `[event_type, from, to, club_id]`, then *appended* `team_id` before `array_merge( $params, $allowed_visibilities )`. Final order: `[event_type, from, to, club_id, team_id, vis…]`. But the SQL placeholder order is `[event_type, from, to, club_id, vis…, team_id]` — so when the team filter was applied, parameters bound to the wrong placeholders. Restructured: `array_merge( [base], $allowed_visibilities, $extra_param )` so visibilities sit in the middle and team_id is appended last.
+
+Both bugs were pre-existing back to v3.44.0 — the v3.45.1 sweep didn't introduce them.
+
+## ActivitiesPage `club_id` scoping (gap closure)
+
+The v3.45.1 SaaS-readiness sweep added `club_id` filtering across 114 PHP files, but its source-side audit regex (`bin/audit-tenancy-source.sh`) only matches `$wpdb->prefix . 'tt_xxx'` and `$p . 'tt_xxx'` concatenation, not the `{$p}tt_xxx` interpolation style used by `ActivitiesPage`. The audit passed; the file slipped through. This release adds the filter in the form load, save (insert + update), delete, and attendance writes — all queries that were modified for the activity-status work anyway.
+
+## Documentation
+
+- `docs/activities.md` + `docs/nl_NL/activities.md` — new "Status and source" section, updated steps to mention the five seeded types and the new pill.
+- `docs/wizards.md` + `docs/nl_NL/wizards.md` — replaced the "type a comma-separated list of slugs" instructions with the checkbox-grid description.
+
+## Translations
+
+Four new `nl_NL` msgstrs added — every new user-facing string is translated.
+
+## SEQUENCE.md
+
+New `v3.47.0-bundle` row under Done.
+
+---
+
 # TalentTrack v3.46.0 — Demo-readiness hotfix bundle (auth + wizards + tiles)
 
 A small bundle of fixes surfaced during the user's demo-install review. Each item is a real bug or UX regression visible to actual users.

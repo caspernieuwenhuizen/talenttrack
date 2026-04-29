@@ -9336,3 +9336,153 @@ msgstr "Persona-dashboards"
 
 msgid "Persona-aware landing pages with widget catalog, KPI catalog, role-switcher, and per-club override."
 msgstr "Persona-bewuste landingspagina's met widget-catalogus, KPI-catalogus, rol-wisselaar en per-club-override."
+
+# v3.47.0 — activity status + wizard config UX
+
+msgid "Lifecycle of the activity. Defaults to \"Planned\" on create."
+msgstr "Levensfase van de activiteit. Standaard \"Gepland\" bij aanmaken."
+
+msgid "No wizards registered yet."
+msgstr "Nog geen wizards geregistreerd."
+
+msgid "Enable all wizards"
+msgstr "Alle wizards inschakelen"
+
+msgid "Tick the wizards you want surfaced as the entry-point on their respective list views. Unticked wizards fall back to the flat create form."
+msgstr "Vink de wizards aan die je als startpunt wilt tonen op de bijbehorende overzichten. Niet-aangevinkte wizards vallen terug op het standaard aanmaakformulier."
+
+# v3.47.0 — Roles & rights / Functional roles labelling
+
+msgid "Roles & rights"
+msgstr "Rollen & rechten"
+
+msgid "Academy-wide roles. Every user has exactly one role here — it decides which tiles, surfaces, and actions they can reach. Roles are predefined and their permissions are read-only."
+msgstr "Academiebrede rollen. Elke gebruiker heeft hier precies één rol — die bepaalt welke tegels, schermen en acties ze kunnen bereiken. Rollen zijn vooraf gedefinieerd en hun rechten zijn alleen-lezen."
+
+msgid "For per-team staff assignments (head coach, assistant coach, team manager, physio, mentor), see %1$s. To trace a specific permission for one user, see %2$s."
+msgstr "Voor stafrollen per team (hoofdcoach, assistent-coach, teammanager, fysio, mentor), zie %1$s. Om een specifiek recht voor één gebruiker te traceren, zie %2$s."
+
+msgid "Per-team staff assignments. A user can hold many functional roles at once — head coach of one team, assistant of another. Each functional role is mapped to one or more authorization roles, which determine what that person is allowed to do on the team they're assigned to. Edit a functional role below to change its mapping."
+msgstr "Stafrollen per team. Eén gebruiker kan meerdere functionele rollen tegelijk hebben — hoofdcoach van het ene team, assistent van het andere. Elke functionele rol is gekoppeld aan één of meer autorisatierollen, die bepalen wat de persoon mag doen op het team waaraan hij is toegewezen. Bewerk een functionele rol hieronder om de koppeling aan te passen."
+
+msgid "For academy-wide roles (Head of Development, Club Admin, Coach, Player, Parent, Scout, Read-only Observer), see %s."
+msgstr "Voor academiebrede rollen (Hoofd Opleiding, Clubbeheer, Coach, Speler, Ouder, Scout, Read-only-waarnemer), zie %s."
+
+msgid "Per-team staff assignments — head coach, assistant, manager, physio. A user can hold many at once. Different from academy-wide "
+msgstr "Stafrollen per team — hoofdcoach, assistent, manager, fysio. Eén gebruiker kan meerdere tegelijk hebben. Niet hetzelfde als academiebrede "
+
+msgid "Per-team staff assignments — head coach, assistant, manager, physio. Different from academy-wide Roles & rights."
+msgstr "Stafrollen per team — hoofdcoach, assistent, manager, fysio. Niet hetzelfde als academiebrede Rollen & rechten."
+
+# v3.48.0 — workflow cadence relabel + journey filter declutter
+
+msgid "Turn templates on or off, and override how often they run + how long users have to act. Changes take effect on the next cron tick or trigger."
+msgstr "Zet sjablonen aan of uit en pas aan hoe vaak ze afgaan + hoeveel tijd gebruikers krijgen om te reageren. Wijzigingen worden van kracht bij de volgende cron-tick of trigger."
+
+msgid "How often (cron)"
+msgstr "Hoe vaak (cron)"
+
+msgid "Cron expression, e.g. '0 9 * * 1' for every Monday at 09:00. Leave the placeholder unchanged to use the default schedule."
+msgstr "Cron-expressie, bv. '0 9 * * 1' voor elke maandag om 09:00. Laat de placeholder ongewijzigd om het standaardschema te gebruiken."
+
+msgid "Deadline (days)"
+msgstr "Deadline (dagen)"
+
+msgid "How many days after the task fires before it counts as overdue. Whole number, e.g. 7."
+msgstr "Aantal dagen na het afgaan van de taak voordat hij als verlopen telt. Geheel getal, bv. 7."
+
+msgid "More filters (%d)"
+msgstr "Meer filters (%d)"
+
+msgid "Academy name, logo, primary and secondary colours."
+msgstr "Academienaam, logo, primaire en secundaire kleuren."
+
+msgid "Activity types, positions, age groups, goal statuses, evaluation types — all in wp-admin."
+msgstr "Activiteittypes, posities, leeftijdsgroepen, doelstatussen, evaluatietypes — allemaal in wp-admin."
+
+msgid "Administrator"
+msgstr "Beheerder"
+
+msgid "All configuration"
+msgstr "Alle configuratie"
+
+msgid "Existing player"
+msgstr "Bestaande speler"
+
+msgid "Feature toggles"
+msgstr "Functieschakelaars"
+
+msgid "Fill in at least first name, last name and date of birth. The new player record will be created with status \"trial\" before the case is opened."
+msgstr "Vul minimaal voornaam, achternaam en geboortedatum in. Het nieuwe spelerrecord wordt aangemaakt met status \"trial\" voordat de case wordt geopend."
+
+msgid "Include archived"
+msgstr "Inclusief gearchiveerd"
+
+msgid "Lookups & evaluation types"
+msgstr "Lookups & evaluatietypes"
+
+msgid "Manual + scheduled database backups. Lives in wp-admin."
+msgstr "Handmatige + geplande databaseback-ups. Beheerd in wp-admin."
+
+msgid "Max"
+msgstr "Max"
+
+msgid "Min"
+msgstr "Min"
+
+msgid "Min, max and step for evaluation ratings."
+msgstr "Min, max en stap voor evaluatiebeoordelingen."
+
+msgid "No trial cases match those filters yet."
+msgstr "Nog geen trial-cases die aan deze filters voldoen."
+
+msgid "Or create a new player here"
+msgstr "Of maak hier een nieuwe speler aan"
+
+msgid "Per-locale string overrides and the .po/.mo refresh job."
+msgstr "Stringoverschrijvingen per taal en de .po/.mo-vernieuwingstaak."
+
+msgid "Per-module enable/disable toggles. Live in wp-admin."
+msgstr "Aan/uit-schakelaars per module. Beheerd in wp-admin."
+
+msgid "Pick a configuration area. Branding, theme and rating-scale settings are edited inline; the remaining areas open in wp-admin."
+msgstr "Kies een configuratiegebied. Branding, thema en beoordelingsschaal worden hier bewerkt; de overige gebieden openen in wp-admin."
+
+msgid "Please pick a player (or fill in first name, last name and date of birth to create one), a track, and start/end dates."
+msgstr "Kies een speler (of vul voornaam, achternaam en geboortedatum in om er een aan te maken), een traject en start-/einddata."
+
+msgid "Re-run the first-run onboarding wizard."
+msgstr "Doorloop de eerste-keer-onboardingwizard opnieuw."
+
+msgid "Save branding"
+msgstr "Branding opslaan"
+
+msgid "Save menus"
+msgstr "Menu's opslaan"
+
+msgid "Save rating scale"
+msgstr "Beoordelingsschaal opslaan"
+
+msgid "Save theme"
+msgstr "Thema opslaan"
+
+msgid "Secondary color"
+msgstr "Secundaire kleur"
+
+msgid "Settings + sensitive data change history."
+msgstr "Wijzigingsgeschiedenis van instellingen en gevoelige data."
+
+msgid "Show or hide the legacy wp-admin menu entries."
+msgstr "Toon of verberg de oudere wp-admin menu-items."
+
+msgid "Staff member"
+msgstr "Stafmedewerker"
+
+msgid "Staff slot %d"
+msgstr "Stafplek %d"
+
+msgid "Theme & fonts"
+msgstr "Thema & fonts"
+
+msgid "Theme inheritance, display + body fonts and accent colours."
+msgstr "Thema-overerving, display- en bodyfonts en accentkleuren."

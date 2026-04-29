@@ -54,15 +54,22 @@ class RolesPage {
         $roles = $repo->listRoles();
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Roles & Permissions', 'talenttrack' ); ?></h1>
+            <h1><?php esc_html_e( 'Roles & rights', 'talenttrack' ); ?></h1>
 
             <?php self::renderMessages(); ?>
 
             <p class="description">
-                <?php esc_html_e( 'TalentTrack uses a role-based access system. Each role grants a set of permissions that can be scoped globally, to a team, or to a specific player. System roles are predefined and their permission sets are read-only.', 'talenttrack' ); ?>
-                <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-roles-debug' ) ); ?>">
-                    <?php esc_html_e( 'Open permission debugger', 'talenttrack' ); ?>
-                </a>
+                <?php esc_html_e( 'Academy-wide roles. Every user has exactly one role here — it decides which tiles, surfaces, and actions they can reach. Roles are predefined and their permissions are read-only.', 'talenttrack' ); ?>
+            </p>
+            <p class="description">
+                <?php
+                printf(
+                    /* translators: 1: link to functional-roles page, 2: link to permission debugger */
+                    esc_html__( 'For per-team staff assignments (head coach, assistant coach, team manager, physio, mentor), see %1$s. To trace a specific permission for one user, see %2$s.', 'talenttrack' ),
+                    '<a href="' . esc_url( admin_url( 'admin.php?page=tt-functional-roles' ) ) . '">' . esc_html__( 'Functional Roles', 'talenttrack' ) . '</a>',
+                    '<a href="' . esc_url( admin_url( 'admin.php?page=tt-roles-debug' ) ) . '">' . esc_html__( 'Permission Debug', 'talenttrack' ) . '</a>'
+                );
+                ?>
             </p>
 
             <table class="widefat striped">

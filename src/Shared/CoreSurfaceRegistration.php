@@ -99,6 +99,12 @@ final class CoreSurfaceRegistration {
         $is_player_cb = static function ( int $user_id ): bool {
             return (bool) QueryHelpers::get_player_for_user( $user_id );
         };
+        // Me-group tiles are also visible to parents (scoped to their
+        // child via the matrix `parent` persona seed). Without this,
+        // parents land on an empty dashboard.
+        $is_player_or_parent_cb = static function ( int $user_id ) use ( $is_player_cb ): bool {
+            return $is_player_cb( $user_id ) || user_can( $user_id, 'tt_parent' );
+        };
         $is_coach_or_admin_cb = static function ( int $user_id ): bool {
             return user_can( $user_id, 'tt_edit_evaluations' ) || user_can( $user_id, 'tt_edit_settings' );
         };
@@ -115,7 +121,7 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Your FIFA-style card, ratings, and headline numbers.', 'talenttrack' ),
             'icon'         => 'rate-card',
             'color'        => '#1d7874',
-            'cap_callback' => $is_player_cb,
+            'cap_callback' => $is_player_or_parent_cb,
         ]);
         TileRegistry::register([
             'module_class' => self::M_TEAMS,
@@ -127,7 +133,7 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Your teammates and the team podium.', 'talenttrack' ),
             'icon'         => 'teams',
             'color'        => '#2271b1',
-            'cap_callback' => $is_player_cb,
+            'cap_callback' => $is_player_or_parent_cb,
         ]);
         TileRegistry::register([
             'module_class' => self::M_EVALUATIONS,
@@ -139,7 +145,7 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Ratings and feedback from your coaches.', 'talenttrack' ),
             'icon'         => 'evaluations',
             'color'        => '#7c3a9e',
-            'cap_callback' => $is_player_cb,
+            'cap_callback' => $is_player_or_parent_cb,
         ]);
         TileRegistry::register([
             'module_class' => self::M_ACTIVITIES,
@@ -151,7 +157,7 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Training sessions and games you\'ve attended.', 'talenttrack' ),
             'icon'         => 'activities',
             'color'        => '#c9962a',
-            'cap_callback' => $is_player_cb,
+            'cap_callback' => $is_player_or_parent_cb,
         ]);
         TileRegistry::register([
             'module_class' => self::M_GOALS,
@@ -163,7 +169,7 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Development goals to work toward.', 'talenttrack' ),
             'icon'         => 'goals',
             'color'        => '#b32d2e',
-            'cap_callback' => $is_player_cb,
+            'cap_callback' => $is_player_or_parent_cb,
         ]);
         TileRegistry::register([
             'module_class' => self::M_PDP,
@@ -201,7 +207,7 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Your story at the academy — milestones, evaluations, goals.', 'talenttrack' ),
             'icon'         => 'goals',
             'color'        => '#0d9488',
-            'cap_callback' => $is_player_cb,
+            'cap_callback' => $is_player_or_parent_cb,
         ]);
 
         // ── Tasks group — workflow inbox + dashboards. ──
@@ -315,7 +321,7 @@ final class CoreSurfaceRegistration {
             'kind'         => 'setup',
             'order'        => 40,
             'label'        => __( 'Functional roles', 'talenttrack' ),
-            'description'  => __( 'Manage role types and team assignments.', 'talenttrack' ),
+            'description'  => __( 'Per-team staff assignments — head coach, assistant, manager, physio. Different from academy-wide Roles & rights.', 'talenttrack' ),
             'icon'         => 'functional-roles',
             'color'        => '#5b6e75',
             'cap_callback' => static function ( int $uid ): bool {
@@ -909,7 +915,7 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_AUTHORIZATION,
             'parent'       => $parent,
             'group'        => 'access',
-            'title'        => __( 'Roles & Permissions', 'talenttrack' ),
+            'title'        => __( 'Roles & rights', 'talenttrack' ),
             'cap'          => 'tt_view_settings',
             'slug'         => 'tt-roles',
             'callback'     => [ \TT\Modules\Authorization\Admin\RolesPage::class, 'render' ],

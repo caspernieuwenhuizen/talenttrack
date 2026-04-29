@@ -7,7 +7,10 @@ use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\LabelTranslator;
+use TT\Infrastructure\Query\LookupPill;
+use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Validation\CustomFieldValidator;
 use TT\Shared\Admin\BackButton;
 
@@ -39,23 +42,34 @@ class ActivitiesPage {
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
         $type_filter = isset( $_GET['type'] ) ? sanitize_key( (string) wp_unslash( $_GET['type'] ) ) : '';
 
-        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
-        $type_clause = '';
-        if ( $type_filter !== '' && in_array( $type_filter, [ 'game', 'training', 'other' ], true ) ) {
-            $type_clause = $wpdb->prepare( ' AND a.activity_type_key = %s', $type_filter );
+        $scope          = QueryHelpers::apply_demo_scope( 'a', 'activity' );
+        $type_lookup    = QueryHelpers::get_lookups( 'activity_type' );
+        $valid_types    = array_map( static fn( $row ) => (string) $row->name, $type_lookup );
+        $type_clause    = '';
+        $type_params    = [];
+        if ( $type_filter !== '' && in_array( $type_filter, $valid_types, true ) ) {
+            $type_clause = ' AND a.activity_type_key = %s';
+            $type_params[] = $type_filter;
         }
-        $activities = $wpdb->get_results( "SELECT a.*, t.name AS team_name, u.display_name AS coach_name FROM {$p}tt_activities a LEFT JOIN {$p}tt_teams t ON a.team_id=t.id LEFT JOIN {$wpdb->users} u ON a.coach_id=u.ID WHERE a.{$view_clause} {$scope} {$type_clause} ORDER BY a.session_date DESC LIMIT 50" );
-        $base_url = admin_url( 'admin.php?page=tt-activities' );
-        // #0040 — type filter as a <select> instead of the chip-strip.
-        // Three hardcoded options for now (game/training/other) since the
-        // storage column `activity_type_key` enforces those three values;
-        // moving to a lookup-driven set would require an entity migration.
-        $type_options = [
-            ''         => __( 'All types', 'talenttrack' ),
-            'game'     => __( 'Games', 'talenttrack' ),
-            'training' => __( 'Trainings', 'talenttrack' ),
-            'other'    => __( 'Other', 'talenttrack' ),
-        ];
+        $list_sql = "SELECT a.*, t.name AS team_name, u.display_name AS coach_name
+                     FROM {$p}tt_activities a
+                     LEFT JOIN {$p}tt_teams t ON a.team_id=t.id AND t.club_id = a.club_id
+                     LEFT JOIN {$wpdb->users} u ON a.coach_id=u.ID
+                     WHERE a.{$view_clause}
+                       AND a.club_id = %d
+                       {$scope}
+                       {$type_clause}
+                     ORDER BY a.session_date DESC
+                     LIMIT 50";
+        $list_params = array_merge( [ CurrentClub::id() ], $type_params );
+        $activities  = $wpdb->get_results( $wpdb->prepare( $list_sql, ...$list_params ) );
+        $base_url    = admin_url( 'admin.php?page=tt-activities' );
+        // Type filter is lookup-driven — admin-added rows show up
+        // automatically. Labels are translated via LookupTranslator.
+        $type_options = [ '' => __( 'All types', 'talenttrack' ) ];
+        foreach ( $type_lookup as $type_row ) {
+            $type_options[ (string) $type_row->name ] = LookupTranslator::name( $type_row );
+        }
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Activities', 'talenttrack' ); ?><?php if ( current_user_can( 'tt_edit_activities' ) ) : ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-activities&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a><?php endif; ?> <?php \TT\Shared\Admin\HelpLink::render( 'activities' ); ?></h1>
@@ -96,7 +110,7 @@ class ActivitiesPage {
                 <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
                     <td class="check-column"><?php \TT\Shared\Admin\BulkActionsHelper::rowCheckbox( (int) $a->id ); ?></td>
                     <td><?php echo esc_html( (string) $a->session_date ); ?></td>
-                    <td><?php echo esc_html( self::renderTypeBadge( $a ) ); ?></td>
+                    <td><?php echo self::renderTypePill( $a ); ?></td>
                     <td><?php echo esc_html( (string) $a->title ); ?>
                         <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
                     </td>
@@ -147,49 +161,58 @@ class ActivitiesPage {
         <?php
     }
 
-    private static function renderTypeBadge( object $row ): string {
+    /**
+     * Render the activity type as a colour-coded pill. Game rows still
+     * surface the subtype (Friendly / Cup / League) and Other rows still
+     * surface the free-text label; both ride alongside the pill rather
+     * than replacing it.
+     */
+    private static function renderTypePill( object $row ): string {
         $type = (string) ( $row->activity_type_key ?? 'training' );
-        // #0050 — pull the translated label from the activity_type
-        // lookup. Cases for game subtype / other-label still apply
-        // because those carry extra context the lookup name lacks.
+        $pill = LookupPill::render( 'activity_type', $type );
+
         if ( $type === 'game' ) {
             $sub = (string) ( $row->game_subtype_key ?? '' );
             if ( $sub !== '' ) {
-                return sprintf(
-                    /* translators: %s: game subtype label (Friendly / Cup / League) */
-                    __( 'Game · %s', 'talenttrack' ),
-                    $sub
-                );
+                return $pill . ' <span style="color:#5b6e75;font-size:11px;">·&nbsp;'
+                    . esc_html( $sub ) . '</span>';
             }
-            return __( 'Game', 'talenttrack' );
         }
         if ( $type === 'other' ) {
             $label = (string) ( $row->other_label ?? '' );
-            return $label !== '' ? $label : __( 'Other', 'talenttrack' );
+            if ( $label !== '' ) {
+                return $pill . ' <span style="color:#5b6e75;font-size:11px;">·&nbsp;'
+                    . esc_html( $label ) . '</span>';
+            }
         }
-        // Training and admin-added types — pull the translated label
-        // from the lookup, fall back to humanised key when the row was
-        // somehow removed.
-        return \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'activity_type', $type ) ?: $type;
+        return $pill;
     }
 
     private static function render_form( int $id ): void {
         global $wpdb; $p = $wpdb->prefix;
-        $activity = $id ? $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$p}tt_activities WHERE id=%d", $id ) ) : null;
+        $activity = $id ? $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) ) : null;
         $teams = QueryHelpers::get_teams();
         $att_statuses = QueryHelpers::get_lookup_names( 'attendance_status' );
         // #0050 — Type now lookup-driven; existing rows store the seed
         // names (training/game/other) so no data migration was needed.
-        $activity_type_rows = QueryHelpers::get_lookups( 'activity_type' );
-        $game_subtypes      = QueryHelpers::get_lookup_names( 'game_subtype' );
+        $activity_type_rows   = QueryHelpers::get_lookups( 'activity_type' );
+        $activity_status_rows = QueryHelpers::get_lookups( 'activity_status' );
+        $game_subtypes        = QueryHelpers::get_lookup_names( 'game_subtype' );
         $attendance = [];
-        if ( $activity ) foreach ( $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$p}tt_attendance WHERE activity_id=%d AND is_guest=0", $activity->id ) ) as $r ) $attendance[ (int) $r->player_id ] = $r;
+        if ( $activity ) foreach ( $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$p}tt_attendance WHERE activity_id = %d AND is_guest = 0 AND club_id = %d",
+            $activity->id, CurrentClub::id()
+        ) ) as $r ) $attendance[ (int) $r->player_id ] = $r;
         $team_id = (int) ( $activity->team_id ?? 0 );
         $players = $team_id ? QueryHelpers::get_players( $team_id ) : QueryHelpers::get_players();
         $state = self::popFormState();
-        $current_type = (string) ( $activity->activity_type_key ?? 'training' );
+        $current_type    = (string) ( $activity->activity_type_key ?? 'training' );
+        $current_status  = (string) ( $activity->activity_status_key ?? 'planned' );
         $current_subtype = (string) ( $activity->game_subtype_key ?? '' );
-        $current_other = (string) ( $activity->other_label ?? '' );
+        $current_other   = (string) ( $activity->other_label ?? '' );
         ?>
         <div class="wrap">
 
@@ -219,9 +242,20 @@ class ActivitiesPage {
                         <td>
                             <select name="activity_type_key" id="tt-activity-type" required>
                                 <?php foreach ( $activity_type_rows as $type_row ) : ?>
-                                    <option value="<?php echo esc_attr( (string) $type_row->name ); ?>" <?php selected( $current_type, (string) $type_row->name ); ?>><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $type_row ) ); ?></option>
+                                    <option value="<?php echo esc_attr( (string) $type_row->name ); ?>" <?php selected( $current_type, (string) $type_row->name ); ?>><?php echo esc_html( LookupTranslator::name( $type_row ) ); ?></option>
                                 <?php endforeach; ?>
                             </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                        <td>
+                            <select name="activity_status_key">
+                                <?php foreach ( $activity_status_rows as $status_row ) : ?>
+                                    <option value="<?php echo esc_attr( (string) $status_row->name ); ?>" <?php selected( $current_status, (string) $status_row->name ); ?>><?php echo esc_html( LookupTranslator::name( $status_row ) ); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="description"><?php esc_html_e( 'Lifecycle of the activity. Defaults to "Planned" on create.', 'talenttrack' ); ?></p>
                         </td>
                     </tr>
                     <tr id="tt-activity-subtype-row" style="<?php echo $current_type === 'game' ? '' : 'display:none;'; ?>">
@@ -322,6 +356,10 @@ class ActivitiesPage {
         $valid_types = QueryHelpers::get_lookup_names( 'activity_type' );
         if ( ! in_array( $type, $valid_types, true ) ) $type = 'training';
 
+        $status        = isset( $_POST['activity_status_key'] ) ? sanitize_text_field( (string) wp_unslash( $_POST['activity_status_key'] ) ) : 'planned';
+        $valid_statuses = QueryHelpers::get_lookup_names( 'activity_status' );
+        if ( ! in_array( $status, $valid_statuses, true ) ) $status = 'planned';
+
         $data = [
             'title' => isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['title'] ) ) : '',
             'session_date' => isset( $_POST['session_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['session_date'] ) ) : '',
@@ -329,7 +367,8 @@ class ActivitiesPage {
             'coach_id' => get_current_user_id(),
             'location' => isset( $_POST['location'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['location'] ) ) : '',
             'notes' => isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '',
-            'activity_type_key' => $type,
+            'activity_type_key'   => $type,
+            'activity_status_key' => $status,
             'game_subtype_key'  => $type === 'game' && ! empty( $_POST['game_subtype_key'] )
                 ? sanitize_text_field( wp_unslash( (string) $_POST['game_subtype_key'] ) )
                 : null,
@@ -339,8 +378,12 @@ class ActivitiesPage {
         ];
 
         if ( $id ) {
-            $ok = $wpdb->update( "{$p}tt_activities", $data, [ 'id' => $id ] );
+            $ok = $wpdb->update( "{$p}tt_activities", $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         } else {
+            // Source defaults to 'manual' — Spond and demo-data writes
+            // override this from their own code paths.
+            $data['activity_source_key'] = 'manual';
+            $data['club_id']             = CurrentClub::id();
             $ok = $wpdb->insert( "{$p}tt_activities", $data );
             if ( $ok !== false ) $id = (int) $wpdb->insert_id;
         }
@@ -366,7 +409,7 @@ class ActivitiesPage {
         // #0026 — only wipe roster rows; guest rows (is_guest=1) are
         // managed via the frontend / REST endpoints and survive a
         // legacy admin save cycle.
-        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $id, 'is_guest' => 0 ] );
+        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $id, 'is_guest' => 0, 'club_id' => CurrentClub::id() ] );
         $att_raw = isset( $_POST['att'] ) && is_array( $_POST['att'] ) ? $_POST['att'] : [];
         foreach ( $att_raw as $pid => $d ) {
             $ok_att = $wpdb->insert( "{$p}tt_attendance", [
@@ -374,6 +417,7 @@ class ActivitiesPage {
                 'status' => isset( $d['status'] ) ? sanitize_text_field( wp_unslash( (string) $d['status'] ) ) : 'Present',
                 'notes' => isset( $d['notes'] ) ? sanitize_text_field( wp_unslash( (string) $d['notes'] ) ) : '',
                 'is_guest' => 0,
+                'club_id'  => CurrentClub::id(),
             ]);
             if ( $ok_att === false ) {
                 Logger::error( 'admin.activity.attendance.save.failed', [ 'db_error' => (string) $wpdb->last_error, 'activity_id' => $id, 'player_id' => absint( $pid ) ] );
@@ -407,8 +451,8 @@ class ActivitiesPage {
         check_admin_referer( 'tt_del_act_' . $id );
         if ( ! current_user_can( 'tt_edit_activities' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         global $wpdb; $p = $wpdb->prefix;
-        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $id ] );
-        $wpdb->delete( "{$p}tt_activities", [ 'id' => $id ] );
+        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $id, 'club_id' => CurrentClub::id() ] );
+        $wpdb->delete( "{$p}tt_activities", [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-activities&tt_msg=deleted' ) );
         exit;
     }

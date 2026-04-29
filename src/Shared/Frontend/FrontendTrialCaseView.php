@@ -7,6 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Reports\AudienceType;
+use TT\Shared\Frontend\Components\StaffPickerComponent;
 use TT\Modules\Trials\Letters\DefaultLetterTemplates;
 use TT\Modules\Trials\Letters\LetterTemplateEngine;
 use TT\Modules\Trials\Letters\TrialLetterService;
@@ -181,16 +182,16 @@ class FrontendTrialCaseView extends FrontendViewBase {
     }
 
     private static function renderAssignStaffForm( int $case_id ): void {
-        $coaches = get_users( [ 'role__in' => [ 'tt_coach', 'tt_head_dev', 'tt_club_admin', 'administrator' ], 'fields' => [ 'ID', 'display_name' ] ] );
         echo '<form method="post" class="tt-trial-assign-form">';
         wp_nonce_field( 'tt_trial_assign_' . $case_id, 'tt_trial_assign_nonce' );
         echo '<input type="hidden" name="tt_trial_action" value="assign_staff">';
-        echo '<select name="staff_user_id" required><option value="">' . esc_html__( '— pick a staff member —', 'talenttrack' ) . '</option>';
-        foreach ( $coaches as $u ) {
-            echo '<option value="' . esc_attr( (string) $u->ID ) . '">' . esc_html( (string) $u->display_name ) . '</option>';
-        }
-        echo '</select>';
-        echo ' <input type="text" name="role_label" placeholder="' . esc_attr__( 'Role label (optional)', 'talenttrack' ) . '">';
+        echo StaffPickerComponent::render( [
+            'name'        => 'staff_user_id',
+            'label'       => __( 'Staff member', 'talenttrack' ),
+            'required'    => true,
+            'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
+        ] );
+        echo ' <input type="text" name="role_label" class="tt-input" placeholder="' . esc_attr__( 'Role label (optional)', 'talenttrack' ) . '">';
         echo ' <button type="submit" class="tt-button">' . esc_html__( 'Assign', 'talenttrack' ) . '</button>';
         echo '</form>';
     }
