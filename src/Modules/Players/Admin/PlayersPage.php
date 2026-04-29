@@ -241,6 +241,27 @@ class PlayersPage {
                 </div>
             <?php endif; ?>
 
+            <?php
+            if ( $is_edit ) {
+                $tier = \TT\Modules\Authorization\AgeTier::fromBirthdate( (string) ( $player->date_of_birth ?? '' ) );
+                $notice = '';
+                if ( $tier === \TT\Modules\Authorization\AgeTier::U8_U10 ) {
+                    $notice = __( 'Player is U8-U10. Invitation flows will route through the linked parent — the player record does not need its own email or phone.', 'talenttrack' );
+                } elseif ( $tier === \TT\Modules\Authorization\AgeTier::U11_U12 ) {
+                    $notice = __( 'Player is U11-U12. PWA push on the player\'s phone is the primary contact channel; parent email is the fallback.', 'talenttrack' );
+                } elseif ( $tier === \TT\Modules\Authorization\AgeTier::U12_PLUS ) {
+                    $notice = __( 'Player is U12+. Email + PWA push are both available contact channels.', 'talenttrack' );
+                }
+                if ( $notice !== '' ) :
+                ?>
+                <div class="notice notice-info inline" style="margin:8px 0;">
+                    <p><strong><?php esc_html_e( 'Contact strategy:', 'talenttrack' ); ?></strong> <?php echo esc_html( $notice ); ?></p>
+                </div>
+                <?php
+                endif;
+            }
+            ?>
+
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                 <?php wp_nonce_field( 'tt_save_player', 'tt_nonce' ); ?>
                 <input type="hidden" name="action" value="tt_save_player" />

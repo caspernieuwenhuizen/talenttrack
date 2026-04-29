@@ -190,6 +190,11 @@ class DashboardShortcode {
             FrontendDesktopPreferredBanner::render( $view );
         }
 
+        // #0042 — install nudge for player + parent personas with no
+        // active push subscription. Renders above every dispatched
+        // view so the prompt is unmissable but not blocking.
+        FrontendInstallBanner::render();
+
         if ( $view === '' ) {
             // #0060 — when the persona-dashboard feature flag is on,
             // PersonaLandingRenderer takes over the empty-view landing

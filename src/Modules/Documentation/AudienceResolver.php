@@ -13,27 +13,39 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   <!-- audience: user -->
  *   <!-- audience: admin -->
  *   <!-- audience: dev -->
+ *   <!-- audience: player -->
+ *   <!-- audience: parent -->
  *   <!-- audience: user, admin -->     # cross-cutting
  *
- * Allowed values: user, admin, dev. Direct URL access is not gated;
- * the audience filter only affects what shows up in the sidebar TOC.
+ * Allowed values: user, admin, dev, player, parent. The `player` /
+ * `parent` audiences (#0042) carry the install-on-iOS / install-on-
+ * Android / notifications-setup / parent-handles-everything KB; they
+ * are subsets of `user` so a viewer with only `user` doesn't see them
+ * unless they also resolve as the matching persona.
+ *
+ * Direct URL access is not gated; the audience filter only affects
+ * what shows up in the sidebar TOC.
  */
 final class AudienceResolver {
 
-    public const USER  = 'user';
-    public const ADMIN = 'admin';
-    public const DEV   = 'dev';
+    public const USER   = 'user';
+    public const ADMIN  = 'admin';
+    public const DEV    = 'dev';
+    public const PLAYER = 'player';
+    public const PARENT = 'parent';
 
-    private const VALID = [ self::USER, self::ADMIN, self::DEV ];
+    private const VALID = [ self::USER, self::ADMIN, self::DEV, self::PLAYER, self::PARENT ];
 
     /**
      * @return array<string, string> machine key => translated label
      */
     public static function labels(): array {
         return [
-            self::USER  => __( 'User',  'talenttrack' ),
-            self::ADMIN => __( 'Admin', 'talenttrack' ),
-            self::DEV   => __( 'Dev',   'talenttrack' ),
+            self::USER   => __( 'User',   'talenttrack' ),
+            self::ADMIN  => __( 'Admin',  'talenttrack' ),
+            self::DEV    => __( 'Dev',    'talenttrack' ),
+            self::PLAYER => __( 'Player', 'talenttrack' ),
+            self::PARENT => __( 'Parent', 'talenttrack' ),
         ];
     }
 
@@ -72,12 +84,15 @@ final class AudienceResolver {
      * Audiences the given user is allowed to see in the docs index.
      *
      *   tt_player / tt_readonly_observer / tt_staff / tt_coach → user
+     *   tt_player                                              → user + player
+     *   tt_parent                                              → user + parent
      *   tt_head_dev                                            → user + admin
-     *   WP administrator                                       → user + admin + dev
+     *   WP administrator                                       → user + admin + dev + player + parent
      *
      * Multi-role users get the union. Anyone signed in falls back to
      * the user audience as a floor — there's no "no audience" state
-     * for a logged-in viewer.
+     * for a logged-in viewer. Admins see player/parent audiences too
+     * so they can preview the KB their members will read.
      *
      * @return list<string>
      */
@@ -89,10 +104,18 @@ final class AudienceResolver {
         // check goes through RoleResolver per #0052 PR-B so any future
         // SaaS auth backend re-implements this in one place.
         if ( $user_id > 0 && \TT\Infrastructure\Security\RoleResolver::userHasRole( $user_id, 'administrator' ) ) {
-            return [ self::USER, self::ADMIN, self::DEV ];
+            return [ self::USER, self::ADMIN, self::DEV, self::PLAYER, self::PARENT ];
         }
         if ( user_can( $user_id, 'tt_head_dev' ) || user_can( $user_id, 'tt_edit_settings' ) ) {
             $allowed[] = self::ADMIN;
+        }
+        if ( $user_id > 0 ) {
+            if ( \TT\Infrastructure\Security\RoleResolver::userHasRole( $user_id, 'tt_player' ) ) {
+                $allowed[] = self::PLAYER;
+            }
+            if ( \TT\Infrastructure\Security\RoleResolver::userHasRole( $user_id, 'tt_parent' ) ) {
+                $allowed[] = self::PARENT;
+            }
         }
         return array_values( array_unique( $allowed ) );
     }
