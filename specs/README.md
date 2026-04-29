@@ -16,7 +16,13 @@ Structure per spec file:
   
   ## Scope
   What's in.
-  
+
+  ## Wizard plan
+  Required per `CLAUDE.md` § 3 (wizard-first record creation). One of:
+  - **Slug**: `<wizard-slug>` — new wizard. Briefly describe its steps.
+  - **Existing wizard extended**: `<wizard-slug>` — describe what step or branch is added.
+  - **Exemption**: `<one-sentence reason>` — must match the exemption rules in `CLAUDE.md` (lookup/single-field edits, or bulk operations on existing records).
+
   ## Out of scope
   What's deliberately not included.
   

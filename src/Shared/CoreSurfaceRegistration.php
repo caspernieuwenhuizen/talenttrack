@@ -265,6 +265,7 @@ final class CoreSurfaceRegistration {
             'icon'         => 'workflow',
             'color'        => '#5b6e75',
             'cap'          => 'tt_configure_workflow_templates',
+            'desktop_preferred' => true,
         ]);
 
         // ── People group ──
@@ -459,6 +460,7 @@ final class CoreSurfaceRegistration {
             'icon'         => 'docs',
             'color'        => '#5b6e75',
             'cap'          => 'tt_manage_trials',
+            'desktop_preferred' => true,
         ]);
 
         // Sub-views without their own tile.
@@ -585,6 +587,7 @@ final class CoreSurfaceRegistration {
             'icon'         => 'settings',
             'color'        => '#555',
             'cap'          => 'tt_access_frontend_admin',
+            'desktop_preferred' => true,
         ]);
         TileRegistry::register([
             'module_class' => self::M_CONFIG,
@@ -597,6 +600,7 @@ final class CoreSurfaceRegistration {
             'icon'         => 'migrations',
             'color'        => '#555',
             'cap'          => 'tt_access_frontend_admin',
+            'desktop_preferred' => true,
         ]);
         TileRegistry::register([
             'module_class' => self::M_WIZARDS,
@@ -609,6 +613,7 @@ final class CoreSurfaceRegistration {
             'icon'         => 'lightbulb',
             'color'        => '#5b6e75',
             'cap'          => 'tt_edit_settings',
+            'desktop_preferred' => true,
         ]);
         // Audit log is infra (no module owner). Always renders for users
         // with tt_view_settings.
@@ -623,6 +628,7 @@ final class CoreSurfaceRegistration {
             'icon'         => 'audit-log',
             'color'        => '#5b6e75',
             'cap'          => 'tt_view_settings',
+            'desktop_preferred' => true,
         ]);
         TileRegistry::register([
             'module_class' => self::M_INVITATIONS,

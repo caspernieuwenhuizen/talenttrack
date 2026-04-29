@@ -1,3 +1,62 @@
+# TalentTrack v3.50.0 — Wizard-first standard, Spond integration, player status core, mobile-first quick wins
+
+Five-spec omnibus, scoped down to what fit cleanly in one PR. Two specs descoped explicitly to follow-up releases.
+
+## Shipped fully
+
+### #0058 — Wizard-first as a development standard (docs only)
+
+`CLAUDE.md` gains a new § 3 between Mobile-first and SaaS-ready that codifies the rule: every new record-creation flow ships with a wizard implemented against `Shared\Wizards\WizardInterface`, registered in `WizardRegistry`, and reachable via `?tt_view=wizard&slug=<…>`. Two pre-approved exemptions (lookup edits, bulk operations on existing records); forward-only retrofit policy. `specs/README.md` template gains a required "Wizard plan" subsection. PR Definition-of-done checklist gains a Wizard-first heading with two checkbox items.
+
+### #0031 — Spond calendar integration
+
+Read-only Spond → TalentTrack iCal sync per team. New `Infrastructure\Security\CredentialEncryption` (AES-GCM keyed off `wp_salt('auth')`) — the iCal URL is a bearer credential and now stored encrypted at rest. Migration `0041_spond_integration.php` adds `tt_teams.spond_*` columns and `tt_activities.external_id`; the source flag rides on the existing v3.47.0 `activity_source_key='spond'` column. New `Modules\Spond\` namespace with `SpondModule` (cron + module shell), `SpondClient` (wp_remote_get + content-type validation), `SpondParser` (in-house VEVENT-only parser, no Sabre dependency), `SpondTypeResolver` (NL/EN/DE/UK keyword classifier with `tt_spond_classify_event` filter), `SpondSync` (upsert + soft-archive on UID removal), `SpondCli` (`wp tt spond sync [--team=<id>]`). REST `POST /teams/{id}/spond/sync` for the team-form Refresh-now button. Hourly cron via `tt_spond_hourly`. The team admin form gains an iCal URL input with last-sync status + Refresh-now button.
+
+Conflict rule: Spond wins schedule fields (date / time / location / title); TalentTrack wins everything else (`activity_type_key` once a coach has changed it, attendance, evaluations, TalentTrack-only notes). UID disappearance triggers soft-archive (`archived_at = NOW()`); UID re-appearance unarchives. Never hard-delete from a sync.
+
+## Shipped partially
+
+### #0057 — Player status (Sprints 1, 2, 4-min)
+
+**Sprint 1 (data capture):** Migration `0042` adds `tt_player_behaviour_ratings` (continuous capture, 1-5 scale, append-only) and `tt_player_potential` (history of trainer-stated belief). Two new lookup sets: `behaviour_rating_label` and `potential_band` (first_team / professional_elsewhere / semi_pro / top_amateur / recreational). Repos for both. `Infrastructure\PlayerStatus\PlayerAttendanceCalculator` derives a 0-100 score from `tt_attendance` in a 90-day window; excused absences excluded; `low_confidence` flagged when sparse.
+
+**Sprint 2 (calculation):** `PlayerStatusCalculator` is stateless. `MethodologyResolver` looks up per-age-group config when present, falls back to a club-wide row, then to a hardcoded shipped default (40/25/20/15 ratings/behaviour/attendance/potential, amber<60, red<40, behaviour-floor at 3.0). Edge cases: insufficient signal → `unknown` (grey); behaviour below floor caps colour at amber regardless of composite. `StatusVerdict` carries colour + score + per-input breakdown + reasons + as-of timestamp + methodology version.
+
+**Sprint 4 (surfaces — minimal):** Traffic-light dot on the admin team-players panel. New `PlayerStatusRenderer` exposes `dot()` / `pill()` / `panel()` as a discrete labelled component (`<section class="tt-player-status-panel">`) so the #0060 persona-dashboard work can re-position it without rewriting markup.
+
+REST: `POST /players/{id}/behaviour-ratings`, `POST /players/{id}/potential`, `GET /players/{id}/status`, `GET /teams/{id}/player-statuses`. The bulk endpoint is the read model the dot column on My Teams will consume in v3.51.0+. Permission-gated: `tt_view_player_status` (any view-players role) for the colour, `tt_view_player_status_breakdown` (coach + HoD) for the input scores; parents see only the soft label.
+
+Capabilities seeded: `tt_rate_player_behaviour`, `tt_set_player_potential`, `tt_view_player_status`, `tt_view_player_status_breakdown`.
+
+**Sprint 3 (methodology config UI) and Sprint 5 (PDP integration) deferred to v3.51.0+.** The methodology can be overridden today via the `tt_player_status_methodology` filter or by manually inserting a row into `tt_player_status_methodology` once Sprint 3 ships its migration.
+
+### #0056 — Mobile-first cleanup (quick wins + tap floor + banner)
+
+`assets/css/public.css` gains: legacy `.tt-form-row` font-size bumped 0.9rem → 1rem (kills iOS Safari auto-zoom on focus — the single highest-impact line of #0056); site-wide `touch-action: manipulation` on the most-tapped classes (kills 300ms tap delay); `:focus-visible` rules so mouse users don't see outlines but keyboard users still do; `env(safe-area-inset-*)` on `.tt-back-button-wrap`, `.tt-modal-footer`, `.tt-scout-link-header`, `.tt-meeting-fullscreen-launcher`; 48px tap-target floor under `(pointer: coarse)` for `.tt-btn`, `.tt-btn-sm`, `.tt-tab`, `.tt-pager-link`, `.tt-list-row-action`.
+
+`Shared\Frontend\CustomFieldRenderer` gains `inputmode` + `autocomplete` on email / phone / number fields. The central renderer covers every custom field's mobile keyboard correctly.
+
+New `desktop_preferred` flag on `TileRegistry`. Six surfaces tagged: Configuration, Migrations, Workflow templates, Letter templates, Wizards admin, Audit log. New `FrontendDesktopPreferredBanner` renders a non-blocking notice above the dispatched view on `(pointer: coarse) and (max-width: 767px)` only — phones see it, tablets / desktops never. Continue / Dismiss-for-now buttons; dismiss persists per-device via localStorage.
+
+**Pilot mobile-first rewrite (`FrontendActivitiesManageView`) deferred to v3.51.0+.**
+
+## Deferred to v3.51.0+
+
+- **#0059 Excel-driven demo data** — composer + PhpSpreadsheet vendor + ~1500 lines of importer / schemas / template builder didn't fit cleanly alongside this bundle. The procedural #0020 generator is unaffected.
+- **#0057 Sprint 3** — methodology configuration admin page.
+- **#0057 Sprint 5** — PDP integration with verdict-row columns + evidence-packet UI.
+- **#0056 pilot rewrite** — legacy CSS migration of `FrontendActivitiesManageView`.
+
+## Translations + docs
+
+40+ new `nl_NL` msgstrs (Spond, player status, mobile-first banner). New `docs/spond-integration.md` and `docs/player-status.md` (EN + NL). `bin/audit-tenancy-source.sh` passes; `php -l` clean across all 27 modified PHP files.
+
+## SEQUENCE.md
+
+New `v3.50.0-bundle` row under Done.
+
+---
+
 # TalentTrack v3.49.0 — Trial inline-create + StaffPicker + Configuration sub-grid
 
 Closes the three deferred items called out at the bottom of v3.48.0. Each

@@ -59,15 +59,19 @@ final class TileRegistry {
      */
     public static function register( array $tile ): void {
         $defaults = [
-            'entity'       => '',
-            'icon'         => '',
-            'color'        => '#5b6e75',
-            'description'  => '',
-            'order'        => 100,
-            'cap'          => '',
-            'cap_callback' => null,
-            'module_class' => null,
-            'view_slug'    => '',
+            'entity'            => '',
+            'icon'              => '',
+            'color'             => '#5b6e75',
+            'description'       => '',
+            'order'             => 100,
+            'cap'               => '',
+            'cap_callback'      => null,
+            'module_class'      => null,
+            'view_slug'         => '',
+            // #0056 — flag for surfaces that genuinely need a tablet/laptop;
+            // the dispatched view renders a "best on desktop" banner under
+            // (pointer: coarse) and (max-width: 767px).
+            'desktop_preferred' => false,
         ];
         $tile = array_merge( $defaults, $tile );
         // #0033 finalisation — accept the simpler `label` (string) form
@@ -273,6 +277,21 @@ final class TileRegistry {
         $owner = self::moduleForViewSlug( $slug );
         if ( $owner === null ) return false;
         return ! ModuleRegistry::isEnabled( $owner );
+    }
+
+    /**
+     * Whether the view-slug carries the `desktop_preferred` flag (#0056).
+     * Returns false for unknown slugs so a missing registration doesn't
+     * spuriously render the banner.
+     */
+    public static function isDesktopPreferred( string $slug ): bool {
+        if ( $slug === '' ) return false;
+        foreach ( self::$tiles as $tile ) {
+            if ( ( $tile['view_slug'] ?? '' ) === $slug ) {
+                return ! empty( $tile['desktop_preferred'] );
+            }
+        }
+        return false;
     }
 
     /**

@@ -9693,3 +9693,117 @@ msgstr "Drag-and-drop-editor — bepaal wat elke persona ziet op zijn landingspa
 
 msgid "Personas"
 msgstr "Persona's"
+
+# v3.50.0 — Spond integration (#0031)
+
+msgid "Spond iCal URL"
+msgstr "Spond iCal-URL"
+
+msgid "Paste the iCal URL from your Spond team settings. Stored encrypted; sync runs hourly. Leave blank to disable."
+msgstr "Plak de iCal-URL uit je Spond-teaminstellingen. Versleuteld opgeslagen; synchroniseert per uur. Leeg laten om uit te schakelen."
+
+msgid "Last sync:"
+msgstr "Laatste synchronisatie:"
+
+msgid "Refresh now"
+msgstr "Nu vernieuwen"
+
+msgid "Syncing…"
+msgstr "Synchroniseren…"
+
+msgid "Could not reach Spond (%s)."
+msgstr "Kon Spond niet bereiken (%s)."
+
+msgid "Spond URL was rejected — has it been revoked?"
+msgstr "Spond-URL geweigerd — is hij ingetrokken?"
+
+msgid "Spond URL returned 404 — has the team been deleted?"
+msgstr "Spond-URL gaf 404 — is het team verwijderd?"
+
+msgid "Spond returned HTTP %d."
+msgstr "Spond gaf HTTP %d."
+
+msgid "Spond returned an empty calendar."
+msgstr "Spond gaf een lege agenda terug."
+
+msgid "Spond returned a non-calendar response."
+msgstr "Spond gaf een antwoord dat geen agenda was."
+
+msgid "Response did not look like an iCal feed."
+msgstr "Antwoord leek geen iCal-feed."
+
+msgid "Spond iCal URL is empty."
+msgstr "Spond iCal-URL is leeg."
+
+msgid "No Spond URL configured."
+msgstr "Geen Spond-URL ingesteld."
+
+msgid "Spond feed contained no events."
+msgstr "Spond-feed bevat geen activiteiten."
+
+msgid "Synced: %1$d new · %2$d updated · %3$d archived."
+msgstr "Gesynchroniseerd: %1$d nieuw · %2$d bijgewerkt · %3$d gearchiveerd."
+
+msgid "Team not found."
+msgstr "Team niet gevonden."
+
+msgid "Team id is required."
+msgstr "Team-ID is verplicht."
+
+msgid "TalentTrack — Spond hourly sync"
+msgstr "TalentTrack — Spond synchronisatie per uur"
+
+# v3.50.0 — Player status (#0057)
+
+msgid "On track"
+msgstr "Op koers"
+
+msgid "At risk"
+msgstr "Risico"
+
+msgid "Critical"
+msgstr "Kritiek"
+
+msgid "Building first picture"
+msgstr "Eerste beeld opbouwen"
+
+msgid "Needs significant development support"
+msgstr "Heeft veel begeleiding nodig"
+
+msgid "No evaluations in the last 90 days."
+msgstr "Geen evaluaties in de laatste 90 dagen."
+
+msgid "Sparse attendance data — confidence reduced."
+msgstr "Weinig aanwezigheidsgegevens — vertrouwen lager."
+
+msgid "Insufficient signal — needs first evaluation and a few sessions."
+msgstr "Onvoldoende signaal — eerste evaluatie en een paar trainingen nodig."
+
+msgid "Composite %s below red threshold %s."
+msgstr "Samengestelde score %s onder rode drempel %s."
+
+msgid "Composite %s below amber threshold %s."
+msgstr "Samengestelde score %s onder oranje drempel %s."
+
+msgid "Behaviour %s below floor %s — capped at amber."
+msgstr "Gedrag %s onder bodem %s — gemaximeerd op oranje."
+
+msgid "Player id is required."
+msgstr "Speler-ID is verplicht."
+
+msgid "Player and rating (1-5) are required."
+msgstr "Speler en score (1-5) zijn verplicht."
+
+msgid "Player and a valid potential band are required."
+msgstr "Speler en een geldige potentieelgroep zijn verplicht."
+
+# v3.50.0 — Mobile-first cleanup (#0056)
+
+msgid "This page works best on a tablet or laptop."
+msgstr "Deze pagina werkt het best op een tablet of laptop."
+
+msgid "You can keep going on your phone, but a bigger screen makes editing easier."
+msgstr "Je kunt doorgaan op je telefoon, maar een groter scherm maakt bewerken makkelijker."
+
+msgid "Dismiss for now"
+msgstr "Voor nu sluiten"
