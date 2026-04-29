@@ -68,6 +68,6 @@ final class DetailsStep implements WizardStepInterface {
             ] );
         }
 
-        return [ 'redirect_url' => add_query_arg( [ 'tt_view' => 'goals', 'id' => $goal_id ], home_url( '/' ) ) ];
+        return [ 'redirect_url' => add_query_arg( [ 'tt_view' => 'goals', 'id' => $goal_id ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) ];
     }
 }

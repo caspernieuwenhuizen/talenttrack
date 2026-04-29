@@ -8977,3 +8977,8 @@ msgstr "Geen velden om bij te werken of bijwerken mislukt."
 
 msgid "Injury not found."
 msgstr "Blessure niet gevonden."
+
+# v3.46.0 — relabeled My-group tile
+
+msgid "Training sessions and games you've attended."
+msgstr "Trainingen en wedstrijden die je hebt bijgewoond."

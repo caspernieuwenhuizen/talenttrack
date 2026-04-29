@@ -834,6 +834,7 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
     flex-direction: column;
     gap: 10px;
 }
+.tt-dashboard .tt-mye-detail[hidden] { display: none; }
 .tt-dashboard .tt-mye-detail-heading {
     font-weight: 600;
     font-size: var(--tt-fs-sm, 13px);

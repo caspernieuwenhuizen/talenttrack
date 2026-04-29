@@ -4,13 +4,26 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.45.1
+Stable tag: 3.46.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.46.0 — Demo-readiness hotfix bundle: auth + wizards + tiles =
+
+Six fixes for issues surfaced during demo-install review:
+
+* **FIX:** Methodology tile no longer visible to players + parents. Removed the `methodology` row from the `player` and `parent` personas in `config/authorization_seed.php`. Players and parents see the methodology entries through their parent/coach user account if they have one; the player/parent role does not need it.
+* **FIX:** Wizards (`?tt_view=wizard&slug=…`) now work on installs where the dashboard is on a sub-page (not the front page). Replaced `home_url('/')` with a new `WizardEntryPoint::dashboardBaseUrl()` helper that resolves to the current dashboard's URL. Also fixes the **Cancel** button — it was redirecting to a URL that still carried `tt_view=wizard`, landing the user on a "Wizard not found" screen.
+* **FIX:** Evaluation detail toggle works again. The `[hidden]` HTML attribute on `.tt-mye-detail` was being overridden by `display: flex`. Added `.tt-mye-detail[hidden] { display: none }` (same shape as the v3.28.2 guest-modal fix). Players' rating breakdowns are now hidden until the **Show detail** button is clicked.
+* **FIX:** Club Admin role now has `tt_access_frontend_admin`. They can see Configuration, Migrations, Audit log, and Wizards admin tiles — not just admin + head of development.
+* **FIX:** Read-only Observer role no longer granted `tt_submit_idea`. The role's name implied read-only; granting an authoring cap was a contradiction. Existing installs have the cap removed idempotently on the next module boot.
+* **CHANGED:** Trial cases tile uses `track` icon (not `players`) — distinct from the People → Players tile. Trial tracks editor uses `categories` icon (the previous `lookup` icon name had no SVG file, so the tile was rendering blank).
+* **CHANGED:** **My journey** tile is now first in the Me group (was last). The journey is the headline of the player's experience.
+* **CHANGED:** **My sessions** tile renamed to **My activities** to match the post-#0035 vocabulary. Description updated to "Training sessions and games you've attended." NL translation added.
 
 = 3.45.1 — SaaS-readiness baseline (PR-A follow-up): repository sweep — club_id scoping across 114 files (#0052) =
 
