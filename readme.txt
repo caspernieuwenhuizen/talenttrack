@@ -4,13 +4,21 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.57.0
+Stable tag: 3.59.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.59.0 — #0061 polish + bug bundle (round 1) =
+
+Captures the user's punch-list as `ideas/0061-feat-minor-polish-bundle.md` and ships the bug-priority subset + smaller polish wins. **Bugs**: attendance % was form-completeness (recorded ÷ roster) instead of presence-rate (present ÷ active-roster); activity / game-subtype / activity-status dropdowns showed English entries because migrations 0027/0033 left some lookup rows without `translations` JSON (migration 0046 backfills idempotently); new-evaluation wizard's eval-type dropdown was empty because it filtered on a non-existent `archived_at` column on `tt_lookups`; delete-activity link used native browser `confirm()` instead of the existing `data-tt-confirm-message` modal pattern. **Polish**: activity status now renders as a colour-coded pill in both lists; the attendance section hides unless status is `completed`; `draft` status added (migration 0047, hidden from user-facing dropdowns via `meta.hidden_from_form`). **Features**: new-evaluation wizard step 1 now uses `PlayerSearchPickerComponent` autocomplete; persona/classic dashboard chooser is reachable from wp-admin via a notice on the TalentTrack Configuration landing. **Deferred** (still in idea #0061): new-activity wizard, authorization-matrix tile coverage + logical grouping.
+
+= 3.58.0 — Youth-aware contact strategy (#0042) — PWA push + parent fallback =
+
+Brings the `CLAUDE.md` § 2 mobile-first principle home for the players + parents who'll actually use the app. Adds an in-house RFC 8291 / 8292 Web Push channel with VAPID keys (no Composer dep), encrypted phone user-meta, an AgeTier resolver (u8_u10 / u11_u12 / u12_plus), and a per-template dispatcher chain so workflow notifications can route through Push → email → parent-email gracefully. Four KB articles teach players + parents to install the PWA + accept push.
 
 = 3.57.0 — Mobile-first activities pilot (#0056 Sprint D) =
 

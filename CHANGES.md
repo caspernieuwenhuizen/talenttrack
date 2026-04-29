@@ -1,3 +1,45 @@
+# TalentTrack v3.59.0 — #0061 polish + bug bundle (round 1)
+
+Captures the user's punch-list as `ideas/0061-feat-minor-polish-bundle.md` (13 items) and ships the bug-priority subset + smaller polish wins. New-activity wizard + authorization-matrix tile coverage + logical grouping stay deferred for a focused follow-up.
+
+## Bugs
+
+- **Attendance %** was `attendance_count / roster_size` (form-completeness, not presence). Now `present_count / active_roster_size` using a `SUM(CASE WHEN status='Present')` sub-aggregate; roster constrained to `status='active'`.
+- **Dropdown English entries** on Dutch installs — migration 0027 seeded `activity_type` + `game_subtype` without `translations` JSON; 0033 later skipped because rows existed. New migration `0046_backfill_activity_lookup_translations` writes `translations.nl_NL.name` on every row that lacks one (idempotent).
+- **Game-subtype admin dropdown** rendered raw `name` because it used `get_lookup_names()`. Switched to `get_lookups()` + `LookupTranslator::name()`.
+- **New-evaluation wizard's eval-type dropdown was empty** — `Modules\Wizards\Evaluation\TypeStep::render()` filtered on the non-existent `archived_at` column. Switched to `QueryHelpers::get_lookups('eval_type')`.
+- **Delete activity used native `confirm()`** — replaced with the existing `data-tt-confirm-message` modal pattern.
+
+## Polish
+
+- **Activity status as colour-coded pill** in admin + frontend lists. New `activity_status_pill_html` REST field.
+- **Hide attendance section unless status = completed** in both forms. JS toggles on status change; italic hint when hidden.
+- **`draft` activity status added** via migration `0047_activity_status_draft`. Hidden from user-facing dropdowns via `meta.hidden_from_form = 1`.
+
+## Features
+
+- **New-evaluation wizard step 1 uses `PlayerSearchPickerComponent`** (autocomplete).
+- **Persona / Classic dashboard chooser reachable from wp-admin** — notice on the TalentTrack Configuration landing with current setting + Change link to the frontend chooser.
+
+## Deferred (still in idea #0061)
+
+- New-activity wizard (slug `new-activity`, registered in `WizardsModule`).
+- Authorization-matrix tile coverage + logical grouping (structural — needs a shaping pass).
+
+## Migration numbering note
+
+Adds migrations 0046 + 0047 alongside the v3.58.0 push migrations also numbered 0046 + 0047. Both pairs run because `getName()` differs (`MigrationRunner` keys on the migration name, not the filename). Cosmetic-only collision; safe.
+
+## Translations
+
+7 new `nl_NL` msgstrs.
+
+## SEQUENCE.md
+
+New `v3.59.0-bundle` row under Done.
+
+---
+
 # TalentTrack v3.57.0 — Mobile-first activities pilot (#0056 Sprint D)
 
 Closes the deferred slice of the mobile-first cleanup epic. The Activities surface is the first frontend view authored under the mobile-first rule; the migration recipe is now documented so the remaining desktop-first sheets can be retired one view per release.
