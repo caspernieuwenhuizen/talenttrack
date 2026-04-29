@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.49.0
+Stable tag: 3.50.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.50.0 — Wizard-first standard, Spond integration, player status core, mobile-first quick wins =
+
+Five-spec omnibus: **#0058** writes the wizard-first record-creation rule into `CLAUDE.md` § 3 + spec template + DoD checklist; **#0031** ships read-only Spond → TalentTrack iCal sync (per-team URL stored encrypted via the new `CredentialEncryption` helper, hourly cron, REST refresh, soft-archive on UID removal, source flag rides on the existing `activity_source_key='spond'`); **#0057 Sprints 1, 2 + minimal 4** ship the player-status traffic-light foundation (new `tt_player_behaviour_ratings` + `tt_player_potential` tables, `PlayerStatusCalculator` + `MethodologyResolver` + `StatusVerdict`, REST endpoints for behaviour + potential + status + team-statuses, traffic-light dot on the team-players panel; Sprint 3 methodology UI and Sprint 5 PDP integration deferred to v3.51.0); **#0056 quick wins** close the iOS auto-zoom UX bug (legacy `.tt-form-row` font-size 0.9rem → 1rem), add `inputmode` + `autocomplete` to the central `CustomFieldRenderer`, apply `touch-action: manipulation` site-wide, migrate visual outlines to `:focus-visible`, add safe-area insets on four fixed surfaces, enforce a 48px tap-target floor under `(pointer: coarse)`, and ship the new `desktop_preferred` `TileRegistry` flag with a non-blocking `FrontendDesktopPreferredBanner` shown on phones for Configuration / Migrations / Workflow templates / Letter templates / Wizards admin / Audit log. The pilot mobile-first activity sheet rewrite + #0059 Excel demo were descoped to follow-up releases.
 
 = 3.49.0 — Trial inline-create flow, StaffPickerComponent, Configuration sub-grid =
 
