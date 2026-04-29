@@ -151,8 +151,11 @@ components:
         notes: { type: string }
         opponent: { type: string }
         competition: { type: string }
-        match_result: { type: string }
         created_at: { type: string, format: date-time }
+      description: |
+        Match-context fields (opponent, competition, match outcome, home
+        vs away) are populated only when the evaluation is tied to a
+        game. Read the live response for the full property set.
 
     Goal:
       type: object
