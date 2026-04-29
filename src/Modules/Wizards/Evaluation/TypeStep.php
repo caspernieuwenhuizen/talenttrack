@@ -3,7 +3,8 @@ namespace TT\Modules\Wizards\Evaluation;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Infrastructure\Query\LookupTranslator;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -21,20 +22,20 @@ final class TypeStep implements WizardStepInterface {
     public function label(): string { return __( 'Type', 'talenttrack' ); }
 
     public function render( array $state ): void {
-        global $wpdb;
-        $types = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, name FROM {$wpdb->prefix}tt_lookups
-             WHERE lookup_type = %s AND archived_at IS NULL AND club_id = %d
-             ORDER BY sort_order, name",
-            'eval_type', CurrentClub::id()
-        ) );
+        // #0061 — was using a custom query that filtered on
+        // `archived_at IS NULL`, but tt_lookups has no archived_at
+        // column → wpdb returned empty results and the dropdown was
+        // blank. Switched to the canonical QueryHelpers helper which
+        // every other lookup-driven dropdown uses.
+        $types   = QueryHelpers::get_lookups( 'eval_type' );
         $current = (int) ( $state['eval_type_id'] ?? 0 );
 
         echo '<p>' . esc_html__( 'Pick the evaluation type. The form on the next page will match.', 'talenttrack' ) . '</p>';
         echo '<label><span>' . esc_html__( 'Evaluation type', 'talenttrack' ) . '</span><select name="eval_type_id" required>';
         echo '<option value="">' . esc_html__( '— pick a type —', 'talenttrack' ) . '</option>';
         foreach ( $types as $t ) {
-            echo '<option value="' . esc_attr( (string) $t->id ) . '" ' . selected( $current, (int) $t->id, false ) . '>' . esc_html( (string) $t->name ) . '</option>';
+            $label = LookupTranslator::name( $t );
+            echo '<option value="' . esc_attr( (string) $t->id ) . '" ' . selected( $current, (int) $t->id, false ) . '>' . esc_html( $label ) . '</option>';
         }
         echo '</select></label>';
 

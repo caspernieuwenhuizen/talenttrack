@@ -99,18 +99,21 @@ class ActivitiesPage {
                 <th class="check-column" style="width:30px;" data-tt-sort="off"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
                 <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Title', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
                 <th data-tt-sort="off"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
             </tr></thead><tbody>
-            <?php if ( empty( $activities ) ) : ?><tr><td colspan="6"><?php esc_html_e( 'No activities.', 'talenttrack' ); ?></td></tr>
+            <?php if ( empty( $activities ) ) : ?><tr><td colspan="7"><?php esc_html_e( 'No activities.', 'talenttrack' ); ?></td></tr>
             <?php else : foreach ( $activities as $a ) :
                 $is_archived = $a->archived_at !== null;
+                $status_key  = (string) ( $a->activity_status_key ?? 'planned' );
                 ?>
                 <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
                     <td class="check-column"><?php \TT\Shared\Admin\BulkActionsHelper::rowCheckbox( (int) $a->id ); ?></td>
                     <td><?php echo esc_html( (string) $a->session_date ); ?></td>
                     <td><?php echo self::renderTypePill( $a ); ?></td>
+                    <td><?php echo LookupPill::render( 'activity_status', $status_key ); ?></td>
                     <td><?php echo esc_html( (string) $a->title ); ?>
                         <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
                     </td>
@@ -124,7 +127,7 @@ class ActivitiesPage {
                             echo esc_html( $act_team_name !== '' ? $act_team_name : '—' );
                         }
                     ?></td>
-                    <td><?php if ( current_user_can( 'tt_edit_activities' ) ) : ?><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-activities&action=edit&id={$a->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_activity&id={$a->id}" ), 'tt_del_act_' . $a->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a><?php else : ?><span style="color:#999;">—</span><?php endif; ?></td></tr>
+                    <td><?php if ( current_user_can( 'tt_edit_activities' ) ) : ?><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-activities&action=edit&id={$a->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_activity&id={$a->id}" ), 'tt_del_act_' . $a->id ) ); ?>" data-tt-confirm-message="<?php echo esc_attr( sprintf( __( 'Delete the activity "%s"?', 'talenttrack' ), (string) $a->title ) ); ?>" data-tt-confirm-title="<?php esc_attr_e( 'Delete activity?', 'talenttrack' ); ?>" data-tt-confirm-confirm-label="<?php esc_attr_e( 'Delete', 'talenttrack' ); ?>" data-tt-confirm-danger style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a><?php else : ?><span style="color:#999;">—</span><?php endif; ?></td></tr>
             <?php endforeach; endif; ?></tbody></table>
 
             <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
@@ -200,7 +203,12 @@ class ActivitiesPage {
         // names (training/game/other) so no data migration was needed.
         $activity_type_rows   = QueryHelpers::get_lookups( 'activity_type' );
         $activity_status_rows = QueryHelpers::get_lookups( 'activity_status' );
-        $game_subtypes        = QueryHelpers::get_lookup_names( 'game_subtype' );
+        // #0061 — was using get_lookup_names() which strips translations,
+        // so the dropdown rendered the stored "Friendly" / "League" /
+        // "Cup" English labels even on a Dutch install. Pull the full
+        // rows + translate via LookupTranslator like every other lookup
+        // dropdown in the form.
+        $game_subtype_rows    = QueryHelpers::get_lookups( 'game_subtype' );
         $attendance = [];
         if ( $activity ) foreach ( $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$p}tt_attendance WHERE activity_id = %d AND is_guest = 0 AND club_id = %d",
@@ -250,9 +258,17 @@ class ActivitiesPage {
                     <tr>
                         <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
                         <td>
-                            <select name="activity_status_key">
-                                <?php foreach ( $activity_status_rows as $status_row ) : ?>
-                                    <option value="<?php echo esc_attr( (string) $status_row->name ); ?>" <?php selected( $current_status, (string) $status_row->name ); ?>><?php echo esc_html( LookupTranslator::name( $status_row ) ); ?></option>
+                            <select id="tt-activity-status" name="activity_status_key">
+                                <?php foreach ( $activity_status_rows as $status_row ) :
+                                    $row_name = (string) $status_row->name;
+                                    // #0061 — `draft` carries `meta.hidden_from_form = 1`;
+                                    // skip it unless the current row already has that
+                                    // status (in which case showing it explains the state).
+                                    $meta   = is_string( $status_row->meta ?? null ) ? json_decode( (string) $status_row->meta, true ) : null;
+                                    $hidden = is_array( $meta ) && ! empty( $meta['hidden_from_form'] );
+                                    if ( $hidden && $current_status !== $row_name ) continue;
+                                    ?>
+                                    <option value="<?php echo esc_attr( $row_name ); ?>" <?php selected( $current_status, $row_name ); ?>><?php echo esc_html( LookupTranslator::name( $status_row ) ); ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <p class="description"><?php esc_html_e( 'Lifecycle of the activity. Defaults to "Planned" on create.', 'talenttrack' ); ?></p>
@@ -263,8 +279,10 @@ class ActivitiesPage {
                         <td>
                             <select name="game_subtype_key">
                                 <option value=""><?php esc_html_e( '— Choose —', 'talenttrack' ); ?></option>
-                                <?php foreach ( $game_subtypes as $sub ) : ?>
-                                    <option value="<?php echo esc_attr( $sub ); ?>" <?php selected( $current_subtype, $sub ); ?>><?php echo esc_html( $sub ); ?></option>
+                                <?php foreach ( $game_subtype_rows as $sub_row ) :
+                                    $sub_name = (string) $sub_row->name;
+                                    ?>
+                                    <option value="<?php echo esc_attr( $sub_name ); ?>" <?php selected( $current_subtype, $sub_name ); ?>><?php echo esc_html( LookupTranslator::name( $sub_row ) ); ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <p class="description"><?php esc_html_e( 'Optional: friendly, cup, or league.', 'talenttrack' ); ?></p>
@@ -313,7 +331,10 @@ class ActivitiesPage {
                     <?php endif; endif; ?>
                     <?php CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_ACTIVITY, (int) ( $activity->id ?? 0 ) ); ?>
                 </table>
-                <?php if ( ! empty( $players ) ) : ?>
+                <?php if ( ! empty( $players ) ) :
+                    $attendance_visible = ( $current_status === 'completed' );
+                    ?>
+                <div id="tt-activity-attendance-section"<?php echo $attendance_visible ? '' : ' style="display:none;"'; ?>>
                 <h3><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></h3>
                 <table class="widefat striped" style="max-width:600px;"><thead><tr><th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th></tr></thead><tbody>
                 <?php foreach ( $players as $pl ) : $att = $attendance[ (int) $pl->id ] ?? null; ?>
@@ -321,6 +342,10 @@ class ActivitiesPage {
                         <td><select name="att[<?php echo (int) $pl->id; ?>][status]"><?php foreach ( $att_statuses as $as ) : ?><option value="<?php echo esc_attr( $as ); ?>" <?php selected( $att->status ?? 'Present', $as ); ?>><?php echo esc_html( LabelTranslator::attendanceStatus( (string) $as ) ); ?></option><?php endforeach; ?></select></td>
                         <td><input type="text" name="att[<?php echo (int) $pl->id; ?>][notes]" value="<?php echo esc_attr( $att->notes ?? '' ); ?>" style="width:200px" /></td></tr>
                 <?php endforeach; ?></tbody></table>
+                </div>
+                <p id="tt-activity-attendance-hidden-hint"<?php echo $attendance_visible ? ' style="display:none;"' : ''; ?> style="color:#5b6e75;font-style:italic;margin:16px 0;">
+                    <?php esc_html_e( 'Attendance is recorded once the activity is marked Completed.', 'talenttrack' ); ?>
+                </p>
                 <?php endif; ?>
                 <?php submit_button( $activity ? __( 'Update', 'talenttrack' ) : __( 'Save', 'talenttrack' ) ); ?>
             </form>
@@ -328,16 +353,28 @@ class ActivitiesPage {
         <script>
         (function(){
             var sel = document.getElementById('tt-activity-type');
-            if ( ! sel ) return;
-            var subRow = document.getElementById('tt-activity-subtype-row');
-            var otherRow = document.getElementById('tt-activity-other-row');
-            sel.addEventListener('change', function(){
-                // The seeded keys 'game' and 'other' anchor the conditional
-                // rows; admin-added types behave like neither (no subtype,
-                // no other-label).
-                if ( subRow )   subRow.style.display   = ( sel.value === 'game' )  ? '' : 'none';
-                if ( otherRow ) otherRow.style.display = ( sel.value === 'other' ) ? '' : 'none';
-            });
+            if ( sel ) {
+                var subRow = document.getElementById('tt-activity-subtype-row');
+                var otherRow = document.getElementById('tt-activity-other-row');
+                sel.addEventListener('change', function(){
+                    // The seeded keys 'game' and 'other' anchor the conditional
+                    // rows; admin-added types behave like neither (no subtype,
+                    // no other-label).
+                    if ( subRow )   subRow.style.display   = ( sel.value === 'game' )  ? '' : 'none';
+                    if ( otherRow ) otherRow.style.display = ( sel.value === 'other' ) ? '' : 'none';
+                });
+            }
+            // #0061 — hide the attendance section unless status === 'completed'.
+            var statusSel = document.getElementById('tt-activity-status');
+            if ( statusSel ) {
+                var section = document.getElementById('tt-activity-attendance-section');
+                var hint    = document.getElementById('tt-activity-attendance-hidden-hint');
+                statusSel.addEventListener('change', function(){
+                    var ok = statusSel.value === 'completed';
+                    if ( section ) section.style.display = ok ? '' : 'none';
+                    if ( hint )    hint.style.display    = ok ? 'none' : '';
+                });
+            }
         })();
         </script>
         <?php

@@ -113,11 +113,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         echo FrontendListTable::render( [
             'rest_path' => 'activities',
             'columns' => [
-                'session_date'      => [ 'label' => __( 'Date',   'talenttrack' ), 'sortable' => true ],
-                'activity_type_key' => [ 'label' => __( 'Type',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_type_pill_html' ],
-                'team_name'         => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true ],
-                'title'             => [ 'label' => __( 'Title',  'talenttrack' ), 'sortable' => true ],
-                'attendance'        => [ 'label' => __( 'Att. %', 'talenttrack' ), 'sortable' => true, 'render' => 'percent', 'value_key' => 'attendance_pct' ],
+                'session_date'        => [ 'label' => __( 'Date',   'talenttrack' ), 'sortable' => true ],
+                'activity_type_key'   => [ 'label' => __( 'Type',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_type_pill_html' ],
+                'activity_status_key' => [ 'label' => __( 'Status', 'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_status_pill_html' ],
+                'team_name'           => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true ],
+                'title'               => [ 'label' => __( 'Title',  'talenttrack' ), 'sortable' => true ],
+                'attendance'          => [ 'label' => __( 'Att. %', 'talenttrack' ), 'sortable' => true, 'render' => 'percent', 'value_key' => 'attendance_pct' ],
             ],
             'filters' => [
                 'team_id' => [
@@ -208,8 +209,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-activity-status"><?php esc_html_e( 'Status', 'talenttrack' ); ?></label>
                     <select id="tt-activity-status" class="tt-input" name="activity_status_key">
-                        <?php foreach ( $activity_status_rows as $status_row ) : ?>
-                            <option value="<?php echo esc_attr( (string) $status_row->name ); ?>" <?php selected( $current_status, (string) $status_row->name ); ?>><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $status_row ) ); ?></option>
+                        <?php foreach ( $activity_status_rows as $status_row ) :
+                            $row_name = (string) $status_row->name;
+                            // #0061 — skip statuses flagged hidden_from_form (e.g. `draft`).
+                            $meta   = is_string( $status_row->meta ?? null ) ? json_decode( (string) $status_row->meta, true ) : null;
+                            $hidden = is_array( $meta ) && ! empty( $meta['hidden_from_form'] );
+                            if ( $hidden && $current_status !== $row_name ) continue;
+                            ?>
+                            <option value="<?php echo esc_attr( $row_name ); ?>" <?php selected( $current_status, $row_name ); ?>><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $status_row ) ); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -267,6 +274,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             })();
             </script>
 
+            <?php
+            // #0061 — Hide the attendance section unless the activity has actually
+            // happened (status = completed). Planned + cancelled don't get
+            // attendance rows. The wrapper carries data-tt-attendance-section
+            // so the status `<select>` JS below can toggle it without a reload.
+            $attendance_visible = ( $current_status === 'completed' );
+            ?>
+            <div data-tt-attendance-section data-tt-attendance-allowed-status="completed"<?php echo $attendance_visible ? '' : ' hidden'; ?>>
             <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></h3>
 
             <?php if ( ! $all_players ) : ?>
@@ -325,6 +340,25 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     </p>
                 </div>
             <?php endif; ?>
+            </div>
+            <p data-tt-attendance-hidden-hint<?php echo $attendance_visible ? ' hidden' : ''; ?> style="color:#5b6e75;font-style:italic;margin:16px 0;">
+                <?php esc_html_e( 'Attendance is recorded once the activity is marked Completed.', 'talenttrack' ); ?>
+            </p>
+            <script>
+            (function(){
+                var statusSel = document.getElementById('tt-activity-status');
+                if ( ! statusSel ) return;
+                var section = document.querySelector('[data-tt-attendance-section]');
+                var hint    = document.querySelector('[data-tt-attendance-hidden-hint]');
+                function sync(){
+                    var ok = statusSel.value === 'completed';
+                    if ( section ) section.toggleAttribute('hidden', ! ok);
+                    if ( hint )    hint.toggleAttribute('hidden', ok);
+                }
+                statusSel.addEventListener('change', sync);
+                sync();
+            })();
+            </script>
 
             <?php
             // #0037 — guest section renders in both modes. On create it

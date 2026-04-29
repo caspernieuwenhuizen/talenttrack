@@ -133,6 +133,28 @@ class ConfigurationPage {
                 <?php esc_html_e( 'Pick a topic to configure. Each tile opens the dedicated screen for that area. Use the back link on any screen to return here.', 'talenttrack' ); ?>
             </p>
 
+            <?php
+            // #0061 — direct entry point to the persona/classic dashboard
+            // chooser. The chooser lives on the frontend (`?tt_view=configuration&config_sub=dashboard`)
+            // because it's a frontend-rendering setting; without this notice
+            // admins can't find it from wp-admin.
+            $dashboard_chooser_url = self::dashboardChooserUrl();
+            if ( $dashboard_chooser_url !== '' ) :
+                $current_choice = (string) \TT\Infrastructure\Query\QueryHelpers::get_config( 'persona_dashboard.enabled', '1' );
+                $is_persona     = $current_choice !== '0';
+            ?>
+                <div class="notice notice-info" style="margin:0 0 24px;padding:12px 16px;">
+                    <p style="margin:0;">
+                        <strong><?php esc_html_e( 'Default dashboard:', 'talenttrack' ); ?></strong>
+                        <?php echo $is_persona
+                            ? esc_html__( 'Persona dashboard (the configurable per-role landing).', 'talenttrack' )
+                            : esc_html__( 'Classic tile grid (every user sees the same menu of tiles, filtered by capability).', 'talenttrack' ); ?>
+                        &nbsp;
+                        <a href="<?php echo esc_url( $dashboard_chooser_url ); ?>"><?php esc_html_e( 'Change', 'talenttrack' ); ?> →</a>
+                    </p>
+                </div>
+            <?php endif; ?>
+
             <?php foreach ( $groups as $group ) :
                 if ( empty( $group['tiles'] ) ) continue;
             ?>
@@ -170,6 +192,36 @@ class ConfigurationPage {
      * @param array<string,string> $tabs slug => label of in-page tabs.
      * @return array<int, array{label: string, tiles: array<int, array{label:string, description:string, icon:string, url:string, cap?:string}>}>
      */
+    /**
+     * Resolve the URL to the frontend persona/classic-dashboard chooser
+     * (`?tt_view=configuration&config_sub=dashboard`). Returns empty
+     * string when no dashboard host page can be found, so the wp-admin
+     * notice silently falls away on installs that haven't placed the
+     * `[talenttrack_dashboard]` shortcode yet.
+     */
+    private static function dashboardChooserUrl(): string {
+        $page_id = (int) get_option( 'tt_dashboard_page_id', 0 );
+        if ( $page_id <= 0 ) {
+            // Best-effort fallback: scan for the shortcode on any
+            // published page. Single query, indexed search.
+            global $wpdb;
+            $page_id = (int) $wpdb->get_var(
+                "SELECT ID FROM {$wpdb->posts}
+                  WHERE post_status = 'publish'
+                    AND post_type = 'page'
+                    AND post_content LIKE '%[talenttrack_dashboard%'
+                  ORDER BY post_date ASC LIMIT 1"
+            );
+        }
+        if ( $page_id <= 0 ) return '';
+        $base = get_permalink( $page_id );
+        if ( ! $base ) return '';
+        return add_query_arg( [
+            'tt_view'    => 'configuration',
+            'config_sub' => 'dashboard',
+        ], $base );
+    }
+
     private static function tile_groups( array $tabs ): array {
         $tab_url = static fn ( string $slug ): string => admin_url( 'admin.php?page=tt-config&tab=' . $slug );
         $page_url = static fn ( string $slug ): string => admin_url( 'admin.php?page=' . $slug );
