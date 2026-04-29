@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Modules\Wizards\Activity\NewActivityWizard;
 use TT\Modules\Wizards\Evaluation\NewEvaluationWizard;
 use TT\Modules\Wizards\Goal\NewGoalWizard;
 use TT\Modules\Wizards\Player\NewPlayerWizard;
@@ -14,8 +15,9 @@ use TT\Shared\Wizards\WizardRegistry;
 /**
  * WizardsModule (#0055) — record-creation wizards.
  *
- * Registers the four shipped wizards (new-player, new-team,
- * new-evaluation, new-goal) with the shared `WizardRegistry`. The
+ * Registers the five shipped wizards (new-player, new-team,
+ * new-evaluation, new-goal, new-activity) with the shared
+ * `WizardRegistry`. The
  * config toggle `tt_wizards_enabled` decides which surface entry
  * points; default is `'all'` so a fresh install gets the wizards
  * out of the box.
@@ -35,5 +37,6 @@ class WizardsModule implements ModuleInterface {
         WizardRegistry::register( new NewTeamWizard() );
         WizardRegistry::register( new NewEvaluationWizard() );
         WizardRegistry::register( new NewGoalWizard() );
+        WizardRegistry::register( new NewActivityWizard() );
     }
 }

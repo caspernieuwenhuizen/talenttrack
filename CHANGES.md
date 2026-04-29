@@ -1,3 +1,40 @@
+# TalentTrack v3.61.0 — #0061 polish + bug bundle (round 2)
+
+Closes the deferred half of idea #0061: the missing new-activity wizard, the framework piece that makes Cancel preserve in-progress work as a draft, and a logical grouping for the Authorization Matrix rows. No DB migrations.
+
+## New-activity wizard
+
+- New module `Modules\Wizards\Activity\` with four steps:
+  - `TeamStep` — coaches see only their assigned teams; admins see every team.
+  - `TypeStatusStep` — `activity_type` + `activity_status` lookups via `QueryHelpers::get_lookups()` and `LookupTranslator::name()`. Skips rows flagged `meta.hidden_from_form = 1` (the `draft` value seeded in v3.59.0).
+  - `DetailsStep` — date, title, location, notes; conditional `game_subtype` select when `type=game`; required `other_label` input when `type=other`.
+  - `ReviewStep` — read-only summary; submit inserts the `tt_activities` row with `club_id = CurrentClub::id()` and `activity_source_key = 'manual'`, mirrors the REST `create_session` shape (translation cache + demo-tag bookkeeping included), then redirects to `?tt_view=activities&id=<new>` for the attendance editor.
+- Registered in `Modules\Wizards\WizardsModule::boot()` alongside the existing four wizards.
+- `FrontendWizardView::helpTopicFor()` maps `new-activity → activities`.
+- `FrontendActivitiesManageView::renderList()` now resolves the "+ New activity" CTA via `WizardEntryPoint::urlFor( 'new-activity', $flat_url )` so the wizard or the legacy flat form is reached based on `tt_wizards_enabled`. The wp-admin Activities page keeps its existing `Add New` flat-form link untouched.
+
+## Save-as-draft framework hook
+
+- New marker interface `Shared\Wizards\SupportsCancelAsDraft` with a single `cancelAsDraft( array $state )` method. Wizards that implement it get a third "Save as draft" button rendered by the framework alongside Cancel + Skip.
+- `FrontendWizardView` adds a `save-as-draft` action: invokes `cancelAsDraft()` on the wizard, clears state on success, redirects to whatever URL the wizard returns. On `WP_Error` the message renders inline, no state lost.
+- `NewActivityWizard` implements the interface — writes a `draft`-status row with whatever the user filled in (Untitled / today's date as safe placeholders), skips the insert if no team has been picked yet (returns a friendly error rather than an orphan row).
+- The "Save as draft" button uses `formnovalidate` so the user isn't forced to fix a half-filled required field just to bail out.
+
+## Authorization Matrix grouping
+
+- `MatrixPage::render()` now groups entity rows under category headers: Players / Teams / Activities / Evaluations / Development / Insights / Operations / Administration. Pure rendering change; the matrix repository is untouched.
+- New `groupEntitiesByCategory()` helper maps each `module_class` to a category (alphabetic within a category). Unmapped modules fall back to "Other" so a future module can never silently disappear from the grid.
+
+## Translations
+
+`nl_NL` msgstrs added for the new strings (Save as draft, the wizard step labels, the eight matrix category headers, and the wizard's per-step copy).
+
+## SEQUENCE.md
+
+New `v3.61.0-bundle` row under Done.
+
+---
+
 # TalentTrack v3.60.0 — Staff development module (#0039)
 
 The plugin tracks players in detail. From this release it tracks the **people who coach those players** with the same primitives — goals, evaluations, a personal-development plan — plus a certification register that has no player-side equivalent. One PR, one release.

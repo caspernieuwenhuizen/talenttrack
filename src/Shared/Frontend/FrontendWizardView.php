@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Shared\Wizards\SupportsCancelAsDraft;
 use TT\Shared\Wizards\WizardAnalytics;
 use TT\Shared\Wizards\WizardInterface;
 use TT\Shared\Wizards\WizardRegistry;
@@ -73,6 +74,24 @@ class FrontendWizardView extends FrontendViewBase {
                     wp_safe_redirect( \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
                     exit;
 
+                case 'save-as-draft':
+                    if ( $wizard instanceof SupportsCancelAsDraft ) {
+                        $result = $wizard->cancelAsDraft( $state );
+                        if ( is_wp_error( $result ) ) {
+                            $error = $result->get_error_message();
+                            break;
+                        }
+                        WizardState::clear( $user_id, $slug );
+                        $redirect = (string) ( $result['redirect_url'] ?? \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
+                        wp_safe_redirect( $redirect );
+                        exit;
+                    }
+                    // Wizard doesn't support drafts — fall through to a
+                    // plain cancel rather than silently doing nothing.
+                    WizardState::clear( $user_id, $slug );
+                    wp_safe_redirect( \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
+                    exit;
+
                 case 'skip':
                     WizardState::recordSkip( $user_id, $slug, $current->slug() );
                     WizardAnalytics::recordSkipped( $slug, $current->slug() );
@@ -112,6 +131,9 @@ class FrontendWizardView extends FrontendViewBase {
 
         echo '<div class="tt-wizard-actions">';
         echo '<button type="submit" name="tt_wizard_action" value="cancel" class="tt-button tt-button-link">' . esc_html__( 'Cancel', 'talenttrack' ) . '</button>';
+        if ( $wizard instanceof SupportsCancelAsDraft ) {
+            echo '<button type="submit" name="tt_wizard_action" value="save-as-draft" class="tt-button" formnovalidate>' . esc_html__( 'Save as draft', 'talenttrack' ) . '</button>';
+        }
         echo '<button type="submit" name="tt_wizard_action" value="skip" class="tt-button">' . esc_html__( 'Skip step', 'talenttrack' ) . '</button>';
         $is_last = $current->nextStep( $state ) === null;
         $label   = $is_last ? __( 'Create', 'talenttrack' ) : __( 'Next', 'talenttrack' );
@@ -179,6 +201,7 @@ class FrontendWizardView extends FrontendViewBase {
             case 'new-team':       return 'teams-players';
             case 'new-evaluation': return 'evaluations';
             case 'new-goal':       return 'goals';
+            case 'new-activity':   return 'activities';
         }
         return null;
     }

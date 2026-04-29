@@ -90,7 +90,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      */
     private static function renderList( int $user_id, bool $is_admin ): void {
         $base_url = remove_query_arg( [ 'action', 'id' ] );
-        $new_url  = add_query_arg( [ 'tt_view' => 'activities', 'action' => 'new' ], $base_url );
+        $flat_url = add_query_arg( [ 'tt_view' => 'activities', 'action' => 'new' ], $base_url );
+        $new_url  = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-activity', $flat_url );
 
         echo '<p style="margin:0 0 var(--tt-sp-3, 12px);"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
             . esc_html__( 'New activity', 'talenttrack' )

@@ -72,10 +72,22 @@ class MatrixPage {
                         </tr>
                     </thead>
                     <tbody>
-                    <?php foreach ( $entities as $entity_row ) :
-                        $entity = $entity_row['entity'];
-                        $module = $entity_row['module_class'];
+                    <?php
+                    $persona_cols = max( 1, count( $personas ) );
+                    $grouped = self::groupEntitiesByCategory( $entities );
+                    foreach ( $grouped as $category => $rows_in_category ) :
                         ?>
+                        <tr class="tt-matrix-category">
+                            <th colspan="<?php echo (int) ( 1 + $persona_cols ); ?>"
+                                style="position:sticky; left:0; background:#eef2f5; color:#1d3a4a; text-align:left; padding:8px 12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; font-size:11px;">
+                                <?php echo esc_html( $category ); ?>
+                            </th>
+                        </tr>
+                        <?php
+                        foreach ( $rows_in_category as $entity_row ) :
+                            $entity = $entity_row['entity'];
+                            $module = $entity_row['module_class'];
+                            ?>
                         <tr>
                             <td style="position:sticky; left:0; background:#fff; font-weight:600;">
                                 <?php echo esc_html( $entity ); ?>
@@ -123,6 +135,7 @@ class MatrixPage {
                                 </td>
                             <?php endforeach; ?>
                         </tr>
+                        <?php endforeach; ?>
                     <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -355,6 +368,79 @@ class MatrixPage {
     private static function shortModule( string $class ): string {
         $parts = explode( '\\', $class );
         return end( $parts );
+    }
+
+    /**
+     * Group the flat entity list under category headers so the matrix
+     * reads top-to-bottom by domain rather than alphabetically.
+     *
+     * Input shape: [ ['entity' => 'player', 'module_class' => 'TT\\Modules\\Players\\PlayersModule'], … ]
+     * Output:      [ 'Players' => [ … rows … ], 'Teams' => [ … ], … ]
+     *
+     * Unmapped modules fall under "Other" so the grid can never silently
+     * drop a row when a new module ships before the map is updated.
+     *
+     * @param array<int, array{entity:string, module_class:string}> $entities
+     * @return array<string, array<int, array{entity:string, module_class:string}>>
+     */
+    private static function groupEntitiesByCategory( array $entities ): array {
+        $module_to_category = [
+            'PlayersModule'         => __( 'Players', 'talenttrack' ),
+            'PeopleModule'          => __( 'Players', 'talenttrack' ),
+            'TeamsModule'           => __( 'Teams', 'talenttrack' ),
+            'ActivitiesModule'      => __( 'Activities', 'talenttrack' ),
+            'EvaluationsModule'     => __( 'Evaluations', 'talenttrack' ),
+            'GoalsModule'           => __( 'Development', 'talenttrack' ),
+            'PdpModule'             => __( 'Development', 'talenttrack' ),
+            'MethodologyModule'     => __( 'Development', 'talenttrack' ),
+            'TeamDevelopmentModule' => __( 'Development', 'talenttrack' ),
+            'DevelopmentModule'     => __( 'Development', 'talenttrack' ),
+            'ReportsModule'         => __( 'Insights', 'talenttrack' ),
+            'StatsModule'           => __( 'Insights', 'talenttrack' ),
+            'WorkflowModule'        => __( 'Operations', 'talenttrack' ),
+            'InvitationsModule'     => __( 'Operations', 'talenttrack' ),
+            'DocumentationModule'   => __( 'Operations', 'talenttrack' ),
+            'OnboardingModule'      => __( 'Operations', 'talenttrack' ),
+            'AuthorizationModule'   => __( 'Administration', 'talenttrack' ),
+            'ConfigurationModule'   => __( 'Administration', 'talenttrack' ),
+            'LicenseModule'         => __( 'Administration', 'talenttrack' ),
+            'BackupModule'          => __( 'Administration', 'talenttrack' ),
+            'DemoDataModule'        => __( 'Administration', 'talenttrack' ),
+        ];
+        $category_order = [
+            __( 'Players', 'talenttrack' ),
+            __( 'Teams', 'talenttrack' ),
+            __( 'Activities', 'talenttrack' ),
+            __( 'Evaluations', 'talenttrack' ),
+            __( 'Development', 'talenttrack' ),
+            __( 'Insights', 'talenttrack' ),
+            __( 'Operations', 'talenttrack' ),
+            __( 'Administration', 'talenttrack' ),
+            __( 'Other', 'talenttrack' ),
+        ];
+
+        $buckets = [];
+        foreach ( $entities as $row ) {
+            $short = self::shortModule( (string) $row['module_class'] );
+            $cat   = $module_to_category[ $short ] ?? __( 'Other', 'talenttrack' );
+            $buckets[ $cat ][] = $row;
+        }
+        foreach ( $buckets as &$rows ) {
+            usort( $rows, static fn( $a, $b ) => strcmp( (string) $a['entity'], (string) $b['entity'] ) );
+        }
+        unset( $rows );
+
+        $ordered = [];
+        foreach ( $category_order as $cat ) {
+            if ( isset( $buckets[ $cat ] ) ) {
+                $ordered[ $cat ] = $buckets[ $cat ];
+                unset( $buckets[ $cat ] );
+            }
+        }
+        foreach ( $buckets as $cat => $rows ) {
+            $ordered[ $cat ] = $rows;
+        }
+        return $ordered;
     }
 
     private static function cellTitle( string $persona, string $entity, string $activity, bool $is_set, bool $is_default ): string {

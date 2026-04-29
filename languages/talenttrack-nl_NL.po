@@ -10175,7 +10175,7 @@ msgstr "Activiteit verwijderen?"
 msgid "Delete the activity \"%s\"?"
 msgstr "Activiteit \"%s\" verwijderen?"
 
-# v3.59.0 — Staff development module (#0039)
+# v3.60.0 — Staff development module (#0039)
 
 msgid "Staff development"
 msgstr "Stafontwikkeling"
@@ -10350,3 +10350,48 @@ msgstr "POP-review nieuw seizoen"
 
 msgid "Refresh your personal development plan now that a new season has started."
 msgstr "Werk je persoonlijke ontwikkelingsplan bij nu er een nieuw seizoen is gestart."
+# v3.61.0 — #0061 round 2 (new-activity wizard + matrix grouping)
+msgid "Save as draft"
+msgstr "Opslaan als concept"
+
+msgid "Pick a team before saving as draft."
+msgstr "Kies eerst een team voordat je als concept opslaat."
+
+msgid "Untitled draft"
+msgstr "Concept zonder titel"
+
+msgid "Insights"
+msgstr "Inzichten"
+
+msgid "Operations"
+msgstr "Operatie"
+
+msgid "Which team is this activity for?"
+msgstr "Voor welk team is deze activiteit?"
+
+msgid "— pick a team —"
+msgstr "— kies een team —"
+
+msgid "Please pick a team."
+msgstr "Kies een team."
+
+msgid "Please give the activity a title."
+msgstr "Geef de activiteit een titel."
+
+msgid "Please pick a valid date."
+msgstr "Kies een geldige datum."
+
+msgid "Please describe what kind of activity this is."
+msgstr "Beschrijf wat voor soort activiteit dit is."
+
+msgid "Looks good? Create the activity to start logging attendance."
+msgstr "Klopt alles? Maak de activiteit aan om aanwezigheid te registreren."
+
+msgid "The activity could not be saved."
+msgstr "De activiteit kon niet worden opgeslagen."
+
+msgid "The draft could not be saved."
+msgstr "Het concept kon niet worden opgeslagen."
+
+msgid "The activity is missing required fields."
+msgstr "Verplichte velden ontbreken."
