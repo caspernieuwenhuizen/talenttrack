@@ -33,17 +33,41 @@ Widgets hebben vier formaten — Small, Medium, Large, Extra-large — en klikke
 
 ## Een persona-dashboard aanpassen
 
-De drag-and-drop-editor voor academiebeheerders volgt in **Sprint 2** van deze epic. Sprint 1 levert de catalogus + de zeven standaardtemplates.
+Open *TalentTrack → Dashboard-lay-outs* in wp-admin. De pagina is afgeschermd met de capability `tt_edit_persona_templates` — standaard toegekend aan beheerders en academiebeheerders, optioneel aan Head of Development.
 
-Zodra de editor er is, kan een beheerder:
-- Widgets binnen een persona herordenen.
-- Widgets vergroten of verkleinen tussen Small / Medium / Large / Extra-large.
-- Een KPI-kaart toevoegen uit de catalogus van 25 KPI's.
-- Een widget verbergen die niet bij jouw academie past.
-- Het label van een tegel overschrijven (bijv. "My card" → "Mijn pas").
-- Een persona terugzetten naar de standaardlay-out.
+De editor heeft drie panelen:
 
-Tot dat moment krijgt iedere academie de standaardtemplates.
+- **Links — Palet.** Twee tabbladen: *Widgets* (de 14 widget-types) en *KPI's* (de 25 KPI's gegroepeerd per Academiebreed / Coach / Speler & ouder). Sleep een paletitem op het canvas, of focus het en druk op Enter.
+- **Midden — Canvas.** Een 12-koloms bento-grid met een hero-band en een takenband erboven. Elke geplaatste widget toont label, databron, formaat-badge en een verwijder-knop (×). Klik een widget om hem te selecteren.
+- **Rechts — Eigenschappen.** Wanneer een widget geselecteerd is kun je formaat (S/M/L/XL — alleen ondersteunde formaten zijn klikbaar), databron (KPI-keuzelijst voor KPI-kaarten, vrije tekst voor tegels), persona-label-overschrijving, mobiele prioriteit en mobiele zichtbaarheid aanpassen.
+
+Werkbalk:
+
+- **Persona-keuzelijst** — wisselt het canvas naar een andere persona-lay-out. Niet-opgeslagen wijzigingen vragen om bevestiging.
+- **Ongedaan maken / Opnieuw** — tot 50 stappen. `Ctrl+Z` / `Ctrl+Shift+Z` werken ook.
+- **Mobiele preview** — laat het canvas inklappen tot 360 px in prioriteitsvolgorde zodat je ziet hoe de lay-out stapelt op telefoon.
+- **Terugzetten naar standaard** — vervangt de lay-out door de TalentTrack-standaard. Bevestiging vereist.
+- **Concept opslaan** — bewaart je werk-in-uitvoering zonder live te gaan.
+- **Publiceren** — zet de huidige lay-out live voor iedereen met deze persona, bij hun volgende paginalaad. Het bevestigingsvenster toont het aantal gebruikers dat geraakt wordt.
+
+### Toetsenbord
+
+De editor is volledig met toetsenbord te bedienen:
+
+- Tab door paletitems, canvas-widgets en werkbalkknoppen.
+- Op een canvas-widget: **spatie** om te pakken, **pijltjestoetsen** om te verplaatsen (Links/Rechts = 3 kolommen, Omhoog/Omlaag = 1 rij), **spatie** om los te laten. **Escape** annuleert.
+- **Delete** of **Backspace** op een gefocuste widget verwijdert hem.
+- Elke verplaatsing wordt aangekondigd in de live status-regio voor schermlezers.
+
+### Audit
+
+Elke opslag of publicatie schrijft een audit-log-regel (`persona_template_published`, `persona_template_draft`, of `persona_template_reset`) zodat je terug kunt vinden wie welke persona-lay-out heeft veranderd en wanneer.
+
+### Wat de editor (nog) niet doet
+
+- **Per gebruiker overschrijven.** Een gebruiker kan zijn eigen dashboard niet aanpassen — alleen academiebeheerders zetten de lay-out per persona.
+- **Eigen KPI's schrijven.** De 25-KPI-catalogus is gesloten; je kunt er elke uitkiezen, maar geen nieuwe query schrijven.
+- **Apart mobiel ontwerpen.** De mobiele preview is alleen-lezen — je stelt prioriteit en zichtbaarheid in op elke widget; de inklapvolgorde wordt daaruit berekend.
 
 ## Databronnen
 
@@ -54,10 +78,15 @@ Elke KPI wordt live berekend op basis van de data van jouw academie. KPI's die a
 De geresolveerde lay-out voor elke persona wordt als JSON ontsloten voor toekomstige SaaS-clients:
 
 ```
-GET /wp-json/talenttrack/v1/personas/{slug}/template
+GET    /wp-json/talenttrack/v1/personas/{slug}/template          lezen
+PUT    /wp-json/talenttrack/v1/personas/{slug}/template          concept opslaan
+DELETE /wp-json/talenttrack/v1/personas/{slug}/template          terugzetten naar standaard
+POST   /wp-json/talenttrack/v1/personas/{slug}/template/publish  concept publiceren
+POST   /wp-json/talenttrack/v1/me/active-persona                 actieve persona instellen
+DELETE /wp-json/talenttrack/v1/me/active-persona                 actieve persona resetten
 ```
 
-Een ingelogde gebruiker kan templates lezen voor persona's waarvoor hij in aanmerking komt; gebruikers met de capability `tt_edit_persona_templates` kunnen elke template lezen (gebruikt door de Preview-as-persona-functie van de editor).
+Een ingelogde gebruiker kan templates lezen voor persona's waarvoor hij in aanmerking komt; de write-endpoints vereisen `tt_edit_persona_templates`.
 
 ## Verder lezen
 

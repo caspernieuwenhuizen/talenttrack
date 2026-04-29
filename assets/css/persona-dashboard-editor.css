@@ -1,0 +1,556 @@
+/*
+ * Persona dashboard editor (#0060 sprint 2) — three-pane wp-admin layout
+ * with palette, canvas, and properties. Mouse + touch + keyboard a11y;
+ * widgets snap to a 12-col grid; t-shirt sizes (S=3 / M=6 / L=9 / XL=12).
+ *
+ * Editor itself is desktop/tablet only — the rendered dashboard remains
+ * mobile-first, but a 3-pane authoring surface at 360 px is genuinely
+ * unworkable. A clear "this works best on desktop" banner at <1280 px
+ * sets that expectation.
+ */
+
+.tt-pde-wrap {
+    --pde-bg: #f0f1f2;
+    --pde-paper: #ffffff;
+    --pde-border: #d6dbe1;
+    --pde-text: #0b1f3a;
+    --pde-muted: #5b6e75;
+    --pde-accent: #2563eb;
+    --pde-accent-soft: #e8f0ff;
+    --pde-warn: #b91c1c;
+    --pde-ok: #15803d;
+    --pde-row-h: 5.25rem;
+    box-sizing: border-box;
+    color: var(--pde-text);
+}
+.tt-pde-wrap *, .tt-pde-wrap *::before, .tt-pde-wrap *::after { box-sizing: inherit; }
+
+/* ─── Toolbar ────────────────────────────────────────────────── */
+
+.tt-pde-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--pde-border);
+    margin: 0 0 1rem;
+    position: sticky;
+    top: 32px;
+    z-index: 50;
+    background: var(--pde-bg);
+}
+.tt-pde-toolbar-left,
+.tt-pde-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.tt-pde-title {
+    font-size: 1.25rem;
+    margin: 0;
+    color: var(--pde-text);
+}
+.tt-pde-persona-picker {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    font-size: 0.8125rem;
+}
+.tt-pde-persona-picker .tt-pde-label {
+    font-size: 0.6875rem;
+    color: var(--pde-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+.tt-pde-persona-picker select {
+    min-height: 2.25rem;
+    font-size: 0.875rem;
+    min-width: 12rem;
+}
+.tt-pde-btn,
+.tt-pde-btn-primary {
+    min-height: 2.5rem;
+    padding-inline: 0.875rem;
+    touch-action: manipulation;
+}
+.tt-pde-btn[aria-pressed="true"] {
+    background: var(--pde-accent-soft);
+    border-color: var(--pde-accent);
+    color: var(--pde-accent);
+}
+.tt-pde-divider {
+    width: 1px;
+    height: 1.5rem;
+    background: var(--pde-border);
+    margin: 0 0.25rem;
+}
+
+/* ─── Status line ────────────────────────────────────────────── */
+
+.tt-pde-status {
+    min-height: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--pde-muted);
+}
+.tt-pde-status[data-tt-pde-status="ok"]    { color: var(--pde-ok); }
+.tt-pde-status[data-tt-pde-status="warn"]  { color: var(--pde-warn); }
+.tt-pde-status[data-tt-pde-status="dirty"] { color: #b45309; }
+
+/* ─── 3-pane grid ────────────────────────────────────────────── */
+
+.tt-pde-grid {
+    display: grid;
+    grid-template-columns: 18rem 1fr 20rem;
+    gap: 1rem;
+    align-items: stretch;
+    min-height: 36rem;
+}
+.tt-pde-pane {
+    background: var(--pde-paper);
+    border: 1px solid var(--pde-border);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Editor "works best on desktop" banner triggers below 1280 px */
+@media (max-width: 1279.98px) {
+    .tt-pde-grid {
+        grid-template-columns: 1fr;
+    }
+    .tt-pde-pane.tt-pde-properties {
+        order: 3;
+    }
+}
+
+/* ─── Palette ────────────────────────────────────────────────── */
+
+.tt-pde-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--pde-border);
+}
+.tt-pde-tab {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--pde-muted);
+    padding: 0.75rem 1rem;
+    min-height: 2.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+.tt-pde-tab.is-active {
+    color: var(--pde-text);
+    border-bottom-color: var(--pde-accent);
+}
+.tt-pde-tab:focus-visible {
+    outline: 2px solid var(--pde-accent);
+    outline-offset: -2px;
+}
+
+.tt-pde-palette-body {
+    overflow-y: auto;
+    padding: 0.5rem 0.5rem 1rem;
+    flex: 1;
+    min-height: 0;
+}
+
+.tt-pde-palette-group {
+    margin: 0 0 0.75rem;
+    border: 1px solid var(--pde-border);
+    border-radius: 0.375rem;
+    background: #fafbfc;
+}
+.tt-pde-palette-group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 0.75rem;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    width: 100%;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: var(--pde-text);
+    min-height: 2.5rem;
+}
+.tt-pde-palette-group-head[aria-expanded="false"] + .tt-pde-palette-group-body {
+    display: none;
+}
+.tt-pde-palette-group-body {
+    padding: 0.5rem 0.5rem 0.625rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+.tt-pde-palette-group-head svg { transition: transform 0.15s; }
+.tt-pde-palette-group-head[aria-expanded="false"] svg { transform: rotate(-90deg); }
+
+.tt-pde-palette-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--pde-border);
+    border-radius: 0.375rem;
+    background: var(--pde-paper);
+    cursor: grab;
+    font-size: 0.8125rem;
+    min-height: 2.75rem;
+    touch-action: manipulation;
+}
+.tt-pde-palette-item:focus-visible {
+    outline: 2px solid var(--pde-accent);
+    outline-offset: 2px;
+}
+.tt-pde-palette-item:active { cursor: grabbing; }
+.tt-pde-palette-item-label { font-weight: 600; }
+.tt-pde-palette-item-meta {
+    font-size: 0.6875rem;
+    color: var(--pde-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.tt-pde-palette-item.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* ─── Canvas ─────────────────────────────────────────────────── */
+
+.tt-pde-canvas-wrap {
+    overflow: auto;
+    background: #f4f6f8 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="6"><rect width="6" height="6" fill="%23f4f6f8"/><circle cx="3" cy="3" r="0.6" fill="%23dadee2"/></svg>') 0 0;
+}
+.tt-pde-canvas-frame {
+    margin: 1rem;
+    background: var(--pde-paper);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    min-height: 30rem;
+    transition: max-width 0.18s ease;
+    max-width: none;
+}
+.tt-pde-wrap[data-mobile-preview="true"] .tt-pde-canvas-frame {
+    max-width: 360px;
+    margin-inline: auto;
+}
+
+.tt-pde-bands {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.tt-pde-band {
+    border: 1px dashed transparent;
+    border-radius: 0.5rem;
+    min-height: 4.5rem;
+    padding: 0.5rem;
+    position: relative;
+}
+.tt-pde-band:empty::before {
+    content: attr(data-empty-label);
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--pde-muted);
+    font-size: 0.8125rem;
+    font-style: italic;
+}
+.tt-pde-band-hero { background: linear-gradient(0deg, transparent, #f7f9fb); border-color: var(--pde-border); }
+.tt-pde-band-task { background: #fcfdfe; border-color: var(--pde-border); }
+
+.tt-pde-canvas {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-auto-rows: var(--pde-row-h);
+    gap: 0.5rem;
+    min-height: 12rem;
+    border: 1px dashed transparent;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    position: relative;
+}
+.tt-pde-canvas:empty::before {
+    content: attr(data-empty-label);
+    grid-column: 1 / -1;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    color: var(--pde-muted);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    padding: 2rem 1rem;
+    border: 2px dashed var(--pde-border);
+    border-radius: 0.5rem;
+}
+
+.tt-pde-wrap[data-mobile-preview="true"] .tt-pde-canvas {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: minmax(5rem, auto);
+}
+
+/* ─── Placed widget cards (in canvas) ────────────────────────── */
+
+.tt-pde-card {
+    position: relative;
+    background: var(--pde-paper);
+    border: 1px solid var(--pde-border);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    cursor: grab;
+    min-height: 4rem;
+    transition: box-shadow 0.12s ease, transform 0.06s ease;
+}
+.tt-pde-card:focus-visible,
+.tt-pde-card.is-selected {
+    outline: 2px solid var(--pde-accent);
+    outline-offset: 2px;
+}
+.tt-pde-card.is-grabbed {
+    box-shadow: 0 8px 22px rgba(11, 31, 58, 0.18);
+    background: var(--pde-accent-soft);
+    cursor: grabbing;
+}
+.tt-pde-card.is-dragging-over {
+    box-shadow: inset 0 0 0 2px var(--pde-accent);
+}
+
+.tt-pde-card-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+.tt-pde-card-source {
+    font-size: 0.75rem;
+    color: var(--pde-muted);
+}
+.tt-pde-card-size-badge {
+    align-self: flex-start;
+    background: var(--pde-accent-soft);
+    color: var(--pde-accent);
+    border-radius: 999px;
+    padding: 0.0625rem 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+}
+
+.tt-pde-card-actions {
+    position: absolute;
+    top: 0.375rem;
+    right: 0.375rem;
+    display: flex;
+    gap: 0.125rem;
+}
+.tt-pde-card-action {
+    appearance: none;
+    border: 0;
+    background: rgba(11, 31, 58, 0.04);
+    color: var(--pde-muted);
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    display: grid;
+    place-items: center;
+}
+.tt-pde-card-action:hover { background: rgba(11, 31, 58, 0.1); color: var(--pde-text); }
+.tt-pde-card-action:focus-visible { outline: 2px solid var(--pde-accent); outline-offset: 2px; }
+.tt-pde-card-action.is-remove:hover { background: #fee2e2; color: var(--pde-warn); }
+
+.tt-pde-card-resize {
+    position: absolute;
+    bottom: 0.125rem;
+    right: 0.125rem;
+    width: 0.875rem;
+    height: 0.875rem;
+    cursor: ew-resize;
+    color: var(--pde-muted);
+    display: grid;
+    place-items: center;
+}
+.tt-pde-card.is-band {
+    /* Hero/task band cards span the full band width regardless of size. */
+    width: 100%;
+}
+
+/* Drop indicator between cards / on bands */
+.tt-pde-drop-indicator {
+    background: var(--pde-accent);
+    border-radius: 0.25rem;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
+
+/* ─── Properties panel ───────────────────────────────────────── */
+
+.tt-pde-properties { padding: 0; }
+.tt-pde-properties-empty {
+    padding: 1.5rem 1rem;
+    color: var(--pde-muted);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    text-align: center;
+}
+.tt-pde-properties-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding: 1rem;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+.tt-pde-properties-head {
+    border-bottom: 1px solid var(--pde-border);
+    padding-bottom: 0.625rem;
+    margin-bottom: 0.25rem;
+}
+.tt-pde-properties-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.125rem;
+}
+.tt-pde-properties-meta {
+    font-size: 0.6875rem;
+    color: var(--pde-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.tt-pde-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.8125rem;
+}
+.tt-pde-field-label {
+    font-weight: 600;
+    color: var(--pde-text);
+}
+.tt-pde-field-help {
+    font-size: 0.75rem;
+    color: var(--pde-muted);
+}
+.tt-pde-field input[type="text"],
+.tt-pde-field input[type="number"],
+.tt-pde-field select {
+    font-size: 1rem;
+    min-height: 2.5rem;
+    padding-inline: 0.625rem;
+    border: 1px solid var(--pde-border);
+    border-radius: 0.375rem;
+    background: var(--pde-paper);
+    color: var(--pde-text);
+}
+.tt-pde-field input:focus-visible,
+.tt-pde-field select:focus-visible {
+    outline: 2px solid var(--pde-accent);
+    outline-offset: 2px;
+}
+.tt-pde-size-segmented {
+    display: inline-grid;
+    grid-template-columns: repeat(4, minmax(2.75rem, 1fr));
+    gap: 0;
+    border: 1px solid var(--pde-border);
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+.tt-pde-size-segmented button {
+    appearance: none;
+    border: 0;
+    background: var(--pde-paper);
+    color: var(--pde-text);
+    padding: 0.5rem 0.75rem;
+    min-height: 2.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-right: 1px solid var(--pde-border);
+}
+.tt-pde-size-segmented button:last-child { border-right: 0; }
+.tt-pde-size-segmented button[aria-pressed="true"] {
+    background: var(--pde-accent);
+    color: #fff;
+}
+.tt-pde-size-segmented button[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.tt-pde-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+}
+.tt-pde-checkbox input[type="checkbox"] { width: 1.125rem; height: 1.125rem; }
+
+/* ─── Modal ──────────────────────────────────────────────────── */
+
+.tt-pde-modal-root[aria-hidden="false"] {
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 31, 58, 0.4);
+    z-index: 100050;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    overscroll-behavior: contain;
+}
+.tt-pde-modal {
+    background: var(--pde-paper);
+    border-radius: 0.75rem;
+    width: min(28rem, 100%);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 4rem);
+    overflow: hidden;
+}
+.tt-pde-modal-head {
+    padding: 1rem 1.25rem 0.5rem;
+}
+.tt-pde-modal-title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+.tt-pde-modal-body {
+    padding: 0.5rem 1.25rem 1rem;
+    font-size: 0.875rem;
+    color: var(--pde-text);
+    line-height: 1.5;
+    overflow-y: auto;
+}
+.tt-pde-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem 1rem;
+    border-top: 1px solid var(--pde-border);
+    background: #fafbfc;
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-pde-canvas-frame,
+    .tt-pde-card { transition: none; }
+}
