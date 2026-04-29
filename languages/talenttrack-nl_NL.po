@@ -10047,12 +10047,8 @@ msgid "%1$s row %2$d: %3$s \"%4$s\" does not match any %5$s row."
 msgstr "%1$s rij %2$d: %3$s \"%4$s\" komt niet overeen met een %5$s-rij."
 
 # #0042 — youth-aware contact strategy
-
-msgid "Player"
-msgstr "Speler"
-
-msgid "Parent"
-msgstr "Ouder"
+# (Note: "Player", "Parent", "Unknown" already exist earlier in the file —
+# do not duplicate; msgfmt rejects redefinitions.)
 
 msgid "U8 – U10 (parent contact)"
 msgstr "O8 – O10 (oudercontact)"
@@ -10062,9 +10058,6 @@ msgstr "O11 – O12 (telefoon / push)"
 
 msgid "U12+ (email + push)"
 msgstr "O12+ (e-mail + push)"
-
-msgid "Unknown"
-msgstr "Onbekend"
 
 msgid "Mobile phone"
 msgstr "Mobiele telefoon"
