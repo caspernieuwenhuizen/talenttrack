@@ -9019,3 +9019,23 @@ msgstr "Stafrollen per team — hoofdcoach, assistent, manager, fysio. Eén gebr
 
 msgid "Per-team staff assignments — head coach, assistant, manager, physio. Different from academy-wide Roles & rights."
 msgstr "Stafrollen per team — hoofdcoach, assistent, manager, fysio. Niet hetzelfde als academiebrede Rollen & rechten."
+
+# v3.48.0 — workflow cadence relabel + journey filter declutter
+
+msgid "Turn templates on or off, and override how often they run + how long users have to act. Changes take effect on the next cron tick or trigger."
+msgstr "Zet sjablonen aan of uit en pas aan hoe vaak ze afgaan + hoeveel tijd gebruikers krijgen om te reageren. Wijzigingen worden van kracht bij de volgende cron-tick of trigger."
+
+msgid "How often (cron)"
+msgstr "Hoe vaak (cron)"
+
+msgid "Cron expression, e.g. '0 9 * * 1' for every Monday at 09:00. Leave the placeholder unchanged to use the default schedule."
+msgstr "Cron-expressie, bv. '0 9 * * 1' voor elke maandag om 09:00. Laat de placeholder ongewijzigd om het standaardschema te gebruiken."
+
+msgid "Deadline (days)"
+msgstr "Deadline (dagen)"
+
+msgid "How many days after the task fires before it counts as overdue. Whole number, e.g. 7."
+msgstr "Aantal dagen na het afgaan van de taak voordat hij als verlopen telt. Geheel getal, bv. 7."
+
+msgid "More filters (%d)"
+msgstr "Meer filters (%d)"

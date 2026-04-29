@@ -148,13 +148,44 @@ class FrontendJourneyView {
             }
             ?>
             <span class="tt-muted" style="font-size:13px;"><?php esc_html_e( 'Show:', 'talenttrack' ); ?></span>
-            <?php foreach ( $types as $def ) : ?>
+            <?php
+            // Primary filters always visible — the milestones coaches scan for.
+            $primary_keys = [ 'evaluation_completed', 'injury_started', 'trial_ended' ];
+            $primary = array_filter( $types, static fn( $def ) => in_array( $def->key, $primary_keys, true ) );
+            $secondary = array_filter( $types, static fn( $def ) => ! in_array( $def->key, $primary_keys, true ) );
+            $any_secondary_active = false;
+            foreach ( $secondary as $def ) {
+                if ( in_array( $def->key, $selected_types, true ) ) { $any_secondary_active = true; break; }
+            }
+            foreach ( $primary as $def ) : ?>
                 <label class="tt-chip" style="display:inline-flex; align-items:center; gap:4px; padding:6px 10px; border:1px solid <?php echo esc_attr( $def->color ); ?>; border-radius:999px; cursor:pointer; min-height:32px;">
                     <input type="checkbox" name="event_type[]" value="<?php echo esc_attr( $def->key ); ?>"
                            <?php checked( in_array( $def->key, $selected_types, true ) ); ?> />
                     <?php echo esc_html( $def->label ); ?>
                 </label>
             <?php endforeach; ?>
+            <?php if ( $secondary ) : ?>
+                <details class="tt-journey-filters-more" <?php echo $any_secondary_active ? 'open' : ''; ?> style="display:inline-block;">
+                    <summary style="cursor:pointer; padding:6px 10px; border:1px dashed #c4c7c5; border-radius:999px; min-height:32px; display:inline-flex; align-items:center;">
+                        <?php
+                        printf(
+                            /* translators: %d: number of additional filter types */
+                            esc_html__( 'More filters (%d)', 'talenttrack' ),
+                            count( $secondary )
+                        );
+                        ?>
+                    </summary>
+                    <span style="display:inline-flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+                    <?php foreach ( $secondary as $def ) : ?>
+                        <label class="tt-chip" style="display:inline-flex; align-items:center; gap:4px; padding:6px 10px; border:1px solid <?php echo esc_attr( $def->color ); ?>; border-radius:999px; cursor:pointer; min-height:32px;">
+                            <input type="checkbox" name="event_type[]" value="<?php echo esc_attr( $def->key ); ?>"
+                                   <?php checked( in_array( $def->key, $selected_types, true ) ); ?> />
+                            <?php echo esc_html( $def->label ); ?>
+                        </label>
+                    <?php endforeach; ?>
+                    </span>
+                </details>
+            <?php endif; ?>
             <?php if ( $full ) : ?>
                 <input type="hidden" name="full" value="1" />
             <?php endif; ?>

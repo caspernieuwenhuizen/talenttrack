@@ -35,7 +35,8 @@ class FrontendRateCardView extends FrontendViewBase {
 
         // #0011 — feature gate. Full rate card analytics (trends + radar +
         // comparison panels) is Standard-tier; Free sees an upgrade nudge.
-        if ( class_exists( '\TT\Modules\License\LicenseGate' )
+        if ( \TT\Core\ModuleRegistry::isEnabled( 'TT\\Modules\\License\\LicenseModule' )
+             && class_exists( '\TT\Modules\License\LicenseGate' )
              && ! \TT\Modules\License\LicenseGate::can( 'rate_cards_full' )
         ) {
             echo \TT\Modules\License\Admin\UpgradeNudge::inline(

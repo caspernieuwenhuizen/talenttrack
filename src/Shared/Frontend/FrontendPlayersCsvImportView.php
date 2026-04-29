@@ -37,7 +37,8 @@ class FrontendPlayersCsvImportView extends FrontendViewBase {
         }
 
         // #0011 — feature gate. CSV import is Standard-tier.
-        if ( class_exists( '\TT\Modules\License\LicenseGate' )
+        if ( \TT\Core\ModuleRegistry::isEnabled( 'TT\\Modules\\License\\LicenseModule' )
+             && class_exists( '\TT\Modules\License\LicenseGate' )
              && ! \TT\Modules\License\LicenseGate::can( 'csv_import' )
         ) {
             FrontendBackButton::render();

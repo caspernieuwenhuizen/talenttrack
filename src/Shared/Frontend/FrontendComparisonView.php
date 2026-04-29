@@ -35,7 +35,8 @@ class FrontendComparisonView extends FrontendViewBase {
         // #0011 — feature gate. Player comparison is a Standard-tier
         // feature; on Free, surface an upgrade nudge instead of the
         // analytics body.
-        if ( class_exists( '\TT\Modules\License\LicenseGate' )
+        if ( \TT\Core\ModuleRegistry::isEnabled( 'TT\\Modules\\License\\LicenseModule' )
+             && class_exists( '\TT\Modules\License\LicenseGate' )
              && ! \TT\Modules\License\LicenseGate::can( 'player_comparison' )
         ) {
             echo \TT\Modules\License\Admin\UpgradeNudge::inline(
