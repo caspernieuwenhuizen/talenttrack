@@ -4,13 +4,22 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.56.0
+Stable tag: 3.57.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.57.0 — Mobile-first activities pilot (#0056 Sprint D) =
+
+Closes the deferred slice of the mobile-first cleanup epic. The Activities surface is the first frontend view authored under the mobile-first rule; the recipe is now documented so the remaining views can migrate one per release.
+
+* **NEW:** `assets/css/frontend-activities-manage.css` — brand-new partial that owns the responsive layout for the activity form + attendance table, written mobile-first. Base = 360px stacked cards; `min-width: 768px` switches the attendance editor back to a real row table; `min-width: 1024px` tightens cell padding. Enqueued by `FrontendActivitiesManageView::enqueueAssets()` with `tt-frontend-mobile` as a dependency so source order is stable.
+* **CHANGED:** Removed the `@media (max-width: 639px)` block for `.tt-attendance-table` from `frontend-admin.css` — replaced with a one-line pointer at the new sheet. Net visual outcome unchanged.
+* **NEW DOCS:** `docs/architecture-mobile-first.md` (EN + NL) explains the authoring rule, why mobile-first beats max-width, and the migration recipe for the next view.
+* **CHANGED:** `CLAUDE.md` § 2 tightened — legacy-stylesheet migration is now anchored to #0056 cadence ("one view per release until zero legacy sheets remain"); the `inputmode` rule promoted from "fix as you touch" to "treat missing `inputmode` as a bug"; the `.tt-form-row` font-size note replaced with a v3.50.0 closure note.
 
 = 3.56.0 — Excel-driven demo data finished (#0059): 15 sheets, hybrid mode, source step =
 
