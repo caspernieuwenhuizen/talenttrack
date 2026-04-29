@@ -61,7 +61,16 @@ class FunctionalRolesPage {
             <?php self::renderMessages(); ?>
 
             <p class="description">
-                <?php esc_html_e( 'Functional roles describe the jobs people hold on a team (head coach, assistant coach, manager, physio, other). Each functional role is mapped to one or more authorization roles, which determine what that person is allowed to do. Edit a functional role below to change its mapping.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Per-team staff assignments. A user can hold many functional roles at once — head coach of one team, assistant of another. Each functional role is mapped to one or more authorization roles, which determine what that person is allowed to do on the team they\'re assigned to. Edit a functional role below to change its mapping.', 'talenttrack' ); ?>
+            </p>
+            <p class="description">
+                <?php
+                printf(
+                    /* translators: %s: link to roles & rights page */
+                    esc_html__( 'For academy-wide roles (Head of Development, Club Admin, Coach, Player, Parent, Scout, Read-only Observer), see %s.', 'talenttrack' ),
+                    '<a href="' . esc_url( admin_url( 'admin.php?page=tt-roles' ) ) . '">' . esc_html__( 'Roles & rights', 'talenttrack' ) . '</a>'
+                );
+                ?>
             </p>
 
             <table class="widefat striped">
