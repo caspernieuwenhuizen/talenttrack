@@ -96,10 +96,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         echo FrontendListTable::render( [
             'rest_path' => 'activities',
             'columns' => [
-                'session_date' => [ 'label' => __( 'Date',   'talenttrack' ), 'sortable' => true ],
-                'team_name'    => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true ],
-                'title'        => [ 'label' => __( 'Title',  'talenttrack' ), 'sortable' => true ],
-                'attendance'   => [ 'label' => __( 'Att. %', 'talenttrack' ), 'sortable' => true, 'render' => 'percent', 'value_key' => 'attendance_pct' ],
+                'session_date'      => [ 'label' => __( 'Date',   'talenttrack' ), 'sortable' => true ],
+                'activity_type_key' => [ 'label' => __( 'Type',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_type_pill_html' ],
+                'team_name'         => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true ],
+                'title'             => [ 'label' => __( 'Title',  'talenttrack' ), 'sortable' => true ],
+                'attendance'        => [ 'label' => __( 'Att. %', 'talenttrack' ), 'sortable' => true, 'render' => 'percent', 'value_key' => 'attendance_pct' ],
             ],
             'filters' => [
                 'team_id' => [
@@ -161,9 +162,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // #0050 — Type lookup-driven; admins can rename or add types
         // via Configuration → Activity Types. Conditional Subtype /
         // Other-label rows stay anchored to the seeded keys.
-        $activity_type_rows = QueryHelpers::get_lookups( 'activity_type' );
+        $activity_type_rows   = QueryHelpers::get_lookups( 'activity_type' );
+        $activity_status_rows = QueryHelpers::get_lookups( 'activity_status' );
 
         $current_type    = (string) ( $session->activity_type_key ?? 'training' );
+        $current_status  = (string) ( $session->activity_status_key ?? 'planned' );
         $current_subtype = (string) ( $session->game_subtype_key ?? '' );
         $current_other   = (string) ( $session->other_label ?? '' );
 
@@ -182,6 +185,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     <select id="tt-activity-type" class="tt-input" name="activity_type_key" required>
                         <?php foreach ( $activity_type_rows as $type_row ) : ?>
                             <option value="<?php echo esc_attr( (string) $type_row->name ); ?>" <?php selected( $current_type, (string) $type_row->name ); ?>><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $type_row ) ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-activity-status"><?php esc_html_e( 'Status', 'talenttrack' ); ?></label>
+                    <select id="tt-activity-status" class="tt-input" name="activity_status_key">
+                        <?php foreach ( $activity_status_rows as $status_row ) : ?>
+                            <option value="<?php echo esc_attr( (string) $status_row->name ); ?>" <?php selected( $current_status, (string) $status_row->name ); ?>><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $status_row ) ); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>

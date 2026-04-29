@@ -52,13 +52,11 @@ The wizard creates the goal directly. If you picked a methodology link in step 2
 
 ## Toggling wizards on or off
 
-Site admins go to **Administration → Wizards**:
-
-- `all` — every registered wizard is on (the default).
-- `off` — every wizard is off; the flat forms are restored.
-- A comma-separated list of wizard slugs (e.g. `new-player,new-team`) — only the named wizards are on.
+Site admins go to **Administration → Wizards**. Each registered wizard is shown as a tickbox card with its label and slug; the **Enable all wizards** master toggle at the top ticks or unticks the lot. Save the changes with the button at the bottom — there's nothing to type.
 
 Available slugs: `new-player`, `new-team`, `new-evaluation`, `new-goal`.
+
+Behind the scenes the page stores the choice as `'all'` when every wizard is ticked, `'off'` when none are, and a comma-separated list of slugs in between — same shape `WizardRegistry::isEnabled()` reads, so the change is purely cosmetic.
 
 ## Completion analytics
 

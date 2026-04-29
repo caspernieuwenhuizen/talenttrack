@@ -110,16 +110,16 @@ class FrontendCohortTransitionsView {
                     </thead>
                     <tbody>
                         <?php foreach ( $rows as $row ) :
-                            $name = trim( ( $row['first_name'] ?? '' ) . ' ' . ( $row['last_name'] ?? '' ) );
+                            $name = trim( ( $row->first_name ?? '' ) . ' ' . ( $row->last_name ?? '' ) );
                             $journey_url = add_query_arg( [
                                 'tt_view'   => 'player-journey',
-                                'player_id' => (int) $row['player_id'],
+                                'player_id' => (int) ( $row->player_id ?? 0 ),
                             ], remove_query_arg( [ 'event_type', 'from', 'to', 'team_id' ] ) );
                         ?>
                             <tr>
                                 <td style="padding:6px 8px; border-bottom:1px solid #eef0f2;"><?php echo esc_html( $name ); ?></td>
-                                <td style="padding:6px 8px; border-bottom:1px solid #eef0f2;"><?php echo esc_html( substr( (string) $row['event_date'], 0, 10 ) ); ?></td>
-                                <td style="padding:6px 8px; border-bottom:1px solid #eef0f2;"><?php echo esc_html( (string) $row['summary'] ); ?></td>
+                                <td style="padding:6px 8px; border-bottom:1px solid #eef0f2;"><?php echo esc_html( substr( (string) ( $row->event_date ?? '' ), 0, 10 ) ); ?></td>
+                                <td style="padding:6px 8px; border-bottom:1px solid #eef0f2;"><?php echo esc_html( (string) ( $row->summary ?? '' ) ); ?></td>
                                 <td style="padding:6px 8px; border-bottom:1px solid #eef0f2;">
                                     <a href="<?php echo esc_url( $journey_url ); ?>" class="tt-btn tt-btn-secondary" style="min-height:32px;">
                                         <?php esc_html_e( 'Open journey', 'talenttrack' ); ?>

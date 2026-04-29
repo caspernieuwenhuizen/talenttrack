@@ -142,11 +142,11 @@ final class PlayerEventsRepository {
 
         $vis_placeholders = implode( ',', array_fill( 0, count( $allowed_visibilities ), '%s' ) );
 
-        $params = [ $event_type, $from, $to, CurrentClub::id() ];
-        $extra  = '';
+        $extra       = '';
+        $extra_param = [];
         if ( $team_id !== null && $team_id > 0 ) {
-            $extra = 'AND p.team_id = %d';
-            $params[] = $team_id;
+            $extra       = 'AND p.team_id = %d';
+            $extra_param = [ $team_id ];
         }
 
         $sql = "SELECT e.id, e.player_id, e.event_type, e.event_date, e.summary, e.payload,
@@ -163,11 +163,14 @@ final class PlayerEventsRepository {
                  ORDER BY e.event_date DESC, e.id DESC
                  LIMIT 500";
 
+        $params = array_merge(
+            [ $event_type, $from, $to, CurrentClub::id() ],
+            $allowed_visibilities,
+            $extra_param
+        );
+
         /** @var list<object> $rows */
-        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            $sql,
-            ...array_merge( $params, $allowed_visibilities )
-        ) );
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare( $sql, ...$params ) );
         return $rows ?: [];
     }
 
