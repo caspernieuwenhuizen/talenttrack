@@ -9961,3 +9961,28 @@ msgstr "Template downloaden (.xlsx)"
 
 msgid "Upload + import"
 msgstr "Uploaden + importeren"
+
+# v3.53.0 — Default-dashboard chooser
+msgid "Default dashboard"
+msgstr "Standaard dashboard"
+
+msgid "Choose what every user sees on the dashboard root: the persona dashboard or the classic tile grid."
+msgstr "Kies wat elke gebruiker op de dashboard-startpagina ziet: het persona-dashboard of het klassieke tegelraster."
+
+msgid "Choose what every user sees when they open the dashboard. The persona dashboard is the configurable per-role landing built in #0060; the classic tile grid is the legacy menu of all available views."
+msgstr "Kies wat elke gebruiker ziet bij het openen van het dashboard. Het persona-dashboard is de instelbare landing per rol uit #0060; het klassieke tegelraster is het oude menu met alle beschikbare schermen."
+
+msgid "Persona dashboard (recommended)"
+msgstr "Persona-dashboard (aanbevolen)"
+
+msgid "Each user lands on a layout tailored to their persona (player, parent, coach, head of development, club admin, scout, observer). Layouts are edited under wp-admin → Configuration → Dashboard layouts."
+msgstr "Elke gebruiker komt op een layout die past bij zijn persona (speler, ouder, coach, hoofd ontwikkeling, clubbeheerder, scout, observer). Layouts worden bewerkt onder wp-admin → Configuratie → Dashboard-layouts."
+
+msgid "Classic tile grid"
+msgstr "Klassiek tegelraster"
+
+msgid "Falls back to the original tile grid (every user sees the same menu of tiles, filtered by capability). Use this if a customer is not yet ready to roll out the persona dashboard or hits a blocker."
+msgstr "Valt terug op het originele tegelraster (elke gebruiker ziet hetzelfde menu met tegels, gefilterd op rechten). Gebruik dit als een klant nog niet klaar is voor het persona-dashboard of een blokkade tegenkomt."
+
+msgid "Save default dashboard"
+msgstr "Standaard dashboard opslaan"

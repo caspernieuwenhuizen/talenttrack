@@ -45,6 +45,8 @@ class ConfigRestController {
         'rating_step',
         // #0019 Sprint 6 — wp-admin legacy-menu toggle
         'show_legacy_menus',
+        // #0060 — default-dashboard toggle (persona vs classic tile grid)
+        'persona_dashboard.enabled',
     ];
 
     public static function init(): void {
@@ -81,7 +83,10 @@ class ConfigRestController {
         }
         $written = 0;
         foreach ( $payload as $key => $value ) {
-            $key = sanitize_key( (string) $key );
+            $key = (string) $key;
+            // Whitelist is the security boundary — match raw key (some
+            // legitimate keys contain dots, e.g. `persona_dashboard.enabled`,
+            // which sanitize_key would strip).
             if ( ! in_array( $key, self::ALLOWED_KEYS, true ) ) continue;
             QueryHelpers::set_config( $key, sanitize_text_field( (string) $value ) );
             $written++;
