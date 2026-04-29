@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.60.0
+Stable tag: 3.61.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.61.0 — #0061 polish + bug bundle (round 2) =
+
+Closes the deferred half of idea #0061. Adds the missing **new-activity wizard** (4 steps: Team → Type+Status → Details → Review) registered in `WizardsModule`, with the `+ New activity` button on the frontend activities manager now routed through `WizardEntryPoint::urlFor()` so the wizard or the flat form is reached based on `tt_wizards_enabled`. The wizard supports a "Save as draft" path via the new `SupportsCancelAsDraft` interface — an in-progress wizard can persist as a `draft`-status activity (the status seeded in v3.59.0 with `meta.hidden_from_form = 1`) and be resumed from the activities list. **Authorization Matrix** rows are now grouped under category headers (Players / Teams / Activities / Evaluations / Development / Insights / Operations / Administration) instead of one alphabetic list — pure rendering change, no DB migration.
 
 = 3.60.0 — Staff development module (#0039) =
 
