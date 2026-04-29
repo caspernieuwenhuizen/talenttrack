@@ -1,3 +1,46 @@
+# TalentTrack v3.45.1 — SaaS-readiness baseline (PR-A follow-up): repository sweep (#0052)
+
+Closes the "Repository sweep deferred" caveat carried into v3.45.0. Mechanical follow-up only — no schema change, no behaviour change today, no new user-facing strings, no docs update. The sweep adds the `club_id` filter to every read and the `club_id` value to every write across 114 PHP files, so adding a real SaaS auth resolver later only touches `CurrentClub`, not 100+ query sites.
+
+## Files touched
+
+114 PHP files across:
+
+- `src/Infrastructure/REST/` — Players, Teams, Activities, People, Goals, EvalCategories, FunctionalRoles, CustomFields controllers.
+- `src/Infrastructure/` — Archive, Audit, Authorization, CustomFields, Evaluations, Journey, People, Query, Security, Usage repositories + services.
+- `src/Modules/*/Repositories/` — Authorization, Evaluations, Goals, Invitations, Journey, Methodology (10 repos), Pdp (5 repos), Reports, TeamDevelopment, Trials (6 repos), Translations (3 repos), Workflow (4 repos).
+- `src/Modules/*/Admin/` — Authorization (Roles, RoleGrant, FunctionalRoles), Configuration, Goals, Players, Teams, Workflow, Stats admin pages.
+- `src/Modules/DemoData/` — DemoBatchRegistry + 7 generators (Activity, Evaluation, Goal, People, Player, Team, User) + DemoDataCleaner + DemoGenerator.
+- `src/Modules/Wizards/` — Evaluation (PlayerStep, TypeStep), Goal (DetailsStep, LinkStep, PlayerStep), Player (ReviewStep, RosterDetailsStep, TrialDetailsStep), Team (BasicsStep, ReviewStep) — all four wizards' steps now scope on `club_id`.
+- `src/Modules/Workflow/` — CronDispatcher, CronHealthNotice, three form classes, three frontend views (MyTasks, TasksDashboard, WorkflowConfig), four template classes (PlayerSelfEvaluation, PostGameEvaluation, QuarterlyGoalSetting, QuarterlyHoDReview).
+- `src/Modules/Pdp/` — NativeCalendarWriter, SeasonCarryover, plus the five PDP repositories above.
+- `src/Modules/Translations/` — TranslationLayer + the three cache repositories.
+- `src/Shared/Frontend/` — FrontendPeopleManageView, FrontendTrialCaseView, FrontendTrialsManageView, FrontendUsageStatsDetailsView.
+
+## Pattern
+
+Reads pick up `AND club_id = %d` in their `WHERE` clause with `CurrentClub::id()` appended to the prepared params. Writes either spread `[ 'club_id' => CurrentClub::id() ]` into the `$wpdb->insert` data array or add `'club_id' => CurrentClub::id()` into the `$wpdb->update` WHERE array. Joined queries scope both sides (`LEFT JOIN ... AND b.club_id = a.club_id`).
+
+The shared `QueryHelpers::clubScopeWhere()` / `clubScopeInsertColumn()` helpers added in v3.45.0 are exercised here; some call sites use them directly, others inline the equivalent prepared fragment for readability inside larger query builders.
+
+## CI
+
+New `bin/audit-tenancy-source.sh` static check — for every PHP file under `src/` that mentions a tenant-scoped `tt_*` table (matched against the same table list in `bin/audit-tenancy.php` and migration `0038_tenancy_scaffold.php`), the file must also reference `club_id` or `CurrentClub::`. Allowlist covers the legitimate exceptions (`Activator.php` install-time existence checks, `MigrationRunner.php` schema introspection). Exit `0` on pass, `1` on fail with `::error file=...` GitHub-Actions-friendly output. Currently passes — every src/ file is in scope.
+
+## Known gaps still deferred
+
+These were already deferred in v3.45.0 and remain deferred:
+
+- **Wizard analytics counters** in wp_options (`tt_wizard_*_<slug>` dynamic keys) — separate refactor.
+- **`tt_user_id` resolver** — documented intent in `docs/access-control.md` § Deferred.
+- **wp_usermeta tenant-scoped keys** — documented gap; not load-bearing today.
+
+## SEQUENCE.md
+
+`#0052 (PR-A)` row updated — drops the "Repository sweep deferred" caveat. New `#0052 (PR-A sweep)` row added under Done at v3.45.1.
+
+---
+
 # TalentTrack v3.45.0 — SaaS-readiness baseline (PR-A): tenancy scaffold + tt_config reshape (#0052)
 
 First of three independently-shippable PRs that bring the existing schema into compliance with `CLAUDE.md` § 3. PR-A is the only one that touches schema, so it ships solo per AGENTS.md and unblocks PR-B (REST gap closure + auth portability) and PR-C (assets + cron + OpenAPI).

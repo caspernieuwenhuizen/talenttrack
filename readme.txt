@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.45.0
+Stable tag: 3.45.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.45.1 — SaaS-readiness baseline (PR-A follow-up): repository sweep — club_id scoping across 114 files (#0052) =
+
+Mechanical follow-up to v3.45.0 that closes the deferred repository sweep noted in PR-A. Every read filters on `club_id`, every write populates `club_id` from `CurrentClub::id()`, across 114 PHP files spanning REST controllers, repositories, admin pages, demo generators, frontend views, and workflow templates. New `bin/audit-tenancy-source.sh` static check ensures any file touching a tenant-scoped `tt_*` table also references `club_id` or `CurrentClub::`, callable from CI to prevent regression. Behaviour is unchanged today (`CurrentClub::id()` returns `1`); the value is that adding a real SaaS auth resolver later only touches `CurrentClub`, not 100+ query sites. Removes the "Repository sweep deferred" caveat from the #0052 PR-A entry; PR-B and PR-C remain unblocked and ready.
 
 = 3.45.0 — SaaS-readiness baseline (PR-A): tenancy scaffold + tt_config reshape (#0052) =
 

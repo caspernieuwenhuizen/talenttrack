@@ -41,7 +41,8 @@ _None._
 
 | # | Topic | Type | Shipped | Estimated | Actual |
 | - | - | - | - | - | - |
-| 0052 (PR-A) | SaaS-readiness baseline (PR-A) — tenancy scaffold + tt_config reshape (~50 tables get club_id, 5 root entities get uuid, composite (club_id, config_key) PK, CurrentClub resolver, 8 call sites refactored, audit script). Repository sweep deferred. Unblocks PR-B + PR-C. | feat | v3.45.0 | ~12-18h | ~5h |
+| 0052 (PR-A) | SaaS-readiness baseline (PR-A) — tenancy scaffold + tt_config reshape (~50 tables get club_id, 5 root entities get uuid, composite (club_id, config_key) PK, CurrentClub resolver, 8 call sites refactored, audit script). Unblocks PR-B + PR-C. | feat | v3.45.0 | ~12-18h | ~5h |
+| 0052 (PR-A sweep) | SaaS-readiness baseline (PR-A follow-up) — repository sweep (114 files: every read filters on `club_id`, every write populates `club_id`; new `bin/audit-tenancy-source.sh` CI guardrail). Closes the "Repository sweep deferred" caveat. | feat | v3.45.1 | ~7-13h (PR-A budget remainder) | _TBD_ |
 | 0053 | Player journey — chronological events spine + injuries + cohort transitions (2 new tables, 14 event types, 2 new caps, REST + 3 dispatcher slugs + injury_recovery_due workflow) | epic | v3.44.0 | ~4-5 sprints / ~6-9h compressed | ~6h |
 | 0055 | Record-creation wizards (framework + 4 wizards: player/team/eval/goal + admin analytics) | epic | v3.43.0 | ~32-46h | ~3.5h |
 | 0017 | Trial player module (case workflow + 3 letter templates + parent-meeting view + editors) | epic | v3.42.0 | ~59-72h | ~5h |
