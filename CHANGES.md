@@ -1,3 +1,39 @@
+# TalentTrack v3.56.0 — Excel-driven demo data finished (#0059)
+
+Closes the #0059 deferrals from v3.53.0. The demo-data generator now ships three sources unified under one form: **Procedural only** (existing flow), **Excel upload** (workbook is the source of truth), and **Hybrid: upload + procedural top-up** (Excel wins; procedural fills empty sheets).
+
+## Schema + template (15 sheets, tab-coloured)
+
+`SheetSchemas` extended 2 → 15: Master (Teams / People / Players / Trial_Cases — green), Transactional (Sessions / Session_Attendance / Evaluations / Evaluation_Ratings / Goals / Player_Journey — blue), Configuration (Eval_Categories / Category_Weights / Generation_Settings — purple), Reference (_Lookups — grey). Each entity sheet has a pre-populated `auto_key` formula on rows 2..201 that materialises a stable text key as you type into the natural-key column. `TemplateBuilder` streams the `.xlsx` fresh on every download.
+
+## ExcelImporter — full entity coverage
+
+V1.5 imports Teams, People (+ `tt_team_people` when `team_key` is set), Players, Trial_Cases, Sessions → `tt_activities`, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey. Cross-sheet FK validation against `auto_key`. Required-field + missing-column validation. Empty sheets silently skipped (Hybrid picks them up). Reference sheets (Eval_Categories / Category_Weights / _Lookups) ship as documentation only — admin-edit via the existing Configuration surfaces.
+
+## Hybrid dispatcher
+
+`DemoGenerator::run()` now accepts a `source` option + `excel_path`. Excel: skips Team/Player/downstream generators entirely. Hybrid: runs importer first, loads imported teams + players via the `tt_demo_tags` index, then runs Eval/Activity/Goal generators only for sheets the workbook left empty.
+
+## Source step on the demo admin page
+
+Replaces the standalone Excel `<details>` block from v3.53.0. The main form leads with **Step 0 — Source**: three radios (Procedural only / Excel upload / Hybrid). Selecting Excel/Hybrid reveals the Download-template button + file-upload row; Procedural keeps the existing flow intact. End-to-end `enctype="multipart/form-data"`.
+
+## Side fixes (#0052 PR-B follow-up)
+
+The new `LookupsRestController` (5 query sites) and `AuditLogRestController::list` (1 query site) both shipped in v3.55.0 without `club_id` scoping. The audit-tenancy-source script flagged them; this release adds the scope.
+
+## Translations + docs
+
+11 new `nl_NL` msgstrs. New `docs/demo-data-excel.md` (EN + NL).
+
+`bin/audit-tenancy-source.sh` passes; `php -l` clean across all modified files.
+
+## SEQUENCE.md
+
+New `v3.56.0-bundle` row under Done.
+
+---
+
 # TalentTrack v3.55.0 — SaaS-readiness baseline closed (#0052 PR-B + PR-C)
 
 The two SaaS-readiness chunks left after PR-A landed in v3.45.x ship together: REST gap closure + auth portability (PR-B), and asset audit + `wp_cron` split + hand-written OpenAPI contract (PR-C). Closes the #0052 epic.

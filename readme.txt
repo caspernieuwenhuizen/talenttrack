@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.55.0
+Stable tag: 3.56.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.56.0 — Excel-driven demo data finished (#0059): 15 sheets, hybrid mode, source step =
+
+Closes the #0059 deferrals from v3.53.0. The demo-data generator now ships a unified Step 0 — Source picker on the admin form: **Procedural only** (existing flow), **Excel upload** (workbook is the source of truth), or **Hybrid: upload + procedural top-up** (Excel sheets win; the procedural generator fills any sheet you left blank). `SheetSchemas` extended 2 → 15 sheets covering Master / Transactional / Configuration / Reference groups with tab-coloured tabs and pre-populated `auto_key` formulas. `TemplateBuilder` streams a fresh `.xlsx` on every download. `ExcelImporter` v1.5 imports Teams / People / Players / Trial_Cases / Sessions / Session_Attendance / Evaluations / Evaluation_Ratings / Goals / Player_Journey with cross-sheet FK validation. `DemoGenerator::run()` accepts a `source` option that routes through the importer + skips procedural generators for sheets the workbook covered. Plus two side fixes (#0052 PR-B follow-up): missed `club_id` scope on `LookupsRestController` (5 query sites) and `AuditLogRestController::list` — both audit-script-flagged.
 
 = 3.54.0 — Surface the persona / classic dashboard switch in Configuration =
 
