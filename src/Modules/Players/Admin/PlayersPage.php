@@ -11,6 +11,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Validation\CustomFieldValidator;
 use TT\Shared\Admin\BackButton;
 
@@ -48,8 +49,8 @@ class PlayersPage {
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
 
         $scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
-        $where = "WHERE pl.status='active' AND pl.{$view_clause}" . ( $ft ? $wpdb->prepare( " AND pl.team_id=%d", $ft ) : '' ) . $scope;
-        $players = $wpdb->get_results( "SELECT pl.*, t.name AS team_name FROM {$p}tt_players pl LEFT JOIN {$p}tt_teams t ON pl.team_id=t.id $where ORDER BY pl.last_name, pl.first_name ASC" );
+        $where = "WHERE pl.status='active' AND pl.{$view_clause}" . $wpdb->prepare( " AND pl.club_id=%d", CurrentClub::id() ) . ( $ft ? $wpdb->prepare( " AND pl.team_id=%d", $ft ) : '' ) . $scope;
+        $players = $wpdb->get_results( "SELECT pl.*, t.name AS team_name FROM {$p}tt_players pl LEFT JOIN {$p}tt_teams t ON pl.team_id=t.id AND t.club_id=pl.club_id $where ORDER BY pl.last_name, pl.first_name ASC" );
         $teams = QueryHelpers::get_teams();
 
         $base_url = admin_url( 'admin.php?page=tt-players' );
@@ -407,8 +408,9 @@ class PlayersPage {
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
 
         if ( $id ) {
-            $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id ] );
+            $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         } else {
+            $data['club_id'] = CurrentClub::id();
             $ok = $wpdb->insert( $wpdb->prefix . 'tt_players', $data );
             if ( $ok ) $id = (int) $wpdb->insert_id;
         }
@@ -450,7 +452,7 @@ class PlayersPage {
                     'guest_age'       => null,
                     'guest_position'  => null,
                 ],
-                [ 'id' => $from_attendance_id, 'is_guest' => 1 ]
+                [ 'id' => $from_attendance_id, 'is_guest' => 1, 'club_id' => CurrentClub::id() ]
             );
         }
 
@@ -467,8 +469,8 @@ class PlayersPage {
     private static function stubPlayerFromGuest( int $attendance_id ): ?object {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tt_attendance WHERE id = %d AND is_guest = 1 LIMIT 1",
-            $attendance_id
+            "SELECT * FROM {$wpdb->prefix}tt_attendance WHERE id = %d AND is_guest = 1 AND club_id = %d LIMIT 1",
+            $attendance_id, CurrentClub::id()
         ) );
         if ( ! $row || empty( $row->guest_name ) ) return null;
 
@@ -509,7 +511,7 @@ class PlayersPage {
         }
 
         global $wpdb;
-        $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => 'deleted' ], [ 'id' => $id ] );
+        $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => 'deleted' ], [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-players&tt_msg=deleted' ) );
         exit;
     }

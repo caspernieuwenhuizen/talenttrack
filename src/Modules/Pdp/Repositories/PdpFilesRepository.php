@@ -3,12 +3,19 @@ namespace TT\Modules\Pdp\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * PdpFilesRepository — one row per (player, season).
  *
  * Files own conversations + at-most-one verdict. cycle_size is the
  * effective count of conversations, derived from the team override
  * → club default at create time.
+ *
+ * Every read scopes to `CurrentClub::id()`; every write tags the row
+ * with the active club. Today the value is always 1 (single-tenant);
+ * the pattern is enforced now so a future SaaS migration is one
+ * filter-callback away. See `docs/architecture.md` § SaaS-readiness.
  */
 class PdpFilesRepository {
 
@@ -24,8 +31,8 @@ class PdpFilesRepository {
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE id = %d",
-            $id
+            "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -34,8 +41,9 @@ class PdpFilesRepository {
     public function findByPlayerSeason( int $player_id, int $season_id ): ?object {
         if ( $player_id <= 0 || $season_id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE player_id = %d AND season_id = %d",
-            $player_id, $season_id
+            "SELECT * FROM {$this->table}
+              WHERE player_id = %d AND season_id = %d AND club_id = %d",
+            $player_id, $season_id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -45,9 +53,9 @@ class PdpFilesRepository {
         if ( $coach_user_id <= 0 || $season_id <= 0 ) return [];
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
             "SELECT * FROM {$this->table}
-              WHERE owner_coach_id = %d AND season_id = %d
+              WHERE owner_coach_id = %d AND season_id = %d AND club_id = %d
               ORDER BY updated_at DESC",
-            $coach_user_id, $season_id
+            $coach_user_id, $season_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
     }
@@ -56,8 +64,10 @@ class PdpFilesRepository {
     public function listForSeason( int $season_id ): array {
         if ( $season_id <= 0 ) return [];
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE season_id = %d ORDER BY updated_at DESC",
-            $season_id
+            "SELECT * FROM {$this->table}
+              WHERE season_id = %d AND club_id = %d
+              ORDER BY updated_at DESC",
+            $season_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
     }
@@ -79,6 +89,7 @@ class PdpFilesRepository {
         if ( $this->findByPlayerSeason( $player_id, $season_id ) ) return 0;
 
         $ok = $this->wpdb->insert( $this->table, [
+            'club_id'        => CurrentClub::id(),
             'player_id'      => $player_id,
             'season_id'      => $season_id,
             'owner_coach_id' => isset( $data['owner_coach_id'] ) ? (int) $data['owner_coach_id'] : null,
@@ -94,7 +105,7 @@ class PdpFilesRepository {
         $ok = $this->wpdb->update(
             $this->table,
             [ 'status' => $status ],
-            [ 'id'     => $file_id ]
+            [ 'id' => $file_id, 'club_id' => CurrentClub::id() ]
         );
         return $ok !== false;
     }
@@ -104,7 +115,7 @@ class PdpFilesRepository {
         $ok = $this->wpdb->update(
             $this->table,
             [ 'owner_coach_id' => $coach_user_id !== null ? (int) $coach_user_id : null ],
-            [ 'id' => $file_id ]
+            [ 'id' => $file_id, 'club_id' => CurrentClub::id() ]
         );
         return $ok !== false;
     }

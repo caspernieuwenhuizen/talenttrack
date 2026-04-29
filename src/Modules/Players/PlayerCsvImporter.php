@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * PlayerCsvImporter — CSV bulk import for the Players entity.
@@ -189,7 +190,7 @@ class PlayerCsvImporter {
             $payload = self::buildInsertPayload( $data );
 
             if ( $dupe && $dupe_strategy === self::DUPE_UPDATE ) {
-                $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $payload, [ 'id' => (int) $dupe->id ] );
+                $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $payload, [ 'id' => (int) $dupe->id, 'club_id' => CurrentClub::id() ] );
                 if ( $ok === false ) {
                     Logger::error( 'csv.player.update.failed', [ 'row' => $row_number, 'db_error' => (string) $wpdb->last_error ] );
                     $errored++;
@@ -201,6 +202,7 @@ class PlayerCsvImporter {
             }
 
             // Either no dupe, or dupe + DUPE_CREATE — insert a new row.
+            $payload['club_id'] = CurrentClub::id();
             $ok = $wpdb->insert( $wpdb->prefix . 'tt_players', $payload );
             if ( $ok === false ) {
                 Logger::error( 'csv.player.create.failed', [ 'row' => $row_number, 'db_error' => (string) $wpdb->last_error ] );
@@ -283,8 +285,8 @@ class PlayerCsvImporter {
         if ( $first === '' || $last === '' ) return null;
 
         $sql = "SELECT id, first_name, last_name, date_of_birth FROM {$wpdb->prefix}tt_players
-                WHERE first_name = %s AND last_name = %s";
-        $params = [ $first, $last ];
+                WHERE first_name = %s AND last_name = %s AND club_id = %d";
+        $params = [ $first, $last, CurrentClub::id() ];
         if ( $dob !== '' ) {
             $sql .= ' AND date_of_birth = %s';
             $params[] = $dob;
@@ -338,8 +340,8 @@ class PlayerCsvImporter {
         global $wpdb;
         if ( $name === '' ) return null;
         $id = $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_teams WHERE name = %s AND archived_at IS NULL LIMIT 1",
-            $name
+            "SELECT id FROM {$wpdb->prefix}tt_teams WHERE name = %s AND archived_at IS NULL AND club_id = %d LIMIT 1",
+            $name, CurrentClub::id()
         ) );
         return $id ? (int) $id : null;
     }

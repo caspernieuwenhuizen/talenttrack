@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Evaluation;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -23,9 +24,9 @@ final class TypeStep implements WizardStepInterface {
         global $wpdb;
         $types = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, name FROM {$wpdb->prefix}tt_lookups
-             WHERE lookup_type = %s AND archived_at IS NULL
+             WHERE lookup_type = %s AND archived_at IS NULL AND club_id = %d
              ORDER BY sort_order, name",
-            'eval_type'
+            'eval_type', CurrentClub::id()
         ) );
         $current = (int) ( $state['eval_type_id'] ?? 0 );
 

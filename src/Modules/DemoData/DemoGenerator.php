@@ -3,6 +3,7 @@ namespace TT\Modules\DemoData;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\Generators\UserGenerator;
 use TT\Modules\DemoData\Generators\PeopleGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
@@ -119,11 +120,13 @@ class DemoGenerator {
      */
     public static function counts(): array {
         global $wpdb;
-        $rows = $wpdb->get_results(
+        $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT entity_type, COUNT(*) AS n
              FROM {$wpdb->prefix}tt_demo_tags
-             GROUP BY entity_type"
-        );
+             WHERE club_id = %d
+             GROUP BY entity_type",
+            CurrentClub::id()
+        ) );
         $out = [];
         foreach ( (array) $rows as $r ) {
             $out[ (string) $r->entity_type ] = (int) $r->n;
@@ -136,13 +139,15 @@ class DemoGenerator {
      */
     public static function batches(): array {
         global $wpdb;
-        return (array) $wpdb->get_results(
+        return (array) $wpdb->get_results( $wpdb->prepare(
             "SELECT batch_id,
                     MIN(created_at) AS created_at,
                     COUNT(*)        AS total_entities
              FROM {$wpdb->prefix}tt_demo_tags
+             WHERE club_id = %d
              GROUP BY batch_id
-             ORDER BY MIN(created_at) DESC"
-        );
+             ORDER BY MIN(created_at) DESC",
+            CurrentClub::id()
+        ) );
     }
 }

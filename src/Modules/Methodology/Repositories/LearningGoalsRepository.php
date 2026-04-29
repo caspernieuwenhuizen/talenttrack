@@ -3,6 +3,8 @@ namespace TT\Modules\Methodology\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * LearningGoalsRepository — `tt_methodology_learning_goals`.
  *
@@ -22,8 +24,8 @@ final class LearningGoalsRepository {
     public function listForPrimer( int $primer_id, ?string $side = null, bool $include_archived = false ): array {
         global $wpdb;
         $t = $this->table();
-        $where = ' WHERE primer_id = %d';
-        $args  = [ $primer_id ];
+        $where = ' WHERE primer_id = %d AND club_id = %d';
+        $args  = [ $primer_id, CurrentClub::id() ];
         if ( $side !== null && $side !== '' ) {
             $where .= ' AND side = %s';
             $args[] = $side;
@@ -38,7 +40,10 @@ final class LearningGoalsRepository {
     public function find( int $id ): ?object {
         global $wpdb;
         $t = $this->table();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE id = %d", $id ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
@@ -46,6 +51,7 @@ final class LearningGoalsRepository {
     public function create( array $data ): int {
         global $wpdb;
         $row = $this->normalize( $data, true );
+        $row['club_id'] = CurrentClub::id();
         $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }
@@ -55,12 +61,12 @@ final class LearningGoalsRepository {
         global $wpdb;
         $row = $this->normalize( $data, false );
         if ( empty( $row ) ) return true;
-        return $wpdb->update( $this->table(), $row, [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->table(), $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     public function archive( int $id ): bool {
         global $wpdb;
-        return $wpdb->update( $this->table(), [ 'archived_at' => current_time( 'mysql', true ) ], [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->table(), [ 'archived_at' => current_time( 'mysql', true ) ], [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     /**

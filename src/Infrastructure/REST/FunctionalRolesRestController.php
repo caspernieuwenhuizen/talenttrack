@@ -7,6 +7,7 @@ use TT\Infrastructure\Authorization\FunctionalRolesRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * FunctionalRolesRestController — /wp-json/talenttrack/v1/functional-roles
@@ -117,12 +118,13 @@ class FunctionalRolesRestController {
         if ( $key === '' || $label === '' ) {
             return RestResponse::error( 'missing_fields', __( 'A role key and label are required.', 'talenttrack' ), 400 );
         }
-        if ( $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}tt_functional_roles WHERE role_key = %s", $key ) ) ) {
+        if ( $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}tt_functional_roles WHERE role_key = %s AND club_id = %d", $key, CurrentClub::id() ) ) ) {
             return RestResponse::error( 'duplicate_key', __( 'A role with this key already exists.', 'talenttrack' ), 409 );
         }
 
-        $next_sort = (int) $wpdb->get_var( "SELECT COALESCE(MAX(sort_order), 0) + 1 FROM {$wpdb->prefix}tt_functional_roles" );
+        $next_sort = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(MAX(sort_order), 0) + 1 FROM {$wpdb->prefix}tt_functional_roles WHERE club_id = %d", CurrentClub::id() ) );
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_functional_roles', [
+            'club_id'     => CurrentClub::id(),
             'role_key'    => $key,
             'label'       => $label,
             'description' => $desc,
@@ -160,7 +162,7 @@ class FunctionalRolesRestController {
 
         if ( ! $data ) return RestResponse::error( 'empty_update', __( 'No fields to update.', 'talenttrack' ), 400 );
 
-        $ok = $wpdb->update( $wpdb->prefix . 'tt_functional_roles', $data, [ 'id' => $id ] );
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_functional_roles', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             Logger::error( 'rest.functional_role.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
             return RestResponse::error( 'db_error', __( 'The role type could not be updated.', 'talenttrack' ), 500 );
@@ -178,8 +180,8 @@ class FunctionalRolesRestController {
             return RestResponse::error( 'protected_system', __( 'System role types cannot be deleted.', 'talenttrack' ), 403 );
         }
         $assignments = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_team_people WHERE functional_role_id = %d",
-            $id
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_team_people WHERE functional_role_id = %d AND club_id = %d",
+            $id, CurrentClub::id()
         ) );
         if ( $assignments > 0 ) {
             return RestResponse::error(
@@ -189,7 +191,7 @@ class FunctionalRolesRestController {
                 [ 'assignments' => $assignments ]
             );
         }
-        $ok = $wpdb->delete( $wpdb->prefix . 'tt_functional_roles', [ 'id' => $id ] );
+        $ok = $wpdb->delete( $wpdb->prefix . 'tt_functional_roles', [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             Logger::error( 'rest.functional_role.delete.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
             return RestResponse::error( 'db_error', __( 'The role type could not be deleted.', 'talenttrack' ), 500 );
@@ -217,10 +219,10 @@ class FunctionalRolesRestController {
         $order   = $direction === 'up' ? 'DESC' : 'ASC';
         $neighbor = $wpdb->get_row( $wpdb->prepare(
             "SELECT id, sort_order FROM {$wpdb->prefix}tt_functional_roles
-             WHERE sort_order {$compare} %d
+             WHERE sort_order {$compare} %d AND club_id = %d
              ORDER BY sort_order {$order}, id {$order}
              LIMIT 1",
-            $current_sort
+            $current_sort, CurrentClub::id()
         ) );
         if ( ! $neighbor ) {
             // Already at edge; idempotent no-op.
@@ -228,8 +230,8 @@ class FunctionalRolesRestController {
         }
 
         // Swap sort_order values.
-        $wpdb->update( $wpdb->prefix . 'tt_functional_roles', [ 'sort_order' => (int) $neighbor->sort_order ], [ 'id' => $id ] );
-        $wpdb->update( $wpdb->prefix . 'tt_functional_roles', [ 'sort_order' => $current_sort ], [ 'id' => (int) $neighbor->id ] );
+        $wpdb->update( $wpdb->prefix . 'tt_functional_roles', [ 'sort_order' => (int) $neighbor->sort_order ], [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+        $wpdb->update( $wpdb->prefix . 'tt_functional_roles', [ 'sort_order' => $current_sort ], [ 'id' => (int) $neighbor->id, 'club_id' => CurrentClub::id() ] );
 
         return RestResponse::success( [ 'id' => $id, 'swapped_with' => (int) $neighbor->id ] );
     }
@@ -262,8 +264,8 @@ class FunctionalRolesRestController {
         $order   = strtolower( (string) ( $r['order'] ?? 'asc' ) );
         if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'asc';
 
-        $where  = [ 't.archived_at IS NULL', 'p.archived_at IS NULL' ];
-        $params = [];
+        $where  = [ 't.archived_at IS NULL', 'p.archived_at IS NULL', 'tp.club_id = %d' ];
+        $params = [ CurrentClub::id() ];
         $scope  = QueryHelpers::apply_demo_scope( 't', 'team' );
 
         $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
@@ -291,9 +293,9 @@ class FunctionalRolesRestController {
                             p.first_name, p.last_name, p.email,
                             fr.label AS role_label, fr.role_key
                      FROM {$p}tt_team_people tp
-                     INNER JOIN {$p}tt_teams t ON t.id = tp.team_id
-                     INNER JOIN {$p}tt_people p ON p.id = tp.person_id
-                     LEFT  JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id
+                     INNER JOIN {$p}tt_teams t ON t.id = tp.team_id AND t.club_id = tp.club_id
+                     INNER JOIN {$p}tt_people p ON p.id = tp.person_id AND p.club_id = tp.club_id
+                     LEFT  JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id AND fr.club_id = tp.club_id
                      WHERE {$where_sql}
                      ORDER BY {$orderby} {$order}
                      LIMIT %d OFFSET %d";
@@ -302,9 +304,9 @@ class FunctionalRolesRestController {
         $rows = $wpdb->get_results( $wpdb->prepare( $list_sql, ...$list_params ) ) ?: [];
 
         $count_sql = "SELECT COUNT(*) FROM {$p}tt_team_people tp
-                      INNER JOIN {$p}tt_teams t ON t.id = tp.team_id
-                      INNER JOIN {$p}tt_people p ON p.id = tp.person_id
-                      LEFT  JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id
+                      INNER JOIN {$p}tt_teams t ON t.id = tp.team_id AND t.club_id = tp.club_id
+                      INNER JOIN {$p}tt_people p ON p.id = tp.person_id AND p.club_id = tp.club_id
+                      LEFT  JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id AND fr.club_id = tp.club_id
                       WHERE {$where_sql}";
         $total = $params
             ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) )

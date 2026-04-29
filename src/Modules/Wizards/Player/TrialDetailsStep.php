@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Player;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -21,7 +22,10 @@ final class TrialDetailsStep implements WizardStepInterface {
 
     public function render( array $state ): void {
         global $wpdb;
-        $teams = $wpdb->get_results( "SELECT id, name FROM {$wpdb->prefix}tt_teams ORDER BY name ASC LIMIT 200" );
+        $teams = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, name FROM {$wpdb->prefix}tt_teams WHERE club_id = %d ORDER BY name ASC LIMIT 200",
+            CurrentClub::id()
+        ) );
         $tracks = [];
         if ( class_exists( '\\TT\\Modules\\Trials\\Repositories\\TrialTracksRepository' ) ) {
             $tracks = ( new \TT\Modules\Trials\Repositories\TrialTracksRepository() )->listAll( false );

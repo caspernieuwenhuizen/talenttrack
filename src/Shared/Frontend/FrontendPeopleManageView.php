@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Authorization\FunctionalRolesRepository;
 use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendListTable;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
@@ -131,7 +132,10 @@ class FrontendPeopleManageView extends FrontendViewBase {
         // user), excluding users already linked to a player to avoid
         // double-binding.
         global $wpdb;
-        $linked_to_player = (array) $wpdb->get_col( "SELECT wp_user_id FROM {$wpdb->prefix}tt_players WHERE wp_user_id > 0" );
+        $linked_to_player = (array) $wpdb->get_col( $wpdb->prepare(
+            "SELECT wp_user_id FROM {$wpdb->prefix}tt_players WHERE wp_user_id > 0 AND club_id = %d",
+            CurrentClub::id()
+        ) );
         $wp_users = get_users( [
             'fields'  => [ 'ID', 'display_name', 'user_email' ],
             'orderby' => 'display_name',

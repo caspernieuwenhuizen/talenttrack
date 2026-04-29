@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\SeedLoader;
 
@@ -119,6 +120,7 @@ class EvaluationGenerator {
                 $type_id  = $is_match ? $match_id : $training_id;
 
                 $eval_row = [
+                    'club_id'      => CurrentClub::id(),
                     'player_id'    => (int) $p->id,
                     'coach_id'     => (int) $coach_id,
                     'eval_type_id' => (int) $type_id,
@@ -150,6 +152,7 @@ class EvaluationGenerator {
                     $main_value = max( 1.0, min( 5.0, round( $main_base + ( mt_rand( -30, 30 ) / 100 ), 1 ) ) );
 
                     $wpdb->insert( "{$wpdb->prefix}tt_eval_ratings", [
+                        'club_id'       => CurrentClub::id(),
                         'evaluation_id' => $eval_id,
                         'category_id'   => (int) $cat->id,
                         'rating'        => $main_value,
@@ -169,6 +172,7 @@ class EvaluationGenerator {
                     foreach ( $this->subcategoriesFor( (int) $cat->id ) as $sub ) {
                         $sub_value = max( 1.0, min( 5.0, round( $main_base + ( mt_rand( -40, 40 ) / 100 ), 1 ) ) );
                         $wpdb->insert( "{$wpdb->prefix}tt_eval_ratings", [
+                            'club_id'       => CurrentClub::id(),
                             'evaluation_id' => $eval_id,
                             'category_id'   => (int) $sub->id,
                             'rating'        => $sub_value,

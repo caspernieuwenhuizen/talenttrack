@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Authorization;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * AuthorizationRepository — data access for roles, permissions, and
  * user-role scopes (the v2.9.0 data-driven RBAC tables).
@@ -20,21 +22,23 @@ class AuthorizationRepository {
     /** @return array<int, object> */
     public function listRoles(): array {
         global $wpdb;
-        $rows = $wpdb->get_results(
+        $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT r.*,
-                    (SELECT COUNT(*) FROM {$wpdb->prefix}tt_role_permissions WHERE role_id = r.id) AS permission_count,
-                    (SELECT COUNT(*) FROM {$wpdb->prefix}tt_user_role_scopes WHERE role_id = r.id) AS assignment_count
+                    (SELECT COUNT(*) FROM {$wpdb->prefix}tt_role_permissions WHERE role_id = r.id AND club_id = %d) AS permission_count,
+                    (SELECT COUNT(*) FROM {$wpdb->prefix}tt_user_role_scopes WHERE role_id = r.id AND club_id = %d) AS assignment_count
              FROM {$wpdb->prefix}tt_roles r
-             ORDER BY r.is_system DESC, r.label ASC"
-        );
+             WHERE r.club_id = %d
+             ORDER BY r.is_system DESC, r.label ASC",
+            CurrentClub::id(), CurrentClub::id(), CurrentClub::id()
+        ) );
         return is_array( $rows ) ? $rows : [];
     }
 
     public function findRole( int $id ): ?object {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tt_roles WHERE id = %d",
-            $id
+            "SELECT * FROM {$wpdb->prefix}tt_roles WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -42,8 +46,8 @@ class AuthorizationRepository {
     public function findRoleByKey( string $key ): ?object {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tt_roles WHERE role_key = %s",
-            $key
+            "SELECT * FROM {$wpdb->prefix}tt_roles WHERE role_key = %s AND club_id = %d",
+            $key, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -54,8 +58,8 @@ class AuthorizationRepository {
     public function getPermissionsForRole( int $role_id ): array {
         global $wpdb;
         $rows = $wpdb->get_col( $wpdb->prepare(
-            "SELECT permission FROM {$wpdb->prefix}tt_role_permissions WHERE role_id = %d ORDER BY permission ASC",
-            $role_id
+            "SELECT permission FROM {$wpdb->prefix}tt_role_permissions WHERE role_id = %d AND club_id = %d ORDER BY permission ASC",
+            $role_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? array_map( 'strval', $rows ) : [];
     }
@@ -72,9 +76,9 @@ class AuthorizationRepository {
         $rows = $wpdb->get_col( $wpdb->prepare(
             "SELECT DISTINCT rp.permission
              FROM {$wpdb->prefix}tt_user_role_scopes urs
-             INNER JOIN {$wpdb->prefix}tt_role_permissions rp ON rp.role_id = urs.role_id
-             WHERE urs.person_id = %d",
-            $person_id
+             INNER JOIN {$wpdb->prefix}tt_role_permissions rp ON rp.role_id = urs.role_id AND rp.club_id = urs.club_id
+             WHERE urs.person_id = %d AND urs.club_id = %d",
+            $person_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? array_map( 'strval', $rows ) : [];
     }
@@ -91,10 +95,10 @@ class AuthorizationRepository {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT urs.*, r.role_key, r.label AS role_label, r.description AS role_description
              FROM {$wpdb->prefix}tt_user_role_scopes urs
-             INNER JOIN {$wpdb->prefix}tt_roles r ON r.id = urs.role_id
-             WHERE urs.person_id = %d
+             INNER JOIN {$wpdb->prefix}tt_roles r ON r.id = urs.role_id AND r.club_id = urs.club_id
+             WHERE urs.person_id = %d AND urs.club_id = %d
              ORDER BY r.label ASC, urs.scope_type ASC",
-            $person_id
+            $person_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
     }
@@ -107,10 +111,10 @@ class AuthorizationRepository {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT urs.*, p.first_name, p.last_name, p.email
              FROM {$wpdb->prefix}tt_user_role_scopes urs
-             INNER JOIN {$wpdb->prefix}tt_people p ON p.id = urs.person_id
-             WHERE urs.role_id = %d
+             INNER JOIN {$wpdb->prefix}tt_people p ON p.id = urs.person_id AND p.club_id = urs.club_id
+             WHERE urs.role_id = %d AND urs.club_id = %d
              ORDER BY p.last_name ASC, p.first_name ASC",
-            $role_id
+            $role_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
     }
@@ -144,11 +148,12 @@ class AuthorizationRepository {
                     urs.start_date, urs.end_date,
                     r.role_key
              FROM {$wpdb->prefix}tt_user_role_scopes urs
-             INNER JOIN {$wpdb->prefix}tt_roles r ON r.id = urs.role_id
+             INNER JOIN {$wpdb->prefix}tt_roles r ON r.id = urs.role_id AND r.club_id = urs.club_id
              WHERE urs.person_id = %d
+               AND urs.club_id = %d
                AND (urs.start_date IS NULL OR urs.start_date <= %s)
                AND (urs.end_date   IS NULL OR urs.end_date   >= %s)",
-            $person_id, $today, $today
+            $person_id, CurrentClub::id(), $today, $today
         ) );
 
         if ( ! is_array( $rows ) || empty( $rows ) ) return [];
@@ -157,8 +162,8 @@ class AuthorizationRepository {
         $role_ids = array_unique( array_map( function ( $r ) { return (int) $r->role_id; }, $rows ) );
         $placeholders = implode( ',', array_fill( 0, count( $role_ids ), '%d' ) );
         $perm_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT role_id, permission FROM {$wpdb->prefix}tt_role_permissions WHERE role_id IN ($placeholders)",
-            $role_ids
+            "SELECT role_id, permission FROM {$wpdb->prefix}tt_role_permissions WHERE role_id IN ($placeholders) AND club_id = %d",
+            array_merge( $role_ids, [ CurrentClub::id() ] )
         ) );
 
         $perms_by_role = [];
@@ -194,6 +199,7 @@ class AuthorizationRepository {
         elseif ( $scope_id === null || $scope_id <= 0 ) return 0;
 
         $data = [
+            'club_id'              => CurrentClub::id(),
             'person_id'            => $person_id,
             'role_id'              => $role_id,
             'scope_type'           => $scope_type,
@@ -227,12 +233,12 @@ class AuthorizationRepository {
         if ( $scope_id_pk <= 0 ) return false;
 
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT person_id, role_id, scope_type, scope_id FROM {$wpdb->prefix}tt_user_role_scopes WHERE id = %d",
-            $scope_id_pk
+            "SELECT person_id, role_id, scope_type, scope_id FROM {$wpdb->prefix}tt_user_role_scopes WHERE id = %d AND club_id = %d",
+            $scope_id_pk, CurrentClub::id()
         ) );
         if ( ! $row ) return false;
 
-        $ok = $wpdb->delete( "{$wpdb->prefix}tt_user_role_scopes", [ 'id' => $scope_id_pk ] );
+        $ok = $wpdb->delete( "{$wpdb->prefix}tt_user_role_scopes", [ 'id' => $scope_id_pk, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) return false;
 
         /**

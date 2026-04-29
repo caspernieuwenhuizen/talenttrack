@@ -3,6 +3,8 @@ namespace TT\Modules\Workflow\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * TemplateConfigRepository — data access for tt_workflow_template_config.
  *
@@ -24,8 +26,8 @@ class TemplateConfigRepository {
     public function findByKey( string $template_key ): ?array {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$this->table()} WHERE template_key = %s LIMIT 1",
-            $template_key
+            "SELECT * FROM {$this->table()} WHERE template_key = %s AND club_id = %d LIMIT 1",
+            $template_key, CurrentClub::id()
         ), ARRAY_A );
         return is_array( $row ) ? $row : null;
     }
@@ -45,6 +47,7 @@ class TemplateConfigRepository {
         global $wpdb;
         $existing = $this->findByKey( $template_key );
         $row = [
+            'club_id'                  => CurrentClub::id(),
             'template_key'             => $template_key,
             'enabled'                  => isset( $changes['enabled'] ) ? ( $changes['enabled'] ? 1 : 0 ) : ( $existing['enabled'] ?? 1 ),
             'cadence_override'         => $changes['cadence_override'] ?? ( $existing['cadence_override'] ?? null ),
@@ -56,7 +59,7 @@ class TemplateConfigRepository {
             $ok = $wpdb->insert( $this->table(), $row );
             return $ok !== false;
         }
-        $ok = $wpdb->update( $this->table(), $row, [ 'template_key' => $template_key ] );
+        $ok = $wpdb->update( $this->table(), $row, [ 'template_key' => $template_key, 'club_id' => CurrentClub::id() ] );
         return $ok !== false;
     }
 }

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * EvalCategoriesRestController — /wp-json/talenttrack/v1/eval-categories
@@ -114,15 +115,15 @@ class EvalCategoriesRestController {
 
         // Refuse if there are children OR ratings referencing it.
         $children = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_eval_categories WHERE parent_id = %d",
-            $id
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_eval_categories WHERE parent_id = %d AND club_id = %d",
+            $id, CurrentClub::id()
         ) );
         if ( $children > 0 ) {
             return RestResponse::error( 'has_children', __( 'This category has subcategories. Delete or reparent them first.', 'talenttrack' ), 409 );
         }
         $ratings = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_eval_ratings WHERE category_id = %d",
-            $id
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_eval_ratings WHERE category_id = %d AND club_id = %d",
+            $id, CurrentClub::id()
         ) );
         if ( $ratings > 0 ) {
             return RestResponse::error(
@@ -134,7 +135,7 @@ class EvalCategoriesRestController {
             );
         }
 
-        $ok = $wpdb->delete( $wpdb->prefix . 'tt_eval_categories', [ 'id' => $id ] );
+        $ok = $wpdb->delete( $wpdb->prefix . 'tt_eval_categories', [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             Logger::error( 'rest.eval_category.delete.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
             return RestResponse::error( 'db_error', __( 'The category could not be deleted.', 'talenttrack' ), 500 );
@@ -149,7 +150,7 @@ class EvalCategoriesRestController {
         if ( $id <= 0 || ! in_array( $direction, [ 'up', 'down' ], true ) ) {
             return RestResponse::error( 'bad_request', __( 'Invalid move parameters.', 'talenttrack' ), 400 );
         }
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}tt_eval_categories WHERE id = %d", $id ) );
+        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}tt_eval_categories WHERE id = %d AND club_id = %d", $id, CurrentClub::id() ) );
         if ( ! $row ) return RestResponse::error( 'not_found', __( 'Category not found.', 'talenttrack' ), 404 );
 
         $compare = $direction === 'up' ? '<' : '>';
@@ -159,15 +160,15 @@ class EvalCategoriesRestController {
             : $wpdb->prepare( 'parent_id = %d', (int) $row->parent_id );
         $neighbor = $wpdb->get_row( $wpdb->prepare(
             "SELECT id, display_order FROM {$wpdb->prefix}tt_eval_categories
-             WHERE {$parent_clause} AND display_order {$compare} %d
+             WHERE {$parent_clause} AND display_order {$compare} %d AND club_id = %d
              ORDER BY display_order {$order}, id {$order}
              LIMIT 1",
-            (int) $row->display_order
+            (int) $row->display_order, CurrentClub::id()
         ) );
         if ( ! $neighbor ) return RestResponse::success( [ 'id' => $id, 'no_op' => true ] );
 
-        $wpdb->update( $wpdb->prefix . 'tt_eval_categories', [ 'display_order' => (int) $neighbor->display_order ], [ 'id' => $id ] );
-        $wpdb->update( $wpdb->prefix . 'tt_eval_categories', [ 'display_order' => (int) $row->display_order ], [ 'id' => (int) $neighbor->id ] );
+        $wpdb->update( $wpdb->prefix . 'tt_eval_categories', [ 'display_order' => (int) $neighbor->display_order ], [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+        $wpdb->update( $wpdb->prefix . 'tt_eval_categories', [ 'display_order' => (int) $row->display_order ], [ 'id' => (int) $neighbor->id, 'club_id' => CurrentClub::id() ] );
         return RestResponse::success( [ 'id' => $id, 'swapped_with' => (int) $neighbor->id ] );
     }
 

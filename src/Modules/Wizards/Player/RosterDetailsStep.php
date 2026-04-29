@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Player;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -20,7 +21,10 @@ final class RosterDetailsStep implements WizardStepInterface {
 
     public function render( array $state ): void {
         global $wpdb;
-        $teams = $wpdb->get_results( "SELECT id, name FROM {$wpdb->prefix}tt_teams ORDER BY name ASC LIMIT 200" );
+        $teams = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, name FROM {$wpdb->prefix}tt_teams WHERE club_id = %d ORDER BY name ASC LIMIT 200",
+            CurrentClub::id()
+        ) );
 
         echo '<label><span>' . esc_html__( 'First name', 'talenttrack' ) . ' *</span><input type="text" name="first_name" required autocomplete="given-name" value="' . esc_attr( (string) ( $state['first_name'] ?? '' ) ) . '"></label>';
         echo '<label><span>' . esc_html__( 'Last name', 'talenttrack' ) . ' *</span><input type="text" name="last_name" required autocomplete="family-name" value="' . esc_attr( (string) ( $state['last_name'] ?? '' ) ) . '"></label>';

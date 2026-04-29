@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Onboarding\OnboardingState;
 
 /**
@@ -86,6 +87,7 @@ class OnboardingHandlers {
         $wpdb->insert(
             "{$wpdb->prefix}tt_teams",
             [
+                'club_id'   => CurrentClub::id(),
                 'name'      => $name,
                 'age_group' => $age_group,
                 'created_at'=> current_time( 'mysql', true ),

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Authorization\AuthorizationRepository;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * RoleGrantPanel — renders the "Role assignments" section on the Person
@@ -103,9 +104,10 @@ class RoleGrantPanel {
         $team_scope   = QueryHelpers::apply_demo_scope( 't',  'team' );
         $player_scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
         $person_scope = QueryHelpers::apply_demo_scope( 'pe', 'person' );
-        $teams = $wpdb->get_results( "SELECT t.id, t.name FROM {$wpdb->prefix}tt_teams t WHERE 1=1 {$team_scope} ORDER BY t.name ASC" );
-        $players = $wpdb->get_results( "SELECT pl.id, pl.first_name, pl.last_name FROM {$wpdb->prefix}tt_players pl WHERE pl.status = 'active' {$player_scope} ORDER BY pl.last_name ASC, pl.first_name ASC" );
-        $people_list = $wpdb->get_results( "SELECT pe.id, pe.first_name, pe.last_name FROM {$wpdb->prefix}tt_people pe WHERE pe.status = 'active' {$person_scope} ORDER BY pe.last_name ASC, pe.first_name ASC" );
+        $club_id = CurrentClub::id();
+        $teams = $wpdb->get_results( $wpdb->prepare( "SELECT t.id, t.name FROM {$wpdb->prefix}tt_teams t WHERE t.club_id = %d {$team_scope} ORDER BY t.name ASC", $club_id ) );
+        $players = $wpdb->get_results( $wpdb->prepare( "SELECT pl.id, pl.first_name, pl.last_name FROM {$wpdb->prefix}tt_players pl WHERE pl.status = 'active' AND pl.club_id = %d {$player_scope} ORDER BY pl.last_name ASC, pl.first_name ASC", $club_id ) );
+        $people_list = $wpdb->get_results( $wpdb->prepare( "SELECT pe.id, pe.first_name, pe.last_name FROM {$wpdb->prefix}tt_people pe WHERE pe.status = 'active' AND pe.club_id = %d {$person_scope} ORDER BY pe.last_name ASC, pe.first_name ASC", $club_id ) );
 
         // Build a JSON map of role_key → allowed scope types so the UI can
         // restrict scope options when a role is selected.

@@ -3,6 +3,7 @@ namespace TT\Modules\Trials\Letters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Reports\AudienceType;
 use TT\Modules\Reports\ScoutReportsRepository;
 
@@ -47,6 +48,7 @@ final class TrialLetterService {
         $expires_at = gmdate( 'Y-m-d H:i:s', time() + self::RETENTION_YEARS * 365 * 86400 );
 
         $ok = $wpdb->insert( $table, [
+            'club_id'         => CurrentClub::id(),
             'player_id'       => (int) $case->player_id,
             'generated_by'    => $generated_by,
             'audience'        => $audience,
@@ -68,13 +70,15 @@ final class TrialLetterService {
                    SET revoked_at = %s
                  WHERE JSON_EXTRACT(config_json, '$.case_id') = %d
                    AND revoked_at IS NULL
-                   AND id <> %d";
+                   AND id <> %d
+                   AND club_id = %d";
 
         return (int) $wpdb->query( $wpdb->prepare(
             $sql,
             current_time( 'mysql', true ),
             $case_id,
-            $current_letter_id
+            $current_letter_id,
+            CurrentClub::id()
         ) );
     }
 
@@ -84,8 +88,9 @@ final class TrialLetterService {
         $sql = "SELECT * FROM {$table}
                  WHERE JSON_EXTRACT(config_json, '$.case_id') = %d
                    AND revoked_at IS NULL
+                   AND club_id = %d
                  ORDER BY id DESC LIMIT 1";
-        $row = $wpdb->get_row( $wpdb->prepare( $sql, $case_id ) );
+        $row = $wpdb->get_row( $wpdb->prepare( $sql, $case_id, CurrentClub::id() ) );
         return $row ?: null;
     }
 
@@ -98,8 +103,9 @@ final class TrialLetterService {
         $sql = "SELECT id, audience, created_at, revoked_at, generated_by
                   FROM {$table}
                  WHERE JSON_EXTRACT(config_json, '$.case_id') = %d
+                   AND club_id = %d
                  ORDER BY id DESC";
-        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $case_id ) );
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $case_id, CurrentClub::id() ) );
         return is_array( $rows ) ? $rows : [];
     }
 }

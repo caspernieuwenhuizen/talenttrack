@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Workflow\WorkflowModule;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -148,10 +149,10 @@ class FrontendTasksDashboardView extends FrontendViewBase {
                     COUNT(*) AS created,
                     SUM( CASE WHEN status = 'completed' AND completed_at IS NOT NULL AND completed_at <= due_at THEN 1 ELSE 0 END ) AS on_time
              FROM {$wpdb->prefix}tt_workflow_tasks
-             WHERE created_at >= %s
+             WHERE created_at >= %s AND club_id = %d
              GROUP BY template_key
              ORDER BY created DESC",
-            $threshold
+            $threshold, CurrentClub::id()
         ), ARRAY_A );
         if ( ! is_array( $rows ) ) return [];
 
@@ -187,11 +188,13 @@ class FrontendTasksDashboardView extends FrontendViewBase {
              INNER JOIN {$wpdb->users} u ON t.assignee_user_id = u.ID
              INNER JOIN {$wpdb->usermeta} um ON um.user_id = u.ID AND um.meta_key = %s
              WHERE t.created_at >= %s
+               AND t.club_id = %d
                AND ( um.meta_value LIKE %s OR um.meta_value LIKE %s )
              GROUP BY t.assignee_user_id
              ORDER BY assigned DESC",
             $wpdb->prefix . 'capabilities',
             $threshold,
+            CurrentClub::id(),
             '%tt_coach%',
             '%tt_head_dev%'
         ), ARRAY_A );
@@ -217,15 +220,16 @@ class FrontendTasksDashboardView extends FrontendViewBase {
      */
     private static function overdueTasks(): array {
         global $wpdb;
-        $rows = $wpdb->get_results(
+        $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT t.template_key, t.assignee_user_id, t.due_at
              FROM {$wpdb->prefix}tt_workflow_tasks t
              WHERE t.status IN ('open','in_progress','overdue')
                AND t.due_at < UTC_TIMESTAMP()
+               AND t.club_id = %d
              ORDER BY t.due_at ASC
              LIMIT 25",
-            ARRAY_A
-        );
+            CurrentClub::id()
+        ), ARRAY_A );
         if ( ! is_array( $rows ) ) return [];
         $registry = WorkflowModule::registry();
         $now = time();

@@ -3,6 +3,8 @@ namespace TT\Modules\Pdp\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * SeasonsRepository — first-class season entity for #0044.
  *
@@ -22,23 +24,27 @@ class SeasonsRepository {
 
     /** @return object[] */
     public function all(): array {
-        $rows = $this->wpdb->get_results( "SELECT * FROM {$this->table} ORDER BY start_date DESC, id DESC" );
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT * FROM {$this->table} WHERE club_id = %d ORDER BY start_date DESC, id DESC",
+            CurrentClub::id()
+        ) );
         return is_array( $rows ) ? $rows : [];
     }
 
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE id = %d",
-            $id
+            "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
 
     public function current(): ?object {
-        $row = $this->wpdb->get_row(
-            "SELECT * FROM {$this->table} WHERE is_current = 1 ORDER BY id DESC LIMIT 1"
-        );
+        $row = $this->wpdb->get_row( $this->wpdb->prepare(
+            "SELECT * FROM {$this->table} WHERE is_current = 1 AND club_id = %d ORDER BY id DESC LIMIT 1",
+            CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
@@ -53,6 +59,7 @@ class SeasonsRepository {
         if ( $name === '' || $start === '' || $end === '' ) return 0;
 
         $ok = $this->wpdb->insert( $this->table, [
+            'club_id'    => CurrentClub::id(),
             'name'       => $name,
             'start_date' => $start,
             'end_date'   => $end,
@@ -69,8 +76,8 @@ class SeasonsRepository {
     public function setCurrent( int $season_id ): bool {
         if ( $season_id <= 0 || ! $this->find( $season_id ) ) return false;
         $this->wpdb->query( $this->wpdb->prepare(
-            "UPDATE {$this->table} SET is_current = CASE WHEN id = %d THEN 1 ELSE 0 END",
-            $season_id
+            "UPDATE {$this->table} SET is_current = CASE WHEN id = %d THEN 1 ELSE 0 END WHERE club_id = %d",
+            $season_id, CurrentClub::id()
         ) );
         do_action( 'tt_pdp_season_set_current', $season_id );
         return true;

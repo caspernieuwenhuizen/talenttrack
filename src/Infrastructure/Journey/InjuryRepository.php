@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Journey;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * InjuryRepository — CRUD on tt_player_injuries.
  *
@@ -39,7 +41,7 @@ final class InjuryRepository {
         if ( $player_id <= 0 || $started === '' ) return 0;
 
         $row = [
-            'club_id'                => 1,
+            'club_id'                => CurrentClub::id(),
             'player_id'              => $player_id,
             'started_on'             => $started,
             'expected_return'        => isset( $data['expected_return'] ) && $data['expected_return'] !== '' ? (string) $data['expected_return'] : null,
@@ -66,8 +68,8 @@ final class InjuryRepository {
         // injury_recovery_due template. A future SaaS scheduler can
         // replace the engine without disturbing this hook.
         $team_id = (int) $this->wpdb->get_var( $this->wpdb->prepare(
-            "SELECT team_id FROM {$this->wpdb->prefix}tt_players WHERE id = %d",
-            (int) $row['player_id']
+            "SELECT team_id FROM {$this->wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+            (int) $row['player_id'], CurrentClub::id()
         ) );
         do_action( 'tt_journey_injury_logged', [
             'player_id' => (int) $row['player_id'],
@@ -104,7 +106,7 @@ final class InjuryRepository {
             $update['is_recovery_logged'] = 1;
         }
 
-        $ok = $this->wpdb->update( $this->table, $update, [ 'id' => $id ] );
+        $ok = $this->wpdb->update( $this->table, $update, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) return false;
 
         if (
@@ -121,15 +123,15 @@ final class InjuryRepository {
         if ( $id <= 0 ) return false;
         $ok = $this->wpdb->update( $this->table, [
             'archived_at' => current_time( 'mysql' ),
-        ], [ 'id' => $id ] );
+        ], [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         return $ok !== false;
     }
 
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE id = %d",
-            $id
+            "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -143,9 +145,9 @@ final class InjuryRepository {
         /** @var list<object> $rows */
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
             "SELECT * FROM {$this->table}
-              WHERE player_id = %d {$where}
+              WHERE player_id = %d AND club_id = %d {$where}
               ORDER BY started_on DESC, id DESC",
-            $player_id
+            $player_id, CurrentClub::id()
         ) );
         return $rows ?: [];
     }

@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * TeamsRestController — /wp-json/talenttrack/v1/teams
@@ -116,8 +117,8 @@ class TeamsRestController {
         $order   = strtolower( (string) ( $r['order'] ?? 'asc' ) );
         if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'asc';
 
-        $where  = [ '1=1' ];
-        $params = [];
+        $where  = [ '1=1', 't.club_id = %d' ];
+        $params = [ CurrentClub::id() ];
 
         $scope = QueryHelpers::apply_demo_scope( 't', 'team' );
 
@@ -158,7 +159,7 @@ class TeamsRestController {
 
         $list_sql = "SELECT t.*,
                             u.display_name AS coach_name,
-                            (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = t.id AND pl.archived_at IS NULL) AS player_count
+                            (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = t.id AND pl.archived_at IS NULL AND pl.club_id = t.club_id) AS player_count
                      FROM {$p}tt_teams t
                      LEFT JOIN {$wpdb->users} u ON u.ID = t.head_coach_id
                      WHERE {$where_sql}
@@ -186,8 +187,8 @@ class TeamsRestController {
         global $wpdb; $p = $wpdb->prefix;
         $id = absint( $r['id'] );
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT t.*, u.display_name AS coach_name FROM {$p}tt_teams t LEFT JOIN {$wpdb->users} u ON u.ID = t.head_coach_id WHERE t.id = %d",
-            $id
+            "SELECT t.*, u.display_name AS coach_name FROM {$p}tt_teams t LEFT JOIN {$wpdb->users} u ON u.ID = t.head_coach_id WHERE t.id = %d AND t.club_id = %d",
+            $id, CurrentClub::id()
         ) );
         if ( ! $row ) return RestResponse::error( 'not_found', __( 'Team not found.', 'talenttrack' ), 404 );
         return RestResponse::success( self::fmtRow( $row ) );
@@ -199,6 +200,7 @@ class TeamsRestController {
         if ( $data['name'] === '' ) {
             return RestResponse::error( 'missing_fields', __( 'Team name is required.', 'talenttrack' ), 400 );
         }
+        $data['club_id'] = CurrentClub::id();
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_teams', $data );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
@@ -216,7 +218,7 @@ class TeamsRestController {
         if ( $data['name'] === '' ) {
             return RestResponse::error( 'missing_fields', __( 'Team name is required.', 'talenttrack' ), 400 );
         }
-        $ok = $wpdb->update( $wpdb->prefix . 'tt_teams', $data, [ 'id' => $id ] );
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_teams', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'team.update.failed', [ 'db_error' => $err, 'team_id' => $id ] );
@@ -237,7 +239,7 @@ class TeamsRestController {
         $ok = $wpdb->update(
             $wpdb->prefix . 'tt_teams',
             [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id() ],
-            [ 'id' => $id ]
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
@@ -254,7 +256,7 @@ class TeamsRestController {
         if ( $team_id <= 0 || $player_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid team or player id.', 'talenttrack' ), 400 );
         }
-        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', [ 'team_id' => $team_id ], [ 'id' => $player_id ] );
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', [ 'team_id' => $team_id ], [ 'id' => $player_id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'team.roster.add.failed', [ 'db_error' => $err, 'team_id' => $team_id, 'player_id' => $player_id ] );
@@ -271,7 +273,7 @@ class TeamsRestController {
             return RestResponse::error( 'bad_id', __( 'Invalid team or player id.', 'talenttrack' ), 400 );
         }
         // Only clear if the player is actually on that team (no-op otherwise).
-        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', [ 'team_id' => 0 ], [ 'id' => $player_id, 'team_id' => $team_id ] );
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', [ 'team_id' => 0 ], [ 'id' => $player_id, 'team_id' => $team_id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'team.roster.remove.failed', [ 'db_error' => $err, 'team_id' => $team_id, 'player_id' => $player_id ] );

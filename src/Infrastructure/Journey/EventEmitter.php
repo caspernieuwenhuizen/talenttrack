@@ -4,6 +4,7 @@ namespace TT\Infrastructure\Journey;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * EventEmitter — write API for journey events.
@@ -49,11 +50,13 @@ final class EventEmitter {
                   WHERE source_module = %s
                     AND source_entity_type = %s
                     AND source_entity_id = %d
-                    AND event_type = %s",
+                    AND event_type = %s
+                    AND club_id = %d",
                 $source_module,
                 $source_entity_type,
                 $source_entity_id,
-                $event_type
+                $event_type,
+                CurrentClub::id()
             ) );
             if ( $existing > 0 ) return $existing;
         }
@@ -71,7 +74,7 @@ final class EventEmitter {
         $created_by_id       = $created_by ?? get_current_user_id();
 
         $ok = $wpdb->insert( $table, [
-            'club_id'            => 1,
+            'club_id'            => CurrentClub::id(),
             'uuid'               => wp_generate_uuid4(),
             'player_id'          => $player_id,
             'event_type'         => $event_type,
@@ -116,7 +119,7 @@ final class EventEmitter {
                 'superseded_by_event_id' => $replacement_event_id,
                 'superseded_at'          => current_time( 'mysql' ),
             ],
-            [ 'id' => $original_event_id ]
+            [ 'id' => $original_event_id, 'club_id' => CurrentClub::id() ]
         );
         return $ok !== false;
     }

@@ -3,6 +3,8 @@ namespace TT\Modules\Translations\Cache;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * SourceMetaRepository — `tt_translation_source_meta` data access (#0025).
  *
@@ -22,8 +24,8 @@ final class SourceMetaRepository {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$this->table()}
-             WHERE entity_type = %s AND entity_id = %d AND field_name = %s LIMIT 1",
-            $entity_type, $entity_id, $field_name
+             WHERE entity_type = %s AND entity_id = %d AND field_name = %s AND club_id = %d LIMIT 1",
+            $entity_type, $entity_id, $field_name, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -39,6 +41,7 @@ final class SourceMetaRepository {
         global $wpdb;
         $existing = $this->find( $entity_type, $entity_id, $field_name );
         $payload  = [
+            'club_id'              => CurrentClub::id(),
             'entity_type'          => $entity_type,
             'entity_id'            => $entity_id,
             'field_name'           => $field_name,
@@ -48,7 +51,7 @@ final class SourceMetaRepository {
             'last_detected_at'     => current_time( 'mysql', true ),
         ];
         if ( $existing ) {
-            $wpdb->update( $this->table(), $payload, [ 'id' => (int) $existing->id ] );
+            $wpdb->update( $this->table(), $payload, [ 'id' => (int) $existing->id, 'club_id' => CurrentClub::id() ] );
         } else {
             $wpdb->insert( $this->table(), $payload );
         }
@@ -56,7 +59,7 @@ final class SourceMetaRepository {
 
     public function deleteFor( string $entity_type, int $entity_id, ?string $field_name = null ): int {
         global $wpdb;
-        $where = [ 'entity_type' => $entity_type, 'entity_id' => $entity_id ];
+        $where = [ 'entity_type' => $entity_type, 'entity_id' => $entity_id, 'club_id' => CurrentClub::id() ];
         if ( $field_name !== null ) $where['field_name'] = $field_name;
         return (int) $wpdb->delete( $this->table(), $where );
     }

@@ -4,6 +4,7 @@ namespace TT\Modules\Wizards\Team;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Authorization\FunctionalRolesRepository;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
 final class ReviewStep implements WizardStepInterface {
@@ -39,6 +40,7 @@ final class ReviewStep implements WizardStepInterface {
         $head_coach_id = (int) ( $state['staff_head_coach'] ?? 0 );
 
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_teams', [
+            'club_id'        => CurrentClub::id(),
             'name'           => $name,
             'age_group'      => (string) ( $state['age_group'] ?? '' ),
             'head_coach_id'  => $head_coach_id,
@@ -65,11 +67,12 @@ final class ReviewStep implements WizardStepInterface {
             if ( $person_id <= 0 ) continue;
             $exists = $wpdb->get_var( $wpdb->prepare(
                 "SELECT id FROM {$wpdb->prefix}tt_team_people
-                  WHERE team_id = %d AND person_id = %d AND functional_role_id = %d LIMIT 1",
-                $team_id, $person_id, (int) $role->id
+                  WHERE team_id = %d AND person_id = %d AND functional_role_id = %d AND club_id = %d LIMIT 1",
+                $team_id, $person_id, (int) $role->id, CurrentClub::id()
             ) );
             if ( $exists ) continue;
             $wpdb->insert( $wpdb->prefix . 'tt_team_people', [
+                'club_id'             => CurrentClub::id(),
                 'team_id'             => $team_id,
                 'person_id'           => $person_id,
                 'functional_role_id'  => (int) $role->id,
@@ -86,8 +89,8 @@ final class ReviewStep implements WizardStepInterface {
     private static function resolvePersonId( int $wp_user_id ): int {
         global $wpdb;
         $existing = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d LIMIT 1",
-            $wp_user_id
+            "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+            $wp_user_id, CurrentClub::id()
         ) );
         if ( $existing > 0 ) return $existing;
 
@@ -96,6 +99,7 @@ final class ReviewStep implements WizardStepInterface {
         $first = (string) $user->first_name ?: (string) $user->display_name;
         $last  = (string) $user->last_name ?: '';
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_people', [
+            'club_id'    => CurrentClub::id(),
             'first_name' => $first,
             'last_name'  => $last,
             'email'      => (string) $user->user_email,

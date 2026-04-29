@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Reports\AudienceType;
 use TT\Modules\Trials\Letters\DefaultLetterTemplates;
 use TT\Modules\Trials\Letters\LetterTemplateEngine;
@@ -231,9 +232,10 @@ class FrontendTrialCaseView extends FrontendViewBase {
             "SELECT a.id, a.activity_date, a.activity_type_key, a.notes, att.status AS attendance
                FROM {$wpdb->prefix}tt_activities a
           LEFT JOIN {$wpdb->prefix}tt_attendance att
-                 ON att.activity_id = a.id AND att.player_id = %d
+                 ON att.activity_id = a.id AND att.player_id = %d AND att.club_id = a.club_id
               WHERE a.activity_date BETWEEN %s AND %s
-              ORDER BY a.activity_date DESC", $pid, $start, $end
+                AND a.club_id = %d
+              ORDER BY a.activity_date DESC", $pid, $start, $end, CurrentClub::id()
         ) );
         echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Sessions', 'talenttrack' ) . '</h2>';
         if ( ! $activities ) {
@@ -251,8 +253,8 @@ class FrontendTrialCaseView extends FrontendViewBase {
         $evals = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, eval_date, evaluator_user_id
                FROM {$wpdb->prefix}tt_evaluations
-              WHERE player_id = %d AND eval_date BETWEEN %s AND %s
-              ORDER BY eval_date DESC", $pid, $start, $end
+              WHERE player_id = %d AND eval_date BETWEEN %s AND %s AND club_id = %d
+              ORDER BY eval_date DESC", $pid, $start, $end, CurrentClub::id()
         ) );
         echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Evaluations', 'talenttrack' ) . '</h2>';
         if ( ! $evals ) {
@@ -275,8 +277,9 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 AND ( ( created_at >= %s AND created_at <= %s )
                    OR ( updated_at >= %s AND updated_at <= %s ) )
                 AND archived_at IS NULL
+                AND club_id = %d
               ORDER BY updated_at DESC",
-            $pid, $start . ' 00:00:00', $end . ' 23:59:59', $start . ' 00:00:00', $end . ' 23:59:59'
+            $pid, $start . ' 00:00:00', $end . ' 23:59:59', $start . ' 00:00:00', $end . ' 23:59:59', CurrentClub::id()
         ) );
         echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Goals', 'talenttrack' ) . '</h2>';
         if ( ! $goals ) {
@@ -543,7 +546,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
                         // Player status follows decision.
                         global $wpdb;
                         $new_player_status = $decision === TrialCasesRepository::DECISION_ADMIT ? 'active' : 'archived';
-                        $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => $new_player_status ], [ 'id' => (int) $case->player_id ] );
+                        $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => $new_player_status ], [ 'id' => (int) $case->player_id, 'club_id' => CurrentClub::id() ] );
                         // Letter
                         $audience = self::audienceForDecision( $decision );
                         $svc      = new TrialLetterService();

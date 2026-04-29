@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Forms;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -128,16 +129,16 @@ class QuarterlyHoDReviewForm implements FormInterface {
         $threshold_date = gmdate( 'Y-m-d', time() - ( 90 * DAY_IN_SECONDS ) );
 
         $evaluations = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE archived_at IS NULL AND eval_date >= %s",
-            $threshold_date
+            "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE archived_at IS NULL AND eval_date >= %s AND club_id = %d",
+            $threshold_date, CurrentClub::id()
         ) );
 
         $rows = (array) $wpdb->get_results( $wpdb->prepare(
             "SELECT activity_type_key AS k, COUNT(*) AS c
                FROM {$p}tt_activities
-              WHERE archived_at IS NULL AND session_date >= %s
+              WHERE archived_at IS NULL AND session_date >= %s AND club_id = %d
               GROUP BY activity_type_key",
-            $threshold_date
+            $threshold_date, CurrentClub::id()
         ) );
         $counts_by_key = [];
         foreach ( $rows as $row ) {
@@ -167,8 +168,8 @@ class QuarterlyHoDReviewForm implements FormInterface {
         }
 
         $goals = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_goals WHERE archived_at IS NULL AND created_at >= %s",
-            $threshold
+            "SELECT COUNT(*) FROM {$p}tt_goals WHERE archived_at IS NULL AND created_at >= %s AND club_id = %d",
+            $threshold, CurrentClub::id()
         ) );
 
         $tasks_table = $p . 'tt_workflow_tasks';
@@ -176,13 +177,13 @@ class QuarterlyHoDReviewForm implements FormInterface {
         $tasks_completed = 0;
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tasks_table ) ) === $tasks_table ) {
             $tasks_total = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$tasks_table} WHERE created_at >= %s",
-                $threshold
+                "SELECT COUNT(*) FROM {$tasks_table} WHERE created_at >= %s AND club_id = %d",
+                $threshold, CurrentClub::id()
             ) );
             $tasks_completed = (int) $wpdb->get_var( $wpdb->prepare(
                 "SELECT COUNT(*) FROM {$tasks_table}
-                 WHERE created_at >= %s AND status = 'completed' AND completed_at IS NOT NULL AND completed_at <= due_at",
-                $threshold
+                 WHERE created_at >= %s AND status = 'completed' AND completed_at IS NOT NULL AND completed_at <= due_at AND club_id = %d",
+                $threshold, CurrentClub::id()
             ) );
         }
         $label = $tasks_total > 0

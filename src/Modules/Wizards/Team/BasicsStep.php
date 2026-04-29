@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Team;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
 final class BasicsStep implements WizardStepInterface {
@@ -13,8 +14,8 @@ final class BasicsStep implements WizardStepInterface {
     public function render( array $state ): void {
         global $wpdb;
         $age_groups = $wpdb->get_results( $wpdb->prepare(
-            "SELECT name FROM {$wpdb->prefix}tt_lookups WHERE lookup_type = %s AND archived_at IS NULL ORDER BY sort_order, name",
-            'age_group'
+            "SELECT name FROM {$wpdb->prefix}tt_lookups WHERE lookup_type = %s AND archived_at IS NULL AND club_id = %d ORDER BY sort_order, name",
+            'age_group', CurrentClub::id()
         ) );
 
         echo '<label><span>' . esc_html__( 'Team name', 'talenttrack' ) . ' *</span><input type="text" name="name" required value="' . esc_attr( (string) ( $state['name'] ?? '' ) ) . '"></label>';

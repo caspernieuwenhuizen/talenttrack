@@ -3,6 +3,8 @@ namespace TT\Modules\Methodology\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * MethodologyAssetsRepository — `tt_methodology_assets` data access.
  *
@@ -45,9 +47,9 @@ final class MethodologyAssetsRepository {
         $t = $this->table();
         $where = $include_archived ? '' : ' AND archived_at IS NULL';
         return (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE entity_type = %s AND entity_id = %d{$where}
+            "SELECT * FROM {$t} WHERE entity_type = %s AND entity_id = %d AND club_id = %d{$where}
              ORDER BY is_primary DESC, sort_order ASC, id ASC",
-            $entity_type, $entity_id
+            $entity_type, $entity_id, CurrentClub::id()
         ) );
     }
 
@@ -56,9 +58,9 @@ final class MethodologyAssetsRepository {
         $t = $this->table();
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$t}
-             WHERE entity_type = %s AND entity_id = %d AND archived_at IS NULL
+             WHERE entity_type = %s AND entity_id = %d AND club_id = %d AND archived_at IS NULL
              ORDER BY is_primary DESC, sort_order ASC, id ASC LIMIT 1",
-            $entity_type, $entity_id
+            $entity_type, $entity_id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -66,7 +68,10 @@ final class MethodologyAssetsRepository {
     public function find( int $id ): ?object {
         global $wpdb;
         $t = $this->table();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE id = %d", $id ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
@@ -74,6 +79,7 @@ final class MethodologyAssetsRepository {
     public function create( array $data ): int {
         global $wpdb;
         $row = [
+            'club_id'       => CurrentClub::id(),
             'entity_type'   => isset( $data['entity_type'] ) ? sanitize_key( (string) $data['entity_type'] ) : '',
             'entity_id'     => isset( $data['entity_id'] )   ? (int) $data['entity_id']                       : 0,
             'attachment_id' => isset( $data['attachment_id'] ) ? (int) $data['attachment_id']               : 0,
@@ -99,7 +105,7 @@ final class MethodologyAssetsRepository {
         if ( array_key_exists( 'sort_order',   $data ) ) $row['sort_order']   = (int) $data['sort_order'];
         if ( array_key_exists( 'is_primary',   $data ) ) $row['is_primary']   = ! empty( $data['is_primary'] ) ? 1 : 0;
         if ( empty( $row ) ) return true;
-        $ok = $wpdb->update( $this->table(), $row, [ 'id' => $id ] ) !== false;
+        $ok = $wpdb->update( $this->table(), $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
         if ( $ok && ! empty( $row['is_primary'] ) ) {
             $current = $this->find( $id );
             if ( $current ) $this->demoteOtherPrimaries( (string) $current->entity_type, (int) $current->entity_id, $id );
@@ -112,7 +118,7 @@ final class MethodologyAssetsRepository {
         return $wpdb->update(
             $this->table(),
             [ 'archived_at' => current_time( 'mysql', true ) ],
-            [ 'id' => $id ]
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         ) !== false;
     }
 
@@ -121,10 +127,10 @@ final class MethodologyAssetsRepository {
         $t = $this->table();
         $wpdb->query( $wpdb->prepare(
             "UPDATE {$t} SET is_primary = 0
-             WHERE entity_type = %s AND entity_id = %d AND id <> %d",
-            $entity_type, $entity_id, $asset_id
+             WHERE entity_type = %s AND entity_id = %d AND club_id = %d AND id <> %d",
+            $entity_type, $entity_id, CurrentClub::id(), $asset_id
         ) );
-        return $wpdb->update( $t, [ 'is_primary' => 1 ], [ 'id' => $asset_id ] ) !== false;
+        return $wpdb->update( $t, [ 'is_primary' => 1 ], [ 'id' => $asset_id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     private function demoteOtherPrimaries( string $entity_type, int $entity_id, int $keep_id ): void {
@@ -132,8 +138,8 @@ final class MethodologyAssetsRepository {
         $t = $this->table();
         $wpdb->query( $wpdb->prepare(
             "UPDATE {$t} SET is_primary = 0
-             WHERE entity_type = %s AND entity_id = %d AND id <> %d",
-            $entity_type, $entity_id, $keep_id
+             WHERE entity_type = %s AND entity_id = %d AND club_id = %d AND id <> %d",
+            $entity_type, $entity_id, CurrentClub::id(), $keep_id
         ) );
     }
 

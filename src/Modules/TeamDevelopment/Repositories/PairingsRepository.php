@@ -3,6 +3,8 @@ namespace TT\Modules\TeamDevelopment\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * PairingsRepository — coach-marked "always start these two together"
  * notes per team. Sprint 4 of #0018.
@@ -26,8 +28,8 @@ class PairingsRepository {
     public function listForTeam( int $team_id ): array {
         if ( $team_id <= 0 ) return [];
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE team_id = %d ORDER BY created_at DESC",
-            $team_id
+            "SELECT * FROM {$this->table} WHERE team_id = %d AND club_id = %d ORDER BY created_at DESC",
+            $team_id, CurrentClub::id()
         ) );
         $out = [];
         foreach ( (array) $rows as $r ) {
@@ -49,8 +51,8 @@ class PairingsRepository {
         if ( $team_id <= 0 || $player_id <= 0 ) return [];
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
             "SELECT player_a_id, player_b_id FROM {$this->table}
-              WHERE team_id = %d AND ( player_a_id = %d OR player_b_id = %d )",
-            $team_id, $player_id, $player_id
+              WHERE team_id = %d AND club_id = %d AND ( player_a_id = %d OR player_b_id = %d )",
+            $team_id, CurrentClub::id(), $player_id, $player_id
         ) );
         $out = [];
         foreach ( (array) $rows as $r ) {
@@ -64,12 +66,13 @@ class PairingsRepository {
         [ $a, $b ] = self::normalize( $player_a_id, $player_b_id );
 
         $existing = (int) $this->wpdb->get_var( $this->wpdb->prepare(
-            "SELECT id FROM {$this->table} WHERE team_id = %d AND player_a_id = %d AND player_b_id = %d",
-            $team_id, $a, $b
+            "SELECT id FROM {$this->table} WHERE team_id = %d AND club_id = %d AND player_a_id = %d AND player_b_id = %d",
+            $team_id, CurrentClub::id(), $a, $b
         ) );
         if ( $existing > 0 ) return $existing;
 
         $ok = $this->wpdb->insert( $this->table, [
+            'club_id'     => CurrentClub::id(),
             'team_id'     => $team_id,
             'player_a_id' => $a,
             'player_b_id' => $b,
@@ -81,7 +84,7 @@ class PairingsRepository {
 
     public function remove( int $id ): bool {
         if ( $id <= 0 ) return false;
-        $ok = $this->wpdb->delete( $this->table, [ 'id' => $id ] );
+        $ok = $this->wpdb->delete( $this->table, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         return $ok !== false;
     }
 

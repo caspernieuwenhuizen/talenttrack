@@ -3,6 +3,8 @@ namespace TT\Modules\Methodology\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * MethodologyVisionRepository — `tt_methodology_visions` data access.
  *
@@ -21,7 +23,10 @@ class MethodologyVisionRepository {
     public function find( int $id ): ?object {
         global $wpdb;
         $t = $this->table();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE id = %d", $id ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
@@ -35,9 +40,15 @@ class MethodologyVisionRepository {
     public function activeForClub(): ?object {
         global $wpdb;
         $t = $this->table();
-        $row = $wpdb->get_row( "SELECT * FROM {$t} WHERE archived_at IS NULL AND is_shipped = 0 ORDER BY updated_at DESC LIMIT 1" );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE club_id = %d AND archived_at IS NULL AND is_shipped = 0 ORDER BY updated_at DESC LIMIT 1",
+            CurrentClub::id()
+        ) );
         if ( $row ) return $row;
-        $row = $wpdb->get_row( "SELECT * FROM {$t} WHERE archived_at IS NULL AND is_shipped = 1 ORDER BY updated_at DESC LIMIT 1" );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE club_id = %d AND archived_at IS NULL AND is_shipped = 1 ORDER BY updated_at DESC LIMIT 1",
+            CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
@@ -45,13 +56,17 @@ class MethodologyVisionRepository {
     public function listAll(): array {
         global $wpdb;
         $t = $this->table();
-        return (array) $wpdb->get_results( "SELECT * FROM {$t} WHERE archived_at IS NULL ORDER BY is_shipped ASC, updated_at DESC" );
+        return (array) $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE club_id = %d AND archived_at IS NULL ORDER BY is_shipped ASC, updated_at DESC",
+            CurrentClub::id()
+        ) );
     }
 
     /** @param array<string,mixed> $data */
     public function create( array $data ): int {
         global $wpdb;
         $row = $this->normalize( $data, true );
+        $row['club_id'] = CurrentClub::id();
         $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }
@@ -61,7 +76,7 @@ class MethodologyVisionRepository {
         global $wpdb;
         $row = $this->normalize( $data, false );
         if ( empty( $row ) ) return true;
-        return $wpdb->update( $this->table(), $row, [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->table(), $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     public function archive( int $id ): bool {
@@ -69,7 +84,7 @@ class MethodologyVisionRepository {
         return $wpdb->update(
             $this->table(),
             [ 'archived_at' => current_time( 'mysql', true ) ],
-            [ 'id' => $id ]
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         ) !== false;
     }
 

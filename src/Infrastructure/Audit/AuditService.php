@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\FeatureToggles\FeatureToggleService;
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * AuditService — writes entries to the tt_audit_log table.
@@ -49,6 +50,7 @@ class AuditService {
         }
 
         $inserted = $wpdb->insert( $table, [
+            'club_id'     => CurrentClub::id(),
             'user_id'     => get_current_user_id(),
             'action'      => substr( $action, 0, 100 ),
             'entity_type' => substr( $entity_type, 0, 64 ),
@@ -144,7 +146,7 @@ class AuditService {
         $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
         if ( ! $exists ) return [];
 
-        $rows = $wpdb->get_col( "SELECT DISTINCT $column FROM $table WHERE $column <> '' ORDER BY $column ASC" );
+        $rows = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT $column FROM $table WHERE $column <> '' AND club_id = %d ORDER BY $column ASC", CurrentClub::id() ) );
         return is_array( $rows ) ? array_map( 'strval', $rows ) : [];
     }
 
@@ -156,8 +158,8 @@ class AuditService {
      * @return array{0: string, 1: array<int, mixed>}
      */
     private static function buildWhere( array $filters ): array {
-        $where  = '1=1';
-        $params = [];
+        $where  = '1=1 AND club_id = %d';
+        $params = [ CurrentClub::id() ];
         if ( ! empty( $filters['action'] ) ) {
             $where   .= ' AND action = %s';
             $params[] = (string) $filters['action'];

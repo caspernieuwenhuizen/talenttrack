@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Goal;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
 final class DetailsStep implements WizardStepInterface {
@@ -43,6 +44,7 @@ final class DetailsStep implements WizardStepInterface {
         if ( $player_id <= 0 ) return new \WP_Error( 'no_player', __( 'Player is required.', 'talenttrack' ) );
 
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_goals', [
+            'club_id'     => CurrentClub::id(),
             'player_id'   => $player_id,
             'title'       => (string) ( $state['title'] ?? '' ),
             'description' => (string) ( $state['description'] ?? '' ),
@@ -59,6 +61,7 @@ final class DetailsStep implements WizardStepInterface {
         $link_id   = (int) ( $state['link_id'] ?? 0 );
         if ( $link_type !== '' && $link_id > 0 ) {
             $wpdb->insert( $wpdb->prefix . 'tt_goal_links', [
+                'club_id'   => CurrentClub::id(),
                 'goal_id'   => $goal_id,
                 'link_type' => $link_type,
                 'link_id'   => $link_id,

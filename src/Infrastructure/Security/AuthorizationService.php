@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Authorization\AuthorizationRepository;
 use TT\Infrastructure\Authorization\FunctionalRolesRepository;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * AuthorizationService — central authorization layer.
@@ -221,8 +222,8 @@ class AuthorizationService {
 
         global $wpdb;
         $row = $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d AND status = 'active' LIMIT 1",
-            $user_id
+            "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d AND status = 'active' AND club_id = %d LIMIT 1",
+            $user_id, CurrentClub::id()
         ) );
         $person_id = $row ? (int) $row : null;
         self::$cache_person[ $user_id ] = $person_id;
@@ -258,8 +259,8 @@ class AuthorizationService {
 
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT team_id, role_in_team FROM {$wpdb->prefix}tt_team_people WHERE person_id = %d",
-            $person_id
+            "SELECT team_id, role_in_team FROM {$wpdb->prefix}tt_team_people WHERE person_id = %d AND club_id = %d",
+            $person_id, CurrentClub::id()
         ) );
 
         $map = [];
@@ -393,8 +394,8 @@ class AuthorizationService {
         // derived at runtime.
         global $wpdb;
         $player_ids_i_am = $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND status = 'active'",
-            $user_id
+            "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND status = 'active' AND club_id = %d",
+            $user_id, CurrentClub::id()
         ) );
         if ( is_array( $player_ids_i_am ) && ! empty( $player_ids_i_am ) ) {
             $perms_player = self::getPermissionsForRoleKey( 'player' );
@@ -440,9 +441,9 @@ class AuthorizationService {
         $rows = $wpdb->get_col( $wpdb->prepare(
             "SELECT rp.permission
              FROM {$wpdb->prefix}tt_role_permissions rp
-             INNER JOIN {$wpdb->prefix}tt_roles r ON r.id = rp.role_id
-             WHERE r.role_key = %s",
-            $role_key
+             INNER JOIN {$wpdb->prefix}tt_roles r ON r.id = rp.role_id AND r.club_id = rp.club_id
+             WHERE r.role_key = %s AND r.club_id = %d",
+            $role_key, CurrentClub::id()
         ) );
         $cache[ $role_key ] = is_array( $rows ) ? array_map( 'strval', $rows ) : [];
         return $cache[ $role_key ];
@@ -457,8 +458,8 @@ class AuthorizationService {
 
         global $wpdb;
         $key = $wpdb->get_var( $wpdb->prepare(
-            "SELECT role_key FROM {$wpdb->prefix}tt_roles WHERE id = %d",
-            $role_id
+            "SELECT role_key FROM {$wpdb->prefix}tt_roles WHERE id = %d AND club_id = %d",
+            $role_id, CurrentClub::id()
         ) );
         $cache[ $role_id ] = $key ? (string) $key : null;
         return $cache[ $role_id ];
@@ -493,8 +494,8 @@ class AuthorizationService {
     private static function getPlayerTeamId( int $player_id ): ?int {
         global $wpdb;
         $tid = $wpdb->get_var( $wpdb->prepare(
-            "SELECT team_id FROM {$wpdb->prefix}tt_players WHERE id = %d",
-            $player_id
+            "SELECT team_id FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+            $player_id, CurrentClub::id()
         ) );
         return $tid ? (int) $tid : null;
     }
@@ -502,8 +503,8 @@ class AuthorizationService {
     private static function isPlayerOwnRecord( int $user_id, int $player_id ): bool {
         global $wpdb;
         $uid = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT wp_user_id FROM {$wpdb->prefix}tt_players WHERE id = %d",
-            $player_id
+            "SELECT wp_user_id FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+            $player_id, CurrentClub::id()
         ) );
         return $uid > 0 && $uid === $user_id;
     }

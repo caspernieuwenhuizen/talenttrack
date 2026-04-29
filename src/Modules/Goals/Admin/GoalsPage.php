@@ -7,6 +7,7 @@ use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Validation\CustomFieldValidator;
 use TT\Shared\Admin\BackButton;
 
@@ -36,7 +37,7 @@ class GoalsPage {
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
 
         $scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
-        $goals = $wpdb->get_results( "SELECT g.*, CONCAT(pl.first_name,' ',pl.last_name) AS player_name FROM {$p}tt_goals g LEFT JOIN {$p}tt_players pl ON g.player_id=pl.id WHERE g.{$view_clause} {$scope} ORDER BY g.created_at DESC LIMIT 50" );
+        $goals = $wpdb->get_results( $wpdb->prepare( "SELECT g.*, CONCAT(pl.first_name,' ',pl.last_name) AS player_name FROM {$p}tt_goals g LEFT JOIN {$p}tt_players pl ON g.player_id=pl.id AND pl.club_id = g.club_id WHERE g.{$view_clause} AND g.club_id = %d {$scope} ORDER BY g.created_at DESC LIMIT 50", CurrentClub::id() ) );
         $base_url = admin_url( 'admin.php?page=tt-goals' );
         ?>
         <div class="wrap">
@@ -82,7 +83,7 @@ class GoalsPage {
 
     private static function render_form( int $id ): void {
         global $wpdb; $p = $wpdb->prefix;
-        $goal = $id ? $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$p}tt_goals WHERE id=%d", $id ) ) : null;
+        $goal = $id ? $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$p}tt_goals WHERE id=%d AND club_id=%d", $id, CurrentClub::id() ) ) : null;
         $players = QueryHelpers::get_players();
         $statuses = QueryHelpers::get_lookup_names( 'goal_status' );
         $priorities = QueryHelpers::get_lookup_names( 'goal_priority' );
@@ -212,8 +213,9 @@ class GoalsPage {
         ];
 
         if ( $id ) {
-            $ok = $wpdb->update( "{$p}tt_goals", $data, [ 'id' => $id ] );
+            $ok = $wpdb->update( "{$p}tt_goals", $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         } else {
+            $data['club_id'] = CurrentClub::id();
             $ok = $wpdb->insert( "{$p}tt_goals", $data );
             // v2.11.0: previous versions didn't capture insert_id here, which
             // meant any post-save integration keyed on the goal ID (e.g.
@@ -251,7 +253,7 @@ class GoalsPage {
         check_admin_referer( 'tt_del_goal_' . $id );
         if ( ! current_user_can( 'tt_edit_goals' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         global $wpdb;
-        $wpdb->delete( $wpdb->prefix . 'tt_goals', [ 'id' => $id ] );
+        $wpdb->delete( $wpdb->prefix . 'tt_goals', [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-goals&tt_msg=deleted' ) );
         exit;
     }

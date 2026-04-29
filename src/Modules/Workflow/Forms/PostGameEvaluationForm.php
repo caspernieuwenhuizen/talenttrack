@@ -4,6 +4,7 @@ namespace TT\Modules\Workflow\Forms;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -117,8 +118,8 @@ class PostGameEvaluationForm implements FormInterface {
         if ( $player_id <= 0 ) return '';
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT first_name, last_name FROM {$wpdb->prefix}tt_players WHERE id = %d LIMIT 1",
-            $player_id
+            "SELECT first_name, last_name FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d LIMIT 1",
+            $player_id, CurrentClub::id()
         ) );
         if ( ! $row ) return '';
         return trim( ( $row->first_name ?? '' ) . ' ' . ( $row->last_name ?? '' ) );

@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Player;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -58,6 +59,7 @@ final class ReviewStep implements WizardStepInterface {
 
         $path = (string) ( $state['path'] ?? 'roster' );
         $insert = [
+            'club_id'       => CurrentClub::id(),
             'first_name'    => $first,
             'last_name'     => $last,
             'date_of_birth' => $state['date_of_birth'] ?? null,
@@ -98,7 +100,7 @@ final class ReviewStep implements WizardStepInterface {
     private static function teamLabel( int $team_id ): string {
         if ( $team_id <= 0 ) return '—';
         global $wpdb;
-        $name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}tt_teams WHERE id = %d", $team_id ) );
+        $name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d", $team_id, CurrentClub::id() ) );
         return $name ?: '#' . $team_id;
     }
 

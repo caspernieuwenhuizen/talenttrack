@@ -4,6 +4,7 @@ namespace TT\Modules\DemoData\Generators;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
 
 /**
@@ -123,6 +124,7 @@ class ActivityGenerator {
                         : sprintf( $strings['title_template'], $w + 1, $s + 1 );
 
                     $wpdb->insert( "{$wpdb->prefix}tt_activities", [
+                        'club_id'           => CurrentClub::id(),
                         'title'             => $title,
                         'session_date'      => gmdate( 'Y-m-d', $when ),
                         'location'          => $strings['default_location'],
@@ -143,6 +145,7 @@ class ActivityGenerator {
                         $status = $attendance_lookup[ $label ] ?? $label;
 
                         $wpdb->insert( "{$wpdb->prefix}tt_attendance", [
+                            'club_id'     => CurrentClub::id(),
                             'activity_id' => $activity_id,
                             'player_id'  => $player_id,
                             'status'     => $status,

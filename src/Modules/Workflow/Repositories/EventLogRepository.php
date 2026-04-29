@@ -3,6 +3,8 @@ namespace TT\Modules\Workflow\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * EventLogRepository — data access for tt_workflow_event_log (#0022
  * Phase 3).
@@ -38,6 +40,7 @@ class EventLogRepository {
         global $wpdb;
         $payload = self::serializeArgs( $args );
         $ok = $wpdb->insert( $this->table(), [
+            'club_id'      => CurrentClub::id(),
             'event_hook'   => $event_hook,
             'template_key' => $template_key,
             'args_json'    => $payload,
@@ -59,7 +62,7 @@ class EventLogRepository {
             'processed_at'  => current_time( 'mysql' ),
             'tasks_created' => wp_json_encode( array_values( array_map( 'intval', $task_ids ) ) ),
             'error_message' => null,
-        ], [ 'id' => $log_id ] );
+        ], [ 'id' => $log_id, 'club_id' => CurrentClub::id() ] );
         return $ok !== false;
     }
 
@@ -68,15 +71,15 @@ class EventLogRepository {
         $ok = $wpdb->update( $this->table(), [
             'status'        => self::STATUS_FAILED,
             'error_message' => $error_message,
-        ], [ 'id' => $log_id ] );
+        ], [ 'id' => $log_id, 'club_id' => CurrentClub::id() ] );
         return $ok !== false;
     }
 
     public function find( int $log_id ): ?array {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$this->table()} WHERE id = %d LIMIT 1",
-            $log_id
+            "SELECT * FROM {$this->table()} WHERE id = %d AND club_id = %d LIMIT 1",
+            $log_id, CurrentClub::id()
         ), ARRAY_A );
         return is_array( $row ) ? $row : null;
     }
@@ -87,8 +90,8 @@ class EventLogRepository {
      */
     public function listRecent( array $filters = [], int $limit = 100 ): array {
         global $wpdb;
-        $where = [ '1=1' ];
-        $params = [];
+        $where = [ 'club_id = %d' ];
+        $params = [ CurrentClub::id() ];
         if ( ! empty( $filters['status'] ) ) {
             $where[] = 'status = %s';
             $params[] = (string) $filters['status'];
@@ -109,20 +112,21 @@ class EventLogRepository {
     public function incrementRetries( int $log_id ): int {
         global $wpdb;
         $wpdb->query( $wpdb->prepare(
-            "UPDATE {$this->table()} SET retries = retries + 1 WHERE id = %d",
-            $log_id
+            "UPDATE {$this->table()} SET retries = retries + 1 WHERE id = %d AND club_id = %d",
+            $log_id, CurrentClub::id()
         ) );
         return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT retries FROM {$this->table()} WHERE id = %d", $log_id
+            "SELECT retries FROM {$this->table()} WHERE id = %d AND club_id = %d",
+            $log_id, CurrentClub::id()
         ) );
     }
 
     public function counts(): array {
         global $wpdb;
-        $rows = $wpdb->get_results(
-            "SELECT status, COUNT(*) AS n FROM {$this->table()} GROUP BY status",
-            ARRAY_A
-        );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT status, COUNT(*) AS n FROM {$this->table()} WHERE club_id = %d GROUP BY status",
+            CurrentClub::id()
+        ), ARRAY_A );
         $out = [
             self::STATUS_PENDING   => 0,
             self::STATUS_PROCESSED => 0,

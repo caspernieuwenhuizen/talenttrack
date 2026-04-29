@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Evaluations;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * CategoryWeightsRepository — data access for tt_category_weights.
  *
@@ -36,8 +38,8 @@ class CategoryWeightsRepository {
         global $wpdb;
         if ( $age_group_id <= 0 ) return [];
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT main_category_id, weight FROM {$this->table()} WHERE age_group_id = %d",
-            $age_group_id
+            "SELECT main_category_id, weight FROM {$this->table()} WHERE age_group_id = %d AND club_id = %d",
+            $age_group_id, CurrentClub::id()
         ) );
         if ( ! is_array( $rows ) ) return [];
         $out = [];
@@ -62,8 +64,8 @@ class CategoryWeightsRepository {
 
         $placeholders = implode( ',', array_fill( 0, count( $clean ), '%d' ) );
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT age_group_id, main_category_id, weight FROM {$this->table()} WHERE age_group_id IN ($placeholders)",
-            ...$clean
+            "SELECT age_group_id, main_category_id, weight FROM {$this->table()} WHERE age_group_id IN ($placeholders) AND club_id = %d",
+            ...array_merge( $clean, [ CurrentClub::id() ] )
         ) );
         if ( ! is_array( $rows ) ) return $out;
         foreach ( $rows as $r ) {
@@ -88,16 +90,17 @@ class CategoryWeightsRepository {
         if ( $age_group_id <= 0 ) return false;
         if ( empty( $weights ) ) return false;
 
-        $wpdb->delete( $this->table(), [ 'age_group_id' => $age_group_id ], [ '%d' ] );
+        $wpdb->delete( $this->table(), [ 'age_group_id' => $age_group_id, 'club_id' => CurrentClub::id() ], [ '%d', '%d' ] );
         foreach ( $weights as $main_id => $w ) {
             $main_id = (int) $main_id;
             $w       = (int) $w;
             if ( $main_id <= 0 || $w < 0 || $w > 100 ) continue;
             $ok = $wpdb->insert( $this->table(), [
+                'club_id'          => CurrentClub::id(),
                 'age_group_id'     => $age_group_id,
                 'main_category_id' => $main_id,
                 'weight'           => $w,
-            ], [ '%d', '%d', '%d' ] );
+            ], [ '%d', '%d', '%d', '%d' ] );
             if ( $ok === false ) return false;
         }
         return true;
@@ -106,7 +109,7 @@ class CategoryWeightsRepository {
     public function deleteForAgeGroup( int $age_group_id ): bool {
         global $wpdb;
         if ( $age_group_id <= 0 ) return false;
-        return $wpdb->delete( $this->table(), [ 'age_group_id' => $age_group_id ], [ '%d' ] ) !== false;
+        return $wpdb->delete( $this->table(), [ 'age_group_id' => $age_group_id, 'club_id' => CurrentClub::id() ], [ '%d', '%d' ] ) !== false;
     }
 
     // Fallback

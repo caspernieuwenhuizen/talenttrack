@@ -3,6 +3,7 @@ namespace TT\Modules\DemoData\Generators;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
 
 /**
@@ -140,8 +141,8 @@ class UserGenerator {
 
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT entity_id, extra_json FROM {$wpdb->prefix}tt_demo_tags
-             WHERE entity_type = %s",
-            'wp_user'
+             WHERE entity_type = %s AND club_id = %d",
+            'wp_user', CurrentClub::id()
         ) );
         foreach ( (array) $rows as $r ) {
             $extra = $r->extra_json ? json_decode( (string) $r->extra_json, true ) : [];

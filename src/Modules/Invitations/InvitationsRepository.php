@@ -3,6 +3,8 @@ namespace TT\Modules\Invitations;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * InvitationsRepository — CRUD over `tt_invitations`.
  *
@@ -23,6 +25,7 @@ class InvitationsRepository {
     /** @param array<string,mixed> $data */
     public function insert( array $data ): int {
         $defaults = [
+            'club_id'        => CurrentClub::id(),
             'kind'           => InvitationKind::PLAYER,
             'status'         => InvitationStatus::PENDING,
             'created_by'     => get_current_user_id(),
@@ -35,7 +38,7 @@ class InvitationsRepository {
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row(
-            $this->wpdb->prepare( "SELECT * FROM {$this->table} WHERE id = %d", $id )
+            $this->wpdb->prepare( "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d", $id, CurrentClub::id() )
         );
         return $row ?: null;
     }
@@ -43,7 +46,7 @@ class InvitationsRepository {
     public function findByToken( string $token ): ?object {
         if ( $token === '' ) return null;
         $row = $this->wpdb->get_row(
-            $this->wpdb->prepare( "SELECT * FROM {$this->table} WHERE token = %s", $token )
+            $this->wpdb->prepare( "SELECT * FROM {$this->table} WHERE token = %s AND club_id = %d", $token, CurrentClub::id() )
         );
         return $row ?: null;
     }
@@ -51,7 +54,7 @@ class InvitationsRepository {
     /** @param array<string,mixed> $data */
     public function update( int $id, array $data ): bool {
         if ( $id <= 0 ) return false;
-        $ok = $this->wpdb->update( $this->table, $data, [ 'id' => $id ] );
+        $ok = $this->wpdb->update( $this->table, $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         return $ok !== false;
     }
 
@@ -66,12 +69,13 @@ class InvitationsRepository {
         $affected = $this->wpdb->query( $this->wpdb->prepare(
             "UPDATE {$this->table}
                 SET status = %s, accepted_at = %s, accepted_user_id = %d
-              WHERE id = %d AND status = %s",
+              WHERE id = %d AND status = %s AND club_id = %d",
             InvitationStatus::ACCEPTED,
             $now,
             $userId,
             $id,
-            InvitationStatus::PENDING
+            InvitationStatus::PENDING,
+            CurrentClub::id()
         ) );
         return is_int( $affected ) && $affected > 0;
     }
@@ -80,13 +84,15 @@ class InvitationsRepository {
     public function listAll( int $limit = 200, ?string $status = null ): array {
         if ( $status !== null ) {
             $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-                "SELECT * FROM {$this->table} WHERE status = %s ORDER BY created_at DESC LIMIT %d",
+                "SELECT * FROM {$this->table} WHERE status = %s AND club_id = %d ORDER BY created_at DESC LIMIT %d",
                 $status,
+                CurrentClub::id(),
                 $limit
             ) );
         } else {
             $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-                "SELECT * FROM {$this->table} ORDER BY created_at DESC LIMIT %d",
+                "SELECT * FROM {$this->table} WHERE club_id = %d ORDER BY created_at DESC LIMIT %d",
+                CurrentClub::id(),
                 $limit
             ) );
         }
@@ -105,11 +111,13 @@ class InvitationsRepository {
                 "SELECT * FROM {$this->table}
                   WHERE status = %s AND kind = %s
                     AND target_person_id = %d AND expires_at > %s
+                    AND club_id = %d
                   ORDER BY created_at DESC LIMIT 1",
                 InvitationStatus::PENDING,
                 InvitationKind::STAFF,
                 $personId,
-                $now
+                $now,
+                CurrentClub::id()
             ) );
             return $row ?: null;
         }
@@ -118,11 +126,13 @@ class InvitationsRepository {
                 "SELECT * FROM {$this->table}
                   WHERE status = %s AND kind = %s
                     AND target_player_id = %d AND expires_at > %s
+                    AND club_id = %d
                   ORDER BY created_at DESC LIMIT 1",
                 InvitationStatus::PENDING,
                 $kind,
                 $playerId,
-                $now
+                $now,
+                CurrentClub::id()
             ) );
             return $row ?: null;
         }
@@ -136,9 +146,10 @@ class InvitationsRepository {
     public function countCreatedByUserSince( int $userId, string $since ): int {
         return (int) $this->wpdb->get_var( $this->wpdb->prepare(
             "SELECT COUNT(*) FROM {$this->table}
-              WHERE created_by = %d AND created_at >= %s",
+              WHERE created_by = %d AND created_at >= %s AND club_id = %d",
             $userId,
-            $since
+            $since,
+            CurrentClub::id()
         ) );
     }
 
@@ -154,10 +165,11 @@ class InvitationsRepository {
         $affected = $this->wpdb->query( $this->wpdb->prepare(
             "UPDATE {$this->table}
                 SET status = %s
-              WHERE status = %s AND expires_at <= %s",
+              WHERE status = %s AND expires_at <= %s AND club_id = %d",
             InvitationStatus::EXPIRED,
             InvitationStatus::PENDING,
-            $now
+            $now,
+            CurrentClub::id()
         ) );
         return is_int( $affected ) ? $affected : 0;
     }

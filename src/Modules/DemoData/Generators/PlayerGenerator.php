@@ -4,6 +4,7 @@ namespace TT\Modules\DemoData\Generators;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\SeedLoader;
 
@@ -96,9 +97,10 @@ class PlayerGenerator {
         $prior_ids = DemoBatchRegistry::allEntityIds( 'player' );
         if ( $prior_ids ) {
             $placeholders = implode( ',', array_fill( 0, count( $prior_ids ), '%d' ) );
+            $params = array_merge( $prior_ids, [ CurrentClub::id() ] );
             $wpdb->query( $wpdb->prepare(
-                "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = 0 WHERE id IN ({$placeholders})",
-                ...$prior_ids
+                "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = 0 WHERE id IN ({$placeholders}) AND club_id = %d",
+                ...$params
             ) );
         }
 
@@ -128,6 +130,7 @@ class PlayerGenerator {
                 }
 
                 $wpdb->insert( "{$wpdb->prefix}tt_players", [
+                    'club_id'             => CurrentClub::id(),
                     'first_name'          => $fn,
                     'last_name'           => $ln,
                     'date_of_birth'       => $dob,

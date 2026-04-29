@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Goal;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
 final class PlayerStep implements WizardStepInterface {
@@ -12,11 +13,12 @@ final class PlayerStep implements WizardStepInterface {
 
     public function render( array $state ): void {
         global $wpdb;
-        $players = $wpdb->get_results(
+        $players = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, first_name, last_name FROM {$wpdb->prefix}tt_players
-             WHERE archived_at IS NULL AND status != 'archived'
-             ORDER BY last_name, first_name LIMIT 500"
-        );
+             WHERE archived_at IS NULL AND status != 'archived' AND club_id = %d
+             ORDER BY last_name, first_name LIMIT 500",
+            CurrentClub::id()
+        ) );
         $current = (int) ( $state['player_id'] ?? 0 );
         echo '<label><span>' . esc_html__( 'Which player is this goal for?', 'talenttrack' ) . '</span><select name="player_id" required>';
         echo '<option value="">' . esc_html__( '— pick a player —', 'talenttrack' ) . '</option>';

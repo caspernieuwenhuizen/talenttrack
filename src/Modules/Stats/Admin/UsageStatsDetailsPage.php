@@ -3,6 +3,7 @@ namespace TT\Modules\Stats\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Infrastructure\Usage\UsageTracker;
 use TT\Shared\Admin\BackButton;
 
@@ -67,10 +68,10 @@ class UsageStatsDetailsPage {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT e.user_id, e.created_at
              FROM {$wpdb->prefix}tt_usage_events e
-             WHERE e.event_type = 'login' AND e.created_at >= %s
+             WHERE e.event_type = 'login' AND e.created_at >= %s AND e.club_id = %d
              ORDER BY e.created_at DESC
              LIMIT 500",
-            $cutoff
+            $cutoff, CurrentClub::id()
         ) );
         ?>
         <h1><?php
@@ -100,10 +101,10 @@ class UsageStatsDetailsPage {
                     COUNT(*) AS event_count,
                     MAX(created_at) AS last_seen
              FROM {$wpdb->prefix}tt_usage_events
-             WHERE created_at >= %s
+             WHERE created_at >= %s AND club_id = %d
              GROUP BY user_id
              ORDER BY last_seen DESC",
-            $cutoff
+            $cutoff, CurrentClub::id()
         ) );
         ?>
         <h1><?php
@@ -195,10 +196,10 @@ class UsageStatsDetailsPage {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT user_id, COUNT(*) AS event_count, MIN(created_at) AS first_event, MAX(created_at) AS last_event
              FROM {$wpdb->prefix}tt_usage_events
-             WHERE DATE(created_at) = %s
+             WHERE DATE(created_at) = %s AND club_id = %d
              GROUP BY user_id
              ORDER BY last_event DESC",
-            $date
+            $date, CurrentClub::id()
         ) );
         ?>
         <h2 style="margin-top:16px;"><?php
@@ -244,12 +245,12 @@ class UsageStatsDetailsPage {
                     lt.name AS type_name,
                     u.display_name AS coach_name
              FROM {$p}tt_evaluations e
-             LEFT JOIN {$p}tt_players pl ON e.player_id = pl.id
-             LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id = lt.id
+             LEFT JOIN {$p}tt_players pl ON e.player_id = pl.id    AND pl.club_id = e.club_id
+             LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id = lt.id AND lt.club_id = e.club_id
              LEFT JOIN {$wpdb->users} u ON e.coach_id = u.ID
-             WHERE DATE(e.created_at) = %s
+             WHERE DATE(e.created_at) = %s AND e.club_id = %d
              ORDER BY e.created_at DESC",
-            $date
+            $date, CurrentClub::id()
         ) );
         ?>
         <h2 style="margin-top:16px;"><?php
@@ -295,8 +296,8 @@ class UsageStatsDetailsPage {
         global $wpdb;
         $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
         $user_ids = $wpdb->get_col( $wpdb->prepare(
-            "SELECT DISTINCT user_id FROM {$wpdb->prefix}tt_usage_events WHERE created_at >= %s",
-            $cutoff
+            "SELECT DISTINCT user_id FROM {$wpdb->prefix}tt_usage_events WHERE created_at >= %s AND club_id = %d",
+            $cutoff, CurrentClub::id()
         ) );
         // Filter by matching role.
         $matching = [];
@@ -327,10 +328,10 @@ class UsageStatsDetailsPage {
             $rows = $wpdb->get_results( $wpdb->prepare(
                 "SELECT user_id, MAX(created_at) AS last_seen, COUNT(*) AS event_count
                  FROM {$wpdb->prefix}tt_usage_events
-                 WHERE user_id IN ({$ph}) AND created_at >= %s
+                 WHERE user_id IN ({$ph}) AND created_at >= %s AND club_id = %d
                  GROUP BY user_id
                  ORDER BY last_seen DESC",
-                ...array_merge( $matching, [ $cutoff ] )
+                ...array_merge( $matching, [ $cutoff, CurrentClub::id() ] )
             ) );
             ?>
             <table class="widefat striped" style="max-width:800px;">
@@ -370,10 +371,10 @@ class UsageStatsDetailsPage {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT user_id, COUNT(*) AS visit_count, MAX(created_at) AS last_visit
              FROM {$wpdb->prefix}tt_usage_events
-             WHERE event_type = 'admin_page_view' AND event_target = %s AND created_at >= %s
+             WHERE event_type = 'admin_page_view' AND event_target = %s AND created_at >= %s AND club_id = %d
              GROUP BY user_id
              ORDER BY visit_count DESC, last_visit DESC",
-            $slug, $cutoff
+            $slug, $cutoff, CurrentClub::id()
         ) );
         ?>
         <h1><?php
@@ -422,10 +423,10 @@ class UsageStatsDetailsPage {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}tt_usage_events
-             WHERE user_id = %d
+             WHERE user_id = %d AND club_id = %d
              ORDER BY created_at DESC
              LIMIT 500",
-            $uid
+            $uid, CurrentClub::id()
         ) );
         ?>
         <h1><?php
@@ -510,8 +511,8 @@ class UsageStatsDetailsPage {
         if ( user_can( $user, 'tt_edit_evaluations' ) ) return 'coach';
         global $wpdb;
         $has_player = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d LIMIT 1",
-            $user_id
+            "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+            $user_id, CurrentClub::id()
         ) );
         return $has_player ? 'player' : 'other';
     }

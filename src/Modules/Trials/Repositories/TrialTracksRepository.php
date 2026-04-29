@@ -3,6 +3,8 @@ namespace TT\Modules\Trials\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 class TrialTracksRepository {
 
     private \wpdb $wpdb;
@@ -17,14 +19,16 @@ class TrialTracksRepository {
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE id = %d", $id
+            "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
         ) );
         return $row ?: null;
     }
 
     public function findBySlug( string $slug ): ?object {
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE slug = %s", $slug
+            "SELECT * FROM {$this->table} WHERE slug = %s AND club_id = %d",
+            $slug, CurrentClub::id()
         ) );
         return $row ?: null;
     }
@@ -33,12 +37,12 @@ class TrialTracksRepository {
      * @return object[]
      */
     public function listAll( bool $include_archived = false ): array {
-        $sql = "SELECT * FROM {$this->table}";
+        $sql = "SELECT * FROM {$this->table} WHERE club_id = %d";
         if ( ! $include_archived ) {
-            $sql .= " WHERE archived_at IS NULL";
+            $sql .= " AND archived_at IS NULL";
         }
         $sql .= " ORDER BY sort_order ASC, name ASC";
-        $rows = $this->wpdb->get_results( $sql );
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare( $sql, CurrentClub::id() ) );
         return is_array( $rows ) ? $rows : [];
     }
 
@@ -49,6 +53,7 @@ class TrialTracksRepository {
         $slug = sanitize_title( (string) ( $data['slug'] ?? $data['name'] ?? '' ) );
         if ( $slug === '' ) return 0;
         $insert = [
+            'club_id'               => CurrentClub::id(),
             'slug'                  => $slug,
             'name'                  => (string) ( $data['name'] ?? $slug ),
             'description'           => $data['description'] ?? null,
@@ -72,7 +77,7 @@ class TrialTracksRepository {
         }
         $clean = array_intersect_key( $patch, array_flip( $allowed ) );
         if ( ! $clean ) return false;
-        return (bool) $this->wpdb->update( $this->table, $clean, [ 'id' => $id ] );
+        return (bool) $this->wpdb->update( $this->table, $clean, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
     }
 
     public function archive( int $id ): bool {

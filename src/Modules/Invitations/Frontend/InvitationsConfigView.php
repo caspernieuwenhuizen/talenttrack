@@ -4,6 +4,7 @@ namespace TT\Modules\Invitations\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Config\ConfigService;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Invitations\InvitationKind;
 use TT\Modules\Invitations\InvitationService;
 use TT\Modules\Invitations\InvitationStatus;
@@ -189,15 +190,15 @@ class InvitationsConfigView extends FrontendViewBase {
         global $wpdb;
         if ( ! empty( $row->target_player_id ) ) {
             $name = $wpdb->get_row( $wpdb->prepare(
-                "SELECT first_name, last_name FROM {$wpdb->prefix}tt_players WHERE id = %d",
-                (int) $row->target_player_id
+                "SELECT first_name, last_name FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+                (int) $row->target_player_id, CurrentClub::id()
             ) );
             if ( $name ) return trim( (string) $name->first_name . ' ' . (string) $name->last_name );
         }
         if ( ! empty( $row->target_person_id ) ) {
             $name = $wpdb->get_row( $wpdb->prepare(
-                "SELECT first_name, last_name FROM {$wpdb->prefix}tt_people WHERE id = %d",
-                (int) $row->target_person_id
+                "SELECT first_name, last_name FROM {$wpdb->prefix}tt_people WHERE id = %d AND club_id = %d",
+                (int) $row->target_person_id, CurrentClub::id()
             ) );
             if ( $name ) return trim( (string) $name->first_name . ' ' . (string) $name->last_name );
         }

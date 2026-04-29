@@ -3,6 +3,8 @@ namespace TT\Modules\Methodology\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * FormationsRepository — data access for `tt_formations` and the
  * paired `tt_formation_positions` table.
@@ -28,21 +30,32 @@ class FormationsRepository {
     public function listAll( bool $include_archived = false ): array {
         global $wpdb;
         $t = $this->formationsTable();
-        $where = $include_archived ? '' : ' WHERE archived_at IS NULL';
-        return (array) $wpdb->get_results( "SELECT * FROM {$t}{$where} ORDER BY is_shipped DESC, slug ASC" );
+        $where = $include_archived
+            ? ' WHERE club_id = %d'
+            : ' WHERE club_id = %d AND archived_at IS NULL';
+        return (array) $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$t}{$where} ORDER BY is_shipped DESC, slug ASC",
+            CurrentClub::id()
+        ) );
     }
 
     public function find( int $id ): ?object {
         global $wpdb;
         $t = $this->formationsTable();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE id = %d", $id ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
     public function findBySlug( string $slug ): ?object {
         global $wpdb;
         $t = $this->formationsTable();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE slug = %s LIMIT 1", $slug ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE slug = %s AND club_id = %d LIMIT 1",
+            $slug, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
@@ -64,8 +77,8 @@ class FormationsRepository {
         $t = $this->positionsTable();
         $where = $include_archived ? '' : ' AND archived_at IS NULL';
         return (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE formation_id = %d{$where} ORDER BY sort_order ASC, jersey_number ASC",
-            $formation_id
+            "SELECT * FROM {$t} WHERE formation_id = %d AND club_id = %d{$where} ORDER BY sort_order ASC, jersey_number ASC",
+            $formation_id, CurrentClub::id()
         ) );
     }
 
@@ -73,6 +86,7 @@ class FormationsRepository {
     public function createFormation( array $data ): int {
         global $wpdb;
         $row = $this->normalizeFormation( $data, true );
+        $row['club_id'] = CurrentClub::id();
         $wpdb->insert( $this->formationsTable(), $row );
         return (int) $wpdb->insert_id;
     }
@@ -82,7 +96,7 @@ class FormationsRepository {
         global $wpdb;
         $row = $this->normalizeFormation( $data, false );
         if ( empty( $row ) ) return true;
-        return $wpdb->update( $this->formationsTable(), $row, [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->formationsTable(), $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     public function archiveFormation( int $id ): bool {
@@ -90,7 +104,7 @@ class FormationsRepository {
         return $wpdb->update(
             $this->formationsTable(),
             [ 'archived_at' => current_time( 'mysql', true ) ],
-            [ 'id' => $id ]
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         ) !== false;
     }
 
@@ -98,6 +112,7 @@ class FormationsRepository {
     public function createPosition( array $data ): int {
         global $wpdb;
         $row = $this->normalizePosition( $data, true );
+        $row['club_id'] = CurrentClub::id();
         $wpdb->insert( $this->positionsTable(), $row );
         return (int) $wpdb->insert_id;
     }
@@ -107,7 +122,7 @@ class FormationsRepository {
         global $wpdb;
         $row = $this->normalizePosition( $data, false );
         if ( empty( $row ) ) return true;
-        return $wpdb->update( $this->positionsTable(), $row, [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->positionsTable(), $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     public function archivePosition( int $id ): bool {
@@ -115,14 +130,17 @@ class FormationsRepository {
         return $wpdb->update(
             $this->positionsTable(),
             [ 'archived_at' => current_time( 'mysql', true ) ],
-            [ 'id' => $id ]
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         ) !== false;
     }
 
     public function findPosition( int $id ): ?object {
         global $wpdb;
         $t = $this->positionsTable();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE id = %d", $id ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
@@ -137,6 +155,7 @@ class FormationsRepository {
         unset( $insert['id'], $insert['created_at'], $insert['updated_at'] );
         $insert['is_shipped']     = 0;
         $insert['cloned_from_id'] = (int) $id;
+        $insert['club_id']        = CurrentClub::id();
         $wpdb->insert( $this->positionsTable(), $insert );
         return (int) $wpdb->insert_id;
     }

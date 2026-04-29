@@ -3,6 +3,8 @@ namespace TT\Modules\Methodology\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * SetPiecesRepository — `tt_set_pieces` data access. Same shape as
  * PrinciplesRepository but with the kind/side filter dimensions
@@ -28,8 +30,8 @@ class SetPiecesRepository {
         global $wpdb;
         $t = $this->table();
 
-        $where = [];
-        $args  = [];
+        $where = [ 'club_id = %d' ];
+        $args  = [ CurrentClub::id() ];
         if ( empty( $filters['include_archived'] ) ) $where[] = 'archived_at IS NULL';
         if ( ! empty( $filters['kind'] ) ) {
             $where[] = 'kind_key = %s';
@@ -54,7 +56,10 @@ class SetPiecesRepository {
     public function find( int $id ): ?object {
         global $wpdb;
         $t = $this->table();
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE id = %d", $id ) );
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$t} WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
         return $row ?: null;
     }
 
@@ -62,6 +67,7 @@ class SetPiecesRepository {
     public function create( array $data ): int {
         global $wpdb;
         $row = $this->normalize( $data, true );
+        $row['club_id'] = CurrentClub::id();
         $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }
@@ -71,7 +77,7 @@ class SetPiecesRepository {
         global $wpdb;
         $row = $this->normalize( $data, false );
         if ( empty( $row ) ) return true;
-        return $wpdb->update( $this->table(), $row, [ 'id' => $id ] ) !== false;
+        return $wpdb->update( $this->table(), $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     public function archive( int $id ): bool {
@@ -79,7 +85,7 @@ class SetPiecesRepository {
         return $wpdb->update(
             $this->table(),
             [ 'archived_at' => current_time( 'mysql', true ) ],
-            [ 'id' => $id ]
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         ) !== false;
     }
 
@@ -91,6 +97,7 @@ class SetPiecesRepository {
         unset( $insert['id'], $insert['created_at'], $insert['updated_at'] );
         $insert['is_shipped']     = 0;
         $insert['cloned_from_id'] = (int) $id;
+        $insert['club_id']        = CurrentClub::id();
         $wpdb->insert( $this->table(), $insert );
         return (int) $wpdb->insert_id;
     }

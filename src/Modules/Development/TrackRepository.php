@@ -3,6 +3,8 @@ namespace TT\Modules\Development;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * TrackRepository — CRUD around `tt_dev_tracks`.
  *
@@ -24,8 +26,12 @@ class TrackRepository {
     public function create( string $name, string $description = '' ): int {
         $name = trim( $name );
         if ( $name === '' ) return 0;
-        $sort = (int) $this->wpdb->get_var( "SELECT COALESCE(MAX(sort_order),0)+1 FROM {$this->table}" );
+        $sort = (int) $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT COALESCE(MAX(sort_order),0)+1 FROM {$this->table} WHERE club_id = %d",
+            CurrentClub::id()
+        ) );
         $this->wpdb->insert( $this->table, [
+            'club_id'     => CurrentClub::id(),
             'name'        => $name,
             'description' => $description,
             'sort_order'  => $sort,
@@ -36,7 +42,7 @@ class TrackRepository {
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row(
-            $this->wpdb->prepare( "SELECT * FROM {$this->table} WHERE id = %d", $id )
+            $this->wpdb->prepare( "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d", $id, CurrentClub::id() )
         );
         return $row ?: null;
     }
@@ -46,7 +52,7 @@ class TrackRepository {
         $ok = $this->wpdb->update(
             $this->table,
             [ 'name' => $name, 'description' => $description ],
-            [ 'id' => $id ]
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         );
         return $ok !== false;
     }
@@ -57,22 +63,23 @@ class TrackRepository {
         $this->wpdb->update(
             $this->wpdb->prefix . 'tt_dev_ideas',
             [ 'track_id' => null ],
-            [ 'track_id' => $id ]
+            [ 'track_id' => $id, 'club_id' => CurrentClub::id() ]
         );
-        return (bool) $this->wpdb->delete( $this->table, [ 'id' => $id ] );
+        return (bool) $this->wpdb->delete( $this->table, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
     }
 
     public function reorder( int $id, int $sortOrder ): bool {
         if ( $id <= 0 ) return false;
-        $ok = $this->wpdb->update( $this->table, [ 'sort_order' => $sortOrder ], [ 'id' => $id ] );
+        $ok = $this->wpdb->update( $this->table, [ 'sort_order' => $sortOrder ], [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         return $ok !== false;
     }
 
     /** @return list<object> */
     public function listAll(): array {
-        $rows = $this->wpdb->get_results(
-            "SELECT * FROM {$this->table} ORDER BY sort_order ASC, id ASC"
-        );
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT * FROM {$this->table} WHERE club_id = %d ORDER BY sort_order ASC, id ASC",
+            CurrentClub::id()
+        ) );
         return is_array( $rows ) ? $rows : [];
     }
 }

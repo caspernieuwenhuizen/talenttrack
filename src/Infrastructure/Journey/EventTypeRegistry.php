@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Journey;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * EventTypeRegistry — taxonomy lookups for journey event types.
  *
@@ -73,8 +75,8 @@ final class EventTypeRegistry {
 
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT name, description, meta FROM {$wpdb->prefix}tt_lookups WHERE lookup_type = %s ORDER BY sort_order, id",
-            'journey_event_type'
+            "SELECT name, description, meta FROM {$wpdb->prefix}tt_lookups WHERE lookup_type = %s AND club_id = %d ORDER BY sort_order, id",
+            'journey_event_type', CurrentClub::id()
         ) );
 
         $out = [];

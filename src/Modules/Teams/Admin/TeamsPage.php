@@ -7,6 +7,7 @@ use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\People\Admin\TeamStaffPanel;
 use TT\Shared\Validation\CustomFieldValidator;
 use TT\Shared\Admin\BackButton;
@@ -31,7 +32,7 @@ class TeamsPage {
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
 
         $scope = QueryHelpers::apply_demo_scope( 't', 'team' );
-        $teams = $wpdb->get_results( "SELECT t.* FROM {$p}tt_teams t WHERE t.{$view_clause} {$scope} ORDER BY t.name ASC" );
+        $teams = $wpdb->get_results( $wpdb->prepare( "SELECT t.* FROM {$p}tt_teams t WHERE t.{$view_clause} AND t.club_id = %d {$scope} ORDER BY t.name ASC", CurrentClub::id() ) );
         $base_url = admin_url( 'admin.php?page=tt-teams' );
         ?>
         <div class="wrap">
@@ -54,8 +55,8 @@ class TeamsPage {
             <?php if ( empty( $teams ) ) : ?><tr><td colspan="6"><?php esc_html_e( 'No teams.', 'talenttrack' ); ?></td></tr>
             <?php else : foreach ( $teams as $t ) :
                 $player_scope = QueryHelpers::apply_demo_scope( 'p', 'player' );
-                $pc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_players p WHERE p.team_id=%d AND p.status='active' {$player_scope}", $t->id ) );
-                $sc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_team_people WHERE team_id=%d", $t->id ) );
+                $pc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_players p WHERE p.team_id=%d AND p.status='active' AND p.club_id = %d {$player_scope}", $t->id, CurrentClub::id() ) );
+                $sc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_team_people WHERE team_id=%d AND club_id = %d", $t->id, CurrentClub::id() ) );
                 $is_archived = $t->archived_at !== null;
                 ?>
                 <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
@@ -166,8 +167,9 @@ class TeamsPage {
         ];
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
         if ( $id ) {
-            $wpdb->update( $wpdb->prefix . 'tt_teams', $data, [ 'id' => $id ] );
+            $wpdb->update( $wpdb->prefix . 'tt_teams', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         } else {
+            $data['club_id'] = CurrentClub::id();
             $wpdb->insert( $wpdb->prefix . 'tt_teams', $data );
             $id = (int) $wpdb->insert_id;
         }
@@ -196,8 +198,8 @@ class TeamsPage {
         if ( ! current_user_can( 'tt_edit_teams' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         global $wpdb;
         // Also clean up any staff assignments pointing at this team, to avoid orphans.
-        $wpdb->delete( $wpdb->prefix . 'tt_team_people', [ 'team_id' => $id ] );
-        $wpdb->delete( $wpdb->prefix . 'tt_teams', [ 'id' => $id ] );
+        $wpdb->delete( $wpdb->prefix . 'tt_team_people', [ 'team_id' => $id, 'club_id' => CurrentClub::id() ] );
+        $wpdb->delete( $wpdb->prefix . 'tt_teams', [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-teams&tt_msg=deleted' ) );
         exit;
     }

@@ -4,6 +4,7 @@ namespace TT\Modules\DemoData\Generators;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
 
 /**
@@ -90,6 +91,7 @@ class TeamGenerator {
 
             $name = trim( $club_name . ' ' . $age_group );
             $wpdb->insert( "{$wpdb->prefix}tt_teams", [
+                'club_id'       => CurrentClub::id(),
                 'name'          => $name,
                 'age_group'     => $age_group,
                 'head_coach_id' => $head_coach_id,
@@ -125,6 +127,7 @@ class TeamGenerator {
         // (team_id, person_id, functional_role_id) mean a duplicate
         // assignment silently no-ops; still tag what's present.
         $wpdb->insert( "{$wpdb->prefix}tt_team_people", [
+            'club_id'            => CurrentClub::id(),
             'team_id'            => $team_id,
             'person_id'          => $person_id,
             'role_in_team'       => $role_key,
@@ -143,8 +146,8 @@ class TeamGenerator {
     private function functionalRoleId( string $role_key ): int {
         global $wpdb;
         $id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_functional_roles WHERE role_key = %s LIMIT 1",
-            $role_key
+            "SELECT id FROM {$wpdb->prefix}tt_functional_roles WHERE role_key = %s AND club_id = %d LIMIT 1",
+            $role_key, CurrentClub::id()
         ) );
         return $id;
     }

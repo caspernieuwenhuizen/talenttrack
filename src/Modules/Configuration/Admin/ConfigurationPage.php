@@ -7,6 +7,7 @@ use TT\Core\Kernel;
 use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\FeatureToggles\FeatureToggleService;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\BrandFonts;
 
 /**
@@ -963,8 +964,12 @@ class ConfigurationPage {
             $data['translations'] = \TT\Infrastructure\Query\LookupTranslator::encode( $clean );
         }
 
-        if ( $id ) $wpdb->update( $wpdb->prefix . 'tt_lookups', $data, [ 'id' => $id ] );
-        else $wpdb->insert( $wpdb->prefix . 'tt_lookups', $data );
+        if ( $id ) {
+            $wpdb->update( $wpdb->prefix . 'tt_lookups', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+        } else {
+            $data['club_id'] = CurrentClub::id();
+            $wpdb->insert( $wpdb->prefix . 'tt_lookups', $data );
+        }
         wp_safe_redirect( admin_url( "admin.php?page=tt-config&tab=$tab&tt_msg=saved" ) );
         exit;
     }
@@ -993,7 +998,7 @@ class ConfigurationPage {
         }
 
         global $wpdb;
-        $wpdb->delete( $wpdb->prefix . 'tt_lookups', [ 'id' => $id ] );
+        $wpdb->delete( $wpdb->prefix . 'tt_lookups', [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         wp_safe_redirect( admin_url( "admin.php?page=tt-config&tab=$tab&tt_msg=deleted" ) );
         exit;
     }

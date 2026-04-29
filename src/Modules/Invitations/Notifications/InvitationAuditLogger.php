@@ -3,6 +3,7 @@ namespace TT\Modules\Invitations\Notifications;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Invitations\InvitationsRepository;
 
 /**
@@ -57,6 +58,7 @@ class InvitationAuditLogger {
         if ( $exists !== $table ) return;
 
         $wpdb->insert( $table, [
+            'club_id'     => CurrentClub::id(),
             'user_id'     => get_current_user_id(),
             'action'      => $event,
             'entity_type' => 'invitation',

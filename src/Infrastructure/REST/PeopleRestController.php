@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * PeopleRestController — /wp-json/talenttrack/v1/people
@@ -90,8 +91,8 @@ class PeopleRestController {
         $order   = strtolower( (string) ( $r['order'] ?? 'asc' ) );
         if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'asc';
 
-        $where  = [ '1=1' ];
-        $params = [];
+        $where  = [ '1=1', 'p.club_id = %d' ];
+        $params = [ CurrentClub::id() ];
         $scope  = QueryHelpers::apply_demo_scope( 'p', 'person' );
 
         $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
@@ -108,14 +109,14 @@ class PeopleRestController {
             $params[] = sanitize_text_field( (string) $filter['role_type'] );
         }
         if ( ! empty( $filter['team_id'] ) ) {
-            $where[]  = "EXISTS (SELECT 1 FROM {$p}tt_team_people tp WHERE tp.person_id = p.id AND tp.team_id = %d)";
+            $where[]  = "EXISTS (SELECT 1 FROM {$p}tt_team_people tp WHERE tp.person_id = p.id AND tp.team_id = %d AND tp.club_id = p.club_id)";
             $params[] = absint( $filter['team_id'] );
         } elseif ( isset( $filter['has_team'] ) ) {
             $has = sanitize_key( (string) $filter['has_team'] );
             if ( $has === 'yes' ) {
-                $where[] = "EXISTS (SELECT 1 FROM {$p}tt_team_people tp WHERE tp.person_id = p.id)";
+                $where[] = "EXISTS (SELECT 1 FROM {$p}tt_team_people tp WHERE tp.person_id = p.id AND tp.club_id = p.club_id)";
             } elseif ( $has === 'no' ) {
-                $where[] = "NOT EXISTS (SELECT 1 FROM {$p}tt_team_people tp WHERE tp.person_id = p.id)";
+                $where[] = "NOT EXISTS (SELECT 1 FROM {$p}tt_team_people tp WHERE tp.person_id = p.id AND tp.club_id = p.club_id)";
             }
         }
 
@@ -128,7 +129,7 @@ class PeopleRestController {
         $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
 
         $list_sql = "SELECT p.*,
-                            (SELECT COUNT(*) FROM {$p}tt_team_people tp WHERE tp.person_id = p.id) AS team_count
+                            (SELECT COUNT(*) FROM {$p}tt_team_people tp WHERE tp.person_id = p.id AND tp.club_id = p.club_id) AS team_count
                      FROM {$p}tt_people p
                      WHERE {$where_sql}
                      ORDER BY {$orderby} {$order}
@@ -205,7 +206,7 @@ class PeopleRestController {
         $ok = $wpdb->update(
             $wpdb->prefix . 'tt_people',
             [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id(), 'status' => 'inactive' ],
-            [ 'id' => $id ]
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         );
         if ( $ok === false ) {
             Logger::error( 'rest.person.archive.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
@@ -267,8 +268,8 @@ class PeopleRestController {
         // a humanized key for legacy / orphan rows.
         global $wpdb;
         $label = $wpdb->get_var( $wpdb->prepare(
-            "SELECT label FROM {$wpdb->prefix}tt_functional_roles WHERE role_key = %s LIMIT 1",
-            $key
+            "SELECT label FROM {$wpdb->prefix}tt_functional_roles WHERE role_key = %s AND club_id = %d LIMIT 1",
+            $key, CurrentClub::id()
         ) );
         if ( $label ) return (string) $label;
         return ucwords( str_replace( '_', ' ', $key ) );

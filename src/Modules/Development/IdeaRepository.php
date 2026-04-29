@@ -3,6 +3,8 @@ namespace TT\Modules\Development;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * IdeaRepository — CRUD helpers around `tt_dev_ideas`.
  *
@@ -25,6 +27,7 @@ class IdeaRepository {
     /** @param array<string,mixed> $data */
     public function insert( array $data ): int {
         $defaults = [
+            'club_id'        => CurrentClub::id(),
             'title'          => '',
             'body'           => '',
             'slug'           => '',
@@ -43,7 +46,7 @@ class IdeaRepository {
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row(
-            $this->wpdb->prepare( "SELECT * FROM {$this->table} WHERE id = %d", $id )
+            $this->wpdb->prepare( "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d", $id, CurrentClub::id() )
         );
         return $row ?: null;
     }
@@ -53,13 +56,13 @@ class IdeaRepository {
      */
     public function update( int $id, array $data ): bool {
         if ( $id <= 0 ) return false;
-        $ok = $this->wpdb->update( $this->table, $data, [ 'id' => $id ] );
+        $ok = $this->wpdb->update( $this->table, $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         return $ok !== false;
     }
 
     public function delete( int $id ): bool {
         if ( $id <= 0 ) return false;
-        return (bool) $this->wpdb->delete( $this->table, [ 'id' => $id ] );
+        return (bool) $this->wpdb->delete( $this->table, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
     }
 
     /**
@@ -90,8 +93,9 @@ class IdeaRepository {
     /** @return list<object> */
     public function listByStatus( string $status, int $limit = 200 ): array {
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE status = %s ORDER BY created_at DESC LIMIT %d",
+            "SELECT * FROM {$this->table} WHERE status = %s AND club_id = %d ORDER BY created_at DESC LIMIT %d",
             $status,
+            CurrentClub::id(),
             $limit
         ) );
         return is_array( $rows ) ? $rows : [];
@@ -100,7 +104,8 @@ class IdeaRepository {
     /** @return list<object> */
     public function listAll( int $limit = 500 ): array {
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} ORDER BY created_at DESC LIMIT %d",
+            "SELECT * FROM {$this->table} WHERE club_id = %d ORDER BY created_at DESC LIMIT %d",
+            CurrentClub::id(),
             $limit
         ) );
         return is_array( $rows ) ? $rows : [];
@@ -109,8 +114,9 @@ class IdeaRepository {
     /** @return list<object> */
     public function listByAuthor( int $userId, int $limit = 100 ): array {
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE author_user_id = %d ORDER BY created_at DESC LIMIT %d",
+            "SELECT * FROM {$this->table} WHERE author_user_id = %d AND club_id = %d ORDER BY created_at DESC LIMIT %d",
             $userId,
+            CurrentClub::id(),
             $limit
         ) );
         return is_array( $rows ) ? $rows : [];
@@ -119,17 +125,18 @@ class IdeaRepository {
     /** @return list<object> */
     public function listByTrack( int $trackId ): array {
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE track_id = %d ORDER BY created_at DESC",
-            $trackId
+            "SELECT * FROM {$this->table} WHERE track_id = %d AND club_id = %d ORDER BY created_at DESC",
+            $trackId, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
     }
 
     /** @return array<string,int> status => count */
     public function countByStatus(): array {
-        $rows = $this->wpdb->get_results(
-            "SELECT status, COUNT(*) AS n FROM {$this->table} GROUP BY status"
-        );
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT status, COUNT(*) AS n FROM {$this->table} WHERE club_id = %d GROUP BY status",
+            CurrentClub::id()
+        ) );
         $out = [];
         foreach ( (array) $rows as $r ) {
             $out[ (string) $r->status ] = (int) $r->n;
@@ -148,12 +155,13 @@ class IdeaRepository {
         $affected = $this->wpdb->query( $this->wpdb->prepare(
             "UPDATE {$this->table}
                 SET status = %s, refined_by = %d, refined_at = %s
-              WHERE id = %d AND status = %s",
+              WHERE id = %d AND status = %s AND club_id = %d",
             IdeaStatus::PROMOTING,
             get_current_user_id(),
             $now,
             $id,
-            IdeaStatus::READY_FOR_APPROVAL
+            IdeaStatus::READY_FOR_APPROVAL,
+            CurrentClub::id()
         ) );
         return is_int( $affected ) && $affected > 0;
     }

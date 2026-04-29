@@ -8,6 +8,7 @@ use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Players\PlayerCsvImporter;
 use TT\Shared\Validation\CustomFieldValidator;
 
@@ -136,8 +137,8 @@ class PlayersRestController {
         $order   = strtolower( (string) ( $r['order'] ?? ( $orderby_key === 'last_name' ? 'asc' : 'desc' ) ) );
         if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'asc';
 
-        $where  = [ '1=1' ];
-        $params = [];
+        $where  = [ '1=1', 'p.club_id = %d' ];
+        $params = [ CurrentClub::id() ];
 
         $scope = QueryHelpers::apply_demo_scope( 'p', 'player' );
 
@@ -179,7 +180,7 @@ class PlayersRestController {
 
         $list_sql = "SELECT p.*, t.name AS team_name, t.age_group AS team_age_group
                      FROM {$p}tt_players p
-                     LEFT JOIN {$p}tt_teams t ON t.id = p.team_id
+                     LEFT JOIN {$p}tt_teams t ON t.id = p.team_id AND t.club_id = p.club_id
                      WHERE {$where_sql}
                      ORDER BY {$orderby} {$order}
                      LIMIT %d OFFSET %d";
@@ -200,7 +201,7 @@ class PlayersRestController {
 
         // Total count — same WHERE clause, post-AuthZ.
         $count_sql = "SELECT p.id FROM {$p}tt_players p
-                      LEFT JOIN {$p}tt_teams t ON t.id = p.team_id
+                      LEFT JOIN {$p}tt_teams t ON t.id = p.team_id AND t.club_id = p.club_id
                       WHERE {$where_sql}";
         $all_ids = $params
             ? $wpdb->get_col( $wpdb->prepare( $count_sql, ...$params ) )
@@ -322,6 +323,7 @@ class PlayersRestController {
 
         global $wpdb;
         $data = self::extract( $r );
+        $data['club_id'] = CurrentClub::id();
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_players', $data );
         if ( $ok === false ) {
             Logger::error( 'rest.player.create.failed', [ 'db_error' => (string) $wpdb->last_error ] );
@@ -355,7 +357,7 @@ class PlayersRestController {
 
         global $wpdb;
         $data = self::extract( $r );
-        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id ] );
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             Logger::error( 'rest.player.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
             return RestResponse::errors( [
@@ -392,8 +394,9 @@ class PlayersRestController {
               WHERE wp_user_id = %d
                 AND role_type = 'parent'
                 AND archived_at IS NULL
+                AND club_id = %d
               LIMIT 1",
-            $parent_user_id
+            $parent_user_id, CurrentClub::id()
         ) );
         if ( $is_parent !== 1 ) {
             Logger::error( 'rest.player.link_parent.not_parent', [
@@ -408,7 +411,7 @@ class PlayersRestController {
 
     public static function delete_player( \WP_REST_Request $r ) {
         global $wpdb;
-        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => 'deleted' ], [ 'id' => (int) $r['id'] ] );
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => 'deleted' ], [ 'id' => (int) $r['id'], 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             Logger::error( 'rest.player.delete.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => (int) $r['id'] ] );
             return RestResponse::errors( [
