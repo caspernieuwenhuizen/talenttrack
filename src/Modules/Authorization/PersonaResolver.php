@@ -35,15 +35,19 @@ class PersonaResolver {
      * via array_unique() in personasFor().
      */
     private const WP_ROLE_TO_PERSONA = [
-        'administrator'   => 'academy_admin',
-        'tt_club_admin'   => 'academy_admin',
-        'tt_head_dev'     => 'head_of_development',
+        'administrator'        => 'academy_admin',
+        'tt_club_admin'        => 'academy_admin',
+        'tt_head_dev'          => 'head_of_development',
         // tt_coach splits in Sprint 7 via the tt_team_people.is_head_coach
         // flag — see resolveCoachPersona() below.
-        'tt_scout'        => 'scout',
-        'tt_player'       => 'player',
-        'tt_parent'       => 'parent',
-        'tt_team_manager' => 'team_manager',  // #0033 Sprint 7
+        'tt_scout'             => 'scout',
+        'tt_player'            => 'player',
+        'tt_parent'            => 'parent',
+        'tt_team_manager'      => 'team_manager',
+        // #0060 — persona dashboards need an addressable slot for board /
+        // sponsor / consultant users who only ever read. Mapping is
+        // additive; cap-bridge layer continues to handle authorization.
+        'tt_readonly_observer' => 'readonly_observer',
     ];
 
     /**
@@ -157,9 +161,19 @@ class PersonaResolver {
      * touching the gate.
      */
     public static function activePersona( int $user_id ): ?string {
-        // Sprint 4 will read $_COOKIE['tt_active_persona'] (or similar)
-        // and validate against personasFor() before returning. For now,
-        // the union view is the only behavior.
+        if ( $user_id <= 0 ) return null;
+
+        // #0060 — read the persisted choice from user-meta. The persona
+        // dashboard switcher writes this on every flip; the legacy
+        // sessionStorage path stays in DashboardShortcode as a transient
+        // lens that overrides this for the current tab.
+        $stored = get_user_meta( $user_id, 'tt_active_persona', true );
+        if ( is_string( $stored ) && $stored !== '' ) {
+            $available = self::personasFor( $user_id );
+            if ( in_array( $stored, $available, true ) ) {
+                return $stored;
+            }
+        }
         return null;
     }
 

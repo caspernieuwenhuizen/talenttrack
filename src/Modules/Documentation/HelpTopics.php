@@ -148,6 +148,11 @@ class HelpTopics {
                 'group'   => 'frontend',
                 'summary' => __( 'What coaches see in the frontend tile grid.', 'talenttrack' ),
             ],
+            'persona-dashboard' => [
+                'title'   => __( 'Persona dashboards', 'talenttrack' ),
+                'group'   => 'frontend',
+                'summary' => __( 'Persona-aware landing pages with widget catalog, KPI catalog, role-switcher, and per-club override.', 'talenttrack' ),
+            ],
             'access-control' => [
                 'title'   => __( 'Access control', 'talenttrack' ),
                 'group'   => 'frontend',
