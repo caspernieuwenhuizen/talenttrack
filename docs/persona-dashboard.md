@@ -50,17 +50,41 @@ Widgets come in four sizes — Small, Medium, Large, Extra-large — and snap to
 
 ## Customising a persona's dashboard
 
-The drag-and-drop editor for academy admins ships in **Sprint 2** of this epic. Sprint 1 ships the catalog + the seven default templates.
+Open *TalentTrack → Dashboard layouts* in wp-admin. The page is gated by the `tt_edit_persona_templates` capability — granted to administrators and Academy Admins by default, opt-in for Head of Development.
 
-When the editor lands, an admin will be able to:
-- Re-order the widgets a persona sees.
-- Resize widgets between Small / Medium / Large / Extra-large.
-- Add a KPI card from the catalog of 25 shipped KPIs.
-- Hide a widget that doesn't apply to your academy.
-- Override the displayed label for a tile (e.g., "My card" → "Mijn pas").
-- Reset a persona to ship defaults.
+The editor has three panes:
 
-Until then, every academy gets the ship-default templates.
+- **Left — Palette.** Two tabs: *Widgets* (the 14 shipped widget types) and *KPIs* (the 25 KPIs grouped by Academy / Coach / Player & parent). Drag a palette item onto the canvas, or focus it and press Enter.
+- **Centre — Canvas.** A 12-column bento grid plus a hero band and a task band above it. Each placed widget shows its label, data source, size badge, and a remove (×) button. Click a widget to select it; click again or use Tab/Enter to move focus.
+- **Right — Properties.** When a widget is selected, you can change its size (S/M/L/XL — only sizes the widget supports are enabled), its data source (KPI picker for KPI cards, free-text key for tiles), the persona-label override, mobile priority, and whether the widget is shown on mobile.
+
+Top-bar controls:
+
+- **Persona dropdown** — switches the canvas to another persona's layout. If you have unsaved changes you'll be asked to confirm.
+- **Undo / Redo** — up to 50 steps. `Ctrl+Z` / `Ctrl+Shift+Z` work too.
+- **Mobile preview** — collapses the canvas into a 360 px frame in priority order so you can see how the layout stacks on a phone.
+- **Reset to default** — replaces the layout with the TalentTrack ship default. Confirmation required.
+- **Save draft** — persists your in-flight layout without making it live.
+- **Publish** — promotes the current layout to live for everyone matching that persona on their next page load. The confirmation modal shows the count of users it will affect.
+
+### Keyboard support
+
+The editor is fully keyboard-accessible:
+
+- Tab through palette items, canvas widgets, and toolbar buttons.
+- On a canvas widget, press **Space** to grab it, then **arrow keys** to move it (Left/Right move three columns, Up/Down move one row), and **Space** again to drop it. **Escape** cancels the move.
+- **Delete** or **Backspace** on a focused widget removes it.
+- All moves are announced via the live status region so screen readers narrate placement.
+
+### Audit trail
+
+Every save and publish writes an entry to the audit log (action `persona_template_published`, `persona_template_draft`, or `persona_template_reset`) so you can trace who changed which persona's layout and when.
+
+### What the editor doesn't do (yet)
+
+- **Per-user override.** A user can't customise their own dashboard — only academy admins set the layout per persona. Per-user customisation may land in a later epic if customers ask for it.
+- **Custom KPI authoring.** The 25-KPI catalog is closed; you can drop any of them on a layout, but you can't write a new query.
+- **Mobile authoring canvas.** The mobile preview is read-only — you set the priority + visibility on each widget; the collapse order is computed from those values.
 
 ## Sources of data
 
@@ -71,10 +95,15 @@ Each KPI is computed live from your academy's data. KPIs that depend on features
 The resolved layout for any persona is exposed as JSON for future SaaS clients:
 
 ```
-GET /wp-json/talenttrack/v1/personas/{slug}/template
+GET    /wp-json/talenttrack/v1/personas/{slug}/template          read
+PUT    /wp-json/talenttrack/v1/personas/{slug}/template          save draft
+DELETE /wp-json/talenttrack/v1/personas/{slug}/template          reset to default
+POST   /wp-json/talenttrack/v1/personas/{slug}/template/publish  promote draft to live
+POST   /wp-json/talenttrack/v1/me/active-persona                 set active persona lens
+DELETE /wp-json/talenttrack/v1/me/active-persona                 clear active persona lens
 ```
 
-A logged-in user can read templates for personas they qualify for; users with the `tt_edit_persona_templates` capability can read every persona's template (used by the editor's Preview-as-persona feature).
+A logged-in user can read templates for personas they qualify for; the write endpoints require `tt_edit_persona_templates`.
 
 ## Where to next
 

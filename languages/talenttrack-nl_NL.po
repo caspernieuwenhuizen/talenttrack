@@ -9486,3 +9486,167 @@ msgstr "Thema & fonts"
 
 msgid "Theme inheritance, display + body fonts and accent colours."
 msgstr "Thema-overerving, display- en bodyfonts en accentkleuren."
+
+# #0060 sprint 2 — dashboard layout editor
+
+msgid "Editor toolbar"
+msgstr "Editor-werkbalk"
+
+msgid "Persona"
+msgstr "Persona"
+
+msgid "Mobile preview"
+msgstr "Mobiele preview"
+
+msgid "Save draft"
+msgstr "Concept opslaan"
+
+msgid "Publish"
+msgstr "Publiceren"
+
+msgid "Dashboard layouts"
+msgstr "Dashboard-lay-outs"
+
+msgid "Reset to default"
+msgstr "Terugzetten naar standaard"
+
+msgid "Widget and KPI palette"
+msgstr "Widget- en KPI-palet"
+
+msgid "Widgets"
+msgstr "Widgets"
+
+msgid "KPIs"
+msgstr "KPI's"
+
+msgid "Layout canvas"
+msgstr "Lay-outcanvas"
+
+msgid "Hero band"
+msgstr "Hero-band"
+
+msgid "Task band"
+msgstr "Takenband"
+
+msgid "Bento grid"
+msgstr "Bento-grid"
+
+msgid "Selected widget properties"
+msgstr "Eigenschappen van geselecteerde widget"
+
+msgid "Add widget"
+msgstr "Widget toevoegen"
+
+msgid "Add KPI"
+msgstr "KPI toevoegen"
+
+msgid "Resize"
+msgstr "Formaat aanpassen"
+
+msgid "Drag to reorder"
+msgstr "Sleep om te herschikken"
+
+msgid "Size"
+msgstr "Formaat"
+
+msgid "Mobile priority"
+msgstr "Mobiele prioriteit"
+
+msgid "Show on mobile"
+msgstr "Tonen op mobiel"
+
+msgid "Data source"
+msgstr "Databron"
+
+msgid "Persona label override"
+msgstr "Persona-label overschrijven"
+
+msgid "Select a widget on the canvas to edit its properties."
+msgstr "Selecteer een widget op het canvas om de eigenschappen te bewerken."
+
+msgid "Reset this persona to the ship default?"
+msgstr "Deze persona terugzetten naar de standaard?"
+
+msgid "Your published layout for this persona will be replaced by the TalentTrack default. This cannot be undone."
+msgstr "De gepubliceerde lay-out voor deze persona wordt vervangen door de standaard van TalentTrack. Dit kan niet ongedaan worden gemaakt."
+
+msgid "Publish layout"
+msgstr "Lay-out publiceren"
+
+msgid "This will replace the live %1$s dashboard for ~%2$d users on their next page load."
+msgstr "Hiermee vervang je het live %1$s-dashboard voor ~%2$d gebruikers bij hun volgende paginalaad-actie."
+
+msgid "This will replace the live %s dashboard on the next page load for users matching this persona."
+msgstr "Hiermee vervang je het live %s-dashboard bij de volgende paginalaad voor gebruikers met deze persona."
+
+msgid "Publish now"
+msgstr "Nu publiceren"
+
+msgid "Cancel"
+msgstr "Annuleren"
+
+msgid "Draft saved."
+msgstr "Concept opgeslagen."
+
+msgid "Layout published."
+msgstr "Lay-out gepubliceerd."
+
+msgid "Reset to default."
+msgstr "Teruggezet naar standaard."
+
+msgid "Save failed. Try again."
+msgstr "Opslaan mislukt. Probeer opnieuw."
+
+msgid "You have unsaved changes."
+msgstr "Je hebt niet-opgeslagen wijzigingen."
+
+msgid "No widgets placed. Drag from the palette on the left, or use the keyboard: focus a palette item and press Enter to add it."
+msgstr "Nog geen widgets geplaatst. Sleep vanaf het palet links, of gebruik het toetsenbord: focus een paletitem en druk op Enter om het toe te voegen."
+
+msgid "Academy-wide"
+msgstr "Academiebreed"
+
+msgid "Player / parent"
+msgstr "Speler / ouder"
+
+msgid "Use widget default"
+msgstr "Gebruik widget-standaard"
+
+msgid "Mobile preview · 360 px"
+msgstr "Mobiele preview · 360 px"
+
+msgid "Desktop · 12 columns"
+msgstr "Desktop · 12 kolommen"
+
+msgid "Press space to grab, arrow keys to move, space to drop, escape to cancel."
+msgstr "Druk op spatie om te pakken, pijltjestoetsen om te verplaatsen, spatie om los te laten, Escape om te annuleren."
+
+msgid "Grabbed %s. Use arrow keys to move, space to drop, escape to cancel."
+msgstr "%s gepakt. Gebruik pijltjestoetsen om te verplaatsen, spatie om los te laten, Escape om te annuleren."
+
+msgid "Dropped %1$s at column %2$d, row %3$d."
+msgstr "%1$s neergezet op kolom %2$d, rij %3$d."
+
+msgid "Move cancelled."
+msgstr "Verplaatsing geannuleerd."
+
+msgid "Preview as"
+msgstr "Bekijken als"
+
+msgid "Remove"
+msgstr "Verwijderen"
+
+msgid "Invalid layout payload."
+msgstr "Ongeldige lay-outpayload."
+
+msgid "Could not save the draft."
+msgstr "Concept kon niet worden opgeslagen."
+
+msgid "Nothing to publish."
+msgstr "Niets te publiceren."
+
+msgid "Could not publish the layout."
+msgstr "Lay-out kon niet worden gepubliceerd."
+
+msgid "You do not have permission to edit persona dashboard layouts."
+msgstr "Je hebt geen toestemming om persona-dashboardlay-outs te bewerken."

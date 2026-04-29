@@ -5,11 +5,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Modules\PersonaDashboard\Admin\AuditSubscriber;
+use TT\Modules\PersonaDashboard\Admin\EditorPage;
 use TT\Modules\PersonaDashboard\Defaults\CoreTemplates;
 use TT\Modules\PersonaDashboard\Defaults\CoreWidgets;
 use TT\Modules\PersonaDashboard\Defaults\CoreKpis;
 use TT\Modules\PersonaDashboard\Rest\ActivePersonaController;
 use TT\Modules\PersonaDashboard\Rest\PersonaTemplateRestController;
+use TT\Shared\Admin\AdminMenuRegistry;
 
 /**
  * PersonaDashboardModule (#0060) — persona-aware landing pages.
@@ -43,8 +46,25 @@ class PersonaDashboardModule implements ModuleInterface {
 
         PersonaTemplateRestController::init();
         ActivePersonaController::init();
+        AuditSubscriber::init();
 
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
+        add_action( 'admin_enqueue_scripts', [ EditorPage::class, 'enqueueAssets' ] );
+
+        // Editor admin page — registered behind the existing
+        // AdminMenuRegistry pattern so module-disable continues to gate
+        // it via ModuleRegistry::isEnabled().
+        AdminMenuRegistry::register( [
+            'module_class' => self::class,
+            'parent'       => 'talenttrack',
+            'title'        => __( 'Dashboard layouts', 'talenttrack' ),
+            'label'        => __( 'Dashboard layouts', 'talenttrack' ),
+            'cap'          => 'tt_edit_persona_templates',
+            'slug'         => EditorPage::SLUG,
+            'callback'     => [ EditorPage::class, 'render' ],
+            'group'        => 'configuration',
+            'order'        => 30,
+        ] );
     }
 
     /**
