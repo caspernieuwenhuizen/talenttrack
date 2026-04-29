@@ -1,3 +1,42 @@
+# TalentTrack v3.52.0 — Goals as a conversation (#0028)
+
+Each player development goal carries a chat-style conversation thread that lives **inside** the goal record. Coach, player, and linked parents post short messages; the dialogue stays attached to the work instead of leaking into WhatsApp / email. The thread primitive is polymorphic — `tt_thread_messages` keyed on `(thread_type, thread_id)` — so future PRs can adopt it for trial cases (#0017), scout reports (#0014), and PDP conversations (#0044) without schema changes.
+
+## What's new
+
+- **Schema** (migration 0043) — `tt_thread_messages` + `tt_thread_reads` with `club_id` (SaaS scaffold) and `uuid` on the root entity.
+- **Threads module** — `ThreadTypeRegistry` + `ThreadTypeAdapter` interface; v1 wires `GoalThreadAdapter` only.
+- **Permission graph** for goals: coach (via `coach_owns_player`), player (via `tt_players.wp_user_id`), parent (matched on `guardian_email`), admin / HoD (via `tt_view_settings`).
+- **REST** under `talenttrack/v1`: list / post / edit / delete / read endpoints all gated through the adapter; private-to-coach gated to coaches + admins at post time.
+- **Frontend chat component** at `FrontendThreadView`. Mobile-first per `CLAUDE.md` § 2 — 16 px textarea (kills iOS auto-zoom), 48 px send button, ARIA polite live region, focus-visible everywhere, reduced-motion respected. 30-second polling pauses when the page is hidden.
+- **Goal-detail integration** — the conversation appears on `?tt_view=goals&id=…` edit forms, below the existing fields.
+- **System messages** — goal create + status-change events write `is_system=1` rows so the thread tells the goal's story even without anyone typing.
+- **Audit log** — every post / edit / soft-delete writes `thread_message_*` events; deleted body is preserved in the audit payload for admin recovery.
+- **Email fan-out** to all participants except the author. Private-to-coach messages go to coaches + admins only. Admins can disable via `threads.notify_on_post=0` in `tt_config`. Push will replace email per recipient when #0042 lands.
+
+## Locked design decisions
+
+- 5-minute edit window then soft-delete only.
+- Two visibility levels: `public` (default) and `private_to_coach`.
+- Polymorphic from day one; v1 ships only the `goal` adapter.
+- No file attachments / reactions / @-mentions / live websocket in v1.
+- Read status via `tt_thread_reads`, side-effect of GET.
+
+## Notes for upgraders
+
+- The new tables are created on first request via the standard `MigrationRunner`. No data backfill.
+- Existing goals (without messages) render with an empty-state notice; create / edit / delete flows are unchanged for users who don't open the conversation section.
+- The `Threads` module is registered after `PlayerStatusModule` in `config/modules.php`. Disabling it via the modules toggle leaves the goal detail surface intact (the conversation section just doesn't render).
+
+## Deferred to follow-up PRs
+
+- Goal list unread-count badge (the repository helper `unreadCountsForMany` already exists).
+- Other thread types: `trial_case` (#0017), `scout_report` (#0014), `pdp_conversation` (#0044).
+- File / image attachments (#0016).
+- Reactions, @-mentions, live websocket — out of scope per spec.
+
+---
+
 # TalentTrack v3.51.2 — Hotfix: dedupe duplicate msgids in talenttrack-nl_NL.po
 
 `languages/talenttrack-nl_NL.po` had accumulated 37 duplicate `msgid` definitions across overlapping work — v3.50.0 (#0058 + #0031 + #0057 + #0056) and #0060 sprints 1-3 each added many of the same generic strings (`Persona`, `My profile`, `Save draft`, `New activity`, etc.). `msgfmt` rejects duplicate definitions during the release workflow, which is why the v3.50.0, v3.50.1, v3.51.0, and v3.51.1 tag pushes couldn't build `talenttrack.zip` even when their main-push CI succeeded.
