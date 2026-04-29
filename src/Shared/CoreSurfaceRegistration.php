@@ -315,7 +315,7 @@ final class CoreSurfaceRegistration {
             'kind'         => 'setup',
             'order'        => 40,
             'label'        => __( 'Functional roles', 'talenttrack' ),
-            'description'  => __( 'Manage role types and team assignments.', 'talenttrack' ),
+            'description'  => __( 'Per-team staff assignments — head coach, assistant, manager, physio. Different from academy-wide Roles & rights.', 'talenttrack' ),
             'icon'         => 'functional-roles',
             'color'        => '#5b6e75',
             'cap_callback' => static function ( int $uid ): bool {
@@ -909,7 +909,7 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_AUTHORIZATION,
             'parent'       => $parent,
             'group'        => 'access',
-            'title'        => __( 'Roles & Permissions', 'talenttrack' ),
+            'title'        => __( 'Roles & rights', 'talenttrack' ),
             'cap'          => 'tt_view_settings',
             'slug'         => 'tt-roles',
             'callback'     => [ \TT\Modules\Authorization\Admin\RolesPage::class, 'render' ],
