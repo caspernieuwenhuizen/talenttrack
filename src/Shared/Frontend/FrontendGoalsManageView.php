@@ -244,6 +244,14 @@ class FrontendGoalsManageView extends FrontendViewBase {
             <div class="tt-form-msg"></div>
         </form>
         <?php
+        // #0028 — chat-style conversation thread for the goal. Only on
+        // edit (existing goal) and only when the viewer can read the thread.
+        if ( $is_edit && class_exists( '\\TT\\Shared\\Frontend\\Components\\FrontendThreadView' ) ) {
+            echo '<section class="tt-goal-conversation" style="margin-top:1.5rem;">';
+            echo '<h2 style="font-size:1.0625rem;margin:0 0 0.5rem;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h2>';
+            \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, $user_id );
+            echo '</section>';
+        }
     }
 
     private static function loadGoal( int $id ): ?object {

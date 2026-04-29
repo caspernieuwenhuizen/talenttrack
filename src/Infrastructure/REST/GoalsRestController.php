@@ -381,6 +381,9 @@ class GoalsRestController {
                 [ 'db_error' => $err ]
             );
         }
+        // #0028 — fire so the threads system-message subscriber can
+        // record the status change to the goal's conversation.
+        do_action( 'tt_goal_status_changed', $goal_id, $status, (int) get_current_user_id() );
         return RestResponse::success( [ 'id' => $goal_id, 'status' => $status ] );
     }
 

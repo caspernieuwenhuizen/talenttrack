@@ -40,4 +40,5 @@ return [
     TT\Modules\PersonaDashboard\PersonaDashboardModule::class => true,
     TT\Modules\Spond\SpondModule::class                   => true,
     TT\Modules\Players\PlayerStatusModule::class          => true,
+    TT\Modules\Threads\ThreadsModule::class               => true,
 ];
