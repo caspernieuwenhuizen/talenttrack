@@ -195,9 +195,15 @@ class ActivitiesRestController {
         // Attendance computed columns via correlated subqueries. Sized
         // OK for the 100-row max; if perf becomes a problem we revisit
         // (Q2 in the Sprint 2 plan accepts that risk).
+        // #0061 — `attendance_count` is the recorded-rows count (used by
+        // the Complete/Partial/None filter as a form-completeness gate);
+        // `present_count` is the actually-present-only count, fed into
+        // attendance_pct so the column header "Att. %" reads as
+        // presence-rate instead of form-completeness.
         $select_cols = "s.*, t.name AS team_name,
             (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id) AS attendance_count,
-            (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id) AS roster_size";
+            (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id AND a.status = 'Present') AS present_count,
+            (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active') AS roster_size";
 
         $having = '';
         $att_filter = isset( $filter['attendance'] ) ? sanitize_key( (string) $filter['attendance'] ) : '';
@@ -261,9 +267,11 @@ class ActivitiesRestController {
     /** Shape one row for the JSON response. */
     private static function format_row( $row ): array {
         $attendance_pct = null;
-        $roster = (int) ( $row->roster_size ?? 0 );
-        $count  = (int) ( $row->attendance_count ?? 0 );
-        if ( $roster > 0 ) $attendance_pct = (int) round( ( $count / $roster ) * 100 );
+        $roster  = (int) ( $row->roster_size ?? 0 );
+        $count   = (int) ( $row->attendance_count ?? 0 );
+        $present = (int) ( $row->present_count ?? 0 );
+        // #0061 — pct = present / roster, not recorded / roster.
+        if ( $roster > 0 ) $attendance_pct = (int) round( ( $present / $roster ) * 100 );
 
         $type_key = (string) ( $row->activity_type_key ?? 'training' );
 
@@ -275,11 +283,13 @@ class ActivitiesRestController {
             'team_id'                  => (int) ( $row->team_id ?? 0 ),
             'team_name'                => (string) ( $row->team_name ?? '' ),
             'coach_id'                 => (int) ( $row->coach_id ?? 0 ),
-            'activity_type_key'        => $type_key,
-            'activity_type_pill_html'  => \TT\Infrastructure\Query\LookupPill::render( 'activity_type', $type_key ),
-            'activity_status_key'      => (string) ( $row->activity_status_key ?? 'planned' ),
-            'activity_source_key'      => (string) ( $row->activity_source_key ?? 'manual' ),
+            'activity_type_key'         => $type_key,
+            'activity_type_pill_html'   => \TT\Infrastructure\Query\LookupPill::render( 'activity_type', $type_key ),
+            'activity_status_key'       => (string) ( $row->activity_status_key ?? 'planned' ),
+            'activity_status_pill_html' => \TT\Infrastructure\Query\LookupPill::render( 'activity_status', (string) ( $row->activity_status_key ?? 'planned' ) ),
+            'activity_source_key'       => (string) ( $row->activity_source_key ?? 'manual' ),
             'attendance_count'         => $count,
+            'present_count'            => $present,
             'roster_size'              => $roster,
             'attendance_pct'           => $attendance_pct,
             'archived_at'              => $row->archived_at ?? null,

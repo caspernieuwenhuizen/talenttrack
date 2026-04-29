@@ -10154,3 +10154,23 @@ msgstr "Push indien beschikbaar, anders eigen e-mail"
 
 msgid "Push only"
 msgstr "Alleen push"
+
+# v3.58.0 — Polish + bug bundle (#0061)
+
+msgid "Default dashboard:"
+msgstr "Standaard dashboard:"
+
+msgid "Persona dashboard (the configurable per-role landing)."
+msgstr "Persona-dashboard (de instelbare landing per rol)."
+
+msgid "Classic tile grid (every user sees the same menu of tiles, filtered by capability)."
+msgstr "Klassiek tegelraster (elke gebruiker ziet hetzelfde menu, gefilterd op rechten)."
+
+msgid "Attendance is recorded once the activity is marked Completed."
+msgstr "Aanwezigheid wordt geregistreerd zodra de activiteit op Voltooid staat."
+
+msgid "Delete activity?"
+msgstr "Activiteit verwijderen?"
+
+msgid "Delete the activity \"%s\"?"
+msgstr "Activiteit \"%s\" verwijderen?"
