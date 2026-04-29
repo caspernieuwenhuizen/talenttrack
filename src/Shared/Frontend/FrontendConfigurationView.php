@@ -57,6 +57,11 @@ class FrontendConfigurationView extends FrontendViewBase {
                 self::renderSubBackLink();
                 self::renderMenusForm();
                 return;
+            case 'dashboard':
+                self::renderHeader( __( 'Default dashboard', 'talenttrack' ) );
+                self::renderSubBackLink();
+                self::renderDashboardForm();
+                return;
         }
 
         self::renderHeader( __( 'Configuration', 'talenttrack' ) );
@@ -73,10 +78,11 @@ class FrontendConfigurationView extends FrontendViewBase {
         $admin_url  = admin_url( 'admin.php?page=tt-config' );
 
         $frontend_tiles = [
-            'branding' => [ __( 'Branding', 'talenttrack' ),     __( 'Academy name, logo, primary and secondary colours.', 'talenttrack' ) ],
-            'theme'    => [ __( 'Theme & fonts', 'talenttrack' ), __( 'Theme inheritance, display + body fonts and accent colours.', 'talenttrack' ) ],
-            'rating'   => [ __( 'Rating scale', 'talenttrack' ),  __( 'Min, max and step for evaluation ratings.', 'talenttrack' ) ],
-            'menus'    => [ __( 'wp-admin menus', 'talenttrack' ), __( 'Show or hide the legacy wp-admin menu entries.', 'talenttrack' ) ],
+            'dashboard' => [ __( 'Default dashboard', 'talenttrack' ), __( 'Choose what every user sees on the dashboard root: the persona dashboard or the classic tile grid.', 'talenttrack' ) ],
+            'branding'  => [ __( 'Branding', 'talenttrack' ),     __( 'Academy name, logo, primary and secondary colours.', 'talenttrack' ) ],
+            'theme'     => [ __( 'Theme & fonts', 'talenttrack' ), __( 'Theme inheritance, display + body fonts and accent colours.', 'talenttrack' ) ],
+            'rating'    => [ __( 'Rating scale', 'talenttrack' ),  __( 'Min, max and step for evaluation ratings.', 'talenttrack' ) ],
+            'menus'     => [ __( 'wp-admin menus', 'talenttrack' ), __( 'Show or hide the legacy wp-admin menu entries.', 'talenttrack' ) ],
         ];
 
         $admin_tiles = [
@@ -273,6 +279,43 @@ class FrontendConfigurationView extends FrontendViewBase {
             </div>
             <div class="tt-form-actions" style="margin-top:16px;">
                 <?php echo FormSaveButton::render( [ 'label' => __( 'Save menus', 'talenttrack' ) ] ); ?>
+            </div>
+            <div class="tt-form-msg"></div>
+        </form>
+        <?php
+        self::renderConfigJs( false );
+    }
+
+    private static function renderDashboardForm(): void {
+        $current = QueryHelpers::get_config( 'persona_dashboard.enabled', '1' );
+        $is_persona = $current !== '0';
+        ?>
+        <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="dashboard">
+            <div class="tt-panel">
+                <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);">
+                    <?php esc_html_e( 'Choose what every user sees when they open the dashboard. The persona dashboard is the configurable per-role landing built in #0060; the classic tile grid is the legacy menu of all available views.', 'talenttrack' ); ?>
+                </p>
+
+                <div class="tt-field">
+                    <label style="display:block; margin-bottom:8px;">
+                        <input type="radio" name="config[persona_dashboard.enabled]" value="1" <?php checked( $is_persona, true ); ?> />
+                        <strong><?php esc_html_e( 'Persona dashboard (recommended)', 'talenttrack' ); ?></strong>
+                    </label>
+                    <p class="tt-field-hint" style="margin:0 0 var(--tt-sp-3) 24px;">
+                        <?php esc_html_e( 'Each user lands on a layout tailored to their persona (player, parent, coach, head of development, club admin, scout, observer). Layouts are edited under wp-admin → Configuration → Dashboard layouts.', 'talenttrack' ); ?>
+                    </p>
+
+                    <label style="display:block; margin-bottom:8px;">
+                        <input type="radio" name="config[persona_dashboard.enabled]" value="0" <?php checked( $is_persona, false ); ?> />
+                        <strong><?php esc_html_e( 'Classic tile grid', 'talenttrack' ); ?></strong>
+                    </label>
+                    <p class="tt-field-hint" style="margin:0 0 0 24px;">
+                        <?php esc_html_e( 'Falls back to the original tile grid (every user sees the same menu of tiles, filtered by capability). Use this if a customer is not yet ready to roll out the persona dashboard or hits a blocker.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+            </div>
+            <div class="tt-form-actions" style="margin-top:16px;">
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save default dashboard', 'talenttrack' ) ] ); ?>
             </div>
             <div class="tt-form-msg"></div>
         </form>

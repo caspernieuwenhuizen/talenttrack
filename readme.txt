@@ -4,13 +4,20 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.53.0
+Stable tag: 3.54.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.54.0 — Surface the persona / classic dashboard switch in Configuration =
+
+Adds a user-facing on/off control for the `persona_dashboard.enabled` flag introduced in v3.51.0. Previously the only way to fall back from the new persona dashboard to the legacy tile grid was a direct `tt_config` write — fine for emergencies, not fine for an admin who wants to opt out without touching the database.
+
+* **NEW:** "Default dashboard" sub-tile under the frontend Configuration view. Two-radio chooser between **Persona dashboard (recommended)** and **Classic tile grid**, with explanatory copy for each. Saves through the existing `/wp-json/talenttrack/v1/config` endpoint (`persona_dashboard.enabled` whitelisted, dot-key handling fixed). Default stays "persona dashboard"; flipping to "classic tile grid" routes every user back to `FrontendTileGrid`.
+* **CHANGED:** `ConfigRestController::save_config` no longer runs `sanitize_key()` on the incoming key — the whitelist is the security boundary, and `sanitize_key()` would strip the dot in `persona_dashboard.enabled`. The whitelist still gates everything; only the on-the-wire key shape changed to support dotted config keys.
 
 = 3.53.0 — PDP planning + player-status methodology config + PDP integration + Excel demo data =
 

@@ -1,3 +1,29 @@
+# TalentTrack v3.54.0 — Default-dashboard chooser in Configuration
+
+Adds a user-facing on/off control for the `persona_dashboard.enabled` flag introduced in v3.51.0. Previously the only way to fall back from the persona dashboard to the legacy `FrontendTileGrid` was a direct `tt_config` write — fine for incident response, not fine for a club admin who wants to opt out without touching the database. The flag's wiring (DashboardShortcode dispatch + PersonaLandingRenderer) is unchanged; this PR only adds the UI surface and unblocks dotted config keys on the REST save path.
+
+## What's new
+
+- **Default dashboard sub-tile** in [FrontendConfigurationView.php](src/Shared/Frontend/FrontendConfigurationView.php). Slots in alongside Branding / Theme & fonts / Rating scale / wp-admin menus. Two-radio form: **Persona dashboard (recommended)** vs **Classic tile grid**, each with descriptive hint text. Default radio reflects the current `persona_dashboard.enabled` value (default `'1'` since v3.51.0 sprint 3 flipped the flag on).
+- **`persona_dashboard.enabled` added to `ConfigRestController::ALLOWED_KEYS`**, so the `/wp-json/talenttrack/v1/config` POST handler accepts the flag.
+
+## What changed
+
+- **`ConfigRestController::save_config` stops running `sanitize_key()` on the incoming key.** That helper strips dots, which would silently corrupt `persona_dashboard.enabled` to `persona_dashboardenabled` and miss the whitelist entry. The whitelist (`in_array( $key, ALLOWED_KEYS, true )`) is the actual security boundary; `sanitize_text_field` still runs on the value.
+
+## Translations
+
+Eight new NL strings covering the new sub-tile title, the radio labels, and the explanatory copy.
+
+## Acceptance criteria (manually verified)
+
+- [ ] Frontend Configuration → Default dashboard shows two radios, current value pre-selected.
+- [ ] Selecting "Classic tile grid" + Save makes the dashboard root render `FrontendTileGrid` for every user.
+- [ ] Selecting "Persona dashboard" + Save makes the dashboard root render the per-persona landing again.
+- [ ] CI green.
+
+---
+
 # TalentTrack v3.53.0 — PDP planning + player-status methodology config + PDP integration + Excel demo data
 
 Four asks bundled. Two sit on the PDP surface, one finishes the player-status epic, one ships a long-deferred demo-prep tool.
