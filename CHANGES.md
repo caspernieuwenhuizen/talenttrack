@@ -1,3 +1,41 @@
+# TalentTrack v3.55.0 — SaaS-readiness baseline closed (#0052 PR-B + PR-C)
+
+The two SaaS-readiness chunks left after PR-A landed in v3.45.x ship together: REST gap closure + auth portability (PR-B), and asset audit + `wp_cron` split + hand-written OpenAPI contract (PR-C). Closes the #0052 epic.
+
+## What's new
+
+**Three new REST controllers under `talenttrack/v1`:**
+
+- `GET/POST /lookups`, `GET/POST /lookups/{type}`, `PUT/DELETE /lookups/{type}/{id}` — `LookupsRestController`. Reads `tt_view_settings`, writes `tt_edit_settings`.
+- `GET /audit-log` (paginated, filterable) — `AuditLogRestController`. Cap `tt_view_audit_log`. Standard `X-WP-Total` + `X-WP-TotalPages` headers.
+- `GET/POST /invitations`, `GET /invitations/{token}` (public — token *is* the auth), `POST /invitations/{token}/accept`, `DELETE /invitations/{id}` — `InvitationsRestController`. Wraps existing `InvitationsRepository`.
+
+**Auth portability:**
+
+- New `TT\Infrastructure\Security\RoleResolver` localising the few legitimate role-aware reads (`Onboarding`, `DemoDataCleaner`, `Documentation\AudienceResolver`). Future SaaS auth swaps this one helper.
+- 3 over-broad `is_user_logged_in()` REST gates tightened to specific caps (Evaluations list+get → `tt_view_evaluations`; Players list → `tt_view_players`).
+- Documented in `docs/access-control.md`: capabilities are the auth contract; role names are an implementation detail.
+
+**Port-on-touch policy** documented in `docs/contributing.md`. The remaining ~30 `admin_post_*` / `wp_ajax_*` handlers catalogued in `docs/dev-tier-rest-port-backlog.md` with suggested REST shapes — port when next non-trivially edited.
+
+**`wp_cron` audit:** 5 callsites categorised in `docs/architecture.md` § Background work. 4 stay infrastructure (UsageTracker, Backup, Spond, Workflow CronDispatcher). 1 flagged port-on-touch (TrialReminderScheduler — coaches recognise "remind me about trial decisions"; should migrate to a workflow template when Trials is next non-trivially edited).
+
+**Asset audit:** 3 `wp-content/uploads/` references in the Backup module are all expected — `LocalDestination` is the intentional FS-write behind `BackupDestinationInterface`. SaaS deployments register `S3Destination` / `R2Destination` via the same interface. Documented in `docs/architecture.md` § Storage.
+
+**OpenAPI 3.1 contract:** `docs/openapi.yaml` covers every `talenttrack/v1` endpoint. Common schemas defined for Player, Team, Activity, Evaluation, Goal, Lookup, AuditLogEntry, Invitation + InvitationPublic, ThreadMessage, PersonaTemplate. Standard `Envelope` schema enforces the `RestResponse` contract.
+
+**Contract test:** `bin/contract-test.php` walks every read endpoint and validates the envelope shape. `wp eval-file bin/contract-test.php` (or `WP_LOAD=… php bin/contract-test.php`).
+
+**v1 → v2 migration policy** codified in `docs/rest-api.md`: breaking shape changes bump the namespace; v1 supported one release after v2 ships with `Deprecation: true` headers; additive changes don't bump. Codified but not yet exercised.
+
+## Notes for upgraders
+
+- No schema changes. Pure read-side surface additions and code refactors.
+- No user-visible behaviour change — the existing admin-post / form-post flows stay in place; the new REST controllers are additive.
+- Plugins or scripts that hit `GET /v1/players` or `GET /v1/evaluations` while logged in but without the matching read cap will now get 401/403 instead of an empty list. The behaviour is correct; the prior bare-login gate was over-broad.
+
+---
+
 # TalentTrack v3.54.0 — Default-dashboard chooser in Configuration
 
 Adds a user-facing on/off control for the `persona_dashboard.enabled` flag introduced in v3.51.0. Previously the only way to fall back from the persona dashboard to the legacy `FrontendTileGrid` was a direct `tt_config` write — fine for incident response, not fine for a club admin who wants to opt out without touching the database. The flag's wiring (DashboardShortcode dispatch + PersonaLandingRenderer) is unchanged; this PR only adds the UI surface and unblocks dotted config keys on the REST save path.
