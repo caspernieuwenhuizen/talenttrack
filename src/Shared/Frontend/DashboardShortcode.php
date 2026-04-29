@@ -183,8 +183,16 @@ class DashboardShortcode {
         $wizard_slugs = [ 'wizard', 'wizards-admin' ];
 
         if ( $view === '' ) {
-            // Tile landing page.
-            FrontendTileGrid::render();
+            // #0060 — when the persona-dashboard feature flag is on,
+            // PersonaLandingRenderer takes over the empty-view landing
+            // and falls back to FrontendTileGrid internally if no
+            // persona resolves or the resolved template is empty.
+            if ( class_exists( '\\TT\\Modules\\PersonaDashboard\\Frontend\\PersonaLandingRenderer' )
+                 && \TT\Modules\PersonaDashboard\Frontend\PersonaLandingRenderer::shouldRender() ) {
+                \TT\Modules\PersonaDashboard\Frontend\PersonaLandingRenderer::render( $user_id, self::shortcodeBaseUrl() );
+            } else {
+                FrontendTileGrid::render();
+            }
         } elseif ( TileRegistry::isViewSlugDisabled( $view ) ) {
             // #0033 finalisation — slug is owned by a module that is
             // currently disabled. Surface a friendly notice rather

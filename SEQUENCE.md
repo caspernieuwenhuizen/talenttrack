@@ -21,6 +21,7 @@ _None._
 | 0031 | Spond calendar integration — read-only iCal sync per team, hourly poll, soft-archive on UID removal | feat | [specs/0031-feat-spond-calendar-integration.md](specs/0031-feat-spond-calendar-integration.md) | ~12-18h v1 |
 | 0042 | Youth-aware contact strategy — `tt_phone` user-meta + PWA PushDispatcher + KB install articles, 5-sprint epic | feat | [specs/0042-feat-youth-contact-strategy.md](specs/0042-feat-youth-contact-strategy.md) | ~24-36h v1 |
 | 0056 | Mobile-first cleanup pass — quick wins (legacy form font-size, `inputmode`, `touch-action`, `:focus-visible`, safe-area) + 48px tap-target floor + `desktop_preferred` TileRegistry flag with on-mobile banner + Activities pilot rewritten mobile-first + CLAUDE.md § 2 rule tightening | feat | [specs/0056-feat-mobile-first-cleanup.md](specs/0056-feat-mobile-first-cleanup.md) | ~14-19h |
+| 0060 | Persona dashboard authoring platform — widget catalog (14 types) + KPI catalog (25 sources) + 12-col bento grid + 8 default per-persona templates + drag-drop editor (Sprint 2) + per-club override via `tt_config`. First consumer of the persona-aware tile infra parked since #0033 Sprint 4. 3-sprint epic; Sprint 1 (foundation + catalog + defaults) ships behind `persona_dashboard.enabled` config flag | epic | [specs/0060-epic-persona-dashboard-templates.md](specs/0060-epic-persona-dashboard-templates.md) | ~70-95h / ~23-33h compressed |
 
 ## Parked (shaped, awaiting trigger)
 

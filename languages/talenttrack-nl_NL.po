@@ -8982,3 +8982,357 @@ msgstr "Blessure niet gevonden."
 
 msgid "Training sessions and games you've attended."
 msgstr "Trainingen en wedstrijden die je hebt bijgewoond."
+
+# #0060 — Persona dashboard widget catalog
+
+msgid "Navigation tile"
+msgstr "Navigatietegel"
+
+msgid "KPI card"
+msgstr "KPI-kaart"
+
+msgid "KPI strip"
+msgstr "KPI-strip"
+
+msgid "Action card"
+msgstr "Actie-kaart"
+
+msgid "Quick actions panel"
+msgstr "Snelle-acties-paneel"
+
+msgid "Info card"
+msgstr "Info-kaart"
+
+msgid "Task list panel"
+msgstr "Takenlijst-paneel"
+
+msgid "Data table"
+msgstr "Datatabel"
+
+msgid "Mini player list"
+msgstr "Mini-spelerslijst"
+
+msgid "Rate card hero"
+msgstr "Ratingcard-hero"
+
+msgid "Today / Up next hero"
+msgstr "Vandaag / Eerstvolgende-hero"
+
+msgid "Child switcher with recap"
+msgstr "Kind-schakelaar met overzicht"
+
+msgid "System health strip"
+msgstr "Systeemstatus-strip"
+
+msgid "Assigned players grid"
+msgstr "Toegewezen-spelers-grid"
+
+# #0060 — Persona dashboard widget content
+
+msgid "A note from your coach"
+msgstr "Een notitie van je trainer"
+
+msgid "No new notes right now."
+msgstr "Geen nieuwe notities op dit moment."
+
+msgid "PDP awaiting your acknowledgement"
+msgstr "POP wacht op jouw akkoord"
+
+msgid "No conversations are waiting on you."
+msgstr "Er zijn geen gesprekken die op jou wachten."
+
+msgid "Up next"
+msgstr "Eerstvolgende"
+
+msgid "Nothing scheduled."
+msgstr "Niets gepland."
+
+msgid "License & modules"
+msgstr "Licentie & modules"
+
+msgid "Pro · 12 modules active."
+msgstr "Pro · 12 modules actief."
+
+msgid "Quick actions"
+msgstr "Snelle acties"
+
+msgid "No open tasks. "
+msgstr "Geen openstaande taken. "
+
+msgid "See all"
+msgstr "Toon alle"
+
+msgid "Trials needing decision"
+msgstr "Trials die een besluit nodig hebben"
+
+msgid "Day"
+msgstr "Dag"
+
+msgid "Coach"
+msgstr "Trainer"
+
+msgid "No open trial cases."
+msgstr "Geen open trialdossiers."
+
+msgid "My recent reports"
+msgstr "Mijn recente rapporten"
+
+msgid "You have no scout reports yet."
+msgstr "Je hebt nog geen scoutrapporten."
+
+msgid "When"
+msgstr "Wanneer"
+
+msgid "Who"
+msgstr "Wie"
+
+msgid "What"
+msgstr "Wat"
+
+msgid "No audit events recorded yet."
+msgstr "Nog geen audit-gebeurtenissen vastgelegd."
+
+msgid "Podium · my team"
+msgstr "Podium · mijn team"
+
+msgid "Top movers · this month"
+msgstr "Stijgers · deze maand"
+
+msgid "No players to show yet."
+msgstr "Nog geen spelers te tonen."
+
+msgid "Hey %s"
+msgstr "Hé %s"
+
+msgid "No upcoming activity"
+msgstr "Geen geplande activiteit"
+
+msgid "Schedule a training or game to populate this card."
+msgstr "Plan een training of wedstrijd om deze kaart te vullen."
+
+msgid "Attendance"
+msgstr "Aanwezigheid"
+
+msgid "Evaluation"
+msgstr "Evaluatie"
+
+msgid "My children"
+msgstr "Mijn kinderen"
+
+msgid "No children linked to this account yet."
+msgstr "Nog geen kinderen gekoppeld aan dit account."
+
+msgid "Since you last visited"
+msgstr "Sinds je laatste bezoek"
+
+msgid "No new updates."
+msgstr "Geen nieuwe updates."
+
+msgid "Last backup"
+msgstr "Laatste back-up"
+
+msgid "Pending invitations"
+msgstr "Openstaande uitnodigingen"
+
+msgid "License"
+msgstr "Licentie"
+
+msgid "Modules active"
+msgstr "Modules actief"
+
+msgid "System health"
+msgstr "Systeemstatus"
+
+msgid "Scout · assigned by HoD"
+msgstr "Scout · toegewezen door HoD"
+
+msgid "You have no assigned players yet. Ask your Head of Development to share players with you."
+msgstr "Je hebt nog geen toegewezen spelers. Vraag je Head of Development om spelers met je te delen."
+
+msgid "My reports"
+msgstr "Mijn rapporten"
+
+# #0060 — Persona dashboard action card labels
+
+msgid "New evaluation"
+msgstr "Nieuwe evaluatie"
+
+msgid "New goal"
+msgstr "Nieuw doel"
+
+msgid "New activity"
+msgstr "Nieuwe activiteit"
+
+msgid "Add player"
+msgstr "Speler toevoegen"
+
+msgid "Add team"
+msgstr "Team toevoegen"
+
+msgid "New scout report"
+msgstr "Nieuw scoutrapport"
+
+# #0060 — Persona dashboard KPI labels
+
+msgid "Active players"
+msgstr "Actieve spelers"
+
+msgid "Evaluations this month"
+msgstr "Evaluaties deze maand"
+
+msgid "Attendance % (4-week)"
+msgstr "Aanwezigheid % (4 weken)"
+
+msgid "Open trial cases"
+msgstr "Open trialdossiers"
+
+msgid "PDP verdicts pending"
+msgstr "Openstaande POP-verdicten"
+
+msgid "Goal completion %"
+msgstr "Doel-voltooiingspercentage"
+
+msgid "Average evaluation rating"
+msgstr "Gemiddelde evaluatie-rating"
+
+msgid "Players in top quartile"
+msgstr "Spelers in topkwartiel"
+
+msgid "Players at risk"
+msgstr "Spelers met risicostatus"
+
+msgid "New evaluations this week"
+msgstr "Nieuwe evaluaties deze week"
+
+msgid "Cohort distribution"
+msgstr "Cohortverdeling"
+
+msgid "Recent academy events"
+msgstr "Recente academie-gebeurtenissen"
+
+msgid "My evaluations this week"
+msgstr "Mijn evaluaties deze week"
+
+msgid "My team attendance %"
+msgstr "Aanwezigheid % van mijn team"
+
+msgid "PDP planned vs conducted (this block)"
+msgstr "POP gepland vs gevoerd (dit blok)"
+
+msgid "My open tasks"
+msgstr "Mijn openstaande taken"
+
+msgid "Players I evaluated this season"
+msgstr "Spelers die ik dit seizoen heb geëvalueerd"
+
+msgid "My team average rating"
+msgstr "Gemiddelde rating van mijn team"
+
+msgid "My rating trend"
+msgstr "Mijn rating-trend"
+
+msgid "My podium position"
+msgstr "Mijn podiumpositie"
+
+msgid "My goals completed (season)"
+msgstr "Mijn afgeronde doelen (seizoen)"
+
+msgid "My activities attended %"
+msgstr "% bijgewoonde activiteiten"
+
+msgid "My evaluations received"
+msgstr "Ontvangen evaluaties"
+
+msgid "My PDP conversations done"
+msgstr "Afgeronde POP-gesprekken"
+
+msgid "My next milestone"
+msgstr "Mijn volgende mijlpaal"
+
+# #0060 — Persona dashboard tile labels (player template)
+
+msgid "My journey"
+msgstr "Mijn reis"
+
+msgid "My card"
+msgstr "Mijn kaart"
+
+msgid "My PDP"
+msgstr "Mijn POP"
+
+msgid "My profile"
+msgstr "Mijn profiel"
+
+msgid "My child's card"
+msgstr "De kaart van mijn kind"
+
+# #0060 — Persona dashboard tile labels (admin template)
+
+msgid "Tasks dashboard"
+msgstr "Takendashboard"
+
+msgid "Rate cards"
+msgstr "Ratingcards"
+
+msgid "Compare players"
+msgstr "Spelers vergelijken"
+
+msgid "Authorization"
+msgstr "Autorisatie"
+
+msgid "Usage statistics"
+msgstr "Gebruiksstatistieken"
+
+msgid "Help & docs"
+msgstr "Hulp & documentatie"
+
+msgid "My assigned players"
+msgstr "Mijn toegewezen spelers"
+
+# #0060 — Persona switcher labels
+
+msgid "Switch persona"
+msgstr "Persona wisselen"
+
+msgid "Viewing as"
+msgstr "Bekijken als"
+
+msgid "Player"
+msgstr "Speler"
+
+msgid "Parent"
+msgstr "Ouder"
+
+msgid "Head coach"
+msgstr "Hoofdtrainer"
+
+msgid "Assistant coach"
+msgstr "Assistent-trainer"
+
+msgid "Team manager"
+msgstr "Teammanager"
+
+msgid "Head of Development"
+msgstr "Head of Development"
+
+msgid "Academy admin"
+msgstr "Academiebeheerder"
+
+msgid "Read-only observer"
+msgstr "Read-only waarnemer"
+
+# #0060 — Persona dashboard REST errors
+
+msgid "You can only read your own persona template."
+msgstr "Je kunt alleen je eigen persona-template lezen."
+
+msgid "You do not qualify for that persona."
+msgstr "Je komt niet in aanmerking voor die persona."
+
+# #0060 — Persona dashboard help topic
+
+msgid "Persona dashboards"
+msgstr "Persona-dashboards"
+
+msgid "Persona-aware landing pages with widget catalog, KPI catalog, role-switcher, and per-club override."
+msgstr "Persona-bewuste landingspagina's met widget-catalogus, KPI-catalogus, rol-wisselaar en per-club-override."
