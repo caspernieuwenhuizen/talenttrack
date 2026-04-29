@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.46.0
+Stable tag: 3.47.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.47.0 — Activity status + source, colour pills, cohort tile fix, wizard config UX =
+
+Five small fixes shipped together. **Activity model:** new `activity_status_key` (planned / completed / cancelled, default planned) and `activity_source_key` (manual / spond / generated, default manual) columns on `tt_activities`, with matching admin-extensible `activity_status` + `activity_source` lookups. Status appears as a form field on the create/edit views; source is set automatically (REST + admin → manual, demo-data → generated, future Spond → spond). **Activity types:** added `tournament` + `meeting` to the seeded set, backfilled `meta.color` on the existing types. The admin list filter dropdown was hardcoded to game/training/other; it's now lookup-driven so admin-added types surface there too. **List type pill:** colour-coded inline pill rendered via a new shared `LookupPill::render()` helper, used by both the admin and frontend activity lists. **Wizard config UX:** the text input for `tt_wizards_enabled` is replaced with a checkbox grid — one card per registered wizard plus an "Enable all wizards" master toggle; the form serialises into the existing `'all' / 'off' / 'slug,slug,…'` shape so `WizardRegistry::isEnabled()` keeps working unchanged. **Cohort transitions tile:** two bugs fixed — the frontend view accessed `$row['x']` on `wpdb->get_results()` rows (which return objects), causing `Cannot use object as array` fatals on every result; and the repository's `cohortByType()` appended `team_id` to `$params` before the visibility IN-list, misaligning bound parameters when the team filter was applied.
 
 = 3.46.0 — Demo-readiness hotfix bundle: auth + wizards + tiles =
 

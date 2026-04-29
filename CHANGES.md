@@ -1,3 +1,65 @@
+# TalentTrack v3.47.0 — Activity status + source, colour pills, cohort tile fix, wizard config UX
+
+Five small asks bundled together. Each lands on the activity surface or polishes an admin UX paper-cut.
+
+## Activity model — status + source
+
+Two new columns on `tt_activities`, both lookup-driven and admin-extensible:
+
+- `activity_status_key VARCHAR(50) NOT NULL DEFAULT 'planned'` — lifecycle (planned / completed / cancelled). Surfaces as a form field on the admin and frontend create/edit views; flips from `planned` (the default) to `completed` once the activity has happened, or to `cancelled` if it didn't go ahead.
+- `activity_source_key VARCHAR(50) NOT NULL DEFAULT 'manual'` — who or what created the activity (manual / spond / generated). Set automatically: REST and admin paths set `manual`; the demo-data generator sets `generated`; the future Spond integration will set `spond`. Not exposed on the form.
+
+Both come with a matching `tt_lookups` seed (`activity_status` and `activity_source`) carrying `meta.color` for pill rendering, `meta.is_locked = 1` so the seeded rows can't be deleted, and Dutch translations.
+
+## Activity types — seed extended + filter dropdown unwired from hardcode
+
+- New seeded types: **`tournament`** (orange) and **`meeting`** (purple). Idempotent — re-running the migration leaves any admin renames alone.
+- Existing `training` / `game` / `other` get `meta.color` backfilled (teal / blue / grey) so the new type-pill renderer always has a colour.
+- `ActivitiesPage` (admin) filter dropdown was hardcoded to `[game, training, other]` — admin-added types were invisible on the filter even though the form dropdown was already lookup-driven from #0050. Filter now reads from `QueryHelpers::get_lookups('activity_type')` like the form does, with translated labels via `LookupTranslator::name()`.
+
+## Type pill in lists
+
+A new shared helper `LookupPill::render( lookup_type, name )` returns a colour-coded inline `<span class="tt-pill">` using the lookup row's `meta.color` (falling back to neutral grey when absent). Used by:
+
+- The admin activities list — replaces the plain-text `renderTypeBadge()` output. The Game subtype + Other free-text label still render alongside the pill.
+- The frontend activities list — new `Type` column. The REST list response carries an `activity_type_pill_html` field with the server-rendered pill; the column uses a new `'render' => 'html'` mode on `FrontendListTable` (assets/js/components/frontend-list-table.js) that emits the value verbatim.
+
+## Wizard config UX — text input → checkbox grid
+
+`FrontendWizardsAdminView` (`?tt_view=wizards-admin`) used to ask admins to type `'all'` / `'off'` / a comma-separated list of slugs into a free-text field, with the available slugs hidden behind a `<details>` panel. It's now a checkbox grid:
+
+- One tickable card per registered wizard (label + slug + 48px tap target).
+- An **Enable all wizards** master toggle at the top syncs every checkbox.
+- On save, the form serialises back to the existing storage shape (`'all'` when every wizard is checked, `'off'` when none are, comma-separated slug list otherwise) so `WizardRegistry::isEnabled()` is unchanged. Cosmetic on storage, real on UX.
+
+## Cohort transitions tile — two bugs fixed
+
+The HoD-facing **Cohort transitions** tile (added in v3.44.0 with the #0053 player-journey epic) was throwing critical errors when filters were applied. Two distinct bugs:
+
+- **Bug A — array-vs-object access (white screen).** `FrontendCohortTransitionsView` accessed `$row['first_name']`, `$row['player_id']`, `$row['event_date']`, `$row['summary']` array-style — but `PlayerEventsRepository::cohortByType()` calls `wpdb->get_results()` without the `ARRAY_A` flag and returns `list<object>`. PHP fatal `Cannot use object of type stdClass as array` on every result row. Switched the four sites to object syntax (`$row->first_name`, etc.).
+- **Bug B — parameter order on team_id filter.** `cohortByType()` built `$params` as `[event_type, from, to, club_id]`, then *appended* `team_id` before `array_merge( $params, $allowed_visibilities )`. Final order: `[event_type, from, to, club_id, team_id, vis…]`. But the SQL placeholder order is `[event_type, from, to, club_id, vis…, team_id]` — so when the team filter was applied, parameters bound to the wrong placeholders. Restructured: `array_merge( [base], $allowed_visibilities, $extra_param )` so visibilities sit in the middle and team_id is appended last.
+
+Both bugs were pre-existing back to v3.44.0 — the v3.45.1 sweep didn't introduce them.
+
+## ActivitiesPage `club_id` scoping (gap closure)
+
+The v3.45.1 SaaS-readiness sweep added `club_id` filtering across 114 PHP files, but its source-side audit regex (`bin/audit-tenancy-source.sh`) only matches `$wpdb->prefix . 'tt_xxx'` and `$p . 'tt_xxx'` concatenation, not the `{$p}tt_xxx` interpolation style used by `ActivitiesPage`. The audit passed; the file slipped through. This release adds the filter in the form load, save (insert + update), delete, and attendance writes — all queries that were modified for the activity-status work anyway.
+
+## Documentation
+
+- `docs/activities.md` + `docs/nl_NL/activities.md` — new "Status and source" section, updated steps to mention the five seeded types and the new pill.
+- `docs/wizards.md` + `docs/nl_NL/wizards.md` — replaced the "type a comma-separated list of slugs" instructions with the checkbox-grid description.
+
+## Translations
+
+Four new `nl_NL` msgstrs added — every new user-facing string is translated.
+
+## SEQUENCE.md
+
+New `v3.47.0-bundle` row under Done.
+
+---
+
 # TalentTrack v3.46.0 — Demo-readiness hotfix bundle (auth + wizards + tiles)
 
 A small bundle of fixes surfaced during the user's demo-install review. Each item is a real bug or UX regression visible to actual users.
