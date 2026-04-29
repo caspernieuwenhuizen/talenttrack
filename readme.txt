@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.51.1
+Stable tag: 3.51.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.51.2 — Hotfix: dedupe duplicate msgids in talenttrack-nl_NL.po =
+
+The release ZIP build started failing on 36 duplicate `msgid` definitions accumulated across overlapping work in v3.50.0 (#0058 + #0031 + #0057 + #0056) and #0060 sprints 1-3 — `msgfmt` rejects duplicate definitions and the workflow couldn't compile `.mo` files. Dedupes the .po by keeping the first occurrence of every msgid; no translation content lost. Re-cuts the release line with a working `talenttrack.zip` asset for the v3.50.0 + v3.51.0 + v3.51.1 work that didn't reach users yet.
 
 = 3.50.1 — Hotfix: revert legacy `tt_edit_sessions` capability reference =
 

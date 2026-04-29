@@ -1,3 +1,11 @@
+# TalentTrack v3.51.2 — Hotfix: dedupe duplicate msgids in talenttrack-nl_NL.po
+
+`languages/talenttrack-nl_NL.po` had accumulated 37 duplicate `msgid` definitions across overlapping work — v3.50.0 (#0058 + #0031 + #0057 + #0056) and #0060 sprints 1-3 each added many of the same generic strings (`Persona`, `My profile`, `Save draft`, `New activity`, etc.). `msgfmt` rejects duplicate definitions during the release workflow, which is why the v3.50.0, v3.50.1, v3.51.0, and v3.51.1 tag pushes couldn't build `talenttrack.zip` even when their main-push CI succeeded.
+
+Dedupes by keeping the first occurrence of every `msgid`. No translation content is lost (every duplicate had a translation already from the first occurrence). Re-cuts the release line with a working asset so users actually receive everything that's been merged since v3.49.0.
+
+---
+
 # TalentTrack v3.51.1 — Hotfix: legacy column reference in `AttendancePctRolling`
 
 One-line fix to `src/Modules/PersonaDashboard/Kpis/AttendancePctRolling.php`. The KPI's defensive `IN ('activity_id','session_id')` column probe (intended to support installs that hadn't run migration 0027 yet) tripped the CI no-legacy gate from #0035. Replaced with a single `activity_id` column probe — old installs that haven't migrated drop to `KpiValue::unavailable()`, which surfaces the standard SchemaStatus banner. Same content as v3.51.0 otherwise; this re-cuts the release with a working `talenttrack.zip` asset.

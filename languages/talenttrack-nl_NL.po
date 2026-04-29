@@ -8152,8 +8152,6 @@ msgid "Football action"
 msgstr "Voetbalhandeling"
 
 msgctxt "PDP file status"
-msgid "Open"
-msgstr "Open"
 
 msgid "Connect a parent account"
 msgstr "Koppel een ouderaccount"
@@ -9068,8 +9066,6 @@ msgstr "Trials die een besluit nodig hebben"
 msgid "Day"
 msgstr "Dag"
 
-msgid "Coach"
-msgstr "Trainer"
 
 msgid "No open trial cases."
 msgstr "Geen open trialdossiers."
@@ -9080,8 +9076,6 @@ msgstr "Mijn recente rapporten"
 msgid "You have no scout reports yet."
 msgstr "Je hebt nog geen scoutrapporten."
 
-msgid "When"
-msgstr "Wanneer"
 
 msgid "Who"
 msgstr "Wie"
@@ -9110,11 +9104,7 @@ msgstr "Geen geplande activiteit"
 msgid "Schedule a training or game to populate this card."
 msgstr "Plan een training of wedstrijd om deze kaart te vullen."
 
-msgid "Attendance"
-msgstr "Aanwezigheid"
 
-msgid "Evaluation"
-msgstr "Evaluatie"
 
 msgid "My children"
 msgstr "Mijn kinderen"
@@ -9154,14 +9144,8 @@ msgstr "Mijn rapporten"
 
 # #0060 — Persona dashboard action card labels
 
-msgid "New evaluation"
-msgstr "Nieuwe evaluatie"
 
-msgid "New goal"
-msgstr "Nieuw doel"
 
-msgid "New activity"
-msgstr "Nieuwe activiteit"
 
 msgid "Add player"
 msgstr "Speler toevoegen"
@@ -9189,8 +9173,6 @@ msgstr "Open trialdossiers"
 msgid "PDP verdicts pending"
 msgstr "Openstaande POP-verdicten"
 
-msgid "Goal completion %"
-msgstr "Doel-voltooiingspercentage"
 
 msgid "Average evaluation rating"
 msgstr "Gemiddelde evaluatie-rating"
@@ -9251,40 +9233,22 @@ msgstr "Mijn volgende mijlpaal"
 
 # #0060 — Persona dashboard tile labels (player template)
 
-msgid "My journey"
-msgstr "Mijn reis"
 
-msgid "My card"
-msgstr "Mijn kaart"
 
-msgid "My PDP"
-msgstr "Mijn POP"
 
-msgid "My profile"
-msgstr "Mijn profiel"
 
 msgid "My child's card"
 msgstr "De kaart van mijn kind"
 
 # #0060 — Persona dashboard tile labels (admin template)
 
-msgid "Tasks dashboard"
-msgstr "Takendashboard"
 
-msgid "Rate cards"
-msgstr "Ratingcards"
 
 msgid "Compare players"
 msgstr "Spelers vergelijken"
 
-msgid "Authorization"
-msgstr "Autorisatie"
 
-msgid "Usage statistics"
-msgstr "Gebruiksstatistieken"
 
-msgid "Help & docs"
-msgstr "Hulp & documentatie"
 
 msgid "My assigned players"
 msgstr "Mijn toegewezen spelers"
@@ -9297,23 +9261,11 @@ msgstr "Persona wisselen"
 msgid "Viewing as"
 msgstr "Bekijken als"
 
-msgid "Player"
-msgstr "Speler"
 
-msgid "Parent"
-msgstr "Ouder"
 
-msgid "Head coach"
-msgstr "Hoofdtrainer"
 
-msgid "Assistant coach"
-msgstr "Assistent-trainer"
 
-msgid "Team manager"
-msgstr "Teammanager"
 
-msgid "Head of Development"
-msgstr "Head of Development"
 
 msgid "Academy admin"
 msgstr "Academiebeheerder"
@@ -9492,14 +9444,10 @@ msgstr "Thema-overerving, display- en bodyfonts en accentkleuren."
 msgid "Editor toolbar"
 msgstr "Editor-werkbalk"
 
-msgid "Persona"
-msgstr "Persona"
 
 msgid "Mobile preview"
 msgstr "Mobiele preview"
 
-msgid "Save draft"
-msgstr "Concept opslaan"
 
 msgid "Publish"
 msgstr "Publiceren"
@@ -9507,8 +9455,6 @@ msgstr "Publiceren"
 msgid "Dashboard layouts"
 msgstr "Dashboard-lay-outs"
 
-msgid "Reset to default"
-msgstr "Terugzetten naar standaard"
 
 msgid "Widget and KPI palette"
 msgstr "Widget- en KPI-palet"
@@ -9543,11 +9489,7 @@ msgstr "KPI toevoegen"
 msgid "Resize"
 msgstr "Formaat aanpassen"
 
-msgid "Drag to reorder"
-msgstr "Sleep om te herschikken"
 
-msgid "Size"
-msgstr "Formaat"
 
 msgid "Mobile priority"
 msgstr "Mobiele prioriteit"
@@ -9582,8 +9524,6 @@ msgstr "Hiermee vervang je het live %s-dashboard bij de volgende paginalaad voor
 msgid "Publish now"
 msgstr "Nu publiceren"
 
-msgid "Cancel"
-msgstr "Annuleren"
 
 msgid "Draft saved."
 msgstr "Concept opgeslagen."
@@ -9633,8 +9573,6 @@ msgstr "Verplaatsing geannuleerd."
 msgid "Preview as"
 msgstr "Bekijken als"
 
-msgid "Remove"
-msgstr "Verwijderen"
 
 msgid "Invalid layout payload."
 msgstr "Ongeldige lay-outpayload."
@@ -9668,8 +9606,6 @@ msgstr "Morgen"
 msgid "Up next · %s"
 msgstr "Eerstvolgende · %s"
 
-msgid "Activity"
-msgstr "Activiteit"
 
 msgid "%d new evaluation across your children."
 msgid_plural "%d new evaluations across your children."
@@ -9679,20 +9615,12 @@ msgstr[1] "%d nieuwe evaluaties voor je kinderen."
 msgid "Never run"
 msgstr "Nog nooit uitgevoerd"
 
-msgid "Free"
-msgstr "Gratis"
 
-msgid "All"
-msgstr "Alle"
 
-msgid "My teams"
-msgstr "Mijn teams"
 
 msgid "Drag-and-drop editor — tune what each persona sees on their landing page."
 msgstr "Drag-and-drop-editor — bepaal wat elke persona ziet op zijn landingspagina."
 
-msgid "Personas"
-msgstr "Persona's"
 
 # v3.50.0 — Spond integration (#0031)
 
@@ -9744,8 +9672,6 @@ msgstr "Spond-feed bevat geen activiteiten."
 msgid "Synced: %1$d new · %2$d updated · %3$d archived."
 msgstr "Gesynchroniseerd: %1$d nieuw · %2$d bijgewerkt · %3$d gearchiveerd."
 
-msgid "Team not found."
-msgstr "Team niet gevonden."
 
 msgid "Team id is required."
 msgstr "Team-ID is verplicht."
