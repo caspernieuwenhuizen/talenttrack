@@ -17,6 +17,12 @@ use TT\Infrastructure\Query\QueryHelpers;
 class FrontendMyActivitiesView extends FrontendViewBase {
 
     public static function render( object $player ): void {
+        $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+        if ( $id > 0 ) {
+            self::renderDetail( $player, $id );
+            return;
+        }
+
         self::enqueueAssets();
         self::renderHeader( __( 'My sessions', 'talenttrack' ) );
 
@@ -25,6 +31,75 @@ class FrontendMyActivitiesView extends FrontendViewBase {
 
         self::renderFilters( $filters, $statuses );
         self::renderTable( $player, $filters );
+    }
+
+    /**
+     * Single-activity detail reachable via `?tt_view=my-activities&id=N`.
+     * Shows the activity (date, title, opponent, type), the player's
+     * attendance for it, and any notes — closing the "see more"
+     * gap from the profile + activities list (#0061).
+     */
+    private static function renderDetail( object $player, int $activity_id ): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT a.*, t.name AS team_name
+               FROM {$p}tt_activities a
+               LEFT JOIN {$p}tt_teams t ON a.team_id = t.id
+              WHERE a.id = %d
+              LIMIT 1",
+            $activity_id
+        ) );
+
+        $back_url = remove_query_arg( [ 'id' ] );
+        FrontendBackButton::render( $back_url );
+
+        if ( ! $row ) {
+            self::renderHeader( __( 'Activity not found', 'talenttrack' ) );
+            echo '<p><em>' . esc_html__( 'That activity is no longer available.', 'talenttrack' ) . '</em></p>';
+            return;
+        }
+
+        $att = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$p}tt_attendance
+              WHERE activity_id = %d AND ( player_id = %d OR guest_player_id = %d )
+              LIMIT 1",
+            $activity_id, (int) $player->id, (int) $player->id
+        ) );
+
+        self::enqueueAssets();
+        $title = (string) \TT\Modules\Translations\TranslationLayer::render( (string) ( $row->title ?: '' ) );
+        if ( $title === '' ) $title = __( 'Activity', 'talenttrack' );
+        self::renderHeader( $title );
+        ?>
+        <article class="tt-mya-detail">
+            <dl class="tt-profile-dl">
+                <dt><?php esc_html_e( 'Date', 'talenttrack' ); ?></dt>
+                <dd><?php echo esc_html( (string) ( $row->session_date ?: '—' ) ); ?></dd>
+                <?php if ( ! empty( $row->team_name ) ) : ?>
+                    <dt><?php esc_html_e( 'Team', 'talenttrack' ); ?></dt>
+                    <dd><?php echo esc_html( (string) $row->team_name ); ?></dd>
+                <?php endif; ?>
+                <?php if ( ! empty( $row->opponent ) ) : ?>
+                    <dt><?php esc_html_e( 'Opponent', 'talenttrack' ); ?></dt>
+                    <dd><?php echo esc_html( (string) $row->opponent ); ?></dd>
+                <?php endif; ?>
+                <?php if ( ! empty( $row->location ) ) : ?>
+                    <dt><?php esc_html_e( 'Location', 'talenttrack' ); ?></dt>
+                    <dd><?php echo esc_html( (string) $row->location ); ?></dd>
+                <?php endif; ?>
+                <?php if ( $att ) : ?>
+                    <dt><?php esc_html_e( 'Your attendance', 'talenttrack' ); ?></dt>
+                    <dd><?php echo esc_html( LabelTranslator::attendanceStatus( (string) ( $att->status ?? '' ) ) ); ?></dd>
+                    <?php if ( ! empty( $att->notes ) ) : ?>
+                        <dt><?php esc_html_e( 'Notes', 'talenttrack' ); ?></dt>
+                        <dd><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $att->notes ) ); ?></dd>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </dl>
+        </article>
+        <?php
     }
 
     /** @return array<string,mixed> */
@@ -114,10 +189,16 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             $params[] = $like;
         }
 
+        // GROUP BY a.id is defensive: the v3.32+ guest→player promotion
+        // flow occasionally left stale duplicate rows (one with
+        // guest_player_id, one with player_id pointing to the same user).
+        // The OR clause matches both, so we group on the attendance id to
+        // emit a single row per attendance regardless of which column fired.
         $sql = "SELECT a.*, s.title AS session_title, s.session_date
                   FROM {$p}tt_attendance a
                   LEFT JOIN {$p}tt_activities s ON a.activity_id = s.id
                  WHERE $where
+                 GROUP BY a.id
                  ORDER BY s.session_date DESC, a.id DESC";
 
         $att = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
@@ -137,15 +218,18 @@ class FrontendMyActivitiesView extends FrontendViewBase {
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ( $att as $a ) :
+                <?php
+                $base_url = remove_query_arg( [ 'id' ] );
+                foreach ( $att as $a ) :
                     $status_lower = strtolower( (string) $a->status );
                     $cls = $status_lower === 'present'
                         ? 'tt-att-present'
                         : ( $status_lower === 'absent' ? 'tt-att-absent' : 'tt-att-other' );
+                    $detail_url = add_query_arg( 'id', (int) $a->activity_id, $base_url );
                     ?>
-                    <tr class="<?php echo esc_attr( $cls ); ?>">
-                        <td><?php echo esc_html( (string) $a->session_date ); ?></td>
-                        <td><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $a->session_title ) ); ?></td>
+                    <tr class="<?php echo esc_attr( $cls ); ?> tt-row-clickable" data-tt-href="<?php echo esc_url( $detail_url ); ?>">
+                        <td><a class="tt-row-link" href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( (string) $a->session_date ); ?></a></td>
+                        <td><a class="tt-row-link" href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $a->session_title ) ); ?></a></td>
                         <td><?php echo esc_html( LabelTranslator::attendanceStatus( (string) $a->status ) ); ?></td>
                         <td><?php
                             $notes = (string) ( $a->notes ?: '' );

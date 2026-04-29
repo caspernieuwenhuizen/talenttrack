@@ -195,25 +195,28 @@ class FrontendMyProfileView extends FrontendViewBase {
                         $title    = (string) ( $goal->title ?? '' );
                         $due      = (string) ( $goal->due_date ?? '' );
                         $priority = (string) ( $goal->priority ?? '' );
+                        $detail   = self::dashboardLink( 'my-goals', (int) ( $goal->id ?? 0 ) );
                         ?>
                         <li class="tt-profile-goal">
-                            <span class="tt-profile-goal-title"><?php echo esc_html( $title ); ?></span>
-                            <?php if ( $due !== '' ) : ?>
-                                <span class="tt-profile-goal-due">
-                                    <?php
-                                    echo esc_html( sprintf(
-                                        /* translators: %s: due date in YYYY-MM-DD */
-                                        __( 'Due %s', 'talenttrack' ),
-                                        $due
-                                    ) );
-                                    ?>
-                                </span>
-                            <?php endif; ?>
-                            <?php if ( $priority !== '' ) : ?>
-                                <span class="tt-profile-goal-priority tt-profile-goal-priority--<?php echo esc_attr( strtolower( $priority ) ); ?>">
-                                    <?php echo esc_html( \TT\Infrastructure\Query\LabelTranslator::goalPriority( $priority ) ); ?>
-                                </span>
-                            <?php endif; ?>
+                            <a class="tt-profile-goal-link" href="<?php echo esc_url( $detail ); ?>">
+                                <span class="tt-profile-goal-title"><?php echo esc_html( $title ); ?></span>
+                                <?php if ( $due !== '' ) : ?>
+                                    <span class="tt-profile-goal-due">
+                                        <?php
+                                        echo esc_html( sprintf(
+                                            /* translators: %s: due date in YYYY-MM-DD */
+                                            __( 'Due %s', 'talenttrack' ),
+                                            $due
+                                        ) );
+                                        ?>
+                                    </span>
+                                <?php endif; ?>
+                                <?php if ( $priority !== '' ) : ?>
+                                    <span class="tt-profile-goal-priority tt-profile-goal-priority--<?php echo esc_attr( strtolower( $priority ) ); ?>">
+                                        <?php echo esc_html( \TT\Infrastructure\Query\LabelTranslator::goalPriority( $priority ) ); ?>
+                                    </span>
+                                <?php endif; ?>
+                            </a>
                         </li>
                     <?php endforeach; ?>
                 </ul>
@@ -256,13 +259,16 @@ class FrontendMyProfileView extends FrontendViewBase {
                         $title    = (string) ( $session->title ?? '' );
                         $date     = (string) ( $session->session_date ?? '' );
                         $location = (string) ( $session->location ?? '' );
+                        $detail   = self::dashboardLink( 'my-activities', (int) ( $session->id ?? 0 ) );
                         ?>
                         <li class="tt-profile-upcoming-row">
-                            <span class="tt-profile-upcoming-date"><?php echo esc_html( $date ); ?></span>
-                            <span class="tt-profile-upcoming-title"><?php echo esc_html( $title ); ?></span>
-                            <?php if ( $location !== '' ) : ?>
-                                <span class="tt-profile-upcoming-loc"><?php echo esc_html( $location ); ?></span>
-                            <?php endif; ?>
+                            <a class="tt-profile-upcoming-link" href="<?php echo esc_url( $detail ); ?>">
+                                <span class="tt-profile-upcoming-date"><?php echo esc_html( $date ); ?></span>
+                                <span class="tt-profile-upcoming-title"><?php echo esc_html( $title ); ?></span>
+                                <?php if ( $location !== '' ) : ?>
+                                    <span class="tt-profile-upcoming-loc"><?php echo esc_html( $location ); ?></span>
+                                <?php endif; ?>
+                            </a>
                         </li>
                     <?php endforeach; ?>
                 </ul>
@@ -443,11 +449,13 @@ class FrontendMyProfileView extends FrontendViewBase {
         return is_array( $rows ) ? $rows : [];
     }
 
-    private static function dashboardLink( string $view ): string {
+    private static function dashboardLink( string $view, int $id = 0 ): string {
         $base = remove_query_arg(
             [ 'tt_view', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id', 'tab', 'action', 'id' ]
         );
-        return add_query_arg( 'tt_view', $view, $base ?: home_url( '/' ) );
+        $url = add_query_arg( 'tt_view', $view, $base ?: home_url( '/' ) );
+        if ( $id > 0 ) $url = add_query_arg( 'id', $id, $url );
+        return $url;
     }
 
     private static function initialsFor( string $name ): string {

@@ -62,15 +62,78 @@ class FrontendConfigurationView extends FrontendViewBase {
                 self::renderSubBackLink();
                 self::renderDashboardForm();
                 return;
+            case 'lookups':
+                self::renderHeader( __( 'Lookups', 'talenttrack' ) );
+                self::renderSubBackLink();
+                self::renderLookupsIndex();
+                return;
         }
 
         self::renderHeader( __( 'Configuration', 'talenttrack' ) );
         self::renderTileGrid();
     }
 
+    /**
+     * Sub-tile index that mirrors every individual `tt_lookups`
+     * category visible in the wp-admin Configuration → Lookups tabs.
+     * Each card opens the matching wp-admin tab for inline editing.
+     *
+     * Closing the parity gap from #0061: previously the frontend
+     * collapsed all 10 lookup tabs to a single "Lookups" tile, which
+     * obscured what's actually configurable.
+     */
+    private static function renderLookupsIndex(): void {
+        self::tileGridStyles();
+        $admin_url = admin_url( 'admin.php?page=tt-config' );
+        $cards = [
+            [ __( 'Evaluation types',   'talenttrack' ), __( 'The evaluation templates rosters can attach to a player record.', 'talenttrack' ), 'eval_types' ],
+            [ __( 'Activity types',     'talenttrack' ), __( 'Training, game, tournament, meeting — colour-coded type pills.',   'talenttrack' ), 'activity_types' ],
+            [ __( 'Game subtypes',      'talenttrack' ), __( 'Friendly, league, cup, tournament. Filters game-only reports.',     'talenttrack' ), 'game_subtypes' ],
+            [ __( 'Positions',          'talenttrack' ), __( 'Football positions players can be tagged with.',                    'talenttrack' ), 'positions' ],
+            [ __( 'Preferred foot',     'talenttrack' ), __( 'Left, right, both — used on the player edit form.',                  'talenttrack' ), 'foot_options' ],
+            [ __( 'Age groups',         'talenttrack' ), __( 'U7, U8, … U23 — feed the team age-group dropdown and weights.',     'talenttrack' ), 'age_groups' ],
+            [ __( 'Goal statuses',      'talenttrack' ), __( 'Open / in progress / done / cancelled. Drives the goals KPI.',     'talenttrack' ), 'goal_statuses' ],
+            [ __( 'Goal priorities',    'talenttrack' ), __( 'Low / medium / high. Sorts the my-goals list.',                     'talenttrack' ), 'goal_priorities' ],
+            [ __( 'Attendance statuses', 'talenttrack' ), __( 'Present / absent / excused / late. Drives the attendance KPI.',  'talenttrack' ), 'att_statuses' ],
+            [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), 'rating' ],
+        ];
+
+        echo '<p style="margin-bottom:var(--tt-sp-4); color:var(--tt-muted);">';
+        esc_html_e( 'Pick a lookup category. Editing happens in wp-admin; values entered here are translatable and feed every dropdown across the dashboard.', 'talenttrack' );
+        echo '</p>';
+
+        echo '<div class="tt-cfg-tile-grid">';
+        foreach ( $cards as [ $title, $desc, $tab ] ) {
+            $url = add_query_arg( [ 'tab' => $tab ], $admin_url );
+            echo '<a class="tt-cfg-tile" href="' . esc_url( $url ) . '">';
+            echo '<div class="tt-cfg-tile-title">' . esc_html( $title ) . ' &#8599;</div>';
+            echo '<div class="tt-cfg-tile-desc">' . esc_html( $desc ) . '</div>';
+            echo '</a>';
+        }
+        echo '</div>';
+    }
+
     private static function renderSubBackLink(): void {
         $base = remove_query_arg( [ 'config_sub' ] );
-        echo '<p style="margin:0 0 var(--tt-sp-3);"><a class="tt-link" href="' . esc_url( $base ) . '">← ' . esc_html__( 'All configuration', 'talenttrack' ) . '</a></p>';
+        echo '<p style="margin:0 0 var(--tt-sp-3);"><a class="tt-link" href="' . esc_url( $base ) . '">&larr; ' . esc_html__( 'All configuration', 'talenttrack' ) . '</a></p>';
+    }
+
+    /**
+     * Inline CSS for the configuration tile grid. Shared between the
+     * top-level Configuration index and the Lookups sub-index so a
+     * direct deep-link to `?config_sub=lookups` still picks up the
+     * styling without the top-level tile grid having run first.
+     */
+    private static function tileGridStyles(): void {
+        ?>
+        <style>
+        .tt-cfg-tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+        .tt-cfg-tile { display: block; background: #fff; border: 1px solid #e5e7ea; border-radius: 8px; padding: 14px; text-decoration: none; color: #1a1d21; min-height: 76px; transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 180ms ease, border-color 180ms ease; }
+        .tt-cfg-tile:hover, .tt-cfg-tile:focus { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #d0d4d8; color: #1a1d21; }
+        .tt-cfg-tile-title { font-weight: 600; font-size: 14px; line-height: 1.25; margin: 0 0 4px; color: #1a1d21; }
+        .tt-cfg-tile-desc { color: #6b7280; font-size: 12px; line-height: 1.35; margin: 0; }
+        </style>
+        <?php
     }
 
     private static function renderTileGrid(): void {
@@ -81,12 +144,13 @@ class FrontendConfigurationView extends FrontendViewBase {
             'dashboard' => [ __( 'Default dashboard', 'talenttrack' ), __( 'Choose what every user sees on the dashboard root: the persona dashboard or the classic tile grid.', 'talenttrack' ) ],
             'branding'  => [ __( 'Branding', 'talenttrack' ),     __( 'Academy name, logo, primary and secondary colours.', 'talenttrack' ) ],
             'theme'     => [ __( 'Theme & fonts', 'talenttrack' ), __( 'Theme inheritance, display + body fonts and accent colours.', 'talenttrack' ) ],
+            'lookups'   => [ __( 'Lookups', 'talenttrack' ),       __( 'Activity types, positions, age groups, goal statuses, evaluation types — every dropdown vocabulary in one place.', 'talenttrack' ) ],
             'rating'    => [ __( 'Rating scale', 'talenttrack' ),  __( 'Min, max and step for evaluation ratings.', 'talenttrack' ) ],
             'menus'     => [ __( 'wp-admin menus', 'talenttrack' ), __( 'Show or hide the legacy wp-admin menu entries.', 'talenttrack' ) ],
         ];
 
         $admin_tiles = [
-            [ __( 'Lookups & evaluation types', 'talenttrack' ), __( 'Activity types, positions, age groups, goal statuses, evaluation types — all in wp-admin.', 'talenttrack' ), add_query_arg( [ 'tab' => 'eval_types' ], $admin_url ) ],
+            [ __( 'Spond integration', 'talenttrack' ),          __( 'Per-team iCal sync status and "Refresh now" buttons. Lives in wp-admin.', 'talenttrack' ),                admin_url( 'admin.php?page=tt-spond' ) ],
             [ __( 'Feature toggles', 'talenttrack' ),            __( 'Per-module enable/disable toggles. Live in wp-admin.', 'talenttrack' ),                                add_query_arg( [ 'tab' => 'toggles' ],     $admin_url ) ],
             [ __( 'Backups', 'talenttrack' ),                    __( 'Manual + scheduled database backups. Lives in wp-admin.', 'talenttrack' ),                              add_query_arg( [ 'tab' => 'backups' ],     $admin_url ) ],
             [ __( 'Translations', 'talenttrack' ),               __( 'Per-locale string overrides and the .po/.mo refresh job.', 'talenttrack' ),                              add_query_arg( [ 'tab' => 'translations' ], $admin_url ) ],
@@ -95,18 +159,10 @@ class FrontendConfigurationView extends FrontendViewBase {
         ];
 
         echo '<p style="margin-bottom:var(--tt-sp-4); color:var(--tt-muted);">';
-        esc_html_e( 'Pick a configuration area. Branding, theme and rating-scale settings are edited inline; the remaining areas open in wp-admin.', 'talenttrack' );
+        esc_html_e( 'Pick a configuration area. Branding, theme, rating scale, and lookups are edited inline; the remaining areas open in wp-admin.', 'talenttrack' );
         echo '</p>';
 
-        ?>
-        <style>
-        .tt-cfg-tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-        .tt-cfg-tile { display: block; background: #fff; border: 1px solid #e5e7ea; border-radius: 8px; padding: 14px; text-decoration: none; color: #1a1d21; min-height: 76px; transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 180ms ease, border-color 180ms ease; }
-        .tt-cfg-tile:hover, .tt-cfg-tile:focus { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #d0d4d8; color: #1a1d21; }
-        .tt-cfg-tile-title { font-weight: 600; font-size: 14px; line-height: 1.25; margin: 0 0 4px; color: #1a1d21; }
-        .tt-cfg-tile-desc { color: #6b7280; font-size: 12px; line-height: 1.35; margin: 0; }
-        </style>
-        <?php
+        self::tileGridStyles();
 
         echo '<div class="tt-cfg-tile-grid">';
         foreach ( $frontend_tiles as $slug => $meta ) {

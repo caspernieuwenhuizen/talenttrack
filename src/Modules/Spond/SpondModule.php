@@ -33,6 +33,10 @@ final class SpondModule implements ModuleInterface {
     public function boot( Container $container ): void {
         SpondRestController::init();
 
+        if ( is_admin() ) {
+            Admin\SpondOverviewPage::init();
+        }
+
         add_filter( 'cron_schedules', [ self::class, 'registerCronSchedule' ] );
         add_action( 'wp', [ self::class, 'ensureCronScheduled' ] );
         add_action( self::CRON_HOOK, [ self::class, 'runScheduledSync' ] );

@@ -33,7 +33,7 @@ final class EditorPage {
         $current_user = wp_get_current_user();
         $bootstrap   = self::buildBootstrap( $personas, $club_id );
 
-        echo '<div class="wrap tt-pde-wrap">';
+        echo '<div class="wrap tt-pde-wrap" data-library-open="true">';
         echo '<header class="tt-pde-toolbar" role="toolbar" aria-label="' . esc_attr__( 'Editor toolbar', 'talenttrack' ) . '">';
         echo '<div class="tt-pde-toolbar-left">';
         echo '<h1 class="tt-pde-title">' . esc_html__( 'Dashboard layouts', 'talenttrack' ) . '</h1>';
@@ -47,6 +47,9 @@ final class EditorPage {
         echo '</label>';
         echo '</div>';
         echo '<div class="tt-pde-toolbar-right">';
+        echo '<button type="button" class="button tt-pde-btn" data-tt-pde="library-toggle" aria-pressed="true">';
+        echo esc_html__( 'Library', 'talenttrack' ) . '</button>';
+        echo '<span class="tt-pde-divider" aria-hidden="true"></span>';
         echo '<button type="button" class="button tt-pde-btn" data-tt-pde="undo" aria-keyshortcuts="Control+Z" disabled>';
         echo esc_html__( 'Undo', 'talenttrack' ) . '</button>';
         echo '<button type="button" class="button tt-pde-btn" data-tt-pde="redo" aria-keyshortcuts="Control+Shift+Z" disabled>';
@@ -274,6 +277,7 @@ final class EditorPage {
             'dropped'                 => __( 'Dropped %1$s at column %2$d, row %3$d.', 'talenttrack' ),
             'cancelled'               => __( 'Move cancelled.', 'talenttrack' ),
             'preview_as'              => __( 'Preview as', 'talenttrack' ),
+            'widget_added'            => __( 'Added %s to the canvas.', 'talenttrack' ),
         ];
     }
 
