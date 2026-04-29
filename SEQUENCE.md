@@ -14,16 +14,23 @@ _None._
 | 0039 | Staff development module — personal goals + evaluations + certifications + PDP for coaches/scouts/staff. Five new tables, four workflow templates, new "Mentor" functional role, new "Staff development" tile group. | feat | [specs/0039-feat-staff-development-module.md](specs/0039-feat-staff-development-module.md) | ~30-38h / ~4-6h compressed |
 | 0052 (PR-B) | SaaS-readiness baseline — REST gap closure + auth portability. Three new REST controllers (lookups, audit-log, invitations); port-on-touch policy + 3 high-value `admin_post_*` ports + documented backlog; role-string `in_array` compares eliminated across 5 files; over-broad `is_user_logged_in()` gates converted to capability checks. Unblocked by PR-A landing in v3.45.0. | feat | [specs/0052-feat-saas-readiness-rest-and-auth.md](specs/0052-feat-saas-readiness-rest-and-auth.md) | ~10-14h |
 | 0052 (PR-C) | SaaS-readiness baseline — assets + cron + OpenAPI. 3 `uploads/` references audited; ~7-9 of 13 `wp_cron` calls migrated to the workflow engine; hand-written `docs/openapi.yaml` for `talenttrack/v1`; `bin/contract-test.php` validation script; v1→v2 migration policy documented. Unblocked by PR-A landing in v3.45.0; parallel with PR-B. | feat | [specs/0052-feat-saas-readiness-assets-cron-openapi.md](specs/0052-feat-saas-readiness-assets-cron-openapi.md) | ~8-12h |
-| 0054 | PDP planning windows + HoD dashboard (3-week window per cycle block; HoD sees per-team-per-block planned vs conducted matrix) | feat | [ideas/0054-feat-pdp-planning-windows-and-dashboard.md](ideas/0054-feat-pdp-planning-windows-and-dashboard.md) | ~3-4h actual |
+| 0054 | PDP planning windows + HoD dashboard (3-week window per cycle block; HoD sees per-team-per-block planned vs conducted matrix) | feat | [specs/0054-feat-pdp-planning-windows-and-dashboard.md](specs/0054-feat-pdp-planning-windows-and-dashboard.md) | ~3-4h |
+| 0057 | Player status — green/amber/red traffic light per player, configurable methodology per age group, evidence-packet integration with PDP. 5-sprint epic; depends on #0053 event spine | epic | [specs/0057-epic-player-status.md](specs/0057-epic-player-status.md) | ~25-35h / ~6-10h compressed |
+| 0058 | Wizard-first development standard — `CLAUDE.md` § 3 + spec template + PR checklist updates. Docs only, no code | feat | [specs/0058-feat-wizard-first-standard.md](specs/0058-feat-wizard-first-standard.md) | ~30-45min |
+| 0059 | Excel-driven demo data — upload a workbook to seed #0020 with specific teams/players, with hybrid procedural top-up | feat | [specs/0059-feat-demo-data-excel-upload.md](specs/0059-feat-demo-data-excel-upload.md) | ~6-10h |
 | 0031 | Spond calendar integration — read-only iCal sync per team, hourly poll, soft-archive on UID removal | feat | [specs/0031-feat-spond-calendar-integration.md](specs/0031-feat-spond-calendar-integration.md) | ~12-18h v1 |
 | 0042 | Youth-aware contact strategy — `tt_phone` user-meta + PWA PushDispatcher + KB install articles, 5-sprint epic | feat | [specs/0042-feat-youth-contact-strategy.md](specs/0042-feat-youth-contact-strategy.md) | ~24-36h v1 |
 | 0056 | Mobile-first cleanup pass — quick wins (legacy form font-size, `inputmode`, `touch-action`, `:focus-visible`, safe-area) + 48px tap-target floor + `desktop_preferred` TileRegistry flag with on-mobile banner + Activities pilot rewritten mobile-first + CLAUDE.md § 2 rule tightening | feat | [specs/0056-feat-mobile-first-cleanup.md](specs/0056-feat-mobile-first-cleanup.md) | ~14-19h |
 
+## Parked (shaped, awaiting trigger)
+
+| # | Topic | Type | Spec | Trigger to start |
+| - | - | - | - | - |
+| 0043 | Knowledge Base platform — public-facing `kb.talenttrack.app` SSG site with FlexSearch + REST embed in plugin help drawer | feat | [specs/0043-feat-knowledge-base-platform.md](specs/0043-feat-knowledge-base-platform.md) | `docs/` article count >30, or customer asks for KB search ≥2× per quarter, or marketing wants public KB for SEO |
+
 ## Needs refinement / shaping
 
-| # | Topic | Type | Open questions | Estimated |
-| - | - | - | - | - |
-| 0043 | Knowledge Base platform (searchable article CMS for end-user content — heavyweight successor to #0042's markdown-in-`docs/` surface) | feat | Where it lives (subdomain vs plugin CPT vs marketing-site embed), public vs auth-gated, search engine choice, content authorship (TalentTrack-only vs community), multilingual approach, in-app contextual embed, versioning, taxonomy, migration path, telemetry — parked until trigger fires (article count >30, or customer ask, or marketing/SEO push) | ~40-60h |
+_None._ All open ideas have been shaped into specs.
 
 ## Not started (no shaping needed before build)
 
