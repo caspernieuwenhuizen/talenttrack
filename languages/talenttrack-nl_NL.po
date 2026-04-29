@@ -9039,3 +9039,97 @@ msgstr "Aantal dagen na het afgaan van de taak voordat hij als verlopen telt. Ge
 
 msgid "More filters (%d)"
 msgstr "Meer filters (%d)"
+
+msgid "Academy name, logo, primary and secondary colours."
+msgstr "Academienaam, logo, primaire en secundaire kleuren."
+
+msgid "Activity types, positions, age groups, goal statuses, evaluation types — all in wp-admin."
+msgstr "Activiteittypes, posities, leeftijdsgroepen, doelstatussen, evaluatietypes — allemaal in wp-admin."
+
+msgid "Administrator"
+msgstr "Beheerder"
+
+msgid "All configuration"
+msgstr "Alle configuratie"
+
+msgid "Existing player"
+msgstr "Bestaande speler"
+
+msgid "Feature toggles"
+msgstr "Functieschakelaars"
+
+msgid "Fill in at least first name, last name and date of birth. The new player record will be created with status \"trial\" before the case is opened."
+msgstr "Vul minimaal voornaam, achternaam en geboortedatum in. Het nieuwe spelerrecord wordt aangemaakt met status \"trial\" voordat de case wordt geopend."
+
+msgid "Include archived"
+msgstr "Inclusief gearchiveerd"
+
+msgid "Lookups & evaluation types"
+msgstr "Lookups & evaluatietypes"
+
+msgid "Manual + scheduled database backups. Lives in wp-admin."
+msgstr "Handmatige + geplande databaseback-ups. Beheerd in wp-admin."
+
+msgid "Max"
+msgstr "Max"
+
+msgid "Min"
+msgstr "Min"
+
+msgid "Min, max and step for evaluation ratings."
+msgstr "Min, max en stap voor evaluatiebeoordelingen."
+
+msgid "No trial cases match those filters yet."
+msgstr "Nog geen trial-cases die aan deze filters voldoen."
+
+msgid "Or create a new player here"
+msgstr "Of maak hier een nieuwe speler aan"
+
+msgid "Per-locale string overrides and the .po/.mo refresh job."
+msgstr "Stringoverschrijvingen per taal en de .po/.mo-vernieuwingstaak."
+
+msgid "Per-module enable/disable toggles. Live in wp-admin."
+msgstr "Aan/uit-schakelaars per module. Beheerd in wp-admin."
+
+msgid "Pick a configuration area. Branding, theme and rating-scale settings are edited inline; the remaining areas open in wp-admin."
+msgstr "Kies een configuratiegebied. Branding, thema en beoordelingsschaal worden hier bewerkt; de overige gebieden openen in wp-admin."
+
+msgid "Please pick a player (or fill in first name, last name and date of birth to create one), a track, and start/end dates."
+msgstr "Kies een speler (of vul voornaam, achternaam en geboortedatum in om er een aan te maken), een traject en start-/einddata."
+
+msgid "Re-run the first-run onboarding wizard."
+msgstr "Doorloop de eerste-keer-onboardingwizard opnieuw."
+
+msgid "Save branding"
+msgstr "Branding opslaan"
+
+msgid "Save menus"
+msgstr "Menu's opslaan"
+
+msgid "Save rating scale"
+msgstr "Beoordelingsschaal opslaan"
+
+msgid "Save theme"
+msgstr "Thema opslaan"
+
+msgid "Secondary color"
+msgstr "Secundaire kleur"
+
+msgid "Settings + sensitive data change history."
+msgstr "Wijzigingsgeschiedenis van instellingen en gevoelige data."
+
+msgid "Show or hide the legacy wp-admin menu entries."
+msgstr "Toon of verberg de oudere wp-admin menu-items."
+
+msgid "Staff member"
+msgstr "Stafmedewerker"
+
+msgid "Staff slot %d"
+msgstr "Stafplek %d"
+
+msgid "Theme & fonts"
+msgstr "Thema & fonts"
+
+msgid "Theme inheritance, display + body fonts and accent colours."
+msgstr "Thema-overerving, display- en bodyfonts en accentkleuren."
+

@@ -9,22 +9,18 @@ use TT\Shared\Frontend\Components\FormSaveButton;
 
 /**
  * FrontendConfigurationView — frontend mirror of the wp-admin
- * Configuration → Branding tab + Rating Scale + a link out to the
- * remaining wp-admin tabs (Lookups, Eval Types, Toggles, Audit) for
- * which the frontend port is intentionally minimal in Sprint 5.
+ * Configuration page.
  *
- * The full Branding form (academy / logo / primary+secondary
- * colors / theme inheritance from #0023 / curated fonts / six
- * semantic colors) ports cleanly to the frontend because the
- * underlying config keys + sanitization were already centralized
- * in `QueryHelpers::set_config`.
+ * Layout follows the wp-admin Configuration tile grid: a landing page
+ * with one sub-tile per configuration area. Branding, Theme & fonts,
+ * and Rating scale render frontend forms inline (?config_sub=…); the
+ * remaining areas (lookups, evaluation types, feature toggles,
+ * backups, translations, audit log) link out to the existing wp-admin
+ * tabs because they're heavier admin work that doesn't yet have a
+ * dedicated frontend port.
  *
- * Logo upload uses `wp_enqueue_media()` per the Sprint 3 player-
- * photo pattern.
- *
- * Saving goes through `POST /wp-json/talenttrack/v1/config` (new,
- * Sprint 5) which whitelists the writable keys and gates on
- * `tt_edit_settings`.
+ * Saving the inline forms still goes through
+ * `POST /wp-json/talenttrack/v1/config`.
  */
 class FrontendConfigurationView extends FrontendViewBase {
 
@@ -36,24 +32,100 @@ class FrontendConfigurationView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
-        wp_enqueue_media();
-        self::renderHeader( __( 'Configuration', 'talenttrack' ) );
 
-        $logo          = QueryHelpers::get_config( 'logo_url', '' );
-        $theme_inherit = (string) QueryHelpers::get_config( 'theme_inherit', '0' );
-        $font_display  = (string) QueryHelpers::get_config( 'font_display',  BrandFonts::SYSTEM_DEFAULT );
-        $font_body     = (string) QueryHelpers::get_config( 'font_body',     BrandFonts::SYSTEM_DEFAULT );
+        $sub = isset( $_GET['config_sub'] ) ? sanitize_key( (string) $_GET['config_sub'] ) : '';
+
+        switch ( $sub ) {
+            case 'branding':
+                self::renderHeader( __( 'Branding', 'talenttrack' ) );
+                self::renderSubBackLink();
+                wp_enqueue_media();
+                self::renderBrandingForm();
+                return;
+            case 'theme':
+                self::renderHeader( __( 'Theme & fonts', 'talenttrack' ) );
+                self::renderSubBackLink();
+                self::renderThemeForm();
+                return;
+            case 'rating':
+                self::renderHeader( __( 'Rating scale', 'talenttrack' ) );
+                self::renderSubBackLink();
+                self::renderRatingForm();
+                return;
+            case 'menus':
+                self::renderHeader( __( 'wp-admin menus', 'talenttrack' ) );
+                self::renderSubBackLink();
+                self::renderMenusForm();
+                return;
+        }
+
+        self::renderHeader( __( 'Configuration', 'talenttrack' ) );
+        self::renderTileGrid();
+    }
+
+    private static function renderSubBackLink(): void {
+        $base = remove_query_arg( [ 'config_sub' ] );
+        echo '<p style="margin:0 0 var(--tt-sp-3);"><a class="tt-link" href="' . esc_url( $base ) . '">← ' . esc_html__( 'All configuration', 'talenttrack' ) . '</a></p>';
+    }
+
+    private static function renderTileGrid(): void {
+        $base       = remove_query_arg( [ 'config_sub' ] );
+        $admin_url  = admin_url( 'admin.php?page=tt-config' );
+
+        $frontend_tiles = [
+            'branding' => [ __( 'Branding', 'talenttrack' ),     __( 'Academy name, logo, primary and secondary colours.', 'talenttrack' ) ],
+            'theme'    => [ __( 'Theme & fonts', 'talenttrack' ), __( 'Theme inheritance, display + body fonts and accent colours.', 'talenttrack' ) ],
+            'rating'   => [ __( 'Rating scale', 'talenttrack' ),  __( 'Min, max and step for evaluation ratings.', 'talenttrack' ) ],
+            'menus'    => [ __( 'wp-admin menus', 'talenttrack' ), __( 'Show or hide the legacy wp-admin menu entries.', 'talenttrack' ) ],
+        ];
+
+        $admin_tiles = [
+            [ __( 'Lookups & evaluation types', 'talenttrack' ), __( 'Activity types, positions, age groups, goal statuses, evaluation types — all in wp-admin.', 'talenttrack' ), add_query_arg( [ 'tab' => 'eval_types' ], $admin_url ) ],
+            [ __( 'Feature toggles', 'talenttrack' ),            __( 'Per-module enable/disable toggles. Live in wp-admin.', 'talenttrack' ),                                add_query_arg( [ 'tab' => 'toggles' ],     $admin_url ) ],
+            [ __( 'Backups', 'talenttrack' ),                    __( 'Manual + scheduled database backups. Lives in wp-admin.', 'talenttrack' ),                              add_query_arg( [ 'tab' => 'backups' ],     $admin_url ) ],
+            [ __( 'Translations', 'talenttrack' ),               __( 'Per-locale string overrides and the .po/.mo refresh job.', 'talenttrack' ),                              add_query_arg( [ 'tab' => 'translations' ], $admin_url ) ],
+            [ __( 'Audit log', 'talenttrack' ),                  __( 'Settings + sensitive data change history.', 'talenttrack' ),                                              add_query_arg( [ 'tab' => 'audit' ],       $admin_url ) ],
+            [ __( 'Setup wizard', 'talenttrack' ),               __( 'Re-run the first-run onboarding wizard.', 'talenttrack' ),                                                add_query_arg( [ 'tab' => 'wizard' ],      $admin_url ) ],
+        ];
+
+        echo '<p style="margin-bottom:var(--tt-sp-4); color:var(--tt-muted);">';
+        esc_html_e( 'Pick a configuration area. Branding, theme and rating-scale settings are edited inline; the remaining areas open in wp-admin.', 'talenttrack' );
+        echo '</p>';
 
         ?>
-        <p style="margin-bottom:var(--tt-sp-4); color:var(--tt-muted);">
-            <?php esc_html_e( 'Branding, theme inheritance and rating scale. For lookup tables, evaluation types, feature toggles and the audit log, open the wp-admin Configuration page.', 'talenttrack' ); ?>
-            <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-config' ) ); ?>"><?php esc_html_e( 'Open in wp-admin', 'talenttrack' ); ?> →</a>
-        </p>
+        <style>
+        .tt-cfg-tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+        .tt-cfg-tile { display: block; background: #fff; border: 1px solid #e5e7ea; border-radius: 8px; padding: 14px; text-decoration: none; color: #1a1d21; min-height: 76px; transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 180ms ease, border-color 180ms ease; }
+        .tt-cfg-tile:hover, .tt-cfg-tile:focus { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #d0d4d8; color: #1a1d21; }
+        .tt-cfg-tile-title { font-weight: 600; font-size: 14px; line-height: 1.25; margin: 0 0 4px; color: #1a1d21; }
+        .tt-cfg-tile-desc { color: #6b7280; font-size: 12px; line-height: 1.35; margin: 0; }
+        </style>
+        <?php
 
-        <form id="tt-config-form" data-tt-config-form="1">
+        echo '<div class="tt-cfg-tile-grid">';
+        foreach ( $frontend_tiles as $slug => $meta ) {
+            [ $title, $desc ] = $meta;
+            $url = add_query_arg( [ 'config_sub' => $slug ], $base );
+            echo '<a class="tt-cfg-tile" href="' . esc_url( $url ) . '">';
+            echo '<div class="tt-cfg-tile-title">' . esc_html( $title ) . '</div>';
+            echo '<div class="tt-cfg-tile-desc">' . esc_html( $desc ) . '</div>';
+            echo '</a>';
+        }
+        foreach ( $admin_tiles as $tile ) {
+            [ $title, $desc, $url ] = $tile;
+            echo '<a class="tt-cfg-tile" href="' . esc_url( $url ) . '">';
+            echo '<div class="tt-cfg-tile-title">' . esc_html( $title ) . ' ↗</div>';
+            echo '<div class="tt-cfg-tile-desc">' . esc_html( $desc ) . '</div>';
+            echo '</a>';
+        }
+        echo '</div>';
+    }
+
+    private static function renderBrandingForm(): void {
+        $logo = QueryHelpers::get_config( 'logo_url', '' );
+        ?>
+        <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="branding">
             <div class="tt-panel">
-                <h3 class="tt-panel-title"><?php esc_html_e( 'Branding', 'talenttrack' ); ?></h3>
-
                 <div class="tt-grid tt-grid-2">
                     <div class="tt-field">
                         <label class="tt-field-label" for="tt-cfg-academy-name"><?php esc_html_e( 'Academy name', 'talenttrack' ); ?></label>
@@ -82,9 +154,22 @@ class FrontendConfigurationView extends FrontendViewBase {
                     </div>
                 </div>
             </div>
+            <div class="tt-form-actions" style="margin-top:16px;">
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save branding', 'talenttrack' ) ] ); ?>
+            </div>
+            <div class="tt-form-msg"></div>
+        </form>
+        <?php
+        self::renderConfigJs( true );
+    }
 
+    private static function renderThemeForm(): void {
+        $theme_inherit = (string) QueryHelpers::get_config( 'theme_inherit', '0' );
+        $font_display  = (string) QueryHelpers::get_config( 'font_display',  BrandFonts::SYSTEM_DEFAULT );
+        $font_body     = (string) QueryHelpers::get_config( 'font_body',     BrandFonts::SYSTEM_DEFAULT );
+        ?>
+        <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="theme">
             <div class="tt-panel">
-                <h3 class="tt-panel-title"><?php esc_html_e( 'Theme inheritance & curated styling', 'talenttrack' ); ?></h3>
                 <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);">
                     <?php esc_html_e( 'Inheritance applies to fonts, colors, and basic links/buttons. TalentTrack’s structural design (spacing, layout, player cards) is unchanged. Pick fonts and accent colors below — fields left as “(System default)” or empty fall back to TalentTrack’s defaults.', 'talenttrack' ); ?>
                 </p>
@@ -131,9 +216,47 @@ class FrontendConfigurationView extends FrontendViewBase {
                     <?php endforeach; ?>
                 </div>
             </div>
+            <div class="tt-form-actions" style="margin-top:16px;">
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save theme', 'talenttrack' ) ] ); ?>
+            </div>
+            <div class="tt-form-msg"></div>
+        </form>
+        <?php
+        self::renderConfigJs( false );
+    }
 
+    private static function renderRatingForm(): void {
+        ?>
+        <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="rating">
             <div class="tt-panel">
-                <h3 class="tt-panel-title"><?php esc_html_e( 'wp-admin menus', 'talenttrack' ); ?></h3>
+                <div class="tt-grid tt-grid-3">
+                    <div class="tt-field">
+                        <label class="tt-field-label" for="tt-cfg-rating-min"><?php esc_html_e( 'Min', 'talenttrack' ); ?></label>
+                        <input type="number" inputmode="decimal" id="tt-cfg-rating-min" class="tt-input" name="config[rating_min]" min="0" max="10" step="0.5" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_min', '1' ) ); ?>" />
+                    </div>
+                    <div class="tt-field">
+                        <label class="tt-field-label" for="tt-cfg-rating-max"><?php esc_html_e( 'Max', 'talenttrack' ); ?></label>
+                        <input type="number" inputmode="decimal" id="tt-cfg-rating-max" class="tt-input" name="config[rating_max]" min="1" max="20" step="0.5" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_max', '5' ) ); ?>" />
+                    </div>
+                    <div class="tt-field">
+                        <label class="tt-field-label" for="tt-cfg-rating-step"><?php esc_html_e( 'Step', 'talenttrack' ); ?></label>
+                        <input type="number" inputmode="decimal" id="tt-cfg-rating-step" class="tt-input" name="config[rating_step]" min="0.1" max="1" step="0.1" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_step', '0.5' ) ); ?>" />
+                    </div>
+                </div>
+            </div>
+            <div class="tt-form-actions" style="margin-top:16px;">
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save rating scale', 'talenttrack' ) ] ); ?>
+            </div>
+            <div class="tt-form-msg"></div>
+        </form>
+        <?php
+        self::renderConfigJs( false );
+    }
+
+    private static function renderMenusForm(): void {
+        ?>
+        <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="menus">
+            <div class="tt-panel">
                 <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);">
                     <?php esc_html_e( 'TalentTrack admin tools moved to the frontend in v3.12.0. The legacy wp-admin menu entries (Players, Teams, Configuration, …) are hidden by default. Direct URLs to those pages still work as an emergency fallback.', 'talenttrack' ); ?>
                 </p>
@@ -148,34 +271,20 @@ class FrontendConfigurationView extends FrontendViewBase {
                     </p>
                 </div>
             </div>
-
-            <div class="tt-panel">
-                <h3 class="tt-panel-title"><?php esc_html_e( 'Rating scale', 'talenttrack' ); ?></h3>
-                <div class="tt-grid tt-grid-3">
-                    <div class="tt-field">
-                        <label class="tt-field-label" for="tt-cfg-rating-min"><?php esc_html_e( 'Min', 'talenttrack' ); ?></label>
-                        <input type="number" id="tt-cfg-rating-min" class="tt-input" name="config[rating_min]" min="0" max="10" step="0.5" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_min', '1' ) ); ?>" />
-                    </div>
-                    <div class="tt-field">
-                        <label class="tt-field-label" for="tt-cfg-rating-max"><?php esc_html_e( 'Max', 'talenttrack' ); ?></label>
-                        <input type="number" id="tt-cfg-rating-max" class="tt-input" name="config[rating_max]" min="1" max="20" step="0.5" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_max', '5' ) ); ?>" />
-                    </div>
-                    <div class="tt-field">
-                        <label class="tt-field-label" for="tt-cfg-rating-step"><?php esc_html_e( 'Step', 'talenttrack' ); ?></label>
-                        <input type="number" id="tt-cfg-rating-step" class="tt-input" name="config[rating_step]" min="0.1" max="1" step="0.1" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_step', '0.5' ) ); ?>" />
-                    </div>
-                </div>
-            </div>
-
             <div class="tt-form-actions" style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => __( 'Save configuration', 'talenttrack' ) ] ); ?>
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save menus', 'talenttrack' ) ] ); ?>
             </div>
             <div class="tt-form-msg"></div>
         </form>
+        <?php
+        self::renderConfigJs( false );
+    }
 
+    private static function renderConfigJs( bool $with_logo ): void {
+        ?>
         <script>
         (function(){
-            // Logo picker
+            <?php if ( $with_logo ) : ?>
             if (typeof wp !== 'undefined' && wp.media) {
                 var frame;
                 var pickBtn = document.getElementById('tt-cfg-logo-pick');
@@ -203,8 +312,8 @@ class FrontendConfigurationView extends FrontendViewBase {
                     preview.innerHTML = '';
                 });
             }
+            <?php endif; ?>
 
-            // Form submit — POST to /config with the namespaced payload.
             var form = document.getElementById('tt-config-form');
             if (!form) return;
             form.addEventListener('submit', function(e){
@@ -220,9 +329,8 @@ class FrontendConfigurationView extends FrontendViewBase {
                     var m = /^config\[(.+)\]$/.exec(key);
                     if (m) config[m[1]] = value;
                 });
-                // Hidden 0 trick for the toggles — if the box wasn't checked, send 0.
-                if (config.theme_inherit === undefined || config.theme_inherit === '') config.theme_inherit = '0';
-                if (config.show_legacy_menus === undefined || config.show_legacy_menus === '') config.show_legacy_menus = '0';
+                if (form.dataset.ttConfigSub === 'theme' && (config.theme_inherit === undefined || config.theme_inherit === '')) config.theme_inherit = '0';
+                if (form.dataset.ttConfigSub === 'menus' && (config.show_legacy_menus === undefined || config.show_legacy_menus === '')) config.show_legacy_menus = '0';
 
                 var url = (rest.rest_url || '/wp-json/talenttrack/v1/').replace(/\/+$/, '/') + 'config';
                 var headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' };

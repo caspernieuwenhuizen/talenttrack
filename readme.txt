@@ -4,13 +4,21 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.48.0
+Stable tag: 3.49.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.49.0 — Trial inline-create flow, StaffPickerComponent, Configuration sub-grid =
+
+Closes the three deferred items called out at the bottom of v3.48.0. Each shipped as new code rather than tweaks.
+
+* **NEW:** `StaffPickerComponent` — autocomplete-driven staff/coach picker that mirrors `PlayerSearchPickerComponent`. Reuses the same `.tt-psp` JS hydrator, so staff and player pickers stay visually + behaviourally consistent. Replaces plain `<select>` user dropdowns in the trial-case staff assignment form, the trial-case create form's three initial-staff slots, and the new-team wizard's four staff slots. Ambiguous display names get a role-label suffix (e.g. "Jan Jansen — Coach").
+* **NEW:** Trial player inline-create flow. The trial-case create form now uses the autocomplete player picker plus a "Or create a new player here" disclosure block with first-name / last-name / DOB fields. Filling the inline fields without picking an existing player creates a `tt_players` row with `status = 'trial'` first and uses that ID for the case. The HoD no longer has to bounce out to the New Player wizard.
+* **NEW:** Configuration tile sub-page. The frontend Configuration view now opens to a sub-tile grid mirroring the wp-admin Configuration submenu. Branding, Theme & fonts, Rating scale, and wp-admin menus render as inline forms with their own save buttons; Lookups, Feature toggles, Backups, Translations, Audit log, and Setup wizard link out to wp-admin where those areas already live.
 
 = 3.48.0 — Demo-readiness round 2: monetization gate fix, parents see Me-group, cadence relabel, journey filter declutter, trial form CSS, role labelling =
 

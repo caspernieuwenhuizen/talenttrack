@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Team;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Shared\Frontend\Components\StaffPickerComponent;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -28,21 +29,28 @@ final class StaffStep implements WizardStepInterface {
     public function slug(): string { return 'staff'; }
     public function label(): string { return __( 'Staff', 'talenttrack' ); }
 
+    private static function slotLabel( string $key ): string {
+        switch ( $key ) {
+            case 'head_coach':      return __( 'Head coach', 'talenttrack' );
+            case 'assistant_coach': return __( 'Assistant coach', 'talenttrack' );
+            case 'team_manager':    return __( 'Team manager', 'talenttrack' );
+            case 'physio':          return __( 'Physio', 'talenttrack' );
+        }
+        return $key;
+    }
+
     public function render( array $state ): void {
         echo '<p>' . esc_html__( 'Assign staff to this team. Each slot is optional — you can fill it in later from the People page.', 'talenttrack' ) . '</p>';
 
-        $candidates = get_users( [
-            'role__in' => [ 'tt_coach', 'tt_head_dev', 'tt_club_admin', 'administrator' ],
-            'fields'   => [ 'ID', 'display_name' ],
-        ] );
-        foreach ( self::SLOTS as $key => $label ) {
+        foreach ( array_keys( self::SLOTS ) as $key ) {
             $current = isset( $state[ 'staff_' . $key ] ) ? (int) $state[ 'staff_' . $key ] : 0;
-            echo '<label><span>' . esc_html__( $label, 'talenttrack' ) . '</span><select name="staff_' . esc_attr( $key ) . '">';
-            echo '<option value="0">' . esc_html__( '— none —', 'talenttrack' ) . '</option>';
-            foreach ( $candidates as $u ) {
-                echo '<option value="' . esc_attr( (string) $u->ID ) . '" ' . selected( $current, (int) $u->ID, false ) . '>' . esc_html( (string) $u->display_name ) . '</option>';
-            }
-            echo '</select></label>';
+            echo StaffPickerComponent::render( [
+                'name'        => 'staff_' . $key,
+                'label'       => self::slotLabel( $key ),
+                'required'    => false,
+                'selected'    => $current,
+                'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
+            ] );
         }
     }
 
