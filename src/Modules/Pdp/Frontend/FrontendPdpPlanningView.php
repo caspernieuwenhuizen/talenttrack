@@ -16,13 +16,16 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * link into the existing filtered PDP file list (`?tt_view=pdp&filter[team_id]=N`)
  * for drill-down to specific files.
  *
- * Cap-gated on `tt_view_pdp` + admin/HoD scope. Read-only — all writes
+ * Cap-gated on `tt_edit_pdp` (HoD / coach / admin). Players + parents
+ * hold `tt_view_pdp` for their own self-scope per #0033 — that's
+ * insufficient for cross-team planning, so the planning matrix
+ * checks the edit cap as the chokepoint. Read-only — all writes
  * happen on the per-file detail view via the existing PDP REST surface.
  */
 final class FrontendPdpPlanningView {
 
     public static function render( int $user_id, bool $is_admin ): void {
-        if ( ! current_user_can( 'tt_view_pdp' ) ) {
+        if ( ! current_user_can( 'tt_edit_pdp' ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view PDP planning.', 'talenttrack' ) . '</p>';
             return;
         }

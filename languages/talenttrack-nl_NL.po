@@ -1875,6 +1875,130 @@ msgstr "Totaal:"
 msgid "Save weights"
 msgstr "Gewichten opslaan"
 
+msgid "Reset"
+msgstr "Wissen"
+
+# #0061 follow-up — q2 polish gap
+msgid "Library"
+msgstr "Bibliotheek"
+
+msgid "Added %s to the canvas."
+msgstr "%s toegevoegd aan het canvas."
+
+msgid "Lookups"
+msgstr "Lookuplijsten"
+
+msgid "Spond integration"
+msgstr "Spond-integratie"
+
+msgid "Spond"
+msgstr "Spond"
+
+msgid "Connected"
+msgstr "Gekoppeld"
+
+msgid "Last sync"
+msgstr "Laatste sync"
+
+msgid "Add URL"
+msgstr "URL toevoegen"
+
+msgid "Pick a lookup category. Editing happens in wp-admin; values entered here are translatable and feed every dropdown across the dashboard."
+msgstr "Kies een lookupcategorie. Bewerken gebeurt in wp-admin; waarden zijn vertaalbaar en voeden elke dropdown in het dashboard."
+
+msgid "Pick a configuration area. Branding, theme, rating scale, and lookups are edited inline; the remaining areas open in wp-admin."
+msgstr "Kies een configuratieonderdeel. Branding, thema, beoordelingsschaal en lookuplijsten zijn inline bewerkbaar; de overige onderdelen openen in wp-admin."
+
+msgid "Activity types, positions, age groups, goal statuses, evaluation types — every dropdown vocabulary in one place."
+msgstr "Activiteitstypes, posities, leeftijdsgroepen, doelstatussen, evaluatietypes — alle dropdownwaarden op één plek."
+
+msgid "Per-team iCal sync status and \"Refresh now\" buttons. Lives in wp-admin."
+msgstr "Per-team iCal-syncstatus en \"Nu vernieuwen\"-knoppen. Te beheren in wp-admin."
+
+msgid "Evaluation types"
+msgstr "Evaluatietypes"
+
+msgid "The evaluation templates rosters can attach to a player record."
+msgstr "De evaluatiesjablonen die aan een spelerrecord gekoppeld kunnen worden."
+
+msgid "Activity types"
+msgstr "Activiteitstypes"
+
+msgid "Training, game, tournament, meeting — colour-coded type pills."
+msgstr "Training, wedstrijd, toernooi, bijeenkomst — gekleurde type-pills."
+
+msgid "Game subtypes"
+msgstr "Wedstrijdsubtypes"
+
+msgid "Friendly, league, cup, tournament. Filters game-only reports."
+msgstr "Oefenwedstrijd, competitie, beker, toernooi. Filtert wedstrijdrapporten."
+
+msgid "Positions"
+msgstr "Posities"
+
+msgid "Football positions players can be tagged with."
+msgstr "Voetbalposities die aan spelers kunnen worden toegekend."
+
+msgid "Preferred foot"
+msgstr "Voorkeursvoet"
+
+msgid "Left, right, both — used on the player edit form."
+msgstr "Links, rechts, beide — gebruikt op het spelerbewerkformulier."
+
+msgid "Age groups"
+msgstr "Leeftijdsgroepen"
+
+msgid "U7, U8, … U23 — feed the team age-group dropdown and weights."
+msgstr "O7, O8, … O23 — voeden de team-leeftijdsgroep dropdown en gewichten."
+
+msgid "Goal statuses"
+msgstr "Doelstatussen"
+
+msgid "Open / in progress / done / cancelled. Drives the goals KPI."
+msgstr "Open / mee bezig / afgerond / geannuleerd. Voedt de doelen-KPI."
+
+msgid "Goal priorities"
+msgstr "Doelprioriteiten"
+
+msgid "Low / medium / high. Sorts the my-goals list."
+msgstr "Laag / midden / hoog. Sorteert de mijn-doelen-lijst."
+
+msgid "Attendance statuses"
+msgstr "Aanwezigheidsstatussen"
+
+msgid "Present / absent / excused / late. Drives the attendance KPI."
+msgstr "Aanwezig / afwezig / verontschuldigd / te laat. Voedt de aanwezigheids-KPI."
+
+msgid "%1$d teams. %2$d connected to Spond. %3$d with the last sync errored."
+msgstr "%1$d teams. %2$d gekoppeld aan Spond. %3$d met een mislukte laatste sync."
+
+msgid "Next automatic sync in about %s."
+msgstr "Volgende automatische sync over ongeveer %s."
+
+msgid "Sync triggered. Reload to see the updated status."
+msgstr "Sync gestart. Herlaad om de bijgewerkte status te zien."
+
+msgid "That team does not have a Spond iCal URL on file."
+msgstr "Dit team heeft geen Spond iCal-URL ingesteld."
+
+msgid "No teams yet. Spond pulls per team — add a team first, then paste the Spond iCal URL on the team edit form."
+msgstr "Nog geen teams. Spond werkt per team — voeg eerst een team toe en plak vervolgens de Spond iCal-URL op het teambewerkformulier."
+
+msgid "Not configured"
+msgstr "Niet ingesteld"
+
+msgid "Partial"
+msgstr "Gedeeltelijk"
+
+msgid "Your attendance"
+msgstr "Jouw aanwezigheid"
+
+msgid "That activity is no longer available."
+msgstr "Deze activiteit is niet meer beschikbaar."
+
+msgid "That goal is no longer available, or it does not belong to your record."
+msgstr "Dit doel is niet meer beschikbaar, of hoort niet bij jouw record."
+
 msgid "Reset to equal"
 msgstr "Reset naar gelijk"
 

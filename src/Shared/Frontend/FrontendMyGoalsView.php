@@ -8,12 +8,20 @@ use TT\Infrastructure\Query\LabelTranslator;
 /**
  * FrontendMyGoalsView — the "My goals" tile destination.
  *
- * v3.0.0 slice 3. Shows development goals set by the player's
- * coaches, grouped visually by status via color-coded cards.
+ * v3.0.0 slice 3 listed goals; #0061 follow-up wraps each row in a
+ * link to its detail view (`?tt_view=my-goals&id=N`) so users can
+ * drill into the full description, due date, and status history
+ * without leaving the player surface.
  */
 class FrontendMyGoalsView extends FrontendViewBase {
 
     public static function render( object $player ): void {
+        $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+        if ( $id > 0 ) {
+            self::renderDetail( $player, $id );
+            return;
+        }
+
         self::enqueueAssets();
         self::renderHeader( __( 'My goals', 'talenttrack' ) );
 
@@ -32,10 +40,14 @@ class FrontendMyGoalsView extends FrontendViewBase {
             return;
         }
 
+        $base = remove_query_arg( [ 'id' ] );
         ?>
         <div class="tt-goals-list">
-            <?php foreach ( $goals as $g ) : ?>
-                <div class="tt-goal-item tt-status-<?php echo esc_attr( (string) $g->status ); ?>">
+            <?php foreach ( $goals as $g ) :
+                $detail_url = add_query_arg( 'id', (int) $g->id, $base );
+                ?>
+                <a class="tt-goal-item tt-status-<?php echo esc_attr( (string) $g->status ); ?> tt-record-link"
+                   href="<?php echo esc_url( $detail_url ); ?>">
                     <h4><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $g->title ) ); ?></h4>
                     <?php if ( ! empty( $g->description ) ) : ?>
                         <p><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $g->description ) ); ?></p>
@@ -44,9 +56,72 @@ class FrontendMyGoalsView extends FrontendViewBase {
                     <?php if ( ! empty( $g->due_date ) ) : ?>
                         <small><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( (string) $g->due_date ); ?></small>
                     <?php endif; ?>
-                </div>
+                </a>
             <?php endforeach; ?>
         </div>
+        <style>
+            .tt-record-link { display: block; text-decoration: none; color: inherit; }
+            .tt-record-link:hover, .tt-record-link:focus-visible { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-1px); transition: transform 180ms ease, box-shadow 180ms ease; }
+        </style>
         <?php
+    }
+
+    /**
+     * Single-goal detail view, reachable via `?tt_view=my-goals&id=N`.
+     * Back button returns to the goals list. Renders the goal title,
+     * full description, status, priority, due date, and the
+     * conversation thread (#0028) inline so the player can read coach
+     * comments without losing context.
+     */
+    private static function renderDetail( object $player, int $goal_id ): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $goal = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$p}tt_goals
+              WHERE id = %d AND player_id = %d AND archived_at IS NULL
+              LIMIT 1",
+            $goal_id, (int) $player->id
+        ) );
+
+        $back_url = remove_query_arg( [ 'id' ] );
+        FrontendBackButton::render( $back_url );
+
+        if ( ! $goal ) {
+            self::renderHeader( __( 'Goal not found', 'talenttrack' ) );
+            echo '<p><em>' . esc_html__( 'That goal is no longer available, or it does not belong to your record.', 'talenttrack' ) . '</em></p>';
+            return;
+        }
+
+        self::enqueueAssets();
+        self::renderHeader( (string) \TT\Modules\Translations\TranslationLayer::render( (string) $goal->title ) );
+
+        $status   = (string) $goal->status;
+        $priority = (string) ( $goal->priority ?? '' );
+        ?>
+        <article class="tt-goal-detail tt-status-<?php echo esc_attr( $status ); ?>">
+            <p class="tt-goal-detail-meta">
+                <span class="tt-status-badge"><?php echo esc_html( LabelTranslator::goalStatus( $status ) ); ?></span>
+                <?php if ( $priority !== '' ) : ?>
+                    <span class="tt-priority-badge"><?php echo esc_html( LabelTranslator::goalPriority( $priority ) ); ?></span>
+                <?php endif; ?>
+                <?php if ( ! empty( $goal->due_date ) ) : ?>
+                    <span class="tt-due"><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( (string) $goal->due_date ); ?></span>
+                <?php endif; ?>
+            </p>
+            <?php if ( ! empty( $goal->description ) ) : ?>
+                <div class="tt-goal-detail-body">
+                    <?php echo wp_kses_post( wpautop( \TT\Modules\Translations\TranslationLayer::render( (string) $goal->description ) ) ); ?>
+                </div>
+            <?php endif; ?>
+        </article>
+
+        <?php
+        // #0028 conversation thread on the goal — coaches and the
+        // player + parent see chat-style messages without leaving
+        // this surface.
+        if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' ) ) {
+            \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, get_current_user_id() );
+        }
     }
 }

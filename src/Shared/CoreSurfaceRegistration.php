@@ -393,7 +393,11 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'HoD matrix: per-team-per-block planned vs conducted conversations.', 'talenttrack' ),
             'icon'         => 'goals',
             'color'        => '#1d7874',
-            'cap'          => 'tt_view_pdp',
+            // Players + parents hold tt_view_pdp for their own self-scope
+            // per #0033, but the planning matrix is the HoD/coach cross-
+            // team surface. Gate on the edit cap so the tile + view render
+            // only for roles that legitimately plan.
+            'cap'          => 'tt_edit_pdp',
         ]);
         TileRegistry::register([
             'module_class' => self::M_PLAYERS,

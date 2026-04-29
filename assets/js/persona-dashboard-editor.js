@@ -300,7 +300,7 @@
             var head = document.createElement('button');
             head.type = 'button';
             head.className = 'tt-pde-palette-group-head';
-            head.setAttribute('aria-expanded', 'true');
+            head.setAttribute('aria-expanded', 'false');
             head.innerHTML =
                 '<span>' + escape(label) + ' <span style="opacity:.6">· ' + rows.length + '</span></span>' +
                 '<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
@@ -361,9 +361,14 @@
                 if (currentDragKind() == null) return;
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
+                t.node.classList.add('is-drop-target');
+            });
+            t.node.addEventListener('dragleave', function (e) {
+                if (e.target === t.node) t.node.classList.remove('is-drop-target');
             });
             t.node.addEventListener('drop', function (e) {
                 e.preventDefault();
+                t.node.classList.remove('is-drop-target');
                 handleDropOnBand(t.kind, e);
             });
         });
@@ -425,11 +430,13 @@
             window.__ttPdeDrag = { kind: 'move', slotId: slot.__id };
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/plain', slot.__id);
-            card.classList.add('is-grabbed');
+            card.classList.add('is-dragging');
+            document.body.classList.add('tt-pde-dragging');
         });
         card.addEventListener('dragend', function () {
             window.__ttPdeDrag = null;
-            card.classList.remove('is-grabbed');
+            card.classList.remove('is-dragging');
+            document.body.classList.remove('tt-pde-dragging');
         });
 
         // Keyboard a11y: space to grab/drop, arrows to move, escape to cancel, delete to remove.
@@ -474,6 +481,14 @@
         window.__ttPdeDrag = { kind: kind, paletteId: id };
         e.dataTransfer.effectAllowed = 'copy';
         e.dataTransfer.setData('text/plain', id);
+        t.classList.add('is-dragging');
+        document.body.classList.add('tt-pde-dragging');
+        var endHandler = function () {
+            t.classList.remove('is-dragging');
+            document.body.classList.remove('tt-pde-dragging');
+            t.removeEventListener('dragend', endHandler);
+        };
+        t.addEventListener('dragend', endHandler);
     }
     function onPaletteKey(e) {
         if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -524,6 +539,10 @@
         }
         commit();
         selectSlot(slot.__id);
+
+        var w = widgetById(widgetId);
+        var label = w ? w.label : widgetId;
+        setStatus(formatString(I18N.widget_added, [label]) || (label + ' added.'), 'ok');
     }
 
     function moveExistingSlot(slotId, targetBand, ev) {
@@ -684,8 +703,16 @@
             btn.addEventListener('click', function () {
                 if (slot.size === sz) return;
                 slot.size = sz;
+                // Clamp x so the resized card stays within the 12-col grid.
+                // Without this, an L slot at x=6 resized to L stays at x=6,
+                // overflowing past column 12 — the card visually disappears
+                // off the canvas with no feedback that the resize happened.
+                var hit = findSlotAndBand(slot.__id);
+                if (hit && hit.band === 'grid') {
+                    var max_x = Math.max(0, 12 - colsForSize(sz));
+                    if (slot.x > max_x) slot.x = max_x;
+                }
                 commit();
-                renderProperties();
             });
             box.appendChild(btn);
         });
@@ -895,6 +922,15 @@
         // Toolbar
         document.querySelector('[data-tt-pde="undo"]').addEventListener('click', undo);
         document.querySelector('[data-tt-pde="redo"]').addEventListener('click', redo);
+        var libToggle = document.querySelector('[data-tt-pde="library-toggle"]');
+        if (libToggle) {
+            libToggle.addEventListener('click', function () {
+                var wrap = document.querySelector('.tt-pde-wrap');
+                var open = wrap.getAttribute('data-library-open') === 'true';
+                wrap.setAttribute('data-library-open', open ? 'false' : 'true');
+                libToggle.setAttribute('aria-pressed', open ? 'false' : 'true');
+            });
+        }
         document.querySelector('[data-tt-pde="mobile-preview"]').addEventListener('click', function () {
             state.mobilePreview = !state.mobilePreview;
             renderAll();

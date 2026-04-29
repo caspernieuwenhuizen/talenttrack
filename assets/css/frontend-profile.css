@@ -192,6 +192,11 @@
     gap: 10px;
 }
 .tt-profile-goal {
+    padding: 0;
+    background: transparent;
+    border-radius: 8px;
+}
+.tt-profile-goal-link {
     display: grid;
     grid-template-columns: 1fr auto;
     grid-auto-rows: auto;
@@ -201,6 +206,16 @@
     padding: 10px 12px;
     background: #f7f9fb;
     border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+.tt-profile-goal-link:hover,
+.tt-profile-goal-link:focus-visible {
+    background: #eef2f6;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    outline: none;
 }
 .tt-profile-goal-title {
     grid-column: 1;
@@ -252,14 +267,26 @@
     gap: 8px;
 }
 .tt-profile-upcoming-row {
+    padding: 0;
+    border-bottom: 1px solid var(--tt-profile-line);
+}
+.tt-profile-upcoming-row:last-child { border-bottom: 0; }
+.tt-profile-upcoming-link {
     display: grid;
     grid-template-columns: 96px 1fr;
     column-gap: 12px;
     row-gap: 2px;
     padding: 8px 0;
-    border-bottom: 1px solid var(--tt-profile-line);
+    text-decoration: none;
+    color: inherit;
+    transition: background 180ms ease;
+    border-radius: 4px;
 }
-.tt-profile-upcoming-row:last-child { border-bottom: 0; }
+.tt-profile-upcoming-link:hover,
+.tt-profile-upcoming-link:focus-visible {
+    background: #f3f6f9;
+    outline: none;
+}
 .tt-profile-upcoming-date {
     grid-column: 1;
     grid-row: 1 / span 2;
