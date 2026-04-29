@@ -9651,6 +9651,49 @@ msgstr "Lay-out kon niet worden gepubliceerd."
 msgid "You do not have permission to edit persona dashboard layouts."
 msgstr "Je hebt geen toestemming om persona-dashboardlay-outs te bewerken."
 
+# #0060 sprint 3 — hero data wiring + team tabs + flag flip
+
+msgid "Rolling rating across your last %d evaluations."
+msgstr "Doorlopende beoordeling over je laatste %d evaluaties."
+
+msgid "Your rate card fills in once your coach saves your first evaluation."
+msgstr "Je ratingcard wordt gevuld zodra je trainer de eerste evaluatie opslaat."
+
+msgid "Today"
+msgstr "Vandaag"
+
+msgid "Tomorrow"
+msgstr "Morgen"
+
+msgid "Up next · %s"
+msgstr "Eerstvolgende · %s"
+
+msgid "Activity"
+msgstr "Activiteit"
+
+msgid "%d new evaluation across your children."
+msgid_plural "%d new evaluations across your children."
+msgstr[0] "%d nieuwe evaluatie voor je kinderen."
+msgstr[1] "%d nieuwe evaluaties voor je kinderen."
+
+msgid "Never run"
+msgstr "Nog nooit uitgevoerd"
+
+msgid "Free"
+msgstr "Gratis"
+
+msgid "All"
+msgstr "Alle"
+
+msgid "My teams"
+msgstr "Mijn teams"
+
+msgid "Drag-and-drop editor — tune what each persona sees on their landing page."
+msgstr "Drag-and-drop-editor — bepaal wat elke persona ziet op zijn landingspagina."
+
+msgid "Personas"
+msgstr "Persona's"
+
 # v3.50.0 — Spond integration (#0031)
 
 msgid "Spond iCal URL"
@@ -9764,4 +9807,3 @@ msgstr "Je kunt doorgaan op je telefoon, maar een groter scherm maakt bewerken m
 
 msgid "Dismiss for now"
 msgstr "Voor nu sluiten"
-
