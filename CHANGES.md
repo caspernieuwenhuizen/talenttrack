@@ -1,3 +1,58 @@
+# TalentTrack v3.48.0 — Demo-readiness round 2
+
+Continues the v3.46.0 hotfix bundle with six more user-reported fixes. v3.47.0 (parallel agent) shipped activity polish + cohort fix + wizard config UX in between.
+
+## Fixes
+
+### Monetization gate honours module-disabled state
+
+`src/Shared/Frontend/FrontendComparisonView.php`, `FrontendRateCardView.php`, `FrontendPlayersCsvImportView.php` — three frontend views had `class_exists('\\TT\\Modules\\License\\LicenseGate')` as the gate, which is always true because PHP autoload makes the class loadable regardless of whether the module booted. Added a `\TT\Core\ModuleRegistry::isEnabled('TT\\Modules\\License\\LicenseModule')` guard before the gate fires. When the License module is toggled off in the Modules admin, tier checks are skipped and the feature renders unconditionally.
+
+### Parents see the Me-group dashboard
+
+`src/Shared/CoreSurfaceRegistration.php` — added `is_player_or_parent_cb` callback (`is_player_cb($uid) || user_can($uid, 'tt_parent')`). Six Me-group tiles updated to use it: My card, My team, My evaluations, My activities, My goals, My journey. My PDP already had a parent branch. My profile stays player-only because the view expects a player record. The `parent` matrix scope (in `config/authorization_seed.php`) already grants parents read access to their child's data, so the tile views resolve correctly.
+
+### Workflow cadence + deadline relabelled
+
+`src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php` — "Cadence" → "How often (cron)" with an inline `?` help tooltip explaining the cron-expression format and the "leave placeholder unchanged" hint. "Deadline offset" → "Deadline (days)" with a help tooltip. Page intro paragraph rewritten in plainer language ("Turn templates on or off, and override how often they run + how long users have to act").
+
+### Journey filter bar collapsed
+
+`src/Modules/Journey/Frontend/FrontendJourneyView.php` — three primary chips (`evaluation_completed` / `injury_started` / `trial_ended`) stay visible; the rest of the event types are wrapped in a `<details>` element labelled "More filters (N)". Auto-opens if any secondary filter is currently active. Reset and Filter buttons unchanged.
+
+### Trial cases create form has a proper desktop layout
+
+`assets/css/frontend-admin.css` — new CSS block under `.tt-dashboard .tt-trial-create-form`. 2-column grid at 768px+ (Player + Track on row 1, Start + End on row 2), full-width staff fieldset + notes + actions. Inputs styled at 48px min-height with `font-size: 1rem` (no iOS auto-zoom). Mobile stays single-column.
+
+### Roles & rights vs Functional roles labelling
+
+Already merged ahead of this release in PR #115. Rolled into the v3.48.0 release for changelog continuity. "Roles & Permissions" admin menu → "Roles & rights"; intro paragraphs rewritten on both pages with cross-links pointing at the other surface; tile description tightened.
+
+## Translations
+
+7 new NL strings: cadence + deadline labels and tooltips, journey "More filters (%d)".
+
+## What's deferred to v3.49.0
+
+Three larger items still queued — they each need real new code rather than tweaks:
+
+- **Trial player inline-create flow** (#1, Option A): embed a player-create mini-form inside the trial-case create UI so users don't need a pre-existing player record.
+- **`StaffPickerComponent`** (#3): mirror `PlayerSearchPickerComponent` for picking staff, replacing plain `<select>` user dropdowns in 3 places (trial case staff assignment, new-team wizard staff step, etc.).
+- **Configuration tile sub-page** (#8): the frontend Configuration tile currently links out to wp-admin; should open a sub-tile grid mirroring the wp-admin Configuration submenu (lookups, branding, toggles, backups, etc.).
+
+These are real product features, not config tweaks. Each is 1-3h compressed.
+
+## Acceptance criteria (manually verified)
+
+- [ ] Disabling License module hides upgrade nudges on Player comparison, Rate cards, CSV import.
+- [ ] Parent role sees the Me group on dashboard with their child's data.
+- [ ] Workflow templates config shows "How often (cron)" + "Deadline (days)" labels + help tooltips.
+- [ ] Player journey shows 3 primary chips + "More filters (N)" toggle.
+- [ ] Trial cases create form renders 2-column on desktop, single-column on mobile.
+- [ ] Roles & rights admin menu reads "Roles & rights" + has cross-links.
+
+---
+
 # TalentTrack v3.47.0 — Activity status + source, colour pills, cohort tile fix, wizard config UX
 
 Five small asks bundled together. Each lands on the activity surface or polishes an admin UX paper-cut.

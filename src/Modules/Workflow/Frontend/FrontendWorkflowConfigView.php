@@ -92,7 +92,7 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
         <?php endif; ?>
 
         <p style="color:#5b6e75; margin: 0 0 16px;">
-            <?php esc_html_e( 'Enable or disable shipped templates and override their cadence and deadline. Changes take effect on the next cron tick or trigger.', 'talenttrack' ); ?>
+            <?php esc_html_e( 'Turn templates on or off, and override how often they run + how long users have to act. Changes take effect on the next cron tick or trigger.', 'talenttrack' ); ?>
         </p>
 
         <form method="post" class="tt-workflow-config-form">
@@ -103,8 +103,14 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
                     <tr>
                         <th><?php esc_html_e( 'Template', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Enabled', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Cadence', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Deadline offset', 'talenttrack' ); ?></th>
+                        <th>
+                            <?php esc_html_e( 'How often (cron)', 'talenttrack' ); ?>
+                            <span class="tt-wcfg-help" title="<?php esc_attr_e( 'Cron expression, e.g. \'0 9 * * 1\' for every Monday at 09:00. Leave the placeholder unchanged to use the default schedule.', 'talenttrack' ); ?>" aria-hidden="true">?</span>
+                        </th>
+                        <th>
+                            <?php esc_html_e( 'Deadline (days)', 'talenttrack' ); ?>
+                            <span class="tt-wcfg-help" title="<?php esc_attr_e( 'How many days after the task fires before it counts as overdue. Whole number, e.g. 7.', 'talenttrack' ); ?>" aria-hidden="true">?</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>

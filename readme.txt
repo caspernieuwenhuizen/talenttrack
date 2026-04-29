@@ -4,13 +4,26 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.47.0
+Stable tag: 3.48.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.48.0 — Demo-readiness round 2: monetization gate fix, parents see Me-group, cadence relabel, journey filter declutter, trial form CSS, role labelling =
+
+Six fixes from the user's demo-install review (continues v3.46.0's bundle):
+
+* **FIX:** Disabling the License module no longer leaves tier checks firing on Player comparison, Rate cards, and CSV import. `class_exists()` was always true; added a `ModuleRegistry::isEnabled('LicenseModule')` guard before each gate. Now you can hide tier-locked features by toggling the module off, as expected.
+* **FIX:** Parents land on a populated dashboard. Six Me-group tiles (My card, My team, My evaluations, My activities, My goals, My journey) used `is_player_cb` which excludes parents; now use `is_player_or_parent_cb` so parents see their child's data via the existing `parent` matrix scope. My PDP already worked.
+* **CHANGED:** Workflow templates config — "Cadence" relabelled to "How often (cron)" with an inline help tooltip showing the cron-expression format. "Deadline offset" relabelled to "Deadline (days)" with help. The intro paragraph rewritten in plainer language.
+* **CHANGED:** Player journey filter bar collapsed. Three primary filters (`evaluation_completed`, `injury_started`, `trial_ended`) stay visible; the rest go behind a "More filters (N)" toggle. Auto-opens if any secondary filter is active.
+* **CHANGED:** Trial cases create form gets a proper desktop layout — 2-column grid (Player + Track / Start + End), full-width staff fieldset and notes, 48px touch targets, Roboto-friendly spacing. Mobile stays single-column.
+* **CHANGED:** "Roles & Permissions" admin menu renamed to "Roles & rights"; both Roles & rights and Functional roles pages now explain themselves and cross-link. (Already merged ahead of this release; rolled into the changelog here for completeness.)
+
+Translations: 7 new NL strings.
 
 = 3.47.0 — Activity status + source, colour pills, cohort tile fix, wizard config UX =
 
