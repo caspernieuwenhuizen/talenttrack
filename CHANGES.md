@@ -1,3 +1,40 @@
+# TalentTrack v3.49.0 — Trial inline-create + StaffPicker + Configuration sub-grid
+
+Closes the three deferred items called out at the bottom of v3.48.0. Each
+shipped as new code rather than tweaks.
+
+## New: StaffPickerComponent
+
+`src/Shared/Frontend/Components/StaffPickerComponent.php` — autocomplete-driven staff/coach picker, mirror of `PlayerSearchPickerComponent` but the candidate set is WP users with TalentTrack staff roles (`tt_coach`, `tt_head_dev`, `tt_club_admin`, `administrator` by default). Reuses the same `.tt-psp` DOM contract + the existing `assets/js/components/player-search-picker.js` hydrator so staff and player pickers stay visually + behaviourally consistent. Includes a `primaryRoleLabel()` disambiguator that suffixes the user's display name with their highest-trust role (Head of Development > Club Admin > Coach > Scout > Staff > Administrator) so two coaches with the same display name can still be told apart.
+
+Replaces plain `<select>` user dropdowns in three places:
+
+- `FrontendTrialCaseView::renderAssignStaffForm` — trial case staff assignment
+- `FrontendTrialsManageView::renderCreateForm` — three initial-staff slots on the trial-case create form
+- `Modules/Wizards/Team/StaffStep` — head coach / assistant coach / team manager / physio slots in the new-team wizard
+
+## New: Trial player inline-create flow
+
+`FrontendTrialsManageView::renderCreateForm` + `handlePost` — the trial-case create form now uses `PlayerSearchPickerComponent` for the player picker (replacing the long select-of-all-players). Underneath it, a `<details>` block titled "Or create a new player here" exposes three fields: first name, last name, date of birth. When the existing-player picker is left empty and all three inline fields are filled, the POST handler creates a `tt_players` row with `status = 'trial'` first and uses that ID for the trial case. The HoD no longer has to bounce out to the New Player wizard before opening a trial.
+
+## New: Configuration tile sub-page
+
+`FrontendConfigurationView` refactored to render a sub-tile landing instead of a single mega-form. Routing via `?config_sub=…`. Three frontend-supported sub-tiles render inline forms (Branding, Theme & fonts, Rating scale, wp-admin menus); the heavier admin areas (Lookups & evaluation types, Feature toggles, Backups, Translations, Audit log, Setup wizard) link out to the existing wp-admin Configuration tabs, which is where they actually live. The previous flat mega-form is gone; each sub-form has its own save button and its own POST round-trip.
+
+## Translations
+
+31 new NL strings covering staff picker, trial inline-create copy, and the Configuration sub-tile labels + descriptions.
+
+## Acceptance criteria (manually verified)
+
+- [ ] Trial case → assigned staff → "Assign" form uses the autocomplete picker, not a long select.
+- [ ] Trials → New trial case → 3 initial-staff rows use the autocomplete picker.
+- [ ] New-team wizard → staff step → 4 slots use the autocomplete picker, each with the slot label preserved.
+- [ ] Trial-case create form: filling first name + last name + DOB without picking an existing player creates the player and opens the case.
+- [ ] Configuration tile shows a sub-tile grid; Branding / Theme / Rating / Menus open inline forms; Lookups / Feature toggles / Backups / Translations / Audit log / Setup wizard open in wp-admin.
+
+---
+
 # TalentTrack v3.48.0 — Demo-readiness round 2
 
 Continues the v3.46.0 hotfix bundle with six more user-reported fixes. v3.47.0 (parallel agent) shipped activity polish + cohort fix + wizard config UX in between.

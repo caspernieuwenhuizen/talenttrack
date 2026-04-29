@@ -8,6 +8,8 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialCaseStaffRepository;
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
+use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
+use TT\Shared\Frontend\Components\StaffPickerComponent;
 
 /**
  * FrontendTrialsManageView — list + create surface for trial cases.
@@ -52,8 +54,32 @@ class FrontendTrialsManageView extends FrontendViewBase {
         $end       = isset( $_POST['end_date'] )   ? sanitize_text_field( wp_unslash( (string) $_POST['end_date'] ) )   : '';
         $notes     = isset( $_POST['notes'] )      ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) )  : '';
 
+        // Inline-create path: when no existing player is picked but the
+        // inline first/last/DOB fields are filled, create the trial-status
+        // player first and use that id for the case.
+        if ( $player_id <= 0 ) {
+            $new_first = isset( $_POST['new_player_first_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['new_player_first_name'] ) ) : '';
+            $new_last  = isset( $_POST['new_player_last_name'] )  ? sanitize_text_field( wp_unslash( (string) $_POST['new_player_last_name'] ) )  : '';
+            $new_dob   = isset( $_POST['new_player_dob'] )        ? sanitize_text_field( wp_unslash( (string) $_POST['new_player_dob'] ) )        : '';
+            if ( $new_first !== '' && $new_last !== '' && $new_dob !== '' ) {
+                global $wpdb;
+                $ok = $wpdb->insert( $wpdb->prefix . 'tt_players', [
+                    'club_id'       => CurrentClub::id(),
+                    'first_name'    => $new_first,
+                    'last_name'     => $new_last,
+                    'date_of_birth' => $new_dob,
+                    'status'        => 'trial',
+                    'created_at'    => current_time( 'mysql' ),
+                    'updated_at'    => current_time( 'mysql' ),
+                ] );
+                if ( $ok ) {
+                    $player_id = (int) $wpdb->insert_id;
+                }
+            }
+        }
+
         if ( $player_id <= 0 || $track_id <= 0 || $start === '' || $end === '' ) {
-            echo '<div class="tt-notice tt-notice-error">' . esc_html__( 'Please pick a player, a track, and start/end dates.', 'talenttrack' ) . '</div>';
+            echo '<div class="tt-notice tt-notice-error">' . esc_html__( 'Please pick a player (or fill in first name, last name and date of birth to create one), a track, and start/end dates.', 'talenttrack' ) . '</div>';
             return;
         }
 
@@ -183,29 +209,31 @@ class FrontendTrialsManageView extends FrontendViewBase {
         $tracks_repo = new TrialTracksRepository();
         $tracks      = $tracks_repo->listAll( false );
 
-        global $wpdb;
-        $players = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, first_name, last_name, status FROM {$wpdb->prefix}tt_players WHERE archived_at IS NULL AND club_id = %d ORDER BY last_name, first_name LIMIT 500",
-            CurrentClub::id()
-        ) );
-        $coaches = get_users( [ 'role__in' => [ 'tt_coach', 'tt_head_dev', 'tt_club_admin', 'administrator' ], 'fields' => [ 'ID', 'display_name' ] ] );
-
         $today = gmdate( 'Y-m-d' );
-        $default_track = $tracks ? (int) $tracks[0]->id : 0;
         $default_days  = $tracks ? (int) $tracks[0]->default_duration_days : 28;
         $default_end   = gmdate( 'Y-m-d', time() + $default_days * 86400 );
 
         echo '<form method="post" class="tt-form tt-trial-create-form">';
         wp_nonce_field( 'tt_trials_create', 'tt_trials_nonce' );
 
-        echo '<label>' . esc_html__( 'Player', 'talenttrack' );
-        echo ' <select name="player_id" required>';
-        echo '<option value="">' . esc_html__( '— pick a player —', 'talenttrack' ) . '</option>';
-        foreach ( $players as $p ) {
-            $label = trim( ( $p->first_name ?? '' ) . ' ' . ( $p->last_name ?? '' ) ) ?: '#' . (int) $p->id;
-            echo '<option value="' . esc_attr( (string) $p->id ) . '">' . esc_html( $label ) . '</option>';
-        }
-        echo '</select></label>';
+        echo '<fieldset class="tt-trial-create-player"><legend>' . esc_html__( 'Player', 'talenttrack' ) . '</legend>';
+        echo PlayerSearchPickerComponent::render( [
+            'name'     => 'player_id',
+            'label'    => __( 'Existing player', 'talenttrack' ),
+            'required' => false,
+            'user_id'  => get_current_user_id(),
+            'is_admin' => current_user_can( 'tt_edit_settings' ),
+        ] );
+        echo '<details class="tt-trial-inline-create" style="margin-top:8px;"><summary>' . esc_html__( 'Or create a new player here', 'talenttrack' ) . '</summary>';
+        echo '<p class="tt-field-hint">' . esc_html__( 'Fill in at least first name, last name and date of birth. The new player record will be created with status "trial" before the case is opened.', 'talenttrack' ) . '</p>';
+        echo '<div class="tt-field"><label class="tt-field-label" for="tt-trial-new-first">' . esc_html__( 'First name', 'talenttrack' ) . '</label>';
+        echo '<input type="text" id="tt-trial-new-first" name="new_player_first_name" class="tt-input" autocomplete="given-name"></div>';
+        echo '<div class="tt-field"><label class="tt-field-label" for="tt-trial-new-last">' . esc_html__( 'Last name', 'talenttrack' ) . '</label>';
+        echo '<input type="text" id="tt-trial-new-last" name="new_player_last_name" class="tt-input" autocomplete="family-name"></div>';
+        echo '<div class="tt-field"><label class="tt-field-label" for="tt-trial-new-dob">' . esc_html__( 'Date of birth', 'talenttrack' ) . '</label>';
+        echo '<input type="date" id="tt-trial-new-dob" name="new_player_dob" class="tt-input"></div>';
+        echo '</details>';
+        echo '</fieldset>';
 
         echo '<label>' . esc_html__( 'Track', 'talenttrack' );
         echo ' <select name="track_id" required>';
@@ -220,12 +248,13 @@ class FrontendTrialsManageView extends FrontendViewBase {
         echo '<fieldset class="tt-trial-staff-rows"><legend>' . esc_html__( 'Initial staff (optional)', 'talenttrack' ) . '</legend>';
         for ( $i = 0; $i < 3; $i++ ) {
             echo '<div class="tt-trial-staff-row">';
-            echo '<select name="staff_user_id[]"><option value="0">—</option>';
-            foreach ( $coaches as $u ) {
-                echo '<option value="' . esc_attr( (string) $u->ID ) . '">' . esc_html( (string) $u->display_name ) . '</option>';
-            }
-            echo '</select>';
-            echo ' <input type="text" name="staff_role_label[]" placeholder="' . esc_attr__( 'Role label (optional)', 'talenttrack' ) . '">';
+            echo StaffPickerComponent::render( [
+                'name'        => 'staff_user_id[]',
+                'label'       => sprintf( __( 'Staff slot %d', 'talenttrack' ), $i + 1 ),
+                'required'    => false,
+                'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
+            ] );
+            echo ' <input type="text" name="staff_role_label[]" class="tt-input" placeholder="' . esc_attr__( 'Role label (optional)', 'talenttrack' ) . '">';
             echo '</div>';
         }
         echo '</fieldset>';
