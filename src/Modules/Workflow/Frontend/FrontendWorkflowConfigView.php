@@ -111,6 +111,10 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
                             <?php esc_html_e( 'Deadline (days)', 'talenttrack' ); ?>
                             <span class="tt-wcfg-help" title="<?php esc_attr_e( 'How many days after the task fires before it counts as overdue. Whole number, e.g. 7.', 'talenttrack' ); ?>" aria-hidden="true">?</span>
                         </th>
+                        <th>
+                            <?php esc_html_e( 'Notification channel', 'talenttrack' ); ?>
+                            <span class="tt-wcfg-help" title="<?php esc_attr_e( 'How task notifications reach the assignee. Email-only is the default. Push routes via the user\'s installed PWA when available.', 'talenttrack' ); ?>" aria-hidden="true">?</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -127,6 +131,10 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
                     $current_deadline = $deadline_override !== ''
                         ? $deadline_override
                         : $template->defaultDeadlineOffset();
+                    $current_chain = (string) ( $config['dispatcher_chain'] ?? '' );
+                    if ( ! \TT\Modules\Push\DispatcherChain::isValidPreset( $current_chain ) ) {
+                        $current_chain = \TT\Modules\Push\DispatcherChain::PRESET_EMAIL_ONLY;
+                    }
                     ?>
                     <tr>
                         <td>
@@ -159,6 +167,17 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
                                    value="<?php echo esc_attr( $current_deadline ); ?>"
                                    placeholder="<?php echo esc_attr( $template->defaultDeadlineOffset() ); ?>"
                                    style="width: 120px;" />
+                        </td>
+                        <td>
+                            <select class="tt-wcfg-input"
+                                    name="templates[<?php echo esc_attr( $key ); ?>][dispatcher_chain]"
+                                    style="width: 240px;">
+                                <?php foreach ( \TT\Modules\Push\DispatcherChain::presetLabels() as $value => $label ) : ?>
+                                    <option value="<?php echo esc_attr( $value ); ?>" <?php selected( $current_chain, $value ); ?>>
+                                        <?php echo esc_html( $label ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -332,10 +351,16 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
             $cadence_override = $cadence !== '' ? $cadence : null;
             $deadline_override = $deadline !== '' ? $deadline : null;
 
+            $chain_raw = isset( $row['dispatcher_chain'] ) ? sanitize_key( (string) $row['dispatcher_chain'] ) : '';
+            $chain = \TT\Modules\Push\DispatcherChain::isValidPreset( $chain_raw )
+                ? $chain_raw
+                : \TT\Modules\Push\DispatcherChain::PRESET_EMAIL_ONLY;
+
             $config_repo->upsert( (string) $key, [
                 'enabled'                  => $enabled,
                 'cadence_override'         => $cadence_override,
                 'deadline_offset_override' => $deadline_override,
+                'dispatcher_chain'         => $chain,
             ] );
 
             // Mirror the cadence to the active trigger row so cron picks

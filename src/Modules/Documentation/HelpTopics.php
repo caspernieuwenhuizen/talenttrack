@@ -234,6 +234,27 @@ class HelpTopics {
                 'group'   => 'configuration',
                 'summary' => __( 'Opt-in DeepL / Google translation of user-entered free text.', 'talenttrack' ),
             ],
+            // #0042 — youth-aware contact strategy KB.
+            'install-on-iphone' => [
+                'title'   => __( 'Install on iPhone', 'talenttrack' ),
+                'group'   => 'mobile',
+                'summary' => __( 'Add TalentTrack to your iPhone home screen via Safari and accept push notifications.', 'talenttrack' ),
+            ],
+            'install-on-android' => [
+                'title'   => __( 'Install on Android', 'talenttrack' ),
+                'group'   => 'mobile',
+                'summary' => __( 'Install TalentTrack as a Chrome PWA on Android and accept push notifications.', 'talenttrack' ),
+            ],
+            'notifications-setup' => [
+                'title'   => __( 'Notifications setup', 'talenttrack' ),
+                'group'   => 'mobile',
+                'summary' => __( 'Turn on push notifications, understand what TalentTrack sends, and how phone verification works.', 'talenttrack' ),
+            ],
+            'parent-handles-everything' => [
+                'title'   => __( 'Parent contact (U8 – U10)', 'talenttrack' ),
+                'group'   => 'mobile',
+                'summary' => __( 'For younger players, the parent is the primary contact — invitations, tasks, and pushes flow through you.', 'talenttrack' ),
+            ],
         ];
     }
 
@@ -250,6 +271,7 @@ class HelpTopics {
             'analytics'     => __( 'Analytics', 'talenttrack' ),
             'configuration' => __( 'Configuration', 'talenttrack' ),
             'frontend'      => __( 'Frontend & access', 'talenttrack' ),
+            'mobile'        => __( 'Mobile install', 'talenttrack' ),
             'developer'     => __( 'Developer', 'talenttrack' ),
             'development'   => __( 'Development', 'talenttrack' ),
         ];

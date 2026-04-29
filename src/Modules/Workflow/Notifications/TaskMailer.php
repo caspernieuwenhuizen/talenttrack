@@ -4,19 +4,27 @@ namespace TT\Modules\Workflow\Notifications;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Push\DispatcherChain;
 use TT\Modules\Workflow\Repositories\TasksRepository;
+use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
 use TT\Modules\Workflow\WorkflowModule;
 
 /**
- * TaskMailer — listens on `tt_workflow_task_created` and sends the
- * assignee a plain-text email. Keeps the engine's dispatch path lean
- * (the engine doesn't know about email; it just fires the action).
+ * TaskMailer — listens on `tt_workflow_task_created` and dispatches
+ * the new task to the assignee. Keeps the engine's dispatch path lean
+ * (the engine doesn't know about channels; it just fires the action).
+ *
+ * Channel selection comes from the template's
+ * `tt_workflow_template_config.dispatcher_chain` value (#0042 Sprint 5).
+ * NULL or `email` keeps the legacy behaviour — a single `wp_mail` to
+ * the assignee. Push-aware presets route through `DispatcherChain`,
+ * which falls back to email only if push is unavailable for the user.
  *
  * Idempotency: the engine fires the action exactly once per persisted
  * task row, so duplicate sends are not a concern at this layer.
  *
- * Failure handling: wp_mail returning false is logged under WP_DEBUG
- * but does not affect task creation. The cron-self-diagnostic banner
+ * Failure handling: a delivery failure logs under WP_DEBUG but does
+ * not affect task creation. The cron-self-diagnostic banner
  * (CronHealthCheck) flags persistently-overdue tasks separately.
  */
 class TaskMailer {
@@ -28,15 +36,16 @@ class TaskMailer {
     public static function sendOnCreate( int $task_id, string $template_key, int $assignee_user_id ): void {
         if ( $assignee_user_id <= 0 ) return;
         $user = get_userdata( $assignee_user_id );
-        if ( ! $user || empty( $user->user_email ) ) return;
+        if ( ! $user ) return;
 
         $task = ( new TasksRepository() )->find( $task_id );
         if ( $task === null ) return;
 
-        $template = WorkflowModule::registry()->get( $template_key );
+        $template      = WorkflowModule::registry()->get( $template_key );
         $template_name = $template ? $template->name() : $template_key;
-
-        $site_name = get_bloginfo( 'name' ) ?: 'TalentTrack';
+        $site_name     = get_bloginfo( 'name' ) ?: 'TalentTrack';
+        $due_label     = self::formatDue( (string) ( $task['due_at'] ?? '' ) );
+        $inbox_url     = self::inboxUrl();
 
         /* translators: 1: site name, 2: template name */
         $subject = sprintf(
@@ -44,9 +53,6 @@ class TaskMailer {
             $site_name,
             $template_name
         );
-
-        $due_label = self::formatDue( (string) ( $task['due_at'] ?? '' ) );
-        $inbox_url = self::inboxUrl();
 
         $body_lines = [];
         $body_lines[] = sprintf(
@@ -72,15 +78,49 @@ class TaskMailer {
             __( '— %s', 'talenttrack' ),
             $site_name
         );
+        $body = implode( "\n", $body_lines );
 
-        $sent = wp_mail( $user->user_email, $subject, implode( "\n", $body_lines ) );
-        if ( ! $sent && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            error_log( sprintf(
-                '[TalentTrack workflow] TaskMailer: wp_mail returned false for task %d to %s',
-                $task_id,
-                $user->user_email
-            ) );
+        // #0042 Sprint 5 — read the template's chain preset. NULL /
+        // 'email' keeps the legacy single-email path so installed
+        // clubs see no behaviour change.
+        $config = ( new TemplateConfigRepository() )->findByKey( $template_key );
+        $chain  = (string) ( $config['dispatcher_chain'] ?? '' );
+
+        if ( $chain === '' || $chain === DispatcherChain::PRESET_EMAIL_ONLY ) {
+            if ( empty( $user->user_email ) ) return;
+            $sent = wp_mail( $user->user_email, $subject, $body );
+            if ( ! $sent && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log( sprintf(
+                    '[TalentTrack workflow] TaskMailer: wp_mail returned false for task %d to %s',
+                    $task_id,
+                    $user->user_email
+                ) );
+            }
+            return;
         }
+
+        // Push-aware preset — route through the dispatcher chain.
+        DispatcherChain::run( $chain, [
+            'user_id' => $assignee_user_id,
+            'title'   => $subject,
+            'body'    => sprintf(
+                /* translators: 1: task name, 2: deadline */
+                __( 'New task: %1$s. Deadline: %2$s.', 'talenttrack' ),
+                $template_name,
+                $due_label
+            ),
+            'url'     => $inbox_url !== '' ? $inbox_url : home_url( '/' ),
+            'tag'     => 'tt-task-' . $task_id,
+            'event'   => 'workflow_task_created',
+            'data'    => [
+                'task_id'       => $task_id,
+                'template_key'  => $template_key,
+                'plain_email'   => [
+                    'subject' => $subject,
+                    'body'    => $body,
+                ],
+            ],
+        ] );
     }
 
     private static function formatDue( string $due_at ): string {

@@ -10045,3 +10045,119 @@ msgstr "v1.5: Teams, People, Players, Trial_Cases, Sessions (activiteiten), Sess
 
 msgid "%1$s row %2$d: %3$s \"%4$s\" does not match any %5$s row."
 msgstr "%1$s rij %2$d: %3$s \"%4$s\" komt niet overeen met een %5$s-rij."
+
+# #0042 — youth-aware contact strategy
+
+msgid "Player"
+msgstr "Speler"
+
+msgid "Parent"
+msgstr "Ouder"
+
+msgid "U8 – U10 (parent contact)"
+msgstr "O8 – O10 (oudercontact)"
+
+msgid "U11 – U12 (phone / push)"
+msgstr "O11 – O12 (telefoon / push)"
+
+msgid "U12+ (email + push)"
+msgstr "O12+ (e-mail + push)"
+
+msgid "Unknown"
+msgstr "Onbekend"
+
+msgid "Mobile phone"
+msgstr "Mobiele telefoon"
+
+msgid "International format, e.g. +31612345678. Used for PWA push notifications."
+msgstr "Internationale notatie, bijv. +31612345678. Gebruikt voor PWA-pushnotificaties."
+
+msgid "Verified via push."
+msgstr "Geverifieerd via push."
+
+msgid "Not yet verified — install TalentTrack on your phone and accept the push prompt."
+msgstr "Nog niet geverifieerd — installeer TalentTrack op je telefoon en accepteer de pushprompt."
+
+msgid "Contact strategy:"
+msgstr "Contactstrategie:"
+
+msgid "Player is U8-U10. Invitation flows will route through the linked parent — the player record does not need its own email or phone."
+msgstr "Speler is O8-O10. Uitnodigingen lopen via de gekoppelde ouder — het spelersrecord heeft geen eigen e-mail of telefoonnummer nodig."
+
+msgid "Player is U11-U12. PWA push on the player's phone is the primary contact channel; parent email is the fallback."
+msgstr "Speler is O11-O12. PWA-push op de telefoon van de speler is het primaire kanaal; oudermail is de fallback."
+
+msgid "Player is U12+. Email + PWA push are both available contact channels."
+msgstr "Speler is O12+. Zowel e-mail als PWA-push zijn beschikbare contactkanalen."
+
+msgid "Push endpoint must be HTTPS."
+msgstr "Het push-endpoint moet HTTPS zijn."
+
+msgid "endpoint, keys.p256dh, and keys.auth are required."
+msgstr "endpoint, keys.p256dh en keys.auth zijn verplicht."
+
+msgid "Could not save the subscription."
+msgstr "Kon het abonnement niet opslaan."
+
+msgid "Subscription not found."
+msgstr "Abonnement niet gevonden."
+
+msgid "Get TalentTrack on your phone"
+msgstr "Zet TalentTrack op je telefoon"
+
+msgid "Install the app to see new tasks, evaluations, and goal updates the moment they happen."
+msgstr "Installeer de app om nieuwe taken, evaluaties en doelupdates direct te zien."
+
+msgid "Enable notifications"
+msgstr "Notificaties inschakelen"
+
+msgid "Install instructions"
+msgstr "Installatie-instructies"
+
+msgid "Not now"
+msgstr "Niet nu"
+
+msgid "Install on iPhone"
+msgstr "Installeren op iPhone"
+
+msgid "Install on Android"
+msgstr "Installeren op Android"
+
+msgid "Notifications setup"
+msgstr "Notificaties instellen"
+
+msgid "Parent contact (U8 – U10)"
+msgstr "Oudercontact (O8 – O10)"
+
+msgid "Add TalentTrack to your iPhone home screen via Safari and accept push notifications."
+msgstr "Zet TalentTrack op het iPhone-startscherm via Safari en accepteer pushnotificaties."
+
+msgid "Install TalentTrack as a Chrome PWA on Android and accept push notifications."
+msgstr "Installeer TalentTrack als Chrome-PWA op Android en accepteer pushnotificaties."
+
+msgid "Turn on push notifications, understand what TalentTrack sends, and how phone verification works."
+msgstr "Zet pushnotificaties aan, leer wat TalentTrack stuurt en hoe telefoonverificatie werkt."
+
+msgid "For younger players, the parent is the primary contact — invitations, tasks, and pushes flow through you."
+msgstr "Voor jongere spelers is de ouder het primaire contact — uitnodigingen, taken en pushes lopen via jou."
+
+msgid "Mobile install"
+msgstr "Mobiele installatie"
+
+msgid "Notification channel"
+msgstr "Notificatiekanaal"
+
+msgid "How task notifications reach the assignee. Email-only is the default. Push routes via the user's installed PWA when available."
+msgstr "Hoe taaknotificaties bij de toegewezene aankomen. Standaard alleen e-mail. Push gaat via de geïnstalleerde PWA als die beschikbaar is."
+
+msgid "Email only"
+msgstr "Alleen e-mail"
+
+msgid "Push if available, fall back to parent email"
+msgstr "Push indien beschikbaar, anders oudermail"
+
+msgid "Push if available, fall back to own email"
+msgstr "Push indien beschikbaar, anders eigen e-mail"
+
+msgid "Push only"
+msgstr "Alleen push"

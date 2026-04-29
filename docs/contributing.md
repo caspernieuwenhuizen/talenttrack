@@ -12,18 +12,24 @@ Every file under `docs/` (English + Dutch) starts with an HTML-comment marker de
 <!-- audience: user -->
 <!-- audience: admin -->
 <!-- audience: dev -->
+<!-- audience: player -->
+<!-- audience: parent -->
 <!-- audience: user, admin -->
 ```
 
-Allowed values: `user`, `admin`, `dev`. Comma-separated for cross-cutting topics.
+Allowed values: `user`, `admin`, `dev`, `player`, `parent`. Comma-separated for cross-cutting topics.
+
+`player` and `parent` (#0042) are persona-specific subsets of `user` — articles tagged with them surface only to the matching role. They're meant for the install-on-iPhone / install-on-Android / notifications-setup / parent-handles-everything KB; default user-facing docs stay on `audience: user`.
 
 The in-product `Help & Docs` page filters its sidebar TOC by the viewer's role:
 
 | Role / capability                                          | Audiences shown |
 | ---                                                        | ---             |
-| `tt_player`, `tt_readonly_observer`, `tt_staff`, `tt_coach` | `user`          |
+| `tt_readonly_observer`, `tt_staff`, `tt_coach`              | `user`          |
+| `tt_player`                                                | `user` + `player` |
+| `tt_parent`                                                | `user` + `parent` |
 | `tt_head_dev` (or `tt_edit_settings`)                      | `user` + `admin` |
-| WP `administrator`                                         | `user` + `admin` + `dev` |
+| WP `administrator`                                         | all five (`user`, `admin`, `dev`, `player`, `parent`) |
 
 A doc shows up if any of its declared audiences overlap with the viewer's allowed set.
 
@@ -35,7 +41,7 @@ CI rejects PRs that add a new doc without a marker.
 
 The translation discipline is per audience:
 
-- `audience: user` or `audience: admin` (or includes either) → translation in `docs/nl_NL/<slug>.md` is **required in the same PR**. Use the same audience marker on the Dutch counterpart.
+- `audience: user`, `audience: admin`, `audience: player`, or `audience: parent` (or includes any of those) → translation in `docs/nl_NL/<slug>.md` is **required in the same PR**. Use the same audience marker on the Dutch counterpart.
 - `audience: dev` (only) → no Dutch translation. Dev docs are English-only by design — that's the working language for plugin extenders regardless of locale.
 
 If a doc's audience changes from `dev` to anything else, add the Dutch translation in that PR. If it changes the other way, remove the Dutch counterpart in the same PR.

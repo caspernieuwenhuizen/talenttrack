@@ -40,6 +40,7 @@ class TemplateConfigRepository {
      *   cadence_override?:?string,
      *   deadline_offset_override?:?string,
      *   assignee_override_json?:?string,
+     *   dispatcher_chain?:?string,
      *   updated_by?:int
      * } $changes
      */
@@ -53,6 +54,9 @@ class TemplateConfigRepository {
             'cadence_override'         => $changes['cadence_override'] ?? ( $existing['cadence_override'] ?? null ),
             'deadline_offset_override' => $changes['deadline_offset_override'] ?? ( $existing['deadline_offset_override'] ?? null ),
             'assignee_override_json'   => $changes['assignee_override_json'] ?? ( $existing['assignee_override_json'] ?? null ),
+            'dispatcher_chain'         => array_key_exists( 'dispatcher_chain', $changes )
+                                            ? $changes['dispatcher_chain']
+                                            : ( $existing['dispatcher_chain'] ?? null ),
             'updated_by'               => (int) ( $changes['updated_by'] ?? get_current_user_id() ),
         ];
         if ( $existing === null ) {
