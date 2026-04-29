@@ -13,16 +13,13 @@ use TT\Shared\Frontend\Components\RatingPillComponent;
 /**
  * FrontendOverviewView — the player's "My card" tile destination.
  *
- * #0004 polish (v3.18.0): visual rebuild aligned with #0003.
- *
- *   - Compact **hero strip** at the top: photo + name + team + position
- *     + jersey + rolling-rating chip in tier color.
- *   - Embedded **FIFA card** (existing PlayerCardView) on the right /
- *     centered on mobile.
- *   - **Custom fields + radar** beneath the hero, when populated.
- *   - **"View full profile" link** points at the existing profile tile
- *     (will deep-link into #0014's rebuild once that ships).
- *   - All inline styles moved to `frontend-admin.css` per spec.
+ * v3.62.0: My profile is folded into My card. The hero strip + FIFA
+ * card stay at the top (desktop = side-by-side, mobile = stacked);
+ * the four developer-facing sections from the old My profile view
+ * (Playing details, Recent performance, Active goals, Upcoming) are
+ * composed below via `FrontendMyProfileView::renderSections()`. The
+ * Account section moved to `?tt_view=my-settings` under the user
+ * dropdown.
  */
 class FrontendOverviewView extends FrontendViewBase {
 
@@ -54,9 +51,6 @@ class FrontendOverviewView extends FrontendViewBase {
                     <?php endif; ?>
 
                     <p class="tt-mc-actions">
-                        <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( add_query_arg( [ 'tt_view' => 'profile' ], remove_query_arg( [ 'tt_view' ] ) ) ); ?>">
-                            <?php esc_html_e( 'View full profile', 'talenttrack' ); ?>
-                        </a>
                         <a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="<?php echo esc_url( add_query_arg( [ 'tt_print' => (int) $player->id ], remove_query_arg( [ 'tt_view' ] ) ) ); ?>">
                             <?php esc_html_e( 'Print report', 'talenttrack' ); ?>
                         </a>
@@ -67,6 +61,14 @@ class FrontendOverviewView extends FrontendViewBase {
                     <?php \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true ); ?>
                 </div>
             </div>
+
+            <?php
+            // v3.62.0 — My profile sections folded into My card. Hero +
+            // FIFA card sit above; the four developer-facing sections
+            // (Playing details / Recent performance / Active goals /
+            // Upcoming) sit below.
+            FrontendMyProfileView::renderSections( $player );
+            ?>
         </section>
         <?php
     }

@@ -186,18 +186,13 @@ final class CoreSurfaceRegistration {
                 return ( $is_player_cb( $uid ) || user_can( $uid, 'tt_parent' ) ) && user_can( $uid, 'tt_view_pdp' );
             },
         ]);
-        TileRegistry::register([
-            'module_class' => self::M_PLAYERS,
-            'view_slug'    => 'profile',
-            'group'        => $me_group,
-            'kind'         => 'work',
-            'order'        => 70,
-            'label'        => __( 'My profile', 'talenttrack' ),
-            'description'  => __( 'Your personal details and contact info.', 'talenttrack' ),
-            'icon'         => 'profile',
-            'color'        => '#555',
-            'cap_callback' => $is_player_cb,
-        ]);
+        // v3.62.0 — "My profile" tile retired. The four sections that
+        // used to live there (Playing details / Recent performance /
+        // Active goals / Upcoming) are folded into "My card", and the
+        // Account section moved to "My settings" under the username
+        // dropdown. The `?tt_view=profile` slug still routes (to My
+        // card) so existing bookmarks keep working — see
+        // DashboardShortcode::dispatchMeView().
         TileRegistry::register([
             'module_class' => self::M_JOURNEY,
             'view_slug'    => 'my-journey',

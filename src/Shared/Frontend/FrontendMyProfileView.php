@@ -10,21 +10,28 @@ use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Modules\Stats\Admin\PlayerCardView;
 
 /**
- * FrontendMyProfileView — the "My profile" tile destination.
+ * FrontendMyProfileView — legacy "My profile" surface.
  *
- * #0014 Sprint 2 rebuild. Six sections: hero (photo + identity + FIFA
- * card), playing details, recent performance (rolling avg + sparkline),
- * active goals, upcoming activities, account. Read-only — players don't
- * edit their own playing fields; that stays a coach action.
+ * In v3.62.0 the dispatch route for `?tt_view=profile` was folded into
+ * "My card" (FrontendOverviewView). This class is kept alive as a
+ * **section renderer** that My card composes — that way the four
+ * developer-facing sections (Playing details, Recent performance,
+ * Active goals, Upcoming) keep their existing data-loading helpers
+ * and stylesheet without the surface-level duplication.
+ *
+ * The Account section moved to FrontendMySettingsView under the
+ * username dropdown; do not call it from My card.
  */
 class FrontendMyProfileView extends FrontendViewBase {
 
-    public static function render( object $player ): void {
-        self::enqueueAssets();
+    /**
+     * Render the four developer-facing sections that My card composes.
+     * Hero + FIFA card stay on My card itself; Account moved to
+     * `?tt_view=my-settings`.
+     */
+    public static function renderSections( object $player ): void {
         self::enqueueProfileStyles();
-        self::renderHeader( __( 'My profile', 'talenttrack' ) );
 
-        $user = wp_get_current_user();
         $team = $player->team_id ? QueryHelpers::get_team( (int) $player->team_id ) : null;
         $stats = new PlayerStatsService();
         $headline = $stats->getHeadlineNumbers( (int) $player->id, [], 5 );
@@ -32,17 +39,12 @@ class FrontendMyProfileView extends FrontendViewBase {
         $active_goals = self::activeGoalsForPlayer( (int) $player->id, 3 );
         $active_goals_total = self::countActiveGoalsForPlayer( (int) $player->id );
         $upcoming = $team ? self::upcomingForTeam( (int) $team->id, 3 ) : [];
-
         ?>
-        <div class="tt-profile">
-            <?php self::renderHero( $player, $team, $user ); ?>
-            <div class="tt-profile-grid">
-                <?php self::renderPlayingDetails( $player, $team ); ?>
-                <?php self::renderRecentPerformance( $headline, $sparkline ); ?>
-                <?php self::renderActiveGoals( $active_goals, $active_goals_total ); ?>
-                <?php self::renderUpcoming( $upcoming, $team ); ?>
-                <?php self::renderAccount( $user ); ?>
-            </div>
+        <div class="tt-profile-grid">
+            <?php self::renderPlayingDetails( $player, $team ); ?>
+            <?php self::renderRecentPerformance( $headline, $sparkline ); ?>
+            <?php self::renderActiveGoals( $active_goals, $active_goals_total ); ?>
+            <?php self::renderUpcoming( $upcoming, $team ); ?>
         </div>
         <?php
     }

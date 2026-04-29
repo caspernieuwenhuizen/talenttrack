@@ -1,0 +1,128 @@
+/*
+ * frontend-journey.css — visual timeline for the My journey + player
+ * journey surfaces (#0053). Replaces the previous inline-styled left-
+ * stripe list with a centered-node vertical timeline.
+ *
+ * Authoring rule: mobile-first per CLAUDE.md § 2. Base = 360px viewport.
+ * Each event card sits to the right of a continuous vertical rail; the
+ * node colour comes from the per-event `--tt-journey-color` custom
+ * property set inline by FrontendJourneyView::renderEventCard().
+ */
+
+.tt-dashboard .tt-journey-list {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0;
+    position: relative;
+}
+
+/* The continuous vertical rail running down the left side of the list. */
+.tt-dashboard .tt-journey-list::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: #e5e7ea;
+    border-radius: 1px;
+}
+
+.tt-dashboard .tt-journey-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 12px;
+    padding: 10px 12px 10px 0;
+    margin: 0 0 12px;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    align-items: start;
+}
+
+.tt-dashboard .tt-journey-card.tt-journey-superseded {
+    opacity: 0.55;
+}
+
+/* Centered timeline node sitting on the rail. The 12px diameter +
+ * 2px white halo makes the node read as separate from the rail. */
+.tt-dashboard .tt-journey-node {
+    position: relative;
+    z-index: 1;
+    align-self: center;
+    width: 12px;
+    height: 12px;
+    margin-top: 6px;
+    border-radius: 50%;
+    background: var(--tt-journey-color, #5b6e75);
+    box-shadow: 0 0 0 3px #fff, 0 0 0 4px var(--tt-journey-color, #5b6e75);
+}
+
+.tt-dashboard .tt-journey-card-body {
+    background: #fff;
+    border: 1px solid #e5e7ea;
+    border-radius: 8px;
+    padding: 10px 12px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+}
+
+.tt-dashboard .tt-journey-card-meta {
+    margin: 0 0 4px;
+    font-size: 12px;
+    color: #5b6e75;
+}
+
+.tt-dashboard .tt-journey-card-label {
+    color: var(--tt-journey-color, #5b6e75);
+}
+
+.tt-dashboard .tt-journey-card-summary {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.tt-dashboard .tt-journey-card-retracted {
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: #7c1717;
+}
+
+.tt-dashboard .tt-journey-tag {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 11px;
+}
+
+.tt-dashboard .tt-journey-tag-milestone {
+    background: #fff3cd;
+    color: #664d03;
+}
+
+.tt-dashboard .tt-journey-tag-warning {
+    background: #fde2e2;
+    color: #7c1717;
+}
+
+/* Tablet+ — slightly more breathing room and a wider rail. */
+@media (min-width: 768px) {
+    .tt-dashboard .tt-journey-card {
+        grid-template-columns: 28px 1fr;
+        gap: 16px;
+    }
+    .tt-dashboard .tt-journey-list::before {
+        left: 13px;
+    }
+    .tt-dashboard .tt-journey-node {
+        width: 14px;
+        height: 14px;
+    }
+    .tt-dashboard .tt-journey-card-body {
+        padding: 12px 16px;
+    }
+    .tt-dashboard .tt-journey-card-summary {
+        font-size: 15px;
+    }
+}

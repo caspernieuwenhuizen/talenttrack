@@ -7,28 +7,44 @@ When you log in as a player you land on a tile grid scoped to you. Each tile ope
 ## Your tiles
 
 ### My card
-Your FIFA-style player card with overall rating, a radar chart of your main categories, your key attributes, and a **Print report** button for a clean printable version.
-
-### My team
-Your own card in the centre, with your team's top-3 podium below. You'll also see a list of teammates by name and photo. Tap a teammate to see their basic playing details (position, jersey, foot, height, weight). Their evaluations and goals stay private.
-
-### My evaluations
-Every evaluation a coach has recorded for you, most recent first. Each row shows the date, the type, the coach, and the ratings.
-
-### My sessions
-The training sessions and games you've attended. Use the search box and the date filter to find a specific one.
-
-### My goals
-The development goals your coaches have set for you, grouped by status.
-
-### My profile
-A combined snapshot of who you are as a player. The hero strip at the top shows your photo, name, team, and your FIFA-style player card. Below that you'll find:
+Your FIFA-style player card plus a snapshot of who you are as a player. The hero strip at the top shows your photo, name, team, and the FIFA card itself. Below the card you'll find four sections folded in from the old "My profile" tile:
 
 - **Playing details** — position, foot, jersey, height, weight (your coach maintains these).
 - **Recent performance** — your rolling rating average and a small trend chart of your last evaluations.
 - **Active goals** — the top three goals you're working on, with priority and due date.
 - **Upcoming** — the next sessions on your team's calendar.
-- **Account** — your login name, email, and a button to change your password.
+
+A **Print report** button on the right gives a clean printable version of the whole card.
+
+> Account details (display name, email, password) live in **My settings** under the username dropdown in the top-right corner — see below.
+
+### My team
+The team podium leads — top 3 players by rolling rating, gold/silver/bronze. Below the podium your own player card sits with a **#N of M** badge showing your own rank in the team. Other teammates' ranks are *not* shown — only the podium positions are public. The teammate roster at the bottom shows names + photos only; tap a teammate to see their basic playing details (position, jersey, foot, height, weight). Their evaluations, goals and ratings stay private.
+
+### My evaluations
+Every evaluation a coach has recorded for you, most recent first. Each row shows the date, the type, the coach, and the ratings — compact by default, expand a row to see the full subcategory breakdown.
+
+### My activities
+The training sessions, games and other activities you've attended. Use the search box and the date filter to find a specific one. Tap any row to open **My activity detail** — date, type, location, the coach's notes on the activity, your attendance status, and any per-row note your coach left for you.
+
+### My goals
+The development goals your coaches have set for you, grouped by status. Tap a goal to open it: read the full description, see priority + due date, and join the conversation thread (you can post comments and your coach + parents will see them).
+
+### My journey
+A vertical timeline of your milestones, evaluations, injuries, age-group transitions and other life events at the academy, oldest at the bottom. Use the filter chips at the top to narrow down the events shown.
+
+### My PDP
+Your personal development plan — the long-form version of your active goals, with multi-conversation history, agreed actions, and the season verdict. Available where the PDP module is enabled.
+
+## My settings (top-right username dropdown)
+
+Click your name in the top-right corner of the dashboard to open the user menu. The first item, **My settings**, is a TalentTrack-rendered settings screen — it never bounces you out to the WordPress admin. It contains only what end users actually need:
+
+- First name + last name + display name (how your name shows up to coaches and teammates)
+- Email
+- Change password (with current-password confirmation)
+
+Application passwords, admin colour palettes and other WordPress-internal toggles stay in wp-admin where they belong; ignore them unless you're managing your own developer integrations.
 
 ## Reports
 

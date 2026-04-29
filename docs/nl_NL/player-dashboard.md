@@ -7,28 +7,44 @@ Wanneer je inlogt als speler kom je op een tegelraster dat helemaal op jou is ge
 ## Jouw tegels
 
 ### Mijn kaart
-Je FIFA-achtige spelerskaart met overall-score, een radarchart van je hoofdcategorieën, je belangrijkste attributen en een knop **Rapport afdrukken** voor een nette printversie.
-
-### Mijn team
-Je eigen kaart in het midden, met daaronder het top-3 podium van je team. Je ziet ook een lijst met teamgenoten met naam en foto. Tik op een teamgenoot om hun basisgegevens te zien (positie, rugnummer, voet, lengte, gewicht). Hun evaluaties en doelen blijven privé.
-
-### Mijn evaluaties
-Elke evaluatie die een coach over jou heeft vastgelegd, meest recent eerst. Per rij zie je de datum, het type, de coach en de scores.
-
-### Mijn sessies
-De trainingen en wedstrijden waar je bij was. Met de zoekbalk en het datumfilter vind je snel een specifieke.
-
-### Mijn doelen
-De ontwikkelingsdoelen die je coaches voor jou hebben opgesteld, gegroepeerd op status.
-
-### Mijn profiel
-Een verzameld overzicht van wie je bent als speler. Bovenaan zie je je foto, naam, team en je FIFA-spelerskaart. Daaronder:
+Je FIFA-achtige spelerskaart plus een snapshot van wie je bent als speler. Bovenaan zie je je foto, naam, team en de FIFA-kaart zelf. Onder de kaart vind je vier secties uit de oude tegel "Mijn profiel":
 
 - **Speelgegevens** — positie, voet, rugnummer, lengte, gewicht (je coach houdt deze bij).
 - **Recente prestaties** — je voortschrijdend gemiddelde en een mini-grafiek van je laatste evaluaties.
 - **Actieve doelen** — de drie doelen waaraan je werkt, met prioriteit en streefdatum.
 - **Aankomend** — de volgende activiteiten op de teamagenda.
-- **Account** — je naam, e-mailadres en een knop om je wachtwoord aan te passen.
+
+Een knop **Rapport afdrukken** rechts geeft een nette printversie van de hele kaart.
+
+> Accountgegevens (weergavenaam, e-mailadres, wachtwoord) staan in **Mijn instellingen** onder je naam rechtsboven — zie verderop.
+
+### Mijn team
+Het podium van je team staat bovenaan — top 3 op rolling-rating, goud/zilver/brons. Daaronder staat je eigen spelerskaart met een **#N van M**-badge die je eigen positie in het team toont. Posities van andere teamgenoten worden *niet* getoond — alleen het podium is openbaar. De lijst met teamgenoten onderaan toont alleen namen en foto's; tik op een teamgenoot om hun basisgegevens (positie, rugnummer, voet, lengte, gewicht) te zien. Hun evaluaties, doelen en scores blijven privé.
+
+### Mijn evaluaties
+Elke evaluatie die een coach over jou heeft vastgelegd, meest recent eerst. Per rij zie je de datum, het type, de coach en de pillen — compact als standaard, klap een rij open voor de volledige onderverdeling.
+
+### Mijn activiteiten
+De trainingen, wedstrijden en andere activiteiten waar je bij was. Met de zoekbalk en het datumfilter vind je snel een specifieke. Tik op een rij om **Mijn activiteit-detail** te openen — datum, type, locatie, coach-notities bij de activiteit, jouw aanwezigheidsstatus en eventuele notities die de coach voor jou heeft achtergelaten.
+
+### Mijn doelen
+De ontwikkelingsdoelen die je coaches voor jou hebben opgesteld, gegroepeerd op status. Tik een doel aan om het te openen: lees de volledige omschrijving, zie prioriteit + streefdatum, en doe mee aan het gesprek (je kan reacties plaatsen die je coach + ouders kunnen zien).
+
+### Mijn reis
+Een verticale tijdlijn van je mijlpalen, evaluaties, blessures, leeftijdsovergangen en andere academiemomenten, oudste onderaan. Gebruik de filterchips bovenaan om gebeurtenissen te beperken.
+
+### Mijn POP
+Je persoonlijke ontwikkelingsplan — de lange versie van je actieve doelen, met meerdere gespreksrondes, afgesproken acties en het seizoensoordeel. Beschikbaar wanneer de POP-module aan staat.
+
+## Mijn instellingen (rechtsboven onder je naam)
+
+Klik rechtsboven op je naam om het gebruikersmenu te openen. Het eerste item, **Mijn instellingen**, is een door TalentTrack gerenderd instellingsscherm — je gaat nooit naar de WordPress-admin. Het bevat alleen wat je als gebruiker echt nodig hebt:
+
+- Voornaam + achternaam + weergavenaam (hoe je naam aan coaches en teamgenoten getoond wordt)
+- E-mailadres
+- Wachtwoord wijzigen (met bevestiging van het huidige wachtwoord)
+
+Application passwords, kleurschema's en andere WordPress-interne knoppen blijven in wp-admin staan; negeer die tenzij je je eigen developer-integratie beheert.
 
 ## Rapporten
 

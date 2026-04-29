@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\LabelTranslator;
+use TT\Modules\Threads\ThreadMessagesRepository;
 
 /**
  * FrontendMyGoalsView — the "My goals" tile destination.
@@ -40,11 +41,19 @@ class FrontendMyGoalsView extends FrontendViewBase {
             return;
         }
 
-        $base = remove_query_arg( [ 'id' ] );
+        $base         = remove_query_arg( [ 'id' ] );
+        $threads_repo = class_exists( ThreadMessagesRepository::class ) ? new ThreadMessagesRepository() : null;
         ?>
         <div class="tt-goals-list">
             <?php foreach ( $goals as $g ) :
                 $detail_url = add_query_arg( 'id', (int) $g->id, $base );
+                $msg_count  = 0;
+                if ( $threads_repo !== null ) {
+                    // Count public + player-readable messages so the
+                    // CTA reflects what the player can actually see.
+                    $msgs = $threads_repo->listForThread( 'goal', (int) $g->id, false );
+                    $msg_count = is_array( $msgs ) ? count( $msgs ) : 0;
+                }
                 ?>
                 <a class="tt-goal-item tt-status-<?php echo esc_attr( (string) $g->status ); ?> tt-record-link"
                    href="<?php echo esc_url( $detail_url ); ?>">
@@ -56,12 +65,25 @@ class FrontendMyGoalsView extends FrontendViewBase {
                     <?php if ( ! empty( $g->due_date ) ) : ?>
                         <small><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( (string) $g->due_date ); ?></small>
                     <?php endif; ?>
+                    <p class="tt-goal-conversation-cta">
+                        <span aria-hidden="true">💬</span>
+                        <?php if ( $msg_count > 0 ) : ?>
+                            <?php
+                            /* translators: %d is the number of messages on this goal's conversation thread. */
+                            printf( esc_html( _n( 'Open conversation (%d message)', 'Open conversation (%d messages)', $msg_count, 'talenttrack' ) ), $msg_count );
+                            ?>
+                        <?php else : ?>
+                            <?php esc_html_e( 'Open goal &amp; start the conversation', 'talenttrack' ); ?>
+                        <?php endif; ?>
+                        →
+                    </p>
                 </a>
             <?php endforeach; ?>
         </div>
         <style>
             .tt-record-link { display: block; text-decoration: none; color: inherit; }
             .tt-record-link:hover, .tt-record-link:focus-visible { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-1px); transition: transform 180ms ease, box-shadow 180ms ease; }
+            .tt-goal-conversation-cta { margin: 10px 0 0; font-size: 13px; color: var(--tt-primary, #0b3d2e); }
         </style>
         <?php
     }

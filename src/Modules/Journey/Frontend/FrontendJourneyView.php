@@ -29,6 +29,16 @@ use TT\Shared\Frontend\FrontendBackButton;
 class FrontendJourneyView {
 
     public static function render( object $player ): void {
+        // #0061 round 3 — visual timeline restyle. Enqueue the new
+        // partial that turns the inline-styled list into a centered-
+        // node vertical timeline. Idempotent via wp_enqueue_style.
+        wp_enqueue_style(
+            'tt-frontend-journey',
+            TT_PLUGIN_URL . 'assets/css/frontend-journey.css',
+            [ 'tt-frontend-admin' ],
+            TT_VERSION
+        );
+
         $user_id   = get_current_user_id();
         $player_id = (int) $player->id;
 
@@ -114,7 +124,7 @@ class FrontendJourneyView {
             <?php if ( empty( $events ) ) : ?>
                 <p class="tt-empty"><?php esc_html_e( 'No journey entries yet.', 'talenttrack' ); ?></p>
             <?php else : ?>
-                <ol class="tt-journey-list" style="list-style:none; padding:0; margin:0;">
+                <ol class="tt-journey-list">
                     <?php foreach ( $events as $event ) : ?>
                         <?php self::renderEventCard( $event ); ?>
                     <?php endforeach; ?>
@@ -209,21 +219,21 @@ class FrontendJourneyView {
         $superseded = ! empty( $event->superseded_by_event_id );
         ?>
         <li class="tt-journey-card<?php echo $superseded ? ' tt-journey-superseded' : ''; ?>"
-            style="display:grid; grid-template-columns: 8px 1fr; gap:12px; padding:10px 12px; margin: 8px 0; background:#fff; border-radius:6px; border:1px solid #e5e7ea; <?php echo $superseded ? 'opacity:0.6;' : ''; ?>">
-            <span style="background:<?php echo esc_attr( $color ); ?>; border-radius:3px;" aria-hidden="true"></span>
-            <div>
-                <p style="margin:0 0 4px; font-size:12px; color:#5b6e75;">
-                    <strong style="color:<?php echo esc_attr( $color ); ?>;"><?php echo esc_html( $label ); ?></strong>
+            style="--tt-journey-color: <?php echo esc_attr( $color ); ?>;">
+            <span class="tt-journey-node" aria-hidden="true"></span>
+            <div class="tt-journey-card-body">
+                <p class="tt-journey-card-meta">
+                    <strong class="tt-journey-card-label"><?php echo esc_html( $label ); ?></strong>
                     · <?php echo esc_html( $date_label ); ?>
                     <?php if ( $severity === EventTypeDefinition::SEVERITY_MILESTONE ) : ?>
-                        · <span class="tt-tag" style="display:inline-block; background:#fff3cd; color:#664d03; border-radius:4px; padding:1px 6px; font-size:11px;"><?php esc_html_e( 'Milestone', 'talenttrack' ); ?></span>
+                        · <span class="tt-journey-tag tt-journey-tag-milestone"><?php esc_html_e( 'Milestone', 'talenttrack' ); ?></span>
                     <?php elseif ( $severity === EventTypeDefinition::SEVERITY_WARNING ) : ?>
-                        · <span class="tt-tag" style="display:inline-block; background:#fde2e2; color:#7c1717; border-radius:4px; padding:1px 6px; font-size:11px;"><?php esc_html_e( 'Warning', 'talenttrack' ); ?></span>
+                        · <span class="tt-journey-tag tt-journey-tag-warning"><?php esc_html_e( 'Warning', 'talenttrack' ); ?></span>
                     <?php endif; ?>
                 </p>
-                <p style="margin:0; font-size:14px;"><?php echo esc_html( (string) $event->summary ); ?></p>
+                <p class="tt-journey-card-summary"><?php echo esc_html( (string) $event->summary ); ?></p>
                 <?php if ( $superseded ) : ?>
-                    <p style="margin:4px 0 0; font-size:11px; color:#7c1717;"><?php esc_html_e( 'Retracted — replaced by a corrected entry.', 'talenttrack' ); ?></p>
+                    <p class="tt-journey-card-retracted"><?php esc_html_e( 'Retracted — replaced by a corrected entry.', 'talenttrack' ); ?></p>
                 <?php endif; ?>
             </div>
         </li>
