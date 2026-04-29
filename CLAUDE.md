@@ -160,7 +160,39 @@ follow the rules below.
 
 ---
 
-## 3. Always-on principle — SaaS-ready by construction
+## 3. Always-on principle — Wizard-first record creation
+
+Any new feature that introduces a record-creation flow — a new top-level
+entity, or a new sub-entity reachable from a "+ New …" button — **MUST**
+ship with a wizard implemented against `Shared\Wizards\WizardInterface`,
+registered in `WizardRegistry`, and reachable via
+`?tt_view=wizard&slug=<…>`.
+
+The flat-form path remains in the codebase as the power-user fallback.
+The wizard's final step hands off to it. Entry-point gating via
+`WizardEntryPoint::urlFor()` decides which path the user lands on,
+governed by the `tt_wizards_enabled` site option.
+
+Multi-step flows beyond record creation — settings panels with > 5
+fields, anything involving file upload + mapping + confirmation,
+anything that mutates more than one table on save — **SHOULD** also
+ship as a wizard. Single-purpose admin pages and lookup tables stay
+flat; no benefit from a wizard there.
+
+**Exemptions** require an explicit `Wizard plan: exemption — <reason>`
+line in the feature's spec. Two pre-approved exemptions:
+
+- (a) lookup / vocabulary edits (single-field changes).
+- (b) bulk operations on existing records.
+
+**Retrofit policy**: existing flat-form-only flows are NOT required to
+be retrofitted. The rule applies forward only, from the merge date of
+#0058. Specific retrofit work, if it ever feels worth doing, gets its
+own idea file.
+
+---
+
+## 4. Always-on principle — SaaS-ready by construction
 
 The medium-term plan is to migrate to a full SaaS front-end (separate web
 app, possibly mobile native, possibly multi-tenant). **Every change made now
@@ -271,7 +303,7 @@ A reviewer should be able to answer yes to all of:
 
 ---
 
-## 4. Mandatory reading by task type
+## 5. Mandatory reading by task type
 
 These are existing repo docs. Read them when the task type matches; don't
 duplicate their content here.
@@ -285,6 +317,7 @@ duplicate their content here.
 | Documentation change            | `docs/contributing.md` (audience markers + Dutch translation rule) |
 | Capability / authorization      | `docs/access-control.md`, `docs/authorization-matrix.md` |
 | Hooks / extension points        | `docs/hooks-and-filters.md`         |
+| New record-creation flow        | `docs/wizards.md` (framework, registry, entry-point gating) |
 | Driving the workflow            | `AGENTS.md` (one agent vs. two, parallel sessions, decision tree) |
 
 If a doc you'd expect doesn't exist, **say so before writing code** — don't
@@ -293,7 +326,7 @@ Claude Code invent a pattern that conflicts with one already in use.
 
 ---
 
-## 5. Definition of done — checklist for every PR
+## 6. Definition of done — checklist for every PR
 
 A PR is not ready to merge until **all** of these hold:
 
@@ -321,6 +354,12 @@ A PR is not ready to merge until **all** of these hold:
 - [ ] Works with keyboard only (Tab, Enter, Escape).
 - [ ] No hover-only functionality.
 - [ ] CSS and JS are properly enqueued and prefixed.
+
+**Wizard-first (`CLAUDE.md` § 3 — record creation):**
+- [ ] If this PR creates a new record-creation flow: a wizard exists for
+      it, registered in `WizardRegistry`.
+- [ ] If this PR is exempt: the exemption is justified in the spec's
+      "Wizard plan" section.
 
 **SaaS-readiness (if any feature added):**
 - [ ] Feature is reachable through a REST endpoint, not only via PHP render.

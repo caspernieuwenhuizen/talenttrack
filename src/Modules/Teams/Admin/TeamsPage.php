@@ -7,6 +7,7 @@ use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Security\CredentialEncryption;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\People\Admin\TeamStaffPanel;
 use TT\Shared\Validation\CustomFieldValidator;
@@ -114,8 +115,68 @@ class TeamsPage {
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_TEAM, (int) ( $team->id ?? 0 ), 'head_coach_id' ); ?>
                     <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><textarea name="notes" rows="3" class="large-text"><?php echo esc_textarea( $team->notes ?? '' ); ?></textarea></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_TEAM, (int) ( $team->id ?? 0 ), 'notes' ); ?>
+                    <?php
+                    // #0031 — Spond integration. Bearer URL is encrypted
+                    // at rest; we render it decrypted into the form so
+                    // the admin can review/replace it.
+                    $spond_url        = isset( $team->spond_ical_url ) ? CredentialEncryption::decrypt( (string) $team->spond_ical_url ) : '';
+                    $spond_status     = (string) ( $team->spond_last_sync_status ?? '' );
+                    $spond_last_at    = (string) ( $team->spond_last_sync_at ?? '' );
+                    $spond_message    = (string) ( $team->spond_last_sync_message ?? '' );
+                    ?>
+                    <tr>
+                        <th><?php esc_html_e( 'Spond iCal URL', 'talenttrack' ); ?></th>
+                        <td>
+                            <input type="url" name="spond_ical_url" inputmode="url" autocomplete="off" class="large-text" value="<?php echo esc_attr( $spond_url ); ?>" placeholder="https://spond.com/api/group-export/…/team-cal.ics" />
+                            <p class="description">
+                                <?php esc_html_e( 'Paste the iCal URL from your Spond team settings. Stored encrypted; sync runs hourly. Leave blank to disable.', 'talenttrack' ); ?>
+                            </p>
+                            <?php if ( $is_edit && $spond_url !== '' ) : ?>
+                                <p style="margin:6px 0 0;">
+                                    <strong><?php esc_html_e( 'Last sync:', 'talenttrack' ); ?></strong>
+                                    <?php echo $spond_last_at !== '' ? esc_html( $spond_last_at ) : esc_html__( 'never', 'talenttrack' ); ?>
+                                    <?php if ( $spond_status === 'failed' ) : ?>
+                                        <span style="display:inline-block;margin-left:6px;padding:1px 8px;background:#fef2f2;color:#b91c1c;border-radius:4px;font-size:11px;">
+                                            <?php echo esc_html( $spond_message !== '' ? $spond_message : __( 'failed', 'talenttrack' ) ); ?>
+                                        </span>
+                                    <?php elseif ( $spond_status === 'ok' ) : ?>
+                                        <span style="display:inline-block;margin-left:6px;padding:1px 8px;background:#dcfce7;color:#166534;border-radius:4px;font-size:11px;">
+                                            <?php echo esc_html( $spond_message !== '' ? $spond_message : __( 'ok', 'talenttrack' ) ); ?>
+                                        </span>
+                                    <?php endif; ?>
+                                    <button type="button" class="button button-secondary" data-tt-spond-refresh="<?php echo (int) $team->id; ?>" style="margin-left:8px;min-height:32px;">
+                                        <?php esc_html_e( 'Refresh now', 'talenttrack' ); ?>
+                                    </button>
+                                </p>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
                     <?php CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_TEAM, (int) ( $team->id ?? 0 ) ); ?>
                 </table>
+                <?php if ( $is_edit && $team ) : ?>
+                <script>
+                (function(){
+                    var btn = document.querySelector('[data-tt-spond-refresh="<?php echo (int) $team->id; ?>"]');
+                    if ( ! btn || typeof window.TT === 'undefined' ) return;
+                    btn.addEventListener('click', function(){
+                        btn.disabled = true;
+                        btn.textContent = '<?php echo esc_js( __( 'Syncing…', 'talenttrack' ) ); ?>';
+                        var headers = { 'Accept': 'application/json' };
+                        if ( window.TT && window.TT.rest && window.TT.rest.nonce ) headers['X-WP-Nonce'] = window.TT.rest.nonce;
+                        fetch( ( window.TT.rest.url || '/wp-json/talenttrack/v1/' ) + 'teams/<?php echo (int) $team->id; ?>/spond/sync', {
+                            method: 'POST',
+                            headers: headers,
+                            credentials: 'same-origin'
+                        }).then(function(r){ return r.json(); }).then(function(){
+                            window.location.reload();
+                        }).catch(function(){
+                            btn.disabled = false;
+                            btn.textContent = '<?php echo esc_js( __( 'Refresh now', 'talenttrack' ) ); ?>';
+                        });
+                    });
+                })();
+                </script>
+                <?php endif; ?>
                 <?php submit_button( $is_edit ? __( 'Update Team', 'talenttrack' ) : __( 'Add Team', 'talenttrack' ) ); ?>
             </form>
 
@@ -159,11 +220,15 @@ class TeamsPage {
         }
 
         global $wpdb;
+        $spond_url_raw = isset( $_POST['spond_ical_url'] ) ? trim( (string) wp_unslash( $_POST['spond_ical_url'] ) ) : '';
+        $spond_envelope = $spond_url_raw !== '' ? CredentialEncryption::encrypt( $spond_url_raw ) : '';
+
         $data = [
             'name' => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['name'] ) ) : '',
             'age_group' => isset( $_POST['age_group'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['age_group'] ) ) : '',
             'head_coach_id' => isset( $_POST['head_coach_id'] ) ? absint( $_POST['head_coach_id'] ) : 0,
             'notes' => isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '',
+            'spond_ical_url' => $spond_envelope !== '' ? $spond_envelope : null,
         ];
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
         if ( $id ) {

@@ -38,4 +38,6 @@ return [
     TT\Modules\Wizards\WizardsModule::class               => true,
     TT\Modules\Journey\JourneyModule::class               => true,
     TT\Modules\PersonaDashboard\PersonaDashboardModule::class => true,
+    TT\Modules\Spond\SpondModule::class                   => true,
+    TT\Modules\Players\PlayerStatusModule::class          => true,
 ];

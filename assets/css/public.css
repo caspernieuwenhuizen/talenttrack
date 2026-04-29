@@ -296,9 +296,36 @@ body.tt-docs-drawer-open { overflow: hidden; }
 .tt-ajax-form { background: #fff; padding: 1.5rem; border: 1px solid var(--tt-line); border-top: 3px solid var(--tt-primary, #0b3d2e); max-width: 620px; }
 .tt-form-row { display: flex; align-items: center; margin-bottom: .9rem; gap: 1rem; }
 .tt-form-row label { flex: 0 0 150px; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
-.tt-form-row input, .tt-form-row select, .tt-form-row textarea { flex: 1; padding: 8px 10px; border: 1px solid var(--tt-line); font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.9rem; background: #fff; }
+/* #0056 — `font-size: 1rem` (16px) so iOS Safari does NOT zoom on
+   focus. The legacy 0.9rem (~14.4px) was the cause; bumping was the
+   highest-impact line of #0056. */
+.tt-form-row input, .tt-form-row select, .tt-form-row textarea { flex: 1; padding: 10px 12px; border: 1px solid var(--tt-line); font-family: "Helvetica Neue", Arial, sans-serif; font-size: 1rem; background: #fff; touch-action: manipulation; }
+.tt-form-row input:focus-visible, .tt-form-row select:focus-visible, .tt-form-row textarea:focus-visible { outline: 2px solid var(--tt-primary, #0b3d2e); outline-offset: 1px; border-color: var(--tt-primary, #0b3d2e); }
 .tt-form-row input:focus, .tt-form-row select:focus, .tt-form-row textarea:focus { outline: none; border-color: var(--tt-primary, #0b3d2e); }
 .tt-range-hint { color: var(--tt-muted); font-size: 0.8rem; font-family: "Helvetica Neue", Arial, sans-serif; }
+
+/* #0056 — site-wide `touch-action: manipulation` for the most-tapped
+   classes. Kills the 300ms tap delay + accidental double-tap zoom. */
+.tt-btn, .tt-btn-sm, .tt-tab, .tt-tile, .tt-pager-link,
+input[type="checkbox"], input[type="radio"] {
+    touch-action: manipulation;
+}
+
+/* #0056 — 48px tap-target floor under coarse pointers. Tablets with a
+   Bluetooth mouse (`pointer: fine`) keep desktop density. */
+@media (pointer: coarse) {
+    .tt-btn { min-height: 48px; }
+    .tt-btn-sm { min-height: 48px; padding-inline: 14px; }
+    .tt-tab { min-height: 48px; }
+    .tt-pager-link { min-width: 48px; min-height: 48px; }
+    .tt-list-row-action { min-height: 48px; min-width: 48px; }
+}
+
+/* #0056 — Safe-area insets on fixed surfaces (iOS notch / home bar). */
+.tt-back-button-wrap { padding-top: env(safe-area-inset-top); }
+.tt-modal-footer { padding-bottom: env(safe-area-inset-bottom); }
+.tt-scout-link-header { padding-top: env(safe-area-inset-top); }
+.tt-meeting-fullscreen-launcher { padding-bottom: env(safe-area-inset-bottom); }
 
 .tt-btn, .tt-btn-primary { display: inline-block; padding: .65rem 1.4rem; background: var(--tt-primary, #0b3d2e); color: #fff; border: none; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; transition: background .15s; }
 .tt-btn:hover, .tt-btn-primary:hover { background: var(--tt-secondary, #e8b624); color: var(--tt-ink); }

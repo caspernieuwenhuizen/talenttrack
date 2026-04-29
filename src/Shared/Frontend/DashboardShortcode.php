@@ -182,6 +182,14 @@ class DashboardShortcode {
         // `wizards-admin` is the configuration + analytics surface.
         $wizard_slugs = [ 'wizard', 'wizards-admin' ];
 
+        if ( $view !== '' ) {
+            // #0056 — render the desktop_preferred banner at the top of
+            // any dispatched view that carries the flag. CSS-gated
+            // visibility means desktop / tablet users never see it; phone
+            // users see it once until dismissed.
+            FrontendDesktopPreferredBanner::render( $view );
+        }
+
         if ( $view === '' ) {
             // #0060 — when the persona-dashboard feature flag is on,
             // PersonaLandingRenderer takes over the empty-view landing

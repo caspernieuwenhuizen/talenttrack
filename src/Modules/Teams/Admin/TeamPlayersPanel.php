@@ -3,7 +3,9 @@ namespace TT\Modules\Teams\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\PlayerStatus\PlayerStatusCalculator;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Players\Frontend\PlayerStatusRenderer;
 
 /**
  * TeamPlayersPanel — renders the "Players on this team" panel shown on
@@ -39,9 +41,19 @@ class TeamPlayersPanel {
                 <em><?php esc_html_e( 'No active players are assigned to this team yet. Go to Players → Add New (or edit an existing player) and set this team as their team.', 'talenttrack' ); ?></em>
             </p>
         <?php else : ?>
+            <?php
+            // #0057 Sprint 4 — render the traffic-light dot inline.
+            // Calculator is read-time, no caching at this layer; for
+            // a 25-player team that's ~25 calculator runs per page
+            // load. Acceptable for v1; a per-team batch query lands
+            // when the read-model layer caches in v3.51+.
+            wp_enqueue_style( 'tt-player-status', plugins_url( 'assets/css/player-status.css', TT_PLUGIN_FILE ), [], (string) ( defined( 'TT_VERSION' ) ? TT_VERSION : '1' ) );
+            $status_calc = new PlayerStatusCalculator();
+            ?>
             <table class="widefat striped" style="max-width:900px;">
                 <thead>
                     <tr>
+                        <th style="width:30px;"></th>
                         <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Jersey', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Positions', 'talenttrack' ); ?></th>
@@ -56,8 +68,10 @@ class TeamPlayersPanel {
                         $pos_str = is_array( $positions ) ? implode( ', ', array_map( 'strval', $positions ) ) : '';
                         $edit_url = admin_url( 'admin.php?page=tt-players&action=edit&id=' . (int) $pl->id );
                         $foot = (string) ( $pl->preferred_foot ?? '' );
+                        $verdict = $status_calc->calculate( (int) $pl->id );
                     ?>
                         <tr>
+                            <td><?php echo PlayerStatusRenderer::dot( $verdict->color ); ?></td>
                             <td>
                                 <a href="<?php echo esc_url( $edit_url ); ?>">
                                     <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>

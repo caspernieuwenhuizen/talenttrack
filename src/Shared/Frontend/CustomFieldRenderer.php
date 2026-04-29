@@ -80,7 +80,7 @@ class CustomFieldRenderer {
 
             case CustomFieldsRepository::TYPE_EMAIL:
                 return sprintf(
-                    '<input type="email" name="%s" value="%s" class="regular-text"%s />',
+                    '<input type="email" name="%s" value="%s" class="regular-text" inputmode="email" autocomplete="email"%s />',
                     esc_attr( $name ),
                     esc_attr( (string) ( $value ?? '' ) ),
                     $attr_required
@@ -88,7 +88,7 @@ class CustomFieldRenderer {
 
             case CustomFieldsRepository::TYPE_PHONE:
                 return sprintf(
-                    '<input type="tel" name="%s" value="%s" class="regular-text"%s />',
+                    '<input type="tel" name="%s" value="%s" class="regular-text" inputmode="tel" autocomplete="tel"%s />',
                     esc_attr( $name ),
                     esc_attr( (string) ( $value ?? '' ) ),
                     $attr_required
@@ -96,7 +96,7 @@ class CustomFieldRenderer {
 
             case CustomFieldsRepository::TYPE_NUMBER:
                 return sprintf(
-                    '<input type="number" name="%s" value="%s" step="any"%s />',
+                    '<input type="number" name="%s" value="%s" step="any" inputmode="decimal"%s />',
                     esc_attr( $name ),
                     esc_attr( $value === null || $value === '' ? '' : (string) $value ),
                     $attr_required
