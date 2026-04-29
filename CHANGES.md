@@ -1,3 +1,61 @@
+# TalentTrack v3.51.0 — Persona dashboard authoring platform (#0060)
+
+3-sprint epic. Every user now lands on a persona-aware dashboard composed of widgets and KPIs from a closed catalog, arranged by an academy admin via a drag-and-drop editor. Default render path is the new persona dashboard; a `tt_config` flag (`persona_dashboard.enabled`) provides one-release rollback to the legacy `FrontendTileGrid` path.
+
+## Sprint 1 — Foundation, catalogs, defaults (PR #118)
+
+- New `TT\Modules\PersonaDashboard\` module behind a feature flag.
+- **14-widget catalog** (closed enum): `navigation_tile`, `kpi_card`, `kpi_strip`, `action_card`, `quick_actions_panel`, `info_card`, `task_list_panel`, `data_table`, `mini_player_list`, `rate_card_hero`, `today_up_next_hero`, `child_switcher_with_recap`, `system_health_strip`, `assigned_players_grid`. Each declares its allowed sizes (S/M/L/XL on a 12-column bento grid), mobile priority, persona context, capability gate, and module owner.
+- **25-KPI catalog** spanning academy / coach / player+parent contexts. KPIs depending on unshipped epics (`#0057`, `#0054`) return `KpiValue::unavailable()` so the editor still lets admins place them; they render `—` until those land.
+- **8 ship-default per-persona templates** (player, parent, head_coach, assistant_coach, team_manager, head_of_development, scout, academy_admin). Player tile order matches the April 2026 design brief.
+- **Per-club override** stored in `tt_config` keyed by `(club_id, persona_slug, status)` so academies override defaults without code changes.
+- **REST GET** `/personas/{slug}/template` exposes the resolved layout JSON for future SaaS clients.
+- **PersonaResolver** extended: `tt_readonly_observer` now mapped, `activePersona()` reads `tt_user_meta.tt_active_persona` so the role-switcher pill persists across sessions.
+- New cap `tt_edit_persona_templates` (administrator + tt_club_admin).
+- Mobile-first CSS at 360 px first, 48 px touch floor, no hover-gated actions, reduced-motion respected.
+- ~80 new msgids translated to Dutch.
+
+## Sprint 2 — Drag-drop editor (PR #119)
+
+wp-admin page at *TalentTrack → Dashboard layouts*, gated by `tt_edit_persona_templates`. Three-pane layout:
+
+- **Palette** (left) — tabs for Widgets and KPIs; KPIs grouped in a collapsible accordion by persona context.
+- **Canvas** (centre) — hero band + task band + 12-column bento. Widgets snap to S/M/L/XL sizes. Selected widget shows resize handles + remove button.
+- **Properties** (right) — size segmented control, KPI dropdown for KPI cards, free-text data-source for tiles, persona-label override, mobile priority, mobile-visible checkbox.
+
+Top toolbar: persona dropdown, undo / redo (50-step), mobile preview (360 px frame, priority-collapsed), reset to default, save draft, publish. Publish modal shows affected user count and confirms before promoting.
+
+- **Drag-drop**: HTML5 mouse + touch + keyboard (space-to-grab, arrow-keys to move, space to drop, escape to cancel). ARIA grab/drop announcements via the live status region. Delete/Backspace removes a focused widget.
+- **REST writes**: `PUT /personas/{slug}/template` (save draft), `POST /…/publish` (promote to live), `DELETE /…/template` (reset to ship default). All cap-gated; each fires a `do_action` for the audit subscriber.
+- **Audit log**: `persona_template_published`, `persona_template_draft`, `persona_template_reset` actions write to `tt_audit_log` with `persona_slug`, `club_id`, `actor_user`.
+- ~50 editor msgids translated to Dutch. Editor docs added to `persona-dashboard.md` (EN + NL).
+
+## Sprint 3 — Hero data wiring + team tabs + flag flip (PR #121)
+
+Heroes now render real data:
+
+- **Rate card hero** — rolling rating via `PlayerStatsService`, scaled to 0–99, latest-vs-rolling delta, photo or initials.
+- **Today / Up next hero** — soonest `tt_activities` row scoped to the user's coached teams. Today / Tomorrow / localized-date eyebrow.
+- **Child switcher with recap** — parent's children matched on `tt_players.guardian_email`. "Since you last visited" recap counts evaluations created since `tt_user_meta.tt_last_visited_at`, pluralized.
+- **System health strip** — backup status, pending invitations, license tier, modules count.
+- **Assigned players grid** — scout's HoD-managed assignments via `FrontendScoutMyPlayersView::assignedPlayerIds()`. Responsive 2/4/6-col grid.
+
+KPI sparklines (4-week trailing buckets) on `EvaluationsThisMonth`, `MyEvaluationsThisWeek`, and `AttendancePctRolling` (joins `tt_attendance` ⨝ `tt_activities`, handles both column variants from migration 0027).
+
+**Coach team tabs** above the grid for head_coach + assistant_coach with 2+ teams. Active tab persists via `tt_user_meta.tt_active_team_tab`.
+
+**Configuration tile-landing entry** — *Dashboard layouts* surfaces under *Branding & display*, same discovery path as Branding / Translations.
+
+**Flag flip** — `persona_dashboard.enabled` defaults to `'1'` when missing from `tt_config`. Sites set the row to `'0'` for the one-release rollback window.
+
+## Notes for upgraders
+
+- The legacy `FrontendTileGrid` path stays callable for one release. If you hit a regression, set `persona_dashboard.enabled='0'` in `tt_config` to fall back.
+- Per-user overrides are explicitly out of scope. Academies tune for the persona; users get what their academy gave them. (Per-user override would be a separate epic if customers ask.)
+- Pluggable widget / KPI authoring is closed enum in v1. Adding a 15th widget or a 26th KPI is a code change.
+
+---
+
 # TalentTrack v3.50.1 — Hotfix: legacy `tt_edit_sessions` cap reference
 
 One-line fix to `src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php` — the new-activity action card referenced the legacy `tt_edit_sessions` capability that was renamed to `tt_edit_activities` in v3.24.0 (#0035 sessions → activities rename). The CI no-legacy gate caught it on every release attempt and blocked the `talenttrack.zip` build for both #0060 sprint 3 and v3.50.0. Same content as v3.50.0 otherwise; this re-cuts the omnibus release with a working asset.
