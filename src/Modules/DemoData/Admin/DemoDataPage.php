@@ -276,27 +276,59 @@ class DemoDataPage {
             </button>
         </div>
 
-        <details style="margin:16px 0;border:1px solid #d6dadd;border-radius:6px;padding:12px 14px;background:#f8fafc;">
-            <summary style="cursor:pointer;font-weight:600;"><?php esc_html_e( 'Or upload an Excel template (#0059)', 'talenttrack' ); ?></summary>
-            <p style="margin:8px 0;color:#5b6e75;">
-                <?php esc_html_e( 'Walk in with the prospect\'s own team names and players. Download the template, fill it in offline, upload it back. v1 covers the Teams and Players sheets; the procedural generator handles everything else.', 'talenttrack' ); ?>
-            </p>
-            <p style="margin:0 0 12px;">
-                <a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=tt_demo_excel_template' ), 'tt_demo_excel_template' ) ); ?>">
-                    <?php esc_html_e( 'Download template (.xlsx)', 'talenttrack' ); ?>
-                </a>
-            </p>
-            <form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-                <?php wp_nonce_field( 'tt_demo_excel_import', 'tt_demo_nonce' ); ?>
-                <input type="hidden" name="action" value="tt_demo_excel_import" />
-                <input type="file" name="demo_excel" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required />
-                <button type="submit" class="button button-secondary"><?php esc_html_e( 'Upload + import', 'talenttrack' ); ?></button>
-            </form>
-        </details>
-
-        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="tt-demo-generate-form" class="tt-demo-form" data-tt-demo-form>
+        <form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="tt-demo-generate-form" class="tt-demo-form" data-tt-demo-form>
             <?php wp_nonce_field( 'tt_demo_generate', 'tt_demo_nonce' ); ?>
             <input type="hidden" name="action" value="tt_demo_generate" />
+
+            <fieldset style="border:1px solid #d6dadd;border-radius:6px;padding:12px 14px;margin:0 0 16px;background:#f8fafc;">
+                <legend style="font-weight:600;padding:0 6px;">
+                    <?php esc_html_e( 'Step 0 — Source', 'talenttrack' ); ?>
+                </legend>
+                <p style="margin:0 0 10px;color:#5b6e75;">
+                    <?php esc_html_e( 'Procedural for a fast, believable academy. Excel for a deterministic dataset matching the prospect\'s real teams. Hybrid for the best of both — Excel where you have it, procedural fills the rest.', 'talenttrack' ); ?>
+                </p>
+                <label style="display:block;padding:6px 0;cursor:pointer;">
+                    <input type="radio" name="source" value="procedural" checked data-tt-demo-source />
+                    <strong><?php esc_html_e( 'Procedural only', 'talenttrack' ); ?></strong>
+                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'pick a preset and let the generator do everything.', 'talenttrack' ); ?></span>
+                </label>
+                <label style="display:block;padding:6px 0;cursor:pointer;">
+                    <input type="radio" name="source" value="excel" data-tt-demo-source />
+                    <strong><?php esc_html_e( 'Excel upload', 'talenttrack' ); ?></strong>
+                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'use only what\'s in the workbook; nothing is generated.', 'talenttrack' ); ?></span>
+                </label>
+                <label style="display:block;padding:6px 0;cursor:pointer;">
+                    <input type="radio" name="source" value="hybrid" data-tt-demo-source />
+                    <strong><?php esc_html_e( 'Hybrid: upload + procedural top-up', 'talenttrack' ); ?></strong>
+                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'Excel sheets win; the procedural generator fills any sheet you left blank.', 'talenttrack' ); ?></span>
+                </label>
+
+                <div data-tt-demo-source-file style="display:none;margin-top:12px;padding:10px 12px;background:#fff;border:1px solid #d6dadd;border-radius:6px;">
+                    <p style="margin:0 0 8px;">
+                        <a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=tt_demo_excel_template' ), 'tt_demo_excel_template' ) ); ?>">
+                            <?php esc_html_e( 'Download template (.xlsx)', 'talenttrack' ); ?>
+                        </a>
+                    </p>
+                    <input type="file" name="demo_excel" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                    <p style="margin:6px 0 0;color:#5b6e75;font-size:12px;">
+                        <?php esc_html_e( 'v1.5: Teams, People, Players, Trial cases, Activities (Sessions), Attendance, Evaluations, Eval ratings, Goals, Player-journey events. Reference sheets (Eval categories, Category weights, Lookups) are documentation-only — admin-edit those via the existing Configuration surfaces.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+            </fieldset>
+            <script>
+            (function(){
+                var radios = document.querySelectorAll('input[data-tt-demo-source]');
+                var box    = document.querySelector('[data-tt-demo-source-file]');
+                if ( ! radios.length || ! box ) return;
+                function toggle(){
+                    var on = false;
+                    radios.forEach(function(r){ if ( r.checked && r.value !== 'procedural' ) on = true; });
+                    box.style.display = on ? 'block' : 'none';
+                }
+                radios.forEach(function(r){ r.addEventListener('change', toggle); });
+                toggle();
+            })();
+            </script>
 
             <table class="form-table">
                 <tbody data-tt-demo-tab-pane="basic">
@@ -558,6 +590,13 @@ class DemoDataPage {
         $content_language = isset( $_POST['content_language'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['content_language'] ) ) : '';
         $confirmed        = ! empty( $_POST['domain_confirmed'] );
 
+        // #0059 — Source step: procedural / excel / hybrid. Default
+        // procedural unless an Excel file was uploaded, in which case
+        // hybrid (per the spec — "hybrid is the default once a file is
+        // selected").
+        $source = isset( $_POST['source'] ) ? sanitize_key( (string) $_POST['source'] ) : 'procedural';
+        if ( ! in_array( $source, [ 'procedural', 'excel', 'hybrid' ], true ) ) $source = 'procedural';
+
         $redirect = admin_url( 'tools.php?page=' . self::SLUG );
         $users_exist = DemoGenerator::persistentUsersExist();
 
@@ -566,6 +605,22 @@ class DemoDataPage {
         }
         if ( ! $users_exist && ( ! $domain || ! $password ) ) {
             self::bounce( $redirect, 'Domain and password are required for the first run.' );
+        }
+
+        // Resolve uploaded Excel path once for excel + hybrid sources.
+        $excel_path = '';
+        if ( $source !== 'procedural' ) {
+            if ( ! isset( $_FILES['demo_excel'] ) || ! is_array( $_FILES['demo_excel'] )
+                 || ( $_FILES['demo_excel']['error'] ?? UPLOAD_ERR_NO_FILE ) === UPLOAD_ERR_NO_FILE ) {
+                self::bounce( $redirect, 'Excel and Hybrid sources require an uploaded workbook.' );
+            }
+            if ( ( $_FILES['demo_excel']['error'] ?? 0 ) !== UPLOAD_ERR_OK ) {
+                self::bounce( $redirect, 'Upload failed (error code ' . (int) $_FILES['demo_excel']['error'] . ').' );
+            }
+            $excel_path = (string) ( $_FILES['demo_excel']['tmp_name'] ?? '' );
+            if ( ! is_uploaded_file( $excel_path ) ) {
+                self::bounce( $redirect, 'Invalid upload.' );
+            }
         }
 
         try {
@@ -578,11 +633,17 @@ class DemoDataPage {
                 'seed'             => $seed,
                 'club_name'        => $club_name,
                 'content_language' => $content_language,
+                'source'           => $source,
+                'excel_path'       => $excel_path,
             ] );
             \TT\Modules\DemoData\DemoMode::clearOverride();
         } catch ( \Throwable $e ) {
             \TT\Modules\DemoData\DemoMode::clearOverride();
             self::bounce( $redirect, $e->getMessage() );
+        }
+
+        if ( ! empty( $result['excel_blockers'] ) ) {
+            self::bounce( $redirect, 'Excel import failed: ' . implode( ' · ', (array) $result['excel_blockers'] ) );
         }
 
         set_transient( self::TRANSIENT_ACCOUNTS,   $result['accounts'],   10 * MINUTE_IN_SECONDS );

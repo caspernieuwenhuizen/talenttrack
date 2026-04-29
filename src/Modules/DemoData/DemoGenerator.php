@@ -3,7 +3,9 @@ namespace TT\Modules\DemoData;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\DemoData\Excel\ExcelImporter;
 use TT\Modules\DemoData\Generators\UserGenerator;
 use TT\Modules\DemoData\Generators\PeopleGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
@@ -40,12 +42,14 @@ class DemoGenerator {
      * }
      */
     public static function run( array $opts ): array {
-        $preset = $opts['preset'] ?? 'small';
+        $source      = isset( $opts['source'] ) ? (string) $opts['source'] : 'procedural';
+        $excel_path  = isset( $opts['excel_path'] ) ? (string) $opts['excel_path'] : '';
+        $preset      = $opts['preset'] ?? 'small';
         if ( ! isset( self::PRESETS[ $preset ] ) ) {
             $preset = 'small';
         }
         $config = self::PRESETS[ $preset ];
-        $seed = (int) ( $opts['seed'] ?? 20260504 );
+        $seed   = (int) ( $opts['seed'] ?? 20260504 );
         mt_srand( $seed );
 
         $batch_id = self::makeBatchId( $preset, $seed );
@@ -57,25 +61,75 @@ class DemoGenerator {
         $peopleGen = new PeopleGenerator( $registry, $users );
         $persons   = $peopleGen->generate();
 
-        $club_name = isset( $opts['club_name'] ) ? (string) $opts['club_name'] : null;
-        $teamGen   = new TeamGenerator( $registry, $users, $persons, (int) $config['teams'], $club_name );
-        $teams     = $teamGen->generate();
+        // #0059 — pure-Excel path: run the importer, return its counts +
+        // the user/staff numbers from the procedural generators above.
+        // Hybrid path falls through to the chain below but skips
+        // entities the Excel sheet covered.
+        $excel_present_sheets = [];
+        $excel_imported       = [];
+        if ( $source === 'excel' || $source === 'hybrid' ) {
+            $excel = ( new ExcelImporter() )->importFile( $excel_path, basename( $excel_path ), $batch_id );
+            if ( ! $excel['ok'] ) {
+                return [
+                    'batch_id'   => $batch_id,
+                    'users'      => $users,
+                    'accounts'   => $userGen->accounts(),
+                    'teams'      => [],
+                    'players'    => [],
+                    'counts'     => array_merge( [ 'users' => count( $users ), 'persons' => count( $persons ) ], $excel['imported'] ),
+                    'user_stats' => [
+                        'created' => $userGen->createdCount(),
+                        'reused'  => $userGen->reusedCount(),
+                    ],
+                    'excel_blockers' => $excel['blockers'],
+                ];
+            }
+            $excel_present_sheets = $excel['present_sheets'];
+            $excel_imported       = $excel['imported'];
+        }
 
-        $playerGen = new PlayerGenerator( $registry, $teams, $users, (int) $config['players_per_team'] );
-        $players   = $playerGen->generate();
+        $teams   = [];
+        $players = [];
+        if ( $source === 'procedural' ) {
+            $club_name = isset( $opts['club_name'] ) ? (string) $opts['club_name'] : null;
+            $teamGen   = new TeamGenerator( $registry, $users, $persons, (int) $config['teams'], $club_name );
+            $teams     = $teamGen->generate();
+            $playerGen = new PlayerGenerator( $registry, $teams, $users, (int) $config['players_per_team'] );
+            $players   = $playerGen->generate();
+        } else {
+            // For excel + hybrid: load whatever the Excel importer just
+            // inserted as native objects so the downstream generators can
+            // write related entities.
+            $teams   = self::loadDemoTaggedTeams( $batch_id );
+            $players = self::loadDemoTaggedPlayers( $batch_id );
+        }
 
         $content_language = isset( $opts['content_language'] ) && (string) $opts['content_language'] !== ''
             ? (string) $opts['content_language']
             : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
 
-        $evalGen    = new EvaluationGenerator( $registry, $players, $teams, (int) $config['weeks'] );
-        $eval_count = $evalGen->generate();
+        $eval_count    = 0;
+        $session_count = 0;
+        $goal_count    = 0;
 
-        $sessionGen    = new ActivityGenerator( $registry, $teams, $players, (int) $config['weeks'], $content_language );
-        $session_count = $sessionGen->generate();
+        // Hybrid mode: run procedural generators only for sheets the
+        // Excel didn't cover. Pure Excel skips them entirely.
+        $skip_eval     = $source === 'excel' || in_array( 'evaluations',  $excel_present_sheets, true );
+        $skip_activity = $source === 'excel' || in_array( 'sessions',     $excel_present_sheets, true );
+        $skip_goal     = $source === 'excel' || in_array( 'goals',        $excel_present_sheets, true );
 
-        $goalGen    = new GoalGenerator( $registry, $players, $users, $content_language );
-        $goal_count = $goalGen->generate();
+        if ( ! $skip_eval && ! empty( $players ) && ! empty( $teams ) ) {
+            $evalGen    = new EvaluationGenerator( $registry, $players, $teams, (int) $config['weeks'] );
+            $eval_count = $evalGen->generate();
+        }
+        if ( ! $skip_activity && ! empty( $teams ) && ! empty( $players ) ) {
+            $sessionGen    = new ActivityGenerator( $registry, $teams, $players, (int) $config['weeks'], $content_language );
+            $session_count = $sessionGen->generate();
+        }
+        if ( ! $skip_goal && ! empty( $players ) ) {
+            $goalGen    = new GoalGenerator( $registry, $players, $users, $content_language );
+            $goal_count = $goalGen->generate();
+        }
 
         return [
             'batch_id' => $batch_id,
@@ -83,20 +137,47 @@ class DemoGenerator {
             'accounts' => $userGen->accounts(),
             'teams'    => $teams,
             'players'  => $players,
-            'counts'     => [
+            'counts'   => array_merge( [
                 'users'       => count( $users ),
                 'persons'     => count( $persons ),
                 'teams'       => count( $teams ),
                 'players'     => count( $players ),
                 'evaluations' => $eval_count,
-                'activities'    => $session_count,
+                'activities'  => $session_count,
                 'goals'       => $goal_count,
-            ],
+            ], $excel_imported ),
             'user_stats' => [
                 'created' => $userGen->createdCount(),
                 'reused'  => $userGen->reusedCount(),
             ],
+            'excel_present_sheets' => $excel_present_sheets,
         ];
+    }
+
+    /** Load the teams that this batch's Excel importer just inserted. */
+    private static function loadDemoTaggedTeams( string $batch_id ): array {
+        global $wpdb;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT t.* FROM {$wpdb->prefix}tt_teams t
+              JOIN {$wpdb->prefix}tt_demo_tags d
+                ON d.entity_type = 'team' AND d.entity_id = t.id
+             WHERE d.batch_id = %s AND d.club_id = %d",
+            $batch_id, CurrentClub::id()
+        ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /** Load the players that this batch's Excel importer just inserted. */
+    private static function loadDemoTaggedPlayers( string $batch_id ): array {
+        global $wpdb;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT p.* FROM {$wpdb->prefix}tt_players p
+              JOIN {$wpdb->prefix}tt_demo_tags d
+                ON d.entity_type = 'player' AND d.entity_id = p.id
+             WHERE d.batch_id = %s AND d.club_id = %d",
+            $batch_id, CurrentClub::id()
+        ) );
+        return is_array( $rows ) ? $rows : [];
     }
 
     /**

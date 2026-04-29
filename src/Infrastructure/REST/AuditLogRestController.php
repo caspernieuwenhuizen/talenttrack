@@ -3,6 +3,7 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
 use WP_REST_Request;
 
 /**
@@ -53,7 +54,7 @@ final class AuditLogRestController extends BaseController {
 
         $count_sql = "SELECT COUNT(*) FROM {$table}{$where}";
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $total = (int) $wpdb->get_var( empty( $args ) ? $count_sql : $wpdb->prepare( $count_sql, $args ) );
+        $total = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $args ) );
 
         $list_sql = "SELECT id, user_id, action, entity_type, entity_id, payload, ip_address, created_at
                        FROM {$table}{$where}
@@ -74,8 +75,9 @@ final class AuditLogRestController extends BaseController {
      * @return array{0:string,1:array<int,mixed>}
      */
     private static function buildWhere( WP_REST_Request $req ): array {
-        $clauses = [];
-        $args    = [];
+        // #0052 PR-B follow-up — every audit query is club-scoped.
+        $clauses = [ 'club_id = %d' ];
+        $args    = [ CurrentClub::id() ];
 
         if ( $req->has_param( 'entity_type' ) && (string) $req->get_param( 'entity_type' ) !== '' ) {
             $clauses[] = 'entity_type = %s';
@@ -102,7 +104,6 @@ final class AuditLogRestController extends BaseController {
             $args[]    = (string) $req->get_param( 'date_to' );
         }
 
-        if ( empty( $clauses ) ) return [ '', [] ];
         return [ ' WHERE ' . implode( ' AND ', $clauses ), $args ];
     }
 
