@@ -88,9 +88,13 @@ final class LookupsRestController extends BaseController {
 
     public static function listTypes( WP_REST_Request $req ): \WP_REST_Response {
         global $wpdb;
-        $rows = $wpdb->get_results(
-            "SELECT lookup_type, COUNT(*) AS n FROM {$wpdb->prefix}tt_lookups GROUP BY lookup_type ORDER BY lookup_type"
-        );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT lookup_type, COUNT(*) AS n FROM {$wpdb->prefix}tt_lookups
+              WHERE club_id = %d
+              GROUP BY lookup_type
+              ORDER BY lookup_type",
+            CurrentClub::id()
+        ) );
         $types = array_map( static fn( $r ): array => [
             'type'  => (string) $r->lookup_type,
             'count' => (int) $r->n,
@@ -104,9 +108,9 @@ final class LookupsRestController extends BaseController {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, name, description, meta, sort_order
                FROM {$wpdb->prefix}tt_lookups
-              WHERE lookup_type = %s
+              WHERE lookup_type = %s AND club_id = %d
               ORDER BY sort_order ASC, name ASC",
-            $type
+            $type, CurrentClub::id()
         ) );
         return RestResponse::success( array_map( [ self::class, 'serialize' ], is_array( $rows ) ? $rows : [] ) );
     }
@@ -117,6 +121,7 @@ final class LookupsRestController extends BaseController {
 
         global $wpdb;
         $row = self::buildRow( $req, true );
+        $row['club_id']     = CurrentClub::id();
         $row['lookup_type'] = (string) $req->get_param( 'type' );
         $row['created_at']  = current_time( 'mysql' );
         $row['updated_at']  = current_time( 'mysql' );
@@ -136,7 +141,7 @@ final class LookupsRestController extends BaseController {
             return RestResponse::error( 'lookup_no_changes', __( 'No fields to update.', 'talenttrack' ), 400 );
         }
         $row['updated_at'] = current_time( 'mysql' );
-        $ok = $wpdb->update( $wpdb->prefix . 'tt_lookups', $row, [ 'id' => $id, 'lookup_type' => $type ] );
+        $ok = $wpdb->update( $wpdb->prefix . 'tt_lookups', $row, [ 'id' => $id, 'lookup_type' => $type, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             return RestResponse::error( 'lookup_update_failed', __( 'Could not update lookup value.', 'talenttrack' ), 500 );
         }
@@ -147,7 +152,7 @@ final class LookupsRestController extends BaseController {
         $type = (string) $req->get_param( 'type' );
         $id   = (int) $req->get_param( 'id' );
         global $wpdb;
-        $ok = $wpdb->delete( $wpdb->prefix . 'tt_lookups', [ 'id' => $id, 'lookup_type' => $type ] );
+        $ok = $wpdb->delete( $wpdb->prefix . 'tt_lookups', [ 'id' => $id, 'lookup_type' => $type, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             return RestResponse::error( 'lookup_delete_failed', __( 'Could not delete lookup value.', 'talenttrack' ), 500 );
         }

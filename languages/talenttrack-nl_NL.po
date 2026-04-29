@@ -9836,8 +9836,6 @@ msgstr "Doel van %1$s: %2$s"
 msgid "Could not create lookup value."
 msgstr "Lookup-waarde kon niet worden aangemaakt."
 
-msgid "No fields to update."
-msgstr "Geen velden om bij te werken."
 
 msgid "Could not update lookup value."
 msgstr "Lookup-waarde kon niet worden bijgewerkt."
@@ -10015,3 +10013,35 @@ msgstr "Valt terug op het originele tegelraster (elke gebruiker ziet hetzelfde m
 
 msgid "Save default dashboard"
 msgstr "Standaard dashboard opslaan"
+
+# v3.56.0 — Excel demo data finished (#0059)
+
+msgid "Step 0 — Source"
+msgstr "Stap 0 — Bron"
+
+msgid "Procedural for a fast, believable academy. Excel for a deterministic dataset matching the prospect's real teams. Hybrid for the best of both — Excel where you have it, procedural fills the rest."
+msgstr "Procedureel voor een snelle, geloofwaardige academie. Excel voor een vaste dataset die overeenkomt met de echte teams van de prospect. Hybride voor het beste van beide — Excel waar je het hebt, procedureel vult de rest."
+
+msgid "Procedural only"
+msgstr "Alleen procedureel"
+
+msgid "pick a preset and let the generator do everything."
+msgstr "kies een preset en laat de generator alles doen."
+
+msgid "Excel upload"
+msgstr "Excel-upload"
+
+msgid "use only what's in the workbook; nothing is generated."
+msgstr "gebruik alleen wat in het werkboek staat; er wordt niets gegenereerd."
+
+msgid "Hybrid: upload + procedural top-up"
+msgstr "Hybride: upload + procedurele aanvulling"
+
+msgid "Excel sheets win; the procedural generator fills any sheet you left blank."
+msgstr "Excel-tabbladen winnen; de procedurele generator vult elk leeg tabblad aan."
+
+msgid "v1.5: Teams, People, Players, Trial cases, Activities (Sessions), Attendance, Evaluations, Eval ratings, Goals, Player-journey events. Reference sheets (Eval categories, Category weights, Lookups) are documentation-only — admin-edit those via the existing Configuration surfaces."
+msgstr "v1.5: Teams, People, Players, Trial_Cases, Sessions (activiteiten), Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey. Referentie-tabbladen (Eval_Categories, Category_Weights, _Lookups) zijn alleen ter documentatie — beheer die via de bestaande Configuratie-schermen."
+
+msgid "%1$s row %2$d: %3$s \"%4$s\" does not match any %5$s row."
+msgstr "%1$s rij %2$d: %3$s \"%4$s\" komt niet overeen met een %5$s-rij."
