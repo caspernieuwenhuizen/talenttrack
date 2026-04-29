@@ -52,6 +52,7 @@ final class CoreSurfaceRegistration {
     private const M_TEAMDEV       = 'TT\\Modules\\TeamDevelopment\\TeamDevelopmentModule';
     private const M_TEAMS         = 'TT\\Modules\\Teams\\TeamsModule';
     private const M_TRIALS        = 'TT\\Modules\\Trials\\TrialsModule';
+    private const M_STAFF_DEV     = 'TT\\Modules\\StaffDevelopment\\StaffDevelopmentModule';
     private const M_WIZARDS       = 'TT\\Modules\\Wizards\\WizardsModule';
     private const M_WORKFLOW      = 'TT\\Modules\\Workflow\\WorkflowModule';
     private const M_JOURNEY       = 'TT\\Modules\\Journey\\JourneyModule';
@@ -684,6 +685,71 @@ final class CoreSurfaceRegistration {
             'url_callback' => static function (): string {
                 return admin_url( 'admin.php?page=talenttrack' );
             },
+        ]);
+
+        // ── Staff development group (#0039) — visible to any user
+        // who can view the staff-development surface. The HoD overview
+        // tile is gated separately on the expiry-roll-up cap. ──
+        $staff_dev_group = __( 'Staff development', 'talenttrack' );
+        TileRegistry::register([
+            'module_class' => self::M_STAFF_DEV,
+            'view_slug'    => 'my-staff-pdp',
+            'group'        => $staff_dev_group,
+            'kind'         => 'work',
+            'order'        => 10,
+            'label'        => __( 'My PDP', 'talenttrack' ),
+            'description'  => __( 'Your personal development plan.', 'talenttrack' ),
+            'icon'         => 'pdp',
+            'color'        => '#0b3d2e',
+            'cap'          => 'tt_view_staff_development',
+        ]);
+        TileRegistry::register([
+            'module_class' => self::M_STAFF_DEV,
+            'view_slug'    => 'my-staff-goals',
+            'group'        => $staff_dev_group,
+            'kind'         => 'work',
+            'order'        => 20,
+            'label'        => __( 'My staff goals', 'talenttrack' ),
+            'description'  => __( 'Personal development goals — optionally linked to a certification.', 'talenttrack' ),
+            'icon'         => 'goals',
+            'color'        => '#1d7874',
+            'cap'          => 'tt_view_staff_development',
+        ]);
+        TileRegistry::register([
+            'module_class' => self::M_STAFF_DEV,
+            'view_slug'    => 'my-staff-evaluations',
+            'group'        => $staff_dev_group,
+            'kind'         => 'work',
+            'order'        => 30,
+            'label'        => __( 'My staff evaluations', 'talenttrack' ),
+            'description'  => __( 'Self and top-down staff evaluations.', 'talenttrack' ),
+            'icon'         => 'evaluations',
+            'color'        => '#7c3a9e',
+            'cap'          => 'tt_view_staff_development',
+        ]);
+        TileRegistry::register([
+            'module_class' => self::M_STAFF_DEV,
+            'view_slug'    => 'my-staff-certifications',
+            'group'        => $staff_dev_group,
+            'kind'         => 'work',
+            'order'        => 40,
+            'label'        => __( 'My certifications', 'talenttrack' ),
+            'description'  => __( 'Coaching badges, first aid, GDPR and more — with expiry tracking.', 'talenttrack' ),
+            'icon'         => 'rate-card',
+            'color'        => '#c9962a',
+            'cap'          => 'tt_view_staff_development',
+        ]);
+        TileRegistry::register([
+            'module_class' => self::M_STAFF_DEV,
+            'view_slug'    => 'staff-overview',
+            'group'        => $staff_dev_group,
+            'kind'         => 'admin',
+            'order'        => 50,
+            'label'        => __( 'Staff overview', 'talenttrack' ),
+            'description'  => __( 'Open goals, overdue reviews, expiring certifications across the academy.', 'talenttrack' ),
+            'icon'         => 'reports',
+            'color'        => '#2271b1',
+            'cap'          => 'tt_view_staff_certifications_expiry',
         ]);
     }
 

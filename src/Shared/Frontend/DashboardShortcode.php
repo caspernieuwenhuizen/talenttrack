@@ -177,6 +177,8 @@ class DashboardShortcode {
         $report_slugs = [ 'report-wizard', 'scout-access', 'scout-history', 'scout-my-players' ];
         // #0017 — Trial player module surfaces.
         $trial_slugs = [ 'trials', 'trial-case', 'trial-parent-meeting', 'trial-tracks-editor', 'trial-letter-templates-editor' ];
+        // #0039 — Staff development module surfaces.
+        $staff_dev_slugs = [ 'my-staff-pdp', 'my-staff-goals', 'my-staff-evaluations', 'my-staff-certifications', 'staff-overview' ];
         // #0055 — Record-creation wizards. Single slug; the actual
         // wizard is selected via &slug=… on the query string.
         // `wizards-admin` is the configuration + analytics surface.
@@ -256,6 +258,8 @@ class DashboardShortcode {
             self::dispatchReportView( $view, $user_id, $is_admin );
         } elseif ( in_array( $view, $trial_slugs, true ) ) {
             self::dispatchTrialView( $view, $user_id, $is_admin );
+        } elseif ( in_array( $view, $staff_dev_slugs, true ) ) {
+            self::dispatchStaffDevelopmentView( $view, $user_id, $is_admin );
         } elseif ( in_array( $view, $wizard_slugs, true ) ) {
             if ( $view === 'wizards-admin' ) {
                 FrontendWizardsAdminView::render( $user_id, $is_admin );
@@ -588,6 +592,32 @@ class DashboardShortcode {
                 break;
             case 'trial-letter-templates-editor':
                 FrontendTrialLetterTemplatesEditorView::render( $user_id, $is_admin );
+                break;
+            default:
+                FrontendBackButton::render();
+                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+        }
+    }
+
+    /**
+     * #0039 — Staff development dispatch.
+     */
+    private static function dispatchStaffDevelopmentView( string $view, int $user_id, bool $is_admin ): void {
+        switch ( $view ) {
+            case 'my-staff-pdp':
+                \TT\Modules\StaffDevelopment\Frontend\FrontendMyStaffPdpView::render( $user_id, $is_admin );
+                break;
+            case 'my-staff-goals':
+                \TT\Modules\StaffDevelopment\Frontend\FrontendMyStaffGoalsView::render( $user_id, $is_admin );
+                break;
+            case 'my-staff-evaluations':
+                \TT\Modules\StaffDevelopment\Frontend\FrontendMyStaffEvaluationsView::render( $user_id, $is_admin );
+                break;
+            case 'my-staff-certifications':
+                \TT\Modules\StaffDevelopment\Frontend\FrontendMyStaffCertificationsView::render( $user_id, $is_admin );
+                break;
+            case 'staff-overview':
+                \TT\Modules\StaffDevelopment\Frontend\FrontendStaffOverviewView::render( $user_id, $is_admin );
                 break;
             default:
                 FrontendBackButton::render();

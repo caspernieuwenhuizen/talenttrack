@@ -35,6 +35,7 @@ return [
     TT\Modules\Pdp\PdpModule::class                       => true,
     TT\Modules\TeamDevelopment\TeamDevelopmentModule::class => true,
     TT\Modules\Trials\TrialsModule::class                 => true,
+    TT\Modules\StaffDevelopment\StaffDevelopmentModule::class => true,
     TT\Modules\Wizards\WizardsModule::class               => true,
     TT\Modules\Journey\JourneyModule::class               => true,
     TT\Modules\PersonaDashboard\PersonaDashboardModule::class => true,
