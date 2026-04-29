@@ -1,0 +1,189 @@
+/*
+ * frontend-threads.css (#0028) — chat-style thread for goal detail.
+ *
+ * Mobile-first per CLAUDE.md § 2: 360 px first, 16 px textarea (no
+ * iOS auto-zoom), 48 px send button, focus-visible rings, reduced-
+ * motion respected.
+ */
+
+.tt-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: rgba(11, 31, 58, 0.02);
+    border: 1px solid rgba(11, 31, 58, 0.08);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    margin-top: 1rem;
+}
+.tt-thread-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 28rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.tt-thread-empty {
+    padding: 1rem 0;
+    text-align: center;
+    color: #5b6e75;
+    font-style: italic;
+}
+
+/* Per-message bubble */
+.tt-thread-msg {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.625rem 0.75rem;
+    background: #fff;
+    border-radius: 0.625rem;
+    max-width: 85%;
+    align-self: flex-start;
+    box-shadow: 0 1px 2px rgba(11, 31, 58, 0.04);
+}
+.tt-thread-msg.is-self {
+    align-self: flex-end;
+    background: #2563eb;
+    color: #fff;
+}
+.tt-thread-msg.is-self .tt-thread-msg-author,
+.tt-thread-msg.is-self .tt-thread-msg-when,
+.tt-thread-msg.is-self .tt-thread-msg-private,
+.tt-thread-msg.is-self .tt-thread-msg-edited {
+    color: rgba(255, 255, 255, 0.78);
+}
+.tt-thread-msg.is-system {
+    align-self: center;
+    background: transparent;
+    color: #5b6e75;
+    font-size: 0.8125rem;
+    font-style: italic;
+    box-shadow: none;
+    text-align: center;
+    max-width: 100%;
+}
+.tt-thread-msg.is-private {
+    border-left: 3px solid #b45309;
+}
+.tt-thread-msg.is-deleted {
+    opacity: 0.55;
+}
+.tt-thread-msg.is-unread {
+    box-shadow: 0 1px 2px rgba(11, 31, 58, 0.04), 0 0 0 2px #facc15;
+}
+
+.tt-thread-msg-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    align-items: baseline;
+    font-size: 0.75rem;
+    color: #5b6e75;
+}
+.tt-thread-msg-author { font-weight: 700; color: #0b1f3a; }
+.tt-thread-msg-private {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: #fef3c7;
+    color: #78350f;
+    padding: 0.0625rem 0.375rem;
+    border-radius: 999px;
+}
+.tt-thread-msg-body {
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+.tt-thread-msg-edited {
+    font-size: 0.6875rem;
+    color: #5b6e75;
+    font-style: italic;
+}
+
+/* Compose form */
+.tt-thread-compose {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin-top: 0.25rem;
+}
+.tt-thread-compose textarea {
+    font-size: 1rem; /* 16px — kills iOS auto-zoom */
+    line-height: 1.4;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(11, 31, 58, 0.18);
+    resize: vertical;
+    min-height: 4.5rem;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+.tt-thread-compose textarea:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+.tt-thread-compose-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+.tt-thread-private {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 48px;
+    font-size: 0.8125rem;
+    color: #5b6e75;
+}
+.tt-thread-private input { width: 1.125rem; height: 1.125rem; }
+.tt-thread-send {
+    appearance: none;
+    border: 0;
+    background: #0b1f3a;
+    color: #fff;
+    min-height: 48px;
+    padding: 0 1.125rem;
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-thread-send:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+.tt-thread-send[disabled] { opacity: 0.55; cursor: wait; }
+
+/* Per-message actions (edit / delete) */
+.tt-thread-msg-actions {
+    display: flex;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+}
+.tt-thread-msg-action {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 0.75rem;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0.25rem 0.375rem;
+    min-height: 32px;
+    opacity: 0.75;
+}
+.tt-thread-msg-action:hover { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-thread-msg, .tt-thread-send { transition: none; }
+}

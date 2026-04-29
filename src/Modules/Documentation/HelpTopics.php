@@ -153,6 +153,11 @@ class HelpTopics {
                 'group'   => 'frontend',
                 'summary' => __( 'Persona-aware landing pages with widget catalog, KPI catalog, role-switcher, and per-club override.', 'talenttrack' ),
             ],
+            'conversational-goals' => [
+                'title'   => __( 'Goals as a conversation', 'talenttrack' ),
+                'group'   => 'frontend',
+                'summary' => __( 'Chat-style threads on every player goal — coach, player, parent dialogue with notifications, edit window, soft-delete, and audit log.', 'talenttrack' ),
+            ],
             'access-control' => [
                 'title'   => __( 'Access control', 'talenttrack' ),
                 'group'   => 'frontend',

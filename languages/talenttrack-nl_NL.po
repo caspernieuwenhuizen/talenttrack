@@ -9733,3 +9733,104 @@ msgstr "Je kunt doorgaan op je telefoon, maar een groter scherm maakt bewerken m
 
 msgid "Dismiss for now"
 msgstr "Voor nu sluiten"
+
+# #0028 — Conversational goals (thread primitive + goal adapter)
+
+msgid "Conversation"
+msgstr "Gesprek"
+
+msgid "Your message"
+msgstr "Jouw bericht"
+
+msgid "Write a message…"
+msgstr "Schrijf een bericht…"
+
+msgid "Send"
+msgstr "Versturen"
+
+msgid "Sending…"
+msgstr "Versturen…"
+
+msgid "Could not send message."
+msgstr "Bericht kon niet worden verstuurd."
+
+msgid "just now"
+msgstr "zojuist"
+
+msgid "Coaches only"
+msgstr "Alleen trainers"
+
+msgid "Edit"
+msgstr "Bewerken"
+
+msgid "Save"
+msgstr "Opslaan"
+
+msgid "Delete this message?"
+msgstr "Dit bericht verwijderen?"
+
+msgid "Edit window has expired."
+msgstr "Bewerkvenster is verlopen."
+
+msgid "Message deleted."
+msgstr "Bericht verwijderd."
+
+msgid "Message body required."
+msgstr "Berichttekst vereist."
+
+msgid "Could not post message."
+msgstr "Bericht kon niet worden geplaatst."
+
+msgid "Edit window has expired or you are not the author."
+msgstr "Bewerkvenster is verlopen of je bent niet de auteur."
+
+msgid "Message not found."
+msgstr "Bericht niet gevonden."
+
+msgid "You cannot delete this message."
+msgstr "Je kunt dit bericht niet verwijderen."
+
+msgid "Could not delete message."
+msgstr "Bericht kon niet worden verwijderd."
+
+msgid "%s ago"
+msgstr "%s geleden"
+
+msgid "(edited)"
+msgstr "(bewerkt)"
+
+msgid "No messages yet. Start the conversation."
+msgstr "Nog geen berichten. Begin het gesprek."
+
+msgid "New messages"
+msgstr "Nieuwe berichten"
+
+msgid "Goal created: %s"
+msgstr "Doel aangemaakt: %s"
+
+msgid "Status changed to: %s"
+msgstr "Status gewijzigd naar: %s"
+
+msgid "%s wrote:"
+msgstr "%s schreef:"
+
+msgid "View:"
+msgstr "Bekijken:"
+
+msgid "New message on %s"
+msgstr "Nieuw bericht op %s"
+
+msgid "Someone"
+msgstr "Iemand"
+
+msgid "Unknown"
+msgstr "Onbekend"
+
+msgid "Goals as a conversation"
+msgstr "Doelen als gesprek"
+
+msgid "Chat-style threads on every player goal — coach, player, parent dialogue with notifications, edit window, soft-delete, and audit log."
+msgstr "Chat-achtige gesprekken op elk spelersdoel — dialoog tussen trainer, speler en ouder met meldingen, bewerkvenster, soft-delete en audit-log."
+
+msgid "%1$s's goal: %2$s"
+msgstr "Doel van %1$s: %2$s"
