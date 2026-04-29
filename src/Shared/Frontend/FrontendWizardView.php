@@ -70,7 +70,7 @@ class FrontendWizardView extends FrontendViewBase {
             switch ( $action ) {
                 case 'cancel':
                     WizardState::clear( $user_id, $slug );
-                    wp_safe_redirect( remove_query_arg( [ 'slug', 'restart' ] ) );
+                    wp_safe_redirect( \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
                     exit;
 
                 case 'skip':
@@ -141,12 +141,12 @@ class FrontendWizardView extends FrontendViewBase {
             WizardAnalytics::recordCompleted( $slug );
             WizardState::clear( $user_id, $slug );
             $redirect = (string) ( ( is_array( $result ) ? $result['redirect_url'] : '' ) ?? '' );
-            if ( $redirect === '' ) $redirect = remove_query_arg( [ 'slug', 'restart' ] );
+            if ( $redirect === '' ) $redirect = \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl();
             wp_safe_redirect( $redirect );
             exit;
         }
         WizardState::setStep( $user_id, $slug, $next_slug );
-        wp_safe_redirect( add_query_arg( [ 'tt_view' => 'wizard', 'slug' => $slug ], home_url( '/' ) ) );
+        wp_safe_redirect( add_query_arg( [ 'tt_view' => 'wizard', 'slug' => $slug ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) );
         exit;
     }
 
@@ -167,7 +167,7 @@ class FrontendWizardView extends FrontendViewBase {
     private static function renderHelpSidebar( WizardInterface $wizard, WizardStepInterface $step ): void {
         $help_topic = self::helpTopicFor( $wizard->slug() );
         if ( ! $help_topic ) return;
-        $url = add_query_arg( [ 'tt_view' => 'docs', 'topic' => $help_topic ], home_url( '/' ) );
+        $url = add_query_arg( [ 'tt_view' => 'docs', 'topic' => $help_topic ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
         echo '<aside class="tt-wizard-help">';
         echo '<a class="tt-wizard-help-link" target="_blank" rel="noopener" href="' . esc_url( $url ) . '">' . esc_html__( 'Open the relevant help topic', 'talenttrack' ) . '</a>';
         echo '</aside>';

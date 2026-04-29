@@ -99,7 +99,6 @@ return array_merge(
         'my_goals'       => [ 'r',  'self', $mod_goals ],
         'my_team'        => [ 'r',  'self', $mod_teams ],
         'my_profile'     => [ 'rc', 'self', $mod_players ],
-        'methodology'    => [ 'r',  'global', $mod_methodology ],
         'documentation'  => [ 'r',  'global', $mod_documentation ],
         'pdp_file'       => [ 'r',  'self', $mod_pdp ],
         'pdp_verdict'    => [ 'r',  'self', $mod_pdp ],
@@ -121,7 +120,6 @@ return array_merge(
         'activities'       => [ 'r',  'player', $mod_activities ],
         'attendance'     => [ 'r',  'player', $mod_activities ],
         'team'           => [ 'r',  'player', $mod_teams ],
-        'methodology'    => [ 'r',  'global', $mod_methodology ],
         'documentation'  => [ 'r',  'global', $mod_documentation ],
         // Re-invite the other guardian for their child.
         'invitations'    => [ 'c',  'player', $mod_invitations ],

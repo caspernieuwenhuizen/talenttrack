@@ -1,3 +1,58 @@
+# TalentTrack v3.46.0 — Demo-readiness hotfix bundle (auth + wizards + tiles)
+
+A small bundle of fixes surfaced during the user's demo-install review. Each item is a real bug or UX regression visible to actual users.
+
+## Fixes
+
+### Authorization
+
+- **`config/authorization_seed.php`** — removed the `methodology` row from the `player` and `parent` personas. The matrix grid was leaking methodology read-access to those personas, so the Methodology tile rendered for them. Coaches + admins still see it as before. Backfill migration not required because the matrix is data; existing installs pick up the change after the seed re-applies on the next boot. (User report #15.)
+- **`src/Infrastructure/Security/RolesService.php`** — added `tt_access_frontend_admin` to the `tt_club_admin` role definition. Previously only `administrator` and `tt_head_dev` could see Configuration / Migrations / Audit log / Wizards admin tiles; club admins are obvious owners of those surfaces.
+- **`src/Modules/Development/DevelopmentModule.php`** — removed `tt_readonly_observer` from `$submit_roles` for `tt_submit_idea`. The role's name implied read-only; granting an authoring cap was a semantic contradiction. Idempotent removal added for installs that already granted the cap.
+
+### Wizards
+
+- **`src/Shared/Wizards/WizardEntryPoint.php`** — new `dashboardBaseUrl()` helper that resolves the current dashboard's URL via `$_SERVER['REQUEST_URI']` minus the routing query args, mirroring `DashboardShortcode::shortcodeBaseUrl()`. Replaces `home_url('/')` everywhere wizard URLs are constructed (5 sites: `WizardEntryPoint::urlFor`, `FrontendWizardView`'s redirect after step submit + after final submit + cancel + help-sidebar link, and the four wizard `submit()` redirects in `Wizards/{Player,Team,Evaluation,Goal}/*`). Wizards now work on installs where the dashboard shortcode lives on `/some/sub/page/` instead of the front page.
+- **`src/Shared/Frontend/FrontendWizardView.php`** — Cancel button no longer dumps the user on `?tt_view=wizard` with no `slug` (which renders "Wizard not found"). Cancel now redirects to the dashboard tile-landing.
+
+### Visuals
+
+- **`assets/css/frontend-admin.css`** — added `.tt-dashboard .tt-mye-detail[hidden] { display: none }` to fix the same UA-specificity bug as v3.28.2's guest-add modal: `display: flex` was overriding the HTML `hidden` attribute, so the player evaluation rating breakdown was visible without clicking **Show detail**. The toggle now works correctly.
+- **`src/Shared/CoreSurfaceRegistration.php`** — Trial cases tile icon changed from `players` (visual collision with the People → Players tile) to `track`. Trial tracks editor icon changed from `lookup` (no matching SVG, blank render) to `categories`. **My journey** tile reordered to first in the Me group (was last). **My sessions** tile renamed to **My activities** to match the post-#0035 vocabulary.
+
+### Translations
+
+- **`languages/talenttrack-nl_NL.po`** — added `Training sessions and games you've attended.` → `Trainingen en wedstrijden die je hebt bijgewoond.` for the new My activities description. All other relabeled strings (`My activities`, `My journey`, etc.) were already translated.
+
+## Out of scope (queued for a v3.47.0 follow-up)
+
+The user's demo review listed 18 items. This release ships the cheap-and-clear fixes. The following are larger and need separate work:
+
+- **Monetization tier gating** — disabling the License module doesn't release tier-locked modules. Needs investigation in `LicenseModule` to ensure tier checks short-circuit when the module is disabled.
+- **Workflow "cadence" field unclear** — needs UX rewrite + inline help, not just translation.
+- **Trial cases form ugly on desktop** — CSS layout pass on `FrontendTrialsManageView` create form.
+- **Trial player creation flow** — Option A (inline mini-wizard inside trial-case form) requires non-trivial form composition; deferred.
+- **Configuration tile-landing sub-page** — needs design pass to mirror the wp-admin sidebar.
+- **Player journey filter declutter** — collapse multi-filter bar into a "Filter" toggle drawer.
+- **Staff picker like player picker** — new `StaffPickerComponent`. Worth its own spec.
+- **Full NL translation sweep** for journey + recent feature strings.
+- **Authorization parents have only "My PDP"** — needs product call on which surfaces parents should access.
+
+These will land in a v3.47.0 hotfix bundle after design questions are resolved.
+
+## Acceptance criteria (manually verified)
+
+- [ ] Player + parent users no longer see the Methodology tile.
+- [ ] Wizards work on a non-front-page dashboard.
+- [ ] Wizard Cancel button returns to the tile-landing.
+- [ ] Player evaluation page hides rating breakdown until Show detail is clicked.
+- [ ] Club Admin can see Configuration / Audit log / Wizards admin tiles.
+- [ ] Read-only Observer cannot see Submit an idea tile.
+- [ ] Trial cases + Trial tracks tiles render with distinct icons.
+- [ ] My journey tile is first in the Me group; My activities is the renamed tile.
+
+---
+
 # TalentTrack v3.45.1 — SaaS-readiness baseline (PR-A follow-up): repository sweep (#0052)
 
 Closes the "Repository sweep deferred" caveat carried into v3.45.0. Mechanical follow-up only — no schema change, no behaviour change today, no new user-facing strings, no docs update. The sweep adds the `club_id` filter to every read and the `club_id` value to every write across 114 PHP files, so adding a real SaaS auth resolver later only touches `CurrentClub`, not 100+ query sites.

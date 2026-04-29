@@ -143,6 +143,9 @@ class RolesService {
                     [
                         'tt_manage_players'  => true,
                         'tt_manage_settings' => true,
+                        // Frontend-admin surfaces: Configuration, Migrations,
+                        // Audit log, Wizards admin. Club admin owns these.
+                        'tt_access_frontend_admin' => true,
                     ]
                 ),
             ],

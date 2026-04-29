@@ -79,7 +79,7 @@ final class ReviewStep implements WizardStepInterface {
             ] );
         }
 
-        return [ 'redirect_url' => add_query_arg( [ 'tt_view' => 'teams', 'id' => $team_id ], home_url( '/' ) ) ];
+        return [ 'redirect_url' => add_query_arg( [ 'tt_view' => 'teams', 'id' => $team_id ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) ];
     }
 
     /**

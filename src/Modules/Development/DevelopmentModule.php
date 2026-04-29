@@ -49,6 +49,8 @@ class DevelopmentModule implements ModuleInterface {
     }
 
     public static function ensureCaps(): void {
+        // Read-only observer is intentionally excluded — the role's name
+        // contradicts authoring artifacts, even ideas.
         $submit_roles = [
             'administrator',
             'tt_head_dev',
@@ -56,13 +58,18 @@ class DevelopmentModule implements ModuleInterface {
             'tt_coach',
             'tt_scout',
             'tt_staff',
-            'tt_readonly_observer',
         ];
         foreach ( $submit_roles as $slug ) {
             $role = get_role( $slug );
             if ( $role && ! $role->has_cap( 'tt_submit_idea' ) ) {
                 $role->add_cap( 'tt_submit_idea' );
             }
+        }
+        // Idempotent removal for existing installs that were granted the
+        // cap before this fix landed.
+        $observer = get_role( 'tt_readonly_observer' );
+        if ( $observer && $observer->has_cap( 'tt_submit_idea' ) ) {
+            $observer->remove_cap( 'tt_submit_idea' );
         }
 
         foreach ( [ 'administrator', 'tt_head_dev', 'tt_club_admin' ] as $slug ) {

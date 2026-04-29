@@ -57,7 +57,7 @@ final class TypeStep implements WizardStepInterface {
             'player_id'    => (int) ( $state['player_id'] ?? 0 ),
             'eval_type_id' => (int) ( $state['eval_type_id'] ?? 0 ),
             'eval_date'    => (string) ( $state['eval_date'] ?? gmdate( 'Y-m-d' ) ),
-        ], home_url( '/' ) );
+        ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
         return [ 'redirect_url' => $url ];
     }
 }
