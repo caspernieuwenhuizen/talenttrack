@@ -3,7 +3,7 @@
  * Plugin Name: TalentTrack
  * Plugin URI:  https://github.com/caspernieuwenhuizen/talenttrack
  * Description: Frontend-first, modular youth football talent management system for a single club.
- * Version:     3.64.0
+ * Version:     3.65.0
  * Author:      Casper Nieuwenhuizen
  * Author URI:  https://github.com/caspernieuwenhuizen
  * License:     GPL-2.0+
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'TT_VERSION',     '3.64.0' );
+define( 'TT_VERSION',     '3.65.0' );
 define( 'TT_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'TT_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );
 define( 'TT_PLUGIN_FILE', __FILE__ );
@@ -68,6 +68,12 @@ if ( file_exists( TT_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.p
 
 register_activation_hook( __FILE__, [ 'TT\\Core\\Activator', 'activate' ] );
 register_deactivation_hook( __FILE__, [ 'TT\\Core\\Activator', 'deactivate' ] );
+
+// #0065 Admin Center phone-home — fire on activate (single-shot 30s out)
+// + best-effort on deactivate. Failure is silent and doesn't block either
+// lifecycle event.
+register_activation_hook( __FILE__, [ 'TT\\Modules\\AdminCenterClient\\Hooks\\ActivationHook', 'schedule' ] );
+register_deactivation_hook( __FILE__, [ 'TT\\Modules\\AdminCenterClient\\Hooks\\DeactivationHook', 'fire' ] );
 
 add_action( 'plugins_loaded', function () {
     load_plugin_textdomain( 'talenttrack', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );

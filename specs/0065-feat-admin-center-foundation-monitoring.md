@@ -21,7 +21,7 @@ Two pieces:
 1. **A new TalentTrack module `Modules/AdminCenterClient`** that phones home daily plus on three trigger events (activate / deactivate / version-change), with the locked payload schema below. Self-contained, never logs PII, never sends per-player data. Operational telemetry is a non-negotiable part of running TalentTrack — see "Operational telemetry" below.
 2. **A separate WordPress plugin `talenttrack-admin-center`** running on a dedicated mothership site (e.g. `ops.talenttrack.app`), with its own repo, its own table prefix, and its own release cadence. It exposes a single ingest endpoint and a read-only dashboard for the operator (Casper).
 
-Wire protocol is JSON over HTTPS, signed with HMAC-SHA256 derived from `hash(install_id || freemius_license_key)`. No long-lived tokens, no OAuth. Reverse-pull (Admin Center → TT) is **out of scope** for v1; everything Admin Center needs in v1 fits in the daily phone-home roll-up.
+Wire protocol is JSON over HTTPS, signed with HMAC-SHA256. **Secret derivation in v1 is `hash('sha256', $install_id . '|' . $site_url)`** — locked in the refined TTA-side spec ([0001-feat-foundation-monitoring](../../talenttrack-admin-center/specs/0001-feat-foundation-monitoring.md)) so v1 is test-drivable end-to-end without a Freemius account or license key on either side. License-key-derived secret is deferred to billing-oversight; the receiver will accept both shapes during a transition window then. No long-lived tokens, no OAuth. Reverse-pull (Admin Center → TT) is **out of scope** for v1; everything Admin Center needs in v1 fits in the daily phone-home roll-up.
 
 ### Architecture
 
@@ -94,7 +94,7 @@ Modules/AdminCenterClient                   Plugin: talenttrack-admin-center
 }
 ```
 
-Fields in `module_status` for modules that haven't shipped yet (`comms`, `exports` per #0061/#0062) are emitted as `null` by v1 installs and populated when those modules land. Schema-version stays at `1.0`; new fields are additive.
+Fields in `module_status` for modules that haven't shipped yet (`comms`, `exports` per #0061/#0062) are emitted as `null` by v1 installs and populated when those modules land. The four license fields (`freemius_license_key_hash`, `license_tier`, `license_status`, `license_renews_at`) are also emitted as JSON `null` (not omitted) when no Freemius license is detected on the install — the refined TTA-side spec accepts those nulls so v1 is end-to-end test-drivable without Freemius. Schema-version stays at `1.0`; new fields are additive.
 
 **Privacy boundary — locked.** The payload **never** carries:
 
@@ -118,7 +118,7 @@ This is asserted by a unit test (`PayloadPrivacyTest::testNoForbiddenKeysOrPaths
 - `AdminCenterClient::sendOnDeactivation()` — hooked to plugin-deactivation. Trigger `"deactivated"`. Best-effort; doesn't block deactivation if Admin Center is unreachable.
 - `AdminCenterClient::sendOnVersionChange()` — fires when `tt_version` in `wp_options` differs from the running plugin version. Trigger `"version_changed"`.
 - `AdminCenterClient::buildPayload( string $trigger ): array` — gathers every field. Single source of truth.
-- `AdminCenterClient::sign( array $payload ): string` — HMAC-SHA256 over a canonical JSON serialization (sorted keys, no whitespace). Secret = `hash('sha256', $install_id . $freemius_license_key)` for paid installs; for free-tier installs, secret = `hash('sha256', $install_id . get_site_url())` as a fallback (the threat model is "is this real" not "who is this").
+- `AdminCenterClient::sign( array $payload ): string` — HMAC-SHA256 over a canonical JSON serialization (sorted keys, no whitespace, UTF-8). **Secret = `hash('sha256', $install_id . '|' . $site_url)` for every install in v1** (locked in the refined TTA-side spec). The threat model is "is this real" not "who is this"; license-key-derived secret is deferred to billing-oversight. The `|` separator avoids the theoretical ambiguity where two different `install_id` / `site_url` pairs could concatenate to the same string.
 
 **Failure handling**:
 
@@ -141,8 +141,8 @@ This is asserted by a unit test (`PayloadPrivacyTest::testNoForbiddenKeysOrPaths
 
 **Endpoints**:
 
-- `POST /wp-json/tt-ac/v1/ingest` — public (rate-limited per IP), HMAC-verified per payload. Validates schema, rejects malformed (4xx), upserts the install registry row, appends to ping log, returns `200 {"ok": true}` or `4xx {"error": "..."}`. Never returns details that would help an unauthorized prober map the system.
-- `GET /wp-admin/admin.php?page=tt-ac-dashboard` — operator-only (`tt_ac_admin` cap), the read-only monitoring view.
+- `POST /wp-json/ttac/v1/ingest` — public (rate-limited per IP), HMAC-verified per payload. Validates schema, rejects malformed (4xx), upserts the install registry row, appends to ping log, returns `200 {"ok": true}` or `4xx {"error": "..."}`. Never returns details that would help an unauthorized prober map the system.
+- `[ttac_admin]` shortcode on the mothership — operator-only (`ttac_admin_center` cap, `Visibility: Private` page, Cloudflare Access in front). Frontend shortcode-rendered dashboard (mirrors TT's `[talenttrack_dashboard]` pattern) — *not* a wp-admin page. Per refined TTA spec.
 
 **Dashboard panels** (v1, read-only):
 
@@ -158,9 +158,9 @@ No write operations on the dashboard in v1. Every panel is a read-only query. Th
 
 ### Auth
 
-- TT install → Admin Center: HMAC-SHA256 over the canonical payload JSON. Header `X-TT-AC-Signature: sha256=<hex>`. The mothership re-signs the received payload using the install's stored secret (computed from `install_id` + license key hash) and compares constant-time.
+- TT install → Admin Center: HMAC-SHA256 over the canonical payload JSON. Header `X-TTAC-Signature: sha256=<hex>` (no hyphen between `TT` and `AC` per the refined TTA spec). The mothership re-derives the secret as `hash('sha256', $install_id . '|' . $site_url)` from values present in the payload and compares constant-time.
 - Admin Center → TT: not used in v1.
-- Operator → Admin Center dashboard: WP login + custom cap `tt_ac_admin` + Cloudflare Access policy in front of `ops.talenttrack.app` (single-operator, IP-restricted to known operator IPs).
+- Operator → Admin Center dashboard: WP login + custom cap `ttac_admin_center` + Cloudflare Access policy in front of `ops.talenttrack.app` (single-operator, IP-restricted to known operator IPs).
 
 ### Operational telemetry
 
