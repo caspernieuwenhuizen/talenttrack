@@ -81,8 +81,7 @@ class FrontendMyGoalsView extends FrontendViewBase {
             <?php endforeach; ?>
         </div>
         <style>
-            .tt-record-link { display: block; text-decoration: none; color: inherit; }
-            .tt-record-link:hover, .tt-record-link:focus-visible { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-1px); transition: transform 180ms ease, box-shadow 180ms ease; }
+            /* .tt-record-link styling now lives in assets/css/public.css (#0063). */
             .tt-goal-conversation-cta { margin: 10px 0 0; font-size: 13px; color: var(--tt-primary, #0b3d2e); }
         </style>
         <?php

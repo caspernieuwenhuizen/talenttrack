@@ -71,7 +71,13 @@ class GoalsPage {
                     <td><strong><?php echo esc_html( (string) $g->title ); ?></strong>
                         <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
                     </td>
-                    <td><?php echo esc_html( ucwords( str_replace( '_', ' ', (string) $g->status ) ) ); ?></td>
+                    <td><?php
+                        // #0063 — display-only status pill via the same LookupPill
+                        // helper activity / PDP use, so the status column reads as a
+                        // visual indicator rather than an editable cell. Edit happens
+                        // on the goal form.
+                        echo \TT\Infrastructure\Query\LookupPill::render( 'goal_status', (string) $g->status );
+                    ?></td>
                     <td><?php if ( current_user_can( 'tt_edit_goals' ) ) : ?><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-goals&action=edit&id={$g->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_goal&id={$g->id}" ), 'tt_del_goal_' . $g->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a><?php else : ?><span style="color:#999;">—</span><?php endif; ?></td></tr>
             <?php endforeach; endif; ?></tbody></table>
 

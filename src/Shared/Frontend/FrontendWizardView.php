@@ -74,6 +74,25 @@ class FrontendWizardView extends FrontendViewBase {
                     wp_safe_redirect( \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
                     exit;
 
+                case 'back':
+                    // #0063 — every wizard renders a Back button on
+                    // step ≥ 2. Pop the visited-step history so
+                    // conditional branches (e.g. NewPlayer's trial
+                    // path) round-trip correctly. Fall through to a
+                    // re-render at the popped step. Form input on the
+                    // current step is intentionally NOT persisted —
+                    // Back is "discard this step's edits, return to
+                    // the previous one"; persist would happen on Next.
+                    $prev = WizardState::popHistory( $user_id, $slug );
+                    if ( $prev !== null ) {
+                        WizardState::setStep( $user_id, $slug, $prev );
+                    }
+                    wp_safe_redirect( add_query_arg(
+                        [ 'tt_view' => 'wizard', 'slug' => $slug ],
+                        \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl()
+                    ) );
+                    exit;
+
                 case 'save-as-draft':
                     if ( $wizard instanceof SupportsCancelAsDraft ) {
                         $result = $wizard->cancelAsDraft( $state );
@@ -134,6 +153,12 @@ class FrontendWizardView extends FrontendViewBase {
         if ( $wizard instanceof SupportsCancelAsDraft ) {
             echo '<button type="submit" name="tt_wizard_action" value="save-as-draft" class="tt-button" formnovalidate>' . esc_html__( 'Save as draft', 'talenttrack' ) . '</button>';
         }
+        // #0063 — Back button on every step where there's prior history.
+        // formnovalidate so a half-filled required field doesn't trap
+        // the user; Back discards uncommitted edits by design.
+        if ( WizardState::hasHistory( $user_id, $slug ) ) {
+            echo '<button type="submit" name="tt_wizard_action" value="back" class="tt-button" formnovalidate>' . esc_html__( 'Back', 'talenttrack' ) . '</button>';
+        }
         echo '<button type="submit" name="tt_wizard_action" value="skip" class="tt-button">' . esc_html__( 'Skip step', 'talenttrack' ) . '</button>';
         $is_last = $current->nextStep( $state ) === null;
         $label   = $is_last ? __( 'Create', 'talenttrack' ) : __( 'Next', 'talenttrack' );
@@ -167,6 +192,11 @@ class FrontendWizardView extends FrontendViewBase {
             wp_safe_redirect( $redirect );
             exit;
         }
+        // #0063 — record where the user just was so the Back button on
+        // the next step can pop back to it. Tracking actual visit
+        // history (rather than computing previous-step from the static
+        // list) keeps Back correct under conditional branching.
+        WizardState::pushHistory( $user_id, $slug, $current->slug() );
         WizardState::setStep( $user_id, $slug, $next_slug );
         wp_safe_redirect( add_query_arg( [ 'tt_view' => 'wizard', 'slug' => $slug ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) );
         exit;

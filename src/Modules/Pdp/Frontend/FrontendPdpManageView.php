@@ -118,7 +118,9 @@ class FrontendPdpManageView extends FrontendViewBase {
 
             echo '<tr>';
             echo '<td>' . esc_html( $name ) . '</td>';
-            echo '<td><span class="tt-status-badge tt-status-' . esc_attr( (string) $row->status ) . '">' . esc_html( $status_label ) . '</span></td>';
+            // #0063 — converge onto LookupPill so PDP status renders
+            // with the same colour vocabulary as activity + goals.
+            echo '<td>' . \TT\Infrastructure\Query\LookupPill::render( 'pdp_status', (string) $row->status, $status_label ) . '</td>';
             echo '<td>' . (int) ( $row->cycle_size ?? 0 ) . '</td>';
             echo '<td>' . esc_html( $next ) . '</td>';
             echo '<td>' . esc_html( (string) ( $row->updated_at ?? '' ) ) . '</td>';
@@ -617,7 +619,8 @@ class FrontendPdpManageView extends FrontendViewBase {
             }
             echo '</div>';
             echo '<div style="text-align:right; font-size:12px; color:#5b6e75; white-space:nowrap;">';
-            echo '<span class="tt-status-badge tt-status-' . esc_attr( $status ) . '">' . esc_html( $status ) . '</span>';
+            // #0063 — connected goals use goal_status pill same as everywhere else.
+            echo \TT\Infrastructure\Query\LookupPill::render( 'goal_status', $status );
             if ( $priority !== '' ) echo ' · ' . esc_html( $priority );
             if ( ! empty( $g->due_date ) ) {
                 echo '<br>' . esc_html( sprintf( /* translators: %s = date */ __( 'Due %s', 'talenttrack' ), $due ) );

@@ -77,4 +77,40 @@ final class WizardState {
         $state['_skipped'] = $skipped;
         self::save( $user_id, $wizard_slug, $state );
     }
+
+    /**
+     * Push the step the user just left onto a history stack so Back
+     * can pop it (#0063). Conditional branching (e.g. NewPlayer's
+     * trial path) means we can't compute "previous step" purely from
+     * the static step list — we have to track what was actually
+     * visited.
+     */
+    public static function pushHistory( int $user_id, string $wizard_slug, string $step_slug ): void {
+        $state = self::load( $user_id, $wizard_slug );
+        $history = (array) ( $state['_history'] ?? [] );
+        // Drop trailing duplicate so a Back→Next round-trip doesn't
+        // accumulate the same slug twice.
+        if ( end( $history ) !== $step_slug ) $history[] = $step_slug;
+        $state['_history'] = $history;
+        self::save( $user_id, $wizard_slug, $state );
+    }
+
+    /**
+     * Pop the previous step off the history. Returns null when there
+     * is no prior step (i.e. user is on step 1) so the framework can
+     * gracefully suppress the Back button.
+     */
+    public static function popHistory( int $user_id, string $wizard_slug ): ?string {
+        $state = self::load( $user_id, $wizard_slug );
+        $history = (array) ( $state['_history'] ?? [] );
+        $prev = array_pop( $history );
+        $state['_history'] = $history;
+        self::save( $user_id, $wizard_slug, $state );
+        return is_string( $prev ) && $prev !== '' ? $prev : null;
+    }
+
+    public static function hasHistory( int $user_id, string $wizard_slug ): bool {
+        $state = self::load( $user_id, $wizard_slug );
+        return ! empty( $state['_history'] );
+    }
 }
