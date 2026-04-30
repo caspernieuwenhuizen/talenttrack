@@ -2,43 +2,57 @@
 
 # Spond-agenda-integratie
 
-Als je club de trainings- en wedstrijdkalender al in **Spond** bijhoudt, kan TalentTrack alle events automatisch ophalen. Geen dubbele invoer meer.
+Draait je club de trainingsplanning + wedstrijden al in **Spond**? Dan haalt TalentTrack elk event automatisch binnen. Geen sessies meer in beide systemen kloppen.
 
-De integratie is **alleen-lezen**: Spond blijft de bron van waarheid voor de planning en RSVP's; TalentTrack blijft de bron voor evaluaties, doelen, aanwezigheid en al het andere.
+De integratie is **read-only**: Spond blijft de bron voor de planning en RSVP's; TalentTrack blijft de bron voor evaluaties, doelen, aanwezigheid en al het andere.
 
-## Instellen (per team)
+## Hoe het werkt (vanaf v3.69.0)
 
-1. Open in Spond de teaminstellingen en kopieer de **iCal-feed-URL** (Spond → Groepsinstellingen → Agenda → "Abonneren op agenda" → URL kopiëren).
-2. Open in TalentTrack de teampagina (beheer of frontend).
-3. Plak de URL in het nieuwe veld **Spond iCal-URL** en sla op.
+Spond heeft nooit een iCal-feed gepubliceerd — de URL-flow die oudere TalentTrack-versies aannamen, bestaat dus niet. Vanaf v3.69.0 gebruikt de integratie dezelfde interne JSON-API die de officiële Spond-app gebruikt. In de praktijk: je logt één keer in met een echt Spond-account en TalentTrack gebruikt dat account om events op te halen voor de groepen waar dat account lid van is.
 
-Klaar. Binnen een uur verschijnen alle Spond-events voor dat team als TalentTrack-activiteiten. In het overzicht herken je ze aan de **Spond**-bron-pill zodat coaches weten waar ze vandaan komen.
+## Instellen
 
-## Wat gesynchroniseerd wordt
+Je hebt **één** Spond-account nodig dat lid is van elke ploeg die je wilt synchroniseren. De meeste clubs hebben hier al een toegewijd trainer-/manager-account voor. Tweestapsverificatie wordt **niet** ondersteund in v1 — schakel die op dit account uit, of gebruik een apart account zonder 2FA.
 
-- **Datum / tijd / locatie / titel** — Spond wint. Verandert een coach een van deze velden in TalentTrack op een Spond-activiteit, dan overschrijft de eerstvolgende sync die wijziging weer. De "Spond"-pill is daar de waarschuwing voor.
-- **Activiteittype** — de TalentTrack-classifier kiest training / wedstrijd / toernooi / bespreking op basis van de titel. Als een coach het type later aanpast, blijft die aanpassing staan.
-- **Aanwezigheid, evaluaties, gekoppelde doelen** — alleen TalentTrack. Wordt nooit overschreven.
+1. Ga naar **Configuratie → Spond** in wp-admin.
+2. Vul het Spond-e-mailadres + wachtwoord in en klik **Credentials opslaan**. Het wachtwoord wordt versleuteld bewaard; bij rotatie van WordPress' `AUTH_KEY`-salt wordt het ongeldig en moet je het opnieuw invoeren.
+3. Klik **Verbinding testen** om te bevestigen dat Spond de login accepteert. Een groene melding betekent klaar.
+4. Open per TalentTrack-ploeg het team-formulier (of gebruik de nieuwe-team-wizard) en kies de bijbehorende **Spond-groep** uit de dropdown. De dropdown wordt live gevuld met de groepen waar je account lid van is.
 
-Verdwijnt een event uit Spond (verwijderd, afgelast), dan wordt de bijbehorende TalentTrack-activiteit **zacht gearchiveerd** — nooit verwijderd — zodat eventuele evaluaties bewaard blijven. Komt het Spond-event later terug, dan komt de activiteit weer uit de archief.
+Klaar. Binnen een uur verschijnt elk Spond-event voor elke gekoppelde groep als TalentTrack-activiteit. In het overzicht herken je ze aan de **Spond**-bron-pil.
 
-## Synchronisatieschema
+## Wat wordt gesynchroniseerd
 
-- **Automatisch elk uur** via WP-Cron.
-- **Nu vernieuwen**-knop op de teampagina voor een directe sync.
+- **Datum / tijd / locatie / titel** — Spond wint. Past een coach één van die velden aan op een Spond-geïmporteerde activiteit, dan overschrijft de volgende sync het. De Spond-pil is de waarschuwing.
+- **Activiteitstype** — TalentTrack's keyword-classificator kiest training, wedstrijd, toernooi of vergadering op basis van de titel. Past een coach het type later aan, dan blijft die wijziging bewaard.
+- **Aanwezigheid, evaluaties, gekoppelde doelen** — alleen TalentTrack. Nooit overschreven.
+
+Verdwijnt een event uit Spond (verwijderd, geannuleerd), dan wordt de bijbehorende TalentTrack-activiteit **soft-gearchiveerd** — nooit verwijderd — zodat eventuele evaluaties bewaard blijven. Komt het Spond-event later weer terug, dan wordt de activiteit gedearchiveerd.
+
+Het sync-window is **30 dagen terug + 180 dagen vooruit** rollend, dus historische events buiten dat venster worden niet bij elke tick opnieuw geïmporteerd.
+
+## Sync-schema
+
+- **Automatische uurlijkse sync** via WP-Cron.
+- **Nu vernieuwen**-knop op het team-formulier én op het Spond-overzicht voor een directe sync.
 - **WP-CLI**: `wp tt spond sync` (alle teams) of `wp tt spond sync --team=<id>`.
 
-Onder het URL-veld zie je de status van de laatste synchronisatie — groen bij succes, rood met reden bij een fout.
+Laatste-sync-status verschijnt in de tabel op **Configuratie → Spond** — groen bij ok, rood met de reden bij een mislukking.
 
-## Privacy
+## Privacy + beveiliging
 
-De iCal-URL is een bearer-credential — wie hem heeft, kan de teamkalender lezen. TalentTrack slaat hem **versleuteld** op, ontsleutelt alleen op synchronisatiemoment en logt de URL nooit. Wil je toegang intrekken? Genereer een nieuwe URL in Spond en plak die hier.
+- **E-mail + wachtwoord** staan in de TalentTrack-configuratietabel, scoped op je club, met het wachtwoord versleuteld via dezelfde envelope die VAPID-push-keys ook gebruikt (`CredentialEncryption`).
+- **Spond's login-token** wordt ~12 uur gecached. Bij verloop (of intrekking door Spond) logt de volgende sync transparant opnieuw in.
+- **Credentials komen nooit voor in een phone-home-payload** — het v1-payload-schema sluit Spond-credentials en groep-ID's expliciet uit.
+- **Loskoppelen**: klik op **Loskoppelen** op de Spond-pagina. Bestaande geïmporteerde activiteiten blijven staan; toekomstige sync's pauzeren. Per-team groep-selecties blijven bewaard, zodat heropnieuw verbinden naadloos doorgaat.
 
-## Wat (nog) niet werkt
+## Wat (nog) niet wordt ondersteund
 
-- **Tweezijdige synchronisatie** — wijzigingen in TalentTrack gaan niet terug naar Spond.
-- **RSVP's / aanwezigheid** uit Spond — de iCal-feed bevat ze niet.
-- **Spond-chat / berichten** — buiten de scope.
-- **Meerdere URL's per team** of **OAuth** — één URL per team is het credential.
+- **Tweezijdige sync** — wijzigingen in TalentTrack lopen niet terug naar Spond.
+- **Tweestapsverificatie** op het Spond-account.
+- **Per-coach Spond-accounts** — één account per club.
+- **Inbound webhooks** — Spond publiceert die niet; de uurlijkse cron is het model.
 
-Deze beperkingen komen uit Spond's iCal-export; de partner-API-integratie die ze zou opheffen volgt in een toekomstige v2.
+## Overstappen vanaf de iCal-flow (vóór v3.69.0)
+
+Heb je eerder iCal-URL's in het team-formulier geplakt? Dan worden die automatisch geleegd door migratie 0052. Verbind opnieuw door op **Configuratie → Spond** je Spond-e-mailadres + wachtwoord in te voeren en per ploeg de groep te kiezen. Bestaande geïmporteerde activiteiten blijven staan en gaan weer updaten zodra een groep is gekoppeld.

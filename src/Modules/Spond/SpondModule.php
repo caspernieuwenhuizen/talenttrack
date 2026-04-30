@@ -8,15 +8,18 @@ use TT\Core\ModuleInterface;
 use TT\Infrastructure\REST\SpondRestController;
 
 /**
- * SpondModule (#0031) — read-only Spond → TalentTrack iCal sync.
+ * SpondModule (#0031, fetcher rewritten in #0062) — read-only Spond
+ * → TalentTrack sync via the internal JSON API at api.spond.com.
  *
  * Owns:
- *   - Schema (migration 0041): tt_teams.spond_* + tt_activities.external_id.
- *   - Cron: hourly polling of every team with a non-empty spond_ical_url.
+ *   - Schema (migration 0041 + 0052): tt_teams.spond_* (group_id +
+ *     last_sync_*) + tt_activities.external_id.
+ *   - Per-club credentials: `Spond\CredentialsManager` (encrypted at
+ *     rest in tt_config).
+ *   - Cron: hourly polling of every team with a non-empty
+ *     spond_group_id and a credentialed account.
  *   - REST: POST /teams/{id}/spond/sync (manager-only).
  *   - WP-CLI: `wp tt spond sync [--team=<id>]`.
- *   - Lazy refresh: when an admin opens the team edit form and the last
- *     sync is more than 2x the configured interval old, kick off a sync.
  *
  * Spond stays the source of truth for schedule + RSVPs; TalentTrack
  * stays the source of truth for evaluations + goals + attendance.

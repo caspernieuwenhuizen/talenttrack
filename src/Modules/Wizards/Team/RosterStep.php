@@ -81,6 +81,6 @@ final class RosterStep implements WizardStepInterface {
         return [ 'roster_player_ids' => $ids ];
     }
 
-    public function nextStep( array $state ): ?string { return 'review'; }
+    public function nextStep( array $state ): ?string { return 'spond-group'; }
     public function submit( array $state ) { return null; }
 }

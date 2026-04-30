@@ -4,133 +4,87 @@ namespace TT\Modules\Spond;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * SpondParser (#0031) — minimal in-house iCal parser, VEVENT-only.
+ * SpondParser (#0062) — normaliser for Spond's JSON event payloads.
  *
- * Spond's feeds are well-formed standard iCalendar; we only need
- * VEVENT block parsing. Sabre\VObject would handle the long tail of
- * RFC 5545 quirks but isn't bundled with WordPress core, so this stays
- * dependency-free. If a feed appears that this parser can't read, the
- * sync surfaces a per-event skip rather than failing the whole feed.
+ * The original (#0031) parsed iCal VEVENT blocks; that contract turned
+ * out not to exist (Spond never published iCal). The replacement runs
+ * against the JSON shape `/core/v1/sponds/?groupId=…` actually returns,
+ * mapping the relevant fields onto the same array shape `SpondSync`
+ * already consumes — so SpondSync didn't need to change.
+ *
+ * Field map (Spond → normalized):
+ *   id              → uid
+ *   heading         → summary
+ *   startTimestamp  → dtstart   (ISO 8601 → MySQL UTC)
+ *   endTimestamp    → dtend
+ *   location.feature→ location  (with fallback to .address / .name)
+ *   description     → description
+ *   updated|lastModified → last_modified
+ *   cancelled       → drop the row entirely (treat like UID-disappeared)
  */
 final class SpondParser {
 
     /**
-     * Parse a raw iCal body into a list of normalised events.
+     * Parse the JSON event list returned by `SpondClient::fetchEvents`.
      *
+     * @param list<array<string,mixed>> $events
      * @return list<array{uid:string,summary:string,dtstart:string,dtend:string,location:string,description:string,last_modified:string}>
      */
-    public static function parse( string $body ): array {
-        // Unfold continuation lines per RFC 5545 §3.1: any line beginning
-        // with whitespace is a continuation of the previous line.
-        $body = preg_replace( "/\r\n[ \t]/", '', $body );
-        $body = (string) $body;
+    public static function parse( array $events ): array {
+        $out = [];
+        foreach ( $events as $event ) {
+            if ( ! is_array( $event ) ) continue;
+            if ( ! empty( $event['cancelled'] ) ) continue;
 
-        $events = [];
-        if ( ! preg_match_all( '/BEGIN:VEVENT(.*?)END:VEVENT/s', $body, $matches ) ) {
-            return $events;
-        }
+            $uid = (string) ( $event['id'] ?? '' );
+            if ( $uid === '' ) continue;
 
-        foreach ( $matches[1] as $block ) {
-            $event = self::parseEventBlock( (string) $block );
-            if ( $event !== null && $event['uid'] !== '' ) {
-                $events[] = $event;
-            }
+            $out[] = [
+                'uid'           => $uid,
+                'summary'       => trim( (string) ( $event['heading'] ?? '' ) ),
+                'dtstart'       => self::iso8601ToMysqlUtc( (string) ( $event['startTimestamp'] ?? '' ) ),
+                'dtend'         => self::iso8601ToMysqlUtc( (string) ( $event['endTimestamp']   ?? '' ) ),
+                'location'      => self::extractLocation( $event['location'] ?? null ),
+                'description'   => trim( (string) ( $event['description'] ?? '' ) ),
+                'last_modified' => self::iso8601ToMysqlUtc( (string) ( $event['updated'] ?? $event['lastModified'] ?? '' ) ),
+            ];
         }
-        return $events;
+        return $out;
     }
 
     /**
-     * @return array{uid:string,summary:string,dtstart:string,dtend:string,location:string,description:string,last_modified:string}|null
+     * Spond returns `location` as an object — `feature` is the
+     * human-readable line a coach typed in. Fall back to `address` or
+     * `name` so a location field that's been shaped differently by
+     * upstream still ends up in the activity row.
+     *
+     * @param mixed $location
      */
-    private static function parseEventBlock( string $block ): ?array {
-        $event = [
-            'uid'           => '',
-            'summary'       => '',
-            'dtstart'       => '',
-            'dtend'         => '',
-            'location'      => '',
-            'description'   => '',
-            'last_modified' => '',
-        ];
-
-        $lines = preg_split( "/\r?\n/", trim( $block ) );
-        foreach ( $lines as $line ) {
-            $line = (string) $line;
-            if ( $line === '' ) continue;
-
-            // Split on the first colon, respecting that property params
-            // (DTSTART;TZID=Europe/Amsterdam:...) sit before the colon.
-            $colon = strpos( $line, ':' );
-            if ( $colon === false ) continue;
-
-            $key_full = substr( $line, 0, $colon );
-            $value    = substr( $line, $colon + 1 );
-
-            // Property name is everything before the first ';'.
-            $semi = strpos( $key_full, ';' );
-            $key  = strtoupper( $semi === false ? $key_full : substr( $key_full, 0, $semi ) );
-
-            switch ( $key ) {
-                case 'UID':           $event['uid']           = self::unescape( $value ); break;
-                case 'SUMMARY':       $event['summary']       = self::unescape( $value ); break;
-                case 'DTSTART':       $event['dtstart']       = self::parseDateTime( $value ); break;
-                case 'DTEND':         $event['dtend']         = self::parseDateTime( $value ); break;
-                case 'LOCATION':      $event['location']      = self::unescape( $value ); break;
-                case 'DESCRIPTION':   $event['description']   = self::unescape( $value ); break;
-                case 'LAST-MODIFIED': $event['last_modified'] = self::parseDateTime( $value ); break;
-            }
+    private static function extractLocation( $location ): string {
+        if ( is_string( $location ) ) return trim( $location );
+        if ( ! is_array( $location ) ) return '';
+        foreach ( [ 'feature', 'address', 'name', 'displayName' ] as $key ) {
+            $v = (string) ( $location[ $key ] ?? '' );
+            $v = trim( $v );
+            if ( $v !== '' ) return $v;
         }
-
-        return $event;
-    }
-
-    /** Decode iCal text-value escapes (\n \, \; \\). */
-    private static function unescape( string $value ): string {
-        $value = str_replace( [ '\\n', '\\N', '\\,', '\\;', '\\\\' ], [ "\n", "\n", ',', ';', '\\' ], $value );
-        return trim( $value );
+        return '';
     }
 
     /**
-     * Convert an iCal datetime to the MySQL `Y-m-d H:i:s` shape, in UTC.
-     * Accepts:
-     *   - 20260513T080000Z       (UTC)
-     *   - 20260513T080000        (floating, treat as UTC)
-     *   - 20260513               (date-only — treated as midnight UTC)
+     * Spond's timestamps are ISO 8601 with millisecond precision and
+     * a `Z` suffix (e.g. `"2026-05-13T18:30:00.000Z"`). Map onto the
+     * MySQL `Y-m-d H:i:s` shape `tt_activities` expects, in UTC.
+     * Returns an empty string for unparseable input.
      */
-    private static function parseDateTime( string $value ): string {
-        $value = trim( $value );
-        if ( $value === '' ) return '';
-
-        $is_utc = ( substr( $value, -1 ) === 'Z' );
-        $clean  = rtrim( $value, 'Z' );
-
-        if ( strlen( $clean ) === 8 ) {
-            $clean .= 'T000000';
-        }
-        if ( strlen( $clean ) !== 15 || $clean[8] !== 'T' ) {
+    private static function iso8601ToMysqlUtc( string $iso ): string {
+        $iso = trim( $iso );
+        if ( $iso === '' ) return '';
+        try {
+            $dt = new \DateTimeImmutable( $iso );
+            return $dt->setTimezone( new \DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
+        } catch ( \Exception $e ) {
             return '';
         }
-
-        $year   = substr( $clean, 0, 4 );
-        $month  = substr( $clean, 4, 2 );
-        $day    = substr( $clean, 6, 2 );
-        $hour   = substr( $clean, 9, 2 );
-        $minute = substr( $clean, 11, 2 );
-        $second = substr( $clean, 13, 2 );
-
-        $iso = sprintf( '%s-%s-%s %s:%s:%s', $year, $month, $day, $hour, $minute, $second );
-
-        if ( ! $is_utc ) {
-            // Floating times are spec-violating but common; treat as
-            // site-local and convert to UTC for storage.
-            $tz = wp_timezone();
-            try {
-                $dt = new \DateTimeImmutable( $iso, $tz );
-                return $dt->setTimezone( new \DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
-            } catch ( \Exception $e ) {
-                return '';
-            }
-        }
-        return $iso;
     }
 }
