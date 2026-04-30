@@ -114,11 +114,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         echo FrontendListTable::render( [
             'rest_path' => 'activities',
             'columns' => [
+                // #0063 — Title moves to second column + RecordLink-wrapped.
+                // Status pill colour now driven by lookup `meta.color`
+                // (planned re-coloured to yellow via migration 0049).
                 'session_date'        => [ 'label' => __( 'Date',   'talenttrack' ), 'sortable' => true ],
+                'title'               => [ 'label' => __( 'Title',  'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'title_link_html' ],
                 'activity_type_key'   => [ 'label' => __( 'Type',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_type_pill_html' ],
                 'activity_status_key' => [ 'label' => __( 'Status', 'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_status_pill_html' ],
-                'team_name'           => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true ],
-                'title'               => [ 'label' => __( 'Title',  'talenttrack' ), 'sortable' => true ],
+                'team_name'           => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
                 'attendance'          => [ 'label' => __( 'Att. %', 'talenttrack' ), 'sortable' => true, 'render' => 'percent', 'value_key' => 'attendance_pct' ],
             ],
             'filters' => [

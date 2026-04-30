@@ -138,13 +138,36 @@ class PeoplePage {
                     <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
                         <td class="check-column"><?php \TT\Shared\Admin\BulkActionsHelper::rowCheckbox( (int) $p->id ); ?></td>
                         <td>
-                            <strong><a href="<?php echo esc_url( $edit_url ); ?>"><?php
-                                echo esc_html( trim( $p->first_name . ' ' . $p->last_name ) );
-                            ?></a></strong>
+                            <strong><?php
+                                // #0063 — name links to the frontend person detail.
+                                // Edit is still reachable via the Actions column.
+                                echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                                    trim( $p->first_name . ' ' . $p->last_name ),
+                                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', (int) $p->id )
+                                );
+                            ?></strong>
                             <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
                         </td>
-                        <td><?php echo esc_html( self::roleLabel( (string) $p->role_type ) ); ?></td>
-                        <td><?php echo $p->email ? '<a href="mailto:' . esc_attr( $p->email ) . '">' . esc_html( $p->email ) . '</a>' : '—'; ?></td>
+                        <td><?php
+                            // #0063 — roles via LabelTranslator so nl_NL renders
+                            // Dutch instead of the raw English code. Drops the
+                            // ad-hoc self::roleLabel helper.
+                            echo esc_html( \TT\Infrastructure\Query\LabelTranslator::roleType( (string) $p->role_type ) );
+                        ?></td>
+                        <td><?php
+                            // #0063 — email links to the in-product mail composer
+                            // (Sprint 3) when present, falling back to a plain
+                            // mailto: until the composer module ships its handler.
+                            if ( $p->email ) {
+                                $compose = add_query_arg(
+                                    [ 'tt_view' => 'mail-compose', 'person_id' => (int) $p->id ],
+                                    home_url( '/' )
+                                );
+                                echo \TT\Shared\Frontend\Components\RecordLink::inline( (string) $p->email, $compose );
+                            } else {
+                                echo '—';
+                            }
+                        ?></td>
                         <td><?php echo esc_html( $p->phone ?? '—' ); ?></td>
                         <td>
                             <?php if ( $team_count > 0 ) : ?>

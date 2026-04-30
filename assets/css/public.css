@@ -350,3 +350,34 @@ input[type="checkbox"], input[type="radio"] {
     .tt-form-row label { flex: none; }
     .tt-user-menu-name { max-width: 100px; }
 }
+
+/* ─── RecordLink (#0063) ─────────────────────────────────────────
+ * Universal "open detail page" wrapper. Used by every admin table +
+ * dashboard tile that surfaces a master-record name. Replaces the
+ * v3.62 ad-hoc .tt-record-link inline styles in FrontendMyGoalsView /
+ * FrontendMyActivitiesView with a single canonical rule.
+ */
+.tt-record-link {
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 4px;
+    transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+.tt-record-link:hover,
+.tt-record-link:focus-visible {
+    color: inherit;
+    background: rgba(11, 95, 255, 0.04);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    outline: none;
+}
+/* When the wrapper IS the row (block-level link), make it fill width
+ * so hover / focus targets match the row geometry. */
+.tt-record-link--block {
+    display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+    .tt-record-link { transition: none; }
+    .tt-record-link:hover, .tt-record-link:focus-visible { transform: none; }
+}

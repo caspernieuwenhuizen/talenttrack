@@ -159,8 +159,8 @@ class DashboardShortcode {
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
         $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'my-pdp', 'profile', 'my-settings', 'my-journey' ];
-        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'pdp-planning', 'player-status-methodology', 'team-chemistry', 'podium', 'methodology', 'player-journey' ];
-        $analytics_slugs = [ 'rate-cards', 'compare' ];
+        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'pdp-planning', 'player-status-methodology', 'player-status-capture', 'team-chemistry', 'podium', 'methodology', 'player-journey', 'mail-compose' ];
+        $analytics_slugs = [ 'rate-cards', 'compare', 'reports' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
         // #0021 — `audit-log` added; uses the same admin tier (cap-checked
         // again inside FrontendAuditLogView::render).
@@ -367,18 +367,43 @@ class DashboardShortcode {
      * Only called when the user has coach or admin caps.
      */
     private static function dispatchCoachingView( string $view, int $user_id, bool $is_admin ): void {
+        // #0063 — when an `?id=N` is on the URL, the three master-record
+        // list slugs (players / teams / people) delegate to the matching
+        // detail view. Mirrors the v3.62 precedent in FrontendMyGoalsView /
+        // FrontendMyActivitiesView: same slug, same parameter shape, no
+        // new dedicated detail slugs.
+        $detail_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+
         switch ( $view ) {
             case 'teams':
+                if ( $detail_id > 0 ) {
+                    FrontendTeamDetailView::render( $detail_id, $user_id, $is_admin );
+                    break;
+                }
                 FrontendTeamsManageView::render( $user_id, $is_admin );
                 break;
             case 'players':
+                if ( $detail_id > 0 ) {
+                    FrontendPlayerDetailView::render( $detail_id, $user_id, $is_admin );
+                    break;
+                }
                 FrontendPlayersManageView::render( $user_id, $is_admin );
                 break;
             case 'players-import':
                 FrontendPlayersCsvImportView::render( $user_id, $is_admin );
                 break;
             case 'people':
+                if ( $detail_id > 0 ) {
+                    FrontendPersonDetailView::render( $detail_id, $user_id, $is_admin );
+                    break;
+                }
                 FrontendPeopleManageView::render( $user_id, $is_admin );
+                break;
+            case 'mail-compose':
+                FrontendMailComposeView::render( $user_id, $is_admin );
+                break;
+            case 'player-status-capture':
+                FrontendPlayerStatusCaptureView::render( $user_id, $is_admin );
                 break;
             case 'functional-roles':
                 FrontendFunctionalRolesView::render( $user_id, $is_admin );
@@ -440,6 +465,15 @@ class DashboardShortcode {
      * primary frontend entry point.
      */
     private static function dispatchAnalyticsView( string $view ): void {
+        // #0063 — `?tt_view=reports` lands on the frontend reports
+        // launcher, which mirrors the wp-admin tile launcher. The
+        // three sub-reports themselves still render in wp-admin
+        // (they use admin form-submit URLs and Chart.js), so each
+        // tile opens that view in a new tab.
+        if ( $view === 'reports' ) {
+            FrontendReportsLauncherView::render( get_current_user_id(), current_user_can( 'tt_edit_settings' ) );
+            return;
+        }
         switch ( $view ) {
             case 'rate-cards':
                 FrontendRateCardView::render();

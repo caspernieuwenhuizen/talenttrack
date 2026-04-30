@@ -43,7 +43,32 @@ class Menu {
         // requires before any submenu can attach.
         add_menu_page( __( 'TalentTrack', 'talenttrack' ), __( 'TalentTrack', 'talenttrack' ), 'read', 'talenttrack', [ __CLASS__, 'dashboard' ], 'dashicons-groups', 26 );
         AdminMenuRegistry::applyAll();
+        // #0063 — rename the auto-cloned first submenu (which WP
+        // copies from the parent label "TalentTrack") to "Dashboard"
+        // so the sidebar reads as one top-level + one self-titled
+        // dashboard entry. Without this the user sees two identical
+        // "TalentTrack" rows.
+        add_action( 'admin_menu', [ __CLASS__, 'renameDashboardMirror' ], 999 );
         add_action( 'admin_head', [ __CLASS__, 'injectMenuCss' ] );
+    }
+
+    /**
+     * #0063 — rename the auto-cloned first submenu so the WP-quirk
+     * "duplicate parent label as first submenu" reads as "Dashboard"
+     * instead of "TalentTrack". Runs at `admin_menu` priority 999 so
+     * every submenu is already registered when we touch `$submenu`.
+     */
+    public static function renameDashboardMirror(): void {
+        global $submenu;
+        if ( ! isset( $submenu['talenttrack'] ) || ! is_array( $submenu['talenttrack'] ) ) return;
+        foreach ( $submenu['talenttrack'] as $idx => $row ) {
+            if ( ! is_array( $row ) ) continue;
+            $slug = (string) ( $row[2] ?? '' );
+            if ( $slug === 'talenttrack' ) {
+                $submenu['talenttrack'][ $idx ][0] = __( 'Dashboard', 'talenttrack' );
+                break;
+            }
+        }
     }
 
     /**

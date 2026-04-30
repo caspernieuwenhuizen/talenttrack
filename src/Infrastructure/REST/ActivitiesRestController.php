@@ -275,13 +275,36 @@ class ActivitiesRestController {
 
         $type_key = (string) ( $row->activity_type_key ?? 'training' );
 
+        // #0063 — pre-render the title + team as RecordLink HTML so the
+        // generic FrontendListTable can display them as clickable cells
+        // via render: html. Title links to my-activities&id=N (read-only
+        // detail), team to teams&id=N. The picture is the same regardless
+        // of who renders the row.
+        $title_url = add_query_arg(
+            [ 'tt_view' => 'my-activities', 'id' => (int) $row->id ],
+            home_url( '/' )
+        );
+        $title_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+            (string) $row->title,
+            $title_url
+        );
+        $team_link_html = '';
+        if ( ! empty( $row->team_id ) && ! empty( $row->team_name ) ) {
+            $team_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+                (string) $row->team_name,
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', (int) $row->team_id )
+            );
+        }
+
         return [
             'id'                       => (int) $row->id,
             'title'                    => (string) $row->title,
+            'title_link_html'          => $title_link_html,
             'session_date'             => (string) $row->session_date,
             'location'                 => (string) ( $row->location ?? '' ),
             'team_id'                  => (int) ( $row->team_id ?? 0 ),
             'team_name'                => (string) ( $row->team_name ?? '' ),
+            'team_link_html'           => $team_link_html,
             'coach_id'                 => (int) ( $row->coach_id ?? 0 ),
             'activity_type_key'         => $type_key,
             'activity_type_pill_html'   => \TT\Infrastructure\Query\LookupPill::render( 'activity_type', $type_key ),

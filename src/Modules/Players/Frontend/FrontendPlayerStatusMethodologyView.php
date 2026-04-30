@@ -33,10 +33,17 @@ final class FrontendPlayerStatusMethodologyView {
             return;
         }
 
-        $saved = self::handlePost();
-        if ( $saved ) {
+        // #0063 — handlePost now returns ['ok'=>bool, 'error'=>?string]
+        // so a >100% sum produces an inline warning instead of a silent
+        // auto-redistribute.
+        $result = self::handlePost();
+        if ( ! empty( $result['ok'] ) ) {
             echo '<div class="tt-notice tt-notice-success" style="background:#dcfce7;color:#166534;padding:10px 14px;border-radius:6px;margin-bottom:16px;">'
                 . esc_html__( 'Saved.', 'talenttrack' ) . '</div>';
+        }
+        if ( ! empty( $result['error'] ) ) {
+            echo '<div class="tt-notice tt-notice-error" style="background:#fde2e2;color:#7f1d1d;padding:10px 14px;border-radius:6px;border-left:4px solid #b32d2e;margin-bottom:16px;">'
+                . esc_html( (string) $result['error'] ) . '</div>';
         }
 
         echo '<section style="max-width:900px;">';
@@ -55,11 +62,15 @@ final class FrontendPlayerStatusMethodologyView {
         echo '</section>';
     }
 
-    private static function handlePost(): bool {
-        if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) return false;
-        if ( ! isset( $_POST['tt_psm_nonce'] ) ) return false;
-        if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_psm_nonce'] ) ), 'tt_psm_save' ) ) return false;
-        if ( ! current_user_can( 'tt_edit_settings' ) ) return false;
+    /**
+     * @return array{ok:bool, error:?string}
+     */
+    private static function handlePost(): array {
+        $skip = [ 'ok' => false, 'error' => null ];
+        if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) return $skip;
+        if ( ! isset( $_POST['tt_psm_nonce'] ) ) return $skip;
+        if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_psm_nonce'] ) ), 'tt_psm_save' ) ) return $skip;
+        if ( ! current_user_can( 'tt_edit_settings' ) ) return $skip;
 
         $age_group_id = isset( $_POST['age_group_id'] ) ? absint( $_POST['age_group_id'] ) : 0;
         $reset        = isset( $_POST['reset'] );
@@ -69,14 +80,20 @@ final class FrontendPlayerStatusMethodologyView {
 
         if ( $reset ) {
             $wpdb->delete( $table, [ 'club_id' => CurrentClub::id(), 'age_group_id' => $age_group_id ] );
-            return true;
+            return [ 'ok' => true, 'error' => null ];
         }
 
-        $config = self::extractConfig( $_POST );
+        $extracted = self::extractConfig( $_POST );
+        if ( $extracted['error'] !== null ) {
+            // Don't save — surface the inline warning so the user can fix
+            // the math. Auto-normalise was the wrong UX.
+            return [ 'ok' => false, 'error' => $extracted['error'] ];
+        }
+
         $payload = [
             'club_id'      => CurrentClub::id(),
             'age_group_id' => $age_group_id,
-            'config_json'  => (string) wp_json_encode( $config ),
+            'config_json'  => (string) wp_json_encode( $extracted['config'] ),
             'updated_at'   => current_time( 'mysql' ),
             'updated_by'   => get_current_user_id(),
         ];
@@ -90,12 +107,12 @@ final class FrontendPlayerStatusMethodologyView {
         } else {
             $wpdb->insert( $table, $payload );
         }
-        return true;
+        return [ 'ok' => true, 'error' => null ];
     }
 
     /**
      * @param array<string,mixed> $post
-     * @return array<string,mixed>
+     * @return array{config:array<string,mixed>, error:?string, weight_total:int}
      */
     private static function extractConfig( array $post ): array {
         $inputs = [];
@@ -107,16 +124,21 @@ final class FrontendPlayerStatusMethodologyView {
             $inputs[ $key ] = [ 'enabled' => $enabled, 'weight' => $weight ];
             $total_weight += $weight;
         }
-        // Normalise weights to sum to 100 if user submitted unbalanced values.
-        if ( $total_weight > 0 && $total_weight !== 100 ) {
-            foreach ( $inputs as $k => $row ) {
-                if ( $row['enabled'] ) {
-                    $inputs[ $k ]['weight'] = (int) round( ( $row['weight'] / $total_weight ) * 100 );
-                }
-            }
+
+        // #0063 — the user explicitly asked NOT to auto-redistribute on
+        // sum != 100. Refuse the save and surface an inline error so they
+        // can fix the math themselves. Auto-normalise was silent magic
+        // that obscured what they had typed.
+        $error = null;
+        if ( $total_weight !== 100 ) {
+            $error = sprintf(
+                /* translators: %d = current weight sum */
+                __( 'Weights must add up to exactly 100%%. Current sum: %d%%. Adjust the values and save again.', 'talenttrack' ),
+                $total_weight
+            );
         }
 
-        return [
+        $config = [
             'inputs'      => $inputs,
             'thresholds'  => [
                 'amber_below' => isset( $post['threshold_amber'] ) ? max( 0, min( 100, (int) $post['threshold_amber'] ) ) : 60,
@@ -126,6 +148,8 @@ final class FrontendPlayerStatusMethodologyView {
                 'behaviour_floor_below' => isset( $post['behaviour_floor'] ) ? max( 0.0, min( 5.0, (float) $post['behaviour_floor'] ) ) : 0.0,
             ],
         ];
+
+        return [ 'config' => $config, 'error' => $error, 'weight_total' => $total_weight ];
     }
 
     private static function renderForm( int $age_group_id, string $heading ): void {
@@ -189,13 +213,38 @@ final class FrontendPlayerStatusMethodologyView {
                 </table>
 
                 <h4 style="margin:0 0 8px;"><?php esc_html_e( 'Thresholds', 'talenttrack' ); ?></h4>
-                <p style="margin:0 0 14px;">
+                <p style="margin:0 0 8px;">
                     <label><?php esc_html_e( 'Amber below', 'talenttrack' ); ?>
                         <input type="number" name="threshold_amber" value="<?php echo (int) $get( $config, 'thresholds.amber_below', 60 ); ?>" min="0" max="100" inputmode="numeric" style="width:80px;" />
                     </label>
                     <label style="margin-left:16px;"><?php esc_html_e( 'Red below', 'talenttrack' ); ?>
                         <input type="number" name="threshold_red" value="<?php echo (int) $get( $config, 'thresholds.red_below', 40 ); ?>" min="0" max="100" inputmode="numeric" style="width:80px;" />
                     </label>
+                </p>
+                <?php
+                // #0063 — visual threshold band display so the user can
+                // see all three colour ranges at a glance instead of
+                // computing them from two numbers.
+                $amber = (int) $get( $config, 'thresholds.amber_below', 60 );
+                $red   = (int) $get( $config, 'thresholds.red_below', 40 );
+                if ( $red > $amber ) { $tmp = $red; $red = $amber; $amber = $tmp; }
+                ?>
+                <div style="display:flex; height:14px; border-radius:6px; overflow:hidden; border:1px solid #d6dadd; margin-bottom:6px;">
+                    <div style="width:<?php echo (int) $red; ?>%; background:#b32d2e;" title="<?php echo esc_attr( sprintf( __( 'Red: 0 – %d', 'talenttrack' ), $red - 1 ) ); ?>"></div>
+                    <div style="width:<?php echo (int) ( $amber - $red ); ?>%; background:#dba617;" title="<?php echo esc_attr( sprintf( __( 'Amber: %1$d – %2$d', 'talenttrack' ), $red, $amber - 1 ) ); ?>"></div>
+                    <div style="flex:1; background:#137d1d;" title="<?php echo esc_attr( sprintf( __( 'Green: %d – 100', 'talenttrack' ), $amber ) ); ?>"></div>
+                </div>
+                <p style="margin:0 0 14px; font-size:12px; color:#5b6e75;">
+                    <?php
+                    printf(
+                        /* translators: 1: red upper bound, 2: red max, 3: amber min, 4: amber max, 5: green min */
+                        esc_html__( 'Red: 0 – %1$d &middot; Amber: %2$d – %3$d &middot; Green: %4$d – 100', 'talenttrack' ),
+                        max( 0, $red - 1 ),
+                        $red,
+                        max( $red, $amber - 1 ),
+                        $amber
+                    );
+                    ?>
                 </p>
 
                 <h4 style="margin:0 0 8px;"><?php esc_html_e( 'Behaviour floor', 'talenttrack' ); ?></h4>

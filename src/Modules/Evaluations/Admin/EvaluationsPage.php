@@ -44,13 +44,31 @@ class EvaluationsPage {
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
 
-        $evals = $wpdb->get_results(
-            "SELECT e.*, lt.name AS type_name, CONCAT(pl.first_name,' ',pl.last_name) AS player_name, u.display_name AS coach_name
-             FROM {$p}tt_evaluations e LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id=lt.id AND lt.lookup_type='eval_type'
-             LEFT JOIN {$p}tt_players pl ON e.player_id=pl.id LEFT JOIN {$wpdb->users} u ON e.coach_id=u.ID
-             WHERE e.{$view_clause}
-             ORDER BY e.eval_date DESC LIMIT 50"
-        );
+        // #0063 — rich selection criteria pattern (mirrors People page).
+        $f_search    = isset( $_GET['s'] )         ? sanitize_text_field( wp_unslash( (string) $_GET['s'] ) )         : '';
+        $f_date_from = isset( $_GET['date_from'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['date_from'] ) ) : '';
+        $f_date_to   = isset( $_GET['date_to'] )   ? sanitize_text_field( wp_unslash( (string) $_GET['date_to'] ) )   : '';
+        $f_type_id   = isset( $_GET['eval_type'] ) ? absint( $_GET['eval_type'] )                                     : 0;
+
+        $where  = [ "e.{$view_clause}" ];
+        $params = [];
+        if ( $f_search !== '' ) {
+            $like   = '%' . $wpdb->esc_like( $f_search ) . '%';
+            $where[]  = '(pl.first_name LIKE %s OR pl.last_name LIKE %s OR e.notes LIKE %s)';
+            $params[] = $like; $params[] = $like; $params[] = $like;
+        }
+        if ( $f_date_from !== '' ) { $where[] = 'e.eval_date >= %s'; $params[] = $f_date_from; }
+        if ( $f_date_to   !== '' ) { $where[] = 'e.eval_date <= %s'; $params[] = $f_date_to; }
+        if ( $f_type_id   > 0 )    { $where[] = 'e.eval_type_id = %d'; $params[] = $f_type_id; }
+
+        $sql = "SELECT e.*, lt.name AS type_name, CONCAT(pl.first_name,' ',pl.last_name) AS player_name, u.display_name AS coach_name
+                FROM {$p}tt_evaluations e
+                LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id=lt.id AND lt.lookup_type='eval_type'
+                LEFT JOIN {$p}tt_players pl ON e.player_id=pl.id
+                LEFT JOIN {$wpdb->users} u ON e.coach_id=u.ID
+                WHERE " . implode( ' AND ', $where ) . "
+                ORDER BY e.eval_date DESC LIMIT 50";
+        $evals = $params ? $wpdb->get_results( $wpdb->prepare( $sql, $params ) ) : $wpdb->get_results( $sql );
 
         // v2.13.0: batch-compute overall ratings for the whole page in
         // three SQL roundtrips (age groups, ratings, weights), keyed by
@@ -71,6 +89,44 @@ class EvaluationsPage {
             <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
 
             <?php \TT\Shared\Admin\BulkActionsHelper::renderStatusTabs( 'evaluation', $view, $base_url ); ?>
+
+            <?php
+            // #0063 — selection criteria above the table. Pattern matches
+            // the People page: search + date range + type filter, GET-form.
+            $eval_types = QueryHelpers::get_lookups( 'eval_type' );
+            ?>
+            <form method="get" style="display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end; margin: 8px 0 12px;">
+                <input type="hidden" name="page" value="tt-evaluations" />
+                <?php if ( isset( $_GET['tt_view'] ) ) : ?>
+                    <input type="hidden" name="tt_view" value="<?php echo esc_attr( (string) $_GET['tt_view'] ); ?>" />
+                <?php endif; ?>
+                <label>
+                    <span style="display:block; font-size:12px; color:#5b6e75;"><?php esc_html_e( 'Search', 'talenttrack' ); ?></span>
+                    <input type="search" name="s" value="<?php echo esc_attr( $f_search ); ?>" placeholder="<?php esc_attr_e( 'Player or notes', 'talenttrack' ); ?>" />
+                </label>
+                <label>
+                    <span style="display:block; font-size:12px; color:#5b6e75;"><?php esc_html_e( 'Type', 'talenttrack' ); ?></span>
+                    <select name="eval_type">
+                        <option value="0"><?php esc_html_e( 'Any', 'talenttrack' ); ?></option>
+                        <?php foreach ( (array) $eval_types as $lt ) : ?>
+                            <option value="<?php echo (int) $lt->id; ?>" <?php selected( $f_type_id, (int) $lt->id ); ?>>
+                                <?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $lt ) ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
+                <label>
+                    <span style="display:block; font-size:12px; color:#5b6e75;"><?php esc_html_e( 'From', 'talenttrack' ); ?></span>
+                    <input type="date" name="date_from" value="<?php echo esc_attr( $f_date_from ); ?>" />
+                </label>
+                <label>
+                    <span style="display:block; font-size:12px; color:#5b6e75;"><?php esc_html_e( 'To', 'talenttrack' ); ?></span>
+                    <input type="date" name="date_to" value="<?php echo esc_attr( $f_date_to ); ?>" />
+                </label>
+                <button type="submit" class="button"><?php esc_html_e( 'Filter', 'talenttrack' ); ?></button>
+                <a class="button" href="<?php echo esc_url( $base_url ); ?>"><?php esc_html_e( 'Clear', 'talenttrack' ); ?></a>
+            </form>
+
             <?php \TT\Shared\Admin\BulkActionsHelper::openForm( 'evaluation', $view ); ?>
             <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
 
@@ -99,17 +155,41 @@ class EvaluationsPage {
                             <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
                         </td>
                         <td><?php
+                            // #0063 — player name links to frontend player detail.
                             $ev_player_name = (string) ( $ev->player_name ?? '' );
                             $ev_player_id   = (int) ( $ev->player_id ?? 0 );
-                            if ( $ev_player_name !== '' && $ev_player_id > 0 && current_user_can( 'tt_view_players' ) ) {
-                                echo '<a href="' . esc_url( admin_url( 'admin.php?page=tt-players&action=edit&id=' . $ev_player_id ) ) . '">'
-                                    . esc_html( $ev_player_name ) . '</a>';
+                            if ( $ev_player_name !== '' && $ev_player_id > 0 ) {
+                                echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                                    $ev_player_name,
+                                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $ev_player_id )
+                                );
                             } else {
                                 echo esc_html( $ev_player_name !== '' ? $ev_player_name : '—' );
                             }
                         ?></td>
                         <td><?php echo esc_html( $ev->type_name ?: '—' ); ?></td>
-                        <td><?php echo esc_html( (string) $ev->coach_name ); ?></td>
+                        <td><?php
+                            // #0063 — trainer (coach) clicks through to the
+                            // person detail when we can resolve a tt_people row
+                            // via wp_user_id. Falls back to plain text when not.
+                            $coach_name = (string) ( $ev->coach_name ?? '' );
+                            $coach_uid  = (int) ( $ev->coach_id ?? 0 );
+                            $person_id  = 0;
+                            if ( $coach_uid > 0 ) {
+                                $person_id = (int) $wpdb->get_var( $wpdb->prepare(
+                                    "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+                                    $coach_uid, \TT\Infrastructure\Tenancy\CurrentClub::id()
+                                ) );
+                            }
+                            if ( $person_id > 0 && $coach_name !== '' ) {
+                                echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                                    $coach_name,
+                                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $person_id )
+                                );
+                            } else {
+                                echo esc_html( $coach_name );
+                            }
+                        ?></td>
                         <td>
                             <?php if ( $ov && $ov['value'] !== null ) :
                                 $tooltip_parts = [];

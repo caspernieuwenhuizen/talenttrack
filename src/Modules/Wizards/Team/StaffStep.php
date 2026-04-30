@@ -63,6 +63,6 @@ final class StaffStep implements WizardStepInterface {
         return $patch;
     }
 
-    public function nextStep( array $state ): ?string { return 'review'; }
+    public function nextStep( array $state ): ?string { return 'roster'; }
     public function submit( array $state ) { return null; }
 }

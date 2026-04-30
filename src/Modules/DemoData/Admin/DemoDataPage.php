@@ -42,10 +42,14 @@ class DemoDataPage {
     }
 
     public static function registerMenu(): void {
+        // #0063 — moved from `tools.php` parent to the TalentTrack
+        // top-level menu so demo-data lives next to the rest of the
+        // plugin's configuration. Old direct-URL `?page=` slug stays
+        // the same so any saved bookmarks keep working.
         add_submenu_page(
-            'tools.php',
-            __( 'TalentTrack Demo', 'talenttrack' ),
-            __( 'TalentTrack Demo', 'talenttrack' ),
+            'talenttrack',
+            __( 'Demo data', 'talenttrack' ),
+            __( 'Demo data', 'talenttrack' ),
             self::CAP,
             self::SLUG,
             [ self::class, 'render' ]

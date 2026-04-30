@@ -48,19 +48,29 @@ class PlayerRateCardsPage {
         <div class="wrap">
             <h1><?php esc_html_e( 'Player Rate Cards', 'talenttrack' ); ?> <?php \TT\Shared\Admin\HelpLink::render( 'rate-cards' ); ?></h1>
 
-            <form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" style="margin:12px 0 20px;">
+            <?php
+            // #0063 — autocomplete picker (PlayerSearchPickerComponent)
+            // replaces the linear-select-of-everyone. Required attribute
+            // means the form refuses to submit without a pick instead of
+            // silently rendering "no player selected".
+            $picker_html = \TT\Shared\Frontend\Components\PlayerSearchPickerComponent::render( [
+                'name'             => 'player_id',
+                'label'            => __( 'Player', 'talenttrack' ),
+                'required'         => true,
+                'selected'         => $player_id,
+                'show_team_filter' => true,
+                'is_admin'         => true,
+                'players'          => $players,
+            ] );
+            ?>
+            <form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>"
+                  style="margin:12px 0 20px; max-width: 480px;"
+                  onsubmit="if (this.querySelector('input[name=player_id]').value === '0' || this.querySelector('input[name=player_id]').value === '') { alert('<?php echo esc_js( __( 'Please select a player first.', 'talenttrack' ) ); ?>'); return false; }">
                 <input type="hidden" name="page" value="tt-rate-cards" />
-                <label>
-                    <strong><?php esc_html_e( 'Player:', 'talenttrack' ); ?></strong>
-                    <select name="player_id" onchange="this.form.submit()">
-                        <option value="0"><?php esc_html_e( '— Select a player —', 'talenttrack' ); ?></option>
-                        <?php foreach ( $players as $pl ) : ?>
-                            <option value="<?php echo (int) $pl->id; ?>" <?php selected( $player_id, (int) $pl->id ); ?>>
-                                <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </label>
+                <?php echo $picker_html; ?>
+                <p style="margin: 8px 0 0;">
+                    <button type="submit" class="button button-primary"><?php esc_html_e( 'Show rate card', 'talenttrack' ); ?></button>
+                </p>
             </form>
 
             <?php if ( $player_id > 0 ) :

@@ -68,6 +68,20 @@ class FrontendPdpManageView extends FrontendViewBase {
     }
 
     private static function renderList( int $user_id, bool $is_admin ): void {
+        // #0063 — when the list was reached by drilling into a PDP
+        // planning cell (`?filter[team_id]=...&filter[block]=...`),
+        // surface a Back-to-Planning button so the user can return
+        // to the matrix instead of jumping all the way to the
+        // dashboard. The default browser-back hop landed too far.
+        $filter = isset( $_GET['filter'] ) && is_array( $_GET['filter'] ) ? $_GET['filter'] : [];
+        if ( ! empty( $filter['team_id'] ) || ! empty( $filter['block'] ) ) {
+            $planning_url = add_query_arg(
+                [ 'tt_view' => 'pdp-planning', 'season_id' => (int) ( $filter['season'] ?? 0 ) ],
+                home_url( '/' )
+            );
+            FrontendBackButton::render( $planning_url );
+        }
+
         self::renderHeader( __( 'Player Development Plans', 'talenttrack' ) );
 
         $seasons = new SeasonsRepository();
@@ -117,8 +131,17 @@ class FrontendPdpManageView extends FrontendViewBase {
             $status_label = self::statusLabel( (string) $row->status );
 
             echo '<tr>';
-            echo '<td>' . esc_html( $name ) . '</td>';
-            echo '<td><span class="tt-status-badge tt-status-' . esc_attr( (string) $row->status ) . '">' . esc_html( $status_label ) . '</span></td>';
+            // #0063 — player name links to frontend player detail.
+            $player_link = $player
+                ? \TT\Shared\Frontend\Components\RecordLink::inline(
+                    $name,
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', (int) $player->id )
+                )
+                : esc_html( $name );
+            echo '<td>' . $player_link . '</td>';
+            // #0063 — converge onto LookupPill so PDP status renders
+            // with the same colour vocabulary as activity + goals.
+            echo '<td>' . \TT\Infrastructure\Query\LookupPill::render( 'pdp_status', (string) $row->status, $status_label ) . '</td>';
             echo '<td>' . (int) ( $row->cycle_size ?? 0 ) . '</td>';
             echo '<td>' . esc_html( $next ) . '</td>';
             echo '<td>' . esc_html( (string) ( $row->updated_at ?? '' ) ) . '</td>';
@@ -329,10 +352,53 @@ class FrontendPdpManageView extends FrontendViewBase {
         $is_signed = ! empty( $conv->coach_signoff_at );
         $rest_path = 'pdp-conversations/' . (int) $conv->id;
 
-        echo '<div style="display:grid; grid-template-columns:1fr 280px; gap:24px;">';
+        // #0063 — switch from a cramped 1fr / 280px sidebar layout to a
+        // simple tab strip: Conversation | Evidence. CSS-only toggle
+        // via the :target pseudo-class fallback works without JS,
+        // and a small handler upgrades to ARIA-correct tabs when JS is
+        // present. Closes the "evidence is a format mess next to the
+        // conversation" complaint.
+        ?>
+        <div class="tt-pdp-conv-tabs" data-tt-pdp-conv-tabs>
+            <div role="tablist" aria-label="<?php esc_attr_e( 'Conversation sections', 'talenttrack' ); ?>" style="display:flex; gap:4px; border-bottom:1px solid #e5e7ea; margin-bottom:12px;">
+                <button type="button" role="tab" aria-selected="true" data-tt-pdp-tab="conversation"
+                        style="padding:8px 14px; border:0; background:transparent; border-bottom:2px solid transparent; cursor:pointer;"
+                        class="is-active">
+                    <?php esc_html_e( 'Conversation', 'talenttrack' ); ?>
+                </button>
+                <button type="button" role="tab" aria-selected="false" data-tt-pdp-tab="evidence"
+                        style="padding:8px 14px; border:0; background:transparent; border-bottom:2px solid transparent; cursor:pointer;">
+                    <?php esc_html_e( 'Evidence', 'talenttrack' ); ?>
+                </button>
+            </div>
+        </div>
+        <style>
+            .tt-pdp-conv-tabs button.is-active { border-bottom-color: var(--tt-primary, #0b3d2e) !important; font-weight: 600; }
+            .tt-pdp-conv-pane[hidden] { display: none; }
+        </style>
+        <script>
+        (function(){
+            if (window.__ttPdpConvTabsBound) return;
+            window.__ttPdpConvTabsBound = true;
+            document.addEventListener('click', function(e){
+                var btn = e.target && e.target.closest ? e.target.closest('[data-tt-pdp-tab]') : null;
+                if (!btn) return;
+                var key = btn.getAttribute('data-tt-pdp-tab');
+                document.querySelectorAll('[data-tt-pdp-tab]').forEach(function(b){
+                    var on = b.getAttribute('data-tt-pdp-tab') === key;
+                    b.classList.toggle('is-active', on);
+                    b.setAttribute('aria-selected', on ? 'true' : 'false');
+                });
+                document.querySelectorAll('.tt-pdp-conv-pane').forEach(function(p){
+                    p.hidden = ( p.getAttribute('data-tt-pdp-pane') !== key );
+                });
+            });
+        })();
+        </script>
+        <?php
 
-        // Main form column
-        echo '<div>';
+        // Main form column (Conversation pane).
+        echo '<div class="tt-pdp-conv-pane" data-tt-pdp-pane="conversation" role="tabpanel">';
         ?>
         <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH">
             <div class="tt-field">
@@ -383,12 +449,13 @@ class FrontendPdpManageView extends FrontendViewBase {
             <div class="tt-form-msg"></div>
         </form>
         <?php
-        echo '</div>';
+        echo '</div>'; // /conversation pane
 
-        // Evidence sidebar
+        // Evidence pane — same content as the old sidebar, hidden by
+        // default; the tab toggle reveals it.
+        echo '<div class="tt-pdp-conv-pane" data-tt-pdp-pane="evidence" role="tabpanel" hidden>';
         self::renderEvidenceSidebar( (int) $file->player_id, $conv );
-
-        echo '</div>'; // grid
+        echo '</div>';
     }
 
     private static function renderVerdictForm( object $file, int $user_id, bool $is_admin ): void {
@@ -617,7 +684,8 @@ class FrontendPdpManageView extends FrontendViewBase {
             }
             echo '</div>';
             echo '<div style="text-align:right; font-size:12px; color:#5b6e75; white-space:nowrap;">';
-            echo '<span class="tt-status-badge tt-status-' . esc_attr( $status ) . '">' . esc_html( $status ) . '</span>';
+            // #0063 — connected goals use goal_status pill same as everywhere else.
+            echo \TT\Infrastructure\Query\LookupPill::render( 'goal_status', $status );
             if ( $priority !== '' ) echo ' · ' . esc_html( $priority );
             if ( ! empty( $g->due_date ) ) {
                 echo '<br>' . esc_html( sprintf( /* translators: %s = date */ __( 'Due %s', 'talenttrack' ), $due ) );

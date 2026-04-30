@@ -87,36 +87,67 @@ class PlayerComparisonPage {
             <form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" style="background:#fff; border:1px solid #dcdcde; padding:16px 20px; margin:16px 0;">
                 <input type="hidden" name="page" value="tt-compare" />
                 <h2 style="margin:0 0 10px; font-size:15px;"><?php esc_html_e( 'Select players', 'talenttrack' ); ?></h2>
-                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:10px;">
+                <?php
+                // #0063 — flex slot system: render only slots that have a
+                // pick (or the first 2 if no picks yet), then a "+ slot"
+                // button that reveals the next hidden slot, up to a max of
+                // 4. Each slot uses PlayerSearchPickerComponent with the
+                // shared `.tt-psp` DOM contract + JS hydrator.
+                $populated = array_values( array_filter( array_map( 'intval', $picked ) ) );
+                $visible_slots = max( 2, min( 4, count( $populated ) + 1 ) );
+                if ( $visible_slots > 4 ) $visible_slots = 4;
+                ?>
+                <div id="tt-compare-slots" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px;">
                     <?php for ( $i = 1; $i <= 4; $i++ ) :
                         $current = $picked[ $i - 1 ] ?? 0;
+                        $hidden  = ( $i > $visible_slots && $current === 0 );
                         ?>
-                        <div>
-                            <label style="font-size:12px; color:#555;">
-                                <?php
-                                /* translators: %d is slot number */
-                                printf( esc_html__( 'Slot %d', 'talenttrack' ), $i );
-                                ?>
-                            </label>
-                            <select name="p<?php echo $i; ?>" style="width:100%;">
-                                <option value="0"><?php esc_html_e( '— None —', 'talenttrack' ); ?></option>
-                                <?php foreach ( $all_players as $pl ) :
-                                    $label = sprintf(
-                                        '%s, %s — %s%s',
-                                        $pl->last_name,
-                                        $pl->first_name,
-                                        (string) ( $pl->team_name ?: __( 'No team', 'talenttrack' ) ),
-                                        $pl->age_group ? " ({$pl->age_group})" : ''
-                                    );
-                                    ?>
-                                    <option value="<?php echo (int) $pl->id; ?>" <?php selected( $current, (int) $pl->id ); ?>>
-                                        <?php echo esc_html( $label ); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
+                        <div class="tt-compare-slot" data-tt-slot="<?php echo (int) $i; ?>" <?php echo $hidden ? 'hidden' : ''; ?>>
+                            <?php
+                            /* translators: %d is slot number */
+                            $slot_label = sprintf( __( 'Player %d', 'talenttrack' ), $i );
+                            echo \TT\Shared\Frontend\Components\PlayerSearchPickerComponent::render( [
+                                'name'             => 'p' . $i,
+                                'label'            => $slot_label,
+                                'selected'         => (int) $current,
+                                'show_team_filter' => true,
+                                'is_admin'         => true,
+                                'players'          => $all_players,
+                            ] );
+                            ?>
                         </div>
                     <?php endfor; ?>
                 </div>
+                <p style="margin: 8px 0 0;">
+                    <button type="button" class="button" id="tt-compare-add-slot">
+                        <?php esc_html_e( 'Add another player', 'talenttrack' ); ?>
+                    </button>
+                    <small id="tt-compare-slot-max" style="margin-left:8px; color:#5b6e75; <?php echo $visible_slots >= 4 ? '' : 'display:none;'; ?>">
+                        <?php esc_html_e( 'Maximum of 4 players.', 'talenttrack' ); ?>
+                    </small>
+                </p>
+                <script>
+                (function () {
+                    var btn = document.getElementById('tt-compare-add-slot');
+                    var note = document.getElementById('tt-compare-slot-max');
+                    if (!btn) return;
+                    btn.addEventListener('click', function () {
+                        var slots = document.querySelectorAll('#tt-compare-slots .tt-compare-slot');
+                        for (var i = 0; i < slots.length; i++) {
+                            if (slots[i].hasAttribute('hidden')) {
+                                slots[i].removeAttribute('hidden');
+                                if (i + 1 >= slots.length) {
+                                    btn.disabled = true;
+                                    if (note) note.style.display = '';
+                                }
+                                return;
+                            }
+                        }
+                        btn.disabled = true;
+                        if (note) note.style.display = '';
+                    });
+                })();
+                </script>
 
                 <!-- Filter row -->
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-top:12px;">

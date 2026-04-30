@@ -74,6 +74,25 @@ class FrontendWizardView extends FrontendViewBase {
                     wp_safe_redirect( \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
                     exit;
 
+                case 'back':
+                    // #0063 — every wizard renders a Back button on
+                    // step ≥ 2. Pop the visited-step history so
+                    // conditional branches (e.g. NewPlayer's trial
+                    // path) round-trip correctly. Fall through to a
+                    // re-render at the popped step. Form input on the
+                    // current step is intentionally NOT persisted —
+                    // Back is "discard this step's edits, return to
+                    // the previous one"; persist would happen on Next.
+                    $prev = WizardState::popHistory( $user_id, $slug );
+                    if ( $prev !== null ) {
+                        WizardState::setStep( $user_id, $slug, $prev );
+                    }
+                    wp_safe_redirect( add_query_arg(
+                        [ 'tt_view' => 'wizard', 'slug' => $slug ],
+                        \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl()
+                    ) );
+                    exit;
+
                 case 'save-as-draft':
                     if ( $wizard instanceof SupportsCancelAsDraft ) {
                         $result = $wizard->cancelAsDraft( $state );
@@ -115,7 +134,7 @@ class FrontendWizardView extends FrontendViewBase {
         }
 
         self::renderHeader( $wizard->label() );
-        self::renderProgress( $wizard, $current_slug );
+        self::renderProgress( $wizard, $current_slug, $state );
         if ( $error ) {
             echo '<div class="tt-notice tt-notice-error" role="alert">' . esc_html( $error ) . '</div>';
         }
@@ -133,6 +152,12 @@ class FrontendWizardView extends FrontendViewBase {
         echo '<button type="submit" name="tt_wizard_action" value="cancel" class="tt-button tt-button-link">' . esc_html__( 'Cancel', 'talenttrack' ) . '</button>';
         if ( $wizard instanceof SupportsCancelAsDraft ) {
             echo '<button type="submit" name="tt_wizard_action" value="save-as-draft" class="tt-button" formnovalidate>' . esc_html__( 'Save as draft', 'talenttrack' ) . '</button>';
+        }
+        // #0063 — Back button on every step where there's prior history.
+        // formnovalidate so a half-filled required field doesn't trap
+        // the user; Back discards uncommitted edits by design.
+        if ( WizardState::hasHistory( $user_id, $slug ) ) {
+            echo '<button type="submit" name="tt_wizard_action" value="back" class="tt-button" formnovalidate>' . esc_html__( 'Back', 'talenttrack' ) . '</button>';
         }
         echo '<button type="submit" name="tt_wizard_action" value="skip" class="tt-button">' . esc_html__( 'Skip step', 'talenttrack' ) . '</button>';
         $is_last = $current->nextStep( $state ) === null;
@@ -167,12 +192,17 @@ class FrontendWizardView extends FrontendViewBase {
             wp_safe_redirect( $redirect );
             exit;
         }
+        // #0063 — record where the user just was so the Back button on
+        // the next step can pop back to it. Tracking actual visit
+        // history (rather than computing previous-step from the static
+        // list) keeps Back correct under conditional branching.
+        WizardState::pushHistory( $user_id, $slug, $current->slug() );
         WizardState::setStep( $user_id, $slug, $next_slug );
         wp_safe_redirect( add_query_arg( [ 'tt_view' => 'wizard', 'slug' => $slug ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) );
         exit;
     }
 
-    private static function renderProgress( WizardInterface $wizard, string $current_slug ): void {
+    private static function renderProgress( WizardInterface $wizard, string $current_slug, array $state = [] ): void {
         $steps = $wizard->steps();
         if ( count( $steps ) <= 1 ) return;
         echo '<ol class="tt-wizard-progress" aria-label="' . esc_attr__( 'Wizard steps', 'talenttrack' ) . '">';
@@ -180,7 +210,19 @@ class FrontendWizardView extends FrontendViewBase {
         foreach ( $steps as $i => $step ) {
             $is_current = $step->slug() === $current_slug;
             if ( $is_current ) $found_current = true;
-            $cls = $is_current ? 'tt-wizard-progress-current' : ( ! $found_current ? 'tt-wizard-progress-done' : 'tt-wizard-progress-pending' );
+            // #0063 — a step can opt-in to a `notApplicableFor( state )`
+            // method. NewPlayer's TrialDetailsStep returns true when
+            // path != 'trial' so the progress bar greys it out instead
+            // of showing a future step the user will never visit.
+            $not_applicable = method_exists( $step, 'notApplicableFor' )
+                ? (bool) $step->notApplicableFor( $state )
+                : false;
+
+            if ( $not_applicable && ! $is_current ) {
+                $cls = 'tt-wizard-progress-na';
+            } else {
+                $cls = $is_current ? 'tt-wizard-progress-current' : ( ! $found_current ? 'tt-wizard-progress-done' : 'tt-wizard-progress-pending' );
+            }
             echo '<li class="' . esc_attr( $cls ) . '"><span class="tt-wizard-progress-num">' . (int) ( $i + 1 ) . '</span> ' . esc_html( $step->label() ) . '</li>';
         }
         echo '</ol>';
@@ -225,6 +267,7 @@ class FrontendWizardView extends FrontendViewBase {
             .tt-wizard-progress li { flex: 1 1 auto; padding: 8px 12px; border-radius: 6px; background: #f1f3f4; color: #5f6368; font-size: .9rem; }
             .tt-wizard-progress-current { background: #1d7874; color: #fff; }
             .tt-wizard-progress-done { background: #cfe7da; color: #137333; }
+            .tt-wizard-progress-na { background: #f6f7f8; color: #b0b3b6; opacity: 0.5; text-decoration: line-through; }
             .tt-wizard-progress-num { display: inline-block; width: 22px; height: 22px; line-height: 22px; border-radius: 50%; background: rgba(255,255,255,.5); color: inherit; text-align: center; margin-right: 6px; font-weight: 600; }
             .tt-wizard-step-title { font-size: 1.4rem; margin: 0 0 16px; }
             .tt-wizard-form label { display: block; margin-bottom: 14px; }

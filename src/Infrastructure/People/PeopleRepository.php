@@ -53,7 +53,7 @@ class PeopleRepository {
     // People CRUD
 
     /**
-     * @param array{only_staff?:bool, status?:string, search?:string} $filters
+     * @param array{only_staff?:bool, status?:string, search?:string, role_type?:string|list<string>} $filters
      * @return array<int, object>
      */
     public function list( array $filters = [] ): array {
@@ -74,6 +74,18 @@ class PeopleRepository {
             $params[] = $like;
             $params[] = $like;
             $params[] = $like;
+        }
+
+        if ( ! empty( $filters['role_type'] ) ) {
+            // role_type accepts a single string or a list (e.g. ['parent','guardian'])
+            // so the ParentSearchPickerComponent can scope to both flavours.
+            $rts = is_array( $filters['role_type'] ) ? $filters['role_type'] : [ (string) $filters['role_type'] ];
+            $rts = array_values( array_filter( array_map( 'strval', $rts ) ) );
+            if ( ! empty( $rts ) ) {
+                $placeholders = implode( ',', array_fill( 0, count( $rts ), '%s' ) );
+                $where[] = 'p.role_type IN (' . $placeholders . ')';
+                foreach ( $rts as $rt ) $params[] = $rt;
+            }
         }
 
         if ( ! empty( $filters['only_staff'] ) ) {

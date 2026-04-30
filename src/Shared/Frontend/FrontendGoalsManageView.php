@@ -118,13 +118,20 @@ class FrontendGoalsManageView extends FrontendViewBase {
         echo FrontendListTable::render( [
             'rest_path' => 'goals',
             'columns' => [
-                'player_name' => [ 'label' => __( 'Player',   'talenttrack' ), 'sortable' => true ],
-                'title'       => [ 'label' => __( 'Goal',     'talenttrack' ), 'sortable' => true ],
+                // #0063 — player + goal title clickable; status as a
+                // colour pill (display-only) instead of an inline-select.
+                // Inline edit lives on the goal form; the table reads.
+                'player_name' => [ 'label' => __( 'Player',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html' ],
+                'title'       => [ 'label' => __( 'Goal',     'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'title_link_html' ],
                 'priority'    => [ 'label' => __( 'Priority', 'talenttrack' ), 'sortable' => true ],
                 'status'      => [
                     'label'       => __( 'Status', 'talenttrack' ),
                     'sortable'    => true,
-                    'render'      => 'inline_select',
+                    'render'      => 'html',
+                    'value_key'   => 'status_pill_html',
+                    // Drop the inline_select / options / patch_path — status
+                    // is now display-only on the table per the user's
+                    // "should be display only. use colored pills" ask.
                     'options'     => $status_options,
                     'patch_path'  => 'goals/{id}/status',
                     'patch_field' => 'status',
@@ -248,7 +255,19 @@ class FrontendGoalsManageView extends FrontendViewBase {
         // edit (existing goal) and only when the viewer can read the thread.
         if ( $is_edit && class_exists( '\\TT\\Shared\\Frontend\\Components\\FrontendThreadView' ) ) {
             echo '<section class="tt-goal-conversation" style="margin-top:1.5rem;">';
-            echo '<h2 style="font-size:1.0625rem;margin:0 0 0.5rem;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h2>';
+            echo '<header style="display:flex; align-items:baseline; gap:8px; margin: 0 0 0.5rem;">';
+            echo '<h2 style="font-size:1.0625rem; margin:0;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h2>';
+            // #0063 — help button explaining what the goal-conversation
+            // is for. Points at the existing conversational-goals doc
+            // shipped with #0028. Opens in a new tab so the coach
+            // doesn't lose the form they're filling in.
+            $help_url = add_query_arg(
+                [ 'tt_view' => 'docs', 'topic' => 'conversational-goals' ],
+                home_url( '/' )
+            );
+            echo '<a class="tt-link" href="' . esc_url( $help_url ) . '" target="_blank" rel="noopener" style="font-size:12px; color:#5b6e75;">'
+               . esc_html__( 'How does this work?', 'talenttrack' ) . '</a>';
+            echo '</header>';
             \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, $user_id );
             echo '</section>';
         }

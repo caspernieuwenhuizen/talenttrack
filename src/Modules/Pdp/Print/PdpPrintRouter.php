@@ -135,9 +135,21 @@ class PdpPrintRouter {
         <?php else : ?>
             <a href="<?php echo esc_url( remove_query_arg( 'include_evidence' ) ); ?>"><?php esc_html_e( 'Single A4 only', 'talenttrack' ); ?></a>
         <?php endif; ?>
-        <button type="button" onclick="if (window.opener) { window.close(); } else { history.back(); }">
+        <?php
+        // #0063 — when the print page opens in a new tab `window.opener`
+        // is often null thanks to noopener policies, and `history.back()`
+        // from a fresh tab is a no-op — so the previous Close button
+        // silently failed. Fall back to the file's own detail URL,
+        // computed server-side, which always works.
+        $close_url = add_query_arg(
+            [ 'tt_view' => 'pdp', 'id' => (int) $file->id ],
+            home_url( '/' )
+        );
+        ?>
+        <a href="<?php echo esc_url( $close_url ); ?>"
+           onclick="if (window.opener) { window.close(); return false; }">
             <?php esc_html_e( 'Close', 'talenttrack' ); ?>
-        </button>
+        </a>
     </div>
 
     <div class="header">

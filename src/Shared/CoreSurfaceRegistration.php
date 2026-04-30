@@ -518,6 +518,22 @@ final class CoreSurfaceRegistration {
             'color'        => '#7c3a9e',
             'cap'          => 'tt_view_reports',
         ]);
+        // #0063 — frontend Reports tile that mirrors the wp-admin
+        // launcher. Detail views still render in wp-admin (heavy
+        // form-submit + Chart.js paths), but the launcher gives the
+        // frontend dashboard a discoverable entry point.
+        TileRegistry::register([
+            'module_class' => self::M_REPORTS,
+            'view_slug'    => 'reports',
+            'group'        => $analytics_group,
+            'kind'         => 'work',
+            'order'        => 25,
+            'label'        => __( 'Reports', 'talenttrack' ),
+            'description'  => __( 'Player progress, team rating averages, coach activity.', 'talenttrack' ),
+            'icon'         => 'reports',
+            'color'        => '#00a32a',
+            'cap'          => 'tt_view_reports',
+        ]);
         TileRegistry::register([
             'module_class' => self::M_STATS,
             'view_slug'    => 'usage-stats',
@@ -761,15 +777,15 @@ final class CoreSurfaceRegistration {
         $show_welcome = \TT\Shared\Admin\Menu::shouldShowWelcome();
         $parent       = $show_legacy ? 'talenttrack' : null;
 
-        // Top-level dashboard mirror entry.
-        AdminMenuRegistry::register([
-            'module_class' => null,
-            'parent'       => 'talenttrack',
-            'title'        => __( 'Dashboard', 'talenttrack' ),
-            'cap'          => 'read',
-            'slug'         => 'talenttrack',
-            'callback'     => [ \TT\Shared\Admin\Menu::class, 'dashboard' ],
-        ]);
+        // #0063 — drop the explicit "Dashboard" submenu mirror.
+        // WordPress automatically clones the top-level entry as the
+        // first submenu when any submenu attaches; the explicit
+        // duplicate registered here produced two visually identical
+        // sidebar rows ("TalentTrack" and "Dashboard") that pointed
+        // to the same callback. Removed; the auto-clone is renamed
+        // to "Dashboard" by the menu_order tweak in
+        // `Menu::register()` so the user-visible label is correct
+        // without the dupe.
 
         // Welcome wizard — owner is Onboarding. Visible only while wizard
         // hasn't been dismissed; otherwise routed via parent=null per
