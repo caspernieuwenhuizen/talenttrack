@@ -6,7 +6,7 @@
 
 ## Wat het doet
 
-Eén keer per 24 uur, plus direct na activeren, deactiveren en elke versiebump van de plugin, stuurt je TalentTrack-install een kleine JSON-payload over HTTPS naar `https://ops.talenttrack.app/wp-json/ttac/v1/ingest`. De payload bevat operationele cijfers — aantallen en vormen — nooit individuele spelersgegevens.
+Eén keer per 24 uur, plus direct na activeren, deactiveren en elke versiebump van de plugin, stuurt je TalentTrack-install een kleine JSON-payload over HTTPS naar `https://www.mediamaniacs.nl/wp-json/ttac/v1/ingest`. De payload bevat operationele cijfers — aantallen en vormen — nooit individuele spelersgegevens.
 
 Foutscenario's verlopen stil: een netwerkfout of 5xx van de mothership wordt op de volgende tick opnieuw geprobeerd. Een aanhoudende 4xx (die zou betekenen dat het schema is gaan afwijken) logt één keer per 24 uur, zodat de operator het opmerkt.
 
@@ -22,7 +22,7 @@ Er is geen `wp-config`-opt-out, geen knop in de UI en geen omgevingsvariabele. O
 
 JSON over HTTPS, ondertekend met HMAC-SHA256.
 
-- Endpoint: `POST https://ops.talenttrack.app/wp-json/ttac/v1/ingest`
+- Endpoint: `POST https://www.mediamaniacs.nl/wp-json/ttac/v1/ingest`
 - Header: `X-TTAC-Signature: sha256=<hex>`
 - Geheim-afleiding (v1): `hash('sha256', install_id . '|' . site_url)` — beide waarden staan in de payload zelf, dus de ontvanger leidt het geheim opnieuw af uit wat binnenkomt. License-key-afgeleid geheim is uitgesteld naar een latere billing-oversight-sub-spec.
 - Body: canonieke JSON (sleutels recursief gesorteerd, geen whitespace, UTF-8, slashes niet ge-escaped) zodat beide kanten op exact dezelfde bytestream uitkomen om te tekenen.

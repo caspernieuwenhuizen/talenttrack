@@ -1,10 +1,17 @@
+# TalentTrack v3.65.1 — Admin Center receiver URL hotfix (#0065)
+
+Patch on top of v3.65.0. The receiver URL baked into `Sender::DEFAULT_URL` was lifted from an `e.g.` example in the spec rather than confirmed with the operator before shipping. Fixed to point at the actual mothership at `https://www.mediamaniacs.nl/wp-json/ttac/v1/ingest`.
+
+* **FIX:** `Sender::DEFAULT_URL` updated. `docs/phone-home.md` (EN + NL) updated. CHANGES + readme updated. The filter `tt_admin_center_url` and constant `TT_ADMIN_CENTER_URL` overrides are unchanged.
+* **NOTE:** v3.65.0 installs in the wild that managed to update before this patch landed will silently fail to connect (DNS error → silent retry per the failure-handling spec) until they pick up v3.65.1.
+
 # TalentTrack v3.65.0 — Admin Center phone-home client (#0065 TT-side)
 
 The TalentTrack-side half of the new Admin Center foundation. Companion to the mothership receiver shipping from the separate `talenttrack-admin-center` repo (spec #0001 there). One bundled PR.
 
 ## What ships
 
-A new module `src/Modules/AdminCenterClient/` that phones home daily plus on three trigger events (`activated` / `deactivated` / `version_changed`). The wire protocol is JSON over HTTPS, signed with HMAC-SHA256 over a canonical-JSON body. The receiver is `https://ops.talenttrack.app/wp-json/ttac/v1/ingest` (filterable via `tt_admin_center_url`).
+A new module `src/Modules/AdminCenterClient/` that phones home daily plus on three trigger events (`activated` / `deactivated` / `version_changed`). The wire protocol is JSON over HTTPS, signed with HMAC-SHA256 over a canonical-JSON body. The receiver is `https://www.mediamaniacs.nl/wp-json/ttac/v1/ingest` (filterable via `tt_admin_center_url`).
 
 - **`PayloadBuilder`** — locked v1 payload shape. Counts (`team_count`, `player_count_active|archived`, `staff_count`), engagement (`dau_7d_avg`, `wau_count`, `mau_count`, `last_login_date`), error class names from `tt_audit_log` rows whose action begins with `error.` (no message bodies, no stack traces), license fields (nullable when no Freemius), `module_status` for spond / comms / exports (each `null` until that module ships), `feature_flags_enabled` (TT-shipped vocabulary only), `custom_caps_in_use` (boolean only — cap names are not transmitted).
 - **`Signer`** — canonicalises payload (recursive `ksort`, no whitespace, UTF-8, slashes unescaped) so both ends arrive at the same byte sequence to sign. Secret derivation **locked at `hash('sha256', install_id . '|' . site_url)`** per the refined TTA-side spec — no Freemius license-key dependency in v1.

@@ -23,7 +23,7 @@ use TT\Infrastructure\Logging\Logger;
  */
 final class Sender {
 
-    public const DEFAULT_URL = 'https://ops.talenttrack.app/wp-json/ttac/v1/ingest';
+    public const DEFAULT_URL = 'https://www.mediamaniacs.nl/wp-json/ttac/v1/ingest';
     public const TIMEOUT     = 10;
     public const SIGNATURE_HEADER = 'X-TTAC-Signature';
 
