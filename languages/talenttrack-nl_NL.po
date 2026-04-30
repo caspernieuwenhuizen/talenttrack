@@ -10910,3 +10910,22 @@ msgstr "Volgende uitvoering:"
 
 msgid "in about %s"
 msgstr "over ongeveer %s"
+
+# #0069 — HoD + tiles + docs
+msgid "Per-persona overrides"
+msgstr "Persona-specifieke overrides"
+
+msgid "Inherit (use global default)"
+msgstr "Overerven (gebruik standaardinstelling)"
+
+msgid "Persona dashboard"
+msgstr "Persona-dashboard"
+
+msgid "Demo data (Excel)"
+msgstr "Demogegevens (Excel)"
+
+msgid "Player status"
+msgstr "Spelerstatus"
+
+msgid "Optional. Force a specific dashboard for a single persona — useful for testing one persona at a time on a real install without flipping the whole site. \"Inherit\" follows the global default above."
+msgstr "Optioneel. Forceer een specifiek dashboard voor één persona — handig om één persona tegelijk te testen op een echte installatie zonder de hele site te flippen. \"Overerven\" volgt de standaardinstelling hierboven."

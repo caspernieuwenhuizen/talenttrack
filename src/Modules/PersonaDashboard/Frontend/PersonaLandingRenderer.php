@@ -30,8 +30,24 @@ final class PersonaLandingRenderer {
         // Sprint 3 flag flip — default ON. Sites that need to roll back to
         // the legacy FrontendTileGrid path can set persona_dashboard.enabled
         // to '0' in tt_config (one-release rollback window).
-        $flag = \TT\Infrastructure\Query\QueryHelpers::get_config( 'persona_dashboard.enabled', '1' );
-        return $flag !== '0';
+        //
+        // #0069 — per-persona override. Each persona key may have its own
+        // `persona_dashboard.{persona}.enabled` config value, useful for
+        // testing one persona at a time on a real install. The persona-
+        // specific value (when present) wins over the global flag; absent
+        // values fall through to the global default.
+        $global = \TT\Infrastructure\Query\QueryHelpers::get_config( 'persona_dashboard.enabled', '1' );
+
+        $user_id = get_current_user_id();
+        $persona = self::resolvePersona( $user_id );
+        if ( $persona !== null && $persona !== '' ) {
+            $key = 'persona_dashboard.' . $persona . '.enabled';
+            $per_persona = \TT\Infrastructure\Query\QueryHelpers::get_config( $key, '' );
+            if ( $per_persona !== '' ) {
+                return $per_persona !== '0';
+            }
+        }
+        return $global !== '0';
     }
 
     public static function render( int $user_id, string $base_url ): void {

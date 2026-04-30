@@ -346,6 +346,26 @@ class FrontendConfigurationView extends FrontendViewBase {
     private static function renderDashboardForm(): void {
         $current = QueryHelpers::get_config( 'persona_dashboard.enabled', '1' );
         $is_persona = $current !== '0';
+
+        // #0069 — per-persona override map. Empty string = inherit from
+        // global default. '1' = force persona dashboard. '0' = force
+        // classic tile grid. Used for testing one persona at a time
+        // without flipping the whole site.
+        $personas = [
+            'academy_admin'       => __( 'Academy admin',           'talenttrack' ),
+            'head_of_development' => __( 'Head of Development',     'talenttrack' ),
+            'head_coach'          => __( 'Head coach',              'talenttrack' ),
+            'assistant_coach'     => __( 'Assistant coach',         'talenttrack' ),
+            'team_manager'        => __( 'Team manager',            'talenttrack' ),
+            'scout'               => __( 'Scout',                   'talenttrack' ),
+            'player'              => __( 'Player',                  'talenttrack' ),
+            'parent'              => __( 'Parent',                  'talenttrack' ),
+            'readonly_observer'   => __( 'Read-only observer',      'talenttrack' ),
+        ];
+        $per_persona = [];
+        foreach ( $personas as $key => $_label ) {
+            $per_persona[ $key ] = (string) QueryHelpers::get_config( 'persona_dashboard.' . $key . '.enabled', '' );
+        }
         ?>
         <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="dashboard">
             <div class="tt-panel">
@@ -371,6 +391,41 @@ class FrontendConfigurationView extends FrontendViewBase {
                     </p>
                 </div>
             </div>
+
+            <div class="tt-panel" style="margin-top: 16px;">
+                <h3 style="margin: 0 0 var(--tt-sp-2);">
+                    <?php esc_html_e( 'Per-persona overrides', 'talenttrack' ); ?>
+                </h3>
+                <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted); font-size: 13px;">
+                    <?php esc_html_e( "Optional. Force a specific dashboard for a single persona — useful for testing one persona at a time on a real install without flipping the whole site. \"Inherit\" follows the global default above.", 'talenttrack' ); ?>
+                </p>
+                <table class="tt-table" style="width:100%; max-width: 520px;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;"><?php esc_html_e( 'Persona', 'talenttrack' ); ?></th>
+                            <th style="text-align:left; width:200px;"><?php esc_html_e( 'Dashboard', 'talenttrack' ); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ( $personas as $key => $label ) :
+                            $cur = $per_persona[ $key ];
+                            $name = 'config[persona_dashboard.' . $key . '.enabled]';
+                            ?>
+                            <tr>
+                                <td><?php echo esc_html( $label ); ?></td>
+                                <td>
+                                    <select name="<?php echo esc_attr( $name ); ?>" class="tt-input">
+                                        <option value=""  <?php selected( $cur, '' );  ?>><?php esc_html_e( 'Inherit (use global default)', 'talenttrack' ); ?></option>
+                                        <option value="1" <?php selected( $cur, '1' ); ?>><?php esc_html_e( 'Persona dashboard', 'talenttrack' ); ?></option>
+                                        <option value="0" <?php selected( $cur, '0' ); ?>><?php esc_html_e( 'Classic tile grid', 'talenttrack' ); ?></option>
+                                    </select>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+
             <div class="tt-form-actions" style="margin-top:16px;">
                 <?php echo FormSaveButton::render( [ 'label' => __( 'Save default dashboard', 'talenttrack' ) ] ); ?>
             </div>

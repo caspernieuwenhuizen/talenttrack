@@ -149,7 +149,12 @@ class FrontendWizardView extends FrontendViewBase {
         self::renderHelpSidebar( $wizard, $current );
 
         echo '<div class="tt-wizard-actions">';
-        echo '<button type="submit" name="tt_wizard_action" value="cancel" class="tt-button tt-button-link">' . esc_html__( 'Cancel', 'talenttrack' ) . '</button>';
+        // #0069 — Cancel must discard the run regardless of unfilled
+        // required fields. Save-as-draft and Back already carry
+        // formnovalidate; Cancel was the outlier and was tripping
+        // browser-side required-field validation when the user wanted
+        // to bail out of the wizard.
+        echo '<button type="submit" name="tt_wizard_action" value="cancel" class="tt-button tt-button-link" formnovalidate>' . esc_html__( 'Cancel', 'talenttrack' ) . '</button>';
         if ( $wizard instanceof SupportsCancelAsDraft ) {
             echo '<button type="submit" name="tt_wizard_action" value="save-as-draft" class="tt-button" formnovalidate>' . esc_html__( 'Save as draft', 'talenttrack' ) . '</button>';
         }

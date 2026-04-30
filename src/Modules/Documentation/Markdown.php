@@ -150,13 +150,31 @@ class Markdown {
         // Italic *foo* (after bold so ** doesn't match)
         $text = preg_replace( '/(?<!\*)\*(?!\*)([^*]+)(?<!\*)\*(?!\*)/', '<em>$1</em>', $text );
 
-        // Links [text](url)  — URL must be a relative admin URL or http(s)
+        // Links [text](url) — URL must be a relative admin URL, http(s),
+        // or a `<slug>.md` cross-reference to another doc topic. The
+        // .md branch (#0069) rewrites `[X](other.md)` to the in-product
+        // docs URL `?tt_view=docs&topic=other` so internal cross-
+        // references stay inside the docs viewer instead of silently
+        // rendering as plain text (the previous behaviour).
         $text = preg_replace_callback(
             '/\[([^\]]+)\]\(([^)]+)\)/',
             function ( $m ) {
                 $url = $m[2];
                 if ( preg_match( '#^(https?://|admin\.php|/wp-admin)#', $url ) ) {
                     return '<a href="' . esc_url( $url ) . '" style="color:#2271b1;">' . $m[1] . '</a>';
+                }
+                // Cross-reference to another doc: <slug>.md or <locale>/<slug>.md
+                if ( preg_match( '#^(?:[a-z]{2}_[A-Z]{2}/)?([a-z0-9][a-z0-9\-]*)\.md(?:#.*)?$#', $url, $sm ) ) {
+                    $slug = $sm[1];
+                    // Stay inside the in-product docs viewer. The frontend
+                    // and wp-admin viewers both honour `?tt_view=docs&topic=`;
+                    // only difference is the surrounding shell.
+                    if ( is_admin() ) {
+                        $href = admin_url( 'admin.php?page=tt-docs&topic=' . rawurlencode( $slug ) );
+                    } else {
+                        $href = add_query_arg( [ 'tt_view' => 'docs', 'topic' => $slug ], home_url( '/' ) );
+                    }
+                    return '<a href="' . esc_url( $href ) . '" style="color:#2271b1;">' . $m[1] . '</a>';
                 }
                 // Treat as relative admin link
                 if ( preg_match( '/^\?page=/', $url ) ) {

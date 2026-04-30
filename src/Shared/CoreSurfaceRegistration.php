@@ -324,10 +324,17 @@ final class CoreSurfaceRegistration {
             'cap_callback' => static function ( int $uid ): bool {
                 return user_can( $uid, 'tt_manage_functional_roles' ) || user_can( $uid, 'tt_view_people' );
             },
+            // #0069 — HoD doesn't manage per-team staff slots day-to-day;
+            // their lens is academy-wide development. Hide the tile.
+            'hide_for_personas' => [ 'head_of_development' ],
         ]);
 
         // ── Performance group ──
         $performance_group = __( 'Performance', 'talenttrack' );
+        // #0069 — PDP work moves out of Performance into its own
+        // Development group so player-development surfaces don't sit
+        // alongside the activity / evaluation / podium tiles.
+        $development_group = __( 'Development', 'talenttrack' );
         TileRegistry::register([
             'module_class' => self::M_EVALUATIONS,
             'view_slug'    => 'evaluations',
@@ -367,7 +374,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PDP,
             'view_slug'    => 'pdp',
-            'group'        => $performance_group,
+            'group'        => $development_group,
             'kind'         => 'work',
             'order'        => 40,
             'label'        => __( 'PDP', 'talenttrack' ),
@@ -381,7 +388,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PDP,
             'view_slug'    => 'pdp-planning',
-            'group'        => $performance_group,
+            'group'        => $development_group,
             'kind'         => 'work',
             'order'        => 41,
             'label'        => __( 'PDP planning', 'talenttrack' ),
@@ -629,6 +636,10 @@ final class CoreSurfaceRegistration {
             'color'        => '#555',
             'cap'          => 'tt_access_frontend_admin',
             'desktop_preferred' => true,
+            // #0069 — HoD's job is player development, not configuration.
+            // They get the cap (it cascades through allCapsTrue) but the
+            // tile shouldn't sit in their day-to-day surface.
+            'hide_for_personas' => [ 'head_of_development' ],
         ]);
         TileRegistry::register([
             'module_class' => self::M_CONFIG,
@@ -642,6 +653,7 @@ final class CoreSurfaceRegistration {
             'color'        => '#555',
             'cap'          => 'tt_access_frontend_admin',
             'desktop_preferred' => true,
+            'hide_for_personas' => [ 'head_of_development' ],
         ]);
         TileRegistry::register([
             'module_class' => self::M_WIZARDS,
