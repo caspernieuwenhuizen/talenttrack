@@ -1,6 +1,6 @@
 <!-- type: feat -->
 
-# #0062 — Team chemistry: rebuild the data + pitch + score model
+# #0068 — Team chemistry: rebuild the data + pitch + score model
 
 ## Why
 
@@ -10,7 +10,7 @@ User testing of the existing chemistry view (`?tt_view=team-chemistry`) surfaced
 2. Players come from somewhere unclear; "only a few display repeatedly" suggests the `CompatibilityEngine` query returns a narrow / cached set.
 3. Every chemistry score reads zero, which may be technically correct (no evals → no compatibility) but is unhelpful without context.
 
-#0063 (the q2 polish epic) added a help button + a `docs/team-chemistry.md` page that explains how the current view works, where data comes from, and what zero scores mean. That bought us breathing room — but the underlying view still has real issues a doc can't paper over.
+#0067 (the q2 polish epic) added a help button + a `docs/team-chemistry.md` page that explains how the current view works, where data comes from, and what zero scores mean. That bought us breathing room — but the underlying view still has real issues a doc can't paper over.
 
 ## What needs investigating
 
@@ -37,7 +37,7 @@ Estimated: ~13-23h compressed.
 
 ## Cross-references
 
-- **#0063** — q2 polish epic; shipped the help button + first-pass docs as the v1 fix.
+- **#0067** — q2 polish epic; shipped the help button + first-pass docs as the v1 fix.
 - **#0056** — mobile-first retrofit programme; chemistry is on the legacy desktop-first sheet.
 - **#0033** — persona dashboard; chemistry doesn't currently have a persona-template entry.
 

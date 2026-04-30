@@ -1,6 +1,6 @@
 <!-- type: epic -->
 
-# #0063 — q2 polish epic: shared patterns, detail pages, in-product comms
+# #0067 — q2 polish epic: shared patterns, detail pages, in-product comms
 
 ## Problem
 
@@ -167,7 +167,7 @@ Apply `RecordLink` + new pickers everywhere:
 - **#0058** — wizard-first standard; new-person wizard follows it.
 - **#0060** — persona dashboard; templates may need updating once new detail views exist.
 - **#0061** (v3.59-v3.62, three rounds) — same punch-list, three preceding rounds; this is the 4th and meant-to-be-final round.
-- **#0062** (parked) — team chemistry rebuild.
+- **#0068** (parked) — team chemistry rebuild.
 
 ### Things to verify in the first 30 minutes of build
 
