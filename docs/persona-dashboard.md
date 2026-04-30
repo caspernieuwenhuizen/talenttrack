@@ -86,6 +86,16 @@ Every save and publish writes an entry to the audit log (action `persona_templat
 - **Custom KPI authoring.** The 25-KPI catalog is closed; you can drop any of them on a layout, but you can't write a new query.
 - **Mobile authoring canvas.** The mobile preview is read-only — you set the priority + visibility on each widget; the collapse order is computed from those values.
 
+## Per-persona override (testing tool)
+
+The default dashboard chooser (*Configuration → Default dashboard*) toggles **Persona dashboard** vs. **Classic tile grid** for the whole site. Below it, a *Per-persona overrides* table lets an academy admin force a specific dashboard for a single persona while leaving the rest on the global default. Each persona row offers three options:
+
+- **Inherit (use global default)** — the persona follows the site-wide setting.
+- **Persona dashboard** — force the persona-specific layout for this persona only.
+- **Classic tile grid** — force the legacy tile grid for this persona only.
+
+Useful for rolling out a redesigned persona dashboard one persona at a time on a real install, or for previewing the legacy grid without flipping the whole site.
+
 ## Sources of data
 
 Each KPI is computed live from your academy's data. KPIs that depend on features still in development (e.g., the player-status traffic light from `#0057`, PDP planning windows from `#0054`) render a placeholder dash (`—`) until those land.

@@ -172,6 +172,15 @@ class AuthorizationService {
         // functional even before any tt_people/role-scope records exist.
         if ( user_can( $user_id, 'administrator' ) ) return true;
 
+        // #0069 — Head of Development is the academy-wide development
+        // lens by role definition; their work spans every team and
+        // every player regardless of whether they personally coach
+        // anyone. Without this shortcut the matrix-driven scope
+        // resolution requires a tt_people record + role-scope row,
+        // which a fresh `tt_head_dev` user typically lacks. WP
+        // administrator gets the same shortcut on the line above.
+        if ( user_can( $user_id, 'tt_head_dev' ) ) return true;
+
         $scopes = self::resolveScopesForUser( $user_id );
         if ( empty( $scopes ) ) return false;
 

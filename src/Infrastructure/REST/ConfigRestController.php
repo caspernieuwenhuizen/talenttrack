@@ -47,6 +47,18 @@ class ConfigRestController {
         'show_legacy_menus',
         // #0060 — default-dashboard toggle (persona vs classic tile grid)
         'persona_dashboard.enabled',
+        // #0069 — per-persona overrides for the default-dashboard
+        // toggle. Any of these may resolve to '' (inherit), '1'
+        // (persona dashboard), or '0' (classic tile grid).
+        'persona_dashboard.academy_admin.enabled',
+        'persona_dashboard.head_of_development.enabled',
+        'persona_dashboard.head_coach.enabled',
+        'persona_dashboard.assistant_coach.enabled',
+        'persona_dashboard.team_manager.enabled',
+        'persona_dashboard.scout.enabled',
+        'persona_dashboard.player.enabled',
+        'persona_dashboard.parent.enabled',
+        'persona_dashboard.readonly_observer.enabled',
     ];
 
     public static function init(): void {

@@ -72,6 +72,12 @@ final class TileRegistry {
             // the dispatched view renders a "best on desktop" banner under
             // (pointer: coarse) and (max-width: 767px).
             'desktop_preferred' => false,
+            // #0069 — list of persona keys this tile must be hidden for
+            // even when the cap_callback would allow it. Use for tiles
+            // that are reachable by capability but not appropriate for
+            // a particular role's day-to-day work (e.g. HoD has admin
+            // caps but doesn't manage Configuration / Migrations).
+            'hide_for_personas' => [],
         ];
         $tile = array_merge( $defaults, $tile );
         // #0033 finalisation — accept the simpler `label` (string) form
@@ -240,7 +246,32 @@ final class TileRegistry {
         if ( is_callable( $cb ) && ! (bool) $cb( $user_id ) ) {
             return false;
         }
+        // #0069 — persona-level hide list. Tile is reachable by cap
+        // but not part of the persona's day-to-day surface. Resolves
+        // every persona the user has via PersonaResolver and hides if
+        // any of them appears in `hide_for_personas`.
+        $hide = $tile['hide_for_personas'] ?? [];
+        if ( is_array( $hide ) && ! empty( $hide ) ) {
+            $personas = self::personasFor( $user_id );
+            foreach ( $personas as $p ) {
+                if ( in_array( $p, $hide, true ) ) return false;
+            }
+        }
         return true;
+    }
+
+    /**
+     * Resolve every persona the user holds (multi-persona users get the
+     * union). Falls back to an empty list when PersonaResolver isn't
+     * available.
+     *
+     * @return list<string>
+     */
+    private static function personasFor( int $user_id ): array {
+        if ( $user_id <= 0 ) return [];
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) return [];
+        $personas = \TT\Modules\Authorization\PersonaResolver::personasFor( $user_id );
+        return is_array( $personas ) ? $personas : [];
     }
 
     /**

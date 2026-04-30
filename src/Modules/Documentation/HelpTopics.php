@@ -255,6 +255,41 @@ class HelpTopics {
                 'group'   => 'mobile',
                 'summary' => __( 'For younger players, the parent is the primary contact — invitations, tasks, and pushes flow through you.', 'talenttrack' ),
             ],
+            // #0069 — register orphan docs that lived on disk but
+            // weren't reachable from the in-product TOC. Dev-only
+            // docs (architecture-mobile-first, contributing,
+            // dev-tier-rest-port-backlog, phone-home, index) stay
+            // unregistered by design.
+            'custom-css' => [
+                'title'   => __( 'Custom CSS', 'talenttrack' ),
+                'group'   => 'configuration',
+                'summary' => __( 'Visual editor and hand-rolled CSS for academy-specific theming, with sanitisation and history.', 'talenttrack' ),
+            ],
+            'demo-data-excel' => [
+                'title'   => __( 'Demo data (Excel)', 'talenttrack' ),
+                'group'   => 'configuration',
+                'summary' => __( 'Generate or import a demo dataset for sales / training. Excel template with auto_key cross-sheet links.', 'talenttrack' ),
+            ],
+            'pdp-planning' => [
+                'title'   => __( 'PDP planning', 'talenttrack' ),
+                'group'   => 'performance',
+                'summary' => __( 'Per-team-per-block matrix of planned vs conducted PDP conversations. HoD / coach surface.', 'talenttrack' ),
+            ],
+            'player-status' => [
+                'title'   => __( 'Player status', 'talenttrack' ),
+                'group'   => 'performance',
+                'summary' => __( 'Traffic-light status calculation: weights, thresholds, behaviour floor, behaviour + potential capture.', 'talenttrack' ),
+            ],
+            'spond-integration' => [
+                'title'   => __( 'Spond integration', 'talenttrack' ),
+                'group'   => 'configuration',
+                'summary' => __( 'Read-only Spond → TalentTrack iCal sync per team.', 'talenttrack' ),
+            ],
+            'staff-development' => [
+                'title'   => __( 'Staff development', 'talenttrack' ),
+                'group'   => 'performance',
+                'summary' => __( 'Personal goals + evaluations + certifications + PDP for coaches and staff.', 'talenttrack' ),
+            ],
         ];
     }
 

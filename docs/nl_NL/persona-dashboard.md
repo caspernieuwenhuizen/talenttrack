@@ -69,6 +69,16 @@ Elke opslag of publicatie schrijft een audit-log-regel (`persona_template_publis
 - **Eigen KPI's schrijven.** De 25-KPI-catalogus is gesloten; je kunt er elke uitkiezen, maar geen nieuwe query schrijven.
 - **Apart mobiel ontwerpen.** De mobiele preview is alleen-lezen — je stelt prioriteit en zichtbaarheid in op elke widget; de inklapvolgorde wordt daaruit berekend.
 
+## Persona-specifieke override (testtool)
+
+De standaarddashboard-keuze (*Configuratie → Standaarddashboard*) schakelt **Persona-dashboard** vs. **Klassiek tegelraster** voor de hele site. Daaronder maakt een tabel *Persona-specifieke overrides* het mogelijk om een specifiek dashboard te forceren voor één persona terwijl de rest de standaardinstelling volgt. Elke persona-rij biedt drie opties:
+
+- **Overerven (gebruik standaardinstelling)** — de persona volgt de site-brede instelling.
+- **Persona-dashboard** — forceer het persona-specifieke dashboard alleen voor deze persona.
+- **Klassiek tegelraster** — forceer het oude tegelraster alleen voor deze persona.
+
+Handig om een herontworpen persona-dashboard één persona tegelijk uit te rollen op een echte installatie, of om het oude raster te bekijken zonder de hele site te flippen.
+
 ## Databronnen
 
 Elke KPI wordt live berekend op basis van de data van jouw academie. KPI's die afhankelijk zijn van nog niet uitgerolde features (bijv. de status-traffic light uit `#0057`, POP-planningvensters uit `#0054`) tonen een placeholder-streepje (`—`) tot die landen.
