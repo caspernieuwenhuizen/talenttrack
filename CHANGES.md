@@ -1,3 +1,46 @@
+# TalentTrack v3.64.0 — Custom CSS independence (#0064)
+
+A club-admin styling surface that lets TalentTrack look exactly the way the club wants regardless of which WordPress theme is active. Companion to the Branding page (#0023), which goes the other way — defer to the active theme. The two are mutually exclusive on the same surface; turning Custom CSS on for the frontend automatically turns Theme inheritance off. One bundled PR shipping the foundation, all three authoring paths, the wp-admin surface, the starter templates, and the history + revert flow.
+
+## Surface
+
+A new TalentTrack page at `?tt_view=custom-css`, reachable from **Configuration → Custom CSS**. Cap-gated on the new `tt_admin_styling` capability (granted to Administrator and Club Admin by default). A surface switcher at the top toggles between **Frontend dashboard** and **wp-admin pages**; each surface has its own enabled toggle and its own CSS payload. Four tabs:
+
+- **Visual settings** (Path C) — 21 fields mapped to `--tt-*` CSS custom properties on `.tt-root` (colours, fonts, weights, corner radii, spacing scale, shadow strength). Saving generates a `.tt-root { … }` block stored alongside hand-written / uploaded CSS.
+- **CSS editor** (Path B) — WordPress code editor (`wp_enqueue_code_editor` / CodeMirror) with syntax highlighting + line numbers, "Preview in new tab" link.
+- **Upload + templates** (Path A) — `.css` file upload plus three light-leaning starter templates (Fresh light / Classic football / Minimal).
+- **History** — last 10 auto-saves + named presets, **Revert** restores an earlier save (which itself becomes a fresh row, so revert is undoable).
+
+## Safety rails
+
+- **Scoped class isolation** — every TalentTrack surface wraps in a `tt-root` body class (frontend `body_class` + admin `admin_body_class`). Custom CSS rules should be prefixed with `.tt-root` so the active WordPress theme can't reach in. Path C output and the starter templates already do this.
+- **Block-list sanitization on save** — rejects `url(javascript:…)`, `url(data:text/html…)`, `expression()`, `behavior:`, `-moz-binding`, remote `@import`, and external `@font-face` URLs. Inline error returns the offending fragment so the operator knows what to fix.
+- **200 KB hard cap** — about 10× the bundled `frontend-admin.css`, so it's only a backstop against accidental paste of an entire site stylesheet.
+- **Mobile-first guarantee** — base mobile-first stylesheet always loads first; custom CSS layers after. Path C deliberately exposes no layout-affecting controls (no breakpoints, no flex direction overrides). Paths A and B come with a documented warning that overriding layout properties is at the club's own risk.
+- **Mutex with #0023 theme inheritance** — turning Custom CSS on for the Frontend surface automatically turns the Theme inheritance toggle off. The two are never both active on the same page.
+- **Safe mode** — append `?tt_safe_css=1` to any URL and TalentTrack skips the custom CSS for that pageview. Recovery path if a save broke the layout.
+
+## Storage
+
+Live payload lives in `tt_config`, keyed `custom_css.<surface>.css` / `.enabled` / `.version` / `.visual_settings` (where `<surface>` is `frontend` or `admin`). Migration 0049 adds `tt_custom_css_history` for the rolling last-10 auto-saves + any named presets. Both are scoped to `club_id` per the SaaS-readiness baseline.
+
+## Documentation
+
+`docs/custom-css.md` + Dutch counterpart describe the surface, isolation strategy, safe mode, the full visual-editor token reference, capability mapping, and out-of-scope items. ~75 new NL translations.
+
+## Acceptance criteria (manually verified)
+
+- [ ] `?tt_view=custom-css` loads for an Administrator and is denied for a Coach.
+- [ ] Surface switcher persists state per `<surface>`; each surface has its own enabled toggle + CSS body.
+- [ ] Path C save round-trips (form values → generated `.tt-root { … }` body → form values on reload).
+- [ ] Path B textarea uses CodeMirror with syntax highlighting + line numbers.
+- [ ] Path A upload accepts `.css` files; oversized payloads (>200 KB) are rejected with an inline error.
+- [ ] Each starter template applies cleanly and shows the expected palette / corner / shadow style at the dashboard.
+- [ ] History shows the last 10 auto-saves + any named presets; **Revert** restores prior CSS and creates a fresh history row.
+- [ ] Block-list sanitizer rejects `expression()`, `url(javascript:…)`, remote `@import`, external `@font-face`. Error message points at the offending fragment.
+- [ ] `?tt_safe_css=1` skips custom CSS for that pageview.
+- [ ] Turning Frontend Custom CSS on auto-disables the #0023 Theme-inheritance toggle.
+
 # TalentTrack v3.63.0 — Me-group rework + theme isolation (#0061 round 3 companion)
 
 Eight-item player-surface rework that lands alongside v3.62.0's #0061 gap follow-up. The two PRs were authored in parallel; this one focuses on the player-card / journey / team / settings surfaces while v3.62.0 covered the editor polish + Configuration parity.

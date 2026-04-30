@@ -164,7 +164,7 @@ class DashboardShortcode {
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
         // #0021 — `audit-log` added; uses the same admin tier (cap-checked
         // again inside FrontendAuditLogView::render).
-        $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details', 'audit-log', 'docs', 'cohort-transitions' ];
+        $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details', 'audit-log', 'docs', 'cohort-transitions', 'custom-css' ];
         // #0022 Sprint 2/5 — workflow surfaces, each cap-gated in dispatch.
         $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config' ];
         // #0009 — Development management slugs. Each view re-checks its
@@ -489,6 +489,9 @@ class DashboardShortcode {
                 break;
             case 'cohort-transitions':
                 \TT\Modules\Journey\Frontend\FrontendCohortTransitionsView::render( $user_id, $is_admin );
+                break;
+            case 'custom-css':
+                \TT\Modules\CustomCss\Frontend\FrontendCustomCssView::render( $user_id, $is_admin );
                 break;
             default:
                 FrontendBackButton::render();

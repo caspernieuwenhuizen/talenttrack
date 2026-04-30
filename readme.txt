@@ -4,13 +4,30 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.63.0
+Stable tag: 3.64.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.64.0 — Custom CSS independence (#0064) =
+
+A club-admin styling surface that lets TalentTrack look exactly the way the club wants regardless of which WordPress theme is active. Companion to the Branding page (#0023), which goes the other way — defer to the active theme. The two are mutually exclusive on the same surface; turning Custom CSS on for the frontend automatically turns Theme inheritance off.
+
+* **NEW:** Custom CSS surface at `?tt_view=custom-css` — three authoring paths (visual editor, hand-written CSS, `.css` upload + starter templates) plus a fourth History tab with the last 10 auto-saves and any named presets. Surface switcher toggles between **Frontend dashboard** and **wp-admin pages**; each surface has its own enabled toggle and CSS payload.
+* **NEW:** Visual editor (Path C) — 21 fields mapped to `--tt-*` CSS custom properties on `.tt-root` (colours, fonts, weights, corner radii, spacing scale, shadow strength). Save round-trips into a generated `.tt-root { … }` block stored alongside hand-written / uploaded CSS.
+* **NEW:** CSS editor (Path B) — WordPress code editor (CodeMirror) with syntax highlighting + line numbers, "Preview in new tab" link.
+* **NEW:** Upload + templates (Path A) — `.css` file upload plus three light-leaning starter templates (Fresh light / Classic football / Minimal).
+* **NEW:** History tab — last 10 auto-saves + named presets, **Revert** restores an earlier save (which itself becomes a fresh row, so revert is undoable).
+* **NEW:** Block-list sanitization on save — rejects `url(javascript:…)`, `expression()`, `behavior:`, `-moz-binding`, remote `@import`, external `@font-face` URLs. 200 KB hard cap. Inline error points at the offending fragment.
+* **NEW:** Scoped class isolation — every TalentTrack surface wraps in a `tt-root` body class; custom CSS rules should be prefixed with `.tt-root` so the active WordPress theme can't reach in. Starter templates and visual-editor output already do this.
+* **NEW:** Safe mode — append `?tt_safe_css=1` to any URL and TalentTrack skips the custom CSS for that pageview, giving a non-technical admin a recovery path if a save broke the layout.
+* **NEW:** Mutex with #0023 theme inheritance — turning Custom CSS on for the Frontend surface automatically turns Theme inheritance off.
+* **NEW:** Capability `tt_admin_styling` granted to Administrator + Club Admin; clubs delegating styling to a "marketing" role can grant it via the Roles & rights page.
+* **NEW:** Migration 0049 adds `tt_custom_css_history` (rolling auto-saves + named presets, scoped to `club_id`). Live payload lives in `tt_config` keyed `custom_css.<surface>.css` / `.enabled` / `.version` / `.visual_settings`.
+* **DOCS:** `docs/custom-css.md` (EN + NL). ~75 new NL strings.
 
 = 3.63.0 — Me-group rework + theme isolation (#0061 round 3 companion) =
 

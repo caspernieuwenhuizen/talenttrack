@@ -10619,3 +10619,227 @@ msgstr "Het huidige wachtwoord klopt niet."
 
 msgid "Password changed. Other devices have been logged out."
 msgstr "Wachtwoord gewijzigd. Andere apparaten zijn uitgelogd."
+
+# v3.64.0 — Custom CSS module (#0064)
+
+msgid "Custom CSS"
+msgstr "Aangepaste CSS"
+
+msgid "You do not have permission to manage custom styling."
+msgstr "Je hebt geen rechten om de styling aan te passen."
+
+msgid "Custom CSS is too large (%1$d KB). The maximum is %2$d KB."
+msgstr "De aangepaste CSS is te groot (%1$d KB). Het maximum is %2$d KB."
+
+msgid "JavaScript URLs are not allowed in custom CSS."
+msgstr "JavaScript-URLs zijn niet toegestaan in aangepaste CSS."
+
+msgid "data:text/html URLs are not allowed in custom CSS."
+msgstr "data:text/html-URLs zijn niet toegestaan in aangepaste CSS."
+
+msgid "CSS expression() is not allowed."
+msgstr "CSS expression() is niet toegestaan."
+
+msgid "CSS behavior: declarations are not allowed."
+msgstr "CSS behavior:-declaraties zijn niet toegestaan."
+
+msgid "CSS -moz-binding declarations are not allowed."
+msgstr "CSS -moz-binding-declaraties zijn niet toegestaan."
+
+msgid "Remote @import is not allowed. Inline the rules instead."
+msgstr "Externe @import is niet toegestaan. Plak de regels in plaats daarvan in."
+
+msgid "Protocol-relative @import is not allowed. Inline the rules instead."
+msgstr "Protocol-relatieve @import is niet toegestaan. Plak de regels in plaats daarvan in."
+
+msgid "Remote @font-face URLs are not allowed. Use the Branding tab's curated fonts or self-host."
+msgstr "Externe @font-face-URLs zijn niet toegestaan. Gebruik de fonts uit Branding of host zelf."
+
+msgid "Offending fragment: %s"
+msgstr "Overtredend fragment: %s"
+
+msgid "Frontend dashboard"
+msgstr "Frontend dashboard"
+
+msgid "wp-admin pages"
+msgstr "wp-admin-pagina's"
+
+msgid "Surface"
+msgstr "Surface"
+
+msgid "Authoring path"
+msgstr "Auteurspad"
+
+msgid "Visual settings"
+msgstr "Visuele instellingen"
+
+msgid "CSS editor"
+msgstr "CSS-editor"
+
+msgid "Upload + templates"
+msgstr "Upload + templates"
+
+msgid "History"
+msgstr "Geschiedenis"
+
+msgid "Custom CSS is now active for this surface."
+msgstr "Aangepaste CSS is nu actief op deze surface."
+
+msgid "Custom CSS is now off; the plugin's default styling is back."
+msgstr "Aangepaste CSS staat uit; de standaardstijl van de plugin is weer actief."
+
+msgid "Custom CSS is ON for this surface — click to turn OFF."
+msgstr "Aangepaste CSS staat AAN voor deze surface — klik om uit te zetten."
+
+msgid "Custom CSS is OFF for this surface — click to turn ON."
+msgstr "Aangepaste CSS staat UIT voor deze surface — klik om aan te zetten."
+
+msgid "Theme inheritance is on."
+msgstr "Thema-overerving staat aan."
+
+msgid "Frontend currently defers fonts + colours to the active WP theme (#0023). Saving custom CSS for the Frontend surface will turn that off — the two surfaces are mutually exclusive."
+msgstr "De frontend laat fonts + kleuren nu over aan het actieve WP-thema (#0023). Aangepaste CSS opslaan voor Frontend zet dat uit — beide kunnen niet tegelijk."
+
+msgid "Visual settings saved."
+msgstr "Visuele instellingen opgeslagen."
+
+msgid "CSS saved."
+msgstr "CSS opgeslagen."
+
+msgid "Unknown starter template."
+msgstr "Onbekende starttemplate."
+
+msgid "Applied \"%s\" starter template."
+msgstr "Starttemplate \"%s\" toegepast."
+
+msgid "No file uploaded, or the upload failed."
+msgstr "Geen bestand geüpload of de upload mislukte."
+
+msgid "Only .css files are accepted."
+msgstr "Alleen .css-bestanden worden geaccepteerd."
+
+msgid "Uploaded %s."
+msgstr "%s geüpload."
+
+msgid "Give the preset a name first."
+msgstr "Geef de preset eerst een naam."
+
+msgid "Preset \"%s\" saved."
+msgstr "Preset \"%s\" opgeslagen."
+
+msgid "Could not revert to that snapshot."
+msgstr "Kon niet terugzetten naar die snapshot."
+
+msgid "Reverted to the selected snapshot."
+msgstr "Teruggezet naar de geselecteerde snapshot."
+
+msgid "Snapshot deleted."
+msgstr "Snapshot verwijderd."
+
+msgid "Could not delete the snapshot."
+msgstr "Kon de snapshot niet verwijderen."
+
+msgid "Colours"
+msgstr "Kleuren"
+
+msgid "Lines + borders"
+msgstr "Lijnen + randen"
+
+msgid "Typography"
+msgstr "Typografie"
+
+msgid "Display font (headings)"
+msgstr "Display-font (koppen)"
+
+msgid "Body weight"
+msgstr "Body-gewicht"
+
+msgid "Heading weight"
+msgstr "Kop-gewicht"
+
+msgid "Shape + spacing"
+msgstr "Vorm + spacing"
+
+msgid "Corner radius — medium (px)"
+msgstr "Hoekstraal — medium (px)"
+
+msgid "Corner radius — large (px)"
+msgstr "Hoekstraal — groot (px)"
+
+msgid "Spacing scale (0.6–1.6)"
+msgstr "Spacing-schaal (0,6–1,6)"
+
+msgid "Card shadow"
+msgstr "Kaart-schaduw"
+
+msgid "None — flat cards"
+msgstr "Geen — platte kaarten"
+
+msgid "Save visual settings"
+msgstr "Visuele instellingen opslaan"
+
+msgid "Custom CSS rules. Wrap in `.tt-root` for safety. Saved CSS lives in the database; remote @import and external @font-face URLs are blocked. Changes take effect on the next page load."
+msgstr "Eigen CSS-regels. Schrijf onder `.tt-root` om veiligheidsproblemen te voorkomen. Opgeslagen CSS staat in de database; externe @import en externe @font-face-URLs zijn geblokkeerd. Wijzigingen gelden vanaf de volgende pagina-laad."
+
+msgid "Save CSS"
+msgstr "CSS opslaan"
+
+msgid "Open preview in new tab"
+msgstr "Open preview in nieuw tabblad"
+
+msgid "Upload a .css file"
+msgstr "Upload een .css-bestand"
+
+msgid "File (max 200 KB)"
+msgstr "Bestand (max 200 KB)"
+
+msgid "The file replaces the live CSS for this surface. Sanitization runs before save — JavaScript URLs, expression(), behavior:, remote @import and external @font-face URLs are rejected."
+msgstr "Het bestand vervangt de live CSS voor deze surface. Voor opslaan wordt gesanitiseerd — JavaScript-URLs, expression(), behavior:, externe @import en externe @font-face-URLs worden geweigerd."
+
+msgid "Apply a starter template"
+msgstr "Pas een starttemplate toe"
+
+msgid "Three light-leaning starting points. Each replaces the live CSS for this surface — use the History tab to revert if needed."
+msgstr "Drie lichtgekleurde startpunten. Elk vervangt de live CSS voor deze surface — gebruik het tabblad Geschiedenis om terug te zetten."
+
+msgid "Save current CSS as a named preset"
+msgstr "Huidige CSS opslaan als benoemde preset"
+
+msgid "e.g. summer-tournament-2026"
+msgstr "bv. zomertoernooi-2026"
+
+msgid "Save preset"
+msgstr "Preset opslaan"
+
+msgid "Named presets do not count against the rolling 10-save cap and are kept until you delete them."
+msgstr "Benoemde presets tellen niet mee voor de rollende 10-save-limiet en blijven staan tot je ze verwijdert."
+
+msgid "No history yet. Snapshots appear here automatically every time you save."
+msgstr "Nog geen geschiedenis. Snapshots verschijnen hier automatisch bij elke save."
+
+msgid "When"
+msgstr "Wanneer"
+
+msgid "Saved by"
+msgstr "Opgeslagen door"
+
+msgid "auto"
+msgstr "auto"
+
+msgid "Revert"
+msgstr "Terugzetten"
+
+msgid "Delete this snapshot?"
+msgstr "Snapshot verwijderen?"
+
+msgid "Stuck behind a broken save?"
+msgstr "Vastgelopen door een mislukte save?"
+
+msgid "Open the dashboard with the safe-mode URL: %s — it skips custom CSS so you can recover without database access."
+msgstr "Open het dashboard met de safe-mode-URL: %s — hij slaat eigen CSS over zodat je herstellen kan zonder bij de database te hoeven."
+
+msgid "CSS has been hand-edited."
+msgstr "CSS is handmatig aangepast."
+
+msgid "Saving with the visual editor will overwrite your hand-written rules. Save them as a named preset on the History tab first if you want to restore them later."
+msgstr "Opslaan met de visuele editor overschrijft je handgeschreven regels. Sla ze eerst op als benoemde preset op het tabblad Geschiedenis als je ze later terug wilt halen."
