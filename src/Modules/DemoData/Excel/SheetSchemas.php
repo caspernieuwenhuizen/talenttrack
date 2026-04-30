@@ -53,10 +53,12 @@ final class SheetSchemas {
                 'entity'  => 'team',
                 'group'   => self::GROUP_MASTER,
                 'columns' => [
-                    'auto_key'  => [ 'label' => 'auto_key',  'type' => self::TYPE_KEY,    'required' => false ],
-                    'name'      => [ 'label' => 'Name',      'type' => self::TYPE_STRING, 'required' => true  ],
-                    'age_group' => [ 'label' => 'Age group', 'type' => self::TYPE_STRING, 'required' => false ],
-                    'notes'     => [ 'label' => 'Notes',     'type' => self::TYPE_STRING, 'required' => false ],
+                    'auto_key'        => [ 'label' => 'auto_key',         'type' => self::TYPE_KEY,    'required' => false ],
+                    'name'            => [ 'label' => 'Name',             'type' => self::TYPE_STRING, 'required' => true  ],
+                    'age_group'       => [ 'label' => 'Age group',        'type' => self::TYPE_STRING, 'required' => false ],
+                    'level'           => [ 'label' => 'Level',            'type' => self::TYPE_STRING, 'required' => false ],
+                    'head_coach_key'  => [ 'label' => 'Head coach key',   'type' => self::TYPE_KEY,    'required' => false, 'fk' => 'people.auto_key' ],
+                    'notes'           => [ 'label' => 'Notes',            'type' => self::TYPE_STRING, 'required' => false ],
                 ],
             ],
             'people' => [
@@ -70,6 +72,8 @@ final class SheetSchemas {
                     'role'       => [ 'label' => 'Role',       'type' => self::TYPE_STRING, 'required' => false ],
                     'team_key'   => [ 'label' => 'Team key',   'type' => self::TYPE_KEY,    'required' => false, 'fk' => 'teams.auto_key' ],
                     'email'      => [ 'label' => 'Email',      'type' => self::TYPE_STRING, 'required' => false ],
+                    'phone'      => [ 'label' => 'Phone',      'type' => self::TYPE_STRING, 'required' => false ],
+                    'status'     => [ 'label' => 'Status',     'type' => self::TYPE_STRING, 'required' => false ],
                 ],
             ],
             'players' => [
@@ -77,14 +81,30 @@ final class SheetSchemas {
                 'entity'  => 'player',
                 'group'   => self::GROUP_MASTER,
                 'columns' => [
-                    'auto_key'       => [ 'label' => 'auto_key',       'type' => self::TYPE_KEY,    'required' => false ],
-                    'first_name'     => [ 'label' => 'First name',     'type' => self::TYPE_STRING, 'required' => true  ],
-                    'last_name'      => [ 'label' => 'Last name',      'type' => self::TYPE_STRING, 'required' => true  ],
-                    'date_of_birth'  => [ 'label' => 'Date of birth',  'type' => self::TYPE_DATE,   'required' => false ],
-                    'team_key'       => [ 'label' => 'Team key',       'type' => self::TYPE_KEY,    'required' => false, 'fk' => 'teams.auto_key' ],
-                    'jersey_number'  => [ 'label' => 'Jersey number',  'type' => self::TYPE_INT,    'required' => false ],
-                    'preferred_foot' => [ 'label' => 'Preferred foot', 'type' => self::TYPE_STRING, 'required' => false ],
-                    'status'         => [ 'label' => 'Status',         'type' => self::TYPE_STRING, 'required' => false ],
+                    // #0063 — widened to match the player edit form's
+                    // primary fields. Importer v1.5 consumes the original
+                    // 8 columns; new columns (height_cm / weight_kg /
+                    // photo_url / nationality / preferred_positions /
+                    // guardian_*) land in the workbook so the user can
+                    // capture them at template-fill time, and the
+                    // importer follow-up wires them to insert.
+                    'auto_key'             => [ 'label' => 'auto_key',             'type' => self::TYPE_KEY,    'required' => false ],
+                    'first_name'           => [ 'label' => 'First name',           'type' => self::TYPE_STRING, 'required' => true  ],
+                    'last_name'            => [ 'label' => 'Last name',            'type' => self::TYPE_STRING, 'required' => true  ],
+                    'date_of_birth'        => [ 'label' => 'Date of birth',        'type' => self::TYPE_DATE,   'required' => false ],
+                    'nationality'          => [ 'label' => 'Nationality',          'type' => self::TYPE_STRING, 'required' => false ],
+                    'team_key'             => [ 'label' => 'Team key',             'type' => self::TYPE_KEY,    'required' => false, 'fk' => 'teams.auto_key' ],
+                    'jersey_number'        => [ 'label' => 'Jersey number',        'type' => self::TYPE_INT,    'required' => false ],
+                    'preferred_foot'       => [ 'label' => 'Preferred foot',       'type' => self::TYPE_STRING, 'required' => false ],
+                    'preferred_positions'  => [ 'label' => 'Preferred positions',  'type' => self::TYPE_STRING, 'required' => false ],
+                    'height_cm'            => [ 'label' => 'Height (cm)',          'type' => self::TYPE_INT,    'required' => false ],
+                    'weight_kg'            => [ 'label' => 'Weight (kg)',          'type' => self::TYPE_INT,    'required' => false ],
+                    'photo_url'            => [ 'label' => 'Photo URL',            'type' => self::TYPE_STRING, 'required' => false ],
+                    'guardian_name'        => [ 'label' => 'Guardian name',        'type' => self::TYPE_STRING, 'required' => false ],
+                    'guardian_email'       => [ 'label' => 'Guardian email',       'type' => self::TYPE_STRING, 'required' => false ],
+                    'guardian_phone'       => [ 'label' => 'Guardian phone',       'type' => self::TYPE_STRING, 'required' => false ],
+                    'date_joined'          => [ 'label' => 'Date joined',          'type' => self::TYPE_DATE,   'required' => false ],
+                    'status'               => [ 'label' => 'Status',               'type' => self::TYPE_STRING, 'required' => false ],
                 ],
             ],
             'trial_cases' => [

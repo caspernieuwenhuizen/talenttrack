@@ -33,6 +33,9 @@ class HelpLink {
     public static function html( string $topic_slug ): string {
         $url = admin_url( 'admin.php?page=tt-docs&topic=' . sanitize_key( $topic_slug ) );
         $label = __( '? Help on this topic', 'talenttrack' );
-        return '<a href="' . esc_url( $url ) . '" style="margin-left:12px; font-size:12px; font-weight:normal; color:#2271b1; text-decoration:none;">' . esc_html( $label ) . '</a>';
+        // #0063 — open help in a new tab so it doesn't replace the
+        // page the user is currently working on. `rel=noopener`
+        // closes the standard target=_blank security gap.
+        return '<a href="' . esc_url( $url ) . '" target="_blank" rel="noopener" style="margin-left:12px; font-size:12px; font-weight:normal; color:#2271b1; text-decoration:none;">' . esc_html( $label ) . '</a>';
     }
 }

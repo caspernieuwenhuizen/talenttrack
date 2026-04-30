@@ -160,7 +160,7 @@ class DashboardShortcode {
 
         $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'my-pdp', 'profile', 'my-settings', 'my-journey' ];
         $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'pdp-planning', 'player-status-methodology', 'player-status-capture', 'team-chemistry', 'podium', 'methodology', 'player-journey', 'mail-compose' ];
-        $analytics_slugs = [ 'rate-cards', 'compare' ];
+        $analytics_slugs = [ 'rate-cards', 'compare', 'reports' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
         // #0021 — `audit-log` added; uses the same admin tier (cap-checked
         // again inside FrontendAuditLogView::render).
@@ -465,6 +465,15 @@ class DashboardShortcode {
      * primary frontend entry point.
      */
     private static function dispatchAnalyticsView( string $view ): void {
+        // #0063 — `?tt_view=reports` lands on the frontend reports
+        // launcher, which mirrors the wp-admin tile launcher. The
+        // three sub-reports themselves still render in wp-admin
+        // (they use admin form-submit URLs and Chart.js), so each
+        // tile opens that view in a new tab.
+        if ( $view === 'reports' ) {
+            FrontendReportsLauncherView::render( get_current_user_id(), current_user_can( 'tt_edit_settings' ) );
+            return;
+        }
         switch ( $view ) {
             case 'rate-cards':
                 FrontendRateCardView::render();

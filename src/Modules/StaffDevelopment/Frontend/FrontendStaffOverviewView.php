@@ -42,13 +42,20 @@ class FrontendStaffOverviewView extends FrontendViewBase {
             $club, StaffGoalsRepository::STATUS_COMPLETED
         ) ) ?: [];
 
+        // #0063 — restrict the top-down-review roll-up to people who
+        // are actually staff. The previous query iterated every active
+        // tt_people row, including parents and 'other' roles, so the
+        // column read like it was leaking unrelated people. Staff
+        // overview is a staff page; non-staff roles don't belong here.
         $pending_evals = $wpdb->get_results( $wpdb->prepare(
             "SELECT p.id AS person_id, p.first_name, p.last_name,
                     (SELECT MAX(eval_date) FROM {$wpdb->prefix}tt_staff_evaluations e
                        WHERE e.person_id = p.id AND e.review_kind = 'top_down' AND e.archived_at IS NULL
                     ) AS last_top_down
                FROM {$wpdb->prefix}tt_people p
-              WHERE p.club_id = %d AND p.status = 'active'
+              WHERE p.club_id = %d
+                AND p.status = 'active'
+                AND p.role_type IN ('coach', 'assistant_coach', 'manager', 'staff', 'physio', 'scout')
               ORDER BY p.last_name, p.first_name
               LIMIT 50",
             $club

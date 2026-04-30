@@ -142,6 +142,16 @@ class FrontendMyGoalsView extends FrontendViewBase {
         // player + parent see chat-style messages without leaving
         // this surface.
         if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' ) ) {
+            // #0063 — header + help link.
+            $help_url = add_query_arg(
+                [ 'tt_view' => 'docs', 'topic' => 'conversational-goals' ],
+                home_url( '/' )
+            );
+            echo '<header style="display:flex; align-items:baseline; gap:8px; margin: 1.25rem 0 0.5rem;">';
+            echo '<h3 style="margin:0; font-size:1rem;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h3>';
+            echo '<a class="tt-link" href="' . esc_url( $help_url ) . '" target="_blank" rel="noopener" style="font-size:12px; color:#5b6e75;">'
+               . esc_html__( 'How does this work?', 'talenttrack' ) . '</a>';
+            echo '</header>';
             \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, get_current_user_id() );
         }
     }

@@ -20,6 +20,17 @@ final class TrialDetailsStep implements WizardStepInterface {
     public function slug(): string { return 'trial-details'; }
     public function label(): string { return __( 'Trial details', 'talenttrack' ); }
 
+    /**
+     * #0063 — opt into the wizard framework's "grey out a step on the
+     * progress bar" treatment. Only relevant when the user picked the
+     * roster path on step 1; this step is unreachable in that case.
+     *
+     * @param array<string,mixed> $state
+     */
+    public function notApplicableFor( array $state ): bool {
+        return ( $state['path'] ?? '' ) !== 'trial';
+    }
+
     public function render( array $state ): void {
         global $wpdb;
         $teams = $wpdb->get_results( $wpdb->prepare(

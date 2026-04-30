@@ -255,7 +255,19 @@ class FrontendGoalsManageView extends FrontendViewBase {
         // edit (existing goal) and only when the viewer can read the thread.
         if ( $is_edit && class_exists( '\\TT\\Shared\\Frontend\\Components\\FrontendThreadView' ) ) {
             echo '<section class="tt-goal-conversation" style="margin-top:1.5rem;">';
-            echo '<h2 style="font-size:1.0625rem;margin:0 0 0.5rem;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h2>';
+            echo '<header style="display:flex; align-items:baseline; gap:8px; margin: 0 0 0.5rem;">';
+            echo '<h2 style="font-size:1.0625rem; margin:0;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h2>';
+            // #0063 — help button explaining what the goal-conversation
+            // is for. Points at the existing conversational-goals doc
+            // shipped with #0028. Opens in a new tab so the coach
+            // doesn't lose the form they're filling in.
+            $help_url = add_query_arg(
+                [ 'tt_view' => 'docs', 'topic' => 'conversational-goals' ],
+                home_url( '/' )
+            );
+            echo '<a class="tt-link" href="' . esc_url( $help_url ) . '" target="_blank" rel="noopener" style="font-size:12px; color:#5b6e75;">'
+               . esc_html__( 'How does this work?', 'talenttrack' ) . '</a>';
+            echo '</header>';
             \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, $user_id );
             echo '</section>';
         }

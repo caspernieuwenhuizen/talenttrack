@@ -79,6 +79,24 @@ final class ReviewStep implements WizardStepInterface {
             ] );
         }
 
+        // #0063 — Roster step: bulk-update tt_players.team_id for the
+        // ticked players. Existing team_id is overwritten because the
+        // wizard step's UI already labels rows that move from another
+        // team, so the user has explicit consent.
+        $roster = isset( $state['roster_player_ids'] ) && is_array( $state['roster_player_ids'] )
+            ? array_values( array_unique( array_filter( array_map( 'intval', $state['roster_player_ids'] ) ) ) )
+            : [];
+        if ( ! empty( $roster ) ) {
+            $placeholders = implode( ',', array_fill( 0, count( $roster ), '%d' ) );
+            $params       = array_merge( [ $team_id, CurrentClub::id() ], $roster );
+            $wpdb->query( $wpdb->prepare(
+                "UPDATE {$wpdb->prefix}tt_players
+                    SET team_id = %d
+                  WHERE club_id = %d AND id IN ({$placeholders})",
+                $params
+            ) );
+        }
+
         return [ 'redirect_url' => add_query_arg( [ 'tt_view' => 'teams', 'id' => $team_id ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) ];
     }
 

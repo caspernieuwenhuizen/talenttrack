@@ -6,13 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Shared\Wizards\WizardInterface;
 
 /**
- * The new-team wizard. Three steps: basics → staff → review.
+ * The new-team wizard. Four steps: basics → staff → roster → review.
  *
  * Each staff slot is independently skippable — clubs that don't have
- * a physio yet shouldn't be blocked. The review step writes the
- * team row and inserts one `tt_team_people` row per filled staff
- * slot, mapping the slot to a `functional_role` slug
- * (head-coach / assistant-coach / team-manager / physio).
+ * a physio yet shouldn't be blocked. Roster is also skippable; the
+ * review step writes the team row + inserts one `tt_team_people` row
+ * per filled staff slot, then bulk-updates `tt_players.team_id` for
+ * each player ticked on the roster step.
  */
 final class NewTeamWizard implements WizardInterface {
 
@@ -26,6 +26,9 @@ final class NewTeamWizard implements WizardInterface {
         return [
             new BasicsStep(),
             new StaffStep(),
+            // #0063 — admins want to assign players in the same flow
+            // they use to create the team, not a follow-up.
+            new RosterStep(),
             new ReviewStep(),
         ];
     }

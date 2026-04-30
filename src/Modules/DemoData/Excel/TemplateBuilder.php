@@ -28,7 +28,13 @@ final class TemplateBuilder {
         $book = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $book->removeSheetByIndex( 0 );
 
-        $i = 0;
+        // #0063 — Lead the workbook with a `_README` sheet so the user
+        // sees how to fill the template before they hit any data sheets.
+        // Explains auto_key, the green / blue / purple / grey tab
+        // colours, FK references, and which sheets the importer
+        // actually consumes (the v1.5 IMPORTABLE_SHEETS list).
+        self::emitReadmeSheet( $book );
+        $i = 1;
         foreach ( SheetSchemas::all() as $key => $schema ) {
             $sheet = $book->createSheet( $i );
             $sheet->setTitle( $schema['sheet'] );
@@ -88,6 +94,68 @@ final class TemplateBuilder {
      * for the entity (e.g. Players → first/last name combined).
      * Verified working in LibreOffice + Microsoft Excel.
      */
+    /**
+     * #0063 — `_README` sheet leading the workbook. Plain-prose
+     * how-to-fill explanation. Indexed first so it opens by default
+     * when the user double-clicks the downloaded file.
+     */
+    private static function emitReadmeSheet( $book ): void {
+        $sheet = $book->createSheet( 0 );
+        $sheet->setTitle( '_README' );
+        $sheet->getTabColor()->setRGB( 'FFC000' ); // amber, distinct from data tabs
+
+        $rows = [
+            [ 'TalentTrack — demo data template' ],
+            [ '' ],
+            [ 'How to fill this workbook' ],
+            [ 'Each green tab is a master entity (Teams, People, Players, Trial cases). Each blue tab is a transactional record (Sessions, Attendance, Evaluations, Goals, Player journey). Purple = settings, grey = reference.' ],
+            [ '' ],
+            [ 'auto_key (the first column on every entity tab)' ],
+            [ 'Type a short, unique label (e.g. "ABC", "U12_RED", "MARTIN") in the auto_key cell. Other tabs reference back to it via team_key / player_key / session_key fields. The importer maps your auto_key to the inserted row id, so cross-sheet links resolve at import time without you needing the database id.' ],
+            [ 'Leave auto_key blank if you do not need to reference the row from another sheet — but most rows are referenced somewhere, so filling it in is the safe default.' ],
+            [ '' ],
+            [ 'Foreign-key columns (e.g. team_key, player_key)' ],
+            [ 'Type the auto_key value of the row you want to link to. Example: a Players row with team_key="ABC" links to the Teams row whose auto_key is "ABC". The importer rejects the workbook if a foreign-key value points to a row that does not exist.' ],
+            [ '' ],
+            [ 'Importable vs. documentation-only sheets' ],
+            [ 'The importer (v1.5) consumes: Teams, People, Players, Trial_Cases, Sessions, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey, Generation_Settings.' ],
+            [ 'Reference tabs (Eval_Categories, Category_Weights, _Lookups) are documentation-only. Configure those via the wp-admin Configuration screens. They are included here so you can see what categories / weights / lookups your imported data will key into.' ],
+            [ '' ],
+            [ 'Required vs. optional columns' ],
+            [ 'Every column header carries a label. Required columns are typically the human-name fields (first_name / last_name / title) plus the foreign keys that establish relationships. The importer will tell you which row + column failed validation when you upload.' ],
+            [ '' ],
+            [ 'Dates' ],
+            [ 'YYYY-MM-DD only. Excel sometimes auto-formats dates to your local format on cell entry — set the column format to "Text" first if you see weird date values after upload.' ],
+            [ '' ],
+            [ 'Recommended workflow' ],
+            [ '1. Fill Teams first. Pick auto_key labels that mean something to you ("U12_RED", "U14_GREEN").' ],
+            [ '2. Fill People next, referencing Teams via team_key on staff rows.' ],
+            [ '3. Fill Players, referencing Teams via team_key.' ],
+            [ '4. Add Sessions for each team (they reference Teams via team_key).' ],
+            [ '5. Add Session_Attendance rows for who showed up at each session.' ],
+            [ '6. Add Evaluations + Evaluation_Ratings, referencing Players + Sessions.' ],
+            [ '7. Add Goals + Player_Journey events as needed.' ],
+            [ '' ],
+            [ 'Save as .xlsx and upload via TalentTrack → Configuration → Demo data → Step 0 — Source → Excel upload.' ],
+        ];
+
+        $row_index = 1;
+        foreach ( $rows as $row ) {
+            $sheet->setCellValue( 'A' . $row_index, $row[0] );
+            $row_index++;
+        }
+        $sheet->getStyle( 'A1' )->getFont()->setBold( true )->setSize( 14 );
+        $sheet->getStyle( 'A3' )->getFont()->setBold( true )->setSize( 12 );
+        $sheet->getStyle( 'A6' )->getFont()->setBold( true )->setSize( 12 );
+        $sheet->getStyle( 'A11' )->getFont()->setBold( true )->setSize( 12 );
+        $sheet->getStyle( 'A14' )->getFont()->setBold( true )->setSize( 12 );
+        $sheet->getStyle( 'A18' )->getFont()->setBold( true )->setSize( 12 );
+        $sheet->getStyle( 'A21' )->getFont()->setBold( true )->setSize( 12 );
+        $sheet->getStyle( 'A24' )->getFont()->setBold( true )->setSize( 12 );
+        $sheet->getColumnDimension( 'A' )->setWidth( 110 );
+        $sheet->getStyle( 'A1:A33' )->getAlignment()->setWrapText( true );
+    }
+
     private static function populateAutoKeyFormula( $sheet, string $key, array $schema ): void {
         // Pick the source column letter based on the entity's natural
         // identifier — name field for entities that have one, otherwise

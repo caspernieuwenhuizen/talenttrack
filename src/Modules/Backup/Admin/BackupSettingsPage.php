@@ -63,26 +63,54 @@ class BackupSettingsPage {
             <?php esc_html_e( 'Schedule snapshots of your TalentTrack data and restore them when needed. Backups cover the plugin\'s own tables only — not WordPress users or media uploads.', 'talenttrack' ); ?>
         </p>
 
-        <?php if ( $last_run ) : ?>
+        <?php
+        // #0063 — show actual next-run from wp_cron next to last-run.
+        // The previous version computed "next run" as last + interval,
+        // which drifts from the real cron event when WP-cron fires
+        // late (heavy traffic / missed pings). wp_next_scheduled is
+        // the source of truth.
+        $next_ts = function_exists( 'wp_next_scheduled' ) ? (int) wp_next_scheduled( \TT\Modules\Backup\Scheduler::HOOK ) : 0;
+        ?>
+        <?php if ( $last_run || $next_ts > 0 ) : ?>
             <div class="notice notice-info" style="margin:16px 0;">
                 <p>
-                    <strong><?php esc_html_e( 'Last run:', 'talenttrack' ); ?></strong>
-                    <?php
-                    if ( ! empty( $last_run['ok'] ) ) {
-                        printf(
-                            /* translators: %s is human-readable time-since */
-                            esc_html__( '%s ago — success.', 'talenttrack' ),
-                            esc_html( human_time_diff( (int) $last_run['at'], time() ) )
-                        );
-                    } else {
-                        printf(
-                            /* translators: 1: time-since, 2: error message */
-                            esc_html__( '%1$s ago — failed (%2$s).', 'talenttrack' ),
-                            esc_html( human_time_diff( (int) $last_run['at'], time() ) ),
-                            esc_html( (string) ( $last_run['error'] ?? '' ) )
-                        );
-                    }
-                    ?>
+                    <?php if ( $last_run ) : ?>
+                        <strong><?php esc_html_e( 'Last run:', 'talenttrack' ); ?></strong>
+                        <?php
+                        if ( ! empty( $last_run['ok'] ) ) {
+                            printf(
+                                /* translators: %s is human-readable time-since */
+                                esc_html__( '%s ago — success.', 'talenttrack' ),
+                                esc_html( human_time_diff( (int) $last_run['at'], time() ) )
+                            );
+                        } else {
+                            printf(
+                                /* translators: 1: time-since, 2: error message */
+                                esc_html__( '%1$s ago — failed (%2$s).', 'talenttrack' ),
+                                esc_html( human_time_diff( (int) $last_run['at'], time() ) ),
+                                esc_html( (string) ( $last_run['error'] ?? '' ) )
+                            );
+                        }
+                        ?>
+                    <?php endif; ?>
+                    <?php if ( $next_ts > 0 ) : ?>
+                        <?php if ( $last_run ) echo ' &middot; '; ?>
+                        <strong><?php esc_html_e( 'Next run:', 'talenttrack' ); ?></strong>
+                        <?php
+                        if ( $next_ts <= time() ) {
+                            esc_html_e( 'overdue (will fire on the next WP-cron tick)', 'talenttrack' );
+                        } else {
+                            printf(
+                                /* translators: %s is human-readable time-until */
+                                esc_html__( 'in about %s', 'talenttrack' ),
+                                esc_html( human_time_diff( time(), $next_ts ) )
+                            );
+                        }
+                        ?>
+                    <?php elseif ( ! empty( $settings['enabled'] ) ) : ?>
+                        &middot;
+                        <em><?php esc_html_e( 'Next run is not scheduled yet — save settings once to schedule the cron event.', 'talenttrack' ); ?></em>
+                    <?php endif; ?>
                 </p>
             </div>
         <?php endif; ?>
