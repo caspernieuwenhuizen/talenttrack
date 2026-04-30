@@ -10837,3 +10837,76 @@ msgstr "CSS is handmatig aangepast."
 
 msgid "Saving with the visual editor will overwrite your hand-written rules. Save them as a named preset on the History tab first if you want to restore them later."
 msgstr "Opslaan met de visuele editor overschrijft je handgeschreven regels. Sla ze eerst op als benoemde preset op het tabblad Geschiedenis als je ze later terug wilt halen."
+
+# #0063 — q2 polish epic
+msgid "Compose email"
+msgstr "E-mail opstellen"
+
+msgid "Compose email to %s"
+msgstr "E-mail opstellen voor %s"
+
+msgid "Send email"
+msgstr "E-mail versturen"
+
+msgid "How does this work?"
+msgstr "Hoe werkt dit?"
+
+msgid "Player not found"
+msgstr "Speler niet gevonden"
+
+msgid "Person not found"
+msgstr "Persoon niet gevonden"
+
+msgid "Demo data"
+msgstr "Demogegevens"
+
+msgid "Add another player"
+msgstr "Nog een speler toevoegen"
+
+msgid "Create a parent account"
+msgstr "Maak een ouderaccount aan"
+
+msgid "Parent doesn't exist yet?"
+msgstr "Ouder bestaat nog niet?"
+
+msgid "Type a parent name to search…"
+msgstr "Typ een oudernaam om te zoeken…"
+
+msgid "Capture behaviour and potential"
+msgstr "Gedrag en potentieel vastleggen"
+
+msgid "Behaviour & potential"
+msgstr "Gedrag & potentieel"
+
+msgid "Set potential"
+msgstr "Potentieel instellen"
+
+msgid "Recent goals"
+msgstr "Recente doelen"
+
+msgid "Maximum of 4 players."
+msgstr "Maximaal 4 spelers."
+
+msgid "Pick a report. The detail view opens in a new tab so you can keep this dashboard open."
+msgstr "Kies een rapport. De detailweergave opent in een nieuw tabblad, zodat je dit dashboard open kunt houden."
+
+msgid "Open the chemistry board"
+msgstr "Open het chemiebord"
+
+msgid "Optionally tick the players who should join the new team. Players currently assigned to another team will be moved on save. Skip the step if you want to assign players later."
+msgstr "Vink de spelers aan die in dit nieuwe team komen. Spelers die al aan een ander team zijn toegewezen worden verplaatst bij opslaan. Sla de stap over als je spelers later wilt toewijzen."
+
+msgid "Weights must add up to exactly 100%%. Current sum: %d%%. Adjust the values and save again."
+msgstr "Gewichten moeten precies 100%% optellen. Huidige som: %d%%. Pas de waarden aan en sla opnieuw op."
+
+msgid "Email sent. A copy has been logged to the audit trail."
+msgstr "E-mail verstuurd. Een kopie is in het auditlogboek opgenomen."
+
+msgid "Sends from the academy's configured email address. Every send is recorded in the audit log."
+msgstr "Verzonden vanaf het ingestelde e-mailadres van de academie. Elke verzending wordt vastgelegd in het auditlogboek."
+
+msgid "Next run:"
+msgstr "Volgende uitvoering:"
+
+msgid "in about %s"
+msgstr "over ongeveer %s"
