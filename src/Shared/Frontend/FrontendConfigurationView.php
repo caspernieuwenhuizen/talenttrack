@@ -150,6 +150,7 @@ class FrontendConfigurationView extends FrontendViewBase {
         ];
 
         $admin_tiles = [
+            [ __( 'Custom CSS', 'talenttrack' ),                 __( 'Per-club custom styling (#0064): visual editor, code editor, file upload, starter templates, history with revert. Frontend + wp-admin surfaces.', 'talenttrack' ), add_query_arg( [ 'tt_view' => 'custom-css' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) ) ],
             [ __( 'Spond integration', 'talenttrack' ),          __( 'Per-team iCal sync status and "Refresh now" buttons. Lives in wp-admin.', 'talenttrack' ),                admin_url( 'admin.php?page=tt-spond' ) ],
             [ __( 'Feature toggles', 'talenttrack' ),            __( 'Per-module enable/disable toggles. Live in wp-admin.', 'talenttrack' ),                                add_query_arg( [ 'tab' => 'toggles' ],     $admin_url ) ],
             [ __( 'Backups', 'talenttrack' ),                    __( 'Manual + scheduled database backups. Lives in wp-admin.', 'talenttrack' ),                              add_query_arg( [ 'tab' => 'backups' ],     $admin_url ) ],
