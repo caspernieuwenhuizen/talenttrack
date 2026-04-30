@@ -6,7 +6,7 @@
 
 ## What it does
 
-Once per 24 hours, plus immediately after activation, deactivation, and any plugin version change, your TalentTrack install sends a small JSON payload over HTTPS to `https://ops.talenttrack.app/wp-json/ttac/v1/ingest`. The payload contains operational metrics — counts and shapes — never per-player records.
+Once per 24 hours, plus immediately after activation, deactivation, and any plugin version change, your TalentTrack install sends a small JSON payload over HTTPS to `https://www.mediamaniacs.nl/wp-json/ttac/v1/ingest`. The payload contains operational metrics — counts and shapes — never per-player records.
 
 Failure modes are silent: a network error or 5xx from the mothership is retried on the next tick. A persistent 4xx (which would mean the schema drifted) logs once per 24 hours so the operator notices.
 
@@ -22,7 +22,7 @@ There is no `wp-config` opt-out, no in-UI toggle, no environment escape hatch. O
 
 JSON over HTTPS, signed with HMAC-SHA256.
 
-- Endpoint: `POST https://ops.talenttrack.app/wp-json/ttac/v1/ingest`
+- Endpoint: `POST https://www.mediamaniacs.nl/wp-json/ttac/v1/ingest`
 - Header: `X-TTAC-Signature: sha256=<hex>`
 - Secret derivation (v1): `hash('sha256', install_id . '|' . site_url)` — both values appear in the payload itself, so the receiver re-derives the secret from what arrives. License-key-derived secret is deferred to a future billing-oversight sub-spec.
 - Body: canonical JSON (keys recursively sorted, no whitespace, UTF-8, slashes unescaped) so both ends arrive at the same byte sequence to sign.
