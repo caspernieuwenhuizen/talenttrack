@@ -215,20 +215,42 @@ class GoalsRestController {
         $first = (string) ( $row->first_name ?? '' );
         $last  = (string) ( $row->last_name ?? '' );
         $player_name = trim( $first . ' ' . $last );
+        $player_id   = (int) $row->player_id;
+        $title       = (string) $row->title;
+        $goal_id     = (int) $row->id;
+
+        // #0063 — pre-rendered RecordLink HTML so FrontendListTable can
+        // render player + goal cells as drillable links via render: html.
+        $player_link_html = '';
+        if ( $player_name !== '' && $player_id > 0 ) {
+            $player_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+                $player_name,
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id )
+            );
+        }
+        $title_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+            $title,
+            add_query_arg( [ 'tt_view' => 'my-goals', 'id' => $goal_id ], home_url( '/' ) )
+        );
+        $status_pill_html = \TT\Infrastructure\Query\LookupPill::render( 'goal_status', (string) ( $row->status ?? '' ) );
+
         return [
-            'id'          => (int) $row->id,
-            'player_id'   => (int) $row->player_id,
-            'player_name' => $player_name,
-            'team_id'     => (int) ( $row->team_id ?? 0 ),
-            'team_name'   => (string) ( $row->team_name ?? '' ),
-            'title'       => (string) $row->title,
-            'description' => (string) ( $row->description ?? '' ),
-            'status'      => (string) ( $row->status ?? '' ),
-            'priority'    => (string) ( $row->priority ?? '' ),
-            'due_date'    => $row->due_date,
-            'created_at'  => $row->created_at,
-            'created_by'  => (int) ( $row->created_by ?? 0 ),
-            'archived_at' => $row->archived_at ?? null,
+            'id'                => $goal_id,
+            'player_id'         => $player_id,
+            'player_name'       => $player_name,
+            'player_link_html'  => $player_link_html,
+            'team_id'           => (int) ( $row->team_id ?? 0 ),
+            'team_name'         => (string) ( $row->team_name ?? '' ),
+            'title'             => $title,
+            'title_link_html'   => $title_link_html,
+            'description'       => (string) ( $row->description ?? '' ),
+            'status'            => (string) ( $row->status ?? '' ),
+            'status_pill_html'  => $status_pill_html,
+            'priority'          => (string) ( $row->priority ?? '' ),
+            'due_date'          => $row->due_date,
+            'created_at'        => $row->created_at,
+            'created_by'        => (int) ( $row->created_by ?? 0 ),
+            'archived_at'       => $row->archived_at ?? null,
         ];
     }
 

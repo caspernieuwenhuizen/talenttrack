@@ -49,24 +49,60 @@ class TeamsPage {
                 <th class="check-column" style="width:30px;" data-tt-sort="off"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
                 <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Age Group', 'talenttrack' ); ?></th>
-                <th><?php esc_html_e( 'Staff', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Head coach', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Assistant coach', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Team manager', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Players', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
             </tr></thead><tbody>
-            <?php if ( empty( $teams ) ) : ?><tr><td colspan="6"><?php esc_html_e( 'No teams.', 'talenttrack' ); ?></td></tr>
+            <?php
+            // #0063 — pre-resolve staff via tt_team_people so the table
+            // shows head coach / assistant / manager from real staff
+            // assignments rather than the legacy tt_teams.head_coach_id
+            // column. One repo call per team is fine here (small N).
+            $people_repo = new \TT\Infrastructure\People\PeopleRepository();
+            $render_staff = function ( int $team_id, string $functional_role_key ) use ( $people_repo ) {
+                $rows = $people_repo->getTeamStaff( $team_id );
+                $matches = array_values( array_filter( $rows, static function ( $r ) use ( $functional_role_key ) {
+                    return ( $r->functional_role_key ?? null ) === $functional_role_key
+                        || ( $r->role_in_team ?? null )         === $functional_role_key;
+                } ) );
+                if ( empty( $matches ) ) { echo '—'; return; }
+                $links = [];
+                foreach ( $matches as $m ) {
+                    $person_id = (int) ( $m->person_id ?? 0 );
+                    $name      = trim( ( (string) ( $m->first_name ?? '' ) ) . ' ' . ( (string) ( $m->last_name ?? '' ) ) );
+                    if ( $person_id <= 0 || $name === '' ) continue;
+                    $links[] = \TT\Shared\Frontend\Components\RecordLink::inline(
+                        $name,
+                        \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $person_id )
+                    );
+                }
+                echo $links === [] ? '—' : implode( ', ', $links );
+            };
+            ?>
+            <?php if ( empty( $teams ) ) : ?><tr><td colspan="8"><?php esc_html_e( 'No teams.', 'talenttrack' ); ?></td></tr>
             <?php else : foreach ( $teams as $t ) :
                 $player_scope = QueryHelpers::apply_demo_scope( 'p', 'player' );
                 $pc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_players p WHERE p.team_id=%d AND p.status='active' AND p.club_id = %d {$player_scope}", $t->id, CurrentClub::id() ) );
-                $sc = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$p}tt_team_people WHERE team_id=%d AND club_id = %d", $t->id, CurrentClub::id() ) );
                 $is_archived = $t->archived_at !== null;
                 ?>
                 <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
                     <td class="check-column"><?php \TT\Shared\Admin\BulkActionsHelper::rowCheckbox( (int) $t->id ); ?></td>
-                    <td><strong><?php echo esc_html( (string) $t->name ); ?></strong>
+                    <td><strong><?php
+                        // #0063 — name links to frontend team detail.
+                        echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                            (string) $t->name,
+                            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', (int) $t->id )
+                        );
+                    ?></strong>
                         <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
                     </td>
                     <td><?php echo esc_html( (string) $t->age_group ); ?></td>
-                    <td><?php echo (int) $sc; ?></td><td><?php echo (int) $pc; ?></td>
+                    <td><?php $render_staff( (int) $t->id, 'head_coach' ); ?></td>
+                    <td><?php $render_staff( (int) $t->id, 'assistant_coach' ); ?></td>
+                    <td><?php $render_staff( (int) $t->id, 'team_manager' ); ?></td>
+                    <td><?php echo (int) $pc; ?></td>
                     <td><?php if ( current_user_can( 'tt_edit_teams' ) ) : ?><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-teams&action=edit&id={$t->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_team&id={$t->id}" ), 'tt_delete_team_' . $t->id ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete?', 'talenttrack' ) ); ?>')" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a><?php else : ?><span style="color:#999;">—</span><?php endif; ?></td>
                 </tr>
             <?php endforeach; endif; ?></tbody></table>

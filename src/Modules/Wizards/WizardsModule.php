@@ -8,6 +8,7 @@ use TT\Core\ModuleInterface;
 use TT\Modules\Wizards\Activity\NewActivityWizard;
 use TT\Modules\Wizards\Evaluation\NewEvaluationWizard;
 use TT\Modules\Wizards\Goal\NewGoalWizard;
+use TT\Modules\Wizards\Person\NewPersonWizard;
 use TT\Modules\Wizards\Player\NewPlayerWizard;
 use TT\Modules\Wizards\Team\NewTeamWizard;
 use TT\Shared\Wizards\WizardRegistry;
@@ -38,5 +39,6 @@ class WizardsModule implements ModuleInterface {
         WizardRegistry::register( new NewEvaluationWizard() );
         WizardRegistry::register( new NewGoalWizard() );
         WizardRegistry::register( new NewActivityWizard() );
+        WizardRegistry::register( new NewPersonWizard() );
     }
 }

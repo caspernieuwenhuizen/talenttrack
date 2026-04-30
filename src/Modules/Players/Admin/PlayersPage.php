@@ -83,15 +83,27 @@ class PlayersPage {
                 ?>
                 <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
                     <td class="check-column"><?php \TT\Shared\Admin\BulkActionsHelper::rowCheckbox( (int) $pl->id ); ?></td>
-                    <td><strong><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-players&action=view&id={$pl->id}" ) ); ?>"><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></a></strong>
+                    <td><strong><?php
+                        // #0063 — name links to the frontend player detail.
+                        // Admins still get the wp-admin edit form via the
+                        // Actions column; the name click is the
+                        // "view this record" affordance everywhere else.
+                        echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                            QueryHelpers::player_display_name( $pl ),
+                            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', (int) $pl->id )
+                        );
+                    ?></strong>
                         <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
                     </td>
                     <td><?php
                         $pl_team_name = (string) ( $pl->team_name ?? '' );
                         $pl_team_id   = (int) ( $pl->team_id ?? 0 );
-                        if ( $pl_team_name !== '' && $pl_team_id > 0 && current_user_can( 'tt_view_teams' ) ) {
-                            echo '<a href="' . esc_url( admin_url( 'admin.php?page=tt-teams&action=edit&id=' . $pl_team_id ) ) . '">'
-                                . esc_html( $pl_team_name ) . '</a>';
+                        if ( $pl_team_name !== '' && $pl_team_id > 0 ) {
+                            // #0063 — frontend team detail.
+                            echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                                $pl_team_name,
+                                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', $pl_team_id )
+                            );
                         } else {
                             echo esc_html( $pl_team_name !== '' ? $pl_team_name : '—' );
                         }
@@ -296,11 +308,35 @@ class PlayersPage {
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'date_joined' ); ?>
                     <tr><th><?php esc_html_e( 'Photo', 'talenttrack' ); ?></th><td><input type="text" name="photo_url" id="tt_photo_url" value="<?php echo esc_url( $player->photo_url ?? '' ); ?>" class="regular-text" /> <button type="button" class="button" id="tt-upload-photo"><?php esc_html_e( 'Upload', 'talenttrack' ); ?></button></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'photo_url' ); ?>
-                    <tr><th><?php esc_html_e( 'Guardian Name', 'talenttrack' ); ?></th><td><input type="text" name="guardian_name" value="<?php echo esc_attr( $player->guardian_name ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <?php
+                    // #0063 — ParentSearchPicker swap. Selecting a parent
+                    // record links via the new `tt_players.parent_person_id`
+                    // column (migration 0050). The legacy guardian_*
+                    // text fields are kept below for installs that haven't
+                    // migrated their guardian data into tt_people yet —
+                    // they render greyed-out when a parent is picked so it's
+                    // clear the picker is the source of truth going forward.
+                    $current_parent_id = (int) ( $player->parent_person_id ?? 0 );
+                    $return_to = is_object( $player ) && ! empty( $player->id )
+                        ? admin_url( 'admin.php?page=tt-players&action=edit&id=' . (int) $player->id )
+                        : admin_url( 'admin.php?page=tt-players' );
+                    ?>
+                    <tr>
+                        <th><?php esc_html_e( 'Connect a parent account', 'talenttrack' ); ?></th>
+                        <td>
+                            <?php echo \TT\Shared\Frontend\Components\ParentSearchPickerComponent::render( [
+                                'name'      => 'parent_person_id',
+                                'label'     => __( 'Parent', 'talenttrack' ),
+                                'selected'  => $current_parent_id,
+                                'return_to' => $return_to,
+                            ] ); ?>
+                        </td>
+                    </tr>
+                    <tr style="<?php echo $current_parent_id > 0 ? 'opacity:0.5;' : ''; ?>"><th><?php esc_html_e( 'Guardian Name', 'talenttrack' ); ?></th><td><input type="text" name="guardian_name" value="<?php echo esc_attr( $player->guardian_name ?? '' ); ?>" class="regular-text" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_name' ); ?>
-                    <tr><th><?php esc_html_e( 'Guardian Email', 'talenttrack' ); ?></th><td><input type="email" name="guardian_email" value="<?php echo esc_attr( $player->guardian_email ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <tr style="<?php echo $current_parent_id > 0 ? 'opacity:0.5;' : ''; ?>"><th><?php esc_html_e( 'Guardian Email', 'talenttrack' ); ?></th><td><input type="email" name="guardian_email" value="<?php echo esc_attr( $player->guardian_email ?? '' ); ?>" class="regular-text" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_email' ); ?>
-                    <tr><th><?php esc_html_e( 'Guardian Phone', 'talenttrack' ); ?></th><td><input type="text" name="guardian_phone" value="<?php echo esc_attr( $player->guardian_phone ?? '' ); ?>" class="regular-text" /></td></tr>
+                    <tr style="<?php echo $current_parent_id > 0 ? 'opacity:0.5;' : ''; ?>"><th><?php esc_html_e( 'Guardian Phone', 'talenttrack' ); ?></th><td><input type="text" name="guardian_phone" value="<?php echo esc_attr( $player->guardian_phone ?? '' ); ?>" class="regular-text" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'guardian_phone' ); ?>
                     <tr><th><?php esc_html_e( 'Linked WP User', 'talenttrack' ); ?></th><td><?php wp_dropdown_users( [ 'name' => 'wp_user_id', 'selected' => $player->wp_user_id ?? 0, 'show_option_none' => __( '— None —', 'talenttrack' ), 'option_none_value' => 0 ] ); ?></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'wp_user_id' ); ?>
@@ -423,6 +459,11 @@ class PlayersPage {
             'guardian_name' => isset( $_POST['guardian_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['guardian_name'] ) ) : '',
             'guardian_email' => isset( $_POST['guardian_email'] ) ? sanitize_email( wp_unslash( (string) $_POST['guardian_email'] ) ) : '',
             'guardian_phone' => isset( $_POST['guardian_phone'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['guardian_phone'] ) ) : '',
+            // #0063 — ParentSearchPicker writes to the new
+            // tt_players.parent_person_id column (migration 0050).
+            'parent_person_id' => isset( $_POST['parent_person_id'] ) && (int) $_POST['parent_person_id'] > 0
+                ? (int) $_POST['parent_person_id']
+                : null,
             'wp_user_id' => isset( $_POST['wp_user_id'] ) ? absint( $_POST['wp_user_id'] ) : 0,
             'status' => isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['status'] ) ) : 'active',
         ];

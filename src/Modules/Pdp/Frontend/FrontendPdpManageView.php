@@ -117,7 +117,14 @@ class FrontendPdpManageView extends FrontendViewBase {
             $status_label = self::statusLabel( (string) $row->status );
 
             echo '<tr>';
-            echo '<td>' . esc_html( $name ) . '</td>';
+            // #0063 — player name links to frontend player detail.
+            $player_link = $player
+                ? \TT\Shared\Frontend\Components\RecordLink::inline(
+                    $name,
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', (int) $player->id )
+                )
+                : esc_html( $name );
+            echo '<td>' . $player_link . '</td>';
             // #0063 — converge onto LookupPill so PDP status renders
             // with the same colour vocabulary as activity + goals.
             echo '<td>' . \TT\Infrastructure\Query\LookupPill::render( 'pdp_status', (string) $row->status, $status_label ) . '</td>';

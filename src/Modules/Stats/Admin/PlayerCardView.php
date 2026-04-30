@@ -116,7 +116,12 @@ class PlayerCardView {
         $rating_display = $rolling !== null
             ? self::formatRatingNumber( $rolling )
             : '—';
+        // #0063 — wrap the card in a link to the frontend player detail
+        // so podium cards click through to the player profile per the
+        // user's "cards should lead to player profile" ask.
+        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id );
         ?>
+        <a href="<?php echo esc_url( $detail_url ); ?>" class="tt-pc-link" style="text-decoration:none; color:inherit; display:block;">
         <div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" role="img"
              aria-label="<?php echo esc_attr( sprintf(
                  /* translators: 1: player name, 2: tier (Gold/Silver/Bronze/Unrated), 3: rolling average. */
@@ -169,6 +174,7 @@ class PlayerCardView {
 
             <div class="tt-pc__frame"></div>
         </div>
+        </a>
         <?php
     }
 

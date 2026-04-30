@@ -34,16 +34,32 @@ class FrontendPodiumView extends FrontendViewBase {
             if ( empty( $top ) ) continue;
 
             $any_podium = true;
-            echo '<section style="margin-bottom:40px;">';
-            echo '<h2 style="margin:0 0 16px; font-size:18px;">'
-                . esc_html( (string) $team->name );
-            if ( ! empty( $team->age_group ) ) {
-                echo ' <small style="color:#666; font-weight:normal;">('
-                    . esc_html( (string) $team->age_group )
-                    . ')</small>';
-            }
+            // #0063 — team header in a styled wrapper (the user's
+            // "tableheader-like" ask) + RecordLink to team detail.
+            // Spacing tightened from 40px to 24px below; the cards
+            // already have their own gutter.
+            echo '<section class="tt-podium-team" style="margin-bottom:24px;">';
+            echo '<header class="tt-podium-team-header" style="background:#f6f7f8; border:1px solid #e5e7ea; border-bottom:0; border-radius:8px 8px 0 0; padding:10px 14px; display:flex; align-items:baseline; gap:8px;">';
+            echo '<h2 style="margin:0; font-size:16px;">';
+            echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                (string) $team->name,
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', (int) $team->id )
+            );
             echo '</h2>';
+            if ( ! empty( $team->age_group ) ) {
+                echo '<small style="color:#5b6e75; font-weight:normal;">'
+                    . esc_html( (string) $team->age_group )
+                    . '</small>';
+            }
+            echo '</header>';
+            echo '<div class="tt-podium-team-body" style="border:1px solid #e5e7ea; border-radius:0 0 8px 8px; padding:12px;">';
+            // PlayerCardView::renderPodium already emits a card per
+            // player with a link to the player profile (frontend), so
+            // the "cards should lead to player profile" ask is already
+            // covered there. Wrapping the section header tightens
+            // the visual hierarchy the user complained about.
             \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top );
+            echo '</div>';
             echo '</section>';
         }
 

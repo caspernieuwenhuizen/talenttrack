@@ -367,17 +367,36 @@ class DashboardShortcode {
      * Only called when the user has coach or admin caps.
      */
     private static function dispatchCoachingView( string $view, int $user_id, bool $is_admin ): void {
+        // #0063 — when an `?id=N` is on the URL, the three master-record
+        // list slugs (players / teams / people) delegate to the matching
+        // detail view. Mirrors the v3.62 precedent in FrontendMyGoalsView /
+        // FrontendMyActivitiesView: same slug, same parameter shape, no
+        // new dedicated detail slugs.
+        $detail_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+
         switch ( $view ) {
             case 'teams':
+                if ( $detail_id > 0 ) {
+                    FrontendTeamDetailView::render( $detail_id, $user_id, $is_admin );
+                    break;
+                }
                 FrontendTeamsManageView::render( $user_id, $is_admin );
                 break;
             case 'players':
+                if ( $detail_id > 0 ) {
+                    FrontendPlayerDetailView::render( $detail_id, $user_id, $is_admin );
+                    break;
+                }
                 FrontendPlayersManageView::render( $user_id, $is_admin );
                 break;
             case 'players-import':
                 FrontendPlayersCsvImportView::render( $user_id, $is_admin );
                 break;
             case 'people':
+                if ( $detail_id > 0 ) {
+                    FrontendPersonDetailView::render( $detail_id, $user_id, $is_admin );
+                    break;
+                }
                 FrontendPeopleManageView::render( $user_id, $is_admin );
                 break;
             case 'functional-roles':

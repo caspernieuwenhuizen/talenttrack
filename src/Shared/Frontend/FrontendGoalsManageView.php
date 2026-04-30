@@ -118,13 +118,20 @@ class FrontendGoalsManageView extends FrontendViewBase {
         echo FrontendListTable::render( [
             'rest_path' => 'goals',
             'columns' => [
-                'player_name' => [ 'label' => __( 'Player',   'talenttrack' ), 'sortable' => true ],
-                'title'       => [ 'label' => __( 'Goal',     'talenttrack' ), 'sortable' => true ],
+                // #0063 — player + goal title clickable; status as a
+                // colour pill (display-only) instead of an inline-select.
+                // Inline edit lives on the goal form; the table reads.
+                'player_name' => [ 'label' => __( 'Player',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html' ],
+                'title'       => [ 'label' => __( 'Goal',     'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'title_link_html' ],
                 'priority'    => [ 'label' => __( 'Priority', 'talenttrack' ), 'sortable' => true ],
                 'status'      => [
                     'label'       => __( 'Status', 'talenttrack' ),
                     'sortable'    => true,
-                    'render'      => 'inline_select',
+                    'render'      => 'html',
+                    'value_key'   => 'status_pill_html',
+                    // Drop the inline_select / options / patch_path — status
+                    // is now display-only on the table per the user's
+                    // "should be display only. use colored pills" ask.
                     'options'     => $status_options,
                     'patch_path'  => 'goals/{id}/status',
                     'patch_field' => 'status',

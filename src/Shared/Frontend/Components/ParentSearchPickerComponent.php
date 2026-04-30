@@ -56,7 +56,7 @@ class ParentSearchPickerComponent {
         $show_create = ! isset( $args['show_create_link'] ) || $args['show_create_link'];
 
         $people = ( new PeopleRepository() )->list( [
-            'role_type' => [ 'parent', 'guardian' ],
+            'role_type' => [ 'parent' ],
             'status'    => 'active',
         ] );
 

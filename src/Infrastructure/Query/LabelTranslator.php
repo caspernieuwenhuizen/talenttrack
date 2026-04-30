@@ -58,6 +58,38 @@ class LabelTranslator {
     }
 
     /**
+     * #0063 — translate `tt_people.role_type` codes for the People
+     * page roles column. The codes match the allowlist in
+     * `PeopleRepository::ROLE_TYPES`.
+     */
+    public static function roleType( string $code ): string {
+        switch ( strtolower( $code ) ) {
+            case 'coach':           return __( 'Coach', 'talenttrack' );
+            case 'assistant_coach': return __( 'Assistant coach', 'talenttrack' );
+            case 'manager':         return __( 'Team manager', 'talenttrack' );
+            case 'staff':           return __( 'Staff', 'talenttrack' );
+            case 'physio':          return __( 'Physio', 'talenttrack' );
+            case 'scout':           return __( 'Scout', 'talenttrack' );
+            case 'parent':          return __( 'Parent', 'talenttrack' );
+            case 'other':           return __( 'Other', 'talenttrack' );
+            default:                return self::humanise( $code );
+        }
+    }
+
+    /**
+     * #0063 — translate `tt_people.status`. Mirrors `playerStatus()`
+     * but covers the people-specific values.
+     */
+    public static function personStatus( string $code ): string {
+        switch ( strtolower( $code ) ) {
+            case 'active':   return __( 'Active', 'talenttrack' );
+            case 'inactive': return __( 'Inactive', 'talenttrack' );
+            case 'archived': return __( 'Archived', 'talenttrack' );
+            default:         return self::humanise( $code );
+        }
+    }
+
+    /**
      * Fallback: "in_progress" → "In Progress".
      */
     private static function humanise( string $code ): string {
