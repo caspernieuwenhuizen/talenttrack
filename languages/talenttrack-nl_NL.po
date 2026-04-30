@@ -10817,14 +10817,8 @@ msgstr "Benoemde presets tellen niet mee voor de rollende 10-save-limiet en blij
 msgid "No history yet. Snapshots appear here automatically every time you save."
 msgstr "Nog geen geschiedenis. Snapshots verschijnen hier automatisch bij elke save."
 
-msgid "When"
-msgstr "Wanneer"
-
 msgid "Saved by"
 msgstr "Opgeslagen door"
-
-msgid "auto"
-msgstr "auto"
 
 msgid "Revert"
 msgstr "Terugzetten"
