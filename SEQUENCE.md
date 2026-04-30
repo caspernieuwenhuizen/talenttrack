@@ -8,7 +8,11 @@ _None._
 
 ## Ready (shaped, decisions locked)
 
-_None._ Every shaped spec has shipped. Pick from "Not started" below or shape a new idea.
+| # | Topic | Type | Spec | Estimated |
+| - | - | - | - | - |
+| 0006 | Team planning module — Principles domain + per-session plan-state + calendar UI for week-by-week training planning. Five sprints scoped: (1) Principles schema + plan-state, (2) calendar view, (3) session detail + drilldown, (4) repeat templates, (5) sharing + audit. | epic | [specs/0006-epic-team-planning-module.md](specs/0006-epic-team-planning-module.md) + [specs/0006-sprints-1-to-5.md](specs/0006-sprints-1-to-5.md) | ~55h / ~8-12h compressed |
+| 0010 | Multi-language (FR/DE/ES) — regenerate stale `talenttrack.pot` (246 → ~1000+ msgids) then ship FR/DE/ES `.po` skeletons. Likely lower than the original estimate now that #0029 doc split + #0025 auto-translate are in. | feat | [specs/0010-feat-multi-language-fr-de-es.md](specs/0010-feat-multi-language-fr-de-es.md) | ~80-140h v1 |
+| 0016 | Photo-to-session capture — coach photographs a paper plan, vision API extracts drills + durations + flow, lands in the new-activity wizard's review step pre-filled. Depends on a vision provider choice (OpenAI / Anthropic / Google). | epic | [specs/0016-epic-photo-to-session-capture.md](specs/0016-epic-photo-to-session-capture.md) | ~80h / ~12-16h compressed |
 
 ## Parked (shaped, awaiting trigger)
 
@@ -18,15 +22,11 @@ _None._ Every shaped spec has shipped. Pick from "Not started" below or shape a 
 
 ## Needs refinement / shaping
 
-_None._ All open ideas have been shaped into specs.
+_None._ Every open idea has been shaped into a spec; the `ideas/` folder holds only its README.
 
 ## Not started (no shaping needed before build)
 
-| # | Topic | Type | Estimated |
-| - | - | - | - |
-| 0006 | Team planning module | epic | ~55h |
-| 0010 | Multi-language (FR/DE/ES) | feat | ~80-140h (likely lower now that #0029 split + #0025 auto-translate land first) |
-| 0016 | Photo-to-session capture | epic | ~80h |
+_None._ Every backlog item is now either in **Ready**, **Parked**, or **Done**.
 
 ## Blocked
 
