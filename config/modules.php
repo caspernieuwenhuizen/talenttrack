@@ -44,4 +44,5 @@ return [
     TT\Modules\Threads\ThreadsModule::class               => true,
     TT\Modules\Push\PushModule::class                     => true,
     TT\Modules\CustomCss\CustomCssModule::class           => true,
+    TT\Modules\AdminCenterClient\AdminCenterClientModule::class => true,
 ];

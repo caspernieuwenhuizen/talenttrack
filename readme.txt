@@ -4,13 +4,24 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.64.0
+Stable tag: 3.65.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.65.0 — Admin Center phone-home client (#0065 TT-side) =
+
+The TalentTrack-side phone-home client for the new Admin Center mothership. Daily plus three-trigger event cadence (`daily` / `activated` / `deactivated` / `version_changed`); JSON over HTTPS signed with HMAC-SHA256; aggregations only — never per-player records. Companion to the mothership receiver in the separate `talenttrack-admin-center` repo (spec #0001).
+
+* **NEW:** `Modules/AdminCenterClient` — `PayloadBuilder` assembles the locked v1 payload (counts + module status + license-tier-or-null + error class names from `tt_audit_log`); `Signer` produces canonical JSON (sorted keys, no whitespace, UTF-8) and HMAC-SHA256-signs it; `Sender` POSTs fire-and-forget over `wp_remote_post()` with a 10s timeout. Failure is silent (network / 5xx) or warns once per 24h (4xx).
+* **NEW:** v1 HMAC secret derivation locked at `hash('sha256', install_id . '|' . site_url)` per the refined TTA-side spec — no Freemius license dependency in v1; license-key-derived secret is deferred to billing-oversight.
+* **NEW:** Endpoint `POST https://ops.talenttrack.app/wp-json/ttac/v1/ingest`; header `X-TTAC-Signature: sha256=<hex>`; payload `protocol_version: "1.0"`. Endpoint is filterable via `tt_admin_center_url` for dev / staging.
+* **NEW:** Four trigger paths — daily wp-cron event, single-shot 30s-out activation event, best-effort sync deactivation send, version-change detection on `init` comparing `TT_VERSION` against persisted `wp_options:tt_last_phoned_version`.
+* **NEW:** `bin/admin-center-self-check.php` — shape + privacy + sign-round-trip self-check that runs in CI on every PR. Stubs the WP API so it executes on a vanilla PHP runner. Fails the build if the payload shape drifts or any forbidden field name (player_name, coach_email, stack_trace, …) appears in the serialized output.
+* **DOCS:** `docs/phone-home.md` (EN + NL) — full transparency surface listing every payload field, the privacy boundary, and the operational-telemetry posture. No opt-out by design.
 
 = 3.64.0 — Custom CSS independence (#0064) =
 

@@ -1,3 +1,54 @@
+# TalentTrack v3.65.0 — Admin Center phone-home client (#0065 TT-side)
+
+The TalentTrack-side half of the new Admin Center foundation. Companion to the mothership receiver shipping from the separate `talenttrack-admin-center` repo (spec #0001 there). One bundled PR.
+
+## What ships
+
+A new module `src/Modules/AdminCenterClient/` that phones home daily plus on three trigger events (`activated` / `deactivated` / `version_changed`). The wire protocol is JSON over HTTPS, signed with HMAC-SHA256 over a canonical-JSON body. The receiver is `https://ops.talenttrack.app/wp-json/ttac/v1/ingest` (filterable via `tt_admin_center_url`).
+
+- **`PayloadBuilder`** — locked v1 payload shape. Counts (`team_count`, `player_count_active|archived`, `staff_count`), engagement (`dau_7d_avg`, `wau_count`, `mau_count`, `last_login_date`), error class names from `tt_audit_log` rows whose action begins with `error.` (no message bodies, no stack traces), license fields (nullable when no Freemius), `module_status` for spond / comms / exports (each `null` until that module ships), `feature_flags_enabled` (TT-shipped vocabulary only), `custom_caps_in_use` (boolean only — cap names are not transmitted).
+- **`Signer`** — canonicalises payload (recursive `ksort`, no whitespace, UTF-8, slashes unescaped) so both ends arrive at the same byte sequence to sign. Secret derivation **locked at `hash('sha256', install_id . '|' . site_url)`** per the refined TTA-side spec — no Freemius license-key dependency in v1.
+- **`Sender`** — fire-and-forget `wp_remote_post()` with a 10s timeout. Network error / 5xx → silent retry. Persistent 4xx → warns once per 24h via `Logger::warning( 'admin_center.rejected', … )`.
+- **`InstallId`** — UUID v4 generated once on first read, persisted in `wp_options:tt_install_id`. Stable across all subsequent pings.
+- **Four trigger paths** — `Cron/DailyCron` schedules a daily wp-cron event; `Hooks/ActivationHook::schedule()` fires a single-shot event 30s after activation (so the activation request itself never waits on HTTPS); `Hooks/DeactivationHook::fire()` is wired via `register_deactivation_hook` for a best-effort sync send; `Hooks/VersionChangeHook::check()` runs on `init`, compares `TT_VERSION` to the persisted `wp_options:tt_last_phoned_version`, and schedules a single-shot send 5s out when they differ.
+
+## Self-check + privacy guard
+
+`bin/admin-center-self-check.php` runs in CI on every PR (new GitHub Actions job `admin-center-self-check`). Three assertions:
+
+1. **Shape** — the keys + types `PayloadBuilder::build()` emits exactly match the locked schema fixture at `tests/fixtures/admin-center-payload.schema.php`. Adding a top-level field without updating the schema fails the build.
+2. **Privacy** — walks the serialized payload recursively and fails if any forbidden field name appears (player_name, coach_email, stack_trace, ip_address, message_body, audit_log, etc.). The privacy boundary is locked in code, not just in docs.
+3. **Sign round-trip** — signs the payload via `Signer::sign()`, re-derives the secret from `install_id` + `site_url` in the same payload, and asserts `hash_equals` between the two. Also asserts `Signer::canonicalize()` is order-stable (rearranging keys before canonicalising must produce the same string).
+
+The script stubs the WP API surface PayloadBuilder reaches for, so it runs on a vanilla PHP-only runner with no WP install needed.
+
+## Documentation
+
+`docs/phone-home.md` (EN + NL counterpart) is the full transparency surface — field-by-field table, the privacy boundary (what the payload **never** carries), the failure modes, the operational-telemetry posture (no opt-out by design), and a pointer to the mothership-side spec. Linked from the changelog so a privacy-conscious customer can audit it.
+
+## Spec adjustments
+
+`specs/0065-feat-admin-center-foundation-monitoring.md` updated to reflect the v1 contract locked in the refined TTA-side spec (`talenttrack-admin-center/specs/0001-feat-foundation-monitoring.md`):
+
+- HMAC secret derivation = `hash('sha256', install_id . '|' . site_url)` everywhere in v1 (no license-key path).
+- Header renamed to `X-TTAC-Signature`.
+- Endpoint path `/wp-json/ttac/v1/ingest` (no hyphen).
+- Mothership cap renamed to `ttac_admin_center`.
+
+## Acceptance criteria (manually verified)
+
+- [ ] Plugin activation triggers `trigger: "activated"` within 60 seconds, asynchronously (does not block the activation request).
+- [ ] Plugin deactivation triggers a synchronous best-effort `trigger: "deactivated"`. Failure does not block deactivation.
+- [ ] Daily wp-cron job sends `trigger: "daily"` once per 24h.
+- [ ] Bumping `TT_VERSION` triggers `trigger: "version_changed"` on the next request following the version write.
+- [ ] Payload schema matches the locked spec exactly (verified by `bin/admin-center-self-check.php`).
+- [ ] Privacy walk passes — no forbidden keys / paths in the serialized payload.
+- [ ] HMAC signature validates round-trip with the v1 secret derivation.
+- [ ] Network failures (timeout, 5xx, no DNS) are silent — install is unaffected, retry on next tick.
+- [ ] Persistent 4xx logs at warning level once per 24h max.
+- [ ] `install_id` is generated once, persisted in `wp_options`, stable across all subsequent pings.
+- [ ] No queries against per-player rows during payload assembly — only aggregations.
+
 # TalentTrack v3.64.0 — Custom CSS independence (#0064)
 
 A club-admin styling surface that lets TalentTrack look exactly the way the club wants regardless of which WordPress theme is active. Companion to the Branding page (#0023), which goes the other way — defer to the active theme. The two are mutually exclusive on the same surface; turning Custom CSS on for the frontend automatically turns Theme inheritance off. One bundled PR shipping the foundation, all three authoring paths, the wp-admin surface, the starter templates, and the history + revert flow.
