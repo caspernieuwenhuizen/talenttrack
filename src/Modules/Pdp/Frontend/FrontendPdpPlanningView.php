@@ -83,8 +83,13 @@ final class FrontendPdpPlanningView {
         echo '</tr></thead><tbody>';
 
         foreach ( $matrix['teams'] as $team_id => $team ) {
+            // #0063 — team name links to the frontend team detail.
+            $team_link = \TT\Shared\Frontend\Components\RecordLink::inline(
+                (string) $team['name'],
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', (int) $team_id )
+            );
             echo '<tr>';
-            echo '<td style="padding:8px;border-bottom:1px solid #eef0f2;"><strong>' . esc_html( (string) $team['name'] ) . '</strong>'
+            echo '<td style="padding:8px;border-bottom:1px solid #eef0f2;"><strong>' . $team_link . '</strong>'
                 . ' <small style="color:#5b6e75;">' . (int) $team['roster'] . ' ' . esc_html__( 'players', 'talenttrack' ) . '</small></td>';
             for ( $b = 1; $b <= $max_blocks; $b++ ) {
                 $cell = $team['blocks'][ $b ] ?? null;

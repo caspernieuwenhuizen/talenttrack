@@ -68,6 +68,20 @@ class FrontendPdpManageView extends FrontendViewBase {
     }
 
     private static function renderList( int $user_id, bool $is_admin ): void {
+        // #0063 — when the list was reached by drilling into a PDP
+        // planning cell (`?filter[team_id]=...&filter[block]=...`),
+        // surface a Back-to-Planning button so the user can return
+        // to the matrix instead of jumping all the way to the
+        // dashboard. The default browser-back hop landed too far.
+        $filter = isset( $_GET['filter'] ) && is_array( $_GET['filter'] ) ? $_GET['filter'] : [];
+        if ( ! empty( $filter['team_id'] ) || ! empty( $filter['block'] ) ) {
+            $planning_url = add_query_arg(
+                [ 'tt_view' => 'pdp-planning', 'season_id' => (int) ( $filter['season'] ?? 0 ) ],
+                home_url( '/' )
+            );
+            FrontendBackButton::render( $planning_url );
+        }
+
         self::renderHeader( __( 'Player Development Plans', 'talenttrack' ) );
 
         $seasons = new SeasonsRepository();
@@ -338,10 +352,53 @@ class FrontendPdpManageView extends FrontendViewBase {
         $is_signed = ! empty( $conv->coach_signoff_at );
         $rest_path = 'pdp-conversations/' . (int) $conv->id;
 
-        echo '<div style="display:grid; grid-template-columns:1fr 280px; gap:24px;">';
+        // #0063 — switch from a cramped 1fr / 280px sidebar layout to a
+        // simple tab strip: Conversation | Evidence. CSS-only toggle
+        // via the :target pseudo-class fallback works without JS,
+        // and a small handler upgrades to ARIA-correct tabs when JS is
+        // present. Closes the "evidence is a format mess next to the
+        // conversation" complaint.
+        ?>
+        <div class="tt-pdp-conv-tabs" data-tt-pdp-conv-tabs>
+            <div role="tablist" aria-label="<?php esc_attr_e( 'Conversation sections', 'talenttrack' ); ?>" style="display:flex; gap:4px; border-bottom:1px solid #e5e7ea; margin-bottom:12px;">
+                <button type="button" role="tab" aria-selected="true" data-tt-pdp-tab="conversation"
+                        style="padding:8px 14px; border:0; background:transparent; border-bottom:2px solid transparent; cursor:pointer;"
+                        class="is-active">
+                    <?php esc_html_e( 'Conversation', 'talenttrack' ); ?>
+                </button>
+                <button type="button" role="tab" aria-selected="false" data-tt-pdp-tab="evidence"
+                        style="padding:8px 14px; border:0; background:transparent; border-bottom:2px solid transparent; cursor:pointer;">
+                    <?php esc_html_e( 'Evidence', 'talenttrack' ); ?>
+                </button>
+            </div>
+        </div>
+        <style>
+            .tt-pdp-conv-tabs button.is-active { border-bottom-color: var(--tt-primary, #0b3d2e) !important; font-weight: 600; }
+            .tt-pdp-conv-pane[hidden] { display: none; }
+        </style>
+        <script>
+        (function(){
+            if (window.__ttPdpConvTabsBound) return;
+            window.__ttPdpConvTabsBound = true;
+            document.addEventListener('click', function(e){
+                var btn = e.target && e.target.closest ? e.target.closest('[data-tt-pdp-tab]') : null;
+                if (!btn) return;
+                var key = btn.getAttribute('data-tt-pdp-tab');
+                document.querySelectorAll('[data-tt-pdp-tab]').forEach(function(b){
+                    var on = b.getAttribute('data-tt-pdp-tab') === key;
+                    b.classList.toggle('is-active', on);
+                    b.setAttribute('aria-selected', on ? 'true' : 'false');
+                });
+                document.querySelectorAll('.tt-pdp-conv-pane').forEach(function(p){
+                    p.hidden = ( p.getAttribute('data-tt-pdp-pane') !== key );
+                });
+            });
+        })();
+        </script>
+        <?php
 
-        // Main form column
-        echo '<div>';
+        // Main form column (Conversation pane).
+        echo '<div class="tt-pdp-conv-pane" data-tt-pdp-pane="conversation" role="tabpanel">';
         ?>
         <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH">
             <div class="tt-field">
@@ -392,12 +449,13 @@ class FrontendPdpManageView extends FrontendViewBase {
             <div class="tt-form-msg"></div>
         </form>
         <?php
-        echo '</div>';
+        echo '</div>'; // /conversation pane
 
-        // Evidence sidebar
+        // Evidence pane — same content as the old sidebar, hidden by
+        // default; the tab toggle reveals it.
+        echo '<div class="tt-pdp-conv-pane" data-tt-pdp-pane="evidence" role="tabpanel" hidden>';
         self::renderEvidenceSidebar( (int) $file->player_id, $conv );
-
-        echo '</div>'; // grid
+        echo '</div>';
     }
 
     private static function renderVerdictForm( object $file, int $user_id, bool $is_admin ): void {

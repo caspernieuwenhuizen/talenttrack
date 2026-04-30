@@ -106,6 +106,15 @@ class RolesService {
         'tt_view_player_safeguarding',
     ];
 
+    /**
+     * #0063 — In-product mail composer. Granted to admin / head_dev /
+     * club_admin / coach so they can send academy email from the People
+     * page email click. Every send is audit-logged via AuditService.
+     */
+    public const COMMS_CAPS = [
+        'tt_send_email',
+    ];
+
     /** @return array<string, array<string, string|array<string,bool>>> */
     public function roleDefinitions(): array {
         return [
@@ -175,7 +184,9 @@ class RolesService {
                     // #0014 Sprint 4 — coaches can generate reports for
                     // players on their own teams. Per-player gating
                     // happens in FrontendReportWizardView.
-                    [ 'tt_generate_report' => true ]
+                    [ 'tt_generate_report' => true ],
+                    // #0063 — in-product mail composer.
+                    [ 'tt_send_email' => true ]
                 ),
             ],
             'tt_scout' => [
@@ -269,6 +280,7 @@ class RolesService {
             self::REPORT_CAPS,
             self::TRIAL_CAPS,
             self::JOURNEY_CAPS,
+            self::COMMS_CAPS,
             [ 'tt_view_reports', 'tt_access_frontend_admin' ]
         );
 
@@ -315,7 +327,14 @@ class RolesService {
 
     /** @return array<string,bool> */
     private static function allCapsTrue(): array {
-        return array_merge( self::allViewCapsTrue(), self::allEditCapsTrue() );
+        return array_merge(
+            self::allViewCapsTrue(),
+            self::allEditCapsTrue(),
+            // #0063 — fold COMMS_CAPS into the everything-bundle so
+            // tt_send_email lands on tt_head_dev / administrator
+            // automatically.
+            array_fill_keys( self::COMMS_CAPS, true )
+        );
     }
 
     /** @return array<string,bool> */

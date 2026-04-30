@@ -86,9 +86,21 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         ) );
 
         $base_url = remove_query_arg( [ 'team_id' ] );
-        echo '<p style="margin-bottom:16px;"><a class="tt-btn tt-btn-secondary" href="'
+        $help_url = add_query_arg(
+            [ 'tt_view' => 'docs', 'topic' => 'team-chemistry' ],
+            home_url( '/' )
+        );
+        echo '<p style="margin-bottom:16px; display:flex; gap:8px; flex-wrap:wrap;">';
+        echo '<a class="tt-btn tt-btn-secondary" href="'
             . esc_url( add_query_arg( [ 'tt_view' => 'team-chemistry' ], $base_url ) ) . '">'
-            . esc_html__( '← Back to team picker', 'talenttrack' ) . '</a></p>';
+            . esc_html__( '← Back to team picker', 'talenttrack' ) . '</a>';
+        // #0063 — help button explaining where the data comes from,
+        // how scores are computed, and why "everything zero" is a
+        // legitimate empty state rather than a bug. Full rebuild is
+        // parked at ideas/0062-feat-team-chemistry-rebuild.md.
+        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $help_url ) . '">'
+            . esc_html__( 'How does this work?', 'talenttrack' ) . '</a>';
+        echo '</p>';
 
         global $wpdb; $p = $wpdb->prefix;
         $template_id = (int) $wpdb->get_var( $wpdb->prepare(
