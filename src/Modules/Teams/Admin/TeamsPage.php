@@ -7,7 +7,6 @@ use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
-use TT\Infrastructure\Security\CredentialEncryption;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\People\Admin\TeamStaffPanel;
 use TT\Shared\Validation\CustomFieldValidator;
@@ -152,22 +151,56 @@ class TeamsPage {
                     <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><textarea name="notes" rows="3" class="large-text"><?php echo esc_textarea( $team->notes ?? '' ); ?></textarea></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_TEAM, (int) ( $team->id ?? 0 ), 'notes' ); ?>
                     <?php
-                    // #0031 — Spond integration. Bearer URL is encrypted
-                    // at rest; we render it decrypted into the form so
-                    // the admin can review/replace it.
-                    $spond_url        = isset( $team->spond_ical_url ) ? CredentialEncryption::decrypt( (string) $team->spond_ical_url ) : '';
+                    // #0062 — Spond integration. Per-team `spond_group_id`
+                    // (UUID, not secret) replaces the per-team iCal URL
+                    // from #0031. Per-club credentials are managed
+                    // separately on the Spond admin overview page.
+                    $spond_group_id   = (string) ( $team->spond_group_id ?? '' );
                     $spond_status     = (string) ( $team->spond_last_sync_status ?? '' );
                     $spond_last_at    = (string) ( $team->spond_last_sync_at ?? '' );
                     $spond_message    = (string) ( $team->spond_last_sync_message ?? '' );
+                    $spond_has_creds  = \TT\Modules\Spond\CredentialsManager::hasCredentials();
+                    $spond_groups     = [];
+                    if ( $spond_has_creds ) {
+                        $g = \TT\Modules\Spond\SpondClient::fetchGroups();
+                        if ( ! empty( $g['ok'] ) ) $spond_groups = (array) $g['groups'];
+                    }
                     ?>
                     <tr>
-                        <th><?php esc_html_e( 'Spond iCal URL', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Spond group', 'talenttrack' ); ?></th>
                         <td>
-                            <input type="url" name="spond_ical_url" inputmode="url" autocomplete="off" class="large-text" value="<?php echo esc_attr( $spond_url ); ?>" placeholder="https://spond.com/api/group-export/…/team-cal.ics" />
-                            <p class="description">
-                                <?php esc_html_e( 'Paste the iCal URL from your Spond team settings. Stored encrypted; sync runs hourly. Leave blank to disable.', 'talenttrack' ); ?>
-                            </p>
-                            <?php if ( $is_edit && $spond_url !== '' ) : ?>
+                            <?php if ( ! $spond_has_creds ) : ?>
+                                <p class="description" style="color:#5b6e75;">
+                                    <?php
+                                    printf(
+                                        /* translators: %s: link URL to Spond admin page */
+                                        wp_kses(
+                                            __( 'Connect a Spond account first on the <a href="%s">Spond integration</a> page, then come back to pick a group.', 'talenttrack' ),
+                                            [ 'a' => [ 'href' => [] ] ]
+                                        ),
+                                        esc_url( admin_url( 'admin.php?page=tt-spond' ) )
+                                    );
+                                    ?>
+                                </p>
+                                <input type="hidden" name="spond_group_id" value="<?php echo esc_attr( $spond_group_id ); ?>" />
+                            <?php else : ?>
+                                <select name="spond_group_id" class="regular-text">
+                                    <option value=""><?php esc_html_e( '— Not connected —', 'talenttrack' ); ?></option>
+                                    <?php foreach ( $spond_groups as $g ) :
+                                        $gid = (string) ( $g['id']   ?? '' );
+                                        $gnm = (string) ( $g['name'] ?? '' );
+                                        if ( $gid === '' ) continue;
+                                        ?>
+                                        <option value="<?php echo esc_attr( $gid ); ?>" <?php selected( $spond_group_id, $gid ); ?>>
+                                            <?php echo esc_html( $gnm !== '' ? $gnm : $gid ); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <p class="description">
+                                    <?php esc_html_e( 'Pick the Spond group that matches this team. Sync runs hourly. Leave on "Not connected" to disable.', 'talenttrack' ); ?>
+                                </p>
+                            <?php endif; ?>
+                            <?php if ( $is_edit && $spond_group_id !== '' ) : ?>
                                 <p style="margin:6px 0 0;">
                                     <strong><?php esc_html_e( 'Last sync:', 'talenttrack' ); ?></strong>
                                     <?php echo $spond_last_at !== '' ? esc_html( $spond_last_at ) : esc_html__( 'never', 'talenttrack' ); ?>
@@ -256,15 +289,16 @@ class TeamsPage {
         }
 
         global $wpdb;
-        $spond_url_raw = isset( $_POST['spond_ical_url'] ) ? trim( (string) wp_unslash( $_POST['spond_ical_url'] ) ) : '';
-        $spond_envelope = $spond_url_raw !== '' ? CredentialEncryption::encrypt( $spond_url_raw ) : '';
+        $spond_group_id = isset( $_POST['spond_group_id'] )
+            ? sanitize_text_field( wp_unslash( (string) $_POST['spond_group_id'] ) )
+            : '';
 
         $data = [
             'name' => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['name'] ) ) : '',
             'age_group' => isset( $_POST['age_group'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['age_group'] ) ) : '',
             'head_coach_id' => isset( $_POST['head_coach_id'] ) ? absint( $_POST['head_coach_id'] ) : 0,
             'notes' => isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '',
-            'spond_ical_url' => $spond_envelope !== '' ? $spond_envelope : null,
+            'spond_group_id' => $spond_group_id !== '' ? $spond_group_id : null,
         ];
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
         if ( $id ) {

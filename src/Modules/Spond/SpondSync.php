@@ -4,15 +4,18 @@ namespace TT\Modules\Spond;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
-use TT\Infrastructure\Security\CredentialEncryption;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
- * SpondSync (#0031) — upsert loop for Spond → tt_activities.
+ * SpondSync (#0031, rewritten via #0062) — upsert loop for Spond → tt_activities.
  *
  * Fetch + parse + upsert + soft-archive missing UIDs. Spond wins
  * schedule fields (date / title / location); TalentTrack wins
  * activity_type (once a coach changed it), attendance, and evaluations.
+ *
+ * #0062 swapped the per-team iCal URL for a per-club login + per-team
+ * `spond_group_id`. This class kept its public surface so the cron, CLI
+ * and REST sync endpoints in `SpondCli` / `SpondModule` did not change.
  *
  * Returns a per-team summary dict; the caller decides whether to log,
  * surface in the team-form notice, or both.
@@ -20,7 +23,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 final class SpondSync {
 
     /**
-     * Sync every team that has a non-empty `spond_ical_url`.
+     * Sync every team that has a non-empty `spond_group_id`.
      *
      * @return array<int,array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,last_message:string}>
      */
@@ -28,7 +31,7 @@ final class SpondSync {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id FROM {$wpdb->prefix}tt_teams
-              WHERE spond_ical_url IS NOT NULL AND spond_ical_url <> ''
+              WHERE spond_group_id IS NOT NULL AND spond_group_id <> ''
                 AND club_id = %d
                 AND archived_at IS NULL",
             CurrentClub::id()
@@ -48,7 +51,7 @@ final class SpondSync {
         $p = $wpdb->prefix;
 
         $team = $wpdb->get_row( $wpdb->prepare(
-            "SELECT id, spond_ical_url FROM {$p}tt_teams
+            "SELECT id, spond_group_id FROM {$p}tt_teams
               WHERE id = %d AND club_id = %d",
             $team_id, CurrentClub::id()
         ) );
@@ -56,18 +59,24 @@ final class SpondSync {
             return self::summary( $team_id, 'failed', 0, 0, 0, 0, __( 'Team not found.', 'talenttrack' ) );
         }
 
-        $url_envelope = (string) ( $team->spond_ical_url ?? '' );
-        $url          = CredentialEncryption::decrypt( $url_envelope );
-        if ( $url === '' ) {
+        $group_id = (string) ( $team->spond_group_id ?? '' );
+        if ( $group_id === '' ) {
             return self::persistAndReturn( $team_id, self::summary(
-                $team_id, 'disabled', 0, 0, 0, 0, __( 'No Spond URL configured.', 'talenttrack' )
+                $team_id, 'disabled', 0, 0, 0, 0, __( 'No Spond group selected for this team.', 'talenttrack' )
             ) );
         }
 
-        $fetch = SpondClient::fetch( $url );
+        if ( ! CredentialsManager::hasCredentials() ) {
+            return self::persistAndReturn( $team_id, self::summary(
+                $team_id, 'disabled', 0, 0, 0, 0, __( 'No Spond credentials configured for the club.', 'talenttrack' )
+            ) );
+        }
+
+        $fetch = SpondClient::fetchEvents( $group_id );
         if ( ! $fetch['ok'] ) {
             Logger::error( 'spond.fetch.failed', [
                 'team_id'    => $team_id,
+                'group_id'   => $group_id,
                 'error_code' => $fetch['error_code'] ?? '',
                 'http_code'  => $fetch['http_code'] ?? 0,
             ] );
@@ -76,10 +85,10 @@ final class SpondSync {
             ) );
         }
 
-        $events = SpondParser::parse( $fetch['body'] );
+        $events = SpondParser::parse( $fetch['events'] );
         if ( empty( $events ) ) {
             return self::persistAndReturn( $team_id, self::summary(
-                $team_id, 'ok', 0, 0, 0, 0, __( 'Spond feed contained no events.', 'talenttrack' )
+                $team_id, 'ok', 0, 0, 0, 0, __( 'Spond group contained no upcoming events.', 'talenttrack' )
             ) );
         }
 

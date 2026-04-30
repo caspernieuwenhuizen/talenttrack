@@ -1,3 +1,51 @@
+# TalentTrack v3.69.0 — Spond JSON-API fetcher (#0062)
+
+The #0031 Spond integration shipped in v3.47.0 was scaffolded against an iCal contract that turned out not to exist — Spond never published iCal feeds. v3.69.0 swaps the fetcher to use the internal JSON API at `api.spond.com` (the same undocumented-but-stable API Spond's own mobile and web apps use). Most of #0031 stays unchanged: the schema, the UI conventions, the upsert + soft-archive logic, the hourly cron, the WP-CLI commands, and the per-team REST sync endpoint. What was rewritten is `SpondClient` and `SpondParser` — both authored against a contract that didn't exist — plus the credential model (per-club login replaces per-team URLs).
+
+## What changed
+
+- **`SpondClient`** rewritten as a JSON HTTP client. New methods: `login( email, password )` returns `loginToken`; `fetchGroups()` returns `[{id,name}]`; `fetchEvents( group_id )` returns the rolling 30-day-back / 180-day-forward event window. Token is cached for 12 hours in `tt_config` (encrypted at rest); on `401` the client clears the cache, re-logs in, and retries the original request once. Anything beyond that fails the call so the next sync can re-try cleanly.
+- **`SpondParser`** rewritten as a thin normaliser from the JSON event shape (`id`, `heading`, `startTimestamp`, `location.feature`, `description`, `cancelled`, `updated`) to the array shape `SpondSync` already consumed. `cancelled: true` events are dropped at parse time so they're treated identically to UID-disappeared rows downstream (soft-archived).
+- **`SpondSync`** unchanged structurally — it still upserts on `external_id` + `activity_source_key=spond`, soft-archives missing UIDs, and writes the per-team status into `tt_teams.spond_last_sync_*`. Only the column it queries on (`spond_group_id` instead of `spond_ical_url`) and the data source it pulls from (`SpondClient::fetchEvents()` instead of `wp_remote_get( ical_url )`) are different.
+- **2FA hard-fail** — login responses with the documented community-library hints (`verificationRequired`, `mfa`, `twoFactor`, body containing "2fa" / "two-factor" / "verification code") return a recognisable error code so the operator gets "Spond account requires 2FA. Use a non-2FA dedicated coach account for the integration." instead of an opaque HTTP status.
+
+## Credential model
+
+- **Per-club** (one Spond email + password) replaces per-team URLs. Stored in `tt_config` keyed `spond.credentials.*`. The password is encrypted at rest via `CredentialEncryption` (the same envelope already used for the Push module's VAPID private key); rotating WordPress's `AUTH_KEY` salt invalidates the stored value and forces re-entry. The token cache is keyed identically — same rotation invalidates it.
+- **Per-team `spond_group_id`** column (added by migration 0052, indexed) maps a TalentTrack team to a Spond group. Picked from a live dropdown populated by `/groups/`, not pasted in as hex.
+- **`spond_ical_url`** is nulled on upgrade and kept in schema for one release for rollback safety. Drop is scheduled for a follow-up migration in a later release.
+
+## UI
+
+- **Configuration → Spond** is now the single home for the integration. Account credentials sit at the top (email + password + **Test connection** + **Disconnect**); the per-team table below shows the picked group name, last sync time, status pill, and a **Refresh now** button. Group selection itself happens on the team edit form (or in the new-team wizard).
+- **Team edit form** swaps the iCal URL textbox for a Spond-group dropdown. When no credentials are configured the dropdown is replaced by a "Connect Spond first" link to the admin page.
+- **New-team wizard** gains a **Pick Spond group** step between Roster and Review. Auto-skipped via `notApplicableFor()` when no credentials exist, so clubs not using Spond never see it.
+
+## What's still the same
+
+- Hourly WP-Cron schedule, WP-CLI command (`wp tt spond sync [--team=<id>]`), per-team REST sync endpoint, and the team-edit form's **Refresh now** button all behave identically — only the data source moved.
+- Spond wins the schedule fields (date / title / location / notes); TalentTrack wins activity_type once a coach has changed it; attendance + evaluations + linked goals are TalentTrack-only and never overwritten.
+- Soft-archive on UID disappearance is unchanged. A cancelled-then-uncancelled Spond event will un-archive on the next sync.
+
+## Documentation
+
+`docs/spond-integration.md` (EN + NL) rewritten end-to-end. The "Setting it up (per team)" iCal-URL paste flow is replaced with the per-club login + per-team group-pick flow. The privacy section now describes how the password + token are encrypted at rest and never appear in any phone-home payload. A migration paragraph documents the upgrade path for clubs already on the iCal flow.
+
+## Acceptance criteria (manually verified)
+
+- [ ] `SpondClient::login()` accepts a valid email + password and returns a `loginToken`.
+- [ ] `SpondClient::fetchGroups()` returns the groups the test account is a member of.
+- [ ] `SpondClient::fetchEvents( group_id )` returns events with `id` / `heading` / `startTimestamp`.
+- [ ] `SpondParser::parse()` normalises the JSON shape into the legacy array shape `SpondSync` consumes.
+- [ ] `SpondSync::syncTeam()` upserts on `external_id` + soft-archives missing UIDs unchanged.
+- [ ] WP-cron + WP-CLI + REST sync endpoints all still function.
+- [ ] Migration 0052 adds `spond_group_id`, indexes it, and nulls `spond_ical_url` idempotently.
+- [ ] Per-club credentials saved via `Configuration → Spond` are encrypted at rest in `tt_config`.
+- [ ] Token cache is invalidated when credentials are rewritten or cleared.
+- [ ] 401 response triggers exactly one re-login + retry; subsequent 401 fails the call.
+- [ ] 2FA login response returns the recognisable error message.
+- [ ] New-team wizard skips the Spond-group step when no credentials are configured.
+
 # TalentTrack v3.65.1 — Admin Center receiver URL hotfix (#0065)
 
 Patch on top of v3.65.0. The receiver URL baked into `Sender::DEFAULT_URL` was lifted from an `e.g.` example in the spec rather than confirmed with the operator before shipping. Fixed to point at the actual mothership at `https://www.mediamaniacs.nl/wp-json/ttac/v1/ingest`.

@@ -10929,3 +10929,101 @@ msgstr "Spelerstatus"
 
 msgid "Optional. Force a specific dashboard for a single persona — useful for testing one persona at a time on a real install without flipping the whole site. \"Inherit\" follows the global default above."
 msgstr "Optioneel. Forceer een specifiek dashboard voor één persona — handig om één persona tegelijk te testen op een echte installatie zonder de hele site te flippen. \"Overerven\" volgt de standaardinstelling hierboven."
+
+# v3.69.0 — Spond JSON-API fetcher (#0062)
+
+msgid "Spond group"
+msgstr "Spond-groep"
+
+msgid "Pick group"
+msgstr "Groep kiezen"
+
+msgid "Connect account first"
+msgstr "Verbind eerst een account"
+
+msgid "— Not connected —"
+msgstr "— Niet verbonden —"
+
+msgid "Spond login successful — token cached."
+msgstr "Spond-login geslaagd — token gecached."
+
+msgid "Spond credentials saved."
+msgstr "Spond-credentials opgeslagen."
+
+msgid "Spond credentials cleared. Per-team group selections are kept on file but will not sync until a new account is connected."
+msgstr "Spond-credentials gewist. Per-team groep-selecties blijven bewaard, maar synchroniseren niet tot er weer een account is verbonden."
+
+msgid "Save credentials"
+msgstr "Credentials opslaan"
+
+msgid "Test connection"
+msgstr "Verbinding testen"
+
+msgid "Disconnect"
+msgstr "Loskoppelen"
+
+msgid "Spond login failed."
+msgstr "Spond-login mislukt."
+
+msgid "Connect a Spond account first on the <a href=\"%s\">Spond integration</a> page, then come back to pick a group."
+msgstr "Verbind eerst een Spond-account via de pagina <a href=\"%s\">Spond-integratie</a>, en kom daarna terug om een groep te kiezen."
+
+msgid "Pick the Spond group that matches this team. Sync runs hourly. Leave on \"Not connected\" to disable."
+msgstr "Kies de Spond-groep die bij deze ploeg hoort. Sync loopt elk uur. Laat op \"Niet verbonden\" om te deactiveren."
+
+msgid "Spond email"
+msgstr "Spond e-mail"
+
+msgid "Spond password"
+msgstr "Spond-wachtwoord"
+
+msgid "Stored encrypted at rest. Rotating the WordPress AUTH_KEY salt invalidates the stored value and requires re-entry."
+msgstr "Versleuteld bewaard. Bij rotatie van de WordPress AUTH_KEY-salt wordt de waarde ongeldig en moet je opnieuw invoeren."
+
+msgid "•••••••• (leave blank to keep)"
+msgstr "•••••••• (leeg laten om te behouden)"
+
+msgid "One Spond login per club. Use a dedicated coach/manager account that's a member of every Spond group you want to sync. Two-factor authentication is not supported in v1 — disable it on this account or use a non-2FA account."
+msgstr "Eén Spond-login per club. Gebruik een toegewijd trainer-/manager-account dat lid is van elke Spond-groep die je wilt syncen. Tweestapsverificatie wordt niet ondersteund in v1 — schakel die op dit account uit, of gebruik een non-2FA account."
+
+msgid "%1$d teams. %2$d connected to a Spond group. %3$d with the last sync errored."
+msgstr "%1$d ploegen. %2$d verbonden met een Spond-groep. %3$d met de laatste sync gefaald."
+
+msgid "Pick the Spond group that matches this team, or leave on \"Not connected\" to skip Spond for now. You can always reconnect later from the team edit form."
+msgstr "Kies de Spond-groep die bij deze ploeg hoort, of laat op \"Niet verbonden\" om Spond voorlopig over te slaan. Je kunt later altijd terug verbinden vanaf het team-formulier."
+
+msgid "Could not load Spond groups."
+msgstr "Kon Spond-groepen niet laden."
+
+msgid "No Spond credentials configured."
+msgstr "Geen Spond-credentials geconfigureerd."
+
+msgid "No Spond credentials configured for the club."
+msgstr "Geen Spond-credentials geconfigureerd voor de club."
+
+msgid "No Spond group selected for this team."
+msgstr "Geen Spond-groep geselecteerd voor deze ploeg."
+
+msgid "Spond rejected the email + password combination."
+msgstr "Spond accepteerde de e-mail + wachtwoord-combinatie niet."
+
+msgid "Spond account requires 2FA. Use a non-2FA dedicated coach account for the integration."
+msgstr "Spond-account vereist 2FA. Gebruik een toegewijd account zonder 2FA voor de integratie."
+
+msgid "Spond login did not return a token."
+msgstr "Spond-login leverde geen token op."
+
+msgid "Spond response was not valid JSON."
+msgstr "Spond-antwoord was geen geldige JSON."
+
+msgid "Spond group contained no upcoming events."
+msgstr "Spond-groep bevatte geen aankomende events."
+
+msgid "That team could not be found."
+msgstr "Die ploeg kon niet worden gevonden."
+
+msgid "No teams yet. Add a team first, then come back to pick a Spond group on the team edit form."
+msgstr "Nog geen ploegen. Voeg eerst een ploeg toe en kom dan terug om een Spond-groep te kiezen op het team-formulier."
+
+msgid "Disconnect Spond? Existing imported activities are kept."
+msgstr "Spond loskoppelen? Bestaande geïmporteerde activiteiten blijven staan."

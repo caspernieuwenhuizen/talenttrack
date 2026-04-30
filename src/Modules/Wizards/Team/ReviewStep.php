@@ -26,6 +26,10 @@ final class ReviewStep implements WizardStepInterface {
             }
             echo '<dt>' . esc_html__( $label, 'talenttrack' ) . '</dt><dd>' . esc_html( $name ) . '</dd>';
         }
+        $spond_group_id = (string) ( $state['spond_group_id'] ?? '' );
+        if ( $spond_group_id !== '' ) {
+            echo '<dt>' . esc_html__( 'Spond group', 'talenttrack' ) . '</dt><dd>' . esc_html( $spond_group_id ) . '</dd>';
+        }
         echo '</dl>';
     }
 
@@ -39,12 +43,15 @@ final class ReviewStep implements WizardStepInterface {
 
         $head_coach_id = (int) ( $state['staff_head_coach'] ?? 0 );
 
+        $spond_group_id = (string) ( $state['spond_group_id'] ?? '' );
+
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_teams', [
             'club_id'        => CurrentClub::id(),
             'name'           => $name,
             'age_group'      => (string) ( $state['age_group'] ?? '' ),
             'head_coach_id'  => $head_coach_id,
             'notes'          => (string) ( $state['notes'] ?? '' ),
+            'spond_group_id' => $spond_group_id !== '' ? $spond_group_id : null,
         ] );
         if ( ! $ok ) return new \WP_Error( 'db_error', __( 'Could not create the team.', 'talenttrack' ) );
         $team_id = (int) $wpdb->insert_id;

@@ -4,13 +4,26 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.65.1
+Stable tag: 3.69.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.69.0 — Spond JSON-API fetcher (#0062) =
+
+The #0031 Spond integration shipped against an iCal contract that turned out not to exist — Spond never published iCal feeds. v3.69.0 swaps the fetcher to the internal JSON API at `api.spond.com` (the same one Spond's own apps use). Schema/UI/upsert/cron from #0031 stays; `SpondClient` and `SpondParser` were rewritten; per-club credentials replace per-team URLs.
+
+* **CHANGED:** `SpondClient` is now a JSON HTTP client with login (`POST /core/v1/login`), 12-hour token cache (encrypted in `tt_config`), groups list (`GET /core/v1/groups/`), group-scoped event fetch (`GET /core/v1/sponds/?groupId=…`), and 401-retry-once.
+* **CHANGED:** `SpondParser` is now a thin normaliser from the JSON event payload onto the array shape `SpondSync` already consumes — `SpondSync` is unchanged.
+* **NEW:** Per-club credentials (email + password) replace per-team iCal URLs. Email is plaintext in `tt_config`; password is encrypted at rest via `CredentialEncryption` (the same envelope `Push/VapidKeyManager` uses for the VAPID private key). Managed via the new `Spond\CredentialsManager` helper. Two-factor authentication is hard-fail in v1 with a clear error message — clubs are expected to use a non-2FA dedicated coach account.
+* **NEW:** Per-team `spond_group_id` column (migration 0052) replaces the old `spond_ical_url` value. `spond_ical_url` is nulled out on upgrade and kept in schema for one release for rollback safety.
+* **NEW:** Spond admin overview page at **Configuration → Spond** is now the single home for the integration: account credentials at the top (with **Test connection** + **Disconnect**), a per-team table below showing the picked group, last sync time, and a **Refresh now** button.
+* **NEW:** Team edit form swaps the iCal URL textbox for a Spond-group dropdown populated live from the groups your account is a member of. Falls back to a "Connect Spond first" link when no credentials are configured.
+* **NEW:** New-team wizard gains a **Pick Spond group** step between Roster and Review. Auto-skipped via `notApplicableFor()` when no club credentials exist.
+* **DOCS:** `docs/spond-integration.md` (EN + NL) rewritten end-to-end for the new flow + privacy posture.
 
 = 3.65.1 — Admin Center receiver URL hotfix (#0065) =
 

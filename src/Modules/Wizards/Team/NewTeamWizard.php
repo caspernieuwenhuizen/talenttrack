@@ -29,6 +29,11 @@ final class NewTeamWizard implements WizardInterface {
             // #0063 — admins want to assign players in the same flow
             // they use to create the team, not a follow-up.
             new RosterStep(),
+            // #0062 — when Spond credentials exist, optionally pick the
+            // matching Spond group here instead of going back to the
+            // team-edit form afterwards. Auto-skipped when no
+            // credentials are configured.
+            new SpondGroupStep(),
             new ReviewStep(),
         ];
     }
