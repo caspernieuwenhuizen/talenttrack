@@ -1,6 +1,6 @@
 <!-- type: epic -->
 
-# #0072 — full design system: tokens + per-component styling editor
+# #0075 — full design system: tokens + per-component styling editor
 
 ## Problem
 
