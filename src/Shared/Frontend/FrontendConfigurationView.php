@@ -63,6 +63,21 @@ class FrontendConfigurationView extends FrontendViewBase {
                 self::renderDashboardForm();
                 return;
             case 'lookups':
+                // v3.74.3 — #5: per-category frontend editor. When
+                // `category` is on the URL, render the dedicated CRUD
+                // surface for that lookup type; otherwise render the
+                // index that picks one. Editing no longer jumps to
+                // wp-admin.
+                $category_slug = isset( $_GET['category'] ) ? sanitize_key( (string) $_GET['category'] ) : '';
+                if ( $category_slug !== '' ) {
+                    $meta = self::lookupCategoryMeta( $category_slug );
+                    if ( $meta !== null ) {
+                        self::renderHeader( $meta['label'] );
+                        self::renderLookupsBackLink();
+                        self::renderLookupCategoryEditor( $meta );
+                        return;
+                    }
+                }
                 self::renderHeader( __( 'Lookups', 'talenttrack' ) );
                 self::renderSubBackLink();
                 self::renderLookupsIndex();
@@ -84,33 +99,246 @@ class FrontendConfigurationView extends FrontendViewBase {
      */
     private static function renderLookupsIndex(): void {
         self::tileGridStyles();
-        $admin_url = admin_url( 'admin.php?page=tt-config' );
+        // v3.74.3 — #5: each card now points at the dedicated frontend
+        // editor (`?config_sub=lookups&category=<slug>`) instead of
+        // jumping to wp-admin. The "Rating scale" card stays special-
+        // cased because rating-scale lives in tt_config (min/max/step),
+        // not tt_lookups.
+        $base = remove_query_arg( [ 'config_sub', 'category', 'edit' ] );
+        $rating_url = add_query_arg( [ 'config_sub' => 'rating' ], $base );
+
         $cards = [
-            [ __( 'Evaluation types',   'talenttrack' ), __( 'The evaluation templates rosters can attach to a player record.', 'talenttrack' ), 'eval_types' ],
-            [ __( 'Activity types',     'talenttrack' ), __( 'Training, game, tournament, meeting — colour-coded type pills.',   'talenttrack' ), 'activity_types' ],
-            [ __( 'Game subtypes',      'talenttrack' ), __( 'Friendly, league, cup, tournament. Filters game-only reports.',     'talenttrack' ), 'game_subtypes' ],
-            [ __( 'Positions',          'talenttrack' ), __( 'Football positions players can be tagged with.',                    'talenttrack' ), 'positions' ],
-            [ __( 'Preferred foot',     'talenttrack' ), __( 'Left, right, both — used on the player edit form.',                  'talenttrack' ), 'foot_options' ],
-            [ __( 'Age groups',         'talenttrack' ), __( 'U7, U8, … U23 — feed the team age-group dropdown and weights.',     'talenttrack' ), 'age_groups' ],
-            [ __( 'Goal statuses',      'talenttrack' ), __( 'Open / in progress / done / cancelled. Drives the goals KPI.',     'talenttrack' ), 'goal_statuses' ],
-            [ __( 'Goal priorities',    'talenttrack' ), __( 'Low / medium / high. Sorts the my-goals list.',                     'talenttrack' ), 'goal_priorities' ],
-            [ __( 'Attendance statuses', 'talenttrack' ), __( 'Present / absent / excused / late. Drives the attendance KPI.',  'talenttrack' ), 'att_statuses' ],
-            [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), 'rating' ],
+            [ __( 'Evaluation types',   'talenttrack' ), __( 'The evaluation templates rosters can attach to a player record.', 'talenttrack' ), 'eval_types',     'evaluations' ],
+            [ __( 'Activity types',     'talenttrack' ), __( 'Training, game, tournament, meeting — colour-coded type pills.',   'talenttrack' ), 'activity_types', 'activities' ],
+            [ __( 'Game subtypes',      'talenttrack' ), __( 'Friendly, league, cup, tournament. Filters game-only reports.',     'talenttrack' ), 'game_subtypes',  'sessions' ],
+            [ __( 'Positions',          'talenttrack' ), __( 'Football positions players can be tagged with.',                    'talenttrack' ), 'positions',       'compare' ],
+            [ __( 'Preferred foot',     'talenttrack' ), __( 'Left, right, both — used on the player edit form.',                  'talenttrack' ), 'foot_options',    'players' ],
+            [ __( 'Age groups',         'talenttrack' ), __( 'U7, U8, … U23 — feed the team age-group dropdown and weights.',     'talenttrack' ), 'age_groups',      'teams' ],
+            [ __( 'Goal statuses',      'talenttrack' ), __( 'Open / in progress / done / cancelled. Drives the goals KPI.',     'talenttrack' ), 'goal_statuses',   'goals' ],
+            [ __( 'Goal priorities',    'talenttrack' ), __( 'Low / medium / high. Sorts the my-goals list.',                     'talenttrack' ), 'goal_priorities', 'goals' ],
+            [ __( 'Attendance statuses', 'talenttrack' ), __( 'Present / absent / excused / late. Drives the attendance KPI.',  'talenttrack' ), 'att_statuses',    'inbox' ],
+            [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
         ];
 
         echo '<p style="margin-bottom:var(--tt-sp-4); color:var(--tt-muted);">';
-        esc_html_e( 'Pick a lookup category. Editing happens in wp-admin; values entered here are translatable and feed every dropdown across the dashboard.', 'talenttrack' );
+        esc_html_e( 'Pick a lookup category. Values are translatable and feed every dropdown across the dashboard.', 'talenttrack' );
         echo '</p>';
 
         echo '<div class="tt-cfg-tile-grid">';
-        foreach ( $cards as [ $title, $desc, $tab ] ) {
-            $url = add_query_arg( [ 'tab' => $tab ], $admin_url );
+        foreach ( $cards as $row ) {
+            list( $title, $desc, $slug, $icon ) = $row;
+            if ( $slug === '__rating' ) {
+                $url = $rating_url;
+            } else {
+                $url = add_query_arg( [ 'config_sub' => 'lookups', 'category' => $slug ], $base );
+            }
             echo '<a class="tt-cfg-tile" href="' . esc_url( $url ) . '">';
-            echo '<div class="tt-cfg-tile-title">' . esc_html( $title ) . ' &#8599;</div>';
+            echo '<div class="tt-cfg-tile-icon">' . \TT\Shared\Icons\IconRenderer::render( $icon ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<div class="tt-cfg-tile-title">' . esc_html( $title ) . '</div>';
             echo '<div class="tt-cfg-tile-desc">' . esc_html( $desc ) . '</div>';
             echo '</a>';
         }
         echo '</div>';
+    }
+
+    /**
+     * v3.74.3 — registry of lookup categories editable on the frontend.
+     * Each entry maps the URL slug (used in `?category=`) to the
+     * underlying `tt_lookups.lookup_type` plus presentation flags.
+     *
+     * @return array{label:string,type:string,show_desc:bool,show_color:bool,slug:string}|null
+     */
+    private static function lookupCategoryMeta( string $slug ): ?array {
+        $registry = [
+            'eval_types'      => [ 'label' => __( 'Evaluation types',    'talenttrack' ), 'type' => 'eval_type',         'show_desc' => true,  'show_color' => false ],
+            'activity_types'  => [ 'label' => __( 'Activity types',      'talenttrack' ), 'type' => 'activity_type',     'show_desc' => true,  'show_color' => true  ],
+            'game_subtypes'   => [ 'label' => __( 'Game subtypes',       'talenttrack' ), 'type' => 'game_subtype',      'show_desc' => false, 'show_color' => false ],
+            'positions'       => [ 'label' => __( 'Positions',           'talenttrack' ), 'type' => 'position',          'show_desc' => false, 'show_color' => false ],
+            'foot_options'    => [ 'label' => __( 'Preferred foot',      'talenttrack' ), 'type' => 'foot_option',       'show_desc' => false, 'show_color' => false ],
+            'age_groups'      => [ 'label' => __( 'Age groups',          'talenttrack' ), 'type' => 'age_group',         'show_desc' => false, 'show_color' => false ],
+            'goal_statuses'   => [ 'label' => __( 'Goal statuses',       'talenttrack' ), 'type' => 'goal_status',       'show_desc' => false, 'show_color' => true  ],
+            'goal_priorities' => [ 'label' => __( 'Goal priorities',     'talenttrack' ), 'type' => 'goal_priority',     'show_desc' => false, 'show_color' => false ],
+            'att_statuses'    => [ 'label' => __( 'Attendance statuses', 'talenttrack' ), 'type' => 'attendance_status', 'show_desc' => false, 'show_color' => true  ],
+        ];
+        if ( ! isset( $registry[ $slug ] ) ) return null;
+        $meta = $registry[ $slug ];
+        $meta['slug'] = $slug;
+        return $meta;
+    }
+
+    private static function renderLookupsBackLink(): void {
+        $base = add_query_arg( [ 'config_sub' => 'lookups' ], remove_query_arg( [ 'category', 'edit' ] ) );
+        echo '<p style="margin:0 0 var(--tt-sp-3);"><a class="tt-link" href="' . esc_url( $base ) . '">&larr; ' . esc_html__( 'All lookups', 'talenttrack' ) . '</a></p>';
+    }
+
+    /**
+     * v3.74.3 — frontend CRUD editor for one lookup category.
+     * Lists current rows; offers an inline Add form; opens an Edit
+     * form when `?edit=<id>` is on the URL. Save / delete go through
+     * the existing `LookupsRestController` endpoints, so authorisation
+     * + tenancy + audit logging stay centralised.
+     *
+     * Drag-reorder is intentionally deferred to v2 — sort_order is
+     * editable as a numeric field on the Edit form.
+     *
+     * @param array{label:string,type:string,show_desc:bool,show_color:bool,slug:string} $meta
+     */
+    private static function renderLookupCategoryEditor( array $meta ): void {
+        $type     = $meta['type'];
+        $items    = QueryHelpers::get_lookups( $type );
+        $edit_id  = isset( $_GET['edit'] ) ? absint( $_GET['edit'] ) : 0;
+        $editing  = null;
+        if ( $edit_id > 0 ) {
+            foreach ( $items as $row ) {
+                if ( (int) $row->id === $edit_id ) { $editing = $row; break; }
+            }
+        }
+
+        $base = remove_query_arg( [ 'edit' ] );
+        ?>
+        <div class="tt-panel" data-tt-lookups-editor data-lookup-type="<?php echo esc_attr( $type ); ?>" data-show-desc="<?php echo $meta['show_desc'] ? '1' : '0'; ?>" data-show-color="<?php echo $meta['show_color'] ? '1' : '0'; ?>">
+            <table class="tt-table" style="width:100%; margin-bottom: var(--tt-sp-4);">
+                <thead><tr>
+                    <th style="width:60px;"><?php esc_html_e( 'Order', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
+                    <?php if ( $meta['show_desc'] ) : ?><th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th><?php endif; ?>
+                    <?php if ( $meta['show_color'] ) : ?><th style="width:80px;"><?php esc_html_e( 'Colour', 'talenttrack' ); ?></th><?php endif; ?>
+                    <th style="width:160px;"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
+                </tr></thead>
+                <tbody>
+                    <?php if ( empty( $items ) ) : ?>
+                        <tr><td colspan="<?php echo 3 + ( $meta['show_desc'] ? 1 : 0 ) + ( $meta['show_color'] ? 1 : 0 ); ?>"><em><?php esc_html_e( 'No items yet.', 'talenttrack' ); ?></em></td></tr>
+                    <?php else : foreach ( $items as $row ) :
+                        $row_meta_arr = QueryHelpers::lookup_meta( $row );
+                        $row_color    = is_string( $row_meta_arr['color'] ?? null ) ? (string) $row_meta_arr['color'] : '';
+                        $is_locked    = ! empty( $row_meta_arr['is_locked'] );
+                        ?>
+                        <tr>
+                            <td><?php echo (int) $row->sort_order; ?></td>
+                            <td>
+                                <strong><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $row ) ); ?></strong>
+                                <?php if ( $is_locked ) : ?>
+                                    <span title="<?php esc_attr_e( 'Locked — workflow rules depend on this row.', 'talenttrack' ); ?>" style="margin-left:6px; color:#888; font-size:11px;">🔒</span>
+                                <?php endif; ?>
+                            </td>
+                            <?php if ( $meta['show_desc'] ) : ?><td><?php echo esc_html( (string) ( $row->description ?? '' ) ); ?></td><?php endif; ?>
+                            <?php if ( $meta['show_color'] ) : ?>
+                                <td><?php if ( $row_color !== '' ) : ?><span style="display:inline-block; width:18px; height:18px; border-radius:3px; background:<?php echo esc_attr( $row_color ); ?>; vertical-align:middle;"></span><?php endif; ?></td>
+                            <?php endif; ?>
+                            <td>
+                                <a class="tt-btn tt-btn-secondary tt-btn-small" href="<?php echo esc_url( add_query_arg( [ 'edit' => (int) $row->id ], $base ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
+                                <?php if ( ! $is_locked ) : ?>
+                                    <button type="button" class="tt-btn tt-btn-secondary tt-btn-small" data-tt-lookup-delete="<?php echo (int) $row->id; ?>" data-tt-lookup-name="<?php echo esc_attr( (string) $row->name ); ?>" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></button>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; endif; ?>
+                </tbody>
+            </table>
+
+            <h3 style="margin-top:var(--tt-sp-4);">
+                <?php echo $editing ? esc_html__( 'Edit row', 'talenttrack' ) : esc_html__( 'Add new row', 'talenttrack' ); ?>
+            </h3>
+            <form data-tt-lookup-form>
+                <input type="hidden" name="id" value="<?php echo (int) ( $editing->id ?? 0 ); ?>" />
+                <div class="tt-grid tt-grid-2">
+                    <div class="tt-field">
+                        <label class="tt-field-label tt-field-required" for="tt-lkp-name"><?php esc_html_e( 'Name', 'talenttrack' ); ?></label>
+                        <input type="text" id="tt-lkp-name" class="tt-input" name="name" required value="<?php echo esc_attr( (string) ( $editing->name ?? '' ) ); ?>" />
+                    </div>
+                    <div class="tt-field">
+                        <label class="tt-field-label" for="tt-lkp-sort"><?php esc_html_e( 'Sort order', 'talenttrack' ); ?></label>
+                        <input type="number" id="tt-lkp-sort" class="tt-input" name="sort_order" inputmode="numeric" min="0" step="1" value="<?php echo esc_attr( (string) ( $editing->sort_order ?? 0 ) ); ?>" />
+                    </div>
+                    <?php if ( $meta['show_desc'] ) : ?>
+                        <div class="tt-field" style="grid-column:1 / -1;">
+                            <label class="tt-field-label" for="tt-lkp-desc"><?php esc_html_e( 'Description', 'talenttrack' ); ?></label>
+                            <input type="text" id="tt-lkp-desc" class="tt-input" name="description" value="<?php echo esc_attr( (string) ( $editing->description ?? '' ) ); ?>" />
+                        </div>
+                    <?php endif; ?>
+                    <?php if ( $meta['show_color'] ) :
+                        $existing_meta = $editing ? QueryHelpers::lookup_meta( $editing ) : [];
+                        $existing_color = is_string( $existing_meta['color'] ?? null ) ? (string) $existing_meta['color'] : '#5b6e75';
+                        ?>
+                        <div class="tt-field">
+                            <label class="tt-field-label" for="tt-lkp-color"><?php esc_html_e( 'Pill colour', 'talenttrack' ); ?></label>
+                            <input type="color" id="tt-lkp-color" name="meta[color]" value="<?php echo esc_attr( $existing_color ); ?>" />
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <p style="margin-top:var(--tt-sp-3);">
+                    <button type="submit" class="tt-btn tt-btn-primary"><?php echo $editing ? esc_html__( 'Save changes', 'talenttrack' ) : esc_html__( 'Add row', 'talenttrack' ); ?></button>
+                    <?php if ( $editing ) : ?>
+                        <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $base ); ?>" style="margin-left:8px;"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></a>
+                    <?php endif; ?>
+                </p>
+                <div class="tt-form-msg" data-tt-lookup-msg></div>
+            </form>
+        </div>
+
+        <script>
+        (function(){
+            'use strict';
+            var root = document.querySelector('[data-tt-lookups-editor]');
+            if (!root) return;
+
+            var nonce = (window.TT && window.TT.rest_nonce) || (window.wpApiSettings && window.wpApiSettings.nonce) || '';
+            var rest  = ((window.TT && window.TT.rest_url) || '/wp-json/talenttrack/v1/').replace(/\/+$/, '/');
+            var type  = root.getAttribute('data-lookup-type');
+
+            // Save (create / update)
+            var form = root.querySelector('[data-tt-lookup-form]');
+            if (form) {
+                form.addEventListener('submit', function(e){
+                    e.preventDefault();
+                    var msg = root.querySelector('[data-tt-lookup-msg]');
+                    var fd  = new FormData(form);
+                    var id  = parseInt(fd.get('id') || '0', 10);
+                    var body = {
+                        name:       String(fd.get('name') || '').trim(),
+                        sort_order: parseInt(fd.get('sort_order') || '0', 10),
+                    };
+                    if (fd.get('description') !== null) body.description = String(fd.get('description') || '');
+                    if (fd.get('meta[color]'))         body.meta = { color: String(fd.get('meta[color]') || '') };
+
+                    var url = rest + 'lookups/' + encodeURIComponent(type);
+                    var method = 'POST';
+                    if (id > 0) { url += '/' + id; method = 'PUT'; }
+
+                    msg.textContent = '';
+                    fetch(url, {
+                        method: method,
+                        credentials: 'same-origin',
+                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': nonce, 'Accept': 'application/json' },
+                        body: JSON.stringify(body)
+                    }).then(function(r){ return r.json().then(function(j){ return { ok: r.ok, status: r.status, json: j }; }); })
+                      .then(function(r){
+                        if (r.ok) { window.location.reload(); return; }
+                        var first = r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message;
+                        msg.textContent = first || ('Error ' + r.status);
+                      })
+                      .catch(function(){ msg.textContent = 'Network error.'; });
+                });
+            }
+
+            // Delete (per-row buttons)
+            root.addEventListener('click', function(e){
+                var btn = e.target.closest && e.target.closest('[data-tt-lookup-delete]');
+                if (!btn) return;
+                var id = parseInt(btn.getAttribute('data-tt-lookup-delete'), 10);
+                var name = btn.getAttribute('data-tt-lookup-name') || '';
+                if (!id) return;
+                if (!window.confirm('<?php echo esc_js( __( 'Delete this row?', 'talenttrack' ) ); ?>'.replace('%s', name))) return;
+                btn.disabled = true;
+                fetch(rest + 'lookups/' + encodeURIComponent(type) + '/' + id, {
+                    method: 'DELETE',
+                    credentials: 'same-origin',
+                    headers: { 'X-WP-Nonce': nonce, 'Accept': 'application/json' }
+                }).then(function(r){ if (r.ok) window.location.reload(); else { btn.disabled = false; window.alert('Error ' + r.status); } });
+            });
+        })();
+        </script>
+        <?php
     }
 
     private static function renderSubBackLink(): void {
