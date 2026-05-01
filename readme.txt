@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.75.0
+Stable tag: 3.75.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.75.1 — Live preview in the design-system editor (#0075 Sprint 1 PR 4 of 5) =
+
+Adds a live preview to the Custom CSS visual editor. Every input change in the eight accordion sections (Brand colours / Status colours / Surfaces / Text / Typography / Shape + spacing / Shadows / Motion) immediately updates a `<style id="tt-css-preview">` element on the editor page itself, so the operator sees the chosen colours, shadows, and motion timings take effect on the editor's own controls (Save button, accordion summaries, panels, the configuration tile grid behind the editor) without having to save and reload. The preview JS mirrors the validation + emission shape of `VisualEditor::generateCss` — px-suffix on number tokens, preset → CSS-value lookups for shadow + motion, font-family quoting for select-font tokens. Save still uses the server-side generator (single source of truth); the preview is local to the editor page only and disappears as soon as the operator navigates away. ~80 lines of vanilla JS, no jQuery, no build step. No new strings; one new translatable status caption ("Live preview is on — changes appear immediately on this page; click Save to persist.").
 
 = 3.75.0 — New evaluation wizard (#0072) — activity-first, attendance-aware, multi-player batch flow =
 

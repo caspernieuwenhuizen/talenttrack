@@ -11296,3 +11296,7 @@ msgstr "Coaches kunnen spelerevaluaties aanmaken op activiteiten van dit type."
 
 msgid "When unchecked, activities of this type vanish from the new-evaluation wizard's activity picker. They remain visible everywhere else (the activity itself, stats, reports). Useful for clinics, methodology lectures, and team meetings."
 msgstr "Wanneer uitgevinkt verdwijnen activiteiten van dit type uit de activiteitkiezer van de nieuwe-evaluatie-wizard. Ze blijven overal anders zichtbaar (de activiteit zelf, statistieken, rapporten). Handig voor clinics, methodology-lectures en team-meetings."
+
+# v3.75.1 / #0075 Sprint 1 PR 4 — live preview status caption
+msgid "Live preview is on — changes appear immediately on this page; click Save to persist."
+msgstr "Live voorbeeld staat aan — wijzigingen verschijnen direct op deze pagina; klik op Opslaan om ze vast te leggen."
