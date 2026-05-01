@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.69.0
+Stable tag: 3.70.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.70.1 — Logger static-call hotfix =
+
+Saving any setting through the Configuration REST endpoint (including the persona-vs-classic dashboard toggle, theme-inherit, branding, and every other dotted-key) returned HTTP 500 on PHP 8 because `Logger::info()` was called as a static method while the class only declared instance methods. PHP 8 made that combination a hard fatal. The setting actually persisted in `tt_config` because the log line ran *after* the write, but the JSON response body carried the fatal so the UI showed "Error". Fix converts the five public Logger methods (`debug` / `info` / `warning` / `error` / `log`) to `public static` while keeping the DI constructor, so both `Logger::error(…)` and the existing injected `$this->logger->warning(…)` patterns work first-class. ~68 pre-existing static call sites across REST controllers + EventEmitter are unblocked too.
 
 = 3.69.0 — Spond JSON-API fetcher (#0062) =
 

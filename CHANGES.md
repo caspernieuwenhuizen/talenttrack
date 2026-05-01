@@ -1,3 +1,29 @@
+# TalentTrack v3.70.1 — Logger static-call hotfix
+
+Patch on top of v3.70.0. Saving any setting through the Configuration REST endpoint returned HTTP 500 on PHP 8.
+
+## What broke
+
+`ConfigRestController::save_config()` ends with `Logger::info( 'rest.config.saved', […] )` — a static call onto a method declared as an instance method. PHP 7.4 silently deprecated that combination; PHP 8.0 made it a hard fatal:
+
+> Uncaught Error: Non-static method TT\Infrastructure\Logging\Logger::info() cannot be called statically
+
+The fatal fired *after* `QueryHelpers::set_config()` had already persisted the value, so `tt_config` was correctly updated — the user just saw an "Error" toast in the UI because the response was 500 rather than 200. Same shape applies to ~68 other static `Logger::error(...)` / `Logger::warning(...)` / `Logger::info(...)` call sites scattered across the REST controllers and `EventEmitter`; those only fired in failure branches so they only fataled when something else had already gone wrong.
+
+## What was fixed
+
+`src/Infrastructure/Logging/Logger.php` — the five public methods (`debug`, `info`, `warning`, `error`, `log`) are now `public static`. `EnvironmentService` is held in a static field so both styles still respect the production-debug-suppress check. The DI constructor is kept because `Kernel` instantiates the logger via the container and `AuditService` holds an injected `$this->logger`; PHP allows calling a static method via `$obj->method(…)` so the injected pattern keeps working without any caller-side change.
+
+The choice between adding `__callStatic` and converting to true static methods came down to PHP semantics: `__callStatic` only fires when the named method *doesn't exist* on the class, so the original instance methods would have still trapped the fatal. Conversion was the only path that covered both call styles.
+
+## Acceptance criteria (manually verified)
+
+- [x] `php -l` clean.
+- [x] Smoke test: `Logger::error(...)`, `Logger::info(...)`, `Logger::warning(...)`, and `(new Logger())->info(...)` all succeed without fatal.
+- [ ] Configuration → Default dashboard → flip the radio → Save → green "Saved" message (not red "Error"). Value still persists either way.
+- [ ] Other config saves (theme inherit, branding, lookups, etc.) all return 200.
+- [ ] Audit log writes from `AuditService` (instance-style logger) still produce `[TalentTrack][WARNING] Audit log insert failed` lines on failure.
+
 # TalentTrack v3.69.0 — Spond JSON-API fetcher (#0062)
 
 The #0031 Spond integration shipped in v3.47.0 was scaffolded against an iCal contract that turned out not to exist — Spond never published iCal feeds. v3.69.0 swaps the fetcher to use the internal JSON API at `api.spond.com` (the same undocumented-but-stable API Spond's own mobile and web apps use). Most of #0031 stays unchanged: the schema, the UI conventions, the upsert + soft-archive logic, the hourly cron, the WP-CLI commands, and the per-team REST sync endpoint. What was rewritten is `SpondClient` and `SpondParser` — both authored against a contract that didn't exist — plus the credential model (per-club login replaces per-team URLs).
