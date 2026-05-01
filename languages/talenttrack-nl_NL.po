@@ -11033,9 +11033,6 @@ msgstr "Spond loskoppelen? Bestaande geïmporteerde activiteiten blijven staan."
 msgid "Upcoming activities"
 msgstr "Aankomende activiteiten"
 
-msgid "Source"
-msgstr "Bron"
-
 msgid "All sources"
 msgstr "Alle bronnen"
 
