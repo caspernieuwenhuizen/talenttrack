@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.72.1
+Stable tag: 3.73.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.73.0 — Design-system token catalogue + grouped visual editor (#0075 Sprint 1 PR 1) =
+
+First PR of #0075 Sprint 1. Refactors the v3.64 Custom CSS visual editor to be catalogue-driven: a new `TokenCatalogue` class is the single source of truth for the design tokens the editor exposes, and the editor's render layer + CSS generator both loop through the catalogue. Adds 14 new tokens on top of the v3.64 21: hover variants for primary/secondary/accent (`--tt-primary-hover` etc.), subtle background tints for the four status colours (`--tt-success-subtle`, `--tt-warning-subtle`, `--tt-danger-subtle`, `--tt-info-subtle`), three explicit shadow tokens (`--tt-shadow-sm/md/lg`) replacing the v3.64 single `shadow_strength` field, and motion duration + easing tokens (`--tt-motion-duration`, `--tt-motion-easing`). The visual editor now groups fields by category in collapsible `<details>` sections — Brand colours, Status colours, Surfaces, Text, Typography, Shape + spacing, Shadows, Motion. Backward-compat: existing v3.64 saves render correctly; `shadow_strength` propagates to the three new shadow tokens when those are absent. Consumer stylesheets that read `--tt-shadow-*` etc. ship in PR 2; for now the generator emits per-surface `box-shadow` overrides so today's CSS still picks up the operator's choice.
 
 = 3.72.1 — Custom CSS Sprint 0 hotfix (#0075 companion) =
 

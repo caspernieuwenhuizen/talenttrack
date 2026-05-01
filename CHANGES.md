@@ -105,6 +105,43 @@ New cap `tt_impersonate_users` granted by default to `administrator` and `tt_clu
 - [ ] Impersonation child: admin starts impersonation of a parent → dashboard renders as parent → banner visible → safeguarding-notes 403s for the impersonated parent → switch back → admin can read safeguarding notes again. `tt_impersonation_log` has one row with both timestamps.
 - [ ] Self-impersonation / admin-on-admin / stacking attempts return distinct error codes.
 
+# TalentTrack v3.73.0 — Design-system token catalogue + grouped visual editor (#0075 Sprint 1 PR 1)
+
+First PR of #0075 Sprint 1. The v3.64 Custom CSS visual editor was a flat list of 21 fields with no extension story; adding a token meant editing the FIELDS const, the renderVisualTab method, and the generateCss method in three parallel places. This PR makes the editor catalogue-driven: a new `TokenCatalogue` class is the single source of truth, and both the render layer and the CSS generator loop through it. Adding a token is now a single-line change in the catalogue.
+
+## What's new
+
+- **`TokenCatalogue`** at `src/Modules/CustomCss/DesignSystem/TokenCatalogue.php` — defines every token with its storage key, CSS custom property name, category, kind (color / number / float / select), label, default value, and per-kind validation metadata (min / max / step / options). 36 tokens total, up from v3.64's 21:
+  - **Brand colours**: primary + primary-hover, secondary + secondary-hover, accent + accent-hover, focus-ring (7 tokens, 3 new).
+  - **Status colours**: success, warning, danger, info — each paired with a `*-subtle` variant for low-contrast banner backgrounds (8 tokens, 4 new).
+  - **Surfaces**: background, card surface, lines + borders (3 tokens, unchanged).
+  - **Text**: text, muted text (2 tokens, unchanged).
+  - **Typography**: display font, body font, heading weight, body weight (4 tokens, unchanged).
+  - **Shape + spacing**: corner radius medium + large, spacing scale (3 tokens, unchanged).
+  - **Shadows**: small, medium (hover), large (3 tokens, replacing v3.64's single `shadow_strength`).
+  - **Motion**: duration, easing (2 tokens, new).
+- **Grouped editor layout** — `FrontendCustomCssView::renderVisualTab` now renders each category as a collapsible `<details>` accordion section (first one open by default). Categories follow the order Brand colours → Status colours → Surfaces → Text → Typography → Shape + spacing → Shadows → Motion. Field rendering branches on `kind` and the field-id naming convention is `tt-css-<storage_key_with_dashes>`.
+- **CSS generator is catalogue-driven** — `VisualEditor::generateCss` loops through `TokenCatalogue::all()` and emits `--tt-foo: <validated value>;` for each non-empty entry. Per-kind validation (color / number / float / select) lives in `resolveTokenValue()`. The shadow + motion tokens emit string presets (`light` / `medium` / `strong` / `fast` / `base` / `slow` / `standard` / `in` / `out` / `in_out`) that map to CSS values via static helpers on the catalogue.
+- **Backward-compat for v3.64 saves** — `shadow_strength` (the v3.64 single-strength field) is read on load and, when the new `shadow_sm` / `shadow_md` / `shadow_lg` tokens are absent, propagates `none` / `light` / `medium` / `strong` to all three. So opening an old save and saving again normalises into the new shape without the operator having to touch every shadow field. The `shadow_strength` field stays in `VisualEditor::FIELDS` for the same reason — it's still read but never rendered as a form control.
+- **Per-surface `box-shadow` overrides preserved** — until consumer stylesheets read `--tt-shadow-*` directly (Sprint 1 PR 2), the generator continues emitting `box-shadow` declarations on `.tt-panel` / `.tt-card` / `.tt-mc-card` / `.tt-cfg-tile` for the small token, plus the `:hover` variant for the medium token. So today's CSS still picks up the operator's choice without waiting for the consumer rewrite.
+- **15 new translatable strings** in `nl_NL.po` — token labels (Primary, Primary — hover, Secondary, …) and category labels (Brand colours, Status colours, Surfaces, Shadows, Motion).
+
+## What did *not* change in this PR
+
+- **Storage shape** — still the v3.64 flat `key => value` JSON blob in `tt_config:custom_css.frontend.visual_settings`. The structured `{tokens: {...}, components: {...}}` shape ships in **PR 2** of Sprint 1.
+- **Consumer stylesheets** — `public.css` / `frontend-admin.css` / `frontend-profile.css` still don't read `--tt-shadow-*`, `--tt-primary-hover`, `--tt-success-subtle`, `--tt-motion-*`. So setting those tokens in the editor saves them but they don't yet do anything visible (except the shadow pair, which the generator backstops via per-surface overrides). PR 2 wires the consumers.
+- **Live preview miniatures** — also deferred to PR 2.
+- **REST endpoint** (`GET /design-system/tokens`) — also deferred to PR 2.
+- **Editor restructure to left-rail navigator** — the spec calls for left-rail + right-pane; this PR ships a simpler accordion as an interim step. Sprint 1 PR 3 (or Sprint 2, depending on review feedback) lifts to the full left-rail.
+
+## Acceptance criteria (manually verified)
+
+- [x] `php -l` clean on every touched file.
+- [x] `nl_NL.po` has no duplicate msgids.
+- [ ] Open `?tt_view=custom-css` (frontend surface) → "Visual settings" tab. Eight collapsible sections render in order; first one open. Picking different colours under each section saves and round-trips to the next page load. URL reflects PRG (`tt_msg=ok` after save).
+- [ ] Existing v3.64 saves still render. A save with `shadow_strength: strong` and no shadow_sm/md/lg keys produces a CSS body that emits `box-shadow: 0 8px 24px ...` on `.tt-panel`/`.tt-card`/`.tt-mc-card`/`.tt-cfg-tile`. Same save's `--tt-shadow-sm: 0 8px 24px ...` token is also present in the inline `<style>`.
+- [ ] Saving an empty `font_display` value resolves to "(System default)" on next open. Saving "Bebas Neue" emits `--tt-font-display: 'Bebas Neue';`.
+
 # TalentTrack v3.72.1 — Custom CSS Sprint 0 hotfix (#0075 companion)
 
 > Originally drafted as v3.71.5 in PR #155. The `v3.71.5` git tag had already been claimed by the persona drag-drop fix (#157 / #11) seconds before #155 finished merging, and v3.72.0 (#0071 authorization matrix) shipped on top before this got tagged. Renumbered to v3.72.1 — a patch on top of v3.72.0. Code unchanged from PR #155.
