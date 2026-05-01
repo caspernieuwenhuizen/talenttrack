@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.72.0
+Stable tag: 3.72.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.72.1 — Custom CSS Sprint 0 hotfix (#0075 companion) =
+
+Companion hotfix to the #0075 design-system epic. Three concrete bugs in the v3.64 Custom CSS visual editor: the on/off toggle didn't visibly change anything (POST handler ran inside the shortcode body, after `wp_head` had already injected the inline `<style>`); clicking any of the four tabs didn't move the underlined indicator (`FrontendCustomCssView` emitted `tt-tab-current` but `public.css` only defined `.tt-tab-active`); display + body font fields were free-text inputs even though the docs said dropdowns. Fix moves POST handling to `template_redirect` (PRG), renames the active-tab class, and replaces the font inputs with `<select>` populated from `BrandFonts` catalogue. Same-typo fix in `FrontendTrialCaseView` rolled in. Originally drafted as v3.71.5 in PR #155; renumbered after `v3.71.5` was claimed by another PR and v3.72.0 shipped on top before this got tagged. Code unchanged from PR #155.
 
 = 3.72.0 — Authorization matrix completeness, sub-cap split, HoD redefinition (#0071) =
 
@@ -23,10 +27,6 @@ Sequel to #0033. Five children shipped in one bundle:
 * **User impersonation** — Academy Admin can switch into any non-admin user in their club, see exactly what they see, and switch back. New `tt_impersonate_users` cap (admin + tt_club_admin only). New `tt_impersonation_log` table (migration `0056_impersonation_log`) with actor / target / club / start / end / end_reason / ip / user_agent / reason. Non-dismissible yellow banner on every page during a session. Daily `tt_impersonation_cleanup_cron` closes orphan rows after 24h. Defence in depth: no admin-on-admin, no self, no stacking, no cross-club without `tt_super_admin`. New `ImpersonationContext::denyIfImpersonating()` guard available to destructive admin handlers.
 * **Documentation**: `docs/impersonation.md` (EN + NL) — operator guide for the impersonation feature.
 * **NL translations** for the new user-facing strings (impersonation banner, status toggle description, error messages).
-
-= 3.71.5 — Custom CSS Sprint 0 hotfix (#0075 companion) =
-
-Companion hotfix to the #0075 design-system epic. Three concrete bugs in the v3.64 Custom CSS visual editor were making the surface feel half-finished: the on/off toggle didn't visibly change anything (POST handler ran inside the shortcode body, after `wp_head` had already injected the inline `<style>`); clicking any of the four tabs (Visual / CSS editor / Upload / History) didn't move the underlined indicator (`FrontendCustomCssView` emitted `tt-tab-current` but `public.css` only defined `.tt-tab-active`); display + body font fields were free-text inputs even though the docs said dropdowns. Fix moves POST handling to `template_redirect` (PRG: redirect-after-post so the redirected GET sees fresh state), renames the active-tab class to match `public.css`, and replaces the font inputs with `<select>` populated from `BrandFonts` catalogue. Same-typo fix in `FrontendTrialCaseView` rolled in. No data migration; existing visual saves continue to render correctly.
 
 = 3.70.1 — Logger static-call hotfix =
 

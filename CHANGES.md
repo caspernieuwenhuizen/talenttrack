@@ -105,7 +105,9 @@ New cap `tt_impersonate_users` granted by default to `administrator` and `tt_clu
 - [ ] Impersonation child: admin starts impersonation of a parent → dashboard renders as parent → banner visible → safeguarding-notes 403s for the impersonated parent → switch back → admin can read safeguarding notes again. `tt_impersonation_log` has one row with both timestamps.
 - [ ] Self-impersonation / admin-on-admin / stacking attempts return distinct error codes.
 
-# TalentTrack v3.71.5 — Custom CSS Sprint 0 hotfix (#0075 companion)
+# TalentTrack v3.72.1 — Custom CSS Sprint 0 hotfix (#0075 companion)
+
+> Originally drafted as v3.71.5 in PR #155. The `v3.71.5` git tag had already been claimed by the persona drag-drop fix (#157 / #11) seconds before #155 finished merging, and v3.72.0 (#0071 authorization matrix) shipped on top before this got tagged. Renumbered to v3.72.1 — a patch on top of v3.72.0. Code unchanged from PR #155.
 
 Companion hotfix to the #0075 design-system epic. Three concrete bugs in the v3.64 Custom CSS visual editor were making the surface feel half-finished. None had data corruption potential — the toggle persisted in `tt_config`, tab content rendered correctly, font values saved as authored — but the UX felt broken because the visible state didn't reflect what was actually persisted.
 
