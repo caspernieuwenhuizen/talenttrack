@@ -951,7 +951,11 @@ class ConfigurationPage {
     }
 
     public static function handle_save_toggles(): void {
-        if ( ! current_user_can( 'tt_edit_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        // #0071 follow-up — use the specific sub-cap. The
+        // CapabilityAliases roll-up still grants `tt_edit_feature_toggles`
+        // for legacy `tt_edit_settings` holders, so existing users
+        // with the umbrella keep working.
+        if ( ! current_user_can( 'tt_edit_feature_toggles' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_toggles', 'tt_nonce' );
         /** @var FeatureToggleService $toggles */
         $toggles = Kernel::instance()->container()->get( 'toggles' );
@@ -965,7 +969,9 @@ class ConfigurationPage {
     }
 
     public static function handle_save_lookup(): void {
-        if ( ! current_user_can( 'tt_edit_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        // #0071 follow-up — use the specific sub-cap. CapabilityAliases
+        // grants this to legacy `tt_edit_settings` holders.
+        if ( ! current_user_can( 'tt_edit_lookups' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_lookup', 'tt_nonce' );
         global $wpdb;
         $id   = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
@@ -1030,7 +1036,8 @@ class ConfigurationPage {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         $tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tab'] ) ) : '';
         check_admin_referer( 'tt_del_lookup_' . $id );
-        if ( ! current_user_can( 'tt_edit_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_lookups' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'lookup.delete' );
 
         // #0050 — refuse to delete locked rows (the seeded activity_type
         // rows mark themselves as is_locked because workflow rules

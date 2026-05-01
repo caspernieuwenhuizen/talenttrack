@@ -223,6 +223,8 @@ class BulkActionsHelper {
         if ( $action === 'delete_permanent' && ! current_user_can( 'tt_edit_settings' ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
+        // #0071 follow-up — block all bulk operations during impersonation.
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'bulk.' . $action );
 
         // #0013 Sprint 2 — fire a pre-bulk action so the Backup module
         // can take an auto-safety snapshot when the affected row count

@@ -128,6 +128,7 @@ class PreviewPage {
     public static function handleApply(): void {
         if ( ! current_user_can( 'administrator' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_matrix_apply', 'tt_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'matrix.apply' );
         ( new ConfigService() )->set( 'tt_authorization_active', '1' );
         wp_safe_redirect( add_query_arg( [ 'page' => 'tt-matrix-preview', 'tt_msg' => 'applied' ], admin_url( 'admin.php' ) ) );
         exit;
@@ -136,6 +137,7 @@ class PreviewPage {
     public static function handleRollback(): void {
         if ( ! current_user_can( 'administrator' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_matrix_rollback', 'tt_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'matrix.rollback' );
         ( new ConfigService() )->set( 'tt_authorization_active', '0' );
         wp_safe_redirect( add_query_arg( [ 'page' => 'tt-matrix-preview', 'tt_msg' => 'rolled_back' ], admin_url( 'admin.php' ) ) );
         exit;

@@ -331,6 +331,7 @@ class TeamsPage {
         // with users who have global tt_manage_players; coaches of a team
         // shouldn't be able to delete the team they coach.
         if ( ! current_user_can( 'tt_edit_teams' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'team.delete' );
         global $wpdb;
         // Also clean up any staff assignments pointing at this team, to avoid orphans.
         $wpdb->delete( $wpdb->prefix . 'tt_team_people', [ 'team_id' => $id, 'club_id' => CurrentClub::id() ] );

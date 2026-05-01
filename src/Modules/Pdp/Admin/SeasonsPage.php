@@ -25,7 +25,7 @@ class SeasonsPage {
     }
 
     public static function render(): void {
-        if ( ! current_user_can( 'tt_edit_settings' ) ) {
+        if ( ! current_user_can( 'tt_edit_seasons' ) ) {
             wp_die( esc_html__( 'You do not have permission to manage seasons.', 'talenttrack' ) );
         }
 
@@ -103,8 +103,9 @@ class SeasonsPage {
     }
 
     public static function handleSave(): void {
-        if ( ! current_user_can( 'tt_edit_settings' ) ) wp_die( esc_html__( 'Forbidden.', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_seasons' ) ) wp_die( esc_html__( 'Forbidden.', 'talenttrack' ) );
         check_admin_referer( 'tt_save_season', 'tt_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'season.save' );
 
         $name  = sanitize_text_field( wp_unslash( (string) ( $_POST['name'] ?? '' ) ) );
         $start = sanitize_text_field( wp_unslash( (string) ( $_POST['start_date'] ?? '' ) ) );
@@ -128,9 +129,10 @@ class SeasonsPage {
     }
 
     public static function handleSetCurrent(): void {
-        if ( ! current_user_can( 'tt_edit_settings' ) ) wp_die( esc_html__( 'Forbidden.', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_seasons' ) ) wp_die( esc_html__( 'Forbidden.', 'talenttrack' ) );
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
         check_admin_referer( 'tt_set_current_season_' . $id, 'tt_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'season.set_current' );
 
         $back = admin_url( 'admin.php?page=tt-seasons' );
         if ( $id <= 0 ) {
