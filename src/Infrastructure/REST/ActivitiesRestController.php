@@ -401,6 +401,17 @@ class ActivitiesRestController {
             );
         }
 
+        // v3.71.6 — fire the workflow event so EventDispatcher hands
+        // off to the post-game evaluation template (and any other
+        // template subscribed to `tt_activity_completed`). The wp-admin
+        // ActivitiesPage::handle_save fires the same event; the REST
+        // path was missing it, so coaches saving games via the
+        // frontend never got tasks generated. Root cause of #24.
+        if ( class_exists( '\\TT\\Modules\\Workflow\\TaskContext' ) ) {
+            $ctx = new \TT\Modules\Workflow\TaskContext( null, (int) $data['team_id'], $activity_id );
+            do_action( 'tt_activity_completed', $ctx, (string) $data['activity_type_key'] );
+        }
+
         return RestResponse::success( [ 'id' => $activity_id ] );
     }
 
@@ -452,6 +463,15 @@ class ActivitiesRestController {
                     [ 'activity_id' => $activity_id, 'failures' => $att_failures ]
                 );
             }
+        }
+
+        // v3.71.6 — see create_session above. Frontend updates were
+        // not firing the workflow event, so a coach moving a game from
+        // planned → completed via the frontend never triggered the
+        // post-game evaluation tasks. Mirrors wp-admin behaviour.
+        if ( class_exists( '\\TT\\Modules\\Workflow\\TaskContext' ) ) {
+            $ctx = new \TT\Modules\Workflow\TaskContext( null, (int) $data['team_id'], $activity_id );
+            do_action( 'tt_activity_completed', $ctx, (string) $data['activity_type_key'] );
         }
 
         return RestResponse::success( [ 'id' => $activity_id ] );
