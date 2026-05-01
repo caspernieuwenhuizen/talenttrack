@@ -273,14 +273,11 @@ final class TileRegistry {
      * navigation surface.
      */
     private static function userMayAccess( int $user_id, string $cap ): bool {
-        if ( $cap === '' || $user_id <= 0 ) return false;
-        if ( user_can( $user_id, $cap ) ) return true;
-        if ( strpos( $cap, 'tt_' ) !== 0 ) return false;
-        if ( ! class_exists( '\\TT\\Modules\\Authorization\\LegacyCapMapper' ) ) return false;
-        $user = get_userdata( $user_id );
-        if ( ! $user instanceof \WP_User ) return false;
-        $matrix = \TT\Modules\Authorization\LegacyCapMapper::evaluate( $cap, $user, [] );
-        return $matrix === true;
+        // v3.71.4 — delegate to the central AuthorizationService helper
+        // so REST permission_callbacks and tile gating share one
+        // implementation. Was inlined here in v3.71.0; same logic now
+        // lives in AuthorizationService::userCanOrMatrix.
+        return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, $cap );
     }
 
     /**

@@ -1,4 +1,4 @@
-# TalentTrack v3.71.3 — Custom CSS Sprint 0 hotfix (#0075 companion)
+# TalentTrack v3.71.5 — Custom CSS Sprint 0 hotfix (#0075 companion)
 
 Companion hotfix to the #0075 design-system epic. Three concrete bugs in the v3.64 Custom CSS visual editor were making the surface feel half-finished. None had data corruption potential — the toggle persisted in `tt_config`, tab content rendered correctly, font values saved as authored — but the UX felt broken because the visible state didn't reflect what was actually persisted.
 
