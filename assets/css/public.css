@@ -26,6 +26,16 @@
     --tt-motion-duration: 150ms;
     --tt-motion-easing: ease;
     /*
+     * #0075 Sprint 1 PR 5 — type-scale defaults. Body sizes default
+     * to the browser's 1rem so existing installs see no change. The
+     * heading defaults match a typical 1.5/1.25/1.125 ratio scale.
+     * Body line-height / heading sizes apply only when a consumer
+     * rule reads the var; .tt-dashboard h1/h2/h3 don't (yet) — see
+     * PR 5 changelog for which surfaces actually pick these up.
+     */
+    --tt-fs-body: 1rem;
+    --tt-lh-body: 1.5;
+    /*
      * Hover variants are intentionally NOT declared here so the
      * consumer rules' fallback chain (var(--tt-primary-hover,
      * var(--tt-secondary, ...))) continues to swap primary buttons

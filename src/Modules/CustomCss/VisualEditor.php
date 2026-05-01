@@ -148,7 +148,9 @@ final class VisualEditor {
                 $min = isset( $def['min'] ) ? (float) $def['min'] : 0.0;
                 $max = isset( $def['max'] ) ? (float) $def['max'] : 100.0;
                 $n   = self::sanitizeFloat( $raw, $min, $max );
-                return $n === null ? '' : (string) $n;
+                if ( $n === null ) return '';
+                $unit = isset( $def['unit'] ) ? (string) $def['unit'] : '';
+                return (string) $n . $unit;
 
             case TokenCatalogue::KIND_SELECT:
                 return self::resolveSelectToken( $def, $raw );

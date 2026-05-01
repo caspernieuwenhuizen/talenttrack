@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.75.1
+Stable tag: 3.76.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.76.0 — Sprint 1 close: type scale + button + form tokens (#0075 Sprint 1 PR 5 of 5) =
+
+Closes Sprint 1 of the #0075 design-system epic. Adds 11 new tokens across three new categories — Type scale (`--tt-fs-body`, `--tt-fs-h1/h2/h3`, `--tt-lh-body`), Buttons (`--tt-btn-primary-bg/-text/-hover-bg`, `--tt-btn-secondary-border`), and Forms (`--tt-input-border`, `--tt-input-focus-border`). Bringing the catalogue to 47 tokens across 11 categories. Consumer wiring in `frontend-admin.css` so `.tt-input` border + focus border, `.tt-btn-primary` background + text + hover, and `.tt-btn-secondary` border read the new tokens with fallbacks to the existing brand-level tokens (`--tt-primary` etc.) so existing installs see no change unless they opt in. Type-scale defaults declared in `.tt-root` (`--tt-fs-body: 1rem`, `--tt-lh-body: 1.5`) so the tokens are reachable for future consumer rules; the spec's full Typography coverage (22 element types × 7 dimensions, headings H4-H6, captions, code blocks, etc.) is **deferred to Sprint 2** along with the storage shape migration and REST endpoints — Sprint 1 closes with the editor's foundation + interactive controls (buttons + forms) in place.
 
 = 3.75.1 — Live preview in the design-system editor (#0075 Sprint 1 PR 4 of 5) =
 
