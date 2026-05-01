@@ -31,7 +31,11 @@ class DemoDataPage {
     private const TRANSIENT_USER_STATS = 'tt_demo_last_user_stats';
 
     public static function init(): void {
-        add_action( 'admin_menu', [ self::class, 'registerMenu' ] );
+        // v3.70.1 hotfix — menu registration moved to
+        // CoreSurfaceRegistration via AdminMenuRegistry so the entry
+        // is declarative + survives top-level menu renames. The
+        // admin_menu hook here previously raced with the registry
+        // and the page would silently drop off the menu.
         add_action( 'admin_post_tt_demo_generate',  [ self::class, 'handleGenerate'  ] );
         add_action( 'admin_post_tt_demo_wipe_data', [ self::class, 'handleWipeData'  ] );
         add_action( 'admin_post_tt_demo_wipe_users',[ self::class, 'handleWipeUsers' ] );
@@ -39,21 +43,6 @@ class DemoDataPage {
         // #0059 — Excel-driven demo data.
         add_action( 'admin_post_tt_demo_excel_template', [ self::class, 'handleTemplateDownload' ] );
         add_action( 'admin_post_tt_demo_excel_import',   [ self::class, 'handleExcelImport' ] );
-    }
-
-    public static function registerMenu(): void {
-        // #0063 — moved from `tools.php` parent to the TalentTrack
-        // top-level menu so demo-data lives next to the rest of the
-        // plugin's configuration. Old direct-URL `?page=` slug stays
-        // the same so any saved bookmarks keep working.
-        add_submenu_page(
-            'talenttrack',
-            __( 'Demo data', 'talenttrack' ),
-            __( 'Demo data', 'talenttrack' ),
-            self::CAP,
-            self::SLUG,
-            [ self::class, 'render' ]
-        );
     }
 
     public static function render(): void {

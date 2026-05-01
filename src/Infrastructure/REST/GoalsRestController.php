@@ -228,9 +228,13 @@ class GoalsRestController {
                 \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id )
             );
         }
+        // v3.70.1 hotfix — slug switched from `my-goals` (player-self-
+        // scope) to the generic `goals` so cross-persona viewers land on
+        // the read-only goal detail rendered by FrontendGoalsManageView,
+        // not the player-only my-goals page.
         $title_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $title,
-            add_query_arg( [ 'tt_view' => 'my-goals', 'id' => $goal_id ], home_url( '/' ) )
+            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'goals', $goal_id )
         );
         $status_pill_html = \TT\Infrastructure\Query\LookupPill::render( 'goal_status', (string) ( $row->status ?? '' ) );
 

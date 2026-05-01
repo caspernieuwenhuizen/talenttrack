@@ -71,12 +71,36 @@ final class RecordLink {
      * a wp-admin table land on the frontend detail view.
      *
      * Example: detailUrlFor('players', 42) →
-     *   https://example.com/?tt_view=players&id=42
+     *   https://example.com/dashboard/?tt_view=players&id=42
+     *   (or https://example.com/?tt_view=players&id=42 when no
+     *   dashboard page is configured)
      */
     public static function detailUrlFor( string $list_slug, int $id ): string {
         if ( $list_slug === '' || $id <= 0 ) return '';
-        $base = home_url( '/' );
-        $url  = add_query_arg( [ 'tt_view' => $list_slug, 'id' => $id ], $base );
+        $url = add_query_arg( [ 'tt_view' => $list_slug, 'id' => $id ], self::dashboardUrl() );
         return (string) $url;
+    }
+
+    /**
+     * v3.70.1 hotfix — resolve the URL of the page hosting the
+     * `[talenttrack_dashboard]` shortcode, so links built from REST /
+     * admin contexts route through it instead of `home_url('/')`. Falls
+     * back to `home_url('/')` when no `dashboard_page_id` is configured
+     * (which only works for installs that put the shortcode on the
+     * homepage). The redirect-target helper at
+     * `FrontendAccessControl::dashboardUrl()` uses the same lookup but
+     * is instance-bound; this static mirror exists so REST controllers
+     * and admin renderers can build tt_view URLs without instantiating
+     * the access control wiring.
+     */
+    public static function dashboardUrl(): string {
+        $page_id = (int) \TT\Infrastructure\Query\QueryHelpers::get_config( 'dashboard_page_id', '0' );
+        if ( $page_id > 0 ) {
+            $permalink = get_permalink( $page_id );
+            if ( $permalink ) {
+                return (string) $permalink;
+            }
+        }
+        return home_url( '/' );
     }
 }

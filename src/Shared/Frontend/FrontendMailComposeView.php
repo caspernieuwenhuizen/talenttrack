@@ -37,9 +37,10 @@ final class FrontendMailComposeView extends FrontendViewBase {
         $person_id = isset( $_GET['person_id'] ) ? absint( $_GET['person_id'] ) : 0;
         $person    = $person_id > 0 ? ( new PeopleRepository() )->find( $person_id ) : null;
 
+        $dash = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
         $back_url = $person_id > 0
-            ? add_query_arg( [ 'tt_view' => 'people', 'id' => $person_id ], home_url( '/' ) )
-            : add_query_arg( [ 'tt_view' => 'people' ], home_url( '/' ) );
+            ? add_query_arg( [ 'tt_view' => 'people', 'id' => $person_id ], $dash )
+            : add_query_arg( [ 'tt_view' => 'people' ], $dash );
         FrontendBackButton::render( $back_url );
 
         if ( ! $person || empty( $person->email ) ) {

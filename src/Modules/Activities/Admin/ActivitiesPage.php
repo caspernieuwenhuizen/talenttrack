@@ -114,15 +114,13 @@ class ActivitiesPage {
                     <td><?php echo esc_html( (string) $a->session_date ); ?></td>
                     <td><?php
                         // #0070 — title moves to second column and links to
-                        // the frontend activity detail (?tt_view=my-activities&id=N
-                        // — the read-only detail page used everywhere else).
-                        $act_title_url = add_query_arg(
-                            [ 'tt_view' => 'my-activities', 'id' => (int) $a->id ],
-                            home_url( '/' )
-                        );
+                        // the frontend activity detail.
+                        // v3.70.1 hotfix — slug switched from `my-activities`
+                        // (player-self-scope) to the generic `activities` so
+                        // academy admins / HoD don't hit the player-only gate.
                         echo \TT\Shared\Frontend\Components\RecordLink::inline(
                             (string) $a->title,
-                            $act_title_url
+                            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', (int) $a->id )
                         );
                         ?>
                         <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>

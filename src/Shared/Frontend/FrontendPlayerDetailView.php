@@ -48,7 +48,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         self::renderHeader( $name );
 
         $team       = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
-        $team_url   = $team ? add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id ], home_url( '/' ) ) : '';
+        $team_url   = $team ? add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() ) : '';
         $age_tier   = AgeTier::forPlayer( $player_id );
         $tier_label = AgeTier::labels()[ $age_tier ] ?? '';
         $positions  = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
@@ -142,7 +142,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 <?php
                 $url = add_query_arg(
                     [ 'tt_view' => 'player-status-capture', 'player_id' => $player_id ],
-                    home_url( '/' )
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                 );
                 ?>
                 <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( $url ); ?>">
@@ -167,10 +167,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         echo '<h3>' . esc_html__( 'Recent goals', 'talenttrack' ) . '</h3>';
         echo '<ul class="tt-stack">';
         foreach ( $rows as $g ) {
-            $url = add_query_arg(
-                [ 'tt_view' => 'my-goals', 'id' => (int) $g->id ],
-                home_url( '/' )
-            );
+            // v3.70.1 hotfix — use generic `goals` slug + dashboard URL.
+            $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'goals', (int) $g->id );
             echo '<li>';
             echo '<a class="tt-record-link" href="' . esc_url( $url ) . '">';
             echo '<strong>' . esc_html( (string) $g->title ) . '</strong> &middot; ';

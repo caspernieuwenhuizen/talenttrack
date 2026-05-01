@@ -821,6 +821,20 @@ final class CoreSurfaceRegistration {
             'callback'     => [ \TT\Modules\License\Admin\AccountPage::class, 'render' ],
         ]);
 
+        // v3.70.1 hotfix — Demo data submenu was registered only in
+        // DemoDataPage::registerMenu (its own admin_menu callback),
+        // which loses to AdminMenuRegistry's parent-slug bookkeeping
+        // when the top-level menu gets reordered. Register it
+        // declaratively here so it survives renames + module gating.
+        AdminMenuRegistry::register([
+            'module_class' => 'TT\\Modules\\DemoData\\DemoDataModule',
+            'parent'       => 'talenttrack',
+            'title'        => __( 'Demo data', 'talenttrack' ),
+            'cap'          => 'manage_options',
+            'slug'         => 'tt-demo-data',
+            'callback'     => [ \TT\Modules\DemoData\Admin\DemoDataPage::class, 'render' ],
+        ]);
+
         // ── People group ──
         if ( $show_legacy ) {
             AdminMenuRegistry::registerSeparator( 'tt-sep-people', __( 'People', 'talenttrack' ), 'tt_view_players', 'people' );

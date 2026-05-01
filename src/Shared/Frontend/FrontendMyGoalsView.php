@@ -145,7 +145,7 @@ class FrontendMyGoalsView extends FrontendViewBase {
             // #0063 — header + help link.
             $help_url = add_query_arg(
                 [ 'tt_view' => 'docs', 'topic' => 'conversational-goals' ],
-                home_url( '/' )
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
             );
             echo '<header style="display:flex; align-items:baseline; gap:8px; margin: 1.25rem 0 0.5rem;">';
             echo '<h3 style="margin:0; font-size:1rem;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h3>';

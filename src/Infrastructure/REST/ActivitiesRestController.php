@@ -277,13 +277,14 @@ class ActivitiesRestController {
 
         // #0063 — pre-render the title + team as RecordLink HTML so the
         // generic FrontendListTable can display them as clickable cells
-        // via render: html. Title links to my-activities&id=N (read-only
+        // via render: html. Title links to activities&id=N (read-only
         // detail), team to teams&id=N. The picture is the same regardless
         // of who renders the row.
-        $title_url = add_query_arg(
-            [ 'tt_view' => 'my-activities', 'id' => (int) $row->id ],
-            home_url( '/' )
-        );
+        // v3.70.1 hotfix — slug switched from `my-activities` (player-
+        // self-scope) to the generic `activities` so cross-persona views
+        // (HoD on a team's roster, academy admin on the full list) don't
+        // hit the player-only "you must be connected to a player" gate.
+        $title_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', (int) $row->id );
         $title_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             (string) $row->title,
             $title_url

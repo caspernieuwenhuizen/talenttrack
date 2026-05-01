@@ -57,7 +57,7 @@ final class FrontendPersonDetailView extends FrontendViewBase {
                         <?php
                         $compose_url = add_query_arg(
                             [ 'tt_view' => 'mail-compose', 'person_id' => $person_id ],
-                            home_url( '/' )
+                            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                         );
                         ?>
                         <a class="tt-record-link" href="<?php echo esc_url( $compose_url ); ?>">
@@ -85,7 +85,7 @@ final class FrontendPersonDetailView extends FrontendViewBase {
                             if ( $team_id <= 0 || $team_name === '' ) continue;
                             $url = add_query_arg(
                                 [ 'tt_view' => 'teams', 'id' => $team_id ],
-                                home_url( '/' )
+                                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                             );
                             ?>
                             <li>
