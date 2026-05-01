@@ -50,7 +50,17 @@ class PlayersPage {
 
         $scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
         $where = "WHERE pl.status='active' AND pl.{$view_clause}" . $wpdb->prepare( " AND pl.club_id=%d", CurrentClub::id() ) . ( $ft ? $wpdb->prepare( " AND pl.team_id=%d", $ft ) : '' ) . $scope;
-        $players = $wpdb->get_results( "SELECT pl.*, t.name AS team_name FROM {$p}tt_players pl LEFT JOIN {$p}tt_teams t ON pl.team_id=t.id AND t.club_id=pl.club_id $where ORDER BY pl.last_name, pl.first_name ASC" );
+        // #0070 — also resolve the parent name + id so the list can show
+        // it as a clickable column. Left join keeps the row when no
+        // parent is set or the parent record was removed.
+        $players = $wpdb->get_results( "SELECT pl.*, t.name AS team_name,
+                                                par.id AS parent_id,
+                                                par.first_name AS parent_first_name,
+                                                par.last_name AS parent_last_name
+                                         FROM {$p}tt_players pl
+                                         LEFT JOIN {$p}tt_teams t ON pl.team_id=t.id AND t.club_id=pl.club_id
+                                         LEFT JOIN {$p}tt_people par ON par.id = pl.parent_person_id AND par.club_id = pl.club_id
+                                         $where ORDER BY pl.last_name, pl.first_name ASC" );
         $teams = QueryHelpers::get_teams();
 
         $base_url = admin_url( 'admin.php?page=tt-players' );
@@ -73,10 +83,11 @@ class PlayersPage {
             <table class="widefat striped tt-table-sortable"><thead><tr>
                 <th class="check-column" style="width:30px;" data-tt-sort="off"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
                 <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Parent', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Position(s)', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Foot', 'talenttrack' ); ?></th>
                 <th>#</th><th><?php esc_html_e( 'DOB', 'talenttrack' ); ?></th><th><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
             </tr></thead><tbody>
-            <?php if ( empty( $players ) ) : ?><tr><td colspan="8"><?php esc_html_e( 'No players.', 'talenttrack' ); ?></td></tr>
+            <?php if ( empty( $players ) ) : ?><tr><td colspan="9"><?php esc_html_e( 'No players.', 'talenttrack' ); ?></td></tr>
             <?php else : foreach ( $players as $pl ) :
                 $pos = json_decode( (string) $pl->preferred_positions, true ); $pos_str = is_array( $pos ) ? implode( ', ', $pos ) : '';
                 $is_archived = $pl->archived_at !== null;
@@ -107,7 +118,21 @@ class PlayersPage {
                         } else {
                             echo esc_html( $pl_team_name !== '' ? $pl_team_name : '—' );
                         }
-                    ?></td><td><?php echo esc_html( $pos_str ); ?></td>
+                    ?></td>
+                    <td><?php
+                        // #0070 — parent column links to person detail.
+                        $parent_id   = (int) ( $pl->parent_id ?? 0 );
+                        $parent_name = trim( ( (string) ( $pl->parent_first_name ?? '' ) ) . ' ' . ( (string) ( $pl->parent_last_name ?? '' ) ) );
+                        if ( $parent_id > 0 && $parent_name !== '' ) {
+                            echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                                $parent_name,
+                                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $parent_id )
+                            );
+                        } else {
+                            echo '<span style="color:#999;">—</span>';
+                        }
+                    ?></td>
+                    <td><?php echo esc_html( $pos_str ); ?></td>
                     <td><?php
                         $foot = (string) $pl->preferred_foot;
                         echo esc_html( $foot !== '' ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'foot_option', $foot ) : '' );

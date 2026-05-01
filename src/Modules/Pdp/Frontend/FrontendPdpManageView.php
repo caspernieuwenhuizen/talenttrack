@@ -678,7 +678,13 @@ class FrontendPdpManageView extends FrontendViewBase {
 
             echo '<div class="tt-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:12px;">';
             echo '<div style="display:flex; justify-content:space-between; gap:8px; align-items:flex-start;">';
-            echo '<div style="flex:1; min-width:0;"><strong>' . esc_html( $title ) . '</strong>';
+            // #0070 — connected goal title links to goal detail page.
+            echo '<div style="flex:1; min-width:0;"><strong>'
+                . \TT\Shared\Frontend\Components\RecordLink::inline(
+                    $title,
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'goals', (int) $g->id )
+                )
+                . '</strong>';
             if ( ! empty( $g->description ) ) {
                 echo '<div style="font-size:12px; color:#5b6e75; margin-top:2px;">' . esc_html( (string) $g->description ) . '</div>';
             }

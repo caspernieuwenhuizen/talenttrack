@@ -246,12 +246,39 @@ class PeopleRestController {
             $parts[] = trim( $label . ' @ ' . (string) ( $a->team_name ?? '' ), ' @' );
         }
 
+        $name  = trim( ( (string) $row->first_name ) . ' ' . ( (string) $row->last_name ) );
+        $email = (string) ( $row->email ?? '' );
+
+        // #0070 — pre-rendered RecordLink HTML so the frontend list can
+        // show name + email as clickable cells. Email links to the
+        // in-product mail composer (?tt_view=mail-compose&person_id=N)
+        // — same surface the People admin page already targets — rather
+        // than a raw mailto:, so the send is captured in the audit log.
+        $name_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+            $name !== '' ? $name : '#' . (int) $row->id,
+            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', (int) $row->id )
+        );
+
+        $email_link_html = '';
+        if ( $email !== '' ) {
+            $compose_url = add_query_arg(
+                [ 'tt_view' => 'mail-compose', 'person_id' => (int) $row->id ],
+                home_url( '/' )
+            );
+            $email_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+                $email,
+                $compose_url
+            );
+        }
+
         return [
             'id'              => (int) $row->id,
             'first_name'      => (string) $row->first_name,
             'last_name'       => (string) $row->last_name,
-            'name'            => trim( ( (string) $row->first_name ) . ' ' . ( (string) $row->last_name ) ),
-            'email'           => (string) ( $row->email ?? '' ),
+            'name'            => $name,
+            'name_link_html'  => $name_link_html,
+            'email'           => $email,
+            'email_link_html' => $email_link_html,
             'phone'           => (string) ( $row->phone ?? '' ),
             'role_type'       => (string) ( $row->role_type ?? 'other' ),
             'wp_user_id'      => $row->wp_user_id !== null ? (int) $row->wp_user_id : null,

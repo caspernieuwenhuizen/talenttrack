@@ -89,8 +89,10 @@ class FrontendPeopleManageView extends FrontendViewBase {
         echo FrontendListTable::render( [
             'rest_path' => 'people',
             'columns' => [
-                'last_name'     => [ 'label' => __( 'Name',          'talenttrack' ), 'sortable' => true, 'value_key' => 'name' ],
-                'email'         => [ 'label' => __( 'Email',         'talenttrack' ), 'sortable' => true ],
+                // #0070 — name links to the person detail; email links to
+                // the in-product mail composer so the send is audited.
+                'last_name'     => [ 'label' => __( 'Name',          'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'name_link_html' ],
+                'email'         => [ 'label' => __( 'Email',         'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'email_link_html' ],
                 'role_type'     => [ 'label' => __( 'Type',          'talenttrack' ), 'sortable' => true ],
                 'current_roles' => [ 'label' => __( 'Current roles', 'talenttrack' ) ],
             ],

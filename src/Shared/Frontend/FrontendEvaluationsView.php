@@ -140,14 +140,19 @@ class FrontendEvaluationsView extends FrontendViewBase {
             }
         }
 
-        $sql = "SELECT e.id, e.eval_date, e.notes, e.player_id,
+        // #0070 — also resolve the coach's tt_people.id so the trainer
+        // cell can link to the person detail. Same pattern as the
+        // admin EvaluationsPage uses for its trainer column.
+        $sql = "SELECT e.id, e.eval_date, e.notes, e.player_id, e.coach_id,
                        pl.first_name, pl.last_name, pl.team_id,
                        t.name AS team_name,
-                       u.display_name AS coach_name
+                       u.display_name AS coach_name,
+                       coach_p.id AS coach_person_id
                   FROM {$p}tt_evaluations e
                   LEFT JOIN {$p}tt_players pl ON pl.id = e.player_id
                   LEFT JOIN {$p}tt_teams   t  ON t.id  = pl.team_id
                   LEFT JOIN {$wpdb->users} u  ON u.ID  = e.coach_id
+                  LEFT JOIN {$p}tt_people coach_p ON coach_p.wp_user_id = e.coach_id AND coach_p.club_id = e.club_id
                  WHERE $where AND e.archived_at IS NULL
                  ORDER BY e.eval_date DESC, e.id DESC
                  LIMIT 100";
@@ -175,12 +180,40 @@ class FrontendEvaluationsView extends FrontendViewBase {
                 <?php foreach ( $rows as $r ) :
                     $name = trim( ( $r->first_name ?? '' ) . ' ' . ( $r->last_name ?? '' ) );
                     if ( $name === '' ) $name = '#' . (int) $r->player_id;
+                    $team_id    = (int) ( $r->team_id ?? 0 );
+                    $team_name  = (string) ( $r->team_name ?? '' );
+                    $coach_name = (string) ( $r->coach_name ?? '' );
+                    $coach_pid  = (int) ( $r->coach_person_id ?? 0 );
                     ?>
                     <tr>
                         <td style="white-space:nowrap;"><?php echo esc_html( (string) $r->eval_date ); ?></td>
-                        <td><?php echo esc_html( $name ); ?></td>
-                        <td><?php echo esc_html( (string) ( $r->team_name ?? '—' ) ); ?></td>
-                        <td><?php echo esc_html( (string) ( $r->coach_name ?? '—' ) ); ?></td>
+                        <td><?php
+                            // #0070 — player name links to player detail.
+                            echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                                $name,
+                                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', (int) $r->player_id )
+                            );
+                        ?></td>
+                        <td><?php
+                            if ( $team_id > 0 && $team_name !== '' ) {
+                                echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                                    $team_name,
+                                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', $team_id )
+                                );
+                            } else {
+                                echo esc_html( $team_name !== '' ? $team_name : '—' );
+                            }
+                        ?></td>
+                        <td><?php
+                            if ( $coach_name !== '' && $coach_pid > 0 ) {
+                                echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                                    $coach_name,
+                                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $coach_pid )
+                                );
+                            } else {
+                                echo esc_html( $coach_name !== '' ? $coach_name : '—' );
+                            }
+                        ?></td>
                         <td style="max-width:300px; overflow-wrap:anywhere;"><?php echo esc_html( wp_trim_words( (string) ( $r->notes ?? '' ), 14 ) ); ?></td>
                     </tr>
                 <?php endforeach; ?>

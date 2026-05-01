@@ -98,9 +98,9 @@ class ActivitiesPage {
             <table class="widefat striped tt-table-sortable"><thead><tr>
                 <th class="check-column" style="width:30px;" data-tt-sort="off"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
                 <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Title', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                <th><?php esc_html_e( 'Title', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
                 <th data-tt-sort="off"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
             </tr></thead><tbody>
@@ -112,17 +112,34 @@ class ActivitiesPage {
                 <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
                     <td class="check-column"><?php \TT\Shared\Admin\BulkActionsHelper::rowCheckbox( (int) $a->id ); ?></td>
                     <td><?php echo esc_html( (string) $a->session_date ); ?></td>
-                    <td><?php echo self::renderTypePill( $a ); ?></td>
-                    <td><?php echo LookupPill::render( 'activity_status', $status_key ); ?></td>
-                    <td><?php echo esc_html( (string) $a->title ); ?>
+                    <td><?php
+                        // #0070 — title moves to second column and links to
+                        // the frontend activity detail (?tt_view=my-activities&id=N
+                        // — the read-only detail page used everywhere else).
+                        $act_title_url = add_query_arg(
+                            [ 'tt_view' => 'my-activities', 'id' => (int) $a->id ],
+                            home_url( '/' )
+                        );
+                        echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                            (string) $a->title,
+                            $act_title_url
+                        );
+                        ?>
                         <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
                     </td>
+                    <td><?php echo self::renderTypePill( $a ); ?></td>
+                    <td><?php echo LookupPill::render( 'activity_status', $status_key ); ?></td>
                     <td><?php
+                        // #0070 — team links to the frontend team detail
+                        // (?tt_view=teams&id=N) instead of the wp-admin
+                        // edit form, matching the players admin page.
                         $act_team_name = (string) ( $a->team_name ?? '' );
                         $act_team_id   = (int) ( $a->team_id ?? 0 );
-                        if ( $act_team_name !== '' && $act_team_id > 0 && current_user_can( 'tt_view_teams' ) ) {
-                            echo '<a href="' . esc_url( admin_url( 'admin.php?page=tt-teams&action=edit&id=' . $act_team_id ) ) . '">'
-                                . esc_html( $act_team_name ) . '</a>';
+                        if ( $act_team_name !== '' && $act_team_id > 0 ) {
+                            echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                                $act_team_name,
+                                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', $act_team_id )
+                            );
                         } else {
                             echo esc_html( $act_team_name !== '' ? $act_team_name : '—' );
                         }
