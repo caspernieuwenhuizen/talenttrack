@@ -101,10 +101,11 @@ class ActivitiesPage {
                 <th><?php esc_html_e( 'Title', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                <th><?php esc_html_e( 'Source', 'talenttrack' ); ?></th>
                 <th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
                 <th data-tt-sort="off"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
             </tr></thead><tbody>
-            <?php if ( empty( $activities ) ) : ?><tr><td colspan="7"><?php esc_html_e( 'No activities.', 'talenttrack' ); ?></td></tr>
+            <?php if ( empty( $activities ) ) : ?><tr><td colspan="8"><?php esc_html_e( 'No activities.', 'talenttrack' ); ?></td></tr>
             <?php else : foreach ( $activities as $a ) :
                 $is_archived = $a->archived_at !== null;
                 $status_key  = (string) ( $a->activity_status_key ?? 'planned' );
@@ -127,6 +128,11 @@ class ActivitiesPage {
                     </td>
                     <td><?php echo self::renderTypePill( $a ); ?></td>
                     <td><?php echo LookupPill::render( 'activity_status', $status_key ); ?></td>
+                    <td><?php
+                        // v3.71.0 — Source pill (manual / spond / generated).
+                        $source_key = (string) ( $a->activity_source_key ?? 'manual' );
+                        echo LookupPill::render( 'activity_source', $source_key );
+                    ?></td>
                     <td><?php
                         // #0070 — team links to the frontend team detail
                         // (?tt_view=teams&id=N) instead of the wp-admin
