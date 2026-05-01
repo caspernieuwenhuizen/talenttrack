@@ -30,6 +30,21 @@ final class Sender {
     private const WARN_THROTTLE_OPTION = 'tt_admin_center_last_warn';
 
     public static function send( string $trigger ): void {
+        self::sendDiagnostic( $trigger );
+    }
+
+    /**
+     * v3.72.3 — observable variant of send(). Returns a structured
+     * result so the AccountPage's "Send now" diagnostic button can show
+     * the operator what actually happened on this install (HTTP code,
+     * error, duration, endpoint hit). The cron + activation + version-
+     * change paths go through send() above which discards the result —
+     * fire-and-forget semantics are unchanged.
+     *
+     * @return array{ok:bool, code:int, error:?string, duration_ms:int, endpoint:string, body_size:int, trigger:string}
+     */
+    public static function sendDiagnostic( string $trigger ): array {
+        $started = microtime( true );
         $payload = PayloadBuilder::build( $trigger );
 
         $install_id = (string) ( $payload['install_id'] ?? '' );
@@ -53,15 +68,37 @@ final class Sender {
             'user-agent'  => 'TalentTrack/' . ( defined( 'TT_VERSION' ) ? TT_VERSION : '' ) . '; +' . $site_url,
         ] );
 
+        $duration_ms = (int) round( ( microtime( true ) - $started ) * 1000 );
+
         if ( is_wp_error( $response ) ) {
-            return;
+            return [
+                'ok'          => false,
+                'code'        => 0,
+                'error'       => $response->get_error_message(),
+                'duration_ms' => $duration_ms,
+                'endpoint'    => $url,
+                'body_size'   => strlen( $body ),
+                'trigger'     => $trigger,
+            ];
         }
 
         $code = (int) wp_remote_retrieve_response_code( $response );
-
         if ( $code >= 400 && $code < 500 ) {
             self::maybeWarn( $code );
         }
+
+        update_option( 'tt_admin_center_last_sent_at', time(), false );
+        update_option( 'tt_admin_center_last_sent_code', $code, false );
+
+        return [
+            'ok'          => $code >= 200 && $code < 300,
+            'code'        => $code,
+            'error'       => null,
+            'duration_ms' => $duration_ms,
+            'endpoint'    => $url,
+            'body_size'   => strlen( $body ),
+            'trigger'     => $trigger,
+        ];
     }
 
     public static function endpoint(): string {
