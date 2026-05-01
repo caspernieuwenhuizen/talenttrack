@@ -77,19 +77,40 @@ final class FrontendTeamDetailView extends FrontendViewBase {
      */
     private static function renderStaff( array $staff ): void {
         if ( empty( $staff ) ) return;
+
+        // v3.71.0 — `PeopleRepository::getTeamStaff()` returns rows
+        // grouped by functional-role key (`['head_coach' => [...]]`),
+        // each row a nested assoc array carrying the `person` object.
+        // The previous loop iterated the outer array as if it were a
+        // flat list of staff objects, so `$s->person_id` was always
+        // unset and the section silently emitted empty `<li>`s — the
+        // user's "staff is assigned but not showing up".
+        $rows = [];
+        foreach ( $staff as $role_key => $group ) {
+            if ( ! is_array( $group ) ) continue;
+            foreach ( $group as $entry ) {
+                if ( ! is_array( $entry ) ) continue;
+                $person = $entry['person'] ?? null;
+                if ( ! is_object( $person ) ) continue;
+                $rows[] = [
+                    'person'   => $person,
+                    'role_key' => (string) ( $entry['functional_role_key'] ?? $role_key ),
+                ];
+            }
+        }
+        if ( empty( $rows ) ) return;
         ?>
         <section class="tt-pde-section">
             <h3><?php esc_html_e( 'Staff', 'talenttrack' ); ?></h3>
             <ul class="tt-stack">
-                <?php foreach ( $staff as $s ) :
-                    $person_id = (int) ( $s->person_id ?? $s->id ?? 0 );
-                    $name      = trim( ( (string) ( $s->first_name ?? '' ) ) . ' ' . ( (string) ( $s->last_name ?? '' ) ) );
-                    if ( $name === '' ) continue;
-                    $role      = (string) ( $s->functional_role_label ?? $s->role_label ?? $s->role_type ?? '' );
-                    $url       = add_query_arg(
-                        [ 'tt_view' => 'people', 'id' => $person_id ],
-                        \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-                    );
+                <?php foreach ( $rows as $row ) :
+                    $p = $row['person'];
+                    $person_id = (int) ( $p->id ?? 0 );
+                    $name      = trim( ( (string) ( $p->first_name ?? '' ) ) . ' ' . ( (string) ( $p->last_name ?? '' ) ) );
+                    if ( $name === '' || $person_id <= 0 ) continue;
+                    $role_key  = (string) $row['role_key'];
+                    $role      = $role_key !== '' ? \TT\Infrastructure\Query\LabelTranslator::roleType( $role_key ) : '';
+                    $url       = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $person_id );
                     ?>
                     <li>
                         <a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $name ); ?></a>
