@@ -70,8 +70,21 @@ class FrontendWizardView extends FrontendViewBase {
             $action = isset( $_POST['tt_wizard_action'] ) ? sanitize_key( (string) $_POST['tt_wizard_action'] ) : 'next';
             switch ( $action ) {
                 case 'cancel':
+                    // v3.70.1 hotfix — Cancel returns to the page the user
+                    // came from (carried as _cancel_url hidden field) rather
+                    // than dropping them on the dashboard, so cancelling an
+                    // edit-flow wizard lands back on the list / detail they
+                    // were viewing. Falls back to dashboard when no
+                    // referrer was preserved (e.g. direct entry to the
+                    // wizard URL).
                     WizardState::clear( $user_id, $slug );
-                    wp_safe_redirect( \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
+                    $cancel_redirect = isset( $_POST['_cancel_url'] )
+                        ? esc_url_raw( wp_unslash( (string) $_POST['_cancel_url'] ) )
+                        : '';
+                    if ( $cancel_redirect === '' ) {
+                        $cancel_redirect = \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl();
+                    }
+                    wp_safe_redirect( $cancel_redirect );
                     exit;
 
                 case 'back':
@@ -139,7 +152,17 @@ class FrontendWizardView extends FrontendViewBase {
             echo '<div class="tt-notice tt-notice-error" role="alert">' . esc_html( $error ) . '</div>';
         }
 
-        $cancel_url = remove_query_arg( [ 'slug', 'restart' ] );
+        // v3.70.1 hotfix — Cancel destination prefers `return_to` query
+        // arg (when callers wire it through) → HTTP referrer → dashboard.
+        // The previous behaviour of `remove_query_arg([slug, restart])`
+        // landed on `?tt_view=wizard` (an empty wizards landing) when no
+        // referrer was preserved; the user wants to go back to where they
+        // were before opening the wizard.
+        $return_to = isset( $_GET['return_to'] ) ? esc_url_raw( wp_unslash( (string) $_GET['return_to'] ) ) : '';
+        $referer   = wp_get_referer();
+        $cancel_url = $return_to !== ''
+            ? $return_to
+            : ( $referer ?: \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
         echo '<form method="post" class="tt-wizard-form">';
         wp_nonce_field( 'tt_wizard_' . $slug . '_' . $current->slug(), 'tt_wizard_nonce' );
 
@@ -154,7 +177,11 @@ class FrontendWizardView extends FrontendViewBase {
         // formnovalidate; Cancel was the outlier and was tripping
         // browser-side required-field validation when the user wanted
         // to bail out of the wizard.
-        echo '<button type="submit" name="tt_wizard_action" value="cancel" class="tt-button tt-button-link" formnovalidate>' . esc_html__( 'Cancel', 'talenttrack' ) . '</button>';
+        // v3.70.1 hotfix — Cancel renders as a regular secondary button
+        // (was `tt-button-link` which made it visually disappear into
+        // the surrounding text). Still `formnovalidate` so it ignores
+        // unfilled required fields per #0069.
+        echo '<button type="submit" name="tt_wizard_action" value="cancel" class="tt-button tt-button-secondary" formnovalidate>' . esc_html__( 'Cancel', 'talenttrack' ) . '</button>';
         if ( $wizard instanceof SupportsCancelAsDraft ) {
             echo '<button type="submit" name="tt_wizard_action" value="save-as-draft" class="tt-button" formnovalidate>' . esc_html__( 'Save as draft', 'talenttrack' ) . '</button>';
         }

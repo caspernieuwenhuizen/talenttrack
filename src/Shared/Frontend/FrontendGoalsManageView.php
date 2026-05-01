@@ -45,7 +45,11 @@ class FrontendGoalsManageView extends FrontendViewBase {
             return;
         }
 
-        if ( $id > 0 ) {
+        // v3.70.1 hotfix — `?tt_view=goals&id=N` (no action) renders a
+        // read-only detail; the edit form requires `&action=edit`.
+        // Mirrors the activities pattern so title clicks land on a
+        // viewable detail page instead of an edit form.
+        if ( $id > 0 && $action === 'edit' ) {
             $goal = self::loadGoal( $id );
             self::renderHeader( $goal ? sprintf( __( 'Edit goal — %s', 'talenttrack' ), (string) $goal->title ) : __( 'Goal not found', 'talenttrack' ) );
             if ( ! $goal ) {
@@ -56,8 +60,86 @@ class FrontendGoalsManageView extends FrontendViewBase {
             return;
         }
 
+        if ( $id > 0 ) {
+            $goal = self::loadGoal( $id );
+            self::renderHeader( $goal ? (string) $goal->title : __( 'Goal not found', 'talenttrack' ) );
+            if ( ! $goal ) {
+                echo '<p class="tt-notice">' . esc_html__( 'That goal no longer exists.', 'talenttrack' ) . '</p>';
+                return;
+            }
+            self::renderDetail( $goal, $user_id );
+            return;
+        }
+
         self::renderHeader( __( 'Goals', 'talenttrack' ) );
         self::renderList( $user_id, $is_admin );
+    }
+
+    /**
+     * v3.70.1 hotfix — read-only goal detail. Shows the core fields plus
+     * the goal's #0028 conversation thread when available.
+     *
+     * @param object $goal goal row from `loadGoal`
+     */
+    private static function renderDetail( object $goal, int $user_id ): void {
+        $back_url = add_query_arg( [ 'tt_view' => 'goals' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+        \TT\Shared\Frontend\FrontendBackButton::render( $back_url );
+
+        $player_id = (int) ( $goal->player_id ?? 0 );
+        $player    = $player_id > 0 ? QueryHelpers::get_player( $player_id ) : null;
+        $status    = (string) ( $goal->status ?? '' );
+        $priority  = (string) ( $goal->priority ?? '' );
+        $due_date  = (string) ( $goal->due_date ?? '' );
+        $desc      = (string) ( $goal->description ?? '' );
+
+        echo '<div class="tt-record-detail" style="display:grid; gap:12px;">';
+        echo '<dl class="tt-record-detail-list" style="display:grid; grid-template-columns: minmax(120px, max-content) 1fr; gap:6px 16px; margin:0;">';
+
+        if ( $player ) {
+            echo '<dt>' . esc_html__( 'Player', 'talenttrack' ) . '</dt>';
+            echo '<dd>'
+                . \TT\Shared\Frontend\Components\RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    QueryHelpers::player_display_name( $player ),
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id )
+                )
+                . '</dd>';
+        }
+
+        if ( $status !== '' ) {
+            echo '<dt>' . esc_html__( 'Status', 'talenttrack' ) . '</dt>';
+            echo '<dd>' . \TT\Infrastructure\Query\LookupPill::render( 'goal_status', $status ) . '</dd>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        }
+        if ( $priority !== '' ) {
+            echo '<dt>' . esc_html__( 'Priority', 'talenttrack' ) . '</dt>';
+            echo '<dd>' . esc_html( LabelTranslator::goalPriority( $priority ) ) . '</dd>';
+        }
+        if ( $due_date !== '' ) {
+            echo '<dt>' . esc_html__( 'Due', 'talenttrack' ) . '</dt>';
+            echo '<dd>' . esc_html( $due_date ) . '</dd>';
+        }
+        if ( $desc !== '' ) {
+            echo '<dt>' . esc_html__( 'Description', 'talenttrack' ) . '</dt>';
+            echo '<dd style="white-space:pre-wrap;">' . esc_html( $desc ) . '</dd>';
+        }
+
+        echo '</dl>';
+
+        if ( current_user_can( 'tt_edit_goals' ) ) {
+            $edit_url = add_query_arg(
+                [ 'tt_view' => 'goals', 'id' => (int) $goal->id, 'action' => 'edit' ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            );
+            echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a></p>';
+        }
+
+        if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' ) ) {
+            echo '<section class="tt-pde-section" style="margin-top:16px;">';
+            echo '<h3 style="margin:0 0 8px;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h3>';
+            \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, $user_id );
+            echo '</section>';
+        }
+
+        echo '</div>';
     }
 
     /**
@@ -102,9 +184,12 @@ class FrontendGoalsManageView extends FrontendViewBase {
         }
 
         $row_actions = [
+            // v3.70.1 hotfix — Edit row action carries `action=edit` so
+            // it routes to the form; bare `id=N` (from title clicks) goes
+            // to the read-only detail in render() above.
             'edit' => [
                 'label' => __( 'Edit', 'talenttrack' ),
-                'href'  => add_query_arg( [ 'tt_view' => 'goals', 'id' => '{id}' ], $base_url ),
+                'href'  => add_query_arg( [ 'tt_view' => 'goals', 'id' => '{id}', 'action' => 'edit' ], $base_url ),
             ],
             'delete' => [
                 'label'       => __( 'Delete', 'talenttrack' ),
@@ -263,7 +348,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
             // doesn't lose the form they're filling in.
             $help_url = add_query_arg(
                 [ 'tt_view' => 'docs', 'topic' => 'conversational-goals' ],
-                home_url( '/' )
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
             );
             echo '<a class="tt-link" href="' . esc_url( $help_url ) . '" target="_blank" rel="noopener" style="font-size:12px; color:#5b6e75;">'
                . esc_html__( 'How does this work?', 'talenttrack' ) . '</a>';

@@ -67,7 +67,15 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             return;
         }
 
-        if ( $id > 0 ) {
+        // v3.70.1 hotfix — `?tt_view=activities&id=N` (no action) now
+        // renders a read-only detail view, matching how players / teams /
+        // people detail-dispatch in DashboardShortcode. The edit form
+        // requires `&action=edit` (so links from the list's row actions
+        // open the form, but title clicks open the detail). This keeps
+        // the link target consistent with other master-data lists and
+        // unblocks academy admins / HoD who don't qualify for the
+        // player-only `my-activities` gate.
+        if ( $id > 0 && $action === 'edit' ) {
             $session    = self::loadSession( $id );
             $attendance = $session ? self::loadAttendance( $id ) : [];
             $guests     = $session ? self::loadGuests( $id )     : [];
@@ -80,9 +88,89 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             return;
         }
 
+        if ( $id > 0 ) {
+            $session = self::loadSession( $id );
+            self::renderHeader( $session ? (string) $session->title : __( 'Activity not found', 'talenttrack' ) );
+            if ( ! $session ) {
+                echo '<p class="tt-notice">' . esc_html__( 'That activity no longer exists.', 'talenttrack' ) . '</p>';
+                return;
+            }
+            self::renderDetail( $session, $is_admin );
+            return;
+        }
+
         // Default: list view.
         self::renderHeader( __( 'Activities', 'talenttrack' ) );
         self::renderList( $user_id, $is_admin );
+    }
+
+    /**
+     * v3.70.1 hotfix — read-only activity detail. Keeps the surface
+     * thin: the existing edit form remains the source of truth for
+     * mutation; this just gives a clickable destination from list
+     * cells without forcing the user into the form.
+     *
+     * @param object $session activity row from `loadSession`
+     */
+    private static function renderDetail( object $session, bool $is_admin ): void {
+        $back_url = add_query_arg( [ 'tt_view' => 'activities' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+        \TT\Shared\Frontend\FrontendBackButton::render( $back_url );
+
+        $team_id   = (int) ( $session->team_id ?? 0 );
+        $team_name = (string) ( $session->team_name ?? '' );
+        $type_key  = (string) ( $session->activity_type_key ?? 'training' );
+        $status_key = (string) ( $session->activity_status_key ?? 'planned' );
+
+        echo '<div class="tt-record-detail" style="display:grid; gap:12px;">';
+
+        echo '<dl class="tt-record-detail-list" style="display:grid; grid-template-columns: minmax(120px, max-content) 1fr; gap:6px 16px; margin:0;">';
+
+        echo '<dt>' . esc_html__( 'Date', 'talenttrack' ) . '</dt>';
+        echo '<dd>' . esc_html( (string) $session->session_date ) . '</dd>';
+
+        echo '<dt>' . esc_html__( 'Type', 'talenttrack' ) . '</dt>';
+        echo '<dd>' . \TT\Infrastructure\Query\LookupPill::render( 'activity_type', $type_key ) . '</dd>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+        echo '<dt>' . esc_html__( 'Status', 'talenttrack' ) . '</dt>';
+        echo '<dd>' . \TT\Infrastructure\Query\LookupPill::render( 'activity_status', $status_key ) . '</dd>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+        if ( $team_name !== '' ) {
+            echo '<dt>' . esc_html__( 'Team', 'talenttrack' ) . '</dt>';
+            echo '<dd>';
+            if ( $team_id > 0 ) {
+                echo \TT\Shared\Frontend\Components\RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    $team_name,
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', $team_id )
+                );
+            } else {
+                echo esc_html( $team_name );
+            }
+            echo '</dd>';
+        }
+
+        $location = (string) ( $session->location ?? '' );
+        if ( $location !== '' ) {
+            echo '<dt>' . esc_html__( 'Location', 'talenttrack' ) . '</dt>';
+            echo '<dd>' . esc_html( $location ) . '</dd>';
+        }
+
+        $notes = (string) ( $session->notes ?? '' );
+        if ( $notes !== '' ) {
+            echo '<dt>' . esc_html__( 'Notes', 'talenttrack' ) . '</dt>';
+            echo '<dd style="white-space:pre-wrap;">' . esc_html( $notes ) . '</dd>';
+        }
+
+        echo '</dl>';
+
+        if ( current_user_can( 'tt_edit_activities' ) ) {
+            $edit_url = add_query_arg(
+                [ 'tt_view' => 'activities', 'id' => (int) $session->id, 'action' => 'edit' ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            );
+            echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a></p>';
+        }
+
+        echo '</div>';
     }
 
     /**
@@ -98,9 +186,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             . '</a></p>';
 
         $row_actions = [
+            // v3.70.1 hotfix — Edit row action carries `action=edit` so
+            // it routes to the form; bare `id=N` (from title clicks) goes
+            // to the read-only detail in render() above.
             'edit' => [
                 'label' => __( 'Edit', 'talenttrack' ),
-                'href'  => add_query_arg( [ 'tt_view' => 'activities', 'id' => '{id}' ], $base_url ),
+                'href'  => add_query_arg( [ 'tt_view' => 'activities', 'id' => '{id}', 'action' => 'edit' ], $base_url ),
             ],
             'delete' => [
                 'label'       => __( 'Delete', 'talenttrack' ),
@@ -523,9 +614,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
     private static function loadSession( int $id ): ?object {
         global $wpdb; $p = $wpdb->prefix;
         $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
+        // v3.70.1 hotfix — also fetch team_name so renderDetail can show
+        // a clickable team cell without a second query.
         /** @var object|null $row */
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT s.* FROM {$p}tt_activities s WHERE s.id = %d AND s.archived_at IS NULL {$scope}",
+            "SELECT s.*, t.name AS team_name FROM {$p}tt_activities s
+             LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
+             WHERE s.id = %d AND s.archived_at IS NULL {$scope}",
             $id
         ) );
         return $row ?: null;

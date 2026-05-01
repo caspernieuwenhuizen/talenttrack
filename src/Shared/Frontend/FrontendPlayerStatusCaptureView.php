@@ -31,9 +31,10 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         $player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
+        $dash      = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
         $back_url  = $player_id > 0
-            ? add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id ], home_url( '/' ) )
-            : add_query_arg( [ 'tt_view' => 'players' ], home_url( '/' ) );
+            ? add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id ], $dash )
+            : add_query_arg( [ 'tt_view' => 'players' ], $dash );
         FrontendBackButton::render( $back_url );
 
         $player = $player_id > 0 ? QueryHelpers::get_player( $player_id ) : null;
