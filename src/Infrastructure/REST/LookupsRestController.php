@@ -64,6 +64,80 @@ final class LookupsRestController extends BaseController {
                 'args'                => self::typeArg() + self::idArg(),
             ],
         ] );
+
+        // v3.74.4 — #7: auto-translate preview endpoint. Given a
+        // source string and the user's source-language hint, returns
+        // translated values for every other installed locale. The
+        // admin reviews + edits before saving — we never persist
+        // engine output without confirmation.
+        register_rest_route( self::NS, '/translations/preview', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ self::class, 'previewTranslations' ],
+                'permission_callback' => self::permCan( 'tt_edit_settings' ),
+            ],
+        ] );
+    }
+
+    /**
+     * v3.74.4 — preview translations of a source string into every
+     * other installed locale, using `TranslationLayer`'s configured
+     * primary engine. Body shape:
+     *   { "text": "Pending", "source_lang": "en" }
+     * Returns:
+     *   { "ok": true, "data": { "translations": { "nl_NL": "In afwachting" } } }
+     *
+     * Failures fall back to the source string with an error string per
+     * locale so the admin sees what didn't translate. Does NOT persist
+     * — that's the caller's job after the admin approves.
+     */
+    public static function previewTranslations( WP_REST_Request $req ): \WP_REST_Response {
+        $body = $req->get_json_params();
+        if ( ! is_array( $body ) ) $body = [];
+        $text        = trim( (string) ( $body['text'] ?? '' ) );
+        $source_lang = (string) ( $body['source_lang'] ?? '' );
+        if ( $text === '' ) {
+            return new \WP_REST_Response( [ 'success' => false, 'errors' => [ [ 'code' => 'empty', 'message' => __( 'Text is required.', 'talenttrack' ) ] ] ], 400 );
+        }
+        if ( $source_lang === '' ) $source_lang = substr( (string) get_locale(), 0, 2 );
+
+        if ( ! class_exists( '\\TT\\Modules\\Translations\\TranslationLayer' ) ) {
+            return new \WP_REST_Response( [ 'success' => false, 'errors' => [ [ 'code' => 'no_engine', 'message' => __( 'Translations module is not enabled.', 'talenttrack' ) ] ] ], 503 );
+        }
+        if ( ! \TT\Modules\Translations\TranslationLayer::isEnabled() ) {
+            return new \WP_REST_Response( [ 'success' => false, 'errors' => [ [ 'code' => 'disabled', 'message' => __( 'Auto-translate is disabled. Configure an engine + API key under Configuration → Translations first.', 'talenttrack' ) ] ] ], 503 );
+        }
+
+        $targets = self::installedTargetLocales( $source_lang );
+        $out = [];
+        foreach ( $targets as $locale ) {
+            $short = substr( $locale, 0, 2 );
+            $translated = \TT\Modules\Translations\TranslationLayer::render( $text, $short );
+            $out[ $locale ] = $translated;
+        }
+
+        return new \WP_REST_Response( [ 'success' => true, 'data' => [ 'translations' => $out ] ], 200 );
+    }
+
+    /**
+     * v3.74.4 — set of installed WP locales we want to translate INTO,
+     * minus the source language (and minus en_US since that's the
+     * default if no specific English locale is installed).
+     *
+     * @return list<string>
+     */
+    private static function installedTargetLocales( string $source_short ): array {
+        $available = function_exists( 'get_available_languages' ) ? (array) get_available_languages() : [];
+        // Always offer Dutch + English as defaults so a fresh install
+        // sees something useful even before extra locales are pulled.
+        $targets = array_unique( array_merge( $available, [ 'nl_NL', 'en_US' ] ) );
+        $out = [];
+        foreach ( $targets as $loc ) {
+            $loc = (string) $loc;
+            if ( substr( $loc, 0, 2 ) === $source_short ) continue;
+            $out[] = $loc;
+        }
+        return array_values( array_unique( $out ) );
     }
 
     /** @return array<string,array<string,mixed>> */
