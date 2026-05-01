@@ -298,19 +298,17 @@ class FrontendCustomCssView extends FrontendViewBase {
 
     private static function renderMessages( array $messages ): void {
         if ( $messages['success'] !== '' ) {
-            echo '<div class="tt-notice tt-notice-success" style="background:#dff5e1; color:#1a6b2c; border-left:4px solid #1a6b2c; padding:8px 12px; margin-bottom:12px;">'
-                . esc_html( $messages['success'] ) . '</div>';
+            echo '<div class="tt-notice tt-notice-success">' . esc_html( $messages['success'] ) . '</div>';
         }
         foreach ( $messages['errors'] as $err ) {
-            echo '<div class="tt-notice tt-notice-error" style="background:#fde2e2; color:#a02828; border-left:4px solid #a02828; padding:8px 12px; margin-bottom:12px;">'
-                . esc_html( $err ) . '</div>';
+            echo '<div class="tt-notice tt-notice-error">' . esc_html( $err ) . '</div>';
         }
     }
 
     private static function renderMutexBanner(): void {
         $inherit_on = \TT\Infrastructure\Query\QueryHelpers::get_config( 'theme_inherit', '0' ) === '1';
         if ( ! $inherit_on ) return;
-        echo '<div class="tt-notice" style="background:#fdf3d8; color:#7a5a05; border-left:4px solid #c9962a; padding:10px 14px; margin-bottom:16px;">';
+        echo '<div class="tt-notice tt-notice-warning">';
         echo '<strong>' . esc_html__( 'Theme inheritance is on.', 'talenttrack' ) . '</strong> '
             . esc_html__( 'Frontend currently defers fonts + colours to the active WP theme (#0023). Saving custom CSS for the Frontend surface will turn that off — the two surfaces are mutually exclusive.', 'talenttrack' );
         echo '</div>';
@@ -367,7 +365,7 @@ class FrontendCustomCssView extends FrontendViewBase {
         $settings = $live['visual_settings'] ?? [];
         $is_hand_edited = $live['css'] !== '' && ! VisualEditor::isGenerated( $live['css'] );
         if ( $is_hand_edited ) {
-            echo '<div class="tt-notice" style="background:#fdf3d8; color:#7a5a05; border-left:4px solid #c9962a; padding:10px 14px; margin-bottom:14px;">';
+            echo '<div class="tt-notice tt-notice-warning">';
             echo '<strong>' . esc_html__( 'CSS has been hand-edited.', 'talenttrack' ) . '</strong> ';
             echo esc_html__( 'Saving with the visual editor will overwrite your hand-written rules. Save them as a named preset on the History tab first if you want to restore them later.', 'talenttrack' );
             echo '</div>';

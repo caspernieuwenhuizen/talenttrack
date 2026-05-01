@@ -164,6 +164,40 @@ New cap `tt_impersonate_users` granted by default to `administrator` and `tt_clu
 - [ ] Impersonation child: admin starts impersonation of a parent → dashboard renders as parent → banner visible → safeguarding-notes 403s for the impersonated parent → switch back → admin can read safeguarding notes again. `tt_impersonation_log` has one row with both timestamps.
 - [ ] Self-impersonation / admin-on-admin / stacking attempts return distinct error codes.
 
+# TalentTrack v3.74.2 — Status notice classes + tile shadow wiring (#0075 Sprint 1 PR 3)
+
+Companion to v3.73.0 + v3.74.1. PR 1 added the status subtle tokens (`--tt-success-subtle`, `--tt-warning-subtle`, `--tt-danger-subtle`, `--tt-info-subtle`) but no consumer read them; status-tinted notice banners across the codebase used hardcoded inline `style="background:#dff5e1;color:#1a6b2c;..."` attributes that ignored the editor entirely. This PR moves the styling into shared CSS classes that read the tokens, strips the now-redundant inline attributes from six call sites, and wires the Configuration landing tile (`tt-cfg-tile`) through the shadow + motion tokens too.
+
+## What's new
+
+- **Status notice classes in `assets/css/public.css`** — `.tt-notice.tt-notice-success`, `.tt-notice.tt-notice-error`, `.tt-notice.tt-notice-warning`, `.tt-notice.tt-notice-info`. Each reads `var(--tt-<status>-subtle, …)` for the background and `var(--tt-<status>, …)` for the left-border colour. Properties are nested under `.tt-notice.<status>` so the lone `.tt-notice` empty-state rule (centred italic splash) keeps working untouched. Status modifier shifts the layout to compact left-aligned banner.
+- **Inline-style cleanup** — six call sites carried equivalent hardcoded values that pre-empted the new tokens. All stripped:
+  - `FrontendCustomCssView::renderMessages` (success + error notices)
+  - `FrontendCustomCssView::renderMutexBanner` (theme-inherit warning) — also re-classed from generic `.tt-notice` to `.tt-notice-warning`
+  - `FrontendCustomCssView::renderVisualTab` (hand-edited CSS warning) — same re-class
+  - `FrontendMySettingsView::render` (success + error)
+  - `FrontendPlayerStatusMethodologyView::render` (success + error)
+  - `FrontendWizardsAdminView::render` (saved confirmation)
+  - `FrontendJourneyView::render` (hidden-entries info)
+- **`.tt-cfg-tile` shadow wiring** — Configuration landing's tile grid is rendered with an inline `<style>` block in `FrontendConfigurationView::renderTileGrid`. Updated to read `--tt-shadow-sm` / `--tt-shadow-md` for resting + hover, and `--tt-motion-duration` / `--tt-motion-easing` for the timing. Tile borders now also read `--tt-line` instead of a hardcoded hex.
+
+## Why notice CSS classes are nested under `.tt-notice.<status>`
+
+`assets/css/public.css` already defines `.tt-notice` as a centred italic empty-state splash (used for "No content yet" pages). The status modifier classes live as `.tt-notice.tt-notice-success` etc. so they only kick in when both classes are present — the lone `.tt-notice` callers (~10 sites) still render as empty-state splashes. Migration path is staged: when an empty-state caller wants the compact banner look it adds the status modifier; nothing breaks in the meantime.
+
+## What did *not* change
+
+- **`renderShadowOverrides` backstop** — the per-surface `box-shadow` block emitted by `VisualEditor::generateCss` still ships, since `.tt-mc-card` and `.tt-psp-results` (and a few legacy non-`tt-card`/`tt-panel` shadow consumers) haven't been wired to read the tokens yet. Drop in a follow-up PR after they're covered.
+- **Storage shape migration** + **REST endpoints** + **live preview miniatures** — still deferred to PR 4 (next session).
+
+## Acceptance criteria (manually verified)
+
+- [x] `php -l` clean on every touched file.
+- [ ] Open `?tt_view=custom-css` (frontend surface) → trigger a save error (e.g. paste `expression(alert(1))` in CSS editor → save). The error banner has the soft red background from `--tt-danger-subtle` with red left border.
+- [ ] On the same view, set `Danger — subtle bg` to a custom hex (e.g. `#fff0a0`). Save. Trigger the error again → the banner background is now the chosen hex.
+- [ ] `?tt_view=configuration` Configuration landing → tiles have the new resting shadow when `Card shadow — small` is set in the editor; revert to flat when set to `(none)`.
+- [ ] No regression on `.tt-notice` empty-state callers (Ideas board, Journey when empty, etc.) — those still render as centred italic splashes.
+
 # TalentTrack v3.74.1 — Design-system consumer wiring (#0075 Sprint 1 PR 2)
 
 > Renumbered from v3.73.1 in PR after #0071 follow-ups landed at v3.74.0. Code unchanged.

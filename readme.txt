@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.74.1
+Stable tag: 3.74.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.74.2 — Status notice classes + tile shadow wiring (#0075 Sprint 1 PR 3) =
+
+Wires up the status-tinted notice banner classes (`.tt-notice-success`, `.tt-notice-error`, `.tt-notice-warning`, `.tt-notice-info`) so they read `--tt-success-subtle` / `--tt-warning-subtle` / `--tt-danger-subtle` / `--tt-info-subtle` from `.tt-root`, and strips the duplicated inline `style="..."` attributes from six call sites that used to carry equivalent hardcoded values (`FrontendCustomCssView` × 4, `FrontendMySettingsView` × 2, `FrontendPlayerStatusMethodologyView` × 2, `FrontendWizardsAdminView` × 1, `FrontendJourneyView` × 1). Also wires `.tt-cfg-tile` (Configuration landing tiles) shadow + transition timing through the shadow + motion tokens so the visual editor's choices flow through to the configuration grid.
 
 = 3.74.1 — Design-system consumer wiring (#0075 Sprint 1 PR 2) =
 

@@ -33,8 +33,7 @@ class FrontendWizardsAdminView extends FrontendViewBase {
         self::renderHeader( __( 'Wizards', 'talenttrack' ) );
 
         if ( $saved ) {
-            echo '<div class="tt-notice tt-notice-success" style="background:#dcfce7;color:#166534;padding:10px 14px;border-radius:6px;margin-bottom:16px;">'
-                . esc_html__( 'Saved.', 'talenttrack' ) . '</div>';
+            echo '<div class="tt-notice tt-notice-success">' . esc_html__( 'Saved.', 'talenttrack' ) . '</div>';
         }
 
         self::renderConfigForm();
