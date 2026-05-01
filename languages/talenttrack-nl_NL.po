@@ -11343,3 +11343,10 @@ msgstr "Invoerveld-rand"
 
 msgid "Input border on focus"
 msgstr "Invoerveld-rand bij focus"
+
+# v3.76.1 / #23 — back-link labels for detail views
+msgid "← Back to teams"
+msgstr "← Terug naar teams"
+
+msgid "← Back to people"
+msgstr "← Terug naar mensen"
