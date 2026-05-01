@@ -18,9 +18,21 @@ use TT\Infrastructure\Environment\EnvironmentService;
  *   - In production, debug-level messages are suppressed.
  *   - All other levels (info, warning, error) pass through.
  *
- * Usage:
+ * Usage — both styles work:
+ *
+ *   Logger::error('REST failure', ['endpoint' => '/players', 'code' => 500]);
  *   $logger->info('Player saved', ['id' => 42]);
- *   $logger->error('REST failure', ['endpoint' => '/players', 'code' => 500]);
+ *
+ * The static-call style was introduced ad-hoc in REST controllers but the
+ * matching static methods didn't exist — every call was instance-call-on-
+ * class, silently deprecated on PHP 7.4 and a hard fatal on PHP 8.0+
+ * (see v3.70.1 hotfix). The five public methods are now `static`, while
+ * the constructor stays for DI; PHP allows calling static methods via
+ * `$obj->method()` so injected loggers (`AuditService`'s `$this->logger`)
+ * keep working unchanged.
+ *
+ * @see https://wiki.php.net/rfc/deprecate_dynamic_properties — PHP 8 fatal
+ *      semantics around static-vs-instance methods.
  */
 class Logger {
 
@@ -30,36 +42,38 @@ class Logger {
     public const LEVEL_ERROR   = 'error';
 
     /** @var EnvironmentService|null */
-    private $environment;
+    private static $environment;
 
     public function __construct( ?EnvironmentService $environment = null ) {
-        $this->environment = $environment;
+        if ( $environment !== null ) {
+            self::$environment = $environment;
+        }
     }
 
     /** @param array<string,mixed> $context */
-    public function debug( string $message, array $context = [] ): void {
-        $this->log( self::LEVEL_DEBUG, $message, $context );
+    public static function debug( string $message, array $context = [] ): void {
+        self::log( self::LEVEL_DEBUG, $message, $context );
     }
 
     /** @param array<string,mixed> $context */
-    public function info( string $message, array $context = [] ): void {
-        $this->log( self::LEVEL_INFO, $message, $context );
+    public static function info( string $message, array $context = [] ): void {
+        self::log( self::LEVEL_INFO, $message, $context );
     }
 
     /** @param array<string,mixed> $context */
-    public function warning( string $message, array $context = [] ): void {
-        $this->log( self::LEVEL_WARNING, $message, $context );
+    public static function warning( string $message, array $context = [] ): void {
+        self::log( self::LEVEL_WARNING, $message, $context );
     }
 
     /** @param array<string,mixed> $context */
-    public function error( string $message, array $context = [] ): void {
-        $this->log( self::LEVEL_ERROR, $message, $context );
+    public static function error( string $message, array $context = [] ): void {
+        self::log( self::LEVEL_ERROR, $message, $context );
     }
 
     /** @param array<string,mixed> $context */
-    public function log( string $level, string $message, array $context = [] ): void {
+    public static function log( string $level, string $message, array $context = [] ): void {
         // Suppress debug in production unless WP_DEBUG is explicitly on.
-        if ( $level === self::LEVEL_DEBUG && $this->environment && $this->environment->isProduction() ) {
+        if ( $level === self::LEVEL_DEBUG && self::$environment && self::$environment->isProduction() ) {
             if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
                 return;
             }
