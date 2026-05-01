@@ -14,7 +14,7 @@ This page covers what you can expect to see, how to switch between personas if y
 | **Parent** | Child switcher + "since you last visited" recap | PDP awaiting your acknowledgement | My child's card, evaluations, activities, PDP |
 | **Head coach / Assistant coach** | Today / Up next with attendance + evaluation buttons | Workflow tasks list + recent evaluations rail | Activities, evaluations, goals, players, teams, PDP, methodology, my tasks |
 | **Team manager** | Today / Up next | (none by default) | Activities, my teams, players, my tasks |
-| **Head of Development** | KPI strip (active players, evaluations this month, attendance %, open trials, PDP verdicts pending, goal completion) | Trials needing decision (table) | Trials, PDP, players, methodology, tasks dashboard, evaluations, rate cards, compare |
+| **Head of Development** | KPI strip (active players, evaluations this month, attendance %, open trials, PDP verdicts pending, goal completion) | Team overview grid (per-team rating + attendance, expandable to a player breakdown), New trial quick-action, Upcoming activities table, Trials needing decision table | Trials, PDP, players, methodology, tasks dashboard, evaluations, rate cards, compare |
 | **Scout** | Assigned players grid (your primary work surface) | Recent reports | My reports, my assigned players |
 | **Academy admin** | System health strip (backup, invitations, license, modules) | Recent audit events (table) | Configuration, authorization, usage stats, audit log, invitations, migrations, help, methodology |
 | **Read-only observer** | KPI strip in read-only mode | (none) | (no edit actions; methodology + KPIs only) |
@@ -27,7 +27,7 @@ The pill only shows up when more than one persona resolves for your account. Mos
 
 ## What's a "widget"?
 
-Each block on the dashboard is a widget. There are 14 widget types:
+Each block on the dashboard is a widget. There are 15 widget types:
 
 | Widget | Used for |
 | - | - |
@@ -38,13 +38,14 @@ Each block on the dashboard is a widget. There are 14 widget types:
 | Quick actions panel | A 2×2 grid of action cards (Coach side panel) |
 | Info card | A read-only summary block (coach nudge, pending PDP ack, license status) |
 | Task list panel | Preview of your open workflow tasks |
-| Data table | Compact table with up to 5 rows + see-all link |
+| Data table | Compact table with up to 5 rows + see-all link (presets: trials needing decision, recent scout reports, audit log, **upcoming activities**) |
 | Mini player list | Horizontal rail of player cards (podium, top movers, recent evaluations) |
 | Rate card hero | Player landing's identity hero |
 | Today / Up next hero | Coach landing hero with action buttons |
 | Child switcher with recap | Parent landing's hero with "since you last visited" |
 | System health strip | Admin hero (backup / invitations / license / modules) |
 | Assigned players grid | Scout landing's primary surface |
+| **Team overview grid** | Per-team headline numbers in expandable cards (HoD landing) |
 
 Widgets come in four sizes — Small, Medium, Large, Extra-large — and snap to a 12-column grid on desktop, 6 columns on tablet, and a single mobile-priority-sorted column on phone.
 
@@ -114,6 +115,32 @@ DELETE /wp-json/talenttrack/v1/me/active-persona                 clear active pe
 ```
 
 A logged-in user can read templates for personas they qualify for; the write endpoints require `tt_edit_persona_templates`.
+
+## Visual conventions (v3.76.0)
+
+The dashboard opens with a subtle title header — persona name as the page title plus a date + club subtitle. Personas without a hero widget (Head of Development, Academy Admin, Scout) get a time-of-day greeting prefix; personas with a hero (player, parent, coach, manager) skip the greeting because the hero already does the welcome.
+
+Tile icons (the coloured one-letter squares) and the yellow plus-circle on action cards are gone. Tiles now lean on typographic hierarchy and a hover chevron; action cards put the "+" inside the label string. The widget shell uses softer corner radii, a two-stop shadow that lifts on hover, and a tokenised colour palette (`--tt-pd-*` custom properties) so future theme passes have one place to edit.
+
+Clubs that need stronger visual differentiation between tiles can add a per-tile description in the dashboard editor — typography reads as "label + description" instead of "label + icon."
+
+## Team overview grid (HoD landing, v3.76.0)
+
+Per-team summary cards arranged in a responsive grid. Each card shows team name, age group, head coach, and two headline numbers: average evaluation rating and attendance percentage over a configurable window (default 30 days). Tapping a card expands it inline to show the team's player breakdown with each player's attendance % and rating.
+
+**Slot config string** — set in the dashboard editor's slot properties panel:
+
+```
+days=30,limit=20,sort=concern_first
+```
+
+- `days` — window in days (1-365). Defaults to 30.
+- `limit` — max number of cards. Defaults to 20.
+- `sort` — `alphabetical` (default) | `rating_desc` | `attendance_desc` | `concern_first`.
+
+The `concern_first` sort surfaces teams below either threshold first. Thresholds default to rating 6.0 and attendance 70%; clubs can override via `tt_config` keys `team_concern_rating_threshold` and `team_concern_attendance_threshold`.
+
+The expand/collapse state is per-user, per-card, persisted in `localStorage` (`tt_pd_team_card_{team_id}`). Cross-device sync isn't provided — it's a UI preference, not a data preference.
 
 ## Where to next
 

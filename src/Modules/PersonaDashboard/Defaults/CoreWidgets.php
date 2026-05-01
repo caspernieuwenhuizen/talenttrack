@@ -3,7 +3,9 @@ namespace TT\Modules\PersonaDashboard\Defaults;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\PersonaDashboard\Registry\TableRowSourceRegistry;
 use TT\Modules\PersonaDashboard\Registry\WidgetRegistry;
+use TT\Modules\PersonaDashboard\TableSources\UpcomingActivitiesSource;
 use TT\Modules\PersonaDashboard\Widgets\ActionCardWidget;
 use TT\Modules\PersonaDashboard\Widgets\AssignedPlayersGridWidget;
 use TT\Modules\PersonaDashboard\Widgets\ChildSwitcherWithRecapWidget;
@@ -17,10 +19,12 @@ use TT\Modules\PersonaDashboard\Widgets\QuickActionsPanelWidget;
 use TT\Modules\PersonaDashboard\Widgets\RateCardHeroWidget;
 use TT\Modules\PersonaDashboard\Widgets\SystemHealthStripWidget;
 use TT\Modules\PersonaDashboard\Widgets\TaskListPanelWidget;
+use TT\Modules\PersonaDashboard\Widgets\TeamOverviewGridWidget;
 use TT\Modules\PersonaDashboard\Widgets\TodayUpNextHeroWidget;
 
 /**
- * CoreWidgets — registers the 14 v1 shipped widget types.
+ * CoreWidgets — registers the v1 + #0073 shipped widget types and the
+ * shipped table-row sources for DataTableWidget presets.
  */
 final class CoreWidgets {
 
@@ -39,5 +43,8 @@ final class CoreWidgets {
         WidgetRegistry::register( new ChildSwitcherWithRecapWidget() );
         WidgetRegistry::register( new SystemHealthStripWidget() );
         WidgetRegistry::register( new AssignedPlayersGridWidget() );
+        WidgetRegistry::register( new TeamOverviewGridWidget() );
+
+        TableRowSourceRegistry::register( 'upcoming_activities', new UpcomingActivitiesSource() );
     }
 }

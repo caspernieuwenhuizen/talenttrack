@@ -11,18 +11,24 @@ use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
 /**
  * ActionCardWidget — single CTA button.
  *
- * data_source is one of the shipped action ids (e.g., new_evaluation,
- * new_goal, new_activity, new_player, new_team, scout_report).
+ * data_source is one of the shipped action ids:
+ *   new_evaluation, new_goal, new_activity, new_player, new_team,
+ *   scout_report, new_trial.
+ *
+ * #0074 dropped the decorative `tt-pd-action-icon` yellow circle. The
+ * "+" affordance lives inside the translated label string so the cue
+ * is preserved without the extra DOM node and without the colour.
  */
 class ActionCardWidget extends AbstractWidget {
 
     private const ACTIONS = [
-        'new_evaluation' => [ 'label_key' => 'New evaluation', 'view' => 'evaluations',  'icon' => '+', 'cap' => 'tt_create_evaluations' ],
-        'new_goal'       => [ 'label_key' => 'New goal',       'view' => 'goals',        'icon' => '+', 'cap' => 'tt_create_goals' ],
-        'new_activity'   => [ 'label_key' => 'New activity',   'view' => 'activities',   'icon' => '+', 'cap' => 'tt_edit_activities' ],
-        'new_player'     => [ 'label_key' => 'Add player',     'view' => 'players',      'icon' => '+', 'cap' => 'tt_edit_players' ],
-        'new_team'       => [ 'label_key' => 'Add team',       'view' => 'teams',        'icon' => '+', 'cap' => 'tt_edit_teams' ],
-        'scout_report'   => [ 'label_key' => 'New scout report', 'view' => 'scout-history', 'icon' => '+', 'cap' => 'tt_generate_scout_report' ],
+        'new_evaluation' => [ 'label_key' => '+ New evaluation',   'view' => 'evaluations',  'cap' => 'tt_create_evaluations' ],
+        'new_goal'       => [ 'label_key' => '+ New goal',         'view' => 'goals',        'cap' => 'tt_create_goals' ],
+        'new_activity'   => [ 'label_key' => '+ New activity',     'view' => 'activities',   'cap' => 'tt_edit_activities' ],
+        'new_player'     => [ 'label_key' => '+ Add player',       'view' => 'players',      'cap' => 'tt_edit_players' ],
+        'new_team'       => [ 'label_key' => '+ Add team',         'view' => 'teams',        'cap' => 'tt_edit_teams' ],
+        'scout_report'   => [ 'label_key' => '+ New scout report', 'view' => 'scout-history','cap' => 'tt_generate_scout_report' ],
+        'new_trial'      => [ 'label_key' => '+ New trial',        'view' => 'trials',       'cap' => 'tt_manage_trials' ],
     ];
 
     public function id(): string { return 'action_card'; }
@@ -48,7 +54,6 @@ class ActionCardWidget extends AbstractWidget {
         $url = $ctx->viewUrl( (string) $action['view'] );
 
         $inner = '<a class="tt-pd-action-link" href="' . esc_url( $url ) . '">'
-            . '<span class="tt-pd-action-icon" aria-hidden="true">' . esc_html( (string) $action['icon'] ) . '</span>'
             . '<span class="tt-pd-action-label">' . esc_html( $label ) . '</span>'
             . '</a>';
         return $this->wrap( $slot, $inner );

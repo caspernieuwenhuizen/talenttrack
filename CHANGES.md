@@ -1,3 +1,36 @@
+# TalentTrack v3.77.0 — HoD landing enhancements (#0073) + persona dashboard visual refresh (#0074)
+
+Two adjacent persona-dashboard items shipped together because they touch the same module and a single version bump avoids another race with the parallel agent's #0075 sprint cadence.
+
+## #0073 — HoD landing enhancements
+
+The Head of Development landing was a navigation page with stats sprinkled on. v3.77.0 makes it activity-first.
+
+- **NEW widget** — `team_overview_grid`: per-team summary cards (avg rating + attendance over a configurable window) arranged in a responsive grid. Each card expands inline to show the team's player breakdown (attendance % + rating per player) via the new `GET /persona-dashboard/team-breakdown` endpoint. Expand state persists per-user, per-card in `localStorage`. Slot config: `days=30,limit=20,sort=alphabetical|rating_desc|attendance_desc|concern_first`.
+- **NEW widget data source** — `upcoming_activities` preset on `DataTableWidget`. Forward-looking activity schedule across all the HoD's teams (default next 14 days). Columns: Team / Type / Date & time / Location.
+- **NEW infrastructure** — `TableRowSourceRegistry`: pluggable row-source contract for `DataTableWidget`. Presets without a registered source continue to render the empty-row chrome (back-compat for `trials_needing_decision`, `recent_scout_reports`, `audit_log_recent` until their sources land).
+- **NEW action key** — `new_trial` added to `ActionCardWidget::ACTIONS`. View `trials`, cap `tt_manage_trials`. Available everywhere the existing `new_evaluation` / `new_goal` / `new_activity` / `new_player` keys are.
+- **NEW REST** — `GET /talenttrack/v1/persona-dashboard/team-breakdown?team_id=N&days=30` powers the team-card expand AJAX. Cap: `tt_view_players` || `tt_manage_trials` || `tt_manage_authorization`.
+- **CHANGED** — `CoreTemplates::headOfDevelopment()` re-laid-out: KPI strip (top), team overview grid (rows 0–2 left, 9 cols) + new-trial action (row 0 right, 3 cols), upcoming activities table, trials needing decision table, navigation tiles drop to the bottom. Per-club editor overrides preserved.
+
+## #0074 — Persona dashboard visual refresh
+
+Polish pass that keeps every layout decision in place but raises the visual register.
+
+- **NEW** — Subtle page header at the top of the persona dashboard: persona name as `<h1>`, date + club subtitle. Personas without a hero widget (HoD, Academy Admin, Scout) get a time-of-day greeting prefix; hero personas (player, parent, coach, manager) skip the greeting because the hero already does it. Suppressed on sub-views.
+- **REMOVED** — Decorative tile icons (`tt-pd-tile-icon` coloured one-letter squares) from `NavigationTileWidget`. Tiles now lean on typographic hierarchy + a hover chevron (`tt-pd-tile-arrow`, opacity 0 → 0.5 on hover/focus). The tile data structure's `color` field is preserved for back-compat but no longer rendered.
+- **REMOVED** — Decorative action icons (`tt-pd-action-icon` yellow plus-circle) from `ActionCardWidget`. The "+" affordance moved into the translated label string (`+ New evaluation`, `+ New goal`, etc.) so the cue is preserved without the extra DOM node and without sprinkling yellow across the page.
+- **CHANGED** — `assets/css/persona-dashboard.css` rewritten: `:root { --tt-pd-* }` token block replaces scattered hex values; widget shell uses 14px corner radius with two-stop shadow + inset hairline at rest and a deeper shadow on hover; tile and action links lift by 1px on hover via `transform: translateY(-1px)`; panel + info titles moved from 0.75rem uppercase caption to 0.9375rem semibold sentence-case; KPI numerals use `font-variant-numeric: tabular-nums` and `700` weight (was 800); vertical band gap 1rem → 1.5rem at desktop.
+
+## Translations
+
+~16 new NL strings: action labels with `+` prefix, page-header greetings, team-overview labels, table presets, AJAX status messages.
+
+## Notes
+
+- **Wizard plan** — N/A. No new record-creation flow; the `new_trial` action key surfaces the existing trial-case create flow at `?tt_view=trials`.
+- Renumbered from a v3.76.0 candidate to v3.77.0 to escape a tight version-number race with the parallel agent's #0075 Sprint 1 PR 5 shipment which claimed v3.76.0 mid-CI.
+
 # TalentTrack v3.76.0 — Sprint 1 close: type scale + button + form tokens (#0075 Sprint 1 PR 5 of 5)
 
 Closes Sprint 1 of the #0075 design-system epic. Adds 11 new tokens across three new categories on top of the 36 tokens shipped in PRs 1-4. Brings the catalogue total to 47 tokens across 11 categories. Wires the most-impactful consumers (buttons + form inputs) to read the new tokens with fallbacks to the existing brand-level tokens so existing installs see no change unless they opt in.
