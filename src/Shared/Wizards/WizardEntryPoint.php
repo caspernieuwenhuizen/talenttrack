@@ -21,7 +21,7 @@ final class WizardEntryPoint {
 
     /**
      * Resolve the dashboard's current page URL — the page where the
-     * `[talenttrack_dashboard]` shortcode is rendered. Strips known
+     * `[tt_dashboard]` shortcode is rendered. Strips known
      * view-routing args so the result is a clean base.
      *
      * Mirrors `DashboardShortcode::shortcodeBaseUrl()`. Public + here

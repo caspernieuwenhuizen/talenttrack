@@ -106,6 +106,46 @@ class QueryHelpers {
         return is_array( $decoded ) ? $decoded : [];
     }
 
+    /**
+     * #0072 — Activity-type meta.rateable read helper. The new-evaluation
+     * wizard's activity picker filters on this; future Reports/Stats can
+     * reuse the same flag. Default `true` (unmarked rows stay rateable on
+     * upgrade); the well-known non-rateable types (clinic / methodology /
+     * team_meeting) are seeded as `false` by migration 0057.
+     */
+    public static function isActivityTypeRateable( string $type_name ): bool {
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT meta FROM {$wpdb->prefix}tt_lookups
+              WHERE lookup_type = 'activity_type' AND name = %s AND club_id = %d
+              LIMIT 1",
+            $type_name, CurrentClub::id()
+        ) );
+        if ( ! $row ) return true; // unknown type — default permissive
+        $meta = self::lookup_meta( $row );
+        if ( ! array_key_exists( 'rateable', $meta ) ) return true;
+        return (bool) $meta['rateable'];
+    }
+
+    /**
+     * #0072 — Evaluation-category meta.quick_rate read helper. Categories
+     * marked quick_rate=true surface as a single-line quick-rate row in
+     * RateActorsStep; deeper categories live in the deep-rate panel.
+     * Default `false` so existing un-flagged categories remain in the
+     * deep panel; migration 0057 seeds the four conventional ones
+     * (Technical / Tactical / Physical / Mental) as quick.
+     */
+    public static function isCategoryQuickRate( int $category_id ): bool {
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT meta FROM {$wpdb->prefix}tt_eval_categories WHERE id = %d AND club_id = %d LIMIT 1",
+            $category_id, CurrentClub::id()
+        ) );
+        if ( ! $row ) return false;
+        $meta = isset( $row->meta ) && $row->meta !== '' ? json_decode( (string) $row->meta, true ) : [];
+        return ! empty( $meta['quick_rate'] );
+    }
+
     /** @return object[] */
     public static function get_categories(): array {
         // v2.12.0: main evaluation categories migrated out of tt_lookups

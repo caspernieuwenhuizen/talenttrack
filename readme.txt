@@ -4,13 +4,26 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.74.2
+Stable tag: 3.75.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.75.0 — New evaluation wizard (#0072) — activity-first, attendance-aware, multi-player batch flow =
+
+The pre-#0072 new-evaluation wizard was a two-step pre-flight (pick a player, pick a type) that handed off to the heavyweight evaluation form — single player at a time, no activity context, painful to batch. v3.75.0 rebuilds it activity-first.
+
+* **NEW:** Six new step classes replace `PlayerStep` + `TypeStep` — `ActivityPickerStep` (smart-default landing with `notApplicableFor()` skip when no recent rateable activities), `AttendanceStep` (writes real `tt_attendance` rows; auto-skipped when already recorded), `RateActorsStep` (one row per `meta.quick_rate`-flagged category, deep-rate accordion per player, skip affordance, optional notes), `PlayerPickerStep` (player-first ad-hoc fallback), `HybridDeepRateStep` (date + setting + reason + full deep-rate UI), `ReviewStep` (final submit creating N evaluations on activity-first or 1 on player-first).
+* **NEW:** Migration 0057 adds `tt_eval_categories.meta TEXT` + `tt_evaluations.activity_id BIGINT` columns; seeds `meta.rateable=false` for `clinic`/`methodology`/`team_meeting`; seeds `meta.quick_rate=true` for the four conventional categories (Technical/Tactical/Physical/Mental matched by name); creates the new `tt_wizard_drafts` table.
+* **NEW:** `tt_wizard_drafts` table-backed persistent draft store extending `WizardState`. `save()` writes both transient + table; `load()` falls back from transient to table; `clear()` removes both. Enables cross-device draft resume — start on phone, finish at the club tomorrow.
+* **NEW:** Daily `tt_wizard_drafts_cleanup_cron` deletes draft rows older than 14 days (configurable via the `tt_wizard_draft_ttl_days` filter).
+* **NEW:** Configuration → Lookups → Activity Types — new "Rateable" checkbox per row. Unchecking hides activities of that type from the new-evaluation wizard's activity picker without affecting any other surface.
+* **NEW:** `QueryHelpers::isActivityTypeRateable()` + `isCategoryQuickRate()` read helpers — defaulting to `true`/`false` respectively for unmarked rows. Future Reports/Stats can reuse the same flags.
+* **CHANGED:** Wizard slug stays `new-evaluation`; required cap stays `tt_edit_evaluations`. All existing entry points (`WizardEntryPoint::urlFor('new-evaluation', ...)`) continue to resolve unchanged. Old `PlayerStep` + `TypeStep` deleted.
+* **FIX:** Trivial — `WizardEntryPoint::dashboardBaseUrl()` docblock said `[talenttrack_dashboard]`; the actual shortcode is `[tt_dashboard]`.
 
 = 3.74.2 — Status notice classes + tile shadow wiring (#0075 Sprint 1 PR 3) =
 

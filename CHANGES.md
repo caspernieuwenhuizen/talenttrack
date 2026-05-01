@@ -1,3 +1,82 @@
+# TalentTrack v3.75.0 — New evaluation wizard (#0072) — activity-first, attendance-aware, multi-player batch flow
+
+The pre-#0072 `NewEvaluationWizard` was a two-step pre-flight (`PlayerStep` + `TypeStep`) that handed off to the heavyweight evaluation form. It got coaching backwards: a coach almost always thinks *"I just ran U14 training; let me rate the players who were there"* — activity-first, attendance-aware, multi-player in one sitting. The pre-flight made them pick one player at a time and never referenced the activity that prompted the evaluation, so they skipped the wizard and jumped to the flat form, which is itself optimised for editing a single existing evaluation rather than creating a batch.
+
+Three concrete consequences pre-v3.75.0:
+
+1. Evaluations under-cover real activities — a coach who just ran a training rates two or three players when they meant to rate the whole squad.
+2. The activity-evaluation join (`tt_evaluations.activity_id`) is sparsely populated even though the data model now supports it (column added by migration 0057).
+3. Ad-hoc evaluations have no first-class entry point — funnelled through the same per-player flow as activity-attached evaluations with the same metadata fields shown but disconnected from any activity context.
+
+This release closes all three with two paths through one wizard.
+
+## What ships
+
+- **Activity-first** — coach picks a recently-completed rateable activity (last 30 days, on a team they're assigned to, of a `meta.rateable`-true type), the wizard surfaces present + late players from `tt_attendance`, the coach quick-rates each on the conventional categories or expands the deep-rate accordion. One submit writes N `tt_evaluations` rows with `activity_id` set, plus their `tt_eval_ratings`.
+- **Player-first** — coach picks one player and fills a hybrid form: date, setting, free-text reason, plus the deep-rate UI. Submits one evaluation with `activity_id = NULL`. Used for ad-hoc observations.
+- **Smart-default landing** — `ActivityPickerStep::notApplicableFor()` returns true when the coach has zero recent rateable activities, so the framework auto-skips them to `PlayerPickerStep`. Both landings expose an escape-hatch link to the other path.
+
+## Step graph
+
+```
+ActivityPickerStep  [skip-if-empty]
+   ↓
+AttendanceStep      [skip-if-recorded]
+   ↓
+RateActorsStep
+   ↓
+ReviewStep ← HybridDeepRateStep
+            ↑
+            PlayerPickerStep (player-first fallback)
+```
+
+`AttendanceStep` writes real `tt_attendance` rows (not a wizard-only side store), so revisiting the activity later shows the attendance the coach captured. Only `present` and `late` flow forward to `RateActorsStep`. `RateActorsStep` shows one row per `meta.quick_rate`-flagged eval-category per player; the per-player accordion lets coaches deep-rate inline. Each player has a Skip checkbox; skipped players write no `tt_evaluations` row.
+
+## Persistent draft store — extending WizardState
+
+The current `WizardState` uses a 1-hour transient — too short for "started rating at home, want to finish tomorrow at the club". v3.75.0 adds a parallel persistent store: the new `tt_wizard_drafts` table, scoped per (user_id, wizard_slug), club-tenant via `club_id`. `WizardState::save()` writes both transient + table; `load()` checks the transient first, falls back to the table; `clear()` removes both. Last-write-wins on cross-device via `updated_at`. A daily `tt_wizard_drafts_cleanup_cron` deletes rows older than 14 days; the TTL is filterable via `tt_wizard_draft_ttl_days`.
+
+## Schema
+
+Migration `0057_new_evaluation_wizard`:
+
+- Adds `tt_eval_categories.meta TEXT NULL` (mirrors `tt_lookups.meta` pattern).
+- Adds `tt_evaluations.activity_id BIGINT UNSIGNED NULL` + index — the activity-first flow stamps it; player-first leaves it NULL.
+- Seeds `meta.quick_rate = true` on the four conventional eval categories (Technical / Tactical / Physical / Mental — matched by name prefix on `category_key` or `label`).
+- Seeds `meta.rateable = false` on the well-known non-rateable activity types: `clinic`, `methodology`, `team_meeting`. All other activity_type rows are left unmodified — the read helper defaults to `true` for unset rows.
+- Creates `tt_wizard_drafts` (multi-tenant via `club_id`).
+
+## Lookups admin
+
+Configuration → Lookups → Activity Types gains a "Rateable" checkbox per row. Unchecking hides activities of that type from the new-evaluation wizard's activity picker without affecting any other surface — they remain visible on the activity itself, in stats, and in reports. The save handler merges into the existing `meta` JSON so the workflow-template-on-save flag (#0050) and the `is_locked` flag survive.
+
+## Read helpers
+
+`QueryHelpers::isActivityTypeRateable( string $type_name )` — returns `meta.rateable` for the type, defaulting to `true` for unmarked rows.
+
+`QueryHelpers::isCategoryQuickRate( int $category_id )` — returns `meta.quick_rate` for the category, defaulting to `false`.
+
+Both are open for future Reports/Stats reuse.
+
+## Old steps deleted
+
+`src/Modules/Wizards/Evaluation/PlayerStep.php` and `TypeStep.php` removed. The `new-evaluation` slug, `requiredCap()`, and `WizardEntryPoint::urlFor('new-evaluation', $fallback)` resolution are unchanged so existing call sites keep working.
+
+## Trivial doc fix bundled
+
+`WizardEntryPoint::dashboardBaseUrl()` docblock said `[talenttrack_dashboard]`; actual shortcode is `[tt_dashboard]`. Fixed.
+
+## What's still deferred (follow-ups, not blocking this ship)
+
+- **Per-player progress indicator** at Review submit (N × POST progress).
+- **Locked / Editable visual states** on the activity picker rows (24h edit window with countdown, "Edit (post-window)" badge for HoD/Admin).
+- **Autosave indicator** + the lightweight `POST /wizard-drafts/{slug}` REST endpoint that writes-without-merge for fast typing-debounce.
+- **Mobile vs desktop responsive split** for `RateActorsStep` (one-player-at-a-time on mobile vs full vertical list on desktop, with swipe gestures).
+- **Resume banner** ("You started this 2 days ago — continue or start over?"). The persistent store + `hasPersistentDraft()` / `persistentDraftAge()` helpers ship; the banner UI is the missing piece.
+- **Cross-device E2E tests**.
+
+The wizard is functional + fully data-correct without these. They're polish items the spec called out as deferable.
+
 # TalentTrack v3.74.0 — #0071 follow-ups: impersonation guards on destructive handlers + sub-cap refactor
 
 Wires up the two follow-ups deferred from v3.72.0's ship of #0071. Both are well-bounded clean-up: the guards make impersonation truly safe to use during destructive operations, and the sub-cap refactor lets per-tab grants on the matrix actually mean what they say.

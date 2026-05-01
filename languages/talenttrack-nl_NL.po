@@ -11202,3 +11202,97 @@ msgstr "Schaduwen"
 
 msgid "Motion"
 msgstr "Beweging"
+
+# v3.75.0 — New Evaluation wizard (#0072)
+
+msgid "Pick a recently-completed activity to rate the players who attended. Or rate a player directly without an activity context."
+msgstr "Kies een recent afgeronde activiteit om de aanwezige spelers te beoordelen. Of beoordeel een speler direct zonder activiteit-context."
+
+msgid "→ Rate a player directly"
+msgstr "→ Beoordeel direct een speler"
+
+msgid "No recent rateable activities. Pick a player to rate ad-hoc."
+msgstr "Geen recente rateable activiteiten. Kies een speler om ad-hoc te beoordelen."
+
+msgid "Pick an activity, or use \"Rate a player directly\"."
+msgstr "Kies een activiteit, of gebruik \"Beoordeel direct een speler\"."
+
+msgid "Mark each player's attendance. Only present + late players will appear in the rating step. This step writes real attendance rows for the activity."
+msgstr "Markeer per speler de aanwezigheid. Alleen aanwezige + te-laat spelers verschijnen in de beoordeelstap. Deze stap schrijft echte aanwezigheidsrijen voor de activiteit."
+
+msgid "Rate players"
+msgstr "Spelers beoordelen"
+
+msgid "%d player ready to rate. Quick-rate the categories below; deep-rate any player by expanding their row."
+msgid_plural "%d players ready to rate. Quick-rate the categories below; deep-rate any player by expanding their row."
+msgstr[0] "%d speler klaar om te beoordelen. Snelbeoordeel de categorieën hieronder; deep-rate per speler door de rij uit te klappen."
+msgstr[1] "%d spelers klaar om te beoordelen. Snelbeoordeel de categorieën hieronder; deep-rate per speler door de rij uit te klappen."
+
+msgid "Skip this player (no evaluation written)"
+msgstr "Speler overslaan (geen evaluatie geschreven)"
+
+msgid "No players to rate. Mark attendance first or pick another activity."
+msgstr "Geen spelers om te beoordelen. Markeer eerst aanwezigheid of kies een andere activiteit."
+
+msgid "Pick the player you're evaluating. Use this for ad-hoc observations not anchored to an activity row — a tournament moment, something you noticed in passing."
+msgstr "Kies de speler die je beoordeelt. Gebruik dit voor ad-hoc-observaties zonder activiteit-koppeling — een toernooi-moment, iets dat je in het voorbijgaan opmerkte."
+
+msgid "Which player?"
+msgstr "Welke speler?"
+
+msgid "Rating"
+msgstr "Beoordeling"
+
+msgid "Add the activity context this evaluation is anchored to, then rate the categories that matter."
+msgstr "Voeg de activiteit-context toe waar deze evaluatie aan vastzit, en beoordeel dan de categorieën die ertoe doen."
+
+msgid "Setting"
+msgstr "Context"
+
+msgid "— pick a setting —"
+msgstr "— kies een context —"
+
+msgid "Context"
+msgstr "Toelichting"
+
+msgid "Review"
+msgstr "Controleren"
+
+msgid "%d evaluation will be created."
+msgid_plural "%d evaluations will be created."
+msgstr[0] "%d evaluatie wordt aangemaakt."
+msgstr[1] "%d evaluaties worden aangemaakt."
+
+msgid "Heads up:"
+msgstr "Let op:"
+
+msgid "%d player was present but not rated. Submit anyway, or go back?"
+msgid_plural "%d players were present but not rated. Submit anyway, or go back?"
+msgstr[0] "%d speler was aanwezig maar niet beoordeeld. Toch versturen, of terug?"
+msgstr[1] "%d spelers waren aanwezig maar niet beoordeeld. Toch versturen, of terug?"
+
+msgid "Click Submit to write the evaluations."
+msgstr "Klik Versturen om de evaluaties op te slaan."
+
+msgid "One evaluation will be created for %s."
+msgstr "Eén evaluatie wordt aangemaakt voor %s."
+
+msgid "%d category rated."
+msgid_plural "%d categories rated."
+msgstr[0] "%d categorie beoordeeld."
+msgstr[1] "%d categorieën beoordeeld."
+
+msgid "Click Submit to write the evaluation."
+msgstr "Klik Versturen om de evaluatie op te slaan."
+
+msgid "No player selected."
+msgstr "Geen speler geselecteerd."
+
+msgid "Rateable"
+msgstr "Beoordeelbaar"
+
+msgid "Coaches can create player evaluations on activities of this type."
+msgstr "Coaches kunnen spelerevaluaties aanmaken op activiteiten van dit type."
+
+msgid "When unchecked, activities of this type vanish from the new-evaluation wizard's activity picker. They remain visible everywhere else (the activity itself, stats, reports). Useful for clinics, methodology lectures, and team meetings."
+msgstr "Wanneer uitgevinkt verdwijnen activiteiten van dit type uit de activiteitkiezer van de nieuwe-evaluatie-wizard. Ze blijven overal anders zichtbaar (de activiteit zelf, statistieken, rapporten). Handig voor clinics, methodology-lectures en team-meetings."

@@ -28,21 +28,128 @@ final class WizardState {
 
     /**
      * @return array<string,mixed>
+     *
+     * #0072 — split-store load. Transient is the fast path within the
+     * same session; if it's expired we fall through to the persistent
+     * `tt_wizard_drafts` table so cross-device drafts resume.
      */
     public static function load( int $user_id, string $wizard_slug ): array {
         $row = get_transient( self::key( $user_id, $wizard_slug ) );
-        return is_array( $row ) ? $row : [];
+        if ( is_array( $row ) && ! empty( $row ) ) return $row;
+        return self::loadFromTable( $user_id, $wizard_slug );
     }
 
     /**
      * @param array<string,mixed> $state
+     *
+     * #0072 — write-through to the persistent table so the draft
+     * survives transient expiry / device switch.
      */
     public static function save( int $user_id, string $wizard_slug, array $state ): void {
         set_transient( self::key( $user_id, $wizard_slug ), $state, self::TTL );
+        self::saveToTable( $user_id, $wizard_slug, $state );
     }
 
     public static function clear( int $user_id, string $wizard_slug ): void {
         delete_transient( self::key( $user_id, $wizard_slug ) );
+        self::deleteFromTable( $user_id, $wizard_slug );
+    }
+
+    // -----------------------------------------------------------------
+    // Persistent draft store (#0072) — `tt_wizard_drafts` table
+    // -----------------------------------------------------------------
+
+    /** @return array<string,mixed> */
+    private static function loadFromTable( int $user_id, string $wizard_slug ): array {
+        global $wpdb;
+        $tbl = $wpdb->prefix . 'tt_wizard_drafts';
+        if ( ! self::tableExists( $tbl ) ) return [];
+        $json = $wpdb->get_var( $wpdb->prepare(
+            "SELECT state_json FROM {$tbl} WHERE user_id = %d AND wizard_slug = %s LIMIT 1",
+            $user_id, $wizard_slug
+        ) );
+        if ( ! is_string( $json ) || $json === '' ) return [];
+        $decoded = json_decode( $json, true );
+        return is_array( $decoded ) ? $decoded : [];
+    }
+
+    /** @param array<string,mixed> $state */
+    private static function saveToTable( int $user_id, string $wizard_slug, array $state ): void {
+        global $wpdb;
+        $tbl = $wpdb->prefix . 'tt_wizard_drafts';
+        if ( ! self::tableExists( $tbl ) ) return;
+        $club_id = class_exists( '\TT\Infrastructure\Tenancy\CurrentClub' )
+            ? (int) \TT\Infrastructure\Tenancy\CurrentClub::id()
+            : 1;
+        $wpdb->query( $wpdb->prepare(
+            "INSERT INTO {$tbl} ( user_id, club_id, wizard_slug, state_json, updated_at )
+                  VALUES ( %d, %d, %s, %s, %s )
+                  ON DUPLICATE KEY UPDATE state_json = VALUES(state_json), updated_at = VALUES(updated_at)",
+            $user_id, $club_id, $wizard_slug,
+            wp_json_encode( $state ),
+            current_time( 'mysql', true )
+        ) );
+    }
+
+    private static function deleteFromTable( int $user_id, string $wizard_slug ): void {
+        global $wpdb;
+        $tbl = $wpdb->prefix . 'tt_wizard_drafts';
+        if ( ! self::tableExists( $tbl ) ) return;
+        $wpdb->delete( $tbl, [ 'user_id' => $user_id, 'wizard_slug' => $wizard_slug ] );
+    }
+
+    private static function tableExists( string $table ): bool {
+        static $cache = [];
+        if ( isset( $cache[ $table ] ) ) return $cache[ $table ];
+        global $wpdb;
+        $cache[ $table ] = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
+        return $cache[ $table ];
+    }
+
+    /**
+     * #0072 — daily orphan cleanup. Deletes draft rows older than the
+     * filtered TTL (default 14 days). Wired by `WizardDraftCleanupCron`.
+     */
+    public static function cleanupOldDrafts(): int {
+        global $wpdb;
+        $tbl = $wpdb->prefix . 'tt_wizard_drafts';
+        if ( ! self::tableExists( $tbl ) ) return 0;
+        $days = (int) apply_filters( 'tt_wizard_draft_ttl_days', 14 );
+        if ( $days < 1 ) $days = 14;
+        return (int) $wpdb->query( $wpdb->prepare(
+            "DELETE FROM {$tbl} WHERE updated_at < DATE_SUB( UTC_TIMESTAMP(), INTERVAL %d DAY )",
+            $days
+        ) );
+    }
+
+    /**
+     * #0072 — does a persistent draft row exist for this (user, wizard)?
+     * The wizard view uses this to decide whether to render the
+     * "Continue or start over?" banner on first hit.
+     */
+    public static function hasPersistentDraft( int $user_id, string $wizard_slug ): bool {
+        global $wpdb;
+        $tbl = $wpdb->prefix . 'tt_wizard_drafts';
+        if ( ! self::tableExists( $tbl ) ) return false;
+        return (bool) $wpdb->get_var( $wpdb->prepare(
+            "SELECT 1 FROM {$tbl} WHERE user_id = %d AND wizard_slug = %s LIMIT 1",
+            $user_id, $wizard_slug
+        ) );
+    }
+
+    /**
+     * #0072 — when did this user last save a draft for this wizard?
+     * UTC datetime string or null.
+     */
+    public static function persistentDraftAge( int $user_id, string $wizard_slug ): ?string {
+        global $wpdb;
+        $tbl = $wpdb->prefix . 'tt_wizard_drafts';
+        if ( ! self::tableExists( $tbl ) ) return null;
+        $val = $wpdb->get_var( $wpdb->prepare(
+            "SELECT updated_at FROM {$tbl} WHERE user_id = %d AND wizard_slug = %s LIMIT 1",
+            $user_id, $wizard_slug
+        ) );
+        return is_string( $val ) && $val !== '' ? $val : null;
     }
 
     /**
