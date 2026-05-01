@@ -11028,6 +11028,14 @@ msgstr "Nog geen ploegen. Voeg eerst een ploeg toe en kom dan terug om een Spond
 msgid "Disconnect Spond? Existing imported activities are kept."
 msgstr "Spond loskoppelen? Bestaande geïmporteerde activiteiten blijven staan."
 
+# v3.71.3 — issue #16 Reports preset translations
+
+msgid "Preset name"
+msgstr "Naam preset"
+
+msgid "Save Current Filters"
+msgstr "Huidige filters opslaan"
+
 # v3.71.0 — round-3 bundle (#0070-followup) i18n + new strings
 
 msgid "Upcoming activities"

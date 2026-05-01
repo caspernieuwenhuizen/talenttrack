@@ -52,14 +52,14 @@ class Reports {
             <?php if ( empty( $presets ) ) : ?><p>No presets.</p>
             <?php else : ?><table class="widefat striped" style="max-width:500px;"><thead><tr><th>Name</th><th></th></tr></thead><tbody>
                 <?php foreach ( $presets as $pr ) : ?><tr><td><a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-reports&run=1&' . $pr->config ) ); ?>"><?php echo esc_html( $pr->name ); ?></a></td>
-                    <td><a href="<?php echo wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_report_preset&id={$pr->id}" ), 'tt_delpreset_' . $pr->id ); ?>" style="color:#b32d2e;">Delete</a></td></tr>
+                    <td><a href="<?php echo wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_report_preset&id={$pr->id}" ), 'tt_delpreset_' . $pr->id ); ?>" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a></td></tr>
                 <?php endforeach; ?></tbody></table><?php endif; ?>
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:10px;">
                 <?php wp_nonce_field( 'tt_save_report_preset', 'tt_nonce' ); ?>
                 <input type="hidden" name="action" value="tt_save_report_preset" />
                 <input type="hidden" name="config" value="<?php echo esc_attr( $_SERVER['QUERY_STRING'] ?? '' ); ?>" />
-                <input type="text" name="name" placeholder="Preset name" required style="width:200px;" />
-                <button type="submit" class="button">Save Current Filters</button>
+                <input type="text" name="name" placeholder="<?php esc_attr_e( 'Preset name', 'talenttrack' ); ?>" required style="width:200px;" />
+                <button type="submit" class="button"><?php esc_html_e( 'Save Current Filters', 'talenttrack' ); ?></button>
             </form>
         </div>
         <?php
