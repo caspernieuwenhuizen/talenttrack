@@ -956,6 +956,7 @@ class EvaluationsPage {
     public static function handle_delete(): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         check_admin_referer( 'tt_del_eval_' . $id );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'evaluation.delete' );
 
         // v2.8.0: check canEvaluatePlayer against the evaluation's player.
         // Coaches can delete evaluations of players on their teams; admins

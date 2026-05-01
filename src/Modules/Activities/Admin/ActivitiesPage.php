@@ -508,6 +508,7 @@ class ActivitiesPage {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         check_admin_referer( 'tt_del_act_' . $id );
         if ( ! current_user_can( 'tt_edit_activities' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'activity.delete' );
         global $wpdb; $p = $wpdb->prefix;
         $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $id, 'club_id' => CurrentClub::id() ] );
         $wpdb->delete( "{$p}tt_activities", [ 'id' => $id, 'club_id' => CurrentClub::id() ] );

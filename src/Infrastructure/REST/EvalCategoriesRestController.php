@@ -32,31 +32,31 @@ class EvalCategoriesRestController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_categories' ],
-                'permission_callback' => function () { return current_user_can( 'tt_view_settings' ) || current_user_can( 'tt_edit_settings' ); },
+                'permission_callback' => function () { return current_user_can( 'tt_view_evaluation_categories' ) || current_user_can( 'tt_edit_evaluation_categories' ); },
             ],
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_category' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+                'permission_callback' => function () { return current_user_can( 'tt_edit_evaluation_categories' ); },
             ],
         ] );
         register_rest_route( self::NS, '/eval-categories/(?P<id>\d+)', [
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_category' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+                'permission_callback' => function () { return current_user_can( 'tt_edit_evaluation_categories' ); },
             ],
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_category' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+                'permission_callback' => function () { return current_user_can( 'tt_edit_evaluation_categories' ); },
             ],
         ] );
         register_rest_route( self::NS, '/eval-categories/(?P<id>\d+)/move', [
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'move_category' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+                'permission_callback' => function () { return current_user_can( 'tt_edit_evaluation_categories' ); },
             ],
         ] );
     }

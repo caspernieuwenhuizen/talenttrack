@@ -1,3 +1,62 @@
+# TalentTrack v3.74.0 — #0071 follow-ups: impersonation guards on destructive handlers + sub-cap refactor
+
+Wires up the two follow-ups deferred from v3.72.0's ship of #0071. Both are well-bounded clean-up: the guards make impersonation truly safe to use during destructive operations, and the sub-cap refactor lets per-tab grants on the matrix actually mean what they say.
+
+## Impersonation guards on destructive admin handlers
+
+`ImpersonationContext::blockDestructiveAdminHandler( string $action )` is a thin wrapper around `denyIfImpersonating()` that `wp_die`'s with the standard 403 + "Action … is disabled while impersonating. Switch back to perform this operation." message when an impersonation session is active. Every destructive admin handler now calls it after the existing cap + nonce checks. Concrete coverage:
+
+| Module | Handler | Action label |
+|--------|---------|--------------|
+| Authorization | `MatrixPage::handleSave` | `matrix.save` |
+| Authorization | `MatrixPage::handleReset` | `matrix.reset` |
+| Authorization | `PreviewPage::handleApply` | `matrix.apply` |
+| Authorization | `PreviewPage::handleRollback` | `matrix.rollback` |
+| Authorization | `RolesPage::handleGrant` | `role.grant` |
+| Authorization | `RolesPage::handleRevoke` | `role.revoke` |
+| Backup | `BackupSettingsPage::handleRestore` | `backup.restore` |
+| Backup | `BackupSettingsPage::handleBulkUndo` | `backup.bulk_undo` |
+| DemoData | `DemoDataPage::handleGenerate` | `demo.generate` |
+| DemoData | `DemoDataPage::handleWipeData` | `demo.wipe_data` |
+| DemoData | `DemoDataPage::handleWipeUsers` | `demo.wipe_users` |
+| DemoData | `DemoDataPage::handleExcelImport` | `demo.excel_import` |
+| Configuration | `MigrationsPage::handle_run_one` | `migration.run_one` |
+| Configuration | `MigrationsPage::handle_run_all` | `migration.run_all` |
+| Configuration | `ConfigurationPage::handle_delete_lookup` | `lookup.delete` |
+| Pdp | `SeasonsPage::handleSave` | `season.save` |
+| Pdp | `SeasonsPage::handleSetCurrent` | `season.set_current` |
+| Activities | `ActivitiesPage::handle_delete` | `activity.delete` |
+| Evaluations | `EvaluationsPage::handle_delete` | `evaluation.delete` |
+| Goals | `GoalsPage::handle_delete` | `goal.delete` |
+| Players | `PlayersPage::handle_delete` | `player.delete` |
+| Teams | `TeamsPage::handle_delete` | `team.delete` |
+| Shared | `BulkActionsHelper::handle` | `bulk.<action>` |
+
+That's 23 handlers — every destructive admin-post in the codebase outside the existing per-row controllers. The guard is a one-liner per handler so it's easy to extend if a future destructive handler joins the list.
+
+## Sub-cap refactor
+
+The umbrella `tt_view_settings` / `tt_edit_settings` checks on the explicit Settings-adjacent surfaces switch to specific sub-caps. The `CapabilityAliases` roll-ups from v3.72.0 keep existing umbrella holders working — every user who held `tt_edit_settings` before now passes the new specific check transparently because the alias filter grants `tt_edit_lookups` (etc.) to them.
+
+| File | Before | After |
+|------|--------|-------|
+| `ConfigurationPage::handle_save_toggles` | `tt_edit_settings` | `tt_edit_feature_toggles` |
+| `ConfigurationPage::handle_save_lookup` | `tt_edit_settings` | `tt_edit_lookups` |
+| `ConfigurationPage::handle_delete_lookup` | `tt_edit_settings` | `tt_edit_lookups` |
+| `MigrationsPage::render_page` | `tt_view_settings` | `tt_view_migrations` |
+| `MigrationsPage::handle_run_one` + `handle_run_all` | `tt_edit_settings` | `tt_edit_migrations` |
+| `SeasonsPage::render` | `tt_edit_settings` | `tt_edit_seasons` |
+| `SeasonsPage::handleSave` + `handleSetCurrent` | `tt_edit_settings` | `tt_edit_seasons` |
+| `TranslationsConfigTab::handleSave` (×2) | `tt_edit_settings` | `tt_edit_translations` |
+| `Translations\CapThresholdNotice::render` | `tt_edit_settings` | `tt_edit_translations` |
+| `CustomFieldsRestController` (5 routes) | `tt_view_settings` / `tt_edit_settings` | `tt_view_custom_fields` / `tt_edit_custom_fields` |
+| `EvalCategoriesRestController` (5 routes) | `tt_view_settings` / `tt_edit_settings` | `tt_view_evaluation_categories` / `tt_edit_evaluation_categories` |
+
+## What's still deferred
+
+- **`ConfigRestController`** — generic config REST endpoint that touches arbitrary keys. Refactoring to per-key sub-caps requires inspecting each whitelisted key on save; deeper than this follow-up. The umbrella check still works because the CapabilityAliases roll-up grants it to anyone with all 12 sub-caps.
+- **Other `tt_edit_settings` "is admin" proxies** — sites in `PdpFilesRestController`, `ThreadsRestController`, `BulkActionsHelper::renderActionBar`, `Wizards/Activity/TeamStep`, etc. use `tt_edit_settings` as a generic "is this user an admin?" check rather than as a config-write check. Switching those to a more semantic helper (e.g. `current_user_can('manage_options')` or a new `tt_is_admin()` predicate) is a separate cleanup.
+
 # TalentTrack v3.72.0 — Authorization matrix completeness, sub-cap split, HoD redefinition (#0071)
 
 Sequel to **#0033**. Five children shipped in one bundle. Excel companion at [docs/authorization-matrix-extended.xlsx](docs/authorization-matrix-extended.xlsx) is the canonical post-epic state.
@@ -105,7 +164,9 @@ New cap `tt_impersonate_users` granted by default to `administrator` and `tt_clu
 - [ ] Impersonation child: admin starts impersonation of a parent → dashboard renders as parent → banner visible → safeguarding-notes 403s for the impersonated parent → switch back → admin can read safeguarding notes again. `tt_impersonation_log` has one row with both timestamps.
 - [ ] Self-impersonation / admin-on-admin / stacking attempts return distinct error codes.
 
-# TalentTrack v3.73.1 — Design-system consumer wiring (#0075 Sprint 1 PR 2)
+# TalentTrack v3.74.1 — Design-system consumer wiring (#0075 Sprint 1 PR 2)
+
+> Renumbered from v3.73.1 in PR after #0071 follow-ups landed at v3.74.0. Code unchanged.
 
 Companion PR to v3.73.0. The token catalogue + grouped editor shipped in PR 1 added `--tt-shadow-sm/md/lg`, `--tt-primary-hover`, `--tt-secondary-hover`, `--tt-accent-hover`, `--tt-success-subtle` (and warning/danger/info variants), `--tt-motion-duration`, `--tt-motion-easing` — but no consumer stylesheet read them yet. PR 1 backstopped shadows via per-surface `box-shadow` overrides emitted from the generator. This PR wires the actual consumers so the new tokens do something through the normal cascade instead of via the legacy override block.
 

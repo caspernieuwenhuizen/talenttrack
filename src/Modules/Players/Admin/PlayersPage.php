@@ -589,6 +589,7 @@ class PlayersPage {
     public static function handle_delete(): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         check_admin_referer( 'tt_delete_player_' . $id );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'player.delete' );
 
         // v2.8.0: delete remains capability-only (not entity-scoped). Deleting
         // a player is destructive, so team coaches shouldn't be able to delete

@@ -237,7 +237,7 @@ final class TranslationsConfigTab {
     }
 
     public static function handleSave(): void {
-        if ( ! current_user_can( 'tt_edit_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_translations' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( self::SAVE_ACTION, 'tt_translations_nonce' );
 
         $keys      = TranslationLayer::configKeys();
@@ -291,7 +291,7 @@ final class TranslationsConfigTab {
     }
 
     public static function handleClear(): void {
-        if ( ! current_user_can( 'tt_edit_settings' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( 'tt_edit_translations' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( self::CLEAR_ACTION );
         TranslationLayer::purgeAllCaches();
         wp_safe_redirect( admin_url( 'admin.php?page=tt-config&tab=' . self::TAB_KEY . '&tt_msg=saved' ) );

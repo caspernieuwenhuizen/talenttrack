@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.73.1
+Stable tag: 3.74.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,9 +12,16 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 3.73.1 — Design-system consumer wiring (#0075 Sprint 1 PR 2) =
+= 3.74.1 — Design-system consumer wiring (#0075 Sprint 1 PR 2) =
 
-Wires the new tokens introduced in v3.73.0 into actual consumer stylesheets so they do something visible. `assets/css/public.css` gets a `.tt-root` defaults block (matching v3.64's pre-token visuals so existing installs see no change unless they opt in via the editor) plus consumer rules on `.tt-btn:hover` (reads `--tt-primary-hover` with the legacy secondary-on-hover as fallback), `.tt-card` (resting + hover shadows read `--tt-shadow-sm/md`), and the card transition timing (`--tt-motion-duration` + `--tt-motion-easing`). `assets/css/frontend-admin.css` adds the same shadow + transition tokens to `.tt-panel` (resting + hover). Token defaults live only in `.tt-root` so the visual editor's inline `<style>` overrides cascade into `.tt-dashboard` descendants without being shadowed. The `VisualEditor::renderShadowOverrides` per-surface block from PR 1 is preserved as a backstop until every consumer reads the custom property directly — drop in a future PR.
+Wires the new tokens introduced in v3.73.0 into actual consumer stylesheets so they do something visible. `assets/css/public.css` gets a `.tt-root` defaults block (matching v3.64's pre-token visuals so existing installs see no change unless they opt in via the editor) plus consumer rules on `.tt-btn:hover` (reads `--tt-primary-hover` with the legacy secondary-on-hover as fallback), `.tt-card` (resting + hover shadows read `--tt-shadow-sm/md`), and the card transition timing (`--tt-motion-duration` + `--tt-motion-easing`). `assets/css/frontend-admin.css` adds the same shadow + transition tokens to `.tt-panel` (resting + hover). Token defaults live only in `.tt-root` so the visual editor's inline `<style>` overrides cascade into `.tt-dashboard` descendants without being shadowed. The `VisualEditor::renderShadowOverrides` per-surface block from PR 1 is preserved as a backstop until every consumer reads the custom property directly — drop in a future PR. Renumbered from v3.73.1 in PR after #0071 follow-ups landed at v3.74.0.
+
+= 3.74.0 — #0071 follow-ups: impersonation guards on destructive handlers + sub-cap refactor =
+
+Wires up the two follow-ups deferred from v3.72.0's #0071 ship.
+
+* **Impersonation guards** — every destructive admin handler in the list now calls `ImpersonationContext::blockDestructiveAdminHandler()` after the existing cap + nonce checks. 23 handlers covered: matrix Apply / Rollback / Save / Reset, role grants, role revokes, backup restore, backup bulk-undo, demo generate / wipe-data / wipe-users / excel-import, migration run-one + run-all, season save + set-current, plus all 6 `tt_delete_*` handlers (activity / lookup / evaluation / goal / player / team) and the BulkActionsHelper bulk-action handler. While impersonating, attempting any of these returns a 403 "Action … is disabled while impersonating. Switch back to perform this operation." instead of running.
+* **Sub-cap refactor** on the explicit Settings-adjacent surfaces — `ConfigurationPage::handle_save_toggles` → `tt_edit_feature_toggles`; `handle_save_lookup` + `handle_delete_lookup` → `tt_edit_lookups`; `MigrationsPage::render_page` → `tt_view_migrations`; `MigrationsPage` runners → `tt_edit_migrations`; `SeasonsPage` (render + handleSave + handleSetCurrent) → `tt_view_seasons` / `tt_edit_seasons`; `TranslationsConfigTab::handleSave` + `CapThresholdNotice::render` → `tt_edit_translations`; `CustomFieldsRestController` (5 routes) → `tt_view_custom_fields` / `tt_edit_custom_fields`; `EvalCategoriesRestController` (5 routes) → `tt_view_evaluation_categories` / `tt_edit_evaluation_categories`. The `CapabilityAliases` roll-ups from v3.72.0 mean existing `tt_edit_settings` holders still pass these checks transparently — no user loses access.
 
 = 3.73.0 — Design-system token catalogue + grouped visual editor (#0075 Sprint 1 PR 1) =
 

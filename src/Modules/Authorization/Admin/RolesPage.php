@@ -278,6 +278,7 @@ class RolesPage {
         $end        = isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['end_date'] ) ) : '';
 
         check_admin_referer( 'tt_grant_role_' . $person_id, 'tt_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'role.grant' );
 
         $granted_by = AuthorizationService::getCurrentPersonId();
 
@@ -305,6 +306,7 @@ class RolesPage {
 
         $scope_id_pk = isset( $_POST['scope_id_pk'] ) ? absint( wp_unslash( (string) $_POST['scope_id_pk'] ) ) : 0;
         check_admin_referer( 'tt_revoke_role_' . $scope_id_pk, 'tt_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'role.revoke' );
 
         $person_id = isset( $_POST['person_id'] ) ? absint( wp_unslash( (string) $_POST['person_id'] ) ) : 0;
         $role_id   = isset( $_POST['role_id'] ) ? absint( wp_unslash( (string) $_POST['role_id'] ) ) : 0;

@@ -23,7 +23,10 @@ class MigrationsPage {
     }
 
     public static function render_page(): void {
-        if ( ! current_user_can( 'tt_view_settings' ) && ! current_user_can( 'administrator' ) ) {
+        // #0071 follow-up — `tt_view_migrations` is the specific sub-cap;
+        // CapabilityAliases roll-up still grants it for legacy
+        // `tt_view_settings` holders.
+        if ( ! current_user_can( 'tt_view_migrations' ) && ! current_user_can( 'administrator' ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 
@@ -207,7 +210,7 @@ class MigrationsPage {
     // Handlers
 
     public static function handle_run_one(): void {
-        if ( ! current_user_can( 'tt_edit_settings' ) && ! current_user_can( 'administrator' ) ) {
+        if ( ! current_user_can( 'tt_edit_migrations' ) && ! current_user_can( 'administrator' ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         $name = isset( $_POST['migration'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['migration'] ) ) : '';
@@ -216,6 +219,7 @@ class MigrationsPage {
             exit;
         }
         check_admin_referer( 'tt_run_migration_' . $name, 'tt_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'migration.run_one' );
 
         $runner = new MigrationRunner();
         $result = $runner->runOne( $name );
@@ -226,10 +230,11 @@ class MigrationsPage {
     }
 
     public static function handle_run_all(): void {
-        if ( ! current_user_can( 'tt_edit_settings' ) && ! current_user_can( 'administrator' ) ) {
+        if ( ! current_user_can( 'tt_edit_migrations' ) && ! current_user_can( 'administrator' ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         check_admin_referer( 'tt_run_all_migrations', 'tt_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'migration.run_all' );
 
         $runner  = new MigrationRunner();
         $results = $runner->run();
