@@ -1,0 +1,20 @@
+{
+  "name": "talenttrack-e2e",
+  "version": "0.1.0",
+  "private": true,
+  "description": "End-to-end tests for the TalentTrack WordPress plugin (issue #12).",
+  "scripts": {
+    "wp-env:start": "wp-env start",
+    "wp-env:stop": "wp-env stop",
+    "wp-env:clean": "wp-env clean all",
+    "wp-env:logs": "wp-env logs all",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0",
+    "@wordpress/env": "^10.0.0"
+  }
+}

@@ -108,6 +108,15 @@ class FrontendAccessControl {
     }
 
     public function gateWpLogin(): void {
+        // v3.75.1 — test-only bypass so the Playwright suite (#12) can
+        // load `/wp-login.php` and exercise the login flow. Setting
+        // `TT_DISABLE_LOGIN_GATE` to true in `.wp-env.json` (or any
+        // other dev / staging install) keeps the default redirect off.
+        // Production installs leave the constant undefined and the
+        // gate keeps doing its job.
+        if ( defined( 'TT_DISABLE_LOGIN_GATE' ) && TT_DISABLE_LOGIN_GATE ) {
+            return;
+        }
         $action = isset( $_REQUEST['action'] ) ? (string) $_REQUEST['action'] : '';
         $pass_through = [ 'logout', 'lostpassword', 'rp', 'resetpass', 'confirmaction', 'postpass' ];
         if ( in_array( $action, $pass_through, true ) ) {

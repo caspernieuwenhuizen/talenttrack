@@ -1,0 +1,86 @@
+name: TalentTrack E2E (#12)
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  playwright:
+    name: Playwright (Chromium)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+
+      - name: Install PHP dependencies
+        # Plugin's bootstrap (`talenttrack.php`) loads `vendor/autoload.php`
+        # when present — and several modules (Excel demo data, future
+        # Spond JWT) need their composer deps. Install before wp-env
+        # starts so the plugin activates cleanly.
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          # cache: 'npm' would speed up subsequent runs but requires a
+          # package-lock.json that isn't in the v1 foundation. The first
+          # install generates one — once it's committed (a follow-up
+          # PR), uncomment this line for ~30s saved per CI run.
+
+      - name: Install JS dependencies
+        run: npm ci || npm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start wp-env
+        run: npm run wp-env:start
+
+      - name: Activate plugin + run migrations on tests instance
+        # wp-env mounts the plugin but doesn't auto-activate it in the
+        # tests environment. Activate explicitly + flush rewrites so
+        # the routes the smoke test exercises are wired up.
+        run: |
+          npx wp-env run tests-cli wp plugin activate talenttrack
+          npx wp-env run tests-cli wp rewrite flush --hard
+          npx wp-env run tests-cli wp option update permalink_structure '/%postname%/'
+          npx wp-env run tests-cli wp rewrite flush --hard
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          CI: true
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 7
+
+      - name: Stop wp-env
+        if: always()
+        run: npm run wp-env:stop || true
