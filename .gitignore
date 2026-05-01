@@ -1,0 +1,9 @@
+# Node / Playwright (#12)
+node_modules/
+playwright-report/
+test-results/
+.playwright/
+tests/e2e/uploads/
+
+# wp-env
+.wp-env.override.json
