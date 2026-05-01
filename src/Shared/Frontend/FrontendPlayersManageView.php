@@ -137,10 +137,13 @@ class FrontendPlayersManageView extends FrontendViewBase {
         echo FrontendListTable::render( [
             'rest_path' => 'players',
             'columns' => [
-                'last_name'     => [ 'label' => __( 'Name',   'talenttrack' ), 'sortable' => true, 'value_key' => 'name' ],
-                'team_name'     => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true ],
-                'jersey_number' => [ 'label' => __( '#',      'talenttrack' ), 'sortable' => true ],
-                'preferred_foot'=> [ 'label' => __( 'Foot',   'talenttrack' ) ],
+                // #0070 — name / team / parent rendered as clickable cells
+                // via pre-built RecordLink HTML from the REST controller.
+                'last_name'      => [ 'label' => __( 'Name',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'name_link_html' ],
+                'team_name'      => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
+                'parent_name'    => [ 'label' => __( 'Parent', 'talenttrack' ), 'render' => 'html', 'value_key' => 'parent_link_html' ],
+                'jersey_number'  => [ 'label' => __( '#',      'talenttrack' ), 'sortable' => true ],
+                'preferred_foot' => [ 'label' => __( 'Foot',   'talenttrack' ) ],
             ],
             'filters' => [
                 'team_id' => [

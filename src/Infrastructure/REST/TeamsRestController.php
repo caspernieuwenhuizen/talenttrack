@@ -157,11 +157,18 @@ class TeamsRestController {
 
         $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
 
+        // #0070 — also resolve the head coach's tt_people.id so the list
+        // can render the coach name as a clickable link to the person
+        // detail view. coach_name still comes from wp_users (admins may
+        // assign a wp_user without a tt_people row); link is suppressed
+        // when no people row exists.
         $list_sql = "SELECT t.*,
                             u.display_name AS coach_name,
+                            coach_p.id AS coach_person_id,
                             (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = t.id AND pl.archived_at IS NULL AND pl.club_id = t.club_id) AS player_count
                      FROM {$p}tt_teams t
                      LEFT JOIN {$wpdb->users} u ON u.ID = t.head_coach_id
+                     LEFT JOIN {$p}tt_people coach_p ON coach_p.wp_user_id = t.head_coach_id AND coach_p.club_id = t.club_id
                      WHERE {$where_sql}
                      ORDER BY {$orderby} {$order}
                      LIMIT %d OFFSET %d";
@@ -299,15 +306,39 @@ class TeamsRestController {
     }
 
     private static function fmtRow( object $t ): array {
+        $name  = (string) $t->name;
+        $coach = (string) ( $t->coach_name ?? '' );
+        $coach_person_id = (int) ( $t->coach_person_id ?? 0 );
+
+        // #0070 — pre-rendered link HTML so the frontend list table can
+        // show team + coach as clickable cells. Coach link suppressed
+        // when no tt_people row maps to the wp_user.
+        $name_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+            $name !== '' ? $name : '#' . (int) $t->id,
+            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', (int) $t->id )
+        );
+        $coach_link_html = '';
+        if ( $coach !== '' && $coach_person_id > 0 ) {
+            $coach_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+                $coach,
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $coach_person_id )
+            );
+        } else {
+            $coach_link_html = $coach !== '' ? esc_html( $coach ) : '';
+        }
+
         return [
-            'id'            => (int) $t->id,
-            'name'          => (string) $t->name,
-            'age_group'     => (string) ( $t->age_group ?? '' ),
-            'head_coach_id' => (int) ( $t->head_coach_id ?? 0 ),
-            'coach_name'    => (string) ( $t->coach_name ?? '' ),
-            'notes'         => (string) ( $t->notes ?? '' ),
-            'player_count'  => isset( $t->player_count ) ? (int) $t->player_count : null,
-            'archived_at'   => $t->archived_at ?? null,
+            'id'              => (int) $t->id,
+            'name'            => $name,
+            'name_link_html'  => $name_link_html,
+            'age_group'       => (string) ( $t->age_group ?? '' ),
+            'head_coach_id'   => (int) ( $t->head_coach_id ?? 0 ),
+            'coach_name'      => $coach,
+            'coach_person_id' => $coach_person_id,
+            'coach_link_html' => $coach_link_html,
+            'notes'           => (string) ( $t->notes ?? '' ),
+            'player_count'    => isset( $t->player_count ) ? (int) $t->player_count : null,
+            'archived_at'     => $t->archived_at ?? null,
         ];
     }
 }

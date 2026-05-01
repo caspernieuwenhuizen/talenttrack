@@ -119,9 +119,11 @@ class FrontendTeamsManageView extends FrontendViewBase {
         echo FrontendListTable::render( [
             'rest_path' => 'teams',
             'columns' => [
-                'name'         => [ 'label' => __( 'Team',         'talenttrack' ), 'sortable' => true ],
+                // #0070 — team name + head coach as clickable cells via
+                // pre-built RecordLink HTML from the REST controller.
+                'name'         => [ 'label' => __( 'Team',         'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'name_link_html' ],
                 'age_group'    => [ 'label' => __( 'Age group',    'talenttrack' ), 'sortable' => true ],
-                'coach_name'   => [ 'label' => __( 'Head coach',   'talenttrack' ) ],
+                'coach_name'   => [ 'label' => __( 'Head coach',   'talenttrack' ), 'render' => 'html', 'value_key' => 'coach_link_html' ],
                 'player_count' => [ 'label' => __( 'Players',      'talenttrack' ), 'sortable' => true ],
             ],
             'filters' => [

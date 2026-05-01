@@ -61,10 +61,18 @@ class EvaluationsPage {
         if ( $f_date_to   !== '' ) { $where[] = 'e.eval_date <= %s'; $params[] = $f_date_to; }
         if ( $f_type_id   > 0 )    { $where[] = 'e.eval_type_id = %d'; $params[] = $f_type_id; }
 
-        $sql = "SELECT e.*, lt.name AS type_name, CONCAT(pl.first_name,' ',pl.last_name) AS player_name, u.display_name AS coach_name
+        // #0070 — also resolve the player's team so the list can show a
+        // clickable Team column. Left-joined; null for players without a
+        // team assignment.
+        $sql = "SELECT e.*, lt.name AS type_name,
+                       CONCAT(pl.first_name,' ',pl.last_name) AS player_name,
+                       pl.team_id AS team_id,
+                       t.name AS team_name,
+                       u.display_name AS coach_name
                 FROM {$p}tt_evaluations e
                 LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id=lt.id AND lt.lookup_type='eval_type'
                 LEFT JOIN {$p}tt_players pl ON e.player_id=pl.id
+                LEFT JOIN {$p}tt_teams   t  ON t.id = pl.team_id
                 LEFT JOIN {$wpdb->users} u ON e.coach_id=u.ID
                 WHERE " . implode( ' AND ', $where ) . "
                 ORDER BY e.eval_date DESC LIMIT 50";
@@ -136,6 +144,7 @@ class EvaluationsPage {
                         <th class="check-column" style="width:30px;" data-tt-sort="off"><?php \TT\Shared\Admin\BulkActionsHelper::selectAllCheckbox(); ?></th>
                         <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Coach', 'talenttrack' ); ?></th>
                         <th style="width:90px;"><?php esc_html_e( 'Overall', 'talenttrack' ); ?></th>
@@ -144,7 +153,7 @@ class EvaluationsPage {
                 </thead>
                 <tbody>
                 <?php if ( empty( $evals ) ) : ?>
-                    <tr><td colspan="7"><?php esc_html_e( 'No evaluations.', 'talenttrack' ); ?></td></tr>
+                    <tr><td colspan="8"><?php esc_html_e( 'No evaluations.', 'talenttrack' ); ?></td></tr>
                 <?php else : foreach ( $evals as $ev ) :
                     $ov = $overalls[ (int) $ev->id ] ?? null;
                     $is_archived = $ev->archived_at !== null;
@@ -165,6 +174,19 @@ class EvaluationsPage {
                                 );
                             } else {
                                 echo esc_html( $ev_player_name !== '' ? $ev_player_name : '—' );
+                            }
+                        ?></td>
+                        <td><?php
+                            // #0070 — team links to the frontend team detail.
+                            $ev_team_id   = (int) ( $ev->team_id ?? 0 );
+                            $ev_team_name = (string) ( $ev->team_name ?? '' );
+                            if ( $ev_team_id > 0 && $ev_team_name !== '' ) {
+                                echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                                    $ev_team_name,
+                                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', $ev_team_id )
+                                );
+                            } else {
+                                echo esc_html( $ev_team_name !== '' ? $ev_team_name : '—' );
                             }
                         ?></td>
                         <td><?php echo esc_html( $ev->type_name ?: '—' ); ?></td>

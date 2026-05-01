@@ -182,9 +182,16 @@ class PlayersRestController {
 
         $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
 
-        $list_sql = "SELECT p.*, t.name AS team_name, t.age_group AS team_age_group
+        // #0070 — join parent person so the list can render a clickable
+        // parent name. Left-joined; null when no parent_person_id is set
+        // or the parent record has been removed.
+        $list_sql = "SELECT p.*, t.name AS team_name, t.age_group AS team_age_group,
+                            par.id AS parent_id,
+                            par.first_name AS parent_first_name,
+                            par.last_name AS parent_last_name
                      FROM {$p}tt_players p
                      LEFT JOIN {$p}tt_teams t ON t.id = p.team_id AND t.club_id = p.club_id
+                     LEFT JOIN {$p}tt_people par ON par.id = p.parent_person_id AND par.club_id = p.club_id
                      WHERE {$where_sql}
                      ORDER BY {$orderby} {$order}
                      LIMIT %d OFFSET %d";
@@ -296,20 +303,54 @@ class PlayersRestController {
 
     /** Compact row format for list responses (no custom fields). */
     private static function fmtRow( object $pl ): array {
+        $name = trim( ( (string) $pl->first_name ) . ' ' . ( (string) $pl->last_name ) );
+
+        // #0070 — pre-render link HTML for name / team / parent so the
+        // frontend list table can show clickable cells via render: html.
+        $name_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+            $name !== '' ? $name : '#' . (int) $pl->id,
+            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', (int) $pl->id )
+        );
+
+        $team_link_html = '';
+        $team_id = (int) ( $pl->team_id ?? 0 );
+        $team_name = (string) ( $pl->team_name ?? '' );
+        if ( $team_id > 0 && $team_name !== '' ) {
+            $team_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+                $team_name,
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', $team_id )
+            );
+        }
+
+        $parent_id   = (int) ( $pl->parent_id ?? 0 );
+        $parent_name = trim( ( (string) ( $pl->parent_first_name ?? '' ) ) . ' ' . ( (string) ( $pl->parent_last_name ?? '' ) ) );
+        $parent_link_html = '';
+        if ( $parent_id > 0 && $parent_name !== '' ) {
+            $parent_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+                $parent_name,
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $parent_id )
+            );
+        }
+
         return [
-            'id'             => (int) $pl->id,
-            'first_name'     => (string) $pl->first_name,
-            'last_name'      => (string) $pl->last_name,
-            'name'           => trim( ( (string) $pl->first_name ) . ' ' . ( (string) $pl->last_name ) ),
-            'team_id'        => (int) $pl->team_id,
-            'team_name'      => (string) ( $pl->team_name ?? '' ),
-            'team_age_group' => (string) ( $pl->team_age_group ?? '' ),
-            'jersey_number'  => $pl->jersey_number !== null ? (int) $pl->jersey_number : null,
-            'preferred_foot' => (string) ( $pl->preferred_foot ?? '' ),
-            'photo_url'      => (string) ( $pl->photo_url ?? '' ),
-            'date_of_birth'  => $pl->date_of_birth ?: null,
-            'archived_at'    => $pl->archived_at ?? null,
-            'status'         => (string) ( $pl->status ?? 'active' ),
+            'id'               => (int) $pl->id,
+            'first_name'       => (string) $pl->first_name,
+            'last_name'        => (string) $pl->last_name,
+            'name'             => $name,
+            'name_link_html'   => $name_link_html,
+            'team_id'          => $team_id,
+            'team_name'        => $team_name,
+            'team_link_html'   => $team_link_html,
+            'team_age_group'   => (string) ( $pl->team_age_group ?? '' ),
+            'parent_id'        => $parent_id,
+            'parent_name'      => $parent_name,
+            'parent_link_html' => $parent_link_html,
+            'jersey_number'    => $pl->jersey_number !== null ? (int) $pl->jersey_number : null,
+            'preferred_foot'   => (string) ( $pl->preferred_foot ?? '' ),
+            'photo_url'        => (string) ( $pl->photo_url ?? '' ),
+            'date_of_birth'    => $pl->date_of_birth ?: null,
+            'archived_at'      => $pl->archived_at ?? null,
+            'status'           => (string) ( $pl->status ?? 'active' ),
         ];
     }
 

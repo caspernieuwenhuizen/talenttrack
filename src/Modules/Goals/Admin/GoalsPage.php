@@ -59,16 +59,27 @@ class GoalsPage {
                 <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
                     <td class="check-column"><?php \TT\Shared\Admin\BulkActionsHelper::rowCheckbox( (int) $g->id ); ?></td>
                     <td><?php
+                        // #0070 — player links to the frontend player detail
+                        // (?tt_view=players&id=N) so click-through is consistent
+                        // with every other admin list.
                         $goal_player_name = (string) ( $g->player_name ?? '' );
                         $goal_player_id   = (int) ( $g->player_id ?? 0 );
-                        if ( $goal_player_name !== '' && $goal_player_id > 0 && current_user_can( 'tt_view_players' ) ) {
-                            echo '<a href="' . esc_url( admin_url( 'admin.php?page=tt-players&action=edit&id=' . $goal_player_id ) ) . '">'
-                                . esc_html( $goal_player_name ) . '</a>';
+                        if ( $goal_player_name !== '' && $goal_player_id > 0 ) {
+                            echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                                $goal_player_name,
+                                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $goal_player_id )
+                            );
                         } else {
                             echo esc_html( $goal_player_name !== '' ? $goal_player_name : '—' );
                         }
                     ?></td>
-                    <td><strong><?php echo esc_html( (string) $g->title ); ?></strong>
+                    <td><strong><?php
+                        // #0070 — goal title links to the frontend goal detail.
+                        echo \TT\Shared\Frontend\Components\RecordLink::inline(
+                            (string) $g->title,
+                            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'goals', (int) $g->id )
+                        );
+                    ?></strong>
                         <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
                     </td>
                     <td><?php
