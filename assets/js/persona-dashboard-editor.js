@@ -268,8 +268,18 @@
         if (!pane) return;
         pane.innerHTML = '';
         BOOT.widgets.forEach(function (w) {
-            var item = document.createElement('button');
-            item.type = 'button';
+            // v3.71.5 — was <button draggable="true">, but Firefox (and
+            // some Chromium-based browsers in particular configurations)
+            // don't reliably fire `dragstart` on form-element buttons.
+            // The result: __ttPdeDrag never gets set, dragover bails
+            // early without preventDefault, the browser shows the
+            // "not allowed" cursor, and the drop can't complete.
+            // Switched to <div role="button" tabindex="0"> which behaves
+            // identically for keyboard / screen-reader users but is
+            // reliably draggable across browsers.
+            var item = document.createElement('div');
+            item.setAttribute('role', 'button');
+            item.tabIndex = 0;
             item.className = 'tt-pde-palette-item';
             item.setAttribute('draggable', 'true');
             item.dataset.ttPdePaletteWidget = w.id;
@@ -311,8 +321,12 @@
             var body = document.createElement('div');
             body.className = 'tt-pde-palette-group-body';
             rows.forEach(function (k) {
-                var item = document.createElement('button');
-                item.type = 'button';
+                // v3.71.5 — div role=button instead of <button> so drag
+                // events fire reliably across browsers (see widget
+                // palette comment above).
+                var item = document.createElement('div');
+                item.setAttribute('role', 'button');
+                item.tabIndex = 0;
                 item.className = 'tt-pde-palette-item';
                 item.setAttribute('draggable', 'true');
                 item.dataset.ttPdePaletteKpi = k.id;
