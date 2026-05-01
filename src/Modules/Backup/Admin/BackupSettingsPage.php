@@ -440,6 +440,7 @@ class BackupSettingsPage {
 
     public static function handleRestore(): void {
         self::guard( 'tt_backup_restore' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'backup.restore' );
         $id      = sanitize_text_field( wp_unslash( (string) ( $_POST['id'] ?? '' ) ) );
         $confirm = trim( (string) wp_unslash( $_POST['confirm_text'] ?? '' ) );
         if ( $confirm !== 'RESTORE' ) {
@@ -465,6 +466,7 @@ class BackupSettingsPage {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         check_admin_referer( 'tt_backup_bulk_undo', 'tt_backup_undo_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'backup.bulk_undo' );
 
         $user_id = get_current_user_id();
         $payload = \TT\Modules\Backup\BulkSafetyHook::peekPending( $user_id );

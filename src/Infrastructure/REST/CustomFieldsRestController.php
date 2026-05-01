@@ -29,31 +29,31 @@ class CustomFieldsRestController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_fields' ],
-                'permission_callback' => function () { return current_user_can( 'tt_view_settings' ) || current_user_can( 'tt_edit_settings' ); },
+                'permission_callback' => function () { return current_user_can( 'tt_view_custom_fields' ) || current_user_can( 'tt_edit_custom_fields' ); },
             ],
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_field' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+                'permission_callback' => function () { return current_user_can( 'tt_edit_custom_fields' ); },
             ],
         ] );
         register_rest_route( self::NS, '/custom-fields/(?P<id>\d+)', [
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_field' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+                'permission_callback' => function () { return current_user_can( 'tt_edit_custom_fields' ); },
             ],
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_field' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+                'permission_callback' => function () { return current_user_can( 'tt_edit_custom_fields' ); },
             ],
         ] );
         register_rest_route( self::NS, '/custom-fields/(?P<id>\d+)/move', [
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'move_field' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+                'permission_callback' => function () { return current_user_can( 'tt_edit_custom_fields' ); },
             ],
         ] );
     }

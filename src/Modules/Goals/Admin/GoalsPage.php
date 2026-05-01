@@ -269,6 +269,7 @@ class GoalsPage {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         check_admin_referer( 'tt_del_goal_' . $id );
         if ( ! current_user_can( 'tt_edit_goals' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'goal.delete' );
         global $wpdb;
         $wpdb->delete( $wpdb->prefix . 'tt_goals', [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-goals&tt_msg=deleted' ) );

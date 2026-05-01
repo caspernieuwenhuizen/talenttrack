@@ -568,6 +568,7 @@ class DemoDataPage {
             wp_die( esc_html__( 'Insufficient permissions.', 'talenttrack' ) );
         }
         check_admin_referer( 'tt_demo_generate', 'tt_demo_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'demo.generate' );
 
         // Generating the Large preset can run 90+ seconds on shared hosts;
         // raise the ceiling so we don't time out halfway through.
@@ -656,6 +657,7 @@ class DemoDataPage {
             wp_die( esc_html__( 'Insufficient permissions.', 'talenttrack' ) );
         }
         check_admin_referer( 'tt_demo_wipe_data', 'tt_demo_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'demo.wipe_data' );
 
         $redirect = admin_url( 'tools.php?page=' . self::SLUG );
         $typed    = isset( $_POST['confirm_text'] ) ? trim( (string) wp_unslash( (string) $_POST['confirm_text'] ) ) : '';
@@ -674,6 +676,7 @@ class DemoDataPage {
             wp_die( esc_html__( 'Insufficient permissions.', 'talenttrack' ) );
         }
         check_admin_referer( 'tt_demo_wipe_users', 'tt_demo_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'demo.wipe_users' );
 
         $redirect = admin_url( 'tools.php?page=' . self::SLUG );
         $typed    = isset( $_POST['confirm_text'] )    ? trim( (string) wp_unslash( (string) $_POST['confirm_text'] ) )    : '';
@@ -762,6 +765,7 @@ class DemoDataPage {
             wp_die( esc_html__( 'Insufficient permissions.', 'talenttrack' ) );
         }
         check_admin_referer( 'tt_demo_excel_import', 'tt_demo_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'demo.excel_import' );
 
         $redirect = admin_url( 'tools.php?page=' . self::SLUG );
         if ( ! isset( $_FILES['demo_excel'] ) || ! is_array( $_FILES['demo_excel'] ) ) {

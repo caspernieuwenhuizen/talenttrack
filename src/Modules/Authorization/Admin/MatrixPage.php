@@ -197,6 +197,7 @@ class MatrixPage {
     public static function handleSave(): void {
         if ( ! current_user_can( 'administrator' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_matrix_save', 'tt_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'matrix.save' );
 
         $repo = new MatrixRepository();
         $entities = $repo->entities();
@@ -283,6 +284,7 @@ class MatrixPage {
     public static function handleReset(): void {
         if ( ! current_user_can( 'administrator' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_matrix_reset', 'tt_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'matrix.reset' );
 
         $repo = new MatrixRepository();
         $repo->reseed();

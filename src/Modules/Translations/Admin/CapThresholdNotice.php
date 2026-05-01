@@ -27,7 +27,7 @@ final class CapThresholdNotice {
     }
 
     public static function render(): void {
-        if ( ! current_user_can( 'tt_edit_settings' ) ) return;
+        if ( ! current_user_can( 'tt_edit_translations' ) ) return;
         if ( ! TranslationLayer::isEnabled() ) return;
 
         $primary    = TranslationLayer::primaryEngineName();

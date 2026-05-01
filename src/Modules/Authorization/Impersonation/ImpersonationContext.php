@@ -57,6 +57,18 @@ final class ImpersonationContext {
     }
 
     /**
+     * Convenience for admin-post handlers — short-circuits with a 403
+     * `wp_die` when an impersonation session is active. Equivalent to
+     * `if ($err = denyIfImpersonating(...)) wp_die(...)`.
+     */
+    public static function blockDestructiveAdminHandler( string $action = '' ): void {
+        $err = self::denyIfImpersonating( $action );
+        if ( $err instanceof \WP_Error ) {
+            wp_die( esc_html( (string) $err->get_error_message() ), '', [ 'response' => 403 ] );
+        }
+    }
+
+    /**
      * Read the signed actor id from the cookie. Returns 0 when no
      * cookie or signature mismatch.
      */
