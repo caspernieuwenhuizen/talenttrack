@@ -11300,3 +11300,46 @@ msgstr "Wanneer uitgevinkt verdwijnen activiteiten van dit type uit de activitei
 # v3.75.1 / #0075 Sprint 1 PR 4 — live preview status caption
 msgid "Live preview is on — changes appear immediately on this page; click Save to persist."
 msgstr "Live voorbeeld staat aan — wijzigingen verschijnen direct op deze pagina; klik op Opslaan om ze vast te leggen."
+
+# v3.76.0 / #0075 Sprint 1 PR 5 — type scale + button + form tokens
+msgid "Type scale"
+msgstr "Typografie-schaal"
+
+msgid "Body size (rem)"
+msgstr "Body-grootte (rem)"
+
+msgid "Heading 1 size (rem)"
+msgstr "Kop 1 grootte (rem)"
+
+msgid "Heading 2 size (rem)"
+msgstr "Kop 2 grootte (rem)"
+
+msgid "Heading 3 size (rem)"
+msgstr "Kop 3 grootte (rem)"
+
+msgid "Body line height"
+msgstr "Body-regelhoogte"
+
+msgid "Buttons"
+msgstr "Knoppen"
+
+msgid "Primary button — background"
+msgstr "Primaire knop — achtergrond"
+
+msgid "Primary button — text"
+msgstr "Primaire knop — tekst"
+
+msgid "Primary button — hover background"
+msgstr "Primaire knop — hover-achtergrond"
+
+msgid "Secondary button — border"
+msgstr "Secundaire knop — rand"
+
+msgid "Forms"
+msgstr "Formulieren"
+
+msgid "Input border"
+msgstr "Invoerveld-rand"
+
+msgid "Input border on focus"
+msgstr "Invoerveld-rand bij focus"

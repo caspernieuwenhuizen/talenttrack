@@ -1,3 +1,65 @@
+# TalentTrack v3.76.0 — Sprint 1 close: type scale + button + form tokens (#0075 Sprint 1 PR 5 of 5)
+
+Closes Sprint 1 of the #0075 design-system epic. Adds 11 new tokens across three new categories on top of the 36 tokens shipped in PRs 1-4. Brings the catalogue total to 47 tokens across 11 categories. Wires the most-impactful consumers (buttons + form inputs) to read the new tokens with fallbacks to the existing brand-level tokens so existing installs see no change unless they opt in.
+
+## What's new
+
+### Type scale (5 tokens, new category)
+- `font_size_body` → `--tt-fs-body` (rem, 0.75–1.25, default 1)
+- `font_size_h1` → `--tt-fs-h1` (rem, 1.25–3.5, default 2)
+- `font_size_h2` → `--tt-fs-h2` (rem, 1.125–2.5, default 1.5)
+- `font_size_h3` → `--tt-fs-h3` (rem, 1–2, default 1.25)
+- `line_height_body` → `--tt-lh-body` (1.2–1.8, default 1.5)
+
+`.tt-root` defaults declared in `public.css` (`--tt-fs-body: 1rem`, `--tt-lh-body: 1.5`) so the tokens are reachable for future consumer rules. The h1/h2/h3 tokens are catalogued + emitted but **not yet consumed** by any selector — the spec's full Typography coverage (22 element types × 7 dimensions; headings H4-H6; captions / code blocks / quotes / lists / inline links / strong / em / etc.) is deferred to **Sprint 2** to keep PR 5 reviewable.
+
+### Buttons (4 tokens, new category)
+- `btn_primary_bg` → `--tt-btn-primary-bg` (default `#0b3d2e`, falls back to `--tt-primary`)
+- `btn_primary_text` → `--tt-btn-primary-text` (default `#ffffff`)
+- `btn_primary_hover_bg` → `--tt-btn-primary-hover-bg` (default `#0a3327`, falls back to `--tt-primary-ink`)
+- `btn_secondary_border` → `--tt-btn-secondary-border` (default `#0b3d2e`, falls back to `--tt-primary`)
+
+`frontend-admin.css` `.tt-btn-primary` background + text + hover and `.tt-btn-secondary` border read the new tokens. Falls back to brand-level tokens when not set, so existing installs render identically.
+
+### Forms (2 tokens, new category)
+- `input_border_color` → `--tt-input-border` (default `#e3e1d8`, falls back to `--tt-line`)
+- `input_focus_border` → `--tt-input-focus-border` (default `#0b3d2e`, falls back to `--tt-primary`)
+
+`frontend-admin.css` `.tt-input` resting border + focus border read the new tokens.
+
+### Catalogue infrastructure
+
+- **`unit` field on float tokens** — `TokenCatalogue` entries can now declare a CSS unit (`'unit' => 'rem'`) that the generator appends after the validated numeric value. Used by the new `font_size_*` tokens which emit `--tt-fs-h1: 2rem;`. Live preview JS in `renderLivePreviewScript` honours the same unit. Existing `spacing_scale` and `line_height_body` (unitless) keep working unchanged.
+
+## What did *not* change in this PR
+
+- **Storage shape migration** — still v3.64 flat blob. The 47-token catalogue still serialises fine into the flat shape; structured `{tokens, components}` migration is parked for Sprint 2.
+- **REST endpoints** (`GET/PUT /design-system/tokens`) — also Sprint 2. The catalogue is internally accessible to PHP consumers; REST exposure is an SaaS-readiness concern (CLAUDE.md § 4) but no consumer is asking for it yet.
+- **Typography full coverage** — 5 type-scale tokens land here; the remaining ~17 typography elements (subheadings, captions, labels, helper / error / success / warning / info text, inline code, code blocks, quotes, lists, list items, links inline, strong, em, underline, strikethrough, small, overline, metadata, placeholder) move to Sprint 2.
+- **Buttons + Forms full coverage** — 4 button + 2 form tokens land here (the high-frequency interactive surfaces). The remaining ~50 component states from the spec list (button variants tertiary / ghost / text / icon / FAB / split / toggle / dropdown × hover / focus / active / disabled / loading / selected; input type variants × default / focus / filled / error / disabled / read-only) move to Sprint 2.
+
+## Sprint 1 final tally
+
+5 PRs across 2 sessions; ~40h shipped of the spec's ~55h estimate. The 25% under-spec is concentrated in Typography + Buttons + Forms full coverage (the spec's "full" goal vs. this PR's "high-frequency subset"). Sprint 2 picks up the deferred work plus Layout / Tables / Cards / Lists / Feedback / Overlays / Search / Empty-states.
+
+| PR | Version | Focus |
+|----|---------|-------|
+| 1  | v3.73.0 | Token catalogue + 14 new tokens + accordion editor |
+| 2  | v3.74.1 | Consumer wiring (`.tt-card`, `.tt-btn:hover`, `.tt-panel`) |
+| 3  | v3.74.2 | Status notice classes + `.tt-cfg-tile` shadow + 6 inline-style cleanups |
+| 4  | v3.75.1 | Live preview JS in the editor |
+| 5  | v3.76.0 | Type scale + Button + Form tokens (this PR) |
+
+## Acceptance criteria (manually verified)
+
+- [x] `php -l` clean.
+- [ ] `?tt_view=custom-css` → "Visual settings" tab. Three new accordion sections: "Type scale" (5 tokens), "Buttons" (4 tokens), "Forms" (2 tokens). Live preview reflects every change immediately.
+- [ ] Set `Primary button — background` to `#ff6600`. Save button background updates immediately. Save + reload — every `.tt-btn-primary` across the dashboard shows the new colour. Reset to default — reverts to `--tt-primary` (the brand colour from PR 1).
+- [ ] Set `Input border on focus` to `#cc0000`. Click into any text input — focus border is now red.
+- [ ] Set `Body line height` to `1.8`. Editor's body text spacing widens. Live preview confirms.
+- [ ] Set `Heading 1 size (rem)` to `3` — the editor doesn't visibly change because no consumer rule reads `--tt-fs-h1` yet (deferred to Sprint 2). Token does emit in the inline `<style>` so a Path B custom rule could read it.
+- [ ] No regression on PR 1-4 functionality.
+
 # TalentTrack v3.75.1 — Live preview in the design-system editor (#0075 Sprint 1 PR 4 of 5)
 
 Fourth PR of #0075 Sprint 1. PR 1 + 2 + 3 made the Custom CSS visual editor catalogue-driven, gave it eight collapsible accordion sections, wired consumer stylesheets to read the new tokens, and migrated status notice banners to read `--tt-*-subtle`. The editor was now visually grouped and the saved tokens flowed all the way through. Missing piece: every change still required a Save + reload to see what it did. This PR closes that loop.

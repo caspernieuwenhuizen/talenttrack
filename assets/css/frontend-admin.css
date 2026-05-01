@@ -132,7 +132,10 @@
     line-height: 1.4;
     color: var(--tt-ink);
     background: #fff;
-    border: 1px solid var(--tt-line);
+    /* #0075 Sprint 1 PR 5 — input border + focus border read the new
+       Forms-category tokens with a fallback to --tt-line / --tt-primary
+       so existing installs see no change unless they opt in. */
+    border: 1px solid var(--tt-input-border, var(--tt-line));
     border-radius: var(--tt-r-md);
     box-shadow: none;
     transition: border-color .12s, box-shadow .12s;
@@ -142,7 +145,7 @@
 .tt-dashboard .tt-field select:focus,
 .tt-dashboard .tt-field textarea:focus {
     outline: none;
-    border-color: var(--tt-primary);
+    border-color: var(--tt-input-focus-border, var(--tt-primary));
     box-shadow: var(--tt-focus);
 }
 .tt-dashboard .tt-input[aria-invalid="true"],
@@ -183,15 +186,19 @@
     cursor: pointer;
     transition: background .12s, border-color .12s, opacity .12s;
 }
+/* #0075 Sprint 1 PR 5 — Buttons category tokens override the brand-
+ * level primary colour pair when set. Fallbacks preserve legacy
+ * behaviour: --tt-btn-primary-bg defaults to --tt-primary, text to
+ * #fff, hover to --tt-primary-ink. */
 .tt-dashboard .tt-btn-primary {
-    background: var(--tt-primary);
-    color: #fff;
+    background: var(--tt-btn-primary-bg, var(--tt-primary));
+    color: var(--tt-btn-primary-text, #fff);
 }
-.tt-dashboard .tt-btn-primary:hover:not([disabled]) { background: var(--tt-primary-ink); }
+.tt-dashboard .tt-btn-primary:hover:not([disabled]) { background: var(--tt-btn-primary-hover-bg, var(--tt-primary-ink)); }
 .tt-dashboard .tt-btn-secondary {
     background: #fff;
     color: var(--tt-primary);
-    border-color: var(--tt-primary);
+    border-color: var(--tt-btn-secondary-border, var(--tt-primary));
 }
 .tt-dashboard .tt-btn-secondary:hover:not([disabled]) { background: var(--tt-bg-soft); }
 .tt-dashboard .tt-btn-danger {

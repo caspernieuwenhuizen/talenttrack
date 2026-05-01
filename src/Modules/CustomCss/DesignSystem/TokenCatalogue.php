@@ -39,9 +39,12 @@ final class TokenCatalogue {
     public const CATEGORY_SURFACE     = 'surface';
     public const CATEGORY_TEXT        = 'text';
     public const CATEGORY_TYPOGRAPHY  = 'typography';
+    public const CATEGORY_TYPE_SCALE  = 'type_scale';
     public const CATEGORY_SHAPE       = 'shape';
     public const CATEGORY_SHADOW      = 'shadow';
     public const CATEGORY_MOTION      = 'motion';
+    public const CATEGORY_BUTTONS     = 'buttons';
+    public const CATEGORY_FORMS       = 'forms';
 
     /**
      * @return array<string, array{
@@ -133,6 +136,23 @@ final class TokenCatalogue {
                 'options' => [ 'fast' => 'Fast (120ms)', 'base' => 'Base (180ms)', 'slow' => 'Slow (260ms)' ] ],
             [ 'key' => 'motion_easing',         'css_var' => '--tt-motion-easing',    'category' => self::CATEGORY_MOTION,   'kind' => self::KIND_SELECT, 'label' => __( 'Animation curve',             'talenttrack' ), 'default' => 'standard',
                 'options' => [ 'standard' => 'Standard', 'in' => 'Ease-in', 'out' => 'Ease-out', 'in_out' => 'Ease-in-out' ] ],
+
+            // --- Type scale (#0075 Sprint 1 PR 5) ---
+            [ 'key' => 'font_size_body',        'css_var' => '--tt-fs-body',          'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Body size (rem)',             'talenttrack' ), 'default' => '1',    'min' => 0.75, 'max' => 1.25, 'step' => 0.0625, 'unit' => 'rem' ],
+            [ 'key' => 'font_size_h1',          'css_var' => '--tt-fs-h1',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 1 size (rem)',        'talenttrack' ), 'default' => '2',    'min' => 1.25, 'max' => 3.5,  'step' => 0.125,  'unit' => 'rem' ],
+            [ 'key' => 'font_size_h2',          'css_var' => '--tt-fs-h2',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 2 size (rem)',        'talenttrack' ), 'default' => '1.5',  'min' => 1.125,'max' => 2.5,  'step' => 0.125,  'unit' => 'rem' ],
+            [ 'key' => 'font_size_h3',          'css_var' => '--tt-fs-h3',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 3 size (rem)',        'talenttrack' ), 'default' => '1.25', 'min' => 1,    'max' => 2,    'step' => 0.0625, 'unit' => 'rem' ],
+            [ 'key' => 'line_height_body',      'css_var' => '--tt-lh-body',          'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Body line height',            'talenttrack' ), 'default' => '1.5',  'min' => 1.2,  'max' => 1.8,  'step' => 0.05 ],
+
+            // --- Buttons (#0075 Sprint 1 PR 5) ---
+            [ 'key' => 'btn_primary_bg',        'css_var' => '--tt-btn-primary-bg',         'category' => self::CATEGORY_BUTTONS, 'kind' => self::KIND_COLOR, 'label' => __( 'Primary button — background',     'talenttrack' ), 'default' => '#0b3d2e' ],
+            [ 'key' => 'btn_primary_text',      'css_var' => '--tt-btn-primary-text',       'category' => self::CATEGORY_BUTTONS, 'kind' => self::KIND_COLOR, 'label' => __( 'Primary button — text',           'talenttrack' ), 'default' => '#ffffff' ],
+            [ 'key' => 'btn_primary_hover_bg',  'css_var' => '--tt-btn-primary-hover-bg',   'category' => self::CATEGORY_BUTTONS, 'kind' => self::KIND_COLOR, 'label' => __( 'Primary button — hover background','talenttrack' ), 'default' => '#0a3327' ],
+            [ 'key' => 'btn_secondary_border',  'css_var' => '--tt-btn-secondary-border',   'category' => self::CATEGORY_BUTTONS, 'kind' => self::KIND_COLOR, 'label' => __( 'Secondary button — border',       'talenttrack' ), 'default' => '#0b3d2e' ],
+
+            // --- Forms (#0075 Sprint 1 PR 5) ---
+            [ 'key' => 'input_border_color',    'css_var' => '--tt-input-border',           'category' => self::CATEGORY_FORMS, 'kind' => self::KIND_COLOR, 'label' => __( 'Input border',           'talenttrack' ), 'default' => '#e3e1d8' ],
+            [ 'key' => 'input_focus_border',    'css_var' => '--tt-input-focus-border',     'category' => self::CATEGORY_FORMS, 'kind' => self::KIND_COLOR, 'label' => __( 'Input border on focus',  'talenttrack' ), 'default' => '#0b3d2e' ],
         ];
     }
 
@@ -159,14 +179,17 @@ final class TokenCatalogue {
      */
     public static function categoriesInOrder(): array {
         return [
-            self::CATEGORY_BRAND      => __( 'Brand colours',  'talenttrack' ),
-            self::CATEGORY_STATUS     => __( 'Status colours', 'talenttrack' ),
-            self::CATEGORY_SURFACE    => __( 'Surfaces',       'talenttrack' ),
-            self::CATEGORY_TEXT       => __( 'Text',           'talenttrack' ),
-            self::CATEGORY_TYPOGRAPHY => __( 'Typography',     'talenttrack' ),
-            self::CATEGORY_SHAPE      => __( 'Shape + spacing','talenttrack' ),
-            self::CATEGORY_SHADOW     => __( 'Shadows',        'talenttrack' ),
-            self::CATEGORY_MOTION     => __( 'Motion',         'talenttrack' ),
+            self::CATEGORY_BRAND      => __( 'Brand colours',   'talenttrack' ),
+            self::CATEGORY_STATUS     => __( 'Status colours',  'talenttrack' ),
+            self::CATEGORY_SURFACE    => __( 'Surfaces',        'talenttrack' ),
+            self::CATEGORY_TEXT       => __( 'Text',            'talenttrack' ),
+            self::CATEGORY_TYPOGRAPHY => __( 'Typography',      'talenttrack' ),
+            self::CATEGORY_TYPE_SCALE => __( 'Type scale',      'talenttrack' ),
+            self::CATEGORY_SHAPE      => __( 'Shape + spacing', 'talenttrack' ),
+            self::CATEGORY_SHADOW     => __( 'Shadows',         'talenttrack' ),
+            self::CATEGORY_MOTION     => __( 'Motion',          'talenttrack' ),
+            self::CATEGORY_BUTTONS    => __( 'Buttons',         'talenttrack' ),
+            self::CATEGORY_FORMS      => __( 'Forms',           'talenttrack' ),
         ];
     }
 

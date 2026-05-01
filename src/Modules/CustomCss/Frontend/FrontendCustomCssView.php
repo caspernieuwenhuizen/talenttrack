@@ -457,6 +457,9 @@ class FrontendCustomCssView extends FrontendViewBase {
                 'var'  => (string) $def['css_var'],
                 'kind' => (string) $def['kind'],
             ];
+            if ( isset( $def['unit'] ) && $def['unit'] !== '' ) {
+                $entry['unit'] = (string) $def['unit'];
+            }
             if ( $key === 'shadow_sm' || $key === 'shadow_md' || $key === 'shadow_lg' ) {
                 $entry['kind'] = 'shadow';
                 $entry['map'] = $shadow_map;
@@ -506,7 +509,7 @@ class FrontendCustomCssView extends FrontendViewBase {
                         break;
                     case 'float':
                         if (isNaN(parseFloat(String(raw)))) return '';
-                        v = String(raw);
+                        v = String(raw) + (def.unit || '');
                         break;
                     case 'shadow':
                     case 'motion':
