@@ -39,6 +39,25 @@ class CapabilityAliases {
         'tt_manage_players'   => [ 'tt_view_players', 'tt_edit_players' ],
         'tt_evaluate_players' => [ 'tt_view_evaluations', 'tt_edit_evaluations' ],
         'tt_manage_settings'  => [ 'tt_view_settings', 'tt_edit_settings' ],
+
+        // #0071 — Settings sub-cap split. The umbrella `tt_view_settings` /
+        // `tt_edit_settings` become roll-ups: a user "has" them iff they
+        // hold ALL the per-area sub-caps. This keeps existing umbrella-cap
+        // call sites working while new code uses the specific sub-cap.
+        'tt_view_settings' => [
+            'tt_view_lookups', 'tt_view_branding', 'tt_view_feature_toggles',
+            'tt_view_audit_log', 'tt_view_translations', 'tt_view_custom_fields',
+            'tt_view_evaluation_categories', 'tt_view_category_weights',
+            'tt_view_rating_scale', 'tt_view_migrations', 'tt_view_seasons',
+            'tt_view_setup_wizard',
+        ],
+        'tt_edit_settings' => [
+            'tt_edit_lookups', 'tt_edit_branding', 'tt_edit_feature_toggles',
+            'tt_edit_translations', 'tt_edit_custom_fields',
+            'tt_edit_evaluation_categories', 'tt_edit_category_weights',
+            'tt_edit_rating_scale', 'tt_edit_migrations', 'tt_edit_seasons',
+            'tt_edit_setup_wizard',
+        ],
     ];
 
     public static function init(): void {

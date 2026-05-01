@@ -52,6 +52,15 @@ class FeatureToggleService {
                 'description' => __( 'After login, redirect players and coaches to the TalentTrack dashboard page instead of wp-admin.', 'talenttrack' ),
                 'default'     => true,
             ],
+            // #0071 child 4 — controls whether players and parents see the
+            // player-status colour dot. Staff always see it. Default off
+            // on fresh installs (HoD opts in); migration 0055 sets to true
+            // for upgrade installs that already had it visible.
+            'player_status_visible_to_player_parent' => [
+                'label'       => __( 'Show player status to players and parents', 'talenttrack' ),
+                'description' => __( 'When enabled, players see their own status colour and parents see their child\'s. When disabled, the status dot is staff-only (coaches, scouts, Head of Development, Academy Admin). The detailed breakdown remains staff-only regardless. Note: a status change can still be inferred indirectly if other surfaces (e.g. evaluations) reveal it; this toggle hides the explicit dot, not the underlying judgement.', 'talenttrack' ),
+                'default'     => false,
+            ],
         ];
     }
 

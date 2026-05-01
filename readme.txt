@@ -4,13 +4,25 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.71.5
+Stable tag: 3.72.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.72.0 — Authorization matrix completeness, sub-cap split, HoD redefinition (#0071) =
+
+Sequel to #0033. Five children shipped in one bundle:
+
+* **Matrix coverage** — `config/authorization_seed.php` rewritten to match the canonical Excel matrix (`docs/authorization-matrix-extended.xlsx`) — ~107 entities including sensitive `player_injuries` / `safeguarding_notes` / `player_potential` / `pdp_evidence_packet` rows, plus full Trials / StaffDevelopment / Threads / Push / Spond / PersonaDashboard / CustomCss / Translations sub-entities.
+* **Settings sub-cap split** — twelve `tt_view_*` / `tt_edit_*` cap pairs replace the over-coarse `tt_*_settings` umbrella (lookups, branding, feature_toggles, audit_log, translations, custom_fields, eval_categories, category_weights, rating_scale, migrations, seasons, setup_wizard). Plus a new `tt_manage_authorization` cap for the auth-management write surface. The umbrella caps remain as `CapabilityAliases` roll-ups (you "have" `tt_edit_settings` iff you hold all twelve sub-caps). Migration `0053_settings_subcaps_seed` backfills new caps onto existing umbrella holders so no user loses access on upgrade.
+* **HoD persona narrowing** — Head of Development becomes read-mostly outside player-development surfaces. Drops 15 grants from the seed: `bulk_import` removed, `reports` / `workflow_templates` / `team_chemistry` / `spond_integration` / `documentation` / `settings` / `lookups` / `branding` etc. all dropped from RC/RCD to R-only. HoD keeps full RCD on player-development surfaces (players, team, people, evaluations, activities, goals, attendance, methodology, pdp_*, trial_*, staff_*). Migration `0054_hod_persona_narrowing` strips the now-deprecated edit caps from existing HoD users and writes the diff to `tt_audit_log`. Opt-out via `define( 'TT_HOD_KEEP_LEGACY_CAPS', true )` in wp-config.php.
+* **Player status visibility toggle** — new `player_status_visible_to_player_parent` feature toggle. Default off on fresh installs; migration `0055_player_status_visibility_default` flips it on for upgrade installs that already have players (preserving today's behaviour). The toggle is a runtime override on top of the matrix at the REST and render layers — the matrix continues to describe permission *intent* and the toggle expresses club *policy*. Staff always see the dot; family personas (player + parent) only when the toggle is on.
+* **User impersonation** — Academy Admin can switch into any non-admin user in their club, see exactly what they see, and switch back. New `tt_impersonate_users` cap (admin + tt_club_admin only). New `tt_impersonation_log` table (migration `0056_impersonation_log`) with actor / target / club / start / end / end_reason / ip / user_agent / reason. Non-dismissible yellow banner on every page during a session. Daily `tt_impersonation_cleanup_cron` closes orphan rows after 24h. Defence in depth: no admin-on-admin, no self, no stacking, no cross-club without `tt_super_admin`. New `ImpersonationContext::denyIfImpersonating()` guard available to destructive admin handlers.
+* **Documentation**: `docs/impersonation.md` (EN + NL) — operator guide for the impersonation feature.
+* **NL translations** for the new user-facing strings (impersonation banner, status toggle description, error messages).
 
 = 3.71.5 — Custom CSS Sprint 0 hotfix (#0075 companion) =
 
