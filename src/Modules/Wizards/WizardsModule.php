@@ -40,5 +40,8 @@ class WizardsModule implements ModuleInterface {
         WizardRegistry::register( new NewGoalWizard() );
         WizardRegistry::register( new NewActivityWizard() );
         WizardRegistry::register( new NewPersonWizard() );
+
+        // #0072 — daily cron to prune stale `tt_wizard_drafts` rows.
+        WizardDraftCleanupCron::init();
     }
 }

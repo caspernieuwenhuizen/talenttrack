@@ -607,7 +607,7 @@ class ConfigurationPage {
                 <tr><th><?php esc_html_e( 'Name', 'talenttrack' ); ?> *</th><td><input type="text" name="name" value="<?php echo esc_attr( $item->name ?? '' ); ?>" class="regular-text" required /></td></tr>
                 <?php if ( $show_desc ) : ?><tr><th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th><td><input type="text" name="description" value="<?php echo esc_attr( $item->description ?? '' ); ?>" class="large-text" /></td></tr><?php endif; ?>
                 <?php if ( $show_sort ) : ?><tr><th><?php esc_html_e( 'Sort Order', 'talenttrack' ); ?></th><td><input type="number" name="sort_order" value="<?php echo (int) ( $item->sort_order ?? 0 ); ?>" min="0" /></td></tr><?php endif; ?>
-                <?php if ( $type === 'activity_type' ) : self::renderActivityTypeWorkflowField( $meta_row ); endif; ?>
+                <?php if ( $type === 'activity_type' ) : self::renderActivityTypeWorkflowField( $meta_row ); self::renderActivityTypeRateableField( $meta_row ); endif; ?>
             </table>
 
             <?php self::renderTranslationsSection( $item, $show_desc ); ?>
@@ -646,6 +646,34 @@ class ConfigurationPage {
                 </select>
                 <p class="description" style="max-width:540px;">
                     <?php esc_html_e( 'When an activity of this type is saved, the picked template fires for every player on the team. Leave empty for no automatic task.', 'talenttrack' ); ?>
+                </p>
+            </td>
+        </tr>
+        <?php
+    }
+
+    /**
+     * #0072 — `meta.rateable` checkbox on activity_type rows. Drives
+     * whether the new-evaluation wizard's activity picker surfaces
+     * activities of this type. Default `true` for unset rows; the
+     * non-rateable types (`clinic`, `methodology`, `team_meeting`) are
+     * seeded as `false` by migration 0057.
+     *
+     * @param array<string,mixed> $meta_row decoded `tt_lookups.meta` JSON.
+     */
+    private static function renderActivityTypeRateableField( array $meta_row ): void {
+        // Default true for unset rows so existing data stays rateable.
+        $rateable = ! array_key_exists( 'rateable', $meta_row ) || (bool) $meta_row['rateable'];
+        ?>
+        <tr>
+            <th><?php esc_html_e( 'Rateable', 'talenttrack' ); ?></th>
+            <td>
+                <label>
+                    <input type="checkbox" name="meta[rateable]" value="1" <?php checked( $rateable ); ?> />
+                    <?php esc_html_e( 'Coaches can create player evaluations on activities of this type.', 'talenttrack' ); ?>
+                </label>
+                <p class="description" style="max-width:540px;">
+                    <?php esc_html_e( 'When unchecked, activities of this type vanish from the new-evaluation wizard\'s activity picker. They remain visible everywhere else (the activity itself, stats, reports). Useful for clinics, methodology lectures, and team meetings.', 'talenttrack' ); ?>
                 </p>
             </td>
         </tr>
@@ -1001,6 +1029,11 @@ class ConfigurationPage {
                 : '';
             $merged_meta = $existing_meta;
             $merged_meta['workflow_template_slug'] = $submitted_slug;
+            // #0072 — `meta.rateable` flag controlling whether the
+            // new-evaluation wizard's activity picker surfaces this type.
+            // Checkbox absent = false; present = true. Default for
+            // unset rows in the read helper is true.
+            $merged_meta['rateable'] = ! empty( $_POST['meta']['rateable'] );
             $data['meta'] = wp_json_encode( $merged_meta );
         }
 
