@@ -110,7 +110,7 @@ class FrontendJourneyView {
             <?php endif; ?>
 
             <?php if ( $hidden > 0 ) : ?>
-                <p class="tt-notice tt-notice-info" style="background:#f4f6f8; border-left:4px solid #5b6e75; padding:8px 12px; margin: 10px 0;">
+                <p class="tt-notice tt-notice-info">
                     <?php
                     echo esc_html( sprintf(
                         /* translators: %d: count of events hidden because the viewer lacks the medical or safeguarding cap */

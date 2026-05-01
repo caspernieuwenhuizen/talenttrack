@@ -128,8 +128,8 @@ class FrontendConfigurationView extends FrontendViewBase {
         ?>
         <style>
         .tt-cfg-tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-        .tt-cfg-tile { display: block; background: #fff; border: 1px solid #e5e7ea; border-radius: 8px; padding: 14px; text-decoration: none; color: #1a1d21; min-height: 76px; transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 180ms ease, border-color 180ms ease; }
-        .tt-cfg-tile:hover, .tt-cfg-tile:focus { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #d0d4d8; color: #1a1d21; }
+        .tt-cfg-tile { display: block; background: #fff; border: 1px solid var(--tt-line, #e5e7ea); border-radius: 8px; padding: 14px; text-decoration: none; color: #1a1d21; min-height: 76px; box-shadow: var(--tt-shadow-sm, none); transition: transform var(--tt-motion-duration, 180ms) var(--tt-motion-easing, cubic-bezier(0.2, 0.8, 0.2, 1)), box-shadow var(--tt-motion-duration, 180ms) var(--tt-motion-easing, ease), border-color var(--tt-motion-duration, 180ms) var(--tt-motion-easing, ease); }
+        .tt-cfg-tile:hover, .tt-cfg-tile:focus { transform: translateY(-1px); box-shadow: var(--tt-shadow-md, 0 4px 12px rgba(0,0,0,0.08)); border-color: #d0d4d8; color: #1a1d21; }
         /* v3.72.5 — icon column on each tile, mirrors the wp-admin
          * dashboard tile look. Width fixed; icon fills its slot. */
         .tt-cfg-tile-icon { width: 28px; height: 28px; margin-bottom: 8px; color: #0b3d2e; }

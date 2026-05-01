@@ -45,10 +45,10 @@ class FrontendMySettingsView extends FrontendViewBase {
         }
 
         if ( $messages['success'] !== '' ) {
-            echo '<div class="tt-notice tt-notice-success" style="background:#dff5e1; color:#1a6b2c; border-left:4px solid #1a6b2c; padding:8px 12px; margin-bottom:12px;">' . esc_html( $messages['success'] ) . '</div>';
+            echo '<div class="tt-notice tt-notice-success">' . esc_html( $messages['success'] ) . '</div>';
         }
         foreach ( $messages['errors'] as $err ) {
-            echo '<div class="tt-notice tt-notice-error" style="background:#fde2e2; color:#a02828; border-left:4px solid #a02828; padding:8px 12px; margin-bottom:12px;">' . esc_html( $err ) . '</div>';
+            echo '<div class="tt-notice tt-notice-error">' . esc_html( $err ) . '</div>';
         }
 
         ?>

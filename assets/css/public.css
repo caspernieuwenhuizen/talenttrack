@@ -297,6 +297,50 @@ body.tt-docs-drawer-open { overflow: hidden; }
 /* Rest of stylesheet (unchanged from v2.5.1) */
 .tt-notice { padding: 2.5rem 1.5rem; text-align: center; background: #fff7e0; border-left: 4px solid var(--tt-secondary, #e8b624); font-style: italic; }
 
+/*
+ * Inline status banners (#0075 Sprint 1 PR 3). When .tt-notice
+ * carries a status modifier the layout shifts from "empty state
+ * splash" to "compact inline banner": tighter padding, left-
+ * aligned, regular weight, status-tinted background that reads
+ * --tt-*-subtle so the visual editor's overrides flow through.
+ *
+ * The `tt-notice tt-notice-<status>` markup convention long
+ * predates this CSS — call sites used to carry equivalent
+ * inline `style="..."` attributes; the v3.74.2 cleanup strips
+ * those so the editor's tokens actually take effect.
+ */
+.tt-notice.tt-notice-success,
+.tt-notice.tt-notice-error,
+.tt-notice.tt-notice-warning,
+.tt-notice.tt-notice-info {
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    text-align: left;
+    font-style: normal;
+    border-left-width: 4px;
+    border-left-style: solid;
+}
+.tt-notice.tt-notice-success {
+    background: var(--tt-success-subtle, #dff5e1);
+    color: #1a6b2c;
+    border-left-color: var(--tt-success, #00a32a);
+}
+.tt-notice.tt-notice-error {
+    background: var(--tt-danger-subtle, #fde2e2);
+    color: #a02828;
+    border-left-color: var(--tt-danger, #b32d2e);
+}
+.tt-notice.tt-notice-warning {
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: #7a5a05;
+    border-left-color: var(--tt-warning, #c9962a);
+}
+.tt-notice.tt-notice-info {
+    background: var(--tt-info-subtle, #e6f0fa);
+    color: #1f4775;
+    border-left-color: var(--tt-info, #2271b1);
+}
+
 .tt-tabs { display: flex; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 1px solid var(--tt-line); }
 .tt-tab { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.9rem 1.25rem; background: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; color: var(--tt-muted); transition: all .15s; }
 .tt-tab:hover { color: var(--tt-primary, #0b3d2e); }

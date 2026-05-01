@@ -38,12 +38,10 @@ final class FrontendPlayerStatusMethodologyView {
         // auto-redistribute.
         $result = self::handlePost();
         if ( ! empty( $result['ok'] ) ) {
-            echo '<div class="tt-notice tt-notice-success" style="background:#dcfce7;color:#166534;padding:10px 14px;border-radius:6px;margin-bottom:16px;">'
-                . esc_html__( 'Saved.', 'talenttrack' ) . '</div>';
+            echo '<div class="tt-notice tt-notice-success">' . esc_html__( 'Saved.', 'talenttrack' ) . '</div>';
         }
         if ( ! empty( $result['error'] ) ) {
-            echo '<div class="tt-notice tt-notice-error" style="background:#fde2e2;color:#7f1d1d;padding:10px 14px;border-radius:6px;border-left:4px solid #b32d2e;margin-bottom:16px;">'
-                . esc_html( (string) $result['error'] ) . '</div>';
+            echo '<div class="tt-notice tt-notice-error">' . esc_html( (string) $result['error'] ) . '</div>';
         }
 
         echo '<section style="max-width:900px;">';
