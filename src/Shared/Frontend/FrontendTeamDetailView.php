@@ -88,7 +88,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                     $role      = (string) ( $s->functional_role_label ?? $s->role_label ?? $s->role_type ?? '' );
                     $url       = add_query_arg(
                         [ 'tt_view' => 'people', 'id' => $person_id ],
-                        home_url( '/' )
+                        \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                     );
                     ?>
                     <li>
@@ -128,10 +128,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                 <tbody>
                     <?php foreach ( $players as $pl ) :
                         $name = QueryHelpers::player_display_name( $pl );
-                        $url  = add_query_arg(
-                            [ 'tt_view' => 'players', 'id' => (int) $pl->id ],
-                            home_url( '/' )
-                        );
+                        $url  = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', (int) $pl->id );
                         $positions = json_decode( (string) ( $pl->preferred_positions ?? '' ), true );
                         ?>
                         <tr>
@@ -178,10 +175,10 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         echo '<h3>' . esc_html__( 'Upcoming activities', 'talenttrack' ) . '</h3>';
         echo '<ul class="tt-stack">';
         foreach ( $rows as $r ) {
-            $url = add_query_arg(
-                [ 'tt_view' => 'my-activities', 'id' => (int) $r->id ],
-                home_url( '/' )
-            );
+            // v3.70.1 hotfix — use generic `activities` slug, not
+            // `my-activities` (which is player-self-scope and gates
+            // out academy admins / HoD opening from the team page).
+            $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', (int) $r->id );
             echo '<li><a class="tt-record-link" href="' . esc_url( $url ) . '">';
             echo esc_html( (string) $r->session_date ) . ' &middot; ' . esc_html( (string) $r->title );
             echo '</a></li>';
@@ -194,7 +191,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         if ( ! class_exists( '\TT\Modules\TeamDevelopment\Frontend\FrontendTeamChemistryView' ) ) return;
         $url = add_query_arg(
             [ 'tt_view' => 'team-chemistry', 'team_id' => $team_id ],
-            home_url( '/' )
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
         echo '<section class="tt-pde-section">';
         echo '<h3>' . esc_html__( 'Team chemistry', 'talenttrack' ) . '</h3>';

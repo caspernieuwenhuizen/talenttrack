@@ -77,7 +77,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         if ( ! empty( $filter['team_id'] ) || ! empty( $filter['block'] ) ) {
             $planning_url = add_query_arg(
                 [ 'tt_view' => 'pdp-planning', 'season_id' => (int) ( $filter['season'] ?? 0 ) ],
-                home_url( '/' )
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
             );
             FrontendBackButton::render( $planning_url );
         }
@@ -245,7 +245,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         $base_url = remove_query_arg( [ 'action', 'id', 'conv', 'player_id' ] );
         $print_url = add_query_arg(
             [ 'tt_pdp_print' => 1, 'file_id' => (int) $file->id ],
-            home_url( '/' )
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
 
         $convs   = ( new PdpConversationsRepository() )->listForFile( (int) $file->id );

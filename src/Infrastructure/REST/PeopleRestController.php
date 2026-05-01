@@ -263,7 +263,7 @@ class PeopleRestController {
         if ( $email !== '' ) {
             $compose_url = add_query_arg(
                 [ 'tt_view' => 'mail-compose', 'person_id' => (int) $row->id ],
-                home_url( '/' )
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
             );
             $email_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
                 $email,

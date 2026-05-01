@@ -75,7 +75,7 @@ class ParentSearchPickerComponent {
         if ( $show_create ) {
             $create_args = [ 'tt_view' => 'wizard', 'slug' => 'new-person', 'role_hint' => 'parent' ];
             if ( $return_to !== '' ) $create_args['return_to'] = $return_to;
-            $create_url = (string) add_query_arg( $create_args, home_url( '/' ) );
+            $create_url = (string) add_query_arg( $create_args, RecordLink::dashboardUrl() );
         }
 
         ob_start();
