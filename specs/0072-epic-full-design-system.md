@@ -18,7 +18,7 @@ The 21-field flat blob also stops scaling. ~80 foundation tokens + per-component
 
 ## Proposal
 
-A six-sprint epic on the existing `?tt_view=custom-css` surface, frontend-only (`SURFACE_FRONTEND` from `CustomCssRepository`). Each sprint adds a category to the editor's left-rail navigator + its tokens + per-component variants where applicable + live visual examples. Sprints ship as separate PRs against feature branches; the editor's left rail says "(coming soon)" for unfinished categories so real clubs can use what's there.
+A three-sprint epic on the existing `?tt_view=custom-css` surface, frontend-only (`SURFACE_FRONTEND` from `CustomCssRepository`). Each sprint adds a coherent slice of categories to the editor's left-rail navigator + its tokens + per-component variants where applicable + live visual examples. Sprints ship as separate PRs against feature branches; the editor's left rail says "(coming soon)" for unfinished categories so real clubs can use what's there.
 
 A small **Sprint 0 hotfix** ships first as a companion to land the v3.64 bugs before the editor surface starts changing under the user's feet.
 
@@ -30,9 +30,11 @@ Tiny, ships independently as `v3.71.x`. Companion to this epic, not part of it �
 - `tt-tab-current` → `tt-tab-active` (or add the `.tt-tab-current` rule to `public.css`). The view emits the wrong class; `public.css:261` only styles `.tt-tab-active`. Pick one and stay consistent across all `.tt-tabbar` consumers (`FrontendCustomCssView`, plus any other tabbar in the codebase that landed on the wrong name).
 - `font_display` + `font_body` → `<select>` populated from `BrandFonts::displayOptions()` / `bodyOptions()`, sanitized server-side against the catalogue. Removes the free-text input that today accepts any string and silently fails on non-Google fonts.
 
-### Sprint 1 — Foundation tokens + restructured editor (~30h)
+### Sprint 1 — Foundation + interactive controls (~55h)
 
-The chokepoint sprint. Everything else assumes the new token surface + structured storage exists.
+The chokepoint sprint. Everything else assumes the new token surface + structured storage exists. Bundles the three highest-traffic categories so first ship of this epic is meaningful: a club admin can re-skin the things users tap and read most.
+
+**1a. Foundation tokens + restructured editor** (~30h)
 
 - **Token expansion** from 21 → ~80 design-system primitives covering item 20 from the source list:
   - Colours: primary / secondary / accent / surface / background / border + success / warning / error / info — each with default + hover + active + disabled + subtle (low-opacity tint) variants.
@@ -44,52 +46,52 @@ The chokepoint sprint. Everything else assumes the new token surface + structure
 - **Structured storage migration**: one-time migration of v3.64 21-field flat `custom_css.frontend.visual_settings` JSON into the new `{tokens: {…}, components: {…}}` shape. Old saves are upgraded on first read; history rows stay in their original shape but get a `schema_version` column for round-trip safety.
 - **Editor restructure**: left-rail navigator with category groups, right pane shows the current category. On viewports < 768px the rail collapses to a top dropdown so the layout stays mobile-first per CLAUDE.md § 2.
 - **Live visual examples per token**: small live-rendered miniatures using the actual `.tt-*` DOM contracts (a real `.tt-btn`, `.tt-pill`, `.tt-input`, `.tt-card`) inside a `<div class="tt-preview-stage">…</div>` per category. Re-renders on every input change via `<style>` tag swap on the preview root only — no full-page reload. ~50 lines of vanilla JS per CLAUDE.md § 2.
-- **REST endpoint**: `GET /design-system/tokens` + `PUT /design-system/tokens` under `talenttrack/v1`. Permission callback: `tt_admin_styling`. Per-sprint subsequent endpoints (e.g. `/design-system/components/buttons`) follow as each category lands. Return shape documented in `docs/rest-api.md`.
+- **REST endpoint**: `GET /design-system/tokens` + `PUT /design-system/tokens` under `talenttrack/v1`. Permission callback: `tt_admin_styling`. Subsequent endpoints (e.g. `/design-system/components/buttons`) follow as each category lands. Return shape documented in `docs/rest-api.md`.
 - **Mutex** with `theme_inherit` (#0023) preserved — saving custom design-system tokens for the frontend surface forces `theme_inherit=0`, same as today.
 
-### Sprint 2 — Typography (~20h)
-
-Item 1 of the source list, full coverage.
+**1b. Typography** (~10h, item 1 of source list)
 
 - Body / paragraphs / H1 / H2 / H3 / H4 / H5 / H6 / subheadings / captions / labels / helper / error / success / warning / info / inline code / code blocks / quotes / lists (ol + ul) / list items / inline links / strong / em / underline / strikethrough / small / overline / metadata / placeholder.
-- Each gets the seven typography dimensions: font-family / size / weight / line-height / letter-spacing / colour / decoration. Family + colour reference Sprint 1 tokens by name (`--tt-font-display` etc.) so a token change cascades.
+- Each gets the seven typography dimensions: font-family / size / weight / line-height / letter-spacing / colour / decoration. Family + colour reference Foundation tokens by name (`--tt-font-display` etc.) so a token change cascades.
 - Live visual example per type: rendered with the current settings inline.
-- Editor section in left rail: "Typography" → opens a sub-list of the 22 types.
 
-### Sprint 3 — Buttons + Links + Forms (~25h)
-
-Items 2, 3, 4 of the source list.
+**1c. Buttons + Links + Forms** (~15h, items 2, 3, 4 of source list)
 
 - **Buttons**: primary / secondary / tertiary / ghost / text / icon / floating action / split / toggle / dropdown. States: default / hover / focus / active / disabled / loading / selected. Variants: success / warning / danger. Per CLAUDE.md § 2 — sizing stays consistent across states (48px touch target locked); only colour / background / border vary per state.
 - **Links**: inline / navigation / footer / sidebar / breadcrumb / card / CTA. States: default / hover / visited / focus / active / disabled.
 - **Form inputs**: single-line / password / number / search / email / phone / URL — each with default / focus / filled / error / disabled / read-only states. Selection inputs: checkbox / radio / toggle / select / multi-select / autocomplete. Textareas: standard / auto-growing. Date / time / range pickers. Sliders / steppers / colour pickers. Labels / validation messages / required indicators / tooltips / input groups.
 - Visual examples for every variant × state combination using real `.tt-input` / `.tt-btn` / `.tt-link` DOM.
 
-### Sprint 4 — Navigation + Tables + Cards + Lists (~25h)
+### Sprint 2 — Layout + feedback (~45h)
 
-Items 5, 6, 7, 11 of the source list.
+Container components users scan + system communication. Left rail's "(coming soon)" tags drop on these categories as Sprint 2 lands.
+
+**2a. Navigation + Tables + Cards + Lists** (~25h, items 5, 6, 7, 11 of source list)
 
 - **Navigation**: top / side / bottom / tabs / pills / breadcrumbs / pagination / stepper / hamburger / mega / dropdown / context menus. States: active / hover / selected / disabled.
 - **Tables**: container / headers / rows / cells / striped rows / expandable rows / sort indicators / filter controls / sticky headers / loading rows / selected rows. Plus badges / status indicators / action buttons inside cells.
 - **Cards**: basic / product / profile / dashboard / stat / interactive — header / body / footer / media / action area. States: default / hover / selected.
 - **Lists**: simple / navigation / selectable / expandable / definition. List item / divider / item actions / item icons.
 
-### Sprint 5 — Feedback + Overlays + Search + Empty/Loading/Error (~20h)
-
-Items 8, 9, 12, 18 of the source list.
+**2b. Feedback + Overlays + Search + Empty/Loading/Error** (~20h, items 8, 9, 12, 18 of source list)
 
 - **Feedback**: alerts / toasts / notifications / banners / inline validation / progress bars / spinners / skeletons / status badges / chips / tags. Types: success / error / warning / info.
 - **Overlays**: modal dialog / drawer / bottom sheet / popover / tooltip / lightbox / flyout panel. Backdrop / header / body / footer / close button.
 - **Search**: search bar / results / suggestions / filter chips / filter panel / sort dropdown / advanced filters. States: active filters / empty results.
 - **Empty / loading / error states**: empty state illustrations + copy slot, skeleton loaders, error fallback panel, offline state, retry button.
 
-### Sprint 6 — Media + Dashboard widgets + Accessibility + polish (~20h)
+### Sprint 3 — Media + dashboards + ship (~40h)
 
-Items 10, 14, 17, 19 of the source list, plus ship-along.
+Closes out the categories + the ship-along work that wraps the epic.
+
+**3a. Media + Dashboard widgets + Utility components** (~20h, items 10, 14, 17 of source list)
 
 - **Media**: images / avatars / image galleries / video players / audio players / thumbnails / icons / illustrations. States: loading / error fallback.
 - **Dashboard widgets**: KPI cards / charts / graphs / legends / metrics / trend indicators / data widgets. Charts integrate via existing `--tt-*` token names so chart libraries pick up the palette automatically.
 - **Utility components**: dividers / containers / sections / accordions / collapse panels / carousels / timelines / trees / rating stars.
+
+**3b. Accessibility tokens + starter templates rebuild + docs** (~20h, item 19 of source list + ship-along)
+
 - **Accessibility**: focus-visible token (`--tt-focus-ring`) hardened, high-contrast fallback (`@media (prefers-contrast: more)` block emitted with bumped contrast), reduced-motion token (`@media (prefers-reduced-motion: reduce)` switches motion duration to `0.01ms`).
 - **Reset / starter templates**: rebuild the three v3.64 templates (Fresh light / Classic football / Minimal) against the full token set so non-developer clubs land on a finished look in one click. Drop the old templates from history once the new set is live.
 - **Docs**: `docs/design-system.md` + `docs/nl_NL/design-system.md` documenting the token taxonomy, the editor walk-through, the REST endpoint shape, and the safe-mode escape hatch (`?tt_safe_css=1` from #0064). Same `docs/<slug>.md` + `docs/nl_NL/<slug>.md` ship-along rule per DEVOPS.md.
@@ -128,15 +130,28 @@ Items 10, 14, 17, 19 of the source list, plus ship-along.
 - Mobile (360px width): left rail collapses to a top dropdown; the editor stays usable per CLAUDE.md § 2 (no horizontal scroll, 48px touch targets, font-size ≥16px on inputs).
 - Mutex with `theme_inherit` (#0023) preserved — saving custom tokens for the frontend surface forces `theme_inherit=0`.
 
-### Per Sprint 2-6
+### Sprint 1 (Foundation + interactive controls)
 
-Each sprint's PR ships:
-- Its category in the left rail with no "(coming soon)" tag.
-- All listed components / variants / states wired to the token system.
-- Live visual examples for every variant × state combination.
-- nl_NL.po updated in the same PR per the ship-along rule.
-- `docs/design-system.md` updated with the section's coverage.
-- No regression on already-shipped sprints (smoke-check by opening each prior category and saving without changes).
+- Token expansion + structured storage migration + restructured editor + REST + live preview all hold per the bullets above.
+- Typography: every type from the source list is editable in the left rail's "Typography" sub-list with all seven dimensions wired.
+- Buttons / Links / Forms: every variant × state combination has a live visual example and the corresponding `--tt-*` tokens.
+- nl_NL.po updated in the same PR. `docs/design-system.md` covers Foundation + Typography + Buttons/Links/Forms.
+
+### Sprint 2 (Layout + feedback)
+
+- Navigation / Tables / Cards / Lists categories drop their "(coming soon)" tag.
+- Feedback / Overlays / Search / Empty-states drop their "(coming soon)" tag.
+- All listed components / variants / states wired to the token system with live visual examples.
+- nl_NL.po + `docs/design-system.md` extended.
+- No regression on Sprint 1: smoke-check by opening each Sprint 1 category and saving without changes.
+
+### Sprint 3 (Media + dashboards + ship)
+
+- Media / Dashboard widgets / Utility components categories drop their "(coming soon)" tag — every left-rail item is now live.
+- Accessibility tokens emit the right `prefers-*` media-query blocks; manual a11y audit at 360px confirms 48px touch targets, 16px input font-size, focus-visible, no hover-only.
+- Three starter templates rebuilt against the full token set; applying any one of them produces a complete look without the operator having to touch every token.
+- `docs/design-system.md` + `docs/nl_NL/design-system.md` final pass: token taxonomy reference, editor walk-through, REST endpoint shape, safe-mode escape hatch.
+- No regression on Sprints 1-2.
 
 ### No regression
 
@@ -152,14 +167,11 @@ Each sprint's PR ships:
 | Sprint | Focus | Effort |
 |--------|-------|--------|
 | 0 | PRG hotfix + tab-class fix + font dropdowns (companion, ships independently) | ~3-4h |
-| 1 | Foundation tokens + structured storage + restructured editor + REST + live preview | ~30h |
-| 2 | Typography (22 element types × 7 dimensions) | ~20h |
-| 3 | Buttons + Links + Forms (variants × states) | ~25h |
-| 4 | Navigation + Tables + Cards + Lists | ~25h |
-| 5 | Feedback + Overlays + Search + Empty/Loading/Error | ~20h |
-| 6 | Media + Dashboard widgets + Accessibility + Templates rebuild + Docs | ~20h |
+| 1 | Foundation tokens + restructured editor + Typography + Buttons/Links/Forms | ~55h |
+| 2 | Navigation + Tables + Cards + Lists + Feedback + Overlays + Search + Empty-states | ~45h |
+| 3 | Media + Dashboard widgets + Utility + Accessibility + Templates rebuild + Docs | ~40h |
 
-**Total: ~140h** for the epic (Sprint 0 not counted — separate hotfix). ~6 sprints across 2-3 months at typical cadence. Sprint 1 is the chokepoint; Sprints 2-6 can run in parallel after it lands but the recommendation is sequential so each sprint's PR review stays small.
+**Total: ~140h** for the epic (Sprint 0 not counted — separate hotfix). Three sprints across ~6-8 weeks at typical cadence. Sprint 1 is the chokepoint and the largest of the three because it bundles the foundation + the two most-used surface categories so the first ship is meaningful for clubs. Sprints 2 and 3 sequential to keep PR review tractable; in principle 2 + 3 are independent (different categories, no shared files) but the recommendation is one at a time.
 
 ### Hard decisions locked during shaping
 
@@ -174,7 +186,7 @@ These are decisions made in chat that the spec assumes; recording them so we don
 - **Dark mode**: light-only in v1; storage shape leaves room for `tokens.dark.<name>`. Separate idea when asked.
 - **Starter templates**: rebuilt against new token set in Sprint 6.
 - **REST coverage**: ships in Sprint 1 alongside the PHP form.
-- **PR cadence**: one PR per sprint. Each sprint ships visible to clubs (left rail tag updates from "(coming soon)" → live).
+- **PR cadence**: one PR per sprint, three sprints total. Each sprint ships visible to clubs (left rail tag updates from "(coming soon)" → live).
 - **Sprint 0 hotfix is separate.** Ships before or independently of the epic so the bugs don't gate the spec landing.
 
 ### Cross-references
