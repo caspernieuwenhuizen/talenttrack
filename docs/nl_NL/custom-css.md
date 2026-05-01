@@ -36,10 +36,17 @@ Pad C koppelt formuliervelden aan `--tt-*` CSS custom properties op `.tt-root`. 
 | Primair | `--tt-primary` | Hoofdkleur voor knoppen en bovenste tegel. |
 | Secundair | `--tt-secondary` | Accentkleur voor pillen en randen. |
 | Accent | `--tt-accent` | Vaak gelijk aan primary in onze templates. |
+| Primair — hover | `--tt-primary-hover` | Hover-kleur voor primaire knoppen + nav-links (sinds v3.73.0). |
+| Secundair — hover | `--tt-secondary-hover` | Hover-kleur voor secundaire knoppen (sinds v3.73.0). |
+| Accent — hover | `--tt-accent-hover` | Hover-kleur voor accent-knoppen + links (sinds v3.73.0). |
 | Succes | `--tt-success` | "Aanwezig" + positieve trends. |
+| Succes — subtiele achtergrond | `--tt-success-subtle` | Bleek-groene banner-achtergrond voor succes-meldingen (sinds v3.73.0). |
 | Info | `--tt-info` | Neutrale chips + info-banners. |
+| Info — subtiele achtergrond | `--tt-info-subtle` | Bleek-blauwe banner-achtergrond voor info-meldingen (sinds v3.73.0). |
 | Waarschuwing | `--tt-warning` | Amber pil, "review nodig". |
+| Waarschuwing — subtiele achtergrond | `--tt-warning-subtle` | Bleek-amber banner-achtergrond (sinds v3.73.0). |
 | Gevaar | `--tt-danger` | Destructieve knoppen, "afwezig". |
+| Gevaar — subtiele achtergrond | `--tt-danger-subtle` | Bleek-rode banner-achtergrond (sinds v3.73.0). |
 | Focus-ring | `--tt-focus-ring` | Keyboard-focus-outline. |
 | Achtergrond | `--tt-bg` | Pagina-achtergrond. |
 | Kaart-oppervlak | `--tt-surface` | Vulling van tegels / panels / kaarten. |
@@ -53,9 +60,15 @@ Pad C koppelt formuliervelden aan `--tt-*` CSS custom properties op `.tt-root`. 
 | Hoekstraal — medium | `--tt-r-md` | Kaarten, invoervelden, knoppen. 0–32 px. |
 | Hoekstraal — groot | `--tt-r-lg` | Hero-kaarten, modals. 0–40 px. |
 | Spacing-schaal | `--tt-spacing-scale` | Vermenigvuldiger op `--tt-sp-*`. 0.6–1.6. |
-| Schaduwsterkte | n.v.t. | `none` / `light` / `strong` — schakelt drop-shadows op kaarten/panels/tegels. |
+| Kaartschaduw — klein | `--tt-shadow-sm` | Standaardschaduw op kaarten / panels / tegels (sinds v3.73.0). |
+| Kaartschaduw — middel (hover) | `--tt-shadow-md` | Hover-schaduw op dezelfde oppervlakken (sinds v3.73.0). |
+| Modal / lade-schaduw | `--tt-shadow-lg` | Schaduw op zwevende overlays (sinds v3.73.0). |
+| Animatiesnelheid | `--tt-motion-duration` | Snel (120ms) / Standaard (180ms) / Langzaam (260ms) (sinds v3.73.0). |
+| Animatiecurve | `--tt-motion-easing` | Standaard / Ease-in / Ease-out / Ease-in-out (sinds v3.73.0). |
 
 Wat je niet instelt, valt terug op de standaardwaarden van TT.
+
+Sinds v3.73.0 groepeert de editor de controls in acht inklapbare accordion-secties (Merkkleuren / Statuskleuren / Oppervlakken / Tekst / Typografie / Vorm + spacing / Schaduwen / Beweging) zodat het aantal velden beheersbaar blijft naarmate de catalogus groeit. Het oude enkele `Schaduwsterkte`-veld uit v3.64 is vervangen door drie expliciete schaduw-tokens; bestaande opslagen blijven correct renderen en worden bij het volgende opslaan genormaliseerd naar de nieuwe vorm.
 
 ## Start­templates
 

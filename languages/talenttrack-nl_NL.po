@@ -11120,3 +11120,85 @@ msgstr "deze"
 
 msgid "Actor and target user ids are required."
 msgstr "Actor- en doelgebruiker-ID's zijn verplicht."
+
+# v3.73.0 / #0075 Sprint 1 PR 1 — design-system token catalogue + grouped editor
+msgid "Primary"
+msgstr "Primair"
+
+msgid "Primary — hover"
+msgstr "Primair — hover"
+
+msgid "Secondary"
+msgstr "Secundair"
+
+msgid "Secondary — hover"
+msgstr "Secundair — hover"
+
+msgid "Accent"
+msgstr "Accent"
+
+msgid "Accent — hover"
+msgstr "Accent — hover"
+
+msgid "Focus ring"
+msgstr "Focusring"
+
+msgid "Success"
+msgstr "Succes"
+
+msgid "Success — subtle bg"
+msgstr "Succes — subtiele achtergrond"
+
+msgid "Warning — subtle bg"
+msgstr "Waarschuwing — subtiele achtergrond"
+
+msgid "Danger"
+msgstr "Gevaar"
+
+msgid "Danger — subtle bg"
+msgstr "Gevaar — subtiele achtergrond"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Info — subtle bg"
+msgstr "Info — subtiele achtergrond"
+
+msgid "Background"
+msgstr "Achtergrond"
+
+msgid "Card surface"
+msgstr "Kaartoppervlak"
+
+msgid "Muted text"
+msgstr "Gedempte tekst"
+
+msgid "Card shadow — small"
+msgstr "Kaartschaduw — klein"
+
+msgid "Card shadow — medium (hover)"
+msgstr "Kaartschaduw — middel (hover)"
+
+msgid "Modal / drawer shadow"
+msgstr "Modal / lade-schaduw"
+
+msgid "Animation speed"
+msgstr "Animatiesnelheid"
+
+msgid "Animation curve"
+msgstr "Animatiecurve"
+
+msgid "Brand colours"
+msgstr "Merkkleuren"
+
+msgid "Status colours"
+msgstr "Statuskleuren"
+
+msgid "Surfaces"
+msgstr "Oppervlakken"
+
+msgid "Shadows"
+msgstr "Schaduwen"
+
+msgid "Motion"
+msgstr "Beweging"

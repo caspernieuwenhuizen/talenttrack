@@ -36,10 +36,17 @@ The Path C form maps form fields to `--tt-*` CSS custom properties on `.tt-root`
 | Primary | `--tt-primary` | Headline accent — buttons, top tile colour. |
 | Secondary | `--tt-secondary` | Pull-out colour — pills, accent borders. |
 | Accent | `--tt-accent` | Reuses the primary in most templates. |
+| Primary — hover | `--tt-primary-hover` | Hover colour for primary buttons + nav links (since v3.73.0). |
+| Secondary — hover | `--tt-secondary-hover` | Hover colour for secondary buttons (since v3.73.0). |
+| Accent — hover | `--tt-accent-hover` | Hover colour for accented buttons + links (since v3.73.0). |
 | Success | `--tt-success` | Attendance "present", positive trend arrows. |
+| Success — subtle bg | `--tt-success-subtle` | Pale green banner background for success notices (since v3.73.0). |
 | Info | `--tt-info` | Neutral chips, info banners. |
+| Info — subtle bg | `--tt-info-subtle` | Pale blue banner background for info notices (since v3.73.0). |
 | Warning | `--tt-warning` | Amber pill, "review needed" states. |
+| Warning — subtle bg | `--tt-warning-subtle` | Pale amber banner background (since v3.73.0). |
 | Danger | `--tt-danger` | Destructive buttons, "absent" attendance. |
+| Danger — subtle bg | `--tt-danger-subtle` | Pale red banner background (since v3.73.0). |
 | Focus ring | `--tt-focus-ring` | Keyboard-focus outline colour. |
 | Background | `--tt-bg` | Page background. |
 | Card surface | `--tt-surface` | Tile / panel / card fill. |
@@ -53,9 +60,15 @@ The Path C form maps form fields to `--tt-*` CSS custom properties on `.tt-root`
 | Corner radius — medium | `--tt-r-md` | Cards, inputs, buttons. 0–32 px. |
 | Corner radius — large | `--tt-r-lg` | Hero cards, modals. 0–40 px. |
 | Spacing scale | `--tt-spacing-scale` | Multiplier on the `--tt-sp-*` scale. 0.6–1.6. |
-| Shadow strength | n/a | `none` / `light` / `strong` — toggles drop-shadows on cards/panels/tiles. |
+| Card shadow — small | `--tt-shadow-sm` | Resting shadow on cards / panels / tiles (since v3.73.0). |
+| Card shadow — medium (hover) | `--tt-shadow-md` | Hover shadow on the same surfaces (since v3.73.0). |
+| Modal / drawer shadow | `--tt-shadow-lg` | Floating overlay shadow (since v3.73.0). |
+| Animation speed | `--tt-motion-duration` | Fast (120ms) / Base (180ms) / Slow (260ms) (since v3.73.0). |
+| Animation curve | `--tt-motion-easing` | Standard / Ease-in / Ease-out / Ease-in-out (since v3.73.0). |
 
 Anything not set falls through to TT's bundled defaults.
+
+Since v3.73.0 the editor groups the controls into eight collapsible accordion sections (Brand colours / Status colours / Surfaces / Text / Typography / Shape + spacing / Shadows / Motion) so the field count stays manageable as the catalogue grows. The legacy single `Shadow strength` field from v3.64 is replaced by three explicit shadow tokens; existing saves continue to render correctly and are normalised to the new shape on next save.
 
 ## Starter templates
 

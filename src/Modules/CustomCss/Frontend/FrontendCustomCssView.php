@@ -4,6 +4,7 @@ namespace TT\Modules\CustomCss\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\CustomCss\CustomCssEnqueue;
+use TT\Modules\CustomCss\DesignSystem\TokenCatalogue;
 use TT\Modules\CustomCss\Repositories\CustomCssRepository;
 use TT\Modules\CustomCss\Sanitizer\CssSanitizer;
 use TT\Modules\CustomCss\Templates\StarterTemplates;
@@ -371,97 +372,99 @@ class FrontendCustomCssView extends FrontendViewBase {
             echo esc_html__( 'Saving with the visual editor will overwrite your hand-written rules. Save them as a named preset on the History tab first if you want to restore them later.', 'talenttrack' );
             echo '</div>';
         }
-        echo '<form method="post" class="tt-form" style="max-width:760px;">';
+
+        echo '<form method="post" class="tt-form tt-css-visual-form" style="max-width:760px;">';
         wp_nonce_field( 'tt_custom_css_save', 'tt_css_nonce' );
         echo '<input type="hidden" name="tt_css_action" value="save_visual">';
 
-        echo '<h3 style="margin:0 0 12px;">' . esc_html__( 'Colours', 'talenttrack' ) . '</h3>';
-        echo '<div class="tt-grid tt-grid-3">';
-        foreach ( [
-            'primary_color'    => __( 'Primary', 'talenttrack' ),
-            'secondary_color'  => __( 'Secondary', 'talenttrack' ),
-            'accent_color'     => __( 'Accent', 'talenttrack' ),
-            'success_color'    => __( 'Success', 'talenttrack' ),
-            'info_color'       => __( 'Info', 'talenttrack' ),
-            'warning_color'    => __( 'Warning', 'talenttrack' ),
-            'danger_color'     => __( 'Danger', 'talenttrack' ),
-            'focus_ring_color' => __( 'Focus ring', 'talenttrack' ),
-            'background_color' => __( 'Background', 'talenttrack' ),
-            'surface_color'    => __( 'Card surface', 'talenttrack' ),
-            'text_color'       => __( 'Text', 'talenttrack' ),
-            'muted_color'      => __( 'Muted text', 'talenttrack' ),
-            'line_color'       => __( 'Lines + borders', 'talenttrack' ),
-        ] as $field => $label ) {
-            $value = (string) ( $settings[ $field ] ?? '' );
-            echo '<div class="tt-field"><label class="tt-field-label" for="tt-css-' . esc_attr( $field ) . '">' . esc_html( $label ) . '</label>';
-            echo '<input type="color" id="tt-css-' . esc_attr( $field ) . '" name="' . esc_attr( $field ) . '" value="' . esc_attr( $value !== '' ? $value : '#000000' ) . '">';
+        $catalogue = TokenCatalogue::all();
+        $first = true;
+        foreach ( TokenCatalogue::categoriesInOrder() as $category => $category_label ) {
+            $keys = TokenCatalogue::keysInCategory( $category );
+            if ( empty( $keys ) ) continue;
+
+            $open_attr = $first ? ' open' : '';
+            $first = false;
+            echo '<details class="tt-css-section"' . $open_attr . ' style="margin-bottom:12px; border:1px solid var(--tt-line, #e5e7ea); border-radius:8px;">';
+            echo '<summary style="font-weight:600; padding:10px 14px; cursor:pointer; list-style:revert;">' . esc_html( $category_label ) . '</summary>';
+            echo '<div style="padding:12px 14px 16px;">';
+
+            $kind_first = $catalogue[ $keys[0] ]['kind'] ?? '';
+            $grid_class = ( $kind_first === TokenCatalogue::KIND_COLOR ) ? 'tt-grid tt-grid-3' : 'tt-grid tt-grid-2';
+            echo '<div class="' . esc_attr( $grid_class ) . '">';
+            foreach ( $keys as $key ) {
+                self::renderTokenField( $catalogue[ $key ], $settings );
+            }
             echo '</div>';
-        }
-        echo '</div>';
 
-        echo '<h3 style="margin:18px 0 12px;">' . esc_html__( 'Typography', 'talenttrack' ) . '</h3>';
-        echo '<div class="tt-grid tt-grid-2">';
-        $font_display_current = (string) ( $settings['font_display'] ?? '' );
-        $font_body_current    = (string) ( $settings['font_body'] ?? '' );
-        echo '<div class="tt-field"><label class="tt-field-label" for="tt-css-font-display">' . esc_html__( 'Display font (headings)', 'talenttrack' ) . '</label>';
-        echo '<select id="tt-css-font-display" name="font_display" class="tt-input">';
-        foreach ( BrandFonts::displayOptions() as $value => $label ) {
-            echo '<option value="' . esc_attr( (string) $value ) . '"' . selected( $font_display_current, (string) $value, false ) . '>' . esc_html( (string) $label ) . '</option>';
+            echo '</div>';
+            echo '</details>';
         }
-        echo '</select>';
-        echo '</div>';
-        echo '<div class="tt-field"><label class="tt-field-label" for="tt-css-font-body">' . esc_html__( 'Body font', 'talenttrack' ) . '</label>';
-        echo '<select id="tt-css-font-body" name="font_body" class="tt-input">';
-        foreach ( BrandFonts::bodyOptions() as $value => $label ) {
-            echo '<option value="' . esc_attr( (string) $value ) . '"' . selected( $font_body_current, (string) $value, false ) . '>' . esc_html( (string) $label ) . '</option>';
-        }
-        echo '</select>';
-        echo '</div>';
-        echo '<div class="tt-field"><label class="tt-field-label" for="tt-css-fw-body">' . esc_html__( 'Body weight', 'talenttrack' ) . '</label>';
-        echo '<select id="tt-css-fw-body" name="font_weight_body" class="tt-input">';
-        foreach ( [ '', '300', '400', '500', '600' ] as $w ) {
-            $sel = ( (string) ( $settings['font_weight_body'] ?? '' ) === $w ) ? ' selected' : '';
-            $lbl = $w === '' ? __( '(default)', 'talenttrack' ) : $w;
-            echo '<option value="' . esc_attr( $w ) . '"' . $sel . '>' . esc_html( $lbl ) . '</option>';
-        }
-        echo '</select></div>';
-        echo '<div class="tt-field"><label class="tt-field-label" for="tt-css-fw-heading">' . esc_html__( 'Heading weight', 'talenttrack' ) . '</label>';
-        echo '<select id="tt-css-fw-heading" name="font_weight_heading" class="tt-input">';
-        foreach ( [ '', '500', '600', '700', '800' ] as $w ) {
-            $sel = ( (string) ( $settings['font_weight_heading'] ?? '' ) === $w ) ? ' selected' : '';
-            $lbl = $w === '' ? __( '(default)', 'talenttrack' ) : $w;
-            echo '<option value="' . esc_attr( $w ) . '"' . $sel . '>' . esc_html( $lbl ) . '</option>';
-        }
-        echo '</select></div>';
-        echo '</div>';
-
-        echo '<h3 style="margin:18px 0 12px;">' . esc_html__( 'Shape + spacing', 'talenttrack' ) . '</h3>';
-        echo '<div class="tt-grid tt-grid-3">';
-        echo '<div class="tt-field"><label class="tt-field-label" for="tt-css-r-md">' . esc_html__( 'Corner radius — medium (px)', 'talenttrack' ) . '</label>';
-        echo '<input type="number" inputmode="numeric" id="tt-css-r-md" name="corner_radius_md" class="tt-input" min="0" max="32" value="' . esc_attr( (string) ( $settings['corner_radius_md'] ?? '' ) ) . '"></div>';
-        echo '<div class="tt-field"><label class="tt-field-label" for="tt-css-r-lg">' . esc_html__( 'Corner radius — large (px)', 'talenttrack' ) . '</label>';
-        echo '<input type="number" inputmode="numeric" id="tt-css-r-lg" name="corner_radius_lg" class="tt-input" min="0" max="40" value="' . esc_attr( (string) ( $settings['corner_radius_lg'] ?? '' ) ) . '"></div>';
-        echo '<div class="tt-field"><label class="tt-field-label" for="tt-css-spacing">' . esc_html__( 'Spacing scale (0.6–1.6)', 'talenttrack' ) . '</label>';
-        echo '<input type="number" inputmode="decimal" step="0.05" id="tt-css-spacing" name="spacing_scale" class="tt-input" min="0.6" max="1.6" value="' . esc_attr( (string) ( $settings['spacing_scale'] ?? '' ) ) . '"></div>';
-        echo '</div>';
-
-        echo '<div class="tt-field" style="margin-top:14px;"><label class="tt-field-label" for="tt-css-shadow">' . esc_html__( 'Card shadow', 'talenttrack' ) . '</label>';
-        echo '<select id="tt-css-shadow" name="shadow_strength" class="tt-input" style="max-width:240px;">';
-        foreach ( [
-            ''       => __( '(default)', 'talenttrack' ),
-            'none'   => __( 'None — flat cards', 'talenttrack' ),
-            'light'  => __( 'Light', 'talenttrack' ),
-            'strong' => __( 'Strong', 'talenttrack' ),
-        ] as $val => $label ) {
-            $sel = ( (string) ( $settings['shadow_strength'] ?? '' ) === $val ) ? ' selected' : '';
-            echo '<option value="' . esc_attr( $val ) . '"' . $sel . '>' . esc_html( $label ) . '</option>';
-        }
-        echo '</select></div>';
 
         echo '<div class="tt-form-actions" style="margin-top:18px;">';
         echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save visual settings', 'talenttrack' ) . '</button>';
         echo '</div>';
         echo '</form>';
+    }
+
+    /**
+     * Render one token's form control. Branching on `kind` keeps the
+     * mapping in one place — adding a token category later means
+     * extending this switch + the catalogue, nothing else in the view.
+     *
+     * @param array<string, mixed> $def
+     * @param array<string, mixed> $settings
+     */
+    private static function renderTokenField( array $def, array $settings ): void {
+        $key   = (string) $def['key'];
+        $id    = 'tt-css-' . str_replace( '_', '-', $key );
+        $label = (string) $def['label'];
+        $value = (string) ( $settings[ $key ] ?? '' );
+
+        echo '<div class="tt-field"><label class="tt-field-label" for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
+        switch ( $def['kind'] ) {
+            case TokenCatalogue::KIND_COLOR:
+                $current = $value !== '' ? $value : (string) ( $def['default'] ?? '#000000' );
+                echo '<input type="color" id="' . esc_attr( $id ) . '" name="' . esc_attr( $key ) . '" value="' . esc_attr( $current ) . '">';
+                break;
+
+            case TokenCatalogue::KIND_NUMBER:
+                $min  = isset( $def['min'] )  ? (string) $def['min']  : '0';
+                $max  = isset( $def['max'] )  ? (string) $def['max']  : '999';
+                $step = isset( $def['step'] ) ? (string) $def['step'] : '1';
+                echo '<input type="number" inputmode="numeric" id="' . esc_attr( $id ) . '" class="tt-input" name="' . esc_attr( $key ) . '" min="' . esc_attr( $min ) . '" max="' . esc_attr( $max ) . '" step="' . esc_attr( $step ) . '" value="' . esc_attr( $value ) . '">';
+                break;
+
+            case TokenCatalogue::KIND_FLOAT:
+                $min  = isset( $def['min'] )  ? (string) $def['min']  : '0';
+                $max  = isset( $def['max'] )  ? (string) $def['max']  : '99';
+                $step = isset( $def['step'] ) ? (string) $def['step'] : '0.1';
+                echo '<input type="number" inputmode="decimal" id="' . esc_attr( $id ) . '" class="tt-input" name="' . esc_attr( $key ) . '" min="' . esc_attr( $min ) . '" max="' . esc_attr( $max ) . '" step="' . esc_attr( $step ) . '" value="' . esc_attr( $value ) . '">';
+                break;
+
+            case TokenCatalogue::KIND_SELECT:
+                $options = self::resolveSelectOptions( $key, $def );
+                echo '<select id="' . esc_attr( $id ) . '" class="tt-input" name="' . esc_attr( $key ) . '">';
+                foreach ( $options as $opt_value => $opt_label ) {
+                    echo '<option value="' . esc_attr( (string) $opt_value ) . '"' . selected( $value, (string) $opt_value, false ) . '>' . esc_html( (string) $opt_label ) . '</option>';
+                }
+                echo '</select>';
+                break;
+        }
+        echo '</div>';
+    }
+
+    /**
+     * @param array<string, mixed> $def
+     * @return array<string, string>
+     */
+    private static function resolveSelectOptions( string $key, array $def ): array {
+        if ( $key === 'font_display' ) return BrandFonts::displayOptions();
+        if ( $key === 'font_body' )    return BrandFonts::bodyOptions();
+        if ( isset( $def['options'] ) && is_array( $def['options'] ) ) {
+            return array_map( 'strval', $def['options'] );
+        }
+        return [];
     }
 
     /**

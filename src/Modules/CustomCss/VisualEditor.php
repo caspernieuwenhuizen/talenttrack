@@ -3,48 +3,81 @@ namespace TT\Modules\CustomCss;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\CustomCss\DesignSystem\TokenCatalogue;
 use TT\Shared\Frontend\BrandFonts;
 
 /**
  * VisualEditor — Path C of the #0064 custom-CSS authoring surface.
  *
- * Maps a structured array of visual settings (colours, fonts, weights,
- * corner radius, spacing scale, shadows) to a generated CSS body that
- * targets the `.tt-root` scoped class. The settings array is what the
- * live preview iframe deserialises and what `CustomCssRepository`
- * persists alongside the live CSS so the operator can re-open Path C
- * without losing their tweaks.
+ * #0075 Sprint 1 PR 1 made the editor catalogue-driven: the list of
+ * fields and the CSS the generator emits are both derived from
+ * `TokenCatalogue`, so adding a new token is a single-line change in
+ * the catalogue rather than a parallel edit across this file, the
+ * view, and the storage shape.
  *
- * Round-trip rule: if the operator saves a Path C settings payload
- * then later edits the CSS body in Path B, the visual_settings field
- * stays alongside as an "imprint" — Path C UI shows a banner ("CSS
- * has been hand-edited; using the visual editor will overwrite it").
- * The decision lives in the view layer; the generator stays
- * deterministic.
+ * Settings stay a flat `key => value` array on disk (preserving v3.64
+ * backward-compat); the structured-shape migration ships in PR 2.
+ *
+ * Round-trip rule unchanged: if the operator saves a Path C settings
+ * payload then later edits the CSS body in Path B, the visual_settings
+ * field stays alongside as an "imprint"; Path C UI shows a banner. The
+ * decision lives in the view layer; the generator stays deterministic.
  */
 final class VisualEditor {
 
+    /**
+     * Storage keys the editor reads / writes. Derived from the
+     * catalogue so subclassing the catalogue is the only entry point
+     * for adding tokens.
+     *
+     * @return string[]
+     */
+    public static function fields(): array {
+        return array_keys( TokenCatalogue::all() );
+    }
+
+    /**
+     * @deprecated since #0075 Sprint 1 PR 1; prefer fields(). Kept as
+     *             a constant alias for any external consumer (no known
+     *             callers exist outside this module — verified via
+     *             repo grep at PR open).
+     */
     public const FIELDS = [
         'primary_color',
+        'primary_hover_color',
         'secondary_color',
+        'secondary_hover_color',
         'accent_color',
-        'danger_color',
-        'warning_color',
-        'success_color',
-        'info_color',
+        'accent_hover_color',
         'focus_ring_color',
+        'success_color',
+        'success_subtle_color',
+        'warning_color',
+        'warning_subtle_color',
+        'danger_color',
+        'danger_subtle_color',
+        'info_color',
+        'info_subtle_color',
         'background_color',
         'surface_color',
+        'line_color',
         'text_color',
         'muted_color',
-        'line_color',
         'font_display',
         'font_body',
-        'font_weight_body',
         'font_weight_heading',
+        'font_weight_body',
         'corner_radius_md',
         'corner_radius_lg',
         'spacing_scale',
+        'shadow_sm',
+        'shadow_md',
+        'shadow_lg',
+        'motion_duration',
+        'motion_easing',
+        // Legacy v3.64 single-strength field — still read for backward
+        // compatibility (propagated to shadow_sm/md/lg when present
+        // and the explicit tokens are absent).
         'shadow_strength',
     ];
 
@@ -52,80 +85,157 @@ final class VisualEditor {
      * @param array<string, mixed> $settings
      */
     public static function generateCss( array $settings ): string {
-        $tokens = [];
-        $palette_to_token = [
-            'primary_color'     => '--tt-primary',
-            'secondary_color'   => '--tt-secondary',
-            'accent_color'      => '--tt-accent',
-            'danger_color'      => '--tt-danger',
-            'warning_color'     => '--tt-warning',
-            'success_color'     => '--tt-success',
-            'info_color'        => '--tt-info',
-            'focus_ring_color'  => '--tt-focus-ring',
-            'background_color'  => '--tt-bg',
-            'surface_color'     => '--tt-surface',
-            'text_color'        => '--tt-text',
-            'muted_color'       => '--tt-muted',
-            'line_color'        => '--tt-line',
-        ];
-        foreach ( $palette_to_token as $field => $token ) {
-            $value = self::sanitizeColor( (string) ( $settings[ $field ] ?? '' ) );
-            if ( $value !== '' ) $tokens[] = "    {$token}: {$value};";
+        $tokens   = [];
+        $catalogue = TokenCatalogue::all();
+
+        // Backward-compat for v3.64 saves: a single `shadow_strength`
+        // value populates the three new shadow tokens when those are
+        // absent, so opening an old save and saving again normalises
+        // it into the new shape without the operator having to touch
+        // every shadow field.
+        if ( ! empty( $settings['shadow_strength'] ) ) {
+            $strength = (string) $settings['shadow_strength'];
+            foreach ( [ 'shadow_sm', 'shadow_md', 'shadow_lg' ] as $k ) {
+                if ( ! isset( $settings[ $k ] ) || $settings[ $k ] === '' ) {
+                    $settings[ $k ] = $strength === 'none' ? 'none' : ( $strength === 'strong' ? 'strong' : 'light' );
+                }
+            }
         }
 
-        $font_display = self::sanitizeFontFamily( (string) ( $settings['font_display'] ?? '' ), BrandFonts::displayCatalogue() );
-        if ( $font_display !== '' ) $tokens[] = "    --tt-font-display: {$font_display};";
-        $font_body = self::sanitizeFontFamily( (string) ( $settings['font_body'] ?? '' ), BrandFonts::bodyCatalogue() );
-        if ( $font_body !== '' ) $tokens[] = "    --tt-font-body: {$font_body};";
+        foreach ( $catalogue as $key => $def ) {
+            $raw = isset( $settings[ $key ] ) ? (string) $settings[ $key ] : '';
+            if ( $raw === '' ) continue;
 
-        $weight_body = self::sanitizeFontWeight( (string) ( $settings['font_weight_body'] ?? '' ) );
-        if ( $weight_body !== '' ) $tokens[] = "    --tt-fw-body: {$weight_body};";
-        $weight_heading = self::sanitizeFontWeight( (string) ( $settings['font_weight_heading'] ?? '' ) );
-        if ( $weight_heading !== '' ) $tokens[] = "    --tt-fw-heading: {$weight_heading};";
+            $emitted = self::resolveTokenValue( $def, $raw );
+            if ( $emitted === '' ) continue;
 
-        $r_md = self::sanitizePx( (string) ( $settings['corner_radius_md'] ?? '' ), 0, 32 );
-        if ( $r_md !== null ) $tokens[] = "    --tt-r-md: {$r_md}px;";
-        $r_lg = self::sanitizePx( (string) ( $settings['corner_radius_lg'] ?? '' ), 0, 40 );
-        if ( $r_lg !== null ) $tokens[] = "    --tt-r-lg: {$r_lg}px;";
+            $tokens[] = "    {$def['css_var']}: {$emitted};";
+        }
 
-        $spacing = self::sanitizeFloat( (string) ( $settings['spacing_scale'] ?? '' ), 0.6, 1.6 );
-        if ( $spacing !== null ) $tokens[] = "    --tt-spacing-scale: {$spacing};";
-
-        $output = "/* Generated by TalentTrack visual editor (#0064). */\n\n";
+        $output = "/* Generated by TalentTrack visual editor (#0064 / #0075). */\n\n";
         if ( ! empty( $tokens ) ) {
             $output .= ".tt-root {\n" . implode( "\n", $tokens ) . "\n}\n";
         }
 
-        // Optional shadow strength — affects card / panel / tile drop-
-        // shadows. `none` removes all box-shadow, `light` keeps the
-        // existing soft shadow, `strong` doubles the spread + opacity.
-        $shadow = self::sanitizeShadowStrength( (string) ( $settings['shadow_strength'] ?? '' ) );
-        if ( $shadow === 'none' ) {
-            $output .= "\n.tt-root .tt-panel,\n.tt-root .tt-card,\n.tt-root .tt-mc-card,\n.tt-root .tt-cfg-tile {\n    box-shadow: none;\n}\n";
-        } elseif ( $shadow === 'strong' ) {
-            $output .= "\n.tt-root .tt-panel,\n.tt-root .tt-card,\n.tt-root .tt-mc-card,\n.tt-root .tt-cfg-tile {\n    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);\n}\n";
-        }
+        // The three explicit shadow tokens emit per-surface box-shadow
+        // declarations on top of the custom-property emission so legacy
+        // CSS that doesn't yet read --tt-shadow-* still picks up the
+        // operator's choice. PR 2 will rewrite consumer stylesheets to
+        // read the custom property and this block becomes a no-op.
+        $output .= self::renderShadowOverrides( $settings );
 
         return $output;
     }
 
     /**
+     * Resolve a token's stored value to its CSS-emittable string.
+     * Empty return = skip emission.
+     *
+     * @param array<string, mixed> $def
+     */
+    private static function resolveTokenValue( array $def, string $raw ): string {
+        switch ( $def['kind'] ) {
+            case TokenCatalogue::KIND_COLOR:
+                return self::sanitizeColor( $raw );
+
+            case TokenCatalogue::KIND_NUMBER:
+                $min = isset( $def['min'] ) ? (int) $def['min'] : 0;
+                $max = isset( $def['max'] ) ? (int) $def['max'] : 9999;
+                $n   = self::sanitizePx( $raw, $min, $max );
+                return $n === null ? '' : "{$n}px";
+
+            case TokenCatalogue::KIND_FLOAT:
+                $min = isset( $def['min'] ) ? (float) $def['min'] : 0.0;
+                $max = isset( $def['max'] ) ? (float) $def['max'] : 100.0;
+                $n   = self::sanitizeFloat( $raw, $min, $max );
+                return $n === null ? '' : (string) $n;
+
+            case TokenCatalogue::KIND_SELECT:
+                return self::resolveSelectToken( $def, $raw );
+        }
+        return '';
+    }
+
+    /**
+     * @param array<string, mixed> $def
+     */
+    private static function resolveSelectToken( array $def, string $raw ): string {
+        $key = $def['key'];
+
+        if ( $key === 'font_display' ) {
+            return self::sanitizeFontFamily( $raw, BrandFonts::displayCatalogue() );
+        }
+        if ( $key === 'font_body' ) {
+            return self::sanitizeFontFamily( $raw, BrandFonts::bodyCatalogue() );
+        }
+        if ( $key === 'font_weight_heading' || $key === 'font_weight_body' ) {
+            return self::sanitizeFontWeight( $raw );
+        }
+        if ( $key === 'shadow_sm' || $key === 'shadow_md' || $key === 'shadow_lg' ) {
+            $preset = self::sanitizeShadowStrength( $raw );
+            return $preset === '' ? '' : TokenCatalogue::shadowDeclaration( $preset );
+        }
+        if ( $key === 'motion_duration' ) {
+            return TokenCatalogue::motionDurationMs( strtolower( trim( $raw ) ) );
+        }
+        if ( $key === 'motion_easing' ) {
+            return TokenCatalogue::motionEasing( strtolower( trim( $raw ) ) );
+        }
+
+        // Generic select: accept the raw value if it appears in the
+        // option list. (None of the existing select tokens hit this
+        // branch; it's here so future additions to the catalogue work
+        // without touching this method.)
+        if ( isset( $def['options'] ) && is_array( $def['options'] ) ) {
+            return isset( $def['options'][ $raw ] ) ? $raw : '';
+        }
+        return '';
+    }
+
+    /**
+     * Emit per-surface `box-shadow` declarations from the three
+     * explicit shadow tokens. Kept until consumer stylesheets read
+     * the `--tt-shadow-*` custom properties directly (Sprint 1 PR 2).
+     *
+     * @param array<string, mixed> $settings
+     */
+    private static function renderShadowOverrides( array $settings ): string {
+        $sm = self::sanitizeShadowStrength( (string) ( $settings['shadow_sm'] ?? '' ) );
+        $md = self::sanitizeShadowStrength( (string) ( $settings['shadow_md'] ?? '' ) );
+        if ( $sm === '' && $md === '' ) return '';
+
+        $base_selectors  = ".tt-root .tt-panel,\n.tt-root .tt-card,\n.tt-root .tt-mc-card,\n.tt-root .tt-cfg-tile";
+        $hover_selectors = ".tt-root .tt-panel:hover,\n.tt-root .tt-card:hover,\n.tt-root .tt-mc-card:hover,\n.tt-root .tt-cfg-tile:hover";
+
+        $out = '';
+        if ( $sm !== '' ) {
+            $decl = TokenCatalogue::shadowDeclaration( $sm );
+            $out .= "\n{$base_selectors} {\n    box-shadow: {$decl};\n}\n";
+        }
+        if ( $md !== '' ) {
+            $decl = TokenCatalogue::shadowDeclaration( $md );
+            $out .= "\n{$hover_selectors} {\n    box-shadow: {$decl};\n}\n";
+        }
+        return $out;
+    }
+
+    /**
      * Round-trip detection: returns true when `$css_body` looks like
      * it was produced by the generator (so re-opening Path C is safe
-     * and won't clobber hand-edited rules).
+     * and won't clobber hand-edited rules). Accepts both the v3.64
+     * marker and the v3.73 marker.
      */
     public static function isGenerated( string $css_body ): bool {
-        return str_contains( $css_body, 'Generated by TalentTrack visual editor (#0064).' );
+        return str_contains( $css_body, 'Generated by TalentTrack visual editor (#0064).' )
+            || str_contains( $css_body, 'Generated by TalentTrack visual editor (#0064 / #0075).' );
     }
 
     public static function sanitizeColor( string $value ): string {
         $value = trim( $value );
         if ( $value === '' ) return '';
-        // 3- or 6-digit hex.
         if ( preg_match( '/^#?[0-9a-fA-F]{3}$/', $value ) || preg_match( '/^#?[0-9a-fA-F]{6}$/', $value ) ) {
             return '#' . ltrim( $value, '#' );
         }
-        // rgb(a) — minimal validation.
         if ( preg_match( '/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[\d.]+\s*)?\)$/', $value ) ) {
             return $value;
         }
@@ -147,7 +257,6 @@ final class VisualEditor {
     public static function sanitizeFontWeight( string $value ): string {
         $value = trim( $value );
         if ( $value === '' ) return '';
-        // 100–900 in steps of 100, plus the named weights browsers accept.
         $allowed = [ '100', '200', '300', '400', '500', '600', '700', '800', '900', 'normal', 'bold' ];
         return in_array( $value, $allowed, true ) ? $value : '';
     }
@@ -170,6 +279,6 @@ final class VisualEditor {
 
     public static function sanitizeShadowStrength( string $value ): string {
         $value = strtolower( trim( $value ) );
-        return in_array( $value, [ 'none', 'light', 'strong' ], true ) ? $value : '';
+        return in_array( $value, [ 'none', 'light', 'medium', 'strong' ], true ) ? $value : '';
     }
 }
