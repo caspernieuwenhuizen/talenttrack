@@ -1,3 +1,33 @@
+# TalentTrack v3.75.1 — Live preview in the design-system editor (#0075 Sprint 1 PR 4 of 5)
+
+Fourth PR of #0075 Sprint 1. PR 1 + 2 + 3 made the Custom CSS visual editor catalogue-driven, gave it eight collapsible accordion sections, wired consumer stylesheets to read the new tokens, and migrated status notice banners to read `--tt-*-subtle`. The editor was now visually grouped and the saved tokens flowed all the way through. Missing piece: every change still required a Save + reload to see what it did. This PR closes that loop.
+
+## What's new
+
+- **`<style id="tt-css-preview">`** element rendered after the visual form. Lives in `<body>`, not `<head>`, so it only affects the editor page itself — saving moves the values into `tt_config` which the next page-load emits through the normal `CustomCssEnqueue` pipeline.
+- **`renderLivePreviewScript`** — ~80 lines of vanilla JS attached to the visual form. Listens for `input` + `change` events; on every fire walks the catalogue, reads each form control's value, applies kind-specific transforms, and rewrites the `<style>` body. Mirrors `VisualEditor::generateCss` so save and preview produce the same visual outcome.
+- **Catalogue serialisation** — the JS receives the catalogue as a `wp_json_encode`-d object: `{ token_key: { var: '--tt-foo', kind: 'color' | 'number' | 'float' | 'shadow' | 'motion' | 'font' | 'select' } }`. Shadow + motion tokens carry their preset → CSS-value maps inline (pulled from `TokenCatalogue::shadowDeclaration` / `motionDurationMs` / `motionEasing` so PHP and JS stay in sync). Font tokens keep the BrandFonts sentinel-empty semantics (`__inherit__` and `''` resolve to empty so the default stack wins).
+- **Live preview status caption** under the Save button: "Live preview is on — changes appear immediately on this page; click Save to persist." Translatable.
+
+## Why preview lives in `<body>`, not `<head>`
+
+The saved CSS lives in `<head>` via `CustomCssEnqueue::frontendInjectInline` — that's the production-cascade emission. The preview is editor-local and intentionally has lower scope: it only takes effect for the surface the operator's looking at, not for the whole frontend. Putting it in `<body>` after the form keeps it out of the production cascade and avoids any race with the `wp_head` emission. Side benefit: no need to enqueue or dequeue anything when navigating away.
+
+## What did *not* change in this PR
+
+- **Storage shape migration** (still v3.64 flat blob) and **REST endpoints** (`GET/PUT /design-system/tokens`) move to **PR 5** alongside Typography (1b) and Buttons/Links/Forms (1c).
+- **Live miniatures of components in a dedicated preview pane** — the spec's `<div class="tt-preview-stage">` that renders dummy `.tt-btn` / `.tt-card` / `.tt-pill` next to each category. The current preview is *more* than that in one sense (every styled element on the editor surface picks up the change, including the Save button itself) but *less* in another (no isolated demo of a button in 5 states). Adding a dedicated preview-stage component is parked as a follow-up if reviewing the live page itself proves too noisy.
+
+## Acceptance criteria (manually verified)
+
+- [x] `php -l` clean.
+- [ ] Open `?tt_view=custom-css` (frontend surface) → "Visual settings" tab. Pick a different `Primary` colour. The Save button background updates immediately, before clicking Save. URL doesn't change. Reload the page — Save button reverts to its server-default colour because nothing was persisted.
+- [ ] Same view, pick `Card shadow — small` = "Strong". The accordion sections (which are `.tt-css-section` styled `<details>` with the panel-shadow rule) immediately gain a heavier drop-shadow.
+- [ ] Same view, pick `Animation speed` = "Slow (260ms)". Hover over `.tt-btn` to see the slower transition immediately.
+- [ ] Same view, pick `Body font` = "Bebas Neue". The Save button's text font updates (it's a `.tt-btn`; weight + casing already styled). Note: catalogue Google Fonts aren't enqueued by the preview, so unless the operator has the font installed locally it falls back to the next stack member — same behavior as save.
+- [ ] Click Save. Reload. The chosen values now persist (saved CSS in `<head>` matches what the preview was showing).
+- [ ] No regression on PR 3 status notice classes (the warning banner above the form when CSS has been hand-edited still reads from `--tt-warning-subtle`).
+
 # TalentTrack v3.75.0 — New evaluation wizard (#0072) — activity-first, attendance-aware, multi-player batch flow
 
 The pre-#0072 `NewEvaluationWizard` was a two-step pre-flight (`PlayerStep` + `TypeStep`) that handed off to the heavyweight evaluation form. It got coaching backwards: a coach almost always thinks *"I just ran U14 training; let me rate the players who were there"* — activity-first, attendance-aware, multi-player in one sitting. The pre-flight made them pick one player at a time and never referenced the activity that prompted the evaluation, so they skipped the wizard and jumped to the flat form, which is itself optimised for editing a single existing evaluation rather than creating a batch.

@@ -401,8 +401,159 @@ class FrontendCustomCssView extends FrontendViewBase {
 
         echo '<div class="tt-form-actions" style="margin-top:18px;">';
         echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save visual settings', 'talenttrack' ) . '</button>';
+        echo ' <span class="tt-css-preview-status" aria-live="polite" style="margin-left:10px; color:var(--tt-muted, #5b6e75); font-size:13px;">' . esc_html__( 'Live preview is on — changes appear immediately on this page; click Save to persist.', 'talenttrack' ) . '</span>';
         echo '</div>';
         echo '</form>';
+
+        self::renderLivePreviewStyle( $catalogue );
+        self::renderLivePreviewScript( $catalogue );
+    }
+
+    /**
+     * Empty `<style id="tt-css-preview">` placeholder. Lives in the
+     * page after the form so the inline JS can target it. Unlike the
+     * saved CSS (which lives in `<head>` via CustomCssEnqueue), the
+     * preview style sits in `<body>` and only takes effect for the
+     * editor surface itself; saving moves the values into `tt_config`
+     * which the next page-load will emit through the normal pipeline.
+     */
+    private static function renderLivePreviewStyle( array $catalogue ): void {
+        echo '<style id="tt-css-preview"></style>';
+    }
+
+    /**
+     * Live preview JS. Walks `[data-css-var]` elements on every input
+     * change, applies kind-specific value transforms (px suffix for
+     * numbers, preset → CSS-value lookups for shadow + motion, font-
+     * family quoting for select-font tokens), and rewrites the
+     * `<style id="tt-css-preview">` body. Mirrors the validation +
+     * emission shape of `VisualEditor::generateCss` so the visual
+     * result on save matches the preview.
+     *
+     * Catalogue is rendered into the script as a JSON object so we
+     * don't need a separate REST round-trip. The preset → CSS-value
+     * maps (shadow + motion) are pulled from the corresponding
+     * `TokenCatalogue::*Declaration` helpers.
+     *
+     * @param array<string, mixed> $catalogue
+     */
+    private static function renderLivePreviewScript( array $catalogue ): void {
+        $shadow_map = [];
+        foreach ( [ 'none', 'light', 'medium', 'strong' ] as $preset ) {
+            $shadow_map[ $preset ] = TokenCatalogue::shadowDeclaration( $preset );
+        }
+        $duration_map = [];
+        foreach ( [ 'fast', 'base', 'slow' ] as $preset ) {
+            $duration_map[ $preset ] = TokenCatalogue::motionDurationMs( $preset );
+        }
+        $easing_map = [];
+        foreach ( [ 'standard', 'in', 'out', 'in_out' ] as $preset ) {
+            $easing_map[ $preset ] = TokenCatalogue::motionEasing( $preset );
+        }
+
+        $js_catalogue = [];
+        foreach ( $catalogue as $key => $def ) {
+            $entry = [
+                'var'  => (string) $def['css_var'],
+                'kind' => (string) $def['kind'],
+            ];
+            if ( $key === 'shadow_sm' || $key === 'shadow_md' || $key === 'shadow_lg' ) {
+                $entry['kind'] = 'shadow';
+                $entry['map'] = $shadow_map;
+            } elseif ( $key === 'motion_duration' ) {
+                $entry['kind'] = 'motion';
+                $entry['map'] = $duration_map;
+            } elseif ( $key === 'motion_easing' ) {
+                $entry['kind'] = 'motion';
+                $entry['map'] = $easing_map;
+            } elseif ( $key === 'font_display' || $key === 'font_body' ) {
+                $entry['kind'] = 'font';
+            }
+            $js_catalogue[ $key ] = $entry;
+        }
+        ?>
+        <script>
+        (function(){
+            var form = document.querySelector('.tt-css-visual-form');
+            var styleEl = document.getElementById('tt-css-preview');
+            if (!form || !styleEl) return;
+
+            var catalogue = <?php echo wp_json_encode( $js_catalogue ); ?>;
+            // Sentinel font values surfaced by BrandFonts; emit empty
+            // (let the default stack win) for these. Mirrors
+            // BrandFonts::resolveFamily on the server side.
+            var FONT_SENTINELS = ['', '__inherit__'];
+
+            function quoteFamily(name) {
+                name = String(name || '').trim();
+                if (!name) return '';
+                if (FONT_SENTINELS.indexOf(name) !== -1) return '';
+                return /\s/.test(name) ? "'" + name + "'" : name;
+            }
+
+            function emit(key, raw) {
+                var def = catalogue[key];
+                if (!def) return '';
+                if (raw === '' || raw === null || raw === undefined) return '';
+                var v = '';
+                switch (def.kind) {
+                    case 'color':
+                        v = String(raw);
+                        break;
+                    case 'number':
+                        if (!/^-?\d+$/.test(String(raw))) return '';
+                        v = String(raw) + 'px';
+                        break;
+                    case 'float':
+                        if (isNaN(parseFloat(String(raw)))) return '';
+                        v = String(raw);
+                        break;
+                    case 'shadow':
+                    case 'motion':
+                        v = (def.map && def.map[String(raw)]) || '';
+                        break;
+                    case 'font':
+                        v = quoteFamily(raw);
+                        break;
+                    case 'select':
+                        // Generic select — emit raw. Currently used by
+                        // font_weight_* whose values map 1:1 to CSS.
+                        v = String(raw);
+                        break;
+                    default:
+                        return '';
+                }
+                if (v === '') return '';
+                return def.var + ': ' + v + ';';
+            }
+
+            function rebuild() {
+                var decls = [];
+                Object.keys(catalogue).forEach(function(key){
+                    var input = form.querySelector('[name="' + key + '"]');
+                    if (!input) return;
+                    // For colour pickers: skip emission when the value
+                    // matches the catalogue default — preserves the
+                    // "(unset)" semantics of the saved storage layer.
+                    var raw = input.value;
+                    var line = emit(key, raw);
+                    if (line) decls.push('    ' + line);
+                });
+                if (decls.length === 0) {
+                    styleEl.textContent = '';
+                    return;
+                }
+                styleEl.textContent = '.tt-root {\n' + decls.join('\n') + '\n}\n';
+            }
+
+            form.addEventListener('input',  rebuild);
+            form.addEventListener('change', rebuild);
+            // Initial render so the preview reflects the saved state
+            // even before the operator touches anything.
+            rebuild();
+        })();
+        </script>
+        <?php
     }
 
     /**

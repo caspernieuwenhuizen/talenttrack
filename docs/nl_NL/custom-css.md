@@ -8,7 +8,7 @@
 
 Een clubbeheerder kan kleuren, lettertypes, hoeken, spacing en schaduwen aanpassen op het frontend dashboard, op de wp-admin TT-pagina's, of beide. Drie auteurspaden plus een vier-tab landingspagina, allemaal bereikbaar via `?tt_view=custom-css` (of via **Configuratie → Aangepaste CSS**):
 
-- **Visuele instellingen** (Pad C) — kies kleuren, lettertypes, gewichten, hoekstraal, spacing-schaal en schaduwsterkte met dropdowns en pickers. Opslaan genereert een CSS-blok dat in dezelfde opslag belandt als de andere paden.
+- **Visuele instellingen** (Pad C) — kies kleuren, lettertypes, gewichten, hoekstraal, spacing-schaal en schaduwsterkte met dropdowns en pickers. Opslaan genereert een CSS-blok dat in dezelfde opslag belandt als de andere paden. Sinds v3.75.1 wordt elke wijziging direct getoond op de editorpagina zelf (live preview); opslaan persisteert de waarden zodat de rest van het dashboard ze bij de volgende paginalading oppikt.
 - **CSS-editor** (Pad B) — schrijf zelf CSS. Het tekstveld gebruikt de WordPress-code-editor (CodeMirror) met syntaxiskleuren en regelnummers. Een knop "Open preview in nieuw tabblad" opent het dashboard zodat je het resultaat live ziet.
 - **Upload + templates** (Pad A) — upload een `.css`-bestand of pas één van drie starttemplates toe (Fresh light / Classic football / Minimal — alle drie lichtgekleurd).
 - **Geschiedenis** — de laatste 10 auto-saves plus benoemde presets. Klik **Terugzetten** om een eerdere save te herstellen (de revert wordt zelf weer een nieuwe rij in de geschiedenis, dus je kan altijd terug).

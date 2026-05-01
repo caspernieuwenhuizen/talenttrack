@@ -8,7 +8,7 @@
 
 A club admin can change colours, fonts, corners, spacing and shadows on the TalentTrack frontend dashboard, on the wp-admin TalentTrack pages, or both. There are three authoring paths plus a four-tab landing surface, all reached at `?tt_view=custom-css` (or via **Configuration → Custom CSS**):
 
-- **Visual settings** (Path C) — pick colours, fonts, weights, corner radius, spacing scale, shadow strength via dropdowns and pickers. Save round-trips into a generated CSS body that lives in the same storage as the other paths.
+- **Visual settings** (Path C) — pick colours, fonts, weights, corner radius, spacing scale, shadow strength via dropdowns and pickers. Save round-trips into a generated CSS body that lives in the same storage as the other paths. Since v3.75.1 every change is reflected immediately on the editor page itself (live preview); save persists the values so the rest of the dashboard picks them up on the next load.
 - **CSS editor** (Path B) — write CSS by hand. The textarea uses the WordPress code editor (CodeMirror) for syntax highlighting + line numbers. A "Preview in new tab" link opens the dashboard so changes can be seen live.
 - **Upload + templates** (Path A) — drop in a `.css` file, or apply one of three starter templates (Fresh light / Classic football / Minimal — all light-leaning).
 - **History** — the last 10 auto-saves plus any named presets. Click **Revert** to restore an earlier save (which itself becomes a fresh auto-save row, so the revert is undoable).
