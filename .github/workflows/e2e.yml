@@ -19,6 +19,19 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+
+      - name: Install PHP dependencies
+        # Plugin's bootstrap (`talenttrack.php`) loads `vendor/autoload.php`
+        # when present — and several modules (Excel demo data, future
+        # Spond JWT) need their composer deps. Install before wp-env
+        # starts so the plugin activates cleanly.
+        run: composer install --no-interaction --no-progress --prefer-dist
+
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
