@@ -3,6 +3,8 @@ namespace TT\Modules\CustomCss;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Shared\Frontend\BrandFonts;
+
 /**
  * VisualEditor — Path C of the #0064 custom-CSS authoring surface.
  *
@@ -71,9 +73,9 @@ final class VisualEditor {
             if ( $value !== '' ) $tokens[] = "    {$token}: {$value};";
         }
 
-        $font_display = self::sanitizeFontStack( (string) ( $settings['font_display'] ?? '' ) );
+        $font_display = self::sanitizeFontFamily( (string) ( $settings['font_display'] ?? '' ), BrandFonts::displayCatalogue() );
         if ( $font_display !== '' ) $tokens[] = "    --tt-font-display: {$font_display};";
-        $font_body = self::sanitizeFontStack( (string) ( $settings['font_body'] ?? '' ) );
+        $font_body = self::sanitizeFontFamily( (string) ( $settings['font_body'] ?? '' ), BrandFonts::bodyCatalogue() );
         if ( $font_body !== '' ) $tokens[] = "    --tt-font-body: {$font_body};";
 
         $weight_body = self::sanitizeFontWeight( (string) ( $settings['font_weight_body'] ?? '' ) );
@@ -130,13 +132,16 @@ final class VisualEditor {
         return '';
     }
 
-    public static function sanitizeFontStack( string $value ): string {
-        $value = trim( $value );
-        if ( $value === '' ) return '';
-        // Allow letters, digits, spaces, comma, single/double quotes, hyphens, underscores.
-        if ( ! preg_match( "/^[A-Za-z0-9 ,'\"\\-_]+$/", $value ) ) return '';
-        if ( strlen( $value ) > 200 ) return '';
-        return $value;
+    /**
+     * Validate the family against the BrandFonts catalogue and return
+     * the CSS-safe family declaration (multi-word names get quoted via
+     * `BrandFonts::resolveFamily`). Empty / unknown / sentinel values
+     * return ''.
+     *
+     * @param string[] $catalogue
+     */
+    public static function sanitizeFontFamily( string $value, array $catalogue ): string {
+        return BrandFonts::resolveFamily( trim( $value ), $catalogue );
     }
 
     public static function sanitizeFontWeight( string $value ): string {

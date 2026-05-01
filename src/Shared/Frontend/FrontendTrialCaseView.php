@@ -101,7 +101,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
         echo '<nav class="tt-tabbar" role="tablist">';
         foreach ( $tabs as $slug => $label ) {
             $url = add_query_arg( [ 'tab' => $slug ], $base );
-            $cls = $slug === $current ? 'tt-tab tt-tab-current' : 'tt-tab';
+            $cls = $slug === $current ? 'tt-tab tt-tab-active' : 'tt-tab';
             echo '<a class="' . esc_attr( $cls ) . '" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a>';
         }
         echo '</nav>';
