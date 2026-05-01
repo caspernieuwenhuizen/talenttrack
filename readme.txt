@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.74.0
+Stable tag: 3.74.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.74.1 — Design-system consumer wiring (#0075 Sprint 1 PR 2) =
+
+Wires the new tokens introduced in v3.73.0 into actual consumer stylesheets so they do something visible. `assets/css/public.css` gets a `.tt-root` defaults block (matching v3.64's pre-token visuals so existing installs see no change unless they opt in via the editor) plus consumer rules on `.tt-btn:hover` (reads `--tt-primary-hover` with the legacy secondary-on-hover as fallback), `.tt-card` (resting + hover shadows read `--tt-shadow-sm/md`), and the card transition timing (`--tt-motion-duration` + `--tt-motion-easing`). `assets/css/frontend-admin.css` adds the same shadow + transition tokens to `.tt-panel` (resting + hover). Token defaults live only in `.tt-root` so the visual editor's inline `<style>` overrides cascade into `.tt-dashboard` descendants without being shadowed. The `VisualEditor::renderShadowOverrides` per-surface block from PR 1 is preserved as a backstop until every consumer reads the custom property directly — drop in a future PR. Renumbered from v3.73.1 in PR after #0071 follow-ups landed at v3.74.0.
 
 = 3.74.0 — #0071 follow-ups: impersonation guards on destructive handlers + sub-cap refactor =
 

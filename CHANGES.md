@@ -164,6 +164,39 @@ New cap `tt_impersonate_users` granted by default to `administrator` and `tt_clu
 - [ ] Impersonation child: admin starts impersonation of a parent → dashboard renders as parent → banner visible → safeguarding-notes 403s for the impersonated parent → switch back → admin can read safeguarding notes again. `tt_impersonation_log` has one row with both timestamps.
 - [ ] Self-impersonation / admin-on-admin / stacking attempts return distinct error codes.
 
+# TalentTrack v3.74.1 — Design-system consumer wiring (#0075 Sprint 1 PR 2)
+
+> Renumbered from v3.73.1 in PR after #0071 follow-ups landed at v3.74.0. Code unchanged.
+
+Companion PR to v3.73.0. The token catalogue + grouped editor shipped in PR 1 added `--tt-shadow-sm/md/lg`, `--tt-primary-hover`, `--tt-secondary-hover`, `--tt-accent-hover`, `--tt-success-subtle` (and warning/danger/info variants), `--tt-motion-duration`, `--tt-motion-easing` — but no consumer stylesheet read them yet. PR 1 backstopped shadows via per-surface `box-shadow` overrides emitted from the generator. This PR wires the actual consumers so the new tokens do something through the normal cascade instead of via the legacy override block.
+
+## What's new
+
+- **`assets/css/public.css`** — new `.tt-root` defaults block at the top with shadow / motion / status-subtle defaults that match v3.64's pre-token behavior (`--tt-shadow-sm: none` keeps cards flat at rest, `--tt-shadow-md: 0 8px 24px -8px rgba(0,0,0,0.12)` matches the previous `.tt-card:hover` value, transitions stay at 150ms ease). So every install sees no visible change unless they opt in via the editor.
+- **`.tt-btn:hover`** — background reads `var(--tt-primary-hover, var(--tt-secondary, #e8b624))`. The hover token isn't declared in `.tt-root` defaults, so the fallback chain still swaps primary buttons to the secondary brand colour on hover (the legacy behavior). When operators set the token via the editor, the inline `<style>` declaration wins and they get a custom hover hue. Transition switches to `var(--tt-motion-duration) var(--tt-motion-easing)`.
+- **`.tt-card`** — resting shadow reads `var(--tt-shadow-sm, none)`, hover shadow reads `var(--tt-shadow-md, ...)`. Transition timing reads the motion tokens.
+- **`assets/css/frontend-admin.css`** `.tt-panel` — same shadow + motion wiring. Resting + `:hover`. Token defaults are NOT declared in `.tt-dashboard` because CSS custom-property inheritance would cause the dashboard's declarations to shadow the visual editor's `.tt-root` overrides; keeping defaults centralised in `.tt-root` lets operator changes cascade through the entire body.
+- **Backstop preserved** — `VisualEditor::renderShadowOverrides` from PR 1 still emits explicit per-surface `box-shadow` declarations for legacy installs that haven't picked up the token consumer rules. Both rules apply harmlessly (same value); drop the renderShadowOverrides block in a future PR after consumer coverage is verified.
+
+## Why a `.tt-dashboard` re-declaration was avoided
+
+CSS custom properties cascade via inheritance, not specificity. Declaring `--tt-shadow-sm` in `.tt-dashboard` would block the visual editor's override (which targets `.tt-root`) for any descendant of `.tt-dashboard` — the dashboard's value wins because it's a closer ancestor. Single declaration in `.tt-root` lets the editor's overrides actually take effect. (This same constraint already affected `--tt-primary` etc. since v3.8.0 / #0023; not in this PR's scope to fix the existing tokens.)
+
+## What did *not* change in this PR
+
+- **Storage shape** — still v3.64's flat blob. Migration ships in **PR 3** alongside REST endpoints.
+- **Live preview miniatures** — also **PR 3**.
+- **Notice classes** (`.tt-notice-success/-warning/-error/-info`) are inline-styled in PHP at six call sites, not centrally CSS-defined. Wiring them to `--tt-success-subtle` etc. is a multi-file PHP refactor that ships separately.
+- **Other shadow consumers** — `.tt-cfg-tile` (declared inline in `FrontendConfigurationView::renderTileGrid`), `.tt-mc-card`, `.tt-psp-results`, the user-menu drawer and various drag-drop overlays — all hardcoded shadows that the `renderShadowOverrides` backstop covers for now.
+
+## Acceptance criteria (manually verified)
+
+- [x] `php -l` clean on every touched file (none touched in this PR — CSS only).
+- [ ] Open `?tt_view=custom-css` (frontend surface) → "Visual settings" tab. Pick "Strong" for `Card shadow — small`. Save. Reload `?tt_view=overview` (or any dashboard surface). `.tt-card` elements have a visible drop-shadow at rest.
+- [ ] Pick a custom hex for `Primary — hover`. Save. Reload. Hover any `.tt-btn` — background animates to the chosen colour over 150ms.
+- [ ] Existing v3.64 saves render unchanged. Clubs that haven't opened the editor since v3.64 see zero visual difference (defaults match prior behavior).
+- [ ] `?tt_safe_css=1` still bypasses the inline `<style>` and the cards revert to plain v3.64 styling.
+
 # TalentTrack v3.73.0 — Design-system token catalogue + grouped visual editor (#0075 Sprint 1 PR 1)
 
 First PR of #0075 Sprint 1. The v3.64 Custom CSS visual editor was a flat list of 21 fields with no extension story; adding a token meant editing the FIELDS const, the renderVisualTab method, and the generateCss method in three parallel places. This PR makes the editor catalogue-driven: a new `TokenCatalogue` class is the single source of truth, and both the render layer and the CSS generator loop through it. Adding a token is now a single-line change in the catalogue.

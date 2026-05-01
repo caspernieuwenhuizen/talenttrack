@@ -58,6 +58,18 @@
     /* Focus ring. */
     --tt-focus: 0 0 0 2px rgba(11, 61, 46, 0.35);
 
+    /*
+     * #0075 Sprint 1 PR 2 — design-system shadow + motion + status
+     * subtle tokens are declared in .tt-root (public.css) only,
+     * NOT here. CSS custom properties cascade via inheritance, so
+     * declaring them here would block visual-editor overrides
+     * (operator's inline <style> targets .tt-root; this .tt-dashboard
+     * re-declaration would shadow it for dashboard descendants).
+     * Keeping the .tt-root default block as the single source of
+     * default values lets the operator's override actually take
+     * effect inside .tt-dashboard subtrees.
+     */
+
     /* #0023 — font tokens. Defaults match the legacy stack used in
        public.css; BrandStyles overrides via `:root` when the
        Branding tab picks a curated family. */
@@ -213,13 +225,18 @@
 }
 @keyframes tt-spin { to { transform: rotate(360deg); } }
 
-/* Panels / cards */
+/* Panels / cards — #0075 Sprint 1 PR 2 wires shadow tokens. */
 .tt-dashboard .tt-panel {
     background: #fff;
     border: 1px solid var(--tt-line);
     border-radius: var(--tt-r-lg);
     padding: var(--tt-sp-5);
     margin-bottom: var(--tt-sp-5);
+    box-shadow: var(--tt-shadow-sm, none);
+    transition: box-shadow var(--tt-motion-duration, 180ms) var(--tt-motion-easing, ease);
+}
+.tt-dashboard .tt-panel:hover {
+    box-shadow: var(--tt-shadow-md, var(--tt-shadow-sm, none));
 }
 .tt-dashboard .tt-panel-title {
     font-size: var(--tt-fs-lg);
