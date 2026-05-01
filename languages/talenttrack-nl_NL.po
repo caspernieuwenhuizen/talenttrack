@@ -11343,3 +11343,25 @@ msgstr "Invoerveld-rand"
 
 msgid "Input border on focus"
 msgstr "Invoerveld-rand bij focus"
+
+# v3.77.0 / #0075 Sprint 2 PR 1 — typography consumer wiring + h4/h5/h6 + Links
+msgid "Heading 4 size (rem)"
+msgstr "Kop 4 grootte (rem)"
+
+msgid "Heading 5 size (rem)"
+msgstr "Kop 5 grootte (rem)"
+
+msgid "Heading 6 size (rem)"
+msgstr "Kop 6 grootte (rem)"
+
+msgid "Heading line height"
+msgstr "Kop-regelhoogte"
+
+msgid "Links"
+msgstr "Links"
+
+msgid "Link colour"
+msgstr "Link-kleur"
+
+msgid "Link colour on hover"
+msgstr "Link-kleur bij hover"
