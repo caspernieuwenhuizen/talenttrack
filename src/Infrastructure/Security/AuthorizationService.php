@@ -75,6 +75,30 @@ class AuthorizationService {
         self::$cache_decisions = [];
     }
 
+    /**
+     * v3.71.4 — capability check that also consults the matrix bridge
+     * when the legacy WP cap check returns false. Used by REST
+     * permission_callbacks and other gates to ensure users granted a
+     * `tt_*` cap via Functional Role assignment + matrix scope-rows
+     * are not denied just because the `user_has_cap` filter is dormant
+     * (`tt_authorization_active = 0`).
+     *
+     * Mirrors `TileRegistry::userMayAccess()` so the navigation surface
+     * and the REST surface agree on visibility. Runtime gates at the
+     * actual write/read sites still scope-check on the entity level —
+     * this only decides whether the request is permitted to reach them.
+     */
+    public static function userCanOrMatrix( int $user_id, string $cap ): bool {
+        if ( $cap === '' || $user_id <= 0 ) return false;
+        if ( user_can( $user_id, $cap ) ) return true;
+        if ( strpos( $cap, 'tt_' ) !== 0 ) return false;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\LegacyCapMapper' ) ) return false;
+        $user = get_userdata( $user_id );
+        if ( ! $user instanceof \WP_User ) return false;
+        $matrix = \TT\Modules\Authorization\LegacyCapMapper::evaluate( $cap, $user, [] );
+        return $matrix === true;
+    }
+
     public static function registerCacheInvalidators(): void {
         static $registered = false;
         if ( $registered ) return;

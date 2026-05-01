@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -81,11 +82,18 @@ class ActivitiesRestController {
     }
 
     public static function can_view(): bool {
-        return current_user_can( 'tt_view_activities' ) || current_user_can( 'tt_edit_activities' );
+        // v3.71.4 — also consult the matrix mapper so users granted
+        // tt_view_activities / tt_edit_activities via Functional Roles
+        // (matrix scope-rows) are not blocked by REST when the
+        // `user_has_cap` bridge is dormant. Same fallback pattern as
+        // TileRegistry::userMayAccess.
+        $uid = get_current_user_id();
+        return AuthorizationService::userCanOrMatrix( $uid, 'tt_view_activities' )
+            || AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_activities' );
     }
 
     public static function can_edit(): bool {
-        return current_user_can( 'tt_edit_activities' );
+        return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' );
     }
 
     /** Whitelist of columns the `orderby` query param accepts. */
