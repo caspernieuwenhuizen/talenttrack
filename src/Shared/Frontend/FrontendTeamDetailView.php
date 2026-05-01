@@ -30,7 +30,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
 
         $team = QueryHelpers::get_team( $team_id );
         $back_url = remove_query_arg( [ 'id' ] );
-        FrontendBackButton::render( $back_url );
+        FrontendBackButton::render( $back_url, __( '← Back to teams', 'talenttrack' ) );
 
         if ( ! $team ) {
             self::renderHeader( __( 'Team not found', 'talenttrack' ) );

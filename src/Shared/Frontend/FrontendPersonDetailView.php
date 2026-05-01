@@ -27,7 +27,7 @@ final class FrontendPersonDetailView extends FrontendViewBase {
 
         $person = ( new PeopleRepository() )->find( $person_id );
         $back_url = remove_query_arg( [ 'id' ] );
-        FrontendBackButton::render( $back_url );
+        FrontendBackButton::render( $back_url, __( '← Back to people', 'talenttrack' ) );
 
         if ( ! $person ) {
             self::renderHeader( __( 'Person not found', 'talenttrack' ) );
