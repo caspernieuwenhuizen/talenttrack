@@ -726,7 +726,10 @@ final class CoreSurfaceRegistration {
             'order'        => 10,
             'label'        => __( 'My PDP', 'talenttrack' ),
             'description'  => __( 'Your personal development plan.', 'talenttrack' ),
-            'icon'         => 'pdp',
+            // v3.72.5 — was `'pdp'` but no pdp.svg exists; tile rendered
+            // without an icon. `methodology` fits the staff-development
+            // theme and is distinct from regular PDP's `goals` icon.
+            'icon'         => 'methodology',
             'color'        => '#0b3d2e',
             'cap'          => 'tt_view_staff_development',
         ]);

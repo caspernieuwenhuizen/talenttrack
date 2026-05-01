@@ -170,7 +170,21 @@ class QueryHelpers {
         $op     = $mode === \TT\Modules\DemoData\DemoMode::ON ? 'IN' : 'NOT IN';
         $alias  = preg_replace( '/[^a-zA-Z0-9_]/', '', $table_alias ) ?: 't';
         $prepared_type = $wpdb->prepare( '%s', $entity_type );
-        return " AND {$alias}.id {$op} (SELECT entity_id FROM {$tag_table} WHERE entity_type = {$prepared_type}) ";
+        $base = " AND {$alias}.id {$op} (SELECT entity_id FROM {$tag_table} WHERE entity_type = {$prepared_type}) ";
+
+        // v3.72.5 — operational integrations (currently Spond) feed
+        // real club data into `tt_activities`. In demo-ON mode that
+        // data was filtered out, so the activities list / detail
+        // showed only seeded demo rows while the team page (which
+        // bypasses this scope) still surfaced the Spond events.
+        // Coaches landing from the team page got "Activity not
+        // found" on click. Spond-sourced activities are exempt
+        // from the demo filter; they're real, operationally
+        // important, and not part of the demo dataset.
+        if ( $entity_type === 'activity' && $mode === \TT\Modules\DemoData\DemoMode::ON ) {
+            return " AND ( {$alias}.id {$op} (SELECT entity_id FROM {$tag_table} WHERE entity_type = {$prepared_type}) OR {$alias}.activity_source_key = 'spond' ) ";
+        }
+        return $base;
     }
 
     // Entity queries
