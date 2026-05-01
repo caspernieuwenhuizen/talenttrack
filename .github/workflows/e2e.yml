@@ -50,6 +50,16 @@ jobs:
       - name: Start wp-env
         run: npm run wp-env:start
 
+      - name: Activate plugin + run migrations on tests instance
+        # wp-env mounts the plugin but doesn't auto-activate it in the
+        # tests environment. Activate explicitly + flush rewrites so
+        # the routes the smoke test exercises are wired up.
+        run: |
+          npx wp-env run tests-cli wp plugin activate talenttrack
+          npx wp-env run tests-cli wp rewrite flush --hard
+          npx wp-env run tests-cli wp option update permalink_structure '/%postname%/'
+          npx wp-env run tests-cli wp rewrite flush --hard
+
       - name: Run E2E tests
         run: npm run test:e2e
         env:
