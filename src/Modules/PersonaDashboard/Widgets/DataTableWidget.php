@@ -7,17 +7,20 @@ use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\Size;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
+use TT\Modules\PersonaDashboard\Registry\TableRowSourceRegistry;
 
 /**
- * DataTableWidget — compact table with up to 5 rows + a "see all" link.
+ * DataTableWidget — compact table with up to N rows + a "see all" link.
  *
  * data_source identifies the preset:
- *   "trials_needing_decision"  — HoD: open trial cases, max 5.
+ *   "trials_needing_decision"  — HoD: open trial cases.
  *   "recent_scout_reports"     — Scout: my recent reports.
  *   "audit_log_recent"         — Admin: recent audit events.
+ *   "upcoming_activities"      — HoD: forward schedule (rows wired in #0073).
  *
- * Sprint 1 ships the table chrome + empty-state per preset; sprint 3
- * wires the live queries.
+ * #0073 introduces `TableRowSourceRegistry`. When a source is registered
+ * for the preset it provides real rows; presets without a registered
+ * source render the empty-state row chrome (back-compat).
  */
 class DataTableWidget extends AbstractWidget {
 
@@ -41,9 +44,7 @@ class DataTableWidget extends AbstractWidget {
         $see_all = $ctx->viewUrl( (string) $config['see_all_view'] );
         $head    = $this->renderHead( $config['columns'] );
 
-        $rows_html = '<tr><td colspan="' . count( $config['columns'] ) . '" class="tt-pd-table-empty">'
-            . esc_html( (string) $config['empty_message'] )
-            . '</td></tr>';
+        $rows_html = $this->rowsHtml( $preset, $ctx->user_id, $config );
 
         $inner = '<div class="tt-pd-panel-head">'
             . '<span class="tt-pd-panel-title">' . esc_html( $title ) . '</span>'
@@ -74,8 +75,44 @@ class DataTableWidget extends AbstractWidget {
                 'see_all_view'  => 'audit-log',
                 'empty_message' => __( 'No audit events recorded yet.', 'talenttrack' ),
             ],
+            'upcoming_activities' => [
+                'title'         => __( 'Upcoming activities', 'talenttrack' ),
+                'columns'       => [ __( 'Team', 'talenttrack' ), __( 'Type', 'talenttrack' ), __( 'Date & time', 'talenttrack' ), __( 'Location', 'talenttrack' ) ],
+                'see_all_view'  => 'activities',
+                'empty_message' => __( 'No upcoming activities in this window.', 'talenttrack' ),
+            ],
         ];
         return $presets[ $preset ] ?? null;
+    }
+
+    /**
+     * @param array<string,mixed> $config
+     */
+    private function rowsHtml( string $preset, int $user_id, array $config ): string {
+        $col_count = count( $config['columns'] );
+        $source    = TableRowSourceRegistry::resolve( $preset );
+        if ( $source === null ) {
+            return $this->emptyRow( $col_count, (string) $config['empty_message'] );
+        }
+        $rows = $source->rowsFor( $user_id, [ 'days' => 14, 'limit' => 15 ] );
+        if ( $rows === [] ) {
+            return $this->emptyRow( $col_count, (string) $config['empty_message'] );
+        }
+        $html = '';
+        foreach ( $rows as $row ) {
+            $cells = '';
+            foreach ( $row as $cell ) {
+                $cells .= '<td>' . $cell . '</td>';
+            }
+            $html .= '<tr>' . $cells . '</tr>';
+        }
+        return $html;
+    }
+
+    private function emptyRow( int $col_count, string $message ): string {
+        return '<tr><td colspan="' . $col_count . '" class="tt-pd-table-empty">'
+            . esc_html( $message )
+            . '</td></tr>';
     }
 
     /** @param list<string> $cols */

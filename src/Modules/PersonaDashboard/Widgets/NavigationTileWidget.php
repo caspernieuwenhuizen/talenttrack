@@ -16,6 +16,12 @@ use TT\Shared\Tiles\TileRegistry;
  * The slot's data_source is the tile's `view_slug`. This widget fishes
  * the matching tile out of TileRegistry::tilesForUserGrouped() so
  * persona-aware labels and module-disable rules continue to apply.
+ *
+ * #0074 dropped the decorative `tt-pd-tile-icon` coloured square. Tiles
+ * now lean on typographic hierarchy + a hover chevron (`tt-pd-tile-arrow`,
+ * opacity 0 by default → 0.5 on hover/focus). The tile's `color` field
+ * is preserved in the data structure for back-compat but no longer
+ * rendered.
  */
 class NavigationTileWidget extends AbstractWidget {
 
@@ -41,16 +47,12 @@ class NavigationTileWidget extends AbstractWidget {
 
         $label = $slot->persona_label !== '' ? $slot->persona_label : (string) ( $tile['label'] ?? $slug );
         $desc  = (string) ( $tile['desc'] ?? $tile['description'] ?? '' );
-        $icon  = (string) ( $tile['icon'] ?? '' );
-        $color = (string) ( $tile['color'] ?? '#5b6e75' );
         $url   = $ctx->viewUrl( $slug );
 
         $inner = '<a class="tt-pd-tile-link" href="' . esc_url( $url ) . '">'
-            . '<span class="tt-pd-tile-icon" style="background-color:' . esc_attr( $color ) . ';">'
-            . ( $icon !== '' ? wp_kses_post( $icon ) : '' )
-            . '</span>'
             . '<span class="tt-pd-tile-label">' . esc_html( $label ) . '</span>'
             . ( $desc !== '' ? '<span class="tt-pd-tile-desc">' . esc_html( $desc ) . '</span>' : '' )
+            . '<span class="tt-pd-tile-arrow" aria-hidden="true">&rarr;</span>'
             . '</a>';
         return $this->wrap( $slot, $inner );
     }

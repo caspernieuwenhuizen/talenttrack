@@ -4,13 +4,29 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.76.0
+Stable tag: 3.77.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.77.0 — HoD landing enhancements (#0073) + persona dashboard visual refresh (#0074) =
+
+Two adjacent persona-dashboard items shipped together because they touch the same module.
+
+* **NEW (#0073):** `team_overview_grid` widget — per-team summary cards on the HoD landing (avg rating + attendance over a configurable window), each expandable inline to a per-player breakdown via the new `GET /persona-dashboard/team-breakdown` endpoint. Slot config: `days=30,limit=20,sort=alphabetical|rating_desc|attendance_desc|concern_first`. Concern thresholds (default rating 6.0 / attendance 70%) settable via `tt_config` keys `team_concern_rating_threshold` / `team_concern_attendance_threshold`.
+* **NEW (#0073):** `upcoming_activities` `DataTableWidget` preset — forward-looking activity table on the HoD landing (default next 14 days; columns Team / Type / Date & time / Location).
+* **NEW (#0073):** `TableRowSourceRegistry` — pluggable row-source contract so `DataTableWidget` presets can wire real rows. Existing presets (trials needing decision, recent scout reports, audit log recent) without a registered source continue to render the empty-state row chrome.
+* **NEW (#0073):** `new_trial` action key on `ActionCardWidget` — view `trials`, cap `tt_manage_trials`. Wired into the HoD landing as a quick action in the right gutter; available in any persona's layout via the editor.
+* **CHANGED (#0073):** `CoreTemplates::headOfDevelopment()` re-laid-out — KPI strip / team overview grid + new-trial / upcoming activities / trials needing decision / navigation tiles. Per-club editor overrides preserved.
+* **NEW (#0074):** Subtle page header at the top of the persona dashboard — persona name + date + club. Hero-less personas (HoD, Academy Admin, Scout) get a time-of-day greeting prefix.
+* **CHANGED (#0074):** `NavigationTileWidget` no longer renders the coloured tile-icon square; tiles lean on typographic hierarchy + a hover chevron (`tt-pd-tile-arrow`). `ActionCardWidget` no longer renders the yellow plus-circle; the "+" lives inside the translated label string. Shipped tile-color data field preserved for back-compat.
+* **CHANGED (#0074):** `assets/css/persona-dashboard.css` rewritten with a `:root { --tt-pd-* }` token block, refreshed widget shells (14px corner radius, two-stop shadow + inset hairline, hover-lift on tiles + action links), refined typography (panel titles to 0.9375rem semibold sentence-case; KPI numerals tabular-nums + 700 weight), 1.5rem desktop band gap.
+* **TRANSLATIONS:** ~16 new NL strings (action labels with `+` prefix, page-header greetings, team-overview labels, table presets, AJAX status messages).
+
+Renumbered from a v3.76.0 candidate to v3.77.0 to escape a tight version-number race with the parallel agent's #0075 Sprint 1 PR 5 shipment which claimed v3.76.0 mid-CI.
 
 = 3.76.0 — Sprint 1 close: type scale + button + form tokens (#0075 Sprint 1 PR 5 of 5) =
 

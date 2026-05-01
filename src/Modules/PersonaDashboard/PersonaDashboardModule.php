@@ -12,6 +12,7 @@ use TT\Modules\PersonaDashboard\Defaults\CoreWidgets;
 use TT\Modules\PersonaDashboard\Defaults\CoreKpis;
 use TT\Modules\PersonaDashboard\Rest\ActivePersonaController;
 use TT\Modules\PersonaDashboard\Rest\PersonaTemplateRestController;
+use TT\Modules\PersonaDashboard\Rest\TeamBreakdownController;
 use TT\Shared\Admin\AdminMenuRegistry;
 
 /**
@@ -46,6 +47,7 @@ class PersonaDashboardModule implements ModuleInterface {
 
         PersonaTemplateRestController::init();
         ActivePersonaController::init();
+        TeamBreakdownController::init();
         AuditSubscriber::init();
 
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
