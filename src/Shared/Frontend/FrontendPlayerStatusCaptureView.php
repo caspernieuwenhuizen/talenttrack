@@ -54,13 +54,26 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
              && wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST[ self::NONCE_FIELD ] ) ), self::NONCE_ACTION ) ) {
             $kind = isset( $_POST['kind'] ) ? sanitize_key( (string) $_POST['kind'] ) : '';
             if ( $kind === 'behaviour' && current_user_can( 'tt_rate_player_behaviour' ) ) {
+                $related_activity = isset( $_POST['related_activity_id'] )
+                    ? absint( $_POST['related_activity_id'] )
+                    : 0;
                 $rating = isset( $_POST['rating'] ) ? (float) $_POST['rating'] : 0.0;
                 $notes  = isset( $_POST['notes'] )  ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '';
-                if ( $rating >= 1.0 && $rating <= 5.0 ) {
+                // v3.74.2 — gate against the configured rating scale so
+                // clubs that customise min/max/step still validate
+                // correctly (was hardcoded 1.0–5.0).
+                $rmin = (float) QueryHelpers::get_config( 'rating_min', '1' );
+                $rmax = (float) QueryHelpers::get_config( 'rating_max', '5' );
+                if ( $rating >= $rmin && $rating <= $rmax ) {
                     ( new PlayerBehaviourRatingsRepository() )->create( [
-                        'player_id' => $player_id,
-                        'rating'    => $rating,
-                        'notes'     => $notes !== '' ? $notes : null,
+                        'player_id'           => $player_id,
+                        'rating'              => $rating,
+                        'notes'               => $notes !== '' ? $notes : null,
+                        // v3.74.2 — #15: behaviour ratings can be tied
+                        // to a specific completed activity so the
+                        // history reads as "during game-X" instead of
+                        // a free-floating score.
+                        'related_activity_id' => $related_activity > 0 ? $related_activity : null,
                     ] );
                     $flash = __( 'Behaviour rating saved.', 'talenttrack' );
                 }
@@ -98,6 +111,14 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
 
         // Behaviour column
         if ( current_user_can( 'tt_rate_player_behaviour' ) ) :
+            // v3.74.2 — pull rating-scale settings + the player's recent
+            // completed activities so the form matches club config and
+            // can tie a rating to "during game X".
+            $rmin = (float) QueryHelpers::get_config( 'rating_min', '1' );
+            $rmax = (float) QueryHelpers::get_config( 'rating_max', '5' );
+            $rstep = (float) QueryHelpers::get_config( 'rating_step', '1' );
+            $rstep = $rstep > 0 ? $rstep : 1.0;
+            $recent_activities = self::loadRecentActivitiesForPlayer( $player_id, 20 );
             ?>
             <section>
                 <h3><?php esc_html_e( 'Record a behaviour rating', 'talenttrack' ); ?></h3>
@@ -105,13 +126,41 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                     <?php wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD ); ?>
                     <input type="hidden" name="kind" value="behaviour" />
                     <p>
-                        <label class="tt-field-label tt-field-required" for="tt-bh-rating"><?php esc_html_e( 'Rating (1 – 5)', 'talenttrack' ); ?></label>
+                        <label class="tt-field-label tt-field-required" for="tt-bh-rating">
+                            <?php
+                            printf(
+                                /* translators: 1: scale min, 2: scale max */
+                                esc_html__( 'Rating (%1$s – %2$s)', 'talenttrack' ),
+                                esc_html( (string) $rmin ),
+                                esc_html( (string) $rmax )
+                            );
+                            ?>
+                        </label>
                         <select id="tt-bh-rating" name="rating" required class="tt-input">
-                            <?php for ( $r = 1; $r <= 5; $r++ ) : ?>
-                                <option value="<?php echo (int) $r; ?>"><?php echo (int) $r; ?></option>
-                            <?php endfor; ?>
+                            <?php
+                            // Step through the configured rating scale.
+                            $val = $rmin;
+                            while ( $val <= $rmax + 0.0001 ) {
+                                $display = $rstep < 1 ? rtrim( rtrim( number_format( $val, 2, '.', '' ), '0' ), '.' ) : (string) (int) $val;
+                                printf( '<option value="%s">%s</option>', esc_attr( (string) $val ), esc_html( $display ) );
+                                $val += $rstep;
+                            }
+                            ?>
                         </select>
                     </p>
+                    <?php if ( ! empty( $recent_activities ) ) : ?>
+                    <p>
+                        <label class="tt-field-label" for="tt-bh-activity"><?php esc_html_e( 'Related activity (optional)', 'talenttrack' ); ?></label>
+                        <select id="tt-bh-activity" name="related_activity_id" class="tt-input">
+                            <option value="0"><?php esc_html_e( '— None —', 'talenttrack' ); ?></option>
+                            <?php foreach ( $recent_activities as $act ) : ?>
+                                <option value="<?php echo (int) $act->id; ?>">
+                                    <?php echo esc_html( sprintf( '%s · %s', (string) $act->session_date, (string) $act->title ) ); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </p>
+                    <?php endif; ?>
                     <p>
                         <label class="tt-field-label" for="tt-bh-notes"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label>
                         <textarea id="tt-bh-notes" class="tt-input" name="notes" rows="3" placeholder="<?php esc_attr_e( 'Optional context — e.g. "responded well to substitution", "leadership in warm-up".', 'talenttrack' ); ?>"></textarea>
@@ -122,10 +171,29 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                 <?php if ( ! empty( $recent_behaviour ) ) : ?>
                     <h4 style="margin-top:18px;"><?php esc_html_e( 'Recent ratings', 'talenttrack' ); ?></h4>
                     <ul class="tt-stack">
-                        <?php foreach ( $recent_behaviour as $b ) : ?>
+                        <?php foreach ( $recent_behaviour as $b ) :
+                            // v3.74.2 — show rated_at (the meaningful "this
+                            // happened on" date) instead of created_at;
+                            // for legacy rows where rated_at is null,
+                            // fall back. Also surface the related
+                            // activity link.
+                            $when = (string) ( $b->rated_at ?? $b->created_at ?? '' );
+                            $related_activity_id = (int) ( $b->related_activity_id ?? 0 );
+                            ?>
                             <li>
                                 <strong><?php echo esc_html( number_format_i18n( (float) $b->rating, 1 ) ); ?></strong>
-                                <span class="tt-muted"> &middot; <?php echo esc_html( (string) ( $b->created_at ?? '' ) ); ?></span>
+                                <span class="tt-muted"> &middot; <?php echo esc_html( $when ); ?></span>
+                                <?php if ( $related_activity_id > 0 ) : ?>
+                                    <span class="tt-muted"> &middot;
+                                        <?php
+                                        $act_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', $related_activity_id );
+                                        echo \TT\Shared\Frontend\Components\RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                            __( 'View activity', 'talenttrack' ),
+                                            $act_url
+                                        );
+                                        ?>
+                                    </span>
+                                <?php endif; ?>
                                 <?php if ( ! empty( $b->notes ) ) : ?>
                                     <div class="tt-muted" style="font-size:12px;"><?php echo esc_html( (string) $b->notes ); ?></div>
                                 <?php endif; ?>
@@ -173,11 +241,14 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                 <?php if ( $latest_potential ) : ?>
                     <p class="tt-muted" style="margin-top:12px;">
                         <?php
+                        // v3.74.2 — show set_at (the meaningful "this is
+                        // when we judged it" date) instead of created_at.
+                        $when_set = (string) ( $latest_potential->set_at ?? $latest_potential->created_at ?? '' );
                         printf(
                             /* translators: 1: band 2: timestamp */
-                            esc_html__( 'Current: %1$s (recorded %2$s).', 'talenttrack' ),
+                            esc_html__( 'Current: %1$s (recorded on %2$s).', 'talenttrack' ),
                             esc_html( $bands[ (string) $latest_potential->potential_band ] ?? (string) $latest_potential->potential_band ),
-                            esc_html( (string) ( $latest_potential->created_at ?? '' ) )
+                            esc_html( $when_set )
                         );
                         ?>
                     </p>
@@ -187,5 +258,30 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         endif;
 
         echo '</div>';
+    }
+
+    /**
+     * v3.74.2 — short list of completed activities the player attended,
+     * used as the "Related activity" dropdown on the behaviour-rating
+     * form (#15). Filters to status='completed' so coaches don't tie a
+     * rating to an activity that hasn't happened yet.
+     *
+     * @return list<object>
+     */
+    private static function loadRecentActivitiesForPlayer( int $player_id, int $limit = 20 ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT DISTINCT a.id, a.session_date, a.title
+               FROM {$p}tt_activities a
+               JOIN {$p}tt_attendance att ON att.activity_id = a.id
+              WHERE att.player_id = %d
+                AND a.activity_status_key = %s
+                AND a.archived_at IS NULL
+              ORDER BY a.session_date DESC
+              LIMIT %d",
+            $player_id, 'completed', $limit
+        ) );
+        return is_array( $rows ) ? $rows : [];
     }
 }
