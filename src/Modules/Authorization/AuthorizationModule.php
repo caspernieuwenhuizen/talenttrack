@@ -38,6 +38,8 @@ class AuthorizationModule implements ModuleInterface {
         Admin\MatrixPage::init();
         Admin\ModulesPage::init();
         Admin\PreviewPage::init();
+        // #0071 child 5 — impersonation start/end admin-post handlers.
+        Impersonation\ImpersonationAdminPost::init();
     }
 
     public function boot( Container $container ): void {
@@ -46,6 +48,10 @@ class AuthorizationModule implements ModuleInterface {
         // group with other grouped submenus. The admin_post handlers
         // registered in register() continue to work.
         FunctionalRolesRestController::init();
+
+        // #0071 child 5 — impersonation banner + daily orphan cleanup cron.
+        Impersonation\ImpersonationBanner::init();
+        Impersonation\ImpersonationCron::init();
 
         // #0033 Sprint 2 — wire the user_has_cap bridge from legacy
         // `tt_*` capability checks into MatrixGate. Dormant by default

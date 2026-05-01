@@ -11079,3 +11079,44 @@ msgstr "Activiteitsbronnen"
 
 msgid "Add as new staff goal step"
 msgstr "Toevoegen als nieuwe stafdoelstap"
+
+# v3.72.0 — Authorization matrix completeness (#0071)
+
+msgid "Show player status to players and parents"
+msgstr "Toon spelerstatus aan spelers en ouders"
+
+msgid "When enabled, players see their own status colour and parents see their child's. When disabled, the status dot is staff-only (coaches, scouts, Head of Development, Academy Admin). The detailed breakdown remains staff-only regardless. Note: a status change can still be inferred indirectly if other surfaces (e.g. evaluations) reveal it; this toggle hides the explicit dot, not the underlying judgement."
+msgstr "Wanneer ingeschakeld zien spelers hun eigen status-kleur en zien ouders die van hun kind. Wanneer uitgeschakeld is het status-bolletje alleen voor staff (coaches, scouts, Head of Development, Academy Admin). De gedetailleerde uitsplitsing blijft hoe dan ook alleen voor staff. Let op: een status-wijziging kan nog steeds indirect af te leiden zijn als andere oppervlakken (bv. evaluaties) het tonen; deze toggle verbergt het expliciete bolletje, niet het onderliggende oordeel."
+
+msgid "Impersonating %s. Every action is logged."
+msgstr "Impersoneert %s. Elke actie wordt gelogd."
+
+msgid "Switch back"
+msgstr "Terugschakelen"
+
+msgid "Cannot impersonate yourself."
+msgstr "Je kunt jezelf niet impersoneren."
+
+msgid "Actor user not found."
+msgstr "Actor-gebruiker niet gevonden."
+
+msgid "Target user not found."
+msgstr "Doelgebruiker niet gevonden."
+
+msgid "You do not have permission to impersonate users."
+msgstr "Je hebt geen toestemming om gebruikers te impersoneren."
+
+msgid "Cannot impersonate another administrator."
+msgstr "Je kunt geen andere administrator impersoneren."
+
+msgid "Already impersonating — switch back first."
+msgstr "Je bent al aan het impersoneren — schakel eerst terug."
+
+msgid "Action %s is disabled while impersonating. Switch back to perform this operation."
+msgstr "Actie %s is uitgeschakeld tijdens impersonatie. Schakel terug om deze operatie uit te voeren."
+
+msgid "this"
+msgstr "deze"
+
+msgid "Actor and target user ids are required."
+msgstr "Actor- en doelgebruiker-ID's zijn verplicht."

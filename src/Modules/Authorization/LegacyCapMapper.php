@@ -83,8 +83,78 @@ final class LegacyCapMapper {
         // Invitations (#0032)
         'tt_send_invitation'             => [ 'invitations',    'create_delete' ],
         'tt_revoke_invitation'           => [ 'invitations',    'create_delete' ],
-        'tt_manage_invite_messages'      => [ 'invitations',    'change' ],
+        'tt_manage_invite_messages'      => [ 'invitations_config', 'change' ],
         'tt_view_parent_dashboard'       => [ 'my_card',        'read' ],
+
+        // #0071 — Settings sub-cap split. Twelve cap pairs replacing
+        // the over-coarse `tt_*_settings` umbrella. The umbrella caps
+        // remain in the mapper above as a fall-back; new code should
+        // use the specific sub-cap.
+        'tt_view_lookups'                => [ 'lookups',                'read' ],
+        'tt_edit_lookups'                => [ 'lookups',                'change' ],
+        'tt_view_branding'               => [ 'branding',               'read' ],
+        'tt_edit_branding'               => [ 'branding',               'change' ],
+        'tt_view_feature_toggles'        => [ 'feature_toggles',        'read' ],
+        'tt_edit_feature_toggles'        => [ 'feature_toggles',        'change' ],
+        'tt_view_audit_log'              => [ 'audit_log',              'read' ],
+        'tt_view_translations'           => [ 'translations_config',    'read' ],
+        'tt_edit_translations'           => [ 'translations_config',    'change' ],
+        'tt_view_custom_fields'          => [ 'custom_field_definitions','read' ],
+        'tt_edit_custom_fields'          => [ 'custom_field_definitions','change' ],
+        'tt_view_evaluation_categories'  => [ 'evaluation_categories',  'read' ],
+        'tt_edit_evaluation_categories'  => [ 'evaluation_categories',  'change' ],
+        'tt_view_category_weights'       => [ 'category_weights',       'read' ],
+        'tt_edit_category_weights'       => [ 'category_weights',       'change' ],
+        'tt_view_rating_scale'           => [ 'rating_scale',           'read' ],
+        'tt_edit_rating_scale'           => [ 'rating_scale',           'change' ],
+        'tt_view_migrations'             => [ 'migrations',             'read' ],
+        'tt_edit_migrations'             => [ 'migrations',             'change' ],
+        'tt_view_seasons'                => [ 'seasons',                'read' ],
+        'tt_edit_seasons'                => [ 'seasons',                'change' ],
+        'tt_view_setup_wizard'           => [ 'setup_wizard',           'read' ],
+        'tt_edit_setup_wizard'           => [ 'setup_wizard',           'change' ],
+        'tt_manage_authorization'        => [ 'authorization_matrix',   'create_delete' ],
+
+        // #0071 — Round-2 coverage caps. Bridges threads / spond /
+        // journey / player-status / pdp-evidence to dedicated entities.
+        'tt_view_thread'                       => [ 'thread_messages',         'read' ],
+        'tt_post_thread'                       => [ 'thread_messages',         'change' ],
+        'tt_view_spond'                        => [ 'spond_integration',       'read' ],
+        'tt_edit_spond_credentials'            => [ 'spond_integration',       'change' ],
+        'tt_view_player_timeline'              => [ 'player_timeline',         'read' ],
+        'tt_view_authorization_changelog'      => [ 'authorization_changelog', 'read' ],
+        'tt_view_player_potential'             => [ 'player_potential',        'read' ],
+        'tt_edit_player_potential'             => [ 'player_potential',        'change' ],
+        'tt_view_player_behaviour_ratings'     => [ 'player_behaviour_ratings','read' ],
+        'tt_edit_player_behaviour_ratings'     => [ 'player_behaviour_ratings','change' ],
+        'tt_view_player_status'                => [ 'player_status',           'read' ],
+        'tt_view_player_status_breakdown'      => [ 'player_status_breakdown', 'read' ],
+        'tt_view_pdp_evidence_packet'          => [ 'pdp_evidence_packet',     'read' ],
+        'tt_view_pdp_planning'                 => [ 'pdp_planning',            'read' ],
+        'tt_view_player_status_methodology'    => [ 'player_status_methodology','read' ],
+        'tt_edit_player_status_methodology'    => [ 'player_status_methodology','change' ],
+        'tt_view_functional_roles'             => [ 'functional_role_definitions','read' ],
+        'tt_manage_functional_roles_admin'     => [ 'functional_role_definitions','create_delete' ],
+
+        // #0071 — Already-declared module caps that finally have a
+        // matrix entity to bridge to.
+        'tt_view_player_medical'         => [ 'player_injuries',       'read' ],
+        'tt_view_player_safeguarding'    => [ 'safeguarding_notes',    'read' ],
+        'tt_manage_trials'               => [ 'trial_cases',           'create_delete' ],
+        'tt_submit_trial_input'          => [ 'trial_inputs',          'change' ],
+        'tt_view_trial_synthesis'        => [ 'trial_synthesis',       'read' ],
+        'tt_view_staff_development'      => [ 'staff_development',     'read' ],
+        'tt_view_staff_certifications_expiry' => [ 'staff_overview',   'read' ],
+        'tt_admin_styling'               => [ 'custom_css',            'create_delete' ],
+        'tt_edit_persona_templates'      => [ 'persona_templates',     'change' ],
+        'tt_generate_scout_report'       => [ 'scout_access',          'create_delete' ],
+        'tt_view_pdp'                    => [ 'pdp_file',              'read' ],
+        'tt_edit_pdp'                    => [ 'pdp_file',              'change' ],
+        'tt_edit_pdp_verdict'            => [ 'pdp_verdict',           'change' ],
+
+        // #0071 — Impersonation. The act-cap. Cross-club guard +
+        // admin-on-admin block enforced in ImpersonationService.
+        'tt_impersonate_users'           => [ 'impersonation_action',  'create_delete' ],
     ];
 
     public static function isKnown( string $cap ): bool {

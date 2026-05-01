@@ -115,24 +115,93 @@ class RolesService {
         'tt_send_email',
     ];
 
+    /**
+     * #0071 — Settings sub-cap split. Twelve cap pairs that replace the
+     * over-coarse `tt_*_settings` family. The umbrella caps stay
+     * registered as roll-ups (a user "has" tt_edit_settings iff they
+     * hold all twelve `tt_edit_*` sub-caps; see CapabilityAliases).
+     */
+    public const SETTINGS_SUBCAPS = [
+        'tt_view_lookups', 'tt_edit_lookups',
+        'tt_view_branding', 'tt_edit_branding',
+        'tt_view_feature_toggles', 'tt_edit_feature_toggles',
+        'tt_view_audit_log', // no edit — audit is read-only
+        'tt_view_translations', 'tt_edit_translations',
+        'tt_view_custom_fields', 'tt_edit_custom_fields',
+        'tt_view_evaluation_categories', 'tt_edit_evaluation_categories',
+        'tt_view_category_weights', 'tt_edit_category_weights',
+        'tt_view_rating_scale', 'tt_edit_rating_scale',
+        'tt_view_migrations', 'tt_edit_migrations',
+        'tt_view_seasons', 'tt_edit_seasons',
+        'tt_view_setup_wizard', 'tt_edit_setup_wizard',
+        // Authorization-management write cap, replacing the security
+        // smell where RolesPage::handleGrant gated on `tt_view_settings`.
+        'tt_manage_authorization',
+    ];
+
+    /**
+     * #0071 — additional caps surfaced by the round-2 audit. Bridges
+     * threads / spond / journey / player-status to dedicated caps so
+     * they no longer piggy-back on `tt_edit_evaluations` / `tt_view_settings` /
+     * `tt_edit_teams`.
+     */
+    public const COVERAGE_CAPS = [
+        'tt_view_thread', 'tt_post_thread',
+        'tt_view_spond', 'tt_edit_spond_credentials',
+        'tt_view_player_timeline',
+        'tt_view_authorization_changelog',
+        'tt_view_player_potential', 'tt_edit_player_potential',
+        'tt_view_player_behaviour_ratings', 'tt_edit_player_behaviour_ratings',
+        'tt_view_player_status', 'tt_view_player_status_breakdown',
+        'tt_view_pdp_evidence_packet',
+        'tt_view_pdp_planning',
+        'tt_view_player_status_methodology', 'tt_edit_player_status_methodology',
+        'tt_view_functional_roles', 'tt_manage_functional_roles_admin',
+    ];
+
+    /**
+     * #0071 — Impersonation. The act-cap. Granted to administrator and
+     * tt_club_admin only by default; never to HoD or any other persona.
+     * Cross-club is guarded separately in ImpersonationService.
+     */
+    public const IMPERSONATION_CAPS = [
+        'tt_impersonate_users',
+    ];
+
     /** @return array<string, array<string, string|array<string,bool>>> */
     public function roleDefinitions(): array {
         return [
             'tt_head_dev' => [
                 'label' => __( 'Head of Development', 'talenttrack' ),
+                // #0071 — narrowed to development-focused, read-mostly outside
+                // player-development surfaces. Drops `tt_edit_settings` and
+                // the new `tt_edit_*` sub-caps; keeps the view counterparts
+                // so HoD can still inspect Configuration. Migration 0051
+                // handles existing installs (with TT_HOD_KEEP_LEGACY_CAPS
+                // opt-out).
                 'caps'  => array_merge(
                     [ 'read' => true ],
-                    self::allCapsTrue(),  // everything: view + edit everywhere
-                    self::legacyCapsTrue(),
-                    // #0019 Sprint 5 — frontend admin tier access. Granted
-                    // by default to head-dev + administrator. Other roles
-                    // never get this cap unless explicitly assigned.
-                    [ 'tt_access_frontend_admin' => true ],
-                    // #0014 Sprint 4+5 — report generation + scout flow.
+                    self::allViewCapsTrue(),                        // view everything
+                    array_fill_keys( self::SETTINGS_SUBCAPS, true ),// view all settings sub-areas
+                    array_fill_keys( self::COVERAGE_CAPS, true ),   // new round-2 caps (mostly views)
                     [
+                        // Player-development write caps HoD keeps:
+                        'tt_edit_teams'         => true,
+                        'tt_edit_players'       => true,
+                        'tt_edit_people'        => true,
+                        'tt_edit_evaluations'   => true,
+                        'tt_edit_activities'    => true,
+                        'tt_edit_goals'         => true,
+                        'tt_evaluate_players'   => true,
+                        'tt_manage_players'     => true,
+                        // NOT tt_edit_settings — HoD is read-only on config now.
+                        'tt_access_frontend_admin' => true,
                         'tt_generate_report'       => true,
                         'tt_generate_scout_report' => true,
-                    ]
+                        'tt_send_email'            => true,
+                    ],
+                    array_fill_keys( self::TRIAL_CAPS,    true ),  // full trials
+                    array_fill_keys( self::JOURNEY_CAPS,  true )   // medical + safeguarding (sensitive)
                 ),
             ],
             'tt_club_admin' => [
@@ -140,11 +209,14 @@ class RolesService {
                 'caps'  => array_merge(
                     [ 'read' => true ],
                     self::allViewCapsTrue(),
+                    array_fill_keys( self::SETTINGS_SUBCAPS, true ),  // #0071: full per-area control
+                    array_fill_keys( self::COVERAGE_CAPS,    true ),
+                    array_fill_keys( self::IMPERSONATION_CAPS, true ),// #0071: only admin + club_admin
                     [
                         'tt_edit_teams'      => true,
                         'tt_edit_players'    => true,
                         'tt_edit_people'     => true,
-                        'tt_edit_activities'   => true,
+                        'tt_edit_activities' => true,
                         'tt_edit_goals'      => true,
                         'tt_edit_settings'   => true,
                         // NOT tt_edit_evaluations — Club Admin doesn't evaluate
@@ -152,8 +224,6 @@ class RolesService {
                     [
                         'tt_manage_players'  => true,
                         'tt_manage_settings' => true,
-                        // Frontend-admin surfaces: Configuration, Migrations,
-                        // Audit log, Wizards admin. Club admin owns these.
                         'tt_access_frontend_admin' => true,
                     ]
                 ),
@@ -281,6 +351,9 @@ class RolesService {
             self::TRIAL_CAPS,
             self::JOURNEY_CAPS,
             self::COMMS_CAPS,
+            self::SETTINGS_SUBCAPS,
+            self::COVERAGE_CAPS,
+            self::IMPERSONATION_CAPS,
             [ 'tt_view_reports', 'tt_access_frontend_admin' ]
         );
 

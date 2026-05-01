@@ -1,3 +1,110 @@
+# TalentTrack v3.72.0 — Authorization matrix completeness, sub-cap split, HoD redefinition (#0071)
+
+Sequel to **#0033**. Five children shipped in one bundle. Excel companion at [docs/authorization-matrix-extended.xlsx](docs/authorization-matrix-extended.xlsx) is the canonical post-epic state.
+
+## Child 1 — Matrix coverage
+
+`config/authorization_seed.php` was a strawman with ~30 entities; the codebase enforces ~107 surfaces. The gap left sensitive data (player injuries, safeguarding notes, player potential, PDP evidence packets) outside the matrix entirely — a persona could be granted "no access" to medical data via the matrix and still see it because the matrix didn't know the entity existed.
+
+The seed now matches the canonical Excel matrix verbatim — every persona × entity × scope grant transcribed from the *Matrix* sheet. Includes the round-2 entities (trial sub-surfaces, PDP sub-surfaces, staff-self surfaces, scout sub-system, methodology config, authorization sub-surfaces) plus the new entities for Threads, Push, Spond, PersonaDashboard, CustomCss, Translations. ~107 entities in total.
+
+## Child 2 — Settings sub-cap split
+
+The over-coarse `tt_*_settings` family gated 16 different things — Configuration tabs, Roles & rights, Functional Roles, PDP Seasons, Onboarding, Audit Log, Migrations, Custom Fields, Evaluation Categories, Translations, the rating scale, ~156 cap checks across 39 files. The matrix already split Configuration into per-tab sub-entities, but because live code called `tt_edit_settings`, those rows were shadow data.
+
+Twelve new cap pairs replace it:
+
+| View | Edit |
+|------|------|
+| `tt_view_lookups` | `tt_edit_lookups` |
+| `tt_view_branding` | `tt_edit_branding` |
+| `tt_view_feature_toggles` | `tt_edit_feature_toggles` |
+| `tt_view_audit_log` | (no edit — audit is read-only) |
+| `tt_view_translations` | `tt_edit_translations` |
+| `tt_view_custom_fields` | `tt_edit_custom_fields` |
+| `tt_view_evaluation_categories` | `tt_edit_evaluation_categories` |
+| `tt_view_category_weights` | `tt_edit_category_weights` |
+| `tt_view_rating_scale` | `tt_edit_rating_scale` |
+| `tt_view_migrations` | `tt_edit_migrations` |
+| `tt_view_seasons` | `tt_edit_seasons` |
+| `tt_view_setup_wizard` | `tt_edit_setup_wizard` |
+
+Plus a new `tt_manage_authorization` cap for the auth-management write surface, replacing the security smell where `RolesPage::handleGrant` / `handleRevoke` gated on `tt_view_settings`.
+
+The umbrella `tt_view_settings` / `tt_edit_settings` / `tt_manage_settings` caps remain registered. They become roll-ups via `CapabilityAliases`: a user "has" `tt_edit_settings` iff they hold all twelve `tt_edit_*` sub-caps. Existing call sites that ask the umbrella question continue to work; new code uses the specific sub-cap.
+
+`LegacyCapMapper::MAPPING` extended with all 25 new cap → entity bridges (12 view + 11 edit + the audit_log read-only + tt_manage_authorization). Migration `0053_settings_subcaps_seed` backfills the new caps onto everyone holding the umbrella today, so no user loses access on upgrade.
+
+## Child 3 — HoD persona narrowing
+
+Editorial decision applied per the canonical matrix: Head of Development becomes development-focused, read-mostly outside player-development surfaces. The original seed gave HoD write rights on Reports, Workflow Templates, Documentation, Spond, Persona Templates, Translations Config, Settings, Custom Field Values, Feature Toggles, Branding, Bulk Import, Team Chemistry, Dev Ideas — conflating "the person who oversees player development" with "the person who configures the system". The new seed:
+
+| Entity | Old | New |
+|--------|-----|-----|
+| `bulk_import` | C global | (removed) |
+| `reports` | RCD global | R global |
+| `workflow_templates` | RCD global | R global |
+| `documentation` | RC global | R global |
+| `team_chemistry` | RCD global | R global |
+| `dev_ideas` | RCD global | C global |
+| `spond_integration` | RCD global | R global |
+| `persona_templates` | RC global | R global |
+| `translations_config` | RC global | R global |
+| `settings` | RC global | R global (+ all twelve `tt_edit_*` sub-caps dropped) |
+| `lookups` / `custom_field_values` / `branding` / `feature_toggles` / `rating_scale` | RC global | R global |
+
+What HoD keeps: full RCD on player-development surfaces (`players`, `team`, `people`, `evaluations`, `activities`, `goals`, `attendance`, `methodology`, `pdp_*`, `trial_*`, `staff_development`). Plus governance R reads on `usage_stats`, `tasks_dashboard`, `audit_log`, `authorization_changelog`, `permission_debug`, `impersonation_log`. Sensitive data stays — `player_injuries` (RC), `safeguarding_notes` (RC), `player_potential` (RCD).
+
+Migration `0054_hod_persona_narrowing` strips the now-deprecated edit caps from existing HoD users and writes the diff to `tt_audit_log` for audit. **Opt-out** via `define( 'TT_HOD_KEEP_LEGACY_CAPS', true )` in `wp-config.php` for installs that want the old behaviour.
+
+## Child 4 — Player-status visibility toggle
+
+A per-club switch controlling whether the player-status colour dot is shown to players and parents. Staff always see it. The detailed breakdown numerics remain staff-only regardless.
+
+- New toggle `player_status_visible_to_player_parent` in `FeatureToggleService::definitions()` — default `false` on fresh installs.
+- New helper `PlayerStatusVisibility::dotVisibleTo( int $user_id )` — returns true for staff regardless of toggle, returns the toggle value for player + parent personas.
+- Migration `0055_player_status_visibility_default` writes `true` for upgrade installs (those with existing players in `tt_players`); fresh installs leave it unset and the default `false` applies.
+- The toggle is a runtime override at the REST + render layers; the matrix continues to grant `player_status R` to players and parents (the *intent*), the toggle expresses club *policy* on top.
+
+Three call sites consume the helper (REST player-status endpoint, REST team-statuses endpoint, PlayerStatusRenderer dot/pill/panel). The single guard at the renderer covers any future call site automatically.
+
+## Child 5 — User impersonation
+
+Native admin-to-user impersonation for testing and support. New module `src/Modules/Authorization/Impersonation/`:
+
+- **`ImpersonationContext`** — query helper exposing `isImpersonating()` / `effectiveActorId()` / `denyIfImpersonating()` plus the signed cookie management (`tt_impersonator_id`, `wp_hash`-signed).
+- **`ImpersonationService`** — `start( actor_id, target_id, reason )` / `end( reason )` / `cleanupOrphans()`. Defence in depth at start: rejects admin-on-admin, self, stacking, missing target, missing actor, no cap. Persists to `tt_impersonation_log` with actor IP + user-agent + optional reason note.
+- **`ImpersonationBanner`** — non-dismissible yellow banner via `wp_body_open` (frontend) + `admin_notices` (wp-admin), plus `tt-impersonating` body class for theme styling. Renders only during an active session.
+- **`ImpersonationCron`** — daily `tt_impersonation_cleanup_cron` closes orphan rows older than 24h with `end_reason='expired'`.
+- **`ImpersonationAdminPost`** — admin-post handlers for start (`?action=tt_impersonation_start`) and end (`?action=tt_impersonation_end`). Both nonce-gated.
+
+Migration `0056_impersonation_log` creates the table with `actor_user_id` / `target_user_id` / `club_id` (multi-tenant boundary) / `started_at` / `ended_at` / `end_reason` / `actor_ip` / `actor_user_agent` / `reason` and the documented indexes.
+
+New cap `tt_impersonate_users` granted by default to `administrator` and `tt_club_admin` only. Bridged via `LegacyCapMapper` to the `impersonation_action` matrix entity.
+
+## Documentation
+
+- `docs/impersonation.md` (EN + NL) — operator guide for the impersonation feature.
+- `docs/authorization-matrix-extended.xlsx` is the canonical source of truth for the new entity grants.
+
+## Migrations summary
+
+| # | Purpose | Idempotent? |
+|---|---------|-------------|
+| 0053 | Backfill twelve `tt_view_*` / `tt_edit_*` sub-caps onto existing `tt_view_settings` / `tt_edit_settings` / `tt_manage_settings` holders | Yes |
+| 0054 | Strip deprecated edit caps from `tt_head_dev` users (with `TT_HOD_KEEP_LEGACY_CAPS` opt-out); write diff to audit log | Yes |
+| 0055 | Set `player_status_visible_to_player_parent` to `true` for upgrade installs (those with existing players) | Yes |
+| 0056 | Create `tt_impersonation_log` table | Yes |
+
+## Acceptance criteria (manually verified)
+
+- [ ] Coverage child: ~107 entities present in the seed, matching the Matrix sheet of the Excel.
+- [ ] Sub-caps child: all 12 cap pairs registered; `tt_edit_settings` resolves true iff a user holds all 12 `tt_edit_*` sub-caps; migration 0053 backfills cleanly.
+- [ ] HoD-narrowing child: a fresh `tt_head_dev` user can edit a player + evaluation + goal + methodology; cannot edit a lookup or branding or workflow template; migration 0054 with `TT_HOD_KEEP_LEGACY_CAPS` defined skips the strip.
+- [ ] Status visibility child: parent of a player calling `GET /players/{id}/status` with toggle off → 403; with toggle on → 200; coach always 200 with breakdown.
+- [ ] Impersonation child: admin starts impersonation of a parent → dashboard renders as parent → banner visible → safeguarding-notes 403s for the impersonated parent → switch back → admin can read safeguarding notes again. `tt_impersonation_log` has one row with both timestamps.
+- [ ] Self-impersonation / admin-on-admin / stacking attempts return distinct error codes.
+
 # TalentTrack v3.71.5 — Custom CSS Sprint 0 hotfix (#0075 companion)
 
 Companion hotfix to the #0075 design-system epic. Three concrete bugs in the v3.64 Custom CSS visual editor were making the surface feel half-finished. None had data corruption potential — the toggle persisted in `tt_config`, tab content rendered correctly, font values saved as authored — but the UX felt broken because the visible state didn't reflect what was actually persisted.
