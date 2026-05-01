@@ -8,6 +8,7 @@ use TT\Modules\CustomCss\Repositories\CustomCssRepository;
 use TT\Modules\CustomCss\Sanitizer\CssSanitizer;
 use TT\Modules\CustomCss\Templates\StarterTemplates;
 use TT\Modules\CustomCss\VisualEditor;
+use TT\Shared\Frontend\BrandFonts;
 use TT\Shared\Frontend\FrontendBackButton;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -38,6 +39,45 @@ use TT\Shared\Frontend\FrontendViewBase;
  */
 class FrontendCustomCssView extends FrontendViewBase {
 
+    private const TRANSIENT_PREFIX = 'tt_css_msg_';
+
+    /**
+     * Register hooks. Called once from CustomCssModule::boot.
+     *
+     * The POST handler runs on `template_redirect` so it fires before
+     * `wp_head` — without this, the same response would still inject
+     * the pre-toggle inline `<style>` even though the DB has been
+     * updated. PRG (POST → redirect → GET) guarantees the redirected
+     * GET sees the fresh state.
+     */
+    public static function register(): void {
+        add_action( 'template_redirect', [ self::class, 'maybeHandlePost' ], 5 );
+    }
+
+    public static function maybeHandlePost(): void {
+        if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) return;
+        if ( empty( $_POST['tt_css_action'] ) ) return;
+        $tt_view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
+        if ( $tt_view !== 'custom-css' ) return;
+        if ( ! current_user_can( 'tt_admin_styling' ) ) return;
+
+        $surface = isset( $_GET['surface'] ) ? CustomCssRepository::sanitizeSurface( (string) $_GET['surface'] ) : CustomCssRepository::SURFACE_FRONTEND;
+        $messages = self::handlePost( $surface );
+
+        $stash_key = self::TRANSIENT_PREFIX . get_current_user_id();
+        if ( $messages['success'] !== '' || ! empty( $messages['errors'] ) ) {
+            set_transient( $stash_key, $messages, 60 );
+        }
+
+        // Strip POST-only markers; preserve tt_view/surface/tab so the
+        // redirected GET lands on the same tab the user was editing.
+        $request_uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) $_SERVER['REQUEST_URI'] : '';
+        $redirect = remove_query_arg( [ '_wp_http_referer', '_wpnonce' ], $request_uri );
+        $redirect = add_query_arg( [ 'tt_msg' => $messages['success'] !== '' ? 'ok' : 'err' ], $redirect );
+        wp_safe_redirect( $redirect );
+        exit;
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_admin_styling' ) ) {
             FrontendBackButton::render();
@@ -53,7 +93,7 @@ class FrontendCustomCssView extends FrontendViewBase {
 
         $surface = isset( $_GET['surface'] ) ? CustomCssRepository::sanitizeSurface( (string) $_GET['surface'] ) : CustomCssRepository::SURFACE_FRONTEND;
         $tab     = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : 'visual';
-        $messages = self::handlePost( $surface );
+        $messages = self::readStashedMessages();
 
         $repo = new CustomCssRepository();
         $live = $repo->getLive( $surface );
@@ -87,11 +127,27 @@ class FrontendCustomCssView extends FrontendViewBase {
     /* ===== POST handling ===== */
 
     /**
+     * Read + clear messages stashed by `maybeHandlePost` before the
+     * redirect. Returns an empty pair when there's nothing to surface.
+     *
+     * @return array{success:string, errors:string[]}
+     */
+    private static function readStashedMessages(): array {
+        $key = self::TRANSIENT_PREFIX . get_current_user_id();
+        $stash = get_transient( $key );
+        if ( ! is_array( $stash ) ) return [ 'success' => '', 'errors' => [] ];
+        delete_transient( $key );
+        return [
+            'success' => isset( $stash['success'] ) ? (string) $stash['success'] : '',
+            'errors'  => isset( $stash['errors'] ) && is_array( $stash['errors'] ) ? array_values( array_map( 'strval', $stash['errors'] ) ) : [],
+        ];
+    }
+
+    /**
      * @return array{success:string, errors:string[]}
      */
     private static function handlePost( string $surface ): array {
         $out = [ 'success' => '', 'errors' => [] ];
-        if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) return $out;
         $action = isset( $_POST['tt_css_action'] ) ? sanitize_key( (string) $_POST['tt_css_action'] ) : '';
         if ( $action === '' ) return $out;
         if ( ! isset( $_POST['tt_css_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_css_nonce'] ) ), 'tt_custom_css_save' ) ) {
@@ -264,9 +320,9 @@ class FrontendCustomCssView extends FrontendViewBase {
         $front_url = esc_url( add_query_arg( [ 'surface' => CustomCssRepository::SURFACE_FRONTEND ], $base ) );
         $admin_url = esc_url( add_query_arg( [ 'surface' => CustomCssRepository::SURFACE_ADMIN ], $base ) );
         echo '<nav class="tt-tabbar" role="tablist" aria-label="' . esc_attr__( 'Surface', 'talenttrack' ) . '" style="margin-bottom:14px;">';
-        echo '<a class="tt-tab' . ( $surface === CustomCssRepository::SURFACE_FRONTEND ? ' tt-tab-current' : '' ) . '" href="' . $front_url . '">'
+        echo '<a class="tt-tab' . ( $surface === CustomCssRepository::SURFACE_FRONTEND ? ' tt-tab-active' : '' ) . '" href="' . $front_url . '">'
             . esc_html__( 'Frontend dashboard', 'talenttrack' ) . '</a>';
-        echo '<a class="tt-tab' . ( $surface === CustomCssRepository::SURFACE_ADMIN ? ' tt-tab-current' : '' ) . '" href="' . $admin_url . '">'
+        echo '<a class="tt-tab' . ( $surface === CustomCssRepository::SURFACE_ADMIN ? ' tt-tab-active' : '' ) . '" href="' . $admin_url . '">'
             . esc_html__( 'wp-admin pages', 'talenttrack' ) . '</a>';
         echo '</nav>';
     }
@@ -297,7 +353,7 @@ class FrontendCustomCssView extends FrontendViewBase {
         echo '<nav class="tt-tabbar" role="tablist" aria-label="' . esc_attr__( 'Authoring path', 'talenttrack' ) . '">';
         foreach ( $tabs as $slug => $label ) {
             $url = esc_url( add_query_arg( [ 'tab' => $slug ], $base ) );
-            $cls = $slug === $current ? 'tt-tab tt-tab-current' : 'tt-tab';
+            $cls = $slug === $current ? 'tt-tab tt-tab-active' : 'tt-tab';
             echo '<a class="' . esc_attr( $cls ) . '" href="' . $url . '">' . esc_html( $label ) . '</a>';
         }
         echo '</nav>';
@@ -345,11 +401,21 @@ class FrontendCustomCssView extends FrontendViewBase {
 
         echo '<h3 style="margin:18px 0 12px;">' . esc_html__( 'Typography', 'talenttrack' ) . '</h3>';
         echo '<div class="tt-grid tt-grid-2">';
+        $font_display_current = (string) ( $settings['font_display'] ?? '' );
+        $font_body_current    = (string) ( $settings['font_body'] ?? '' );
         echo '<div class="tt-field"><label class="tt-field-label" for="tt-css-font-display">' . esc_html__( 'Display font (headings)', 'talenttrack' ) . '</label>';
-        echo '<input type="text" id="tt-css-font-display" name="font_display" class="tt-input" placeholder="\'Oswald\', sans-serif" value="' . esc_attr( (string) ( $settings['font_display'] ?? '' ) ) . '">';
+        echo '<select id="tt-css-font-display" name="font_display" class="tt-input">';
+        foreach ( BrandFonts::displayOptions() as $value => $label ) {
+            echo '<option value="' . esc_attr( (string) $value ) . '"' . selected( $font_display_current, (string) $value, false ) . '>' . esc_html( (string) $label ) . '</option>';
+        }
+        echo '</select>';
         echo '</div>';
         echo '<div class="tt-field"><label class="tt-field-label" for="tt-css-font-body">' . esc_html__( 'Body font', 'talenttrack' ) . '</label>';
-        echo '<input type="text" id="tt-css-font-body" name="font_body" class="tt-input" placeholder="\'Inter\', system-ui, sans-serif" value="' . esc_attr( (string) ( $settings['font_body'] ?? '' ) ) . '">';
+        echo '<select id="tt-css-font-body" name="font_body" class="tt-input">';
+        foreach ( BrandFonts::bodyOptions() as $value => $label ) {
+            echo '<option value="' . esc_attr( (string) $value ) . '"' . selected( $font_body_current, (string) $value, false ) . '>' . esc_html( (string) $label ) . '</option>';
+        }
+        echo '</select>';
         echo '</div>';
         echo '<div class="tt-field"><label class="tt-field-label" for="tt-css-fw-body">' . esc_html__( 'Body weight', 'talenttrack' ) . '</label>';
         echo '<select id="tt-css-fw-body" name="font_weight_body" class="tt-input">';

@@ -1,3 +1,28 @@
+# TalentTrack v3.71.3 — Custom CSS Sprint 0 hotfix (#0075 companion)
+
+Companion hotfix to the #0075 design-system epic. Three concrete bugs in the v3.64 Custom CSS visual editor were making the surface feel half-finished. None had data corruption potential — the toggle persisted in `tt_config`, tab content rendered correctly, font values saved as authored — but the UX felt broken because the visible state didn't reflect what was actually persisted.
+
+## What broke
+
+- **Toggle didn't visibly change CSS.** `FrontendCustomCssView::handlePost` ran inside the shortcode body, which renders *after* `wp_head` has already fired and injected `<style id="tt-custom-css-frontend">`. So the same response always carried the pre-toggle CSS even though the DB had been updated. The user's only signal was "click toggle → no visible change." A reload would show the change because the next request's `wp_head` would read fresh state.
+- **Tab clicks felt like no-ops.** The view emitted `class="tt-tab tt-tab-current"` for the current tab but `assets/css/public.css:261` only defines `.tt-tab.tt-tab-active`. The tab content actually changed when you clicked, but the underlined-tab visual indicator never moved, making the change easy to miss across surfaces that share most of their layout (header, surface switcher, toggle, tab bar). `FrontendTrialCaseView` had the same typo and is fixed in passing.
+- **Font fields were text inputs.** The docs (`docs/custom-css.md` line 11 + the NL counterpart) explicitly say "via dropdowns and pickers" but `font_display` and `font_body` were rendered as `<input type="text">` accepting any string. Multi-word family names like `Bebas Neue` had to be typed by hand, and `VisualEditor::sanitizeFontStack` accepted them but `--tt-font-display: Bebas Neue` is invalid CSS without quotes — the family silently failed to apply.
+
+## What was fixed
+
+- **PRG (POST → redirect → GET) on `template_redirect`.** `FrontendCustomCssView::register()` is called from `CustomCssModule::boot()` and registers `maybeHandlePost` on `template_redirect` priority 5. When `?tt_view=custom-css` receives a POST with `tt_css_action`, the handler runs (nonce + cap re-checked), success/error messages are stashed in a per-user transient (`tt_css_msg_<user_id>`, 60s TTL), and `wp_safe_redirect` returns to the same URL with `tt_msg=ok|err`. The redirected GET reads + clears the transient via `readStashedMessages` and renders the banner from the same shape `handlePost` always returned. `wp_head` on the redirected request reads fresh `tt_config`, so the inline `<style>` reflects the new state on the same response from the user's perspective.
+- **`tt-tab-current` → `tt-tab-active`.** Three call-sites in `FrontendCustomCssView` (surface switcher × 2 + tab bar × 1) and one in `FrontendTrialCaseView` renamed to match the CSS contract in `public.css`. `assets/js/public.js` already used `.tt-tab-active` for its JS-driven tab toggling — so this restores the convention rather than introducing a new one.
+- **Font fields are now `<select>` elements.** Display + body font dropdowns are populated from `BrandFonts::displayOptions()` and `bodyOptions()` — the same catalogue the #0023 Branding tab uses. Submitted values are validated server-side against the catalogue via the renamed `VisualEditor::sanitizeFontFamily()`; `BrandFonts::resolveFamily()` adds the right quoting for multi-word names so `--tt-font-display: 'Bebas Neue'` is emitted correctly. Existing free-text saves that don't match the catalogue resolve to empty (so the default stack wins) — visible to the user as "(System default)" being selected on next open. They can re-save to normalise.
+
+## Acceptance criteria (manually verified)
+
+- [x] `php -l` clean on every touched file.
+- [ ] Open `?tt_view=custom-css` (frontend surface). Click "Custom CSS is OFF — click to turn ON". Page reloads with no visible URL change beyond `tt_msg=ok`. The inline `<style id="tt-custom-css-frontend">` block is present in the response. Clicking again removes it from the response. (PRG verified — single click, single response, fresh state.)
+- [ ] On the same view, click each of "Visual settings" / "CSS editor" / "Upload + templates" / "History". The underlined tab moves; URL has `tab=editor` etc.; right pane content changes.
+- [ ] On the Visual settings tab, both Display font and Body font are `<select>` elements. Picking "(System default)" persists across save+reload. Picking "Bebas Neue" emits `--tt-font-display: 'Bebas Neue';` in the inline style on next reload.
+- [ ] `?tt_view=trial&id=N` (any open trial case) — clicking the Player / Letter / Parent meeting tabs moves the underline indicator.
+- [ ] Existing v3.64 saves still render correctly. No history rows lost. The `?tt_safe_css=1` escape hatch from #0064 still bypasses the surface.
+
 # TalentTrack v3.70.1 — Logger static-call hotfix
 
 Patch on top of v3.70.0. Saving any setting through the Configuration REST endpoint returned HTTP 500 on PHP 8.

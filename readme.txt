@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.70.1
+Stable tag: 3.71.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.71.3 — Custom CSS Sprint 0 hotfix (#0075 companion) =
+
+Companion hotfix to the #0075 design-system epic. Three concrete bugs in the v3.64 Custom CSS visual editor were making the surface feel half-finished: the on/off toggle didn't visibly change anything (POST handler ran inside the shortcode body, after `wp_head` had already injected the inline `<style>`); clicking any of the four tabs (Visual / CSS editor / Upload / History) didn't move the underlined indicator (`FrontendCustomCssView` emitted `tt-tab-current` but `public.css` only defined `.tt-tab-active`); display + body font fields were free-text inputs even though the docs said dropdowns. Fix moves POST handling to `template_redirect` (PRG: redirect-after-post so the redirected GET sees fresh state), renames the active-tab class to match `public.css`, and replaces the font inputs with `<select>` populated from `BrandFonts` catalogue. Same-typo fix in `FrontendTrialCaseView` rolled in. No data migration; existing visual saves continue to render correctly.
 
 = 3.70.1 — Logger static-call hotfix =
 
