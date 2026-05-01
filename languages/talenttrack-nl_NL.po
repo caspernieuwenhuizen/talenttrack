@@ -11300,3 +11300,10 @@ msgstr "Wanneer uitgevinkt verdwijnen activiteiten van dit type uit de activitei
 # v3.75.1 / #0075 Sprint 1 PR 4 — live preview status caption
 msgid "Live preview is on — changes appear immediately on this page; click Save to persist."
 msgstr "Live voorbeeld staat aan — wijzigingen verschijnen direct op deze pagina; klik op Opslaan om ze vast te leggen."
+
+# v3.75.3 / #23 — back-link labels for detail views
+msgid "← Back to teams"
+msgstr "← Terug naar teams"
+
+msgid "← Back to people"
+msgstr "← Terug naar mensen"

@@ -35,7 +35,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
 
         $player = QueryHelpers::get_player( $player_id );
         $back_url = remove_query_arg( [ 'id' ] );
-        FrontendBackButton::render( $back_url );
+        FrontendBackButton::render( $back_url, __( '← Back to players', 'talenttrack' ) );
 
         if ( ! $player ) {
             self::renderHeader( __( 'Player not found', 'talenttrack' ) );
