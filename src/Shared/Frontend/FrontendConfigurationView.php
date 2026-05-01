@@ -166,6 +166,28 @@ class FrontendConfigurationView extends FrontendViewBase {
         return $meta;
     }
 
+    /**
+     * v3.74.4 — list of locales the lookup form should expose
+     * translation inputs for. Mirrors `LookupsRestController::installedTargetLocales`
+     * but evaluated on render so the form can show empty inputs even
+     * when the auto-translate button isn't available (e.g. no engine
+     * configured). Excludes the current site locale.
+     *
+     * @return list<string>
+     */
+    private static function translationTargets(): array {
+        $current_short = substr( (string) get_locale(), 0, 2 );
+        $available = function_exists( 'get_available_languages' ) ? (array) get_available_languages() : [];
+        $targets = array_unique( array_merge( $available, [ 'nl_NL', 'en_US' ] ) );
+        $out = [];
+        foreach ( $targets as $loc ) {
+            $loc = (string) $loc;
+            if ( substr( $loc, 0, 2 ) === $current_short ) continue;
+            $out[] = $loc;
+        }
+        return array_values( array_unique( $out ) );
+    }
+
     private static function renderLookupsBackLink(): void {
         $base = add_query_arg( [ 'config_sub' => 'lookups' ], remove_query_arg( [ 'category', 'edit' ] ) );
         echo '<p style="margin:0 0 var(--tt-sp-3);"><a class="tt-link" href="' . esc_url( $base ) . '">&larr; ' . esc_html__( 'All lookups', 'talenttrack' ) . '</a></p>';
@@ -266,6 +288,46 @@ class FrontendConfigurationView extends FrontendViewBase {
                         </div>
                     <?php endif; ?>
                 </div>
+                <?php
+                // v3.74.4 — #7: auto-translate preview block. Renders
+                // a "Translate to other languages" button + a
+                // per-locale editable input for each installed locale.
+                // The admin reviews engine output before saving.
+                $existing_translations = [];
+                if ( $editing ) {
+                    $existing_meta_for_tx = QueryHelpers::lookup_meta( $editing );
+                    if ( isset( $existing_meta_for_tx['translations'] ) && is_array( $existing_meta_for_tx['translations'] ) ) {
+                        foreach ( $existing_meta_for_tx['translations'] as $loc => $payload ) {
+                            $existing_translations[ (string) $loc ] = is_array( $payload ) ? (string) ( $payload['name'] ?? '' ) : (string) $payload;
+                        }
+                    }
+                }
+                $tx_targets = self::translationTargets();
+                if ( ! empty( $tx_targets ) ) :
+                    ?>
+                    <div class="tt-field" style="grid-column:1 / -1; margin-top:var(--tt-sp-3); border-top:1px solid var(--tt-line); padding-top:var(--tt-sp-3);">
+                        <span class="tt-field-label"><?php esc_html_e( 'Translations', 'talenttrack' ); ?></span>
+                        <p style="font-size:12px; color:var(--tt-muted); margin:0 0 var(--tt-sp-3);">
+                            <?php esc_html_e( 'Per-locale display name. Click "Translate" to fill these from the configured engine — review and edit before saving.', 'talenttrack' ); ?>
+                        </p>
+                        <p style="margin:0 0 var(--tt-sp-3);">
+                            <button type="button" class="tt-btn tt-btn-secondary" data-tt-lookup-translate><?php esc_html_e( 'Translate to other languages', 'talenttrack' ); ?></button>
+                            <span class="tt-form-msg" data-tt-translate-msg style="margin-left:8px;"></span>
+                        </p>
+                        <div class="tt-grid tt-grid-2">
+                            <?php foreach ( $tx_targets as $locale ) :
+                                $field_id = 'tt-lkp-tx-' . sanitize_html_class( $locale );
+                                $value    = $existing_translations[ $locale ] ?? '';
+                                ?>
+                                <div class="tt-field">
+                                    <label class="tt-field-label" for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $locale ); ?></label>
+                                    <input type="text" id="<?php echo esc_attr( $field_id ); ?>" class="tt-input" name="translations[<?php echo esc_attr( $locale ); ?>]" value="<?php echo esc_attr( $value ); ?>" data-tt-tx-locale="<?php echo esc_attr( $locale ); ?>" />
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <p style="margin-top:var(--tt-sp-3);">
                     <button type="submit" class="tt-btn tt-btn-primary"><?php echo $editing ? esc_html__( 'Save changes', 'talenttrack' ) : esc_html__( 'Add row', 'talenttrack' ); ?></button>
                     <?php if ( $editing ) : ?>
@@ -299,7 +361,21 @@ class FrontendConfigurationView extends FrontendViewBase {
                         sort_order: parseInt(fd.get('sort_order') || '0', 10),
                     };
                     if (fd.get('description') !== null) body.description = String(fd.get('description') || '');
-                    if (fd.get('meta[color]'))         body.meta = { color: String(fd.get('meta[color]') || '') };
+                    var meta = {};
+                    if (fd.get('meta[color]')) meta.color = String(fd.get('meta[color]') || '');
+
+                    // v3.74.4 — collect per-locale translation edits
+                    // and persist into meta.translations.<locale>.name
+                    // so LookupTranslator picks them up.
+                    var translations = {};
+                    var tx_inputs = form.querySelectorAll('[data-tt-tx-locale]');
+                    tx_inputs.forEach(function(inp){
+                        var loc = inp.getAttribute('data-tt-tx-locale');
+                        var val = String(inp.value || '').trim();
+                        if (loc && val !== '') translations[loc] = { name: val };
+                    });
+                    if (Object.keys(translations).length > 0) meta.translations = translations;
+                    if (Object.keys(meta).length > 0) body.meta = meta;
 
                     var url = rest + 'lookups/' + encodeURIComponent(type);
                     var method = 'POST';
@@ -318,6 +394,41 @@ class FrontendConfigurationView extends FrontendViewBase {
                         msg.textContent = first || ('Error ' + r.status);
                       })
                       .catch(function(){ msg.textContent = 'Network error.'; });
+                });
+            }
+
+            // v3.74.4 — Translate button: POST to /translations/preview
+            // and fill the per-locale fields. Admin can edit before save.
+            var tx_btn = root.querySelector('[data-tt-lookup-translate]');
+            if (tx_btn) {
+                tx_btn.addEventListener('click', function(){
+                    var msg = root.querySelector('[data-tt-translate-msg]');
+                    var name_input = root.querySelector('input[name="name"]');
+                    var text = name_input ? String(name_input.value || '').trim() : '';
+                    if (text === '') { msg.textContent = '<?php echo esc_js( __( 'Enter a name first.', 'talenttrack' ) ); ?>'; return; }
+                    msg.textContent = '<?php echo esc_js( __( 'Translating…', 'talenttrack' ) ); ?>';
+                    tx_btn.disabled = true;
+                    fetch(rest + 'translations/preview', {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': nonce, 'Accept': 'application/json' },
+                        body: JSON.stringify({ text: text, source_lang: '<?php echo esc_js( substr( (string) get_locale(), 0, 2 ) ); ?>' })
+                    }).then(function(r){ return r.json().then(function(j){ return { ok: r.ok, status: r.status, json: j }; }); })
+                      .then(function(r){
+                        tx_btn.disabled = false;
+                        if (r.ok && r.json && r.json.success) {
+                            var translations = (r.json.data && r.json.data.translations) || {};
+                            Object.keys(translations).forEach(function(loc){
+                                var inp = form.querySelector('[data-tt-tx-locale="' + loc + '"]');
+                                if (inp && (!inp.value || inp.value.trim() === '')) inp.value = translations[loc];
+                            });
+                            msg.textContent = '<?php echo esc_js( __( 'Translated. Review and edit before saving.', 'talenttrack' ) ); ?>';
+                        } else {
+                            var first = r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message;
+                            msg.textContent = first || ('Error ' + r.status);
+                        }
+                      })
+                      .catch(function(){ tx_btn.disabled = false; msg.textContent = '<?php echo esc_js( __( 'Network error.', 'talenttrack' ) ); ?>'; });
                 });
             }
 
