@@ -43,32 +43,29 @@ class Menu {
         // requires before any submenu can attach.
         add_menu_page( __( 'TalentTrack', 'talenttrack' ), __( 'TalentTrack', 'talenttrack' ), 'read', 'talenttrack', [ __CLASS__, 'dashboard' ], 'dashicons-groups', 26 );
         AdminMenuRegistry::applyAll();
-        // #0063 — rename the auto-cloned first submenu (which WP
-        // copies from the parent label "TalentTrack") to "Dashboard"
-        // so the sidebar reads as one top-level + one self-titled
-        // dashboard entry. Without this the user sees two identical
-        // "TalentTrack" rows.
-        add_action( 'admin_menu', [ __CLASS__, 'renameDashboardMirror' ], 999 );
+        // v3.71.1 — remove the auto-cloned first submenu (WP copies the
+        // parent label as the first submenu row) entirely. The previous
+        // approach renamed it to "Dashboard", which duplicated the
+        // top-level "TalentTrack" entry: clicking either landed on the
+        // same dashboard and the user kept asking "why is the top item
+        // there". Removing the clone leaves a single clear entry point.
+        // Runs at admin_menu priority 999 so every submenu (including
+        // the auto-mirror) is already registered when we touch
+        // $submenu.
+        add_action( 'admin_menu', [ __CLASS__, 'removeDashboardMirror' ], 999 );
         add_action( 'admin_head', [ __CLASS__, 'injectMenuCss' ] );
     }
 
     /**
-     * #0063 — rename the auto-cloned first submenu so the WP-quirk
-     * "duplicate parent label as first submenu" reads as "Dashboard"
-     * instead of "TalentTrack". Runs at `admin_menu` priority 999 so
-     * every submenu is already registered when we touch `$submenu`.
+     * v3.71.1 — drop the auto-cloned `talenttrack` submenu entry.
+     * `remove_submenu_page` works on the slug pair (parent, slug) so
+     * we target the row whose slug equals the parent slug — that's
+     * the WP-injected mirror, not any of the registered children.
+     * Idempotent: calling again is a no-op since the row is already
+     * gone.
      */
-    public static function renameDashboardMirror(): void {
-        global $submenu;
-        if ( ! isset( $submenu['talenttrack'] ) || ! is_array( $submenu['talenttrack'] ) ) return;
-        foreach ( $submenu['talenttrack'] as $idx => $row ) {
-            if ( ! is_array( $row ) ) continue;
-            $slug = (string) ( $row[2] ?? '' );
-            if ( $slug === 'talenttrack' ) {
-                $submenu['talenttrack'][ $idx ][0] = __( 'Dashboard', 'talenttrack' );
-                break;
-            }
-        }
+    public static function removeDashboardMirror(): void {
+        remove_submenu_page( 'talenttrack', 'talenttrack' );
     }
 
     /**

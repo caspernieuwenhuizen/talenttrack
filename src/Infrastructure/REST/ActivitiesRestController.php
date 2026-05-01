@@ -312,6 +312,12 @@ class ActivitiesRestController {
             'activity_status_key'       => (string) ( $row->activity_status_key ?? 'planned' ),
             'activity_status_pill_html' => \TT\Infrastructure\Query\LookupPill::render( 'activity_status', (string) ( $row->activity_status_key ?? 'planned' ) ),
             'activity_source_key'       => (string) ( $row->activity_source_key ?? 'manual' ),
+            // v3.71.0 — pill HTML so the activity list can show Source
+            // alongside Type / Status without an extra render mode. The
+            // `activity_source` lookup is already seeded (manual / spond /
+            // generated, migration 0040) and editable via the Lookups
+            // admin page.
+            'activity_source_pill_html' => \TT\Infrastructure\Query\LookupPill::render( 'activity_source', (string) ( $row->activity_source_key ?? 'manual' ) ),
             'attendance_count'         => $count,
             'present_count'            => $present,
             'roster_size'              => $roster,

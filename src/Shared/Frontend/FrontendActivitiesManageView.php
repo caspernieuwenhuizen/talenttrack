@@ -212,6 +212,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 'title'               => [ 'label' => __( 'Title',  'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'title_link_html' ],
                 'activity_type_key'   => [ 'label' => __( 'Type',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_type_pill_html' ],
                 'activity_status_key' => [ 'label' => __( 'Status', 'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_status_pill_html' ],
+                // v3.71.0 — Source column (manual / spond / generated)
+                // surfaces the lookup that was seeded but never displayed.
+                'activity_source_key' => [ 'label' => __( 'Source', 'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_source_pill_html' ],
                 'team_name'           => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
                 'attendance'          => [ 'label' => __( 'Att. %', 'talenttrack' ), 'sortable' => true, 'render' => 'percent', 'value_key' => 'attendance_pct' ],
             ],

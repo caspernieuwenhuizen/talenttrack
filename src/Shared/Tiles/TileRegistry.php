@@ -239,7 +239,7 @@ final class TileRegistry {
         if ( $owner !== null && $owner !== '' ) {
             if ( ! ModuleRegistry::isEnabled( (string) $owner ) ) return false;
         }
-        if ( ! empty( $tile['cap'] ) && ! user_can( $user_id, (string) $tile['cap'] ) ) {
+        if ( ! empty( $tile['cap'] ) && ! self::userMayAccess( $user_id, (string) $tile['cap'] ) ) {
             return false;
         }
         $cb = $tile['cap_callback'] ?? null;
@@ -258,6 +258,29 @@ final class TileRegistry {
             }
         }
         return true;
+    }
+
+    /**
+     * v3.71.0 — `user_can` returns false when the cap is granted only
+     * by a matrix scope-row (e.g., a coach assigned via Functional
+     * Roles). The `user_has_cap` filter that bridges legacy caps into
+     * MatrixGate is gated by `tt_authorization_active`, so on installs
+     * where it's still 0 the tile would hide even though the user
+     * legitimately has scope-level access. Fall back to the matrix
+     * mapper directly: if it returns true on any scope, the tile is
+     * shown. The runtime gates at the actual write/read sites continue
+     * to scope-check on the entity level — this only affects the
+     * navigation surface.
+     */
+    private static function userMayAccess( int $user_id, string $cap ): bool {
+        if ( $cap === '' || $user_id <= 0 ) return false;
+        if ( user_can( $user_id, $cap ) ) return true;
+        if ( strpos( $cap, 'tt_' ) !== 0 ) return false;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\LegacyCapMapper' ) ) return false;
+        $user = get_userdata( $user_id );
+        if ( ! $user instanceof \WP_User ) return false;
+        $matrix = \TT\Modules\Authorization\LegacyCapMapper::evaluate( $cap, $user, [] );
+        return $matrix === true;
     }
 
     /**
