@@ -43,13 +43,42 @@ final class LookupPill {
     private static function resolveRow( string $lookup_type, string $stored_name ): ?object {
         if ( $stored_name === '' ) return null;
         static $cache = [];
+        static $normalised_cache = [];
         if ( ! isset( $cache[ $lookup_type ] ) ) {
             $cache[ $lookup_type ] = [];
+            $normalised_cache[ $lookup_type ] = [];
             foreach ( QueryHelpers::get_lookups( $lookup_type ) as $row ) {
                 $cache[ $lookup_type ][ (string) $row->name ] = $row;
+                // v3.71.2 — secondary index by normalised name so the
+                // snake_case values goal/PDP tables actually store
+                // (`on_hold`, `in_progress`) match the lookup-table
+                // rows that are seeded as Title Case With Spaces
+                // (`On Hold`, `In Progress`). Without this fallback
+                // the goal_status pill silently rendered the raw
+                // value untranslated, which is what the user saw as
+                // "on_hold" sometimes showing as "In de wacht" and
+                // sometimes as "on_hold".
+                $normalised_cache[ $lookup_type ][ self::normaliseName( (string) $row->name ) ] = $row;
             }
         }
-        return $cache[ $lookup_type ][ $stored_name ] ?? null;
+        if ( isset( $cache[ $lookup_type ][ $stored_name ] ) ) {
+            return $cache[ $lookup_type ][ $stored_name ];
+        }
+        $key = self::normaliseName( $stored_name );
+        return $normalised_cache[ $lookup_type ][ $key ] ?? null;
+    }
+
+    /**
+     * v3.71.2 — collapse the snake_case ↔ Title Case With Spaces
+     * difference between database-stored values (typically snake_case
+     * via `sanitize_key()` paths) and lookup-row names (seeded as
+     * human-readable strings). Lowercases + replaces `_` with ` ` +
+     * trims duplicate whitespace, so `on_hold` and `On Hold` both
+     * normalise to `on hold`.
+     */
+    private static function normaliseName( string $name ): string {
+        $n = strtolower( str_replace( [ '_', '-' ], ' ', $name ) );
+        return trim( preg_replace( '/\s+/', ' ', $n ) );
     }
 
     private static function colorFromMeta( object $row ): string {
