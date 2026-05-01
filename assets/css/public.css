@@ -1,6 +1,48 @@
-/* 
+/*
    TalentTrack — Frontend stylesheet (v2.6.1)
     */
+
+/*
+ * Design-system token defaults (#0075 Sprint 1 PR 2).
+ *
+ * Scoped to .tt-root so they don't leak into the WP theme. Each
+ * token has a sensible default the consumer rules below fall back
+ * to via var(--tt-foo, default). When the operator overrides a
+ * token in the visual editor, BrandStyles emits an inline <style>
+ * on .tt-root that wins by specificity (.tt-root re-declared in
+ * the inline emission); the consumer rules don't need to change.
+ */
+.tt-root {
+    /*
+     * Shadow defaults match v3.64's pre-token behavior so existing
+     * installs see no visual change unless they opt in via the
+     * editor: cards have no resting shadow, hover lifts to the
+     * subtle 8/24/0.12 dropshadow that .tt-card previously hard-
+     * coded, modals get the same heavy shadow they always had.
+     */
+    --tt-shadow-sm: none;
+    --tt-shadow-md: 0 8px 24px -8px rgba(0,0,0,0.12);
+    --tt-shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    --tt-motion-duration: 150ms;
+    --tt-motion-easing: ease;
+    /*
+     * Hover variants are intentionally NOT declared here so the
+     * consumer rules' fallback chain (var(--tt-primary-hover,
+     * var(--tt-secondary, ...))) continues to swap primary buttons
+     * to secondary on hover — the legacy behavior. Operators who
+     * set a hover token in the visual editor override via the
+     * inline <style> emission. Same pattern for status subtle
+     * backgrounds below: declared here as visible defaults so the
+     * notice classes inline-styled in PHP can rely on them, but
+     * still overridable.
+     */
+    /* Subtle status backgrounds for inline notices. */
+    --tt-success-subtle: #dff5e1;
+    --tt-warning-subtle: #fdf3d8;
+    --tt-danger-subtle:  #fde2e2;
+    --tt-info-subtle:    #e6f0fa;
+}
+
 .tt-dashboard {
     --tt-ink: #0e1a14;
     --tt-line: #e3e1d8;
@@ -265,8 +307,8 @@ body.tt-docs-drawer-open { overflow: hidden; }
 @keyframes tt-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
 .tt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin: 1rem 0; }
-.tt-card { display: flex; gap: 1rem; padding: 1rem; background: #fff; border: 1px solid var(--tt-line); border-left: 3px solid var(--tt-primary, #0b3d2e); transition: transform .15s, box-shadow .15s; }
-.tt-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -8px rgba(0,0,0,0.12); }
+.tt-card { display: flex; gap: 1rem; padding: 1rem; background: #fff; border: 1px solid var(--tt-line); border-left: 3px solid var(--tt-primary, #0b3d2e); box-shadow: var(--tt-shadow-sm, none); transition: transform var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease), box-shadow var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease); }
+.tt-card:hover { transform: translateY(-2px); box-shadow: var(--tt-shadow-md, 0 8px 24px -8px rgba(0,0,0,0.12)); }
 .tt-card-thumb img { width: 60px; height: 60px; object-fit: cover; border-radius: 50%; border: 2px solid var(--tt-secondary, #e8b624); }
 .tt-card-body h3 { margin: 0 0 .4rem; font-size: 1.1rem; font-family: "Playfair Display", Georgia, serif; color: var(--tt-primary, #0b3d2e); }
 .tt-card-body h3 a { color: inherit; text-decoration: none; }
@@ -327,8 +369,8 @@ input[type="checkbox"], input[type="radio"] {
 .tt-scout-link-header { padding-top: env(safe-area-inset-top); }
 .tt-meeting-fullscreen-launcher { padding-bottom: env(safe-area-inset-bottom); }
 
-.tt-btn, .tt-btn-primary { display: inline-block; padding: .65rem 1.4rem; background: var(--tt-primary, #0b3d2e); color: #fff; border: none; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; transition: background .15s; }
-.tt-btn:hover, .tt-btn-primary:hover { background: var(--tt-secondary, #e8b624); color: var(--tt-ink); }
+.tt-btn, .tt-btn-primary { display: inline-block; padding: .65rem 1.4rem; background: var(--tt-primary, #0b3d2e); color: #fff; border: none; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; transition: background var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease); }
+.tt-btn:hover, .tt-btn-primary:hover { background: var(--tt-primary-hover, var(--tt-secondary, #e8b624)); color: var(--tt-ink); }
 .tt-btn-sm { padding: 3px 8px; font-size: 0.8rem; background: transparent; border: 1px solid var(--tt-line); cursor: pointer; color: var(--tt-muted); }
 .tt-form-msg { margin-top: 1rem; padding: 10px 14px; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.9rem; display: none; }
 .tt-form-msg.tt-success { display: block; background: #e6f5e9; color: #0a5c2a; border-left: 3px solid #00a32a; }
