@@ -1,8 +1,9 @@
 ---
 id: 0077
 type: epic
-status: in-progress
+status: shipped
 title: Polish wave 1 — foundations + 11-module consistency pass
+shipped_in: v3.80.0
 ---
 
 # 0077 — Polish wave 1
