@@ -39,7 +39,7 @@ class FeatureToggleService {
         return [
             'audit_log' => [
                 'label'       => __( 'Audit log', 'talenttrack' ),
-                'description' => __( 'Record player, evaluation, team, session, goal, and configuration changes to the audit trail.', 'talenttrack' ),
+                'description' => __( 'Record player, evaluation, team, activity, goal, and configuration changes to the audit trail.', 'talenttrack' ),
                 'default'     => true,
             ],
             'verbose_logging' => [

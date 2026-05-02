@@ -40,8 +40,10 @@ final class MediaPicker {
             true
         );
         wp_localize_script( 'tt-methodology-media-picker', 'TT_MethodologyMedia', [
-            'modalTitle'  => __( 'Selecteer een diagram of afbeelding',  'talenttrack' ),
-            'modalButton' => __( 'Toevoegen aan methodologie',            'talenttrack' ),
+            'modalTitle'   => __( 'Pick image', 'talenttrack' ),
+            'modalButton'  => __( 'Add', 'talenttrack' ),
+            'imageAlt'     => __( 'Image', 'talenttrack' ),
+            'pendingLabel' => __( 'Will be added on save', 'talenttrack' ),
         ] );
     }
 

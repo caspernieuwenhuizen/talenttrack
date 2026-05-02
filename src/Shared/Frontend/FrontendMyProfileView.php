@@ -276,7 +276,7 @@ class FrontendMyProfileView extends FrontendViewBase {
                 </ul>
                 <p class="tt-profile-card-link">
                     <a href="<?php echo esc_url( self::dashboardLink( 'my-activities' ) ); ?>">
-                        <?php esc_html_e( 'See all sessions', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'See all activities', 'talenttrack' ); ?>
                     </a>
                 </p>
             <?php endif; ?>

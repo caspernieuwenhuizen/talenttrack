@@ -92,7 +92,7 @@ class PresetRegistry {
             case self::MINIMAL:
                 return __( 'Core data only: players, teams, evaluations and ratings. Smallest archive, fastest to restore.', 'talenttrack' );
             case self::STANDARD:
-                return __( 'Everyday operational data: everything in Minimal plus sessions, attendance, goals, people, team-assignments and functional roles. Recommended default.', 'talenttrack' );
+                return __( 'Everyday operational data: everything in Minimal plus activities, attendance, goals, people, team-assignments and functional roles. Recommended default.', 'talenttrack' );
             case self::THOROUGH:
                 return __( 'Everything: Standard plus lookups, custom-field definitions and values, evaluation categories and weights, audit log, usage stats, demo tags and config. Largest archive, slowest to restore.', 'talenttrack' );
             case self::CUSTOM:

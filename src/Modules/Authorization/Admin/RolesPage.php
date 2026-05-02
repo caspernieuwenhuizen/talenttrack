@@ -438,15 +438,15 @@ class RolesPage {
             case 'head_of_development':
                 return __( 'Shapes methodology and reviews output. Read-all across the academy plus evaluations management. No player-data editing, no staff reassignment.', 'talenttrack' );
             case 'head_coach':
-                return __( 'Full control within assigned teams — players, evaluations, sessions, goals, and team settings. Scoped to team.', 'talenttrack' );
+                return __( 'Full control within assigned teams — players, evaluations, activities, goals, and team settings. Scoped to team.', 'talenttrack' );
             case 'assistant_coach':
                 return __( "Evaluate and observe within assigned teams. Can create and edit own evaluations; cannot edit other coaches' evaluations. Scoped to team.", 'talenttrack' );
             case 'manager':
-                return __( 'Runs logistics within assigned teams — roster, sessions, team settings. No evaluation permissions. Scoped to team.', 'talenttrack' );
+                return __( 'Runs logistics within assigned teams — roster, activities, team settings. No evaluation permissions. Scoped to team.', 'talenttrack' );
             case 'physio':
-                return __( 'Read-only access to players and sessions within assigned teams.', 'talenttrack' );
+                return __( 'Read-only access to players and activities within assigned teams.', 'talenttrack' );
             case 'team_member':
-                return __( 'Minimal read-only access within assigned teams. Default authorization for the "Other" functional role — see only players and sessions of the teams you are assigned to, nothing more.', 'talenttrack' );
+                return __( 'Minimal read-only access within assigned teams. Default authorization for the "Other" functional role — see only players and activities of the teams you are assigned to, nothing more.', 'talenttrack' );
             case 'scout':
                 return __( 'View any player and create scouting evaluations. Can be assigned globally or to specific teams.', 'talenttrack' );
             case 'parent':

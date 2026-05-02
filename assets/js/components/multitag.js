@@ -20,7 +20,8 @@
             tag.className = 'tt-multitag-tag';
             tag.setAttribute('role', 'listitem');
             tag.dataset.value = opt.value;
-            tag.innerHTML = '<span></span><button type="button" class="tt-multitag-tag-remove" aria-label="Remove">×</button>';
+            var removeLabel = (window.TT && window.TT.i18n && window.TT.i18n.remove) || 'Remove';
+            tag.innerHTML = '<span></span><button type="button" class="tt-multitag-tag-remove" aria-label="' + removeLabel.replace(/"/g, '&quot;') + '">×</button>';
             tag.querySelector('span').textContent = opt.textContent;
             tag.querySelector('button').addEventListener('click', function() { setSelected(root, opt.value, false); });
             tags.appendChild(tag);

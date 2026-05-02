@@ -111,7 +111,7 @@ class CoachDashboardView {
         // Help
         echo '<div class="tt-tab-content' . ( $view === 'help' ? ' tt-tab-content-active' : '' ) . '" data-tab="help">';
         echo '<h3>' . esc_html__( 'Coach Quick Guide', 'talenttrack' ) . '</h3>';
-        echo '<p>' . esc_html__( 'My Team shows your players. New Evaluation submits training or match evaluations. New Session records attendance. Manage Goals assigns and tracks goals.', 'talenttrack' ) . '</p>';
+        echo '<p>' . esc_html__( 'My Team shows your players. New Evaluation submits training or match evaluations. New Activity records attendance. Manage Goals assigns and tracks goals.', 'talenttrack' ) . '</p>';
         echo '</div>';
     }
 
@@ -235,7 +235,7 @@ class CoachDashboardView {
         $all_players = [];
         foreach ( $teams as $t ) foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) $all_players[ (int) $pl->id ] = $pl;
         ?>
-        <h3><?php esc_html_e( 'Record Training Session', 'talenttrack' ); ?></h3>
+        <h3><?php esc_html_e( 'Record Training Activity', 'talenttrack' ); ?></h3>
         <form id="tt-activity-form" class="tt-ajax-form" data-rest-path="activities" data-rest-method="POST">
             <div class="tt-form-row"><label><?php esc_html_e( 'Title', 'talenttrack' ); ?> *</label><input type="text" name="title" required /></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" name="session_date" value="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required /></div>
@@ -254,7 +254,7 @@ class CoachDashboardView {
                     <td><input type="text" name="att[<?php echo (int) $pl->id; ?>][notes]" style="width:150px" /></td></tr>
             <?php endforeach; ?>
             </tbody></table>
-            <button type="submit" class="tt-btn tt-btn-primary" style="margin-top:10px;"><?php esc_html_e( 'Save Session', 'talenttrack' ); ?></button>
+            <button type="submit" class="tt-btn tt-btn-primary" style="margin-top:10px;"><?php esc_html_e( 'Save Activity', 'talenttrack' ); ?></button>
             <div class="tt-form-msg"></div>
         </form>
         <?php

@@ -11733,3 +11733,110 @@ msgstr "Bevestiging speler"
 
 msgid "Only the player's head coach can approve or reject this goal."
 msgstr "Alleen de hoofdcoach van de speler kan dit doel goedkeuren of afwijzen."
+
+# v3.81.0 / i18n audit (May 2026) Bundles 1 + 2 — critical bug fixes + session→activity user-visible rename
+# (Strings already present elsewhere in the file are not re-added; only genuinely new msgids.)
+
+msgid "Pick image"
+msgstr "Selecteer een diagram of afbeelding"
+
+msgid "Image"
+msgstr "Afbeelding"
+
+msgid "Will be added on save"
+msgstr "Wordt toegevoegd bij opslaan"
+
+msgid "Dupe"
+msgstr "Dubbel"
+
+msgid "Pick a CSV file first."
+msgstr "Kies eerst een CSV-bestand."
+
+msgid "Could not preview the file."
+msgstr "Kon het bestand niet voorvertonen."
+
+msgid "Import failed."
+msgstr "Import mislukt."
+
+msgid "training"
+msgstr "training"
+
+msgid "match"
+msgstr "wedstrijd"
+
+msgid "tournament"
+msgstr "toernooi"
+
+msgid "observation"
+msgstr "observatie"
+
+msgid "other"
+msgstr "overig"
+
+msgid "Record Training Activity"
+msgstr "Training vastleggen"
+
+msgid "See all activities"
+msgstr "Bekijk alle activiteiten"
+
+msgid "No activities yet during this trial period."
+msgstr "Nog geen activiteiten in deze proefperiode."
+
+msgid "The activity could not be saved. The database rejected the operation."
+msgstr "De activiteit kon niet worden opgeslagen. De database heeft de actie geweigerd."
+
+msgid "The activity was saved, but some attendance rows could not be stored."
+msgstr "De activiteit is opgeslagen, maar enkele aanwezigheidsrijen konden niet worden bewaard."
+
+msgid "The activity could not be updated. The database rejected the operation."
+msgstr "De activiteit kon niet worden bijgewerkt. De database heeft de actie geweigerd."
+
+msgid "The activity was updated, but some attendance rows could not be stored."
+msgstr "De activiteit is bijgewerkt, maar enkele aanwezigheidsrijen konden niet worden bewaard."
+
+msgid "The activity could not be deleted."
+msgstr "De activiteit kon niet worden verwijderd."
+
+msgid "Insufficient signal — needs first evaluation and a few activities."
+msgstr "Onvoldoende signaal — heeft eerste evaluatie en enkele activiteiten nodig."
+
+msgid "Trial cases — track a prospective player from first activity through the decision."
+msgstr "Proeftrainingen — volg een potentiële speler vanaf de eerste activiteit tot aan de beslissing."
+
+msgid "Lead coach for a team. Owns methodology, selection, and activity planning."
+msgstr "Hoofdtrainer van een ploeg. Eigenaar van methodiek, selectie en activiteitenplanning."
+
+msgid "Training activities and games you've attended."
+msgstr "Trainingen en wedstrijden die je hebt bijgewoond."
+
+msgid "Present at %1$d of %2$d activities (%3$d%%) in this period."
+msgstr "Aanwezig bij %1$d van %2$d activiteiten (%3$d%%) in deze periode."
+
+msgid "Record player, evaluation, team, activity, goal, and configuration changes to the audit trail."
+msgstr "Leg wijzigingen aan spelers, evaluaties, ploegen, activiteiten, doelen en configuratie vast in de audit-trail."
+
+msgid "%d activity logged for this team in the period."
+msgid_plural "%d activities logged for this team in the period."
+msgstr[0] "%d activiteit vastgelegd voor deze ploeg in de periode."
+msgstr[1] "%d activiteiten vastgelegd voor deze ploeg in de periode."
+
+msgid "Sees every team, player, evaluation, activity, goal, and report. Cannot edit anything. Use this for board members, parents who want a peek at progress, or external scouts. The role most admins forget exists."
+msgstr "Ziet elke ploeg, speler, evaluatie, activiteit, doel en rapport. Kan niets bewerken. Gebruik dit voor bestuursleden, ouders die een blik op de voortgang willen, of externe scouts. De rol die de meeste beheerders vergeten."
+
+msgid "Oversees the whole academy. Can see and edit everything: teams, players, evaluations, activities, goals, settings. The default fallback for \"this person needs to do everything.\""
+msgstr "Overziet de hele academie. Kan alles zien en bewerken: ploegen, spelers, evaluaties, activiteiten, doelen, instellingen. Standaard terugval voor \"deze persoon moet alles kunnen\"."
+
+msgid "Manages teams, players, people, activities, goals, and settings. Cannot record evaluations themselves. Use for office-side admins who handle the roster + administration but don't coach."
+msgstr "Beheert ploegen, spelers, mensen, activiteiten, doelen en instellingen. Kan zelf geen evaluaties vastleggen. Gebruik voor kantoor-beheerders die selectie + administratie doen maar niet trainen."
+
+msgid "Records evaluations, activities, and goals for the teams they head-coach. Cannot edit the player roster, the teams structure, or settings. The daily-use role for trainers."
+msgstr "Legt evaluaties, activiteiten en doelen vast voor de ploegen die hij/zij hoofdtrainert. Kan de spelerselectie, de ploegstructuur of instellingen niet bewerken. De dagelijkse-gebruik-rol voor trainers."
+
+msgid "A player's own login. Sees their own evaluations, activities, goals, and rate card. Cannot see other players. Linked to a `tt_players` row via the player's WP user id."
+msgstr "Een eigen login van de speler. Ziet zijn eigen evaluaties, activiteiten, doelen en ratingcard. Kan andere spelers niet zien. Gekoppeld aan een `tt_players`-rij via de WP-gebruiker-id van de speler."
+
+msgid "A parent's login, linked to one or more children. Sees what those children see — evaluations, activities, goals — read-only."
+msgstr "Een login van een ouder, gekoppeld aan één of meer kinderen. Ziet wat die kinderen zien — evaluaties, activiteiten, doelen — alleen-lezen."
+
+msgid "Lazily translate user-entered free text (goal titles, evaluation notes, activity descriptions, …) at render time when a viewer's locale differs from the source. Default OFF. Translations are cached and re-used; the cap below limits per-month engine spend."
+msgstr "Vertaal door gebruikers ingevoerde vrije tekst (doel-titels, evaluatienotities, activiteitsbeschrijvingen, …) lui op rendertijd wanneer de viewer-locale van de bron afwijkt. Standaard UIT. Vertalingen worden gecached en hergebruikt; de limiet hieronder begrenst de maandelijkse engine-uitgaven."

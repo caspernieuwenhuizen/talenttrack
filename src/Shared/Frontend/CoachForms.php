@@ -187,7 +187,7 @@ class CoachForms {
             }
         }
         ?>
-        <h3><?php esc_html_e( 'Record Training Session', 'talenttrack' ); ?></h3>
+        <h3><?php esc_html_e( 'Record Training Activity', 'talenttrack' ); ?></h3>
         <form id="tt-activity-form" class="tt-ajax-form" data-rest-path="activities" data-rest-method="POST" data-draft-key="activity-form">
             <div class="tt-form-row"><label><?php esc_html_e( 'Title', 'talenttrack' ); ?> *</label><input type="text" name="title" required /></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" name="session_date" value="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required /></div>
@@ -214,7 +214,7 @@ class CoachForms {
                 <?php endforeach; ?>
                 </tbody></table>
             <?php endif; ?>
-            <?php echo FormSaveButton::render( [ 'label' => __( 'Save Session', 'talenttrack' ) ] ); ?>
+            <?php echo FormSaveButton::render( [ 'label' => __( 'Save Activity', 'talenttrack' ) ] ); ?>
             <div class="tt-form-msg"></div>
         </form>
         <?php

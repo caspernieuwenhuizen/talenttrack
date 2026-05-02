@@ -179,7 +179,7 @@ class PlayerDashboardView {
         // Help
         echo '<div class="tt-tab-content' . ( $view === 'help' ? ' tt-tab-content-active' : '' ) . '" data-tab="help">';
         echo '<h3>' . esc_html__( 'How to use your dashboard', 'talenttrack' ) . '</h3>';
-        echo '<p>' . esc_html__( 'Overview shows your profile and latest radar chart. Evaluations lists every evaluation your coaches have recorded. Goals shows your development goals. Attendance tracks your sessions. Progress shows your trajectory.', 'talenttrack' ) . '</p>';
+        echo '<p>' . esc_html__( 'Overview shows your profile and latest radar chart. Evaluations lists every evaluation your coaches have recorded. Goals shows your development goals. Attendance tracks your activities. Progress shows your trajectory.', 'talenttrack' ) . '</p>';
         echo '</div>';
     }
 

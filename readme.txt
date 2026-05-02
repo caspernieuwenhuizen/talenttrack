@@ -4,13 +4,30 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.79.1
+Stable tag: 3.81.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.81.0 — i18n audit (May 2026) Bundles 1 + 2 — critical leak fixes + session→activity user-visible rename =
+
+First fix-PR off the May 2026 i18n audit (`docs/i18n-audit-2026-05.md`). Bundle 1 closes the 5 critical-path bugs that ship raw English to Dutch users today; Bundle 2 sweeps ~30 user-visible "session"/"sessions" leftovers to "activity"/"activities" so the Dutch translations actually land.
+
+* **FIX (Bundle 1):** `FrontendConfigurationView.php` inline JS — three error-path strings (`'Error '+r.status`, `'Network error.'`, native `alert('Error '+...)`) now route through localized `T_ERROR` / `T_NETWORK_ERROR` constants matching the sibling lines in the same script that already did it correctly.
+* **FIX (Bundle 1):** `csv-import.js` — status badges (Error / Dupe / OK) and responsive `data-label` column headers (Row / Status / Player / DOB / Team / Notes) plus three error-message fallbacks now read from `TT.i18n.csv_*` keys localized via `DashboardShortcode.php`. 13 new keys.
+* **FIX (Bundle 1):** `admin-methodology-media-picker.js` — fixed two bugs: the `att.title || 'Image'` fallback now reads `TT_MethodologyMedia.imageAlt`, and the hardcoded Dutch `'Wordt toegevoegd bij opslaan'` (which English-locale users would see in Dutch) now reads `TT_MethodologyMedia.pendingLabel`. Localize call extended with `imageAlt` + `pendingLabel` keys; the existing keys' English msgids changed from Dutch to English so the .po file controls translation.
+* **FIX (Bundle 1):** `multitag.js` close-pill `aria-label="Remove"` and `flash.js` dismiss-link `aria-label="Dismiss"` now read from `TT.i18n.remove` / `TT.i18n.dismiss`. Screen readers in Dutch locale stop announcing English.
+* **FIX (Bundle 1):** Three wizard steps were rendering raw `tt_lookups.name` values via `echo esc_html($n)`, bypassing `LookupTranslator`. Fixed:
+  * `Wizards\Evaluation\AttendanceStep` — attendance status `<th>` headers now route through `LabelTranslator::attendanceStatus()`.
+  * `Wizards\Evaluation\HybridDeepRateStep` — Setting `<select>` and the empty-table fallback list (`['training', 'match', 'tournament', 'observation', 'other']`) now route through `LookupTranslator::byTypeAndName()` and wrapped fallback strings.
+  * `Wizards\Activity\DetailsStep` — game-subtype `<option>` labels now route through `LookupTranslator::name()` consuming the full lookup row instead of just the name.
+* **CHANGED (Bundle 2):** Roughly 30 user-visible "session"/"sessions" strings inside `__()` calls swept to "activity"/"activities" so the Dutch translations actually match. Surfaces touched: REST error toasts in `ActivitiesRestController` (8 strings), role descriptions in `RolesPage` + `FunctionalRolesPage` (6 strings) + `Activator::defaultRoleDefinitions()` + `Activator::defaultFunctionalRoleDefinitions()`, tile descriptions in `CoreSurfaceRegistration`, reports in `PlayerReportRenderer` + `AudienceDefaults`, coach dashboard help + buttons, frontend role descriptions in `FrontendRolesView`, my-activities heading, trial case "Activities" section, player dashboard help, methodology referencing chip, custom-field FormSlugContract, translations admin help, onboarding flow, FeatureToggleService audit description, BackupPresetRegistry, PlayerStatusCalculator low-signal reason, ModulesPage trials description, Workflow MyTasks task context.
+* **NEW (Bundle 2):** Migration `0059_session_to_activity_stored_text` rewrites the stored "session" text in two places: the seeded `tt_lookups.description` for the eval_type `Training` row (from `0001`) and the seeded `tt_roles.description` rows for `physio` + `team_member` (from `Activator`). Idempotent — only updates rows whose current value matches the exact pre-rename string, so admin-edited rows are left alone.
+* **CHANGED (CI):** The `release.yml` `legacy-sessions-gate` (#0035) gained a new step that scans PHP quoted strings for user-visible "session"/"sessions" vocabulary with allow-listed phrases and Tier-3 file paths. The original step caught identifier-level leaks (table names, REST routes, capability codes) but missed string content inside `__()` calls — that's how this whole audit was triggered.
+* **TRANSLATIONS:** ~30 new NL msgids; ~12 old "session"-bearing msgids left orphaned in the .po (harmless but tracked for cleanup in a future tidy-up).
 
 = 3.79.1 — Custom CSS editor follow-ups: tab navigation + save bug + classes catalogue + radio toggle + download =
 

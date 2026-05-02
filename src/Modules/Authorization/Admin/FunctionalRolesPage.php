@@ -312,11 +312,11 @@ class FunctionalRolesPage {
     public static function roleDescription( string $role_key ): string {
         switch ( $role_key ) {
             case 'head_coach':
-                return __( 'Lead coach for a team. Owns methodology, selection, and session planning.', 'talenttrack' );
+                return __( 'Lead coach for a team. Owns methodology, selection, and activity planning.', 'talenttrack' );
             case 'assistant_coach':
                 return __( 'Supports the head coach with training and evaluations within a team.', 'talenttrack' );
             case 'manager':
-                return __( 'Handles logistics, roster, sessions, and team settings. Not an evaluator.', 'talenttrack' );
+                return __( 'Handles logistics, roster, activities, and team settings. Not an evaluator.', 'talenttrack' );
             case 'physio':
                 return __( 'Medical / physical support staff attached to a team.', 'talenttrack' );
             case 'other':

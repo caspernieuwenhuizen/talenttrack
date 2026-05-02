@@ -316,9 +316,9 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 AND a.club_id = %d
               ORDER BY a.activity_date DESC", $pid, $start, $end, CurrentClub::id()
         ) );
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Sessions', 'talenttrack' ) . '</h2>';
+        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Activities', 'talenttrack' ) . '</h2>';
         if ( ! $activities ) {
-            echo '<p>' . esc_html__( 'No sessions yet during this trial period.', 'talenttrack' ) . '</p>';
+            echo '<p>' . esc_html__( 'No activities yet during this trial period.', 'talenttrack' ) . '</p>';
         } else {
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Type', 'talenttrack' ) . '</th><th>' . esc_html__( 'Attendance', 'talenttrack' ) . '</th></tr></thead><tbody>';
             foreach ( $activities as $a ) {

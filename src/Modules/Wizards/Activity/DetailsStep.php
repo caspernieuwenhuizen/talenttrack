@@ -35,11 +35,14 @@ final class DetailsStep implements WizardStepInterface {
         echo '<label><span>' . esc_html__( 'Title', 'talenttrack' ) . ' *</span><input type="text" name="title" required maxlength="200" value="' . esc_attr( $title ) . '" /></label>';
 
         if ( $type === 'game' ) {
-            $subtypes = QueryHelpers::get_lookup_names( 'game_subtype' );
+            $subtype_rows = QueryHelpers::get_lookups( 'game_subtype' );
             echo '<label><span>' . esc_html__( 'Game subtype', 'talenttrack' ) . '</span><select name="game_subtype_key">';
             echo '<option value="">' . esc_html__( '— Choose —', 'talenttrack' ) . '</option>';
-            foreach ( $subtypes as $sub ) {
-                echo '<option value="' . esc_attr( (string) $sub ) . '" ' . selected( $subtype, (string) $sub, false ) . '>' . esc_html( (string) $sub ) . '</option>';
+            foreach ( $subtype_rows as $row ) {
+                $name = (string) ( $row->name ?? '' );
+                if ( $name === '' ) continue;
+                $label = \TT\Infrastructure\Query\LookupTranslator::name( $row );
+                echo '<option value="' . esc_attr( $name ) . '" ' . selected( $subtype, $name, false ) . '>' . esc_html( $label ) . '</option>';
             }
             echo '</select></label>';
         }
