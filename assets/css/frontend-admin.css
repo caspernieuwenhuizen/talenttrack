@@ -83,6 +83,29 @@
    MultiSelectTag). Gives every input a consistent vertical
    rhythm + error/hint slots.
     */
+/*
+ * #0075 Sprint 2 PR 1 — heading consumers for the Type-scale tokens
+ * shipped in v3.76.0. Selector specificity stays low (.tt-dashboard
+ * h1 etc.) so every existing component-level heading rule that uses
+ * a more specific selector still wins. Body font-size + line-height
+ * cascade from .tt-root in public.css; we only override here when
+ * .tt-dashboard wants to differ.
+ */
+.tt-dashboard h1,
+.tt-dashboard h2,
+.tt-dashboard h3,
+.tt-dashboard h4,
+.tt-dashboard h5,
+.tt-dashboard h6 {
+    line-height: var(--tt-lh-heading, 1.2);
+}
+.tt-dashboard h1 { font-size: var(--tt-fs-h1, 2rem); }
+.tt-dashboard h2 { font-size: var(--tt-fs-h2, 1.5rem); }
+.tt-dashboard h3 { font-size: var(--tt-fs-h3, 1.25rem); }
+.tt-dashboard h4 { font-size: var(--tt-fs-h4, 1.125rem); }
+.tt-dashboard h5 { font-size: var(--tt-fs-h5, 1rem); }
+.tt-dashboard h6 { font-size: var(--tt-fs-h6, 0.875rem); }
+
 .tt-dashboard .tt-field {
     display: flex;
     flex-direction: column;

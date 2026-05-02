@@ -60,9 +60,16 @@
     max-width: 1100px;
     margin: 2rem auto;
     padding: 0 1.25rem 3rem;
-    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    /*
+     * #0075 Sprint 2 PR 1 — body font-family / size / line-height
+     * read the design-system tokens. Fallbacks preserve the legacy
+     * serif stack + 1.55 line-height so existing installs render
+     * identically until the operator opts in via the editor.
+     */
+    font-family: var(--tt-font-body, Georgia, "Iowan Old Style", "Palatino Linotype", serif);
+    font-size: var(--tt-fs-body, 1rem);
     color: var(--tt-ink);
-    line-height: 1.55;
+    line-height: var(--tt-lh-body, 1.55);
 }
 .tt-dashboard *, .tt-dashboard *::before, .tt-dashboard *::after { box-sizing: border-box; }
 
@@ -94,8 +101,16 @@
 }
 .tt-btn-block { display: block; width: 100%; }
 .tt-login-links { text-align: center; margin-top: 1rem; font-size: .85rem; }
-.tt-login-links a { color: var(--tt-primary, #0b3d2e); text-decoration: none; border-bottom: 1px dotted currentColor; }
-.tt-login-links a:hover { color: var(--tt-secondary, #e8b624); }
+/* #0075 Sprint 2 PR 1 — link colour reads --tt-link-color (Links
+ * category) with fallback to --tt-primary so existing installs
+ * render identically. The shared .tt-link rule covers ad-hoc link
+ * usages in PHP-rendered surfaces (ParentSearchPicker, FrontendConfig,
+ * goals views) that previously had no CSS class definition; existing
+ * link colours come from inline styles or inherited <a> defaults. */
+.tt-login-links a { color: var(--tt-link-color, var(--tt-primary, #0b3d2e)); text-decoration: none; border-bottom: 1px dotted currentColor; }
+.tt-login-links a:hover { color: var(--tt-link-hover-color, var(--tt-secondary, #e8b624)); }
+.tt-link { color: var(--tt-link-color, var(--tt-primary, #0b3d2e)); text-decoration: none; transition: color var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease); }
+.tt-link:hover { color: var(--tt-link-hover-color, var(--tt-secondary, #e8b624)); }
 
 .tt-notice-inline {
     max-width: 420px;

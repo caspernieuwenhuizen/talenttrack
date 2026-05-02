@@ -45,6 +45,7 @@ final class TokenCatalogue {
     public const CATEGORY_MOTION      = 'motion';
     public const CATEGORY_BUTTONS     = 'buttons';
     public const CATEGORY_FORMS       = 'forms';
+    public const CATEGORY_LINKS       = 'links';
 
     /**
      * @return array<string, array{
@@ -142,7 +143,11 @@ final class TokenCatalogue {
             [ 'key' => 'font_size_h1',          'css_var' => '--tt-fs-h1',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 1 size (rem)',        'talenttrack' ), 'default' => '2',    'min' => 1.25, 'max' => 3.5,  'step' => 0.125,  'unit' => 'rem' ],
             [ 'key' => 'font_size_h2',          'css_var' => '--tt-fs-h2',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 2 size (rem)',        'talenttrack' ), 'default' => '1.5',  'min' => 1.125,'max' => 2.5,  'step' => 0.125,  'unit' => 'rem' ],
             [ 'key' => 'font_size_h3',          'css_var' => '--tt-fs-h3',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 3 size (rem)',        'talenttrack' ), 'default' => '1.25', 'min' => 1,    'max' => 2,    'step' => 0.0625, 'unit' => 'rem' ],
+            [ 'key' => 'font_size_h4',          'css_var' => '--tt-fs-h4',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 4 size (rem)',        'talenttrack' ), 'default' => '1.125','min' => 0.875,'max' => 1.5,  'step' => 0.0625, 'unit' => 'rem' ],
+            [ 'key' => 'font_size_h5',          'css_var' => '--tt-fs-h5',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 5 size (rem)',        'talenttrack' ), 'default' => '1',    'min' => 0.875,'max' => 1.25, 'step' => 0.0625, 'unit' => 'rem' ],
+            [ 'key' => 'font_size_h6',          'css_var' => '--tt-fs-h6',            'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading 6 size (rem)',        'talenttrack' ), 'default' => '0.875','min' => 0.75, 'max' => 1.125,'step' => 0.0625, 'unit' => 'rem' ],
             [ 'key' => 'line_height_body',      'css_var' => '--tt-lh-body',          'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Body line height',            'talenttrack' ), 'default' => '1.5',  'min' => 1.2,  'max' => 1.8,  'step' => 0.05 ],
+            [ 'key' => 'line_height_heading',   'css_var' => '--tt-lh-heading',       'category' => self::CATEGORY_TYPE_SCALE,'kind' => self::KIND_FLOAT,  'label' => __( 'Heading line height',         'talenttrack' ), 'default' => '1.2',  'min' => 1.0,  'max' => 1.5,  'step' => 0.05 ],
 
             // --- Buttons (#0075 Sprint 1 PR 5) ---
             [ 'key' => 'btn_primary_bg',        'css_var' => '--tt-btn-primary-bg',         'category' => self::CATEGORY_BUTTONS, 'kind' => self::KIND_COLOR, 'label' => __( 'Primary button — background',     'talenttrack' ), 'default' => '#0b3d2e' ],
@@ -153,6 +158,10 @@ final class TokenCatalogue {
             // --- Forms (#0075 Sprint 1 PR 5) ---
             [ 'key' => 'input_border_color',    'css_var' => '--tt-input-border',           'category' => self::CATEGORY_FORMS, 'kind' => self::KIND_COLOR, 'label' => __( 'Input border',           'talenttrack' ), 'default' => '#e3e1d8' ],
             [ 'key' => 'input_focus_border',    'css_var' => '--tt-input-focus-border',     'category' => self::CATEGORY_FORMS, 'kind' => self::KIND_COLOR, 'label' => __( 'Input border on focus',  'talenttrack' ), 'default' => '#0b3d2e' ],
+
+            // --- Links (#0075 Sprint 2 PR 1) ---
+            [ 'key' => 'link_color',            'css_var' => '--tt-link-color',             'category' => self::CATEGORY_LINKS, 'kind' => self::KIND_COLOR, 'label' => __( 'Link colour',            'talenttrack' ), 'default' => '#0b3d2e' ],
+            [ 'key' => 'link_hover_color',      'css_var' => '--tt-link-hover-color',       'category' => self::CATEGORY_LINKS, 'kind' => self::KIND_COLOR, 'label' => __( 'Link colour on hover',   'talenttrack' ), 'default' => '#e8b624' ],
         ];
     }
 
@@ -190,6 +199,7 @@ final class TokenCatalogue {
             self::CATEGORY_MOTION     => __( 'Motion',          'talenttrack' ),
             self::CATEGORY_BUTTONS    => __( 'Buttons',         'talenttrack' ),
             self::CATEGORY_FORMS      => __( 'Forms',           'talenttrack' ),
+            self::CATEGORY_LINKS      => __( 'Links',           'talenttrack' ),
         ];
     }
 

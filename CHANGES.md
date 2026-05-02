@@ -1,3 +1,73 @@
+# TalentTrack v3.77.1 — Typography consumer wiring + h4/h5/h6 + Links (#0075 Sprint 2 PR 1)
+
+> Renumbered from v3.77.0 in PR after #0073/#0074 claimed v3.77.0 mid-CI. Code unchanged.
+
+First PR of #0075 Sprint 2. Sprint 1 closed with 47 tokens but the type-scale tokens (`--tt-fs-h1/h2/h3`) were emitted-but-unused — no selector consumed them, so picking a heading size in the editor saved the value but produced no visible effect. This PR wires every dashboard heading to read the type-scale tokens, hooks body typography to the new tokens, adds 5 more catalogue entries (h4/h5/h6 sizes + heading line-height), introduces a Links category with link colour + hover, and adds a shared `.tt-link` CSS class that reads the new tokens.
+
+## What's new
+
+### Typography consumers (frontend-admin.css)
+
+- `.tt-dashboard h1` reads `var(--tt-fs-h1, 2rem)`
+- `.tt-dashboard h2` reads `var(--tt-fs-h2, 1.5rem)`
+- `.tt-dashboard h3` reads `var(--tt-fs-h3, 1.25rem)`
+- `.tt-dashboard h4` reads `var(--tt-fs-h4, 1.125rem)`
+- `.tt-dashboard h5` reads `var(--tt-fs-h5, 1rem)`
+- `.tt-dashboard h6` reads `var(--tt-fs-h6, 0.875rem)`
+- All headings read `line-height: var(--tt-lh-heading, 1.2)`
+- Selector specificity stays low (`.tt-dashboard h1` etc.) so component-level heading rules with more specific selectors still win — `.tt-panel-title` (currently uses `--tt-fs-lg`), `.tt-card-body h3` (Playfair Display + `--tt-primary`), etc.
+
+### Body typography (public.css)
+
+- `.tt-dashboard` now reads `font-family: var(--tt-font-body, ...)`, `font-size: var(--tt-fs-body, 1rem)`, `line-height: var(--tt-lh-body, 1.55)`. Fallbacks preserve the legacy serif stack + 1.55 line-height.
+
+### New tokens (5)
+
+- `font_size_h4` → `--tt-fs-h4` (rem, 0.875–1.5, default 1.125, unit `rem`)
+- `font_size_h5` → `--tt-fs-h5` (rem, 0.875–1.25, default 1, unit `rem`)
+- `font_size_h6` → `--tt-fs-h6` (rem, 0.75–1.125, default 0.875, unit `rem`)
+- `line_height_heading` → `--tt-lh-heading` (1.0–1.5, default 1.2, unitless)
+
+### Links category (2 tokens, new category)
+
+- `link_color` → `--tt-link-color` (default `#0b3d2e`, falls back to `--tt-primary`)
+- `link_hover_color` → `--tt-link-hover-color` (default `#e8b624`, falls back to `--tt-secondary`)
+- `.tt-login-links a` rule reads the new tokens.
+- New `.tt-link` rule (no prior CSS definition; class was used in PHP at four sites without styling) — picks up the link tokens + transition timing.
+
+## What did *not* change in this PR
+
+- **Storage shape migration** — still v3.64 flat blob. Sprint 2 PR 2 or 3.
+- **REST endpoints** — also Sprint 2 PR 2.
+- **Typography deep coverage** — captions, labels, helper text, code blocks, quotes, lists, inline code, strong/em, etc. The 22-element coverage from the spec is iterative; this PR closes the chokepoint (heading sizes + body) and adds 6 to the catalogue. Remaining ~13 elements ship in subsequent PRs.
+- **Per-component-state coverage for Buttons + Forms** — still single-state tokens. Hover/focus/disabled state tokens for buttons (beyond the existing `btn_primary_hover_bg`) and inputs (beyond existing `input_focus_border`) come in Sprint 2 PR 3.
+
+## Catalogue total: 54 tokens / 12 categories
+
+| Category | Tokens | Editor accordion order |
+|----------|--------|------------------------|
+| Brand colours | 7 | 1 |
+| Status colours | 8 | 2 |
+| Surfaces | 3 | 3 |
+| Text | 2 | 4 |
+| Typography | 4 | 5 |
+| Type scale | 8 (was 5) | 6 |
+| Shape + spacing | 3 | 7 |
+| Shadows | 3 | 8 |
+| Motion | 2 | 9 |
+| Buttons | 4 | 10 |
+| Forms | 2 | 11 |
+| **Links** *(new)* | **2** | **12** |
+
+## Acceptance criteria (manually verified)
+
+- [x] `php -l` clean.
+- [ ] `?tt_view=custom-css` → "Visual settings" tab. New "Links" accordion section visible at the bottom. "Type scale" section now has 8 entries (was 5 in v3.76.0).
+- [ ] Set `Heading 1 size (rem)` to `3` — reload the dashboard, every `<h1>` inside `.tt-dashboard` is now ~3rem (vs the previous browser default of 2em ≈ 2rem).
+- [ ] Set `Body line height` to `1.8` — paragraphs in `.tt-dashboard` widen accordingly. Body font-family also picks up `font_display`/`font_body` choices.
+- [ ] Set `Link colour` to `#cc0000` — login-screen links + any `.tt-link` element render in red.
+- [ ] No regression on existing installs (every consumer rule has a fallback, so installs that haven't opened the editor since v3.76.0 see no visual change).
+- [ ] Live preview from PR 4 still works for the new tokens (catalogue serialises into the same JS shape).
 # TalentTrack v3.77.0 — HoD landing enhancements (#0073) + persona dashboard visual refresh (#0074)
 
 Two adjacent persona-dashboard items shipped together because they touch the same module and a single version bump avoids another race with the parallel agent's #0075 sprint cadence.

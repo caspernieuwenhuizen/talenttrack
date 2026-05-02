@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.77.0
+Stable tag: 3.77.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.77.1 — Typography consumer wiring + h4/h5/h6 + Links (#0075 Sprint 2 PR 1) =
+
+First PR of #0075 Sprint 2. Sprint 1 catalogued type-scale tokens (`--tt-fs-h1/h2/h3`) but no selector consumed them. This PR wires `.tt-dashboard h1/h2/h3/h4/h5/h6` to read the type-scale tokens, hooks `.tt-dashboard` body font-family / size / line-height to `--tt-font-body / --tt-fs-body / --tt-lh-body`, adds 5 new tokens (`font_size_h4/h5/h6`, `line_height_heading`), introduces a Links category with `link_color` / `link_hover_color`, and adds a shared `.tt-link` CSS class reading those tokens. Existing installs render identically (every consumer rule has a fallback to the legacy hardcoded value); operators who set tokens via the editor now see effects across every dashboard heading + body text + login link. Renumbered from v3.77.0 in PR after #0073/#0074 claimed v3.77.0 mid-CI.
 
 = 3.77.0 — HoD landing enhancements (#0073) + persona dashboard visual refresh (#0074) =
 
