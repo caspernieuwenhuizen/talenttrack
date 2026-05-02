@@ -69,6 +69,7 @@ final class PersonaLandingRenderer {
         $ctx      = new RenderContext( $user_id, $club_id, $persona, $base_url );
 
         echo '<div class="tt-pd-landing" data-tt-pd-persona="' . esc_attr( $persona ) . '">';
+        self::renderPageHeader( $user_id, $persona, $template );
         self::renderRoleSwitcher( $user_id, $persona );
         if ( in_array( $persona, [ 'head_coach', 'assistant_coach' ], true ) ) {
             self::renderTeamTabs( $user_id );
@@ -98,8 +99,11 @@ final class PersonaLandingRenderer {
             true
         );
         wp_localize_script( 'tt-persona-dashboard', 'TT_PersonaDashboard', [
-            'rest_url'   => esc_url_raw( rest_url( 'talenttrack/v1/' ) ),
-            'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+            'rest_url'              => esc_url_raw( rest_url( 'talenttrack/v1/' ) ),
+            'rest_nonce'            => wp_create_nonce( 'wp_rest' ),
+            'player_view_base_url'  => esc_url_raw( self::dashboardBaseUrl() ),
+            'i18n_breakdown_failed' => __( 'Could not load player breakdown.', 'talenttrack' ),
+            'i18n_breakdown_empty'  => __( 'No players in window.', 'talenttrack' ),
         ] );
     }
 
@@ -109,6 +113,19 @@ final class PersonaLandingRenderer {
         if ( $active !== null ) return $active;
         $available = PersonaResolver::personasFor( $user_id );
         return $available[0] ?? null;
+    }
+
+    /**
+     * Dashboard base URL — preferred entry into TT views. Used to compose
+     * `?tt_view=players&id=N` links from the team-card breakdown JS.
+     */
+    private static function dashboardBaseUrl(): string {
+        $page_id = (int) \TT\Infrastructure\Query\QueryHelpers::get_config( 'dashboard_page_id', '0' );
+        if ( $page_id > 0 ) {
+            $url = get_permalink( $page_id );
+            if ( $url ) return $url;
+        }
+        return home_url( '/' );
     }
 
     private static function currentClubId(): int {
@@ -165,6 +182,77 @@ final class PersonaLandingRenderer {
             return $stored;
         }
         return 0;
+    }
+
+    /**
+     * #0074 — subtle page-level title header. Renders persona name + a
+     * date/club subtitle (with a time-of-day greeting when there's no
+     * hero widget doing the welcome work). Suppressed on sub-views.
+     */
+    private static function renderPageHeader( int $user_id, string $persona, PersonaTemplate $template ): void {
+        if ( isset( $_GET['tt_view'] ) && (string) $_GET['tt_view'] !== '' ) return;
+
+        $persona_label = self::personaLabel( $persona );
+        $subtitle      = self::pageSubtitle( $user_id, $template );
+
+        echo '<header class="tt-pd-page-header">';
+        echo '<h1 class="tt-pd-page-title">' . esc_html( $persona_label ) . '</h1>';
+        if ( $subtitle !== '' ) {
+            echo '<p class="tt-pd-page-subtitle">' . esc_html( $subtitle ) . '</p>';
+        }
+        echo '</header>';
+    }
+
+    private static function personaLabel( string $persona ): string {
+        $labels = [
+            'player'              => __( 'Player',              'talenttrack' ),
+            'parent'              => __( 'Parent',              'talenttrack' ),
+            'head_coach'          => __( 'Head coach',          'talenttrack' ),
+            'assistant_coach'     => __( 'Assistant coach',     'talenttrack' ),
+            'team_manager'        => __( 'Team manager',        'talenttrack' ),
+            'head_of_development' => __( 'Head of Development', 'talenttrack' ),
+            'scout'               => __( 'Scout',               'talenttrack' ),
+            'academy_admin'       => __( 'Academy admin',       'talenttrack' ),
+            'readonly_observer'   => __( 'Read-only observer',  'talenttrack' ),
+        ];
+        return $labels[ $persona ] ?? __( 'Dashboard', 'talenttrack' );
+    }
+
+    private static function pageSubtitle( int $user_id, PersonaTemplate $template ): string {
+        $tz       = wp_timezone();
+        $now      = new \DateTimeImmutable( 'now', $tz );
+        $date     = wp_date( 'l, j F', $now->getTimestamp() );
+        $club     = self::clubName();
+        $base     = $club !== '' ? $date . ' · ' . $club : $date;
+
+        // Hero-bearing personas already get a "welcome" treatment; don't
+        // duplicate the greeting in the header subtitle for them.
+        if ( $template->hero !== null ) return $base;
+
+        $hour = (int) $now->format( 'G' );
+        $user = get_userdata( $user_id );
+        $name = $user ? trim( (string) ( $user->first_name ?? '' ) ) : '';
+        if ( $name === '' && $user ) $name = (string) $user->display_name;
+
+        if ( $name === '' ) return $base;
+        if ( $hour < 12 ) {
+            /* translators: %s: first name. */
+            $greeting = sprintf( __( 'Good morning, %s', 'talenttrack' ), $name );
+        } elseif ( $hour < 18 ) {
+            /* translators: %s: first name. */
+            $greeting = sprintf( __( 'Good afternoon, %s', 'talenttrack' ), $name );
+        } else {
+            /* translators: %s: first name. */
+            $greeting = sprintf( __( 'Good evening, %s', 'talenttrack' ), $name );
+        }
+        return $greeting . ' · ' . $base;
+    }
+
+    private static function clubName(): string {
+        $name = \TT\Infrastructure\Query\QueryHelpers::get_config( 'club.display_name', '' );
+        if ( $name !== '' ) return $name;
+        $name = (string) get_bloginfo( 'name' );
+        return $name;
     }
 
     private static function renderRoleSwitcher( int $user_id, string $active ): void {

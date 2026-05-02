@@ -137,10 +137,19 @@ final class CoreTemplates {
     }
 
     public static function headOfDevelopment( int $club_id ): PersonaTemplate {
+        // #0073 — activity-first landing. KPI strip stays at the top; team
+        // overview grid takes the prime real estate; new-trial action sits
+        // in the right gutter; upcoming activities + trials-needing-decision
+        // tables stack below; navigation tiles drop to the bottom.
         $grid = new GridLayout();
-        // Row 0: trials decision table (XL).
-        $grid->add( new WidgetSlot( 'data_table', 'trials_needing_decision', Size::XL, 0, 0, 2, 5 ) );
-        // Row 2: navigation tiles.
+        // Rows 0-2: team overview grid (L, 9 cols) + new-trial action (S, 3 cols, right gutter).
+        $grid->add( new WidgetSlot( 'team_overview_grid', 'days=30,sort=concern_first', Size::L, 0, 0, 3, 5 ) );
+        $grid->add( new WidgetSlot( 'action_card',        'new_trial',                  Size::S, 9, 0, 1, 6 ) );
+        // Row 3: upcoming activities table (XL, full width, 2 rows).
+        $grid->add( new WidgetSlot( 'data_table', 'upcoming_activities', Size::XL, 0, 3, 2, 8 ) );
+        // Row 5: trials needing decision (existing, moved down).
+        $grid->add( new WidgetSlot( 'data_table', 'trials_needing_decision', Size::XL, 0, 5, 2, 12 ) );
+        // Row 7+: navigation tiles.
         $tiles = [
             [ 'trials',         __( 'Trials',           'talenttrack' ), 20 ],
             [ 'pdp',            __( 'PDP',              'talenttrack' ), 21 ],
@@ -153,7 +162,7 @@ final class CoreTemplates {
         ];
         foreach ( $tiles as $i => [ $slug, $label, $priority ] ) {
             $col = ( $i % 4 ) * 3;
-            $row = 2 + (int) floor( $i / 4 );
+            $row = 7 + (int) floor( $i / 4 );
             $grid->add( new WidgetSlot(
                 'navigation_tile', $slug, Size::S, $col, $row, 1, $priority, true, $label
             ) );

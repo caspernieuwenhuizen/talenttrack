@@ -23,12 +23,28 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class FrontendBackButton {
 
     /**
-     * Render a back link pointing at the tile landing page.
+     * Render a back link.
      *
-     * @param string $label Optional label override. Defaults to localized "← Back to dashboard".
+     * v3.75.3 — fix issue #23. The pre-fix signature was
+     * `render( string $label = '' )` — so callers that wanted a custom
+     * **URL** (e.g. `FrontendPlayerDetailView` passing
+     * `add_query_arg(['tt_view'=>'players'], …)`) had their URL silently
+     * rendered as the button TEXT and the button still navigated to the
+     * dashboard. The screenshot showed labels like `/DEMO/?TT_VIEW=PLAYERS`.
+     * Both behaviours were wrong. New signature takes target URL first
+     * + optional label second; existing one-arg callers passing a URL
+     * now do what they always meant. The single call site that passed
+     * a label as first arg (FrontendUsageStatsDetailsView) is updated
+     * in this PR to use the new shape.
+     *
+     * @param string $target_url Optional target URL override. Defaults to the
+     *                           tile-landing page resolved from the
+     *                           current request URI.
+     * @param string $label      Optional label override. Defaults to
+     *                           localized "← Back to dashboard".
      */
-    public static function render( string $label = '' ): void {
-        $target = self::resolveTarget();
+    public static function render( string $target_url = '', string $label = '' ): void {
+        $target = $target_url !== '' ? $target_url : self::resolveTarget();
         if ( $label === '' ) {
             $label = __( '← Back to dashboard', 'talenttrack' );
         }

@@ -11344,7 +11344,7 @@ msgstr "Invoerveld-rand"
 msgid "Input border on focus"
 msgstr "Invoerveld-rand bij focus"
 
-# v3.77.0 / #0075 Sprint 2 PR 1 — typography consumer wiring + h4/h5/h6 + Links
+# v3.77.1 / #0075 Sprint 2 PR 1 — typography consumer wiring + h4/h5/h6 + Links
 msgid "Heading 4 size (rem)"
 msgstr "Kop 4 grootte (rem)"
 
@@ -11365,3 +11365,71 @@ msgstr "Link-kleur"
 
 msgid "Link colour on hover"
 msgstr "Link-kleur bij hover"
+
+# v3.76.1 / #23 — back-link labels for detail views
+msgid "← Back to teams"
+msgstr "← Terug naar teams"
+
+msgid "← Back to people"
+msgstr "← Terug naar mensen"
+
+# v3.77.0 / #0073 + #0074 — HoD landing enhancements + persona dashboard visual refresh
+
+msgid "+ New evaluation"
+msgstr "+ Nieuwe evaluatie"
+
+msgid "+ New goal"
+msgstr "+ Nieuw doel"
+
+msgid "+ New activity"
+msgstr "+ Nieuwe activiteit"
+
+msgid "+ Add player"
+msgstr "+ Speler toevoegen"
+
+msgid "+ Add team"
+msgstr "+ Ploeg toevoegen"
+
+msgid "+ New scout report"
+msgstr "+ Nieuw scoutrapport"
+
+msgid "+ New trial"
+msgstr "+ Nieuwe proeftraining"
+
+msgid "Team overview"
+msgstr "Ploegoverzicht"
+
+msgid "Coach: %s"
+msgstr "Coach: %s"
+
+msgid "%d player"
+msgid_plural "%d players"
+msgstr[0] "%d speler"
+msgstr[1] "%d spelers"
+
+msgid "Loading players…"
+msgstr "Spelers laden…"
+
+msgid "No teams with recent activity."
+msgstr "Geen ploegen met recente activiteit."
+
+msgid "No upcoming activities in this window."
+msgstr "Geen aankomende activiteiten in dit venster."
+
+msgid "Could not load player breakdown."
+msgstr "Kon spelersuitsplitsing niet laden."
+
+msgid "No players in window."
+msgstr "Geen spelers in dit venster."
+
+msgid "Date & time"
+msgstr "Datum & tijd"
+
+msgid "Good morning, %s"
+msgstr "Goedemorgen, %s"
+
+msgid "Good afternoon, %s"
+msgstr "Goedemiddag, %s"
+
+msgid "Good evening, %s"
+msgstr "Goedenavond, %s"

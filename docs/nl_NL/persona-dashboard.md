@@ -14,7 +14,7 @@ Deze pagina beschrijft wat je per persona kunt verwachten, hoe je wisselt als je
 | **Ouder** | Kind-schakelaar + "sinds je laatste bezoek"-overzicht | POP wachtend op jouw akkoord | De kaart van mijn kind, evaluaties, activiteiten, POP |
 | **Hoofdtrainer / Assistent-trainer** | Vandaag / Eerstvolgende met aanwezigheids- en evaluatie-knoppen | Werkstroomtaken + recente evaluaties-rail | Activiteiten, evaluaties, doelen, spelers, teams, POP, methodiek, mijn taken |
 | **Teammanager** | Vandaag / Eerstvolgende | (standaard geen) | Activiteiten, mijn teams, spelers, mijn taken |
-| **Head of Development** | KPI-strip (actieve spelers, evaluaties deze maand, opkomstpercentage, open trials, openstaande POP-verdicten, doel-voltooiingspercentage) | Trials die een besluit nodig hebben (tabel) | Trials, POP, spelers, methodiek, takendashboard, evaluaties, ratingcards, vergelijken |
+| **Head of Development** | KPI-strip (actieve spelers, evaluaties deze maand, opkomstpercentage, open trials, openstaande POP-verdicten, doel-voltooiingspercentage) | Ploegoverzicht-grid (per ploeg rating + opkomst, uitklapbaar naar spelersuitsplitsing), Nieuwe trial snelactie, Aankomende activiteiten-tabel, Trials die een besluit nodig hebben (tabel) | Trials, POP, spelers, methodiek, takendashboard, evaluaties, ratingcards, vergelijken |
 | **Scout** | Toegewezen-spelers-grid (je primaire werksurface) | Recente rapporten | Mijn rapporten, mijn toegewezen spelers |
 | **Academiebeheerder** | Systeemstatus-strip (back-up, uitnodigingen, licentie, modules) | Recente audit-gebeurtenissen (tabel) | Configuratie, autorisatie, gebruiksstatistieken, audit log, uitnodigingen, migraties, hulp, methodiek |
 | **Read-only waarnemer** | KPI-strip in alleen-lezen-modus | (geen) | (geen bewerk-acties; alleen methodiek + KPI's) |
@@ -27,7 +27,7 @@ De pillenbalk verschijnt alleen als er meer dan één persona voor jouw account 
 
 ## Wat is een "widget"?
 
-Elk blok op het dashboard is een widget. Er zijn 14 widget-types: navigatietegel, KPI-kaart, KPI-strip, actie-kaart, snelle-acties-paneel, info-kaart, takenlijst-paneel, datatabel, mini-spelerslijst, ratingcard-hero, vandaag-eerstvolgende-hero, kind-schakelaar-met-overzicht, systeemstatus-strip en toegewezen-spelers-grid.
+Elk blok op het dashboard is een widget. Er zijn 15 widget-types: navigatietegel, KPI-kaart, KPI-strip, actie-kaart, snelle-acties-paneel, info-kaart, takenlijst-paneel, datatabel (met presets voor trials, scoutrapporten, audit log en aankomende activiteiten), mini-spelerslijst, ratingcard-hero, vandaag-eerstvolgende-hero, kind-schakelaar-met-overzicht, systeemstatus-strip, toegewezen-spelers-grid en **ploegoverzicht-grid**.
 
 Widgets hebben vier formaten — Small, Medium, Large, Extra-large — en klikken vast op een 12-koloms grid op desktop, 6 koloms op tablet en één mobile-priority-gesorteerde kolom op mobiel.
 
@@ -97,6 +97,32 @@ DELETE /wp-json/talenttrack/v1/me/active-persona                 actieve persona
 ```
 
 Een ingelogde gebruiker kan templates lezen voor persona's waarvoor hij in aanmerking komt; de write-endpoints vereisen `tt_edit_persona_templates`.
+
+## Visuele conventies (v3.76.0)
+
+Het dashboard opent met een subtiele titelkop — persona-naam als paginatitel plus een ondertitel met datum + clubnaam. Persona's zonder hero-widget (Head of Development, Academiebeheerder, Scout) krijgen een dagdeel-groet als prefix; persona's met een hero (speler, ouder, coach, manager) krijgen geen extra groet omdat de hero die functie al vervult.
+
+Tegel-iconen (de gekleurde één-letter-vierkantjes) en de gele plus-cirkel op actie-kaarten zijn weg. Tegels leunen nu op typografische hiërarchie en een hover-pijltje; actie-kaarten plaatsen de "+" in de label-string. De widget-shell heeft zachtere hoekranden, een twee-staps schaduw die meegeeft op hover, en een getokeniseerd kleurenpalet (`--tt-pd-*` custom properties) zodat toekomstige themapasses één plaats hebben om aan te passen.
+
+Clubs die sterker visueel onderscheid tussen tegels nodig hebben kunnen via de dashboard-editor een per-tegel-beschrijving toevoegen — typografie leest dan als "label + beschrijving" in plaats van "label + icoon".
+
+## Ploegoverzicht-grid (HoD-landing, v3.76.0)
+
+Per-ploeg samenvattingskaarten in een responsief grid. Elke kaart toont ploegnaam, leeftijdscategorie, hoofdtrainer, en twee getallen: gemiddelde evaluatie-rating en opkomstpercentage over een instelbaar venster (standaard 30 dagen). Tikken op een kaart klapt hem inline open en toont de spelersuitsplitsing van die ploeg met opkomst % en rating per speler.
+
+**Slot-config** — ingesteld in het eigenschappen-paneel van de dashboard-editor:
+
+```
+days=30,limit=20,sort=concern_first
+```
+
+- `days` — venster in dagen (1-365). Standaard 30.
+- `limit` — max aantal kaarten. Standaard 20.
+- `sort` — `alphabetical` (standaard) | `rating_desc` | `attendance_desc` | `concern_first`.
+
+`concern_first` zet ploegen onder een drempelwaarde bovenaan. Drempels: rating 6.0 en opkomst 70%; clubs kunnen overschrijven via `tt_config`-sleutels `team_concern_rating_threshold` en `team_concern_attendance_threshold`.
+
+De uitklap-status is per gebruiker, per kaart, opgeslagen in `localStorage` (`tt_pd_team_card_{team_id}`). Synchronisatie tussen apparaten wordt niet geboden — het is een UI-voorkeur, geen datavoorkeur.
 
 ## Verder lezen
 
