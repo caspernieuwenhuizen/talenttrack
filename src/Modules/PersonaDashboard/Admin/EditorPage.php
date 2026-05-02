@@ -137,6 +137,7 @@ final class EditorPage {
      */
     private static function buildBootstrap( array $personas, int $club_id ): array {
         $widgets = [];
+        $data_sources_by_widget = [];
         foreach ( WidgetRegistry::all() as $w ) {
             $widgets[] = [
                 'id'                  => $w->id(),
@@ -147,6 +148,12 @@ final class EditorPage {
                 'cap_required'        => $w->capRequired(),
                 'default_priority'    => $w->defaultMobilePriority(),
             ];
+            // #0077 M1 — publish each widget's catalogue so the editor
+            // can show a dropdown instead of a free-text data_source.
+            $catalogue = method_exists( $w, 'dataSourceCatalogue' ) ? $w->dataSourceCatalogue() : [];
+            if ( ! empty( $catalogue ) ) {
+                $data_sources_by_widget[ $w->id() ] = $catalogue;
+            }
         }
 
         $kpis_by_context = [
@@ -174,15 +181,17 @@ final class EditorPage {
         }
 
         return [
-            'rest_url'       => esc_url_raw( rest_url( 'talenttrack/v1/' ) ),
-            'rest_nonce'     => wp_create_nonce( 'wp_rest' ),
-            'club_id'        => $club_id,
-            'widgets'        => $widgets,
-            'kpis_by_context'=> $kpis_by_context,
-            'templates'      => $templates,
-            'user_counts'    => $user_counts,
-            'persona_labels' => self::personaLabelsMap( $personas ),
-            'i18n'           => self::i18nStrings(),
+            'rest_url'                 => esc_url_raw( rest_url( 'talenttrack/v1/' ) ),
+            'rest_nonce'               => wp_create_nonce( 'wp_rest' ),
+            'club_id'                  => $club_id,
+            'widgets'                  => $widgets,
+            'kpis_by_context'          => $kpis_by_context,
+            // #0077 M1 — { widget_id: { preset_id: human_label } }
+            'data_sources_by_widget'   => $data_sources_by_widget,
+            'templates'                => $templates,
+            'user_counts'              => $user_counts,
+            'persona_labels'           => self::personaLabelsMap( $personas ),
+            'i18n'                     => self::i18nStrings(),
         ];
     }
 

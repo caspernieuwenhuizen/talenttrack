@@ -28,6 +28,17 @@ class DataTableWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Data table', 'talenttrack' ); }
 
+    /** @return array<string,string> */
+    public function dataSourceCatalogue(): array {
+        return [
+            'trials_needing_decision' => __( 'Trials needing decision', 'talenttrack' ),
+            'recent_scout_reports'    => __( 'My recent scout reports', 'talenttrack' ),
+            'audit_log_recent'        => __( 'Recent audit events', 'talenttrack' ),
+            'upcoming_activities'     => __( 'Upcoming activities', 'talenttrack' ),
+            'goals_by_principle'      => __( 'Goals by principle', 'talenttrack' ),
+        ];
+    }
+
     public function defaultSize(): string { return Size::XL; }
 
     /** @return list<string> */

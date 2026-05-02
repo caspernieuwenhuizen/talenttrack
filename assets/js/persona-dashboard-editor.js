@@ -666,11 +666,18 @@
             form.appendChild(field(I18N.size || 'Size', staticText('XL · ' + (hit.band === 'hero' ? 'hero' : 'task') + ' band')));
         }
 
-        // Data source — KPI dropdown for kpi_card; data table preset for data_table; nav slug for navigation_tile; etc.
+        // Data source — KPI dropdown for kpi_card; per-widget catalogue
+        // dropdown when the widget publishes one (#0077 M1); free-text
+        // fallback for widgets without a catalogue.
         if (ref[0] === 'kpi_card') {
             form.appendChild(field(I18N.data_source || 'Data source', kpiSelect(slot)));
-        } else if (ref[0] === 'navigation_tile' || ref[0] === 'action_card' || ref[0] === 'info_card' || ref[0] === 'data_table' || ref[0] === 'mini_player_list') {
-            form.appendChild(field(I18N.data_source || 'Data source', dataSourceText(slot)));
+        } else {
+            var catalogue = (BOOT.data_sources_by_widget || {})[ref[0]];
+            if (catalogue && Object.keys(catalogue).length > 0) {
+                form.appendChild(field(I18N.data_source || 'Data source', dataSourceSelect(slot, catalogue)));
+            } else if (ref[0] === 'navigation_tile' || ref[0] === 'action_card' || ref[0] === 'info_card' || ref[0] === 'data_table' || ref[0] === 'mini_player_list') {
+                form.appendChild(field(I18N.data_source || 'Data source', dataSourceText(slot)));
+            }
         }
 
         // Persona label override
@@ -763,6 +770,27 @@
             commit();
         });
         return input;
+    }
+    // #0077 M1 — closed-set picker fed by the widget's catalogue.
+    function dataSourceSelect(slot, catalogue) {
+        var sel = document.createElement('select');
+        sel.appendChild(option('', '—'));
+        var current = splitRef(slot.widget)[1] || '';
+        var keys = Object.keys(catalogue);
+        keys.forEach(function (k) { sel.appendChild(option(k, catalogue[k])); });
+        // If the slot already references an unknown id (e.g. an old
+        // template referencing a since-removed preset), keep it visible
+        // so the operator can deliberately switch — silent loss is worse.
+        if (current && keys.indexOf(current) === -1) {
+            sel.appendChild(option(current, current + ' (legacy)'));
+        }
+        sel.value = current;
+        sel.addEventListener('change', function () {
+            var ref = splitRef(slot.widget);
+            slot.widget = sel.value ? ref[0] + ':' + sel.value : ref[0];
+            commit();
+        });
+        return sel;
     }
     function personaLabelInput(slot) {
         var input = document.createElement('input');

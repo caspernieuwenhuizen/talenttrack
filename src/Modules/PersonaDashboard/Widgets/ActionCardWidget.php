@@ -35,6 +35,15 @@ class ActionCardWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Action card', 'talenttrack' ); }
 
+    /** @return array<string,string> */
+    public function dataSourceCatalogue(): array {
+        $out = [];
+        foreach ( self::ACTIONS as $key => $action ) {
+            $out[ $key ] = __( (string) $action['label_key'], 'talenttrack' );
+        }
+        return $out;
+    }
+
     public function defaultSize(): string { return Size::S; }
 
     /** @return list<string> */
