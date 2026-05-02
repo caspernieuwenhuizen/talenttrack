@@ -42,23 +42,35 @@ class TeamsRestController {
     }
 
     public static function register(): void {
+        // #0077 M5 — every gate now consults AuthorizationService::userCanOrMatrix
+        // so users granted the cap via a matrix scope-row pass too. Same
+        // pattern as ActivitiesRestController::can_edit and TileRegistry.
+        $can_view = static function (): bool {
+            $uid = get_current_user_id();
+            return AuthorizationService::userCanOrMatrix( $uid, 'tt_view_teams' )
+                || AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_teams' );
+        };
+        $can_edit = static function (): bool {
+            return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_teams' );
+        };
+
         register_rest_route( self::NS, '/teams', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_teams' ],
-                'permission_callback' => function () { return current_user_can( 'tt_view_teams' ) || current_user_can( 'tt_edit_teams' ); },
+                'permission_callback' => $can_view,
             ],
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_team' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_teams' ); },
+                'permission_callback' => $can_edit,
             ],
         ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_team' ],
-                'permission_callback' => function () { return current_user_can( 'tt_view_teams' ) || current_user_can( 'tt_edit_teams' ); },
+                'permission_callback' => $can_view,
             ],
             [
                 'methods'             => 'PUT',
@@ -70,7 +82,7 @@ class TeamsRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_team' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_teams' ); },
+                'permission_callback' => $can_edit,
             ],
         ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/players/(?P<player_id>\d+)', [

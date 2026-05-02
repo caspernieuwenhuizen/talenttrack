@@ -315,9 +315,15 @@ class FrontendTeamsManageView extends FrontendViewBase {
      * Read-only "team page": header + meta + roster + staff. Edit button
      * shown only when the viewer has tt_edit_teams (or is admin) — coaches
      * without that cap see the same page minus the Edit affordance.
+     *
+     * #0077 M5 — was current_user_can( 'tt_edit_teams' ); now goes through
+     * AuthorizationService::userCanOrMatrix so users granted the cap via
+     * a matrix scope-row (the v3.71.4 functional-roles bridge) pass too.
+     * Same fallback pattern as TileRegistry::userMayAccess and
+     * ActivitiesRestController::can_edit.
      */
     private static function renderDetail( int $user_id, bool $is_admin, object $team ): void {
-        $can_edit = $is_admin || current_user_can( 'tt_edit_teams' );
+        $can_edit = $is_admin || \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_teams' );
         $base_url = remove_query_arg( [ 'action' ] );
         $edit_url = add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id, 'action' => 'edit' ], $base_url );
 
