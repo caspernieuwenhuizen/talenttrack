@@ -11434,7 +11434,7 @@ msgstr "Goedemiddag, %s"
 msgid "Good evening, %s"
 msgstr "Goedenavond, %s"
 
-# v3.78.0 / #0075 Sprint 2 close — 6 new categories + per-state buttons
+# v3.78.1 / #0075 Sprint 2 close — 6 new categories + per-state buttons
 # (Cards / Tables / Feedback msgids already translated elsewhere in this
 #  file from prior PRs; not redeclared here.)
 msgid "Content elements"
@@ -11538,3 +11538,35 @@ msgstr "Tooltip — achtergrond"
 
 msgid "Tooltip — text"
 msgstr "Tooltip — tekst"
+
+# v3.78.0 / #0072 + #0073 follow-up — autosave + resume banner + per-row eval submit + table-source backfill
+
+msgid "Autosave ready"
+msgstr "Autosave klaar"
+
+msgid "Saving…"
+msgstr "Opslaan…"
+
+msgid "Saved · "
+msgstr "Opgeslagen · "
+
+msgid "Save failed"
+msgstr "Opslaan mislukt"
+
+msgid "You started this %s ago. Continue where you left off, or start over?"
+msgstr "Je bent %s geleden begonnen. Doorgaan waar je gebleven was, of opnieuw beginnen?"
+
+msgid "Could not write evaluation row."
+msgstr "Kon evaluatie-rij niet wegschrijven."
+
+msgid "No player id supplied."
+msgstr "Geen speler-id meegegeven."
+
+msgid "Writing evaluation %1$d of %2$d…"
+msgstr "Evaluatie %1$d van %2$d wegschrijven…"
+
+msgid "Done — redirecting…"
+msgstr "Klaar — doorlinken…"
+
+msgid "One or more rows failed. Refresh to retry."
+msgstr "Eén of meer rijen mislukt. Vernieuw om opnieuw te proberen."

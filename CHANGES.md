@@ -1,4 +1,6 @@
-# TalentTrack v3.78.0 — Sprint 2 close (#0075 Sprint 2 PR 2)
+# TalentTrack v3.78.1 — Sprint 2 close (#0075 Sprint 2 PR 2)
+
+> Renumbered from v3.78.0 in PR after a parallel deferred-polish bundle claimed v3.78.0 mid-CI. Code unchanged.
 
 Closes Sprint 2 of #0075 in a single bundled PR per request. Adds 28 new tokens across six new categories, fixes a real bug where WP administrators were denied access to `?tt_view=custom-css` when `tt_authorization_active=1`, and exposes the catalogue + saved values through a REST endpoint per CLAUDE.md § 4. Catalogue total: **82 tokens / 18 categories**.
 
@@ -107,6 +109,43 @@ PUT is deliberately not implemented — operators write through the visual edito
 - [ ] Set `Table header — background` to `#cc0000` and `Table header — text` to `#000`. Save. Reload. `.tt-table thead th` shows red bg + black text.
 - [ ] No regression on the v3.77.1 typography consumer rules.
 - [ ] Live preview reflects all new colour tokens immediately on every input change.
+# TalentTrack v3.78.0 — Deferred-polish bundle: table-source backfill, wizard autosave + resume + per-row progress
+
+Four deferred items from #0072 + #0073 all bundled into one ship because they're independent and small.
+
+## #0073 follow-up — TableRowSourceRegistry backfill
+
+The three pre-existing `DataTableWidget` presets that shipped in v3.60+ as layout-only chrome now have real row sources:
+
+- **`trials_needing_decision`** (HoD landing) — open + extended trial cases for the current club, sorted by end-date ascending. Columns: Player / Team / Day / Coach (placeholder until per-case lead resolution lands) / Open link.
+- **`recent_scout_reports`** (Scout landing) — the user's own recent reports via `ScoutReportsRepository::listForGenerator()`. Columns: Date / Player / Status / Open link. Status reflects revoked/expired/active state.
+- **`audit_log_recent`** (Academy Admin landing) — `AuditService::recent()`. Columns: When / Who / What.
+
+All three plug into the v3.76.0-introduced `TableRowSourceRegistry` so adding more presets (or overriding from a third-party module) stays one-line.
+
+## #0072 follow-up — autosave indicator on every wizard step
+
+- **NEW REST endpoint** `POST /talenttrack/v1/wizards/{slug}/draft` — accepts `{ fields: {...} }`, sanitises, merges into `WizardState` (which writes through to `tt_wizard_drafts`). Logged-in `read` cap; the wizard's own availability is re-validated server-side.
+- **NEW JS** `assets/js/wizard-autosave.js` — listens for `input` + `change` on `.tt-wizard-form`, debounces 800ms, posts the field map. Handles checkboxes/radios + `key[]` array fields. Skips identical-payload sends and cancels in-flight when a fresher edit lands.
+- **NEW status caption** next to the wizard action buttons cycles through "Autosave ready / Saving… / Saved · HH:MM / Save failed" with `aria-live="polite"`.
+
+## #0072 follow-up — resume banner on cross-session re-entry
+
+`FrontendWizardView` renders a `tt-pd-resume-banner` notice when (a) `WizardState::hasPersistentDraft()` is true, (b) the saved draft is older than 10 minutes (the cross-session signal — same-session reloads skip it), and (c) the state has actual user-typed payload beyond bookkeeping. Banner: *"You started this 2 hours ago. Continue where you left off, or start over?"* + Continue / Start over buttons. The 10-minute threshold avoids flashing the banner on every same-session reload.
+
+## #0072 follow-up — per-row Review submit with progress bar
+
+- **NEW** `EvaluationInserter::insert()` extracted from `ReviewStep::submitActivityFirst()` so the per-row REST endpoint and the PHP submit share one code path.
+- **NEW REST endpoint** `POST /talenttrack/v1/wizards/new-evaluation/insert-row` — one (player, ratings) tuple per call. Cap: `tt_create_evaluations`.
+- **NEW JS** `assets/js/wizard-eval-review.js` — intercepts the Review step's Submit click, drives one POST per rated player with a `<progress>` bar showing "Writing evaluation 3 of 12…", then redirects to the activity's evaluations view on completion. JS-disabled browsers fall back to the v3.75.0 PHP-only one-shot submit (same DB rows, same destination).
+
+## Translations
+
+10 new NL strings (autosave status captions, resume banner copy, per-row writing status, error messages).
+
+## What stays deferred
+
+The mobile-vs-desktop split for `RateActorsStep` (one-player-at-a-time on phone vs full vertical list on desktop with swipe gestures) is a meaningful CSS + UX rebuild and gets its own ship.
 
 # TalentTrack v3.77.1 — Typography consumer wiring + h4/h5/h6 + Links (#0075 Sprint 2 PR 1)
 
@@ -178,6 +217,7 @@ First PR of #0075 Sprint 2. Sprint 1 closed with 47 tokens but the type-scale to
 - [ ] Set `Link colour` to `#cc0000` — login-screen links + any `.tt-link` element render in red.
 - [ ] No regression on existing installs (every consumer rule has a fallback, so installs that haven't opened the editor since v3.76.0 see no visual change).
 - [ ] Live preview from PR 4 still works for the new tokens (catalogue serialises into the same JS shape).
+
 # TalentTrack v3.77.0 — HoD landing enhancements (#0073) + persona dashboard visual refresh (#0074)
 
 Two adjacent persona-dashboard items shipped together because they touch the same module and a single version bump avoids another race with the parallel agent's #0075 sprint cadence.

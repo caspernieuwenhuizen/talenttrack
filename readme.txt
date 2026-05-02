@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.78.0
+Stable tag: 3.78.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,9 +12,21 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 3.78.0 — Sprint 2 close: 6 new categories + admin bypass fix + REST endpoint (#0075 Sprint 2 PR 2) =
+= 3.78.1 — Sprint 2 close: 6 new categories + admin bypass fix + REST endpoint (#0075 Sprint 2 PR 2) =
 
-Closes Sprint 2 of #0075 in a single big PR per request. Adds 28 new tokens across six new categories (Content elements, Cards, Lists, Tables, Feedback, Overlays) plus per-state buttons, fixes a real bug where WP administrators were denied access to `?tt_view=custom-css` when `tt_authorization_active=1` (LegacyCapMapper had no admin bypass), exposes the catalogue + saved values via `GET /wp-json/talenttrack/v1/design-system/tokens` per CLAUDE.md § 4. Catalogue total: **82 tokens / 18 categories**. Existing installs render identically — every consumer rule has a fallback to the legacy hardcoded value.
+Closes Sprint 2 of #0075 in a single big PR per request. Adds 28 new tokens across six new categories (Content elements, Cards, Lists, Tables, Feedback, Overlays) plus per-state buttons, fixes a real bug where WP administrators were denied access to `?tt_view=custom-css` when `tt_authorization_active=1` (LegacyCapMapper had no admin bypass), exposes the catalogue + saved values via `GET /wp-json/talenttrack/v1/design-system/tokens` per CLAUDE.md § 4. Catalogue total: **82 tokens / 18 categories**. Existing installs render identically — every consumer rule has a fallback to the legacy hardcoded value. Renumbered from v3.78.0 in PR after a parallel deferred-polish bundle claimed v3.78.0 mid-CI.
+
+= 3.78.0 — Deferred-polish bundle: TableRowSourceRegistry backfill + wizard autosave + resume banner + per-row Review progress =
+
+Four deferred items from #0072 + #0073 bundled in one ship.
+
+* **NEW (#0073 follow-up):** `TableRowSourceRegistry` backfill — `trials_needing_decision`, `recent_scout_reports`, `audit_log_recent` `DataTableWidget` presets all wired to live data. HoD / Scout / Academy Admin landings stop showing empty-state chrome.
+* **NEW (#0072 follow-up):** Autosave on every wizard step. New `POST /talenttrack/v1/wizards/{slug}/draft` REST endpoint + 800ms-debounced JS in `assets/js/wizard-autosave.js`. Status caption next to the action buttons cycles "Autosave ready / Saving… / Saved · 14:32 / Save failed".
+* **NEW (#0072 follow-up):** Resume banner — when a wizard's persistent draft is older than 10 minutes (cross-session signal), the wizard renders a "You started this %s ago. Continue or start over?" notice with Continue / Start over buttons. Same-session reloads skip the banner.
+* **NEW (#0072 follow-up):** Per-row Review submit with `<progress>` bar. New `POST /talenttrack/v1/wizards/new-evaluation/insert-row` endpoint + `EvaluationInserter::insert()` extracted helper. JS in `assets/js/wizard-eval-review.js` intercepts the Submit click, drives one POST per rated player, shows "Writing evaluation 3 of 12…", redirects on completion. JS-disabled browsers fall back to the v3.75.0 PHP one-shot submit unchanged.
+* **TRANSLATIONS:** 10 new NL strings.
+
+What stays deferred: mobile-vs-desktop split for `RateActorsStep` (its own ship).
 
 = 3.77.1 — Typography consumer wiring + h4/h5/h6 + Links (#0075 Sprint 2 PR 1) =
 

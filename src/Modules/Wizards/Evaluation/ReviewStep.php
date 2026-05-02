@@ -37,11 +37,18 @@ final class ReviewStep implements WizardStepInterface {
 
         $aid     = (int) ( $state['activity_id'] ?? 0 );
         $ratings = (array) ( $state['ratings'] ?? [] );
+        $notes   = (array) ( $state['notes'] ?? [] );
         $skip    = (array) ( $state['skip'] ?? [] );
         $present_players = RateActorsStep::ratablePlayersForActivity( $aid );
 
         $rated_count = 0;
         $unrated     = [];
+        $rows        = [];
+        $activity_row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT session_date FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $aid, CurrentClub::id()
+        ) );
+        $eval_date = $activity_row && $activity_row->session_date ? (string) $activity_row->session_date : current_time( 'Y-m-d' );
         foreach ( $present_players as $pl ) {
             $pid = (int) $pl->id;
             if ( ! empty( $skip[ $pid ] ) ) continue;
@@ -50,10 +57,32 @@ final class ReviewStep implements WizardStepInterface {
             foreach ( $r as $v ) { if ( (int) $v > 0 ) { $any = true; break; } }
             if ( $any ) {
                 $rated_count++;
+                $rows[] = [
+                    'activity_id' => $aid,
+                    'player_id'   => $pid,
+                    'eval_date'   => $eval_date,
+                    'ratings'     => array_map( 'intval', $r ),
+                    'notes'       => (string) ( $notes[ $pid ] ?? '' ),
+                ];
             } else {
                 $unrated[] = trim( (string) $pl->first_name . ' ' . (string) $pl->last_name );
             }
         }
+
+        $redirect_url = add_query_arg( [
+            'tt_view'     => 'evaluations',
+            'activity_id' => $aid,
+        ], WizardEntryPoint::dashboardBaseUrl() );
+
+        $payload = [
+            'rest_url'   => esc_url_raw( rest_url( 'talenttrack/v1/wizards/new-evaluation/insert-row' ) ),
+            'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+            'rows'       => $rows,
+            'redirect_url' => esc_url_raw( $redirect_url ),
+            'i18n_writing' => __( 'Writing evaluation %1$d of %2$d…', 'talenttrack' ),
+            'i18n_done'    => __( 'Done — redirecting…', 'talenttrack' ),
+            'i18n_failed'  => __( 'One or more rows failed. Refresh to retry.', 'talenttrack' ),
+        ];
         ?>
         <p style="color:var(--tt-muted);max-width:60ch;">
             <?php
@@ -78,7 +107,19 @@ final class ReviewStep implements WizardStepInterface {
             </div>
         <?php endif; ?>
         <p style="color:var(--tt-muted);font-size:13px;"><?php esc_html_e( 'Click Submit to write the evaluations.', 'talenttrack' ); ?></p>
+        <div class="tt-pd-eval-progress" data-tt-eval-progress hidden>
+            <progress class="tt-pd-eval-progress-bar" max="100" value="0"></progress>
+            <p class="tt-pd-eval-progress-status" data-tt-eval-progress-status></p>
+        </div>
+        <script type="application/json" id="tt-eval-review-payload"><?php echo wp_json_encode( $payload ); ?></script>
         <?php
+        wp_enqueue_script(
+            'tt-eval-review-progress',
+            TT_PLUGIN_URL . 'assets/js/wizard-eval-review.js',
+            [],
+            TT_VERSION,
+            true
+        );
     }
 
     private function renderPlayerReview( array $state ): void {
@@ -138,36 +179,25 @@ final class ReviewStep implements WizardStepInterface {
         ) );
         $eval_date = $activity_row && $activity_row->session_date ? (string) $activity_row->session_date : current_time( 'Y-m-d' );
 
-        $coach_id = get_current_user_id();
-        $created  = 0;
-
+        $created = 0;
         foreach ( $ratings as $player_id => $cats ) {
             $player_id = (int) $player_id;
             if ( $player_id <= 0 ) continue;
             if ( ! empty( $skip[ $player_id ] ) ) continue;
             if ( ! is_array( $cats ) || empty( $cats ) ) continue;
 
-            $wpdb->insert( "{$p}tt_evaluations", [
-                'club_id'     => CurrentClub::id(),
-                'player_id'   => $player_id,
-                'coach_id'    => $coach_id,
+            $any = false;
+            foreach ( $cats as $v ) { if ( (int) $v > 0 ) { $any = true; break; } }
+            if ( ! $any ) continue;
+
+            $result = EvaluationInserter::insert( [
                 'activity_id' => $aid,
+                'player_id'   => $player_id,
                 'eval_date'   => $eval_date,
+                'ratings'     => $cats,
                 'notes'       => (string) ( $notes[ $player_id ] ?? '' ),
             ] );
-            $eval_id = (int) $wpdb->insert_id;
-            if ( $eval_id <= 0 ) continue;
-
-            foreach ( $cats as $cat_id => $val ) {
-                $val = (int) $val;
-                if ( $val <= 0 ) continue;
-                $wpdb->insert( "{$p}tt_eval_ratings", [
-                    'evaluation_id' => $eval_id,
-                    'category_id'   => (int) $cat_id,
-                    'rating'        => $val,
-                ] );
-            }
-            $created++;
+            if ( ! is_wp_error( $result ) ) $created++;
         }
 
         $redirect = add_query_arg( [

@@ -27,7 +27,7 @@ De pillenbalk verschijnt alleen als er meer dan één persona voor jouw account 
 
 ## Wat is een "widget"?
 
-Elk blok op het dashboard is een widget. Er zijn 15 widget-types: navigatietegel, KPI-kaart, KPI-strip, actie-kaart, snelle-acties-paneel, info-kaart, takenlijst-paneel, datatabel (met presets voor trials, scoutrapporten, audit log en aankomende activiteiten), mini-spelerslijst, ratingcard-hero, vandaag-eerstvolgende-hero, kind-schakelaar-met-overzicht, systeemstatus-strip, toegewezen-spelers-grid en **ploegoverzicht-grid**.
+Elk blok op het dashboard is een widget. Er zijn 15 widget-types: navigatietegel, KPI-kaart, KPI-strip, actie-kaart, snelle-acties-paneel, info-kaart, takenlijst-paneel, datatabel (presets voor trials, scoutrapporten, audit log en aankomende activiteiten — alle vier sinds v3.78.0 op live data), mini-spelerslijst, ratingcard-hero, vandaag-eerstvolgende-hero, kind-schakelaar-met-overzicht, systeemstatus-strip, toegewezen-spelers-grid en **ploegoverzicht-grid**.
 
 Widgets hebben vier formaten — Small, Medium, Large, Extra-large — en klikken vast op een 12-koloms grid op desktop, 6 koloms op tablet en één mobile-priority-gesorteerde kolom op mobiel.
 
