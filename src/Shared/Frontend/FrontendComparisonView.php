@@ -16,19 +16,29 @@ use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
  * PlayerComparisonPage. Slot pickers (up to 4), FIFA card row, basic
  * facts table, headline numbers table, main-category breakdown.
  *
- * Skips the radar overlay and trend overlay charts that live in the
- * admin version — those require Chart.js with a custom multi-dataset
- * config that's significant code and primarily useful for deep-dive
- * sessions (where opening the admin view makes sense anyway). The
- * frontend version focuses on "compare these 4 at a glance".
+ * #0077 M6 — radar overlay + trend overlay charts brought to parity
+ * with the admin PlayerComparisonPage. Same Chart.js dataset shape;
+ * frontend now ships the multi-dataset radar so coaches don't have to
+ * jump to wp-admin for at-a-glance multi-axis profile compare.
  *
  * Permission gate: tt_view_reports. Observer role has this cap.
  */
 class FrontendComparisonView extends FrontendViewBase {
 
+    /** Chart palette; matches admin PlayerComparisonPage. */
+    private const COLORS = [ '#2271b1', '#00a32a', '#e8b624', '#b32d2e' ];
+
     public static function render(): void {
         self::enqueueAssets();
         \TT\Modules\Stats\Admin\PlayerCardView::enqueueStyles();
+        // #0077 M6 — Chart.js for radar + trend overlay parity.
+        wp_enqueue_script(
+            'tt-chartjs',
+            'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+            [],
+            '4.4.0',
+            true
+        );
 
         self::renderHeader( __( 'Player comparison', 'talenttrack' ) );
 
@@ -144,12 +154,17 @@ class FrontendComparisonView extends FrontendViewBase {
         $headlines = [];
         $mains = [];
         $age_groups = [];
+        $trends = [];
+        $radar_sets = [];
         foreach ( $players as $pl ) {
             $pid = (int) $pl->id;
             $team = $pl->team_id ? QueryHelpers::get_team( (int) $pl->team_id ) : null;
             $age_groups[ $pid ] = $team && ! empty( $team->age_group ) ? $team->age_group : '';
             $headlines[ $pid ] = $service->getHeadlineNumbers( $pid, $filters, 5 );
             $mains[ $pid ] = $service->getMainCategoryBreakdown( $pid, $filters );
+            // #0077 M6 — radar + trend datasets, same calls as admin.
+            $trends[ $pid ]     = $service->getTrendSeries( $pid, $filters );
+            $radar_sets[ $pid ] = $service->getRadarSnapshots( $pid, $filters, 1 );
         }
         $unique_ages = array_values( array_unique( array_filter( $age_groups ) ) );
         $mixed_ages = count( $unique_ages ) > 1;
@@ -245,9 +260,169 @@ class FrontendComparisonView extends FrontendViewBase {
         <h3 style="margin:28px 0 10px; font-size:15px;"><?php esc_html_e( 'Main category averages', 'talenttrack' ); ?></h3>
         <?php self::renderMainBreakdown( $players, $mains ); ?>
 
-        <p style="color:#888; font-size:12px; margin:24px 0 0; font-style:italic;">
-            <?php esc_html_e( 'For radar overlay and trend charts, use the admin Player Comparison page.', 'talenttrack' ); ?>
-        </p>
+        <!-- #0077 M6 — radar overlay + trend overlay (parity with admin) -->
+        <h3 style="margin:28px 0 10px; font-size:15px;"><?php esc_html_e( 'Radar profile', 'talenttrack' ); ?></h3>
+        <div style="background:#fff; border:1px solid #e5e7ea; border-radius:10px; padding:16px; height:340px;">
+            <canvas id="tt-fcompare-radar"></canvas>
+        </div>
+
+        <h3 style="margin:28px 0 10px; font-size:15px;"><?php esc_html_e( 'Rating trend', 'talenttrack' ); ?></h3>
+        <div style="background:#fff; border:1px solid #e5e7ea; border-radius:10px; padding:16px; height:300px;">
+            <canvas id="tt-fcompare-trend"></canvas>
+        </div>
+
+        <?php self::renderChartScripts( $players, $trends, $radar_sets ); ?>
+        <?php
+    }
+
+    /**
+     * #0077 M6 — radar + trend overlay scripts, mirrors
+     * PlayerComparisonPage::renderChartScripts. Single-axis trend
+     * (no per-category lines) to keep the frontend chart readable on
+     * mobile; radar is multi-dataset so all picked players overlay.
+     *
+     * @param array<int,object> $players
+     * @param array<int,array<string,mixed>> $trends
+     * @param array<int,array<int,array<string,mixed>>> $radar_sets
+     */
+    private static function renderChartScripts( array $players, array $trends, array $radar_sets ): void {
+        $radar_labels_union = [];
+        foreach ( $players as $pl ) {
+            $pid = (int) $pl->id;
+            $snap = $radar_sets[ $pid ][0] ?? null;
+            if ( $snap && ! empty( $snap['labels'] ) ) {
+                foreach ( (array) $snap['labels'] as $lbl ) {
+                    $key = (string) $lbl;
+                    if ( ! in_array( $key, $radar_labels_union, true ) ) $radar_labels_union[] = $key;
+                }
+            }
+        }
+        $radar_datasets = [];
+        foreach ( $players as $i => $pl ) {
+            $pid = (int) $pl->id;
+            $snap = $radar_sets[ $pid ][0] ?? null;
+            $values = [];
+            if ( $snap && ! empty( $snap['labels'] ) && ! empty( $snap['values'] ) ) {
+                $map = array_combine( $snap['labels'], $snap['values'] );
+                foreach ( $radar_labels_union as $lbl ) {
+                    $values[] = isset( $map[ $lbl ] ) ? (float) $map[ $lbl ] : null;
+                }
+            } else {
+                $values = array_fill( 0, count( $radar_labels_union ), null );
+            }
+            $radar_datasets[] = [
+                'label'  => QueryHelpers::player_display_name( $pl ),
+                'values' => $values,
+                'color'  => self::COLORS[ $i % count( self::COLORS ) ],
+            ];
+        }
+        $radar_labels_display = [];
+        foreach ( $radar_labels_union as $lbl ) {
+            $radar_labels_display[] = EvalCategoriesRepository::displayLabel( (string) $lbl );
+        }
+
+        $trend_labels_union = [];
+        foreach ( $players as $pl ) {
+            $pid = (int) $pl->id;
+            $t = $trends[ $pid ] ?? [];
+            if ( ! empty( $t['labels'] ) ) {
+                foreach ( (array) $t['labels'] as $d ) {
+                    if ( ! in_array( (string) $d, $trend_labels_union, true ) ) $trend_labels_union[] = (string) $d;
+                }
+            }
+        }
+        sort( $trend_labels_union );
+
+        $trend_datasets = [];
+        foreach ( $players as $i => $pl ) {
+            $pid = (int) $pl->id;
+            $t = $trends[ $pid ] ?? [];
+            $points = [];
+            if ( ! empty( $t['labels'] ) && ! empty( $t['series'] ) ) {
+                $overall = $t['series'][0] ?? null;
+                if ( $overall && ! empty( $overall['points'] ) ) {
+                    $map = array_combine( $t['labels'], $overall['points'] );
+                    foreach ( $trend_labels_union as $d ) {
+                        $points[] = $map[ $d ] ?? null;
+                    }
+                }
+            }
+            if ( empty( $points ) ) {
+                $points = array_fill( 0, count( $trend_labels_union ), null );
+            }
+            $trend_datasets[] = [
+                'label'  => QueryHelpers::player_display_name( $pl ),
+                'points' => $points,
+                'color'  => self::COLORS[ $i % count( self::COLORS ) ],
+            ];
+        }
+
+        $rating_max = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        ?>
+        <script>
+        (function(){
+            if (typeof Chart === 'undefined') return;
+            var ratingMax = <?php echo wp_json_encode( $rating_max ); ?>;
+
+            var radarLabels = <?php echo wp_json_encode( $radar_labels_display ); ?>;
+            var radarSets = <?php echo wp_json_encode( $radar_datasets ); ?>;
+            var radarEl = document.getElementById('tt-fcompare-radar');
+            if (radarEl && radarLabels.length > 0 && radarSets.length > 0) {
+                new Chart(radarEl.getContext('2d'), {
+                    type: 'radar',
+                    data: {
+                        labels: radarLabels,
+                        datasets: radarSets.map(function (s) {
+                            return {
+                                label: s.label,
+                                data: s.values,
+                                borderColor: s.color,
+                                backgroundColor: s.color + '22',
+                                pointBackgroundColor: s.color,
+                                spanGaps: true
+                            };
+                        })
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { r: { min: 0, max: ratingMax, ticks: { stepSize: 1 } } },
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+
+            var trendLabels = <?php echo wp_json_encode( $trend_labels_union ); ?>;
+            var trendSets = <?php echo wp_json_encode( $trend_datasets ); ?>;
+            var trendEl = document.getElementById('tt-fcompare-trend');
+            if (trendEl && trendLabels.length > 0 && trendSets.length > 0) {
+                new Chart(trendEl.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: trendLabels,
+                        datasets: trendSets.map(function (s) {
+                            return {
+                                label: s.label,
+                                data: s.points,
+                                borderColor: s.color,
+                                backgroundColor: s.color + '22',
+                                pointBackgroundColor: s.color,
+                                spanGaps: true,
+                                pointRadius: 3
+                            };
+                        })
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: {
+                            y: { min: 0, max: ratingMax, ticks: { stepSize: 1 } },
+                            x: { ticks: { maxTicksLimit: 8, autoSkip: true } }
+                        },
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+        })();
+        </script>
         <?php
     }
 
