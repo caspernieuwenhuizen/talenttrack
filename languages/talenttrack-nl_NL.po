@@ -11608,9 +11608,6 @@ msgstr[1] "%d TalentTrack-klassen gevonden in de meegeleverde stylesheets. Typ o
 msgid "Help for this step"
 msgstr "Hulp bij deze stap"
 
-msgid "Breadcrumb"
-msgstr "Broodkruimelpad"
-
 msgid "Module completeness (dev)"
 msgstr "Modulevolledigheid (dev)"
 
@@ -11623,12 +11620,6 @@ msgstr "Bestandssysteem-heuristiek die controleert of elke entiteitsmodule het v
 msgid "List"
 msgstr "Lijst"
 
-msgid "Detail"
-msgstr "Detail"
-
-msgid "Edit"
-msgstr "Bewerken"
-
 msgid "Widget"
 msgstr "Widget"
 
@@ -11640,18 +11631,6 @@ msgstr "Documentatie (en)"
 
 msgid "Docs (nl)"
 msgstr "Documentatie (nl)"
-
-msgid "Score"
-msgstr "Score"
-
-msgid "Insufficient permissions."
-msgstr "Onvoldoende rechten."
-
-msgid "Principles practiced"
-msgstr "Geoefende principes"
-
-msgid "Optional. Hold Ctrl/Cmd to select multiple."
-msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te kiezen."
 
 msgid "Guest attendees"
 msgstr "Gast-aanwezigen"
@@ -11674,9 +11653,6 @@ msgstr "Doelen per principe"
 msgid "No principles configured yet."
 msgstr "Nog geen principes geconfigureerd."
 
-msgid "Principle"
-msgstr "Principe"
-
 msgid "+ Assign"
 msgstr "+ Toewijzen"
 
@@ -11689,26 +11665,11 @@ msgstr "PDP wacht op bevestiging"
 msgid "Next activity"
 msgstr "Volgende activiteit"
 
-msgid "License & modules"
-msgstr "Licentie & modules"
-
-msgid "Podium · my team"
-msgstr "Podium · mijn team"
-
-msgid "Top movers · this month"
-msgstr "Sterkste stijgers · deze maand"
-
-msgid "Trials needing decision"
-msgstr "Stages die een besluit vereisen"
-
 msgid "My recent scout reports"
 msgstr "Mijn recente scoutrapporten"
 
 msgid "Recent audit events"
 msgstr "Recente audit-gebeurtenissen"
-
-msgid "Upcoming activities"
-msgstr "Komende activiteiten"
 
 msgid "Radar profile"
 msgstr "Radarprofiel"
@@ -11724,9 +11685,6 @@ msgstr "Spelersecties"
 
 msgid "No goals recorded yet."
 msgstr "Nog geen doelen vastgelegd."
-
-msgid "No evaluations recorded yet."
-msgstr "Nog geen evaluaties vastgelegd."
 
 msgid "No attended activities yet."
 msgstr "Nog geen bijgewoonde activiteiten."
@@ -11757,9 +11715,6 @@ msgstr "Stagesecties"
 
 msgid "Trial players"
 msgstr "Stagespelers"
-
-msgid "Trial"
-msgstr "Stage"
 
 msgid "(%1$d of %2$d signed off)"
 msgstr "(%1$d van %2$d ondertekend)"
