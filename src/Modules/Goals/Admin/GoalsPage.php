@@ -237,7 +237,11 @@ class GoalsPage {
             // v2.11.0: previous versions didn't capture insert_id here, which
             // meant any post-save integration keyed on the goal ID (e.g.
             // custom fields, audit log) silently failed for new goals.
-            if ( $ok !== false ) $id = (int) $wpdb->insert_id;
+            if ( $ok !== false ) {
+                $id = (int) $wpdb->insert_id;
+                // v3.76.2 — auto-tag demo-on rows.
+                \TT\Modules\DemoData\DemoMode::tagIfActive( 'goal', $id );
+            }
         }
 
         if ( $ok === false ) {

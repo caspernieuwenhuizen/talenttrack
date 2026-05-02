@@ -289,6 +289,8 @@ class GoalsRestController {
         }
 
         $goal_id = (int) $wpdb->insert_id;
+        // v3.76.2 — auto-tag demo-on rows.
+        \TT\Modules\DemoData\DemoMode::tagIfActive( 'goal', $goal_id );
         // #0025 — detect source language for the new free-text fields.
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'title',       (string) $data['title'] );
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'goal', $goal_id, 'description', (string) $data['description'] );

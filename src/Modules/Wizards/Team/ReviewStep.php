@@ -131,6 +131,10 @@ final class ReviewStep implements WizardStepInterface {
             'wp_user_id' => $wp_user_id,
             'role_type'  => 'staff',
         ] );
-        return $ok ? (int) $wpdb->insert_id : 0;
+        if ( ! $ok ) return 0;
+        $person_id = (int) $wpdb->insert_id;
+        // v3.76.2 — auto-tag demo-on rows.
+        \TT\Modules\DemoData\DemoMode::tagIfActive( 'person', $person_id );
+        return $person_id;
     }
 }

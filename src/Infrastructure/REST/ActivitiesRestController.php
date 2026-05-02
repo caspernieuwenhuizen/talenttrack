@@ -364,26 +364,10 @@ class ActivitiesRestController {
         }
         $activity_id = (int) $wpdb->insert_id;
 
-        // #0049 — when demo mode is ON, manually-created activities
-        // need to be tagged in tt_demo_tags so they're visible to
-        // demo-scoped queries (apply_demo_scope filters by IN/NOT IN
-        // that table). Without the tag, loadSession() returns null
-        // immediately after the auto-save redirect and the user sees
-        // "That activity no longer exists" on the edit page.
-        if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' )
-             && \TT\Modules\DemoData\DemoMode::effective() === \TT\Modules\DemoData\DemoMode::ON
-        ) {
-            $tag_table = $wpdb->prefix . 'tt_demo_tags';
-            if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tag_table ) ) === $tag_table ) {
-                $wpdb->insert( $tag_table, [
-                    'club_id'     => CurrentClub::id(),
-                    'batch_id'    => 'user-created',
-                    'entity_type' => 'activity',
-                    'entity_id'   => $activity_id,
-                    'extra_json'  => null,
-                ] );
-            }
-        }
+        // #0049 / v3.76.2 — auto-tag demo-on rows. Refactored from an
+        // inline check to the central DemoMode::tagIfActive helper so
+        // every entity-create site shares the same idempotent path.
+        \TT\Modules\DemoData\DemoMode::tagIfActive( 'activity', $activity_id );
 
         // #0025 — detect source language for free-text session fields.
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'title',    (string) $data['title'] );

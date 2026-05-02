@@ -86,6 +86,8 @@ class EvaluationsRestController {
             );
         }
         $id = (int) $wpdb->insert_id;
+        // v3.76.2 — auto-tag demo-on rows.
+        \TT\Modules\DemoData\DemoMode::tagIfActive( 'evaluation', $id );
 
         $rating_failures = self::write_ratings( $id, (array) ( $r['ratings'] ?? [] ) );
         if ( $rating_failures ) {

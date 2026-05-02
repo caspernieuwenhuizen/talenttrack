@@ -863,7 +863,11 @@ class EvaluationsPage {
         } else {
             do_action( 'tt_before_save_evaluation', $header['player_id'], 0, 0 );
             $ok = $wpdb->insert( "{$p}tt_evaluations", $header );
-            if ( $ok !== false ) $id = (int) $wpdb->insert_id;
+            if ( $ok !== false ) {
+                $id = (int) $wpdb->insert_id;
+                // v3.76.2 — auto-tag demo-on rows.
+                \TT\Modules\DemoData\DemoMode::tagIfActive( 'evaluation', $id );
+            }
         }
 
         if ( $ok === false ) {

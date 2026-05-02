@@ -377,6 +377,9 @@ class PlayersRestController {
             ], 500 );
         }
         $id = (int) $wpdb->insert_id;
+        // v3.76.2 — auto-tag demo-on rows so operator-created records
+        // remain visible to demo-scoped queries.
+        \TT\Modules\DemoData\DemoMode::tagIfActive( 'player', $id );
 
         self::upsertCustomValues( $id, $validation['sanitized'] );
         self::maybeLinkParent( $id, $r );

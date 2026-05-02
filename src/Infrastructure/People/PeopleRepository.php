@@ -129,6 +129,13 @@ class PeopleRepository {
         if ( $result === false ) return false;
 
         $id = (int) $wpdb->insert_id;
+        // v3.76.2 — auto-tag demo-on rows so people created during a
+        // demo (typically via the new-person wizard or the People REST
+        // POST) stay visible alongside the seeded demo dataset.
+        if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
+            \TT\Modules\DemoData\DemoMode::tagIfActive( 'person', $id );
+        }
+
         $person = $this->find( $id );
 
         /**

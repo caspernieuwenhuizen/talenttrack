@@ -307,6 +307,8 @@ class TeamsPage {
             $data['club_id'] = CurrentClub::id();
             $wpdb->insert( $wpdb->prefix . 'tt_teams', $data );
             $id = (int) $wpdb->insert_id;
+            // v3.76.2 — auto-tag demo-on rows.
+            \TT\Modules\DemoData\DemoMode::tagIfActive( 'team', $id );
         }
 
         // Persist any submitted custom field values. Validation errors are
