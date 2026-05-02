@@ -42,6 +42,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         self::renderHeader( (string) $team->name );
 
         $roster = QueryHelpers::get_players( $team_id );
+        $trials = self::loadTrialPlayers( $team_id );
         $staff  = ( new PeopleRepository() )->getTeamStaff( $team_id );
         ?>
         <article class="tt-team-detail">
@@ -61,6 +62,11 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             // tt_teams.head_coach_id column the user explicitly flagged.
             self::renderStaff( $staff );
             self::renderRoster( $roster );
+            // #0077 M4 — surface trial players on the team page; they
+            // were silently hidden behind the status='active' filter
+            // in get_players. Coaches need to see who's currently on
+            // a tryout with their team without jumping to /trials.
+            self::renderTrialRoster( $trials );
             self::renderUpcomingActivities( $team_id );
             self::renderChemistryTeaser( $team_id );
             ?>
@@ -177,6 +183,43 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             </table>
         </section>
         <?php
+    }
+
+    /**
+     * #0077 M4 — fetch trial players for the team. Status='trial' is
+     * filtered out by QueryHelpers::get_players, so we run a small
+     * dedicated query here. Demo-mode scope is applied so the panel
+     * stays consistent with the rest of the page.
+     *
+     * @return array<int,object>
+     */
+    private static function loadTrialPlayers( int $team_id ): array {
+        global $wpdb;
+        $scope = QueryHelpers::apply_demo_scope( 'p', 'player' );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT p.* FROM {$wpdb->prefix}tt_players p
+              WHERE p.team_id = %d AND p.status = 'trial' AND p.club_id = %d {$scope}
+              ORDER BY p.last_name, p.first_name ASC",
+            $team_id,
+            \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /** #0077 M4 — render trial-roster section. */
+    private static function renderTrialRoster( array $players ): void {
+        if ( empty( $players ) ) return;
+        echo '<section class="tt-pde-section">';
+        echo '<h3>' . esc_html__( 'Trial players', 'talenttrack' ) . '</h3>';
+        echo '<ul class="tt-stack">';
+        foreach ( $players as $pl ) {
+            $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', (int) $pl->id );
+            $name = QueryHelpers::player_display_name( $pl );
+            echo '<li><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a>';
+            echo ' <span class="tt-pill" style="background:#fff3e0; color:#a86322; font-size:11px; padding:2px 8px; border-radius:999px; margin-left:6px;">' . esc_html__( 'Trial', 'talenttrack' ) . '</span>';
+            echo '</li>';
+        }
+        echo '</ul></section>';
     }
 
     private static function renderUpcomingActivities( int $team_id ): void {
