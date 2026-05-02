@@ -1,3 +1,20 @@
+# TalentTrack v3.81.1 — Custom CSS button underline fix
+
+## What broke
+
+`<a class="tt-btn …">` elements rendered with the browser default `<a>` underline. Most prominently the **Download .css** button shipped on the CSS editor tab in v3.79.1 — sat next to the un-underlined "Save CSS" `<button>` and looked visually inconsistent.
+
+## Root cause
+
+`<button>` defaults to `text-decoration: none`; `<a>` defaults to `underline`. The `.tt-btn`/`.tt-btn-primary` rule in `assets/css/public.css` didn't declare `text-decoration`, and neither did the shared `.tt-dashboard .tt-btn, .tt-btn-primary, .tt-btn-secondary, .tt-btn-danger` rule in `assets/css/frontend-admin.css`. Buttons inherited "no underline" from the browser default; anchors styled as buttons inherited "underline." Same class, two different visual results.
+
+## What was fixed
+
+- `assets/css/public.css` — `text-decoration: none` added to the `.tt-btn, .tt-btn-primary` rule, the `.tt-btn-sm` rule, and the `:hover` reset.
+- `assets/css/frontend-admin.css` — `text-decoration: none` added to the four-button shared base + a defensive `:hover` / `:focus` reset on a new compound selector covering all four variants. Some host WP themes underline `a:hover` even when the resting state is reset; the explicit reset covers that.
+
+No new tokens, no behaviour change beyond the visual.
+
 # TalentTrack v3.81.0 — i18n audit (May 2026) Bundles 1 + 2 — critical leak fixes + session→activity user-visible rename
 
 First fix-PR off the May 2026 i18n audit (`docs/i18n-audit-2026-05.md`). Bundle 1 closes the 5 critical-path bugs that ship raw English to Dutch users today; Bundle 2 sweeps ~30 user-visible "session"/"sessions" leftovers to "activity"/"activities" so the Dutch translations actually land. The audit found ~150 surfaces total; this PR knocks out ~80 of them.
