@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.77.1
+Stable tag: 3.78.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.78.0 — Sprint 2 close: 6 new categories + admin bypass fix + REST endpoint (#0075 Sprint 2 PR 2) =
+
+Closes Sprint 2 of #0075 in a single big PR per request. Adds 28 new tokens across six new categories (Content elements, Cards, Lists, Tables, Feedback, Overlays) plus per-state buttons, fixes a real bug where WP administrators were denied access to `?tt_view=custom-css` when `tt_authorization_active=1` (LegacyCapMapper had no admin bypass), exposes the catalogue + saved values via `GET /wp-json/talenttrack/v1/design-system/tokens` per CLAUDE.md § 4. Catalogue total: **82 tokens / 18 categories**. Existing installs render identically — every consumer rule has a fallback to the legacy hardcoded value.
 
 = 3.77.1 — Typography consumer wiring + h4/h5/h6 + Links (#0075 Sprint 2 PR 1) =
 

@@ -11433,3 +11433,109 @@ msgstr "Goedemiddag, %s"
 
 msgid "Good evening, %s"
 msgstr "Goedenavond, %s"
+
+# v3.78.0 / #0075 Sprint 2 close — 6 new categories + per-state buttons
+msgid "Content elements"
+msgstr "Inhoudselementen"
+
+msgid "Cards"
+msgstr "Kaarten"
+
+msgid "Lists"
+msgstr "Lijsten"
+
+msgid "Tables"
+msgstr "Tabellen"
+
+msgid "Feedback"
+msgstr "Feedback"
+
+msgid "Overlays"
+msgstr "Overlays"
+
+msgid "Inline code — background"
+msgstr "Inline code — achtergrond"
+
+msgid "Inline code — text"
+msgstr "Inline code — tekst"
+
+msgid "Blockquote — left border"
+msgstr "Blokquote — linkerrand"
+
+msgid "Blockquote — text"
+msgstr "Blokquote — tekst"
+
+msgid "Caption — text"
+msgstr "Bijschrift — tekst"
+
+msgid "Form label — text"
+msgstr "Veldlabel — tekst"
+
+msgid "Helper text — colour"
+msgstr "Hulptekst — kleur"
+
+msgid "Secondary button — background"
+msgstr "Secundaire knop — achtergrond"
+
+msgid "Secondary button — text"
+msgstr "Secundaire knop — tekst"
+
+msgid "Secondary button — hover bg"
+msgstr "Secundaire knop — hover-achtergrond"
+
+msgid "Danger button — background"
+msgstr "Gevaar-knop — achtergrond"
+
+msgid "Danger button — text"
+msgstr "Gevaar-knop — tekst"
+
+msgid "Disabled button — opacity"
+msgstr "Uitgeschakelde knop — dekking"
+
+msgid "Card background"
+msgstr "Kaart-achtergrond"
+
+msgid "Card border"
+msgstr "Kaart-rand"
+
+msgid "Card padding (px)"
+msgstr "Kaart-padding (px)"
+
+msgid "Card left-accent border"
+msgstr "Kaart linker-accentrand"
+
+msgid "List item padding (px)"
+msgstr "Lijstitem-padding (px)"
+
+msgid "List divider colour"
+msgstr "Lijstscheiding — kleur"
+
+msgid "List item hover background"
+msgstr "Lijstitem-hover-achtergrond"
+
+msgid "Table header — background"
+msgstr "Tabelkop — achtergrond"
+
+msgid "Table header — text"
+msgstr "Tabelkop — tekst"
+
+msgid "Table — striped row"
+msgstr "Tabel — gestreepte rij"
+
+msgid "Table — cell border"
+msgstr "Tabel — celrand"
+
+msgid "Badge — horizontal padding (px)"
+msgstr "Badge — horizontale padding (px)"
+
+msgid "Badge — corner radius (px)"
+msgstr "Badge — hoekstraal (px)"
+
+msgid "Spinner — colour"
+msgstr "Spinner — kleur"
+
+msgid "Tooltip — background"
+msgstr "Tooltip — achtergrond"
+
+msgid "Tooltip — text"
+msgstr "Tooltip — tekst"

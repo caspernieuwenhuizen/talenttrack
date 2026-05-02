@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\CustomCss\Frontend\FrontendCustomCssView;
+use TT\Modules\CustomCss\Rest\DesignSystemController;
 
 /**
  * CustomCssModule (#0064) — owns the per-club custom-CSS pipeline.
@@ -29,6 +30,7 @@ class CustomCssModule implements ModuleInterface {
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
         CustomCssEnqueue::init();
         FrontendCustomCssView::register();
+        DesignSystemController::init();
     }
 
     /**

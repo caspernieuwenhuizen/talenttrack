@@ -1,3 +1,113 @@
+# TalentTrack v3.78.0 — Sprint 2 close (#0075 Sprint 2 PR 2)
+
+Closes Sprint 2 of #0075 in a single bundled PR per request. Adds 28 new tokens across six new categories, fixes a real bug where WP administrators were denied access to `?tt_view=custom-css` when `tt_authorization_active=1`, and exposes the catalogue + saved values through a REST endpoint per CLAUDE.md § 4. Catalogue total: **82 tokens / 18 categories**.
+
+## Bug fix — administrator denied access to admin surfaces when matrix is active
+
+**What broke.** When `tt_authorization_active=1` (the post-#0033 / #0071 matrix-driven cap routing), `LegacyCapMapper::evaluate()` translated every `tt_*` cap check into a `MatrixGate::canAnyScope($user_id, $entity, $activity)` call. That returned bool — true if the user's TT persona (academy_admin, head_coach, etc.) had a matrix grant for `(entity, activity)`, false otherwise. Crucially: the WP `administrator` role wasn't recognised. An administrator with no academy_admin functional-role assignment got denied for `tt_admin_styling`, `tt_evaluate_players`, every other `tt_*` cap that goes through the user_has_cap filter — even though `AuthorizationService::canDo()` (a separate code path used elsewhere in the codebase) had the bypass at line 197.
+
+**What was fixed.** [LegacyCapMapper::evaluate()](src/Modules/Authorization/LegacyCapMapper.php#L184) now checks `in_array('administrator', (array) $user->roles, true)` before falling through to MatrixGate, returning `true` unconditionally for administrators. Mirrors the bypass already present in `AuthorizationService::canDo()`. Effect: the same human running the WP install always passes admin-surface caps regardless of TT functional-role assignment. The matrix is the persona vocabulary; administrator is the emergency-override role.
+
+This unblocks the `?tt_view=custom-css` "You do not have permission to manage custom styling." gate that prompted this PR's investigation.
+
+## REST endpoint
+
+Per CLAUDE.md § 4 (every feature reachable through REST). New `GET /wp-json/talenttrack/v1/design-system/tokens` exposes the catalogue + the operator's current saved values for the addressed surface (`?surface=frontend|admin`, defaults to frontend). Cap-gated to `tt_admin_styling`. Returns:
+
+```json
+{
+  "surface": "frontend",
+  "version": 12,
+  "enabled": true,
+  "categories": [ { "slug": "brand", "label": "Brand colours" }, ... ],
+  "tokens": [
+    { "key": "primary_color", "css_var": "--tt-primary", "category": "brand",
+      "kind": "color", "label": "Primary", "default": "#0b3d2e", "value": "#1a3" },
+    ...
+  ]
+}
+```
+
+PUT is deliberately not implemented — operators write through the visual editor's `save_visual` POST handler. The first PUT consumer will be a future SaaS frontend or a Figma-to-tokens importer; that lands when storage shape stabilises (deferred to Sprint 3).
+
+## New tokens (28 across 6 new categories)
+
+### Content elements (7 tokens, new category)
+- `code_bg` / `code_text` — inline `<code>` background + text
+- `quote_border` / `quote_text` — blockquote left border + text
+- `caption_color` — caption text colour
+- `label_color` — form label text colour
+- `helper_text_color` — helper text under inputs
+
+### Buttons — per-state coverage (6 new tokens)
+- `btn_secondary_bg` / `-text` / `-hover_bg` — full secondary-button palette
+- `btn_danger_bg` / `-text` — danger-button palette
+- `btn_disabled_opacity` — float, 0.2–0.9, default 0.5
+
+### Cards (4 tokens, new category)
+- `card_bg` / `card_border_color` / `card_padding` (px, 8–32) / `card_accent_border`
+- `.tt-card` reads all four. Existing accent-border falls back to `--tt-primary`.
+
+### Lists (3 tokens, new category)
+- `list_item_padding` (px, 4–24)
+- `list_divider_color`
+- `list_hover_bg`
+
+### Tables (4 tokens, new category)
+- `table_header_bg` / `table_header_text` — `.tt-table thead th` consumes both
+- `table_row_alt_bg` / `table_border_color` — catalogued, not yet consumed (existing `.tt-table tbody td` rule has more specific styling that would conflict; defer to a tables-only PR)
+
+### Feedback (3 tokens, new category)
+- `badge_padding_x` / `badge_radius` (px) — pill / chip / status-badge dimensions
+- `spinner_color`
+
+### Overlays (2 tokens, new category)
+- `tooltip_bg` / `tooltip_text`
+- Modal backdrop intentionally not catalogued: `<input type="color">` can't carry an alpha channel; clubs that need a different backdrop hue can author it in the Path B CSS editor.
+
+## Catalogue total
+
+| Category | Tokens | Editor accordion order |
+|----------|--------|------------------------|
+| Brand colours | 7 | 1 |
+| Status colours | 8 | 2 |
+| Surfaces | 3 | 3 |
+| Text | 2 | 4 |
+| Typography | 4 | 5 |
+| Type scale | 8 | 6 |
+| Shape + spacing | 3 | 7 |
+| Shadows | 3 | 8 |
+| Motion | 2 | 9 |
+| Buttons | 10 (was 4) | 10 |
+| Forms | 2 | 11 |
+| Links | 2 | 12 |
+| **Content elements** *(new)* | **7** | **13** |
+| **Cards** *(new)* | **4** | **14** |
+| **Lists** *(new)* | **3** | **15** |
+| **Tables** *(new)* | **4** | **16** |
+| **Feedback** *(new)* | **3** | **17** |
+| **Overlays** *(new)* | **2** | **18** |
+
+**82 tokens / 18 categories**
+
+## What did *not* change in this PR
+
+- **Storage shape migration** — still v3.64 flat blob. The flat shape handles 82 tokens fine; structured `{tokens, components}` migration is a Sprint 3 concern (or whenever a real consumer asks).
+- **`PUT /design-system/tokens`** — write path stays through the editor's POST handler. PUT lands when an external client (SaaS frontend, Figma importer) needs it.
+- **Full per-state button coverage** — added secondary + danger + disabled-opacity. Tertiary / ghost / icon / FAB / split / toggle button variants are still single-state. They land when they have actual rendered components in the codebase.
+- **Most new-category consumers don't have CSS rules wired yet** — `card_*` and `table_header_*` and `tooltip_*` consume their tokens; `list_*`, `badge_*`, `spinner_color`, `quote_*`, `code_*`, `caption_color`, `label_color`, `helper_text_color`, `table_row_alt_bg`, `table_border_color`, `btn_secondary_*`, `btn_danger_*`, `btn_disabled_opacity` are catalogued but unconsumed. The pattern from PRs 2 + 3: tokens land first, consumers wire incrementally per-component as the design-system editor grows toward parity with the rendered surfaces. Operators see them in the editor and the live preview emits them; consumers come PR-by-PR.
+
+## Acceptance criteria (manually verified)
+
+- [x] `php -l` clean on every touched file.
+- [ ] **Bug fix** — log in as a WP administrator with no academy_admin functional role; visit `?tt_view=custom-css`. Page renders (was: "You do not have permission to manage custom styling.").
+- [ ] `?tt_view=custom-css` → "Visual settings" tab. Six new accordion sections at the bottom: Content elements, Cards, Lists, Tables, Feedback, Overlays. Total of 18 sections.
+- [ ] `GET /wp-json/talenttrack/v1/design-system/tokens` returns the catalogue. `?surface=admin` returns admin-surface values; default returns frontend.
+- [ ] Set `Card background` to `#fff5e6`. Save. Reload. Every `.tt-card` has the new background.
+- [ ] Set `Table header — background` to `#cc0000` and `Table header — text` to `#000`. Save. Reload. `.tt-table thead th` shows red bg + black text.
+- [ ] No regression on the v3.77.1 typography consumer rules.
+- [ ] Live preview reflects all new colour tokens immediately on every input change.
+
 # TalentTrack v3.77.1 — Typography consumer wiring + h4/h5/h6 + Links (#0075 Sprint 2 PR 1)
 
 > Renumbered from v3.77.0 in PR after #0073/#0074 claimed v3.77.0 mid-CI. Code unchanged.

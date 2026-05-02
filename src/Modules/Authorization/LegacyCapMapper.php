@@ -185,6 +185,18 @@ final class LegacyCapMapper {
         $tuple = self::tupleFor( $cap );
         if ( $tuple === null ) return null;
 
+        // #0075 / matrix-active fix — WP administrator unconditionally
+        // passes any tt_* capability check, mirroring the bypass already
+        // present in AuthorizationService::canDo (where it lands for
+        // matrix tuple lookups bypassing user_has_cap). Without this,
+        // an admin with no explicit academy_admin functional role gets
+        // denied access to admin surfaces (e.g. ?tt_view=custom-css)
+        // when tt_authorization_active=1, even though the install has
+        // granted them the WP administrator role with full caps. The
+        // matrix is the persona vocabulary; administrator is the
+        // emergency-override role for the human running the WP install.
+        if ( in_array( 'administrator', (array) $user->roles, true ) ) return true;
+
         [ $entity, $activity ] = $tuple;
 
         // #0033 follow-up — answer the cap with `canAnyScope`. The

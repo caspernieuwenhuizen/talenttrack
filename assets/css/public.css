@@ -376,7 +376,7 @@ body.tt-docs-drawer-open { overflow: hidden; }
 @keyframes tt-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
 .tt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin: 1rem 0; }
-.tt-card { display: flex; gap: 1rem; padding: 1rem; background: #fff; border: 1px solid var(--tt-line); border-left: 3px solid var(--tt-primary, #0b3d2e); box-shadow: var(--tt-shadow-sm, none); transition: transform var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease), box-shadow var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease); }
+.tt-card { display: flex; gap: 1rem; padding: var(--tt-card-padding, 1rem); background: var(--tt-card-bg, #fff); border: 1px solid var(--tt-card-border, var(--tt-line)); border-left: 3px solid var(--tt-card-accent-border, var(--tt-primary, #0b3d2e)); box-shadow: var(--tt-shadow-sm, none); transition: transform var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease), box-shadow var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease); }
 .tt-card:hover { transform: translateY(-2px); box-shadow: var(--tt-shadow-md, 0 8px 24px -8px rgba(0,0,0,0.12)); }
 .tt-card-thumb img { width: 60px; height: 60px; object-fit: cover; border-radius: 50%; border: 2px solid var(--tt-secondary, #e8b624); }
 .tt-card-body h3 { margin: 0 0 .4rem; font-size: 1.1rem; font-family: "Playfair Display", Georgia, serif; color: var(--tt-primary, #0b3d2e); }
@@ -385,7 +385,7 @@ body.tt-docs-drawer-open { overflow: hidden; }
 .tt-card-body p strong { color: var(--tt-ink); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.08em; margin-right: 4px; }
 
 .tt-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.9rem; }
-.tt-table thead th { background: var(--tt-primary, #0b3d2e); color: #fff; text-align: left; padding: 10px 12px; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.tt-table thead th { background: var(--tt-table-header-bg, var(--tt-primary, #0b3d2e)); color: var(--tt-table-header-text, #fff); text-align: left; padding: 10px 12px; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
 .tt-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--tt-line); background: #fff; }
 
 .tt-radar-wrap { max-width: 400px; margin: 1.5rem auto; padding: 1rem; background: #fff; border: 1px solid var(--tt-line); }
