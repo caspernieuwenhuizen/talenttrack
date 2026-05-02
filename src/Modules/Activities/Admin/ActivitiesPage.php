@@ -235,6 +235,24 @@ class ActivitiesPage {
             "SELECT * FROM {$p}tt_attendance WHERE activity_id = %d AND is_guest = 0 AND club_id = %d",
             $activity->id, CurrentClub::id()
         ) ) as $r ) $attendance[ (int) $r->player_id ] = $r;
+
+        // #0077 M2 — frontend↔admin parity. The frontend manage view
+        // shows guest attendees; admin used to silently hide them so
+        // an academy admin checking an activity didn't see who actually
+        // showed up. Read-only list here keeps wp-admin honest; CRUD
+        // stays on the frontend modal flow.
+        $guests = [];
+        if ( $activity ) {
+            $guests = (array) $wpdb->get_results( $wpdb->prepare(
+                "SELECT a.*, pl.first_name, pl.last_name, t.name AS guest_team_name
+                 FROM {$p}tt_attendance a
+                 LEFT JOIN {$p}tt_players pl ON pl.id = a.guest_player_id AND pl.club_id = a.club_id
+                 LEFT JOIN {$p}tt_teams   t  ON t.id = pl.team_id        AND t.club_id  = pl.club_id
+                 WHERE a.activity_id = %d AND a.is_guest = 1 AND a.club_id = %d
+                 ORDER BY a.id ASC",
+                $activity->id, CurrentClub::id()
+            ) );
+        }
         $team_id = (int) ( $activity->team_id ?? 0 );
         $players = $team_id ? QueryHelpers::get_players( $team_id ) : QueryHelpers::get_players();
         $state = self::popFormState();
@@ -368,6 +386,49 @@ class ActivitiesPage {
                     <?php esc_html_e( 'Attendance is recorded once the activity is marked Completed.', 'talenttrack' ); ?>
                 </p>
                 <?php endif; ?>
+
+                <?php // #0077 M2 — guest read-only list (parity with frontend). ?>
+                <?php if ( $activity && ! empty( $guests ) ) : ?>
+                <div style="margin-top:24px;">
+                    <h3><?php esc_html_e( 'Guest attendees', 'talenttrack' ); ?></h3>
+                    <table class="widefat striped" style="max-width:600px;">
+                        <thead><tr>
+                            <th><?php esc_html_e( 'Guest', 'talenttrack' ); ?></th>
+                            <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                            <th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
+                        </tr></thead>
+                        <tbody>
+                        <?php foreach ( $guests as $g ) :
+                            $is_linked = ! empty( $g->guest_player_id );
+                            if ( $is_linked ) {
+                                $name = trim( (string) $g->first_name . ' ' . (string) $g->last_name );
+                                $sub  = (string) ( $g->guest_team_name ?? '' );
+                            } else {
+                                $name = (string) ( $g->guest_name ?? __( 'Guest', 'talenttrack' ) );
+                                $bits = [];
+                                if ( $g->guest_age )      $bits[] = (int) $g->guest_age;
+                                if ( $g->guest_position ) $bits[] = (string) $g->guest_position;
+                                $sub = implode( ' · ', $bits );
+                            }
+                            $note = $is_linked ? '' : (string) ( $g->guest_notes ?? '' );
+                            ?>
+                            <tr>
+                                <td>
+                                    <strong><?php echo esc_html( $name ); ?></strong>
+                                    <?php if ( $sub ) : ?><div style="font-size:12px;color:#5f6368;"><?php echo esc_html( $sub ); ?></div><?php endif; ?>
+                                </td>
+                                <td><?php echo esc_html( LabelTranslator::attendanceStatus( (string) $g->status ) ); ?></td>
+                                <td><?php echo esc_html( $note ); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <p class="description">
+                        <?php esc_html_e( 'Guests are added and edited from the public Activity page. This panel is read-only.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+                <?php endif; ?>
+
                 <?php submit_button( $activity ? __( 'Update', 'talenttrack' ) : __( 'Save', 'talenttrack' ) ); ?>
             </form>
         </div>

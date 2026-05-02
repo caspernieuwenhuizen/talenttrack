@@ -369,6 +369,13 @@ class ActivitiesRestController {
         // every entity-create site shares the same idempotent path.
         \TT\Modules\DemoData\DemoMode::tagIfActive( 'activity', $activity_id );
 
+        // #0077 M2 — frontend↔admin parity. The wp-admin ActivitiesPage
+        // wrote `activity_principle_ids[]` via PrincipleLinksRepository;
+        // the REST path silently dropped them. Both surfaces now share
+        // the same handler so the frontend form can save its principle
+        // multiselect.
+        self::persistPrincipleLinks( $r, $activity_id );
+
         // #0025 — detect source language for free-text session fields.
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'title',    (string) $data['title'] );
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'notes',    (string) $data['notes'] );
@@ -458,7 +465,25 @@ class ActivitiesRestController {
             do_action( 'tt_activity_completed', $ctx, (string) $data['activity_type_key'] );
         }
 
+        // #0077 M2 — see create_session.
+        self::persistPrincipleLinks( $r, $activity_id );
+
         return RestResponse::success( [ 'id' => $activity_id ] );
+    }
+
+    /**
+     * #0077 M2 — extract `activity_principle_ids[]` from the request and
+     * write through PrincipleLinksRepository. Called from both
+     * create_session and update_session so the frontend form has parity
+     * with the wp-admin page.
+     */
+    private static function persistPrincipleLinks( \WP_REST_Request $r, int $activity_id ): void {
+        if ( ! class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrincipleLinksRepository' ) ) return;
+        $raw = $r['activity_principle_ids'] ?? null;
+        if ( $raw === null ) return; // absent → leave existing links untouched
+        if ( ! is_array( $raw ) ) $raw = [];
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $raw ) ) ) );
+        ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )->setActivityPrinciples( $activity_id, $ids );
     }
 
     public static function delete_session( \WP_REST_Request $r ) {

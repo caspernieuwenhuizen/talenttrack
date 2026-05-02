@@ -42,6 +42,12 @@
             if (!rest) { out[base] = value; return; }
             var keys = [];
             rest.replace(/\[([^\]]*)\]/g, function(_m, k) { keys.push(k); return ''; });
+            // name[] case — push to array on the base key.
+            if (keys.length === 1 && keys[0] === '') {
+                if (!Array.isArray(out[base])) out[base] = [];
+                out[base].push(value);
+                return;
+            }
             var cursor = out[base] = out[base] || {};
             for (var i = 0; i < keys.length - 1; i++) {
                 var k = keys[i];
