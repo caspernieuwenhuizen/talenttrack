@@ -72,14 +72,21 @@ return new class extends Migration {
             }
 
             if ( $audit_exists && ! empty( $stripped ) ) {
+                // v3.77.3 fix — column names match the actual `tt_audit_log`
+                // schema (created in migration 0002, renamed in 0030,
+                // tenancy column added in 0038): `user_id` / `entity_type`
+                // / `entity_id` / `payload`. The earlier draft used
+                // `actor_user_id` / `object_type` / `object_id` / `meta_json`
+                // which never existed and made the migration fail with
+                // "Unknown column 'actor_user_id' in 'INSERT INTO'".
                 $wpdb->insert( $audit_table, [
-                    'club_id'        => 1,
-                    'actor_user_id'  => 0,
-                    'object_type'    => 'user',
-                    'object_id'      => $user_id,
-                    'action'         => 'hod_narrowing.cap_revoked',
-                    'meta_json'      => wp_json_encode( [ 'caps' => $stripped ] ),
-                    'created_at'     => current_time( 'mysql', true ),
+                    'club_id'     => 1,
+                    'user_id'     => 0,
+                    'entity_type' => 'user',
+                    'entity_id'   => $user_id,
+                    'action'      => 'hod_narrowing.cap_revoked',
+                    'payload'     => wp_json_encode( [ 'caps' => $stripped ] ),
+                    'created_at'  => current_time( 'mysql', true ),
                 ] );
             }
         }
