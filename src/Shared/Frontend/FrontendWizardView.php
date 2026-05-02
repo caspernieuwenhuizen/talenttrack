@@ -43,6 +43,7 @@ class FrontendWizardView extends FrontendViewBase {
 
         self::enqueueAssets();
         self::enqueueWizardStyles();
+        self::enqueueAutosaveScript( $slug );
 
         if ( ! empty( $_GET['restart'] ) ) {
             WizardState::clear( $user_id, $slug );
@@ -147,6 +148,7 @@ class FrontendWizardView extends FrontendViewBase {
         }
 
         self::renderHeader( $wizard->label() );
+        self::renderResumeBanner( $user_id, $slug, $state );
         self::renderProgress( $wizard, $current_slug, $state );
         if ( $error ) {
             echo '<div class="tt-notice tt-notice-error" role="alert">' . esc_html( $error ) . '</div>';
@@ -171,6 +173,9 @@ class FrontendWizardView extends FrontendViewBase {
 
         self::renderHelpSidebar( $wizard, $current );
 
+        echo '<div class="tt-wizard-autosave-status" data-tt-autosave-status data-state="idle" aria-live="polite">'
+            . esc_html__( 'Autosave ready', 'talenttrack' )
+            . '</div>';
         echo '<div class="tt-wizard-actions">';
         // #0069 — Cancel must discard the run regardless of unfilled
         // required fields. Save-as-draft and Back already carry
@@ -199,6 +204,53 @@ class FrontendWizardView extends FrontendViewBase {
 
         echo '<input type="hidden" name="_cancel_url" value="' . esc_attr( $cancel_url ) . '">';
         echo '</form>';
+    }
+
+    /**
+     * #0072 follow-up — resume banner. Renders when a persistent draft
+     * exists older than 10 minutes (the cross-session signal) and the
+     * user hasn't dismissed it for this view via `?dismiss_resume=1`.
+     *
+     * @param array<string,mixed> $state
+     */
+    private static function renderResumeBanner( int $user_id, string $slug, array $state ): void {
+        if ( ! empty( $_GET['dismiss_resume'] ) ) return;
+        if ( ! WizardState::hasPersistentDraft( $user_id, $slug ) ) return;
+
+        $age_str = WizardState::persistentDraftAge( $user_id, $slug );
+        if ( $age_str === null ) return;
+
+        try {
+            $saved_at = new \DateTimeImmutable( $age_str, new \DateTimeZone( 'UTC' ) );
+        } catch ( \Exception $e ) {
+            return;
+        }
+        $age_seconds = time() - $saved_at->getTimestamp();
+        if ( $age_seconds < 600 ) return; // Less than 10 minutes — same-session.
+
+        // Only meaningful if there's actual state beyond the bookkeeping.
+        $payload = array_filter( $state, static function ( $v, $k ): bool {
+            if ( in_array( $k, [ '_step', '_history', '_skipped', '_started_at' ], true ) ) return false;
+            return $v !== null && $v !== '' && $v !== [];
+        }, ARRAY_FILTER_USE_BOTH );
+        if ( $payload === [] ) return;
+
+        $age_human = human_time_diff( $saved_at->getTimestamp(), time() );
+
+        $continue_url = remove_query_arg( [ 'restart' ], add_query_arg( 'dismiss_resume', '1' ) );
+        $restart_url  = add_query_arg( 'restart', '1', remove_query_arg( [ 'dismiss_resume' ] ) );
+
+        echo '<div class="tt-notice tt-notice-info tt-pd-resume-banner" role="status">';
+        echo '<span class="tt-pd-resume-banner-text">' . esc_html( sprintf(
+            /* translators: %s: human-readable age e.g. "2 days". */
+            __( 'You started this %s ago. Continue where you left off, or start over?', 'talenttrack' ),
+            $age_human
+        ) ) . '</span>';
+        echo ' <a class="tt-button tt-button-primary" href="' . esc_url( $continue_url ) . '">'
+            . esc_html__( 'Continue', 'talenttrack' ) . '</a>';
+        echo ' <a class="tt-button tt-button-secondary" href="' . esc_url( $restart_url ) . '">'
+            . esc_html__( 'Start over', 'talenttrack' ) . '</a>';
+        echo '</div>';
     }
 
     private static function stepFor( WizardInterface $wizard, string $slug ): ?WizardStepInterface {
@@ -289,6 +341,28 @@ class FrontendWizardView extends FrontendViewBase {
         return $post;
     }
 
+    /**
+     * #0072 follow-up — enqueue the autosave runtime + localise its
+     * config (REST url + nonce + translatable status strings).
+     */
+    private static function enqueueAutosaveScript( string $slug ): void {
+        wp_enqueue_script(
+            'tt-wizard-autosave',
+            TT_PLUGIN_URL . 'assets/js/wizard-autosave.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-wizard-autosave', 'TT_WizardAutosave', [
+            'rest_url'   => esc_url_raw( rest_url( 'talenttrack/v1/' ) ),
+            'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+            'slug'       => $slug,
+            'i18n_saving' => __( 'Saving…', 'talenttrack' ),
+            'i18n_saved'  => __( 'Saved · ', 'talenttrack' ),
+            'i18n_failed' => __( 'Save failed', 'talenttrack' ),
+        ] );
+    }
+
     private static bool $styles_enqueued = false;
     private static function enqueueWizardStyles(): void {
         if ( self::$styles_enqueued ) return;
@@ -313,6 +387,15 @@ class FrontendWizardView extends FrontendViewBase {
             .tt-wizard-actions .tt-button-link { background: transparent; border: none; color: #5f6368; padding: 12px; }
             .tt-wizard-help { margin: 20px 0; padding: 12px; background: #f8f9fa; border-left: 3px solid #1d7874; border-radius: 4px; }
             .tt-wizard-help-link { color: #1d7874; text-decoration: none; }
+            .tt-wizard-autosave-status { font-size: .8125rem; color: #5f6368; margin-top: 8px; min-height: 1.25em; text-align: right; }
+            .tt-wizard-autosave-status[data-state="saving"] { color: #5f6368; font-style: italic; }
+            .tt-wizard-autosave-status[data-state="saved"]  { color: #137333; }
+            .tt-wizard-autosave-status[data-state="error"]  { color: #b91c1c; }
+            .tt-pd-resume-banner { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 16px; }
+            .tt-pd-resume-banner-text { flex: 1 1 auto; min-width: 200px; }
+            .tt-pd-eval-progress { margin: 16px 0; }
+            .tt-pd-eval-progress-bar { width: 100%; height: 14px; }
+            .tt-pd-eval-progress-status { margin: 6px 0 0; font-size: .875rem; color: #5f6368; }
             @media (min-width: 768px) {
                 .tt-wizard-actions { padding-top: 18px; }
             }

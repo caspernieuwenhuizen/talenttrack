@@ -5,6 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\PersonaDashboard\Registry\TableRowSourceRegistry;
 use TT\Modules\PersonaDashboard\Registry\WidgetRegistry;
+use TT\Modules\PersonaDashboard\TableSources\AuditLogRecentSource;
+use TT\Modules\PersonaDashboard\TableSources\RecentScoutReportsSource;
+use TT\Modules\PersonaDashboard\TableSources\TrialsNeedingDecisionSource;
 use TT\Modules\PersonaDashboard\TableSources\UpcomingActivitiesSource;
 use TT\Modules\PersonaDashboard\Widgets\ActionCardWidget;
 use TT\Modules\PersonaDashboard\Widgets\AssignedPlayersGridWidget;
@@ -45,6 +48,9 @@ final class CoreWidgets {
         WidgetRegistry::register( new AssignedPlayersGridWidget() );
         WidgetRegistry::register( new TeamOverviewGridWidget() );
 
-        TableRowSourceRegistry::register( 'upcoming_activities', new UpcomingActivitiesSource() );
+        TableRowSourceRegistry::register( 'upcoming_activities',     new UpcomingActivitiesSource() );
+        TableRowSourceRegistry::register( 'trials_needing_decision', new TrialsNeedingDecisionSource() );
+        TableRowSourceRegistry::register( 'recent_scout_reports',    new RecentScoutReportsSource() );
+        TableRowSourceRegistry::register( 'audit_log_recent',        new AuditLogRecentSource() );
     }
 }
