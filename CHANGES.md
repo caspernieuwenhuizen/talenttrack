@@ -1,3 +1,59 @@
+# TalentTrack v3.79.1 — Custom CSS editor follow-ups: tab navigation + save bug + classes catalogue + radio toggle + download
+
+Five issues found by the operator after Sprint 3 closed.
+
+## Bug fix — tab navigation broken inside Custom CSS view
+
+**What broke.** Clicking any of Visual settings / CSS editor / Upload / History tabs from inside `?tt_view=custom-css` did nothing. The user found that opening the same link in a new tab worked, which narrowed it to "same-tab navigation is intercepted somewhere."
+
+**Root cause.** [`assets/js/public.js:137`](assets/js/public.js#L137) had a delegated click handler on `.tt-dashboard .tt-tab` that always called `e.preventDefault()` and then looked for an in-page `.tt-tab-content[data-tab="..."]` pane to swap visibility on. That handler dates from a legacy single-page tab pattern (CoachDashboardView, PlayerDashboardView, App.php) where tabs are `<button>` elements with `data-tab` attributes and content panes share the same page. The Custom CSS editor uses real `<a href="?tab=editor">` links — no `data-tab`, no in-page content panes — so the handler intercepted the click, suppressed the navigation, then failed silently because no pane matched. Same defect would have hit the FrontendTrialCaseView tabs and the surface switcher inside the Custom CSS view itself.
+
+**Fix.** The handler now checks for `data-tab` on the clicked element before doing anything. Real `<a href>` links without `data-tab` are let through unmolested. Legacy `<button data-tab="…">` callers are unchanged.
+
+## Bug fix — Visual save was silently dropping every post-Sprint-1 token
+
+**What broke.** Operators picking values in Buttons / Forms / Content elements / Cards / Lists / Tables / Feedback / Overlays / Type scale (h4-h6) saw "Saved." but the values never persisted. Reopening the editor showed defaults; consumer rules read the legacy fallback values.
+
+**Root cause.** [`FrontendCustomCssView::collectVisualSettings()`](src/Modules/CustomCss/Frontend/FrontendCustomCssView.php) iterated `VisualEditor::FIELDS` (a frozen const last touched in v3.73.0) which only listed the 36 Sprint 1 tokens. Every catalogue token added after Sprint 1 — 52 of them — was silently dropped before storage. The blob persisted with empty values for the new fields; subsequent loads showed the defaults. The "Saved." banner was honest about reaching the database; it just didn't say "with only the v3.73 token subset."
+
+**Fix.** Switched the iterator to `VisualEditor::fields()`, the catalogue-driven dynamic field list (88 entries at the close of #0075). Existing saves are unaffected — they're already a strict subset.
+
+## Feature — Download saved CSS as a file
+
+New "Download .css" button on the CSS editor tab. Streams the saved CSS body via a nonce-gated GET handler attached to the same `template_redirect` priority as the POST PRG. Filename: `talenttrack-<surface>-v<version>.css`. Operators can pull the current CSS into their preferred editor (VS Code, Sublime, etc.), edit, and re-upload through the existing Upload tab — completing the round-trip. Cap-gated to `tt_admin_styling`.
+
+## Feature — Classes catalogue + fuzzy search
+
+New "Classes" tab between CSS editor and Upload. Indexes every `.tt-*` selector declared in the plugin's bundled stylesheets (`assets/css/*.css`) via a permissive regex scan, cached in a 1-hour transient keyed on plugin version (auto-invalidates on update). The scan finds ~500 classes covering buttons, cards, panels, tabs, tiles, forms, tables, status pills, dashboards, and module-specific surfaces.
+
+Each row shows the class name + the source files where it's declared + an **Insert →** button. Clicking Insert opens the CSS editor with a starter rule prefilled:
+
+```
+/* Inserted from Classes tab — edit and Save. */
+.tt-root .tt-card {
+    /* your overrides here */
+}
+```
+
+Wrapping in `.tt-root` is a deliberate convention — it protects against the host theme winning on specificity. Operators who want a more aggressive override remove the `.tt-root` parent themselves.
+
+Search input does **fuzzy matching**: query characters must appear in order in the class name. So `bn` matches `tt-btn`, `tt-btn-primary`, `tt-btn-secondary` (b…n…); `crd` matches `tt-card`, `tt-cfg-tile-card`. ~10 lines of vanilla JS, no library, debounced via the input event's natural keystroke cadence.
+
+The catalogue is a discovery surface — not a styleguide. We don't try to render examples or document each class; operators recognise the class names from the rendered DOM (Inspect Element) and use the editor to insert the override.
+
+## UX — Radio-button toggle replaces the click-to-flip button
+
+The Custom-CSS-on/off control was a bordered `<button>` whose label flipped between "Custom CSS is ON — click to turn OFF" and "Custom CSS is OFF — click to turn ON". Read more like a directive than a state. Replaced with a `<fieldset>` + two `<input type="radio">` (On / Off) inside it, with `onchange="this.form.submit()"` so the radio actually behaves like a switch. JS-disabled fallback: a Save button surfaces inside `<noscript>`. The Posted form value is the same `enabled=0|1` as before, so the existing `toggle_enabled` action handler works unchanged. An explainer line below the fieldset describes what each state means without burying it in the button label.
+
+## Acceptance criteria (manually verified)
+
+- [x] `php -l` clean.
+- [ ] **Tab navigation** — `?tt_view=custom-css&tab=visual` → click "CSS editor" → URL becomes `&tab=editor` and the textarea + download button render. Same for Upload / History / Classes / surface switcher.
+- [ ] **Save bug** — set `Primary button — background` to `#ff6600`. Save. Reload. The form's color picker shows `#ff6600`. Inspect any `.tt-btn-primary` on the dashboard — its background is `#ff6600`.
+- [ ] **Download** — click "Download .css" on the CSS editor tab. Browser downloads `talenttrack-frontend-v<N>.css`. Open it — it's the saved CSS body. Edit in VS Code, drop on the Upload tab, save. The new content lives.
+- [ ] **Classes** — click the new Classes tab. Search `crd` — list narrows to classes containing those letters in order (e.g. `tt-card`, `tt-cfg-tile-card`). Click Insert on any class. CSS editor opens with the starter rule prefilled at the top of the textarea.
+- [ ] **Radio toggle** — top of the editor view shows a fieldset with `On` / `Off` radios. Click the opposite one — page reloads, custom CSS toggle state flips, the explainer line below updates accordingly.
+
 # TalentTrack v3.79.0 — Sprint 3 close (#0075 closes)
 
 Closes #0075 ("Full design system"). Sprint 2 catalogued + emitted 28 new tokens across 6 categories but most consumers weren't wired yet — operators picking values in the editor saved them but produced no visible effect on most surfaces. This PR wires every catalogued token that has a sensible existing CSS hook.
