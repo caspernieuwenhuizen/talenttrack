@@ -388,7 +388,7 @@ class FrontendMyTasksView extends FrontendViewBase {
             if ( $name !== '' ) $bits[] = $name;
         }
         if ( ! empty( $task['activity_id'] ) ) {
-            $bits[] = sprintf( __( 'session #%d', 'talenttrack' ), (int) $task['activity_id'] );
+            $bits[] = sprintf( __( 'activity #%d', 'talenttrack' ), (int) $task['activity_id'] );
         }
         return implode( ' · ', $bits );
     }

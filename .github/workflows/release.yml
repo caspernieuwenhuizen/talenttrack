@@ -142,6 +142,46 @@ jobs:
           fi
           echo "No legacy sessions tokens found — clean."
 
+          # i18n-text gate (added by i18n audit, May 2026) — catches
+          # user-visible "session"/"Session" vocabulary inside quoted strings
+          # in PHP source. The rename added nl_NL translations only for
+          # "activity"/"activities", so wrapped "session" strings ship raw
+          # English to Dutch users.
+          # Allow-list: legitimate non-training-session uses (browser
+          # sessions, possession as a tactical concept, historical migration
+          # banner, demo-data dual labels, docblock examples).
+          echo ""
+          echo "Auditing PHP quoted strings for user-visible 'session' vocabulary…"
+          # The pattern is tier-1/tier-2 user-visible "session" vocabulary
+          # in PHP strings. Allow-list categories:
+          #   1. Legitimate non-training-session uses (browser sessions,
+          #      possession as a tactical concept).
+          #   2. Internal log/array/section keys, capability codes, REST
+          #      route slugs, internal sheet labels (Tier 3 — out of scope).
+          #   3. The Excel template builder + sheet schemas user-facing
+          #      strings (Bundle 6 of the i18n audit, ships separately).
+          #   4. Specific historical references (migrated-from-sessions
+          #      banner, dual-label demo-data hint).
+          i18n_pattern="['\"][^'\"]*\\b[Ss]ession[s]?\\b[^'\"]*['\"]"
+          # File-level excludes for Tier-3 / Bundle-6 deferred:
+          allow_files='src/Modules/DemoData/|src/Shared/Admin/BackNavigator\.php|src/Modules/Reports/ReportConfig\.php|src/Modules/Reports/PlayerReportRenderer\.php|src/Shared/Frontend/FrontendActivitiesManageView\.php|src/Infrastructure/REST/ActivitiesRestController\.php|src/Infrastructure/PlayerStatus/PlayerAttendanceCalculator\.php|src/Modules/Authorization/Impersonation/'
+          # Phrase-level excludes:
+          allow_phrases="earlier session|active sessions|browser session|possession|Possession|migrated from sessions|Activities \(Sessions\)|Sessions referencing|FrontendListTable\.php|sprintf|^\s*\*|impersonation session|My sessions\" tile destination|tt-report-sessions|sessions\.(view|manage)|session\.[a-z_]+|'sessions'\s+=>|, +'sessions' \],?\$"
+          i18n_hits=$(grep -rnE "$i18n_pattern" --include='*.php' src/ 2>/dev/null \
+            | grep -vE "$allow_files" \
+            | grep -vE "$allow_phrases" \
+            || true)
+          if [ -n "$i18n_hits" ]; then
+            echo "::error::User-visible 'session' vocabulary in PHP strings:"
+            echo "$i18n_hits"
+            echo ""
+            echo "These ship untranslated on Dutch installs (the .po only has 'activity'/'activities' translations)."
+            echo "Either rename the user-visible string to 'activity'/'activities' or extend the allow-list above"
+            echo "if it's a legitimate non-training-session use of the word."
+            exit 1
+          fi
+          echo "No untranslatable 'session' strings — clean."
+
   docs-audience:
     name: Docs audience markers (#0029)
     runs-on: ubuntu-latest

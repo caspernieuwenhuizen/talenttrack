@@ -96,7 +96,7 @@ class FormSlugContract {
         // be a footgun since custom fields anchored to it would never render.
         return [
             'title'        => __( 'Title', 'talenttrack' ),
-            'session_date' => __( 'Session date', 'talenttrack' ),
+            'session_date' => __( 'Activity date', 'talenttrack' ),
             'location'     => __( 'Location', 'talenttrack' ),
             'team_id'      => __( 'Team', 'talenttrack' ),
             'notes'        => __( 'Notes', 'talenttrack' ),

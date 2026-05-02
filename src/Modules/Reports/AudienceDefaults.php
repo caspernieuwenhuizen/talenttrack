@@ -105,7 +105,7 @@ final class AudienceDefaults {
             'profile'     => __( 'Profile', 'talenttrack' ),
             'ratings'     => __( 'Ratings', 'talenttrack' ),
             'goals'       => __( 'Goals', 'talenttrack' ),
-            'sessions'    => __( 'Sessions', 'talenttrack' ),
+            'sessions'    => __( 'Activities', 'talenttrack' ),
             'attendance'  => __( 'Attendance', 'talenttrack' ),
             'coach_notes' => __( 'Coach notes', 'talenttrack' ),
         ];

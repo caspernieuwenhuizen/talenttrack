@@ -258,7 +258,7 @@ class ModulesPage {
             'TT\\Modules\\Players\\PlayerStatusModule'            => __( 'Behaviour + potential capture and the traffic-light status calculator.', 'talenttrack' ),
             'TT\\Modules\\People\\PeopleModule'                   => __( 'Staff, parents, scouts and any other non-player human in the academy.', 'talenttrack' ),
             'TT\\Modules\\Invitations\\InvitationsModule'         => __( 'Email + WhatsApp invite links for player / parent / staff onboarding.', 'talenttrack' ),
-            'TT\\Modules\\Trials\\TrialsModule'                   => __( 'Trial cases — track a prospective player from first session through the decision.', 'talenttrack' ),
+            'TT\\Modules\\Trials\\TrialsModule'                   => __( 'Trial cases — track a prospective player from first activity through the decision.', 'talenttrack' ),
             'TT\\Modules\\Evaluations\\EvaluationsModule'         => __( 'Player evaluations, categories, age-group weights.', 'talenttrack' ),
             'TT\\Modules\\Activities\\ActivitiesModule'           => __( 'Training, games, tournaments, attendance.', 'talenttrack' ),
             'TT\\Modules\\Goals\\GoalsModule'                     => __( 'Per-player development goals + conversational threads.', 'talenttrack' ),

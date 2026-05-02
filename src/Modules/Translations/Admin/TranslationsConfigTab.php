@@ -70,7 +70,7 @@ final class TranslationsConfigTab {
         ?>
         <h2><?php esc_html_e( 'Auto-translation', 'talenttrack' ); ?></h2>
         <p class="description" style="max-width:780px;">
-            <?php esc_html_e( 'Lazily translate user-entered free text (goal titles, evaluation notes, session descriptions, …) at render time when a viewer\'s locale differs from the source. Default OFF. Translations are cached and re-used; the cap below limits per-month engine spend.', 'talenttrack' ); ?>
+            <?php esc_html_e( 'Lazily translate user-entered free text (goal titles, evaluation notes, activity descriptions, …) at render time when a viewer\'s locale differs from the source. Default OFF. Translations are cached and re-used; the cap below limits per-month engine spend.', 'talenttrack' ); ?>
         </p>
 
         <?php if ( $error !== '' ) : ?>

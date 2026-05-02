@@ -262,7 +262,7 @@ class MethodologyPage {
                     <li><?php
                         printf(
                             /* translators: %d is a count */
-                            esc_html__( 'Sessions referencing: %d', 'talenttrack' ),
+                            esc_html__( 'Activities referencing: %d', 'talenttrack' ),
                             (int) ( $usage['activity'] ?? 0 )
                         );
                     ?></li>

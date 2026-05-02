@@ -49,22 +49,22 @@ class FrontendRolesView extends FrontendViewBase {
         self::renderRoleCard(
             'tt_readonly_observer',
             __( 'Read-Only Observer', 'talenttrack' ),
-            __( 'Sees every team, player, evaluation, session, goal, and report. Cannot edit anything. Use this for board members, parents who want a peek at progress, or external scouts. The role most admins forget exists.', 'talenttrack' ),
+            __( 'Sees every team, player, evaluation, activity, goal, and report. Cannot edit anything. Use this for board members, parents who want a peek at progress, or external scouts. The role most admins forget exists.', 'talenttrack' ),
             true
         );
 
         $other = [
             'tt_head_dev' => [
                 __( 'Head of Development', 'talenttrack' ),
-                __( 'Oversees the whole academy. Can see and edit everything: teams, players, evaluations, sessions, goals, settings. The default fallback for "this person needs to do everything."', 'talenttrack' ),
+                __( 'Oversees the whole academy. Can see and edit everything: teams, players, evaluations, activities, goals, settings. The default fallback for "this person needs to do everything."', 'talenttrack' ),
             ],
             'tt_club_admin' => [
                 __( 'Club Admin', 'talenttrack' ),
-                __( 'Manages teams, players, people, sessions, goals, and settings. Cannot record evaluations themselves. Use for office-side admins who handle the roster + administration but don\'t coach.', 'talenttrack' ),
+                __( 'Manages teams, players, people, activities, goals, and settings. Cannot record evaluations themselves. Use for office-side admins who handle the roster + administration but don\'t coach.', 'talenttrack' ),
             ],
             'tt_coach' => [
                 __( 'Coach', 'talenttrack' ),
-                __( 'Records evaluations, sessions, and goals for the teams they head-coach. Cannot edit the player roster, the teams structure, or settings. The daily-use role for trainers.', 'talenttrack' ),
+                __( 'Records evaluations, activities, and goals for the teams they head-coach. Cannot edit the player roster, the teams structure, or settings. The daily-use role for trainers.', 'talenttrack' ),
             ],
             'tt_scout' => [
                 __( 'Scout', 'talenttrack' ),
@@ -76,11 +76,11 @@ class FrontendRolesView extends FrontendViewBase {
             ],
             'tt_player' => [
                 __( 'Player', 'talenttrack' ),
-                __( 'A player\'s own login. Sees their own evaluations, sessions, goals, and rate card. Cannot see other players. Linked to a `tt_players` row via the player\'s WP user id.', 'talenttrack' ),
+                __( 'A player\'s own login. Sees their own evaluations, activities, goals, and rate card. Cannot see other players. Linked to a `tt_players` row via the player\'s WP user id.', 'talenttrack' ),
             ],
             'tt_parent' => [
                 __( 'Parent', 'talenttrack' ),
-                __( 'A parent\'s login, linked to one or more children. Sees what those children see — evaluations, sessions, goals — read-only.', 'talenttrack' ),
+                __( 'A parent\'s login, linked to one or more children. Sees what those children see — evaluations, activities, goals — read-only.', 'talenttrack' ),
             ],
         ];
 

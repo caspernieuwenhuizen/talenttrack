@@ -99,15 +99,16 @@
             var note = '';
             if (p.errors && p.errors.length) note = p.errors.join('; ');
             else if (p.dupe_of) note = (window.TT && TT.i18n && TT.i18n.csv_dupe_of) ? TT.i18n.csv_dupe_of.replace('%d', String(p.dupe_of)) : 'Matches existing player #' + p.dupe_of;
-            var statusLabel = p.status === 'error' ? 'Error' : (p.status === 'warning' ? 'Dupe' : 'OK');
+            var i18n = (window.TT && TT.i18n) || {};
+            var statusLabel = p.status === 'error' ? (i18n.csv_status_error || 'Error') : (p.status === 'warning' ? (i18n.csv_status_dupe || 'Dupe') : (i18n.csv_status_ok || 'OK'));
             var statusClass = p.status === 'error' ? 'tt-flash-error' : (p.status === 'warning' ? 'tt-flash-warning' : 'tt-flash-success');
             tr.innerHTML =
-                '<td data-label="Row">' + escapeHtml(p.row_number) + '</td>' +
-                '<td data-label="Status"><span class="tt-flash ' + statusClass + '" style="display:inline-block; padding:2px 8px;">' + escapeHtml(statusLabel) + '</span></td>' +
-                '<td data-label="Player">' + escapeHtml((d.first_name || '') + ' ' + (d.last_name || '')) + '</td>' +
-                '<td data-label="DOB">' + escapeHtml(d.date_of_birth || '') + '</td>' +
-                '<td data-label="Team">' + escapeHtml(d.team_name || d.team_id || '') + '</td>' +
-                '<td data-label="Notes">' + escapeHtml(note) + '</td>';
+                '<td data-label="' + escapeHtml(i18n.csv_col_row    || 'Row')    + '">' + escapeHtml(p.row_number) + '</td>' +
+                '<td data-label="' + escapeHtml(i18n.csv_col_status || 'Status') + '"><span class="tt-flash ' + statusClass + '" style="display:inline-block; padding:2px 8px;">' + escapeHtml(statusLabel) + '</span></td>' +
+                '<td data-label="' + escapeHtml(i18n.csv_col_player || 'Player') + '">' + escapeHtml((d.first_name || '') + ' ' + (d.last_name || '')) + '</td>' +
+                '<td data-label="' + escapeHtml(i18n.csv_col_dob    || 'DOB')    + '">' + escapeHtml(d.date_of_birth || '') + '</td>' +
+                '<td data-label="' + escapeHtml(i18n.csv_col_team   || 'Team')   + '">' + escapeHtml(d.team_name || d.team_id || '') + '</td>' +
+                '<td data-label="' + escapeHtml(i18n.csv_col_notes  || 'Notes')  + '">' + escapeHtml(note) + '</td>';
             tbody.appendChild(tr);
         });
     }
@@ -152,16 +153,17 @@
             setMsg(root, '', '');
             var btn = form.querySelector('[data-tt-csv-preview="1"]');
             if (btn) btn.disabled = true;
+            var i18n = (window.TT && TT.i18n) || {};
             var fd = buildFormData(form, true);
             if (!fd) {
-                setMsg(root, 'error', 'Pick a CSV file first.');
+                setMsg(root, 'error', i18n.csv_pick_file_first || 'Pick a CSV file first.');
                 if (btn) btn.disabled = false;
                 return;
             }
             send(fd).then(function(r) {
                 if (btn) btn.disabled = false;
                 if (!r.ok || !r.json || !r.json.success) {
-                    var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || 'Could not preview the file.';
+                    var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || i18n.csv_preview_failed || 'Could not preview the file.';
                     setMsg(root, 'error', msg);
                     return;
                 }
@@ -180,10 +182,11 @@
                 e.preventDefault();
                 commit.disabled = true;
                 var fd = buildFormData(form, false);
+                var i18n2 = (window.TT && TT.i18n) || {};
                 send(fd).then(function(r) {
                     commit.disabled = false;
                     if (!r.ok || !r.json || !r.json.success) {
-                        var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || 'Import failed.';
+                        var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || i18n2.csv_import_failed || 'Import failed.';
                         setMsg(root, 'error', msg);
                         return;
                     }

@@ -398,7 +398,7 @@ class PlayerReportRenderer {
                 <?php
                 echo esc_html( sprintf(
                     /* translators: 1: present count, 2: total count, 3: percentage */
-                    __( 'Present at %1$d of %2$d sessions (%3$d%%) in this period.', 'talenttrack' ),
+                    __( 'Present at %1$d of %2$d activities (%3$d%%) in this period.', 'talenttrack' ),
                     (int) $stats['present'],
                     (int) $stats['total'],
                     (int) $stats['pct']
@@ -431,14 +431,14 @@ class PlayerReportRenderer {
         if ( $count === 0 ) return;
         ?>
         <section class="tt-report-sessions">
-            <h2><?php esc_html_e( 'Sessions', 'talenttrack' ); ?></h2>
+            <h2><?php esc_html_e( 'Activities', 'talenttrack' ); ?></h2>
             <p>
                 <?php
                 echo esc_html( sprintf(
-                    /* translators: %d: session count */
+                    /* translators: %d: activity count */
                     _n(
-                        '%d session logged for this team in the period.',
-                        '%d sessions logged for this team in the period.',
+                        '%d activity logged for this team in the period.',
+                        '%d activities logged for this team in the period.',
                         $count,
                         'talenttrack'
                     ),

@@ -160,7 +160,7 @@ class OnboardingPage {
         ?>
         <h2><?php esc_html_e( 'First team', 'talenttrack' ); ?></h2>
         <p style="max-width:680px;">
-            <?php esc_html_e( 'Add one team now. You can add more later under Teams. Players, evaluations, sessions, and goals all attach to a team, so we need at least one to make the rest of the plugin useful.', 'talenttrack' ); ?>
+            <?php esc_html_e( 'Add one team now. You can add more later under Teams. Players, evaluations, activities, and goals all attach to a team, so we need at least one to make the rest of the plugin useful.', 'talenttrack' ); ?>
         </p>
         <?php if ( class_exists( '\\TT\\Shared\\Wizards\\WizardRegistry' ) && \TT\Shared\Wizards\WizardRegistry::isAvailable( 'new-team' ) ) : ?>
             <p style="max-width:680px;">
@@ -213,7 +213,7 @@ class OnboardingPage {
             <?php
             printf(
                 /* translators: %s is the WP display name + email of the current user */
-                esc_html__( 'You are signed in as %s. We will create a TalentTrack staff record for you and link it to your WP account so evaluations, sessions, and notifications all reference the right person.', 'talenttrack' ),
+                esc_html__( 'You are signed in as %s. We will create a TalentTrack staff record for you and link it to your WP account so evaluations, activities, and notifications all reference the right person.', 'talenttrack' ),
                 '<strong>' . esc_html( $name . ( $email ? " ($email)" : '' ) ) . '</strong>'
             );
             ?>

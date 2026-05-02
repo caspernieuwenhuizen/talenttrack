@@ -24,7 +24,7 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
-        self::renderHeader( __( 'My sessions', 'talenttrack' ) );
+        self::renderHeader( __( 'My activities', 'talenttrack' ) );
 
         $filters = self::filtersFromQuery();
         $statuses = QueryHelpers::get_lookup_names( 'attendance_status' );

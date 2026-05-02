@@ -36,7 +36,15 @@ final class HybridDeepRateStep implements WizardStepInterface {
         ) );
         $setting_names = array_map( static fn( $r ) => (string) $r->name, (array) $settings );
         if ( empty( $setting_names ) ) {
-            $setting_names = [ 'training', 'match', 'tournament', 'observation', 'other' ];
+            // Fallback when the lookup table is empty. Wrapping in __() so a
+            // Dutch install on a fresh seed sees Dutch in this dropdown.
+            $setting_names = [
+                __( 'training',    'talenttrack' ),
+                __( 'match',       'talenttrack' ),
+                __( 'tournament',  'talenttrack' ),
+                __( 'observation', 'talenttrack' ),
+                __( 'other',       'talenttrack' ),
+            ];
         }
 
         $date_val    = (string) ( $state['eval_date'] ?? gmdate( 'Y-m-d' ) );
@@ -57,7 +65,7 @@ final class HybridDeepRateStep implements WizardStepInterface {
                         <select name="eval_setting">
                             <option value=""><?php esc_html_e( '— pick a setting —', 'talenttrack' ); ?></option>
                             <?php foreach ( $setting_names as $n ) : ?>
-                                <option value="<?php echo esc_attr( $n ); ?>" <?php selected( $setting_val, $n ); ?>><?php echo esc_html( $n ); ?></option>
+                                <option value="<?php echo esc_attr( $n ); ?>" <?php selected( $setting_val, $n ); ?>><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'evaluation_setting', (string) $n ) ); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </td>

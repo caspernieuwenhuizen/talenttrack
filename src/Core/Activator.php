@@ -828,7 +828,7 @@ class Activator {
 
         // v2.6.0+: lookups for types, positions, foot, age groups, etc.
         foreach ( [
-            [ 'Training', 'Regular training session evaluation', '{"requires_match_details":false}', 1 ],
+            [ 'Training', 'Regular training activity evaluation', '{"requires_match_details":false}', 1 ],
             [ 'Match',    'Competitive match evaluation', '{"requires_match_details":true}', 2 ],
             [ 'Friendly', 'Friendly / scrimmage evaluation', '{"requires_match_details":true}', 3 ],
         ] as $t ) {
@@ -1415,7 +1415,7 @@ class Activator {
             [
                 'key'         => 'head_coach',
                 'label'       => 'Head Coach',
-                'description' => 'Lead coach for a team. Owns methodology, selection, and session planning.',
+                'description' => 'Lead coach for a team. Owns methodology, selection, and activity planning.',
                 'sort_order'  => 10,
                 'maps_to'     => [ 'head_coach' ],
             ],
@@ -1429,7 +1429,7 @@ class Activator {
             [
                 'key'         => 'manager',
                 'label'       => 'Manager',
-                'description' => 'Handles logistics, roster, sessions, and team settings. Not an evaluator.',
+                'description' => 'Handles logistics, roster, activities, and team settings. Not an evaluator.',
                 'sort_order'  => 30,
                 'maps_to'     => [ 'manager' ],
             ],
@@ -1493,7 +1493,7 @@ class Activator {
             [
                 'key'         => 'head_coach',
                 'label'       => 'Head Coach',
-                'description' => 'Full control within assigned teams — players, evaluations, sessions, goals, and team settings. Scoped to team.',
+                'description' => 'Full control within assigned teams — players, evaluations, activities, goals, and team settings. Scoped to team.',
                 'permissions' => [
                     'players.view',
                     'players.edit',
@@ -1525,7 +1525,7 @@ class Activator {
             [
                 'key'         => 'manager',
                 'label'       => 'Manager',
-                'description' => 'Runs logistics within assigned teams — roster, sessions, team settings. No evaluation permissions. Scoped to team.',
+                'description' => 'Runs logistics within assigned teams — roster, activities, team settings. No evaluation permissions. Scoped to team.',
                 'permissions' => [
                     'players.view',
                     'players.edit',
@@ -1539,7 +1539,7 @@ class Activator {
             [
                 'key'         => 'physio',
                 'label'       => 'Physio',
-                'description' => 'Read-only access to players and sessions within assigned teams.',
+                'description' => 'Read-only access to players and activities within assigned teams.',
                 'permissions' => [
                     'players.view',
                     'sessions.view',
@@ -1548,7 +1548,7 @@ class Activator {
             [
                 'key'         => 'team_member',
                 'label'       => 'Team Member',
-                'description' => 'Minimal read-only access within assigned teams. Default authorization for the "Other" functional role — see only players and sessions of the teams you are assigned to, nothing more.',
+                'description' => 'Minimal read-only access within assigned teams. Default authorization for the "Other" functional role — see only players and activities of the teams you are assigned to, nothing more.',
                 'permissions' => [
                     'players.view',
                     'sessions.view',

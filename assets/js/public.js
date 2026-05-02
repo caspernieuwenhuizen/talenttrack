@@ -18,7 +18,7 @@
         network_error: 'Network error.',
         confirm_delete_goal: 'Delete this goal?',
         save_evaluation: 'Save Evaluation',
-        save_session: 'Save Session',
+        save_activity: 'Save Activity',
         add_goal: 'Add Goal',
         save: 'Save'
     };
@@ -102,7 +102,7 @@
     function defaultButtonLabel(formId) {
         switch (formId) {
             case 'tt-eval-form':    return i18n.save_evaluation;
-            case 'tt-activity-form': return i18n.save_session;
+            case 'tt-activity-form': return i18n.save_activity;
             case 'tt-goal-form':    return i18n.add_goal;
             default:                return i18n.save;
         }

@@ -357,7 +357,7 @@ class ActivitiesRestController {
             Logger::error( 'session.save.failed', [ 'db_error' => $err, 'payload' => $data ] );
             return RestResponse::error(
                 'db_error',
-                __( 'The session could not be saved. The database rejected the operation.', 'talenttrack' ),
+                __( 'The activity could not be saved. The database rejected the operation.', 'talenttrack' ),
                 500,
                 [ 'db_error' => $err ]
             );
@@ -386,7 +386,7 @@ class ActivitiesRestController {
             Logger::error( 'session.attendance.save.failed', [ 'activity_id' => $activity_id, 'failures' => $att_failures ] );
             return RestResponse::error(
                 'partial_save',
-                __( 'The session was saved, but some attendance rows could not be stored.', 'talenttrack' ),
+                __( 'The activity was saved, but some attendance rows could not be stored.', 'talenttrack' ),
                 500,
                 [ 'activity_id' => $activity_id, 'failures' => $att_failures ]
             );
@@ -411,7 +411,7 @@ class ActivitiesRestController {
 
         $activity_id = absint( $r['id'] );
         if ( $activity_id <= 0 ) {
-            return RestResponse::error( 'bad_id', __( 'Invalid session id.', 'talenttrack' ), 400 );
+            return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
         }
 
         $type_error = self::validateActivityType( $r );
@@ -427,7 +427,7 @@ class ActivitiesRestController {
             Logger::error( 'session.update.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
             return RestResponse::error(
                 'db_error',
-                __( 'The session could not be updated. The database rejected the operation.', 'talenttrack' ),
+                __( 'The activity could not be updated. The database rejected the operation.', 'talenttrack' ),
                 500,
                 [ 'db_error' => $err ]
             );
@@ -449,7 +449,7 @@ class ActivitiesRestController {
                 Logger::error( 'session.attendance.update.failed', [ 'activity_id' => $activity_id, 'failures' => $att_failures ] );
                 return RestResponse::error(
                     'partial_save',
-                    __( 'The session was updated, but some attendance rows could not be stored.', 'talenttrack' ),
+                    __( 'The activity was updated, but some attendance rows could not be stored.', 'talenttrack' ),
                     500,
                     [ 'activity_id' => $activity_id, 'failures' => $att_failures ]
                 );
@@ -491,7 +491,7 @@ class ActivitiesRestController {
 
         $activity_id = absint( $r['id'] );
         if ( $activity_id <= 0 ) {
-            return RestResponse::error( 'bad_id', __( 'Invalid session id.', 'talenttrack' ), 400 );
+            return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
         }
 
         $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'club_id' => CurrentClub::id() ] );
@@ -501,7 +501,7 @@ class ActivitiesRestController {
             Logger::error( 'session.delete.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
             return RestResponse::error(
                 'db_error',
-                __( 'The session could not be deleted.', 'talenttrack' ),
+                __( 'The activity could not be deleted.', 'talenttrack' ),
                 500,
                 [ 'db_error' => $err ]
             );
@@ -627,13 +627,13 @@ class ActivitiesRestController {
         global $wpdb; $p = $wpdb->prefix;
         $activity_id = absint( $r['id'] );
         if ( $activity_id <= 0 ) {
-            return RestResponse::error( 'bad_id', __( 'Invalid session id.', 'talenttrack' ), 400 );
+            return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
         }
         $exists = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_activities WHERE id = %d AND club_id = %d", $activity_id, CurrentClub::id()
         ) );
         if ( $exists === 0 ) {
-            return RestResponse::error( 'not_found', __( 'Session not found.', 'talenttrack' ), 404 );
+            return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
         }
 
         $linked_id = absint( $r['guest_player_id'] ?? 0 );

@@ -1,3 +1,59 @@
+# TalentTrack v3.81.0 — i18n audit (May 2026) Bundles 1 + 2 — critical leak fixes + session→activity user-visible rename
+
+First fix-PR off the May 2026 i18n audit (`docs/i18n-audit-2026-05.md`). Bundle 1 closes the 5 critical-path bugs that ship raw English to Dutch users today; Bundle 2 sweeps ~30 user-visible "session"/"sessions" leftovers to "activity"/"activities" so the Dutch translations actually land. The audit found ~150 surfaces total; this PR knocks out ~80 of them.
+
+## Bundle 1 — critical leak fixes
+
+- **Inline JS in `FrontendConfigurationView.php`** — three error-path lines (`'Error '+r.status`, `'Network error.'`, `alert('Error '+...)`) routed through new localized `T_ERROR` / `T_NETWORK_ERROR` constants matching the sibling lines that already did it correctly.
+- **`csv-import.js`** — status badges (Error/Dupe/OK) and responsive `data-label` column headers (Row/Status/Player/DOB/Team/Notes) plus three error-message fallbacks now read from `TT.i18n.csv_*`. 13 new `csv_*` keys in `DashboardShortcode.php`'s localize bundle.
+- **`admin-methodology-media-picker.js`** — fixed two bugs: `att.title || 'Image'` fallback now reads `TT_MethodologyMedia.imageAlt`; the hardcoded **Dutch** `'Wordt toegevoegd bij opslaan'` (which English-locale users saw in Dutch) now reads `TT_MethodologyMedia.pendingLabel`. Localize msgids in `MediaPicker.php` switched to English so the .po controls translation.
+- **Hardcoded `aria-label`** on `multitag.js` close-pill (`Remove`) + `flash.js` dismiss-link (`Dismiss`) now read from `TT.i18n.remove`/`dismiss`. Screen readers in Dutch locale stop announcing English.
+- **Wizard step lookup renders** — three steps were rendering raw `tt_lookups.name` values via `echo esc_html($n)`, bypassing `LookupTranslator`:
+  - `Wizards\Evaluation\AttendanceStep` `<th>` headers → `LabelTranslator::attendanceStatus()`
+  - `Wizards\Evaluation\HybridDeepRateStep` Setting `<select>` + empty-table fallback → `LookupTranslator::byTypeAndName('evaluation_setting', $name)` + wrapped fallbacks
+  - `Wizards\Activity\DetailsStep` game-subtype `<option>` → switched from `get_lookup_names()` (flat strings) to `get_lookups()` + `LookupTranslator::name()`
+
+## Bundle 2 — session → activity user-visible rename (~30 strings + migration)
+
+The v3.x rename migration `0027_rename_sessions_to_activities` translated `'activity'`/`'activities'` in the .po but left ~30 user-visible strings still saying `'session'`/`'sessions'` inside `__()`. These wrapped strings looked correct in code but rendered as raw English on Dutch installs because the .po has no matching msgids. Surfaces swept (29 strings across 18 files):
+
+- **REST error toasts** in `ActivitiesRestController` — 8 strings (create/update/delete/partial-save/guest-add error paths)
+- **Role descriptions** in `RolesPage` (4 strings) + `FunctionalRolesPage` (2 strings) + `Activator::defaultRoleDefinitions()` + `defaultFunctionalRoleDefinitions()` — stored text seeded into `tt_roles` / `tt_functional_roles` on activation
+- **Tile descriptions** in `CoreSurfaceRegistration` (3 strings)
+- **Reports** — `PlayerReportRenderer` 3 strings (Sessions `<h2>`, attendance line, `_n()` plural), `AudienceDefaults` section name (kept the internal `'sessions'` key)
+- **Coach dashboard** — `CoachDashboardView` 3 strings (help paragraph, `<h3>Record Training Session`, submit `Save Session`), `CoachForms` 2 strings (`<h3>` + submit), `public.js` + `DashboardShortcode.php` JS i18n key `save_session` → `save_activity`
+- **Frontend role descriptions** in `FrontendRolesView` (5 strings)
+- **Other** — `FrontendMyActivitiesView` ("My sessions"), `FrontendTrialCaseView` ("Sessions" `<h2>` + "No sessions yet"), `PlayerDashboardView` (help), `FrontendMyProfileView` ("See all sessions"), `MethodologyPage` ("Sessions referencing"), `FormSlugContract` ("Session date"), `TranslationsConfigTab` (admin help), `FeatureToggleService` (audit-log toggle desc), `Backup\PresetRegistry` (Standard preset desc), `PlayerStatusCalculator` (low-signal reason), `ModulesPage` (trials module desc), `Workflow\Frontend\FrontendMyTasksView` (`session #%d` → `activity #%d`), `OnboardingPage` (first-team intro)
+
+### Migration `0059_session_to_activity_stored_text`
+
+Backfills the stored English text in two tables for existing installs:
+- `tt_lookups.description` for the eval_type `Training` row → "Regular training activity evaluation"
+- `tt_roles.description` for `physio` + `team_member` → activity-bearing variants
+
+Idempotent — only updates rows whose current value matches the exact pre-rename string, so admin-edited rows pass through untouched. Re-running on a partial install is a no-op.
+
+### CI gate
+
+`release.yml` `legacy-sessions-gate` (#0035) gained a new step that scans PHP quoted strings for `\b[Ss]ession[s]?\b` with an allow-list of legitimate uses (browser sessions, possession, log keys, capability codes, internal section keys, the historical migration banner, demo-data dual labels). The pre-existing step only caught identifier-level leaks (`tt_sessions`, `session_id`, REST routes, capability strings) — that's how this whole audit got triggered. Future regressions in user-visible label text now trip the build.
+
+### Translations
+
+~30 new NL msgids appended to `talenttrack-nl_NL.po`. The previously-orphaned "session"-bearing msgids stay in the file (harmless — they just no longer match any code) and can be tidied in a future cleanup PR.
+
+## Audit progress
+
+This PR ships Bundles 1 + 2 of the 10-bundle i18n audit triage list. Remaining bundles, in priority order:
+
+3. Lookup translations backfill migration (~50 rows)
+4. System role + functional role labels via `LabelTranslator` extensions
+5. Eval category translations (schema change + repository read path)
+6. Excel template builder + sheet schemas wrap
+7. Trial track + formation template labels
+8. JS error-fallback sweep
+9. Methodology task arrays review
+10. (Defer) Letter templates DE/FR/ES/IT/PT — fold into #0010 multi-language epic
+
 # TalentTrack v3.79.1 — Custom CSS editor follow-ups: tab navigation + save bug + classes catalogue + radio toggle + download
 
 Five issues found by the operator after Sprint 3 closed.

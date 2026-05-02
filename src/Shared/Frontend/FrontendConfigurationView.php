@@ -348,6 +348,10 @@ class FrontendConfigurationView extends FrontendViewBase {
             var rest  = ((window.TT && window.TT.rest_url) || '/wp-json/talenttrack/v1/').replace(/\/+$/, '/');
             var type  = root.getAttribute('data-lookup-type');
 
+            // i18n — localized labels used by inline JS error paths.
+            var T_ERROR = '<?php echo esc_js( __( 'Error', 'talenttrack' ) ); ?>';
+            var T_NETWORK_ERROR = '<?php echo esc_js( __( 'Network error.', 'talenttrack' ) ); ?>';
+
             // Save (create / update)
             var form = root.querySelector('[data-tt-lookup-form]');
             if (form) {
@@ -391,9 +395,9 @@ class FrontendConfigurationView extends FrontendViewBase {
                       .then(function(r){
                         if (r.ok) { window.location.reload(); return; }
                         var first = r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message;
-                        msg.textContent = first || ('Error ' + r.status);
+                        msg.textContent = first || (T_ERROR + ' ' + r.status);
                       })
-                      .catch(function(){ msg.textContent = 'Network error.'; });
+                      .catch(function(){ msg.textContent = T_NETWORK_ERROR; });
                 });
             }
 
@@ -425,7 +429,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                             msg.textContent = '<?php echo esc_js( __( 'Translated. Review and edit before saving.', 'talenttrack' ) ); ?>';
                         } else {
                             var first = r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message;
-                            msg.textContent = first || ('Error ' + r.status);
+                            msg.textContent = first || (T_ERROR + ' ' + r.status);
                         }
                       })
                       .catch(function(){ tx_btn.disabled = false; msg.textContent = '<?php echo esc_js( __( 'Network error.', 'talenttrack' ) ); ?>'; });
@@ -445,7 +449,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                     method: 'DELETE',
                     credentials: 'same-origin',
                     headers: { 'X-WP-Nonce': nonce, 'Accept': 'application/json' }
-                }).then(function(r){ if (r.ok) window.location.reload(); else { btn.disabled = false; window.alert('Error ' + r.status); } });
+                }).then(function(r){ if (r.ok) window.location.reload(); else { btn.disabled = false; window.alert(T_ERROR + ' ' + r.status); } });
             });
         })();
         </script>

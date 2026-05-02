@@ -116,7 +116,7 @@ final class PlayerStatusCalculator {
         }
 
         if ( $weight_total === 0 ) {
-            $reasons[] = __( 'Insufficient signal — needs first evaluation and a few sessions.', 'talenttrack' );
+            $reasons[] = __( 'Insufficient signal — needs first evaluation and a few activities.', 'talenttrack' );
             return new StatusVerdict(
                 StatusVerdict::COLOR_UNKNOWN,
                 null,

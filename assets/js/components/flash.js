@@ -63,7 +63,8 @@
             }
             var flash = document.createElement('div');
             flash.className = 'tt-flash tt-flash-' + (type || 'info');
-            flash.innerHTML = '<span style="flex:1;"></span><a href="#" aria-label="Dismiss" style="color:inherit;text-decoration:none;opacity:0.7;">×</a>';
+            var dismissLabel = (window.TT && window.TT.i18n && window.TT.i18n.dismiss) || 'Dismiss';
+            flash.innerHTML = '<span style="flex:1;"></span><a href="#" aria-label="' + dismissLabel.replace(/"/g, '&quot;') + '" style="color:inherit;text-decoration:none;opacity:0.7;">×</a>';
             flash.querySelector('span').textContent = message;
             flash.querySelector('a').addEventListener('click', function(e) { e.preventDefault(); dismissFlash(flash); });
             stack.appendChild(flash);

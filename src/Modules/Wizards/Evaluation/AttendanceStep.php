@@ -55,7 +55,7 @@ final class AttendanceStep implements WizardStepInterface {
             <?php esc_html_e( 'Mark each player\'s attendance. Only present + late players will appear in the rating step. This step writes real attendance rows for the activity.', 'talenttrack' ); ?>
         </p>
         <table class="tt-table" style="width:100%;">
-            <thead><tr><th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><?php foreach ( $names as $n ) : ?><th style="text-align:center;"><?php echo esc_html( $n ); ?></th><?php endforeach; ?></tr></thead>
+            <thead><tr><th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><?php foreach ( $names as $n ) : ?><th style="text-align:center;"><?php echo esc_html( \TT\Infrastructure\Query\LabelTranslator::attendanceStatus( ucfirst( $n ) ) ); ?></th><?php endforeach; ?></tr></thead>
             <tbody>
                 <?php foreach ( (array) $players as $pl ) :
                     $row_default = (string) ( $state['attendance'][ (int) $pl->id ] ?? 'present' );
