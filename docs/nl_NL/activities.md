@@ -51,3 +51,11 @@ Gasten tellen niet mee in de teamstatistieken — aanwezigheidspercentages en he
 ## Opruimen
 
 Je kunt een activiteit archiveren om oude seizoenen op te ruimen zonder de historie kwijt te raken.
+
+## Geoefende principes (v3.79.0)
+
+Elke activiteit kan worden gekoppeld aan één of meer methodologie-principes, zodat rapporten kunnen aangeven "hoe vaak hebben we deze periode aan principe X gewerkt?" De multiselect Geoefende principes verschijnt op zowel de publieke Activiteit-pagina als het wp-admin-formulier. De koppeling is optioneel.
+
+## Gastenpaneel in admin (v3.79.0)
+
+De wp-admin Activiteit-pagina toont nu een alleen-lezen lijst met gast-aanwezigen die zijn vastgelegd. Voeg gasten toe of verwijder ze via de publieke Activiteit-pagina; het admin-paneel blijft synchroon.

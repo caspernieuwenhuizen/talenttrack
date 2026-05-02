@@ -146,3 +146,15 @@ The expand/collapse state is per-user, per-card, persisted in `localStorage` (`t
 
 - Switching roles in the user menu: [Access control](?page=tt-docs&topic=access-control)
 - The full tile catalog: [Coach dashboard](?page=tt-docs&topic=coach-dashboard)
+
+## Data source dropdowns (v3.79.0)
+
+The persona-dashboard editor used to ask for free-text "data source" values for non-KPI widgets — meaning operators had to know preset keys like `audit_log_recent` by heart. Every widget now publishes its own catalogue and the editor renders a dropdown:
+
+- Action card → 7 actions (New evaluation, New goal, New activity, …)
+- Info card → 4 presets (Coach nudge, PDP awaiting ack, Next activity, License & modules)
+- Mini player list → 3 presets (Podium, Recent evaluations, Top movers)
+- Data table → 5 presets (Trials needing decision, Recent scout reports, Audit log, Upcoming activities, Goals by principle)
+- Navigation tile → every registered tile slug, runtime list
+
+Legacy values that no longer match a preset stay visible (with a "(legacy)" suffix) so a removed preset surfaces instead of silently nulling.

@@ -63,3 +63,9 @@ Bij een aanbod kan de club een acceptatiestrook op pagina 2 van de brief meestur
 ## Bewaartermijn
 
 Brieven worden bewaard met een vervaldatum van 2 jaar. Archiveren is de standaard — afwijzingsbrieven worden niet automatisch verwijderd omdat de club ze nodig kan hebben bij heroverwegingen of bezwaar. Een aparte AVG-verwijderfunctie regelt definitieve verwijdering op verzoek van de ouder.
+
+## Lineaire dossierpagina + stagespelers op teampagina (v3.79.0)
+
+De stagedossierdetailpagina was eerst opgesplitst in zes tabbladen (Overzicht / Uitvoering / Coachinput / Beslissing / Brief / Oudergesprek). Nu wordt alles op één lineaire pagina getoond met een vaste ankerstrip bovenaan — elke sectie is zichtbaar zonder route-wissel, wat een snelle review veel sneller maakt. Links naar oude `?tab=`-URL's scrollen automatisch naar het bijbehorende anker.
+
+Stagespelers verschijnen nu ook op de teamdetailpagina onder een eigen subsectie **Stagespelers**. Eerder vielen ze uit de roster door de actieve-status-filter.

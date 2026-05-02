@@ -128,3 +128,15 @@ De uitklap-status is per gebruiker, per kaart, opgeslagen in `localStorage` (`tt
 
 - Wisselen van rol in het gebruikersmenu: [Toegangsbeheer](?page=tt-docs&topic=access-control)
 - Volledige tegelcatalogus: [Coachdashboard](?page=tt-docs&topic=coach-dashboard)
+
+## Databron-dropdowns (v3.79.0)
+
+De persona-dashboard-editor vroeg vroeger om vrije tekst voor "databron"-waarden bij niet-KPI-widgets — beheerders moesten dus preset-keys uit het hoofd kennen, zoals `audit_log_recent`. Elke widget publiceert nu zijn eigen catalogus en de editor toont een dropdown:
+
+- Actiekaart → 7 acties (Nieuwe evaluatie, Nieuw doel, Nieuwe activiteit, …)
+- Infokaart → 4 presets (Coach-bericht, PDP wacht op bevestiging, Volgende activiteit, Licentie & modules)
+- Mini spelerslijst → 3 presets (Podium, Recente evaluaties, Sterkste stijgers)
+- Datatabel → 5 presets (Stages die een besluit vereisen, Recente scoutrapporten, Audit-gebeurtenissen, Komende activiteiten, Doelen per principe)
+- Navigatietegel → elke geregistreerde tegel-slug, dynamisch geladen
+
+Oudere waarden die niet meer overeenkomen met een preset blijven zichtbaar (met "(legacy)"-suffix), zodat een verwijderde preset opvalt in plaats van stilletjes leeg te worden.

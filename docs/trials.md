@@ -63,3 +63,9 @@ For admit decisions, the club can include an acceptance slip on page 2 of the le
 ## Retention
 
 Letters are persisted with a 2-year expiry. Archive is the default — denial letters are not deleted automatically because the club may need them as evidence for reconsiderations or appeals. A separate GDPR deletion flow handles permanent erasure on parent request.
+
+## Linear case page + trial roster on team page (v3.79.0)
+
+The trial case detail page used to split into six tabs (Overview / Execution / Staff inputs / Decision / Letter / Parent meeting). It now renders as a single linear page with a sticky anchor strip at the top — every section is visible without route changes, which makes a coach's at-a-glance review faster. Links to legacy `?tab=` URLs scroll into the matching anchor automatically.
+
+Trial players also surface on the team detail page now, under their own **Trial players** subsection. Previously they were hidden behind the active-status filter on the team roster.

@@ -75,3 +75,12 @@ Two task templates are registered:
 - `pdp_verdict_due` — reminds the head of academy at season-end.
 
 Both go through the standard #0022 workflow & tasks engine — the same inbox, the same nudge cadence configurable from Configuration → Workflow.
+
+## Cycle progress + ack visibility (v3.79.0)
+
+The PDP file detail page now shows cycle progress as **(X of N signed off)** next to the cycle size, so you see at a glance how much of the cycle is complete. Each conversation row carries:
+
+- a derived **status** badge (Scheduled / Held / Signed off) instead of three separate date+yes columns
+- an **Acks** column with parent (👤) and player (⚽) acknowledgement icons — `✓` once acked, `·` while pending
+
+The summary card has a context-sensitive help button that opens the PDP topic in the docs drawer.
