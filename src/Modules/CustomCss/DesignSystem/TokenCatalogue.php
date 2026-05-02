@@ -46,6 +46,12 @@ final class TokenCatalogue {
     public const CATEGORY_BUTTONS     = 'buttons';
     public const CATEGORY_FORMS       = 'forms';
     public const CATEGORY_LINKS       = 'links';
+    public const CATEGORY_CONTENT     = 'content';
+    public const CATEGORY_CARDS       = 'cards';
+    public const CATEGORY_LISTS       = 'lists';
+    public const CATEGORY_TABLES      = 'tables';
+    public const CATEGORY_FEEDBACK    = 'feedback';
+    public const CATEGORY_OVERLAYS    = 'overlays';
 
     /**
      * @return array<string, array{
@@ -162,6 +168,52 @@ final class TokenCatalogue {
             // --- Links (#0075 Sprint 2 PR 1) ---
             [ 'key' => 'link_color',            'css_var' => '--tt-link-color',             'category' => self::CATEGORY_LINKS, 'kind' => self::KIND_COLOR, 'label' => __( 'Link colour',            'talenttrack' ), 'default' => '#0b3d2e' ],
             [ 'key' => 'link_hover_color',      'css_var' => '--tt-link-hover-color',       'category' => self::CATEGORY_LINKS, 'kind' => self::KIND_COLOR, 'label' => __( 'Link colour on hover',   'talenttrack' ), 'default' => '#e8b624' ],
+
+            // --- Content (#0075 Sprint 2 PR 2) — inline code, blockquotes, captions, labels ---
+            [ 'key' => 'code_bg',               'css_var' => '--tt-code-bg',                'category' => self::CATEGORY_CONTENT, 'kind' => self::KIND_COLOR, 'label' => __( 'Inline code — background', 'talenttrack' ), 'default' => '#f4f6f8' ],
+            [ 'key' => 'code_text',             'css_var' => '--tt-code-text',              'category' => self::CATEGORY_CONTENT, 'kind' => self::KIND_COLOR, 'label' => __( 'Inline code — text',       'talenttrack' ), 'default' => '#0b3d2e' ],
+            [ 'key' => 'quote_border',          'css_var' => '--tt-quote-border',           'category' => self::CATEGORY_CONTENT, 'kind' => self::KIND_COLOR, 'label' => __( 'Blockquote — left border', 'talenttrack' ), 'default' => '#e8b624' ],
+            [ 'key' => 'quote_text',            'css_var' => '--tt-quote-text',             'category' => self::CATEGORY_CONTENT, 'kind' => self::KIND_COLOR, 'label' => __( 'Blockquote — text',        'talenttrack' ), 'default' => '#5b6e75' ],
+            [ 'key' => 'caption_color',         'css_var' => '--tt-caption-color',          'category' => self::CATEGORY_CONTENT, 'kind' => self::KIND_COLOR, 'label' => __( 'Caption — text',           'talenttrack' ), 'default' => '#5b6e75' ],
+            [ 'key' => 'label_color',           'css_var' => '--tt-label-color',            'category' => self::CATEGORY_CONTENT, 'kind' => self::KIND_COLOR, 'label' => __( 'Form label — text',        'talenttrack' ), 'default' => '#1a1d21' ],
+            [ 'key' => 'helper_text_color',     'css_var' => '--tt-helper-text-color',      'category' => self::CATEGORY_CONTENT, 'kind' => self::KIND_COLOR, 'label' => __( 'Helper text — colour',     'talenttrack' ), 'default' => '#5b6e75' ],
+
+            // --- Buttons (per-state) #0075 Sprint 2 PR 2 ---
+            [ 'key' => 'btn_secondary_bg',      'css_var' => '--tt-btn-secondary-bg',       'category' => self::CATEGORY_BUTTONS, 'kind' => self::KIND_COLOR, 'label' => __( 'Secondary button — background',     'talenttrack' ), 'default' => '#ffffff' ],
+            [ 'key' => 'btn_secondary_text',    'css_var' => '--tt-btn-secondary-text',     'category' => self::CATEGORY_BUTTONS, 'kind' => self::KIND_COLOR, 'label' => __( 'Secondary button — text',           'talenttrack' ), 'default' => '#0b3d2e' ],
+            [ 'key' => 'btn_secondary_hover_bg','css_var' => '--tt-btn-secondary-hover-bg', 'category' => self::CATEGORY_BUTTONS, 'kind' => self::KIND_COLOR, 'label' => __( 'Secondary button — hover bg',       'talenttrack' ), 'default' => '#faf8f3' ],
+            [ 'key' => 'btn_danger_bg',         'css_var' => '--tt-btn-danger-bg',          'category' => self::CATEGORY_BUTTONS, 'kind' => self::KIND_COLOR, 'label' => __( 'Danger button — background',        'talenttrack' ), 'default' => '#b32d2e' ],
+            [ 'key' => 'btn_danger_text',       'css_var' => '--tt-btn-danger-text',        'category' => self::CATEGORY_BUTTONS, 'kind' => self::KIND_COLOR, 'label' => __( 'Danger button — text',              'talenttrack' ), 'default' => '#ffffff' ],
+            [ 'key' => 'btn_disabled_opacity',  'css_var' => '--tt-btn-disabled-opacity',   'category' => self::CATEGORY_BUTTONS, 'kind' => self::KIND_FLOAT, 'label' => __( 'Disabled button — opacity',         'talenttrack' ), 'default' => '0.5', 'min' => 0.2, 'max' => 0.9, 'step' => 0.05 ],
+
+            // --- Cards (#0075 Sprint 2 PR 2) ---
+            [ 'key' => 'card_bg',               'css_var' => '--tt-card-bg',                'category' => self::CATEGORY_CARDS, 'kind' => self::KIND_COLOR,  'label' => __( 'Card background',            'talenttrack' ), 'default' => '#ffffff' ],
+            [ 'key' => 'card_border_color',     'css_var' => '--tt-card-border',            'category' => self::CATEGORY_CARDS, 'kind' => self::KIND_COLOR,  'label' => __( 'Card border',                'talenttrack' ), 'default' => '#e3e1d8' ],
+            [ 'key' => 'card_padding',          'css_var' => '--tt-card-padding',           'category' => self::CATEGORY_CARDS, 'kind' => self::KIND_NUMBER, 'label' => __( 'Card padding (px)',          'talenttrack' ), 'default' => '16',     'min' => 8,    'max' => 32, 'step' => 2 ],
+            [ 'key' => 'card_accent_border',    'css_var' => '--tt-card-accent-border',     'category' => self::CATEGORY_CARDS, 'kind' => self::KIND_COLOR,  'label' => __( 'Card left-accent border',    'talenttrack' ), 'default' => '#0b3d2e' ],
+
+            // --- Lists (#0075 Sprint 2 PR 2) ---
+            [ 'key' => 'list_item_padding',     'css_var' => '--tt-list-item-padding',      'category' => self::CATEGORY_LISTS, 'kind' => self::KIND_NUMBER, 'label' => __( 'List item padding (px)',     'talenttrack' ), 'default' => '8',      'min' => 4,    'max' => 24, 'step' => 1 ],
+            [ 'key' => 'list_divider_color',    'css_var' => '--tt-list-divider',           'category' => self::CATEGORY_LISTS, 'kind' => self::KIND_COLOR,  'label' => __( 'List divider colour',        'talenttrack' ), 'default' => '#e3e1d8' ],
+            [ 'key' => 'list_hover_bg',         'css_var' => '--tt-list-hover-bg',          'category' => self::CATEGORY_LISTS, 'kind' => self::KIND_COLOR,  'label' => __( 'List item hover background', 'talenttrack' ), 'default' => '#faf8f3' ],
+
+            // --- Tables (#0075 Sprint 2 PR 2) ---
+            [ 'key' => 'table_header_bg',       'css_var' => '--tt-table-header-bg',        'category' => self::CATEGORY_TABLES, 'kind' => self::KIND_COLOR,  'label' => __( 'Table header — background', 'talenttrack' ), 'default' => '#0b3d2e' ],
+            [ 'key' => 'table_header_text',     'css_var' => '--tt-table-header-text',      'category' => self::CATEGORY_TABLES, 'kind' => self::KIND_COLOR,  'label' => __( 'Table header — text',       'talenttrack' ), 'default' => '#ffffff' ],
+            [ 'key' => 'table_row_alt_bg',      'css_var' => '--tt-table-row-alt-bg',       'category' => self::CATEGORY_TABLES, 'kind' => self::KIND_COLOR,  'label' => __( 'Table — striped row',       'talenttrack' ), 'default' => '#faf8f3' ],
+            [ 'key' => 'table_border_color',    'css_var' => '--tt-table-border',           'category' => self::CATEGORY_TABLES, 'kind' => self::KIND_COLOR,  'label' => __( 'Table — cell border',       'talenttrack' ), 'default' => '#e3e1d8' ],
+
+            // --- Feedback (#0075 Sprint 2 PR 2) ---
+            [ 'key' => 'badge_padding_x',       'css_var' => '--tt-badge-padding-x',        'category' => self::CATEGORY_FEEDBACK, 'kind' => self::KIND_NUMBER, 'label' => __( 'Badge — horizontal padding (px)', 'talenttrack' ), 'default' => '8', 'min' => 4, 'max' => 16, 'step' => 1 ],
+            [ 'key' => 'badge_radius',          'css_var' => '--tt-badge-radius',           'category' => self::CATEGORY_FEEDBACK, 'kind' => self::KIND_NUMBER, 'label' => __( 'Badge — corner radius (px)',      'talenttrack' ), 'default' => '999', 'min' => 0, 'max' => 999, 'step' => 1 ],
+            [ 'key' => 'spinner_color',         'css_var' => '--tt-spinner-color',          'category' => self::CATEGORY_FEEDBACK, 'kind' => self::KIND_COLOR,  'label' => __( 'Spinner — colour',                  'talenttrack' ), 'default' => '#0b3d2e' ],
+
+            // --- Overlays (#0075 Sprint 2 PR 2) — modal backdrop is
+            // intentionally not catalogued because <input type="color">
+            // can't carry an alpha channel; clubs that need a different
+            // backdrop hue can author it in the Path B CSS editor. ---
+            [ 'key' => 'tooltip_bg',            'css_var' => '--tt-tooltip-bg',             'category' => self::CATEGORY_OVERLAYS, 'kind' => self::KIND_COLOR,  'label' => __( 'Tooltip — background',           'talenttrack' ), 'default' => '#1a1d21' ],
+            [ 'key' => 'tooltip_text',          'css_var' => '--tt-tooltip-text',           'category' => self::CATEGORY_OVERLAYS, 'kind' => self::KIND_COLOR,  'label' => __( 'Tooltip — text',                 'talenttrack' ), 'default' => '#ffffff' ],
         ];
     }
 
@@ -200,6 +252,12 @@ final class TokenCatalogue {
             self::CATEGORY_BUTTONS    => __( 'Buttons',         'talenttrack' ),
             self::CATEGORY_FORMS      => __( 'Forms',           'talenttrack' ),
             self::CATEGORY_LINKS      => __( 'Links',           'talenttrack' ),
+            self::CATEGORY_CONTENT    => __( 'Content elements','talenttrack' ),
+            self::CATEGORY_CARDS      => __( 'Cards',           'talenttrack' ),
+            self::CATEGORY_LISTS      => __( 'Lists',           'talenttrack' ),
+            self::CATEGORY_TABLES     => __( 'Tables',          'talenttrack' ),
+            self::CATEGORY_FEEDBACK   => __( 'Feedback',        'talenttrack' ),
+            self::CATEGORY_OVERLAYS   => __( 'Overlays',        'talenttrack' ),
         ];
     }
 
