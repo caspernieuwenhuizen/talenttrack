@@ -11435,11 +11435,10 @@ msgid "Good evening, %s"
 msgstr "Goedenavond, %s"
 
 # v3.78.0 / #0075 Sprint 2 close — 6 new categories + per-state buttons
+# (Cards / Tables / Feedback msgids already translated elsewhere in this
+#  file from prior PRs; not redeclared here.)
 msgid "Content elements"
 msgstr "Inhoudselementen"
-
-msgid "Cards"
-msgstr "Kaarten"
 
 msgid "Lists"
 msgstr "Lijsten"
