@@ -145,7 +145,25 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
                     <?php endif; ?>
                 </td>
                 <td><code><?php echo esc_html( (string) $role->role_key ); ?></code></td>
-                <td><?php echo (int) ( $role->assignment_count ?? 0 ); ?></td>
+                <td>
+                    <?php
+                    // #0077 M7 — empty-state CTA: if a role has zero
+                    // assignments, surface a quick path to add one
+                    // instead of a bare "0".
+                    $count = (int) ( $role->assignment_count ?? 0 );
+                    if ( $count > 0 ) {
+                        echo (int) $count;
+                    } else {
+                        $assign_url = add_query_arg(
+                            [ 'tt_view' => 'functional-roles', 'tab' => 'assignments', 'action' => 'new', 'role_id' => (int) $role->id ],
+                            $base
+                        );
+                        echo '<a class="tt-list-table-action" href="' . esc_url( $assign_url ) . '">'
+                            . esc_html__( '+ Assign', 'talenttrack' )
+                            . '</a>';
+                    }
+                    ?>
+                </td>
                 <td>
                     <a class="tt-list-table-action" href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
                     <?php if ( empty( $role->is_system ) && (int) ( $role->assignment_count ?? 0 ) === 0 ) : ?>

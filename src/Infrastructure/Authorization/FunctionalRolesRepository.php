@@ -24,6 +24,14 @@ class FunctionalRolesRepository {
 
     /**
      * @return array<int, object>  Ordered by sort_order, then label.
+     *
+     * #0077 M7 audit — assignment_count counts every row in tt_team_people
+     * for the role, scoped to the current club. There is no tt_club_people
+     * table; club-level functional roles (e.g. Academy Admin) currently
+     * always show 0 assignments. If a club-scope assignments table is
+     * added later, fold its COUNT(*) into this subquery via UNION ALL so
+     * the surface count stays a single number per role. Confirmed
+     * complete against the v3.78 schema.
      */
     public function listRoles(): array {
         global $wpdb;
