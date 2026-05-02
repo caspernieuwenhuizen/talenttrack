@@ -386,7 +386,11 @@ body.tt-docs-drawer-open { overflow: hidden; }
 
 .tt-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.9rem; }
 .tt-table thead th { background: var(--tt-table-header-bg, var(--tt-primary, #0b3d2e)); color: var(--tt-table-header-text, #fff); text-align: left; padding: 10px 12px; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
-.tt-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--tt-line); background: #fff; }
+.tt-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--tt-table-border, var(--tt-line)); background: #fff; }
+/* #0075 Sprint 3 — striped rows (Tables-category token). Default
+ * transparent so existing un-striped tables look identical until the
+ * operator picks a colour in the editor. */
+.tt-table tbody tr:nth-child(even) td { background: var(--tt-table-row-alt-bg, #fff); }
 
 .tt-radar-wrap { max-width: 400px; margin: 1.5rem auto; padding: 1rem; background: #fff; border: 1px solid var(--tt-line); }
 .tt-radar { width: 100%; height: auto; display: block; }
@@ -399,10 +403,42 @@ body.tt-docs-drawer-open { overflow: hidden; }
 .tt-status-pending     { border-left-color: #c9a227; }
 .tt-status-in_progress { border-left-color: #2271b1; }
 .tt-status-completed   { border-left-color: #00a32a; }
-.tt-status-badge { display: inline-block; padding: 3px 10px; font-size: 0.7rem; font-family: "Helvetica Neue", Arial, sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--tt-primary, #0b3d2e); color: #fff; }
+/* #0075 Sprint 3 — status badge reads the Feedback-category badge tokens. */
+.tt-status-badge { display: inline-block; padding: 3px var(--tt-badge-padding-x, 10px); font-size: 0.7rem; font-family: "Helvetica Neue", Arial, sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--tt-primary, #0b3d2e); color: #fff; border-radius: var(--tt-badge-radius, 0); }
 
 .tt-att-present td { background: rgba(0,163,42,0.05) !important; }
 .tt-att-absent  td { background: rgba(179,45,46,0.05) !important; }
+
+/*
+ * #0075 Sprint 3 — Content-elements consumers. Scoped to .tt-dashboard
+ * so we don't restyle the host WP theme's <code> / <blockquote>. Each
+ * rule reads the new tokens with a fallback that matches the legacy
+ * (un-themed) browser default, so existing installs see no visible
+ * change unless they opt in via the editor.
+ */
+.tt-dashboard code,
+.tt-dashboard kbd,
+.tt-dashboard samp {
+    background: var(--tt-code-bg, #f4f6f8);
+    color: var(--tt-code-text, var(--tt-primary, #0b3d2e));
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-family: Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.875em;
+}
+.tt-dashboard pre code { background: transparent; padding: 0; border-radius: 0; }
+.tt-dashboard blockquote {
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    border-left: 4px solid var(--tt-quote-border, var(--tt-secondary, #e8b624));
+    color: var(--tt-quote-text, var(--tt-muted, #5b6e75));
+    font-style: italic;
+}
+.tt-dashboard figcaption,
+.tt-dashboard .tt-caption {
+    color: var(--tt-caption-color, var(--tt-muted, #5b6e75));
+    font-size: 0.875rem;
+}
 
 .tt-ajax-form { background: #fff; padding: 1.5rem; border: 1px solid var(--tt-line); border-top: 3px solid var(--tt-primary, #0b3d2e); max-width: 620px; }
 .tt-form-row { display: flex; align-items: center; margin-bottom: .9rem; gap: 1rem; }

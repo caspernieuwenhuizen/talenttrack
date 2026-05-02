@@ -115,7 +115,8 @@
 .tt-dashboard .tt-field-label {
     font-size: var(--tt-fs-sm);
     font-weight: 600;
-    color: var(--tt-ink);
+    /* #0075 Sprint 3 — Content-elements label colour. */
+    color: var(--tt-label-color, var(--tt-ink));
     letter-spacing: 0.02em;
 }
 .tt-dashboard .tt-field-required::after {
@@ -124,7 +125,8 @@
 }
 .tt-dashboard .tt-field-hint {
     font-size: var(--tt-fs-xs);
-    color: var(--tt-muted);
+    /* #0075 Sprint 3 — Content-elements helper-text colour. */
+    color: var(--tt-helper-text-color, var(--tt-muted));
 }
 .tt-dashboard .tt-field-error {
     font-size: var(--tt-fs-xs);
@@ -218,22 +220,23 @@
     color: var(--tt-btn-primary-text, #fff);
 }
 .tt-dashboard .tt-btn-primary:hover:not([disabled]) { background: var(--tt-btn-primary-hover-bg, var(--tt-primary-ink)); }
+/* #0075 Sprint 3 — secondary + danger button per-state tokens. */
 .tt-dashboard .tt-btn-secondary {
-    background: #fff;
-    color: var(--tt-primary);
+    background: var(--tt-btn-secondary-bg, #fff);
+    color: var(--tt-btn-secondary-text, var(--tt-primary));
     border-color: var(--tt-btn-secondary-border, var(--tt-primary));
 }
-.tt-dashboard .tt-btn-secondary:hover:not([disabled]) { background: var(--tt-bg-soft); }
+.tt-dashboard .tt-btn-secondary:hover:not([disabled]) { background: var(--tt-btn-secondary-hover-bg, var(--tt-bg-soft)); }
 .tt-dashboard .tt-btn-danger {
-    background: var(--tt-danger);
-    color: #fff;
+    background: var(--tt-btn-danger-bg, var(--tt-danger));
+    color: var(--tt-btn-danger-text, #fff);
 }
 .tt-dashboard .tt-btn-danger:hover:not([disabled]) { filter: brightness(0.92); }
 .tt-dashboard .tt-btn[disabled],
 .tt-dashboard .tt-btn-primary[disabled],
 .tt-dashboard .tt-btn-secondary[disabled],
 .tt-dashboard .tt-btn-danger[disabled] {
-    opacity: 0.55;
+    opacity: var(--tt-btn-disabled-opacity, 0.55);
     cursor: not-allowed;
 }
 .tt-dashboard .tt-btn-block {

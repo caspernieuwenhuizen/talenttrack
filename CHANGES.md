@@ -1,3 +1,71 @@
+# TalentTrack v3.79.0 — Sprint 3 close (#0075 closes)
+
+Closes #0075 ("Full design system"). Sprint 2 catalogued + emitted 28 new tokens across 6 categories but most consumers weren't wired yet — operators picking values in the editor saved them but produced no visible effect on most surfaces. This PR wires every catalogued token that has a sensible existing CSS hook.
+
+## What's new
+
+### Buttons — secondary / danger / disabled opacity
+
+`frontend-admin.css`'s `.tt-btn-secondary` and `.tt-btn-danger` rules previously consumed only the brand-level `--tt-primary` / `--tt-danger` and a hardcoded `0.55` disabled opacity. Now:
+
+- `.tt-btn-secondary` reads `--tt-btn-secondary-bg` / `--tt-btn-secondary-text` / `--tt-btn-secondary-hover-bg` (with fallbacks to the legacy `#fff` / `--tt-primary` / `--tt-bg-soft`)
+- `.tt-btn-danger` reads `--tt-btn-danger-bg` / `--tt-btn-danger-text` (fallback to `--tt-danger` / `#fff`)
+- `.tt-btn[disabled]`, `.tt-btn-primary[disabled]`, `.tt-btn-secondary[disabled]`, `.tt-btn-danger[disabled]` read `--tt-btn-disabled-opacity` (fallback `0.55`)
+
+### Content elements — `<code>` / `<blockquote>` / `<figcaption>`
+
+Scoped to `.tt-dashboard` so we don't restyle the host WP theme's elements.
+
+- `.tt-dashboard code, kbd, samp` read `--tt-code-bg` / `--tt-code-text` (fallback `#f4f6f8` / `--tt-primary`). `<pre><code>` resets the inline-code background so code blocks don't get a double-paint.
+- `.tt-dashboard blockquote` reads `--tt-quote-border` (left-border) / `--tt-quote-text` (text colour). Defaults match the legacy un-themed look.
+- `.tt-dashboard figcaption, .tt-caption` read `--tt-caption-color`.
+
+### Form labels + helper text
+
+- `.tt-dashboard .tt-field-label` reads `--tt-label-color` (fallback `--tt-ink`).
+- `.tt-dashboard .tt-field-hint` reads `--tt-helper-text-color` (fallback `--tt-muted`).
+
+### Status badge
+
+- `.tt-status-badge` reads `--tt-badge-padding-x` (horizontal padding) and `--tt-badge-radius` (corner radius). Vertical padding stays at `3px` because it's a tap-target floor.
+
+### Tables
+
+- `.tt-table tbody td` border reads `--tt-table-border` (fallback `--tt-line`).
+- New `.tt-table tbody tr:nth-child(even) td` rule reads `--tt-table-row-alt-bg` with a `#fff` fallback so existing un-striped tables look identical until the operator picks a stripe colour.
+
+## What did *not* change
+
+- **No new tokens.** Catalogue total stays at 88 / 18 — Sprint 3 is consumers, not catalogue growth. The few remaining unwired tokens (`spinner_color`, `tooltip_*`, `card_*` already wired in Sprint 2 PR 2, `list_item_padding` / `list_divider_color` / `list_hover_bg`) need a `.tt-spinner` / `.tt-tooltip` / `.tt-list` consumer DOM that doesn't exist yet — they ship with their first consumer.
+- **Storage shape stays flat blob.** Handles 88 tokens fine; structured `{tokens, components}` migration parked for a real consumer.
+- **PUT REST endpoint** — operators write through the visual editor's POST handler; PUT lands when an external client (SaaS frontend, Figma importer) needs it.
+- **Templates rebuild** (Fresh light / Classic football / Minimal) — the v3.64 templates still render against the smaller token surface. Rebuilding against 88 tokens is a separate effort if a club asks.
+- **Tertiary / ghost / icon / FAB / split / toggle button variants**, **per-state input variants** (focus / filled / error / disabled / read-only), **media tokens** (avatar / thumbnail), **dashboard widget tokens** (KPI / chart legend), **utility tokens** (dividers / accordions / carousels), **accessibility tokens** beyond the existing `--tt-focus-ring` — all parked for follow-up issues. The catalogue's extension story is solid (one-line addition per token); these grow the catalogue when the rendered components arrive.
+
+## #0075 final tally
+
+| Sprint | PRs | Versions | Tokens added | Status |
+|--------|-----|----------|--------------|--------|
+| Sprint 0 (companion) | 1 | v3.71.5 → v3.72.1 | n/a (3 bugs fixed) | shipped |
+| Sprint 1 | 5 | v3.73.0 → v3.76.0 | 0 → 47 | shipped |
+| Sprint 2 | 2 | v3.77.1 → v3.78.1 | 47 → 88 | shipped |
+| Sprint 3 (this PR) | 1 | v3.79.0 | 88 → 88 (consumers only) | shipped — **#0075 closes** |
+
+**88 tokens / 18 categories. ~12h actual across both sessions.**
+
+## Acceptance criteria (manually verified)
+
+- [x] `php -l` clean (no PHP changes; CSS-only PR).
+- [ ] `?tt_view=custom-css` → "Visual settings" → Buttons section. Set `Secondary button — background` to `#fff5e6`. Save + reload. `.tt-btn-secondary` (Save buttons across the dashboard) shows the new background.
+- [ ] Set `Danger button — background` to `#7f1d1d`. Save + reload. Any `.tt-btn-danger` (e.g. Cancel buttons in destructive flows) shows the new red.
+- [ ] Set `Disabled button — opacity` to `0.3`. Save + reload. Any disabled button is now significantly more faded.
+- [ ] Set `Inline code — background` to `#fde2e2`. Save + reload. Any `<code>` element inside `.tt-dashboard` shows the soft red background.
+- [ ] Set `Form label — text` to `#0066cc`. Save + reload. `.tt-field-label` text turns blue.
+- [ ] Set `Helper text — colour` to `#cc0000`. Save + reload. `.tt-field-hint` text turns red.
+- [ ] Set `Badge — corner radius (px)` to `4`. Save + reload. `.tt-status-badge` corners shift from rounded-pill to subtle 4px radius.
+- [ ] Set `Table — striped row` to `#faf0e6`. Save + reload. `.tt-table tbody tr:nth-child(even) td` shows alternating cream background.
+- [ ] No regression on Sprint 1 + Sprint 2 consumers (cards, panels, tile shadows, button hover, etc.).
+
 # TalentTrack v3.78.1 — Sprint 2 close (#0075 Sprint 2 PR 2)
 
 > Renumbered from v3.78.0 in PR after a parallel deferred-polish bundle claimed v3.78.0 mid-CI. Code unchanged.
