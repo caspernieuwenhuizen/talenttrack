@@ -38,7 +38,7 @@ Each block on the dashboard is a widget. There are 15 widget types:
 | Quick actions panel | A 2×2 grid of action cards (Coach side panel) |
 | Info card | A read-only summary block (coach nudge, pending PDP ack, license status) |
 | Task list panel | Preview of your open workflow tasks |
-| Data table | Compact table with up to 5 rows + see-all link (presets: trials needing decision, recent scout reports, audit log, **upcoming activities**) |
+| Data table | Compact table with up to 5 rows + see-all link (presets: trials needing decision, recent scout reports, audit log, upcoming activities — all four wired to live data as of v3.78.0) |
 | Mini player list | Horizontal rail of player cards (podium, top movers, recent evaluations) |
 | Rate card hero | Player landing's identity hero |
 | Today / Up next hero | Coach landing hero with action buttons |

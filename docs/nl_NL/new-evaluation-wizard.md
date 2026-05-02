@@ -77,12 +77,23 @@ In Configuratie → Lookups → Activity Types heeft elke rij een **Rateable**-c
 
 In Configuratie → Evaluatiecategorieën hebben hoofd-categorieën een **Snelbeoordelen**-vlag (in `meta.quick_rate`). Snelbeoordeel-categorieën verschijnen als één-regel-rij in de beoordeelstap. Niet-snel categorieën leven in het deep-rate-panel (follow-up). Standaard seed: Technisch / Tactisch / Fysiek / Mentaal.
 
+## Autosave (v3.78.0)
+
+Elke wizard-stap slaat nu automatisch op. Terwijl je typt of een veld wijzigt wacht de wizard ~800ms en POST't dan stilletjes je input naar `POST /wp-json/talenttrack/v1/wizards/{slug}/draft`, die de patch in je `tt_wizard_drafts`-rij merget. Een kleine statustekst naast de actie-knoppen toont de toestand — "Autosave klaar" → "Opslaan…" → "Opgeslagen · 14:32".
+
+Tijdens autosave draait er geen validatie; dat is bewust. Half-getypte input is het hele punt. Validatie draait wel bij **Volgende** via het normale submit-pad van de stap. Valt het netwerk weg, dan toont de tekst "Opslaan mislukt" en de volgende typeburst probeert automatisch opnieuw.
+
+## Resume-banner (v3.78.0)
+
+Wanneer je een wizard heropent met een concept ouder dan ~10 minuten (het cross-session-signaal), verschijnt bovenaan een banner met *"Je bent 2 uur geleden begonnen. Doorgaan waar je gebleven was, of opnieuw beginnen?"* Klik **Doorgaan** om verder te gaan, of **Opnieuw beginnen** om het concept te wissen en vers te starten. Same-session refreshes (binnen 10 minuten) slaan de banner over omdat er niets te hervatten valt.
+
+## Per-speler voortgang bij verzenden (v3.78.0)
+
+Review-stap Verzenden POST't nu één rij per evaluatie naar `POST /wp-json/talenttrack/v1/wizards/new-evaluation/insert-row`, met een voortgangsbalk en "Evaluatie 3 van 12 wegschrijven…"-status. Dezelfde DB-rijen als voorheen; het enige verschil is zichtbare feedback tijdens een batch van 12 spelers. Browsers zonder JS vallen terug op het v3.75.0 PHP-only one-shot submit.
+
 ## Wat staat nog op de roadmap
 
-De v1-wizard is functioneel + data-correct. Deze polish-items staan in de wachtrij als follow-ups:
+Deze polish-items staan in de wachtrij als follow-ups:
 
-- Per-speler voortgangsindicator bij Versturen (N × POST voortgang).
 - Locked / Editable-badges op de activiteitkiezer (24-uurs edit-venster met aftelling, "Bewerken (post-window)" voor HoD/Admin).
-- Autosave-indicator + het lichtgewicht `POST /wizard-drafts/{slug}` REST-endpoint voor snel typing-debounce.
 - Mobiel-vs-desktop responsive splitsing voor de beoordeelstap (één-speler-tegelijk op mobiel vs volledige verticale lijst op desktop, met swipe-gestures).
-- Resume-banner ("Je bent hier 2 dagen geleden begonnen — doorgaan of opnieuw beginnen?") bij entry.

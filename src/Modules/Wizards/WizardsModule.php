@@ -6,11 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Wizards\Activity\NewActivityWizard;
+use TT\Modules\Wizards\Evaluation\EvaluationRowRestController;
 use TT\Modules\Wizards\Evaluation\NewEvaluationWizard;
 use TT\Modules\Wizards\Goal\NewGoalWizard;
 use TT\Modules\Wizards\Person\NewPersonWizard;
 use TT\Modules\Wizards\Player\NewPlayerWizard;
 use TT\Modules\Wizards\Team\NewTeamWizard;
+use TT\Shared\Wizards\WizardDraftRestController;
 use TT\Shared\Wizards\WizardRegistry;
 
 /**
@@ -43,5 +45,12 @@ class WizardsModule implements ModuleInterface {
 
         // #0072 — daily cron to prune stale `tt_wizard_drafts` rows.
         WizardDraftCleanupCron::init();
+
+        // #0072 follow-up — autosave indicator endpoint.
+        WizardDraftRestController::init();
+
+        // #0072 follow-up — per-row evaluation insert endpoint, drives the
+        // Review-step progress bar.
+        EvaluationRowRestController::init();
     }
 }
