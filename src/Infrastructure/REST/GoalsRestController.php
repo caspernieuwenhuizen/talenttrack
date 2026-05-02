@@ -261,12 +261,22 @@ class GoalsRestController {
     public static function create_goal( \WP_REST_Request $r ) {
         global $wpdb;
 
+        // #0077 M10 — when the goal is created by a tt_player user,
+        // force status to 'pending_approval' so it sits in a holding
+        // state until a coach approves (→ 'pending') or rejects
+        // (→ 'cancelled') via the existing PATCH /goals/{id}/status
+        // endpoint. Only applies to goals the player created for
+        // themselves — coach-created goals follow the existing default.
+        $current_user = wp_get_current_user();
+        $is_player    = $current_user && in_array( 'tt_player', (array) $current_user->roles, true );
+        $default_status = $is_player ? 'pending_approval' : 'pending';
+
         $data = [
             'club_id'             => CurrentClub::id(),
             'player_id'           => absint( $r['player_id'] ?? 0 ),
             'title'               => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
             'description'         => sanitize_textarea_field( (string) ( $r['description'] ?? '' ) ),
-            'status'              => sanitize_text_field( (string) ( $r['status'] ?? 'pending' ) ),
+            'status'              => sanitize_text_field( (string) ( $r['status'] ?? $default_status ) ),
             'priority'            => sanitize_text_field( (string) ( $r['priority'] ?? 'medium' ) ),
             'due_date'            => ! empty( $r['due_date'] ) ? sanitize_text_field( (string) $r['due_date'] ) : null,
             'linked_principle_id' => ( ! empty( $r['linked_principle_id'] ) && (int) $r['linked_principle_id'] > 0 )
@@ -275,6 +285,12 @@ class GoalsRestController {
                 ? (int) $r['linked_action_id'] : null,
             'created_by'          => get_current_user_id(),
         ];
+        // Even if the player tried to override status (e.g. via curl
+        // bypassing the form default), enforce pending_approval for
+        // player-self-created goals. Approval gate must be airtight.
+        if ( $is_player ) {
+            $data['status'] = 'pending_approval';
+        }
 
         if ( $data['player_id'] <= 0 || $data['title'] === '' ) {
             return RestResponse::error( 'missing_fields', __( 'Player and title are required.', 'talenttrack' ), 400 );
@@ -412,6 +428,26 @@ class GoalsRestController {
         if ( $status === '' ) {
             return RestResponse::error( 'missing_fields', __( 'Status is required.', 'talenttrack' ), 400 );
         }
+
+        // #0077 M10 — when a goal is leaving pending_approval, the
+        // approver must be the player's head coach (or admin). Matches
+        // the PDP signoff pattern (head_coach is the trusted reviewer).
+        $existing = $wpdb->get_row( $wpdb->prepare(
+            "SELECT player_id, status FROM {$wpdb->prefix}tt_goals WHERE id = %d AND club_id = %d",
+            $goal_id, CurrentClub::id()
+        ) );
+        if ( $existing && (string) $existing->status === 'pending_approval'
+             && $status !== 'pending_approval'
+             && ! current_user_can( 'manage_options' )
+             && ! \TT\Infrastructure\Security\AuthorizationService::isHeadCoachOfPlayer( get_current_user_id(), (int) $existing->player_id )
+        ) {
+            return RestResponse::error(
+                'forbidden_approval',
+                __( 'Only the player\'s head coach can approve or reject this goal.', 'talenttrack' ),
+                403
+            );
+        }
+
         $ok = $wpdb->update( $wpdb->prefix . 'tt_goals', [ 'status' => $status ], [ 'id' => $goal_id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
