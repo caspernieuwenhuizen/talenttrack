@@ -262,14 +262,18 @@ class GoalsRestController {
         global $wpdb;
 
         $data = [
-            'club_id'     => CurrentClub::id(),
-            'player_id'   => absint( $r['player_id'] ?? 0 ),
-            'title'       => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
-            'description' => sanitize_textarea_field( (string) ( $r['description'] ?? '' ) ),
-            'status'      => sanitize_text_field( (string) ( $r['status'] ?? 'pending' ) ),
-            'priority'    => sanitize_text_field( (string) ( $r['priority'] ?? 'medium' ) ),
-            'due_date'    => ! empty( $r['due_date'] ) ? sanitize_text_field( (string) $r['due_date'] ) : null,
-            'created_by'  => get_current_user_id(),
+            'club_id'             => CurrentClub::id(),
+            'player_id'           => absint( $r['player_id'] ?? 0 ),
+            'title'               => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
+            'description'         => sanitize_textarea_field( (string) ( $r['description'] ?? '' ) ),
+            'status'              => sanitize_text_field( (string) ( $r['status'] ?? 'pending' ) ),
+            'priority'            => sanitize_text_field( (string) ( $r['priority'] ?? 'medium' ) ),
+            'due_date'            => ! empty( $r['due_date'] ) ? sanitize_text_field( (string) $r['due_date'] ) : null,
+            'linked_principle_id' => ( ! empty( $r['linked_principle_id'] ) && (int) $r['linked_principle_id'] > 0 )
+                ? (int) $r['linked_principle_id'] : null,
+            'linked_action_id'    => ( ! empty( $r['linked_action_id'] ) && (int) $r['linked_action_id'] > 0 )
+                ? (int) $r['linked_action_id'] : null,
+            'created_by'          => get_current_user_id(),
         ];
 
         if ( $data['player_id'] <= 0 || $data['title'] === '' ) {
@@ -354,6 +358,16 @@ class GoalsRestController {
         }
         if ( isset( $r['due_date'] ) ) {
             $data['due_date'] = ! empty( $r['due_date'] ) ? sanitize_text_field( (string) $r['due_date'] ) : null;
+        }
+        // #0077 M3 — frontend↔admin parity. Persist principle/action
+        // linkage on update; absent keys leave existing values intact.
+        if ( array_key_exists( 'linked_principle_id', (array) $r->get_params() ) ) {
+            $v = $r['linked_principle_id'];
+            $data['linked_principle_id'] = ( ! empty( $v ) && (int) $v > 0 ) ? (int) $v : null;
+        }
+        if ( array_key_exists( 'linked_action_id', (array) $r->get_params() ) ) {
+            $v = $r['linked_action_id'];
+            $data['linked_action_id'] = ( ! empty( $v ) && (int) $v > 0 ) ? (int) $v : null;
         }
         if ( ! $data ) {
             return RestResponse::error( 'empty_update', __( 'No fields to update.', 'talenttrack' ), 400 );

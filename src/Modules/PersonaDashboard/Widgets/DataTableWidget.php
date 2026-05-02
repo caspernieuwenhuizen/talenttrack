@@ -81,6 +81,14 @@ class DataTableWidget extends AbstractWidget {
                 'see_all_view'  => 'activities',
                 'empty_message' => __( 'No upcoming activities in this window.', 'talenttrack' ),
             ],
+            // #0077 M3 — methodology coverage. Lists each principle
+            // with its active + completed goal counts.
+            'goals_by_principle' => [
+                'title'         => __( 'Goals by principle', 'talenttrack' ),
+                'columns'       => [ __( 'Principle', 'talenttrack' ), __( 'Active', 'talenttrack' ), __( 'Completed', 'talenttrack' ), '' ],
+                'see_all_view'  => 'goals',
+                'empty_message' => __( 'No principles configured yet.', 'talenttrack' ),
+            ],
         ];
         return $presets[ $preset ] ?? null;
     }

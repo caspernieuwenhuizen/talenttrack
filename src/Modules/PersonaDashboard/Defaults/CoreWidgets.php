@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\PersonaDashboard\Registry\TableRowSourceRegistry;
 use TT\Modules\PersonaDashboard\Registry\WidgetRegistry;
 use TT\Modules\PersonaDashboard\TableSources\AuditLogRecentSource;
+use TT\Modules\PersonaDashboard\TableSources\GoalsByPrincipleSource;
 use TT\Modules\PersonaDashboard\TableSources\RecentScoutReportsSource;
 use TT\Modules\PersonaDashboard\TableSources\TrialsNeedingDecisionSource;
 use TT\Modules\PersonaDashboard\TableSources\UpcomingActivitiesSource;
@@ -52,5 +53,7 @@ final class CoreWidgets {
         TableRowSourceRegistry::register( 'trials_needing_decision', new TrialsNeedingDecisionSource() );
         TableRowSourceRegistry::register( 'recent_scout_reports',    new RecentScoutReportsSource() );
         TableRowSourceRegistry::register( 'audit_log_recent',        new AuditLogRecentSource() );
+        // #0077 M3 — methodology coverage table for HoD.
+        TableRowSourceRegistry::register( 'goals_by_principle',      new GoalsByPrincipleSource() );
     }
 }

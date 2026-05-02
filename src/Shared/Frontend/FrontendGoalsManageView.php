@@ -327,6 +327,60 @@ class FrontendGoalsManageView extends FrontendViewBase {
                 <textarea id="tt-goal-description" class="tt-input" name="description" rows="3"><?php echo esc_textarea( (string) ( $goal->description ?? '' ) ); ?></textarea>
             </div>
 
+            <?php
+            // #0077 M3 — methodology linkage. Mirrors GoalsPage admin
+            // form lines ~149-202. Both selects are optional; defaults
+            // to the saved value on edit, or "— None —" on create.
+            if ( class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrinciplesRepository' ) ) :
+                $principles    = ( new \TT\Modules\Methodology\Repositories\PrinciplesRepository() )->listFiltered();
+                $linked_pr_id  = (int) ( $goal->linked_principle_id ?? 0 );
+                if ( ! empty( $principles ) ) : ?>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-goal-principle"><?php esc_html_e( 'Linked principle', 'talenttrack' ); ?></label>
+                    <select id="tt-goal-principle" class="tt-input" name="linked_principle_id">
+                        <option value=""><?php esc_html_e( '— None —', 'talenttrack' ); ?></option>
+                        <?php foreach ( $principles as $pr ) :
+                            $title = \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
+                            ?>
+                            <option value="<?php echo (int) $pr->id; ?>" <?php selected( $linked_pr_id, (int) $pr->id ); ?>>
+                                <?php echo esc_html( $pr->code . ' · ' . ( $title ?: '—' ) ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint"><?php esc_html_e( 'Optional. Anchor this goal to a methodology principle.', 'talenttrack' ); ?></p>
+                </div>
+            <?php endif; endif; ?>
+
+            <?php
+            if ( class_exists( '\\TT\\Modules\\Methodology\\Repositories\\FootballActionsRepository' ) ) :
+                $actions       = ( new \TT\Modules\Methodology\Repositories\FootballActionsRepository() )->listAll();
+                $linked_act_id = (int) ( $goal->linked_action_id ?? 0 );
+                $action_cats   = \TT\Modules\Methodology\Repositories\FootballActionsRepository::categories();
+                if ( ! empty( $actions ) ) : ?>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-goal-action"><?php esc_html_e( 'Linked football action', 'talenttrack' ); ?></label>
+                    <select id="tt-goal-action" class="tt-input" name="linked_action_id">
+                        <option value=""><?php esc_html_e( '— None —', 'talenttrack' ); ?></option>
+                        <?php
+                        $by_cat = [];
+                        foreach ( $actions as $a ) $by_cat[ (string) $a->category_key ][] = $a;
+                        foreach ( $action_cats as $cat_key => $cat_label ) :
+                            if ( empty( $by_cat[ $cat_key ] ) ) continue; ?>
+                            <optgroup label="<?php echo esc_attr( $cat_label ); ?>">
+                                <?php foreach ( $by_cat[ $cat_key ] as $a ) :
+                                    $name = \TT\Modules\Methodology\Helpers\MultilingualField::string( $a->name_json );
+                                    ?>
+                                    <option value="<?php echo (int) $a->id; ?>" <?php selected( $linked_act_id, (int) $a->id ); ?>>
+                                        <?php echo esc_html( $name ?: $a->slug ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </optgroup>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint"><?php esc_html_e( 'Optional. Anchor this goal to a single football action.', 'talenttrack' ); ?></p>
+                </div>
+            <?php endif; endif; ?>
+
             <div class="tt-form-actions" style="margin-top:16px;">
                 <?php echo FormSaveButton::render( [ 'label' => $is_edit ? __( 'Update goal', 'talenttrack' ) : __( 'Add goal', 'talenttrack' ) ] ); ?>
                 <a href="<?php echo esc_url( remove_query_arg( [ 'action', 'id' ] ) ); ?>" class="tt-btn tt-btn-secondary">

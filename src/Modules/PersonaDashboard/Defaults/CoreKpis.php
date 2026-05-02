@@ -18,6 +18,8 @@ final class CoreKpis {
         KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\OpenTrialCases() );
         KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\PdpVerdictsPending() );
         KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\GoalCompletionPct() );
+        // #0077 M3 — methodology coverage KPI for goals.
+        KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\GoalsByPrincipleKpi() );
         KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\AvgEvaluationRating() );
         KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\PlayersTopQuartile() );
         KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\PlayersAtRisk() );
