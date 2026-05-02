@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.78.1
+Stable tag: 3.79.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.79.0 — Sprint 3 close: deferred-consumer wiring across Buttons / Forms / Content / Tables / Feedback (#0075 closes) =
+
+Closes #0075 ("Full design system"). Sprint 2 catalogued + emitted 28 new tokens but most consumers weren't wired yet — `code` / `blockquote` / `figcaption` had no rules reading the Content-elements tokens, `.tt-btn-secondary` / `.tt-btn-danger` only consumed the brand-level fallbacks not the per-state tokens, `.tt-status-badge` ignored the Feedback-category badge tokens, table striped rows + cell borders were hardcoded, helper text + form labels weren't reading their respective tokens. This PR wires every catalogued token that has a sensible existing CSS hook. Catalogue total stays at **88 tokens / 18 categories** (no new tokens this PR — Sprint 3 is consumers, not catalogue growth). Operators who set tokens in the editor now see effects across status badges, secondary/danger buttons + their disabled-opacity, blockquotes, inline `<code>`, captions, form labels + helper text, and table striped rows. SEQUENCE.md moves #0075 from Ready to Done.
 
 = 3.78.1 — Sprint 2 close: 6 new categories + admin bypass fix + REST endpoint (#0075 Sprint 2 PR 2) =
 
