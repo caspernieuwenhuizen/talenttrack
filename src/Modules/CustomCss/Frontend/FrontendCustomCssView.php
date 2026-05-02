@@ -4,6 +4,7 @@ namespace TT\Modules\CustomCss\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\CustomCss\CustomCssEnqueue;
+use TT\Modules\CustomCss\DesignSystem\ClassCatalogue;
 use TT\Modules\CustomCss\DesignSystem\TokenCatalogue;
 use TT\Modules\CustomCss\Repositories\CustomCssRepository;
 use TT\Modules\CustomCss\Sanitizer\CssSanitizer;
@@ -56,6 +57,14 @@ class FrontendCustomCssView extends FrontendViewBase {
     }
 
     public static function maybeHandlePost(): void {
+        // GET-side endpoint: download the saved CSS as a .css file.
+        // Lives next to the POST handler so the same template_redirect
+        // hook covers both (fires before wp_head, can stream content
+        // and exit cleanly without the dashboard chrome rendering).
+        if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) === 'GET' ) {
+            self::maybeHandleDownload();
+            return;
+        }
         if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) return;
         if ( empty( $_POST['tt_css_action'] ) ) return;
         $tt_view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
@@ -110,6 +119,9 @@ class FrontendCustomCssView extends FrontendViewBase {
         switch ( $tab ) {
             case 'editor':
                 self::renderEditorTab( $surface, $live );
+                break;
+            case 'classes':
+                self::renderClassesTab( $surface );
                 break;
             case 'upload':
                 self::renderUploadTab( $surface, $live );
@@ -288,7 +300,11 @@ class FrontendCustomCssView extends FrontendViewBase {
      */
     private static function collectVisualSettings( array $post ): array {
         $out = [];
-        foreach ( VisualEditor::FIELDS as $field ) {
+        // Use the catalogue-driven dynamic field list (88 tokens at the
+        // close of #0075) rather than the v3.73 frozen FIELDS const,
+        // which only knew about 36 tokens — every catalogue token added
+        // after Sprint 1 was silently dropped from $_POST on save.
+        foreach ( VisualEditor::fields() as $field ) {
             $out[ $field ] = isset( $post[ $field ] ) ? (string) wp_unslash( $post[ $field ] ) : '';
         }
         return $out;
@@ -326,26 +342,45 @@ class FrontendCustomCssView extends FrontendViewBase {
         echo '</nav>';
     }
 
+    /**
+     * Radio-toggle for the per-surface enabled state. Renders two
+     * <input type="radio"> + <label> pairs; submitting the form posts
+     * the chosen value through the same `toggle_enabled` action handler
+     * that's been there since v3.64. The legacy single-button pattern
+     * (one button whose label flipped) was unclear about which way
+     * clicking moved the state.
+     */
     private static function renderEnabledToggle( string $surface, bool $enabled ): void {
-        echo '<form method="post" style="margin:0 0 16px;">';
+        $on_label  = __( 'On',  'talenttrack' );
+        $off_label = __( 'Off', 'talenttrack' );
+        $explainer = $enabled
+            ? __( 'Custom CSS is active for this surface. Switch off to revert to the bundled defaults without losing your saved values.', 'talenttrack' )
+            : __( 'Custom CSS is currently inactive for this surface. Switch on to apply your saved values.', 'talenttrack' );
+        echo '<form method="post" class="tt-css-toggle-form" style="margin:0 0 16px;">';
         wp_nonce_field( 'tt_custom_css_save', 'tt_css_nonce' );
         echo '<input type="hidden" name="tt_css_action" value="toggle_enabled">';
-        echo '<input type="hidden" name="enabled" value="' . ( $enabled ? '0' : '1' ) . '">';
-        $label = $enabled
-            ? __( 'Custom CSS is ON for this surface — click to turn OFF.', 'talenttrack' )
-            : __( 'Custom CSS is OFF for this surface — click to turn ON.', 'talenttrack' );
-        $color = $enabled ? '#1a6b2c' : '#7a5a05';
-        echo '<button type="submit" class="tt-btn" style="border:1px solid ' . esc_attr( $color ) . '; color:' . esc_attr( $color ) . ';">';
-        echo esc_html( $label );
-        echo '</button>';
+        echo '<fieldset class="tt-css-toggle" style="border:1px solid var(--tt-line, #e5e7ea); border-radius:8px; padding:8px 12px; display:inline-flex; align-items:center; gap:14px;">';
+        echo '<legend style="padding:0 6px; font-weight:600;">' . esc_html__( 'Custom CSS', 'talenttrack' ) . '</legend>';
+        echo '<label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;">';
+        echo '<input type="radio" name="enabled" value="1"' . checked( $enabled, true, false ) . ' onchange="this.form.submit()">';
+        echo esc_html( $on_label );
+        echo '</label>';
+        echo '<label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;">';
+        echo '<input type="radio" name="enabled" value="0"' . checked( $enabled, false, false ) . ' onchange="this.form.submit()">';
+        echo esc_html( $off_label );
+        echo '</label>';
+        echo '<noscript><button type="submit" class="tt-btn tt-btn-secondary" style="margin-left:6px;">' . esc_html__( 'Save', 'talenttrack' ) . '</button></noscript>';
+        echo '</fieldset>';
+        echo '<p class="tt-field-hint" style="margin:6px 0 0; max-width:560px;">' . esc_html( $explainer ) . '</p>';
         echo '</form>';
     }
 
     private static function renderTabBar( string $surface, string $current ): void {
-        $base = remove_query_arg( [ 'tab', '_wp_http_referer' ] );
+        $base = remove_query_arg( [ 'tab', '_wp_http_referer', 'prefill' ] );
         $tabs = [
             'visual'  => __( 'Visual settings', 'talenttrack' ),
             'editor'  => __( 'CSS editor', 'talenttrack' ),
+            'classes' => __( 'Classes', 'talenttrack' ),
             'upload'  => __( 'Upload + templates', 'talenttrack' ),
             'history' => __( 'History', 'talenttrack' ),
         ];
@@ -623,17 +658,33 @@ class FrontendCustomCssView extends FrontendViewBase {
      * @param array{css:string, enabled:bool, version:int, visual_settings:?array} $live
      */
     private static function renderEditorTab( string $surface, array $live ): void {
-        $preview_url = self::previewUrl( $surface );
+        $preview_url  = self::previewUrl( $surface );
+        $download_url = esc_url( wp_nonce_url(
+            add_query_arg( [ 'tt_css_download' => '1', 'surface' => $surface ], remove_query_arg( 'prefill' ) ),
+            'tt_css_download'
+        ) );
+
+        $css_body = (string) $live['css'];
+        $prefill_class = isset( $_GET['prefill'] ) ? sanitize_html_class( (string) $_GET['prefill'] ) : '';
+        if ( $prefill_class !== '' && strpos( $prefill_class, 'tt-' ) === 0 ) {
+            // Prepend a starter rule for the picked class so the operator
+            // lands on a workable scaffold. Wrapping in .tt-root protects
+            // against the host theme winning on specificity.
+            $starter = "/* Inserted from Classes tab — edit and Save. */\n.tt-root .{$prefill_class} {\n    /* your overrides here */\n}\n\n";
+            $css_body = $starter . $css_body;
+        }
+
         echo '<form method="post" class="tt-form" style="max-width:980px;">';
         wp_nonce_field( 'tt_custom_css_save', 'tt_css_nonce' );
         echo '<input type="hidden" name="tt_css_action" value="save_editor">';
         echo '<p class="tt-field-hint" style="margin:0 0 8px;">';
         echo esc_html__( 'Custom CSS rules. Wrap in `.tt-root` for safety. Saved CSS lives in the database; remote @import and external @font-face URLs are blocked. Changes take effect on the next page load.', 'talenttrack' );
         echo '</p>';
-        echo '<textarea id="tt-css-body" name="css_body" rows="22" class="tt-input" style="font-family:Menlo, Consolas, monospace; font-size:13px;">' . esc_textarea( (string) $live['css'] ) . '</textarea>';
-        echo '<div class="tt-form-actions" style="margin-top:14px;">';
-        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save CSS', 'talenttrack' ) . '</button> ';
+        echo '<textarea id="tt-css-body" name="css_body" rows="22" class="tt-input" style="font-family:Menlo, Consolas, monospace; font-size:13px;">' . esc_textarea( $css_body ) . '</textarea>';
+        echo '<div class="tt-form-actions" style="margin-top:14px; display:flex; flex-wrap:wrap; gap:8px;">';
+        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save CSS', 'talenttrack' ) . '</button>';
         echo '<a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $preview_url ) . '">' . esc_html__( 'Open preview in new tab', 'talenttrack' ) . '</a>';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . $download_url . '" download>' . esc_html__( 'Download .css', 'talenttrack' ) . '</a>';
         echo '</div>';
         echo '</form>';
 
@@ -753,6 +804,119 @@ class FrontendCustomCssView extends FrontendViewBase {
             echo '</tr>';
         }
         echo '</tbody></table>';
+    }
+
+    /**
+     * GET handler — streams the saved CSS as a downloadable file.
+     * Cap-gated, nonce-required, reuses the same `template_redirect`
+     * priority as the POST handler so the dashboard chrome doesn't
+     * render before the file headers go out.
+     */
+    private static function maybeHandleDownload(): void {
+        if ( empty( $_GET['tt_css_download'] ) ) return;
+        $tt_view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
+        if ( $tt_view !== 'custom-css' ) return;
+        if ( ! current_user_can( 'tt_admin_styling' ) ) return;
+        $nonce = isset( $_GET['_wpnonce'] ) ? (string) $_GET['_wpnonce'] : '';
+        if ( ! wp_verify_nonce( $nonce, 'tt_css_download' ) ) return;
+
+        $surface = isset( $_GET['surface'] ) ? CustomCssRepository::sanitizeSurface( (string) $_GET['surface'] ) : CustomCssRepository::SURFACE_FRONTEND;
+        $repo = new CustomCssRepository();
+        $live = $repo->getLive( $surface );
+        $body = (string) $live['css'];
+        $filename = 'talenttrack-' . $surface . '-v' . (int) ( $live['version'] ?? 0 ) . '.css';
+
+        nocache_headers();
+        header( 'Content-Type: text/css; charset=utf-8' );
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+        header( 'Content-Length: ' . strlen( $body ) );
+        echo $body;
+        exit;
+    }
+
+    /**
+     * "Classes" tab — index of every `.tt-*` selector declared in the
+     * plugin's bundled stylesheets, with a fuzzy-match search bar and
+     * one-click "Insert into editor" affordance that prefills a starter
+     * rule for the picked class on the CSS-editor tab.
+     */
+    private static function renderClassesTab( string $surface ): void {
+        $rows = ClassCatalogue::all();
+        $count = count( $rows );
+        $base = remove_query_arg( [ 'tab', 'prefill', '_wp_http_referer' ] );
+
+        echo '<p class="tt-field-hint" style="margin:0 0 12px; max-width:760px;">';
+        echo esc_html(
+            sprintf(
+                /* translators: %d = number of classes discovered */
+                _n(
+                    '%d TalentTrack class found in the bundled stylesheets. Search by typing — the list filters as you type. Click Insert to prefill the CSS editor with a starter rule for that class.',
+                    '%d TalentTrack classes found in the bundled stylesheets. Search by typing — the list filters as you type. Click Insert to prefill the CSS editor with a starter rule for that class.',
+                    $count,
+                    'talenttrack'
+                ),
+                $count
+            )
+        );
+        echo '</p>';
+
+        echo '<div class="tt-field" style="max-width:480px; margin-bottom:14px;">';
+        echo '<label class="tt-field-label" for="tt-css-class-search">' . esc_html__( 'Search classes', 'talenttrack' ) . '</label>';
+        echo '<input type="search" id="tt-css-class-search" class="tt-input" placeholder="' . esc_attr__( 'e.g. card, btn, table…', 'talenttrack' ) . '" autocomplete="off">';
+        echo '</div>';
+
+        echo '<ul id="tt-css-class-list" class="tt-css-class-list" style="list-style:none; margin:0; padding:0; max-height:520px; overflow-y:auto; border:1px solid var(--tt-line, #e5e7ea); border-radius:8px;">';
+        foreach ( $rows as $row ) {
+            $class = (string) $row['class'];
+            $files = implode( ', ', $row['files'] );
+            $insert_url = esc_url( add_query_arg( [ 'tab' => 'editor', 'prefill' => $class ], $base ) );
+            echo '<li class="tt-css-class-item" data-class="' . esc_attr( $class ) . '" style="display:flex; gap:12px; align-items:center; padding:8px 12px; border-bottom:1px solid var(--tt-line, #e5e7ea);">';
+            echo '<code style="flex:1; font-family:Menlo, Consolas, monospace; font-size:13px;">.' . esc_html( $class ) . '</code>';
+            echo '<span class="tt-css-class-files" style="color:var(--tt-muted, #5b6e75); font-size:12px; flex-shrink:0;">' . esc_html( $files ) . '</span>';
+            echo '<a class="tt-btn tt-btn-secondary" style="flex-shrink:0; padding:4px 10px; font-size:12px;" href="' . $insert_url . '">' . esc_html__( 'Insert', 'talenttrack' ) . ' →</a>';
+            echo '</li>';
+        }
+        echo '</ul>';
+        echo '<p id="tt-css-class-empty" style="display:none; color:var(--tt-muted, #5b6e75); margin-top:10px;">' . esc_html__( 'No matches.', 'talenttrack' ) . '</p>';
+
+        ?>
+        <script>
+        (function(){
+            var input  = document.getElementById('tt-css-class-search');
+            var list   = document.getElementById('tt-css-class-list');
+            var empty  = document.getElementById('tt-css-class-empty');
+            if (!input || !list) return;
+            var items = Array.prototype.slice.call(list.querySelectorAll('.tt-css-class-item'));
+
+            // Fuzzy match — query characters must appear in order in the
+            // class name. Empty query matches everything.
+            function fuzzy(haystack, needle) {
+                if (!needle) return true;
+                haystack = haystack.toLowerCase();
+                needle   = needle.toLowerCase();
+                var i = 0;
+                for (var j = 0; j < haystack.length && i < needle.length; j++) {
+                    if (haystack[j] === needle[i]) i++;
+                }
+                return i === needle.length;
+            }
+
+            function filter() {
+                var q = input.value.trim();
+                var visible = 0;
+                items.forEach(function(li){
+                    var cls = li.getAttribute('data-class') || '';
+                    var match = fuzzy(cls, q);
+                    li.style.display = match ? '' : 'none';
+                    if (match) visible++;
+                });
+                empty.style.display = visible === 0 ? 'block' : 'none';
+            }
+
+            input.addEventListener('input', filter);
+        })();
+        </script>
+        <?php
     }
 
     private static function renderSafeModeFooter(): void {

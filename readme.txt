@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.79.0
+Stable tag: 3.79.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.79.1 — Custom CSS editor follow-ups: tab navigation + save bug + classes catalogue + radio toggle + download =
+
+Five issues found by the operator after Sprint 3 closed. (1) **Tab navigation broken** — clicks on Visual / CSS editor / Upload / History inside the Custom CSS view did nothing because `assets/js/public.js`'s delegated `.tt-tab` click handler called `e.preventDefault()` on every click and looked for an in-page `[data-tab]` content pane that the editor's `<a href>` tabs don't have. Fixed: handler now checks for `data-tab` on the clicked element first; real `<a href>` links navigate normally. (2) **Visual save was dropping new tokens** — `collectVisualSettings` iterated the frozen v3.73 `VisualEditor::FIELDS` const which only knew about 36 of the 88 catalogued tokens; everything added after Sprint 1 silently fell out of `$_POST` on save. Fixed: switched to `VisualEditor::fields()`, the catalogue-driven dynamic list. (3) **CSS download** — new `Download .css` button on the CSS editor tab; streams the saved body via a nonce-gated GET handler so operators can edit in their preferred editor and re-upload. (4) **Classes catalogue + fuzzy search** — new "Classes" tab indexing every `.tt-*` selector in the bundled stylesheets (~500 classes) with fuzzy search. Each row has an "Insert" button that opens the CSS editor with a `.tt-root .your-class { ... }` starter rule prefilled. (5) **Radio toggle** — the on/off button replaced with proper radio-button switch (On / Off) so it reads as a state control rather than a click-to-flip. Existing functionality unchanged for all five.
 
 = 3.79.0 — Sprint 3 close: deferred-consumer wiring across Buttons / Forms / Content / Tables / Feedback (#0075 closes) =
 

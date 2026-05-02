@@ -133,10 +133,18 @@
 
     document.addEventListener('DOMContentLoaded', function() {
 
-        // Tab switching
+        // Tab switching — legacy `data-tab` pattern (tabs share a page,
+        // each one matched to a `.tt-tab-content[data-tab="..."]` pane).
+        // Modern surfaces (CustomCss editor, Trial-case detail) use real
+        // <a href> links that should navigate — they don't carry
+        // `data-tab`, so we let those through unmolested. Without this
+        // guard the delegated handler would `preventDefault` every
+        // `.tt-tab` click and then fail silently because no content pane
+        // matches.
         on('.tt-dashboard .tt-tab', 'click', function(e) {
-            e.preventDefault();
             var tab = this.getAttribute('data-tab');
+            if (!tab) return; // real <a href> link — let the browser navigate
+            e.preventDefault();
             var root = this.closest('.tt-dashboard');
             if (!root) return;
             root.querySelectorAll('.tt-tab').forEach(function(t) { t.classList.remove('tt-tab-active'); });

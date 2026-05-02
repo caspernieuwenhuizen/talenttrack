@@ -11570,3 +11570,35 @@ msgstr "Klaar — doorlinken…"
 
 msgid "One or more rows failed. Refresh to retry."
 msgstr "Eén of meer rijen mislukt. Vernieuw om opnieuw te proberen."
+
+# v3.79.1 / #0075 follow-ups — radio toggle, classes tab, download
+# (On / Off / Custom CSS msgids already translated elsewhere in this
+#  file; not redeclared here.)
+msgid "Custom CSS is active for this surface. Switch off to revert to the bundled defaults without losing your saved values."
+msgstr "Aangepaste CSS is actief voor dit oppervlak. Zet uit om terug te keren naar de meegeleverde standaarden zonder je opgeslagen waarden te verliezen."
+
+msgid "Custom CSS is currently inactive for this surface. Switch on to apply your saved values."
+msgstr "Aangepaste CSS is momenteel inactief voor dit oppervlak. Zet aan om je opgeslagen waarden toe te passen."
+
+msgid "Classes"
+msgstr "Klassen"
+
+msgid "Download .css"
+msgstr ".css downloaden"
+
+msgid "Search classes"
+msgstr "Klassen zoeken"
+
+msgid "e.g. card, btn, table…"
+msgstr "bijv. card, btn, table…"
+
+msgid "Insert"
+msgstr "Invoegen"
+
+msgid "No matches."
+msgstr "Geen treffers."
+
+msgid "%d TalentTrack class found in the bundled stylesheets. Search by typing — the list filters as you type. Click Insert to prefill the CSS editor with a starter rule for that class."
+msgid_plural "%d TalentTrack classes found in the bundled stylesheets. Search by typing — the list filters as you type. Click Insert to prefill the CSS editor with a starter rule for that class."
+msgstr[0] "%d TalentTrack-klasse gevonden in de meegeleverde stylesheets. Typ om te zoeken — de lijst filtert mee. Klik op Invoegen om de CSS-editor te prefillen met een startregel voor die klasse."
+msgstr[1] "%d TalentTrack-klassen gevonden in de meegeleverde stylesheets. Typ om te zoeken — de lijst filtert mee. Klik op Invoegen om de CSS-editor te prefillen met een startregel voor die klasse."
