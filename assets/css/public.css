@@ -167,6 +167,25 @@
     outline: none;
 }
 
+/* Reusable HelpDrawer button — used anywhere outside the dashboard
+   header (wizards, manage views, detail pages). Pairs with the
+   icon+optional-label markup emitted by HelpDrawer::button(). */
+.tt-help-button {
+    display: inline-flex; align-items: center; gap: 6px;
+    min-height: 36px; padding: 6px 12px;
+    border: 1px solid var(--tt-line, #d8dcde); border-radius: 999px;
+    color: var(--tt-muted, #5f6368); background: transparent;
+    text-decoration: none; font-size: .875rem;
+    transition: color .15s, border-color .15s, background .15s;
+}
+.tt-help-button:hover, .tt-help-button:focus {
+    color: var(--tt-primary, #0b3d2e);
+    border-color: var(--tt-primary, #0b3d2e);
+    background: #fff;
+    outline: none;
+}
+.tt-help-button .tt-help-button-label { line-height: 1; }
+
 /* Context-aware docs drawer (#0016 part B) */
 .tt-docs-drawer { position: fixed; inset: 0; z-index: 9999; }
 .tt-docs-drawer[hidden] { display: none; }
