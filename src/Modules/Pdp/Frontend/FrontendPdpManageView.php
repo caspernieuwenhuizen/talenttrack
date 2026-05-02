@@ -263,39 +263,85 @@ class FrontendPdpManageView extends FrontendViewBase {
         }
         echo '</div>';
 
+        // #0077 M9 — derived per-conversation status (no schema change
+        // needed; the dates already carry the truth):
+        //   coach_signoff_at  set → 'signed_off'
+        //   conducted_at      set → 'held'
+        //   otherwise              → 'scheduled'
+        // Plus a "X / N done" indicator on the cycle-size row so the
+        // operator sees progress at a glance instead of counting rows.
+        $cycle_size = (int) ( $file->cycle_size ?? 0 );
+        $signed_count = 0;
+        foreach ( $convs as $c ) {
+            if ( ! empty( $c->coach_signoff_at ) ) $signed_count++;
+        }
+
         // Summary card
         echo '<div class="tt-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:16px; margin-bottom:16px;">';
-        echo '<p style="margin:0 0 6px;"><strong>' . esc_html__( 'Status:', 'talenttrack' ) . '</strong> '
-            . esc_html( self::statusLabel( (string) $file->status ) ) . '</p>';
+        echo '<p style="margin:0 0 6px; display:flex; align-items:center; gap:8px;">';
+        echo '<strong>' . esc_html__( 'Status:', 'talenttrack' ) . '</strong> '
+            . esc_html( self::statusLabel( (string) $file->status ) );
+        // #0077 F1 — context-sensitive help drawer entry.
+        \TT\Shared\Frontend\Components\HelpDrawer::button( 'pdp' );
+        echo '</p>';
         echo '<p style="margin:0 0 6px;"><strong>' . esc_html__( 'Cycle size:', 'talenttrack' ) . '</strong> '
-            . (int) ( $file->cycle_size ?? 0 ) . '</p>';
+            . (int) $cycle_size;
+        if ( $cycle_size > 0 ) {
+            echo ' <span style="color:#5b6e75; font-size:13px; margin-left:8px;">'
+                . sprintf(
+                    /* translators: 1: signed-off count, 2: cycle size */
+                    esc_html__( '(%1$d of %2$d signed off)', 'talenttrack' ),
+                    (int) $signed_count,
+                    (int) $cycle_size
+                )
+                . '</span>';
+        }
+        echo '</p>';
         if ( ! empty( $file->notes ) ) {
             echo '<p style="margin:0;"><strong>' . esc_html__( 'Notes:', 'talenttrack' ) . '</strong> '
                 . esc_html( (string) $file->notes ) . '</p>';
         }
         echo '</div>';
 
-        // Conversations list
+        // Conversations list — single Status column (was three: scheduled,
+        // conducted, signed_off) + parent/player ack pills so coaches see
+        // who still needs to acknowledge.
         echo '<h2 style="font-size:16px; margin:18px 0 8px;">' . esc_html__( 'Conversations', 'talenttrack' ) . '</h2>';
         echo '<table class="tt-list-table-table">';
         echo '<thead><tr>';
         echo '<th>#</th>';
         echo '<th>' . esc_html__( 'Template', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Scheduled', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Conducted', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Signed off', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Acks', 'talenttrack' ) . '</th>';
         echo '<th></th>';
         echo '</tr></thead><tbody>';
         foreach ( $convs as $c ) {
             $url = add_query_arg( [ 'tt_view' => 'pdp', 'id' => (int) $file->id, 'conv' => (int) $c->id ], $base_url );
+            $derived = self::derivedConvStatus( $c );
+            $badge_class = [
+                'scheduled'  => 'tt-status-scheduled',
+                'held'       => 'tt-status-in-progress',
+                'signed_off' => 'tt-status-completed',
+            ][ $derived ];
+            $badge_label = [
+                'scheduled'  => __( 'Scheduled', 'talenttrack' ),
+                'held'       => __( 'Held', 'talenttrack' ),
+                'signed_off' => __( 'Signed off', 'talenttrack' ),
+            ][ $derived ];
             echo '<tr>';
             echo '<td>' . (int) $c->sequence . '</td>';
             echo '<td>' . esc_html( self::templateLabel( (string) $c->template_key ) ) . '</td>';
             echo '<td>' . esc_html( self::shortDate( $c->scheduled_at ) ) . '</td>';
-            echo '<td>' . esc_html( self::shortDate( $c->conducted_at ) ) . '</td>';
-            echo '<td>' . ( $c->coach_signoff_at
-                ? '<span class="tt-status-badge tt-status-completed">' . esc_html__( 'Yes', 'talenttrack' ) . '</span>'
-                : '—' ) . '</td>';
+            echo '<td><span class="tt-status-badge ' . esc_attr( $badge_class ) . '">' . esc_html( $badge_label ) . '</span></td>';
+            echo '<td>';
+            $parent_ok = ! empty( $c->parent_ack_at );
+            $player_ok = ! empty( $c->player_ack_at );
+            echo '<span title="' . esc_attr__( 'Parent ack', 'talenttrack' ) . '" style="margin-right:6px;">'
+                . ( $parent_ok ? '👤✓' : '👤·' ) . '</span>';
+            echo '<span title="' . esc_attr__( 'Player ack', 'talenttrack' ) . '">'
+                . ( $player_ok ? '⚽✓' : '⚽·' ) . '</span>';
+            echo '</td>';
             echo '<td><a class="tt-btn tt-btn-secondary tt-btn-sm" href="' . esc_url( $url ) . '">'
                 . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
             echo '</tr>';
@@ -903,6 +949,17 @@ class FrontendPdpManageView extends FrontendViewBase {
     private static function shortDate( $value ): string {
         if ( empty( $value ) ) return '—';
         return substr( (string) $value, 0, 10 );
+    }
+
+    /**
+     * #0077 M9 — derive a per-conversation status enum from the dates
+     * already on the row. No schema change: coach_signoff_at set →
+     * 'signed_off'; conducted_at set → 'held'; otherwise 'scheduled'.
+     */
+    private static function derivedConvStatus( object $conv ): string {
+        if ( ! empty( $conv->coach_signoff_at ) ) return 'signed_off';
+        if ( ! empty( $conv->conducted_at ) )     return 'held';
+        return 'scheduled';
     }
 
     private static function toDatetimeLocal( $value ): string {
