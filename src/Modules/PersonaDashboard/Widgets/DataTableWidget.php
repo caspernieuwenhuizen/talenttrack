@@ -28,6 +28,17 @@ class DataTableWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Data table', 'talenttrack' ); }
 
+    /** @return array<string,string> */
+    public function dataSourceCatalogue(): array {
+        return [
+            'trials_needing_decision' => __( 'Trials needing decision', 'talenttrack' ),
+            'recent_scout_reports'    => __( 'My recent scout reports', 'talenttrack' ),
+            'audit_log_recent'        => __( 'Recent audit events', 'talenttrack' ),
+            'upcoming_activities'     => __( 'Upcoming activities', 'talenttrack' ),
+            'goals_by_principle'      => __( 'Goals by principle', 'talenttrack' ),
+        ];
+    }
+
     public function defaultSize(): string { return Size::XL; }
 
     /** @return list<string> */
@@ -80,6 +91,14 @@ class DataTableWidget extends AbstractWidget {
                 'columns'       => [ __( 'Team', 'talenttrack' ), __( 'Type', 'talenttrack' ), __( 'Date & time', 'talenttrack' ), __( 'Location', 'talenttrack' ) ],
                 'see_all_view'  => 'activities',
                 'empty_message' => __( 'No upcoming activities in this window.', 'talenttrack' ),
+            ],
+            // #0077 M3 — methodology coverage. Lists each principle
+            // with its active + completed goal counts.
+            'goals_by_principle' => [
+                'title'         => __( 'Goals by principle', 'talenttrack' ),
+                'columns'       => [ __( 'Principle', 'talenttrack' ), __( 'Active', 'talenttrack' ), __( 'Completed', 'talenttrack' ), '' ],
+                'see_all_view'  => 'goals',
+                'empty_message' => __( 'No principles configured yet.', 'talenttrack' ),
             ],
         ];
         return $presets[ $preset ] ?? null;

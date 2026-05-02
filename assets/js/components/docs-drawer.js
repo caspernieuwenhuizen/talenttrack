@@ -29,11 +29,12 @@
         return MAP[ view ] || DEFAULT;
     }
 
-    function openDrawer( drawer ) {
+    function openDrawer( drawer, topicOverride ) {
         drawer.hidden = false;
         drawer.setAttribute( 'aria-hidden', 'false' );
         document.body.classList.add( 'tt-docs-drawer-open' );
-        loadTopic( drawer, topicForCurrentView() );
+        var slug = ( topicOverride && String( topicOverride ).trim() ) || topicForCurrentView();
+        loadTopic( drawer, slug );
     }
 
     function closeDrawer( drawer ) {
@@ -104,7 +105,7 @@
             if ( e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey ) return;
             e.preventDefault();
             var d = $( '[data-tt-docs-drawer]' );
-            if ( d ) openDrawer( d );
+            if ( d ) openDrawer( d, openTrig.getAttribute( 'data-tt-docs-topic' ) );
             return;
         }
         var closeTrig = t.closest && t.closest( '[data-tt-docs-drawer-close]' );

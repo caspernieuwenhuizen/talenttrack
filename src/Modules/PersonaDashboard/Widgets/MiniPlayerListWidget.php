@@ -24,6 +24,15 @@ class MiniPlayerListWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Mini player list', 'talenttrack' ); }
 
+    /** @return array<string,string> */
+    public function dataSourceCatalogue(): array {
+        return [
+            'podium_top3'        => __( 'Podium · my team', 'talenttrack' ),
+            'recent_evaluations' => __( 'Recent evaluations', 'talenttrack' ),
+            'top_movers'         => __( 'Top movers · this month', 'talenttrack' ),
+        ];
+    }
+
     public function defaultSize(): string { return Size::M; }
 
     /** @return list<string> */

@@ -28,6 +28,16 @@ class InfoCardWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Info card', 'talenttrack' ); }
 
+    /** @return array<string,string> */
+    public function dataSourceCatalogue(): array {
+        return [
+            'coach_nudge'     => __( 'Coach nudge', 'talenttrack' ),
+            'pending_pdp_ack' => __( 'PDP awaiting ack', 'talenttrack' ),
+            'next_activity'   => __( 'Next activity', 'talenttrack' ),
+            'license_status'  => __( 'License & modules', 'talenttrack' ),
+        ];
+    }
+
     public function defaultSize(): string { return Size::M; }
 
     /** @return list<string> */

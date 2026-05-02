@@ -315,9 +315,8 @@ class FrontendWizardView extends FrontendViewBase {
     private static function renderHelpSidebar( WizardInterface $wizard, WizardStepInterface $step ): void {
         $help_topic = self::helpTopicFor( $wizard->slug() );
         if ( ! $help_topic ) return;
-        $url = add_query_arg( [ 'tt_view' => 'docs', 'topic' => $help_topic ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
         echo '<aside class="tt-wizard-help">';
-        echo '<a class="tt-wizard-help-link" target="_blank" rel="noopener" href="' . esc_url( $url ) . '">' . esc_html__( 'Open the relevant help topic', 'talenttrack' ) . '</a>';
+        \TT\Shared\Frontend\Components\HelpDrawer::button( $help_topic, __( 'Help for this step', 'talenttrack' ) );
         echo '</aside>';
     }
 

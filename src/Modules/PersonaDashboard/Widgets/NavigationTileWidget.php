@@ -29,6 +29,29 @@ class NavigationTileWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Navigation tile', 'talenttrack' ); }
 
+    /**
+     * #0077 M1 — runtime catalogue from TileRegistry. Pulls every tile
+     * registered for the current admin (the editor user) so the persona-
+     * dashboard editor can offer a dropdown instead of a free-text slug
+     * field. NavigationTileWidget renders nothing for unknown slugs at
+     * runtime, so the closed-set list is correct.
+     *
+     * @return array<string,string>
+     */
+    public function dataSourceCatalogue(): array {
+        if ( ! class_exists( TileRegistry::class ) ) return [];
+        $out = [];
+        $groups = TileRegistry::tilesForUserGrouped( get_current_user_id() );
+        foreach ( $groups as $g ) {
+            foreach ( $g['tiles'] as $t ) {
+                $slug = (string) ( $t['view_slug'] ?? '' );
+                if ( $slug === '' || isset( $out[ $slug ] ) ) continue;
+                $out[ $slug ] = (string) ( $t['label'] ?? $slug );
+            }
+        }
+        return $out;
+    }
+
     public function defaultSize(): string { return Size::S; }
 
     /** @return list<string> */

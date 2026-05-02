@@ -75,3 +75,12 @@ Er zijn twee taaktemplates geregistreerd:
 - `POP_verdict_due` â€” herinnert het hoofd academie aan het einde van het seizoen.
 
 Beide gebruiken de standaard werkflow- en takenmotor van #0022 â€” dezelfde inbox, dezelfde herinneringsÂ­cadans die je instelt via Configuratie â†’ Werkflow.
+
+## Cyclusvoortgang + bevestigingsoverzicht (v3.79.0)
+
+Op de POP-detailpagina staat de cyclusvoortgang nu als **(X van N ondertekend)** naast de cyclusgrootte, zodat je in één oogopslag ziet hoe ver de cyclus is. Elke gespreksregel laat zien:
+
+- een afgeleide **status**-badge (Gepland / Gehouden / Ondertekend) in plaats van drie aparte datum/ja-kolommen
+- een **Bevestigingen**-kolom met iconen voor ouder (👤) en speler (⚽) — `✓` na bevestiging, `·` zolang de bevestiging nog ontbreekt
+
+De samenvattingskaart heeft een hulpknop die het PDP-onderwerp direct in de docs-drawer opent.

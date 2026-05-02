@@ -11602,3 +11602,134 @@ msgid "%d TalentTrack class found in the bundled stylesheets. Search by typing �
 msgid_plural "%d TalentTrack classes found in the bundled stylesheets. Search by typing — the list filters as you type. Click Insert to prefill the CSS editor with a starter rule for that class."
 msgstr[0] "%d TalentTrack-klasse gevonden in de meegeleverde stylesheets. Typ om te zoeken — de lijst filtert mee. Klik op Invoegen om de CSS-editor te prefillen met een startregel voor die klasse."
 msgstr[1] "%d TalentTrack-klassen gevonden in de meegeleverde stylesheets. Typ om te zoeken — de lijst filtert mee. Klik op Invoegen om de CSS-editor te prefillen met een startregel voor die klasse."
+
+# #0077 polish wave 1 — new strings
+
+msgid "Help for this step"
+msgstr "Hulp bij deze stap"
+
+msgid "Module completeness (dev)"
+msgstr "Modulevolledigheid (dev)"
+
+msgid "Module completeness"
+msgstr "Modulevolledigheid"
+
+msgid "Filesystem-heuristic check that each entity-bearing module ships the full surface set: list, detail, edit, widget, KPI, docs (en+nl). Visible only when WP_DEBUG is true."
+msgstr "Bestandssysteem-heuristiek die controleert of elke entiteitsmodule het volledige oppervlak levert: lijst, detail, bewerken, widget, KPI, documentatie (en+nl). Alleen zichtbaar als WP_DEBUG aanstaat."
+
+msgid "List"
+msgstr "Lijst"
+
+msgid "Widget"
+msgstr "Widget"
+
+msgid "KPI"
+msgstr "KPI"
+
+msgid "Docs (en)"
+msgstr "Documentatie (en)"
+
+msgid "Docs (nl)"
+msgstr "Documentatie (nl)"
+
+msgid "Guest attendees"
+msgstr "Gast-aanwezigen"
+
+msgid "Guests are added and edited from the public Activity page. This panel is read-only."
+msgstr "Gasten worden toegevoegd en bewerkt op de publieke Activiteit-pagina. Dit paneel is alleen-lezen."
+
+msgid "Optional. Anchor this goal to a methodology principle."
+msgstr "Optioneel. Verbind dit doel aan een methodologie-principe."
+
+msgid "Optional. Anchor this goal to a single football action."
+msgstr "Optioneel. Verbind dit doel aan één voetbalhandeling."
+
+msgid "Goals tagged to principle (90d)"
+msgstr "Doelen gekoppeld aan principe (90d)"
+
+msgid "Goals by principle"
+msgstr "Doelen per principe"
+
+msgid "No principles configured yet."
+msgstr "Nog geen principes geconfigureerd."
+
+msgid "+ Assign"
+msgstr "+ Toewijzen"
+
+msgid "Coach nudge"
+msgstr "Coach-bericht"
+
+msgid "PDP awaiting ack"
+msgstr "PDP wacht op bevestiging"
+
+msgid "Next activity"
+msgstr "Volgende activiteit"
+
+msgid "My recent scout reports"
+msgstr "Mijn recente scoutrapporten"
+
+msgid "Recent audit events"
+msgstr "Recente audit-gebeurtenissen"
+
+msgid "Radar profile"
+msgstr "Radarprofiel"
+
+msgid "Rating trend"
+msgstr "Beoordelingstrend"
+
+msgid "PDP cycle"
+msgstr "PDP-cyclus"
+
+msgid "Player sections"
+msgstr "Spelersecties"
+
+msgid "No goals recorded yet."
+msgstr "Nog geen doelen vastgelegd."
+
+msgid "No attended activities yet."
+msgstr "Nog geen bijgewoonde activiteiten."
+
+msgid "No PDP cycle yet."
+msgstr "Nog geen PDP-cyclus."
+
+msgid "No trial history."
+msgstr "Geen stagegeschiedenis."
+
+msgid "PDP files"
+msgstr "PDP-dossiers"
+
+msgid "Print / Save as PDF"
+msgstr "Afdrukken / Opslaan als PDF"
+
+msgid "Pick a report."
+msgstr "Kies een rapport."
+
+msgid "Report"
+msgstr "Rapport"
+
+msgid "Unknown report."
+msgstr "Onbekend rapport."
+
+msgid "Trial sections"
+msgstr "Stagesecties"
+
+msgid "Trial players"
+msgstr "Stagespelers"
+
+msgid "(%1$d of %2$d signed off)"
+msgstr "(%1$d van %2$d ondertekend)"
+
+msgid "Acks"
+msgstr "Bevestigingen"
+
+msgid "Held"
+msgstr "Gehouden"
+
+msgid "Parent ack"
+msgstr "Bevestiging ouder"
+
+msgid "Player ack"
+msgstr "Bevestiging speler"
+
+msgid "Only the player's head coach can approve or reject this goal."
+msgstr "Alleen de hoofdcoach van de speler kan dit doel goedkeuren of afwijzen."

@@ -64,10 +64,88 @@ class FrontendTrialCaseView extends FrontendViewBase {
 
         self::renderHeaderStrip( $case, $name );
 
-        $tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : 'overview';
-        self::renderTabBar( $case_id, $tab, $user_id, $case );
+        // #0077 M4 — linear UX with anchor nav. The six tabs were
+        // hiding the downstream steps from coaches who needed a
+        // single-glance review. Each section now renders sequentially
+        // with a sticky anchor strip at the top for jump navigation.
+        // Legacy ?tab= still scrolls into place via window.location.hash
+        // mapping below so external links don't break.
+        $tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : '';
+        self::renderAnchorNav( $user_id, $case );
 
-        self::dispatchTab( $tab, $case, $user_id );
+        self::renderAllSections( $case, $user_id );
+
+        if ( $tab !== '' ) {
+            // Map legacy tab values to the new anchor ids and scroll.
+            echo '<script>(function(){var m={overview:"tt-trial-overview",execution:"tt-trial-execution",inputs:"tt-trial-inputs",decision:"tt-trial-decision",letter:"tt-trial-letter",meeting:"tt-trial-meeting"};var id=m[' . wp_json_encode( $tab ) . '];if(id){var el=document.getElementById(id);if(el)el.scrollIntoView({behavior:"smooth"});}})();</script>';
+        }
+    }
+
+    /**
+     * #0077 M4 — render every accessible section in order. Replaces
+     * dispatchTab(). Manager-only sections gated inside.
+     */
+    private static function renderAllSections( object $case, int $user_id ): void {
+        $is_manager = TrialCaseAccessPolicy::isManager( $user_id );
+
+        echo '<section id="tt-trial-overview" class="tt-trial-section"><h2>' . esc_html__( 'Overview', 'talenttrack' ) . '</h2>';
+        self::renderOverviewTab( $case, $user_id );
+        echo '</section>';
+
+        echo '<section id="tt-trial-execution" class="tt-trial-section"><h2>' . esc_html__( 'Execution', 'talenttrack' ) . '</h2>';
+        self::renderExecutionTab( $case );
+        echo '</section>';
+
+        echo '<section id="tt-trial-inputs" class="tt-trial-section"><h2>' . esc_html__( 'Staff inputs', 'talenttrack' ) . '</h2>';
+        self::renderInputsTab( $case, $user_id );
+        echo '</section>';
+
+        if ( $is_manager ) {
+            echo '<section id="tt-trial-decision" class="tt-trial-section"><h2>' . esc_html__( 'Decision', 'talenttrack' ) . '</h2>';
+            self::renderDecisionTab( $case );
+            echo '</section>';
+
+            echo '<section id="tt-trial-letter" class="tt-trial-section"><h2>' . esc_html__( 'Letter', 'talenttrack' ) . '</h2>';
+            self::renderLetterTab( $case );
+            echo '</section>';
+
+            if ( $case->status === TrialCasesRepository::STATUS_DECIDED ) {
+                echo '<section id="tt-trial-meeting" class="tt-trial-section"><h2>' . esc_html__( 'Parent meeting', 'talenttrack' ) . '</h2>';
+                self::renderMeetingTab( $case );
+                echo '</section>';
+            }
+        }
+
+        echo '<style>'
+            . '.tt-trial-section { margin: 32px 0; padding-top: 12px; border-top: 1px solid var(--tt-line, #e5e7ea); scroll-margin-top: 60px; }'
+            . '.tt-trial-anchor-nav { position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid var(--tt-line, #e5e7ea); padding: 8px 0; margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 4px; overflow-x: auto; }'
+            . '.tt-trial-anchor { padding: 6px 12px; font-size: .875rem; color: #5b6e75; text-decoration: none; border-radius: 6px; }'
+            . '.tt-trial-anchor:hover, .tt-trial-anchor:focus { background: #f1f3f4; color: #0b3d2e; outline: none; }'
+            . '</style>';
+    }
+
+    /**
+     * #0077 M4 — anchor strip; same labels as the old tab bar but
+     * jumps to in-page sections instead of route-changing.
+     */
+    private static function renderAnchorNav( int $user_id, object $case ): void {
+        $items = [
+            [ 'id' => 'tt-trial-overview',  'label' => __( 'Overview', 'talenttrack' ) ],
+            [ 'id' => 'tt-trial-execution', 'label' => __( 'Execution', 'talenttrack' ) ],
+            [ 'id' => 'tt-trial-inputs',    'label' => __( 'Staff inputs', 'talenttrack' ) ],
+        ];
+        if ( TrialCaseAccessPolicy::isManager( $user_id ) ) {
+            $items[] = [ 'id' => 'tt-trial-decision', 'label' => __( 'Decision', 'talenttrack' ) ];
+            $items[] = [ 'id' => 'tt-trial-letter',   'label' => __( 'Letter', 'talenttrack' ) ];
+            if ( $case->status === TrialCasesRepository::STATUS_DECIDED ) {
+                $items[] = [ 'id' => 'tt-trial-meeting', 'label' => __( 'Parent meeting', 'talenttrack' ) ];
+            }
+        }
+        echo '<nav class="tt-trial-anchor-nav" aria-label="' . esc_attr__( 'Trial sections', 'talenttrack' ) . '">';
+        foreach ( $items as $item ) {
+            echo '<a class="tt-trial-anchor" href="#' . esc_attr( $item['id'] ) . '">' . esc_html( $item['label'] ) . '</a>';
+        }
+        echo '</nav>';
     }
 
     private static function renderHeaderStrip( object $case, string $name ): void {

@@ -29,3 +29,11 @@ Update the status and description over time as the player makes progress. Use th
 - Players see their own goals.
 - Coaches see goals for the players on the teams they coach.
 - Admins see all goals.
+
+## Methodology linkage (v3.79.0)
+
+Goals can now be linked to a methodology principle and/or a single football action from both the public goal form and the wp-admin form. The link is optional but unlocks per-principle reporting on the persona dashboard (the new Goals-by-principle widget shows active and completed goal counts per principle, and a Goals-tagged-to-principle KPI tracks rolling-90-day coverage).
+
+## Player-created goals with approval (v3.79.0)
+
+If your installation grants players the goal-edit cap, a goal created by a player lands with status **Pending Approval**. The player's head coach can approve (status flips to Pending) or reject (Cancelled) via the existing status dropdown. Other coaches cannot approve — only the player's head coach, matching the PDP signoff trust pattern.

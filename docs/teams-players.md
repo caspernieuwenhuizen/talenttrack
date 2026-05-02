@@ -49,3 +49,15 @@ When a player has a `wp_user_id` set, logging in as that user routes to their ow
 ## Archiving vs deleting
 
 Archived players stay in the database but disappear from active lists (old evaluations still reference them). Permanent delete only works when no evaluations, goals, or sessions reference the player. Use **archive** in most cases — see [Bulk actions](?page=tt-docs&topic=bulk-actions).
+
+## Player case page (v3.79.0)
+
+Player detail is now a six-tab case page: Profile / Goals / Evaluations / Activities / PDP / Trials. Each tab shows up to 50 records (25 for activities, 10 for PDP/Trials), every record links through to its detail surface, and breadcrumbs replace the standalone back link. The Profile tab keeps the existing DL plus the behaviour & potential capture entry.
+
+## Team detail — trial roster (v3.79.0)
+
+The team detail page now shows current trial players under their own **Trial players** subsection. They were previously hidden behind the active-status filter on the team roster.
+
+## Edit cap path (v3.79.0)
+
+The team-detail edit button and the Teams REST endpoints (list / get / create / delete) now consult `AuthorizationService::userCanOrMatrix` rather than `current_user_can`. This means a Head of Development granted `tt_edit_teams` via the matrix scope-row layer (functional role bridge) passes the gate too, matching the pattern already used by Tile gating and the Activities REST endpoints.

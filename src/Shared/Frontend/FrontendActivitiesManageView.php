@@ -359,6 +359,35 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 <textarea id="tt-activity-notes" class="tt-input" name="notes" rows="2"><?php echo esc_textarea( (string) ( $session->notes ?? '' ) ); ?></textarea>
             </div>
 
+            <?php
+            // #0077 M2 — Principles practiced multiselect. Mirrors the
+            // wp-admin ActivitiesPage form (lines ~331-352) so the
+            // frontend has parity. Saved via the REST controller's
+            // persistPrincipleLinks helper.
+            if ( class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrinciplesRepository' )
+                 && class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrincipleLinksRepository' ) ) {
+                $all_principles = ( new \TT\Modules\Methodology\Repositories\PrinciplesRepository() )->listFiltered();
+                $linked_ids = ( $is_edit && $session && (int) $session->id > 0 )
+                    ? ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )->principlesForActivity( (int) $session->id )
+                    : [];
+                if ( ! empty( $all_principles ) ) : ?>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-activity-principles"><?php esc_html_e( 'Principles practiced', 'talenttrack' ); ?></label>
+                    <select id="tt-activity-principles" class="tt-input" name="activity_principle_ids[]" multiple size="6">
+                        <?php foreach ( $all_principles as $pr ) :
+                            $title = \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
+                            ?>
+                            <option value="<?php echo (int) $pr->id; ?>" <?php selected( in_array( (int) $pr->id, $linked_ids, true ) ); ?>>
+                                <?php echo esc_html( $pr->code . ' · ' . ( $title ?: '—' ) ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint"><?php esc_html_e( 'Optional. Hold Ctrl/Cmd to select multiple.', 'talenttrack' ); ?></p>
+                </div>
+                <?php endif;
+            }
+            ?>
+
             <script>
             (function(){
                 var sel = document.getElementById('tt-activity-type');

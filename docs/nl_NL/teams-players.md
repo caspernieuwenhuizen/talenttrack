@@ -49,3 +49,15 @@ Als een speler een `wp_user_id` heeft, wordt die gebruiker na inloggen doorgestu
 ## Archiveren versus verwijderen
 
 Gearchiveerde spelers blijven in de database maar verdwijnen uit actieve lijsten (oude evaluaties blijven wel naar ze verwijzen). Permanent verwijderen werkt alleen als er geen evaluaties, doelen of sessies naar de speler verwijzen. Gebruik in de meeste gevallen **archiveren** — zie [Bulkacties](?page=tt-docs&topic=bulk-actions).
+
+## Spelerdossierpagina (v3.79.0)
+
+De spelerdetailpagina is nu een dossier met zes tabs: Profiel / Doelen / Evaluaties / Activiteiten / PDP / Stage. Elke tab toont tot 50 records (25 voor activiteiten, 10 voor PDP/Stage), elke record linkt door naar de eigen detailpagina, en broodkruimels vervangen de losse terugknop. De Profiel-tab behoudt de bestaande gegevenslijst plus de gedrag- en potentieel-knop.
+
+## Teamdetail — stagespelers (v3.79.0)
+
+De teamdetailpagina toont nu lopende stagespelers in een eigen subsectie **Stagespelers**. Eerder vielen ze uit de roster door de actieve-status-filter.
+
+## Bewerk-rechtenpad (v3.79.0)
+
+De bewerken-knop op de teamdetailpagina en de Teams REST-endpoints (list / get / create / delete) gebruiken nu `AuthorizationService::userCanOrMatrix` in plaats van `current_user_can`. Daardoor passeren ook gebruikers de poort die `tt_edit_teams` via de matrix scope-rij krijgen (functionele rol-bridge), in lijn met het patroon dat al voor tegels en de Activities REST geldt.

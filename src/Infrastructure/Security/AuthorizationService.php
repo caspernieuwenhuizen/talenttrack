@@ -173,6 +173,36 @@ class AuthorizationService {
         } );
     }
 
+    /**
+     * #0077 M10 — true if the user is the head coach of the team the
+     * given player belongs to. Joins tt_players → tt_people → tt_team_people
+     * with is_head_coach = 1. Used as the approval gate for player-created
+     * goals (matches the PDP signoff trust pattern).
+     */
+    public static function isHeadCoachOfPlayer( int $user_id, int $player_id ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 ) return false;
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $team_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT team_id FROM {$p}tt_players WHERE id = %d AND club_id = %d",
+            $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) );
+        if ( $team_id <= 0 ) return false;
+        $hit = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*)
+               FROM {$p}tt_team_people tp
+               JOIN {$p}tt_people pe ON pe.id = tp.person_id AND pe.club_id = tp.club_id
+              WHERE tp.team_id = %d
+                AND tp.club_id = %d
+                AND tp.is_head_coach = 1
+                AND pe.wp_user_id = %d",
+            $team_id,
+            \TT\Infrastructure\Tenancy\CurrentClub::id(),
+            $user_id
+        ) );
+        return $hit > 0;
+    }
+
     // Public API — the core primitive
 
     /**

@@ -61,13 +61,34 @@ abstract class FrontendViewBase {
     }
 
     /**
-     * Render the view header: back button + title. Sub-views call this
-     * at the top of their render() methods.
+     * Render the view header: breadcrumbs (if declared) or back button +
+     * title. Sub-views call this at the top of their render() methods.
+     *
+     * Breadcrumbs override the back button — when a sub-view declares a
+     * breadcrumb chain via static::breadcrumbs(), the chain implicitly
+     * conveys "back" so the standalone back link is suppressed (#0077 F2).
      */
     protected static function renderHeader( string $title ): void {
-        FrontendBackButton::render();
+        $crumbs = static::breadcrumbs();
+        if ( ! empty( $crumbs ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::render( $crumbs );
+        } else {
+            FrontendBackButton::render();
+        }
         echo '<h1 class="tt-fview-title" style="margin:6px 0 18px; font-size:22px; color:#1a1d21;">'
             . esc_html( $title )
             . '</h1>';
+    }
+
+    /**
+     * Sub-views override this to declare a breadcrumb chain (#0077 F2).
+     * Each item: `[ 'label' => string, 'url' => ?string ]`. The last
+     * item is the current page and gets no link. List views return `[]`
+     * (default) so they keep using the standalone back button.
+     *
+     * @return array<int,array{label:string,url?:?string}>
+     */
+    protected static function breadcrumbs(): array {
+        return [];
     }
 }

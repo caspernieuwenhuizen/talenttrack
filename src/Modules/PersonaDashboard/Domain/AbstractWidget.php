@@ -42,6 +42,20 @@ abstract class AbstractWidget implements Widget {
         return \TT\Modules\PersonaDashboard\PersonaDashboardModule::class;
     }
 
+    /**
+     * Persona-dashboard editor catalogue of valid `data_source` values
+     * for this widget (#0077 M1). Returns `[ id => human label ]` pairs.
+     * Empty default → editor falls back to a free-text input. Widgets
+     * with a fixed preset list (DataTableWidget, ActionCardWidget,
+     * InfoCardWidget, MiniPlayerListWidget) override; NavigationTileWidget
+     * publishes a runtime list pulled from TileRegistry.
+     *
+     * @return array<string,string>
+     */
+    public function dataSourceCatalogue(): array {
+        return [];
+    }
+
     abstract public function render( WidgetSlot $slot, RenderContext $ctx ): string;
 
     /**

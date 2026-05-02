@@ -51,3 +51,11 @@ Guests don't count toward team statistics — attendance percentages and the tea
 ## Cleaning up
 
 You can archive an activity to clean up old seasons without losing its history.
+
+## Principles practiced (v3.79.0)
+
+Each activity can be tagged with one or more methodology principles so reports can ask "how often did we work on principle X this period?" The Principles practiced multiselect appears on both the public Activity edit page and the wp-admin form — pick from the principles configured under Methodology. The link is optional.
+
+## Admin guest panel (v3.79.0)
+
+The wp-admin Activity edit page now shows a read-only list of guest attendees recorded against the activity. Add or remove guests from the public Activity page; the admin panel stays in sync.
