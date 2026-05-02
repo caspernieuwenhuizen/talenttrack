@@ -214,7 +214,10 @@ class TeamsRestController {
             Logger::error( 'team.create.failed', [ 'db_error' => $err, 'payload' => $data ] );
             return RestResponse::error( 'db_error', __( 'The team could not be created.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
         }
-        return RestResponse::success( [ 'id' => (int) $wpdb->insert_id ] );
+        $team_id = (int) $wpdb->insert_id;
+        // v3.76.2 — auto-tag demo-on rows.
+        \TT\Modules\DemoData\DemoMode::tagIfActive( 'team', $team_id );
+        return RestResponse::success( [ 'id' => $team_id ] );
     }
 
     public static function update_team( \WP_REST_Request $r ) {

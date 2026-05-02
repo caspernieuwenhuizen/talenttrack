@@ -499,7 +499,11 @@ class PlayersPage {
         } else {
             $data['club_id'] = CurrentClub::id();
             $ok = $wpdb->insert( $wpdb->prefix . 'tt_players', $data );
-            if ( $ok ) $id = (int) $wpdb->insert_id;
+            if ( $ok ) {
+                $id = (int) $wpdb->insert_id;
+                // v3.76.2 — auto-tag demo-on rows.
+                \TT\Modules\DemoData\DemoMode::tagIfActive( 'player', $id );
+            }
         }
 
         if ( $ok === false ) {
