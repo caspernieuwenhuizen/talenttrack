@@ -4,7 +4,9 @@ Per-topic status ordered by what's actionable now, then by what's shaped, then b
 
 ## In progress
 
-_None._
+| # | Topic | Type | Spec | Status |
+| - | - | - | - | - |
+| 0077 | Polish wave 1 — foundations + 11-module consistency pass. Single PR, single squash-merge per user directive. **Sprint A+B shipped on branch (not merged)**: F1 reusable HelpDrawer component + JS topic-override; F2 FrontendViewBase breadcrumbs contract + FrontendBreadcrumbs component; F4 WP_DEBUG-only ModuleCompletenessReport admin page (7-facet filesystem-heuristic scoring across 8 entity-bearing modules); M2 frontend Activities Principles practiced multiselect + admin Guests read-only parity (frontend-canonical / admin-mirrors direction locked) + public.js formToJSON name[] array fix; M3 frontend Goals linked_principle/linked_action selects + GoalsByPrincipleKpi (90d coverage %) + GoalsByPrincipleSource DataTable preset; M5 teams cap audit — frontend + REST upgraded to AuthorizationService::userCanOrMatrix, role→cap loop confirmed re-asserted on every Activator::runMigrations(); M7 functional-roles assignment_count audit (no tt_club_people exists; documented the future-fold seam) + 0-assignment empty-state CTA. **Pending Sprint C+D next session**: M1 (persona dashboard catalogue dropdown), M6 (frontend comparison Chart.js radar parity), M8 (player profile case page tabs), M11 (reports PDF + frontend launchers), M4 (trial cases linear UX overhaul), M9 (PDP cycle polish — 5 sub-items), M10 (player-created goals approval flow). Translations + per-module docs + version bump batched at end before squash-merge. | epic | [specs/0077-epic-polish-wave-1.md](specs/0077-epic-polish-wave-1.md) | in progress on `polish-wave-1` branch |
 
 ## Ready (shaped, decisions locked)
 
