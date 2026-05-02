@@ -87,4 +87,8 @@ add_action( 'plugins_loaded', function () {
     if ( is_admin() && class_exists( 'TT\\Shared\\Admin\\MenuExtension' ) ) {
         TT\Shared\Admin\MenuExtension::init();
     }
+    // #0077 F4 — module-completeness dev report. Self-gates on WP_DEBUG.
+    if ( is_admin() && class_exists( 'TT\\Infrastructure\\Diagnostics\\ModuleCompletenessPage' ) ) {
+        TT\Infrastructure\Diagnostics\ModuleCompletenessPage::init();
+    }
 }, 10 );
