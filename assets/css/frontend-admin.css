@@ -208,8 +208,19 @@
     line-height: 1.2;
     border-radius: var(--tt-r-md);
     border: 1px solid transparent;
+    text-decoration: none;
     cursor: pointer;
     transition: background .12s, border-color .12s, opacity .12s;
+}
+.tt-dashboard .tt-btn:hover,
+.tt-dashboard .tt-btn-primary:hover,
+.tt-dashboard .tt-btn-secondary:hover,
+.tt-dashboard .tt-btn-danger:hover,
+.tt-dashboard .tt-btn:focus,
+.tt-dashboard .tt-btn-primary:focus,
+.tt-dashboard .tt-btn-secondary:focus,
+.tt-dashboard .tt-btn-danger:focus {
+    text-decoration: none;
 }
 /* #0075 Sprint 1 PR 5 — Buttons category tokens override the brand-
  * level primary colour pair when set. Fallbacks preserve legacy

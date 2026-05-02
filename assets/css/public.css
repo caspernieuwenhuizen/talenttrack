@@ -503,9 +503,9 @@ input[type="checkbox"], input[type="radio"] {
 .tt-scout-link-header { padding-top: env(safe-area-inset-top); }
 .tt-meeting-fullscreen-launcher { padding-bottom: env(safe-area-inset-bottom); }
 
-.tt-btn, .tt-btn-primary { display: inline-block; padding: .65rem 1.4rem; background: var(--tt-primary, #0b3d2e); color: #fff; border: none; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; transition: background var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease); }
-.tt-btn:hover, .tt-btn-primary:hover { background: var(--tt-primary-hover, var(--tt-secondary, #e8b624)); color: var(--tt-ink); }
-.tt-btn-sm { padding: 3px 8px; font-size: 0.8rem; background: transparent; border: 1px solid var(--tt-line); cursor: pointer; color: var(--tt-muted); }
+.tt-btn, .tt-btn-primary { display: inline-block; padding: .65rem 1.4rem; background: var(--tt-primary, #0b3d2e); color: #fff; border: none; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; text-decoration: none; cursor: pointer; transition: background var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease); }
+.tt-btn:hover, .tt-btn-primary:hover { background: var(--tt-primary-hover, var(--tt-secondary, #e8b624)); color: var(--tt-ink); text-decoration: none; }
+.tt-btn-sm { padding: 3px 8px; font-size: 0.8rem; background: transparent; border: 1px solid var(--tt-line); cursor: pointer; color: var(--tt-muted); text-decoration: none; }
 .tt-form-msg { margin-top: 1rem; padding: 10px 14px; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.9rem; display: none; }
 .tt-form-msg.tt-success { display: block; background: #e6f5e9; color: #0a5c2a; border-left: 3px solid #00a32a; }
 .tt-form-msg.tt-error   { display: block; background: #fce8e8; color: #8a1f1f; border-left: 3px solid #b32d2e; }

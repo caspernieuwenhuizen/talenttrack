@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.81.0
+Stable tag: 3.81.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.81.1 — Custom CSS button underline fix =
+
+`<a class="tt-btn …">` elements (the new "Download .css" button on the CSS editor tab, plus any other anchor styled as a button) inherited the browser's default `<a>` underline because the `.tt-btn` rules in `public.css` and the `.tt-dashboard .tt-btn-*` rule in `frontend-admin.css` didn't declare `text-decoration`. `<button>` callers were unaffected (browser default for `<button>` is no underline) so the asymmetry only showed up on anchor-styled buttons. Fix: added `text-decoration: none` to both rules + a defensive `:hover` / `:focus` reset on the frontend-admin shared button base, since some host themes underline `a:hover` even when the resting state is reset.
 
 = 3.81.0 — i18n audit (May 2026) Bundles 1 + 2 — critical leak fixes + session→activity user-visible rename =
 
