@@ -1,3 +1,31 @@
+# TalentTrack v3.84.3 — Wizard bugs found by JG4IT pilot
+
+Two long-standing wizard bugs that the JG4IT pilot install hit on day one of setup.
+
+## Bug 1 — Age-group dropdown empty in the new-team wizard
+
+**What broke.** Operator opens the new-team wizard's Basics step → "Age group" dropdown is empty. Saving with no age group works but the team has no group.
+
+**Root cause.** `src/Modules/Wizards/Team/BasicsStep.php` line 17 queried:
+```sql
+SELECT name FROM tt_lookups WHERE lookup_type = 'age_group' AND archived_at IS NULL AND club_id = %d ORDER BY sort_order, name
+```
+`tt_lookups` has no `archived_at` column. Migration 0001 created the table without it; migration 0010 added the column to `tt_players` / `tt_teams` / `tt_evaluations` / `tt_sessions` / `tt_goals` / `tt_people` but not lookups (lookups use **hard** delete via `handle_delete_lookup` running `$wpdb->delete`). Result: the SELECT failed with `ER_BAD_FIELD_ERROR` and returned nothing. Empty dropdown for every install since the wizard shipped.
+
+**What was fixed.** Removed the `AND archived_at IS NULL` filter. Lookups are queried by `(lookup_type, club_id)` only, matching the rest of the codebase's lookup queries. `wp-admin → Configuration → Lookups → Age groups` works fine because that surface uses `QueryHelpers::get_lookups()` which never had the bogus filter.
+
+## Bug 2 — Player created via wizard invisible in players list when demo mode is ON
+
+**What broke.** Operator (logged in as admin, demo data installed, demo mode ON) creates a player via the new-player wizard. Save succeeds but the new player doesn't appear in `wp-admin → Players`.
+
+**Root cause.** `apply_demo_scope()` filters the players list to demo-tagged rows when `DemoMode::ON` (mirror filter to "demo only"). The wp-admin player save handler (`PlayersPage.php` line 505) calls `DemoMode::tagIfActive('player', $id)` after insert — added in v3.76.2 specifically to fix this exact symptom for the admin path. The wizard's `ReviewStep::execute()` (line 74) and `FrontendTrialsManageView`'s inline-player-create (line 66) both insert into `tt_players` directly without calling `tagIfActive`. So a demo-on operator who creates a player through either of those two wizard paths gets the player saved but invisible.
+
+**What was fixed.** Added `DemoMode::tagIfActive('player', $id)` calls after the insert in both wizard paths, gated on `class_exists` for safety on installs without the DemoData module. Players created via the wizard are now visible regardless of demo mode.
+
+## What did *not* change
+
+- The free-tier license cap (`FreeTierCaps::teamCap() === 1`) that blocks creating a second team is intentional behavior, not a bug. The intended unblock is to start the trial via `wp-admin → Account → Start trial` (gives 14 days of paid-tier behavior) or use `Account → Dev override → Standard tier` for installs with a pilot agreement.
+
 # TalentTrack v3.84.1 — Custom CSS full-stylesheet round-trip for designer hand-off
 
 > Renumbered from v3.83.0 in PR after the parallel i18n bundle claimed v3.83.0 and v3.84.0 mid-CI. Code unchanged.

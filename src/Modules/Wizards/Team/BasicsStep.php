@@ -13,8 +13,16 @@ final class BasicsStep implements WizardStepInterface {
 
     public function render( array $state ): void {
         global $wpdb;
+        // tt_lookups uses HARD delete (handle_delete_lookup runs $wpdb->delete).
+        // The previous query carried an `AND archived_at IS NULL` clause but
+        // tt_lookups has no archived_at column — neither migration 0001 (the
+        // table create) nor 0010 (the archive-support migration that added
+        // the column to tt_players / tt_teams / etc.) provisioned it on
+        // tt_lookups. The bad WHERE made the entire query fail with
+        // "Unknown column 'archived_at'" so the dropdown rendered empty for
+        // every install since the wizard shipped.
         $age_groups = $wpdb->get_results( $wpdb->prepare(
-            "SELECT name FROM {$wpdb->prefix}tt_lookups WHERE lookup_type = %s AND archived_at IS NULL AND club_id = %d ORDER BY sort_order, name",
+            "SELECT name FROM {$wpdb->prefix}tt_lookups WHERE lookup_type = %s AND club_id = %d ORDER BY sort_order, name",
             'age_group', CurrentClub::id()
         ) );
 

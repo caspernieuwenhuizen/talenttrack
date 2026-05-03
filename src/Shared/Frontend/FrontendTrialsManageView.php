@@ -74,6 +74,10 @@ class FrontendTrialsManageView extends FrontendViewBase {
                 ] );
                 if ( $ok ) {
                     $player_id = (int) $wpdb->insert_id;
+                    // Auto-tag demo-on rows — mirror of PlayersPage v3.76.2.
+                    if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
+                        \TT\Modules\DemoData\DemoMode::tagIfActive( 'player', $player_id );
+                    }
                 }
             }
         }

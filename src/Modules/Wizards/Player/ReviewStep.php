@@ -76,6 +76,14 @@ final class ReviewStep implements WizardStepInterface {
             return new \WP_Error( 'db_error', __( 'Could not create the player record.', 'talenttrack' ) );
         }
         $player_id = (int) $wpdb->insert_id;
+        // Auto-tag demo-on rows so they're visible in the players list
+        // (apply_demo_scope filters to demo-tagged rows when DemoMode::ON).
+        // Mirror of the wp-admin handler in PlayersPage::handle_save (v3.76.2).
+        // Without this, players created via the wizard while in demo mode
+        // disappear from the list immediately on save.
+        if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
+            \TT\Modules\DemoData\DemoMode::tagIfActive( 'player', $player_id );
+        }
 
         if ( $path === 'trial' && class_exists( '\\TT\\Modules\\Trials\\Repositories\\TrialCasesRepository' ) ) {
             $track_id = (int) ( $state['trial_track_id'] ?? 0 );
