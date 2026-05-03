@@ -442,15 +442,16 @@ class PeoplePage {
 
     public static function roleLabel( string $role ): string {
         $map = [
-            'coach'           => __( 'Coach', 'talenttrack' ),
-            'assistant_coach' => __( 'Assistant coach', 'talenttrack' ),
-            'head_coach'      => __( 'Head coach', 'talenttrack' ),
-            'manager'         => __( 'Manager', 'talenttrack' ),
-            'staff'           => __( 'Staff', 'talenttrack' ),
-            'physio'          => __( 'Physio', 'talenttrack' ),
-            'scout'           => __( 'Scout', 'talenttrack' ),
-            'parent'          => __( 'Parent', 'talenttrack' ),
-            'other'           => __( 'Other', 'talenttrack' ),
+            'coach'               => __( 'Coach', 'talenttrack' ),
+            'assistant_coach'     => __( 'Assistant coach', 'talenttrack' ),
+            'head_coach'          => __( 'Head coach', 'talenttrack' ),
+            'manager'             => __( 'Manager', 'talenttrack' ),
+            'head_of_development' => __( 'Head of Development', 'talenttrack' ),
+            'staff'               => __( 'Staff', 'talenttrack' ),
+            'physio'              => __( 'Physio', 'talenttrack' ),
+            'scout'               => __( 'Scout', 'talenttrack' ),
+            'parent'              => __( 'Parent', 'talenttrack' ),
+            'other'               => __( 'Other', 'talenttrack' ),
         ];
         return $map[ $role ] ?? ucwords( str_replace( '_', ' ', $role ) );
     }

@@ -1397,16 +1397,28 @@ class Activator {
     }
 
     /**
-     * The authoritative definition of the 5 system functional roles and
+     * The authoritative definition of the 6 system functional roles and
      * their default 1-to-1 mapping to authorization roles. Editable in the
      * admin UI (TalentTrack → Functional Roles) after activation.
      *
-     * Mapping default per Sprint 1G design:
-     *   head_coach      → [head_coach]
-     *   assistant_coach → [assistant_coach]
-     *   manager         → [manager]
-     *   physio          → [physio]
-     *   other           → [team_member]   (new minimal read-only auth role)
+     * Mapping default per Sprint 1G design + v3.84.2 HoD addition:
+     *   head_coach           → [head_coach]
+     *   assistant_coach      → [assistant_coach]
+     *   manager              → [manager]
+     *   physio               → [physio]
+     *   head_of_development  → [head_of_development]   (v3.84.2)
+     *   other                → [team_member]
+     *
+     * v3.84.2 — head_of_development was missing from the seed even though
+     * the matching auth role has shipped since v1. Operator hiring an
+     * HoD couldn't pick the matching primary identity in the People
+     * dropdown or the Functional Roles assignment surface. The role is
+     * academy-wide rather than team-scoped, so it doesn't *require* a
+     * tt_team_people row to grant its caps; the matching WordPress
+     * tt_head_dev role carries the global permissions. Listing it here
+     * makes the dropdowns consistent. seedFunctionalRolesIfEmpty is
+     * idempotent + key-based, so existing installs pick up the row on
+     * their next activation/migration.
      *
      * @return array<int, array{key:string, label:string, description:string, sort_order:int, maps_to:string[]}>
      */
@@ -1439,6 +1451,13 @@ class Activator {
                 'description' => 'Medical / physical support staff attached to a team.',
                 'sort_order'  => 40,
                 'maps_to'     => [ 'physio' ],
+            ],
+            [
+                'key'         => 'head_of_development',
+                'label'       => 'Head of Development',
+                'description' => 'Academy-wide development lead. Shapes methodology, reviews evaluations, oversees PDP cycles. Not tied to a single team.',
+                'sort_order'  => 45,
+                'maps_to'     => [ 'head_of_development' ],
             ],
             [
                 'key'         => 'other',

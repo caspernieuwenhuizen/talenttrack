@@ -29,6 +29,11 @@ class PeopleRepository {
         'coach',
         'assistant_coach',
         'manager',
+        // v3.84.2 — head_of_development was missing from the People type
+        // dropdown even though the auth-role seed has had it since v1.
+        // An academy hiring an HoD couldn't pick the matching primary
+        // identity type without falling back to 'staff' or 'other'.
+        'head_of_development',
         'staff',
         'physio',
         'scout',

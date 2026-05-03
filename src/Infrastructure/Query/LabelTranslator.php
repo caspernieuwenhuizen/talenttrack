@@ -64,15 +64,16 @@ class LabelTranslator {
      */
     public static function roleType( string $code ): string {
         switch ( strtolower( $code ) ) {
-            case 'coach':           return __( 'Coach', 'talenttrack' );
-            case 'assistant_coach': return __( 'Assistant coach', 'talenttrack' );
-            case 'manager':         return __( 'Team manager', 'talenttrack' );
-            case 'staff':           return __( 'Staff', 'talenttrack' );
-            case 'physio':          return __( 'Physio', 'talenttrack' );
-            case 'scout':           return __( 'Scout', 'talenttrack' );
-            case 'parent':          return __( 'Parent', 'talenttrack' );
-            case 'other':           return __( 'Other', 'talenttrack' );
-            default:                return self::humanise( $code );
+            case 'coach':               return __( 'Coach', 'talenttrack' );
+            case 'assistant_coach':     return __( 'Assistant coach', 'talenttrack' );
+            case 'manager':             return __( 'Team manager', 'talenttrack' );
+            case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
+            case 'staff':               return __( 'Staff', 'talenttrack' );
+            case 'physio':              return __( 'Physio', 'talenttrack' );
+            case 'scout':               return __( 'Scout', 'talenttrack' );
+            case 'parent':              return __( 'Parent', 'talenttrack' );
+            case 'other':               return __( 'Other', 'talenttrack' );
+            default:                    return self::humanise( $code );
         }
     }
 
@@ -118,13 +119,14 @@ class LabelTranslator {
      */
     public static function functionalRoleLabel( string $key ): ?string {
         switch ( strtolower( $key ) ) {
-            case 'head_coach':      return __( 'Head Coach', 'talenttrack' );
-            case 'assistant_coach': return __( 'Assistant Coach', 'talenttrack' );
-            case 'manager':         return __( 'Manager', 'talenttrack' );
-            case 'physio':          return __( 'Physio', 'talenttrack' );
-            case 'mentor':          return __( 'Mentor', 'talenttrack' );
-            case 'other':           return __( 'Other', 'talenttrack' );
-            default:                return null;
+            case 'head_coach':          return __( 'Head Coach', 'talenttrack' );
+            case 'assistant_coach':     return __( 'Assistant Coach', 'talenttrack' );
+            case 'manager':             return __( 'Manager', 'talenttrack' );
+            case 'physio':              return __( 'Physio', 'talenttrack' );
+            case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
+            case 'mentor':              return __( 'Mentor', 'talenttrack' );
+            case 'other':               return __( 'Other', 'talenttrack' );
+            default:                    return null;
         }
     }
 
