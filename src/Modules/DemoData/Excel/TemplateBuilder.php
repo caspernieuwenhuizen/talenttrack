@@ -104,39 +104,44 @@ final class TemplateBuilder {
         $sheet->setTitle( '_README' );
         $sheet->getTabColor()->setRGB( 'FFC000' ); // amber, distinct from data tabs
 
+        // Sheet identifier tokens (Sessions, Session_Attendance, Teams, etc.)
+        // are English literals because the importer reads sheet names exactly
+        // — translating those tokens in the instructions would mislead users
+        // into renaming sheets and breaking the import. The surrounding prose
+        // and section headings translate via __().
         $rows = [
-            [ 'TalentTrack — demo data template' ],
+            [ __( 'TalentTrack — demo data template', 'talenttrack' ) ],
             [ '' ],
-            [ 'How to fill this workbook' ],
-            [ 'Each green tab is a master entity (Teams, People, Players, Trial cases). Each blue tab is a transactional record (Sessions, Attendance, Evaluations, Goals, Player journey). Purple = settings, grey = reference.' ],
+            [ __( 'How to fill this workbook', 'talenttrack' ) ],
+            [ __( 'Each green tab is a master entity (Teams, People, Players, Trial cases). Each blue tab is a transactional record (Sessions, Attendance, Evaluations, Goals, Player journey). Purple = settings, grey = reference.', 'talenttrack' ) ],
             [ '' ],
-            [ 'auto_key (the first column on every entity tab)' ],
-            [ 'Type a short, unique label (e.g. "ABC", "U12_RED", "MARTIN") in the auto_key cell. Other tabs reference back to it via team_key / player_key / session_key fields. The importer maps your auto_key to the inserted row id, so cross-sheet links resolve at import time without you needing the database id.' ],
-            [ 'Leave auto_key blank if you do not need to reference the row from another sheet — but most rows are referenced somewhere, so filling it in is the safe default.' ],
+            [ __( 'auto_key (the first column on every entity tab)', 'talenttrack' ) ],
+            [ __( 'Type a short, unique label (e.g. "ABC", "U12_RED", "MARTIN") in the auto_key cell. Other tabs reference back to it via team_key / player_key / session_key fields. The importer maps your auto_key to the inserted row id, so cross-sheet links resolve at import time without you needing the database id.', 'talenttrack' ) ],
+            [ __( 'Leave auto_key blank if you do not need to reference the row from another sheet — but most rows are referenced somewhere, so filling it in is the safe default.', 'talenttrack' ) ],
             [ '' ],
-            [ 'Foreign-key columns (e.g. team_key, player_key)' ],
-            [ 'Type the auto_key value of the row you want to link to. Example: a Players row with team_key="ABC" links to the Teams row whose auto_key is "ABC". The importer rejects the workbook if a foreign-key value points to a row that does not exist.' ],
+            [ __( 'Foreign-key columns (e.g. team_key, player_key)', 'talenttrack' ) ],
+            [ __( 'Type the auto_key value of the row you want to link to. Example: a Players row with team_key="ABC" links to the Teams row whose auto_key is "ABC". The importer rejects the workbook if a foreign-key value points to a row that does not exist.', 'talenttrack' ) ],
             [ '' ],
-            [ 'Importable vs. documentation-only sheets' ],
-            [ 'The importer (v1.5) consumes: Teams, People, Players, Trial_Cases, Sessions, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey, Generation_Settings.' ],
-            [ 'Reference tabs (Eval_Categories, Category_Weights, _Lookups) are documentation-only. Configure those via the wp-admin Configuration screens. They are included here so you can see what categories / weights / lookups your imported data will key into.' ],
+            [ __( 'Importable vs. documentation-only sheets', 'talenttrack' ) ],
+            [ __( 'The importer (v1.5) consumes: Teams, People, Players, Trial_Cases, Sessions, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey, Generation_Settings.', 'talenttrack' ) ],
+            [ __( 'Reference tabs (Eval_Categories, Category_Weights, _Lookups) are documentation-only. Configure those via the wp-admin Configuration screens. They are included here so you can see what categories / weights / lookups your imported data will key into.', 'talenttrack' ) ],
             [ '' ],
-            [ 'Required vs. optional columns' ],
-            [ 'Every column header carries a label. Required columns are typically the human-name fields (first_name / last_name / title) plus the foreign keys that establish relationships. The importer will tell you which row + column failed validation when you upload.' ],
+            [ __( 'Required vs. optional columns', 'talenttrack' ) ],
+            [ __( 'Every column header carries a label. Required columns are typically the human-name fields (first_name / last_name / title) plus the foreign keys that establish relationships. The importer will tell you which row + column failed validation when you upload.', 'talenttrack' ) ],
             [ '' ],
-            [ 'Dates' ],
-            [ 'YYYY-MM-DD only. Excel sometimes auto-formats dates to your local format on cell entry — set the column format to "Text" first if you see weird date values after upload.' ],
+            [ __( 'Dates', 'talenttrack' ) ],
+            [ __( 'YYYY-MM-DD only. Excel sometimes auto-formats dates to your local format on cell entry — set the column format to "Text" first if you see weird date values after upload.', 'talenttrack' ) ],
             [ '' ],
-            [ 'Recommended workflow' ],
-            [ '1. Fill Teams first. Pick auto_key labels that mean something to you ("U12_RED", "U14_GREEN").' ],
-            [ '2. Fill People next, referencing Teams via team_key on staff rows.' ],
-            [ '3. Fill Players, referencing Teams via team_key.' ],
-            [ '4. Add Sessions for each team (they reference Teams via team_key).' ],
-            [ '5. Add Session_Attendance rows for who showed up at each session.' ],
-            [ '6. Add Evaluations + Evaluation_Ratings, referencing Players + Sessions.' ],
-            [ '7. Add Goals + Player_Journey events as needed.' ],
+            [ __( 'Recommended workflow', 'talenttrack' ) ],
+            [ __( '1. Fill Teams first. Pick auto_key labels that mean something to you ("U12_RED", "U14_GREEN").', 'talenttrack' ) ],
+            [ __( '2. Fill People next, referencing Teams via team_key on staff rows.', 'talenttrack' ) ],
+            [ __( '3. Fill Players, referencing Teams via team_key.', 'talenttrack' ) ],
+            [ __( '4. Add Sessions for each team (they reference Teams via team_key).', 'talenttrack' ) ],
+            [ __( '5. Add Session_Attendance rows for who showed up at each session.', 'talenttrack' ) ],
+            [ __( '6. Add Evaluations + Evaluation_Ratings, referencing Players + Sessions.', 'talenttrack' ) ],
+            [ __( '7. Add Goals + Player_Journey events as needed.', 'talenttrack' ) ],
             [ '' ],
-            [ 'Save as .xlsx and upload via TalentTrack → Configuration → Demo data → Step 0 — Source → Excel upload.' ],
+            [ __( 'Save as .xlsx and upload via TalentTrack → Configuration → Demo data → Step 0 — Source → Excel upload.', 'talenttrack' ) ],
         ];
 
         $row_index = 1;

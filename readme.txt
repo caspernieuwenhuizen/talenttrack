@@ -4,13 +4,23 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.82.0
+Stable tag: 3.83.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.83.0 — i18n audit (May 2026) Bundles 5 + 6 — eval-category render-site cleanup + Excel template instructions =
+
+Third fix-PR off the May 2026 i18n audit. Two small bundles shipped together.
+
+* **Bundle 5** — Five eval-category render sites were calling `echo esc_html( $cat->label )` directly, bypassing the `EvalCategoriesRepository::displayLabel()` translator (which routes through `__()`). Fixed in `Wizards\Evaluation\HybridDeepRateStep`, `Wizards\Evaluation\RateActorsStep`, `FrontendEvalCategoriesView` (header + list), `FrontendReportDetailView`. The seeded labels (4 mains + 21 subcategories) all already exist as msgids in the .po, so the wiring change is enough — no schema change needed for system rows. The audit's bigger schema-change vision (a `meta.translations` column on `tt_eval_categories` for admin-created custom labels) is deferred — clubs can type Dutch directly in the form for now.
+* **Bundle 6** — `TemplateBuilder.php` README sheet content (32 lines of demo-data import instructions) was raw English, never wrapped in `__()`. Wrapped each line. Sheet name tokens (Sessions, Session_Attendance, Teams, etc.) inside the prose stay English literals because the importer reads sheet names exactly — translating those tokens would mislead users into renaming sheets and breaking the import. The actual sheet rename to "Activities" stays deferred.
+* **TRANSLATIONS:** ~25 new NL msgids covering the README content (workflow steps, column-header guidance, date-format note).
+
+Audit progress: 7/10 bundles shipped, ~125 of ~150 surfaces fixed. Remaining: Bundle 8 (JS error-fallback sweep), Bundle 9 (methodology task arrays research), Bundle 10 (deferred to multi-language epic #0010).
 
 = 3.82.0 — i18n audit (May 2026) Bundles 3 + 4 + 7 — stored content Dutch backfill =
 

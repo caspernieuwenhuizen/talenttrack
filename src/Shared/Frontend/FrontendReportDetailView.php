@@ -93,7 +93,7 @@ final class FrontendReportDetailView extends FrontendViewBase {
         echo '<div style="overflow-x:auto;"><table class="tt-table" style="width:100%; background:#fff; border:1px solid #e5e7ea;"><thead><tr>';
         echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
         foreach ( $categories as $cat ) {
-            echo '<th>' . esc_html( (string) $cat->name ) . '</th>';
+            echo '<th>' . esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->name ) ) . '</th>';
         }
         echo '<th>' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';

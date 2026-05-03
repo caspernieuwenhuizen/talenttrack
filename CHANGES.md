@@ -1,3 +1,38 @@
+# TalentTrack v3.83.0 — i18n audit (May 2026) Bundles 5 + 6 — eval-category render-site cleanup + Excel template instructions
+
+Third fix-PR off the May 2026 i18n audit. Two small bundles shipped together.
+
+## Bundle 5 — eval-category render-site cleanup
+
+Five render sites were calling `echo esc_html( $cat->label )` directly, bypassing the existing `EvalCategoriesRepository::displayLabel()` translator (which routes through `__()`):
+
+- `Wizards\Evaluation\HybridDeepRateStep` — `<th>` for category in deep-rate table
+- `Wizards\Evaluation\RateActorsStep` — `<th>` for category in quick-rate table
+- `FrontendEvalCategoriesView` — edit-page header + list-view link
+- `FrontendReportDetailView` — comparison table column headers
+
+The seeded category labels (4 mains: Technical/Tactical/Physical/Mental + 21 subcategories: Short pass / Long pass / etc.) all exist as msgids in `talenttrack-nl_NL.po`, so wiring through `displayLabel()` is enough — no schema change needed for system rows.
+
+The audit's bigger schema-change vision (a `meta.translations` column on `tt_eval_categories` for admin-created custom labels) is **deferred**. Clubs adding custom categories can type Dutch directly in the form; the `displayLabel()::__()` path falls through unchanged for unknown msgids. Adding a translations column to support multi-locale custom labels is its own ship.
+
+## Bundle 6 — Excel demo-data template instructions
+
+`TemplateBuilder.php` README sheet content (~32 lines: workflow steps, column-header guidance, date-format note, foreign-key explanation) was raw English literals never wrapped in `__()`. Wrapped each line.
+
+**Sheet identifier tokens** (Sessions, Session_Attendance, Teams, Players, Trial_Cases, Eval_Categories, etc.) inside the prose stay English literals. The Excel importer reads sheet names exactly — translating those tokens would mislead users into renaming sheets and break the import. The actual sheet rename to "Activities" / "Activity_Attendance" is deferred (separate breaking change requiring importer back-compat).
+
+## Translations
+
+~25 new NL msgids for the Excel README.
+
+## Audit progress
+
+7/10 bundles shipped. ~125 of ~150 surfaces fixed. Remaining:
+
+- Bundle 8 — JS error-fallback sweep
+- Bundle 9 — methodology task arrays research
+- Bundle 10 — letter templates DE/FR/ES/IT/PT (deferred to #0010)
+
 # TalentTrack v3.82.0 — i18n audit (May 2026) Bundles 3 + 4 + 7 — stored content Dutch backfill
 
 Second fix-PR off the May 2026 i18n audit. Bundles 3 + 4 + 7 bundle together because they're all "stored English text gets a render-time Dutch translation" — same pattern, three different stores.
