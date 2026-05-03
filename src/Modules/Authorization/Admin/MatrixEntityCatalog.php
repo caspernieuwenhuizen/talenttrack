@@ -217,6 +217,44 @@ final class MatrixEntityCatalog {
         return $out;
     }
 
+    /**
+     * Locale-aware group label for an entity, derived from the
+     * frontend tile registry: which tile-group does an entity sit
+     * under on the persona dashboard? Picks the first matching tile,
+     * preferring a tile that *declares* `entity` directly over a
+     * tile that maps to the entity through `cap` → `LegacyCapMapper`.
+     *
+     * Returns null when no tile or admin surface consumes this
+     * entity — caller falls back to a module-class-based bucket.
+     */
+    public static function groupForEntity( string $entity ): ?string {
+        if ( ! class_exists( '\\TT\\Shared\\Tiles\\TileRegistry' ) ) return null;
+
+        // Pass 1 — preferred: a tile that explicitly declares this entity.
+        foreach ( TileRegistry::allRegistered() as $tile ) {
+            if ( ( $tile['entity'] ?? '' ) === $entity ) {
+                $group = (string) ( $tile['group'] ?? '' );
+                if ( $group !== '' ) return $group;
+            }
+        }
+
+        // Pass 2 — fallback: a tile whose `cap` maps to this entity.
+        if ( class_exists( '\\TT\\Modules\\Authorization\\LegacyCapMapper' ) ) {
+            $caps = array_flip( LegacyCapMapper::capsForEntity( $entity ) );
+            if ( ! empty( $caps ) ) {
+                foreach ( TileRegistry::allRegistered() as $tile ) {
+                    $cap = (string) ( $tile['cap'] ?? '' );
+                    if ( $cap !== '' && isset( $caps[ $cap ] ) ) {
+                        $group = (string) ( $tile['group'] ?? '' );
+                        if ( $group !== '' ) return $group;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     private static function resolveTileLabel( array $tile ): string {
         if ( ! empty( $tile['label'] ) ) return (string) $tile['label'];
         $labels = $tile['labels'] ?? [];

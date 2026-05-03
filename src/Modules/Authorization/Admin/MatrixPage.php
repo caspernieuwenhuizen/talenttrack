@@ -502,14 +502,23 @@ class MatrixPage {
     }
 
     /**
-     * Group the flat entity list under category headers so the matrix
-     * reads top-to-bottom by domain rather than alphabetically.
+     * Group the flat entity list under category headers.
      *
-     * Input shape: [ ['entity' => 'player', 'module_class' => 'TT\\Modules\\Players\\PlayersModule'], … ]
-     * Output:      [ 'Players' => [ … rows … ], 'Teams' => [ … ], … ]
+     * v3.87.0 — primary grouping is now derived from the frontend
+     * tile registry: an entity lives under whatever group its
+     * consuming tile sits in on the persona dashboard. This keeps
+     * the matrix admin and the frontend dashboard aligned in both
+     * structure AND locale, since tile groups are registered with
+     * `__()` and resolve to the operator's language at render time.
      *
-     * Unmapped modules fall under "Other" so the grid can never silently
-     * drop a row when a new module ships before the map is updated.
+     * Module-class fallback (the v3.0 behaviour) still kicks in for
+     * entities that no tile consumes — typical for back-office-only
+     * surfaces like `authorization_changelog` or `impersonation_log`.
+     *
+     * Group order respects whichever group label appears first when
+     * walking entities, then trails with the module-fallback "Other"
+     * bucket. This means the order matches the dashboard's natural
+     * reading order without an extra hard-coded list to maintain.
      *
      * @param array<int, array{entity:string, module_class:string}> $entities
      * @return array<string, array<int, array{entity:string, module_class:string}>>
@@ -538,22 +547,20 @@ class MatrixPage {
             'BackupModule'          => __( 'Administration', 'talenttrack' ),
             'DemoDataModule'        => __( 'Administration', 'talenttrack' ),
         ];
-        $category_order = [
-            __( 'Players', 'talenttrack' ),
-            __( 'Teams', 'talenttrack' ),
-            __( 'Activities', 'talenttrack' ),
-            __( 'Evaluations', 'talenttrack' ),
-            __( 'Development', 'talenttrack' ),
-            __( 'Insights', 'talenttrack' ),
-            __( 'Operations', 'talenttrack' ),
-            __( 'Administration', 'talenttrack' ),
-            __( 'Other', 'talenttrack' ),
-        ];
 
-        $buckets = [];
+        $group_order = [];
+        $buckets     = [];
         foreach ( $entities as $row ) {
-            $short = self::shortModule( (string) $row['module_class'] );
-            $cat   = $module_to_category[ $short ] ?? __( 'Other', 'talenttrack' );
+            $entity = (string) ( $row['entity'] ?? '' );
+            $cat    = MatrixEntityCatalog::groupForEntity( $entity );
+            if ( $cat === null || $cat === '' ) {
+                $short = self::shortModule( (string) $row['module_class'] );
+                $cat   = $module_to_category[ $short ] ?? __( 'Other', 'talenttrack' );
+            }
+            if ( ! isset( $buckets[ $cat ] ) ) {
+                $group_order[]   = $cat;
+                $buckets[ $cat ] = [];
+            }
             $buckets[ $cat ][] = $row;
         }
         foreach ( $buckets as &$rows ) {
@@ -561,15 +568,18 @@ class MatrixPage {
         }
         unset( $rows );
 
-        $ordered = [];
-        foreach ( $category_order as $cat ) {
-            if ( isset( $buckets[ $cat ] ) ) {
-                $ordered[ $cat ] = $buckets[ $cat ];
-                unset( $buckets[ $cat ] );
-            }
+        // Honour the order in which groups first appeared. Push the
+        // "Other" bucket to the end if it exists so back-office
+        // entities don't shove user-facing groups around.
+        $other = __( 'Other', 'talenttrack' );
+        if ( isset( $buckets[ $other ] ) ) {
+            $group_order = array_values( array_filter( $group_order, static fn( $g ) => $g !== $other ) );
+            $group_order[] = $other;
         }
-        foreach ( $buckets as $cat => $rows ) {
-            $ordered[ $cat ] = $rows;
+
+        $ordered = [];
+        foreach ( $group_order as $cat ) {
+            $ordered[ $cat ] = $buckets[ $cat ];
         }
         return $ordered;
     }

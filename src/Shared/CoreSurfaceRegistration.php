@@ -115,6 +115,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PLAYERS,
             'view_slug'    => 'overview',
+            'entity'       => 'my_card',
             'group'        => $me_group,
             'kind'         => 'work',
             'order'        => 10,
@@ -127,6 +128,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_TEAMS,
             'view_slug'    => 'my-team',
+            'entity'       => 'my_team',
             'group'        => $me_group,
             'kind'         => 'work',
             'order'        => 20,
@@ -139,6 +141,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_EVALUATIONS,
             'view_slug'    => 'my-evaluations',
+            'entity'       => 'my_evaluations',
             'group'        => $me_group,
             'kind'         => 'work',
             'order'        => 30,
@@ -151,6 +154,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_ACTIVITIES,
             'view_slug'    => 'my-activities',
+            'entity'       => 'my_activities',
             'group'        => $me_group,
             'kind'         => 'work',
             'order'        => 40,
@@ -163,6 +167,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_GOALS,
             'view_slug'    => 'my-goals',
+            'entity'       => 'my_goals',
             'group'        => $me_group,
             'kind'         => 'work',
             'order'        => 50,
@@ -175,6 +180,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PDP,
             'view_slug'    => 'my-pdp',
+            'entity'       => 'pdp_file',
             'group'        => $me_group,
             'kind'         => 'work',
             'order'        => 60,
@@ -196,6 +202,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_JOURNEY,
             'view_slug'    => 'my-journey',
+            'entity'       => 'my_journey',
             'group'        => $me_group,
             'kind'         => 'work',
             'order'        => 5,
@@ -211,6 +218,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_WORKFLOW,
             'view_slug'    => 'my-tasks',
+            'entity'       => 'workflow_tasks',
             'group'        => $tasks_group,
             'kind'         => 'work',
             'order'        => 10,
@@ -241,6 +249,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_WORKFLOW,
             'view_slug'    => 'tasks-dashboard',
+            'entity'       => 'tasks_dashboard',
             'group'        => $tasks_group,
             'kind'         => 'work',
             'order'        => 20,
@@ -253,6 +262,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_WORKFLOW,
             'view_slug'    => 'workflow-config',
+            'entity'       => 'workflow_templates',
             'group'        => $tasks_group,
             'kind'         => 'setup',
             'order'        => 30,
@@ -269,6 +279,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_TEAMS,
             'view_slug'    => 'teams',
+            'entity'       => 'team',
             'group'        => $people_group,
             'kind'         => 'work',
             'order'        => 10,
@@ -281,6 +292,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PLAYERS,
             'view_slug'    => 'players',
+            'entity'       => 'players',
             'group'        => $people_group,
             'kind'         => 'work',
             'order'        => 20,
@@ -298,6 +310,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PEOPLE,
             'view_slug'    => 'people',
+            'entity'       => 'people',
             'group'        => $people_group,
             'kind'         => 'work',
             'order'        => 30,
@@ -314,6 +327,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_AUTHORIZATION,
             'view_slug'    => 'functional-roles',
+            'entity'       => 'functional_role_assignments',
             'group'        => $people_group,
             'kind'         => 'setup',
             'order'        => 40,
@@ -338,6 +352,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_EVALUATIONS,
             'view_slug'    => 'evaluations',
+            'entity'       => 'evaluations',
             'group'        => $performance_group,
             'kind'         => 'work',
             'order'        => 10,
@@ -350,6 +365,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_ACTIVITIES,
             'view_slug'    => 'activities',
+            'entity'       => 'activities',
             'group'        => $performance_group,
             'kind'         => 'work',
             'order'        => 20,
@@ -362,6 +378,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_GOALS,
             'view_slug'    => 'goals',
+            'entity'       => 'goals',
             'group'        => $performance_group,
             'kind'         => 'work',
             'order'        => 30,
@@ -374,6 +391,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PDP,
             'view_slug'    => 'pdp',
+            'entity'       => 'pdp_file',
             'group'        => $development_group,
             'kind'         => 'work',
             'order'        => 40,
@@ -388,6 +406,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PDP,
             'view_slug'    => 'pdp-planning',
+            'entity'       => 'pdp_planning',
             'group'        => $development_group,
             'kind'         => 'work',
             'order'        => 41,
@@ -404,6 +423,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PLAYERS,
             'view_slug'    => 'player-status-methodology',
+            'entity'       => 'player_status_methodology',
             'group'        => $performance_group,
             'kind'         => 'setup',
             'order'        => 60,
@@ -417,6 +437,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_TEAMDEV,
             'view_slug'    => 'team-chemistry',
+            'entity'       => 'team_chemistry',
             'group'        => $performance_group,
             'kind'         => 'work',
             'order'        => 50,
@@ -431,6 +452,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_STATS,
             'view_slug'    => 'podium',
+            'entity'       => 'reports',
             'group'        => $performance_group,
             'kind'         => 'work',
             'order'        => 60,
@@ -445,6 +467,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_METHODOLOGY,
             'view_slug'    => 'methodology',
+            'entity'       => 'methodology',
             'group'        => __( 'Reference', 'talenttrack' ),
             'kind'         => 'work',
             'order'        => 10,
@@ -460,6 +483,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_TRIALS,
             'view_slug'    => 'trials',
+            'entity'       => 'trial_cases',
             'group'        => $trials_group,
             'kind'         => 'work',
             'order'        => 10,
@@ -472,6 +496,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_TRIALS,
             'view_slug'    => 'trial-tracks-editor',
+            'entity'       => 'trial_tracks',
             'group'        => $trials_group,
             'kind'         => 'setup',
             'order'        => 20,
@@ -484,6 +509,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_TRIALS,
             'view_slug'    => 'trial-letter-templates-editor',
+            'entity'       => 'trial_letter_templates',
             'group'        => $trials_group,
             'kind'         => 'setup',
             'order'        => 30,
@@ -504,6 +530,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_STATS,
             'view_slug'    => 'rate-cards',
+            'entity'       => 'rate_cards',
             'group'        => $analytics_group,
             'kind'         => 'work',
             'order'        => 10,
@@ -516,6 +543,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_STATS,
             'view_slug'    => 'compare',
+            'entity'       => 'compare',
             'group'        => $analytics_group,
             'kind'         => 'work',
             'order'        => 20,
@@ -532,6 +560,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_REPORTS,
             'view_slug'    => 'reports',
+            'entity'       => 'reports',
             'group'        => $analytics_group,
             'kind'         => 'work',
             'order'        => 25,
@@ -544,6 +573,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_STATS,
             'view_slug'    => 'usage-stats',
+            'entity'       => 'usage_stats',
             'group'        => $analytics_group,
             'kind'         => 'work',
             'order'        => 30,
@@ -556,6 +586,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_JOURNEY,
             'view_slug'    => 'cohort-transitions',
+            'entity'       => 'cohort_transitions',
             'group'        => $analytics_group,
             'kind'         => 'work',
             'order'        => 40,
@@ -576,6 +607,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_DEVELOPMENT,
             'view_slug'    => 'submit-idea',
+            'entity'       => 'dev_ideas',
             'group'        => $dev_group,
             'kind'         => 'setup',
             'order'        => 10,
@@ -588,6 +620,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_DEVELOPMENT,
             'view_slug'    => 'ideas-board',
+            'entity'       => 'dev_ideas',
             'group'        => $dev_group,
             'kind'         => 'setup',
             'order'        => 20,
@@ -600,6 +633,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_DEVELOPMENT,
             'view_slug'    => 'ideas-approval',
+            'entity'       => 'dev_ideas',
             'group'        => $dev_group,
             'kind'         => 'setup',
             'order'        => 30,
@@ -612,6 +646,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_DEVELOPMENT,
             'view_slug'    => 'dev-tracks',
+            'entity'       => 'dev_ideas',
             'group'        => $dev_group,
             'kind'         => 'setup',
             'order'        => 40,
@@ -627,6 +662,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_CONFIG,
             'view_slug'    => 'configuration',
+            'entity'       => 'settings',
             'group'        => $admin_group,
             'kind'         => 'setup',
             'order'        => 10,
@@ -644,6 +680,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_CONFIG,
             'view_slug'    => 'migrations',
+            'entity'       => 'migrations',
             'group'        => $admin_group,
             'kind'         => 'setup',
             'order'        => 20,
@@ -658,6 +695,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_WIZARDS,
             'view_slug'    => 'wizards-admin',
+            'entity'       => 'setup_wizard',
             'group'        => $admin_group,
             'kind'         => 'setup',
             'order'        => 25,
@@ -675,6 +713,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => null,
             'view_slug'    => 'audit-log',
+            'entity'       => 'audit_log',
             'group'        => $admin_group,
             'kind'         => 'setup',
             'order'        => 30,
@@ -688,6 +727,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_INVITATIONS,
             'view_slug'    => 'invitations-config',
+            'entity'       => 'invitations_config',
             'group'        => $admin_group,
             'kind'         => 'setup',
             'order'        => 40,
@@ -723,6 +763,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_STAFF_DEV,
             'view_slug'    => 'my-staff-pdp',
+            'entity'       => 'my_staff_pdp',
             'group'        => $staff_dev_group,
             'kind'         => 'work',
             'order'        => 10,
@@ -738,6 +779,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_STAFF_DEV,
             'view_slug'    => 'my-staff-goals',
+            'entity'       => 'my_staff_goals',
             'group'        => $staff_dev_group,
             'kind'         => 'work',
             'order'        => 20,
@@ -750,6 +792,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_STAFF_DEV,
             'view_slug'    => 'my-staff-evaluations',
+            'entity'       => 'my_staff_evaluations',
             'group'        => $staff_dev_group,
             'kind'         => 'work',
             'order'        => 30,
@@ -762,6 +805,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_STAFF_DEV,
             'view_slug'    => 'my-staff-certifications',
+            'entity'       => 'my_staff_certifications',
             'group'        => $staff_dev_group,
             'kind'         => 'work',
             'order'        => 40,
@@ -774,6 +818,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_STAFF_DEV,
             'view_slug'    => 'staff-overview',
+            'entity'       => 'staff_overview',
             'group'        => $staff_dev_group,
             'kind'         => 'admin',
             'order'        => 50,

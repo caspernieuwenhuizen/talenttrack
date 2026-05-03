@@ -238,8 +238,16 @@ final class TileRegistry {
     /**
      * Visibility rules per tile:
      *   1. `module_class` (when set) must point at an enabled module.
-     *   2. `cap` (string) must pass `user_can($user_id, $cap)` if set.
-     *   3. `cap_callback` (callable) must return true if set.
+     *   2. v3.87.0 — when the tile declares `entity` AND the matrix is
+     *      active, the matrix is the SOLE source of truth for visibility.
+     *      `cap` and `cap_callback` are skipped (they would be redundant
+     *      framings of the same authorisation question). When the matrix
+     *      is dormant, this rung is a no-op and the cap/callback rungs
+     *      decide.
+     *   3. `cap` (string) must pass `user_can($user_id, $cap)` if set
+     *      (only consulted when no matrix entity gate applies).
+     *   4. `cap_callback` (callable) must return true if set
+     *      (only consulted when no matrix entity gate applies).
      *
      * Persona-driven `__hidden__` resolution is handled by the caller
      * after this gate, since it depends on the resolved label.
@@ -249,17 +257,33 @@ final class TileRegistry {
         if ( $owner !== null && $owner !== '' ) {
             if ( ! ModuleRegistry::isEnabled( (string) $owner ) ) return false;
         }
-        if ( ! empty( $tile['cap'] ) && ! self::userMayAccess( $user_id, (string) $tile['cap'] ) ) {
-            return false;
+
+        $entity        = (string) ( $tile['entity'] ?? '' );
+        $matrix_gated  = $entity !== '' && self::matrixActive();
+        if ( $matrix_gated ) {
+            if ( ! self::matrixAllowsRead( $user_id, $entity ) ) {
+                return false;
+            }
+            // Matrix granted access — the cap / cap_callback rungs
+            // are skipped on purpose. They exist to express the same
+            // question in WP-cap language; with matrix-as-truth they
+            // are redundant.
+        } else {
+            if ( ! empty( $tile['cap'] ) && ! self::userMayAccess( $user_id, (string) $tile['cap'] ) ) {
+                return false;
+            }
+            $cb = $tile['cap_callback'] ?? null;
+            if ( is_callable( $cb ) && ! (bool) $cb( $user_id ) ) {
+                return false;
+            }
         }
-        $cb = $tile['cap_callback'] ?? null;
-        if ( is_callable( $cb ) && ! (bool) $cb( $user_id ) ) {
-            return false;
-        }
+
         // #0069 — persona-level hide list. Tile is reachable by cap
         // but not part of the persona's day-to-day surface. Resolves
         // every persona the user has via PersonaResolver and hides if
-        // any of them appears in `hide_for_personas`.
+        // any of them appears in `hide_for_personas`. This is a hard
+        // override that runs regardless of which gating rung above
+        // granted access.
         $hide = $tile['hide_for_personas'] ?? [];
         if ( is_array( $hide ) && ! empty( $hide ) ) {
             $personas = self::personasFor( $user_id );
@@ -268,6 +292,43 @@ final class TileRegistry {
             }
         }
         return true;
+    }
+
+    /**
+     * Cached read of `tt_authorization_active`. The flag is stable
+     * for the duration of a request, and TileRegistry::tileVisibleFor
+     * is hot — called once per registered tile per persona-dashboard
+     * render. Caching avoids re-instantiating ConfigService each call.
+     */
+    private static ?bool $matrix_active_cache = null;
+
+    private static function matrixActive(): bool {
+        if ( self::$matrix_active_cache !== null ) {
+            return self::$matrix_active_cache;
+        }
+        if ( ! class_exists( '\\TT\\Infrastructure\\Config\\ConfigService' ) ) {
+            self::$matrix_active_cache = false;
+            return false;
+        }
+        $cfg = new \TT\Infrastructure\Config\ConfigService();
+        self::$matrix_active_cache = (bool) $cfg->getBool( 'tt_authorization_active', false );
+        return self::$matrix_active_cache;
+    }
+
+    /**
+     * Matrix-driven "can this user read this entity at any scope
+     * they hold?" — mirrors the admin bypass that LegacyCapMapper
+     * applies for `tt_*` cap evaluation, so a WP administrator
+     * never gets locked out of a tile by an unintentional matrix
+     * row.
+     */
+    private static function matrixAllowsRead( int $user_id, string $entity ): bool {
+        if ( $user_id <= 0 ) return false;
+        $user = get_user_by( 'id', $user_id );
+        if ( ! ( $user instanceof \WP_User ) ) return false;
+        if ( in_array( 'administrator', (array) $user->roles, true ) ) return true;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return true;
+        return \TT\Modules\Authorization\MatrixGate::canAnyScope( $user_id, $entity, 'read' );
     }
 
     /**
