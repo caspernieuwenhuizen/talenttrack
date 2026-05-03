@@ -94,6 +94,8 @@ final class DetailsStep implements WizardStepInterface {
         return $out;
     }
 
-    public function nextStep( array $state ): ?string { return 'review'; }
+    // v3.85.3 — was 'review'; now lands on PrinciplesStep so the
+    // create flow can tag a methodology principle before save.
+    public function nextStep( array $state ): ?string { return 'principles'; }
     public function submit( array $state ) { return null; }
 }

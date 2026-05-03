@@ -33,10 +33,16 @@ final class NewActivityWizard implements WizardInterface, SupportsCancelAsDraft 
 
     /** @return array<int, \TT\Shared\Wizards\WizardStepInterface> */
     public function steps(): array {
+        // v3.85.3 — PrinciplesStep added between Details and Review.
+        // Closes the parity gap with the activity edit form, which has
+        // had the Principles practiced multiselect since v3.79.0
+        // (#0077 M2). The step is optional — operators skip by leaving
+        // the multiselect empty.
         return [
             new TeamStep(),
             new TypeStatusStep(),
             new DetailsStep(),
+            new PrinciplesStep(),
             new ReviewStep(),
         ];
     }
