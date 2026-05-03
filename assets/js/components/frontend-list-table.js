@@ -313,7 +313,7 @@
                             }
                             refresh(root);
                         } else {
-                            var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || 'Error';
+                            var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || (window.TT && TT.i18n && TT.i18n.error_generic) || 'Error.';
                             setStatus(root, 'error', msg);
                             btn.disabled = false;
                         }

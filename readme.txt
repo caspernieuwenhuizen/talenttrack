@@ -4,13 +4,22 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.83.0
+Stable tag: 3.84.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.84.0 — i18n audit (May 2026) Bundles 8 + 9 — JS error-fallback sweep + methodology research closeout =
+
+Final fix-PR off the May 2026 i18n audit.
+
+* **Bundle 8 (JS error-fallback sweep):** three JS components had live `… || 'Error'` hardcoded fallbacks not routed through `TT.i18n.error_generic`. Fixed in `assets/js/components/admin-reorder.js`, `frontend-list-table.js`, `functional-roles.js` — each now reads `TT.i18n.error_generic` (already in the `DashboardShortcode` localize bundle) before falling back. The other ~10 `cfg.foo || 'English'` patterns flagged by the audit were verified dead code on localized sites (matching i18n keys exist in their respective `wp_localize_script` calls).
+* **Bundle 9 (methodology task arrays research):** verified the `attacking_tasks` / `defending_tasks` arrays in `0018_methodology_full_content.php` are already structured as `[ 'nl' => [...], 'en' => [...] ]` MultilingualField shape — the audit's flag was a false positive. No code change needed.
+
+Audit progress: **9/10 bundles shipped, ~140 of ~150 surfaces fixed**. Bundle 10 (letter templates DE/FR/ES/IT/PT) stays deferred to multi-language epic #0010 as planned. The May 2026 i18n audit is functionally closed; what remains is the schema-change vision items deferred from Bundles 4 and 5 (a `meta.translations` column on `tt_roles` / `tt_functional_roles` / `tt_eval_categories` for admin-created custom labels) — separate ship when SaaS multi-locale becomes a real requirement.
 
 = 3.83.0 — i18n audit (May 2026) Bundles 5 + 6 — eval-category render-site cleanup + Excel template instructions =
 
