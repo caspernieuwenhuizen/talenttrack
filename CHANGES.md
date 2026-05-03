@@ -1,3 +1,54 @@
+# TalentTrack v3.82.0 — i18n audit (May 2026) Bundles 3 + 4 + 7 — stored content Dutch backfill
+
+Second fix-PR off the May 2026 i18n audit. Bundles 3 + 4 + 7 bundle together because they're all "stored English text gets a render-time Dutch translation" — same pattern, three different stores.
+
+## Bundle 3 — foundational lookup translations backfill
+
+Migration `0060_seed_lookup_translations_nl` writes `meta.translations.nl_NL.name` (and `description` where applicable) for ~30 foundational lookup rows that shipped English-only since `0001_initial_schema`:
+
+| `lookup_type` | Rows | Where it surfaces |
+|---|---|---|
+| `foot_option` | Left/Right/Both → Links/Rechts/Beide | Player profile field |
+| `age_group` | Senior → Senioren | Team form age dropdown |
+| `goal_status` | 5 names | Configuration → Lookups admin |
+| `goal_priority` | 3 names | Same |
+| `attendance_status` | 5 names | Same |
+| `eval_type` | 3 names + 3 descriptions | Eval form dropdown |
+| `cert_type` | 6 names | Staff certification register |
+| `behaviour_rating_label` | 5 descriptions | Player-status capture |
+| `potential_band` | 5 descriptions | Same |
+
+Idempotent — only writes when existing meta has no `translations.nl_NL.name` / `description` yet.
+
+## Bundle 4 — system role + functional role labels via LabelTranslator
+
+`tt_roles` and `tt_functional_roles` don't have a `meta.translations` column. Cheaper path: extend `LabelTranslator` with two nullable methods (`null` for unknown keys → caller falls back to the row's typed `label`).
+
+- **`LabelTranslator::authRoleLabel(string $key): ?string`** — covers the 9 system roles.
+- **`LabelTranslator::functionalRoleLabel(string $key): ?string`** — covers the 6 system functional roles.
+
+Render sites updated: `FrontendPeopleManageView`, `FrontendFunctionalRolesView`, `FrontendTeamsManageView`. wp-admin's `RolesPage::roleLabel()` already translated; unchanged.
+
+## Bundle 7 — trial track + formation labels
+
+- **`LabelTranslator::trialTrackName(string $name): string`** — Standard / Scout / Goalkeeper.
+- **`LabelTranslator::formationName(string $name): string`** — Neutral / Possession / Counter / Press-heavy 4-3-3.
+
+Render sites: `FrontendTrialsManageView`, `FrontendTrialCaseView`, `FrontendTrialParentMeetingView`, `FrontendTrialTracksEditorView`, the parent-letter `{track_name}` substitution in `LetterTemplateEngine`, formation REST endpoints in `TeamDevelopmentRestController`.
+
+## Translations
+
+6 new NL msgids: Mentor / Goalkeeper / 4 formation names.
+
+## Audit progress
+
+5/10 bundles shipped. ~95 of ~150 surfaces fixed. Remaining:
+- Bundle 5 — eval_category translations (schema change)
+- Bundle 6 — Excel template builder
+- Bundle 8 — JS error-fallback sweep
+- Bundle 9 — methodology task arrays review
+- Bundle 10 — letter templates DE/FR/ES/IT/PT (deferred to #0010)
+
 # TalentTrack v3.81.1 — Custom CSS button underline fix
 
 ## What broke

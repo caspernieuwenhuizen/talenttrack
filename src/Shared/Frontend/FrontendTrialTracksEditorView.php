@@ -40,7 +40,7 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
                 self::renderHeader( __( 'Track not found', 'talenttrack' ) );
                 return;
             }
-            self::renderHeader( sprintf( __( 'Edit track — %s', 'talenttrack' ), (string) $track->name ) );
+            self::renderHeader( sprintf( __( 'Edit track — %s', 'talenttrack' ), \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) ) );
             self::renderForm( $track );
             return;
         }

@@ -90,6 +90,74 @@ class LabelTranslator {
     }
 
     /**
+     * i18n audit (May 2026) Bundle 4 — translate `tt_roles.label` for
+     * the 9 system roles seeded by `Activator::defaultRoleDefinitions()`.
+     * Custom roles added by clubs render their typed name; only the
+     * stable seeded labels resolve here.
+     */
+    public static function authRoleLabel( string $key ): ?string {
+        switch ( strtolower( $key ) ) {
+            case 'club_admin':          return __( 'Club Admin', 'talenttrack' );
+            case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
+            case 'head_coach':          return __( 'Head Coach', 'talenttrack' );
+            case 'assistant_coach':     return __( 'Assistant Coach', 'talenttrack' );
+            case 'manager':             return __( 'Manager', 'talenttrack' );
+            case 'physio':              return __( 'Physio', 'talenttrack' );
+            case 'team_member':         return __( 'Team Member', 'talenttrack' );
+            case 'scout':               return __( 'Scout', 'talenttrack' );
+            case 'parent':              return __( 'Parent', 'talenttrack' );
+            default:                    return null;
+        }
+    }
+
+    /**
+     * i18n audit (May 2026) Bundle 4 — translate `tt_functional_roles.label`
+     * for the 6 system functional roles seeded by Activator + 0048.
+     * Returns null for unknown keys so callers can fall back to the
+     * row's typed `label` for custom roles a club has added.
+     */
+    public static function functionalRoleLabel( string $key ): ?string {
+        switch ( strtolower( $key ) ) {
+            case 'head_coach':      return __( 'Head Coach', 'talenttrack' );
+            case 'assistant_coach': return __( 'Assistant Coach', 'talenttrack' );
+            case 'manager':         return __( 'Manager', 'talenttrack' );
+            case 'physio':          return __( 'Physio', 'talenttrack' );
+            case 'mentor':          return __( 'Mentor', 'talenttrack' );
+            case 'other':           return __( 'Other', 'talenttrack' );
+            default:                return null;
+        }
+    }
+
+    /**
+     * i18n audit (May 2026) Bundle 7 — translate `tt_trial_tracks.name`
+     * for the 3 system tracks seeded by 0036. Substituted into the
+     * parent-facing trial letters via `{track_name}`, so getting Dutch
+     * here makes the letter body read in Dutch too.
+     */
+    public static function trialTrackName( string $name ): string {
+        switch ( $name ) {
+            case 'Standard':   return __( 'Standard', 'talenttrack' );
+            case 'Scout':      return __( 'Scout', 'talenttrack' );
+            case 'Goalkeeper': return __( 'Goalkeeper', 'talenttrack' );
+            default:           return $name;
+        }
+    }
+
+    /**
+     * i18n audit (May 2026) Bundle 7 — translate `tt_formation_templates.name`
+     * for the 4 system formations seeded by 0032 + Activator.
+     */
+    public static function formationName( string $name ): string {
+        switch ( $name ) {
+            case 'Neutral 4-3-3':     return __( 'Neutral 4-3-3', 'talenttrack' );
+            case 'Possession 4-3-3':  return __( 'Possession 4-3-3', 'talenttrack' );
+            case 'Counter 4-3-3':     return __( 'Counter 4-3-3', 'talenttrack' );
+            case 'Press-heavy 4-3-3': return __( 'Press-heavy 4-3-3', 'talenttrack' );
+            default:                  return $name;
+        }
+    }
+
+    /**
      * Fallback: "in_progress" → "In Progress".
      */
     private static function humanise( string $code ): string {

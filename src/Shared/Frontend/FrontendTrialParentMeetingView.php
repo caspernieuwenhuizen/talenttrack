@@ -105,7 +105,7 @@ class FrontendTrialParentMeetingView extends FrontendViewBase {
         echo '<h1 class="tt-meeting-name">' . esc_html( $name ) . '</h1>';
         $meta_bits = [];
         if ( $age !== '' ) $meta_bits[] = sprintf( __( 'Age %d', 'talenttrack' ), $age );
-        if ( $track )      $meta_bits[] = sprintf( __( 'Track: %s', 'talenttrack' ), (string) $track->name );
+        if ( $track )      $meta_bits[] = sprintf( __( 'Track: %s', 'talenttrack' ), \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) );
         $meta_bits[] = sprintf( __( '%s — %s', 'talenttrack' ), (string) $case->start_date, (string) $case->end_date );
         echo '<p class="tt-meeting-meta">' . esc_html( implode( '  •  ', $meta_bits ) ) . '</p>';
 

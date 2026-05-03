@@ -11840,3 +11840,23 @@ msgstr "Een login van een ouder, gekoppeld aan één of meer kinderen. Ziet wat 
 
 msgid "Lazily translate user-entered free text (goal titles, evaluation notes, activity descriptions, …) at render time when a viewer's locale differs from the source. Default OFF. Translations are cached and re-used; the cap below limits per-month engine spend."
 msgstr "Vertaal door gebruikers ingevoerde vrije tekst (doel-titels, evaluatienotities, activiteitsbeschrijvingen, …) lui op rendertijd wanneer de viewer-locale van de bron afwijkt. Standaard UIT. Vertalingen worden gecached en hergebruikt; de limiet hieronder begrenst de maandelijkse engine-uitgaven."
+
+# v3.82.0 / i18n audit (May 2026) Bundles 3 + 4 + 7 — stored content backfill via LabelTranslator + lookup translations
+
+msgid "Mentor"
+msgstr "Mentor"
+
+msgid "Goalkeeper"
+msgstr "Keeper"
+
+msgid "Neutral 4-3-3"
+msgstr "Neutraal 4-3-3"
+
+msgid "Possession 4-3-3"
+msgstr "Balbezit 4-3-3"
+
+msgid "Counter 4-3-3"
+msgstr "Counter 4-3-3"
+
+msgid "Press-heavy 4-3-3"
+msgstr "Pressing 4-3-3"

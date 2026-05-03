@@ -118,7 +118,7 @@ final class LetterTemplateEngine {
             'signatory_title'           => __( 'Head of Development', 'talenttrack' ),
             'current_season'            => $current_season,
             'next_season'               => $next_season,
-            'track_name'                => $track ? (string) $track->name : '',
+            'track_name'                => $track ? \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) : '',
             'today'                     => date_i18n( get_option( 'date_format' ) ?: 'Y-m-d', $now ),
             'strengths_summary'         => (string) ( $case->strengths_summary ?? '' ),
             'growth_areas'              => (string) ( $case->growth_areas ?? '' ),

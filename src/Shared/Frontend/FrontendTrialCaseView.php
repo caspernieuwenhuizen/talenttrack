@@ -152,7 +152,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
         $tracks = new TrialTracksRepository();
         $track  = $tracks->find( (int) $case->track_id );
         echo '<div class="tt-trial-strip">';
-        echo '<div><strong>' . esc_html__( 'Track:', 'talenttrack' ) . '</strong> ' . esc_html( $track ? (string) $track->name : '—' ) . '</div>';
+        echo '<div><strong>' . esc_html__( 'Track:', 'talenttrack' ) . '</strong> ' . esc_html( $track ? \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) : '—' ) . '</div>';
         echo '<div><strong>' . esc_html__( 'Window:', 'talenttrack' ) . '</strong> ' . esc_html( (string) $case->start_date . ' → ' . (string) $case->end_date ) . '</div>';
         echo '<div><strong>' . esc_html__( 'Status:', 'talenttrack' ) . '</strong> ' . esc_html( (string) $case->status ) . '</div>';
         if ( $case->decision ) {

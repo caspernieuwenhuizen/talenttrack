@@ -194,7 +194,7 @@ class FrontendTrialsManageView extends FrontendViewBase {
 
             echo '<tr>';
             echo '<td><a href="' . esc_url( $detail ) . '">' . esc_html( $name ) . '</a></td>';
-            echo '<td>' . esc_html( $track ? (string) $track->name : '—' ) . '</td>';
+            echo '<td>' . esc_html( $track ? \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) : '—' ) . '</td>';
             echo '<td>' . esc_html( (string) $r->start_date . ' → ' . (string) $r->end_date ) . '</td>';
             echo '<td>' . esc_html( (string) $r->status ) . '</td>';
             echo '<td>' . esc_html( (string) ( $r->decision ?? '—' ) ) . '</td>';
