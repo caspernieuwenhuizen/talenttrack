@@ -182,7 +182,16 @@ class RolesService {
                 'caps'  => array_merge(
                     [ 'read' => true ],
                     self::allViewCapsTrue(),                        // view everything
-                    array_fill_keys( self::SETTINGS_SUBCAPS, true ),// view all settings sub-areas
+                    // v3.84.3 — was array_fill_keys( SETTINGS_SUBCAPS, true )
+                    // which granted ALL subcaps (view AND edit). The
+                    // CapabilityAliases roll-up then promoted the full
+                    // edit set back to tt_edit_settings, unlocking the
+                    // Wizards + Open wp-admin tiles for HoD post-#0071
+                    // narrowing. View-only subset now matches the
+                    // narrowing intent and migration 0054's stripped
+                    // cap list. tt_edit_settings stays out → tiles
+                    // gated on it correctly hide.
+                    self::viewOnlySettingsSubcapsTrue(),
                     array_fill_keys( self::COVERAGE_CAPS, true ),   // new round-2 caps (mostly views)
                     [
                         // Player-development write caps HoD keeps:
@@ -375,6 +384,42 @@ class RolesService {
                 }
             }
         }
+
+        // v3.84.3 — strip the specific edit subcaps that #0071 narrowed
+        // off HoD. ensureCapabilities only ADDED missing caps in the
+        // pre-fix definition, so the per-area tt_edit_* subcaps stayed
+        // on the role from prior versions even though the definition
+        // stopped granting them. CapabilityAliases then promoted the
+        // held set back to tt_edit_settings, unlocking the Wizards +
+        // Open wp-admin tiles. Strip the exact deprecated list so HoD
+        // converges on the narrowed permission set. Other modules'
+        // ensureCaps() grants stay intact.
+        self::stripDeprecatedHodEditSubcaps();
+    }
+
+    /**
+     * Remove the per-area edit subcaps that #0071 narrowed off HoD
+     * but were never stripped from the role's stored cap list. The
+     * list mirrors migration 0054's strip — so re-running this on a
+     * site that already ran 0054 is a no-op. Idempotent.
+     */
+    private static function stripDeprecatedHodEditSubcaps(): void {
+        $hod = get_role( 'tt_head_dev' );
+        if ( ! $hod ) return;
+        $deprecated = [
+            'tt_edit_settings',
+            'tt_edit_lookups', 'tt_edit_branding', 'tt_edit_feature_toggles',
+            'tt_edit_translations', 'tt_edit_custom_fields',
+            'tt_edit_evaluation_categories', 'tt_edit_category_weights',
+            'tt_edit_rating_scale', 'tt_edit_migrations', 'tt_edit_seasons',
+            'tt_edit_setup_wizard',
+            'tt_manage_settings',
+        ];
+        foreach ( $deprecated as $cap ) {
+            if ( $hod->has_cap( $cap ) ) {
+                $hod->remove_cap( $cap );
+            }
+        }
     }
 
     /**
@@ -396,6 +441,26 @@ class RolesService {
     /** @return array<string,bool> */
     private static function allEditCapsTrue(): array {
         return array_fill_keys( self::EDIT_CAPS, true );
+    }
+
+    /**
+     * v3.84.3 — view-only subset of SETTINGS_SUBCAPS. HoD gets this,
+     * not the full list, so the CapabilityAliases roll-up does NOT
+     * grant `tt_edit_settings` (which would otherwise unlock the
+     * Wizards / Open wp-admin tiles HoD shouldn't see).
+     *
+     * Mirrors what migration 0054 strips on existing-install HoD
+     * users; the role definition was still granting the full set so
+     * ensureCapabilities re-added them on every activation, undoing
+     * the migration. Same fix applied at the role layer permanently.
+     *
+     * @return array<string,bool>
+     */
+    private static function viewOnlySettingsSubcapsTrue(): array {
+        $view_only = array_filter( self::SETTINGS_SUBCAPS, static function ( string $cap ): bool {
+            return strpos( $cap, 'tt_view_' ) === 0;
+        } );
+        return array_fill_keys( $view_only, true );
     }
 
     /** @return array<string,bool> */
