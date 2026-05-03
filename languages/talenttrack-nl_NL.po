@@ -12002,6 +12002,35 @@ msgstr "7. Voeg Goals + Player_Journey-gebeurtenissen toe waar nodig."
 msgid "Save as .xlsx and upload via TalentTrack → Configuration → Demo data → Step 0 — Source → Excel upload."
 msgstr "Sla op als .xlsx en upload via TalentTrack → Configuratie → Demo-data → Stap 0 — Bron → Excel upload."
 
+# v3.85.0 — demo selective generation toggles + dashboard URL fix
+
+msgid "Step 0.5 — What to generate"
+msgstr "Stap 0.5 — Wat genereren"
+
+msgid "Uncheck a category to use the master data already in your club instead of generating new rows. Activities, evaluations, and goals are always generated on top of whatever master data ends up present."
+msgstr "Vink een categorie uit om de bestaande master-data van je club te gebruiken in plaats van nieuwe rijen te genereren. Activiteiten, evaluaties en doelen worden altijd bovenop de aanwezige master-data gegenereerd."
+
+msgid "Generate teams"
+msgstr "Ploegen genereren"
+
+msgid "uncheck to use existing teams in the club."
+msgstr "uitvinken om bestaande ploegen in de club te gebruiken."
+
+msgid "Generate people + WP users"
+msgstr "Mensen + WP-gebruikers genereren"
+
+msgid "uncheck to skip the 36-account creation. Existing People rows + their WP users stay untouched."
+msgstr "uitvinken om de 36-account-creatie over te slaan. Bestaande Mensen-rijen en hun WP-gebruikers blijven onaangeraakt."
+
+msgid "Generate players"
+msgstr "Spelers genereren"
+
+msgid "uncheck to use existing players in the club."
+msgstr "uitvinken om bestaande spelers in de club te gebruiken."
+
+msgid "These toggles only apply to the procedural source. Excel + hybrid sources read from the workbook regardless."
+msgstr "Deze schakelaars gelden alleen voor de procedurele bron. Excel + hybride bronnen lezen sowieso uit het werkboek."
+
 # v3.83.1 — persona-dashboard token category in custom-CSS editor (rebased onto v3.83.0)
 
 msgid "Surface — card"
