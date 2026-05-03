@@ -1,4 +1,6 @@
-# TalentTrack v3.83.0 — Custom CSS full-stylesheet round-trip for designer hand-off
+# TalentTrack v3.84.1 — Custom CSS full-stylesheet round-trip for designer hand-off
+
+> Renumbered from v3.83.0 in PR after the parallel i18n bundle claimed v3.83.0 and v3.84.0 mid-CI. Code unchanged.
 
 The original `Download .css` button shipped in v3.79.1 only exported the operator's saved overrides — useful for backups but missing the point if the goal is to hand the styling to a designer for a holistic pass. This PR adds a second export that bundles every TalentTrack stylesheet plus the saved overrides into one file, so a designer sees the full styling vocabulary and can edit any rule.
 
@@ -23,6 +25,67 @@ The original `Download .css` button shipped in v3.79.1 only exported the operato
 - **Inline-PHP `<style>` blocks** (Configuration tile grid etc.) are NOT in the export — server-templated, can't live in a static file. Export header notes this.
 - **`?tt_safe_css=1` escape hatch** unchanged.
 - **Saved-overrides-only download** unchanged in shape; renamed in UI to "Download saved CSS" to disambiguate.
+
+# TalentTrack v3.84.0 — i18n audit (May 2026) Bundles 8 + 9 — JS error-fallback sweep + methodology research closeout
+
+Final fix-PR off the May 2026 i18n audit. Closes Bundles 8 + 9; the audit's 10-bundle triage list is functionally complete.
+
+## Bundle 8 — JS error-fallback sweep
+
+Three JS components had live `… || 'Error'` hardcoded fallbacks not routed through `TT.i18n.error_generic`:
+
+- `assets/js/components/admin-reorder.js:50`
+- `assets/js/components/frontend-list-table.js:316`
+- `assets/js/components/functional-roles.js:45`
+
+Each now reads `(window.TT && TT.i18n && TT.i18n.error_generic) || 'Error.'` before falling back to the literal — `error_generic` is already in the `DashboardShortcode` localize bundle (and matches the punctuation used elsewhere: `'Error.'`).
+
+The other ~10 `cfg.foo || 'English'` patterns flagged by the audit (in `wizard-autosave.js`, `wizard-eval-review.js`, `persona-dashboard.js`, `tt-table-tools.js`, `frontend-threads.js`, `guest-add.js`, `persona-dashboard-editor.js`) were verified dead code on localized sites — every key the JS reads has a matching entry in its `wp_localize_script` call, so the English fallbacks are unreachable on a normally-loaded site.
+
+## Bundle 9 — methodology task arrays research
+
+The audit flagged `database/migrations/0018_methodology_full_content.php:1162-1552` (the `attacking_tasks` / `defending_tasks` arrays) as potentially shipping English-only flat strings. Re-checked: every position's tasks are already structured as `[ 'nl' => [...], 'en' => [...] ]` MultilingualField shape with full Dutch translations alongside English. **False positive — no code change needed.**
+
+## Audit progress
+
+**9/10 bundles shipped, ~140 of ~150 surfaces fixed.** Bundle 10 (letter templates DE/FR/ES/IT/PT) stays deferred to the multi-language epic #0010 as planned.
+
+The May 2026 i18n audit is functionally closed. What remains is the schema-change vision items deferred from Bundles 4 and 5 — a `meta.translations` column on `tt_roles` / `tt_functional_roles` / `tt_eval_categories` for admin-created custom labels. Separate ship when SaaS multi-locale becomes a real requirement (today: clubs type Dutch directly when adding custom rows).
+
+# TalentTrack v3.83.0 — i18n audit (May 2026) Bundles 5 + 6 — eval-category render-site cleanup + Excel template instructions
+
+Third fix-PR off the May 2026 i18n audit. Two small bundles shipped together.
+
+## Bundle 5 — eval-category render-site cleanup
+
+Five render sites were calling `echo esc_html( $cat->label )` directly, bypassing the existing `EvalCategoriesRepository::displayLabel()` translator (which routes through `__()`):
+
+- `Wizards\Evaluation\HybridDeepRateStep` — `<th>` for category in deep-rate table
+- `Wizards\Evaluation\RateActorsStep` — `<th>` for category in quick-rate table
+- `FrontendEvalCategoriesView` — edit-page header + list-view link
+- `FrontendReportDetailView` — comparison table column headers
+
+The seeded category labels (4 mains: Technical/Tactical/Physical/Mental + 21 subcategories: Short pass / Long pass / etc.) all exist as msgids in `talenttrack-nl_NL.po`, so wiring through `displayLabel()` is enough — no schema change needed for system rows.
+
+The audit's bigger schema-change vision (a `meta.translations` column on `tt_eval_categories` for admin-created custom labels) is **deferred**. Clubs adding custom categories can type Dutch directly in the form; the `displayLabel()::__()` path falls through unchanged for unknown msgids. Adding a translations column to support multi-locale custom labels is its own ship.
+
+## Bundle 6 — Excel demo-data template instructions
+
+`TemplateBuilder.php` README sheet content (~32 lines: workflow steps, column-header guidance, date-format note, foreign-key explanation) was raw English literals never wrapped in `__()`. Wrapped each line.
+
+**Sheet identifier tokens** (Sessions, Session_Attendance, Teams, Players, Trial_Cases, Eval_Categories, etc.) inside the prose stay English literals. The Excel importer reads sheet names exactly — translating those tokens would mislead users into renaming sheets and break the import. The actual sheet rename to "Activities" / "Activity_Attendance" is deferred (separate breaking change requiring importer back-compat).
+
+## Translations
+
+~25 new NL msgids for the Excel README.
+
+## Audit progress
+
+7/10 bundles shipped. ~125 of ~150 surfaces fixed. Remaining:
+
+- Bundle 8 — JS error-fallback sweep
+- Bundle 9 — methodology task arrays research
+- Bundle 10 — letter templates DE/FR/ES/IT/PT (deferred to #0010)
 
 # TalentTrack v3.82.0 — i18n audit (May 2026) Bundles 3 + 4 + 7 — stored content Dutch backfill
 

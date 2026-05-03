@@ -11861,7 +11861,7 @@ msgstr "Counter 4-3-3"
 msgid "Press-heavy 4-3-3"
 msgstr "Pressing 4-3-3"
 
-# v3.80.1 hotfix bundle (rebased onto v3.82.0)
+# v3.82.1 hotfix bundle
 
 msgid "Impersonate user"
 msgstr "Imiteer gebruiker"
@@ -11905,7 +11905,7 @@ msgstr "Nooit"
 msgid "Functional roles"
 msgstr "Functionele rollen"
 
-# v3.83.0 / #0075 follow-up — full-stylesheet download
+# v3.84.1 / #0075 follow-up — full-stylesheet download
 msgid "Download saved CSS"
 msgstr "Opgeslagen CSS downloaden"
 
@@ -11926,3 +11926,78 @@ msgstr "Stap 1 — download de volledige stylesheet. Stap 2 — je designer past
 
 msgid "File (max 500 KB)"
 msgstr "Bestand (max 500 KB)"
+
+# v3.83.0 / i18n audit (May 2026) Bundles 5 + 6 — eval category render-site cleanup + Excel template instructions
+
+# Bundle 6 — Excel demo-data template instructions
+msgid "TalentTrack — demo data template"
+msgstr "TalentTrack — demo-data sjabloon"
+
+msgid "How to fill this workbook"
+msgstr "Het werkboek invullen"
+
+msgid "Each green tab is a master entity (Teams, People, Players, Trial cases). Each blue tab is a transactional record (Sessions, Attendance, Evaluations, Goals, Player journey). Purple = settings, grey = reference."
+msgstr "Elk groen tabblad is een master-entiteit (Teams, People, Players, Trial cases). Elk blauw tabblad is een transactionele rij (Sessions, Attendance, Evaluations, Goals, Player journey). Paars = instellingen, grijs = referentie."
+
+msgid "auto_key (the first column on every entity tab)"
+msgstr "auto_key (de eerste kolom op elk entiteitstabblad)"
+
+msgid "Type a short, unique label (e.g. \"ABC\", \"U12_RED\", \"MARTIN\") in the auto_key cell. Other tabs reference back to it via team_key / player_key / session_key fields. The importer maps your auto_key to the inserted row id, so cross-sheet links resolve at import time without you needing the database id."
+msgstr "Typ een korte, unieke label (bijv. \"ABC\", \"U12_RED\", \"MARTIN\") in de auto_key-cel. Andere tabbladen verwijzen ernaar via team_key / player_key / session_key-velden. De importeur koppelt je auto_key aan de ingevoegde rij-id, dus tabblad-overstijgende links lossen zich op bij import zonder dat je de database-id nodig hebt."
+
+msgid "Leave auto_key blank if you do not need to reference the row from another sheet — but most rows are referenced somewhere, so filling it in is the safe default."
+msgstr "Laat auto_key leeg als je vanaf een ander tabblad niet naar deze rij hoeft te verwijzen — maar de meeste rijen worden ergens gerefereerd, dus invullen is de veilige standaard."
+
+msgid "Foreign-key columns (e.g. team_key, player_key)"
+msgstr "Foreign-key-kolommen (bijv. team_key, player_key)"
+
+msgid "Type the auto_key value of the row you want to link to. Example: a Players row with team_key=\"ABC\" links to the Teams row whose auto_key is \"ABC\". The importer rejects the workbook if a foreign-key value points to a row that does not exist."
+msgstr "Typ de auto_key-waarde van de rij waaraan je wilt koppelen. Voorbeeld: een Players-rij met team_key=\"ABC\" koppelt aan de Teams-rij waarvan auto_key \"ABC\" is. De importeur weigert het werkboek als een foreign-key-waarde naar een niet-bestaande rij verwijst."
+
+msgid "Importable vs. documentation-only sheets"
+msgstr "Importeerbare vs. documentatie-tabbladen"
+
+msgid "The importer (v1.5) consumes: Teams, People, Players, Trial_Cases, Sessions, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey, Generation_Settings."
+msgstr "De importeur (v1.5) consumeert: Teams, People, Players, Trial_Cases, Sessions, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey, Generation_Settings."
+
+msgid "Reference tabs (Eval_Categories, Category_Weights, _Lookups) are documentation-only. Configure those via the wp-admin Configuration screens. They are included here so you can see what categories / weights / lookups your imported data will key into."
+msgstr "Referentie-tabbladen (Eval_Categories, Category_Weights, _Lookups) zijn alleen documentatie. Configureer ze via de wp-admin Configuratie-schermen. Ze staan hier zodat je ziet op welke categorieën / wegingen / lookups je import zich aansluit."
+
+msgid "Required vs. optional columns"
+msgstr "Verplichte vs. optionele kolommen"
+
+msgid "Every column header carries a label. Required columns are typically the human-name fields (first_name / last_name / title) plus the foreign keys that establish relationships. The importer will tell you which row + column failed validation when you upload."
+msgstr "Elke kolomkop draagt een label. Verplichte kolommen zijn doorgaans de naamvelden (first_name / last_name / title) plus de foreign keys die relaties leggen. Bij upload meldt de importeur welke rij + kolom de validatie niet doorstond."
+
+msgid "Dates"
+msgstr "Datums"
+
+msgid "YYYY-MM-DD only. Excel sometimes auto-formats dates to your local format on cell entry — set the column format to \"Text\" first if you see weird date values after upload."
+msgstr "Alleen JJJJ-MM-DD. Excel hervormt datums soms automatisch naar je lokale formaat bij invoer — zet de kolom-opmaak op \"Tekst\" voordat je typt als je vreemde datumwaarden ziet na upload."
+
+msgid "Recommended workflow"
+msgstr "Aanbevolen werkstroom"
+
+msgid "1. Fill Teams first. Pick auto_key labels that mean something to you (\"U12_RED\", \"U14_GREEN\")."
+msgstr "1. Vul Teams eerst. Kies auto_key-labels die voor jou betekenis hebben (\"U12_RED\", \"U14_GREEN\")."
+
+msgid "2. Fill People next, referencing Teams via team_key on staff rows."
+msgstr "2. Vul daarna People, met team_key op stafrijen die naar Teams verwijst."
+
+msgid "3. Fill Players, referencing Teams via team_key."
+msgstr "3. Vul Players, met team_key die naar Teams verwijst."
+
+msgid "4. Add Sessions for each team (they reference Teams via team_key)."
+msgstr "4. Voeg Sessions toe voor elk team (verwijzen naar Teams via team_key)."
+
+msgid "5. Add Session_Attendance rows for who showed up at each session."
+msgstr "5. Voeg Session_Attendance-rijen toe voor wie aanwezig was bij elke sessie."
+
+msgid "6. Add Evaluations + Evaluation_Ratings, referencing Players + Sessions."
+msgstr "6. Voeg Evaluations + Evaluation_Ratings toe die naar Players + Sessions verwijzen."
+
+msgid "7. Add Goals + Player_Journey events as needed."
+msgstr "7. Voeg Goals + Player_Journey-gebeurtenissen toe waar nodig."
+
+msgid "Save as .xlsx and upload via TalentTrack → Configuration → Demo data → Step 0 — Source → Excel upload."
+msgstr "Sla op als .xlsx en upload via TalentTrack → Configuratie → Demo-data → Stap 0 — Bron → Excel upload."

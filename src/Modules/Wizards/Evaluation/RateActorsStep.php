@@ -75,7 +75,7 @@ final class RateActorsStep implements WizardStepInterface {
                         $val = (int) ( $state['ratings'][ (int) $pl->id ][ (int) $cat->id ] ?? 0 );
                         ?>
                         <tr>
-                            <th style="text-align:left;font-weight:normal;width:160px;"><?php echo esc_html( (string) $cat->label ); ?></th>
+                            <th style="text-align:left;font-weight:normal;width:160px;"><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label ) ); ?></th>
                             <td>
                                 <input type="number" min="0" max="<?php echo (int) $max; ?>"
                                        step="1"

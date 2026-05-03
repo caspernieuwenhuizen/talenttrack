@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.83.0
+Stable tag: 3.84.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,9 +12,28 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 3.83.0 — Custom CSS full-stylesheet round-trip for designer hand-off =
+= 3.84.1 — Custom CSS full-stylesheet round-trip for designer hand-off =
 
-Adds a "Download full stylesheet" button on the CSS editor + Upload tabs that bundles every TalentTrack stylesheet (`public.css`, `frontend-admin.css`, `persona-dashboard.css`, the per-surface ones, plus admin) **plus** the operator's saved Custom CSS overrides into a single concatenated `.css` file with separator banners showing the source file. Hand it to a designer; they edit holistically; you re-upload via the Upload tab. Bundled stylesheets keep loading via `wp_enqueue_style`; the upload wins on source order at the inline `<style>` emission so any selectors the designer touched override the bundled defaults; selectors they didn't touch fall through to the bundled rules. Sanitizer's `MAX_BYTES` cap raised from 200 KB to 500 KB to fit the round-trip (bundled CSS alone is ~170 KB before the designer adds anything). The existing "Download saved CSS" download (overrides only) is unchanged and renamed in the UI to disambiguate.
+Adds a "Download full stylesheet" button on the CSS editor + Upload tabs that bundles every TalentTrack stylesheet (`public.css`, `frontend-admin.css`, `persona-dashboard.css`, the per-surface ones, plus admin) **plus** the operator's saved Custom CSS overrides into a single concatenated `.css` file with separator banners showing the source file. Hand it to a designer; they edit holistically; you re-upload via the Upload tab. Bundled stylesheets keep loading via `wp_enqueue_style`; the upload wins on source order at the inline `<style>` emission so any selectors the designer touched override the bundled defaults; selectors they didn't touch fall through to the bundled rules. Sanitizer's `MAX_BYTES` cap raised from 200 KB to 500 KB to fit the round-trip (bundled CSS alone is ~170 KB before the designer adds anything). Renumbered from v3.83.0 in PR after the parallel i18n bundle claimed v3.83.0 / v3.84.0.
+
+= 3.84.0 — i18n audit (May 2026) Bundles 8 + 9 — JS error-fallback sweep + methodology research closeout =
+
+Final fix-PR off the May 2026 i18n audit.
+
+* **Bundle 8 (JS error-fallback sweep):** three JS components had live `… || 'Error'` hardcoded fallbacks not routed through `TT.i18n.error_generic`. Fixed in `assets/js/components/admin-reorder.js`, `frontend-list-table.js`, `functional-roles.js` — each now reads `TT.i18n.error_generic` (already in the `DashboardShortcode` localize bundle) before falling back. The other ~10 `cfg.foo || 'English'` patterns flagged by the audit were verified dead code on localized sites (matching i18n keys exist in their respective `wp_localize_script` calls).
+* **Bundle 9 (methodology task arrays research):** verified the `attacking_tasks` / `defending_tasks` arrays in `0018_methodology_full_content.php` are already structured as `[ 'nl' => [...], 'en' => [...] ]` MultilingualField shape — the audit's flag was a false positive. No code change needed.
+
+Audit progress: **9/10 bundles shipped, ~140 of ~150 surfaces fixed**. Bundle 10 (letter templates DE/FR/ES/IT/PT) stays deferred to multi-language epic #0010 as planned. The May 2026 i18n audit is functionally closed; what remains is the schema-change vision items deferred from Bundles 4 and 5 (a `meta.translations` column on `tt_roles` / `tt_functional_roles` / `tt_eval_categories` for admin-created custom labels) — separate ship when SaaS multi-locale becomes a real requirement.
+
+= 3.83.0 — i18n audit (May 2026) Bundles 5 + 6 — eval-category render-site cleanup + Excel template instructions =
+
+Third fix-PR off the May 2026 i18n audit. Two small bundles shipped together.
+
+* **Bundle 5** — Five eval-category render sites were calling `echo esc_html( $cat->label )` directly, bypassing the `EvalCategoriesRepository::displayLabel()` translator (which routes through `__()`). Fixed in `Wizards\Evaluation\HybridDeepRateStep`, `Wizards\Evaluation\RateActorsStep`, `FrontendEvalCategoriesView` (header + list), `FrontendReportDetailView`. The seeded labels (4 mains + 21 subcategories) all already exist as msgids in the .po, so the wiring change is enough — no schema change needed for system rows. The audit's bigger schema-change vision (a `meta.translations` column on `tt_eval_categories` for admin-created custom labels) is deferred — clubs can type Dutch directly in the form for now.
+* **Bundle 6** — `TemplateBuilder.php` README sheet content (32 lines of demo-data import instructions) was raw English, never wrapped in `__()`. Wrapped each line. Sheet name tokens (Sessions, Session_Attendance, Teams, etc.) inside the prose stay English literals because the importer reads sheet names exactly — translating those tokens would mislead users into renaming sheets and breaking the import. The actual sheet rename to "Activities" stays deferred.
+* **TRANSLATIONS:** ~25 new NL msgids covering the README content (workflow steps, column-header guidance, date-format note).
+
+Audit progress: 7/10 bundles shipped, ~125 of ~150 surfaces fixed. Remaining: Bundle 8 (JS error-fallback sweep), Bundle 9 (methodology task arrays research), Bundle 10 (deferred to multi-language epic #0010).
 
 = 3.82.0 — i18n audit (May 2026) Bundles 3 + 4 + 7 — stored content Dutch backfill =
 

@@ -78,7 +78,7 @@ final class HybridDeepRateStep implements WizardStepInterface {
                     $val = (int) ( $state['ratings_self'][ (int) $cat->id ] ?? 0 );
                     ?>
                     <tr>
-                        <th style="text-align:left;font-weight:normal;"><?php echo esc_html( (string) $cat->label ); ?></th>
+                        <th style="text-align:left;font-weight:normal;"><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label ) ); ?></th>
                         <td>
                             <input type="number" min="0" max="<?php echo (int) $max; ?>" step="1" inputmode="numeric"
                                 name="ratings_self[<?php echo (int) $cat->id; ?>]"
