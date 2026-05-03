@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.85.3
+Stable tag: 3.85.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.85.4 — wp-admin Players list: "Show all players (bypass demo filter)" toggle =
+
+Companion to v3.85.1's wizard-tag fix. Operators with installs that already accumulated demo-untagged players (e.g. created via the wizard before v3.85.1 landed) couldn't see them in `wp-admin → Players` to delete them — `apply_demo_scope` filters the list by demo tag when demo mode is non-NEUTRAL, untagged rows fall outside the filter on both sides. New `?demo_scope=all` query param + a toggle button in the filter bar (only surfaces when demo mode is non-NEUTRAL) bypasses the scope so admins can see + bulk-delete the orphaned rows. Same pattern needed on Activities / Goals / Evaluations admin lists too — follow-up if asked.
 
 = 3.85.3 — Players page empty-state shown to HoD / Scout (JG4IT pilot) =
 
