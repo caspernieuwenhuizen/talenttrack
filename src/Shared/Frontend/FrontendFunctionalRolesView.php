@@ -35,6 +35,18 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
 
+        // v3.85.5 — Functional roles is a Standard-tier feature per
+        // FeatureMap. Free-tier installs run on the legacy WP role
+        // model alone; functional-role assignment / mapping requires
+        // an upgrade.
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+             && ! \TT\Modules\License\LicenseGate::allows( 'functional_roles' )
+        ) {
+            self::renderHeader( __( 'Functional roles', 'talenttrack' ) );
+            echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Functional roles', 'talenttrack' ), 'standard' );
+            return;
+        }
+
         $can_manage_types = current_user_can( 'tt_manage_functional_roles' );
         $can_view_assign  = current_user_can( 'tt_view_people' ) || current_user_can( 'tt_edit_people' );
         if ( ! $can_manage_types && ! $can_view_assign ) {

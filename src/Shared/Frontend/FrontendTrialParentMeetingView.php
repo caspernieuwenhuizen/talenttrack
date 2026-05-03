@@ -23,6 +23,15 @@ use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
 class FrontendTrialParentMeetingView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        // v3.85.5 — Trials Pro-tier gate.
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+             && ! \TT\Modules\License\LicenseGate::allows( 'trial_module' )
+        ) {
+            self::renderHeader( __( 'Parent meeting', 'talenttrack' ) );
+            echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Trial cases', 'talenttrack' ), 'pro' );
+            return;
+        }
+
         $case_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $case_id <= 0 || ! TrialCaseAccessPolicy::isManager( $user_id ) ) {
             self::renderHeader( __( 'Parent meeting', 'talenttrack' ) );

@@ -32,6 +32,15 @@ use TT\Shared\Frontend\FrontendViewBase;
 class FrontendTeamChemistryView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        // v3.85.5 — Team chemistry is Pro-tier per FeatureMap.
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+             && ! \TT\Modules\License\LicenseGate::allows( 'team_chemistry' )
+        ) {
+            self::renderHeader( __( 'Team chemistry', 'talenttrack' ) );
+            echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Team chemistry', 'talenttrack' ), 'pro' );
+            return;
+        }
+
         self::enqueueAssets();
 
         $team_id = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;

@@ -12179,3 +12179,62 @@ msgstr "Persona-sjablonen"
 
 msgid "Impersonation"
 msgstr "Impersonatie"
+
+# v3.86.1 — license enforcement bundle (rebased onto v3.86.0)
+
+msgid "This feature is part of the %s plan. Upgrade your TalentTrack license to enable it."
+msgstr "Deze functie hoort bij het %s-plan. Werk je TalentTrack-licentie bij om hem aan te zetten."
+
+msgid "CSV import is part of the Standard plan. Upgrade your TalentTrack license to enable it."
+msgstr "CSV-import hoort bij het Standard-plan. Werk je TalentTrack-licentie bij om de import te gebruiken."
+
+msgid "Plan & restrictions"
+msgstr "Plan & beperkingen"
+
+msgid "Current plan"
+msgstr "Huidig plan"
+
+msgid "Upgrade or start a trial"
+msgstr "Upgraden of proefperiode starten"
+
+msgid "Free-tier caps"
+msgstr "Free-tier-limieten"
+
+msgid "No cap (paid / trial)"
+msgstr "Geen limiet (betaald / proefperiode)"
+
+msgid "At cap — upgrade to add more"
+msgstr "Op de limiet — upgrade om meer toe te voegen"
+
+msgid "Within cap"
+msgstr "Binnen limiet"
+
+msgid "Features by plan"
+msgstr "Functies per plan"
+
+msgid "Local backup"
+msgstr "Lokale back-up"
+
+msgid "Email backup"
+msgstr "E-mail back-up"
+
+msgid "Demo data generator"
+msgstr "Demo-data generator"
+
+msgid "Radar charts"
+msgstr "Radarkaarten"
+
+msgid "Rate cards (full)"
+msgstr "Rating-kaarten (volledig)"
+
+msgid "Undo bulk actions"
+msgstr "Bulk-acties terugdraaien"
+
+msgid "Multi-academy"
+msgstr "Multi-academie"
+
+msgid "Photo-to-activity capture"
+msgstr "Foto-naar-activiteit-vangst"
+
+msgid "S3 backup"
+msgstr "S3 back-up"

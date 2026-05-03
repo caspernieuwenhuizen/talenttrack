@@ -30,6 +30,19 @@ class FrontendTrialsManageView extends FrontendViewBase {
             return;
         }
 
+        // v3.85.5 — hard cut: Trials is a Pro-tier feature per
+        // FeatureMap. Free + Standard installs that previously had
+        // access (because the gate was missing) now see an upgrade
+        // nudge in place of the trials surface. Existing data stays
+        // in the database — no loss — just inaccessible until upgrade.
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+             && ! \TT\Modules\License\LicenseGate::allows( 'trial_module' )
+        ) {
+            self::renderHeader( __( 'Trials', 'talenttrack' ) );
+            echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Trial cases', 'talenttrack' ), 'pro' );
+            return;
+        }
+
         self::enqueueAssets();
         self::handlePost( $user_id );
 

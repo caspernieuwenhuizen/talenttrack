@@ -21,6 +21,15 @@ use TT\Modules\Trials\Repositories\TrialLetterTemplatesRepository;
 class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        // v3.85.5 — Trials Pro-tier gate.
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+             && ! \TT\Modules\License\LicenseGate::allows( 'trial_module' )
+        ) {
+            self::renderHeader( __( 'Letter templates', 'talenttrack' ) );
+            echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Trial cases', 'talenttrack' ), 'pro' );
+            return;
+        }
+
         if ( ! current_user_can( 'tt_manage_trials' ) ) {
             self::renderHeader( __( 'Letter templates', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to edit letter templates.', 'talenttrack' ) . '</p>';

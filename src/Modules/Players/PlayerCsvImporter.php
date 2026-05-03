@@ -171,8 +171,30 @@ class PlayerCsvImporter {
         $errored    = 0;
         $error_rows = [];
 
+        // v3.85.5 — license enforcement. CSV importer bypassed both
+        // the players cap (free tier 25 limit) and the csv_import
+        // feature gate (Standard-and-up only). Now cap-checks per
+        // row so a 500-row CSV doesn't stop at row 26 with a cryptic
+        // 'duplicate key' error — instead each insert past the cap
+        // gets reported with a clear message.
+        $license_blocks_csv = false;
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+             && ! \TT\Modules\License\LicenseGate::allows( 'csv_import' )
+        ) {
+            $license_blocks_csv = true;
+        }
+
         foreach ( $rows as $i => $data ) {
             $row_number = $i + 2;
+
+            // Hard-cut the entire CSV when license blocks the import
+            // feature — same row gets the message every iteration so
+            // the operator's per-row error CSV makes the reason clear.
+            if ( $license_blocks_csv ) {
+                $errored++;
+                $error_rows[] = [ 'row_number' => $row_number, 'data' => $data, 'errors' => [ __( 'CSV import is part of the Standard plan. Upgrade your TalentTrack license to enable it.', 'talenttrack' ) ] ];
+                continue;
+            }
 
             $errors = self::validateRow( $data );
             if ( $errors ) {
@@ -184,6 +206,18 @@ class PlayerCsvImporter {
             $dupe = self::findDupe( $data );
             if ( $dupe && $dupe_strategy === self::DUPE_SKIP ) {
                 $skipped++;
+                continue;
+            }
+
+            // Per-row cap re-check: the cap reads the CURRENT count
+            // from the DB, so each insert that succeeded above
+            // counts against the 25-player limit. First row past
+            // the cap returns false here and stops further inserts.
+            if ( ! $dupe && class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+                 && \TT\Modules\License\LicenseGate::capsExceeded( 'players' )
+            ) {
+                $errored++;
+                $error_rows[] = [ 'row_number' => $row_number, 'data' => $data, 'errors' => [ __( 'You have reached the free-tier limit of 25 players. Upgrade to Standard to add more.', 'talenttrack' ) ] ];
                 continue;
             }
 

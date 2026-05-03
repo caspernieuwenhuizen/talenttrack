@@ -115,4 +115,76 @@ class LicenseGate {
         if ( self::isInGrace() ) return FeatureMap::TIER_FREE;
         return self::tier();
     }
+
+    /**
+     * v3.85.5 — single chokepoint for "is this feature available?" with
+     * the License module's enabled state baked in. Returns true when
+     * the feature should run; false means the caller must short-circuit.
+     *
+     * Special case: if the License module is disabled, every gate is
+     * open. Same reasoning as capsExceeded — operator opted out of
+     * license enforcement on this install.
+     *
+     * @param string $feature  FeatureMap feature key
+     */
+    public static function allows( string $feature ): bool {
+        if ( class_exists( '\\TT\\Core\\ModuleRegistry' )
+             && ! \TT\Core\ModuleRegistry::isEnabled( '\\TT\\Modules\\License\\LicenseModule' )
+        ) {
+            return true;
+        }
+        return self::can( $feature );
+    }
+
+    /**
+     * REST-friendly enforcement. Returns null when allowed; returns a
+     * WP_REST_Response 402 error envelope when blocked. Caller pattern:
+     *
+     *   $blocked = LicenseGate::enforceFeatureRest( 'trial_module' );
+     *   if ( $blocked ) return $blocked;
+     */
+    public static function enforceFeatureRest( string $feature ): ?\WP_REST_Response {
+        if ( self::allows( $feature ) ) return null;
+        $tier = self::requiredTierFor( $feature );
+        $tier_label = FeatureMap::tierLabel( $tier );
+        return \TT\Infrastructure\REST\RestResponse::error(
+            'license_required',
+            sprintf(
+                /* translators: %s required tier label */
+                __( 'This feature is part of the %s plan. Upgrade your TalentTrack license to enable it.', 'talenttrack' ),
+                $tier_label
+            ),
+            402,
+            [ 'feature' => $feature, 'required_tier' => $tier ]
+        );
+    }
+
+    /**
+     * REST cap-enforcement. Returns null when below cap; returns a
+     * 402 envelope when at/over. Used by REST POST /players + /teams.
+     */
+    public static function enforceCapRest( string $cap_type ): ?\WP_REST_Response {
+        if ( ! self::capsExceeded( $cap_type ) ) return null;
+        $message = $cap_type === 'teams'
+            ? __( 'You have reached the free-tier limit of 1 team. Upgrade to Standard to add more.', 'talenttrack' )
+            : __( 'You have reached the free-tier limit of 25 players. Upgrade to Standard to add more.', 'talenttrack' );
+        return \TT\Infrastructure\REST\RestResponse::error(
+            'license_cap_' . $cap_type,
+            $message,
+            402,
+            [ 'cap_type' => $cap_type ]
+        );
+    }
+
+    /**
+     * Lowest tier that has a feature on. Used to construct upgrade
+     * messages that name the right plan. Falls back to Standard if
+     * the feature is unknown to FeatureMap.
+     */
+    public static function requiredTierFor( string $feature ): string {
+        foreach ( [ FeatureMap::TIER_FREE, FeatureMap::TIER_STANDARD, FeatureMap::TIER_PRO ] as $tier ) {
+            if ( FeatureMap::tierHas( $tier, $feature ) ) return $tier;
+        }
+        return FeatureMap::TIER_STANDARD;
+    }
 }

@@ -118,15 +118,26 @@ class TrialsRestController {
     }
 
     public static function can_view(): bool {
+        // v3.85.5 — license gate. Trials is a Pro-tier feature; the
+        // capability gate alone wasn't enough since free-tier installs
+        // could still hold tt_manage_trials.
+        if ( ! self::licenseAllowsTrials() ) return false;
         return current_user_can( 'tt_view_trial_synthesis' ) || current_user_can( 'tt_manage_trials' );
     }
 
     public static function can_manage(): bool {
+        if ( ! self::licenseAllowsTrials() ) return false;
         return current_user_can( 'tt_manage_trials' );
     }
 
     public static function can_submit_input(): bool {
+        if ( ! self::licenseAllowsTrials() ) return false;
         return current_user_can( 'tt_submit_trial_input' ) || current_user_can( 'tt_manage_trials' );
+    }
+
+    private static function licenseAllowsTrials(): bool {
+        if ( ! class_exists( '\\TT\\Modules\\License\\LicenseGate' ) ) return true;
+        return \TT\Modules\License\LicenseGate::allows( 'trial_module' );
     }
 
     public static function list_cases( \WP_REST_Request $r ): \WP_REST_Response {

@@ -51,6 +51,20 @@ final class ReviewStep implements WizardStepInterface {
 
     public function submit( array $state ) {
         global $wpdb;
+
+        // v3.85.5 — license cap enforcement. Wizard's wpdb->insert
+        // bypassed the cap that wp-admin PlayersPage::handle_save
+        // enforces. Free-tier installs could create unlimited players
+        // via the wizard. Now mirrors the admin gate.
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+             && \TT\Modules\License\LicenseGate::capsExceeded( 'players' )
+        ) {
+            return new \WP_Error(
+                'license_cap_players',
+                __( 'You have reached the free-tier limit of 25 players. Upgrade to Standard to add more.', 'talenttrack' )
+            );
+        }
+
         $first = (string) ( $state['first_name'] ?? '' );
         $last  = (string) ( $state['last_name']  ?? '' );
         if ( $first === '' || $last === '' ) {

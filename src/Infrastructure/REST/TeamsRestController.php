@@ -214,6 +214,14 @@ class TeamsRestController {
     }
 
     public static function create_team( \WP_REST_Request $r ) {
+        // v3.85.5 — REST cap enforcement, mirrors PlayersRestController.
+        // wp-admin TeamsPage already enforced; frontend REST path was
+        // bypassing the free-tier 1-team cap.
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' ) ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceCapRest( 'teams' );
+            if ( $blocked ) return $blocked;
+        }
+
         global $wpdb;
         $data = self::extract( $r );
         if ( $data['name'] === '' ) {

@@ -361,6 +361,15 @@ class PlayersRestController {
     }
 
     public static function create_player( \WP_REST_Request $r ) {
+        // v3.85.5 — REST cap enforcement. wp-admin PlayersPage already
+        // gated; the REST endpoint (used by the frontend manage view +
+        // the new-player wizard's REST submit path) silently bypassed
+        // the free-tier 25-player cap. Now mirrors the admin gate.
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' ) ) {
+            $blocked = \TT\Modules\License\LicenseGate::enforceCapRest( 'players' );
+            if ( $blocked ) return $blocked;
+        }
+
         $validation = self::validateCustomFields( $r );
         if ( ! empty( $validation['errors'] ) ) {
             return RestResponse::errors( $validation['errors'], 422 );
