@@ -82,6 +82,21 @@ class LicenseGate {
      * @param string $cap_type 'teams' | 'players'
      */
     public static function capsExceeded( string $cap_type ): bool {
+        // If the License module itself is disabled, there's no cap
+        // enforcement to apply — the Account page (where the operator
+        // would start a trial or enter a license key) isn't even
+        // reachable, so leaving the cap active would lock them out
+        // with no path back. Discovered on the JG4IT pilot install:
+        // operator disabled the License module via Authorization →
+        // Modules; tried to add a second team; got the cap_teams
+        // redirect; landed on a page that no longer exists in the
+        // menu. Treat module-disabled as "operator opted out of
+        // license enforcement on this install."
+        if ( class_exists( '\\TT\\Core\\ModuleRegistry' )
+             && ! \TT\Core\ModuleRegistry::isEnabled( '\\TT\\Modules\\License\\LicenseModule' )
+        ) {
+            return false;
+        }
         if ( self::tier() !== FeatureMap::TIER_FREE ) return false;
         if ( self::isInTrial() ) return false;
         // Grace is read-only Free, so caps DO apply — you can read existing data

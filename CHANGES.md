@@ -1,3 +1,27 @@
+# TalentTrack v3.85.2 — Free-tier cap respects License module state
+
+Found on the JG4IT pilot install. Companion to v3.85.1's wizard bugs; both surfaced from the same install setup session.
+
+## What broke
+
+Operator disabled the License module via Authorization → Modules. Tried to add a second team. Got the `cap_teams` redirect to `?page=tt-account`. Landed on a "Page not found" because the Account submenu lives under the License module — disabled = no menu entry = no callback registered with WP. Stuck with no path back to clear the cap.
+
+## Root cause
+
+`LicenseGate::capsExceeded()` (in `src/Modules/License/LicenseGate.php`) short-circuits on paid tier or active trial — but not on "License module disabled." Cap enforcement and the operator's escape hatch are both owned by the same module, but the gating call site (`TeamsPage::handle_save_team`) lives outside the module and runs unconditionally. So disabling the module turned off the path back without turning off the gate.
+
+## What was fixed
+
+`LicenseGate::capsExceeded()` now also checks `ModuleRegistry::isEnabled( LicenseModule::class )`. If false, returns `false` immediately (no enforcement). Treats module-disabled as "operator opted out of license enforcement on this install." Re-enabling the module restores the previous behaviour exactly.
+
+## Operator unblock for installs already wedged
+
+If you're already in the wedged state on v3.85.1 or earlier:
+
+1. **Easiest**: visit `wp-admin/admin.php?page=tt-modules` (Authorization → Modules) and toggle **License** back on. The Account menu reappears.
+2. **If the Authorization → Modules tab is also missing**: drop into the database and `DELETE FROM wp_tt_module_state WHERE module_class LIKE '%LicenseModule%'`. Defaults to enabled when no row exists.
+3. **Long term**: upgrade to v3.85.2 — disabling the License module no longer wedges the install.
+
 # TalentTrack v3.85.1 — Wizard bugs found by JG4IT pilot
 
 > Renumbered from v3.84.3 in PR after parallel work claimed v3.84.3 and v3.85.0 mid-CI. Code unchanged.

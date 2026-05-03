@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.85.1
+Stable tag: 3.85.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.85.2 — Free-tier cap respects License module state =
+
+Found on the JG4IT pilot install: operator disabled the License module via Authorization → Modules; tried to add a second team; got the `cap_teams` redirect to `?page=tt-account`; landed on a page that no longer exists in the menu (because the License module that owns it is off). Stuck. `LicenseGate::capsExceeded()` short-circuited only on paid tier / active trial, never on "module disabled" — so disabling the License module didn't disable cap enforcement, just the operator's path to clear the cap. Fix: short-circuit to `false` when `ModuleRegistry::isEnabled(LicenseModule::class)` returns false. Treats module-disabled as "operator opted out of license enforcement on this install." Re-enabling the module restores the previous behaviour.
 
 = 3.85.1 — Wizard age-group dropdown empty + new player invisible after wizard save =
 
