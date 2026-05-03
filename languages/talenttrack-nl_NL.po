@@ -8848,6 +8848,9 @@ msgstr "— geen koppeling —"
 msgid "— pick one —"
 msgstr "— kies er een —"
 
+msgid "— not specified —"
+msgstr "— niet opgegeven —"
+
 msgid "Pick the entity to link"
 msgstr "Kies de entiteit om aan te koppelen"
 

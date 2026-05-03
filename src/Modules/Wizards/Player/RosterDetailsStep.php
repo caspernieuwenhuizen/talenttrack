@@ -41,11 +41,17 @@ final class RosterDetailsStep implements WizardStepInterface {
 
         echo '<label><span>' . esc_html__( 'Jersey number', 'talenttrack' ) . '</span><input type="number" inputmode="numeric" min="0" max="99" name="jersey_number" value="' . esc_attr( (string) ( $state['jersey_number'] ?? '' ) ) . '"></label>';
 
+        // v3.85.5 — read from tt_lookups via the render-aware helper so
+        // the dropdown shows translated labels and respects the
+        // operator's custom foot-option vocabulary. Previously this
+        // step had a hardcoded `['', 'left', 'right', 'both']` list +
+        // `ucfirst()` for the label — English-only and ignored any
+        // custom values the operator added in Configuration → Lookups.
         echo '<label><span>' . esc_html__( 'Preferred foot', 'talenttrack' ) . '</span><select name="preferred_foot">';
         $foot = (string) ( $state['preferred_foot'] ?? '' );
-        foreach ( [ '', 'left', 'right', 'both' ] as $f ) {
-            $label = $f === '' ? __( '— not specified —', 'talenttrack' ) : ucfirst( $f );
-            echo '<option value="' . esc_attr( $f ) . '" ' . selected( $foot, $f, false ) . '>' . esc_html( $label ) . '</option>';
+        echo '<option value="" ' . selected( $foot, '', false ) . '>' . esc_html__( '— not specified —', 'talenttrack' ) . '</option>';
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookup_label_pairs( 'foot_option' ) as $stored => $label ) {
+            echo '<option value="' . esc_attr( (string) $stored ) . '" ' . selected( $foot, (string) $stored, false ) . '>' . esc_html( (string) $label ) . '</option>';
         }
         echo '</select></label>';
     }

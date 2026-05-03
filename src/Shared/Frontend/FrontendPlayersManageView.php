@@ -140,10 +140,10 @@ class FrontendPlayersManageView extends FrontendViewBase {
         foreach ( QueryHelpers::get_lookup_names( 'position' ) as $pos ) {
             $position_options[ (string) $pos ] = (string) $pos;
         }
-        $foot_options = [];
-        foreach ( QueryHelpers::get_lookup_names( 'foot_option' ) as $f ) {
-            $foot_options[ (string) $f ] = (string) $f;
-        }
+        // v3.85.5 — render-aware lookup pairs so the dropdown shows the
+        // translated label to NL users while keeping the stored
+        // English name as the form value (preserves DB matching).
+        $foot_options = QueryHelpers::get_lookup_label_pairs( 'foot_option' );
         $age_group_options = [];
         foreach ( QueryHelpers::get_lookup_names( 'age_group' ) as $ag ) {
             $age_group_options[ (string) $ag ] = (string) $ag;
@@ -235,7 +235,8 @@ class FrontendPlayersManageView extends FrontendViewBase {
 
         $teams      = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
         $positions  = QueryHelpers::get_lookup_names( 'position' );
-        $foot_opts  = QueryHelpers::get_lookup_names( 'foot_option' );
+        // v3.85.5 — render-aware lookup pairs (stored => translated label).
+        $foot_opts  = QueryHelpers::get_lookup_label_pairs( 'foot_option' );
         $current_positions = $player ? ( json_decode( (string) $player->preferred_positions, true ) ?: [] ) : [];
 
         $rate_card_url = $is_edit
@@ -278,8 +279,8 @@ class FrontendPlayersManageView extends FrontendViewBase {
                     <label class="tt-field-label" for="tt-player-foot"><?php esc_html_e( 'Preferred foot', 'talenttrack' ); ?></label>
                     <select id="tt-player-foot" class="tt-input" name="preferred_foot">
                         <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
-                        <?php foreach ( $foot_opts as $f ) : ?>
-                            <option value="<?php echo esc_attr( (string) $f ); ?>" <?php selected( (string) ( $player->preferred_foot ?? '' ), (string) $f ); ?>><?php echo esc_html( (string) $f ); ?></option>
+                        <?php foreach ( $foot_opts as $stored => $label ) : ?>
+                            <option value="<?php echo esc_attr( (string) $stored ); ?>" <?php selected( (string) ( $player->preferred_foot ?? '' ), (string) $stored ); ?>><?php echo esc_html( (string) $label ); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>

@@ -1,3 +1,86 @@
+# TalentTrack v3.86.2 — Wizard URL 404 on non-dashboard front pages + structural lookup-translation helper
+
+Two bugs reported on the JG4IT pilot install (`jg4it.mediamaniacs.nl`), shipped together because they share the "structural fix, not patch one site" framing the operator asked for. Renumbered v3.85.5 → v3.86.1 → v3.86.2 across two successive collisions: first v3.86.0 (authorization matrix discoverability) landed mid-CI, then v3.86.1 (comprehensive license enforcement) landed on the second push.
+
+## Bug 1 — Wizard URL 404
+
+### What broke
+
+`?tt_view=wizard&slug=new-team` and the resume-banner's `?tt_view=wizard&slug=new-team&dismiss_resume=1` both 404'd. Operator clicks "Resume" or "+ New team" → lands on the WP home page, which on JG4IT is **not** the dashboard page → `[talenttrack_dashboard]` shortcode never runs → the wizard router never sees the request.
+
+### Root cause
+
+`WizardEntryPoint::dashboardBaseUrl()` was building wizard URLs off `$_SERVER['REQUEST_URI']`. When the operator hits `?tt_view=wizard&slug=new-team` directly (or after the resume-banner redirects to the same URL with `&dismiss_resume=1`), WP routes that as a query-only URL on `/`. REQUEST_URI is `/`, the resulting `add_query_arg()` build sticks the wizard params on `home_url('/')`, and on installs where the home page isn't the dashboard the shortcode never fires. Same root cause family as the v3.85.0 `RecordLink::dashboardUrl()` fix on a different code path — the dashboard's URL resolution chain wasn't shared.
+
+### Fix
+
+`dashboardBaseUrl()` now delegates to `RecordLink::dashboardUrl()`, which uses the proper resolution chain:
+
+1. Configured `dashboard_page_id` (op-set in Configuration).
+2. Shortcode-discovery scan (find a published page with `[talenttrack_dashboard]`).
+3. REQUEST_URI fallback.
+4. `home_url('/')` last resort.
+
+Then strips wizard-specific query args (`tt_view`, `slug`, `restart`, `dismiss_resume`, plus the standard detail-link args the resolver doesn't strip itself) so the result is a clean base. Kept the REQUEST_URI defensive fallback for the case where `RecordLink` isn't loaded (shouldn't happen — it's core — but won't crash if a module-disable scenario removes it).
+
+## Bug 2 — Preferred-foot dropdown English-only (structural fix)
+
+### What broke
+
+On the player create/edit screens (wp-admin **and** frontend, **and** the new-player wizard's `RosterDetailsStep`), the **Preferred foot** dropdown showed `Left / Right / Both` in English — even on a Dutch-locale install where every other label was correctly translated. Custom foot-option values the operator added in Configuration → Lookups also didn't surface in the wizard.
+
+### Root cause
+
+Four render sites were each building the foot-option dropdown ad-hoc:
+
+- `PlayersPage.php` (wp-admin) — queried `tt_lookups` raw.
+- `FrontendPlayersManageView.php` (frontend list filter + edit form) — queried `tt_lookups` raw, twice in the same file.
+- `RosterDetailsStep.php` (wizard) — hardcoded `['', 'left', 'right', 'both']` array, with `ucfirst()` for the label. English-only by construction.
+
+None of them went through `LookupTranslator::name()`, so seeded labels never picked up Dutch translations (the msgids exist in `talenttrack-nl_NL.po`). The wizard didn't even consult `tt_lookups`, so any operator-added custom foot options were invisible to it.
+
+### Fix
+
+New structural helper: `QueryHelpers::get_lookup_label_pairs(string $type): array` returns `[stored_name => translated_label]` pairs via `LookupTranslator::name()`. One call site, render-aware translation, picks up custom lookup values automatically.
+
+All four foot-dropdown sites now consume that one helper. Going forward, any new lookup-driven dropdown anywhere in the codebase is a one-liner that gets translation + custom-value support for free — the structural smell ("five different render paths, four different bugs") becomes "one helper, one bug surface."
+
+## What did *not* change
+
+- The `validate()` allowlist in `RosterDetailsStep` still hardcodes `['', 'left', 'right', 'both']`. That's a separate (related) bug — operator adds a custom foot value (e.g. `equal` for ambidextrous), wizard accepts it from the dropdown, validate strips it back to empty. Logging it for a follow-up; out of scope for the dropdown render fix.
+- Other lookup dropdowns (position, role, age-group) weren't audited in this PR — they likely have the same render-paths-don't-translate pattern. Migrate them to `get_lookup_label_pairs()` opportunistically as you touch them, or do a systematic sweep in a future PR.
+
+# TalentTrack v3.86.1 — Comprehensive license enforcement (PRs 1+2+3 bundled)
+
+User asked for an audit + fix of every action that should be license-gated. Three PRs bundled into one ship to avoid merge-train rebase pain across overlapping surfaces. (CHANGES.md / readme.txt / SEQUENCE.md backfilled in v3.86.2 because the original ship didn't include them.)
+
+## PR 1 — close holes that already had wp-admin gates but bypassed elsewhere
+
+- New `LicenseGate::allows()` / `enforceFeatureRest()` / `enforceCapRest()` helpers so REST + wizard + admin paths share one decision layer.
+- REST `POST /players` checks `capsExceeded('players')`; returns 402 with `license_cap_players` code. Frontend manage view + new-player wizard REST submit now both gated.
+- REST `POST /teams` same pattern.
+- New-player wizard `ReviewStep` checks cap pre-insert.
+- New-team wizard `ReviewStep` checks cap pre-insert.
+- `PlayerCsvImporter` cap-checks per-row (so a 100-row CSV doesn't stop at row 26 with cryptic dupe-key — each blocked row carries the upgrade message). Whole CSV blocks when `csv_import` feature is off.
+- `FrontendPlayersManageView` + `FrontendTeamsManageView` hide the New button + render `UpgradeNudge::capHit` when at cap (was: button available, click through to a wizard that 402'd at submit time).
+
+## PR 2 — gate Pro/Standard features that had no enforcement at all
+
+- Trials hard cut: `FrontendTrialsManageView` + `FrontendTrialCaseView` + `FrontendTrialParentMeetingView` + `FrontendTrialTracksEditorView` + `FrontendTrialLetterTemplatesEditorView` + `TrialsRestController` all short-circuit to `UpgradeNudge` / 402 when `trial_module` isn't allowed. Existing trial data stays in the DB — no loss — just inaccessible until upgrade.
+- Team chemistry: `FrontendTeamChemistryView` gated on `team_chemistry`.
+- Scout: `FrontendScoutHistoryView` + `FrontendScoutMyPlayersView` gated on `scout_access`.
+- Functional roles: `FrontendFunctionalRolesView` gated on `functional_roles`.
+
+## PR 3 — read-only "Plan & restrictions" admin page
+
+- New TalentTrack → Plan & restrictions submenu via `PlanOverviewPage`. Visible to everyone with the read cap (not just operators).
+- Sections: current tier + trial/grace banner; caps table (current vs limit, color-coded at-cap warning); 3-column features matrix (Free / Standard / Pro × every feature) with the operator's effective tier highlighted; CTA to `AccountPage` to upgrade.
+- Distinct from `AccountPage` which stays operator-only and handles the Freemius checkout / trial-start flow.
+
+## What's deferred
+
+- `radar_charts` / `undo_bulk` / `partial_restore` / `s3_backup` have no enforcement surface yet — the FeatureMap declares them but no code reads the gate. The PlanOverview matrix lists them as Standard/Pro features so operators see the future restriction; the runtime is currently free for all. Tracked as a small follow-up.
+
 # TalentTrack v3.86.0 — Authorization matrix discoverability + sub-cap sweep on settings tiles
 
 User reported: clearing R/C/D for the Head of Development on the `audit_log` entity in the matrix didn't hide the Audit log tile on the HoD dashboard. Root cause was an umbrella-cap mismatch — the tile gated on `tt_view_settings` rather than `tt_view_audit_log`, so the matrix bridge revoked the granular cap but the tile asked the broader one. Same shape applied to seven other settings-area surfaces. Plus: the matrix UI displayed raw entity slugs (e.g. `dev_ideas`), which are unmappable back to a Dutch tile labeled "Podium" without grepping the source. This release closes both gaps.

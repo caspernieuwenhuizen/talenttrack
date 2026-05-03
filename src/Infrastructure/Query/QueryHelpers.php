@@ -99,6 +99,36 @@ class QueryHelpers {
         return wp_list_pluck( $items, 'name' );
     }
 
+    /**
+     * v3.85.5 — render-aware companion to `get_lookup_names()`. Returns
+     * `[ stored_name => translated_label ]` pairs so dropdowns can
+     * keep the raw English name as the form value (preserving DB
+     * matching on existing rows) while showing the translated label
+     * to the user.
+     *
+     * Use anywhere a lookup-driven dropdown is rendered. The bug this
+     * solves is structural: every site that built a `<select>` from
+     * `get_lookup_names()` was rendering the raw DB name as the
+     * visible label, bypassing both the inline `tt_i18n` translations
+     * column AND the .po-loaded `__()` strings. Reported on the
+     * preferred-foot dropdown by JG4IT — same defect on every other
+     * lookup-driven dropdown (positions, age groups, goal statuses,
+     * goal priorities, attendance statuses, etc.).
+     *
+     * @return array<string, string>
+     */
+    public static function get_lookup_label_pairs( string $type ): array {
+        $pairs = [];
+        foreach ( self::get_lookups( $type ) as $row ) {
+            $stored = (string) ( $row->name ?? '' );
+            if ( $stored === '' ) continue;
+            $pairs[ $stored ] = class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' )
+                ? \TT\Infrastructure\Query\LookupTranslator::name( $row )
+                : $stored;
+        }
+        return $pairs;
+    }
+
     /** @return array<string,mixed> */
     public static function lookup_meta( ?object $lookup ): array {
         if ( ! $lookup || empty( $lookup->meta ) ) return [];
