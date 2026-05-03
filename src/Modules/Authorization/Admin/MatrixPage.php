@@ -4,6 +4,7 @@ namespace TT\Modules\Authorization\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Authorization\Matrix\MatrixRepository;
+use TT\Modules\Authorization\Admin\MatrixEntityCatalog;
 
 /**
  * MatrixPage — Authorization → Matrix admin UI (#0033 Sprint 3).
@@ -45,6 +46,17 @@ class MatrixPage {
         $scope_kinds = [ 'global', 'team', 'player', 'self' ];
 
         $msg = isset( $_GET['tt_msg'] ) ? sanitize_key( (string) wp_unslash( $_GET['tt_msg'] ) ) : '';
+
+        // Discoverability — is the matrix bridge actually applying?
+        // When `tt_authorization_active` is 0, the user_has_cap filter
+        // doesn't fire and matrix edits have no runtime effect; the
+        // operator needs to know that explicitly so they don't think
+        // "I changed it but nothing happened" is a bug in their edit.
+        $matrix_active = false;
+        if ( class_exists( '\\TT\\Infrastructure\\Config\\ConfigService' ) ) {
+            $cfg = new \TT\Infrastructure\Config\ConfigService();
+            $matrix_active = (bool) $cfg->getBool( 'tt_authorization_active', false );
+        }
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Authorization Matrix', 'talenttrack' ); ?> <?php \TT\Shared\Admin\HelpLink::render( 'access-control' ); ?></h1>
@@ -52,22 +64,45 @@ class MatrixPage {
                 <?php esc_html_e( 'Define what each persona can do on each entity. R = read, C = change (edit), D = create/delete. Scope narrows the grant: "global" applies everywhere; "team" or "player" require the user to also have that scope assignment.', 'talenttrack' ); ?>
             </p>
 
+            <?php if ( ! $matrix_active ) : ?>
+                <div class="notice notice-warning">
+                    <p>
+                        <strong><?php esc_html_e( 'The matrix is currently dormant.', 'talenttrack' ); ?></strong>
+                        <?php esc_html_e( 'Your edits are saved but have no runtime effect: native WP capability checks decide instead. Enable the bridge on Authorization → Migration preview to make the matrix authoritative.', 'talenttrack' ); ?>
+                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-matrix-preview' ) ); ?>"><?php esc_html_e( 'Open Migration preview →', 'talenttrack' ); ?></a>
+                    </p>
+                </div>
+            <?php endif; ?>
+
             <?php if ( $msg === 'saved' ) : ?>
                 <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Matrix saved.', 'talenttrack' ); ?></p></div>
             <?php elseif ( $msg === 'reset' ) : ?>
                 <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Matrix reset to defaults.', 'talenttrack' ); ?></p></div>
             <?php endif; ?>
 
+            <p style="margin-top:14px;">
+                <label for="tt-matrix-search" style="display:inline-block; margin-right:8px; font-weight:600;">
+                    <?php esc_html_e( 'Find entity:', 'talenttrack' ); ?>
+                </label>
+                <input
+                    type="search"
+                    id="tt-matrix-search"
+                    placeholder="<?php echo esc_attr__( 'Type to filter — matches entity slug, label, or consumer (e.g. \'audit\', \'podium\', \'lookups\')', 'talenttrack' ); ?>"
+                    style="min-width:420px; padding:6px 10px;"
+                />
+                <span id="tt-matrix-search-count" style="margin-left:8px; color:#888; font-size:12px;"></span>
+            </p>
+
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="tt-matrix-form">
                 <?php wp_nonce_field( 'tt_matrix_save', 'tt_nonce' ); ?>
                 <input type="hidden" name="action" value="tt_matrix_save" />
 
                 <table class="widefat striped tt-matrix-table" style="margin-top:14px;">
-                    <thead>
+                    <thead style="position:sticky; top:32px; background:#fff; z-index:3;">
                         <tr>
-                            <th style="position:sticky; left:0; background:#fff; z-index:2;"><?php esc_html_e( 'Entity', 'talenttrack' ); ?></th>
+                            <th style="position:sticky; left:0; background:#fff; z-index:4; min-width:280px;"><?php esc_html_e( 'Entity', 'talenttrack' ); ?></th>
                             <?php foreach ( $personas as $persona ) : ?>
-                                <th><?php echo esc_html( self::personaLabel( $persona ) ); ?></th>
+                                <th style="background:#fff;"><?php echo esc_html( self::personaLabel( $persona ) ); ?></th>
                             <?php endforeach; ?>
                         </tr>
                     </thead>
@@ -87,11 +122,35 @@ class MatrixPage {
                         foreach ( $rows_in_category as $entity_row ) :
                             $entity = $entity_row['entity'];
                             $module = $entity_row['module_class'];
+                            $entity_label = MatrixEntityCatalog::entityLabel( $entity );
+                            $consumers   = MatrixEntityCatalog::consumersOf( $entity );
+                            $consumer_labels = array_map(
+                                static fn( array $c ): string => (string) $c['label'],
+                                $consumers
+                            );
+                            $consumer_blob = implode( ' ', $consumer_labels );
+                            // data-tt-haystack drives the fuzzy search filter.
+                            $haystack = strtolower( $entity . ' ' . $entity_label . ' ' . self::shortModule( $module ) . ' ' . $consumer_blob );
                             ?>
-                        <tr>
-                            <td style="position:sticky; left:0; background:#fff; font-weight:600;">
-                                <?php echo esc_html( $entity ); ?>
-                                <small style="display:block; color:#888; font-weight:400;"><?php echo esc_html( self::shortModule( $module ) ); ?></small>
+                        <tr data-tt-haystack="<?php echo esc_attr( $haystack ); ?>">
+                            <td style="position:sticky; left:0; background:#fff; font-weight:600; min-width:280px;">
+                                <?php echo esc_html( $entity_label ); ?>
+                                <small style="display:block; color:#888; font-weight:400; font-family:monospace;"><?php echo esc_html( $entity ); ?> · <?php echo esc_html( self::shortModule( $module ) ); ?></small>
+                                <?php if ( ! empty( $consumer_labels ) ) : ?>
+                                    <small style="display:block; color:#1d3a4a; font-weight:400; margin-top:2px;">
+                                        <?php
+                                        printf(
+                                            /* translators: 1: comma-separated list of UI surface labels that consume this entity */
+                                            esc_html__( 'Used by: %1$s', 'talenttrack' ),
+                                            esc_html( implode( ', ', $consumer_labels ) )
+                                        );
+                                        ?>
+                                    </small>
+                                <?php else : ?>
+                                    <small style="display:block; color:#b32d2e; font-weight:400; margin-top:2px;">
+                                        <?php esc_html_e( 'No tile / admin surface gates on this entity yet.', 'talenttrack' ); ?>
+                                    </small>
+                                <?php endif; ?>
                             </td>
                             <?php foreach ( $personas as $persona ) :
                                 $cell = $grid[ $persona ][ $entity ] ?? [];
@@ -171,6 +230,53 @@ class MatrixPage {
                     sel.addEventListener('change', function(){ if (pill) pill.style.display = 'inline-block'; });
                 });
             })();
+
+            // Fuzzy filter on the entity rows. Matches against the
+            // entity slug, localized label, owning module, and any
+            // surface (tile/menu/dashboard) that consumes the entity.
+            // Hides rows whose haystack doesn't match every search
+            // token; category headers are hidden when every row in
+            // their category is hidden.
+            (function(){
+                var input  = document.getElementById('tt-matrix-search');
+                var counter = document.getElementById('tt-matrix-search-count');
+                if (!input) return;
+                var rows = Array.from(document.querySelectorAll('tr[data-tt-haystack]'));
+                var headers = Array.from(document.querySelectorAll('tr.tt-matrix-category'));
+                var totalRows = rows.length;
+
+                function applyFilter(){
+                    var q = (input.value || '').trim().toLowerCase();
+                    var tokens = q.length ? q.split(/\s+/) : [];
+                    var visible = 0;
+                    rows.forEach(function(r){
+                        var hay = r.getAttribute('data-tt-haystack') || '';
+                        var match = tokens.every(function(t){ return hay.indexOf(t) !== -1; });
+                        r.style.display = match ? '' : 'none';
+                        if (match) visible++;
+                    });
+                    // Hide category headers whose subsequent rows are all hidden.
+                    headers.forEach(function(h){
+                        var anyVisible = false;
+                        var n = h.nextElementSibling;
+                        while (n && !n.classList.contains('tt-matrix-category')) {
+                            if (n.style.display !== 'none') { anyVisible = true; break; }
+                            n = n.nextElementSibling;
+                        }
+                        h.style.display = anyVisible ? '' : 'none';
+                    });
+                    if (counter) {
+                        counter.textContent = q.length
+                            ? (visible + ' / ' + totalRows)
+                            : '';
+                    }
+                }
+                input.addEventListener('input', applyFilter);
+                // Esc clears.
+                input.addEventListener('keydown', function(e){
+                    if (e.key === 'Escape') { input.value = ''; applyFilter(); }
+                });
+            })();
             </script>
 
             <hr style="margin:24px 0;" />
@@ -185,6 +291,29 @@ class MatrixPage {
                 <input type="hidden" name="action" value="tt_matrix_reset" />
                 <button type="submit" class="button"><?php esc_html_e( 'Reset to defaults', 'talenttrack' ); ?></button>
             </form>
+
+            <hr style="margin:24px 0;" />
+
+            <h2><?php esc_html_e( 'Tiles not controlled by the matrix', 'talenttrack' ); ?></h2>
+            <p style="color:#5b6e75; max-width: 800px;">
+                <?php esc_html_e( 'These tiles gate visibility on a custom callback rather than a capability tied to a matrix entity. Editing R/C/D for any persona above will not hide them. Use the dashboard tile\'s `hide_for_personas` field, or refactor the callback, to suppress them per persona.', 'talenttrack' ); ?>
+            </p>
+            <?php
+            $callback_tiles = MatrixEntityCatalog::callbackGatedTiles();
+            if ( empty( $callback_tiles ) ) {
+                echo '<p><em>' . esc_html__( 'None — every tile is matrix-controlled. Nice.', 'talenttrack' ) . '</em></p>';
+            } else {
+                echo '<ul style="margin-left:18px; list-style:disc;">';
+                foreach ( $callback_tiles as $t ) {
+                    echo '<li>' . esc_html( $t['label'] );
+                    if ( $t['view_slug'] !== '' ) {
+                        echo ' <code style="color:#888;">' . esc_html( $t['view_slug'] ) . '</code>';
+                    }
+                    echo '</li>';
+                }
+                echo '</ul>';
+            }
+            ?>
 
             <hr style="margin:24px 0;" />
 

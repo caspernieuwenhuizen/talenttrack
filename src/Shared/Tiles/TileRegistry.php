@@ -117,6 +117,16 @@ final class TileRegistry {
     }
 
     /**
+     * Read-only snapshot of every registered tile. Used by the matrix
+     * admin UI to compute the reverse index "which tiles consume entity X".
+     *
+     * @return list<array<string,mixed>>
+     */
+    public static function allRegistered(): array {
+        return self::$tiles;
+    }
+
+    /**
      * Register a `tt_view=<slug>` ownership mapping without a visible
      * tile. Used for sub-views the dispatcher reaches directly (e.g.
      * `?tt_view=eval-categories` from the Configuration tile-landing)

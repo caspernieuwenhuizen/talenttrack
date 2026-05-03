@@ -1,3 +1,42 @@
+# TalentTrack v3.86.0 — Authorization matrix discoverability + sub-cap sweep on settings tiles
+
+User reported: clearing R/C/D for the Head of Development on the `audit_log` entity in the matrix didn't hide the Audit log tile on the HoD dashboard. Root cause was an umbrella-cap mismatch — the tile gated on `tt_view_settings` rather than `tt_view_audit_log`, so the matrix bridge revoked the granular cap but the tile asked the broader one. Same shape applied to seven other settings-area surfaces. Plus: the matrix UI displayed raw entity slugs (e.g. `dev_ideas`), which are unmappable back to a Dutch tile labeled "Podium" without grepping the source. This release closes both gaps.
+
+## Sub-cap sweep — settings-area surfaces now matrix-controlled
+
+Eight surfaces switched from `tt_view_settings` / `tt_edit_settings` (umbrella roll-ups) to their specific sub-cap so each maps 1:1 to a matrix entity:
+
+- Frontend Audit log tile → `tt_view_audit_log` (entity `audit_log`).
+- Admin menu: Custom Fields → `tt_view_custom_fields` (`custom_field_definitions`).
+- Admin menu: Evaluation Categories → `tt_view_evaluation_categories`.
+- Admin menu: Category Weights → `tt_view_category_weights`.
+- Admin menu: Seasons → `tt_edit_seasons`.
+- Admin menu: Functional Roles → `tt_view_functional_roles`.
+- Admin dashboard tiles: Custom Fields, Evaluation Categories, Category Weights, Functional Roles — same sub-caps as the menu items above.
+
+Existing role grants are unaffected: any user who held `tt_view_settings` directly via their WP role retained access automatically because the umbrella roll-up filter (`CapabilityAliases::filter`) still grants the umbrella when *all* sub-caps are held. Only personas the operator explicitly revokes in the matrix (or who never had the sub-cap in the first place) lose access.
+
+## Matrix admin page — discoverability overhaul
+
+- **Active-state banner.** When `tt_authorization_active = 0`, a warning notice points to Authorization → Migration preview. Without that flag the bridge is dormant and matrix edits have no runtime effect; the operator now learns this before assuming a save broke.
+- **Localized entity labels** in the entity column. Each row leads with the operator-locale label (e.g. "Audit log", "Ideeën") and shows the slug + module class as a small monospace caption underneath, so technical references in the codebase still resolve.
+- **Bidirectional consumer labels.** Each entity row now shows "Used by: Tile A, Admin page B, Dashboard tile C" — derived by walking `TileRegistry::allRegistered()`, `AdminMenuRegistry::allEntries()`, `AdminMenuRegistry::allDashboardTiles()`, and looking each surface's declared `cap` up in `LegacyCapMapper::tupleFor()`. Surfaces with no string cap (callback-gated) are surfaced separately (see below). An entity with zero consumers gets a red note so the operator can see which matrix rows are dead weight.
+- **Fuzzy search.** New input above the table filters rows by entity slug + label + module class + consumer surface labels. Typing "podium" jumps to the row consuming the entity behind the Podium tile; typing "audit" narrows to `audit_log` + `authorization_changelog`. Esc clears. Match counter shows visible/total. Category headers hide automatically when their rows are all filtered out.
+- **Sticky header + sticky first column.** `<thead>` and the entity column stay anchored as you scroll a long matrix in either direction, so the persona row and the entity context never leave the viewport together.
+- **"Tiles not controlled by the matrix" section.** Lists every tile registered with a `cap_callback` (closure) instead of a string cap. These tiles bypass the `user_has_cap` bridge and matrix edits have no effect on them — the section names them so the operator can use `hide_for_personas` (the existing per-persona suppress mechanism, see #0069) or wait for the follow-up callback-tile refactor.
+
+## New helpers
+
+- `LegacyCapMapper::capsForEntity( string $entity ): array` — reverse lookup, every cap mapping to a given entity. Used to compute the consumer index.
+- `TileRegistry::allRegistered(): array` — read-only snapshot of every registered tile.
+- `AdminMenuRegistry::allEntries(): array` + `::allDashboardTiles(): array` — same shape, for the admin-side surfaces.
+- `MatrixEntityCatalog` — encapsulates the slug→label translation and the consumer index. Lives under `src/Modules/Authorization/Admin/`.
+
+## What's deferred
+
+- The 17 tiles that gate on `cap_callback` (Podium, Coach team detail, parent dashboard variants, etc.) still bypass the matrix entirely. Migrating them either to a string `cap` declaration or to a matrix-aware callback is a follow-up: each callback may combine ownership checks with capability checks, so a generic refactor isn't appropriate. Tracked as part of the `#0033` matrix epic.
+- Per-tile "what gates this?" admin affordance on the dashboard (Option B in the design discussion). Held until the callback-tile refactor lands; without that, the affordance would have to handle two parallel gating models on the same tile.
+
 # TalentTrack v3.85.4 — wp-admin Players list: "Show all players (bypass demo filter)" toggle
 
 Companion to v3.85.1's wizard tag-fix. Operators with installs that already accumulated demo-untagged players (e.g. created via the wizard before v3.85.1 landed) couldn't see them in `wp-admin → Players` to delete them — `apply_demo_scope` filters the list by demo tag when demo mode is non-NEUTRAL, and untagged rows fall outside the filter on both sides (`IN (demo set)` is false for untagged rows when demo-ON; `NOT IN (demo set)` is true so they DO appear when demo-OFF, but the operator may have been viewing demo-ON to demonstrate).

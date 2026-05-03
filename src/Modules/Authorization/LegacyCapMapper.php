@@ -213,6 +213,23 @@ final class LegacyCapMapper {
     }
 
     /**
+     * Reverse lookup — return every cap slug that maps to a given
+     * entity. Used by the matrix admin UI to show "this entity is
+     * consumed by tiles gated on caps X, Y, Z".
+     *
+     * @return list<string>
+     */
+    public static function capsForEntity( string $entity ): array {
+        $out = [];
+        foreach ( self::MAPPING as $cap => $tuple ) {
+            if ( ( $tuple[0] ?? '' ) === $entity ) {
+                $out[] = (string) $cap;
+            }
+        }
+        return $out;
+    }
+
+    /**
      * @return list<string> all known cap slugs — used by tests / preview report.
      */
     public static function knownCaps(): array {

@@ -255,6 +255,21 @@ final class AdminMenuRegistry {
     }
 
     /** Drop every registration. Tests use this between scenarios. */
+    /**
+     * Read-only snapshots used by the matrix admin UI to compute
+     * "which surfaces consume entity X".
+     *
+     * @return list<array<string,mixed>>
+     */
+    public static function allEntries(): array {
+        return self::$entries;
+    }
+
+    /** @return list<array<string,mixed>> */
+    public static function allDashboardTiles(): array {
+        return self::$dashboardTiles;
+    }
+
     public static function clear(): void {
         self::$entries        = [];
         self::$dashboardTiles = [];
