@@ -11905,6 +11905,28 @@ msgstr "Nooit"
 msgid "Functional roles"
 msgstr "Functionele rollen"
 
+# v3.84.1 / #0075 follow-up — full-stylesheet download
+msgid "Download saved CSS"
+msgstr "Opgeslagen CSS downloaden"
+
+msgid "Download full stylesheet (for designer)"
+msgstr "Volledige stylesheet downloaden (voor designer)"
+
+msgid "Download full stylesheet"
+msgstr "Volledige stylesheet downloaden"
+
+msgid "Saved CSS contains only your overrides. Full stylesheet bundles every TalentTrack stylesheet plus your overrides into one file — give it to a designer for a holistic pass, then re-upload via the Upload tab."
+msgstr "Opgeslagen CSS bevat alleen je eigen overrides. Volledige stylesheet bundelt elke TalentTrack-stylesheet plus je overrides in één bestand — geef het aan een designer voor een complete styling-ronde en upload het daarna via het Upload-tabblad."
+
+msgid "Round-trip with a designer"
+msgstr "Designerronde"
+
+msgid "Step 1 — download the full stylesheet. Step 2 — your designer edits it. Step 3 — re-upload it below. The bundled stylesheets keep loading; your edited file wins on source order, so any selectors the designer touched override the bundled defaults."
+msgstr "Stap 1 — download de volledige stylesheet. Stap 2 — je designer past deze aan. Stap 3 — upload het bewerkte bestand hieronder. De meegeleverde stylesheets blijven laden; jouw bewerkte bestand wint op laadvolgorde, dus alle selectoren die de designer heeft aangepast overschrijven de standaardwaarden."
+
+msgid "File (max 500 KB)"
+msgstr "Bestand (max 500 KB)"
+
 # v3.83.0 / i18n audit (May 2026) Bundles 5 + 6 — eval category render-site cleanup + Excel template instructions
 
 # Bundle 6 — Excel demo-data template instructions

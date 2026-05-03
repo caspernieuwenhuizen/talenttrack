@@ -1,3 +1,31 @@
+# TalentTrack v3.84.1 — Custom CSS full-stylesheet round-trip for designer hand-off
+
+> Renumbered from v3.83.0 in PR after the parallel i18n bundle claimed v3.83.0 and v3.84.0 mid-CI. Code unchanged.
+
+The original `Download .css` button shipped in v3.79.1 only exported the operator's saved overrides — useful for backups but missing the point if the goal is to hand the styling to a designer for a holistic pass. This PR adds a second export that bundles every TalentTrack stylesheet plus the saved overrides into one file, so a designer sees the full styling vocabulary and can edit any rule.
+
+## What's new
+
+- **`Download full stylesheet (for designer)` button** on the CSS editor tab + a dedicated **Round-trip with a designer** panel on the Upload tab.
+- **`?tt_css_download=full` GET handler** at `template_redirect` priority 5. Cap-gated `tt_admin_styling`, nonce-required. Concatenates every `assets/css/*.css` in load order with separator banners showing the source file, then appends the saved Custom CSS body. Streams as `talenttrack-full-stylesheet-<surface>-v<version>.css`.
+- **`FrontendCustomCssView::buildFullStylesheet( string $custom_css, int $version ): string`** — public method exposing the bundle so future REST consumers or CLI workflows reuse the same shape.
+- **`CssSanitizer::MAX_BYTES` raised from 200_000 to 500_000** — the bundled CSS is ~170 KB before the designer adds anything; the old cap rejected the round-trip on the first re-upload.
+
+## How the round-trip works
+
+1. Operator clicks **Download full stylesheet (for designer)**. Browser saves a single `.css` file with every bundled stylesheet + the operator's overrides + banner comments.
+2. Designer edits any rule in any section.
+3. Operator drops the edited file on the **Upload a .css file** form on the Upload tab.
+4. Sanitizer runs (block-list unchanged: blocks `javascript:`, `expression()`, `behavior:`, remote `@import`, external `@font-face`).
+5. The upload becomes the saved Custom CSS blob. Bundled stylesheets keep loading via `wp_enqueue_style`. The upload's inline `<style>` emission lands after the `<link>` tags, so any selectors the designer touched override by source order. Selectors they didn't touch fall through to the bundled rules.
+
+## What did *not* change
+
+- **Bundled stylesheets always load** — the upload doesn't dequeue them. They stay enqueued as the safety net so a designer who accidentally drops a rule doesn't kill the page. Trades a slight payload increase for correctness.
+- **Inline-PHP `<style>` blocks** (Configuration tile grid etc.) are NOT in the export — server-templated, can't live in a static file. Export header notes this.
+- **`?tt_safe_css=1` escape hatch** unchanged.
+- **Saved-overrides-only download** unchanged in shape; renamed in UI to "Download saved CSS" to disambiguate.
+
 # TalentTrack v3.84.0 — i18n audit (May 2026) Bundles 8 + 9 — JS error-fallback sweep + methodology research closeout
 
 Final fix-PR off the May 2026 i18n audit. Closes Bundles 8 + 9; the audit's 10-bundle triage list is functionally complete.

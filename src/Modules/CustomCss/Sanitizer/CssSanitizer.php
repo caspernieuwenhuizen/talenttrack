@@ -29,8 +29,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 final class CssSanitizer {
 
-    /** Hard size cap on the CSS body, in bytes. */
-    public const MAX_BYTES = 200_000;
+    /**
+     * Hard size cap on the CSS body, in bytes. Lifted from 200_000 to
+     * 500_000 in v3.83.0 because the new "full stylesheet" round-trip
+     * (designer downloads bundled+overrides, edits, re-uploads) ships a
+     * file that's already ~170 KB of bundled content before the
+     * designer adds anything. 500 KB leaves comfortable headroom and
+     * remains well within sane inline-`<style>` and DB-column budgets.
+     */
+    public const MAX_BYTES = 500_000;
 
     /**
      * Run the full block-list. Returns either the sanitized CSS body

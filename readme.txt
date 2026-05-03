@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.84.0
+Stable tag: 3.84.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.84.1 — Custom CSS full-stylesheet round-trip for designer hand-off =
+
+Adds a "Download full stylesheet" button on the CSS editor + Upload tabs that bundles every TalentTrack stylesheet (`public.css`, `frontend-admin.css`, `persona-dashboard.css`, the per-surface ones, plus admin) **plus** the operator's saved Custom CSS overrides into a single concatenated `.css` file with separator banners showing the source file. Hand it to a designer; they edit holistically; you re-upload via the Upload tab. Bundled stylesheets keep loading via `wp_enqueue_style`; the upload wins on source order at the inline `<style>` emission so any selectors the designer touched override the bundled defaults; selectors they didn't touch fall through to the bundled rules. Sanitizer's `MAX_BYTES` cap raised from 200 KB to 500 KB to fit the round-trip (bundled CSS alone is ~170 KB before the designer adds anything). Renumbered from v3.83.0 in PR after the parallel i18n bundle claimed v3.83.0 / v3.84.0.
 
 = 3.84.0 — i18n audit (May 2026) Bundles 8 + 9 — JS error-fallback sweep + methodology research closeout =
 
