@@ -97,11 +97,10 @@ final class RecordLink {
         // 1. Configured page (the happy path).
         $page_id = (int) \TT\Infrastructure\Query\QueryHelpers::get_config( 'dashboard_page_id', '0' );
         if ( $page_id > 0 ) {
-            $permalink = get_permalink( $page_id );
-            if ( $permalink ) return (string) $permalink;
+            return self::permalinkOrHome( $page_id );
         }
 
-        // 2. Self-heal: scan published pages for the [tt_dashboard]
+        // 2. Self-heal: scan published pages for the [talenttrack_dashboard]
         //    shortcode. Caches the discovered id back into tt_config so
         //    subsequent calls hit the fast path. Mirrors Activator's
         //    seedDashboardPageIfMissing adoption logic — the user's
@@ -110,8 +109,7 @@ final class RecordLink {
         $found = self::discoverDashboardPageId();
         if ( $found > 0 ) {
             \TT\Infrastructure\Query\QueryHelpers::set_config( 'dashboard_page_id', (string) $found );
-            $permalink = get_permalink( $found );
-            if ( $permalink ) return (string) $permalink;
+            return self::permalinkOrHome( $found );
         }
 
         // 3. Last-resort: current request URI if a [tt_dashboard]
@@ -129,9 +127,15 @@ final class RecordLink {
     }
 
     /**
-     * Find a published page that hosts the [tt_dashboard] shortcode.
-     * Returns 0 when none is found. Limited to the first 20 pages so
-     * the scan is cheap on large installs.
+     * Find a published page that hosts the [talenttrack_dashboard]
+     * shortcode. Returns 0 when none is found.
+     *
+     * v3.85.0: corrected the search token from `[tt_dashboard` to
+     * `[talenttrack_dashboard` — the only registered shortcode tag is
+     * `talenttrack_dashboard` (DashboardShortcode.php:21). The previous
+     * scan never matched the auto-seeded page from
+     * `Activator::seedDashboardPageIfMissing()` and the function silently
+     * fell through to the REQUEST_URI/home_url fallback chain.
      */
     private static function discoverDashboardPageId(): int {
         $candidates = get_posts( [
@@ -139,15 +143,37 @@ final class RecordLink {
             'post_status'    => 'publish',
             'posts_per_page' => 20,
             'fields'         => 'ids',
-            's'              => '[tt_dashboard',
+            's'              => '[talenttrack_dashboard',
         ] );
         if ( ! is_array( $candidates ) ) return 0;
         foreach ( $candidates as $candidate_id ) {
             $content = get_post_field( 'post_content', (int) $candidate_id );
-            if ( is_string( $content ) && has_shortcode( $content, 'tt_dashboard' ) ) {
+            if ( is_string( $content ) && has_shortcode( $content, 'talenttrack_dashboard' ) ) {
                 return (int) $candidate_id;
             }
         }
         return 0;
+    }
+
+    /**
+     * Resolve a page id to its public URL. When the page is the site's
+     * front page (`show_on_front=page` + `page_on_front=$page_id`), WP
+     * serves it from the site root — using `get_permalink()` would
+     * return the page slug (e.g. `/talenttrack/`) which works but is
+     * ugly and can leak into shared links. Prefer `home_url('/')` in
+     * that case so links read as the user expects.
+     *
+     * v3.85.0 — fixes the user-reported "link goes to /talenttrack/?…
+     * even though the dashboard is the homepage" bug on subdomain
+     * installs.
+     */
+    private static function permalinkOrHome( int $page_id ): string {
+        if ( (int) get_option( 'page_on_front' ) === $page_id
+            && (string) get_option( 'show_on_front' ) === 'page'
+        ) {
+            return home_url( '/' );
+        }
+        $permalink = get_permalink( $page_id );
+        return $permalink ? (string) $permalink : home_url( '/' );
     }
 }

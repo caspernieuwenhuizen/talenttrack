@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.84.3
+Stable tag: 3.85.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,9 +12,14 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 3.84.3 — Wizard age-group dropdown empty + new player invisible after wizard save =
+= 3.85.1 — Wizard age-group dropdown empty + new player invisible after wizard save =
 
-Two long-standing wizard bugs found by the JG4IT pilot install. (1) **Age-group dropdown empty in the new-team wizard**: `BasicsStep.php` queried `tt_lookups WHERE archived_at IS NULL`, but `tt_lookups` has no `archived_at` column — neither migration 0001 nor migration 0010 (which added the column to `tt_players` / `tt_teams` / etc.) provisioned it on lookups. The query failed with "Unknown column" and the dropdown rendered empty for every install since the wizard shipped. Fix: drop the bogus filter; lookups use hard delete, not soft-archive. (2) **Players created via the new-player wizard or the trial-create inline form invisible from the players list when demo mode is ON**: the wizard's `ReviewStep` and `FrontendTrialsManageView`'s inline-player-create both inserted into `tt_players` without calling `DemoMode::tagIfActive('player', $id)`. The wp-admin handler (`PlayersPage.php`) added that call in v3.76.2 — the wizard paths got missed. Fix: call `tagIfActive` after the insert in both wizard paths so demo-on operators see their newly-created players.
+Two long-standing wizard bugs found by the JG4IT pilot install. (1) **Age-group dropdown empty in the new-team wizard**: `BasicsStep.php` queried `tt_lookups WHERE archived_at IS NULL`, but `tt_lookups` has no `archived_at` column — neither migration 0001 nor migration 0010 (which added the column to `tt_players` / `tt_teams` / etc.) provisioned it on lookups. The query failed with "Unknown column" and the dropdown rendered empty for every install since the wizard shipped. Fix: drop the bogus filter; lookups use hard delete, not soft-archive. (2) **Players created via the new-player wizard or the trial-create inline form invisible from the players list when demo mode is ON**: the wizard's `ReviewStep` and `FrontendTrialsManageView`'s inline-player-create both inserted into `tt_players` without calling `DemoMode::tagIfActive('player', $id)`. The wp-admin handler (`PlayersPage.php`) added that call in v3.76.2 — the wizard paths got missed. Fix: call `tagIfActive` after the insert in both wizard paths so demo-on operators see their newly-created players. Renumbered from v3.84.3 in PR after parallel work claimed v3.84.3 and v3.85.0 mid-CI.
+
+= 3.85.0 — Demo generator selective generation + dashboard URL fix on subdomain installs =
+
+* **NEW (Demo generator):** Three new checkboxes on the wp-admin Demo Data page (Tools → TalentTrack Demo Data, procedural source) — **Generate teams** / **Generate people + WP users** / **Generate players** — each defaulting to ON. Unchecking any of the three tells the generator to use the master data already in the club instead of creating new rows. Dependent entities (activities, evaluations, goals) are always generated on top of whatever master data ends up present. Designed for the workflow "I've set up my real teams + people + players, now fill in fake activity data on top." Validation: skipping a category fails fast if no rows of that type exist in the club. When `Generate people` is unchecked, the 36-account creation is skipped entirely; goals fall back to the current administrator as `created_by`.
+* **FIX (Dashboard URL on subdomain installs):** Two bugs in `RecordLink::dashboardUrl()` (and its sibling `FrontendAccessControl::dashboardUrl()`) were producing `https://yoursubdomain.example.com/talenttrack/?tt_view=teams&id=4` instead of `https://yoursubdomain.example.com/?tt_view=teams&id=4` when the dashboard page is set as the site's front page. (1) `discoverDashboardPageId()` searched for `[tt_dashboard` but the actual registered shortcode tag is `[talenttrack_dashboard]` — so the self-heal scan never adopted the auto-seeded page from `Activator::seedDashboardPageIfMissing()`. Corrected the search token to `[talenttrack_dashboard`. (2) Even when the page was found correctly, `get_permalink()` returned the page slug (`/talenttrack/`) regardless of whether the page is also the site's home page. New `permalinkOrHome()` helper detects `page_on_front === $page_id && show_on_front === 'page'` and returns `home_url('/')` instead so URLs stay clean.
 
 = 3.84.1 — Custom CSS full-stylesheet round-trip for designer hand-off =
 

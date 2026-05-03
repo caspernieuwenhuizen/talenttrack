@@ -52,14 +52,40 @@ class DemoGenerator {
         $seed   = (int) ( $opts['seed'] ?? 20260504 );
         mt_srand( $seed );
 
+        // v3.85.0 — selective generation: when running procedurally, the
+        // operator can opt out of generating master data (teams / people /
+        // players) so the generator only fills dependent entities on top
+        // of the existing club data. Defaults preserve the v3.0 behaviour
+        // (everything generated). Excel + hybrid paths ignore these — the
+        // workbook drives those.
+        $gen_people  = ! isset( $opts['gen_people'] )  || (bool) $opts['gen_people'];
+        $gen_teams   = ! isset( $opts['gen_teams'] )   || (bool) $opts['gen_teams'];
+        $gen_players = ! isset( $opts['gen_players'] ) || (bool) $opts['gen_players'];
+
         $batch_id = self::makeBatchId( $preset, $seed );
         $registry = new DemoBatchRegistry( $batch_id );
 
-        $userGen  = new UserGenerator( $registry, (string) $opts['domain'], (string) $opts['password'] );
-        $users    = $userGen->generate();
+        $users   = [];
+        $persons = [];
+        $user_stats = [ 'created' => 0, 'reused' => 0 ];
+        $userGen = null;
 
-        $peopleGen = new PeopleGenerator( $registry, $users );
-        $persons   = $peopleGen->generate();
+        if ( $source !== 'procedural' || $gen_people ) {
+            $userGen = new UserGenerator( $registry, (string) $opts['domain'], (string) $opts['password'] );
+            $users   = $userGen->generate();
+            $user_stats = [ 'created' => $userGen->createdCount(), 'reused' => $userGen->reusedCount() ];
+
+            $peopleGen = new PeopleGenerator( $registry, $users );
+            $persons   = $peopleGen->generate();
+        } else {
+            // Selective mode skipped UserGenerator + PeopleGenerator. The
+            // downstream generators only consult `$users['hjo']` /
+            // `$users['admin']` for the `created_by` field on goals; fall
+            // back to the first WP administrator so goals still get a
+            // valid author.
+            $admin_id = self::firstAdministratorId();
+            $users    = [ 'admin' => $admin_id, 'hjo' => $admin_id ];
+        }
 
         // #0059 — pure-Excel path: run the importer, return its counts +
         // the user/staff numbers from the procedural generators above.
@@ -91,11 +117,26 @@ class DemoGenerator {
         $teams   = [];
         $players = [];
         if ( $source === 'procedural' ) {
-            $club_name = isset( $opts['club_name'] ) ? (string) $opts['club_name'] : null;
-            $teamGen   = new TeamGenerator( $registry, $users, $persons, (int) $config['teams'], $club_name );
-            $teams     = $teamGen->generate();
-            $playerGen = new PlayerGenerator( $registry, $teams, $users, (int) $config['players_per_team'] );
-            $players   = $playerGen->generate();
+            if ( $gen_teams ) {
+                $club_name = isset( $opts['club_name'] ) ? (string) $opts['club_name'] : null;
+                $teamGen   = new TeamGenerator( $registry, $users, $persons, (int) $config['teams'], $club_name );
+                $teams     = $teamGen->generate();
+            } else {
+                // Selective mode: use whatever teams already exist in the
+                // current club. Activities + evaluations + goals attach
+                // to these directly, so head_coach_id has to be set on
+                // each row for the downstream generators to assign a
+                // coach. Existing rows that lack head_coach_id silently
+                // produce zero downstream rows for that team.
+                $teams = self::loadAllTeams();
+            }
+
+            if ( $gen_players ) {
+                $playerGen = new PlayerGenerator( $registry, $teams, $users, (int) $config['players_per_team'] );
+                $players   = $playerGen->generate();
+            } else {
+                $players = self::loadAllPlayers();
+            }
         } else {
             // For excel + hybrid: load whatever the Excel importer just
             // inserted as native objects so the downstream generators can
@@ -134,7 +175,7 @@ class DemoGenerator {
         return [
             'batch_id' => $batch_id,
             'users'    => $users,
-            'accounts' => $userGen->accounts(),
+            'accounts' => $userGen ? $userGen->accounts() : [],
             'teams'    => $teams,
             'players'  => $players,
             'counts'   => array_merge( [
@@ -146,10 +187,7 @@ class DemoGenerator {
                 'activities'  => $session_count,
                 'goals'       => $goal_count,
             ], $excel_imported ),
-            'user_stats' => [
-                'created' => $userGen->createdCount(),
-                'reused'  => $userGen->reusedCount(),
-            ],
+            'user_stats' => $user_stats,
             'excel_present_sheets' => $excel_present_sheets,
         ];
     }
@@ -165,6 +203,50 @@ class DemoGenerator {
             $batch_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * v3.85.0 — load every team in the current club, regardless of demo
+     * tag. Used by selective generation when `gen_teams=false` (the
+     * operator has set up teams themselves and wants the dependent
+     * entities generated on top).
+     */
+    private static function loadAllTeams(): array {
+        global $wpdb;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT t.* FROM {$wpdb->prefix}tt_teams t
+              WHERE t.club_id = %d AND t.archived_at IS NULL",
+            CurrentClub::id()
+        ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * v3.85.0 — load every active player in the current club, regardless
+     * of demo tag. Used by selective generation when `gen_players=false`.
+     */
+    private static function loadAllPlayers(): array {
+        global $wpdb;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT p.* FROM {$wpdb->prefix}tt_players p
+              WHERE p.club_id = %d AND p.status = 'active'",
+            CurrentClub::id()
+        ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * v3.85.0 — first WP administrator id, used as the `created_by`
+     * fallback for goals when selective generation skips
+     * UserGenerator + PeopleGenerator. The current request's user_id
+     * is preferred when available so the audit trail attributes the
+     * run to the operator who clicked Generate.
+     */
+    private static function firstAdministratorId(): int {
+        $current = function_exists( 'get_current_user_id' ) ? (int) get_current_user_id() : 0;
+        if ( $current > 0 ) return $current;
+        $admins = get_users( [ 'role' => 'administrator', 'fields' => 'ID', 'number' => 1 ] );
+        return is_array( $admins ) && $admins ? (int) $admins[0] : 0;
     }
 
     /** Load the players that this batch's Excel importer just inserted. */

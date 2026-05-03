@@ -1,4 +1,6 @@
-# TalentTrack v3.84.3 — Wizard bugs found by JG4IT pilot
+# TalentTrack v3.85.1 — Wizard bugs found by JG4IT pilot
+
+> Renumbered from v3.84.3 in PR after parallel work claimed v3.84.3 and v3.85.0 mid-CI. Code unchanged.
 
 Two long-standing wizard bugs that the JG4IT pilot install hit on day one of setup.
 
@@ -25,6 +27,35 @@ SELECT name FROM tt_lookups WHERE lookup_type = 'age_group' AND archived_at IS N
 ## What did *not* change
 
 - The free-tier license cap (`FreeTierCaps::teamCap() === 1`) that blocks creating a second team is intentional behavior, not a bug. The intended unblock is to start the trial via `wp-admin → Account → Start trial` (gives 14 days of paid-tier behavior) or use `Account → Dev override → Standard tier` for installs with a pilot agreement.
+
+# TalentTrack v3.85.0 — Demo generator selective generation + dashboard URL fix on subdomain installs
+
+Two user-driven changes shipped together.
+
+## Demo generator — selective generation
+
+The wp-admin Demo Data page (Tools → TalentTrack Demo Data, procedural source) gains a new "Step 0.5 — What to generate" fieldset with three checkboxes: **Generate teams** / **Generate people + WP users** / **Generate players**. All default ON (preserving v3.0 behaviour). Unchecking any of them tells the generator to use the master data already in the club instead of creating new rows.
+
+Designed for the workflow: "I've set up my real teams + people + players manually; now fill in fake activity data on top."
+
+### Implementation
+
+- `DemoDataPage::renderGenerateSection()` — new fieldset rendered between the Source step and the Basic/Advanced tabs. Hidden via `display:none` when source is excel/hybrid (the workbook drives those).
+- `DemoDataPage::handleGenerate()` — reads `gen_teams` / `gen_people` / `gen_players` POST flags, validates fail-fast (if a category is opted out but DB has 0 rows of that entity, bounce with an explicit error before the run starts), passes flags through to `DemoGenerator::run()`.
+- `DemoGenerator::run()` — new branch logic:
+  - When `gen_people === false`: skip `UserGenerator` + `PeopleGenerator` entirely. Build a minimal `$users` map with `'admin' => $current_user_id` / `'hjo' => $current_user_id` so `GoalGenerator` (which reads `$users['hjo']` for the goal's `created_by` field) still works. Falls back to the first WP administrator's ID if no current user.
+  - When `gen_teams === false`: skip `TeamGenerator`, load all existing club teams via new `loadAllTeams()` helper (no demo-tag filter).
+  - When `gen_players === false`: skip `PlayerGenerator`, load all active players via new `loadAllPlayers()` helper.
+- `EvaluationGenerator` / `ActivityGenerator` / `GoalGenerator` are unchanged — they consume `$teams` + `$players` regardless of where they came from. `head_coach_id` on existing teams must be set for activity generation to assign coaches; teams without it produce zero activity rows for that team (silent skip — same behaviour as today).
+
+## Dashboard URL fix on subdomain installs
+
+User reported a team-list link on `jg4it.mediamaniacs.nl` going to `http://jg4it.mediamaniacs.nl/talenttrack/?tt_view=teams&id=4` when the dashboard is the site's home page — should be `http://jg4it.mediamaniacs.nl/?tt_view=teams&id=4`. Two bugs:
+
+1. **Discovery regex mismatch.** `RecordLink::discoverDashboardPageId()` (the self-heal that scans for the dashboard page when `tt_config.dashboard_page_id` is unset) searched for `[tt_dashboard` and called `has_shortcode( $content, 'tt_dashboard' )`. But the only registered shortcode tag (`DashboardShortcode.php:21`) is `talenttrack_dashboard`. So on a fresh install, the auto-seeded page from `Activator::seedDashboardPageIfMissing()` (which inserts `[talenttrack_dashboard]`) was never adopted; the function silently fell through the REQUEST_URI/home_url chain. Corrected the search token + `has_shortcode()` call to `talenttrack_dashboard`.
+2. **Page-on-front not honoured.** Even when the dashboard page resolved correctly, `get_permalink( $page_id )` returns the page slug (e.g. `/talenttrack/`) regardless of whether the page is also the site's home page. New private helper `RecordLink::permalinkOrHome( int $page_id )` checks `page_on_front === $page_id && show_on_front === 'page'` — returns `home_url( '/' )` in that case, falls through to `get_permalink()` otherwise. Mirrored on `FrontendAccessControl::dashboardUrl()`.
+
+Net effect: on the user's subdomain install with the dashboard set as front page, links now read `https://jg4it.mediamaniacs.nl/?tt_view=teams&id=4`.
 
 # TalentTrack v3.84.1 — Custom CSS full-stylesheet round-trip for designer hand-off
 
