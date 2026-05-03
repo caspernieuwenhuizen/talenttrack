@@ -4,13 +4,21 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.86.0
+Stable tag: 3.86.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.86.2 — Wizard URL 404 on non-dashboard front pages + structural lookup-translation helper =
+
+Two pilot-install bugs reported on the JG4IT install (`jg4it.mediamaniacs.nl`). Renumbered from v3.86.1 in PR after the comprehensive license-enforcement bundle claimed v3.86.1 mid-CI. (1) **Wizard URL 404**: `?tt_view=wizard&slug=new-team` (and the resume-banner's `…&dismiss_resume=1` variant) returned 404 whenever the dashboard isn't the site's home page. `WizardEntryPoint::dashboardBaseUrl()` was building URLs off `$_SERVER['REQUEST_URI']`, which resolves to `/` for query-only URLs — and on installs where `/` isn't the dashboard, the `[talenttrack_dashboard]` shortcode never runs. Same root cause as the v3.85.0 RecordLink fix on a different code path. Fix: delegate to `RecordLink::dashboardUrl()` (configured `dashboard_page_id` → shortcode-discovery scan → REQUEST_URI fallback → home_url) and strip wizard-specific query args after. Defensive REQUEST_URI fallback retained for the case where `RecordLink` isn't loaded. (2) **Preferred-foot dropdown English-only**: four render sites (`PlayersPage`, `FrontendPlayersManageView` list filter + edit form, `RosterDetailsStep` wizard) were each building the foot-option dropdown ad-hoc — three queried `tt_lookups` raw without going through `LookupTranslator`, the wizard had a hardcoded `['', 'left', 'right', 'both']` array with `ucfirst()` for labels (English-only and ignored any custom foot values the operator added in Configuration → Lookups). Structural fix: new `QueryHelpers::get_lookup_label_pairs(string $type): array` returning `[stored_name => translated_label]` pairs via the render-aware translator. All four sites now consume that one helper — translations work, custom lookup values surface, and adding new lookup-driven dropdowns gets a one-liner.
+
+= 3.86.1 — Comprehensive license enforcement (PRs 1+2+3 bundled) =
+
+User-driven audit + fix of every action that should be license-gated. **PR 1**: shared `LicenseGate::allows()` / `enforceFeatureRest()` / `enforceCapRest()` helpers so REST + wizard + admin paths use one decision layer. REST `POST /players` + `POST /teams` return 402 with `license_cap_*` codes when at cap; new-player + new-team wizards `ReviewStep` cap-check pre-insert; `PlayerCsvImporter` cap-checks per-row so each blocked row carries the upgrade message; frontend Players + Teams manage views hide the New button + render `UpgradeNudge::capHit` when at cap. **PR 2**: gate Pro/Standard features that previously had no enforcement — Trials (FrontendTrialsManageView + TrialCaseView + TrialParentMeetingView + TrialTracksEditorView + TrialLetterTemplatesEditorView + TrialsRestController) hard cut to UpgradeNudge / 402 when `trial_module` not allowed; TeamChemistryView gated on `team_chemistry`; ScoutHistoryView + ScoutMyPlayersView gated on `scout_access`; FunctionalRolesView gated on `functional_roles`. Existing data stays in the DB — no loss, just inaccessible until upgrade. **PR 3**: read-only `Plan & restrictions` admin page for everyone with the read cap (not just operators) — current tier + trial/grace banner, caps table with at-cap warning, 3-column Free/Standard/Pro features matrix with operator's effective tier highlighted, CTA to AccountPage. Distinct from AccountPage which stays operator-only for the Freemius checkout / trial-start flow. Deferred: `radar_charts` / `undo_bulk` / `partial_restore` / `s3_backup` declared in FeatureMap but no code reads the gate yet — runtime is currently free for all, PlanOverview matrix shows the future restriction. ~25 new NL strings.
 
 = 3.86.0 — Authorization matrix discoverability + sub-cap sweep on settings tiles =
 

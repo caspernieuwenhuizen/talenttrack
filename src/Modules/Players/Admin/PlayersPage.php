@@ -217,7 +217,10 @@ class PlayersPage {
 
         $teams     = QueryHelpers::get_teams();
         $positions = QueryHelpers::get_lookup_names( 'position' );
-        $foot_opts = QueryHelpers::get_lookup_names( 'foot_option' );
+        // v3.85.5 — render-aware lookup pairs (stored_name => translated_label)
+        // so the dropdown shows Dutch labels to NL users while still
+        // POSTing the raw English name back (preserves DB-row matching).
+        $foot_opts = QueryHelpers::get_lookup_label_pairs( 'foot_option' );
         $sel_pos   = $is_edit ? ( json_decode( (string) $player->preferred_positions, true ) ?: [] ) : [];
         wp_enqueue_media();
 
@@ -358,7 +361,7 @@ class PlayersPage {
                     <tr><th><?php esc_html_e( 'Weight (kg)', 'talenttrack' ); ?></th><td><input type="number" name="weight_kg" value="<?php echo esc_attr( $player->weight_kg ?? '' ); ?>" min="20" max="200" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'weight_kg' ); ?>
                     <tr><th><?php esc_html_e( 'Preferred Foot', 'talenttrack' ); ?></th><td><select name="preferred_foot"><option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
-                        <?php foreach ( $foot_opts as $f ) : ?><option value="<?php echo esc_attr( $f ); ?>" <?php selected( $player->preferred_foot ?? '', $f ); ?>><?php echo esc_html( $f ); ?></option><?php endforeach; ?></select></td></tr>
+                        <?php foreach ( $foot_opts as $stored => $label ) : ?><option value="<?php echo esc_attr( $stored ); ?>" <?php selected( $player->preferred_foot ?? '', $stored ); ?>><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'preferred_foot' ); ?>
                     <tr><th><?php esc_html_e( 'Preferred Position(s)', 'talenttrack' ); ?></th><td>
                         <?php foreach ( $positions as $pos ) : ?><label style="display:inline-block;margin-right:12px;"><input type="checkbox" name="preferred_positions[]" value="<?php echo esc_attr( $pos ); ?>" <?php echo in_array( $pos, $sel_pos ) ? 'checked' : ''; ?> /> <?php echo esc_html( $pos ); ?></label><?php endforeach; ?>
