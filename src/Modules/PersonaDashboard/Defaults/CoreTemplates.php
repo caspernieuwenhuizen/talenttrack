@@ -149,16 +149,34 @@ final class CoreTemplates {
         $grid->add( new WidgetSlot( 'data_table', 'upcoming_activities', Size::XL, 0, 3, 2, 8 ) );
         // Row 5: trials needing decision (existing, moved down).
         $grid->add( new WidgetSlot( 'data_table', 'trials_needing_decision', Size::XL, 0, 5, 2, 12 ) );
-        // Row 7+: navigation tiles.
+        // Row 7+: navigation tiles. v3.80.1 — expanded the curated set
+        // after operator feedback that HoD only saw a handful. HoD holds
+        // caps on every tile listed here; classic-tile-grid mode shows
+        // the same set via TileRegistry filtering.
         $tiles = [
+            // Day-to-day work (top row)
             [ 'trials',         __( 'Trials',           'talenttrack' ), 20 ],
             [ 'pdp',            __( 'PDP',              'talenttrack' ), 21 ],
             [ 'players',        __( 'Players',          'talenttrack' ), 22 ],
-            [ 'methodology',    __( 'Methodology',      'talenttrack' ), 23 ],
-            [ 'tasks-dashboard',__( 'Tasks dashboard',  'talenttrack' ), 24 ],
+            [ 'teams',          __( 'Teams',            'talenttrack' ), 23 ],
+            // Master-data + analytics
+            [ 'people',         __( 'People',           'talenttrack' ), 24 ],
             [ 'evaluations',    __( 'Evaluations',      'talenttrack' ), 25 ],
-            [ 'rate-cards',     __( 'Rate cards',       'talenttrack' ), 26 ],
-            [ 'compare',        __( 'Compare players',  'talenttrack' ), 27 ],
+            [ 'goals',          __( 'Goals',            'talenttrack' ), 26 ],
+            [ 'activities',     __( 'Activities',       'talenttrack' ), 27 ],
+            // Methodology + planning
+            [ 'methodology',    __( 'Methodology',      'talenttrack' ), 28 ],
+            [ 'pdp-planning',   __( 'PDP planning',     'talenttrack' ), 29 ],
+            [ 'team-chemistry', __( 'Team chemistry',   'talenttrack' ), 30 ],
+            [ 'podium',         __( 'Podium',           'talenttrack' ), 31 ],
+            // Reports + tooling
+            [ 'rate-cards',     __( 'Rate cards',       'talenttrack' ), 32 ],
+            [ 'compare',        __( 'Compare players',  'talenttrack' ), 33 ],
+            [ 'reports',        __( 'Reports',          'talenttrack' ), 34 ],
+            [ 'tasks-dashboard',__( 'Tasks dashboard',  'talenttrack' ), 35 ],
+            // Governance
+            [ 'functional-roles', __( 'Functional roles', 'talenttrack' ), 36 ],
+            [ 'audit-log',      __( 'Audit log',        'talenttrack' ), 37 ],
         ];
         foreach ( $tiles as $i => [ $slug, $label, $priority ] ) {
             $col = ( $i % 4 ) * 3;

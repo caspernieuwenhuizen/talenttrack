@@ -11860,3 +11860,47 @@ msgstr "Counter 4-3-3"
 
 msgid "Press-heavy 4-3-3"
 msgstr "Pressing 4-3-3"
+
+# v3.80.1 hotfix bundle (rebased onto v3.82.0)
+
+msgid "Impersonate user"
+msgstr "Imiteer gebruiker"
+
+msgid "Sign in as another user to view what they see. Every impersonation is audit-logged with your account, the target, and your reason. Use the banner that appears on every page to switch back. Cannot impersonate other administrators."
+msgstr "Log in als een andere gebruiker om te zien wat zij zien. Elke imitatie wordt vastgelegd in de audit-log met je account, het doelaccount en je reden. Gebruik de banner bovenaan elke pagina om terug te schakelen. Andere beheerders kunnen niet geïmiteerd worden."
+
+msgid "Target user"
+msgstr "Doelgebruiker"
+
+msgid "— Select a user —"
+msgstr "— Kies een gebruiker —"
+
+msgid "Pick the user whose dashboard you want to view as. Excludes administrators (no admin-on-admin)."
+msgstr "Kies de gebruiker wiens dashboard je wilt bekijken. Beheerders zijn uitgesloten (geen beheerder-op-beheerder)."
+
+msgid "Reason"
+msgstr "Reden"
+
+msgid "Optional. Captured in the audit log."
+msgstr "Optioneel. Wordt opgenomen in de audit-log."
+
+msgid "A short note (e.g. \"Debugging report-export error for parent X\"). Kept in the audit log alongside the start/end timestamps."
+msgstr "Een korte notitie (bv. \"Foutopsporing rapport-export voor ouder X\"). Wordt naast de start/eind-timestamps in de audit-log bewaard."
+
+msgid "Start impersonation"
+msgstr "Imitatie starten"
+
+msgid "Link underline"
+msgstr "Onderstreping links"
+
+msgid "Always"
+msgstr "Altijd"
+
+msgid "On hover only"
+msgstr "Alleen bij hover"
+
+msgid "Never"
+msgstr "Nooit"
+
+msgid "Functional roles"
+msgstr "Functionele rollen"

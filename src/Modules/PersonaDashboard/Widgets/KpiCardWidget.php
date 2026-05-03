@@ -45,10 +45,22 @@ class KpiCardWidget extends AbstractWidget {
         $trend_cls = $kpi->trend !== null ? ' tt-pd-trend-' . sanitize_html_class( $kpi->trend ) : '';
         $sparkline = $this->sparkline( $kpi );
 
-        $inner = '<div class="tt-pd-kpi-label">' . esc_html( $label ) . '</div>'
+        $body = '<div class="tt-pd-kpi-label">' . esc_html( $label ) . '</div>'
             . '<div class="tt-pd-kpi-current' . $trend_cls . '">' . esc_html( $kpi->current ) . '</div>'
             . ( $kpi->delta !== null ? '<div class="tt-pd-kpi-delta">' . esc_html( $kpi->delta ) . '</div>' : '' )
             . $sparkline;
+
+        // Clickable card when the KPI declares a deep-link view.
+        // Whole card becomes the click target so the affordance is
+        // mobile-friendly (48px tap area). When linkView is empty the
+        // card stays inert — preserves existing behaviour.
+        $link_view = ( $source !== null && method_exists( $source, 'linkView' ) ) ? $source->linkView() : '';
+        if ( $link_view !== '' ) {
+            $url   = $ctx->viewUrl( $link_view );
+            $inner = '<a class="tt-pd-kpi-link" href="' . esc_url( $url ) . '">' . $body . '</a>';
+        } else {
+            $inner = $body;
+        }
         return $this->wrap( $slot, $inner );
     }
 

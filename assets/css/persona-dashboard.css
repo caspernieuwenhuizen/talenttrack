@@ -401,6 +401,13 @@
 .tt-pd-kpi-current.tt-pd-trend-down { color: var(--tt-pd-danger); }
 .tt-pd-kpi-delta { font-size: 0.8125rem; color: var(--tt-pd-text-muted); }
 .tt-pd-spark { display: block; color: var(--tt-pd-accent); }
+/* KPI clickable wrapper. The whole card becomes a tap target so the
+   48px-min affordance is preserved on mobile. Inherits typography +
+   colour from the inner blocks; the wrapper just removes link
+   underline + adds a hover lift to signal interactivity. */
+.tt-pd-kpi-link { display: block; color: inherit; text-decoration: none; }
+.tt-pd-kpi-link:hover, .tt-pd-kpi-link:focus { transform: translateY(-1px); outline: none; }
+.tt-pd-kpi-link:focus-visible { box-shadow: 0 0 0 2px var(--tt-pd-accent, #0b3d2e); border-radius: 12px; }
 
 /* Action card (#0074 — no yellow icon, "+" lives in the label) */
 .tt-pd-widget-action_card { padding: 0; }
