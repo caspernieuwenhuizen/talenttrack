@@ -40,7 +40,7 @@ class FrontendEvalCategoriesView extends FrontendViewBase {
 
         if ( $id > 0 ) {
             $cat = ( new EvalCategoriesRepository() )->get( $id );
-            self::renderHeader( $cat ? sprintf( __( 'Edit category — %s', 'talenttrack' ), (string) $cat->label ) : __( 'Category not found', 'talenttrack' ) );
+            self::renderHeader( $cat ? sprintf( __( 'Edit category — %s', 'talenttrack' ), EvalCategoriesRepository::displayLabel( (string) $cat->label ) ) : __( 'Category not found', 'talenttrack' ) );
             if ( ! $cat ) {
                 echo '<p class="tt-notice">' . esc_html__( 'That category no longer exists.', 'talenttrack' ) . '</p>';
                 return;
@@ -109,7 +109,7 @@ class FrontendEvalCategoriesView extends FrontendViewBase {
                 <button type="button" class="tt-list-table-action" data-tt-eval-cat-move="down" <?php disabled( $is_last  ); ?>>↓</button>
             </span>
             <span style="<?php echo esc_attr( $css ); ?>">
-                <a href="<?php echo esc_url( $edit_url ); ?>"><?php echo esc_html( (string) $cat->label ); ?></a>
+                <a href="<?php echo esc_url( $edit_url ); ?>"><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $cat->label ) ); ?></a>
                 <code style="margin-left:6px; font-size:var(--tt-fs-xs); color:var(--tt-muted);"><?php echo esc_html( (string) $cat->category_key ); ?></code>
                 <?php if ( ! empty( $cat->is_system ) ) : ?>
                     <span class="tt-badge" style="margin-left:6px; padding:1px 6px; background:var(--tt-bg-soft); border:1px solid var(--tt-line); border-radius:999px; font-size:var(--tt-fs-xs); color:var(--tt-muted);"><?php esc_html_e( 'system', 'talenttrack' ); ?></span>
