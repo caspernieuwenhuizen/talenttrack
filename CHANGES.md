@@ -1,3 +1,32 @@
+# TalentTrack v3.85.3 — Players page empty-state shown to HoD / Scout (JG4IT pilot)
+
+Found on the JG4IT pilot install. Third bug from the same setup session as v3.85.1 + v3.85.2.
+
+## What broke
+
+User logs in as Head of Development (or Scout). Opens `?tt_view=players`. Instead of the full player list (per their matrix grant), sees the empty-state notice **"You don't coach any teams yet, so you don't have any players to view here. Ask an administrator to assign you to a team."**
+
+## Root cause
+
+`FrontendPlayersManageView::renderList()` short-circuits to the empty-state when `! $is_admin && empty(get_teams_for_coach($user_id))`. Two problems compound:
+
+1. `$is_admin` is wired to `current_user_can('tt_edit_settings')` in `DashboardShortcode::dispatch_view()`. Since the v3.72.0 #0071 sub-cap split, `tt_edit_settings` is a roll-up only the Academy Admin holds — Head of Development and Scout don't.
+2. Neither HoD nor Scout coach any teams (they have global oversight, not per-team assignments). `get_teams_for_coach($user_id)` returns empty for them.
+
+Combined: HoD and Scout fall into the team-only branch, hit the empty-state short-circuit, never reach the actual REST list. The matrix grant (`players => [rcd, global]` for HoD, `[r, global]` for Scout) is correct; the view layer was wrong.
+
+## What was fixed
+
+Added a second guard to the short-circuit: `! current_user_can('tt_view_reports')`. The Analytics-gate cap from #0063 is held by exactly the three global-view personas (Academy Admin, HoD, Scout) — none of the team-scoped ones (head_coach, assistant_coach, player, parent). Treating its presence as "user is supposed to see the full list" lines up with the matrix without introducing a new cap or rewiring `$is_admin`.
+
+The REST endpoint at `GET /talenttrack/v1/players` (which the list table actually queries) was already correct — it gates on `current_user_can('tt_view_players')` and filters only by `club_id`, no per-user team-scope filter. So with the empty-state bypassed, HoD and Scout now see the full club roster as their matrix grant intended.
+
+## What did *not* change
+
+- The empty-state still fires for `head_coach` / `assistant_coach` who legitimately have no teams. Wording unchanged.
+- No matrix or seed change. The personas' grants were already correct; the view-layer gate was the bug.
+- Other `$is_admin ? all_teams : coach_teams` patterns across the codebase (CoachDashboardView, FrontendActivitiesManageView, FrontendEvaluationsView, etc.) carry a milder version of the same shape — they over-narrow the team picker for HoD / Scout but don't hard-block with an empty state. Fixing those is a follow-up audit, not in scope for this hotfix.
+
 # TalentTrack v3.85.2 — Free-tier cap respects License module state
 
 Found on the JG4IT pilot install. Companion to v3.85.1's wizard bugs; both surfaced from the same install setup session.
