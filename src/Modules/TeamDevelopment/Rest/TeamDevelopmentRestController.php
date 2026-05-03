@@ -132,7 +132,7 @@ class TeamDevelopmentRestController {
             'team_id' => $team_id,
             'formation' => [
                 'template_id'     => (int) $row->formation_template_id,
-                'template_name'   => (string) ( $row->template_name ?? '' ),
+                'template_name'   => \TT\Infrastructure\Query\LabelTranslator::formationName( (string) ( $row->template_name ?? '' ) ),
                 'formation_shape' => (string) ( $row->formation_shape ?? '' ),
                 'slots'           => self::decodeSlots( (string) ( $row->slots_json ?? '' ) ),
                 'assigned_at'     => $row->assigned_at,
@@ -257,7 +257,7 @@ class TeamDevelopmentRestController {
         foreach ( (array) $rows as $row ) {
             $out[] = [
                 'id'              => (int) $row->id,
-                'name'            => (string) $row->name,
+                'name'            => \TT\Infrastructure\Query\LabelTranslator::formationName( (string) $row->name ),
                 'formation_shape' => (string) $row->formation_shape,
                 'is_seeded'       => (int) $row->is_seeded === 1,
                 'slots'           => self::decodeSlots( (string) $row->slots_json ),

@@ -392,7 +392,8 @@ class FrontendTeamsManageView extends FrontendViewBase {
             foreach ( $grouped as $role_key => $rows ) {
                 foreach ( $rows as $row ) {
                     $role = $roles_repo->findRoleByKey( (string) $role_key );
-                    $role_label = $role ? (string) $role->label : ucwords( str_replace( '_', ' ', (string) $role_key ) );
+                    $translated = \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) $role_key );
+                    $role_label = $translated ?? ( $role ? (string) $role->label : ucwords( str_replace( '_', ' ', (string) $role_key ) ) );
                     $person = $row['person'] ?? null;
                     $name   = $person ? trim( ( (string) $person->first_name ) . ' ' . ( (string) $person->last_name ) ) : '';
                     $email  = $person ? (string) ( $person->email ?? '' ) : '';

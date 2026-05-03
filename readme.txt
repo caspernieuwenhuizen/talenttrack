@@ -4,13 +4,24 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.81.1
+Stable tag: 3.82.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.82.0 — i18n audit (May 2026) Bundles 3 + 4 + 7 — stored content Dutch backfill =
+
+Second fix-PR off the May 2026 i18n audit. Bundles 3 (foundational `tt_lookups` translations), 4 (system role + functional-role labels via `LabelTranslator`), and 7 (trial track + formation labels) bundled together because they're all "stored English text gets a render-time Dutch translation".
+
+* **NEW (Bundle 3):** Migration `0060_seed_lookup_translations_nl` writes `meta.translations.nl_NL.name` (and `description` where applicable) for ~30 foundational lookup rows seeded by `0001_initial_schema` + `0042` + `0048`. Categories backfilled: `foot_option` (3), `age_group` (1, "Senior"), `goal_status` (5), `goal_priority` (3), `attendance_status` (5), `eval_type` (3 — names + descriptions), `cert_type` (6), `behaviour_rating_label` (5 descriptions), `potential_band` (5 descriptions). Idempotent — only sets the translation when the existing meta has no `translations.nl_NL.name`/`description` yet, so admin-edited rows pass through untouched.
+* **NEW (Bundle 4):** `LabelTranslator::authRoleLabel(string $key): ?string` and `LabelTranslator::functionalRoleLabel(string $key): ?string` — translate the 9 `tt_roles` system labels and the 6 `tt_functional_roles` system labels. Returns `null` for unknown keys so callers fall back to the row's typed `label` for custom roles. Wired into `FrontendPeopleManageView`, `FrontendFunctionalRolesView`, and `FrontendTeamsManageView` — wp-admin's `RolesPage::roleLabel()` already had its own translator and stays unchanged.
+* **NEW (Bundle 7):** `LabelTranslator::trialTrackName(string $name): string` for the 3 system trial tracks (Standard / Scout / Goalkeeper) and `LabelTranslator::formationName(string $name): string` for the 4 system formations (Neutral / Possession / Counter / Press-heavy 4-3-3). Wired into `FrontendTrialsManageView`, `FrontendTrialCaseView`, `FrontendTrialParentMeetingView`, `FrontendTrialTracksEditorView`, the parent-letter `{track_name}` substitution in `LetterTemplateEngine`, and the formation REST endpoints in `TeamDevelopmentRestController`. Custom tracks/formations passed through unchanged.
+* **TRANSLATIONS:** 6 new NL msgids (Mentor / Goalkeeper / 4 formation names).
+
+Audit progress: 5/10 bundles shipped. Remaining: Bundle 5 (eval_category schema change), Bundle 6 (Excel template builder), Bundle 8 (JS error-fallback sweep), Bundle 9 (methodology task arrays research), Bundle 10 (deferred to multi-language epic #0010).
 
 = 3.81.1 — Custom CSS button underline fix =
 
