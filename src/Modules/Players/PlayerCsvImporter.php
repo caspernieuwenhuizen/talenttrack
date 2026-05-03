@@ -210,6 +210,16 @@ class PlayerCsvImporter {
                 $error_rows[] = [ 'row_number' => $row_number, 'data' => $data, 'errors' => [ (string) $wpdb->last_error ] ];
                 continue;
             }
+            $player_id = (int) $wpdb->insert_id;
+            // v3.85.2 — auto-tag CSV-imported rows when demo mode is on.
+            // Operator hit this: imported players didn't show on the list
+            // (which applies apply_demo_scope) but appeared on goal-form
+            // dropdowns (which don't filter), creating a "ghost player"
+            // experience. Mirrors the same DemoMode::tagIfActive call
+            // every other create path uses.
+            if ( $player_id > 0 && class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
+                \TT\Modules\DemoData\DemoMode::tagIfActive( 'player', $player_id, 'csv-import' );
+            }
             $created++;
         }
 
