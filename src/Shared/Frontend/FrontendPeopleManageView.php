@@ -251,14 +251,15 @@ class FrontendPeopleManageView extends FrontendViewBase {
 
     private static function humanRoleTypeLabel( string $key ): string {
         $map = [
-            'coach'           => __( 'Coach',           'talenttrack' ),
-            'assistant_coach' => __( 'Assistant coach', 'talenttrack' ),
-            'manager'         => __( 'Manager',         'talenttrack' ),
-            'staff'           => __( 'Staff',           'talenttrack' ),
-            'physio'          => __( 'Physio',          'talenttrack' ),
-            'scout'           => __( 'Scout',           'talenttrack' ),
-            'parent'          => __( 'Parent',          'talenttrack' ),
-            'other'           => __( 'Other',           'talenttrack' ),
+            'coach'               => __( 'Coach',           'talenttrack' ),
+            'assistant_coach'     => __( 'Assistant coach', 'talenttrack' ),
+            'manager'             => __( 'Manager',         'talenttrack' ),
+            'head_of_development' => __( 'Head of Development', 'talenttrack' ),
+            'staff'               => __( 'Staff',           'talenttrack' ),
+            'physio'              => __( 'Physio',          'talenttrack' ),
+            'scout'               => __( 'Scout',           'talenttrack' ),
+            'parent'              => __( 'Parent',          'talenttrack' ),
+            'other'               => __( 'Other',           'talenttrack' ),
         ];
         return $map[ $key ] ?? ucwords( str_replace( '_', ' ', $key ) );
     }
