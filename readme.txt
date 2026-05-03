@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.86.2
+Stable tag: 3.87.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.87.0 — Authorization matrix is now the single source of truth for tile visibility =
+
+User reported: a Scout could still see the Migrations tile even though R/C/D was greyed out for `migrations` in the matrix. Same wiring class as the v3.86.0 audit-log fix, but generalised. This release reframes the gating model: when a tile declares a matrix `entity` AND the bridge is active (`tt_authorization_active = 1`), the matrix is the SOLE source of truth for visibility — `cap` and `cap_callback` become fallbacks for tiles that haven't declared an entity yet (or for installs running with the bridge dormant). Thirty tile registrations in `CoreSurfaceRegistration` now declare an `entity` field: every player-self surface (My card / My team / My evaluations / My activities / My goals / My PDP / My journey), every coach-side surface (Teams / Players / People / Evaluations / Activities / Goals / PDP / Methodology / Podium / Team chemistry), every Trials surface, every Analytics surface (Rate cards / Compare / Reports / Application KPIs / Cohort transitions), every Development surface (Submit idea / Dev board / Approval / Dev tracks), every Administration surface (Configuration / Migrations / Wizards / Audit log / Invitations), and the staff-development surfaces. WP administrators continue to bypass the gate. Migrations admin menu in wp-admin also moved from `tt_view_settings` to `tt_view_migrations` so the sidebar respects the matrix 1:1. Matrix admin grouping (`Authorization → Matrix`) now mirrors the frontend dashboard: entities cluster under whichever tile-group consumes them, with the group label resolving to the operator's locale via the same `__()` strings the dashboard uses ("Administration" / "Beheer", "Performance" / "Prestatie", etc.). Order matches the order tiles register on the dashboard. Module-class fallback still kicks in for entities no tile consumes (`authorization_changelog`, `impersonation_log`) — those land in "Other" at the bottom.
 
 = 3.86.2 — Wizard URL 404 on non-dashboard front pages + structural lookup-translation helper =
 

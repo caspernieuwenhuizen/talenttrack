@@ -38,8 +38,15 @@ class MenuExtension {
         // if always-on policy ever changes.
         if ( AdminMenuRegistry::isAdminSlugDisabled( 'tt-migrations' ) ) return;
 
-        // Permissions: either tt_manage_settings OR administrator.
-        $cap = current_user_can( 'tt_view_settings' ) ? 'tt_view_settings' : 'administrator';
+        // v3.87.0 — gate the wp-admin entry on the granular sub-cap so
+        // the matrix `migrations` entity controls visibility 1:1. The
+        // umbrella `tt_view_settings` would route here too via the
+        // CapabilityAliases roll-up, but that re-introduces the very
+        // mismatch the v3.86 sub-cap sweep closed for the frontend
+        // tile. Falls back to administrator so installs that haven't
+        // explicitly granted the sub-cap still get the menu (mirrors
+        // the prior behaviour for tt_view_settings).
+        $cap = current_user_can( 'tt_view_migrations' ) ? 'tt_view_migrations' : 'administrator';
 
         add_submenu_page(
             'talenttrack',

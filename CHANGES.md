@@ -1,3 +1,44 @@
+# TalentTrack v3.87.0 — Authorization matrix is now the single source of truth for tile visibility
+
+User reported: a Scout could still see the Migrations tile even though R/C/D was greyed out for `migrations` in the matrix. Same wiring class as the v3.86.0 audit-log fix, but generalised: the Migrations tile gated on `tt_access_frontend_admin` (entity `frontend_admin`), which lit up regardless of what the matrix said about `migrations`. The same was true for the 17 callback-gated tiles (Podium, My team, evaluations, …) where a closure decided visibility and the matrix had no say at all.
+
+This release reframes the gating model: **when a tile declares a matrix `entity` AND `tt_authorization_active = 1`, the matrix is the SOLE source of truth for visibility.** The `cap` and `cap_callback` rungs become fallbacks for tiles that haven't declared an entity yet (or for installs running with the bridge dormant).
+
+## What changed
+
+### TileRegistry — entity-driven gating
+
+`TileRegistry::tileVisibleFor()` gains a matrix-entity rung that runs first when an entity is declared and the bridge is active. WP administrators bypass it (mirroring `LegacyCapMapper::evaluate()`'s admin shortcut). When the matrix denies, cap/callback are skipped entirely — they would re-ask the same question in WP-cap language.
+
+### Sweep — every dashboard tile now declares its entity
+
+Thirty tile registrations in `CoreSurfaceRegistration::registerFrontendTiles()` now declare an `entity` field that maps to a matrix entity:
+
+- **Player-self surfaces** (My card / My team / My evaluations / My activities / My goals / My PDP / My journey) → `my_card`, `my_team`, `my_evaluations`, `my_activities`, `my_goals`, `pdp_file`, `my_journey`.
+- **Tasks** (My tasks / Tasks dashboard / Workflow templates) → `workflow_tasks`, `tasks_dashboard`, `workflow_templates`.
+- **People** (Teams / Players / People / Functional roles) → `team`, `players`, `people`, `functional_role_assignments`.
+- **Performance + Development** (Evaluations / Activities / Goals / PDP / PDP planning / Player status methodology / Team chemistry / Podium) → `evaluations`, `activities`, `goals`, `pdp_file`, `pdp_planning`, `player_status_methodology`, `team_chemistry`, `reports`.
+- **Reference** (Methodology) → `methodology`.
+- **Trials** (Trial cases / Trial tracks / Letter templates) → `trial_cases`, `trial_tracks`, `trial_letter_templates`.
+- **Analytics** (Rate cards / Compare / Reports / Application KPIs / Cohort transitions) → `rate_cards`, `compare`, `reports`, `usage_stats`, `cohort_transitions`.
+- **Development** (Submit idea / Dev board / Approval / Dev tracks) → `dev_ideas`.
+- **Administration** (Configuration / Migrations / Wizards / Audit log / Invitations) → `settings`, `migrations`, `setup_wizard`, `audit_log`, `invitations_config`.
+- **Staff development** (My PDP / My staff goals / My staff evaluations / My certifications / Staff overview) → `my_staff_pdp`, `my_staff_goals`, `my_staff_evaluations`, `my_staff_certifications`, `staff_overview`.
+
+The Migrations admin menu in `Shared\Admin\MenuExtension::register()` also moved from `tt_view_settings` to `tt_view_migrations` so the wp-admin sidebar respects the matrix the same way the frontend tile does.
+
+### Matrix admin grouping — now matches the frontend dashboard
+
+`MatrixPage::groupEntitiesByCategory()` no longer hard-codes a module-class → category map as the primary grouping. Instead, `MatrixEntityCatalog::groupForEntity()` walks the tile registry and returns the (translated) group label of whichever tile consumes the entity. The result: matrix rows for `migrations` sit under "Administration" (the Dutch operator sees "Beheer"), `evaluations` under "Performance" ("Prestatie"), `team_chemistry` under the same group as the Team chemistry tile shows on the dashboard. Module-class fallback still applies for back-office-only entities (`authorization_changelog`, `impersonation_log`) that no tile consumes — those land in "Other" / "Overig" at the bottom.
+
+Group order respects the order tiles register on the dashboard, so the matrix reads top-to-bottom in the same shape the operator scrolls through on the frontend.
+
+### What's still callback-gated
+
+Tiles can declare both an `entity` (matrix gate) and a `cap_callback` (custom domain logic). After this release, the entity gate runs first when matrix is active; the callback only runs if the entity rung wasn't taken (matrix dormant, or no entity declared). Callbacks still fire for ownership / scope checks at the actual write/read sites — they just no longer double-gate the tile's appearance.
+
+A handful of tiles intentionally have no matrix entity yet (because the seed has no matching row): the Welcome / onboarding wizard, the License account page, the demo data tools. These remain cap-gated as before.
+
 # TalentTrack v3.86.2 — Wizard URL 404 on non-dashboard front pages + structural lookup-translation helper
 
 Two bugs reported on the JG4IT pilot install (`jg4it.mediamaniacs.nl`), shipped together because they share the "structural fix, not patch one site" framing the operator asked for. Renumbered v3.85.5 → v3.86.1 → v3.86.2 across two successive collisions: first v3.86.0 (authorization matrix discoverability) landed mid-CI, then v3.86.1 (comprehensive license enforcement) landed on the second push.
