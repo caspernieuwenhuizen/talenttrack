@@ -308,15 +308,45 @@ class DemoDataPage {
                     </p>
                 </div>
             </fieldset>
+
+            <fieldset data-tt-demo-selective style="border:1px solid #d6dadd;border-radius:6px;padding:12px 14px;margin:0 0 16px;background:#f8fafc;">
+                <legend style="font-weight:600;padding:0 6px;">
+                    <?php esc_html_e( 'Step 0.5 — What to generate', 'talenttrack' ); ?>
+                </legend>
+                <p style="margin:0 0 10px;color:#5b6e75;">
+                    <?php esc_html_e( 'Uncheck a category to use the master data already in your club instead of generating new rows. Activities, evaluations, and goals are always generated on top of whatever master data ends up present.', 'talenttrack' ); ?>
+                </p>
+                <label style="display:block;padding:4px 0;cursor:pointer;">
+                    <input type="checkbox" name="gen_teams" value="1" checked />
+                    <?php esc_html_e( 'Generate teams', 'talenttrack' ); ?>
+                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to use existing teams in the club.', 'talenttrack' ); ?></span>
+                </label>
+                <label style="display:block;padding:4px 0;cursor:pointer;">
+                    <input type="checkbox" name="gen_people" value="1" checked />
+                    <?php esc_html_e( 'Generate people + WP users', 'talenttrack' ); ?>
+                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to skip the 36-account creation. Existing People rows + their WP users stay untouched.', 'talenttrack' ); ?></span>
+                </label>
+                <label style="display:block;padding:4px 0;cursor:pointer;">
+                    <input type="checkbox" name="gen_players" value="1" checked />
+                    <?php esc_html_e( 'Generate players', 'talenttrack' ); ?>
+                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to use existing players in the club.', 'talenttrack' ); ?></span>
+                </label>
+                <p style="margin:10px 0 0;color:#5b6e75;font-size:12px;">
+                    <?php esc_html_e( 'These toggles only apply to the procedural source. Excel + hybrid sources read from the workbook regardless.', 'talenttrack' ); ?>
+                </p>
+            </fieldset>
+
             <script>
             (function(){
                 var radios = document.querySelectorAll('input[data-tt-demo-source]');
                 var box    = document.querySelector('[data-tt-demo-source-file]');
+                var selective = document.querySelector('[data-tt-demo-selective]');
                 if ( ! radios.length || ! box ) return;
                 function toggle(){
-                    var on = false;
-                    radios.forEach(function(r){ if ( r.checked && r.value !== 'procedural' ) on = true; });
-                    box.style.display = on ? 'block' : 'none';
+                    var nonProc = false;
+                    radios.forEach(function(r){ if ( r.checked && r.value !== 'procedural' ) nonProc = true; });
+                    box.style.display = nonProc ? 'block' : 'none';
+                    if ( selective ) selective.style.display = nonProc ? 'none' : '';
                 }
                 radios.forEach(function(r){ r.addEventListener('change', toggle); });
                 toggle();
@@ -591,14 +621,42 @@ class DemoDataPage {
         $source = isset( $_POST['source'] ) ? sanitize_key( (string) $_POST['source'] ) : 'procedural';
         if ( ! in_array( $source, [ 'procedural', 'excel', 'hybrid' ], true ) ) $source = 'procedural';
 
+        // v3.85.0 — selective generation toggles (procedural source only).
+        $gen_teams   = ! empty( $_POST['gen_teams'] );
+        $gen_people  = ! empty( $_POST['gen_people'] );
+        $gen_players = ! empty( $_POST['gen_players'] );
+
         $redirect = admin_url( 'tools.php?page=' . self::SLUG );
         $users_exist = DemoGenerator::persistentUsersExist();
 
-        if ( ! $users_exist && ! $confirmed ) {
+        if ( $source === 'procedural' && $gen_people && ! $users_exist && ! $confirmed ) {
             self::bounce( $redirect, 'Please confirm the demo email domain is yours.' );
         }
-        if ( ! $users_exist && ( ! $domain || ! $password ) ) {
+        if ( $source === 'procedural' && $gen_people && ! $users_exist && ( ! $domain || ! $password ) ) {
             self::bounce( $redirect, 'Domain and password are required for the first run.' );
+        }
+
+        // v3.85.0 — selective generation validation: if a master-data
+        // category is opted out, ensure the corresponding rows exist
+        // in the current club. Empty downstream output isn't useful
+        // and the silent failure mode is a footgun.
+        if ( $source === 'procedural' ) {
+            global $wpdb;
+            $club_id = (int) \TT\Infrastructure\Tenancy\CurrentClub::id();
+            if ( ! $gen_teams ) {
+                $count = (int) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$wpdb->prefix}tt_teams WHERE club_id = %d AND archived_at IS NULL",
+                    $club_id
+                ) );
+                if ( $count === 0 ) self::bounce( $redirect, 'Cannot skip Generate teams — no teams exist in this club yet. Either check Generate teams, or create teams manually first.' );
+            }
+            if ( ! $gen_players ) {
+                $count = (int) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$wpdb->prefix}tt_players WHERE club_id = %d AND status = 'active'",
+                    $club_id
+                ) );
+                if ( $count === 0 ) self::bounce( $redirect, 'Cannot skip Generate players — no active players exist in this club yet.' );
+            }
         }
 
         // Resolve uploaded Excel path once for excel + hybrid sources.
@@ -629,6 +687,9 @@ class DemoDataPage {
                 'content_language' => $content_language,
                 'source'           => $source,
                 'excel_path'       => $excel_path,
+                'gen_teams'        => $gen_teams,
+                'gen_people'       => $gen_people,
+                'gen_players'      => $gen_players,
             ] );
             \TT\Modules\DemoData\DemoMode::clearOverride();
         } catch ( \Throwable $e ) {

@@ -51,6 +51,14 @@ class FrontendAccessControl {
     public function dashboardUrl(): string {
         $page_id = (int) $this->config->get( 'dashboard_page_id', '0' );
         if ( $page_id > 0 ) {
+            // v3.85.0 — when the dashboard page is the site's front page,
+            // serve it from the root rather than `/page-slug/` so shared
+            // links read cleanly. Mirrors RecordLink::permalinkOrHome().
+            if ( (int) get_option( 'page_on_front' ) === $page_id
+                && (string) get_option( 'show_on_front' ) === 'page'
+            ) {
+                return home_url( '/' );
+            }
             $permalink = get_permalink( $page_id );
             if ( $permalink ) {
                 return $permalink;
