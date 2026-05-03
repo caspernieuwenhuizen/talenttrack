@@ -196,7 +196,11 @@ class FrontendWizardView extends FrontendViewBase {
         if ( WizardState::hasHistory( $user_id, $slug ) ) {
             echo '<button type="submit" name="tt_wizard_action" value="back" class="tt-button" formnovalidate>' . esc_html__( 'Back', 'talenttrack' ) . '</button>';
         }
-        echo '<button type="submit" name="tt_wizard_action" value="skip" class="tt-button">' . esc_html__( 'Skip step', 'talenttrack' ) . '</button>';
+        // v3.85.2 — "Skip step" removed per operator feedback. Steps that
+        // are genuinely optional should declare `notApplicableFor()`
+        // returning true and be auto-skipped by the wizard runner; a
+        // user-clickable Skip button just produced half-filled records
+        // without a clear contract for what got persisted.
         $is_last = $current->nextStep( $state ) === null;
         $label   = $is_last ? __( 'Create', 'talenttrack' ) : __( 'Next', 'talenttrack' );
         echo '<button type="submit" name="tt_wizard_action" value="next" class="tt-button tt-button-primary">' . esc_html( $label ) . '</button>';

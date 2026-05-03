@@ -107,21 +107,15 @@ final class ReviewStep implements WizardStepInterface {
         }
         $activity_id = (int) $wpdb->insert_id;
 
-        // Demo-mode tag bookkeeping mirrors the REST path so the new
-        // activity is visible to demo-scoped queries on the redirect.
-        if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' )
-             && \TT\Modules\DemoData\DemoMode::effective() === \TT\Modules\DemoData\DemoMode::ON
-        ) {
-            $tag_table = $wpdb->prefix . 'tt_demo_tags';
-            if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tag_table ) ) === $tag_table ) {
-                $wpdb->insert( $tag_table, [
-                    'club_id'     => CurrentClub::id(),
-                    'batch_id'    => 'user-created',
-                    'entity_type' => 'activity',
-                    'entity_id'   => $activity_id,
-                    'extra_json'  => null,
-                ] );
-            }
+        // v3.85.2 — was an inline demo-tag write that duplicated the
+        // central helper's logic. Operator reported activities created
+        // via the wizard sometimes disappearing post-save; switching to
+        // DemoMode::tagIfActive uses the same idempotent + table-safe
+        // path every other create site shares (REST controllers, admin
+        // pages, CSV importer). The helper short-circuits when demo
+        // mode is off and when tt_demo_tags doesn't exist.
+        if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
+            \TT\Modules\DemoData\DemoMode::tagIfActive( 'activity', $activity_id );
         }
 
         if ( class_exists( '\\TT\\Modules\\Translations\\TranslationLayer' ) ) {
