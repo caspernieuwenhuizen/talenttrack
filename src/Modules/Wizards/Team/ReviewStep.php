@@ -38,6 +38,19 @@ final class ReviewStep implements WizardStepInterface {
 
     public function submit( array $state ) {
         global $wpdb;
+
+        // v3.85.5 — license cap enforcement. Wizard wpdb->insert
+        // bypassed the 1-team free-tier cap that wp-admin TeamsPage
+        // already enforces.
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+             && \TT\Modules\License\LicenseGate::capsExceeded( 'teams' )
+        ) {
+            return new \WP_Error(
+                'license_cap_teams',
+                __( 'You have reached the free-tier limit of 1 team. Upgrade to Standard to add more.', 'talenttrack' )
+            );
+        }
+
         $name = (string) ( $state['name'] ?? '' );
         if ( $name === '' ) return new \WP_Error( 'name_required', __( 'Team name is required.', 'talenttrack' ) );
 

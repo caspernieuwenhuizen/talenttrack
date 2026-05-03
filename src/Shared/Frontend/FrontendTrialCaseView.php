@@ -36,6 +36,16 @@ use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
 class FrontendTrialCaseView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        // v3.85.5 — Trials is Pro-tier; the case detail view inherits
+        // the same gate as the manage view.
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+             && ! \TT\Modules\License\LicenseGate::allows( 'trial_module' )
+        ) {
+            self::renderHeader( __( 'Trial case', 'talenttrack' ) );
+            echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Trial cases', 'talenttrack' ), 'pro' );
+            return;
+        }
+
         $case_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $case_id <= 0 ) {
             self::renderHeader( __( 'Trial case not found', 'talenttrack' ) );

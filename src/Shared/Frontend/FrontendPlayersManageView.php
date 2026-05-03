@@ -108,9 +108,24 @@ class FrontendPlayersManageView extends FrontendViewBase {
             return;
         }
 
-        $primary_actions = '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
-            . esc_html__( 'New player', 'talenttrack' )
-            . '</a>';
+        // v3.85.5 — when at the free-tier 25-player cap, hide the
+        // "New player" button and surface the upgrade nudge above the
+        // list. wp-admin already enforced; the frontend create surface
+        // was silently letting operators click through to a wizard or
+        // form that would then 402 at submit time. Better UX: tell
+        // them up front that the cap is reached.
+        $at_player_cap = class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+            && \TT\Modules\License\LicenseGate::capsExceeded( 'players' );
+
+        $primary_actions = $at_player_cap
+            ? ''
+            : '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
+                . esc_html__( 'New player', 'talenttrack' )
+                . '</a>';
+
+        if ( $at_player_cap ) {
+            echo \TT\Modules\License\Admin\UpgradeNudge::capHit( 'players' );
+        }
         // #0040 — bulk import shortcut surfaces above the list when
         // the user has the cap, replacing the dashboard tile.
         if ( current_user_can( 'tt_edit_players' ) ) {

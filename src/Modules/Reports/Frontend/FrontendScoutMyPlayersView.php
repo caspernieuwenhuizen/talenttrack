@@ -28,6 +28,14 @@ class FrontendScoutMyPlayersView extends FrontendViewBase {
         self::enqueueAssets();
         self::renderHeader( __( 'My players', 'talenttrack' ) );
 
+        // v3.85.5 — Scout access is Pro-tier per FeatureMap.
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+             && ! \TT\Modules\License\LicenseGate::allows( 'scout_access' )
+        ) {
+            echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Scout access', 'talenttrack' ), 'pro' );
+            return;
+        }
+
         $assigned_ids = self::assignedPlayerIds( $user_id );
         if ( empty( $assigned_ids ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'No players assigned to you yet. Reach out to the head of development if you expected access.', 'talenttrack' ) . '</p>';

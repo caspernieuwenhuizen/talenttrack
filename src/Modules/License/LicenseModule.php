@@ -40,6 +40,10 @@ class LicenseModule implements ModuleInterface {
         if ( is_admin() ) {
             Admin\AccountPage::init();
             Admin\DevOverridePage::init();
+            // v3.85.5 — read-only "what's locked / where am I" page
+            // for everyone with `read`. Distinct from AccountPage
+            // (operator-only).
+            Admin\PlanOverviewPage::init();
         }
     }
 }

@@ -19,6 +19,14 @@ class FrontendScoutHistoryView extends FrontendViewBase {
         self::enqueueAssets();
         self::renderHeader( __( 'Scout reports history', 'talenttrack' ) );
 
+        // v3.85.5 — Scout access is Pro-tier per FeatureMap.
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+             && ! \TT\Modules\License\LicenseGate::allows( 'scout_access' )
+        ) {
+            echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Scout access', 'talenttrack' ), 'pro' );
+            return;
+        }
+
         if ( ! current_user_can( 'tt_generate_scout_report' ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You need scout-management permission to view this page.', 'talenttrack' ) . '</p>';
             return;
