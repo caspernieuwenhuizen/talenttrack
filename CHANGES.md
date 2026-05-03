@@ -1,3 +1,29 @@
+# TalentTrack v3.84.0 — i18n audit (May 2026) Bundles 8 + 9 — JS error-fallback sweep + methodology research closeout
+
+Final fix-PR off the May 2026 i18n audit. Closes Bundles 8 + 9; the audit's 10-bundle triage list is functionally complete.
+
+## Bundle 8 — JS error-fallback sweep
+
+Three JS components had live `… || 'Error'` hardcoded fallbacks not routed through `TT.i18n.error_generic`:
+
+- `assets/js/components/admin-reorder.js:50`
+- `assets/js/components/frontend-list-table.js:316`
+- `assets/js/components/functional-roles.js:45`
+
+Each now reads `(window.TT && TT.i18n && TT.i18n.error_generic) || 'Error.'` before falling back to the literal — `error_generic` is already in the `DashboardShortcode` localize bundle (and matches the punctuation used elsewhere: `'Error.'`).
+
+The other ~10 `cfg.foo || 'English'` patterns flagged by the audit (in `wizard-autosave.js`, `wizard-eval-review.js`, `persona-dashboard.js`, `tt-table-tools.js`, `frontend-threads.js`, `guest-add.js`, `persona-dashboard-editor.js`) were verified dead code on localized sites — every key the JS reads has a matching entry in its `wp_localize_script` call, so the English fallbacks are unreachable on a normally-loaded site.
+
+## Bundle 9 — methodology task arrays research
+
+The audit flagged `database/migrations/0018_methodology_full_content.php:1162-1552` (the `attacking_tasks` / `defending_tasks` arrays) as potentially shipping English-only flat strings. Re-checked: every position's tasks are already structured as `[ 'nl' => [...], 'en' => [...] ]` MultilingualField shape with full Dutch translations alongside English. **False positive — no code change needed.**
+
+## Audit progress
+
+**9/10 bundles shipped, ~140 of ~150 surfaces fixed.** Bundle 10 (letter templates DE/FR/ES/IT/PT) stays deferred to the multi-language epic #0010 as planned.
+
+The May 2026 i18n audit is functionally closed. What remains is the schema-change vision items deferred from Bundles 4 and 5 — a `meta.translations` column on `tt_roles` / `tt_functional_roles` / `tt_eval_categories` for admin-created custom labels. Separate ship when SaaS multi-locale becomes a real requirement (today: clubs type Dutch directly when adding custom rows).
+
 # TalentTrack v3.83.0 — i18n audit (May 2026) Bundles 5 + 6 — eval-category render-site cleanup + Excel template instructions
 
 Third fix-PR off the May 2026 i18n audit. Two small bundles shipped together.
