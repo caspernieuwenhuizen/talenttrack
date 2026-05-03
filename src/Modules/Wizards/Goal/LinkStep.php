@@ -23,9 +23,16 @@ final class LinkStep implements WizardStepInterface {
 
     public function render( array $state ): void {
         $type = (string) ( $state['link_type'] ?? '' );
-        echo '<p>' . esc_html__( 'Optionally link this goal to a methodology entity. Skip to leave the goal unlinked.', 'talenttrack' ) . '</p>';
+        echo '<p>' . esc_html__( 'Optionally link this goal to a methodology entity. Pick a type and click Next to choose the specific entity, or leave on "— no link —" to skip.', 'talenttrack' ) . '</p>';
 
-        echo '<label><span>' . esc_html__( 'Link type', 'talenttrack' ) . '</span><select name="link_type" onchange="this.form.querySelector(\'[name=tt_wizard_action][value=next]\').click()">';
+        // v3.85.3 — was auto-clicking Next on type change, which made
+        // the cascade impossible to use: picking a type immediately
+        // advanced to the Details step before the operator could pick
+        // the candidate from the second select. Plain select now;
+        // operator clicks Next themselves and nextStep() decides
+        // whether to stay on this step (type set, link_id still 0)
+        // or advance to details.
+        echo '<label><span>' . esc_html__( 'Link type', 'talenttrack' ) . '</span><select name="link_type">';
         echo '<option value="">' . esc_html__( '— no link —', 'talenttrack' ) . '</option>';
         foreach ( self::types() as $key => $label ) {
             echo '<option value="' . esc_attr( $key ) . '" ' . selected( $type, $key, false ) . '>' . esc_html( $label ) . '</option>';
@@ -38,6 +45,9 @@ final class LinkStep implements WizardStepInterface {
         $current_id = (int) ( $state['link_id'] ?? 0 );
         echo '<label><span>' . esc_html__( 'Pick the entity to link', 'talenttrack' ) . '</span><select name="link_id">';
         echo '<option value="0">' . esc_html__( '— pick one —', 'talenttrack' ) . '</option>';
+        if ( empty( $candidates ) ) {
+            echo '<option value="0" disabled>' . esc_html__( '(no entries configured for this type)', 'talenttrack' ) . '</option>';
+        }
         foreach ( $candidates as $row ) {
             echo '<option value="' . esc_attr( (string) $row['id'] ) . '" ' . selected( $current_id, (int) $row['id'], false ) . '>' . esc_html( (string) $row['label'] ) . '</option>';
         }
@@ -51,7 +61,21 @@ final class LinkStep implements WizardStepInterface {
         return [ 'link_type' => $type, 'link_id' => $id ];
     }
 
-    public function nextStep( array $state ): ?string { return 'details'; }
+    /**
+     * v3.85.3 — stay on this step until either type is empty (skip
+     * the link entirely → advance) or both type AND link_id are set
+     * (operator picked the candidate → advance). Returning self::slug
+     * makes the framework re-render this step so the candidate picker
+     * appears for the chosen type.
+     */
+    public function nextStep( array $state ): ?string {
+        $type = (string) ( $state['link_type'] ?? '' );
+        $id   = (int) ( $state['link_id'] ?? 0 );
+        if ( $type !== '' && $id <= 0 ) {
+            return $this->slug();
+        }
+        return 'details';
+    }
     public function submit( array $state ) { return null; }
 
     /** @return array<string,string> */
@@ -72,19 +96,44 @@ final class LinkStep implements WizardStepInterface {
         $rows = [];
         switch ( $type ) {
             case 'principle':
-                $rows = $wpdb->get_results( $wpdb->prepare(
-                    "SELECT id, CONCAT(code, ' — ', name) AS label FROM {$wpdb->prefix}tt_principles
+                // v3.85.3 — was selecting `name` column which doesn't
+                // exist on tt_principles. The schema (migration 0015)
+                // uses `title_json`. Empty dropdowns were the result.
+                // Read title_json + decode via MultilingualField for
+                // the operator's locale, mirroring how the activity
+                // edit form renders the same data.
+                $raw = $wpdb->get_results( $wpdb->prepare(
+                    "SELECT id, code, title_json FROM {$wpdb->prefix}tt_principles
                      WHERE archived_at IS NULL AND club_id = %d ORDER BY code",
                     CurrentClub::id()
                 ) );
-                break;
+                $out = [];
+                foreach ( (array) $raw as $r ) {
+                    $title = '';
+                    if ( class_exists( '\\TT\\Modules\\Methodology\\Helpers\\MultilingualField' ) ) {
+                        $title = (string) \TT\Modules\Methodology\Helpers\MultilingualField::string( $r->title_json );
+                    }
+                    $label = trim( (string) $r->code . ( $title !== '' ? ' — ' . $title : '' ) );
+                    $out[] = [ 'id' => (int) $r->id, 'label' => $label ];
+                }
+                return $out;
             case 'football_action':
-                $rows = $wpdb->get_results( $wpdb->prepare(
-                    "SELECT id, name AS label FROM {$wpdb->prefix}tt_football_actions
-                     WHERE archived_at IS NULL AND club_id = %d ORDER BY sort_order, name",
+                // v3.85.3 — same fix: tt_football_actions uses
+                // `name_json`, not `name`.
+                $raw = $wpdb->get_results( $wpdb->prepare(
+                    "SELECT id, slug, name_json FROM {$wpdb->prefix}tt_football_actions
+                     WHERE archived_at IS NULL AND club_id = %d ORDER BY sort_order, slug",
                     CurrentClub::id()
                 ) );
-                break;
+                $out = [];
+                foreach ( (array) $raw as $r ) {
+                    $name = '';
+                    if ( class_exists( '\\TT\\Modules\\Methodology\\Helpers\\MultilingualField' ) ) {
+                        $name = (string) \TT\Modules\Methodology\Helpers\MultilingualField::string( $r->name_json );
+                    }
+                    $out[] = [ 'id' => (int) $r->id, 'label' => $name !== '' ? $name : (string) $r->slug ];
+                }
+                return $out;
             case 'position':
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT id, name AS label FROM {$wpdb->prefix}tt_lookups

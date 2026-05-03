@@ -62,6 +62,25 @@ final class ReviewStep implements WizardStepInterface {
         if ( $notes !== '' ) {
             echo '<dt>' . esc_html__( 'Notes', 'talenttrack' ) . '</dt><dd>' . esc_html( $notes ) . '</dd>';
         }
+
+        // v3.85.3 — show the principles the operator picked in the
+        // new PrinciplesStep so the recap is complete before submit.
+        $principle_ids = (array) ( $state['activity_principle_ids'] ?? [] );
+        $principle_ids = array_values( array_unique( array_filter( array_map( 'intval', $principle_ids ) ) ) );
+        if ( ! empty( $principle_ids ) && class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrinciplesRepository' ) ) {
+            $repo = new \TT\Modules\Methodology\Repositories\PrinciplesRepository();
+            $names = [];
+            foreach ( $principle_ids as $pid ) {
+                $pr = $repo->find( $pid );
+                if ( ! $pr ) continue;
+                $title = '';
+                if ( class_exists( '\\TT\\Modules\\Methodology\\Helpers\\MultilingualField' ) ) {
+                    $title = (string) \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
+                }
+                $names[] = trim( (string) $pr->code . ( $title !== '' ? ' · ' . $title : '' ) );
+            }
+            echo '<dt>' . esc_html__( 'Principles practiced', 'talenttrack' ) . '</dt><dd>' . esc_html( implode( ', ', $names ) ) . '</dd>';
+        }
         echo '</dl>';
     }
 
@@ -124,9 +143,28 @@ final class ReviewStep implements WizardStepInterface {
             \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'location', (string) $row['location'] );
         }
 
+        // v3.85.3 — persist Principles practiced from the new
+        // PrinciplesStep. Mirrors the wp-admin handle_save and the
+        // REST controller's persistPrincipleLinks helper so all three
+        // create paths (admin form / REST / wizard) tag activities
+        // identically. Empty array = operator skipped the step.
+        $principle_ids = (array) ( $state['activity_principle_ids'] ?? [] );
+        $principle_ids = array_values( array_unique( array_filter( array_map( 'intval', $principle_ids ) ) ) );
+        if ( ! empty( $principle_ids )
+             && class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrincipleLinksRepository' )
+        ) {
+            ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )
+                ->setActivityPrinciples( $activity_id, $principle_ids );
+        }
+
+        // v3.85.3 — was redirect to ?tt_view=activities&id=N (the
+        // activity DETAIL page, which renders two back-button
+        // affordances and no clear "go to list" path). Operator wants
+        // to land on the activity LIST after creating, where the new
+        // row is highlighted and the next-create button is one click
+        // away. Dropped the `id` query arg.
         return [ 'redirect_url' => add_query_arg( [
             'tt_view' => 'activities',
-            'id'      => $activity_id,
         ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) ];
     }
 
