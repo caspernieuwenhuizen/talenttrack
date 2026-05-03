@@ -12071,3 +12071,111 @@ msgstr "Hero-gradiënt — einde"
 
 msgid "Hero CTA"
 msgstr "Hero-CTA"
+
+# v3.86.0 — auth-matrix discoverability + sub-cap sweep
+
+msgid "The matrix is currently dormant."
+msgstr "De matrix is op dit moment slapend."
+
+msgid "Your edits are saved but have no runtime effect: native WP capability checks decide instead. Enable the bridge on Authorization → Migration preview to make the matrix authoritative."
+msgstr "Je wijzigingen worden opgeslagen, maar hebben geen runtime-effect: de native WP-rechtencontrole beslist. Schakel de bridge in via Autorisatie → Migratie-preview om de matrix leidend te maken."
+
+msgid "Open Migration preview →"
+msgstr "Open migratie-preview →"
+
+msgid "Find entity:"
+msgstr "Zoek entiteit:"
+
+msgid "Type to filter — matches entity slug, label, or consumer (e.g. 'audit', 'podium', 'lookups')"
+msgstr "Typ om te filteren — zoekt op entiteit-slug, label of gebruiker (bijv. 'audit', 'podium', 'lookups')"
+
+msgid "Used by: %1$s"
+msgstr "Gebruikt door: %1$s"
+
+msgid "No tile / admin surface gates on this entity yet."
+msgstr "Nog geen tegel of admin-pagina gebruikt deze entiteit."
+
+msgid "Tiles not controlled by the matrix"
+msgstr "Tegels die niet door de matrix worden gestuurd"
+
+msgid "These tiles gate visibility on a custom callback rather than a capability tied to a matrix entity. Editing R/C/D for any persona above will not hide them. Use the dashboard tile's `hide_for_personas` field, or refactor the callback, to suppress them per persona."
+msgstr "Deze tegels regelen hun zichtbaarheid via een eigen callback in plaats van een rechten-key die aan een matrix-entiteit is gekoppeld. R/C/D wijzigen voor een persona hierboven verbergt ze niet. Gebruik het `hide_for_personas`-veld van de tegel, of refactor de callback, om ze per persona te onderdrukken."
+
+msgid "None — every tile is matrix-controlled. Nice."
+msgstr "Geen — elke tegel wordt door de matrix gestuurd. Mooi."
+
+# v3.86.0 — entity labels (matrix admin) — only msgids not already
+# present elsewhere in this catalogue. Existing strings (e.g. "Audit
+# log", "Branding", "Migrations") are reused via gettext lookup.
+
+msgid "Settings (umbrella)"
+msgstr "Instellingen (overkoepelend)"
+
+msgid "Evaluation categories"
+msgstr "Evaluatiecategorieën"
+
+msgid "Category weights"
+msgstr "Categorie-wegingen"
+
+msgid "Frontend admin"
+msgstr "Frontend-beheer"
+
+msgid "Authorization changelog"
+msgstr "Autorisatie-changelog"
+
+msgid "Functional roles (definitions)"
+msgstr "Functionele rollen (definities)"
+
+msgid "Functional roles (assignments)"
+msgstr "Functionele rollen (toewijzingen)"
+
+msgid "Backup"
+msgstr "Back-up"
+
+msgid "Workflow tasks"
+msgstr "Workflow-taken"
+
+msgid "Invitation messages"
+msgstr "Uitnodigingsberichten"
+
+msgid "Development ideas"
+msgstr "Ontwikkelideeën"
+
+msgid "Trial inputs"
+msgstr "Proefinvoer"
+
+msgid "Trial synthesis"
+msgstr "Proef-samenvatting"
+
+msgid "Threads"
+msgstr "Gesprekken"
+
+msgid "Player timeline"
+msgstr "Speler-tijdlijn"
+
+msgid "Player potential"
+msgstr "Speler-potentieel"
+
+msgid "Player behaviour ratings"
+msgstr "Spelers-gedragsbeoordelingen"
+
+msgid "Player status breakdown"
+msgstr "Spelersstatus-uitsplitsing"
+
+msgid "Player injuries"
+msgstr "Spelersblessures"
+
+msgid "Safeguarding notes"
+msgstr "Safeguarding-notities"
+
+msgid "PDP evidence packet"
+msgstr "PDP-bewijsbundel"
+
+msgid "PDP verdict"
+msgstr "PDP-eindoordeel"
+
+msgid "Persona templates"
+msgstr "Persona-sjablonen"
+
+msgid "Impersonation"
+msgstr "Impersonatie"

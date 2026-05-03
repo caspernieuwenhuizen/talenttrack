@@ -668,8 +668,10 @@ final class CoreSurfaceRegistration {
             'cap'          => 'tt_edit_settings',
             'desktop_preferred' => true,
         ]);
-        // Audit log is infra (no module owner). Always renders for users
-        // with tt_view_settings.
+        // Audit log is infra (no module owner). Gates on the specific
+        // tt_view_audit_log sub-cap so the matrix entity audit_log
+        // controls visibility 1:1 — clearing R for a persona on
+        // audit_log in the matrix actually hides the tile.
         TileRegistry::register([
             'module_class' => null,
             'view_slug'    => 'audit-log',
@@ -680,7 +682,7 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Who changed what, when. Filterable, paginated.', 'talenttrack' ),
             'icon'         => 'audit-log',
             'color'        => '#5b6e75',
-            'cap'          => 'tt_view_settings',
+            'cap'          => 'tt_view_audit_log',
             'desktop_preferred' => true,
         ]);
         TileRegistry::register([
@@ -906,7 +908,7 @@ final class CoreSurfaceRegistration {
             'parent'       => $parent,
             'group'        => 'performance',
             'title'        => __( 'Seasons', 'talenttrack' ),
-            'cap'          => 'tt_edit_settings',
+            'cap'          => 'tt_edit_seasons',
             'slug'         => 'tt-seasons',
             'callback'     => [ \TT\Modules\Pdp\Admin\SeasonsPage::class, 'render' ],
         ]);
@@ -1025,7 +1027,7 @@ final class CoreSurfaceRegistration {
             'parent'       => $parent,
             'group'        => 'config',
             'title'        => __( 'Custom Fields', 'talenttrack' ),
-            'cap'          => 'tt_view_settings',
+            'cap'          => 'tt_view_custom_fields',
             'slug'         => 'tt-custom-fields',
             'callback'     => [ \TT\Modules\Configuration\Admin\CustomFieldsPage::class, 'render' ],
         ]);
@@ -1034,7 +1036,7 @@ final class CoreSurfaceRegistration {
             'parent'       => $parent,
             'group'        => 'config',
             'title'        => __( 'Evaluation Categories', 'talenttrack' ),
-            'cap'          => 'tt_view_settings',
+            'cap'          => 'tt_view_evaluation_categories',
             'slug'         => 'tt-eval-categories',
             'callback'     => [ \TT\Modules\Evaluations\Admin\EvalCategoriesPage::class, 'render' ],
         ]);
@@ -1043,7 +1045,7 @@ final class CoreSurfaceRegistration {
             'parent'       => $parent,
             'group'        => 'config',
             'title'        => __( 'Category Weights', 'talenttrack' ),
-            'cap'          => 'tt_view_settings',
+            'cap'          => 'tt_view_category_weights',
             'slug'         => 'tt-category-weights',
             'callback'     => [ \TT\Modules\Evaluations\Admin\CategoryWeightsPage::class, 'render' ],
         ]);
@@ -1066,7 +1068,7 @@ final class CoreSurfaceRegistration {
             'parent'       => $parent,
             'group'        => 'access',
             'title'        => __( 'Functional Roles', 'talenttrack' ),
-            'cap'          => 'tt_view_settings',
+            'cap'          => 'tt_view_functional_roles',
             'slug'         => 'tt-functional-roles',
             'callback'     => [ \TT\Modules\Authorization\Admin\FunctionalRolesPage::class, 'render' ],
         ]);
@@ -1241,7 +1243,7 @@ final class CoreSurfaceRegistration {
             'desc'  => __( 'Add club-specific fields to any entity.', 'talenttrack' ),
             'icon'  => 'custom-fields',
             'url'   => $admin( 'tt-custom-fields' ),
-            'cap'   => 'tt_view_settings',
+            'cap'   => 'tt_view_custom_fields',
         ]);
         AdminMenuRegistry::registerDashboardTile([
             'module_class' => self::M_EVALUATIONS,
@@ -1250,7 +1252,7 @@ final class CoreSurfaceRegistration {
             'desc'  => __( 'Main + subcategories used in evaluations.', 'talenttrack' ),
             'icon'  => 'categories',
             'url'   => $admin( 'tt-eval-categories' ),
-            'cap'   => 'tt_view_settings',
+            'cap'   => 'tt_view_evaluation_categories',
         ]);
         AdminMenuRegistry::registerDashboardTile([
             'module_class' => self::M_EVALUATIONS,
@@ -1259,7 +1261,7 @@ final class CoreSurfaceRegistration {
             'desc'  => __( 'Per-age-group weighting for overall ratings.', 'talenttrack' ),
             'icon'  => 'weights',
             'url'   => $admin( 'tt-category-weights' ),
-            'cap'   => 'tt_view_settings',
+            'cap'   => 'tt_view_category_weights',
         ]);
 
         $access = __( 'Access Control', 'talenttrack' );
@@ -1279,7 +1281,7 @@ final class CoreSurfaceRegistration {
             'desc'  => __( 'Head coach, assistant, physio — map club roles to permissions.', 'talenttrack' ),
             'icon'  => 'functional-roles',
             'url'   => $admin( 'tt-functional-roles' ),
-            'cap'   => 'tt_view_settings',
+            'cap'   => 'tt_view_functional_roles',
         ]);
         AdminMenuRegistry::registerDashboardTile([
             'module_class' => self::M_AUTHORIZATION,

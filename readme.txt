@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.85.4
+Stable tag: 3.86.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.86.0 — Authorization matrix discoverability + sub-cap sweep on settings tiles =
+
+Closes the wiring gap reported by users where clearing R/C/D for a persona on the `audit_log` entity in the matrix didn't hide the Audit log tile on that persona's dashboard. Audit log + Custom Fields + Evaluation Categories + Category Weights + Seasons + Functional Roles tiles + admin menu items switched from the umbrella `tt_view_settings` cap to their specific sub-cap, so each surface maps 1:1 to a matrix entity. Matrix admin page (`Authorization → Matrix`) gains: localized entity labels (slugs no longer raw English), bidirectional "Used by: <tile-list>" labels under each entity row, a fuzzy search input that matches across slug + label + consumer name (typing "podium" jumps to the right row), sticky `<thead>` + sticky first column so persona + entity context stay visible while scrolling, an active-state warning banner when `tt_authorization_active = 0` (matrix dormant, edits saved but no runtime effect), and a "Tiles not controlled by the matrix" section listing the 17 tiles that gate on a `cap_callback` closure rather than a string cap (follow-up refactor — for now, use `hide_for_personas` to suppress per persona). New helpers: `LegacyCapMapper::capsForEntity()`, `TileRegistry::allRegistered()`, `AdminMenuRegistry::allEntries()`, `AdminMenuRegistry::allDashboardTiles()`, and a new `MatrixEntityCatalog` class encapsulating the slug→label and consumer-index logic.
 
 = 3.85.4 — wp-admin Players list: "Show all players (bypass demo filter)" toggle =
 
