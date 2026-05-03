@@ -49,7 +49,7 @@ final class ImpersonationPage {
         <div class="wrap">
             <h1><?php esc_html_e( 'Impersonate user', 'talenttrack' ); ?></h1>
             <p>
-                <?php esc_html_e( 'Start a session as another user. Every impersonation is audit-logged with your account, the target, and your reason. Use the banner that appears on every page to switch back. Cannot impersonate other administrators.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Sign in as another user to view what they see. Every impersonation is audit-logged with your account, the target, and your reason. Use the banner that appears on every page to switch back. Cannot impersonate other administrators.', 'talenttrack' ); ?>
             </p>
             <form method="post" action="<?php echo esc_url( $action_url ); ?>" style="max-width:560px; margin-top:18px;">
                 <?php wp_nonce_field( 'tt_impersonation_start', '_tt_impersonation_nonce' ); ?>
