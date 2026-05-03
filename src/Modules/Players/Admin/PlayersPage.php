@@ -48,7 +48,13 @@ class PlayersPage {
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
         $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
 
-        $scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
+        // v3.85.4 — `?demo_scope=all` bypasses the demo-mode scope so an
+        // admin can see every row, including the ones that never got
+        // tagged (e.g. operator-created players from before v3.85.1's
+        // wizard fix). Without it, demo-on installs hide untagged rows
+        // and the admin has no way to clean them up.
+        $demo_scope_mode = isset( $_GET['demo_scope'] ) && $_GET['demo_scope'] === 'all' ? 'all' : 'filtered';
+        $scope = $demo_scope_mode === 'all' ? '' : QueryHelpers::apply_demo_scope( 'pl', 'player' );
         $where = "WHERE pl.status='active' AND pl.{$view_clause}" . $wpdb->prepare( " AND pl.club_id=%d", CurrentClub::id() ) . ( $ft ? $wpdb->prepare( " AND pl.team_id=%d", $ft ) : '' ) . $scope;
         // #0070 — also resolve the parent name + id so the list can show
         // it as a clickable column. Left join keeps the row when no
@@ -72,9 +78,43 @@ class PlayersPage {
             <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
             <form method="get" style="margin:10px 0"><input type="hidden" name="page" value="tt-players"/>
                 <input type="hidden" name="tt_view" value="<?php echo esc_attr( $view ); ?>"/>
+                <?php if ( $demo_scope_mode === 'all' ) : ?>
+                    <input type="hidden" name="demo_scope" value="all"/>
+                <?php endif; ?>
                 <select name="team_id" onchange="this.form.submit()"><option value="0"><?php esc_html_e( 'All Teams', 'talenttrack' ); ?></option>
                 <?php foreach ( $teams as $t ) : ?><option value="<?php echo (int) $t->id; ?>" <?php selected( $ft, (int) $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option><?php endforeach; ?></select>
             </form>
+
+            <?php
+            // v3.85.4 — toggle the demo-scope bypass. Surfaces in admin
+            // only when demo mode is non-NEUTRAL (so the link doesn't
+            // appear when the scope filter wouldn't be doing anything
+            // either way). Lets admins find + delete players that
+            // never got their demo tag (e.g. wizard-created before
+            // v3.85.1).
+            $demo_active = false;
+            if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
+                $demo_mode_now = \TT\Modules\DemoData\DemoMode::effective();
+                $demo_active = ( $demo_mode_now !== \TT\Modules\DemoData\DemoMode::NEUTRAL );
+            }
+            if ( $demo_active ) :
+                $toggle_args = [ 'page' => 'tt-players' ];
+                if ( $ft )                                 $toggle_args['team_id']  = $ft;
+                if ( $view !== 'active' )                  $toggle_args['tt_view']  = $view;
+                if ( $demo_scope_mode === 'filtered' )     $toggle_args['demo_scope'] = 'all';
+                $toggle_url   = esc_url( add_query_arg( $toggle_args, admin_url( 'admin.php' ) ) );
+                $toggle_label = $demo_scope_mode === 'all'
+                    ? __( '← Apply demo filter', 'talenttrack' )
+                    : __( 'Show all players (bypass demo filter) →', 'talenttrack' );
+                $hint = $demo_scope_mode === 'all'
+                    ? __( 'Showing every row in the database. Some rows may not be visible in the standard list because they have no demo tag.', 'talenttrack' )
+                    : __( 'Demo mode is active — the list below is filtered. Click to show every row, including untagged ones (useful when cleaning up wizard-created players from before the v3.85.1 fix).', 'talenttrack' );
+                ?>
+                <p style="margin:8px 0 12px; color:#646970; font-size:13px;">
+                    <a href="<?php echo $toggle_url; ?>" class="button button-secondary"><?php echo esc_html( $toggle_label ); ?></a>
+                    <span style="margin-left:8px;"><?php echo esc_html( $hint ); ?></span>
+                </p>
+            <?php endif; ?>
 
             <?php \TT\Shared\Admin\BulkActionsHelper::renderStatusTabs( 'player', $view, $base_url ); ?>
             <?php \TT\Shared\Admin\BulkActionsHelper::openForm( 'player', $view ); ?>

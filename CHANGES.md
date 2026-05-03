@@ -1,3 +1,35 @@
+# TalentTrack v3.85.4 — wp-admin Players list: "Show all players (bypass demo filter)" toggle
+
+Companion to v3.85.1's wizard tag-fix. Operators with installs that already accumulated demo-untagged players (e.g. created via the wizard before v3.85.1 landed) couldn't see them in `wp-admin → Players` to delete them — `apply_demo_scope` filters the list by demo tag when demo mode is non-NEUTRAL, and untagged rows fall outside the filter on both sides (`IN (demo set)` is false for untagged rows when demo-ON; `NOT IN (demo set)` is true so they DO appear when demo-OFF, but the operator may have been viewing demo-ON to demonstrate).
+
+## What's new
+
+- New `?demo_scope=all` query param on `wp-admin/admin.php?page=tt-players`. When present, `apply_demo_scope` is bypassed entirely; the list shows every active player in the club regardless of demo tag.
+- Toggle button in the filter bar — surfaces only when demo mode is non-NEUTRAL (so the link doesn't appear when the scope filter wouldn't be doing anything either way). Two states: **"Show all players (bypass demo filter) →"** (when filtered) and **"← Apply demo filter"** (when bypassed). Hint text below explains the difference.
+
+## SQL companion — backfill all players as demo-tagged
+
+For installs that already have untagged players from the pre-v3.85.1 wizard era, here's the one-shot SQL to tag every untagged player as demo (run in your DB tool of choice; replace `wp_` if your install uses a different prefix; replace `1` in `p.club_id = 1` if you use multi-tenant):
+
+```sql
+INSERT INTO wp_tt_demo_tags (club_id, batch_id, entity_type, entity_id)
+SELECT p.club_id, 'manual-backfill', 'player', p.id
+FROM wp_tt_players p
+WHERE p.id NOT IN (
+    SELECT entity_id FROM wp_tt_demo_tags WHERE entity_type = 'player'
+)
+AND p.club_id = 1;
+```
+
+Idempotent (the `NOT IN` subquery skips already-tagged rows). Repeating it after creating more untagged players is safe.
+
+To do the same for activities / evaluations / goals / teams / people, swap `'player'` and `tt_players` for the matching pair. Same shape every time.
+
+## What did *not* change
+
+- The same demo-scope filter exists on the wp-admin Activities / Goals / Evaluations / Teams / People lists. They aren't bypass-toggle-equipped yet — the operator-facing complaint was about Players specifically. Add the same toggle to those lists in a follow-up if asked.
+- The frontend players list (`?tt_view=players`) doesn't have the bypass toggle. Different audience (coaches, not admins); operators clean up via wp-admin.
+
 # TalentTrack v3.85.3 — Players page empty-state shown to HoD / Scout (JG4IT pilot)
 
 Found on the JG4IT pilot install. Third bug from the same setup session as v3.85.1 + v3.85.2.
