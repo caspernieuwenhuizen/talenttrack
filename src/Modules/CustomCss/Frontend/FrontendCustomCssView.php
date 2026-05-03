@@ -659,8 +659,13 @@ class FrontendCustomCssView extends FrontendViewBase {
      */
     private static function renderEditorTab( string $surface, array $live ): void {
         $preview_url  = self::previewUrl( $surface );
+        $base_url = remove_query_arg( 'prefill' );
         $download_url = esc_url( wp_nonce_url(
-            add_query_arg( [ 'tt_css_download' => '1', 'surface' => $surface ], remove_query_arg( 'prefill' ) ),
+            add_query_arg( [ 'tt_css_download' => '1', 'surface' => $surface ], $base_url ),
+            'tt_css_download'
+        ) );
+        $download_full_url = esc_url( wp_nonce_url(
+            add_query_arg( [ 'tt_css_download' => 'full', 'surface' => $surface ], $base_url ),
             'tt_css_download'
         ) );
 
@@ -684,8 +689,12 @@ class FrontendCustomCssView extends FrontendViewBase {
         echo '<div class="tt-form-actions" style="margin-top:14px; display:flex; flex-wrap:wrap; gap:8px;">';
         echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save CSS', 'talenttrack' ) . '</button>';
         echo '<a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $preview_url ) . '">' . esc_html__( 'Open preview in new tab', 'talenttrack' ) . '</a>';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . $download_url . '" download>' . esc_html__( 'Download .css', 'talenttrack' ) . '</a>';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . $download_url . '" download>' . esc_html__( 'Download saved CSS', 'talenttrack' ) . '</a>';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . $download_full_url . '" download>' . esc_html__( 'Download full stylesheet (for designer)', 'talenttrack' ) . '</a>';
         echo '</div>';
+        echo '<p class="tt-field-hint" style="margin:8px 0 0; max-width:760px;">';
+        echo esc_html__( 'Saved CSS contains only your overrides. Full stylesheet bundles every TalentTrack stylesheet plus your overrides into one file — give it to a designer for a holistic pass, then re-upload via the Upload tab.', 'talenttrack' );
+        echo '</p>';
         echo '</form>';
 
         // Initialise CodeMirror via the editor settings WP exposes through
@@ -713,14 +722,25 @@ class FrontendCustomCssView extends FrontendViewBase {
      * @param array{css:string, enabled:bool, version:int, visual_settings:?array} $live
      */
     private static function renderUploadTab( string $surface, array $live ): void {
+        $download_full_url = esc_url( wp_nonce_url(
+            add_query_arg( [ 'tt_css_download' => 'full', 'surface' => $surface ], remove_query_arg( 'prefill' ) ),
+            'tt_css_download'
+        ) );
+
         echo '<div style="display:grid; grid-template-columns: 1fr; gap:24px; max-width:760px;">';
+
+        echo '<section class="tt-panel">';
+        echo '<h3 class="tt-panel-title">' . esc_html__( 'Round-trip with a designer', 'talenttrack' ) . '</h3>';
+        echo '<p class="tt-field-hint" style="margin:0 0 10px;">' . esc_html__( 'Step 1 — download the full stylesheet. Step 2 — your designer edits it. Step 3 — re-upload it below. The bundled stylesheets keep loading; your edited file wins on source order, so any selectors the designer touched override the bundled defaults.', 'talenttrack' ) . '</p>';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . $download_full_url . '" download>' . esc_html__( 'Download full stylesheet', 'talenttrack' ) . '</a>';
+        echo '</section>';
 
         echo '<section class="tt-panel">';
         echo '<h3 class="tt-panel-title">' . esc_html__( 'Upload a .css file', 'talenttrack' ) . '</h3>';
         echo '<form method="post" enctype="multipart/form-data" class="tt-form">';
         wp_nonce_field( 'tt_custom_css_save', 'tt_css_nonce' );
         echo '<input type="hidden" name="tt_css_action" value="upload">';
-        echo '<div class="tt-field"><label class="tt-field-label" for="tt-css-file">' . esc_html__( 'File (max 200 KB)', 'talenttrack' ) . '</label>';
+        echo '<div class="tt-field"><label class="tt-field-label" for="tt-css-file">' . esc_html__( 'File (max 500 KB)', 'talenttrack' ) . '</label>';
         echo '<input type="file" id="tt-css-file" name="css_file" accept=".css,text/css" required>';
         echo '<p class="tt-field-hint" style="margin-top:6px;">'
             . esc_html__( 'The file replaces the live CSS for this surface. Sanitization runs before save — JavaScript URLs, expression(), behavior:, remote @import and external @font-face URLs are rejected.', 'talenttrack' )
@@ -807,13 +827,29 @@ class FrontendCustomCssView extends FrontendViewBase {
     }
 
     /**
-     * GET handler — streams the saved CSS as a downloadable file.
+     * GET handler — streams CSS as a downloadable file. Two modes:
+     *
+     *   ?tt_css_download=1     → just the saved custom CSS body
+     *                            (operator-authored overrides only)
+     *
+     *   ?tt_css_download=full  → every bundled .tt-* stylesheet plus
+     *                            the saved overrides, concatenated
+     *                            into a single file. The shape a
+     *                            designer needs to do a holistic pass.
+     *                            Re-uploaded via the Upload tab the
+     *                            file replaces the saved override blob;
+     *                            bundled stylesheets keep loading via
+     *                            wp_enqueue_style and the upload wins
+     *                            on source order (inline <style> emits
+     *                            after the <link> tags).
+     *
      * Cap-gated, nonce-required, reuses the same `template_redirect`
      * priority as the POST handler so the dashboard chrome doesn't
      * render before the file headers go out.
      */
     private static function maybeHandleDownload(): void {
-        if ( empty( $_GET['tt_css_download'] ) ) return;
+        $mode = isset( $_GET['tt_css_download'] ) ? (string) $_GET['tt_css_download'] : '';
+        if ( $mode === '' ) return;
         $tt_view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
         if ( $tt_view !== 'custom-css' ) return;
         if ( ! current_user_can( 'tt_admin_styling' ) ) return;
@@ -823,8 +859,15 @@ class FrontendCustomCssView extends FrontendViewBase {
         $surface = isset( $_GET['surface'] ) ? CustomCssRepository::sanitizeSurface( (string) $_GET['surface'] ) : CustomCssRepository::SURFACE_FRONTEND;
         $repo = new CustomCssRepository();
         $live = $repo->getLive( $surface );
-        $body = (string) $live['css'];
-        $filename = 'talenttrack-' . $surface . '-v' . (int) ( $live['version'] ?? 0 ) . '.css';
+        $version = (int) ( $live['version'] ?? 0 );
+
+        if ( $mode === 'full' ) {
+            $body = self::buildFullStylesheet( (string) $live['css'], $version );
+            $filename = 'talenttrack-full-stylesheet-' . $surface . '-v' . $version . '.css';
+        } else {
+            $body = (string) $live['css'];
+            $filename = 'talenttrack-' . $surface . '-v' . $version . '.css';
+        }
 
         nocache_headers();
         header( 'Content-Type: text/css; charset=utf-8' );
@@ -832,6 +875,92 @@ class FrontendCustomCssView extends FrontendViewBase {
         header( 'Content-Length: ' . strlen( $body ) );
         echo $body;
         exit;
+    }
+
+    /**
+     * Build the "everything in one file" stylesheet — every bundled
+     * `assets/css/*.css` concatenated in the order they're enqueued
+     * for the frontend dashboard, with separator banners showing the
+     * source file. Saved custom overrides appended at the end.
+     *
+     * The exported file is a complete picture of TalentTrack's
+     * styling surface: a designer can edit holistically and re-upload
+     * via the Upload tab. The upload becomes the saved override blob;
+     * bundled stylesheets keep loading via wp_enqueue_style and the
+     * upload wins on source order at the inline emission. Selectors
+     * the designer didn't touch fall through to the bundled rules.
+     *
+     * Inline-PHP-rendered styles (the `<style>` block in
+     * `FrontendConfigurationView::renderTileGrid` etc.) are NOT
+     * captured — they're generated per render with PHP-templated
+     * values. The export header notes this so the designer doesn't
+     * chase missing rules.
+     */
+    public static function buildFullStylesheet( string $custom_css, int $version ): string {
+        $base_dir = defined( 'TT_PLUGIN_DIR' ) ? TT_PLUGIN_DIR : '';
+        if ( $base_dir === '' || ! is_dir( $base_dir . 'assets/css' ) ) {
+            return $custom_css;
+        }
+
+        // Load order matches what wp_enqueue_style does on the frontend
+        // dashboard: public.css first (base + login), then frontend-
+        // admin.css (depends on tt-public), then the per-surface ones
+        // in alphabetical order. wp-admin-only sheets (admin.css,
+        // persona-dashboard-editor.css) included so designers see the
+        // full vocabulary even if the export is from the frontend
+        // surface.
+        $files = [
+            'public.css',
+            'frontend-admin.css',
+            'persona-dashboard.css',
+            'persona-dashboard-editor.css',
+            'player-card.css',
+            'player-status.css',
+            'frontend-profile.css',
+            'frontend-activities-manage.css',
+            'frontend-journey.css',
+            'frontend-threads.css',
+            'frontend-mobile.css',
+            'admin.css',
+        ];
+
+        $out = "/*\n"
+            . " * TalentTrack — full stylesheet bundle (v" . TT_VERSION . ", saved override v" . $version . ")\n"
+            . " *\n"
+            . " * This file concatenates every bundled .tt-* stylesheet plus\n"
+            . " * the operator's saved Custom CSS overrides. Edit holistically\n"
+            . " * and re-upload via the Custom CSS editor's Upload tab. The\n"
+            . " * upload becomes the saved override blob; bundled stylesheets\n"
+            . " * keep loading via wp_enqueue_style and the upload wins on\n"
+            . " * source order. Selectors you didn't touch fall through to the\n"
+            . " * bundled rules.\n"
+            . " *\n"
+            . " * NOT included: inline <style> blocks rendered from PHP per\n"
+            . " * page (Configuration tile grid etc.) — those carry\n"
+            . " * server-side templated values and can't live in a static file.\n"
+            . " */\n\n";
+
+        foreach ( $files as $name ) {
+            $path = $base_dir . 'assets/css/' . $name;
+            if ( ! is_readable( $path ) ) continue;
+            $contents = (string) @file_get_contents( $path );
+            if ( $contents === '' ) continue;
+            $out .= "/* ============================================================\n"
+                .  " *  assets/css/" . $name . "\n"
+                .  " * ============================================================ */\n\n"
+                .  $contents
+                .  "\n\n";
+        }
+
+        if ( $custom_css !== '' ) {
+            $out .= "/* ============================================================\n"
+                .  " *  Saved Custom CSS overrides (operator-authored)\n"
+                .  " * ============================================================ */\n\n"
+                .  $custom_css
+                .  "\n";
+        }
+
+        return $out;
     }
 
     /**
