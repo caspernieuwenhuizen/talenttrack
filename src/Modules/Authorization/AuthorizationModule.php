@@ -52,6 +52,11 @@ class AuthorizationModule implements ModuleInterface {
         // #0071 child 5 — impersonation banner + daily orphan cleanup cron.
         Impersonation\ImpersonationBanner::init();
         Impersonation\ImpersonationCron::init();
+        // v3.80.1 — admin page that finally surfaces the start-impersonation
+        // flow (the service shipped in v3.71 had no UI invoking it).
+        if ( is_admin() ) {
+            Admin\ImpersonationPage::init();
+        }
 
         // #0033 Sprint 2 — wire the user_has_cap bridge from legacy
         // `tt_*` capability checks into MatrixGate. Dormant by default

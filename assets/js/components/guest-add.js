@@ -315,7 +315,20 @@
             postGuest( sessionId, payload ).then( function ( resp ) {
                 submitBtn.disabled = false;
                 if ( ! resp.ok ) {
-                    showMsg( modalEl, ( resp.body && resp.body.message ) || ( STR.saveFailed || 'Could not add guest.' ), true );
+                    // RestResponse error envelope is { errors: [{ code, message }] };
+                    // older code read body.message which never existed, so every
+                    // failure surfaced the generic STR.saveFailed message and
+                    // hid the actual reason. Read errors[0].message; fall back
+                    // to body.message (legacy callers) then to the generic.
+                    var msg = '';
+                    if ( resp.body ) {
+                        if ( Array.isArray( resp.body.errors ) && resp.body.errors[0] && resp.body.errors[0].message ) {
+                            msg = resp.body.errors[0].message;
+                        } else if ( resp.body.message ) {
+                            msg = resp.body.message;
+                        }
+                    }
+                    showMsg( modalEl, msg || ( STR.saveFailed || 'Could not add guest.' ), true );
                     return;
                 }
                 appendGuestRow( document.querySelector( '[data-tt-guest-table]' ), resp.body );

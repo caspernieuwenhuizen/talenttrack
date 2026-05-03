@@ -168,6 +168,8 @@ final class TokenCatalogue {
             // --- Links (#0075 Sprint 2 PR 1) ---
             [ 'key' => 'link_color',            'css_var' => '--tt-link-color',             'category' => self::CATEGORY_LINKS, 'kind' => self::KIND_COLOR, 'label' => __( 'Link colour',            'talenttrack' ), 'default' => '#0b3d2e' ],
             [ 'key' => 'link_hover_color',      'css_var' => '--tt-link-hover-color',       'category' => self::CATEGORY_LINKS, 'kind' => self::KIND_COLOR, 'label' => __( 'Link colour on hover',   'talenttrack' ), 'default' => '#e8b624' ],
+            [ 'key' => 'link_underline',        'css_var' => '--tt-link-decoration',        'category' => self::CATEGORY_LINKS, 'kind' => self::KIND_SELECT, 'label' => __( 'Link underline',         'talenttrack' ), 'default' => 'hover',
+                'options' => [ 'always' => __( 'Always', 'talenttrack' ), 'hover' => __( 'On hover only', 'talenttrack' ), 'never' => __( 'Never', 'talenttrack' ) ] ],
 
             // --- Content (#0075 Sprint 2 PR 2) — inline code, blockquotes, captions, labels ---
             [ 'key' => 'code_bg',               'css_var' => '--tt-code-bg',                'category' => self::CATEGORY_CONTENT, 'kind' => self::KIND_COLOR, 'label' => __( 'Inline code — background', 'talenttrack' ), 'default' => '#f4f6f8' ],

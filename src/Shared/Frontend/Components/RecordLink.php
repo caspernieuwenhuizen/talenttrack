@@ -94,13 +94,60 @@ final class RecordLink {
      * the access control wiring.
      */
     public static function dashboardUrl(): string {
+        // 1. Configured page (the happy path).
         $page_id = (int) \TT\Infrastructure\Query\QueryHelpers::get_config( 'dashboard_page_id', '0' );
         if ( $page_id > 0 ) {
             $permalink = get_permalink( $page_id );
-            if ( $permalink ) {
-                return (string) $permalink;
+            if ( $permalink ) return (string) $permalink;
+        }
+
+        // 2. Self-heal: scan published pages for the [tt_dashboard]
+        //    shortcode. Caches the discovered id back into tt_config so
+        //    subsequent calls hit the fast path. Mirrors Activator's
+        //    seedDashboardPageIfMissing adoption logic — the user's
+        //    dashboard might exist already even though the option got
+        //    cleared somehow (post deletion, manual config edit, etc.).
+        $found = self::discoverDashboardPageId();
+        if ( $found > 0 ) {
+            \TT\Infrastructure\Query\QueryHelpers::set_config( 'dashboard_page_id', (string) $found );
+            $permalink = get_permalink( $found );
+            if ( $permalink ) return (string) $permalink;
+        }
+
+        // 3. Last-resort: current request URI if a [tt_dashboard]
+        //    shortcode lives on the page being viewed, else home_url('/').
+        if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+            $current = esc_url_raw( (string) wp_unslash( $_SERVER['REQUEST_URI'] ) );
+            if ( $current !== '' ) {
+                return remove_query_arg(
+                    [ 'tt_view', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id', 'id', 'tab' ],
+                    $current
+                );
             }
         }
         return home_url( '/' );
+    }
+
+    /**
+     * Find a published page that hosts the [tt_dashboard] shortcode.
+     * Returns 0 when none is found. Limited to the first 20 pages so
+     * the scan is cheap on large installs.
+     */
+    private static function discoverDashboardPageId(): int {
+        $candidates = get_posts( [
+            'post_type'      => 'page',
+            'post_status'    => 'publish',
+            'posts_per_page' => 20,
+            'fields'         => 'ids',
+            's'              => '[tt_dashboard',
+        ] );
+        if ( ! is_array( $candidates ) ) return 0;
+        foreach ( $candidates as $candidate_id ) {
+            $content = get_post_field( 'post_content', (int) $candidate_id );
+            if ( is_string( $content ) && has_shortcode( $content, 'tt_dashboard' ) ) {
+                return (int) $candidate_id;
+            }
+        }
+        return 0;
     }
 }

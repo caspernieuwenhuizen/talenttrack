@@ -540,14 +540,27 @@
             slot.size = 'XL'; slot.row_span = 1;
             state.template.task = slot;
         } else {
-            // Drop into grid — naive auto-place: lowest open row, left edge.
-            var maxY = -1;
-            (state.template.grid || []).forEach(function (s) {
-                var bottom = s.y + Math.max(1, s.row_span);
-                if (bottom > maxY) maxY = bottom;
-            });
-            slot.y = Math.max(0, maxY);
-            slot.x = 0;
+            // v3.80.1 — when the placement was triggered by a real
+            // drop event, derive the grid cell from the cursor
+            // coordinates instead of always appending to the bottom-
+            // left. Fixes the "drag-drop just dumps at the end"
+            // complaint — the previous behaviour was visually
+            // identical to clicking the palette item.
+            var coords = ev ? gridCellFromEvent(ev, slot.size) : null;
+            if (coords) {
+                slot.x = coords.x;
+                slot.y = coords.y;
+            } else {
+                // No event (palette click) → naive auto-place at
+                // the bottom-left like before.
+                var maxY = -1;
+                (state.template.grid || []).forEach(function (s) {
+                    var bottom = s.y + Math.max(1, s.row_span);
+                    if (bottom > maxY) maxY = bottom;
+                });
+                slot.y = Math.max(0, maxY);
+                slot.x = 0;
+            }
             state.template.grid = state.template.grid || [];
             state.template.grid.push(slot);
         }
@@ -557,6 +570,34 @@
         var w = widgetById(widgetId);
         var label = w ? w.label : widgetId;
         setStatus(formatString(I18N.widget_added, [label]) || (label + ' added.'), 'ok');
+    }
+
+    /**
+     * Translate a drop event's pointer coordinates into a grid cell
+     * (col, row), clamped so the resulting slot stays inside the
+     * 12-column canvas. Returns null when the canvas isn't open (e.g.
+     * a band drop that re-routed here mistakenly).
+     *
+     * #0077 follow-up — the previous DnD code parsed the event but
+     * never used clientX/Y, so every drop landed at (0, max_y+1).
+     */
+    function gridCellFromEvent(ev, size) {
+        if (!canvas || typeof ev.clientX !== 'number') return null;
+        var rect = canvas.getBoundingClientRect();
+        if (rect.width <= 0) return null;
+        var dx = ev.clientX - rect.left;
+        var dy = ev.clientY - rect.top;
+        var colPx = rect.width / 12;
+        // Approximate row height — uses the existing grid auto-rows
+        // setting (CSS sets 60px). Reading getComputedStyle here is
+        // overkill; 60 matches the editor's grid-auto-rows.
+        var rowPx = 60;
+        var col = Math.max(0, Math.min(11, Math.floor(dx / colPx)));
+        var row = Math.max(0, Math.floor(dy / rowPx));
+        // Clamp x so the slot doesn't overflow the right edge.
+        var span = colsForSize(size);
+        col = Math.max(0, Math.min(12 - span, col));
+        return { x: col, y: row };
     }
 
     function moveExistingSlot(slotId, targetBand, ev) {
@@ -582,13 +623,22 @@
             slot.size = 'XL'; slot.row_span = 1;
             state.template.task = slot;
         } else {
-            var maxY = -1;
-            (state.template.grid || []).forEach(function (s) {
-                var bottom = s.y + Math.max(1, s.row_span);
-                if (bottom > maxY) maxY = bottom;
-            });
-            slot.y = Math.max(0, maxY);
-            slot.x = 0;
+            // v3.80.1 — same DnD-coords fix as placeNewSlot. Moving an
+            // existing slot via drag now lands on the dropped cell
+            // instead of bottom-left.
+            var coords = ev ? gridCellFromEvent(ev, slot.size) : null;
+            if (coords) {
+                slot.x = coords.x;
+                slot.y = coords.y;
+            } else {
+                var maxY = -1;
+                (state.template.grid || []).forEach(function (s) {
+                    var bottom = s.y + Math.max(1, s.row_span);
+                    if (bottom > maxY) maxY = bottom;
+                });
+                slot.y = Math.max(0, maxY);
+                slot.x = 0;
+            }
             state.template.grid = state.template.grid || [];
             state.template.grid.push(slot);
         }

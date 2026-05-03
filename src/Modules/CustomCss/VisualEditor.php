@@ -124,7 +124,35 @@ final class VisualEditor {
         // read the custom property and this block becomes a no-op.
         $output .= self::renderShadowOverrides( $settings );
 
+        // #0077 follow-up — link_underline. CSS doesn't have a
+        // built-in "underline on hover only" value; we emit explicit
+        // text-decoration declarations on the link surfaces for the
+        // chosen mode (always / hover / never).
+        $output .= self::renderLinkUnderlineOverrides( $settings );
+
         return $output;
+    }
+
+    /**
+     * Emit per-surface `text-decoration` declarations for the chosen
+     * link_underline mode. CSS has no native "hover only" value, so
+     * the consumer rules need both rest + :hover declarations.
+     *
+     * @param array<string, mixed> $settings
+     */
+    private static function renderLinkUnderlineOverrides( array $settings ): string {
+        $mode = isset( $settings['link_underline'] ) ? (string) $settings['link_underline'] : '';
+        $allowed = [ 'always', 'hover', 'never' ];
+        if ( ! in_array( $mode, $allowed, true ) ) return '';
+
+        $rest_decoration  = $mode === 'always' ? 'underline' : 'none';
+        $hover_decoration = $mode === 'never'  ? 'none'      : 'underline';
+
+        $rest_selectors = ".tt-root .tt-link,\n.tt-root .tt-record-link,\n.tt-root .tt-login-links a";
+        $hover_selectors = ".tt-root .tt-link:hover,\n.tt-root .tt-link:focus,\n.tt-root .tt-record-link:hover,\n.tt-root .tt-record-link:focus,\n.tt-root .tt-login-links a:hover,\n.tt-root .tt-login-links a:focus";
+
+        return "\n{$rest_selectors} {\n    text-decoration: {$rest_decoration};\n}\n"
+            . "{$hover_selectors} {\n    text-decoration: {$hover_decoration};\n}\n";
     }
 
     /**
@@ -182,6 +210,12 @@ final class VisualEditor {
         }
         if ( $key === 'motion_easing' ) {
             return TokenCatalogue::motionEasing( strtolower( trim( $raw ) ) );
+        }
+        if ( $key === 'link_underline' ) {
+            // Handled out-of-band in renderLinkUnderlineOverrides — no
+            // single CSS value covers "hover only", so the var emission
+            // is a no-op and explicit rest + :hover blocks do the work.
+            return '';
         }
 
         // Generic select: accept the raw value if it appears in the
