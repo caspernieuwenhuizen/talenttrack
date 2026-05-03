@@ -11979,3 +11979,44 @@ msgstr "7. Voeg Goals + Player_Journey-gebeurtenissen toe waar nodig."
 
 msgid "Save as .xlsx and upload via TalentTrack → Configuration → Demo data → Step 0 — Source → Excel upload."
 msgstr "Sla op als .xlsx en upload via TalentTrack → Configuratie → Demo-data → Stap 0 — Bron → Excel upload."
+
+# v3.83.1 — persona-dashboard token category in custom-CSS editor (rebased onto v3.83.0)
+
+msgid "Surface — card"
+msgstr "Oppervlak — kaart"
+
+msgid "Surface — subtle"
+msgstr "Oppervlak — subtiel"
+
+msgid "Surface — hover"
+msgstr "Oppervlak — hover"
+
+msgid "Text — primary"
+msgstr "Tekst — primair"
+
+msgid "Text — secondary"
+msgstr "Tekst — secundair"
+
+msgid "Text — muted"
+msgstr "Tekst — gedempt"
+
+msgid "Status — success"
+msgstr "Status — succes"
+
+msgid "Status — warning"
+msgstr "Status — waarschuwing"
+
+msgid "Status — danger"
+msgstr "Status — gevaar"
+
+msgid "Divider"
+msgstr "Scheidingslijn"
+
+msgid "Hero gradient — start"
+msgstr "Hero-gradiënt — start"
+
+msgid "Hero gradient — end"
+msgstr "Hero-gradiënt — einde"
+
+msgid "Hero CTA"
+msgstr "Hero-CTA"

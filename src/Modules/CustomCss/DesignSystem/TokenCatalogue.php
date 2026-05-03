@@ -52,6 +52,7 @@ final class TokenCatalogue {
     public const CATEGORY_TABLES      = 'tables';
     public const CATEGORY_FEEDBACK    = 'feedback';
     public const CATEGORY_OVERLAYS    = 'overlays';
+    public const CATEGORY_PERSONA_DASH = 'persona_dashboard';
 
     /**
      * @return array<string, array{
@@ -216,6 +217,27 @@ final class TokenCatalogue {
             // backdrop hue can author it in the Path B CSS editor. ---
             [ 'key' => 'tooltip_bg',            'css_var' => '--tt-tooltip-bg',             'category' => self::CATEGORY_OVERLAYS, 'kind' => self::KIND_COLOR,  'label' => __( 'Tooltip — background',           'talenttrack' ), 'default' => '#1a1d21' ],
             [ 'key' => 'tooltip_text',          'css_var' => '--tt-tooltip-text',           'category' => self::CATEGORY_OVERLAYS, 'kind' => self::KIND_COLOR,  'label' => __( 'Tooltip — text',                 'talenttrack' ), 'default' => '#ffffff' ],
+
+            // --- Persona dashboard (#0077 follow-up M5) ---
+            // Mirrors the --tt-pd-* token block declared on :root in
+            // assets/css/persona-dashboard.css. Editor overrides emit
+            // on .tt-root which has higher specificity than :root, so
+            // operator values win for elements rendered inside the
+            // dashboard wrapper.
+            [ 'key' => 'pd_surface',            'css_var' => '--tt-pd-surface',             'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Surface — card',           'talenttrack' ), 'default' => '#ffffff' ],
+            [ 'key' => 'pd_surface_subtle',     'css_var' => '--tt-pd-surface-subtle',      'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Surface — subtle',         'talenttrack' ), 'default' => '#f8fafc' ],
+            [ 'key' => 'pd_surface_hover',      'css_var' => '--tt-pd-surface-hover',       'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Surface — hover',          'talenttrack' ), 'default' => '#f1f5f9' ],
+            [ 'key' => 'pd_text_primary',       'css_var' => '--tt-pd-text-primary',        'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Text — primary',           'talenttrack' ), 'default' => '#0b1f3a' ],
+            [ 'key' => 'pd_text_secondary',     'css_var' => '--tt-pd-text-secondary',      'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Text — secondary',         'talenttrack' ), 'default' => '#334155' ],
+            [ 'key' => 'pd_text_muted',         'css_var' => '--tt-pd-text-muted',          'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Text — muted',             'talenttrack' ), 'default' => '#64748b' ],
+            [ 'key' => 'pd_accent',             'css_var' => '--tt-pd-accent',              'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Accent',                   'talenttrack' ), 'default' => '#2563eb' ],
+            [ 'key' => 'pd_success',            'css_var' => '--tt-pd-success',             'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Status — success',         'talenttrack' ), 'default' => '#15803d' ],
+            [ 'key' => 'pd_warning',            'css_var' => '--tt-pd-warning',             'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Status — warning',         'talenttrack' ), 'default' => '#d97706' ],
+            [ 'key' => 'pd_danger',             'css_var' => '--tt-pd-danger',              'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Status — danger',          'talenttrack' ), 'default' => '#b91c1c' ],
+            [ 'key' => 'pd_divider',            'css_var' => '--tt-pd-divider',             'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Divider',                  'talenttrack' ), 'default' => '#e2e8f0' ],
+            [ 'key' => 'pd_hero_start',         'css_var' => '--tt-pd-hero-start',          'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Hero gradient — start',    'talenttrack' ), 'default' => '#0b1f3a' ],
+            [ 'key' => 'pd_hero_end',           'css_var' => '--tt-pd-hero-end',            'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Hero gradient — end',      'talenttrack' ), 'default' => '#1a3a5f' ],
+            [ 'key' => 'pd_hero_cta',           'css_var' => '--tt-pd-hero-cta',            'category' => self::CATEGORY_PERSONA_DASH, 'kind' => self::KIND_COLOR, 'label' => __( 'Hero CTA',                 'talenttrack' ), 'default' => '#facc15' ],
         ];
     }
 
@@ -260,6 +282,7 @@ final class TokenCatalogue {
             self::CATEGORY_TABLES     => __( 'Tables',          'talenttrack' ),
             self::CATEGORY_FEEDBACK   => __( 'Feedback',        'talenttrack' ),
             self::CATEGORY_OVERLAYS   => __( 'Overlays',        'talenttrack' ),
+            self::CATEGORY_PERSONA_DASH => __( 'Persona dashboard', 'talenttrack' ),
         ];
     }
 
