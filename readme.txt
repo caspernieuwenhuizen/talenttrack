@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.85.2
+Stable tag: 3.85.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.85.3 — Players page empty-state shown to HoD / Scout (JG4IT pilot) =
+
+HoD or Scout opened `?tt_view=players` and saw "You don't coach any teams yet, ask an administrator to assign you to a team" instead of the player list. Per the matrix, both personas have global-scope view of players (`players => [r, global]` for Scout, `[rcd, global]` for HoD) — the empty-state should never fire for them. Root cause: the short-circuit in `FrontendPlayersManageView::renderList()` checked `! $is_admin && empty(get_teams_for_coach($user_id))`, where `$is_admin = current_user_can('tt_edit_settings')` — a cap granted only to Academy Admin since the v3.72.0 #0071 sub-cap split. HoD and Scout fell through, had no team-coach assignments, and got the misleading message. Fix: also bypass the short-circuit when the user has `tt_view_reports` (the Analytics-gate cap from #0063, granted to Academy Admin / HoD / Scout — the three global-view personas). Coaches with no teams still see the empty-state correctly.
 
 = 3.85.2 — Free-tier cap respects License module state =
 

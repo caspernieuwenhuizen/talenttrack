@@ -83,7 +83,25 @@ class FrontendPlayersManageView extends FrontendViewBase {
         // #0040 — non-admin "My players" empty state when the user
         // coaches no teams. Without it the FrontendListTable would
         // render an empty grid with no explanation.
-        if ( ! $is_admin && empty( QueryHelpers::get_teams_for_coach( $user_id ) ) ) {
+        //
+        // The empty state only fires for users whose access to players
+        // is *team-scoped* (head_coach / assistant_coach). Personas
+        // with global-scope view of players (Academy Admin, Head of
+        // Development, Scout) hold `tt_view_reports` — the Analytics-
+        // gate cap from #0063, also granted to anyone with global
+        // oversight. So we treat presence of `tt_view_reports` as
+        // "this user is supposed to see everything, don't gate them
+        // on team assignments." The original `$is_admin` check
+        // (`current_user_can('tt_edit_settings')`) only covered
+        // Academy Admin after the #0071 sub-cap split — HoD and
+        // Scout fell through to the team-only branch and saw the
+        // misleading "ask an administrator" message even though
+        // their matrix grant on `players` is `[rcd, global]` /
+        // `[r, global]`.
+        if ( ! $is_admin
+             && ! current_user_can( 'tt_view_reports' )
+             && empty( QueryHelpers::get_teams_for_coach( $user_id ) )
+        ) {
             echo '<p class="tt-notice">'
                 . esc_html__( "You don't coach any teams yet, so you don't have any players to view here. Ask an administrator to assign you to a team.", 'talenttrack' )
                 . '</p>';
