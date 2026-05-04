@@ -41,7 +41,12 @@ class Menu {
         // `add_menu_page` is the only literal that stays — it owns
         // the menu icon position + slug bootstrap that WordPress
         // requires before any submenu can attach.
-        add_menu_page( __( 'TalentTrack', 'talenttrack' ), __( 'TalentTrack', 'talenttrack' ), 'read', 'talenttrack', [ __CLASS__, 'dashboard' ], 'dashicons-groups', 26 );
+        //
+        // Top-level click lands on the Account page (tabs: Account /
+        // Plan & restrictions). The legacy stats-and-tiles dashboard
+        // moved to its own "Dashboard" submenu — see
+        // `CoreSurfaceRegistration::registerAdminSubmenu()`.
+        add_menu_page( __( 'TalentTrack', 'talenttrack' ), __( 'TalentTrack', 'talenttrack' ), 'read', 'talenttrack', [ \TT\Modules\License\Admin\AccountPage::class, 'render' ], 'dashicons-groups', 26 );
         AdminMenuRegistry::applyAll();
         // v3.71.1 — remove the auto-cloned first submenu (WP copies the
         // parent label as the first submenu row) entirely. The previous
@@ -63,6 +68,12 @@ class Menu {
      * the WP-injected mirror, not any of the registered children.
      * Idempotent: calling again is a no-op since the row is already
      * gone.
+     *
+     * v3.90.0 — the top-level entry now lands on the Account page
+     * directly (callback in `register()`). Dropping the auto-mirror
+     * still matters: WP would otherwise emit a duplicate "TalentTrack"
+     * submenu pointing at the same place as the parent, doubling up
+     * the entry under the icon.
      */
     public static function removeDashboardMirror(): void {
         remove_submenu_page( 'talenttrack', 'talenttrack' );
@@ -129,7 +140,7 @@ class Menu {
         return \TT\Modules\Onboarding\OnboardingState::shouldShowWelcome();
     }
 
-    public static function dashboard(): void {
+    public static function renderDashboardTiles(): void {
         global $wpdb; $p = $wpdb->prefix;
 
         // v2.18.0 — dashboard overhaul. Stats section (5 overview cards,

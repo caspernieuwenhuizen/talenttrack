@@ -17,7 +17,9 @@ use TT\Core\ModuleInterface;
  *   - DevOverride (TT_DEV_OVERRIDE_SECRET-gated owner override)
  *
  * Admin surfaces:
- *   - TalentTrack → Account (AccountPage)
+ *   - TalentTrack → Account (AccountPage). Two tabs: "Account"
+ *     (operator-only billing controls) and "Plan & restrictions"
+ *     (read-only caps + feature matrix, open to everyone).
  *   - Hidden ?page=tt-dev-license (DevOverridePage), only when constant is set
  *
  * Freemius integration is **dormant by default** — until both
@@ -40,10 +42,6 @@ class LicenseModule implements ModuleInterface {
         if ( is_admin() ) {
             Admin\AccountPage::init();
             Admin\DevOverridePage::init();
-            // v3.85.5 — read-only "what's locked / where am I" page
-            // for everyone with `read`. Distinct from AccountPage
-            // (operator-only).
-            Admin\PlanOverviewPage::init();
         }
     }
 }

@@ -5,70 +5,24 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Database\MigrationRunner;
 use TT\Modules\Configuration\Admin\MigrationsPage;
-use TT\Shared\Admin\AdminMenuRegistry;
 
 /**
- * MenuExtension — adds the Migrations submenu page AND a pending-migration
- * warning notice to the TalentTrack admin area, without modifying the existing
- * Menu class. Safer than patching Menu.php because it avoids any risk of
- * losing menu items added by later sprints.
+ * MenuExtension — boots the Migrations admin page handler and shows a
+ * pending-migration warning banner across TalentTrack admin pages.
+ *
+ * v3.90.0 — submenu registration moved to AdminMenuRegistry via
+ * CoreSurfaceRegistration so Migrations sits inside the Configuration
+ * group rather than visually trailing the Access Control items.
  *
  * Hooks:
- *   - admin_menu (priority 20) — runs after the main Menu::register() at
- *     priority 10, so the 'talenttrack' top-level slug exists.
  *   - admin_notices — shows a warning banner on every TalentTrack admin page
  *     when pending migrations exist.
  */
 class MenuExtension {
 
     public static function init(): void {
-        add_action( 'admin_menu',    [ __CLASS__, 'register_submenu' ], 20 );
         add_action( 'admin_notices', [ __CLASS__, 'render_pending_notice' ] );
         MigrationsPage::init();
-    }
-
-    public static function register_submenu(): void {
-        // #0019 Sprint 6 — gated on the same legacy-menu toggle as the
-        // rest of the migrated wp-admin pages. Direct URL still works.
-        if ( ! \TT\Shared\Admin\Menu::shouldShowLegacyMenus() ) return;
-
-        // #0033 finalisation — registry-driven module-enabled gate.
-        // Configuration is always-on so this is a no-op today, but
-        // keeping the check here means the registration stays correct
-        // if always-on policy ever changes.
-        if ( AdminMenuRegistry::isAdminSlugDisabled( 'tt-migrations' ) ) return;
-
-        // v3.87.0 — gate the wp-admin entry on the granular sub-cap so
-        // the matrix `migrations` entity controls visibility 1:1. The
-        // umbrella `tt_view_settings` would route here too via the
-        // CapabilityAliases roll-up, but that re-introduces the very
-        // mismatch the v3.86 sub-cap sweep closed for the frontend
-        // tile. Falls back to administrator so installs that haven't
-        // explicitly granted the sub-cap still get the menu (mirrors
-        // the prior behaviour for tt_view_settings).
-        $cap = current_user_can( 'tt_view_migrations' ) ? 'tt_view_migrations' : 'administrator';
-
-        add_submenu_page(
-            'talenttrack',
-            __( 'Database Migrations', 'talenttrack' ),
-            self::menu_label(),
-            $cap,
-            'tt-migrations',
-            [ MigrationsPage::class, 'render_page' ]
-        );
-    }
-
-    /**
-     * Menu label — includes a pending count badge when pending migrations exist.
-     */
-    private static function menu_label(): string {
-        $pending = self::pending_count();
-        $label   = __( 'Migrations', 'talenttrack' );
-
-        if ( $pending > 0 ) {
-            $label .= ' <span class="awaiting-mod count-' . (int) $pending . '"><span class="pending-count">' . (int) $pending . '</span></span>';
-        }
-        return $label;
     }
 
     /**

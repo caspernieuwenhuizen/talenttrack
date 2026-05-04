@@ -65,6 +65,19 @@ De override wordt opgeslagen als een 24-uurstransient. Een "🔓 DEV: Pro"-pill 
 
 **Klantinstallaties zien deze code nooit** — zonder de constante is de adminpagina een 404 en negeert `LicenseGate::tier()` de override.
 
+## Accountpagina (v3.90.0)
+
+Klikken op **TalentTrack** in de linker wp-admin-balk leidt nu rechtstreeks naar de Accountpagina. Het oude statistieken-en-tegels-overzicht is verhuisd naar een apart **Dashboard**-submenu en blijft zo één klik verder beschikbaar voor admins die het willen gebruiken.
+
+De Accountpagina is opgesplitst in twee tabbladen:
+
+| Tab | Cap | Inhoud |
+| - | - | - |
+| **Account** | `tt_edit_settings` (alleen operators) | Huidige tier, trial-/overgangsstatus, gebruik vs. Free-tier-limieten, de knop "Start 30-daagse Standard-trial", trial-reset via dev-override, Admin Center phone-home-diagnose |
+| **Plan & beperkingen** | `read` (iedereen die ingelogd is) | Banner met huidig plan, limietentabel met waarschuwingen op de limiet, volledige Free / Standard / Pro-functiematrix met de huidige effectieve tier gemarkeerd |
+
+Het tabblad Plan & beperkingen vervangt het voormalige losse *Plan & beperkingen*-submenu, zodat coaches één compleet overzicht houden van wat is afgeschermd zonder een aparte menu-ingang.
+
 ## Accountconfiguratie
 
 Drie constanten sturen de monetisatie aan (alle in `wp-config.php`, alle optioneel):

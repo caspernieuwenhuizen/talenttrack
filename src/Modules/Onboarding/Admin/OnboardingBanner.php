@@ -16,9 +16,10 @@ use TT\Modules\Onboarding\OnboardingState;
 class OnboardingBanner {
 
     public static function init(): void {
-        // The TT dashboard renders inside Shared\Admin\Menu::dashboard().
+        // The TT top-level page renders the License Account view; the
+        // legacy stats/tiles dashboard lives at Shared\Admin\Menu::renderDashboardTiles().
         // We hook on `admin_notices`, but only emit the banner when the
-        // current page is the TT dashboard slug.
+        // current page is the TT top-level slug.
         add_action( 'admin_notices', [ self::class, 'maybeRender' ] );
     }
 
