@@ -433,17 +433,25 @@ class DashboardShortcode {
         // FrontendMyActivitiesView: same slug, same parameter shape, no
         // new dedicated detail slugs.
         $detail_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+        // v3.91.2 — `?id=N` was hard-routing to the dedicated detail view
+        // even when `action=edit` was set, so the row-action Edit URL
+        // (`?tt_view=teams&id=N&action=edit`) silently landed on the
+        // detail page. Honour `action` here: when it's `edit`, fall
+        // through to the manage view, which has the existing
+        // `if ( $action === 'edit' )` dispatch that renders the form.
+        // Same fix applies to `players` and `people`.
+        $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
 
         switch ( $view ) {
             case 'teams':
-                if ( $detail_id > 0 ) {
+                if ( $detail_id > 0 && $action !== 'edit' ) {
                     FrontendTeamDetailView::render( $detail_id, $user_id, $is_admin );
                     break;
                 }
                 FrontendTeamsManageView::render( $user_id, $is_admin );
                 break;
             case 'players':
-                if ( $detail_id > 0 ) {
+                if ( $detail_id > 0 && $action !== 'edit' ) {
                     FrontendPlayerDetailView::render( $detail_id, $user_id, $is_admin );
                     break;
                 }
@@ -453,7 +461,7 @@ class DashboardShortcode {
                 FrontendPlayersCsvImportView::render( $user_id, $is_admin );
                 break;
             case 'people':
-                if ( $detail_id > 0 ) {
+                if ( $detail_id > 0 && $action !== 'edit' ) {
                     FrontendPersonDetailView::render( $detail_id, $user_id, $is_admin );
                     break;
                 }

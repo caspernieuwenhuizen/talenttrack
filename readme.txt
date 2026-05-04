@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.91.3
+Stable tag: 3.91.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.91.4 — Edit row-action on teams / players / people landed on detail page; row actions now cap-gated =
+
+Operator clicked **Edit** on a teams / players / people list row, expected the edit form, got the read-only detail page. Same on every persona, not a coach-only thing. Root cause: `DashboardShortcode` hard-routed every `?tt_view=teams&id=N` URL (and the players + people equivalents) to the dedicated detail view (`FrontendTeamDetailView` etc.) when `id` was set, regardless of `action=edit`. The manage view's existing `if ( $action === 'edit' )` dispatch was unreachable. Fix: dispatcher now checks `$action` and falls through to the manage view when `action=edit`, so the existing form-render flow takes over. Players + people row-action hrefs also gained the missing `&action=edit` parameter (teams already had it; the bug was on the dispatcher side regardless). **Plus**: `FrontendListTable` row actions now support an optional `cap` field. When set and the current user lacks the cap (via `current_user_can`, which routes through MatrixGate when the bridge is active), the action is silently dropped at render — coaches with read-only access on teams/players/people no longer see Edit / Delete buttons that would just bounce on submit anyway. Wired Edit + Delete on all three lists to `tt_edit_teams` / `tt_edit_players` / `tt_edit_people` accordingly. Renumbered v3.91.2 → v3.91.3 → v3.91.4 across two parallel-agent collisions.
 
 = 3.91.3 — REST list controllers honour the matrix's global-scope grants =
 

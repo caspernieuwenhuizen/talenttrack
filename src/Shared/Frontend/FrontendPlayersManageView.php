@@ -150,9 +150,20 @@ class FrontendPlayersManageView extends FrontendViewBase {
         }
 
         $row_actions = [
+            'view' => [
+                'label' => __( 'View', 'talenttrack' ),
+                'href'  => add_query_arg( [ 'tt_view' => 'players', 'id' => '{id}' ], $base_url ),
+            ],
             'edit' => [
                 'label' => __( 'Edit', 'talenttrack' ),
-                'href'  => add_query_arg( [ 'tt_view' => 'players', 'id' => '{id}' ], $base_url ),
+                // v3.91.2 — was `?tt_view=players&id={id}` which the
+                // dispatcher's `?id=N` shunt routed to PlayerDetailView,
+                // never reaching the manage view's edit form. Add
+                // `action=edit` so DashboardShortcode falls through to
+                // the manage view (which always renders the form when
+                // `id` is set).
+                'href'  => add_query_arg( [ 'tt_view' => 'players', 'id' => '{id}', 'action' => 'edit' ], $base_url ),
+                'cap'   => 'tt_edit_players',
             ],
             'card' => [
                 'label' => __( 'Rate card', 'talenttrack' ),
@@ -164,6 +175,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 'rest_path'   => 'players/{id}',
                 'confirm'     => __( 'Delete this player? They will be archived.', 'talenttrack' ),
                 'variant'     => 'danger',
+                'cap'         => 'tt_edit_players',
             ],
         ];
 

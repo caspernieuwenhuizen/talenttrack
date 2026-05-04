@@ -73,9 +73,19 @@ class FrontendPeopleManageView extends FrontendViewBase {
         }
 
         $row_actions = [
+            'view' => [
+                'label' => __( 'View', 'talenttrack' ),
+                'href'  => add_query_arg( [ 'tt_view' => 'people', 'id' => '{id}' ], $base_url ),
+            ],
             'edit' => [
                 'label' => __( 'Edit', 'talenttrack' ),
-                'href'  => add_query_arg( [ 'tt_view' => 'people', 'id' => '{id}' ], $base_url ),
+                // v3.91.2 — was `?tt_view=people&id={id}` which the
+                // dispatcher's `?id=N` shunt routed to PersonDetailView.
+                // Add `action=edit` so the manage view picks up the URL
+                // and renders the form (it ignores `action` but the
+                // dispatcher uses it to skip the detail-view shunt).
+                'href'  => add_query_arg( [ 'tt_view' => 'people', 'id' => '{id}', 'action' => 'edit' ], $base_url ),
+                'cap'   => 'tt_edit_people',
             ],
             'delete' => [
                 'label'       => __( 'Archive', 'talenttrack' ),
@@ -83,6 +93,7 @@ class FrontendPeopleManageView extends FrontendViewBase {
                 'rest_path'   => 'people/{id}',
                 'confirm'     => __( 'Archive this person? They can be restored later by a site admin.', 'talenttrack' ),
                 'variant'     => 'danger',
+                'cap'         => 'tt_edit_people',
             ],
         ];
 

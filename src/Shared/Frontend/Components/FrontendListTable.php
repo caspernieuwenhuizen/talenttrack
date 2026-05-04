@@ -342,6 +342,18 @@ class FrontendListTable {
     private static function rowActionsForJs( array $actions ): array {
         $out = [];
         foreach ( $actions as $key => $a ) {
+            // v3.91.2 — optional `cap` gate. When the action declares a
+            // capability and the current user doesn't have it (via
+            // `current_user_can`, which routes through MatrixGate when
+            // the matrix bridge is active), drop the action entirely so
+            // the row-action menu only shows what the user can actually
+            // do. Without this, a coach with read-only access to teams
+            // saw an Edit button that landed on the detail page (the
+            // routing fix in v3.91.2 surfaces the form correctly, but
+            // the form itself would still 403 / silently no-op for them).
+            $cap = isset( $a['cap'] ) ? (string) $a['cap'] : '';
+            if ( $cap !== '' && ! current_user_can( $cap ) ) continue;
+
             $entry = [
                 'label' => (string) ( $a['label'] ?? $key ),
             ];
