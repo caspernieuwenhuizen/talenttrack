@@ -180,10 +180,16 @@ final class CoreSurfaceRegistration {
             'color'        => '#b32d2e',
             'cap_callback' => $is_player_or_parent_cb,
         ]);
+        // v3.92.0 — uses tile-visibility entity `my_pdp_panel` (only
+        // granted to player + parent in the seed) instead of the data
+        // entity `pdp_file`. Coaches/HoD/scout legitimately read PDP
+        // data at team/global scope but should not see the player-self
+        // "My PDP" tile on their dashboard. Same disambiguation pattern
+        // as #0079.
         TileRegistry::register([
             'module_class' => self::M_PDP,
             'view_slug'    => 'my-pdp',
-            'entity'       => 'pdp_file',
+            'entity'       => 'my_pdp_panel',
             'group'        => $me_group,
             'kind'         => 'work',
             'order'        => 60,
@@ -191,9 +197,6 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Your development plan: conversations, reflections, end-of-season verdict.', 'talenttrack' ),
             'icon'         => 'goals',
             'color'        => '#1d7874',
-            'cap_callback' => static function ( int $uid ) use ( $is_player_cb ): bool {
-                return ( $is_player_cb( $uid ) || user_can( $uid, 'tt_parent' ) ) && user_can( $uid, 'tt_view_pdp' );
-            },
         ]);
         // v3.62.0 — "My profile" tile retired. The four sections that
         // used to live there (Playing details / Recent performance /
@@ -598,8 +601,15 @@ final class CoreSurfaceRegistration {
         // module-disabled gate works for direct URLs.
         TileRegistry::registerSlugOwnership( 'player-journey', self::M_JOURNEY );
 
-        // ── Development group ──
-        $dev_group = __( 'Development', 'talenttrack' );
+        // ── Idea pipeline group ──
+        // v3.92.0 — was "Development" but collided with the player-
+        // development group above (`$development_group`) which holds the
+        // PDP tiles. Both groups rendered under one heading and
+        // `FrontendTileGrid::splitByKind` couldn't tell them apart by
+        // label. Renamed to disambiguate; the tiles inside (Submit idea
+        // / Development board / Approval queue / Development tracks)
+        // are all about plugin-improvement ideas, not player development.
+        $dev_group = __( 'Idea pipeline', 'talenttrack' );
         TileRegistry::register([
             'module_class' => self::M_DEVELOPMENT,
             'view_slug'    => 'submit-idea',
@@ -766,7 +776,12 @@ final class CoreSurfaceRegistration {
             'group'        => $staff_dev_group,
             'kind'         => 'work',
             'order'        => 10,
-            'label'        => __( 'My PDP', 'talenttrack' ),
+            // v3.92.0 — was "My PDP" which collided with the player's
+            // Me-group "My PDP" tile label. Coaches sat next to both on
+            // their dashboard with no way to tell them apart. The label
+            // is the only difference between the two; renamed here so
+            // coaches see "My staff PDP" and players see "My PDP".
+            'label'        => __( 'My staff PDP', 'talenttrack' ),
             'description'  => __( 'Your personal development plan.', 'talenttrack' ),
             // v3.72.5 — was `'pdp'` but no pdp.svg exists; tile rendered
             // without an icon. `methodology` fits the staff-development

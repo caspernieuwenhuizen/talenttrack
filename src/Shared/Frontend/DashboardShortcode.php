@@ -173,7 +173,16 @@ class DashboardShortcode {
         // same entity (evaluations / sessions / goals).
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
-        $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'my-pdp', 'profile', 'my-settings', 'my-journey' ];
+        // v3.92.0 — `my-settings` removed from $me_slugs and routed
+        // separately below. The Me-group slugs all require a linked
+        // player record (the views render off `$player`); my-settings
+        // is account-level (display name, password) and applies to
+        // every logged-in user, not just users who happen to also be
+        // a player. Was previously rendering "only available for users
+        // linked to a player record" for coach/admin/scout users who
+        // clicked it from the user-menu dropdown.
+        $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'my-pdp', 'profile', 'my-journey' ];
+        $account_slugs   = [ 'my-settings' ];
         $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'pdp-planning', 'player-status-methodology', 'player-status-capture', 'team-chemistry', 'podium', 'methodology', 'player-journey', 'mail-compose' ];
         $analytics_slugs = [ 'rate-cards', 'compare', 'reports' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
@@ -251,6 +260,12 @@ class DashboardShortcode {
                 FrontendBackButton::render();
                 echo '<p class="tt-notice">' . esc_html__( 'This section is only available for users linked to a player record.', 'talenttrack' ) . '</p>';
             }
+        } elseif ( in_array( $view, $account_slugs, true ) ) {
+            // v3.92.0 — account-level surfaces. Available to every logged-
+            // in user; no player record required. The view renders the
+            // current user's WP profile (display name, password) — same
+            // questions for every persona.
+            self::dispatchAccountView( $view, $user_id );
         } elseif ( in_array( $view, $coaching_slugs, true ) ) {
             self::dispatchCoachingView( $view, $user_id, $is_admin );
         } elseif ( in_array( $view, $analytics_slugs, true ) ) {
@@ -374,11 +389,41 @@ class DashboardShortcode {
                 // to keep bookmarks alive.
                 FrontendOverviewView::render( $player );
                 break;
+            // v3.92.0 — `my-settings` handled by dispatchAccountView()
+            // below so non-player personas (coach / scout / admin) can
+            // edit their account too. The case stays here to preserve
+            // bookmarks where a player happens to land via the Me-group
+            // dispatch path (e.g. a deep link from the persona dashboard
+            // that included the player), and routes to the same view.
             case 'my-settings':
                 FrontendMySettingsView::render( $player );
                 break;
             case 'my-journey':
                 \TT\Modules\Journey\Frontend\FrontendJourneyView::render( $player );
+                break;
+            default:
+                FrontendBackButton::render();
+                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+        }
+    }
+
+    /**
+     * v3.92.0 — dispatch an account-level slug. Account-level surfaces
+     * (display name, password) are available to every logged-in user,
+     * regardless of whether they have a linked player record.
+     * Previously routed through the Me-group dispatcher, which gated on
+     * `$player` and returned "only available for users linked to a
+     * player record" for coach / scout / admin users.
+     */
+    private static function dispatchAccountView( string $view, int $user_id ): void {
+        if ( $user_id <= 0 ) {
+            FrontendBackButton::render();
+            echo '<p class="tt-notice">' . esc_html__( 'You need to be logged in to manage your settings.', 'talenttrack' ) . '</p>';
+            return;
+        }
+        switch ( $view ) {
+            case 'my-settings':
+                FrontendMySettingsView::render();
                 break;
             default:
                 FrontendBackButton::render();

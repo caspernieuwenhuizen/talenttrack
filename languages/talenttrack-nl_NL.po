@@ -12456,3 +12456,12 @@ msgstr "Ongeldige upload."
 
 msgid "You do not have access to this surface."
 msgstr "Je hebt geen toegang tot dit onderdeel."
+
+msgid "Idea pipeline"
+msgstr "Ideeënkanaal"
+
+msgid "My staff PDP"
+msgstr "Mijn staf-POP"
+
+msgid "Player file of %s"
+msgstr "Spelersdossier van %s"
