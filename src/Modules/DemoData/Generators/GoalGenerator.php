@@ -155,6 +155,14 @@ class GoalGenerator {
                         'language'  => $resolved_language,
                     ] );
                     $total++;
+
+                    // v3.91.7 — fire the runtime hook so
+                    // JourneyEventSubscriber writes a `goal_set` journey
+                    // event. The third arg matches the hook signature
+                    // (player_id, goal_id, $data) — only `title` is read.
+                    do_action( 'tt_goal_saved', (int) $p->id, $goal_id, [
+                        'title' => $title,
+                    ] );
                 }
             }
         }

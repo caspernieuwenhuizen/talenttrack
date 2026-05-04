@@ -2613,6 +2613,18 @@ msgstr "Zoek spelers in deze ploeg…"
 msgid "Clear this slot"
 msgstr "Wis dit slot"
 
+# v3.91.7 — Demo journey events (generator hooks + rebuild button)
+
+msgid "Rebuild journey events"
+msgstr "Journey-events opnieuw opbouwen"
+
+msgid "Walk every evaluation, goal, PDP verdict, player join-date, and trial case in this club and emit any missing journey events. Idempotent — re-running is safe and fills only the gap. Use this after a demo run on installs that pre-date the v3.91.7 generator hooks, or anytime a bulk import bypassed the runtime save hooks."
+msgstr "Loopt elke evaluatie, doel, POP-eindbeoordeling, spelers-startdatum en stagecase in deze club langs en plaatst ontbrekende journey-events. Idempotent — opnieuw draaien is veilig en vult alleen wat ontbreekt. Gebruik dit na een demo-run op installaties van vóór v3.91.7, of wanneer een bulk-import de runtime-hooks overgeslagen heeft."
+
+#. translators: %d is the row-walk count across evaluations + goals + verdicts + players + trials
+msgid "Journey events rebuilt — walked %d source rows. New events were inserted where missing; existing events were left untouched."
+msgstr "Journey-events opnieuw opgebouwd — %d bronrijen doorlopen. Nieuwe events zijn toegevoegd waar ze ontbraken; bestaande events bleven onaangeraakt."
+
 msgid "Average rating per team across main categories, computed from all evaluations of players currently assigned to each team. Archived players and archived evaluations are excluded."
 msgstr "Gemiddelde beoordeling per team over de hoofdcategorieën, berekend op basis van alle evaluaties van spelers die momenteel aan elk team zijn toegewezen. Gearchiveerde spelers en gearchiveerde evaluaties worden uitgesloten."
 

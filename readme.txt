@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.92.0
+Stable tag: 3.92.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.92.1 — Demo runs now produce journey events + one-click "Rebuild journey events" =
+
+Operator asked: how do I get journey entries into my demo dataset? Today the journey table is empty after a demo run because the demo generators write rows with raw `$wpdb->insert` and don't fire the runtime hooks (`tt_player_created` / `tt_evaluation_saved` / `tt_goal_saved`) that `JourneyEventSubscriber` listens for. Migration 0037 ran a one-shot backfill at install time but won't re-fire for new demo data. Two fixes shipped together. **(1)** `PlayerGenerator` / `EvaluationGenerator` / `GoalGenerator` now `do_action()` the existing hooks after each insert. Demo runs from this version onward populate `tt_player_events` automatically — `joined_academy` events for every demo player, `evaluation_completed` for every eval, `goal_set` for every goal. **(2)** New "Rebuild journey events" button on Tools → TalentTrack Demo Data. Calls `JourneyBackfillService::rebuildAll()` which walks every evaluation, goal, signed-off PDP verdict, player join-date, and trial case in the active club and emits any missing events via the same `EventEmitter::emit()` API. Idempotent on `uk_natural` so re-running is a no-op for events already there. Useful for installs that have demo data from before v3.91.7, or any install where a bulk import bypassed the runtime hooks.
 
 = 3.92.0 — Tile bucket fixed; "Mijn POP" no longer leaks to coaches; "My settings" works for everyone; player file polish =
 
