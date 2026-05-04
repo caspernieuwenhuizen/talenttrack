@@ -6898,6 +6898,78 @@ msgstr "Authorisatie­matrix is nu actief. De user_has_cap-filter routeert legac
 msgid "Authorization matrix rollback complete. The user_has_cap filter is dormant; native WP capability checks decide again."
 msgstr "Authorisatie­matrix-rollback voltooid. De user_has_cap-filter is slapend; native WP cap-checks beslissen weer."
 
+# v3.89.0 — Compare users page
+msgid "Compare users — Authorization"
+msgstr "Gebruikers vergelijken — Autorisatie"
+
+msgid "Pick two users to see their effective TalentTrack permissions side by side. Use this to answer questions like \"why does coach A see this tile but coach B doesn't?\" — the diff highlights the discriminating capability."
+msgstr "Kies twee gebruikers om hun effectieve TalentTrack-rechten naast elkaar te zien. Gebruik dit om vragen te beantwoorden als \"waarom ziet coach A deze tegel wel en coach B niet?\" — het verschil markeert de bepalende capability."
+
+msgid "The authorization matrix is in shadow mode. The \"Matrix\" column below is computed but the runtime still uses the legacy \"Cap\" column. Apply the matrix on Authorization → Migration preview to switch."
+msgstr "De autorisatiematrix staat in schaduwmodus. De \"Matrix\"-kolom hieronder wordt berekend, maar de runtime gebruikt nog steeds de legacy \"Cap\"-kolom. Pas de matrix toe via Autorisatie → Migratiepreview om over te schakelen."
+
+msgid "User A"
+msgstr "Gebruiker A"
+
+msgid "User B"
+msgstr "Gebruiker B"
+
+msgid "— Select user A —"
+msgstr "— Kies gebruiker A —"
+
+msgid "— Select user B —"
+msgstr "— Kies gebruiker B —"
+
+msgid "Display options"
+msgstr "Weergave-opties"
+
+msgid "Show all capabilities (default: only show rows where the two users differ)"
+msgstr "Toon alle capabilities (standaard: alleen rijen waar de twee gebruikers verschillen)"
+
+msgid "Pick two users above to see the comparison."
+msgstr "Kies hierboven twee gebruikers om de vergelijking te zien."
+
+msgid "Pick two different users."
+msgstr "Kies twee verschillende gebruikers."
+
+msgid "One of the selected users no longer exists."
+msgstr "Een van de geselecteerde gebruikers bestaat niet meer."
+
+msgid "WP roles:"
+msgstr "WP-rollen:"
+
+msgid "TT personas:"
+msgstr "TT-persona's:"
+
+msgid "Capability comparison"
+msgstr "Capability-vergelijking"
+
+#. translators: 1: differing-cap count, 2: total caps
+msgid "— %1$d of %2$d capabilities differ"
+msgstr "— %1$d van %2$d capabilities verschillen"
+
+#. translators: 1: differing-cap count, 2: total caps
+msgid "— %1$d differ of %2$d total"
+msgstr "— %1$d verschillen van %2$d totaal"
+
+msgid "No differences. Both users have identical effective capabilities across the matrix."
+msgstr "Geen verschillen. Beide gebruikers hebben identieke effectieve capabilities in de hele matrix."
+
+msgid "Capability"
+msgstr "Capability"
+
+msgid "Matrix entity:activity"
+msgstr "Matrix-entiteit:activiteit"
+
+msgid "Diff"
+msgstr "Verschil"
+
+msgid "unmapped"
+msgstr "niet gemapt"
+
+msgid "Legend:"
+msgstr "Legenda:"
+
 msgid "Current state:"
 msgstr "Huidige status:"
 

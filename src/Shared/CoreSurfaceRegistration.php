@@ -1151,6 +1151,15 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_AUTHORIZATION,
             'parent'       => $parent,
             'group'        => 'access',
+            'title'        => __( 'Compare users', 'talenttrack' ),
+            'cap'          => 'administrator',
+            'slug'         => 'tt-user-compare',
+            'callback'     => [ \TT\Modules\Authorization\Admin\UserComparisonPage::class, 'render' ],
+        ]);
+        AdminMenuRegistry::register([
+            'module_class' => self::M_AUTHORIZATION,
+            'parent'       => $parent,
+            'group'        => 'access',
             'title'        => __( 'Modules', 'talenttrack' ),
             'cap'          => 'administrator',
             'slug'         => 'tt-modules',

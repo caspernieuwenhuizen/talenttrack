@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.88.1
+Stable tag: 3.89.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.89.0 — Compare two users from an authorization perspective =
+
+New admin page **TalentTrack → Authorization → Compare users** answering the operator question "why does coach A see this tile but coach B doesn't?" Pick two WP users in `wp_dropdown_users` selectors; the page renders a side-by-side comparison of every TT capability with each user's effective state (legacy `cap` + `matrix` rung, plus the combined "effective" view). Diff-only is the default view (yellow-highlighted rows are the discriminators); toggle "Show all capabilities" for full-matrix audits. Each user header shows their WP roles + resolved TT personas. Dormant-matrix banner surfaces when `tt_authorization_active = 0` so operators understand the matrix column is computed-but-not-runtime. Shipped as a follow-up to the JG4IT pilot six-item operator batch (item 5; items 1+2+6 shipped in v3.88.1, items 3+4 verified working). N-user comparison and CSV export are deferred until asked.
 
 = 3.88.1 — Teams list head-coach reads from staff assignments + functional-roles dropdown translated + attendance % blank for planned/cancelled =
 
