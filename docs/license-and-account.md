@@ -65,6 +65,19 @@ The override is stored as a 24h transient. A "🔓 DEV: Pro" pill appears in the
 
 **Customer installs never see this code path** — without the constant defined, the admin page 404s and `LicenseGate::tier()` ignores the override.
 
+## Account page (v3.90.0)
+
+Clicking **TalentTrack** in the wp-admin sidebar lands on the Account page. The legacy stats-and-tiles overview moved to a separate **Dashboard** submenu and is still one click away for admins who want it.
+
+The Account page is split into two tabs:
+
+| Tab | Cap | What's there |
+| - | - | - |
+| **Account** | `tt_edit_settings` (operators only) | Current tier, trial / grace status, usage vs free-tier caps, the "Start 30-day Standard trial" button, dev-override trial reset, Admin Center phone-home diagnostics |
+| **Plan & restrictions** | `read` (everyone logged in) | Current plan banner, caps table with at-cap warnings, full Free / Standard / Pro feature matrix with the user's effective tier highlighted |
+
+The Plan & restrictions tab replaces the former standalone *Plan & restrictions* submenu so coaches still get a single-glance "what's locked" view without a separate menu entry.
+
 ## Account configuration
 
 Three constants control monetization (all in `wp-config.php`, all optional):

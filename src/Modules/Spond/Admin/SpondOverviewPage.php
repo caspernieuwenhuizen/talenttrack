@@ -32,22 +32,14 @@ final class SpondOverviewPage {
     public const NONCE_KEY  = 'tt_spond_admin_action';
 
     public static function init(): void {
-        add_action( 'admin_menu', [ self::class, 'register' ], 30 );
+        // v3.90.0 — submenu registration moved to AdminMenuRegistry via
+        // CoreSurfaceRegistration so the entry sits inside the
+        // Configuration group instead of visually trailing the Access
+        // Control items. Only the admin-post handlers stay here.
         add_action( 'admin_post_tt_spond_refresh_team', [ self::class, 'handleRefresh' ] );
         add_action( 'admin_post_tt_spond_save_credentials', [ self::class, 'handleSaveCredentials' ] );
         add_action( 'admin_post_tt_spond_test_connection', [ self::class, 'handleTestConnection' ] );
         add_action( 'admin_post_tt_spond_clear_credentials', [ self::class, 'handleClearCredentials' ] );
-    }
-
-    public static function register(): void {
-        add_submenu_page(
-            'talenttrack',
-            __( 'Spond integration', 'talenttrack' ),
-            __( 'Spond', 'talenttrack' ),
-            'tt_edit_teams',
-            self::SLUG,
-            [ self::class, 'render' ]
-        );
     }
 
     public static function render(): void {

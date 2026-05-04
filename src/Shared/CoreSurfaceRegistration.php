@@ -12,7 +12,7 @@ use TT\Shared\Tiles\TileRegistry;
  * every tile + wp-admin menu surface that the plugin renders.
  *
  * The historical literals lived inline in `FrontendTileGrid::buildGroups()`
- * and `Menu::register()` / `Menu::dashboard()`. They are now
+ * and `Menu::register()` / `Menu::renderDashboardTiles()`. They are now
  * declaratively re-homed here, each tagged with the owning
  * `module_class` so the registries' built-in `ModuleRegistry::isEnabled`
  * filter takes effect.
@@ -48,6 +48,7 @@ final class CoreSurfaceRegistration {
     private const M_PEOPLE        = 'TT\\Modules\\People\\PeopleModule';
     private const M_PLAYERS       = 'TT\\Modules\\Players\\PlayersModule';
     private const M_REPORTS       = 'TT\\Modules\\Reports\\ReportsModule';
+    private const M_SPOND         = 'TT\\Modules\\Spond\\SpondModule';
     private const M_STATS         = 'TT\\Modules\\Stats\\StatsModule';
     private const M_TEAMDEV       = 'TT\\Modules\\TeamDevelopment\\TeamDevelopmentModule';
     private const M_TEAMS         = 'TT\\Modules\\Teams\\TeamsModule';
@@ -864,14 +865,30 @@ final class CoreSurfaceRegistration {
             'callback'     => [ \TT\Modules\Onboarding\Admin\OnboardingPage::class, 'render' ],
         ]);
 
-        // License — Account submenu, always under top-level for billing visibility.
+        // License — Account submenu, always under top-level for billing
+        // visibility. Cap relaxed to `read` (v3.90.0) because the page
+        // now hosts a Plan & restrictions tab that's open to everyone.
+        // The operator-only controls inside the Account tab still
+        // self-gate on `tt_edit_settings`.
         AdminMenuRegistry::register([
             'module_class' => self::M_LICENSE,
             'parent'       => 'talenttrack',
             'title'        => __( 'Account', 'talenttrack' ),
-            'cap'          => \TT\Modules\License\Admin\AccountPage::CAP,
+            'cap'          => 'read',
             'slug'         => \TT\Modules\License\Admin\AccountPage::SLUG,
             'callback'     => [ \TT\Modules\License\Admin\AccountPage::class, 'render' ],
+        ]);
+
+        // v3.90.0 — top-level "TalentTrack" click now lands on Account.
+        // Keep the legacy stats-and-tiles dashboard reachable via its
+        // own submenu so admins can still get the at-a-glance view.
+        AdminMenuRegistry::register([
+            'module_class' => null,
+            'parent'       => 'talenttrack',
+            'title'        => __( 'Dashboard', 'talenttrack' ),
+            'cap'          => 'read',
+            'slug'         => 'tt-dashboard',
+            'callback'     => [ \TT\Shared\Admin\Menu::class, 'renderDashboardTiles' ],
         ]);
 
         // v3.70.1 hotfix — Demo data submenu was registered only in
@@ -1097,6 +1114,32 @@ final class CoreSurfaceRegistration {
             'slug'         => 'tt-category-weights',
             'callback'     => [ \TT\Modules\Evaluations\Admin\CategoryWeightsPage::class, 'render' ],
         ]);
+        // v3.90.0 — Spond + Migrations were registered via direct
+        // `add_submenu_page` calls at admin_menu priorities 30 / 20,
+        // which left them visually trailing the Access Control group.
+        // Folding them into the Configuration group puts each entry
+        // where it conceptually belongs: an integration setting and
+        // a database admin tool.
+        AdminMenuRegistry::register([
+            'module_class' => self::M_SPOND,
+            'parent'       => $parent,
+            'group'        => 'config',
+            'title'        => __( 'Spond integration', 'talenttrack' ),
+            'label'        => __( 'Spond', 'talenttrack' ),
+            'cap'          => 'tt_edit_teams',
+            'slug'         => \TT\Modules\Spond\Admin\SpondOverviewPage::SLUG,
+            'callback'     => [ \TT\Modules\Spond\Admin\SpondOverviewPage::class, 'render' ],
+        ]);
+        AdminMenuRegistry::register([
+            'module_class' => self::M_CONFIG,
+            'parent'       => $parent,
+            'group'        => 'config',
+            'title'        => __( 'Database Migrations', 'talenttrack' ),
+            'label'        => __( 'Migrations', 'talenttrack' ),
+            'cap'          => 'tt_view_migrations',
+            'slug'         => 'tt-migrations',
+            'callback'     => [ \TT\Modules\Configuration\Admin\MigrationsPage::class, 'render_page' ],
+        ]);
 
         // ── Access Control group (Authorization is always-on). ──
         if ( $show_legacy ) {
@@ -1166,11 +1209,19 @@ final class CoreSurfaceRegistration {
             'callback'     => [ \TT\Modules\Authorization\Admin\ModulesPage::class, 'render' ],
         ]);
 
-        // Help & Docs — always under the top-level so admins always have
-        // a landmark, regardless of the legacy-menu toggle.
+        // ── Help group ──
+        // v3.90.0 — Help & Docs used to register without a group, which
+        // meant it visually trailed the Access Control entries when
+        // the legacy menu was on, looking like an Authorization item.
+        // Its own group separator (when legacy menu is on) keeps that
+        // confusion out.
+        if ( $show_legacy ) {
+            AdminMenuRegistry::registerSeparator( 'tt-sep-help', __( 'Help', 'talenttrack' ), 'read', 'help' );
+        }
         AdminMenuRegistry::register([
             'module_class' => self::M_DOCUMENTATION,
             'parent'       => 'talenttrack',
+            'group'        => 'help',
             'title'        => __( 'Help & Docs', 'talenttrack' ),
             'cap'          => 'read',
             'slug'         => 'tt-docs',
@@ -1179,9 +1230,10 @@ final class CoreSurfaceRegistration {
     }
 
     /* ───────────────────────────────────────────────────────────
-       wp-admin DASHBOARD TILES — quick-link cards on
-       `?page=talenttrack`. Stat cards stay in Menu::dashboard()
-       since they are bound to specific count + delta queries.
+       wp-admin DASHBOARD TILES — quick-link cards on the
+       `?page=tt-dashboard` tile view. Stat cards stay in
+       Menu::renderDashboardTiles() since they are bound to specific
+       count + delta queries.
        ─────────────────────────────────────────────────────────── */
 
     private static function registerAdminDashboardTiles(): void {

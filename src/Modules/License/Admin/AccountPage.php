@@ -13,19 +13,27 @@ use TT\Modules\License\TrialState;
 /**
  * AccountPage — `TalentTrack → Account` wp-admin page.
  *
- * Shows current tier, trial/grace state with day countdown, free-tier
- * usage vs caps, and CTAs to start a trial or open the Freemius
- * checkout. Visible to anyone with `tt_edit_settings` (the admin tier
- * — coaches don't need to see billing).
+ * Two tabs:
+ *   - **Account** (operator-only, `tt_edit_settings`): tier, trial /
+ *     grace state, usage vs caps, trial CTAs, phone-home diagnostics.
+ *   - **Plan & restrictions** (everyone, `read`): the same caps table
+ *     plus a Free / Standard / Pro feature matrix. Replaces the former
+ *     standalone `PlanOverviewPage` so non-operators still get a clear
+ *     "what's locked" view without a separate menu entry.
  *
- * On installs without Freemius credentials defined yet, the page
- * surfaces a "Monetization not yet configured" banner instead of the
- * upgrade CTA. The trial CTA still works (it's plugin-internal).
+ * The page itself only requires `read` — non-operators see only the
+ * Plan tab; operators see both, defaulting to Account.
  */
 class AccountPage {
 
     public const SLUG = 'tt-account';
     public const CAP  = 'tt_edit_settings';
+
+    /** Tab the operator-only billing controls live on. */
+    public const TAB_ACCOUNT = 'account';
+
+    /** Tab the read-only plan / caps / feature-matrix view lives on. */
+    public const TAB_PLAN    = 'plan';
 
     public static function init(): void {
         add_action( 'admin_post_tt_license_start_trial', [ self::class, 'handleStartTrial' ] );
@@ -50,31 +58,72 @@ class AccountPage {
         $result = \TT\Modules\AdminCenterClient\Sender::sendDiagnostic( \TT\Modules\AdminCenterClient\PayloadBuilder::TRIGGER_DAILY );
         set_transient( 'tt_admin_center_last_diagnostic_' . get_current_user_id(), $result, 5 * MINUTE_IN_SECONDS );
 
-        wp_safe_redirect( add_query_arg( [ 'page' => self::SLUG, 'tt_msg' => 'phone_home_done' ], admin_url( 'admin.php' ) ) );
+        wp_safe_redirect( add_query_arg( [ 'page' => self::SLUG, 'tab' => self::TAB_ACCOUNT, 'tt_msg' => 'phone_home_done' ], admin_url( 'admin.php' ) ) );
         exit;
     }
 
     public static function render(): void {
-        if ( ! current_user_can( self::CAP ) ) {
+        if ( ! current_user_can( 'read' ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
-        $tier        = LicenseGate::tier();
-        $eff_tier    = LicenseGate::effectiveTier();
-        $in_trial    = LicenseGate::isInTrial();
-        $in_grace    = LicenseGate::isInGrace();
-        $trial_days  = LicenseGate::trialDaysRemaining();
-        $grace_days  = LicenseGate::graceDaysRemaining();
-        $configured  = FreemiusAdapter::isConfigured();
-        $override    = DevOverride::active();
-        $trial_data  = TrialState::read();
-        $teams_used  = FreeTierCaps::currentCount( FreeTierCaps::CAP_TEAMS );
-        $players_used = FreeTierCaps::currentCount( FreeTierCaps::CAP_PLAYERS );
-        $teams_cap   = FreeTierCaps::teamCap();
-        $players_cap = FreeTierCaps::playerCap();
-        ?>
-        <div class="wrap">
-            <h1><?php esc_html_e( 'TalentTrack — Account', 'talenttrack' ); ?></h1>
 
+        $is_operator = current_user_can( self::CAP );
+        $requested   = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : '';
+        $tab         = $is_operator
+            ? ( $requested === self::TAB_PLAN ? self::TAB_PLAN : self::TAB_ACCOUNT )
+            : self::TAB_PLAN;
+
+        echo '<div class="wrap">';
+        echo '<h1>' . esc_html__( 'TalentTrack — Account', 'talenttrack' ) . '</h1>';
+
+        if ( $is_operator ) {
+            self::renderTabNav( $tab );
+        }
+
+        if ( $tab === self::TAB_PLAN ) {
+            self::renderPlanTab();
+        } else {
+            self::renderAccountTab();
+        }
+
+        echo '</div>';
+    }
+
+    private static function renderTabNav( string $current ): void {
+        $base = admin_url( 'admin.php?page=' . self::SLUG );
+        $tabs = [
+            self::TAB_ACCOUNT => __( 'Account',             'talenttrack' ),
+            self::TAB_PLAN    => __( 'Plan & restrictions', 'talenttrack' ),
+        ];
+        echo '<h2 class="nav-tab-wrapper">';
+        foreach ( $tabs as $slug => $label ) {
+            $url  = add_query_arg( 'tab', $slug, $base );
+            $cls  = 'nav-tab' . ( $current === $slug ? ' nav-tab-active' : '' );
+            echo '<a href="' . esc_url( $url ) . '" class="' . esc_attr( $cls ) . '">' . esc_html( $label ) . '</a>';
+        }
+        echo '</h2>';
+    }
+
+    private static function renderAccountTab(): void {
+        if ( ! current_user_can( self::CAP ) ) {
+            echo '<p>' . esc_html__( 'You do not have access to the operator account controls. The Plan & restrictions tab is open to everyone.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $tier         = LicenseGate::tier();
+        $eff_tier     = LicenseGate::effectiveTier();
+        $in_trial     = LicenseGate::isInTrial();
+        $in_grace     = LicenseGate::isInGrace();
+        $trial_days   = LicenseGate::trialDaysRemaining();
+        $grace_days   = LicenseGate::graceDaysRemaining();
+        $configured   = FreemiusAdapter::isConfigured();
+        $override     = DevOverride::active();
+        $trial_data   = TrialState::read();
+        $teams_used   = FreeTierCaps::currentCount( FreeTierCaps::CAP_TEAMS );
+        $players_used = FreeTierCaps::currentCount( FreeTierCaps::CAP_PLAYERS );
+        $teams_cap    = FreeTierCaps::teamCap();
+        $players_cap  = FreeTierCaps::playerCap();
+        ?>
             <?php if ( isset( $_GET['tt_msg'] ) ) :
                 $msg = sanitize_text_field( wp_unslash( (string) $_GET['tt_msg'] ) );
                 if ( $msg === 'cap_players' || $msg === 'cap_teams' ) :
@@ -225,8 +274,152 @@ class AccountPage {
             <?php endif; ?>
 
             <?php self::renderPhoneHomeDiagnostics(); ?>
-        </div>
         <?php
+    }
+
+    /**
+     * Plan & restrictions — read-only "what's locked / what's unlocked"
+     * tab. Replaces the former standalone `PlanOverviewPage` so coaches
+     * and other read-only users still get a one-glance view of caps,
+     * the trial / grace state, and the per-tier feature matrix without
+     * a separate menu entry.
+     */
+    private static function renderPlanTab(): void {
+        $tier        = LicenseGate::tier();
+        $tier_label  = FeatureMap::tierLabel( $tier );
+        $effective   = LicenseGate::effectiveTier();
+        $in_trial    = LicenseGate::isInTrial();
+        $in_grace    = LicenseGate::isInGrace();
+        $trial_days  = LicenseGate::trialDaysRemaining();
+        $grace_days  = LicenseGate::graceDaysRemaining();
+        $is_operator = current_user_can( self::CAP );
+
+        echo '<p>' . esc_html__( "Everything that's locked or limited on your install, in one place. Caps come from the Free-tier policy; features come from the plan you're on.", 'talenttrack' ) . '</p>';
+
+        // 1. Current tier
+        echo '<div class="notice" style="padding:16px; max-width:760px; margin-top:20px;">';
+        echo '<h2 style="margin-top:0;">' . esc_html__( 'Current plan', 'talenttrack' ) . '</h2>';
+        echo '<p style="font-size:18px; margin:0;"><strong>' . esc_html( $tier_label ) . '</strong>';
+        if ( $in_trial ) {
+            echo ' · <span style="color:#0b3d2e;">' . esc_html(
+                sprintf(
+                    /* translators: %d days remaining */
+                    _n( '%d day left in trial', '%d days left in trial', $trial_days, 'talenttrack' ),
+                    $trial_days
+                )
+            ) . '</span>';
+        } elseif ( $in_grace ) {
+            echo ' · <span style="color:#a86322;">' . esc_html(
+                sprintf(
+                    /* translators: %d grace days */
+                    _n( 'Grace period — %d day until features lock', 'Grace period — %d days until features lock', $grace_days, 'talenttrack' ),
+                    $grace_days
+                )
+            ) . '</span>';
+        }
+        echo '</p>';
+        if ( $is_operator && $tier !== FeatureMap::TIER_PRO ) {
+            $url = admin_url( 'admin.php?page=' . self::SLUG . '&tab=' . self::TAB_ACCOUNT );
+            echo '<p style="margin-top:12px;"><a class="button button-primary" href="' . esc_url( $url ) . '">'
+                . esc_html__( 'Upgrade or start a trial', 'talenttrack' )
+                . '</a></p>';
+        }
+        echo '</div>';
+
+        // 2. Caps table
+        echo '<h2 style="margin-top:32px;">' . esc_html__( 'Free-tier caps', 'talenttrack' ) . '</h2>';
+        echo '<p>' . esc_html__( 'Caps apply only on the Free plan. Trial and Standard / Pro have no cap.', 'talenttrack' ) . '</p>';
+        $caps_apply = ( $effective === FeatureMap::TIER_FREE );
+        echo '<table class="widefat striped" style="max-width:760px;"><thead><tr>';
+        echo '<th>' . esc_html__( 'Resource', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Current', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Limit',   'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Status',  'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
+        foreach ( [ 'teams', 'players' ] as $cap_type ) {
+            $current = FreeTierCaps::currentCount( $cap_type );
+            $limit   = FreeTierCaps::capFor( $cap_type );
+            $at_cap  = $caps_apply && $current >= $limit;
+            $colour  = $at_cap ? '#b32d2e' : ( $caps_apply && $current >= ( $limit * 0.8 ) ? '#a86322' : '#137333' );
+            $status  = ! $caps_apply
+                ? __( 'No cap (paid / trial)', 'talenttrack' )
+                : ( $at_cap ? __( 'At cap — upgrade to add more', 'talenttrack' ) : __( 'Within cap', 'talenttrack' ) );
+            $resource_label = $cap_type === 'teams'
+                ? __( 'Teams', 'talenttrack' )
+                : __( 'Players', 'talenttrack' );
+            echo '<tr>';
+            echo '<td>' . esc_html( $resource_label ) . '</td>';
+            echo '<td style="font-variant-numeric:tabular-nums;">' . (int) $current . '</td>';
+            echo '<td style="font-variant-numeric:tabular-nums;">' . esc_html( $caps_apply ? (string) $limit : '—' ) . '</td>';
+            echo '<td style="color:' . esc_attr( $colour ) . ';">' . esc_html( $status ) . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+
+        // 3. Feature matrix
+        echo '<h2 style="margin-top:32px;">' . esc_html__( 'Features by plan', 'talenttrack' ) . '</h2>';
+        echo '<p>' . esc_html__( 'Tick = available on that plan. Your current effective plan is highlighted.', 'talenttrack' ) . '</p>';
+        echo '<table class="widefat striped" style="max-width:900px;"><thead><tr>';
+        echo '<th>' . esc_html__( 'Feature', 'talenttrack' ) . '</th>';
+        $tiers = [ FeatureMap::TIER_FREE, FeatureMap::TIER_STANDARD, FeatureMap::TIER_PRO ];
+        foreach ( $tiers as $col_tier ) {
+            $is_current = ( $col_tier === $effective );
+            $style = $is_current ? ' style="background:#fffbe6;"' : '';
+            echo '<th' . $style . '>' . esc_html( FeatureMap::tierLabel( $col_tier ) ) . '</th>';
+        }
+        echo '</tr></thead><tbody>';
+        foreach ( self::featureCatalogue() as $feature_key => $feature_label ) {
+            echo '<tr>';
+            echo '<td>' . esc_html( $feature_label ) . '</td>';
+            foreach ( $tiers as $col_tier ) {
+                $has = FeatureMap::tierHas( $col_tier, $feature_key );
+                $is_current = ( $col_tier === $effective );
+                $cell_style = $is_current ? ' style="background:#fffbe6; text-align:center;"' : ' style="text-align:center;"';
+                echo '<td' . $cell_style . '>' . ( $has ? '<span style="color:#137333; font-weight:600;">✓</span>' : '<span style="color:#999;">—</span>' ) . '</td>';
+            }
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+
+        echo '<p style="margin-top:24px; color:#5b6e75; font-size:13px;">'
+            . esc_html__( 'Caps and features update immediately when you start a trial or upgrade. The trial gives Standard for 30 days, then a 7-day grace period at Free with the full data still readable.', 'talenttrack' )
+            . '</p>';
+    }
+
+    /**
+     * Catalogue of features rendered in the Plan tab matrix. Order
+     * roughly follows `FeatureMap::DEFAULT_MAP`. Internal-only features
+     * (radar_charts, undo_bulk) are included so operators understand
+     * the full restriction set.
+     *
+     * @return array<string,string>
+     */
+    private static function featureCatalogue(): array {
+        return [
+            'core_evaluations'  => __( 'Evaluations', 'talenttrack' ),
+            'core_sessions'     => __( 'Activities', 'talenttrack' ),
+            'core_goals'        => __( 'Goals', 'talenttrack' ),
+            'core_attendance'   => __( 'Attendance', 'talenttrack' ),
+            'core_player_card'  => __( 'Player cards', 'talenttrack' ),
+            'core_dashboard'    => __( 'Dashboard', 'talenttrack' ),
+            'backup_local'      => __( 'Local backup', 'talenttrack' ),
+            'backup_email'      => __( 'Email backup', 'talenttrack' ),
+            'onboarding'        => __( 'Onboarding wizard', 'talenttrack' ),
+            'demo_data'         => __( 'Demo data generator', 'talenttrack' ),
+            'radar_charts'      => __( 'Radar charts', 'talenttrack' ),
+            'player_comparison' => __( 'Player comparison', 'talenttrack' ),
+            'rate_cards_full'   => __( 'Rate cards (full)', 'talenttrack' ),
+            'csv_import'        => __( 'CSV import', 'talenttrack' ),
+            'functional_roles'  => __( 'Functional roles', 'talenttrack' ),
+            'partial_restore'   => __( 'Partial restore', 'talenttrack' ),
+            'undo_bulk'         => __( 'Undo bulk actions', 'talenttrack' ),
+            'multi_academy'     => __( 'Multi-academy', 'talenttrack' ),
+            'photo_session'     => __( 'Photo-to-activity capture', 'talenttrack' ),
+            'trial_module'      => __( 'Trial cases', 'talenttrack' ),
+            'scout_access'      => __( 'Scout access', 'talenttrack' ),
+            'team_chemistry'    => __( 'Team chemistry', 'talenttrack' ),
+            's3_backup'         => __( 'S3 backup', 'talenttrack' ),
+        ];
     }
 
     /**
@@ -313,7 +506,7 @@ class AccountPage {
         check_admin_referer( 'tt_license_start_trial', 'tt_license_nonce' );
         TrialState::start( FeatureMap::TIER_STANDARD );
         do_action( 'tt_license_trial_started' );
-        wp_safe_redirect( add_query_arg( [ 'page' => self::SLUG, 'tt_msg' => 'trial_started' ], admin_url( 'admin.php' ) ) );
+        wp_safe_redirect( add_query_arg( [ 'page' => self::SLUG, 'tab' => self::TAB_ACCOUNT, 'tt_msg' => 'trial_started' ], admin_url( 'admin.php' ) ) );
         exit;
     }
 
@@ -322,7 +515,7 @@ class AccountPage {
         if ( ! DevOverride::isAvailable() ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_license_reset_trial', 'tt_license_nonce' );
         TrialState::reset();
-        wp_safe_redirect( add_query_arg( [ 'page' => self::SLUG, 'tt_msg' => 'trial_reset' ], admin_url( 'admin.php' ) ) );
+        wp_safe_redirect( add_query_arg( [ 'page' => self::SLUG, 'tab' => self::TAB_ACCOUNT, 'tt_msg' => 'trial_reset' ], admin_url( 'admin.php' ) ) );
         exit;
     }
 }

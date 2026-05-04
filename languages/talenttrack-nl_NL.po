@@ -12313,3 +12313,6 @@ msgstr "Foto-naar-activiteit-vangst"
 
 msgid "S3 backup"
 msgstr "S3 back-up"
+
+msgid "You do not have access to the operator account controls. The Plan & restrictions tab is open to everyone."
+msgstr "Je hebt geen toegang tot de operator-accountinstellingen. Het tabblad Plan & beperkingen is voor iedereen toegankelijk."

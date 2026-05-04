@@ -24,8 +24,8 @@ use TT\Core\ModuleRegistry;
  * Stat cards on the wp-admin dashboard (Players / Teams / Evaluations
  * / Activities / Goals counts with weekly delta) are intentionally NOT
  * managed here — they couple tightly to per-entity SQL queries and
- * stay in `Menu::dashboard()` with their existing per-card cap +
- * module-enabled filter.
+ * stay in `Menu::renderDashboardTiles()` with their existing per-card
+ * cap + module-enabled filter.
  */
 final class AdminMenuRegistry {
 

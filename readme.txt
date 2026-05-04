@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.89.3
+Stable tag: 3.90.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.90.0 — Account is the new TalentTrack landing =
+
+Three-part wp-admin menu cleanup. (1) Clicking **TalentTrack** in the sidebar now lands on the Account page; the legacy stats-and-tiles overview moved to a separate **Dashboard** submenu (still one click away). (2) The standalone **Plan & restrictions** menu entry was folded into Account as a tab — operators see both Account + Plan tabs (default Account); `read`-only users see only the Plan tab. The page-level cap relaxed from `tt_edit_settings` → `read`; operator-only sections inside the Account tab still self-gate. (3) **Spond** moved from a direct `add_submenu_page` at admin_menu priority 30 into the Configuration group; **Migrations** moved from `MenuExtension` direct registration into the Configuration group too (cap `tt_view_migrations`; pending-count badge dropped — pending-migration banner remains the primary visibility surface); **Help & Docs** got its own "Help" group separator instead of trailing the Access Control items invisibly. New `M_SPOND` constant in `CoreSurfaceRegistration`. Trial-handler redirects now land on `&tab=account`. 1 new NL msgid.
 
 = 3.89.3 — Migration 0061: backfill `status='deleted'` players to the canonical archive shape =
 
