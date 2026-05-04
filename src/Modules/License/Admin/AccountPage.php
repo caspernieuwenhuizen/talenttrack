@@ -32,7 +32,7 @@ class AccountPage {
         add_action( 'admin_post_tt_license_reset_trial', [ self::class, 'handleResetTrial' ] );
         // v3.72.3 — manual phone-home trigger so operators can verify
         // that an install can reach the Admin Center receiver. Useful
-        // when one install is silent (e.g. jg4it.mediamaniacs.nl) and
+        // when one install is silent and
         // another from the same code base phones home fine.
         add_action( 'admin_post_tt_phone_home_now', [ self::class, 'handlePhoneHomeNow' ] );
     }
@@ -233,7 +233,7 @@ class AccountPage {
      * v3.72.3 — render the Admin Center phone-home diagnostic block:
      * install_id, endpoint, last sent timestamp + HTTP code, next
      * scheduled cron, and a "Send now" button. Surfaces the data an
-     * operator needs when one install (e.g. jg4it.mediamaniacs.nl) is
+     * operator needs when one install is
      * silent and another from the same code base phones home fine.
      */
     private static function renderPhoneHomeDiagnostics(): void {

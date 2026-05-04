@@ -1,6 +1,27 @@
+# TalentTrack v3.89.1 — Scrub pilot customer name from public artifacts
+
+Editorial sweep — no runtime behaviour change. Replaced specific pilot-customer references with neutral phrasing across the public repo so the changelog / docs / source-code comments don't disclose who's piloting the product without their explicit consent.
+
+## What changed
+
+- `CHANGES.md`, `readme.txt`, `SEQUENCE.md`: every "JG4IT pilot" / "JG4IT install" / specific subdomain URL → "pilot install" or generic example URL.
+- `docs/configuration-branding.md` + Dutch counterpart: "JG4IT-style approach" → "child-theme approach".
+- `specs/shipped/0023-feat-styling-options-and-theme-inheritance.md` + `specs/shipped/0064-epic-custom-css-wp-independence.md`: "JG4IT theme" → "pilot client theme".
+- `assets/css/frontend-admin.css`: comment naming a specific client → generic phrasing.
+- Source code comments (`LicenseGate.php`, `AccountPage.php`, `WizardEntryPoint.php`, `TeamsRestController.php`, `ActivitiesRestController.php`, `QueryHelpers.php`): same shape.
+
+## What wasn't touched
+
+- `marketing/pitch/pitch-deck-nl-pilot-meeting.md`: the deck is addressed *to* the pilot client, so the content references them by name internally. It's tracked in the repo but is not a customer-facing artifact. Move it out of the public tree if that's a concern.
+- Git commit messages: immutable history; not rewritten.
+
+## Going forward
+
+Pilot-customer identifying names live in private notes (memory, internal docs), not in artifacts published to the WordPress plugin directory or the public GitHub releases tab. Use neutral phrasing ("pilot install", "pilot client", "operator on a pilot install") in all public artifacts.
+
 # TalentTrack v3.89.0 — Compare two users from an authorization perspective
 
-New admin page **TalentTrack → Authorization → Compare users**, shipped as a follow-up to the JG4IT pilot six-item operator batch (item 5; items 1+2+6 shipped in v3.88.1, items 3+4 verified working on the live install).
+New admin page **TalentTrack → Authorization → Compare users**, shipped as a follow-up to the pilot install six-item operator batch (item 5; items 1+2+6 shipped in v3.88.1, items 3+4 verified working on the live install).
 
 ## What it does
 
@@ -36,13 +57,13 @@ Same as the rest of the Authorization admin pages: `current_user_can( 'administr
 
 # TalentTrack v3.88.1 — Teams list head-coach reads from staff assignments + functional-roles dropdown translated + attendance % blank for planned/cancelled
 
-Three JG4IT pilot fixes shipped together. All three were reported in the same operator batch as v3.86.2; this PR closes the structural slice (items 1, 2, 6 of the six-item report). Items 3 (edit row-action) and 4 (activity team column) were verified working on the live install; item 5 (compare two users' permissions) ships next as a separate feature PR. Renumbered from v3.87.1 in PR after v3.88.0 (matrix-controlled-tiles list cleanup) landed mid-CI.
+Three pilot install fixes shipped together. All three were reported in the same operator batch as v3.86.2; this PR closes the structural slice (items 1, 2, 6 of the six-item report). Items 3 (edit row-action) and 4 (activity team column) were verified working on the live install; item 5 (compare two users' permissions) ships next as a separate feature PR. Renumbered from v3.87.1 in PR after v3.88.0 (matrix-controlled-tiles list cleanup) landed mid-CI.
 
 ## Fix 1 — Teams list head-coach column was empty / wrong
 
 ### What broke
 
-On the JG4IT pilot install, the **Head coach** column in the Teams list (frontend `?tt_view=teams` and the wp-admin equivalent) showed blank cells even though every team had a head coach assigned. Operator was assigning HCs via Functional Roles (the canonical workflow), which writes to `tt_team_people` × `tt_functional_roles.role_key='head_coach'`. The legacy `tt_teams.head_coach_id` field — a wp-user pointer set by the old "Head coach" select on the team form — was never populated for those teams.
+On the pilot install install, the **Head coach** column in the Teams list (frontend `?tt_view=teams` and the wp-admin equivalent) showed blank cells even though every team had a head coach assigned. Operator was assigning HCs via Functional Roles (the canonical workflow), which writes to `tt_team_people` × `tt_functional_roles.role_key='head_coach'`. The legacy `tt_teams.head_coach_id` field — a wp-user pointer set by the old "Head coach" select on the team form — was never populated for those teams.
 
 ### Root cause
 
@@ -90,7 +111,7 @@ One-line wrap: read `$r->role_key`, run through `LabelTranslator::functionalRole
 
 ### What broke
 
-Activities list (`?tt_view=activities`) **Att. %** column rendered `0%` for activities with `activity_status_key = planned` (hasn't happened yet) or `cancelled` (won't happen). Operators on JG4IT mistook the 0% for "no-one showed up" instead of "didn't happen yet" — confusing the coach during pilot demo.
+Activities list (`?tt_view=activities`) **Att. %** column rendered `0%` for activities with `activity_status_key = planned` (hasn't happened yet) or `cancelled` (won't happen). Operators on the pilot install mistook the 0% for "no-one showed up" instead of "didn't happen yet" — confusing the coach during pilot demo.
 
 ### Root cause
 
@@ -160,13 +181,13 @@ A handful of tiles intentionally have no matrix entity yet (because the seed has
 
 # TalentTrack v3.86.2 — Wizard URL 404 on non-dashboard front pages + structural lookup-translation helper
 
-Two bugs reported on the JG4IT pilot install (`jg4it.mediamaniacs.nl`), shipped together because they share the "structural fix, not patch one site" framing the operator asked for. Renumbered v3.85.5 → v3.86.1 → v3.86.2 across two successive collisions: first v3.86.0 (authorization matrix discoverability) landed mid-CI, then v3.86.1 (comprehensive license enforcement) landed on the second push.
+Two bugs reported on the pilot install, shipped together because they share the "structural fix, not patch one site" framing the operator asked for. Renumbered v3.85.5 → v3.86.1 → v3.86.2 across two successive collisions: first v3.86.0 (authorization matrix discoverability) landed mid-CI, then v3.86.1 (comprehensive license enforcement) landed on the second push.
 
 ## Bug 1 — Wizard URL 404
 
 ### What broke
 
-`?tt_view=wizard&slug=new-team` and the resume-banner's `?tt_view=wizard&slug=new-team&dismiss_resume=1` both 404'd. Operator clicks "Resume" or "+ New team" → lands on the WP home page, which on JG4IT is **not** the dashboard page → `[talenttrack_dashboard]` shortcode never runs → the wizard router never sees the request.
+`?tt_view=wizard&slug=new-team` and the resume-banner's `?tt_view=wizard&slug=new-team&dismiss_resume=1` both 404'd. Operator clicks "Resume" or "+ New team" → lands on the WP home page, which on the pilot install is **not** the dashboard page → `[talenttrack_dashboard]` shortcode never runs → the wizard router never sees the request.
 
 ### Root cause
 
@@ -312,9 +333,9 @@ To do the same for activities / evaluations / goals / teams / people, swap `'pla
 - The same demo-scope filter exists on the wp-admin Activities / Goals / Evaluations / Teams / People lists. They aren't bypass-toggle-equipped yet — the operator-facing complaint was about Players specifically. Add the same toggle to those lists in a follow-up if asked.
 - The frontend players list (`?tt_view=players`) doesn't have the bypass toggle. Different audience (coaches, not admins); operators clean up via wp-admin.
 
-# TalentTrack v3.85.3 — Players page empty-state shown to HoD / Scout (JG4IT pilot)
+# TalentTrack v3.85.3 — Players page empty-state shown to HoD / Scout (pilot install)
 
-Found on the JG4IT pilot install. Third bug from the same setup session as v3.85.1 + v3.85.2.
+Found on the pilot install install. Third bug from the same setup session as v3.85.1 + v3.85.2.
 
 ## What broke
 
@@ -343,7 +364,7 @@ The REST endpoint at `GET /talenttrack/v1/players` (which the list table actuall
 
 # TalentTrack v3.85.2 — Free-tier cap respects License module state
 
-Found on the JG4IT pilot install. Companion to v3.85.1's wizard bugs; both surfaced from the same install setup session.
+Found on the pilot install install. Companion to v3.85.1's wizard bugs; both surfaced from the same install setup session.
 
 ## What broke
 
@@ -365,11 +386,11 @@ If you're already in the wedged state on v3.85.1 or earlier:
 2. **If the Authorization → Modules tab is also missing**: drop into the database and `DELETE FROM wp_tt_module_state WHERE module_class LIKE '%LicenseModule%'`. Defaults to enabled when no row exists.
 3. **Long term**: upgrade to v3.85.2 — disabling the License module no longer wedges the install.
 
-# TalentTrack v3.85.1 — Wizard bugs found by JG4IT pilot
+# TalentTrack v3.85.1 — Wizard bugs found by pilot install
 
 > Renumbered from v3.84.3 in PR after parallel work claimed v3.84.3 and v3.85.0 mid-CI. Code unchanged.
 
-Two long-standing wizard bugs that the JG4IT pilot install hit on day one of setup.
+Two long-standing wizard bugs that the pilot install install hit on day one of setup.
 
 ## Bug 1 — Age-group dropdown empty in the new-team wizard
 
@@ -417,12 +438,12 @@ Designed for the workflow: "I've set up my real teams + people + players manuall
 
 ## Dashboard URL fix on subdomain installs
 
-User reported a team-list link on `jg4it.mediamaniacs.nl` going to `http://jg4it.mediamaniacs.nl/talenttrack/?tt_view=teams&id=4` when the dashboard is the site's home page — should be `http://jg4it.mediamaniacs.nl/?tt_view=teams&id=4`. Two bugs:
+User reported team-list links on a subdomain install going to `https://example.com/talenttrack/?tt_view=teams&id=4` when the dashboard is the site's home page — should be `https://example.com/?tt_view=teams&id=4`. Two bugs:
 
 1. **Discovery regex mismatch.** `RecordLink::discoverDashboardPageId()` (the self-heal that scans for the dashboard page when `tt_config.dashboard_page_id` is unset) searched for `[tt_dashboard` and called `has_shortcode( $content, 'tt_dashboard' )`. But the only registered shortcode tag (`DashboardShortcode.php:21`) is `talenttrack_dashboard`. So on a fresh install, the auto-seeded page from `Activator::seedDashboardPageIfMissing()` (which inserts `[talenttrack_dashboard]`) was never adopted; the function silently fell through the REQUEST_URI/home_url chain. Corrected the search token + `has_shortcode()` call to `talenttrack_dashboard`.
 2. **Page-on-front not honoured.** Even when the dashboard page resolved correctly, `get_permalink( $page_id )` returns the page slug (e.g. `/talenttrack/`) regardless of whether the page is also the site's home page. New private helper `RecordLink::permalinkOrHome( int $page_id )` checks `page_on_front === $page_id && show_on_front === 'page'` — returns `home_url( '/' )` in that case, falls through to `get_permalink()` otherwise. Mirrored on `FrontendAccessControl::dashboardUrl()`.
 
-Net effect: on the user's subdomain install with the dashboard set as front page, links now read `https://jg4it.mediamaniacs.nl/?tt_view=teams&id=4`.
+Net effect: on the user's subdomain install with the dashboard set as front page, links now read `https://example.com/?tt_view=teams&id=4`.
 
 # TalentTrack v3.84.1 — Custom CSS full-stylesheet round-trip for designer hand-off
 
@@ -4080,7 +4101,7 @@ Three concerns the new attendance UI handles:
 
 # TalentTrack v3.8.0 — #0023 Styling options + WP-theme inheritance
 
-**Minor release.** Carved out during the JG4IT theme build on 25 April 2026. The Branding tab in **Configuration** gets a second section with a single global toggle to defer fonts/colors/links/buttons to the surrounding WordPress theme, plus curated Google Fonts dropdowns and six semantic color pickers — all without writing CSS or building a custom theme.
+**Minor release.** Carved out during a pilot client theme build on 25 April 2026. The Branding tab in **Configuration** gets a second section with a single global toggle to defer fonts/colors/links/buttons to the surrounding WordPress theme, plus curated Google Fonts dropdowns and six semantic color pickers — all without writing CSS or building a custom theme.
 
 #0019 Sprint 2 (sessions/goals frontend) is paused after session 2.2 while this preempts; sessions 2.3 + 2.4 resume after v3.8.0 ships.
 
@@ -4131,7 +4152,7 @@ Plus `(System default)` and `(Inherit from theme)` sentinels. When at least one 
 
 ## Custom-theme escape hatch unchanged
 
-Clubs running a custom theme that adds `body .tt-dashboard { ... }` overrides (the JG4IT pattern from `marketing/themes/talenttrack-demo/`) keep working — those rules win at higher specificity than `BrandStyles`'s `:root` injection. The toggle is the easier path; the override path is still there if a club wants pixel-level control.
+Clubs running a custom theme that adds `body .tt-dashboard { ... }` overrides (the demo-theme pattern from `marketing/themes/talenttrack-demo/`) keep working — those rules win at higher specificity than `BrandStyles`'s `:root` injection. The toggle is the easier path; the override path is still there if a club wants pixel-level control.
 
 ## Ship-along
 

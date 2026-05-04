@@ -281,7 +281,7 @@ class ActivitiesRestController {
         $status  = (string) ( $row->activity_status_key ?? 'planned' );
         // v3.87.1 — only compute attendance % for activities that
         // actually happened. Planned/cancelled rows previously rendered
-        // 0% which looked like real data — operators on the JG4IT pilot
+        // 0% which looked like real data — operators on a pilot install
         // mistook the column for "no-one showed up" instead of "didn't
         // happen yet / won't happen".
         // #0061 — pct = present / roster, not recorded / roster.

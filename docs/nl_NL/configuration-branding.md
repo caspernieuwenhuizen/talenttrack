@@ -104,7 +104,7 @@ Sommige CSS-eigenschappen erven van nature mee (font-family, color, link-kleur).
 - **Knoppen**: best-effort. De knop-achtergrond en -kleur van de plugin worden teruggezet, maar de knopstijl van het host-thema neemt het pas over als zijn CSS dezelfde selectors raakt als de DOM van de plugin. De meeste thema's stijlen block-editor-knoppen (`.wp-block-button__link`) — die maken plugin-knoppen niet automatisch opnieuw op. Thema's die op het `<button>`-element zelf stijlen, krijgen volledige overerving.
 - **Witruimte, randen, schaduwen**: niet overgeërfd — de structurele CSS van de plugin blijft staan.
 
-Heb je een eigen thema dat `body .tt-dashboard { ... }`-overrides toevoegt (de JG4IT-aanpak), dan blijven die het laatste woord houden — de toggle is de makkelijke route, maar de override-route blijft werken.
+Heb je een eigen thema dat `body .tt-dashboard { ... }`-overrides toevoegt (de child-thema-aanpak), dan blijven die het laatste woord houden — de toggle is de makkelijke route, maar de override-route blijft werken.
 
 ### Achterwaartse compatibiliteit
 

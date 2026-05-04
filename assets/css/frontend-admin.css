@@ -678,8 +678,8 @@ body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(
  * boundary because they're inherited (line-height, letter-spacing,
  * text-transform), or because hostile themes set them at body / global
  * scope with high specificity. Lock them down here so TT surfaces
- * render predictably even on opinionated themes (mediamaniacs.nl /
- * jg4it / other client themes). The `body:not(.tt-theme-inherit)`
+ * render predictably even on opinionated themes (custom client
+ * themes from pilots and other deployments). The `body:not(.tt-theme-inherit)`
  * gating means academies that explicitly opt into theme inheritance
  * still see their theme's typography. */
 body:not(.tt-theme-inherit) .tt-dashboard,

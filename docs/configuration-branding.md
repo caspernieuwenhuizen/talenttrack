@@ -104,7 +104,7 @@ Some CSS properties cascade naturally (font-family, color, link color). Others d
 - **Buttons**: best-effort. The plugin's button-background and color rules are reverted, but the host theme's button styling only takes over if its CSS targets selectors that match the plugin's button DOM. Most themes style block-editor buttons (`.wp-block-button__link`) — they won't restyle the plugin's `.button-primary` automatically. Themes that style the `<button>` element directly get full inheritance.
 - **Spacing, borders, shadows**: not inherited — the plugin's structural CSS stays.
 
-If you have a custom theme that adds `body .tt-dashboard { ... }` overrides (the JG4IT-style approach), those still win — the toggle is the easier path, but the override path keeps working.
+If you have a custom theme that adds `body .tt-dashboard { ... }` overrides (the child-theme approach), those still win — the toggle is the easier path, but the override path keeps working.
 
 ### Backward compatibility
 

@@ -174,7 +174,7 @@ class TeamsRestController {
         // role_key='head_coach') instead of the legacy `tt_teams.head_coach_id`
         // wp-user pointer. Multiple HCs comma-separated. Fallback to the
         // legacy field is retained for teams that haven't been migrated to
-        // staff assignments. JG4IT pilot reported the column was empty
+        // staff assignments. A pilot install reported the column was empty
         // because they assigned head coaches via Functional Roles only.
         // GROUP_CONCAT separators: `||` for names (avoids collision with
         // a comma inside a person's name), `,` for ids.

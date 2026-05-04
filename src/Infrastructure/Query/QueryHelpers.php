@@ -111,7 +111,7 @@ class QueryHelpers {
      * `get_lookup_names()` was rendering the raw DB name as the
      * visible label, bypassing both the inline `tt_i18n` translations
      * column AND the .po-loaded `__()` strings. Reported on the
-     * preferred-foot dropdown by JG4IT — same defect on every other
+     * preferred-foot dropdown by a pilot install — same defect on every other
      * lookup-driven dropdown (positions, age groups, goal statuses,
      * goal priorities, attendance statuses, etc.).
      *
