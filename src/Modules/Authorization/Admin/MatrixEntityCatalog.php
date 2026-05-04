@@ -192,11 +192,25 @@ final class MatrixEntityCatalog {
     }
 
     /**
-     * Tiles registered with `cap_callback` (closure) instead of a
-     * string cap — these are NOT routed through the matrix bridge.
-     * Surfaced separately on the matrix page so the operator knows
-     * which tiles need a different mechanism (hide_for_personas, or a
-     * follow-up refactor) to suppress.
+     * Tiles whose visibility cannot be controlled through the matrix.
+     *
+     * v3.87.0 introduced the `entity` field on `TileRegistry`: when a
+     * tile declares it AND `tt_authorization_active = 1`, the matrix
+     * is the sole source of truth. So the v3.88.0 definition of
+     * "matrix-controlled" is *anything that has an `entity`* — string
+     * caps that map cleanly through `LegacyCapMapper` are also
+     * matrix-aware, but only when the cap maps to an entity the
+     * operator can actually find on the matrix page.
+     *
+     * A tile lands in this list only when none of the gates can be
+     * resolved to a matrix entity:
+     *   - no `entity` declared
+     *   - no `cap` declared, OR `cap` is unknown to LegacyCapMapper
+     *
+     * After the v3.87 sweep + v3.88 patch this list should be empty
+     * on a stock install. It stays for forward-compatibility: a
+     * future module that registers a tile without thinking about the
+     * matrix shows up here so the operator notices.
      *
      * @return list<array{label:string, view_slug:string}>
      */
@@ -204,9 +218,17 @@ final class MatrixEntityCatalog {
         if ( ! class_exists( '\\TT\\Shared\\Tiles\\TileRegistry' ) ) return [];
         $out = [];
         foreach ( TileRegistry::allRegistered() as $tile ) {
-            $has_callback = is_callable( $tile['cap_callback'] ?? null );
-            $has_cap      = ! empty( $tile['cap'] );
-            if ( ! $has_callback || $has_cap ) continue;
+            // Entity-declared tiles are matrix-controlled directly.
+            if ( ! empty( $tile['entity'] ) ) continue;
+
+            // String-cap tiles are matrix-aware iff the cap maps to
+            // an entity in LegacyCapMapper. Unknown caps fall through
+            // to native WP cap evaluation and the matrix has no view.
+            $cap = (string) ( $tile['cap'] ?? '' );
+            if ( $cap !== '' && class_exists( '\\TT\\Modules\\Authorization\\LegacyCapMapper' ) ) {
+                if ( LegacyCapMapper::tupleFor( $cap ) !== null ) continue;
+            }
+
             $label = self::resolveTileLabel( $tile );
             if ( $label === '' ) continue;
             $out[] = [

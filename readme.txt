@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.87.0
+Stable tag: 3.88.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.88.0 — Empty the "Tiles not controlled by the matrix" list =
+
+User follow-up on v3.87.0: matrix admin page still listed tiles under "Tiles not controlled by the matrix" even though most were declared with `entity` and ARE matrix-controlled. Two fixes: (1) `MatrixEntityCatalog::callbackGatedTiles()` shipped in v3.86.0 before the `entity` field existed and never checked for it — the check now treats a tile as matrix-controlled when EITHER it declares `entity` OR its `cap` maps to an entity in `LegacyCapMapper`. (2) "Open wp-admin" was the only frontend tile v3.87.0 missed — now declares `entity = 'frontend_admin'`. Net result on a stock install: the list is empty. The list itself stays for forward-compatibility — any future module that registers a tile without an entity OR a matrix-mapped cap surfaces here so the operator notices.
 
 = 3.87.0 — Authorization matrix is now the single source of truth for tile visibility =
 

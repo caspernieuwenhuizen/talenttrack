@@ -737,12 +737,15 @@ final class CoreSurfaceRegistration {
             'color'        => '#5b6e75',
             'cap'          => 'tt_manage_invite_messages',
         ]);
-        // "Open wp-admin" is a portal — never gated, no view_slug since
-        // it points at an absolute admin URL rather than a tt_view route.
+        // "Open wp-admin" is a portal that points at the WP admin
+        // dashboard rather than a tt_view route. v3.88.0 — gates on
+        // the matrix `frontend_admin` entity so the matrix decides
+        // who sees the door, mirroring every other tile.
         TileRegistry::register([
             'module_class' => null,
             'view_slug'    => '',
             'slug'         => 'open-wp-admin',
+            'entity'       => 'frontend_admin',
             'group'        => $admin_group,
             'kind'         => 'setup',
             'order'        => 100,

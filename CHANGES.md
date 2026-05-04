@@ -1,3 +1,15 @@
+# TalentTrack v3.88.0 — Empty the "Tiles not controlled by the matrix" list
+
+User followup on v3.87.0: the matrix admin page still listed tiles under "Tiles not controlled by the matrix" even though most of them were declared with `entity` and ARE matrix-controlled. Two things kept the list non-empty:
+
+1. **Stale catalog check.** `MatrixEntityCatalog::callbackGatedTiles()` shipped in v3.86.0 — before the `entity` field existed in v3.87.0. The check excluded tiles with a string `cap` but never checked for `entity`, so every tile I gave an `entity` to in v3.87 still appeared in the list. The check is now updated: a tile counts as matrix-controlled when EITHER it declares `entity` OR its `cap` maps to an entity in `LegacyCapMapper`. Anything that doesn't pass either rung lands on the list — which on a stock install is now zero rows.
+
+2. **One missing entity declaration.** "Open wp-admin" was the only tile in `CoreSurfaceRegistration::registerFrontendTiles()` that v3.87 missed. Now declares `entity = 'frontend_admin'` so the matrix `frontend_admin` row controls it.
+
+## Why the list still exists at all
+
+Forward-compatibility. A future module that registers a new tile without thinking about the matrix would otherwise be invisible — its tile would render to whichever personas its `cap` happened to grant, with no operator-facing signal that it bypassed the matrix model. Keeping the list ensures any such regression surfaces on the matrix page rather than going unnoticed.
+
 # TalentTrack v3.87.0 — Authorization matrix is now the single source of truth for tile visibility
 
 User reported: a Scout could still see the Migrations tile even though R/C/D was greyed out for `migrations` in the matrix. Same wiring class as the v3.86.0 audit-log fix, but generalised: the Migrations tile gated on `tt_access_frontend_admin` (entity `frontend_admin`), which lit up regardless of what the matrix said about `migrations`. The same was true for the 17 callback-gated tiles (Podium, My team, evaluations, …) where a closure decided visibility and the matrix had no say at all.
