@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.90.1
+Stable tag: 3.90.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.90.2 — Demo data: per-category selective generation + selective wipe =
+
+Demo Data page now exposes the full six-entity grid for both generation and deletion. **Generation**: alongside the existing master-data toggles (teams / people + WP users / players), three new dependent-entity toggles — Generate activities / Generate evaluations / Generate goals — let the operator skip any category from a procedural run, an Excel import, or a hybrid run. Master-data toggles still only apply to the procedural source (Excel + hybrid drive master data from the workbook); dependent-entity toggles apply to every source. **Deletion**: the single all-or-nothing "WIPE" button is replaced by a six-checkbox grid mirroring the same categories. Each box wipes the category plus its FK-driven cascade (e.g. checking "Teams" also wipes team_person, activities, attendance, evaluations, eval_ratings on those teams). Counts shown next to each box reflect demo-tagged rows that match the cascade right now. Default is no boxes checked — operator opts in. Use case: keep your real teams + players + people, wipe demo activities + evaluations + goals — check the bottom three boxes, type WIPE, done. Persistent demo WP users still flow through the separate "Wipe demo users too" form with its three safety rails. `DemoDataCleaner::wipeData()` gains a `?array $categories = null` parameter; null falls back to the v3.85.0 "wipe everything except people" behaviour for back-compat. Renumbered from v3.90.1 in PR after the Excel-upload hardening landed mid-CI.
 
 = 3.90.1 — Demo Excel upload no longer surfaces as a hosting 500 =
 

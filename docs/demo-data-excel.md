@@ -37,7 +37,7 @@ Errors come back as a list — fix them in the workbook, re-upload.
 
 Re-uploading the same workbook adds new rows (no row-level upsert). To wipe-and-replace, use **Wipe demo data** first, then upload.
 
-## Troubleshooting upload errors (v3.89.2)
+## Troubleshooting upload errors (v3.90.1)
 
 The upload path is hardened against the "looks like a hosting server side error" failure mode. If something goes wrong, you get a red TalentTrack notice naming the actual cause instead of the host's generic 500.
 
@@ -50,3 +50,11 @@ The upload path is hardened against the "looks like a hosting server side error"
 | **"Excel import crashed: …. Check the TalentTrack log for details."** | A fatal slipped past the inner catch (rare — usually OOM with `memory_limit` too low even after the plugin's raise). | Ask the hoster to raise `memory_limit` to ≥128M, or split the workbook. The TalentTrack log records the error class + message. |
 
 The actual server limits on your install are surfaced below the file-picker input so you can size the workbook before uploading.
+
+## Selective generation + selective wipe (v3.90.2)
+
+Step 0.5 ("What to generate") on the Demo Data page exposes six checkboxes — three master-data (teams / people + WP users / players) and three dependent-entity (activities / evaluations / goals) — all default ON. Master-data toggles only apply to the procedural source; the workbook drives master data on Excel + hybrid runs. Dependent-entity toggles apply to every source, so you can e.g. upload a teams + players workbook and skip procedural goals on top.
+
+The **Wipe demo data** form mirrors the same six-category grid. Each box wipes the category plus its FK-driven cascade (e.g. checking "Teams" also wipes the team_person assignments + activities + attendance + evaluations + eval_ratings tied to those teams). Counts are shown next to each box. Default state: no boxes checked — the operator opts in. Use case: keep the real teams + players + people you've set up by hand, wipe demo activities + evaluations + goals — check the bottom three boxes, type WIPE.
+
+Persistent demo WP users are preserved across this action; use the separate **Wipe demo users too** form to remove them (with its three safety rails: domain match, not-current-user, not-last-admin).

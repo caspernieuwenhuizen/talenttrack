@@ -12106,6 +12106,79 @@ msgstr "uitvinken om bestaande spelers in de club te gebruiken."
 msgid "These toggles only apply to the procedural source. Excel + hybrid sources read from the workbook regardless."
 msgstr "Deze schakelaars gelden alleen voor de procedurele bron. Excel + hybride bronnen lezen sowieso uit het werkboek."
 
+# v3.90.1 — demo selective generation + selective wipe (six-category grid)
+
+msgid "Master data — uncheck to use the rows already in your club instead of generating new ones. These three toggles only apply to the procedural source (Excel + hybrid read master data from the workbook regardless)."
+msgstr "Master-data — uitvinken om de bestaande rijen in je club te gebruiken in plaats van nieuwe te genereren. Deze drie schakelaars gelden alleen voor de procedurele bron (Excel + hybride lezen master-data sowieso uit het werkboek)."
+
+msgid "Dependent entities — uncheck any to skip generating that category on top of whatever master data ends up present. Applies to every source (procedural, Excel, hybrid)."
+msgstr "Afhankelijke entiteiten — vink uit om die categorie niet te genereren bovenop de aanwezige master-data. Geldt voor elke bron (procedureel, Excel, hybride)."
+
+msgid "Generate activities"
+msgstr "Activiteiten genereren"
+
+msgid "uncheck to skip session/match generation. Attendance is generated alongside; turning this off skips both."
+msgstr "uitvinken om training/wedstrijd-generatie over te slaan. Aanwezigheid wordt tegelijk gegenereerd; uitvinken slaat beide over."
+
+msgid "Generate evaluations"
+msgstr "Evaluaties genereren"
+
+msgid "uncheck to skip evaluation rounds + per-category ratings."
+msgstr "uitvinken om evaluatierondes + per-categorie-beoordelingen over te slaan."
+
+msgid "Generate goals"
+msgstr "Doelen genereren"
+
+msgid "uncheck to skip per-player development goals."
+msgstr "uitvinken om per-speler ontwikkelingsdoelen over te slaan."
+
+msgid "Master-data toggles only apply to the procedural source. Excel + hybrid sources read master data from the workbook regardless. Dependent-entity toggles apply to every source."
+msgstr "Master-data-schakelaars gelden alleen voor de procedurele bron. Excel + hybride bronnen lezen master-data sowieso uit het werkboek. Schakelaars voor afhankelijke entiteiten gelden voor elke bron."
+
+msgid "Pick which categories of demo-tagged rows to remove. Each box wipes the category plus its dependents (e.g. \"Teams\" also wipes the activities + attendance + evaluations + eval-ratings tied to those teams). Non-demo data is never touched. The 36 persistent demo WP users are preserved across this action — use \"Wipe demo users too\" below for those."
+msgstr "Kies welke categorieën van demo-gemarkeerde rijen verwijderd worden. Elk vinkje verwijdert de categorie plus zijn afhankelijken (bv. \"Ploegen\" verwijdert ook de activiteiten + aanwezigheid + evaluaties + eval-beoordelingen die aan die ploegen hangen). Niet-demo-data wordt nooit aangeraakt. De 36 vaste demo-WP-gebruikers blijven bij deze actie bestaan — gebruik \"Demo-gebruikers ook wissen\" hieronder daarvoor."
+
+msgid "Counts shown are the demo-tagged rows that match the cascade right now. Double-counts across overlapping categories are deduplicated server-side at delete time."
+msgstr "Getoonde aantallen zijn de demo-gemarkeerde rijen die nu in de cascade vallen. Dubbeltellingen over overlappende categorieën worden server-side ontdubbeld bij het verwijderen."
+
+msgid "Categories to wipe"
+msgstr "Categorieën om te wissen"
+
+msgid "Master data"
+msgstr "Master-data"
+
+msgid "Dependent entities"
+msgstr "Afhankelijke entiteiten"
+
+#. translators: %d is the row count
+msgid "%d demo rows incl. team_person, activities, attendance, evaluations, eval_ratings on those teams"
+msgstr "%d demo-rijen incl. team_person, activiteiten, aanwezigheid, evaluaties, eval_ratings op die ploegen"
+
+msgid "%d demo rows incl. team_person assignments. The matching WP users stay (separate \"Wipe demo users\" form below)."
+msgstr "%d demo-rijen incl. team_person-toewijzingen. De bijbehorende WP-gebruikers blijven (apart \"Demo-gebruikers wissen\"-formulier hieronder)."
+
+msgid "%d demo rows incl. attendance, evaluations, eval_ratings, goals tied to those players"
+msgstr "%d demo-rijen incl. aanwezigheid, evaluaties, eval_ratings, doelen gekoppeld aan die spelers"
+
+msgid "%d demo rows incl. attendance for those activities"
+msgstr "%d demo-rijen incl. aanwezigheid voor die activiteiten"
+
+msgid "%d demo rows incl. per-category eval_ratings"
+msgstr "%d demo-rijen incl. per-categorie eval_ratings"
+
+msgid "%d demo rows"
+msgstr "%d demo-rijen"
+
+msgid "Wipe selected categories"
+msgstr "Geselecteerde categorieën wissen"
+
+msgid "Pick at least one category to wipe."
+msgstr "Kies ten minste één categorie om te wissen."
+
+#. translators: 1: row count, 2: comma-list of categories
+msgid "Demo data wiped — %1$d rows across %2$s."
+msgstr "Demo-data gewist — %1$d rijen verspreid over %2$s."
+
 # v3.83.1 — persona-dashboard token category in custom-CSS editor (rebased onto v3.83.0)
 
 msgid "Surface — card"
