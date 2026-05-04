@@ -1,3 +1,30 @@
+# TalentTrack v3.91.5 — Reports launcher: removed wp-admin sub-tile + missing tile descriptions translated
+
+Operator complaint on the Reports launcher: clicking the third sub-tile ("Player Progress & Radar") punted them to wp-admin in a new tab. Frontend tiles must not do that. Same surface had two tile descriptions still rendering English on Dutch installs.
+
+## Fix 1 — Legacy wp-admin sub-tile removed from launcher
+
+`FrontendReportsLauncherView` previously showed three sub-tiles:
+
+1. Team rating averages → frontend native ✓
+2. Coach activity → frontend native ✓
+3. **Player Progress & Radar → wp-admin (target=_blank, external=true)** — the offender
+
+The third tile is gone. The wp-admin view itself still exists at `wp-admin/admin.php?page=tt-reports&report=legacy` for admins who navigate directly; the frontend just doesn't advertise it anymore. The launcher now shows only the two frontend-native tiles, and the `external` / `target=_blank` rendering branch is removed too (no surviving consumer).
+
+Porting the legacy view to a native frontend report (Chart.js + form-submit round-trip) is tracked separately if the operator asks. The decision in #0077 M11 was to land it on wp-admin "still" because the port was significant; the v3.91.5 decision is that having a wp-admin redirect on a frontend tile is worse than not advertising the report at all.
+
+## Fix 2 — Two missing tile-description translations added
+
+The persona-dashboard Reports tile description (`"Player progress, team rating averages, coach activity."`) and the launcher's Coach activity sub-tile description (`"Per-coach evaluation count and recent cadence."`) were both wrapped in `__()` but never had a Dutch translation in the .po file. Added.
+
+Confirmed translated already (no change needed): tile label "Reports", launcher labels "Team rating averages" + "Coach activity", launcher Team-ratings description "Average rating per team across all main categories.", and the Coach-activity report-detail page text.
+
+## What's left
+
+- The legacy `tt-reports&report=legacy` admin URL is now the only path to the Player Progress & Radar report. If operators still need that view via the frontend, port it natively in a follow-up PR.
+- Other launcher / report views were checked — no remaining English strings.
+
 # TalentTrack v3.91.4 — Edit row-action on teams / players / people landed on detail page; row actions now cap-gated
 
 Operator clicked **Edit** on a teams list row, expected the edit form, got the read-only detail page. Looked like a coach-vs-permission thing at first — turned out to be a routing bug that bites every persona on every list, not just coaches.
