@@ -1,31 +1,20 @@
-# TalentTrack v3.91.1 — Hotfix: backfill v3.91.0 matrix entities into existing installs
+# TalentTrack v3.91.2 — TalentTrack menu lands on Account + Teams list shows every head coach
 
-v3.91.0 added 10 new tile-visibility entities to `config/authorization_seed.php` but the seed file is only loaded into `tt_authorization_matrix` on fresh install or via the admin "Reset to defaults" button. Existing installs that updated to v3.91.0 had the new tile gates pointing at matrix rows that didn't exist — the lookup returned false and FR-assigned head coaches stayed locked out of the coach-side dashboard despite migration 0062's scope-row backfill having run successfully.
+Two fixes that landed together because they're both small and both regressions.
 
-## Why
+## Fix 1 — Clicking "TalentTrack" now actually lands on Account
 
-Found on the pilot install. Head-coach Kevin Raes — `tt_people` row exists, linked to his WP user, FR assignment as head_coach on Hedel JO13-1 visible in the Functional Role Assignments page, and migration 0062 had inserted the matching `tt_user_role_scopes` row — saw only Methodologie + the Analytics tiles after v3.91.0. The matrix scope check (`MatrixGate::userHasAnyScope`) was returning true for `team`, but the tile gate is now keyed on `team_roster_panel`, and that row didn't exist in the live `tt_authorization_matrix` table. The matrix lookup `(persona='head_coach', entity='team_roster_panel', activity='read', scope_kind='team')` returned false → tile hides → dashboard empty.
+v3.90.0 changed the top-level menu callback to `AccountPage::render`, but clicking the parent menu still ended up on **Dashboard layouts** (the persona-dashboard editor). WordPress builds the parent menu's `<a>` href from `$submenu[parent][0][2]` — the slug of the **first child** — once submenus exist. After `removeDashboardMirror()` strips the auto-clone, the first remaining child is whichever submenu was registered first. `PersonaDashboardModule::boot()` runs before `CoreSurfaceRegistration::register()`, so `tt-dashboard-layouts` ended up at index 0 and won the click.
 
-## What changed
+`Menu::removeDashboardMirror()` now also promotes `tt-account` to `$submenu['talenttrack'][0]` after dropping the auto-clone. Clicking TalentTrack lands on `?page=tt-account` (Account tab for operators, Plan tab for read-only users) regardless of registration order. Idempotent.
 
-- New migration `database/migrations/0063_authorization_seed_topup_0079.php` walks `config/authorization_seed.php` the same way the v3.39.0 precedent (`0035_authorization_seed_backfill`) did, and `INSERT IGNORE`s every (persona, entity, activity, scope_kind) tuple. The unique key on the matrix table makes existing rows — including any an admin customised on the matrix admin page — pass the IGNORE filter and stay untouched. Only the new tuples land.
-- Idempotent. Re-running the migration is a no-op once the rows exist.
-- Picks up the 10 v3.91.0 entities (`team_roster_panel`, `coach_player_list_panel`, `people_directory_panel`, `evaluations_panel`, `activities_panel`, `goals_panel`, `podium_panel`, `team_chemistry_panel`, `pdp_panel`, `wp_admin_portal`) on every persona that has a grant for them in the seed.
-- `talenttrack.php` + `readme.txt` version bump 3.91.0 → 3.91.1.
+## Fix 2 — wp-admin Teams list rendered '—' for every staff column
 
-## What was NOT touched
+`TeamsPage::render` (`?page=tt-teams`) walked `PeopleRepository::getTeamStaff()`'s result with `array_filter` over a flat list of row objects (`$r->functional_role_key`). Since v3.71.0 that method has returned a *grouped* nested array — `[role_key => [ [ 'person' => $obj, … ], … ]]`. Every cell matched zero entries and rendered '—' on PHP 7 (and would have hard-crashed on PHP 8.x). Now reads the group bucket directly and unwraps each entry's `person` object. **Multiple head coaches on one team render comma-separated**, matching the v3.88.1 `TeamsRestController::list_teams()` GROUP_CONCAT shape.
 
-- The seed file content itself. The 10 entities + persona grants from v3.91.0 stay as the source of truth.
-- The matrix admin page's "Reset to defaults" button — still works the same; this migration is the auto-applied equivalent for the v3.91.0 entities only.
-- Operator-customised rows on entities that already existed pre-v3.91.0. The unique-key IGNORE preserves them.
+## Files touched
 
-## Affected files
-
-- `database/migrations/0063_authorization_seed_topup_0079.php` — new.
-- `talenttrack.php` + `readme.txt` — version bump.
-- `CHANGES.md` — this entry.
-- `SEQUENCE.md` — Done row added.
-
-## How to verify
-
-After updating to v3.91.1: refresh Kevin Raes's dashboard (or any FR-assigned head coach). They should now see Mijn teams, Mijn spelers, Activities, Evaluations, Goals, Podium, Team chemistry, PDP — the full coach-side surface.
+- `talenttrack.php` — version bump to 3.91.2
+- `src/Shared/Admin/Menu.php` — `removeDashboardMirror()` also promotes `tt-account` to position 0
+- `src/Modules/Teams/Admin/TeamsPage.php` — staff column reads the grouped result correctly; renders all assignments per role
+- `SEQUENCE.md` — Done row added

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.91.1
+Stable tag: 3.91.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.91.2 — TalentTrack menu lands on Account + Teams list shows every head coach =
+
+Two regressions, one ship. (1) **Clicking "TalentTrack" in the wp-admin sidebar** still landed on Dashboard layouts even after v3.90.0's "Account is the new landing" change. WordPress builds the parent menu's URL from `$submenu[parent][0][2]` once submenus exist; after `removeDashboardMirror()` strips the auto-clone, whichever submenu was registered first wins — and `PersonaDashboardModule::boot()` runs before `CoreSurfaceRegistration::register()`, so `tt-dashboard-layouts` was at index 0. `Menu::removeDashboardMirror()` now also promotes `tt-account` to position 0, so the click lands on Account regardless of registration order. (2) **Wp-admin Teams list rendered '—' for every staff column** because `TeamsPage::render` walked the `PeopleRepository::getTeamStaff()` result as if it were a flat list of row objects with `$r->functional_role_key` — but since v3.71.0 it returns a grouped nested array (`[role_key => [ [person => $obj, ...], ... ]]`). The filter matched zero entries on PHP 7 (and would have hard-crashed on PHP 8.x). Fixed: read the group bucket directly and unwrap each entry's `person` object. Multiple head coaches on one team now render comma-separated, matching the v3.88.1 `TeamsRestController::list_teams()` GROUP_CONCAT shape.
 
 = 3.91.1 — Hotfix: backfill the v3.91.0 matrix entities into existing installs =
 
