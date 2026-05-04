@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.92.7
+Stable tag: 3.94.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.94.0 — Team chemistry rebuild (#0068) =
+
+Full rebuild of the team-chemistry view (`?tt_view=team-chemistry`), addressing every user-test issue the v1 help button couldn't paper over. **Real SVG pitch** with all standard markings (touchlines, goal lines, halfway line, centre circle + spot, both penalty boxes / goal areas / penalty spots / penalty arcs, four corner arcs) on a proportionally-correct 105 m × 68 m viewBox via the new `PitchSvg` component. Pitch colors come from `--tt-pitch-grass-token` / `--tt-pitch-grass-2-token` / `--tt-pitch-line-token` so the install's brand-style picks them up. Renders flat by default; click *Switch to isometric view* under the pitch for the v1 tilted look. **Empty-state UX**: `FitResult` gains a `hasData` flag; players with no rated main categories show "?" instead of "0.00" on the pitch and depth chart; when < 40% of the roster has rated categories, the composite / formation fit / style fit / depth all return null and the view renders a yellow banner explaining how many more evaluations are needed. **No more "same player repeated"**: greedy XI selection sorts rated players first and leaves slots empty (rendered as dashed "—") when no unused candidate remains, instead of v1's fall-back-to-top-scorer that produced the duplicate-name complaint. **Three new formation shapes** seeded by migration 0065 — Neutral 4-4-2, Neutral 3-5-2, Neutral 4-2-3-1 — each with distinct slot positions so the formation dropdown above the pitch actually changes the layout. Total templates now: 7 (4 × 4-3-3 play-style variants + 3 new shapes). REST `GET /teams/{id}/chemistry` payload gains `data_coverage`, `has_enough_data`, `roster_size`, `slot_count`; existing `composite` / `formation_fit` / `style_fit` / `depth_score` fields are now nullable when data coverage is below threshold. 10 new NL msgids; `docs/team-chemistry.md` (EN+NL) refreshed. Renumbered v3.92.0 → v3.94.0 after parallel-agent ships took every intervening slot; this PR's migration is now `0065_formation_templates_topup`.
 
 = 3.92.7 — My-activities surface: full FrontendListTable migration + activity-type translator =
 

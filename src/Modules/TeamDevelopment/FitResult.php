@@ -19,7 +19,14 @@ final class FitResult {
         /** @var array<string, array{rating:float, weight:float, contribution:float}> */
         public readonly array $breakdown,
         public readonly string $rationale,
-        public readonly float $sidePreferenceModifier = 0.0
+        public readonly float $sidePreferenceModifier = 0.0,
+        /**
+         * v3.92.0 — true when the score is computed from real
+         * evaluation data; false when the player has zero rated main
+         * categories. Lets the UI show "?" instead of "0.00" for
+         * not-yet-evaluated players.
+         */
+        public readonly bool $hasData = true
     ) {}
 
     /** @return array<string, mixed> */
@@ -36,6 +43,7 @@ final class FitResult {
             ),
             'rationale'                => $this->rationale,
             'side_preference_modifier' => round( $this->sidePreferenceModifier, 2 ),
+            'has_data'                 => $this->hasData,
         ];
     }
 }

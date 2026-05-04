@@ -33,86 +33,135 @@ class ChemistryAggregator {
     }
 
     /**
+     * v3.92.0 — once a roster's data coverage drops below this fraction
+     * (i.e. fewer than 40% of its players have any rated main category),
+     * we surface a "Not enough evaluations yet" empty-state banner and
+     * skip the composite score. The threshold is conservative: rate at
+     * least 5 of 12 roster players to start seeing chemistry numbers.
+     */
+    private const MIN_DATA_COVERAGE = 0.40;
+
+    /**
      * @return array{
-     *   composite:float,
-     *   formation_fit:float,
-     *   style_fit:float,
+     *   composite:?float,
+     *   formation_fit:?float,
+     *   style_fit:?float,
      *   paired_chemistry:float,
-     *   depth_score:float,
-     *   suggested_xi: array<string, array{player_id:int, player_name:string, score:float}>,
-     *   depth: array<string, list<array{player_id:int, player_name:string, score:float}>>,
+     *   depth_score:?float,
+     *   suggested_xi: array<string, array{player_id:int, player_name:string, score:float, has_data:bool}>,
+     *   depth: array<string, list<array{player_id:int, player_name:string, score:float, has_data:bool}>>,
+     *   data_coverage: float,
+     *   has_enough_data: bool,
+     *   roster_size: int,
+     *   slot_count: int,
      * }
      */
     public function teamChemistry( int $team_id, int $formation_template_id, int $possession_w, int $counter_w, int $press_w ): array {
         $players = QueryHelpers::get_players( $team_id );
+        $slots = self::slotsFor( $formation_template_id );
+        $slot_count = count( $slots );
+
         if ( empty( $players ) ) {
             return [
-                'composite'        => 0.0,
-                'formation_fit'    => 0.0,
-                'style_fit'        => 0.0,
+                'composite'        => null,
+                'formation_fit'    => null,
+                'style_fit'        => null,
                 'paired_chemistry' => 0.0,
-                'depth_score'      => 0.0,
+                'depth_score'      => null,
                 'suggested_xi'     => [],
                 'depth'            => [],
+                'data_coverage'    => 0.0,
+                'has_enough_data'  => false,
+                'roster_size'      => 0,
+                'slot_count'       => $slot_count,
             ];
         }
 
         // Per (slot, player) fit — pre-computed once per player on the
-        // engine's cached path.
-        $slots = self::slotsFor( $formation_template_id );
+        // engine's cached path. Track whether each player has any data
+        // so the UI can render "?" for not-yet-evaluated players.
         $by_slot = [];
         foreach ( $slots as $slot ) {
             $by_slot[ (string) $slot['label'] ] = [];
         }
+        $rated_player_count = 0;
         foreach ( $players as $pl ) {
-            $all_slots = $this->engine->allSlotsFor( (int) $pl->id, $formation_template_id );
+            $all_slots  = $this->engine->allSlotsFor( (int) $pl->id, $formation_template_id );
+            $player_has_data = false;
             foreach ( $all_slots as $label => $result ) {
+                if ( $result->hasData ) $player_has_data = true;
                 $by_slot[ $label ][] = [
                     'player_id'   => (int) $pl->id,
                     'player_name' => QueryHelpers::player_display_name( $pl ),
                     'score'       => $result->score,
+                    'has_data'    => $result->hasData,
                 ];
             }
+            if ( $player_has_data ) $rated_player_count++;
         }
 
-        // Suggested XI: best-fit player per slot. Greedy selection;
-        // a globally-optimal assignment is a v2 ask.
+        $roster_size   = count( $players );
+        $data_coverage = $roster_size > 0 ? ( $rated_player_count / $roster_size ) : 0.0;
+        $has_enough    = $data_coverage >= self::MIN_DATA_COVERAGE;
+
+        // Suggested XI: best-fit player per slot. Greedy selection that
+        // sorts rated players first (so an unrated player only fills a
+        // slot when no rated candidate exists), then by score. Crucially
+        // — when no unused candidate is left, leave the slot **empty**
+        // rather than re-using a player. v1's "fall back to top scorer
+        // even if used" was the source of the "same few players appear
+        // repeatedly" bug when the roster was smaller than the formation.
         $suggested = [];
         $used = [];
         foreach ( $by_slot as $label => $candidates ) {
-            usort( $candidates, static fn( $a, $b ) => $b['score'] <=> $a['score'] );
+            usort( $candidates, static function ( $a, $b ) {
+                if ( $a['has_data'] !== $b['has_data'] ) {
+                    return $b['has_data'] <=> $a['has_data'];
+                }
+                return $b['score'] <=> $a['score'];
+            } );
             foreach ( $candidates as $c ) {
                 if ( isset( $used[ $c['player_id'] ] ) ) continue;
                 $suggested[ $label ] = $c;
                 $used[ $c['player_id'] ] = true;
                 break;
             }
-            if ( ! isset( $suggested[ $label ] ) && ! empty( $candidates ) ) {
-                // Roster too small to fill all slots without re-using —
-                // fall back to the highest-scoring even if used.
-                $suggested[ $label ] = $candidates[0];
-            }
+            // No fallback — slots with no unused candidate stay empty.
         }
-        $formation_fit = self::meanScore( $suggested );
+        $formation_fit = self::meanScoreWithData( $suggested );
 
-        // Depth: top-3 per slot, excluding the suggested starter.
+        // Depth: top-3 per slot. Sort rated-first so unrated candidates
+        // sink below rated ones with even a low score.
         $depth = [];
         foreach ( $by_slot as $label => $candidates ) {
-            usort( $candidates, static fn( $a, $b ) => $b['score'] <=> $a['score'] );
+            usort( $candidates, static function ( $a, $b ) {
+                if ( $a['has_data'] !== $b['has_data'] ) {
+                    return $b['has_data'] <=> $a['has_data'];
+                }
+                return $b['score'] <=> $a['score'];
+            } );
             $depth[ $label ] = array_slice( $candidates, 0, 3 );
         }
-        $depth_score = self::depthScore( $depth );
+        $depth_score = $has_enough ? self::depthScore( $depth ) : null;
 
-        // Style fit: mean across the roster.
-        $style_total = 0.0; $style_n = 0;
-        foreach ( $players as $pl ) {
-            $style_total += $this->engine->styleFit( (int) $pl->id, $possession_w, $counter_w, $press_w );
-            $style_n++;
+        // Style fit: mean across the roster — only computed when we have
+        // enough data. Otherwise null so the UI shows "?" instead of a
+        // misleading "0.00".
+        if ( $has_enough ) {
+            $style_total = 0.0; $style_n = 0;
+            foreach ( $players as $pl ) {
+                $style_total += $this->engine->styleFit( (int) $pl->id, $possession_w, $counter_w, $press_w );
+                $style_n++;
+            }
+            $style_fit = $style_n > 0 ? round( $style_total / $style_n, 2 ) : null;
+        } else {
+            $style_fit = null;
         }
-        $style_fit = $style_n > 0 ? round( $style_total / $style_n, 2 ) : 0.0;
 
         // Paired chemistry: each coach-marked pairing where both starters
         // are in the suggested XI contributes +0.05 (capped at +0.5).
+        // This stays computable even when the team has no eval data —
+        // it's a coach intent signal, not an evaluation read.
         $paired = $this->pairings->listForTeam( $team_id );
         $starter_ids = array_map( static fn( $s ) => $s['player_id'], $suggested );
         $bonus = 0.0;
@@ -124,30 +173,46 @@ class ChemistryAggregator {
         }
         $paired_chemistry = round( min( 0.5, $bonus ), 2 );
 
-        // Composite: formation_fit dominant, style_fit as a multiplier
-        // (small influence), depth as a soft floor, pairings as bonus.
-        $composite = ( $formation_fit * 0.65 ) + ( $style_fit * 0.20 ) + ( $depth_score * 0.15 ) + $paired_chemistry;
-        $composite = max( 0.0, min( 5.0, $composite ) );
+        // Composite: only computed when we have enough data. The view
+        // renders the not-enough-data banner when null.
+        $composite = null;
+        if ( $has_enough && $formation_fit !== null && $style_fit !== null && $depth_score !== null ) {
+            $composite = ( $formation_fit * 0.65 ) + ( $style_fit * 0.20 ) + ( $depth_score * 0.15 ) + $paired_chemistry;
+            $composite = round( max( 0.0, min( 5.0, $composite ) ), 2 );
+        }
 
         return [
-            'composite'        => round( $composite, 2 ),
-            'formation_fit'    => round( $formation_fit, 2 ),
+            'composite'        => $composite,
+            'formation_fit'    => $formation_fit !== null ? round( $formation_fit, 2 ) : null,
             'style_fit'        => $style_fit,
             'paired_chemistry' => $paired_chemistry,
-            'depth_score'      => round( $depth_score, 2 ),
+            'depth_score'      => $depth_score !== null ? round( $depth_score, 2 ) : null,
             'suggested_xi'     => $suggested,
             'depth'            => $depth,
+            'data_coverage'    => round( $data_coverage, 2 ),
+            'has_enough_data'  => $has_enough,
+            'roster_size'      => $roster_size,
+            'slot_count'       => $slot_count,
         ];
     }
 
     /**
-     * @param array<string, array{player_id:int, player_name:string, score:float}> $suggested
+     * v3.92.0 — mean of fit scores, but only over slots whose suggested
+     * player has eval data. Returns null when no slot has a rated
+     * starter so the caller can branch on that ("Not enough evaluations
+     * to compute formation fit yet"). Empty slots (`null` candidate)
+     * are skipped — they don't drag the average down.
+     *
+     * @param array<string, array{player_id:int, player_name:string, score:float, has_data:bool}> $suggested
      */
-    private static function meanScore( array $suggested ): float {
-        if ( empty( $suggested ) ) return 0.0;
-        $sum = 0.0;
-        foreach ( $suggested as $s ) $sum += (float) $s['score'];
-        return $sum / count( $suggested );
+    private static function meanScoreWithData( array $suggested ): ?float {
+        $sum = 0.0; $n = 0;
+        foreach ( $suggested as $s ) {
+            if ( empty( $s['has_data'] ) ) continue;
+            $sum += (float) $s['score'];
+            $n++;
+        }
+        return $n > 0 ? ( $sum / $n ) : null;
     }
 
     /**

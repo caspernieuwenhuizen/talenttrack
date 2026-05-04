@@ -21,13 +21,17 @@ Een tweede oppervlak is per speler: elk spelerprofiel heeft een **Beste posities
 
 ### Veld
 
-Een gekanteld voetbalveld met de elf slots voor de gekozen formatie van het team. Elke slot toont de speler die het beste past en de fit-score op een schaal van 0–5.
+Een proportioneel correct voetbalveld (105 m × 68 m verhouding, alle standaardlijnen getekend) met de elf slots voor de gekozen formatie van het team. Elke slot toont de speler die het beste past en de fit-score op een schaal van 0–5.
 
 - **Groene score** ≥ 4.0 — sterke fit
 - **Oranje score** 3.0–4.0 — werkbare fit
 - **Rode score** < 3.0 — fit-gat
+- **Grijze "?"** — de voorgestelde speler heeft nog geen evaluaties, dus we kunnen geen fit-score berekenen; de slot wordt alleen op basis van beschikbaarheid ingevuld
+- **Streepje "—"** — de selectie is kleiner dan deze formatie nodig heeft; geen speler beschikbaar voor deze slot
 
-Als dezelfde speler op twee slots de beste zou zijn, wordt hij op de hoger scorende slot geplaatst en pakt de tweede keuze de andere slot.
+Als dezelfde speler op twee slots de beste zou zijn, wordt hij op de hoger scorende slot geplaatst en pakt de tweede keuze de andere slot. Het bord hergebruikt geen speler meer over meerdere slots wanneer de selectie te klein is — lege slots worden expliciet getoond zodat je de leemte kunt zien.
+
+Het veld wordt standaard plat weergegeven. Klik op *Wissel naar isometrische weergave* onder het veld voor de gekantelde v1-look — een CSS-only schakelaar die via een URL-parameter blijft hangen.
 
 ### Chemie­opbouw
 
@@ -46,9 +50,19 @@ Een rij per slot met de top drie kandidaten en hun scores. Nuttig voor vragen al
 
 Coach-gemarkeerde "deze twee altijd samen opstellen"-koppels. De optionele notitie geeft context die de score niet kan vastleggen (bv. "communicatief verdedigend duo"). Koppelingen tellen alleen mee als beide spelers in de voorgestelde basiself staan.
 
+## Wanneer het bord "Nog niet genoeg evaluaties" zegt
+
+De samengestelde score, formatiefit, stijlfit en diepte tonen **"?"** totdat ten minste 40% van de selectie minimaal één gewaardeerde hoofdcategorie heeft (technisch / tactisch / fysiek / mentaal). Dat is de drempel waaronder de wiskunde getallen produceert die betekenisvol *lijken* maar dat niet zijn — een selectie van 12 met één gewaardeerde speler zou 0,42 tonen en je zou dat als chemie-score behandelen, terwijl er gewoon te weinig data is.
+
+Het bord rendert het veld nog steeds in deze leeg-staat — slots worden alleen op basis van beschikbaarheid ingevuld en gemarkeerd met "?" — zodat je de vorm en de gaten ziet. Beoordeel een paar spelers extra en de scores lichten op.
+
 ## Configuratie
 
-- **Formatie** — stel het actieve sjabloon per team in (admin of hoofd-academie). Vier sjablonen worden meegeleverd: Neutraal / Balbezit / Counter / Press-heavy 4-3-3. Allemaal 4-3-3; de wegingen per slot verschillen. Aangepaste sjablonen kunnen vandaag via de REST API worden toegevoegd; een admin-UI volgt later.
+- **Formatie** — kies via de dropdown boven het veld om een andere vorm te bekijken. Zeven sjablonen worden out-of-the-box meegeleverd:
+  - **4-3-3 in vier speelstijl-varianten**: Neutraal / Balbezit / Counter / Press-heavy. Zelfde vorm, verschillende slot-wegingen.
+  - **4-4-2 (Neutraal)**, **3-5-2 (Neutraal)**, **4-2-3-1 (Neutraal)** — andere vormen voor teams die geen 4-3-3 spelen.
+
+  De picker is een *probeer-dit-preview*. Om de standaardformatie van een team in te stellen, gebruik je de team-bewerken-pagina (admin of hoofd-academie). Aangepaste sjablonen kunnen vandaag via de REST API worden toegevoegd; een admin-UI volgt later.
 - **Stijlmix** — schuiven voor balbezit, counter en press. De drie gewichten moeten samen 100 zijn.
 - **Zijvoorkeur** — instelbaar op het spelerprofiel (links / rechts / centrum). Voegt ±0,2 toe aan fit-scores bij overeenkomst / mismatch tegen een zijgebonden slot.
 

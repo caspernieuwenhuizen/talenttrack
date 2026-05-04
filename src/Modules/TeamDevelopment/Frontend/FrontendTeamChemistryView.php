@@ -10,6 +10,29 @@ use TT\Modules\TeamDevelopment\Repositories\PairingsRepository;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
+ * #0068 v2 (v3.92.0) — full chemistry view rebuild:
+ *
+ *   1. The "isometric SVG" pitch is now an actual SVG with all
+ *      standard markings (touchlines, goal lines, halfway line, centre
+ *      circle + spot, both penalty boxes + goal areas + penalty arcs,
+ *      corner arcs). Aspect ratio matches FIFA's 105m × 68m. See
+ *      `PitchSvg`. Flat by default; `?perspective=isometric` opts back
+ *      into the v1 tilted view.
+ *   2. Players with no evaluations show "?" instead of "0.00" — the
+ *      composite score / formation fit / style fit / depth score all
+ *      go null until ≥40% of the roster has rated main categories,
+ *      and the view renders an empty-state banner explaining why.
+ *   3. Empty XI slots render as "—" when the roster is smaller than
+ *      the formation needs. v1 fell back to re-using the top-scoring
+ *      player which produced the "only a few players keep showing
+ *      up" complaint.
+ *   4. Ships alongside three new formation shapes (4-4-2, 3-5-2,
+ *      4-2-3-1) seeded by migration 0064 — picked from a per-team
+ *      formation template dropdown, replacing the previous single
+ *      "always 4-3-3" implicit pick.
+ */
+
+/**
  * FrontendTeamChemistryView — coach-facing formation board (#0018
  * sprints 3-4).
  *
@@ -103,24 +126,28 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         echo '<a class="tt-btn tt-btn-secondary" href="'
             . esc_url( add_query_arg( [ 'tt_view' => 'team-chemistry' ], $base_url ) ) . '">'
             . esc_html__( '← Back to team picker', 'talenttrack' ) . '</a>';
-        // #0063 — help button explaining where the data comes from,
-        // how scores are computed, and why "everything zero" is a
-        // legitimate empty state rather than a bug. Full rebuild is
-        // parked at ideas/0062-feat-team-chemistry-rebuild.md.
         echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $help_url ) . '">'
             . esc_html__( 'How does this work?', 'talenttrack' ) . '</a>';
         echo '</p>';
 
         global $wpdb; $p = $wpdb->prefix;
-        $template_id = (int) $wpdb->get_var( $wpdb->prepare(
+
+        // v3.92.0 — the team's picked template comes from
+        // `tt_team_formations` first; falls back to the lowest-id
+        // seeded template (Neutral 4-3-3) if none picked. The user
+        // can switch shape via the dropdown rendered above the pitch.
+        $requested_template = isset( $_GET['template_id'] ) ? absint( $_GET['template_id'] ) : 0;
+        $stored_template_id = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT formation_template_id FROM {$p}tt_team_formations WHERE team_id = %d",
             (int) $team->id
         ) );
-        if ( $template_id <= 0 ) {
-            $template_id = (int) $wpdb->get_var(
-                "SELECT id FROM {$p}tt_formation_templates WHERE is_seeded = 1 AND archived_at IS NULL ORDER BY id ASC LIMIT 1"
-            );
-        }
+        $template_id = $requested_template > 0
+            ? $requested_template
+            : ( $stored_template_id > 0
+                ? $stored_template_id
+                : (int) $wpdb->get_var(
+                    "SELECT id FROM {$p}tt_formation_templates WHERE is_seeded = 1 AND archived_at IS NULL ORDER BY id ASC LIMIT 1"
+                ) );
         if ( $template_id <= 0 ) {
             echo '<p class="tt-notice">' . esc_html__( 'No formation template configured. Configure one in Settings → Team development.', 'talenttrack' ) . '</p>';
             return;
@@ -146,13 +173,9 @@ class FrontendTeamChemistryView extends FrontendViewBase {
             $poss, $cntr, $prss
         );
 
-        echo '<p style="color:#5b6e75; margin-bottom:8px;">'
-            . esc_html( sprintf(
-                /* translators: %s = formation name */
-                __( 'Formation: %s', 'talenttrack' ),
-                (string) ( $template->name ?? '' )
-            ) )
-            . ' · '
+        self::renderTemplatePicker( (int) $team->id, $template_id, (string) ( $template->name ?? '' ) );
+
+        echo '<p style="color:#5b6e75; margin:0 0 8px;">'
             . esc_html( sprintf(
                 /* translators: 1: possession 2: counter 3: press */
                 __( 'Style: possession %1$d / counter %2$d / press %3$d', 'talenttrack' ),
@@ -160,125 +183,153 @@ class FrontendTeamChemistryView extends FrontendViewBase {
             ) )
             . '</p>';
 
-        self::renderPitch( $slots, $chem['suggested_xi'] );
+        if ( ! $chem['has_enough_data'] ) {
+            self::renderEmptyStateBanner( $chem );
+        }
+
+        $perspective = isset( $_GET['perspective'] ) && $_GET['perspective'] === 'isometric'
+            ? \TT\Modules\TeamDevelopment\Frontend\PitchSvg::MODE_ISOMETRIC
+            : \TT\Modules\TeamDevelopment\Frontend\PitchSvg::MODE_FLAT;
+        \TT\Modules\TeamDevelopment\Frontend\PitchSvg::render( $slots, $chem['suggested_xi'], $perspective );
+
+        self::renderPerspectiveToggle( $perspective, $base_url, (int) $team->id, $template_id );
         self::renderChemistryBreakdown( $chem );
         self::renderDepthChart( $chem['depth'] );
         self::renderPairings( (int) $team->id, $user_id );
     }
 
     /**
-     * Render the isometric pitch as an SVG with positioned slot
-     * markers. CSS perspective on the wrapper gives the tilted look;
-     * the SVG itself is plain 2D.
-     *
-     * @param list<array<string,mixed>> $slots
-     * @param array<string, array{player_id:int, player_name:string, score:float}> $suggested
+     * Per-team formation picker — switches the rendered shape via a
+     * URL `template_id` param. The selected template is *not*
+     * persisted to `tt_team_formations` from this picker (that's a
+     * separate "set as team default" affordance); the URL parameter
+     * acts as a try-this preview.
      */
-    private static function renderPitch( array $slots, array $suggested ): void {
+    private static function renderTemplatePicker( int $team_id, int $current_template_id, string $current_name ): void {
+        global $wpdb; $p = $wpdb->prefix;
+        $rows = $wpdb->get_results(
+            "SELECT id, name, formation_shape FROM {$p}tt_formation_templates WHERE archived_at IS NULL ORDER BY formation_shape ASC, name ASC"
+        );
+        if ( ! is_array( $rows ) || count( $rows ) <= 1 ) {
+            echo '<p style="color:#5b6e75; margin:0 0 4px;">'
+                . esc_html( sprintf(
+                    /* translators: %s = formation name */
+                    __( 'Formation: %s', 'talenttrack' ),
+                    $current_name
+                ) ) . '</p>';
+            return;
+        }
+        $base_url = remove_query_arg( [ 'template_id' ] );
         ?>
-        <style>
-            .tt-pitch-wrap {
-                perspective: 1100px;
-                margin: 16px 0 24px;
-                width: 100%;
-                max-width: 760px;
-            }
-            .tt-pitch {
-                transform: rotateX(28deg);
-                transform-origin: 50% 100%;
-                background: linear-gradient(180deg, #4ea35f 0%, #3c8a4d 50%, #2c7d3d 100%);
-                border-radius: 16px;
-                aspect-ratio: 4 / 5;
-                position: relative;
-                box-shadow: 0 24px 48px rgba(0,0,0,0.15), inset 0 0 0 2px rgba(255,255,255,0.18);
-                overflow: hidden;
-            }
-            .tt-pitch::before, .tt-pitch::after {
-                content: ''; position: absolute; left: 8%; right: 8%; border: 1.5px solid rgba(255,255,255,0.55);
-                pointer-events: none;
-            }
-            .tt-pitch::before { top: 50%; height: 0; }
-            .tt-pitch::after { top: 50%; height: 22%; transform: translateY(-50%); border-radius: 0; }
-            .tt-pitch-slot {
-                position: absolute;
-                transform: translate(-50%, -50%) rotateX(-28deg);
-                transform-origin: 50% 50%;
-                background: #fff;
-                border: 2px solid #1a1d21;
-                border-radius: 50%;
-                width: 64px; height: 64px;
-                display: flex; flex-direction: column; align-items: center; justify-content: center;
-                font-size: 11px; line-height: 1.1;
-                color: #1a1d21;
-                text-align: center;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.18);
-                cursor: help;
-            }
-            .tt-pitch-slot strong { font-size: 11px; }
-            .tt-pitch-slot .tt-slot-score {
-                background: #1d7874; color: #fff; border-radius: 10px;
-                padding: 1px 6px; font-size: 10px; margin-top: 2px;
-            }
-            .tt-pitch-slot.tt-fit-low .tt-slot-score { background: #b32d2e; }
-            .tt-pitch-slot.tt-fit-mid .tt-slot-score { background: #c9962a; }
-        </style>
-        <div class="tt-pitch-wrap">
-            <div class="tt-pitch">
-                <?php foreach ( $slots as $slot ) :
-                    $label = (string) ( $slot['label'] ?? '' );
-                    $x = (float) ( $slot['pos']['x'] ?? 0.5 );
-                    $y = (float) ( $slot['pos']['y'] ?? 0.5 );
-                    $assign = $suggested[ $label ] ?? null;
-                    $score = $assign ? (float) $assign['score'] : 0.0;
-                    $name  = $assign ? (string) $assign['player_name'] : '—';
-                    $first_name = $assign ? explode( ' ', $name )[0] : '';
-                    $fit_class = $score >= 4.0 ? '' : ( $score >= 3.0 ? 'tt-fit-mid' : 'tt-fit-low' );
-                    $tip = $assign
-                        ? sprintf(
-                            /* translators: 1: player, 2: slot, 3: score */
-                            __( '%1$s — best fit at %2$s (%3$.2f)', 'talenttrack' ),
-                            $name, $label, $score
-                        )
-                        : sprintf( /* translators: %s slot label */ __( 'No suggested player for %s', 'talenttrack' ), $label );
-                    ?>
-                    <div class="tt-pitch-slot <?php echo esc_attr( $fit_class ); ?>"
-                         style="left:<?php echo esc_attr( (string) ( $x * 100 ) ); ?>%; top:<?php echo esc_attr( (string) ( $y * 100 ) ); ?>%;"
-                         title="<?php echo esc_attr( $tip ); ?>">
-                        <strong><?php echo esc_html( $label ); ?></strong>
-                        <?php if ( $first_name !== '' ) : ?>
-                            <span style="font-size:9px; color:#5b6e75;"><?php echo esc_html( $first_name ); ?></span>
-                            <span class="tt-slot-score"><?php echo esc_html( number_format_i18n( $score, 2 ) ); ?></span>
-                        <?php endif; ?>
-                    </div>
+        <form method="get" action="" style="margin:0 0 8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <input type="hidden" name="tt_view" value="team-chemistry" />
+            <input type="hidden" name="team_id" value="<?php echo (int) $team_id; ?>" />
+            <label for="tt-formation-picker" style="color:#5b6e75; font-size:13px;">
+                <?php esc_html_e( 'Formation:', 'talenttrack' ); ?>
+            </label>
+            <select id="tt-formation-picker" name="template_id" class="tt-input" onchange="this.form.submit();">
+                <?php foreach ( $rows as $row ) : ?>
+                    <option value="<?php echo (int) $row->id; ?>" <?php selected( $current_template_id, (int) $row->id ); ?>>
+                        <?php echo esc_html( (string) $row->name ); ?>
+                    </option>
                 <?php endforeach; ?>
-            </div>
+            </select>
+        </form>
+        <?php
+    }
+
+    /**
+     * Visible banner shown when the team's eval coverage is below the
+     * `MIN_DATA_COVERAGE` threshold. Lists what's missing so the coach
+     * knows how to make the chemistry score start working.
+     *
+     * @param array<string,mixed> $chem
+     */
+    private static function renderEmptyStateBanner( array $chem ): void {
+        $roster   = (int) ( $chem['roster_size']   ?? 0 );
+        $coverage = (float) ( $chem['data_coverage'] ?? 0.0 );
+        $needed   = max( 1, (int) ceil( $roster * 0.40 ) );
+        $rated    = (int) round( $roster * $coverage );
+        $missing  = max( 0, $needed - $rated );
+        ?>
+        <div class="tt-notice" style="background:#fffbe6; border:1px solid #c9962a; border-radius:8px; padding:12px 14px; margin:8px 0 16px;">
+            <strong><?php esc_html_e( 'Not enough evaluations to compute team chemistry yet.', 'talenttrack' ); ?></strong>
+            <p style="margin:6px 0 0;">
+                <?php
+                printf(
+                    /* translators: 1: rated count, 2: roster size, 3: missing count */
+                    esc_html__( '%1$d of %2$d players have at least one rated main category. Rate %3$d more players in any of technical / tactical / physical / mental to start seeing fit scores and a team composite.', 'talenttrack' ),
+                    $rated, $roster, $missing
+                );
+                ?>
+            </p>
+            <p style="margin:6px 0 0; color:#5b6e75; font-size:13px;">
+                <?php esc_html_e( 'The pitch below shows the suggested XI based on whatever data is available — players with "?" need their first evaluation; slots showing "—" mean the roster is smaller than this formation needs.', 'talenttrack' ); ?>
+            </p>
         </div>
+        <?php
+    }
+
+    /**
+     * Toggle link between flat and isometric pitch perspectives.
+     */
+    private static function renderPerspectiveToggle( string $current, string $base_url, int $team_id, int $template_id ): void {
+        $other = ( $current === \TT\Modules\TeamDevelopment\Frontend\PitchSvg::MODE_ISOMETRIC )
+            ? \TT\Modules\TeamDevelopment\Frontend\PitchSvg::MODE_FLAT
+            : \TT\Modules\TeamDevelopment\Frontend\PitchSvg::MODE_ISOMETRIC;
+        $other_url = add_query_arg( [
+            'tt_view'     => 'team-chemistry',
+            'team_id'     => $team_id,
+            'template_id' => $template_id,
+            'perspective' => $other,
+        ], $base_url );
+        $other_label = $other === \TT\Modules\TeamDevelopment\Frontend\PitchSvg::MODE_ISOMETRIC
+            ? __( 'Switch to isometric view', 'talenttrack' )
+            : __( 'Switch to flat view', 'talenttrack' );
+        ?>
+        <p style="text-align:right; margin:-12px 0 16px; max-width:760px;">
+            <a class="tt-link" href="<?php echo esc_url( $other_url ); ?>" style="font-size:12px; color:#5b6e75;">
+                <?php echo esc_html( $other_label ); ?>
+            </a>
+        </p>
         <?php
     }
 
     /** @param array<string, mixed> $chem */
     private static function renderChemistryBreakdown( array $chem ): void {
-        $composite = (float) $chem['composite'];
+        $composite = $chem['composite'] ?? null;
         $parts = [
-            [ 'key' => 'formation_fit',    'label' => __( 'Formation fit', 'talenttrack' ),    'value' => $chem['formation_fit'] ],
-            [ 'key' => 'style_fit',        'label' => __( 'Style fit', 'talenttrack' ),        'value' => $chem['style_fit'] ],
-            [ 'key' => 'depth_score',      'label' => __( 'Depth', 'talenttrack' ),            'value' => $chem['depth_score'] ],
-            [ 'key' => 'paired_chemistry', 'label' => __( 'Paired bonus', 'talenttrack' ),     'value' => $chem['paired_chemistry'] ],
+            [ 'label' => __( 'Formation fit', 'talenttrack' ), 'value' => $chem['formation_fit']    ?? null ],
+            [ 'label' => __( 'Style fit',     'talenttrack' ), 'value' => $chem['style_fit']        ?? null ],
+            [ 'label' => __( 'Depth',         'talenttrack' ), 'value' => $chem['depth_score']      ?? null ],
+            [ 'label' => __( 'Paired bonus',  'talenttrack' ), 'value' => $chem['paired_chemistry'] ?? 0.0 ],
         ];
         ?>
         <div class="tt-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:16px; margin-bottom:16px;">
             <h2 style="margin:0 0 8px; font-size:18px;"><?php
-                echo esc_html( sprintf(
-                    /* translators: %s = composite score */
-                    __( 'Team chemistry: %s / 5', 'talenttrack' ),
-                    number_format_i18n( $composite, 2 )
-                ) );
+                if ( $composite === null ) {
+                    esc_html_e( 'Team chemistry: ? / 5', 'talenttrack' );
+                } else {
+                    echo esc_html( sprintf(
+                        /* translators: %s = composite score */
+                        __( 'Team chemistry: %s / 5', 'talenttrack' ),
+                        number_format_i18n( (float) $composite, 2 )
+                    ) );
+                }
             ?></h2>
             <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-top:8px;">
                 <?php foreach ( $parts as $part ) : ?>
                     <div style="background:#fafbfc; padding:10px; border-radius:6px;">
                         <div style="font-size:12px; color:#5b6e75;"><?php echo esc_html( (string) $part['label'] ); ?></div>
-                        <div style="font-size:18px; font-weight:600;"><?php echo esc_html( number_format_i18n( (float) $part['value'], 2 ) ); ?></div>
+                        <div style="font-size:18px; font-weight:600;">
+                            <?php
+                            if ( $part['value'] === null ) {
+                                echo '<span style="color:#8a9099;">?</span>';
+                            } else {
+                                echo esc_html( number_format_i18n( (float) $part['value'], 2 ) );
+                            }
+                            ?>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -286,7 +337,7 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         <?php
     }
 
-    /** @param array<string, list<array{player_id:int, player_name:string, score:float}>> $depth */
+    /** @param array<string, list<array{player_id:int, player_name:string, score:float, has_data:bool}>> $depth */
     private static function renderDepthChart( array $depth ): void {
         if ( empty( $depth ) ) return;
         ?>
@@ -306,9 +357,15 @@ class FrontendTeamChemistryView extends FrontendViewBase {
                             $cell = $rows[ $i ] ?? null;
                             ?>
                             <td>
-                                <?php if ( $cell ) : ?>
+                                <?php if ( $cell ) :
+                                    $has_data = ! empty( $cell['has_data'] );
+                                    ?>
                                     <?php echo esc_html( (string) $cell['player_name'] ); ?>
-                                    <span style="color:#5b6e75; font-size:12px;">(<?php echo esc_html( number_format_i18n( (float) $cell['score'], 2 ) ); ?>)</span>
+                                    <?php if ( $has_data ) : ?>
+                                        <span style="color:#5b6e75; font-size:12px;">(<?php echo esc_html( number_format_i18n( (float) $cell['score'], 2 ) ); ?>)</span>
+                                    <?php else : ?>
+                                        <span style="color:#8a9099; font-size:12px;" title="<?php esc_attr_e( 'Not enough evaluations to compute a fit score.', 'talenttrack' ); ?>">(?)</span>
+                                    <?php endif; ?>
                                 <?php else : ?>—<?php endif; ?>
                             </td>
                         <?php endfor; ?>

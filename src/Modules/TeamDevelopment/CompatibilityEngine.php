@@ -111,6 +111,15 @@ class CompatibilityEngine {
         $weights = is_array( $slot['weights'] ?? null ) ? $slot['weights'] : [];
         $ratings = $this->mainRatings( $player_id );
 
+        // v3.92.0 — distinguish "score=0 because no data" from "score=0
+        // because the player rates poorly in this slot". The aggregator
+        // and UI both branch on `hasData`: empty-state players show "?"
+        // and don't drop the team's composite chemistry score.
+        $has_data = false;
+        foreach ( $ratings as $r ) {
+            if ( (float) $r > 0.0 ) { $has_data = true; break; }
+        }
+
         $score = 0.0;
         $breakdown = [];
         foreach ( [ 'technical', 'tactical', 'physical', 'mental' ] as $key ) {
@@ -129,7 +138,7 @@ class CompatibilityEngine {
         $score = max( 0.0, min( 5.0, $score + $modifier ) );
 
         $rationale = self::buildRationale( $breakdown, $modifier, (string) ( $slot['label'] ?? '' ) );
-        return new FitResult( $score, $breakdown, $rationale, $modifier );
+        return new FitResult( $score, $breakdown, $rationale, $modifier, $has_data );
     }
 
     /**

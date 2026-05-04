@@ -21,13 +21,17 @@ A second surface is per-player: every player profile has a **Best fit positions*
 
 ### Pitch
 
-A tilted football pitch with the eleven slots for the team's chosen formation. Each slot shows the player who fits best and the fit score on a 0–5 scale.
+A proportionally-correct football pitch (105 m × 68 m aspect, all standard markings drawn) with the eleven slots for the team's chosen formation. Each slot shows the player who fits best and the fit score on a 0–5 scale.
 
 - **Green score** ≥ 4.0 — strong fit
 - **Amber score** 3.0–4.0 — workable fit
 - **Red score** < 3.0 — fit gap
+- **Grey "?"** — the suggested player has no evaluations yet, so we can't compute a fit score; the slot is filled by roster availability only
+- **Dashed "—"** — the roster is smaller than this formation needs; no player available for this slot
 
-If the same player would be the best at two slots, they're placed at the higher-scoring one and the lower slot's #2 takes the suggestion.
+If the same player would be the best at two slots, they're placed at the higher-scoring one and the lower slot's #2 takes the suggestion. The board no longer re-uses a player across multiple slots when the roster runs out — empty slots are shown explicitly so you can see the gap.
+
+The pitch renders flat by default. Click *Switch to isometric view* below the pitch for the v1 tilted look — it's a CSS-only toggle that persists via URL parameter.
 
 ### Chemistry breakdown
 
@@ -46,9 +50,19 @@ A row per slot showing the top three candidates with their scores. Useful for "w
 
 Coach-marked "always start these two together" pairs. The optional note gives context the score can't capture (e.g. "communicative defensive partnership"). Pairings only contribute to chemistry when both players are in the suggested XI.
 
+## When the board says "Not enough evaluations yet"
+
+The composite score, formation fit, style fit, and depth all show **"?"** until at least 40% of the roster has rated main categories (technical / tactical / physical / mental). That's the threshold below which the math returns numbers that look meaningful but aren't — a roster of 12 with one rated player would show 0.42 and you'd treat it like a chemistry score, when really we just don't have data.
+
+The board still renders the pitch in this empty state — slots are filled by roster availability only and marked "?" — so you can see the shape and the gaps. Rate a few more players and the scores light up.
+
 ## Configuration
 
-- **Formation** — set the active template per team (admin or head-of-academy). Four templates ship: Neutral / Possession / Counter / Press-heavy 4-3-3. All are 4-3-3; per-slot weights differ. Custom templates can be added via the REST API today; an admin UI lands in a follow-up.
+- **Formation** — pick from the dropdown above the pitch to preview a different shape. Seven templates ship out of the box:
+  - **4-3-3 in four play-style flavors**: Neutral / Possession / Counter / Press-heavy. Same shape, different per-slot weights.
+  - **4-4-2 (Neutral)**, **3-5-2 (Neutral)**, **4-2-3-1 (Neutral)** — different shapes for teams that don't play 4-3-3.
+
+  The picker is a *try-this preview*. To set a team's default formation, use the team-edit page (admin or head-of-academy). Custom templates can be added via the REST API today; an admin UI lands in a follow-up.
 - **Style blend** — sliders for possession, counter, and press. The three weights must sum to 100.
 - **Side preference** — set on a player's profile (left / right / center). Adds ±0.2 to fit scores when matched / mismatched against a side-specific slot.
 
