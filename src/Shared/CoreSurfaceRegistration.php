@@ -107,9 +107,11 @@ final class CoreSurfaceRegistration {
         $is_player_or_parent_cb = static function ( int $user_id ) use ( $is_player_cb ): bool {
             return $is_player_cb( $user_id ) || user_can( $user_id, 'tt_parent' );
         };
-        $is_coach_or_admin_cb = static function ( int $user_id ): bool {
-            return user_can( $user_id, 'tt_edit_evaluations' ) || user_can( $user_id, 'tt_edit_settings' );
-        };
+        // #0079 — `$is_coach_or_admin_cb` removed. Coach-tier tiles now
+        // declare a *_panel matrix entity and matrix-active installs gate
+        // visibility through MatrixGate. The closure was the dormant-matrix
+        // fallback for nine tiles in the People + Performance + Development
+        // groups; those tiles are matrix-only post-#0079.
 
         // ── Me group — visible only when user has a player record. ──
         $me_group = __( 'Me', 'talenttrack' );
@@ -277,10 +279,14 @@ final class CoreSurfaceRegistration {
 
         // ── People group ──
         $people_group = __( 'People', 'talenttrack' );
+        // #0079 — `team_roster_panel` is the tile-visibility entity, distinct
+        // from the underlying data entity `team` (which gates REST + repo
+        // reads). Scout legitimately reads team data globally for scouting
+        // workflows; they should not see the coach-side roster tile.
         TileRegistry::register([
             'module_class' => self::M_TEAMS,
             'view_slug'    => 'teams',
-            'entity'       => 'team',
+            'entity'       => 'team_roster_panel',
             'group'        => $people_group,
             'kind'         => 'work',
             'order'        => 10,
@@ -288,12 +294,11 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Teams you coach — roster, podium, evaluations.', 'talenttrack' ),
             'icon'         => 'teams',
             'color'        => '#2271b1',
-            'cap_callback' => $is_coach_or_admin_cb,
         ]);
         TileRegistry::register([
             'module_class' => self::M_PLAYERS,
             'view_slug'    => 'players',
-            'entity'       => 'players',
+            'entity'       => 'coach_player_list_panel',
             'group'        => $people_group,
             'kind'         => 'work',
             'order'        => 20,
@@ -301,7 +306,6 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Players on the teams you coach.', 'talenttrack' ),
             'icon'         => 'players',
             'color'        => '#1d7874',
-            'cap_callback' => $is_coach_or_admin_cb,
             'label_callback' => static function ( int $user_id ): string {
                 return user_can( $user_id, 'tt_edit_settings' )
                     ? __( 'Players', 'talenttrack' )
@@ -311,7 +315,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PEOPLE,
             'view_slug'    => 'people',
-            'entity'       => 'people',
+            'entity'       => 'people_directory_panel',
             'group'        => $people_group,
             'kind'         => 'work',
             'order'        => 30,
@@ -319,9 +323,6 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Staff, parents, scouts and other non-player records.', 'talenttrack' ),
             'icon'         => 'people',
             'color'        => '#5b6e75',
-            'cap_callback' => static function ( int $uid ): bool {
-                return user_can( $uid, 'tt_view_people' ) || user_can( $uid, 'tt_edit_people' );
-            },
         ]);
         // Functional roles is owned by Authorization (always-on), so this
         // tile never disappears via the module-enabled gate.
@@ -350,10 +351,14 @@ final class CoreSurfaceRegistration {
         // Development group so player-development surfaces don't sit
         // alongside the activity / evaluation / podium tiles.
         $development_group = __( 'Development', 'talenttrack' );
+        // #0079 — coach-side panels declare tile-visibility entities. The
+        // underlying data entities (`evaluations`, `activities`, `goals`,
+        // `pdp_file`) keep their REST/repo gating role; the *_panel
+        // entities answer "should this user see this dashboard tile?".
         TileRegistry::register([
             'module_class' => self::M_EVALUATIONS,
             'view_slug'    => 'evaluations',
-            'entity'       => 'evaluations',
+            'entity'       => 'evaluations_panel',
             'group'        => $performance_group,
             'kind'         => 'work',
             'order'        => 10,
@@ -361,12 +366,11 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Record player ratings, add notes and scores.', 'talenttrack' ),
             'icon'         => 'evaluations',
             'color'        => '#7c3a9e',
-            'cap_callback' => $is_coach_or_admin_cb,
         ]);
         TileRegistry::register([
             'module_class' => self::M_ACTIVITIES,
             'view_slug'    => 'activities',
-            'entity'       => 'activities',
+            'entity'       => 'activities_panel',
             'group'        => $performance_group,
             'kind'         => 'work',
             'order'        => 20,
@@ -374,12 +378,11 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Log training activities and attendance.', 'talenttrack' ),
             'icon'         => 'activities',
             'color'        => '#c9962a',
-            'cap_callback' => $is_coach_or_admin_cb,
         ]);
         TileRegistry::register([
             'module_class' => self::M_GOALS,
             'view_slug'    => 'goals',
-            'entity'       => 'goals',
+            'entity'       => 'goals_panel',
             'group'        => $performance_group,
             'kind'         => 'work',
             'order'        => 30,
@@ -387,12 +390,11 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Set and track player development goals.', 'talenttrack' ),
             'icon'         => 'goals',
             'color'        => '#b32d2e',
-            'cap_callback' => $is_coach_or_admin_cb,
         ]);
         TileRegistry::register([
             'module_class' => self::M_PDP,
             'view_slug'    => 'pdp',
-            'entity'       => 'pdp_file',
+            'entity'       => 'pdp_panel',
             'group'        => $development_group,
             'kind'         => 'work',
             'order'        => 40,
@@ -400,9 +402,6 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Per-season development files: conversations, goals, end-of-season verdict.', 'talenttrack' ),
             'icon'         => 'goals',
             'color'        => '#1d7874',
-            'cap_callback' => static function ( int $uid ) use ( $is_coach_or_admin_cb ): bool {
-                return $is_coach_or_admin_cb( $uid ) && user_can( $uid, 'tt_view_pdp' );
-            },
         ]);
         TileRegistry::register([
             'module_class' => self::M_PDP,
@@ -438,7 +437,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_TEAMDEV,
             'view_slug'    => 'team-chemistry',
-            'entity'       => 'team_chemistry',
+            'entity'       => 'team_chemistry_panel',
             'group'        => $performance_group,
             'kind'         => 'work',
             'order'        => 50,
@@ -446,14 +445,11 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Formation board with auto-suggested XI, depth chart, and chemistry breakdown.', 'talenttrack' ),
             'icon'         => 'teams',
             'color'        => '#3a6f8f',
-            'cap_callback' => static function ( int $uid ) use ( $is_coach_or_admin_cb ): bool {
-                return $is_coach_or_admin_cb( $uid ) && user_can( $uid, 'tt_view_team_chemistry' );
-            },
         ]);
         TileRegistry::register([
             'module_class' => self::M_STATS,
             'view_slug'    => 'podium',
-            'entity'       => 'reports',
+            'entity'       => 'podium_panel',
             'group'        => $performance_group,
             'kind'         => 'work',
             'order'        => 60,
@@ -461,7 +457,6 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Team rankings and top performers.', 'talenttrack' ),
             'icon'         => 'podium',
             'color'        => '#e8b624',
-            'cap_callback' => $is_coach_or_admin_cb,
         ]);
 
         // ── Reference group ──
@@ -739,14 +734,15 @@ final class CoreSurfaceRegistration {
             'cap'          => 'tt_manage_invite_messages',
         ]);
         // "Open wp-admin" is a portal that points at the WP admin
-        // dashboard rather than a tt_view route. v3.88.0 — gates on
-        // the matrix `frontend_admin` entity so the matrix decides
-        // who sees the door, mirroring every other tile.
+        // dashboard rather than a tt_view route. v3.88.0 wired it to a
+        // matrix entity; #0079 splits that entity from the broader
+        // `frontend_admin` so granting wp-admin reach is independent of
+        // the cap that gates Configuration / Migrations / KPIs tiles.
         TileRegistry::register([
             'module_class' => null,
             'view_slug'    => '',
             'slug'         => 'open-wp-admin',
-            'entity'       => 'frontend_admin',
+            'entity'       => 'wp_admin_portal',
             'group'        => $admin_group,
             'kind'         => 'setup',
             'order'        => 100,
@@ -754,7 +750,6 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Drop into the full WordPress admin dashboard.', 'talenttrack' ),
             'icon'         => 'external-link',
             'color'        => '#888',
-            'cap'          => 'tt_edit_settings',
             'url_callback' => static function (): string {
                 return admin_url( 'admin.php?page=talenttrack' );
             },

@@ -75,6 +75,12 @@ Functionele rollen zijn clubrollen uit de praktijk (Hoofdcoach, Assistent-coach,
 
 Voorbeeld: je functionele rol "Hoofdcoach" kan gebruikers automatisch de WordPress-rol `tt_coach` toekennen. Dan krijgen ze evaluatierechten automatisch zodra je een persoon aan een team toevoegt als "Hoofdcoach".
 
+Het toewijzen van een persoon via Functionele rollen schrijft ook een rij in `tt_user_role_scopes` (scope_type=`team`, scope_id=het team) zodat de matrix-team-scopecontrole voor die persoon op dat team waar wordt. Bij het verwijderen van de laatste toewijzing voor een (persoon, team)-paar wordt ook de scope-rij verwijderd. Personen met meerdere rollen op hetzelfde team houden één scope-rij totdat de laatste rol wordt ingetrokken. De backfill-migratie `0062_fr_assignment_scope_backfill.php` heeft installaties van vóór deze koppeling rechtgetrokken (#0079).
+
+## Tegelzichtbaarheid via aparte entiteiten (#0079)
+
+Dashboardtegels die uitkomen op een coach- of beheerderssurface declareren een tegelspecifieke matrixentiteit (`team_roster_panel`, `coach_player_list_panel`, `evaluations_panel`, `activities_panel`, `goals_panel`, `podium_panel`, `team_chemistry_panel`, `pdp_panel`, `people_directory_panel`, `wp_admin_portal`) los van de onderliggende data-entiteit (`team`, `players`, `evaluations`, …). De data-entiteiten blijven REST + repository-reads sturen — de dispatcher en de tegel-gate vragen het `*_panel`-entiteit aan, zodat het verlenen van "scout leest teamdata globaal" niet langer een coach-tegel **Mijn teams** op het scoutdashboard plaatst. De dispatcher (`DashboardShortcode`) leest de entiteit uit het tegelregister en raadpleegt `MatrixGate::canAnyScope` voor hetzelfde antwoord als de tegel-gate, zodat de eerdere situatie waarin een tegel rendert maar de bestemming alsnog *"Dit onderdeel is alleen beschikbaar voor coaches en beheerders."* meldt, definitief weg is.
+
 ## Permission debug
 
 Via **Toegangsbeheer → Permission Debug** kun je de effectieve rechten van een willekeurige gebruiker inspecteren. Handig als een gebruiker meldt "ik kan X niet zien" — controleer wat hij/zij daadwerkelijk heeft.

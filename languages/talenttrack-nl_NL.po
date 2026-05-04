@@ -12431,3 +12431,6 @@ msgstr "Geen bestand geüpload."
 
 msgid "Invalid upload."
 msgstr "Ongeldige upload."
+
+msgid "You do not have access to this surface."
+msgstr "Je hebt geen toegang tot dit onderdeel."

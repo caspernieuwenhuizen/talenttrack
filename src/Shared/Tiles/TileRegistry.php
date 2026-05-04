@@ -390,6 +390,23 @@ final class TileRegistry {
     }
 
     /**
+     * #0079 — return the matrix entity declared by the tile for this
+     * view slug, or null when no tile declares the slug or the tile
+     * was registered without an entity. Used by the dashboard
+     * dispatcher to consult MatrixGate via the same entity the tile
+     * gate consults, so dispatch + tile visibility cannot disagree.
+     */
+    public static function entityForViewSlug( string $slug ): ?string {
+        if ( $slug === '' ) return null;
+        foreach ( self::$tiles as $tile ) {
+            if ( (string) ( $tile['view_slug'] ?? '' ) !== $slug ) continue;
+            $entity = (string) ( $tile['entity'] ?? '' );
+            return $entity !== '' ? $entity : null;
+        }
+        return null;
+    }
+
+    /**
      * Convenience predicate: should this view slug be hidden because
      * its owning module is currently disabled? Returns false when no
      * single module owns the slug (cross-cutting / personal /

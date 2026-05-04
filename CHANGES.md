@@ -1,85 +1,55 @@
-# TalentTrack v3.90.2 — Demo data: per-category selective generation + selective wipe
+# TalentTrack v3.91.0 — Tile-entity disambiguation + FR assignment scope sync
 
-Operator on a pilot install set up real teams + players + people manually, then wanted to wipe only the demo activities/evaluations/goals while keeping the real master data they'd built. Today's demo wipe is all-or-nothing: it either nukes every demo-tagged row or nothing. And generation already had master-data toggles (teams / people / players) but always wrote activities/evaluations/goals on top regardless. This release reworks both surfaces around the same six-category grid.
-
-## Generation — six-checkbox grid
-
-Step 0.5 ("What to generate") on the Demo Data page now exposes:
-
-**Master data** (procedural source only — Excel + hybrid read these from the workbook):
-
-- ☑ Generate teams
-- ☑ Generate people + WP users
-- ☑ Generate players
-
-**Dependent entities** (every source):
-
-- ☑ Generate activities
-- ☑ Generate evaluations
-- ☑ Generate goals
-
-All default ON, preserving the v3.0 "everything generated" behaviour. The dependent-entity flags compose with the existing hybrid skip rules — if your Excel sheet covered evaluations, the procedural EvaluationGenerator still skips for that batch. Unchecking the operator-side flag forces the skip regardless.
-
-`DemoGenerator::run()` reads three new keys (`gen_activities`, `gen_evaluations`, `gen_goals`); the `$skip_*` calculation now `OR`s in `! $gen_*` so source rules + operator opt-out compose. Default value is true when key is absent, so existing callers keep their v3.0 behaviour.
-
-## Deletion — six-checkbox grid + cascade preview
-
-The single "Wipe demo data" button is replaced by:
-
-| Category | Cascade |
-| - | - |
-| Teams | + team_person, activities, attendance, evaluations, eval_ratings on those teams |
-| People | + team_person assignments |
-| Players | + attendance, evaluations, eval_ratings, goals tied to those players |
-| Activities | + attendance for those activities |
-| Evaluations | + per-category eval_ratings |
-| Goals | (standalone) |
-
-Each box renders with its current cascade row count (e.g. "Teams — 156 demo rows incl. team_person, activities, attendance, evaluations, eval_ratings on those teams"). Counts come from `DemoDataCleaner::categoryCounts()` which runs once at page render. Default state: no boxes checked — operator opts in. Form still requires "WIPE" typed in the confirm field.
-
-Result notice now reports what was actually deleted: *"Demo data wiped — 1450 rows across activities, evaluations, goals."* Persistent demo WP users still go through the separate "Wipe demo users too" form with its three safety rails (domain match, not-current-user, not-last-admin) — that flow is unchanged.
-
-## API change — `DemoDataCleaner::wipeData( ?array $categories = null )`
-
-Old signature `wipeData()` still works: `null` falls back to the v3.85.0 "walk every entity type in DATA_ORDER except `person`" behaviour. New signature accepts a list of category keys (`['teams', 'activities']`); each key expands to its dependency cascade per `DemoDataCleaner::CATEGORIES`, the union is deduplicated server-side, and rows are deleted in `DATA_ORDER` so FK constraints stay happy. New `categoryCounts()` static helper returns `[category_key => total_demo_rows_in_cascade]` for the form preview.
-
-Empty selection bounces with "Pick at least one category to wipe." Anything not in `CATEGORIES` is silently dropped at sanitisation time.
-
-## What's not in this PR
-
-- **Live JS preview** of the cascade impact — server-side counts at page render are static; the operator doesn't see the total update as boxes are checked. Counts are shown per-row though, so the math is visible. Worth adding if operators ask.
-- **Per-batch wipe** — `tt_demo_tags` already keys by `batch_id`, so an operator could one day pick "wipe just the run from 2026-04-25". Not in scope.
-- **Excel-source dependent-entity flags** — when source is `excel`, the three dependent-entity flags are wired but the existing `$source === 'excel'` short-circuit in DemoGenerator still skips them all (the spec defers entirely to the workbook). Hybrid does honour the flags. If excel-source operators want to mix-and-match in the future, the wiring is there.
-
-## Renumbering
-
-v3.90.1 → v3.90.2 in PR after the Excel-upload hardening shipped on origin/main mid-CI.
-
-# TalentTrack v3.90.1 — Demo Excel upload no longer surfaces as a hosting 500
-
-Hardening pass on the **Tools → TalentTrack Demo Data → Excel upload** path so a too-big or malformed workbook produces a friendly red notice instead of the generic blank-page / 500 the host's reverse proxy would otherwise return.
+Sibling fix to #0071 — closes the last two gaps where the authorization matrix gave a wrong answer at runtime. Implements `specs/0079-feat-tile-entity-disambiguation.md`.
 
 ## Why
 
-A pilot operator reported an Excel upload error that "almost looks like a hosting server side error" — no TalentTrack notice, no friendly bounce, just a generic page. Three failure modes in the upload path could each produce that symptom:
-
-1. **`catch (\Exception $e)` in `ExcelImporter::importFile()` does not catch `\Throwable`.** PhpSpreadsheet can surface `\TypeError` on malformed XLSX, and an OOM during `load()` throws `\Error` / `\OutOfMemoryError`. Any of those bubbled out of WordPress's request lifecycle as a fatal — the host's reverse proxy turned that into a generic 500.
-2. **No memory / time-limit raise before reading the workbook.** PhpSpreadsheet wants 64–128MB even with `setReadDataOnly(true)`. Shared hosts default to 64MB. OOM → fatal → 500.
-3. **`post_max_size` overflow leaves `$_POST` and `$_FILES` empty.** `admin-post.php` then refuses the action entirely (no `action`, no nonce). The user sees WP's generic "Are you sure you want to do this?" page or a 413 from the host.
+Scout users were seeing coach-side tiles (My teams, My players, Activities, Podium, Open wp-admin) whose destination view rejected them with *"Dit onderdeel is alleen beschikbaar voor coaches en beheerders."* — three sources of truth (seed/matrix, tile registry, dispatcher) gave three answers to the same question. Separately, head coaches assigned to a team via Functional Roles saw only the Methodology tile because `MatrixGate::userHasAnyScope` reads `tt_user_role_scopes` and the FR write path was never wired to insert the matching row (Sprint 7 of #0071 declared the design intent but the implementation was missing).
 
 ## What changed
 
-- **`ExcelImporter::importFile()` now catches `\Throwable`**, not just `\Exception`. Any TypeError / Error from PhpSpreadsheet becomes the same friendly "Could not read the workbook: …" error the existing path returns.
-- **`DemoDataPage::handleExcelImport()` raises `wp_raise_memory_limit('admin')` + `set_time_limit(0)`** before invoking the importer.
-- **The importer call is wrapped in another `\Throwable` catch** as a defence-in-depth net for any fatal slipping past the inner catch (Logger writes the error class + message before bouncing).
-- **Both the `tt_demo_excel_import` and `tt_demo_generate` handlers detect the `post_max_size` overflow** (POST request with non-zero Content-Length but empty `$_POST`) at the top of the handler and bounce with "Upload exceeded the server's POST size limit (post_max_size = …MB)".
-- **`UPLOAD_ERR_*` codes get specific operator-readable messages** instead of "Upload failed (error code 1)". `UPLOAD_ERR_INI_SIZE` names `upload_max_filesize`; `UPLOAD_ERR_NO_TMP_DIR` names `upload_tmp_dir`; and so on.
-- **The upload form surfaces the server's actual limits** below the file input — `upload_max_filesize`, `post_max_size`, `memory_limit` — so an operator can size their workbook before the upload fails.
+### Tile-entity disambiguation
 
-## Files touched
+- 10 new tile-specific matrix entities: `team_roster_panel`, `coach_player_list_panel`, `people_directory_panel`, `evaluations_panel`, `activities_panel`, `goals_panel`, `podium_panel`, `team_chemistry_panel`, `pdp_panel`, `wp_admin_portal`. Distinct from the underlying data entities (`team`, `players`, `evaluations`, …) which keep their REST + repository role.
+- Seeded in `config/authorization_seed.php` for `assistant_coach` / `head_coach` / `team_manager` (`r[team]`), `head_of_development` / `academy_admin` (`r[global]`). `wp_admin_portal` is academy-admin-only. Scout, parent, player have no grant on any panel.
+- `frontend_admin: r global` removed from scout's seed (the original v3.39.0 strawman holdover).
+- Tile registrations in `src/Shared/CoreSurfaceRegistration.php` updated to declare the new entities. The redundant `cap_callback => $is_coach_or_admin_cb` arguments are dropped — matrix-active installs ignore them, and matrix-dormant installs are out of scope per #0071's `tt_authorization_active = 1` rollout.
 
-- `talenttrack.php` — version bump to 3.90.1
-- `src/Modules/DemoData/Excel/ExcelImporter.php` — catch `\Throwable`
-- `src/Modules/DemoData/Admin/DemoDataPage.php` — raise memory + time limits, wrap importer in Throwable catch, detect post_max_size overflow, friendlier UPLOAD_ERR messages, surface server limits in the form
-- `languages/talenttrack-nl_NL.po` — 14 new NL msgids
-- `SEQUENCE.md` — Done row added
+### Dispatcher refactor
+
+- New helper `TileRegistry::entityForViewSlug(string $slug): ?string` returns the matrix entity declared by the tile that owns the slug.
+- New helper `DashboardShortcode::matrixDispatchAllows(string $view, int $user_id): bool` — single matrix-driven gate. When the slug has a tile-declared entity AND `tt_authorization_active = 1`, MatrixGate is the sole authority. Returns true for slugs without a tile entity (fall through to existing dispatch + per-view cap re-checks).
+- Hardcoded `$is_coach || $is_admin` (coaching slugs) and `current_user_can('tt_view_reports')` (analytics slugs) gates removed from `DashboardShortcode::render()`. The `me_slugs` branch keeps its `$player` linked-record check — that's a data prerequisite, not an authorisation question.
+- Per-class notice strings ("This section is only available for coaches and administrators.", "Your role does not have access to analytics views.") collapsed to one generic *"You do not have access to this surface."* The collapsed copy goes through `__()` for nl_NL.
+
+### Functional Role assignment scope sync
+
+- `PeopleRepository::assignToTeam()` now writes a `tt_user_role_scopes` row (`scope_type='team'`, `scope_id=team`) after a successful FR assignment insert.
+- `PeopleRepository::unassign()` reads the assignment's `(team_id, person_id)` before deleting, then re-evaluates whether any other FR assignment for the same pair survives. If none remain, the scope row is removed; if at least one remains, the scope row stays. Multi-role-on-same-team users get one scope row per (person, team) regardless of how many roles they hold.
+- New private helper `PeopleRepository::syncTeamScopeRow(int $team_id, int $person_id)` is the single sync chokepoint, called from both write paths. Idempotent.
+- New migration `database/migrations/0062_fr_assignment_scope_backfill.php` walks existing FR assignments and inserts the missing scope rows. Idempotent on re-run via a `LEFT JOIN … WHERE urs.id IS NULL` predicate. Renumbered from 0061 because v3.89.3 shipped its own 0061 between PR-creation and rebase.
+
+### Documentation
+
+- `docs/access-control.md` + `docs/nl_NL/access-control.md` gain two short sections: how FR assignments propagate to scope rows, and how tile visibility now uses dedicated entities.
+- One new translatable string in `languages/talenttrack-nl_NL.po` (the collapsed dispatcher notice).
+
+## What was NOT touched
+
+- The 10 underlying data entities keep their REST + repository gating role.
+- Per-view internal cap re-checks (`tt_view_team_chemistry` inside `team-chemistry` dispatch, `tt_view_pdp` inside PDP views, etc.) stay as defence in depth.
+- Per-team customisation of personas and time-bounded permissions remain out of scope as per #0033.
+- Existing installs that have customised matrix grants keep them — the new entities have seed defaults but no migration mirrors operator-edited rows from the data entities to the new tile entities.
+
+## Affected files
+
+- `config/authorization_seed.php` — 10 new tile entities × up to 5 personas; scout's `frontend_admin` removed; per-block comments documenting #0079.
+- `src/Shared/CoreSurfaceRegistration.php` — 10 tile registrations updated; `$is_coach_or_admin_cb` closure removed.
+- `src/Shared/Tiles/TileRegistry.php` — new `entityForViewSlug()` helper.
+- `src/Shared/Frontend/DashboardShortcode.php` — new `matrixDispatchAllows()` + `matrixActive()` helpers; six per-class gates collapsed to one generic notice.
+- `src/Infrastructure/People/PeopleRepository.php` — `assignToTeam()` and `unassign()` updated with scope-sync calls; new `syncTeamScopeRow()` helper.
+- `database/migrations/0062_fr_assignment_scope_backfill.php` — new migration.
+- `docs/access-control.md` + `docs/nl_NL/access-control.md` — two new sections.
+- `languages/talenttrack-nl_NL.po` — one new msgid + msgstr.
+- `talenttrack.php` + `readme.txt` — version bump 3.90.2 → 3.91.0.
+- `SEQUENCE.md` — #0079 moves from Ready to Done.
