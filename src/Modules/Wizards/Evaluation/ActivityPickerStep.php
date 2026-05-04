@@ -107,6 +107,14 @@ final class ActivityPickerStep implements WizardStepInterface {
         global $wpdb;
         $p = $wpdb->prefix;
 
+        // v3.92.2 — `GROUP BY a.id` defensively dedupes when the
+        // `IN (sub-SELECT)` over `tt_team_people` matches a coach who
+        // holds multiple functional-role rows on the same team. The
+        // pilot install reported the same activity rendering twice in
+        // the picker; the most plausible cause is the multi-FR-on-same-
+        // team case multiplying the row set during planner evaluation.
+        // Grouping by the primary key collapses duplicates regardless of
+        // which OR branch fired.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id, a.title, a.session_date, a.activity_type_key, t.name AS team_name
                FROM {$p}tt_activities a
@@ -124,6 +132,7 @@ final class ActivityPickerStep implements WizardStepInterface {
                      WHERE um.user_id = %d AND um.meta_key = 'wp_capabilities'
                        AND ( um.meta_value LIKE '%administrator%' OR um.meta_value LIKE '%tt_head_dev%' OR um.meta_value LIKE '%tt_club_admin%' )
                   ) )
+              GROUP BY a.id, a.title, a.session_date, a.activity_type_key, t.name
               ORDER BY a.session_date DESC
               LIMIT 30",
             CurrentClub::id(), $days, $user_id, CurrentClub::id(), $user_id

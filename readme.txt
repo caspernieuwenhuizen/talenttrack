@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.92.2
+Stable tag: 3.92.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.92.3 — Quick wins: activity picker dedup, goal-detail double back-button, docs drawer, my-card print icon =
+
+Four small polish fixes from the pilot batch — sliced out as the fast cluster ahead of larger eval-wizard + branding work in v3.92.4+. **(1)** New-evaluation wizard's Activity picker showed the same activity twice on installs where a coach holds multiple functional-role rows on one team; the row multiplication was happening through the `tt_team_people` sub-SELECT against the IN branch. Added `GROUP BY a.id` to dedupe defensively. **(2)** Goal detail page rendered "← Back to dashboard" twice — once via an explicit `FrontendBackButton::render()` call, once via `renderHeader()`'s built-in fallback. Removed the explicit call; the v3.92.2 breadcrumb sweep also touched this view and composes cleanly. **(3)** "How does this work?" link on the goal detail page used to open the docs surface in a new tab; now opens the right-side help drawer via `HelpDrawer::button( 'conversational-goals' )` (component shipped in #0016 Part B). **(4)** My-card "Print report" button repositioned + restyled — was a full secondary button at the bottom of the side column; now an icon-only print button positioned top-right of the card chrome with title/aria-label fallback for accessibility. Renumbered v3.92.2 → v3.92.3 after the breadcrumb-sweep PR landed mid-CI.
 
 = 3.92.2 — Breadcrumb sweep across detail / manage / form views =
 
