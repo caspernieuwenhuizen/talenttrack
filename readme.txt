@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.91.5
+Stable tag: 3.91.6
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.91.6 — Player comparison: Team → Player two-step picker + growable slots =
+
+Reworks the player-comparison picker on both the frontend (`?tt_view=compare`) and the wp-admin equivalent (`?page=tt-compare`). The flat search-box approach was unusable on installs with 200+ players across many age groups; the operator asked for a *visual* picker — Team `<select>` first, then Player `<select>` filtered by that team, with a search input above the player select. New `ComparisonSlotPicker` component (+ a tiny vanilla JS hydrator at `assets/js/components/comparison-slot-picker.js`) wraps the two-step UX in a per-slot block. Each slot has a Clear (×) button that resets both selects. Slot visibility starts at 2 by default; "Add another player" reveals slot 3, then 4 (4 max); empty slots beyond the visible count stay hidden until clicked open. Cross-team comparison preserved — slot 1 picks a U10, slot 2 a Senior, slot 3 a U13, etc. The server still reads the existing `?p1=N&p2=M` URL pattern; the per-slot `team_N` field is UI-state only and stripped from the `add_query_arg` preserve-list.
 
 = 3.91.5 — Reports launcher: removed wp-admin sub-tile + missing tile descriptions translated =
 

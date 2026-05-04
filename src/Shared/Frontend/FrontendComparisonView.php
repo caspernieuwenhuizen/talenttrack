@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
-use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
+use TT\Shared\Frontend\Components\ComparisonSlotPicker;
 
 /**
  * FrontendComparisonView — the "Player comparison" tile destination
@@ -37,6 +37,14 @@ class FrontendComparisonView extends FrontendViewBase {
             'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
             [],
             '4.4.0',
+            true
+        );
+        // v3.91.6 — comparison slot picker (Team → Player two-step).
+        wp_enqueue_script(
+            'tt-comparison-slot-picker',
+            TT_PLUGIN_URL . 'assets/js/components/comparison-slot-picker.js',
+            [],
+            TT_VERSION,
             true
         );
 
@@ -87,6 +95,24 @@ class FrontendComparisonView extends FrontendViewBase {
              ORDER BY pl.last_name, pl.first_name ASC"
         );
 
+        // v3.91.6 — teams keyed by id for the slot pickers' team `<select>`s.
+        // Sorted alphabetically so dropdowns read naturally.
+        $teams_by_id = [];
+        $team_rows = $wpdb->get_results(
+            "SELECT id, name FROM {$p}tt_teams
+             WHERE archived_at IS NULL
+             ORDER BY name ASC"
+        );
+        foreach ( $team_rows as $tr ) {
+            $teams_by_id[ (int) $tr->id ] = (string) $tr->name;
+        }
+
+        // Slot visibility: 2 by default; grow as picks land. Empty slots
+        // beyond visible_slots stay hidden until "Add another player".
+        $populated     = array_values( array_filter( array_map( 'intval', $picked ) ) );
+        $visible_slots = max( 2, min( 4, count( $populated ) + 1 ) );
+        if ( $visible_slots > 4 ) $visible_slots = 4;
+
         ?>
         <p style="color:#666; max-width:760px; margin:0 0 16px;">
             <?php esc_html_e( 'Compare up to 4 players side-by-side. Cross-team is supported — pick any players from any team or age group.', 'talenttrack' ); ?>
@@ -97,6 +123,7 @@ class FrontendComparisonView extends FrontendViewBase {
             // Preserve tt_view + any other non-filter args
             foreach ( $_GET as $k => $v ) {
                 if ( preg_match( '/^p[1-4]$/', (string) $k ) ) continue;
+                if ( preg_match( '/^team_[1-4]$/', (string) $k ) ) continue;
                 if ( in_array( $k, [ 'date_from', 'date_to', 'eval_type_id' ], true ) ) continue;
                 if ( is_string( $v ) ) {
                     echo '<input type="hidden" name="' . esc_attr( (string) $k ) . '" value="' . esc_attr( wp_unslash( $v ) ) . '" />';
@@ -104,18 +131,51 @@ class FrontendComparisonView extends FrontendViewBase {
             }
             ?>
             <h3 style="margin:0 0 10px; font-size:15px;"><?php esc_html_e( 'Select players', 'talenttrack' ); ?></h3>
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:10px;">
+            <div id="tt-compare-slots" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
                 <?php for ( $i = 1; $i <= 4; $i++ ) :
-                    $current = $picked[ $i - 1 ] ?? 0;
-                    echo PlayerSearchPickerComponent::render( [
-                        'name'        => 'p' . $i,
-                        'label'       => sprintf( /* translators: %d is slot number */ __( 'Slot %d', 'talenttrack' ), $i ),
-                        'players'     => $all_players,
-                        'selected'    => (int) $current,
-                        'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
-                    ] );
-                endfor; ?>
+                    $current = (int) ( $picked[ $i - 1 ] ?? 0 );
+                    $hidden  = ( $i > $visible_slots && $current === 0 );
+                    ?>
+                    <div class="tt-compare-slot" data-tt-slot="<?php echo (int) $i; ?>" <?php echo $hidden ? 'hidden' : ''; ?>>
+                        <?php echo ComparisonSlotPicker::render( [
+                            'index'              => $i,
+                            'selected_player_id' => $current,
+                            'players'            => $all_players,
+                            'teams_by_id'        => $teams_by_id,
+                        ] ); ?>
+                    </div>
+                <?php endfor; ?>
             </div>
+            <p style="margin:10px 0 0;">
+                <button type="button" class="tt-btn tt-btn-secondary" id="tt-compare-add-slot" <?php echo $visible_slots >= 4 ? 'disabled' : ''; ?>>
+                    <?php esc_html_e( 'Add another player', 'talenttrack' ); ?>
+                </button>
+                <small id="tt-compare-slot-max" style="margin-left:8px; color:#5b6e75; <?php echo $visible_slots >= 4 ? '' : 'display:none;'; ?>">
+                    <?php esc_html_e( 'Maximum of 4 players.', 'talenttrack' ); ?>
+                </small>
+            </p>
+            <script>
+            (function () {
+                var btn  = document.getElementById( 'tt-compare-add-slot' );
+                var note = document.getElementById( 'tt-compare-slot-max' );
+                if ( ! btn ) return;
+                btn.addEventListener( 'click', function () {
+                    var slots = document.querySelectorAll( '#tt-compare-slots .tt-compare-slot' );
+                    for ( var i = 0; i < slots.length; i++ ) {
+                        if ( slots[ i ].hasAttribute( 'hidden' ) ) {
+                            slots[ i ].removeAttribute( 'hidden' );
+                            if ( i + 1 >= slots.length ) {
+                                btn.disabled = true;
+                                if ( note ) note.style.display = '';
+                            }
+                            return;
+                        }
+                    }
+                    btn.disabled = true;
+                    if ( note ) note.style.display = '';
+                } );
+            })();
+            </script>
 
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-top:12px;">
                 <div>
