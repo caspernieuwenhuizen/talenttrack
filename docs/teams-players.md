@@ -52,7 +52,16 @@ Archived players stay in the database but disappear from active lists (old evalu
 
 ## Player case page (v3.79.0)
 
-Player detail is now a six-tab case page: Profile / Goals / Evaluations / Activities / PDP / Trials. Each tab shows up to 50 records (25 for activities, 10 for PDP/Trials), every record links through to its detail surface, and breadcrumbs replace the standalone back link. The Profile tab keeps the existing DL plus the behaviour & potential capture entry.
+Player detail is a six-tab case page: Profile / Goals / Evaluations / Activities / PDP / Trials. Each tab shows up to 50 records (25 for activities, 10 for PDP/Trials), every record links through to its detail surface, and breadcrumbs replace the standalone back link.
+
+## Player file UX (v3.92.6 — #0082)
+
+The player file got a hero-card redesign and per-tab empty-state CTAs.
+
+- **Hero card.** Photo (or initials placeholder when no photo is uploaded) sits next to a structured info block: team and age group, status pill, age-tier badge, days-in-academy + joined-on date, and up to three "latest record" chips that link straight to the most recent activity, evaluation, and goal. The chips are dropped when the corresponding record doesn't exist; the whole latest-row hides when there's nothing to show. Stacks at 360px width, side-by-side at 480px and up.
+- **Empty-state CTAs.** When a tab has no records, instead of an italic "No goals recorded yet" line you now get a centred card: icon, headline, one-sentence explainer, primary action button. The button pre-fills the player and routes to the wizard variant where one exists (flat form otherwise). Read-only viewers (scout / parent / a player on their own file) see the headline + explainer but no button — the create action is suppressed because they don't have the cap. The Activities empty state explains that activities are recorded at the team level; the CTA is suppressed when the player has no team assigned and replaced with "Assign this player to a team first".
+- **Tab count badges.** Each non-Profile tab shows a small badge with its record count (Goals 12, Evaluations 4, Activities 38, etc.). Tabs with zero records render in a muted colour so an operator can scan the row and pick the populated tabs without clicking through every empty one.
+- **Profile tab two-column layout.** At ≥ 768px the Profile tab now splits into Identity (DOB, position, foot, jersey, status) on the left and Academy (team, age tier, date joined) on the right. Single column on mobile.
 
 ## Team detail — trial roster (v3.79.0)
 

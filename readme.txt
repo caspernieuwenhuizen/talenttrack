@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.92.5
+Stable tag: 3.92.6
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.92.6 — Player file UX redesign: hero card, empty-state CTAs, tab count badges (#0082) =
+
+Pilot operator on the player file: *"need to make this much more visually appealing and we want clear CTAs to set up the player files (e.g. when no goals exist, no PDP exists, no evaluations exist or trials)."* Three threads bundled. **(1) Hero card.** Photo (or initials placeholder when no photo) sits next to a structured info block: team + age group, status pill, age-tier badge, days-in-academy + joined date, and up to three "latest record" chips that link straight to the most recent activity, evaluation, and goal. Chips drop when the corresponding record doesn't exist; the latest-row hides when all three are empty. CSS Grid reflow — stacks at 360px width, side-by-side at ≥ 480px. **(2) Empty-state CTAs.** New reusable `EmptyStateCard` component in `src/Shared/Frontend/Components/` (icon + headline + explainer + optional CTA button) replaces the five `<p><em>No … yet.</em></p>` lines on the Goals / Evaluations / Activities / PDP / Trials tabs. The CTA pre-fills `player_id`, routes to `?tt_view=goals&action=new` / `evaluations` / `activities` / `pdp` / `trials` respectively, and is suppressed via `current_user_can( $cap )` so scout / parent / a player on their own file see only the headline + explainer. The Activities empty state explains activities live at the team level; CTA is suppressed (with adjusted explainer "Assign this player to a team first") when the player has no team. **(3) Tab count badges.** New `Infrastructure\Query\PlayerFileCounts::for($player_id)` makes one count query per tab (5 queries total) and feeds the tab nav: each non-Profile tab renders a small badge with its count when > 0; zero-count tabs get a muted `tt-player-tab--empty` modifier so the operator can scan which tabs have content. Plus profile-tab two-column restructure (Identity / Academy) at ≥ 768px and the legacy inline `<style>` block lifted into a proper view-level CSS file (`assets/css/frontend-player-detail.css`, mobile-first, ≥48px touch targets throughout). 19 new NL msgids. Renumbered v3.92.4 → v3.92.6 after pilot-batch PR 2 (v3.92.4) + PR 3 (v3.92.5) landed mid-CI.
 
 = 3.92.5 — Pilot batch PR 3: branding logo, my-activities styling, activity detail polish, PDP redirect + signed status green =
 
