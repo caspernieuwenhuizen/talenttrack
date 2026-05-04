@@ -96,7 +96,7 @@ The fallback stays for stale demo / custom-type rows; the seeded keys read in Du
 
 ## Translations
 
-11 new translatable strings — `Your status`, `Search title, location, team…`, `No activities recorded for you yet.`, plus the seeded activity-type labels (`Match`, `Clinic`, `Team meeting`, `Friendly match`, `Cup match`, `League match`, `Tournament`). `Training` and `Methodology` already had `nl_NL` entries from earlier ships and are reused. All filled in `nl_NL.po`.
+10 new translatable strings — `Your status`, `No activities recorded for you yet.`, plus the seeded activity-type labels (`Match`, `Clinic`, `Team meeting`, `Friendly match`, `Cup match`, `League match`, `Tournament`). `Training`, `Methodology`, and `Search title, location, team…` already had `nl_NL` entries from earlier ships and are reused. All filled in `nl_NL.po`.
 
 ## Affected files
 
@@ -105,7 +105,7 @@ The fallback stays for stale demo / custom-type rows; the seeded keys read in Du
 - `assets/js/components/frontend-list-table.js` — merge `config.static_filters` into request `filter` before fetch.
 - `src/Infrastructure/Query/LabelTranslator.php` — new `activityType()` helper.
 - `src/Shared/Frontend/FrontendMyActivitiesView.php` — full `FrontendListTable::render()` migration in `render()`; `LabelTranslator::activityType()` in `renderDetail()`. Removed orphaned `filtersFromQuery` / `renderFilters` / `renderTable` / `parseDate` helpers.
-- `languages/talenttrack-nl_NL.po` — 11 new NL strings.
+- `languages/talenttrack-nl_NL.po` — 10 new NL strings.
 - `readme.txt`, `talenttrack.php`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
 
 ---

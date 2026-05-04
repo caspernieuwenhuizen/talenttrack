@@ -12573,9 +12573,6 @@ msgstr "Stagedossier openen"
 msgid "Your status"
 msgstr "Jouw status"
 
-msgid "Search title, location, team…"
-msgstr "Zoek op titel, locatie, team…"
-
 msgid "No activities recorded for you yet."
 msgstr "Nog geen activiteiten voor je geregistreerd."
 
