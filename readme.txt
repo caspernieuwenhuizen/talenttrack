@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.92.3
+Stable tag: 3.92.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.92.4 — Eval wizard: Mark all present + non-admin save no longer silently 403'd =
+
+PR 2 of 3 from the operator's pilot batch. **(1)** New "Mark all present" button on the new-evaluation wizard's Attendance step — the row default was already `present`, but coaches who started clicking individual rows had no fast way to reset everyone. Pure JS toggle, scoped to the step's radio matrix. **(2)** New-evaluation wizard's per-row REST endpoint (`/wizards/new-evaluation/insert-row`) was gated on `tt_create_evaluations`, a cap that's not granted to any TT role (only used as a tile-visibility gate by `ActionCardWidget`). Every save through the JS overlay 403'd for non-admin coaches. Single-player saves surfaced the failure loudly (1-of-1 rows fail = "one or multiple rows failed"); multi-player saves had the same bug but it looked like "some rows failed". Cap changed to `tt_edit_evaluations` — the canonical write cap, same one `EvaluationsRestController::create_eval` uses. **(3)** When the JS overlay caught any failure it set the error status text and returned without re-enabling the form buttons — leaving the operator stuck on a frozen page. Added `enableActions()` on the failure branch so retry / cancel / back stay reachable. Failure message updated to "Try again or go back to fix the input."
 
 = 3.92.3 — Quick wins: activity picker dedup, goal-detail double back-button, docs drawer, my-card print icon =
 

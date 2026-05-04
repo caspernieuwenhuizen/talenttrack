@@ -22,9 +22,13 @@ use WP_REST_Response;
  *   }
  *   Returns: { evaluation_id: int }
  *
- * Cap: tt_create_evaluations (matches the wizard's evaluation-create
- * gate). The per-row endpoint and the PHP `submit()` path produce
- * identical rows; the JS overlay is purely a UX upgrade.
+ * Cap: tt_edit_evaluations — the same gate `EvaluationsRestController::
+ * create_eval` uses. v3.92.4 fix: was `tt_create_evaluations` which is
+ * not granted to any TT role (only used by `ActionCardWidget` for tile
+ * visibility), so every save through the JS overlay 403'd for non-admin
+ * coaches. Single-player save reported the failure loudly because the
+ * progress bar can't hide a 100%-fail set; multi-player saves had the
+ * same bug but the failure ratio looked like "some rows failed".
  */
 final class EvaluationRowRestController {
 
@@ -39,7 +43,7 @@ final class EvaluationRowRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'insert' ],
-                'permission_callback' => static fn(): bool => is_user_logged_in() && current_user_can( 'tt_create_evaluations' ),
+                'permission_callback' => static fn(): bool => is_user_logged_in() && current_user_can( 'tt_edit_evaluations' ),
             ]
         );
     }

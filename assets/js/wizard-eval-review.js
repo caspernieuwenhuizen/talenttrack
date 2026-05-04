@@ -50,7 +50,13 @@
             function next() {
                 if (idx >= total) {
                     if (failed > 0) {
-                        setStatus(payload.i18n_failed || 'One or more rows failed.');
+                        // v3.92.4 — was setting status text and returning,
+                        // leaving the form's buttons disabled forever.
+                        // Re-enable so the operator can retry / cancel /
+                        // go back. Status message also nudges them
+                        // toward retrying.
+                        setStatus(payload.i18n_failed || 'One or more rows failed. Try again or go back to fix the input.');
+                        enableActions();
                         return;
                     }
                     setStatus(payload.i18n_done || 'Done — redirecting…');
@@ -86,6 +92,10 @@
         function disableActions() {
             var btns = form.querySelectorAll('button[name="tt_wizard_action"]');
             Array.prototype.forEach.call(btns, function (b) { b.disabled = true; });
+        }
+        function enableActions() {
+            var btns = form.querySelectorAll('button[name="tt_wizard_action"]');
+            Array.prototype.forEach.call(btns, function (b) { b.disabled = false; });
         }
     });
 })();
