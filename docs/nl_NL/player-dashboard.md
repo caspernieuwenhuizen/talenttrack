@@ -25,7 +25,7 @@ Het podium van je team staat bovenaan — top 3 op rolling-rating, goud/zilver/b
 Elke evaluatie die een coach over jou heeft vastgelegd, meest recent eerst. Per rij zie je de datum, het type, de coach en de pillen — compact als standaard, klap een rij open voor de volledige onderverdeling.
 
 ### Mijn activiteiten
-De trainingen, wedstrijden en andere activiteiten waar je bij was. Met de zoekbalk en het datumfilter vind je snel een specifieke. Tik op een rij om **Mijn activiteit-detail** te openen — datum, type, locatie, coach-notities bij de activiteit, jouw aanwezigheidsstatus en eventuele notities die de coach voor jou heeft achtergelaten.
+De trainingen, wedstrijden en andere activiteiten waar je bij was. Zoek op titel of locatie, filter op datumbereik, sorteer op datum, titel of team, en blader door pagina's als er meer activiteiten zijn dan in één keer passen. De kolom **Jouw status** laat in één oogopslag zien hoe je per activiteit aanwezig was — aanwezig / afwezig / laat / geblesseerd / met afmelding. Tik op een rij om **Mijn activiteit-detail** te openen — datum, type, locatie, coach-notities bij de activiteit, jouw aanwezigheidsstatus en eventuele notities die de coach voor jou heeft achtergelaten.
 
 ### Mijn doelen
 De ontwikkelingsdoelen die je coaches voor jou hebben opgesteld, gegroepeerd op status. Tik een doel aan om het te openen: lees de volledige omschrijving, zie prioriteit + streefdatum, en doe mee aan het gesprek (je kan reacties plaatsen die je coach + ouders kunnen zien).

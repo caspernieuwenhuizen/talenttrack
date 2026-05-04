@@ -131,6 +131,36 @@ class LabelTranslator {
     }
 
     /**
+     * v3.92.7 — translate `tt_lookups.name` for the seeded
+     * activity_type rows (training / match / clinic / team_meeting /
+     * methodology, plus game subtypes added by migration 0046).
+     * Returns null for unknown keys so callers can fall back to the
+     * row's typed `label` (or a humanised key like
+     * `ucfirst(str_replace('_', ' ', $key))` for stale data).
+     *
+     * The activity-type pill on the activities list is rendered via
+     * `LookupPill::render('activity_type', $key)` which already routes
+     * through the translation layer; this helper is for surfaces that
+     * render the type label inline (e.g. activity-detail card meta
+     * row, journey-event summaries, cohort transitions).
+     */
+    public static function activityType( string $key ): ?string {
+        switch ( strtolower( $key ) ) {
+            case 'training':      return __( 'Training', 'talenttrack' );
+            case 'match':         return __( 'Match', 'talenttrack' );
+            case 'clinic':        return __( 'Clinic', 'talenttrack' );
+            case 'team_meeting':  return __( 'Team meeting', 'talenttrack' );
+            case 'methodology':   return __( 'Methodology', 'talenttrack' );
+            // Game subtypes seeded by migration 0046 (#0027).
+            case 'friendly':      return __( 'Friendly match', 'talenttrack' );
+            case 'cup':           return __( 'Cup match', 'talenttrack' );
+            case 'league':        return __( 'League match', 'talenttrack' );
+            case 'tournament':    return __( 'Tournament', 'talenttrack' );
+            default:              return null;
+        }
+    }
+
+    /**
      * i18n audit (May 2026) Bundle 7 — translate `tt_trial_tracks.name`
      * for the 3 system tracks seeded by 0036. Substituted into the
      * parent-facing trial letters via `{track_name}`, so getting Dutch

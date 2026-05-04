@@ -4,7 +4,6 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\LabelTranslator;
-use TT\Infrastructure\Query\QueryHelpers;
 
 /**
  * FrontendMyActivitiesView — the "My sessions" tile destination.
@@ -33,11 +32,42 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My activities', 'talenttrack' ) );
         self::renderHeader( __( 'My activities', 'talenttrack' ) );
 
-        $filters = self::filtersFromQuery();
-        $statuses = QueryHelpers::get_lookup_names( 'attendance_status' );
-
-        self::renderFilters( $filters, $statuses );
-        self::renderTable( $player, $filters );
+        // v3.92.7 — full migration to `FrontendListTable::render`. The
+        // surface previously ran a custom $wpdb query (joined attendance
+        // → activities, scoped to the player) and rendered a plain
+        // `<table>` with an HTML form for filters. Switched to the
+        // shared FrontendListTable component so the player's view picks
+        // up the same chrome / sortable columns / pagination / search /
+        // date-range / team filter / per-page chooser the admin lists
+        // have. Server-side, `ActivitiesRestController::list_sessions`
+        // accepts `filter[player_id]` (added in this release) and the
+        // `can_view` permission gate allows the player or their parent
+        // to read their own attendance via this filter.
+        echo \TT\Shared\Frontend\Components\FrontendListTable::render( [
+            'rest_path' => 'activities',
+            'static_filters' => [
+                'player_id' => (int) $player->id,
+            ],
+            'columns' => [
+                'session_date'        => [ 'label' => __( 'Date',   'talenttrack' ), 'sortable' => true ],
+                'title'               => [ 'label' => __( 'Title',  'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'title_link_html' ],
+                'activity_type_key'   => [ 'label' => __( 'Type',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_type_pill_html' ],
+                'team_name'           => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
+                'your_attendance_status' => [ 'label' => __( 'Your status', 'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'your_attendance_pill_html' ],
+            ],
+            'filters' => [
+                'date' => [
+                    'type'       => 'date_range',
+                    'param_from' => 'date_from',
+                    'param_to'   => 'date_to',
+                    'label_from' => __( 'From', 'talenttrack' ),
+                    'label_to'   => __( 'To',   'talenttrack' ),
+                ],
+            ],
+            'search'       => [ 'placeholder' => __( 'Search title, location, team…', 'talenttrack' ) ],
+            'default_sort' => [ 'orderby' => 'session_date', 'order' => 'desc' ],
+            'empty_state'  => __( 'No activities recorded for you yet.', 'talenttrack' ),
+        ] );
     }
 
     /**
@@ -109,8 +139,17 @@ class FrontendMyActivitiesView extends FrontendViewBase {
                 <?php if ( $location !== '' ) : ?>
                     <span class="tt-meta-chip"><?php esc_html_e( 'Location:', 'talenttrack' ); ?> <strong><?php echo esc_html( $location ); ?></strong></span>
                 <?php endif; ?>
-                <?php if ( $type_key !== '' ) : ?>
-                    <span class="tt-status-badge"><?php echo esc_html( ucfirst( str_replace( '_', ' ', $type_key ) ) ); ?></span>
+                <?php if ( $type_key !== '' ) :
+                    // v3.92.7 — `LabelTranslator::activityType()` covers the
+                    // seeded activity-type lookup rows. Falls back to a
+                    // humanised key for custom types the operator added
+                    // post-seed.
+                    $type_label = LabelTranslator::activityType( $type_key );
+                    if ( $type_label === null ) {
+                        $type_label = ucfirst( str_replace( '_', ' ', $type_key ) );
+                    }
+                    ?>
+                    <span class="tt-status-badge"><?php echo esc_html( $type_label ); ?></span>
                 <?php endif; ?>
                 <?php if ( $att_status !== '' ) : ?>
                     <span class="tt-status-badge <?php echo esc_attr( $att_status_class ); ?>">
@@ -135,162 +174,4 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         <?php
     }
 
-    /** @return array<string,mixed> */
-    private static function filtersFromQuery(): array {
-        $f = [];
-        if ( ! empty( $_GET['f_status'] ) )    $f['status']    = sanitize_text_field( wp_unslash( (string) $_GET['f_status'] ) );
-        if ( ! empty( $_GET['f_date_from'] ) ) $f['date_from'] = sanitize_text_field( wp_unslash( (string) $_GET['f_date_from'] ) );
-        if ( ! empty( $_GET['f_date_to'] ) )   $f['date_to']   = sanitize_text_field( wp_unslash( (string) $_GET['f_date_to'] ) );
-        if ( ! empty( $_GET['f_search'] ) )    $f['search']    = sanitize_text_field( wp_unslash( (string) $_GET['f_search'] ) );
-        return $f;
-    }
-
-    /**
-     * @param array<string,mixed> $filters
-     * @param string[]            $statuses
-     */
-    private static function renderFilters( array $filters, array $statuses ): void {
-        $sel_status = (string) ( $filters['status']    ?? '' );
-        $sel_from   = (string) ( $filters['date_from'] ?? '' );
-        $sel_to     = (string) ( $filters['date_to']   ?? '' );
-        $sel_search = (string) ( $filters['search']    ?? '' );
-        ?>
-        <form method="get" style="display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end; margin-bottom:12px;">
-            <input type="hidden" name="tt_view" value="my-activities" />
-
-            <div class="tt-field" style="flex:1 1 220px;">
-                <label class="tt-field-label" for="tt-mya-search"><?php esc_html_e( 'Search', 'talenttrack' ); ?></label>
-                <input id="tt-mya-search" type="search" name="f_search" value="<?php echo esc_attr( $sel_search ); ?>" class="tt-input" placeholder="<?php esc_attr_e( 'Title or notes…', 'talenttrack' ); ?>" />
-            </div>
-            <div class="tt-field" style="flex:0 0 160px;">
-                <label class="tt-field-label" for="tt-mya-status"><?php esc_html_e( 'Status', 'talenttrack' ); ?></label>
-                <select id="tt-mya-status" name="f_status" class="tt-input">
-                    <option value=""><?php esc_html_e( 'Any', 'talenttrack' ); ?></option>
-                    <?php foreach ( $statuses as $s ) : ?>
-                        <option value="<?php echo esc_attr( $s ); ?>" <?php selected( $sel_status, $s ); ?>><?php echo esc_html( LabelTranslator::attendanceStatus( $s ) ); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="tt-field" style="flex:0 0 140px;">
-                <label class="tt-field-label" for="tt-mya-from"><?php esc_html_e( 'From', 'talenttrack' ); ?></label>
-                <input id="tt-mya-from" type="date" name="f_date_from" value="<?php echo esc_attr( $sel_from ); ?>" class="tt-input" />
-            </div>
-            <div class="tt-field" style="flex:0 0 140px;">
-                <label class="tt-field-label" for="tt-mya-to"><?php esc_html_e( 'To', 'talenttrack' ); ?></label>
-                <input id="tt-mya-to" type="date" name="f_date_to" value="<?php echo esc_attr( $sel_to ); ?>" class="tt-input" />
-            </div>
-            <div class="tt-field" style="flex:0 0 auto; align-self:flex-end;">
-                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Filter', 'talenttrack' ); ?></button>
-                <a href="<?php echo esc_url( remove_query_arg( [ 'f_status', 'f_date_from', 'f_date_to', 'f_search' ] ) ); ?>" class="tt-btn tt-btn-secondary"><?php esc_html_e( 'Clear', 'talenttrack' ); ?></a>
-            </div>
-        </form>
-        <?php
-    }
-
-    /**
-     * @param array<string,mixed> $filters
-     */
-    private static function renderTable( object $player, array $filters ): void {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        $where  = '(a.player_id = %d OR a.guest_player_id = %d)';
-        $params = [ (int) $player->id, (int) $player->id ];
-
-        if ( ! empty( $filters['status'] ) ) {
-            $where   .= ' AND a.status = %s';
-            $params[] = (string) $filters['status'];
-        }
-        if ( ! empty( $filters['date_from'] ) ) {
-            $df = self::parseDate( (string) $filters['date_from'] );
-            if ( $df !== '' ) {
-                $where   .= ' AND s.session_date >= %s';
-                $params[] = $df;
-            }
-        }
-        if ( ! empty( $filters['date_to'] ) ) {
-            $dt = self::parseDate( (string) $filters['date_to'] );
-            if ( $dt !== '' ) {
-                $where   .= ' AND s.session_date <= %s';
-                $params[] = $dt;
-            }
-        }
-        if ( ! empty( $filters['search'] ) ) {
-            $like = '%' . $wpdb->esc_like( (string) $filters['search'] ) . '%';
-            $where   .= ' AND ( s.title LIKE %s OR a.notes LIKE %s )';
-            $params[] = $like;
-            $params[] = $like;
-        }
-
-        // GROUP BY a.id is defensive: the v3.32+ guest→player promotion
-        // flow occasionally left stale duplicate rows (one with
-        // guest_player_id, one with player_id pointing to the same user).
-        // The OR clause matches both, so we group on the attendance id to
-        // emit a single row per attendance regardless of which column fired.
-        $sql = "SELECT a.*, s.title AS session_title, s.session_date
-                  FROM {$p}tt_attendance a
-                  LEFT JOIN {$p}tt_activities s ON a.activity_id = s.id
-                 WHERE $where
-                 GROUP BY a.id
-                 ORDER BY s.session_date DESC, a.id DESC";
-
-        $att = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
-
-        if ( empty( $att ) ) {
-            echo '<p class="tt-notice">' . esc_html__( 'No attendance records match these filters.', 'talenttrack' ) . '</p>';
-            return;
-        }
-        // v3.92.5 — was rendering a `tt-table tt-table-sortable` table
-        // which doesn't pick up the same chrome the admin-side coach
-        // activity lists use (those use `FrontendListTable::render`,
-        // which emits `tt-list-table-table` inside `tt-list-table-wrap`).
-        // Operator on pilot install: "my activities table list is not
-        // like other table lists; align". Quick alignment: switch to
-        // the shared list-table classes + wrap so the fonts, padding,
-        // hover, and zebra striping match. Full migration to
-        // `FrontendListTable::render` requires a per-player REST scope
-        // on /activities — out of scope; tracked as a follow-up.
-        ?>
-        <div class="tt-list-table-wrap">
-            <table class="tt-list-table-table">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Activity', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $base_url = remove_query_arg( [ 'id' ] );
-                    foreach ( $att as $a ) :
-                        $status_lower = strtolower( (string) $a->status );
-                        $cls = $status_lower === 'present'
-                            ? 'tt-att-present'
-                            : ( $status_lower === 'absent' ? 'tt-att-absent' : 'tt-att-other' );
-                        $detail_url = add_query_arg( 'id', (int) $a->activity_id, $base_url );
-                        ?>
-                        <tr class="<?php echo esc_attr( $cls ); ?> tt-row-clickable" data-tt-href="<?php echo esc_url( $detail_url ); ?>">
-                            <td><a class="tt-row-link" href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( (string) $a->session_date ); ?></a></td>
-                            <td><a class="tt-row-link" href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $a->session_title ) ); ?></a></td>
-                            <td><?php echo esc_html( LabelTranslator::attendanceStatus( (string) $a->status ) ); ?></td>
-                            <td><?php
-                                $notes = (string) ( $a->notes ?: '' );
-                                echo $notes !== '' ? esc_html( \TT\Modules\Translations\TranslationLayer::render( $notes ) ) : '—';
-                            ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php
-    }
-
-    private static function parseDate( string $raw ): string {
-        $raw = trim( $raw );
-        if ( $raw === '' ) return '';
-        $d = \DateTime::createFromFormat( 'Y-m-d', $raw );
-        return ( $d && $d->format( 'Y-m-d' ) === $raw ) ? $raw : '';
-    }
 }

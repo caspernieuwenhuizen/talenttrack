@@ -81,15 +81,49 @@ class ActivitiesRestController {
         ] );
     }
 
-    public static function can_view(): bool {
+    public static function can_view( ?\WP_REST_Request $r = null ): bool {
         // v3.71.4 — also consult the matrix mapper so users granted
         // tt_view_activities / tt_edit_activities via Functional Roles
         // (matrix scope-rows) are not blocked by REST when the
         // `user_has_cap` bridge is dormant. Same fallback pattern as
         // TileRegistry::userMayAccess.
         $uid = get_current_user_id();
-        return AuthorizationService::userCanOrMatrix( $uid, 'tt_view_activities' )
-            || AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_activities' );
+        if ( $uid <= 0 ) return false;
+        if ( AuthorizationService::userCanOrMatrix( $uid, 'tt_view_activities' )
+             || AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_activities' ) ) {
+            return true;
+        }
+
+        // v3.92.7 — players + parents on `?tt_view=my-activities` consume
+        // this endpoint via `FrontendListTable` with `filter[player_id]`
+        // set to the linked player. They don't hold `tt_view_activities`
+        // (it's a coach-side cap), but the list query scopes via the
+        // EXISTS subquery on `tt_attendance` so every returned row is
+        // already a row the player attended. Allow the request when the
+        // `filter[player_id]` matches the current user's linked player
+        // (or the parent's child).
+        $filter = $r ? (array) ( $r->get_param( 'filter' ) ?? [] ) : ( is_array( $_GET['filter'] ?? null ) ? $_GET['filter'] : [] );
+        $filter_pid = isset( $filter['player_id'] ) ? absint( $filter['player_id'] ) : 0;
+        if ( $filter_pid <= 0 ) return false;
+
+        global $wpdb;
+        $linked_pid = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND archived_at IS NULL LIMIT 1",
+            $uid
+        ) );
+        if ( $linked_pid > 0 && $linked_pid === $filter_pid ) return true;
+
+        // Parent-of-player check uses tt_player_parents if it exists.
+        $parents_table = $wpdb->prefix . 'tt_player_parents';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $parents_table ) ) === $parents_table ) {
+            $parent_link = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT player_id FROM {$parents_table} WHERE wp_user_id = %d AND player_id = %d LIMIT 1",
+                $uid, $filter_pid
+            ) );
+            if ( $parent_link > 0 ) return true;
+        }
+
+        return false;
     }
 
     public static function can_edit(): bool {
@@ -183,6 +217,20 @@ class ActivitiesRestController {
             $where[]  = 's.team_id = %d';
             $params[] = absint( $filter['team_id'] );
         }
+        // v3.92.7 — `filter[player_id]=N` scopes the list to activities
+        // the player attended (real attendance row OR guest-attendance
+        // row). Used by `?tt_view=my-activities` so the surface can
+        // consume `FrontendListTable::render()` instead of running its
+        // own custom $wpdb query. Cross-references both `player_id` and
+        // `guest_player_id` on `tt_attendance` because the trial flow
+        // can leave a duplicate row keyed under guest_player_id (per
+        // the existing comment in the legacy custom query).
+        if ( ! empty( $filter['player_id'] ) ) {
+            $pid = absint( $filter['player_id'] );
+            $where[]  = "EXISTS (SELECT 1 FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.club_id = s.club_id AND ( a.player_id = %d OR a.guest_player_id = %d ))";
+            $params[] = $pid;
+            $params[] = $pid;
+        }
         if ( ! empty( $filter['date_from'] ) ) {
             $where[]  = 's.session_date >= %s';
             $params[] = sanitize_text_field( (string) $filter['date_from'] );
@@ -213,6 +261,22 @@ class ActivitiesRestController {
             (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id) AS attendance_count,
             (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id AND a.status = 'Present') AS present_count,
             (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active') AS roster_size";
+
+        // v3.92.7 — when `filter[player_id]` is set (e.g. by
+        // `?tt_view=my-activities` going through `FrontendListTable`),
+        // surface the player's own attendance status on each row so the
+        // list can render a "Your status" column. The subquery returns
+        // NULL when no row matches; format_row picks that up.
+        $your_status_pid = ! empty( $filter['player_id'] ) ? absint( $filter['player_id'] ) : 0;
+        if ( $your_status_pid > 0 ) {
+            $select_cols .= $wpdb->prepare(
+                ", (SELECT a.status FROM {$p}tt_attendance a
+                       WHERE a.activity_id = s.id AND a.club_id = s.club_id
+                         AND ( a.player_id = %d OR a.guest_player_id = %d )
+                       LIMIT 1) AS your_attendance_status",
+                $your_status_pid, $your_status_pid
+            );
+        }
 
         $having = '';
         $att_filter = isset( $filter['attendance'] ) ? sanitize_key( (string) $filter['attendance'] ) : '';
@@ -339,6 +403,15 @@ class ActivitiesRestController {
             'present_count'            => $present,
             'roster_size'              => $roster,
             'attendance_pct'           => $attendance_pct,
+            // v3.92.7 — surfaced only when filter[player_id] was set on
+            // the request (the SELECT subquery emits NULL otherwise).
+            // Picked up by `?tt_view=my-activities`'s "Your status" column.
+            'your_attendance_status'   => isset( $row->your_attendance_status ) && $row->your_attendance_status !== null
+                ? (string) $row->your_attendance_status
+                : '',
+            'your_attendance_pill_html' => isset( $row->your_attendance_status ) && $row->your_attendance_status !== null
+                ? \TT\Infrastructure\Query\LookupPill::render( 'attendance_status', (string) $row->your_attendance_status )
+                : '',
             'archived_at'              => $row->archived_at ?? null,
         ];
     }

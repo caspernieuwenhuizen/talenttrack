@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.92.6
+Stable tag: 3.92.7
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.92.7 — My-activities surface: full FrontendListTable migration + activity-type translator =
+
+Two follow-ups deferred from the v3.92.5 pilot batch land together. **(1) `?tt_view=my-activities` now uses `FrontendListTable::render()` end-to-end.** The previous shipping (v3.92.5) only borrowed the chrome — the data layer was still a custom `$wpdb` join + plain `<form>` filters in `FrontendMyActivitiesView::renderTable()`. The player surface now picks up the same sortable columns / pagination / search / date-range filter / per-page chooser the admin lists have. Two pieces had to land for this to work: `ActivitiesRestController::list_sessions` accepts a new `filter[player_id]` parameter that scopes the activity list via `EXISTS (SELECT 1 FROM tt_attendance WHERE activity_id=s.id AND (player_id=%d OR guest_player_id=%d))`, plus a per-row correlated subquery exposes `your_attendance_status` so the table can render an attendance pill specific to the viewer. The `can_view` permission gate now allows the player or their parent to read their own attendance via this filter (matching `tt_players.wp_user_id` / `tt_player_parents.parent_user_id`) without granting them the broader `tt_view_activities` cap. New `static_filters` config option on `FrontendListTable` carries the player-scope from PHP to the JS hydrator without exposing it as a user-editable filter row. **(2) `LabelTranslator::activityType( string $key ): ?string` helper** covers the seeded activity-type lookup keys (`training` / `match` / `clinic` / `team_meeting` / `methodology` plus the migration-0046 game subtypes `friendly` / `cup` / `league` / `tournament`). Returns null for unknown keys so callers fall back to the row's typed `label` for custom types a club has added post-seed. Wired into the activity-detail card on `?tt_view=my-activities&id=N`, replacing the v3.92.5 `ucfirst(str_replace('_', ' ', $key))` placeholder so Dutch installs read the translated type label inline. The activity-type pill on the list still routes through `LookupPill::render('activity_type', $key)` which uses the runtime translation layer; the helper is for surfaces that render the type label inline (detail card meta row, future journey-event summaries / cohort transitions). 11 new NL msgids — "Your status", "Search title, location, team…", "No activities recorded for you yet.", and the activity-type labels.
 
 = 3.92.6 — Player file UX redesign: hero card, empty-state CTAs, tab count badges (#0082) =
 
