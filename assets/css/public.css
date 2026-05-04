@@ -434,6 +434,37 @@ body.tt-docs-drawer-open { overflow: hidden; }
 .tt-status-completed   { border-left-color: #00a32a; }
 /* #0075 Sprint 3 — status badge reads the Feedback-category badge tokens. */
 .tt-status-badge { display: inline-block; padding: 3px var(--tt-badge-padding-x, 10px); font-size: 0.7rem; font-family: "Helvetica Neue", Arial, sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--tt-primary, #0b3d2e); color: #fff; border-radius: var(--tt-badge-radius, 0); }
+/* v3.92.5 — per-status badge colour overrides. The default badge
+ * background is `--tt-primary` (brand dark green). When the badge is
+ * combined with a status modifier we shift the background to a
+ * semantically matching token so the operator can scan a list of
+ * conversations / activities and tell scheduled / held / signed-off
+ * apart at a glance. Operator on the pilot install: "PDP conversation
+ * signed status should be green" — same dark-green as every other
+ * badge made the signed state invisible. */
+.tt-status-badge.tt-status-completed,
+.tt-status-badge.tt-status-signed_off { background: var(--tt-color-success, #16a34a); }
+.tt-status-badge.tt-status-scheduled  { background: var(--tt-color-info, #2271b1); }
+.tt-status-badge.tt-status-in-progress,
+.tt-status-badge.tt-status-in_progress { background: var(--tt-color-warning, #c9a227); }
+/* PDP "You acknowledged" / "Coach signed off" notices on the conversation
+ * cards. Was an inline `style="color:#2c8a2c"` — semantic class lets the
+ * Theme & fonts surface re-theme it via `--tt-color-success`. */
+.tt-pdp-acked,
+.tt-pdp-signed-off { margin: 8px 0; color: var(--tt-color-success, #16a34a); font-weight: 600; }
+.tt-pdp-acked em { font-style: italic; font-weight: 500; }
+
+/* v3.92.5 — activity detail card chrome. Mirrors `tt-goal-detail` so
+ * the two surfaces feel consistent. Pilot operator: "the display page
+ * of an activity is visually not very appealing." */
+.tt-activity-detail { background: #fff; border: 1px solid var(--tt-line, #e5e7ea); border-radius: 10px; padding: 18px 20px; margin: 0 0 var(--tt-sp-3, 12px); }
+.tt-activity-detail-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 var(--tt-sp-3, 12px); padding: 0 0 var(--tt-sp-3, 12px); border-bottom: 1px solid var(--tt-line, #e5e7ea); font-size: 0.85rem; }
+.tt-activity-detail-meta .tt-due { color: var(--tt-muted, #5b6e75); font-weight: 600; }
+.tt-activity-detail-meta .tt-meta-chip { color: var(--tt-muted, #5b6e75); }
+.tt-activity-detail-meta .tt-meta-chip strong { color: var(--tt-text, #1a1d21); font-weight: 600; }
+.tt-activity-detail-body { margin: 0; color: var(--tt-text, #1a1d21); }
+.tt-activity-detail-body h3 { color: var(--tt-text, #1a1d21); }
+.tt-activity-detail-body p { margin: 0; line-height: 1.5; }
 
 .tt-att-present td { background: rgba(0,163,42,0.05) !important; }
 .tt-att-absent  td { background: rgba(179,45,46,0.05) !important; }

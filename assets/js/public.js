@@ -186,6 +186,7 @@
                     // Drafts module listens for this to clear its stored snapshot.
                     form.dispatchEvent(new CustomEvent('tt:form-saved', { bubbles: true }));
                     var redirect = form.getAttribute('data-redirect-after-save');
+                    var redirectUrl = form.getAttribute('data-redirect-after-save-url');
                     if (redirect === '1' || redirect === 'list') {
                         // Briefly show success, then drop the form-mode query
                         // params so the user lands back on the section's list
@@ -203,6 +204,18 @@
                                 window.location.href = window.location.pathname;
                             }
                         }, 1200);
+                    } else if (redirect === 'reload') {
+                        // v3.92.5 — reload the current URL in place so the
+                        // page re-renders with the saved state. Used by
+                        // surfaces where the form lives inside a card on
+                        // the same page as the data it edits (e.g. PDP
+                        // conversation save/sign cards on the file view).
+                        setTimeout(function() { window.location.reload(); }, 1200);
+                    } else if (redirectUrl) {
+                        // v3.92.5 — explicit URL redirect. Used by the
+                        // coach-side PDP conversation form to land back on
+                        // the parent file view after save / sign.
+                        setTimeout(function() { window.location.href = redirectUrl; }, 1200);
                     } else {
                         form.reset();
                         setTimeout(function() { setSaveBtnState(btn, 'idle'); }, 1500);

@@ -836,33 +836,45 @@ class FrontendConfigurationView extends FrontendViewBase {
         <script>
         (function(){
             <?php if ( $with_logo ) : ?>
-            if (typeof wp !== 'undefined' && wp.media) {
-                var frame;
-                var pickBtn = document.getElementById('tt-cfg-logo-pick');
-                var clearBtn = document.getElementById('tt-cfg-logo-clear');
-                var hidden  = document.getElementById('tt-cfg-logo-url');
-                var preview = document.getElementById('tt-cfg-logo-preview');
-                if (pickBtn) pickBtn.addEventListener('click', function(){
-                    if (!frame) {
-                        frame = wp.media({
-                            title: '<?php echo esc_js( __( 'Select logo', 'talenttrack' ) ); ?>',
-                            button: { text: '<?php echo esc_js( __( 'Use', 'talenttrack' ) ); ?>' },
-                            library: { type: 'image' },
-                            multiple: false
-                        });
-                        frame.on('select', function(){
-                            var att = frame.state().get('selection').first().toJSON();
-                            hidden.value = att.url;
-                            preview.innerHTML = '<img src="' + att.url + '" alt="" style="max-height:80px; border-radius:6px; border:1px solid var(--tt-line);" />';
-                        });
-                    }
-                    frame.open();
-                });
-                if (clearBtn) clearBtn.addEventListener('click', function(){
-                    hidden.value = '';
-                    preview.innerHTML = '';
-                });
-            }
+            // v3.92.5 — was guarding the entire block on `wp.media` being
+            // ready at script-execution time. Inline `<script>` runs at
+            // parse time, but media-views.js (which defines wp.media) loads
+            // via wp_enqueue_media() with no `dom_loaded` ordering guarantee.
+            // On Dutch installs the operator reported the Choose logo button
+            // simply did nothing — wp.media wasn't ready yet so the click
+            // listener never got registered. Moved the readiness check
+            // INSIDE the click handler so the button always responds, and
+            // the user gets a console hint if media-views genuinely failed
+            // to load.
+            var frame;
+            var pickBtn  = document.getElementById('tt-cfg-logo-pick');
+            var clearBtn = document.getElementById('tt-cfg-logo-clear');
+            var hidden   = document.getElementById('tt-cfg-logo-url');
+            var preview  = document.getElementById('tt-cfg-logo-preview');
+            if (pickBtn) pickBtn.addEventListener('click', function(){
+                if (typeof wp === 'undefined' || !wp.media) {
+                    if (window.console) console.warn('TalentTrack: wp.media not loaded — Choose logo button can\'t open the picker.');
+                    return;
+                }
+                if (!frame) {
+                    frame = wp.media({
+                        title: '<?php echo esc_js( __( 'Select logo', 'talenttrack' ) ); ?>',
+                        button: { text: '<?php echo esc_js( __( 'Use', 'talenttrack' ) ); ?>' },
+                        library: { type: 'image' },
+                        multiple: false
+                    });
+                    frame.on('select', function(){
+                        var att = frame.state().get('selection').first().toJSON();
+                        hidden.value = att.url;
+                        preview.innerHTML = '<img src="' + att.url + '" alt="" style="max-height:80px; border-radius:6px; border:1px solid var(--tt-line);" />';
+                    });
+                }
+                frame.open();
+            });
+            if (clearBtn) clearBtn.addEventListener('click', function(){
+                hidden.value = '';
+                preview.innerHTML = '';
+            });
             <?php endif; ?>
 
             var form = document.getElementById('tt-config-form');

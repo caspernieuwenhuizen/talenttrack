@@ -114,7 +114,7 @@ class FrontendMyPdpView extends FrontendViewBase {
         if ( $is_self && ! $signed ) {
             $rest_path = 'pdp-conversations/' . (int) $conv->id;
             ?>
-            <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" style="margin-top:8px;">
+            <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload" style="margin-top:8px;">
                 <label class="tt-field-label" for="tt-myrefl-<?php echo (int) $conv->id; ?>"><?php esc_html_e( 'Add or update your self-reflection', 'talenttrack' ); ?></label>
                 <textarea id="tt-myrefl-<?php echo (int) $conv->id; ?>" name="player_reflection" class="tt-input" rows="3"><?php echo esc_textarea( (string) ( $conv->player_reflection ?? '' ) ); ?></textarea>
                 <div class="tt-form-actions" style="margin-top:8px;">
@@ -130,25 +130,28 @@ class FrontendMyPdpView extends FrontendViewBase {
             $rest_path = 'pdp-conversations/' . (int) $conv->id;
             if ( $is_self && empty( $conv->player_ack_at ) ) {
                 ?>
-                <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" style="margin-top:8px;">
+                <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload" style="margin-top:8px;">
                     <input type="hidden" name="player_ack_at" value="<?php echo esc_attr( current_time( 'mysql', true ) ); ?>" />
                     <button type="submit" class="tt-btn tt-btn-primary tt-btn-sm"><?php esc_html_e( 'I acknowledge this conversation', 'talenttrack' ); ?></button>
                     <div class="tt-form-msg"></div>
                 </form>
                 <?php
             } elseif ( ! empty( $conv->player_ack_at ) ) {
-                echo '<p style="margin:8px 0; color:#2c8a2c;"><em>' . esc_html__( 'You acknowledged this conversation.', 'talenttrack' ) . '</em></p>';
+                // v3.92.5 — switched inline color to a semantic class so
+                // the success-green token can be re-themed via the
+                // Theme & fonts surface without a code change.
+                echo '<p class="tt-pdp-acked"><em>' . esc_html__( 'You acknowledged this conversation.', 'talenttrack' ) . '</em></p>';
             }
             if ( $is_parent && empty( $conv->parent_ack_at ) ) {
                 ?>
-                <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" style="margin-top:8px;">
+                <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload" style="margin-top:8px;">
                     <input type="hidden" name="parent_ack_at" value="<?php echo esc_attr( current_time( 'mysql', true ) ); ?>" />
                     <button type="submit" class="tt-btn tt-btn-primary tt-btn-sm"><?php esc_html_e( 'Acknowledge as parent / guardian', 'talenttrack' ); ?></button>
                     <div class="tt-form-msg"></div>
                 </form>
                 <?php
             } elseif ( ! empty( $conv->parent_ack_at ) ) {
-                echo '<p style="margin:8px 0; color:#2c8a2c;"><em>' . esc_html__( 'A parent acknowledged this conversation.', 'talenttrack' ) . '</em></p>';
+                echo '<p class="tt-pdp-acked"><em>' . esc_html__( 'A parent acknowledged this conversation.', 'talenttrack' ) . '</em></p>';
             }
         }
 
