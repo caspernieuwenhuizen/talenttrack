@@ -12316,3 +12316,45 @@ msgstr "S3 back-up"
 
 msgid "You do not have access to the operator account controls. The Plan & restrictions tab is open to everyone."
 msgstr "Je hebt geen toegang tot de operator-accountinstellingen. Het tabblad Plan & beperkingen is voor iedereen toegankelijk."
+
+msgid "Upload exceeded the server's POST size limit (post_max_size = %s). Ask your hoster to raise it, or split the workbook into smaller pieces."
+msgstr "De upload overschrijdt de POST-limiet van de server (post_max_size = %s). Vraag je hoster om die op te hogen, of splits de werkmap in kleinere bestanden."
+
+msgid "Upload exceeded the server's upload_max_filesize (%s). Ask your hoster to raise it, or split the workbook."
+msgstr "De upload overschrijdt upload_max_filesize op de server (%s). Vraag je hoster om die op te hogen, of splits de werkmap."
+
+msgid "Upload exceeded the form's declared maximum size."
+msgstr "De upload overschrijdt het in het formulier opgegeven maximum."
+
+msgid "Upload was interrupted mid-transfer. Try again on a stable connection."
+msgstr "De upload is halverwege onderbroken. Probeer opnieuw op een stabiele verbinding."
+
+msgid "No file was selected for upload."
+msgstr "Er is geen bestand geselecteerd om te uploaden."
+
+msgid "PHP could not write to its temporary directory. Ask your hoster to fix `upload_tmp_dir`."
+msgstr "PHP kon niet schrijven naar zijn tijdelijke map. Vraag je hoster om `upload_tmp_dir` te corrigeren."
+
+msgid "PHP could not write the uploaded file to disk."
+msgstr "PHP kon het geüploade bestand niet naar schijf schrijven."
+
+msgid "A PHP extension blocked the upload."
+msgstr "Een PHP-extensie heeft de upload geblokkeerd."
+
+msgid "Upload failed (error code %d)."
+msgstr "Upload mislukt (foutcode %d)."
+
+msgid "Excel import crashed: %s. The plugin caught it before WordPress fell over, but the workbook was not imported. Check the TalentTrack log for details."
+msgstr "Excel-import is gecrasht: %s. De plugin ving de fout op voordat WordPress omviel, maar de werkmap is niet geïmporteerd. Bekijk de TalentTrack-log voor details."
+
+msgid "Server limits on this install: upload_max_filesize = %1$s · post_max_size = %2$s · memory_limit = %3$s. Workbooks above the smaller of the first two will be rejected by PHP before the plugin sees them."
+msgstr "Serverlimieten op deze installatie: upload_max_filesize = %1$s · post_max_size = %2$s · memory_limit = %3$s. Werkmappen groter dan het kleinste van de eerste twee worden door PHP geweigerd voordat de plugin ze ziet."
+
+msgid "Excel and Hybrid sources require an uploaded workbook."
+msgstr "Voor de bronnen Excel en Hybride is een geüploade werkmap vereist."
+
+msgid "No file uploaded."
+msgstr "Geen bestand geüpload."
+
+msgid "Invalid upload."
+msgstr "Ongeldige upload."

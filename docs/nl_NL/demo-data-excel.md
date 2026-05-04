@@ -36,3 +36,17 @@ Fouten komen als lijst terug — los ze op in het werkboek, upload opnieuw.
 ## Opnieuw importeren
 
 Opnieuw uploaden voegt rijen toe (geen rij-niveau upsert). Om alles te vervangen: gebruik eerst **Wipe demo data** en upload daarna.
+
+## Upload-fouten oplossen (v3.89.2)
+
+De upload-route is gehard tegen de "lijkt op een hosting-fout"-faalmodus. Als er iets misgaat krijg je een rode TalentTrack-melding met de werkelijke oorzaak, in plaats van de generieke 500 van de hostingprovider.
+
+| Symptoom | Wat het betekent | Oplossing |
+| - | - | - |
+| **"De upload overschrijdt de POST-limiet van de server (post_max_size = 8M). Vraag je hoster om die op te hogen…"** | Het werkboek plus de overige formuliervelden samen zijn groter dan `post_max_size`; PHP heeft het verzoek al voor de plugin afgewezen. | Vraag je hoster om `post_max_size` (en `upload_max_filesize`) op te hogen; typische waardes zijn 32M–128M. Of splits het werkboek. |
+| **"De upload overschrijdt upload_max_filesize op de server (8M). Vraag je hoster om die op te hogen…"** | Alleen het bestand zelf is al groter dan `upload_max_filesize`. | Idem. |
+| **"De upload is halverwege onderbroken. Probeer opnieuw op een stabiele verbinding."** | Het netwerk hapte. | Probeer opnieuw. |
+| **"Kon het werkboek niet lezen: …"** | PhpSpreadsheet kreeg het bestand niet open (kapot zip, half gedownload, wachtwoordbeveiligd, …). | Sla het werkboek opnieuw op in Excel / Calc en probeer opnieuw. |
+| **"Excel-import is gecrasht: …. Bekijk de TalentTrack-log voor details."** | Er kwam een fatal langs de binnenste catch (zelden — meestal OOM met een te lage `memory_limit`, zelfs na de raise van de plugin). | Vraag je hoster om `memory_limit` op ≥128M te zetten, of splits het werkboek. De TalentTrack-log bevat de error-klasse + het bericht. |
+
+De daadwerkelijke serverlimieten op jouw installatie staan onder het bestandsveld, zodat je het werkboek vóór de upload op maat kunt brengen.

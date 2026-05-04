@@ -36,3 +36,17 @@ Errors come back as a list — fix them in the workbook, re-upload.
 ## Re-import
 
 Re-uploading the same workbook adds new rows (no row-level upsert). To wipe-and-replace, use **Wipe demo data** first, then upload.
+
+## Troubleshooting upload errors (v3.89.2)
+
+The upload path is hardened against the "looks like a hosting server side error" failure mode. If something goes wrong, you get a red TalentTrack notice naming the actual cause instead of the host's generic 500.
+
+| Symptom | What it means | Fix |
+| - | - | - |
+| **"Upload exceeded the server's POST size limit (post_max_size = 8M). Ask your hoster to raise it…"** | Your workbook plus the form's other fields are bigger than `post_max_size`; PHP discarded the request body before it reached the plugin. | Ask the hoster to raise `post_max_size` (and `upload_max_filesize`); typical values are 32M–128M. Or split the workbook. |
+| **"Upload exceeded the server's upload_max_filesize (8M). Ask your hoster to raise it…"** | The file alone exceeds `upload_max_filesize`. | Same as above. |
+| **"Upload was interrupted mid-transfer. Try again on a stable connection."** | Network dropped. | Retry. |
+| **"Could not read the workbook: …"** | PhpSpreadsheet failed to open the file (corrupt zip, truncated download, password-protected, etc.). | Save the workbook fresh from Excel / Calc and try again. |
+| **"Excel import crashed: …. Check the TalentTrack log for details."** | A fatal slipped past the inner catch (rare — usually OOM with `memory_limit` too low even after the plugin's raise). | Ask the hoster to raise `memory_limit` to ≥128M, or split the workbook. The TalentTrack log records the error class + message. |
+
+The actual server limits on your install are surfaced below the file-picker input so you can size the workbook before uploading.

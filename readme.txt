@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.90.0
+Stable tag: 3.90.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.90.1 — Demo Excel upload no longer surfaces as a hosting 500 =
+
+Hardening pass on the **Tools → TalentTrack Demo Data → Excel upload** path. A pilot operator reported an upload error that "looks like a hosting server side error" — no TalentTrack notice, just a generic page. Three fixes, one ship: (1) `ExcelImporter::importFile()` now catches `\Throwable`, not just `\Exception`, so a `\TypeError` from PhpSpreadsheet or an OOM `\Error` becomes the same friendly red bounce notice the existing path returns. (2) `DemoDataPage::handleExcelImport()` raises `wp_raise_memory_limit('admin')` + `set_time_limit(0)` before invoking the importer, and wraps the importer call in another `\Throwable` catch as defence-in-depth. (3) Both the standalone `tt_demo_excel_import` handler and the unified `tt_demo_generate` handler detect the `post_max_size` overflow case (POST request with non-zero Content-Length but empty `$_POST`) and bounce with "Upload exceeded the server's POST size limit (post_max_size = …MB)". `UPLOAD_ERR_*` codes get specific operator-readable messages (e.g. `UPLOAD_ERR_INI_SIZE` names `upload_max_filesize`; `UPLOAD_ERR_NO_TMP_DIR` names `upload_tmp_dir`). The upload form now surfaces the server's actual limits (`upload_max_filesize` / `post_max_size` / `memory_limit`) below the file input so an operator can size their workbook before the upload fails. 14 new NL msgids. Renumbered v3.89.2 → v3.89.4 → v3.90.1 across three parallel-agent collisions.
 
 = 3.90.0 — Account is the new TalentTrack landing =
 

@@ -1,48 +1,28 @@
-# TalentTrack v3.90.0 — Account is the new TalentTrack landing
+# TalentTrack v3.90.1 — Demo Excel upload no longer surfaces as a hosting 500
 
-Three-part wp-admin menu cleanup. Clicking **TalentTrack** in the sidebar now lands on the Account page; **Plan & restrictions** moves into a tab on that page; and **Spond / Migrations / Help & Docs** are out of the visual Authorizations cluster they used to trail.
+Hardening pass on the **Tools → TalentTrack Demo Data → Excel upload** path so a too-big or malformed workbook produces a friendly red notice instead of the generic blank-page / 500 the host's reverse proxy would otherwise return.
 
 ## Why
 
-The wp-admin TalentTrack menu had drifted. Three issues, one ship:
+A pilot operator reported an Excel upload error that "almost looks like a hosting server side error" — no TalentTrack notice, no friendly bounce, just a generic page. Three failure modes in the upload path could each produce that symptom:
 
-1. The top-level click landed on the legacy stats-and-tiles dashboard. The Account page (tier, trial / grace status, caps usage) was buried as a submenu — the page operators check most often.
-2. **TalentTrack → Plan & restrictions** was a separate menu entry that mostly duplicated what Account already showed. Two places to look at the same plan info.
-3. **Spond**, **Migrations**, and **Help & Docs** registered through different code paths and at different `admin_menu` priorities, which left them visually trailing the Access Control group when the legacy menu was on. Operators read them as Authorization items because there was no separator between.
+1. **`catch (\Exception $e)` in `ExcelImporter::importFile()` does not catch `\Throwable`.** PhpSpreadsheet can surface `\TypeError` on malformed XLSX, and an OOM during `load()` throws `\Error` / `\OutOfMemoryError`. Any of those bubbled out of WordPress's request lifecycle as a fatal — the host's reverse proxy turned that into a generic 500.
+2. **No memory / time-limit raise before reading the workbook.** PhpSpreadsheet wants 64–128MB even with `setReadDataOnly(true)`. Shared hosts default to 64MB. OOM → fatal → 500.
+3. **`post_max_size` overflow leaves `$_POST` and `$_FILES` empty.** `admin-post.php` then refuses the action entirely (no `action`, no nonce). The user sees WP's generic "Are you sure you want to do this?" page or a 413 from the host.
 
 ## What changed
 
-**(1) Top-level lands on Account.** `add_menu_page( 'talenttrack', … )` now calls `AccountPage::render` instead of `Menu::dashboard`. The legacy stats-and-tiles view moved to its own `tt-dashboard` submenu (renamed `Menu::dashboard` → `Menu::renderDashboardTiles`). The top-level cap stays `read` so non-operators land safely on the Plan tab.
-
-**(2) AccountPage gains tabs.**
-
-| Tab | Cap | Content |
-| - | - | - |
-| **Account** | `tt_edit_settings` | Tier, trial/grace state, usage vs caps, trial CTAs, dev-override reset, phone-home diagnostics |
-| **Plan & restrictions** | `read` | Current plan banner, caps table with at-cap warnings, full Free / Standard / Pro feature matrix with effective tier highlighted |
-
-`?tab=plan|account` controls dispatch. Default is **Account** for operators, **Plan & restrictions** for read-only users. Operators see both tab links; non-operators see only the Plan tab. The standalone `PlanOverviewPage` class is deleted; the `tt-license-plan` slug is retired.
-
-**(3) Spond / Migrations / Help & Docs relocated.**
-
-- **Spond** — moved from direct `add_submenu_page` at admin_menu priority 30 (`SpondOverviewPage::register`) into the **Configuration** group via `AdminMenuRegistry::register`. Cap stays `tt_edit_teams`.
-- **Migrations** — moved from direct `add_submenu_page` at admin_menu priority 20 (`MenuExtension::register_submenu`) into the **Configuration** group too. Cap is now uniformly `tt_view_migrations`. The pending-count badge in the menu label was dropped — the existing pending-migration banner stays the primary visibility surface (and is described as such in the code).
-- **Help & Docs** — used to register without a `group`, which left it visually trailing whatever ran before the late-priority items. Now registered with its own `tt-sep-help` separator group when the legacy menu is on.
-
-The Account submenu's cap is relaxed from `tt_edit_settings` → `read` because the page now hosts the read-only Plan tab. Operator-only sections inside the Account tab still self-gate inline. Trial-handler redirects (`handleStartTrial`, `handleResetTrial`, `handlePhoneHomeNow`) now land on `&tab=account`.
+- **`ExcelImporter::importFile()` now catches `\Throwable`**, not just `\Exception`. Any TypeError / Error from PhpSpreadsheet becomes the same friendly "Could not read the workbook: …" error the existing path returns.
+- **`DemoDataPage::handleExcelImport()` raises `wp_raise_memory_limit('admin')` + `set_time_limit(0)`** before invoking the importer.
+- **The importer call is wrapped in another `\Throwable` catch** as a defence-in-depth net for any fatal slipping past the inner catch (Logger writes the error class + message before bouncing).
+- **Both the `tt_demo_excel_import` and `tt_demo_generate` handlers detect the `post_max_size` overflow** (POST request with non-zero Content-Length but empty `$_POST`) at the top of the handler and bounce with "Upload exceeded the server's POST size limit (post_max_size = …MB)".
+- **`UPLOAD_ERR_*` codes get specific operator-readable messages** instead of "Upload failed (error code 1)". `UPLOAD_ERR_INI_SIZE` names `upload_max_filesize`; `UPLOAD_ERR_NO_TMP_DIR` names `upload_tmp_dir`; and so on.
+- **The upload form surfaces the server's actual limits** below the file input — `upload_max_filesize`, `post_max_size`, `memory_limit` — so an operator can size their workbook before the upload fails.
 
 ## Files touched
 
-- `talenttrack.php` — version bump to 3.90.0
-- `src/Modules/License/Admin/AccountPage.php` — tab dispatch, `renderAccountTab`, `renderPlanTab`, `featureCatalogue`, redirects updated
-- `src/Modules/License/Admin/PlanOverviewPage.php` — deleted (folded into AccountPage as a tab)
-- `src/Modules/License/LicenseModule.php` — drop the `PlanOverviewPage::init` boot call
-- `src/Shared/Admin/Menu.php` — top-level callback → `AccountPage::render`; `dashboard()` renamed to `renderDashboardTiles()`
-- `src/Shared/Admin/MenuExtension.php` — drop direct migrations submenu registration; banner-only now
-- `src/Shared/Admin/AdminMenuRegistry.php` — docblock reference update
-- `src/Shared/CoreSurfaceRegistration.php` — Account cap relaxed; new Dashboard submenu; Spond + Migrations registered under Configuration; Help group separator + Help & Docs in `help` group; new `M_SPOND` constant
-- `src/Modules/Spond/Admin/SpondOverviewPage.php` — drop direct submenu registration
-- `src/Modules/Onboarding/Admin/OnboardingBanner.php` — docblock reference update
-- `languages/talenttrack-nl_NL.po` — 1 new NL msgid
-- `docs/license-and-account.md` + `docs/nl_NL/license-and-account.md` — Account-page section explaining the tabs
+- `talenttrack.php` — version bump to 3.90.1
+- `src/Modules/DemoData/Excel/ExcelImporter.php` — catch `\Throwable`
+- `src/Modules/DemoData/Admin/DemoDataPage.php` — raise memory + time limits, wrap importer in Throwable catch, detect post_max_size overflow, friendlier UPLOAD_ERR messages, surface server limits in the form
+- `languages/talenttrack-nl_NL.po` — 14 new NL msgids
 - `SEQUENCE.md` — Done row added
