@@ -468,14 +468,24 @@ class PlayersRestController {
 
     public static function delete_player( \WP_REST_Request $r ) {
         global $wpdb;
-        $ok = $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => 'deleted' ], [ 'id' => (int) $r['id'], 'club_id' => CurrentClub::id() ] );
+        $id = (int) $r['id'];
+        // v3.89.2 — soft-archive via `archived_at` + `archived_by`, not via
+        // `status='deleted'`. The list query (line 154) filters on
+        // `p.archived_at IS NULL`, so writing to `status` left the row in
+        // the active list — operator clicked Delete and saw "nothing
+        // happened". Mirrors `delete_team`'s archive shape (TeamsRestController).
+        $ok = $wpdb->update(
+            $wpdb->prefix . 'tt_players',
+            [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id() ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
         if ( $ok === false ) {
-            Logger::error( 'rest.player.delete.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => (int) $r['id'] ] );
+            Logger::error( 'rest.player.delete.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
             return RestResponse::errors( [
                 [ 'code' => 'db_error', 'message' => __( 'The player could not be deleted.', 'talenttrack' ) ],
             ], 500 );
         }
-        return RestResponse::success( [ 'deleted' => true ] );
+        return RestResponse::success( [ 'archived' => true, 'id' => $id ] );
     }
 
     private static function validateCustomFields( \WP_REST_Request $r ): array {
