@@ -1,3 +1,25 @@
+# TalentTrack v3.92.2 — Quick wins: activity picker dedup, goal-detail back-button, docs drawer, my-card print icon
+
+Four small polish fixes sliced out of the operator's 10-item pilot batch as the fast cluster (PR 1 of 3). Larger eval-wizard + branding-page work ships next.
+
+## Fix 1 — Activity picker showed the same activity twice
+
+`Modules\Wizards\Evaluation\ActivityPickerStep::recentRateableActivities()` returned duplicate rows when a coach held multiple functional-role rows on one team. The IN-branch sub-SELECT (`SELECT tp.team_id FROM tt_team_people tp ...`) returns one row per FR-on-team, and on certain MySQL plans the optimiser materialises that as a join rather than a set membership — multiplying the outer activity row.
+
+Added `GROUP BY a.id, a.title, a.session_date, a.activity_type_key, t.name` defensively. Doesn't change semantics; collapses any row-multiplication regardless of which OR branch fires.
+
+## Fix 2 — Goal detail showed two "← Back to dashboard" buttons
+
+`FrontendMyGoalsView::renderGoalDetail()` called `FrontendBackButton::render( $back_url )` explicitly and then `renderHeader()` which renders the back button again as its built-in fallback. Removed the explicit call; `FrontendBackButton::resolveTarget()` strips `id` from the request URL so the default-arg back button lands on `?tt_view=my-goals` correctly without the override.
+
+## Fix 3 — "How does this work?" docs link opens drawer instead of new tab
+
+The goal detail page's docs link used `<a target="_blank">` to the docs surface — opens a new browser tab and loses the operator's place. Swapped for `HelpDrawer::button( 'conversational-goals', __( 'How does this work?', 'talenttrack' ) )`. The drawer DOM + `docs-drawer.js` shipped with #0016 Part B; this is just a single component swap. Right-side drawer animates in over the current page; close button preserves the operator's scroll position.
+
+## Fix 4 — My-card print button: subtle icon top-right
+
+`FrontendOverviewView::renderMyCard()` had a full-width "Print report" `tt-btn-secondary` button at the bottom of the side column. Repositioned to the card area with `position: absolute; top: 8px; right: 8px;`, replaced with a 32×32 print SVG icon, and given a hover-only background to keep visual weight low. `title` + `aria-label` carry "Print report" for accessibility. The print URL itself is unchanged (`?tt_print=N` opens the report in a new tab via `Stats\PrintRouter`).
+
 # TalentTrack v3.92.1 — Demo runs now produce journey events + one-click "Rebuild journey events"
 
 Operator asked: *how do I get journey entries into my demo dataset?* Today the journey table is empty after a demo run because the demo generators write rows with raw `$wpdb->insert` and don't fire the runtime hooks that `JourneyEventSubscriber` listens for. Migration 0037 ran a one-shot backfill at install time but won't re-fire for new demo data.

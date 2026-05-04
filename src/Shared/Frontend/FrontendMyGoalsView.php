@@ -105,10 +105,13 @@ class FrontendMyGoalsView extends FrontendViewBase {
             $goal_id, (int) $player->id
         ) );
 
-        $back_url = remove_query_arg( [ 'id' ] );
-        FrontendBackButton::render( $back_url );
-
         if ( ! $goal ) {
+            // v3.92.2 — was rendering FrontendBackButton::render() and
+            // then renderHeader() which renders ANOTHER back button via
+            // its built-in fallback. Pilot operator reported the
+            // duplicate. renderHeader's resolveTarget() strips `id`
+            // from the URL, so the default-arg back button lands on
+            // `?tt_view=my-goals` correctly without the explicit call.
             self::renderHeader( __( 'Goal not found', 'talenttrack' ) );
             echo '<p><em>' . esc_html__( 'That goal is no longer available, or it does not belong to your record.', 'talenttrack' ) . '</em></p>';
             return;
@@ -142,15 +145,17 @@ class FrontendMyGoalsView extends FrontendViewBase {
         // player + parent see chat-style messages without leaving
         // this surface.
         if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' ) ) {
-            // #0063 — header + help link.
-            $help_url = add_query_arg(
-                [ 'tt_view' => 'docs', 'topic' => 'conversational-goals' ],
-                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-            );
+            // v3.92.2 — was a target=_blank anchor opening the docs page
+            // in a new tab; pilot operator wanted the right-side help
+            // drawer instead. HelpDrawer::button outputs the
+            // [data-tt-docs-drawer-open] hook docs-drawer.js listens for
+            // (drawer DOM + JS already shipped in #0016 Part B).
             echo '<header style="display:flex; align-items:baseline; gap:8px; margin: 1.25rem 0 0.5rem;">';
             echo '<h3 style="margin:0; font-size:1rem;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h3>';
-            echo '<a class="tt-link" href="' . esc_url( $help_url ) . '" target="_blank" rel="noopener" style="font-size:12px; color:#5b6e75;">'
-               . esc_html__( 'How does this work?', 'talenttrack' ) . '</a>';
+            \TT\Shared\Frontend\Components\HelpDrawer::button(
+                'conversational-goals',
+                __( 'How does this work?', 'talenttrack' )
+            );
             echo '</header>';
             \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, get_current_user_id() );
         }
