@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.91.4
+Stable tag: 3.91.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.91.5 — Reports launcher: removed wp-admin sub-tile + missing tile descriptions translated =
+
+Operator complaint on the Reports launcher: clicking the third sub-tile ("Player Progress & Radar") punted the user to wp-admin in a new tab — frontend tiles must not do that. Same surface had two tile descriptions still rendering English on Dutch installs. Fix: (1) **Legacy "Player Progress & Radar" sub-tile removed** from `FrontendReportsLauncherView`. The view itself still exists at `wp-admin/admin.php?page=tt-reports&report=legacy` for admins who navigate directly; the frontend just doesn't advertise it anymore. Porting it natively (Chart.js + form-submit round-trip) is tracked separately if asked. (2) **Two missing translations added**: the persona-dashboard Reports tile description ("Player progress, team rating averages, coach activity.") and the launcher's Coach activity sub-tile description ("Per-coach evaluation count and recent cadence."). Other tile labels + descriptions on the launcher were already translated.
 
 = 3.91.4 — Edit row-action on teams / players / people landed on detail page; row actions now cap-gated =
 

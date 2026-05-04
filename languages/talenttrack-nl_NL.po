@@ -2591,6 +2591,14 @@ msgstr "Coachactiviteit"
 msgid "Evaluations saved per coach, last 30 / 90 days."
 msgstr "Evaluaties opgeslagen per coach, laatste 30 / 90 dagen."
 
+# v3.91.5 — Reports launcher tile descriptions
+
+msgid "Per-coach evaluation count and recent cadence."
+msgstr "Aantal evaluaties per coach en recente cadans."
+
+msgid "Player progress, team rating averages, coach activity."
+msgstr "Spelersvoortgang, team-beoordelingsgemiddelden, coachactiviteit."
+
 msgid "Average rating per team across main categories, computed from all evaluations of players currently assigned to each team. Archived players and archived evaluations are excluded."
 msgstr "Gemiddelde beoordeling per team over de hoofdcategorieën, berekend op basis van alle evaluaties van spelers die momenteel aan elk team zijn toegewezen. Gearchiveerde spelers en gearchiveerde evaluaties worden uitgesloten."
 
