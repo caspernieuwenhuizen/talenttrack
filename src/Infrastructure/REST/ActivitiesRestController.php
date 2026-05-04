@@ -278,8 +278,16 @@ class ActivitiesRestController {
         $roster  = (int) ( $row->roster_size ?? 0 );
         $count   = (int) ( $row->attendance_count ?? 0 );
         $present = (int) ( $row->present_count ?? 0 );
+        $status  = (string) ( $row->activity_status_key ?? 'planned' );
+        // v3.87.1 — only compute attendance % for activities that
+        // actually happened. Planned/cancelled rows previously rendered
+        // 0% which looked like real data — operators on the JG4IT pilot
+        // mistook the column for "no-one showed up" instead of "didn't
+        // happen yet / won't happen".
         // #0061 — pct = present / roster, not recorded / roster.
-        if ( $roster > 0 ) $attendance_pct = (int) round( ( $present / $roster ) * 100 );
+        if ( $roster > 0 && ! in_array( $status, [ 'planned', 'cancelled' ], true ) ) {
+            $attendance_pct = (int) round( ( $present / $roster ) * 100 );
+        }
 
         $type_key = (string) ( $row->activity_type_key ?? 'training' );
 
