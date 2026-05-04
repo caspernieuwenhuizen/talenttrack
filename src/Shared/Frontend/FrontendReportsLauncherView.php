@@ -35,6 +35,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Reports', 'talenttrack' ) );
         self::renderHeader( __( 'Reports', 'talenttrack' ) );
 
         $base_url = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();

@@ -13,6 +13,47 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 final class FrontendBreadcrumbs {
 
     /**
+     * v3.92.1 sweep helper. Most views need a "Dashboard / [self]" or
+     * "Dashboard / [parent list] / [self]" chain. Constructs the
+     * Dashboard crumb (URL via `RecordLink::dashboardUrl()`), appends
+     * any caller-supplied intermediate crumbs, then the un-linked
+     * current-page crumb.
+     *
+     * @param string                             $current_label  Current page label (no url, last crumb).
+     * @param array<int,array{label:string,url:string}>|null $intermediate Optional crumbs between Dashboard and current.
+     */
+    public static function fromDashboard( string $current_label, ?array $intermediate = null ): void {
+        $items = [
+            [
+                'label' => __( 'Dashboard', 'talenttrack' ),
+                'url'   => RecordLink::dashboardUrl(),
+            ],
+        ];
+        if ( $intermediate !== null ) {
+            foreach ( $intermediate as $crumb ) {
+                $items[] = $crumb;
+            }
+        }
+        $items[] = [ 'label' => $current_label ];
+        self::render( $items );
+    }
+
+    /**
+     * Convenience constructor for an intermediate crumb pointing at a
+     * `?tt_view=<slug>` route (the most common shape inside the
+     * dispatcher).
+     *
+     * @return array{label:string,url:string}
+     */
+    public static function viewCrumb( string $slug, string $label, array $extra_args = [] ): array {
+        $args = array_merge( [ 'tt_view' => $slug ], $extra_args );
+        return [
+            'label' => $label,
+            'url'   => add_query_arg( $args, RecordLink::dashboardUrl() ),
+        ];
+    }
+
+    /**
      * @param array<int,array{label:string,url?:?string}> $items
      */
     public static function render( array $items ): void {

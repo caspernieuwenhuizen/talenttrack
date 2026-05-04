@@ -29,16 +29,24 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         }
 
         $team = QueryHelpers::get_team( $team_id );
-        $back_url = remove_query_arg( [ 'id' ] );
-        FrontendBackButton::render( $back_url, __( '← Back to teams', 'talenttrack' ) );
 
+        // v3.92.1 — breadcrumb chain replaces the standalone back link.
+        $teams_label = __( 'Teams', 'talenttrack' );
         if ( ! $team ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Team not found', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'teams', $teams_label ) ]
+            );
             self::renderHeader( __( 'Team not found', 'talenttrack' ) );
             echo '<p><em>' . esc_html__( 'That team is no longer available.', 'talenttrack' ) . '</em></p>';
             return;
         }
 
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            (string) $team->name,
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'teams', $teams_label ) ]
+        );
         self::renderHeader( (string) $team->name );
 
         $roster = QueryHelpers::get_players( $team_id );

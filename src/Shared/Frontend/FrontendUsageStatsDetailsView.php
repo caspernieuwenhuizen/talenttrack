@@ -39,6 +39,11 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
         $metric = isset( $_GET['metric'] ) ? sanitize_key( (string) $_GET['metric'] ) : '';
         $days   = isset( $_GET['days'] ) ? max( 1, min( 90, absint( $_GET['days'] ) ) ) : 30;
 
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            __( 'Usage detail', 'talenttrack' ),
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'usage-stats', __( 'Application KPIs', 'talenttrack' ) ) ]
+        );
+
         // v3.75.3 — FrontendBackButton signature now takes target_url
         // first, label second. Pass empty target so it resolves to the
         // dashboard, with the explicit label.

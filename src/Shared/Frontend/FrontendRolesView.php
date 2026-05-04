@@ -30,6 +30,7 @@ class FrontendRolesView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Roles & rights', 'talenttrack' ) );
         self::renderHeader( __( 'Roles & capabilities', 'talenttrack' ) );
 
         $roles_admin_url = admin_url( 'admin.php?page=tt-roles' );

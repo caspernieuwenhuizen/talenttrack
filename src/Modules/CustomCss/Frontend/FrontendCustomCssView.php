@@ -101,6 +101,8 @@ class FrontendCustomCssView extends FrontendViewBase {
         wp_enqueue_script( 'wp-codemirror' );
         wp_enqueue_style( 'wp-codemirror' );
 
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Custom CSS', 'talenttrack' ) );
+
         $surface = isset( $_GET['surface'] ) ? CustomCssRepository::sanitizeSurface( (string) $_GET['surface'] ) : CustomCssRepository::SURFACE_FRONTEND;
         $tab     = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : 'visual';
         $messages = self::readStashedMessages();

@@ -34,6 +34,22 @@ class FrontendPdpManageView extends FrontendViewBase {
         $file_id = isset( $_GET['id'] )     ? absint( $_GET['id'] ) : 0;
         $conv_id = isset( $_GET['conv'] )   ? absint( $_GET['conv'] ) : 0;
 
+        // v3.92.1 — breadcrumb chain. Action / id state determines depth.
+        $pdp_label = __( 'PDP', 'talenttrack' );
+        if ( $action === 'new' ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'New PDP file', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'pdp', $pdp_label ) ]
+            );
+        } elseif ( $file_id > 0 ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'PDP file detail', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'pdp', $pdp_label ) ]
+            );
+        } else {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $pdp_label );
+        }
+
         if ( $action === 'new' ) {
             self::renderCreateForm( $user_id, $is_admin );
             return;

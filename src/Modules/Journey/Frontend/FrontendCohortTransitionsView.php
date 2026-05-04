@@ -28,6 +28,8 @@ class FrontendCohortTransitionsView {
             return;
         }
 
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Cohort transitions', 'talenttrack' ) );
+
         $event_type = isset( $_GET['event_type'] ) ? sanitize_key( (string) $_GET['event_type'] ) : '';
         $from       = isset( $_GET['from'] ) ? sanitize_text_field( (string) $_GET['from'] ) : '';
         $to         = isset( $_GET['to'] ) ? sanitize_text_field( (string) $_GET['to'] ) : '';
