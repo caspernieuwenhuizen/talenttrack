@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.92.4
+Stable tag: 3.92.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.92.5 — Pilot batch PR 3: branding logo, my-activities styling, activity detail polish, PDP redirect + signed status green =
+
+PR 3 of 3 — closes the operator's 10-item pilot batch. Five fixes in one ship. **(1) Branding "Choose logo" button did nothing on Dutch installs.** The inline `<script>` guarded the entire IIFE on `wp.media` being ready at script-execution time; if media-views.js hadn't loaded yet, the click handler was never registered. Moved the readiness check inside the click handler so the button always responds, with a console warn if media truly failed to load. **(2) `?tt_view=my-activities` table didn't match other lists.** Switched the custom `<table class="tt-table tt-table-sortable">` to the same `tt-list-table-table` inside `tt-list-table-wrap` that admin lists use via `FrontendListTable::render()` — same chrome (fonts, padding, hover, zebra) without porting the data layer. Full migration to `FrontendListTable::render` is a follow-up requiring a per-player REST scope. **(3) Activity display page visually unappealing.** Was a flat `<dl>`. Mirrored the goal-detail card chrome — `tt-activity-detail` wrapper with a meta row (date, team, opponent, location, type pill, attendance status badge with green/red colour) plus a "Notes from your coach" body section. New CSS: `.tt-activity-detail`, `.tt-activity-detail-meta`, `.tt-activity-detail-body`, `.tt-meta-chip`. **(4) PDP conversation save/sign should land back on the file.** Added two new public.js redirect modes — `data-redirect-after-save="reload"` (in-place reload, used by the player-side reflection + ack forms on `?tt_view=my-pdp`) and `data-redirect-after-save-url="…"` (explicit URL, used by the coach-side conversation form on `?tt_view=pdp&id=N&conv=M` to land on `?tt_view=pdp&id=N`). **(5) PDP signed status now green.** Replaced inline `style="color:#2c8a2c"` on "You acknowledged" / "Coach signed off" notices with semantic classes `tt-pdp-acked` / `tt-pdp-signed-off` reading `var(--tt-color-success, #16a34a)`. Also added per-status background overrides for `.tt-status-badge` so the conversations table shows distinct colours per status (signed-off green, scheduled blue, in-progress amber).
 
 = 3.92.4 — Eval wizard: Mark all present + non-admin save no longer silently 403'd =
 

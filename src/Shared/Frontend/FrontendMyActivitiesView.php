@@ -59,9 +59,6 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             $activity_id
         ) );
 
-        $back_url = remove_query_arg( [ 'id' ] );
-        FrontendBackButton::render( $back_url );
-
         if ( ! $row ) {
             self::renderHeader( __( 'Activity not found', 'talenttrack' ) );
             echo '<p><em>' . esc_html__( 'That activity is no longer available.', 'talenttrack' ) . '</em></p>';
@@ -79,32 +76,61 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         $title = (string) \TT\Modules\Translations\TranslationLayer::render( (string) ( $row->title ?: '' ) );
         if ( $title === '' ) $title = __( 'Activity', 'talenttrack' );
         self::renderHeader( $title );
+
+        // v3.92.5 — was a flat `<dl class="tt-profile-dl">` with no card
+        // chrome, no badge for attendance status, and no visual grouping.
+        // Pilot operator: "the display page of an activity is visually
+        // not very appealing." Mirroring the goal-detail pattern
+        // (`tt-goal-detail` wrapper + meta row with badges + body) so the
+        // two surfaces feel consistent.
+        $session_date = (string) ( $row->session_date ?: '' );
+        $opponent     = (string) ( $row->opponent ?? '' );
+        $location     = (string) ( $row->location ?? '' );
+        $team_name    = (string) ( $row->team_name ?? '' );
+        $att_status   = $att ? (string) ( $att->status ?? '' ) : '';
+        $att_notes    = $att && ! empty( $att->notes ) ? (string) $att->notes : '';
+        $type_key     = (string) ( $row->activity_type_key ?? '' );
+        $att_status_lower = strtolower( $att_status );
+        $att_status_class = $att_status_lower === 'present'
+            ? 'tt-status-completed'
+            : ( $att_status_lower === 'absent' ? 'tt-status-pending' : '' );
         ?>
-        <article class="tt-mya-detail">
-            <dl class="tt-profile-dl">
-                <dt><?php esc_html_e( 'Date', 'talenttrack' ); ?></dt>
-                <dd><?php echo esc_html( (string) ( $row->session_date ?: '—' ) ); ?></dd>
-                <?php if ( ! empty( $row->team_name ) ) : ?>
-                    <dt><?php esc_html_e( 'Team', 'talenttrack' ); ?></dt>
-                    <dd><?php echo esc_html( (string) $row->team_name ); ?></dd>
+        <article class="tt-activity-detail">
+            <p class="tt-activity-detail-meta">
+                <?php if ( $session_date !== '' ) : ?>
+                    <span class="tt-due"><?php esc_html_e( 'Date:', 'talenttrack' ); ?> <?php echo esc_html( $session_date ); ?></span>
                 <?php endif; ?>
-                <?php if ( ! empty( $row->opponent ) ) : ?>
-                    <dt><?php esc_html_e( 'Opponent', 'talenttrack' ); ?></dt>
-                    <dd><?php echo esc_html( (string) $row->opponent ); ?></dd>
+                <?php if ( $team_name !== '' ) : ?>
+                    <span class="tt-meta-chip"><?php esc_html_e( 'Team:', 'talenttrack' ); ?> <strong><?php echo esc_html( $team_name ); ?></strong></span>
                 <?php endif; ?>
-                <?php if ( ! empty( $row->location ) ) : ?>
-                    <dt><?php esc_html_e( 'Location', 'talenttrack' ); ?></dt>
-                    <dd><?php echo esc_html( (string) $row->location ); ?></dd>
+                <?php if ( $opponent !== '' ) : ?>
+                    <span class="tt-meta-chip"><?php esc_html_e( 'Opponent:', 'talenttrack' ); ?> <strong><?php echo esc_html( $opponent ); ?></strong></span>
                 <?php endif; ?>
-                <?php if ( $att ) : ?>
-                    <dt><?php esc_html_e( 'Your attendance', 'talenttrack' ); ?></dt>
-                    <dd><?php echo esc_html( LabelTranslator::attendanceStatus( (string) ( $att->status ?? '' ) ) ); ?></dd>
-                    <?php if ( ! empty( $att->notes ) ) : ?>
-                        <dt><?php esc_html_e( 'Notes', 'talenttrack' ); ?></dt>
-                        <dd><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $att->notes ) ); ?></dd>
-                    <?php endif; ?>
+                <?php if ( $location !== '' ) : ?>
+                    <span class="tt-meta-chip"><?php esc_html_e( 'Location:', 'talenttrack' ); ?> <strong><?php echo esc_html( $location ); ?></strong></span>
                 <?php endif; ?>
-            </dl>
+                <?php if ( $type_key !== '' ) : ?>
+                    <span class="tt-status-badge"><?php echo esc_html( ucfirst( str_replace( '_', ' ', $type_key ) ) ); ?></span>
+                <?php endif; ?>
+                <?php if ( $att_status !== '' ) : ?>
+                    <span class="tt-status-badge <?php echo esc_attr( $att_status_class ); ?>">
+                        <?php
+                        echo esc_html( sprintf(
+                            /* translators: %s = attendance status label (Present / Absent / Late / etc.) */
+                            __( 'Your attendance: %s', 'talenttrack' ),
+                            LabelTranslator::attendanceStatus( $att_status )
+                        ) );
+                        ?>
+                    </span>
+                <?php endif; ?>
+            </p>
+
+            <?php if ( $att_notes !== '' ) : ?>
+                <section class="tt-activity-detail-body">
+                    <h3 style="margin:0 0 var(--tt-sp-2); font-size:1rem;"><?php esc_html_e( 'Notes from your coach', 'talenttrack' ); ?></h3>
+                    <p><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( $att_notes ) ); ?></p>
+                </section>
+            <?php endif; ?>
         </article>
         <?php
     }
@@ -214,38 +240,50 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'No attendance records match these filters.', 'talenttrack' ) . '</p>';
             return;
         }
+        // v3.92.5 — was rendering a `tt-table tt-table-sortable` table
+        // which doesn't pick up the same chrome the admin-side coach
+        // activity lists use (those use `FrontendListTable::render`,
+        // which emits `tt-list-table-table` inside `tt-list-table-wrap`).
+        // Operator on pilot install: "my activities table list is not
+        // like other table lists; align". Quick alignment: switch to
+        // the shared list-table classes + wrap so the fonts, padding,
+        // hover, and zebra striping match. Full migration to
+        // `FrontendListTable::render` requires a per-player REST scope
+        // on /activities — out of scope; tracked as a follow-up.
         ?>
-        <table class="tt-table tt-table-sortable">
-            <thead>
-                <tr>
-                    <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Activity', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $base_url = remove_query_arg( [ 'id' ] );
-                foreach ( $att as $a ) :
-                    $status_lower = strtolower( (string) $a->status );
-                    $cls = $status_lower === 'present'
-                        ? 'tt-att-present'
-                        : ( $status_lower === 'absent' ? 'tt-att-absent' : 'tt-att-other' );
-                    $detail_url = add_query_arg( 'id', (int) $a->activity_id, $base_url );
-                    ?>
-                    <tr class="<?php echo esc_attr( $cls ); ?> tt-row-clickable" data-tt-href="<?php echo esc_url( $detail_url ); ?>">
-                        <td><a class="tt-row-link" href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( (string) $a->session_date ); ?></a></td>
-                        <td><a class="tt-row-link" href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $a->session_title ) ); ?></a></td>
-                        <td><?php echo esc_html( LabelTranslator::attendanceStatus( (string) $a->status ) ); ?></td>
-                        <td><?php
-                            $notes = (string) ( $a->notes ?: '' );
-                            echo $notes !== '' ? esc_html( \TT\Modules\Translations\TranslationLayer::render( $notes ) ) : '—';
-                        ?></td>
+        <div class="tt-list-table-wrap">
+            <table class="tt-list-table-table">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Activity', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php
+                    $base_url = remove_query_arg( [ 'id' ] );
+                    foreach ( $att as $a ) :
+                        $status_lower = strtolower( (string) $a->status );
+                        $cls = $status_lower === 'present'
+                            ? 'tt-att-present'
+                            : ( $status_lower === 'absent' ? 'tt-att-absent' : 'tt-att-other' );
+                        $detail_url = add_query_arg( 'id', (int) $a->activity_id, $base_url );
+                        ?>
+                        <tr class="<?php echo esc_attr( $cls ); ?> tt-row-clickable" data-tt-href="<?php echo esc_url( $detail_url ); ?>">
+                            <td><a class="tt-row-link" href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( (string) $a->session_date ); ?></a></td>
+                            <td><a class="tt-row-link" href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $a->session_title ) ); ?></a></td>
+                            <td><?php echo esc_html( LabelTranslator::attendanceStatus( (string) $a->status ) ); ?></td>
+                            <td><?php
+                                $notes = (string) ( $a->notes ?: '' );
+                                echo $notes !== '' ? esc_html( \TT\Modules\Translations\TranslationLayer::render( $notes ) ) : '—';
+                            ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
         <?php
     }
 

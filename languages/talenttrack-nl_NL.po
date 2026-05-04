@@ -2172,6 +2172,21 @@ msgstr "Coach:"
 msgid "Date:"
 msgstr "Datum:"
 
+# v3.92.5 — Activity detail polish (PR 3 of pilot batch)
+
+msgid "Opponent:"
+msgstr "Tegenstander:"
+
+msgid "Location:"
+msgstr "Locatie:"
+
+msgid "Notes from your coach"
+msgstr "Opmerkingen van je coach"
+
+#. translators: %s = attendance status label (Present / Absent / Late / etc.)
+msgid "Your attendance: %s"
+msgstr "Jouw aanwezigheid: %s"
+
 msgid "(%d eval)"
 msgid_plural "(%d evals)"
 msgstr[0] "(%d eval.)"

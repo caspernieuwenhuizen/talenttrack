@@ -1,3 +1,71 @@
+# TalentTrack v3.92.5 — Pilot batch PR 3: branding logo, my-activities, activity detail, PDP redirect + signed green
+
+PR 3 of 3 — closes the operator's 10-item pilot batch. Five fixes in one ship.
+
+## Fix 1 — Branding "Choose logo" button did nothing
+
+`FrontendConfigurationView::renderConfigJs( true )` rendered an inline `<script>` that guarded the entire IIFE on `wp.media` being ready at script-execution time:
+
+```js
+if (typeof wp !== 'undefined' && wp.media) {
+    var pickBtn = document.getElementById('tt-cfg-logo-pick');
+    if (pickBtn) pickBtn.addEventListener('click', ...);
+}
+```
+
+Inline `<script>` runs at parse time. `wp_enqueue_media()` registers media-views.js for footer enqueueing; on Dutch installs the page-load order had the inline script execute before the media script, so `wp.media` was undefined → entire block skipped → click listener never bound → button silently did nothing.
+
+**Fix**: moved the readiness check inside the click handler. The button always responds; if `wp.media` isn't loaded at click time (would be unusual at this point in the lifecycle) we `console.warn` and return.
+
+## Fix 2 — `?tt_view=my-activities` table styling didn't match other lists
+
+`FrontendMyActivitiesView::renderTable()` rendered a custom `<table class="tt-table tt-table-sortable">`. Admin-side and most coach-side lists use `FrontendListTable::render()` which emits `<div class="tt-list-table-wrap"><table class="tt-list-table-table">…`. Different chrome — different fonts, padding, hover treatment, zebra striping.
+
+**Fix**: switched the rendered classes to `tt-list-table-table` inside `tt-list-table-wrap`. Visual alignment without porting the data layer to REST. A full migration to `FrontendListTable::render()` requires a per-player scope on `/activities` REST + handling guest_player_id; tracked as a follow-up.
+
+## Fix 3 — Activity display page visually unappealing
+
+`FrontendMyActivitiesView::renderDetail()` was a flat `<dl class="tt-profile-dl">` with dt/dd pairs for date / team / opponent / location / attendance / notes. No card chrome, no badge pills, no visual grouping.
+
+**Fix**: mirrored the goal-detail pattern. New structure:
+
+```html
+<article class="tt-activity-detail">
+  <p class="tt-activity-detail-meta">
+    <span class="tt-due">Date: 2026-04-12</span>
+    <span class="tt-meta-chip">Team: <strong>U13-1</strong></span>
+    <span class="tt-meta-chip">Opponent: <strong>SV Capelle</strong></span>
+    <span class="tt-status-badge">Match</span>
+    <span class="tt-status-badge tt-status-completed">Your attendance: Present</span>
+  </p>
+  <section class="tt-activity-detail-body">
+    <h3>Notes from your coach</h3>
+    <p>…</p>
+  </section>
+</article>
+```
+
+New CSS in `assets/css/public.css`: `.tt-activity-detail` (white card with border + radius), `.tt-activity-detail-meta` (flex row, divider underneath), `.tt-meta-chip` (subtle inline chip), `.tt-activity-detail-body`. Attendance status badge picks up the per-status colour override (Fix 5).
+
+## Fix 4 — PDP conversation save/sign should land back on file
+
+Two new public.js redirect modes added to the existing `data-redirect-after-save` ladder:
+
+- `data-redirect-after-save="reload"` — `window.location.reload()` after the success toast. Used by the player-side reflection + ack forms on `?tt_view=my-pdp` where the form lives on the same page as the data it edits; reloading re-renders the page with the new state.
+- `data-redirect-after-save-url="<URL>"` — explicit URL redirect. Used by the coach-side conversation form on `?tt_view=pdp&id=N&conv=M` to land on `?tt_view=pdp&id=N` (the parent file view).
+
+Both wait for the success toast before navigating (1.2s) so the operator sees confirmation before the page changes.
+
+## Fix 5 — PDP "signed" status should be green
+
+Two layers of fix:
+
+- **Inline ack/signoff notices**: replaced `style="color:#2c8a2c"` on `<p>` tags with semantic classes `tt-pdp-acked` (player + parent ack on `FrontendMyPdpView`) and `tt-pdp-signed-off` (coach signoff on `FrontendPdpManageView`). Both read `var(--tt-color-success, #16a34a)` so the Theme & fonts surface can re-theme via the existing success-color picker.
+- **Status pill override**: the conversations-table status pill (`tt-status-badge.tt-status-completed`) was showing the default `--tt-primary` (brand dark green) for ALL statuses, making "signed off" indistinguishable from "scheduled" / "held". Added per-status background overrides:
+  - `.tt-status-completed` / `.tt-status-signed_off` → `--tt-color-success` (success green)
+  - `.tt-status-scheduled` → `--tt-color-info` (blue)
+  - `.tt-status-in-progress` / `.tt-status-in_progress` → `--tt-color-warning` (amber)
+
 # TalentTrack v3.92.4 — Eval wizard: Mark all present + non-admin save no longer silently 403'd
 
 PR 2 of 3 from the operator's pilot batch. Three related fixes on the new-evaluation wizard.

@@ -413,6 +413,11 @@ class FrontendPdpManageView extends FrontendViewBase {
 
         $is_signed = ! empty( $conv->coach_signoff_at );
         $rest_path = 'pdp-conversations/' . (int) $conv->id;
+        // v3.92.5 — after save / sign, land back on the parent PDP file
+        // (same URL the "← Back to file" button points at). Public.js
+        // honours `data-redirect-after-save-url` and waits for the
+        // success toast before navigating.
+        $back_to_file_url = add_query_arg( [ 'tt_view' => 'pdp', 'id' => (int) $file->id ], $base_url );
 
         // #0063 — switch from a cramped 1fr / 280px sidebar layout to a
         // simple tab strip: Conversation | Evidence. CSS-only toggle
@@ -462,7 +467,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         // Main form column (Conversation pane).
         echo '<div class="tt-pdp-conv-pane" data-tt-pdp-pane="conversation" role="tabpanel">';
         ?>
-        <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH">
+        <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save-url="<?php echo esc_attr( $back_to_file_url ); ?>">
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-conv-scheduled"><?php esc_html_e( 'Scheduled at', 'talenttrack' ); ?></label>
                 <input type="datetime-local" id="tt-conv-scheduled" name="scheduled_at" class="tt-input"
@@ -502,7 +507,7 @@ class FrontendPdpManageView extends FrontendViewBase {
                     </label>
                 </div>
             <?php else : ?>
-                <p style="color:#2c8a2c; margin:8px 0;"><strong><?php esc_html_e( 'Signed off', 'talenttrack' ); ?></strong> — <?php echo esc_html( (string) $conv->coach_signoff_at ); ?></p>
+                <p class="tt-pdp-signed-off"><strong><?php esc_html_e( 'Signed off', 'talenttrack' ); ?></strong> — <?php echo esc_html( (string) $conv->coach_signoff_at ); ?></p>
             <?php endif; ?>
 
             <div class="tt-form-actions" style="margin-top:16px;">
