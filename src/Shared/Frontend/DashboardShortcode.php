@@ -165,7 +165,6 @@ class DashboardShortcode {
 
         $user_id  = get_current_user_id();
         $is_admin = current_user_can( 'tt_edit_settings' );
-        $is_coach = current_user_can( 'tt_edit_evaluations' );
         $player   = QueryHelpers::get_player_for_user( $user_id );
 
         // v3.0.0 — tile-based routing. Each ?tt_view=<slug> maps to a
@@ -231,7 +230,21 @@ class DashboardShortcode {
             // boot. Owner is resolved from the TileRegistry entry whose
             // `view_slug` matches.
             self::renderModuleDisabledNotice();
+        } elseif ( ! self::matrixDispatchAllows( $view, $user_id ) ) {
+            // #0079 — when the view's tile declares a matrix entity AND
+            // the matrix is active, MatrixGate is the sole authority for
+            // dispatch. Generic notice — the previous per-class strings
+            // ("only available for coaches and administrators", etc.)
+            // collapse here because the matrix already encodes which
+            // personas reach which surface, and the operator edits that
+            // truth on the matrix admin page rather than memorising
+            // which view class belongs to which class of users.
+            FrontendBackButton::render();
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this surface.', 'talenttrack' ) . '</p>';
         } elseif ( in_array( $view, $me_slugs, true ) ) {
+            // The `$player` check is a data prerequisite (the Me-group
+            // views render off the linked player record), not an
+            // authorisation question. Auth lives in the matrix gate above.
             if ( $player ) {
                 self::dispatchMeView( $view, $player );
             } else {
@@ -239,21 +252,9 @@ class DashboardShortcode {
                 echo '<p class="tt-notice">' . esc_html__( 'This section is only available for users linked to a player record.', 'talenttrack' ) . '</p>';
             }
         } elseif ( in_array( $view, $coaching_slugs, true ) ) {
-            if ( $is_coach || $is_admin ) {
-                self::dispatchCoachingView( $view, $user_id, $is_admin );
-            } else {
-                FrontendBackButton::render();
-                echo '<p class="tt-notice">' . esc_html__( 'This section is only available for coaches and administrators.', 'talenttrack' ) . '</p>';
-            }
+            self::dispatchCoachingView( $view, $user_id, $is_admin );
         } elseif ( in_array( $view, $analytics_slugs, true ) ) {
-            // Analytics slugs — tt_view_reports is the gate. Observer
-            // has it; so do coaches, admins, club admins, and head dev.
-            if ( current_user_can( 'tt_view_reports' ) ) {
-                self::dispatchAnalyticsView( $view );
-            } else {
-                FrontendBackButton::render();
-                echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to analytics views.', 'talenttrack' ) . '</p>';
-            }
+            self::dispatchAnalyticsView( $view );
         } elseif ( in_array( $view, $admin_slugs, true ) ) {
             // #0019 Sprint 5 — admin-tier surfaces. The view classes
             // each re-check the cap, so dispatching unauthenticated
@@ -294,6 +295,49 @@ class DashboardShortcode {
         /** @var string $filtered */
         $filtered = apply_filters( 'tt_dashboard_data', $output, $user_id );
         return $filtered;
+    }
+
+    /**
+     * #0079 — single matrix-driven gate consulted before every
+     * dispatch. Replaces the per-class `$is_coach || $is_admin`,
+     * `current_user_can('tt_view_reports')`, and friend gates.
+     *
+     * Returns true when:
+     *  - The view slug has no tile-declared entity (slug-only routes,
+     *    sub-views the dispatcher reaches without a tile of their own).
+     *  - The matrix is dormant (`tt_authorization_active = 0`). On
+     *    matrix-dormant installs the per-view cap re-checks inside
+     *    each FrontendXyzView::render are the gate. #0071 documented
+     *    that matrix-dormant installs are out of scope for this work.
+     *  - The user is a WordPress administrator (mirrors the bypass
+     *    every other matrix consumer applies).
+     *  - `MatrixGate::canAnyScope($user_id, $entity, 'read')` returns
+     *    true.
+     */
+    private static function matrixDispatchAllows( string $view, int $user_id ): bool {
+        if ( $view === '' ) return true;
+        if ( ! class_exists( '\\TT\\Shared\\Tiles\\TileRegistry' ) ) return true;
+        $entity = \TT\Shared\Tiles\TileRegistry::entityForViewSlug( $view );
+        if ( $entity === null ) return true;
+        if ( ! self::matrixActive() ) return true;
+        if ( $user_id <= 0 ) return false;
+        $user = get_user_by( 'id', $user_id );
+        if ( $user instanceof \WP_User && in_array( 'administrator', (array) $user->roles, true ) ) return true;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return true;
+        return \TT\Modules\Authorization\MatrixGate::canAnyScope( $user_id, $entity, 'read' );
+    }
+
+    private static ?bool $matrix_active_cache = null;
+
+    private static function matrixActive(): bool {
+        if ( self::$matrix_active_cache !== null ) return self::$matrix_active_cache;
+        if ( ! class_exists( '\\TT\\Infrastructure\\Config\\ConfigService' ) ) {
+            self::$matrix_active_cache = false;
+            return false;
+        }
+        $cfg = new \TT\Infrastructure\Config\ConfigService();
+        self::$matrix_active_cache = (bool) $cfg->getBool( 'tt_authorization_active', false );
+        return self::$matrix_active_cache;
     }
 
     /**

@@ -81,6 +81,12 @@ Functional roles are club-real roles (Head coach, Assistant coach, Physio) that 
 
 Example: your "Head coach" functional role could automatically grant users the `tt_coach` WordPress role. Then when you assign a person to a team with "Head coach", they get evaluation rights automatically.
 
+Assigning a person via Functional Roles also writes a row to `tt_user_role_scopes` (scope_type=`team`, scope_id=the team) so the matrix's team-scope check returns true for that person on that team. Removing the last assignment for a (person, team) pair removes the matching scope row. Multi-role-on-same-team users keep one scope row until the last role is unassigned. The backfill migration `0062_fr_assignment_scope_backfill.php` covered installs that pre-dated this wiring (#0079).
+
+## Tile visibility uses dedicated entities (#0079)
+
+Dashboard tiles that resolve to a coach- or admin-only surface declare a tile-specific matrix entity (`team_roster_panel`, `coach_player_list_panel`, `evaluations_panel`, `activities_panel`, `goals_panel`, `podium_panel`, `team_chemistry_panel`, `pdp_panel`, `people_directory_panel`, `wp_admin_portal`) distinct from the underlying data entity (`team`, `players`, `evaluations`, …). The data entities continue to gate REST + repository reads — the dispatcher and tile gate consult the *_panel entity, so granting "scout reads team data globally" no longer puts a coach-side **My teams** tile on the scout's dashboard. The dispatcher (`DashboardShortcode`) reads the entity from the tile registry and asks `MatrixGate::canAnyScope` for the same answer as the tile gate, eliminating the previous case where a tile rendered but the destination view rejected with *"This section is only available for coaches and administrators."*
+
 ## Permission debug
 
 **Access Control → Permission Debug** lets you inspect any user's effective capabilities. Useful when a user reports "I can't see X" — check what they actually have.

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.90.2
+Stable tag: 3.91.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.91.0 — Tile-entity disambiguation + FR assignment scope sync (#0079) =
+
+Closes the last two gaps where the authorization matrix gave a wrong answer at runtime. (a) Coach-side dashboard tiles (My teams, My players, People, Evaluations, Activities, Goals, Podium, Team chemistry, PDP, Open wp-admin) now declare a tile-specific matrix entity (e.g. `team_roster_panel`) distinct from the underlying data entity. Scout legitimately reads team and player data globally for scouting, but no longer sees coach-side tiles whose destination view rejects them. (b) Functional Role assignments now write the matching `tt_user_role_scopes` row so MatrixGate's team-scope check returns true for FR-assigned head coaches / assistant coaches / team managers — fixing the dashboard that previously showed only Methodology. Backfill migration `0062_fr_assignment_scope_backfill.php` covers existing installs. Dispatcher refactor in `DashboardShortcode` collapses the per-class role gates (`is_coach || is_admin`, `tt_view_reports`) into one `MatrixGate::canAnyScope` call via a new `TileRegistry::entityForViewSlug()` helper. Drops the seed bug `frontend_admin: r global` for scout.
 
 = 3.90.2 — Demo data: per-category selective generation + selective wipe =
 

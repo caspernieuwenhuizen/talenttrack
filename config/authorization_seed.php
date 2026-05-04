@@ -197,6 +197,18 @@ return array_merge(
         'trial_inputs'               => [ 'c',   'team',   $mod_trials ],
         'player_timeline'            => [ 'r',   'team',   $mod_journey ],
         'invitations'                => [ 'c',   'team',   $mod_invitations ],
+        // #0079 — tile-visibility entities. Distinct from the data
+        // entities above so the matrix can answer "see this tile" and
+        // "read this data" separately. All matrix-only (no cap bridge).
+        'team_roster_panel'          => [ 'r',   'team',   $mod_teams ],
+        'coach_player_list_panel'    => [ 'r',   'team',   $mod_players ],
+        'people_directory_panel'     => [ 'r',   'team',   $mod_people ],
+        'evaluations_panel'          => [ 'r',   'team',   $mod_evals ],
+        'activities_panel'           => [ 'r',   'team',   $mod_activities ],
+        'goals_panel'                => [ 'r',   'team',   $mod_goals ],
+        'podium_panel'               => [ 'r',   'team',   $mod_stats ],
+        'team_chemistry_panel'       => [ 'r',   'team',   $mod_team_dev ],
+        'pdp_panel'                  => [ 'r',   'team',   $mod_pdp ],
     ] ),
 
     // ─── HEAD COACH ─────────────────────────────────────────────────
@@ -252,6 +264,16 @@ return array_merge(
         'trial_decisions'            => [ 'r',   'team',   $mod_trials ],
         'trial_letters_generated'    => [ 'r',   'team',   $mod_trials ],
         'trial_case_staff'           => [ 'r',   'team',   $mod_trials ],
+        // #0079 — tile-visibility entities (matrix-only).
+        'team_roster_panel'          => [ 'r',   'team',   $mod_teams ],
+        'coach_player_list_panel'    => [ 'r',   'team',   $mod_players ],
+        'people_directory_panel'     => [ 'r',   'team',   $mod_people ],
+        'evaluations_panel'          => [ 'r',   'team',   $mod_evals ],
+        'activities_panel'           => [ 'r',   'team',   $mod_activities ],
+        'goals_panel'                => [ 'r',   'team',   $mod_goals ],
+        'podium_panel'               => [ 'r',   'team',   $mod_stats ],
+        'team_chemistry_panel'       => [ 'r',   'team',   $mod_team_dev ],
+        'pdp_panel'                  => [ 'r',   'team',   $mod_pdp ],
     ] ),
 
     // ─── TEAM MANAGER ───────────────────────────────────────────────
@@ -290,6 +312,18 @@ return array_merge(
         'player_status'              => [ 'r',   'team',   $mod_players ],
         'player_behaviour_ratings'   => [ 'r',   'team',   $mod_players ],
         'player_timeline'            => [ 'r',   'team',   $mod_journey ],
+        // #0079 — tile-visibility entities (matrix-only). Team manager
+        // sees coach-side tiles read-only; their write surface is
+        // activities + attendance, gated by the data entities above.
+        'team_roster_panel'          => [ 'r',   'team',   $mod_teams ],
+        'coach_player_list_panel'    => [ 'r',   'team',   $mod_players ],
+        'people_directory_panel'     => [ 'r',   'team',   $mod_people ],
+        'evaluations_panel'          => [ 'r',   'team',   $mod_evals ],
+        'activities_panel'           => [ 'r',   'team',   $mod_activities ],
+        'goals_panel'                => [ 'r',   'team',   $mod_goals ],
+        'podium_panel'               => [ 'r',   'team',   $mod_stats ],
+        'team_chemistry_panel'       => [ 'r',   'team',   $mod_team_dev ],
+        'pdp_panel'                  => [ 'r',   'team',   $mod_pdp ],
     ] ),
 
     // ─── SCOUT ──────────────────────────────────────────────────────
@@ -315,7 +349,9 @@ return array_merge(
         'team_chemistry'             => [ 'r',   'global', $mod_team_dev ],
         'workflow_tasks'             => [ 'r',   'self',   $mod_workflow ],
         'task_completion'            => [ 'rc',  'self',   $mod_workflow ],
-        'frontend_admin'             => [ 'r',   'global', $mod_authorization ],
+        // #0079 — `frontend_admin` removed. Scout never reaches admin-tier
+        // surfaces (Configuration / Migrations / Application KPIs / Open
+        // wp-admin). The grant was a v3.39.0 strawman holdover.
         'dev_ideas'                  => [ 'c',   'global', $mod_development ],
         'thread_messages'            => [ 'r',   'global', $mod_threads ],
         'staff_development'          => [ 'rc',  'self',   $mod_staff_dev ],
@@ -438,6 +474,19 @@ return array_merge(
         'scout_history'                 => [ 'r',   'global', $mod_reports ],
         // impersonation: HoD reads the audit, cannot impersonate
         'impersonation_log'             => [ 'r',   'global', $mod_authorization ],
+        // #0079 — tile-visibility entities (matrix-only). HoD's lens is
+        // academy-wide; all coach panels at global scope. wp_admin_portal
+        // intentionally NOT granted — admin-tier portal is academy_admin
+        // only.
+        'team_roster_panel'             => [ 'r',   'global', $mod_teams ],
+        'coach_player_list_panel'       => [ 'r',   'global', $mod_players ],
+        'people_directory_panel'        => [ 'r',   'global', $mod_people ],
+        'evaluations_panel'             => [ 'r',   'global', $mod_evals ],
+        'activities_panel'              => [ 'r',   'global', $mod_activities ],
+        'goals_panel'                   => [ 'r',   'global', $mod_goals ],
+        'podium_panel'                  => [ 'r',   'global', $mod_stats ],
+        'team_chemistry_panel'          => [ 'r',   'global', $mod_team_dev ],
+        'pdp_panel'                     => [ 'r',   'global', $mod_pdp ],
     ] ),
 
     // ─── ACADEMY ADMIN ──────────────────────────────────────────────
@@ -537,5 +586,18 @@ return array_merge(
         // tenant guard in ImpersonationService enforces single-club.
         'impersonation_action'          => [ 'c',   'global', $mod_authorization ],
         'impersonation_log'             => [ 'rcd', 'global', $mod_authorization ],
+        // #0079 — tile-visibility entities (matrix-only). Admin sees
+        // every coach panel at global scope and is the sole holder of
+        // the wp_admin_portal grant.
+        'team_roster_panel'             => [ 'r',   'global', $mod_teams ],
+        'coach_player_list_panel'       => [ 'r',   'global', $mod_players ],
+        'people_directory_panel'        => [ 'r',   'global', $mod_people ],
+        'evaluations_panel'             => [ 'r',   'global', $mod_evals ],
+        'activities_panel'              => [ 'r',   'global', $mod_activities ],
+        'goals_panel'                   => [ 'r',   'global', $mod_goals ],
+        'podium_panel'                  => [ 'r',   'global', $mod_stats ],
+        'team_chemistry_panel'          => [ 'r',   'global', $mod_team_dev ],
+        'pdp_panel'                     => [ 'r',   'global', $mod_pdp ],
+        'wp_admin_portal'               => [ 'r',   'global', $mod_authorization ],
     ] )
 );

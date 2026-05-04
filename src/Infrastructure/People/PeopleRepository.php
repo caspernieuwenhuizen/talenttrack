@@ -289,6 +289,13 @@ class PeopleRepository {
         ] );
         if ( $result === false ) return false;
 
+        // #0079 — sync the matching tt_user_role_scopes row so MatrixGate's
+        // team-scope check returns true for this person. Sprint 7 of #0071
+        // declared "assignment auto-elevates within scope" but the write
+        // path was never wired; this is the implementation. Idempotent: a
+        // person assigned multiple roles on the same team gets one scope row.
+        self::syncTeamScopeRow( $team_id, $person_id );
+
         /**
          * Fires after a person is assigned to a team.
          *
@@ -305,8 +312,85 @@ class PeopleRepository {
     public function unassign( int $assignment_id ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
+
+        // #0079 — read the (team_id, person_id) pair before deleting so we
+        // can re-evaluate scope-row presence after the delete. Otherwise
+        // the row is gone and we cannot tell which team's scope to check.
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT team_id, person_id FROM {$p}tt_team_people WHERE id = %d AND club_id = %d",
+            $assignment_id, CurrentClub::id()
+        ) );
+
         $result = $wpdb->delete( "{$p}tt_team_people", [ 'id' => $assignment_id, 'club_id' => CurrentClub::id() ] );
-        return $result !== false;
+        if ( $result === false ) return false;
+
+        // Sync after delete: removes the scope row only when no other
+        // assignment for the same (person, team) survives. Multi-role-on-
+        // same-team users keep their scope row until the last role is
+        // unassigned.
+        if ( $row !== null ) {
+            self::syncTeamScopeRow( (int) $row->team_id, (int) $row->person_id );
+        }
+
+        return true;
+    }
+
+    /**
+     * #0079 — keep `tt_user_role_scopes` in sync with the FR assignments
+     * for a single (person, team) pair. Called from both `assignToTeam`
+     * and `unassign`. The matrix's team-scope check at
+     * `MatrixGate::userHasAnyScope` reads exactly this table; without the
+     * sync, FR-assigned coaches fail every team-scoped tile gate.
+     *
+     * Behaviour:
+     *  - If at least one `tt_team_people` row remains for the pair, ensure
+     *    a single `tt_user_role_scopes` row exists.
+     *  - Otherwise, remove the scope row.
+     *
+     * `role_id` on the scope row is set to 0. `MatrixGate::userHasScope`
+     * never consults it for team-scope checks (#0033 schema kept the
+     * column for legacy walks but the matrix only reads scope_type +
+     * scope_id + date range). The legacy `tt_authorization_user_walk`
+     * migration that did populate it is now historical.
+     */
+    private static function syncTeamScopeRow( int $team_id, int $person_id ): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        if ( $team_id <= 0 || $person_id <= 0 ) return;
+
+        $remaining = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_team_people
+              WHERE person_id = %d AND team_id = %d AND club_id = %d",
+            $person_id, $team_id, CurrentClub::id()
+        ) );
+
+        if ( $remaining > 0 ) {
+            $exists = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$p}tt_user_role_scopes
+                  WHERE person_id = %d AND scope_type = 'team' AND scope_id = %d AND club_id = %d
+                  LIMIT 1",
+                $person_id, $team_id, CurrentClub::id()
+            ) );
+            if ( $exists <= 0 ) {
+                $wpdb->insert( "{$p}tt_user_role_scopes", [
+                    'club_id'    => CurrentClub::id(),
+                    'person_id'  => $person_id,
+                    'role_id'    => 0,
+                    'scope_type' => 'team',
+                    'scope_id'   => $team_id,
+                    'start_date' => null,
+                    'end_date'   => null,
+                ] );
+            }
+            return;
+        }
+
+        $wpdb->delete( "{$p}tt_user_role_scopes", [
+            'club_id'    => CurrentClub::id(),
+            'person_id'  => $person_id,
+            'scope_type' => 'team',
+            'scope_id'   => $team_id,
+        ] );
     }
 
     // Internal helpers
