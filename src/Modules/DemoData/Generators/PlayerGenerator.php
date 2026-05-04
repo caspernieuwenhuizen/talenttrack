@@ -129,6 +129,7 @@ class PlayerGenerator {
                     $player_binding_slot++;
                 }
 
+                $date_joined = $this->randomJoinDate();
                 $wpdb->insert( "{$wpdb->prefix}tt_players", [
                     'club_id'             => CurrentClub::id(),
                     'first_name'          => $fn,
@@ -141,11 +142,23 @@ class PlayerGenerator {
                     'preferred_positions' => (string) wp_json_encode( $pos ),
                     'jersey_number'       => $jersey,
                     'team_id'             => (int) $team->id,
-                    'date_joined'         => $this->randomJoinDate(),
+                    'date_joined'         => $date_joined,
                     'wp_user_id'          => $wp_user_id,
                     'status'              => 'active',
                 ] );
                 $player_id = (int) $wpdb->insert_id;
+
+                // v3.91.7 — fire the same hook the runtime player-create
+                // path fires so JourneyEventSubscriber writes a
+                // `joined_academy` event for this player. Without this
+                // hook, demo runs leave `tt_player_events` empty.
+                if ( $player_id > 0 ) {
+                    do_action( 'tt_player_created', $player_id, [
+                        'date_joined' => $date_joined,
+                        'team_id'     => (int) $team->id,
+                        'status'      => 'active',
+                    ] );
+                }
 
                 // Sync the bound WP user's names to the generated player so
                 // every frontend view that reads wp_user->display_name or

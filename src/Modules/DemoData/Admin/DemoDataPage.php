@@ -43,6 +43,8 @@ class DemoDataPage {
         // #0059 — Excel-driven demo data.
         add_action( 'admin_post_tt_demo_excel_template', [ self::class, 'handleTemplateDownload' ] );
         add_action( 'admin_post_tt_demo_excel_import',   [ self::class, 'handleExcelImport' ] );
+        // v3.91.7 — rebuild journey events (one-shot, idempotent).
+        add_action( 'admin_post_tt_demo_journey_rebuild', [ self::class, 'handleJourneyRebuild' ] );
     }
 
     public static function render(): void {
@@ -96,6 +98,7 @@ class DemoDataPage {
             <?php self::renderFootprint( $counts ); ?>
             <?php self::renderCredentials( $last_accounts ); ?>
             <?php self::renderGenerateSection(); ?>
+            <?php self::renderJourneyRebuildSection(); ?>
             <?php self::renderWipeSection(); ?>
             <?php self::renderBatches( $batches ); ?>
         </div>
@@ -169,6 +172,19 @@ class DemoDataPage {
         } elseif ( $notice === 'users_wiped' ) {
             ?>
             <div class="notice notice-success"><p><?php esc_html_e( 'Demo users removed.', 'talenttrack' ); ?></p></div>
+            <?php
+        } elseif ( $notice === 'journey_rebuilt' ) {
+            $walked = isset( $_GET['tt_demo_journey_walked'] ) ? (int) $_GET['tt_demo_journey_walked'] : 0;
+            ?>
+            <div class="notice notice-success">
+                <p>
+                    <?php echo esc_html( sprintf(
+                        /* translators: %d is the row-walk count across evaluations + goals + verdicts + players + trials */
+                        __( 'Journey events rebuilt — walked %d source rows. New events were inserted where missing; existing events were left untouched.', 'talenttrack' ),
+                        $walked
+                    ) ); ?>
+                </p>
+            </div>
             <?php
         } elseif ( $notice === 'mode' ) {
             ?>
@@ -571,6 +587,31 @@ class DemoDataPage {
         return $name !== '' ? $name : 'Demo Academy';
     }
 
+    /**
+     * v3.91.7 — one-click "Rebuild journey events" section.
+     *
+     * Demo data created before v3.91.7 didn't fire the runtime hooks
+     * (`tt_player_created`, `tt_evaluation_saved`, etc.) so journey
+     * events never landed. The button calls `JourneyBackfillService::
+     * rebuildAll()` which walks the source tables and emits events via
+     * `EventEmitter::emit()` — idempotent on uk_natural so safe to
+     * re-run any time. Useful for both demo data and any real data
+     * that bulk-imported without hooks firing.
+     */
+    private static function renderJourneyRebuildSection(): void {
+        ?>
+        <h2 style="margin-top:32px;"><?php esc_html_e( 'Rebuild journey events', 'talenttrack' ); ?></h2>
+        <p style="max-width:720px;">
+            <?php esc_html_e( 'Walk every evaluation, goal, PDP verdict, player join-date, and trial case in this club and emit any missing journey events. Idempotent — re-running is safe and fills only the gap. Use this after a demo run on installs that pre-date the v3.91.7 generator hooks, or anytime a bulk import bypassed the runtime save hooks.', 'talenttrack' ); ?>
+        </p>
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin:0;">
+            <?php wp_nonce_field( 'tt_demo_journey_rebuild', 'tt_demo_nonce' ); ?>
+            <input type="hidden" name="action" value="tt_demo_journey_rebuild" />
+            <?php submit_button( __( 'Rebuild journey events', 'talenttrack' ), 'secondary', '', false ); ?>
+        </form>
+        <?php
+    }
+
     private static function renderWipeSection(): void {
         $user_count = count( DemoBatchRegistry::persistentEntityIds( 'wp_user' ) );
         // v3.90.1 — per-category counts for the wipe-form preview. Each
@@ -937,6 +978,33 @@ class DemoDataPage {
         }
 
         wp_safe_redirect( add_query_arg( 'tt_demo_msg', 'users_wiped', $redirect ) );
+        exit;
+    }
+
+    public static function handleJourneyRebuild(): void {
+        if ( ! current_user_can( self::CAP ) ) {
+            wp_die( esc_html__( 'Insufficient permissions.', 'talenttrack' ) );
+        }
+        check_admin_referer( 'tt_demo_journey_rebuild', 'tt_demo_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'demo.journey_rebuild' );
+
+        // Backfill walks every player/eval/goal/etc. — generous time
+        // budget on shared hosts.
+        if ( function_exists( 'set_time_limit' ) ) {
+            @set_time_limit( 300 );
+        }
+
+        $stats = \TT\Infrastructure\Journey\JourneyBackfillService::rebuildAll();
+        $total = (int) array_sum( $stats );
+
+        $redirect = add_query_arg(
+            [
+                'tt_demo_msg'             => 'journey_rebuilt',
+                'tt_demo_journey_walked'  => $total,
+            ],
+            admin_url( 'tools.php?page=' . self::SLUG )
+        );
+        wp_safe_redirect( $redirect );
         exit;
     }
 

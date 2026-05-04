@@ -1,3 +1,40 @@
+# TalentTrack v3.92.1 — Demo runs now produce journey events + one-click "Rebuild journey events"
+
+Operator asked: *how do I get journey entries into my demo dataset?* Today the journey table is empty after a demo run because the demo generators write rows with raw `$wpdb->insert` and don't fire the runtime hooks that `JourneyEventSubscriber` listens for. Migration 0037 ran a one-shot backfill at install time but won't re-fire for new demo data.
+
+## Fix 1 — Generators emit the runtime hooks
+
+`Modules\DemoData\Generators\PlayerGenerator` / `EvaluationGenerator` / `GoalGenerator` now `do_action()` the existing hooks after each insert:
+
+| Generator | Hook fired | JourneyEventSubscriber writes |
+|-----------|-----------|------------------------------|
+| `PlayerGenerator` | `do_action('tt_player_created', $player_id, ['date_joined' => …, 'team_id' => …, 'status' => 'active'])` | `joined_academy` event |
+| `EvaluationGenerator` | `do_action('tt_evaluation_saved', $player_id, $eval_id)` | `evaluation_completed` event |
+| `GoalGenerator` | `do_action('tt_goal_saved', $player_id, $goal_id, ['title' => …])` | `goal_set` event |
+
+Demo runs from this version onward populate `tt_player_events` automatically. `EventEmitter::emit()` is idempotent on `uk_natural` so duplicate inserts (e.g. running the same demo seed twice) are a no-op.
+
+## Fix 2 — "Rebuild journey events" button on the Demo Data page
+
+New button on `Tools → TalentTrack Demo Data`. Calls `JourneyBackfillService::rebuildAll()` which walks every evaluation, goal, signed-off PDP verdict, player join-date, and trial case in the active club and emits any missing events via `EventEmitter::emit()`. Same logic migration 0037 ran at install time, exposed as a callable. Idempotent. Returns a stats array (rows walked per event type) which the success notice surfaces.
+
+Useful for:
+
+- **Existing demo installs** that have data from before v3.91.7 (when the generators didn't fire hooks)
+- **Bulk-import paths** that bypass runtime save hooks (CSV imports, Excel imports, direct DB inserts)
+- **Recovery** after the journey table got out of sync with the source tables
+
+The service is in `Infrastructure\Journey\JourneyBackfillService` (public static), not stuck behind the migration boundary, so future surfaces (a Tools page, a CLI command, a per-player "rebuild this player's journey" admin action) can call it too.
+
+## What's not in this PR
+
+- **`tt_player_events` rows are not currently demo-tagged.** The wipe-data form's category cascade leaves journey events behind when wiping demo evaluations / goals / players. Logical follow-up: add `tt_player_events` to `DemoDataCleaner::CATEGORIES` so wiping cascades through the journey table on the natural-key (source_module, source_entity_type, source_entity_id) → tracked separately if asked.
+- **`team_changed` / `position_changed` / `signed` / `released` / `graduated` events** require firing `tt_player_save_diff` with old + new state arrays. The demo generators only insert players (no later edits), so those events stay out of demo data. Would need a "demo lifecycle" pass that simulates a season's worth of team-changes / promotions; out of scope here.
+
+## Renumbering
+
+v3.91.7 → v3.92.1 after v3.92.0 (tile bucket + Mijn POP leak + my-settings + player file polish) landed mid-CI.
+
 # TalentTrack v3.92.0 — Tile bucket fixed; "Mijn POP" no longer leaks to coaches; "My settings" works for everyone; player file polish
 
 Five fixes from the pilot install's same-day feedback. Quick-fix bundle while the bigger player-file UX redesign and breadcrumb sweep are shaped separately.

@@ -146,6 +146,12 @@ class EvaluationGenerator {
                 ] );
                 $total_evals++;
 
+                // v3.91.7 — fire the runtime hook so JourneyEventSubscriber
+                // writes an `evaluation_completed` journey event for this
+                // evaluation. Without this hook, demo runs leave
+                // `tt_player_events` empty for this category.
+                do_action( 'tt_evaluation_saved', (int) $p->id, $eval_id );
+
                 foreach ( $categories as $cat ) {
                     $bias       = self::CATEGORY_BIASES[ $cat->name ] ?? 0.0;
                     $main_base  = $this->archetypeRating( $archetype, $t ) + $bias;
