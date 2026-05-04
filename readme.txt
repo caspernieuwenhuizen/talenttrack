@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.91.6
+Stable tag: 3.92.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.92.0 — Tile bucket fixed; "Mijn POP" no longer leaks to coaches; "My settings" works for everyone; player file polish =
+
+Five fixes from the pilot install's same-day feedback. **(1) Tile bucket fixed.** `FrontendTileGrid::splitByKind` was bucketing groups by label name (hardcoding `Development` and `Administration` as Setup) — but two distinct groups carry the `Development` label (player development holding the PDP tiles, plugin idea-pipeline holding Submit-an-Idea / Approval queue / etc.). The label rule routed both to Setup; coaches saw the PDP tile under Setup → Development instead of Werk van vandaag → Development. Now uses the tile's own `kind` field — a group is `work` if any of its tiles is `kind=work`, otherwise `setup`. Idea-pipeline group label renamed to `Idea pipeline` to disambiguate visually. **(2) "Mijn POP" leaked to coaches/HoD/scout.** The Me-group "My PDP" tile used the data entity `pdp_file` which coaches read at team scope and HoD/scout at global. Disambiguated via a new tile-visibility entity `my_pdp_panel` (player r[self], parent r[player] only). Same disambiguation pattern as #0079. New migration `0064_authorization_seed_topup_my_pdp_panel.php` backfills the entity into existing installs. **(3) Staff-development "My PDP" tile relabeled to "My staff PDP"** so coaches don't read it as the player surface. **(4) "My settings" works for non-player users.** `my-settings` was in `$me_slugs` which gates on the `$player` linked-record check. A coach clicking the user-menu dropdown got "only available for users linked to a player record" — wrong. Routed to a separate `$account_slugs` branch with no player gate; works for every logged-in persona. `FrontendMySettingsView::render` signature relaxed to `?object $player = null`. **(5) Player file polish.** The page no longer renders the player's name three times — only the breadcrumb crumb + the page title. Title is now "Player file of {name}" (NL: "Spelersdossier van {name}") instead of just the name. Profile tab field order: DOB / position / foot / jersey / status / age tier (was: age tier / DOB / ...) — DOB and position are the most-asked facts; age tier is a derived convenience and lands last. Bigger player-file UX redesign + breadcrumb sweep across the rest of the detail/manage views remain shaped follow-ups, not in this PR.
 
 = 3.91.6 — Player comparison: Team → Player two-step picker + growable slots =
 

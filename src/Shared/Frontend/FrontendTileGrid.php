@@ -196,21 +196,32 @@ class FrontendTileGrid {
     }
 
     /**
-     * Sprint 4 — split rendered groups into work + setup buckets by
-     * label. Groups not declared in either map default to work.
+     * Split rendered groups into work + setup buckets by each tile's
+     * `kind` field. A group bucket = work if any of its tiles is `kind=work`;
+     * otherwise setup.
+     *
+     * v3.92.0 — was a label-based heuristic that hardcoded "Development"
+     * and "Administration" as setup. That collided with the player-
+     * development "Development" group (PDP + PDP planning, both `kind=work`)
+     * registered in #0079 — which then rendered under Setup despite its
+     * tiles being work. The label-based rule also hid the kind field's
+     * intent: tiles declare their own kind, the renderer should respect it.
      *
      * @param array<int, array{label:string, tiles:array}> $groups
      * @return array{0: array<int, array>, 1: array<int, array>}
      */
     private static function splitByKind( array $groups ): array {
-        $setup_labels = [
-            __( 'Development', 'talenttrack' ),
-            __( 'Administration', 'talenttrack' ),
-        ];
         $work = [];
         $setup = [];
         foreach ( $groups as $g ) {
-            if ( in_array( (string) $g['label'], $setup_labels, true ) ) {
+            $bucket = 'setup';
+            foreach ( $g['tiles'] as $t ) {
+                if ( ( $t['kind'] ?? 'work' ) === 'work' ) {
+                    $bucket = 'work';
+                    break;
+                }
+            }
+            if ( $bucket === 'setup' ) {
                 $setup[] = $g;
             } else {
                 $work[] = $g;

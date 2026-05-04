@@ -69,7 +69,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             [ 'label' => __( 'Players', 'talenttrack' ),   'url' => $players_url ],
             [ 'label' => $name ],
         ] );
-        echo '<h1 class="tt-fview-title" style="margin:6px 0 18px; font-size:22px; color:#1a1d21;">' . esc_html( $name ) . '</h1>';
+        // v3.92.0 — page title is now "Player file of {name}" instead
+        // of just the name. The hero card inside the article already
+        // surfaces the name as `<h2>`; the page title carries the
+        // contextual "this is a player file about ..." framing.
+        /* translators: %s: player display name */
+        $page_title = sprintf( __( 'Player file of %s', 'talenttrack' ), $name );
+        echo '<h1 class="tt-fview-title" style="margin:6px 0 18px; font-size:22px; color:#1a1d21;">' . esc_html( $page_title ) . '</h1>';
 
         $team       = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
         $team_url   = $team ? add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() ) : '';
@@ -85,7 +91,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     <img class="tt-player-detail-photo" src="<?php echo esc_url( $photo ); ?>" alt="" />
                 <?php endif; ?>
                 <div class="tt-player-detail-meta">
-                    <h2 class="tt-player-detail-name"><?php echo esc_html( $name ); ?></h2>
+                    <?php /* v3.92.0 — name is in the page title above and the hero card surfaces it. Drop the redundant duplicate <h2>. The team line + age tier badge on the meta column already anchors the hero visually; the photo + name role is carried by the page <h1>. */ ?>
                     <?php if ( $team ) : ?>
                         <p class="tt-player-detail-team">
                             <?php esc_html_e( 'Team:', 'talenttrack' ); ?>
@@ -152,10 +158,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $positions  = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
         ?>
         <dl class="tt-profile-dl">
-            <?php if ( $tier_label !== '' ) : ?>
-                <dt><?php esc_html_e( 'Age tier', 'talenttrack' ); ?></dt>
-                <dd><?php echo esc_html( $tier_label ); ?></dd>
-            <?php endif; ?>
+            <?php /* v3.92.0 — field order rearranged. DOB and position
+                     are the most asked-about facts on a player file;
+                     age tier is a derived convenience and lands last. */ ?>
             <?php if ( ! empty( $player->date_of_birth ) ) : ?>
                 <dt><?php esc_html_e( 'Date of birth', 'talenttrack' ); ?></dt>
                 <dd><?php echo esc_html( (string) $player->date_of_birth ); ?></dd>
@@ -175,6 +180,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             <?php if ( ! empty( $player->status ) ) : ?>
                 <dt><?php esc_html_e( 'Status', 'talenttrack' ); ?></dt>
                 <dd><?php echo \TT\Infrastructure\Query\LabelTranslator::playerStatus( (string) $player->status ); ?></dd>
+            <?php endif; ?>
+            <?php if ( $tier_label !== '' ) : ?>
+                <dt><?php esc_html_e( 'Age tier', 'talenttrack' ); ?></dt>
+                <dd><?php echo esc_html( $tier_label ); ?></dd>
             <?php endif; ?>
         </dl>
 

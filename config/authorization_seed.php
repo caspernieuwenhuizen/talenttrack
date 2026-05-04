@@ -108,6 +108,12 @@ return array_merge(
         'my_activities'           => [ 'r',   'self',   $mod_activities ],
         'my_goals'                => [ 'r',   'self',   $mod_goals ],
         'my_journey'              => [ 'r',   'self',   $mod_journey ],
+        // v3.92.0 — tile-visibility entity for the Me-group "My PDP"
+        // tile (matrix-only, no cap bridge). Distinct from `pdp_file`
+        // which is the data entity coaches/HoD/scout legitimately read
+        // at team/global scope. Without this disambiguation a coach
+        // sees "Mijn POP" on their dashboard via the data-entity grant.
+        'my_pdp_panel'            => [ 'r',   'self',   $mod_pdp ],
         'player_status'           => [ 'r',   'self',   $mod_players ],
         'pdp_file'                => [ 'r',   'self',   $mod_pdp ],
         'pdp_verdict'             => [ 'r',   'self',   $mod_pdp ],
@@ -133,6 +139,8 @@ return array_merge(
         'my_activities'           => [ 'r',   'player', $mod_activities ],
         'my_goals'                => [ 'r',   'player', $mod_goals ],
         'my_journey'              => [ 'r',   'player', $mod_journey ],
+        // v3.92.0 — see player block; Me-group "My PDP" tile entity.
+        'my_pdp_panel'            => [ 'r',   'player', $mod_pdp ],
         'players'                 => [ 'r',   'player', $mod_players ],
         'team'                    => [ 'r',   'player', $mod_teams ],
         'evaluations'             => [ 'r',   'player', $mod_evals ],
