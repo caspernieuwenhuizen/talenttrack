@@ -40,6 +40,10 @@ class PlayerComparisonPage {
         wp_enqueue_script( 'tt-chartjs',
             'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
             [], '4.4.0', true );
+        // v3.91.6 — Team → Player slot picker JS.
+        wp_enqueue_script( 'tt-comparison-slot-picker',
+            TT_PLUGIN_URL . 'assets/js/components/comparison-slot-picker.js',
+            [], TT_VERSION, true );
 
         // Picked player ids (up to 4 slots). Accept ?p1=...&p2=... .
         $picked = [];
@@ -70,6 +74,15 @@ class PlayerComparisonPage {
              ORDER BY pl.last_name, pl.first_name ASC"
         );
 
+        // v3.91.6 — teams keyed by id for the slot pickers' team `<select>`.
+        $teams_by_id = [];
+        $team_rows   = $wpdb->get_results(
+            "SELECT id, name FROM {$p}tt_teams WHERE archived_at IS NULL ORDER BY name ASC"
+        );
+        foreach ( $team_rows as $tr ) {
+            $teams_by_id[ (int) $tr->id ] = (string) $tr->name;
+        }
+
         ?>
         <div class="wrap">
             <?php BackButton::render( admin_url( 'admin.php?page=talenttrack' ) ); ?>
@@ -97,24 +110,18 @@ class PlayerComparisonPage {
                 $visible_slots = max( 2, min( 4, count( $populated ) + 1 ) );
                 if ( $visible_slots > 4 ) $visible_slots = 4;
                 ?>
-                <div id="tt-compare-slots" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px;">
+                <div id="tt-compare-slots" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
                     <?php for ( $i = 1; $i <= 4; $i++ ) :
-                        $current = $picked[ $i - 1 ] ?? 0;
+                        $current = (int) ( $picked[ $i - 1 ] ?? 0 );
                         $hidden  = ( $i > $visible_slots && $current === 0 );
                         ?>
                         <div class="tt-compare-slot" data-tt-slot="<?php echo (int) $i; ?>" <?php echo $hidden ? 'hidden' : ''; ?>>
-                            <?php
-                            /* translators: %d is slot number */
-                            $slot_label = sprintf( __( 'Player %d', 'talenttrack' ), $i );
-                            echo \TT\Shared\Frontend\Components\PlayerSearchPickerComponent::render( [
-                                'name'             => 'p' . $i,
-                                'label'            => $slot_label,
-                                'selected'         => (int) $current,
-                                'show_team_filter' => true,
-                                'is_admin'         => true,
-                                'players'          => $all_players,
-                            ] );
-                            ?>
+                            <?php echo \TT\Shared\Frontend\Components\ComparisonSlotPicker::render( [
+                                'index'              => $i,
+                                'selected_player_id' => $current,
+                                'players'            => $all_players,
+                                'teams_by_id'        => $teams_by_id,
+                            ] ); ?>
                         </div>
                     <?php endfor; ?>
                 </div>

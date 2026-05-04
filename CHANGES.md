@@ -1,3 +1,53 @@
+# TalentTrack v3.91.6 — Player comparison: Team → Player two-step picker + growable slots
+
+Reworks the player-comparison picker on both the frontend (`?tt_view=compare`) and the wp-admin equivalent (`?page=tt-compare`). The flat search-box approach was unusable on installs with 200+ players across many age groups; the operator asked for a *visual* picker — Team `<select>` first, then Player `<select>` filtered by that team, with a search input above the player select.
+
+## What changed
+
+### New component — `ComparisonSlotPicker`
+
+`src/Shared/Frontend/Components/ComparisonSlotPicker.php`. Renders one slot's worth of UI:
+
+- Slot label ("Player 1", "Player 2", …) + a Clear (×) button (visibility-hidden when slot is empty).
+- Team `<select>` — placeholder "— Pick a team —" + every active team in the club.
+- Search `<input>` — disabled until a team is picked, placeholder "Search players in this team…".
+- Player `<select>` — disabled until a team is picked, placeholder "— Pick a player —".
+- Two embedded `<script type="application/json">` payloads: the player rows (id, name, team_id, search) and the initial selection (player_id, team_id) for hydration.
+
+### New JS — `assets/js/components/comparison-slot-picker.js`
+
+Vanilla, scoped to `[data-tt-slot-picker]`:
+
+- Team `<select>` change → rebuild player options from JSON, filtered by team_id; clear search input.
+- Search input → rebuild player options with team filter + lowercased substring match on the player name.
+- Clear button → reset both `<select>`s to value=0.
+- Initial render with a pre-selected player (URL has `?p1=42`): pre-select team via the embedded JSON, populate options, re-select the player.
+
+The Player `<select>` is rebuilt from JSON each filter change (vs. hide/show on existing `<option>` elements) — works in all browsers without relying on `<option hidden>` quirks.
+
+### Server-side wiring
+
+`FrontendComparisonView` and `Modules\Stats\Admin\PlayerComparisonPage` both:
+
+1. Build `$teams_by_id` from a small `SELECT id, name FROM tt_teams WHERE archived_at IS NULL`.
+2. Replace the per-slot `PlayerSearchPickerComponent::render()` call with `ComparisonSlotPicker::render()`.
+3. Enqueue the new JS via `wp_enqueue_script( 'tt-comparison-slot-picker', … )`.
+4. Strip `team_N` from the `add_query_arg`-preserve loop so refreshing the page doesn't carry stale team filters across edits.
+
+### Slot growth
+
+Visible slots start at 2 by default; the existing "Add another player" button reveals slot 3, then 4 (max). Already-populated slots beyond 2 stay visible by `max( 2, count( populated ) + 1 )`. Both views use the same shape; admin had this since v3.0, frontend gains it now.
+
+## Server contract — unchanged
+
+The dispatch reads `?p1=N&p2=M&p3=O&p4=P` (player IDs) exactly as before. The `team_N` form field is UI state only — the server never reads it. So bookmarked compare URLs from before v3.91.6 still work; the picker hydrates the team `<select>` by looking up each player's team in the embedded JSON on first render.
+
+## What's not in this PR
+
+- No Chart.js or radar/trend changes — those still render the same shape.
+- The legacy wp-admin `?page=tt-reports&report=legacy` view (Player Progress & Radar) is a separate surface and stays untouched here.
+- The `PlayerSearchPickerComponent` (still used by other surfaces — rate cards, guest-attendance, etc.) is unchanged. Only the compare views switch to `ComparisonSlotPicker`.
+
 # TalentTrack v3.91.5 — Reports launcher: removed wp-admin sub-tile + missing tile descriptions translated
 
 Operator complaint on the Reports launcher: clicking the third sub-tile ("Player Progress & Radar") punted them to wp-admin in a new tab. Frontend tiles must not do that. Same surface had two tile descriptions still rendering English on Dutch installs.
