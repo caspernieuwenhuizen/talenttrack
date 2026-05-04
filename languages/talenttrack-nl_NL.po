@@ -12533,8 +12533,8 @@ msgstr "Eerste doel toevoegen"
 msgid "No evaluations yet for this player"
 msgstr "Nog geen evaluaties voor deze speler"
 
-msgid "Evaluations track how the player is developing across your rating categories. Record one after a session."
-msgstr "Evaluaties volgen hoe de speler zich ontwikkelt op je beoordelingscategorieën. Leg er een vast na een sessie."
+msgid "Evaluations track how the player is developing across your rating categories. Record one after a training or match."
+msgstr "Evaluaties volgen hoe de speler zich ontwikkelt op je beoordelingscategorieën. Leg er een vast na een training of wedstrijd."
 
 msgid "Record first evaluation"
 msgstr "Eerste evaluatie vastleggen"
@@ -12563,8 +12563,8 @@ msgstr "POP-cyclus starten"
 msgid "No trial history for this player"
 msgstr "Nog geen stagegeschiedenis voor deze speler"
 
-msgid "A trial case tracks the prospect from first session through to the academy decision. Open one when you want to evaluate this player formally."
-msgstr "Een stagedossier volgt de prospect van eerste sessie tot academiebesluit. Open er een wanneer je deze speler formeel wilt beoordelen."
+msgid "A trial case tracks the prospect from first training through to the academy decision. Open one when you want to evaluate this player formally."
+msgstr "Een stagedossier volgt de prospect van eerste training tot academiebesluit. Open er een wanneer je deze speler formeel wilt beoordelen."
 
 msgid "Open trial case"
 msgstr "Stagedossier openen"

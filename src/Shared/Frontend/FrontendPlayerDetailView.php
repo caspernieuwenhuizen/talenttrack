@@ -429,7 +429,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             EmptyStateCard::render( [
                 'icon'      => 'evaluations',
                 'headline'  => __( 'No evaluations yet for this player', 'talenttrack' ),
-                'explainer' => __( 'Evaluations track how the player is developing across your rating categories. Record one after a session.', 'talenttrack' ),
+                'explainer' => __( 'Evaluations track how the player is developing across your rating categories. Record one after a training or match.', 'talenttrack' ),
                 'cta_label' => __( 'Record first evaluation', 'talenttrack' ),
                 'cta_url'   => add_query_arg(
                     [ 'tt_view' => 'evaluations', 'action' => 'new', 'player_id' => $player_id ],
@@ -545,7 +545,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             EmptyStateCard::render( [
                 'icon'      => 'trials',
                 'headline'  => __( 'No trial history for this player', 'talenttrack' ),
-                'explainer' => __( 'A trial case tracks the prospect from first session through to the academy decision. Open one when you want to evaluate this player formally.', 'talenttrack' ),
+                'explainer' => __( 'A trial case tracks the prospect from first training through to the academy decision. Open one when you want to evaluate this player formally.', 'talenttrack' ),
                 'cta_label' => __( 'Open trial case', 'talenttrack' ),
                 'cta_url'   => add_query_arg(
                     [ 'tt_view' => 'trials', 'action' => 'new', 'player_id' => $player_id ],
