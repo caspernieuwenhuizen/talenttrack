@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.89.2
+Stable tag: 3.89.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.89.3 — Migration 0061: backfill `status='deleted'` players to the canonical archive shape =
+
+Companion to v3.89.2's player-delete fix. Prior installs that ran v3.89.1-or-earlier accumulated `tt_players` rows with `status='deleted'` AND `archived_at IS NULL` — visible in the player list but missing from active-roster counts. Migration 0061 runs on plugin update: sets `archived_at = updated_at` (closer to the actual delete time than NOW()) and `status = 'active'` (so unarchive later doesn't strand the row in a status the system doesn't read). Idempotent — the WHERE clause skips already-correct rows. No operator action required; no SQL to copy-paste.
 
 = 3.89.2 — Frontend Delete Player did nothing — wrote `status` instead of `archived_at` =
 
