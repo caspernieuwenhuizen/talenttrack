@@ -86,7 +86,7 @@ class LicenseGate {
         // enforcement to apply — the Account page (where the operator
         // would start a trial or enter a license key) isn't even
         // reachable, so leaving the cap active would lock them out
-        // with no path back. Discovered on the JG4IT pilot install:
+        // with no path back. Discovered on a pilot install:
         // operator disabled the License module via Authorization →
         // Modules; tried to add a second team; got the cap_teams
         // redirect; landed on a page that no longer exists in the

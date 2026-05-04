@@ -29,7 +29,7 @@ final class WizardEntryPoint {
      * 404'd whenever a wizard URL was visited from a non-dashboard
      * page (or after a same-page redirect like `&dismiss_resume=1`)
      * on installs where the home page isn't the dashboard. Reported
-     * by JG4IT pilot:
+     * by a pilot install:
      *
      *   - Visit `?tt_view=wizard&slug=new-team` directly  →  REQUEST_URI
      *     resolves to `/` (because that's how WP routes a query-only

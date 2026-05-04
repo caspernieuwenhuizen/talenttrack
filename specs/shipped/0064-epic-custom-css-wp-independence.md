@@ -8,7 +8,7 @@
 
 #0023 went one direction: inherit from the WP theme, with a curated set of brand controls (six color pickers, two font dropdowns, one global "inherit theme" toggle). That's the right default for clubs whose marketing site already has a strong identity and who want TalentTrack to blend in.
 
-This spec is the opposite escape hatch: clubs that want TalentTrack to look exactly the way they specify, regardless of what WP theme is active, regardless of what `wp_head` is dumping into the page, regardless of which plugin lands its CSS last. Today the only path is the JG4IT-style approach — write a bespoke WordPress child theme that overrides plugin tokens at higher specificity. That works for one club with a developer; it doesn't scale to dozens of pilot clubs none of whom employ a frontend developer.
+This spec is the opposite escape hatch: clubs that want TalentTrack to look exactly the way they specify, regardless of what WP theme is active, regardless of what `wp_head` is dumping into the page, regardless of which plugin lands its CSS last. Today the only path is the bespoke-child-theme approach — write a WordPress child theme that overrides plugin tokens at higher specificity. That works for one club with a developer; it doesn't scale to dozens of pilot clubs none of whom employ a frontend developer.
 
 What's missing is a way for a non-developer club admin to:
 
@@ -158,7 +158,7 @@ Custom CSS must not break the mobile-first guarantees CLAUDE.md § 2 specifies �
 - **#0052** SaaS-readiness REST + tenancy — every endpoint scopes by `CurrentClub::id()`; storage is per-club.
 - **#0063** Export module — custom CSS is exportable as a `.css` file via the export pipeline (use case "club CSS export").
 - **`assets/css/frontend-admin.css`** + **`src/Shared/Frontend/BrandStyles.php`** — existing token system this idea layers on top of, not around.
-- **JG4IT theme** — the bespoke WP theme that demonstrates the override-via-child-theme pattern. This idea exists to make that approach unnecessary for non-developer clubs.
+- **Pilot client theme** — the bespoke WP theme built for a pilot install demonstrates the override-via-child-theme pattern. This idea exists to make that approach unnecessary for non-developer clubs.
 
 ## Things to verify before shaping
 

@@ -6,7 +6,7 @@
 
 The plugin's frontend dashboard does not inherit the surrounding WordPress theme's visual identity. The existing **Branding** tab in [`ConfigurationPage.php:397-421`](../src/Modules/Configuration/Admin/ConfigurationPage.php#L397) exposes only academy name, logo, and two color pickers (primary + secondary), and [`BrandStyles.php`](../src/Shared/Frontend/BrandStyles.php) injects those as `:root` CSS variables. Buttons, links, headings, and body type all keep TalentTrack's defaults regardless of the surrounding theme.
 
-The current escape hatch is a per-install custom theme that overrides plugin tokens at higher specificity (the JG4IT theme, built April 25, demonstrates the pattern). It works, but every club shouldn't need a bespoke theme to make the dashboard match its brand. It should be a setting.
+The current escape hatch is a per-install custom theme that overrides plugin tokens at higher specificity (a pilot client theme built April 25 demonstrates the pattern). It works, but every club shouldn't need a bespoke theme to make the dashboard match its brand. It should be a setting.
 
 ## Proposal
 
@@ -110,7 +110,7 @@ Order of CSS specificity (lowest → highest):
 
 1. Plugin defaults in `frontend-admin.css` (`.tt-dashboard { --tt-primary: ...; }`)
 2. `BrandStyles` injected `:root` overrides (always wins for tokens consumed at `:root` scope; loses to `.tt-dashboard`-scoped tokens).
-3. Custom theme `body .tt-dashboard { ... }` overrides (e.g. JG4IT) still win — same approach as today.
+3. Custom theme `body .tt-dashboard { ... }` overrides (the child-theme escape hatch) still win — same approach as today.
 
 Net: clubs without a custom theme get the new fields working out of the box. Clubs with a custom theme keep their existing override path.
 
@@ -139,7 +139,7 @@ Net: clubs without a custom theme get the new fields working out of the box. Clu
   - Player card visual identity is unchanged (tiers still gold/silver/bronze).
   - Dashboard tile grid borders + accents keep their TT-token-driven look.
 - [ ] **Inheritance behavior** (toggle OFF): visuals match current behavior. No regression vs main.
-- [ ] **JG4IT theme compatibility**: when this feature ships, JG4IT theme can drop its `body .tt-dashboard { ... }` override block and rely on the toggle. Verified by switching the JG4IT install from override-only to toggle-only and confirming the dashboard still looks right.
+- [ ] **Pilot client theme compatibility**: when this feature ships, the pilot client theme can drop its `body .tt-dashboard { ... }` override block and rely on the toggle. Verified by switching the pilot install from override-only to toggle-only and confirming the dashboard still looks right.
 - [ ] **Docs**: `docs/configuration-branding.md` + `docs/nl_NL/configuration-branding.md` cover the new fields with one screenshot of the extended Branding tab.
 - [ ] **Translations**: `languages/talenttrack-nl_NL.po` has Dutch strings for every new label.
 - [ ] **No regression** on the wp-admin Configuration page or the existing primary/secondary color rendering.
@@ -197,7 +197,7 @@ Phase 1 follow-on. Lands after Sprint 2 ships. Slot whenever it fits the user's 
 | `frontend-admin.css` theme-inheritance section | 1.5 |
 | Docs (`configuration-branding.md` + nl_NL translation) | 1.0 |
 | `nl_NL.po` updates | 0.5 |
-| Testing across 2–3 themes (Twenty Twenty-Five, JG4IT, one block theme) | 1.0 |
+| Testing across 2–3 themes (Twenty Twenty-Five, pilot client theme, one block theme) | 1.0 |
 | Buffer for `public.css` legacy override surprises | 1.0 |
 | **Total** | **~8h** |
 
@@ -206,5 +206,5 @@ Single PR, single release (next minor — likely v3.8.0).
 ### Cross-references
 
 - Idea origin: [`ideas/0023-feat-styling-options-and-theme-inheritance.md`](../ideas/0023-feat-styling-options-and-theme-inheritance.md).
-- Plugin CSS architecture survey conducted during JG4IT theme build (April 25, 2026): documents the `.tt-dashboard`-scoped token system in `frontend-admin.css` and the ~45% hardcoded legacy in `public.css`.
+- Plugin CSS architecture survey conducted during a pilot client theme build (April 25, 2026): documents the `.tt-dashboard`-scoped token system in `frontend-admin.css` and the ~45% hardcoded legacy in `public.css`.
 - Adjacent: #0011 Sprint 4 (product brand, not in scope here), #0012 (anti-AI-fingerprint cleanup, separate concern).
