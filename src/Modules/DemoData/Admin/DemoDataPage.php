@@ -145,8 +145,26 @@ class DemoDataPage {
             </div>
             <?php
         } elseif ( $notice === 'wiped' ) {
+            $cats_str = isset( $_GET['tt_demo_wiped_cats'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tt_demo_wiped_cats'] ) ) : '';
+            $cats     = $cats_str !== '' ? array_filter( explode( ',', $cats_str ) ) : [];
+            $rows_n   = isset( $_GET['tt_demo_wiped_n'] ) ? (int) $_GET['tt_demo_wiped_n'] : 0;
             ?>
-            <div class="notice notice-success"><p><?php esc_html_e( 'Demo data wiped.', 'talenttrack' ); ?></p></div>
+            <div class="notice notice-success">
+                <p>
+                    <?php
+                    if ( $cats ) {
+                        echo esc_html( sprintf(
+                            /* translators: 1: row count, 2: comma-list of categories */
+                            __( 'Demo data wiped — %1$d rows across %2$s.', 'talenttrack' ),
+                            $rows_n,
+                            implode( ', ', array_map( 'esc_html', $cats ) )
+                        ) );
+                    } else {
+                        esc_html_e( 'Demo data wiped.', 'talenttrack' );
+                    }
+                    ?>
+                </p>
+            </div>
             <?php
         } elseif ( $notice === 'users_wiped' ) {
             ?>
@@ -320,31 +338,50 @@ class DemoDataPage {
                 </div>
             </fieldset>
 
-            <fieldset data-tt-demo-selective style="border:1px solid #d6dadd;border-radius:6px;padding:12px 14px;margin:0 0 16px;background:#f8fafc;">
+            <fieldset style="border:1px solid #d6dadd;border-radius:6px;padding:12px 14px;margin:0 0 16px;background:#f8fafc;">
                 <legend style="font-weight:600;padding:0 6px;">
                     <?php esc_html_e( 'Step 0.5 — What to generate', 'talenttrack' ); ?>
                 </legend>
-                <p style="margin:0 0 10px;color:#5b6e75;">
-                    <?php esc_html_e( 'Uncheck a category to use the master data already in your club instead of generating new rows. Activities, evaluations, and goals are always generated on top of whatever master data ends up present.', 'talenttrack' ); ?>
+
+                <div data-tt-demo-selective>
+                    <p style="margin:0 0 10px;color:#5b6e75;">
+                        <?php esc_html_e( 'Master data — uncheck to use the rows already in your club instead of generating new ones. These three toggles only apply to the procedural source (Excel + hybrid read master data from the workbook regardless).', 'talenttrack' ); ?>
+                    </p>
+                    <label style="display:block;padding:4px 0;cursor:pointer;">
+                        <input type="checkbox" name="gen_teams" value="1" checked />
+                        <?php esc_html_e( 'Generate teams', 'talenttrack' ); ?>
+                        <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to use existing teams in the club.', 'talenttrack' ); ?></span>
+                    </label>
+                    <label style="display:block;padding:4px 0;cursor:pointer;">
+                        <input type="checkbox" name="gen_people" value="1" checked />
+                        <?php esc_html_e( 'Generate people + WP users', 'talenttrack' ); ?>
+                        <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to skip the 36-account creation. Existing People rows + their WP users stay untouched.', 'talenttrack' ); ?></span>
+                    </label>
+                    <label style="display:block;padding:4px 0;cursor:pointer;">
+                        <input type="checkbox" name="gen_players" value="1" checked />
+                        <?php esc_html_e( 'Generate players', 'talenttrack' ); ?>
+                        <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to use existing players in the club.', 'talenttrack' ); ?></span>
+                    </label>
+                </div>
+
+                <p style="margin:14px 0 10px;color:#5b6e75;">
+                    <?php esc_html_e( 'Dependent entities — uncheck any to skip generating that category on top of whatever master data ends up present. Applies to every source (procedural, Excel, hybrid).', 'talenttrack' ); ?>
                 </p>
                 <label style="display:block;padding:4px 0;cursor:pointer;">
-                    <input type="checkbox" name="gen_teams" value="1" checked />
-                    <?php esc_html_e( 'Generate teams', 'talenttrack' ); ?>
-                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to use existing teams in the club.', 'talenttrack' ); ?></span>
+                    <input type="checkbox" name="gen_activities" value="1" checked />
+                    <?php esc_html_e( 'Generate activities', 'talenttrack' ); ?>
+                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to skip session/match generation. Attendance is generated alongside; turning this off skips both.', 'talenttrack' ); ?></span>
                 </label>
                 <label style="display:block;padding:4px 0;cursor:pointer;">
-                    <input type="checkbox" name="gen_people" value="1" checked />
-                    <?php esc_html_e( 'Generate people + WP users', 'talenttrack' ); ?>
-                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to skip the 36-account creation. Existing People rows + their WP users stay untouched.', 'talenttrack' ); ?></span>
+                    <input type="checkbox" name="gen_evaluations" value="1" checked />
+                    <?php esc_html_e( 'Generate evaluations', 'talenttrack' ); ?>
+                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to skip evaluation rounds + per-category ratings.', 'talenttrack' ); ?></span>
                 </label>
                 <label style="display:block;padding:4px 0;cursor:pointer;">
-                    <input type="checkbox" name="gen_players" value="1" checked />
-                    <?php esc_html_e( 'Generate players', 'talenttrack' ); ?>
-                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to use existing players in the club.', 'talenttrack' ); ?></span>
+                    <input type="checkbox" name="gen_goals" value="1" checked />
+                    <?php esc_html_e( 'Generate goals', 'talenttrack' ); ?>
+                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to skip per-player development goals.', 'talenttrack' ); ?></span>
                 </label>
-                <p style="margin:10px 0 0;color:#5b6e75;font-size:12px;">
-                    <?php esc_html_e( 'These toggles only apply to the procedural source. Excel + hybrid sources read from the workbook regardless.', 'talenttrack' ); ?>
-                </p>
             </fieldset>
 
             <script>
@@ -536,20 +573,86 @@ class DemoDataPage {
 
     private static function renderWipeSection(): void {
         $user_count = count( DemoBatchRegistry::persistentEntityIds( 'wp_user' ) );
+        // v3.90.1 — per-category counts for the wipe-form preview. Each
+        // count is the cascade total: e.g. checking "teams" wipes
+        // teams + team_person + activities + attendance + evaluations
+        // + eval_ratings, so the count reflects the full fan-out.
+        $cat_counts = DemoDataCleaner::categoryCounts();
         ?>
         <h2 style="margin-top:32px;"><?php esc_html_e( 'Wipe', 'talenttrack' ); ?></h2>
 
         <h3><?php esc_html_e( 'Wipe demo data', 'talenttrack' ); ?></h3>
         <p style="max-width:720px;">
-            <?php esc_html_e( 'Removes every demo-tagged row (evaluations, activities, goals, attendance, ratings, players, teams) in dependency order. The 36 persistent demo WP users are preserved. Non-demo data is never touched.', 'talenttrack' ); ?>
+            <?php esc_html_e( 'Pick which categories of demo-tagged rows to remove. Each box wipes the category plus its dependents (e.g. "Teams" also wipes the activities + attendance + evaluations + eval-ratings tied to those teams). Non-demo data is never touched. The 36 persistent demo WP users are preserved across this action — use "Wipe demo users too" below for those.', 'talenttrack' ); ?>
         </p>
-        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+        <p style="max-width:720px;color:#5b6e75;font-size:12px;">
+            <?php esc_html_e( 'Counts shown are the demo-tagged rows that match the cascade right now. Double-counts across overlapping categories are deduplicated server-side at delete time.', 'talenttrack' ); ?>
+        </p>
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="tt-demo-wipe-form">
             <?php wp_nonce_field( 'tt_demo_wipe_data', 'tt_demo_nonce' ); ?>
             <input type="hidden" name="action" value="tt_demo_wipe_data" />
+
+            <fieldset style="border:1px solid #d6dadd;border-radius:6px;padding:12px 14px;margin:0 0 12px;background:#f8fafc;max-width:720px;">
+                <legend style="font-weight:600;padding:0 6px;">
+                    <?php esc_html_e( 'Categories to wipe', 'talenttrack' ); ?>
+                </legend>
+
+                <strong style="display:block;margin:6px 0 4px;font-size:12px;color:#5b6e75;text-transform:uppercase;letter-spacing:0.04em;">
+                    <?php esc_html_e( 'Master data', 'talenttrack' ); ?>
+                </strong>
+                <label style="display:block;padding:4px 0;cursor:pointer;">
+                    <input type="checkbox" name="wipe_cat[]" value="teams" />
+                    <?php esc_html_e( 'Teams', 'talenttrack' ); ?>
+                    <span style="color:#5b6e75;"> — <?php
+                    /* translators: %d is the row count */
+                    echo esc_html( sprintf( __( '%d demo rows incl. team_person, activities, attendance, evaluations, eval_ratings on those teams', 'talenttrack' ), (int) $cat_counts['teams'] ) );
+                    ?></span>
+                </label>
+                <label style="display:block;padding:4px 0;cursor:pointer;">
+                    <input type="checkbox" name="wipe_cat[]" value="people" />
+                    <?php esc_html_e( 'People', 'talenttrack' ); ?>
+                    <span style="color:#5b6e75;"> — <?php
+                    echo esc_html( sprintf( __( '%d demo rows incl. team_person assignments. The matching WP users stay (separate "Wipe demo users" form below).', 'talenttrack' ), (int) $cat_counts['people'] ) );
+                    ?></span>
+                </label>
+                <label style="display:block;padding:4px 0;cursor:pointer;">
+                    <input type="checkbox" name="wipe_cat[]" value="players" />
+                    <?php esc_html_e( 'Players', 'talenttrack' ); ?>
+                    <span style="color:#5b6e75;"> — <?php
+                    echo esc_html( sprintf( __( '%d demo rows incl. attendance, evaluations, eval_ratings, goals tied to those players', 'talenttrack' ), (int) $cat_counts['players'] ) );
+                    ?></span>
+                </label>
+
+                <strong style="display:block;margin:14px 0 4px;font-size:12px;color:#5b6e75;text-transform:uppercase;letter-spacing:0.04em;">
+                    <?php esc_html_e( 'Dependent entities', 'talenttrack' ); ?>
+                </strong>
+                <label style="display:block;padding:4px 0;cursor:pointer;">
+                    <input type="checkbox" name="wipe_cat[]" value="activities" />
+                    <?php esc_html_e( 'Activities', 'talenttrack' ); ?>
+                    <span style="color:#5b6e75;"> — <?php
+                    echo esc_html( sprintf( __( '%d demo rows incl. attendance for those activities', 'talenttrack' ), (int) $cat_counts['activities'] ) );
+                    ?></span>
+                </label>
+                <label style="display:block;padding:4px 0;cursor:pointer;">
+                    <input type="checkbox" name="wipe_cat[]" value="evaluations" />
+                    <?php esc_html_e( 'Evaluations', 'talenttrack' ); ?>
+                    <span style="color:#5b6e75;"> — <?php
+                    echo esc_html( sprintf( __( '%d demo rows incl. per-category eval_ratings', 'talenttrack' ), (int) $cat_counts['evaluations'] ) );
+                    ?></span>
+                </label>
+                <label style="display:block;padding:4px 0;cursor:pointer;">
+                    <input type="checkbox" name="wipe_cat[]" value="goals" />
+                    <?php esc_html_e( 'Goals', 'talenttrack' ); ?>
+                    <span style="color:#5b6e75;"> — <?php
+                    echo esc_html( sprintf( __( '%d demo rows', 'talenttrack' ), (int) $cat_counts['goals'] ) );
+                    ?></span>
+                </label>
+            </fieldset>
+
             <label>
                 <input type="text" name="confirm_text" placeholder="<?php esc_attr_e( 'Type WIPE to confirm', 'talenttrack' ); ?>" class="regular-text" />
             </label>
-            <?php submit_button( __( 'Wipe demo data', 'talenttrack' ), 'delete', '', false ); ?>
+            <?php submit_button( __( 'Wipe selected categories', 'talenttrack' ), 'delete', '', false ); ?>
         </form>
 
         <h3 style="margin-top:24px;"><?php esc_html_e( 'Wipe demo users too', 'talenttrack' ); ?></h3>
@@ -646,10 +749,16 @@ class DemoDataPage {
         $source = isset( $_POST['source'] ) ? sanitize_key( (string) $_POST['source'] ) : 'procedural';
         if ( ! in_array( $source, [ 'procedural', 'excel', 'hybrid' ], true ) ) $source = 'procedural';
 
-        // v3.85.0 — selective generation toggles (procedural source only).
-        $gen_teams   = ! empty( $_POST['gen_teams'] );
-        $gen_people  = ! empty( $_POST['gen_people'] );
-        $gen_players = ! empty( $_POST['gen_players'] );
+        // v3.85.0 / v3.90.1 — selective generation toggles. Master-data
+        // toggles (teams/people/players) only apply to procedural; the
+        // three dependent-entity toggles (activities/evaluations/goals)
+        // apply to every source.
+        $gen_teams       = ! empty( $_POST['gen_teams'] );
+        $gen_people      = ! empty( $_POST['gen_people'] );
+        $gen_players     = ! empty( $_POST['gen_players'] );
+        $gen_activities  = ! empty( $_POST['gen_activities'] );
+        $gen_evaluations = ! empty( $_POST['gen_evaluations'] );
+        $gen_goals       = ! empty( $_POST['gen_goals'] );
 
         $users_exist = DemoGenerator::persistentUsersExist();
 
@@ -720,6 +829,9 @@ class DemoDataPage {
                 'gen_teams'        => $gen_teams,
                 'gen_people'       => $gen_people,
                 'gen_players'      => $gen_players,
+                'gen_activities'   => $gen_activities,
+                'gen_evaluations'  => $gen_evaluations,
+                'gen_goals'        => $gen_goals,
             ] );
             \TT\Modules\DemoData\DemoMode::clearOverride();
         } catch ( \Throwable $e ) {
@@ -756,9 +868,38 @@ class DemoDataPage {
             self::bounce( $redirect, 'Type WIPE exactly to confirm.' );
         }
 
-        DemoDataCleaner::wipeData();
+        // v3.90.1 — selective wipe. Operator picks one or more categories
+        // from `DemoDataCleaner::CATEGORIES`; the cleaner expands each
+        // pick to its dependency cascade. Empty selection bounces — the
+        // form has zero default-checked boxes, so an accidental "WIPE +
+        // submit" with nothing selected is a no-op the operator should
+        // be told about.
+        $raw = $_POST['wipe_cat'] ?? [];
+        if ( ! is_array( $raw ) ) $raw = [];
+        $valid_keys = array_keys( DemoDataCleaner::CATEGORIES );
+        $cats = [];
+        foreach ( $raw as $c ) {
+            $c = sanitize_key( (string) $c );
+            if ( in_array( $c, $valid_keys, true ) && ! in_array( $c, $cats, true ) ) {
+                $cats[] = $c;
+            }
+        }
+        if ( ! $cats ) {
+            self::bounce( $redirect, 'Pick at least one category to wipe.' );
+        }
 
-        wp_safe_redirect( add_query_arg( 'tt_demo_msg', 'wiped', $redirect ) );
+        $deleted = DemoDataCleaner::wipeData( $cats );
+        $total   = array_sum( $deleted );
+
+        $redirect = add_query_arg(
+            [
+                'tt_demo_msg'        => 'wiped',
+                'tt_demo_wiped_cats' => rawurlencode( implode( ',', $cats ) ),
+                'tt_demo_wiped_n'    => (int) $total,
+            ],
+            $redirect
+        );
+        wp_safe_redirect( $redirect );
         exit;
     }
 

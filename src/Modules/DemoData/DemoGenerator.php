@@ -52,15 +52,19 @@ class DemoGenerator {
         $seed   = (int) ( $opts['seed'] ?? 20260504 );
         mt_srand( $seed );
 
-        // v3.85.0 — selective generation: when running procedurally, the
-        // operator can opt out of generating master data (teams / people /
-        // players) so the generator only fills dependent entities on top
-        // of the existing club data. Defaults preserve the v3.0 behaviour
-        // (everything generated). Excel + hybrid paths ignore these — the
-        // workbook drives those.
-        $gen_people  = ! isset( $opts['gen_people'] )  || (bool) $opts['gen_people'];
-        $gen_teams   = ! isset( $opts['gen_teams'] )   || (bool) $opts['gen_teams'];
-        $gen_players = ! isset( $opts['gen_players'] ) || (bool) $opts['gen_players'];
+        // v3.85.0 / v3.90.1 — selective generation: when running procedurally,
+        // the operator can opt out of any of the six demo-data categories so
+        // the generator only fills the rest on top of the existing club data.
+        // Defaults preserve the v3.0 behaviour (everything generated). Excel
+        // + hybrid paths ignore master-data flags — the workbook drives those
+        // — but still honour dependent-entity flags so the operator can e.g.
+        // upload a teams/players workbook and skip procedural goals on top.
+        $gen_people      = ! isset( $opts['gen_people'] )      || (bool) $opts['gen_people'];
+        $gen_teams       = ! isset( $opts['gen_teams'] )       || (bool) $opts['gen_teams'];
+        $gen_players     = ! isset( $opts['gen_players'] )     || (bool) $opts['gen_players'];
+        $gen_activities  = ! isset( $opts['gen_activities'] )  || (bool) $opts['gen_activities'];
+        $gen_evaluations = ! isset( $opts['gen_evaluations'] ) || (bool) $opts['gen_evaluations'];
+        $gen_goals       = ! isset( $opts['gen_goals'] )       || (bool) $opts['gen_goals'];
 
         $batch_id = self::makeBatchId( $preset, $seed );
         $registry = new DemoBatchRegistry( $batch_id );
@@ -154,10 +158,13 @@ class DemoGenerator {
         $goal_count    = 0;
 
         // Hybrid mode: run procedural generators only for sheets the
-        // Excel didn't cover. Pure Excel skips them entirely.
-        $skip_eval     = $source === 'excel' || in_array( 'evaluations',  $excel_present_sheets, true );
-        $skip_activity = $source === 'excel' || in_array( 'sessions',     $excel_present_sheets, true );
-        $skip_goal     = $source === 'excel' || in_array( 'goals',        $excel_present_sheets, true );
+        // Excel didn't cover. Pure Excel skips them entirely. v3.90.1 —
+        // operator opt-out flags compose with these: the generator
+        // skips when EITHER the source rules out procedural fill OR the
+        // operator unchecked the category.
+        $skip_eval     = $source === 'excel' || in_array( 'evaluations', $excel_present_sheets, true ) || ! $gen_evaluations;
+        $skip_activity = $source === 'excel' || in_array( 'sessions',    $excel_present_sheets, true ) || ! $gen_activities;
+        $skip_goal     = $source === 'excel' || in_array( 'goals',       $excel_present_sheets, true ) || ! $gen_goals;
 
         if ( ! $skip_eval && ! empty( $players ) && ! empty( $teams ) ) {
             $evalGen    = new EvaluationGenerator( $registry, $players, $teams, (int) $config['weeks'] );

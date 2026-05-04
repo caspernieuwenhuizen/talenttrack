@@ -1,3 +1,60 @@
+# TalentTrack v3.90.2 — Demo data: per-category selective generation + selective wipe
+
+Operator on a pilot install set up real teams + players + people manually, then wanted to wipe only the demo activities/evaluations/goals while keeping the real master data they'd built. Today's demo wipe is all-or-nothing: it either nukes every demo-tagged row or nothing. And generation already had master-data toggles (teams / people / players) but always wrote activities/evaluations/goals on top regardless. This release reworks both surfaces around the same six-category grid.
+
+## Generation — six-checkbox grid
+
+Step 0.5 ("What to generate") on the Demo Data page now exposes:
+
+**Master data** (procedural source only — Excel + hybrid read these from the workbook):
+
+- ☑ Generate teams
+- ☑ Generate people + WP users
+- ☑ Generate players
+
+**Dependent entities** (every source):
+
+- ☑ Generate activities
+- ☑ Generate evaluations
+- ☑ Generate goals
+
+All default ON, preserving the v3.0 "everything generated" behaviour. The dependent-entity flags compose with the existing hybrid skip rules — if your Excel sheet covered evaluations, the procedural EvaluationGenerator still skips for that batch. Unchecking the operator-side flag forces the skip regardless.
+
+`DemoGenerator::run()` reads three new keys (`gen_activities`, `gen_evaluations`, `gen_goals`); the `$skip_*` calculation now `OR`s in `! $gen_*` so source rules + operator opt-out compose. Default value is true when key is absent, so existing callers keep their v3.0 behaviour.
+
+## Deletion — six-checkbox grid + cascade preview
+
+The single "Wipe demo data" button is replaced by:
+
+| Category | Cascade |
+| - | - |
+| Teams | + team_person, activities, attendance, evaluations, eval_ratings on those teams |
+| People | + team_person assignments |
+| Players | + attendance, evaluations, eval_ratings, goals tied to those players |
+| Activities | + attendance for those activities |
+| Evaluations | + per-category eval_ratings |
+| Goals | (standalone) |
+
+Each box renders with its current cascade row count (e.g. "Teams — 156 demo rows incl. team_person, activities, attendance, evaluations, eval_ratings on those teams"). Counts come from `DemoDataCleaner::categoryCounts()` which runs once at page render. Default state: no boxes checked — operator opts in. Form still requires "WIPE" typed in the confirm field.
+
+Result notice now reports what was actually deleted: *"Demo data wiped — 1450 rows across activities, evaluations, goals."* Persistent demo WP users still go through the separate "Wipe demo users too" form with its three safety rails (domain match, not-current-user, not-last-admin) — that flow is unchanged.
+
+## API change — `DemoDataCleaner::wipeData( ?array $categories = null )`
+
+Old signature `wipeData()` still works: `null` falls back to the v3.85.0 "walk every entity type in DATA_ORDER except `person`" behaviour. New signature accepts a list of category keys (`['teams', 'activities']`); each key expands to its dependency cascade per `DemoDataCleaner::CATEGORIES`, the union is deduplicated server-side, and rows are deleted in `DATA_ORDER` so FK constraints stay happy. New `categoryCounts()` static helper returns `[category_key => total_demo_rows_in_cascade]` for the form preview.
+
+Empty selection bounces with "Pick at least one category to wipe." Anything not in `CATEGORIES` is silently dropped at sanitisation time.
+
+## What's not in this PR
+
+- **Live JS preview** of the cascade impact — server-side counts at page render are static; the operator doesn't see the total update as boxes are checked. Counts are shown per-row though, so the math is visible. Worth adding if operators ask.
+- **Per-batch wipe** — `tt_demo_tags` already keys by `batch_id`, so an operator could one day pick "wipe just the run from 2026-04-25". Not in scope.
+- **Excel-source dependent-entity flags** — when source is `excel`, the three dependent-entity flags are wired but the existing `$source === 'excel'` short-circuit in DemoGenerator still skips them all (the spec defers entirely to the workbook). Hybrid does honour the flags. If excel-source operators want to mix-and-match in the future, the wiring is there.
+
+## Renumbering
+
+v3.90.1 → v3.90.2 in PR after the Excel-upload hardening shipped on origin/main mid-CI.
+
 # TalentTrack v3.90.1 — Demo Excel upload no longer surfaces as a hosting 500
 
 Hardening pass on the **Tools → TalentTrack Demo Data → Excel upload** path so a too-big or malformed workbook produces a friendly red notice instead of the generic blank-page / 500 the host's reverse proxy would otherwise return.

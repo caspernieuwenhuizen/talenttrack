@@ -38,6 +38,7 @@ class DemoDataCleaner {
         'player',
         'team_person',
         'team',
+        'person',
     ];
 
     /** Map entity_type => (table, id_column). */
@@ -54,24 +55,58 @@ class DemoDataCleaner {
     ];
 
     /**
+     * Operator-facing categories the wipe form exposes. Each key maps to
+     * a list of entity types `tt_demo_tags` rows use; checking the
+     * category in the wipe form expands to the full list (cascade).
+     *
+     * Cascades reflect FK-driven dependency: if you wipe `evaluation`,
+     * you must also wipe `eval_rating` (rows that reference it). The
+     * operator-preference cascades (e.g. wiping a team also wipes
+     * `team_person` associations and `activity` rows tied to that team)
+     * are also captured here so the operator picks one box and gets
+     * the consistent fan-out.
+     *
+     * Order within each cascade list is dependency-safe (children first).
+     */
+    public const CATEGORIES = [
+        'goals'       => [ 'goal' ],
+        'evaluations' => [ 'eval_rating', 'evaluation' ],
+        'activities'  => [ 'attendance', 'activity' ],
+        'players'     => [ 'eval_rating', 'evaluation', 'attendance', 'goal', 'player' ],
+        'teams'       => [ 'eval_rating', 'evaluation', 'attendance', 'activity', 'team_person', 'team' ],
+        'people'      => [ 'team_person', 'person' ],
+    ];
+
+    /**
+     * @param string[]|null $categories Operator-picked categories from
+     *   `CATEGORIES` keys (`['teams','activities',…]`). `null` falls back
+     *   to all categories — the v3.85.0 "wipe everything" behaviour, kept
+     *   for back-compat callers. Each category expands to its dependency
+     *   cascade; the union is then deleted in `DATA_ORDER`.
      * @return array<string,int> Rows deleted per entity type.
      */
-    public static function wipeData(): array {
+    public static function wipeData( ?array $categories = null ): array {
         global $wpdb;
         $deleted = [];
 
+        $types_to_wipe = self::resolveTypes( $categories );
+
         // Unbind any player<N> WP users that currently point at demo
         // players, so the persistent users remain in a clean state.
-        $player_ids = DemoBatchRegistry::allEntityIds( 'player' );
-        if ( $player_ids ) {
-            $placeholders = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
-            $wpdb->query( $wpdb->prepare(
-                "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = 0 WHERE id IN ({$placeholders}) AND club_id = %d",
-                ...array_merge( $player_ids, [ CurrentClub::id() ] )
-            ) );
+        // Only fires when player rows are actually being wiped.
+        if ( in_array( 'player', $types_to_wipe, true ) ) {
+            $player_ids = DemoBatchRegistry::allEntityIds( 'player' );
+            if ( $player_ids ) {
+                $placeholders = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
+                $wpdb->query( $wpdb->prepare(
+                    "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = 0 WHERE id IN ({$placeholders}) AND club_id = %d",
+                    ...array_merge( $player_ids, [ CurrentClub::id() ] )
+                ) );
+            }
         }
 
         foreach ( self::DATA_ORDER as $type ) {
+            if ( ! in_array( $type, $types_to_wipe, true ) ) continue;
             $ids = DemoBatchRegistry::allEntityIds( $type );
             if ( ! $ids ) {
                 $deleted[ $type ] = 0;
@@ -93,6 +128,58 @@ class DemoDataCleaner {
             ) );
         }
         return $deleted;
+    }
+
+    /**
+     * Expand the operator-picked categories to the underlying entity-type
+     * set, deduplicated. Null falls back to every entity type the
+     * v3.85.0 cleaner used to walk (preserving the "wipe everything
+     * except people" default).
+     *
+     * @param string[]|null $categories
+     * @return string[] entity types
+     */
+    private static function resolveTypes( ?array $categories ): array {
+        if ( $categories === null ) {
+            // v3.85.0 default: walk the legacy DATA_ORDER except `person`,
+            // because `person` rows were left for the separate
+            // `wipeUsers()` flow.
+            return array_values( array_filter(
+                self::DATA_ORDER,
+                static function ( string $t ): bool { return $t !== 'person'; }
+            ) );
+        }
+        $types = [];
+        foreach ( $categories as $cat ) {
+            if ( ! isset( self::CATEGORIES[ $cat ] ) ) continue;
+            foreach ( self::CATEGORIES[ $cat ] as $t ) {
+                if ( ! in_array( $t, $types, true ) ) $types[] = $t;
+            }
+        }
+        return $types;
+    }
+
+    /**
+     * Live count per category given the current `tt_demo_tags` state.
+     * Counts the tagged-row total once per type then sums across the
+     * category's cascade. Used by the wipe-form preview so the operator
+     * sees what each checkbox will actually delete.
+     *
+     * @return array<string,int> category key => total tagged rows that
+     *   would be deleted if that category alone were checked
+     */
+    public static function categoryCounts(): array {
+        $per_type = [];
+        foreach ( array_keys( self::TABLE_MAP ) as $type ) {
+            $per_type[ $type ] = count( DemoBatchRegistry::allEntityIds( $type ) );
+        }
+        $out = [];
+        foreach ( self::CATEGORIES as $cat => $types ) {
+            $total = 0;
+            foreach ( $types as $t ) $total += (int) ( $per_type[ $t ] ?? 0 );
+            $out[ $cat ] = $total;
+        }
+        return $out;
     }
 
     /**

@@ -37,7 +37,7 @@ Fouten komen als lijst terug — los ze op in het werkboek, upload opnieuw.
 
 Opnieuw uploaden voegt rijen toe (geen rij-niveau upsert). Om alles te vervangen: gebruik eerst **Wipe demo data** en upload daarna.
 
-## Upload-fouten oplossen (v3.89.2)
+## Upload-fouten oplossen (v3.90.1)
 
 De upload-route is gehard tegen de "lijkt op een hosting-fout"-faalmodus. Als er iets misgaat krijg je een rode TalentTrack-melding met de werkelijke oorzaak, in plaats van de generieke 500 van de hostingprovider.
 
@@ -50,3 +50,11 @@ De upload-route is gehard tegen de "lijkt op een hosting-fout"-faalmodus. Als er
 | **"Excel-import is gecrasht: …. Bekijk de TalentTrack-log voor details."** | Er kwam een fatal langs de binnenste catch (zelden — meestal OOM met een te lage `memory_limit`, zelfs na de raise van de plugin). | Vraag je hoster om `memory_limit` op ≥128M te zetten, of splits het werkboek. De TalentTrack-log bevat de error-klasse + het bericht. |
 
 De daadwerkelijke serverlimieten op jouw installatie staan onder het bestandsveld, zodat je het werkboek vóór de upload op maat kunt brengen.
+
+## Selectief genereren + selectief wissen (v3.90.2)
+
+Stap 0.5 ("Wat genereren") op de Demo-data-pagina toont zes vinkjes — drie master-data (ploegen / mensen + WP-gebruikers / spelers) en drie afhankelijke entiteiten (activiteiten / evaluaties / doelen) — standaard allemaal aan. Master-data-schakelaars gelden alleen voor de procedurele bron; bij Excel + hybride runs leest het werkboek de master-data. Schakelaars voor afhankelijke entiteiten gelden voor elke bron, dus je kunt bv. een werkboek met ploegen + spelers uploaden en bovenop dat geen procedurele doelen genereren.
+
+Het **Wipe demo data**-formulier spiegelt dezelfde zes-categorie-indeling. Elk vinkje verwijdert de categorie plus zijn FK-gedreven cascade (bv. "Ploegen" aanvinken verwijdert ook de team_person-toewijzingen + activiteiten + aanwezigheid + evaluaties + eval_ratings die aan die ploegen hangen). Aantallen staan naast elk vinkje. Standaard: niks aangevinkt — de operator vinkt actief aan. Use case: behoud de echte ploegen + spelers + mensen die je handmatig hebt ingericht, wis demo-activiteiten + evaluaties + doelen — vink de onderste drie vakjes aan, type WIPE.
+
+De vaste demo-WP-gebruikers blijven bij deze actie bestaan; gebruik het aparte **Wipe demo users too**-formulier om die te verwijderen (met zijn drie veiligheidsmaatregelen: domeincontrole, niet-huidige-gebruiker, niet-laatste-administrator).
