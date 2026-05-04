@@ -29,6 +29,16 @@ class FrontendCustomFieldsView extends FrontendViewBase {
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 
+        $cf_label = __( 'Custom fields', 'talenttrack' );
+        if ( $action === 'new' || $id > 0 ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                $action === 'new' ? __( 'New custom field', 'talenttrack' ) : __( 'Edit custom field', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'custom-fields', $cf_label ) ]
+            );
+        } else {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $cf_label );
+        }
+
         if ( $action === 'new' ) {
             self::renderHeader( __( 'New custom field', 'talenttrack' ) );
             self::renderForm( null );

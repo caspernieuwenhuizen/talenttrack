@@ -39,6 +39,21 @@ class FrontendGoalsManageView extends FrontendViewBase {
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 
+        // v3.92.1 — breadcrumb chain reflects action/id state.
+        $current = __( 'Goals', 'talenttrack' );
+        $intermediate = null;
+        if ( $action === 'new' ) {
+            $current = __( 'New goal', 'talenttrack' );
+            $intermediate = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'goals', __( 'Goals', 'talenttrack' ) ) ];
+        } elseif ( $id > 0 && $action === 'edit' ) {
+            $current = __( 'Edit goal', 'talenttrack' );
+            $intermediate = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'goals', __( 'Goals', 'talenttrack' ) ) ];
+        } elseif ( $id > 0 ) {
+            $current = __( 'Goal detail', 'talenttrack' );
+            $intermediate = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'goals', __( 'Goals', 'talenttrack' ) ) ];
+        }
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $current, $intermediate );
+
         if ( $action === 'new' ) {
             self::renderHeader( __( 'New goal', 'talenttrack' ) );
             self::renderForm( $user_id, $is_admin, null );

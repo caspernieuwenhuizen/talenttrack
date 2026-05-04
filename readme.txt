@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.92.1
+Stable tag: 3.92.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.92.2 — Breadcrumb sweep across detail / manage / form views =
+
+Operator on the pilot install: *"the breadcrumb trail implemented when visiting player page needs to be implemented everywhere, it is really nice and useful."* This release rolls the same component out to every detail / manage / setup view in the dashboard. Mechanical sweep across 25 view files. Each view now renders a `Dashboard / [Self]` chain (or `Dashboard / [List] / [Detail]` for nested cases like Team detail / Person detail / Activity edit / Goal edit / PDP file detail / Task detail / Compose email to person). The action / id / sub-tab state determines breadcrumb depth (e.g. `?tt_view=activities&action=new` shows `Dashboard / Activities / New activity`; `?id=N&action=edit` shows `Dashboard / Activities / Edit activity`). New helper `FrontendBreadcrumbs::fromDashboard(string $current_label, ?array $intermediate = null)` keeps caller code to one line per view. New `FrontendBreadcrumbs::viewCrumb(string $slug, string $label, array $extra_args = [])` builds intermediate `?tt_view=…` crumbs without inline URL construction. Standalone "← Back to ..." links replaced by the breadcrumb trail on Team detail and Person detail; legacy `FrontendBackButton::render()` calls in error branches kept (rendering "no permission" / "not found" notices). No new translatable strings — all crumb labels reuse existing tile / page msgids.
 
 = 3.92.1 — Demo runs now produce journey events + one-click "Rebuild journey events" =
 

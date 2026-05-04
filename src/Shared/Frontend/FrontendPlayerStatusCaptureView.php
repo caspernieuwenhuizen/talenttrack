@@ -35,9 +35,24 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         $back_url  = $player_id > 0
             ? add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id ], $dash )
             : add_query_arg( [ 'tt_view' => 'players' ], $dash );
-        FrontendBackButton::render( $back_url );
 
         $player = $player_id > 0 ? QueryHelpers::get_player( $player_id ) : null;
+
+        // v3.92.1 — breadcrumb chain. When player is loaded, chain
+        // through Players → [player name]; otherwise just Dashboard.
+        if ( $player ) {
+            $player_name = QueryHelpers::player_display_name( $player );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Capture behaviour & potential', 'talenttrack' ),
+                [
+                    \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'players', __( 'Players', 'talenttrack' ) ),
+                    \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'players', $player_name, [ 'id' => $player_id ] ),
+                ]
+            );
+        } else {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Capture behaviour & potential', 'talenttrack' ) );
+        }
+
         if ( ! $player ) {
             self::renderHeader( __( 'Player not found', 'talenttrack' ) );
             return;

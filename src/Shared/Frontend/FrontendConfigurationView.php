@@ -35,6 +35,25 @@ class FrontendConfigurationView extends FrontendViewBase {
 
         $sub = isset( $_GET['config_sub'] ) ? sanitize_key( (string) $_GET['config_sub'] ) : '';
 
+        // v3.92.1 — breadcrumb: when sub is set, render two-level chain
+        // (Dashboard → Configuration → [sub]); otherwise just Dashboard
+        // → Configuration.
+        $config_label = __( 'Configuration', 'talenttrack' );
+        if ( $sub !== '' ) {
+            $sub_labels = [
+                'branding'    => __( 'Branding', 'talenttrack' ),
+                'theme'       => __( 'Theme & fonts', 'talenttrack' ),
+                'rating'      => __( 'Rating scale', 'talenttrack' ),
+            ];
+            $current_sub = $sub_labels[ $sub ] ?? ucfirst( str_replace( '_', ' ', $sub ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                $current_sub,
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'configuration', $config_label ) ]
+            );
+        } else {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $config_label );
+        }
+
         switch ( $sub ) {
             case 'branding':
                 self::renderHeader( __( 'Branding', 'talenttrack' ) );

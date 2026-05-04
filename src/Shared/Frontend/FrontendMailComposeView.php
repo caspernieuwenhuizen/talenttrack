@@ -37,6 +37,22 @@ final class FrontendMailComposeView extends FrontendViewBase {
         $person_id = isset( $_GET['person_id'] ) ? absint( $_GET['person_id'] ) : 0;
         $person    = $person_id > 0 ? ( new PeopleRepository() )->find( $person_id ) : null;
 
+        // v3.92.1 — breadcrumb. When composing for a specific person,
+        // chain through People; otherwise just Dashboard → Compose mail.
+        if ( $person ) {
+            $person_name = trim( ( $person->first_name ?? '' ) . ' ' . ( $person->last_name ?? '' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                /* translators: %s: person display name */
+                sprintf( __( 'Compose email to %s', 'talenttrack' ), $person_name ),
+                [
+                    \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'people', __( 'People', 'talenttrack' ) ),
+                    \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'people', $person_name, [ 'id' => $person_id ] ),
+                ]
+            );
+        } else {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Compose email', 'talenttrack' ) );
+        }
+
         $dash = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
         $back_url = $person_id > 0
             ? add_query_arg( [ 'tt_view' => 'people', 'id' => $person_id ], $dash )

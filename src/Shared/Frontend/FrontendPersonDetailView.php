@@ -26,10 +26,14 @@ final class FrontendPersonDetailView extends FrontendViewBase {
         }
 
         $person = ( new PeopleRepository() )->find( $person_id );
-        $back_url = remove_query_arg( [ 'id' ] );
-        FrontendBackButton::render( $back_url, __( '← Back to people', 'talenttrack' ) );
 
+        // v3.92.1 — breadcrumb chain replaces the standalone back link.
+        $people_label = __( 'People', 'talenttrack' );
         if ( ! $person ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Person not found', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'people', $people_label ) ]
+            );
             self::renderHeader( __( 'Person not found', 'talenttrack' ) );
             echo '<p><em>' . esc_html__( 'That person is no longer on file.', 'talenttrack' ) . '</em></p>';
             return;
@@ -38,6 +42,10 @@ final class FrontendPersonDetailView extends FrontendViewBase {
         self::enqueueAssets();
         $name = trim( ( (string) ( $person->first_name ?? '' ) ) . ' ' . ( (string) ( $person->last_name ?? '' ) ) );
         if ( $name === '' ) $name = __( 'Person', 'talenttrack' );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            $name,
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'people', $people_label ) ]
+        );
         self::renderHeader( $name );
 
         $teams = ( new PeopleRepository() )->getPersonTeams( $person_id );

@@ -32,6 +32,16 @@ class FrontendEvalCategoriesView extends FrontendViewBase {
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 
+        $eval_cat_label = __( 'Evaluation categories', 'talenttrack' );
+        if ( $action === 'new' || $id > 0 ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                $action === 'new' ? __( 'New evaluation category', 'talenttrack' ) : __( 'Edit evaluation category', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'eval-categories', $eval_cat_label ) ]
+            );
+        } else {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $eval_cat_label );
+        }
+
         if ( $action === 'new' ) {
             self::renderHeader( __( 'New evaluation category', 'talenttrack' ) );
             self::renderForm( null );

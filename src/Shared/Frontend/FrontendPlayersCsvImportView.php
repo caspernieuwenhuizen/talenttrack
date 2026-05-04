@@ -36,6 +36,11 @@ class FrontendPlayersCsvImportView extends FrontendViewBase {
             return;
         }
 
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            __( 'Import players from CSV', 'talenttrack' ),
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'players', __( 'Players', 'talenttrack' ) ) ]
+        );
+
         // #0011 — feature gate. CSV import is Standard-tier.
         if ( \TT\Core\ModuleRegistry::isEnabled( 'TT\\Modules\\License\\LicenseModule' )
              && class_exists( '\TT\Modules\License\LicenseGate' )

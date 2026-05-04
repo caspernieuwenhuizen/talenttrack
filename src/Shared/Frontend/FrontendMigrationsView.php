@@ -26,6 +26,7 @@ class FrontendMigrationsView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Migrations', 'talenttrack' ) );
         self::renderHeader( __( 'Migrations', 'talenttrack' ) );
 
         $info = ( new MigrationRunner() )->inspect();

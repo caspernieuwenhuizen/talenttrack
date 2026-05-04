@@ -32,6 +32,7 @@ class FrontendUsageStatsView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Application KPIs', 'talenttrack' ) );
         self::renderHeader( __( 'Application KPIs', 'talenttrack' ) );
 
         $days = self::periodFromQuery();

@@ -35,6 +35,7 @@ class FrontendMySettingsView extends FrontendViewBase {
      */
     public static function render( ?object $player = null ): void {
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My settings', 'talenttrack' ) );
         self::renderHeader( __( 'My settings', 'talenttrack' ) );
 
         $user_id = get_current_user_id();

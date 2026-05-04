@@ -59,6 +59,23 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['type_id'] ) ? absint( $_GET['type_id'] ) : 0;
 
+        // v3.92.1 — breadcrumb. The view has two tabs and an action;
+        // chain reflects the most-current state.
+        $fr_label = __( 'Functional roles', 'talenttrack' );
+        if ( $tab === 'assignments' && $action === 'new' ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'New assignment', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'functional-roles', $fr_label, [ 'tab' => 'assignments' ] ) ]
+            );
+        } elseif ( $tab === 'types' && $id > 0 ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Edit role', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'functional-roles', $fr_label, [ 'tab' => 'types' ] ) ]
+            );
+        } else {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $fr_label );
+        }
+
         if ( $tab === 'assignments' && $action === 'new' ) {
             self::renderHeader( __( 'New assignment', 'talenttrack' ) );
             self::renderAssignmentForm( $user_id, $is_admin );

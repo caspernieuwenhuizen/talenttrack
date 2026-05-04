@@ -19,11 +19,17 @@ class FrontendMyGoalsView extends FrontendViewBase {
     public static function render( object $player ): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $id > 0 ) {
+            // v3.92.1 — breadcrumb on the detail sub-view.
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Goal detail', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'my-goals', __( 'My goals', 'talenttrack' ) ) ]
+            );
             self::renderDetail( $player, $id );
             return;
         }
 
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My goals', 'talenttrack' ) );
         self::renderHeader( __( 'My goals', 'talenttrack' ) );
 
         global $wpdb;

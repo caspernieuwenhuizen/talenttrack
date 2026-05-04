@@ -40,6 +40,7 @@ class FrontendAuditLogView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Audit log', 'talenttrack' ) );
         self::renderHeader( __( 'Audit log', 'talenttrack' ) );
 
         /** @var AuditService $audit */

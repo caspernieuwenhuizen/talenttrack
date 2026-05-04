@@ -29,6 +29,17 @@ class FrontendTaskDetailView extends FrontendViewBase {
         $repo = new TasksRepository();
         $task = $repo->find( $task_id );
 
+        // v3.92.1 — breadcrumb chain. Show the task title as the
+        // current crumb when the task loads; otherwise just the parent.
+        $tasks_label = __( 'My tasks', 'talenttrack' );
+        $current_label = $task !== null && isset( $task['template_key'] )
+            ? (string) $task['template_key']
+            : __( 'Task', 'talenttrack' );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            $current_label,
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'my-tasks', $tasks_label ) ]
+        );
+
         if ( $task === null ) {
             self::renderHeader( __( 'Task not found', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'This task does not exist (or has been removed).', 'talenttrack' ) . '</p>';

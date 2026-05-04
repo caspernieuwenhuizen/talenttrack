@@ -19,11 +19,18 @@ class FrontendMyActivitiesView extends FrontendViewBase {
     public static function render( object $player ): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $id > 0 ) {
+            // v3.92.1 — breadcrumb on the detail sub-view; renderDetail
+            // doesn't add its own.
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Activity detail', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'my-activities', __( 'My activities', 'talenttrack' ) ) ]
+            );
             self::renderDetail( $player, $id );
             return;
         }
 
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My activities', 'talenttrack' ) );
         self::renderHeader( __( 'My activities', 'talenttrack' ) );
 
         $filters = self::filtersFromQuery();

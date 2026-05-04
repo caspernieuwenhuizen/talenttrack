@@ -48,6 +48,25 @@ class FrontendJourneyView {
             return;
         }
 
+        // v3.92.1 — breadcrumb chain. The view is reachable both as
+        // the player's own "my-journey" tile (no parent) and from a
+        // coach's player-detail page (parent: Players → [name]). The
+        // `tt_view` GET param tells us which.
+        $view_slug = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
+        $name = \TT\Infrastructure\Query\QueryHelpers::player_display_name( $player );
+        if ( $view_slug === 'my-journey' ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My journey', 'talenttrack' ) );
+        } else {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                /* translators: %s: player display name */
+                sprintf( __( 'Journey of %s', 'talenttrack' ), $name ),
+                [
+                    \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'players', __( 'Players', 'talenttrack' ) ),
+                    \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'players', $name, [ 'id' => $player_id ] ),
+                ]
+            );
+        }
+
         $mode               = isset( $_GET['journey_mode'] ) && $_GET['journey_mode'] === 'transitions' ? 'transitions' : 'timeline';
         $include_superseded = ! empty( $_GET['include_superseded'] );
         $full               = ! empty( $_GET['full'] );
