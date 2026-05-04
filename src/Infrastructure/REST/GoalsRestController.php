@@ -126,7 +126,9 @@ class GoalsRestController {
             $where[] = 'g.archived_at IS NULL';
         }
 
-        if ( ! current_user_can( 'tt_edit_settings' ) ) {
+        // v3.91.2 — bypass coach-scope filter for personas with matrix
+        // `goals:r[global]` (scout, head_of_development, academy_admin).
+        if ( ! QueryHelpers::user_has_global_entity_read( get_current_user_id(), 'goals' ) ) {
             $coach_teams = QueryHelpers::get_teams_for_coach( get_current_user_id() );
             if ( ! $coach_teams ) {
                 return RestResponse::success( [

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.91.2
+Stable tag: 3.91.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.91.3 — REST list controllers honour the matrix's global-scope grants =
+
+Follow-up to v3.91.1. After granting scout `team_roster_panel: r[global]` via the matrix admin page, Brian (Scout) reached the Teams page (tile + dispatcher both allowed) but the team list rendered empty. Root cause: `TeamsRestController::list_teams` (and the same pattern in `GoalsRestController::list_goals` + `ActivitiesRestController::list_sessions`) hardcoded `if !current_user_can('tt_edit_settings') → coach-scope filter` — same architectural rot the dispatcher had before #0079, just at the REST layer. The matrix grant the operator just set on the matrix admin page didn't reach the SQL filter. New helper `QueryHelpers::user_has_global_entity_read(int $user_id, string $entity): bool` consults `MatrixGate::can($entity, 'read', 'global')` after the admin shortcut, so personas with a global-scope grant on the entity bypass the coach-scope filter and see the full club roster. The 3 list controllers route through the helper. Coaches with team-scope grants still hit the coach-scope branch as before. EvaluationsRestController's create-side `coach_owns_player` check is unchanged — write-side ownership is a separate concern and scouts should not create evaluations on arbitrary players. Renumbered v3.91.2 → v3.91.3 after the menu-landing + teams-staff bundle landed on origin/main mid-CI.
 
 = 3.91.2 — TalentTrack menu lands on Account + Teams list shows every head coach =
 

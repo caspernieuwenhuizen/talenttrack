@@ -147,8 +147,12 @@ class TeamsRestController {
             $params[] = sanitize_text_field( (string) $filter['age_group'] );
         }
 
-        // Coach-scoping for non-admins.
-        if ( ! current_user_can( 'tt_edit_settings' ) ) {
+        // v3.91.2 — coach-scoping is bypassed for personas with a
+        // matrix `team:r[global]` grant (scout, head_of_development,
+        // academy_admin, anyone the operator gives global read on the
+        // matrix admin page). Coaches with team-scope grants still hit
+        // the coach-scope filter as before.
+        if ( ! QueryHelpers::user_has_global_entity_read( get_current_user_id(), 'team' ) ) {
             $coach_teams = QueryHelpers::get_teams_for_coach( get_current_user_id() );
             if ( ! $coach_teams ) {
                 return RestResponse::success( [
