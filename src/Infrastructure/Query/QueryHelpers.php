@@ -397,6 +397,46 @@ class QueryHelpers {
         return false;
     }
 
+    /**
+     * #0079 follow-up (v3.91.2) — does the user have a *global*-scope read
+     * grant on this matrix entity?
+     *
+     * REST list controllers (TeamsRestController, GoalsRestController,
+     * ActivitiesRestController, EvaluationsRestController) historically
+     * gated the global-vs-coach-scope branch on `tt_edit_settings`, which
+     * collapses every non-admin into the coach-scope filter even when the
+     * matrix grants them global read (scout, head_of_development). After
+     * v3.91.0 the matrix is the truth on the dispatcher; this helper
+     * extends that to the REST layer so a scout with `team:r[global]` (or
+     * any persona with the equivalent grant) sees the full club roster
+     * via `?tt_view=teams` instead of an empty list.
+     *
+     * Three rungs, in order of cheapness:
+     *   1. `tt_edit_settings` cap — admin shortcut. Same as the legacy gate.
+     *   2. WP `administrator` role — defensive belt-and-braces; mirrors
+     *      the bypass every other matrix consumer applies.
+     *   3. `MatrixGate::can( ..., scope='global' )` — the new rung.
+     *      Returns true only when the user's persona has a global-scope
+     *      read row for this entity in `tt_authorization_matrix`. Coaches
+     *      with team-scope grants still fall through to the coach-scope
+     *      filter.
+     *
+     * Returns false on dormant-matrix installs (MatrixGate consults the
+     * matrix table directly, which is empty/uninitialised on those
+     * installs) — that's the right answer because the legacy
+     * `tt_edit_settings` check still runs first and admins still bypass.
+     */
+    public static function user_has_global_entity_read( int $user_id, string $entity ): bool {
+        if ( $user_id <= 0 || $entity === '' ) return false;
+        if ( user_can( $user_id, 'tt_edit_settings' ) ) return true;
+        $user = get_user_by( 'id', $user_id );
+        if ( $user instanceof \WP_User && in_array( 'administrator', (array) $user->roles, true ) ) {
+            return true;
+        }
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;
+        return \TT\Modules\Authorization\MatrixGate::can( $user_id, $entity, 'read', 'global' );
+    }
+
     public static function get_evaluation( int $id ): ?object {
         global $wpdb; $p = $wpdb->prefix;
         $scope = self::apply_demo_scope( 'e', 'evaluation' );
