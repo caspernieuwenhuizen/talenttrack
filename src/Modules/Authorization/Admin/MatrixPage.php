@@ -26,6 +26,11 @@ class MatrixPage {
     public static function init(): void {
         add_action( 'admin_post_tt_matrix_save',  [ __CLASS__, 'handleSave' ] );
         add_action( 'admin_post_tt_matrix_reset', [ __CLASS__, 'handleReset' ] );
+        // v3.89.0 — round-trip: export current matrix as XLSX/CSV,
+        // import an edited file with diff preview before apply.
+        add_action( 'admin_post_tt_matrix_export', [ __CLASS__, 'handleExport' ] );
+        add_action( 'admin_post_tt_matrix_import_preview', [ __CLASS__, 'handleImportPreview' ] );
+        add_action( 'admin_post_tt_matrix_import_apply',   [ __CLASS__, 'handleImportApply' ] );
     }
 
     public static function render(): void {
@@ -78,6 +83,14 @@ class MatrixPage {
                 <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Matrix saved.', 'talenttrack' ); ?></p></div>
             <?php elseif ( $msg === 'reset' ) : ?>
                 <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Matrix reset to defaults.', 'talenttrack' ); ?></p></div>
+            <?php elseif ( $msg === 'imported' ) :
+                $n = isset( $_GET['tt_n'] ) ? (int) $_GET['tt_n'] : 0; ?>
+                <div class="notice notice-success is-dismissible"><p>
+                    <?php
+                    /* translators: %d: number of permission rows imported */
+                    printf( esc_html__( 'Matrix imported — %d rows applied.', 'talenttrack' ), $n );
+                    ?>
+                </p></div>
             <?php endif; ?>
 
             <p style="margin-top:14px;">
@@ -329,6 +342,41 @@ class MatrixPage {
                 });
             })();
             </script>
+
+            <hr style="margin:24px 0;" />
+
+            <h2><?php esc_html_e( 'Round-trip with a stakeholder (Excel / CSV)', 'talenttrack' ); ?></h2>
+            <p style="color:#5b6e75; max-width: 800px;">
+                <?php esc_html_e( 'Export the current matrix, edit it offline (Excel, Google Sheets, anything that handles CSV), then re-upload. A diff preview shows additions and removals before anything is committed. .xlsx is the cleaner format; .csv is universal — use it if your host blocks Office uploads.', 'talenttrack' ); ?>
+            </p>
+            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block; margin-right:8px;">
+                <?php wp_nonce_field( 'tt_matrix_export', 'tt_nonce' ); ?>
+                <input type="hidden" name="action" value="tt_matrix_export" />
+                <input type="hidden" name="format" value="xlsx" />
+                <button type="submit" class="button"><?php esc_html_e( 'Download .xlsx', 'talenttrack' ); ?></button>
+            </form>
+            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block;">
+                <?php wp_nonce_field( 'tt_matrix_export', 'tt_nonce' ); ?>
+                <input type="hidden" name="action" value="tt_matrix_export" />
+                <input type="hidden" name="format" value="csv" />
+                <button type="submit" class="button"><?php esc_html_e( 'Download .csv', 'talenttrack' ); ?></button>
+            </form>
+
+            <h3 style="margin-top:18px;"><?php esc_html_e( 'Upload edited file', 'talenttrack' ); ?></h3>
+            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
+                <?php wp_nonce_field( 'tt_matrix_import_preview', 'tt_nonce' ); ?>
+                <input type="hidden" name="action" value="tt_matrix_import_preview" />
+                <input type="file" name="seed_file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required />
+                <button type="submit" class="button button-primary"><?php esc_html_e( 'Preview changes', 'talenttrack' ); ?></button>
+                <p style="color:#888; font-size:12px; margin-top:6px;">
+                    <?php esc_html_e( 'The file is parsed in-memory; never written to wp-content/uploads. If your host rejects .xlsx, the .csv path bypasses the Office allowlist entirely.', 'talenttrack' ); ?>
+                </p>
+            </form>
+
+            <?php
+            // Render the diff preview if we just came from an upload.
+            self::renderImportPreviewIfPending();
+            ?>
 
             <hr style="margin:24px 0;" />
 
@@ -721,5 +769,197 @@ class MatrixPage {
             __( '%1$s can %3$s on %2$s (admin-edited). Click to revoke.', 'talenttrack' ),
             $persona, $entity, $activity
         );
+    }
+
+    /* ───────────────────────────────────────────────────────────
+       v3.89.0 — round-trip handlers (export + import preview/apply)
+       ─────────────────────────────────────────────────────────── */
+
+    public static function handleExport(): void {
+        if ( ! current_user_can( 'administrator' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        check_admin_referer( 'tt_matrix_export', 'tt_nonce' );
+
+        $format = isset( $_POST['format'] ) ? sanitize_key( (string) wp_unslash( $_POST['format'] ) ) : 'xlsx';
+        $stamp  = gmdate( 'Y-m-d-Hi' );
+
+        if ( $format === 'csv' ) {
+            SeedExporter::streamCsv( "talenttrack-matrix-seed-{$stamp}.csv" );
+            exit;
+        }
+        $ok = SeedExporter::streamXlsx( "talenttrack-matrix-seed-{$stamp}.xlsx" );
+        if ( ! $ok ) {
+            // PhpSpreadsheet missing — fall back to CSV with a notice
+            // baked into the filename so the operator notices.
+            SeedExporter::streamCsv( "talenttrack-matrix-seed-{$stamp}-fallback.csv" );
+        }
+        exit;
+    }
+
+    public static function handleImportPreview(): void {
+        if ( ! current_user_can( 'administrator' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        check_admin_referer( 'tt_matrix_import_preview', 'tt_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'matrix.import' );
+
+        $file = $_FILES['seed_file'] ?? null;
+        if ( ! is_array( $file ) || ( $file['error'] ?? UPLOAD_ERR_NO_FILE ) !== UPLOAD_ERR_OK ) {
+            self::stashFlash( 'import_error', __( 'No file received. Your host may have rejected the upload before PHP saw it. Try the .csv format.', 'talenttrack' ) );
+            wp_safe_redirect( add_query_arg( [ 'page' => 'tt-matrix' ], admin_url( 'admin.php' ) ) );
+            exit;
+        }
+
+        $tmp_path  = (string) $file['tmp_name'];
+        $orig_name = (string) ( $file['name'] ?? 'upload' );
+
+        $parsed = SeedImporter::parseUpload( $tmp_path, $orig_name );
+        if ( empty( $parsed['ok'] ) ) {
+            self::stashFlash( 'import_error', (string) ( $parsed['error'] ?? __( 'Could not parse the upload.', 'talenttrack' ) ) );
+            wp_safe_redirect( add_query_arg( [ 'page' => 'tt-matrix' ], admin_url( 'admin.php' ) ) );
+            exit;
+        }
+
+        $token = SeedImporter::stashForApply( $parsed['rows'] );
+        wp_safe_redirect( add_query_arg( [ 'page' => 'tt-matrix', 'tt_import_token' => $token ], admin_url( 'admin.php' ) ) );
+        exit;
+    }
+
+    public static function handleImportApply(): void {
+        if ( ! current_user_can( 'administrator' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        check_admin_referer( 'tt_matrix_import_apply', 'tt_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'matrix.import_apply' );
+
+        $token = isset( $_POST['tt_import_token'] ) ? sanitize_key( (string) wp_unslash( $_POST['tt_import_token'] ) ) : '';
+        $rows  = SeedImporter::fetchStash( $token );
+        if ( $rows === null ) {
+            self::stashFlash( 'import_error', __( 'Import token expired. Re-upload the file.', 'talenttrack' ) );
+            wp_safe_redirect( add_query_arg( [ 'page' => 'tt-matrix' ], admin_url( 'admin.php' ) ) );
+            exit;
+        }
+
+        $result = SeedImporter::apply( $rows );
+        SeedImporter::clearStash( $token );
+
+        if ( empty( $result['ok'] ) ) {
+            self::stashFlash( 'import_error', (string) ( $result['error'] ?? __( 'Import failed.', 'talenttrack' ) ) );
+            wp_safe_redirect( add_query_arg( [ 'page' => 'tt-matrix' ], admin_url( 'admin.php' ) ) );
+            exit;
+        }
+
+        wp_safe_redirect( add_query_arg( [ 'page' => 'tt-matrix', 'tt_msg' => 'imported', 'tt_n' => (int) $result['inserted'] ], admin_url( 'admin.php' ) ) );
+        exit;
+    }
+
+    /**
+     * Render the diff preview when the page is loaded with a valid
+     * `tt_import_token` query arg, OR an error notice when an
+     * import_error was stashed by a prior handler.
+     */
+    private static function renderImportPreviewIfPending(): void {
+        $err = self::popFlash( 'import_error' );
+        if ( $err !== '' ) {
+            echo '<div class="notice notice-error"><p>' . esc_html( $err ) . '</p></div>';
+            return;
+        }
+
+        $token = isset( $_GET['tt_import_token'] ) ? sanitize_key( (string) wp_unslash( $_GET['tt_import_token'] ) ) : '';
+        if ( $token === '' ) return;
+
+        $rows = SeedImporter::fetchStash( $token );
+        if ( $rows === null ) {
+            echo '<div class="notice notice-error"><p>' . esc_html__( 'Import token expired. Re-upload the file.', 'talenttrack' ) . '</p></div>';
+            return;
+        }
+
+        $diff = SeedImporter::computeDiff( $rows );
+        ?>
+        <div class="notice notice-info" style="margin-top:18px;">
+            <p>
+                <?php
+                printf(
+                    /* translators: 1: incoming row count, 2: current row count, 3: adds, 4: removes, 5: unchanged */
+                    esc_html__( 'Parsed %1$d rows from upload. Current matrix has %2$d. Adds: %3$d, removes: %4$d, unchanged: %5$d.', 'talenttrack' ),
+                    (int) $diff['counts']['incoming'],
+                    (int) $diff['counts']['current'],
+                    count( $diff['adds'] ),
+                    count( $diff['removes'] ),
+                    (int) $diff['unchanged']
+                );
+                ?>
+            </p>
+        </div>
+
+        <?php if ( ! empty( $diff['adds'] ) ) : ?>
+            <details open style="margin:12px 0;">
+                <summary style="cursor:pointer; font-weight:700; color:#196a32;">
+                    <?php
+                    /* translators: %d: number of permission rows being added */
+                    printf( esc_html__( 'Adds (%d)', 'talenttrack' ), count( $diff['adds'] ) );
+                    ?>
+                </summary>
+                <?php self::renderDiffTable( $diff['adds'] ); ?>
+            </details>
+        <?php endif; ?>
+
+        <?php if ( ! empty( $diff['removes'] ) ) : ?>
+            <details open style="margin:12px 0;">
+                <summary style="cursor:pointer; font-weight:700; color:#b32d2e;">
+                    <?php
+                    /* translators: %d: number of permission rows being removed */
+                    printf( esc_html__( 'Removes (%d)', 'talenttrack' ), count( $diff['removes'] ) );
+                    ?>
+                </summary>
+                <?php self::renderDiffTable( $diff['removes'] ); ?>
+            </details>
+        <?php endif; ?>
+
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
+              onsubmit="return confirm('<?php echo esc_js( __( 'Replace the live matrix with the uploaded set? Current rows not present in the upload will be removed.', 'talenttrack' ) ); ?>');"
+              style="margin-top:12px;">
+            <?php wp_nonce_field( 'tt_matrix_import_apply', 'tt_nonce' ); ?>
+            <input type="hidden" name="action" value="tt_matrix_import_apply" />
+            <input type="hidden" name="tt_import_token" value="<?php echo esc_attr( $token ); ?>" />
+            <button type="submit" class="button button-primary"><?php esc_html_e( 'Apply changes', 'talenttrack' ); ?></button>
+            <a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=tt-matrix' ) ); ?>"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></a>
+        </form>
+        <?php
+    }
+
+    private static function renderDiffTable( array $rows ): void {
+        ?>
+        <table class="widefat striped" style="margin-top:6px;">
+            <thead>
+                <tr>
+                    <th><?php esc_html_e( 'persona', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'entity', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'activity', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'scope', 'talenttrack' ); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ( $rows as $r ) : ?>
+                <tr>
+                    <td><?php echo esc_html( (string) ( $r['persona']    ?? '' ) ); ?></td>
+                    <td><?php echo esc_html( (string) ( $r['entity']     ?? '' ) ); ?></td>
+                    <td><?php echo esc_html( (string) ( $r['activity']   ?? '' ) ); ?></td>
+                    <td><?php echo esc_html( (string) ( $r['scope_kind'] ?? '' ) ); ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php
+    }
+
+    private static function stashFlash( string $key, string $message ): void {
+        if ( ! class_exists( '\\TT\\Infrastructure\\Config\\ConfigService' ) ) return;
+        $cfg = new \TT\Infrastructure\Config\ConfigService();
+        $cfg->set( 'tt_matrix_flash_' . $key . '_' . get_current_user_id(), $message );
+    }
+
+    private static function popFlash( string $key ): string {
+        if ( ! class_exists( '\\TT\\Infrastructure\\Config\\ConfigService' ) ) return '';
+        $cfg = new \TT\Infrastructure\Config\ConfigService();
+        $cfg_key = 'tt_matrix_flash_' . $key . '_' . get_current_user_id();
+        $msg = (string) $cfg->get( $cfg_key, '' );
+        if ( $msg !== '' ) $cfg->set( $cfg_key, '' );
+        return $msg;
     }
 }
