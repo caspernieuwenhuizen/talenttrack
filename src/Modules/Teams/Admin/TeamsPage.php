@@ -59,18 +59,27 @@ class TeamsPage {
             // shows head coach / assistant / manager from real staff
             // assignments rather than the legacy tt_teams.head_coach_id
             // column. One repo call per team is fine here (small N).
+            //
+            // v3.90.2 — `getTeamStaff()` returns a *grouped* nested
+            // array: `[role_key => [ [ 'person' => $obj, ... ], ... ]]`.
+            // The previous filter walked it as if it were a flat list of
+            // row objects (`$r->functional_role_key`), so every cell
+            // matched zero entries and rendered '—'. Now reads the group
+            // bucket directly and unwraps each entry's `person` object.
+            // Also lists *every* assignment for a role — multiple head
+            // coaches on one team render comma-separated, matching
+            // `TeamsRestController::list_teams()`'s GROUP_CONCAT shape.
             $people_repo = new \TT\Infrastructure\People\PeopleRepository();
             $render_staff = function ( int $team_id, string $functional_role_key ) use ( $people_repo ) {
-                $rows = $people_repo->getTeamStaff( $team_id );
-                $matches = array_values( array_filter( $rows, static function ( $r ) use ( $functional_role_key ) {
-                    return ( $r->functional_role_key ?? null ) === $functional_role_key
-                        || ( $r->role_in_team ?? null )         === $functional_role_key;
-                } ) );
-                if ( empty( $matches ) ) { echo '—'; return; }
+                $grouped = $people_repo->getTeamStaff( $team_id );
+                $entries = $grouped[ $functional_role_key ] ?? [];
+                if ( empty( $entries ) ) { echo '—'; return; }
                 $links = [];
-                foreach ( $matches as $m ) {
-                    $person_id = (int) ( $m->person_id ?? 0 );
-                    $name      = trim( ( (string) ( $m->first_name ?? '' ) ) . ' ' . ( (string) ( $m->last_name ?? '' ) ) );
+                foreach ( $entries as $entry ) {
+                    $person = is_array( $entry ) ? ( $entry['person'] ?? null ) : null;
+                    if ( ! is_object( $person ) ) continue;
+                    $person_id = (int) ( $person->id ?? 0 );
+                    $name      = trim( ( (string) ( $person->first_name ?? '' ) ) . ' ' . ( (string) ( $person->last_name ?? '' ) ) );
                     if ( $person_id <= 0 || $name === '' ) continue;
                     $links[] = \TT\Shared\Frontend\Components\RecordLink::inline(
                         $name,

@@ -74,9 +74,36 @@ class Menu {
      * still matters: WP would otherwise emit a duplicate "TalentTrack"
      * submenu pointing at the same place as the parent, doubling up
      * the entry under the icon.
+     *
+     * v3.91.2 — also promote `tt-account` to `$submenu['talenttrack'][0]`.
+     * WP's menu-header rendering builds the parent menu's `<a>` href
+     * from `$submenu[parent][0][2]` (the first child's slug) when
+     * children exist. Without this promotion, clicking "TalentTrack"
+     * landed on whichever submenu happened to be registered first
+     * (`tt-dashboard-layouts` in practice — `PersonaDashboardModule::boot()`
+     * runs before `CoreSurfaceRegistration::register()`). Promoting
+     * Account to position 0 makes the click land on the Account page
+     * regardless of registration order.
      */
     public static function removeDashboardMirror(): void {
         remove_submenu_page( 'talenttrack', 'talenttrack' );
+
+        global $submenu;
+        if ( empty( $submenu['talenttrack'] ) || ! is_array( $submenu['talenttrack'] ) ) {
+            return;
+        }
+        $account_slug = \TT\Modules\License\Admin\AccountPage::SLUG; // 'tt-account'
+        foreach ( $submenu['talenttrack'] as $i => $row ) {
+            if ( ! is_array( $row ) ) continue;
+            if ( ( $row[2] ?? '' ) === $account_slug ) {
+                if ( $i === 0 ) return; // already first
+                $entry = $submenu['talenttrack'][ $i ];
+                unset( $submenu['talenttrack'][ $i ] );
+                array_unshift( $submenu['talenttrack'], $entry );
+                $submenu['talenttrack'] = array_values( $submenu['talenttrack'] );
+                return;
+            }
+        }
     }
 
     /**
