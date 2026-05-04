@@ -1,3 +1,33 @@
+# TalentTrack v3.89.3 — Migration 0061: backfill `status='deleted'` players to the canonical archive shape
+
+Companion to v3.89.2's delete-path fix. v3.89.2 changed the code so future deletes write the right column, but it didn't repair the rows that prior versions had already mangled. This release ships migration 0061 that runs on plugin update and fixes them.
+
+## What the migration does
+
+```sql
+UPDATE wp_tt_players
+SET archived_at = updated_at,
+    status      = 'active'
+WHERE status      = 'deleted'
+  AND archived_at IS NULL
+```
+
+- `archived_at` ← `updated_at`. Closer to the actual delete time than `NOW()` would be — `updated_at` was bumped when the bad delete fired, so it's roughly when the operator clicked Delete. Not exact (any subsequent edit would have moved `updated_at`), but better than "the moment the migration ran weeks later."
+- `status` ← `'active'`. The lifecycle marker. If an operator un-archives a player from the Archived filter, they shouldn't be stranded in `'deleted'` — a status nothing in the codebase reads or handles. Reverting to `'active'` puts them back in the standard lifecycle.
+- `archived_by` is left NULL. We don't know who originally clicked Delete; the column allows NULL per the 0001 schema.
+
+## Idempotency
+
+The WHERE clause skips rows that already have `archived_at` populated, so re-running on a partial install is a no-op. Migrations are tracked by name in `tt_migrations` so the runner won't fire it twice anyway, but the SQL is defensive regardless.
+
+## Why a migration, not a manual SQL
+
+The operator should never have to copy-paste SQL into a DB tool to recover from a TalentTrack bug. Migrations:
+
+- Run on every install that updates, not just the one I happen to be in conversation with.
+- Show up in Authorization → Migrations → preview / changelog history.
+- Don't depend on the operator escaping table prefixes or picking the right `club_id`.
+
 # TalentTrack v3.89.2 — Frontend Delete Player did nothing — wrote `status` instead of `archived_at`
 
 Operator on a pilot install reported clicking **Delete** on a frontend player row produced no visible change. Confirm dialog appeared, network request succeeded, list re-rendered — but the player was still there. Looked like the click handler was broken; turned out the DELETE was writing to a column nothing on the list path reads.
