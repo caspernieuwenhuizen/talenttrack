@@ -75,6 +75,13 @@ class FrontendListTable {
         $search_cfg    = is_array( $config['search']      ?? null ) ? $config['search']      : [];
         $default_sort  = is_array( $config['default_sort']?? null ) ? $config['default_sort']: [];
         $per_page_opts = is_array( $config['per_page_options'] ?? null ) ? $config['per_page_options'] : [ 10, 25, 50, 100 ];
+        // v3.92.7 — server-locked filter values that aren't surfaced as
+        // user-editable controls but ARE sent on every REST request.
+        // Used by surfaces like `?tt_view=my-activities` that need a
+        // permanent server-side scope (player_id) without exposing it
+        // as a UI control. Merged into the request `filter[…]` payload
+        // by the JS hydrator at fetch time.
+        $static_filters = is_array( $config['static_filters'] ?? null ) ? $config['static_filters'] : [];
 
         if ( $rest_path === '' || ! $columns ) return '';
 
@@ -86,6 +93,7 @@ class FrontendListTable {
             'rest_path'        => $rest_path,
             'columns'          => self::columnsForJs( $columns ),
             'filters'          => self::filtersForJs( $filters ),
+            'static_filters'   => self::sanitizeStaticFilters( $static_filters ),
             'row_actions'      => self::rowActionsForJs( $row_actions ),
             'per_page_options' => array_values( $per_page_opts ),
             'default_sort'     => [
@@ -339,6 +347,26 @@ class FrontendListTable {
      * @param array<string,array<string,mixed>> $actions
      * @return array<string,array<string,mixed>>
      */
+    /**
+     * Sanitise static-filter values for JSON. Keys are sanitised as
+     * filter param keys; values are stringified (the JS hydrator uses
+     * URLSearchParams which stringifies anyway).
+     *
+     * @param array<string,mixed> $filters
+     * @return array<string,string>
+     */
+    private static function sanitizeStaticFilters( array $filters ): array {
+        $out = [];
+        foreach ( $filters as $key => $value ) {
+            $clean_key = sanitize_key( (string) $key );
+            if ( $clean_key === '' ) continue;
+            if ( is_scalar( $value ) ) {
+                $out[ $clean_key ] = (string) $value;
+            }
+        }
+        return $out;
+    }
+
     private static function rowActionsForJs( array $actions ): array {
         $out = [];
         foreach ( $actions as $key => $a ) {

@@ -207,7 +207,24 @@
         var config = root._ttListConfig;
         var state  = root._ttListState;
         setStatus(root, 'loading', config.i18n.loading);
-        return fetchPage(config.rest_path, state).then(function(res) {
+        // v3.92.7 — merge static_filters (server-locked filter values
+        // passed via the PHP `static_filters` config arg) into the
+        // request filter map so they're sent on every fetch without
+        // appearing as user-editable controls. Used by surfaces like
+        // `?tt_view=my-activities` that need a permanent player_id
+        // scope.
+        var requestState = state;
+        if (config.static_filters && typeof config.static_filters === 'object') {
+            var mergedFilter = {};
+            Object.keys(state.filter || {}).forEach(function(k) { mergedFilter[k] = state.filter[k]; });
+            Object.keys(config.static_filters).forEach(function(k) {
+                if (mergedFilter[k] === undefined || mergedFilter[k] === '' || mergedFilter[k] == null) {
+                    mergedFilter[k] = config.static_filters[k];
+                }
+            });
+            requestState = Object.assign({}, state, { filter: mergedFilter });
+        }
+        return fetchPage(config.rest_path, requestState).then(function(res) {
             if (!res.ok || !res.json || !res.json.success) {
                 setStatus(root, 'error', config.i18n.error);
                 return;

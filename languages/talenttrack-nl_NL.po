@@ -12568,3 +12568,31 @@ msgstr "Een stagedossier volgt de prospect van eerste training tot academiebeslu
 
 msgid "Open trial case"
 msgstr "Stagedossier openen"
+
+# v3.92.7 — FrontendListTable migration of ?tt_view=my-activities + LookupTranslator::activityType helper
+msgid "Your status"
+msgstr "Jouw status"
+
+msgid "No activities recorded for you yet."
+msgstr "Nog geen activiteiten voor je geregistreerd."
+
+msgid "Match"
+msgstr "Wedstrijd"
+
+msgid "Clinic"
+msgstr "Clinic"
+
+msgid "Team meeting"
+msgstr "Teamvergadering"
+
+msgid "Friendly match"
+msgstr "Oefenwedstrijd"
+
+msgid "Cup match"
+msgstr "Bekerwedstrijd"
+
+msgid "League match"
+msgstr "Competitiewedstrijd"
+
+msgid "Tournament"
+msgstr "Toernooi"

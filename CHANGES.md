@@ -1,3 +1,115 @@
+# TalentTrack v3.92.7 — My-activities full FrontendListTable migration + LabelTranslator::activityType helper
+
+Two follow-ups deferred from the v3.92.5 pilot batch ship together. The previous release only borrowed the visual chrome of `FrontendListTable`; this one completes the migration so `?tt_view=my-activities` runs entirely through the shared component and the activity-type pill on the detail card finally renders translated labels.
+
+## Why this is a single PR, not two
+
+The full migration of `?tt_view=my-activities` requires a per-player REST scope on the activities endpoint, which means the `LabelTranslator::activityType()` helper has to land at the same time — the migrated detail view calls into it inline. Splitting them would have created a dead branch with one of the two surfaces still using the v3.92.5 placeholder. Both lived in the deferred bucket together; both ship together.
+
+## Per-player REST scope (filter[player_id])
+
+`ActivitiesRestController::list_sessions` now accepts `filter[player_id]=N`. When set, the WHERE clause adds:
+
+```sql
+EXISTS (SELECT 1 FROM {$p}tt_attendance a
+          WHERE a.activity_id = s.id
+            AND a.club_id     = s.club_id
+            AND ( a.player_id = %d OR a.guest_player_id = %d ))
+```
+
+so the list only returns activities the player attended (covering both first-team players via `player_id` and ad-hoc guests via `guest_player_id`).
+
+A correlated subquery on each returned row exposes `your_attendance_status` (the player's `Present` / `Absent` / `Late` / etc. value for that activity), feeding a new `your_attendance_pill_html` field and column. Subquery only runs when `filter[player_id]` is set, so admin / coach list-views aren't paying for it.
+
+## Permission gate — player + parent self-read
+
+The endpoint's `can_view` previously required the broader `tt_view_activities` capability — a coach / club-admin gate. Players don't hold that cap by default, but they should be able to see their own activity history.
+
+The gate now accepts the request:
+
+```php
+public static function can_view( ?\WP_REST_Request $r = null ): bool {
+    // Cap-based access still wins.
+    if ( AuthorizationService::userCanOrMatrix( $uid, 'tt_view_activities' ) ) return true;
+    if ( AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_activities' ) ) return true;
+
+    // Player / parent self-read via filter[player_id]=<their player id>.
+    $filter_pid = ...;
+    if ( $filter_pid <= 0 ) return false;
+    // Match tt_players.wp_user_id = $uid → grant.
+    // Match tt_player_parents.parent_user_id = $uid AND .player_id = $filter_pid → grant.
+}
+```
+
+So a player with no admin caps can fetch *only* their own attendance via the explicit `filter[player_id]` channel; without the filter, they're denied. Parents reach the same endpoint via the linked-player join.
+
+## FrontendListTable: static_filters
+
+New `static_filters` config key carries permanent server-side scope without rendering a user-editable filter row:
+
+```php
+FrontendListTable::render([
+    'rest_path'      => 'activities',
+    'static_filters' => [ 'player_id' => (int) $player->id ],
+    'columns'        => [ ... ],
+    ...
+]);
+```
+
+The PHP side passes `static_filters` through to the JS hydrator config. The JS `refresh()` merges them into the request `filter` map (without overriding any user-set filter of the same key) before `fetchPage()`. Same code path as the user-editable filters; no separate plumbing.
+
+## LabelTranslator::activityType()
+
+Covers the seeded activity-type lookup keys plus the migration-0046 game subtypes:
+
+```php
+LabelTranslator::activityType( 'training' );    // "Training"
+LabelTranslator::activityType( 'match' );       // "Match"
+LabelTranslator::activityType( 'team_meeting' );// "Team meeting"
+LabelTranslator::activityType( 'friendly' );    // "Friendly match"
+LabelTranslator::activityType( 'tournament' );  // "Tournament"
+LabelTranslator::activityType( 'custom_xyz' );  // null
+```
+
+Null on unknown keys lets callers fall back to the row's typed `label` for custom types a club added post-seed.
+
+The activity-type pill on the list still goes through `LookupPill::render('activity_type', $key)` which uses the runtime translation layer (and an editable `tt_lookups.label`). The helper is for surfaces that render the type label inline — currently the activity-detail card meta row; future surfaces are the journey-event summaries and cohort-transition timeline.
+
+## Wired in renderDetail
+
+`FrontendMyActivitiesView::renderDetail` previously fell back to `ucfirst(str_replace('_', ' ', $type_key))` for the type pill — a placeholder shipped with v3.92.5 because the helper didn't exist yet. Now:
+
+```php
+$type_label = LabelTranslator::activityType( $type_key );
+if ( $type_label === null ) {
+    $type_label = ucfirst( str_replace( '_', ' ', $type_key ) );
+}
+```
+
+The fallback stays for stale demo / custom-type rows; the seeded keys read in Dutch on Dutch installs.
+
+## What's *not* in this PR
+
+- Other player-scope-style migrations (e.g. `?tt_view=my-goals` is already a list, but the goal-detail / evaluation-detail "my" surfaces still render via custom queries — same migration recipe applies if the operator asks).
+- Backfilling `LookupPill::render` callers to use the helper directly — the pill component is fine as-is for editable lookup rows; the helper is for cases where the pill component is overkill.
+- `LabelTranslator::activityType` for journey-event summaries — those still concatenate the raw key. Follow-up if the operator notices on Dutch installs.
+
+## Translations
+
+10 new translatable strings — `Your status`, `No activities recorded for you yet.`, plus the seeded activity-type labels (`Match`, `Clinic`, `Team meeting`, `Friendly match`, `Cup match`, `League match`, `Tournament`). `Training`, `Methodology`, and `Search title, location, team…` already had `nl_NL` entries from earlier ships and are reused. All filled in `nl_NL.po`.
+
+## Affected files
+
+- `src/Infrastructure/REST/ActivitiesRestController.php` — `filter[player_id]` clause, per-row `your_attendance_status` subquery, player/parent self-read in `can_view`, `your_attendance_status` + `your_attendance_pill_html` in `format_row`.
+- `src/Shared/Frontend/Components/FrontendListTable.php` — `static_filters` config support + `sanitizeStaticFilters`.
+- `assets/js/components/frontend-list-table.js` — merge `config.static_filters` into request `filter` before fetch.
+- `src/Infrastructure/Query/LabelTranslator.php` — new `activityType()` helper.
+- `src/Shared/Frontend/FrontendMyActivitiesView.php` — full `FrontendListTable::render()` migration in `render()`; `LabelTranslator::activityType()` in `renderDetail()`. Removed orphaned `filtersFromQuery` / `renderFilters` / `renderTable` / `parseDate` helpers.
+- `languages/talenttrack-nl_NL.po` — 10 new NL strings.
+- `readme.txt`, `talenttrack.php`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
+
+---
+
 # TalentTrack v3.92.6 — Player file UX redesign: hero card + empty-state CTAs + tab count badges (#0082)
 
 Pilot operator on the player file: *"need to make this much more visually appealing and we want clear CTAs to set up the player files (e.g. when no goals exist, no PDP exists, no evaluations exist or trials)."* Three threads bundled into one ship. Renumbered v3.92.4 → v3.92.6 after pilot-batch PR 2 (v3.92.4 — eval wizard fixes) and PR 3 (v3.92.5 — branding logo + activity detail polish + PDP signed-status green) landed mid-CI.
