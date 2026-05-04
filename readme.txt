@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.91.0
+Stable tag: 3.91.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.91.1 — Hotfix: backfill the v3.91.0 matrix entities into existing installs =
+
+v3.91.0 added 10 new tile-visibility entities (`team_roster_panel`, `coach_player_list_panel`, `people_directory_panel`, `evaluations_panel`, `activities_panel`, `goals_panel`, `podium_panel`, `team_chemistry_panel`, `pdp_panel`, `wp_admin_portal`) to `config/authorization_seed.php`, but the seed file is only loaded into `tt_authorization_matrix` on fresh install (migration 0026) or via the matrix admin page's "Reset to defaults" button. Existing installs that updated to v3.91.0 therefore had the new tile gates pointing at matrix rows that didn't exist — the lookup returned false and FR-assigned head coaches stayed locked out of the coach-side dashboard despite the migration 0062 scout-row backfill having run successfully. Bug found on the pilot install: head-coach Kevin Raes (linked WP user + FR assignment + scope row all in place) saw only Methodologie + Analytics tiles after v3.91.0. New migration `0063_authorization_seed_topup_0079.php` walks the seed file and `INSERT IGNORE`s the new tuples (existing rows including operator-edited ones stay untouched). Same shape as the v3.39.0 `0035_authorization_seed_backfill` precedent. Idempotent.
 
 = 3.91.0 — Tile-entity disambiguation + FR assignment scope sync (#0079) =
 
