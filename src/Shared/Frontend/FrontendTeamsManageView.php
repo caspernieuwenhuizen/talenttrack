@@ -117,6 +117,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
             'edit' => [
                 'label' => __( 'Edit', 'talenttrack' ),
                 'href'  => add_query_arg( [ 'tt_view' => 'teams', 'id' => '{id}', 'action' => 'edit' ], $base_url ),
+                'cap'   => 'tt_edit_teams',
             ],
             'delete' => [
                 'label'       => __( 'Delete', 'talenttrack' ),
@@ -124,6 +125,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
                 'rest_path'   => 'teams/{id}',
                 'confirm'     => __( 'Delete this team? It will be archived.', 'talenttrack' ),
                 'variant'     => 'danger',
+                'cap'         => 'tt_edit_teams',
             ],
         ];
 
