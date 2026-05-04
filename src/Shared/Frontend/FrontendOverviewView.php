@@ -49,15 +49,34 @@ class FrontendOverviewView extends FrontendViewBase {
                             <?php echo QueryHelpers::radar_chart_svg( $radar['labels'], $radar['datasets'], $max ); ?>
                         </div>
                     <?php endif; ?>
-
-                    <p class="tt-mc-actions">
-                        <a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="<?php echo esc_url( add_query_arg( [ 'tt_print' => (int) $player->id ], remove_query_arg( [ 'tt_view' ] ) ) ); ?>">
-                            <?php esc_html_e( 'Print report', 'talenttrack' ); ?>
-                        </a>
-                    </p>
                 </div>
 
-                <div class="tt-mc-card">
+                <div class="tt-mc-card" style="position:relative;">
+                    <?php
+                    // v3.92.2 — was a full-width "Print report" button
+                    // anchored at the bottom of the side column. Pilot
+                    // operator: should be subtle, top-right, icon-only.
+                    // Print icon SVG + aria-label; tt-print-icon-btn
+                    // styles position:absolute top:8px right:8px in
+                    // public.css (or inline-styled here so no CSS file
+                    // change is required for the polish ship).
+                    $print_url   = add_query_arg( [ 'tt_print' => (int) $player->id ], remove_query_arg( [ 'tt_view' ] ) );
+                    $print_label = __( 'Print report', 'talenttrack' );
+                    ?>
+                    <a class="tt-print-icon-btn"
+                       href="<?php echo esc_url( $print_url ); ?>"
+                       target="_blank" rel="noopener"
+                       title="<?php echo esc_attr( $print_label ); ?>"
+                       aria-label="<?php echo esc_attr( $print_label ); ?>"
+                       style="position:absolute; top:8px; right:8px; display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:6px; background:transparent; border:1px solid transparent; color:#5b6e75; text-decoration:none; transition:background 0.15s ease, border-color 0.15s ease, color 0.15s ease;"
+                       onmouseover="this.style.background='#f3f4f6';this.style.borderColor='#d6dadd';this.style.color='#1a1d21';"
+                       onmouseout="this.style.background='transparent';this.style.borderColor='transparent';this.style.color='#5b6e75';">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                            <rect x="6" y="14" width="12" height="8"></rect>
+                        </svg>
+                    </a>
                     <?php \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true ); ?>
                 </div>
             </div>
