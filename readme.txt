@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.88.0
+Stable tag: 3.88.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.88.1 — Teams list head-coach reads from staff assignments + functional-roles dropdown translated + attendance % blank for planned/cancelled =
+
+Three JG4IT pilot fixes shipped together. Renumbered from v3.87.1 in PR after v3.88.0 (matrix-controlled-tiles list cleanup) landed mid-CI. (1) **Teams list head-coach column was empty** because it read the legacy `tt_teams.head_coach_id` wp-user pointer, but the operator assigns head coaches via Functional Roles (which writes to `tt_team_people` with `tt_functional_roles.role_key='head_coach'`). Both `TeamsRestController::list_teams()` and `get_team()` now derive the column from the staff-assignment store via a `GROUP_CONCAT` sub-select; multiple HCs render comma-separated as clickable links to each person's detail. Fallback to the legacy `head_coach_id` retained for installs that haven't migrated. (2) **Functional-roles assignment dropdown was English-only** even on Dutch installs — `FrontendFunctionalRolesView` rendered the role label raw via `$r->label` without going through `LabelTranslator::functionalRoleLabel()` (which exists since v3.82.0 and translates the 7 system roles). One-line fix: wrap with the translator, fall back to `$r->label` for custom roles. (3) **Attendance % column showed `0%` for planned/cancelled activities** which looked like real "no-one showed up" data. `ActivitiesRestController::format_row()` computed the percentage regardless of activity status; now returns `null` (rendered as blank/dash) when status is `planned` or `cancelled`.
 
 = 3.88.0 — Empty the "Tiles not controlled by the matrix" list =
 

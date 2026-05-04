@@ -1,3 +1,74 @@
+# TalentTrack v3.88.1 — Teams list head-coach reads from staff assignments + functional-roles dropdown translated + attendance % blank for planned/cancelled
+
+Three JG4IT pilot fixes shipped together. All three were reported in the same operator batch as v3.86.2; this PR closes the structural slice (items 1, 2, 6 of the six-item report). Items 3 (edit row-action) and 4 (activity team column) were verified working on the live install; item 5 (compare two users' permissions) ships next as a separate feature PR. Renumbered from v3.87.1 in PR after v3.88.0 (matrix-controlled-tiles list cleanup) landed mid-CI.
+
+## Fix 1 — Teams list head-coach column was empty / wrong
+
+### What broke
+
+On the JG4IT pilot install, the **Head coach** column in the Teams list (frontend `?tt_view=teams` and the wp-admin equivalent) showed blank cells even though every team had a head coach assigned. Operator was assigning HCs via Functional Roles (the canonical workflow), which writes to `tt_team_people` × `tt_functional_roles.role_key='head_coach'`. The legacy `tt_teams.head_coach_id` field — a wp-user pointer set by the old "Head coach" select on the team form — was never populated for those teams.
+
+### Root cause
+
+`TeamsRestController::list_teams()` (and `get_team()`) joined `wp_users` on the legacy `tt_teams.head_coach_id` column for the `coach_name` field. Teams that adopted the staff-assignment workflow had `head_coach_id = 0`, so the JOIN produced NULL, the `coach_name` was empty, and the column rendered blank.
+
+### Fix
+
+Both list and detail queries now derive the head-coach name(s) + person ID(s) from the staff-assignment store via two `GROUP_CONCAT` sub-selects:
+
+```sql
+(SELECT GROUP_CONCAT(CONCAT(p.first_name, ' ', p.last_name) ORDER BY p.last_name SEPARATOR '||')
+ FROM tt_team_people tp
+ JOIN tt_people p ON p.id = tp.person_id AND p.club_id = tp.club_id
+ JOIN tt_functional_roles fr ON fr.id = tp.functional_role_id AND fr.club_id = tp.club_id
+ WHERE tp.team_id = t.id
+   AND tp.club_id = t.club_id
+   AND fr.role_key = 'head_coach'
+   AND p.archived_at IS NULL
+   AND ( tp.end_date IS NULL OR tp.end_date >= CURDATE() )
+) AS hc_names
+```
+
+Multiple head coaches render as comma-separated clickable links in `fmtRow()` — each name links to the person's detail page (`?tt_view=people&id=N`). The legacy `LEFT JOIN wp_users ON head_coach_id` is kept as a fallback so installs that still use the legacy field don't lose their column. Tenancy filters (`tp.club_id = t.club_id`, `p.club_id = tp.club_id`, `fr.club_id = tp.club_id`) on every join, per the SaaS-readiness rule.
+
+### What did *not* change
+
+- The `head_coach_id` column on `tt_teams` stays — other code (cap checks, ownership filters) still reads it. The migration to retire it lives behind a separate spec.
+- The wp-admin Teams page (`PlayersPage`'s sibling `TeamsPage.php`) wasn't touched in this PR — same shape applies and should be migrated next time we touch that file. Logged as opportunistic follow-up.
+
+## Fix 2 — Functional-roles assignment dropdown English-only
+
+### What broke
+
+`?tt_view=functional-roles` → "Assign person to team" form → the **Role** dropdown showed `Head Coach / Assistant Coach / Manager / Physio / …` in English even on Dutch installs.
+
+### Root cause
+
+`FrontendFunctionalRolesView::renderAssignForm()` rendered options as `<?php echo esc_html( (string) $r->label ); ?>` — bypassing `LabelTranslator::functionalRoleLabel()` which already exists (shipped in v3.82.0 i18n Bundle 4) and translates the 7 system role keys. Two other render sites in the same file (lines 70, 153) used the translator correctly; this third site was missed.
+
+### Fix
+
+One-line wrap: read `$r->role_key`, run through `LabelTranslator::functionalRoleLabel()`, fall back to the typed `$r->label` for custom roles a club may have added (the translator returns `null` for unknown keys per its existing contract).
+
+## Fix 3 — Attendance % shown as 0% for planned/cancelled activities
+
+### What broke
+
+Activities list (`?tt_view=activities`) **Att. %** column rendered `0%` for activities with `activity_status_key = planned` (hasn't happened yet) or `cancelled` (won't happen). Operators on JG4IT mistook the 0% for "no-one showed up" instead of "didn't happen yet" — confusing the coach during pilot demo.
+
+### Root cause
+
+`ActivitiesRestController::format_row()` computed `attendance_pct = round( ( $present / $roster ) * 100 )` whenever `roster > 0`, regardless of activity status. For planned/cancelled activities, `present_count = 0` (no attendance recorded), `roster_size > 0` (the team exists), so the formula returned 0% — a real-looking value.
+
+### Fix
+
+Guard the computation: when status is in `[planned, cancelled]`, leave `attendance_pct = null` (renders as blank/dash via the `percent` column type). Other statuses (`completed`, `held`, …) compute as before.
+
+## What did *not* change
+
+- The Activities list filter "Attendance: Complete / Partial / None" still operates on `attendance_count` (recorded rows), not on the new status guard. Filtering planned activities by Attendance: None still surfaces them — that's a separate UX call (do we hide planned/cancelled from this filter entirely? probably yes, but separate fix).
+- The wp-admin Activities list (if any — it may go through the same REST endpoint) inherits the fix automatically. No separate render-site change needed.
+
 # TalentTrack v3.88.0 — Empty the "Tiles not controlled by the matrix" list
 
 User followup on v3.87.0: the matrix admin page still listed tiles under "Tiles not controlled by the matrix" even though most of them were declared with `entity` and ARE matrix-controlled. Two things kept the list non-empty:

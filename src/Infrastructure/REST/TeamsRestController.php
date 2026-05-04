@@ -169,14 +169,38 @@ class TeamsRestController {
 
         $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
 
-        // #0070 — also resolve the head coach's tt_people.id so the list
-        // can render the coach name as a clickable link to the person
-        // detail view. coach_name still comes from wp_users (admins may
-        // assign a wp_user without a tt_people row); link is suppressed
-        // when no people row exists.
+        // v3.87.1 — head-coach column now reads from the canonical
+        // staff-assignment store (`tt_team_people` × `tt_functional_roles`
+        // role_key='head_coach') instead of the legacy `tt_teams.head_coach_id`
+        // wp-user pointer. Multiple HCs comma-separated. Fallback to the
+        // legacy field is retained for teams that haven't been migrated to
+        // staff assignments. JG4IT pilot reported the column was empty
+        // because they assigned head coaches via Functional Roles only.
+        // GROUP_CONCAT separators: `||` for names (avoids collision with
+        // a comma inside a person's name), `,` for ids.
         $list_sql = "SELECT t.*,
-                            u.display_name AS coach_name,
-                            coach_p.id AS coach_person_id,
+                            u.display_name AS legacy_coach_name,
+                            coach_p.id AS legacy_coach_person_id,
+                            (SELECT GROUP_CONCAT(CONCAT(p.first_name, ' ', p.last_name) ORDER BY p.last_name SEPARATOR '||')
+                             FROM {$p}tt_team_people tp
+                             JOIN {$p}tt_people p ON p.id = tp.person_id AND p.club_id = tp.club_id
+                             JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id AND fr.club_id = tp.club_id
+                             WHERE tp.team_id = t.id
+                               AND tp.club_id = t.club_id
+                               AND fr.role_key = 'head_coach'
+                               AND p.archived_at IS NULL
+                               AND ( tp.end_date IS NULL OR tp.end_date >= CURDATE() )
+                            ) AS hc_names,
+                            (SELECT GROUP_CONCAT(p.id ORDER BY p.last_name SEPARATOR ',')
+                             FROM {$p}tt_team_people tp
+                             JOIN {$p}tt_people p ON p.id = tp.person_id AND p.club_id = tp.club_id
+                             JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id AND fr.club_id = tp.club_id
+                             WHERE tp.team_id = t.id
+                               AND tp.club_id = t.club_id
+                               AND fr.role_key = 'head_coach'
+                               AND p.archived_at IS NULL
+                               AND ( tp.end_date IS NULL OR tp.end_date >= CURDATE() )
+                            ) AS hc_person_ids,
                             (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = t.id AND pl.archived_at IS NULL AND pl.club_id = t.club_id) AS player_count
                      FROM {$p}tt_teams t
                      LEFT JOIN {$wpdb->users} u ON u.ID = t.head_coach_id
@@ -205,8 +229,36 @@ class TeamsRestController {
     public static function get_team( \WP_REST_Request $r ) {
         global $wpdb; $p = $wpdb->prefix;
         $id = absint( $r['id'] );
+        // v3.87.1 — single-team query mirrors list_teams: head coaches via
+        // staff assignments first, legacy `tt_teams.head_coach_id` as fallback.
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT t.*, u.display_name AS coach_name FROM {$p}tt_teams t LEFT JOIN {$wpdb->users} u ON u.ID = t.head_coach_id WHERE t.id = %d AND t.club_id = %d",
+            "SELECT t.*,
+                    u.display_name AS legacy_coach_name,
+                    coach_p.id AS legacy_coach_person_id,
+                    (SELECT GROUP_CONCAT(CONCAT(p.first_name, ' ', p.last_name) ORDER BY p.last_name SEPARATOR '||')
+                     FROM {$p}tt_team_people tp
+                     JOIN {$p}tt_people p ON p.id = tp.person_id
+                     JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id
+                     WHERE tp.team_id = t.id
+                       AND fr.role_key = 'head_coach'
+                       AND p.archived_at IS NULL
+                       AND p.club_id = t.club_id
+                       AND ( tp.end_date IS NULL OR tp.end_date >= CURDATE() )
+                    ) AS hc_names,
+                    (SELECT GROUP_CONCAT(p.id ORDER BY p.last_name SEPARATOR ',')
+                     FROM {$p}tt_team_people tp
+                     JOIN {$p}tt_people p ON p.id = tp.person_id
+                     JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id
+                     WHERE tp.team_id = t.id
+                       AND fr.role_key = 'head_coach'
+                       AND p.archived_at IS NULL
+                       AND p.club_id = t.club_id
+                       AND ( tp.end_date IS NULL OR tp.end_date >= CURDATE() )
+                    ) AS hc_person_ids
+             FROM {$p}tt_teams t
+             LEFT JOIN {$wpdb->users} u ON u.ID = t.head_coach_id
+             LEFT JOIN {$p}tt_people coach_p ON coach_p.wp_user_id = t.head_coach_id AND coach_p.club_id = t.club_id
+             WHERE t.id = %d AND t.club_id = %d",
             $id, CurrentClub::id()
         ) );
         if ( ! $row ) return RestResponse::error( 'not_found', __( 'Team not found.', 'talenttrack' ), 404 );
@@ -330,24 +382,56 @@ class TeamsRestController {
 
     private static function fmtRow( object $t ): array {
         $name  = (string) $t->name;
-        $coach = (string) ( $t->coach_name ?? '' );
-        $coach_person_id = (int) ( $t->coach_person_id ?? 0 );
 
-        // #0070 — pre-rendered link HTML so the frontend list table can
-        // show team + coach as clickable cells. Coach link suppressed
-        // when no tt_people row maps to the wp_user.
+        // v3.87.1 — head-coach column derives from the staff-assignment
+        // store (`hc_names` / `hc_person_ids` from the GROUP_CONCAT
+        // sub-select in `list_teams`). Comma-separated link list when
+        // multiple HCs are assigned. Falls back to the legacy
+        // `tt_teams.head_coach_id` wp-user pointer for teams that haven't
+        // adopted the staff-assignment workflow.
+        $hc_names_raw      = isset( $t->hc_names ) ? (string) $t->hc_names : '';
+        $hc_person_ids_raw = isset( $t->hc_person_ids ) ? (string) $t->hc_person_ids : '';
+        $hc_names      = $hc_names_raw !== '' ? explode( '||', $hc_names_raw ) : [];
+        $hc_person_ids = $hc_person_ids_raw !== '' ? array_map( 'intval', explode( ',', $hc_person_ids_raw ) ) : [];
+
         $name_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $name !== '' ? $name : '#' . (int) $t->id,
             \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', (int) $t->id )
         );
+
         $coach_link_html = '';
-        if ( $coach !== '' && $coach_person_id > 0 ) {
-            $coach_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
-                $coach,
-                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $coach_person_id )
-            );
+        $coach           = '';
+        $coach_person_id = 0;
+        if ( $hc_names ) {
+            $links = [];
+            foreach ( $hc_names as $i => $hc_name ) {
+                $hc_pid = (int) ( $hc_person_ids[ $i ] ?? 0 );
+                if ( $hc_pid > 0 ) {
+                    $links[] = \TT\Shared\Frontend\Components\RecordLink::inline(
+                        (string) $hc_name,
+                        \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $hc_pid )
+                    );
+                } else {
+                    $links[] = esc_html( (string) $hc_name );
+                }
+            }
+            $coach_link_html = implode( ', ', $links );
+            $coach           = implode( ', ', $hc_names );
+            $coach_person_id = (int) ( $hc_person_ids[0] ?? 0 );
         } else {
-            $coach_link_html = $coach !== '' ? esc_html( $coach ) : '';
+            // Fallback to legacy pointer.
+            $legacy_name = (string) ( $t->legacy_coach_name ?? '' );
+            $legacy_pid  = (int) ( $t->legacy_coach_person_id ?? 0 );
+            if ( $legacy_name !== '' && $legacy_pid > 0 ) {
+                $coach_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+                    $legacy_name,
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $legacy_pid )
+                );
+            } elseif ( $legacy_name !== '' ) {
+                $coach_link_html = esc_html( $legacy_name );
+            }
+            $coach           = $legacy_name;
+            $coach_person_id = $legacy_pid;
         }
 
         return [

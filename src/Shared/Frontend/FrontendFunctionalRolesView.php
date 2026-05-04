@@ -304,8 +304,11 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
                     <label class="tt-field-label tt-field-required" for="tt-fnrole-assign-role"><?php esc_html_e( 'Role', 'talenttrack' ); ?></label>
                     <select id="tt-fnrole-assign-role" class="tt-input" name="functional_role_id" required>
                         <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
-                        <?php foreach ( $roles as $r ) : ?>
-                            <option value="<?php echo (int) $r->id; ?>"><?php echo esc_html( (string) $r->label ); ?></option>
+                        <?php foreach ( $roles as $r ) :
+                            $r_translated = \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $r->role_key ?? '' ) );
+                            $r_label      = $r_translated !== null ? $r_translated : (string) $r->label;
+                            ?>
+                            <option value="<?php echo (int) $r->id; ?>"><?php echo esc_html( $r_label ); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
