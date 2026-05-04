@@ -52,7 +52,16 @@ Gearchiveerde spelers blijven in de database maar verdwijnen uit actieve lijsten
 
 ## Spelerdossierpagina (v3.79.0)
 
-De spelerdetailpagina is nu een dossier met zes tabs: Profiel / Doelen / Evaluaties / Activiteiten / PDP / Stage. Elke tab toont tot 50 records (25 voor activiteiten, 10 voor PDP/Stage), elke record linkt door naar de eigen detailpagina, en broodkruimels vervangen de losse terugknop. De Profiel-tab behoudt de bestaande gegevenslijst plus de gedrag- en potentieel-knop.
+De spelerdetailpagina is een dossier met zes tabs: Profiel / Doelen / Evaluaties / Activiteiten / PDP / Stage. Elke tab toont tot 50 records (25 voor activiteiten, 10 voor PDP/Stage), elke record linkt door naar de eigen detailpagina, en broodkruimels vervangen de losse terugknop.
+
+## Spelersdossier-UX (v3.92.6 — #0082)
+
+Het spelersdossier kreeg een herontworpen hero-kaart en lege-staat-CTA's per tab.
+
+- **Hero-kaart.** Foto (of initialenplaceholder als er geen foto is) staat naast een gestructureerd infoblok: team en leeftijdsgroep, statuspil, leeftijdscategorie-badge, dagen-in-academie + datum toegetreden, en tot drie "recentste record"-chips die direct linken naar de recentste activiteit, evaluatie en doel. Chips verdwijnen als het bijbehorende record niet bestaat; de hele rij verbergt zich als er niets te tonen is. Stapelt op 360px breedte, naast elkaar vanaf 480px.
+- **Lege-staat-CTA's.** Wanneer een tab geen records heeft krijg je voortaan, in plaats van een schuingedrukte regel "Nog geen doelen vastgelegd", een gecentreerde kaart: icoon, kop, één zin uitleg, en een primaire actieknop. De knop vult de speler vooraf in en routeert naar de wizard waar die bestaat (vlak formulier anders). Alleen-lezen-kijkers (scout / ouder / een speler op zijn eigen dossier) zien wel de kop en uitleg, maar geen knop — de aanmaakactie wordt onderdrukt omdat ze de bevoegdheid niet hebben. De Activiteiten-lege-staat legt uit dat activiteiten op teamniveau worden vastgelegd; de CTA verdwijnt wanneer de speler nog geen team toegewezen heeft en wordt vervangen door "Wijs deze speler eerst toe aan een team".
+- **Aantal-badges per tab.** Elke niet-Profiel-tab toont een kleine badge met het aantal records (Doelen 12, Evaluaties 4, Activiteiten 38, enz.). Tabs zonder records worden in een gedempte kleur weergegeven zodat je in één oogopslag de gevulde tabs ziet zonder elke lege tab open te klikken.
+- **Profiel-tab tweekoloms-layout.** Vanaf 768px splitst de Profiel-tab zich in Identiteit (geboortedatum, positie, voet, rugnummer, status) links en Academie (team, leeftijdscategorie, datum toegetreden) rechts. Eén kolom op mobiel.
 
 ## Teamdetail — stagespelers (v3.79.0)
 

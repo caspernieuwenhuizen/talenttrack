@@ -1,3 +1,68 @@
+# TalentTrack v3.92.6 — Player file UX redesign: hero card + empty-state CTAs + tab count badges (#0082)
+
+Pilot operator on the player file: *"need to make this much more visually appealing and we want clear CTAs to set up the player files (e.g. when no goals exist, no PDP exists, no evaluations exist or trials)."* Three threads bundled into one ship. Renumbered v3.92.4 → v3.92.6 after pilot-batch PR 2 (v3.92.4 — eval wizard fixes) and PR 3 (v3.92.5 — branding logo + activity detail polish + PDP signed-status green) landed mid-CI.
+
+## Hero card
+
+The hero strip on the player file used to be a 96px round photo plus a one-line muted team caption — about 104px tall, no signal of where the player is in their journey, no shortcut to recent activity. Replaced with a structured information block:
+
+- Photo (or initials placeholder when no photo is uploaded — same dimensions, same border, no layout collapse).
+- Team + age group (clickable team link).
+- Status pill (`LookupPill::render('player_status', …)` so the visual register matches the rest of the dashboard).
+- Age-tier badge (rounded pill, muted).
+- Days-in-academy + joined-on date — read from `tt_players.date_joined`, falls back to `created_at`. When the join date is null and `created_at` < 7 days the journey block reads "Joined recently" instead of a misleadingly small day count.
+- Up to three "latest record" chips: latest activity (with title + link to its detail row), latest evaluation (with date + link), latest goal (with title + link). Each chip is dropped when the corresponding record doesn't exist; the entire latest-row hides when all three are empty.
+
+CSS Grid reflow: stacks photo above body block at 360px, sits side-by-side at ≥ 480px. Mobile-first authored. ≥ 48px touch targets throughout.
+
+## Empty-state CTAs
+
+Every non-Profile tab used to render a one-line italic *"No goals recorded yet."* / *"No evaluations recorded yet."* / etc. when the tab was empty. A coach landing on a fresh player file hit five empty tabs in a row with no path forward. New reusable `EmptyStateCard` component in `src/Shared/Frontend/Components/`: icon + headline + explainer + permission-aware CTA. The component decides on render whether to surface the CTA based on `current_user_can( $cta_cap )`. When the user lacks the cap, the CTA button is omitted but the headline + explainer still render.
+
+CTA URLs per tab:
+
+- Goals → `?tt_view=goals&action=new&player_id=N`
+- Evaluations → `?tt_view=evaluations&action=new&player_id=N`
+- Activities → `?tt_view=activities&action=new&team_id=<player's team>` (CTA suppressed and explainer changed to *"Assign this player to a team first"* when the player has no team)
+- PDP → `?tt_view=pdp&action=new&player_id=N`
+- Trials → `?tt_view=trials&action=new&player_id=N`
+
+Visual: light-grey rounded background, 1px dashed border, 40px stroke-only icon, 16px headline, 14px explainer (max 44ch), full-width primary CTA button on mobile that becomes inline-sized at ≥ 480px. `role="status"` on the wrapper so screen readers announce the empty state as a status message.
+
+The component is general-purpose — its first consumer is the player file but it lives next to `FrontendBreadcrumbs` / `FrontendListTable` / etc. Future use cases: every list view in the dashboard has the same shape; sweep follows when the operator asks.
+
+## Tab count badges
+
+New helper `Infrastructure\Query\PlayerFileCounts::for( int $player_id ): array` makes one count query per tab type (5 queries) and returns an `[ 'goals' => N, ... ]` map. The view calls it once and feeds each tab's badge state. When count is zero the badge isn't rendered and the tab gets a `tt-player-tab--empty` modifier (muted colour, still clickable). Active-tab badge inverts (filled in primary colour on white text). Operator scanning a freshly-imported player file can see Profile / Goals (12) / Evaluations (4) / Activities (38) / PDP (0, muted) / Trials (0, muted) at a glance — without clicking five times.
+
+## Profile tab — two-column layout
+
+The flat `<dl>` on the Profile tab restructured into Identity (DOB / position / foot / jersey / status) on the left, Academy (team + age group, age tier, date joined) on the right. Two-column at ≥ 768px, single column below. Behaviour-and-potential capture button stays at the bottom of the tab.
+
+## Removed inline `<style>`
+
+The legacy inline `<style>` block at the bottom of `FrontendPlayerDetailView::render()` is gone. All styles now live in `assets/css/frontend-player-detail.css`, enqueued at view level via a new `enqueueDetailCss()` helper. Mobile-first authored.
+
+## What's *not* in this PR
+
+- Empty-state sweep across other dashboard list views (Players list, Teams list, etc.). Component lands here first.
+- Avatar upload from the hero, per-persona hero variants, skeleton loaders.
+
+## Translations
+
+19 new translatable strings — empty-state headlines + explainers + CTA labels across the five tabs, the journey-line phrasing (`%d day(s) in academy` plural, `Joined %s`, `Joined recently`), the three "Latest …" chip labels, and the new Identity / Academy / Date joined profile labels. All filled in `nl_NL.po`.
+
+## Affected files
+
+- `src/Shared/Frontend/FrontendPlayerDetailView.php` — refactored.
+- `src/Infrastructure/Query/PlayerFileCounts.php` — new.
+- `src/Shared/Frontend/Components/EmptyStateCard.php` — new.
+- `assets/css/frontend-player-detail.css` — new.
+- `languages/talenttrack-nl_NL.po` — 19 new msgids.
+- `docs/teams-players.md` + `docs/nl_NL/teams-players.md` — new "Player file UX (v3.92.6)" section.
+- `talenttrack.php` + `readme.txt` — version bump 3.92.5 → 3.92.6.
+- `CHANGES.md` + `SEQUENCE.md` — release notes.
+
 # TalentTrack v3.92.5 — Pilot batch PR 3: branding logo, my-activities, activity detail, PDP redirect + signed green
 
 PR 3 of 3 — closes the operator's 10-item pilot batch. Five fixes in one ship.

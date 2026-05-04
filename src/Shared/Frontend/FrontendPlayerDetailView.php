@@ -4,8 +4,11 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\LookupPill;
+use TT\Infrastructure\Query\PlayerFileCounts;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Authorization\AgeTier;
+use TT\Shared\Frontend\Components\EmptyStateCard;
+use TT\Shared\Frontend\Components\RecordLink;
 
 /**
  * FrontendPlayerDetailView — read-only display of a single player
@@ -25,6 +28,23 @@ use TT\Modules\Authorization\AgeTier;
  * SaaS-readiness rule.
  */
 final class FrontendPlayerDetailView extends FrontendViewBase {
+
+    private static bool $detail_css_enqueued = false;
+
+    /**
+     * #0082 — view-level stylesheet replaces the legacy inline <style>
+     * block. Idempotent across the request.
+     */
+    private static function enqueueDetailCss(): void {
+        if ( self::$detail_css_enqueued ) return;
+        wp_enqueue_style(
+            'tt-frontend-player-detail',
+            TT_PLUGIN_URL . 'assets/css/frontend-player-detail.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
+        self::$detail_css_enqueued = true;
+    }
 
     /**
      * #0077 M8 — tabbed case page. Profile is default; other tabs swap
@@ -60,60 +80,53 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        self::enqueueDetailCss();
         $name = QueryHelpers::player_display_name( $player );
 
         // #0077 F2 — breadcrumb chain replaces the standalone back link.
-        $players_url = add_query_arg( [ 'tt_view' => 'players' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+        $players_url = add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::render( [
-            [ 'label' => __( 'Dashboard', 'talenttrack' ), 'url' => \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() ],
+            [ 'label' => __( 'Dashboard', 'talenttrack' ), 'url' => RecordLink::dashboardUrl() ],
             [ 'label' => __( 'Players', 'talenttrack' ),   'url' => $players_url ],
             [ 'label' => $name ],
         ] );
-        // v3.92.0 — page title is now "Player file of {name}" instead
-        // of just the name. The hero card inside the article already
-        // surfaces the name as `<h2>`; the page title carries the
-        // contextual "this is a player file about ..." framing.
+        // v3.92.0 — page title is now "Player file of {name}" instead of
+        // just the name. Hero card surfaces the team / status / journey;
+        // the page title carries the "this is a player file about ..."
+        // framing.
         /* translators: %s: player display name */
         $page_title = sprintf( __( 'Player file of %s', 'talenttrack' ), $name );
-        echo '<h1 class="tt-fview-title" style="margin:6px 0 18px; font-size:22px; color:#1a1d21;">' . esc_html( $page_title ) . '</h1>';
+        echo '<h1 class="tt-fview-title" style="margin:6px 0 14px; font-size:22px; color:#1a1d21;">' . esc_html( $page_title ) . '</h1>';
 
         $team       = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
-        $team_url   = $team ? add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() ) : '';
-        $photo      = (string) ( $player->photo_url ?? '' );
+        $team_url   = $team ? add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id ], RecordLink::dashboardUrl() ) : '';
 
         $active_tab = isset( $_GET['tab'] ) ? sanitize_key( (string) wp_unslash( $_GET['tab'] ) ) : 'profile';
         if ( ! array_key_exists( $active_tab, self::tabs() ) ) $active_tab = 'profile';
-        $base_url = add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+        $base_url = add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id ], RecordLink::dashboardUrl() );
+
+        $counts = PlayerFileCounts::for( $player_id );
         ?>
         <article class="tt-player-detail">
-            <header class="tt-player-detail-hero">
-                <?php if ( $photo !== '' ) : ?>
-                    <img class="tt-player-detail-photo" src="<?php echo esc_url( $photo ); ?>" alt="" />
-                <?php endif; ?>
-                <div class="tt-player-detail-meta">
-                    <?php /* v3.92.0 — name is in the page title above and the hero card surfaces it. Drop the redundant duplicate <h2>. The team line + age tier badge on the meta column already anchors the hero visually; the photo + name role is carried by the page <h1>. */ ?>
-                    <?php if ( $team ) : ?>
-                        <p class="tt-player-detail-team">
-                            <?php esc_html_e( 'Team:', 'talenttrack' ); ?>
-                            <a class="tt-record-link" href="<?php echo esc_url( $team_url ); ?>"><?php echo esc_html( (string) $team->name ); ?></a>
-                            <?php if ( ! empty( $team->age_group ) ) : ?>
-                                <span class="tt-muted"> &middot; <?php echo esc_html( (string) $team->age_group ); ?></span>
-                            <?php endif; ?>
-                        </p>
-                    <?php endif; ?>
-                </div>
-            </header>
+            <?php self::renderHero( $player, $name, $team, $team_url ); ?>
 
             <nav class="tt-player-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Player sections', 'talenttrack' ); ?>">
                 <?php foreach ( self::tabs() as $key => $label ) :
                     $url = add_query_arg( [ 'tab' => $key ], $base_url );
                     $is_active = $key === $active_tab;
+                    $count     = $counts[ $key ] ?? null;
+                    $classes   = 'tt-player-tab';
+                    if ( $is_active ) $classes .= ' tt-player-tab--active';
+                    if ( $key !== 'profile' && $count === 0 ) $classes .= ' tt-player-tab--empty';
                     ?>
                     <a href="<?php echo esc_url( $url ); ?>"
-                       class="tt-player-tab<?php echo $is_active ? ' tt-player-tab--active' : ''; ?>"
+                       class="<?php echo esc_attr( $classes ); ?>"
                        role="tab"
                        aria-selected="<?php echo $is_active ? 'true' : 'false'; ?>">
                         <?php echo esc_html( $label ); ?>
+                        <?php if ( $key !== 'profile' && (int) $count > 0 ) : ?>
+                            <span class="tt-tab-badge"><?php echo (int) $count; ?></span>
+                        <?php endif; ?>
                     </a>
                 <?php endforeach; ?>
             </nav>
@@ -123,7 +136,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 switch ( $active_tab ) {
                     case 'goals':       self::renderGoalsTab( $player_id ); break;
                     case 'evaluations': self::renderEvaluationsTab( $player_id ); break;
-                    case 'activities':  self::renderActivitiesTab( $player_id ); break;
+                    case 'activities':  self::renderActivitiesTab( $player_id, $player ); break;
                     case 'pdp':         self::renderPdpTab( $player_id ); break;
                     case 'trials':      self::renderTrialsTab( $player_id ); break;
                     case 'profile':
@@ -132,60 +145,229 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 ?>
             </section>
         </article>
-
-        <style>
-            .tt-player-detail-hero { display: flex; gap: 14px; align-items: center; margin: 8px 0 18px; }
-            .tt-player-detail-photo { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 2px solid var(--tt-line, #e5e7ea); }
-            .tt-player-detail-name { margin: 0 0 4px; font-size: 1.5rem; }
-            .tt-player-detail-team { margin: 0; color: #5b6e75; font-size: 0.9rem; }
-            .tt-player-detail .tt-muted { color: #5b6e75; }
-            /* #0077 M8 — tabbed case page nav */
-            .tt-player-tabs { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 1px solid var(--tt-line, #e5e7ea); margin: 0 0 16px; }
-            .tt-player-tab { padding: 10px 16px; min-height: 48px; display: inline-flex; align-items: center; color: #5b6e75; text-decoration: none; border-bottom: 2px solid transparent; font-weight: 500; }
-            .tt-player-tab:hover, .tt-player-tab:focus { color: #0b3d2e; outline: none; }
-            .tt-player-tab--active { color: #0b3d2e; border-bottom-color: #0b3d2e; }
-        </style>
         <?php
     }
 
     /**
-     * Profile tab — DL + behaviour/potential capture entry.
+     * #0082 — hero card. Photo (or initials placeholder) + structured
+     * info block (team / age-tier / status pill / days-in-academy /
+     * latest-record chips). Markup is mobile-first; styles in
+     * frontend-player-detail.css.
+     */
+    private static function renderHero( object $player, string $name, ?object $team, string $team_url ): void {
+        $player_id  = (int) $player->id;
+        $photo      = (string) ( $player->photo_url ?? '' );
+        $age_tier   = AgeTier::forPlayer( $player_id );
+        $tier_label = AgeTier::labels()[ $age_tier ] ?? '';
+        $journey    = self::journeyText( $player );
+        $latest     = self::latestRecords( $player_id );
+        ?>
+        <header class="tt-player-hero">
+            <figure class="tt-player-hero__photo-frame">
+                <?php if ( $photo !== '' ) : ?>
+                    <img class="tt-player-hero__photo" src="<?php echo esc_url( $photo ); ?>" alt="" />
+                <?php else : ?>
+                    <span class="tt-player-hero__initials" aria-hidden="true"><?php echo esc_html( self::initialsFor( $name ) ); ?></span>
+                <?php endif; ?>
+            </figure>
+            <div class="tt-player-hero__body">
+                <div class="tt-player-hero__primary">
+                    <?php if ( $team ) : ?>
+                        <span class="tt-player-hero__team">
+                            <a class="tt-record-link" href="<?php echo esc_url( $team_url ); ?>"><?php echo esc_html( (string) $team->name ); ?></a>
+                            <?php if ( ! empty( $team->age_group ) ) : ?>
+                                <span class="tt-muted"> &middot; <?php echo esc_html( (string) $team->age_group ); ?></span>
+                            <?php endif; ?>
+                        </span>
+                    <?php endif; ?>
+                    <?php if ( ! empty( $player->status ) ) : ?>
+                        <?php echo LookupPill::render( 'player_status', (string) $player->status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pill returns escaped html ?>
+                    <?php endif; ?>
+                    <?php if ( $tier_label !== '' ) : ?>
+                        <span class="tt-player-hero__age-tier"><?php echo esc_html( $tier_label ); ?></span>
+                    <?php endif; ?>
+                </div>
+                <?php if ( $journey !== null ) : ?>
+                    <div class="tt-player-hero__journey">
+                        <?php if ( $journey['days'] !== '' ) : ?>
+                            <span class="tt-player-hero__days"><?php echo esc_html( $journey['days'] ); ?></span>
+                        <?php endif; ?>
+                        <?php if ( $journey['joined'] !== '' ) : ?>
+                            <span class="tt-player-hero__joined"><?php echo esc_html( $journey['joined'] ); ?></span>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+                <?php if ( ! empty( $latest ) ) : ?>
+                    <div class="tt-player-hero__latest">
+                        <?php foreach ( $latest as $chip ) : ?>
+                            <a class="tt-player-hero__chip" href="<?php echo esc_url( $chip['url'] ); ?>">
+                                <span class="tt-player-hero__chip-label"><?php echo esc_html( $chip['label'] ); ?></span>
+                                <?php echo esc_html( $chip['value'] ); ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </header>
+        <?php
+    }
+
+    /**
+     * @return array{days:string,joined:string}|null  null when no usable date.
+     */
+    private static function journeyText( object $player ): ?array {
+        $joined_raw = (string) ( $player->date_joined ?? '' );
+        $created_raw = (string) ( $player->created_at ?? '' );
+        $source = $joined_raw !== '' ? $joined_raw : $created_raw;
+        if ( $source === '' ) return null;
+
+        $ts = strtotime( $source );
+        if ( $ts === false ) return null;
+
+        $now      = current_time( 'timestamp' );
+        $days     = max( 0, (int) floor( ( $now - $ts ) / DAY_IN_SECONDS ) );
+        $is_fresh = $joined_raw === '' && $days < 7;
+
+        if ( $is_fresh ) {
+            return [ 'days' => __( 'Joined recently', 'talenttrack' ), 'joined' => '' ];
+        }
+
+        /* translators: %d: number of days */
+        $days_text = sprintf( _n( '%d day in academy', '%d days in academy', $days, 'talenttrack' ), $days );
+        /* translators: %s: ISO date the player joined */
+        $joined_text = $joined_raw !== ''
+            ? sprintf( __( 'Joined %s', 'talenttrack' ), gmdate( 'Y-m-d', $ts ) )
+            : '';
+
+        return [ 'days' => $days_text, 'joined' => $joined_text ];
+    }
+
+    /**
+     * @return list<array{label:string,value:string,url:string}>
+     */
+    private static function latestRecords( int $player_id ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $out = [];
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT a.id, a.title, a.session_date
+               FROM {$p}tt_attendance att
+               JOIN {$p}tt_activities a ON a.id = att.activity_id
+              WHERE att.player_id = %d AND att.is_guest = 0 AND a.archived_at IS NULL
+              ORDER BY a.session_date DESC LIMIT 1",
+            $player_id
+        ) );
+        if ( $row ) {
+            $title = trim( (string) ( $row->title ?? '' ) );
+            $date  = (string) ( $row->session_date ?? '' );
+            $out[] = [
+                'label' => __( 'Latest activity:', 'talenttrack' ),
+                'value' => $title !== '' ? $title : $date,
+                'url'   => RecordLink::detailUrlFor( 'activities', (int) $row->id ),
+            ];
+        }
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, eval_date FROM {$p}tt_evaluations
+              WHERE player_id = %d AND archived_at IS NULL
+              ORDER BY eval_date DESC LIMIT 1",
+            $player_id
+        ) );
+        if ( $row ) {
+            $out[] = [
+                'label' => __( 'Latest evaluation:', 'talenttrack' ),
+                'value' => (string) ( $row->eval_date ?? '—' ),
+                'url'   => RecordLink::detailUrlFor( 'evaluations', (int) $row->id ),
+            ];
+        }
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, title FROM {$p}tt_goals
+              WHERE player_id = %d AND archived_at IS NULL
+              ORDER BY created_at DESC LIMIT 1",
+            $player_id
+        ) );
+        if ( $row ) {
+            $out[] = [
+                'label' => __( 'Latest goal:', 'talenttrack' ),
+                'value' => (string) ( $row->title ?? '—' ),
+                'url'   => RecordLink::detailUrlFor( 'goals', (int) $row->id ),
+            ];
+        }
+
+        return $out;
+    }
+
+    private static function initialsFor( string $name ): string {
+        $name = trim( $name );
+        if ( $name === '' ) return '?';
+        $parts = preg_split( '/\s+/', $name ) ?: [ $name ];
+        $first = mb_substr( (string) ( $parts[0] ?? '' ), 0, 1 );
+        $last  = count( $parts ) > 1 ? mb_substr( (string) end( $parts ), 0, 1 ) : '';
+        return mb_strtoupper( $first . $last );
+    }
+
+    /**
+     * Profile tab — two-column Identity / Academy grid + behaviour /
+     * potential capture entry. Two-column at ≥ 768px, single column
+     * below; layout owned by frontend-player-detail.css.
      */
     private static function renderProfileTab( object $player ): void {
         $player_id  = (int) $player->id;
         $age_tier   = AgeTier::forPlayer( $player_id );
         $tier_label = AgeTier::labels()[ $age_tier ] ?? '';
         $positions  = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
+        $team       = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
         ?>
-        <dl class="tt-profile-dl">
-            <?php /* v3.92.0 — field order rearranged. DOB and position
-                     are the most asked-about facts on a player file;
-                     age tier is a derived convenience and lands last. */ ?>
-            <?php if ( ! empty( $player->date_of_birth ) ) : ?>
-                <dt><?php esc_html_e( 'Date of birth', 'talenttrack' ); ?></dt>
-                <dd><?php echo esc_html( (string) $player->date_of_birth ); ?></dd>
-            <?php endif; ?>
-            <?php if ( is_array( $positions ) && ! empty( $positions ) ) : ?>
-                <dt><?php esc_html_e( 'Position(s)', 'talenttrack' ); ?></dt>
-                <dd><?php echo esc_html( implode( ', ', array_map( 'strval', $positions ) ) ); ?></dd>
-            <?php endif; ?>
-            <?php if ( ! empty( $player->preferred_foot ) ) : ?>
-                <dt><?php esc_html_e( 'Preferred foot', 'talenttrack' ); ?></dt>
-                <dd><?php echo esc_html( (string) $player->preferred_foot ); ?></dd>
-            <?php endif; ?>
-            <?php if ( ! empty( $player->jersey_number ) ) : ?>
-                <dt><?php esc_html_e( 'Jersey number', 'talenttrack' ); ?></dt>
-                <dd>#<?php echo (int) $player->jersey_number; ?></dd>
-            <?php endif; ?>
-            <?php if ( ! empty( $player->status ) ) : ?>
-                <dt><?php esc_html_e( 'Status', 'talenttrack' ); ?></dt>
-                <dd><?php echo \TT\Infrastructure\Query\LabelTranslator::playerStatus( (string) $player->status ); ?></dd>
-            <?php endif; ?>
-            <?php if ( $tier_label !== '' ) : ?>
-                <dt><?php esc_html_e( 'Age tier', 'talenttrack' ); ?></dt>
-                <dd><?php echo esc_html( $tier_label ); ?></dd>
-            <?php endif; ?>
-        </dl>
+        <div class="tt-player-profile-grid">
+            <div class="tt-player-profile-grid__col">
+                <h3><?php esc_html_e( 'Identity', 'talenttrack' ); ?></h3>
+                <dl class="tt-profile-dl">
+                    <?php if ( ! empty( $player->date_of_birth ) ) : ?>
+                        <dt><?php esc_html_e( 'Date of birth', 'talenttrack' ); ?></dt>
+                        <dd><?php echo esc_html( (string) $player->date_of_birth ); ?></dd>
+                    <?php endif; ?>
+                    <?php if ( is_array( $positions ) && ! empty( $positions ) ) : ?>
+                        <dt><?php esc_html_e( 'Position(s)', 'talenttrack' ); ?></dt>
+                        <dd><?php echo esc_html( implode( ', ', array_map( 'strval', $positions ) ) ); ?></dd>
+                    <?php endif; ?>
+                    <?php if ( ! empty( $player->preferred_foot ) ) : ?>
+                        <dt><?php esc_html_e( 'Preferred foot', 'talenttrack' ); ?></dt>
+                        <dd><?php echo esc_html( (string) $player->preferred_foot ); ?></dd>
+                    <?php endif; ?>
+                    <?php if ( ! empty( $player->jersey_number ) ) : ?>
+                        <dt><?php esc_html_e( 'Jersey number', 'talenttrack' ); ?></dt>
+                        <dd>#<?php echo (int) $player->jersey_number; ?></dd>
+                    <?php endif; ?>
+                    <?php if ( ! empty( $player->status ) ) : ?>
+                        <dt><?php esc_html_e( 'Status', 'talenttrack' ); ?></dt>
+                        <dd><?php echo \TT\Infrastructure\Query\LabelTranslator::playerStatus( (string) $player->status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — translator returns escaped html ?></dd>
+                    <?php endif; ?>
+                </dl>
+            </div>
+            <div class="tt-player-profile-grid__col">
+                <h3><?php esc_html_e( 'Academy', 'talenttrack' ); ?></h3>
+                <dl class="tt-profile-dl">
+                    <?php if ( $team ) : ?>
+                        <dt><?php esc_html_e( 'Team', 'talenttrack' ); ?></dt>
+                        <dd><?php echo esc_html( (string) $team->name ); ?>
+                            <?php if ( ! empty( $team->age_group ) ) : ?>
+                                <span class="tt-muted"> &middot; <?php echo esc_html( (string) $team->age_group ); ?></span>
+                            <?php endif; ?>
+                        </dd>
+                    <?php endif; ?>
+                    <?php if ( $tier_label !== '' ) : ?>
+                        <dt><?php esc_html_e( 'Age tier', 'talenttrack' ); ?></dt>
+                        <dd><?php echo esc_html( $tier_label ); ?></dd>
+                    <?php endif; ?>
+                    <?php if ( ! empty( $player->date_joined ) ) : ?>
+                        <dt><?php esc_html_e( 'Date joined', 'talenttrack' ); ?></dt>
+                        <dd><?php echo esc_html( (string) $player->date_joined ); ?></dd>
+                    <?php endif; ?>
+                </dl>
+            </div>
+        </div>
 
         <?php
         if ( current_user_can( 'tt_edit_player_status' ) ) {
@@ -203,16 +385,26 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $player_id
         ) );
         if ( empty( $rows ) ) {
-            echo '<p><em>' . esc_html__( 'No goals recorded yet.', 'talenttrack' ) . '</em></p>';
+            EmptyStateCard::render( [
+                'icon'      => 'goals',
+                'headline'  => __( 'No goals yet for this player', 'talenttrack' ),
+                'explainer' => __( 'Goals capture what the player is working on this season — start with one.', 'talenttrack' ),
+                'cta_label' => __( 'Add first goal', 'talenttrack' ),
+                'cta_url'   => add_query_arg(
+                    [ 'tt_view' => 'goals', 'action' => 'new', 'player_id' => $player_id ],
+                    RecordLink::dashboardUrl()
+                ),
+                'cta_cap'   => 'tt_edit_goals',
+            ] );
             return;
         }
         echo '<ul class="tt-stack">';
         foreach ( $rows as $g ) {
-            $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'goals', (int) $g->id );
+            $url = RecordLink::detailUrlFor( 'goals', (int) $g->id );
             echo '<li>';
             echo '<a class="tt-record-link" href="' . esc_url( $url ) . '">';
             echo '<strong>' . esc_html( (string) $g->title ) . '</strong> &middot; ';
-            echo LookupPill::render( 'goal_status', (string) $g->status );
+            echo LookupPill::render( 'goal_status', (string) $g->status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             if ( ! empty( $g->due_date ) ) {
                 echo ' <span class="tt-muted">&middot; ' . esc_html( (string) $g->due_date ) . '</span>';
             }
@@ -234,12 +426,22 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $player_id
         ) );
         if ( empty( $rows ) ) {
-            echo '<p><em>' . esc_html__( 'No evaluations recorded yet.', 'talenttrack' ) . '</em></p>';
+            EmptyStateCard::render( [
+                'icon'      => 'evaluations',
+                'headline'  => __( 'No evaluations yet for this player', 'talenttrack' ),
+                'explainer' => __( 'Evaluations track how the player is developing across your rating categories. Record one after a session.', 'talenttrack' ),
+                'cta_label' => __( 'Record first evaluation', 'talenttrack' ),
+                'cta_url'   => add_query_arg(
+                    [ 'tt_view' => 'evaluations', 'action' => 'new', 'player_id' => $player_id ],
+                    RecordLink::dashboardUrl()
+                ),
+                'cta_cap'   => 'tt_edit_evaluations',
+            ] );
             return;
         }
         echo '<ul class="tt-stack">';
         foreach ( $rows as $ev ) {
-            $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'evaluations', (int) $ev->id );
+            $url = RecordLink::detailUrlFor( 'evaluations', (int) $ev->id );
             echo '<li><a class="tt-record-link" href="' . esc_url( $url ) . '">';
             echo '<strong>' . esc_html( (string) ( $ev->eval_date ?? '—' ) ) . '</strong>';
             if ( ! empty( $ev->type_name ) ) {
@@ -251,7 +453,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     }
 
     /** Activities tab — recent activities the player attended. */
-    private static function renderActivitiesTab( int $player_id ): void {
+    private static function renderActivitiesTab( int $player_id, ?object $player = null ): void {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id, a.title, a.session_date, a.activity_type_key, att.status
@@ -262,19 +464,38 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $player_id
         ) );
         if ( empty( $rows ) ) {
-            echo '<p><em>' . esc_html__( 'No attended activities yet.', 'talenttrack' ) . '</em></p>';
+            $team_id = $player !== null ? (int) ( $player->team_id ?? 0 ) : 0;
+            if ( $team_id > 0 ) {
+                EmptyStateCard::render( [
+                    'icon'      => 'activities',
+                    'headline'  => __( 'No attended activities yet', 'talenttrack' ),
+                    'explainer' => __( 'Activities are recorded at the team level. Schedule one for the player\'s team and the player will appear in the roster.', 'talenttrack' ),
+                    'cta_label' => __( 'Plan a team activity', 'talenttrack' ),
+                    'cta_url'   => add_query_arg(
+                        [ 'tt_view' => 'activities', 'action' => 'new', 'team_id' => $team_id ],
+                        RecordLink::dashboardUrl()
+                    ),
+                    'cta_cap'   => 'tt_edit_activities',
+                ] );
+            } else {
+                EmptyStateCard::render( [
+                    'icon'      => 'activities',
+                    'headline'  => __( 'No attended activities yet', 'talenttrack' ),
+                    'explainer' => __( 'Activities are recorded at the team level. Assign this player to a team first; activities planned for that team will then surface here.', 'talenttrack' ),
+                ] );
+            }
             return;
         }
         echo '<ul class="tt-stack">';
         foreach ( $rows as $a ) {
-            $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', (int) $a->id );
+            $url = RecordLink::detailUrlFor( 'activities', (int) $a->id );
             echo '<li><a class="tt-record-link" href="' . esc_url( $url ) . '">';
             echo '<strong>' . esc_html( (string) ( $a->title ?? '—' ) ) . '</strong>';
             if ( ! empty( $a->session_date ) ) {
                 echo ' <span class="tt-muted">&middot; ' . esc_html( (string) $a->session_date ) . '</span>';
             }
             if ( ! empty( $a->status ) ) {
-                echo ' &middot; ' . LookupPill::render( 'attendance_status', (string) $a->status );
+                echo ' &middot; ' . LookupPill::render( 'attendance_status', (string) $a->status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             }
             echo '</a></li>';
         }
@@ -290,7 +511,17 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $player_id
         ) );
         if ( empty( $files ) ) {
-            echo '<p><em>' . esc_html__( 'No PDP cycle yet.', 'talenttrack' ) . '</em></p>';
+            EmptyStateCard::render( [
+                'icon'      => 'pdp',
+                'headline'  => __( 'No PDP cycle yet for this player', 'talenttrack' ),
+                'explainer' => __( 'A Personal Development Plan documents what the player is focusing on, agreed with parents and the coach. Open one to start the cycle.', 'talenttrack' ),
+                'cta_label' => __( 'Start PDP cycle', 'talenttrack' ),
+                'cta_url'   => add_query_arg(
+                    [ 'tt_view' => 'pdp', 'action' => 'new', 'player_id' => $player_id ],
+                    RecordLink::dashboardUrl()
+                ),
+                'cta_cap'   => 'tt_edit_pdp',
+            ] );
             return;
         }
         echo '<h3>' . esc_html__( 'PDP files', 'talenttrack' ) . '</h3><ul class="tt-stack">';
@@ -311,12 +542,22 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $player_id
         ) );
         if ( empty( $rows ) ) {
-            echo '<p><em>' . esc_html__( 'No trial history.', 'talenttrack' ) . '</em></p>';
+            EmptyStateCard::render( [
+                'icon'      => 'trials',
+                'headline'  => __( 'No trial history for this player', 'talenttrack' ),
+                'explainer' => __( 'A trial case tracks the prospect from first session through to the academy decision. Open one when you want to evaluate this player formally.', 'talenttrack' ),
+                'cta_label' => __( 'Open trial case', 'talenttrack' ),
+                'cta_url'   => add_query_arg(
+                    [ 'tt_view' => 'trials', 'action' => 'new', 'player_id' => $player_id ],
+                    RecordLink::dashboardUrl()
+                ),
+                'cta_cap'   => 'tt_manage_trials',
+            ] );
             return;
         }
         echo '<ul class="tt-stack">';
         foreach ( $rows as $t ) {
-            $url = add_query_arg( [ 'tt_view' => 'trial-case', 'id' => (int) $t->id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+            $url = add_query_arg( [ 'tt_view' => 'trial-case', 'id' => (int) $t->id ], RecordLink::dashboardUrl() );
             echo '<li><a class="tt-record-link" href="' . esc_url( $url ) . '">';
             echo '<strong>' . esc_html( (string) $t->status ) . '</strong>';
             if ( ! empty( $t->start_date ) ) {
