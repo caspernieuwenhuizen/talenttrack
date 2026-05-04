@@ -1,3 +1,39 @@
+# TalentTrack v3.89.0 — Compare two users from an authorization perspective
+
+New admin page **TalentTrack → Authorization → Compare users**, shipped as a follow-up to the JG4IT pilot six-item operator batch (item 5; items 1+2+6 shipped in v3.88.1, items 3+4 verified working on the live install).
+
+## What it does
+
+Pick two WP users in `wp_dropdown_users` selectors. The page renders a side-by-side comparison of every TT capability with each user's effective state — both the legacy `cap` rung and the matrix `entity:activity` rung, plus the combined "effective" view (legacy OR matrix). Yellow-highlighted rows are the discriminators between the two users.
+
+Use case the operator surfaces it for: *"Why does coach A see this tile but coach B doesn't?"* Pick both, leave the default "show only differences" view on, and the table tells you which capability is the discriminator. Pop open Authorization → Matrix to see what the matrix says about that entity, or check the user's WP roles to see where the legacy `cap` is coming from.
+
+## Layout
+
+- Two `wp_dropdown_users` pickers (User A / User B), submitted as GET so the comparison URL is bookmarkable / shareable.
+- "Show all capabilities" toggle (default OFF — diff-only is the headline use case).
+- Two header cards (one per user) showing display name + login + email + WP roles + resolved TT personas (via `PersonaResolver::personasFor()`).
+- 5-column comparison table:
+  - **Capability** — the `tt_*` cap key
+  - **Matrix entity:activity** — what `LegacyCapMapper::tupleFor( $cap )` resolves to (or `unmapped` in red for caps with no matrix counterpart)
+  - **User A** — `✓ cap · ✓ matrix` / `✗ cap · ✗ matrix` / mixed
+  - **User B** — same
+  - **Diff** — red dot when the two users' effective state differs
+
+## Dormant-matrix banner
+
+When `tt_authorization_active = 0` (matrix in shadow mode), a notice at the top of the page warns: the Matrix column is computed but the runtime still uses the Cap column. Operators won't be confused into thinking a matrix-grant they see in the table is actually live. Same shape as the dormant-bridge banner on Authorization → Matrix shipped in v3.86.0.
+
+## Cap gate
+
+Same as the rest of the Authorization admin pages: `current_user_can( 'administrator' )`. Read-only — no `admin_post` handlers, no destructive actions.
+
+## What's deferred
+
+- **N-user comparison** (3 columns, 4, …). Two-user covers the headline use case; N-user adds a more complex picker UI + horizontal scroll on small viewports. Add when an operator asks.
+- **CSV export** of the comparison table. The Migration Preview already has CSV; if operators want to email a comparison around they can ask and we'll add the matching export here.
+- **Per-cap drill-down** — clicking a capability could show *which* matrix scope row grants/denies it for each user. Useful for "matrix says no even though I assigned the role" debugging, but not in the headline path.
+
 # TalentTrack v3.88.1 — Teams list head-coach reads from staff assignments + functional-roles dropdown translated + attendance % blank for planned/cancelled
 
 Three JG4IT pilot fixes shipped together. All three were reported in the same operator batch as v3.86.2; this PR closes the structural slice (items 1, 2, 6 of the six-item report). Items 3 (edit row-action) and 4 (activity team column) were verified working on the live install; item 5 (compare two users' permissions) ships next as a separate feature PR. Renumbered from v3.87.1 in PR after v3.88.0 (matrix-controlled-tiles list cleanup) landed mid-CI.
