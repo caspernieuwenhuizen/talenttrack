@@ -42,11 +42,17 @@ final class ExcelImporter {
             return $this->fail( __( 'PhpSpreadsheet is not installed. Run `composer install --no-dev` from the plugin root.', 'talenttrack' ) );
         }
 
+        // v3.89.2 — catch \Throwable, not just \Exception. PhpSpreadsheet
+        // can surface \TypeError on malformed XLSX, and an OOM during
+        // load() throws \Error / \OutOfMemoryError. Letting any of those
+        // bubble out hands the request to the host's reverse proxy as a
+        // generic 500 / blank page — exactly the "looks like a hosting
+        // server side error" symptom operators reported.
         try {
             $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile( $tmp_path );
             $reader->setReadDataOnly( true );
             $book = $reader->load( $tmp_path );
-        } catch ( \Exception $e ) {
+        } catch ( \Throwable $e ) {
             Logger::error( 'demo.excel.read.failed', [ 'error' => $e->getMessage(), 'file' => $original_name ] );
             return $this->fail( sprintf( __( 'Could not read the workbook: %s', 'talenttrack' ), $e->getMessage() ) );
         }

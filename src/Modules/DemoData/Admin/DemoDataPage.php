@@ -306,6 +306,17 @@ class DemoDataPage {
                     <p style="margin:6px 0 0;color:#5b6e75;font-size:12px;">
                         <?php esc_html_e( 'v1.5: Teams, People, Players, Trial cases, Activities (Sessions), Attendance, Evaluations, Eval ratings, Goals, Player-journey events. Reference sheets (Eval categories, Category weights, Lookups) are documentation-only — admin-edit those via the existing Configuration surfaces.', 'talenttrack' ); ?>
                     </p>
+                    <p style="margin:6px 0 0;color:#5b6e75;font-size:11px;">
+                        <?php
+                        printf(
+                            /* translators: 1: upload_max_filesize, 2: post_max_size, 3: memory_limit */
+                            esc_html__( 'Server limits on this install: upload_max_filesize = %1$s · post_max_size = %2$s · memory_limit = %3$s. Workbooks above the smaller of the first two will be rejected by PHP before the plugin sees them.', 'talenttrack' ),
+                            esc_html( (string) ini_get( 'upload_max_filesize' ) ),
+                            esc_html( (string) ini_get( 'post_max_size' ) ),
+                            esc_html( (string) ini_get( 'memory_limit' ) )
+                        );
+                        ?>
+                    </p>
                 </div>
             </fieldset>
 
@@ -594,6 +605,20 @@ class DemoDataPage {
     // Action handlers
 
     public static function handleGenerate(): void {
+        $redirect = admin_url( 'tools.php?page=' . self::SLUG );
+
+        // v3.89.2 — same post_max_size guard as handleExcelImport so a
+        // too-big workbook in the unified generator form bounces with a
+        // useful message instead of falling through to admin-post.php's
+        // generic empty-POST response.
+        if ( self::postMaxSizeExceeded() ) {
+            self::bounce( $redirect, sprintf(
+                /* translators: %s: post_max_size from php.ini, e.g. "8M" */
+                __( 'Upload exceeded the server\'s POST size limit (post_max_size = %s). Ask your hoster to raise it, or split the workbook into smaller pieces.', 'talenttrack' ),
+                (string) ini_get( 'post_max_size' )
+            ) );
+        }
+
         if ( ! current_user_can( self::CAP ) ) {
             wp_die( esc_html__( 'Insufficient permissions.', 'talenttrack' ) );
         }
@@ -626,7 +651,6 @@ class DemoDataPage {
         $gen_people  = ! empty( $_POST['gen_people'] );
         $gen_players = ! empty( $_POST['gen_players'] );
 
-        $redirect = admin_url( 'tools.php?page=' . self::SLUG );
         $users_exist = DemoGenerator::persistentUsersExist();
 
         if ( $source === 'procedural' && $gen_people && ! $users_exist && ! $confirmed ) {
@@ -664,15 +688,21 @@ class DemoDataPage {
         if ( $source !== 'procedural' ) {
             if ( ! isset( $_FILES['demo_excel'] ) || ! is_array( $_FILES['demo_excel'] )
                  || ( $_FILES['demo_excel']['error'] ?? UPLOAD_ERR_NO_FILE ) === UPLOAD_ERR_NO_FILE ) {
-                self::bounce( $redirect, 'Excel and Hybrid sources require an uploaded workbook.' );
+                self::bounce( $redirect, __( 'Excel and Hybrid sources require an uploaded workbook.', 'talenttrack' ) );
             }
-            if ( ( $_FILES['demo_excel']['error'] ?? 0 ) !== UPLOAD_ERR_OK ) {
-                self::bounce( $redirect, 'Upload failed (error code ' . (int) $_FILES['demo_excel']['error'] . ').' );
+            $err = (int) ( $_FILES['demo_excel']['error'] ?? 0 );
+            if ( $err !== UPLOAD_ERR_OK ) {
+                self::bounce( $redirect, self::uploadErrorMessage( $err ) );
             }
             $excel_path = (string) ( $_FILES['demo_excel']['tmp_name'] ?? '' );
             if ( ! is_uploaded_file( $excel_path ) ) {
-                self::bounce( $redirect, 'Invalid upload.' );
+                self::bounce( $redirect, __( 'Invalid upload.', 'talenttrack' ) );
             }
+
+            // v3.89.2 — XLSX parsing wants 64-128MB even with read-only
+            // mode; raise the ceiling before PhpSpreadsheet loads to
+            // prevent a fatal that would surface as a hoster 500.
+            wp_raise_memory_limit( 'admin' );
         }
 
         try {
@@ -820,33 +850,70 @@ class DemoDataPage {
 
     /**
      * #0059 — accept an uploaded .xlsx, validate, import literally.
+     *
+     * v3.89.2 — hardened against the "looks like a hosting server side
+     * error" failure mode. Three reinforcements: (1) detect the
+     * `post_max_size` overflow case (a too-big upload makes PHP discard
+     * `$_POST` + `$_FILES` entirely; admin-post.php would 400 with no
+     * useful message). (2) Raise memory + execution time before handing
+     * to PhpSpreadsheet — XLSX parsing wants 64-128MB even with
+     * `setReadDataOnly(true)`, and shared hosts default below that.
+     * (3) Wrap the importer call in a `\Throwable` catch so an OOM /
+     * `\Error` / `\TypeError` becomes a friendly red bounce instead of
+     * a fatal that the host's reverse proxy turns into a generic 500.
      */
     public static function handleExcelImport(): void {
+        $redirect = admin_url( 'tools.php?page=' . self::SLUG );
+
+        if ( self::postMaxSizeExceeded() ) {
+            self::bounce( $redirect, sprintf(
+                /* translators: %s: post_max_size from php.ini, e.g. "8M" */
+                __( 'Upload exceeded the server\'s POST size limit (post_max_size = %s). Ask your hoster to raise it, or split the workbook into smaller pieces.', 'talenttrack' ),
+                (string) ini_get( 'post_max_size' )
+            ) );
+        }
+
         if ( ! current_user_can( self::CAP ) ) {
             wp_die( esc_html__( 'Insufficient permissions.', 'talenttrack' ) );
         }
         check_admin_referer( 'tt_demo_excel_import', 'tt_demo_nonce' );
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'demo.excel_import' );
 
-        $redirect = admin_url( 'tools.php?page=' . self::SLUG );
         if ( ! isset( $_FILES['demo_excel'] ) || ! is_array( $_FILES['demo_excel'] ) ) {
-            self::bounce( $redirect, 'No file uploaded.' );
+            self::bounce( $redirect, __( 'No file uploaded.', 'talenttrack' ) );
         }
         $file = $_FILES['demo_excel'];
-        if ( ( $file['error'] ?? UPLOAD_ERR_OK ) !== UPLOAD_ERR_OK ) {
-            self::bounce( $redirect, 'Upload failed (error code ' . (int) $file['error'] . ').' );
+        $err  = (int) ( $file['error'] ?? UPLOAD_ERR_OK );
+        if ( $err !== UPLOAD_ERR_OK ) {
+            self::bounce( $redirect, self::uploadErrorMessage( $err ) );
         }
         $tmp_path      = (string) ( $file['tmp_name'] ?? '' );
         $original_name = (string) ( $file['name'] ?? 'upload.xlsx' );
         if ( ! is_uploaded_file( $tmp_path ) ) {
-            self::bounce( $redirect, 'Invalid upload.' );
+            self::bounce( $redirect, __( 'Invalid upload.', 'talenttrack' ) );
         }
 
-        $importer = new \TT\Modules\DemoData\Excel\ExcelImporter();
-        $result   = $importer->importFile( $tmp_path, $original_name );
+        wp_raise_memory_limit( 'admin' );
+        if ( function_exists( 'set_time_limit' ) ) @set_time_limit( 0 );
+
+        try {
+            $importer = new \TT\Modules\DemoData\Excel\ExcelImporter();
+            $result   = $importer->importFile( $tmp_path, $original_name );
+        } catch ( \Throwable $e ) {
+            \TT\Infrastructure\Logging\Logger::error( 'demo.excel.import.fatal', [
+                'error' => $e->getMessage(),
+                'file'  => $original_name,
+                'class' => get_class( $e ),
+            ] );
+            self::bounce( $redirect, sprintf(
+                /* translators: %s: error message */
+                __( 'Excel import crashed: %s. The plugin caught it before WordPress fell over, but the workbook was not imported. Check the TalentTrack log for details.', 'talenttrack' ),
+                $e->getMessage()
+            ) );
+        }
 
         if ( ! $result['ok'] ) {
-            $msg = $result['blockers'][0] ?? 'Import failed.';
+            $msg = $result['blockers'][0] ?? __( 'Import failed.', 'talenttrack' );
             self::bounce( $redirect, (string) $msg );
         }
 
@@ -856,5 +923,56 @@ class DemoDataPage {
         ], $redirect );
         wp_safe_redirect( $redirect_with_msg );
         exit;
+    }
+
+    /**
+     * Detect when PHP discarded `$_POST` + `$_FILES` because the request
+     * body exceeded `post_max_size`. Symptom: REQUEST_METHOD is POST,
+     * Content-Length is non-zero, but `$_POST` is empty. Without this
+     * check the user gets WP's generic "Are you sure you want to do
+     * this?" response (the nonce isn't even readable) which is the
+     * confusing failure mode.
+     */
+    private static function postMaxSizeExceeded(): bool {
+        if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) return false;
+        if ( ! empty( $_POST ) ) return false;
+        $content_length = (int) ( $_SERVER['CONTENT_LENGTH'] ?? 0 );
+        return $content_length > 0;
+    }
+
+    /**
+     * Translate a PHP `UPLOAD_ERR_*` code to an operator-readable
+     * message that names the relevant php.ini directive when one is at
+     * fault. The fact that an upload failed at the file-size limit
+     * vs. the post-size limit vs. a partial upload is the difference
+     * between "raise upload_max_filesize" and "raise post_max_size".
+     */
+    private static function uploadErrorMessage( int $err ): string {
+        switch ( $err ) {
+            case UPLOAD_ERR_INI_SIZE:
+                return sprintf(
+                    /* translators: %s: upload_max_filesize value */
+                    __( 'Upload exceeded the server\'s upload_max_filesize (%s). Ask your hoster to raise it, or split the workbook.', 'talenttrack' ),
+                    (string) ini_get( 'upload_max_filesize' )
+                );
+            case UPLOAD_ERR_FORM_SIZE:
+                return __( 'Upload exceeded the form\'s declared maximum size.', 'talenttrack' );
+            case UPLOAD_ERR_PARTIAL:
+                return __( 'Upload was interrupted mid-transfer. Try again on a stable connection.', 'talenttrack' );
+            case UPLOAD_ERR_NO_FILE:
+                return __( 'No file was selected for upload.', 'talenttrack' );
+            case UPLOAD_ERR_NO_TMP_DIR:
+                return __( 'PHP could not write to its temporary directory. Ask your hoster to fix `upload_tmp_dir`.', 'talenttrack' );
+            case UPLOAD_ERR_CANT_WRITE:
+                return __( 'PHP could not write the uploaded file to disk.', 'talenttrack' );
+            case UPLOAD_ERR_EXTENSION:
+                return __( 'A PHP extension blocked the upload.', 'talenttrack' );
+            default:
+                return sprintf(
+                    /* translators: %d: PHP UPLOAD_ERR_* code */
+                    __( 'Upload failed (error code %d).', 'talenttrack' ),
+                    $err
+                );
+        }
     }
 }
