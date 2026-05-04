@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.89.1
+Stable tag: 3.89.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.89.2 — Frontend Delete Player did nothing — wrote `status` instead of `archived_at` =
+
+Operator on a pilot install reported clicking Delete on a frontend player row produced no visible change. Root cause: `PlayersRestController::delete_player()` set `status='deleted'`, but the player list query (and every other player-list query in the codebase: wp-admin Menu count, ReportsPage selectors, Teams page roster counts) filters on `p.archived_at IS NULL`, not on `status`. So the DELETE wrote to a column nothing on the list path reads — the row stayed visible — operator saw "nothing happened". `status` is the player-lifecycle marker (`active` / `trial` / `inactive`), not an archive flag. Both `delete_player()` (frontend REST) and `PlayersPage::handleDelete()` (wp-admin) now write `archived_at = current_time('mysql')` + `archived_by = get_current_user_id()`, mirroring the existing `delete_team` shape. Confirm dialog text "Delete this player? They will be archived." now matches what actually happens.
 
 = 3.89.1 — Scrub pilot customer name from public artifacts =
 

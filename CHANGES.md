@@ -1,3 +1,35 @@
+# TalentTrack v3.89.2 — Frontend Delete Player did nothing — wrote `status` instead of `archived_at`
+
+Operator on a pilot install reported clicking **Delete** on a frontend player row produced no visible change. Confirm dialog appeared, network request succeeded, list re-rendered — but the player was still there. Looked like the click handler was broken; turned out the DELETE was writing to a column nothing on the list path reads.
+
+## Root cause
+
+`tt_players` carries two distinct lifecycle markers:
+
+- `status` — player-lifecycle state: `active` / `trial` / `inactive`. Set by `FrontendTrialsManageView` (sign a trial → `status='trial'`) and `FrontendTrialCaseView` (decision → `status='active'` or `inactive`).
+- `archived_at` (+ `archived_by`) — soft-delete marker. Set by `delete_team` ('archived' is even the user-facing label).
+
+`PlayersRestController::delete_player()` and `PlayersPage::handleDelete()` (wp-admin) both wrote `status='deleted'` — abusing the lifecycle field as an archive flag. The list query filters on `p.archived_at IS NULL` (line 154 of the REST controller), so the row stayed in the list. Active-roster counts that filter on `status='active'` (TeamStatsService, ActivitiesRestController roster_size, Menu badges, ReportsPage selectors) silently dropped the player — but the primary player list never did. From the operator's perspective: clicked Delete → confirm → success → list looks identical → "the button doesn't work."
+
+## Fix
+
+Both delete paths now write the archive shape, matching `delete_team`:
+
+```php
+$wpdb->update(
+    $wpdb->prefix . 'tt_players',
+    [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id() ],
+    [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+);
+```
+
+Confirm dialog text "Delete this player? They will be archived." now matches what actually happens. The Archived filter on the players list (which already filters on `archived_at IS NOT NULL`) surfaces the deleted rows for unarchive / hard-delete follow-ups.
+
+## What did *not* change
+
+- Existing rows with `status='deleted'` from previous installs stay visible in the list. They have a misleading status but they're not archived. A separate one-time data migration could backfill those (`UPDATE tt_players SET archived_at=updated_at, status='active' WHERE status='deleted'`) but it's out of scope here — the operator can use the wp-admin "Show all (bypass demo filter)" toggle to find and re-delete them.
+- `PlayerCsvImporter` and the bulk-import path don't touch this; only the per-player delete path was broken.
+
 # TalentTrack v3.89.1 — Scrub pilot customer name from public artifacts
 
 Editorial sweep — no runtime behaviour change. Replaced specific pilot-customer references with neutral phrasing across the public repo so the changelog / docs / source-code comments don't disclose who's piloting the product without their explicit consent.

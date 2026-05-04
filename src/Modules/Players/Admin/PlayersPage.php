@@ -646,7 +646,19 @@ class PlayersPage {
         }
 
         global $wpdb;
-        $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => 'deleted' ], [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+        // v3.89.2 — soft-archive via `archived_at` + `archived_by`, not via
+        // `status='deleted'`. List queries across the codebase filter on
+        // `p.archived_at IS NULL` (PlayersRestController list, Menu count,
+        // ReportsPage selectors, etc.), so writing to `status` left the row
+        // visible everywhere. `status` is a player-lifecycle marker
+        // (active/trial/inactive); abusing it as an archive flag silently
+        // dropped players out of active-roster counts but kept them in the
+        // primary player list. Mirrors `delete_team`'s archive shape.
+        $wpdb->update(
+            $wpdb->prefix . 'tt_players',
+            [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id() ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-players&tt_msg=deleted' ) );
         exit;
     }
