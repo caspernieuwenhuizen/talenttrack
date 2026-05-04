@@ -54,6 +54,30 @@ final class AttendanceStep implements WizardStepInterface {
         <p style="color:var(--tt-muted);max-width:60ch;">
             <?php esc_html_e( 'Mark each player\'s attendance. Only present + late players will appear in the rating step. This step writes real attendance rows for the activity.', 'talenttrack' ); ?>
         </p>
+        <p style="margin: 0 0 var(--tt-sp-2);">
+            <?php
+            // v3.92.4 — operator asked for a single-click "Mark all present"
+            // affordance. Default is already 'present', but coaches who
+            // have started clicking individual rows need a fast way to
+            // reset everyone before submitting. Pure JS toggle, scoped
+            // to this step's radio matrix.
+            ?>
+            <button type="button" class="tt-button tt-button-secondary" data-tt-mark-all-present>
+                <?php esc_html_e( 'Mark all present', 'talenttrack' ); ?>
+            </button>
+        </p>
+        <script>
+        (function () {
+            var btn = document.querySelector( '[data-tt-mark-all-present]' );
+            if ( ! btn ) return;
+            btn.addEventListener( 'click', function () {
+                var radios = document.querySelectorAll( 'input[type=radio][name^="attendance["][value="present"]' );
+                for ( var i = 0; i < radios.length; i++ ) {
+                    radios[ i ].checked = true;
+                }
+            } );
+        })();
+        </script>
         <table class="tt-table" style="width:100%;">
             <thead><tr><th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><?php foreach ( $names as $n ) : ?><th style="text-align:center;"><?php echo esc_html( \TT\Infrastructure\Query\LabelTranslator::attendanceStatus( ucfirst( $n ) ) ); ?></th><?php endforeach; ?></tr></thead>
             <tbody>

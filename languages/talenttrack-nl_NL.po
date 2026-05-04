@@ -11677,8 +11677,8 @@ msgstr "Evaluatie %1$d van %2$d wegschrijven…"
 msgid "Done — redirecting…"
 msgstr "Klaar — doorlinken…"
 
-msgid "One or more rows failed. Refresh to retry."
-msgstr "Eén of meer rijen mislukt. Vernieuw om opnieuw te proberen."
+msgid "One or more rows failed. Try again or go back to fix the input."
+msgstr "Eén of meer rijen mislukt. Probeer opnieuw of ga terug om de invoer aan te passen."
 
 # v3.79.1 / #0075 follow-ups — radio toggle, classes tab, download
 # (On / Off / Custom CSS msgids already translated elsewhere in this

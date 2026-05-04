@@ -81,7 +81,7 @@ final class ReviewStep implements WizardStepInterface {
             'redirect_url' => esc_url_raw( $redirect_url ),
             'i18n_writing' => __( 'Writing evaluation %1$d of %2$d…', 'talenttrack' ),
             'i18n_done'    => __( 'Done — redirecting…', 'talenttrack' ),
-            'i18n_failed'  => __( 'One or more rows failed. Refresh to retry.', 'talenttrack' ),
+            'i18n_failed'  => __( 'One or more rows failed. Try again or go back to fix the input.', 'talenttrack' ),
         ];
         ?>
         <p style="color:var(--tt-muted);max-width:60ch;">

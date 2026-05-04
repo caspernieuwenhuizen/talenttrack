@@ -1,3 +1,54 @@
+# TalentTrack v3.92.4 — Eval wizard: Mark all present + non-admin save no longer silently 403'd
+
+PR 2 of 3 from the operator's pilot batch. Three related fixes on the new-evaluation wizard.
+
+## Fix 1 — "Mark all present" button on the Attendance step
+
+Operator: clicking attendance individually for every player on every activity gets old quickly. The row default was already `present`, but coaches who had started clicking individual rows had no fast way to reset.
+
+Added a "Mark all present" button above the attendance table. Pure JS toggle scoped to `[data-tt-mark-all-present]` — selects every `input[type=radio][name^="attendance["][value="present"]` and sets `checked=true`. No server-side change, no nonce; it's UI state that the form submit picks up via the existing radio names.
+
+## Fix 2 — Single-player evaluation save: "one or multiple rows failed to save"
+
+Operator clicked Submit on a single-player evaluation; got "one or multiple rows failed to save" and the wizard buttons stopped responding.
+
+### Root cause
+
+`Modules\Wizards\Evaluation\EvaluationRowRestController::register()` registered the per-row endpoint with:
+
+```php
+'permission_callback' => static fn(): bool => is_user_logged_in() && current_user_can( 'tt_create_evaluations' ),
+```
+
+`tt_create_evaluations` is **not granted to any TT role**. It's only used as a tile-visibility gate by `ActionCardWidget` (which renders the "+ New evaluation" CTA on the dashboard). Every save through the JS overlay 403'd for non-admin coaches. Admins (with `manage_options`) bypassed the cap check via the WP role-cap roll-up — which is why the bug never surfaced in admin testing.
+
+The single-player observation is a clue, not the cause: 1-of-1 rows fail = "one or multiple rows failed" prompt fires. Multi-player saves had the same bug but the failure ratio (e.g. 5/5 rows fail) read as "all rows failed" which sounds different.
+
+### Fix
+
+Cap changed to `tt_edit_evaluations` — the canonical write cap, same one `EvaluationsRestController::create_eval` uses. Coaches with the matrix `evaluations:c[team]` grant or the legacy cap directly can now save through the JS overlay.
+
+## Fix 3 — Buttons frozen after a failed save
+
+Operator: after the failure prompt fired, the wizard buttons stopped responding. Couldn't retry, couldn't go back, couldn't cancel — only refresh worked.
+
+### Root cause
+
+`assets/js/wizard-eval-review.js`'s failure branch:
+
+```js
+if (failed > 0) {
+    setStatus(payload.i18n_failed || 'One or more rows failed.');
+    return;
+}
+```
+
+It set the status text and returned without re-enabling the form buttons that `disableActions()` had disabled at the start of the save loop. The form was permanently frozen.
+
+### Fix
+
+Added `enableActions()` (mirror of `disableActions()`) and called it on the failure branch. Failure message also updated from "Refresh to retry" → "Try again or go back to fix the input." — the buttons are now actually reachable.
+
 # TalentTrack v3.92.3 — Quick wins: activity picker dedup, goal-detail back-button, docs drawer, my-card print icon
 
 Four small polish fixes sliced out of the operator's 10-item pilot batch as the fast cluster (PR 1 of 3). Larger eval-wizard + branding-page work ships next.
