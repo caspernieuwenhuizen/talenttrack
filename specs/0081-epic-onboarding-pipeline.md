@@ -1,6 +1,6 @@
 <!-- type: epic -->
 
-# #0080 — Onboarding pipeline (workflow-driven, prospect → trial group → academy team)
+# #0081 — Onboarding pipeline (workflow-driven, prospect → trial group → academy team)
 
 > Replaces the kanban-style draft. Same real-world journey, different architecture: the onboarding sequence is expressed as a **chain of workflow tasks** in the existing Workflow module, with `tt_prospects` as the entity that carries identity across stages and a new persona-dashboard widget as the visualisation surface. Half the new code, sits inside an architecture the team already understands.
 
@@ -398,13 +398,13 @@ Existing trial-case wizards in the Trials module continue to work; the three new
 - `docs/trials.md` — document the rolling-membership rework.
 - `docs/gdpr-compliance.md` (from #0073) — add a section for prospects.
 - `languages/talenttrack-nl_NL.po` — every user-facing string. Suggested NL: "Prospect" (loanword used in NL football), "Proeftraining", "Trialgroep", "Doorstroming", plus the ten KPI labels. Defer to native-speaker review.
-- `SEQUENCE.md` — append `#0080-epic-onboarding-pipeline.md` with four child entries.
+- `SEQUENCE.md` — append `#0081-epic-onboarding-pipeline.md` with four child entries.
 - `CHANGES.md` — entry per child describing the user-facing change.
 
 ### `CLAUDE.md` updates
 
 - §3 (data model) — add the prospect tables to the "core domain entities" list. Note: "Prospect lifecycle is driven by workflow tasks, not by a status column on the prospect entity. The current stage is derived from the most recent task on the chain. This avoids dual-state-machine drift."
-- §4 (Workflow module conventions) — add a paragraph: "The onboarding pipeline (#0080) is the first cross-module use of the Workflow engine. Future cross-module flows should follow the same pattern: small entity for identity, task templates for stages, ChainSteps for transitions, persona-dashboard widget for visualisation. Avoid bespoke state machines that parallel the engine."
+- §4 (Workflow module conventions) — add a paragraph: "The onboarding pipeline (#0081) is the first cross-module use of the Workflow engine. Future cross-module flows should follow the same pattern: small entity for identity, task templates for stages, ChainSteps for transitions, persona-dashboard widget for visualisation. Avoid bespoke state machines that parallel the engine."
 
 ### Two design judgement calls worth surfacing again
 
