@@ -122,7 +122,7 @@ Total at conventional rates: ~1,250 LOC. **At codebase's documented ~1/2.5 ratio
 
 **Trigger to start.** This spec is shaped enough to ship but lower priority than the pilot blockers. Right ordering:
 
-1. Pilot start (June 15) using direct demo mode toggle on production for the JG4IT pilot's training (acceptable for a first-pilot academy, manageable given small staff size).
+1. Pilot start (June 15) using direct demo mode toggle on production for the pilot academy's training (acceptable for a first-pilot academy, manageable given small staff size).
 2. Post-pilot review: was the lack of a training instance actually a problem during onboarding, or was demo mode sufficient?
 3. If it was a problem, schedule this spec for shipping before the next academy onboards. If demo mode was sufficient, defer this further.
 
