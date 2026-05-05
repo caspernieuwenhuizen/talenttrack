@@ -236,89 +236,145 @@ class FrontendComparisonView extends FrontendViewBase {
             </div>
         <?php endif; ?>
 
-        <!-- FIFA card row -->
-        <h3 style="margin:24px 0 10px; font-size:15px;"><?php esc_html_e( 'Cards', 'talenttrack' ); ?></h3>
-        <div style="display:flex; gap:14px; flex-wrap:wrap; overflow-x:auto; padding-bottom:8px;">
+        <?php
+        // v3.94.1 — unified CSS Grid replaces three separate flex /
+        // table layouts so every player's column lines up vertically
+        // from the FIFA card down through Basic facts, Headline
+        // numbers, and Main category averages. Each row is one grid
+        // row; first column is the label cell, the next N columns are
+        // one per player at equal width.
+        $n = count( $players );
+        $grid_cols = '180px repeat(' . $n . ', minmax(180px, 1fr))';
+        ?>
+        <style>
+            .tt-fcompare-grid {
+                display: grid;
+                grid-template-columns: <?php echo esc_attr( $grid_cols ); ?>;
+                gap: 0;
+                background: #fff;
+                border: 1px solid #e5e7ea;
+                border-radius: 10px;
+                overflow: hidden;
+                margin: 16px 0 24px;
+            }
+            .tt-fcompare-section {
+                grid-column: 1 / -1;
+                background: #f6f7f7;
+                color: #5b6e75;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+                padding: 10px 14px;
+                border-top: 1px solid #e5e7ea;
+            }
+            .tt-fcompare-section:first-child { border-top: 0; }
+            .tt-fcompare-cell {
+                padding: 10px 14px;
+                border-top: 1px solid #f1f3f5;
+                font-size: 14px;
+                line-height: 1.35;
+            }
+            .tt-fcompare-cell.tt-fcompare-label {
+                font-weight: 600;
+                color: #1a1d21;
+                background: #fafbfc;
+            }
+            .tt-fcompare-cell.tt-fcompare-headerplayer {
+                font-weight: 700;
+                background: #fff;
+                color: #1a1d21;
+                border-top: 0;
+            }
+            .tt-fcompare-cell.tt-fcompare-card {
+                padding: 14px;
+                background: #fff;
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+                border-top: 0;
+            }
+            .tt-fcompare-cell.tt-fcompare-card .tt-fcompare-card-inner {
+                width: 100%;
+                max-width: 220px;
+            }
+            .tt-fcompare-cell.tt-fcompare-num {
+                font-variant-numeric: tabular-nums;
+                font-weight: 600;
+            }
+            @media (max-width: 720px) {
+                .tt-fcompare-grid {
+                    grid-template-columns: 130px repeat(<?php echo (int) $n; ?>, minmax(120px, 1fr));
+                    overflow-x: auto;
+                }
+                .tt-fcompare-cell { padding: 8px 10px; font-size: 13px; }
+                .tt-fcompare-cell.tt-fcompare-card .tt-fcompare-card-inner { max-width: 140px; }
+            }
+        </style>
+
+        <h3 style="margin:24px 0 10px; font-size:15px;"><?php esc_html_e( 'Side-by-side', 'talenttrack' ); ?></h3>
+        <div class="tt-fcompare-grid">
+            <!-- Header row: blank label cell + N player names -->
+            <div class="tt-fcompare-cell tt-fcompare-label tt-fcompare-headerplayer">&nbsp;</div>
             <?php foreach ( $players as $pl ) : ?>
-                <div style="flex:0 0 auto;">
-                    <?php \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $pl->id, 'sm', true ); ?>
+                <div class="tt-fcompare-cell tt-fcompare-headerplayer"><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></div>
+            <?php endforeach; ?>
+
+            <!-- Card row -->
+            <div class="tt-fcompare-section"><?php esc_html_e( 'Cards', 'talenttrack' ); ?></div>
+            <div class="tt-fcompare-cell tt-fcompare-label">&nbsp;</div>
+            <?php foreach ( $players as $pl ) : ?>
+                <div class="tt-fcompare-cell tt-fcompare-card">
+                    <div class="tt-fcompare-card-inner">
+                        <?php \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $pl->id, 'sm', true ); ?>
+                    </div>
                 </div>
             <?php endforeach; ?>
-        </div>
 
-        <!-- Basic facts -->
-        <h3 style="margin:28px 0 10px; font-size:15px;"><?php esc_html_e( 'Basic facts', 'talenttrack' ); ?></h3>
-        <div style="overflow-x:auto;">
-            <table class="tt-table" style="width:100%; background:#fff;">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e( 'Attribute', 'talenttrack' ); ?></th>
-                        <?php foreach ( $players as $pl ) : ?>
-                            <th><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></th>
-                        <?php endforeach; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $rows = [
-                        [ __( 'Team', 'talenttrack' ),         function( $pl ) { $t = $pl->team_id ? QueryHelpers::get_team( (int) $pl->team_id ) : null; return $t ? (string) $t->name : '—'; } ],
-                        [ __( 'Age group', 'talenttrack' ),    function( $pl ) use ( $age_groups ) { return (string) ( $age_groups[ (int) $pl->id ] ?: '—' ); } ],
-                        [ __( 'Position(s)', 'talenttrack' ),  function( $pl ) { $pos = json_decode( (string) $pl->preferred_positions, true ); return is_array( $pos ) ? implode( ', ', $pos ) : '—'; } ],
-                        [ __( 'Foot', 'talenttrack' ),         function( $pl ) { return (string) ( $pl->preferred_foot ?: '—' ); } ],
-                        [ __( 'Jersey', 'talenttrack' ),       function( $pl ) { return $pl->jersey_number ? '#' . (int) $pl->jersey_number : '—'; } ],
-                        [ __( 'Height', 'talenttrack' ),       function( $pl ) { return $pl->height_cm ? ( (int) $pl->height_cm . ' cm' ) : '—'; } ],
-                    ];
-                    foreach ( $rows as [ $label, $fn ] ) : ?>
-                        <tr>
-                            <td style="font-weight:600;"><?php echo esc_html( $label ); ?></td>
-                            <?php foreach ( $players as $pl ) : ?>
-                                <td><?php echo esc_html( (string) $fn( $pl ) ); ?></td>
-                            <?php endforeach; ?>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+            <!-- Basic facts -->
+            <div class="tt-fcompare-section"><?php esc_html_e( 'Basic facts', 'talenttrack' ); ?></div>
+            <?php
+            $rows = [
+                [ __( 'Team', 'talenttrack' ),         function( $pl ) { $t = $pl->team_id ? QueryHelpers::get_team( (int) $pl->team_id ) : null; return $t ? (string) $t->name : '—'; } ],
+                [ __( 'Age group', 'talenttrack' ),    function( $pl ) use ( $age_groups ) { return (string) ( $age_groups[ (int) $pl->id ] ?: '—' ); } ],
+                [ __( 'Position(s)', 'talenttrack' ),  function( $pl ) { $pos = json_decode( (string) $pl->preferred_positions, true ); return is_array( $pos ) ? implode( ', ', $pos ) : '—'; } ],
+                [ __( 'Foot', 'talenttrack' ),         function( $pl ) { return (string) ( $pl->preferred_foot ?: '—' ); } ],
+                [ __( 'Jersey', 'talenttrack' ),       function( $pl ) { return $pl->jersey_number ? '#' . (int) $pl->jersey_number : '—'; } ],
+                [ __( 'Height', 'talenttrack' ),       function( $pl ) { return $pl->height_cm ? ( (int) $pl->height_cm . ' cm' ) : '—'; } ],
+            ];
+            foreach ( $rows as [ $label, $fn ] ) :
+                ?>
+                <div class="tt-fcompare-cell tt-fcompare-label"><?php echo esc_html( $label ); ?></div>
+                <?php foreach ( $players as $pl ) : ?>
+                    <div class="tt-fcompare-cell"><?php echo esc_html( (string) $fn( $pl ) ); ?></div>
+                <?php endforeach; ?>
+            <?php endforeach; ?>
 
-        <!-- Headline numbers -->
-        <h3 style="margin:28px 0 10px; font-size:15px;"><?php esc_html_e( 'Headline numbers', 'talenttrack' ); ?></h3>
-        <div style="overflow-x:auto;">
-            <table class="tt-table" style="width:100%; background:#fff;">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e( 'Metric', 'talenttrack' ); ?></th>
-                        <?php foreach ( $players as $pl ) : ?>
-                            <th><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></th>
-                        <?php endforeach; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $metrics = [
-                        [ __( 'Most recent', 'talenttrack' ), 'recent' ],
-                        [ __( 'Rolling (last 5)', 'talenttrack' ), 'rolling' ],
-                        [ __( 'All-time', 'talenttrack' ), 'alltime' ],
-                        [ __( 'Evaluations', 'talenttrack' ), 'count' ],
-                    ];
-                    foreach ( $metrics as [ $label, $key ] ) : ?>
-                        <tr>
-                            <td style="font-weight:600;"><?php echo esc_html( $label ); ?></td>
-                            <?php foreach ( $players as $pl ) :
-                                $pid = (int) $pl->id;
-                                $val = $headlines[ $pid ][ $key ] ?? null;
-                                $display = $val === null ? '—' : ( is_numeric( $val ) ? (string) $val : esc_html( (string) $val ) );
-                                ?>
-                                <td style="font-variant-numeric:tabular-nums; font-weight:600;"><?php echo $display; ?></td>
-                            <?php endforeach; ?>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+            <!-- Headline numbers -->
+            <div class="tt-fcompare-section"><?php esc_html_e( 'Headline numbers', 'talenttrack' ); ?></div>
+            <?php
+            $metrics = [
+                [ __( 'Most recent', 'talenttrack' ), 'recent' ],
+                [ __( 'Rolling (last 5)', 'talenttrack' ), 'rolling' ],
+                [ __( 'All-time', 'talenttrack' ), 'alltime' ],
+                [ __( 'Evaluations', 'talenttrack' ), 'count' ],
+            ];
+            foreach ( $metrics as [ $label, $key ] ) :
+                ?>
+                <div class="tt-fcompare-cell tt-fcompare-label"><?php echo esc_html( $label ); ?></div>
+                <?php foreach ( $players as $pl ) :
+                    $pid = (int) $pl->id;
+                    $val = $headlines[ $pid ][ $key ] ?? null;
+                    $display = $val === null ? '—' : ( is_numeric( $val ) ? (string) $val : (string) $val );
+                    ?>
+                    <div class="tt-fcompare-cell tt-fcompare-num"><?php echo esc_html( (string) $display ); ?></div>
+                <?php endforeach; ?>
+            <?php endforeach; ?>
 
-        <!-- Main category breakdown -->
-        <h3 style="margin:28px 0 10px; font-size:15px;"><?php esc_html_e( 'Main category averages', 'talenttrack' ); ?></h3>
-        <?php self::renderMainBreakdown( $players, $mains ); ?>
+            <!-- Main category averages — rendered into the same grid -->
+            <div class="tt-fcompare-section"><?php esc_html_e( 'Main category averages', 'talenttrack' ); ?></div>
+            <?php self::renderMainBreakdownGrid( $players, $mains ); ?>
+        </div>
 
         <!-- #0077 M6 — radar overlay + trend overlay (parity with admin) -->
         <h3 style="margin:28px 0 10px; font-size:15px;"><?php esc_html_e( 'Radar profile', 'talenttrack' ); ?></h3>
@@ -487,9 +543,52 @@ class FrontendComparisonView extends FrontendViewBase {
     }
 
     /**
+     * v3.94.1 — main-category breakdown rendered as grid rows so it
+     * shares the same vertical column alignment as the rest of the
+     * compare grid. Caller must already be inside `.tt-fcompare-grid`.
+     */
+    private static function renderMainBreakdownGrid( array $players, array $mains ): void {
+        $all_cats = [];
+        foreach ( $mains as $pid => $data ) {
+            foreach ( $data as $row ) {
+                $key = (string) ( $row->main_label ?? $row->label ?? '' );
+                if ( $key !== '' ) $all_cats[ $key ] = $key;
+            }
+        }
+        if ( empty( $all_cats ) ) {
+            echo '<div class="tt-fcompare-cell tt-fcompare-label">&nbsp;</div>';
+            $n = count( $players );
+            for ( $i = 0; $i < $n; $i++ ) {
+                echo '<div class="tt-fcompare-cell"><em style="color:#5b6e75;">' . esc_html__( 'No category data yet for these filters.', 'talenttrack' ) . '</em></div>';
+            }
+            return;
+        }
+        foreach ( array_keys( $all_cats ) as $cat_label ) {
+            echo '<div class="tt-fcompare-cell tt-fcompare-label">' . esc_html( EvalCategoriesRepository::displayLabel( (string) $cat_label ) ) . '</div>';
+            foreach ( $players as $pl ) {
+                $pid = (int) $pl->id;
+                $val = '—';
+                foreach ( ( $mains[ $pid ] ?? [] ) as $row ) {
+                    $key = (string) ( $row->main_label ?? $row->label ?? '' );
+                    if ( $key === $cat_label ) {
+                        $avg = $row->avg ?? $row->average ?? null;
+                        if ( $avg !== null ) $val = number_format( (float) $avg, 2 );
+                        break;
+                    }
+                }
+                echo '<div class="tt-fcompare-cell tt-fcompare-num">' . esc_html( $val ) . '</div>';
+            }
+        }
+    }
+
+    /**
      * Main-category breakdown table. Collect all unique main-category
      * labels across the 4 players, then render one row per category
      * with per-player averages.
+     *
+     * @deprecated v3.94.1 — `renderMainBreakdownGrid` replaces this for
+     *             the comparison view; kept in case any other caller
+     *             still uses it.
      */
     private static function renderMainBreakdown( array $players, array $mains ): void {
         // Collect unique main category labels across all players

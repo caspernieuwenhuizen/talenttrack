@@ -54,7 +54,20 @@ class TrialState {
         ];
     }
 
-    public static function start( string $tier_during = FeatureMap::TIER_STANDARD ): bool {
+    /**
+     * Start the in-app trial.
+     *
+     * v3.94.1 — default tier flipped from Standard to Pro. Operators
+     * who clicked "Start trial" expected every Pro feature (trial
+     * cases, scout access, team chemistry) to unlock during the trial
+     * window, but the previous default left them at Standard so those
+     * three features stayed gated. Trials in flight keep their
+     * existing `tier_during` value (read from `tt_config` on each
+     * tier() call) — only NEW trials default to Pro. Caller can still
+     * pass `FeatureMap::TIER_STANDARD` explicitly if a Standard-only
+     * trial is wanted.
+     */
+    public static function start( string $tier_during = FeatureMap::TIER_PRO ): bool {
         if ( self::read() !== null ) return false; // started once already
         $now = time();
         $payload = [

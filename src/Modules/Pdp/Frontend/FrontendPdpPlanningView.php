@@ -30,17 +30,29 @@ final class FrontendPdpPlanningView {
             return;
         }
 
+        // v3.94.1 — block-detail drill-down (`?tt_view=pdp-planning&action=block`)
+        // shows per-player status for a single team × block × season.
+        // Replaces the v1 cell-click target which routed to the unfiltered
+        // `?tt_view=pdp` list and didn't actually scope by block.
+        $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
+        if ( $action === 'block' ) {
+            self::renderBlockDetail( $user_id );
+            return;
+        }
+
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'PDP planning', 'talenttrack' ) );
+
         global $wpdb;
         $p = $wpdb->prefix;
 
         $season_id = isset( $_GET['season_id'] ) ? absint( $_GET['season_id'] ) : self::resolveCurrentSeason();
         $matrix    = self::buildMatrix( $season_id );
 
-        $base_url = remove_query_arg( [ 'season_id' ] );
+        $base_url = remove_query_arg( [ 'season_id', 'action', 'team_id', 'block' ] );
 
         echo '<section class="tt-pdp-planning" style="max-width:1200px;">';
         echo '<h2 style="margin:0 0 12px;">' . esc_html__( 'PDP planning', 'talenttrack' ) . '</h2>';
-        echo '<p style="margin:0 0 16px;color:#5b6e75;">' . esc_html__( 'How many conversations are planned in their window, and how many have a recorded result. Click a cell to drill into the underlying files.', 'talenttrack' ) . '</p>';
+        echo '<p style="margin:0 0 16px;color:#5b6e75;">' . esc_html__( 'How many conversations are planned in their window, and how many have a recorded result. Click a cell to drill into per-player status for that team × block.', 'talenttrack' ) . '</p>';
 
         // Season picker.
         $seasons = $wpdb->get_results( $wpdb->prepare(
@@ -93,11 +105,14 @@ final class FrontendPdpPlanningView {
                 . ' <small style="color:#5b6e75;">' . (int) $team['roster'] . ' ' . esc_html__( 'players', 'talenttrack' ) . '</small></td>';
             for ( $b = 1; $b <= $max_blocks; $b++ ) {
                 $cell = $team['blocks'][ $b ] ?? null;
+                // v3.94.1 — drill-down lands on the per-player block view
+                // (action=block) rather than the unfiltered PDP list.
                 $cell_url = add_query_arg( [
-                    'tt_view'         => 'pdp',
-                    'filter[team_id]' => (int) $team_id,
-                    'filter[block]'   => $b,
-                    'filter[season]'  => $season_id,
+                    'tt_view'   => 'pdp-planning',
+                    'action'    => 'block',
+                    'team_id'   => (int) $team_id,
+                    'block'     => $b,
+                    'season_id' => $season_id,
                 ], $base_url );
                 echo '<td style="padding:8px;border-bottom:1px solid #eef0f2;">';
                 if ( ! $cell || $cell['expected'] === 0 ) {
@@ -229,6 +244,239 @@ final class FrontendPdpPlanningView {
         if ( $conducted >= $expected ) return '#16a34a';
         if ( $planned   >= $expected ) return '#d97706';
         return '#b91c1c';
+    }
+
+    /**
+     * Per-player block detail — renders three columns (Planned /
+     * Conducted / Missing) for one team × block × season tuple.
+     * v3.94.1 replacement for the v1 cell-click that routed to the
+     * unfiltered PDP list.
+     */
+    private static function renderBlockDetail( int $user_id ): void {
+        $team_id   = isset( $_GET['team_id'] )   ? absint( $_GET['team_id'] )   : 0;
+        $block     = isset( $_GET['block'] )     ? absint( $_GET['block'] )     : 0;
+        $season_id = isset( $_GET['season_id'] ) ? absint( $_GET['season_id'] ) : self::resolveCurrentSeason();
+
+        if ( $team_id <= 0 || $block <= 0 || $season_id <= 0 ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'PDP planning', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'Block detail requires a team, a block number, and a season. Click a cell on the planning matrix to drill in.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $team = QueryHelpers::get_team( $team_id );
+        if ( ! $team ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'PDP planning', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'That team no longer exists.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $detail = self::loadBlockDetail( $team_id, $block, $season_id );
+
+        // Breadcrumb chain: Dashboard / PDP planning / Team — Block N.
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            sprintf(
+                /* translators: 1: team name, 2: block number */
+                __( '%1$s — Block %2$d', 'talenttrack' ),
+                (string) $team->name,
+                $block
+            ),
+            [
+                \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb(
+                    'pdp-planning',
+                    __( 'PDP planning', 'talenttrack' ),
+                    [ 'season_id' => $season_id ]
+                ),
+            ]
+        );
+
+        echo '<section class="tt-pdp-planning-block" style="max-width:1200px;">';
+        echo '<h2 style="margin:0 0 4px;">' . esc_html( sprintf(
+            /* translators: 1: team name, 2: block number */
+            __( '%1$s — PDP block %2$d', 'talenttrack' ),
+            (string) $team->name,
+            $block
+        ) ) . '</h2>';
+
+        if ( $detail['window_start'] !== '' || $detail['window_end'] !== '' ) {
+            echo '<p style="color:#5b6e75; margin:0 0 16px;">' . esc_html( sprintf(
+                /* translators: 1: window start date, 2: window end date */
+                __( 'Window %1$s → %2$s.', 'talenttrack' ),
+                (string) ( $detail['window_start'] ?: '—' ),
+                (string) ( $detail['window_end']   ?: '—' )
+            ) ) . '</p>';
+        }
+
+        $columns = [
+            [
+                'key'    => 'conducted',
+                'label'  => __( 'Conducted', 'talenttrack' ),
+                'colour' => '#16a34a',
+                'help'   => __( 'Conversation has a recorded conducted_at — the talk happened.', 'talenttrack' ),
+            ],
+            [
+                'key'    => 'planned',
+                'label'  => __( 'Planned', 'talenttrack' ),
+                'colour' => '#d97706',
+                'help'   => __( 'Conversation is on the calendar (scheduled_at set) but no conducted_at yet.', 'talenttrack' ),
+            ],
+            [
+                'key'    => 'missing',
+                'label'  => __( 'Missing', 'talenttrack' ),
+                'colour' => '#b91c1c',
+                'help'   => __( 'Active roster player with no conversation in this block. Open their PDP file to start one.', 'talenttrack' ),
+            ],
+        ];
+
+        echo '<div class="tt-pdp-block-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-top:8px;">';
+        foreach ( $columns as $col ) {
+            $bucket = $detail[ $col['key'] ] ?? [];
+            echo '<div class="tt-pdp-block-col" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:14px;">';
+            echo '<h3 style="margin:0 0 6px; font-size:14px; color:' . esc_attr( $col['colour'] ) . ';">' .
+                 esc_html( $col['label'] ) .
+                 ' <span style="background:' . esc_attr( $col['colour'] ) . '; color:#fff; font-size:11px; padding:2px 6px; border-radius:10px; margin-left:4px;">' .
+                 (int) count( $bucket ) .
+                 '</span></h3>';
+            echo '<p style="color:#5b6e75; font-size:12px; margin:0 0 8px;">' . esc_html( (string) $col['help'] ) . '</p>';
+
+            if ( empty( $bucket ) ) {
+                echo '<p style="color:#5b6e75; font-style:italic; margin:0;">' . esc_html__( 'None.', 'talenttrack' ) . '</p>';
+            } else {
+                echo '<ul class="tt-stack" style="list-style:none; padding:0; margin:0;">';
+                foreach ( $bucket as $row ) {
+                    $name = trim( ( (string) ( $row['first_name'] ?? '' ) ) . ' ' . ( (string) ( $row['last_name'] ?? '' ) ) );
+                    if ( $name === '' ) continue;
+                    $pdp_id = (int) ( $row['pdp_file_id'] ?? 0 );
+                    $url    = $pdp_id > 0
+                        ? add_query_arg( [ 'tt_view' => 'pdp', 'id' => $pdp_id ], remove_query_arg( [ 'action', 'team_id', 'block', 'season_id' ] ) )
+                        : add_query_arg( [ 'tt_view' => 'pdp', 'action' => 'new', 'player_id' => (int) $row['player_id'] ], remove_query_arg( [ 'action', 'team_id', 'block', 'season_id' ] ) );
+                    $label  = esc_html( $name );
+                    $meta   = '';
+                    if ( $col['key'] === 'conducted' && ! empty( $row['conducted_at'] ) ) {
+                        $meta = sprintf(
+                            /* translators: %s: ISO date string */
+                            __( ' · conducted %s', 'talenttrack' ),
+                            esc_html( substr( (string) $row['conducted_at'], 0, 10 ) )
+                        );
+                    } elseif ( $col['key'] === 'planned' && ! empty( $row['scheduled_at'] ) ) {
+                        $meta = sprintf(
+                            /* translators: %s: ISO date string */
+                            __( ' · planned %s', 'talenttrack' ),
+                            esc_html( substr( (string) $row['scheduled_at'], 0, 10 ) )
+                        );
+                    }
+                    echo '<li style="padding:6px 0; border-bottom:1px solid #f1f3f5;">';
+                    echo '<a class="tt-record-link" href="' . esc_url( $url ) . '">' . $label . '</a>';
+                    if ( $meta !== '' ) echo '<span class="tt-muted" style="color:#5b6e75; font-size:12px;">' . $meta . '</span>';
+                    echo '</li>';
+                }
+                echo '</ul>';
+            }
+            echo '</div>';
+        }
+        echo '</div>';
+        echo '</section>';
+    }
+
+    /**
+     * Build the per-player split for one (team, block, season).
+     *
+     * @return array{
+     *   window_start:string,
+     *   window_end:string,
+     *   conducted: list<array<string,mixed>>,
+     *   planned:   list<array<string,mixed>>,
+     *   missing:   list<array<string,mixed>>,
+     * }
+     */
+    private static function loadBlockDetail( int $team_id, int $block, int $season_id ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        // Conversations in this block for this team's roster + season.
+        // Returned regardless of conducted_at so the caller can split.
+        $conv_rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT c.id            AS conversation_id,
+                    c.pdp_file_id,
+                    c.scheduled_at,
+                    c.conducted_at,
+                    c.planning_window_start AS window_start,
+                    c.planning_window_end   AS window_end,
+                    pl.id            AS player_id,
+                    pl.first_name,
+                    pl.last_name
+               FROM {$p}tt_pdp_conversations c
+               JOIN {$p}tt_pdp_files f ON f.id = c.pdp_file_id AND f.club_id = c.club_id
+               JOIN {$p}tt_players  pl ON pl.id = f.player_id  AND pl.club_id = f.club_id
+              WHERE c.club_id = %d
+                AND f.season_id = %d
+                AND pl.team_id = %d
+                AND c.sequence = %d
+              ORDER BY pl.last_name ASC",
+            CurrentClub::id(), $season_id, $team_id, $block
+        ) );
+
+        $conducted = [];
+        $planned   = [];
+        $covered_player_ids = [];
+        $window_start = '';
+        $window_end   = '';
+        foreach ( (array) $conv_rows as $r ) {
+            $covered_player_ids[ (int) $r->player_id ] = true;
+            if ( $window_start === '' && ! empty( $r->window_start ) ) $window_start = (string) $r->window_start;
+            if ( $window_end   === '' && ! empty( $r->window_end ) )   $window_end   = (string) $r->window_end;
+            $row = [
+                'conversation_id' => (int) $r->conversation_id,
+                'pdp_file_id'     => (int) $r->pdp_file_id,
+                'player_id'       => (int) $r->player_id,
+                'first_name'      => (string) $r->first_name,
+                'last_name'       => (string) $r->last_name,
+                'scheduled_at'    => (string) ( $r->scheduled_at ?: '' ),
+                'conducted_at'    => (string) ( $r->conducted_at ?: '' ),
+            ];
+            if ( ! empty( $r->conducted_at ) ) {
+                $conducted[] = $row;
+            } else {
+                $planned[] = $row;
+            }
+        }
+
+        // Missing = active roster players with no conversation row in
+        // this block. They may have a PDP file already (link to it) or
+        // they may not — in which case we link to "create new PDP for
+        // this player" so the coach can start the file straight away.
+        $missing_rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT pl.id   AS player_id,
+                    pl.first_name,
+                    pl.last_name,
+                    f.id    AS pdp_file_id
+               FROM {$p}tt_players pl
+          LEFT JOIN {$p}tt_pdp_files f ON f.player_id = pl.id AND f.season_id = %d AND f.club_id = pl.club_id
+              WHERE pl.team_id = %d
+                AND pl.club_id = %d
+                AND pl.status  = 'active'
+                AND pl.archived_at IS NULL
+              ORDER BY pl.last_name ASC",
+            $season_id, $team_id, CurrentClub::id()
+        ) );
+
+        $missing = [];
+        foreach ( (array) $missing_rows as $r ) {
+            if ( isset( $covered_player_ids[ (int) $r->player_id ] ) ) continue;
+            $missing[] = [
+                'player_id'   => (int) $r->player_id,
+                'first_name'  => (string) $r->first_name,
+                'last_name'   => (string) $r->last_name,
+                'pdp_file_id' => $r->pdp_file_id !== null ? (int) $r->pdp_file_id : 0,
+            ];
+        }
+
+        return [
+            'window_start' => $window_start,
+            'window_end'   => $window_end,
+            'conducted'    => $conducted,
+            'planned'      => $planned,
+            'missing'      => $missing,
+        ];
     }
 
     private static function resolveCurrentSeason(): int {
