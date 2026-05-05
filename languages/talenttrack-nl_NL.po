@@ -12625,3 +12625,51 @@ msgstr "Team-chemie: ? / 5"
 
 msgid "Not enough evaluations to compute a fit score."
 msgstr "Nog niet genoeg evaluaties om een fit-score te berekenen."
+
+msgid "Start 30-day Pro trial"
+msgstr "Start 30-daagse Pro-trial"
+
+msgid "Unlocks every Pro-tier feature for 30 days — trial cases, scout access, team chemistry, radar charts, the lot. After 30 days you get 14 days of read-only grace; then the install drops back to Free."
+msgstr "Ontgrendelt 30 dagen lang elke Pro-tier-functie — proefspelers, scout-toegang, teamchemie, radar charts, de hele set. Na 30 dagen volgt 14 dagen alleen-lezen overgangstermijn; daarna valt de installatie terug naar Free."
+
+msgid "You do not have access to cohort transitions."
+msgstr "Je hebt geen toegang tot cohort-overgangen."
+
+msgid "Block detail requires a team, a block number, and a season. Click a cell on the planning matrix to drill in."
+msgstr "Blokdetail vereist een team, een bloknummer en een seizoen. Klik op een cel in de planningmatrix om in te zoomen."
+
+msgid "%1$s — Block %2$d"
+msgstr "%1$s — Blok %2$d"
+
+msgid "%1$s — PDP block %2$d"
+msgstr "%1$s — POP-blok %2$d"
+
+msgid "Window %1$s → %2$s."
+msgstr "Venster %1$s → %2$s."
+
+msgid "Conversation has a recorded conducted_at — the talk happened."
+msgstr "Het gesprek heeft een conducted_at — het heeft plaatsgevonden."
+
+msgid "Conversation is on the calendar (scheduled_at set) but no conducted_at yet."
+msgstr "Het gesprek staat in de agenda (scheduled_at gezet) maar heeft nog geen conducted_at."
+
+msgid "Active roster player with no conversation in this block. Open their PDP file to start one."
+msgstr "Actieve selectiespeler zonder gesprek in dit blok. Open hun POP-dossier om er één te starten."
+
+msgid "Planned"
+msgstr "Gepland"
+
+msgid "Missing"
+msgstr "Ontbrekend"
+
+msgid "None."
+msgstr "Geen."
+
+msgid " · conducted %s"
+msgstr " · gevoerd %s"
+
+msgid " · planned %s"
+msgstr " · gepland %s"
+
+msgid "How many conversations are planned in their window, and how many have a recorded result. Click a cell to drill into per-player status for that team × block."
+msgstr "Hoeveel gesprekken zijn gepland binnen hun venster, en hoeveel hebben een geregistreerd resultaat. Klik op een cel om in te zoomen op de status per speler voor dat team × blok."

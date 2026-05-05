@@ -22,9 +22,18 @@ use TT\Shared\Frontend\FrontendBackButton;
 class FrontendCohortTransitionsView {
 
     public static function render( int $user_id, bool $is_admin ): void {
-        if ( ! current_user_can( 'tt_view_settings' ) ) {
+        // v3.94.1 — gate now consults the matrix instead of the umbrella
+        // `tt_view_settings` cap. The seed grants `cohort_transitions:r:global`
+        // to head_of_development as well as academy_admin (see
+        // `config/authorization_seed.php`); the previous cap-only check
+        // ignored that grant and blocked HoD with a misleading
+        // "head-of-academy access" message even though HoD is exactly
+        // the persona this view is built for. The helper short-circuits
+        // on `tt_edit_settings` + WP administrator so legacy admins
+        // and matrix-dormant installs keep working.
+        if ( ! \TT\Infrastructure\Query\QueryHelpers::user_has_global_entity_read( $user_id, 'cohort_transitions' ) ) {
             FrontendBackButton::render();
-            echo '<p class="tt-notice">' . esc_html__( 'You need head-of-academy access to use cohort transitions.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to cohort transitions.', 'talenttrack' ) . '</p>';
             return;
         }
 

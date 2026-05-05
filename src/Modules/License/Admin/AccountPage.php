@@ -216,11 +216,11 @@ class AccountPage {
                     <?php wp_nonce_field( 'tt_license_start_trial', 'tt_license_nonce' ); ?>
                     <input type="hidden" name="action" value="tt_license_start_trial" />
                     <button type="submit" class="button button-primary button-hero">
-                        <?php esc_html_e( 'Start 30-day Standard trial', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'Start 30-day Pro trial', 'talenttrack' ); ?>
                     </button>
                 </form>
                 <p class="description" style="margin-top:6px;">
-                    <?php esc_html_e( 'Unlocks every Standard-tier feature for 30 days, then 14 days of read-only grace, then back to Free.', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Unlocks every Pro-tier feature for 30 days — trial cases, scout access, team chemistry, radar charts, the lot. After 30 days you get 14 days of read-only grace; then the install drops back to Free.', 'talenttrack' ); ?>
                 </p>
             <?php endif; ?>
 
@@ -504,7 +504,12 @@ class AccountPage {
     public static function handleStartTrial(): void {
         if ( ! current_user_can( self::CAP ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_license_start_trial', 'tt_license_nonce' );
-        TrialState::start( FeatureMap::TIER_STANDARD );
+        // v3.94.1 — trial unlocks Pro, not Standard. See TrialState::start
+        // for the rationale; in short: operators expected every Pro feature
+        // (trial cases, scout access, team chemistry) to be live during the
+        // trial window. Sticking with the per-method default keeps that
+        // intent explicit at the call site.
+        TrialState::start();
         do_action( 'tt_license_trial_started' );
         wp_safe_redirect( add_query_arg( [ 'page' => self::SLUG, 'tab' => self::TAB_ACCOUNT, 'tt_msg' => 'trial_started' ], admin_url( 'admin.php' ) ) );
         exit;
