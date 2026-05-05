@@ -12596,3 +12596,32 @@ msgstr "Competitiewedstrijd"
 
 msgid "Tournament"
 msgstr "Toernooi"
+msgid "No candidate for %s — roster is smaller than the formation needs."
+msgstr "Geen kandidaat voor %s — de selectie is kleiner dan deze formatie nodig heeft."
+
+msgid "%1$s suggested for %2$s based on roster only — not enough evaluations to compute a fit score yet."
+msgstr "%1$s voorgesteld voor %2$s alleen op basis van beschikbaarheid — nog niet genoeg evaluaties om een fit-score te berekenen."
+
+msgid "Not enough evaluations to compute team chemistry yet."
+msgstr "Nog niet genoeg evaluaties om team-chemie te berekenen."
+
+msgid "%1$d of %2$d players have at least one rated main category. Rate %3$d more players in any of technical / tactical / physical / mental to start seeing fit scores and a team composite."
+msgstr "%1$d van %2$d spelers heeft minimaal één gewaardeerde hoofdcategorie. Beoordeel nog %3$d spelers in technisch / tactisch / fysiek / mentaal om fit-scores en een team-totaal te zien."
+
+msgid "The pitch below shows the suggested XI based on whatever data is available — players with \"?\" need their first evaluation; slots showing \"—\" mean the roster is smaller than this formation needs."
+msgstr "Het veld hieronder toont de voorgestelde basiself op basis van de beschikbare data — spelers met \"?\" hebben hun eerste evaluatie nodig; slots met \"—\" betekenen dat de selectie kleiner is dan deze formatie vraagt."
+
+msgid "Switch to isometric view"
+msgstr "Wissel naar isometrische weergave"
+
+msgid "Switch to flat view"
+msgstr "Wissel naar platte weergave"
+
+msgid "Formation:"
+msgstr "Formatie:"
+
+msgid "Team chemistry: ? / 5"
+msgstr "Team-chemie: ? / 5"
+
+msgid "Not enough evaluations to compute a fit score."
+msgstr "Nog niet genoeg evaluaties om een fit-score te berekenen."
