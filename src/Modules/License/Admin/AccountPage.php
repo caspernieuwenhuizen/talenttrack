@@ -35,6 +35,9 @@ class AccountPage {
     /** Tab the read-only plan / caps / feature-matrix view lives on. */
     public const TAB_PLAN    = 'plan';
 
+    /** #0086 Workstream B Child 1 — multi-factor authentication. Open to every logged-in user (each user manages their own MFA). */
+    public const TAB_MFA     = 'mfa';
+
     public static function init(): void {
         add_action( 'admin_post_tt_license_start_trial', [ self::class, 'handleStartTrial' ] );
         add_action( 'admin_post_tt_license_reset_trial', [ self::class, 'handleResetTrial' ] );
@@ -69,19 +72,28 @@ class AccountPage {
 
         $is_operator = current_user_can( self::CAP );
         $requested   = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : '';
-        $tab         = $is_operator
-            ? ( $requested === self::TAB_PLAN ? self::TAB_PLAN : self::TAB_ACCOUNT )
-            : self::TAB_PLAN;
+
+        // MFA is the user-facing tab and open to every logged-in user
+        // (each user manages their own enrollment). Plan stays read-only
+        // for non-operators; Account stays operator-only.
+        $allowed = [ self::TAB_MFA, self::TAB_PLAN ];
+        if ( $is_operator ) $allowed[] = self::TAB_ACCOUNT;
+
+        if ( in_array( $requested, $allowed, true ) ) {
+            $tab = $requested;
+        } else {
+            $tab = $is_operator ? self::TAB_ACCOUNT : self::TAB_PLAN;
+        }
 
         echo '<div class="wrap">';
         echo '<h1>' . esc_html__( 'TalentTrack — Account', 'talenttrack' ) . '</h1>';
 
-        if ( $is_operator ) {
-            self::renderTabNav( $tab );
-        }
+        self::renderTabNav( $tab, $is_operator );
 
         if ( $tab === self::TAB_PLAN ) {
             self::renderPlanTab();
+        } elseif ( $tab === self::TAB_MFA ) {
+            self::renderMfaTab();
         } else {
             self::renderAccountTab();
         }
@@ -89,12 +101,14 @@ class AccountPage {
         echo '</div>';
     }
 
-    private static function renderTabNav( string $current ): void {
+    private static function renderTabNav( string $current, bool $is_operator ): void {
         $base = admin_url( 'admin.php?page=' . self::SLUG );
-        $tabs = [
-            self::TAB_ACCOUNT => __( 'Account',             'talenttrack' ),
-            self::TAB_PLAN    => __( 'Plan & restrictions', 'talenttrack' ),
-        ];
+        $tabs = [];
+        if ( $is_operator ) {
+            $tabs[ self::TAB_ACCOUNT ] = __( 'Account', 'talenttrack' );
+        }
+        $tabs[ self::TAB_PLAN ] = __( 'Plan & restrictions', 'talenttrack' );
+        $tabs[ self::TAB_MFA ]  = __( 'MFA',                 'talenttrack' );
         echo '<h2 class="nav-tab-wrapper">';
         foreach ( $tabs as $slug => $label ) {
             $url  = add_query_arg( 'tab', $slug, $base );
@@ -102,6 +116,85 @@ class AccountPage {
             echo '<a href="' . esc_url( $url ) . '" class="' . esc_attr( $cls ) . '">' . esc_html( $label ) . '</a>';
         }
         echo '</h2>';
+    }
+
+    /**
+     * #0086 Workstream B Child 1 — MFA tab.
+     *
+     * Sprint 1 (this ship — v3.98.2): status indicator only. Tells the
+     * user whether they're enrolled and surfaces a placeholder
+     * "enrollment ships in v3.98.3" link until Sprint 2 adds the
+     * 4-step wizard.
+     *
+     * Sprint 2 will add: "Enroll" button → 4-step wizard launch,
+     * "Regenerate backup codes" action, "Disable MFA" action with
+     * confirmation.
+     *
+     * Sprint 3 will add: per-club `require_mfa_for_personas` setting
+     * (operator-only sub-section), "remembered devices" list with
+     * revoke buttons, recent verification history.
+     */
+    private static function renderMfaTab(): void {
+        $user_id = get_current_user_id();
+        if ( $user_id <= 0 ) {
+            echo '<p>' . esc_html__( 'You must be logged in to manage your MFA settings.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $repo       = new \TT\Modules\Mfa\MfaSecretsRepository();
+        $row        = $repo->findByUserId( $user_id );
+        $is_enrolled = $row !== null && ! empty( $row['enrolled_at'] );
+        $unused_backup_count = $is_enrolled
+            ? \TT\Modules\Mfa\Domain\BackupCodesService::unusedCount( (array) ( $row['backup_codes'] ?? [] ) )
+            : 0;
+
+        ?>
+        <h2><?php esc_html_e( 'Two-factor authentication', 'talenttrack' ); ?></h2>
+        <p style="max-width:760px;">
+            <?php esc_html_e( 'A second factor at login — a 6-digit code from your authenticator app, plus 10 single-use backup codes for the case where you lose your device. Building it natively into TalentTrack means it travels into the future SaaS migration unchanged.', 'talenttrack' ); ?>
+        </p>
+
+        <?php if ( $is_enrolled ) : ?>
+            <div class="notice notice-success" style="padding:16px; max-width:760px;">
+                <p style="margin:0 0 8px;">
+                    <strong><?php esc_html_e( 'You are enrolled in MFA.', 'talenttrack' ); ?></strong>
+                </p>
+                <p style="margin:0; color:#5b6e75;">
+                    <?php
+                    /* translators: 1: number of unused backup codes left, 2: total number of backup codes generated */
+                    printf(
+                        esc_html__( 'Backup codes remaining: %1$d of %2$d. When you run low, regenerate via the action below (action ships in v3.98.3).', 'talenttrack' ),
+                        (int) $unused_backup_count,
+                        (int) \TT\Modules\Mfa\Domain\BackupCodesService::CODE_COUNT
+                    );
+                    ?>
+                </p>
+            </div>
+        <?php else : ?>
+            <div class="notice notice-info" style="padding:16px; max-width:760px;">
+                <p style="margin:0 0 8px;">
+                    <strong><?php esc_html_e( 'You are not yet enrolled in MFA.', 'talenttrack' ); ?></strong>
+                </p>
+                <p style="margin:0; color:#5b6e75;">
+                    <?php esc_html_e( 'Enrollment is a 4-step wizard (intro, scan QR, verify a first code, save backup codes). The wizard ships in v3.98.3 — until then this tab is informational only.', 'talenttrack' ); ?>
+                </p>
+            </div>
+        <?php endif; ?>
+
+        <h3 style="margin-top:32px;"><?php esc_html_e( 'What is coming', 'talenttrack' ); ?></h3>
+        <ul style="max-width:760px; padding-left:20px;">
+            <li><?php esc_html_e( '4-step enrollment wizard (intro → secret + QR code → first-code verification → backup codes display) — ships in v3.98.3.', 'talenttrack' ); ?></li>
+            <li><?php esc_html_e( 'Per-club enforcement: operators can require MFA for academy-admin and head-of-development personas, optionally for any other persona — ships in v3.98.4.', 'talenttrack' ); ?></li>
+            <li><?php esc_html_e( 'Optional 30-day "remember this device" cookie after a successful verification — ships in v3.98.4.', 'talenttrack' ); ?></li>
+            <li><?php esc_html_e( 'Rate limiting: 5 verification attempts per 5 minutes, then a 15-minute lockout — ships in v3.98.4.', 'talenttrack' ); ?></li>
+            <li><?php esc_html_e( 'Audit-log integration: every enrollment, verification, lockout, and backup-code use is recorded — ships in v3.98.4.', 'talenttrack' ); ?></li>
+        </ul>
+        <p style="max-width:760px; margin-top:24px;">
+            <a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=tt-docs&topic=security-operator-guide' ) ); ?>">
+                <?php esc_html_e( 'Read the security operator guide', 'talenttrack' ); ?>
+            </a>
+        </p>
+        <?php
     }
 
     private static function renderAccountTab(): void {

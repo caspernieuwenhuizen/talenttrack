@@ -48,4 +48,9 @@ return [
     // #0081 — Onboarding pipeline. Child 1 (this version) ships the
     // entity + retention cron only; child 2 wires the workflow templates.
     TT\Modules\Prospects\ProspectsModule::class                  => true,
+    // #0086 Workstream B Child 1 — TalentTrack-native MFA.
+    // Sprint 1 (v3.98.2) ships migration + domain services + repository
+    // + Account-page status tab. Sprint 2 ships the 4-step enrollment
+    // wizard. Sprint 3 ships the `authenticate`-filter login integration.
+    TT\Modules\Mfa\MfaModule::class                              => true,
 ];

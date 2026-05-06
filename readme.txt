@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.100.0
+Stable tag: 3.100.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.100.1 — MFA foundation (#0086 Workstream B Child 1, sprint 1 of 3) =
+
+First of three sprints for the TalentTrack-native MFA implementation. **No user-facing change yet** — sprint 1 lays the data layer + domain services + Account-page status indicator so sprints 2 and 3 (enrollment wizard + login integration) can build on a stable foundation. **(1) Migration `0073_user_mfa`** introduces `tt_user_mfa`: encrypted TOTP secret, hashed backup codes, remembered devices JSON, enrollment + verification timestamps, rate-limit counters (`failed_attempts` + `locked_until` consumed by sprint 3). Tenancy column `club_id` + `uuid` per CLAUDE.md §4 SaaS-readiness rule. **(2) `Modules\Mfa\Domain\TotpService`** — pure RFC 6238 TOTP generation + verification (HMAC-SHA1, 30-second step, ±1-step tolerance window for clock skew), constant-time comparison via `hash_equals`, base32 encode/decode for the otpauth:// URI consumed by authenticator-app QR codes. **(3) `Modules\Mfa\Domain\BackupCodesService`** — generate 10 single-use recovery codes (`XXXX-XXXX-XXXX` format using a no-ambiguity alphabet that excludes I/O/0/1), hash via `wp_hash_password` (bcrypt), verify with `wp_check_password` and constant-time iteration over the storage array. **(4) `Modules\Mfa\MfaSecretsRepository`** — CRUD on `tt_user_mfa`, encryption + JSON parsing handled inside the repository. Secret stored under `CredentialEncryption` (AES-256-GCM via `wp_salt('auth')`, same threat model as Spond credentials). **(5) `MfaModule`** registered in `config/modules.php`. **(6) Account-page MFA tab** at `?page=tt-account&tab=mfa` — status indicator (enrolled / not enrolled), backup codes remaining when enrolled, a roadmap section. Tab is open to every logged-in user. 16 new NL msgids. **What's NOT in this sprint**: 4-step enrollment wizard (sprint 2), `authenticate`-filter login integration (sprint 3), per-club enforcement (sprint 3), rate-limited verification (sprint 3), 30-day "remember device" cookie (sprint 3), audit-log integration (sprint 3). Renumbered v3.98.2 → v3.100.1 mid-rebase after parallel-agent ships of v3.99.0 / v3.100.0 (Team Blueprint Phase 2 + Onboarding pipeline closure) landed in succession.
 
 = 3.100.0 — Team Blueprint Phase 2: squad-plan flavour, tiers, trial overlay, heatmap (#0068) =
 
