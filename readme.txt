@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.98.0
+Stable tag: 3.98.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.98.1 — Security and privacy documentation (#0086 Workstream A) =
+
+Closes #0086 Workstream A — the documentation half of the May 2026 security-and-privacy retrospective. Five customer- and operator-facing artifacts now live in the repo: two operator guides under `docs/` (EN + NL twins) and three public-facing trust documents under `marketing/security/` (the public security page sourced for `talenttrack.app/security`, the public privacy policy sourced for `talenttrack.app/privacy`, and a draft Data Processing Agreement template pending legal review). **No code change** — pure docs PR. Engineering work for #0086 (TalentTrack-native MFA, session management UI, login-fail tracking, optional admin IP allowlist + the annual external audit) is Workstream B and C; ships in subsequent releases. **(1) `docs/security-operator-guide.md`** + Dutch twin — Academy Admin's day-one + annual-review checklist (limit administrator accounts, MFA recommendations until TalentTrack-native MFA ships, audit-log review cadence, suspected-breach response, forward-references the future `require_mfa_for_personas` enforcement). **(2) `docs/privacy-operator-guide.md`** + Dutch twin — GDPR-facing how-to (controller/processor split, manual subject-access procedure with pointer to #0063 use case 10, manual erasure procedure with pointer to the future erasure-pipeline spec, retention defaults table, the player-notes #0085 GDPR subtlety, privacy lifecycle of joining/leaving a player). **(3) `marketing/security/security-page.md`** — source for `talenttrack.app/security` (data location, encryption commitments, audit cadence, breach-notification flow, sub-processor list, roadmap commitments). **(4) `marketing/security/privacy-policy.md`** — source for `talenttrack.app/privacy` (two-role split, Articles 15-22 GDPR rights with response routing, retention, sub-processors, international transfers). **(5) `marketing/security/dpa-template.md`** — draft Data Processing Agreement, EU-standard 14-Article structure + 3 Annexes, **pending legal review** before execution. **(6) `marketing/security/README.md`** indexes the directory and documents update cadence. **(7) `docs/access-control.md`** + Dutch twin gain a cross-reference paragraph. Per the locked decisions in #0086 (v3.95.1 lock): build TalentTrack-native MFA (Q1 — SaaS-port-blocking); GDPR splits to #0063 + future spec (Q2); no column-level encryption (Q3); standard DPA template (Q4); middle-level audit transparency (Q5); TalentTrack-branded public pages with MediaManiacs as legal entity in DPA (Q6). Renumbered v3.97.2 → v3.98.1 mid-rebase after parallel-agent ships of #0088 (PDE collision/reflow) and #0068 Phase 1 (Team Blueprint drag-drop) took the v3.97.2 / v3.98.0 slots.
 
 = 3.98.0 — Team Blueprint Phase 1: drag-drop lineups with live chemistry (#0068) =
 

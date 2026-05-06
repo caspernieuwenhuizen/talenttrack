@@ -101,3 +101,12 @@ Via **Toegangsbeheer → Rollen** (of het bewerkpaneel per persoon) heeft elke t
 Een klik op Intrekken opent een bevestigingsvenster binnen de app (niet de standaard browserprompt) — bevestig met de rode **Intrekken**-knop, annuleer via **Annuleren**, een klik op de achtergrond of de Escape-toets. Na bevestiging wordt de toewijzing verwijderd en kom je terug op dezelfde pagina met een succesmelding.
 
 Hetzelfde bevestigingspatroon wordt overal gebruikt waar een destructieve actie om je akkoord vraagt (een doel verwijderen vanaf het dashboard, een evaluatiecategorie verwijderen, enz.).
+
+## Operator-handleidingen voor beveiliging en privacy
+
+Twee cap-en-matrix-aanpalende operator-handleidingen zijn in v3.97.2 (#0086 Workstream A) gepubliceerd:
+
+- [Beveiliging — handleiding voor de academy admin](?page=tt-docs&topic=security-operator-guide) — de dag-één- + jaarlijkse-checklist voor de Academy Admin: administrator-accounts inperken, MFA-aanbevelingen, audit-log doornemen, vermoede inbraak afhandelen, toekomstige `require_mfa_for_personas`-handhaving.
+- [Privacy — handleiding voor de academy admin](?page=tt-docs&topic=privacy-operator-guide) — de AVG-georiënteerde how-to: inzage-verzoeken, recht-op-vergetelheid-verzoeken (handmatig tot de formele wis-pijplijn er is), retentie-vensters per datacategorie, de privacy-levenscyclus van een speler die toetreedt en vertrekt.
+
+De publieke trust-artefacten (security-pagina, privacybeleid, DPA-template) staan op `talenttrack.app/security` en `talenttrack.app/privacy`; de bron staat ter bewerking in `marketing/security/`.

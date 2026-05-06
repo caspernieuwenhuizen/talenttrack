@@ -1,100 +1,70 @@
-# TalentTrack v3.98.0 — Team Blueprint Phase 1: drag-drop lineups with live chemistry (#0068)
+# TalentTrack v3.98.1 — Security and privacy documentation (#0086 Workstream A)
 
-The follow-up to the v3.96.0 chemistry-line ship. Coaches can now build, save, share, and lock match-day lineups on a draggable pitch — with the same FIFA-Ultimate-Team-style chemistry lines updating live on every drop.
+Closes #0086 Workstream A — the documentation half of the May 2026 security-and-privacy retrospective. Five customer- and operator-facing artifacts now live in the repo: two operator guides under `docs/` (EN + NL twins) and three public-facing trust documents under `marketing/security/` (the public security page sourced for `talenttrack.app/security`, the public privacy policy sourced for `talenttrack.app/privacy`, and a draft Data Processing Agreement template pending legal review).
 
-Phase 1 ships the **match-day** flavour only. Squad-plan flavour, trial overlay, and a heatmap view land in Phase 2; comments via Threads in Phase 3.
+**No code change.** Pure docs PR. Engineering work for #0086 (TalentTrack-native MFA, session management UI, login-fail tracking, optional admin IP allowlist + the annual external audit) is Workstream B and C; ships in subsequent releases.
 
-## What's new for coaches
+Renumbered v3.97.2 → v3.98.1 mid-rebase after parallel-agent ships of #0088 (PDE collision/reflow) and #0068 Phase 1 (Team Blueprint drag-drop) took the v3.97.2 / v3.98.0 slots.
 
-A new tile **Team blueprint** appears in the Performance group on the dashboard, right next to Team chemistry. Click it, pick a team, and you land on a list of saved blueprints for that team. *+ New blueprint* opens a two-step wizard (pick team + formation + name → review → create) and drops you on the editor.
+## Locked decisions baked in
 
-The editor is the centrepiece:
+These six product decisions were locked in v3.95.1 (#0086 spec lock) and inform every artifact in this PR:
 
-- **Roster sidebar** on the left lists every active player on the team. Each is a draggable chip.
-- **Pitch in the middle** shows the formation slots. Drag a chip onto a slot — the player is saved, the chemistry score recomputes, and the green/amber/red lines update.
-- **Move a player** by dragging from one slot to another, or drop a chip back onto the roster sidebar to remove from the lineup.
-- **Live Link chemistry** headline above the pitch updates after every drop. Same 0–100 math as the chemistry view (`sum(pair_scores) / (scored_pairs × 3) × 100`).
-- **Status flow** — draft (private) → shared (visible to staff) → locked (read-only). One *Reopen* click on a locked blueprint sends it back to shared so changes can be made.
+1. **MFA — build TalentTrack-native** (not a WP-plugin recommendation). SaaS-port-blocking decision. Documented as roadmap commitment on the public security page; until it ships, the operator security guide recommends a vetted WP plugin (`Two Factor` or `Wordfence Login Security`).
+2. **GDPR splits out** — subject-access export ships in #0063 (Export module) use case 10; right-to-be-forgotten erasure becomes its own future spec gating on #0083 (Reporting framework's fact registry). The operator privacy guide forward-references both with current manual procedures until they ship.
+3. **No column-level encryption** in v1. The public security page documents the host's at-rest encryption commitment instead.
+4. **DPA — standard template** with no per-customer negotiation. Documented as such in the privacy policy and the DPA template's preamble.
+5. **Audit transparency — middle level**. Annual external audit by Securify or Computest, summary findings published on `talenttrack.app/security` within one month of report receipt, full report under NDA on request. Both the public page and the DPA Annex 3 commit to this.
+6. **Brand — TalentTrack-branded** trust pages on `talenttrack.app/security` and `talenttrack.app/privacy`. The legal entity in the DPA is MediaManiacs.
 
-When a blueprint is locked, drag-drop is disabled and the assignment endpoints reject writes with HTTP 409. Reopen reverts to shared.
+## What landed
 
-## Schema
+### `docs/security-operator-guide.md` + Dutch twin
 
-Migration **0070** adds two tables:
+Day-one + annual-review checklist for the Academy Admin. Five day-one configuration steps. MFA recommendations (vetted WP plugin until TalentTrack-native MFA ships). Audit-log review patterns. Impersonation as the operator's lens. Suspected-breach response (lock account, take backup, check audit log, contact MediaManiacs, reset adjacent accounts; GDPR 72-hour breach-notification clock). Backups as a security layer. Annual checklist (7 items).
 
-```sql
-tt_team_blueprints (
-    id, club_id, uuid, team_id, name, flavour, formation_template_id,
-    status, notes, created_by, created_at, updated_by, updated_at
-)
+### `docs/privacy-operator-guide.md` + Dutch twin
 
-tt_team_blueprint_assignments (
-    id, club_id, blueprint_id, slot_label, player_id, assignment_notes, updated_at
-    UNIQUE (blueprint_id, slot_label)
-)
-```
+GDPR-facing how-to. Controller / processor split. Personal data inventory per category. Three day-one privacy steps. Subject-access requests — 5-step manual procedure today; pointer to #0063 use case 10 for the future single-click flow. Erasure requests — 5-step manual procedure today; pointer to the future erasure-pipeline spec. Retention defaults table. The player-notes (#0085) GDPR subtlety. Privacy lifecycle of a player joining and leaving. Annual privacy checklist (6 items).
 
-The unique on `(blueprint_id, slot_label)` enforces single-occupant slots. Empty slots are simply absent from the assignments table — no `player_id IS NULL` rows. `flavour` defaults to `match_day`; the column exists now to avoid a Phase-2 migration when squad-plan lands. SaaS-readiness scaffold (`club_id`, `uuid`) per CLAUDE.md §4 included on both tables.
+### `marketing/security/security-page.md`
 
-## REST contract
+Source for `talenttrack.app/security`. Where data lives, encryption commitments, who can access customer data, audit trail, roadmap commitments (#0086 Workstream B items 1-3 within 6 months), annual external audit cadence + summary-findings publication commitment, breach-notification flow, sub-processor list, DPA pointer + bug-bounty stance.
 
-| Method | Path | Cap | Notes |
-| --- | --- | --- | --- |
-| `GET`    | `/teams/{id}/blueprints`         | view   | List for one team, ordered by `updated_at DESC`. |
-| `POST`   | `/teams/{id}/blueprints`         | manage | Create (name + formation_template_id required). Lands in `draft` status with empty assignments. |
-| `GET`    | `/blueprints/{id}`               | view   | Returns blueprint meta + slots (from formation template) + assignments map + recomputed `blueprint_chemistry`. |
-| `PUT`    | `/blueprints/{id}`               | manage | Update meta fields (`name`, `formation_template_id`, `notes`). Rejects with 409 if locked. |
-| `DELETE` | `/blueprints/{id}`               | manage | Hard-delete blueprint + assignments. |
-| `PUT`    | `/blueprints/{id}/assignment`    | manage | Set / unset one slot. Body: `{ slot_label, player_id? }`. Returns recomputed `blueprint_chemistry`. |
-| `PUT`    | `/blueprints/{id}/assignments`   | manage | Bulk replace. Body: `{ assignments: { LB: 12, RB: 7, ... } }`. |
-| `PUT`    | `/blueprints/{id}/status`        | manage | Body: `{ status: 'draft'|'shared'|'locked' }`. |
+### `marketing/security/privacy-policy.md`
 
-The chemistry payload returned by `GET /blueprints/{id}` and the per-drop `PUT /blueprints/{id}/assignment` is the same `BlueprintChemistryEngine::computeForLineup()` shape introduced in v3.96.0, so any consumer that already reads `blueprint_chemistry` from `GET /teams/{id}/chemistry` works against blueprints unchanged.
+Source for `talenttrack.app/privacy`. Two-role structure (MediaManiacs as website controller; academies as install controllers with MediaManiacs as their processor under DPA). Lawful basis. Data subject rights with response routing. Retention. Sub-processors. International transfers. Cookies. Children. Change-management commitment.
 
-## Frontend architecture
+### `marketing/security/dpa-template.md`
 
-- New view class `FrontendTeamBlueprintsView` under `src/Modules/TeamDevelopment/Frontend/`. Three render branches: team picker, per-team list, editor.
-- New tile registered via `CoreSurfaceRegistration` (slug `team-blueprints`, entity `team_chemistry_panel` — reusing the chemistry-panel matrix entity rather than minting a new one, since blueprint visibility follows the same scoping).
-- New wizard `NewTeamBlueprintWizard` registered in `WizardsModule` per CLAUDE.md §3 (record-creation wizard rule).
-- Drag-drop is pure vanilla JS in `assets/js/frontend-team-blueprint.js` (~120 LOC). HTML5 `dragstart` / `dragover` / `drop`. Each drop sends a single `PUT /blueprints/{id}/assignment` and reloads the page from the server response — no client-side diff'ing of slot state.
-- CSS in `assets/css/frontend-team-blueprint.css`. Mobile-first per CLAUDE.md §2: stacks at <768px (roster on top, pitch below), side-by-side ≥768px. Touch targets ≥48px. No hover-only functionality.
+**Draft pending legal review.** Standard EU DPA structure, 14 Articles + 3 Annexes. Annotated as draft pending legal review throughout.
 
-## Cap / matrix entity reuse
+### Cross-references
 
-Blueprints use the existing `tt_view_team_chemistry` (read) and `tt_manage_team_chemistry` (manage) caps. Same matrix entity `team_chemistry_panel` for tile visibility. **No seed migration needed** — every persona that already sees the chemistry tile can see the blueprint tile, and every persona that can manage chemistry pairings can manage blueprints. Per `feedback_seed_changes_need_topup_migration.md`, this is the simpler outcome.
+- `docs/access-control.md` + Dutch twin gain a new section pointing at the two operator guides and the `marketing/security/` directory.
+- `marketing/security/README.md` indexes the directory and documents update cadence.
 
-If we later want to split visibility (e.g. blueprints visible to assistant coaches who shouldn't see the chemistry composite), we mint a new `team_blueprint_panel` entity with a top-up migration. Not warranted for Phase 1.
+## Affected files
 
-## License gate
+- `docs/security-operator-guide.md` — new.
+- `docs/nl_NL/security-operator-guide.md` — new (NL twin).
+- `docs/privacy-operator-guide.md` — new.
+- `docs/nl_NL/privacy-operator-guide.md` — new (NL twin).
+- `marketing/security/security-page.md` — new.
+- `marketing/security/privacy-policy.md` — new.
+- `marketing/security/dpa-template.md` — new (draft pending legal review).
+- `marketing/security/README.md` — new (directory index + update cadence).
+- `docs/access-control.md` + `docs/nl_NL/access-control.md` — cross-reference paragraph added.
+- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
 
-Same `team_chemistry` Pro-tier feature flag as the chemistry view. Free tier sees `UpgradeNudge::inline()` in place of the editor. Standard / trial / Pro all light up.
+## Translations
 
-## What didn't change
+The two operator guides ship in EN + NL. The three public-facing artifacts ship in EN only for now.
 
-- The chemistry view (`?tt_view=team-chemistry`) is untouched. Coaches who navigated by the auto-suggested XI continue to do so; blueprints are a parallel surface for *coach-authored* lineups.
-- `BlueprintChemistryEngine` shipped in v3.96.0 is consumed unchanged. The engine is pure-function `(team_id, slots, lineup)` → chemistry payload — exactly what was promised when it landed.
-- No drag-drop on the chemistry view itself. That surface stays auto-suggested by design.
+## What's NOT in this PR
 
-## What's not in this PR
-
-- **Squad-plan flavour** — the second blueprint type (multi-tier position fits, primary/secondary/tertiary, used for next-season planning). Phase 2.
-- **Trial overlay** — visualising trial players on a squad-plan blueprint with a distinct chip. Phase 2 (locked decision: only trials assigned to this team are eligible).
-- **Comments** — discussing a blueprint with staff via the Threads module. Phase 3.
-- **Mobile drag-drop polish** — HTML5 drag-and-drop on touch devices works but is awkward; a long-press-to-pick-up fallback is Phase 4.
-- **Share-link** — public URL for parents / external coaches. Phase 4.
-
-## Files touched
-
-- `database/migrations/0070_team_blueprints.php` (new)
-- `src/Modules/TeamDevelopment/Repositories/TeamBlueprintsRepository.php` (new)
-- `src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php` (new)
-- `src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php` (extended — 7 new endpoints + handlers)
-- `src/Modules/Wizards/TeamBlueprint/{NewTeamBlueprintWizard,SetupStep,ReviewStep}.php` (new)
-- `src/Modules/Wizards/WizardsModule.php` (register new wizard)
-- `src/Shared/Frontend/DashboardShortcode.php` (`team-blueprints` slug + dispatch)
-- `src/Shared/CoreSurfaceRegistration.php` (Team blueprint tile)
-- `assets/css/frontend-team-blueprint.css` (new)
-- `assets/js/frontend-team-blueprint.js` (new)
-- `languages/talenttrack-nl_NL.po` (40 new msgids)
-- `docs/team-blueprint.md` + `docs/nl_NL/team-blueprint.md` (new)
-- `talenttrack.php` + `readme.txt` + `SEQUENCE.md` (3.97.0 → 3.98.0)
+- Engineering work for #0086 Workstream B (MFA, session UI, login-fail, IP allowlist) — separate PRs.
+- Engineering work for #0086 Workstream C (external audit) — kicks off after Workstream B Children 1-3 ship.
+- Translation of the three public-facing artifacts to Dutch — out of scope.
+- Legal review of the DPA — out-of-band activity; the draft is annotated as such throughout.
+- Actual publication of the public files to `talenttrack.app` — operator-side activity once the source files are in the repo.
