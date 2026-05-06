@@ -8,6 +8,7 @@ use TT\Core\ModuleInterface;
 use TT\Modules\Analytics\Domain\DateTimeColumn;
 use TT\Modules\Analytics\Domain\Dimension;
 use TT\Modules\Analytics\Domain\Fact;
+use TT\Modules\Analytics\Domain\Kpi;
 use TT\Modules\Analytics\Domain\Measure;
 
 /**
@@ -36,6 +37,7 @@ class AnalyticsModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         self::registerInitialFacts();
+        self::registerInitialKpis();
     }
 
     /**
@@ -199,6 +201,111 @@ class AnalyticsModule implements ModuleInterface {
             ],
             timeColumn:  new DateTimeColumn( 'a.start_at', 'tt_activities a', 'activity_id' ),
             entityScope: 'activity',
+        ) );
+    }
+
+    /**
+     * #0083 Child 2 — initial fact-driven KPI set.
+     *
+     * Six reference KPIs that exercise the platform end-to-end against
+     * the fact registry. Bulk migration of the 26 legacy KPIs in
+     * `Modules\PersonaDashboard\Kpis\` to fact-driven `Kpi`
+     * declarations is a follow-up — they keep working unchanged
+     * through the legacy `KpiDataSourceRegistry`, resolved via
+     * `KpiResolver::value()`'s back-compat fallback.
+     *
+     * The 55 new KPIs from the spec (15 player + 15 team + 10 activity
+     * + 10 season + 5 scout) ship in successive follow-ups. Six is
+     * enough to validate the platform without forcing a sprint of
+     * KPI authoring inside Child 2.
+     */
+    private static function registerInitialKpis(): void {
+        // Player-scoped: attendance percentage over the last 30 days.
+        KpiRegistry::register( new Kpi(
+            key:               'fact_player_attendance_pct_30d',
+            label:             __( 'Attendance % (30 days)', 'talenttrack' ),
+            factKey:           'attendance',
+            measureKey:        'attendance_pct',
+            defaultFilters:    [ 'date_after' => '-30 days' ],
+            primaryDimension:  'month',
+            exploreDimensions: [ 'team_id', 'player_id', 'activity_type' ],
+            context:           Kpi::CONTEXT_COACH,
+            goalDirection:     Kpi::GOAL_HIGHER_BETTER,
+            threshold:         70.0,
+            entityScope:       'player',
+        ) );
+
+        // Player-scoped: evaluation count over the last 30 days.
+        KpiRegistry::register( new Kpi(
+            key:               'fact_player_evaluations_count_30d',
+            label:             __( 'Evaluations received (30 days)', 'talenttrack' ),
+            factKey:           'evaluations',
+            measureKey:        'count',
+            defaultFilters:    [ 'date_after' => '-30 days' ],
+            primaryDimension:  'month',
+            exploreDimensions: [ 'evaluator_id', 'team_id', 'player_id' ],
+            context:           Kpi::CONTEXT_COACH,
+            goalDirection:     Kpi::GOAL_HIGHER_BETTER,
+            entityScope:       'player',
+        ) );
+
+        // Player-scoped: goal completion rate.
+        KpiRegistry::register( new Kpi(
+            key:               'fact_player_goal_completion_rate',
+            label:             __( 'Goal completion rate', 'talenttrack' ),
+            factKey:           'goals',
+            measureKey:        'completion_rate',
+            defaultFilters:    [],
+            primaryDimension:  'month',
+            exploreDimensions: [ 'player_id', 'priority' ],
+            context:           Kpi::CONTEXT_COACH,
+            goalDirection:     Kpi::GOAL_HIGHER_BETTER,
+            threshold:         50.0,
+            entityScope:       'player',
+        ) );
+
+        // Activity-scoped: count of activities per team over the season.
+        KpiRegistry::register( new Kpi(
+            key:               'fact_activity_count_30d',
+            label:             __( 'Activities (30 days)', 'talenttrack' ),
+            factKey:           'activities',
+            measureKey:        'count',
+            defaultFilters:    [ 'date_after' => '-30 days' ],
+            primaryDimension:  'month',
+            exploreDimensions: [ 'team_id', 'activity_type' ],
+            context:           Kpi::CONTEXT_ACADEMY,
+            goalDirection:     Kpi::GOAL_HIGHER_BETTER,
+            entityScope:       'activity',
+        ) );
+
+        // Academy-wide: prospects logged this season.
+        KpiRegistry::register( new Kpi(
+            key:               'fact_academy_prospects_logged_30d',
+            label:             __( 'Prospects logged (30 days)', 'talenttrack' ),
+            factKey:           'prospects',
+            measureKey:        'count',
+            defaultFilters:    [ 'date_after' => '-30 days' ],
+            primaryDimension:  'month',
+            exploreDimensions: [ 'discovered_by_user_id' ],
+            context:           Kpi::CONTEXT_ACADEMY,
+            goalDirection:     Kpi::GOAL_HIGHER_BETTER,
+            entityScope:       null,
+        ) );
+
+        // Player-parent-facing: their child's goal completion (no
+        // sensitive fields exposed; same data, different audience).
+        KpiRegistry::register( new Kpi(
+            key:               'fact_my_player_goal_completion_rate',
+            label:             __( 'My goal completion', 'talenttrack' ),
+            factKey:           'goals',
+            measureKey:        'completion_rate',
+            defaultFilters:    [],
+            primaryDimension:  'month',
+            exploreDimensions: [],
+            context:           Kpi::CONTEXT_PLAYER_PARENT,
+            goalDirection:     Kpi::GOAL_HIGHER_BETTER,
+            threshold:         50.0,
+            entityScope:       'player',
         ) );
     }
 }

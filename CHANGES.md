@@ -1,83 +1,77 @@
-# TalentTrack v3.104.1 — Analytics fact registry + query engine (#0083 Child 1)
+# TalentTrack v3.104.2 — Analytics KPI platform: registry + resolver + 6 reference KPIs (#0083 Child 2)
 
-First child of #0083 (Reporting framework). Builds the data-layer foundation the rest of the epic stands on: every analytical question goes through one engine. No bespoke aggregation SQL outside the framework from now on.
+Second child of #0083 (Reporting framework). Builds the second layer on top of Child 1's fact registry: declarative `Kpi` value objects + `KpiRegistry` + a single `KpiResolver` that bridges new fact-driven KPIs and the legacy `Modules\PersonaDashboard\Registry\KpiDataSourceRegistry`. The 26 existing KPIs keep working unchanged via the resolver's back-compat fallback; bulk migration to fact-driven declarations lands in a follow-up.
 
 ## What landed
 
-### Value objects
+### `Modules\Analytics\Domain\Kpi` value object
 
-- **`Modules\Analytics\Domain\Fact`** — a row that something happened (an evaluation, an attendance record, a journey event). Cataloguing of the underlying tt_* table plus dimensions and measures.
-- **`Domain\Dimension`** — a column you can group by or filter on. Four types: `foreign_key`, `lookup`, `enum`, `date_range`.
-- **`Domain\Measure`** — a column you can aggregate. Five aggregation kinds: `count`, `avg`, `sum`, `min`, `max`. Optional `unit` + `format` for display.
-- **`Domain\DateTimeColumn`** — the timeline anchor. Some facts time-stamp themselves (`evaluations.created_at`); others need a join (`attendance.activity_id` → `tt_activities.start_at`).
+Declarative replacement for the existing 26 `Modules\PersonaDashboard\Kpis\*` classes that each carry inline aggregation SQL.
 
-### `FactRegistry`
+Properties:
+- `key`, `label`, `factKey`, `measureKey`
+- `defaultFilters` — `array<string,mixed>` applied at every resolve
+- `primaryDimension` — for the time-series chart on drilldown (Child 3)
+- `exploreDimensions` — list of dimension keys surfaced as filter chips
+- `context` — `ACADEMY` / `COACH` / `PLAYER_PARENT` for persona gating
+- `goalDirection` — `higher_better` / `lower_better` for explorer flagging
+- `threshold` — value below/above which the KPI flags red
+- `entityScope` — `'player'` / `'team'` / `'activity'` / null
 
-Append-only catalogue keyed by fact key. Same shape as `WidgetRegistry` / `KpiDataSourceRegistry`. Methods:
-- `register($fact)` — idempotent, last write wins.
-- `find($key)` — single fact lookup.
-- `all()` — wholesale dump for diagnostics + the upcoming static-analysis test.
-- `forEntity($scope)` — facts with `entityScope === $scope`. Used by `KpiRegistry::forEntity()` in Child 2 to scope KPIs to per-entity views.
+### `KpiRegistry`
 
-### `FactQuery::run( $factKey, $dimensionKeys, $measureKeys, $filters )`
+Append-only catalogue. Mirrors `FactRegistry` and `WidgetRegistry` shapes:
+- `register($kpi)`
+- `find($key)`
+- `all()`
+- `byContext($context)`
+- `forEntity($scope)` — used by Child 4's per-entity Analytics tab
 
-The engine every KPI and explorer hits.
+### `KpiResolver`
 
-- **Single SQL statement.** SELECT measures + grouped-by dimensions, FROM fact table aliased as `f`, optional LEFT JOIN to the time-column's joined table, WHERE club + filter clauses, GROUP BY dimensions, LIMIT 5000.
-- **Tenancy auto-injected** via `CurrentClub::id()`. Cross-club aggregation is deliberately impossible from this API — adding it later requires a separate method with an explicit cap check, not a parameter override.
-- **60-second result cache** via `wp_cache_*` group `tt_analytics`. Cache key is an MD5 of the parameter set + current club id.
-- **Filter operator vocabulary**: `<dim_key>_eq` / `_in` / `_not_eq` / `_not_in`, plus special-cased `date_after` / `date_before` against the fact's declared time column. Future operators (range, like, etc.) extend the vocabulary; today's surface is intentionally minimal.
-- **SQL-injection prevention.** Every value is parameterised through `$wpdb->prepare()` — `%d` for ints, `%f` for floats, `%s` otherwise. Identifier names (table, column, alias) are author-controlled at registration time and never derived from user input. The aggregation function passes through a hard whitelist (`COUNT` / `AVG` / `SUM` / `MIN` / `MAX`).
+Single resolution path. Methods:
+- `value($key, $extraFilters)` — returns the headline number as `float|null`. Looks up `KpiRegistry::find()` first; if the new KPI exists, runs `FactQuery::run($factKey, [], [$measureKey], $defaultFilters + $extraFilters)`. If the key isn't in the new registry, falls back to the legacy `KpiDataSourceRegistry::get()` and calls its `compute()` method, coercing the legacy `KpiValue` to a float.
+- `exists($key)` — true when either registry resolves the key.
 
-### 8 initial fact registrations
+The fallback is the migration bridge. The 26 legacy KPIs keep working unchanged through this resolver. As each KPI gets migrated to a fact-driven `Kpi` declaration, callers don't need to change — the resolver picks up the new registration first.
 
-In `AnalyticsModule::boot()` per spec §`feat-fact-registry`:
+### 6 reference KPIs in `AnalyticsModule::boot()`
 
-| Fact key | Underlying table | Entity scope |
-|---|---|---|
-| `attendance` | `tt_attendance` (joined to `tt_activities`) | player |
-| `activities` | `tt_activities` | activity |
-| `evaluations` | `tt_evaluations` | player |
-| `goals` | `tt_goals` | player |
-| `trial_decisions` | `tt_trial_cases` | player |
-| `prospects` | `tt_prospects` | player |
-| `journey_events` | `tt_player_events` | player |
-| `evaluations_per_session` | `tt_evaluations` (joined to `tt_activities`) | activity |
+End-to-end smoke test for the platform against the fact registry:
 
-Centralised in `AnalyticsModule::boot()` for Child 1 sequencing simplicity. A follow-up moves each into its owning module's `boot()` (Activities → attendance + activities; Evaluations → evaluations + evaluations_per_session; Goals → goals; Trials → trial_decisions; Prospects → prospects; Journey → journey_events).
+| Key | Fact | Measure | Context | Entity scope |
+|---|---|---|---|---|
+| `fact_player_attendance_pct_30d` | attendance | attendance_pct | COACH | player |
+| `fact_player_evaluations_count_30d` | evaluations | count | COACH | player |
+| `fact_player_goal_completion_rate` | goals | completion_rate | COACH | player |
+| `fact_activity_count_30d` | activities | count | ACADEMY | activity |
+| `fact_academy_prospects_logged_30d` | prospects | count | ACADEMY | (none) |
+| `fact_my_player_goal_completion_rate` | goals | completion_rate | PLAYER_PARENT | player |
 
-### Module registration
-
-`AnalyticsModule` registered in `config/modules.php`.
+Six is enough to validate the platform without forcing a 26-KPI migration sprint inside this PR. Bulk migration + the remaining 49 of the spec's "top 15 per entity" set (15 player + 15 team + 10 activity + 10 season + 5 scout) ships in successive follow-ups.
 
 ## What's NOT in this PR
 
-- **`KpiRegistry` + new `Kpi` value object** (Child 2) — migrates the 26 existing KPIs + ships 55 new ones.
-- **`?tt_view=explore` dimension explorer** (Child 3) — `desktop_only` per #0084.
-- **Entity Analytics tab** on player/team/activity profiles (Child 4).
-- **Central analytics surface** at `?tt_view=analytics` (Child 5) — new `analytics` matrix entity + `tt_view_analytics` cap.
-- **Export + scheduled reports** (Child 6) — CSV / XLSX / PDF export, `tt_scheduled_reports` table, daily cron.
-
-## Risk callouts
-
-- **Fact-registry discipline.** A future module that adds a player-related table without registering loses analytics coverage silently. The static-analysis test for "every `tt_*` table with a `player_id` / `team_id` FK is registered (or explicitly opted out via comment)" is part of Child 2's definition of done — it ships next, not here.
+- **Bulk migration of the 26 legacy KPIs** to fact-driven declarations — follow-up. Until then they keep working through the resolver's back-compat fallback.
+- **The 55 new KPIs from the spec's "top 15 per entity"** — 6 ship here as reference; 49 to go, follow-up.
+- **Static-analysis test** for "every `tt_*` table with a `player_id` / `team_id` FK is registered as a fact" — follow-up (introduced when the bulk migration starts so it doesn't fire on the partial state).
+- **`?tt_view=explore` dimension explorer** (Child 3, `desktop_only` per #0084).
+- **Entity Analytics tab** (Child 4).
+- **Central analytics surface** + `analytics` matrix entity + `tt_view_analytics` cap (Child 5).
+- **Export + scheduled reports** (Child 6).
 
 ## Affected files
 
-- `src/Modules/Analytics/Domain/Fact.php` — new.
-- `src/Modules/Analytics/Domain/Dimension.php` — new.
-- `src/Modules/Analytics/Domain/Measure.php` — new.
-- `src/Modules/Analytics/Domain/DateTimeColumn.php` — new.
-- `src/Modules/Analytics/FactRegistry.php` — new.
-- `src/Modules/Analytics/FactQuery.php` — new.
-- `src/Modules/Analytics/AnalyticsModule.php` — new (module shell + 8 fact registrations).
-- `config/modules.php` — register `AnalyticsModule`.
+- `src/Modules/Analytics/Domain/Kpi.php` — new.
+- `src/Modules/Analytics/KpiRegistry.php` — new.
+- `src/Modules/Analytics/KpiResolver.php` — new.
+- `src/Modules/Analytics/AnalyticsModule.php` — `registerInitialKpis()` adds the 6 reference KPIs.
 - `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
 
 ## Translations
 
-Zero new translatable strings — every label inside the fact registrations is already wrapped in `__()` and gets surfaced when the explorer (Child 3) and KPI surfaces (Child 2 onward) render them.
+Zero new translatable strings — labels inside KPI registrations are wrapped in `__()` and surface via Children 3-5 UIs.
 
 ## Player-centricity
 
-Every fact registers an `entityScope` that names the entity it belongs to (player / team / activity). When Child 2's `KpiRegistry::forEntity('player', $playerId)` lands, the analytics tab on a player profile (Child 4) automatically pulls the right KPIs. The fact registry isn't analytics-for-analytics-sake — it's the catalogue that makes "show me how Lucas is doing" answerable from any surface that already has Lucas in front of the user.
+The `entityScope` field on every KPI is what makes per-entity analytics tabs (Child 4) automatic. When a coach lands on a player's profile, the platform pulls every `entityScope: 'player'` KPI without per-template wiring. The catalogue does the work; the UI just renders. Same for team and activity profiles. The KPI registry isn't analytics-for-analytics-sake — it's the indexing layer that makes "show me how Lucas is doing" answerable from any surface that already has Lucas in front of the user.

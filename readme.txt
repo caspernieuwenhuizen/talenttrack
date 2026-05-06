@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.104.1
+Stable tag: 3.104.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.104.2 — Analytics KPI platform: registry + resolver + 6 reference KPIs (#0083 Child 2) =
+
+Second child of #0083. Builds the second layer on top of Child 1's fact registry: declarative `Kpi` value objects + `KpiRegistry` + a single `KpiResolver` that bridges new fact-driven KPIs and the legacy `Modules\PersonaDashboard\Registry\KpiDataSourceRegistry`. The 26 existing KPIs keep working unchanged via the resolver's back-compat fallback; bulk migration to fact-driven declarations lands in a follow-up. **(1) `Modules\Analytics\Domain\Kpi`** value object — `factKey` + `measureKey` + `defaultFilters` + `primaryDimension` + `exploreDimensions` + `context` (`ACADEMY` / `COACH` / `PLAYER_PARENT`) + `goalDirection` (`higher_better` / `lower_better`) + `threshold` + `entityScope`. Replaces the bespoke `compute()` SQL on each existing KPI class. **(2) `KpiRegistry`** — append-only catalogue (mirrors `FactRegistry`); `register` / `find` / `all` / `byContext` / `forEntity`. **(3) `KpiResolver::value($key, $extraFilters)`** — single resolution path. Looks up the new registry first; falls back to the legacy `KpiDataSourceRegistry` when the key is unknown. The legacy 26 KPIs keep working via the fallback path until the bulk-migration follow-up rewrites them as `Kpi` declarations. **(4) Initial 6 reference KPIs** in `AnalyticsModule::boot()`: `fact_player_attendance_pct_30d` / `fact_player_evaluations_count_30d` / `fact_player_goal_completion_rate` / `fact_activity_count_30d` / `fact_academy_prospects_logged_30d` / `fact_my_player_goal_completion_rate`. Six is enough to validate the platform end-to-end against the fact registry without forcing a 26-KPI migration sprint inside Child 2. **What's NOT in this PR**: bulk migration of the 26 legacy KPIs to fact-driven declarations (follow-up); the 55 new KPIs from the spec's "top 15 per entity" set (follow-up — 6 of the 55 ship here as reference, 49 to go); static-analysis test for "every player/team-FK table is registered as a fact" (follow-up); `?tt_view=explore` dimension explorer (Child 3, `desktop_only` per #0084); entity Analytics tab (Child 4); central analytics surface + `analytics` matrix entity + `tt_view_analytics` cap (Child 5); export + scheduled reports (Child 6). Zero new translatable strings — labels inside KPI registrations are wrapped in `__()` and surface via Children 3-5.
 
 = 3.104.1 — Analytics fact registry + query engine (#0083 Child 1) =
 
