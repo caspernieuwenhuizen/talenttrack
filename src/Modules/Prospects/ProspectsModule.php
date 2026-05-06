@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Prospects\Cron\ProspectRetentionCron;
+use TT\Modules\Prospects\Rest\ParentConfirmationController;
 use TT\Modules\Prospects\Rest\ProspectsRestController;
 
 /**
@@ -35,5 +36,6 @@ class ProspectsModule implements ModuleInterface {
     public function boot( Container $container ): void {
         ProspectRetentionCron::init();
         ProspectsRestController::init();
+        ParentConfirmationController::init();
     }
 }

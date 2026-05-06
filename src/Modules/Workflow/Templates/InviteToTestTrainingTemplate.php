@@ -3,9 +3,11 @@ namespace TT\Modules\Workflow\Templates;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Workflow\Chain\ChainStep;
 use TT\Modules\Workflow\Contracts\AssigneeResolver;
 use TT\Modules\Workflow\Forms\InviteToTestTrainingForm;
 use TT\Modules\Workflow\Resolvers\RoleBasedResolver;
+use TT\Modules\Workflow\TaskContext;
 use TT\Modules\Workflow\TaskTemplate;
 
 /**
@@ -27,11 +29,8 @@ use TT\Modules\Workflow\TaskTemplate;
  *
  * Required cap: `tt_invite_prospects` (HoD, Admin per matrix scoping).
  *
- * Chain step: PR 2b adds the spawn of `ConfirmTestTrainingTemplate`
- * once that template ships. For now the chain ends here — completing
- * this task closes the inbox loop without a spawn, which is the
- * correct behaviour while the parent-confirmation surface doesn't
- * exist yet.
+ * Chain step: spawns `ConfirmTestTrainingTemplate` to track the
+ * parent confirmation while the test training is upcoming.
  */
 class InviteToTestTrainingTemplate extends TaskTemplate {
 
@@ -65,5 +64,23 @@ class InviteToTestTrainingTemplate extends TaskTemplate {
 
     public function entityLinks(): array {
         return [ 'prospect_id' ];
+    }
+
+    public function chainSteps(): array {
+        return [
+            new ChainStep(
+                'await_parent_confirmation',
+                ConfirmTestTrainingTemplate::KEY,
+                null,
+                static function ( array $task, array $response ): TaskContext {
+                    return new TaskContext(
+                        null, null, null, null, null, null,
+                        (int) ( $task['id'] ?? 0 ),
+                        (int) ( $task['prospect_id'] ?? 0 )
+                    );
+                },
+                'HoD tracks the parent confirmation'
+            ),
+        ];
     }
 }

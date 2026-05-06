@@ -12831,6 +12831,188 @@ msgstr "Je moet ingelogd zijn om een prospect vast te leggen."
 msgid "Could not start the prospect-logging chain. Check the workflow templates are enabled."
 msgstr "Kan de prospect-vastlegketen niet starten. Controleer of de workflowsjablonen aanstaan."
 
+# v3.98.0 — #0081 children 2b + 3 + 4 (chain templates 3-5 + pipeline widget + KPIs + trial-cases rework)
+
+# Templates + descriptions
+msgid "Confirm test-training attendance"
+msgstr "Aanwezigheid proeftraining bevestigen"
+
+msgid "Track the parent confirmation for an invited prospect — confirmed, declined, or no response."
+msgstr "Volg de bevestiging van de ouder voor een uitgenodigde prospect — bevestigd, afgewezen of geen reactie."
+
+msgid "Record test-training outcome"
+msgstr "Uitkomst proeftraining vastleggen"
+
+msgid "Record observations and the admit / decline / second-attendance decision after the prospect attended a test training."
+msgstr "Leg observaties vast en de keuze toelaten / afwijzen / tweede proeftraining na deelname van de prospect."
+
+msgid "Review trial-group membership"
+msgstr "Lidmaatschap trialgroep beoordelen"
+
+msgid "Decide whether to offer the prospect a team position, continue in the trial group, or decline. Re-spawns every 90 days while the trial case is in continue-in-trial-group state."
+msgstr "Beslis of je de prospect een teamplaats aanbiedt, doorgaat in de trialgroep of afwijst. Wordt elke 90 dagen opnieuw gepland zolang de trial in 'doorgaan in trialgroep' staat."
+
+msgid "Team-offer decision pending"
+msgstr "Beslissing teamaanbod openstaand"
+
+msgid "Waiting for the parent + player to accept or decline the team-offer position. Record the response when it arrives."
+msgstr "Wacht op acceptatie of afwijzing van het teamaanbod door ouder + speler. Leg de reactie vast zodra deze binnenkomt."
+
+# ConfirmTestTrainingForm
+msgid "Record the parent response to the invitation."
+msgstr "Leg de reactie van de ouder op de uitnodiging vast."
+
+msgid "Confirmed (parent agreed to attend)"
+msgstr "Bevestigd (ouder gaat akkoord met deelname)"
+
+msgid "Declined (parent withdrew)"
+msgstr "Afgewezen (ouder trok terug)"
+
+msgid "No response — mark no-show"
+msgstr "Geen reactie — markeer als no-show"
+
+msgid "Pick one outcome."
+msgstr "Kies één uitkomst."
+
+# RecordTestTrainingOutcomeForm
+msgid "Coach observations"
+msgstr "Observaties van de coach"
+
+msgid "Recommendation"
+msgstr "Aanbeveling"
+
+msgid "Admit to trial group"
+msgstr "Toelaten tot trialgroep"
+
+msgid "Decline (with encouragement letter)"
+msgstr "Afwijzen (met aanmoedigingsbrief)"
+
+msgid "Invite to a second test training"
+msgstr "Uitnodigen voor een tweede proeftraining"
+
+msgid "Pick one recommendation."
+msgstr "Kies één aanbeveling."
+
+# ReviewTrialGroupMembershipForm
+msgid "Review the trial-group player and decide the next step."
+msgstr "Beoordeel de trialgroep-speler en bepaal de volgende stap."
+
+msgid "Offer a team position"
+msgstr "Teamplaats aanbieden"
+
+msgid "Continue in trial group (re-review in 90 days)"
+msgstr "Doorgaan in trialgroep (opnieuw beoordelen over 90 dagen)"
+
+msgid "Rationale"
+msgstr "Onderbouwing"
+
+msgid "Pick one decision."
+msgstr "Kies één beslissing."
+
+# AwaitTeamOfferDecisionForm
+msgid "Record the parent + player response to the team-offer."
+msgstr "Leg de reactie van ouder + speler op het teamaanbod vast."
+
+msgid "Accepted — promote to academy team"
+msgstr "Geaccepteerd — bevorderen naar academieteam"
+
+msgid "Declined — family chose not to take the offer"
+msgstr "Afgewezen — gezin koos ervoor het aanbod niet te accepteren"
+
+msgid "No response — close the case for now"
+msgstr "Geen reactie — sluit het dossier voorlopig"
+
+# TrialGroupTeam
+msgid "Trial group %s"
+msgstr "Trialgroep %s"
+
+# OnboardingPipelineWidget
+msgid "Onboarding pipeline"
+msgstr "Instroompijplijn"
+
+msgid "Invited"
+msgstr "Uitgenodigd"
+
+msgid "Test training"
+msgstr "Proeftraining"
+
+msgid "Trial group"
+msgstr "Trialgroep"
+
+msgid "Team offer"
+msgstr "Teamaanbod"
+
+msgid "Joined"
+msgstr "Aangesloten"
+
+msgid "stale"
+msgstr "vastgelopen"
+
+msgid "%d stale"
+msgid_plural "%d stale"
+msgstr[0] "%d vastgelopen"
+msgstr[1] "%d vastgelopen"
+
+# Standalone view
+msgid "You do not have access to the onboarding pipeline."
+msgstr "Je hebt geen toegang tot de instroompijplijn."
+
+msgid "+ New prospect"
+msgstr "+ Nieuwe prospect"
+
+# Tile registration
+msgid "Six-stage funnel from scout-logged prospect through team-offer acceptance. HoD + Scout + Academy Admin only."
+msgstr "Trechter in zes stappen van door een scout vastgelegde prospect tot acceptatie van het teamaanbod. Alleen HoO + Scout + Academy Admin."
+
+# KPI labels
+msgid "Active prospects"
+msgstr "Actieve prospects"
+
+msgid "Prospects this month"
+msgstr "Prospects deze maand"
+
+msgid "Stale prospects"
+msgstr "Vastgelopen prospects"
+
+msgid "Upcoming test trainings"
+msgstr "Aankomende proeftrainingen"
+
+msgid "Players in trial group"
+msgstr "Spelers in trialgroep"
+
+msgid "Trial decisions pending"
+msgstr "Trialbeslissingen openstaand"
+
+msgid "Team offers awaiting response"
+msgstr "Openstaande teamaanboden"
+
+msgid "Prospects promoted (12 months)"
+msgstr "Doorstroming prospects (12 maanden)"
+
+msgid "My active prospects"
+msgstr "Mijn actieve prospects"
+
+msgid "My successful scoutings"
+msgstr "Mijn succesvolle scoutings"
+
+# ParentConfirmationController errors
+msgid "This confirmation link is invalid."
+msgstr "Deze bevestigingslink is ongeldig."
+
+msgid "This confirmation link does not specify a valid outcome."
+msgstr "Deze bevestigingslink bevat geen geldige uitkomst."
+
+msgid "This confirmation link points at a task that no longer exists."
+msgstr "Deze bevestigingslink verwijst naar een taak die niet meer bestaat."
+
+msgid "This confirmation link does not match a parent-confirmation task."
+msgstr "Deze bevestigingslink hoort niet bij een ouderbevestigingstaak."
+
+msgid "This confirmation link is no longer valid."
+msgstr "Deze bevestigingslink is niet meer geldig."
+
+msgid "Could not record your response. Please try again."
+msgstr "Kon je reactie niet vastleggen. Probeer het opnieuw."
 # v3.97.1 — #0085 player notes
 
 msgid "Notes — %s"

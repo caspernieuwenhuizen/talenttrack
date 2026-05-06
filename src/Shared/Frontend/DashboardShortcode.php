@@ -461,6 +461,10 @@ class DashboardShortcode {
             case 'workflow-config':
                 \TT\Modules\Workflow\Frontend\FrontendWorkflowConfigView::render( $user_id );
                 break;
+            // #0081 child 3 — standalone pipeline view.
+            case 'onboarding-pipeline':
+                \TT\Modules\Prospects\Frontend\FrontendOnboardingPipelineView::render( $user_id );
+                break;
             default:
                 FrontendBackButton::render();
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';

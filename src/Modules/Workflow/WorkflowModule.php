@@ -13,6 +13,8 @@ use TT\Modules\Workflow\Notifications\TaskMailer;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
 use TT\Modules\Workflow\Repositories\TriggersRepository;
+use TT\Modules\Workflow\Templates\AwaitTeamOfferDecisionTemplate;
+use TT\Modules\Workflow\Templates\ConfirmTestTrainingTemplate;
 use TT\Modules\Workflow\Templates\GoalApprovalTemplate;
 use TT\Modules\Workflow\Templates\InviteToTestTrainingTemplate;
 use TT\Modules\Workflow\Templates\LogProspectTemplate;
@@ -20,6 +22,8 @@ use TT\Modules\Workflow\Templates\PlayerSelfEvaluationTemplate;
 use TT\Modules\Workflow\Templates\PostGameEvaluationTemplate;
 use TT\Modules\Workflow\Templates\QuarterlyGoalSettingTemplate;
 use TT\Modules\Workflow\Templates\QuarterlyHoDReviewTemplate;
+use TT\Modules\Workflow\Templates\RecordTestTrainingOutcomeTemplate;
+use TT\Modules\Workflow\Templates\ReviewTrialGroupMembershipTemplate;
 
 /**
  * WorkflowModule (#0022 Sprint 1) — workflow & tasks engine.
@@ -84,12 +88,17 @@ class WorkflowModule implements ModuleInterface {
         $registry->register( new QuarterlyGoalSettingTemplate() );
         $registry->register( new GoalApprovalTemplate() );
         $registry->register( new QuarterlyHoDReviewTemplate() );
-        // #0081 child 2 — onboarding-pipeline templates (links 1+2 of 5).
-        // Links 3-5 (ConfirmTestTraining / RecordTestTrainingOutcome /
-        // ReviewTrialGroupMembership) ship in PR 2b alongside the
-        // public parent-confirmation REST endpoint.
+        // #0081 child 2 — onboarding-pipeline chain (5 templates).
+        // PR 2a shipped LogProspect + InviteToTestTraining; this PR
+        // (children 2b + 3 + 4 bundled) closes the chain with three
+        // more workflow templates plus the trial-cases-rework
+        // AwaitTeamOfferDecision link.
         $registry->register( new LogProspectTemplate() );
         $registry->register( new InviteToTestTrainingTemplate() );
+        $registry->register( new ConfirmTestTrainingTemplate() );
+        $registry->register( new RecordTestTrainingOutcomeTemplate() );
+        $registry->register( new ReviewTrialGroupMembershipTemplate() );
+        $registry->register( new AwaitTeamOfferDecisionTemplate() );
     }
 
     /**

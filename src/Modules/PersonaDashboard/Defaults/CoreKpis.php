@@ -43,5 +43,17 @@ final class CoreKpis {
         KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\MyEvaluationsReceived() );
         KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\MyPdpConversationsDone() );
         KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\MyNextMilestone() );
+
+        // #0081 child 3 — onboarding-pipeline KPIs (8 academy + 2 coach).
+        KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\ProspectsActiveTotal() );
+        KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\ProspectsLoggedThisMonth() );
+        KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\ProspectsStaleCount() );
+        KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\TestTrainingsUpcoming() );
+        KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\TrialGroupActiveCount() );
+        KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\TrialDecisionsPending() );
+        KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\TeamOffersPendingResponse() );
+        KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\ProspectsPromotedThisSeason() );
+        KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\MyProspectsActive() );
+        KpiDataSourceRegistry::register( new \TT\Modules\PersonaDashboard\Kpis\MyProspectsPromoted() );
     }
 }

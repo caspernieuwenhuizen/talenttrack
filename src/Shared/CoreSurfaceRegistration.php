@@ -53,6 +53,7 @@ final class CoreSurfaceRegistration {
     private const M_TEAMDEV       = 'TT\\Modules\\TeamDevelopment\\TeamDevelopmentModule';
     private const M_TEAMS         = 'TT\\Modules\\Teams\\TeamsModule';
     private const M_TRIALS        = 'TT\\Modules\\Trials\\TrialsModule';
+    private const M_PROSPECTS     = 'TT\\Modules\\Prospects\\ProspectsModule';
     private const M_STAFF_DEV     = 'TT\\Modules\\StaffDevelopment\\StaffDevelopmentModule';
     private const M_WIZARDS       = 'TT\\Modules\\Wizards\\WizardsModule';
     private const M_WORKFLOW      = 'TT\\Modules\\Workflow\\WorkflowModule';
@@ -86,6 +87,8 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'docs',               self::M_DOCUMENTATION );
         TileRegistry::registerSlugOwnership( 'wizard',             self::M_WIZARDS );
         TileRegistry::registerSlugOwnership( 'wizards-admin',      self::M_WIZARDS );
+        // #0081 child 3 — standalone onboarding-pipeline view.
+        TileRegistry::registerSlugOwnership( 'onboarding-pipeline', self::M_PROSPECTS );
         // `accept-invite` and `audit-log` are intentionally absent —
         // the first must keep working for not-yet-registered
         // recipients, the second is infrastructure (no module owner).
@@ -503,6 +506,22 @@ final class CoreSurfaceRegistration {
             'icon'         => 'track',
             'color'        => '#c9962a',
             'cap'          => 'tt_view_trial_synthesis',
+        ]);
+        // #0081 child 3 — Onboarding pipeline standalone view tile.
+        // Sits in the Trials group adjacent to the existing trials tile;
+        // the funnel feeds the trials backlog so they belong together.
+        TileRegistry::register([
+            'module_class' => self::M_PROSPECTS,
+            'view_slug'    => 'onboarding-pipeline',
+            'entity'       => 'prospects',
+            'group'        => $trials_group,
+            'kind'         => 'work',
+            'order'        => 5,
+            'label'        => __( 'Onboarding pipeline', 'talenttrack' ),
+            'description'  => __( 'Six-stage funnel from scout-logged prospect through team-offer acceptance. HoD + Scout + Academy Admin only.', 'talenttrack' ),
+            'icon'         => 'kanban',
+            'color'        => '#2271b1',
+            'cap'          => 'tt_view_prospects',
         ]);
         TileRegistry::register([
             'module_class' => self::M_TRIALS,
