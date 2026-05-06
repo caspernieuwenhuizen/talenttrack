@@ -31,8 +31,16 @@ class FrontendTeammateView extends FrontendViewBase {
         }
 
         $viewer_team_id = isset( $viewer->team_id ) ? (int) $viewer->team_id : 0;
+        $viewer_user_id = isset( $viewer->wp_user_id ) ? (int) $viewer->wp_user_id : (int) get_current_user_id();
         $mate = QueryHelpers::get_player( $teammate_id );
-        if ( ! $mate || (int) $mate->team_id !== $viewer_team_id || $viewer_team_id <= 0 ) {
+        // A player clicking their own rate card always lands on their
+        // own teammate view — even if a team-scope mismatch would
+        // otherwise produce a "not on your team" message. Without this
+        // self-bypass, a player who is between teams (or whose team
+        // is the trial-group pseudo-team) gets a confusing 403 when
+        // tapping their own FIFA card.
+        $is_self = $mate && (int) ( $mate->wp_user_id ?? 0 ) === $viewer_user_id && $viewer_user_id > 0;
+        if ( ! $mate || ( ! $is_self && ( (int) $mate->team_id !== $viewer_team_id || $viewer_team_id <= 0 ) ) ) {
             echo '<p>' . esc_html__( 'This player is not on your team.', 'talenttrack' ) . '</p>';
             return;
         }

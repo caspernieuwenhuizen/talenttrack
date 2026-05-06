@@ -308,7 +308,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         $preselected_person = isset( $_GET['person_id'] ) ? absint( $_GET['person_id'] ) : 0;
 
         ?>
-        <form id="tt-fnrole-assignment-form" class="tt-ajax-form" data-rest-path="functional-roles/assignments" data-rest-method="POST">
+        <form id="tt-fnrole-assignment-form" class="tt-ajax-form" data-rest-path="functional-roles/assignments" data-rest-method="POST" data-redirect-after-save="list">
             <div class="tt-grid tt-grid-2">
                 <?php echo TeamPickerComponent::render( [
                     'name'     => 'team_id',

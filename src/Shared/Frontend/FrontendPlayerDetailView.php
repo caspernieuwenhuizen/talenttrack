@@ -152,7 +152,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     case 'evaluations': self::renderEvaluationsTab( $player_id ); break;
                     case 'activities':  self::renderActivitiesTab( $player_id, $player ); break;
                     case 'pdp':         self::renderPdpTab( $player_id ); break;
-                    case 'trials':      self::renderTrialsTab( $player_id ); break;
+                    case 'trials':      self::renderTrialsTab( $player_id, $player ); break;
                     case 'notes':       self::renderNotesTab( $player_id, $user_id ); break;
                     case 'analytics':
                         // #0083 Child 4 — Analytics tab. Renders KPI grid
@@ -554,7 +554,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     }
 
     /** Trials tab — every trial case the player has been part of. */
-    private static function renderTrialsTab( int $player_id ): void {
+    private static function renderTrialsTab( int $player_id, $player = null ): void {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, status, start_date, end_date FROM {$wpdb->prefix}tt_trial_cases
@@ -563,17 +563,28 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $player_id
         ) );
         if ( empty( $rows ) ) {
-            EmptyStateCard::render( [
+            // The "Open trial case" CTA only makes sense for players
+            // whose current status is `trial`. For active / contracted /
+            // released players it's a dead-end — they don't take trial
+            // cases. Drop the CTA in those cases and just explain that
+            // there's no trial history.
+            $is_trial_player = $player && isset( $player->status ) && (string) $player->status === 'trial';
+            $card = [
                 'icon'      => 'trials',
                 'headline'  => __( 'No trial history for this player', 'talenttrack' ),
-                'explainer' => __( 'A trial case tracks the prospect from first training through to the academy decision. Open one when you want to evaluate this player formally.', 'talenttrack' ),
-                'cta_label' => __( 'Open trial case', 'talenttrack' ),
-                'cta_url'   => add_query_arg(
+                'explainer' => $is_trial_player
+                    ? __( 'A trial case tracks the prospect from first training through to the academy decision. Open one when you want to evaluate this player formally.', 'talenttrack' )
+                    : __( 'This player is not currently on trial, so there is no trial history to show.', 'talenttrack' ),
+            ];
+            if ( $is_trial_player ) {
+                $card['cta_label'] = __( 'Open trial case', 'talenttrack' );
+                $card['cta_url']   = add_query_arg(
                     [ 'tt_view' => 'trials', 'action' => 'new', 'player_id' => $player_id ],
                     RecordLink::dashboardUrl()
-                ),
-                'cta_cap'   => 'tt_manage_trials',
-            ] );
+                );
+                $card['cta_cap']   = 'tt_manage_trials';
+            }
+            EmptyStateCard::render( $card );
             return;
         }
         echo '<ul class="tt-stack">';

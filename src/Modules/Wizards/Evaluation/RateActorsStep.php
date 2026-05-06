@@ -139,8 +139,13 @@ final class RateActorsStep implements WizardStepInterface {
     public function submit( array $state ) { return null; }
 
     /**
-     * Players present/late on the activity, falling back to the team's
-     * full active roster if no attendance was recorded.
+     * Players present/late on the activity. The previous fallback to
+     * the team's full roster (when no attendance was recorded) is
+     * gone — the user surfaced that as confusing: a coach who skipped
+     * the attendance step would see the entire roster as rateable,
+     * misrepresenting who actually participated. Without the fallback
+     * the rate step refuses to start until someone has been marked
+     * present/late on the activity.
      *
      * @return list<object>
      */
@@ -154,7 +159,7 @@ final class RateActorsStep implements WizardStepInterface {
         ) );
         if ( $team_id <= 0 ) return [];
 
-        $with_att = $wpdb->get_results( $wpdb->prepare(
+        return (array) $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.id, pl.first_name, pl.last_name
                FROM {$p}tt_attendance att
                INNER JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.club_id = att.club_id
@@ -162,14 +167,6 @@ final class RateActorsStep implements WizardStepInterface {
                 AND att.status IN ( 'present', 'late' )
               ORDER BY pl.last_name, pl.first_name",
             $activity_id, CurrentClub::id()
-        ) );
-        if ( ! empty( $with_att ) ) return (array) $with_att;
-
-        return (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, first_name, last_name FROM {$p}tt_players
-              WHERE team_id = %d AND club_id = %d AND archived_at IS NULL
-              ORDER BY last_name, first_name",
-            $team_id, CurrentClub::id()
         ) );
     }
 }
