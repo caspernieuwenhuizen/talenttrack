@@ -60,4 +60,6 @@ return [
     // Subsequent #0083 children build on top: KPI platform, dimension
     // explorer, entity-tab + central analytics surfaces, scheduled reports.
     TT\Modules\Analytics\AnalyticsModule::class                  => true,
+    // #0063 — Export module (foundation: registry + CSV/JSON/iCal renderers + REST).
+    TT\Modules\Export\ExportModule::class                        => true,
 ];
