@@ -218,6 +218,8 @@ return array_merge(
         'podium_panel'               => [ 'r',   'team',   $mod_stats ],
         'team_chemistry_panel'       => [ 'r',   'team',   $mod_team_dev ],
         'pdp_panel'                  => [ 'r',   'team',   $mod_pdp ],
+        // #0085 — player notes (staff-only running log on the player file).
+        'player_notes'               => [ 'rc',  'team',   $mod_threads ],
     ] ),
 
     // ─── HEAD COACH ─────────────────────────────────────────────────
@@ -288,6 +290,8 @@ return array_merge(
         'podium_panel'               => [ 'r',   'team',   $mod_stats ],
         'team_chemistry_panel'       => [ 'r',   'team',   $mod_team_dev ],
         'pdp_panel'                  => [ 'r',   'team',   $mod_pdp ],
+        // #0085 — player notes (staff-only running log on the player file).
+        'player_notes'               => [ 'rc',  'team',   $mod_threads ],
     ] ),
 
     // ─── TEAM MANAGER ───────────────────────────────────────────────
@@ -338,6 +342,8 @@ return array_merge(
         'podium_panel'               => [ 'r',   'team',   $mod_stats ],
         'team_chemistry_panel'       => [ 'r',   'team',   $mod_team_dev ],
         'pdp_panel'                  => [ 'r',   'team',   $mod_pdp ],
+        // #0085 — player notes (staff-only running log on the player file).
+        'player_notes'               => [ 'rc',  'team',   $mod_threads ],
     ] ),
 
     // ─── SCOUT ──────────────────────────────────────────────────────
@@ -385,6 +391,9 @@ return array_merge(
         // see the upcoming session their prospect was invited to.
         'prospects'                  => [ 'rcd', 'self',   $mod_prospects ],
         'test_trainings'             => [ 'r',   'global', $mod_prospects ],
+        // #0085 — scouts write notes about players they observe across
+        // the academy (cross-team scouting workflow), so RC[global].
+        'player_notes'               => [ 'rc',  'global', $mod_threads ],
     ] ),
 
     // ─── HEAD OF DEVELOPMENT (post-#0071 narrowing) ─────────────────
@@ -511,6 +520,8 @@ return array_merge(
         'podium_panel'                  => [ 'r',   'global', $mod_stats ],
         'team_chemistry_panel'          => [ 'r',   'global', $mod_team_dev ],
         'pdp_panel'                     => [ 'r',   'global', $mod_pdp ],
+        // #0085 — HoD reads + writes + deletes notes across the academy.
+        'player_notes'                  => [ 'rcd', 'global', $mod_threads ],
     ] ),
 
     // ─── ACADEMY ADMIN ──────────────────────────────────────────────
@@ -626,5 +637,7 @@ return array_merge(
         // #0081 — Onboarding pipeline. Admin RCD global; same as HoD.
         'prospects'                     => [ 'rcd', 'global', $mod_prospects ],
         'test_trainings'                => [ 'rcd', 'global', $mod_prospects ],
+        // #0085 — Admin reads + writes + deletes notes across the academy.
+        'player_notes'                  => [ 'rcd', 'global', $mod_threads ],
     ] )
 );

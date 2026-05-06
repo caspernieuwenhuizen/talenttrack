@@ -170,6 +170,11 @@ final class LegacyCapMapper {
         // grant globally; Scout has only R on test_trainings (cannot
         // invite).
         'tt_invite_prospects'            => [ 'test_trainings',        'change' ],
+
+        // #0085 — player notes (staff-only running log on the player file).
+        'tt_view_player_notes'           => [ 'player_notes',          'read' ],
+        'tt_edit_player_notes'           => [ 'player_notes',          'change' ],
+        'tt_manage_player_notes'         => [ 'player_notes',          'create_delete' ],
     ];
 
     public static function isKnown( string $cap ): bool {

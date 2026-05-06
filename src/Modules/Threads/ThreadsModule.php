@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Threads\Adapters\GoalThreadAdapter;
+use TT\Modules\Threads\Adapters\PlayerThreadAdapter;
 use TT\Modules\Threads\Rest\ThreadsRestController;
 
 /**
@@ -35,6 +36,9 @@ class ThreadsModule implements ModuleInterface {
     public function boot( Container $container ): void {
         // v1 — register the goal adapter from this module itself.
         ThreadTypeRegistry::register( 'goal', new GoalThreadAdapter() );
+        // #0085 — second registered thread type. Anchors a thread on
+        // a player record for staff-only running observations.
+        ThreadTypeRegistry::register( 'player', new PlayerThreadAdapter() );
 
         ThreadsRestController::init();
         Subscribers\GoalSystemMessageSubscriber::init();
