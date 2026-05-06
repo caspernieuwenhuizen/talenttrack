@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.94.1
+Stable tag: 3.95.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.95.0 — Onboarding pipeline child 1: prospects entity + PlayerDataMap registry (#0081) =
+
+First of four child PRs for the #0081 onboarding-pipeline epic. Lays the data layer + GDPR scaffold; no user-facing UI yet (workflow templates land in child 2). **(1) `tt_prospects` table** carries identity, scouting context, and parent contact across the recruitment chain. Deliberate omission: no `status` column — the prospect's current stage is derived from their most recent workflow task on the chain (avoids dual-state-machine drift). The only lifecycle column is `archived_at` for terminal outcomes. **(2) `tt_test_trainings` table** holds the scheduled session a prospect is invited to; many-to-many to prospects routes through workflow tasks (`TaskContext` carrying `test_training_id`) once child 2 ships, not a join table. **(3) Two new matrix entities** seeded: `prospects` (HoD/Admin RCD global, Scout RCD self, Head coach R team), `test_trainings` (HoD/Admin RCD global, Head coach R team, Scout R global). Migration `0067_authorization_seed_topup_0081` backfills both into existing installs (`feedback_seed_changes_need_topup_migration.md`). Six new caps bridged in `LegacyCapMapper`: `tt_view_prospects`/`tt_edit_prospects`/`tt_manage_prospects` and the same triplet for `test_trainings`. **(4) Daily retention cron** `tt_prospects_retention_cron` purges prospects whose `created_at` is older than 90 days with no promotion / no archive (configurable via `wp_options.tt_prospect_retention_days_no_progress`), and prospects archived with a terminal-decline outcome (`declined` / `parent_withdrew` / `no_show`) more than 30 days ago (`tt_prospect_retention_days_terminal`). Each purge writes one audit row to `tt_authorization_changelog` with `change_type = 'gdpr_prospect_retention_purge'`. Active-chain protection refines in child 2 once `tt_workflow_tasks.prospect_id` lands. **(5) `PlayerDataMap` registry** — central index of every database table holding personal data attached to a player (or a prospect promoted to one). Modules register via `PlayerDataMap::register( table, player_id_column, purpose, owner )`; subject-access exports and erasure runs (#0073) walk the registry rather than hardcoding the list. Child 1 ships the registry surface plus `CorePiiRegistrations::register()` registering 13 known PII tables (`tt_players`, `tt_player_parents`, `tt_evaluations`, `tt_eval_ratings`, `tt_goals`, `tt_attendance`, `tt_player_events`, `tt_player_injuries`, `tt_player_team_history`, `tt_pdp_files`, `tt_player_reports`, `tt_trial_cases`, `tt_prospects`). Wired into `Kernel::boot()` after module-boot so individual modules can register their own first. 2 new NL msgids (entity labels for the matrix admin).
 
 = 3.94.1 — Pilot batch: compare alignment, full-Pro trial, HoD cohort gate, PDP block detail + breadcrumbs =
 
