@@ -18,16 +18,27 @@ De publieke beveiligingsbeloftes van TalentTrack (waar data staat, encryptie-cla
 
 ## MFA — multi-factor-authenticatie
 
-> **Status:** een TalentTrack-eigen MFA-implementatie staat op de roadmap (#0086 Workstream B Child 1 — TOTP via authenticator-app, 10 reservecodes, per-club-instelling `require_mfa_for_personas` met als standaard academy_admin + head_of_development). Tot die geleverd is geldt de aanbeveling hieronder.
+> **Status:** TalentTrack-eigen MFA-aanmelding is **vandaag beschikbaar** voor elke gebruiker (#0086 Workstream B Child 1 sprint 2, v3.101.1). Per-club afdwingen (MFA verplichten voor specifieke persona's) volgt in sprint 3 — tot die tijd is aanmelden vrijwillig per gebruiker.
 
-Wij raden ten zeerste aan vandaag al MFA aan te zetten op elk administrator- en Head of Development-account. WordPress levert MFA niet standaard mee; de meest gebruikelijke route is een goed onderhouden WP-plugin:
+Elke gebruiker kan zich nu zelf aanmelden via `wp-admin → TalentTrack → Account → MFA`:
 
-- [Two Factor](https://wordpress.org/plugins/two-factor/) — feature-plugin van het WP-team. TOTP, FIDO2, e-mailcodes.
-- [Wordfence Login Security](https://wordpress.org/plugins/wordfence-login-security/) — alleen TOTP, opiniërende UI.
+1. Klik op **Begin aanmelding** om de wizard van 4 stappen te openen.
+2. Stap 1 legt uit wat MFA is en welke authenticator-apps werken (Google Authenticator, Authy, 1Password, Microsoft Authenticator, elke RFC 6238 TOTP-app).
+3. Stap 2 toont een QR-code die je authenticator-app scant, plus een handmatige terugvaloptie (Account / Uitgever / Secret) als scannen niet lukt.
+4. Stap 3 vraagt om de eerste 6-cijferige code uit de app om te bevestigen dat alles goed staat. ±1-stap (90s) tolerantie voor klokafwijkingen.
+5. Stap 4 toont 10 eenmalige reservecodes, één keer. Bewaar ze in een wachtwoordmanager of print ze — je krijgt ze niet opnieuw te zien. Elke code is goed voor één login (handig als de gebruiker zijn telefoon kwijt is). Vink het bevestigingsvakje aan om af te ronden.
 
-Zodra de TalentTrack-eigen MFA is uitgerold, wordt de plugin-route optioneel en gebeurt per-persona-handhaving binnen TalentTrack. Beide routes kunnen naast elkaar bestaan; de WP-plugin blijft werken.
+Na aanmelding kan de gebruiker via dezelfde tab **reservecodes opnieuw genereren** (de oude set werkt direct niet meer) of **MFA uitzetten** (vereist bevestiging; verwijdert de secret + reservecodes; opnieuw aanmelden kan altijd).
 
-Voor staf zonder admin-rechten (coaches, scouts, teammanagers) is MFA aanbevolen maar nog niet verplicht. Zodra de TalentTrack-eigen MFA leeft kun je het per persona afdwingen.
+**Wat doe je vandaag als academy admin?**:
+
+- Meld je eigen admin-account als eerste aan. Loop de wizard van begin tot eind door, zodat je weet wat je staf gaat zien.
+- Stuur elke administrator + Head of Development een mail of bericht met de vraag om binnen een week aan te melden. Sprint 3 maakt het verplicht; vrijwillig nu doen voorkomt straks gehaast werk.
+- Voor staf zonder admin-rechten (coaches, scouts, teammanagers) is MFA aanbevolen maar nog niet verplicht. Sprint 3 voegt de per-persona-instelling toe waarmee je het per persona kunt afdwingen.
+
+De TalentTrack-eigen MFA-route staat los van eventueel geïnstalleerde WordPress MFA-plugins (bijv. [Two Factor](https://wordpress.org/plugins/two-factor/), [Wordfence Login Security](https://wordpress.org/plugins/wordfence-login-security/)). De plugin-route blijft werken — maar zodra TalentTrack-eigen MFA-handhaving in sprint 3 landt, gebeurt per-persona-vereiste binnen TalentTrack en kunnen beide routes naast elkaar bestaan.
+
+**Lockout-herstel (beheerder schakelt namens gebruiker uit)** — als een gebruiker zijn telefoon én zijn reservecodes kwijt is, is op dit moment de enige route dat de gebruiker een academy admin vraagt om de `tt_user_mfa`-rij rechtstreeks in de database te wissen, waarna de gebruiker zich opnieuw kan aanmelden. Sprint 3 levert de audit-gelogde "operator schakelt uit namens gebruiker"-flow die deze handmatige stap vervangt.
 
 ## De audit-log doornemen
 

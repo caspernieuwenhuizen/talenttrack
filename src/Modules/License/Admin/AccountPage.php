@@ -121,14 +121,11 @@ class AccountPage {
     /**
      * #0086 Workstream B Child 1 — MFA tab.
      *
-     * Sprint 1 (this ship — v3.98.2): status indicator only. Tells the
-     * user whether they're enrolled and surfaces a placeholder
-     * "enrollment ships in v3.98.3" link until Sprint 2 adds the
-     * 4-step wizard.
-     *
-     * Sprint 2 will add: "Enroll" button → 4-step wizard launch,
-     * "Regenerate backup codes" action, "Disable MFA" action with
-     * confirmation.
+     * Sprint 2 wires up the actual enrollment + recovery surface:
+     *   - Not-enrolled path: "Start enrollment" button → 4-step wizard.
+     *   - Enrolled path: backup-codes counter + "Regenerate" + "Disable" actions.
+     *   - One-shot messages for `mfa_enrolled` (after wizard), `mfa_backup_regenerated`
+     *     (with the new codes shown once), `mfa_disabled`.
      *
      * Sprint 3 will add: per-club `require_mfa_for_personas` setting
      * (operator-only sub-section), "remembered devices" list with
@@ -141,12 +138,14 @@ class AccountPage {
             return;
         }
 
-        $repo       = new \TT\Modules\Mfa\MfaSecretsRepository();
-        $row        = $repo->findByUserId( $user_id );
-        $is_enrolled = $row !== null && ! empty( $row['enrolled_at'] );
+        $repo                = new \TT\Modules\Mfa\MfaSecretsRepository();
+        $row                 = $repo->findByUserId( $user_id );
+        $is_enrolled         = $row !== null && ! empty( $row['enrolled_at'] );
         $unused_backup_count = $is_enrolled
             ? \TT\Modules\Mfa\Domain\BackupCodesService::unusedCount( (array) ( $row['backup_codes'] ?? [] ) )
             : 0;
+
+        $tt_msg = isset( $_GET['tt_msg'] ) ? sanitize_key( (string) wp_unslash( (string) $_GET['tt_msg'] ) ) : '';
 
         ?>
         <h2><?php esc_html_e( 'Two-factor authentication', 'talenttrack' ); ?></h2>
@@ -154,40 +153,129 @@ class AccountPage {
             <?php esc_html_e( 'A second factor at login — a 6-digit code from your authenticator app, plus 10 single-use backup codes for the case where you lose your device. Building it natively into TalentTrack means it travels into the future SaaS migration unchanged.', 'talenttrack' ); ?>
         </p>
 
-        <?php if ( $is_enrolled ) : ?>
-            <div class="notice notice-success" style="padding:16px; max-width:760px;">
+        <?php
+        // One-shot messages.
+        if ( $tt_msg === 'mfa_enrolled' ) :
+            ?>
+            <div class="notice notice-success is-dismissible" style="padding:12px 16px;">
+                <p style="margin:0;"><strong><?php esc_html_e( 'MFA is now active on your account.', 'talenttrack' ); ?></strong> <?php esc_html_e( "From your next sign-in onward TalentTrack will ask for a 6-digit code from your authenticator app.", 'talenttrack' ); ?></p>
+            </div>
+            <?php
+        elseif ( $tt_msg === 'mfa_disabled' ) :
+            ?>
+            <div class="notice notice-warning is-dismissible" style="padding:12px 16px;">
+                <p style="margin:0;"><strong><?php esc_html_e( 'MFA is now off.', 'talenttrack' ); ?></strong> <?php esc_html_e( 'Re-enroll any time from this tab.', 'talenttrack' ); ?></p>
+            </div>
+            <?php
+        elseif ( $tt_msg === 'mfa_disable_unconfirmed' ) :
+            ?>
+            <div class="notice notice-info is-dismissible" style="padding:12px 16px;">
+                <p style="margin:0;"><?php esc_html_e( 'MFA was not turned off — the confirmation checkbox was not ticked.', 'talenttrack' ); ?></p>
+            </div>
+            <?php
+        elseif ( $tt_msg === 'mfa_backup_regenerated' ) :
+            // Pull the freshly-generated plaintext from the one-shot transient
+            // and delete it immediately so it's never displayed twice.
+            $fresh_key = 'tt_mfa_fresh_backup_codes_' . $user_id;
+            $fresh     = get_transient( $fresh_key );
+            delete_transient( $fresh_key );
+            if ( is_array( $fresh ) && ! empty( $fresh ) ) :
+                ?>
+                <div class="notice notice-success" style="padding:16px; max-width:760px;">
+                    <p style="margin:0 0 8px;"><strong><?php esc_html_e( 'Here are your new backup codes.', 'talenttrack' ); ?></strong> <?php esc_html_e( "Save them somewhere safe — you won't see them again on this page after you leave.", 'talenttrack' ); ?></p>
+                    <ol style="font-family:monospace; font-size:14px; line-height:1.7; columns:2; column-gap:32px; margin:8px 0 0; padding-left:24px;">
+                        <?php foreach ( $fresh as $code ) : ?>
+                            <li style="break-inside:avoid;"><?php echo esc_html( (string) $code ); ?></li>
+                        <?php endforeach; ?>
+                    </ol>
+                    <p style="margin:12px 0 0;">
+                        <button type="button" class="button" onclick="navigator.clipboard?.writeText(<?php echo esc_attr( wp_json_encode( implode( "\n", $fresh ) ) ); ?>)"><?php esc_html_e( 'Copy all to clipboard', 'talenttrack' ); ?></button>
+                        <button type="button" class="button" onclick="window.print()"><?php esc_html_e( 'Print', 'talenttrack' ); ?></button>
+                    </p>
+                </div>
+                <?php
+            endif;
+        endif;
+
+        if ( $is_enrolled ) :
+            ?>
+            <div class="notice notice-info" style="padding:16px; max-width:760px;">
                 <p style="margin:0 0 8px;">
                     <strong><?php esc_html_e( 'You are enrolled in MFA.', 'talenttrack' ); ?></strong>
                 </p>
                 <p style="margin:0; color:#5b6e75;">
                     <?php
-                    /* translators: 1: number of unused backup codes left, 2: total number of backup codes generated */
                     printf(
-                        esc_html__( 'Backup codes remaining: %1$d of %2$d. When you run low, regenerate via the action below (action ships in v3.98.3).', 'talenttrack' ),
+                        /* translators: 1: number of unused backup codes left, 2: total number of backup codes generated */
+                        esc_html__( 'Backup codes remaining: %1$d of %2$d.', 'talenttrack' ),
                         (int) $unused_backup_count,
                         (int) \TT\Modules\Mfa\Domain\BackupCodesService::CODE_COUNT
                     );
+                    if ( $unused_backup_count <= 3 ) {
+                        echo ' <strong style="color:#b32d2e;">'
+                            . esc_html__( 'Running low — regenerate now.', 'talenttrack' )
+                            . '</strong>';
+                    }
                     ?>
                 </p>
             </div>
-        <?php else : ?>
-            <div class="notice notice-info" style="padding:16px; max-width:760px;">
-                <p style="margin:0 0 8px;">
-                    <strong><?php esc_html_e( 'You are not yet enrolled in MFA.', 'talenttrack' ); ?></strong>
-                </p>
-                <p style="margin:0; color:#5b6e75;">
-                    <?php esc_html_e( 'Enrollment is a 4-step wizard (intro, scan QR, verify a first code, save backup codes). The wizard ships in v3.98.3 — until then this tab is informational only.', 'talenttrack' ); ?>
-                </p>
-            </div>
-        <?php endif; ?>
 
-        <h3 style="margin-top:32px;"><?php esc_html_e( 'What is coming', 'talenttrack' ); ?></h3>
+            <h3 style="margin-top:32px;"><?php esc_html_e( 'Manage', 'talenttrack' ); ?></h3>
+            <p style="max-width:760px;"><?php esc_html_e( 'Generate a fresh batch of 10 backup codes (the old set stops working immediately), or turn MFA off entirely.', 'talenttrack' ); ?></p>
+
+            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block; margin:0 12px 12px 0;">
+                <?php wp_nonce_field( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_REGENERATE, 'tt_mfa_nonce' ); ?>
+                <input type="hidden" name="action" value="<?php echo esc_attr( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_REGENERATE ); ?>">
+                <button type="submit" class="button"><?php esc_html_e( 'Regenerate backup codes', 'talenttrack' ); ?></button>
+            </form>
+
+            <details style="max-width:760px; margin-top:12px;">
+                <summary style="cursor:pointer; color:#b32d2e; font-weight:600;"><?php esc_html_e( 'Turn MFA off', 'talenttrack' ); ?></summary>
+                <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:12px; padding:16px; background:#fff8f8; border:1px solid #f0c5c5;">
+                    <?php wp_nonce_field( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_DISABLE, 'tt_mfa_nonce' ); ?>
+                    <input type="hidden" name="action" value="<?php echo esc_attr( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_DISABLE ); ?>">
+                    <p style="margin:0 0 12px;"><?php esc_html_e( 'Turning MFA off removes your secret and your backup codes. From your next sign-in onward, TalentTrack will accept just your password again.', 'talenttrack' ); ?></p>
+                    <label style="display:flex; gap:8px; align-items:flex-start; cursor:pointer; margin-bottom:12px;">
+                        <input type="checkbox" name="confirm" value="yes" required style="margin-top:4px;">
+                        <span><?php esc_html_e( 'I understand that turning MFA off weakens the security of my TalentTrack account.', 'talenttrack' ); ?></span>
+                    </label>
+                    <button type="submit" class="button button-secondary" style="color:#b32d2e; border-color:#b32d2e;"><?php esc_html_e( 'Turn MFA off', 'talenttrack' ); ?></button>
+                </form>
+            </details>
+
+            <p style="margin-top:32px; max-width:760px;"><?php esc_html_e( 'Lost your phone? Use a backup code at the next sign-in, then come back here and regenerate the set.', 'talenttrack' ); ?></p>
+
+            <?php
+        else :
+            $wizard_url = \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                \TT\Modules\Mfa\Wizards\MfaEnrollmentWizard::SLUG,
+                ''
+            );
+            ?>
+            <div class="notice notice-info" style="padding:16px; max-width:760px;">
+                <p style="margin:0 0 8px;"><strong><?php esc_html_e( 'You are not yet enrolled in MFA.', 'talenttrack' ); ?></strong></p>
+                <p style="margin:0; color:#5b6e75;"><?php esc_html_e( 'Enrollment is a 4-step wizard: a brief intro, a QR code your authenticator app scans, a quick verification of your first code, and your 10 backup codes shown once. Takes about 2 minutes.', 'talenttrack' ); ?></p>
+            </div>
+
+            <p style="margin-top:24px;">
+                <?php if ( $wizard_url !== '' ) : ?>
+                    <a class="button button-primary button-hero" href="<?php echo esc_url( $wizard_url ); ?>">
+                        <?php esc_html_e( 'Start enrollment', 'talenttrack' ); ?>
+                    </a>
+                <?php else : ?>
+                    <em><?php esc_html_e( 'Enrollment is unavailable on this install — wizards are disabled in the configuration.', 'talenttrack' ); ?></em>
+                <?php endif; ?>
+            </p>
+            <?php
+        endif;
+        ?>
+
+        <h3 style="margin-top:40px;"><?php esc_html_e( 'What is still coming', 'talenttrack' ); ?></h3>
         <ul style="max-width:760px; padding-left:20px;">
-            <li><?php esc_html_e( '4-step enrollment wizard (intro → secret + QR code → first-code verification → backup codes display) — ships in v3.98.3.', 'talenttrack' ); ?></li>
-            <li><?php esc_html_e( 'Per-club enforcement: operators can require MFA for academy-admin and head-of-development personas, optionally for any other persona — ships in v3.98.4.', 'talenttrack' ); ?></li>
-            <li><?php esc_html_e( 'Optional 30-day "remember this device" cookie after a successful verification — ships in v3.98.4.', 'talenttrack' ); ?></li>
-            <li><?php esc_html_e( 'Rate limiting: 5 verification attempts per 5 minutes, then a 15-minute lockout — ships in v3.98.4.', 'talenttrack' ); ?></li>
-            <li><?php esc_html_e( 'Audit-log integration: every enrollment, verification, lockout, and backup-code use is recorded — ships in v3.98.4.', 'talenttrack' ); ?></li>
+            <li><?php esc_html_e( 'Per-club enforcement: operators can require MFA for academy-admin and head-of-development personas, optionally any other persona.', 'talenttrack' ); ?></li>
+            <li><?php esc_html_e( 'Optional 30-day "remember this device" cookie after a successful verification.', 'talenttrack' ); ?></li>
+            <li><?php esc_html_e( 'Rate limiting: 5 verification attempts per 5 minutes, then a 15-minute lockout.', 'talenttrack' ); ?></li>
+            <li><?php esc_html_e( 'Audit-log integration: every enrollment, verification, lockout, and backup-code use is recorded.', 'talenttrack' ); ?></li>
         </ul>
         <p style="max-width:760px; margin-top:24px;">
             <a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=tt-docs&topic=security-operator-guide' ) ); ?>">

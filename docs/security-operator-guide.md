@@ -18,16 +18,27 @@ For the public-facing security commitments TalentTrack makes (where data lives, 
 
 ## MFA — multi-factor authentication
 
-> **Status:** TalentTrack-native MFA is on the roadmap (#0086 Workstream B Child 1 — TOTP via authenticator app, 10 backup codes, per-club enforcement setting `require_mfa_for_personas` defaulting to academy_admin + head_of_development). Until it ships, the recommendation below applies.
+> **Status:** TalentTrack-native MFA enrollment is **available today** for every user (#0086 Workstream B Child 1 sprint 2, v3.101.1). Per-club enforcement (mandate MFA for specific personas) ships in sprint 3 — until then enrollment is opt-in per user.
 
-We strongly recommend enabling MFA on every administrator and Head of Development account today. WordPress doesn't ship MFA out of the box; the most common path is to install one of the well-maintained WP plugins:
+Every user can self-enroll right now from `wp-admin → TalentTrack → Account → MFA`:
 
-- [Two Factor](https://wordpress.org/plugins/two-factor/) — feature-plugin from the WP team. TOTP, FIDO2, email codes.
-- [Wordfence Login Security](https://wordpress.org/plugins/wordfence-login-security/) — TOTP only, more opinionated UI.
+1. Click **Start enrollment** to open the 4-step wizard.
+2. Step 1 explains what MFA is and what authenticator apps work (Google Authenticator, Authy, 1Password, Microsoft Authenticator, any RFC 6238 TOTP app).
+3. Step 2 shows a QR code your authenticator app scans, plus a manual-entry fallback (Account / Issuer / Secret) if scanning isn't possible.
+4. Step 3 asks for the first 6-digit code from the app to confirm everything is set up correctly. ±1-step (90s) tolerance for clock skew.
+5. Step 4 displays 10 single-use backup codes, shown once. Save them in a password manager or print them — you won't see them again. Each one is good for exactly one sign-in (useful when the user loses their phone). Tick the confirmation checkbox to finish.
 
-Once TalentTrack-native MFA ships, the recommended-plugin path becomes optional and the per-persona enforcement happens inside TalentTrack. The two paths can co-exist; the WP plugin will keep working.
+After enrollment the user can come back to the same tab to **regenerate backup codes** (the old set stops working immediately) or **turn MFA off** (requires confirmation; removes the secret + backup codes; user can re-enroll any time).
 
-For non-admin staff (coaches, scouts, team managers) MFA is recommended but not currently required. After TalentTrack-native MFA ships you'll be able to mandate it per persona.
+**As Academy Admin, what to do today**:
+
+- Enroll your own admin account first. Walk through the wizard end to end so you know what your staff will see.
+- Email or message every administrator + Head of Development asking them to enroll within a week. Sprint 3 will let you mandate it; doing it voluntarily now removes the rush when enforcement lands.
+- For non-admin staff (coaches, scouts, team managers) MFA is recommended but not yet required. Sprint 3's per-persona enforcement setting will let you mandate it per persona.
+
+The TalentTrack-native MFA path is independent of any WordPress MFA plugins you may have installed (e.g. [Two Factor](https://wordpress.org/plugins/two-factor/), [Wordfence Login Security](https://wordpress.org/plugins/wordfence-login-security/)). The WP plugin path keeps working — but once TalentTrack-native MFA enforcement lands in sprint 3, per-persona requirements happen inside TalentTrack and the two paths can co-exist.
+
+**Lockout recovery (operator on-behalf-of-user disable)** — if a user loses their phone *and* their backup codes, today the only path is for the user to ask an Academy Admin to wipe their `tt_user_mfa` row directly in the database, after which the user can re-enroll. Sprint 3 ships the audit-logged operator-on-behalf-of-user disable flow that replaces that manual step.
 
 ## Reviewing the audit log
 

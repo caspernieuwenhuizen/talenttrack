@@ -13302,3 +13302,187 @@ msgstr "Audit-log-integratie: elke aanmelding, verificatie, lockout en gebruik v
 
 msgid "Read the security operator guide"
 msgstr "Lees de beveiligingshandleiding voor de beheerder"
+# v3.101.1 — #0086 Workstream B Child 1 sprint 2: MFA enrollment wizard
+
+msgid "Enable two-factor authentication"
+msgstr "Tweestapsverificatie aanzetten"
+
+msgid "Intro"
+msgstr "Intro"
+
+msgid "Add to authenticator"
+msgstr "Toevoegen aan authenticator"
+
+msgid "Verify"
+msgstr "Verifiëren"
+
+msgid "Save backup codes"
+msgstr "Reservecodes opslaan"
+
+msgid "MFA adds a second factor to your TalentTrack login. After typing your password you'll also enter a 6-digit code from an authenticator app. Even if someone learns your password, they can't sign in without your phone."
+msgstr "MFA voegt een tweede factor toe aan je TalentTrack-login. Naast je wachtwoord voer je ook een 6-cijferige code uit een authenticator-app in. Zelfs als iemand je wachtwoord achterhaalt, kan hij niet inloggen zonder je telefoon."
+
+msgid "What you'll need"
+msgstr "Wat je nodig hebt"
+
+msgid "An authenticator app on your phone — Google Authenticator, Authy, 1Password, Microsoft Authenticator, or any other RFC 6238 TOTP app."
+msgstr "Een authenticator-app op je telefoon — Google Authenticator, Authy, 1Password, Microsoft Authenticator of een andere RFC 6238 TOTP-app."
+
+msgid "~2 minutes to scan a QR code, type a verification code, and save your backup codes."
+msgstr "~2 minuten om een QR-code te scannen, een verificatiecode in te tikken en je reservecodes op te slaan."
+
+msgid "A safe place to store 10 single-use backup codes (a password manager works well)."
+msgstr "Een veilige plek om 10 eenmalige reservecodes te bewaren (een wachtwoordmanager werkt prima)."
+
+msgid "You are already enrolled."
+msgstr "Je bent al aangemeld."
+
+msgid "Continuing will replace your existing secret and backup codes — useful if you lost your phone or want to switch authenticator app. Your old codes will stop working."
+msgstr "Doorgaan vervangt je bestaande secret en reservecodes — handig als je je telefoon kwijt bent of van authenticator-app wilt wisselen. Je oude codes werken daarna niet meer."
+
+msgid "Click Continue to generate your shared secret. The next screen shows the QR code your authenticator app scans."
+msgstr "Klik Doorgaan om je gedeelde secret te genereren. Het volgende scherm toont de QR-code die je authenticator-app scant."
+
+msgid "Open your authenticator app, tap +, and scan this QR code. The app will start showing 6-digit codes that change every 30 seconds — that's how you'll sign in from now on."
+msgstr "Open je authenticator-app, tik op +, en scan deze QR-code. De app toont vanaf dat moment 6-cijferige codes die elke 30 seconden veranderen — daarmee log je voortaan in."
+
+msgid "Scan with your authenticator app."
+msgstr "Scan met je authenticator-app."
+
+msgid "Can't scan? Enter manually:"
+msgstr "Kun je niet scannen? Voer handmatig in:"
+
+msgid "Account"
+msgstr "Account"
+
+msgid "Issuer"
+msgstr "Uitgever"
+
+msgid "Secret"
+msgstr "Secret"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Time-based (TOTP), 30s, 6 digits, SHA-1"
+msgstr "Tijdgebaseerd (TOTP), 30s, 6 cijfers, SHA-1"
+
+msgid "Keep this page open."
+msgstr "Houd deze pagina open."
+
+msgid "On the next step you'll type the first code your authenticator shows, to confirm it's set up correctly."
+msgstr "In de volgende stap voer je de eerste code uit je authenticator in, om te bevestigen dat alles goed is ingesteld."
+
+msgid "Type the 6-digit code your authenticator app shows right now. The code rotates every 30 seconds — if it changes while you type, just wait for the next one and try again."
+msgstr "Voer de 6-cijferige code in die je authenticator-app op dit moment toont. De code wisselt elke 30 seconden — als hij verspringt terwijl je typt, wacht dan op de volgende en probeer opnieuw."
+
+msgid "Verification code"
+msgstr "Verificatiecode"
+
+msgid "Spaces are tolerated — paste from the authenticator app if your phone offers that."
+msgstr "Spaties zijn toegestaan — plakken uit je authenticator-app mag, als je telefoon dat aanbiedt."
+
+msgid "Type the 6-digit code from your authenticator app."
+msgstr "Voer de 6-cijferige code uit je authenticator-app in."
+
+msgid "The code is six digits. Try again with the current code from your authenticator app."
+msgstr "De code is zes cijfers. Probeer opnieuw met de huidige code uit je authenticator-app."
+
+msgid "The secret expired. Go back one step and scan the QR code again."
+msgstr "De secret is verlopen. Ga één stap terug en scan de QR-code opnieuw."
+
+msgid "That code didn't match. Make sure your phone's clock is correct, then try the current code from your authenticator."
+msgstr "Die code klopt niet. Controleer of de klok van je telefoon goed staat en probeer de huidige code uit je authenticator opnieuw."
+
+msgid "Verification succeeded but the enrollment could not be saved. Please try again."
+msgstr "Verificatie geslaagd, maar de aanmelding kon niet worden opgeslagen. Probeer het opnieuw."
+
+msgid "These 10 codes let you sign in if you lose your phone. Each code works once. Store them somewhere safe — a password manager, a printed copy in a drawer, anywhere not on the same phone."
+msgstr "Met deze 10 codes kun je inloggen als je je telefoon kwijt bent. Elke code werkt één keer. Bewaar ze veilig — in een wachtwoordmanager, op een geprint vel in een lade, in elk geval niet op dezelfde telefoon."
+
+msgid "Copy all to clipboard"
+msgstr "Alles kopiëren naar klembord"
+
+msgid "Print"
+msgstr "Afdrukken"
+
+msgid "I have saved these codes somewhere safe and I understand that I won't see them again after I click Finish."
+msgstr "Ik heb deze codes veilig opgeslagen en ik begrijp dat ik ze niet opnieuw te zien krijg nadat ik op Voltooien klik."
+
+msgid "Tick the checkbox to confirm you have saved your backup codes."
+msgstr "Vink het vakje aan om te bevestigen dat je je reservecodes hebt opgeslagen."
+
+msgid "You must be logged in to finish enrollment."
+msgstr "Je moet ingelogd zijn om de aanmelding af te ronden."
+
+msgid "MFA is now active on your account."
+msgstr "MFA is nu actief op je account."
+
+msgid "From your next sign-in onward TalentTrack will ask for a 6-digit code from your authenticator app."
+msgstr "Vanaf je volgende login vraagt TalentTrack om een 6-cijferige code uit je authenticator-app."
+
+msgid "MFA is now off."
+msgstr "MFA staat nu uit."
+
+msgid "Re-enroll any time from this tab."
+msgstr "Je kunt je elk moment opnieuw aanmelden via dit tabblad."
+
+msgid "MFA was not turned off — the confirmation checkbox was not ticked."
+msgstr "MFA is niet uitgezet — het bevestigingsvakje was niet aangevinkt."
+
+msgid "Here are your new backup codes."
+msgstr "Hier zijn je nieuwe reservecodes."
+
+msgid "Save them somewhere safe — you won't see them again on this page after you leave."
+msgstr "Bewaar ze veilig — je krijgt ze op deze pagina niet opnieuw te zien zodra je weggaat."
+
+msgid "Backup codes remaining: %1$d of %2$d."
+msgstr "Resterende reservecodes: %1$d van %2$d."
+
+msgid "Running low — regenerate now."
+msgstr "Bijna op — regenereer nu."
+
+msgid "Manage"
+msgstr "Beheren"
+
+msgid "Generate a fresh batch of 10 backup codes (the old set stops working immediately), or turn MFA off entirely."
+msgstr "Genereer een nieuwe set van 10 reservecodes (de oude set werkt meteen niet meer), of zet MFA helemaal uit."
+
+msgid "Regenerate backup codes"
+msgstr "Reservecodes opnieuw genereren"
+
+msgid "Turn MFA off"
+msgstr "MFA uitzetten"
+
+msgid "Turning MFA off removes your secret and your backup codes. From your next sign-in onward, TalentTrack will accept just your password again."
+msgstr "MFA uitzetten verwijdert je secret en je reservecodes. Vanaf je volgende login accepteert TalentTrack alleen nog je wachtwoord."
+
+msgid "I understand that turning MFA off weakens the security of my TalentTrack account."
+msgstr "Ik begrijp dat het uitzetten van MFA de beveiliging van mijn TalentTrack-account verzwakt."
+
+msgid "Lost your phone? Use a backup code at the next sign-in, then come back here and regenerate the set."
+msgstr "Telefoon kwijt? Gebruik bij de volgende login een reservecode en kom dan hier terug om de set opnieuw te genereren."
+
+msgid "Enrollment is a 4-step wizard: a brief intro, a QR code your authenticator app scans, a quick verification of your first code, and your 10 backup codes shown once. Takes about 2 minutes."
+msgstr "Aanmelden is een wizard met 4 stappen: een korte intro, een QR-code die je authenticator-app scant, een snelle verificatie van je eerste code, en je 10 reservecodes die één keer worden getoond. Duurt zo'n 2 minuten."
+
+msgid "Start enrollment"
+msgstr "Begin aanmelding"
+
+msgid "Enrollment is unavailable on this install — wizards are disabled in the configuration."
+msgstr "Aanmelding is niet beschikbaar op deze installatie — wizards zijn uitgeschakeld in de configuratie."
+
+msgid "What is still coming"
+msgstr "Wat er nog aankomt"
+
+msgid "Per-club enforcement: operators can require MFA for academy-admin and head-of-development personas, optionally any other persona."
+msgstr "Afdwingen per club: beheerders kunnen MFA verplichten voor academy-admin en hoofd-opleiding-persona's, optioneel ook voor andere persona's."
+
+msgid "Optional 30-day \"remember this device\" cookie after a successful verification."
+msgstr "Optionele \"vertrouw dit apparaat\"-cookie van 30 dagen na een succesvolle verificatie."
+
+msgid "Rate limiting: 5 verification attempts per 5 minutes, then a 15-minute lockout."
+msgstr "Snelheidslimiet: 5 verificatiepogingen per 5 minuten, daarna 15 minuten lockout."
+
+msgid "Audit-log integration: every enrollment, verification, lockout, and backup-code use is recorded."
+msgstr "Audit-log-integratie: elke aanmelding, verificatie, lockout en gebruik van een reservecode wordt vastgelegd."
