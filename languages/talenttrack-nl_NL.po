@@ -13624,3 +13624,55 @@ msgstr "Hoofd opleiding"
 
 msgid "Unnamed device"
 msgstr "Apparaat zonder naam"
+# v3.103.2 — #0084 Child 1: mobile surface classification + desktop-prompt page
+
+msgid "Open on desktop"
+msgstr "Open op desktop"
+
+msgid "This page is designed for desktop."
+msgstr "Deze pagina is gemaakt voor desktop."
+
+msgid "Open it on a laptop or computer for the best experience."
+msgstr "Open hem op een laptop of computer voor de beste ervaring."
+
+msgid "Email me the link"
+msgstr "Mail me de link"
+
+msgid "Or use the dashboard:"
+msgstr "Of gebruik het dashboard:"
+
+msgid "Need this on your phone anyway?"
+msgstr "Toch op je telefoon nodig?"
+
+msgid "Show it anyway"
+msgstr "Laat hem alsnog zien"
+
+msgid "We sent the link to your account email. Check your inbox."
+msgstr "We hebben de link naar het e-mailadres van je account gestuurd. Kijk in je inbox."
+
+msgid "We couldn't send the link. Try the dashboard link below."
+msgstr "We konden de link niet versturen. Probeer de dashboard-link hieronder."
+
+msgid "Your %s desktop link"
+msgstr "Je %s desktop-link"
+
+msgid "You asked us to email you the link to a desktop-only TalentTrack page.\n\n%s\n\nOpen this on a laptop or computer."
+msgstr "Je hebt ons gevraagd om de link naar een TalentTrack-pagina alleen voor desktop te mailen.\n\n%s\n\nOpen hem op een laptop of computer."
+
+msgid "Mobile experience"
+msgstr "Mobiele ervaring"
+
+msgid "You do not have permission to manage mobile settings."
+msgstr "Je hebt geen toegang om de mobiele instellingen te beheren."
+
+msgid "TalentTrack classifies every page as mobile-first, viewable, or desktop-only. Phones visiting a desktop-only page see a polite prompt with an \"email me the link\" affordance. Tablets and laptops get the full experience regardless."
+msgstr "TalentTrack classificeert elke pagina als mobile-first, leesbaar of alleen-desktop. Telefoons die een alleen-desktop-pagina bezoeken krijgen een nette melding met een \"mail me de link\"-knop. Tablets en laptops krijgen altijd de volledige ervaring."
+
+msgid "Mobile settings saved."
+msgstr "Mobiele instellingen opgeslagen."
+
+msgid "Show the desktop-prompt page on phones for desktop-only routes."
+msgstr "Toon de desktop-prompt op telefoons voor pagina's die alleen voor desktop zijn."
+
+msgid "Default on. Untick to let phone visitors see the cramped desktop view on every page. Tablets and laptops are unaffected either way."
+msgstr "Staat standaard aan. Vink uit om telefoons op elke pagina de krappe desktopweergave te laten zien. Tablets en laptops blijven hetzelfde."

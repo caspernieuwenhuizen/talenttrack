@@ -1,91 +1,95 @@
-# TalentTrack v3.103.1 — MFA login enforcement (#0086 Workstream B Child 1, sprint 3 of 3)
+# TalentTrack v3.103.2 — Mobile surface classification + desktop-prompt page (#0084 Child 1)
 
-Closes #0086 Workstream B Child 1. Sprint 1 (v3.100.1) shipped the data layer; sprint 2 (v3.101.1) shipped the enrollment wizard; sprint 3 wires the runtime login enforcement so the second factor actually gates access.
+First child of #0084 (Mobile experience). Builds the routing scaffolding the rest of the epic stands on: every `?tt_view=` slug can declare `native` / `viewable` / `desktop_only`, the dispatcher honours the classification on phone-class user agents, and operators have a per-club switch.
 
-Renumbered v3.102.1 → v3.103.1 mid-rebase after the parallel-agent ship of v3.103.0 (#0080 polish wave 2 — A residual + B + C bundled) landed.
+Child 2 (pattern library) and Child 3 (per-route rollout + new-evaluation wizard mobile retrofit) follow.
 
-## What landed in sprint 3
+## What landed
 
-### `Auth\MfaLoginGuard` — runtime enforcement
+### `Shared\MobileSurfaceRegistry` — the registry
 
-Hooks `wp_login` (post-cookie) and `init` (every subsequent request).
+Central in-memory store keyed by view slug.
 
-On login, if the user's persona intersects the per-club `mfa_required_personas` list and they don't hold a valid 30-day "remember this device" cookie:
-- Enrolled user → set `tt_mfa_pending_<user_id>` transient (15-min TTL).
-- Un-enrolled user → set `tt_mfa_must_enroll_<user_id>` transient.
-- Stash the original `redirect_to` URL in `tt_mfa_post_verify_url_<user_id>` so the prompt page sends the user there after success.
+- `register($view_slug, $class)` — accepts one of `native` / `viewable` / `desktop_only`. Idempotent (last write wins). Defensive: an unrecognised class falls through to `viewable` so a typo at the call site doesn't accidentally lock users out of a surface.
+- `classify($slug)` — returns the class. Default: `viewable`.
+- `isDesktopOnly($slug)` / `isNative($slug)` — convenience predicates.
+- `all()` — wholesale dump for diagnostics.
+- `clear()` — for tests.
 
-The init middleware redirects every subsequent request to the MFA prompt page (or the enrollment wizard) until the challenge clears. REST + admin-ajax + admin-post + cron + wp-login + the prompt itself + the enrollment wizard URL are exempt. The "must enroll" path appends `tt_mfa_required=1` so the wizard's intro step can show a "you must enable MFA before continuing" notice.
+Backwards-compatible by construction: every existing slug resolves to `viewable` until Child 3 walks the inventory.
 
-### `Frontend\FrontendMfaPromptView` — the challenge page
+### `Shared\MobileDetector` — phone-class user-agent detection
 
-Reachable at `?tt_view=mfa-prompt`. Two modes:
-- **TOTP** (default) — 6-digit input with `inputmode=numeric` + `autocomplete=one-time-code` + autofocus. Validates via `TotpService::verify()` against the decrypted secret.
-- **Backup code** (`?mode=backup`) — `XXXX-XXXX-XXXX` input. Validates via `BackupCodesService::verify()` over the constant-time iteration; on match, marks the code as used and persists the modified array.
+Server-side. Conservative on purpose: only confirmed phone-class user agents return `true`. Tablets are NOT mobile in this classification — they get the desktop UI per the locked decision (iPad-Safari users explicitly want the laptop UX).
 
-Optional "remember this device for 30 days" checkbox issues the `tt_mfa_device` cookie via `RememberDeviceCookie::setForUser()` on success. Lockout state renders a countdown screen with no input field instead of the form.
+Detection:
+1. **`Sec-CH-UA-Mobile` client hint** when present (`?1` / `?0`). Modern Chromium browsers send this cleanly.
+2. **UA-string regex** for `iPhone`, `iPod`, `BlackBerry`, `BB10`, `IEMobile`, `Windows Phone`, generic `Mobi`. Android requires both the `Android` and `Mobile` tokens (Android device-team convention since Honeycomb — tablets ship without `Mobile`). `iPad`, `Tablet`, `Kindle`, `PlayBook` explicitly excluded.
 
-### `Auth\RateLimiter` — 5/15 lockout policy
+`userForcedMobile()` reads `?force_mobile=1` so power users on phablets who genuinely want the cramped desktop view can bypass the gate per request.
 
-5 consecutive failed verifications trigger a 15-minute lockout. Counter resets on success. Both thresholds are operator-configurable via `MfaSettings` (`mfa_max_attempts`, `mfa_lockout_minutes`). Each failure writes an `mfa.verify_failed` audit event; the threshold-trip writes `mfa.lockout`. The repository helpers (`recordFailedAttempt`, `lockoutUntil`) are added to `MfaSecretsRepository` for sprint-3 use.
+### `Shared\Frontend\FrontendMobilePromptView` — the polite block page
 
-### `Auth\RememberDeviceCookie` — 30-day signed cookie
+Reachable indirectly via the dispatch gate (no direct URL — the user lands here when they hit a desktop-only slug from a phone). Rendered inside the dashboard frame.
 
-Cookie name: `tt_mfa_device`. Format: `<wp_user_id>|<device_token>|<signature>`. Signature: `wp_hash( "tt_mfa_device|<user_id>|<device_token>" )`, verified with `hash_equals()`. Server-side persists `signed_token` + `device_label` (UA-derived) + `expires_at` + `last_used_at` in `tt_user_mfa.remembered_devices` JSON. Same `httponly` + `samesite=Lax` + `secure=is_ssl()` conventions as `ImpersonationContext`. Verify path bumps `last_used_at`; clear path purges the cookie + cookie-side state.
+Surfaces three affordances:
+- **Email me the link** — submits a one-line email to the user's account email with the deep link to the desktop-only page. Lets a coach on the train send themselves a reminder. The target URL is validated through `wp_validate_redirect` so the form can't be abused as an open-redirect / SSRF vector.
+- **Go to dashboard** — back to a sensible mobile-friendly landing.
+- **Show it anyway** — adds `?force_mobile=1` to the same URL so the user sees the cramped desktop view if they really want it.
 
-### `Settings\MfaSettings` — per-club configuration
+Each render writes a `mobile.desktop_prompt_shown` audit event with the blocked view slug — operators can `gh action filter` to find routes that get a lot of mobile traffic and review the classification.
 
-Typed accessor over `tt_config` (per-club key-value via `ConfigService`). Keys:
-- `mfa_required_personas` — JSON array of persona keys. Default: `[ academy_admin, head_of_development ]`. **Explicit `[]` disables enforcement entirely** (the read path distinguishes "unset" from "explicitly empty"); the operator UI uses this to turn the gate off when every checkbox is unticked.
-- `mfa_lockout_minutes` — default 15.
-- `mfa_max_attempts` — default 5.
-- `mfa_remember_device_days` — default 30.
+### `DashboardShortcode` dispatch gate
 
-### `Audit\MfaAuditEvents` — stable event keys
+Runs early, before the per-slug dispatch: if the visitor is a phone (`isPhone()`), the requested view classifies as `desktop_only`, the per-club setting `force_mobile_for_user_agents` is on, and the user has not opted out via `?force_mobile=1` → render the prompt and short-circuit the buffer.
 
-Wraps `AuditService::record()` with: `mfa.enrolled`, `mfa.verified`, `mfa.verify_failed`, `mfa.lockout`, `mfa.backup_code_used`, `mfa.backup_codes_regenerated`, `mfa.disabled`, `mfa.device_remembered`, `mfa.devices_revoked`, `mfa.required_personas_changed`. Operator-on-behalf-of-user `mfa.disabled` events log both: actor = operator, subject = target user.
+Tablets and desktops always pass through unchanged.
 
-### Operator-only MFA tab section
+### `Shared\Mobile\MobileSettings` + `MobileActionHandlers`
 
-`?page=tt-account&tab=mfa` (operator-only sub-section, gated on `tt_edit_settings`):
-- **`mfa_required_personas` setting** — multi-checkbox over the persona catalogue. Submit writes via the new `tt_mfa_save_required_personas` admin-post.
-- **Reset MFA on another user (lockout recovery)** — dropdown of currently-enrolled users + confirmation checkbox + Reset button. Submit deletes the target's `tt_user_mfa` row via `MfaSecretsRepository::disable()`. Audit-logged.
+Typed accessor for `force_mobile_for_user_agents` (default `true`) over `tt_config`. Per-club, per CLAUDE.md §4 SaaS-readiness.
 
-### Atomic enrollment fix
+Two `admin-post.php` endpoints:
+- `tt_mobile_email_link` — email-the-link from the prompt page.
+- `tt_mobile_save_setting` — operator-only toggle save. Cap-gated on `tt_edit_settings`.
 
-Sprint 2's wizard flipped `enrolled_at` at the verify step, leaving a window where a user who closed the browser between verify and backup-codes was "enrolled" but had no recovery codes. Sprint 3 moves `markEnrolled()` to the BackupCodesStep submit so enrollment is atomic with backup-codes persistence.
+### `?tt_view=mobile-settings` — operator toggle UI
 
-### CI / E2E setup
+Single checkbox: "Show the desktop-prompt page on phones for desktop-only routes." Reachable via URL today; the Configuration → Mobile sub-tile lands in Child 3 alongside the broader rollout.
 
-The login smoke test covers a default-admin login flow that's now MFA-gated by default. A `wp db query` step writes `mfa_required_personas = []` to `tt_config` after plugin activation so the existing test isn't redirected into the enrollment wizard. A separate MFA-specific spec file will exercise the full enrollment + challenge flow.
+### Initial classification set
 
-## Risk callouts
+17 obviously-desktop slugs registered as `desktop_only` in `CoreSurfaceRegistration::registerMobileClasses()` so the gate has something to enforce on day one:
 
-- **REST is exempt from the gate.** A user with their session cookie can hit REST endpoints between login and challenge completion. The MFA gate's purpose is at login (verifying the cookie holder is the real user); once a session cookie exists in a browser, REST gating wouldn't change the threat model. Documented as a known limitation.
-- **Single-admin lockout.** If the only academy admin enrolls themselves and then loses both phone + all backup codes, they're stuck — operator-on-behalf-of-user disable requires another operator. Mitigation: the security operator guide already prescribes "two admins is a reasonable minimum for redundancy."
-- **Cookie-bound trust.** The 30-day remember-device cookie is bound to (user_id, device_token) and signed via `wp_hash()`. If a remember-cookie leaks (e.g. shared browser), the attacker bypasses MFA on that device until the cookie expires or the user revokes.
+`configuration`, `custom-fields`, `eval-categories`, `roles`, `migrations`, `usage-stats`, `usage-stats-details`, `audit-log`, `cohort-transitions`, `custom-css`, `workflow-config`, `team-blueprints`, `methodology`, `invitations-config`, `trial-tracks-editor`, `trial-letter-templates-editor`, `wizards-admin`.
+
+Child 3 expands to the full 25-route inventory and adds the `native` declarations on the persona dashboard, the new-evaluation wizard, the player profile, and the prospect-logging wizard.
 
 ## What's NOT in this PR
 
-- **Per-device revocation UI** — listing remembered devices with a per-row revoke button. Repository methods are in; surfacing them is a small follow-up.
-- **#0086 Workstream B Children 2-4** — session management UI / login-fail tracking / admin IP whitelist.
-- **#0086 Workstream C** — external audit (Securify / Computest), kicks off after Workstream B Children 1-3 ship.
+- **Pattern library components** (Child 2) — `tt-mobile-bottom-sheet`, `tt-mobile-cta-bar`, `tt-mobile-segmented-control`, `tt-mobile-list-item` + lint rules + `docs/mobile-patterns.md`.
+- **Full-route classification + new-evaluation wizard mobile retrofit** (Child 3) — closes the v3.78.0 deferred polish item for `RateActorsStep`'s mobile UX. Inventory expands to ~25 routes.
+- **Configuration → Mobile sub-tile** (Child 3) — the operator-facing nav surface for the toggle. Today reachable via direct URL.
+- **PWA installability, push, offline editing, native apps, bottom-tab navigation** — explicitly out of scope per the spec; #0019 sprint 7 already shipped the PWA shell.
 
 ## Affected files
 
-- `src/Modules/Mfa/Auth/MfaLoginGuard.php` — new.
-- `src/Modules/Mfa/Auth/RateLimiter.php` — new.
-- `src/Modules/Mfa/Auth/RememberDeviceCookie.php` — new.
-- `src/Modules/Mfa/Frontend/FrontendMfaPromptView.php` — new.
-- `src/Modules/Mfa/Settings/MfaSettings.php` — new.
-- `src/Modules/Mfa/Audit/MfaAuditEvents.php` — new.
-- `src/Modules/Mfa/MfaSecretsRepository.php` — five new repository helpers.
-- `src/Modules/Mfa/MfaModule.php` — `boot()` wires `MfaLoginGuard::init()`.
-- `src/Modules/Mfa/Admin/MfaActionHandlers.php` — audit logging on regenerate / disable, plus two new actions for save-personas / operator-disable.
-- `src/Modules/Mfa/Wizards/VerifyStep.php` — drops `markEnrolled()` (atomic-enrollment fix).
-- `src/Modules/Mfa/Wizards/BackupCodesStep.php` — calls `markEnrolled()` + `MfaAuditEvents::record()` + `MfaLoginGuard::clearPending()` on submit.
-- `src/Modules/License/Admin/AccountPage.php` — operator-only sub-section.
-- `src/Shared/Frontend/DashboardShortcode.php` — `mfa-prompt` view dispatch.
-- `.github/workflows/e2e.yml` — `mfa_required_personas = []` in CI setup so the existing login smoke test isn't gated.
-- `languages/talenttrack-nl_NL.po` — 35 new msgids.
-- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md`, `docs/security-operator-guide.md` (EN+NL) — version bump + ship metadata.
+- `src/Shared/MobileSurfaceRegistry.php` — new.
+- `src/Shared/MobileDetector.php` — new.
+- `src/Shared/Mobile/MobileSettings.php` — new.
+- `src/Shared/Mobile/MobileActionHandlers.php` — new.
+- `src/Shared/Frontend/FrontendMobilePromptView.php` — new.
+- `src/Shared/Frontend/FrontendMobileSettingsView.php` — new.
+- `src/Shared/CoreSurfaceRegistration.php` — `registerMobileClasses()` registers the initial 17 desktop-only slugs.
+- `src/Core/Kernel.php` — `MobileActionHandlers::init()` wired post-bootAll.
+- `src/Shared/Frontend/DashboardShortcode.php` — dispatch gate + `mobile-settings` slug dispatch.
+- `languages/talenttrack-nl_NL.po` — 18 new msgids.
+- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
+
+## Translations
+
+18 new translatable strings covering the prompt page copy, the settings UI, and the email subject + body.
+
+## Player-centricity
+
+The classification protects the player-data interactions that matter on phones (a coach finishing a training, a scout naming a prospect at a tournament, a parent checking their child's progress) by shielding them from cramped admin surfaces that would otherwise frustrate the experience. The desktop-only block isn't punitive — it's an honest "this view doesn't earn out on a 360px screen, here's a button to email yourself the link." The classification is the first step toward dedicating the mobile UX investment to the surfaces that actually serve player work.

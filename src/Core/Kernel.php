@@ -96,6 +96,10 @@ class Kernel {
         BrandStyles::init( $this->container );
         DashboardShortcode::register();
         \TT\Shared\Frontend\FlashMessages::init();
+        // #0084 Child 1 — admin-post handlers for the mobile-prompt
+        // page's "email me the link" + the operator-only mobile-gate
+        // toggle. Static init; mirrors how MfaActionHandlers wires.
+        \TT\Shared\Mobile\MobileActionHandlers::init();
         // #0019 Sprint 6 — one-time admin notice announcing the
         // frontend-first migration. Dismissed per-user via meta.
         \TT\Shared\Admin\UpgradeNotice::init();

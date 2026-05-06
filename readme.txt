@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.103.1
+Stable tag: 3.103.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.103.2 — Mobile surface classification + desktop-prompt page (#0084 Child 1) =
+
+First child of #0084 (Mobile experience). Builds the routing scaffolding the rest of the epic stands on: every `?tt_view=` slug can declare `native` / `viewable` / `desktop_only`, the dispatcher honours the classification on phone-class user agents, and operators have a per-club switch. Children 2 (pattern library) and 3 (per-route rollout + new-evaluation wizard mobile retrofit) follow. **(1) `Shared\MobileSurfaceRegistry`** — the central registry. `register($view_slug, $class)` accepts one of `native` / `viewable` / `desktop_only`; `classify($slug)` returns the class with `viewable` as default. Backwards-compatible — every existing slug resolves to `viewable` until child 3 walks the inventory. **(2) `Shared\MobileDetector`** — server-side phone detection. Trusts the `Sec-CH-UA-Mobile` client hint when present (`?1`/`?0`); falls back to UA-string regex for `iPhone`, `iPod`, `BlackBerry`, `Windows Phone`, generic `Mobi`, plus `Android` requiring the `Mobile` token (Android device-team convention since Honeycomb). `iPad`, `Tablet`, `Kindle`, `PlayBook` explicitly excluded — tablets get desktop UI per the locked decision. `userForcedMobile()` reads `?force_mobile=1` so power users on phablets can opt out of the gate per request. **(3) `Shared\Frontend\FrontendMobilePromptView`** — the polite "Open on desktop" page. Renders a single primary action ("Email me the link" → `tt_mobile_email_link` admin-post that emails the user the deep link, validated against `wp_validate_redirect` to prevent SSRF), a "Go to dashboard" fallback, and a "Show it anyway" escape link that adds `?force_mobile=1`. Audit-logged on render via `mobile.desktop_prompt_shown`. **(4) `DashboardShortcode` gate** — runs early in the dispatch flow: phone UA + `desktop_only` slug + `force_mobile_for_user_agents=true` + no `?force_mobile=1` → render the prompt and short-circuit the buffer. Tablets and desktops always pass through. **(5) `Shared\Mobile\MobileSettings`** — typed `force_mobile_for_user_agents` accessor over `tt_config` (per-club, per CLAUDE.md §4). Default `true`. **(6) `?tt_view=mobile-settings`** — operator-only toggle reachable via URL (gated on `tt_edit_settings`); the Configuration → Mobile sub-tile lands in child 3 alongside the rest of the rollout. **(7) Initial classification set** — 17 obviously-desktop slugs (`configuration`, `audit-log`, `migrations`, `roles`, `eval-categories`, `cohort-transitions`, `usage-stats`, `usage-stats-details`, `custom-css`, `custom-fields`, `workflow-config`, `team-blueprints`, `methodology`, `invitations-config`, `trial-tracks-editor`, `trial-letter-templates-editor`, `wizards-admin`) registered as `desktop_only` so the gate has something to enforce on day one. Child 3 expands to the full 25-route inventory and adds the `native` declarations. **What's NOT in this PR**: pattern library components (child 2 — `tt-mobile-bottom-sheet` / `tt-mobile-cta-bar` / `tt-mobile-segmented-control` / `tt-mobile-list-item`); full-route classification + new-evaluation wizard's `RateActorsStep` mobile retrofit (child 3 — closes the v3.78.0 deferred-polish item); Configuration → Mobile sub-tile wiring (child 3). 18 new NL msgids covering prompt copy, settings UI, and email body.
 
 = 3.103.1 — MFA login enforcement (#0086 Workstream B Child 1, sprint 3 of 3) =
 
