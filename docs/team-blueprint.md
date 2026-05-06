@@ -66,10 +66,50 @@ Reopen requires the same manage permission as creating a blueprint, so a head co
 - **View** — coaches see blueprints for teams they head-coach; head-of-academy / academy admin see all teams. Same scope as the Team chemistry board.
 - **Create / edit / lock / delete** — gated on `tt_manage_team_chemistry` (head coach by default; head-of-academy / admin globally).
 
-## Phase 1 limits
+## Squad plan flavour
 
-- **Match-day flavour only**. Squad-plan flavour (multi-tier position fits, primary / secondary / tertiary) lands in Phase 2.
-- **No trials on the pitch yet** — trial overlay arrives with squad-plan in Phase 2.
+When you create a blueprint, the wizard asks for the type:
+
+- **Match-day lineup** — one starting XI for an upcoming match. Single player per slot. (The default; everything above describes this flavour.)
+- **Squad plan** — planning towards next season or trial decisions. Each slot has three tiers (primary / secondary / tertiary) and the roster sidebar adds a *Trials* section.
+
+The flavour is locked at create time.
+
+### Tiered depth chart
+
+On a squad-plan blueprint, a depth-chart table appears below the pitch:
+
+| Slot | Primary | Secondary | Tertiary |
+| --- | --- | --- | --- |
+| GK | Lucas | Jonas | — |
+| LB | Eve | Mira | Jamal |
+| LCB | Sam | — | — |
+
+Each cell is a drop target. Drag any roster chip onto any cell to fill that tier. Drag a depth-chart chip back to the roster panel to remove. The pitch slots above keep accepting drops too — they target the **primary** tier.
+
+The same player can't sit in two slots or tiers on one blueprint. If you drag Lucas from `GK / Primary` onto `LB / Secondary`, his GK slot empties automatically.
+
+### Trial overlay
+
+The roster sidebar gets a *Trials* divider listing trial players assigned to this team — i.e. `tt_players` rows on this team's roster with `status = 'trial'`. Trial chips have a yellow border and a small `TRIAL` badge. Drag-drop is identical to regular roster chips, so you can stage a trial in tier 2 / 3 of a slot to make the "should we sign this kid?" conversation visible against the depth chart.
+
+### Coverage heatmap
+
+A *Show coverage heatmap* button on squad-plan blueprints flips the pitch into a depth-coverage view:
+
+- **Red** — 0 tiers covered (uncovered)
+- **Orange** — 1 (primary only, no backup)
+- **Yellow** — 2 (primary + secondary, no third)
+- **Green** — 3 (full depth)
+
+Each slot shows `N/3` so you can read the page at a glance: where are the gaps? `← Back to lineup view` returns to the editor.
+
+### Chemistry on a squad-plan blueprint
+
+Chemistry only scores the **starting XI** — i.e. the primary tier. Tier 2 and 3 are depth signal, not lineup signal. The headline number reflects the primary lineup; lines render between the primary players.
+
+## Phase 2 limits
+
 - **No comments** — staff discussion lives outside the blueprint for now; Phase 3 will add a comments thread per blueprint via the Threads module.
 - **Mobile drag-drop is awkward**. HTML5 drag-and-drop on touch devices works but isn't great. A long-press-to-pick-up fallback is on the polish list.
 - **No share-link**. A public URL for parents / external coaches is Phase 4.

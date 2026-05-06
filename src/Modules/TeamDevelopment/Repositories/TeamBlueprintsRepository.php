@@ -27,6 +27,13 @@ class TeamBlueprintsRepository {
     public const FLAVOUR_MATCH_DAY  = 'match_day';
     public const FLAVOUR_SQUAD_PLAN = 'squad_plan';
 
+    public const TIER_PRIMARY   = 'primary';
+    public const TIER_SECONDARY = 'secondary';
+    public const TIER_TERTIARY  = 'tertiary';
+
+    /** @var list<string> */
+    public const TIERS = [ self::TIER_PRIMARY, self::TIER_SECONDARY, self::TIER_TERTIARY ];
+
     private \wpdb $wpdb;
     private string $blueprints;
     private string $assignments;
@@ -69,16 +76,19 @@ class TeamBlueprintsRepository {
         return $out;
     }
 
-    public function create( int $team_id, string $name, int $formation_template_id, int $created_by ): int {
+    public function create( int $team_id, string $name, int $formation_template_id, int $created_by, string $flavour = self::FLAVOUR_MATCH_DAY ): int {
         $name = trim( $name );
         if ( $team_id <= 0 || $formation_template_id <= 0 || $name === '' ) return 0;
+        if ( ! in_array( $flavour, [ self::FLAVOUR_MATCH_DAY, self::FLAVOUR_SQUAD_PLAN ], true ) ) {
+            $flavour = self::FLAVOUR_MATCH_DAY;
+        }
 
         $ok = $this->wpdb->insert( $this->blueprints, [
             'club_id'               => CurrentClub::id(),
             'uuid'                  => self::uuid(),
             'team_id'               => $team_id,
             'name'                  => $name,
-            'flavour'               => self::FLAVOUR_MATCH_DAY,
+            'flavour'               => $flavour,
             'formation_template_id' => $formation_template_id,
             'status'                => self::STATUS_DRAFT,
             'created_by'            => $created_by > 0 ? $created_by : null,
@@ -130,11 +140,11 @@ class TeamBlueprintsRepository {
     }
 
     /**
-     * Bulk-replace the slot assignments. Caller passes a complete map;
-     * any slot not present is removed. Empty player_id removes that
-     * slot's assignment.
+     * Bulk-replace the slot assignments. Match-day flavour: caller
+     * passes `slot => player_id`. Squad-plan flavour: caller passes
+     * `slot => [tier => player_id]` (one entry per tier present).
      *
-     * @param array<string, ?int> $slot_to_player
+     * @param array<string, mixed> $slot_to_player
      */
     public function replaceAssignments( int $blueprint_id, array $slot_to_player ): bool {
         if ( $blueprint_id <= 0 ) return false;
@@ -144,17 +154,35 @@ class TeamBlueprintsRepository {
             'blueprint_id' => $blueprint_id,
             'club_id'      => $club_id,
         ] );
-        foreach ( $slot_to_player as $slot => $pid ) {
+        foreach ( $slot_to_player as $slot => $value ) {
             $slot_label = (string) $slot;
-            $player_id  = $pid !== null ? (int) $pid : 0;
-            if ( $slot_label === '' || $player_id <= 0 ) continue;
-            $this->wpdb->insert( $this->assignments, [
-                'club_id'      => $club_id,
-                'blueprint_id' => $blueprint_id,
-                'slot_label'   => $slot_label,
-                'player_id'    => $player_id,
-                'updated_at'   => current_time( 'mysql' ),
-            ] );
+            if ( $slot_label === '' ) continue;
+            if ( is_array( $value ) ) {
+                foreach ( $value as $tier => $pid ) {
+                    $tier_clean = self::cleanTier( (string) $tier );
+                    $player_id  = $pid !== null ? (int) $pid : 0;
+                    if ( $player_id <= 0 ) continue;
+                    $this->wpdb->insert( $this->assignments, [
+                        'club_id'      => $club_id,
+                        'blueprint_id' => $blueprint_id,
+                        'slot_label'   => $slot_label,
+                        'tier'         => $tier_clean,
+                        'player_id'    => $player_id,
+                        'updated_at'   => current_time( 'mysql' ),
+                    ] );
+                }
+            } else {
+                $player_id = $value !== null ? (int) $value : 0;
+                if ( $player_id <= 0 ) continue;
+                $this->wpdb->insert( $this->assignments, [
+                    'club_id'      => $club_id,
+                    'blueprint_id' => $blueprint_id,
+                    'slot_label'   => $slot_label,
+                    'tier'         => self::TIER_PRIMARY,
+                    'player_id'    => $player_id,
+                    'updated_at'   => current_time( 'mysql' ),
+                ] );
+            }
         }
         $this->wpdb->update( $this->blueprints, [
             'updated_at' => current_time( 'mysql' ),
@@ -163,12 +191,12 @@ class TeamBlueprintsRepository {
     }
 
     /**
-     * Update one slot's assignment in place. Used by the drag-drop
-     * editor's per-drop REST call so a 50-row replace doesn't run on
-     * every gesture.
+     * Update one (slot, tier) assignment in place. Tier defaults to
+     * `primary` so match-day callers don't need to pass it.
      */
-    public function setAssignment( int $blueprint_id, string $slot_label, ?int $player_id ): bool {
+    public function setAssignment( int $blueprint_id, string $slot_label, ?int $player_id, string $tier = self::TIER_PRIMARY ): bool {
         if ( $blueprint_id <= 0 || $slot_label === '' ) return false;
+        $tier    = self::cleanTier( $tier );
         $club_id = CurrentClub::id();
 
         if ( $player_id === null || $player_id <= 0 ) {
@@ -176,17 +204,28 @@ class TeamBlueprintsRepository {
                 'club_id'      => $club_id,
                 'blueprint_id' => $blueprint_id,
                 'slot_label'   => $slot_label,
+                'tier'         => $tier,
             ] );
         } else {
+            // Same player can't sit in two slots/tiers on one blueprint
+            // — strip any prior assignment for this player first so a
+            // drag from one slot to another doesn't double-book.
+            $this->wpdb->delete( $this->assignments, [
+                'club_id'      => $club_id,
+                'blueprint_id' => $blueprint_id,
+                'player_id'    => (int) $player_id,
+            ] );
+
             $existing = (int) $this->wpdb->get_var( $this->wpdb->prepare(
                 "SELECT id FROM {$this->assignments}
-                  WHERE blueprint_id = %d AND club_id = %d AND slot_label = %s",
-                $blueprint_id, $club_id, $slot_label
+                  WHERE blueprint_id = %d AND club_id = %d AND slot_label = %s AND tier = %s",
+                $blueprint_id, $club_id, $slot_label, $tier
             ) );
             $payload = [
                 'club_id'      => $club_id,
                 'blueprint_id' => $blueprint_id,
                 'slot_label'   => $slot_label,
+                'tier'         => $tier,
                 'player_id'    => (int) $player_id,
                 'updated_at'   => current_time( 'mysql' ),
             ];
@@ -202,19 +241,50 @@ class TeamBlueprintsRepository {
         return true;
     }
 
-    /** @return array<string, int> slot_label → player_id */
+    /**
+     * @return array<string, array{primary?:int, secondary?:int, tertiary?:int}>
+     *   One outer key per slot; inner keys are tiers that have a
+     *   player. Slots with no assignment are absent.
+     */
     public function loadAssignments( int $blueprint_id ): array {
         if ( $blueprint_id <= 0 ) return [];
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT slot_label, player_id FROM {$this->assignments}
+            "SELECT slot_label, tier, player_id FROM {$this->assignments}
               WHERE blueprint_id = %d AND club_id = %d AND player_id IS NOT NULL",
             $blueprint_id, CurrentClub::id()
         ) );
         $out = [];
         foreach ( (array) $rows as $r ) {
-            $out[ (string) $r->slot_label ] = (int) $r->player_id;
+            $slot = (string) $r->slot_label;
+            $tier = self::cleanTier( (string) $r->tier );
+            if ( ! isset( $out[ $slot ] ) ) $out[ $slot ] = [];
+            $out[ $slot ][ $tier ] = (int) $r->player_id;
         }
         return $out;
+    }
+
+    /**
+     * Match-day-shaped lineup (slot → player_id) — primary tier only.
+     * Used by `BlueprintChemistryEngine` whether the blueprint flavour
+     * is match_day (one tier) or squad_plan (multi-tier; chemistry only
+     * scores the starting XI).
+     *
+     * @return array<string, int>
+     */
+    public function loadPrimaryLineup( int $blueprint_id ): array {
+        $by_slot = $this->loadAssignments( $blueprint_id );
+        $out = [];
+        foreach ( $by_slot as $slot => $tiers ) {
+            if ( isset( $tiers[ self::TIER_PRIMARY ] ) ) {
+                $out[ $slot ] = (int) $tiers[ self::TIER_PRIMARY ];
+            }
+        }
+        return $out;
+    }
+
+    private static function cleanTier( string $tier ): string {
+        $tier = strtolower( trim( $tier ) );
+        return in_array( $tier, self::TIERS, true ) ? $tier : self::TIER_PRIMARY;
     }
 
     /**

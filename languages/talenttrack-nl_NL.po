@@ -13171,3 +13171,58 @@ msgstr "Toewijzingsmap is verplicht."
 
 msgid "Status must be draft, shared, or locked."
 msgstr "Status moet draft, shared of locked zijn."
+
+# v3.99.0 — #0068 Phase 2: squad-plan flavour, tiers, trials, heatmap
+msgid "Type *"
+msgstr "Type *"
+
+msgid "Match-day lineup"
+msgstr "Wedstrijdopstelling"
+
+msgid "one starting XI for an upcoming match. Single player per slot."
+msgstr "één basiself voor een aankomende wedstrijd. Eén speler per positie."
+
+msgid "Squad plan"
+msgstr "Selectieplan"
+
+msgid "planning towards next season or trial decisions. Three tiers per slot (primary / secondary / tertiary) and trial overlay."
+msgstr "planning richting volgend seizoen of beslissingen over proefspelers. Drie tiers per positie (primair / secundair / tertiair) en proefspeler-overlay."
+
+msgid "Squad plan (3 tiers per slot, trial overlay)"
+msgstr "Selectieplan (3 tiers per positie, proefspeler-overlay)"
+
+msgid "Match-day lineup (single starting XI)"
+msgstr "Wedstrijdopstelling (één basiself)"
+
+msgid "Match-day"
+msgstr "Wedstrijddag"
+
+msgid "Show coverage heatmap"
+msgstr "Toon dekkingsheatmap"
+
+msgid "← Back to lineup view"
+msgstr "← Terug naar opstellingsweergave"
+
+msgid "Drag onto a depth-chart cell below or onto a pitch slot. Drop back here to remove. Trial players carry a yellow border."
+msgstr "Sleep naar een dieptecel hieronder of naar een veldpositie. Sleep hierheen terug om te verwijderen. Proefspelers hebben een gele rand."
+
+msgid "Tertiary"
+msgstr "Tertiair"
+
+msgid "TRIAL"
+msgstr "PROEF"
+
+msgid "%1$s — primary: %2$s — %3$d/3 tiers covered"
+msgstr "%1$s — primair: %2$s — %3$d/3 tiers gevuld"
+
+msgid "0 — uncovered"
+msgstr "0 — niet gedekt"
+
+msgid "1 — primary only"
+msgstr "1 — alleen primair"
+
+msgid "2 — primary + secondary"
+msgstr "2 — primair + secundair"
+
+msgid "3 — full depth"
+msgstr "3 — volledige diepte"
