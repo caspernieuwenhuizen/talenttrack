@@ -1,6 +1,6 @@
 <?php
 /**
- * Migration 0070 — #0081 child 4 trial-cases rolling membership.
+ * Migration 0071 — #0081 child 4 trial-cases rolling membership.
  *
  * Two changes:
  *   - tt_trial_cases gains a `continued_until` DATE column. Set when the
@@ -25,7 +25,7 @@ use TT\Infrastructure\Database\Migration;
 return new class extends Migration {
 
     public function getName(): string {
-        return '0070_trial_cases_rolling_membership';
+        return '0071_trial_cases_rolling_membership';
     }
 
     public function up(): void {
