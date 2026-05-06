@@ -70,6 +70,42 @@ final class CoreSurfaceRegistration {
         self::registerSlugOwnerships();
         self::registerAdminSubmenu();
         self::registerAdminDashboardTiles();
+        self::registerMobileClasses();
+    }
+
+    /**
+     * #0084 Child 1 — initial mobile classification declarations.
+     *
+     * Only the obviously-desktop surfaces register here so the gate
+     * has something to enforce on day one. Every other slug resolves
+     * to `viewable` via `MobileSurfaceRegistry`'s default. #0084 Child
+     * 3 walks the full inventory and registers each slug explicitly,
+     * including the `native` declarations on the persona dashboard,
+     * the new-evaluation wizard, and the player profile.
+     */
+    private static function registerMobileClasses(): void {
+        $desktop_only = [
+            'configuration',
+            'custom-fields',
+            'eval-categories',
+            'roles',
+            'migrations',
+            'usage-stats',
+            'usage-stats-details',
+            'audit-log',
+            'cohort-transitions',
+            'custom-css',
+            'workflow-config',
+            'team-blueprints',
+            'methodology',
+            'invitations-config',
+            'trial-tracks-editor',
+            'trial-letter-templates-editor',
+            'wizards-admin',
+        ];
+        foreach ( $desktop_only as $slug ) {
+            \TT\Shared\MobileSurfaceRegistry::register( $slug, \TT\Shared\MobileSurfaceRegistry::CLASS_DESKTOP_ONLY );
+        }
     }
 
     /**

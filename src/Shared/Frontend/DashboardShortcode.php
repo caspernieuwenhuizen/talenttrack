@@ -211,6 +211,26 @@ class DashboardShortcode {
         // The MfaLoginGuard middleware redirects gated logged-in users
         // here until they complete a TOTP verification.
         $mfa_slugs    = [ 'mfa-prompt' ];
+        // #0084 Child 1 — mobile classification surfaces.
+        $mobile_slugs = [ 'mobile-settings' ];
+
+        // #0084 Child 1 — desktop-only mobile gate. When the visitor is
+        // a phone-class user agent, the requested view is classified
+        // `desktop_only` per `MobileSurfaceRegistry`, the per-club setting
+        // `force_mobile_for_user_agents` is on, and the user has not opted
+        // out via `?force_mobile=1`, render the polite prompt page instead.
+        // Tablets and desktops always pass through.
+        if ( $view !== ''
+             && ! \TT\Shared\MobileDetector::userForcedMobile()
+             && \TT\Shared\MobileDetector::isPhone()
+             && \TT\Shared\MobileSurfaceRegistry::isDesktopOnly( $view )
+             && ( new \TT\Shared\Mobile\MobileSettings() )->isMobileGateEnabled()
+        ) {
+            FrontendMobilePromptView::render( $user_id, $view );
+            echo '</div>';
+            $output = ob_get_clean() ?: '';
+            return apply_filters( 'tt_dashboard_data', $output, $user_id );
+        }
 
         if ( $view !== '' ) {
             // #0056 — render the desktop_preferred banner at the top of
@@ -304,6 +324,8 @@ class DashboardShortcode {
             }
         } elseif ( in_array( $view, $mfa_slugs, true ) ) {
             \TT\Modules\Mfa\Frontend\FrontendMfaPromptView::render( $user_id, $is_admin );
+        } elseif ( in_array( $view, $mobile_slugs, true ) ) {
+            FrontendMobileSettingsView::render( $user_id, $is_admin );
         } else {
             FrontendBackButton::render();
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
