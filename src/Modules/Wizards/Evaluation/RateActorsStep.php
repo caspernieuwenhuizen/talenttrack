@@ -14,12 +14,11 @@ use TT\Shared\Wizards\WizardStepInterface;
  * category) or deep-rate (full sub-criteria + notes) each player in
  * one submission.
  *
- * v1 ships a desktop-style vertical list; the spec's full mobile-vs-
- * desktop responsive split is deferred — the layout collapses onto
- * mobile via the existing `@media (max-width: 720px)` rules. The
- * Skip affordance, autosave indicator, and the soft-warn at Review
- * are also v1 follow-ups; the wizard is functional without them and
- * the data model already supports them.
+ * #0080 Wave B4 — markup is now mobile-first. Each player renders as
+ * a `<details>` card containing a `.tt-rate-grid`; per-category rows
+ * stack vertically on phones (`<720px`) and switch to a 180px-label
+ * + control two-column grid on `≥720px`. Inputs hit the v3.50.0 48px
+ * touch-target floor; numeric inputs keep `inputmode="numeric"`.
  */
 final class RateActorsStep implements WizardStepInterface {
 
@@ -65,48 +64,52 @@ final class RateActorsStep implements WizardStepInterface {
 
         <?php foreach ( $players as $pl ) :
             $name = trim( (string) $pl->first_name . ' ' . (string) $pl->last_name );
+            $pid  = (int) $pl->id;
             ?>
-            <details class="tt-rate-player" style="margin: var(--tt-sp-3) 0;border:1px solid var(--tt-line);border-radius:8px;padding:var(--tt-sp-3);" open>
-                <summary style="font-weight:600;cursor:pointer;"><?php echo esc_html( $name ); ?></summary>
+            <details class="tt-rate-player" open>
+                <summary class="tt-rate-player-name"><?php echo esc_html( $name ); ?></summary>
 
-                <table style="margin-top:var(--tt-sp-2);width:100%;">
-                    <tbody>
+                <div class="tt-rate-grid">
                     <?php foreach ( (array) $quick_cats as $cat ) :
-                        $val = (int) ( $state['ratings'][ (int) $pl->id ][ (int) $cat->id ] ?? 0 );
-                        ?>
-                        <tr>
-                            <th style="text-align:left;font-weight:normal;width:160px;"><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label ) ); ?></th>
-                            <td>
+                        $cid    = (int) $cat->id;
+                        $val    = (int) ( $state['ratings'][ $pid ][ $cid ] ?? 0 );
+                        $iid    = 'tt-rate-' . $pid . '-' . $cid;
+                        $label  = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label );
+                    ?>
+                        <div class="tt-rate-row">
+                            <label class="tt-rate-label" for="<?php echo esc_attr( $iid ); ?>"><?php echo esc_html( $label ); ?></label>
+                            <div class="tt-rate-control">
                                 <input type="number" min="0" max="<?php echo (int) $max; ?>"
                                        step="1"
                                        inputmode="numeric"
-                                       name="ratings[<?php echo (int) $pl->id; ?>][<?php echo (int) $cat->id; ?>]"
-                                       value="<?php echo $val > 0 ? (int) $val : ''; ?>"
-                                       style="width:60px;" />
-                                <span style="color:var(--tt-muted);font-size:13px;">
+                                       id="<?php echo esc_attr( $iid ); ?>"
+                                       class="tt-rate-input"
+                                       name="ratings[<?php echo $pid; ?>][<?php echo $cid; ?>]"
+                                       value="<?php echo $val > 0 ? (int) $val : ''; ?>" />
+                                <span class="tt-rate-max">
                                     / <?php echo (int) $max; ?>
                                 </span>
-                            </td>
-                        </tr>
+                            </div>
+                        </div>
                     <?php endforeach; ?>
-                        <tr>
-                            <th style="text-align:left;font-weight:normal;"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
-                            <td>
-                                <textarea rows="2" name="notes[<?php echo (int) $pl->id; ?>]" style="width:100%;"><?php
-                                    echo esc_textarea( (string) ( $state['notes'][ (int) $pl->id ] ?? '' ) );
-                                ?></textarea>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2">
-                                <label>
-                                    <input type="checkbox" name="skip[<?php echo (int) $pl->id; ?>]" value="1" <?php checked( ! empty( $state['skip'][ (int) $pl->id ] ) ); ?> />
-                                    <?php esc_html_e( 'Skip this player (no evaluation written)', 'talenttrack' ); ?>
-                                </label>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                    <div class="tt-rate-row">
+                        <label class="tt-rate-label" for="tt-rate-notes-<?php echo $pid; ?>"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label>
+                        <div class="tt-rate-control">
+                            <textarea rows="2"
+                                      id="tt-rate-notes-<?php echo $pid; ?>"
+                                      class="tt-rate-notes"
+                                      name="notes[<?php echo $pid; ?>]"><?php
+                                echo esc_textarea( (string) ( $state['notes'][ $pid ] ?? '' ) );
+                            ?></textarea>
+                        </div>
+                    </div>
+                    <div class="tt-rate-row tt-rate-skip-row">
+                        <label class="tt-rate-skip">
+                            <input type="checkbox" name="skip[<?php echo $pid; ?>]" value="1" <?php checked( ! empty( $state['skip'][ $pid ] ) ); ?> />
+                            <?php esc_html_e( 'Skip this player (no evaluation written)', 'talenttrack' ); ?>
+                        </label>
+                    </div>
+                </div>
             </details>
         <?php endforeach;
     }

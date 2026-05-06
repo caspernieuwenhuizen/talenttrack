@@ -40,17 +40,52 @@ class DemoBatchRegistry {
     }
 
     /**
-     * All entity ids tagged with the given type, across every batch.
+     * All entity ids tagged with the given type. Optionally narrowed
+     * to a specific `batch_id` for the v3.95.1+ per-batch wipe scope
+     * (#0080 Wave B2). Empty / null `$batch_id` returns the all-batches
+     * set (the historical behaviour, kept for back-compat callers).
      *
      * @return int[]
      */
-    public static function allEntityIds( string $entity_type ): array {
+    public static function allEntityIds( string $entity_type, ?string $batch_id = null ): array {
         global $wpdb;
-        $rows = $wpdb->get_col( $wpdb->prepare(
-            "SELECT entity_id FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = %s AND club_id = %d",
-            $entity_type, CurrentClub::id()
-        ) );
+        if ( $batch_id !== null && $batch_id !== '' ) {
+            $rows = $wpdb->get_col( $wpdb->prepare(
+                "SELECT entity_id FROM {$wpdb->prefix}tt_demo_tags
+                 WHERE entity_type = %s AND club_id = %d AND batch_id = %s",
+                $entity_type, CurrentClub::id(), $batch_id
+            ) );
+        } else {
+            $rows = $wpdb->get_col( $wpdb->prepare(
+                "SELECT entity_id FROM {$wpdb->prefix}tt_demo_tags
+                 WHERE entity_type = %s AND club_id = %d",
+                $entity_type, CurrentClub::id()
+            ) );
+        }
         return array_map( 'intval', (array) $rows );
+    }
+
+    /**
+     * #0080 Wave B2 — listBatches() helper for the wipe-form Batch
+     * dropdown. Returns one row per distinct `batch_id` with the
+     * batch's first-seen timestamp + the count of tagged entities.
+     * Most-recent batch first.
+     *
+     * @return array<int, array{batch_id:string, created_at:string, tag_count:int}>
+     */
+    public static function listBatches(): array {
+        global $wpdb;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT batch_id,
+                    MIN(created_at) AS created_at,
+                    COUNT(*)        AS tag_count
+               FROM {$wpdb->prefix}tt_demo_tags
+              WHERE club_id = %d
+              GROUP BY batch_id
+              ORDER BY MIN(created_at) DESC",
+            CurrentClub::id()
+        ), ARRAY_A );
+        return is_array( $rows ) ? $rows : [];
     }
 
     /**

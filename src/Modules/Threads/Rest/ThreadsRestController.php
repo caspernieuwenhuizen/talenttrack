@@ -3,6 +3,7 @@ namespace TT\Modules\Threads\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Threads\Domain\ThreadVisibility;
 use TT\Modules\Threads\ThreadMessagesRepository;
 use TT\Modules\Threads\ThreadReadsRepository;
@@ -195,7 +196,7 @@ final class ThreadsRestController {
         if ( ! $msg ) {
             return new WP_Error( 'tt_thread_not_found', __( 'Message not found.', 'talenttrack' ), [ 'status' => 404 ] );
         }
-        $is_admin  = current_user_can( 'tt_view_settings' );
+        $is_admin  = self::hasGlobalThreadAccess( get_current_user_id(), 'change' );
         $is_author = (int) $msg->author_user_id === get_current_user_id();
         if ( ! $is_author && ! $is_admin ) {
             return new WP_Error( 'tt_thread_delete_denied', __( 'You cannot delete this message.', 'talenttrack' ), [ 'status' => 403 ] );
@@ -219,13 +220,35 @@ final class ThreadsRestController {
     }
 
     private static function canSeePrivate( string $type, int $thread_id, int $user_id ): bool {
-        if ( user_can( $user_id, 'tt_view_settings' ) ) return true;
+        if ( self::hasGlobalThreadAccess( $user_id, 'read' ) ) return true;
         $adapter = ThreadTypeRegistry::get( $type );
         if ( ! $adapter ) return false;
         // Goal-specific: a coach who owns the player can see private; we
         // ask the adapter for that via canRead + a coach-cap probe.
         if ( ! $adapter->canRead( $user_id, $thread_id ) ) return false;
-        return user_can( $user_id, 'tt_edit_evaluations' ) || user_can( $user_id, 'tt_view_settings' );
+        return user_can( $user_id, 'tt_edit_evaluations' );
+    }
+
+    /**
+     * #0080 Wave C3 — was `current_user_can('tt_view_settings')` /
+     * `'tt_edit_evaluations' || tt_view_settings`. Replace the umbrella
+     * "is admin?" probes with a precise check: does the user have
+     * `thread_messages/<activity>/global` in the matrix? Falls back to
+     * WP `manage_options` for matrix-dormant installs, then to the
+     * v3.0 umbrella for back-compat.
+     *
+     * @param string $activity 'read' | 'change'
+     */
+    private static function hasGlobalThreadAccess( int $user_id, string $activity ): bool {
+        if ( $user_id <= 0 ) return false;
+        if ( class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            $matrix_activity = $activity === 'read' ? MatrixGate::READ : MatrixGate::CHANGE;
+            if ( MatrixGate::can( $user_id, 'thread_messages', $matrix_activity, MatrixGate::SCOPE_GLOBAL ) ) {
+                return true;
+            }
+        }
+        if ( user_can( $user_id, 'manage_options' ) ) return true;
+        return user_can( $user_id, 'tt_view_settings' );
     }
 
     /** @return array<string,mixed> */

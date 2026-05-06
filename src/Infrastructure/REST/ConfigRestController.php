@@ -11,11 +11,17 @@ use TT\Infrastructure\Query\QueryHelpers;
  *
  * #0019 Sprint 5. Thin write surface around `QueryHelpers::set_config`
  * so the frontend Configuration view can save without going through
- * the wp-admin admin-post.php handler. The cap gate is
- * `tt_edit_settings` (same as the existing wp-admin save handler).
+ * the wp-admin admin-post.php handler.
  *
- * Whitelist of accepted keys lives in `ALLOWED_KEYS` — drift-prone
- * if we accept arbitrary keys, and the frontend doesn't expose
+ * #0080 Wave C3 — was umbrella `tt_view_settings` / `tt_edit_settings`,
+ * now per-key sub-cap routing. Each writable key is mapped to a
+ * sub-cap area (branding / feature_toggles / rating_scale / …);
+ * the GET / POST handlers gate per key. Existing umbrella holders
+ * keep working via `CapabilityAliases` (the roll-up still grants the
+ * umbrella when every sub-cap is held).
+ *
+ * Whitelist of accepted keys lives in `ALLOWED_KEYS` — drift-prone if
+ * we accept arbitrary keys, and the frontend doesn't expose
  * everything anyway.
  */
 class ConfigRestController {
@@ -61,6 +67,39 @@ class ConfigRestController {
         'persona_dashboard.readonly_observer.enabled',
     ];
 
+    /**
+     * Exact-match key → sub-cap area. Areas resolve to `tt_view_<area>`
+     * and `tt_edit_<area>` per request action.
+     */
+    private const KEY_AREA_MAP = [
+        'academy_name'      => 'branding',
+        'logo_url'          => 'branding',
+        'primary_color'     => 'branding',
+        'secondary_color'   => 'branding',
+        'theme_inherit'     => 'branding',
+        'font_display'      => 'branding',
+        'font_body'         => 'branding',
+        'color_accent'      => 'branding',
+        'color_danger'      => 'branding',
+        'color_warning'     => 'branding',
+        'color_success'     => 'branding',
+        'color_info'        => 'branding',
+        'color_focus'       => 'branding',
+        'rating_min'        => 'rating_scale',
+        'rating_max'        => 'rating_scale',
+        'rating_step'       => 'rating_scale',
+        'show_legacy_menus' => 'feature_toggles',
+    ];
+
+    /**
+     * Areas this controller can route to. Used by the route gates as
+     * the "user has at least one relevant sub-cap" allow-list.
+     */
+    private const AREAS = [
+        'branding', 'rating_scale', 'feature_toggles',
+        'lookups', 'translations',
+    ];
+
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
@@ -70,12 +109,12 @@ class ConfigRestController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_config' ],
-                'permission_callback' => function () { return current_user_can( 'tt_view_settings' ) || current_user_can( 'tt_edit_settings' ); },
+                'permission_callback' => function () { return self::userHasAnyAreaCap( 'view' ); },
             ],
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'save_config' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+                'permission_callback' => function () { return self::userHasAnyAreaCap( 'edit' ); },
             ],
         ] );
     }
@@ -83,6 +122,7 @@ class ConfigRestController {
     public static function get_config( \WP_REST_Request $r ) {
         $out = [];
         foreach ( self::ALLOWED_KEYS as $key ) {
+            if ( ! current_user_can( self::capForKey( $key, 'view' ) ) ) continue;
             $out[ $key ] = QueryHelpers::get_config( $key, '' );
         }
         return RestResponse::success( $out );
@@ -94,16 +134,59 @@ class ConfigRestController {
             return RestResponse::error( 'bad_payload', __( 'Expected an object under `config`.', 'talenttrack' ), 400 );
         }
         $written = 0;
+        $skipped = [];
         foreach ( $payload as $key => $value ) {
             $key = (string) $key;
             // Whitelist is the security boundary — match raw key (some
             // legitimate keys contain dots, e.g. `persona_dashboard.enabled`,
             // which sanitize_key would strip).
             if ( ! in_array( $key, self::ALLOWED_KEYS, true ) ) continue;
+            if ( ! current_user_can( self::capForKey( $key, 'edit' ) ) ) {
+                $skipped[] = $key;
+                continue;
+            }
             QueryHelpers::set_config( $key, sanitize_text_field( (string) $value ) );
             $written++;
         }
-        Logger::info( 'rest.config.saved', [ 'keys_written' => $written, 'user' => get_current_user_id() ] );
-        return RestResponse::success( [ 'keys_written' => $written ] );
+        Logger::info( 'rest.config.saved', [
+            'keys_written' => $written,
+            'keys_skipped' => $skipped,
+            'user'         => get_current_user_id(),
+        ] );
+        return RestResponse::success( [ 'keys_written' => $written, 'keys_skipped' => $skipped ] );
+    }
+
+    /**
+     * Resolve the sub-cap that gates a given config key.
+     *
+     * Order: exact-match table → `persona_dashboard.*` prefix bucket →
+     * umbrella fallback. The umbrella is the right answer for keys we
+     * haven't yet area-categorised; the CapabilityAliases roll-up
+     * still resolves it to the union of every sub-cap so umbrella
+     * holders pass.
+     */
+    private static function capForKey( string $key, string $action ): string {
+        $area = self::KEY_AREA_MAP[ $key ] ?? null;
+        if ( $area === null && strpos( $key, 'persona_dashboard.' ) === 0 ) {
+            $area = 'feature_toggles';
+        }
+        if ( $area === null ) {
+            return $action === 'view' ? 'tt_view_settings' : 'tt_edit_settings';
+        }
+        return ( $action === 'view' ? 'tt_view_' : 'tt_edit_' ) . $area;
+    }
+
+    /**
+     * True if the user holds any sub-cap that lets them touch at least
+     * one config area exposed by this controller (or the umbrella).
+     */
+    private static function userHasAnyAreaCap( string $action ): bool {
+        $umbrella = $action === 'view' ? 'tt_view_settings' : 'tt_edit_settings';
+        if ( current_user_can( $umbrella ) ) return true;
+        $prefix = $action === 'view' ? 'tt_view_' : 'tt_edit_';
+        foreach ( self::AREAS as $area ) {
+            if ( current_user_can( $prefix . $area ) ) return true;
+        }
+        return false;
     }
 }

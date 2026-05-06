@@ -399,6 +399,25 @@ class FrontendWizardView extends FrontendViewBase {
             .tt-pd-eval-progress { margin: 16px 0; }
             .tt-pd-eval-progress-bar { width: 100%; height: 14px; }
             .tt-pd-eval-progress-status { margin: 6px 0 0; font-size: .875rem; color: #5f6368; }
+
+            /* #0080 Wave B4 — RateActorsStep mobile-first card stack. */
+            .tt-rate-player { margin: var(--tt-sp-3, 16px) 0; border: 1px solid var(--tt-line, #e0e0e0); border-radius: 8px; padding: var(--tt-sp-3, 16px); }
+            .tt-rate-player-name { font-weight: 600; cursor: pointer; font-size: 1.05rem; min-height: 48px; display: flex; align-items: center; }
+            .tt-rate-grid { display: grid; gap: 12px; margin-top: var(--tt-sp-2, 12px); }
+            .tt-rate-row { display: grid; grid-template-columns: 1fr; gap: 6px; align-items: start; }
+            .tt-rate-label { font-weight: 500; font-size: .95rem; }
+            .tt-rate-control { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+            .tt-rate-input { width: 96px; min-height: 48px; font-size: 16px; padding: 10px 12px; border: 1px solid #c4c7c5; border-radius: 8px; box-sizing: border-box; }
+            .tt-rate-notes { width: 100%; min-height: 72px; font-size: 16px; padding: 10px 12px; border: 1px solid #c4c7c5; border-radius: 8px; box-sizing: border-box; resize: vertical; }
+            .tt-rate-max { color: var(--tt-muted, #5f6368); font-size: 14px; }
+            .tt-rate-skip { display: flex; align-items: center; gap: 8px; min-height: 48px; cursor: pointer; }
+            .tt-rate-skip input[type=checkbox] { width: 22px; height: 22px; flex: 0 0 22px; }
+            @media (min-width: 720px) {
+                .tt-rate-row { grid-template-columns: 180px 1fr; gap: 12px; align-items: center; }
+                .tt-rate-skip-row { grid-template-columns: 1fr; }
+                .tt-rate-label { padding-top: 0; }
+            }
+
             @media (min-width: 768px) {
                 .tt-wizard-actions { padding-top: 18px; }
             }

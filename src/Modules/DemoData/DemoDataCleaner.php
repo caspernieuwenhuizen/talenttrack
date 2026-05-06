@@ -83,11 +83,17 @@ class DemoDataCleaner {
      *   to all categories — the v3.85.0 "wipe everything" behaviour, kept
      *   for back-compat callers. Each category expands to its dependency
      *   cascade; the union is then deleted in `DATA_ORDER`.
+     * @param string|null $batch_id #0080 Wave B2 — optional batch
+     *   filter. When set, the wipe is scoped to entities tagged with
+     *   that `batch_id` only; the matching `tt_demo_tags` rows for
+     *   that batch are also dropped. Other batches' demo rows survive.
+     *   `null` / empty preserves the all-batches behaviour.
      * @return array<string,int> Rows deleted per entity type.
      */
-    public static function wipeData( ?array $categories = null ): array {
+    public static function wipeData( ?array $categories = null, ?string $batch_id = null ): array {
         global $wpdb;
         $deleted = [];
+        $batch_id = ( $batch_id !== null && $batch_id !== '' ) ? $batch_id : null;
 
         $types_to_wipe = self::resolveTypes( $categories );
 
@@ -95,7 +101,7 @@ class DemoDataCleaner {
         // players, so the persistent users remain in a clean state.
         // Only fires when player rows are actually being wiped.
         if ( in_array( 'player', $types_to_wipe, true ) ) {
-            $player_ids = DemoBatchRegistry::allEntityIds( 'player' );
+            $player_ids = DemoBatchRegistry::allEntityIds( 'player', $batch_id );
             if ( $player_ids ) {
                 $placeholders = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
                 $wpdb->query( $wpdb->prepare(
@@ -107,7 +113,7 @@ class DemoDataCleaner {
 
         foreach ( self::DATA_ORDER as $type ) {
             if ( ! in_array( $type, $types_to_wipe, true ) ) continue;
-            $ids = DemoBatchRegistry::allEntityIds( $type );
+            $ids = DemoBatchRegistry::allEntityIds( $type, $batch_id );
             if ( ! $ids ) {
                 $deleted[ $type ] = 0;
                 continue;
@@ -121,11 +127,19 @@ class DemoDataCleaner {
             ) );
             $deleted[ $type ] = (int) $n;
 
-            // Drop the tags for the same type.
-            $wpdb->query( $wpdb->prepare(
-                "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = %s AND club_id = %d",
-                $type, CurrentClub::id()
-            ) );
+            // Drop the tags for the same type. Scoped to the batch
+            // when one was passed, so other batches' tags survive.
+            if ( $batch_id !== null ) {
+                $wpdb->query( $wpdb->prepare(
+                    "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = %s AND club_id = %d AND batch_id = %s",
+                    $type, CurrentClub::id(), $batch_id
+                ) );
+            } else {
+                $wpdb->query( $wpdb->prepare(
+                    "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = %s AND club_id = %d",
+                    $type, CurrentClub::id()
+                ) );
+            }
         }
         return $deleted;
     }
@@ -168,10 +182,10 @@ class DemoDataCleaner {
      * @return array<string,int> category key => total tagged rows that
      *   would be deleted if that category alone were checked
      */
-    public static function categoryCounts(): array {
+    public static function categoryCounts( ?string $batch_id = null ): array {
         $per_type = [];
         foreach ( array_keys( self::TABLE_MAP ) as $type ) {
-            $per_type[ $type ] = count( DemoBatchRegistry::allEntityIds( $type ) );
+            $per_type[ $type ] = count( DemoBatchRegistry::allEntityIds( $type, $batch_id ) );
         }
         $out = [];
         foreach ( self::CATEGORIES as $cat => $types ) {
