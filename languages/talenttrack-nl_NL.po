@@ -13172,6 +13172,36 @@ msgstr "Toewijzingsmap is verplicht."
 msgid "Status must be draft, shared, or locked."
 msgstr "Status moet draft, shared of locked zijn."
 
+# v3.99.1 — #0006 team-planning module
+msgid "Team planner"
+msgstr "Teamplanner"
+
+msgid "You do not have access to the team planner."
+msgstr "Je hebt geen toegang tot de teamplanner."
+
+msgid "No teams available — assign yourself to a team first to use the planner."
+msgstr "Geen teams beschikbaar — wijs jezelf eerst toe aan een team om de planner te gebruiken."
+
+msgid "Previous week"
+msgstr "Vorige week"
+
+msgid "Next week"
+msgstr "Volgende week"
+
+msgid "Schedule activity"
+msgstr "Activiteit plannen"
+
+msgid "Plan training activities week by week, with principle tagging and plan-state tracking."
+msgstr "Plan trainingsactiviteiten per week, met koppeling van principes en bijhouden van planstatus."
+
+msgid "Principles trained — last 8 weeks"
+msgstr "Getrainde principes — laatste 8 weken"
+
+msgid "%d activity"
+msgid_plural "%d activities"
+msgstr[0] "%d activiteit"
+msgstr[1] "%d activiteiten"
+# v3.99.0 — #0068 Phase 2: squad-plan flavour, tiers, trials, heatmap
 # v3.100.0 — #0068 Phase 2: squad-plan flavour, tiers, trials, heatmap
 msgid "Type *"
 msgstr "Type *"

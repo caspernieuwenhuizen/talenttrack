@@ -465,6 +465,10 @@ class DashboardShortcode {
             case 'onboarding-pipeline':
                 \TT\Modules\Prospects\Frontend\FrontendOnboardingPipelineView::render( $user_id );
                 break;
+            // #0006 — team-planning calendar.
+            case 'team-planner':
+                \TT\Modules\Planning\Frontend\FrontendTeamPlannerView::render( $user_id );
+                break;
             default:
                 FrontendBackButton::render();
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';

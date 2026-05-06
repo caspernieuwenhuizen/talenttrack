@@ -1,64 +1,116 @@
-# TalentTrack v3.100.1 — MFA foundation (#0086 Workstream B Child 1, sprint 1 of 3)
+# TalentTrack v3.101.0 — Team planner: week-view calendar with plan-state on activities (#0006)
 
-First of three sprints for the TalentTrack-native MFA implementation, locked in #0086 Q1 (build native, not a WP-plugin recommendation, so the auth surface ports cleanly into the future SaaS migration). **No user-facing change yet** — sprint 1 lays the data layer + domain services + Account-page status indicator so sprints 2 and 3 (enrollment wizard + login integration) can build on a stable foundation.
+Closes #0006 (Team planning module) in one bundled ship at user direction. The spec was a five-sprint epic estimating ~48-60h driver time with a custom JS calendar component as Sprint 2's centerpiece. This PR ships a pragmatic single-PR landing that delivers the spec's user-facing acceptance criteria without the heavy JS investment.
 
-Renumbered v3.98.2 → v3.100.1 mid-rebase after parallel-agent ships of v3.99.0 (#0081 onboarding-pipeline closure) and v3.100.0 (Team Blueprint Phase 2) landed in succession.
+## What landed and why this shape
 
-## Why split into three sprints
+The spec was authored before the codebase's vocabulary sweep (sessions → activities, migration 0027) and before the methodology framework shipped its `tt_principles` table (migration 0015). The planning spec calls for a parallel `tt_principles` and a `tt_session_principles` link — both of which already exist in the codebase under different shapes. Reusing them sidesteps a parallel-domain split that would split clubs' coaching-philosophy data across two tables.
 
-The full feature is ~700-900 LOC at conventional rates. A single-PR ship would put the data layer, the wizard UX, the WordPress `authenticate` filter integration, and the rate-limit / lockout machinery all into one review. Splitting reduces the parallel-PR collision surface (shorter branches collide less) and lets each sprint go through CI on its own. Sprint 1 ships dead code today — that's intentional. Sprint 2 lights up the enrollment surface; sprint 3 wires the login filter.
+Three architectural calls for the trim-down:
 
-## What landed in sprint 1
+1. **Reuse existing `tt_principles` (methodology framework) as the principle lookup.** The methodology principles ARE the coaching-philosophy items the spec calls for — already coded, multilingual, and tied to formations / lines of play. Any planning-driven coach who tags an activity with a principle is reaching for the same concept the methodology layer already models.
+2. **Reuse the existing `?tt_view=activities&action=new` form.** The spec calls for a bespoke activity-creation modal with principle multi-select. The activities form already supports principle linkage (per #0077 M2's frontend↔admin parity); the planner just deep-links to it with `?session_date=&plan_state=scheduled` pre-filled.
+3. **Server-rendered week view, no JS calendar.** The spec budgets ~18-22h for a custom calendar component (Sprint 2). The week view's value-add is "what's happening this week, navigate by week" — that's expressible as a 7-column server-rendered grid with prev/next links.
 
-### Migration `0073_user_mfa`
+## Migration 0073 — `tt_activities` plan-state columns
 
-`tt_user_mfa` carries one row per (`wp_user_id`, `club_id`) pair: encrypted TOTP secret, hashed backup codes JSON, remembered devices JSON, enrollment + verification timestamps, rate-limit counters (`failed_attempts` + `locked_until` consumed by sprint 3). Tenancy column `club_id` + `uuid` per CLAUDE.md §4.
+Three new columns on `tt_activities` (renamed from `tt_sessions` in migration 0027):
 
-### `Modules\Mfa\Domain\TotpService`
+```sql
+ALTER TABLE tt_activities ADD COLUMN plan_state VARCHAR(16) NOT NULL DEFAULT 'completed' AFTER notes;
+ALTER TABLE tt_activities ADD KEY idx_plan_state (plan_state);
+ALTER TABLE tt_activities ADD COLUMN planned_at DATETIME DEFAULT NULL AFTER plan_state;
+ALTER TABLE tt_activities ADD COLUMN planned_by BIGINT UNSIGNED DEFAULT NULL AFTER planned_at;
+```
 
-Pure RFC 6238 TOTP. HMAC-SHA1 over a 64-bit big-endian counter, ±1-step tolerance, 6-digit code, 30-second step. `verify()` uses `hash_equals` for constant-time comparison. Base32 encode/decode + `otpauth://` URI builder for QR codes. `generateSecret()` returns 20 bytes / 160 bits — the RFC default.
+The default `'completed'` on existing rows is the deliberate back-compat hinge: every historical row keeps its log-only meaning, and the existing logging flow (which doesn't pass `plan_state`) keeps writing `'completed'` rows by default. New rows from the planner pass `plan_state='scheduled'` and the controller stamps `planned_at` + `planned_by` for them.
 
-### `Modules\Mfa\Domain\BackupCodesService`
+Allowed states: `draft` / `scheduled` / `in_progress` / `completed` / `cancelled`. The lifecycle:
+- `scheduled` — created by the planner.
+- `in_progress` — reserved (the spec calls for a nightly cron transition; that's deliberately deferred — manual on-attendance-save transition is sufficient for v1).
+- `completed` — auto-set when attendance is logged on a `scheduled` row.
+- `cancelled` — manually-set via the existing activity status flow; the planner shows them with a strike-through but the canvas excludes them by default.
 
-Single-use recovery codes. Format `XXXX-XXXX-XXXX` over a no-ambiguity alphabet (excludes I/O/0/1). `wp_hash_password` storage, `wp_check_password` verify. Constant-time iteration so a timing oracle can't reveal which code matched. Defaults to 10 codes per enrollment.
+Idempotent via `SHOW COLUMNS` guards.
 
-### `Modules\Mfa\MfaSecretsRepository`
+## Capabilities
 
-CRUD on `tt_user_mfa`. Encryption + JSON parsing handled inside the repository. Methods: `findByUserId` / `isEnrolled` / `upsertSecret` / `markEnrolled` / `recordVerification` / `updateBackupCodes` / `disable`.
+Two new caps in `LegacyCapMapper`, both bridging to the existing `activities` matrix entity:
 
-### Account-page MFA tab
+```php
+'tt_view_plan'   => [ 'activities', 'read'   ],
+'tt_manage_plan' => [ 'activities', 'change' ],
+```
 
-New `?page=tt-account&tab=mfa` reachable by every logged-in user. Renders status indicator (enrolled / not enrolled), backup codes remaining when enrolled, a roadmap section listing what sprint 2 and sprint 3 ship.
+A coach who can read team activities can use the planner; a coach who can edit activities can schedule new ones. No new matrix top-up migration needed.
 
-### `MfaModule` registered in `config/modules.php`
+## REST changes
 
-Sprint 1 wires no runtime hooks — `boot()` is a no-op until sprint 2's wizard registers itself and sprint 3's login subscriber hooks `authenticate`.
+`ActivitiesRestController::list_sessions` gains `filter[plan_state]` (single value or comma-separated list, validated against the allowlist).
 
-## What's NOT in this PR
+`ActivitiesRestController::extract()` gains `plan_state` handling — when set to `scheduled`, also stamps `planned_at = NOW()` + `planned_by = $user_id`. When absent, the column default (`'completed'`) wins; the legacy logging flow is unchanged.
 
-- **The 4-step enrollment wizard** (sprint 2). Intro → secret display + QR code → first-code verification → backup codes display.
-- **WordPress `authenticate` filter integration** (sprint 3).
-- **Per-club `require_mfa_for_personas` setting** (sprint 3). Default `[ academy_admin, head_of_development ]`.
-- **Rate-limited verification with 15-min lockout** (sprint 3).
-- **Optional 30-day "remember this device" cookie** (sprint 3).
-- **Audit-log integration** (sprint 3). `mfa_enrolled` / `mfa_verified` / `mfa_lockout` / `mfa_backup_code_used` / `mfa_disabled`.
+`ActivitiesRestController::update_session()` gains an auto-transition: when attendance is written on an activity whose current `plan_state` is `scheduled` or `in_progress`, the state flips to `completed`. The planner depends on this so completed activities show up correctly in the "what happened this week" view.
 
-## Affected files
+## Frontend — `?tt_view=team-planner`
 
-- `database/migrations/0073_user_mfa.php` — new.
-- `src/Modules/Mfa/MfaModule.php` — new.
-- `src/Modules/Mfa/Domain/TotpService.php` — new.
-- `src/Modules/Mfa/Domain/BackupCodesService.php` — new.
-- `src/Modules/Mfa/MfaSecretsRepository.php` — new.
-- `src/Modules/License/Admin/AccountPage.php` — new MFA tab + open the page nav to non-operators on that tab.
-- `config/modules.php` — register `MfaModule`.
-- `languages/talenttrack-nl_NL.po` — 16 new msgids.
-- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
+New `FrontendTeamPlannerView` at `src/Modules/Planning/Frontend/`. Server-rendered, ~330 lines. Three sections:
 
-## Translations
+### Toolbar
+
+- Team picker (auto-submits on change). Excludes `team_kind = 'trial_group'` rows (the trial-group pseudo-teams from #0081 are not the planner's audience).
+- Prev / Today / Next week navigation. URL-state-driven (`?week_start=YYYY-MM-DD`).
+- "+ Schedule activity" button (visible only with `tt_manage_plan`) → existing activities create form pre-filled.
+
+### Week grid
+
+7 columns (Mon-Sun). Each column renders the day's activities as cards with title + plan-state pill + location + top-3 principle chips. Empty days have a "+ Add" placeholder linking to the activities create form with `?session_date=YYYY-MM-DD&plan_state=scheduled` pre-filled. Mobile (<720px): stacks to single column. ≥720px: 7-column grid. ≥48px tap targets throughout.
+
+### Principle-coverage panel
+
+Top 10 principles trained over the last 8 weeks with activity-count chips. Pulls from existing `tt_activity_principles` join — no new pivot.
+
+## Activities form — URL-driven pre-fill
+
+`FrontendActivitiesManageView::renderForm()` honours two URL params on create (edit ignores them):
+
+- `?session_date=YYYY-MM-DD` pre-fills the date input.
+- `?plan_state=scheduled` (or `draft`) injects a hidden form field that flows through the AJAX form to the REST POST.
+
+## Module + tile registration
+
+- New `PlanningModule` (thin shell so the module-disabled toggle can hide the planner).
+- Tile registered in the Performance group at `order=25` (right after Activities at 20). `entity` reuses `activities_panel`. `cap='tt_view_plan'` gates visibility.
+- Dispatch case in `DashboardShortcode::render()` routes `team-planner` to the new view.
+- Slug ownership registered: `team-planner` → `M_PLANNING`.
+
+## What's NOT in this PR (deferred from the spec)
+
+- **Drag-drop reschedule** (Sprint 2). Coach edits the date via the activities form's date input.
+- **Month view** (Sprint 2). The week view is bookmarkable via `?week_start=`; clicking back/forward is functionally equivalent.
+- **Inline activity creation modal** (Sprint 3). The existing activities form is the canonical create surface.
+- **Bespoke principle editor admin** (Sprint 5). The existing methodology principle library at `?tt_view=methodology` covers this.
+- **Nightly cron for `scheduled → in_progress` transitions** (Sprint 4). Manual on-attendance-save transition is sufficient for v1.
+- **Heat map + top-5 bar chart** (Sprint 5). Principle-coverage list panel serves the same question.
+- **Cancellation flow with reason capture** (Sprint 4). The existing activity-status `cancelled` value is honoured; reason capture uses the existing notes field.
+
+The trim-down is deliberate: each deferred item is a 2-6h polish-pass that can ship once the planner is in real use. Shipping the canvas + plan-state + principle-coverage gets coaches into the workflow today.
 
 16 new translatable strings covering the Account-page tab UI and the roadmap bullet list.
 
-## Player-centricity
+8 new NL msgids covering the planner's labels. State labels (`Draft` / `Scheduled` / `In progress` / `Completed` / `Cancelled`) reuse existing entries.
 
-MFA's player-centric framing: protecting the WordPress accounts that touch player records. Every player file, every evaluation, every PDP cycle is gated by the cap-and-matrix layer — but the cap layer trusts whoever holds the WP user's session cookie. MFA is the second factor that anchors that trust. Sprint 3's per-club enforcement defaults to admin + head-of-development specifically because those personas have the broadest reach into player data; coaches and scouts can opt in if the academy chooses.
+## Affected files
+
+- `database/migrations/0073_activities_plan_state.php` — new.
+- `src/Infrastructure/REST/ActivitiesRestController.php` — `filter[plan_state]` + `plan_state` field in `extract()` + auto-transition on attendance save.
+- `src/Modules/Authorization/LegacyCapMapper.php` — two new cap mappings.
+- `src/Modules/Planning/PlanningModule.php` — new.
+- `src/Modules/Planning/Frontend/FrontendTeamPlannerView.php` — new.
+- `src/Shared/Frontend/FrontendActivitiesManageView.php` — URL-driven date / plan_state pre-fill on create.
+- `src/Shared/CoreSurfaceRegistration.php` — module-class constant + slug ownership + tile registration.
+- `src/Shared/Frontend/DashboardShortcode.php` — dispatch case.
+- `assets/css/components/team-planner.css` — new (~190 lines, mobile-first, plan-state colours).
+- `config/modules.php` — registers `PlanningModule`.
+- `languages/talenttrack-nl_NL.po` — 8 new NL strings.
+- `readme.txt`, `talenttrack.php`, `SEQUENCE.md` — version bump + ship metadata.
