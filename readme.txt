@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.101.1
+Stable tag: 3.102.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.102.0 — Persona dashboard editor: collision detection + alignment guides + Shift snap-to-gap (#0088) =
+
+Closes #0088. Two coupled additions to the persona-dashboard editor (`Configuration → Dashboard layouts`), both pure-vanilla extensions to the existing 1,052-LOC engine — no framework, no build step. **(1) Collision detection + auto-reflow.** New module-internal helpers in `assets/js/persona-dashboard-editor.js`: `slotsCollide(a, b)` rectangle test; `resolveCollisions(grid, droppedSlotId)` push-down cascade rooted at the dropped slot (bounded by `grid.length`, no infinite loop); `compactGrid(grid)` lowers each slot's y to the smallest non-colliding row, sorted by `(y, x)`. Same algorithm shape as `react-grid-layout`'s `compact()` + `moveElement(preventCollision: false)` — re-implemented in vanilla. Wired into `placeNewSlot`, `moveExistingSlot`, `moveSlotByKey`, the `resizeSlot` size-button click handler, plus a one-shot `compactGrid` pass at `loadPersona` + `reset` time so pre-existing overlapping layouts auto-resolve on next load. **(2) Alignment guides.** New `computeAlignmentGuides(draggedRect, otherRects, canvasRect, tolerance)` pure function returns guides where dragged.left/right/centre-x lines up with another slot's matching edge, or with the canvas's own left/right/centre-x; same for top/bottom/centre-y. Renders 1-px guide lines via a fixed-position overlay `<div class="tt-pde-guides">` appended once to `document.body`. Within `SNAP_TOLERANCE_PX` (4px default), `gridCellFromEventWithSnap` snaps the projected drop coords to the aligned column. Guides clear on `drop` / `dragleave` / global `dragend`. **(3) Shift modifier.** Holding Shift on drop switches behaviour from push-and-reflow to snap-to-nearest-free-cell — `findNearestFreeSlot(grid, want, size)` BFS-spirals outward from `(want.x, want.y)` for the first cell that fits. Default stays push-and-reflow (matches Notion); Shift = "find a gap instead" (matches Figma's "snap to whitespace" instinct). **CSS**: new `.tt-pde-guide{,-vertical,-horizontal}` rules + new `--tt-pde-guide-token` brand-style token (default `rgba(91, 141, 239, 0.7)`); honors existing `prefers-reduced-motion: reduce`. **What's NOT in this PR**: separate desktop / mobile layouts (out per spec — current per-slot `mobile_priority` + `mobile_visible` model stays), drag-resize (sizes still come from S/M/L/XL presets only), React / dnd-kit / react-grid-layout port (CLAUDE.md §2 mandates vanilla, no build step), undo limit reduction (current 50 stays — strictly better than spec's 10), full-FLIP animated reflow on grid-cell changes (deferred polish; the layout pass is correct and the existing 60ms transform transition still applies; reflow itself is instant rather than animated). No new translatable strings (silent visual feature). `docs/persona-dashboard.md` (EN + NL) gains a *Drag & drop on the canvas* section. Renumbered v3.101.0 → v3.102.0 mid-CI after parallel-agent ships took v3.100.1 (#0086 MFA foundation), v3.101.0 (#0006 team planner), and v3.101.1 (#0086 MFA enrollment wizard).
 
 = 3.101.1 — MFA enrollment wizard (#0086 Workstream B Child 1, sprint 2 of 3) =
 
