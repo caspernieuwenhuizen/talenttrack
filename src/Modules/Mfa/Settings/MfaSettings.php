@@ -44,14 +44,26 @@ final class MfaSettings {
     /**
      * Personas that are required to verify MFA at login.
      *
+     * Distinguishes "key not set" (returns default
+     * `DEFAULT_REQUIRED_PERSONAS`) from "key set to []" (explicit
+     * no-enforcement; returns empty array). The operator-only setting
+     * UI can therefore turn enforcement off for the whole install by
+     * unticking every checkbox without the read path silently re-applying
+     * the default.
+     *
      * @return string[]
      */
     public function requiredPersonas(): array {
-        $stored = $this->config->getJson( self::KEY_REQUIRED_PERSONAS, [] );
-        if ( empty( $stored ) ) return self::DEFAULT_REQUIRED_PERSONAS;
+        // Read the raw stored string so we can distinguish empty-string
+        // (never set) from "[]" (operator explicitly turned off).
+        $raw = $this->config->get( self::KEY_REQUIRED_PERSONAS, '' );
+        if ( $raw === '' ) return self::DEFAULT_REQUIRED_PERSONAS;
+
+        $decoded = json_decode( $raw, true );
+        if ( ! is_array( $decoded ) ) return self::DEFAULT_REQUIRED_PERSONAS;
+
         // Defensive: stored value might be wrong-shaped on hand-edit; coerce to string list.
-        $clean = array_values( array_unique( array_filter( array_map( 'strval', $stored ) ) ) );
-        return $clean === [] ? self::DEFAULT_REQUIRED_PERSONAS : $clean;
+        return array_values( array_unique( array_filter( array_map( 'strval', $decoded ) ) ) );
     }
 
     /** @param string[] $personas */
