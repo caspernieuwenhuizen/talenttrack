@@ -233,6 +233,27 @@ class DashboardShortcode {
         }
 
         if ( $view !== '' ) {
+            // #0084 Child 2 — conditional mobile-patterns enqueue.
+            // `native`-classed surfaces get the bottom-sheet / CTA-bar /
+            // segmented-control / list-item CSS components plus the
+            // bottom-sheet drag-dismiss helper. Other classes never load
+            // them, keeping the desktop bundle slim.
+            if ( \TT\Shared\MobileSurfaceRegistry::isNative( $view ) ) {
+                wp_enqueue_style(
+                    'tt-mobile-patterns',
+                    TT_PLUGIN_URL . 'assets/css/mobile-patterns.css',
+                    [ 'tt-public' ],
+                    TT_VERSION
+                );
+                wp_enqueue_script(
+                    'tt-mobile-helpers',
+                    TT_PLUGIN_URL . 'assets/js/mobile-helpers.js',
+                    [],
+                    TT_VERSION,
+                    true
+                );
+            }
+
             // #0056 — render the desktop_preferred banner at the top of
             // any dispatched view that carries the flag. CSS-gated
             // visibility means desktop / tablet users never see it; phone
