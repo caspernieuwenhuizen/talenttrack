@@ -16,6 +16,16 @@ class TrialCasesRepository {
     public const DECISION_DENY_FINAL    = 'deny_final';
     public const DECISION_DENY_ENCOURAGE = 'deny_encouragement';
 
+    // #0081 child 4 — rolling-membership decisions for the
+    // trial-group review chain. `offered_team_position` →
+    // AwaitTeamOfferDecisionTemplate spawned. `continue_in_trial_group`
+    // → trial case stays open, ReviewTrialGroupMembershipTemplate
+    // re-spawns in 90 days, `continued_until` bumps. `declined_offered_position`
+    // → terminal (the parent + player declined the offer).
+    public const DECISION_OFFERED_TEAM_POSITION    = 'offered_team_position';
+    public const DECISION_DECLINED_OFFERED_POSITION = 'declined_offered_position';
+    public const DECISION_CONTINUE_IN_TRIAL_GROUP  = 'continue_in_trial_group';
+
     private \wpdb $wpdb;
     private string $table;
 
@@ -122,6 +132,7 @@ class TrialCasesRepository {
             'inputs_released_at', 'inputs_released_by',
             'acceptance_slip_returned_at', 'acceptance_slip_returned_by',
             'notes', 'archived_at', 'archived_by',
+            'continued_until',
         ];
         $clean = array_intersect_key( $patch, array_flip( $allowed ) );
         if ( ! $clean ) return false;

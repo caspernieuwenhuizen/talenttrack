@@ -175,6 +175,15 @@ final class LegacyCapMapper {
         'tt_view_player_notes'           => [ 'player_notes',          'read' ],
         'tt_edit_player_notes'           => [ 'player_notes',          'change' ],
         'tt_manage_player_notes'         => [ 'player_notes',          'create_delete' ],
+
+        // #0081 — Onboarding pipeline (children 2b + 4: late-stage
+        // decision caps). Both bridge to `prospects.create_delete`
+        // because deciding a test-training outcome or a trial-group
+        // outcome materially commits the prospect's lifecycle (admit
+        // → trial case + player promotion; decline → archive). HoD
+        // + Admin only.
+        'tt_decide_test_training_outcome' => [ 'prospects',            'create_delete' ],
+        'tt_decide_trial_outcome'         => [ 'prospects',            'create_delete' ],
     ];
 
     public static function isKnown( string $cap ): bool {

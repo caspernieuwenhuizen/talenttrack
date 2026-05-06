@@ -19,6 +19,7 @@ use TT\Modules\PersonaDashboard\Widgets\KpiCardWidget;
 use TT\Modules\PersonaDashboard\Widgets\KpiStripWidget;
 use TT\Modules\PersonaDashboard\Widgets\MiniPlayerListWidget;
 use TT\Modules\PersonaDashboard\Widgets\NavigationTileWidget;
+use TT\Modules\PersonaDashboard\Widgets\OnboardingPipelineWidget;
 use TT\Modules\PersonaDashboard\Widgets\QuickActionsPanelWidget;
 use TT\Modules\PersonaDashboard\Widgets\RateCardHeroWidget;
 use TT\Modules\PersonaDashboard\Widgets\SystemHealthStripWidget;
@@ -48,6 +49,10 @@ final class CoreWidgets {
         WidgetRegistry::register( new SystemHealthStripWidget() );
         WidgetRegistry::register( new AssignedPlayersGridWidget() );
         WidgetRegistry::register( new TeamOverviewGridWidget() );
+
+        // #0081 child 3 — onboarding-pipeline visualisation. Reads
+        // existing workflow-task + trial-case data; no new tables.
+        WidgetRegistry::register( new OnboardingPipelineWidget() );
 
         TableRowSourceRegistry::register( 'upcoming_activities',     new UpcomingActivitiesSource() );
         TableRowSourceRegistry::register( 'trials_needing_decision', new TrialsNeedingDecisionSource() );
