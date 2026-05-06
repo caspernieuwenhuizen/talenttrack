@@ -16,6 +16,8 @@ Pick a topic. Use the search box to find anything quickly.
 - [Player rate cards](rate-cards.md)
 - [Comparing players](player-comparison.md)
 - [Methodology](methodology.md)
+- [Team chemistry](team-chemistry.md)
+- [Team blueprint](team-blueprint.md)
 - [Bulk actions](bulk-actions.md)
 - [Printing and PDFs](printing-pdf.md)
 
