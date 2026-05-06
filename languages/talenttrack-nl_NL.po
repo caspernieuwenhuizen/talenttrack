@@ -12903,9 +12903,6 @@ msgstr "Teamplaats aanbieden"
 msgid "Continue in trial group (re-review in 90 days)"
 msgstr "Doorgaan in trialgroep (opnieuw beoordelen over 90 dagen)"
 
-msgid "Decline (final)"
-msgstr "Definitief afwijzen"
-
 msgid "Rationale"
 msgstr "Onderbouwing"
 
