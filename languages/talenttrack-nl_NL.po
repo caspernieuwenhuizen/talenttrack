@@ -12741,7 +12741,7 @@ msgstr "Snel een nieuwe prospect vastleggen — identiteit, leeftijd, huidige cl
 msgid "Invite prospect to test training"
 msgstr "Prospect uitnodigen voor proeftraining"
 
-msgid "Pick a test-training session for this prospect, compose the invitation to the parent, and send. Due 7 days after the prospect is logged."
+msgid "Pick a test training for this prospect, compose the invitation to the parent, and send. Due 7 days after the prospect is logged."
 msgstr "Kies een proeftraining voor deze prospect, stel de uitnodiging aan de ouder op en verstuur. Verloopt 7 dagen na vastleggen van de prospect."
 
 msgid "Discovery"
@@ -12792,34 +12792,34 @@ msgstr "Er bestaat al een prospect met deze naam (%s). Vink \"dit is een nieuwe 
 msgid "Prospect: %s"
 msgstr "Prospect: %s"
 
-msgid "Choose or schedule a test-training session"
+msgid "Choose or schedule a test training"
 msgstr "Kies of plan een proeftraining"
 
-msgid "Existing upcoming session"
-msgstr "Bestaande aankomende sessie"
+msgid "Existing upcoming test training"
+msgstr "Bestaande aankomende proeftraining"
 
-msgid "— pick an upcoming session —"
-msgstr "— kies een aankomende sessie —"
+msgid "— pick an upcoming test training —"
+msgstr "— kies een aankomende proeftraining —"
 
-msgid "— or schedule a new session below —"
-msgstr "— of plan hieronder een nieuwe sessie —"
+msgid "— or schedule a new test training below —"
+msgstr "— of plan hieronder een nieuwe proeftraining —"
 
-msgid "New session date + time"
-msgstr "Nieuwe sessie datum + tijd"
+msgid "New test training date + time"
+msgstr "Nieuwe proeftraining datum + tijd"
 
 msgid "Invitation message to the parent"
 msgstr "Uitnodigingsbericht aan de ouder"
 
-msgid "Pick an existing session OR enter a new session date."
-msgstr "Kies een bestaande sessie OF vul een nieuwe sessiedatum in."
+msgid "Pick an existing test training OR enter a new date."
+msgstr "Kies een bestaande proeftraining OF vul een nieuwe datum in."
 
-msgid "Pick exactly one — an existing session or a new date, not both."
-msgstr "Kies precies één — een bestaande sessie of een nieuwe datum, niet allebei."
+msgid "Pick exactly one — an existing test training or a new date, not both."
+msgstr "Kies precies één — een bestaande proeftraining of een nieuwe datum, niet allebei."
 
 msgid "Write a short message for the parent."
 msgstr "Schrijf een kort bericht voor de ouder."
 
-msgid "Hi,\n\nWe'd like to invite %s to a test training session at our academy. Please let us know if you can attend.\n\nBest regards,\nThe academy"
+msgid "Hi,\n\nWe'd like to invite %s to a test training at our academy. Please let us know if you can attend.\n\nBest regards,\nThe academy"
 msgstr "Hallo,\n\nWe willen %s graag uitnodigen voor een proeftraining bij onze academie. Laat ons weten of je kunt komen.\n\nMet vriendelijke groet,\nDe academie"
 
 msgid "your child"

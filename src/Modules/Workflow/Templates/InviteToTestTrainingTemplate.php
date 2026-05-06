@@ -13,7 +13,7 @@ use TT\Modules\Workflow\TaskTemplate;
  *
  * Spawned automatically by `LogProspectTemplate`'s chain step. Assigned
  * to a user with the `tt_head_dev` role — the HoD picks an existing or
- * new test-training session, composes the parent-facing invitation, and
+ * new test training, composes the parent-facing invitation, and
  * submits.
  *
  * Pipeline stage: **Invited** (column 2 on the future widget). Stays in
@@ -22,7 +22,7 @@ use TT\Modules\Workflow\TaskTemplate;
  * confirmation is pending.
  *
  * Default deadline: 7 days. The HoD has plenty of time to find a
- * suitable session, but stale entries should surface on the dashboard
+ * suitable slot, but stale entries should surface on the dashboard
  * so they don't sit forever.
  *
  * Required cap: `tt_invite_prospects` (HoD, Admin per matrix scoping).
@@ -44,7 +44,7 @@ class InviteToTestTrainingTemplate extends TaskTemplate {
     }
 
     public function description(): string {
-        return __( 'Pick a test-training session for this prospect, compose the invitation to the parent, and send. Due 7 days after the prospect is logged.', 'talenttrack' );
+        return __( 'Pick a test training for this prospect, compose the invitation to the parent, and send. Due 7 days after the prospect is logged.', 'talenttrack' );
     }
 
     public function defaultSchedule(): array {

@@ -101,7 +101,7 @@ class LogProspectTemplate extends TaskTemplate {
 
     /**
      * Chain step: spawn InviteToTestTraining for the HoD to invite the
-     * just-logged prospect to a test training session. Skip the spawn
+     * just-logged prospect to a test training. Skip the spawn
      * if `prospect_id` didn't make it onto the response (defensive —
      * shouldn't happen since `serializeResponse()` raises a hard error
      * when it can't insert the row).

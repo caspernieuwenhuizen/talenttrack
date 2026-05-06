@@ -10,22 +10,22 @@ use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
  * InviteToTestTrainingForm (#0081 child 2) — HoD picks or creates a
- * test-training session and composes the invitation to the parent.
+ * test training and composes the invitation to the parent.
  *
- * Two modes for the session:
- *   - "Pick an existing session" — dropdown of upcoming sessions
- *     (`tt_test_trainings.date >= today`).
- *   - "Schedule a new session" — date/time + location + age group +
- *     coach. Submits in the same POST so the HoD doesn't have to flip
+ * Two modes:
+ *   - Pick an existing upcoming test training (dropdown of
+ *     `tt_test_trainings` rows with `date >= today`).
+ *   - Schedule a new one — date/time + location + age group + coach.
+ *     Submits in the same POST so the HoD doesn't have to flip
  *     between forms.
  *
  * Message composer is a single textarea with sensible default copy
- * referencing the prospect's first name and the chosen session date.
- * Email/SMS dispatch is out of scope for child 2 — that ties into
- * #0066 (communication module). For now the form captures the
- * intended message and writes it to the response payload; PR 2b's
- * `ConfirmTestTrainingTemplate` will surface a copy-pasteable string
- * that the HoD can send manually until the comms module lands.
+ * referencing the prospect's first name. Email/SMS dispatch is out
+ * of scope for child 2 — that ties into #0066 (communication module).
+ * For now the form captures the intended message and writes it to
+ * the response payload; PR 2b's `ConfirmTestTrainingTemplate` will
+ * surface a copy-pasteable string that the HoD can send manually
+ * until the comms module lands.
  */
 class InviteToTestTrainingForm implements FormInterface {
 
@@ -44,14 +44,14 @@ class InviteToTestTrainingForm implements FormInterface {
                 </p>
             <?php endif; ?>
 
-            <h3 style="margin:0 0 12px; font-size:1rem;"><?php esc_html_e( 'Choose or schedule a test-training session', 'talenttrack' ); ?></h3>
+            <h3 style="margin:0 0 12px; font-size:1rem;"><?php esc_html_e( 'Choose or schedule a test training', 'talenttrack' ); ?></h3>
 
             <p style="margin: 0 0 6px;">
-                <label for="tt-itt-existing"><?php esc_html_e( 'Existing upcoming session', 'talenttrack' ); ?></label>
+                <label for="tt-itt-existing"><?php esc_html_e( 'Existing upcoming test training', 'talenttrack' ); ?></label>
             </p>
             <p>
                 <select id="tt-itt-existing" name="test_training_id" <?php echo $disabled; ?> style="width:100%;">
-                    <option value=""><?php esc_html_e( '— pick an upcoming session —', 'talenttrack' ); ?></option>
+                    <option value=""><?php esc_html_e( '— pick an upcoming test training —', 'talenttrack' ); ?></option>
                     <?php foreach ( $sessions as $s ) : ?>
                         <option value="<?php echo esc_attr( (string) $s->id ); ?>"
                                 <?php selected( (int) ( $existing['test_training_id'] ?? 0 ), (int) $s->id ); ?>>
@@ -62,11 +62,11 @@ class InviteToTestTrainingForm implements FormInterface {
             </p>
 
             <p style="margin: 12px 0 6px; color:#6b7280;">
-                <?php esc_html_e( '— or schedule a new session below —', 'talenttrack' ); ?>
+                <?php esc_html_e( '— or schedule a new test training below —', 'talenttrack' ); ?>
             </p>
 
             <p style="margin: 0 0 6px;">
-                <label for="tt-itt-date"><?php esc_html_e( 'New session date + time', 'talenttrack' ); ?></label>
+                <label for="tt-itt-date"><?php esc_html_e( 'New test training date + time', 'talenttrack' ); ?></label>
             </p>
             <p>
                 <input type="datetime-local" id="tt-itt-date" name="new_date"
@@ -103,10 +103,10 @@ class InviteToTestTrainingForm implements FormInterface {
         $new_date    = trim( (string) ( $raw['new_date'] ?? '' ) );
 
         if ( $existing_id <= 0 && $new_date === '' ) {
-            $errors['__form'] = __( 'Pick an existing session OR enter a new session date.', 'talenttrack' );
+            $errors['__form'] = __( 'Pick an existing test training OR enter a new date.', 'talenttrack' );
         }
         if ( $existing_id > 0 && $new_date !== '' ) {
-            $errors['__form'] = __( 'Pick exactly one — an existing session or a new date, not both.', 'talenttrack' );
+            $errors['__form'] = __( 'Pick exactly one — an existing test training or a new date, not both.', 'talenttrack' );
         }
 
         $msg = trim( (string) ( $raw['invitation_message'] ?? '' ) );
@@ -182,7 +182,7 @@ class InviteToTestTrainingForm implements FormInterface {
     private static function defaultMessage( string $prospect_name ): string {
         // Translators: %s is the prospect's name.
         return sprintf(
-            __( "Hi,\n\nWe'd like to invite %s to a test training session at our academy. Please let us know if you can attend.\n\nBest regards,\nThe academy", 'talenttrack' ),
+            __( "Hi,\n\nWe'd like to invite %s to a test training at our academy. Please let us know if you can attend.\n\nBest regards,\nThe academy", 'talenttrack' ),
             $prospect_name !== '' ? $prospect_name : __( 'your child', 'talenttrack' )
         );
     }
