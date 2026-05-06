@@ -478,6 +478,20 @@ class QueryHelpers {
      * @param array<int, array{label:string, values:array<int,float|int>}> $datasets
      */
     public static function radar_chart_svg( array $labels, array $datasets, float $max = 5.0 ): string {
+        // #0080 Wave A — radar charts are a Standard+ feature. Free
+        // tier sees the upgrade nudge inline at every consumer site
+        // (rate-card, comparison view, persona dashboard, reports,
+        // player + evaluation admin pages). Single chokepoint here so
+        // the 11 consumers don't each duplicate the gate check.
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+             && ! \TT\Modules\License\LicenseGate::allows( 'radar_charts' )
+        ) {
+            return \TT\Modules\License\Admin\UpgradeNudge::inline(
+                __( 'Radar charts', 'talenttrack' ),
+                'standard'
+            );
+        }
+
         $n = count( $labels );
         if ( $n < 3 ) return '';
 

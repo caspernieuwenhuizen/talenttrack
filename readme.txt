@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.95.0
+Stable tag: 3.95.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.95.1 — License gates wired: radar charts, undo bulk, partial restore (#0080 Wave A) =
+
+Closes the first wave of the #0080 deferred-polish epic — three license-feature gates declared in `FeatureMap::DEFAULT_MAP` since v3.86.1 but never enforced at the surfaces that grant them. Now wired. **(1) Radar charts** are gated centrally inside `QueryHelpers::radar_chart_svg()`, so all 11 consumer call sites (player rate card, comparison view, persona dashboard radar widget, reports admin, players + evaluations admin pages, coach dashboard, frontend overview) inherit the gate without per-site edits. Free-tier viewers see a `UpgradeNudge::inline()` block instead of the SVG; Standard / trial / Pro see the chart unchanged. **(2) Bulk-undo** — the safety-backup notice still renders for everyone (the backup itself is defensive code; free for all), but the "Undo via backup →" link is replaced with a paywall variant on free tier ("Bulk-undo is part of the Standard plan. Upgrade to recover from accidents."). Direct-URL POST to the `tt_backup_bulk_undo` admin handler is gated separately; free-tier bypass redirects back without performing the restore. **(3) Partial restore** — the link in the backups list stays visible (the upgrade path stays discoverable), but clicking it on free tier renders the inline upgrade nudge in place of the picker. The `tt_backup_partial_execute` handler re-checks the gate to block direct-URL POST bypass. The radar visual refresh + spec's remaining waves (B/C/D) ship in follow-up PRs.
 
 = 3.95.0 — Onboarding pipeline child 1: prospects entity + PlayerDataMap registry (#0081) =
 

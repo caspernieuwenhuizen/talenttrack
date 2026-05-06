@@ -12680,3 +12680,8 @@ msgstr "Prospects"
 
 msgid "Test trainings"
 msgstr "Proeftrainingen"
+
+# v3.95.1 — #0080 Wave A license gates
+
+msgid "Bulk-undo is part of the Standard plan. Upgrade to recover from accidents."
+msgstr "Bulk-undo is onderdeel van het Standard-plan. Upgrade om fouten te kunnen herstellen."
