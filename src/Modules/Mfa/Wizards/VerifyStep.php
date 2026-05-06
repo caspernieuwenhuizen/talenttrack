@@ -81,13 +81,14 @@ final class VerifyStep implements WizardStepInterface {
             );
         }
 
-        if ( ! $repo->markEnrolled( $user_id ) ) {
-            return new \WP_Error(
-                'mfa_persist_failed',
-                __( 'Verification succeeded but the enrollment could not be saved. Please try again.', 'talenttrack' )
-            );
-        }
-
+        // Note: `enrolled_at` is flipped at the BackupCodesStep submit
+        // (the final step), not here. If the user closes the browser
+        // between this step and step 4 they're left with a stored secret
+        // but no `enrolled_at` — `isEnrolled()` returns false, and a fresh
+        // enrollment attempt overwrites the un-enrolled row cleanly.
+        // Sprint-3 reasoning: keep enrollment atomic with backup-codes
+        // persistence so a user can never end up "enrolled" without their
+        // recovery codes.
         return [ 'mfa_verified_at' => time() ];
     }
 

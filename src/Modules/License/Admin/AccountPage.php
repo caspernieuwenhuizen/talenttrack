@@ -93,7 +93,7 @@ class AccountPage {
         if ( $tab === self::TAB_PLAN ) {
             self::renderPlanTab();
         } elseif ( $tab === self::TAB_MFA ) {
-            self::renderMfaTab();
+            self::renderMfaTab( $is_operator );
         } else {
             self::renderAccountTab();
         }
@@ -131,7 +131,7 @@ class AccountPage {
      * (operator-only sub-section), "remembered devices" list with
      * revoke buttons, recent verification history.
      */
-    private static function renderMfaTab(): void {
+    private static function renderMfaTab( bool $is_operator = false ): void {
         $user_id = get_current_user_id();
         if ( $user_id <= 0 ) {
             echo '<p>' . esc_html__( 'You must be logged in to manage your MFA settings.', 'talenttrack' ) . '</p>';
@@ -270,19 +270,128 @@ class AccountPage {
         endif;
         ?>
 
-        <h3 style="margin-top:40px;"><?php esc_html_e( 'What is still coming', 'talenttrack' ); ?></h3>
-        <ul style="max-width:760px; padding-left:20px;">
-            <li><?php esc_html_e( 'Per-club enforcement: operators can require MFA for academy-admin and head-of-development personas, optionally any other persona.', 'talenttrack' ); ?></li>
-            <li><?php esc_html_e( 'Optional 30-day "remember this device" cookie after a successful verification.', 'talenttrack' ); ?></li>
-            <li><?php esc_html_e( 'Rate limiting: 5 verification attempts per 5 minutes, then a 15-minute lockout.', 'talenttrack' ); ?></li>
-            <li><?php esc_html_e( 'Audit-log integration: every enrollment, verification, lockout, and backup-code use is recorded.', 'talenttrack' ); ?></li>
-        </ul>
-        <p style="max-width:760px; margin-top:24px;">
+        <?php if ( $is_operator ) : self::renderOperatorMfaSection( $tt_msg ); endif; ?>
+
+        <p style="max-width:760px; margin-top:32px;">
             <a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=tt-docs&topic=security-operator-guide' ) ); ?>">
                 <?php esc_html_e( 'Read the security operator guide', 'talenttrack' ); ?>
             </a>
         </p>
         <?php
+    }
+
+    /**
+     * #0086 Workstream B Child 1 sprint 3 — operator-only sub-section on
+     * the MFA tab. Two controls:
+     *   - `require_mfa_for_personas` — multi-checkbox; submit writes
+     *     the per-club setting via `MfaActionHandlers::handleSavePersonas`.
+     *   - Operator-on-behalf-of-user disable — the lockout-recovery flow.
+     *     Operator types a username + ticks confirm, MFA is wiped on
+     *     that user's `tt_user_mfa` row.
+     */
+    private static function renderOperatorMfaSection( string $tt_msg ): void {
+        $settings = new \TT\Modules\Mfa\Settings\MfaSettings();
+        $required = $settings->requiredPersonas();
+        $personas = \TT\Modules\Mfa\Settings\MfaSettings::operatorSelectablePersonas();
+
+        echo '<hr style="margin:40px 0 24px;">';
+        echo '<h2>' . esc_html__( 'Per-club enforcement (operator only)', 'talenttrack' ) . '</h2>';
+        echo '<p style="max-width:760px;">'
+            . esc_html__( 'Pick which personas must enroll in MFA. Users whose persona is on this list will see the MFA prompt at every login (skipped only when they have a valid 30-day "remember this device" cookie). Un-enrolled users in gated personas are redirected to the enrollment wizard at login until they finish.', 'talenttrack' )
+            . '</p>';
+
+        if ( $tt_msg === 'mfa_personas_saved' ) {
+            echo '<div class="notice notice-success is-dismissible" style="padding:12px 16px;">'
+                . '<p style="margin:0;">' . esc_html__( 'Persona enforcement saved.', 'talenttrack' ) . '</p>'
+                . '</div>';
+        }
+
+        echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="margin-top:16px; max-width:760px; padding:16px; background:#fafafa; border:1px solid #ddd;">';
+        wp_nonce_field( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_SAVE_PERSONAS, 'tt_mfa_nonce' );
+        echo '<input type="hidden" name="action" value="' . esc_attr( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_SAVE_PERSONAS ) . '">';
+        echo '<fieldset><legend style="font-weight:600; margin-bottom:8px;">'
+            . esc_html__( 'Personas required to enroll', 'talenttrack' )
+            . '</legend>';
+        foreach ( $personas as $key => $label ) {
+            $checked = in_array( $key, $required, true );
+            echo '<label style="display:block; padding:4px 0; cursor:pointer;">';
+            echo '<input type="checkbox" name="personas[]" value="' . esc_attr( $key ) . '" ' . checked( $checked, true, false ) . '> ';
+            echo '<span>' . esc_html( $label ) . '</span>';
+            echo '</label>';
+        }
+        echo '</fieldset>';
+        echo '<p style="margin-top:12px;"><button type="submit" class="button button-primary">'
+            . esc_html__( 'Save', 'talenttrack' )
+            . '</button></p>';
+        echo '</form>';
+
+        // Operator-on-behalf-of-user disable.
+        echo '<h3 style="margin-top:32px;">' . esc_html__( 'Reset MFA on another user (lockout recovery)', 'talenttrack' ) . '</h3>';
+        echo '<p style="max-width:760px;">'
+            . esc_html__( 'When a user has lost both their authenticator app and all their backup codes, this is the recovery path. Their MFA secret + remembered devices are wiped; they re-enroll on the next login. Audit-logged on both the actor and target side.', 'talenttrack' )
+            . '</p>';
+
+        if ( $tt_msg === 'mfa_operator_disabled' && isset( $_GET['target'] ) ) {
+            $target_id = (int) $_GET['target'];
+            $target    = get_user_by( 'id', $target_id );
+            $target_lbl = $target ? $target->user_login : ('#' . $target_id);
+            echo '<div class="notice notice-success is-dismissible" style="padding:12px 16px;">'
+                . '<p style="margin:0;">' . esc_html(
+                    sprintf(
+                        /* translators: %s username */
+                        __( 'MFA reset for %s. They will be prompted to re-enroll on their next login.', 'talenttrack' ),
+                        $target_lbl
+                    )
+                ) . '</p>'
+                . '</div>';
+        } elseif ( $tt_msg === 'mfa_operator_disable_invalid' ) {
+            echo '<div class="notice notice-error is-dismissible" style="padding:12px 16px;">'
+                . '<p style="margin:0;">' . esc_html__( 'No reset performed — pick a user and tick the confirmation box.', 'talenttrack' ) . '</p>'
+                . '</div>';
+        }
+
+        // List of currently-enrolled users (so the operator picks from a
+        // dropdown rather than typing a numeric ID). Cap to first 200 by
+        // username; in practice an academy has < 50 enrolled accounts.
+        global $wpdb;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT m.wp_user_id, u.user_login, u.display_name
+               FROM {$wpdb->prefix}tt_user_mfa m
+               JOIN {$wpdb->users} u ON u.ID = m.wp_user_id
+              WHERE m.club_id = %d AND m.enrolled_at IS NOT NULL
+              ORDER BY u.user_login ASC
+              LIMIT 200",
+            \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) );
+
+        echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="margin-top:16px; max-width:760px; padding:16px; background:#fff8f8; border:1px solid #f0c5c5;">';
+        wp_nonce_field( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_OPERATOR_DISABLE, 'tt_mfa_nonce' );
+        echo '<input type="hidden" name="action" value="' . esc_attr( \TT\Modules\Mfa\Admin\MfaActionHandlers::ACTION_OPERATOR_DISABLE ) . '">';
+
+        if ( empty( $rows ) ) {
+            echo '<p style="margin:0;">' . esc_html__( 'Nobody is currently enrolled in MFA on this install.', 'talenttrack' ) . '</p>';
+        } else {
+            echo '<label style="display:block; margin-bottom:12px;">';
+            echo '<span style="display:block; font-weight:600; margin-bottom:6px;">'
+                . esc_html__( 'Enrolled user', 'talenttrack' )
+                . '</span>';
+            echo '<select name="target_user_id" required style="min-width:280px;">';
+            echo '<option value="0">' . esc_html__( '— pick a user —', 'talenttrack' ) . '</option>';
+            foreach ( $rows as $r ) {
+                $label = sprintf( '%s (%s)', (string) $r->display_name, (string) $r->user_login );
+                echo '<option value="' . (int) $r->wp_user_id . '">' . esc_html( $label ) . '</option>';
+            }
+            echo '</select>';
+            echo '</label>';
+            echo '<label style="display:flex; gap:8px; align-items:flex-start; cursor:pointer; margin-bottom:12px;">';
+            echo '<input type="checkbox" name="confirm" value="yes" required style="margin-top:4px;">';
+            echo '<span>' . esc_html__( "I have verified that this user is locked out and unable to use their authenticator app or any of their backup codes.", 'talenttrack' ) . '</span>';
+            echo '</label>';
+            echo '<button type="submit" class="button button-secondary" style="color:#b32d2e; border-color:#b32d2e;">'
+                . esc_html__( 'Reset MFA on this user', 'talenttrack' )
+                . '</button>';
+        }
+        echo '</form>';
     }
 
     private static function renderAccountTab(): void {

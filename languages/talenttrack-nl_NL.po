@@ -13526,3 +13526,101 @@ msgstr "view-slug"
 
 msgid "Precedence: matrix when active; cap as fallback; cap_callback as second fallback."
 msgstr "Volgorde: matrix indien actief; cap als terugval; cap_callback als tweede terugval."
+# v3.101.2 — #0086 Workstream B Child 1 sprint 3: MFA login enforcement
+
+msgid "For your security, sign-in needs a second factor on your account."
+msgstr "Voor je veiligheid heeft inloggen een tweede factor op je account nodig."
+
+msgid "Code from your authenticator app"
+msgstr "Code uit je authenticator-app"
+
+msgid "Backup code"
+msgstr "Reservecode"
+
+msgid "Each backup code works once. Dashes optional."
+msgstr "Elke reservecode werkt één keer. Streepjes mogen weg."
+
+msgid "Remember this device for 30 days. Skip the code on this browser next time."
+msgstr "Vertrouw dit apparaat 30 dagen. Sla de code op deze browser de volgende keer over."
+
+msgid "Use a backup code instead"
+msgstr "Gebruik in plaats daarvan een reservecode"
+
+msgid "Use the authenticator app code instead"
+msgstr "Gebruik in plaats daarvan de code uit de authenticator-app"
+
+msgid "%d code remaining"
+msgid_plural "%d codes remaining"
+msgstr[0] "%d code over"
+msgstr[1] "%d codes over"
+
+msgid "Lost both your phone and your backup codes? Ask your academy admin to reset MFA on your account."
+msgstr "Ben je zowel je telefoon als je reservecodes kwijt? Vraag je academy admin om MFA op je account te resetten."
+
+msgid "Too many failed attempts."
+msgstr "Te veel mislukte pogingen."
+
+msgid "Try again in %d minute."
+msgid_plural "Try again in %d minutes."
+msgstr[0] "Probeer het over %d minuut opnieuw."
+msgstr[1] "Probeer het over %d minuten opnieuw."
+
+msgid "If you never see a working code, ask your academy admin to reset MFA on your account."
+msgstr "Krijg je nooit een werkende code? Vraag je academy admin om MFA op je account te resetten."
+
+msgid "You must be logged in to verify a code."
+msgstr "Je moet ingelogd zijn om een code te verifiëren."
+
+msgid "Your MFA setup is incomplete. Sign out and back in, then re-enroll if needed."
+msgstr "Je MFA-setup is niet compleet. Log uit, log opnieuw in en meld je zo nodig opnieuw aan."
+
+msgid "That code didn't match."
+msgstr "Die code klopt niet."
+
+msgid "Per-club enforcement (operator only)"
+msgstr "Afdwingen per club (alleen beheerder)"
+
+msgid "Pick which personas must enroll in MFA. Users whose persona is on this list will see the MFA prompt at every login (skipped only when they have a valid 30-day \"remember this device\" cookie). Un-enrolled users in gated personas are redirected to the enrollment wizard at login until they finish."
+msgstr "Kies welke persona's verplicht MFA moeten aanzetten. Gebruikers met een persona op deze lijst krijgen bij elke login een MFA-prompt (alleen overgeslagen als ze een geldig 30-daagse \"vertrouw dit apparaat\"-cookie hebben). Niet-aangemelde gebruikers binnen gated persona's worden bij het inloggen naar de aanmeldwizard gestuurd tot ze klaar zijn."
+
+msgid "Persona enforcement saved."
+msgstr "Persona-handhaving opgeslagen."
+
+msgid "Personas required to enroll"
+msgstr "Persona's die zich moeten aanmelden"
+
+msgid "Reset MFA on another user (lockout recovery)"
+msgstr "MFA resetten bij een andere gebruiker (herstel bij lockout)"
+
+msgid "When a user has lost both their authenticator app and all their backup codes, this is the recovery path. Their MFA secret + remembered devices are wiped; they re-enroll on the next login. Audit-logged on both the actor and target side."
+msgstr "Als een gebruiker zowel zijn authenticator-app als al zijn reservecodes kwijt is, is dit de herstelroute. De MFA-secret en de vertrouwde apparaten worden gewist; bij de volgende login meldt de gebruiker zich opnieuw aan. Wordt gelogd in audit, zowel bij actor als bij ontvanger."
+
+msgid "MFA reset for %s. They will be prompted to re-enroll on their next login."
+msgstr "MFA gereset voor %s. Bij de volgende login wordt om opnieuw aanmelden gevraagd."
+
+msgid "No reset performed — pick a user and tick the confirmation box."
+msgstr "Geen reset uitgevoerd — kies een gebruiker en vink het bevestigingsvakje aan."
+
+msgid "Enrolled user"
+msgstr "Aangemelde gebruiker"
+
+msgid "— pick a user —"
+msgstr "— kies een gebruiker —"
+
+msgid "I have verified that this user is locked out and unable to use their authenticator app or any of their backup codes."
+msgstr "Ik heb gecontroleerd dat deze gebruiker is buitengesloten en zijn authenticator-app noch zijn reservecodes kan gebruiken."
+
+msgid "Reset MFA on this user"
+msgstr "MFA resetten bij deze gebruiker"
+
+msgid "Nobody is currently enrolled in MFA on this install."
+msgstr "Niemand is op deze installatie momenteel aangemeld voor MFA."
+
+msgid "Could not finalise enrollment. Please try again."
+msgstr "De aanmelding kon niet worden afgerond. Probeer het opnieuw."
+
+msgid "Head of development"
+msgstr "Hoofd opleiding"
+
+msgid "Unnamed device"
+msgstr "Apparaat zonder naam"

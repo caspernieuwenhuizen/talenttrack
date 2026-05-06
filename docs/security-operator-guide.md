@@ -18,7 +18,7 @@ For the public-facing security commitments TalentTrack makes (where data lives, 
 
 ## MFA — multi-factor authentication
 
-> **Status:** TalentTrack-native MFA enrollment is **available today** for every user (#0086 Workstream B Child 1 sprint 2, v3.101.1). Per-club enforcement (mandate MFA for specific personas) ships in sprint 3 — until then enrollment is opt-in per user.
+> **Status:** TalentTrack-native MFA is **fully shipped** as of #0086 Workstream B Child 1 sprint 3 (v3.101.2). Enrollment, login enforcement, rate limiting, "remember this device" cookie, audit logging, and operator-on-behalf-of-user lockout recovery are all live.
 
 Every user can self-enroll right now from `wp-admin → TalentTrack → Account → MFA`:
 
@@ -38,7 +38,20 @@ After enrollment the user can come back to the same tab to **regenerate backup c
 
 The TalentTrack-native MFA path is independent of any WordPress MFA plugins you may have installed (e.g. [Two Factor](https://wordpress.org/plugins/two-factor/), [Wordfence Login Security](https://wordpress.org/plugins/wordfence-login-security/)). The WP plugin path keeps working — but once TalentTrack-native MFA enforcement lands in sprint 3, per-persona requirements happen inside TalentTrack and the two paths can co-exist.
 
-**Lockout recovery (operator on-behalf-of-user disable)** — if a user loses their phone *and* their backup codes, today the only path is for the user to ask an Academy Admin to wipe their `tt_user_mfa` row directly in the database, after which the user can re-enroll. Sprint 3 ships the audit-logged operator-on-behalf-of-user disable flow that replaces that manual step.
+**Per-club enforcement (sprint 3, v3.101.2)** — go to `wp-admin → TalentTrack → Account → MFA`, scroll to the operator-only sub-section *Per-club enforcement*. Tick the personas that must enroll. Default is *Academy admin* + *Head of development*. Users in gated personas:
+
+- See the MFA prompt at every login (skipped only when they have a valid 30-day "remember this device" cookie on the current browser).
+- If un-enrolled, are redirected to the enrollment wizard at login until they finish — they cannot navigate away to other dashboard pages until enrollment is complete.
+
+Add personas progressively: enable for *Academy admin* + *Head of development* on day one; expand to *Head coach* / *Assistant coach* once your coaching staff is comfortable with the wizard; consider *Scout* and *Team manager* later if your academy stores particularly sensitive prospect data.
+
+**Lockout policy** — 5 consecutive failed verifications trigger a 15-minute lockout on that user's account. The counter resets after a successful verification. Both thresholds (5 attempts, 15 minutes) are configurable on the per-club `tt_config` store under keys `mfa_max_attempts` and `mfa_lockout_minutes` (no UI yet; edit via direct DB or a plugin like Better Search Replace).
+
+**Lockout recovery (operator on-behalf-of-user disable)** — if a user loses their phone *and* their backup codes, the *Reset MFA on another user* form on the same operator sub-section is the recovery path. Pick the enrolled user from the dropdown, tick the confirmation box, click *Reset MFA on this user*. Their `tt_user_mfa` row is wiped; they re-enroll on their next login. The action is audit-logged on both sides — actor (operator) and subject (target user).
+
+If you (the only academy admin) get locked out without recourse, you'll need direct database access to wipe your `tt_user_mfa` row. To avoid that, **keep at least two admin accounts** so an admin can always recover another admin via the operator UI.
+
+**Audit log integration** — every MFA event surfaces under `wp-admin → TalentTrack → Audit log` with action keys `mfa.enrolled` / `mfa.verified` / `mfa.verify_failed` / `mfa.lockout` / `mfa.backup_code_used` / `mfa.backup_codes_regenerated` / `mfa.disabled` / `mfa.device_remembered` / `mfa.required_personas_changed`. Filter on `action=mfa.lockout` to spot users hitting the threshold; filter on `action=mfa.disabled` to spot operator-initiated resets.
 
 ## Reviewing the audit log
 

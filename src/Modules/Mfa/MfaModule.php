@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Mfa\Admin\MfaActionHandlers;
+use TT\Modules\Mfa\Auth\MfaLoginGuard;
 use TT\Modules\Mfa\Wizards\MfaEnrollmentWizard;
 use TT\Shared\Wizards\WizardRegistry;
 
@@ -54,5 +55,6 @@ class MfaModule implements ModuleInterface {
     public function boot( Container $container ): void {
         WizardRegistry::register( new MfaEnrollmentWizard() );
         MfaActionHandlers::init();
+        MfaLoginGuard::init();
     }
 }

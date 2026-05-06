@@ -3,6 +3,8 @@ namespace TT\Modules\Mfa\Wizards;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Mfa\Audit\MfaAuditEvents;
+use TT\Modules\Mfa\Auth\MfaLoginGuard;
 use TT\Modules\Mfa\Domain\BackupCodesService;
 use TT\Modules\Mfa\MfaSecretsRepository;
 use TT\Shared\Wizards\WizardEntryPoint;
@@ -103,6 +105,25 @@ final class BackupCodesStep implements WizardStepInterface {
                 __( 'You must be logged in to finish enrollment.', 'talenttrack' )
             );
         }
+
+        $user_id = get_current_user_id();
+        $repo    = new MfaSecretsRepository();
+        // Atomically enroll: flip `enrolled_at` only at this final step
+        // so the user can never end up enrolled without their recovery
+        // codes (see VerifyStep::validate for the rationale).
+        if ( ! $repo->markEnrolled( $user_id ) ) {
+            return new \WP_Error(
+                'mfa_persist_failed',
+                __( 'Could not finalise enrollment. Please try again.', 'talenttrack' )
+            );
+        }
+        MfaAuditEvents::record( MfaAuditEvents::ENROLLED, $user_id );
+        // The login-guard's "must enroll" flag (sprint 3) clears here so
+        // the gated user, redirected mid-flow, isn't sent right back to
+        // the wizard after finishing it. The "pending" challenge flag
+        // stays clear because enrollment implies a verified TOTP code on
+        // step 3 already.
+        MfaLoginGuard::clearPending( $user_id );
 
         // Final destination: the Account-page MFA tab, with a one-shot
         // success message. The wizard framework will clear our state
