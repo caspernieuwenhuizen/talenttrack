@@ -2,6 +2,8 @@
 
 # Demo data — Excel-driven workbook
 
+> **Migration note (v3.105.0)** — the activities sheet was renamed from `Sessions` to `Activities`. Workbooks created against the v3.103.0 or earlier template need to be re-downloaded, or have the sheet manually renamed to `Activities`. The importer emits a clear blocker on workbooks that still carry a `Sessions` sheet — no soft fallback. The schema key inside the importer stays `sessions` for back-compat with internal code paths.
+
 The demo-data generator at **Tools → TalentTrack Demo** has three sources:
 
 - **Procedural only** — pick a preset (Tiny / Small / Medium / Large) and let the generator do everything. Fast, believable, but the team and player names are randomised.
@@ -13,7 +15,7 @@ The demo-data generator at **Tools → TalentTrack Demo** has three sources:
 Click **Download template (.xlsx)** in the source step to get a fresh workbook with all 15 sheets pre-laid-out and tab-coloured by group:
 
 - **Master** (green) — Teams, People, Players, Trial_Cases.
-- **Transactional** (blue) — Sessions, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey.
+- **Transactional** (blue) — Activities, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey.
 - **Configuration** (purple) — Eval_Categories, Category_Weights, Generation_Settings.
 - **Reference** (grey) — _Lookups.
 

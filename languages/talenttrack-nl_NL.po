@@ -13676,3 +13676,7 @@ msgstr "Toon de desktop-prompt op telefoons voor pagina's die alleen voor deskto
 
 msgid "Default on. Untick to let phone visitors see the cramped desktop view on every page. Tablets and laptops are unaffected either way."
 msgstr "Staat standaard aan. Vink uit om telefoons op elke pagina de krappe desktopweergave te laten zien. Tablets en laptops blijven hetzelfde."
+
+# v3.105.0 — #0080 Wave D: Excel Sessions → Activities sheet rename
+msgid "Sheet \"Sessions\" was renamed to \"Activities\" in v3.105.0 — re-download the demo-data template, or rename the sheet to \"Activities\" in your workbook."
+msgstr "Tabblad \"Sessions\" is in v3.105.0 hernoemd naar \"Activities\" — download het demo-databestand opnieuw, of hernoem het tabblad in je werkmap naar \"Activities\"."

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.104.1
+Stable tag: 3.105.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.105.0 — Demo-data Excel: Sessions → Activities sheet rename (#0080 Wave D, closes epic) =
+
+Closes #0080. Last leftover from the v3.81.0 vocabulary sweep — the demo-data Excel template's `Sessions` sheet renamed to `Activities`. **Hard rename, no soft fallback** per spec note 161 + operator confirmation that no in-flight workbook uses the legacy name. **(1) Schema** — `SheetSchemas::all()`'s `'sessions'` entry's `'sheet'` field flips from `'Sessions'` to `'Activities'`. The schema array key stays `sessions` for back-compat with internal code paths (importer + cleaner + generator + tag registry). **(2) Template export** — `TemplateBuilder` reads sheet names from `$schema['sheet']`, so the rename propagates automatically; freshly-downloaded `.xlsx` carries an `Activities` tab where `Sessions` used to be. The README sheet's prose updated to mention `Activities` instead of `Sessions`. **(3) Importer** — `ExcelImporter::importFile()` detects a workbook that carries a `Sessions` sheet but no `Activities` sheet and emits an early blocker: *"Sheet 'Sessions' was renamed to 'Activities' in v3.105.0 — re-download the demo-data template, or rename the sheet to 'Activities' in your workbook."* No silent fallback, no auto-rename. **(4) Out of scope**: the `Session_Attendance` sheet keeps its name — only the activities sheet was specifically called out for rename in the spec. The internal `'sessions'` schema key stays for code-path stability. 1 new NL msgid; `docs/demo-data-excel.md` (EN + NL) gets a migration note at the top. Renumbered v3.104.0 → v3.105.0 across multiple rebases after parallel-agent ships of v3.104.0 (#0084 Children 2+3 mobile pattern library) and v3.104.1 (#0083 Child 1 Analytics fact registry) landed.
 
 = 3.104.1 — Analytics fact registry + query engine (#0083 Child 1) =
 

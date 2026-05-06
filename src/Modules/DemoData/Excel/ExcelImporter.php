@@ -60,6 +60,22 @@ final class ExcelImporter {
         $blockers = [];
         $warnings = [];
 
+        // v3.105.0 (#0080 Wave D) — the activities sheet renamed from
+        // "Sessions" to "Activities". Detect the legacy sheet name and
+        // emit a clear blocker; the importer reads the new name only.
+        if ( $book->getSheetByName( 'Sessions' ) !== null && $book->getSheetByName( 'Activities' ) === null ) {
+            $blockers[] = __( 'Sheet "Sessions" was renamed to "Activities" in v3.105.0 — re-download the demo-data template, or rename the sheet to "Activities" in your workbook.', 'talenttrack' );
+            return [
+                'ok'                  => false,
+                'blockers'            => $blockers,
+                'warnings'            => $warnings,
+                'imported'            => [],
+                'present_sheets'      => [],
+                'batch_id'            => null,
+                'generation_settings' => [],
+            ];
+        }
+
         // Read every importable sheet — empties become empty arrays,
         // tracked in `present_sheets` so the hybrid dispatcher knows
         // what to skip.
@@ -332,8 +348,9 @@ final class ExcelImporter {
             }
         }
 
-        // Activities (sheet name "Sessions" — the spec keeps the legacy
-        // user-facing label even though the table is `tt_activities`).
+        // Activities — the sheet renamed from "Sessions" to "Activities"
+        // in v3.105.0 (#0080 Wave D); the schema key stays `sessions` for
+        // back-compat with internal code paths.
         $activity_id_by_key = [];
         foreach ( $rows['sessions'] ?? [] as $r ) {
             $team_id = $team_id_by_key[ (string) ( $r['team_key'] ?? '' ) ] ?? 0;

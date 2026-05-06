@@ -113,7 +113,7 @@ final class TemplateBuilder {
             [ __( 'TalentTrack — demo data template', 'talenttrack' ) ],
             [ '' ],
             [ __( 'How to fill this workbook', 'talenttrack' ) ],
-            [ __( 'Each green tab is a master entity (Teams, People, Players, Trial cases). Each blue tab is a transactional record (Sessions, Attendance, Evaluations, Goals, Player journey). Purple = settings, grey = reference.', 'talenttrack' ) ],
+            [ __( 'Each green tab is a master entity (Teams, People, Players, Trial cases). Each blue tab is a transactional record (Activities, Attendance, Evaluations, Goals, Player journey). Purple = settings, grey = reference.', 'talenttrack' ) ],
             [ '' ],
             [ __( 'auto_key (the first column on every entity tab)', 'talenttrack' ) ],
             [ __( 'Type a short, unique label (e.g. "ABC", "U12_RED", "MARTIN") in the auto_key cell. Other tabs reference back to it via team_key / player_key / session_key fields. The importer maps your auto_key to the inserted row id, so cross-sheet links resolve at import time without you needing the database id.', 'talenttrack' ) ],
