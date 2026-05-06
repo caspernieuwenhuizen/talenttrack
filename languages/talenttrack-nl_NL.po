@@ -12730,3 +12730,103 @@ msgstr "Zwak (0–1,0)"
 
 msgid "Lines connect formation-adjacent slots. Score combines coach-marked pairings, same line of play, and side-preference fit. Hover any line for the breakdown."
 msgstr "Lijnen verbinden naburige posities binnen de formatie. De score combineert door de coach gemarkeerde duo's, dezelfde linie en voorkeursbeen-fit. Beweeg over een lijn voor de uitsplitsing."
+
+# v3.97.0 — #0081 child 2a: onboarding-pipeline templates 1+2
+msgid "Log prospect"
+msgstr "Prospect vastleggen"
+
+msgid "Quick-capture a new prospect — identity, age, current club, parent contact, scouting notes. Submitting creates the prospect record and notifies the Head of Development to invite them to a test training."
+msgstr "Snel een nieuwe prospect vastleggen — identiteit, leeftijd, huidige club, oudercontact, scoutingnotities. Bij verzenden wordt het prospect-record aangemaakt en de Hoofd Opleiding ingeseind om uit te nodigen voor een proeftraining."
+
+msgid "Invite prospect to test training"
+msgstr "Prospect uitnodigen voor proeftraining"
+
+msgid "Pick a test training for this prospect, compose the invitation to the parent, and send. Due 7 days after the prospect is logged."
+msgstr "Kies een proeftraining voor deze prospect, stel de uitnodiging aan de ouder op en verstuur. Verloopt 7 dagen na vastleggen van de prospect."
+
+msgid "Discovery"
+msgstr "Ontdekking"
+
+msgid "Parent contact"
+msgstr "Oudercontact"
+
+msgid "Current club"
+msgstr "Huidige club"
+
+msgid "Discovered at (event / match)"
+msgstr "Ontdekt bij (evenement / wedstrijd)"
+
+msgid "Scouting notes"
+msgstr "Scoutingnotities"
+
+msgid "Parent name"
+msgstr "Naam ouder"
+
+msgid "Parent email"
+msgstr "E-mail ouder"
+
+msgid "Parent phone"
+msgstr "Telefoon ouder"
+
+msgid "Parent has given consent for the academy to hold this contact information"
+msgstr "De ouder heeft toestemming gegeven dat de academie deze contactgegevens bewaart"
+
+msgid "I have checked the existing prospects list — this is a new entry"
+msgstr "Ik heb de bestaande prospectenlijst gecheckt — dit is een nieuwe prospect"
+
+msgid "First name is required."
+msgstr "Voornaam is verplicht."
+
+msgid "Last name is required."
+msgstr "Achternaam is verplicht."
+
+msgid "Use YYYY-MM-DD for the date of birth."
+msgstr "Gebruik JJJJ-MM-DD voor de geboortedatum."
+
+msgid "Enter a valid parent email or leave it blank."
+msgstr "Vul een geldig e-mailadres van de ouder in of laat het veld leeg."
+
+msgid "A prospect with this name already exists (%s). Tick \"this is a new entry\" if you have already checked."
+msgstr "Er bestaat al een prospect met deze naam (%s). Vink \"dit is een nieuwe prospect\" aan als je al hebt gecontroleerd."
+
+msgid "Prospect: %s"
+msgstr "Prospect: %s"
+
+msgid "Choose or schedule a test training"
+msgstr "Kies of plan een proeftraining"
+
+msgid "Existing upcoming test training"
+msgstr "Bestaande aankomende proeftraining"
+
+msgid "— pick an upcoming test training —"
+msgstr "— kies een aankomende proeftraining —"
+
+msgid "— or schedule a new test training below —"
+msgstr "— of plan hieronder een nieuwe proeftraining —"
+
+msgid "New test training date + time"
+msgstr "Nieuwe proeftraining datum + tijd"
+
+msgid "Invitation message to the parent"
+msgstr "Uitnodigingsbericht aan de ouder"
+
+msgid "Pick an existing test training OR enter a new date."
+msgstr "Kies een bestaande proeftraining OF vul een nieuwe datum in."
+
+msgid "Pick exactly one — an existing test training or a new date, not both."
+msgstr "Kies precies één — een bestaande proeftraining of een nieuwe datum, niet allebei."
+
+msgid "Write a short message for the parent."
+msgstr "Schrijf een kort bericht voor de ouder."
+
+msgid "Hi,\n\nWe'd like to invite %s to a test training at our academy. Please let us know if you can attend.\n\nBest regards,\nThe academy"
+msgstr "Hallo,\n\nWe willen %s graag uitnodigen voor een proeftraining bij onze academie. Laat ons weten of je kunt komen.\n\nMet vriendelijke groet,\nDe academie"
+
+msgid "your child"
+msgstr "je kind"
+
+msgid "You must be logged in to log a prospect."
+msgstr "Je moet ingelogd zijn om een prospect vast te leggen."
+
+msgid "Could not start the prospect-logging chain. Check the workflow templates are enabled."
+msgstr "Kan de prospect-vastlegketen niet starten. Controleer of de workflowsjablonen aanstaan."

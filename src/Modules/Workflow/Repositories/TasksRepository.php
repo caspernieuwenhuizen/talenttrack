@@ -34,6 +34,7 @@ class TasksRepository {
      *   goal_id?:?int,
      *   trial_case_id?:?int,
      *   parent_task_id?:?int,
+     *   prospect_id?:?int,
      *   status?:string,
      *   spawned_by_step?:?string,
      * } $data
@@ -47,7 +48,7 @@ class TasksRepository {
             'due_at'           => (string) $data['due_at'],
             'status'           => (string) ( $data['status'] ?? TaskStatus::OPEN ),
         ];
-        foreach ( [ 'player_id', 'team_id', 'activity_id', 'evaluation_id', 'goal_id', 'trial_case_id', 'parent_task_id' ] as $col ) {
+        foreach ( [ 'player_id', 'team_id', 'activity_id', 'evaluation_id', 'goal_id', 'trial_case_id', 'parent_task_id', 'prospect_id' ] as $col ) {
             if ( isset( $data[ $col ] ) && $data[ $col ] !== null ) {
                 $row[ $col ] = (int) $data[ $col ];
             }

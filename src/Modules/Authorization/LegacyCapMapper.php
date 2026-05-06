@@ -163,6 +163,13 @@ final class LegacyCapMapper {
         'tt_view_test_trainings'         => [ 'test_trainings',        'read' ],
         'tt_edit_test_trainings'         => [ 'test_trainings',        'change' ],
         'tt_manage_test_trainings'       => [ 'test_trainings',        'create_delete' ],
+        // #0081 — Onboarding pipeline (child 2: workflow templates).
+        // Bridges to test_trainings.change because inviting is materially
+        // a write to the test-training schedule (picking the session +
+        // composing the parent-facing message). HoD + Admin hold this
+        // grant globally; Scout has only R on test_trainings (cannot
+        // invite).
+        'tt_invite_prospects'            => [ 'test_trainings',        'change' ],
     ];
 
     public static function isKnown( string $cap ): bool {

@@ -63,11 +63,23 @@ final class ProspectRetentionCron {
         $p = $wpdb->prefix;
 
         $prospects_table = "{$p}tt_prospects";
+        $tasks_table     = "{$p}tt_workflow_tasks";
         $changelog_table = "{$p}tt_authorization_changelog";
 
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $prospects_table ) ) !== $prospects_table ) {
             return;
         }
+
+        // #0081 child 2 — active-chain protection. The query joins the
+        // prospect to its workflow tasks via the new prospect_id column
+        // (added in migration 0068). A prospect with ANY non-terminal
+        // task (open / in_progress / overdue) is excluded from the
+        // stale-no-progress purge below, regardless of created_at age.
+        // The column-existence guard exists so the cron still works on
+        // installs where migration 0068 hasn't run yet.
+        $tasks_has_prospect_col = $wpdb->get_var( $wpdb->prepare(
+            "SHOW COLUMNS FROM {$tasks_table} LIKE %s", 'prospect_id'
+        ) ) === 'prospect_id';
 
         $no_progress_days = (int) get_option(
             'tt_prospect_retention_days_no_progress',
@@ -84,23 +96,42 @@ final class ProspectRetentionCron {
         $terminal_cutoff    = gmdate( 'Y-m-d H:i:s', time() - $terminal_days    * DAY_IN_SECONDS );
 
         // --- Condition A: stale-no-progress -----------------------
-        // Active-chain protection currently runs on `created_at` only
-        // because the chain link (`tt_workflow_tasks.prospect_id`) ships
-        // in #0081 child 2. Once that lands, this query gets a LEFT
-        // JOIN onto `tt_workflow_tasks` keyed on `prospect_id` and the
-        // HAVING clause excludes any prospect with a non-terminal task.
-        // Promoted prospects (`promoted_to_player_id IS NOT NULL`) are
-        // protected — promotion turns them into PII for an academy
-        // player and PlayerDataMap registers the row under the player's
-        // identity for #0073 erasure.
-        $stale_sql = $wpdb->prepare(
-            "SELECT id, club_id FROM {$prospects_table}
-              WHERE created_at < %s
-                AND promoted_to_player_id IS NULL
-                AND archived_at IS NULL
-              LIMIT %d",
-            $no_progress_cutoff, self::BATCH_SIZE
-        );
+        // Active-chain protection: a prospect with ANY non-terminal
+        // workflow task (open / in_progress / overdue) is excluded
+        // regardless of created_at age. The LEFT JOIN onto workflow
+        // tasks keyed on prospect_id is the canonical chain check
+        // since #0081 child 2; pre-0068 installs (column missing)
+        // fall back to the created_at-only purge.
+        //
+        // Promoted prospects (`promoted_to_player_id IS NOT NULL`)
+        // are protected — promotion turns them into PII for an
+        // academy player and PlayerDataMap registers the row under
+        // the player's identity for #0073 erasure.
+        if ( $tasks_has_prospect_col ) {
+            $stale_sql = $wpdb->prepare(
+                "SELECT pr.id, pr.club_id
+                   FROM {$prospects_table} pr
+                  WHERE pr.created_at < %s
+                    AND pr.promoted_to_player_id IS NULL
+                    AND pr.archived_at IS NULL
+                    AND NOT EXISTS (
+                          SELECT 1 FROM {$tasks_table} wt
+                           WHERE wt.prospect_id = pr.id
+                             AND wt.status IN ('open','in_progress','overdue')
+                    )
+                  LIMIT %d",
+                $no_progress_cutoff, self::BATCH_SIZE
+            );
+        } else {
+            $stale_sql = $wpdb->prepare(
+                "SELECT id, club_id FROM {$prospects_table}
+                  WHERE created_at < %s
+                    AND promoted_to_player_id IS NULL
+                    AND archived_at IS NULL
+                  LIMIT %d",
+                $no_progress_cutoff, self::BATCH_SIZE
+            );
+        }
 
         $stale = $wpdb->get_results( $stale_sql );
         foreach ( (array) $stale as $row ) {

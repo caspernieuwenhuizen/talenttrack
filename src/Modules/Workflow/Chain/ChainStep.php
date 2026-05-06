@@ -60,7 +60,8 @@ final class ChainStep {
             isset( $task['evaluation_id'] )  ? (int) $task['evaluation_id']  : null,
             isset( $task['goal_id'] )        ? (int) $task['goal_id']        : null,
             isset( $task['trial_case_id'] )  ? (int) $task['trial_case_id']  : null,
-            (int) ( $task['id'] ?? 0 )
+            (int) ( $task['id'] ?? 0 ),
+            isset( $task['prospect_id'] )    ? (int) $task['prospect_id']    : null
         );
     }
 

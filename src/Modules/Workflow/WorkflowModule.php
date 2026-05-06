@@ -14,6 +14,8 @@ use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
 use TT\Modules\Workflow\Repositories\TriggersRepository;
 use TT\Modules\Workflow\Templates\GoalApprovalTemplate;
+use TT\Modules\Workflow\Templates\InviteToTestTrainingTemplate;
+use TT\Modules\Workflow\Templates\LogProspectTemplate;
 use TT\Modules\Workflow\Templates\PlayerSelfEvaluationTemplate;
 use TT\Modules\Workflow\Templates\PostGameEvaluationTemplate;
 use TT\Modules\Workflow\Templates\QuarterlyGoalSettingTemplate;
@@ -82,6 +84,12 @@ class WorkflowModule implements ModuleInterface {
         $registry->register( new QuarterlyGoalSettingTemplate() );
         $registry->register( new GoalApprovalTemplate() );
         $registry->register( new QuarterlyHoDReviewTemplate() );
+        // #0081 child 2 — onboarding-pipeline templates (links 1+2 of 5).
+        // Links 3-5 (ConfirmTestTraining / RecordTestTrainingOutcome /
+        // ReviewTrialGroupMembership) ship in PR 2b alongside the
+        // public parent-confirmation REST endpoint.
+        $registry->register( new LogProspectTemplate() );
+        $registry->register( new InviteToTestTrainingTemplate() );
     }
 
     /**
