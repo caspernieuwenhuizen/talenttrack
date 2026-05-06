@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.104.0
+Stable tag: 3.104.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.104.1 — Analytics fact registry + query engine (#0083 Child 1) =
+
+First child of #0083 (Reporting framework). Builds the data-layer foundation the rest of the epic stands on: every analytical question goes through one engine. No bespoke aggregation SQL outside the framework from now on. **(1) `Modules\Analytics\Domain\Fact`** + `Dimension` + `Measure` + `DateTimeColumn` value objects — declarative cataloguing of "what TalentTrack can report on." Each fact captures the underlying table, its dimensions (group-by / filter columns), its measures (aggregations), and its time anchor. **(2) `FactRegistry`** — append-only catalogue keyed by fact key, mirrors `WidgetRegistry` / `KpiDataSourceRegistry`. `find($key)` / `all()` / `forEntity($scope)`. **(3) `FactQuery::run($factKey, $dims, $measures, $filters)`** — the engine every KPI and explorer hits. Generates a single SQL statement, scoped to current `club_id` (cross-club aggregation deliberately impossible from this API), 60-second cache via `wp_cache_*`. Filter operator vocabulary: `<dim_key>_eq` / `_in` / `_not_eq` / `_not_in`, plus special-cased `date_after` / `date_before` against the fact's declared time column. SQL-injection prevention via `$wpdb->prepare()` for every value; identifier names are author-controlled at registration time. **(4) Initial 8 fact registrations** in `AnalyticsModule::boot()` per spec §`feat-fact-registry`: `attendance`, `activities`, `evaluations`, `goals`, `trial_decisions`, `prospects`, `journey_events`, `evaluations_per_session`. Centralised here for Child 1 sequencing simplicity; a follow-up moves each into its owning module's `boot()`. **(5) Module registered** in `config/modules.php`. **What's NOT in this PR**: `KpiRegistry` + new `Kpi` value object (Child 2 — migrates 26 existing KPIs + ships 55 new ones); `?tt_view=explore` dimension explorer (Child 3 — desktop-only per #0084); entity Analytics tab on player/team/activity profiles (Child 4); central analytics surface (Child 5); export + scheduled reports + new `tt_scheduled_reports` table (Child 6). Zero user-visible strings — registry is internal infrastructure. Every label inside the fact registrations IS translated, but rendered via the explorer / KPI surfaces in subsequent children.
 
 = 3.104.0 — Mobile pattern library + classification rollout + sticky wizard CTA (#0084 Children 2 + 3) =
 

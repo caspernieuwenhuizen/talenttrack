@@ -55,4 +55,9 @@ return [
     TT\Modules\Mfa\MfaModule::class                              => true,
     // #0006 — Team planning calendar.
     TT\Modules\Planning\PlanningModule::class                    => true,
+    // #0083 Child 1 — analytics fact registry + query engine. Owns
+    // `FactRegistry` + `FactQuery` + the 8 initial fact registrations.
+    // Subsequent #0083 children build on top: KPI platform, dimension
+    // explorer, entity-tab + central analytics surfaces, scheduled reports.
+    TT\Modules\Analytics\AnalyticsModule::class                  => true,
 ];
