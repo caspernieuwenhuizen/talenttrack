@@ -233,6 +233,9 @@ jobs:
             'assets/css/frontend-admin.css'
             'assets/css/frontend-mobile.css'
             'assets/css/frontend-activities-manage.css'
+            # Pre-#0084 PDE overlays: dragging guides, alignment markers,
+            # and the canvas drop indicator legitimately use position: fixed.
+            'assets/css/persona-dashboard-editor.css'
           )
           violation_paths=$(find assets/css -name '*.css' -type f 2>/dev/null || true)
           for f in $violation_paths; do
