@@ -1,3 +1,69 @@
+# TalentTrack v3.95.1 — License gates wired: radar charts, undo bulk, partial restore (#0080 Wave A)
+
+Closes the first wave of the #0080 deferred-polish epic. Three license-feature flags have been sitting in `FeatureMap::DEFAULT_MAP` since v3.86.1 (`radar_charts` / `undo_bulk` / `partial_restore`) but were never enforced at the surfaces that grant them — every tier saw the feature regardless of plan. This PR wires them. Drops `s3_backup` as the spec suggested (no S3 destination ships in the codebase — gate it when the destination ships). Defers the radar visual refresh (A1's risk callout in the spec) and Waves B / C / D to follow-up PRs.
+
+## Why "Wave A only" rather than the full #0080 epic in one PR
+
+The spec sizes #0080 at ~11-15h conventional / ~5-7h compressed across four waves. Bundling all four into one PR puts ~800-1200 LOC across very different surfaces (license gates, demo-data UX, comparison admin, mobile UX, frontend lookup, matrix admin, REST controllers, Excel template) into a single review. Three of the eleven sub-items also have spec-flagged operator-input dependencies (the radar visual refresh has bikeshed risk per spec note 159; B4 mobile RateActorsStep needs Casper's actual phone per note 160; Wave D Excel-sheet rename is a breaking change that needs an in-flight-workbook check per note 161). Splitting Wave A out keeps this PR coherent and lets the spec-flagged items get their operator review without holding up the simple gate work.
+
+## Fix 1 — Radar charts gated centrally inside `radar_chart_svg`
+
+Eleven call sites consume `QueryHelpers::radar_chart_svg()` (player rate card, frontend overview, comparison view, persona dashboard radar widget, coach dashboard, player dashboard, reports admin, evaluations admin, players admin). Rather than wrap each call site in a `LicenseGate::allows( 'radar_charts' )` check, the gate lives inside the function itself:
+
+```php
+public static function radar_chart_svg( array $labels, array $datasets, float $max = 5.0 ): string {
+    if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+         && ! \TT\Modules\License\LicenseGate::allows( 'radar_charts' )
+    ) {
+        return \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Radar charts', 'talenttrack' ), 'standard' );
+    }
+    // ... existing SVG construction ...
+}
+```
+
+Single chokepoint — every consumer inherits the gate. Free-tier sees the inline upgrade block in place of the chart; Standard / trial / Pro see the chart unchanged. The function signature is unchanged so no consumer needs to be touched. Class-existence guard means installs that disable the License module entirely keep rendering charts (matches the existing `LicenseGate::allows()` "module disabled = no enforcement" convention).
+
+## Fix 2 — Bulk-undo notice + handler
+
+`BulkUndoNotice::maybeRender()` still emits the safety-backup notice for every tier (the backup itself is defensive code, free for all — that's how operators recover from accidents regardless of license). What changes per tier:
+
+- **Standard / trial / Pro** sees the working "Undo via backup →" link as before.
+- **Free** sees a paywall variant: *"Bulk-undo is part of the Standard plan. Upgrade to recover from accidents."* — link goes to `?page=tt-account&tab=plan`.
+
+`BackupSettingsPage::handleBulkUndo()` re-checks the gate after the cap + nonce checks, before the destructive-impersonation guard, so direct-URL POST to `tt_backup_bulk_undo` on free tier redirects back with `tt_bk_msg=license_undo_bulk` instead of executing the restore. The redirect-with-msg-key pattern matches the existing `undo_missing` / `undo_failed` shape; admin-post handlers don't return JSON envelopes (REST does).
+
+## Fix 3 — Partial restore picker + handler
+
+`renderPartialRestore()` checks the gate at the top of the method, before the backup-file fetch. Free tier sees `UpgradeNudge::inline( 'Partial restore', 'standard' )` rendered into the page in place of the scope-picker form. The "Partial restore" link in the backups list stays visible regardless of tier (the upgrade path stays discoverable; matches the v3.86.1 ship pattern for trial / scout / team-chemistry features).
+
+`handlePartialExecute()` re-checks the gate after the standard `guard()` (which handles cap + nonce). Free-tier direct-URL POST on the `tt_backup_partial_execute` admin handler redirects back with `tt_bk_msg=license_partial_restore`.
+
+## What's *not* in this PR
+
+- **Radar visual refresh (A1's "while we're in there" item).** Spec note 159 explicitly calls out the risk: don't let a visual rework block the gate ship. Gate ships now with the existing radar visual; the persona-dashboard-token / softer-axes / filled-area-gradient refresh comes as a separate PR.
+- **Wave B (UX polish — 5 items).** Demo wipe live JS preview, demo wipe per-batch scope, `UserComparisonPage` N-user + per-cap drilldown, `RateActorsStep` mobile stack layout, frontend lookup drag-reorder. Sized ~5-7h conventional / ~2-3h compressed; ships as the next PR. B4 (mobile `RateActorsStep`) needs Casper's phone testing before locking the breakpoint.
+- **Wave C (architectural cleanup — 2 items).** Per-tile "what gates this?" popover on matrix admin + sub-cap refactor on three REST controllers (`ConfigRestController`, `PdpFilesRestController`, `ThreadsRestController`).
+- **Wave D (Excel sheet rename — 1 item).** `Sessions` → `Activities` is a breaking change for in-flight workbooks per spec note 161; needs an operator confirmation that no academy is mid-import on a workbook with the legacy sheet name.
+- **`s3_backup` gate.** Dropped per the 2026-05-04 shaping — gate it when an S3 destination actually ships.
+
+## Affected files
+
+- `src/Infrastructure/Query/QueryHelpers.php` — gate inserted at the top of `radar_chart_svg()`.
+- `src/Modules/Backup/Admin/BulkUndoNotice.php` — paywall variant of the undo link on free tier.
+- `src/Modules/Backup/Admin/BackupSettingsPage.php` — `handleBulkUndo`, `renderPartialRestore`, `handlePartialExecute` re-check the gate.
+- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
+
+## Translations
+
+Two new translatable strings:
+
+- `Bulk-undo is part of the Standard plan. Upgrade to recover from accidents.` (NL: `Bulk-undo is onderdeel van het Standard-plan. Upgrade om fouten te kunnen herstellen.`)
+- `Radar charts` (label passed to `UpgradeNudge::inline()`) — already present in the .po as a feature name, no new msgid required.
+
+`Partial restore` is also already in the .po. Net: 1 new NL msgid.
+
+---
+
 # TalentTrack v3.95.0 — Onboarding pipeline child 1: prospects entity + PlayerDataMap registry (#0081)
 
 First of four child PRs for the #0081 onboarding-pipeline epic. **No user-facing UI yet** — child 1 lays the data layer + GDPR scaffold so the workflow templates (child 2), pipeline widget (child 3), and trial-cases rework (child 4) can build on a stable foundation. Recommended sequence is intentionally entity-first: every following child references `tt_prospects` and the `PlayerDataMap` surface introduced here.

@@ -466,6 +466,10 @@ class BackupSettingsPage {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
         check_admin_referer( 'tt_backup_bulk_undo', 'tt_backup_undo_nonce' );
+        // #0080 Wave A — gate direct-URL bypass on free tier.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'undo_bulk' ) ) {
+            self::redirectBack( [ 'tt_bk_msg' => 'license_undo_bulk' ] );
+        }
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'backup.bulk_undo' );
 
         $user_id = get_current_user_id();
@@ -583,6 +587,15 @@ class BackupSettingsPage {
      *      the per-table action form, submit to handlePartialExecute.
      */
     private static function renderPartialRestore( string $backup_id ): void {
+        // #0080 Wave A — partial restore is a Standard+ feature. Free
+        // tier sees the upgrade nudge inline at the top of the page
+        // instead of the picker; the link in the backups list stays
+        // visible across all tiers so the upgrade path is discoverable.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'partial_restore' ) ) {
+            echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Partial restore', 'talenttrack' ), 'standard' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradeNudge returns escaped HTML
+            return;
+        }
+
         $local = new LocalDestination();
         $path  = $local->fetchLocalPath( $backup_id );
         if ( $path === '' ) {
@@ -745,6 +758,10 @@ class BackupSettingsPage {
 
     public static function handlePartialExecute(): void {
         self::guard( 'tt_backup_partial_execute' );
+        // #0080 Wave A — direct-URL POST bypass on free tier returns to the page.
+        if ( ! \TT\Modules\License\LicenseGate::allows( 'partial_restore' ) ) {
+            self::redirectBack( [ 'tt_bk_msg' => 'license_partial_restore' ] );
+        }
 
         $backup_id = sanitize_text_field( wp_unslash( (string) ( $_POST['backup_id'] ?? '' ) ) );
         $closure   = json_decode( (string) wp_unslash( $_POST['closure'] ?? '' ), true );
