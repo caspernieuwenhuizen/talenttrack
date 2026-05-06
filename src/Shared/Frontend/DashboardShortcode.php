@@ -183,7 +183,7 @@ class DashboardShortcode {
         // clicked it from the user-menu dropdown.
         $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'my-pdp', 'profile', 'my-journey' ];
         $account_slugs   = [ 'my-settings' ];
-        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'pdp-planning', 'player-status-methodology', 'player-status-capture', 'team-chemistry', 'podium', 'methodology', 'player-journey', 'mail-compose' ];
+        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'pdp-planning', 'player-status-methodology', 'player-status-capture', 'team-chemistry', 'team-blueprints', 'podium', 'methodology', 'player-journey', 'mail-compose' ];
         $analytics_slugs = [ 'rate-cards', 'compare', 'reports' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
         // #0021 — `audit-log` added; uses the same admin tier (cap-checked
@@ -548,6 +548,14 @@ class DashboardShortcode {
                     break;
                 }
                 \TT\Modules\TeamDevelopment\Frontend\FrontendTeamChemistryView::render( $user_id, $is_admin );
+                break;
+            case 'team-blueprints':
+                if ( ! current_user_can( 'tt_view_team_chemistry' ) ) {
+                    FrontendBackButton::render();
+                    echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to team blueprints.', 'talenttrack' ) . '</p>';
+                    break;
+                }
+                \TT\Modules\TeamDevelopment\Frontend\FrontendTeamBlueprintsView::render( $user_id, $is_admin );
                 break;
             case 'podium':
                 FrontendPodiumView::render( $user_id, $is_admin );

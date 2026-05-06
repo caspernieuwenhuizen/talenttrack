@@ -1,0 +1,151 @@
+/**
+ * Team Blueprint editor — drag-drop lineup builder on top of the
+ * shared `PitchSvg` component. Mobile-first per CLAUDE.md §2.
+ */
+
+.tt-bp-chem-card {
+    background: #fff;
+    border: 1px solid #e5e7ea;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 0 0 16px;
+}
+.tt-bp-chem-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.tt-bp-chem-label {
+    font-size: 12px;
+    color: #5b6e75;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.tt-bp-chem-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+}
+.tt-bp-chem-pairs {
+    font-size: 12px;
+    color: #5b6e75;
+}
+
+/* Two-column editor layout — mobile-first stack, side-by-side ≥ 768px. */
+.tt-bp-editor {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 8px;
+}
+@media (min-width: 768px) {
+    .tt-bp-editor {
+        grid-template-columns: 220px 1fr;
+        align-items: start;
+    }
+}
+
+.tt-bp-roster {
+    background: #fff;
+    border: 1px solid #e5e7ea;
+    border-radius: 8px;
+    padding: 12px;
+}
+.tt-bp-roster h3 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #5b6e75;
+}
+.tt-bp-roster-hint {
+    margin: 0 0 8px;
+    font-size: 12px;
+    color: #5b6e75;
+}
+.tt-bp-roster-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 48px;
+    padding: 4px;
+    border-radius: 6px;
+    transition: background 0.12s ease;
+}
+.tt-bp-roster-list.tt-bp-dragover {
+    background: #fffbe6;
+    outline: 2px dashed #c9962a;
+    outline-offset: -2px;
+}
+
+/* Player chips. Touch-friendly minimum 36×36 tap area. */
+.tt-bp-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #1a1d21;
+    font-size: 13px;
+    line-height: 1.2;
+    cursor: grab;
+    user-select: none;
+    min-height: 32px;
+}
+.tt-bp-chip[draggable="false"] {
+    cursor: default;
+}
+.tt-bp-chip-assigned {
+    opacity: 0.4;
+}
+.tt-bp-chip:active {
+    cursor: grabbing;
+}
+.tt-bp-chip.tt-bp-chip-dragging {
+    opacity: 0.4;
+}
+
+/* Pitch wrapper holds the SVG (.tt-pitch-wrap) plus the absolute
+ * drop-target overlay. Position relative so the targets align. */
+.tt-bp-pitch-wrap {
+    position: relative;
+}
+.tt-bp-droptargets {
+    position: absolute;
+    inset: 0;
+    pointer-events: none; /* let pitch slot tooltips work; targets re-enable below */
+}
+.tt-bp-droptarget {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: auto;
+    cursor: copy;
+    transition: background 0.12s ease, box-shadow 0.12s ease;
+}
+.tt-bp-droptarget[data-can-drag="0"] {
+    cursor: default;
+    pointer-events: none;
+}
+.tt-bp-droptarget.tt-bp-dragover {
+    background: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 0 0 3px #c9962a inset;
+}
+@media (max-width: 720px) {
+    .tt-bp-droptarget { width: 60px; height: 60px; }
+}
+
+.tt-bp-statusbar .tt-bp-status-actions button {
+    min-height: 36px;
+}
+
+/* Locked-state visual cue on the pitch + roster. */
+.tt-bp-editor[data-locked="1"] .tt-bp-chip {
+    cursor: not-allowed;
+}
+.tt-bp-editor[data-locked="1"] .tt-bp-droptarget {
+    cursor: not-allowed;
+}

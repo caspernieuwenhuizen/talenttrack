@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.97.1
+Stable tag: 3.98.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.98.0 — Team Blueprint Phase 1: drag-drop lineups with live chemistry (#0068) =
+
+Persisted, coach-authored lineups on top of the team-chemistry pitch. Phase 1 ships the match-day flavour (squad-plan + trial overlay land in Phase 2, comments in Phase 3). **(1) Schema** — migration 0070 adds `tt_team_blueprints` (id, club_id, uuid, team_id, name, flavour, formation_template_id, status, notes, created_by/at, updated_by/at) + `tt_team_blueprint_assignments` (blueprint_id, slot_label, player_id) with a UNIQUE on `(blueprint_id, slot_label)` so a slot is single-occupant. **(2) Repository** `TeamBlueprintsRepository` covers list/find/create/updateMeta/setStatus/delete + `setAssignment(slot, player_id)` for per-drop saves and `replaceAssignments(map)` for bulk replace. All reads + writes scope by `club_id = CurrentClub::id()`. **(3) REST** `GET/POST /teams/{id}/blueprints` for list + create, `GET/PUT/DELETE /blueprints/{id}` for show + update meta + delete, `PUT /blueprints/{id}/assignment` (single slot), `PUT /blueprints/{id}/assignments` (bulk replace), `PUT /blueprints/{id}/status`. Each save returns the recomputed `blueprint_chemistry` payload (via `BlueprintChemistryEngine::computeForLineup()` shipped in v3.96.0) so the editor refreshes the score + line colours from the response. Locked blueprints reject every write with HTTP 409 until reopened. **(4) Frontend surfaces** — new `?tt_view=team-blueprints` (team picker → list per team → editor for one), gated on `team_chemistry` license feature + `tt_view_team_chemistry` cap (read) / `tt_manage_team_chemistry` (write) — no new caps to seed. Tile registered in Performance group (order=55, just after Team chemistry). **(5) Drag-drop editor** — pure HTML5 drag-and-drop (no library): roster sidebar with chips (`draggable=true` when not assigned), pitch with absolute-positioned drop targets aligned to slot centres, drop on a slot calls `PUT /blueprints/{id}/assignment` then reloads to render the authoritative server state. Drop a chip back onto the roster panel removes it from its slot. Live `Link chemistry` headline above the pitch updates after every drop. **(6) Status flow** draft → shared → locked, with a Reopen button on locked blueprints (gated on `tt_manage_team_chemistry`). **(7) Wizard** new-team-blueprint registered in `WizardsModule` per CLAUDE.md §3 — two steps (Setup: pick team + formation + name; Review: confirm). On submit, lands the user on the editor at `?tt_view=team-blueprints&id=N` ready for drag-drop. **(8) Visual** — reuses the `PitchSvg` component shipped with the chemistry rebuild (#0068) including the v3.96.0 chemistry-link overlay, so blueprints render with the same green/amber/red lines + same `Link chemistry: N / 100` math as the chemistry view. Pure CSS (mobile-first, ≥48px tap targets) + ~120 LOC of vanilla JS. 40 new NL msgids; `docs/team-blueprint.md` (EN+NL) walks coaches through the build → share → lock flow.
 
 = 3.97.1 — Player notes: staff-only running log on the player file (#0085) =
 

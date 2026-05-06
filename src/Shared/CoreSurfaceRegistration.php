@@ -450,6 +450,18 @@ final class CoreSurfaceRegistration {
             'color'        => '#3a6f8f',
         ]);
         TileRegistry::register([
+            'module_class' => self::M_TEAMDEV,
+            'view_slug'    => 'team-blueprints',
+            'entity'       => 'team_chemistry_panel',
+            'group'        => $performance_group,
+            'kind'         => 'work',
+            'order'        => 55,
+            'label'        => __( 'Team blueprint', 'talenttrack' ),
+            'description'  => __( 'Coach-authored lineups: drag players onto the pitch, see chemistry update live, share with staff and lock when set.', 'talenttrack' ),
+            'icon'         => 'teams',
+            'color'        => '#1d6cb1',
+        ]);
+        TileRegistry::register([
             'module_class' => self::M_STATS,
             'view_slug'    => 'podium',
             'entity'       => 'podium_panel',
