@@ -352,12 +352,34 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     <label class="tt-field-label tt-field-required" for="tt-activity-other-label"><?php esc_html_e( 'Other label', 'talenttrack' ); ?></label>
                     <input type="text" id="tt-activity-other-label" class="tt-input" name="other_label" maxlength="120" value="<?php echo esc_attr( $current_other ); ?>" placeholder="<?php esc_attr_e( 'e.g. Team-building day', 'talenttrack' ); ?>" />
                 </div>
-                <?php echo DateInputComponent::render( [
+                <?php
+                // #0006 — when the team-planner sends the user here
+                // with `?session_date=YYYY-MM-DD&plan_state=scheduled`,
+                // pre-fill the date from the URL on create. Editing
+                // existing activities ignores the URL — the row's own
+                // date wins.
+                $prefill_date = (string) ( $session->session_date ?? '' );
+                if ( $prefill_date === '' ) {
+                    $url_date = isset( $_GET['session_date'] ) ? sanitize_text_field( (string) $_GET['session_date'] ) : '';
+                    $prefill_date = preg_match( '/^\d{4}-\d{2}-\d{2}$/', $url_date ) ? $url_date : current_time( 'Y-m-d' );
+                }
+                echo DateInputComponent::render( [
                     'name'     => 'session_date',
                     'label'    => __( 'Date', 'talenttrack' ),
                     'required' => true,
-                    'value'    => (string) ( $session->session_date ?? current_time( 'Y-m-d' ) ),
+                    'value'    => $prefill_date,
                 ] ); ?>
+                <?php
+                // #0006 — pass the planner's `plan_state=scheduled`
+                // through the form as a hidden field so the REST
+                // controller can branch on it. Edits leave the
+                // existing `plan_state` alone (the URL param is only
+                // honoured on create).
+                $plan_state_url = isset( $_GET['plan_state'] ) ? sanitize_key( (string) $_GET['plan_state'] ) : '';
+                if ( $session === null && in_array( $plan_state_url, [ 'draft', 'scheduled' ], true ) ) :
+                ?>
+                <input type="hidden" name="plan_state" value="<?php echo esc_attr( $plan_state_url ); ?>" />
+                <?php endif; ?>
                 <?php echo TeamPickerComponent::render( [
                     'name'     => 'team_id',
                     'label'    => __( 'Team', 'talenttrack' ),

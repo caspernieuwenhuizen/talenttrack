@@ -184,6 +184,13 @@ final class LegacyCapMapper {
         // + Admin only.
         'tt_decide_test_training_outcome' => [ 'prospects',            'create_delete' ],
         'tt_decide_trial_outcome'         => [ 'prospects',            'create_delete' ],
+
+        // #0006 — Team planning module. The planner is a calendar
+        // view onto `tt_activities` with plan-state filtering, so the
+        // caps bridge to the existing activities entity rather than
+        // introducing a parallel matrix entity.
+        'tt_view_plan'                   => [ 'activities',           'read' ],
+        'tt_manage_plan'                 => [ 'activities',           'change' ],
     ];
 
     public static function isKnown( string $cap ): bool {

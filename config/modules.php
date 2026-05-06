@@ -53,4 +53,6 @@ return [
     // + Account-page status tab. Sprint 2 ships the 4-step enrollment
     // wizard. Sprint 3 ships the `authenticate`-filter login integration.
     TT\Modules\Mfa\MfaModule::class                              => true,
+    // #0006 — Team planning calendar.
+    TT\Modules\Planning\PlanningModule::class                    => true,
 ];

@@ -239,6 +239,21 @@ class ActivitiesRestController {
             $where[]  = 's.session_date <= %s';
             $params[] = sanitize_text_field( (string) $filter['date_to'] );
         }
+        // #0006 — team-planning module. Optional `plan_state` filter so
+        // the planner can request scheduled-only / completed-only / all.
+        // Accepts a single value or comma-separated list.
+        if ( ! empty( $filter['plan_state'] ) ) {
+            $states = array_filter( array_map( 'trim',
+                explode( ',', (string) $filter['plan_state'] )
+            ) );
+            $allowed = [ 'draft', 'scheduled', 'in_progress', 'completed', 'cancelled' ];
+            $states = array_values( array_intersect( $states, $allowed ) );
+            if ( ! empty( $states ) ) {
+                $placeholders = implode( ',', array_fill( 0, count( $states ), '%s' ) );
+                $where[]  = "s.plan_state IN ($placeholders)";
+                foreach ( $states as $st ) $params[] = $st;
+            }
+        }
 
         // Search across title, location, team name.
         if ( ! empty( $r['search'] ) ) {
@@ -536,6 +551,21 @@ class ActivitiesRestController {
                     [ 'activity_id' => $activity_id, 'failures' => $att_failures ]
                 );
             }
+            // #0006 — auto-transition plan-state from scheduled /
+            // in_progress → completed once attendance is logged.
+            // The planner depends on this transition to surface
+            // "what happened this week" vs. "what's coming up".
+            $current_state = (string) $wpdb->get_var( $wpdb->prepare(
+                "SELECT plan_state FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+                $activity_id, CurrentClub::id()
+            ) );
+            if ( in_array( $current_state, [ 'scheduled', 'in_progress' ], true ) ) {
+                $wpdb->update(
+                    "{$p}tt_activities",
+                    [ 'plan_state' => 'completed' ],
+                    [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
+                );
+            }
         }
 
         // v3.71.6 — see create_session above. Frontend updates were
@@ -608,7 +638,14 @@ class ActivitiesRestController {
         $valid_statuses = QueryHelpers::get_lookup_names( 'activity_status' );
         if ( $status === '' || ! in_array( $status, $valid_statuses, true ) ) $status = 'planned';
 
-        return [
+        // #0006 — plan-state is optional on REST. The legacy logging
+        // flow leaves it null and the column default ('completed') wins,
+        // preserving back-compat. Planner-driven creation passes
+        // 'scheduled' so the row appears in the planner-only filter.
+        $plan_state = sanitize_text_field( (string) ( $r['plan_state'] ?? '' ) );
+        $allowed_plan_states = [ 'draft', 'scheduled', 'in_progress', 'completed', 'cancelled' ];
+
+        $payload = [
             'title'               => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
             'session_date'        => sanitize_text_field( (string) ( $r['session_date'] ?? '' ) ),
             'team_id'             => absint( $r['team_id'] ?? 0 ),
@@ -620,6 +657,14 @@ class ActivitiesRestController {
             'game_subtype_key'    => $type === 'game' && $subtype !== '' ? $subtype : null,
             'other_label'         => $type === 'other' && $other !== ''   ? $other   : null,
         ];
+        if ( in_array( $plan_state, $allowed_plan_states, true ) ) {
+            $payload['plan_state'] = $plan_state;
+            if ( $plan_state === 'scheduled' ) {
+                $payload['planned_at'] = current_time( 'mysql' );
+                $payload['planned_by'] = get_current_user_id();
+            }
+        }
+        return $payload;
     }
 
     /**

@@ -54,6 +54,7 @@ final class CoreSurfaceRegistration {
     private const M_TEAMS         = 'TT\\Modules\\Teams\\TeamsModule';
     private const M_TRIALS        = 'TT\\Modules\\Trials\\TrialsModule';
     private const M_PROSPECTS     = 'TT\\Modules\\Prospects\\ProspectsModule';
+    private const M_PLANNING      = 'TT\\Modules\\Planning\\PlanningModule';
     private const M_STAFF_DEV     = 'TT\\Modules\\StaffDevelopment\\StaffDevelopmentModule';
     private const M_WIZARDS       = 'TT\\Modules\\Wizards\\WizardsModule';
     private const M_WORKFLOW      = 'TT\\Modules\\Workflow\\WorkflowModule';
@@ -89,6 +90,8 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'wizards-admin',      self::M_WIZARDS );
         // #0081 child 3 — standalone onboarding-pipeline view.
         TileRegistry::registerSlugOwnership( 'onboarding-pipeline', self::M_PROSPECTS );
+        // #0006 — team-planning calendar.
+        TileRegistry::registerSlugOwnership( 'team-planner', self::M_PLANNING );
         // `accept-invite` and `audit-log` are intentionally absent —
         // the first must keep working for not-yet-registered
         // recipients, the second is infrastructure (no module owner).
@@ -384,6 +387,25 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Log training activities and attendance.', 'talenttrack' ),
             'icon'         => 'activities',
             'color'        => '#c9962a',
+        ]);
+        // #0006 — team-planning calendar tile, in the Performance group
+        // alongside Activities. The planner is the forward-looking
+        // surface; the activities tile is the backward log. Caps reuse
+        // the existing `activities_panel` entity gate, plus the planner
+        // checks `tt_view_plan` at render time for the soft "you don't
+        // have access" message.
+        TileRegistry::register([
+            'module_class' => self::M_PLANNING,
+            'view_slug'    => 'team-planner',
+            'entity'       => 'activities_panel',
+            'group'        => $performance_group,
+            'kind'         => 'work',
+            'order'        => 25,
+            'label'        => __( 'Team planner', 'talenttrack' ),
+            'description'  => __( 'Plan training activities week by week, with principle tagging and plan-state tracking.', 'talenttrack' ),
+            'icon'         => 'kanban',
+            'color'        => '#2271b1',
+            'cap'          => 'tt_view_plan',
         ]);
         TileRegistry::register([
             'module_class' => self::M_GOALS,

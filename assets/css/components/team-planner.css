@@ -1,0 +1,223 @@
+/*
+ * Team planner (#0006) — week-view calendar.
+ *
+ * Mobile-first per CLAUDE.md §2: base layout stacks 7 days vertically;
+ * ≥720px breakpoint flips to a 7-column grid. Activity cards keep
+ * ≥48px tap targets. Plan-state colours via brand-style tokens with
+ * hard-coded fallbacks for non-themed installs.
+ */
+
+.tt-planner-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin: 0 0 1rem;
+    padding: 0.75rem;
+    background: #fff;
+    border: 1px solid #e5e7ea;
+    border-radius: 8px;
+}
+
+.tt-planner-toolbar form,
+.tt-planner-toolbar .tt-planner-nav {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.tt-planner-team-picker label {
+    font-weight: 600;
+}
+
+.tt-planner-team-picker select {
+    min-width: 12rem;
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+.tt-planner-week {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    margin: 0 0 1.5rem;
+}
+
+@media ( min-width: 720px ) {
+    .tt-planner-week {
+        grid-template-columns: repeat( 7, 1fr );
+    }
+}
+
+.tt-planner-day {
+    background: #fafbfc;
+    border: 1px solid #e5e7ea;
+    border-radius: 8px;
+    min-height: 12rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.tt-planner-day-today {
+    border-color: var( --tt-color-primary, #2271b1 );
+    box-shadow: 0 0 0 1px var( --tt-color-primary, #2271b1 );
+}
+
+.tt-planner-day-head {
+    padding: 0.5rem 0.75rem;
+    background: #f6f7f8;
+    border-bottom: 1px solid #e5e7ea;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.85rem;
+}
+
+.tt-planner-dow {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #5b6e75;
+}
+
+.tt-planner-date {
+    color: #1a1d21;
+    font-weight: 600;
+}
+
+.tt-planner-day-body {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.tt-planner-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    border: 1px dashed #c4cbd0;
+    border-radius: 6px;
+    color: #5b6e75;
+    text-decoration: none;
+    font-size: 0.85rem;
+}
+
+.tt-planner-empty:hover {
+    background: #eef0f2;
+    color: #1a1d21;
+}
+
+.tt-planner-empty-readonly {
+    text-align: center;
+    color: #c4cbd0;
+    margin: 0.25rem 0;
+}
+
+.tt-planner-activity {
+    display: block;
+    padding: 0.5rem 0.6rem;
+    background: #fff;
+    border: 1px solid #e5e7ea;
+    border-left: 3px solid #5b6e75;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #1a1d21;
+    font-size: 0.85rem;
+    min-height: 48px;
+}
+
+.tt-planner-activity:hover {
+    background: #f6f7f8;
+}
+
+.tt-planner-activity-title {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+}
+
+.tt-planner-activity-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: #5b6e75;
+}
+
+.tt-planner-activity-state {
+    font-weight: 600;
+}
+
+.tt-planner-activity-principles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.35rem;
+}
+
+.tt-planner-principle-chip {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    background: #eef4fb;
+    border: 1px solid #c5d8ee;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    color: #1f4f8a;
+}
+
+.tt-planner-state-scheduled { border-left-color: #2271b1; }
+.tt-planner-state-scheduled .tt-planner-activity-state { color: #2271b1; }
+
+.tt-planner-state-in_progress { border-left-color: #c9962a; }
+.tt-planner-state-in_progress .tt-planner-activity-state { color: #c9962a; }
+
+.tt-planner-state-completed { border-left-color: #2c8a2c; }
+.tt-planner-state-completed .tt-planner-activity-state { color: #2c8a2c; }
+
+.tt-planner-state-cancelled {
+    border-left-color: #b32d2e;
+    opacity: 0.65;
+    text-decoration: line-through;
+}
+
+.tt-planner-state-draft { border-left-color: #5b6e75; }
+.tt-planner-state-draft .tt-planner-activity-state { color: #5b6e75; }
+
+.tt-planner-coverage {
+    background: #fff;
+    border: 1px solid #e5e7ea;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.tt-planner-coverage h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+}
+
+.tt-planner-coverage-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tt-planner-coverage-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tt-planner-coverage-count {
+    font-size: 0.75rem;
+    color: #5b6e75;
+}
