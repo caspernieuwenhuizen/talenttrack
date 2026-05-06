@@ -53,7 +53,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * @return array<string,string>  tab key => human label
      */
     private static function tabs(): array {
-        return [
+        $tabs = [
             'profile'     => __( 'Profile', 'talenttrack' ),
             'goals'       => __( 'Goals', 'talenttrack' ),
             'evaluations' => __( 'Evaluations', 'talenttrack' ),
@@ -61,6 +61,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             'pdp'         => __( 'PDP cycle', 'talenttrack' ),
             'trials'      => __( 'Trials', 'talenttrack' ),
         ];
+        // #0085 — Notes tab is staff-only. The cap check is enough for
+        // tab visibility; per-player scope is enforced by
+        // `PlayerThreadAdapter::canRead` when the tab renders.
+        if ( current_user_can( 'tt_view_player_notes' ) ) {
+            $tabs['notes'] = __( 'Notes', 'talenttrack' );
+        }
+        return $tabs;
     }
 
     public static function render( int $player_id, int $user_id, bool $is_admin ): void {
@@ -139,6 +146,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     case 'activities':  self::renderActivitiesTab( $player_id, $player ); break;
                     case 'pdp':         self::renderPdpTab( $player_id ); break;
                     case 'trials':      self::renderTrialsTab( $player_id ); break;
+                    case 'notes':       self::renderNotesTab( $player_id, $user_id ); break;
                     case 'profile':
                     default:            self::renderProfileTab( $player ); break;
                 }
@@ -568,6 +576,38 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             echo '</a></li>';
         }
         echo '</ul>';
+    }
+
+    /**
+     * #0085 — Notes tab. Staff-only running log on the player file via
+     * the existing Threads infrastructure. Cap-gated at the tab-show
+     * level (`tt_view_player_notes`); per-player scope enforced by
+     * `PlayerThreadAdapter::canRead` when the FrontendThreadView
+     * component renders.
+     */
+    private static function renderNotesTab( int $player_id, int $user_id ): void {
+        if ( ! current_user_can( 'tt_view_player_notes' ) ) {
+            EmptyStateCard::render( [
+                'headline'  => __( 'Notes are staff-only', 'talenttrack' ),
+                'explainer' => __( 'A running log of staff observations about this player. You don\'t have access — talk to your academy admin if you should.', 'talenttrack' ),
+            ] );
+            return;
+        }
+
+        $adapter = \TT\Modules\Threads\ThreadTypeRegistry::get( 'player' );
+        if ( ! $adapter || ! $adapter->canRead( $user_id, $player_id ) ) {
+            EmptyStateCard::render( [
+                'headline'  => __( 'Not in scope for this player', 'talenttrack' ),
+                'explainer' => __( 'You have notes access in general, but not for this player\'s team. Talk to your academy admin if you should.', 'talenttrack' ),
+            ] );
+            return;
+        }
+
+        echo '<p style="color:var(--tt-muted, #5b6e75); margin: 0 0 14px; font-size: 13px; max-width: 60ch;">'
+            . esc_html__( 'A running log staff use to share observations about this player. Notes are visible to staff only — never to the player or their parents.', 'talenttrack' )
+            . '</p>';
+
+        \TT\Shared\Frontend\Components\FrontendThreadView::render( 'player', $player_id, $user_id );
     }
 
     /**

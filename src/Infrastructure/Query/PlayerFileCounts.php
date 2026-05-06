@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 final class PlayerFileCounts {
 
     /**
-     * @return array{goals:int, evaluations:int, activities:int, pdp:int, trials:int}
+     * @return array{goals:int, evaluations:int, activities:int, pdp:int, trials:int, notes:int}
      */
     public static function for( int $player_id ): array {
         global $wpdb;
@@ -42,6 +42,18 @@ final class PlayerFileCounts {
             "SELECT COUNT(*) FROM {$p}tt_trial_cases WHERE player_id = %d AND archived_at IS NULL",
             $player_id
         ) );
+        // #0085 — notes count for the new Notes tab badge. Only counts
+        // visible (non-deleted) messages so the badge tracks what the
+        // viewer actually sees in the tab.
+        $notes_table = $p . 'tt_thread_messages';
+        $notes = 0;
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $notes_table ) ) === $notes_table ) {
+            $notes = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$notes_table}
+                  WHERE thread_type = 'player' AND thread_id = %d AND deleted_at IS NULL",
+                $player_id
+            ) );
+        }
 
         return [
             'goals'       => $goals,
@@ -49,6 +61,7 @@ final class PlayerFileCounts {
             'activities'  => $activities,
             'pdp'         => $pdp,
             'trials'      => $trials,
+            'notes'       => $notes,
         ];
     }
 }

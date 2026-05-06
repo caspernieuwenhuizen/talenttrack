@@ -485,6 +485,21 @@ class PlayersRestController {
                 [ 'code' => 'db_error', 'message' => __( 'The player could not be deleted.', 'talenttrack' ) ],
             ], 500 );
         }
+        // #0085 — cascade soft-archive of player notes. Notes are
+        // retained for compliance (hard-delete happens via the future
+        // GDPR erasure pipeline) but hidden from default queries. The
+        // existing thread_messages query layer filters on `deleted_at IS NULL`
+        // for non-author non-admin viewers; setting deleted_at here
+        // matches the existing soft-delete shape.
+        $wpdb->query( $wpdb->prepare(
+            "UPDATE {$wpdb->prefix}tt_thread_messages
+                SET deleted_at = %s,
+                    deleted_by = %d
+              WHERE thread_type = 'player' AND thread_id = %d AND deleted_at IS NULL",
+            current_time( 'mysql' ),
+            get_current_user_id(),
+            $id
+        ) );
         return RestResponse::success( [ 'archived' => true, 'id' => $id ] );
     }
 

@@ -12830,3 +12830,26 @@ msgstr "Je moet ingelogd zijn om een prospect vast te leggen."
 
 msgid "Could not start the prospect-logging chain. Check the workflow templates are enabled."
 msgstr "Kan de prospect-vastlegketen niet starten. Controleer of de workflowsjablonen aanstaan."
+
+# v3.97.1 — #0085 player notes
+
+msgid "Notes — %s"
+msgstr "Notities — %s"
+
+msgid "Player notes"
+msgstr "Spelersnotities"
+
+msgid "Notes are staff-only"
+msgstr "Notities zijn alleen voor staf"
+
+msgid "A running log of staff observations about this player. You don't have access — talk to your academy admin if you should."
+msgstr "Een doorlopend logboek van staf-observaties over deze speler. Je hebt geen toegang — vraag je academy admin als dat anders moet."
+
+msgid "Not in scope for this player"
+msgstr "Geen toegang voor deze speler"
+
+msgid "You have notes access in general, but not for this player's team. Talk to your academy admin if you should."
+msgstr "Je hebt in het algemeen toegang tot notities, maar niet voor het team van deze speler. Vraag je academy admin als dat anders moet."
+
+msgid "A running log staff use to share observations about this player. Notes are visible to staff only — never to the player or their parents."
+msgstr "Een doorlopend logboek waarin staf observaties over deze speler delen. Notities zijn alleen zichtbaar voor staf — nooit voor de speler of de ouders."

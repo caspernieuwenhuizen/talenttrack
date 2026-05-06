@@ -104,6 +104,8 @@ final class MatrixEntityCatalog {
             // #0081 — Onboarding pipeline.
             'prospects'                     => __( 'Prospects', 'talenttrack' ),
             'test_trainings'                => __( 'Test trainings', 'talenttrack' ),
+            // #0085 — Player notes (staff-only running log).
+            'player_notes'                  => __( 'Player notes', 'talenttrack' ),
         ];
     }
 

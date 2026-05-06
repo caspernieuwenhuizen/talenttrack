@@ -168,6 +168,18 @@ class RolesService {
         'tt_impersonate_users',
     ];
 
+    /**
+     * #0085 — Player notes (staff-only running log on the player file).
+     * Bridged via LegacyCapMapper to the `player_notes` matrix entity;
+     * scope checks layer on top of the cap check at runtime via the
+     * `PlayerThreadAdapter`.
+     */
+    public const PLAYER_NOTES_CAPS = [
+        'tt_view_player_notes',
+        'tt_edit_player_notes',
+        'tt_manage_player_notes',
+    ];
+
     /** @return array<string, array<string, string|array<string,bool>>> */
     public function roleDefinitions(): array {
         return [
@@ -210,7 +222,8 @@ class RolesService {
                         'tt_send_email'            => true,
                     ],
                     array_fill_keys( self::TRIAL_CAPS,    true ),  // full trials
-                    array_fill_keys( self::JOURNEY_CAPS,  true )   // medical + safeguarding (sensitive)
+                    array_fill_keys( self::JOURNEY_CAPS,  true ),  // medical + safeguarding (sensitive)
+                    array_fill_keys( self::PLAYER_NOTES_CAPS, true ) // #0085 — full RCD on player notes
                 ),
             ],
             'tt_club_admin' => [
@@ -234,7 +247,8 @@ class RolesService {
                         'tt_manage_players'  => true,
                         'tt_manage_settings' => true,
                         'tt_access_frontend_admin' => true,
-                    ]
+                    ],
+                    array_fill_keys( self::PLAYER_NOTES_CAPS, true ) // #0085 — full RCD on player notes
                 ),
             ],
             'tt_coach' => [
@@ -265,7 +279,10 @@ class RolesService {
                     // happens in FrontendReportWizardView.
                     [ 'tt_generate_report' => true ],
                     // #0063 — in-product mail composer.
-                    [ 'tt_send_email' => true ]
+                    [ 'tt_send_email' => true ],
+                    // #0085 — coaches read + write notes on their team's
+                    // players (matrix scope_kind = team).
+                    [ 'tt_view_player_notes' => true, 'tt_edit_player_notes' => true ]
                 ),
             ],
             'tt_scout' => [
@@ -288,7 +305,11 @@ class RolesService {
                     // in FrontendScoutMyPlayersView (assignment lives in
                     // user meta), so this cap alone doesn't grant
                     // visibility into any specific player.
-                    [ 'tt_view_scout_assignments' => true ]
+                    [ 'tt_view_scout_assignments' => true ],
+                    // #0085 — scouts write notes about players they
+                    // observe across the academy (matrix scope_kind =
+                    // global).
+                    [ 'tt_view_player_notes' => true, 'tt_edit_player_notes' => true ]
                 ),
             ],
             'tt_staff' => [
@@ -306,7 +327,13 @@ class RolesService {
                     ],
                     [
                         'tt_manage_players' => true,
-                    ]
+                    ],
+                    // #0085 — generic staff (team_manager / physio / kit
+                    // / etc.) read + write player notes on their team
+                    // per the matrix `r/c[team]` grant. The
+                    // PlayerThreadAdapter scope check enforces team
+                    // ownership at runtime.
+                    [ 'tt_view_player_notes' => true, 'tt_edit_player_notes' => true ]
                 ),
             ],
             'tt_player' => [
@@ -363,6 +390,7 @@ class RolesService {
             self::SETTINGS_SUBCAPS,
             self::COVERAGE_CAPS,
             self::IMPERSONATION_CAPS,
+            self::PLAYER_NOTES_CAPS,
             [ 'tt_view_reports', 'tt_access_frontend_admin' ]
         );
 

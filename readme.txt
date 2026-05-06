@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.97.0
+Stable tag: 3.97.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.97.1 — Player notes: staff-only running log on the player file (#0085) =
+
+Closes #0085 — the small-academy use case from the May 2026 pilot where coaches, scouts, HoD, and team managers want to leave structured observations on a player that aren't formal evaluations / scout reports / PDP cycles. **Architectural lucky strike**: TalentTrack already shipped the polymorphic Threads infrastructure (`tt_thread_messages` + `tt_thread_reads` + `ThreadTypeRegistry`) for #0028's goal-conversation feature. This release registers a second thread type — `player` — and wires it into the existing player-file Notes tab slot from #0082. **(1) `PlayerThreadAdapter`** in `src/Modules/Threads/Adapters/`. Read scope: `tt_view_player_notes` cap + matrix scope row. Post scope: `tt_edit_player_notes` cap + same matrix scope. Player + parent personas explicitly excluded — they never read or post via this adapter, full stop. The matrix seed has no grant for those personas; the adapter belt-and-braces excludes them by WP role too in case a future seed edit drifts. **(2) Two new caps + matrix entity.** `tt_view_player_notes` and `tt_edit_player_notes` (plus `tt_manage_player_notes` for delete) bridged via `LegacyCapMapper` to the new `player_notes` matrix entity. Seeded with assistant_coach / head_coach / team_manager `r/c[team]`, scout `r/c[global]` (cross-team scouting workflow), HoD/Admin `r/c/d[global]`. Migration `0069_authorization_seed_topup_player_notes` backfills the new tuples into existing installs (per `feedback_seed_changes_need_topup_migration.md`). Idempotent. **(3) Notes tab on the player file.** Slot already existed from #0082 — just adds another tab key in `FrontendPlayerDetailView::tabs()` (cap-gated so non-staff don't see it). The tab content delegates entirely to the existing `FrontendThreadView::render('player', $player_id, $user_id)` component — same chrome as the goal threads, including 5-min edit window, soft-delete, mark-read, polling. **(4) Tab count badge** via `PlayerFileCounts::for()` — adds a `notes` count to the existing 5-tab counter. Counts only `deleted_at IS NULL` rows so the badge reflects what the viewer actually sees. **(5) Player soft-delete cascade.** When a player is archived (`PlayersRestController::delete_player`), notes are soft-archived in the same write — `deleted_at` and `deleted_by` set on every `thread_messages` row matching `(thread_type='player', thread_id=N)`. Notes are retained for compliance; hard-delete happens via the future GDPR erasure pipeline (split-out per the v3.95.1 #0086 lock). **What's NOT in this PR** (per spec scope tightening): @-mention autocomplete + `PlayerNoteMentionTemplate` workflow tasks, visibility dropdown (staff_only / internal — every note is staff-only by virtue of the adapter's read gate, sufficient for the operator's primary use case), search integration (handled implicitly by the cap gate), `docs/player-notes.md` operator guide (deferred). 7 new NL msgids. Renumbered v3.96.1 → v3.97.1 after parallel-agent ships took v3.96.0 (pair-chemistry follow-up) and v3.97.0 (onboarding child 2a) + migration slot 0068 mid-CI; player-notes top-up moved to migration 0069.
 
 = 3.97.0 — Onboarding pipeline child 2a: workflow chain entry point + first two task templates (#0081) =
 
