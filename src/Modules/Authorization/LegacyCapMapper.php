@@ -155,6 +155,14 @@ final class LegacyCapMapper {
         // #0071 — Impersonation. The act-cap. Cross-club guard +
         // admin-on-admin block enforced in ImpersonationService.
         'tt_impersonate_users'           => [ 'impersonation_action',  'create_delete' ],
+
+        // #0081 — Onboarding pipeline (child 1: prospects entity).
+        'tt_view_prospects'              => [ 'prospects',             'read' ],
+        'tt_edit_prospects'              => [ 'prospects',             'change' ],
+        'tt_manage_prospects'            => [ 'prospects',             'create_delete' ],
+        'tt_view_test_trainings'         => [ 'test_trainings',        'read' ],
+        'tt_edit_test_trainings'         => [ 'test_trainings',        'change' ],
+        'tt_manage_test_trainings'       => [ 'test_trainings',        'create_delete' ],
     ];
 
     public static function isKnown( string $cap ): bool {

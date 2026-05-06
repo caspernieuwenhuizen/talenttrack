@@ -101,6 +101,9 @@ final class MatrixEntityCatalog {
             'persona_templates'             => __( 'Persona templates', 'talenttrack' ),
             'scout_access'                  => __( 'Scout access', 'talenttrack' ),
             'impersonation_action'          => __( 'Impersonation', 'talenttrack' ),
+            // #0081 — Onboarding pipeline.
+            'prospects'                     => __( 'Prospects', 'talenttrack' ),
+            'test_trainings'                => __( 'Test trainings', 'talenttrack' ),
         ];
     }
 

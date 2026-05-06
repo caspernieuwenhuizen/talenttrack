@@ -128,6 +128,18 @@ The journey is a read-side aggregate, not a fifth modeling pillar. Per `CLAUDE.m
 - **Boundary with workflow tasks:** workflow tasks are **reminders** (someone needs to do something); journey events are **records** (something happened). Some triggers fan out both — an injury insert spawns a recovery-due workflow task *and* a journey event; that's coincidence, not coupling. Don't reuse one for the other.
 - **Boundary with audit log:** `tt_audit_log` is operational telemetry (who changed what column when, for security investigation). The journey is the player-development story (what's happened to this player, in player-friendly language). Both can record an evaluation save; their consumers are different.
 
+## Personal-data registry (#0081 child 1)
+
+GDPR Articles 15 (subject access) and 17 (erasure) require an authoritative answer to *which tables hold this person's data*. Hard-coding that list inside an exporter or eraser invites drift.
+
+`src/Infrastructure/Privacy/PlayerDataMap.php` is a static-only registry. Modules call `PlayerDataMap::register( $table, $player_id_column, $purpose, $owner_module )` from their boot path. Two query methods:
+- `PlayerDataMap::all()` — full registration list.
+- `PlayerDataMap::rowCountsForPlayer( int $player_id )` — runs a row-count per registered table; skips silently when a registered table doesn't exist (modules can be disabled).
+
+`CorePiiRegistrations::register()` is the v1 backfill — registers 13 known core PII tables on every boot, called from `Kernel::boot()` after `bootAll()` so individual modules can register their own first. Coverage policy: only direct, indexed player-id FKs land in the central bootstrap. Junction-style tables that reach a player via two hops (e.g. `tt_pdp_conversations` → `tt_pdp_files.player_id`) are not registered — the erasure code walks them via the parent-table registration. Same logic for `tt_test_trainings`: session metadata, link to a person runs through `tt_workflow_tasks`.
+
+Erasure execution is not in this registry — that lives in #0073. The registry is the contract; the eraser walks it.
+
 ## Storage (#0052 PR-C)
 
 Asset URLs are the contract. The plugin must never assume `wp-content/uploads/` is the storage backend; SaaS deployments will use object storage (S3, R2). Helpers that read or transform images take a URL, not a server path; new code that needs to compose an asset URL goes through `wp_get_attachment_url()` or the dedicated REST endpoint, never through `WP_CONTENT_DIR . '/uploads/...'`.

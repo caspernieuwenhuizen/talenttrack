@@ -12673,3 +12673,10 @@ msgstr " · gepland %s"
 
 msgid "How many conversations are planned in their window, and how many have a recorded result. Click a cell to drill into per-player status for that team × block."
 msgstr "Hoeveel gesprekken zijn gepland binnen hun venster, en hoeveel hebben een geregistreerd resultaat. Klik op een cel om in te zoomen op de status per speler voor dat team × blok."
+
+# v3.95.0 — #0081 child 1: prospects entity
+msgid "Prospects"
+msgstr "Prospects"
+
+msgid "Test trainings"
+msgstr "Proeftrainingen"

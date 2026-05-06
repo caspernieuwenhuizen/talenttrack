@@ -45,4 +45,7 @@ return [
     TT\Modules\Push\PushModule::class                     => true,
     TT\Modules\CustomCss\CustomCssModule::class           => true,
     TT\Modules\AdminCenterClient\AdminCenterClientModule::class => true,
+    // #0081 — Onboarding pipeline. Child 1 (this version) ships the
+    // entity + retention cron only; child 2 wires the workflow templates.
+    TT\Modules\Prospects\ProspectsModule::class                  => true,
 ];

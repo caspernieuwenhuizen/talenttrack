@@ -79,6 +79,12 @@ class Kernel {
         $this->registry->registerAll();
         $this->registry->bootAll();
 
+        // #0081 — Initial PII-table registrations against PlayerDataMap.
+        // Registered after module boot so individual modules can have
+        // appended their own registrations first (override semantics:
+        // last-write wins, keyed by table name).
+        \TT\Infrastructure\Privacy\CorePiiRegistrations::register();
+
         // #0033 finalisation — populate the tile + admin-menu registries
         // with all shipped surfaces. Runs after `bootAll()` so any module
         // that itself wants to register additional tiles in the future

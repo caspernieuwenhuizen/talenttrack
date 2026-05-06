@@ -69,6 +69,7 @@ $mod_spond            = class_exists( '\TT\Modules\Spond\SpondModule' )         
 $mod_persona_dash     = class_exists( '\TT\Modules\PersonaDashboard\PersonaDashboardModule' ) ? \TT\Modules\PersonaDashboard\PersonaDashboardModule::class : $mod_authorization;
 $mod_custom_css       = class_exists( '\TT\Modules\CustomCss\CustomCssModule' )     ? \TT\Modules\CustomCss\CustomCssModule::class     : $mod_authorization;
 $mod_translations     = class_exists( '\TT\Modules\Translations\TranslationsModule' ) ? \TT\Modules\Translations\TranslationsModule::class : $mod_authorization;
+$mod_prospects        = class_exists( '\TT\Modules\Prospects\ProspectsModule' )       ? \TT\Modules\Prospects\ProspectsModule::class     : $mod_authorization;
 
 /**
  * Helper: build a rows[] array from a compact spec.
@@ -257,6 +258,11 @@ return array_merge(
         'my_staff_goals'             => [ 'rc',  'self',   $mod_staff_dev ],
         'my_staff_evaluations'       => [ 'r',   'self',   $mod_staff_dev ],
         'my_staff_certifications'    => [ 'rc',  'self',   $mod_staff_dev ],
+        // #0081 — Head coach reads prospects + test trainings at team
+        // scope (their own age group's funnel). No write — prospects
+        // are HoD/scout territory.
+        'prospects'                  => [ 'r',   'team',   $mod_prospects ],
+        'test_trainings'             => [ 'r',   'team',   $mod_prospects ],
         'persona_templates'          => [ 'r',   'global', $mod_persona_dash ],
         'push_subscriptions'         => [ 'rcd', 'self',   $mod_push ],
         'player_status'              => [ 'r',   'team',   $mod_players ],
@@ -373,6 +379,12 @@ return array_merge(
         'my_person'                  => [ 'rc',  'self',   $mod_people ],
         'player_status'              => [ 'r',   'global', $mod_players ],
         'scout_my_players'           => [ 'r',   'self',   $mod_reports ],
+        // #0081 — Scout sees only their own prospects. The "self" scope
+        // is enforced at the SQL layer in ProspectsRepository, not at
+        // the rendering layer. test_trainings R global so a scout can
+        // see the upcoming session their prospect was invited to.
+        'prospects'                  => [ 'rcd', 'self',   $mod_prospects ],
+        'test_trainings'             => [ 'r',   'global', $mod_prospects ],
     ] ),
 
     // ─── HEAD OF DEVELOPMENT (post-#0071 narrowing) ─────────────────
@@ -457,6 +469,10 @@ return array_merge(
         'my_staff_evaluations'          => [ 'r',   'self',   $mod_staff_dev ],
         'my_staff_certifications'      => [ 'rc',  'self',   $mod_staff_dev ],
         'push_subscriptions'            => [ 'rcd', 'self',   $mod_push ],
+        // #0081 — Onboarding pipeline entities. HoD owns the funnel
+        // globally; lifecycle is workflow-task-driven, not status-on-row.
+        'prospects'                     => [ 'rcd', 'global', $mod_prospects ],
+        'test_trainings'                => [ 'rcd', 'global', $mod_prospects ],
         // sensitive player data
         'player_status'                 => [ 'r',   'global', $mod_players ],
         'player_status_breakdown'       => [ 'r',   'global', $mod_players ],
@@ -607,5 +623,8 @@ return array_merge(
         'team_chemistry_panel'          => [ 'r',   'global', $mod_team_dev ],
         'pdp_panel'                     => [ 'r',   'global', $mod_pdp ],
         'wp_admin_portal'               => [ 'r',   'global', $mod_authorization ],
+        // #0081 — Onboarding pipeline. Admin RCD global; same as HoD.
+        'prospects'                     => [ 'rcd', 'global', $mod_prospects ],
+        'test_trainings'                => [ 'rcd', 'global', $mod_prospects ],
     ] )
 );
