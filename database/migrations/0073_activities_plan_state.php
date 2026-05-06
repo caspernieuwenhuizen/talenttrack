@@ -2,8 +2,7 @@
 /**
  * Migration 0073 — #0006 team-planning module: plan-state on tt_activities.
  *
- * Adds three columns to `tt_activities` (originally `tt_sessions`,
- * renamed in migration 0027):
+ * Adds three columns to `tt_activities`:
  *   - plan_state VARCHAR(16) DEFAULT 'completed' — one of
  *     'draft', 'scheduled', 'in_progress', 'completed', 'cancelled'.
  *     Default 'completed' on existing rows preserves the historical
@@ -18,7 +17,7 @@
  * Pre-existing `tt_principles` (migration 0015 — methodology framework)
  * already provides the principle-lookup the planning spec calls for —
  * the existing principles ARE the coaching-philosophy items the
- * planner will tag activities with. `tt_session_principles` already
+ * planner will tag activities with. `tt_activity_principles` already
  * exists as the link table. No new tables needed.
  *
  * Idempotent. SHOW COLUMNS guards.
