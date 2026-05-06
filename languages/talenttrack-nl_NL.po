@@ -13212,9 +13212,6 @@ msgstr "Tertiair"
 msgid "TRIAL"
 msgstr "PROEF"
 
-msgid "Trial player"
-msgstr "Proefspeler"
-
 msgid "%1$s — primary: %2$s — %3$d/3 tiers covered"
 msgstr "%1$s — primair: %2$s — %3$d/3 tiers gevuld"
 
