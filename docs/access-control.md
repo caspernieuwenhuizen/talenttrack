@@ -117,3 +117,12 @@ There is one documented exception: `AudienceResolver` legitimately needs to know
 ### Deferred — `tt_user_id` resolver
 
 Player records reference `wp_user_id` directly today. The future SaaS auth model will substitute a portable identity (UUID, JWT subject, …) and `wp_user_id` becomes one of several mappings. The resolver isn't built yet; documented here so the intent isn't lost.
+
+## Operator-facing security and privacy guides
+
+Two cap-and-matrix-adjacent operator guides shipped in v3.97.2 (#0086 Workstream A):
+
+- [Security operator guide](?page=tt-docs&topic=security-operator-guide) — the day-one + annual-review checklist for the Academy Admin: limiting administrator accounts, MFA recommendations, audit-log review, suspected-breach response, the future `require_mfa_for_personas` enforcement.
+- [Privacy operator guide](?page=tt-docs&topic=privacy-operator-guide) — the GDPR-facing how-to: subject-access requests, right-to-be-forgotten requests (manual until the formal erasure pipeline ships), retention windows per data category, the privacy lifecycle of a player joining and leaving the academy.
+
+The public-facing trust artifacts (security page, privacy policy, DPA template) live on `talenttrack.app/security` and `talenttrack.app/privacy`; the source is in `marketing/security/` for editing.
