@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\RestResponse;
+use TT\Modules\TeamDevelopment\BlueprintChemistryEngine;
 use TT\Modules\TeamDevelopment\ChemistryAggregator;
 use TT\Modules\TeamDevelopment\CompatibilityEngine;
 use TT\Modules\TeamDevelopment\Repositories\PairingsRepository;
@@ -309,10 +310,21 @@ class TeamDevelopmentRestController {
         $aggregator = new ChemistryAggregator();
         $payload = $aggregator->teamChemistry( $team_id, $template_id, $poss, $cntr, $prss );
 
+        // Layer in pair-link chemistry over the suggested XI. Consumers
+        // that want links + team-score for an arbitrary lineup pass
+        // their own lineup via POST when that endpoint lands.
+        $template_row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT slots_json FROM {$p}tt_formation_templates WHERE id = %d",
+            $template_id
+        ) );
+        $slots = is_array( $decoded = json_decode( (string) ( $template_row->slots_json ?? '[]' ), true ) ) ? $decoded : [];
+        $blueprint = ( new BlueprintChemistryEngine() )->computeForSuggested( $team_id, $slots, $payload['suggested_xi'] );
+
         return RestResponse::success( [
             'team_id'              => $team_id,
             'formation_template_id' => $template_id,
             'style'                => [ 'possession' => $poss, 'counter' => $cntr, 'press' => $prss ],
+            'blueprint_chemistry'  => $blueprint,
         ] + $payload );
     }
 

@@ -33,7 +33,26 @@ If the same player would be the best at two slots, they're placed at the higher-
 
 The pitch renders flat by default. Click *Switch to isometric view* below the pitch for the v1 tilted look — it's a CSS-only toggle that persists via URL parameter.
 
-### Chemistry breakdown
+### Link chemistry
+
+Coloured lines run between formation-adjacent slots, FIFA Ultimate Team-style. Each line is scored on three signals:
+
+- **Coach-marked pairing** (+2) — the two players are in the team's pairings list (highest signal)
+- **Same line of play** (+1) — both slots sit in the same band: GK / defence / midfield / attack
+- **Side-preference fit** (+1) — both players' side preferences (left / right) match the side of their slots; mismatched (right-footer in a left-back slot, etc.) deducts 1
+
+Per-pair score clamps to 0–3 and buckets into:
+
+- **Green** (2.0–3.0) — strong fit
+- **Amber** (1.0–2.0) — workable
+- **Red** (0–1.0) — poor fit
+- **Grey** — neutral lattice line for empty slots (no score)
+
+Hover any line for the breakdown — the reasons that contributed and the resulting score.
+
+The headline above the pitch reads *Link chemistry: N / 100*, computed as `sum(pair_scores) / (scored_pairs × 3) × 100`. It's separate from the composite below — the composite measures *can this XI fit the team's playing style?*; link chemistry measures *do these eleven slot-occupants fit each other?*
+
+### Composite chemistry breakdown
 
 Below the pitch, the composite chemistry score is shown with a four-part breakdown:
 

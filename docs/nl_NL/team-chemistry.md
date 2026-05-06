@@ -33,7 +33,26 @@ Als dezelfde speler op twee slots de beste zou zijn, wordt hij op de hoger score
 
 Het veld wordt standaard plat weergegeven. Klik op *Wissel naar isometrische weergave* onder het veld voor de gekantelde v1-look — een CSS-only schakelaar die via een URL-parameter blijft hangen.
 
-### Chemie­opbouw
+### Lijnchemie
+
+Gekleurde lijnen lopen tussen aangrenzende slots in de formatie, zoals in FIFA Ultimate Team. Elke lijn krijgt een score op basis van drie signalen:
+
+- **Door coach gemarkeerd duo** (+2) — de twee spelers staan in de koppellijst van het team (sterkste signaal)
+- **Zelfde linie** (+1) — beide slots zitten in dezelfde band: keeper / verdediging / middenveld / aanval
+- **Voorkeursbeen-fit** (+1) — beide voorkeursbenen (links / rechts) passen bij de zijde van hun slot; een mismatch (rechtsbenig in linksback, etc.) trekt 1 af
+
+De per-duo-score wordt geknepen tot 0–3 en gebucket:
+
+- **Groen** (2,0–3,0) — sterke fit
+- **Oranje** (1,0–2,0) — werkbaar
+- **Rood** (0–1,0) — zwakke fit
+- **Grijs** — neutrale lijn voor lege slots (niet gescoord)
+
+Beweeg over een lijn voor de uitsplitsing — de signalen die meetelden en de resulterende score.
+
+De kop boven het veld leest *Lijnchemie: N / 100*, berekend als `som(duo-scores) / (gescoorde duo's × 3) × 100`. Dit staat los van de samengestelde score eronder — de samenstelling meet *past deze basiself bij de speelstijl van het team?*; de lijnchemie meet *passen deze elf bezetters bij elkaar?*
+
+### Samengestelde chemie­opbouw
 
 Onder het veld staat de samengestelde chemiescore met een vierdelige opbouw:
 
