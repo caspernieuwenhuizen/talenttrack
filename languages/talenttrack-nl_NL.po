@@ -12853,3 +12853,139 @@ msgstr "Je hebt in het algemeen toegang tot notities, maar niet voor het team va
 
 msgid "A running log staff use to share observations about this player. Notes are visible to staff only — never to the player or their parents."
 msgstr "Een doorlopend logboek waarin staf observaties over deze speler delen. Notities zijn alleen zichtbaar voor staf — nooit voor de speler of de ouders."
+
+# v3.98.0 — #0068 Phase 1: Team Blueprint
+msgid "Team blueprint"
+msgstr "Teamblauwdruk"
+
+msgid "Coach-authored lineups: drag players onto the pitch, see chemistry update live, share with staff and lock when set."
+msgstr "Door de coach opgestelde basiselftallen: sleep spelers op het veld, zie de chemie live veranderen, deel met staf en zet vast wanneer klaar."
+
+msgid "Pick a team to open its saved blueprints — match-day lineups you can build, share with staff, and lock once finalised."
+msgstr "Kies een team om de opgeslagen blauwdrukken te openen — wedstrijdopstellingen die je kunt bouwen, delen met staf en vergrendelen zodra ze klaar zijn."
+
+msgid "Open blueprints →"
+msgstr "Open blauwdrukken →"
+
+msgid "%s — blueprints"
+msgstr "%s — blauwdrukken"
+
+msgid "Blueprints — %s"
+msgstr "Blauwdrukken — %s"
+
+msgid "+ New blueprint"
+msgstr "+ Nieuwe blauwdruk"
+
+msgid "No blueprints yet for this team. Click \"+ New blueprint\" to start one."
+msgstr "Nog geen blauwdrukken voor dit team. Klik op \"+ Nieuwe blauwdruk\" om er een te starten."
+
+msgid "%1$s · %2$s"
+msgstr "%1$s · %2$s"
+
+msgid "← Back to blueprints"
+msgstr "← Terug naar blauwdrukken"
+
+msgid "Share with staff"
+msgstr "Delen met staf"
+
+msgid "Move back to draft"
+msgstr "Terug naar concept"
+
+msgid "Lock"
+msgstr "Vergrendel"
+
+msgid "Reopen"
+msgstr "Heropenen"
+
+msgid "Draft"
+msgstr "Concept"
+
+msgid "Shared"
+msgstr "Gedeeld"
+
+msgid "Locked"
+msgstr "Vergrendeld"
+
+msgid "Available players"
+msgstr "Beschikbare spelers"
+
+msgid "Drag a player onto a slot. Drop a player back here to remove them from the lineup."
+msgstr "Sleep een speler op een positie. Sleep een speler hierheen terug om hem uit de opstelling te halen."
+
+msgid "This blueprint is locked. Reopen it to make changes."
+msgstr "Deze blauwdruk is vergrendeld. Heropen om wijzigingen te maken."
+
+msgid "This blueprint is locked. Reopen it before editing."
+msgstr "Deze blauwdruk is vergrendeld. Heropen voordat je bewerkt."
+
+msgid "Could not save the change. Try again."
+msgstr "Kan de wijziging niet opslaan. Probeer opnieuw."
+
+msgid "That blueprint no longer exists."
+msgstr "Die blauwdruk bestaat niet meer."
+
+msgid "The team for this blueprint no longer exists."
+msgstr "Het team voor deze blauwdruk bestaat niet meer."
+
+msgid "Blueprint not found"
+msgstr "Blauwdruk niet gevonden"
+
+msgid "Your role does not have access to team blueprints."
+msgstr "Je rol heeft geen toegang tot teamblauwdrukken."
+
+msgid "Blueprint name"
+msgstr "Naam blauwdruk"
+
+msgid "e.g. Cup final starting XI"
+msgstr "bv. Bekerfinale basiself"
+
+msgid "— pick a formation —"
+msgstr "— kies een formatie —"
+
+msgid "Pick a team for this blueprint."
+msgstr "Kies een team voor deze blauwdruk."
+
+msgid "Pick a formation for this blueprint."
+msgstr "Kies een formatie voor deze blauwdruk."
+
+msgid "Give this blueprint a name."
+msgstr "Geef deze blauwdruk een naam."
+
+msgid "New blueprint"
+msgstr "Nieuwe blauwdruk"
+
+msgid "Setup"
+msgstr "Instellen"
+
+msgid "Check the details before creating the blueprint. You will land on the editor next to drag players onto slots."
+msgstr "Controleer de gegevens voordat je de blauwdruk aanmaakt. Je komt daarna direct in de editor om spelers op posities te slepen."
+
+msgid "You do not have permission to create blueprints."
+msgstr "Je hebt geen rechten om blauwdrukken aan te maken."
+
+msgid "Setup is incomplete. Go back to fill in all fields."
+msgstr "De setup is onvolledig. Ga terug om alle velden in te vullen."
+
+msgid "Could not create the blueprint."
+msgstr "Kan de blauwdruk niet aanmaken."
+
+msgid "Name and formation are required."
+msgstr "Naam en formatie zijn verplicht."
+
+msgid "The blueprint could not be created."
+msgstr "De blauwdruk kon niet worden aangemaakt."
+
+msgid "Blueprint not found."
+msgstr "Blauwdruk niet gevonden."
+
+msgid "Nothing to update."
+msgstr "Niets om bij te werken."
+
+msgid "slot_label is required."
+msgstr "slot_label is verplicht."
+
+msgid "Assignments map is required."
+msgstr "Toewijzingsmap is verplicht."
+
+msgid "Status must be draft, shared, or locked."
+msgstr "Status moet draft, shared of locked zijn."

@@ -1,97 +1,100 @@
-# TalentTrack v3.97.1 — Player notes: staff-only running log on the player file (#0085)
+# TalentTrack v3.98.0 — Team Blueprint Phase 1: drag-drop lineups with live chemistry (#0068)
 
-Closes #0085 — the small-academy use case from the May 2026 pilot where coaches, scouts, HoD, and team managers want to leave structured observations on a player that aren't formal evaluations / scout reports / PDP cycles. Examples surfaced by the operator: *"Lucas was unusually quiet at practice tonight, parents are going through a divorce"* / *"Talked to Eve's parents at the tournament — they're considering a club switch in summer"* / *"Try Jonas as a winger next match, he's outgrowing the defensive midfielder role"*. None of those need a formal evaluation; all of them need to reach the rest of the leadership community.
+The follow-up to the v3.96.0 chemistry-line ship. Coaches can now build, save, share, and lock match-day lineups on a draggable pitch — with the same FIFA-Ultimate-Team-style chemistry lines updating live on every drop.
 
-Renumbered v3.95.2 → v3.96.1 → v3.97.1 after v3.96.0 (#0068 pair-chemistry follow-up) and v3.97.0 (#0081 onboarding-pipeline child 2a) landed in succession during the rebase window.
+Phase 1 ships the **match-day** flavour only. Squad-plan flavour, trial overlay, and a heatmap view land in Phase 2; comments via Threads in Phase 3.
 
-## Architectural lucky strike
+## What's new for coaches
 
-TalentTrack already shipped the polymorphic Threads infrastructure (`tt_thread_messages` + `tt_thread_reads` + `ThreadTypeRegistry`) for #0028's goal-conversation feature. Until now only one thread type was registered (`goal`); this release registers a second (`player`) and wires it into the existing player-file Notes tab slot from #0082. The entire feature is one new adapter class, one new matrix entity, two new caps, one new tab branch on the existing player file, and one cascade hook on player soft-delete. No new tables, no new REST routes, no new frontend components.
+A new tile **Team blueprint** appears in the Performance group on the dashboard, right next to Team chemistry. Click it, pick a team, and you land on a list of saved blueprints for that team. *+ New blueprint* opens a two-step wizard (pick team + formation + name → review → create) and drops you on the editor.
 
-## What landed
+The editor is the centrepiece:
 
-### `PlayerThreadAdapter`
+- **Roster sidebar** on the left lists every active player on the team. Each is a draggable chip.
+- **Pitch in the middle** shows the formation slots. Drag a chip onto a slot — the player is saved, the chemistry score recomputes, and the green/amber/red lines update.
+- **Move a player** by dragging from one slot to another, or drop a chip back onto the roster sidebar to remove from the lineup.
+- **Live Link chemistry** headline above the pitch updates after every drop. Same 0–100 math as the chemistry view (`sum(pair_scores) / (scored_pairs × 3) × 100`).
+- **Status flow** — draft (private) → shared (visible to staff) → locked (read-only). One *Reopen* click on a locked blueprint sends it back to shared so changes can be made.
 
-New class at `src/Modules/Threads/Adapters/PlayerThreadAdapter.php` implementing `ThreadTypeAdapter`. Registered alongside `GoalThreadAdapter` from `ThreadsModule::boot()`:
+When a blueprint is locked, drag-drop is disabled and the assignment endpoints reject writes with HTTP 409. Reopen reverts to shared.
 
-```php
-ThreadTypeRegistry::register( 'goal',   new GoalThreadAdapter() );
-ThreadTypeRegistry::register( 'player', new PlayerThreadAdapter() );
+## Schema
+
+Migration **0070** adds two tables:
+
+```sql
+tt_team_blueprints (
+    id, club_id, uuid, team_id, name, flavour, formation_template_id,
+    status, notes, created_by, created_at, updated_by, updated_at
+)
+
+tt_team_blueprint_assignments (
+    id, club_id, blueprint_id, slot_label, player_id, assignment_notes, updated_at
+    UNIQUE (blueprint_id, slot_label)
+)
 ```
 
-`canRead`: requires `tt_view_player_notes` cap + matrix scope row resolved by `QueryHelpers::user_has_global_entity_read()` (HoD / admin / scout) or `coach_owns_player()` (team-scoped coaches). Players + parents are explicitly excluded by WP role check — they never read player notes via this adapter, full stop. The matrix seed has no grant for those personas anyway; the role-check is belt-and-braces against future seed-edit drift.
+The unique on `(blueprint_id, slot_label)` enforces single-occupant slots. Empty slots are simply absent from the assignments table — no `player_id IS NULL` rows. `flavour` defaults to `match_day`; the column exists now to avoid a Phase-2 migration when squad-plan lands. SaaS-readiness scaffold (`club_id`, `uuid`) per CLAUDE.md §4 included on both tables.
 
-`canPost`: same shape with `tt_edit_player_notes`.
+## REST contract
 
-`participantUserIds`: returns the empty list. Per-user @-mention parsing is deferred to a follow-up (spec §5).
+| Method | Path | Cap | Notes |
+| --- | --- | --- | --- |
+| `GET`    | `/teams/{id}/blueprints`         | view   | List for one team, ordered by `updated_at DESC`. |
+| `POST`   | `/teams/{id}/blueprints`         | manage | Create (name + formation_template_id required). Lands in `draft` status with empty assignments. |
+| `GET`    | `/blueprints/{id}`               | view   | Returns blueprint meta + slots (from formation template) + assignments map + recomputed `blueprint_chemistry`. |
+| `PUT`    | `/blueprints/{id}`               | manage | Update meta fields (`name`, `formation_template_id`, `notes`). Rejects with 409 if locked. |
+| `DELETE` | `/blueprints/{id}`               | manage | Hard-delete blueprint + assignments. |
+| `PUT`    | `/blueprints/{id}/assignment`    | manage | Set / unset one slot. Body: `{ slot_label, player_id? }`. Returns recomputed `blueprint_chemistry`. |
+| `PUT`    | `/blueprints/{id}/assignments`   | manage | Bulk replace. Body: `{ assignments: { LB: 12, RB: 7, ... } }`. |
+| `PUT`    | `/blueprints/{id}/status`        | manage | Body: `{ status: 'draft'|'shared'|'locked' }`. |
 
-`entityLabel`: returns `"Notes — {player display name}"` for breadcrumb / page-title use.
+The chemistry payload returned by `GET /blueprints/{id}` and the per-drop `PUT /blueprints/{id}/assignment` is the same `BlueprintChemistryEngine::computeForLineup()` shape introduced in v3.96.0, so any consumer that already reads `blueprint_chemistry` from `GET /teams/{id}/chemistry` works against blueprints unchanged.
 
-### Matrix seed + caps
+## Frontend architecture
 
-New entity `player_notes` seeded with documented persona scoping:
+- New view class `FrontendTeamBlueprintsView` under `src/Modules/TeamDevelopment/Frontend/`. Three render branches: team picker, per-team list, editor.
+- New tile registered via `CoreSurfaceRegistration` (slug `team-blueprints`, entity `team_chemistry_panel` — reusing the chemistry-panel matrix entity rather than minting a new one, since blueprint visibility follows the same scoping).
+- New wizard `NewTeamBlueprintWizard` registered in `WizardsModule` per CLAUDE.md §3 (record-creation wizard rule).
+- Drag-drop is pure vanilla JS in `assets/js/frontend-team-blueprint.js` (~120 LOC). HTML5 `dragstart` / `dragover` / `drop`. Each drop sends a single `PUT /blueprints/{id}/assignment` and reloads the page from the server response — no client-side diff'ing of slot state.
+- CSS in `assets/css/frontend-team-blueprint.css`. Mobile-first per CLAUDE.md §2: stacks at <768px (roster on top, pitch below), side-by-side ≥768px. Touch targets ≥48px. No hover-only functionality.
 
-- `assistant_coach` / `head_coach` / `team_manager`: `r/c[team]`
-- `scout`: `r/c[global]` — scouts observe across teams, so global scope.
-- `head_of_development` / `academy_admin`: `r/c/d[global]`
-- `player` / `parent`: no grant.
+## Cap / matrix entity reuse
 
-Three new caps in `LegacyCapMapper`:
+Blueprints use the existing `tt_view_team_chemistry` (read) and `tt_manage_team_chemistry` (manage) caps. Same matrix entity `team_chemistry_panel` for tile visibility. **No seed migration needed** — every persona that already sees the chemistry tile can see the blueprint tile, and every persona that can manage chemistry pairings can manage blueprints. Per `feedback_seed_changes_need_topup_migration.md`, this is the simpler outcome.
 
-```php
-'tt_view_player_notes'   => [ 'player_notes', 'read' ],
-'tt_edit_player_notes'   => [ 'player_notes', 'change' ],
-'tt_manage_player_notes' => [ 'player_notes', 'create_delete' ],
-```
+If we later want to split visibility (e.g. blueprints visible to assistant coaches who shouldn't see the chemistry composite), we mint a new `team_blueprint_panel` entity with a top-up migration. Not warranted for Phase 1.
 
-`RolesService` gains a new `PLAYER_NOTES_CAPS` constant; the caps land on `tt_head_dev` / `tt_club_admin` (full RCD), `tt_coach` / `tt_scout` / `tt_staff` (view+edit). Administrator gets all three via the existing `ensureCapabilities()` walk.
+## License gate
 
-### Migration `0069_authorization_seed_topup_player_notes`
+Same `team_chemistry` Pro-tier feature flag as the chemistry view. Free tier sees `UpgradeNudge::inline()` in place of the editor. Standard / trial / Pro all light up.
 
-Same shape as 0063 / 0064 / 0067. Walks the seed file and `INSERT IGNORE`s every (persona, entity, activity, scope_kind) tuple where `entity = 'player_notes'`. Existing rows including operator-edited ones stay untouched. Idempotent. Per `feedback_seed_changes_need_topup_migration.md`: the seed file alone doesn't reach existing installs because migration 0026 only seeds on fresh install / "Reset to defaults" click.
+## What didn't change
 
-### Notes tab on the player file
+- The chemistry view (`?tt_view=team-chemistry`) is untouched. Coaches who navigated by the auto-suggested XI continue to do so; blueprints are a parallel surface for *coach-authored* lineups.
+- `BlueprintChemistryEngine` shipped in v3.96.0 is consumed unchanged. The engine is pure-function `(team_id, slots, lineup)` → chemistry payload — exactly what was promised when it landed.
+- No drag-drop on the chemistry view itself. That surface stays auto-suggested by design.
 
-`FrontendPlayerDetailView::tabs()` adds a `notes` key when `current_user_can('tt_view_player_notes')` resolves true. The dispatch switch routes to `renderNotesTab($player_id, $user_id)` which:
+## What's not in this PR
 
-1. Re-checks the cap (defence in depth).
-2. Re-checks the per-player scope via `PlayerThreadAdapter::canRead()` — covers the case where a coach has the cap globally but not for this specific player's team. Renders an `EmptyStateCard` with explainer when blocked.
-3. Delegates to `FrontendThreadView::render('player', $player_id, $user_id)` — same component the goal threads use. Inherits the existing chrome: 5-minute edit window for own messages, soft-delete (own or admin via cap), mark-read on tab open, 30-second polling for new messages, mobile-first layout per `CLAUDE.md` § 2.
+- **Squad-plan flavour** — the second blueprint type (multi-tier position fits, primary/secondary/tertiary, used for next-season planning). Phase 2.
+- **Trial overlay** — visualising trial players on a squad-plan blueprint with a distinct chip. Phase 2 (locked decision: only trials assigned to this team are eligible).
+- **Comments** — discussing a blueprint with staff via the Threads module. Phase 3.
+- **Mobile drag-drop polish** — HTML5 drag-and-drop on touch devices works but is awkward; a long-press-to-pick-up fallback is Phase 4.
+- **Share-link** — public URL for parents / external coaches. Phase 4.
 
-### Tab count badge
+## Files touched
 
-`PlayerFileCounts::for()` gains a `notes` count alongside the existing 5 (goals / evaluations / activities / pdp / trials). Counts only `deleted_at IS NULL` rows. Badge renders via the existing `tt-tab-badge` markup; zero-count tabs get the muted `tt-player-tab--empty` modifier from #0082.
-
-### Player soft-delete cascade
-
-`PlayersRestController::delete_player()` now writes `deleted_at = current_time('mysql')` and `deleted_by = get_current_user_id()` on every `tt_thread_messages` row where `thread_type='player' AND thread_id=N AND deleted_at IS NULL`, in the same transaction as the player archive. Notes are retained for compliance — they're soft-archived, not hard-deleted. The future GDPR erasure spec (split out of #0086 per the v3.95.1 lock) handles hard delete via the `PlayerDataMap` registry from #0081 child 1.
-
-## What's deliberately NOT in this PR
-
-Per the spec's "Out of scope" section + a tightening pass during shaping:
-
-- **@-mention autocomplete + `PlayerNoteMentionTemplate` workflow tasks.** ~150 LOC across mention parser, autocomplete UI, task template, auto-completion via thread reads. Skipped to keep this PR small; ships as a follow-up if the operator asks for it.
-- **Visibility dropdown (staff_only / internal).** Every note is staff-only by virtue of the adapter's read gate excluding players + parents. The "internal" sub-level for HoD-only sensitive notes adds complexity (needs a new visibility constant + per-message gate); operator's primary ask is just staff-only.
-- **Search integration.** The cap gate handles this implicitly — note bodies appear in global search results only for users whose cap resolves true, which is the spec's behavior. Explicit search-index registration is unnecessary.
-- **`docs/player-notes.md` operator guide.** Deferred. UI is self-explanatory; if the operator asks for a doc, ~30min add-on.
-- **Parent / player participation in notes.** Explicit out-of-scope per spec — would force coaches into self-censorship from day one.
-- **Rich text, file attachments, threading / replies, cross-academy notes, bulk import of historical notes.** All out-of-scope per spec.
-
-## Affected files
-
-- `src/Modules/Threads/Adapters/PlayerThreadAdapter.php` — new.
-- `src/Modules/Threads/ThreadsModule.php` — register the adapter from `boot()`.
-- `src/Modules/Authorization/LegacyCapMapper.php` — three new cap → entity bridges.
-- `src/Modules/Authorization/Admin/MatrixEntityCatalog.php` — `player_notes` localized label.
-- `src/Infrastructure/Security/RolesService.php` — `PLAYER_NOTES_CAPS` constant + grants on `tt_head_dev` / `tt_club_admin` / `tt_coach` / `tt_scout` / `tt_staff` + `ensureCapabilities()` walk.
-- `src/Shared/Frontend/FrontendPlayerDetailView.php` — `notes` tab in `tabs()` + `renderNotesTab()` method + dispatch case.
-- `src/Infrastructure/Query/PlayerFileCounts.php` — `notes` count in the returned map.
-- `src/Infrastructure/REST/PlayersRestController.php` — cascade soft-archive of notes on player delete.
-- `config/authorization_seed.php` — `player_notes` rows on 5 personas.
-- `database/migrations/0069_authorization_seed_topup_player_notes.php` — new top-up migration.
-- `languages/talenttrack-nl_NL.po` — 7 new msgids.
-- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
-
-## Translations
-
-7 new translatable strings: `Notes — %s`, `Player notes`, `Notes are staff-only`, the staff-only headline explainer, `Not in scope for this player`, the per-player scope explainer, and the page-top description on the Notes tab. `Notes` (used as the tab label) was already in the .po.
+- `database/migrations/0070_team_blueprints.php` (new)
+- `src/Modules/TeamDevelopment/Repositories/TeamBlueprintsRepository.php` (new)
+- `src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php` (new)
+- `src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php` (extended — 7 new endpoints + handlers)
+- `src/Modules/Wizards/TeamBlueprint/{NewTeamBlueprintWizard,SetupStep,ReviewStep}.php` (new)
+- `src/Modules/Wizards/WizardsModule.php` (register new wizard)
+- `src/Shared/Frontend/DashboardShortcode.php` (`team-blueprints` slug + dispatch)
+- `src/Shared/CoreSurfaceRegistration.php` (Team blueprint tile)
+- `assets/css/frontend-team-blueprint.css` (new)
+- `assets/js/frontend-team-blueprint.js` (new)
+- `languages/talenttrack-nl_NL.po` (40 new msgids)
+- `docs/team-blueprint.md` + `docs/nl_NL/team-blueprint.md` (new)
+- `talenttrack.php` + `readme.txt` + `SEQUENCE.md` (3.97.0 → 3.98.0)

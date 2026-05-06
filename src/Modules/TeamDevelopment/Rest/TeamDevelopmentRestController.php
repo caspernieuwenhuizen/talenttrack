@@ -10,6 +10,7 @@ use TT\Modules\TeamDevelopment\BlueprintChemistryEngine;
 use TT\Modules\TeamDevelopment\ChemistryAggregator;
 use TT\Modules\TeamDevelopment\CompatibilityEngine;
 use TT\Modules\TeamDevelopment\Repositories\PairingsRepository;
+use TT\Modules\TeamDevelopment\Repositories\TeamBlueprintsRepository;
 
 /**
  * TeamDevelopmentRestController — sprint 1 stubs.
@@ -101,6 +102,61 @@ class TeamDevelopmentRestController {
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_team_fit' ],
                 'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+        ] );
+
+        // Phase 1 of Team Blueprint (#0068 follow-up). REST is the
+        // contract for the drag-drop editor; the editor's per-drop
+        // PUT lands on /blueprints/{id}/assignment so a 50-row
+        // replace doesn't run on every gesture.
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/blueprints', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'list_blueprints' ],
+                'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'create_blueprint' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/blueprints/(?P<id>\d+)', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_blueprint' ],
+                'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+            [
+                'methods'             => 'PUT',
+                'callback'            => [ __CLASS__, 'update_blueprint' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+            ],
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_blueprint' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/blueprints/(?P<id>\d+)/assignment', [
+            [
+                'methods'             => 'PUT',
+                'callback'            => [ __CLASS__, 'set_blueprint_assignment' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/blueprints/(?P<id>\d+)/assignments', [
+            [
+                'methods'             => 'PUT',
+                'callback'            => [ __CLASS__, 'replace_blueprint_assignments' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/blueprints/(?P<id>\d+)/status', [
+            [
+                'methods'             => 'PUT',
+                'callback'            => [ __CLASS__, 'set_blueprint_status' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
             ],
         ] );
     }
@@ -420,5 +476,190 @@ class TeamDevelopmentRestController {
             'rows'                  => $rows,
             'top_3'                 => array_slice( $rows, 0, 3 ),
         ] );
+    }
+
+    // Team Blueprint Phase 1 (#0068 follow-up)
+
+    public static function list_blueprints( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = absint( $r['id'] );
+        if ( $team_id <= 0 || ! QueryHelpers::get_team( $team_id ) ) {
+            return RestResponse::error( 'bad_team', __( 'Team not found.', 'talenttrack' ), 404 );
+        }
+        return RestResponse::success( [
+            'team_id' => $team_id,
+            'rows'    => ( new TeamBlueprintsRepository() )->listForTeam( $team_id ),
+        ] );
+    }
+
+    public static function create_blueprint( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = absint( $r['id'] );
+        if ( $team_id <= 0 || ! QueryHelpers::get_team( $team_id ) ) {
+            return RestResponse::error( 'bad_team', __( 'Team not found.', 'talenttrack' ), 404 );
+        }
+        $name        = trim( (string) ( $r['name'] ?? '' ) );
+        $template_id = absint( $r['formation_template_id'] ?? 0 );
+        if ( $name === '' || $template_id <= 0 ) {
+            return RestResponse::error( 'missing_fields',
+                __( 'Name and formation are required.', 'talenttrack' ), 400 );
+        }
+        global $wpdb; $p = $wpdb->prefix;
+        $tpl = $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_formation_templates WHERE id = %d AND archived_at IS NULL",
+            $template_id
+        ) );
+        if ( ! $tpl ) {
+            return RestResponse::error( 'bad_template',
+                __( 'Formation template not found.', 'talenttrack' ), 404 );
+        }
+        $id = ( new TeamBlueprintsRepository() )->create(
+            $team_id, $name, $template_id, get_current_user_id()
+        );
+        if ( $id <= 0 ) {
+            Logger::error( 'team_dev.blueprint.create.failed', [ 'team_id' => $team_id ] );
+            return RestResponse::error( 'db_error',
+                __( 'The blueprint could not be created.', 'talenttrack' ), 500 );
+        }
+        return RestResponse::success( [ 'id' => $id, 'team_id' => $team_id ] );
+    }
+
+    public static function get_blueprint( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        $bp = ( new TeamBlueprintsRepository() )->find( $id );
+        if ( $bp === null ) {
+            return RestResponse::error( 'bad_blueprint',
+                __( 'Blueprint not found.', 'talenttrack' ), 404 );
+        }
+        $lineup = [];
+        foreach ( (array) ( $bp['assignments'] ?? [] ) as $slot => $pid ) {
+            $lineup[ (string) $slot ] = (int) $pid;
+        }
+        $blueprint_chemistry = ( new BlueprintChemistryEngine() )->computeForLineup(
+            (int) $bp['team_id'],
+            (array) ( $bp['slots'] ?? [] ),
+            $lineup
+        );
+        return RestResponse::success( [
+            'blueprint'           => $bp,
+            'blueprint_chemistry' => $blueprint_chemistry,
+        ] );
+    }
+
+    public static function update_blueprint( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        $repo = new TeamBlueprintsRepository();
+        $existing = $repo->find( $id );
+        if ( $existing === null ) {
+            return RestResponse::error( 'bad_blueprint',
+                __( 'Blueprint not found.', 'talenttrack' ), 404 );
+        }
+        if ( $existing['status'] === TeamBlueprintsRepository::STATUS_LOCKED ) {
+            return RestResponse::error( 'locked',
+                __( 'This blueprint is locked. Reopen it before editing.', 'talenttrack' ), 409 );
+        }
+        $patch = [];
+        if ( isset( $r['name'] ) )                  $patch['name'] = trim( (string) $r['name'] );
+        if ( isset( $r['formation_template_id'] ) ) $patch['formation_template_id'] = absint( $r['formation_template_id'] );
+        if ( isset( $r['notes'] ) )                 $patch['notes'] = (string) $r['notes'];
+        if ( empty( $patch ) ) {
+            return RestResponse::error( 'no_changes',
+                __( 'Nothing to update.', 'talenttrack' ), 400 );
+        }
+        $repo->updateMeta( $id, $patch, get_current_user_id() );
+        return RestResponse::success( [ 'id' => $id ] );
+    }
+
+    public static function delete_blueprint( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        $repo = new TeamBlueprintsRepository();
+        $existing = $repo->find( $id );
+        if ( $existing === null ) {
+            return RestResponse::error( 'bad_blueprint',
+                __( 'Blueprint not found.', 'talenttrack' ), 404 );
+        }
+        $repo->delete( $id );
+        return RestResponse::success( [ 'id' => $id, 'deleted' => true ] );
+    }
+
+    public static function set_blueprint_assignment( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        $repo = new TeamBlueprintsRepository();
+        $existing = $repo->find( $id );
+        if ( $existing === null ) {
+            return RestResponse::error( 'bad_blueprint',
+                __( 'Blueprint not found.', 'talenttrack' ), 404 );
+        }
+        if ( $existing['status'] === TeamBlueprintsRepository::STATUS_LOCKED ) {
+            return RestResponse::error( 'locked',
+                __( 'This blueprint is locked. Reopen it before editing.', 'talenttrack' ), 409 );
+        }
+        $slot      = trim( (string) ( $r['slot_label'] ?? '' ) );
+        $player_id = isset( $r['player_id'] ) ? absint( $r['player_id'] ) : 0;
+        if ( $slot === '' ) {
+            return RestResponse::error( 'missing_slot',
+                __( 'slot_label is required.', 'talenttrack' ), 400 );
+        }
+        $repo->setAssignment( $id, $slot, $player_id > 0 ? $player_id : null );
+
+        // Recompute chemistry on the new lineup so the editor can
+        // refresh the score + lines without round-tripping the get.
+        $bp = $repo->find( $id );
+        $lineup = [];
+        foreach ( (array) ( $bp['assignments'] ?? [] ) as $sl => $pid ) {
+            $lineup[ (string) $sl ] = (int) $pid;
+        }
+        $blueprint_chemistry = ( new BlueprintChemistryEngine() )->computeForLineup(
+            (int) $bp['team_id'],
+            (array) ( $bp['slots'] ?? [] ),
+            $lineup
+        );
+        return RestResponse::success( [
+            'id'                  => $id,
+            'slot_label'          => $slot,
+            'player_id'           => $player_id > 0 ? $player_id : null,
+            'blueprint_chemistry' => $blueprint_chemistry,
+        ] );
+    }
+
+    public static function replace_blueprint_assignments( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        $repo = new TeamBlueprintsRepository();
+        $existing = $repo->find( $id );
+        if ( $existing === null ) {
+            return RestResponse::error( 'bad_blueprint',
+                __( 'Blueprint not found.', 'talenttrack' ), 404 );
+        }
+        if ( $existing['status'] === TeamBlueprintsRepository::STATUS_LOCKED ) {
+            return RestResponse::error( 'locked',
+                __( 'This blueprint is locked. Reopen it before editing.', 'talenttrack' ), 409 );
+        }
+        $assignments = $r['assignments'] ?? null;
+        if ( ! is_array( $assignments ) ) {
+            return RestResponse::error( 'bad_payload',
+                __( 'Assignments map is required.', 'talenttrack' ), 400 );
+        }
+        $clean = [];
+        foreach ( $assignments as $slot => $pid ) {
+            $clean[ (string) $slot ] = $pid !== null && $pid !== '' ? absint( $pid ) : null;
+        }
+        $repo->replaceAssignments( $id, $clean );
+        return RestResponse::success( [ 'id' => $id ] );
+    }
+
+    public static function set_blueprint_status( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        $repo = new TeamBlueprintsRepository();
+        $existing = $repo->find( $id );
+        if ( $existing === null ) {
+            return RestResponse::error( 'bad_blueprint',
+                __( 'Blueprint not found.', 'talenttrack' ), 404 );
+        }
+        $status = (string) ( $r['status'] ?? '' );
+        $valid  = [ TeamBlueprintsRepository::STATUS_DRAFT, TeamBlueprintsRepository::STATUS_SHARED, TeamBlueprintsRepository::STATUS_LOCKED ];
+        if ( ! in_array( $status, $valid, true ) ) {
+            return RestResponse::error( 'bad_status',
+                __( 'Status must be draft, shared, or locked.', 'talenttrack' ), 400 );
+        }
+        $repo->setStatus( $id, $status, get_current_user_id() );
+        return RestResponse::success( [ 'id' => $id, 'status' => $status ] );
     }
 }
