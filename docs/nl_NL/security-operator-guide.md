@@ -18,7 +18,7 @@ De publieke beveiligingsbeloftes van TalentTrack (waar data staat, encryptie-cla
 
 ## MFA — multi-factor-authenticatie
 
-> **Status:** TalentTrack-eigen MFA-aanmelding is **vandaag beschikbaar** voor elke gebruiker (#0086 Workstream B Child 1 sprint 2, v3.101.1). Per-club afdwingen (MFA verplichten voor specifieke persona's) volgt in sprint 3 — tot die tijd is aanmelden vrijwillig per gebruiker.
+> **Status:** TalentTrack-eigen MFA is **volledig live** sinds #0086 Workstream B Child 1 sprint 3 (v3.101.2). Aanmelden, afdwingen bij login, rate limiting, "vertrouw dit apparaat"-cookie, audit logging en herstel-bij-lockout via de beheerder zijn allemaal actief.
 
 Elke gebruiker kan zich nu zelf aanmelden via `wp-admin → TalentTrack → Account → MFA`:
 
@@ -38,7 +38,20 @@ Na aanmelding kan de gebruiker via dezelfde tab **reservecodes opnieuw genereren
 
 De TalentTrack-eigen MFA-route staat los van eventueel geïnstalleerde WordPress MFA-plugins (bijv. [Two Factor](https://wordpress.org/plugins/two-factor/), [Wordfence Login Security](https://wordpress.org/plugins/wordfence-login-security/)). De plugin-route blijft werken — maar zodra TalentTrack-eigen MFA-handhaving in sprint 3 landt, gebeurt per-persona-vereiste binnen TalentTrack en kunnen beide routes naast elkaar bestaan.
 
-**Lockout-herstel (beheerder schakelt namens gebruiker uit)** — als een gebruiker zijn telefoon én zijn reservecodes kwijt is, is op dit moment de enige route dat de gebruiker een academy admin vraagt om de `tt_user_mfa`-rij rechtstreeks in de database te wissen, waarna de gebruiker zich opnieuw kan aanmelden. Sprint 3 levert de audit-gelogde "operator schakelt uit namens gebruiker"-flow die deze handmatige stap vervangt.
+**Afdwingen per club (sprint 3, v3.101.2)** — ga naar `wp-admin → TalentTrack → Account → MFA`, scroll naar het beheerder-only blok *Afdwingen per club*. Vink de persona's aan die zich moeten aanmelden. Standaard staat *Academy admin* + *Hoofd opleiding* aan. Gebruikers met een afgedwongen persona:
+
+- Krijgen bij elke login de MFA-prompt (alleen overgeslagen als ze een geldig 30-daagse "vertrouw dit apparaat"-cookie op de huidige browser hebben).
+- Als ze nog niet aangemeld zijn worden ze bij het inloggen naar de aanmeldwizard gestuurd tot ze klaar zijn — ze kunnen niet doorklikken naar andere dashboardpagina's voordat de aanmelding compleet is.
+
+Voeg persona's geleidelijk toe: zet het op dag één aan voor *Academy admin* + *Hoofd opleiding*; breid uit naar *Hoofdcoach* / *Assistent-coach* zodra je staf vertrouwd is met de wizard; overweeg *Scout* en *Teammanager* later als je academie bijzonder gevoelige prospect-data bewaart.
+
+**Lockout-beleid** — 5 mislukte verificaties op rij geven 15 minuten lockout op dat account. De teller springt op nul na een geslaagde verificatie. Beide drempels (5 pogingen, 15 minuten) zijn instelbaar via de per-club `tt_config` met keys `mfa_max_attempts` en `mfa_lockout_minutes` (nog geen UI; aanpassen via directe DB-toegang of een plugin zoals Better Search Replace).
+
+**Lockout-herstel (beheerder schakelt namens gebruiker uit)** — als een gebruiker zowel zijn telefoon als zijn reservecodes kwijt is, is het formulier *MFA resetten bij een andere gebruiker* op hetzelfde beheerder-blok de herstelroute. Kies de aangemelde gebruiker uit de dropdown, vink het bevestigingsvakje aan, klik op *MFA resetten bij deze gebruiker*. De `tt_user_mfa`-rij wordt gewist; bij de volgende login meldt de gebruiker zich opnieuw aan. De actie wordt aan beide kanten in de audit-log vastgelegd — actor (beheerder) en ontvanger (doelgebruiker).
+
+Als jij (de enige academy admin) zelf buitengesloten raakt zonder uitweg, heb je directe database-toegang nodig om je `tt_user_mfa`-rij te wissen. Om dat te voorkomen: **houd minstens twee adminaccounts**, zodat een admin altijd een andere admin via de UI kan herstellen.
+
+**Audit-log-integratie** — elke MFA-gebeurtenis verschijnt onder `wp-admin → TalentTrack → Audit log` met actiekeys `mfa.enrolled` / `mfa.verified` / `mfa.verify_failed` / `mfa.lockout` / `mfa.backup_code_used` / `mfa.backup_codes_regenerated` / `mfa.disabled` / `mfa.device_remembered` / `mfa.required_personas_changed`. Filter op `action=mfa.lockout` om gebruikers te zien die de drempel raken; filter op `action=mfa.disabled` om resets door beheerders te zien.
 
 ## De audit-log doornemen
 

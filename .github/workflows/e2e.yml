@@ -54,11 +54,20 @@ jobs:
         # wp-env mounts the plugin but doesn't auto-activate it in the
         # tests environment. Activate explicitly + flush rewrites so
         # the routes the smoke test exercises are wired up.
+        # v3.102.1 (#0086 Workstream B Child 1 sprint 3) — turn the
+        # per-club MFA enforcement off in CI by writing an empty
+        # `mfa_required_personas` to `tt_config`. Without this the
+        # default policy (`academy_admin` + `head_of_development`
+        # gated) kicks in for the test admin user and the login spec
+        # never reaches the dashboard URL — it's redirected into the
+        # enrollment wizard. MFA-specific E2E coverage will land in
+        # a separate spec file with its own setup.
         run: |
           npx wp-env run tests-cli wp plugin activate talenttrack
           npx wp-env run tests-cli wp rewrite flush --hard
           npx wp-env run tests-cli wp option update permalink_structure '/%postname%/'
           npx wp-env run tests-cli wp rewrite flush --hard
+          npx wp-env run tests-cli wp db query "INSERT INTO wp_tt_config (club_id, config_key, config_value) VALUES (1, 'mfa_required_personas', '[]') ON DUPLICATE KEY UPDATE config_value='[]'"
 
       - name: Run E2E tests
         run: npm run test:e2e

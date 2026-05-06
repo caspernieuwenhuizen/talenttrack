@@ -207,6 +207,10 @@ class DashboardShortcode {
         // wizard is selected via &slug=… on the query string.
         // `wizards-admin` is the configuration + analytics surface.
         $wizard_slugs = [ 'wizard', 'wizards-admin' ];
+        // #0086 Workstream B Child 1 sprint 3 — MFA login challenge.
+        // The MfaLoginGuard middleware redirects gated logged-in users
+        // here until they complete a TOTP verification.
+        $mfa_slugs    = [ 'mfa-prompt' ];
 
         if ( $view !== '' ) {
             // #0056 — render the desktop_preferred banner at the top of
@@ -298,6 +302,8 @@ class DashboardShortcode {
             } else {
                 FrontendWizardView::render( $user_id, $is_admin );
             }
+        } elseif ( in_array( $view, $mfa_slugs, true ) ) {
+            \TT\Modules\Mfa\Frontend\FrontendMfaPromptView::render( $user_id, $is_admin );
         } else {
             FrontendBackButton::render();
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
