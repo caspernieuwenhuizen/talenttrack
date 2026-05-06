@@ -12873,23 +12873,11 @@ msgstr "%s — blauwdrukken"
 msgid "Blueprints — %s"
 msgstr "Blauwdrukken — %s"
 
-msgid "← Back to team picker"
-msgstr "← Terug naar team kiezen"
-
 msgid "+ New blueprint"
 msgstr "+ Nieuwe blauwdruk"
 
 msgid "No blueprints yet for this team. Click \"+ New blueprint\" to start one."
 msgstr "Nog geen blauwdrukken voor dit team. Klik op \"+ Nieuwe blauwdruk\" om er een te starten."
-
-msgid "Formation"
-msgstr "Formatie"
-
-msgid "Updated"
-msgstr "Bijgewerkt"
-
-msgid "Open"
-msgstr "Open"
 
 msgid "%1$s · %2$s"
 msgstr "%1$s · %2$s"
@@ -12918,20 +12906,11 @@ msgstr "Gedeeld"
 msgid "Locked"
 msgstr "Vergrendeld"
 
-msgid "Status"
-msgstr "Status"
-
-msgid "Roster"
-msgstr "Selectie"
-
 msgid "Available players"
 msgstr "Beschikbare spelers"
 
 msgid "Drag a player onto a slot. Drop a player back here to remove them from the lineup."
 msgstr "Sleep een speler op een positie. Sleep een speler hierheen terug om hem uit de opstelling te halen."
-
-msgid "No players on this team yet."
-msgstr "Nog geen spelers in dit team."
 
 msgid "This blueprint is locked. Reopen it to make changes."
 msgstr "Deze blauwdruk is vergrendeld. Heropen om wijzigingen te maken."
@@ -12992,9 +12971,6 @@ msgstr "Kan de blauwdruk niet aanmaken."
 
 msgid "Name and formation are required."
 msgstr "Naam en formatie zijn verplicht."
-
-msgid "Formation template not found."
-msgstr "Formatiesjabloon niet gevonden."
 
 msgid "The blueprint could not be created."
 msgstr "De blauwdruk kon niet worden aangemaakt."
