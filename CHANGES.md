@@ -1,86 +1,83 @@
-# TalentTrack v3.104.0 — Mobile pattern library + classification rollout + sticky wizard CTA (#0084 Children 2 + 3)
+# TalentTrack v3.104.1 — Analytics fact registry + query engine (#0083 Child 1)
 
-Closes #0084 — the routing scaffolding from Child 1 (v3.103.2) is now joined by the four-component pattern library that `native` surfaces consume, the sticky wizard action bar that closes the v3.78.0 deferred polish from #0072, and the rollout of `native` declarations across the surfaces that earn it.
+First child of #0083 (Reporting framework). Builds the data-layer foundation the rest of the epic stands on: every analytical question goes through one engine. No bespoke aggregation SQL outside the framework from now on.
 
-## Why bundle Children 2 + 3
+## What landed
 
-Spec note: Child 2 is "small, parallelisable" and Child 3 "consumes both". The codebase's parallel-agent collision pattern means a serial-sequence Child-2-PR-then-Child-3-PR loses two CI rounds + two version slots. The bundled ship is the cheaper path. The work is small enough — pure CSS components, vanilla JS helpers, doc files, and surface declarations.
+### Value objects
 
-## Child 2 — mobile pattern library
+- **`Modules\Analytics\Domain\Fact`** — a row that something happened (an evaluation, an attendance record, a journey event). Cataloguing of the underlying tt_* table plus dimensions and measures.
+- **`Domain\Dimension`** — a column you can group by or filter on. Four types: `foreign_key`, `lookup`, `enum`, `date_range`.
+- **`Domain\Measure`** — a column you can aggregate. Five aggregation kinds: `count`, `avg`, `sum`, `min`, `max`. Optional `unit` + `format` for display.
+- **`Domain\DateTimeColumn`** — the timeline anchor. Some facts time-stamp themselves (`evaluations.created_at`); others need a join (`attendance.activity_id` → `tt_activities.start_at`).
 
-Four small CSS components in `assets/css/mobile-patterns.css`. Conditional enqueue: `DashboardShortcode::render()` enqueues `tt-mobile-patterns` style + `tt-mobile-helpers` script only when `MobileSurfaceRegistry::isNative($view)` is true. Surfaces classified `viewable` or `desktop_only` never load them — the desktop bundle stays slim.
+### `FactRegistry`
 
-### `tt-mobile-bottom-sheet`
+Append-only catalogue keyed by fact key. Same shape as `WidgetRegistry` / `KpiDataSourceRegistry`. Methods:
+- `register($fact)` — idempotent, last write wins.
+- `find($key)` — single fact lookup.
+- `all()` — wholesale dump for diagnostics + the upcoming static-analysis test.
+- `forEntity($scope)` — facts with `entityScope === $scope`. Used by `KpiRegistry::forEntity()` in Child 2 to scope KPIs to per-entity views.
 
-Modal that slides up from the bottom of the viewport, max 80% screen height, drag-to-dismiss. Sibling `.tt-mobile-bottom-sheet-backdrop` provides the dimmed overlay. Drag-handle `.tt-mobile-bottom-sheet-handle` is the touch target for the dismiss gesture. Honours `prefers-reduced-motion: reduce`.
+### `FactQuery::run( $factKey, $dimensionKeys, $measureKeys, $filters )`
 
-`assets/js/mobile-helpers.js` exposes `TT.Mobile.openBottomSheet(el)` / `closeBottomSheet(el)` / `bindBottomSheet(el)`. Drag listens on `touchstart/move/end`; pulls follow the finger; release with > 80 px translation or flick velocity > 0.5 px/ms closes; otherwise snaps back open. Backdrop click also closes. Auto-bind runs at DOM-ready.
+The engine every KPI and explorer hits.
 
-### `tt-mobile-cta-bar`
+- **Single SQL statement.** SELECT measures + grouped-by dimensions, FROM fact table aliased as `f`, optional LEFT JOIN to the time-column's joined table, WHERE club + filter clauses, GROUP BY dimensions, LIMIT 5000.
+- **Tenancy auto-injected** via `CurrentClub::id()`. Cross-club aggregation is deliberately impossible from this API — adding it later requires a separate method with an explicit cap check, not a parameter override.
+- **60-second result cache** via `wp_cache_*` group `tt_analytics`. Cache key is an MD5 of the parameter set + current club id.
+- **Filter operator vocabulary**: `<dim_key>_eq` / `_in` / `_not_eq` / `_not_in`, plus special-cased `date_after` / `date_before` against the fact's declared time column. Future operators (range, like, etc.) extend the vocabulary; today's surface is intentionally minimal.
+- **SQL-injection prevention.** Every value is parameterised through `$wpdb->prepare()` — `%d` for ints, `%f` for floats, `%s` otherwise. Identifier names (table, column, alias) are author-controlled at registration time and never derived from user input. The aggregation function passes through a hard whitelist (`COUNT` / `AVG` / `SUM` / `MIN` / `MAX`).
 
-Sticky bottom bar containing the primary action button. Stays visible while the user scrolls long forms. Honours `env(safe-area-inset-bottom)` to clear the iOS home indicator. The immediate consumer is the wizard's `.tt-wizard-actions` row (Child 3 below applies the same pattern via inline CSS so it works without enqueuing the library).
+### 8 initial fact registrations
 
-### `tt-mobile-segmented-control`
+In `AnalyticsModule::boot()` per spec §`feat-fact-registry`:
 
-Replaces dropdowns when there are 2–4 options. Native iOS / Android-feeling segment picker backed by hidden radio inputs so it submits in standard form payloads. For 5+ options use a `<select>` instead.
+| Fact key | Underlying table | Entity scope |
+|---|---|---|
+| `attendance` | `tt_attendance` (joined to `tt_activities`) | player |
+| `activities` | `tt_activities` | activity |
+| `evaluations` | `tt_evaluations` | player |
+| `goals` | `tt_goals` | player |
+| `trial_decisions` | `tt_trial_cases` | player |
+| `prospects` | `tt_prospects` | player |
+| `journey_events` | `tt_player_events` | player |
+| `evaluations_per_session` | `tt_evaluations` (joined to `tt_activities`) | activity |
 
-### `tt-mobile-list-item`
+Centralised in `AnalyticsModule::boot()` for Child 1 sequencing simplicity. A follow-up moves each into its owning module's `boot()` (Activities → attendance + activities; Evaluations → evaluations + evaluations_per_session; Goals → goals; Trials → trial_decisions; Prospects → prospects; Journey → journey_events).
 
-Card-style two-line row with `*-leading` (avatar / icon slot) + `*-content` (primary + secondary line) + `*-trailing` (chevron / status). Replaces `<table>` rows on `native` surfaces. Three-column grid layout, 64 px min-height, 14 px font-size for primary, 13 px muted for secondary, ellipsis truncation on overflow.
+### Module registration
 
-### Documentation
-
-`docs/mobile-patterns.md` (EN) and `docs/nl_NL/mobile-patterns.md` (NL) document all four components: when to use, how to use, code examples. Cross-referenced from `docs/architecture-mobile-first.md`, which gains a new `#0084 — surface classification` section.
-
-## Child 3 — classification rollout + sticky wizard CTA
-
-### Additional `desktop_only` surfaces
-
-Child 1 (v3.103.2) seeded 17 desktop-only routes. Child 3 adds three more:
-
-- `players-import` — CSV mapping flow needs a laptop.
-- `onboarding-pipeline` — xl-size pipeline widget; doesn't fit on phones.
-- `reports` — wizard + multi-column tables.
-
-### `native` surface declarations
-
-Three `native` declarations register the pattern-library auto-enqueue:
-
-- `players` — coach reaches the player profile from the sideline all the time.
-- `wizard` — wizard aggregator slug; every wizard goes through it.
-- `teammate` — player viewing a teammate's card.
-
-The persona dashboard (empty `?tt_view=`) and the player-detail tabs are intentionally not classified `native` here — their classification is the dispatcher's responsibility but the per-row pattern migration follows opportunistic touches per spec.
-
-### Sticky wizard CTA
-
-`.tt-wizard-actions` becomes `position: sticky; bottom: 0;` on phones (≤ 720 px) via the wizard's inline stylesheet in `FrontendWizardView::enqueueWizardStyles()`. The Submit / Next button stays visible while the coach scrolls long forms — closes the v3.78.0 deferred polish item from #0072 about `RateActorsStep` mobile UX.
-
-Combined with the v3.103.0 (#0080 B4) card stack, the new-evaluation wizard now:
-
-1. Renders each player as a stack-card (B4 from v3.103.0) with categories laid out vertically.
-2. Has the Save / Next button anchored at the bottom of the viewport (this PR), so a coach scrolling a long ladder of players never loses sight of "how do I finish this".
-
-The wizard moves from "responsive but flat" to "feels native" without a separate spec.
+`AnalyticsModule` registered in `config/modules.php`.
 
 ## What's NOT in this PR
 
-- **Bottom-sheet retrofit on `PlayerPickerStep` / `ActivityPickerStep`.** The existing dropdowns work; bottom-sheet is a polish opportunity for a follow-up. Per spec note 176, "the wizard becomes the reference implementation for the pattern library", but the immediate consumer (the sticky CTA on `.tt-wizard-actions`) lands here.
-- **CI lint rules** forbidding `<table>` in native templates and ad-hoc `position: fixed`. Conventions documented in `docs/mobile-patterns.md` but enforcement defers — runtime stays the source of truth for now.
-- **Native-class pattern migration on the player-detail surface.** The `players` slug is `native` so the pattern library loads; the per-row migration (e.g. team list switching from `<table>` to `tt-mobile-list-item`) follows opportunistic touches per spec note about "Other native-class surfaces inherit the patterns as they're touched".
+- **`KpiRegistry` + new `Kpi` value object** (Child 2) — migrates the 26 existing KPIs + ships 55 new ones.
+- **`?tt_view=explore` dimension explorer** (Child 3) — `desktop_only` per #0084.
+- **Entity Analytics tab** on player/team/activity profiles (Child 4).
+- **Central analytics surface** at `?tt_view=analytics` (Child 5) — new `analytics` matrix entity + `tt_view_analytics` cap.
+- **Export + scheduled reports** (Child 6) — CSV / XLSX / PDF export, `tt_scheduled_reports` table, daily cron.
 
-## Migrations
+## Risk callouts
 
-None. Code-only.
+- **Fact-registry discipline.** A future module that adds a player-related table without registering loses analytics coverage silently. The static-analysis test for "every `tt_*` table with a `player_id` / `team_id` FK is registered (or explicitly opted out via comment)" is part of Child 2's definition of done — it ships next, not here.
 
 ## Affected files
 
-- `assets/css/mobile-patterns.css` — new (4 components, ~190 lines).
-- `assets/js/mobile-helpers.js` — new (~110 lines).
-- `docs/mobile-patterns.md` + `docs/nl_NL/mobile-patterns.md` — new.
-- `docs/architecture-mobile-first.md` — appended #0084 surface-classification section.
-- `src/Shared/CoreSurfaceRegistration.php` — extended `registerMobileClasses()` with three more `desktop_only` surfaces and the `native` set.
-- `src/Shared/Frontend/DashboardShortcode.php` — conditional pattern-library enqueue on `native` surfaces.
-- `src/Shared/Frontend/FrontendWizardView.php` — sticky-CTA CSS rule for `.tt-wizard-actions` on phones.
-- `languages/talenttrack-nl_NL.po` — no new operator-facing strings (all-CSS / silent-visual + classification declarations).
-- `readme.txt`, `talenttrack.php`, `SEQUENCE.md` — version bump + ship metadata.
+- `src/Modules/Analytics/Domain/Fact.php` — new.
+- `src/Modules/Analytics/Domain/Dimension.php` — new.
+- `src/Modules/Analytics/Domain/Measure.php` — new.
+- `src/Modules/Analytics/Domain/DateTimeColumn.php` — new.
+- `src/Modules/Analytics/FactRegistry.php` — new.
+- `src/Modules/Analytics/FactQuery.php` — new.
+- `src/Modules/Analytics/AnalyticsModule.php` — new (module shell + 8 fact registrations).
+- `config/modules.php` — register `AnalyticsModule`.
+- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
+
+## Translations
+
+Zero new translatable strings — every label inside the fact registrations is already wrapped in `__()` and gets surfaced when the explorer (Child 3) and KPI surfaces (Child 2 onward) render them.
+
+## Player-centricity
+
+Every fact registers an `entityScope` that names the entity it belongs to (player / team / activity). When Child 2's `KpiRegistry::forEntity('player', $playerId)` lands, the analytics tab on a player profile (Child 4) automatically pulls the right KPIs. The fact registry isn't analytics-for-analytics-sake — it's the catalogue that makes "show me how Lucas is doing" answerable from any surface that already has Lucas in front of the user.
