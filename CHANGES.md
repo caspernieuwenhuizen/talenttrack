@@ -1,84 +1,130 @@
-# TalentTrack v3.96.0 — Pair-chemistry lines on the chemistry pitch (#0068 follow-up)
+# TalentTrack v3.97.0 — Onboarding pipeline child 2a: workflow chain entry point + first two task templates (#0081)
 
-Adds FIFA-Ultimate-Team-style chemistry links between formation-adjacent slots on the team-chemistry pitch, plus a *Link chemistry* headline 0–100 score above the existing composite. The visual is the older pair-link model (FIFA 22 and earlier): each line is coloured red / amber / green based on a 0–3 score combining three signals, hover-tooltipped with the contributing reasons.
+First half of the second child PR for the #0081 onboarding-pipeline epic. Child 2 was split into 2a + 2b after scope assessment — five templates plus REST endpoints plus migration plus dedup ran ~3-4× the spec's original ~600 LOC estimate. Splitting into two PRs lets each be independently reviewable and the chain progresses end-to-end at PR 2b.
 
-## What's new on the pitch
+## What this PR does
 
-The same `?tt_view=team-chemistry` board now overlays coloured lines connecting nearby slots:
+Lights up **the first half of the chain**: a scout clicks "+ New prospect" → fills in a quick-capture form → the prospect row exists in `tt_prospects` → the HoD gets a workflow task to invite the prospect to a test training. The chain ends at the HoD's invite task in this PR; PR 2b adds the parent-confirmation, outcome-recording, and trial-group-review templates plus the no-login parent endpoint.
 
-- **Strong (green)** — score 2.0–3.0
-- **Workable (amber)** — score 1.0–2.0
-- **Poor (red)** — score below 1.0
-- **Neutral (grey)** — at least one slot empty; no score
+## `tt_workflow_tasks.prospect_id` (migration 0068)
 
-Adjacency: each slot links to its three nearest other slots (Euclidean distance on `slot.pos.x/y`, deduped), producing ~16 unique lines for an 11-slot formation — matches FIFA UT linkage density and stays legible.
+The workflow engine carries entity links as nullable FK columns on the task row (`player_id`, `team_id`, `activity_id`, `evaluation_id`, `goal_id`, `trial_case_id`, `parent_task_id`). Adding `prospect_id` to the same shape — same nullability, same `BIGINT UNSIGNED` width, same `KEY` index — gives the onboarding-pipeline chain a first-class link rather than threading the ID through `extras` JSON.
 
-Hover any line for the tooltip: `Chemistry 2.0 / 3 — Coach-marked pairing, Same line of play`.
+`TaskContext` gains a matching constructor parameter, `toEntityLinks()` includes it, `with()` lets callers override it. `ChainStep::inheritContext()` propagates it from parent to child task. `TasksRepository::create()` accepts it.
 
-Above the pitch a new *Link chemistry: N / 100* headline summarises the lineup. The number is `sum(pair_scores) / (scored_pairs × 3) × 100` — mirrors FIFA's familiar percentage ceiling. Three legend chips (green / amber / red) explain the bucket thresholds inline. Distinct from the existing 0–5 composite below the pitch: the composite measures *can this XI fit the team's playing style?*; link chemistry measures *do these eleven occupants fit each other?*
+## `LogProspectTemplate` (chain link 1/5)
 
-## How a pair score is built
+```
+key:               log_prospect
+default schedule:  manual (REST entry point dispatches it)
+default deadline:  +14 days
+default assignee:  the user who initiates (LambdaResolver reading
+                   TaskContext.extras['initiated_by'])
+form class:        LogProspectForm
+entity links:      ['prospect_id']
+chain steps:       1 — spawn InviteToTestTrainingTemplate when the
+                   prospect row was successfully created
+```
 
-Three signals are combined and clamped to 0–3:
+**Why "the initiator" rather than "all scouts."** Assigning to all users with the `tt_scout` role would fan a single click into N tasks for every scout in the academy. The chain wants exactly one task — the scout who clicked. The REST entry point (`POST /prospects/log`) puts `get_current_user_id()` into `TaskContext.extras['initiated_by']`; a `LambdaResolver` reads it back at dispatch time. `RoleBasedResolver` would have been wrong here.
 
-| Signal | Bonus / penalty | What it means |
-| --- | --- | --- |
-| Coach-marked pairing | +2 | The two players are in `tt_team_chemistry_pairings` for this team |
-| Same line of play | +1 | Both slots sit in the same band (GK / defence / midfield / attack), inferred from `slot.pos.y` |
-| Side coherence | +1 if both fit, −1 if either is in a wrong-side slot | Player's `position_side_preference` matches `slot.side`; `center` is treated as neutral |
+## `LogProspectForm` (entity creation lives in the form)
 
-A pair where both players are coach-marked AND in the same line will score 3. A pair with no signals lands at 0 (red). Side mismatch can pull a pair below the threshold even if the two players sit in the same line — surfacing the "right-footer in a left-back slot" reality coaches care about.
+Three sections: identity (first/last name, DOB, current club), discovery (event, scouting notes), parent contact (name, email, phone, consent checkbox). The "two-screen UX" the spec asks for is intentionally deferred to child 3's UI polish — the response payload shape is final, only the presentation lifts in the next pass.
 
-## Architecture
+**Duplicate detection** at validate time. `ProspectsRepository::findDuplicateCandidates()` matches on first/last name + current club. If matches exist, validation fails with a `__form` error listing the candidates by name; the user can override with the "I have checked, this is a new entry" checkbox. Threshold is exact-name match for now (the spec called for Levenshtein 85% which lands as a follow-up — exact-match is a strict superset of fuzzy match for the default case where scouts type the same spelling, and false positives are preferred over false negatives in this domain).
 
-New pure-logic class `BlueprintChemistryEngine` under `src/Modules/TeamDevelopment/`. Signature is two-shape: `computeForLineup( int $team_id, list $slots, array $lineup )` for an arbitrary slot-label → player-id map, plus a convenience `computeForSuggested( ... )` that consumes the existing `ChemistryAggregator::teamChemistry()` payload's `suggested_xi` shape.
+**`serializeResponse()` writes the entity.** This is a deliberate departure from existing templates like `PostGameEvaluationForm` whose `serializeResponse()` only formats the response payload. The prospect row creation IS the chain step — splitting it into a separate REST call (or `onComplete()` hook) would invite race conditions where the task completes but the prospect doesn't exist (or vice versa). Form returns the new `prospect_id` in the response; the template's `onComplete()` stamps it onto the task row's column.
 
-The engine is deliberately a *pure function*: no view-layer logic, no caching beyond the input pairings list. The chemistry view feeds it the auto-suggested XI today; the future Team Blueprint editor (Phase 1, not yet started) will feed it whatever the coach has dragged onto the pitch and recompute on every change. Same engine, same payload.
-
-`PitchSvg::render()` gains an optional `$chemistry_links` parameter — the engine's `links` array — and draws each as an `<line class="tt-chem-link tt-chem-{color}">` inside the SVG so the lines pick up the same scaling and aspect-ratio as the pitch markings. Stroke colour comes from new brand-style tokens `--tt-chem-green-token` / `--tt-chem-amber-token` / `--tt-chem-red-token` / `--tt-chem-neutral-token`. Stroke width tapers with bucket strength (green 6 → red 4 → neutral 2) so green lines anchor the eye and grey lines fade visually. Each line carries a `<title>` element for the hover tooltip — pure SVG, no JS.
-
-## REST
-
-`GET /talenttrack/v1/teams/{id}/chemistry` payload gains a new `blueprint_chemistry` block:
-
-```json
-{
-  "blueprint_chemistry": {
-    "team_score": 64,
-    "pair_count": 17,
-    "scored_pair_count": 17,
-    "links": [
-      {
-        "a_slot": "LB", "b_slot": "LCB",
-        "a_player_id": 12, "b_player_id": 7,
-        "score": 3.0, "color": "green",
-        "reasons": ["Coach-marked pairing", "Same line of play"],
-        "a_pos": {"x": 0.15, "y": 0.75},
-        "b_pos": {"x": 0.35, "y": 0.80}
-      }
-    ]
-  }
+```php
+public function serializeResponse(array $raw, array $task): array {
+    $repo = new ProspectsRepository();
+    $prospect_id = $repo->create([...]);
+    return ['prospect_id' => $prospect_id, ...echo of input...];
 }
 ```
 
-Existing fields (`composite`, `formation_fit`, `style_fit`, `depth_score`, `data_coverage`, etc.) unchanged. No new endpoint — same payload, additive field. POST endpoint for arbitrary-lineup compute lands with Team Blueprint Phase 1.
+## `InviteToTestTrainingTemplate` (chain link 2/5)
 
-## Translations + docs
+```
+key:               invite_to_test_training
+default schedule:  manual (chain-spawned by LogProspect)
+default deadline:  +7 days
+default assignee:  RoleBasedResolver('tt_head_dev')
+form class:        InviteToTestTrainingForm
+entity links:      ['prospect_id']
+chain steps:       (none — PR 2b adds the spawn of
+                   ConfirmTestTrainingTemplate when that ships)
+```
 
-15 new NL msgids covering line tooltips, the *Link chemistry* headline, the 3-bucket legend, and the explainer paragraph beneath the pitch. `docs/team-chemistry.md` (EN + NL) gains a *Link chemistry* section above the existing composite breakdown.
+The chain ends here in PR 2a. Completing this task closes the inbox loop without a spawn, which is the correct behaviour while the parent-confirmation surface doesn't exist yet. PR 2b adds the chain step.
 
-## What didn't change
+`InviteToTestTrainingForm` lets the HoD either pick an existing upcoming session from `tt_test_trainings` (dropdown of sessions where `date >= today`) OR schedule a new session in the same form (date/time + location + coach assignment — the new row is created on submit, no separate flow). Validation requires exactly one path. The invitation message defaults to a translated stub referencing the prospect's first name; the HoD edits before sending. Email/SMS dispatch is intentionally out of scope — that ties into #0066 (communication module). For now the form captures the intended message in the response payload; PR 2b will surface a copy-pasteable string the HoD can send manually until #0066 lands.
 
-- The composite chemistry score (formation fit / style fit / depth / paired bonus, weighted to a 0–5 number) is untouched. Coaches who navigated by that score continue to do so; the new headline supplements rather than replaces it.
-- The empty-state banner ("Rate %d more players …") still gates the composite when below 40% data coverage. Link chemistry doesn't depend on evaluation data — coach-marked pairings, line-of-play, and side preferences are all coach-set or roster-set signals — so the lines render even on a roster with zero evaluations. That's intentional: the lines stay useful from day 1.
-- No drag-drop. The chemistry view remains read-only / auto-suggested. Drag-drop is the Team Blueprint epic; the engine landing here is the first ingredient that epic needs.
+## REST entry point — `POST /prospects/log`
 
-## Files touched
+```
+POST /wp-json/talenttrack/v1/prospects/log
+Body: {} (empty — just starts the chain)
+Permission: tt_edit_prospects (scout / HoD / admin per matrix)
+Response: { task_id: 123, redirect_url: "/?tt_view=my-tasks&task_id=123" }
+```
 
-- `src/Modules/TeamDevelopment/BlueprintChemistryEngine.php` (new — ~250 lines)
-- `src/Modules/TeamDevelopment/Frontend/PitchSvg.php` (chemistry-link layer + brand-style tokens)
-- `src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php` (renderLinkChemistryHeadline + engine wiring)
-- `src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php` (`blueprint_chemistry` field)
-- `languages/talenttrack-nl_NL.po` (15 new msgids)
-- `docs/team-chemistry.md` + `docs/nl_NL/team-chemistry.md` (Link chemistry section)
-- `talenttrack.php` + `readme.txt` (3.95.0 → 3.96.0)
+Lives in a new file `src/Modules/Prospects/Rest/ProspectsRestController.php`. Initialised from `ProspectsModule::boot()` alongside the retention cron. Exists as a REST route — rather than just an inline button — so the future pipeline widget (child 3) and PR 2b's no-login parent endpoint share the same dispatch path.
+
+## New cap `tt_invite_prospects`
+
+Bridged in `LegacyCapMapper` to `[ 'test_trainings', 'change' ]`. Inviting is materially a write to the test-training schedule (picking the session + composing the parent-facing message). HoD and Academy Admin both hold `test_trainings:rcd:global` from child 1's matrix seed — they get this cap. Scout has only `test_trainings:r:global` — can read sessions but can't invite. No new matrix entity needed.
+
+## Retention cron tightening
+
+Child 1 shipped the stale-no-progress purge as a created_at-only check, with a TODO to swap in the workflow-task join once `tt_workflow_tasks.prospect_id` existed. This PR adds that column AND tightens the query:
+
+```sql
+SELECT pr.id, pr.club_id
+  FROM tt_prospects pr
+ WHERE pr.created_at < {cutoff}
+   AND pr.promoted_to_player_id IS NULL
+   AND pr.archived_at IS NULL
+   AND NOT EXISTS (
+         SELECT 1 FROM tt_workflow_tasks wt
+          WHERE wt.prospect_id = pr.id
+            AND wt.status IN ('open','in_progress','overdue')
+   )
+ LIMIT 50
+```
+
+A prospect with any non-terminal workflow task is now correctly excluded from the purge regardless of `created_at` age. Column-existence guard preserves the created_at-only fallback for installs where migration 0068 hasn't run yet (paranoid — migrations run in order so this should never happen, but the cron stays defensive against partial-install states).
+
+## What's NOT in this PR (PR 2b)
+
+- `ConfirmTestTrainingTemplate` (chain link 3/5) + the no-login parent-confirmation REST endpoint with signed-token-in-URL
+- `RecordTestTrainingOutcomeTemplate` (chain link 4/5) — coach records observation per attendee + HoD decides admit/decline/second-session
+- `ReviewTrialGroupMembershipTemplate` (chain link 5/5) — quarterly HoD review with offer/continue/decline-final decisions
+- New caps `tt_decide_test_training_outcome`, `tt_decide_trial_outcome`
+- Levenshtein 85% fuzzy matching (this PR ships exact-match dedup)
+
+## Translations
+
+30 new NL msgids covering the form labels (Discovery, Parent contact, Current club, Discovered at, Scouting notes, Parent name/email/phone, consent text, override text), validation messages (name required, DOB format, email format, duplicate hint), template metadata (Log prospect, Invite prospect to test training, descriptions), invitation form labels (Choose or schedule, Existing upcoming session, New session date + time, Invitation message to the parent), validation messages (pick exactly one, write a short message), default invitation copy, REST error messages.
+
+5 strings reuse existing entries (`First name`, `Last name`, `Identity`, `Date of birth`, `Location`).
+
+## Affected files
+
+- `database/migrations/0068_workflow_tasks_prospect_id.php` — new column + index.
+- `src/Modules/Workflow/TaskContext.php` — `prospect_id` field.
+- `src/Modules/Workflow/Chain/ChainStep.php` — `inheritContext()` propagates `prospect_id`.
+- `src/Modules/Workflow/Repositories/TasksRepository.php` — `create()` accepts `prospect_id`.
+- `src/Modules/Workflow/Templates/LogProspectTemplate.php` — new.
+- `src/Modules/Workflow/Templates/InviteToTestTrainingTemplate.php` — new.
+- `src/Modules/Workflow/Forms/LogProspectForm.php` — new.
+- `src/Modules/Workflow/Forms/InviteToTestTrainingForm.php` — new.
+- `src/Modules/Workflow/WorkflowModule.php` — registers the two new templates.
+- `src/Modules/Prospects/Rest/ProspectsRestController.php` — new.
+- `src/Modules/Prospects/ProspectsModule.php` — initialises the REST controller in `boot()`.
+- `src/Modules/Prospects/Cron/ProspectRetentionCron.php` — workflow-task join in the stale query.
+- `src/Modules/Authorization/LegacyCapMapper.php` — new `tt_invite_prospects` cap.
+- `languages/talenttrack-nl_NL.po` — 30 new NL strings.
+- `readme.txt`, `talenttrack.php`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
+

@@ -27,6 +27,8 @@ final class TaskContext {
         public readonly ?int $goal_id       = null,
         public readonly ?int $trial_case_id = null,
         public readonly ?int $parent_task_id = null,
+        // #0081 child 2 — onboarding-pipeline entity link.
+        public readonly ?int $prospect_id   = null,
         /** @var array<string,mixed> */
         public readonly array $extras       = []
     ) {}
@@ -47,6 +49,7 @@ final class TaskContext {
             'goal_id'        => $this->goal_id,
             'trial_case_id'  => $this->trial_case_id,
             'parent_task_id' => $this->parent_task_id,
+            'prospect_id'    => $this->prospect_id,
         ];
     }
 
@@ -64,6 +67,7 @@ final class TaskContext {
             $overrides['goal_id']        ?? $this->goal_id,
             $overrides['trial_case_id']  ?? $this->trial_case_id,
             $overrides['parent_task_id'] ?? $this->parent_task_id,
+            $overrides['prospect_id']    ?? $this->prospect_id,
             $overrides['extras']         ?? $this->extras
         );
     }
