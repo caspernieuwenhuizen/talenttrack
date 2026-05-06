@@ -1,108 +1,64 @@
-# TalentTrack v3.100.0 — Team Blueprint Phase 2: squad-plan flavour, tiers, trial overlay, heatmap (#0068)
+# TalentTrack v3.100.1 — MFA foundation (#0086 Workstream B Child 1, sprint 1 of 3)
 
-Phase 2 of the Team Blueprint epic. Phase 1 (v3.98.0) shipped match-day blueprints — single starting XI, single player per slot. Phase 2 adds the second flavour: **squad plan** — for next-season planning, trial decisions, and "where are the gaps in our depth?" coaching conversations.
+First of three sprints for the TalentTrack-native MFA implementation, locked in #0086 Q1 (build native, not a WP-plugin recommendation, so the auth surface ports cleanly into the future SaaS migration). **No user-facing change yet** — sprint 1 lays the data layer + domain services + Account-page status indicator so sprints 2 and 3 (enrollment wizard + login integration) can build on a stable foundation.
 
-Match-day blueprints from v3.98.0 keep working unchanged. Squad-plan is a flavour pick on the new-blueprint wizard.
+Renumbered v3.98.2 → v3.100.1 mid-rebase after parallel-agent ships of v3.99.0 (#0081 onboarding-pipeline closure) and v3.100.0 (Team Blueprint Phase 2) landed in succession.
 
-## What's new for coaches
+## Why split into three sprints
 
-### Two flavours
+The full feature is ~700-900 LOC at conventional rates. A single-PR ship would put the data layer, the wizard UX, the WordPress `authenticate` filter integration, and the rate-limit / lockout machinery all into one review. Splitting reduces the parallel-PR collision surface (shorter branches collide less) and lets each sprint go through CI on its own. Sprint 1 ships dead code today — that's intentional. Sprint 2 lights up the enrollment surface; sprint 3 wires the login filter.
 
-The new-blueprint wizard's Setup step now asks:
+## What landed in sprint 1
 
-- **Match-day lineup** — one starting XI for an upcoming match. Single player per slot. (Phase 1 behaviour.)
-- **Squad plan** — planning towards next season or trial decisions. Three tiers per slot (primary / secondary / tertiary) and a trial overlay.
+### Migration `0073_user_mfa`
 
-Flavour locks at create time (changing flavour after the fact would either drop tiers or fan out match-day rows; not worth the complexity).
+`tt_user_mfa` carries one row per (`wp_user_id`, `club_id`) pair: encrypted TOTP secret, hashed backup codes JSON, remembered devices JSON, enrollment + verification timestamps, rate-limit counters (`failed_attempts` + `locked_until` consumed by sprint 3). Tenancy column `club_id` + `uuid` per CLAUDE.md §4.
 
-### Tiered depth chart (squad-plan only)
+### `Modules\Mfa\Domain\TotpService`
 
-Below the pitch on a squad-plan blueprint, a depth-chart table:
+Pure RFC 6238 TOTP. HMAC-SHA1 over a 64-bit big-endian counter, ±1-step tolerance, 6-digit code, 30-second step. `verify()` uses `hash_equals` for constant-time comparison. Base32 encode/decode + `otpauth://` URI builder for QR codes. `generateSecret()` returns 20 bytes / 160 bits — the RFC default.
 
-```
-Slot   Primary    Secondary  Tertiary
-GK     Lucas      Jonas      —
-LB     Eve        Mira       Jamal
-LCB    Sam        —          —
-...
-```
+### `Modules\Mfa\Domain\BackupCodesService`
 
-Each cell is a drop target. Drag a roster chip onto any cell to fill that tier. Drag a depth-chart chip back to the roster panel to remove. Pitch slots also drop-accept (they target the primary tier).
+Single-use recovery codes. Format `XXXX-XXXX-XXXX` over a no-ambiguity alphabet (excludes I/O/0/1). `wp_hash_password` storage, `wp_check_password` verify. Constant-time iteration so a timing oracle can't reveal which code matched. Defaults to 10 codes per enrollment.
 
-The same player can't sit in two slots or tiers on one blueprint — the writer strips any prior assignment when you drop them somewhere new, so dragging Lucas from `GK / Primary` onto `LB / Secondary` empties `GK / Primary` automatically.
+### `Modules\Mfa\MfaSecretsRepository`
 
-### Trial overlay
+CRUD on `tt_user_mfa`. Encryption + JSON parsing handled inside the repository. Methods: `findByUserId` / `isEnrolled` / `upsertSecret` / `markEnrolled` / `recordVerification` / `updateBackupCodes` / `disable`.
 
-Squad-plan rosters get a *Trials* divider in the sidebar listing trial players assigned to this team (`tt_players.status='trial'` on this team's roster). Trial chips have a yellow border + a small `TRIAL` badge. Drag-drop is identical to regular roster chips, so a coach can stage trial players in tier 2 / 3 of a slot to make the "should we sign this kid?" conversation visible against the depth chart.
+### Account-page MFA tab
 
-Per the locked decision: only trials assigned to this team — no global trial overlay.
+New `?page=tt-account&tab=mfa` reachable by every logged-in user. Renders status indicator (enrolled / not enrolled), backup codes remaining when enrolled, a roadmap section listing what sprint 2 and sprint 3 ship.
 
-### Coverage heatmap
+### `MfaModule` registered in `config/modules.php`
 
-A *Show coverage heatmap* button on squad-plan blueprints flips the pitch into a depth-coverage view:
+Sprint 1 wires no runtime hooks — `boot()` is a no-op until sprint 2's wizard registers itself and sprint 3's login subscriber hooks `authenticate`.
 
-- **Red** — 0 tiers covered (uncovered)
-- **Orange** — 1 (primary only, no backup)
-- **Yellow** — 2 (primary + secondary, no third)
-- **Green** — 3 (full depth)
+## What's NOT in this PR
 
-Each slot shows `N/3` so the coach can read the page at a glance: where are the gaps? `← Back to lineup view` returns to the editor.
+- **The 4-step enrollment wizard** (sprint 2). Intro → secret display + QR code → first-code verification → backup codes display.
+- **WordPress `authenticate` filter integration** (sprint 3).
+- **Per-club `require_mfa_for_personas` setting** (sprint 3). Default `[ academy_admin, head_of_development ]`.
+- **Rate-limited verification with 15-min lockout** (sprint 3).
+- **Optional 30-day "remember this device" cookie** (sprint 3).
+- **Audit-log integration** (sprint 3). `mfa_enrolled` / `mfa_verified` / `mfa_lockout` / `mfa_backup_code_used` / `mfa_disabled`.
 
-### Match-day stays simple
+## Affected files
 
-The depth chart, trial section, and heatmap are all gated on `flavour === squad_plan`. Existing match-day blueprints render exactly as v3.98.0. The new `tier` column defaults to `primary` so old assignments load as single-tier maps that flatten cleanly into the existing UX.
+- `database/migrations/0073_user_mfa.php` — new.
+- `src/Modules/Mfa/MfaModule.php` — new.
+- `src/Modules/Mfa/Domain/TotpService.php` — new.
+- `src/Modules/Mfa/Domain/BackupCodesService.php` — new.
+- `src/Modules/Mfa/MfaSecretsRepository.php` — new.
+- `src/Modules/License/Admin/AccountPage.php` — new MFA tab + open the page nav to non-operators on that tab.
+- `config/modules.php` — register `MfaModule`.
+- `languages/talenttrack-nl_NL.po` — 16 new msgids.
+- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
 
-## Schema (migration 0072)
+## Translations
 
-```sql
-ALTER TABLE tt_team_blueprint_assignments
-    ADD COLUMN tier VARCHAR(10) NOT NULL DEFAULT 'primary' AFTER slot_label;
-DROP INDEX uk_slot ON tt_team_blueprint_assignments;
-ALTER TABLE tt_team_blueprint_assignments
-    ADD UNIQUE KEY uk_slot_tier (blueprint_id, slot_label, tier);
-```
+16 new translatable strings covering the Account-page tab UI and the roadmap bullet list.
 
-Idempotent (guards on column + key existence). Existing match-day rows pick up `tier='primary'` via the column DEFAULT — no separate backfill needed.
+## Player-centricity
 
-## REST contract changes
-
-| Endpoint | Change |
-| --- | --- |
-| `POST /teams/{id}/blueprints` | Accepts `flavour` (`match_day` default, or `squad_plan`). |
-| `PUT /blueprints/{id}/assignment` | Body gains `tier` (`primary` | `secondary` | `tertiary`; default `primary`). Returns the recomputed `blueprint_chemistry` over the primary tier. |
-| `GET /blueprints/{id}` | `assignments` payload shape changes to `{slot: {tier: player_id}}` (was `{slot: player_id}`). `BlueprintChemistryEngine` consumes the primary tier only. |
-| `PUT /blueprints/{id}/assignments` | Bulk replace accepts both shapes — flat `{slot: player_id}` is treated as primary; nested `{slot: {tier: player_id}}` writes per-tier. |
-
-## Architecture
-
-`BlueprintChemistryEngine` is unchanged — chemistry is always computed over the **starting XI** (primary tier only), even on a squad-plan blueprint. Tier 2 and 3 are depth signal, not lineup signal. New `TeamBlueprintsRepository::loadPrimaryLineup()` gives the engine the flat slot→player_id shape it expects.
-
-The drag-drop JS is now tier-aware: every drop reads `data-tier` from the target (defaults to `primary` for pitch slots) and includes it in the REST body. Pitch slots only target primary. Depth-chart cells target their column's tier.
-
-## License gate + caps
-
-No change. Same `team_chemistry` Pro feature flag, same `tt_view_team_chemistry` (read) / `tt_manage_team_chemistry` (manage) caps as Phase 1.
-
-## What's not in this PR
-
-- **Phase 3** — Comments via Threads module (per-blueprint discussion thread).
-- **Phase 4** — Mobile drag-drop polish (long-press fallback) + share-link.
-- **Squad-plan chemistry weighting**: chemistry only scores the primary tier. A future "what if my secondary tier rotates in?" view would compute chemistry across the secondary lineup too — not warranted yet.
-
-## Files touched
-
-- `database/migrations/0072_team_blueprint_tiers.php` (new)
-- `src/Modules/TeamDevelopment/Repositories/TeamBlueprintsRepository.php` (tier constants + tier-aware writes + `loadPrimaryLineup`)
-- `src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php` (depth chart + heatmap + trial chips + flavour pill)
-- `src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php` (`flavour` on create, `tier` on assignment)
-- `src/Modules/Wizards/TeamBlueprint/SetupStep.php` (flavour radio)
-- `src/Modules/Wizards/TeamBlueprint/ReviewStep.php` (flavour line in summary)
-- `assets/css/frontend-team-blueprint.css` (depth-chart styles + heatmap palette + trial chip variant)
-- `assets/js/frontend-team-blueprint.js` (tier param on every drop + depth-chart cell drop targets)
-- `languages/talenttrack-nl_NL.po` (27 new msgids)
-- `docs/team-blueprint.md` + `docs/nl_NL/team-blueprint.md` (Squad plan section)
-- `talenttrack.php` + `readme.txt` + `SEQUENCE.md` (3.99.0 → 3.100.0)
-
-## Renumbering note
-
-Initial commit was tagged v3.99.0 + migration 0071. Mid-rebase, the parallel-agent ship of #0081 children 2b/3/4 took the v3.99.0 slot + migration 0071 (`0071_trial_cases_rolling_membership`). Renumbered to v3.100.0 + migration 0072.
+MFA's player-centric framing: protecting the WordPress accounts that touch player records. Every player file, every evaluation, every PDP cycle is gated by the cap-and-matrix layer — but the cap layer trusts whoever holds the WP user's session cookie. MFA is the second factor that anchors that trust. Sprint 3's per-club enforcement defaults to admin + head-of-development specifically because those personas have the broadest reach into player data; coaches and scouts can opt in if the academy chooses.

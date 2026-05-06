@@ -13172,7 +13172,7 @@ msgstr "Toewijzingsmap is verplicht."
 msgid "Status must be draft, shared, or locked."
 msgstr "Status moet draft, shared of locked zijn."
 
-# v3.99.0 — #0068 Phase 2: squad-plan flavour, tiers, trials, heatmap
+# v3.100.0 — #0068 Phase 2: squad-plan flavour, tiers, trials, heatmap
 msgid "Type *"
 msgstr "Type *"
 
@@ -13226,3 +13226,49 @@ msgstr "2 — primair + secundair"
 
 msgid "3 — full depth"
 msgstr "3 — volledige diepte"
+# v3.100.1 — #0086 Workstream B Child 1 sprint 1: MFA foundation + Account tab
+
+msgid "MFA"
+msgstr "MFA"
+
+msgid "Two-factor authentication"
+msgstr "Tweestapsverificatie"
+
+msgid "A second factor at login — a 6-digit code from your authenticator app, plus 10 single-use backup codes for the case where you lose your device. Building it natively into TalentTrack means it travels into the future SaaS migration unchanged."
+msgstr "Een tweede factor bij het inloggen — een 6-cijferige code uit je authenticator-app, plus 10 eenmalige reservecodes voor wanneer je je apparaat kwijt bent. Door het native in TalentTrack te bouwen werkt het straks ook in de SaaS-migratie zonder wijzigingen."
+
+msgid "You must be logged in to manage your MFA settings."
+msgstr "Je moet ingelogd zijn om je MFA-instellingen te beheren."
+
+msgid "You are enrolled in MFA."
+msgstr "Je bent aangemeld voor MFA."
+
+msgid "Backup codes remaining: %1$d of %2$d. When you run low, regenerate via the action below (action ships in v3.98.3)."
+msgstr "Resterende reservecodes: %1$d van %2$d. Als je er weinig over hebt, regenereer ze via de actie hieronder (actie volgt in v3.98.3)."
+
+msgid "You are not yet enrolled in MFA."
+msgstr "Je bent nog niet aangemeld voor MFA."
+
+msgid "Enrollment is a 4-step wizard (intro, scan QR, verify a first code, save backup codes). The wizard ships in v3.98.3 — until then this tab is informational only."
+msgstr "Aanmelden is een wizard met 4 stappen (intro, QR scannen, eerste code verifiëren, reservecodes opslaan). De wizard volgt in v3.98.3 — tot dan is dit tabblad alleen ter informatie."
+
+msgid "What is coming"
+msgstr "Wat eraan komt"
+
+msgid "4-step enrollment wizard (intro → secret + QR code → first-code verification → backup codes display) — ships in v3.98.3."
+msgstr "Wizard van 4 stappen (intro → secret + QR-code → eerste code verifiëren → reservecodes tonen) — volgt in v3.98.3."
+
+msgid "Per-club enforcement: operators can require MFA for academy-admin and head-of-development personas, optionally for any other persona — ships in v3.98.4."
+msgstr "Afdwingen per club: beheerders kunnen MFA verplichten voor academy-admin en hoofd-opleiding-persona's, optioneel ook voor andere persona's — volgt in v3.98.4."
+
+msgid "Optional 30-day \"remember this device\" cookie after a successful verification — ships in v3.98.4."
+msgstr "Optionele \"vertrouw dit apparaat\"-cookie van 30 dagen na een succesvolle verificatie — volgt in v3.98.4."
+
+msgid "Rate limiting: 5 verification attempts per 5 minutes, then a 15-minute lockout — ships in v3.98.4."
+msgstr "Snelheidslimiet: 5 verificatiepogingen per 5 minuten, daarna 15 minuten lockout — volgt in v3.98.4."
+
+msgid "Audit-log integration: every enrollment, verification, lockout, and backup-code use is recorded — ships in v3.98.4."
+msgstr "Audit-log-integratie: elke aanmelding, verificatie, lockout en gebruik van een reservecode wordt vastgelegd — volgt in v3.98.4."
+
+msgid "Read the security operator guide"
+msgstr "Lees de beveiligingshandleiding voor de beheerder"
