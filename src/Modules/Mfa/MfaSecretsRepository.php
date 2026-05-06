@@ -184,6 +184,165 @@ final class MfaSecretsRepository {
     }
 
     /**
+     * Sprint 3 — record a failed verification attempt. Increments
+     * `failed_attempts`; if the count reaches `$max_attempts`, sets
+     * `locked_until = NOW() + lockout_minutes`. The caller (RateLimiter)
+     * decides which thresholds to apply.
+     *
+     * Returns the updated `failed_attempts` count, or 0 if the row is
+     * missing (caller should treat this as "not enrolled").
+     */
+    public function recordFailedAttempt( int $wp_user_id, int $max_attempts, int $lockout_minutes ): int {
+        $existing = $this->findByUserId( $wp_user_id );
+        if ( $existing === null ) return 0;
+
+        global $wpdb;
+        $now = current_time( 'mysql' );
+        $new_count = (int) ( $existing['failed_attempts'] ?? 0 ) + 1;
+
+        $update = [
+            'failed_attempts' => $new_count,
+            'updated_at'      => $now,
+        ];
+        if ( $new_count >= $max_attempts ) {
+            $update['locked_until'] = gmdate( 'Y-m-d H:i:s', time() + ( $lockout_minutes * MINUTE_IN_SECONDS ) );
+        }
+        $wpdb->update(
+            $this->table(),
+            $update,
+            [ 'id' => (int) $existing['id'] ]
+        );
+        return $new_count;
+    }
+
+    /**
+     * Sprint 3 — is the user currently in lockout? Compares stored
+     * `locked_until` against now (UTC). Returns the timestamp string
+     * when locked, null otherwise.
+     */
+    public function lockoutUntil( int $wp_user_id ): ?string {
+        $existing = $this->findByUserId( $wp_user_id );
+        if ( $existing === null ) return null;
+        $until = (string) ( $existing['locked_until'] ?? '' );
+        if ( $until === '' ) return null;
+        if ( strtotime( $until . ' UTC' ) <= time() ) return null;
+        return $until;
+    }
+
+    /**
+     * Sprint 3 — append a remembered-device entry. The `signed_token`
+     * is the HMAC-signed random token issued by `RememberDeviceCookie`;
+     * server-side only the token + metadata are kept (the signature in
+     * the cookie is recomputed on each verify).
+     *
+     * @param array{signed_token:string, device_label:string, expires_at:string, last_used_at:string} $device
+     */
+    public function appendRememberedDevice( int $wp_user_id, array $device ): bool {
+        $existing = $this->findByUserId( $wp_user_id );
+        if ( $existing === null ) return false;
+
+        $remembered = (array) ( $existing['remembered_devices'] ?? [] );
+        // Drop any expired entries on the way in so the JSON doesn't grow forever.
+        $now_ts = time();
+        $remembered = array_values( array_filter( $remembered, static function ( $entry ) use ( $now_ts ) {
+            $exp = (string) ( $entry['expires_at'] ?? '' );
+            return $exp !== '' && strtotime( $exp . ' UTC' ) > $now_ts;
+        } ) );
+        $remembered[] = $device;
+
+        global $wpdb;
+        $wpdb->update(
+            $this->table(),
+            [
+                'remembered_devices' => wp_json_encode( $remembered ),
+                'updated_at'         => current_time( 'mysql' ),
+            ],
+            [ 'id' => (int) $existing['id'] ]
+        );
+        return true;
+    }
+
+    /**
+     * Sprint 3 — find a remembered-device entry by its token. Returns the
+     * entry shape if found and unexpired, null otherwise. Used by the
+     * cookie-verification path to decide whether to skip the challenge.
+     *
+     * Has a side-effect on success: bumps `last_used_at` on the matching
+     * entry. Audit-logged by the caller.
+     *
+     * @return array<string,mixed>|null
+     */
+    public function consumeRememberedDevice( int $wp_user_id, string $token ): ?array {
+        $existing = $this->findByUserId( $wp_user_id );
+        if ( $existing === null ) return null;
+
+        $remembered = (array) ( $existing['remembered_devices'] ?? [] );
+        if ( empty( $remembered ) ) return null;
+
+        $now_ts = time();
+        $matched_idx = -1;
+        foreach ( $remembered as $idx => $entry ) {
+            if ( ! is_array( $entry ) ) continue;
+            if ( ! hash_equals( (string) ( $entry['signed_token'] ?? '' ), $token ) ) continue;
+            $exp = (string) ( $entry['expires_at'] ?? '' );
+            if ( $exp === '' || strtotime( $exp . ' UTC' ) <= $now_ts ) continue;
+            $matched_idx = $idx;
+            break;
+        }
+        if ( $matched_idx === -1 ) return null;
+
+        $remembered[ $matched_idx ]['last_used_at'] = gmdate( 'Y-m-d H:i:s' );
+
+        global $wpdb;
+        $wpdb->update(
+            $this->table(),
+            [
+                'remembered_devices' => wp_json_encode( $remembered ),
+                'updated_at'         => current_time( 'mysql' ),
+            ],
+            [ 'id' => (int) $existing['id'] ]
+        );
+        return $remembered[ $matched_idx ];
+    }
+
+    /**
+     * Sprint 3 — revoke a single remembered-device entry, or all entries
+     * when `$token` is empty. Returns the number of entries removed.
+     */
+    public function revokeRememberedDevices( int $wp_user_id, string $token = '' ): int {
+        $existing = $this->findByUserId( $wp_user_id );
+        if ( $existing === null ) return 0;
+
+        $remembered = (array) ( $existing['remembered_devices'] ?? [] );
+        if ( empty( $remembered ) ) return 0;
+
+        $before = count( $remembered );
+        if ( $token === '' ) {
+            $remembered = [];
+        } else {
+            $remembered = array_values( array_filter(
+                $remembered,
+                static function ( $entry ) use ( $token ) {
+                    return ! is_array( $entry )
+                        || ! hash_equals( (string) ( $entry['signed_token'] ?? '' ), $token );
+                }
+            ) );
+        }
+        $removed = $before - count( $remembered );
+
+        global $wpdb;
+        $wpdb->update(
+            $this->table(),
+            [
+                'remembered_devices' => wp_json_encode( $remembered ),
+                'updated_at'         => current_time( 'mysql' ),
+            ],
+            [ 'id' => (int) $existing['id'] ]
+        );
+        return $removed;
+    }
+
+    /**
      * Disable MFA for a user — deletes the row entirely. Used when an
      * admin needs to recover a user who's locked themselves out
      * (lost their authenticator + lost their backup codes). Audit-logged
