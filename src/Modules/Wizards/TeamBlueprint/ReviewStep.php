@@ -19,9 +19,14 @@ final class ReviewStep implements WizardStepInterface {
 
     public function render( array $state ): void {
         echo '<p>' . esc_html__( 'Check the details before creating the blueprint. You will land on the editor next to drag players onto slots.', 'talenttrack' ) . '</p>';
+        $flavour = (string) ( $state['flavour'] ?? TeamBlueprintsRepository::FLAVOUR_MATCH_DAY );
+        $flavour_label = $flavour === TeamBlueprintsRepository::FLAVOUR_SQUAD_PLAN
+            ? __( 'Squad plan (3 tiers per slot, trial overlay)', 'talenttrack' )
+            : __( 'Match-day lineup (single starting XI)', 'talenttrack' );
         echo '<dl class="tt-wizard-review">';
         $rows = [
             __( 'Team',      'talenttrack' ) => self::teamName( (int) ( $state['team_id'] ?? 0 ) ),
+            __( 'Type',      'talenttrack' ) => $flavour_label,
             __( 'Formation', 'talenttrack' ) => self::templateName( (int) ( $state['formation_template_id'] ?? 0 ) ),
             __( 'Name',      'talenttrack' ) => (string) ( $state['name'] ?? '' ),
         ];
@@ -41,10 +46,11 @@ final class ReviewStep implements WizardStepInterface {
         $team_id     = (int) ( $state['team_id']               ?? 0 );
         $template_id = (int) ( $state['formation_template_id'] ?? 0 );
         $name        = trim( (string) ( $state['name']         ?? '' ) );
+        $flavour     = (string) ( $state['flavour'] ?? TeamBlueprintsRepository::FLAVOUR_MATCH_DAY );
         if ( $team_id <= 0 || $template_id <= 0 || $name === '' ) {
             return new \WP_Error( 'missing', __( 'Setup is incomplete. Go back to fill in all fields.', 'talenttrack' ) );
         }
-        $id = ( new TeamBlueprintsRepository() )->create( $team_id, $name, $template_id, get_current_user_id() );
+        $id = ( new TeamBlueprintsRepository() )->create( $team_id, $name, $template_id, get_current_user_id(), $flavour );
         if ( $id <= 0 ) {
             return new \WP_Error( 'db_error', __( 'Could not create the blueprint.', 'talenttrack' ) );
         }

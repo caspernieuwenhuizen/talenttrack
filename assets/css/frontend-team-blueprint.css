@@ -149,3 +149,146 @@
 .tt-bp-editor[data-locked="1"] .tt-bp-droptarget {
     cursor: not-allowed;
 }
+
+/* Trial chips — yellow border + small TRIAL badge. */
+.tt-bp-chip-trial {
+    border-color: #c9962a;
+    background: #fffbe6;
+}
+.tt-bp-trial-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 5px;
+    background: #c9962a;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 9px;
+    line-height: 1.4;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.tt-bp-roster-divider {
+    width: 100%;
+    height: 1px;
+    background: #e5e7ea;
+    margin: 8px 0 4px;
+}
+.tt-bp-roster-section-label {
+    width: 100%;
+    margin: 0 0 4px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #5b6e75;
+}
+
+/* Squad-plan depth chart — drop-target table below the pitch. */
+.tt-bp-depth-heading {
+    margin: 18px 0 8px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #5b6e75;
+}
+.tt-bp-depth-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid #e5e7ea;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 13px;
+}
+.tt-bp-depth-table th,
+.tt-bp-depth-table td {
+    padding: 8px 10px;
+    border-top: 1px solid #f1f3f5;
+    text-align: left;
+    vertical-align: middle;
+}
+.tt-bp-depth-table thead th {
+    background: #fafbfc;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #5b6e75;
+    border-top: 0;
+}
+.tt-bp-depth-cell {
+    min-height: 40px;
+    transition: background 0.12s ease, box-shadow 0.12s ease;
+}
+.tt-bp-depth-cell.tt-bp-dragover {
+    background: #fffbe6;
+    box-shadow: inset 0 0 0 2px #c9962a;
+}
+.tt-bp-depth-cell[data-can-drag="0"] {
+    cursor: default;
+}
+.tt-bp-depth-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #1a1d21;
+    font-size: 12px;
+    cursor: grab;
+    user-select: none;
+}
+.tt-bp-depth-empty {
+    color: #8a9099;
+}
+
+/* Heatmap — recolours each slot circle by depth count. */
+.tt-bp-heatmap-wrap .tt-pitch-slot {
+    cursor: default;
+}
+.tt-pitch-slot.tt-bp-heat-0 {
+    background: #f8d7d4;
+    border-color: #b32d2e;
+    color: #b32d2e;
+}
+.tt-pitch-slot.tt-bp-heat-1 {
+    background: #fde7c5;
+    border-color: #c9962a;
+    color: #7a4f1d;
+}
+.tt-pitch-slot.tt-bp-heat-2 {
+    background: #fbf3c5;
+    border-color: #b08e1a;
+    color: #6b5314;
+}
+.tt-pitch-slot.tt-bp-heat-3 {
+    background: #d3ebd3;
+    border-color: #2c8a2c;
+    color: #1f5e1f;
+}
+.tt-bp-heat-count {
+    display: block;
+    font-size: 10px;
+    margin-top: 2px;
+    font-weight: 600;
+}
+.tt-bp-heat-legend {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    font-size: 12px;
+}
+.tt-bp-heat-legend-item {
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid #e5e7ea;
+}
+.tt-bp-heat-legend-item.tt-bp-heat-0 { background: #f8d7d4; border-color: #b32d2e; color: #b32d2e; }
+.tt-bp-heat-legend-item.tt-bp-heat-1 { background: #fde7c5; border-color: #c9962a; color: #7a4f1d; }
+.tt-bp-heat-legend-item.tt-bp-heat-2 { background: #fbf3c5; border-color: #b08e1a; color: #6b5314; }
+.tt-bp-heat-legend-item.tt-bp-heat-3 { background: #d3ebd3; border-color: #2c8a2c; color: #1f5e1f; }
+
+/* Squad-plan flavour pill (shown next to the status pill). */
+.tt-bp-flavour-pill {
+    /* visual handled inline; class hook for theme overrides only */
+}

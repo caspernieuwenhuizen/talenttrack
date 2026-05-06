@@ -66,10 +66,50 @@ Heropenen vereist hetzelfde rechtenniveau als het aanmaken van een blauwdruk, du
 - **Bekijken** — coaches zien blauwdrukken voor teams waarvan ze hoofdcoach zijn; hoofd-academie / academie-admin zien alle teams. Dezelfde scope als het Teamchemie-bord.
 - **Aanmaken / bewerken / vergrendelen / verwijderen** — gated op `tt_manage_team_chemistry` (standaard hoofdcoach; hoofd-academie / admin globaal).
 
-## Beperkingen Fase 1
+## Selectie-plan-variant
 
-- **Alleen wedstrijdopstelling**. Selectie-plan-variant (meerlaagse positie-fits, primair / secundair / tertiair) komt in Fase 2.
-- **Nog geen proefspelers op het veld** — proefspeler-overlay komt met de selectie-plan-variant in Fase 2.
+Bij het aanmaken van een blauwdruk vraagt de wizard naar het type:
+
+- **Wedstrijdopstelling** — één basiself voor een aankomende wedstrijd. Eén speler per positie. (Standaard; alles hierboven beschrijft deze variant.)
+- **Selectieplan** — planning richting volgend seizoen of beslissingen over proefspelers. Elke positie heeft drie tiers (primair / secundair / tertiair) en de selectiebalk krijgt een *Proefspelers*-sectie.
+
+De variant ligt vast bij aanmaken.
+
+### Diepteschema met tiers
+
+Op een selectieplan-blauwdruk verschijnt een diepteschema-tabel onder het veld:
+
+| Positie | Primair | Secundair | Tertiair |
+| --- | --- | --- | --- |
+| GK | Lucas | Jonas | — |
+| LB | Eve | Mira | Jamal |
+| LCB | Sam | — | — |
+
+Elke cel is een drop-doel. Sleep een chip uit de selectiebalk naar een cel om die tier te vullen. Sleep een chip uit het diepteschema terug naar de selectiebalk om te verwijderen. De veldposities boven blijven ook drops accepteren — die richten op de **primaire** tier.
+
+Dezelfde speler kan niet op twee posities of tiers tegelijk staan in één blauwdruk. Sleep je Lucas van `GK / Primair` naar `LB / Secundair`, dan komt zijn GK-positie automatisch leeg.
+
+### Proefspeler-overlay
+
+De selectiebalk krijgt een *Proefspelers*-divider met proefspelers die aan dit team zijn toegewezen — `tt_players`-rijen op de selectie van dit team met `status = 'trial'`. Proefspeler-chips hebben een gele rand en een kleine `PROEF`-badge. Drag-drop werkt identiek aan reguliere chips, dus je kunt een proefspeler op tier 2 / 3 van een positie zetten om de "moeten we deze speler tekenen?"-discussie zichtbaar te maken tegen het diepteschema.
+
+### Dekkingsheatmap
+
+Een *Toon dekkingsheatmap*-knop op selectieplan-blauwdrukken zet het veld in dekkings-modus:
+
+- **Rood** — 0 tiers gevuld (niet gedekt)
+- **Oranje** — 1 (alleen primair, geen backup)
+- **Geel** — 2 (primair + secundair, geen derde)
+- **Groen** — 3 (volledige diepte)
+
+Elke positie toont `N/3` zodat je in één oogopslag ziet waar de gaten zitten. `← Terug naar opstellingsweergave` brengt je terug naar de editor.
+
+### Chemie op een selectieplan-blauwdruk
+
+Chemie scoort alleen de **basiself** — de primaire tier. Tier 2 en 3 zijn dieptesignalen, geen opstellingssignalen. De kop weerspiegelt de primaire opstelling; lijnen lopen tussen de primaire spelers.
+
+## Beperkingen Fase 2
+
 - **Geen reacties** — overleg met de staf gebeurt voorlopig buiten de blauwdruk om; Fase 3 voegt een reactiethread per blauwdruk toe via de Threads-module.
 - **Drag-drop op mobiel is onhandig**. HTML5 drag-and-drop op touch-toestellen werkt maar is niet ideaal. Een long-press-pickup-fallback staat op de poetslijst.
 - **Geen deellink**. Een publieke URL voor ouders / externe coaches komt in Fase 4.

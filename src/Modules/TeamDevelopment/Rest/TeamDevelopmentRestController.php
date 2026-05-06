@@ -498,6 +498,7 @@ class TeamDevelopmentRestController {
         }
         $name        = trim( (string) ( $r['name'] ?? '' ) );
         $template_id = absint( $r['formation_template_id'] ?? 0 );
+        $flavour     = (string) ( $r['flavour'] ?? TeamBlueprintsRepository::FLAVOUR_MATCH_DAY );
         if ( $name === '' || $template_id <= 0 ) {
             return RestResponse::error( 'missing_fields',
                 __( 'Name and formation are required.', 'talenttrack' ), 400 );
@@ -512,31 +513,29 @@ class TeamDevelopmentRestController {
                 __( 'Formation template not found.', 'talenttrack' ), 404 );
         }
         $id = ( new TeamBlueprintsRepository() )->create(
-            $team_id, $name, $template_id, get_current_user_id()
+            $team_id, $name, $template_id, get_current_user_id(), $flavour
         );
         if ( $id <= 0 ) {
             Logger::error( 'team_dev.blueprint.create.failed', [ 'team_id' => $team_id ] );
             return RestResponse::error( 'db_error',
                 __( 'The blueprint could not be created.', 'talenttrack' ), 500 );
         }
-        return RestResponse::success( [ 'id' => $id, 'team_id' => $team_id ] );
+        return RestResponse::success( [ 'id' => $id, 'team_id' => $team_id, 'flavour' => $flavour ] );
     }
 
     public static function get_blueprint( \WP_REST_Request $r ): \WP_REST_Response {
-        $id = absint( $r['id'] );
-        $bp = ( new TeamBlueprintsRepository() )->find( $id );
+        $id   = absint( $r['id'] );
+        $repo = new TeamBlueprintsRepository();
+        $bp   = $repo->find( $id );
         if ( $bp === null ) {
             return RestResponse::error( 'bad_blueprint',
                 __( 'Blueprint not found.', 'talenttrack' ), 404 );
         }
-        $lineup = [];
-        foreach ( (array) ( $bp['assignments'] ?? [] ) as $slot => $pid ) {
-            $lineup[ (string) $slot ] = (int) $pid;
-        }
+        $primary_lineup = $repo->loadPrimaryLineup( $id );
         $blueprint_chemistry = ( new BlueprintChemistryEngine() )->computeForLineup(
             (int) $bp['team_id'],
             (array) ( $bp['slots'] ?? [] ),
-            $lineup
+            $primary_lineup
         );
         return RestResponse::success( [
             'blueprint'           => $bp,
@@ -593,20 +592,21 @@ class TeamDevelopmentRestController {
                 __( 'This blueprint is locked. Reopen it before editing.', 'talenttrack' ), 409 );
         }
         $slot      = trim( (string) ( $r['slot_label'] ?? '' ) );
+        $tier      = (string) ( $r['tier'] ?? TeamBlueprintsRepository::TIER_PRIMARY );
         $player_id = isset( $r['player_id'] ) ? absint( $r['player_id'] ) : 0;
         if ( $slot === '' ) {
             return RestResponse::error( 'missing_slot',
                 __( 'slot_label is required.', 'talenttrack' ), 400 );
         }
-        $repo->setAssignment( $id, $slot, $player_id > 0 ? $player_id : null );
-
-        // Recompute chemistry on the new lineup so the editor can
-        // refresh the score + lines without round-tripping the get.
-        $bp = $repo->find( $id );
-        $lineup = [];
-        foreach ( (array) ( $bp['assignments'] ?? [] ) as $sl => $pid ) {
-            $lineup[ (string) $sl ] = (int) $pid;
+        if ( ! in_array( $tier, TeamBlueprintsRepository::TIERS, true ) ) {
+            $tier = TeamBlueprintsRepository::TIER_PRIMARY;
         }
+        $repo->setAssignment( $id, $slot, $player_id > 0 ? $player_id : null, $tier );
+
+        // Recompute chemistry on the new primary lineup so the editor
+        // can refresh the score + lines without round-tripping the get.
+        $bp     = $repo->find( $id );
+        $lineup = $repo->loadPrimaryLineup( $id );
         $blueprint_chemistry = ( new BlueprintChemistryEngine() )->computeForLineup(
             (int) $bp['team_id'],
             (array) ( $bp['slots'] ?? [] ),
@@ -615,6 +615,7 @@ class TeamDevelopmentRestController {
         return RestResponse::success( [
             'id'                  => $id,
             'slot_label'          => $slot,
+            'tier'                => $tier,
             'player_id'           => $player_id > 0 ? $player_id : null,
             'blueprint_chemistry' => $blueprint_chemistry,
         ] );

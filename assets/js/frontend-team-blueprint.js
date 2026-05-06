@@ -36,25 +36,34 @@
 
     function wireDragDrop(blueprintId, editor) {
         var roster = editor.querySelector('.tt-bp-roster-list');
-        var targets = editor.querySelectorAll('.tt-bp-droptarget');
 
-        editor.addEventListener('dragstart', function (e) {
-            var chip = e.target.closest('.tt-bp-chip[draggable="true"]');
+        // Pitch + depth-chart cells share the same drop logic via the
+        // .tt-bp-droptarget class on pitch slots and the
+        // .tt-bp-droptarget-cell class on depth-chart cells.
+        var pitchTargets = editor.querySelectorAll('.tt-bp-droptarget');
+        // Depth-chart cells live OUTSIDE .tt-bp-editor (rendered after
+        // the editor div) so we look at the document level for them.
+        var depthCells = document.querySelectorAll('.tt-bp-droptarget-cell');
+        var allTargets = [].slice.call(pitchTargets).concat([].slice.call(depthCells));
+
+        // dragstart: any draggable chip — roster chip or depth-chart chip.
+        document.addEventListener('dragstart', function (e) {
+            var chip = e.target.closest('[draggable="true"][data-player-id]');
             if (!chip) return;
             chip.classList.add('tt-bp-chip-dragging');
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/plain', JSON.stringify({
                 player_id: parseInt(chip.getAttribute('data-player-id'), 10),
-                player_name: chip.getAttribute('data-player-name') || ''
+                player_name: chip.getAttribute('data-player-name') || '',
+                is_trial: chip.getAttribute('data-is-trial') === '1'
             }));
         });
-        editor.addEventListener('dragend', function (e) {
-            var chip = e.target.closest('.tt-bp-chip');
+        document.addEventListener('dragend', function (e) {
+            var chip = e.target.closest('[data-player-id]');
             if (chip) chip.classList.remove('tt-bp-chip-dragging');
         });
 
-        // Drop zones — slot targets on the pitch + roster panel for "remove".
-        Array.prototype.forEach.call(targets, function (t) {
+        allTargets.forEach(function (t) {
             t.addEventListener('dragover', function (e) {
                 if (t.getAttribute('data-can-drag') !== '1') return;
                 e.preventDefault();
@@ -63,12 +72,14 @@
             });
             t.addEventListener('dragleave', function () { t.classList.remove('tt-bp-dragover'); });
             t.addEventListener('drop', function (e) {
+                if (t.getAttribute('data-can-drag') !== '1') return;
                 e.preventDefault();
                 t.classList.remove('tt-bp-dragover');
                 var data = readDragData(e);
                 if (!data) return;
                 var slot = t.getAttribute('data-slot-label');
-                saveAssignment(blueprintId, slot, data.player_id);
+                var tier = t.getAttribute('data-tier') || 'primary';
+                saveAssignment(blueprintId, slot, tier, data.player_id);
             });
         });
 
@@ -84,12 +95,9 @@
                 roster.classList.remove('tt-bp-dragover');
                 var data = readDragData(e);
                 if (!data) return;
-                // Find which slot the player was dropped FROM. We resolve it
-                // by walking the targets and picking the one whose
-                // data-player-id matches.
-                var origin = findSlotForPlayer(targets, data.player_id);
+                var origin = findSlotForPlayer(allTargets, data.player_id);
                 if (!origin) return;
-                saveAssignment(blueprintId, origin, 0); // 0 = unassign
+                saveAssignment(blueprintId, origin.slot, origin.tier, 0);
             });
         }
     }
@@ -107,14 +115,17 @@
     function findSlotForPlayer(targets, playerId) {
         for (var i = 0; i < targets.length; i++) {
             if (parseInt(targets[i].getAttribute('data-player-id'), 10) === playerId) {
-                return targets[i].getAttribute('data-slot-label');
+                return {
+                    slot: targets[i].getAttribute('data-slot-label'),
+                    tier: targets[i].getAttribute('data-tier') || 'primary'
+                };
             }
         }
         return null;
     }
 
-    function saveAssignment(blueprintId, slotLabel, playerId) {
-        var body = { slot_label: slotLabel };
+    function saveAssignment(blueprintId, slotLabel, tier, playerId) {
+        var body = { slot_label: slotLabel, tier: tier || 'primary' };
         if (playerId > 0) body.player_id = playerId;
 
         fetch(cfg.rest_root + '/blueprints/' + blueprintId + '/assignment', {

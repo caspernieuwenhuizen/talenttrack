@@ -171,6 +171,8 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
 
         $can_manage = current_user_can( 'tt_manage_team_chemistry' );
         $is_locked  = $bp['status'] === TeamBlueprintsRepository::STATUS_LOCKED;
+        $is_squad   = (string) ( $bp['flavour'] ?? '' ) === TeamBlueprintsRepository::FLAVOUR_SQUAD_PLAN;
+        $heatmap    = $is_squad && isset( $_GET['heatmap'] ) && $_GET['heatmap'] === '1';
 
         FrontendBreadcrumbs::fromDashboard(
             (string) $bp['name'],
@@ -198,45 +200,83 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         echo '<p style="margin:0 0 12px;">';
         echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $list_url ) . '">'
             . esc_html__( '← Back to blueprints', 'talenttrack' ) . '</a>';
+        if ( $is_squad ) {
+            $toggle_url = $heatmap
+                ? remove_query_arg( 'heatmap' )
+                : add_query_arg( 'heatmap', '1' );
+            $toggle_label = $heatmap
+                ? __( '← Back to lineup view', 'talenttrack' )
+                : __( 'Show coverage heatmap', 'talenttrack' );
+            echo ' <a class="tt-btn tt-btn-secondary" href="' . esc_url( $toggle_url ) . '">'
+                . esc_html( $toggle_label ) . '</a>';
+        }
         echo '</p>';
 
-        // Status row + action buttons.
+        // Status row + flavour pill + action buttons.
         self::renderStatusRow( $bp, $can_manage, $is_locked );
 
-        // Compute initial chemistry on the saved lineup.
-        $lineup = [];
-        foreach ( (array) ( $bp['assignments'] ?? [] ) as $slot => $pid ) {
-            $lineup[ (string) $slot ] = (int) $pid;
+        // Tiered assignments. Match-day blueprints only have primary;
+        // squad-plan can have primary/secondary/tertiary per slot.
+        $tiered = (array) ( $bp['assignments'] ?? [] );
+        $primary_lineup = [];
+        foreach ( $tiered as $slot => $tiers ) {
+            if ( isset( $tiers[ TeamBlueprintsRepository::TIER_PRIMARY ] ) ) {
+                $primary_lineup[ (string) $slot ] = (int) $tiers[ TeamBlueprintsRepository::TIER_PRIMARY ];
+            }
         }
         $chemistry = ( new BlueprintChemistryEngine() )->computeForLineup(
-            (int) $bp['team_id'], (array) ( $bp['slots'] ?? [] ), $lineup
+            (int) $bp['team_id'], (array) ( $bp['slots'] ?? [] ), $primary_lineup
         );
         self::renderChemistryHeadline( $chemistry );
 
-        // Roster panel + pitch in a two-column flex layout.
+        // Set of all assigned player IDs across all tiers, so the
+        // roster panel can grey them out.
+        $assigned_ids = [];
+        foreach ( $tiered as $tiers ) {
+            foreach ( (array) $tiers as $pid ) {
+                $assigned_ids[ (int) $pid ] = true;
+            }
+        }
+
+        // Roster panel + pitch in a two-column layout.
         ?>
-        <div class="tt-bp-editor"
+        <div class="tt-bp-editor <?php echo $is_squad ? 'tt-bp-flavour-squad' : 'tt-bp-flavour-match'; ?> <?php echo $heatmap ? 'tt-bp-heatmap-on' : ''; ?>"
              data-blueprint-id="<?php echo (int) $bp['id']; ?>"
              data-team-id="<?php echo (int) $bp['team_id']; ?>"
+             data-flavour="<?php echo esc_attr( (string) ( $bp['flavour'] ?? '' ) ); ?>"
              data-locked="<?php echo $is_locked ? '1' : '0'; ?>"
              data-can-manage="<?php echo $can_manage ? '1' : '0'; ?>">
             <div class="tt-bp-roster" aria-label="<?php esc_attr_e( 'Available players', 'talenttrack' ); ?>">
                 <h3><?php esc_html_e( 'Roster', 'talenttrack' ); ?></h3>
                 <p class="tt-bp-roster-hint">
-                    <?php esc_html_e( 'Drag a player onto a slot. Drop a player back here to remove them from the lineup.', 'talenttrack' ); ?>
+                    <?php
+                    if ( $is_squad ) {
+                        esc_html_e( 'Drag onto a depth-chart cell below or onto a pitch slot. Drop back here to remove. Trial players carry a yellow border.', 'talenttrack' );
+                    } else {
+                        esc_html_e( 'Drag a player onto a slot. Drop a player back here to remove them from the lineup.', 'talenttrack' );
+                    }
+                    ?>
                 </p>
                 <div class="tt-bp-roster-list" data-dropzone="roster">
-                    <?php self::renderRosterChips( (int) $bp['team_id'], $lineup, $can_manage && ! $is_locked ); ?>
+                    <?php self::renderRosterChips( (int) $bp['team_id'], $assigned_ids, $can_manage && ! $is_locked, $is_squad ); ?>
                 </div>
             </div>
             <div class="tt-bp-pitch-wrap">
                 <?php
-                PitchSvg::render( (array) ( $bp['slots'] ?? [] ), self::lineupAsSuggested( $lineup ), PitchSvg::MODE_FLAT, $chemistry['links'] );
-                self::overlaySlotDropTargets( (array) ( $bp['slots'] ?? [] ), $lineup, $can_manage && ! $is_locked );
+                if ( $heatmap ) {
+                    self::renderHeatmapPitch( (array) ( $bp['slots'] ?? [] ), $tiered );
+                } else {
+                    PitchSvg::render( (array) ( $bp['slots'] ?? [] ), self::lineupAsSuggested( $primary_lineup ), PitchSvg::MODE_FLAT, $chemistry['links'] );
+                    self::overlaySlotDropTargets( (array) ( $bp['slots'] ?? [] ), $primary_lineup, $can_manage && ! $is_locked, TeamBlueprintsRepository::TIER_PRIMARY );
+                }
                 ?>
             </div>
         </div>
         <?php
+
+        if ( $is_squad && ! $heatmap ) {
+            self::renderDepthChart( (array) ( $bp['slots'] ?? [] ), $tiered, $can_manage && ! $is_locked );
+        }
 
         if ( $is_locked ) {
             echo '<p class="tt-notice" style="margin-top:16px;">'
@@ -247,11 +287,13 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
 
     /** @param array<string,mixed> $bp */
     private static function renderStatusRow( array $bp, bool $can_manage, bool $is_locked ): void {
-        $status = (string) $bp['status'];
+        $status  = (string) $bp['status'];
+        $flavour = (string) ( $bp['flavour'] ?? '' );
         echo '<div class="tt-bp-statusbar" style="display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;">';
         echo '<span style="color:#5b6e75; font-size:12px; text-transform:uppercase; letter-spacing:0.04em;">'
             . esc_html__( 'Status', 'talenttrack' ) . '</span>';
         echo self::statusPill( $status );
+        echo self::flavourPill( $flavour );
         if ( $can_manage ) {
             echo '<span class="tt-bp-status-actions" data-blueprint-id="' . (int) $bp['id'] . '" style="display:inline-flex; gap:6px;">';
             if ( $status === TeamBlueprintsRepository::STATUS_DRAFT ) {
@@ -308,52 +350,244 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         <?php
     }
 
-    private static function renderRosterChips( int $team_id, array $lineup_player_ids, bool $can_drag ): void {
-        $players  = QueryHelpers::get_players( $team_id );
-        $assigned = array_flip( array_values( array_map( 'intval', $lineup_player_ids ) ) );
-        if ( empty( $players ) ) {
+    /**
+     * @param array<int, true> $assigned_ids set of player IDs already on the blueprint (any tier)
+     */
+    private static function renderRosterChips( int $team_id, array $assigned_ids, bool $can_drag, bool $include_trials ): void {
+        $players = QueryHelpers::get_players( $team_id );
+        $trials  = $include_trials ? self::loadTrialPlayers( $team_id ) : [];
+        if ( empty( $players ) && empty( $trials ) ) {
             echo '<p style="color:#5b6e75;"><em>' . esc_html__( 'No players on this team yet.', 'talenttrack' ) . '</em></p>';
             return;
         }
         foreach ( $players as $pl ) {
-            $pid = (int) $pl->id;
-            $name = QueryHelpers::player_display_name( $pl );
-            $is_assigned = isset( $assigned[ $pid ] );
-            $classes = 'tt-bp-chip' . ( $is_assigned ? ' tt-bp-chip-assigned' : '' );
-            $draggable = $can_drag && ! $is_assigned ? 'true' : 'false';
-            echo '<div class="' . esc_attr( $classes ) . '"'
-                . ' draggable="' . esc_attr( $draggable ) . '"'
-                . ' data-player-id="' . (int) $pid . '"'
-                . ' data-player-name="' . esc_attr( $name ) . '">'
-                . esc_html( $name )
-                . '</div>';
+            self::renderRosterChip( (int) $pl->id, QueryHelpers::player_display_name( $pl ), false, isset( $assigned_ids[ (int) $pl->id ] ), $can_drag );
         }
+        if ( ! empty( $trials ) ) {
+            echo '<div class="tt-bp-roster-divider" aria-hidden="true"></div>';
+            echo '<p class="tt-bp-roster-section-label">' . esc_html__( 'Trials', 'talenttrack' ) . '</p>';
+            foreach ( $trials as $row ) {
+                $tid = (int) $row->id;
+                $name = (string) $row->first_name . ' ' . (string) $row->last_name;
+                self::renderRosterChip( $tid, $name, true, isset( $assigned_ids[ $tid ] ), $can_drag );
+            }
+        }
+    }
+
+    private static function renderRosterChip( int $pid, string $name, bool $is_trial, bool $is_assigned, bool $can_drag ): void {
+        $classes = 'tt-bp-chip';
+        if ( $is_trial )    $classes .= ' tt-bp-chip-trial';
+        if ( $is_assigned ) $classes .= ' tt-bp-chip-assigned';
+        $draggable = $can_drag && ! $is_assigned ? 'true' : 'false';
+        echo '<div class="' . esc_attr( $classes ) . '"'
+            . ' draggable="' . esc_attr( $draggable ) . '"'
+            . ' data-player-id="' . (int) $pid . '"'
+            . ' data-is-trial="' . ( $is_trial ? '1' : '0' ) . '"'
+            . ' data-player-name="' . esc_attr( $name ) . '">'
+            . esc_html( $name );
+        if ( $is_trial ) {
+            echo '<span class="tt-bp-trial-badge" aria-label="' . esc_attr__( 'Trial player', 'talenttrack' ) . '">' . esc_html__( 'TRIAL', 'talenttrack' ) . '</span>';
+        }
+        echo '</div>';
+    }
+
+    /**
+     * Active trial players for this team — the locked decision is "only
+     * trials assigned to this team", which we resolve to
+     * `tt_players.status = 'trial'` rows on this team's roster.
+     *
+     * @return list<object>
+     */
+    private static function loadTrialPlayers( int $team_id ): array {
+        if ( $team_id <= 0 ) return [];
+        global $wpdb; $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, first_name, last_name FROM {$p}tt_players
+              WHERE team_id = %d AND status = 'trial' AND club_id = %d
+              ORDER BY last_name ASC, first_name ASC",
+            $team_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) );
+        return is_array( $rows ) ? $rows : [];
     }
 
     /**
      * Slot droptarget overlay — positioned absolutely on top of the
      * pitch so JS can attach drop handlers without rebuilding the
-     * pitch SVG. Each target carries `data-slot-label` + the player
-     * already there (if any).
+     * pitch SVG. Pitch slots target the primary tier (squad-plan
+     * uses the depth chart below for secondary / tertiary tiers).
      *
      * @param list<array<string,mixed>> $slots
-     * @param array<string,int>         $lineup
+     * @param array<string,int>         $lineup_for_tier slot → player_id at this tier
      */
-    private static function overlaySlotDropTargets( array $slots, array $lineup, bool $can_drag ): void {
+    private static function overlaySlotDropTargets( array $slots, array $lineup_for_tier, bool $can_drag, string $tier ): void {
         echo '<div class="tt-bp-droptargets" aria-hidden="true">';
         foreach ( $slots as $slot ) {
             $label = (string) ( $slot['label'] ?? '' );
             if ( $label === '' ) continue;
             $x = (float) ( $slot['pos']['x'] ?? 0.5 );
             $y = (float) ( $slot['pos']['y'] ?? 0.5 );
-            $pid = isset( $lineup[ $label ] ) ? (int) $lineup[ $label ] : 0;
+            $pid = isset( $lineup_for_tier[ $label ] ) ? (int) $lineup_for_tier[ $label ] : 0;
             echo '<div class="tt-bp-droptarget"'
                 . ' data-slot-label="' . esc_attr( $label ) . '"'
+                . ' data-tier="' . esc_attr( $tier ) . '"'
                 . ' data-player-id="' . (int) $pid . '"'
                 . ' data-can-drag="' . ( $can_drag ? '1' : '0' ) . '"'
                 . ' style="left:' . esc_attr( (string) ( $x * 100 ) ) . '%; top:' . esc_attr( (string) ( $y * 100 ) ) . '%;"></div>';
         }
         echo '</div>';
+    }
+
+    /**
+     * Squad-plan depth chart — one row per slot, three columns
+     * (primary / secondary / tertiary), each cell a drop target.
+     *
+     * @param list<array<string,mixed>>                                              $slots
+     * @param array<string, array{primary?:int, secondary?:int, tertiary?:int}>      $tiered
+     */
+    private static function renderDepthChart( array $slots, array $tiered, bool $can_drag ): void {
+        if ( empty( $slots ) ) return;
+
+        $all_pids = [];
+        foreach ( $tiered as $tiers ) {
+            foreach ( (array) $tiers as $pid ) {
+                $all_pids[ (int) $pid ] = true;
+            }
+        }
+        $names = self::playerNames( array_keys( $all_pids ) );
+
+        echo '<h3 class="tt-bp-depth-heading">' . esc_html__( 'Depth chart', 'talenttrack' ) . '</h3>';
+        echo '<table class="tt-bp-depth-table" data-can-drag="' . ( $can_drag ? '1' : '0' ) . '"><thead><tr>';
+        echo '<th>' . esc_html__( 'Slot', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Primary', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Secondary', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Tertiary', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
+        foreach ( $slots as $slot ) {
+            $label = (string) ( $slot['label'] ?? '' );
+            if ( $label === '' ) continue;
+            $tiers_for_slot = (array) ( $tiered[ $label ] ?? [] );
+            echo '<tr>';
+            echo '<td class="tt-bp-depth-slot"><strong>' . esc_html( $label ) . '</strong></td>';
+            foreach ( TeamBlueprintsRepository::TIERS as $tier ) {
+                $pid  = isset( $tiers_for_slot[ $tier ] ) ? (int) $tiers_for_slot[ $tier ] : 0;
+                $name = $pid > 0 ? ( $names[ $pid ] ?? '' ) : '';
+                echo '<td class="tt-bp-depth-cell tt-bp-droptarget-cell"'
+                    . ' data-slot-label="' . esc_attr( $label ) . '"'
+                    . ' data-tier="' . esc_attr( $tier ) . '"'
+                    . ' data-player-id="' . (int) $pid . '"'
+                    . ' data-can-drag="' . ( $can_drag ? '1' : '0' ) . '">';
+                if ( $pid > 0 ) {
+                    echo '<span class="tt-bp-depth-chip" data-player-id="' . (int) $pid . '" data-player-name="' . esc_attr( $name ) . '" draggable="' . ( $can_drag ? 'true' : 'false' ) . '">'
+                        . esc_html( $name ) . '</span>';
+                } else {
+                    echo '<span class="tt-bp-depth-empty">—</span>';
+                }
+                echo '</td>';
+            }
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+    }
+
+    /**
+     * Heatmap pitch — same SVG markings, but each slot is tinted by
+     * how many tiers are filled (0=red, 1=orange, 2=yellow, 3=green).
+     * Read-only; clicking a slot returns to the lineup view via the
+     * heatmap toggle in the editor toolbar.
+     *
+     * @param list<array<string,mixed>>                                              $slots
+     * @param array<string, array{primary?:int, secondary?:int, tertiary?:int}>      $tiered
+     */
+    private static function renderHeatmapPitch( array $slots, array $tiered ): void {
+        $names = self::playerNames( self::flatPlayerIds( $tiered ) );
+        ?>
+        <div class="tt-pitch-wrap tt-bp-heatmap-wrap">
+            <div class="tt-pitch" style="background: linear-gradient(180deg, var(--tt-pitch-grass-token, #4ea35f) 0%, var(--tt-pitch-grass-2-token, #3c8a4d) 100%);">
+                <?php
+                // Reuse the markings only — no chemistry lines on the heatmap.
+                ?>
+                <svg class="tt-pitch-svg" viewBox="0 0 680 1050" preserveAspectRatio="none" aria-hidden="true">
+                    <rect class="tt-pitch-line" x="20" y="20" width="640" height="1010" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="3" />
+                    <rect class="tt-pitch-line" x="138.4" y="20" width="403.2" height="165" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="3" />
+                    <rect class="tt-pitch-line" x="248.4" y="20" width="183.2" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="3" />
+                    <line class="tt-pitch-line" x1="20" y1="525" x2="660" y2="525" stroke="rgba(255,255,255,0.85)" stroke-width="3" />
+                    <circle class="tt-pitch-line" cx="340" cy="525" r="91.5" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="3" />
+                    <rect class="tt-pitch-line" x="138.4" y="865" width="403.2" height="165" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="3" />
+                    <rect class="tt-pitch-line" x="248.4" y="975" width="183.2" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="3" />
+                </svg>
+                <?php
+                foreach ( $slots as $slot ) {
+                    $label = (string) ( $slot['label'] ?? '' );
+                    if ( $label === '' ) continue;
+                    $tiers_for_slot = (array) ( $tiered[ $label ] ?? [] );
+                    $depth = 0;
+                    foreach ( TeamBlueprintsRepository::TIERS as $t ) {
+                        if ( ! empty( $tiers_for_slot[ $t ] ) ) $depth++;
+                    }
+                    $depth_class = 'tt-bp-heat-' . $depth;
+                    $x = (float) ( $slot['pos']['x'] ?? 0.5 ) * 100;
+                    $y = (float) ( $slot['pos']['y'] ?? 0.5 ) * 100;
+                    $tip = sprintf(
+                        /* translators: 1: slot label, 2: primary name or em-dash, 3: depth count 0-3 */
+                        __( '%1$s — primary: %2$s — %3$d/3 tiers covered', 'talenttrack' ),
+                        $label,
+                        ! empty( $tiers_for_slot[ TeamBlueprintsRepository::TIER_PRIMARY ] )
+                            ? ( $names[ (int) $tiers_for_slot[ TeamBlueprintsRepository::TIER_PRIMARY ] ] ?? '?' )
+                            : '—',
+                        $depth
+                    );
+                    ?>
+                    <div class="tt-pitch-slot tt-bp-heat-slot <?php echo esc_attr( $depth_class ); ?>"
+                         style="left:<?php echo esc_attr( (string) $x ); ?>%; top:<?php echo esc_attr( (string) $y ); ?>%;"
+                         title="<?php echo esc_attr( $tip ); ?>">
+                        <strong><?php echo esc_html( $label ); ?></strong>
+                        <span class="tt-bp-heat-count"><?php echo (int) $depth; ?>/3</span>
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
+            <div class="tt-bp-heat-legend">
+                <span class="tt-bp-heat-legend-item tt-bp-heat-0"><?php esc_html_e( '0 — uncovered', 'talenttrack' ); ?></span>
+                <span class="tt-bp-heat-legend-item tt-bp-heat-1"><?php esc_html_e( '1 — primary only', 'talenttrack' ); ?></span>
+                <span class="tt-bp-heat-legend-item tt-bp-heat-2"><?php esc_html_e( '2 — primary + secondary', 'talenttrack' ); ?></span>
+                <span class="tt-bp-heat-legend-item tt-bp-heat-3"><?php esc_html_e( '3 — full depth', 'talenttrack' ); ?></span>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * @param array<string, array{primary?:int, secondary?:int, tertiary?:int}> $tiered
+     * @return list<int>
+     */
+    private static function flatPlayerIds( array $tiered ): array {
+        $ids = [];
+        foreach ( $tiered as $tiers ) {
+            foreach ( (array) $tiers as $pid ) {
+                $pid_int = (int) $pid;
+                if ( $pid_int > 0 ) $ids[ $pid_int ] = true;
+            }
+        }
+        return array_keys( $ids );
+    }
+
+    /**
+     * @param list<int> $ids
+     * @return array<int, string>
+     */
+    private static function playerNames( array $ids ): array {
+        if ( empty( $ids ) ) return [];
+        global $wpdb; $p = $wpdb->prefix;
+        $in = implode( ',', array_map( 'intval', $ids ) );
+        $rows = $wpdb->get_results(
+            "SELECT id, first_name, last_name FROM {$p}tt_players WHERE id IN ($in)"
+        );
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $out[ (int) $r->id ] = (string) $r->first_name . ' ' . (string) $r->last_name;
+        }
+        return $out;
     }
 
     /**
@@ -391,6 +625,17 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             ];
         }
         return $out;
+    }
+
+    private static function flavourPill( string $flavour ): string {
+        $is_squad = $flavour === TeamBlueprintsRepository::FLAVOUR_SQUAD_PLAN;
+        $label = $is_squad
+            ? __( 'Squad plan', 'talenttrack' )
+            : __( 'Match-day', 'talenttrack' );
+        $bg = $is_squad ? '#e8f0e8' : '#eef0f2';
+        $fg = $is_squad ? '#2c8a2c' : '#5b6e75';
+        return '<span class="tt-bp-flavour-pill" style="background:' . esc_attr( $bg ) . '; color:' . esc_attr( $fg ) . '; padding:2px 10px; border-radius:10px; font-size:12px; font-weight:600;">'
+            . esc_html( $label ) . '</span>';
     }
 
     private static function statusPill( string $status ): string {
