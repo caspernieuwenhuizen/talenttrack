@@ -6951,8 +6951,8 @@ msgstr "Authorisatie­matrix-rollback voltooid. De user_has_cap-filter is slapen
 msgid "Compare users — Authorization"
 msgstr "Gebruikers vergelijken — Autorisatie"
 
-msgid "Pick two users to see their effective TalentTrack permissions side by side. Use this to answer questions like \"why does coach A see this tile but coach B doesn't?\" — the diff highlights the discriminating capability."
-msgstr "Kies twee gebruikers om hun effectieve TalentTrack-rechten naast elkaar te zien. Gebruik dit om vragen te beantwoorden als \"waarom ziet coach A deze tegel wel en coach B niet?\" — het verschil markeert de bepalende capability."
+msgid "Pick 2–5 users to see their effective TalentTrack permissions side by side. Use this to answer questions like \"why does coach A see this tile but coach B doesn't?\" — the diff highlights the discriminating capability."
+msgstr "Kies 2–5 gebruikers om hun effectieve TalentTrack-rechten naast elkaar te zien. Gebruik dit om vragen te beantwoorden als \"waarom ziet coach A deze tegel wel en coach B niet?\" — het verschil markeert de bepalende capability."
 
 msgid "The authorization matrix is in shadow mode. The \"Matrix\" column below is computed but the runtime still uses the legacy \"Cap\" column. Apply the matrix on Authorization → Migration preview to switch."
 msgstr "De autorisatiematrix staat in schaduwmodus. De \"Matrix\"-kolom hieronder wordt berekend, maar de runtime gebruikt nog steeds de legacy \"Cap\"-kolom. Pas de matrix toe via Autorisatie → Migratiepreview om over te schakelen."
@@ -6972,17 +6972,14 @@ msgstr "— Kies gebruiker B —"
 msgid "Display options"
 msgstr "Weergave-opties"
 
-msgid "Show all capabilities (default: only show rows where the two users differ)"
-msgstr "Toon alle capabilities (standaard: alleen rijen waar de twee gebruikers verschillen)"
+msgid "Show all capabilities (default: only show rows where the picked users differ)"
+msgstr "Toon alle capabilities (standaard: alleen rijen waar de gekozen gebruikers verschillen)"
 
-msgid "Pick two users above to see the comparison."
-msgstr "Kies hierboven twee gebruikers om de vergelijking te zien."
+msgid "Pick at least two users above to see the comparison."
+msgstr "Kies hierboven minimaal twee gebruikers om de vergelijking te zien."
 
-msgid "Pick two different users."
-msgstr "Kies twee verschillende gebruikers."
-
-msgid "One of the selected users no longer exists."
-msgstr "Een van de geselecteerde gebruikers bestaat niet meer."
+msgid "Duplicate or missing users were skipped."
+msgstr "Dubbele of ontbrekende gebruikers zijn overgeslagen."
 
 msgid "WP roles:"
 msgstr "WP-rollen:"
@@ -6993,16 +6990,16 @@ msgstr "TT-persona's:"
 msgid "Capability comparison"
 msgstr "Capability-vergelijking"
 
-#. translators: 1: differing-cap count, 2: total caps
-msgid "— %1$d of %2$d capabilities differ"
-msgstr "— %1$d van %2$d capabilities verschillen"
+#. translators: 1: differing-cap count, 2: total caps, 3: number of compared users
+msgid "— %1$d of %2$d capabilities differ across %3$d users"
+msgstr "— %1$d van %2$d capabilities verschillen tussen %3$d gebruikers"
 
-#. translators: 1: differing-cap count, 2: total caps
-msgid "— %1$d differ of %2$d total"
-msgstr "— %1$d verschillen van %2$d totaal"
+#. translators: 1: differing-cap count, 2: rows shown, 3: number of compared users
+msgid "— %1$d differ of %2$d shown across %3$d users"
+msgstr "— %1$d verschillen van %2$d weergegeven tussen %3$d gebruikers"
 
-msgid "No differences. Both users have identical effective capabilities across the matrix."
-msgstr "Geen verschillen. Beide gebruikers hebben identieke effectieve capabilities in de hele matrix."
+msgid "No differences. The picked users have identical effective capabilities across the matrix."
+msgstr "Geen verschillen. De gekozen gebruikers hebben identieke effectieve capabilities in de hele matrix."
 
 msgid "Capability"
 msgstr "Capability"
@@ -13474,3 +13471,58 @@ msgstr "Snelheidslimiet: 5 verificatiepogingen per 5 minuten, daarna 15 minuten 
 
 msgid "Audit-log integration: every enrollment, verification, lockout, and backup-code use is recorded."
 msgstr "Audit-log-integratie: elke aanmelding, verificatie, lockout en gebruik van een reservecode wordt vastgelegd."
+
+# v3.103.0 — #0080 Wave B3 (UserComparisonPage N-user) + Wave C2 (matrix tile-gate popover)
+#. translators: %d: 1-based user slot index
+msgid "User %d"
+msgstr "Gebruiker %d"
+
+msgid "(optional)"
+msgstr "(optioneel)"
+
+msgid "— Select user —"
+msgstr "— Kies gebruiker —"
+
+msgid "+ Add another user"
+msgstr "+ Voeg gebruiker toe"
+
+msgid "which scope row grants this?"
+msgstr "welke scope-rij verleent dit?"
+
+msgid "no matrix row matches"
+msgstr "geen matrixrij matcht"
+
+msgid "granted via WP role / legacy capability"
+msgstr "verleend via WP-rol / legacy capability"
+
+msgid "granted via the authorization matrix"
+msgstr "verleend via de autorisatiematrix"
+
+msgid "denied"
+msgstr "geweigerd"
+
+msgid "yellow row = users differ."
+msgstr "gele rij = gebruikers verschillen."
+
+msgid "frontend tile"
+msgstr "frontend-tegel"
+
+msgid "admin menu"
+msgstr "beheermenu"
+
+msgid "admin dashboard tile"
+msgstr "beheer-dashboardtegel"
+
+#. translators: %1$s: entity slug declared on the tile
+msgid "%1$s (declared on tile)"
+msgstr "%1$s (op tegel gedeclareerd)"
+
+#. translators: %1$s: entity slug from the row, resolved via cap mapping
+msgid "%1$s (via cap mapping)"
+msgstr "%1$s (via cap-mapping)"
+
+msgid "view slug"
+msgstr "view-slug"
+
+msgid "Precedence: matrix when active; cap as fallback; cap_callback as second fallback."
+msgstr "Volgorde: matrix indien actief; cap als terugval; cap_callback als tweede terugval."

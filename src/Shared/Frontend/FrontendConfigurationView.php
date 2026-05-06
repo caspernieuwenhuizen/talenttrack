@@ -238,24 +238,26 @@ class FrontendConfigurationView extends FrontendViewBase {
         $base = remove_query_arg( [ 'edit' ] );
         ?>
         <div class="tt-panel" data-tt-lookups-editor data-lookup-type="<?php echo esc_attr( $type ); ?>" data-show-desc="<?php echo $meta['show_desc'] ? '1' : '0'; ?>" data-show-color="<?php echo $meta['show_color'] ? '1' : '0'; ?>">
-            <table class="tt-table" style="width:100%; margin-bottom: var(--tt-sp-4);">
+            <table class="tt-table tt-sortable-table" style="width:100%; margin-bottom: var(--tt-sp-4);">
                 <thead><tr>
+                    <th style="width:30px;"></th>
                     <th style="width:60px;"><?php esc_html_e( 'Order', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
                     <?php if ( $meta['show_desc'] ) : ?><th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th><?php endif; ?>
                     <?php if ( $meta['show_color'] ) : ?><th style="width:80px;"><?php esc_html_e( 'Colour', 'talenttrack' ); ?></th><?php endif; ?>
                     <th style="width:160px;"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
                 </tr></thead>
-                <tbody>
+                <tbody data-tt-sortable="1">
                     <?php if ( empty( $items ) ) : ?>
-                        <tr><td colspan="<?php echo 3 + ( $meta['show_desc'] ? 1 : 0 ) + ( $meta['show_color'] ? 1 : 0 ); ?>"><em><?php esc_html_e( 'No items yet.', 'talenttrack' ); ?></em></td></tr>
+                        <tr><td colspan="<?php echo 4 + ( $meta['show_desc'] ? 1 : 0 ) + ( $meta['show_color'] ? 1 : 0 ); ?>"><em><?php esc_html_e( 'No items yet.', 'talenttrack' ); ?></em></td></tr>
                     <?php else : foreach ( $items as $row ) :
                         $row_meta_arr = QueryHelpers::lookup_meta( $row );
                         $row_color    = is_string( $row_meta_arr['color'] ?? null ) ? (string) $row_meta_arr['color'] : '';
                         $is_locked    = ! empty( $row_meta_arr['is_locked'] );
                         ?>
-                        <tr>
-                            <td><?php echo (int) $row->sort_order; ?></td>
+                        <tr data-id="<?php echo (int) $row->id; ?>">
+                            <td class="tt-drag-handle" title="<?php esc_attr_e( 'Drag to reorder', 'talenttrack' ); ?>">⋮⋮</td>
+                            <td class="tt-sort-order-cell"><?php echo (int) $row->sort_order; ?></td>
                             <td>
                                 <strong><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $row ) ); ?></strong>
                                 <?php if ( $is_locked ) : ?>
@@ -276,6 +278,17 @@ class FrontendConfigurationView extends FrontendViewBase {
                     <?php endforeach; endif; ?>
                 </tbody>
             </table>
+            <?php
+            // #0080 Wave B5 — drag-reorder for the frontend lookup
+            // editor. Reuses `DragReorder::renderScript()` from
+            // wp-admin (`ConfigurationPage` lines 589/785) — the
+            // wp_ajax handler is registered globally + cap-checks
+            // `tt_edit_settings`, which the frontend cap matrix
+            // already grants to academy_admin / head_of_development.
+            // The numeric `sort_order` input on the form below stays
+            // as a keyboard-only fallback.
+            \TT\Shared\Admin\DragReorder::renderScript( 'lookup', $type );
+            ?>
 
             <h3 style="margin-top:var(--tt-sp-4);">
                 <?php echo $editing ? esc_html__( 'Edit row', 'talenttrack' ) : esc_html__( 'Add new row', 'talenttrack' ); ?>

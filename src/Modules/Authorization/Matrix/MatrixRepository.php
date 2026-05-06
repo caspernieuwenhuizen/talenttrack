@@ -23,6 +23,15 @@ class MatrixRepository {
     private static $cache = null;
 
     /**
+     * Parallel cache, persona => entity => activity => scope_kind => row_id.
+     * Populated alongside `$cache` so the admin comparison page can surface
+     * "source row #N" in the per-cap drill-down without a second query.
+     *
+     * @var array<string, array<string, array<string, array<string, int>>>>|null
+     */
+    private static $idCache = null;
+
+    /**
      * True if persona is allowed (activity, entity, scope_kind).
      */
     public function lookup( string $persona, string $entity, string $activity, string $scope_kind ): bool {
@@ -49,6 +58,16 @@ class MatrixRepository {
     public function moduleFor( string $persona, string $entity, string $activity, string $scope_kind ): ?string {
         $cache = self::loadCache();
         return $cache[ $persona ][ $entity ][ $activity ][ $scope_kind ] ?? null;
+    }
+
+    /**
+     * #0080 Wave B3 — DB id of the matrix row that grants this tuple,
+     * or null if no row exists. Used by the comparison page's per-cap
+     * drill-down ("source row #N").
+     */
+    public function rowIdFor( string $persona, string $entity, string $activity, string $scope_kind ): ?int {
+        self::loadCache();
+        return self::$idCache[ $persona ][ $entity ][ $activity ][ $scope_kind ] ?? null;
     }
 
     /**
@@ -114,6 +133,7 @@ class MatrixRepository {
      */
     public static function clearCache(): void {
         self::$cache = null;
+        self::$idCache = null;
     }
 
     /**
@@ -226,14 +246,21 @@ class MatrixRepository {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $rows = $wpdb->get_results( "SELECT persona, entity, activity, scope_kind, module_class FROM {$p}tt_authorization_matrix" );
-        $out = [];
+        $rows = $wpdb->get_results( "SELECT id, persona, entity, activity, scope_kind, module_class FROM {$p}tt_authorization_matrix" );
+        $modules = [];
+        $ids = [];
         if ( is_array( $rows ) ) {
             foreach ( $rows as $r ) {
-                $out[ (string) $r->persona ][ (string) $r->entity ][ (string) $r->activity ][ (string) $r->scope_kind ] = (string) $r->module_class;
+                $persona    = (string) $r->persona;
+                $entity     = (string) $r->entity;
+                $activity   = (string) $r->activity;
+                $scope_kind = (string) $r->scope_kind;
+                $modules[ $persona ][ $entity ][ $activity ][ $scope_kind ] = (string) $r->module_class;
+                $ids[ $persona ][ $entity ][ $activity ][ $scope_kind ]     = (int) $r->id;
             }
         }
-        self::$cache = $out;
-        return $out;
+        self::$cache   = $modules;
+        self::$idCache = $ids;
+        return $modules;
     }
 }

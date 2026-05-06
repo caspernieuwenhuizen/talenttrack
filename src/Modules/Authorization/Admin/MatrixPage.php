@@ -136,15 +136,13 @@ class MatrixPage {
                             <td style="position:sticky; left:0; background:#fff; font-weight:600; min-width:280px;">
                                 <?php echo esc_html( $entity_label ); ?>
                                 <small style="display:block; color:#888; font-weight:400; font-family:monospace;"><?php echo esc_html( $entity ); ?> · <?php echo esc_html( self::shortModule( $module ) ); ?></small>
-                                <?php if ( ! empty( $consumer_labels ) ) : ?>
-                                    <small style="display:block; color:#1d3a4a; font-weight:400; margin-top:2px;">
-                                        <?php
-                                        printf(
-                                            /* translators: 1: comma-separated list of UI surface labels that consume this entity */
-                                            esc_html__( 'Used by: %1$s', 'talenttrack' ),
-                                            esc_html( implode( ', ', $consumer_labels ) )
-                                        );
-                                        ?>
+                                <?php if ( ! empty( $consumers ) ) : ?>
+                                    <small class="tt-tile-used-by" style="display:block; color:#1d3a4a; font-weight:400; margin-top:2px;">
+                                        <?php esc_html_e( 'Used by:', 'talenttrack' ); ?>
+                                        <?php foreach ( $consumers as $idx => $cons ) : ?>
+                                            <?php if ( $idx > 0 ) echo ', '; ?>
+                                            <?php self::renderConsumerChip( $cons, $entity ); ?>
+                                        <?php endforeach; ?>
                                     </small>
                                 <?php else : ?>
                                     <small style="display:block; color:#b32d2e; font-weight:400; margin-top:2px;">
@@ -206,6 +204,59 @@ class MatrixPage {
                     </span>
                 </p>
             </form>
+
+            <style>
+            /* #0080 Wave C2 — tile-consumer chips on the entity rows. */
+            .tt-tile-chip { background:#eef2f5; border:1px solid #c4d3dc; padding:1px 8px; border-radius:10px; cursor:pointer; font:inherit; color:#1d3a4a; line-height:1.4; }
+            .tt-tile-chip:hover { background:#dde6ec; }
+            .tt-tile-chip[aria-expanded="true"] { background:#1d3a4a; color:#fff; border-color:#1d3a4a; }
+            .tt-tile-chip-wrap { position:relative; display:inline-block; }
+            .tt-tile-popover { position:absolute; top:calc(100% + 4px); left:0; min-width:260px; max-width:380px; background:#fff; border:1px solid #c4d3dc; border-radius:6px; padding:10px 12px; box-shadow:0 6px 16px rgba(0,0,0,.08); z-index:30; font-size:11px; line-height:1.5; color:#333; text-align:left; }
+            .tt-tile-popover[hidden] { display:none; }
+            .tt-tile-popover code { background:#f6f7f8; padding:1px 4px; border-radius:3px; font-family:monospace; font-size:11px; color:#1d3a4a; }
+            .tt-tile-popover dl { margin:6px 0 0; display:grid; grid-template-columns:90px 1fr; gap:2px 8px; }
+            .tt-tile-popover dt { font-weight:600; color:#5b6e75; margin:0; }
+            .tt-tile-popover dd { margin:0; word-break:break-word; }
+            .tt-tile-popover-type { color:#888; font-weight:400; margin-left:4px; }
+            .tt-tile-popover-precedence { margin:8px 0 0; color:#5b6e75; font-style:italic; border-top:1px solid #eef2f5; padding-top:6px; }
+            </style>
+
+            <script>
+            // #0080 Wave C2 — toggle the per-tile gate popover.
+            (function(){
+                var chips = document.querySelectorAll('.tt-tile-chip');
+                if (!chips.length) return;
+
+                function closeAll() {
+                    document.querySelectorAll('.tt-tile-chip[aria-expanded="true"]').forEach(function(c){
+                        c.setAttribute('aria-expanded', 'false');
+                        var pop = c.nextElementSibling;
+                        if (pop) { pop.hidden = true; pop.setAttribute('aria-hidden', 'true'); }
+                    });
+                }
+
+                chips.forEach(function(btn){
+                    btn.addEventListener('click', function(e){
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var open = btn.getAttribute('aria-expanded') === 'true';
+                        closeAll();
+                        if (!open) {
+                            btn.setAttribute('aria-expanded', 'true');
+                            var pop = btn.nextElementSibling;
+                            if (pop) { pop.hidden = false; pop.setAttribute('aria-hidden', 'false'); }
+                        }
+                    });
+                });
+
+                document.addEventListener('click', function(e){
+                    if (!e.target.closest('.tt-tile-chip-wrap')) closeAll();
+                });
+                document.addEventListener('keydown', function(e){
+                    if (e.key === 'Escape') closeAll();
+                });
+            })();
+            </script>
 
             <script>
             // Inline visual feedback on cell click. The form is save-on-submit
@@ -494,6 +545,72 @@ class MatrixPage {
             'academy_admin'       => __( 'Academy Admin', 'talenttrack' ),
         ];
         return $map[ $persona ] ?? $persona;
+    }
+
+    /**
+     * #0080 Wave C2 — render a tile-consumer label as an interactive
+     * chip. Click reveals a popover with the gate metadata (entity,
+     * cap, cap_callback source) + a precedence one-liner. The popover
+     * is rendered as a sibling element so click-outside JS can toggle
+     * via a single delegated handler.
+     *
+     * @param array{type:string, label:string, cap:string, entity_declared:?string, cap_callback:?string, view_slug:string} $cons
+     */
+    private static function renderConsumerChip( array $cons, string $row_entity ): void {
+        $type_label = [
+            'tile'             => __( 'frontend tile', 'talenttrack' ),
+            'admin_menu'       => __( 'admin menu', 'talenttrack' ),
+            'admin_dashboard'  => __( 'admin dashboard tile', 'talenttrack' ),
+        ][ $cons['type'] ] ?? $cons['type'];
+
+        $cap_tuple = $cons['cap'] !== '' ? \TT\Modules\Authorization\LegacyCapMapper::tupleFor( $cons['cap'] ) : null;
+        $activity  = $cap_tuple ? (string) $cap_tuple[1] : '';
+
+        $entity_declared = $cons['entity_declared'];
+        $entity_line     = $entity_declared !== null
+            ? sprintf( __( '%1$s (declared on tile)', 'talenttrack' ), $entity_declared )
+            : sprintf( __( '%1$s (via cap mapping)', 'talenttrack' ), $row_entity );
+        ?>
+        <span class="tt-tile-chip-wrap">
+            <button type="button"
+                    class="tt-tile-chip"
+                    aria-expanded="false"
+                    aria-haspopup="dialog">
+                <?php echo esc_html( $cons['label'] ); ?>
+            </button>
+            <span class="tt-tile-popover" role="dialog" aria-hidden="true" hidden>
+                <strong><?php echo esc_html( $cons['label'] ); ?></strong>
+                <small class="tt-tile-popover-type">(<?php echo esc_html( $type_label ); ?>)</small>
+                <dl>
+                    <dt><?php esc_html_e( 'entity', 'talenttrack' ); ?></dt>
+                    <dd><code><?php echo esc_html( $entity_line ); ?></code></dd>
+                    <?php if ( $cons['cap'] !== '' ) : ?>
+                        <dt><?php esc_html_e( 'cap', 'talenttrack' ); ?></dt>
+                        <dd><code><?php echo esc_html( $cons['cap'] ); ?></code></dd>
+                    <?php endif; ?>
+                    <?php if ( $activity !== '' ) : ?>
+                        <dt><?php esc_html_e( 'activity', 'talenttrack' ); ?></dt>
+                        <dd><code><?php echo esc_html( $activity ); ?></code></dd>
+                    <?php endif; ?>
+                    <dt><?php esc_html_e( 'cap_callback', 'talenttrack' ); ?></dt>
+                    <dd>
+                        <?php if ( $cons['cap_callback'] !== null ) : ?>
+                            <code><?php echo esc_html( $cons['cap_callback'] ); ?></code>
+                        <?php else : ?>
+                            <em>—</em>
+                        <?php endif; ?>
+                    </dd>
+                    <?php if ( $cons['view_slug'] !== '' ) : ?>
+                        <dt><?php esc_html_e( 'view slug', 'talenttrack' ); ?></dt>
+                        <dd><code><?php echo esc_html( $cons['view_slug'] ); ?></code></dd>
+                    <?php endif; ?>
+                </dl>
+                <p class="tt-tile-popover-precedence">
+                    <?php esc_html_e( 'Precedence: matrix when active; cap as fallback; cap_callback as second fallback.', 'talenttrack' ); ?>
+                </p>
+            </span>
+        </span>
+        <?php
     }
 
     private static function shortModule( string $class ): string {

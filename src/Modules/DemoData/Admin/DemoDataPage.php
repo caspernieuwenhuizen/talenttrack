@@ -619,6 +619,17 @@ class DemoDataPage {
         // teams + team_person + activities + attendance + evaluations
         // + eval_ratings, so the count reflects the full fan-out.
         $cat_counts = DemoDataCleaner::categoryCounts();
+        // #0080 Wave B2 — per-batch scope. The dropdown is populated
+        // with all known batches plus an "All batches" default. The
+        // JS preview computes per-batch counts on the fly so the
+        // operator sees the cascade size narrow as they pick a batch.
+        $batches = DemoBatchRegistry::listBatches();
+        $per_batch_counts = [];
+        foreach ( $batches as $b ) {
+            $bid = (string) $b['batch_id'];
+            $per_batch_counts[ $bid ] = DemoDataCleaner::categoryCounts( $bid );
+        }
+        $per_batch_counts['__all__'] = $cat_counts;
         ?>
         <h2 style="margin-top:32px;"><?php esc_html_e( 'Wipe', 'talenttrack' ); ?></h2>
 
@@ -629,9 +640,36 @@ class DemoDataPage {
         <p style="max-width:720px;color:#5b6e75;font-size:12px;">
             <?php esc_html_e( 'Counts shown are the demo-tagged rows that match the cascade right now. Double-counts across overlapping categories are deduplicated server-side at delete time.', 'talenttrack' ); ?>
         </p>
-        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="tt-demo-wipe-form">
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="tt-demo-wipe-form" data-tt-batch-counts="<?php echo esc_attr( (string) wp_json_encode( $per_batch_counts ) ); ?>">
             <?php wp_nonce_field( 'tt_demo_wipe_data', 'tt_demo_nonce' ); ?>
             <input type="hidden" name="action" value="tt_demo_wipe_data" />
+
+            <?php if ( ! empty( $batches ) ) : ?>
+                <p style="max-width:720px;margin:0 0 12px;">
+                    <label style="display:block;font-weight:600;margin-bottom:4px;">
+                        <?php esc_html_e( 'Batch', 'talenttrack' ); ?>
+                    </label>
+                    <select name="batch_id" id="tt-demo-batch-id" style="min-width:320px;">
+                        <option value="all"><?php esc_html_e( 'All batches', 'talenttrack' ); ?></option>
+                        <?php foreach ( $batches as $b ) : ?>
+                            <option value="<?php echo esc_attr( (string) $b['batch_id'] ); ?>">
+                                <?php
+                                echo esc_html( sprintf(
+                                    /* translators: 1: batch id, 2: created-at timestamp, 3: total tag count. */
+                                    __( '%1$s — %2$s (%3$d tagged rows)', 'talenttrack' ),
+                                    (string) $b['batch_id'],
+                                    (string) $b['created_at'],
+                                    (int) $b['tag_count']
+                                ) );
+                                ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span style="display:block;font-size:12px;color:#5b6e75;margin-top:4px;">
+                        <?php esc_html_e( 'Pick a batch to scope the wipe to that batch only. "All batches" preserves the historical behaviour.', 'talenttrack' ); ?>
+                    </span>
+                </p>
+            <?php endif; ?>
 
             <fieldset style="border:1px solid #d6dadd;border-radius:6px;padding:12px 14px;margin:0 0 12px;background:#f8fafc;max-width:720px;">
                 <legend style="font-weight:600;padding:0 6px;">
@@ -694,7 +732,55 @@ class DemoDataPage {
                 <input type="text" name="confirm_text" placeholder="<?php esc_attr_e( 'Type WIPE to confirm', 'talenttrack' ); ?>" class="regular-text" />
             </label>
             <?php submit_button( __( 'Wipe selected categories', 'talenttrack' ), 'delete', '', false ); ?>
+            <p id="tt-demo-wipe-preview" style="margin-top:8px;font-size:13px;color:#1e3a5c;font-weight:600;" aria-live="polite">
+                <?php esc_html_e( 'Nothing selected.', 'talenttrack' ); ?>
+            </p>
         </form>
+        <script>
+        // #0080 Wave B1 + B2 — live cascade preview on the wipe form.
+        // Reads per-batch category counts from the form's
+        // `data-tt-batch-counts` attribute (server-rendered) and
+        // recomputes the union total on every checkbox / batch change.
+        (function(){
+            var form = document.getElementById('tt-demo-wipe-form');
+            if (!form) return;
+            var preview = document.getElementById('tt-demo-wipe-preview');
+            if (!preview) return;
+            var raw = form.getAttribute('data-tt-batch-counts') || '{}';
+            var batchCounts;
+            try { batchCounts = JSON.parse(raw); } catch (e) { batchCounts = { '__all__': {} }; }
+
+            var batchSel = document.getElementById('tt-demo-batch-id');
+            var checkboxes = form.querySelectorAll('input[type="checkbox"][name="wipe_cat[]"]');
+
+            var labelTpl = <?php echo wp_json_encode(
+                /* translators: 1: total cascade row count, 2: number of selected categories */
+                __( 'Will wipe ~%1$d rows across %2$d categories.', 'talenttrack' )
+            ); ?>;
+            var labelEmpty = <?php echo wp_json_encode( __( 'Nothing selected.', 'talenttrack' ) ); ?>;
+
+            function recompute(){
+                var key = batchSel ? batchSel.value : 'all';
+                if (key === 'all') key = '__all__';
+                var counts = batchCounts[key] || batchCounts['__all__'] || {};
+                var total = 0;
+                var picked = 0;
+                checkboxes.forEach(function(cb){
+                    if (!cb.checked) return;
+                    picked++;
+                    total += parseInt(counts[cb.value] || 0, 10);
+                });
+                if (picked === 0) {
+                    preview.textContent = labelEmpty;
+                } else {
+                    preview.textContent = labelTpl.replace('%1$d', total).replace('%2$d', picked);
+                }
+            }
+            checkboxes.forEach(function(cb){ cb.addEventListener('change', recompute); });
+            if (batchSel) batchSel.addEventListener('change', recompute);
+            recompute();
+        })();
+        </script>
 
         <h3 style="margin-top:24px;"><?php esc_html_e( 'Wipe demo users too', 'talenttrack' ); ?></h3>
         <p style="max-width:720px;">
@@ -929,7 +1015,12 @@ class DemoDataPage {
             self::bounce( $redirect, 'Pick at least one category to wipe.' );
         }
 
-        $deleted = DemoDataCleaner::wipeData( $cats );
+        // #0080 Wave B2 — optional batch_id scope. Empty / "all" leaves
+        // the historical all-batches behaviour in place.
+        $batch_id = isset( $_POST['batch_id'] ) ? sanitize_text_field( (string) wp_unslash( (string) $_POST['batch_id'] ) ) : '';
+        if ( $batch_id === 'all' ) $batch_id = '';
+
+        $deleted = DemoDataCleaner::wipeData( $cats, $batch_id !== '' ? $batch_id : null );
         $total   = array_sum( $deleted );
 
         $redirect = add_query_arg(

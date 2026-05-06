@@ -131,7 +131,19 @@ final class MatrixEntityCatalog {
      * LegacyCapMapper. Surfaces gated on a `cap_callback` are not
      * traversed (the closure is opaque).
      *
-     * @return list<array{type:string, label:string, cap:string}>
+     * #0080 Wave C2 — each consumer row also carries gate metadata
+     * (declared entity, cap_callback presence + source location, view
+     * slug) so the matrix admin can render a per-tile "what gates this?"
+     * popover without re-walking the registries.
+     *
+     * @return list<array{
+     *     type:string,
+     *     label:string,
+     *     cap:string,
+     *     entity_declared:?string,
+     *     cap_callback:?string,
+     *     view_slug:string
+     * }>
      */
     public static function consumersOf( string $entity ): array {
         if ( ! class_exists( '\\TT\\Modules\\Authorization\\LegacyCapMapper' ) ) {
@@ -150,9 +162,12 @@ final class MatrixEntityCatalog {
                 $label = self::resolveTileLabel( $tile );
                 if ( $label === '' ) continue;
                 $out[] = [
-                    'type'  => 'tile',
-                    'label' => $label,
-                    'cap'   => $cap,
+                    'type'            => 'tile',
+                    'label'           => $label,
+                    'cap'             => $cap,
+                    'entity_declared' => isset( $tile['entity'] ) && $tile['entity'] !== '' ? (string) $tile['entity'] : null,
+                    'cap_callback'    => self::describeCallable( $tile['cap_callback'] ?? null ),
+                    'view_slug'       => (string) ( $tile['view_slug'] ?? '' ),
                 ];
             }
         }
@@ -165,9 +180,12 @@ final class MatrixEntityCatalog {
                 $title = (string) ( $entry['title'] ?? '' );
                 if ( $title === '' ) continue;
                 $out[] = [
-                    'type'  => 'admin_menu',
-                    'label' => $title,
-                    'cap'   => $cap,
+                    'type'            => 'admin_menu',
+                    'label'           => $title,
+                    'cap'             => $cap,
+                    'entity_declared' => null,
+                    'cap_callback'    => null,
+                    'view_slug'       => (string) ( $entry['slug'] ?? '' ),
                 ];
             }
             foreach ( AdminMenuRegistry::allDashboardTiles() as $tile ) {
@@ -176,9 +194,12 @@ final class MatrixEntityCatalog {
                 $label = (string) ( $tile['label'] ?? '' );
                 if ( $label === '' ) continue;
                 $out[] = [
-                    'type'  => 'admin_dashboard',
-                    'label' => $label,
-                    'cap'   => $cap,
+                    'type'            => 'admin_dashboard',
+                    'label'           => $label,
+                    'cap'             => $cap,
+                    'entity_declared' => null,
+                    'cap_callback'    => null,
+                    'view_slug'       => (string) ( $tile['slug'] ?? '' ),
                 ];
             }
         }
@@ -194,6 +215,38 @@ final class MatrixEntityCatalog {
             $deduped[]     = $row;
         }
         return $deduped;
+    }
+
+    /**
+     * Reflect a `cap_callback` to a human-readable source description
+     * ("Class::method" or "file.php:42"), or `null` when the callable
+     * cannot be reflected. Reflection failures swallow silently — the
+     * popover just hides the source line.
+     */
+    private static function describeCallable( $cb ): ?string {
+        if ( $cb === null ) return null;
+        try {
+            if ( $cb instanceof \Closure ) {
+                $r = new \ReflectionFunction( $cb );
+                $file = $r->getFileName();
+                $line = $r->getStartLine();
+                if ( ! $file || ! $line ) return 'closure';
+                return basename( $file ) . ':' . $line;
+            }
+            if ( is_string( $cb ) && function_exists( $cb ) ) {
+                return $cb . '()';
+            }
+            if ( is_array( $cb ) && count( $cb ) === 2 ) {
+                $class  = is_object( $cb[0] ) ? get_class( $cb[0] ) : (string) $cb[0];
+                $method = (string) $cb[1];
+                $short  = strrchr( $class, '\\' );
+                $short  = $short ? ltrim( $short, '\\' ) : $class;
+                return $short . '::' . $method;
+            }
+        } catch ( \Throwable $e ) {
+            return null;
+        }
+        return null;
     }
 
     /**

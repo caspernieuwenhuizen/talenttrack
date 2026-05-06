@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\RestResponse;
+use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Pdp\Calendar\PdpCalendarWriters;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
@@ -74,7 +75,7 @@ class PdpFilesRestController {
         }
 
         $repo = new PdpFilesRepository();
-        if ( current_user_can( 'tt_edit_settings' ) ) {
+        if ( self::hasGlobalPdpAccess( 'read' ) ) {
             $rows = $repo->listForSeason( $season_id );
         } else {
             $rows = $repo->listForCoach( get_current_user_id(), $season_id );
@@ -105,8 +106,10 @@ class PdpFilesRestController {
                 __( 'No current season is set. Configure a season before creating PDP files.', 'talenttrack' ), 400 );
         }
 
-        // Coach-scope guard: non-admins can only create for their own players.
-        if ( ! current_user_can( 'tt_edit_settings' ) ) {
+        // Coach-scope guard: holders without global PDP edit must own
+        // the player. Global holders (HoD / academy admin / WP admin)
+        // bypass.
+        if ( ! self::hasGlobalPdpAccess( 'change' ) ) {
             if ( ! QueryHelpers::coach_owns_player( get_current_user_id(), $player_id ) ) {
                 return RestResponse::error( 'forbidden',
                     __( 'You can only create PDP files for players on your own teams.', 'talenttrack' ), 403 );
@@ -238,7 +241,7 @@ class PdpFilesRestController {
     }
 
     private static function canSeeFile( object $file ): bool {
-        if ( current_user_can( 'tt_edit_settings' ) ) return true;
+        if ( self::hasGlobalPdpAccess( 'read' ) ) return true;
         if ( current_user_can( 'tt_edit_pdp' ) ) {
             return QueryHelpers::coach_owns_player( get_current_user_id(), (int) $file->player_id );
         }
@@ -247,9 +250,36 @@ class PdpFilesRestController {
     }
 
     private static function canEditFile( object $file ): bool {
-        if ( current_user_can( 'tt_edit_settings' ) ) return true;
+        if ( self::hasGlobalPdpAccess( 'change' ) ) return true;
         if ( ! current_user_can( 'tt_edit_pdp' ) ) return false;
         return QueryHelpers::coach_owns_player( get_current_user_id(), (int) $file->player_id );
+    }
+
+    /**
+     * #0080 Wave C3 — replacement for the legacy "is admin?" proxy
+     * (`current_user_can('tt_edit_settings')`) used to bypass the
+     * coach-ownership ladder. Three sources, in order:
+     *   1. Matrix grant: `pdp_file/<activity>/global` — the precise
+     *      semantic ("user has unrestricted PDP access").
+     *   2. WordPress site admin (`manage_options`) — portable fallback
+     *      for installs whose matrix is dormant or partially seeded.
+     *   3. Legacy umbrella `tt_edit_settings` — preserved for
+     *      back-compat with v3.0 callers; the CapabilityAliases
+     *      roll-up still grants this when the user holds every
+     *      settings sub-cap.
+     *
+     * @param string $activity 'read' | 'change'
+     */
+    private static function hasGlobalPdpAccess( string $activity ): bool {
+        $uid = get_current_user_id();
+        if ( $uid > 0 && class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            $matrix_activity = $activity === 'read' ? MatrixGate::READ : MatrixGate::CHANGE;
+            if ( MatrixGate::can( $uid, 'pdp_file', $matrix_activity, MatrixGate::SCOPE_GLOBAL ) ) {
+                return true;
+            }
+        }
+        if ( current_user_can( 'manage_options' ) ) return true;
+        return current_user_can( 'tt_edit_settings' );
     }
 
     /** @return array<string,mixed> */

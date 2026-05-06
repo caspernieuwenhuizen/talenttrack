@@ -495,25 +495,47 @@ class QueryHelpers {
         $n = count( $labels );
         if ( $n < 3 ) return '';
 
-        // Dimensions: wider viewBox + taller footer reserve for legend
-        // so long category/date labels don't clip off-screen at the
-        // left/right extremes of the web. Radius shrinks a touch to
-        // leave label breathing room.
+        // #0080 Wave A residual — visual refresh. Tokens reference the
+        // persona-dashboard system (`--tt-bg-soft`, `--tt-line`,
+        // `--tt-accent`, `--tt-ink`) with hardcoded fallbacks for
+        // surfaces that haven't loaded the token sheet. Axis lines
+        // softer; data polygon gets a filled-area gradient for visual
+        // weight; label typography matches the rest of the dashboard.
         $w = 400;
-        $chart_h = 340;                    // main chart area (plus ring + labels)
-        $legend_h = 36;                    // reserved strip for legend
+        $chart_h = 340;
+        $legend_h = 36;
         $h = $chart_h + $legend_h;
         $cx = $w / 2; $cy = $chart_h / 2;
         $radius = 120;
         $step = ( 2 * M_PI ) / $n;
         $colors = [ '#e8b624', '#3a86ff', '#ff595e', '#8ac926', '#6a4c93' ];
 
-        $svg  = '<svg viewBox="0 0 ' . $w . ' ' . $h . '" xmlns="http://www.w3.org/2000/svg" class="tt-radar" style="max-width:100%;height:auto;font-family:Manrope,system-ui,sans-serif;">';
-        // Soft backdrop circle behind the rings for a subtle "instrument" feel.
-        $svg .= '<circle cx="' . $cx . '" cy="' . $cy . '" r="' . ( $radius + 4 ) . '" fill="#fafbfc"/>';
+        $uid = wp_generate_password( 6, false, false ); // unique ids for <defs> in case multiple radars render in one document
 
-        // Concentric rings — 5 bands. Outermost is darker to emphasise
-        // the max. Ring labels on the vertical axis (1, 2, …).
+        $svg  = '<svg viewBox="0 0 ' . $w . ' ' . $h . '" xmlns="http://www.w3.org/2000/svg" class="tt-radar" style="max-width:100%;height:auto;font-family:Manrope,system-ui,sans-serif;">';
+
+        // Per-dataset gradient defs. Each gradient runs centre-to-edge
+        // so the polygon's centre reads denser than its outer rim —
+        // gives the data polygon visual weight without overpowering
+        // the underlying ring grid.
+        $svg .= '<defs>';
+        foreach ( $datasets as $di => $ds ) {
+            $col = $colors[ $di % count( $colors ) ];
+            $gid = 'tt-radar-grad-' . $uid . '-' . $di;
+            $svg .= '<radialGradient id="' . esc_attr( $gid ) . '" cx="50%" cy="50%" r="50%">';
+            $svg .= '<stop offset="0%"   stop-color="' . $col . '" stop-opacity="0.32"/>';
+            $svg .= '<stop offset="100%" stop-color="' . $col . '" stop-opacity="0.08"/>';
+            $svg .= '</radialGradient>';
+        }
+        $svg .= '</defs>';
+
+        // Soft backdrop circle — picks up the install's themed
+        // background-soft token when the persona-dashboard tokens are
+        // loaded; falls back to the original stark colour otherwise.
+        $svg .= '<circle cx="' . $cx . '" cy="' . $cy . '" r="' . ( $radius + 6 ) . '" style="fill:var(--tt-bg-soft, #f6f7f8);stroke:var(--tt-line, #ecedef);stroke-width:0.5"/>';
+
+        // Concentric rings — softened from the previous solid greys.
+        // Outer ring keeps a touch more emphasis to anchor the chart.
         for ( $ring = 1; $ring <= 5; $ring++ ) {
             $r = $radius * ( $ring / 5 );
             $pts = [];
@@ -521,42 +543,45 @@ class QueryHelpers {
                 $a = -M_PI / 2 + $i * $step;
                 $pts[] = round( $cx + $r * cos( $a ), 2 ) . ',' . round( $cy + $r * sin( $a ), 2 );
             }
-            $stroke = $ring === 5 ? '#b8bec6' : '#d7dbe0';
-            $width  = $ring === 5 ? 1 : 0.75;
-            $svg .= '<polygon points="' . implode( ' ', $pts ) . '" fill="none" stroke="' . $stroke . '" stroke-width="' . $width . '"/>';
+            $is_outer = $ring === 5;
+            $stroke_var = $is_outer
+                ? 'var(--tt-line-strong, #b8bec6)'
+                : 'var(--tt-line, #e1e4e8)';
+            $width = $is_outer ? 0.85 : 0.55;
+            $svg .= '<polygon points="' . implode( ' ', $pts ) . '" fill="none" style="stroke:' . $stroke_var . ';stroke-width:' . $width . '"/>';
             if ( $ring > 1 ) {
                 $ring_label_y = round( $cy - $r + 2, 2 );
-                $svg .= '<text x="' . ( $cx + 2 ) . '" y="' . $ring_label_y . '" font-size="8" fill="#a0a6ae">' . (int) $ring . '</text>';
+                $svg .= '<text x="' . ( $cx + 4 ) . '" y="' . $ring_label_y . '" font-size="8" style="fill:var(--tt-ink-muted, #a0a6ae)">' . (int) $ring . '</text>';
             }
         }
 
-        // Axis lines from centre to each category, then the category
-        // label. Label position uses text-anchor logic tuned for 4- to
-        // 8-category webs; the extra label offset (28px) combined with
-        // the 400×340 viewBox keeps labels inside.
+        // Axis lines from centre to each category. Lighter than before
+        // so the data polygon visually pops; the rings already carry
+        // the grid weight.
         for ( $i = 0; $i < $n; $i++ ) {
             $a = -M_PI / 2 + $i * $step;
             $x2 = round( $cx + $radius * cos( $a ), 2 );
             $y2 = round( $cy + $radius * sin( $a ), 2 );
-            $svg .= '<line x1="' . $cx . '" y1="' . $cy . '" x2="' . $x2 . '" y2="' . $y2 . '" stroke="#cfd4da" stroke-width="0.75"/>';
+            $svg .= '<line x1="' . $cx . '" y1="' . $cy . '" x2="' . $x2 . '" y2="' . $y2 . '" style="stroke:var(--tt-line, #e1e4e8);stroke-width:0.5"/>';
             $lx = round( $cx + ( $radius + 22 ) * cos( $a ), 2 );
             $ly = round( $cy + ( $radius + 22 ) * sin( $a ), 2 );
             $anc = 'middle';
             if ( cos( $a ) < -0.1 ) $anc = 'end';
             elseif ( cos( $a ) > 0.1 ) $anc = 'start';
-            $svg .= '<text x="' . $lx . '" y="' . $ly . '" text-anchor="' . $anc . '" dominant-baseline="middle" font-size="11" font-weight="600" fill="#2a2f36">' . esc_html( $labels[ $i ] ) . '</text>';
+            $svg .= '<text x="' . $lx . '" y="' . $ly . '" text-anchor="' . $anc . '" dominant-baseline="middle" font-size="11" font-weight="600" style="fill:var(--tt-ink, #2a2f36)">' . esc_html( $labels[ $i ] ) . '</text>';
         }
 
-        // Dataset polygons + value dots.
+        // Dataset polygons (gradient fill) + value dots.
         foreach ( $datasets as $di => $ds ) {
             $col = $colors[ $di % count( $colors ) ];
+            $gid = 'tt-radar-grad-' . $uid . '-' . $di;
             $pts = [];
             foreach ( $ds['values'] as $i => $val ) {
                 $r2 = $radius * ( min( (float) $val, $max ) / $max );
                 $a = -M_PI / 2 + $i * $step;
                 $pts[] = round( $cx + $r2 * cos( $a ), 2 ) . ',' . round( $cy + $r2 * sin( $a ), 2 );
             }
-            $svg .= '<polygon points="' . implode( ' ', $pts ) . '" fill="' . $col . '" fill-opacity="0.18" stroke="' . $col . '" stroke-width="2.25" stroke-linejoin="round"/>';
+            $svg .= '<polygon points="' . implode( ' ', $pts ) . '" fill="url(#' . esc_attr( $gid ) . ')" stroke="' . $col . '" stroke-width="2.25" stroke-linejoin="round"/>';
             foreach ( $ds['values'] as $i => $val ) {
                 $r2 = $radius * ( min( (float) $val, $max ) / $max );
                 $a = -M_PI / 2 + $i * $step;

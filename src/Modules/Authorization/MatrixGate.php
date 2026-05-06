@@ -85,6 +85,125 @@ class MatrixGate {
         return false;
     }
 
+    /**
+     * #0080 Wave B3 — same resolution as `canAnyScope()` but returns the
+     * matching tuple metadata so the admin comparison page can show
+     * "which scope row grants this?" per user.
+     *
+     * @return array{
+     *     allowed: bool,
+     *     persona: ?string,
+     *     scope_kind: ?string,
+     *     scope_value: ?int,
+     *     source_row_id: ?int
+     * }
+     *   `scope_value` is null for global, the user_id for self, an
+     *   example team_id / player_id for team / player (the first match
+     *   the user actually holds — there may be more).
+     */
+    public static function describeAccess( int $user_id, string $entity, string $activity ): array {
+        $denied = [
+            'allowed'       => false,
+            'persona'       => null,
+            'scope_kind'    => null,
+            'scope_value'   => null,
+            'source_row_id' => null,
+        ];
+        if ( $user_id <= 0 ) return $denied;
+
+        $personas = PersonaResolver::effectivePersonas( $user_id );
+        if ( empty( $personas ) ) return $denied;
+
+        $repo = new MatrixRepository();
+
+        foreach ( $personas as $persona ) {
+            foreach ( [ self::SCOPE_GLOBAL, self::SCOPE_TEAM, self::SCOPE_PLAYER, self::SCOPE_SELF ] as $scope_kind ) {
+                if ( ! $repo->lookup( $persona, $entity, $activity, $scope_kind ) ) continue;
+
+                $module_class = $repo->moduleFor( $persona, $entity, $activity, $scope_kind );
+                if ( $module_class !== null && ! \TT\Core\ModuleRegistry::isEnabled( $module_class ) ) continue;
+
+                if ( $scope_kind === self::SCOPE_GLOBAL ) {
+                    return [
+                        'allowed'       => true,
+                        'persona'       => $persona,
+                        'scope_kind'    => $scope_kind,
+                        'scope_value'   => null,
+                        'source_row_id' => $repo->rowIdFor( $persona, $entity, $activity, $scope_kind ),
+                    ];
+                }
+                if ( $scope_kind === self::SCOPE_SELF ) {
+                    return [
+                        'allowed'       => true,
+                        'persona'       => $persona,
+                        'scope_kind'    => $scope_kind,
+                        'scope_value'   => $user_id,
+                        'source_row_id' => $repo->rowIdFor( $persona, $entity, $activity, $scope_kind ),
+                    ];
+                }
+                $assigned = self::firstScopeAssignment( $user_id, $scope_kind );
+                if ( $assigned !== null ) {
+                    return [
+                        'allowed'       => true,
+                        'persona'       => $persona,
+                        'scope_kind'    => $scope_kind,
+                        'scope_value'   => $assigned,
+                        'source_row_id' => $repo->rowIdFor( $persona, $entity, $activity, $scope_kind ),
+                    ];
+                }
+            }
+        }
+
+        return $denied;
+    }
+
+    /**
+     * First runtime scope assignment of the given kind that the user
+     * actually holds. Used by `describeAccess()`. Mirrors the lookups
+     * in `userHasAnyScope()` but returns the matching id (team / player)
+     * so the admin can show "scope_value=42".
+     */
+    private static function firstScopeAssignment( int $user_id, string $scope_kind ): ?int {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        if ( $scope_kind === self::SCOPE_PLAYER ) {
+            $self_player = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d LIMIT 1",
+                $user_id
+            ) );
+            if ( $self_player > 0 ) return $self_player;
+
+            $parent_player = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT player_id FROM {$p}tt_player_parents WHERE parent_user_id = %d LIMIT 1",
+                $user_id
+            ) );
+            return $parent_player > 0 ? $parent_player : null;
+        }
+
+        if ( $scope_kind === self::SCOPE_TEAM ) {
+            $person_id = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d LIMIT 1",
+                $user_id
+            ) );
+            if ( $person_id <= 0 ) return null;
+
+            $today = current_time( 'Y-m-d' );
+            $team_id = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT scope_id FROM {$p}tt_user_role_scopes
+                  WHERE person_id = %d
+                    AND scope_type = 'team'
+                    AND ( start_date IS NULL OR start_date <= %s )
+                    AND ( end_date   IS NULL OR end_date   >= %s )
+                  LIMIT 1",
+                $person_id, $today, $today
+            ) );
+            return $team_id > 0 ? $team_id : null;
+        }
+
+        return null;
+    }
+
     public static function can(
         int $user_id,
         string $entity,
