@@ -182,6 +182,78 @@ jobs:
           fi
           echo "No untranslatable 'session' strings — clean."
 
+  mobile-pattern-lint:
+    name: Mobile pattern conventions (#0084)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify mobile-pattern-library conventions
+        run: |
+          set -e
+          # #0084 Child 2 — guardrails for surfaces that ship the
+          # mobile pattern library:
+          #   1. No `<table>` markers in templates known to render
+          #      on `native` routes. The list will grow with #0084
+          #      Child 3's full classification rollout; for now we
+          #      gate the new-evaluation wizard (the reference
+          #      implementation) only.
+          #   2. No `position: fixed` rules in CSS files outside
+          #      mobile-patterns.css and a small allow-list of legacy
+          #      stylesheets that already use it for their own valid
+          #      reasons (sticky table headers, modal overlays, etc.
+          #      pre-#0084 patterns).
+          fail=0
+
+          # (1) <table> in native-route templates.
+          native_paths=(
+            'src/Modules/Wizards/Evaluation/RateActorsStep.php'
+            'src/Modules/Wizards/Evaluation/PlayerPickerStep.php'
+            'src/Modules/Wizards/Evaluation/ActivityPickerStep.php'
+          )
+          for path in "${native_paths[@]}"; do
+            [ -f "$path" ] || continue
+            hits=$(grep -nE '<table' "$path" || true)
+            if [ -n "$hits" ]; then
+              echo "::error::Native-route template contains <table>: $path"
+              echo "$hits"
+              echo ""
+              echo "Native surfaces use tt-mobile-list-item instead. See docs/mobile-patterns.md §4."
+              fail=1
+            fi
+          done
+
+          # (2) position: fixed outside the allow-list. Existing CSS
+          # files that legitimately use position: fixed for sticky
+          # headers, modals, overlays, etc. are exempt — the lint
+          # only flags fresh violations in NEW CSS files.
+          allowed_files=(
+            'assets/css/mobile-patterns.css'
+            'assets/css/admin.css'
+            'assets/css/public.css'
+            'assets/css/frontend-admin.css'
+            'assets/css/frontend-mobile.css'
+            'assets/css/frontend-activities-manage.css'
+          )
+          violation_paths=$(find assets/css -name '*.css' -type f 2>/dev/null || true)
+          for f in $violation_paths; do
+            allowed=0
+            for af in "${allowed_files[@]}"; do
+              if [ "$f" = "$af" ]; then allowed=1; break; fi
+            done
+            if [ "$allowed" -eq 1 ]; then continue; fi
+            hits=$(grep -nE 'position:\s*fixed' "$f" || true)
+            if [ -n "$hits" ]; then
+              echo "::error::position: fixed in non-allow-listed CSS: $f"
+              echo "$hits"
+              echo ""
+              echo "Bottom CTAs go through tt-mobile-cta-bar. Other fixed-position uses need an entry in the allow-list above."
+              fail=1
+            fi
+          done
+
+          if [ $fail -eq 1 ]; then exit 1; fi
+          echo "Mobile pattern-library conventions clean."
+
   docs-audience:
     name: Docs audience markers (#0029)
     runs-on: ubuntu-latest

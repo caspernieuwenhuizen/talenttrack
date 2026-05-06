@@ -232,6 +232,28 @@ class DashboardShortcode {
             return apply_filters( 'tt_dashboard_data', $output, $user_id );
         }
 
+        // #0084 Child 2 — pattern-library asset enqueue, conditional on
+        // the resolved view classifying as `native`. Tablets and desktops
+        // never get these assets; they fall back to the existing
+        // responsive treatment from public.css / frontend-mobile.css. The
+        // empty-view dashboard landing also enqueues the patterns because
+        // the persona-dashboard tile grid is mobile-first by construction.
+        if ( $view === '' || \TT\Shared\MobileSurfaceRegistry::isNative( $view ) ) {
+            wp_enqueue_style(
+                'tt-mobile-patterns',
+                TT_PLUGIN_URL . 'assets/css/mobile-patterns.css',
+                [ 'tt-public' ],
+                TT_VERSION
+            );
+            wp_enqueue_script(
+                'tt-mobile-helpers',
+                TT_PLUGIN_URL . 'assets/js/mobile-helpers.js',
+                [],
+                TT_VERSION,
+                true
+            );
+        }
+
         if ( $view !== '' ) {
             // #0056 — render the desktop_preferred banner at the top of
             // any dispatched view that carries the flag. CSS-gated

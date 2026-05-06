@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.103.2
+Stable tag: 3.103.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.103.3 — Mobile pattern library: bottom-sheet, CTA bar, segmented control, list-item (#0084 Child 2) =
+
+Second child of #0084. Ships the small native-pattern vocabulary that mobile-first surfaces sit on top of, so the deferred wizard mobile work in Child 3 has components to reach for. Pure CSS + tiny JS helper, conditionally loaded — tablets and desktops are unaffected. **(1) `assets/css/mobile-patterns.css`** ships the four documented components: `tt-mobile-bottom-sheet` (slide-up modal with drag-to-dismiss, max 80vh, backdrop, prefers-reduced-motion-aware), `tt-mobile-cta-bar` (fixed bottom action bar with safe-area-inset-aware spacer to prevent overlap on the last form field), `tt-mobile-segmented-control` (2-4 option picker via `aria-selected`, native iOS/Android feel), `tt-mobile-list-item` (table-row replacement; card-style two-line layout with chevron-right tap-to-detail; auto-hidden above 720px so a sibling `<table>` carries the desktop view). All components read TalentTrack design tokens with hardcoded fallbacks. **(2) `assets/js/mobile-helpers.js`** ships the gesture handler for the bottom sheet: `window.TT.Mobile.open()` / `close()` / `bind()`. Auto-binds on `DOMContentLoaded` and via a `MutationObserver` for sheets injected later (REST-driven drawers). Drag-to-dismiss threshold = `min(35% sheet height, 120px)`. Backdrop tap-to-close + Escape-key close. Idempotent `bind()`. **(3) Conditional enqueue** in `DashboardShortcode::render()` — both files load only when the resolved view classifies as `native` per `MobileSurfaceRegistry` or when the empty-view dashboard renders (the persona-dashboard tile grid is mobile-first). Tablets and desktops still see the existing responsive treatment from `public.css` / `frontend-admin.css` / `frontend-mobile.css`. **(4) `docs/mobile-patterns.md`** + Dutch twin — one section per component with markup samples and behaviour notes; conventions enforced on `native` surfaces (no `<table>` below 480px, no ad-hoc `position: fixed`); cross-references to `architecture-mobile-first.md` (#0056 foundation) and `access-control.md` (#0084 Child 1's per-club setting). **(5) CI lint job** `Mobile pattern conventions (#0084)` — flags `<table>` markers in the new-evaluation wizard's three native steps (`RateActorsStep` / `PlayerPickerStep` / `ActivityPickerStep`) and `position: fixed` rules in any CSS file outside the allow-list. The list will grow with #0084 Child 3's full classification rollout. **What's NOT in this PR**: actual application of the components on existing surfaces (Child 3 — closes the v3.78.0 deferred polish item for `RateActorsStep`'s mobile UX); full route classification (Child 3 — expands the inventory to ~25 routes including the `native` declarations on the persona dashboard, the new-evaluation wizard, the player profile, and the prospect-logging wizard). No new translatable strings — every component is pure visual + ARIA-only.
 
 = 3.103.2 — Mobile surface classification + desktop-prompt page (#0084 Child 1) =
 
