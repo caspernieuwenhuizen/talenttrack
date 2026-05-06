@@ -50,6 +50,17 @@ Werkbalk:
 - **Concept opslaan** — bewaart je werk-in-uitvoering zonder live te gaan.
 - **Publiceren** — zet de huidige lay-out live voor iedereen met deze persona, bij hun volgende paginalaad. Het bevestigingsvenster toont het aantal gebruikers dat geraakt wordt.
 
+### Slepen & neerzetten op het canvas
+
+Het canvas is botsingsvrij ontworpen — twee slots kunnen nooit op dezelfde cel staan. Drop je een widget op een bezette cel, dan **schuiven** de slots die daar al staan naar beneden om plaats te maken. Na elke verplaatsing trekt het rooster automatisch naar boven samen, zodat er geen lege rijen tussen slots ontstaan.
+
+Twee extra's tijdens het slepen:
+
+- **Uitlijnings­hulplijnen.** Blauwe lijntjes van 1 pixel verschijnen wanneer de linker- / rechter- / midden-rand van het gesleepte slot uitlijnt met de bijbehorende rand van een ander slot — of met de linker- / rechter- / midden-rand van het canvas zelf. Binnen een paar pixels rondom een uitgelijnde kolom snapt de drop naar de hulplijn. Hetzelfde geldt voor boven / onder / midden-y horizontale hulplijnen.
+- **Houd Shift ingedrukt om in een gat te snappen in plaats van te duwen.** Het standaardgedrag (duwen-en-herrangschikken) past bij rearrangeren. Houd Shift ingedrukt tijdens de drop om over te schakelen naar "zoek de dichtstbijzijnde lege cel die past" — handiger bij bulk-toevoegen vanuit het palet als je bestaande slots niet wilt verplaatsen.
+
+Bestaande lay-outs met overlappende slots van vóór deze feature lossen zichzelf op bij de volgende laad — je krijgt een schoon rooster te zien zonder zelf iets te slepen.
+
 ### Toetsenbord
 
 De editor is volledig met toetsenbord te bedienen:

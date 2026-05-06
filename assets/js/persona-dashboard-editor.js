@@ -115,6 +115,371 @@
         return [ref.substring(0, i), ref.substring(i + 1)];
     }
 
+    // ─── Layout pass — collision + compact (#0088) ───────────────
+    //
+    // Editor invariant: no two slots overlap on the 12-col grid. After
+    // every mutation that places or moves a slot, we run a two-step
+    // pass:
+    //
+    //   1. resolveCollisions(grid, droppedId) — push any colliders of
+    //      the dropped slot downward; cascade so the pushed slots'
+    //      colliders also move. Bounded by grid.length, no infinite
+    //      loop possible.
+    //   2. compactGrid(grid) — for each slot in (y, x) order, lower
+    //      its y to the smallest value that still avoids collision.
+    //      Closes the gaps the push pass leaves behind.
+    //
+    // Pure functions — they mutate the slots' x / y but don't touch
+    // any DOM. CSS transition: transform 150ms ease (added in
+    // persona-dashboard-editor.css) animates the moves.
+
+    function slotsCollide(a, b) {
+        if (a === b || a.__id === b.__id) return false;
+        var aw = colsForSize(a.size), bw = colsForSize(b.size);
+        var ah = Math.max(1, a.row_span | 0 || 1);
+        var bh = Math.max(1, b.row_span | 0 || 1);
+        return !(
+            a.x + aw <= b.x ||
+            b.x + bw <= a.x ||
+            a.y + ah <= b.y ||
+            b.y + bh <= a.y
+        );
+    }
+
+    function resolveCollisions(grid, droppedSlotId) {
+        if (!grid || grid.length < 2) return grid;
+        var dropped = grid.filter(function (s) { return s.__id === droppedSlotId; })[0];
+        if (!dropped) return grid;
+        // BFS: each iteration pushes the dropped slot's colliders to
+        // (dropped.y + dropped.row_span); pushed slots become roots in
+        // the next iteration. Bounded by grid.length so even a
+        // pathological cascade can't loop.
+        var roots = [dropped];
+        for (var iter = 0; iter < grid.length && roots.length > 0; iter++) {
+            var nextRoots = [];
+            for (var r = 0; r < roots.length; r++) {
+                var root = roots[r];
+                var rootBottom = root.y + Math.max(1, root.row_span | 0 || 1);
+                for (var i = 0; i < grid.length; i++) {
+                    var s = grid[i];
+                    if (s.__id === root.__id) continue;
+                    if (slotsCollide(root, s)) {
+                        s.y = rootBottom;
+                        nextRoots.push(s);
+                    }
+                }
+            }
+            roots = nextRoots;
+        }
+        return grid;
+    }
+
+    function compactGrid(grid) {
+        if (!grid || grid.length < 2) return grid;
+        // Sort by (y, x) ascending so earlier slots get to claim the
+        // smallest y first. Then for each slot, walk y down from its
+        // current value to 0, stopping at the first y where it
+        // doesn't collide with any slot that comes before it in the
+        // sorted order.
+        grid.sort(function (a, b) {
+            if (a.y !== b.y) return a.y - b.y;
+            return a.x - b.x;
+        });
+        for (var i = 0; i < grid.length; i++) {
+            var s = grid[i];
+            var minY = 0;
+            for (var y = s.y - 1; y >= 0; y--) {
+                var trial = { __id: s.__id, x: s.x, y: y, size: s.size, row_span: s.row_span };
+                var collides = false;
+                for (var j = 0; j < i; j++) {
+                    if (slotsCollide(trial, grid[j])) { collides = true; break; }
+                }
+                if (collides) { minY = y + 1; break; }
+            }
+            s.y = minY;
+        }
+        return grid;
+    }
+
+    /**
+     * Shift-drop fallback — find the nearest free cell that fits a
+     * slot of the given size, starting at `(want.x, want.y)` and
+     * spiralling outward via BFS. Always returns a valid cell (worst
+     * case: bottom of the grid).
+     */
+    function findNearestFreeSlot(grid, want, size) {
+        var span = colsForSize(size);
+        var rowSpan = (size === 'XL' && want.row_span) ? want.row_span : 1;
+        var startX = Math.max(0, Math.min(12 - span, want.x | 0));
+        var startY = Math.max(0, want.y | 0);
+
+        function fits(x, y) {
+            var probe = { __id: '__probe__', x: x, y: y, size: size, row_span: rowSpan };
+            for (var i = 0; i < grid.length; i++) {
+                if (slotsCollide(probe, grid[i])) return false;
+            }
+            return true;
+        }
+        if (fits(startX, startY)) return { x: startX, y: startY };
+
+        var seen = {};
+        var queue = [[startX, startY]];
+        seen[startX + ',' + startY] = true;
+        // Bound: 12 cols × (max y + 4 rows headroom). Worst case BFS
+        // sweeps the whole canvas; in practice it terminates in ~10
+        // iterations.
+        var maxY = 0;
+        for (var k = 0; k < grid.length; k++) {
+            var bottom = grid[k].y + Math.max(1, grid[k].row_span | 0 || 1);
+            if (bottom > maxY) maxY = bottom;
+        }
+        var ymax = maxY + 4;
+        while (queue.length > 0) {
+            var head = queue.shift();
+            var hx = head[0], hy = head[1];
+            var deltas = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+            for (var d = 0; d < deltas.length; d++) {
+                var nx = hx + deltas[d][0], ny = hy + deltas[d][1];
+                if (nx < 0 || nx > 12 - span || ny < 0 || ny > ymax) continue;
+                var key = nx + ',' + ny;
+                if (seen[key]) continue;
+                seen[key] = true;
+                if (fits(nx, ny)) return { x: nx, y: ny };
+                queue.push([nx, ny]);
+            }
+        }
+        // Fallback — append at bottom-left.
+        return { x: 0, y: maxY };
+    }
+
+    // ─── Alignment guides (#0088) ────────────────────────────────
+    //
+    // While dragging over the grid canvas, compute guide lines where
+    // the dragged slot's left / right / centre-x aligns with another
+    // slot's matching edge (or the canvas's own edges). Same for
+    // vertical: top / bottom / centre-y. Within SNAP_TOLERANCE_PX
+    // (default 4px) of any candidate alignment, the drop snaps to
+    // that column.
+    //
+    // Pure function: computeAlignmentGuides() takes the dragged rect
+    // + other slots' rects + canvas rect, returns an array of guides
+    // `{axis: 'vertical'|'horizontal', coord: <px>}`. The DOM render
+    // is a separate concern handled by renderAlignmentGuides().
+
+    var SNAP_TOLERANCE_PX = 4;
+
+    /**
+     * @param dragged   {x, y, width, height} — projected pixel rect
+     * @param others    list of {x, y, width, height}
+     * @param canvas    {x, y, width, height}
+     * @param tolerance px
+     * @return list of {axis: 'vertical'|'horizontal', coord: number, snap: number}
+     *         where `snap` is the value to snap the dragged rect's
+     *         corresponding axis to (the dragged x/y, not the guide
+     *         line itself — the guide is drawn at coord, the snap
+     *         repositions the dragged slot).
+     */
+    function computeAlignmentGuides(dragged, others, canvas, tolerance) {
+        if (!dragged || !canvas) return [];
+        tolerance = tolerance || SNAP_TOLERANCE_PX;
+        var guides = [];
+
+        var draggedLeft   = dragged.x;
+        var draggedRight  = dragged.x + dragged.width;
+        var draggedCx     = dragged.x + dragged.width / 2;
+        var draggedTop    = dragged.y;
+        var draggedBottom = dragged.y + dragged.height;
+        var draggedCy     = dragged.y + dragged.height / 2;
+
+        var vCandidates = []; // {coord, snapDx}
+        var hCandidates = [];
+
+        function addV(targetX, draggedAxisVal) {
+            // Snap dx so dragged's matching axis aligns to targetX.
+            vCandidates.push({ coord: targetX, snapDx: targetX - draggedAxisVal });
+        }
+        function addH(targetY, draggedAxisVal) {
+            hCandidates.push({ coord: targetY, snapDy: targetY - draggedAxisVal });
+        }
+
+        // Canvas edges.
+        addV(canvas.x,                    draggedLeft);
+        addV(canvas.x + canvas.width,     draggedRight);
+        addV(canvas.x + canvas.width / 2, draggedCx);
+        addH(canvas.y,                    draggedTop);
+        addH(canvas.y + canvas.height,    draggedBottom);
+        addH(canvas.y + canvas.height / 2, draggedCy);
+
+        // Other-slot edges — left/right/centre-x of each.
+        for (var i = 0; i < others.length; i++) {
+            var o = others[i];
+            var oLeft  = o.x;
+            var oRight = o.x + o.width;
+            var oCx    = o.x + o.width / 2;
+            var oTop   = o.y;
+            var oBot   = o.y + o.height;
+            var oCy    = o.y + o.height / 2;
+
+            // dragged's left snaps to other's left/right/centre.
+            addV(oLeft,  draggedLeft);
+            addV(oRight, draggedLeft);
+            // dragged's right snaps to other's left/right/centre.
+            addV(oLeft,  draggedRight);
+            addV(oRight, draggedRight);
+            // dragged's centre snaps to other's centre.
+            addV(oCx,    draggedCx);
+
+            addH(oTop,   draggedTop);
+            addH(oBot,   draggedTop);
+            addH(oTop,   draggedBottom);
+            addH(oBot,   draggedBottom);
+            addH(oCy,    draggedCy);
+        }
+
+        // Filter to within tolerance + dedupe by rounded coord.
+        var seenV = {};
+        for (var v = 0; v < vCandidates.length; v++) {
+            var c = vCandidates[v];
+            if (Math.abs(c.snapDx) > tolerance) continue;
+            var key = Math.round(c.coord);
+            if (seenV[key]) continue;
+            seenV[key] = true;
+            guides.push({ axis: 'vertical', coord: c.coord, snap: c.snapDx });
+        }
+        var seenH = {};
+        for (var h = 0; h < hCandidates.length; h++) {
+            var ch = hCandidates[h];
+            if (Math.abs(ch.snapDy) > tolerance) continue;
+            var keyH = Math.round(ch.coord);
+            if (seenH[keyH]) continue;
+            seenH[keyH] = true;
+            guides.push({ axis: 'horizontal', coord: ch.coord, snap: ch.snapDy });
+        }
+        return guides;
+    }
+
+    var guideOverlay = null;
+    function ensureGuideOverlay() {
+        if (guideOverlay) return guideOverlay;
+        guideOverlay = document.createElement('div');
+        guideOverlay.className = 'tt-pde-guides';
+        guideOverlay.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(guideOverlay);
+        return guideOverlay;
+    }
+
+    function renderAlignmentGuides(guides, canvasRect) {
+        var overlay = ensureGuideOverlay();
+        overlay.innerHTML = '';
+        if (!guides || guides.length === 0) return;
+        for (var i = 0; i < guides.length; i++) {
+            var g = guides[i];
+            var el = document.createElement('div');
+            el.className = 'tt-pde-guide tt-pde-guide-' + g.axis;
+            if (g.axis === 'vertical') {
+                el.style.left = g.coord + 'px';
+                el.style.top = canvasRect.y + 'px';
+                el.style.height = canvasRect.height + 'px';
+            } else {
+                el.style.top = g.coord + 'px';
+                el.style.left = canvasRect.x + 'px';
+                el.style.width = canvasRect.width + 'px';
+            }
+            overlay.appendChild(el);
+        }
+    }
+
+    function clearAlignmentGuides() {
+        if (guideOverlay) guideOverlay.innerHTML = '';
+    }
+
+    /**
+     * Snap the projected (col, row) cell to the nearest aligned
+     * column/row when guides are within tolerance. Mutates `coords`
+     * and returns it; no-op when no guide qualifies.
+     */
+    function snapToGuides(coords, ev, dragSize) {
+        var canvas = getCanvas();
+        if (!canvas || !state.template) return coords;
+        var canvasRect = canvas.getBoundingClientRect();
+        if (canvasRect.width <= 0) return coords;
+        var colPx = canvasRect.width / 12;
+        var rowPx = 60;
+        var span = colsForSize(dragSize);
+        var rowSpan = 1;
+
+        var draggedRect = {
+            x: canvasRect.x + coords.x * colPx,
+            y: canvasRect.y + coords.y * rowPx,
+            width: span * colPx,
+            height: rowSpan * rowPx
+        };
+        var others = collectGridSlotRects(canvasRect, colPx, rowPx, dragMovingSlotId());
+        var guides = computeAlignmentGuides(draggedRect, others, canvasRect, SNAP_TOLERANCE_PX);
+
+        renderAlignmentGuides(guides, canvasRect);
+
+        // Apply the smallest-magnitude vertical / horizontal snap so
+        // the drop lands on the aligned column/row.
+        var bestV = null, bestH = null;
+        for (var i = 0; i < guides.length; i++) {
+            var g = guides[i];
+            if (g.axis === 'vertical') {
+                if (!bestV || Math.abs(g.snap) < Math.abs(bestV.snap)) bestV = g;
+            } else {
+                if (!bestH || Math.abs(g.snap) < Math.abs(bestH.snap)) bestH = g;
+            }
+        }
+        if (bestV) {
+            var newX = Math.round(((draggedRect.x + bestV.snap) - canvasRect.x) / colPx);
+            coords.x = Math.max(0, Math.min(12 - span, newX));
+        }
+        if (bestH) {
+            var newY = Math.round(((draggedRect.y + bestH.snap) - canvasRect.y) / rowPx);
+            coords.y = Math.max(0, newY);
+        }
+        return coords;
+    }
+
+    function collectGridSlotRects(canvasRect, colPx, rowPx, excludeSlotId) {
+        var out = [];
+        var grid = (state.template && state.template.grid) || [];
+        for (var i = 0; i < grid.length; i++) {
+            var s = grid[i];
+            if (excludeSlotId && s.__id === excludeSlotId) continue;
+            out.push({
+                x: canvasRect.x + s.x * colPx,
+                y: canvasRect.y + s.y * rowPx,
+                width: colsForSize(s.size) * colPx,
+                height: Math.max(1, s.row_span | 0 || 1) * rowPx
+            });
+        }
+        return out;
+    }
+
+    function dragMovingSlotId() {
+        var d = window.__ttPdeDrag;
+        return (d && d.kind === 'move') ? d.slotId : null;
+    }
+
+    function dragSize() {
+        var d = window.__ttPdeDrag;
+        if (!d) return 'M';
+        if (d.kind === 'move') {
+            var hit = state.template ? findSlotAndBand(d.slotId) : null;
+            return hit ? hit.slot.size : 'M';
+        }
+        if (d.kind === 'add-widget') {
+            var w = widgetById(d.paletteId);
+            return (w && w.default_size) || 'M';
+        }
+        return 'M'; // KPI default
+    }
+
+    function getCanvas() {
+        return document.querySelector('[data-tt-pde="canvas"]');
+    }
+
     // ─── Undo / redo ─────────────────────────────────────────────
 
     function commit() {
@@ -215,6 +580,9 @@
             BOOT.templates[state.persona].draft = null;
             BOOT.templates[state.persona].published = null;
             state.template = annotate(def);
+            // One-shot tidy in case the default template ships with
+            // overlap (shouldn't, but cheap insurance).
+            if (state.template.grid) compactGrid(state.template.grid);
             state.baseline = clone(state.template);
             state.undoStack = []; state.redoStack = [];
             state.selectedSlotId = null;
@@ -231,6 +599,12 @@
         if (!BOOT.templates[persona]) return;
         state.persona = persona;
         state.template = annotate(activeTemplateFor(persona));
+        // #0088 — one-shot compact pass cleans up any stored layouts
+        // from before the layout-invariant work landed (an existing
+        // overlap would render correctly but unattractively; the
+        // compact pass tidies on first load and the user sees a
+        // clean grid without having to drag anything).
+        if (state.template.grid) compactGrid(state.template.grid);
         state.baseline = clone(state.template);
         state.undoStack = []; state.redoStack = [];
         state.selectedSlotId = null;
@@ -376,16 +750,34 @@
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
                 t.node.classList.add('is-drop-target');
+
+                // #0088 — alignment guides on the grid band only.
+                // Compute the dragged slot's projected position from
+                // the cursor, then surface guides for any aligned
+                // edges. snapToGuides also adjusts the projected
+                // coords; the drop handler reads `e.clientX/Y` so the
+                // visible guide position stays in sync with the drop.
+                if (t.kind === 'grid') {
+                    var sz = dragSize();
+                    var coords = gridCellFromEvent(e, sz);
+                    if (coords) snapToGuides(coords, e, sz);
+                }
             });
             t.node.addEventListener('dragleave', function (e) {
                 if (e.target === t.node) t.node.classList.remove('is-drop-target');
+                if (t.kind === 'grid') clearAlignmentGuides();
             });
             t.node.addEventListener('drop', function (e) {
                 e.preventDefault();
                 t.node.classList.remove('is-drop-target');
+                clearAlignmentGuides();
                 handleDropOnBand(t.kind, e);
             });
         });
+
+        // Belt-and-braces: any dragend anywhere clears guides (covers
+        // Escape-to-cancel + drag-out-of-window cases).
+        document.addEventListener('dragend', clearAlignmentGuides);
     }
 
     function buildCard(slot, bandKind) {
@@ -546,7 +938,7 @@
             // left. Fixes the "drag-drop just dumps at the end"
             // complaint — the previous behaviour was visually
             // identical to clicking the palette item.
-            var coords = ev ? gridCellFromEvent(ev, slot.size) : null;
+            var coords = ev ? gridCellFromEventWithSnap(ev, slot.size) : null;
             if (coords) {
                 slot.x = coords.x;
                 slot.y = coords.y;
@@ -562,7 +954,18 @@
                 slot.x = 0;
             }
             state.template.grid = state.template.grid || [];
-            state.template.grid.push(slot);
+
+            // Shift modifier — snap to nearest free cell instead of
+            // pushing existing slots out of the way.
+            if (ev && ev.shiftKey && coords) {
+                var snapped = findNearestFreeSlot(state.template.grid, { x: coords.x, y: coords.y }, slot.size);
+                slot.x = snapped.x; slot.y = snapped.y;
+                state.template.grid.push(slot);
+            } else {
+                state.template.grid.push(slot);
+                resolveCollisions(state.template.grid, slot.__id);
+                compactGrid(state.template.grid);
+            }
         }
         commit();
         selectSlot(slot.__id);
@@ -582,6 +985,7 @@
      * never used clientX/Y, so every drop landed at (0, max_y+1).
      */
     function gridCellFromEvent(ev, size) {
+        var canvas = getCanvas();
         if (!canvas || typeof ev.clientX !== 'number') return null;
         var rect = canvas.getBoundingClientRect();
         if (rect.width <= 0) return null;
@@ -598,6 +1002,18 @@
         var span = colsForSize(size);
         col = Math.max(0, Math.min(12 - span, col));
         return { x: col, y: row };
+    }
+
+    /**
+     * Wraps gridCellFromEvent + alignment-guide snap. Used by the
+     * drop handlers so a drop near an aligned column actually lands
+     * on the aligned column instead of the raw cursor cell.
+     */
+    function gridCellFromEventWithSnap(ev, size) {
+        var coords = gridCellFromEvent(ev, size);
+        if (!coords) return null;
+        snapToGuides(coords, ev, size);
+        return coords;
     }
 
     function moveExistingSlot(slotId, targetBand, ev) {
@@ -626,7 +1042,7 @@
             // v3.80.1 — same DnD-coords fix as placeNewSlot. Moving an
             // existing slot via drag now lands on the dropped cell
             // instead of bottom-left.
-            var coords = ev ? gridCellFromEvent(ev, slot.size) : null;
+            var coords = ev ? gridCellFromEventWithSnap(ev, slot.size) : null;
             if (coords) {
                 slot.x = coords.x;
                 slot.y = coords.y;
@@ -640,7 +1056,17 @@
                 slot.x = 0;
             }
             state.template.grid = state.template.grid || [];
-            state.template.grid.push(slot);
+
+            // Shift modifier — snap to nearest free cell.
+            if (ev && ev.shiftKey && coords) {
+                var snapped = findNearestFreeSlot(state.template.grid, { x: coords.x, y: coords.y }, slot.size);
+                slot.x = snapped.x; slot.y = snapped.y;
+                state.template.grid.push(slot);
+            } else {
+                state.template.grid.push(slot);
+                resolveCollisions(state.template.grid, slot.__id);
+                compactGrid(state.template.grid);
+            }
         }
         commit();
         selectSlot(slot.__id);
@@ -662,6 +1088,12 @@
         if (key === 'ArrowRight') hit.slot.x = Math.min(12 - colsForSize(hit.slot.size), hit.slot.x + step);
         if (key === 'ArrowUp')    hit.slot.y = Math.max(0, hit.slot.y - step);
         if (key === 'ArrowDown')  hit.slot.y = hit.slot.y + step;
+        // Re-run the layout pass — nudging into an occupied cell pushes
+        // the occupant down. Compact-after-push tightens the result.
+        if (state.template.grid) {
+            resolveCollisions(state.template.grid, hit.slot.__id);
+            compactGrid(state.template.grid);
+        }
         commit();
     }
 
@@ -782,6 +1214,13 @@
                 if (hit && hit.band === 'grid') {
                     var max_x = Math.max(0, 12 - colsForSize(sz));
                     if (slot.x > max_x) slot.x = max_x;
+                    // The new size may overlap the slot to the right.
+                    // Push and compact so the resize doesn't visually
+                    // clobber another slot.
+                    if (state.template.grid) {
+                        resolveCollisions(state.template.grid, slot.__id);
+                        compactGrid(state.template.grid);
+                    }
                 }
                 commit();
             });

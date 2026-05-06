@@ -68,6 +68,17 @@ Top-bar controls:
 - **Save draft** — persists your in-flight layout without making it live.
 - **Publish** — promotes the current layout to live for everyone matching that persona on their next page load. The confirmation modal shows the count of users it will affect.
 
+### Drag & drop on the canvas
+
+The canvas is collision-free by design — two slots can never sit on the same cell. When you drop a widget onto an occupied cell, the slots already there **push down** to make room. After every move the grid auto-compacts upward so there are no orphan empty rows above a slot.
+
+Two extras while you're dragging:
+
+- **Alignment guides.** Blue 1-pixel lines appear when the dragged slot's left / right / centre edge lines up with another slot's matching edge — or with the canvas's own left / right / centre. Within a few pixels of an aligned column the drop snaps to the guide. Same for top / bottom / centre-y horizontals.
+- **Hold Shift to snap into a gap instead of pushing.** Default behaviour (push-and-reflow) is right when you're rearranging. Holding Shift on the drop switches to "find the nearest free cell that fits" — better when you're bulk-adding from the palette and don't want existing slots to move.
+
+Pre-existing layouts that had overlapping slots from before this feature shipped auto-resolve on next load — you'll see a clean grid without having to drag anything.
+
 ### Keyboard support
 
 The editor is fully keyboard-accessible:

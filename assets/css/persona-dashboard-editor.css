@@ -584,6 +584,27 @@ body.tt-pde-dragging * {
     background: #fafbfc;
 }
 
+/* ─── Alignment guides (#0088) ───────────────────────────────── */
+
+.tt-pde-guides {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 99999;
+}
+.tt-pde-guide {
+    position: fixed;
+    background: var(--tt-pde-guide-token, rgba(91, 141, 239, 0.7));
+    pointer-events: none;
+    box-shadow: 0 0 0 0.5px rgba(91, 141, 239, 0.25);
+}
+.tt-pde-guide-vertical {
+    width: 1px;
+}
+.tt-pde-guide-horizontal {
+    height: 1px;
+}
+
 /* ─── Reduced motion ─────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {

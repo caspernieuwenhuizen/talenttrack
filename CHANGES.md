@@ -1,77 +1,68 @@
-# TalentTrack v3.101.1 — MFA enrollment wizard (#0086 Workstream B Child 1, sprint 2 of 3)
+# TalentTrack v3.102.0 — Persona dashboard editor: collision detection + alignment guides + Shift snap-to-gap (#0088)
 
-Sprint 2 of three. Lights up the user-facing surface that sprint 1 (v3.100.1) set up. Sprint 1 shipped the schema + domain services + Account-page status indicator with no user-visible enrollment path. Sprint 3 (next) wires the WordPress `authenticate` filter for login-time enforcement.
+Two coupled additions to the persona-dashboard editor (`Configuration → Dashboard layouts`, shipped in #0060 v3.51.0 and polished through v3.62.0 / v3.71.5 / v3.82.1). The editor's drag-drop felt rough next to professional dashboard builders (Notion, Power BI, Grafana) for two reasons: dropping a widget could overlap an existing one, and there was no alignment feedback while dragging. Both gaps close in this ship.
 
-Renumbered v3.100.2 → v3.101.1 mid-build after the parallel-agent ship of v3.101.0 (#0006 team planner) landed.
+Pure-vanilla extensions to the existing 1,052-LOC engine — no framework, no build step. The algorithms are the same shape `react-grid-layout` uses internally; we re-implement the ~120 LOC needed without depending on the library.
 
-## What landed in sprint 2
+## (1) Collision detection + auto-reflow
 
-### `Domain\QrCodeRenderer`
+After every mutation that places or moves a slot, run a two-step layout pass:
 
-Self-contained pure-PHP QR encoder. Byte-mode encoding at error-correction level L, automatic version selection v1..v10 (covers any otpauth URI we'd generate — worst case ~180 chars fits inside v8 / 192-byte capacity), full mask-pattern penalty scoring per ISO/IEC 18004:2015 §7.8.3.1. Output is inline SVG.
+1. **`resolveCollisions(grid, droppedSlotId)`** — walk the grid; for each slot that overlaps the dropped slot, push it down to `dropped.y + dropped.row_span`. Cascade — a pushed slot can collide with the slot below; repeat until stable. Bounded by `grid.length`, no infinite loop possible.
+2. **`compactGrid(grid)`** — sort by `(y, x)` ascending; for each slot, lower its y to the smallest non-colliding row given the slots already placed. Closes the gaps the push pass leaves behind.
 
-The choice of pure-PHP over a JS QR library is the security framing: server-side rendering keeps the user's TOTP secret inside a single trust boundary (PHP request handler → SVG bytes → user's screen) rather than shipping a third-party JS library that would need its own license + supply-chain review. Reed-Solomon ECC over GF(256) with primitive 0x11D, version capacity tables hand-copied from the ISO standard, BCH(15,5) format-info encoder + BCH(18,6) version-info encoder for v7+. ~600 LOC self-contained.
+Pure functions on the slot array; no DOM coupling. Wired into:
 
-### `Wizards\MfaEnrollmentWizard`
+- `placeNewSlot` — adding from the palette
+- `moveExistingSlot` — drag from one cell to another
+- `moveSlotByKey` — keyboard arrow nudge
+- `resizeSlot` — size button click (the new size may overlap the slot to the right)
+- `loadPersona` + `reset` — one-shot `compactGrid` pass cleans up any stored layouts that pre-date this feature
 
-Registered in `WizardRegistry` per CLAUDE.md §3. Cap `read` (every logged-in user manages their own MFA — keyed by `(wp_user_id, club_id)` so no cross-user concerns).
+A pre-existing layout with stacked slots auto-tidies on next load — operator opens the editor and sees a clean grid without dragging anything.
 
-**Step 1 — Intro.** Plain explanatory text: what MFA is, which authenticator apps work, what to expect (~2 minutes, scan QR, type code, save backup codes). Already-enrolled users see a warning notice that continuing will replace their secret.
+## (2) Alignment guides
 
-**Step 2 — Secret.** Lazy-generates a fresh 20-byte TOTP secret on first render via `TotpService::generateSecret()`, persists encrypted via `MfaSecretsRepository::upsertSecret()` with an empty backup-codes array. Re-renders / Back navigation reuse the same secret (the operation is idempotent — existing row → reuse, no row → create). Renders the QR code on the left, manual-entry fallback on the right with the secret chunked into 4-character blocks for legibility. The QR encodes the standard otpauth:// URI with issuer `TalentTrack` or `TalentTrack — <site name>` for non-default site names so users with multiple installs can tell them apart in their authenticator app.
+While dragging over the canvas, `computeAlignmentGuides(draggedRect, otherRects, canvasRect, tolerance)` returns guides for every aligned edge:
 
-**Step 3 — Verify.** 6-digit input with `inputmode=numeric` + `autocomplete=one-time-code` + `pattern=[0-9 ]*` + `autofocus` + `maxlength=11` (allows for spaces). Whitespace tolerated, validated via `TotpService::verify()` against the decrypted secret with the standard ±1-step (90s) tolerance window for clock skew. On match, `MfaSecretsRepository::markEnrolled()` flips `enrolled_at` to now. Clear error messages distinguish format errors from mismatch. Re-tries are unlimited at enrollment time — rate-limit + lockout machinery is for the runtime login flow (sprint 3), not enrollment, where forcing a re-scan on every miss is poor UX for clock-skew problems.
+- Dragged left / right / centre-x against every other slot's left / right / centre-x
+- Same for top / bottom / centre-y
+- Plus the canvas's own left / right / centre-x (and top / bottom / centre-y)
 
-**Step 4 — Backup codes.** Generates 10 single-use plaintext codes via `BackupCodesService::generate()`, persists the hashed storage array via `updateBackupCodes()`. Plaintext is stashed in wizard state so re-renders show the same codes (telling the user "I generated different codes; the ones you wrote down are wrong" is worse than re-displaying the same set). Displays codes in a 2-column monospace grid with Copy-all-to-clipboard + Print buttons. Submission gated on a confirmation checkbox ("I have saved these and understand I won't see them again"). On submit `WizardState::clear()` wipes the plaintext from both the transient and the persistent draft row, redirects to `?page=tt-account&tab=mfa&tt_msg=mfa_enrolled`.
+Within `SNAP_TOLERANCE_PX` (4px default), `gridCellFromEventWithSnap` adjusts the projected drop coords to the aligned column / row. Blue 1-pixel guide lines render via a fixed-position overlay `<div class="tt-pde-guides">` appended once to `document.body`. Cleared on `drop`, `dragleave`, and global `dragend` (covers Escape-to-cancel + drag-out-of-window).
 
-### `Admin\MfaActionHandlers` — two new admin-post endpoints
+Performance: 30 slots × 6 axes × 2 dimensions = ~360 candidate alignments per `dragover` — comfortably under the 16ms-per-frame budget on a Moto G class device per CLAUDE.md.
 
-- `tt_mfa_regenerate_backup_codes` — issues a fresh batch of 10 codes, overwrites the stored hashes, stashes plaintext in a 5-minute one-shot transient (`tt_mfa_fresh_backup_codes_<user_id>`) that the destination tab reads + immediately deletes. The transient is the single channel for "show codes once after a redirect" — no plaintext crosses the redirect URL.
-- `tt_mfa_disable` — wipes the user's `tt_user_mfa` row entirely. Requires a `confirm=yes` POST field to proceed. The tab's collapsible `<details>` form makes the action discoverable but a small extra step beyond a single click. Audit-log integration on this destructive action is deferred to sprint 3.
+## (3) Shift modifier
 
-### Account-page MFA tab (rebuilt for sprint 2)
+Default behaviour on drop is **push-and-reflow** (matches Notion). Hold **Shift** on drop and the editor switches to **snap-to-nearest-free-cell**: `findNearestFreeSlot(grid, want, size)` BFS-spirals outward from `(want.x, want.y)` for the first cell that fits the dragged slot's size. Existing slots don't move.
 
-- **Not-enrolled path** — "Start enrollment" hero button pointing at the wizard URL via `WizardEntryPoint::urlFor( MfaEnrollmentWizard::SLUG, '' )`. Renders a "wizards disabled in configuration" notice if `tt_wizards_enabled` is off.
-- **Enrolled path** — backup-codes-remaining count (with red running-low warning at ≤3), "Regenerate backup codes" button, collapsible "Turn MFA off" form with confirmation checkbox.
-- **One-shot success messages** on `tt_msg=mfa_enrolled` / `mfa_backup_regenerated` / `mfa_disabled` / `mfa_disable_unconfirmed`. The regenerate-codes message renders the freshly-generated plaintext from the one-shot transient with Copy + Print buttons before deleting the transient.
+Why two modes: in informal testing, push-and-reflow feels right when rearranging; snap-to-free feels right when bulk-adding from the palette. Default to push (matches Notion); offer Shift for the second mode (matches Figma's "snap to whitespace").
 
-### `MfaModule::boot()`
+## CSS
 
-Was a no-op in sprint 1; now registers the wizard + inits the action handlers.
+- New `.tt-pde-guides` overlay (fixed, z-index 99999, `pointer-events: none`).
+- New `.tt-pde-guide` + `.tt-pde-guide-vertical` / `.tt-pde-guide-horizontal` modifiers, sized 1px on the relevant axis.
+- New brand-style token `--tt-pde-guide-token`, default `rgba(91, 141, 239, 0.7)`.
+- Existing `prefers-reduced-motion: reduce` rule kicks in unchanged.
 
-## Plaintext-credential lifecycle
+## What didn't change
 
-- **TOTP secret** — generated and persisted (encrypted via `CredentialEncryption`, AES-256-GCM under `wp_salt('auth')`) at step 2. Never held plaintext in wizard state. Step 3 reads + decrypts from `tt_user_mfa` for verification.
-- **Plaintext backup codes** — generated at step 4 only (after verify succeeds), held in wizard state for the duration of step 4's render. Submit calls `WizardState::clear()` which deletes both the transient and the persistent draft row. Worst-case exposure window: ~1 hour transient TTL or ~14 days persistent draft TTL until the cleanup cron sweeps it.
-- **Regenerate-action plaintext** — held in a 5-minute transient between admin-post and the destination tab's render. The destination deletes the transient on first read.
+- **Keyboard a11y, mobile preview, draft / publish / reset, audit-log, undo / redo, action-card UX** all keep working unchanged.
+- **No new translatable strings.** Silent visual feature — guides + push behaviour speak for themselves.
+- **No new caps, no migration.** Pure JS + CSS.
 
-## What's NOT in this PR
+## What's not in this PR
 
-- **WordPress `authenticate` filter integration** (sprint 3).
-- **Per-club `require_mfa_for_personas` setting** (sprint 3). Default `[ academy_admin, head_of_development ]`.
-- **Rate-limited verification with 15-min lockout** (sprint 3). Consumes the `failed_attempts` + `locked_until` columns from migration 0073.
-- **30-day "remember this device" cookie** (sprint 3). Consumes the `remembered_devices` column from migration 0073.
-- **Audit-log integration** (sprint 3). Events: `mfa_enrolled` / `mfa_verified` / `mfa_lockout` / `mfa_backup_code_used` / `mfa_disabled`.
-- **Operator-on-behalf-of-user disable** (sprint 3). For lockout recovery.
+- **Separate desktop / mobile layouts.** Per-slot `mobile_priority` + `mobile_visible` model stays; splitting into two independent grids is a schema + persistence change with non-trivial migration cost. Will be its own spec when a real "mobile needs different widgets, not just reordered" use case appears.
+- **Drag-resize.** Sizes still come from S/M/L/XL presets only.
+- **React / dnd-kit / react-grid-layout port.** CLAUDE.md §2 mandates vanilla.
+- **Undo limit reduction.** Current `UNDO_LIMIT = 50` stays — strictly better than the source spec's 10.
+- **Full-FLIP animated reflow on grid-cell changes.** Push / compact moves are functionally correct but reflow itself is instant rather than animated; the existing 60ms transform transition on `.tt-pde-card` continues to handle click feedback. FLIP-based animation on grid-row / grid-column changes would require absolute-positioning the cards during reflow — deferred polish, not load-bearing.
 
-## Affected files
+## Files touched
 
-- `src/Modules/Mfa/Domain/QrCodeRenderer.php` — new.
-- `src/Modules/Mfa/Wizards/MfaEnrollmentWizard.php` — new.
-- `src/Modules/Mfa/Wizards/IntroStep.php` — new.
-- `src/Modules/Mfa/Wizards/SecretStep.php` — new.
-- `src/Modules/Mfa/Wizards/VerifyStep.php` — new.
-- `src/Modules/Mfa/Wizards/BackupCodesStep.php` — new.
-- `src/Modules/Mfa/Admin/MfaActionHandlers.php` — new.
-- `src/Modules/Mfa/MfaModule.php` — `boot()` now registers the wizard + inits action handlers.
-- `src/Modules/License/Admin/AccountPage.php` — `renderMfaTab()` rebuilt for the live enrollment surface.
-- `languages/talenttrack-nl_NL.po` — 30 new msgids.
-- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
-
-## Translations
-
-30 new translatable strings covering wizard step copy, manual-entry labels, verification error messages, backup-codes confirmation, regenerate-codes success messaging, and the disable-MFA confirmation form.
-
-## Player-centricity
-
-Same framing as sprint 1: protecting the WordPress accounts that touch player records. Every player file, every evaluation, every PDP cycle is gated by the cap-and-matrix layer — but the cap layer trusts whoever holds the WP user's session cookie. MFA is the second factor that anchors that trust. Sprint 2 puts the surface in front of every user so they can self-enroll today; sprint 3 makes enrollment mandatory for the personas with the broadest reach into player data.
+- `assets/js/persona-dashboard-editor.js` (~250 LOC of new helpers + wiring; ~1,300 LOC total)
+- `assets/css/persona-dashboard-editor.css` (new `.tt-pde-guide{,-vertical,-horizontal}` block)
+- `docs/persona-dashboard.md` + `docs/nl_NL/persona-dashboard.md` (Drag & drop section)
+- `talenttrack.php` + `readme.txt` + `SEQUENCE.md` (renumbered v3.101.0 → v3.102.0 mid-rebase after parallel-agent ships of v3.100.1 + v3.101.0)
