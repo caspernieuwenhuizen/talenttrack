@@ -13352,17 +13352,8 @@ msgstr "Scan met je authenticator-app."
 msgid "Can't scan? Enter manually:"
 msgstr "Kun je niet scannen? Voer handmatig in:"
 
-msgid "Account"
-msgstr "Account"
-
-msgid "Issuer"
-msgstr "Uitgever"
-
 msgid "Secret"
 msgstr "Secret"
-
-msgid "Type"
-msgstr "Type"
 
 msgid "Time-based (TOTP), 30s, 6 digits, SHA-1"
 msgstr "Tijdgebaseerd (TOTP), 30s, 6 cijfers, SHA-1"
@@ -13402,9 +13393,6 @@ msgstr "Met deze 10 codes kun je inloggen als je je telefoon kwijt bent. Elke co
 
 msgid "Copy all to clipboard"
 msgstr "Alles kopiëren naar klembord"
-
-msgid "Print"
-msgstr "Afdrukken"
 
 msgid "I have saved these codes somewhere safe and I understand that I won't see them again after I click Finish."
 msgstr "Ik heb deze codes veilig opgeslagen en ik begrijp dat ik ze niet opnieuw te zien krijg nadat ik op Voltooien klik."
