@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.95.1
+Stable tag: 3.96.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.96.0 — Pair-chemistry lines on the chemistry pitch (#0068 follow-up) =
+
+Adds FIFA-Ultimate-Team-style chemistry links between formation-adjacent slots on the team-chemistry pitch, plus a *Link chemistry: N / 100* headline above the existing composite. **What's on the pitch**: each slot links to its three nearest other slots (Euclidean distance on `slot.pos.x/y`, deduped), producing ~16 unique lines on an 11-slot formation. Lines are coloured red / amber / green based on a 0–3 pair score; neutral grey for empty slots. Stroke width tapers with bucket strength so green anchors the eye. Hover any line for `Chemistry 2.0 / 3 — Coach-marked pairing, Same line of play`. **Pair score** combines three signals: coach-marked pairing (+2 — `tt_team_chemistry_pairings`), same line of play (+1 — both slots in the same band GK/DEF/MID/ATT inferred from slot.y), and side coherence (+1 if both side-compatible, −1 if either in a wrong-side slot). Result clamps to 0–3 and buckets at 2.0 / 1.0 thresholds. **Headline** `Link chemistry: N / 100` = `sum(pair_scores) / (scored_pairs × 3) × 100` — mirrors FIFA's familiar percentage ceiling. Legend chips (green/amber/red) explain bucket thresholds inline. Distinct from the 0–5 composite below the pitch — composite measures *fit to playing style*, link chemistry measures *fit to each other*. **Architecture**: new pure-logic `BlueprintChemistryEngine` with two entry points — `computeForLineup($team_id, $slots, $lineup)` for an arbitrary slot-label → player-id map, plus `computeForSuggested(...)` that consumes the existing `ChemistryAggregator::teamChemistry()` payload directly. Future Team Blueprint editor (Phase 1, not yet started) will feed the same engine its drag-drop lineup. `PitchSvg::render()` gains optional `$chemistry_links` and draws each as `<line class="tt-chem-link tt-chem-{color}">` inside the SVG; new brand-style tokens `--tt-chem-green-token` / `--tt-chem-amber-token` / `--tt-chem-red-token` / `--tt-chem-neutral-token`. Each line carries a `<title>` element for hover — pure SVG, no JS. **REST**: `GET /teams/{id}/chemistry` payload gains a `blueprint_chemistry` block (`team_score`, `pair_count`, `scored_pair_count`, `links: [{a_slot, b_slot, a_player_id, b_player_id, score, color, reasons, a_pos, b_pos}]`); existing fields unchanged. No new endpoint. **Empty state**: link chemistry doesn't depend on evaluation data — coach-marked pairings, line-of-play, side preferences are all coach-set or roster-set signals — so lines render even on a roster with zero evaluations. 15 new NL msgids; `docs/team-chemistry.md` (EN+NL) gains a *Link chemistry* section above the existing composite breakdown.
 
 = 3.95.1 — License gates wired: radar charts, undo bulk, partial restore (#0080 Wave A) =
 

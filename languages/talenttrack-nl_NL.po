@@ -12685,3 +12685,48 @@ msgstr "Proeftrainingen"
 
 msgid "Bulk-undo is part of the Standard plan. Upgrade to recover from accidents."
 msgstr "Bulk-undo is onderdeel van het Standard-plan. Upgrade om fouten te kunnen herstellen."
+
+# v3.96.0 — #0068 follow-up: blueprint pair-chemistry lines on the pitch
+msgid "Coach-marked pairing"
+msgstr "Door coach gemarkeerd duo"
+
+msgid "Same line of play"
+msgstr "Zelfde linie"
+
+msgid "Side mismatch"
+msgstr "Verkeerd voorkeursbeen voor deze positie"
+
+msgid "Side preferences fit slots"
+msgstr "Voorkeursbenen passen bij de posities"
+
+msgid "Pair not scored — slot empty."
+msgstr "Geen pair-score — positie is leeg."
+
+msgid "Chemistry %1$.1f / 3 — %2$s"
+msgstr "Chemie %1$.1f / 3 — %2$s"
+
+msgid "no shared signals"
+msgstr "geen gedeelde signalen"
+
+msgid "Link chemistry"
+msgstr "Lijnchemie"
+
+msgid "%d / 100"
+msgstr "%d / 100"
+
+msgid "%d scored adjacent pair on the pitch."
+msgid_plural "%d scored adjacent pairs on the pitch."
+msgstr[0] "%d aangrenzend duo met chemie-score."
+msgstr[1] "%d aangrenzende duo's met chemie-score."
+
+msgid "Strong (2.0–3.0)"
+msgstr "Sterk (2,0–3,0)"
+
+msgid "Workable (1.0–2.0)"
+msgstr "Werkbaar (1,0–2,0)"
+
+msgid "Poor (0–1.0)"
+msgstr "Zwak (0–1,0)"
+
+msgid "Lines connect formation-adjacent slots. Score combines coach-marked pairings, same line of play, and side-preference fit. Hover any line for the breakdown."
+msgstr "Lijnen verbinden naburige posities binnen de formatie. De score combineert door de coach gemarkeerde duo's, dezelfde linie en voorkeursbeen-fit. Beweeg over een lijn voor de uitsplitsing."

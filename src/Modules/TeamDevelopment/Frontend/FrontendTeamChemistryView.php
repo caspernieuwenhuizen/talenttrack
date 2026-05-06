@@ -4,6 +4,7 @@ namespace TT\Modules\TeamDevelopment\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\TeamDevelopment\BlueprintChemistryEngine;
 use TT\Modules\TeamDevelopment\ChemistryAggregator;
 use TT\Modules\TeamDevelopment\CompatibilityEngine;
 use TT\Modules\TeamDevelopment\Repositories\PairingsRepository;
@@ -190,12 +191,81 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         $perspective = isset( $_GET['perspective'] ) && $_GET['perspective'] === 'isometric'
             ? \TT\Modules\TeamDevelopment\Frontend\PitchSvg::MODE_ISOMETRIC
             : \TT\Modules\TeamDevelopment\Frontend\PitchSvg::MODE_FLAT;
-        \TT\Modules\TeamDevelopment\Frontend\PitchSvg::render( $slots, $chem['suggested_xi'], $perspective );
+
+        $blueprint = ( new BlueprintChemistryEngine() )->computeForSuggested(
+            (int) $team->id, $slots, $chem['suggested_xi']
+        );
+
+        \TT\Modules\TeamDevelopment\Frontend\PitchSvg::render( $slots, $chem['suggested_xi'], $perspective, $blueprint['links'] );
 
         self::renderPerspectiveToggle( $perspective, $base_url, (int) $team->id, $template_id );
+        self::renderLinkChemistryHeadline( $blueprint );
         self::renderChemistryBreakdown( $chem );
         self::renderDepthChart( $chem['depth'] );
         self::renderPairings( (int) $team->id, $user_id );
+    }
+
+    /**
+     * "Link chemistry" headline + legend — separate from the
+     * formation-fit-based composite score above. The number is the
+     * mean of all scored adjacent-pair scores expressed as 0..100,
+     * mirroring FIFA Ultimate Team's chemistry ceiling.
+     *
+     * @param array{team_score:?int, pair_count:int, scored_pair_count:int, links: list<array<string,mixed>>} $blueprint
+     */
+    private static function renderLinkChemistryHeadline( array $blueprint ): void {
+        $score = $blueprint['team_score'] ?? null;
+        $scored_pairs = (int) ( $blueprint['scored_pair_count'] ?? 0 );
+        ?>
+        <div class="tt-card tt-chem-link-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:14px 16px; margin:0 0 16px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <div style="font-size:12px; color:#5b6e75; text-transform:uppercase; letter-spacing:0.04em;">
+                        <?php esc_html_e( 'Link chemistry', 'talenttrack' ); ?>
+                    </div>
+                    <div style="font-size:28px; font-weight:700; line-height:1;">
+                        <?php
+                        if ( $score === null ) {
+                            echo '<span style="color:#8a9099;">— / 100</span>';
+                        } else {
+                            echo esc_html( sprintf(
+                                /* translators: %d: 0-100 chemistry score */
+                                __( '%d / 100', 'talenttrack' ),
+                                $score
+                            ) );
+                        }
+                        ?>
+                    </div>
+                    <div style="font-size:12px; color:#5b6e75; margin-top:4px;">
+                        <?php
+                        echo esc_html( sprintf(
+                            /* translators: %d: scored adjacent pair count */
+                            _n( '%d scored adjacent pair on the pitch.', '%d scored adjacent pairs on the pitch.', $scored_pairs, 'talenttrack' ),
+                            $scored_pairs
+                        ) );
+                        ?>
+                    </div>
+                </div>
+                <div class="tt-chem-legend" style="display:flex; gap:12px; font-size:12px; color:#5b6e75; flex-wrap:wrap;">
+                    <span style="display:inline-flex; align-items:center; gap:6px;">
+                        <span style="display:inline-block; width:18px; height:4px; background:var(--tt-chem-green-token, #2c8a2c); border-radius:2px;"></span>
+                        <?php esc_html_e( 'Strong (2.0–3.0)', 'talenttrack' ); ?>
+                    </span>
+                    <span style="display:inline-flex; align-items:center; gap:6px;">
+                        <span style="display:inline-block; width:18px; height:4px; background:var(--tt-chem-amber-token, #e0a000); border-radius:2px;"></span>
+                        <?php esc_html_e( 'Workable (1.0–2.0)', 'talenttrack' ); ?>
+                    </span>
+                    <span style="display:inline-flex; align-items:center; gap:6px;">
+                        <span style="display:inline-block; width:18px; height:4px; background:var(--tt-chem-red-token, #b32d2e); border-radius:2px;"></span>
+                        <?php esc_html_e( 'Poor (0–1.0)', 'talenttrack' ); ?>
+                    </span>
+                </div>
+            </div>
+            <p style="margin:8px 0 0; font-size:12px; color:#5b6e75;">
+                <?php esc_html_e( 'Lines connect formation-adjacent slots. Score combines coach-marked pairings, same line of play, and side-preference fit. Hover any line for the breakdown.', 'talenttrack' ); ?>
+            </p>
+        </div>
+        <?php
     }
 
     /**

@@ -54,8 +54,9 @@ final class PitchSvg {
      * @param list<array<string,mixed>>                                                                                      $slots
      * @param array<string, array{player_id:int, player_name:string, score:float, has_data:bool}>                            $suggested
      * @param string                                                                                                         $mode self::MODE_FLAT or self::MODE_ISOMETRIC
+     * @param list<array{a_slot:string, b_slot:string, a_player_id:?int, b_player_id:?int, score:?float, color:string, reasons:list<string>, a_pos:array{x:float,y:float}, b_pos:array{x:float,y:float}}> $chemistry_links
      */
-    public static function render( array $slots, array $suggested, string $mode = self::MODE_FLAT ): void {
+    public static function render( array $slots, array $suggested, string $mode = self::MODE_FLAT, array $chemistry_links = [] ): void {
         $is_iso = ( $mode === self::MODE_ISOMETRIC );
         ?>
         <style>
@@ -68,6 +69,10 @@ final class PitchSvg {
                 --tt-pitch-grass:   var( --tt-pitch-grass-token,   #4ea35f );
                 --tt-pitch-grass-2: var( --tt-pitch-grass-2-token, #3c8a4d );
                 --tt-pitch-line:    var( --tt-pitch-line-token,    rgba(255,255,255,0.85) );
+                --tt-chem-green:    var( --tt-chem-green-token,    #2c8a2c );
+                --tt-chem-amber:    var( --tt-chem-amber-token,    #e0a000 );
+                --tt-chem-red:      var( --tt-chem-red-token,      #b32d2e );
+                --tt-chem-neutral:  var( --tt-chem-neutral-token,  rgba(255,255,255,0.35) );
             }
             .tt-pitch {
                 <?php if ( $is_iso ) : ?>
@@ -98,6 +103,17 @@ final class PitchSvg {
             .tt-pitch-svg .tt-pitch-spot {
                 fill: var( --tt-pitch-line );
             }
+            .tt-pitch-svg .tt-chem-link {
+                fill: none;
+                stroke-linecap: round;
+                vector-effect: non-scaling-stroke;
+                opacity: 0.85;
+                pointer-events: stroke;
+            }
+            .tt-pitch-svg .tt-chem-link.tt-chem-green   { stroke: var( --tt-chem-green );   stroke-width: 6; }
+            .tt-pitch-svg .tt-chem-link.tt-chem-amber   { stroke: var( --tt-chem-amber );   stroke-width: 5; }
+            .tt-pitch-svg .tt-chem-link.tt-chem-red     { stroke: var( --tt-chem-red );     stroke-width: 4; }
+            .tt-pitch-svg .tt-chem-link.tt-chem-neutral { stroke: var( --tt-chem-neutral ); stroke-width: 2; opacity: 0.5; }
             .tt-pitch-slot {
                 position: absolute;
                 transform: translate(-50%, -50%) <?php echo $is_iso ? 'rotateX(-28deg)' : ''; ?>;
@@ -131,7 +147,7 @@ final class PitchSvg {
         </style>
         <div class="tt-pitch-wrap">
             <div class="tt-pitch" style="background: linear-gradient(180deg, var(--tt-pitch-grass) 0%, var(--tt-pitch-grass-2) 100%);">
-                <?php self::renderSvgMarkings(); ?>
+                <?php self::renderSvgMarkings( $chemistry_links ); ?>
                 <?php self::renderSlots( $slots, $suggested ); ?>
             </div>
         </div>
@@ -141,8 +157,10 @@ final class PitchSvg {
     /**
      * Inline SVG with all standard markings. viewBox in decimetres
      * (real pitch is 68m wide × 105m long → 680 × 1050 dm).
+     *
+     * @param list<array{a_pos:array{x:float,y:float}, b_pos:array{x:float,y:float}, color:string, score:?float, reasons:list<string>}> $chemistry_links
      */
-    private static function renderSvgMarkings(): void {
+    private static function renderSvgMarkings( array $chemistry_links = [] ): void {
         ?>
         <svg class="tt-pitch-svg" viewBox="0 0 680 1050" preserveAspectRatio="none" aria-hidden="true">
             <!-- Outer touchlines + goal lines -->
@@ -180,8 +198,50 @@ final class PitchSvg {
             <path class="tt-pitch-line" d="M 660 30 A 10 10 0 0 0 650 20" />
             <path class="tt-pitch-line" d="M 20 1020 A 10 10 0 0 0 30 1030" />
             <path class="tt-pitch-line" d="M 650 1030 A 10 10 0 0 0 660 1020" />
+
+            <?php self::renderChemistryLinkLines( $chemistry_links ); ?>
         </svg>
         <?php
+    }
+
+    /**
+     * Chemistry-link lines drawn between adjacent slot centres. Coords
+     * map slot.pos.x/y (0..1) onto the pitch viewBox (680 × 1050 dm).
+     * Drawn inside the SVG (above pitch markings, below slot HTML
+     * overlays) so they pick up the same scaling and aspect-ratio.
+     *
+     * @param list<array{a_pos:array{x:float,y:float}, b_pos:array{x:float,y:float}, color:string, score:?float, reasons:list<string>}> $links
+     */
+    private static function renderChemistryLinkLines( array $links ): void {
+        if ( empty( $links ) ) return;
+        foreach ( $links as $link ) {
+            $color = (string) ( $link['color'] ?? 'neutral' );
+            $class = 'tt-chem-link tt-chem-' . preg_replace( '/[^a-z]/', '', strtolower( $color ) );
+            $x1 = (float) ( $link['a_pos']['x'] ?? 0.5 ) * 680.0;
+            $y1 = (float) ( $link['a_pos']['y'] ?? 0.5 ) * 1050.0;
+            $x2 = (float) ( $link['b_pos']['x'] ?? 0.5 ) * 680.0;
+            $y2 = (float) ( $link['b_pos']['y'] ?? 0.5 ) * 1050.0;
+
+            $score = $link['score'] ?? null;
+            $reasons = is_array( $link['reasons'] ?? null ) ? $link['reasons'] : [];
+            $tip = $score === null
+                ? __( 'Pair not scored — slot empty.', 'talenttrack' )
+                : sprintf(
+                    /* translators: 1: pair score 0-3, 2: comma-separated reasons */
+                    __( 'Chemistry %1$.1f / 3 — %2$s', 'talenttrack' ),
+                    (float) $score,
+                    implode( ', ', $reasons ) !== '' ? implode( ', ', $reasons ) : __( 'no shared signals', 'talenttrack' )
+                );
+            ?>
+            <line class="<?php echo esc_attr( $class ); ?>"
+                  x1="<?php echo esc_attr( (string) $x1 ); ?>"
+                  y1="<?php echo esc_attr( (string) $y1 ); ?>"
+                  x2="<?php echo esc_attr( (string) $x2 ); ?>"
+                  y2="<?php echo esc_attr( (string) $y2 ); ?>">
+                <title><?php echo esc_html( $tip ); ?></title>
+            </line>
+            <?php
+        }
     }
 
     /**
