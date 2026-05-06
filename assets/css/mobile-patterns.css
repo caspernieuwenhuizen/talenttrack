@@ -1,0 +1,213 @@
+/**
+ * mobile-patterns.css (#0084)
+ *
+ * Four small components that mobile-first surfaces ('mobile_class':
+ * 'native') need on top of the #0056 foundation. Loaded conditionally
+ * by the dispatcher only on `native`-classed surfaces; not enqueued
+ * elsewhere to keep the desktop bundle slim.
+ *
+ * 1. .tt-mobile-bottom-sheet  — modal that slides up from the bottom.
+ * 2. .tt-mobile-cta-bar       — fixed bottom CTA that stays visible
+ *                               while the user scrolls long forms.
+ * 3. .tt-mobile-segmented-control — 2-4 option picker.
+ * 4. .tt-mobile-list-item     — card-style list row replacing tables.
+ *
+ * All components honour the 48px tap-target floor from #0056. CSS
+ * tokens (--tt-bg-soft / --tt-line / --tt-ink / --tt-accent) are
+ * inherited from the design system; hardcoded fallbacks ship inline
+ * so the components render correctly even on surfaces that haven't
+ * enqueued the dashboard tokens.
+ */
+
+/* ─────────── 1. Bottom-sheet modal ─────────── */
+
+.tt-mobile-bottom-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 200ms ease;
+    pointer-events: none;
+}
+.tt-mobile-bottom-sheet-backdrop[data-open="1"] {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.tt-mobile-bottom-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 80vh;
+    background: var(--tt-bg-soft, #ffffff);
+    color: var(--tt-ink, #1d3a4a);
+    border-top: 1px solid var(--tt-line, #d0d2d6);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 9999;
+    transform: translateY(100%);
+    transition: transform 250ms cubic-bezier(0.32, 0.72, 0, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    touch-action: none;
+}
+.tt-mobile-bottom-sheet[data-open="1"] {
+    transform: translateY(0);
+}
+.tt-mobile-bottom-sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+    margin: 8px auto;
+    flex-shrink: 0;
+    cursor: grab;
+}
+.tt-mobile-bottom-sheet-header {
+    padding: 8px 16px 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    border-bottom: 1px solid var(--tt-line, #e5e7eb);
+    flex-shrink: 0;
+}
+.tt-mobile-bottom-sheet-body {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-mobile-bottom-sheet,
+    .tt-mobile-bottom-sheet-backdrop {
+        transition: none;
+    }
+}
+
+/* ─────────── 2. Fixed bottom CTA bar ─────────── */
+
+.tt-mobile-cta-bar {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--tt-bg-soft, #ffffff);
+    border-top: 1px solid var(--tt-line, #d0d2d6);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0)) 16px;
+    z-index: 50;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+}
+.tt-mobile-cta-bar .tt-btn,
+.tt-mobile-cta-bar button[type="submit"] {
+    width: 100%;
+    min-height: 48px;
+    font-size: 16px;
+    padding: 0 16px;
+}
+
+/* ─────────── 3. Segmented control ─────────── */
+
+.tt-mobile-segmented-control {
+    display: inline-flex;
+    background: var(--tt-bg-soft, #f1f3f4);
+    border-radius: 8px;
+    padding: 2px;
+    width: 100%;
+    gap: 2px;
+}
+.tt-mobile-segmented-control input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.tt-mobile-segmented-control label {
+    flex: 1 1 auto;
+    text-align: center;
+    padding: 10px 12px;
+    min-height: 48px;
+    line-height: 28px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--tt-ink, #1d3a4a);
+    transition: background 120ms ease;
+    user-select: none;
+}
+.tt-mobile-segmented-control input[type="radio"]:checked + label,
+.tt-mobile-segmented-control label[data-checked="1"] {
+    background: var(--tt-bg, #ffffff);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    font-weight: 600;
+}
+.tt-mobile-segmented-control input[type="radio"]:focus-visible + label {
+    outline: 2px solid var(--tt-accent, #1d7874);
+    outline-offset: 2px;
+}
+
+/* ─────────── 4. List-item replacing table rows ─────────── */
+
+.tt-mobile-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.tt-mobile-list-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    min-height: 64px;
+    background: var(--tt-bg-soft, #ffffff);
+    border-bottom: 1px solid var(--tt-line, #e5e7eb);
+    color: var(--tt-ink, #1d3a4a);
+    text-decoration: none;
+    touch-action: manipulation;
+}
+.tt-mobile-list-item:last-child {
+    border-bottom: none;
+}
+.tt-mobile-list-item:active {
+    background: rgba(0, 0, 0, 0.04);
+}
+.tt-mobile-list-item-leading {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--tt-bg-soft, #f1f3f4);
+}
+.tt-mobile-list-item-content {
+    min-width: 0;
+}
+.tt-mobile-list-item-primary {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tt-mobile-list-item-secondary {
+    font-size: 13px;
+    color: var(--tt-muted, #5b6e75);
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tt-mobile-list-item-trailing {
+    flex-shrink: 0;
+    color: var(--tt-muted, #5b6e75);
+    font-size: 18px;
+    line-height: 1;
+}

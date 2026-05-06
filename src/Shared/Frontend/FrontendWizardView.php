@@ -421,6 +421,34 @@ class FrontendWizardView extends FrontendViewBase {
             @media (min-width: 768px) {
                 .tt-wizard-actions { padding-top: 18px; }
             }
+
+            /* #0084 Child 3 — wizard action bar becomes a sticky CTA on
+               phones, mirroring the `.tt-mobile-cta-bar` component
+               registered in `assets/css/mobile-patterns.css`. The wizard
+               aggregator slug is classified `native` so the pattern
+               library is enqueued — but the rule below applies even
+               without it because wizards stand alone in this stylesheet.
+               Submit / Next stays visible while the coach scrolls long
+               forms (closes the v3.78.0 RateActorsStep deferred polish
+               from #0072). */
+            @media (max-width: 720px) {
+                .tt-wizard-form .tt-wizard-actions {
+                    position: sticky;
+                    bottom: 0;
+                    background: #fff;
+                    margin: 16px -12px 0;
+                    padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0)) 12px;
+                    border-top: 1px solid #e0e0e0;
+                    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+                    z-index: 50;
+                    justify-content: stretch;
+                }
+                .tt-wizard-form .tt-wizard-actions .tt-button[type="submit"],
+                .tt-wizard-form .tt-wizard-actions button[type="submit"] {
+                    flex: 1 1 100%;
+                    min-height: 48px;
+                }
+            }
         ';
         wp_register_style( 'tt-wizard-inline', false, [], TT_VERSION );
         wp_enqueue_style( 'tt-wizard-inline' );

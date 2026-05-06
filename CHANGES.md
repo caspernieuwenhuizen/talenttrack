@@ -1,95 +1,86 @@
-# TalentTrack v3.103.2 — Mobile surface classification + desktop-prompt page (#0084 Child 1)
+# TalentTrack v3.104.0 — Mobile pattern library + classification rollout + sticky wizard CTA (#0084 Children 2 + 3)
 
-First child of #0084 (Mobile experience). Builds the routing scaffolding the rest of the epic stands on: every `?tt_view=` slug can declare `native` / `viewable` / `desktop_only`, the dispatcher honours the classification on phone-class user agents, and operators have a per-club switch.
+Closes #0084 — the routing scaffolding from Child 1 (v3.103.2) is now joined by the four-component pattern library that `native` surfaces consume, the sticky wizard action bar that closes the v3.78.0 deferred polish from #0072, and the rollout of `native` declarations across the surfaces that earn it.
 
-Child 2 (pattern library) and Child 3 (per-route rollout + new-evaluation wizard mobile retrofit) follow.
+## Why bundle Children 2 + 3
 
-## What landed
+Spec note: Child 2 is "small, parallelisable" and Child 3 "consumes both". The codebase's parallel-agent collision pattern means a serial-sequence Child-2-PR-then-Child-3-PR loses two CI rounds + two version slots. The bundled ship is the cheaper path. The work is small enough — pure CSS components, vanilla JS helpers, doc files, and surface declarations.
 
-### `Shared\MobileSurfaceRegistry` — the registry
+## Child 2 — mobile pattern library
 
-Central in-memory store keyed by view slug.
+Four small CSS components in `assets/css/mobile-patterns.css`. Conditional enqueue: `DashboardShortcode::render()` enqueues `tt-mobile-patterns` style + `tt-mobile-helpers` script only when `MobileSurfaceRegistry::isNative($view)` is true. Surfaces classified `viewable` or `desktop_only` never load them — the desktop bundle stays slim.
 
-- `register($view_slug, $class)` — accepts one of `native` / `viewable` / `desktop_only`. Idempotent (last write wins). Defensive: an unrecognised class falls through to `viewable` so a typo at the call site doesn't accidentally lock users out of a surface.
-- `classify($slug)` — returns the class. Default: `viewable`.
-- `isDesktopOnly($slug)` / `isNative($slug)` — convenience predicates.
-- `all()` — wholesale dump for diagnostics.
-- `clear()` — for tests.
+### `tt-mobile-bottom-sheet`
 
-Backwards-compatible by construction: every existing slug resolves to `viewable` until Child 3 walks the inventory.
+Modal that slides up from the bottom of the viewport, max 80% screen height, drag-to-dismiss. Sibling `.tt-mobile-bottom-sheet-backdrop` provides the dimmed overlay. Drag-handle `.tt-mobile-bottom-sheet-handle` is the touch target for the dismiss gesture. Honours `prefers-reduced-motion: reduce`.
 
-### `Shared\MobileDetector` — phone-class user-agent detection
+`assets/js/mobile-helpers.js` exposes `TT.Mobile.openBottomSheet(el)` / `closeBottomSheet(el)` / `bindBottomSheet(el)`. Drag listens on `touchstart/move/end`; pulls follow the finger; release with > 80 px translation or flick velocity > 0.5 px/ms closes; otherwise snaps back open. Backdrop click also closes. Auto-bind runs at DOM-ready.
 
-Server-side. Conservative on purpose: only confirmed phone-class user agents return `true`. Tablets are NOT mobile in this classification — they get the desktop UI per the locked decision (iPad-Safari users explicitly want the laptop UX).
+### `tt-mobile-cta-bar`
 
-Detection:
-1. **`Sec-CH-UA-Mobile` client hint** when present (`?1` / `?0`). Modern Chromium browsers send this cleanly.
-2. **UA-string regex** for `iPhone`, `iPod`, `BlackBerry`, `BB10`, `IEMobile`, `Windows Phone`, generic `Mobi`. Android requires both the `Android` and `Mobile` tokens (Android device-team convention since Honeycomb — tablets ship without `Mobile`). `iPad`, `Tablet`, `Kindle`, `PlayBook` explicitly excluded.
+Sticky bottom bar containing the primary action button. Stays visible while the user scrolls long forms. Honours `env(safe-area-inset-bottom)` to clear the iOS home indicator. The immediate consumer is the wizard's `.tt-wizard-actions` row (Child 3 below applies the same pattern via inline CSS so it works without enqueuing the library).
 
-`userForcedMobile()` reads `?force_mobile=1` so power users on phablets who genuinely want the cramped desktop view can bypass the gate per request.
+### `tt-mobile-segmented-control`
 
-### `Shared\Frontend\FrontendMobilePromptView` — the polite block page
+Replaces dropdowns when there are 2–4 options. Native iOS / Android-feeling segment picker backed by hidden radio inputs so it submits in standard form payloads. For 5+ options use a `<select>` instead.
 
-Reachable indirectly via the dispatch gate (no direct URL — the user lands here when they hit a desktop-only slug from a phone). Rendered inside the dashboard frame.
+### `tt-mobile-list-item`
 
-Surfaces three affordances:
-- **Email me the link** — submits a one-line email to the user's account email with the deep link to the desktop-only page. Lets a coach on the train send themselves a reminder. The target URL is validated through `wp_validate_redirect` so the form can't be abused as an open-redirect / SSRF vector.
-- **Go to dashboard** — back to a sensible mobile-friendly landing.
-- **Show it anyway** — adds `?force_mobile=1` to the same URL so the user sees the cramped desktop view if they really want it.
+Card-style two-line row with `*-leading` (avatar / icon slot) + `*-content` (primary + secondary line) + `*-trailing` (chevron / status). Replaces `<table>` rows on `native` surfaces. Three-column grid layout, 64 px min-height, 14 px font-size for primary, 13 px muted for secondary, ellipsis truncation on overflow.
 
-Each render writes a `mobile.desktop_prompt_shown` audit event with the blocked view slug — operators can `gh action filter` to find routes that get a lot of mobile traffic and review the classification.
+### Documentation
 
-### `DashboardShortcode` dispatch gate
+`docs/mobile-patterns.md` (EN) and `docs/nl_NL/mobile-patterns.md` (NL) document all four components: when to use, how to use, code examples. Cross-referenced from `docs/architecture-mobile-first.md`, which gains a new `#0084 — surface classification` section.
 
-Runs early, before the per-slug dispatch: if the visitor is a phone (`isPhone()`), the requested view classifies as `desktop_only`, the per-club setting `force_mobile_for_user_agents` is on, and the user has not opted out via `?force_mobile=1` → render the prompt and short-circuit the buffer.
+## Child 3 — classification rollout + sticky wizard CTA
 
-Tablets and desktops always pass through unchanged.
+### Additional `desktop_only` surfaces
 
-### `Shared\Mobile\MobileSettings` + `MobileActionHandlers`
+Child 1 (v3.103.2) seeded 17 desktop-only routes. Child 3 adds three more:
 
-Typed accessor for `force_mobile_for_user_agents` (default `true`) over `tt_config`. Per-club, per CLAUDE.md §4 SaaS-readiness.
+- `players-import` — CSV mapping flow needs a laptop.
+- `onboarding-pipeline` — xl-size pipeline widget; doesn't fit on phones.
+- `reports` — wizard + multi-column tables.
 
-Two `admin-post.php` endpoints:
-- `tt_mobile_email_link` — email-the-link from the prompt page.
-- `tt_mobile_save_setting` — operator-only toggle save. Cap-gated on `tt_edit_settings`.
+### `native` surface declarations
 
-### `?tt_view=mobile-settings` — operator toggle UI
+Three `native` declarations register the pattern-library auto-enqueue:
 
-Single checkbox: "Show the desktop-prompt page on phones for desktop-only routes." Reachable via URL today; the Configuration → Mobile sub-tile lands in Child 3 alongside the broader rollout.
+- `players` — coach reaches the player profile from the sideline all the time.
+- `wizard` — wizard aggregator slug; every wizard goes through it.
+- `teammate` — player viewing a teammate's card.
 
-### Initial classification set
+The persona dashboard (empty `?tt_view=`) and the player-detail tabs are intentionally not classified `native` here — their classification is the dispatcher's responsibility but the per-row pattern migration follows opportunistic touches per spec.
 
-17 obviously-desktop slugs registered as `desktop_only` in `CoreSurfaceRegistration::registerMobileClasses()` so the gate has something to enforce on day one:
+### Sticky wizard CTA
 
-`configuration`, `custom-fields`, `eval-categories`, `roles`, `migrations`, `usage-stats`, `usage-stats-details`, `audit-log`, `cohort-transitions`, `custom-css`, `workflow-config`, `team-blueprints`, `methodology`, `invitations-config`, `trial-tracks-editor`, `trial-letter-templates-editor`, `wizards-admin`.
+`.tt-wizard-actions` becomes `position: sticky; bottom: 0;` on phones (≤ 720 px) via the wizard's inline stylesheet in `FrontendWizardView::enqueueWizardStyles()`. The Submit / Next button stays visible while the coach scrolls long forms — closes the v3.78.0 deferred polish item from #0072 about `RateActorsStep` mobile UX.
 
-Child 3 expands to the full 25-route inventory and adds the `native` declarations on the persona dashboard, the new-evaluation wizard, the player profile, and the prospect-logging wizard.
+Combined with the v3.103.0 (#0080 B4) card stack, the new-evaluation wizard now:
+
+1. Renders each player as a stack-card (B4 from v3.103.0) with categories laid out vertically.
+2. Has the Save / Next button anchored at the bottom of the viewport (this PR), so a coach scrolling a long ladder of players never loses sight of "how do I finish this".
+
+The wizard moves from "responsive but flat" to "feels native" without a separate spec.
 
 ## What's NOT in this PR
 
-- **Pattern library components** (Child 2) — `tt-mobile-bottom-sheet`, `tt-mobile-cta-bar`, `tt-mobile-segmented-control`, `tt-mobile-list-item` + lint rules + `docs/mobile-patterns.md`.
-- **Full-route classification + new-evaluation wizard mobile retrofit** (Child 3) — closes the v3.78.0 deferred polish item for `RateActorsStep`'s mobile UX. Inventory expands to ~25 routes.
-- **Configuration → Mobile sub-tile** (Child 3) — the operator-facing nav surface for the toggle. Today reachable via direct URL.
-- **PWA installability, push, offline editing, native apps, bottom-tab navigation** — explicitly out of scope per the spec; #0019 sprint 7 already shipped the PWA shell.
+- **Bottom-sheet retrofit on `PlayerPickerStep` / `ActivityPickerStep`.** The existing dropdowns work; bottom-sheet is a polish opportunity for a follow-up. Per spec note 176, "the wizard becomes the reference implementation for the pattern library", but the immediate consumer (the sticky CTA on `.tt-wizard-actions`) lands here.
+- **CI lint rules** forbidding `<table>` in native templates and ad-hoc `position: fixed`. Conventions documented in `docs/mobile-patterns.md` but enforcement defers — runtime stays the source of truth for now.
+- **Native-class pattern migration on the player-detail surface.** The `players` slug is `native` so the pattern library loads; the per-row migration (e.g. team list switching from `<table>` to `tt-mobile-list-item`) follows opportunistic touches per spec note about "Other native-class surfaces inherit the patterns as they're touched".
+
+## Migrations
+
+None. Code-only.
 
 ## Affected files
 
-- `src/Shared/MobileSurfaceRegistry.php` — new.
-- `src/Shared/MobileDetector.php` — new.
-- `src/Shared/Mobile/MobileSettings.php` — new.
-- `src/Shared/Mobile/MobileActionHandlers.php` — new.
-- `src/Shared/Frontend/FrontendMobilePromptView.php` — new.
-- `src/Shared/Frontend/FrontendMobileSettingsView.php` — new.
-- `src/Shared/CoreSurfaceRegistration.php` — `registerMobileClasses()` registers the initial 17 desktop-only slugs.
-- `src/Core/Kernel.php` — `MobileActionHandlers::init()` wired post-bootAll.
-- `src/Shared/Frontend/DashboardShortcode.php` — dispatch gate + `mobile-settings` slug dispatch.
-- `languages/talenttrack-nl_NL.po` — 18 new msgids.
-- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
-
-## Translations
-
-18 new translatable strings covering the prompt page copy, the settings UI, and the email subject + body.
-
-## Player-centricity
-
-The classification protects the player-data interactions that matter on phones (a coach finishing a training, a scout naming a prospect at a tournament, a parent checking their child's progress) by shielding them from cramped admin surfaces that would otherwise frustrate the experience. The desktop-only block isn't punitive — it's an honest "this view doesn't earn out on a 360px screen, here's a button to email yourself the link." The classification is the first step toward dedicating the mobile UX investment to the surfaces that actually serve player work.
+- `assets/css/mobile-patterns.css` — new (4 components, ~190 lines).
+- `assets/js/mobile-helpers.js` — new (~110 lines).
+- `docs/mobile-patterns.md` + `docs/nl_NL/mobile-patterns.md` — new.
+- `docs/architecture-mobile-first.md` — appended #0084 surface-classification section.
+- `src/Shared/CoreSurfaceRegistration.php` — extended `registerMobileClasses()` with three more `desktop_only` surfaces and the `native` set.
+- `src/Shared/Frontend/DashboardShortcode.php` — conditional pattern-library enqueue on `native` surfaces.
+- `src/Shared/Frontend/FrontendWizardView.php` — sticky-CTA CSS rule for `.tt-wizard-actions` on phones.
+- `languages/talenttrack-nl_NL.po` — no new operator-facing strings (all-CSS / silent-visual + classification declarations).
+- `readme.txt`, `talenttrack.php`, `SEQUENCE.md` — version bump + ship metadata.

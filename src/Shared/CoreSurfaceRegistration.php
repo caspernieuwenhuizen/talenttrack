@@ -75,13 +75,12 @@ final class CoreSurfaceRegistration {
 
     /**
      * #0084 Child 1 — initial mobile classification declarations.
+     * #0084 Child 3 (v3.104.0) — extends with the `native` set + the
+     * remaining desktop_only surfaces that landed after Child 1's
+     * 17-slug seed.
      *
-     * Only the obviously-desktop surfaces register here so the gate
-     * has something to enforce on day one. Every other slug resolves
-     * to `viewable` via `MobileSurfaceRegistry`'s default. #0084 Child
-     * 3 walks the full inventory and registers each slug explicitly,
-     * including the `native` declarations on the persona dashboard,
-     * the new-evaluation wizard, and the player profile.
+     * Other slugs resolve to `viewable` via `MobileSurfaceRegistry`'s
+     * default — backwards-compatible with the existing inventory.
      */
     private static function registerMobileClasses(): void {
         $desktop_only = [
@@ -102,9 +101,27 @@ final class CoreSurfaceRegistration {
             'trial-tracks-editor',
             'trial-letter-templates-editor',
             'wizards-admin',
+            // #0084 Child 3 — additional desktop_only routes.
+            'players-import',     // CSV mapping flow — laptop required.
+            'onboarding-pipeline', // xl-size pipeline widget; doesn't fit on phones.
+            'reports',            // wizard + multi-column tables.
         ];
         foreach ( $desktop_only as $slug ) {
             \TT\Shared\MobileSurfaceRegistry::register( $slug, \TT\Shared\MobileSurfaceRegistry::CLASS_DESKTOP_ONLY );
+        }
+
+        // #0084 Child 3 — `native` declarations. Coaches reach the
+        // player profile from the sideline ("is this kid match-fit?")
+        // and finish a training via the new-evaluation wizard on a
+        // phone all the time. These surfaces get the mobile pattern
+        // library auto-enqueued.
+        $native = [
+            'players',   // coach player profile
+            'wizard',    // every wizard goes through this aggregator slug
+            'teammate',  // player viewing a teammate's card
+        ];
+        foreach ( $native as $slug ) {
+            \TT\Shared\MobileSurfaceRegistry::register( $slug, \TT\Shared\MobileSurfaceRegistry::CLASS_NATIVE );
         }
     }
 

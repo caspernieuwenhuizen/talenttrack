@@ -63,3 +63,13 @@ The pilot does this for the Activities surface. Goals, Players, Trial cases, and
 ## What's still desktop-first
 
 `public.css`, `frontend-admin.css`, `frontend-mobile.css`, and `admin.css` were authored before the rule. They're left in place for views that haven't been migrated yet. The path to "zero legacy desktop-first sheets" is one migrated view per release, tracked in [`SEQUENCE.md`](../SEQUENCE.md) under #0056.
+
+## #0084 — surface classification
+
+Every `?tt_view=` route declares its `mobile_class` via `MobileSurfaceRegistry::register($view_slug, $class)`:
+
+- **`native`** — mobile-first surface. The pattern library (`mobile-patterns.css` + `mobile-helpers.js`) is enqueued automatically by `DashboardShortcode` on these surfaces.
+- **`viewable`** — readable on mobile but desktop-preferred. The default for unregistered slugs.
+- **`desktop_only`** — phone access lands on `FrontendMobilePromptView` instead of the cramped responsive view. Per-club override via the `force_mobile_for_user_agents` setting; per-request override via `?force_mobile=1`.
+
+See [`mobile-patterns.md`](mobile-patterns.md) for the four CSS components (`tt-mobile-bottom-sheet`, `tt-mobile-cta-bar`, `tt-mobile-segmented-control`, `tt-mobile-list-item`) and the `TT.Mobile.*` JS helpers.

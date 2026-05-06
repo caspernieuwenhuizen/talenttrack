@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.103.2
+Stable tag: 3.104.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.104.0 — Mobile pattern library + classification rollout + sticky wizard CTA (#0084 Children 2 + 3) =
+
+Closes #0084 — Children 2 and 3 bundled in one ship. Child 1 (v3.103.2) shipped the routing scaffolding (`MobileSurfaceRegistry` + `MobileDetector` + desktop-prompt + dispatcher gate). This release ships the pattern library that `native` surfaces consume, the sticky wizard action bar that closes the v3.78.0 deferred polish from #0072, and the rollout of `native` declarations across the surfaces that earn it. **(1) Pattern library** — `assets/css/mobile-patterns.css` ships four CSS components: `tt-mobile-bottom-sheet` (slides from bottom + drag-handle + backdrop, max 80% screen height), `tt-mobile-cta-bar` (sticky bottom action with `env(safe-area-inset-bottom)` for iOS home indicator), `tt-mobile-segmented-control` (2-4 option picker, hidden radios so it submits in standard form payloads), `tt-mobile-list-item` (card-style row with leading/content/trailing slots replacing `<table>` rows on phones). `assets/js/mobile-helpers.js` exposes `TT.Mobile.openBottomSheet/closeBottomSheet/bindBottomSheet` with drag-to-dismiss (>80px translation OR flick velocity >0.5 px/ms closes; otherwise snaps back). Honours `prefers-reduced-motion`. Auto-binds at DOM-ready. **(2) Conditional enqueue** — `DashboardShortcode::render()` enqueues `tt-mobile-patterns` style + `tt-mobile-helpers` script only when `MobileSurfaceRegistry::isNative($view)` is true. `viewable` and `desktop_only` surfaces never load them. **(3) Documentation** — `docs/mobile-patterns.md` (EN) + `docs/nl_NL/mobile-patterns.md` (NL) document all four components with code examples. `docs/architecture-mobile-first.md` gains a `#0084 — surface classification` section cross-referencing the pattern library. **(4) Classification rollout** — three additional `desktop_only` surfaces (`players-import`, `onboarding-pipeline`, `reports`) and three `native` declarations (`players` for the coach player profile reached from the sideline, `wizard` for the aggregator slug every wizard goes through, `teammate` for the player teammate-card view). Child 1 already seeded 17 desktop_only slugs; Child 3 brings the explicit total to 20 desktop_only + 3 native. **(5) Sticky wizard CTA bar** — `.tt-wizard-actions` becomes `position: sticky; bottom: 0;` on phones (≤720px) inside `FrontendWizardView::enqueueWizardStyles()`. The Submit / Next button stays visible while the coach scrolls long forms. Closes the v3.78.0 deferred polish item from #0072 about `RateActorsStep` mobile UX — combined with v3.103.0's #0080 B4 card stack, the new-evaluation wizard now feels native rather than "responsive but flat". **What's NOT in this PR** (deferred polish): bottom-sheet retrofit on `PlayerPickerStep` / `ActivityPickerStep` (existing dropdowns work; bottom-sheet is opportunistic polish for a follow-up); CI lint rules forbidding `<table>` in native templates and ad-hoc `position: fixed` (conventions documented in `docs/mobile-patterns.md` but enforcement defers); per-row pattern migration on the player-detail surface (the tile is `native` so the pattern library loads; per-row migration follows opportunistic touches per spec). No new NL msgids — pure CSS / JS / classification declarations, no operator-facing strings.
 
 = 3.103.2 — Mobile surface classification + desktop-prompt page (#0084 Child 1) =
 
