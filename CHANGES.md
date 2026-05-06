@@ -1,77 +1,120 @@
-# TalentTrack v3.101.1 — MFA enrollment wizard (#0086 Workstream B Child 1, sprint 2 of 3)
+# TalentTrack v3.101.2 — MFA login enforcement (#0086 Workstream B Child 1, sprint 3 of 3)
 
-Sprint 2 of three. Lights up the user-facing surface that sprint 1 (v3.100.1) set up. Sprint 1 shipped the schema + domain services + Account-page status indicator with no user-visible enrollment path. Sprint 3 (next) wires the WordPress `authenticate` filter for login-time enforcement.
+Closes #0086 Workstream B Child 1. Sprint 1 (v3.100.1) shipped the data layer; sprint 2 (v3.101.1) shipped the enrollment wizard; sprint 3 wires the runtime login enforcement so the second factor actually gates access.
 
-Renumbered v3.100.2 → v3.101.1 mid-build after the parallel-agent ship of v3.101.0 (#0006 team planner) landed.
+## What landed in sprint 3
 
-## What landed in sprint 2
+### `Auth\MfaLoginGuard` — runtime enforcement
 
-### `Domain\QrCodeRenderer`
+Hooks `wp_login` (post-cookie) and `init` (every subsequent request).
 
-Self-contained pure-PHP QR encoder. Byte-mode encoding at error-correction level L, automatic version selection v1..v10 (covers any otpauth URI we'd generate — worst case ~180 chars fits inside v8 / 192-byte capacity), full mask-pattern penalty scoring per ISO/IEC 18004:2015 §7.8.3.1. Output is inline SVG.
+On login, if the user's persona intersects the per-club `mfa_required_personas` list and they don't hold a valid 30-day "remember this device" cookie:
+- Enrolled user → set `tt_mfa_pending_<user_id>` transient (15-min TTL).
+- Un-enrolled user → set `tt_mfa_must_enroll_<user_id>` transient.
+- Stash the original `redirect_to` URL in `tt_mfa_post_verify_url_<user_id>` so the prompt page sends the user there after success.
 
-The choice of pure-PHP over a JS QR library is the security framing: server-side rendering keeps the user's TOTP secret inside a single trust boundary (PHP request handler → SVG bytes → user's screen) rather than shipping a third-party JS library that would need its own license + supply-chain review. Reed-Solomon ECC over GF(256) with primitive 0x11D, version capacity tables hand-copied from the ISO standard, BCH(15,5) format-info encoder + BCH(18,6) version-info encoder for v7+. ~600 LOC self-contained.
+The init middleware redirects every subsequent request to the MFA prompt page (or the enrollment wizard) until the challenge clears. REST + admin-ajax + admin-post + cron + wp-login + the prompt itself + the enrollment wizard URL are exempt. The "must enroll" path appends `tt_mfa_required=1` so the wizard's intro step can show a "you must enable MFA before continuing" notice.
 
-### `Wizards\MfaEnrollmentWizard`
+### `Frontend\FrontendMfaPromptView` — the challenge page
 
-Registered in `WizardRegistry` per CLAUDE.md §3. Cap `read` (every logged-in user manages their own MFA — keyed by `(wp_user_id, club_id)` so no cross-user concerns).
+Reachable at `?tt_view=mfa-prompt`. Two modes:
+- **TOTP** (default) — 6-digit input with `inputmode=numeric` + `autocomplete=one-time-code` + autofocus. Validates via `TotpService::verify()` against the decrypted secret.
+- **Backup code** (`?mode=backup`) — `XXXX-XXXX-XXXX` input. Validates via `BackupCodesService::verify()` over the constant-time iteration; on match, marks the code as used and persists the modified array.
 
-**Step 1 — Intro.** Plain explanatory text: what MFA is, which authenticator apps work, what to expect (~2 minutes, scan QR, type code, save backup codes). Already-enrolled users see a warning notice that continuing will replace their secret.
+Optional "remember this device for 30 days" checkbox issues the `tt_mfa_device` cookie via `RememberDeviceCookie::setForUser()` on success. Lockout state renders a countdown screen with no input field instead of the form.
 
-**Step 2 — Secret.** Lazy-generates a fresh 20-byte TOTP secret on first render via `TotpService::generateSecret()`, persists encrypted via `MfaSecretsRepository::upsertSecret()` with an empty backup-codes array. Re-renders / Back navigation reuse the same secret (the operation is idempotent — existing row → reuse, no row → create). Renders the QR code on the left, manual-entry fallback on the right with the secret chunked into 4-character blocks for legibility. The QR encodes the standard otpauth:// URI with issuer `TalentTrack` or `TalentTrack — <site name>` for non-default site names so users with multiple installs can tell them apart in their authenticator app.
+### `Auth\RateLimiter` — 5/15 lockout policy
 
-**Step 3 — Verify.** 6-digit input with `inputmode=numeric` + `autocomplete=one-time-code` + `pattern=[0-9 ]*` + `autofocus` + `maxlength=11` (allows for spaces). Whitespace tolerated, validated via `TotpService::verify()` against the decrypted secret with the standard ±1-step (90s) tolerance window for clock skew. On match, `MfaSecretsRepository::markEnrolled()` flips `enrolled_at` to now. Clear error messages distinguish format errors from mismatch. Re-tries are unlimited at enrollment time — rate-limit + lockout machinery is for the runtime login flow (sprint 3), not enrollment, where forcing a re-scan on every miss is poor UX for clock-skew problems.
+5 consecutive failed verifications trigger a 15-minute lockout. Counter resets on success. Both thresholds are operator-configurable via `MfaSettings` (`mfa_max_attempts`, `mfa_lockout_minutes`). Each failure writes an `mfa.verify_failed` audit event; the threshold-trip writes `mfa.lockout`. The repository helpers (`recordFailedAttempt`, `lockoutUntil`) are added to `MfaSecretsRepository` for sprint-3 use.
 
-**Step 4 — Backup codes.** Generates 10 single-use plaintext codes via `BackupCodesService::generate()`, persists the hashed storage array via `updateBackupCodes()`. Plaintext is stashed in wizard state so re-renders show the same codes (telling the user "I generated different codes; the ones you wrote down are wrong" is worse than re-displaying the same set). Displays codes in a 2-column monospace grid with Copy-all-to-clipboard + Print buttons. Submission gated on a confirmation checkbox ("I have saved these and understand I won't see them again"). On submit `WizardState::clear()` wipes the plaintext from both the transient and the persistent draft row, redirects to `?page=tt-account&tab=mfa&tt_msg=mfa_enrolled`.
+Note: the policy uses a cumulative counter, not a sliding window. Justification: TOTP codes are unguessable in 5 attempts (1-in-1M base rate, 5/1,000,000 over 5 attempts) — the lockout exists to slow credential-stuffing, not to fence guessable input. Cumulative is easier to reason about and harder to exploit via burst-then-wait timing.
 
-### `Admin\MfaActionHandlers` — two new admin-post endpoints
+### `Auth\RememberDeviceCookie` — 30-day signed cookie
 
-- `tt_mfa_regenerate_backup_codes` — issues a fresh batch of 10 codes, overwrites the stored hashes, stashes plaintext in a 5-minute one-shot transient (`tt_mfa_fresh_backup_codes_<user_id>`) that the destination tab reads + immediately deletes. The transient is the single channel for "show codes once after a redirect" — no plaintext crosses the redirect URL.
-- `tt_mfa_disable` — wipes the user's `tt_user_mfa` row entirely. Requires a `confirm=yes` POST field to proceed. The tab's collapsible `<details>` form makes the action discoverable but a small extra step beyond a single click. Audit-log integration on this destructive action is deferred to sprint 3.
+Cookie name: `tt_mfa_device`. Format: `<wp_user_id>|<device_token>|<signature>`. Signature: `wp_hash( "tt_mfa_device|<user_id>|<device_token>" )`, verified with `hash_equals()`. Server-side persists `signed_token` + `device_label` (UA-derived) + `expires_at` + `last_used_at` in `tt_user_mfa.remembered_devices` JSON. Same `httponly` + `samesite=Lax` + `secure=is_ssl()` conventions as `ImpersonationContext`. Verify path bumps `last_used_at`; clear path purges the cookie + cookie-side state.
 
-### Account-page MFA tab (rebuilt for sprint 2)
+Repository surface added in sprint 3:
+- `appendRememberedDevice( $user_id, $device )` — drops expired entries on the way in.
+- `consumeRememberedDevice( $user_id, $token )` — constant-time match, bump on success.
+- `revokeRememberedDevices( $user_id, $token = '' )` — single-token or all-tokens purge.
 
-- **Not-enrolled path** — "Start enrollment" hero button pointing at the wizard URL via `WizardEntryPoint::urlFor( MfaEnrollmentWizard::SLUG, '' )`. Renders a "wizards disabled in configuration" notice if `tt_wizards_enabled` is off.
-- **Enrolled path** — backup-codes-remaining count (with red running-low warning at ≤3), "Regenerate backup codes" button, collapsible "Turn MFA off" form with confirmation checkbox.
-- **One-shot success messages** on `tt_msg=mfa_enrolled` / `mfa_backup_regenerated` / `mfa_disabled` / `mfa_disable_unconfirmed`. The regenerate-codes message renders the freshly-generated plaintext from the one-shot transient with Copy + Print buttons before deleting the transient.
+### `Settings\MfaSettings` — per-club configuration
 
-### `MfaModule::boot()`
+Typed accessor over `tt_config` (per-club key-value via `ConfigService`). Keys:
+- `mfa_required_personas` — JSON array of persona keys. Default: `[ academy_admin, head_of_development ]`.
+- `mfa_lockout_minutes` — default 15.
+- `mfa_max_attempts` — default 5.
+- `mfa_remember_device_days` — default 30.
 
-Was a no-op in sprint 1; now registers the wizard + inits the action handlers.
+`operatorSelectablePersonas()` returns the labelled catalogue the operator UI exposes.
 
-## Plaintext-credential lifecycle
+### `Audit\MfaAuditEvents` — stable event keys
 
-- **TOTP secret** — generated and persisted (encrypted via `CredentialEncryption`, AES-256-GCM under `wp_salt('auth')`) at step 2. Never held plaintext in wizard state. Step 3 reads + decrypts from `tt_user_mfa` for verification.
-- **Plaintext backup codes** — generated at step 4 only (after verify succeeds), held in wizard state for the duration of step 4's render. Submit calls `WizardState::clear()` which deletes both the transient and the persistent draft row. Worst-case exposure window: ~1 hour transient TTL or ~14 days persistent draft TTL until the cleanup cron sweeps it.
-- **Regenerate-action plaintext** — held in a 5-minute transient between admin-post and the destination tab's render. The destination deletes the transient on first read.
+Thin wrapper around `AuditService::record()`. Event constants:
+- `mfa.enrolled`
+- `mfa.verified`
+- `mfa.verify_failed`
+- `mfa.lockout`
+- `mfa.backup_code_used`
+- `mfa.backup_codes_regenerated`
+- `mfa.disabled`
+- `mfa.device_remembered`
+- `mfa.devices_revoked`
+- `mfa.required_personas_changed`
+
+The acting user is captured by `AuditService` via `get_current_user_id()`; the subject is the `wp_user_id` argument. Operator-on-behalf-of-user `mfa.disabled` events therefore log both: actor = operator, subject = target user.
+
+### Operator-only MFA tab section
+
+`?page=tt-account&tab=mfa` (operator-only sub-section, gated on `tt_edit_settings`):
+- **`mfa_required_personas` setting** — multi-checkbox over the persona catalogue. Submit writes via the new `tt_mfa_save_required_personas` admin-post.
+- **Reset MFA on another user (lockout recovery)** — dropdown of currently-enrolled users + confirmation checkbox + Reset button. Submit deletes the target's `tt_user_mfa` row via `MfaSecretsRepository::disable()`. Audit-logged.
+
+### Atomic enrollment fix
+
+Sprint 2's wizard flipped `enrolled_at` at the verify step, leaving a window where a user who closed the browser between verify and backup-codes was "enrolled" but had no recovery codes. Sprint 3 moves `markEnrolled()` to the BackupCodesStep submit so enrollment is atomic with backup-codes persistence — a half-finished wizard leaves the row un-enrolled and re-entering the wizard cleanly overwrites it.
+
+### Other changes
+
+- `MfaModule::boot()` now registers the wizard, inits action handlers, and inits the login guard.
+- `DashboardShortcode` dispatches `?tt_view=mfa-prompt` to `FrontendMfaPromptView`.
+- Existing `MfaActionHandlers` (regenerate / disable from sprint 2) gain audit-log calls.
+- `RememberDeviceCookie::clear()` is called on the user-initiated disable so a future re-enrollment doesn't accidentally honour an old device.
+
+## Risk callouts
+
+- **REST is exempt from the gate.** A user with their session cookie can hit REST endpoints between login and challenge completion. The MFA gate's purpose is at login (verifying the cookie holder is the real user); once a session cookie exists in a browser, REST gating wouldn't change the threat model. Documented as a known limitation.
+- **Single-admin lockout.** If the only academy admin enrolls themselves and then loses both phone + all backup codes, they're stuck — operator-on-behalf-of-user disable requires another operator. Mitigation: the security operator guide already prescribes "two admins is a reasonable minimum for redundancy."
+- **Cookie-bound trust.** The 30-day remember-device cookie is bound to (user_id, device_token) and signed via `wp_hash()`. If a remember-cookie leaks (e.g. shared browser), the attacker bypasses MFA on that device until the cookie expires or the user revokes. Sprint 3 follow-up could add a "revoke this device" UI; for now `revokeRememberedDevices()` is callable but not surfaced.
 
 ## What's NOT in this PR
 
-- **WordPress `authenticate` filter integration** (sprint 3).
-- **Per-club `require_mfa_for_personas` setting** (sprint 3). Default `[ academy_admin, head_of_development ]`.
-- **Rate-limited verification with 15-min lockout** (sprint 3). Consumes the `failed_attempts` + `locked_until` columns from migration 0073.
-- **30-day "remember this device" cookie** (sprint 3). Consumes the `remembered_devices` column from migration 0073.
-- **Audit-log integration** (sprint 3). Events: `mfa_enrolled` / `mfa_verified` / `mfa_lockout` / `mfa_backup_code_used` / `mfa_disabled`.
-- **Operator-on-behalf-of-user disable** (sprint 3). For lockout recovery.
+- **Per-device revocation UI** — listing remembered devices with a per-row revoke button. Repository methods are in; surfacing them is a small follow-up.
+- **#0086 Workstream B Children 2-4** — session management UI / login-fail tracking / admin IP whitelist. Pending after Workstream B Child 1 closes.
+- **#0086 Workstream C** — external audit (Securify / Computest), 3 months elapsed. Kicks off after Workstream B Children 1-3 ship.
 
 ## Affected files
 
-- `src/Modules/Mfa/Domain/QrCodeRenderer.php` — new.
-- `src/Modules/Mfa/Wizards/MfaEnrollmentWizard.php` — new.
-- `src/Modules/Mfa/Wizards/IntroStep.php` — new.
-- `src/Modules/Mfa/Wizards/SecretStep.php` — new.
-- `src/Modules/Mfa/Wizards/VerifyStep.php` — new.
-- `src/Modules/Mfa/Wizards/BackupCodesStep.php` — new.
-- `src/Modules/Mfa/Admin/MfaActionHandlers.php` — new.
-- `src/Modules/Mfa/MfaModule.php` — `boot()` now registers the wizard + inits action handlers.
-- `src/Modules/License/Admin/AccountPage.php` — `renderMfaTab()` rebuilt for the live enrollment surface.
-- `languages/talenttrack-nl_NL.po` — 30 new msgids.
+- `src/Modules/Mfa/Auth/MfaLoginGuard.php` — new.
+- `src/Modules/Mfa/Auth/RateLimiter.php` — new.
+- `src/Modules/Mfa/Auth/RememberDeviceCookie.php` — new.
+- `src/Modules/Mfa/Frontend/FrontendMfaPromptView.php` — new.
+- `src/Modules/Mfa/Settings/MfaSettings.php` — new.
+- `src/Modules/Mfa/Audit/MfaAuditEvents.php` — new.
+- `src/Modules/Mfa/MfaSecretsRepository.php` — `recordFailedAttempt`, `lockoutUntil`, `appendRememberedDevice`, `consumeRememberedDevice`, `revokeRememberedDevices` added.
+- `src/Modules/Mfa/MfaModule.php` — `boot()` now wires `MfaLoginGuard::init()`.
+- `src/Modules/Mfa/Admin/MfaActionHandlers.php` — audit logging on regenerate / disable, plus two new actions for save-personas / operator-disable.
+- `src/Modules/Mfa/Wizards/VerifyStep.php` — drops the `markEnrolled()` call (atomic-enrollment fix).
+- `src/Modules/Mfa/Wizards/BackupCodesStep.php` — calls `markEnrolled()` + `MfaAuditEvents::record()` + `MfaLoginGuard::clearPending()` on submit.
+- `src/Modules/License/Admin/AccountPage.php` — operator-only sub-section with persona setting + reset-MFA-on-another-user form.
+- `src/Shared/Frontend/DashboardShortcode.php` — `mfa-prompt` view dispatch.
+- `languages/talenttrack-nl_NL.po` — 35 new msgids.
 - `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
 
 ## Translations
 
-30 new translatable strings covering wizard step copy, manual-entry labels, verification error messages, backup-codes confirmation, regenerate-codes success messaging, and the disable-MFA confirmation form.
+35 new translatable strings covering prompt copy (TOTP / backup-code modes), lockout messaging, operator section labels, and audit-event names that surface in the audit-log viewer.
 
 ## Player-centricity
 
-Same framing as sprint 1: protecting the WordPress accounts that touch player records. Every player file, every evaluation, every PDP cycle is gated by the cap-and-matrix layer — but the cap layer trusts whoever holds the WP user's session cookie. MFA is the second factor that anchors that trust. Sprint 2 puts the surface in front of every user so they can self-enroll today; sprint 3 makes enrollment mandatory for the personas with the broadest reach into player data.
+Sprint 3 closes the "what does MFA actually protect?" loop. Sprint 1 + 2 made enrollment possible; sprint 3 makes it consequential. With per-club enforcement the academy admin can require their staff with the broadest player-data reach (academy_admin + head_of_development by default) to verify the second factor at every login. Coaches, scouts, and other personas can opt in. The session cookie is now anchored to a real second factor — the cap layer that gates every player file / evaluation / PDP cycle now trusts the cookie holder is the real user.
