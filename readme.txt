@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.99.0
+Stable tag: 3.99.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.99.1 — Persona dashboard editor: collision detection + auto-reflow + alignment guides (#0088) =
+
+Closes #0088 — three coupled UX additions to the persona-dashboard editor (`Configuration → Dashboard layouts`, shipped in #0060 v3.51.0). Compared the third-party canvas-builder spec against the shipped 1,052-LOC editor; most acceptance criteria already shipped (drag, snap, undo/redo with limit 50, persistence, mobile preview, keyboard a11y, S/M/L/XL presets). Three real gaps remained — this PR closes them, all in vanilla JS per CLAUDE.md §2 (no React, no build step). **(1) Collision detection + auto-reflow** — the previous `placeNewSlot` / `moveExistingSlot` wrote the dropped `(x, y)` straight into `state.template.grid` without overlap check, so slots could stack and saving persisted the overlap. New `slotsCollide()` rect test + `resolveCollisions()` push-down cascade (the dropped slot's colliders get `y = dropped.y + dropped.row_span`; chain repeats until stable, bounded by `grid.length²`) + `compactGrid()` vertical-compact pass run after every mutation. Algorithm shape matches `react-grid-layout`'s `compact()` + `moveElement(prevent_collision: false)` — re-implemented in ~120 LOC vanilla. **(2) Alignment guides** — on `dragover`, `computeAlignmentGuides()` compares the dragged slot's left / right / centre-x / top / bottom / centre-y in pixels against every other slot's matching edges (within a 4px tolerance), plus the canvas's own edges + centre. Matching axes render as 1px overlay lines inside a new `.tt-pde-guides` layer. Cleared on `dragend` / `drop` / `dragleave` / `Escape`. **(3) Animated reflow** — FLIP technique on `commit()`: capture each slot's pre-render rect, render, then for any slot whose position changed, set `transform: translate(prev - now)` with `transition: none`, force a reflow, then transition back to identity in the next frame. CSS transition on `.tt-pde-card` bumped from `transform 0.06s` to `transform 150ms ease`. Honors `prefers-reduced-motion`. **(4) Shift modifier on drop** — switches from default push-and-reflow to `findNearestFreeSlot()` (BFS outward from the dropped cell), so the operator can bulk-add widgets without shoving existing ones around (Figma "snap to whitespace" feel). **(5) Resize-clamp + keyboard nudge** wired through the same engine — resizing M→L pushes overlapping neighbours; arrow-nudging into an occupied cell pushes the occupant. **(6) Load-time compact pass** — pre-existing overlapping layouts (from before this release) auto-resolve on first open. **(7) `canvas` reference promoted to module scope** — the v3.82.1 `gridCellFromEvent` referenced `canvas` at module scope but only declared it inside `renderCanvas`, so the reference always resolved to undefined and cursor-coord drops silently fell through to the bottom-left fallback. Now actually working. No new translatable strings (silent visual feature). `docs/persona-dashboard.md` (EN+NL) gains a *Drag & drop* section. Renumbered v3.97.2 → v3.98.1 → v3.98.2 → v3.99.1 after parallel-agent ships of #0068 Team Blueprint Phase 1 (v3.98.0), #0086 Workstream A docs (v3.98.1), and #0081 onboarding-pipeline children 2b+3+4 (v3.99.0) took the prior slots.
 
 = 3.99.0 — Onboarding pipeline children 2b + 3 + 4: chain completion, pipeline widget + 10 KPIs, trial-cases rolling membership (#0081) =
 

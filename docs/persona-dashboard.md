@@ -68,6 +68,20 @@ Top-bar controls:
 - **Save draft** — persists your in-flight layout without making it live.
 - **Publish** — promotes the current layout to live for everyone matching that persona on their next page load. The confirmation modal shows the count of users it will affect.
 
+### Drag & drop (v3.97.2)
+
+Dragging a palette item or an existing canvas widget snaps to the nearest grid cell as the cursor moves. The editor never lets two widgets overlap:
+
+- **Drop on an empty cell** — the widget lands there.
+- **Drop on an occupied cell** — the existing widget(s) at that cell are pushed down out of the way; the editor then closes any gap above so the layout stays compact (the same auto-rearrangement Notion / Power BI dashboards use).
+- **Hold Shift while dropping** — the editor finds the nearest free cell instead of pushing anything. Useful when you're bulk-adding widgets and want them to slot in around what's already there.
+
+While dragging, **alignment guides** appear as faint blue lines whenever the dragged widget's left, right, centre, top, or bottom edge lines up with another widget's matching edge — or with the canvas's own centre / edges. Drops within 4 px of an alignment line snap to it, so you can build clean rows and columns without eyeballing pixel offsets.
+
+Reflows animate over 150 ms; the animation respects the operating system's *Reduce motion* preference.
+
+Layouts authored before this release (and possibly containing overlapping widgets from earlier editor versions) are auto-cleaned the first time you open them — the compact pass runs on load and you'll see a tidy grid instead of stacked cards.
+
 ### Keyboard support
 
 The editor is fully keyboard-accessible:

@@ -34,6 +34,27 @@
 
     var UNDO_LIMIT = 50;
 
+    // 12-column grid. Row height matches the editor CSS `--pde-row-h`.
+    // Updated lazily via getComputedStyle on first read so a theme
+    // override flows through.
+    var GRID_COLS = 12;
+    var ROW_PX_FALLBACK = 60;
+
+    // Alignment-guide tolerance — the dragged edge has to land within
+    // this many px of another edge for a guide to render. 4px is
+    // tight enough to feel intentional, loose enough to forgive a
+    // shaky cursor.
+    var ALIGN_TOLERANCE_PX = 4;
+
+    // Cached canvas element. The previous (v3.82.1) `gridCellFromEvent`
+    // referenced `canvas` at module scope but only declared it inside
+    // `renderCanvas` — the reference always resolved to undefined and
+    // the function silently returned null, so cursor-coord drops fell
+    // through to the legacy bottom-left fallback. Promoting to module
+    // scope makes the v3.82.1 fix actually take effect AND lets the
+    // new alignment-guide layer reach the same element.
+    var canvas = null;
+
     // Each placed slot gets a synthetic id for selection + a11y; not persisted.
     var slotIdCounter = 0;
     function freshSlotId() { return 'pde-slot-' + (++slotIdCounter); }
@@ -122,7 +143,13 @@
         state.undoStack.push(clone(state.template));
         if (state.undoStack.length > UNDO_LIMIT) state.undoStack.shift();
         state.redoStack = [];
+        // #0088 — FLIP: capture each slot's pre-render rect, render,
+        // then play a transform-based animation back to identity for
+        // any slot whose position changed (push / compact / nudge).
+        // Honors prefers-reduced-motion inside playFlipAnimations().
+        captureSlotRectsForFlip();
         renderAll();
+        playFlipAnimations();
     }
     function undo() {
         if (state.undoStack.length === 0) return;
@@ -231,6 +258,12 @@
         if (!BOOT.templates[persona]) return;
         state.persona = persona;
         state.template = annotate(activeTemplateFor(persona));
+        // #0088 — one-shot compact pass on load resolves any pre-
+        // existing overlap left by templates that shipped before
+        // collision detection. Operator opens the editor and sees a
+        // clean layout instead of having to drag overlapping slots
+        // apart by hand. Idempotent on already-clean grids.
+        compactGrid(state.template.grid || []);
         state.baseline = clone(state.template);
         state.undoStack = []; state.redoStack = [];
         state.selectedSlotId = null;
@@ -348,7 +381,7 @@
     function renderCanvas() {
         var heroBand = document.querySelector('[data-tt-pde-band="hero"]');
         var taskBand = document.querySelector('[data-tt-pde-band="task"]');
-        var canvas   = document.querySelector('[data-tt-pde="canvas"]');
+        canvas       = document.querySelector('[data-tt-pde="canvas"]');
         if (!canvas || !state.template) return;
 
         heroBand.setAttribute('data-empty-label', '+ ' + (I18N.add_widget || 'Add widget'));
@@ -376,16 +409,27 @@
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
                 t.node.classList.add('is-drop-target');
+                // #0088 — only the grid band offers alignment guides;
+                // hero / task bands are single-slot lanes.
+                if (t.kind === 'grid') updateAlignmentGuides(e);
             });
             t.node.addEventListener('dragleave', function (e) {
-                if (e.target === t.node) t.node.classList.remove('is-drop-target');
+                if (e.target === t.node) {
+                    t.node.classList.remove('is-drop-target');
+                    if (t.kind === 'grid') clearAlignmentGuides();
+                }
             });
             t.node.addEventListener('drop', function (e) {
                 e.preventDefault();
                 t.node.classList.remove('is-drop-target');
+                if (t.kind === 'grid') clearAlignmentGuides();
                 handleDropOnBand(t.kind, e);
             });
         });
+
+        // Re-create the guide overlay on every render (canvas was
+        // wiped above). Empty until a drag begins.
+        ensureGuideLayer();
     }
 
     function buildCard(slot, bandKind) {
@@ -546,23 +590,40 @@
             // left. Fixes the "drag-drop just dumps at the end"
             // complaint — the previous behaviour was visually
             // identical to clicking the palette item.
+            state.template.grid = state.template.grid || [];
             var coords = ev ? gridCellFromEvent(ev, slot.size) : null;
             if (coords) {
-                slot.x = coords.x;
-                slot.y = coords.y;
+                // #0088 — Shift modifier on drop switches from the
+                // default push-and-reflow behaviour to "snap to the
+                // nearest free cell," leaving every existing slot in
+                // place. Default = Notion / Power BI feel; Shift =
+                // Figma "snap to whitespace" feel.
+                if (ev && ev.shiftKey) {
+                    var free = findNearestFreeSlot(state.template.grid, coords, slot.size);
+                    if (free) { slot.x = free.x; slot.y = free.y; }
+                    else      { slot.x = coords.x; slot.y = coords.y; }
+                } else {
+                    slot.x = coords.x;
+                    slot.y = coords.y;
+                }
             } else {
-                // No event (palette click) → naive auto-place at
-                // the bottom-left like before.
+                // No event (palette click) → auto-place at the first
+                // free row from the top-left.
                 var maxY = -1;
-                (state.template.grid || []).forEach(function (s) {
+                state.template.grid.forEach(function (s) {
                     var bottom = s.y + Math.max(1, s.row_span);
                     if (bottom > maxY) maxY = bottom;
                 });
                 slot.y = Math.max(0, maxY);
                 slot.x = 0;
             }
-            state.template.grid = state.template.grid || [];
             state.template.grid.push(slot);
+            // #0088 — push-and-reflow + compact pass closes the
+            // overlap window the previous implementation left open.
+            // Shift-mode drops already landed in a free cell, so
+            // resolveCollisions becomes a no-op there; compact still
+            // runs to close any gap above.
+            reflow(state.template.grid, slot.__id);
         }
         commit();
         selectSlot(slot.__id);
@@ -587,17 +648,316 @@
         if (rect.width <= 0) return null;
         var dx = ev.clientX - rect.left;
         var dy = ev.clientY - rect.top;
-        var colPx = rect.width / 12;
-        // Approximate row height — uses the existing grid auto-rows
-        // setting (CSS sets 60px). Reading getComputedStyle here is
-        // overkill; 60 matches the editor's grid-auto-rows.
-        var rowPx = 60;
-        var col = Math.max(0, Math.min(11, Math.floor(dx / colPx)));
+        var colPx = rect.width / GRID_COLS;
+        var rowPx = currentRowPx();
+        var col = Math.max(0, Math.min(GRID_COLS - 1, Math.floor(dx / colPx)));
         var row = Math.max(0, Math.floor(dy / rowPx));
         // Clamp x so the slot doesn't overflow the right edge.
         var span = colsForSize(size);
-        col = Math.max(0, Math.min(12 - span, col));
+        col = Math.max(0, Math.min(GRID_COLS - span, col));
         return { x: col, y: row };
+    }
+
+    // Reads the active row height from the canvas' computed
+    // `grid-auto-rows`. Falls back to the CSS default when the canvas
+    // isn't in the DOM yet or the value can't be parsed.
+    function currentRowPx() {
+        if (!canvas || !canvas.ownerDocument || !canvas.ownerDocument.defaultView) return ROW_PX_FALLBACK;
+        var cs = canvas.ownerDocument.defaultView.getComputedStyle(canvas);
+        var raw = cs.getPropertyValue('grid-auto-rows');
+        var n = parseFloat(raw);
+        return (isFinite(n) && n > 0) ? n : ROW_PX_FALLBACK;
+    }
+
+    // ─── Collision / reflow ──────────────────────────────────────
+
+    // Pure rect-overlap test on grid coords. Slots that share an edge
+    // (a.x + a.col_span === b.x) DO NOT collide — the closed-half-
+    // open interval convention every grid layout uses.
+    function slotsCollide(a, b) {
+        var aw = colsForSize(a.size);
+        var bw = colsForSize(b.size);
+        var ah = Math.max(1, a.row_span | 0);
+        var bh = Math.max(1, b.row_span | 0);
+        if (a.x + aw <= b.x || b.x + bw <= a.x) return false;
+        if (a.y + ah <= b.y || b.y + bh <= a.y) return false;
+        return true;
+    }
+
+    // Push-down cascade rooted at the just-placed / just-moved slot.
+    // Anything colliding with `dropped` gets shoved to dropped.bottom.
+    // Then chain — a pushed slot may now collide with the slot below
+    // it; repeat until no collisions remain. Bounded so termination
+    // is guaranteed even on pathological inputs.
+    function resolveCollisions(grid, droppedId) {
+        if (!grid || grid.length < 2) return;
+        var anchor = grid.find(function (s) { return s.__id === droppedId; });
+        if (!anchor) return;
+        var moved = true;
+        var guard = grid.length * grid.length + 8;
+        while (moved && guard-- > 0) {
+            moved = false;
+            grid.forEach(function (other) {
+                if (other === anchor) return;
+                if (!slotsCollide(anchor, other)) return;
+                var newY = anchor.y + Math.max(1, anchor.row_span | 0);
+                if (other.y < newY) { other.y = newY; moved = true; }
+            });
+            // Cascade — slots below the just-pushed slots may now
+            // overlap. Resolve pairwise until stable.
+            for (var i = 0; i < grid.length; i++) {
+                for (var j = 0; j < grid.length; j++) {
+                    if (i === j) continue;
+                    var a = grid[i]; var b = grid[j];
+                    if (a === anchor || b === anchor) continue;
+                    if (!slotsCollide(a, b)) continue;
+                    var pushTarget = (a.y < b.y) ? b : (b.y < a.y ? a : (i < j ? b : a));
+                    var pushSource = pushTarget === a ? b : a;
+                    pushTarget.y = pushSource.y + Math.max(1, pushSource.row_span | 0);
+                    moved = true;
+                }
+            }
+        }
+    }
+
+    // Vertical compact pass. Lowers every slot's `y` to the smallest
+    // value that doesn't introduce a new collision. Closes gaps left
+    // by the push pass and matches the Notion / Power BI / Grafana
+    // "always-compact" feel — no free row above any slot.
+    function compactGrid(grid) {
+        if (!grid || grid.length === 0) return;
+        var sorted = grid.slice().sort(function (a, b) {
+            if (a.y !== b.y) return a.y - b.y;
+            return a.x - b.x;
+        });
+        sorted.forEach(function (slot) {
+            while (slot.y > 0) {
+                var probeY = slot.y - 1;
+                var probe = { x: slot.x, y: probeY, size: slot.size, row_span: slot.row_span };
+                var collides = false;
+                for (var i = 0; i < sorted.length; i++) {
+                    if (sorted[i] === slot) continue;
+                    if (slotsCollide(probe, sorted[i])) { collides = true; break; }
+                }
+                if (collides) break;
+                slot.y = probeY;
+            }
+        });
+    }
+
+    // Convenience: run both passes. Call after any mutation that may
+    // have introduced overlap or gap.
+    function reflow(grid, droppedId) {
+        if (droppedId) resolveCollisions(grid, droppedId);
+        compactGrid(grid);
+    }
+
+    // BFS outward from `(want.x, want.y)` for the first cell that
+    // fits a slot of the given size without colliding. Used by the
+    // Shift-modifier "find a gap" mode where the operator wants the
+    // drop to slot in beside existing widgets instead of shoving
+    // them down. Returns null when the grid is full to the right and
+    // below — caller falls back to "append to bottom-left".
+    function findNearestFreeSlot(grid, want, size) {
+        var span = colsForSize(size);
+        var maxX = GRID_COLS - span;
+        for (var radius = 0; radius < 40; radius++) {
+            for (var dy = 0; dy <= radius; dy++) {
+                for (var dxAbs = -radius; dxAbs <= radius; dxAbs++) {
+                    if (Math.abs(dxAbs) + dy !== radius) continue;
+                    var x = want.x + dxAbs;
+                    var y = want.y + dy;
+                    if (x < 0 || x > maxX || y < 0) continue;
+                    var probe = { x: x, y: y, size: size, row_span: 1, __id: '__probe__' };
+                    var collides = false;
+                    for (var i = 0; i < grid.length; i++) {
+                        if (slotsCollide(probe, grid[i])) { collides = true; break; }
+                    }
+                    if (!collides) return { x: x, y: y };
+                }
+            }
+        }
+        return null;
+    }
+
+    // ─── Alignment guides ────────────────────────────────────────
+
+    // Pixel-space rect for a (potentially virtual) slot at grid
+    // coords. Avoids dependency on actual DOM rects so the dragged
+    // slot's rect is consistent with the grid coords we're going to
+    // write on drop.
+    function slotRectPx(slot, canvasRect) {
+        var colPx = canvasRect.width / GRID_COLS;
+        var rowPx = currentRowPx();
+        var w = colsForSize(slot.size) * colPx;
+        var h = Math.max(1, slot.row_span | 0) * rowPx;
+        return {
+            left:   slot.x * colPx,
+            right:  slot.x * colPx + w,
+            top:    slot.y * rowPx,
+            bottom: slot.y * rowPx + h,
+            cx:     slot.x * colPx + w / 2,
+            cy:     slot.y * rowPx + h / 2
+        };
+    }
+
+    // Returns the list of guide lines to render. The canvas's own
+    // left / right / centre count as legitimate alignment targets;
+    // an alignment to the canvas centre is the cleanest cue when a
+    // slot is being centred.
+    function computeAlignmentGuides(draggedRect, otherSlots, canvasRect, tolerance) {
+        var guides = [];
+        var seen = {};
+        function add(axis, pos) {
+            var key = axis + ':' + Math.round(pos);
+            if (seen[key]) return;
+            seen[key] = true;
+            guides.push({ axis: axis, pos: pos });
+        }
+        var canvasMids = {
+            v: [0, canvasRect.width / 2, canvasRect.width],
+            h: [0, canvasRect.height / 2, canvasRect.height]
+        };
+        var draggedV = [draggedRect.left, draggedRect.cx, draggedRect.right];
+        var draggedH = [draggedRect.top,  draggedRect.cy, draggedRect.bottom];
+        draggedV.forEach(function (d) {
+            canvasMids.v.forEach(function (c) {
+                if (Math.abs(d - c) <= tolerance) add('v', c);
+            });
+        });
+        draggedH.forEach(function (d) {
+            canvasMids.h.forEach(function (c) {
+                if (Math.abs(d - c) <= tolerance) add('h', c);
+            });
+        });
+        otherSlots.forEach(function (other) {
+            var or = slotRectPx(other, canvasRect);
+            var otherV = [or.left, or.cx, or.right];
+            var otherH = [or.top,  or.cy, or.bottom];
+            draggedV.forEach(function (d) {
+                otherV.forEach(function (o) {
+                    if (Math.abs(d - o) <= tolerance) add('v', o);
+                });
+            });
+            draggedH.forEach(function (d) {
+                otherH.forEach(function (o) {
+                    if (Math.abs(d - o) <= tolerance) add('h', o);
+                });
+            });
+        });
+        return guides;
+    }
+
+    // The container `.tt-pde-guides` sits inside the canvas,
+    // absolutely positioned, pointer-events disabled, sized to match
+    // the canvas. Cleared via `clearAlignmentGuides()` on dragend /
+    // drop / dragleave-from-canvas.
+    function ensureGuideLayer() {
+        if (!canvas) return null;
+        var layer = canvas.querySelector(':scope > .tt-pde-guides');
+        if (!layer) {
+            layer = document.createElement('div');
+            layer.className = 'tt-pde-guides';
+            layer.setAttribute('aria-hidden', 'true');
+            canvas.appendChild(layer);
+        }
+        return layer;
+    }
+    function renderAlignmentGuides(guides) {
+        var layer = ensureGuideLayer();
+        if (!layer) return;
+        layer.innerHTML = '';
+        guides.forEach(function (g) {
+            var el = document.createElement('span');
+            el.className = 'tt-pde-guide tt-pde-guide--' + (g.axis === 'v' ? 'vertical' : 'horizontal');
+            if (g.axis === 'v') el.style.left = g.pos + 'px';
+            else                el.style.top  = g.pos + 'px';
+            layer.appendChild(el);
+        });
+    }
+    function clearAlignmentGuides() {
+        if (!canvas) return;
+        var layer = canvas.querySelector(':scope > .tt-pde-guides');
+        if (layer) layer.innerHTML = '';
+    }
+
+    // Pull the dragged slot's projected size + row_span based on
+    // current drag state. Palette items default to the widget's
+    // default_size; existing slots use their stored size.
+    function draggedSlotShape() {
+        var d = window.__ttPdeDrag;
+        if (!d) return null;
+        if (d.kind === 'add-widget') {
+            var w = widgetById(d.paletteId);
+            return { size: (w && w.default_size) || 'M', row_span: 1, slotId: null };
+        }
+        if (d.kind === 'add-kpi') {
+            return { size: 'S', row_span: 1, slotId: null };
+        }
+        if (d.kind === 'move' && d.slotId) {
+            var hit = findSlotAndBand(d.slotId);
+            if (hit) return { size: hit.slot.size, row_span: hit.slot.row_span, slotId: d.slotId };
+        }
+        return null;
+    }
+
+    // Called from the canvas dragover handler. Cheap enough to run
+    // every event at <= 30 slots; spec budget is < 16ms / event and
+    // a 30×30 pair scan is sub-millisecond.
+    function updateAlignmentGuides(ev) {
+        if (!canvas || !state.template) return;
+        var shape = draggedSlotShape();
+        if (!shape) return;
+        var coords = gridCellFromEvent(ev, shape.size);
+        if (!coords) return;
+        var canvasRect = canvas.getBoundingClientRect();
+        var draggedSlot = { x: coords.x, y: coords.y, size: shape.size, row_span: shape.row_span };
+        var draggedRect = slotRectPx(draggedSlot, canvasRect);
+        var others = (state.template.grid || []).filter(function (s) { return s.__id !== shape.slotId; });
+        var guides = computeAlignmentGuides(draggedRect, others, canvasRect, ALIGN_TOLERANCE_PX);
+        renderAlignmentGuides(guides);
+    }
+
+    // ─── FLIP reflow animation ───────────────────────────────────
+
+    // Captured before each renderAll(); compared after to drive a
+    // FLIP transition (set transform to old position, transition
+    // back to identity in the next frame). CSS transition on
+    // `transform` does the actual animation — we just hand it the
+    // before / after deltas.
+    var slotRectsBeforeRender = {};
+    function captureSlotRectsForFlip() {
+        slotRectsBeforeRender = {};
+        if (!canvas) return;
+        canvas.querySelectorAll('[data-tt-pde-slot]').forEach(function (el) {
+            var id = el.dataset.ttPdeSlot;
+            var r = el.getBoundingClientRect();
+            slotRectsBeforeRender[id] = { top: r.top, left: r.left };
+        });
+    }
+    function playFlipAnimations() {
+        if (!canvas) return;
+        var rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (rm) return;
+        canvas.querySelectorAll('[data-tt-pde-slot]').forEach(function (el) {
+            var id = el.dataset.ttPdeSlot;
+            var prev = slotRectsBeforeRender[id];
+            if (!prev) return;
+            var now = el.getBoundingClientRect();
+            var dx = prev.left - now.left;
+            var dy = prev.top  - now.top;
+            if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+            el.style.transition = 'none';
+            el.style.transform  = 'translate(' + dx + 'px, ' + dy + 'px)';
+            // Force a reflow so the transform commits before we
+            // reset transition on the next frame. Reading
+            // offsetHeight is the standard FLIP idiom.
+            void el.offsetHeight;
+            requestAnimationFrame(function () {
+                el.style.transition = 'transform 150ms ease, box-shadow 0.12s ease';
+                el.style.transform  = '';
+            });
+        });
     }
 
     function moveExistingSlot(slotId, targetBand, ev) {
@@ -626,21 +986,28 @@
             // v3.80.1 — same DnD-coords fix as placeNewSlot. Moving an
             // existing slot via drag now lands on the dropped cell
             // instead of bottom-left.
+            state.template.grid = state.template.grid || [];
             var coords = ev ? gridCellFromEvent(ev, slot.size) : null;
             if (coords) {
-                slot.x = coords.x;
-                slot.y = coords.y;
+                if (ev && ev.shiftKey) {
+                    var free = findNearestFreeSlot(state.template.grid, coords, slot.size);
+                    if (free) { slot.x = free.x; slot.y = free.y; }
+                    else      { slot.x = coords.x; slot.y = coords.y; }
+                } else {
+                    slot.x = coords.x;
+                    slot.y = coords.y;
+                }
             } else {
                 var maxY = -1;
-                (state.template.grid || []).forEach(function (s) {
+                state.template.grid.forEach(function (s) {
                     var bottom = s.y + Math.max(1, s.row_span);
                     if (bottom > maxY) maxY = bottom;
                 });
                 slot.y = Math.max(0, maxY);
                 slot.x = 0;
             }
-            state.template.grid = state.template.grid || [];
             state.template.grid.push(slot);
+            reflow(state.template.grid, slot.__id);
         }
         commit();
         selectSlot(slot.__id);
@@ -659,9 +1026,12 @@
         if (!hit || hit.band !== 'grid') return;
         var step = (key === 'ArrowLeft' || key === 'ArrowRight') ? 3 : 1;
         if (key === 'ArrowLeft')  hit.slot.x = Math.max(0, hit.slot.x - step);
-        if (key === 'ArrowRight') hit.slot.x = Math.min(12 - colsForSize(hit.slot.size), hit.slot.x + step);
+        if (key === 'ArrowRight') hit.slot.x = Math.min(GRID_COLS - colsForSize(hit.slot.size), hit.slot.x + step);
         if (key === 'ArrowUp')    hit.slot.y = Math.max(0, hit.slot.y - step);
         if (key === 'ArrowDown')  hit.slot.y = hit.slot.y + step;
+        // #0088 — nudging into an occupied cell pushes the occupant;
+        // compact closes any gap left behind. Same engine as drag.
+        reflow(state.template.grid, slotId);
         commit();
     }
 
@@ -780,8 +1150,11 @@
                 // off the canvas with no feedback that the resize happened.
                 var hit = findSlotAndBand(slot.__id);
                 if (hit && hit.band === 'grid') {
-                    var max_x = Math.max(0, 12 - colsForSize(sz));
+                    var max_x = Math.max(0, GRID_COLS - colsForSize(sz));
                     if (slot.x > max_x) slot.x = max_x;
+                    // #0088 — a larger size may now overlap the slot's
+                    // neighbours; reflow to push them down + compact.
+                    reflow(state.template.grid, slot.__id);
                 }
                 commit();
             });
@@ -1039,7 +1412,16 @@
                 e.preventDefault();
                 if (e.shiftKey) redo(); else undo();
             }
+            // #0088 — Escape during a drag clears alignment guides
+            // immediately (the dragend follows but on slow systems
+            // the user expects sub-frame feedback).
+            if (e.key === 'Escape') clearAlignmentGuides();
         });
+
+        // #0088 — Catch-all dragend so guides clear when the drag is
+        // released outside any registered drop target (cursor leaves
+        // the canvas, ESC, drop-on-non-target).
+        document.addEventListener('dragend', function () { clearAlignmentGuides(); });
 
         loadPersona(state.persona);
     }

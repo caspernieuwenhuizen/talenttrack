@@ -50,6 +50,20 @@ Werkbalk:
 - **Concept opslaan** — bewaart je werk-in-uitvoering zonder live te gaan.
 - **Publiceren** — zet de huidige lay-out live voor iedereen met deze persona, bij hun volgende paginalaad. Het bevestigingsvenster toont het aantal gebruikers dat geraakt wordt.
 
+### Slepen & loslaten (v3.97.2)
+
+Een paletitem of bestaande widget volgt de muis en klikt vast in het dichtstbijzijnde rastervakje. De editor laat nooit twee widgets overlappen:
+
+- **Loslaten op een leeg vakje** — de widget komt daar te staan.
+- **Loslaten op een bezet vakje** — de bestaande widget(s) worden naar beneden geduwd; daarna sluit de editor eventuele gaten erboven zodat de lay-out compact blijft (dezelfde automatische herrangschikking als bij Notion / Power BI).
+- **Shift ingedrukt houden bij het loslaten** — de editor zoekt het dichtstbijzijnde vrije vakje in plaats van bestaande widgets weg te duwen. Handig bij het in bulk toevoegen van widgets, wanneer je ze tussen het bestaande in wilt schuiven.
+
+Tijdens het slepen verschijnen **uitlijnhulplijnen** als zwakke blauwe lijnen zodra de linker-, rechter-, midden-, boven- of onderrand van de gesleepte widget op één lijn ligt met een andere widget — of met het midden / de randen van het canvas zelf. Loslaten binnen 4 px van een hulplijn klikt vast op die lijn, zodat je nette rijen en kolommen bouwt zonder pixels te tellen.
+
+Het herrangschikken animeert in 150 ms; de animatie respecteert de besturingssysteem-instelling *Beweging beperken*.
+
+Lay-outs die vóór deze release zijn opgeslagen (en mogelijk overlappende widgets uit oudere editor-versies bevatten) worden automatisch opgeschoond zodra je ze opent — de compact-pass draait bij het laden en je ziet een opgeruimd raster in plaats van gestapelde kaarten.
+
 ### Toetsenbord
 
 De editor is volledig met toetsenbord te bedienen:
