@@ -336,10 +336,28 @@ paths:
     delete: { tags: [teams], summary: Delete team, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
 
   /teams/{id}/chemistry:
-    get: { tags: [teams], summary: Team chemistry pairings, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    get: { tags: [teams], summary: Team chemistry — composite + formation/style/depth scores + pair-chemistry links, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
 
   /teams/{id}/formation:
     get: { tags: [teams], summary: Team formation board, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /teams/{id}/blueprints:
+    get: { tags: [teams], summary: List team blueprints, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    post: { tags: [teams], summary: Create blueprint (body — name, formation_template_id, flavour=match_day|squad_plan), parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: Created } } }
+
+  /blueprints/{id}:
+    get: { tags: [teams], summary: Show one blueprint with assignments + recomputed blueprint_chemistry, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    put: { tags: [teams], summary: Update meta (name / formation_template_id / notes); 409 if locked, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+    delete: { tags: [teams], summary: Delete blueprint + assignments, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /blueprints/{id}/assignment:
+    put: { tags: [teams], summary: Set / unset a single slot at a tier; returns recomputed blueprint_chemistry; 409 if locked, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /blueprints/{id}/assignments:
+    put: { tags: [teams], summary: Bulk-replace assignments — accepts flat slot→player_id or nested slot→tier→player_id, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
+
+  /blueprints/{id}/status:
+    put: { tags: [teams], summary: Status flow — draft → shared → locked (with reopen back to shared), parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
 
   /people:
     get: { tags: [people], summary: List people (staff), responses: { '200': { description: OK } } }

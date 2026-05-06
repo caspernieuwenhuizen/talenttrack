@@ -32,7 +32,10 @@ _None._ #0081 closed in v3.98.0 (children 2b + 3 + 4 bundled per user direction)
 
 ## Needs refinement / shaping
 
-_None._ Most recent shaping was #0088 (persona-dashboard editor canvas improvements) which moved straight to **Ready** above. Future GDPR right-to-be-forgotten erasure spec (split out of #0086 per locked decision Q2) lands here when its number is assigned and shaping starts.
+| # | Topic | Type | Estimated | Notes |
+| - | - | - | - | - |
+| 0068 phases 3 + 4 | Team Blueprint epic, remaining phases. **Phase 3** — per-blueprint discussion thread via the Threads module (architectural lucky strike from #0085: register a new `blueprint` thread type adapter alongside `goal` + `player`, wire into a Comments tab on the editor; gates through the existing `tt_view_team_chemistry` / `tt_manage_team_chemistry` caps; ~6-8h estimated). **Phase 4** — mobile drag-drop polish (HTML5 drag-and-drop on touch is awkward; long-press-to-pick-up fallback in vanilla JS) + public share-link for parents / external coaches (signed-token URL, read-only blueprint render, no login required). ~3-5h estimated for Phase 4. Decisions are locked from the v3.96.0 / v3.98.0 / v3.100.0 shaping conversations but no spec file yet — write one if shipping the two phases together; skip the spec if shipping inline like Phases 1 + 2. | feat | ~9-13h combined | Phase 3 unblocks per-blueprint coach conversations; Phase 4 unblocks parent-facing share + better mobile UX. Trigger to ship: pilot operator asks for either; or bundling-up free time post-#0083 / #0086. |
+| GDPR erasure | Future right-to-be-forgotten erasure spec. Split out of #0086 per locked decision Q2 (subject-access export ships in #0063 use case 10; erasure becomes its own spec). Gates on #0083 fact registry so erasure walks every fact table. Lands here when its number is assigned and shaping starts. | feat | TBD | #0083 fact registry shipped + GDPR erasure customer ask. |
 
 ## Not started (no shaping needed before build)
 
