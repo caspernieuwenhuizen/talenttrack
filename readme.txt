@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.109.1
+Stable tag: 3.109.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.109.2 — Seed review: Excel export + offline edit + re-import for lookups, eval categories, roles =
+
+New `?page=tt-seed-review` admin surface (Configuration group, cap-gated on `tt_edit_settings`) lets operators dump every seeded translatable row to a single .xlsx, edit offline, and upload back to apply in-place updates. **Sheets**: Lookups (every `tt_lookups` row for the current club, scoped on `club_id`), Eval categories (`tt_eval_categories` main + sub), Roles (`tt_roles`), Functional roles (`tt_functional_roles`). **Columns include a `language_of_name` / `language_of_label` heuristic column** flagging whether the stored value reads as English or Dutch (Dutch markers: Aanwezig / Rechts / Links / Hoofdtrainer / etc.; otherwise defaults to `en`). **Translations**: each row also carries a `label_nl` column populated by switching the active locale to `nl_NL` and calling `__()` on the stored English string, so the operator sees both the English seed AND the current Dutch reflection from the .po side-by-side. **Re-import** matches rows by their primary key (`id`); edited columns flow into per-table `wpdb->update()` calls. Rows missing from the upload are left alone (partial patch, not full replacement). New rows can NOT be added through the importer — adding via Excel would invite numbering collisions with future migrations; operators add new rows via the existing per-category UIs (frontend Lookups admin, eval-categories admin, etc.). **Audit**: every applied row update writes a `seed_review.row_updated` event to `tt_audit_log` carrying `(table, row_id, columns)`. **Live-DB updates only** — the shipped seed PHP files are not rewritten. Operators who want a change to ship to other installs as code work it back into `config/authorization_seed.php` or the relevant migration manually. Cap-gated on `tt_edit_settings`. Uses the existing PhpSpreadsheet dep (already shipped for #0059 demo-data Excel). 18 new translatable strings covering the admin page copy + import-result notice + button labels. Renumbered v3.109.1 → v3.109.2 mid-rebase after parallel-agent ship of #0083 deferred follow-ups (team + activity Analytics tabs + explorer Export CSV) took v3.109.1.
 
 = 3.109.1 — Analytics deferred follow-ups: team + activity Analytics tabs + explorer Export CSV (#0083 follow-up) =
 

@@ -72,4 +72,8 @@ return [
     // sources. Phases 2-6 build the schema, REST, builder UI, rendering,
     // cap layer, and docs on top.
     TT\Modules\CustomWidgets\CustomWidgetsModule::class          => true,
+    // #0089 follow-up — seed review (Excel export + edit + re-import
+    // for tt_lookups, tt_eval_categories, tt_roles, tt_functional_roles).
+    // Live-DB updates only; shipped seed PHP files unchanged.
+    TT\Modules\SeedReview\SeedReviewModule::class                => true,
 ];
