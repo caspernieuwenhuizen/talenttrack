@@ -256,7 +256,7 @@ class PeopleRestController {
         // than a raw mailto:, so the send is captured in the audit log.
         $name_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $name !== '' ? $name : '#' . (int) $row->id,
-            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', (int) $row->id )
+            \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', (int) $row->id )
         );
 
         $email_link_html = '';

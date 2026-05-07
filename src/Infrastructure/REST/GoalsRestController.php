@@ -227,7 +227,7 @@ class GoalsRestController {
         if ( $player_name !== '' && $player_id > 0 ) {
             $player_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
                 $player_name,
-                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id )
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', $player_id )
             );
         }
         // v3.70.1 hotfix — slug switched from `my-goals` (player-self-
@@ -236,7 +236,7 @@ class GoalsRestController {
         // not the player-only my-goals page.
         $title_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $title,
-            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'goals', $goal_id )
+            \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'goals', $goal_id )
         );
         $status_pill_html = \TT\Infrastructure\Query\LookupPill::render( 'goal_status', (string) ( $row->status ?? '' ) );
 

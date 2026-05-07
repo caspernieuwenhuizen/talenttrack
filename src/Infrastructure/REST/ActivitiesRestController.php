@@ -380,7 +380,7 @@ class ActivitiesRestController {
         // self-scope) to the generic `activities` so cross-persona views
         // (HoD on a team's roster, academy admin on the full list) don't
         // hit the player-only "you must be connected to a player" gate.
-        $title_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', (int) $row->id );
+        $title_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'activities', (int) $row->id );
         $title_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             (string) $row->title,
             $title_url
@@ -389,7 +389,7 @@ class ActivitiesRestController {
         if ( ! empty( $row->team_id ) && ! empty( $row->team_name ) ) {
             $team_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
                 (string) $row->team_name,
-                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', (int) $row->team_id )
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', (int) $row->team_id )
             );
         }
 

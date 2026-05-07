@@ -206,7 +206,9 @@ class FrontendTrialsManageView extends FrontendViewBase {
             $player = QueryHelpers::get_player( (int) $r->player_id );
             $name   = $player ? QueryHelpers::player_display_name( $player ) : '#' . (int) $r->player_id;
             $track  = $tracks_by_id[ (int) $r->track_id ] ?? null;
-            $detail = add_query_arg( [ 'tt_view' => 'trial-case', 'id' => (int) $r->id ], $base_url );
+            $detail = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                add_query_arg( [ 'tt_view' => 'trial-case', 'id' => (int) $r->id ], $base_url )
+            );
             $staff_count = count( $staff_repo->listForCase( (int) $r->id ) );
 
             echo '<tr>';

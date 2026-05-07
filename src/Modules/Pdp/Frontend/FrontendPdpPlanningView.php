@@ -98,7 +98,7 @@ final class FrontendPdpPlanningView {
             // #0063 — team name links to the frontend team detail.
             $team_link = \TT\Shared\Frontend\Components\RecordLink::inline(
                 (string) $team['name'],
-                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', (int) $team_id )
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', (int) $team_id )
             );
             echo '<tr>';
             echo '<td style="padding:8px;border-bottom:1px solid #eef0f2;"><strong>' . $team_link . '</strong>'

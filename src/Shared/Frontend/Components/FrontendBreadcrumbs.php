@@ -117,6 +117,14 @@ final class FrontendBreadcrumbs {
      * @param array<int,array{label:string,url?:?string,class?:?string}> $items
      */
     public static function render( array $items ): void {
+        // v3.110.0 — auto-render the URL-borne back pill above the
+        // breadcrumb chain whenever the current request carries
+        // `tt_back`. Empty string when no valid back-target exists, so
+        // direct-navigation paths render the breadcrumbs alone.
+        $pill = BackLink::renderPill();
+        if ( $pill !== '' ) {
+            echo $pill; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        }
         if ( empty( $items ) ) return;
         echo '<nav class="tt-breadcrumbs" aria-label="' . esc_attr__( 'Breadcrumb', 'talenttrack' ) . '"><ol>';
         $last = count( $items ) - 1;

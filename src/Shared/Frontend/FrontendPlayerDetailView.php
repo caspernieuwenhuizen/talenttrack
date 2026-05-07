@@ -285,7 +285,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $out[] = [
                 'label' => __( 'Latest activity:', 'talenttrack' ),
                 'value' => $title !== '' ? $title : $date,
-                'url'   => RecordLink::detailUrlFor( 'activities', (int) $row->id ),
+                'url'   => RecordLink::detailUrlForWithBack( 'activities', (int) $row->id ),
             ];
         }
 
@@ -299,7 +299,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $out[] = [
                 'label' => __( 'Latest evaluation:', 'talenttrack' ),
                 'value' => (string) ( $row->eval_date ?? '—' ),
-                'url'   => RecordLink::detailUrlFor( 'evaluations', (int) $row->id ),
+                'url'   => RecordLink::detailUrlForWithBack( 'evaluations', (int) $row->id ),
             ];
         }
 
@@ -313,7 +313,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $out[] = [
                 'label' => __( 'Latest goal:', 'talenttrack' ),
                 'value' => (string) ( $row->title ?? '—' ),
-                'url'   => RecordLink::detailUrlFor( 'goals', (int) $row->id ),
+                'url'   => RecordLink::detailUrlForWithBack( 'goals', (int) $row->id ),
             ];
         }
 
@@ -421,7 +421,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         }
         echo '<ul class="tt-stack">';
         foreach ( $rows as $g ) {
-            $url = RecordLink::detailUrlFor( 'goals', (int) $g->id );
+            $url = RecordLink::detailUrlForWithBack( 'goals', (int) $g->id );
             echo '<li>';
             echo '<a class="tt-record-link" href="' . esc_url( $url ) . '">';
             echo '<strong>' . esc_html( (string) $g->title ) . '</strong> &middot; ';
@@ -468,7 +468,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $can_delete = current_user_can( 'tt_edit_evaluations' );
         echo '<ul class="tt-stack">';
         foreach ( $rows as $ev ) {
-            $url = RecordLink::detailUrlFor( 'evaluations', (int) $ev->id );
+            $url = RecordLink::detailUrlForWithBack( 'evaluations', (int) $ev->id );
             // Each row gets `data-tt-row` so the generic record-delete
             // handler in public.js (`.tt-record-delete`) can fade and
             // remove it without a full page reload on success.
@@ -526,7 +526,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         }
         echo '<ul class="tt-stack">';
         foreach ( $rows as $a ) {
-            $url = RecordLink::detailUrlFor( 'activities', (int) $a->id );
+            $url = RecordLink::detailUrlForWithBack( 'activities', (int) $a->id );
             echo '<li><a class="tt-record-link" href="' . esc_url( $url ) . '">';
             echo '<strong>' . esc_html( (string) ( $a->title ?? '—' ) ) . '</strong>';
             if ( ! empty( $a->session_date ) ) {

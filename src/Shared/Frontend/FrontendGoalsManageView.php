@@ -115,7 +115,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
             echo '<dd>'
                 . \TT\Shared\Frontend\Components\RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                     QueryHelpers::player_display_name( $player ),
-                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id )
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', $player_id )
                 )
                 . '</dd>';
         }
