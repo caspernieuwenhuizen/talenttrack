@@ -15,6 +15,12 @@ const { defineConfig, devices } = require('@playwright/test');
 module.exports = defineConfig( {
 	testDir: './tests/e2e',
 
+	// #0076 v1 — globalSetup runs once before the suite, logs in as
+	// `admin / password`, and saves the storageState. Per-spec tests
+	// reuse it via `test.use({ storageState: 'tests/e2e/.auth/admin.json' })`
+	// to skip the login dance on every run.
+	globalSetup: require.resolve( './tests/e2e/global-setup.js' ),
+
 	// Each test should be self-contained — no shared state across files.
 	fullyParallel: false,
 	workers: 1,
