@@ -1,7 +1,6 @@
-# Terug-navigatie
+<!-- audience: dev -->
 
-> **Doelgroep:** ontwikkelaar
-> **Status:** stabiel
+# Terug-navigatie
 
 URL-gedragen "← Terug naar waar je vandaan kwam" navigatie, geleverd
 in v3.110.0.

@@ -1,7 +1,6 @@
-# Back navigation
+<!-- audience: dev -->
 
-> **Audience:** developer
-> **Status:** stable
+# Back navigation
 
 URL-borne "← Back to where you came from" navigation, shipped in v3.110.0.
 
