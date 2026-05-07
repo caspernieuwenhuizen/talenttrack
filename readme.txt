@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.107.0
+Stable tag: 3.108.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.108.0 — Demo-data Excel: Sessions → Activities sheet rename (#0080 Wave D, closes epic) =
+
+Closes #0080. Last leftover from the v3.81.0 vocabulary sweep — the demo-data Excel template's `Sessions` sheet renamed to `Activities`. **Hard rename, no soft fallback** per spec note 161 + operator confirmation that no in-flight workbook uses the legacy name. **(1) Schema** — `SheetSchemas::all()`'s `'sessions'` entry's `'sheet'` field flips from `'Sessions'` to `'Activities'`. The schema array key stays `sessions` for back-compat with internal code paths. **(2) Template export** — `TemplateBuilder` reads sheet names from `$schema['sheet']`, so the rename propagates automatically; freshly-downloaded `.xlsx` carries an `Activities` tab where `Sessions` used to be. **(3) Importer** — `ExcelImporter::importFile()` detects a workbook that carries a `Sessions` sheet but no `Activities` sheet and emits an early blocker: *"Sheet 'Sessions' was renamed to 'Activities' in v3.108.0 — re-download the demo-data template, or rename the sheet."* No silent fallback. **(4) Out of scope**: `Session_Attendance` keeps its name; the internal `'sessions'` schema key stays for code-path stability. 1 new NL msgid; `docs/demo-data-excel.md` (EN+NL) gets a top-of-file migration note. Renumbered v3.104.0 → v3.105.0 → v3.106.0 → v3.107.0 → v3.108.0 across multiple rebases as parallel-agent ships of #0084 mobile pattern library, #0083 Children 1-6, #0063 Export module foundation, #0066 Communication module foundation, #0078 Phase 1 custom widget builder data-source layer, and #0076 Playwright coverage v1 starter took the v3.104.0 / v3.104.1 / v3.104.2 / v3.104.3 / v3.104.4 / v3.104.5 / v3.105.0 / v3.106.0 / v3.106.1 / v3.106.2 / v3.107.0 slots.
 
 = 3.107.0 — Playwright coverage v1 starter: globalSetup + helpers + 2 specs (#0076) =
 

@@ -12057,8 +12057,8 @@ msgstr "TalentTrack — demo-data sjabloon"
 msgid "How to fill this workbook"
 msgstr "Het werkboek invullen"
 
-msgid "Each green tab is a master entity (Teams, People, Players, Trial cases). Each blue tab is a transactional record (Sessions, Attendance, Evaluations, Goals, Player journey). Purple = settings, grey = reference."
-msgstr "Elk groen tabblad is een master-entiteit (Teams, People, Players, Trial cases). Elk blauw tabblad is een transactionele rij (Sessions, Attendance, Evaluations, Goals, Player journey). Paars = instellingen, grijs = referentie."
+msgid "Each green tab is a master entity (Teams, People, Players, Trial cases). Each blue tab is a transactional record (Activities, Attendance, Evaluations, Goals, Player journey). Purple = settings, grey = reference."
+msgstr "Elk groen tabblad is een master-entiteit (Teams, People, Players, Trial cases). Elk blauw tabblad is een transactionele rij (Activities, Attendance, Evaluations, Goals, Player journey). Paars = instellingen, grijs = referentie."
 
 msgid "auto_key (the first column on every entity tab)"
 msgstr "auto_key (de eerste kolom op elk entiteitstabblad)"
@@ -12078,8 +12078,8 @@ msgstr "Typ de auto_key-waarde van de rij waaraan je wilt koppelen. Voorbeeld: e
 msgid "Importable vs. documentation-only sheets"
 msgstr "Importeerbare vs. documentatie-tabbladen"
 
-msgid "The importer (v1.5) consumes: Teams, People, Players, Trial_Cases, Sessions, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey, Generation_Settings."
-msgstr "De importeur (v1.5) consumeert: Teams, People, Players, Trial_Cases, Sessions, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey, Generation_Settings."
+msgid "The importer (v1.5) consumes: Teams, People, Players, Trial_Cases, Activities, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey, Generation_Settings."
+msgstr "De importeur (v1.5) consumeert: Teams, People, Players, Trial_Cases, Activities, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey, Generation_Settings."
 
 msgid "Reference tabs (Eval_Categories, Category_Weights, _Lookups) are documentation-only. Configure those via the wp-admin Configuration screens. They are included here so you can see what categories / weights / lookups your imported data will key into."
 msgstr "Referentie-tabbladen (Eval_Categories, Category_Weights, _Lookups) zijn alleen documentatie. Configureer ze via de wp-admin Configuratie-schermen. Ze staan hier zodat je ziet op welke categorieën / wegingen / lookups je import zich aansluit."
@@ -12108,14 +12108,14 @@ msgstr "2. Vul daarna People, met team_key op stafrijen die naar Teams verwijst.
 msgid "3. Fill Players, referencing Teams via team_key."
 msgstr "3. Vul Players, met team_key die naar Teams verwijst."
 
-msgid "4. Add Sessions for each team (they reference Teams via team_key)."
-msgstr "4. Voeg Sessions toe voor elk team (verwijzen naar Teams via team_key)."
+msgid "4. Add Activities for each team (they reference Teams via team_key)."
+msgstr "4. Voeg Activities toe voor elk team (verwijzen naar Teams via team_key)."
 
-msgid "5. Add Session_Attendance rows for who showed up at each session."
-msgstr "5. Voeg Session_Attendance-rijen toe voor wie aanwezig was bij elke sessie."
+msgid "5. Add Session_Attendance rows for who showed up at each activity."
+msgstr "5. Voeg Session_Attendance-rijen toe voor wie aanwezig was bij elke activiteit."
 
-msgid "6. Add Evaluations + Evaluation_Ratings, referencing Players + Sessions."
-msgstr "6. Voeg Evaluations + Evaluation_Ratings toe die naar Players + Sessions verwijzen."
+msgid "6. Add Evaluations + Evaluation_Ratings, referencing Players + Activities."
+msgstr "6. Voeg Evaluations + Evaluation_Ratings toe die naar Players + Activities verwijzen."
 
 msgid "7. Add Goals + Player_Journey events as needed."
 msgstr "7. Voeg Goals + Player_Journey-gebeurtenissen toe waar nodig."
@@ -13824,3 +13824,8 @@ msgstr "Hervatten"
 
 msgid "Archive this schedule? It will stop running."
 msgstr "Dit schema archiveren? Het stopt dan met uitvoeren."
+
+# v3.108.0 — #0080 Wave D: demo-data Excel sheet rename
+
+msgid "Sheet \"Sessions\" was renamed to \"Activities\" in v3.108.0 — re-download the demo-data template, or rename the sheet to \"Activities\" in your workbook."
+msgstr "Tabblad \"Sessions\" is in v3.108.0 hernoemd naar \"Activities\" — download het demo-databestand opnieuw, of hernoem het tabblad in je werkmap naar \"Activities\"."

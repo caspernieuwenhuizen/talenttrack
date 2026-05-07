@@ -2,6 +2,8 @@
 
 # Demodata — Excel-werkboek
 
+> **Migratienotitie (v3.108.0)** — het activiteitentabblad is hernoemd van `Sessions` naar `Activities`. Werkmappen die zijn gemaakt op basis van het v3.107.0-template (of ouder) moeten opnieuw worden gedownload, of het tabblad moet handmatig worden hernoemd naar `Activities`. De importer geeft een duidelijke blokkering op werkmappen met een `Sessions`-tabblad — geen soft-fallback. De interne schema-sleutel blijft `sessions` voor terugcompatibiliteit met code­paden.
+
 De demodatagenerator bij **Tools → TalentTrack Demo** heeft drie bronnen:
 
 - **Alleen procedureel** — kies een preset (Tiny / Small / Medium / Large) en laat de generator alles doen. Snel en geloofwaardig, maar team- en spelersnamen zijn willekeurig.
@@ -13,7 +15,7 @@ De demodatagenerator bij **Tools → TalentTrack Demo** heeft drie bronnen:
 Klik in de bronstap op **Template downloaden (.xlsx)** voor een vers werkboek met alle 15 tabbladen, gegroepeerd op tabkleur:
 
 - **Master** (groen) — Teams, People, Players, Trial_Cases.
-- **Transactioneel** (blauw) — Sessions, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey.
+- **Transactioneel** (blauw) — Activities, Session_Attendance, Evaluations, Evaluation_Ratings, Goals, Player_Journey.
 - **Configuratie** (paars) — Eval_Categories, Category_Weights, Generation_Settings.
 - **Referentie** (grijs) — _Lookups.
 
