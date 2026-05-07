@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.109.6
+Stable tag: 3.109.7
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.109.7 — Custom widget builder Phase 6: docs (EN+NL) + module-docblock cleanup, closes #0078 =
+
+Sixth and final phase of #0078 Custom widget builder. **Closes #0078.** Documentation + ship-completion polish; no functional change. **(1) `docs/custom-widgets.md`** (EN) + **`docs/nl_NL/custom-widgets.md`** (NL) — full operator + developer guide covering when to use a custom widget, the six-step builder flow, persona-dashboard placement, the two-layer permission model (authoring cap `tt_author_custom_widgets` + render-time source-cap inheritance), per-widget cache + manual flush, audit log shape, deliberate out-of-scope list (free-text SQL, visual SQL builder, version history, pie/donut/radar, cross-source joins, UI-defined data sources, drilldown links), and a developer recipe for registering additional `CustomDataSource` classes from a plugin's `boot()`. Both files marked `audience: admin, dev`. **(2) Module docblock** updated to reflect the closed-epic state — phase-by-phase ship history (Phase 1 v3.106.2 → Phase 6 v3.109.7), feature-flag default-off rationale (existing installs aren't surprised by a new admin page on upgrade). **(3) Spec frontmatter** flipped from `status: ready` to `status: shipped` with the per-phase version trail. **(4) SEQUENCE.md** — In-progress section updated; Ready section row removed (epic now closed); per-phase Done rows already in place from Phases 2-5. **What's NOT in this PR**: zero code change. Feature flag stays default-off for existing installs (operators flip per club with `wp option update tt_custom_widgets_enabled 1`). 0 new translatable strings — every doc string is doc-only and not surfaced through `__()`.
 
 = 3.109.6 — Custom widget builder Phase 5: cap layer + per-widget cache + audit log + clear-cache (#0078 Phase 5) =
 

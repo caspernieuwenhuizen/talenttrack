@@ -20,27 +20,32 @@ use TT\Shared\Admin\AdminMenuRegistry;
  * CustomWidgetsModule (#0078) — admin-authored persona-dashboard
  * widgets backed by a registered CustomDataSource layer.
  *
- * Phase 1 (this ship — v3.106.2):
- *   - `Domain\CustomDataSource` interface.
- *   - `CustomDataSourceRegistry` static catalogue.
- *   - 5 reference data sources: players_active, evaluations_recent,
- *     goals_open, activities_recent, pdp_files.
+ * **Closed at v3.109.7 (Phase 6).** The full epic shipped across:
+ *   - Phase 1 (v3.106.2) — `CustomDataSource` interface + 5
+ *     reference sources.
+ *   - Phase 2 (v3.109.3) — `tt_custom_widgets` migration + repository
+ *     + service + REST CRUD (8 endpoints).
+ *   - Phase 3 (v3.109.4) — TalentTrack → Custom widgets admin page +
+ *     six-step builder (Source → Columns → Filters → Format → Preview
+ *     → Save), vanilla JS state machine + live preview against the
+ *     Phase 2 REST endpoint.
+ *   - Phase 4 (v3.109.5) — `Renderer\CustomWidgetRenderer` (table /
+ *     KPI / bar / line; Chart.js v4.4.0 from CDN) + synthetic
+ *     `CustomWidgetWidget` registered with `WidgetRegistry`.
+ *   - Phase 5 (v3.109.6) — `tt_author_custom_widgets` +
+ *     `tt_manage_custom_widgets` caps + `custom_widgets` matrix entity
+ *     + per-widget transient cache + audit log + clear-cache wiring +
+ *     source-cap inheritance at render time.
+ *   - Phase 6 (v3.109.7) — docs (`docs/custom-widgets.md` EN+NL) +
+ *     module docblock cleanup. Closes #0078.
  *
- * Subsequent phases build the rest of the spec on top:
- *   - Phase 2 — `tt_custom_widgets` migration + REST CRUD.
- *   - Phase 3 — admin builder page (TalentTrack → Custom widgets).
- *   - Phase 4 — rendering engine + persona-dashboard editor palette
- *     integration.
- *   - Phase 5 — cap layer (`tt_author_custom_widgets`), per-widget
- *     transient cache, audit-log integration.
- *   - Phase 6 — docs + i18n + README link.
- *
- * **Feature flag**. The whole module is opt-in via the
- * `tt_custom_widgets_enabled` feature toggle (default off). Beta
- * installs flip it on; production stays off until Phase 6 ships.
- * The toggle gates the boot path entirely — when off, no data sources
- * register, no admin pages exist. Phase 1 ships the gate and the
- * data layer behind it.
+ * **Feature flag**. The whole module remains opt-in via
+ * `tt_custom_widgets_enabled` (default off). Operators flip it on per
+ * club with `wp option update tt_custom_widgets_enabled 1` (or set
+ * the same key on `tt_config`). When off, the boot path short-
+ * circuits before any registration — no admin page, no REST routes,
+ * no editor palette tile. Default-off is deliberate so existing
+ * installs aren't surprised by a new admin page on upgrade.
  */
 class CustomWidgetsModule implements ModuleInterface {
 
