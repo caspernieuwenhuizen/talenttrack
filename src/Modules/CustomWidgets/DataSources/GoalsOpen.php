@@ -16,6 +16,8 @@ final class GoalsOpen implements CustomDataSource {
     public function id(): string { return 'goals_open'; }
     public function label(): string { return __( 'Open goals', 'talenttrack' ); }
 
+    public function requiredCap(): string { return 'tt_view_goals'; }
+
     public function columns(): array {
         return [
             [ 'key' => 'player',    'label' => __( 'Player', 'talenttrack' ),    'kind' => 'string' ],

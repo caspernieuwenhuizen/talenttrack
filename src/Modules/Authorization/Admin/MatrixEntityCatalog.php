@@ -108,6 +108,8 @@ final class MatrixEntityCatalog {
             'player_notes'                  => __( 'Player notes', 'talenttrack' ),
             // #0083 Child 5 — central analytics surface.
             'analytics'                     => __( 'Analytics', 'talenttrack' ),
+            // #0078 Phase 5 — custom widget builder.
+            'custom_widgets'                => __( 'Custom widgets', 'talenttrack' ),
         ];
     }
 

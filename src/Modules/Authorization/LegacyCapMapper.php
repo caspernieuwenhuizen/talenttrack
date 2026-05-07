@@ -147,6 +147,10 @@ final class LegacyCapMapper {
         'tt_view_staff_certifications_expiry' => [ 'staff_overview',   'read' ],
         'tt_admin_styling'               => [ 'custom_css',            'create_delete' ],
         'tt_edit_persona_templates'      => [ 'persona_templates',     'change' ],
+        // #0078 Phase 5 — custom widget builder. Authoring + delete map
+        // to the same matrix entity; HoD holds RC, academy_admin RCD.
+        'tt_author_custom_widgets'       => [ 'custom_widgets',        'change' ],
+        'tt_manage_custom_widgets'       => [ 'custom_widgets',        'create_delete' ],
         'tt_generate_scout_report'       => [ 'scout_access',          'create_delete' ],
         'tt_view_pdp'                    => [ 'pdp_file',              'read' ],
         'tt_edit_pdp'                    => [ 'pdp_file',              'change' ],
