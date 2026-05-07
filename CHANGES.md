@@ -1,77 +1,51 @@
-# TalentTrack v3.104.2 — Analytics KPI platform: registry + resolver + 6 reference KPIs (#0083 Child 2)
+# TalentTrack v3.104.3 — Analytics dimension explorer: ?tt_view=explore (#0083 Child 3)
 
-Second child of #0083 (Reporting framework). Builds the second layer on top of Child 1's fact registry: declarative `Kpi` value objects + `KpiRegistry` + a single `KpiResolver` that bridges new fact-driven KPIs and the legacy `Modules\PersonaDashboard\Registry\KpiDataSourceRegistry`. The 26 existing KPIs keep working unchanged via the resolver's back-compat fallback; bulk migration to fact-driven declarations lands in a follow-up.
+Third child of #0083 (Reporting framework). Ships the presentation layer that any KPI hands off to for drilldown — same UX everywhere. Reachable at `?tt_view=explore&kpi={key}`. Classified `desktop_only` per #0084 (dense filtering and chart interaction are desktop work — nobody analyses attendance trends on a phone).
 
 ## What landed
 
-### `Modules\Analytics\Domain\Kpi` value object
+### `Modules\Analytics\Frontend\FrontendExploreView`
 
-Declarative replacement for the existing 26 `Modules\PersonaDashboard\Kpis\*` classes that each carry inline aggregation SQL.
+Single view that drives the explorer surface.
 
-Properties:
-- `key`, `label`, `factKey`, `measureKey`
-- `defaultFilters` — `array<string,mixed>` applied at every resolve
-- `primaryDimension` — for the time-series chart on drilldown (Child 3)
-- `exploreDimensions` — list of dimension keys surfaced as filter chips
-- `context` — `ACADEMY` / `COACH` / `PLAYER_PARENT` for persona gating
-- `goalDirection` — `higher_better` / `lower_better` for explorer flagging
-- `threshold` — value below/above which the KPI flags red
-- `entityScope` — `'player'` / `'team'` / `'activity'` / null
+- **Headline** — KPI's measure aggregated across the filtered rows. Computed via `FactQuery::run( $factKey, [], [$measureKey], $filters )`. Format honours the measure's `unit` (percent / minutes / rating) — crude v1; a shared formatter ships in a follow-up.
+- **Threshold flagging** — when the KPI declares `threshold` + `goalDirection`, the headline gets a "Below threshold — review with the team" sub-label when the value falls on the wrong side.
+- **Filter chips** — one input per KPI `exploreDimension`, plus the special `date_after` / `date_before` shortcuts for the time-column filter. Free-form text inputs in v1; a follow-up replaces them with combobox dropdowns over real dimension values.
+- **Group-by selector** — the user picks a dimension; the explorer re-runs the query with that dimension in the GROUP BY and renders a two-column table (dimension value + aggregated measure).
+- **URL state** — filter values + `group_by` round-trip via querystring. `?tt_view=explore&kpi=fact_player_attendance_pct_30d&filter_date_after=2026-01-01&filter_team_id_eq=12&group_by=team_id` fully describes the view; sharing a link reproduces it.
 
-### `KpiRegistry`
+### Dispatch wired
 
-Append-only catalogue. Mirrors `FactRegistry` and `WidgetRegistry` shapes:
-- `register($kpi)`
-- `find($key)`
-- `all()`
-- `byContext($context)`
-- `forEntity($scope)` — used by Child 4's per-entity Analytics tab
+`DashboardShortcode::render()` gets a new `analytics_explore_slugs = ['explore']` array dispatching to `FrontendExploreView::render()`. `CoreSurfaceRegistration::registerSlugOwnerships()` declares the slug owned by `Modules\Analytics\AnalyticsModule` so the module-disabled friendly notice fires when the module's flipped off.
 
-### `KpiResolver`
+### `mobile_class = desktop_only`
 
-Single resolution path. Methods:
-- `value($key, $extraFilters)` — returns the headline number as `float|null`. Looks up `KpiRegistry::find()` first; if the new KPI exists, runs `FactQuery::run($factKey, [], [$measureKey], $defaultFilters + $extraFilters)`. If the key isn't in the new registry, falls back to the legacy `KpiDataSourceRegistry::get()` and calls its `compute()` method, coercing the legacy `KpiValue` to a float.
-- `exists($key)` — true when either registry resolves the key.
-
-The fallback is the migration bridge. The 26 legacy KPIs keep working unchanged through this resolver. As each KPI gets migrated to a fact-driven `Kpi` declaration, callers don't need to change — the resolver picks up the new registration first.
-
-### 6 reference KPIs in `AnalyticsModule::boot()`
-
-End-to-end smoke test for the platform against the fact registry:
-
-| Key | Fact | Measure | Context | Entity scope |
-|---|---|---|---|---|
-| `fact_player_attendance_pct_30d` | attendance | attendance_pct | COACH | player |
-| `fact_player_evaluations_count_30d` | evaluations | count | COACH | player |
-| `fact_player_goal_completion_rate` | goals | completion_rate | COACH | player |
-| `fact_activity_count_30d` | activities | count | ACADEMY | activity |
-| `fact_academy_prospects_logged_30d` | prospects | count | ACADEMY | (none) |
-| `fact_my_player_goal_completion_rate` | goals | completion_rate | PLAYER_PARENT | player |
-
-Six is enough to validate the platform without forcing a 26-KPI migration sprint inside this PR. Bulk migration + the remaining 49 of the spec's "top 15 per entity" set (15 player + 15 team + 10 activity + 10 season + 5 scout) ships in successive follow-ups.
+`CoreSurfaceRegistration::registerMobileClasses()` adds `'explore'` to the `desktop_only` list. Phone-class user agents land on the #0084 Child 1 prompt page with the "Email me the link" affordance instead of a cramped explorer.
 
 ## What's NOT in this PR
 
-- **Bulk migration of the 26 legacy KPIs** to fact-driven declarations — follow-up. Until then they keep working through the resolver's back-compat fallback.
-- **The 55 new KPIs from the spec's "top 15 per entity"** — 6 ship here as reference; 49 to go, follow-up.
-- **Static-analysis test** for "every `tt_*` table with a `player_id` / `team_id` FK is registered as a fact" — follow-up (introduced when the bulk migration starts so it doesn't fire on the partial state).
-- **`?tt_view=explore` dimension explorer** (Child 3, `desktop_only` per #0084).
-- **Entity Analytics tab** (Child 4).
-- **Central analytics surface** + `analytics` matrix entity + `tt_view_analytics` cap (Child 5).
-- **Export + scheduled reports** (Child 6).
+- **Chart.js time-series chart.** The spec mentions reusing #0077 M6's wiring — ships when the explorer earns it.
+- **Trend arrow + delta vs previous period** on the headline.
+- **Drilldown to underlying fact rows** (top 50, paginated). The drilldown is the third tier of the presentation; today the explorer goes "headline → grouped breakdown" and stops.
+- **Combobox dropdowns** over real dimension values. Today's filter chips are free-form text inputs — works for known integer ids and enum strings but not friendly for picking by name.
+- **Export CSV / PDF buttons** — Child 6 ships export across the whole framework.
+
+## Capability
+
+`read`. Per-KPI capability gating happens at the entry surfaces — Children 4 + 5 enforce the KPI's `context` (ACADEMY / COACH / PLAYER_PARENT) at the entity tab + the central analytics view. The explorer is reachable directly only via URL today; an unauthorised user typing the URL would see no data because the query auto-scopes to their `club_id` and the matrix gates upstream of REST limit what they can read.
 
 ## Affected files
 
-- `src/Modules/Analytics/Domain/Kpi.php` — new.
-- `src/Modules/Analytics/KpiRegistry.php` — new.
-- `src/Modules/Analytics/KpiResolver.php` — new.
-- `src/Modules/Analytics/AnalyticsModule.php` — `registerInitialKpis()` adds the 6 reference KPIs.
+- `src/Modules/Analytics/Frontend/FrontendExploreView.php` — new.
+- `src/Shared/Frontend/DashboardShortcode.php` — `analytics_explore_slugs` + dispatch.
+- `src/Shared/CoreSurfaceRegistration.php` — slug ownership + `mobile_class = desktop_only`.
+- `languages/talenttrack-nl_NL.po` — 12 new msgids.
 - `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
 
 ## Translations
 
-Zero new translatable strings — labels inside KPI registrations are wrapped in `__()` and surface via Children 3-5 UIs.
+12 new translatable strings covering explorer copy.
 
 ## Player-centricity
 
-The `entityScope` field on every KPI is what makes per-entity analytics tabs (Child 4) automatic. When a coach lands on a player's profile, the platform pulls every `entityScope: 'player'` KPI without per-template wiring. The catalogue does the work; the UI just renders. Same for team and activity profiles. The KPI registry isn't analytics-for-analytics-sake — it's the indexing layer that makes "show me how Lucas is doing" answerable from any surface that already has Lucas in front of the user.
+The explorer is the answer to "every aggregation is one-off." A coach asking "how does my team's attendance compare across last three seasons" used to need a bespoke SQL query and bespoke filter UI; now they pick the attendance KPI from anywhere it surfaces, hit Explore, and pivot. The cost of the next analytical question drops to zero — same affordances every time.

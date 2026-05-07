@@ -13676,3 +13676,38 @@ msgstr "Toon de desktop-prompt op telefoons voor pagina's die alleen voor deskto
 
 msgid "Default on. Untick to let phone visitors see the cramped desktop view on every page. Tablets and laptops are unaffected either way."
 msgstr "Staat standaard aan. Vink uit om telefoons op elke pagina de krappe desktopweergave te laten zien. Tablets en laptops blijven hetzelfde."
+# v3.104.3 — #0083 Child 3: dimension explorer
+
+msgid "Explore"
+msgstr "Verkennen"
+
+msgid "No KPI selected. Open the explorer from a KPI card or entity Analytics tab."
+msgstr "Geen KPI geselecteerd. Open de verkenner via een KPI-kaart of het Analytics-tabblad van een entiteit."
+
+msgid "The KPI references a fact that is no longer registered."
+msgstr "Deze KPI verwijst naar een fact die niet meer geregistreerd is."
+
+msgid "Headline"
+msgstr "Hoofdwaarde"
+
+msgid "Below threshold — review with the team."
+msgstr "Onder de drempel — bespreek met het team."
+
+msgid "Group by:"
+msgstr "Groeperen op:"
+
+
+msgid "Pick a dimension above to break the headline down by groups."
+msgstr "Kies hierboven een dimensie om de hoofdwaarde uit te splitsen per groep."
+
+msgid "Date after"
+msgstr "Datum na"
+
+msgid "Date before"
+msgstr "Datum vóór"
+
+msgid "No data for the current filters."
+msgstr "Geen data voor de huidige filters."
+
+msgid "The dimension explorer is the first ship of #0083 Child 3. Time-series chart, drilldown to fact rows, and CSV / PDF export ship in follow-ups."
+msgstr "De dimensieverkenner is de eerste ship van #0083 Child 3. Tijdreeksgrafiek, drilldown naar feitenrijen en CSV / PDF-export volgen in latere PR's."
