@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.108.3
+Stable tag: 3.108.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.108.4 — Pilot-batch follow-up III: PDP wizard player-context + eval subcategories rendering (#0089 F7 + A3) =
+
+Follow-up to v3.108.3 covering two more items from `ideas/0089`. **(1) F7 — PDP creation form skips team-selection when launched from a player profile.** The "+ New PDP" CTA on the player file passes `?tt_view=pdp&action=new&player_id=N`; the form previously still showed the team-filter dropdown as the first control even though the player was already known. `FrontendPdpManageView::renderForm()` now suppresses `show_team_filter` and pre-selects the picker when `player_id` is in the URL. The picker stays editable (the operator can still reassign), but the team-first ergonomic step is gone for the common entry path. **(2) A3 — Evaluation wizard subcategories rendering.** The `tt_eval_categories` schema has supported a `parent_id` hierarchy since the initial eval-categories migration, and the seed ships ~21 subcategories across the 4 main categories (Technical / Tactical / Physical / Mental) — the wizard just never rendered them. `RateActorsStep::render()` now pulls every active subcategory keyed by parent and renders an expandable `<details class="tt-rate-subs">` block under each main row with detailed sub-criteria (e.g. "↳ Passing accuracy" under "Technical"). Subs are collapsed by default so the quick-rate ergonomic stays primary; coaches who want to drill into a per-category detail open the disclosure. `validate()` already accepted any `(player_id, category_id)` tuple, so subcategory ratings persist into `tt_eval_ratings` through the existing flow with no schema or REST changes. **What's NOT in this PR**: F2 my-evaluations scores not displaying, F4 goal save error, F6 double-activity verification, A4 team-overview HoD widget, A5 broad detail-page visual refresh, A7 upgrade-to-Pro CTA, K1-K5 KPI/widget data investigation. 1 new translatable string ("Detailed %s") for the subcategory disclosure summary.
 
 = 3.108.3 — Pilot-batch follow-up II: profile tab visual contrast + generic record-detail chrome (#0089 A5 + F3) =
 

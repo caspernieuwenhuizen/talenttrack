@@ -44,6 +44,26 @@ final class RateActorsStep implements WizardStepInterface {
             '%"quick_rate":true%'
         ) );
 
+        // v3.108.4 — A3: pull every active subcategory keyed by its
+        // parent so each main row can render its detail children
+        // beneath. Sub-categories already exist in the schema (parent_id
+        // points to a main row) and the seed ships ~21 of them across
+        // the 4 main categories; the wizard just never surfaced them.
+        // Quick-rate stays on the main category; the subcategory inputs
+        // are nested under each main row inside a `<details>` so the
+        // coach can drill into a detailed rating without losing the
+        // top-line ergonomic.
+        $sub_cats_raw = $wpdb->get_results(
+            "SELECT id, parent_id, label FROM {$p}tt_eval_categories
+              WHERE parent_id IS NOT NULL AND is_active = 1
+              ORDER BY parent_id, display_order, label"
+        );
+        $sub_cats_by_parent = [];
+        foreach ( (array) $sub_cats_raw as $sc ) {
+            $pid = (int) $sc->parent_id;
+            $sub_cats_by_parent[ $pid ][] = $sc;
+        }
+
         $rating = $wpdb->get_var( "SELECT rating_max FROM {$p}tt_eval_categories LIMIT 0" );
         $max = (int) ( get_option( 'tt_rating_scale_max', 5 ) ?: 5 );
 
@@ -75,6 +95,7 @@ final class RateActorsStep implements WizardStepInterface {
                         $val    = (int) ( $state['ratings'][ $pid ][ $cid ] ?? 0 );
                         $iid    = 'tt-rate-' . $pid . '-' . $cid;
                         $label  = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label );
+                        $subs   = $sub_cats_by_parent[ $cid ] ?? [];
                     ?>
                         <div class="tt-rate-row">
                             <label class="tt-rate-label" for="<?php echo esc_attr( $iid ); ?>"><?php echo esc_html( $label ); ?></label>
@@ -91,6 +112,38 @@ final class RateActorsStep implements WizardStepInterface {
                                 </span>
                             </div>
                         </div>
+                        <?php if ( ! empty( $subs ) ) : ?>
+                            <details class="tt-rate-subs">
+                                <summary class="tt-rate-subs-toggle">
+                                    <?php
+                                    /* translators: %s: main category label (Technical / Tactical / Physical / Mental) */
+                                    echo esc_html( sprintf( __( 'Detailed %s', 'talenttrack' ), $label ) );
+                                    ?>
+                                </summary>
+                                <?php foreach ( $subs as $sub ) :
+                                    $scid = (int) $sub->id;
+                                    $sval = (int) ( $state['ratings'][ $pid ][ $scid ] ?? 0 );
+                                    $siid = 'tt-rate-' . $pid . '-' . $scid;
+                                    $slabel = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $sub->label );
+                                ?>
+                                    <div class="tt-rate-row tt-rate-row--sub">
+                                        <label class="tt-rate-label" for="<?php echo esc_attr( $siid ); ?>">↳ <?php echo esc_html( $slabel ); ?></label>
+                                        <div class="tt-rate-control">
+                                            <input type="number" min="0" max="<?php echo (int) $max; ?>"
+                                                   step="1"
+                                                   inputmode="numeric"
+                                                   id="<?php echo esc_attr( $siid ); ?>"
+                                                   class="tt-rate-input"
+                                                   name="ratings[<?php echo $pid; ?>][<?php echo $scid; ?>]"
+                                                   value="<?php echo $sval > 0 ? (int) $sval : ''; ?>" />
+                                            <span class="tt-rate-max">
+                                                / <?php echo (int) $max; ?>
+                                            </span>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </details>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                     <div class="tt-rate-row">
                         <label class="tt-rate-label" for="tt-rate-notes-<?php echo $pid; ?>"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label>

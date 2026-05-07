@@ -191,6 +191,16 @@ class FrontendPdpManageView extends FrontendViewBase {
         // Pre-fill team filter when the user landed here from a team
         // page (?team_id=N).
         $preset_team = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
+        // v3.108.4 — F7: when the operator landed here from a player
+        // file (`?tt_view=pdp&action=new&player_id=N`), the player is
+        // already known. The form previously still showed the team
+        // filter dropdown as the FIRST control and the player picker
+        // below it, even though both were redundant. Now the team
+        // filter is suppressed and the picker is preselected to the
+        // given player. The picker stays editable in case the
+        // operator wants to reassign — but the default workflow
+        // skips straight to the conversation-count + notes fields.
+        $preset_player = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
         ?>
         <form class="tt-ajax-form" data-rest-path="pdp-files" data-rest-method="POST" data-redirect-after-save="list">
             <?php
@@ -202,7 +212,13 @@ class FrontendPdpManageView extends FrontendViewBase {
                 'required'         => true,
                 'players'          => $players,
                 'team_id'          => $preset_team,
-                'show_team_filter' => true,
+                // F7: suppress the team-filter dropdown when we already
+                // know which player the operator is opening this for.
+                // The picker still shows so the operator can change
+                // their mind, but the team-first ergonomic step is
+                // gone.
+                'show_team_filter' => $preset_player <= 0,
+                'selected'         => $preset_player,
                 'placeholder'      => __( 'Type a player name…', 'talenttrack' ),
             ] );
             ?>

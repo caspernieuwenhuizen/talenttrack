@@ -412,6 +412,15 @@ class FrontendWizardView extends FrontendViewBase {
             .tt-rate-max { color: var(--tt-muted, #5f6368); font-size: 14px; }
             .tt-rate-skip { display: flex; align-items: center; gap: 8px; min-height: 48px; cursor: pointer; }
             .tt-rate-skip input[type=checkbox] { width: 22px; height: 22px; flex: 0 0 22px; }
+            /* v3.108.4 — A3: detail subcategories nested under each
+             * main category. Indent the sub-row label slightly so the
+             * hierarchy is visible; collapse the subs by default
+             * (the `<details>` wrapper) so the quick-rate ergonomic
+             * stays primary. */
+            .tt-rate-subs { margin: 4px 0 0 0; padding-left: 18px; border-left: 2px solid var(--tt-line, #e0e0e0); }
+            .tt-rate-subs-toggle { font-size: .85rem; color: var(--tt-muted, #5f6368); cursor: pointer; padding: 4px 0; min-height: 32px; }
+            .tt-rate-row--sub { margin-top: 6px; }
+            .tt-rate-row--sub .tt-rate-label { font-size: .875rem; color: var(--tt-text, #1a1d21); font-weight: 500; }
             @media (min-width: 720px) {
                 .tt-rate-row { grid-template-columns: 180px 1fr; gap: 12px; align-items: center; }
                 .tt-rate-skip-row { grid-template-columns: 1fr; }
