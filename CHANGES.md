@@ -1,65 +1,69 @@
-# TalentTrack v3.109.4 — Custom widget builder Phase 3: TalentTrack → Custom widgets admin page + multi-step builder (#0078 Phase 3)
+# TalentTrack v3.109.5 — Custom widget builder Phase 4: rendering engine + persona-dashboard editor palette (#0078 Phase 4)
 
-Phase 3 of #0078 Custom widget builder. v3.106.2 shipped Phase 1 (data-source layer); v3.109.3 shipped Phase 2 (migration + REST CRUD + service). v3.109.4 adds the admin authoring UX on top so operators can build a widget without writing any code.
+Phase 4 of #0078 Custom widget builder. v3.109.4 shipped Phase 3 (admin builder UX). Phase 4 hooks the saved widgets into the front-end persona-dashboard render path so operators can drag a custom widget onto a dashboard and see real data.
 
 ## What landed
 
-### Admin page
+### Rendering engine
 
-`Modules\CustomWidgets\Admin\CustomWidgetsAdminPage` registered under TalentTrack → Custom widgets via the existing `AdminMenuRegistry` pattern:
+`Modules\CustomWidgets\Renderer\CustomWidgetRenderer` — central static renderer.
 
-- `parent: 'talenttrack'`, `group: 'configuration'`, `order: 35` — sits next to Dashboard layouts.
-- Cap-gated on `tt_edit_persona_templates` (Phase 5 swaps for the dedicated `tt_author_custom_widgets` cap when the cap layer ships).
-- Two views inside one slug:
-  - **List view** (default) — every saved widget for the current club, with `Edit` / `Archive` buttons. Archive routes through `admin-post.php?action=tt_custom_widget_archive&id=N` behind a per-row nonce.
-  - **Builder view** (`?action=new` or `?action=edit&id=N`) — the multi-step authoring UX.
+- Resolves `uuid` → `CustomWidget` value object via the Phase 2 repository.
+- Looks up the registered `CustomDataSource` via `CustomDataSourceRegistry::find()`.
+- Calls `$source->fetch( $user_id, $filters, $columns, $limit )` with the saved column subset + filters; per-chart-type limit (KPI = 1, bar/line = 50, table = 100).
+- Emits HTML per `chart_type`:
+  - `table` — semantic `<table>` over the saved columns. Each header reads from the source's column metadata; cells fall back to the row keys when no saved subset exists.
+  - `kpi` — big-number frame. Prefers a numeric column over a label column from the first row; falls back to first column when nothing is numeric. Uses `number_format_i18n()` for locale-correct formatting.
+  - `bar` / `line` — `<canvas>` + Chart.js boot script. Labels come from row column 0; values from row column 1 (or column 0 if there's only one).
+- Empty data → empty-state message ("No rows to show.").
+- Missing widget / source → graceful stub (renders the whole frame intact).
 
-### Multi-step builder
+### Chart.js (CDN at v4.4.0)
 
-Six steps: **Source → Columns → Filters → Format → Preview → Save**.
+`enqueueChartJsIfNeeded()` registers the same CDN URL the comparison-view + radar-card paths already use (`https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js`) — sharing the browser cache entry. The first custom widget render on a page enqueues it; subsequent renders are idempotent (`$chartjs_enqueued` flag).
 
-Server-rendered shell (a stepper + body container + nav buttons) + 470-LOC vanilla JS state machine in `assets/js/custom-widgets-builder.js`. Each step renders dynamically from the active source's metadata — picking a different source on step 1 rewires the column / filter / aggregation inputs in steps 2-4 without a page reload.
+The inline boot script per chart is small, idempotent (`el.dataset.ttBound`), and tolerates Chart.js loading later in the load order via a `setTimeout(b, 80)` retry. Bar / line charts default to `responsive: true`, `maintainAspectRatio: false`, no legend (single dataset is implicit from the title), `y.beginAtZero: true`.
 
-The bootstrap blob the page localizes into `window.TTCustomWidgetsBootstrap` carries the full sources catalogue (id + label + columns + filters + aggregations) so the builder doesn't need a round-trip on first paint.
+### Persona-dashboard palette integration
 
-### Live preview
+`Modules\CustomWidgets\Widgets\CustomWidgetWidget` — synthetic Widget registered with the persona-dashboard `WidgetRegistry`:
 
-The Preview step calls a `saveDraft()` helper that POSTs (new) or PUTs (edit) the in-progress widget definition through the Phase 2 REST endpoint, then GETs `/wp-json/talenttrack/v1/custom-widgets/{uuid}/data?limit=20` and renders the rows. Two render modes:
+- `id() = 'custom_widget'` — the editor's palette gets a single tile labelled "Custom widget."
+- `dataSourceCatalogue()` returns `[uuid => name]` for every non-archived saved widget for the current club. The editor's data-source picker (already widget-aware via the `dataSourceCatalogue()` extension shipped in #0077 M1) doubles as the custom-widget picker. No registry-wide refactor needed.
+- `render()` reads `slot->data_source` (the chosen widget's uuid), delegates to `CustomWidgetRenderer::render()`, and wraps the output in the standard bento-grid frame from `AbstractWidget::wrap()`.
+- Empty `data_source` slot → "Pick a custom widget for this slot" stub. Operators see the issue and pick a widget from the properties panel.
 
-- **Table preview** — `<table>` over the returned rows; columns auto-derived from the row keys.
-- **KPI preview** — single big number drawn from the first row's first column.
+### Render CSS
 
-Bar / line preview is text-rendered today; Phase 4 wires Chart.js for the persona-dashboard render path.
+`assets/css/custom-widgets-render.css` — render-side styles paired with the renderer output:
 
-### Validation
+- Outer `.tt-cw-render` flex frame.
+- Title row + empty-state copy.
+- `.tt-cw-render-table` semantic table with sticky uppercase header tracking, alternating row separators.
+- `.tt-cw-kpi` centred big number (36px, 32px on phone) + small label.
+- Chart-canvas host with min-height 200px so the chart frame survives empty-data fetches.
+- Stub state (dashed border, muted text) for the missing-uuid / missing-source paths.
 
-Step-level validators surface inline before advancing:
+Mobile-first per CLAUDE.md §2; tokens (`--tt-bg-soft`, `--tt-line`, `--tt-ink`, `--tt-muted`) inherited from the brand-kit layer with hardcoded fallbacks.
 
-- Step 1 (Source) — must pick one.
-- Step 2 (Columns) — required for `table`; ignored for `kpi`/`bar`/`line`.
-- Step 4 (Format) — must pick a chart type; non-table types must also pick an aggregation.
-- Step 6 (Save) — name required (1-120 chars).
+### Module wiring
 
-Server-side validation is the Phase 2 service layer; the JS validators just front-load the obvious failures so the operator sees them immediately.
+`CustomWidgetsModule::boot()`:
 
-### Configuration tile
+- Registers `CustomWidgetWidget` on `init@20` (after `WidgetRegistry` boots).
+- Enqueues `tt-custom-widgets-render` on `wp_enqueue_scripts` so dashboards rendering custom widgets get the styles automatically. Per-row chart bindings come from the inline boot script (no global JS bundle for the renderer).
 
-`addBuilderTile()` filters into `tt_config_tile_groups` so admins discover the new page from the Configuration tile-landing the same way they reach Branding, Translations, and Dashboard layouts. Tile lands in the *Branding* group when present, falls back to a new *Personas* group otherwise.
+Module stays opt-in via `tt_custom_widgets_enabled` (default off).
 
-### Mobile-first CSS
+## What's NOT in this PR (still in Phases 5-6)
 
-`assets/css/custom-widgets-builder.css` — stepper + radio source cards + checkbox column grid + per-filter row + chart-type cards + preview surface. The builder lives in wp-admin so the desktop floor is fine, but inputs honour the 16px font-size + 48px touch-target rules from CLAUDE.md §2.
+- **Phase 5 — Cap layer + cache + audit.** New `tt_author_custom_widgets` cap (top-up migration). Per-widget transient cache with the configurable TTL. Audit-log entries on save / publish / delete. Manual clear-cache button wired (the Phase 2 `tt_custom_widget_cache_flush_requested` hook already exists; Phase 5 plugs the listener). Source-cap inheritance check at render time so a viewer without `tt_view_evaluations` can't see an evaluations-backed custom widget.
+- **Phase 6 — Docs + i18n + README.** `docs/custom-widgets.md` (EN+NL). README link.
 
 ## Translations
 
-24 new NL msgids covering builder copy: stepper labels, step body headings, validation messages, preview status, save/saving/saved labels, archive confirmation. Dutch translations land in `nl_NL.po`.
-
-## What's NOT in this PR (still in Phases 4-6)
-
-- **Phase 4 — Rendering engine + persona-dashboard editor palette.** `CustomWidgetRenderer` for table / kpi / bar / line; Chart.js for bar / line. Editor palette gains a "Custom widgets" group sourced from `tt_custom_widgets`.
-- **Phase 5 — Cap layer + cache + audit.** New `tt_author_custom_widgets` cap (top-up migration). Per-widget transient cache with the configurable TTL. Audit-log entries on save / publish / delete. Manual clear-cache button wired.
-- **Phase 6 — Docs + i18n + README.** `docs/custom-widgets.md` (EN+NL). README link.
+2 new NL msgids: "Custom widget" (the widget label in the editor) and "Pick a custom widget for this slot." (the empty-data-source stub).
 
 ## Notes
 
-No schema changes. No new caps. No cron. No license flips. The builder is still gated behind the `tt_custom_widgets_enabled` feature flag (default off).
+No schema changes. No new caps. No cron. No license flips. The renderer emits inline `<script>` tags for chart bootstrapping — these are output through `wp_json_encode()` so the data is safely serialised. The CDN script for Chart.js itself only loads when a chart-type custom widget actually appears on the page.

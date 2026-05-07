@@ -1,0 +1,95 @@
+/* Custom widget render styles (#0078 Phase 4) — paired with the
+   CustomWidgetRenderer output. Loaded on every persona-dashboard
+   render where a custom widget appears. Mobile-first per CLAUDE.md §2. */
+
+.tt-cw-render {
+    padding: 12px 14px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.tt-cw-render .tt-cw-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tt-ink, #1a1a1a);
+    margin-bottom: 6px;
+}
+
+.tt-cw-render .tt-cw-empty {
+    color: var(--tt-muted, #5b6e75);
+    font-size: 13px;
+    margin: 12px 0;
+}
+
+/* Table mode. */
+.tt-cw-render-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    flex: 1 1 auto;
+}
+.tt-cw-render-table th,
+.tt-cw-render-table td {
+    border-bottom: 1px solid var(--tt-line, #e5e5e5);
+    padding: 6px 8px;
+    text-align: left;
+    vertical-align: top;
+}
+.tt-cw-render-table th {
+    background: var(--tt-bg-soft, #f6f7f7);
+    font-weight: 600;
+    color: var(--tt-muted, #5b6e75);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+}
+
+/* KPI mode. */
+.tt-cw-render.tt-cw-kpi {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px 16px;
+}
+.tt-cw-render .tt-cw-kpi-value {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--tt-ink, #1a1a1a);
+}
+.tt-cw-render .tt-cw-kpi-label {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--tt-muted, #5b6e75);
+}
+
+/* Bar / line chart canvas host. */
+.tt-cw-render .tt-cw-chart-host {
+    flex: 1 1 auto;
+    min-height: 200px;
+}
+
+/* Stub state when uuid is missing or source de-registered. */
+.tt-cw-render.tt-cw-stub {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--tt-muted, #5b6e75);
+    font-size: 13px;
+    background: var(--tt-bg-soft, #fafafa);
+    border: 1px dashed var(--tt-line, #ddd);
+}
+
+/* Persona-dashboard wrapper variants. The outer wrap class supplied
+   by AbstractWidget already takes care of the bento sizing. */
+.tt-pd-widget-custom_widget .tt-cw-render {
+    padding: 12px 14px;
+}
+
+@media (max-width: 720px) {
+    .tt-cw-render { padding: 10px 12px; }
+    .tt-cw-render .tt-cw-kpi-value { font-size: 32px; }
+}

@@ -13958,3 +13958,23 @@ msgstr "Deze widget archiveren? Hij verdwijnt dan van dashboards."
 
 msgid "How custom widgets work"
 msgstr "Hoe aangepaste widgets werken"
+
+# v3.109.5 — #0078 Phase 4 custom widgets renderer + palette
+
+msgid "Custom widget"
+msgstr "Aangepaste widget"
+
+msgid "Pick a custom widget for this slot."
+msgstr "Kies een aangepaste widget voor deze plek."
+
+msgid "Data source no longer registered."
+msgstr "Gegevensbron is niet meer geregistreerd."
+
+msgid "Custom widget not found."
+msgstr "Aangepaste widget niet gevonden."
+
+msgid "No rows to show."
+msgstr "Geen rijen om te tonen."
+
+msgid "Unknown chart type."
+msgstr "Onbekend grafiektype."

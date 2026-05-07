@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.109.4
+Stable tag: 3.109.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.109.5 — Custom widget builder Phase 4: rendering engine + persona-dashboard editor palette (#0078 Phase 4) =
+
+Phase 4 of #0078 Custom widget builder. v3.109.4 shipped Phase 3 (admin builder UX). Phase 4 hooks the saved widgets into the front-end persona-dashboard render path so operators can drag a custom widget onto a dashboard and see real data. **(1) `Renderer\CustomWidgetRenderer`** — central renderer that resolves a uuid → `CustomWidget` value object via the Phase 2 repository, looks up the registered `CustomDataSource`, calls `fetch()` with the saved column subset + filters, and emits HTML per `chart_type`: `table` → semantic `<table>`; `kpi` → big number (prefers a numeric column over a label column from the first row); `bar` / `line` → `<canvas>` + Chart.js boot script. Empty data renders an empty-state message; missing source / missing widget renders a stub. **(2) Chart.js loaded from CDN** at v4.4.0 (mirrors the existing comparison-view enqueue at the same URL so the browser cache entry is shared). `enqueueChartJsIfNeeded()` guards against double-enqueue. The boot script is inline + idempotent (`data-tt-bound` flag) and tolerates Chart.js loading after the inline script via a small `setTimeout` retry. **(3) `Widgets\CustomWidgetWidget`** — synthetic Widget registered with `WidgetRegistry::register()` once on `init` priority 20 (after the registry boots). `id() = 'custom_widget'`; `dataSourceCatalogue()` returns `[uuid => name]` for every active saved widget so the persona-dashboard editor's data-source picker doubles as the custom-widget picker. Drag the `Custom widget` tile onto the canvas → pick which saved widget it points at → done. Empty `data_source` slot → "Pick a custom widget for this slot" stub. **(4) `assets/css/custom-widgets-render.css`** — render-side styles for the wrapper + table + KPI big number + chart canvas host + stub state. Mobile-first; 12-14px padding standard, 36px KPI value (32px on phone). **(5) Module wiring** — `CustomWidgetsModule::boot()` registers the synthetic Widget on `init@20` and enqueues `tt-custom-widgets-render` on `wp_enqueue_scripts` so dashboards rendering custom widgets get the styles automatically. Per-row chart bindings come from the inline boot script (no global JS bundle). Module stays opt-in via `tt_custom_widgets_enabled`. 1 new translatable string ("Custom widget" widget label, "Pick a custom widget for this slot."). No schema changes; no new caps; no cron.
 
 = 3.109.4 — Custom widget builder Phase 3: TalentTrack → Custom widgets admin page + multi-step builder (#0078 Phase 3) =
 

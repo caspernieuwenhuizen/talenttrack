@@ -12,6 +12,8 @@ use TT\Modules\CustomWidgets\DataSources\GoalsOpen;
 use TT\Modules\CustomWidgets\DataSources\PdpFiles;
 use TT\Modules\CustomWidgets\DataSources\PlayersActive;
 use TT\Modules\CustomWidgets\Rest\CustomWidgetsRestController;
+use TT\Modules\CustomWidgets\Widgets\CustomWidgetWidget;
+use TT\Modules\PersonaDashboard\Registry\WidgetRegistry;
 use TT\Shared\Admin\AdminMenuRegistry;
 
 /**
@@ -72,6 +74,28 @@ class CustomWidgetsModule implements ModuleInterface {
 
         // Configuration tile — same pattern as Dashboard layouts.
         add_filter( 'tt_config_tile_groups', [ self::class, 'addBuilderTile' ], 10, 1 );
+
+        // Phase 4 — register the synthetic Widget on the persona-
+        // dashboard registry so each saved custom widget shows up
+        // in the editor palette via dataSourceCatalogue(). Wired
+        // late on `init` so WidgetRegistry has booted.
+        add_action( 'init', static function () {
+            if ( class_exists( WidgetRegistry::class ) ) {
+                WidgetRegistry::register( new CustomWidgetWidget() );
+            }
+        }, 20 );
+
+        // Phase 4 — render-side CSS for the chart frame + table +
+        // KPI styles. Loaded on the front-end dashboard render where
+        // the persona dashboard fires.
+        add_action( 'wp_enqueue_scripts', static function () {
+            wp_enqueue_style(
+                'tt-custom-widgets-render',
+                TT_PLUGIN_URL . 'assets/css/custom-widgets-render.css',
+                [],
+                TT_VERSION
+            );
+        } );
     }
 
     /**
