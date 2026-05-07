@@ -13711,3 +13711,8 @@ msgstr "Geen data voor de huidige filters."
 
 msgid "The dimension explorer is the first ship of #0083 Child 3. Time-series chart, drilldown to fact rows, and CSV / PDF export ship in follow-ups."
 msgstr "De dimensieverkenner is de eerste ship van #0083 Child 3. Tijdreeksgrafiek, drilldown naar feitenrijen en CSV / PDF-export volgen in latere PR's."
+
+# v3.104.4 — #0083 Child 4: entity analytics tab
+
+msgid "No analytics available for this entity yet."
+msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
