@@ -14119,12 +14119,6 @@ msgstr "Terug naar Configuratie"
 msgid "Back to Audit log"
 msgstr "Terug naar Audit log"
 
-msgid "Back to My goals"
-msgstr "Terug naar Mijn doelen"
-
-msgid "Back to My activities"
-msgstr "Terug naar Mijn activiteiten"
-
 msgid "Back to My settings"
 msgstr "Terug naar Mijn instellingen"
 
@@ -14136,9 +14130,6 @@ msgstr "Terug naar OPP-planning"
 
 msgid "Back to Team planner"
 msgstr "Terug naar Teamplanner"
-
-msgid "Back"
-msgstr "Terug"
 
 #. translators: %s = entity display name (player, team, activity title, ...)
 msgid "Back to %s"
