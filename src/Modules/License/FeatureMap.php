@@ -82,6 +82,10 @@ class FeatureMap {
             'functional_roles'  => true,
             'partial_restore'   => true,
             'undo_bulk'         => true,
+            // #0083 Child 6 — scheduled reports. KPIs themselves are
+            // unrestricted; scheduling (recurring email reports) is
+            // the gate.
+            'scheduled_reports' => true,
         ],
         // Pro adds future-epic features + multi-academy + heavier backup
         // destinations. Inherits everything from Standard.
