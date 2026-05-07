@@ -23,9 +23,14 @@ final class PlayerFileCounts {
             "SELECT COUNT(*) FROM {$p}tt_goals WHERE player_id = %d AND archived_at IS NULL",
             $player_id
         ) );
+        // The evaluation badge count and the evaluations-tab list query
+        // (FrontendPlayerDetailView::renderEvaluationsTab) must agree
+        // on the same scope, otherwise the operator sees a non-zero
+        // badge with an empty tab. Pin both to `(player_id, club_id,
+        // archived_at IS NULL)`.
         $evaluations = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE player_id = %d AND archived_at IS NULL",
-            $player_id
+            "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE player_id = %d AND club_id = %d AND archived_at IS NULL",
+            $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
         $activities = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*)

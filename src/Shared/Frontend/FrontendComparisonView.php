@@ -338,7 +338,7 @@ class FrontendComparisonView extends FrontendViewBase {
                 [ __( 'Team', 'talenttrack' ),         function( $pl ) { $t = $pl->team_id ? QueryHelpers::get_team( (int) $pl->team_id ) : null; return $t ? (string) $t->name : '—'; } ],
                 [ __( 'Age group', 'talenttrack' ),    function( $pl ) use ( $age_groups ) { return (string) ( $age_groups[ (int) $pl->id ] ?: '—' ); } ],
                 [ __( 'Position(s)', 'talenttrack' ),  function( $pl ) { $pos = json_decode( (string) $pl->preferred_positions, true ); return is_array( $pos ) ? implode( ', ', $pos ) : '—'; } ],
-                [ __( 'Foot', 'talenttrack' ),         function( $pl ) { return (string) ( $pl->preferred_foot ?: '—' ); } ],
+                [ __( 'Foot', 'talenttrack' ),         function( $pl ) { return $pl->preferred_foot ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'foot_options', (string) $pl->preferred_foot ) : '—'; } ],
                 [ __( 'Jersey', 'talenttrack' ),       function( $pl ) { return $pl->jersey_number ? '#' . (int) $pl->jersey_number : '—'; } ],
                 [ __( 'Height', 'talenttrack' ),       function( $pl ) { return $pl->height_cm ? ( (int) $pl->height_cm . ' cm' ) : '—'; } ],
             ];

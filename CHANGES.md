@@ -1,57 +1,68 @@
-# TalentTrack v3.108.1 — Pilot-feedback batch: 8 mechanical bug fixes from a May 2026 acceptance round
+# TalentTrack v3.108.2 — Pilot-batch follow-up I: eval delete UI + LookupPill sweep + referer-based breadcrumb back-link + eval-tab query parity (#0089 Batch I + F1)
 
-Eight surgical fixes from a pilot acceptance round. Bigger items (per-topic privacy model, eval-wizard subcategories, team-overview HoD widget, breadcrumb back-navigation, broad detail-page visual refresh, KPI/widget data investigation, upgrade-to-Pro CTA) are tracked in `ideas/0089-feat-pilot-batch-followups.md` and will ship in focused follow-up PRs.
+Follow-up to v3.108.1 covering the first wave of items deferred to `ideas/0089-feat-pilot-batch-followups.md`. The remaining items (F2 my-evaluations scores, F3 my-* detail chrome, F4 goal save error, F7 PDP wizard skip-team-step, A3 eval subcategories, A4 team-overview HoD widget, A5 broad detail-page visual refresh, A7 upgrade-to-Pro CTA, K1-K5 KPI/widget investigation) stay in `ideas/0089` for subsequent ships.
 
 ## What landed
 
-### (1) Trial-cases tab CTA gated on player status
+### (1) F5 — Inline evaluation delete button
 
-`FrontendPlayerDetailView::renderTrialsTab` now receives the player object and inspects `$player->status`. The "Open trial case" CTA only renders for trial-status players; for active / contracted / released players the empty-state copy switches to *"This player is not currently on trial, so there is no trial history to show."* without a button.
+REST `DELETE /evaluations/{id}` already shipped; the UI just didn't expose it.
 
-### (2) Preferred foot translates in the player list
+- New `.tt-record-delete` generic handler in `assets/js/public.js` — driven by `data-rest-path` + `data-confirm-msg` + `data-deleted-msg`. On success the closest `[data-tt-row]` / `tr` / `li` ancestor fades out + is removed; if no such ancestor exists, the page reloads. Pattern is reusable for any future record where REST DELETE exists but the UI doesn't yet surface it.
+- Wired onto each row of `FrontendPlayerDetailView::renderEvaluationsTab` (cap-gated on `tt_edit_evaluations`).
 
-`PlayersRestController::fmt()` emits a new `preferred_foot_pill_html` field rendered via `LookupPill::render('foot_options', $key)`; `FrontendPlayersManageView`'s column switches to `'render' => 'html', 'value_key' => 'preferred_foot_pill_html'`. Dutch installs now see *Rechts / Links* instead of the raw `right / left` keys.
+### (2) R2 — LookupPill always-translate sweep
 
-### (3) People + functional-role edit forms redirect to list after save
+`LookupPill::render()` already translated correctly; the user complaint was that some surfaces emit raw lookup keys (e.g. `right` instead of "Rechts").
 
-`data-redirect-after-save="list"` added to the `tt-ajax-form` on `FrontendPeopleManageView::renderForm()` and `FrontendFunctionalRolesView::renderAssignmentForm()`. After a save the user lands back on the list view, not the form.
+Surfaces routed through pill / translator:
 
-### (4) Eval wizard rateable list = strictly present/late
+- `FrontendPlayerDetailView::renderProfileTab` — preferred-foot dd now via `LookupPill::render('foot_options', ...)`.
+- `CoachDashboardView::render` — Foot inline now via `LookupPill::render(...)`.
+- `FrontendComparisonView` — Foot column now via `LookupTranslator::byTypeAndName(...)`.
+- `FrontendOverviewView::renderMyCard` — preferred-foot inline label now via `LookupTranslator::byTypeAndName(...)` inside the existing `__('%s foot')` template.
 
-The previous fallback to "show the team's full roster when no attendance was recorded" is removed from `RateActorsStep::ratablePlayersForActivity()`. The wizard refuses to advance until someone is marked present/late on the activity, matching the existing empty-state copy.
+`FrontendMyProfileView` already translated correctly.
 
-### (5) `head_coach` + `team_manager` role-types translate
+### (3) A1 — Breadcrumb back-link helper
 
-`LabelTranslator::roleType()` was missing those two keys. The team-detail page's staff list rendered the raw key on Dutch installs. Two new switch cases added.
+New `FrontendBreadcrumbs::fromDashboardWithBack()` adds a leading "← Back" crumb sourced from `wp_get_referer()` when the referer is same-origin and distinct from the current page. Cheap referer-based path per the deferral question — no per-user back-stack store. Multi-step navigation (A → B → C → click back) goes back to B, not A — same as the browser's own Back button.
 
-### (6) Player FIFA-card own-profile bypass
+Wired on:
 
-`FrontendTeammateView::render()` now checks `mate.wp_user_id === viewer.wp_user_id` before the team-scope gate. A player tapping their own rate card always lands on their teammate view — even if they're between teams or on the trial-group pseudo-team.
+- `FrontendMyGoalsView::renderDetail` — was the user's example: "click goal from My card → 'back' should mean My card, not the goals list".
+- `FrontendMyActivitiesView::renderDetail` — same shape.
 
-### (7) Editable academy start-date
+Other detail views opt in by switching `FrontendBreadcrumbs::fromDashboard()` → `fromDashboardWithBack()`.
 
-The player edit form (`FrontendPlayersManageView::renderForm`) now exposes an "In academy since" date field that writes through to `tt_players.date_joined`. The column has shipped on the schema since v1.0.0 and `update_player`'s payload extractor already accepted it; only the UI was missing.
+### (4) F1 — Player-file evaluations tab badge / list parity
 
-### (8) Generic dropdown-dependency mechanism
+`PlayerFileCounts::for()` and `FrontendPlayerDetailView::renderEvaluationsTab` now both filter on `(player_id, club_id, archived_at IS NULL)`. Without the explicit `club_id` clause the badge could count rows the tab query was filtering out (or vice versa) — depending on which was the stricter scope. Both pinned to `CurrentClub::id()` so the tab and the badge always agree.
 
-New `data-tt-depends-on="other_field_name"` + `data-tt-options-source="rest:path/with/{value}"` (REST mode) or `data-tt-options-map='{"a":[["1","X"],…]}'` (static mode) attribute pair handled in `assets/js/public.js`. Any `<select>` across the app can opt in: when its parent changes, options rebuild via REST or from a JSON map. Sweep target = goal-wizard `link_type → link_id`, attendance form `team → player`, future cascades.
+## Out of scope (still tracked in `ideas/0089-feat-pilot-batch-followups.md`)
 
-## Out of scope (tracked in `ideas/0089-feat-pilot-batch-followups.md`)
-
-F1-F7, R2 LookupPill sweep, A1 breadcrumb history, A3 eval subcategories, A4 team-overview HoD widget, A5 detail-page visual refresh, A7 upgrade-to-Pro CTA, K1-K5 KPI/widget investigation.
+- F2 my-evaluations scores not displaying after wizard submit
+- F3 my-* detail pages chrome (bullet+link → activity-detail card)
+- F4 goal save error "goal does no longer exist"
+- F6 double-activity row verification (probably already fixed in v3.92.7)
+- F7 PDP wizard from player profile should skip team-selection step
+- A3 evaluation subcategories rendering in `RateActorsStep`
+- A4 team-overview HoD widget (First/Last/Status/PDP/Attendance)
+- A5 player profile + detail-page visual refresh (CSS-led)
+- A7 upgrade-to-Pro CTA discoverability
+- K1-K5 KPI / widget data investigation
 
 ## Affected files
 
-- `src/Shared/Frontend/FrontendPlayerDetailView.php` — trial-cases gate
-- `src/Infrastructure/REST/PlayersRestController.php` — preferred_foot_pill_html
-- `src/Shared/Frontend/FrontendPlayersManageView.php` — column wired through pill, "In academy since" field
-- `src/Shared/Frontend/FrontendPeopleManageView.php` — redirect-after-save
-- `src/Shared/Frontend/FrontendFunctionalRolesView.php` — redirect-after-save
-- `src/Modules/Wizards/Evaluation/RateActorsStep.php` — strict rateable filter
-- `src/Infrastructure/Query/LabelTranslator.php` — head_coach + team_manager
-- `src/Shared/Frontend/FrontendTeammateView.php` — self-bypass
-- `assets/js/public.js` — generic dropdown-dependency mechanism
+- `assets/js/public.js` — generic `.tt-record-delete` handler
+- `src/Shared/Frontend/FrontendPlayerDetailView.php` — eval delete buttons + preferred-foot pill + eval-tab query club_id
+- `src/Shared/Frontend/CoachDashboardView.php` — preferred-foot pill
+- `src/Shared/Frontend/FrontendComparisonView.php` — Foot column translator
+- `src/Shared/Frontend/FrontendOverviewView.php` — My-card preferred-foot translator
+- `src/Shared/Frontend/Components/FrontendBreadcrumbs.php` — `fromDashboardWithBack()` + `sameOriginReferer()` + `class` field on render items
+- `src/Shared/Frontend/FrontendMyGoalsView.php` — back-link on goal detail
+- `src/Shared/Frontend/FrontendMyActivitiesView.php` — back-link on activity detail
+- `src/Infrastructure/Query/PlayerFileCounts.php` — eval count gets `club_id` filter
 - `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version + ship metadata
-- `ideas/0089-feat-pilot-batch-followups.md` — deferred items tracker
 
-Renumbered v3.104.3 → v3.108.1 mid-rebase as parallel-agent ships covered v3.104.3 / v3.105.0 / v3.106.0 / v3.107.0 / v3.108.0 (Analytics #0083 children 2-6, demo-Excel rename #0080 Wave D, etc.) before this PR could land.
+No new translatable strings — all new copy reuses existing `__()` strings ("← Back", "Delete this evaluation? This cannot be undone.", "Evaluation deleted.", "Delete evaluation").

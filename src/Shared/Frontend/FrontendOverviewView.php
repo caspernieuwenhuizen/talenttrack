@@ -124,7 +124,7 @@ class FrontendOverviewView extends FrontendViewBase {
                     if ( $jersey !== '' )   $bits[] = esc_html( $jersey );
                     if ( ! empty( $player->preferred_foot ) ) {
                         /* translators: %s is preferred foot label (Left / Right / Both) */
-                        $bits[] = esc_html( sprintf( __( '%s foot', 'talenttrack' ), (string) $player->preferred_foot ) );
+                        $bits[] = esc_html( sprintf( __( '%s foot', 'talenttrack' ), \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'foot_options', (string) $player->preferred_foot ) ) );
                     }
                     echo implode( ' · ', $bits );
                     ?>

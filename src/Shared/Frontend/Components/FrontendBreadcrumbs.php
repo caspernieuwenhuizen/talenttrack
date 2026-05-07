@@ -54,7 +54,67 @@ final class FrontendBreadcrumbs {
     }
 
     /**
-     * @param array<int,array{label:string,url?:?string}> $items
+     * Adds a leading "← Back" crumb to the chain when `wp_get_referer()`
+     * returns a same-origin URL distinct from the current page. The
+     * back crumb sits before "Dashboard" and points at the referer —
+     * the page the user came from. Useful when a deep-link path
+     * (e.g. My card → Goal detail) doesn't match the static
+     * Dashboard / Goals / Goal-detail chain the breadcrumbs would
+     * otherwise show. Caller opt-in.
+     *
+     * Cheap implementation: no per-user back-stack store. Just the
+     * referer header. Multi-step navigation (A → B → C → click back)
+     * goes back to B, not A — same as the browser's own Back button.
+     * That mirrors the browser, which is the right model.
+     */
+    public static function fromDashboardWithBack( string $current_label, ?array $intermediate = null, ?string $back_url = null ): void {
+        $back = $back_url !== null && $back_url !== '' ? $back_url : self::sameOriginReferer();
+        $items = [];
+        if ( $back !== '' ) {
+            $items[] = [
+                'label' => __( '← Back', 'talenttrack' ),
+                'url'   => $back,
+                'class' => 'tt-breadcrumbs__back',
+            ];
+        }
+        $items[] = [
+            'label' => __( 'Dashboard', 'talenttrack' ),
+            'url'   => RecordLink::dashboardUrl(),
+        ];
+        if ( $intermediate !== null ) {
+            foreach ( $intermediate as $crumb ) {
+                $items[] = $crumb;
+            }
+        }
+        $items[] = [ 'label' => $current_label ];
+        self::render( $items );
+    }
+
+    /**
+     * Returns `wp_get_referer()` only when it exists, points to the
+     * current site origin, and isn't the current request URL. Empty
+     * string in any other case — direct navigation, cross-origin
+     * entry, refresh on the same page, bot crawls.
+     */
+    private static function sameOriginReferer(): string {
+        $ref = wp_get_referer();
+        if ( ! is_string( $ref ) || $ref === '' ) return '';
+        $home_host = wp_parse_url( home_url( '/' ), PHP_URL_HOST );
+        $ref_host  = wp_parse_url( $ref, PHP_URL_HOST );
+        if ( $home_host !== $ref_host ) return '';
+        // Drop self-referer (refresh on the same page).
+        $current = isset( $_SERVER['REQUEST_URI'] ) ? (string) $_SERVER['REQUEST_URI'] : '';
+        if ( $current !== '' ) {
+            $ref_path  = (string) wp_parse_url( $ref, PHP_URL_PATH );
+            $ref_query = (string) wp_parse_url( $ref, PHP_URL_QUERY );
+            $ref_uri   = $ref_path . ( $ref_query !== '' ? '?' . $ref_query : '' );
+            if ( $ref_uri === $current ) return '';
+        }
+        return $ref;
+    }
+
+    /**
+     * @param array<int,array{label:string,url?:?string,class?:?string}> $items
      */
     public static function render( array $items ): void {
         if ( empty( $items ) ) return;
@@ -63,8 +123,9 @@ final class FrontendBreadcrumbs {
         foreach ( $items as $i => $item ) {
             $label = (string) ( $item['label'] ?? '' );
             $url   = isset( $item['url'] ) ? (string) $item['url'] : '';
+            $cls   = isset( $item['class'] ) ? (string) $item['class'] : '';
             $is_current = ( $i === $last );
-            echo '<li' . ( $is_current ? ' aria-current="page"' : '' ) . '>';
+            echo '<li' . ( $is_current ? ' aria-current="page"' : '' ) . ( $cls !== '' ? ' class="' . esc_attr( $cls ) . '"' : '' ) . '>';
             if ( $url !== '' && ! $is_current ) {
                 echo '<a href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a>';
             } else {
