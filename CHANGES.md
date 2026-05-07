@@ -1,69 +1,81 @@
-# TalentTrack v3.109.5 — Custom widget builder Phase 4: rendering engine + persona-dashboard editor palette (#0078 Phase 4)
+# TalentTrack v3.109.6 — Custom widget builder Phase 5: cap layer + per-widget cache + audit log + clear-cache (#0078 Phase 5)
 
-Phase 4 of #0078 Custom widget builder. v3.109.4 shipped Phase 3 (admin builder UX). Phase 4 hooks the saved widgets into the front-end persona-dashboard render path so operators can drag a custom widget onto a dashboard and see real data.
+Phase 5 of #0078 Custom widget builder. Hardens what Phases 2-4 shipped: dedicated cap layer, per-widget transient cache with operator-configurable TTL, audit-log entries on every save / publish / delete, manual clear-cache button, and source-cap inheritance at render time so a viewer without `tt_view_evaluations` can't see an evaluations-backed custom widget.
 
 ## What landed
 
-### Rendering engine
+### New caps + matrix entity
 
-`Modules\CustomWidgets\Renderer\CustomWidgetRenderer` — central static renderer.
+Two new caps registered via `LegacyCapMapper` bridging to a new `custom_widgets` matrix entity:
 
-- Resolves `uuid` → `CustomWidget` value object via the Phase 2 repository.
-- Looks up the registered `CustomDataSource` via `CustomDataSourceRegistry::find()`.
-- Calls `$source->fetch( $user_id, $filters, $columns, $limit )` with the saved column subset + filters; per-chart-type limit (KPI = 1, bar/line = 50, table = 100).
-- Emits HTML per `chart_type`:
-  - `table` — semantic `<table>` over the saved columns. Each header reads from the source's column metadata; cells fall back to the row keys when no saved subset exists.
-  - `kpi` — big-number frame. Prefers a numeric column over a label column from the first row; falls back to first column when nothing is numeric. Uses `number_format_i18n()` for locale-correct formatting.
-  - `bar` / `line` — `<canvas>` + Chart.js boot script. Labels come from row column 0; values from row column 1 (or column 0 if there's only one).
-- Empty data → empty-state message ("No rows to show.").
-- Missing widget / source → graceful stub (renders the whole frame intact).
+- `tt_author_custom_widgets` → `custom_widgets:change` (author + edit)
+- `tt_manage_custom_widgets` → `custom_widgets:create_delete` (admin tier)
 
-### Chart.js (CDN at v4.4.0)
+`MatrixEntityCatalog` registers the entity label so the operator-facing matrix admin shows "Custom widgets" as a row. `config/authorization_seed.php` grants `head_of_development` rc[global] and `academy_admin` rcd[global].
 
-`enqueueChartJsIfNeeded()` registers the same CDN URL the comparison-view + radar-card paths already use (`https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js`) — sharing the browser cache entry. The first custom widget render on a page enqueues it; subsequent renders are idempotent (`$chartjs_enqueued` flag).
+### Top-up migration `0077_authorization_seed_topup_custom_widgets`
 
-The inline boot script per chart is small, idempotent (`el.dataset.ttBound`), and tolerates Chart.js loading later in the load order via a `setTimeout(b, 80)` retry. Bar / line charts default to `responsive: true`, `maintainAspectRatio: false`, no legend (single dataset is implicit from the title), `y.beginAtZero: true`.
+Backfills existing installs with the two new tuples. Mirrors the 0063 / 0064 / 0067 / 0069 / 0074 pattern: walks `config/authorization_seed.php` and `INSERT IGNORE`s every `(persona, entity, activity, scope_kind)` row whose entity is `custom_widgets`. Existing rows including operator-edited grants stay untouched. Idempotent — safe to re-run on already-backfilled installs.
 
-### Persona-dashboard palette integration
+Per `feedback_seed_changes_need_topup_migration.md`: adding rows to the seed alone doesn't reach existing installs because migration 0026 only seeds on fresh install or via the admin "Reset to defaults" button.
 
-`Modules\CustomWidgets\Widgets\CustomWidgetWidget` — synthetic Widget registered with the persona-dashboard `WidgetRegistry`:
+### `CustomWidgetsModule::ensureCapabilities()`
 
-- `id() = 'custom_widget'` — the editor's palette gets a single tile labelled "Custom widget."
-- `dataSourceCatalogue()` returns `[uuid => name]` for every non-archived saved widget for the current club. The editor's data-source picker (already widget-aware via the `dataSourceCatalogue()` extension shipped in #0077 M1) doubles as the custom-widget picker. No registry-wide refactor needed.
-- `render()` reads `slot->data_source` (the chosen widget's uuid), delegates to `CustomWidgetRenderer::render()`, and wraps the output in the standard bento-grid frame from `AbstractWidget::wrap()`.
-- Empty `data_source` slot → "Pick a custom widget for this slot" stub. Operators see the issue and pick a widget from the properties panel.
+Seeds the bridging caps onto `administrator` + `tt_club_admin` + `tt_head_dev` so role-based callers (admin pages, REST gates) keep working alongside the matrix layer. Mirrors the persona-dashboard editor cap-ensure pattern from #0060 sprint 2.
 
-### Render CSS
+### Per-widget transient cache
 
-`assets/css/custom-widgets-render.css` — render-side styles paired with the renderer output:
+`Modules\CustomWidgets\Cache\CustomWidgetCache` — per-widget cache:
 
-- Outer `.tt-cw-render` flex frame.
-- Title row + empty-state copy.
-- `.tt-cw-render-table` semantic table with sticky uppercase header tracking, alternating row separators.
-- `.tt-cw-kpi` centred big number (36px, 32px on phone) + small label.
-- Chart-canvas host with min-height 200px so the chart frame survives empty-data fetches.
-- Stub state (dashed border, muted text) for the missing-uuid / missing-source paths.
+- Keys: `tt_cw_data_<uuid>_<user_id>_v<version>` transients.
+- The `_v<version>` suffix makes invalidation O(1) without transient-prefix scanning (WP doesn't support that reliably across object cache backends). Bumping the per-uuid version counter in `wp_options` orphans every prior cache entry — they expire naturally on TTL.
+- Per-user keying so a future viewer-aware filter (e.g. "my players") doesn't bleed across users.
+- TTL of 0 disables caching entirely (operator escape hatch from a slow-moving widget). Caps at `WEEK_IN_SECONDS` per WP transient hard-cap.
 
-Mobile-first per CLAUDE.md §2; tokens (`--tt-bg-soft`, `--tt-line`, `--tt-ink`, `--tt-muted`) inherited from the brand-kit layer with hardcoded fallbacks.
+`CustomWidgetRenderer::renderWidget()` reads from cache before calling `$source->fetch()`; on miss, fetches and writes back. Save / update / archive automatically flush the per-widget cache via the service layer.
 
-### Module wiring
+### Source-cap inheritance
 
-`CustomWidgetsModule::boot()`:
+Each shipped data source gains a `requiredCap()` method:
 
-- Registers `CustomWidgetWidget` on `init@20` (after `WidgetRegistry` boots).
-- Enqueues `tt-custom-widgets-render` on `wp_enqueue_scripts` so dashboards rendering custom widgets get the styles automatically. Per-row chart bindings come from the inline boot script (no global JS bundle for the renderer).
+| Source | Required cap |
+|---|---|
+| `players_active` | `tt_view_players` |
+| `evaluations_recent` | `tt_view_evaluations` |
+| `goals_open` | `tt_view_goals` |
+| `activities_recent` | `tt_view_activities` |
+| `pdp_files` | `tt_view_pdp` |
 
-Module stays opt-in via `tt_custom_widgets_enabled` (default off).
+The renderer detects via `method_exists` (additive — Phase 1 didn't ship the method on the `CustomDataSource` interface, so plugin-author sources without it stay backward-compatible) and refuses to fetch when the viewer can't read the underlying records. Empty stub renders ("You do not have access to this data.") instead of leaking rows.
 
-## What's NOT in this PR (still in Phases 5-6)
+This satisfies the spec's DOD: *"Cap-revoked viewer (no `tt_view_evaluations`) can't see an evaluations-backed custom widget."*
 
-- **Phase 5 — Cap layer + cache + audit.** New `tt_author_custom_widgets` cap (top-up migration). Per-widget transient cache with the configurable TTL. Audit-log entries on save / publish / delete. Manual clear-cache button wired (the Phase 2 `tt_custom_widget_cache_flush_requested` hook already exists; Phase 5 plugs the listener). Source-cap inheritance check at render time so a viewer without `tt_view_evaluations` can't see an evaluations-backed custom widget.
-- **Phase 6 — Docs + i18n + README.** `docs/custom-widgets.md` (EN+NL). README link.
+### Audit log
+
+`CustomWidgetService` writes three discriminated events to `tt_audit_log`:
+
+- `custom_widget.created` — on every successful create.
+- `custom_widget.updated` — on every successful update.
+- `custom_widget.archived` — on every successful archive.
+
+Each carries `(uuid, name, data_source_id, chart_type)` payload. Audit failures never block the operator's action — the recorder is wrapped in a try/catch that swallows exceptions.
+
+### Manual clear-cache
+
+List view gains a per-row "Clear cache" button (admin-post + per-row nonce → `CustomWidgetCache::flush()` → redirect with `tt_msg=cache_cleared`). The existing REST endpoint `POST /custom-widgets/{id}/clear-cache` now actually flushes — Phase 2 shipped the route shape, Phase 5 wires the body.
+
+### REST + admin page caps
+
+`permRead()` and `permWrite()` on the REST controller accept either `tt_author_custom_widgets` (the Phase 5 cap) or `tt_edit_persona_templates` (back-compat fallthrough during the upgrade window so installs that haven't run migration 0077 yet stay functional). The admin page uses the same fallback pattern via a `canManage()` helper.
+
+## What's NOT in this PR (Phase 6 only)
+
+- **Phase 6 — Docs + i18n + README link**. `docs/custom-widgets.md` (EN+NL).
 
 ## Translations
 
-2 new NL msgids: "Custom widget" (the widget label in the editor) and "Pick a custom widget for this slot." (the empty-data-source stub).
+Zero new NL msgids — copy reuses existing strings ("Clear cache" already exists for #0083 scheduled-reports cache flush; "You do not have access to this data." reuses an existing string), and the matrix label ("Custom widgets") was added by Phase 3.
 
 ## Notes
 
-No schema changes. No new caps. No cron. No license flips. The renderer emits inline `<script>` tags for chart bootstrapping — these are output through `wp_json_encode()` so the data is safely serialised. The CDN script for Chart.js itself only loads when a chart-type custom widget actually appears on the page.
+No new wp-cron schedules. No license-tier flips. The new schema migration is `0077` (one above the Phase 2 widget table at `0076`).

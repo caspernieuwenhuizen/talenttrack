@@ -15,6 +15,8 @@ final class ActivitiesRecent implements CustomDataSource {
     public function id(): string { return 'activities_recent'; }
     public function label(): string { return __( 'Recent activities', 'talenttrack' ); }
 
+    public function requiredCap(): string { return 'tt_view_activities'; }
+
     public function columns(): array {
         return [
             [ 'key' => 'title',          'label' => __( 'Title', 'talenttrack' ),          'kind' => 'string' ],

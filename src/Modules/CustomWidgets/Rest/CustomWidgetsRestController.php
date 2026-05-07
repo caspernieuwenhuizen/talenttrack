@@ -3,6 +3,7 @@ namespace TT\Modules\CustomWidgets\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\CustomWidgets\Cache\CustomWidgetCache;
 use TT\Modules\CustomWidgets\CustomDataSourceRegistry;
 use TT\Modules\CustomWidgets\CustomWidgetException;
 use TT\Modules\CustomWidgets\CustomWidgetService;
@@ -99,12 +100,23 @@ final class CustomWidgetsRestController {
     }
 
     public static function permRead(): bool {
-        return is_user_logged_in() && current_user_can( 'tt_edit_persona_templates' );
+        // Phase 5 — read access flows through the new cap; admins +
+        // HoD hold it via the seed top-up migration. Authoring-tier
+        // legacy cap kept as a back-compat fall-through during the
+        // upgrade window.
+        return is_user_logged_in() && (
+            current_user_can( 'tt_author_custom_widgets' )
+            || current_user_can( 'tt_edit_persona_templates' )
+        );
     }
 
     public static function permWrite(): bool {
-        // Phase 5 swaps this for `tt_author_custom_widgets`.
-        return is_user_logged_in() && current_user_can( 'tt_edit_persona_templates' );
+        // Phase 5 — author-only writes; academy_admin holds the
+        // create+delete tier via the seed top-up.
+        return is_user_logged_in() && (
+            current_user_can( 'tt_author_custom_widgets' )
+            || current_user_can( 'tt_edit_persona_templates' )
+        );
     }
 
     public static function list_widgets( WP_REST_Request $req ) {
@@ -215,9 +227,10 @@ final class CustomWidgetsRestController {
     }
 
     /**
-     * Manual cache flush — Phase 2 returns a no-op success response so
-     * the builder UI can wire the button shape; Phase 5 plugs in the
-     * actual transient delete.
+     * Manual cache flush. Phase 5 wires the actual transient
+     * invalidation on top of the existing route shape: the per-uuid
+     * version counter is bumped so every cached row keyed against
+     * the prior version is orphaned.
      */
     public static function clear_cache( WP_REST_Request $req ) {
         $service = new CustomWidgetService();
@@ -225,6 +238,7 @@ final class CustomWidgetsRestController {
         if ( $widget === null ) {
             return new \WP_Error( 'not_found', __( 'Custom widget not found.', 'talenttrack' ), [ 'status' => 404 ] );
         }
+        CustomWidgetCache::flush( $widget->uuid );
         do_action( 'tt_custom_widget_cache_flush_requested', $widget );
         return rest_ensure_response( [ 'flushed' => true, 'uuid' => $widget->uuid ] );
     }

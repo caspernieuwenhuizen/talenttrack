@@ -13978,3 +13978,14 @@ msgstr "Geen rijen om te tonen."
 
 msgid "Unknown chart type."
 msgstr "Onbekend grafiektype."
+
+# v3.109.6 — #0078 Phase 5 cap layer + cache + audit
+
+msgid "Clear cache"
+msgstr "Cache wissen"
+
+msgid "You do not have access to this data."
+msgstr "Je hebt geen toegang tot deze gegevens."
+
+msgid "You do not have permission to clear the cache."
+msgstr "Je hebt geen rechten om de cache te wissen."

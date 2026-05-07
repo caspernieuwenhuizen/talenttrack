@@ -3,6 +3,7 @@ namespace TT\Modules\CustomWidgets\Renderer;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\CustomWidgets\Cache\CustomWidgetCache;
 use TT\Modules\CustomWidgets\CustomDataSourceRegistry;
 use TT\Modules\CustomWidgets\Domain\CustomWidget;
 use TT\Modules\CustomWidgets\Repository\CustomWidgetRepository;
@@ -56,6 +57,17 @@ final class CustomWidgetRenderer {
             return self::stub( __( 'Data source no longer registered.', 'talenttrack' ) );
         }
 
+        // Phase 5 — source-cap inheritance. The renderer refuses to
+        // fetch when the viewer can't read the underlying records.
+        // Detected via `method_exists` so adding `requiredCap()` to
+        // a source is additive (Phase 1 didn't ship it).
+        if ( method_exists( $source, 'requiredCap' ) ) {
+            $cap = (string) $source->requiredCap();
+            if ( $cap !== '' && ! current_user_can( $cap ) ) {
+                return self::stub( __( 'You do not have access to this data.', 'talenttrack' ) );
+            }
+        }
+
         $columns = isset( $widget->definition['columns'] ) && is_array( $widget->definition['columns'] )
             ? $widget->definition['columns']
             : [];
@@ -66,8 +78,20 @@ final class CustomWidgetRenderer {
         // Per-chart-type fetch bound. Tables show up to 100 rows; bar /
         // line cap to 50 categories so the chart stays legible; KPI
         // takes 1 row.
-        $limit = self::limitForChart( $widget->chartType );
-        $rows  = $source->fetch( $user_id, $filters, $columns, $limit );
+        $limit       = self::limitForChart( $widget->chartType );
+        $ttl_minutes = isset( $widget->definition['cache_ttl_minutes'] )
+            ? (int) $widget->definition['cache_ttl_minutes']
+            : 5;
+
+        // Phase 5 — per-widget cache. Per-user keying so a future
+        // viewer-aware filter (e.g. "my players") doesn't bleed.
+        $cached = CustomWidgetCache::get( $widget->uuid, $user_id, $ttl_minutes );
+        if ( $cached !== null ) {
+            $rows = $cached;
+        } else {
+            $rows = $source->fetch( $user_id, $filters, $columns, $limit );
+            CustomWidgetCache::put( $widget->uuid, $user_id, $rows, $ttl_minutes );
+        }
 
         switch ( $widget->chartType ) {
             case CustomWidget::CHART_TABLE:

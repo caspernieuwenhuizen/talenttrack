@@ -3,6 +3,7 @@ namespace TT\Modules\CustomWidgets\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\CustomWidgets\Cache\CustomWidgetCache;
 use TT\Modules\CustomWidgets\CustomDataSourceRegistry;
 use TT\Modules\CustomWidgets\CustomWidgetService;
 use TT\Modules\CustomWidgets\Domain\CustomWidget;
@@ -35,7 +36,7 @@ final class CustomWidgetsAdminPage {
     public const SLUG = 'tt-custom-widgets';
 
     public static function render(): void {
-        if ( ! current_user_can( 'tt_edit_persona_templates' ) ) {
+        if ( ! self::canManage() ) {
             wp_die( esc_html__( 'You do not have permission to manage custom widgets.', 'talenttrack' ) );
         }
 
@@ -91,7 +92,13 @@ final class CustomWidgetsAdminPage {
             echo '<td>' . esc_html( self::chartTypeLabel( $w->chartType ) ) . '</td>';
             echo '<td>' . esc_html( $w->updatedAt ?? $w->createdAt ) . '</td>';
             echo '<td>';
+            $flush_url = wp_nonce_url(
+                admin_url( 'admin-post.php?action=tt_custom_widget_clear_cache&id=' . $w->id ),
+                'tt_custom_widget_clear_cache_' . $w->id
+            );
             echo '<a href="' . esc_url( $edit_url ) . '" class="button">' . esc_html__( 'Edit', 'talenttrack' ) . '</a> ';
+            echo '<a href="' . esc_url( $flush_url ) . '" class="button">'
+                . esc_html__( 'Clear cache', 'talenttrack' ) . '</a> ';
             echo '<a href="' . esc_url( $archive_url ) . '" class="button button-link-delete" '
                 . 'onclick="return confirm(' . esc_attr( wp_json_encode( __( 'Archive this widget? It will disappear from dashboards.', 'talenttrack' ) ) ) . ');">'
                 . esc_html__( 'Archive', 'talenttrack' ) . '</a>';
@@ -234,8 +241,42 @@ final class CustomWidgetsAdminPage {
      * action behind a per-row nonce. Phase 5 routes this through the
      * audit log + cache flush; Phase 3 keeps it simple.
      */
+    /**
+     * `admin-post.php?action=tt_custom_widget_clear_cache&id=N` —
+     * manual cache flush behind a per-row nonce. Bumps the per-uuid
+     * version counter; cached rows orphan immediately.
+     */
+    public static function handleClearCache(): void {
+        if ( ! self::canManage() ) {
+            wp_die( esc_html__( 'You do not have permission to clear the cache.', 'talenttrack' ), '', [ 'response' => 403 ] );
+        }
+        $id = isset( $_GET['id'] ) ? (int) $_GET['id'] : 0;
+        if ( $id <= 0 ) wp_die( esc_html__( 'Bad widget id.', 'talenttrack' ), '', [ 'response' => 400 ] );
+        check_admin_referer( 'tt_custom_widget_clear_cache_' . $id );
+
+        $widget = ( new CustomWidgetService() )->findByIdOrUuid( (string) $id );
+        if ( $widget !== null ) {
+            CustomWidgetCache::flush( $widget->uuid );
+            do_action( 'tt_custom_widget_cache_flush_requested', $widget );
+        }
+        wp_safe_redirect( admin_url( 'admin.php?page=' . self::SLUG . '&tt_msg=cache_cleared' ) );
+        exit;
+    }
+
+    /**
+     * Cap check used across the admin page entry points. Phase 5
+     * introduced `tt_author_custom_widgets`; keeps the legacy
+     * `tt_edit_persona_templates` as a back-compat fallthrough so
+     * upgrades that haven't run the seed top-up migration yet stay
+     * functional for one release window.
+     */
+    private static function canManage(): bool {
+        return current_user_can( 'tt_author_custom_widgets' )
+            || current_user_can( 'tt_edit_persona_templates' );
+    }
+
     public static function handleArchive(): void {
-        if ( ! current_user_can( 'tt_edit_persona_templates' ) ) {
+        if ( ! self::canManage() ) {
             wp_die( esc_html__( 'You do not have permission to archive custom widgets.', 'talenttrack' ), '', [ 'response' => 403 ] );
         }
         $id = isset( $_GET['id'] ) ? (int) $_GET['id'] : 0;

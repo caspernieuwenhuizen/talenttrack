@@ -3,6 +3,8 @@ namespace TT\Modules\CustomWidgets;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Audit\AuditService;
+use TT\Modules\CustomWidgets\Cache\CustomWidgetCache;
 use TT\Modules\CustomWidgets\Domain\CustomWidget;
 use TT\Modules\CustomWidgets\Repository\CustomWidgetRepository;
 
@@ -52,7 +54,9 @@ final class CustomWidgetService {
      */
     public function create( array $payload, int $user_id ): CustomWidget {
         [ $name, $source_id, $chart_type, $definition ] = $this->validatePayload( $payload );
-        return $this->repo->create( $name, $source_id, $chart_type, $definition, $user_id );
+        $widget = $this->repo->create( $name, $source_id, $chart_type, $definition, $user_id );
+        $this->audit( 'custom_widget.created', $widget );
+        return $widget;
     }
 
     /**
@@ -68,6 +72,10 @@ final class CustomWidgetService {
         if ( $updated === null ) {
             throw new CustomWidgetException( 'not_found', __( 'Custom widget not found after update.', 'talenttrack' ) );
         }
+        // Phase 5 — invalidate the per-widget cache on every update,
+        // so a saved tweak surfaces on the next dashboard render.
+        CustomWidgetCache::flush( $updated->uuid );
+        $this->audit( 'custom_widget.updated', $updated );
         return $updated;
     }
 
@@ -76,7 +84,31 @@ final class CustomWidgetService {
         if ( $existing === null ) {
             throw new CustomWidgetException( 'not_found', __( 'Custom widget not found.', 'talenttrack' ) );
         }
-        return $this->repo->softDelete( $id, $user_id );
+        $ok = $this->repo->softDelete( $id, $user_id );
+        if ( $ok ) {
+            CustomWidgetCache::flush( $existing->uuid );
+            $this->audit( 'custom_widget.archived', $existing );
+        }
+        return $ok;
+    }
+
+    /**
+     * Audit-log wrapper. Silently no-ops when the AuditService isn't
+     * available (very early in the request lifecycle, or on installs
+     * with the audit_log feature disabled).
+     */
+    private function audit( string $action, CustomWidget $widget ): void {
+        if ( ! class_exists( AuditService::class ) ) return;
+        try {
+            ( new AuditService() )->record( $action, 'custom_widget', $widget->id, [
+                'uuid'           => $widget->uuid,
+                'name'           => $widget->name,
+                'data_source_id' => $widget->dataSourceId,
+                'chart_type'     => $widget->chartType,
+            ] );
+        } catch ( \Throwable $e ) {
+            // Audit failure must never block the operator's action.
+        }
     }
 
     /**

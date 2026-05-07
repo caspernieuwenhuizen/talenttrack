@@ -16,6 +16,8 @@ final class EvaluationsRecent implements CustomDataSource {
     public function id(): string { return 'evaluations_recent'; }
     public function label(): string { return __( 'Recent evaluations', 'talenttrack' ); }
 
+    public function requiredCap(): string { return 'tt_view_evaluations'; }
+
     public function columns(): array {
         return [
             [ 'key' => 'player',    'label' => __( 'Player', 'talenttrack' ),    'kind' => 'string' ],

@@ -14,6 +14,8 @@ final class PdpFiles implements CustomDataSource {
     public function id(): string { return 'pdp_files'; }
     public function label(): string { return __( 'PDP files', 'talenttrack' ); }
 
+    public function requiredCap(): string { return 'tt_view_pdp'; }
+
     public function columns(): array {
         return [
             [ 'key' => 'player',             'label' => __( 'Player', 'talenttrack' ),               'kind' => 'string' ],

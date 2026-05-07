@@ -20,6 +20,15 @@ final class PlayersActive implements CustomDataSource {
     public function id(): string { return 'players_active'; }
     public function label(): string { return __( 'Active players', 'talenttrack' ); }
 
+    /**
+     * Source-cap inheritance (#0078 Phase 5). The renderer + REST data
+     * route check this and refuse to fetch when the viewer can't read
+     * the underlying records. Detected via `method_exists` so adding
+     * the method doesn't break the `CustomDataSource` interface
+     * contract for plugin authors.
+     */
+    public function requiredCap(): string { return 'tt_view_players'; }
+
     public function columns(): array {
         return [
             [ 'key' => 'name',     'label' => __( 'Name', 'talenttrack' ),     'kind' => 'string' ],

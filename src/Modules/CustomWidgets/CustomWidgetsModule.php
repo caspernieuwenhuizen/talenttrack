@@ -57,9 +57,18 @@ class CustomWidgetsModule implements ModuleInterface {
         self::registerInitialDataSources();
         CustomWidgetsRestController::init();
 
-        // Phase 3 — admin builder page.
+        // Phase 3 — admin builder page. Phase 5 adds the clear-cache
+        // admin-post hook + cap-ensure helpers below.
         add_action( 'admin_enqueue_scripts', [ CustomWidgetsAdminPage::class, 'enqueueAssets' ] );
         add_action( 'admin_post_tt_custom_widget_archive', [ CustomWidgetsAdminPage::class, 'handleArchive' ] );
+        add_action( 'admin_post_tt_custom_widget_clear_cache', [ CustomWidgetsAdminPage::class, 'handleClearCache' ] );
+
+        // Phase 5 — ensure the new caps land on the right roles. The
+        // matrix entity gates are seeded by migration 0077, but the
+        // bridging caps need to exist on `wp_user_capabilities` so
+        // `current_user_can()` returns the right answer for callers
+        // that haven't been migrated to matrix-aware checks yet.
+        add_action( 'init', [ self::class, 'ensureCapabilities' ] );
         AdminMenuRegistry::register( [
             'module_class' => self::class,
             'parent'       => 'talenttrack',
@@ -124,6 +133,29 @@ class CustomWidgetsModule implements ModuleInterface {
             'tiles' => [ $tile ],
         ];
         return $groups;
+    }
+
+    /**
+     * tt_author_custom_widgets — granted to administrator + tt_club_admin
+     * + tt_head_dev by default. Mirrors the persona-dashboard editor
+     * cap-ensure pattern (#0060 sprint 2). The matrix layer (#0033)
+     * is the authoritative gate; this layer keeps role-based callers
+     * working during the upgrade window. tt_manage_custom_widgets
+     * gives admins delete authority on top.
+     */
+    public static function ensureCapabilities(): void {
+        $roles = [
+            'administrator'  => [ 'tt_author_custom_widgets', 'tt_manage_custom_widgets' ],
+            'tt_club_admin'  => [ 'tt_author_custom_widgets', 'tt_manage_custom_widgets' ],
+            'tt_head_dev'    => [ 'tt_author_custom_widgets' ],
+        ];
+        foreach ( $roles as $role_key => $caps ) {
+            $role = get_role( $role_key );
+            if ( ! $role ) continue;
+            foreach ( $caps as $cap ) {
+                if ( ! $role->has_cap( $cap ) ) $role->add_cap( $cap );
+            }
+        }
     }
 
     /**
