@@ -213,6 +213,8 @@ class DashboardShortcode {
         $mfa_slugs    = [ 'mfa-prompt' ];
         // #0084 Child 1 — mobile classification surfaces.
         $mobile_slugs = [ 'mobile-settings' ];
+        // #0083 Child 3 — analytics dimension explorer.
+        $analytics_explore_slugs = [ 'explore' ];
 
         // #0084 Child 1 — desktop-only mobile gate. When the visitor is
         // a phone-class user agent, the requested view is classified
@@ -347,6 +349,8 @@ class DashboardShortcode {
             \TT\Modules\Mfa\Frontend\FrontendMfaPromptView::render( $user_id, $is_admin );
         } elseif ( in_array( $view, $mobile_slugs, true ) ) {
             FrontendMobileSettingsView::render( $user_id, $is_admin );
+        } elseif ( in_array( $view, $analytics_explore_slugs, true ) ) {
+            \TT\Modules\Analytics\Frontend\FrontendExploreView::render( $user_id, $is_admin );
         } else {
             FrontendBackButton::render();
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';

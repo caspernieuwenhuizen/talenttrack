@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.104.2
+Stable tag: 3.104.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.104.3 — Analytics dimension explorer: ?tt_view=explore (#0083 Child 3, desktop_only) =
+
+Third child of #0083. Ships the presentation layer that any KPI hands off to for drilldown — same UX everywhere. Reachable at `?tt_view=explore&kpi={key}`, classified `desktop_only` per #0084 (dense filtering and chart interaction are desktop work). **(1) `Modules\Analytics\Frontend\FrontendExploreView`** — renders the KPI's label + headline value computed via `FactQuery::run()` against the KPI's fact + measure + default filters; below it, filter chips for each `exploreDimension` (text inputs that feed `<dim>_eq` filter operators); below the chips, a Group-by selector that pivots the result; below that, a two-column table when grouped (dimension value + aggregated measure). URL state: filter values + `group_by` round-trip via querystring so a shared link reproduces the view exactly. Threshold flagging: when the KPI declares `threshold` + `goalDirection`, the headline gets a "Below threshold — review with the team" sub-label when the value falls on the wrong side. **(2) Dispatch wired** in `DashboardShortcode::render()` — new `analytics_explore_slugs = ['explore']` array dispatching to `FrontendExploreView::render()`. **(3) Slug ownership** registered in `CoreSurfaceRegistration::registerSlugOwnerships()` so a future module-disabled state surfaces the friendly notice. **(4) `mobile_class` registered** as `desktop_only` in `CoreSurfaceRegistration::registerMobileClasses()` — phone-class user agents see the polite "Open on desktop" page from #0084 Child 1. Capability `read` (per-KPI capability gating happens at the entry surfaces — Children 4 + 5 enforce `context` (ACADEMY / COACH / PLAYER_PARENT) at the entity tab + central view). **What's NOT in this PR**: Chart.js time-series chart (the spec mentions reusing #0077 M6's wiring; ships when the explorer earns it); trend arrow + delta vs previous period; drilldown to underlying fact rows (top 50 paginated); filter chips as combobox dropdowns over real dimension values (today's chips are free-form text inputs); Export CSV / PDF buttons (Child 6 ships export). Zero new translatable strings to add — every label is already wrapped in `__()` from earlier shipped infrastructure.
 
 = 3.104.2 — Analytics KPI platform: registry + resolver + 6 reference KPIs (#0083 Child 2) =
 
