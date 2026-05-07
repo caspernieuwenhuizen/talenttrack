@@ -6,6 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Comms\Channel\Adapters\EmailChannelAdapter;
+use TT\Modules\Comms\Channel\Adapters\InappChannelAdapter;
+use TT\Modules\Comms\Channel\Adapters\PushChannelAdapter;
+use TT\Modules\Comms\Channel\Adapters\SmsChannelAdapter;
 use TT\Modules\Comms\Channel\Adapters\WhatsappLinkChannelAdapter;
 use TT\Modules\Comms\Channel\ChannelAdapterRegistry;
 use TT\Modules\Comms\Retention\CommsRetentionCron;
@@ -51,13 +54,17 @@ class CommsModule implements ModuleInterface {
     public function register( Container $container ): void {}
 
     public function boot( Container $container ): void {
-        // Register the default channel adapter. Per-use-case modules
-        // (push / sms / inapp) register theirs from their own module's
-        // boot() to keep module independence; WhatsApp deep-link is a
-        // pure URL builder with no per-module dependency, so it lives
-        // here alongside Email.
-        ChannelAdapterRegistry::register( new EmailChannelAdapter() );
-        ChannelAdapterRegistry::register( new WhatsappLinkChannelAdapter() );
+        // Channel adapters. The original "register from owning module"
+        // plan was reversed at v3.110.0 — keeping all five channels in
+        // one place is clearer for the dispatcher's channel-resolver to
+        // reason about, and the Push / SMS / Inapp adapters thin-wrap
+        // their dependencies (Push module, transport filter, inbox
+        // table) without coupling Comms to those modules' lifecycles.
+        ChannelAdapterRegistry::register( new EmailChannelAdapter() );        // pluggable, wp_mail default (Q1)
+        ChannelAdapterRegistry::register( new WhatsappLinkChannelAdapter() ); // deep-link only (Q3) — v3.109.0
+        ChannelAdapterRegistry::register( new PushChannelAdapter() );         // wraps Push module (Q4) — v3.110.0
+        ChannelAdapterRegistry::register( new SmsChannelAdapter() );          // provider-pluggable filter (Q2) — v3.110.0
+        ChannelAdapterRegistry::register( new InappChannelAdapter() );        // tt_comms_inbox-backed — v3.110.0
 
         // v3.109.0 — daily retention cron. Tombstones rows older than
         // the per-club `comms_audit_retention_months` setting (default
