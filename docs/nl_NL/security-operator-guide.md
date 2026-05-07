@@ -69,6 +69,35 @@ Waar je in een gezonde installatie naar kijkt: de meeste rijen zijn routine — 
 
 Zie je iets dat niet klopt? Maak een screenshot, vergrendel het verdachte account (`wp-admin → Gebruikers → Bewerken → wachtwoord op iets willekeurigs zetten + alle rollen verwijderen`) en mail MediaManiacs op het adres onderaan.
 
+### Tabblad mislukte-logins
+
+De audit-log heeft twee tabbladen bovenaan: **Alle items** (de chronologische browser hierboven) en **Mislukte logins** (een aggregaat-overzicht van `wp_login_failed`-events). Open het tabblad mislukte-logins voor:
+
+- **Totalen** over de laatste 7 dagen + laatste 30 dagen.
+- **Dagverdeling** over de laatste 30 dagen — handig om plotse pieken te zien.
+- **Top-10 geprobeerde gebruikersnamen** — toont account-gerichte aanvallen (één gebruiker krijgt veel pogingen).
+- **Top-10 bron-IPs** — toont spray-aanvallen (één IP probeert veel gebruikersnamen).
+
+Accounts worden in deze versie niet automatisch geblokkeerd na herhaalde mislukkingen — de weergave is er om te tonen wat er gebeurt zodat je zelf kunt beslissen. Zie je een ongebruikelijk patroon (een onbekend IP dat tientallen keren tegen een admin-account inbeukt), reset dan het wachtwoord van die gebruiker en zet die persona in de MFA-verplichting-lijst van de academy.
+
+## Mijn sessies — beheer je eigen actieve apparaten
+
+Iedere ingelogde gebruiker kan `?tt_view=my-sessions` openen (of in het gebruikersmenu op *Mijn sessies* klikken) om de eigen actieve WordPress-sessies te zien. De weergave toont:
+
+- Een vriendelijk apparaatlabel afgeleid van de User-Agent (`Chrome on macOS`, `Safari on iPhone`, …).
+- Het IP-adres dat de sessie startte.
+- Wanneer de sessie is gestart en wanneer hij verloopt.
+- Een *Deze sessie*-badge op de cookie die het huidige verzoek heeft geauthenticeerd.
+
+Twee acties:
+
+- **Intrekken** (per sessie, behalve je huidige) — vernietigt het sessie-token; het apparaat wordt op zijn volgende request uitgelogd.
+- **Alle andere sessies intrekken** — behoudt je huidige sessie en vernietigt elke andere. Handig wanneer je niet meer weet waar je bent ingelogd of een compromittering vermoedt.
+
+Elke intrekking schrijft één `tt_audit_log`-rij (actie `session_revoked`, payload `mode=single` of `mode=all_others`) zodat de audit-log-review hem oppakt.
+
+Wanneer gebruik je dit: een coach raakt zijn telefoon kwijt waar het academy-account op staat. Hij opent *Mijn sessies* op een laptop, klikt op *Alle andere sessies intrekken*, en de verloren telefoon is uitgelogd voordat er gevoelige spelersdata blootgesteld kan worden.
+
 ## Impersonatie — de operator-lens, geen achterdeur
 
 De Academy Admin kan in elke gebruikerssessie stappen via [Impersonatie](?page=tt-docs&topic=impersonation). Bedoeld voor legitieme support en testen — niet voor bespieden. Drie eigenschappen maken het veiliger dan een "geef me je wachtwoord"-omweg:

@@ -72,14 +72,21 @@ jobs:
           #   - the spec
           #   - .po file (translation msgid history)
           #   - explicit docblock comments mentioning the rename
+          # v3.109.0 (#0086 Workstream B Child 2) released the legitimate
+          # WP-login-session feature that owns the `MySessions*` /
+          # `tt-sessions` / `my_sessions` / `tt_my_sessions_*` namespace.
+          # Those names are NOT regressions of the OLD "training session"
+          # entity — they manage WordPress login session tokens and are a
+          # distinct concept. Tokens that still catch the OLD vocabulary
+          # remain (`tt_sessions` table, `session_id` FK, the wp-admin /
+          # REST class names from the renamed module, the workflow events,
+          # etc.), so the gate's intent is preserved.
           forbidden=(
             'tt_sessions'
             '\bsession_id\b'
-            'FrontendMySessionsView'
             'FrontendSessionsManageView'
             'tt_view_sessions'
             'tt_edit_sessions'
-            'tt-sessions'
             'tt_session_completed'
             'post_match_evaluation'
             'PostMatchEvaluationTemplate'
@@ -93,7 +100,6 @@ jobs:
             '\bmatch_result\b'
             '\bcompetition_type\b'
             'TT\\Modules\\Sessions'
-            'my_sessions'
             # #0037 — REST URL segments. The original gate caught caps
             # and slugs but missed REST paths, which is how the guest-
             # attendance fatal slipped through (controller registered
@@ -164,9 +170,18 @@ jobs:
           #      banner, dual-label demo-data hint).
           i18n_pattern="['\"][^'\"]*\\b[Ss]ession[s]?\\b[^'\"]*['\"]"
           # File-level excludes for Tier-3 / Bundle-6 deferred:
-          allow_files='src/Modules/DemoData/|src/Shared/Admin/BackNavigator\.php|src/Modules/Reports/ReportConfig\.php|src/Modules/Reports/PlayerReportRenderer\.php|src/Shared/Frontend/FrontendActivitiesManageView\.php|src/Infrastructure/REST/ActivitiesRestController\.php|src/Infrastructure/PlayerStatus/PlayerAttendanceCalculator\.php|src/Modules/Authorization/Impersonation/'
+          # v3.109.3 (#0086 Workstream B Child 2) — the my-sessions
+          # surface + its admin-post handlers legitimately use the word
+          # "session"/"sessions" in user-visible strings (these are
+          # WordPress login sessions, a distinct concept from the OLD
+          # training-session entity). All copy is translated in the .po.
+          allow_files='src/Modules/DemoData/|src/Shared/Admin/BackNavigator\.php|src/Modules/Reports/ReportConfig\.php|src/Modules/Reports/PlayerReportRenderer\.php|src/Shared/Frontend/FrontendActivitiesManageView\.php|src/Infrastructure/REST/ActivitiesRestController\.php|src/Infrastructure/PlayerStatus/PlayerAttendanceCalculator\.php|src/Modules/Authorization/Impersonation/|src/Shared/Admin/MySessionsActionHandlers\.php|src/Shared/Frontend/FrontendMySessionsView\.php'
           # Phrase-level excludes:
-          allow_phrases="earlier session|active sessions|browser session|possession|Possession|migrated from sessions|Activities \(Sessions\)|Sessions referencing|FrontendListTable\.php|sprintf|^\s*\*|impersonation session|My sessions\" tile destination|tt-report-sessions|sessions\.(view|manage)|session\.[a-z_]+|'sessions'\s+=>|, +'sessions' \],?\$"
+          # `'my-sessions'` (slug literal) and `My sessions` (user-menu
+          # label) are part of v3.109.3's WP-login-session feature; the
+          # FrontendMySessionsView file is whitelisted above, but the
+          # shortcode dispatcher legitimately references the slug.
+          allow_phrases="earlier session|active sessions|browser session|possession|Possession|migrated from sessions|Activities \(Sessions\)|Sessions referencing|FrontendListTable\.php|sprintf|^\s*\*|impersonation session|My sessions\" tile destination|tt-report-sessions|sessions\.(view|manage)|session\.[a-z_]+|'sessions'\s+=>|, +'sessions' \],?\$|'my-sessions'|My sessions"
           i18n_hits=$(grep -rnE "$i18n_pattern" --include='*.php' src/ 2>/dev/null \
             | grep -vE "$allow_files" \
             | grep -vE "$allow_phrases" \

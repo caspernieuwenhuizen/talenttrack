@@ -100,6 +100,11 @@ class Kernel {
         // page's "email me the link" + the operator-only mobile-gate
         // toggle. Static init; mirrors how MfaActionHandlers wires.
         \TT\Shared\Mobile\MobileActionHandlers::init();
+        // #0086 Workstream B Child 2 — admin-post handlers for the
+        // per-session revoke + revoke-all-others actions on
+        // ?tt_view=my-sessions. Static init; mirrors how MobileActionHandlers
+        // and MfaActionHandlers wire.
+        \TT\Shared\Admin\MySessionsActionHandlers::init();
         // #0019 Sprint 6 — one-time admin notice announcing the
         // frontend-first migration. Dismissed per-user via meta.
         \TT\Shared\Admin\UpgradeNotice::init();
