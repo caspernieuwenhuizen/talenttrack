@@ -59,6 +59,18 @@ class FrontendAuditLogView extends FrontendViewBase {
             <?php
         }
 
+        // #0086 Workstream B Child 3 — tab switcher between the
+        // generic audit table and the failed-logins aggregate view.
+        // The aggregate view is `?tab=failed-logins`; everything else
+        // falls through to the existing entry browser.
+        $tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : '';
+        self::renderTabs( $tab );
+
+        if ( $tab === 'failed-logins' ) {
+            self::renderFailedLoginsTab();
+            return;
+        }
+
         $filters = self::filtersFromQuery();
         $page    = isset( $_GET['apage'] ) ? max( 1, absint( $_GET['apage'] ) ) : 1;
         $offset  = ( $page - 1 ) * self::PER_PAGE;
@@ -74,6 +86,187 @@ class FrontendAuditLogView extends FrontendViewBase {
         self::renderSummary( $total, $page, $filters );
         self::renderTable( $entries );
         self::renderPagination( $total, $page, $filters );
+    }
+
+    private static function renderTabs( string $active ): void {
+        $base = self::baseUrl();
+        $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
+        $entries_url = $view !== '' ? add_query_arg( 'tt_view', $view, $base ) : $base;
+        $failed_url  = add_query_arg( 'tab', 'failed-logins', $entries_url );
+
+        $entries_active = $active !== 'failed-logins';
+        $failed_active  = $active === 'failed-logins';
+
+        ?>
+        <nav class="tt-audit-tabs" style="display:flex; gap:8px; margin-bottom: var(--tt-sp-3, 12px); border-bottom: 1px solid var(--tt-line, #e0e0e0);">
+            <a href="<?php echo esc_url( $entries_url ); ?>" class="tt-audit-tab<?php echo $entries_active ? ' is-active' : ''; ?>" style="padding: 10px 14px; text-decoration: none; color: <?php echo $entries_active ? 'var(--tt-ink, #1a1a1a)' : 'var(--tt-muted, #6a6d66)'; ?>; border-bottom: 2px solid <?php echo $entries_active ? 'var(--tt-accent, #5b8def)' : 'transparent'; ?>; font-weight: <?php echo $entries_active ? '600' : '400'; ?>; min-height: 48px; display: inline-flex; align-items: center;">
+                <?php esc_html_e( 'All entries', 'talenttrack' ); ?>
+            </a>
+            <a href="<?php echo esc_url( $failed_url ); ?>" class="tt-audit-tab<?php echo $failed_active ? ' is-active' : ''; ?>" style="padding: 10px 14px; text-decoration: none; color: <?php echo $failed_active ? 'var(--tt-ink, #1a1a1a)' : 'var(--tt-muted, #6a6d66)'; ?>; border-bottom: 2px solid <?php echo $failed_active ? 'var(--tt-accent, #5b8def)' : 'transparent'; ?>; font-weight: <?php echo $failed_active ? '600' : '400'; ?>; min-height: 48px; display: inline-flex; align-items: center;">
+                <?php esc_html_e( 'Failed logins', 'talenttrack' ); ?>
+            </a>
+        </nav>
+        <?php
+    }
+
+    /**
+     * #0086 Workstream B Child 3 — failed-logins aggregate view.
+     *
+     * Renders four panels: 30-day total, daily breakdown for the last
+     * 30 days, top-10 attempted usernames in the window, top-10 source
+     * IPs in the window. No automatic lockout — visibility only per
+     * spec ("lockout becomes a v2 enhancement once we see real volume").
+     */
+    private static function renderFailedLoginsTab(): void {
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_audit_log';
+
+        $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
+        if ( ! $exists ) {
+            echo '<p class="tt-notice">' . esc_html__( 'Audit log table not found. Run migrations to enable failed-login tracking.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $club_id = \TT\Infrastructure\Tenancy\CurrentClub::id();
+        $since   = gmdate( 'Y-m-d H:i:s', time() - ( 30 * DAY_IN_SECONDS ) );
+
+        // Total volume in 30-day window.
+        $total_30d = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM $table WHERE action = %s AND club_id = %d AND created_at >= %s",
+            'login_fail', $club_id, $since
+        ) );
+
+        // Volume in 7-day window — surfaces a recent uptick.
+        $since_7d = gmdate( 'Y-m-d H:i:s', time() - ( 7 * DAY_IN_SECONDS ) );
+        $total_7d = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM $table WHERE action = %s AND club_id = %d AND created_at >= %s",
+            'login_fail', $club_id, $since_7d
+        ) );
+
+        // Daily breakdown — last 30 days.
+        $daily = $wpdb->get_results( $wpdb->prepare(
+            "SELECT DATE(created_at) AS day, COUNT(*) AS n
+             FROM $table
+             WHERE action = %s AND club_id = %d AND created_at >= %s
+             GROUP BY DATE(created_at)
+             ORDER BY day DESC",
+            'login_fail', $club_id, $since
+        ) );
+
+        // Top-10 attempted usernames — extracted from the payload JSON.
+        // JSON_EXTRACT works on MySQL 5.7+ and MariaDB 10.2.3+ which is
+        // a higher floor than WordPress's official support, but this is
+        // the operator-facing failed-logins view; an older host falls
+        // back to the count below and the per-IP list still works.
+        $top_users = [];
+        $top_ips   = [];
+        if ( $wpdb->get_var( "SELECT JSON_EXTRACT('{\"a\":1}', '$.a')" ) !== null ) {
+            $top_users = $wpdb->get_results( $wpdb->prepare(
+                "SELECT JSON_UNQUOTE(JSON_EXTRACT(payload, '$.username')) AS username, COUNT(*) AS n
+                 FROM $table
+                 WHERE action = %s AND club_id = %d AND created_at >= %s
+                 GROUP BY username
+                 ORDER BY n DESC
+                 LIMIT 10",
+                'login_fail', $club_id, $since
+            ) );
+        }
+
+        $top_ips = $wpdb->get_results( $wpdb->prepare(
+            "SELECT ip_address, COUNT(*) AS n
+             FROM $table
+             WHERE action = %s AND club_id = %d AND created_at >= %s AND ip_address <> ''
+             GROUP BY ip_address
+             ORDER BY n DESC
+             LIMIT 10",
+            'login_fail', $club_id, $since
+        ) );
+
+        ?>
+        <div style="display:grid; grid-template-columns: 1fr; gap: var(--tt-sp-4, 16px);">
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--tt-sp-3, 12px);">
+                <div class="tt-stat-card" style="padding: var(--tt-sp-3, 12px); background: var(--tt-bg-soft, #f6f7f8); border-radius: 4px;">
+                    <div style="font-size: 12px; text-transform: uppercase; color: var(--tt-muted, #6a6d66); letter-spacing: 0.5px;"><?php esc_html_e( 'Last 7 days', 'talenttrack' ); ?></div>
+                    <div style="font-size: 28px; font-weight: 600; line-height: 1.2;"><?php echo (int) $total_7d; ?></div>
+                    <div style="font-size: 13px; color: var(--tt-muted, #6a6d66);"><?php esc_html_e( 'Failed login attempts', 'talenttrack' ); ?></div>
+                </div>
+                <div class="tt-stat-card" style="padding: var(--tt-sp-3, 12px); background: var(--tt-bg-soft, #f6f7f8); border-radius: 4px;">
+                    <div style="font-size: 12px; text-transform: uppercase; color: var(--tt-muted, #6a6d66); letter-spacing: 0.5px;"><?php esc_html_e( 'Last 30 days', 'talenttrack' ); ?></div>
+                    <div style="font-size: 28px; font-weight: 600; line-height: 1.2;"><?php echo (int) $total_30d; ?></div>
+                    <div style="font-size: 13px; color: var(--tt-muted, #6a6d66);"><?php esc_html_e( 'Failed login attempts', 'talenttrack' ); ?></div>
+                </div>
+            </div>
+
+            <?php if ( $total_30d === 0 ) : ?>
+                <p class="tt-notice"><?php esc_html_e( 'No failed login attempts recorded in the last 30 days.', 'talenttrack' ); ?></p>
+            <?php else : ?>
+                <div style="display:grid; grid-template-columns: 1fr; gap: var(--tt-sp-4, 16px);">
+                    <div>
+                        <h3 style="margin: 0 0 var(--tt-sp-2, 8px); font-size: 16px;"><?php esc_html_e( 'Daily breakdown — last 30 days', 'talenttrack' ); ?></h3>
+                        <table class="tt-table" style="width:100%; font-size: 13px;">
+                            <thead><tr>
+                                <th><?php esc_html_e( 'Day', 'talenttrack' ); ?></th>
+                                <th style="text-align:right;"><?php esc_html_e( 'Attempts', 'talenttrack' ); ?></th>
+                            </tr></thead>
+                            <tbody>
+                            <?php foreach ( $daily as $row ) : ?>
+                                <tr>
+                                    <td><?php echo esc_html( (string) $row->day ); ?></td>
+                                    <td style="text-align:right; font-family: monospace;"><?php echo (int) $row->n; ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <?php if ( ! empty( $top_users ) ) : ?>
+                        <div>
+                            <h3 style="margin: 0 0 var(--tt-sp-2, 8px); font-size: 16px;"><?php esc_html_e( 'Top attempted usernames', 'talenttrack' ); ?></h3>
+                            <table class="tt-table" style="width:100%; font-size: 13px;">
+                                <thead><tr>
+                                    <th><?php esc_html_e( 'Username', 'talenttrack' ); ?></th>
+                                    <th style="text-align:right;"><?php esc_html_e( 'Attempts', 'talenttrack' ); ?></th>
+                                </tr></thead>
+                                <tbody>
+                                <?php foreach ( $top_users as $row ) : ?>
+                                    <tr>
+                                        <td style="font-family: monospace; font-size: 12px;"><?php echo esc_html( (string) ( $row->username ?? '—' ) ); ?></td>
+                                        <td style="text-align:right; font-family: monospace;"><?php echo (int) $row->n; ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ( ! empty( $top_ips ) ) : ?>
+                        <div>
+                            <h3 style="margin: 0 0 var(--tt-sp-2, 8px); font-size: 16px;"><?php esc_html_e( 'Top source IPs', 'talenttrack' ); ?></h3>
+                            <table class="tt-table" style="width:100%; font-size: 13px;">
+                                <thead><tr>
+                                    <th><?php esc_html_e( 'IP address', 'talenttrack' ); ?></th>
+                                    <th style="text-align:right;"><?php esc_html_e( 'Attempts', 'talenttrack' ); ?></th>
+                                </tr></thead>
+                                <tbody>
+                                <?php foreach ( $top_ips as $row ) : ?>
+                                    <tr>
+                                        <td style="font-family: monospace; font-size: 12px;"><?php echo esc_html( (string) $row->ip_address ); ?></td>
+                                        <td style="text-align:right; font-family: monospace;"><?php echo (int) $row->n; ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+
+                    <p style="font-size: 12px; color: var(--tt-muted, #6a6d66); margin: 0;">
+                        <?php esc_html_e( 'No automatic lockout in v1 — this view exists to surface volume so the operator can act when an unusual pattern emerges. Lockout is a v2 enhancement once real volume is observed.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php
     }
 
     /**

@@ -76,4 +76,9 @@ return [
     // for tt_lookups, tt_eval_categories, tt_roles, tt_functional_roles).
     // Live-DB updates only; shipped seed PHP files unchanged.
     TT\Modules\SeedReview\SeedReviewModule::class                => true,
+    // #0086 Workstream B Child 3 — login-fail tracking. Hooks
+    // `wp_login_failed` and writes one `tt_audit_log` row per attempt
+    // so the audit-log surface's new "Failed logins" tab can aggregate.
+    // No automatic lockout in v1 — visibility only.
+    TT\Modules\Security\SecurityModule::class                    => true,
 ];

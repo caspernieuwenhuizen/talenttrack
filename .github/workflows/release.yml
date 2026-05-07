@@ -72,14 +72,21 @@ jobs:
           #   - the spec
           #   - .po file (translation msgid history)
           #   - explicit docblock comments mentioning the rename
+          # v3.109.0 (#0086 Workstream B Child 2) released the legitimate
+          # WP-login-session feature that owns the `MySessions*` /
+          # `tt-sessions` / `my_sessions` / `tt_my_sessions_*` namespace.
+          # Those names are NOT regressions of the OLD "training session"
+          # entity — they manage WordPress login session tokens and are a
+          # distinct concept. Tokens that still catch the OLD vocabulary
+          # remain (`tt_sessions` table, `session_id` FK, the wp-admin /
+          # REST class names from the renamed module, the workflow events,
+          # etc.), so the gate's intent is preserved.
           forbidden=(
             'tt_sessions'
             '\bsession_id\b'
-            'FrontendMySessionsView'
             'FrontendSessionsManageView'
             'tt_view_sessions'
             'tt_edit_sessions'
-            'tt-sessions'
             'tt_session_completed'
             'post_match_evaluation'
             'PostMatchEvaluationTemplate'
@@ -93,7 +100,6 @@ jobs:
             '\bmatch_result\b'
             '\bcompetition_type\b'
             'TT\\Modules\\Sessions'
-            'my_sessions'
             # #0037 — REST URL segments. The original gate caught caps
             # and slugs but missed REST paths, which is how the guest-
             # attendance fatal slipped through (controller registered
