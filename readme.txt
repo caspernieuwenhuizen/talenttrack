@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.109.2
+Stable tag: 3.109.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.109.3 — Custom widget builder Phase 2: migration + repository + REST CRUD + service (#0078 Phase 2) =
+
+Phase 2 of #0078 Custom widget builder. Builds the persistence + REST surface on top of v3.106.2's Phase 1 data-source layer; the admin builder page (Phase 3), rendering engine (Phase 4), cap layer + per-widget cache + audit (Phase 5) and docs + i18n (Phase 6) follow. **(1) Migration `0076_custom_widgets`** — `tt_custom_widgets` table with `club_id` + `uuid` SaaS-readiness columns, `data_source_id` (registry key, not FK), `chart_type` ∈ table/kpi/bar/line, `definition` JSON column, `archived_at` soft-delete tombstone. Idempotent dbDelta. **(2) `Domain\CustomWidget`** value object with `CHART_TYPES` constant + `toArray()`. **(3) `Repository\CustomWidgetRepository`** — list / find by id / find by uuid / create / update / soft-delete. Every read + write scopes to `CurrentClub::id()`. JSON round-trips via `wp_json_encode()` / `json_decode()`. **(4) `CustomWidgetService`** — orchestrator handling validation: data-source id checked against `CustomDataSourceRegistry`; chart type whitelisted; columns intersected with the source's declared `columns()`; filters intersected with declared `filters()` (unknown keys dropped); aggregation mandatory + whitelisted for KPI/bar/line; cache TTL bounded to [0, 1440] minutes. **(5) `CustomWidgetException`** — discriminated error class; the controller maps `not_found` → 404, `forbidden` → 403, `invalid_chart_type` / `unknown_data_source` / `missing_columns` / `missing_aggregation` / `bad_aggregation` / `bad_name` → 400. **(6) `Rest\CustomWidgetsRestController`** wires 8 endpoints: `GET/POST /custom-widgets`, `GET/PUT/DELETE /custom-widgets/{id}` (id-or-uuid), `GET /custom-data-sources` (catalogue for the builder UI), `GET /custom-widgets/{id}/data` (preview row fetch — Phase 4 plugs in cache + source-cap inheritance), `POST /custom-widgets/{id}/clear-cache` (Phase 5 wires the actual transient delete; emits `tt_custom_widget_cache_flush_requested` action today so a hook listener can intercept). Phase 2 caps: all routes gated on `tt_edit_persona_templates`; Phase 5 swaps the write routes for the new `tt_author_custom_widgets` cap. **(7) `CustomWidgetsModule::boot()`** — feature-flag-gated registration extended to call `CustomWidgetsRestController::init()`. Module stays opt-in via `tt_custom_widgets_enabled` (default off). Zero new translatable strings — all phase 2 surface is internal infrastructure; the builder UI labels (Phase 3) ship the translatable copy. Renumbered v3.109.2 → v3.109.3 mid-rebase after parallel-agent ship of v3.109.2 (#295 seed-review Excel export) took the v3.109.2 slot.
 
 = 3.109.2 — Seed review: Excel export + offline edit + re-import for lookups, eval categories, roles =
 
