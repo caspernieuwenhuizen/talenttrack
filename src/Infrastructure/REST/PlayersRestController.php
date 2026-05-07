@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Query\LookupPill;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -347,6 +348,12 @@ class PlayersRestController {
             'parent_link_html' => $parent_link_html,
             'jersey_number'    => $pl->jersey_number !== null ? (int) $pl->jersey_number : null,
             'preferred_foot'   => (string) ( $pl->preferred_foot ?? '' ),
+            // The list table renders this column via the lookup-pill
+            // path so the value shows as the localised label ("Rechts"
+            // on a Dutch install) instead of the raw stored key.
+            'preferred_foot_pill_html' => $pl->preferred_foot
+                ? LookupPill::render( 'foot_options', (string) $pl->preferred_foot )
+                : '',
             'photo_url'        => (string) ( $pl->photo_url ?? '' ),
             'date_of_birth'    => $pl->date_of_birth ?: null,
             'archived_at'      => $pl->archived_at ?? null,

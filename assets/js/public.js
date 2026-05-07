@@ -272,4 +272,82 @@
             }
         });
     });
+
+    // ─── Generic dropdown dependency — `data-tt-depends-on` ──────
+    //
+    // Any <select> can declare `data-tt-depends-on="other_field_name"`
+    // plus either:
+    //   - `data-tt-options-source="rest:path/with/{value}"` for a REST
+    //     fetch keyed on the new parent value, or
+    //   - `data-tt-options-map='{"a":[["1","X"]],"b":[["2","Y"]]}'` for
+    //     a static client-side mapping (no REST call).
+    //
+    // When the parent <select> changes, the dependent select rebuilds
+    // its options. The previously-selected value is preserved if it
+    // still exists in the new option set; otherwise the dependent
+    // resets to its placeholder option (or first option).
+    //
+    // Sweep target: any cascading dropdown (new-goal wizard's
+    // link_type → link_id, position → preferred_action, team → player
+    // picker, etc.). Each form opts in via the data-attribute pair.
+    document.addEventListener('change', function(e) {
+        var dependents = document.querySelectorAll('select[data-tt-depends-on]');
+        if (!dependents.length) return;
+        var changedName = e.target && e.target.name;
+        if (!changedName) return;
+        dependents.forEach(function(dep) {
+            if (dep.dataset.ttDependsOn !== changedName) return;
+            var prevValue = dep.value;
+            // Static-map mode: instant client-side rebuild.
+            if (dep.dataset.ttOptionsMap) {
+                try {
+                    var map = JSON.parse(dep.dataset.ttOptionsMap);
+                    var rows = (map && map[e.target.value]) || [];
+                    rebuildSelect(dep, rows, prevValue);
+                } catch (err) { /* malformed JSON — leave alone */ }
+                return;
+            }
+            // REST mode: fetch options keyed on the new parent value.
+            var src = dep.dataset.ttOptionsSource || '';
+            if (src.indexOf('rest:') !== 0) return;
+            var path = src.substring(5).replace('{value}', encodeURIComponent(e.target.value));
+            var base = (window.TT && TT.rest_url) ? TT.rest_url : '/wp-json/talenttrack/v1/';
+            dep.disabled = true;
+            fetch(base + path, {
+                credentials: 'same-origin',
+                headers: { 'X-WP-Nonce': (window.TT && TT.rest_nonce) || '' }
+            })
+            .then(function(r) { return r.ok ? r.json() : []; })
+            .then(function(data) {
+                // Accept either [["value","label"], …] or [{value, label}, …].
+                var rows = Array.isArray(data) ? data.map(function(row) {
+                    if (Array.isArray(row)) return row;
+                    return [row.value, row.label != null ? row.label : row.value];
+                }) : [];
+                rebuildSelect(dep, rows, prevValue);
+            })
+            .catch(function() { /* leave existing options in place */ })
+            .finally(function() { dep.disabled = false; });
+        });
+    });
+
+    function rebuildSelect(select, rows, prevValue) {
+        // Preserve a placeholder option (first option with empty value).
+        var placeholder = select.options.length > 0 && select.options[0].value === ''
+            ? select.options[0].cloneNode(true)
+            : null;
+        select.innerHTML = '';
+        if (placeholder) select.appendChild(placeholder);
+        var matched = false;
+        rows.forEach(function(row) {
+            var opt = document.createElement('option');
+            opt.value = String(row[0]);
+            opt.textContent = String(row[1] != null ? row[1] : row[0]);
+            if (opt.value === prevValue) { opt.selected = true; matched = true; }
+            select.appendChild(opt);
+        });
+        if (!matched && placeholder) placeholder.selected = true;
+        // Fire change so any cascade further down the chain refreshes too.
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+    }
 })();

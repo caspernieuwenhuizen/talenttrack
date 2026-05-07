@@ -12566,6 +12566,19 @@ msgstr "Een stagedossier volgt de prospect van eerste training tot academiebeslu
 msgid "Open trial case"
 msgstr "Stagedossier openen"
 
+# v3.104.2 — pilot batch new copy
+msgid "This player is not currently on trial, so there is no trial history to show."
+msgstr "Deze speler is op dit moment niet op stage, dus er is geen stagegeschiedenis om te tonen."
+
+msgid "In academy since"
+msgstr "In academie sinds"
+
+msgid "Head coach"
+msgstr "Hoofdtrainer"
+
+msgid "Team manager"
+msgstr "Teammanager"
+
 # v3.92.7 — FrontendListTable migration of ?tt_view=my-activities + LookupTranslator::activityType helper
 msgid "Your status"
 msgstr "Jouw status"

@@ -65,8 +65,14 @@ class LabelTranslator {
     public static function roleType( string $code ): string {
         switch ( strtolower( $code ) ) {
             case 'coach':               return __( 'Coach', 'talenttrack' );
+            // `head_coach` is the role-key the People module ships out
+            // of the box (see `PeopleRepository::ROLE_TYPES`). The
+            // earlier translator omitted it, so the team-detail page's
+            // staff list rendered the raw key on Dutch installs.
+            case 'head_coach':          return __( 'Head coach', 'talenttrack' );
             case 'assistant_coach':     return __( 'Assistant coach', 'talenttrack' );
             case 'manager':             return __( 'Team manager', 'talenttrack' );
+            case 'team_manager':        return __( 'Team manager', 'talenttrack' );
             case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
             case 'staff':               return __( 'Staff', 'talenttrack' );
             case 'physio':              return __( 'Physio', 'talenttrack' );

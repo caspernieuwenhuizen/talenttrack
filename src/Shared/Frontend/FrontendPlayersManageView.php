@@ -188,7 +188,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 'team_name'      => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
                 'parent_name'    => [ 'label' => __( 'Parent', 'talenttrack' ), 'render' => 'html', 'value_key' => 'parent_link_html' ],
                 'jersey_number'  => [ 'label' => __( '#',      'talenttrack' ), 'sortable' => true ],
-                'preferred_foot' => [ 'label' => __( 'Foot',   'talenttrack' ) ],
+                'preferred_foot' => [ 'label' => __( 'Foot',   'talenttrack' ), 'render' => 'html', 'value_key' => 'preferred_foot_pill_html' ],
             ],
             'filters' => [
                 'team_id' => [
@@ -276,6 +276,20 @@ class FrontendPlayersManageView extends FrontendViewBase {
                     'name'  => 'date_of_birth',
                     'label' => __( 'Date of birth', 'talenttrack' ),
                     'value' => (string) ( $player->date_of_birth ?? '' ),
+                ] ); ?>
+                <?php echo DateInputComponent::render( [
+                    // The date the player joined the academy. Editable
+                    // because the admission flow doesn't always reach
+                    // here through a trial decision (direct sign-ups,
+                    // returning players, demo seeds), so the operator
+                    // needs an override. The `date_joined` column has
+                    // shipped on `tt_players` since the initial schema;
+                    // `update_player`'s payload extractor already
+                    // accepts it, so this exposes the field with no
+                    // REST changes.
+                    'name'  => 'date_joined',
+                    'label' => __( 'In academy since', 'talenttrack' ),
+                    'value' => (string) ( $player->date_joined ?? '' ),
                 ] ); ?>
                 <?php echo TeamPickerComponent::render( [
                     'name'     => 'team_id',

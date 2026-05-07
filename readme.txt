@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.108.0
+Stable tag: 3.108.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.108.1 — Pilot-feedback batch: 8 mechanical bug fixes from a May 2026 acceptance round =
+
+Closes 8 items from a May 2026 pilot-feedback round. Strictly low-risk surgical fixes; the bigger items (per-topic privacy on player profile, evaluation subcategories rendering, team-overview HoD widget, breadcrumb back-navigation, broad detail-page visual refresh, KPI/widget data investigation) are tracked in `ideas/0089-feat-pilot-batch-followups.md` for focused follow-up PRs. **(1) Trial-cases tab CTA gated on player status** — the "Open trial case" button on the player file is only useful for players whose `status === 'trial'`; for active / contracted / released players the button now disappears and the empty state reads "This player is not currently on trial, so there is no trial history to show." **(2) Preferred foot in the player list translates** — new `preferred_foot_pill_html` field via `LookupPill::render('foot_options', $key)`. Dutch installs see "Rechts" / "Links" instead of raw `right` / `left`. **(3) People + functional-role edit forms redirect to list after save** — `data-redirect-after-save="list"` added to both `tt-ajax-form` tags. **(4) Eval wizard rateable-players list strict** — fallback to "full team roster when no attendance was recorded" removed; wizard refuses to advance until someone is marked present/late. **(5) `head_coach` + `team_manager` role-types translate** — two missing switch cases added to `LabelTranslator::roleType()`. **(6) Player FIFA-card own-profile bypass** — `FrontendTeammateView::render()` adds a `mate.wp_user_id === viewer.wp_user_id` self-check before the team-scope gate. **(7) Editable academy start-date** — new "In academy since" date field on the player edit form, writing through to `tt_players.date_joined`. **(8) Generic dropdown-dependency mechanism** — `data-tt-depends-on` + `data-tt-options-source="rest:..."` (or static `data-tt-options-map`) opt-in attribute pair in `assets/js/public.js`. Two new NL msgids. Renumbered v3.104.3 → v3.108.1 mid-rebase as parallel-agent ships covered v3.104.3 / v3.105.0 / v3.106.0 / v3.106.1 / v3.106.2 / v3.107.0 / v3.108.0 (Analytics #0083 children 2-6, Export module #0063 foundation, Comms module #0066 foundation, custom widget builder #0078 Phase 1, Playwright coverage #0076 starter, demo-Excel rename #0080 Wave D).
 
 = 3.108.0 — Demo-data Excel: Sessions → Activities sheet rename (#0080 Wave D, closes epic) =
 
