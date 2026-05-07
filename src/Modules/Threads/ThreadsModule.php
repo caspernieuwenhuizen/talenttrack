@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Modules\Threads\Adapters\BlueprintThreadAdapter;
 use TT\Modules\Threads\Adapters\GoalThreadAdapter;
 use TT\Modules\Threads\Adapters\PlayerThreadAdapter;
 use TT\Modules\Threads\Rest\ThreadsRestController;
@@ -39,9 +40,13 @@ class ThreadsModule implements ModuleInterface {
         // #0085 — second registered thread type. Anchors a thread on
         // a player record for staff-only running observations.
         ThreadTypeRegistry::register( 'player', new PlayerThreadAdapter() );
+        // #0068 Phase 3 — third registered thread type. Anchors a
+        // discussion thread on a team blueprint; staff-only.
+        ThreadTypeRegistry::register( 'blueprint', new BlueprintThreadAdapter() );
 
         ThreadsRestController::init();
         Subscribers\GoalSystemMessageSubscriber::init();
+        Subscribers\BlueprintSystemMessageSubscriber::init();
         Subscribers\AuditSubscriber::init();
         Subscribers\NotificationSubscriber::init();
 

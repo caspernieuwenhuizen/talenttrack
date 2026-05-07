@@ -5,8 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\TeamDevelopment\BlueprintChemistryEngine;
+use TT\Modules\TeamDevelopment\BlueprintShareToken;
 use TT\Modules\TeamDevelopment\Repositories\TeamBlueprintsRepository;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\FrontendThreadView;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -197,10 +199,16 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             'team_id' => (int) $bp['team_id'],
         ], $base_url );
 
+        // #0068 Phase 3 — tabbed editor (Lineup | Comments). The
+        // Comments tab is gated on `tt_view_team_chemistry` (every
+        // viewer of the editor already holds it).
+        $tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : 'lineup';
+        if ( $tab !== 'comments' ) $tab = 'lineup';
+
         echo '<p style="margin:0 0 12px;">';
         echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $list_url ) . '">'
             . esc_html__( '← Back to blueprints', 'talenttrack' ) . '</a>';
-        if ( $is_squad ) {
+        if ( $is_squad && $tab === 'lineup' ) {
             $toggle_url = $heatmap
                 ? remove_query_arg( 'heatmap' )
                 : add_query_arg( 'heatmap', '1' );
@@ -211,6 +219,29 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
                 . esc_html( $toggle_label ) . '</a>';
         }
         echo '</p>';
+
+        // Tab nav.
+        $editor_url   = add_query_arg( [ 'tt_view' => 'team-blueprints', 'id' => (int) $bp['id'] ], $base_url );
+        $comments_url = add_query_arg( [ 'tab' => 'comments' ], $editor_url );
+        echo '<nav class="tt-bp-tabs" role="tablist" style="display:flex; gap:4px; border-bottom:1px solid #e5e7ea; margin-bottom:16px;">';
+        $lineup_cls   = 'tt-bp-tab' . ( $tab === 'lineup' ? ' is-active' : '' );
+        $comments_cls = 'tt-bp-tab' . ( $tab === 'comments' ? ' is-active' : '' );
+        echo '<a class="' . esc_attr( $lineup_cls ) . '" href="' . esc_url( $editor_url ) . '" role="tab" aria-selected="' . ( $tab === 'lineup' ? 'true' : 'false' ) . '">'
+            . esc_html__( 'Lineup', 'talenttrack' ) . '</a>';
+        echo '<a class="' . esc_attr( $comments_cls ) . '" href="' . esc_url( $comments_url ) . '" role="tab" aria-selected="' . ( $tab === 'comments' ? 'true' : 'false' ) . '">'
+            . esc_html__( 'Comments', 'talenttrack' ) . '</a>';
+        echo '</nav>';
+
+        // #0068 Phase 4 — share-link buttons (cap-gated on
+        // tt_manage_team_chemistry; same as locking).
+        if ( $can_manage && $tab === 'lineup' ) {
+            self::renderShareLinkActions( $bp );
+        }
+
+        if ( $tab === 'comments' ) {
+            FrontendThreadView::render( 'blueprint', (int) $bp['id'], $user_id );
+            return;
+        }
 
         // Status row + flavour pill + action buttons.
         self::renderStatusRow( $bp, $can_manage, $is_locked );
@@ -283,6 +314,191 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
                 . esc_html__( 'This blueprint is locked. Reopen it to make changes.', 'talenttrack' )
                 . '</p>';
         }
+    }
+
+    /**
+     * #0068 Phase 4 — share-link controls. "Open share link" opens a
+     * read-only public view; "Rotate share link" sets a fresh seed
+     * invalidating every prior URL for this blueprint.
+     *
+     * @param array<string,mixed> $bp
+     */
+    private static function renderShareLinkActions( array $bp ): void {
+        $repo = new TeamBlueprintsRepository();
+        $seed = $repo->ensureShareTokenSeed( (int) $bp['id'] );
+        if ( $seed === '' ) return;
+        $token = BlueprintShareToken::tokenFor( (int) $bp['id'], (string) $bp['uuid'], $seed );
+        $share_url = add_query_arg( [
+            'tt_view' => 'team-blueprint-share',
+            'id'      => (string) $bp['uuid'],
+            'token'   => $token,
+        ], home_url( '/' ) );
+        $rotate_url = wp_nonce_url(
+            admin_url( 'admin-post.php?action=tt_blueprint_rotate_share&id=' . (int) $bp['id'] ),
+            'tt_blueprint_rotate_share_' . (int) $bp['id']
+        );
+        echo '<p class="tt-bp-share" style="margin:0 0 12px; display:flex; gap:8px; flex-wrap:wrap;">';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $share_url ) . '" target="_blank" rel="noopener">'
+            . esc_html__( 'Open share link', 'talenttrack' ) . '</a>';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $rotate_url ) . '" '
+            . 'onclick="return confirm(' . esc_attr( wp_json_encode( __( 'Rotate the share link? Anyone holding the previous URL will be locked out.', 'talenttrack' ) ) ) . ');">'
+            . esc_html__( 'Rotate share link', 'talenttrack' ) . '</a>';
+        echo '</p>';
+    }
+
+    /**
+     * #0068 Phase 4 — public read-only blueprint render. Reachable
+     * without authentication via a signed-token URL. Renders pitch +
+     * lineup table + chemistry headline + status pill, no comments.
+     */
+    public static function renderShared(): void {
+        $uuid  = isset( $_GET['id'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['id'] ) ) : '';
+        $token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['token'] ) ) : '';
+        if ( $uuid === '' || $token === '' ) {
+            self::renderSharedNotFound();
+            return;
+        }
+
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_team_blueprints WHERE uuid = %s",
+            $uuid
+        ) );
+        if ( ! $row ) {
+            self::renderSharedNotFound();
+            return;
+        }
+
+        // Switch the current_club filter to the blueprint's club so
+        // the repository's club-scoped reads succeed without an active
+        // session. The blueprint id is the only secret we'd be leaking
+        // here, and it's already in the URL.
+        $blueprint_id = (int) $row->id;
+        $bp_club_id   = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT club_id FROM {$wpdb->prefix}tt_team_blueprints WHERE id = %d",
+            $blueprint_id
+        ) );
+        $club_filter = static function ( $club ) use ( $bp_club_id ) {
+            return $bp_club_id > 0 ? $bp_club_id : $club;
+        };
+        add_filter( 'tt_current_club_id', $club_filter );
+
+        $repo = new TeamBlueprintsRepository();
+        $bp   = $repo->find( $blueprint_id );
+        if ( $bp === null ) {
+            remove_filter( 'tt_current_club_id', $club_filter );
+            self::renderSharedNotFound();
+            return;
+        }
+
+        $seed = $repo->ensureShareTokenSeed( $blueprint_id );
+        if ( ! BlueprintShareToken::verify( $blueprint_id, (string) $bp['uuid'], $seed, $token ) ) {
+            remove_filter( 'tt_current_club_id', $club_filter );
+            self::renderSharedNotFound();
+            return;
+        }
+
+        $team = QueryHelpers::get_team( (int) $bp['team_id'] );
+
+        self::enqueueAssets();
+        self::enqueueBlueprintAssets();
+
+        echo '<div class="tt-bp-shared-wrap" style="max-width:960px; margin:0 auto; padding:16px;">';
+        echo '<header style="margin-bottom:16px;">';
+        echo '<h1 style="margin:0 0 6px;">' . esc_html( (string) $bp['name'] ) . '</h1>';
+        if ( $team ) {
+            echo '<p style="margin:0; color:#5b6e75;">' . esc_html( (string) $team->name ) . '</p>';
+        }
+        echo '</header>';
+
+        echo '<div style="display:flex; gap:12px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">';
+        echo self::statusPill( (string) $bp['status'] );
+        echo self::flavourPill( (string) ( $bp['flavour'] ?? '' ) );
+        echo '</div>';
+
+        $tiered = (array) ( $bp['assignments'] ?? [] );
+        $primary_lineup = [];
+        foreach ( $tiered as $slot => $tiers ) {
+            if ( isset( $tiers[ TeamBlueprintsRepository::TIER_PRIMARY ] ) ) {
+                $primary_lineup[ (string) $slot ] = (int) $tiers[ TeamBlueprintsRepository::TIER_PRIMARY ];
+            }
+        }
+        $chemistry = ( new BlueprintChemistryEngine() )->computeForLineup(
+            (int) $bp['team_id'], (array) ( $bp['slots'] ?? [] ), $primary_lineup
+        );
+        self::renderChemistryHeadline( $chemistry );
+
+        echo '<div class="tt-bp-shared-pitch" style="margin:16px 0;">';
+        PitchSvg::render( (array) ( $bp['slots'] ?? [] ), self::lineupAsSuggested( $primary_lineup ), PitchSvg::MODE_FLAT, $chemistry['links'] );
+        echo '</div>';
+
+        // Lineup table for accessibility + parents reading on small
+        // screens where the SVG is hard to scan.
+        self::renderSharedLineupTable( (array) ( $bp['slots'] ?? [] ), $primary_lineup );
+
+        echo '<p style="margin-top:24px; color:#5b6e75; font-size:13px;">'
+            . esc_html__( 'This is a read-only share link. Comments and edits are coach-only inside TalentTrack.', 'talenttrack' )
+            . '</p>';
+        echo '</div>';
+
+        remove_filter( 'tt_current_club_id', $club_filter );
+    }
+
+    /**
+     * @param list<array<string,mixed>> $slots
+     * @param array<string,int>         $primary_lineup
+     */
+    private static function renderSharedLineupTable( array $slots, array $primary_lineup ): void {
+        echo '<table class="tt-bp-shared-lineup" style="width:100%; max-width:560px; border-collapse:collapse; font-size:14px;">';
+        echo '<thead><tr>';
+        echo '<th style="text-align:left; padding:6px 8px; border-bottom:1px solid #e5e7ea;">' . esc_html__( 'Slot', 'talenttrack' ) . '</th>';
+        echo '<th style="text-align:left; padding:6px 8px; border-bottom:1px solid #e5e7ea;">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
+        foreach ( $slots as $slot ) {
+            $label = (string) ( $slot['label'] ?? '' );
+            if ( $label === '' ) continue;
+            $pid   = isset( $primary_lineup[ $label ] ) ? (int) $primary_lineup[ $label ] : 0;
+            $name  = $pid > 0 ? QueryHelpers::player_display_name( QueryHelpers::get_player( $pid ) ) : '';
+            echo '<tr>';
+            echo '<td style="padding:6px 8px; border-bottom:1px solid #f1f3f5;">' . esc_html( $label ) . '</td>';
+            echo '<td style="padding:6px 8px; border-bottom:1px solid #f1f3f5;">'
+                . ( $name !== '' ? esc_html( $name ) : '<em style="color:#8a9099;">' . esc_html__( '— empty —', 'talenttrack' ) . '</em>' )
+                . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+    }
+
+    private static function renderSharedNotFound(): void {
+        status_header( 404 );
+        echo '<div style="max-width:560px; margin:48px auto; padding:24px; text-align:center;">';
+        echo '<h1>' . esc_html__( 'Share link not valid', 'talenttrack' ) . '</h1>';
+        echo '<p style="color:#5b6e75;">'
+            . esc_html__( 'This blueprint share link is no longer valid. Ask the coach for an updated link.', 'talenttrack' )
+            . '</p>';
+        echo '</div>';
+    }
+
+    /**
+     * `admin-post.php?action=tt_blueprint_rotate_share&id=N` — operator
+     * action behind a per-row nonce. Cap-gated on
+     * `tt_manage_team_chemistry`. Sets a fresh seed; every prior URL
+     * for this blueprint immediately fails verification.
+     */
+    public static function handleRotateShareLink(): void {
+        if ( ! current_user_can( 'tt_manage_team_chemistry' ) ) {
+            wp_die( esc_html__( 'You do not have permission to rotate the share link.', 'talenttrack' ), '', [ 'response' => 403 ] );
+        }
+        $id = isset( $_GET['id'] ) ? (int) $_GET['id'] : 0;
+        if ( $id <= 0 ) wp_die( esc_html__( 'Bad blueprint id.', 'talenttrack' ), '', [ 'response' => 400 ] );
+        check_admin_referer( 'tt_blueprint_rotate_share_' . $id );
+        ( new TeamBlueprintsRepository() )->rotateShareTokenSeed( $id, (int) get_current_user_id() );
+        wp_safe_redirect( add_query_arg( [
+            'tt_view' => 'team-blueprints',
+            'id'      => $id,
+            'tt_msg'  => 'share_rotated',
+        ], home_url( '/' ) ) );
+        exit;
     }
 
     /** @param array<string,mixed> $bp */

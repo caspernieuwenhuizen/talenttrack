@@ -637,6 +637,12 @@ class DashboardShortcode {
                 }
                 \TT\Modules\TeamDevelopment\Frontend\FrontendTeamBlueprintsView::render( $user_id, $is_admin );
                 break;
+            case 'team-blueprint-share':
+                // #0068 Phase 4 — public read-only share-link. Token
+                // verification happens inside renderShared(); no cap
+                // check at the dispatch layer (the URL is the auth).
+                \TT\Modules\TeamDevelopment\Frontend\FrontendTeamBlueprintsView::renderShared();
+                break;
             case 'podium':
                 FrontendPodiumView::render( $user_id, $is_admin );
                 break;

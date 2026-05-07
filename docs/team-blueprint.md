@@ -108,11 +108,39 @@ Each slot shows `N/3` so you can read the page at a glance: where are the gaps? 
 
 Chemistry only scores the **starting XI** — i.e. the primary tier. Tier 2 and 3 are depth signal, not lineup signal. The headline number reflects the primary lineup; lines render between the primary players.
 
-## Phase 2 limits
+## Comments (#0068 Phase 3)
 
-- **No comments** — staff discussion lives outside the blueprint for now; Phase 3 will add a comments thread per blueprint via the Threads module.
-- **Mobile drag-drop is awkward**. HTML5 drag-and-drop on touch devices works but isn't great. A long-press-to-pick-up fallback is on the polish list.
-- **No share-link**. A public URL for parents / external coaches is Phase 4.
+Every blueprint has a per-blueprint discussion thread reachable from the editor's **Comments** tab. Staff-only by design (parents on the share-link never see comments):
+
+- **Read** = `tt_view_team_chemistry` — every coach who can open the editor can read.
+- **Post** = `tt_manage_team_chemistry` — every coach who can lock the blueprint can post.
+
+System messages auto-post on status transitions (`Status changed to: shared` / `locked` / `draft`). Per-assignment swaps stay silent — they show up on the chemistry refresh.
+
+## Public share-link (#0068 Phase 4)
+
+The editor's **Open share link** button generates a URL of shape:
+
+```
+?tt_view=team-blueprint-share&id=<uuid>&token=<hmac>
+```
+
+Anyone with the URL sees a read-only render: status pill + chemistry headline + pitch + lineup table. No comments, no editing controls, no login required. Parents and external coaches can be sent the link directly.
+
+**Rotate share link** sets a fresh seed. Every prior URL fails verification immediately. Use it when a link has been over-shared, or after a roster change you don't want previous viewers to keep tracking.
+
+The token is an HMAC-SHA256 over `(blueprint_id, uuid, share_token_seed)` keyed on the install's `wp_salt('auth')`. The seed is per-blueprint, lazily initialised to the blueprint's uuid (cryptographically random by construction); rotation replaces the seed with a fresh `wp_generate_password(16)` value.
+
+## Mobile drag-drop (#0068 Phase 4)
+
+iPads work fine with HTML5 drag-and-drop; iPhones don't. v3.109.8 ships a touch fallback:
+
+- **Long-press 300ms** on a roster chip to pick it up.
+- Drag the chip onto a slot or back into the roster panel.
+- A short tap-and-scroll keeps scrolling — the long-press threshold disambiguates.
+- Pickup + drop trigger a 50ms haptic tap on devices that support `navigator.vibrate()`.
+
+Mouse + trackpad keep using the existing HTML5 drag flow.
 
 ## REST
 

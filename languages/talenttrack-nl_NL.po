@@ -14148,3 +14148,38 @@ msgstr "Evaluatie: %1$s (%2$s)"
 #. translators: %s = player display name
 msgid "Recording evaluation for %s."
 msgstr "Evaluatie vastleggen voor %s."
+
+# v3.110.4 — #0068 Phases 3 + 4: blueprint discussion thread + share-link
+
+msgid "Lineup"
+msgstr "Opstelling"
+
+msgid "Comments"
+msgstr "Reacties"
+
+msgid "Open share link"
+msgstr "Deelbare link openen"
+
+msgid "Rotate share link"
+msgstr "Deelbare link vernieuwen"
+
+msgid "Rotate the share link? Anyone holding the previous URL will be locked out."
+msgstr "Deelbare link vernieuwen? Iedereen met de vorige URL verliest direct toegang."
+
+msgid "Share link not valid"
+msgstr "Deelbare link niet geldig"
+
+msgid "This blueprint share link is no longer valid. Ask the coach for an updated link."
+msgstr "Deze blueprint-link is niet meer geldig. Vraag de coach om een nieuwe link."
+
+msgid "— empty —"
+msgstr "— leeg —"
+
+msgid "This is a read-only share link. Comments and edits are coach-only inside TalentTrack."
+msgstr "Dit is een alleen-lezen deelbare link. Reacties en bewerkingen zijn alleen voor coaches binnen TalentTrack."
+
+msgid "You do not have permission to rotate the share link."
+msgstr "Je hebt geen rechten om de deelbare link te vernieuwen."
+
+msgid "Bad blueprint id."
+msgstr "Ongeldig blueprint-id."
