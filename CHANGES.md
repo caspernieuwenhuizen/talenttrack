@@ -1,89 +1,81 @@
-# TalentTrack v3.106.1 — Reporting export and scheduled reports (#0083 Child 6, closes #0083)
+# TalentTrack v3.106.2 — Custom widget builder Phase 1: data-source layer (#0078 Phase 1)
 
-Sixth and final child of #0083 (Reporting framework). **Closes the epic.** Operationalises analytics for users who want their numbers regularly: schedule a KPI to run weekly / monthly / season-end, attach the CSV, send via email.
-
-Renumbered v3.105.1 → v3.106.1 mid-rebase after the parallel-agent ship of v3.106.0 (#0066 Communication module foundation) landed.
-
-## Co-existence with #0063 Export foundation + #0066 Comms foundation
-
-v3.105.0 shipped the `Modules\Export\` foundation; v3.106.0 shipped the `Modules\Comms\` foundation. This PR's `Modules\Analytics\Export\CsvExporter` is a thin direct-to-`FactQuery` consumer for the scheduled-reports cron — it deliberately bypasses the #0063 ExporterRegistry today to keep the scheduled-reports loop closed without depending on #0063 follow-up shaping.
-
-A future ship re-routes analytics CSV through `Modules\Export\ExporterRegistry` (so both paths share one renderer) and re-routes the scheduled-report email send through `Modules\Comms\CommsService` (so opt-out + quiet-hours + audit apply uniformly). For Child 6 v1, the simpler direct path keeps the spec promise (closes #0083) without forcing a deeper integration sprint.
+First phase of #0078 (Custom widget builder). Ships the data-layer foundation Phases 2-6 build on top of. Feature-flag-gated via `tt_custom_widgets_enabled` (default off; beta installs opt in). No user-visible surface yet — Phase 3 ships the admin builder page; Phase 4 ships the persona-dashboard rendering integration.
 
 ## What landed
 
-### `Modules\Analytics\Export\CsvExporter`
+### `Modules\CustomWidgets\Domain\CustomDataSource` interface
 
-UTF-8-with-BOM CSV renderer (Excel-NL friendly opens correctly without an encoding pick). Two entry points:
+Per spec decision 1: registered data-source classes only — no free-text SQL, no visual SQL builder. Admins configure (filters, columns, label, format) but cannot author the underlying query.
 
-- `forKpi( $kpi_key, $extra_filters )` — uses the KPI's fact + measure + default filters merged with extras, grouped by every `exploreDimension`.
-- `raw( $fact_key, $dim_keys, $measure_keys, $filters, $title )` — for the explorer's "Export this view" affordance.
+The interface declares five methods:
 
-Streams via `fputcsv` to a memory stream. Capped at the engine's 5,000-row LIMIT.
+- **`id()`** — stable snake_case id used as foreign key in the future `tt_custom_widgets.data_source_id`.
+- **`label()`** — translatable picker label.
+- **`columns()`** — list of `[key, label, kind]`. The builder UI renders one checkbox per column; widgets persist the chosen subset. `kind` ∈ `string` / `int` / `float` / `date` / `pill` drives column formatting.
+- **`filters()`** — list of `[key, label, kind, ...]`. `kind` ∈ `date_range` / `team` / `player` / `enum` / `season`. The builder UI renders one input per filter; widgets persist the chosen values in `definition.filters`.
+- **`fetch( $user_id, $filters, $column_keys, $limit )`** — returns `list<array<string,mixed>>` keyed by column id. **Implementations MUST** filter by current `club_id` via `CurrentClub::id()` + apply demo-mode scope + validate filter values against the declared `filters()` metadata. The renderer (Phase 4) calls this with the operator's chosen subset.
+- **`aggregations()`** — list of `[key, label, kind, column?]`. `kind` ∈ `count` / `avg` / `sum` / `distinct`. Used by KPI widgets (single number) + bar / line widgets (one aggregated value per group).
 
-### Migration `0075_scheduled_reports`
+### `CustomDataSourceRegistry`
 
-`tt_scheduled_reports` table per the spec — `club_id` + `uuid` for SaaS-readiness, `name` + `kpi_key`, `frequency` (`weekly_monday` / `monthly_first` / `season_end`), `recipients` JSON, `format` (`csv` v1), `last_run_at` + `next_run_at` + `status`, audit columns.
+Append-only catalogue keyed by source id. Mirrors the registration shape of `WidgetRegistry` / `KpiDataSourceRegistry` / `FactRegistry` — `register($source)` / `find($id)` / `all()` / `catalogue()` (the builder-UI shape) / `clear()` (test helper).
 
-### `ScheduledReportsRepository`
+### Five reference data sources
 
-CRUD + `dueForRun()` cron consumer + `markRun()` + pure `computeNextRun()`:
-- `weekly_monday` → next Monday 06:00 UTC.
-- `monthly_first` → first day of next month 06:00 UTC.
-- `season_end` → 1 July 06:00 UTC.
+In `Modules\CustomWidgets\DataSources\`:
 
-### `Cron\ScheduledReportsRunner`
+| Class | Underlying table | Filters | Aggregations |
+|---|---|---|---|
+| `PlayersActive` | `tt_players` | team_id, age_range | count, distinct_teams |
+| `EvaluationsRecent` | `tt_evaluations` | date_from, date_to, team_id | count, avg_overall |
+| `GoalsOpen` | `tt_goals` | status | count, distinct_players |
+| `ActivitiesRecent` | `tt_activities` | date_from, date_to, team_id | count |
+| `PdpFiles` | `tt_pdp_files` | season_id, status | count |
 
-Daily WP-cron `tt_scheduled_reports_cron`. Renders CSV, expands recipients (email strings pass through, role keys expand via `get_users()`), sends via `wp_mail()` with the file attached, audit-logs `scheduled_report.run`. License-gated.
+Each enforces `club_id` in its `fetch()` and parameterises every value via `$wpdb->prepare()`. Column / aggregation surfaces match the spec's Phase 1 acceptance scenarios:
+- "Top 10 active players from the Players source" → `PlayersActive` with `limit=10`.
+- "Average evaluation rating per coach (last 30 days) KPI from the Evaluations source" → `EvaluationsRecent` + `avg_overall` aggregation + `date_from = -30 days`.
+- "Goals per principle bar chart from the Goals source" → `GoalsOpen` + `count` aggregation grouped by principle.
 
-### `?tt_view=scheduled-reports` — management view
+### `CustomWidgetsModule`
 
-Cap-gated on `tt_view_analytics`. License-gated via `LicenseGate::allows('scheduled_reports')`; free-tier operators see the standard `UpgradeNudge` paywall. Create form + list with Pause / Resume / Archive actions.
+Registered in `config/modules.php`. `boot()` is feature-flag-gated:
 
-### `Admin\ScheduledReportsActionHandlers`
+```php
+if ( ! self::isFeatureEnabled() ) return;
+self::registerInitialDataSources();
+```
 
-Four admin-post endpoints (create / pause / resume / archive).
+`isFeatureEnabled()` reads `tt_custom_widgets_enabled` from `tt_config` via `ConfigService::getBool()` (per-club), with a `wp_options` fallback for installs predating the per-club config layer. Default off.
 
-### License feature `scheduled_reports`
-
-Registered in `FeatureMap::DEFAULT_MAP[TIER_STANDARD]`.
-
-### Wiring
-
-Slug ownership + dispatch arm + `mobile_class = desktop_only` all registered.
+When the flag is off, no data sources register, no admin pages exist (Phase 3 honours the gate too), and the rest of the platform is unaware of the module.
 
 ## What's NOT in this PR
 
-- **Explorer "Export CSV" button** — `CsvExporter::raw()` is callable today; UI surface follows.
-- **XLSX + PDF formats.** CSV-only v1.
-- **Explorer-state-as-schedule.** Today only KPI-direct schedules.
-- **Per-schedule edit form.**
-- **#0063 `ExporterRegistry` integration.** Future ship re-routes via the central renderer pipeline.
-- **#0066 `CommsService` integration.** Future ship re-routes the email send through the Comms orchestrator.
+- **Migration `0061_custom_widgets`** + REST CRUD on `tt_custom_widgets` — Phase 2.
+- **Admin builder page** (TalentTrack → Custom widgets) with multi-step UX (pick source → columns → filters → format → preview → save) — Phase 3.
+- **Rendering engine** + persona-dashboard editor palette integration — Phase 4.
+- **`tt_author_custom_widgets` cap** + per-widget transient cache (5-min TTL configurable, manual flush) + audit-log integration on save / publish / delete — Phase 5.
+- **Docs** (`docs/custom-widgets.md` + Dutch twin) + ~30 new translatable strings + README link — Phase 6.
 
 ## Affected files
 
-- `database/migrations/0075_scheduled_reports.php` — new.
-- `src/Modules/Analytics/ScheduledReportsRepository.php` — new.
-- `src/Modules/Analytics/Export/CsvExporter.php` — new.
-- `src/Modules/Analytics/Cron/ScheduledReportsRunner.php` — new.
-- `src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php` — new.
-- `src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php` — new.
-- `src/Modules/Analytics/AnalyticsModule.php` — `boot()` wires action handlers + cron runner.
-- `src/Shared/Frontend/DashboardShortcode.php` — dispatch arm.
-- `src/Shared/CoreSurfaceRegistration.php` — slug ownership + `mobile_class = desktop_only`.
-- `src/Modules/License/FeatureMap.php` — `scheduled_reports` feature in the Standard tier.
-- `languages/talenttrack-nl_NL.po` — 26 new msgids.
+- `src/Modules/CustomWidgets/Domain/CustomDataSource.php` — new (interface).
+- `src/Modules/CustomWidgets/CustomDataSourceRegistry.php` — new.
+- `src/Modules/CustomWidgets/DataSources/PlayersActive.php` — new.
+- `src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php` — new.
+- `src/Modules/CustomWidgets/DataSources/GoalsOpen.php` — new.
+- `src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php` — new.
+- `src/Modules/CustomWidgets/DataSources/PdpFiles.php` — new.
+- `src/Modules/CustomWidgets/CustomWidgetsModule.php` — new (module shell).
+- `config/modules.php` — register `CustomWidgetsModule`.
 - `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
 
-## #0083 — closed
+## Translations
 
-Six children shipped:
-1. **v3.104.1 — Fact registry**
-2. **v3.104.2 — KPI platform**
-3. **v3.104.3 — Dimension explorer**
-4. **v3.104.4 — Entity Analytics tab**
-5. **v3.104.5 — Central analytics surface**
-6. **v3.106.1 — Export and schedule** (this PR)
+Zero new translatable strings — labels inside the source declarations are already wrapped in `__()` and surface via the Phase 3 builder UI (which doesn't ship until then).
 
-The cost of the next analytical question drops to zero — same affordances every time.
+## Player-centricity
+
+Phase 1 is the catalogue layer for "what an admin can build a custom widget about." Every reference source registers around a player-centric or activity-centric table — players, evaluations, goals, activities, PDP files. The widget builder doesn't expose any data without a clear relationship to a player record. By the time Phase 4 lights up the rendering, every authored widget is answering a player-centric question by construction.

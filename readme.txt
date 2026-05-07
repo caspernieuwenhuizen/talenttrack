@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.106.1
+Stable tag: 3.106.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.106.2 — Custom widget builder Phase 1: data-source layer (#0078 Phase 1) =
+
+First phase of #0078 (Custom widget builder). Ships the data-layer foundation Phases 2-6 build on top of: a `CustomDataSource` interface + central registry + 5 reference sources. Feature-flag-gated via `tt_custom_widgets_enabled` (default off; beta installs opt in). No user-visible surface yet — Phase 3 ships the admin builder page; Phase 4 ships the persona-dashboard rendering integration. **(1) `Modules\CustomWidgets\Domain\CustomDataSource` interface** declares 5 methods: `id()` (stable snake_case foreign key in the future `tt_custom_widgets.data_source_id`), `label()` (translatable picker label), `columns()` (list of `[key, label, kind]` driving the builder's column-picker UI), `filters()` (list of `[key, label, kind]` with kind ∈ `date_range` / `team` / `player` / `enum` / `season`), `fetch($user_id, $filters, $column_keys, $limit)` (returns `list<array<string,mixed>>` keyed by column id; MUST scope to `CurrentClub::id()` + apply demo-mode scope), `aggregations()` (list of `[key, label, kind]` with kind ∈ `count` / `avg` / `sum` / `distinct` for KPI / bar / line widgets). **(2) `CustomDataSourceRegistry`** — append-only catalogue keyed by source id (mirrors `WidgetRegistry` / `KpiDataSourceRegistry` / `FactRegistry`). `register()` / `find()` / `all()` / `catalogue()` (builder-UI shape) / `clear()`. **(3) Five reference data sources** in `Modules\CustomWidgets\DataSources\`: `PlayersActive` (over `tt_players`; columns name / team / age / position / status; filter team_id + age_range; aggregations count + distinct_teams), `EvaluationsRecent` (over `tt_evaluations`; columns player / eval_date / evaluator / overall; filter date_from / date_to / team_id; aggregations count + avg_overall), `GoalsOpen` (over `tt_goals`; columns player / title / status / due_date / principle; filter status; aggregations count + distinct_players), `ActivitiesRecent` (over `tt_activities`; columns title / type / team / date / attendance_pct; filter date_from / date_to / team_id; aggregations count), `PdpFiles` (over `tt_pdp_files`; columns player / season / status / conversations_done / cycle_size; filter season_id / status; aggregations count). Each source enforces `club_id` in its `fetch()` and parameterises every value via `$wpdb->prepare()`. **(4) `CustomWidgetsModule`** registered in `config/modules.php`; `boot()` is feature-flag-gated and registers all 5 data sources when enabled. Reading the toggle via `ConfigService::getBool('tt_custom_widgets_enabled', false)` keeps it per-club. **What's NOT in this PR**: migration `0061_custom_widgets` + REST CRUD on `tt_custom_widgets` (Phase 2); admin builder page (Phase 3 — multi-step UX: pick source → columns → filters → format → preview → save); rendering engine + persona-dashboard editor palette integration (Phase 4); `tt_author_custom_widgets` cap + per-widget transient cache + audit-log integration (Phase 5); docs + i18n + README link (Phase 6). Zero new translatable strings — labels inside the source declarations are wrapped in `__()` and surface via the Phase 3 builder UI. Co-exists with v3.105.0's `Modules\Export\` and v3.106.0's `Modules\Comms\` foundations + #0083 Analytics — each lives in its own module without cross-coupling.
 
 = 3.106.1 — Reporting export and scheduled reports (#0083 Child 6, closes #0083) =
 
