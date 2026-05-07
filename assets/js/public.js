@@ -239,6 +239,59 @@
             restRequest('goals/' + encodeURIComponent(id) + '/status', 'PATCH', { status: this.value });
         });
 
+        // Generic record delete — DELETE <data-rest-path>
+        //
+        // Any inline delete button can declare:
+        //   class="tt-record-delete"
+        //   data-rest-path="evaluations/{id}"      (or any v1 endpoint)
+        //   data-confirm-msg="Delete this evaluation?"
+        //   data-deleted-msg="Evaluation deleted."
+        //
+        // After a successful DELETE the closest `tr` or `[data-tt-row]`
+        // ancestor fades out + is removed. If no such ancestor exists,
+        // the page reloads. Sweep target: evaluations, activities, any
+        // future record where the REST DELETE exists but UI didn't
+        // expose it.
+        on('.tt-record-delete', 'click', function(e) {
+            e.preventDefault();
+            var btn = this;
+            var path = btn.getAttribute('data-rest-path');
+            if (!path) return;
+            var confirmMsg = btn.getAttribute('data-confirm-msg') || (i18n.confirm_delete_record || 'Delete this record?');
+            var deletedMsg = btn.getAttribute('data-deleted-msg') || (i18n.deleted_record || 'Deleted.');
+            var doDelete = function() {
+                restRequest(path, 'DELETE', null).then(function(res) {
+                    if (res.ok) {
+                        if (window.ttFlash && window.ttFlash.addNear) {
+                            window.ttFlash.addNear(btn, 'success', deletedMsg);
+                        }
+                        var row = btn.closest('[data-tt-row]') || btn.closest('tr') || btn.closest('li');
+                        if (row) {
+                            row.style.transition = 'opacity 0.25s';
+                            row.style.opacity = '0';
+                            setTimeout(function() {
+                                if (row.parentNode) row.parentNode.removeChild(row);
+                            }, 260);
+                        } else {
+                            window.location.reload();
+                        }
+                    } else if (res.json && res.json.errors && res.json.errors[0]) {
+                        window.alert(res.json.errors[0].message || (i18n.error_generic || 'Error.'));
+                    }
+                });
+            };
+            if (typeof window.ttConfirm === 'function') {
+                window.ttConfirm({
+                    title:        i18n.confirm_delete_record_title || 'Delete?',
+                    message:      confirmMsg,
+                    confirmLabel: i18n.delete_label || 'Delete',
+                    danger:       true
+                }).then(function(ok) { if (ok) doDelete(); });
+            } else if (window.confirm(confirmMsg)) {
+                doDelete();
+            }
+        });
+
         // Goal delete — DELETE /goals/{id}
         on('.tt-dashboard .tt-goal-delete', 'click', function(e) {
             e.preventDefault();

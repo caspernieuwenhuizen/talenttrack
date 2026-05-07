@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.108.1
+Stable tag: 3.108.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.108.2 — Pilot-batch follow-up I: eval delete UI + LookupPill sweep + referer-based breadcrumb back-link + eval-tab query parity (#0089 Batch I + F1) =
+
+Follow-up to v3.108.1 covering the first wave of items deferred to `ideas/0089-feat-pilot-batch-followups.md`. **(1) F5 — Inline evaluation delete button.** REST `DELETE /evaluations/{id}` already shipped; the UI just didn't expose it. New `.tt-record-delete` generic handler in `assets/js/public.js` driven by `data-rest-path` + `data-confirm-msg` + `data-deleted-msg`; the closest `[data-tt-row]` / `tr` / `li` ancestor fades out on success. Wired onto each row of the player-file evaluations tab (cap-gated on `tt_edit_evaluations`). Pattern is reusable for any future record where REST DELETE exists but the UI doesn't yet surface it. **(2) R2 — LookupPill always-translate sweep.** `LookupPill::render()` already translated correctly; the user complaint was that some surfaces emit raw lookup keys (e.g. `right` instead of "Rechts"). Routed through pill / translator on `FrontendPlayerDetailView::renderProfileTab` (preferred-foot dd), `CoachDashboardView::render` (Foot inline), `FrontendComparisonView` (Foot column), `FrontendOverviewView::renderMyCard` (preferred-foot bit). `FrontendMyProfileView` already translated correctly. **(3) A1 — Breadcrumb back-link helper.** New `FrontendBreadcrumbs::fromDashboardWithBack()` adds a leading "← Back" crumb sourced from `wp_get_referer()` when the referer is same-origin and distinct from the current page. Cheap referer-based path per the deferral question — no per-user back-stack store. Wired on `FrontendMyGoalsView::renderDetail` and `FrontendMyActivitiesView::renderDetail` (the two surfaces the user explicitly mentioned: "click goal from My card → 'back' should mean My card, not the goals list"). Other detail views opt in by switching `fromDashboard()` → `fromDashboardWithBack()`. **(4) F1 — Player-file evaluations tab badge / list parity.** `PlayerFileCounts::for()` and `FrontendPlayerDetailView::renderEvaluationsTab` now both filter `(player_id, club_id, archived_at IS NULL)`. Without the explicit `club_id` clause the badge could count rows the tab query was filtering out (or vice versa) — depending on which was the stricter scope. Both pinned to `CurrentClub::id()` so the tab and the badge always agree. **What's NOT in this PR** (still in `ideas/0089`): F2 my-evaluations scores not displaying, F3 my-* detail chrome, F4 goal save error, F7 PDP wizard skip-team-step, A3 eval subcategories, A4 team-overview HoD widget, A5 broad detail-page visual refresh, A7 upgrade-to-Pro CTA, K1-K5 KPI/widget data investigation. No new translatable strings — all the new copy is wrapped in `__()` calls but reuses existing English strings ("← Back", "Delete this evaluation? This cannot be undone.", "Evaluation deleted.", "Delete evaluation"); NL translation will land in the next i18n auto-commit on main.
 
 = 3.108.1 — Pilot-feedback batch: 8 mechanical bug fixes from a May 2026 acceptance round =
 

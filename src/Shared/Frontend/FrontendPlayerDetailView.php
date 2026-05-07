@@ -355,7 +355,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     <?php endif; ?>
                     <?php if ( ! empty( $player->preferred_foot ) ) : ?>
                         <dt><?php esc_html_e( 'Preferred foot', 'talenttrack' ); ?></dt>
-                        <dd><?php echo esc_html( (string) $player->preferred_foot ); ?></dd>
+                        <dd><?php echo LookupPill::render( 'foot_options', (string) $player->preferred_foot ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pill returns escaped html ?></dd>
                     <?php endif; ?>
                     <?php if ( ! empty( $player->jersey_number ) ) : ?>
                         <dt><?php esc_html_e( 'Jersey number', 'talenttrack' ); ?></dt>
@@ -438,13 +438,18 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     /** Evaluations tab — every evaluation, linkified (was a flat date list). */
     private static function renderEvaluationsTab( int $player_id ): void {
         global $wpdb;
+        // Mirrors `PlayerFileCounts::for()`'s evaluation count query
+        // (player_id + club_id + archived_at IS NULL). Without the
+        // matching `club_id` clause, the tab and the badge can fall
+        // out of sync — the operator sees a non-zero badge with an
+        // empty tab.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT e.id, e.eval_date, et.name AS type_name
                FROM {$wpdb->prefix}tt_evaluations e
           LEFT JOIN {$wpdb->prefix}tt_eval_types et ON et.id = e.eval_type_id
-              WHERE e.player_id = %d AND e.archived_at IS NULL
+              WHERE e.player_id = %d AND e.club_id = %d AND e.archived_at IS NULL
               ORDER BY e.eval_date DESC LIMIT 50",
-            $player_id
+            $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
         if ( empty( $rows ) ) {
             EmptyStateCard::render( [
@@ -460,15 +465,27 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             ] );
             return;
         }
+        $can_delete = current_user_can( 'tt_edit_evaluations' );
         echo '<ul class="tt-stack">';
         foreach ( $rows as $ev ) {
             $url = RecordLink::detailUrlFor( 'evaluations', (int) $ev->id );
-            echo '<li><a class="tt-record-link" href="' . esc_url( $url ) . '">';
+            // Each row gets `data-tt-row` so the generic record-delete
+            // handler in public.js (`.tt-record-delete`) can fade and
+            // remove it without a full page reload on success.
+            echo '<li data-tt-row><a class="tt-record-link" href="' . esc_url( $url ) . '">';
             echo '<strong>' . esc_html( (string) ( $ev->eval_date ?? '—' ) ) . '</strong>';
             if ( ! empty( $ev->type_name ) ) {
                 echo ' <span class="tt-muted">&middot; ' . esc_html( (string) $ev->type_name ) . '</span>';
             }
-            echo '</a></li>';
+            echo '</a>';
+            if ( $can_delete ) {
+                echo ' <button type="button" class="tt-record-delete tt-btn-link"'
+                    . ' data-rest-path="' . esc_attr( 'evaluations/' . (int) $ev->id ) . '"'
+                    . ' data-confirm-msg="' . esc_attr__( 'Delete this evaluation? This cannot be undone.', 'talenttrack' ) . '"'
+                    . ' data-deleted-msg="' . esc_attr__( 'Evaluation deleted.', 'talenttrack' ) . '"'
+                    . ' aria-label="' . esc_attr__( 'Delete evaluation', 'talenttrack' ) . '">×</button>';
+            }
+            echo '</li>';
         }
         echo '</ul>';
     }

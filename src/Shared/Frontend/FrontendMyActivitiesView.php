@@ -18,9 +18,12 @@ class FrontendMyActivitiesView extends FrontendViewBase {
     public static function render( object $player ): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $id > 0 ) {
-            // v3.92.1 — breadcrumb on the detail sub-view; renderDetail
-            // doesn't add its own.
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            // v3.108.2 — `fromDashboardWithBack` adds a leading "← Back"
+            // crumb when the referer is same-origin and distinct from
+            // the current page. Restores the obvious "go back to where
+            // I came from" move on entries that bypass the activities
+            // list (e.g. tapping an activity card from the dashboard).
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboardWithBack(
                 __( 'Activity detail', 'talenttrack' ),
                 [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'my-activities', __( 'My activities', 'talenttrack' ) ) ]
             );
