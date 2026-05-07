@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.9
+Stable tag: 3.110.10
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.10 — Fix #0006 team-planner tile reached its dispatcher (was Unknown section) =
+
+The Team planner tile threw "Unknown section" because the dispatch case statement was placed inside `dispatchWorkflowView` in v3.101.0 — but `team-planner` was never added to `$workflow_slugs` (or any other slug list). The top-level routing therefore never reached the case statement and every click on the tile fell through to the default branch. Fix: add `'team-planner'` to `$coaching_slugs` (Performance-group surface, same tier as `team-chemistry` / `team-blueprints` / `activities`) and move the case from `dispatchWorkflowView` to `dispatchCoachingView`. The view itself (`FrontendTeamPlannerView`), tile registration, slug ownership, and module registration were all already correct from v3.101.0; only the dispatcher routing was wrong. Pure routing fix — no new translatable strings, no schema, no caps, no view signature change. Renumbered v3.110.5 → v3.110.6 → v3.110.8 → v3.110.10 across multiple rebases as parallel-agent ships of #0063 use cases 2, 13, 14, 9 + #0068 Phases 3+4 took the v3.110.5 / v3.110.6 / v3.110.7 / v3.110.8 / v3.110.9 slots.
 
 = 3.110.9 — Team Blueprint Phases 3 + 4: discussion thread + mobile drag-drop polish + parent share-link (#0068, closes epic) =
 
