@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.4
+Stable tag: 3.110.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.5 — Second binary export use case: PDP / development plan PDF (#0063 use case 2) =
+
+Second consumer of the v3.110.0 `PdfRenderer`, sibling to v3.110.4's player evaluation PDF. **`PdpPdfExporter`** (`exporter_key = pdp_pdf`) reaches the formal-plan deliverable from #0044 via the central Export module rather than only through `?tt_pdp_print=1`, so future surfaces (Comms attachments, batch generation) can consume the same artifact through the standard pipeline. **URL**: `GET /wp-json/talenttrack/v1/exports/pdp_pdf?format=pdf&file_id=42`. Optional `&include_evidence=1` appends the second-A4 evidence page (last 5 evaluations + last 10 attendance rows). **Filters**: `file_id` (required); `include_evidence` (optional bool). **Cap**: `tt_view_pdp` at the route plus `PdpPrintRouter::canAccess()` per-file check inside `collect()` (admin / coach-of-this-player / linked self / linked parent — same matrix as the on-screen print). **Layout reuse**: extracted `PdpPrintRouter::emit()` into a public `renderHtml( object $file, bool $include_evidence ): string` so the exporter and the print path share the layout instead of forking; `canAccess()` also promoted to public for the per-file check. The print path's behaviour is unchanged — `maybeRender()` now does `echo self::renderHtml(...)`. **Toolbar strip**: the print layout's `<div class="toolbar">` carries browser Print/Re-render/Close buttons; `@media print` hides them in browser print but DomPDF doesn't honour print-media queries, so the exporter strips the toolbar `<div>` before handoff (mirrors v3.110.4's `<script>` strip on the player-evaluation PDF). **What's NOT in this PR**: the `?tt_pdp_print=1` route stays in place (additive); brand-kit letterhead inheritance; per-club PDP layout variants; async dispatch; the 7 other deferred Export use cases (4, 6, 8, 9, 10, 13, 14, 15). Zero new NL msgids; no migrations; no composer changes.
 
 = 3.110.4 — First binary export use case: player evaluation PDF (#0063 use case 1) =
 
