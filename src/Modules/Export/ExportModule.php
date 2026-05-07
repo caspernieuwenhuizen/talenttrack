@@ -9,7 +9,11 @@ use TT\Modules\Export\Format\FormatRendererRegistry;
 use TT\Modules\Export\Format\Renderers\CsvRenderer;
 use TT\Modules\Export\Format\Renderers\IcsRenderer;
 use TT\Modules\Export\Format\Renderers\JsonRenderer;
+use TT\Modules\Export\Format\Renderers\PdfRenderer;
+use TT\Modules\Export\Format\Renderers\XlsxRenderer;
+use TT\Modules\Export\Format\Renderers\ZipRenderer;
 use TT\Modules\Export\Exporters\AttendanceRegisterCsvExporter;
+use TT\Modules\Export\Exporters\FederationJsonExporter;
 use TT\Modules\Export\Exporters\GoalsCsvExporter;
 use TT\Modules\Export\Exporters\PlayersListCsvExporter;
 use TT\Modules\Export\Exporters\TeamIcalExporter;
@@ -45,32 +49,32 @@ class ExportModule implements ModuleInterface {
     public function register( Container $container ): void {}
 
     public function boot( Container $container ): void {
-        // Register the v1 format renderers. Per-use-case PDF / XLSX /
-        // ZIP renderers register from their owning module so we don't
-        // pay the dependency-import cost upfront.
+        // v1 format renderers (text-based) — always available.
         FormatRendererRegistry::register( new CsvRenderer() );
         FormatRendererRegistry::register( new JsonRenderer() );
         FormatRendererRegistry::register( new IcsRenderer() );
 
-        // First v1 use case to prove the foundation end-to-end.
-        // Other use cases (player evaluation PDF, GDPR ZIP, etc.)
-        // land in subsequent ships and register themselves from
-        // their owning modules.
-        ExporterRegistry::register( new TeamIcalExporter() );
+        // v3.110.0 — binary renderers. ZIP is pure PHP and always
+        // available; XLSX needs PhpSpreadsheet (production composer
+        // dependency); PDF needs DomPDF (production composer dependency).
+        // Each renderer self-gates on its dependency at render time, so
+        // we always register them — the failure path is a clean
+        // `no_renderer` 500 rather than a silent absent format.
+        FormatRendererRegistry::register( new ZipRenderer() );
+        FormatRendererRegistry::register( new XlsxRenderer() );
+        FormatRendererRegistry::register( new PdfRenderer() );
 
-        // v3.109.0 — three CSV use cases lifted from the spec's v1
-        // priority list (use cases 3, 5, 7). Pure-SQL exporters that
-        // exercise the existing `CsvRenderer` end-to-end and prove
-        // the foundation handles real production data shapes. They
-        // live here rather than in their owning Players / Activities /
-        // Goals modules because the readers are deliberately small
-        // and the registration line is cheaper than a six-line shell
-        // module update each. Future use cases that need owning-module
-        // state (e.g. cycle-aware PDP exports) will register from
-        // their owning module.
-        ExporterRegistry::register( new PlayersListCsvExporter() );
-        ExporterRegistry::register( new AttendanceRegisterCsvExporter() );
-        ExporterRegistry::register( new GoalsCsvExporter() );
+        // Use cases. Pure-SQL CSV / JSON exporters live in this module
+        // because the readers are small and the registration line is
+        // cheaper than a six-line shell-module update each. Future use
+        // cases that need owning-module state (cycle-aware PDP exports,
+        // session-plan PDFs, GDPR subject-access ZIP) will register
+        // from their owning module.
+        ExporterRegistry::register( new TeamIcalExporter() );           // use case 12 (v3.105.0)
+        ExporterRegistry::register( new PlayersListCsvExporter() );     // use case 3  (v3.109.0)
+        ExporterRegistry::register( new AttendanceRegisterCsvExporter() ); // use case 5  (v3.109.0)
+        ExporterRegistry::register( new GoalsCsvExporter() );           // use case 7  (v3.109.0)
+        ExporterRegistry::register( new FederationJsonExporter() );     // use case 11 (v3.110.0)
 
         ExportRestController::init();
     }
