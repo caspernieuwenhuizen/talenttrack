@@ -32,11 +32,21 @@ final class PlayerFileCounts {
             "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE player_id = %d AND club_id = %d AND archived_at IS NULL",
             $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
+        // v3.110.3 — restrict to completed activities. Mirrors the
+        // tab's render query (FrontendPlayerDetailView::renderActivitiesTab)
+        // so the badge and the tab list always agree on scope.
+        // Counts only rows where the activity is `plan_state =
+        // completed`; in-flight activities still have attendance rows
+        // (form pre-fills roster players to Present), but those aren't
+        // real attendance and shouldn't drive the badge count.
         $activities = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*)
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
-              WHERE att.player_id = %d AND att.is_guest = 0 AND a.archived_at IS NULL",
+              WHERE att.player_id = %d
+                AND att.is_guest = 0
+                AND a.archived_at IS NULL
+                AND a.plan_state = 'completed'",
             $player_id
         ) );
         $pdp = (int) $wpdb->get_var( $wpdb->prepare(

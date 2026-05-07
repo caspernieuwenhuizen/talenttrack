@@ -178,8 +178,6 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     private static function renderHero( object $player, string $name, ?object $team, string $team_url ): void {
         $player_id  = (int) $player->id;
         $photo      = (string) ( $player->photo_url ?? '' );
-        $age_tier   = AgeTier::forPlayer( $player_id );
-        $tier_label = AgeTier::labels()[ $age_tier ] ?? '';
         $journey    = self::journeyText( $player );
         $latest     = self::latestRecords( $player_id );
         ?>
@@ -203,9 +201,6 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     <?php endif; ?>
                     <?php if ( ! empty( $player->status ) ) : ?>
                         <?php echo LookupPill::render( 'player_status', (string) $player->status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pill returns escaped html ?>
-                    <?php endif; ?>
-                    <?php if ( $tier_label !== '' ) : ?>
-                        <span class="tt-player-hero__age-tier"><?php echo esc_html( $tier_label ); ?></span>
                     <?php endif; ?>
                 </div>
                 <?php if ( $journey !== null ) : ?>
@@ -340,60 +335,83 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $tier_label = AgeTier::labels()[ $age_tier ] ?? '';
         $positions  = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
         $team       = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
+        $foot_label = ! empty( $player->preferred_foot )
+            ? LookupPill::render( 'foot_options', (string) $player->preferred_foot )
+            : '';
+        $status_label = ! empty( $player->status )
+            ? \TT\Infrastructure\Query\LabelTranslator::playerStatus( (string) $player->status )
+            : '';
+        $team_html = '';
+        if ( $team ) {
+            $team_html = esc_html( (string) $team->name );
+            if ( ! empty( $team->age_group ) ) {
+                $team_html .= ' <span class="tt-muted">&middot; ' . esc_html( (string) $team->age_group ) . '</span>';
+            }
+        }
+
+        $identity_rows = [];
+        if ( ! empty( $player->date_of_birth ) ) {
+            $identity_rows[] = [ __( 'Date of birth', 'talenttrack' ), esc_html( (string) $player->date_of_birth ) ];
+        }
+        if ( is_array( $positions ) && ! empty( $positions ) ) {
+            $identity_rows[] = [ __( 'Position(s)', 'talenttrack' ), esc_html( implode( ', ', array_map( 'strval', $positions ) ) ) ];
+        }
+        if ( $foot_label !== '' ) {
+            $identity_rows[] = [ __( 'Preferred foot', 'talenttrack' ), $foot_label ];
+        }
+        if ( ! empty( $player->jersey_number ) ) {
+            $identity_rows[] = [ __( 'Jersey number', 'talenttrack' ), '#' . (int) $player->jersey_number ];
+        }
+        if ( $status_label !== '' ) {
+            $identity_rows[] = [ __( 'Status', 'talenttrack' ), $status_label ];
+        }
+
+        $academy_rows = [];
+        if ( $team_html !== '' ) {
+            $academy_rows[] = [ __( 'Team', 'talenttrack' ), $team_html ];
+        }
+        if ( $tier_label !== '' ) {
+            $academy_rows[] = [ __( 'Age tier', 'talenttrack' ), esc_html( $tier_label ) ];
+        }
+        if ( ! empty( $player->date_joined ) ) {
+            $academy_rows[] = [ __( 'Date joined', 'talenttrack' ), esc_html( (string) $player->date_joined ) ];
+        }
         ?>
         <div class="tt-player-profile-grid">
-            <div class="tt-player-profile-grid__col">
-                <h3><?php esc_html_e( 'Identity', 'talenttrack' ); ?></h3>
-                <dl class="tt-profile-dl">
-                    <?php if ( ! empty( $player->date_of_birth ) ) : ?>
-                        <dt><?php esc_html_e( 'Date of birth', 'talenttrack' ); ?></dt>
-                        <dd><?php echo esc_html( (string) $player->date_of_birth ); ?></dd>
-                    <?php endif; ?>
-                    <?php if ( is_array( $positions ) && ! empty( $positions ) ) : ?>
-                        <dt><?php esc_html_e( 'Position(s)', 'talenttrack' ); ?></dt>
-                        <dd><?php echo esc_html( implode( ', ', array_map( 'strval', $positions ) ) ); ?></dd>
-                    <?php endif; ?>
-                    <?php if ( ! empty( $player->preferred_foot ) ) : ?>
-                        <dt><?php esc_html_e( 'Preferred foot', 'talenttrack' ); ?></dt>
-                        <dd><?php echo LookupPill::render( 'foot_options', (string) $player->preferred_foot ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pill returns escaped html ?></dd>
-                    <?php endif; ?>
-                    <?php if ( ! empty( $player->jersey_number ) ) : ?>
-                        <dt><?php esc_html_e( 'Jersey number', 'talenttrack' ); ?></dt>
-                        <dd>#<?php echo (int) $player->jersey_number; ?></dd>
-                    <?php endif; ?>
-                    <?php if ( ! empty( $player->status ) ) : ?>
-                        <dt><?php esc_html_e( 'Status', 'talenttrack' ); ?></dt>
-                        <dd><?php echo \TT\Infrastructure\Query\LabelTranslator::playerStatus( (string) $player->status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — translator returns escaped html ?></dd>
-                    <?php endif; ?>
-                </dl>
-            </div>
-            <div class="tt-player-profile-grid__col">
-                <h3><?php esc_html_e( 'Academy', 'talenttrack' ); ?></h3>
-                <dl class="tt-profile-dl">
-                    <?php if ( $team ) : ?>
-                        <dt><?php esc_html_e( 'Team', 'talenttrack' ); ?></dt>
-                        <dd><?php echo esc_html( (string) $team->name ); ?>
-                            <?php if ( ! empty( $team->age_group ) ) : ?>
-                                <span class="tt-muted"> &middot; <?php echo esc_html( (string) $team->age_group ); ?></span>
-                            <?php endif; ?>
-                        </dd>
-                    <?php endif; ?>
-                    <?php if ( $tier_label !== '' ) : ?>
-                        <dt><?php esc_html_e( 'Age tier', 'talenttrack' ); ?></dt>
-                        <dd><?php echo esc_html( $tier_label ); ?></dd>
-                    <?php endif; ?>
-                    <?php if ( ! empty( $player->date_joined ) ) : ?>
-                        <dt><?php esc_html_e( 'Date joined', 'talenttrack' ); ?></dt>
-                        <dd><?php echo esc_html( (string) $player->date_joined ); ?></dd>
-                    <?php endif; ?>
-                </dl>
-            </div>
+            <?php self::renderProfileTable( __( 'Identity', 'talenttrack' ), $identity_rows ); ?>
+            <?php self::renderProfileTable( __( 'Academy', 'talenttrack' ), $academy_rows ); ?>
         </div>
 
         <?php
         if ( current_user_can( 'tt_edit_player_status' ) ) {
             self::renderBehaviourPotentialForm( $player_id );
         }
+    }
+
+    /**
+     * Render one of the profile-tab tables (Identity / Academy). $rows
+     * is a list of `[ field-label, value-html ]` tuples. Table renders
+     * with a section-name header row spanning both columns and per-row
+     * field/value cells. Empty $rows → no table emitted.
+     *
+     * @param array<int,array{0:string,1:string}> $rows
+     */
+    private static function renderProfileTable( string $section_label, array $rows ): void {
+        if ( empty( $rows ) ) return;
+        echo '<div class="tt-player-profile-grid__col">';
+        echo '<table class="tt-profile-table">';
+        echo '<thead><tr><th colspan="2" scope="colgroup">' . esc_html( $section_label ) . '</th></tr></thead>';
+        echo '<tbody>';
+        foreach ( $rows as $row ) {
+            $label = (string) ( $row[0] ?? '' );
+            $value = (string) ( $row[1] ?? '' );
+            echo '<tr>';
+            echo '<th scope="row">' . esc_html( $label ) . '</th>';
+            echo '<td>' . $value . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — values pre-escaped at the call site
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+        echo '</div>';
     }
 
     /** Goals tab — paged-list-aware "all goals for this player". */
@@ -441,14 +459,19 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // Mirrors `PlayerFileCounts::for()`'s evaluation count query
         // (player_id + club_id + archived_at IS NULL). Without the
         // matching `club_id` clause, the tab and the badge can fall
-        // out of sync — the operator sees a non-zero badge with an
-        // empty tab.
+        // out of sync.
+        //
+        // v3.110.3 — was LEFT JOINing tt_eval_types to surface a
+        // type label, but that table doesn't exist in the schema
+        // anymore (eval typing moved to tt_eval_categories), so the
+        // JOIN errored silently and $wpdb->get_results returned
+        // empty — making the count badge show 1+ while the tab still
+        // rendered the "No evaluations yet" empty state.
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT e.id, e.eval_date, et.name AS type_name
-               FROM {$wpdb->prefix}tt_evaluations e
-          LEFT JOIN {$wpdb->prefix}tt_eval_types et ON et.id = e.eval_type_id
-              WHERE e.player_id = %d AND e.club_id = %d AND e.archived_at IS NULL
-              ORDER BY e.eval_date DESC LIMIT 50",
+            "SELECT id, eval_date
+               FROM {$wpdb->prefix}tt_evaluations
+              WHERE player_id = %d AND club_id = %d AND archived_at IS NULL
+              ORDER BY eval_date DESC LIMIT 50",
             $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
         if ( empty( $rows ) ) {
@@ -474,9 +497,6 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             // remove it without a full page reload on success.
             echo '<li data-tt-row><a class="tt-record-link" href="' . esc_url( $url ) . '">';
             echo '<strong>' . esc_html( (string) ( $ev->eval_date ?? '—' ) ) . '</strong>';
-            if ( ! empty( $ev->type_name ) ) {
-                echo ' <span class="tt-muted">&middot; ' . esc_html( (string) $ev->type_name ) . '</span>';
-            }
             echo '</a>';
             if ( $can_delete ) {
                 echo ' <button type="button" class="tt-record-delete tt-btn-link"'
@@ -490,14 +510,25 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         echo '</ul>';
     }
 
-    /** Activities tab — recent activities the player attended. */
+    /** Activities tab — recent activities the player attended.
+     *
+     * v3.110.3 — restricted to completed activities. Attendance rows
+     * for scheduled / in-progress activities default to 'Present' on
+     * insert (the form's roster pre-fills every roster player); those
+     * are work-in-progress, not real attendance. Filtering on
+     * `plan_state = 'completed'` makes the tab read as "actual
+     * attendance history" rather than "every row that happens to
+     * exist in tt_attendance for this player". */
     private static function renderActivitiesTab( int $player_id, ?object $player = null ): void {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id, a.title, a.session_date, a.activity_type_key, att.status
                FROM {$wpdb->prefix}tt_attendance att
                JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id
-              WHERE att.player_id = %d AND att.is_guest = 0 AND a.archived_at IS NULL
+              WHERE att.player_id = %d
+                AND att.is_guest = 0
+                AND a.archived_at IS NULL
+                AND a.plan_state = 'completed'
               ORDER BY a.session_date DESC LIMIT 25",
             $player_id
         ) );

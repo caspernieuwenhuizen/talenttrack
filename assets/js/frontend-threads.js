@@ -155,9 +155,16 @@
             return li;
         }
 
+        // v3.110.3 — always reset the actions container to Edit + Delete.
+        // Earlier code short-circuited when an existing actions element
+        // was present, which left stale Save/Cancel buttons in place
+        // after an edit completed (their click handlers referenced a
+        // textarea that had been removed from the DOM, so clicks were
+        // silently no-ops).
         function ensureSelfActions(msgEl) {
             if (msgEl.classList.contains('is-deleted')) return;
-            if (msgEl.querySelector('.tt-thread-msg-actions')) return;
+            var existing = msgEl.querySelector('.tt-thread-msg-actions');
+            if (existing) existing.remove();
             var actions = document.createElement('div');
             actions.className = 'tt-thread-msg-actions';
             actions.innerHTML =
@@ -224,20 +231,36 @@
             }
         }
 
+        // v3.110.3 — use the in-app ttConfirm modal instead of the
+        // browser's window.confirm. The browser dialog is jarring,
+        // can't be styled, and felt out-of-place inside the otherwise
+        // app-styled thread surface. Falls back to window.confirm only
+        // when ttConfirm is unavailable.
         function doDelete(msgEl, msgId) {
-            if (!window.confirm(cfg.i18n.confirm_delete || 'Delete this message?')) return;
-            fetch(cfg.rest_url + '/messages/' + msgId, {
-                method: 'DELETE',
-                credentials: 'same-origin',
-                headers: { 'X-WP-Nonce': cfg.rest_nonce }
-            }).then(function (r) {
-                if (!r.ok) return;
-                msgEl.classList.add('is-deleted');
-                var bodyEl = msgEl.querySelector('.tt-thread-msg-body');
-                if (bodyEl) bodyEl.textContent = cfg.i18n.message_deleted || 'Message deleted.';
-                var actions = msgEl.querySelector('.tt-thread-msg-actions');
-                if (actions) actions.remove();
-            });
+            var confirmMsg = cfg.i18n.confirm_delete || 'Delete this message?';
+            var doRequest = function () {
+                fetch(cfg.rest_url + '/messages/' + msgId, {
+                    method: 'DELETE',
+                    credentials: 'same-origin',
+                    headers: { 'X-WP-Nonce': cfg.rest_nonce }
+                }).then(function (r) {
+                    if (!r.ok) return;
+                    msgEl.classList.add('is-deleted');
+                    var bodyEl = msgEl.querySelector('.tt-thread-msg-body');
+                    if (bodyEl) bodyEl.textContent = cfg.i18n.message_deleted || 'Message deleted.';
+                    var actions = msgEl.querySelector('.tt-thread-msg-actions');
+                    if (actions) actions.remove();
+                });
+            };
+            if (typeof window.ttConfirm === 'function') {
+                window.ttConfirm({
+                    message: confirmMsg,
+                    confirmLabel: cfg.i18n.delete || 'Delete',
+                    danger: true
+                }).then(function (ok) { if (ok) doRequest(); });
+            } else if (window.confirm(confirmMsg)) {
+                doRequest();
+            }
         }
 
         function escapeHtml(s) {

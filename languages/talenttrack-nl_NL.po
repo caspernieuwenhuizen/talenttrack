@@ -14142,3 +14142,9 @@ msgstr "OPP van %s"
 #. translators: 1: player name, 2: eval date
 msgid "Evaluation: %1$s (%2$s)"
 msgstr "Evaluatie: %1$s (%2$s)"
+
+# v3.110.3 — Player profile polish: evaluation form preset headline
+
+#. translators: %s = player display name
+msgid "Recording evaluation for %s."
+msgstr "Evaluatie vastleggen voor %s."

@@ -51,6 +51,17 @@ class AnalyticsModule implements ModuleInterface {
      */
     private static function registerInitialFacts(): void {
         // ── attendance ─────────────────────────────────────────────
+        // v3.110.3 — facts were authored against an idealised schema
+        // (`a.start_at`, `a.session_type`, lowercase `status='present'`)
+        // that doesn't match the actual one. The real schema uses
+        // `session_date` for the time column on tt_activities and
+        // `activity_type_key` for the activity-type lookup join key,
+        // and the write paths (`ActivitiesRestController::write_attendance`,
+        // `AttendanceStep::validate`) store status values capitalised
+        // ('Present' / 'Absent' / 'Late' / 'Injured' / 'Excused' per
+        // the seeded `attendance_status` lookup). The 30-day attendance
+        // KPI on the player Analytics tab returned no data because the
+        // CASE expression matched zero rows.
         FactRegistry::register( new Fact(
             key:        'attendance',
             tableName:  'tt_attendance',
@@ -59,16 +70,16 @@ class AnalyticsModule implements ModuleInterface {
             dimensions: [
                 new Dimension( 'player_id', __( 'Player', 'talenttrack' ),    Dimension::TYPE_FOREIGN_KEY, 'tt_players' ),
                 new Dimension( 'team_id',   __( 'Team', 'talenttrack' ),      Dimension::TYPE_FOREIGN_KEY, 'tt_teams', null, 'a.team_id' ),
-                new Dimension( 'activity_type', __( 'Activity type', 'talenttrack' ), Dimension::TYPE_LOOKUP, null, 'activity_type', 'a.session_type' ),
+                new Dimension( 'activity_type', __( 'Activity type', 'talenttrack' ), Dimension::TYPE_LOOKUP, null, 'activity_type', 'a.activity_type_key' ),
                 new Dimension( 'status',    __( 'Attendance status', 'talenttrack' ), Dimension::TYPE_ENUM ),
-                new Dimension( 'month',     __( 'Month', 'talenttrack' ),     Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(a.start_at, '%Y-%m')" ),
+                new Dimension( 'month',     __( 'Month', 'talenttrack' ),     Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(a.session_date, '%Y-%m')" ),
             ],
             measures: [
-                new Measure( 'count_present', __( 'Present', 'talenttrack' ), Measure::AGG_COUNT, "CASE WHEN f.status='present' THEN 1 END" ),
-                new Measure( 'count_absent',  __( 'Absent', 'talenttrack' ),  Measure::AGG_COUNT, "CASE WHEN f.status='absent' THEN 1 END" ),
-                new Measure( 'attendance_pct', __( 'Attendance %', 'talenttrack' ), Measure::AGG_AVG, "CASE WHEN f.status='present' THEN 100 ELSE 0 END", Measure::UNIT_PERCENT, Measure::FORMAT_PERCENT ),
+                new Measure( 'count_present', __( 'Present', 'talenttrack' ), Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='present' THEN 1 END" ),
+                new Measure( 'count_absent',  __( 'Absent', 'talenttrack' ),  Measure::AGG_COUNT, "CASE WHEN LOWER(f.status)='absent' THEN 1 END" ),
+                new Measure( 'attendance_pct', __( 'Attendance %', 'talenttrack' ), Measure::AGG_AVG, "CASE WHEN LOWER(f.status)='present' THEN 100 ELSE 0 END", Measure::UNIT_PERCENT, Measure::FORMAT_PERCENT ),
             ],
-            timeColumn:  new DateTimeColumn( 'a.start_at', 'tt_activities a', 'activity_id' ),
+            timeColumn:  new DateTimeColumn( 'a.session_date', 'tt_activities a', 'activity_id' ),
             entityScope: 'player',
         ) );
 
@@ -80,16 +91,16 @@ class AnalyticsModule implements ModuleInterface {
             tableAlias: 'f',
             dimensions: [
                 new Dimension( 'team_id',       __( 'Team', 'talenttrack' ),       Dimension::TYPE_FOREIGN_KEY, 'tt_teams' ),
-                new Dimension( 'activity_type', __( 'Activity type', 'talenttrack' ), Dimension::TYPE_LOOKUP, null, 'activity_type', 'f.session_type' ),
+                new Dimension( 'activity_type', __( 'Activity type', 'talenttrack' ), Dimension::TYPE_LOOKUP, null, 'activity_type', 'f.activity_type_key' ),
                 new Dimension( 'status',        __( 'Status', 'talenttrack' ),     Dimension::TYPE_ENUM ),
                 new Dimension( 'plan_state',    __( 'Plan state', 'talenttrack' ), Dimension::TYPE_ENUM ),
-                new Dimension( 'month',         __( 'Month', 'talenttrack' ),      Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(f.start_at, '%Y-%m')" ),
+                new Dimension( 'month',         __( 'Month', 'talenttrack' ),      Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(f.session_date, '%Y-%m')" ),
             ],
             measures: [
                 new Measure( 'count', __( 'Count', 'talenttrack' ), Measure::AGG_COUNT ),
                 new Measure( 'total_minutes', __( 'Total minutes', 'talenttrack' ), Measure::AGG_SUM, 'f.duration_minutes', Measure::UNIT_MINUTES ),
             ],
-            timeColumn:  new DateTimeColumn( 'f.start_at' ),
+            timeColumn:  new DateTimeColumn( 'f.session_date' ),
             entityScope: 'activity',
         ) );
 

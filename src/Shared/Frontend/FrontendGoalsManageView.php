@@ -287,17 +287,32 @@ class FrontendGoalsManageView extends FrontendViewBase {
         $form_id   = 'tt-goal-form';
         $draft_key = $is_edit ? '' : 'goal-form';
 
+        // v3.110.3 — when the form was launched from a player profile
+        // ("Add first goal" CTA on the empty Goals tab), `?player_id=N`
+        // is in the URL. Pre-fill the picker AND hide it: the player
+        // is already chosen, the picker would be a redundant step.
+        $preset_player_id = 0;
+        if ( ! $is_edit && isset( $_GET['player_id'] ) ) {
+            $preset_player_id = absint( $_GET['player_id'] );
+        }
+        $selected_player = $is_edit ? (int) ( $goal->player_id ?? 0 ) : $preset_player_id;
+        $hide_player_picker = ! $is_edit && $preset_player_id > 0;
+
         ?>
         <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list"<?php if ( $draft_key !== '' ) : ?> data-draft-key="<?php echo esc_attr( $draft_key ); ?>"<?php endif; ?>>
             <div class="tt-grid tt-grid-2">
-                <?php echo PlayerPickerComponent::render( [
-                    'name'     => 'player_id',
-                    'label'    => __( 'Player', 'talenttrack' ),
-                    'required' => true,
-                    'user_id'  => $user_id,
-                    'is_admin' => $is_admin,
-                    'selected' => (int) ( $goal->player_id ?? 0 ),
-                ] ); ?>
+                <?php if ( $hide_player_picker ) : ?>
+                    <input type="hidden" name="player_id" value="<?php echo esc_attr( (string) $preset_player_id ); ?>" />
+                <?php else : ?>
+                    <?php echo PlayerPickerComponent::render( [
+                        'name'     => 'player_id',
+                        'label'    => __( 'Player', 'talenttrack' ),
+                        'required' => true,
+                        'user_id'  => $user_id,
+                        'is_admin' => $is_admin,
+                        'selected' => $selected_player,
+                    ] ); ?>
+                <?php endif; ?>
                 <?php echo DateInputComponent::render( [
                     'name'     => 'due_date',
                     'label'    => __( 'Due date', 'talenttrack' ),
