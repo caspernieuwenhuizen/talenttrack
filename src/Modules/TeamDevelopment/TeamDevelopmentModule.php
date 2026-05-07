@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\TeamDevelopment\CompatibilityEngine;
+use TT\Modules\TeamDevelopment\Frontend\FrontendTeamBlueprintsView;
 use TT\Modules\TeamDevelopment\Frontend\PlayerTeamFitPanel;
 use TT\Modules\TeamDevelopment\Rest\TeamDevelopmentRestController;
 
@@ -41,6 +42,10 @@ class TeamDevelopmentModule implements ModuleInterface {
         // evaluation save crosses the boundary. The eval REST + admin
         // forms both fire `tt_evaluation_saved` with the player id.
         add_action( 'tt_evaluation_saved', [ self::class, 'invalidatePlayerFit' ], 10, 1 );
+
+        // #0068 Phase 4 — operator action behind a per-row nonce to
+        // rotate a blueprint's public share-link seed.
+        add_action( 'admin_post_tt_blueprint_rotate_share', [ FrontendTeamBlueprintsView::class, 'handleRotateShareLink' ] );
     }
 
     public static function invalidatePlayerFit( int $player_id ): void {

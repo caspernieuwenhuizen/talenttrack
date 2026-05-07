@@ -108,11 +108,39 @@ Elke positie toont `N/3` zodat je in één oogopslag ziet waar de gaten zitten. 
 
 Chemie scoort alleen de **basiself** — de primaire tier. Tier 2 en 3 zijn dieptesignalen, geen opstellingssignalen. De kop weerspiegelt de primaire opstelling; lijnen lopen tussen de primaire spelers.
 
-## Beperkingen Fase 2
+## Reacties (#0068 Fase 3)
 
-- **Geen reacties** — overleg met de staf gebeurt voorlopig buiten de blauwdruk om; Fase 3 voegt een reactiethread per blauwdruk toe via de Threads-module.
-- **Drag-drop op mobiel is onhandig**. HTML5 drag-and-drop op touch-toestellen werkt maar is niet ideaal. Een long-press-pickup-fallback staat op de poetslijst.
-- **Geen deellink**. Een publieke URL voor ouders / externe coaches komt in Fase 4.
+Elke blauwdruk heeft een eigen discussiethread, bereikbaar via de **Reacties**-tab op de editor. Staf-only — ouders op de deelbare link zien nooit reacties:
+
+- **Lezen** = `tt_view_team_chemistry` — elke coach die de editor mag openen.
+- **Plaatsen** = `tt_manage_team_chemistry` — elke coach die de blauwdruk mag vergrendelen.
+
+Systeemberichten worden automatisch gepost bij elke statusovergang (`Status gewijzigd naar: shared` / `locked` / `draft`). Speler-toewijzingen blijven stil — die zie je terug bij de chemie-refresh.
+
+## Publieke deellink (#0068 Fase 4)
+
+De **Deelbare link openen**-knop op de editor genereert een URL van de vorm:
+
+```
+?tt_view=team-blueprint-share&id=<uuid>&token=<hmac>
+```
+
+Iedereen met de URL ziet een alleen-lezen weergave: status-pil + chemie-kop + veld + opstellingstabel. Geen reacties, geen bewerkingen, geen login nodig. Ouders en externe coaches kun je de link rechtstreeks sturen.
+
+**Deelbare link vernieuwen** zet een verse seed. Elke vorige URL faalt direct. Gebruik dit als een link te ruim is gedeeld, of na een selectiewissel waarvan je niet wilt dat eerdere kijkers verder volgen.
+
+Het token is een HMAC-SHA256 over `(blueprint_id, uuid, share_token_seed)` met sleutel `wp_salt('auth')` van de installatie. De seed is per blauwdruk en wordt lazy geïnitialiseerd op de uuid van de blauwdruk (cryptografisch willekeurig); vernieuwen vervangt de seed door een verse `wp_generate_password(16)`-waarde.
+
+## Drag-drop op mobiel (#0068 Fase 4)
+
+iPads werken prima met HTML5 drag-and-drop; iPhones niet. v3.109.8 levert een touch-fallback:
+
+- **Long-press 300 ms** op een chip in de spelerslijst om hem op te pakken.
+- Sleep de chip op een slot of terug naar de spelerslijst.
+- Een korte tap-en-scroll blijft scrollen — de long-press-drempel maakt het verschil.
+- Oppakken + neerzetten triggert een trilling van 50 ms op apparaten die `navigator.vibrate()` ondersteunen.
+
+Muis + trackpad blijven de bestaande HTML5-flow gebruiken.
 
 ## REST
 

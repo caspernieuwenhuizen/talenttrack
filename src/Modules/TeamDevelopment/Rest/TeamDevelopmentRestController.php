@@ -660,7 +660,14 @@ class TeamDevelopmentRestController {
             return RestResponse::error( 'bad_status',
                 __( 'Status must be draft, shared, or locked.', 'talenttrack' ), 400 );
         }
+        $prior = (string) ( $existing['status'] ?? '' );
         $repo->setStatus( $id, $status, get_current_user_id() );
+        if ( $status !== $prior ) {
+            // #0068 Phase 3 — emit the status-changed action so the
+            // BlueprintSystemMessageSubscriber can post an is_system=1
+            // message into the blueprint's discussion thread.
+            do_action( 'tt_team_blueprint_status_changed', $id, $status, (int) get_current_user_id() );
+        }
         return RestResponse::success( [ 'id' => $id, 'status' => $status ] );
     }
 }

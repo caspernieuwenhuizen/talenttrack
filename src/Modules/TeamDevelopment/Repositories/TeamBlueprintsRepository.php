@@ -303,11 +303,58 @@ class TeamBlueprintsRepository {
             'formation_shape'       => isset( $row->formation_shape ) ? (string) $row->formation_shape : null,
             'status'                => (string) $row->status,
             'notes'                 => $row->notes !== null ? (string) $row->notes : null,
+            // #0068 Phase 4 — public share-link signing seed. Migration
+            // 0078 adds the column; old rows return empty string until
+            // ensureShareTokenSeed() lazily populates on first use.
+            'share_token_seed'      => isset( $row->share_token_seed ) ? (string) $row->share_token_seed : '',
             'created_by'            => $row->created_by !== null ? (int) $row->created_by : null,
             'created_at'            => (string) $row->created_at,
             'updated_by'            => $row->updated_by !== null ? (int) $row->updated_by : null,
             'updated_at'            => (string) $row->updated_at,
         ];
+    }
+
+    /**
+     * Lazily seed the share-link HMAC secret on first share-link build.
+     * Default fall-back is the row's own `uuid` (cryptographically
+     * random by construction). Returns the resolved seed.
+     *
+     * #0068 Phase 4. Mirrors the seed-on-first-use pattern so the
+     * Phase 1 migration doesn't have to touch every blueprint row.
+     */
+    public function ensureShareTokenSeed( int $blueprint_id ): string {
+        $row = $this->find( $blueprint_id );
+        if ( $row === null ) return '';
+        $seed = (string) ( $row['share_token_seed'] ?? '' );
+        if ( $seed !== '' ) return $seed;
+        $seed = (string) ( $row['uuid'] ?? '' );
+        if ( $seed === '' ) return '';
+        $this->wpdb->update( $this->blueprints, [
+            'share_token_seed' => $seed,
+            'updated_at'       => current_time( 'mysql' ),
+        ], [
+            'id'      => $blueprint_id,
+            'club_id' => CurrentClub::id(),
+        ] );
+        return $seed;
+    }
+
+    /**
+     * Operator-driven rotation. Sets a fresh random seed; every prior
+     * share URL for this blueprint immediately fails verification.
+     * Cap-gated upstream on `tt_manage_team_chemistry`.
+     */
+    public function rotateShareTokenSeed( int $blueprint_id, int $updated_by ): string {
+        $seed = wp_generate_password( 16, false, false );
+        $this->wpdb->update( $this->blueprints, [
+            'share_token_seed' => $seed,
+            'updated_by'       => $updated_by > 0 ? $updated_by : null,
+            'updated_at'       => current_time( 'mysql' ),
+        ], [
+            'id'      => $blueprint_id,
+            'club_id' => CurrentClub::id(),
+        ] );
+        return $seed;
     }
 
     private static function uuid(): string {

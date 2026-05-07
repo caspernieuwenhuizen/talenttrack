@@ -31,6 +31,7 @@
         }
 
         wireDragDrop(blueprintId, editor);
+        wireTouchDragDrop(blueprintId, editor); // #0068 Phase 4 — mobile fallback
         wireStatusButtons();
     });
 
@@ -163,6 +164,168 @@
         if (!payload) return;
         // Targeted refresh: just reload. The page is small.
         window.location.reload();
+    }
+
+    /**
+     * #0068 Phase 4 — mobile drag-drop fallback via PointerEvents.
+     *
+     * iOS Safari mangles HTML5 `draggable=true` on iPhone (works fine
+     * on iPad). The fallback: long-press 300ms on a roster chip →
+     * pickup → drag preview follows pointer → drop on a slot or roster.
+     * Mouse pointers fall through to the existing HTML5 dragstart
+     * handler, which is well-supported on every desktop browser.
+     *
+     * Spec decision Q4 (300ms) + Q5 (vibrate on pickup + drop, no
+     * auto-scroll). Locked inside `frontend-team-blueprint.js` rather
+     * than a separate JS file so the existing handler context (cfg,
+     * saveAssignment, applyServerState) stays in scope.
+     */
+    function wireTouchDragDrop(blueprintId, editor) {
+        if (typeof window.PointerEvent === 'undefined') return;
+
+        var LONG_PRESS_MS = 300;
+        var pressTimer    = null;
+        var pickup        = null;   // { chip, data, originSlot, originTier }
+        var preview       = null;   // floating clone element
+        var lastTarget    = null;   // current highlighted drop target
+
+        function rosterEl() { return editor.querySelector('.tt-bp-roster-list'); }
+
+        function findDropTargetAt(x, y) {
+            // elementFromPoint runs against the viewport so the floating
+            // preview must be styled with pointer-events: none for this
+            // to land on the underlying slot.
+            var el = document.elementFromPoint(x, y);
+            if (!el) return null;
+            var slot = el.closest('.tt-bp-droptarget, .tt-bp-droptarget-cell');
+            if (slot) return { kind: 'slot', el: slot };
+            var roster = el.closest('.tt-bp-roster-list');
+            if (roster) return { kind: 'roster', el: roster };
+            return null;
+        }
+
+        function setHighlight(target) {
+            if (lastTarget && lastTarget.el !== (target && target.el)) {
+                lastTarget.el.classList.remove('tt-bp-dragover');
+            }
+            if (target) target.el.classList.add('tt-bp-dragover');
+            lastTarget = target;
+        }
+
+        function buildPreview(chip, x, y) {
+            var clone = chip.cloneNode(true);
+            clone.removeAttribute('draggable');
+            clone.style.position = 'fixed';
+            clone.style.left = (x - 40) + 'px';
+            clone.style.top  = (y - 24) + 'px';
+            clone.style.zIndex = '9999';
+            clone.style.pointerEvents = 'none';
+            clone.style.opacity = '0.85';
+            clone.style.boxShadow = '0 4px 16px rgba(0,0,0,0.2)';
+            clone.classList.add('tt-bp-touch-preview');
+            document.body.appendChild(clone);
+            return clone;
+        }
+
+        function vibrate(ms) {
+            if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+                try { navigator.vibrate(ms); } catch (e) { /* ignored */ }
+            }
+        }
+
+        function clearPickupState() {
+            if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+            if (preview && preview.parentNode) preview.parentNode.removeChild(preview);
+            preview = null;
+            if (lastTarget) lastTarget.el.classList.remove('tt-bp-dragover');
+            lastTarget = null;
+            if (pickup && pickup.chip) pickup.chip.classList.remove('tt-bp-chip-dragging');
+            pickup = null;
+        }
+
+        document.addEventListener('pointerdown', function (e) {
+            if (e.pointerType !== 'touch') return; // mouse falls through to HTML5 path
+            var chip = e.target.closest('[draggable="true"][data-player-id]');
+            if (!chip) return;
+            var startX = e.clientX, startY = e.clientY;
+            var pid    = parseInt(chip.getAttribute('data-player-id'), 10);
+            if (!pid) return;
+            var origin = findSlotForPlayerOnPage(pid);
+
+            pressTimer = setTimeout(function () {
+                pressTimer = null;
+                pickup = {
+                    chip: chip,
+                    data: { player_id: pid },
+                    originSlot: origin ? origin.slot : null,
+                    originTier: origin ? origin.tier : 'primary'
+                };
+                chip.classList.add('tt-bp-chip-dragging');
+                preview = buildPreview(chip, startX, startY);
+                vibrate(50);
+                // Block the default touch scroll once we're actually
+                // dragging. Until pickup fires, scroll wins — that's
+                // why short taps don't accidentally pick up a chip.
+                document.body.style.userSelect = 'none';
+            }, LONG_PRESS_MS);
+        }, { passive: true });
+
+        document.addEventListener('pointermove', function (e) {
+            if (e.pointerType !== 'touch') return;
+            // Cancel pending pickup if the finger moved >8px before the
+            // long-press fired (user is scrolling, not dragging).
+            if (pressTimer && Math.hypot(e.movementX || 0, e.movementY || 0) > 8) {
+                clearTimeout(pressTimer);
+                pressTimer = null;
+            }
+            if (!pickup) return;
+            e.preventDefault();
+            if (preview) {
+                preview.style.left = (e.clientX - 40) + 'px';
+                preview.style.top  = (e.clientY - 24) + 'px';
+            }
+            setHighlight(findDropTargetAt(e.clientX, e.clientY));
+        }, { passive: false });
+
+        document.addEventListener('pointerup', function (e) {
+            if (e.pointerType !== 'touch') return;
+            if (!pickup) { clearPickupState(); return; }
+            var target = findDropTargetAt(e.clientX, e.clientY);
+            var data   = pickup.data;
+            var origin = { slot: pickup.originSlot, tier: pickup.originTier };
+            clearPickupState();
+            document.body.style.userSelect = '';
+            if (!target) return;
+            vibrate(50);
+            if (target.kind === 'slot') {
+                if (target.el.getAttribute('data-can-drag') !== '1') return;
+                var slot = target.el.getAttribute('data-slot-label');
+                var tier = target.el.getAttribute('data-tier') || 'primary';
+                saveAssignment(blueprintId, slot, tier, data.player_id);
+            } else if (target.kind === 'roster' && origin.slot) {
+                saveAssignment(blueprintId, origin.slot, origin.tier, 0);
+            }
+        }, { passive: true });
+
+        document.addEventListener('pointercancel', function () {
+            clearPickupState();
+            document.body.style.userSelect = '';
+        });
+
+        function findSlotForPlayerOnPage(playerId) {
+            var pitchTargets = editor.querySelectorAll('.tt-bp-droptarget');
+            var depthCells   = document.querySelectorAll('.tt-bp-droptarget-cell');
+            var all = [].slice.call(pitchTargets).concat([].slice.call(depthCells));
+            for (var i = 0; i < all.length; i++) {
+                if (parseInt(all[i].getAttribute('data-player-id'), 10) === playerId) {
+                    return {
+                        slot: all[i].getAttribute('data-slot-label'),
+                        tier: all[i].getAttribute('data-tier') || 'primary'
+                    };
+                }
+            }
+            return null;
+        }
     }
 
     function wireStatusButtons() {

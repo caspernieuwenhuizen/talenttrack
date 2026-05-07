@@ -1,34 +1,29 @@
-# TalentTrack v3.110.8 — Fifth binary export use case: full club-data backup ZIP (#0063 use case 9)
+# TalentTrack v3.110.9 — Team Blueprint Phases 3 + 4: discussion thread + mobile drag-drop polish + parent share-link (#0068, closes epic)
 
-Per the #0063 spec: "delegates to #0013 (Backup & DR) rather than re-implementing — Export is the public surface; #0013 is the engine." This exporter is intentionally thin: it reuses `BackupSerializer::snapshot()` + `BackupSerializer::toGzippedJson()` (the same engine the on-screen `?page=tt-backup` operator dashboard uses) and packages the result through the v3.110.0 `ZipRenderer`.
+Bundled ship of the two remaining phases of #0068 Team Blueprint. **Closes #0068.** Phases 1 + 2 shipped at v3.98.0 + v3.100.0; Phases 3 + 4 ship together. All 10 architectural decisions locked in `specs/0068-feat-team-blueprint-phases-3-4.md`.
 
-## What landed
+## Phase 3 — per-blueprint discussion thread
 
-### `BackupZipExporter` (`exporter_key = backup_zip`, use case 9)
+`Threads\Adapters\BlueprintThreadAdapter` is the third registered thread type after `goal` (#0028) and `player` (#0085). Staff-only — read on `tt_view_team_chemistry`, post on `tt_manage_team_chemistry`.
 
-URL pattern:
-`GET /wp-json/talenttrack/v1/exports/backup_zip?format=zip&preset=standard`
+`Threads\Subscribers\BlueprintSystemMessageSubscriber` listens to a new `tt_team_blueprint_status_changed` action emitted from `TeamDevelopmentRestController::set_blueprint_status()` and posts an `is_system=1` message on every status transition (draft → shared → locked + reopen).
 
-**Filters**:
+`FrontendTeamBlueprintsView::renderEditor()` now branches on `?tab=comments`; the Comments tab delegates to `FrontendThreadView::render('blueprint', $id, $user_id)`.
 
-- `preset` (optional) — `minimal` / `standard` / `thorough` (default: `standard`). The Backup module's `custom` preset is intentionally not exposed at the route — `custom` reads operator-saved selected-tables from `BackupSettings` and is best driven from the existing admin page; the export route accepts the three named presets and falls back to `standard` on any unrecognized value.
+## Phase 4 — share-link + mobile drag-drop polish
 
-**Cap**: `tt_manage_backups` — same gate as the on-screen Backup admin page.
+Migration `0078_team_blueprint_share_token_seed` adds an additive `VARCHAR(32)` column on `tt_team_blueprints`. `ensureShareTokenSeed()` lazily writes the row's own uuid on first share-link build. `rotateShareTokenSeed()` sets a fresh `wp_generate_password(16, false, false)` value; every prior URL fails immediately.
 
-**Layout**: the ZIP carries one entry: the gzipped-JSON snapshot, named per `BackupSerializer::filename( $preset )` so a snapshot pulled via the export route is interchangeable with one pulled via the Backup admin page — operators can restore through either surface without filename surprises. The `ZipRenderer` also emits a `MANIFEST.json` carrying the snapshot metadata (preset, table list, schema version, plugin version, created-at, checksum) so a downstream consumer can confirm what's in the box without opening the gzip.
+`BlueprintShareToken` builds HMAC-SHA256 over `(blueprint_id, uuid, share_token_seed)` keyed on `wp_salt('auth')`. Mirrors `ParentConfirmationController::tokenFor()`.
 
-**Module wiring**: registered in `ExportModule::boot()` alongside the v3.105.0 / v3.109.0 / v3.110.0 / v3.110.4 / v3.110.5 / v3.110.6 / v3.110.7 entries. Foundation now at 10 of 15 use cases live.
+`?tt_view=team-blueprint-share&id=<uuid>&token=<hmac>` is the public read-only render. Switches the `tt_current_club_id` filter to the blueprint's club. Renders status pill + flavour pill + chemistry headline + `PitchSvg` + lineup table. 404 on token-fail.
 
-## What's NOT in this PR
+Editor share buttons gated on `tt_manage_team_chemistry`. Mobile drag-drop fallback via `PointerEvents` — long-press 300ms → pickup → drag preview → drop on slot or roster, with `navigator.vibrate(50)` on pickup + drop.
 
-- **The `?page=tt-backup` admin page stays in place** — this exporter is additive, opening the same artifact up to the central Export module so future surfaces (Comms attachment that emails the link, scheduled batch hook, external-system poll) can consume it through the standard pipeline.
-- **`custom` preset over the route** — operators who want fine-grained table selection use the admin page's settings + on-demand button; the export route is for the named presets.
-- **Async dispatch** — synchronous-only via the standard REST stream-and-exit. If a real club's full snapshot grows past the synchronous-export comfort zone, this exporter is the natural first consumer of the deferred Action-Scheduler async pipeline (per the v3.110.0 plan); for typical pilot-scale data the synchronous path fits comfortably under the 30-second request window.
-- **The 5 remaining deferred Export use cases** (4 match-day team sheet, 6 multi-sheet evaluations XLSX, 8 methodology session-plan PDF, 10 GDPR subject-access ZIP, 15 demo-data export Excel).
+## Translations
+
+11 new NL msgids.
 
 ## Notes
 
-- Zero new operator-facing strings — exporter label uses an existing `__()` pattern; the snapshot body is JSON-encoded data with no user-visible copy surface.
-- No new migrations.
-- No composer dependency changes.
-- Renumbered v3.110.8 against any parallel-agent ship that took a v3.110.x slot during build.
+No new caps; no cron; no license flips. Renumbered v3.109.8 → v3.110.9 across multiple rebases against parallel ship train v3.110.0-8. **Closes #0068.**
