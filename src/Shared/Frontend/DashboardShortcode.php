@@ -187,7 +187,11 @@ class DashboardShortcode {
         // affordances. Like `my-settings` it's account-level: every
         // logged-in user manages their own.
         $account_slugs   = [ 'my-settings', 'my-sessions' ];
-        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'pdp-planning', 'player-status-methodology', 'player-status-capture', 'team-chemistry', 'team-blueprints', 'podium', 'methodology', 'player-journey', 'mail-compose' ];
+        // v3.110.3 — `team-planner` was dispatch-cased inside `dispatchWorkflowView`
+        // but never added to a slug list, so the top-level routing never reached it
+        // and the tile fell through to "Unknown section." It belongs in coaching
+        // (Performance-group surface, same tier as team-chemistry / team-blueprints).
+        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'pdp-planning', 'player-status-methodology', 'player-status-capture', 'team-chemistry', 'team-blueprints', 'team-planner', 'podium', 'methodology', 'player-journey', 'mail-compose' ];
         $analytics_slugs = [ 'rate-cards', 'compare', 'reports' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
         // #0021 — `audit-log` added; uses the same admin tier (cap-checked
@@ -537,10 +541,6 @@ class DashboardShortcode {
             case 'onboarding-pipeline':
                 \TT\Modules\Prospects\Frontend\FrontendOnboardingPipelineView::render( $user_id );
                 break;
-            // #0006 — team-planning calendar.
-            case 'team-planner':
-                \TT\Modules\Planning\Frontend\FrontendTeamPlannerView::render( $user_id );
-                break;
             default:
                 FrontendBackButton::render();
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
@@ -642,6 +642,12 @@ class DashboardShortcode {
                 // verification happens inside renderShared(); no cap
                 // check at the dispatch layer (the URL is the auth).
                 \TT\Modules\TeamDevelopment\Frontend\FrontendTeamBlueprintsView::renderShared();
+                break;
+            // #0006 — team-planning calendar. Performance-group surface; the
+            // view re-checks its own caps so dispatching here is safe even
+            // for users who shouldn't see it.
+            case 'team-planner':
+                \TT\Modules\Planning\Frontend\FrontendTeamPlannerView::render( $user_id );
                 break;
             case 'podium':
                 FrontendPodiumView::render( $user_id, $is_admin );
