@@ -137,8 +137,8 @@ class FrontendMyGoalsView extends FrontendViewBase {
         $status   = (string) $goal->status;
         $priority = (string) ( $goal->priority ?? '' );
         ?>
-        <article class="tt-goal-detail tt-status-<?php echo esc_attr( $status ); ?>">
-            <p class="tt-goal-detail-meta">
+        <article class="tt-record-detail tt-goal-detail tt-status-<?php echo esc_attr( $status ); ?>">
+            <p class="tt-record-detail-meta tt-goal-detail-meta">
                 <span class="tt-status-badge"><?php echo esc_html( LabelTranslator::goalStatus( $status ) ); ?></span>
                 <?php if ( $priority !== '' ) : ?>
                     <span class="tt-priority-badge"><?php echo esc_html( LabelTranslator::goalPriority( $priority ) ); ?></span>
@@ -148,7 +148,7 @@ class FrontendMyGoalsView extends FrontendViewBase {
                 <?php endif; ?>
             </p>
             <?php if ( ! empty( $goal->description ) ) : ?>
-                <div class="tt-goal-detail-body">
+                <div class="tt-record-detail-body tt-goal-detail-body">
                     <?php echo wp_kses_post( wpautop( \TT\Modules\Translations\TranslationLayer::render( (string) $goal->description ) ) ); ?>
                 </div>
             <?php endif; ?>

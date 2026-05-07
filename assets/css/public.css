@@ -457,14 +457,30 @@ body.tt-docs-drawer-open { overflow: hidden; }
 /* v3.92.5 — activity detail card chrome. Mirrors `tt-goal-detail` so
  * the two surfaces feel consistent. Pilot operator: "the display page
  * of an activity is visually not very appealing." */
+/* v3.108.3 — promoted the v3.92.5 `.tt-activity-detail*` chrome to a
+ * generic `.tt-record-detail*` block + kept the legacy class names as
+ * aliases. Goal detail / my-goal detail / my-evaluation detail surfaces
+ * adopt the generic class so every record-detail page looks consistent
+ * (user complaint: "all display detail pages do not look very nice").
+ * Existing `.tt-activity-detail*` markup keeps working unchanged. */
+.tt-record-detail,
 .tt-activity-detail { background: #fff; border: 1px solid var(--tt-line, #e5e7ea); border-radius: 10px; padding: 18px 20px; margin: 0 0 var(--tt-sp-3, 12px); }
+.tt-record-detail-meta,
 .tt-activity-detail-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 var(--tt-sp-3, 12px); padding: 0 0 var(--tt-sp-3, 12px); border-bottom: 1px solid var(--tt-line, #e5e7ea); font-size: 0.85rem; }
+.tt-record-detail-meta .tt-due,
 .tt-activity-detail-meta .tt-due { color: var(--tt-muted, #5b6e75); font-weight: 600; }
+.tt-record-detail-meta .tt-meta-chip,
 .tt-activity-detail-meta .tt-meta-chip { color: var(--tt-muted, #5b6e75); }
+.tt-record-detail-meta .tt-meta-chip strong,
 .tt-activity-detail-meta .tt-meta-chip strong { color: var(--tt-text, #1a1d21); font-weight: 600; }
+.tt-record-detail-body,
 .tt-activity-detail-body { margin: 0; color: var(--tt-text, #1a1d21); }
-.tt-activity-detail-body h3 { color: var(--tt-text, #1a1d21); }
-.tt-activity-detail-body p { margin: 0; line-height: 1.5; }
+.tt-record-detail-body h3,
+.tt-activity-detail-body h3 { color: var(--tt-text, #1a1d21); margin: 0 0 8px; font-size: 0.95rem; }
+.tt-record-detail-body p,
+.tt-activity-detail-body p { margin: 0 0 10px; line-height: 1.5; }
+.tt-record-detail-body p:last-child,
+.tt-activity-detail-body p:last-child { margin-bottom: 0; }
 
 .tt-att-present td { background: rgba(0,163,42,0.05) !important; }
 .tt-att-absent  td { background: rgba(179,45,46,0.05) !important; }
