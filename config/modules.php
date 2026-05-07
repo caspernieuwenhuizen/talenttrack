@@ -62,4 +62,8 @@ return [
     TT\Modules\Analytics\AnalyticsModule::class                  => true,
     // #0063 — Export module (foundation: registry + CSV/JSON/iCal renderers + REST).
     TT\Modules\Export\ExportModule::class                        => true,
+    // #0066 — Communication module (foundation: channel registry +
+    // Email adapter + template registry + opt-out + quiet-hours +
+    // rate-limit + audit). Use cases register their own templates.
+    TT\Modules\Comms\CommsModule::class                          => true,
 ];
