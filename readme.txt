@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.104.5
+Stable tag: 3.104.6
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.104.6 — Reporting export and scheduled reports (#0083 Child 6, closes #0083) =
+
+Sixth and final child of #0083 (Reporting framework). Closes the epic. Operationalises analytics for users who want their numbers regularly: schedule a KPI to run weekly / monthly / season-end, attach the CSV, send via email. **(1) `Modules\Analytics\Export\CsvExporter`** — UTF-8-with-BOM CSV renderer (Excel-NL friendly). Two entry points: `forKpi($key, $extraFilters)` uses the KPI's fact + measure + default filters and groups by every `exploreDimension` so the export carries the full breakdown; `raw($factKey, $dims, $measures, $filters, $title)` for the explorer's "Export this view" affordance. Streaming via `fputcsv` to a memory stream, capped at the engine's 5,000-row LIMIT. **(2) Migration `0075_scheduled_reports`** introduces `tt_scheduled_reports`: club_id + uuid (per CLAUDE.md §4) + name + kpi_key + explorer_state_json (reserved for the explorer-state save flow shipping after) + frequency (`weekly_monday` / `monthly_first` / `season_end`) + recipients JSON + format (`csv` v1) + last_run_at + next_run_at + status + audit columns. Idempotent CREATE TABLE IF NOT EXISTS. **(3) `ScheduledReportsRepository`** — CRUD + the `dueForRun()` cron consumer + `markRun()` that re-computes `next_run_at` after each run. `computeNextRun()` is a pure function: weekly → next Monday 06:00 UTC, monthly → first day of next month 06:00 UTC, season_end → 1 July 06:00 UTC. **(4) `Cron\ScheduledReportsRunner`** registers daily WP-cron `tt_scheduled_reports_cron`. Iterates due schedules, renders CSV via `CsvExporter::forKpi()`, expands recipients (email strings pass through, role keys expand via `get_users()`), sends via `wp_mail()` with the CSV attached, audit-logs `scheduled_report.run`. **License-gated**: silently skips when the tier doesn't have `scheduled_reports` (operators see definitions but no emails go out). **(5) `?tt_view=scheduled-reports`** management view, cap-gated on `tt_view_analytics` + `LicenseGate::allows('scheduled_reports')`. Free tier sees the standard `UpgradeNudge` paywall. Create form (name + KPI dropdown + frequency + recipients textarea), schedule list with name + KPI + frequency + next-run + status, per-row Pause / Resume / Archive actions. Edit form deferred (operators pause + recreate). **(6) `Admin\ScheduledReportsActionHandlers`** — four admin-post endpoints (create / pause / resume / archive). **(7) License feature `scheduled_reports`** registered in `FeatureMap::DEFAULT_MAP[TIER_STANDARD]` — Standard plan and above; Free is gated behind the upgrade nudge. **(8) Slug ownership + dispatch arm + `mobile_class = desktop_only`** registered. **What's NOT in this PR**: explorer "Export CSV" button (callable via `CsvExporter::raw()` but no surfaced affordance yet); XLSX + PDF formats (CSV-only v1); explorer-state-as-schedule (today only KPI-direct schedules); per-schedule edit form. ~9 new NL msgids. **Closes #0083**: 6 of 6 children shipped (fact registry, KPI platform, explorer, entity tab, central surface, export+schedule). Bulk migration of legacy 26 KPIs + the remaining 49 spec KPIs follow as separate ships.
 
 = 3.104.5 — Central analytics surface + matrix entity (#0083 Child 5, desktop_only) =
 
