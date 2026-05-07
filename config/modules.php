@@ -66,4 +66,10 @@ return [
     // Email adapter + template registry + opt-out + quiet-hours +
     // rate-limit + audit). Use cases register their own templates.
     TT\Modules\Comms\CommsModule::class                          => true,
+    // #0078 Phase 1 — custom widget builder data layer. Feature-flag-
+    // gated via `tt_custom_widgets_enabled` (default off; beta installs
+    // opt in). Owns CustomDataSource interface + registry + 5 reference
+    // sources. Phases 2-6 build the schema, REST, builder UI, rendering,
+    // cap layer, and docs on top.
+    TT\Modules\CustomWidgets\CustomWidgetsModule::class          => true,
 ];
