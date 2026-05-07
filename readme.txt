@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.105.0
+Stable tag: 3.105.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.105.1 — Reporting export and scheduled reports (#0083 Child 6, closes #0083) =
+
+Sixth and final child of #0083 (Reporting framework). Closes the epic. Operationalises analytics for users who want their numbers regularly: schedule a KPI to run weekly / monthly / season-end, attach the CSV, send via email. **(1) `Modules\Analytics\Export\CsvExporter`** — UTF-8-with-BOM CSV renderer (Excel-NL friendly). Two entry points: `forKpi($key, $extraFilters)` uses the KPI's fact + measure + default filters and groups by every `exploreDimension`; `raw($factKey, $dims, $measures, $filters, $title)` for the explorer's "Export this view" affordance. Streaming via `fputcsv` to a memory stream, capped at the engine's 5,000-row LIMIT. Co-exists with v3.105.0's #0063 `Renderers\CsvRenderer` — the reporting CSV exporter consumes fact-query results directly; the #0063 renderer is for the future #0063 Export-module-routed paths. The two converge in a follow-up that re-routes the analytics CSV through the #0063 registry. **(2) Migration `0075_scheduled_reports`** introduces `tt_scheduled_reports` (club_id + uuid + name + kpi_key + explorer_state_json + frequency + recipients JSON + format + last_run_at + next_run_at + status). **(3) `ScheduledReportsRepository`** — CRUD + `dueForRun()` cron consumer + pure `computeNextRun()`. **(4) `Cron\ScheduledReportsRunner`** registers daily WP-cron `tt_scheduled_reports_cron`. License-gated; silently skips when the tier doesn't have `scheduled_reports`. **(5) `?tt_view=scheduled-reports`** management view, cap-gated on `tt_view_analytics` + `LicenseGate::allows('scheduled_reports')`. Free tier sees the standard `UpgradeNudge` paywall. **(6) `Admin\ScheduledReportsActionHandlers`** — four admin-post endpoints (create / pause / resume / archive). **(7) License feature `scheduled_reports`** registered in `FeatureMap::DEFAULT_MAP[TIER_STANDARD]`. **(8) Slug ownership + dispatch arm + `mobile_class = desktop_only`** registered. Renumbered v3.104.6 → v3.105.1 mid-rebase after parallel-agent ship of v3.105.0 (#0063 Export module foundation + Team iCal feed) landed. **What's NOT in this PR**: explorer "Export CSV" button; XLSX + PDF formats (CSV-only v1); explorer-state-as-schedule; per-schedule edit form. ~26 new NL msgids. **Closes #0083**: 6 of 6 children shipped.
 
 = 3.105.0 — Export module foundation + Team iCal feed (#0063 Foundation + use case 12) =
 

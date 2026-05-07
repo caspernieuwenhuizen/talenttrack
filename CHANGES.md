@@ -1,124 +1,103 @@
-# TalentTrack v3.105.0 — Export module foundation + Team iCal feed (#0063 Foundation + use case 12)
+# TalentTrack v3.105.1 — Reporting export and scheduled reports (#0083 Child 6, closes #0083)
 
-First ship of the #0063 Export epic. Foundation only — registry + three v1 format renderers + REST endpoint + audit hook. One use case (Team iCal feed) lands alongside to prove the foundation end-to-end. Use cases 1–11, 13–15 land in subsequent ships.
+Sixth and final child of #0083 (Reporting framework). **Closes the epic.** Operationalises analytics for users who want their numbers regularly: schedule a KPI to run weekly / monthly / season-end, attach the CSV, send via email.
 
-## Why bundle Foundation + one use case
+Renumbered v3.104.6 → v3.105.1 mid-rebase after the parallel-agent ship of v3.105.0 (#0063 Export module foundation + Team iCal feed) landed.
 
-Foundation alone is shelfware until a consumer arrives — no surface to demo, no integration test that exercises it. Bundling one use case (the smallest one in the spec — Team iCal) gets the foundation in front of a real query path on day one and validates the end-to-end shape (cap-gate → exporter validation → format renderer → audit) before any of the larger use cases bind to it.
+## Co-existence with #0063 Export foundation
 
-Team iCal was chosen over the other v1 candidates because:
-- It exercises the only renderer (`IcsRenderer`) that has no other natural consumer in the existing codebase.
-- It's small (~130 LOC exporter + 30 LOC SQL).
-- It's the single use case where TalentTrack is the source of truth for the data — every other v1 export depends on records the operator created elsewhere.
-- It's already requested by pilot coaches who use Spond and want their TT-only activities in their phone calendar.
+v3.105.0 shipped `Modules\Export\` with its own `CsvRenderer` / `JsonRenderer` / `IcsRenderer` and `ExporterRegistry`. This PR ships `Modules\Analytics\Export\CsvExporter` — a thinner consumer of `FactQuery::run()` that produces CSV directly. They live alongside without conflict:
 
-## Architecture
+- The #0063 Export module is the central authority for outbound data artefacts that have a real consumer outside analytics — Team iCal feed (use case 12, shipped v3.105.0); player evaluation PDF (use case 1, follow-up); GDPR ZIP (use case 10, future); etc.
+- The analytics CSV is consumed by the daily scheduled-reports cron and (in a follow-up) the explorer's "Export this view" button.
+- A future ship re-routes the analytics CSV through the #0063 `ExporterRegistry` so both paths share one renderer; today's split avoids blocking #0083 closure on a deeper #0063 integration.
 
-### Domain value objects
+## What landed
 
-`Domain\ExportRequest` carries everything an export call needs: exporter key, format, `club_id` (from `CurrentClub::id()`), requester user id, optional entity id (per-use-case scope — player_id for player exports, team_id for team exports), validated filters, brand-kit mode (`auto` / `blank` / `letterhead`), and an optional locale override. Immutable.
+### `Modules\Analytics\Export\CsvExporter`
 
-`Domain\ExportResult` is the rendered output: bytes, MIME type, filename, size (cached `strlen`), optional renderer note (e.g. "12 rows", "0 events").
+UTF-8-with-BOM CSV renderer (Excel-NL friendly opens correctly without an encoding pick). Two entry points:
 
-### Format renderer registry
+- `forKpi( $kpi_key, $extra_filters )` — uses the KPI's fact + measure + default filters merged with extras, grouped by every `exploreDimension` so the export carries the full breakdown.
+- `raw( $fact_key, $dim_keys, $measure_keys, $filters, $title )` — bypasses KPI metadata for the explorer's "Export this view" affordance (callable today; UI surface in a follow-up).
 
-`Format\FormatRendererInterface` declares one method beyond `format()`: `render( ExportRequest, $payload ): ExportResult`. Each renderer claims a format string and accepts a renderer-aware payload.
+Streams via `fputcsv` to a memory stream. Capped at the engine's 5,000-row LIMIT. Optional title row above the headers carries the KPI label and the UTC generation timestamp.
 
-`Format\FormatRendererRegistry` keys on the format string. Same registration pattern as `WidgetRegistry` and `KpiDataSourceRegistry`: static, in-memory, idempotent.
+### Migration `0075_scheduled_reports`
 
-### Three v1 renderers
+`tt_scheduled_reports` table per the spec — `club_id` + `uuid` for SaaS-readiness, `name` + `kpi_key`, `frequency` (`weekly_monday` / `monthly_first` / `season_end`), `recipients` JSON, `format` (`csv` v1), `last_run_at` + `next_run_at` + `status`, audit columns. Idempotent CREATE TABLE IF NOT EXISTS.
 
-**`Renderers\CsvRenderer`** — RFC 4180 via native `fputcsv` on a `php://temp` stream. Prepends a UTF-8 BOM so Excel-on-Windows opens UTF-8 CSVs with the right encoding on first try (well-known Excel pain point). Payload shape: `[ headers, rows ]`. Booleans coerce to `1`/`0`, nulls to empty string, everything else stringified.
+### `ScheduledReportsRepository`
 
-**`Renderers\JsonRenderer`** — stable envelope around the exporter's payload:
+CRUD + `dueForRun()` cron consumer + `markRun()` + pure `computeNextRun()`:
+- `weekly_monday` → next Monday 06:00 UTC.
+- `monthly_first` → first day of next month 06:00 UTC.
+- `season_end` → 1 July 06:00 UTC (Northern-hemisphere convention).
 
-```json
-{
-  "meta": {
-    "exporter": "team_ical",
-    "format": "json",
-    "club_id": 1,
-    "generated_at": "2026-05-06T22:30:00+00:00",
-    "tt_version": "3.105.0"
-  },
-  "data": <whatever the exporter returned>
-}
-```
+### `Cron\ScheduledReportsRunner`
 
-Federation JSON (use case 11) ships its neutral envelope on top of this — `meta` is invariant; `data` shape is per-use-case. Encoded with `JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT`.
+Daily WP-cron `tt_scheduled_reports_cron`. Iterates `dueForRun()`, renders CSV, expands recipients (email strings pass through, role keys expand via `get_users()`), writes a temp file in the WP uploads dir, sends via `wp_mail()` with the file attached, deletes the temp file, audit-logs `scheduled_report.run`. License-gated — silently skips when the tier doesn't have `scheduled_reports`.
 
-**`Renderers\IcsRenderer`** — hand-coded RFC 5545. PRODID + VERSION + CALSCALE + METHOD + N×VEVENT (UID + DTSTAMP + DTSTART + DTEND + SUMMARY + LOCATION + DESCRIPTION). CRLF line endings. 75-octet line folding per § 3.1 (continuation lines start with a single space). iCal text escaping per § 3.3.11 (backslash, semicolon, comma, newline). Two event modes: `VALUE=DATE` all-day with DTEND bumped one day per the exclusive-end rule, or UTC-Z timed events. No Sabre\VObject dependency — pure PHP.
+### `?tt_view=scheduled-reports` — management view
 
-### Exporter registry + service
+Cap-gated on `tt_view_analytics` (HoD + Admin by default). License-gated via `LicenseGate::allows('scheduled_reports')`; Free tier sees the standard `UpgradeNudge` inline paywall.
 
-`ExporterInterface` declares: `key()`, `label()`, `supportedFormats()`, `requiredCap()`, `validateFilters()`, `collect()`. The exporter validates request filters (returns `null` on invalid → 400) and produces a renderer-aware payload (CSV expects `[ headers, rows ]`, ICS expects `[ events ]`, JSON accepts any associative array).
+- **Create form** — name + KPI dropdown + frequency + recipients textarea (one per line).
+- **Schedule list** — name + KPI label + frequency + next-run timestamp + status.
+- **Per-row actions** — Pause / Resume / Archive.
 
-`ExporterRegistry` keys on the exporter's key string. URL slug = key (`/exports/{key}`).
+Edit form deferred (operators pause + recreate).
 
-`ExportService::run()` orchestrates: cap-gate → format-supported check → filter validation → renderer lookup → `collect()` → `render()` → audit. `ExportException` short-circuits with one of `unknown_exporter` / `forbidden` / `unsupported_format` / `bad_filters` / `no_renderer`; the controller maps each to an HTTP status (404 / 403 / 400 / 400 / 500).
+### `Admin\ScheduledReportsActionHandlers`
 
-Audit via `AuditService::record( 'export.generated', 'export', $entity_id, [ exporter, format, club_id, user_id, filename, size, note ] )`. Audit failure never breaks the export.
+Four admin-post endpoints: `tt_scheduled_reports_create` / `_pause` / `_resume` / `_archive`. All gated on `tt_view_analytics`.
 
-### REST controller
+### License feature `scheduled_reports`
 
-Two routes under `/wp-json/talenttrack/v1/`:
+Registered in `FeatureMap::DEFAULT_MAP[TIER_STANDARD]` so Standard / Trial / Pro tiers have it; Free is gated.
 
-- `GET /exports` — lists registered exporters that the caller has cap-access to. Returns `{ exporters: [ { key, label, formats, cap }, … ] }`.
-- `GET /exports/{key}?format=ics&entity_id=42&...filters` — synchronous download. Bypasses the REST envelope: sets `Content-Type` / `Content-Length` / `Content-Disposition` headers, echoes bytes, exits.
+### Wiring
 
-The route gate is `is_user_logged_in()`; per-exporter cap-gating runs inside `ExportService` against `ExporterInterface::requiredCap()`. This keeps the route open to any holder of any `tt_export_*` cap and pushes precise checks into the service.
-
-Async dispatch — `POST /exports/{key}` queuing an Action Scheduler job — lands with the first big-export use case (likely the GDPR subject-access ZIP). The sync GET path covers every v1 use case under the 30 s budget.
-
-## Use case 12 — Team iCal feed
-
-`Exporters\TeamIcalExporter` reads `tt_activities` for one team filtered by `session_date` window (configurable: `months_back` default 1 / `months_ahead` default 12) and emits one VEVENT per activity. Spond-sourced rows (`activity_source_key != 'manual'` per migration 0040) are filtered out so coaches who already sync Spond don't see the same training twice.
-
-UID format: `tt-activity-{id}@{site_host}`. Cap: `tt_view_activities` (same gate as the activities admin).
-
-URL: `GET /wp-json/talenttrack/v1/exports/team_ical?entity_id={team_id}&format=ics`.
-
-Per-coach signed-token URLs (spec Q4 lean — "iCal as a 'secret URL' is a known anti-pattern but the realistic UX") defer to a follow-up "subscribe to this calendar" UI. Today the route is cookie-authed only, suitable for the operator-grade preview while the subscription UX is being shaped.
-
-## Open shaping decisions locked
-
-Per user direction, the in-spec leans on all 7 open Qs become locked decisions for #0063:
-
-- **Q1 PDF engine** — DomPDF default + wkhtml escape hatch. Lands with the first PDF use case (player evaluation PDF, use case 1).
-- **Q2 Async runner** — Action Scheduler. Lands with first big-export use case.
-- **Q3 Big-export TTL** — 24 h with regenerate. Lands with the async pipeline.
-- **Q4 iCal subscription** — signed-token-per-coach. The exporter layer is ready; the subscribe UI lands with a follow-up.
-- **Q5 Federation JSON** — neutral envelope v1. Lands with the federation JSON use case.
-- **Q6 GDPR subject-access** — async (queued + email link). Lands with the GDPR ZIP use case + Comms #0066.
-- **Q7 Brand kit on PDF** — auto inherit + per-export override toggle. Lands with the PDF renderer.
+- **Slug ownership** `scheduled-reports` → `AnalyticsModule`.
+- **Dispatch arm** `analytics_schedules_slugs = ['scheduled-reports']` in `DashboardShortcode::render()`.
+- **`mobile_class = desktop_only`** — phone-class user agents see the #0084 Child 1 polite-prompt page.
 
 ## What's NOT in this PR
 
-- **PDF / XLSX / ZIP renderers** — land with their first consumers. PDF (DomPDF) ships with the player evaluation PDF use case; PhpSpreadsheet (already a Composer dep) ships with the evaluations Excel use case; `ZipArchive` ships with the GDPR subject-access ZIP.
-- **Async pipeline + Action Scheduler integration** — sync GET covers every v1 use case under the 30 s budget; async lands when the first big export needs it.
-- **14 remaining use cases** (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15) — each follows the same registration pattern via its owning module.
-- **Brand-kit template inheritance** — only manifests visually on PDF, so lands with the PDF renderer.
-- **Per-coach signed-token iCal subscription URLs** — exporter layer is ready; subscription UX is its own follow-up.
-
-## Risk callouts
-
-- **Fact-registry discipline.** A future module that adds a player-related table without registering loses analytics coverage silently. The static-analysis test for "every `tt_*` table with a `player_id` / `team_id` FK is registered (or explicitly opted out via comment)" is part of Child 2's definition of done — it ships next, not here.
+- **Explorer "Export CSV" button.** `CsvExporter::raw()` is callable today; UI surface follows.
+- **XLSX + PDF formats.** CSV-only v1.
+- **Explorer-state-as-schedule.** Today only KPI-direct schedules.
+- **Per-schedule edit form.** Pause + recreate is the v1 work-around.
+- **#0063 ExporterRegistry integration.** Future ship re-routes the analytics CSV through #0063's renderer pipeline.
 
 ## Affected files
 
-- `src/Modules/Export/ExportModule.php` — new (module shell, registers renderers + first exporter + REST controller).
-- `src/Modules/Export/Domain/ExportRequest.php` — new.
-- `src/Modules/Export/Domain/ExportResult.php` — new.
-- `src/Modules/Export/Format/FormatRendererInterface.php` — new.
-- `src/Modules/Export/Format/FormatRendererRegistry.php` — new.
-- `src/Modules/Export/Format/Renderers/CsvRenderer.php` — new (~70 lines).
-- `src/Modules/Export/Format/Renderers/JsonRenderer.php` — new (~50 lines).
-- `src/Modules/Export/Format/Renderers/IcsRenderer.php` — new (~150 lines).
-- `src/Modules/Export/ExporterInterface.php` — new.
-- `src/Modules/Export/ExporterRegistry.php` — new.
-- `src/Modules/Export/ExportService.php` — new (~110 lines).
-- `src/Modules/Export/ExportException.php` — new.
-- `src/Modules/Export/Exporters/TeamIcalExporter.php` — new (~110 lines).
-- `src/Modules/Export/Rest/ExportRestController.php` — new (~140 lines).
-- `config/modules.php` — registers `ExportModule`.
-- `talenttrack.php`, `readme.txt`, `SEQUENCE.md` — version bump + ship metadata.
+- `database/migrations/0075_scheduled_reports.php` — new.
+- `src/Modules/Analytics/ScheduledReportsRepository.php` — new.
+- `src/Modules/Analytics/Export/CsvExporter.php` — new.
+- `src/Modules/Analytics/Cron/ScheduledReportsRunner.php` — new.
+- `src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php` — new.
+- `src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php` — new.
+- `src/Modules/Analytics/AnalyticsModule.php` — `boot()` wires action handlers + cron runner.
+- `src/Shared/Frontend/DashboardShortcode.php` — dispatch arm.
+- `src/Shared/CoreSurfaceRegistration.php` — slug ownership + `mobile_class = desktop_only`.
+- `src/Modules/License/FeatureMap.php` — `scheduled_reports` feature in the Standard tier.
+- `languages/talenttrack-nl_NL.po` — 26 new msgids.
+- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
+
+## Translations
+
+26 new translatable strings.
+
+## #0083 — closed
+
+Six children shipped:
+
+1. **v3.104.1 — Fact registry** (Child 1).
+2. **v3.104.2 — KPI platform** (Child 2).
+3. **v3.104.3 — Dimension explorer** (Child 3).
+4. **v3.104.4 — Entity Analytics tab** (Child 4).
+5. **v3.104.5 — Central analytics surface** (Child 5).
+6. **v3.105.1 — Export and schedule** (Child 6, this PR).
+
+Bulk migration of legacy 26 KPIs + the remaining 49 spec KPIs + the explorer's chart + drilldown + export-button follow as separate ships; the platform that hosts them is closed.

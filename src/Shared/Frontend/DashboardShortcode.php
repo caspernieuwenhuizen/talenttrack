@@ -217,6 +217,8 @@ class DashboardShortcode {
         $analytics_explore_slugs = [ 'explore' ];
         // #0083 Child 5 — central analytics surface.
         $analytics_central_slugs = [ 'analytics' ];
+        // #0083 Child 6 — scheduled reports management.
+        $analytics_schedules_slugs = [ 'scheduled-reports' ];
 
         // #0084 Child 1 — desktop-only mobile gate. When the visitor is
         // a phone-class user agent, the requested view is classified
@@ -355,6 +357,8 @@ class DashboardShortcode {
             \TT\Modules\Analytics\Frontend\FrontendExploreView::render( $user_id, $is_admin );
         } elseif ( in_array( $view, $analytics_central_slugs, true ) ) {
             \TT\Modules\Analytics\Frontend\FrontendAnalyticsView::render( $user_id, $is_admin );
+        } elseif ( in_array( $view, $analytics_schedules_slugs, true ) ) {
+            \TT\Modules\Analytics\Frontend\FrontendScheduledReportsView::render( $user_id, $is_admin );
         } else {
             FrontendBackButton::render();
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
