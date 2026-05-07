@@ -5,12 +5,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Modules\CustomWidgets\Admin\CustomWidgetsAdminPage;
 use TT\Modules\CustomWidgets\DataSources\ActivitiesRecent;
 use TT\Modules\CustomWidgets\DataSources\EvaluationsRecent;
 use TT\Modules\CustomWidgets\DataSources\GoalsOpen;
 use TT\Modules\CustomWidgets\DataSources\PdpFiles;
 use TT\Modules\CustomWidgets\DataSources\PlayersActive;
 use TT\Modules\CustomWidgets\Rest\CustomWidgetsRestController;
+use TT\Shared\Admin\AdminMenuRegistry;
 
 /**
  * CustomWidgetsModule (#0078) — admin-authored persona-dashboard
@@ -52,6 +54,52 @@ class CustomWidgetsModule implements ModuleInterface {
 
         self::registerInitialDataSources();
         CustomWidgetsRestController::init();
+
+        // Phase 3 — admin builder page.
+        add_action( 'admin_enqueue_scripts', [ CustomWidgetsAdminPage::class, 'enqueueAssets' ] );
+        add_action( 'admin_post_tt_custom_widget_archive', [ CustomWidgetsAdminPage::class, 'handleArchive' ] );
+        AdminMenuRegistry::register( [
+            'module_class' => self::class,
+            'parent'       => 'talenttrack',
+            'title'        => __( 'Custom widgets', 'talenttrack' ),
+            'label'        => __( 'Custom widgets', 'talenttrack' ),
+            'cap'          => 'tt_edit_persona_templates',
+            'slug'         => CustomWidgetsAdminPage::SLUG,
+            'callback'     => [ CustomWidgetsAdminPage::class, 'render' ],
+            'group'        => 'configuration',
+            'order'        => 35,
+        ] );
+
+        // Configuration tile — same pattern as Dashboard layouts.
+        add_filter( 'tt_config_tile_groups', [ self::class, 'addBuilderTile' ], 10, 1 );
+    }
+
+    /**
+     * @param array<int, array{label: string, tiles: array<int, array<string,mixed>>}> $groups
+     * @return array<int, array{label: string, tiles: array<int, array<string,mixed>>}>
+     */
+    public static function addBuilderTile( array $groups ): array {
+        $tile = [
+            'label'       => __( 'Custom widgets', 'talenttrack' ),
+            'description' => __( 'Compose your own dashboard widgets — pick a data source, choose columns and filters, drop them onto a persona dashboard.', 'talenttrack' ),
+            'icon'        => '🧮',
+            'url'         => admin_url( 'admin.php?page=' . CustomWidgetsAdminPage::SLUG ),
+            'cap'         => 'tt_edit_persona_templates',
+        ];
+        foreach ( $groups as &$group ) {
+            if ( ! is_array( $group ) ) continue;
+            $label = (string) ( $group['label'] ?? '' );
+            if ( strpos( $label, 'Branding' ) !== false || strpos( $label, 'Personas' ) !== false ) {
+                $group['tiles'][] = $tile;
+                return $groups;
+            }
+        }
+        unset( $group );
+        $groups[] = [
+            'label' => __( 'Personas', 'talenttrack' ),
+            'tiles' => [ $tile ],
+        ];
+        return $groups;
     }
 
     /**

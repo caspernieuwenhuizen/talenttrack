@@ -1,94 +1,65 @@
-# TalentTrack v3.109.3 — Custom widget builder Phase 2: migration + repository + REST CRUD + service (#0078 Phase 2)
+# TalentTrack v3.109.4 — Custom widget builder Phase 3: TalentTrack → Custom widgets admin page + multi-step builder (#0078 Phase 3)
 
-Second phase of #0078 Custom widget builder. v3.106.2 shipped Phase 1 (the `CustomDataSource` interface + registry + 5 reference sources, feature-flag-gated). Phase 2 adds the persistence layer + REST surface on top so a future Phase 3 builder UI can persist authoring choices.
+Phase 3 of #0078 Custom widget builder. v3.106.2 shipped Phase 1 (data-source layer); v3.109.3 shipped Phase 2 (migration + REST CRUD + service). v3.109.4 adds the admin authoring UX on top so operators can build a widget without writing any code.
 
 ## What landed
 
-### Migration `0076_custom_widgets`
+### Admin page
 
-`tt_custom_widgets` schema with `club_id` + `uuid` SaaS-readiness columns per CLAUDE.md §4. The `uuid` doubles as the slot-config foreign key once Phase 4 wires the persona-dashboard editor palette (a slot pointing at a custom widget stores `data_source: <uuid>` so renames don't break placements). `archived_at` is the soft-delete tombstone.
+`Modules\CustomWidgets\Admin\CustomWidgetsAdminPage` registered under TalentTrack → Custom widgets via the existing `AdminMenuRegistry` pattern:
 
-`data_source_id` is the registry key (e.g. `players_active`); not a foreign key — sources are PHP classes, not DB rows. `chart_type` is a `VARCHAR(16)` rather than `ENUM(...)` so adding a new chart type later doesn't require a schema migration; the service-layer whitelist enforces values today.
+- `parent: 'talenttrack'`, `group: 'configuration'`, `order: 35` — sits next to Dashboard layouts.
+- Cap-gated on `tt_edit_persona_templates` (Phase 5 swaps for the dedicated `tt_author_custom_widgets` cap when the cap layer ships).
+- Two views inside one slug:
+  - **List view** (default) — every saved widget for the current club, with `Edit` / `Archive` buttons. Archive routes through `admin-post.php?action=tt_custom_widget_archive&id=N` behind a per-row nonce.
+  - **Builder view** (`?action=new` or `?action=edit&id=N`) — the multi-step authoring UX.
 
-Idempotent `CREATE TABLE IF NOT EXISTS` via dbDelta.
+### Multi-step builder
 
-### Domain value object
+Six steps: **Source → Columns → Filters → Format → Preview → Save**.
 
-`Modules\CustomWidgets\Domain\CustomWidget` — immutable, with a `CHART_TYPES` constant (`table` / `kpi` / `bar` / `line` per spec decision 2; pie / donut / radar deferred) and a `toArray()` method for the REST envelope.
+Server-rendered shell (a stepper + body container + nav buttons) + 470-LOC vanilla JS state machine in `assets/js/custom-widgets-builder.js`. Each step renders dynamically from the active source's metadata — picking a different source on step 1 rewires the column / filter / aggregation inputs in steps 2-4 without a page reload.
 
-### Repository
+The bootstrap blob the page localizes into `window.TTCustomWidgetsBootstrap` carries the full sources catalogue (id + label + columns + filters + aggregations) so the builder doesn't need a round-trip on first paint.
 
-`Modules\CustomWidgets\Repository\CustomWidgetRepository` — `listForClub` / `findById` / `findByUuid` / `create` / `update` / `softDelete`. Every read and write scopes to `CurrentClub::id()`. Definition JSON round-trips via `wp_json_encode()` / `json_decode()` so the caller sees hydrated arrays.
+### Live preview
 
-### Service layer
+The Preview step calls a `saveDraft()` helper that POSTs (new) or PUTs (edit) the in-progress widget definition through the Phase 2 REST endpoint, then GETs `/wp-json/talenttrack/v1/custom-widgets/{uuid}/data?limit=20` and renders the rows. Two render modes:
 
-`Modules\CustomWidgets\CustomWidgetService` — validation + create/update/archive orchestrator on top of the repository. Validates:
+- **Table preview** — `<table>` over the returned rows; columns auto-derived from the row keys.
+- **KPI preview** — single big number drawn from the first row's first column.
 
-- name length (1-120 chars),
-- data-source id (must be registered in `CustomDataSourceRegistry`),
-- chart type (must be one of `CustomWidget::CHART_TYPES`),
-- columns (must intersect the source's declared `columns()`; required for `table`),
-- filters (drops unknown keys; type-coerces values),
-- aggregation (mandatory for `kpi`/`bar`/`line`; key must intersect the source's declared `aggregations()`),
-- cache TTL (clamped to `[0, 1440]` minutes — 24h ceiling).
+Bar / line preview is text-rendered today; Phase 4 wires Chart.js for the persona-dashboard render path.
 
-Throws `CustomWidgetException` with a discriminated kind on every validation rule. Phase 5 hooks the audit + cache-flush calls into this service.
+### Validation
 
-### REST controller
+Step-level validators surface inline before advancing:
 
-`Modules\CustomWidgets\Rest\CustomWidgetsRestController` registers the 8 endpoints from the spec:
+- Step 1 (Source) — must pick one.
+- Step 2 (Columns) — required for `table`; ignored for `kpi`/`bar`/`line`.
+- Step 4 (Format) — must pick a chart type; non-table types must also pick an aggregation.
+- Step 6 (Save) — name required (1-120 chars).
 
-| Method | Path | Purpose |
-|---|---|---|
-| GET    | `/custom-widgets` | List (current club) |
-| POST   | `/custom-widgets` | Create |
-| GET    | `/custom-widgets/{id}` | Single (id or uuid) |
-| PUT    | `/custom-widgets/{id}` | Update (id or uuid) |
-| DELETE | `/custom-widgets/{id}` | Soft-delete (id or uuid) |
-| GET    | `/custom-data-sources` | Catalogue for the builder UI |
-| GET    | `/custom-widgets/{id}/data` | Render-time preview fetch |
-| POST   | `/custom-widgets/{id}/clear-cache` | Manual cache flush |
+Server-side validation is the Phase 2 service layer; the JS validators just front-load the obvious failures so the operator sees them immediately.
 
-Caps: all routes gated on `tt_edit_persona_templates` for Phase 2. Phase 5 swaps the write routes for the new `tt_author_custom_widgets` cap (added via top-up migration alongside the cap-layer ship).
+### Configuration tile
 
-The data-fetch route (`/custom-widgets/{id}/data`) calls into the registered source's `fetch()` directly — Phase 4 replaces the body with a future `CustomWidgetRenderer::fetchRows()` that adds caching + source-cap inheritance. Phase 2 exposes the route shape so the builder UI's preview can hit it.
+`addBuilderTile()` filters into `tt_config_tile_groups` so admins discover the new page from the Configuration tile-landing the same way they reach Branding, Translations, and Dashboard layouts. Tile lands in the *Branding* group when present, falls back to a new *Personas* group otherwise.
 
-The clear-cache endpoint emits a `tt_custom_widget_cache_flush_requested` action so Phase 5's transient-cache layer can listen without changing the route shape.
+### Mobile-first CSS
 
-### Module wiring
-
-`CustomWidgetsModule::boot()` — feature-flag-gated registration extended to call `CustomWidgetsRestController::init()`. Module stays opt-in via `tt_custom_widgets_enabled` (default off). Beta installs flip it on with `wp option update tt_custom_widgets_enabled 1`.
-
-## Discriminated error → HTTP status mapping
-
-The REST controller's `errorFromKind()` collapses the discriminated `CustomWidgetException` kinds into HTTP statuses so callers see the right code without knowing what each validation rule did:
-
-```
-not_found            → 404
-forbidden            → 403
-invalid_chart_type   → 400
-unknown_data_source  → 400
-missing_columns      → 400
-missing_aggregation  → 400
-bad_aggregation      → 400
-bad_name             → 400
-```
-
-Anything else falls through to a 500.
-
-## What's NOT in this PR (still in Phases 3-6)
-
-- **Phase 3 — Builder admin page** (TalentTrack → Custom widgets). Multi-step UX: pick source → pick columns → configure filters → choose format → preview → name → save. Vanilla JS like the persona-dashboard editor.
-- **Phase 4 — Rendering engine + persona-dashboard editor palette**. `CustomWidgetRenderer` for table / kpi / bar / line; Chart.js for bar / line. Editor palette gains a "Custom widgets" group sourced from `tt_custom_widgets`.
-- **Phase 5 — Cap layer + cache + audit**. New `tt_author_custom_widgets` cap (top-up migration). Per-widget transient cache with the configurable TTL. Audit-log entries on save / publish / delete. Manual clear-cache button wired.
-- **Phase 6 — Docs + i18n + README**. `docs/custom-widgets.md` (EN+NL). ~30 new translatable strings (mostly Phase 3 builder UI). README link.
+`assets/css/custom-widgets-builder.css` — stepper + radio source cards + checkbox column grid + per-filter row + chart-type cards + preview surface. The builder lives in wp-admin so the desktop floor is fine, but inputs honour the 16px font-size + 48px touch-target rules from CLAUDE.md §2.
 
 ## Translations
 
-Zero new NL msgids — Phase 2 is internal infrastructure. The builder UI labels (Phase 3) ship the translatable copy.
+24 new NL msgids covering builder copy: stepper labels, step body headings, validation messages, preview status, save/saving/saved labels, archive confirmation. Dutch translations land in `nl_NL.po`.
+
+## What's NOT in this PR (still in Phases 4-6)
+
+- **Phase 4 — Rendering engine + persona-dashboard editor palette.** `CustomWidgetRenderer` for table / kpi / bar / line; Chart.js for bar / line. Editor palette gains a "Custom widgets" group sourced from `tt_custom_widgets`.
+- **Phase 5 — Cap layer + cache + audit.** New `tt_author_custom_widgets` cap (top-up migration). Per-widget transient cache with the configurable TTL. Audit-log entries on save / publish / delete. Manual clear-cache button wired.
+- **Phase 6 — Docs + i18n + README.** `docs/custom-widgets.md` (EN+NL). README link.
 
 ## Notes
 
-No new caps in this PR (Phase 5 ships them). No new wp-cron schedules. No license-tier flips. The route gate uses an existing cap so the route is invokable today on installs that flip the feature flag on.
-
-Renumbered v3.109.2 → v3.109.3 mid-rebase after parallel-agent ship of v3.109.2 (#295 seed-review Excel export) took the v3.109.2 slot.
+No schema changes. No new caps. No cron. No license flips. The builder is still gated behind the `tt_custom_widgets_enabled` feature flag (default off).

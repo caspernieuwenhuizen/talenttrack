@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.109.3
+Stable tag: 3.109.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.109.4 — Custom widget builder Phase 3: TalentTrack → Custom widgets admin page + multi-step builder (#0078 Phase 3) =
+
+Phase 3 of #0078 Custom widget builder. Adds the admin authoring surface on top of v3.109.3's REST CRUD. **(1) `Modules\CustomWidgets\Admin\CustomWidgetsAdminPage`** registered under TalentTrack → Custom widgets via `AdminMenuRegistry` (parent `talenttrack`, group `configuration`, order 35). Two views inside one slug: a **list view** (table of every saved widget for the current club, with edit/archive buttons; archive routes through `admin-post.php?action=tt_custom_widget_archive` with a per-row nonce) and a **builder view** at `?action=new` or `?action=edit&id=N`. **(2) Multi-step builder UX** — server-rendered shell + 470-LOC vanilla JS state machine in `assets/js/custom-widgets-builder.js`. Six steps: Source → Columns → Filters → Format → Preview → Save. Each step renders dynamically from the active source's metadata (columns, filters, aggregations) — picking a different source rewires the column/filter/aggregation inputs without a page reload. **(3) Live preview** — the Preview step calls `saveDraft()` to POST/PUT the in-progress widget through the Phase 2 REST endpoint, then GETs `/custom-widgets/{uuid}/data?limit=20` and renders the rows as a table or a single KPI value. Validation surfaces inline: pick-source / pick-format / pick-columns-for-table / pick-aggregation-for-non-table / pick-name. **(4) `assets/css/custom-widgets-builder.css`** — stepper + radio cards + checkbox grids + filter rows + preview surface; mobile-first per CLAUDE.md §2 (the builder is wp-admin so the floor is desktop, but inputs honour the 16px font-size + 48px touch-target rules). **(5) Configuration tile** — `addBuilderTile()` filters into `tt_config_tile_groups` so admins discover the page from Configuration the same way they reach Branding / Translations / Dashboard layouts. **(6) Cap-gated** on `tt_edit_persona_templates` for Phase 3 (Phase 5 swaps for the dedicated `tt_author_custom_widgets` cap). The builder ships behind the `tt_custom_widgets_enabled` feature flag (default off; beta installs opt in via `wp option update tt_custom_widgets_enabled 1`). 24 new translatable strings. No schema changes; no new caps; no cron; no license flips.
 
 = 3.109.3 — Custom widget builder Phase 2: migration + repository + REST CRUD + service (#0078 Phase 2) =
 
