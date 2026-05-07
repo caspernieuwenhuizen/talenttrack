@@ -1,29 +1,53 @@
-# TalentTrack v3.110.9 — Team Blueprint Phases 3 + 4: discussion thread + mobile drag-drop polish + parent share-link (#0068, closes epic)
+# TalentTrack v3.110.11 — Evaluations module polish: detail page + Open + Delete + average column + rateable-activities + single picker with team filter
 
-Bundled ship of the two remaining phases of #0068 Team Blueprint. **Closes #0068.** Phases 1 + 2 shipped at v3.98.0 + v3.100.0; Phases 3 + 4 ship together. All 10 architectural decisions locked in `specs/0068-feat-team-blueprint-phases-3-4.md`.
+Pilot polish round on the Evaluations module (`?tt_view=evaluations`). Five items shipped:
 
-## Phase 3 — per-blueprint discussion thread
+## What landed
 
-`Threads\Adapters\BlueprintThreadAdapter` is the third registered thread type after `goal` (#0028) and `player` (#0085). Staff-only — read on `tt_view_team_chemistry`, post on `tt_manage_team_chemistry`.
+### Evaluation read-only detail page
 
-`Threads\Subscribers\BlueprintSystemMessageSubscriber` listens to a new `tt_team_blueprint_status_changed` action emitted from `TeamDevelopmentRestController::set_blueprint_status()` and posts an `is_system=1` message on every status transition (draft → shared → locked + reopen).
+`?tt_view=evaluations&id=N` now renders a real detail page. Previously the URL was unhandled and the user landed back on the list — meaning every link from the list went to the player / team / coach detail and there was no way to actually open the evaluation itself.
 
-`FrontendTeamBlueprintsView::renderEditor()` now branches on `?tab=comments`; the Comments tab delegates to `FrontendThreadView::render('blueprint', $id, $user_id)`.
+The new detail view shows:
 
-## Phase 4 — share-link + mobile drag-drop polish
+- Eval header: date, player (linked), team (linked), coach (linked when a `tt_people` row exists). When the evaluation captures a game (`opponent` / `competition` / `game_result` / `home_away` / `minutes_played` set), those fields are rendered alongside.
+- Ratings table grouped by main category, with subcategory ratings indented underneath. Pulls from `EvalRatingsRepository::getForEvaluation()` and uses `EvalCategoriesRepository::displayLabel()` for translated category labels. Subs whose parent main wasn't directly rated render at the top level so nothing gets dropped.
+- Notes section (when `notes` is non-empty), rendered with `white-space: pre-wrap` so multi-line coach notes preserve their formatting.
 
-Migration `0078_team_blueprint_share_token_seed` adds an additive `VARCHAR(32)` column on `tt_team_blueprints`. `ensureShareTokenSeed()` lazily writes the row's own uuid on first share-link build. `rotateShareTokenSeed()` sets a fresh `wp_generate_password(16, false, false)` value; every prior URL fails immediately.
+Wraps in `.tt-record-detail` so the v3.108.3 generic detail-card chrome applies.
 
-`BlueprintShareToken` builds HMAC-SHA256 over `(blueprint_id, uuid, share_token_seed)` keyed on `wp_salt('auth')`. Mirrors `ParentConfirmationController::tokenFor()`.
+### Average column + Open + Delete on the evaluations list
 
-`?tt_view=team-blueprint-share&id=<uuid>&token=<hmac>` is the public read-only render. Switches the `tt_current_club_id` filter to the blueprint's club. Renders status pill + flavour pill + chemistry headline + `PitchSvg` + lineup table. 404 on token-fail.
+The list table gained two columns and an action set:
 
-Editor share buttons gated on `tt_manage_team_chemistry`. Mobile drag-drop fallback via `PointerEvents` — long-press 300ms → pickup → drag preview → drop on slot or roster, with `navigator.vibrate(50)` on pickup + drop.
+- **Average** — correlated subquery `SELECT AVG(r.rating) FROM tt_eval_ratings r WHERE r.evaluation_id = e.id AND r.club_id = e.club_id`. The cell renders the value to one decimal place and links to the eval detail page; this is the operator's primary way to open the evaluation from the list.
+- **Actions** — `Open` button (frontend link to the new detail page) + `Delete` button (uses the v3.108.2 `.tt-record-delete` generic handler with the existing `DELETE /evaluations/{id}` REST endpoint). Cap-gated on `tt_edit_evaluations`. Each row now carries `data-tt-row` so the JS row-fade-out works.
 
-## Translations
+The previous list rendered Player / Team / Coach as `.tt-record-link` links to those entities — kept as-is so coaches can still drill into the related records, but the eval itself now has a clear way in.
 
-11 new NL msgids.
+### Recently-rateable activities now match the operator's mental model
 
-## Notes
+Two bugs in the new-evaluation wizard's activity-picker step (`?tt_view=wizard&slug=new-evaluation`):
 
-No new caps; no cron; no license flips. Renumbered v3.109.8 → v3.110.9 across multiple rebases against parallel ship train v3.110.0-8. **Closes #0068.**
+- **30-day window was too tight.** Pilot cadences (one match every 2-3 weeks) regularly missed the cutoff; the activity they completed last week wouldn't appear because the previous match was 32 days ago and shifted the window. Bumped the default to 90 days, which lines up with a typical season half-block. The class now exports a `DEFAULT_DAYS = 90` constant rather than open-coding the literal in two places.
+- **No `plan_state = 'completed'` filter.** The query only filtered on date and team membership, so scheduled-but-not-played-yet activities also appeared in the picker. Filter added so only completed activities show — matching the operator's expectation that "rateable" means "the activity actually happened." Combined with the `plan_state = 'completed'` auto-transition that fires on attendance save (in `ActivitiesRestController::update_session`), marking an activity as completed via the frontend now correctly surfaces it in the picker.
+
+The empty-state copy and the explanatory paragraph were both rewritten to spell out the rules: "Pick a completed activity from the last 90 days … only appear here once they are marked completed and their type is rateable."
+
+### New-evaluation form: single picker with embedded team filter
+
+The previous form had two stacked dropdowns: a `Team` picker that disabled the `Player` picker until a team was chosen, and the `Player` picker as a separate field below. That was friction for the common case of "I know the player by name, I don't care which team" — the user had to first remember the team in order to search the player.
+
+Replaced with one `PlayerSearchPickerComponent` configured with `show_team_filter=true`. The component renders an `All teams` dropdown above the search input. Selecting a team filters the player list; selecting `All teams` (the default) shows every player in the user's context. The player search remains the primary affordance.
+
+The separate `eval_team_id` form field is gone — the REST controller never read it (the team is always derived from the player record), it existed only to filter the picker, and the embedded team filter on the picker handles that natively. The `tt-eval-team-wrap` data attribute and the JS handler that bridged the team-select onto the picker via `tt-psp:set-team` are also gone — the picker hydrator handles its own team filter.
+
+The "Recording evaluation for *Name*" preset path (added in v3.110.3 for the player-profile CTA) keeps working — when `?player_id=N` is in the URL, the form renders the headline and a single hidden `player_id` input instead of the picker.
+
+## Affected files
+
+- `src/Shared/Frontend/FrontendEvaluationsView.php` — `?id=N` handling + `renderDetail()` + Open/Delete/Average columns
+- `src/Shared/Frontend/CoachForms.php` — single-picker form layout, drops `eval_team_id` + cross-filter JS
+- `src/Modules/Wizards/Evaluation/ActivityPickerStep.php` — 90-day default + `plan_state = 'completed'` filter + clearer empty-state copy
+- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version + ship metadata
+- `languages/talenttrack-nl_NL.po` — 3 new msgids (Average / Open / Actions column headers; eval-detail headings reuse existing strings)
