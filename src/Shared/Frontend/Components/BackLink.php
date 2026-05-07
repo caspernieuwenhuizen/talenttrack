@@ -117,20 +117,32 @@ final class BackLink {
     }
 
     /**
-     * If the URL's nested `tt_back` chain exceeds $max_depth levels,
-     * drop the deepest entry. Walks the chain by recursive parse_str on
-     * the inner `tt_back` value.
+     * Cap the URL's nested `tt_back` chain to $max_hops total levels
+     * (counting $url itself as 1). When deeper, drop the innermost
+     * `tt_back` entries until the chain fits.
      */
-    private static function truncateChain( string $url, int $max_depth ): string {
-        if ( $max_depth <= 0 ) return self::stripBack( $url );
-        $parsed = wp_parse_url( $url );
-        if ( ! is_array( $parsed ) || empty( $parsed['query'] ) ) return $url;
-        parse_str( (string) $parsed['query'], $params );
-        if ( empty( $params[ self::PARAM ] ) ) return $url;
-        $inner = (string) $params[ self::PARAM ];
-        $truncated_inner = self::truncateChain( $inner, $max_depth - 1 );
+    private static function truncateChain( string $url, int $max_hops ): string {
+        if ( $max_hops <= 0 ) return self::stripBack( $url );
+        $inner = self::extractInner( $url );
+        if ( $inner === '' ) return $url;
+        if ( $max_hops === 1 ) {
+            // Room for only one hop ($url itself); drop its tt_back.
+            return self::stripBack( $url );
+        }
+        $truncated_inner = self::truncateChain( $inner, $max_hops - 1 );
         if ( $truncated_inner === $inner ) return $url;
         return add_query_arg( self::PARAM, urlencode( $truncated_inner ), $url );
+    }
+
+    /**
+     * Pull the inner `tt_back` value from $url's query string. Returns
+     * empty string when no `tt_back` is present.
+     */
+    private static function extractInner( string $url ): string {
+        $parsed = wp_parse_url( $url );
+        if ( ! is_array( $parsed ) || empty( $parsed['query'] ) ) return '';
+        parse_str( (string) $parsed['query'], $params );
+        return isset( $params[ self::PARAM ] ) ? (string) $params[ self::PARAM ] : '';
     }
 
     /**
