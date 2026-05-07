@@ -13846,6 +13846,7 @@ msgstr "Gedetailleerde %s"
 msgid "Export CSV"
 msgstr "CSV exporteren"
 
+<<<<<<< HEAD
 # v3.109.4 — #0078 Phase 3 custom widgets builder UI
 
 msgid "Custom widgets"
@@ -13960,6 +13961,9 @@ msgid "How custom widgets work"
 msgstr "Hoe aangepaste widgets werken"
 
 # v3.109.5 — #0086 Workstream B Child 2: session management UI
+=======
+# v3.109.4 — #0086 Workstream B Child 2: session management UI
+>>>>>>> 822776b (feat(v3.109.4): bump version slot — v3.109.3 taken by #0078 Phase 2)
 
 msgid "My sessions"
 msgstr "Mijn sessies"
@@ -14012,7 +14016,11 @@ msgstr "Kon de in te trekken sessie niet identificeren. Probeer opnieuw."
 msgid "That is your current session — use the browser sign-out, or use \"Revoke all other sessions\" first."
 msgstr "Dat is je huidige sessie — gebruik uitloggen in de browser, of gebruik eerst \"Alle andere sessies intrekken\"."
 
+<<<<<<< HEAD
 # v3.109.5 — #0086 Workstream B Child 3: login-fail tracking + Failed-logins tab
+=======
+# v3.109.4 — #0086 Workstream B Child 3: login-fail tracking + Failed-logins tab
+>>>>>>> 822776b (feat(v3.109.4): bump version slot — v3.109.3 taken by #0078 Phase 2)
 
 msgid "All entries"
 msgstr "Alle items"
