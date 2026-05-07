@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.108.4
+Stable tag: 3.108.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.108.5 — Pilot-batch follow-up IV: KPI strip + new team-roster widget + upgrade-to-Pro CTA + scout/widget UX (#0089 K1-K5 + A4 + A7) =
+
+Closes the rest of `ideas/0089` aside from the bug investigations (F2/F4/F6) which still need pilot-side reproduction.
+
+**(1) K1 — HoD KPI strip stops showing "—".** Five of six HoD KPIs were broken: `EvaluationsThisMonth` had no `club_id` filter; `OpenTrialCases` queried the wrong table (`tt_trials` instead of `tt_trial_cases`) and missed `club_id`; `AttendancePctRolling` missed `club_id`; `ActivePlayersTotal` counted archived players; `PdpVerdictsPending` and `GoalCompletionPct` were hardcoded `unavailable()` stubs. All six fixed: real `club_id` scoping, real status / archived filtering, and proper compute() implementations for the two stubs (PdpVerdictsPending counts open files without a signed-off verdict; GoalCompletionPct = `completed / total` per-club percentage). **(2) K2 — KPI cards general.** Same root: the cards delegate to the same `KpiDataSourceRegistry::get()->compute()` flow, so the K1 fixes propagate to every card that references the six KPIs. **(3) K3 — UpcomingActivitiesSource defensive.** Added `s.archived_at IS NULL` to the query so old archived activities never sneak into the upcoming-table window. **(4) K4 — Scout `scout_report` widget**. Already supported via `ActionCardWidget` with `data_source='scout_report'`; the user's complaint that "it doesn't do anything" is because they were adding the widget directly by id instead of via the action card. Documented the right wiring in the new widget's docblock; full standalone scout-report widget deferred to a follow-up. **(5) K5 — Assigned-players grid empty-state copy.** Was "Ask your Head of Development to share players with you" with no instruction. Now: "Ask your Head of Development to open Reports → Scout access and assign you to specific players." Two-paragraph copy makes the discovery path explicit. **(6) A4 — `team_roster_table` widget (NEW).** Per-team player table for the HoD dashboard, configured via `team_id=N,days=30` slot config string. Columns: First name / Last name / Status (LookupPill) / PDP status (signed_off / in_progress / —) / Avg attendance % over the window. Distinct from `team_overview_grid` (#0073 multi-team grid). Registered in `CoreWidgets::register()`. **(7) A7 — Upgrade-to-Pro CTA on the Account page**. Standard-tier installs now see a yellow upgrade card listing Pro-tier features (trial cases, scout access, team chemistry, radar charts, partial restore, scheduled reports) with a clear "Upgrade to Pro" button pointing at Freemius checkout (or back to Account when Freemius isn't yet wired). 8 new translatable strings (Team roster widget labels + 1 NL doc-related msgid). Bug investigations (F2 my-evaluations scores not displaying, F4 goal save error, F6 double-activity verification) still need pilot-side reproduction; logged as the remaining open items in `ideas/0089`.
 
 = 3.108.4 — Pilot-batch follow-up III: PDP wizard player-context + eval subcategories rendering (#0089 F7 + A3) =
 

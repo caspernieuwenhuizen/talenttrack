@@ -19,10 +19,14 @@ class EvaluationsThisMonth extends AbstractKpiDataSource {
             return KpiValue::unavailable();
         }
         $first = gmdate( 'Y-m-01 00:00:00' );
+        // v3.108.5 — added `club_id` filter. Without it the count
+        // aggregated across every tenant on the install (returning
+        // either 0 on a fresh pilot, or a misleading global total in
+        // a multi-tenant test). Sparkline gets the same scope.
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} WHERE created_at >= %s",
-            $first
+            "SELECT COUNT(*) FROM {$table} WHERE club_id = %d AND created_at >= %s",
+            $club_id, $first
         ) );
 
         // Sparkline: 4 trailing weekly buckets so the strip + cards
@@ -33,8 +37,8 @@ class EvaluationsThisMonth extends AbstractKpiDataSource {
             $end   = gmdate( 'Y-m-d 00:00:00', strtotime( '-' . ( $w * 7 ) . ' days' ) );
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
             $sparkline[] = (float) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table} WHERE created_at >= %s AND created_at < %s",
-                $start, $end
+                "SELECT COUNT(*) FROM {$table} WHERE club_id = %d AND created_at >= %s AND created_at < %s",
+                $club_id, $start, $end
             ) );
         }
         $trend = $this->trendFromSparkline( $sparkline );

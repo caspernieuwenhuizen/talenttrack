@@ -25,6 +25,7 @@ use TT\Modules\PersonaDashboard\Widgets\RateCardHeroWidget;
 use TT\Modules\PersonaDashboard\Widgets\SystemHealthStripWidget;
 use TT\Modules\PersonaDashboard\Widgets\TaskListPanelWidget;
 use TT\Modules\PersonaDashboard\Widgets\TeamOverviewGridWidget;
+use TT\Modules\PersonaDashboard\Widgets\TeamRosterTableWidget;
 use TT\Modules\PersonaDashboard\Widgets\TodayUpNextHeroWidget;
 
 /**
@@ -49,6 +50,11 @@ final class CoreWidgets {
         WidgetRegistry::register( new SystemHealthStripWidget() );
         WidgetRegistry::register( new AssignedPlayersGridWidget() );
         WidgetRegistry::register( new TeamOverviewGridWidget() );
+        // #0089 A4 — per-team player roster table (First / Last /
+        // Status / PDP / Avg attendance). Distinct from the multi-
+        // team `team_overview_grid` shipped in #0073; the operator
+        // picks a `team_id` in the slot's data_source string.
+        WidgetRegistry::register( new TeamRosterTableWidget() );
 
         // #0081 child 3 — onboarding-pipeline visualisation. Reads
         // existing workflow-task + trial-case data; no new tables.

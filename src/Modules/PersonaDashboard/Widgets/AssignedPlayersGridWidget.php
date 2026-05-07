@@ -41,8 +41,15 @@ class AssignedPlayersGridWidget extends AbstractWidget {
         $ids = self::assignedIds( $ctx->user_id );
         $body = '';
         if ( empty( $ids ) ) {
+            // v3.108.5 — clearer empty-state copy. The previous "Ask
+            // your Head of Development to share players with you" left
+            // the user with no idea HOW the HoD does that. The HoD
+            // surface lives at `?tt_view=scout-access` (frontend) or
+            // wp-admin → Reports → Scout access. The admin path is
+            // gated on `tt_generate_scout_report`.
             $body = '<div class="tt-pd-assigned-empty">'
-                . esc_html__( 'You have no assigned players yet. Ask your Head of Development to share players with you.', 'talenttrack' )
+                . '<p>' . esc_html__( 'You have no assigned players yet.', 'talenttrack' ) . '</p>'
+                . '<p>' . esc_html__( 'Ask your Head of Development to open Reports → Scout access and assign you to specific players. You\'ll see them here once they do.', 'talenttrack' ) . '</p>'
                 . '</div>';
         } else {
             $cards = '';

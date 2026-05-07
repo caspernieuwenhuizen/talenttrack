@@ -33,14 +33,19 @@ class AttendancePctRolling extends AbstractKpiDataSource {
         ) );
         if ( ! $has_activity_col ) return KpiValue::unavailable();
 
-        $current_pct = self::pctInRange( $att_table, $act_table, '-28 days', 'today' );
+        // v3.108.5 — `club_id` threaded through so the rolling
+        // percentage is tenant-scoped. Without it the KPI averaged
+        // across every install on a multi-tenant deployment, and on a
+        // single-tenant pilot it was a no-op but inconsistent with the
+        // rest of the registry.
+        $current_pct = self::pctInRange( $att_table, $act_table, '-28 days', 'today', $club_id );
 
         // Sparkline: 4 weekly buckets — each week's present% over its activities.
         $sparkline = [];
         for ( $w = 3; $w >= 0; $w-- ) {
             $from = '-' . ( ( $w + 1 ) * 7 ) . ' days';
             $to   = '-' . ( $w * 7 ) . ' days';
-            $sparkline[] = self::pctInRange( $att_table, $act_table, $from, $to );
+            $sparkline[] = self::pctInRange( $att_table, $act_table, $from, $to, $club_id );
         }
 
         if ( $current_pct === null ) return KpiValue::unavailable();
@@ -57,7 +62,7 @@ class AttendancePctRolling extends AbstractKpiDataSource {
         return KpiValue::of( number_format_i18n( $current_pct, 0 ) . '%', $trend, null, $sparkline );
     }
 
-    private static function pctInRange( string $att_table, string $act_table, string $from, string $to ): ?float {
+    private static function pctInRange( string $att_table, string $act_table, string $from, string $to, int $club_id ): ?float {
         global $wpdb;
         $start = gmdate( 'Y-m-d 00:00:00', strtotime( $from ) );
         $end   = $to === 'today' ? gmdate( 'Y-m-d 23:59:59' ) : gmdate( 'Y-m-d 00:00:00', strtotime( $to ) );
@@ -68,8 +73,8 @@ class AttendancePctRolling extends AbstractKpiDataSource {
                 SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) AS present
               FROM {$att_table} a
               JOIN {$act_table} act ON act.id = a.activity_id
-             WHERE act.session_date >= %s AND act.session_date < %s",
-            $start, $end
+             WHERE act.club_id = %d AND act.session_date >= %s AND act.session_date < %s",
+            $club_id, $start, $end
         ) );
         if ( ! $row || (int) $row->total === 0 ) return null;
         return round( ( (int) $row->present / (int) $row->total ) * 100, 1 );
