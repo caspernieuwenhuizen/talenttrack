@@ -1,77 +1,73 @@
-# TalentTrack v3.108.5 — Pilot-batch follow-up IV: KPI strip + new team-roster widget + upgrade-to-Pro CTA + scout/widget UX (#0089 K1-K5 + A4 + A7)
+# TalentTrack v3.109.0 — Deferred-cleanup: 3 #0063 CSV exporters + #0066 WhatsApp adapter + retention cron
 
-Closes most of the remaining `ideas/0089` items in one ship. Bug investigations (F2, F4, F6) still need pilot-side reproduction; logged as the open backlog in the tracker.
+Picks up items left behind by the v3.105.0 (#0063 Export module foundation) and v3.106.0 (#0066 Communication module foundation) ships now that both have been live in `main` through the v3.106.x / v3.107.x / v3.108.x cycle. Five small additions, two module-wiring touches, no migrations.
 
 ## What landed
 
-### (1) K1 — HoD KPI strip stops showing "—"
+### #0063 Export — three CSV use cases (3, 5, 7)
 
-Five of the six HoD KPIs were broken in different ways. All six now compute real, tenant-scoped numbers.
+The v3.105.0 foundation shipped with one use case (Team iCal feed, use case 12) to prove the registry + service + REST controller end-to-end. v3.109.0 adds three pure-SQL CSV exporters that exercise the existing `CsvRenderer` against real production data shapes. They live in the Export module rather than each owning module because the readers are deliberately small and the registration line is cheaper than a six-line shell-module update each. Future use cases that need owning-module state (e.g. cycle-aware PDP exports) will register from their owning module.
 
-- **`EvaluationsThisMonth`** — added `club_id` to the count query and the 4-bucket sparkline.
-- **`OpenTrialCases`** — was querying `tt_trials` (table doesn't exist; the actual table is `tt_trial_cases` per migration 0036). The SHOW TABLES check always failed → `KpiValue::unavailable()` → "—" in the strip. Fixed table name + added `club_id` and `archived_at IS NULL`.
-- **`AttendancePctRolling`** — threaded `club_id` through `pctInRange()` so the rolling 28-day percentage is club-scoped.
-- **`ActivePlayersTotal`** — was counting every row including archived / released / inactive players. Now applies `archived_at IS NULL` + `status = 'active'` (where the columns exist).
-- **`PdpVerdictsPending`** — was a hardcoded `unavailable()` stub. Now counts open PDP files (`tt_pdp_files`) whose verdict row (`tt_pdp_verdicts`) is missing or not yet `signed_off_at`.
-- **`GoalCompletionPct`** — was a hardcoded `unavailable()` stub. Now `completed / total` percentage across the club's goals; falls back to "—" on zero goals.
+**`PlayersListCsvExporter`** (`exporter_key = players_list_csv`, use case 3). Squad list CSV. Joins `tt_players` × `tt_teams`. Filters: `team_id` (optional, restricts to one team), `status` (`active` / `archived` / `trial` / `all`, default `active`). 13 column headers including player_id / first_name / last_name / dob / jersey_number / preferred_foot / preferred_positions / team_name / guardian_name / guardian_email / guardian_phone / status / date_joined. Cap-gated on `tt_view_players`.
 
-### (2) K2 — KPI cards general
+**`AttendanceRegisterCsvExporter`** (`exporter_key = attendance_register_csv`, use case 5). Per-team attendance register over a date range. Joins `tt_attendance` × `tt_activities` × `tt_players` × `tt_teams`. Filters: `team_id` (optional), `date_from` (default −90 days), `date_to` (default today); the validator auto-swaps a reversed range so a defensive UI can pass them either direction. References `att.activity_id` per the migration 0027 rename. Cap-gated on `tt_view_activities`.
 
-The standalone `KpiCardWidget` delegates to the same `KpiDataSourceRegistry::get()->compute()` flow, so every card that references the six HoD KPIs picks up the K1 fixes automatically. No code change in the card widget itself.
+**`GoalsCsvExporter`** (`exporter_key = goals_csv`, use case 7). Goals CSV. Joins `tt_goals` × `tt_players` × `tt_teams` × `wp_users` (resolves `created_by` → owner's `display_name`). Filters: `team_id` (optional), `status` (`pending` / `in_progress` / `completed` / `archived` / `all`, default `all`). Cap-gated on `tt_view_goals`.
 
-### (3) K3 — `UpcomingActivitiesSource` defensive `archived_at` filter
+`ExportModule::boot()` registers all three with a comment explaining the in-module placement choice (small readers, cheap registration line; owning-module placement reserved for state-coupled cases).
 
-Added `s.archived_at IS NULL` so archived activities can't sneak into the HoD upcoming-table window.
+### #0066 Communication — WhatsApp deep-link channel + retention cron
 
-### (4) K4 — Scout `scout_report` widget
+**`WhatsappLinkChannelAdapter`** (channel key `whatsapp_link`) per the spec Q3 lean — "deep-link only in v1" — locked at v3.106.0. No WhatsApp Business API onboarding, no Meta verification, no per-message cost. The adapter renders a `https://wa.me/{e164}?text={url-encoded body}` URL that opens the recipient's WhatsApp client with a pre-filled message ready to send. It does not actually deliver — it builds the link and emits a `tt_comms_whatsapp_link_built` action carrying `[ uuid, url, recipient, request ]` so callers can route the URL to the operator's interface (e.g. an "Open WhatsApp" button after a coach clicks "Notify on WhatsApp" in the cancellation flow). The actual delivery is the operator clicking the link in their interface.
 
-Already supported via `ActionCardWidget` with `data_source='scout_report'`. The user's complaint ("it doesn't do anything when assigned") is because they were adding the widget by id directly — there is no standalone widget. The right path is `widget=action_card, data_source=scout_report`. Documented in the new widget's docblock; full standalone scout-report widget deferred to a follow-up.
+`canReach()` does a digits-only normalisation (strips spaces / dashes / parentheses / leading `+`) and requires at least 6 digits — international and national both work. Returns `STATUS_SENT` with the built URL in the `CommsResult` `note` (not in the audit row's `address_blob`, since URLs encode message content and GDPR retention should not preserve them verbatim — the audit row keeps the recipient's existing `phoneE164` as fallback `address_blob` per `CommsAuditLogger`).
 
-### (5) K5 — `AssignedPlayersGridWidget` empty-state copy
+**`CommsRetentionCron`** per the spec Q6 lean — 18-month default audit retention. Daily wp-cron `tt_comms_retention_cron` (scheduled at boot if not already scheduled). Tombstones `tt_comms_log` rows older than the per-club `comms_audit_retention_months` setting (read via `QueryHelpers::get_config()`; default 18; explicit `0` disables for clubs with regulatory-hold orders during ongoing safeguarding investigations) by:
 
-Was: "Ask your Head of Development to share players with you." — left the user with no idea HOW.
-
-Now (two paragraphs):
-
-> You have no assigned players yet.
->
-> Ask your Head of Development to open Reports → Scout access and assign you to specific players. You'll see them here once they do.
-
-### (6) A4 — `team_roster_table` widget (NEW)
-
-Per-team player roster table for the HoD dashboard. Configured via the slot's `data_source`:
-
-```
-team_id=42,days=30
+```sql
+UPDATE {prefix}tt_comms_log
+   SET address_blob = '',
+       subject = NULL,
+       subject_erased_at = UTC_TIMESTAMP()
+ WHERE created_at < <cutoff>
+   AND subject_erased_at IS NULL
+ LIMIT 500
 ```
 
-Columns: First name · Last name · Status (LookupPill) · PDP status (signed_off / in_progress / —) · Average attendance % over the window.
+Operators retain the audit fact ("did the parents get the cancellation message?") without preserving the PII (recipient address + subject line) past the retention window. The 500-row LIMIT keeps the per-run footprint small for shared hosting; the daily cadence absorbs the long tail naturally and avoids a multi-thousand-row UPDATE. Defensive short-circuit when the `tt_comms_log` table doesn't exist (migration 0075 hasn't run yet).
 
-Distinct from the multi-team `team_overview_grid` shipped in #0073. Registered in `CoreWidgets::register()` alongside the existing widgets.
+`CommsModule::boot()` registers `WhatsappLinkChannelAdapter` alongside `EmailChannelAdapter` and calls `CommsRetentionCron::init()`.
 
-### (7) A7 — Upgrade-to-Pro CTA on the Account page
+## What's NOT in this PR
 
-Standard-tier installs now see a yellow upgrade card listing Pro-tier features (trial cases, scout access, team chemistry, radar charts, partial restore, scheduled reports) with a clear "Upgrade to Pro" button pointing at Freemius checkout (`?page=tt-account-pricing`) when configured, or back to the Account tab when Freemius isn't yet wired.
+**Export — still deferred**:
 
-## Out of scope (still tracked in `ideas/0089`)
+- PDF renderer (DomPDF) — lands with the player evaluation PDF use case.
+- XLSX renderer (PhpSpreadsheet) — lands with the evaluations Excel use case.
+- ZIP renderer (ZipArchive) — lands with the GDPR subject-access ZIP use case.
+- 11 remaining use cases: 1, 2, 4, 6, 8, 9, 10, 11, 13, 14, 15.
+- Async pipeline + Action Scheduler — lands when a big-export use case needs it.
+- Brand-kit template inheritance — lands when the PDF renderer ships, since brand kit only manifests visually.
+- Per-coach signed-token iCal subscription URLs — lands with the subscribe-to-this-calendar UI.
 
-- F2 my-evaluations scores not displaying after wizard submit — needs pilot reproduction
-- F4 goal save error "goal does no longer exist" — needs pilot reproduction
-- F6 double-activity row verification — likely already fixed in v3.92.7
+**Comms — still deferred**:
 
-## Affected files
+- `PushChannelAdapter` — lands when the first push use case ships (needs the Push module spike from spec Q4).
+- `SmsChannelAdapter` — lands with the first SMS use case + the provider abstraction from spec Q2.
+- `InappChannelAdapter` — lands with the persona-dashboard inbox surface (no inbox model today).
+- `RecipientResolver` enforcing the #0042 youth-contact rules — callers currently build the `Recipient` array directly. The resolver lands with the first use case that needs it.
+- The 15 use-case templates themselves (training cancelled, selection letter, PDP ready, etc.) — each registers a `TemplateInterface` from its owning module on first send.
+- Operator-facing opt-out preferences UI on the Account page.
+- Two-way inbound + auto-reply (spec Q8 lean) — separate epic; Comms is one-way in v1.
 
-- `src/Modules/PersonaDashboard/Kpis/EvaluationsThisMonth.php` — K1 club_id filter
-- `src/Modules/PersonaDashboard/Kpis/OpenTrialCases.php` — K1 wrong-table fix + club_id + archived_at
-- `src/Modules/PersonaDashboard/Kpis/AttendancePctRolling.php` — K1 club_id threaded through
-- `src/Modules/PersonaDashboard/Kpis/ActivePlayersTotal.php` — K1 archived_at + status filter
-- `src/Modules/PersonaDashboard/Kpis/PdpVerdictsPending.php` — K1 stub → real implementation
-- `src/Modules/PersonaDashboard/Kpis/GoalCompletionPct.php` — K1 stub → real implementation
-- `src/Modules/PersonaDashboard/TableSources/UpcomingActivitiesSource.php` — K3 archived_at filter
-- `src/Modules/PersonaDashboard/Widgets/AssignedPlayersGridWidget.php` — K5 empty-state copy
-- `src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php` — A4 new widget
-- `src/Modules/PersonaDashboard/Defaults/CoreWidgets.php` — A4 registration
-- `src/Modules/License/Admin/AccountPage.php` — A7 upgrade card
-- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version + ship metadata
+**Playwright — still deferred (six specs)**:
 
-8 new translatable strings (team roster column labels + PDP status enum + assigned-players empty copy + upgrade-card body); NL translations land via the next i18n auto-commit.
+- `players-crud.spec.js`, `goal.spec.js`, `activity.spec.js`, `evaluation.spec.js`, `persona-dashboard-editor.spec.js`, `pdp-capture.spec.js` — each lands as its own follow-up PR per the spec's "monitor 3+ CI runs for flakes before moving on" cadence; selectors need iterative tuning against real CI.
+
+## Notes
+
+- Mid-build catch: the WhatsApp adapter initially mutated `$recipient->emailAddress` to smuggle the URL into `address_blob`. That's a side-effect that could leak into later recipients in the same `CommsRequest`. Fixed by removing the mutation and putting the URL in `CommsResult` `note` instead, with a comment recording the GDPR rationale (URLs encode message content; retention should not preserve them verbatim).
+- Renumbered v3.108.1 → v3.109.0 (rebase against parallel pilot-feedback hotfix train v3.108.1 / v3.108.2 / v3.108.3 / v3.108.4 / v3.108.5 that took the v3.108.x slots mid-CI).
+- Zero new NL msgids — exporter labels and adapter copy reuse existing `__()` strings; the cron is operator-internal.
+- No new migrations.
+- No new translatable strings to add to `nl_NL.po`.
