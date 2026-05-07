@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.5
+Stable tag: 3.110.6
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.6 — Third binary export use case: scouting report PDF (#0063 use case 14) =
+
+Third PDF use case in the family started by v3.110.4 (player evaluation) and v3.110.5 (PDP). All three reuse `Modules\Reports\PlayerReportRenderer` + the standard PDF wrap pipeline; this one builds a SCOUT-audience `ReportConfig` so the rendered output enforces the scout privacy floor, the `formal` tone, and the spec's `[ profile, ratings ]`-only section list. **`ScoutingReportPdfExporter`** (`exporter_key = scouting_report_pdf`). URL: `GET /wp-json/talenttrack/v1/exports/scouting_report_pdf?format=pdf&player_id=42`. **Filters**: `player_id` (required, tenant-scoped); `date_from` / `date_to` / `eval_type_id` (optional). **Cap**: `tt_generate_scout_report` (same gate as the existing `?tt_view=scout-access` view that drives the email-the-link flow). **Audience config**: builds a `ReportConfig` with `audience = SCOUT`, `tone_variant = formal`, sections `[ profile, ratings ]`, scout privacy floor (no contact details, no full DOB, no coach notes). Same `AudienceDefaults::defaultsFor( SCOUT )` the existing `ScoutDelivery::emailLink()` uses, so the exporter PDF and the emailed-link artifact stay in lockstep. **Brand-kit letterhead deferred**: spec calls for "on club letterhead" but brand-kit template inheritance is the deferred-from-v3.110.0 follow-up; consumers that need letterhead today can hook `tt_pdf_render_html`. **Chart-script strip**: same pattern as v3.110.4 — DomPDF doesn't execute JS, exporter regex-strips Chart.js boot block. **What's NOT in this PR**: existing email-link flow stays in place (additive); brand-kit letterhead; per-club layout variants; async dispatch; the 7 remaining deferred use cases (4, 6, 8, 9, 10, 13, 15). Foundation now at 8 of 15 use cases live. Zero new NL msgids; no migrations; no composer changes.
 
 = 3.110.5 — Second binary export use case: PDP / development plan PDF (#0063 use case 2) =
 

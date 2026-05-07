@@ -17,6 +17,7 @@ use TT\Modules\Export\Exporters\FederationJsonExporter;
 use TT\Modules\Export\Exporters\GoalsCsvExporter;
 use TT\Modules\Export\Exporters\PdpPdfExporter;
 use TT\Modules\Export\Exporters\PlayerEvaluationPdfExporter;
+use TT\Modules\Export\Exporters\ScoutingReportPdfExporter;
 use TT\Modules\Export\Exporters\PlayersListCsvExporter;
 use TT\Modules\Export\Exporters\TeamIcalExporter;
 use TT\Modules\Export\Rest\ExportRestController;
@@ -79,6 +80,7 @@ class ExportModule implements ModuleInterface {
         ExporterRegistry::register( new FederationJsonExporter() );     // use case 11 (v3.110.0)
         ExporterRegistry::register( new PlayerEvaluationPdfExporter() ); // use case 1  (v3.110.4)
         ExporterRegistry::register( new PdpPdfExporter() );             // use case 2  (v3.110.5)
+        ExporterRegistry::register( new ScoutingReportPdfExporter() );  // use case 14 (v3.110.6)
 
         ExportRestController::init();
     }
