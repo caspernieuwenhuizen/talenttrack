@@ -4,6 +4,7 @@ playwright-report/
 test-results/
 .playwright/
 tests/e2e/uploads/
+tests/e2e/.auth/
 
 # wp-env
 .wp-env.override.json

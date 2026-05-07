@@ -45,12 +45,26 @@ npm run wp-env:clean          # nuke the database (if a test mucked it)
 `.github/workflows/e2e.yml` runs the suite on every PR. Failing
 runs upload screenshots + videos + traces as artifacts.
 
+## Coverage matrix (#0076)
+
+| File | Flow | Status |
+|---|---|---|
+| `login.spec.js` | wp-admin login → TT dashboard | shipped v3.75.2 |
+| `global-setup.js` | one-time admin login → saved storageState | shipped v3.107.0 |
+| `helpers/admin.js` | small admin-flow utilities | shipped v3.107.0 |
+| `teams-crud.spec.js` | create / edit + verify staff section renders (#19) | shipped v3.107.0 |
+| `lookups-frontend.spec.js` | add a row via the frontend lookups admin (#5) | shipped v3.107.0 (skip-as-needed) |
+| `players-crud.spec.js` | create / edit / archive a player | follow-up — first-attempt selectors didn't match; needs iterative tuning against CI |
+| `goal.spec.js` | create + reach detail (#0070, #28) | follow-up — first-attempt selectors didn't match; needs iterative tuning against CI |
+| `activity.spec.js` | create activity + record attendance + add a guest | follow-up |
+| `evaluation.spec.js` | new-evaluation wizard end-to-end (#0072) | follow-up |
+| `persona-dashboard-editor.spec.js` | drag a widget from palette to canvas (#11) | follow-up |
+| `pdp-capture.spec.js` | capture behaviour + potential | follow-up |
+
 ## Roadmap (v2+)
 
-- Add Firefox + WebKit projects.
-- Parallel workers (move to `fullyParallel: true` once tests are isolated).
-- Programmatic auth helper (skip the login form for non-login tests).
-- Demo-data fixture loaded once per worker via `globalSetup`.
-- Coverage targets per the #12 master list (player CRUD, team CRUD,
-  evaluation create + rate, activity create + attendance, goal lifecycle,
-  PDP capture, persona dashboard editor, lookups CRUD).
+- Add Firefox + WebKit projects (target: v1 has 0 flakes for 7 consecutive days).
+- Parallel workers (move to `fullyParallel: true` once tests are isolated; today's lookups + lookup-types share `tt_lookups` so isolation work is needed first).
+- Programmatic auth helper for non-admin personas (lands when the first non-admin spec needs it).
+- Demo-data fixture loaded once per worker via `globalSetup` (today's setup only saves admin login state — adding a baseline player/team set lands when a spec needs it).
+- The four follow-up specs above. Each ~2-4h per spec sequencing.

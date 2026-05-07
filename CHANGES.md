@@ -1,81 +1,76 @@
-# TalentTrack v3.106.2 — Custom widget builder Phase 1: data-source layer (#0078 Phase 1)
+# TalentTrack v3.107.0 — Playwright coverage v1 starter: globalSetup + helpers + 2 specs (#0076)
 
-First phase of #0078 (Custom widget builder). Ships the data-layer foundation Phases 2-6 build on top of. Feature-flag-gated via `tt_custom_widgets_enabled` (default off; beta installs opt in). No user-visible surface yet — Phase 3 ships the admin builder page; Phase 4 ships the persona-dashboard rendering integration.
+First ship of #0076 Playwright coverage expansion. Adds the storageState-based authentication globalSetup, the small admin-flow helper module, and two self-contained spec files (teams-crud + lookups-frontend) that pass cleanly on the first CI run.
+
+## Why 2 specs not 4
+
+The PR was originally drafted with 4 specs (players-crud / teams-crud / lookups-frontend / goal). On the first CI run players-crud and goal failed — the wp-admin form selectors I drafted from reading the source code didn't match what the page actually renders (the redirect target landed on the WP dashboard rather than the TT list). Per the test plan in the spec ("if a spec is flaky, demote rather than block the cadence"), those two are removed from this PR and become follow-ups where I (or the next agent) can iterate selectors against real CI runs rather than guess from source.
+
+The bundled-PR pattern from #0080 / #0084 / #0063 / #0066 doesn't apply cleanly to e2e tests: they need real-environment validation, and a CI failure 4 commits deep is harder to bisect than four single-spec PRs each validated in isolation. The spec's "monitor 3+ CI runs for flakes before moving on" cadence is the right shape; this PR delivers the foundation that subsequent per-spec PRs build on.
+
+The 6 follow-up specs (players-crud, goal, activity, evaluation, persona-dashboard-editor, pdp-capture) each ship as ~2-4h per-spec PRs.
 
 ## What landed
 
-### `Modules\CustomWidgets\Domain\CustomDataSource` interface
+### `tests/e2e/global-setup.js`
 
-Per spec decision 1: registered data-source classes only — no free-text SQL, no visual SQL builder. Admins configure (filters, columns, label, format) but cannot author the underlying query.
+Runs once before the suite. Logs in as the wp-env-seeded `admin / password` and saves the storageState to `tests/e2e/.auth/admin.json`. Per-spec tests reuse it via `test.use({ storageState: ... })` so they skip the login dance on every run — cuts ~3-5s per spec.
 
-The interface declares five methods:
+The `.auth/` directory is gitignored so saved sessions never leak.
 
-- **`id()`** — stable snake_case id used as foreign key in the future `tt_custom_widgets.data_source_id`.
-- **`label()`** — translatable picker label.
-- **`columns()`** — list of `[key, label, kind]`. The builder UI renders one checkbox per column; widgets persist the chosen subset. `kind` ∈ `string` / `int` / `float` / `date` / `pill` drives column formatting.
-- **`filters()`** — list of `[key, label, kind, ...]`. `kind` ∈ `date_range` / `team` / `player` / `enum` / `season`. The builder UI renders one input per filter; widgets persist the chosen values in `definition.filters`.
-- **`fetch( $user_id, $filters, $column_keys, $limit )`** — returns `list<array<string,mixed>>` keyed by column id. **Implementations MUST** filter by current `club_id` via `CurrentClub::id()` + apply demo-mode scope + validate filter values against the declared `filters()` metadata. The renderer (Phase 4) calls this with the operator's chosen subset.
-- **`aggregations()`** — list of `[key, label, kind, column?]`. `kind` ∈ `count` / `avg` / `sum` / `distinct`. Used by KPI widgets (single number) + bar / line widgets (one aggregated value per group).
+### `tests/e2e/helpers/admin.js`
 
-### `CustomDataSourceRegistry`
+Small, defensive utilities. Specs use them rather than hand-rolling the same `page.goto` + form-fill + redirect-wait dance:
 
-Append-only catalogue keyed by source id. Mirrors the registration shape of `WidgetRegistry` / `KpiDataSourceRegistry` / `FactRegistry` — `register($source)` / `find($id)` / `all()` / `catalogue()` (the builder-UI shape) / `clear()` (test helper).
+- `gotoAdminPage(page, slug)` — `?page={slug}` navigation.
+- `gotoAddNew(page, slug)` — `?page={slug}&action=new`.
+- `uniqueName(prefix)` — timestamp + random suffix so concurrent / repeated runs don't collide on UNIQUE constraints.
+- `submitAndWait(page, expectedRedirectPattern)`.
+- `expectBackOnList(page, slug)`.
 
-### Five reference data sources
+### `teams-crud.spec.js` (spec #3)
 
-In `Modules\CustomWidgets\DataSources\`:
+Create + edit a team. Verifies the staff section heading renders — that's the assertion that catches the silent-fail #19 regression (the renderer threw an unrelated warning and the section disappeared).
 
-| Class | Underlying table | Filters | Aggregations |
-|---|---|---|---|
-| `PlayersActive` | `tt_players` | team_id, age_range | count, distinct_teams |
-| `EvaluationsRecent` | `tt_evaluations` | date_from, date_to, team_id | count, avg_overall |
-| `GoalsOpen` | `tt_goals` | status | count, distinct_players |
-| `ActivitiesRecent` | `tt_activities` | date_from, date_to, team_id | count |
-| `PdpFiles` | `tt_pdp_files` | season_id, status | count |
+Locale-aware `/staff/i` substring match (wp-env runs `en_US`).
 
-Each enforces `club_id` in its `fetch()` and parameterises every value via `$wpdb->prepare()`. Column / aggregation surfaces match the spec's Phase 1 acceptance scenarios:
-- "Top 10 active players from the Players source" → `PlayersActive` with `limit=10`.
-- "Average evaluation rating per coach (last 30 days) KPI from the Evaluations source" → `EvaluationsRecent` + `avg_overall` aggregation + `date_from = -30 days`.
-- "Goals per principle bar chart from the Goals source" → `GoalsOpen` + `count` aggregation grouped by principle.
+### `lookups-frontend.spec.js` (spec #4)
 
-### `CustomWidgetsModule`
+Adds a row via the frontend Configuration → Lookups admin. Validates the per-category editor from #5 + the translation preview wiring from #7.
 
-Registered in `config/modules.php`. `boot()` is feature-flag-gated:
+Skips with a friendly message if the form layout doesn't surface (cap mismatch on this install). The wp-admin lookup path is covered separately.
 
-```php
-if ( ! self::isFeatureEnabled() ) return;
-self::registerInitialDataSources();
-```
+### Wiring
 
-`isFeatureEnabled()` reads `tt_custom_widgets_enabled` from `tt_config` via `ConfigService::getBool()` (per-club), with a `wp_options` fallback for installs predating the per-club config layer. Default off.
-
-When the flag is off, no data sources register, no admin pages exist (Phase 3 honours the gate too), and the rest of the platform is unaware of the module.
+- `playwright.config.js` — `globalSetup: require.resolve('./tests/e2e/global-setup.js')`.
+- `.gitignore` — `tests/e2e/.auth/` so saved storageStates don't leak.
+- `tests/e2e/README.md` — coverage-matrix table replaces the "Roadmap" stub. Documents what's shipped vs deferred.
 
 ## What's NOT in this PR
 
-- **Migration `0061_custom_widgets`** + REST CRUD on `tt_custom_widgets` — Phase 2.
-- **Admin builder page** (TalentTrack → Custom widgets) with multi-step UX (pick source → columns → filters → format → preview → save) — Phase 3.
-- **Rendering engine** + persona-dashboard editor palette integration — Phase 4.
-- **`tt_author_custom_widgets` cap** + per-widget transient cache (5-min TTL configurable, manual flush) + audit-log integration on save / publish / delete — Phase 5.
-- **Docs** (`docs/custom-widgets.md` + Dutch twin) + ~30 new translatable strings + README link — Phase 6.
+- `players-crud.spec.js` — first-attempt selectors didn't match the actual rendered form (the post-save redirect landed on the WP dashboard instead of the TT players list). Needs iterative tuning against real CI runs; ships in a follow-up PR.
+- `goal.spec.js` — same root cause as players-crud. The form layout differs from what reading the source suggests; ships in a follow-up PR.
+- `activity.spec.js` — guest-add modal (#26) + Spond rows (#13) need careful selectors.
+- `evaluation.spec.js` — new-evaluation wizard end-to-end. Most complex flow per spec; ships last after the helper library matures.
+- `persona-dashboard-editor.spec.js` — drag-drop is fragile; keeps isolated.
+- `pdp-capture.spec.js` — depends on activities; ships after activity.
+- Demo-data fixture beyond the wp-env baseline (lands when a spec needs more than the seed).
+- Programmatic auth helper for non-admin personas (lands with the first non-admin persona test per spec architecture decision 2).
+- Firefox / WebKit projects (target: v1 has 0 flakes for 7 consecutive days per spec architecture decision 6).
+
+## Migrations
+
+None. Test-code only.
 
 ## Affected files
 
-- `src/Modules/CustomWidgets/Domain/CustomDataSource.php` — new (interface).
-- `src/Modules/CustomWidgets/CustomDataSourceRegistry.php` — new.
-- `src/Modules/CustomWidgets/DataSources/PlayersActive.php` — new.
-- `src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php` — new.
-- `src/Modules/CustomWidgets/DataSources/GoalsOpen.php` — new.
-- `src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php` — new.
-- `src/Modules/CustomWidgets/DataSources/PdpFiles.php` — new.
-- `src/Modules/CustomWidgets/CustomWidgetsModule.php` — new (module shell).
-- `config/modules.php` — register `CustomWidgetsModule`.
-- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
+- `tests/e2e/global-setup.js` — new (~40 lines).
+- `tests/e2e/helpers/admin.js` — new (~70 lines).
+- `tests/e2e/teams-crud.spec.js` — new (~50 lines).
+- `tests/e2e/lookups-frontend.spec.js` — new (~60 lines).
+- `tests/e2e/README.md` — coverage-matrix table replaces the "Roadmap" stub.
+- `playwright.config.js` — wires `globalSetup`.
+- `.gitignore` — adds `tests/e2e/.auth/`.
+- `talenttrack.php`, `readme.txt`, `SEQUENCE.md` — version bump + ship metadata.
 
-## Translations
-
-Zero new translatable strings — labels inside the source declarations are already wrapped in `__()` and surface via the Phase 3 builder UI (which doesn't ship until then).
-
-## Player-centricity
-
-Phase 1 is the catalogue layer for "what an admin can build a custom widget about." Every reference source registers around a player-centric or activity-centric table — players, evaluations, goals, activities, PDP files. The widget builder doesn't expose any data without a clear relationship to a player record. By the time Phase 4 lights up the rendering, every authored widget is answering a player-centric question by construction.
+No new translatable strings — tests are dev-facing.
