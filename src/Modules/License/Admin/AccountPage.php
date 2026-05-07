@@ -512,6 +512,47 @@ class AccountPage {
                 <p class="description" style="margin-top:6px;">
                     <?php esc_html_e( 'Unlocks every Pro-tier feature for 30 days — trial cases, scout access, team chemistry, radar charts, the lot. After 30 days you get 14 days of read-only grace; then the install drops back to Free.', 'talenttrack' ); ?>
                 </p>
+            <?php elseif ( $tier === FeatureMap::TIER_STANDARD ) : ?>
+                <?php
+                // v3.108.5 — A7: Standard-tier installs had no visible
+                // "Upgrade to Pro" CTA; the only upgrade affordance
+                // anywhere in the product was the contextual
+                // `UpgradeNudge` shown when a Pro feature was
+                // accessed from a non-Pro install. Pilot operator on
+                // Standard reported "I do not see a button to further
+                // upgrade." Adding a deliberate upgrade card here.
+                //
+                // Freemius checkout URL: when the SDK is configured
+                // it registers `?page=<plugin>-pricing` automatically.
+                // Fall back to the static features doc when not.
+                $upgrade_url = $configured
+                    ? admin_url( 'admin.php?page=' . self::SLUG . '-pricing' )
+                    : admin_url( 'admin.php?page=' . self::SLUG );
+                ?>
+                <div class="tt-upgrade-card" style="margin-top:18px; padding:18px 20px; background:#fff8e1; border:1px solid #f0c36d; border-radius:8px; max-width:680px;">
+                    <h3 style="margin-top:0;"><?php esc_html_e( 'Upgrade to Pro', 'talenttrack' ); ?></h3>
+                    <p style="margin:0 0 12px;">
+                        <?php esc_html_e( 'You\'re on Standard. Pro adds the features your scouting and trial workflows depend on.', 'talenttrack' ); ?>
+                    </p>
+                    <ul style="margin:0 0 14px 18px; padding:0; line-height:1.6;">
+                        <li><?php esc_html_e( 'Trial cases — full intake → decision pipeline', 'talenttrack' ); ?></li>
+                        <li><?php esc_html_e( 'Scout access — assign players to specific scouts', 'talenttrack' ); ?></li>
+                        <li><?php esc_html_e( 'Team chemistry pitch + blueprint editor', 'talenttrack' ); ?></li>
+                        <li><?php esc_html_e( 'Radar charts on every player profile', 'talenttrack' ); ?></li>
+                        <li><?php esc_html_e( 'Partial restore + bulk-undo (Standard has only manual undo)', 'talenttrack' ); ?></li>
+                        <li><?php esc_html_e( 'Scheduled reports via email (CSV / XLSX / PDF)', 'talenttrack' ); ?></li>
+                    </ul>
+                    <p style="margin:0;">
+                        <a href="<?php echo esc_url( $upgrade_url ); ?>" class="button button-primary button-hero">
+                            <?php esc_html_e( 'Upgrade to Pro', 'talenttrack' ); ?>
+                        </a>
+                    </p>
+                    <?php if ( ! $configured ) : ?>
+                        <p class="description" style="margin:10px 0 0;">
+                            <?php esc_html_e( 'Freemius checkout isn\'t wired up on this install yet — the button drops you on the Account tab where the upgrade flow will surface once configured.', 'talenttrack' ); ?>
+                        </p>
+                    <?php endif; ?>
+                </div>
             <?php endif; ?>
 
             <h2 style="margin-top:32px;"><?php esc_html_e( 'Usage vs free-tier caps', 'talenttrack' ); ?></h2>

@@ -44,6 +44,7 @@ final class UpcomingActivitiesSource implements TableRowSource {
                                            AND at.club_id = s.club_id
                                            AND at.lookup_type = 'activity_type'
               WHERE s.club_id = %d
+                AND s.archived_at IS NULL
                 AND CONCAT(s.session_date, ' ', COALESCE(s.start_time, '00:00:00')) >= %s
                 AND s.session_date <= %s
               ORDER BY s.session_date ASC, s.start_time ASC
