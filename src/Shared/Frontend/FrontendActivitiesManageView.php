@@ -187,6 +187,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a></p>';
         }
 
+        // #0083 Child 4 follow-up — activity-scoped Analytics surface.
+        // Renders the KPI grid via `EntityAnalyticsTabRenderer` for
+        // every activity-scoped KPI registered in `KpiRegistry`.
+        // Defensive: skipped when Analytics module is disabled.
+        if ( class_exists( '\\TT\\Modules\\Analytics\\Frontend\\EntityAnalyticsTabRenderer' ) ) {
+            echo '<section class="tt-activity-analytics" style="margin-top:24px;">';
+            echo '<h3>' . esc_html__( 'Analytics', 'talenttrack' ) . '</h3>';
+            \TT\Modules\Analytics\Frontend\EntityAnalyticsTabRenderer::render( 'activity', (int) $session->id );
+            echo '</section>';
+        }
+
         echo '</div>';
     }
 
