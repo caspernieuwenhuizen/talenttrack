@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.108.2
+Stable tag: 3.108.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.108.3 — Pilot-batch follow-up II: profile tab visual contrast + generic record-detail chrome (#0089 A5 + F3) =
+
+Follow-up to v3.108.2. Two CSS-led visual fixes from `ideas/0089`. **(1) A5 — Profile tab dt/dd visual contrast.** User complaint: "field names and values look too much the same" on `?tt_view=players&id=N` Profile tab. Bumped `.tt-profile-dl dt` to uppercase 11px tracking-wide muted; bumped `.tt-profile-dl dd` to 1rem 600-weight ink. The 140px first-column width + 10px row-gap give the value the visual dominance it should have. Affects every surface that uses `.tt-profile-dl` (player profile, account page, playing details). **(2) F3 — Generic record-detail card chrome.** Promoted the v3.92.5 `.tt-activity-detail*` block to a generic `.tt-record-detail` / `.tt-record-detail-meta` / `.tt-record-detail-body` set; existing `.tt-activity-detail*` classes kept as aliases so nothing breaks. Applied to `FrontendMyGoalsView::renderDetail` (the goal detail page reached from the My-card hero) — the previous markup wrapped the description in a `<div class="tt-goal-detail-body">` with no shell + no separator from the meta row; now it's a proper card. Other detail pages opt in by adding `tt-record-detail` to the article wrapper. **What's NOT in this PR** (still in `ideas/0089`): F2 my-evaluations scores, F4 goal save error, F6 double-activity verification, F7 PDP wizard skip team, A3 eval subcategories, A4 team-overview HoD widget, A7 upgrade-to-Pro CTA, K1-K5 KPI/widget data investigation. CSS-only — no new translatable strings.
 
 = 3.108.2 — Pilot-batch follow-up I: eval delete UI + LookupPill sweep + referer-based breadcrumb back-link + eval-tab query parity (#0089 Batch I + F1) =
 

@@ -132,18 +132,32 @@
 .tt-profile-dl {
     margin: 0;
     display: grid;
-    grid-template-columns: 130px 1fr;
-    row-gap: 6px;
-    column-gap: 14px;
+    grid-template-columns: 140px 1fr;
+    row-gap: 10px;
+    column-gap: 16px;
 }
+/* v3.108.3 — bumped visual contrast between dt and dd. The previous
+ * 13px muted dt + 500-weight 1rem dd looked too much alike on the
+ * Profile tab; user complaint was "field names and values look too
+ * much the same". dt is now uppercase + tracking-wide + smaller +
+ * muted; dd is the dominant 1rem 600-weight ink. The 1.4 line-height
+ * gives the dd room to breathe. */
 .tt-profile-dl dt {
     color: var(--tt-profile-ink-soft);
-    font-size: 13px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     margin: 0;
+    line-height: 1.4;
+    align-self: center;
 }
 .tt-profile-dl dd {
     margin: 0;
-    font-weight: 500;
+    color: var(--tt-profile-ink, #1a1d21);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
     word-break: break-word;
 }
 
