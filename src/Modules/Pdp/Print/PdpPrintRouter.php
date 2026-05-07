@@ -53,11 +53,31 @@ class PdpPrintRouter {
         nocache_headers();
         header( 'Content-Type: text/html; charset=UTF-8' );
 
-        self::emit( $file, $include_evidence );
+        echo self::renderHtml( $file, $include_evidence );
         exit;
     }
 
-    private static function canAccess( object $file ): bool {
+    /**
+     * Build the standalone PDP-print HTML document for a file.
+     *
+     * Public so the v3.110.5 `PdpPdfExporter` (#0063 use case 2) can
+     * reuse the exact layout the on-screen print path renders, instead
+     * of forking a parallel renderer. The exporter strips the toolbar
+     * `<div>` before handing the HTML to `PdfRenderer` (DomPDF doesn't
+     * honour `@media print` so the toolbar would otherwise render in
+     * the PDF).
+     *
+     * Caller is responsible for cap-gating before invoking this — the
+     * print path checks via `canAccess()` in `maybeRender()`; the PDF
+     * exporter checks the same way in its `collect()`.
+     */
+    public static function renderHtml( object $file, bool $include_evidence ): string {
+        ob_start();
+        self::emit( $file, $include_evidence );
+        return (string) ob_get_clean();
+    }
+
+    public static function canAccess( object $file ): bool {
         if ( current_user_can( 'tt_edit_settings' ) ) return true;
         $user_id = get_current_user_id();
         if ( current_user_can( 'tt_view_pdp' )

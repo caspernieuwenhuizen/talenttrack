@@ -1,39 +1,39 @@
-# TalentTrack v3.110.4 — First binary export use case: player evaluation PDF (#0063 use case 1)
+# TalentTrack v3.110.5 — Second binary export use case: PDP / development plan PDF (#0063 use case 2)
 
-First real consumer of the v3.110.0 `PdfRenderer`. Wraps the existing `Modules\Reports\PlayerReportRenderer::renderStandard()` HTML through the new exporter pipeline, producing the canonical "player evaluation report" PDF deliverable from #0014 — but reachable from anywhere via the central Export module rather than only from the on-screen Reports page.
+Second consumer of the v3.110.0 `PdfRenderer`, sibling to v3.110.4's player evaluation PDF. The PDP / development plan PDF is the formal-plan deliverable from #0044, often printed for parent meetings; reaching it via the central Export module rather than only through `?tt_pdp_print=1` lets future surfaces (a "Send PDP to parent" button, a "Generate end-of-cycle PDFs" batch action) consume the same artifact through the standard exporter pipeline.
 
 ## What landed
 
-### `PlayerEvaluationPdfExporter` (`exporter_key = player_evaluation_pdf`, use case 1)
+### `PdpPdfExporter` (`exporter_key = pdp_pdf`, use case 2)
 
 URL pattern:
-`GET /wp-json/talenttrack/v1/exports/player_evaluation_pdf?format=pdf&player_id=42`
+`GET /wp-json/talenttrack/v1/exports/pdp_pdf?format=pdf&file_id=42`
+Optional `&include_evidence=1` appends a second-A4 evidence page (last 5 evaluations + last 10 attendance rows) — same toggle the on-screen print path ships.
 
 **Filters**:
 
-- `player_id` (REQUIRED) — the player to render the report for; tenant-scoped via `QueryHelpers::get_player()` so a logged-in user can't fetch a report for a player in another club by guessing the id.
-- `date_from` / `date_to` (optional ISO dates) — restrict the evaluation window.
-- `eval_type_id` (optional positive int) — filter to one evaluation type.
+- `file_id` (REQUIRED) — the PDP file id to render.
+- `include_evidence` (optional bool) — append the evidence second page.
 
-**Cap**: `tt_view_evaluations` — same gate as the on-screen Reports view.
+**Cap**: `tt_view_pdp` at the route level, plus the per-file `PdpPrintRouter::canAccess()` check inside `collect()` mirroring the print path's authorization (admin / coach-of-this-player / linked self-player / linked parent). Without the per-file gate a logged-in user with global `tt_view_pdp` could fetch any PDP in the club; the per-file check narrows to the access matrix.
 
-**Layout**: reuses the existing `PlayerReportRenderer` shell (header / player card / headline ratings / category breakdown / charts placeholder / goals / attendance / activities / coach notes / footer). The PDF and the on-screen view stay in lockstep without forking the layout — fixes to the renderer propagate to both surfaces simultaneously.
+**Layout reuse — `PdpPrintRouter::renderHtml()` extracted**: the on-screen print path's HTML-emit logic was lifted into a public `PdpPrintRouter::renderHtml( object $file, bool $include_evidence ): string` so the exporter and the print path share their layout instead of forking. `PdpPrintRouter::canAccess()` was also promoted from `private` to `public` for the exporter's per-file check. The print path's behaviour is unchanged — `maybeRender()` now does `echo self::renderHtml(...)` instead of `self::emit(...)` directly.
 
-**Chart caveat (v1 limitation)**: the renderer's HTML carries a `<script>` block that drives Chart.js client-side. DomPDF doesn't execute JavaScript, so the radar + line-chart canvases render empty in the PDF. The exporter strips the script block before handoff (so the PDF doesn't carry dead bytes and so the same HTML can't accidentally execute when reused in a browser preview). A future ship swaps the canvases for server-rendered SVG; the brand-kit template-inheritance work already deferred from v3.110.0 is the natural place for that pass.
+**Toolbar strip**: the print layout's `<div class="toolbar">` carries the browser-side Print / Re-render / Close buttons; `@media print` hides them when the user prints from a browser, but DomPDF doesn't honour print-media queries. The exporter strips the toolbar `<div>` before handing the HTML to `PdfRenderer` — same pattern as v3.110.4's `<script>` strip on the player-evaluation PDF.
 
-**Module wiring**: registered in `ExportModule::boot()` alongside the v3.105.0 / v3.109.0 / v3.110.0 entries.
+**Module wiring**: registered in `ExportModule::boot()` alongside the v3.105.0 / v3.109.0 / v3.110.0 / v3.110.4 entries.
 
 ## What's NOT in this PR
 
-- **Server-side chart rendering** (SVG / pre-baked PNG) — deferred to the brand-kit template-inheritance ship; lands when the renderer earns it across multiple PDF use cases.
-- **Brand-kit letterhead inheritance** — `tt_pdf_render_html` filter exists today (v3.110.0); the exporter doesn't prepend letterhead, individual consumers can hook the filter when they need it.
-- **Async dispatch** — synchronous-only via the standard REST stream-and-exit path. The 11 remaining export use cases that genuinely need async still gate on the Action Scheduler integration (deferred to first big-export use case, likely the GDPR subject-access ZIP).
-- **Audience variants** beyond `STANDARD` — `ReportConfig::standard()` is the v1 audience; per-audience tone variants land when the calling surfaces ask for them.
-- **The 8 other deferred Export use cases** (2, 4, 6, 8, 9, 10, 13, 14, 15 — i.e. all of #0063's 15 minus already-shipped 1, 3, 5, 7, 11, 12) — each lands behind its first consumer.
+- **The `?tt_pdp_print=1` print path** stays in place — this exporter is additive. Operators using the existing print + browser-print flow continue to work; the exporter route opens the PDF up to other surfaces (Comms attachments, batch generation).
+- **Brand-kit letterhead inheritance** — `tt_pdf_render_html` filter exists today; consumers can hook it.
+- **Per-club PDP layout variants** — the layout is the existing print template; per-club overrides land if a customer asks.
+- **Async dispatch** — synchronous-only via the standard REST stream-and-exit path.
+- **The 7 other deferred Export use cases** (4, 6, 8, 9, 10, 13, 14, 15) — each lands behind its first consumer.
 
 ## Notes
 
-- Zero new operator-facing strings — exporter label uses an existing `__()` pattern; the report body's strings are all in the existing `PlayerReportRenderer` translation set.
+- Zero new operator-facing strings — exporter label uses an existing `__()` pattern; the print template's strings are all already in `PdpPrintRouter`'s translation set.
 - No new migrations.
-- No composer dependency changes (DomPDF was added in v3.110.0).
-- Renumbered v3.110.2 → v3.110.4 mid-rebase against parallel-agent ship of v3.110.3 (player profile polish: profile-tab table + tab bug fixes + analytics 30-day card + notes wiring) which took the v3.110.3 slot.
+- No composer dependency changes.
+- Renumbered v3.110.5 against any parallel-agent ship that took a v3.110.x slot during build.
