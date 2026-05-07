@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.109.0
+Stable tag: 3.109.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.109.1 — Analytics deferred follow-ups: team + activity Analytics tabs + explorer Export CSV (#0083 follow-up) =
+
+Three deferred items from the #0083 Reporting framework epic now lit up. **(1) Team-detail Analytics teaser** — `FrontendTeamDetailView` gains `renderAnalyticsTeaser()` calling `EntityAnalyticsTabRenderer::render('team', $team_id)` after the chemistry teaser. Defensive against module-disable: when the Analytics module is off the section disappears entirely. **(2) Activity-detail Analytics section** — `FrontendActivitiesManageView::renderDetail()` gains the same defensive guard + section, calling `EntityAnalyticsTabRenderer::render('activity', $session->id)`. Both surfaces inherit the existing renderer's persona-context filtering (parent → PLAYER_PARENT only; coach → COACH + PLAYER_PARENT; HoD/Admin → ACADEMY + COACH + PLAYER_PARENT) and threshold flagging from #0083 Child 4 — no new policy code. **(3) Explorer Export CSV button** — `FrontendExploreView::render()` detects `?action=export_csv` and routes to a new `streamCsv()` helper that wires `CsvExporter::raw()` (UTF-8-BOM, `fputcsv` streaming) into a `Content-Disposition: attachment` download. The button preserves the active KPI + filters + group-by so a shared deep-link reproduces the export exactly. Filename pattern `<kpi-key>-<YYYY-MM-DD>.csv`. The deferred-followups callout block on the explorer view drops "CSV" from its remaining list. One new NL msgid (Export CSV button label); the "Analytics" section heading reuses an existing msgid. No schema changes; no new caps; the activity tab inherits `tt_view_activities` already gated at the page level. **What's NOT in this PR**: bulk migration of the 26 legacy KPIs to fact-driven declarations; the static-analysis test for "every player/team-FK table is registered as a fact"; PDF export; XLSX export; Chart.js time-series chart. Renumbered v3.108.1 → v3.108.2 → v3.109.1 across multiple rebases as parallel-agent ships took the v3.108.1 / v3.108.2 / v3.108.3 / v3.108.4 / v3.108.5 / v3.109.0 slots.
 
 = 3.109.0 — Deferred-cleanup: 3 #0063 CSV exporters + #0066 WhatsApp adapter + retention cron =
 

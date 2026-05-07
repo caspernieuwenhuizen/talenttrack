@@ -12573,12 +12573,6 @@ msgstr "Deze speler is op dit moment niet op stage, dus er is geen stagegeschied
 msgid "In academy since"
 msgstr "In academie sinds"
 
-msgid "Head coach"
-msgstr "Hoofdtrainer"
-
-msgid "Team manager"
-msgstr "Teammanager"
-
 # v3.92.7 — FrontendListTable migration of ?tt_view=my-activities + LookupTranslator::activityType helper
 msgid "Your status"
 msgstr "Jouw status"
@@ -13847,3 +13841,7 @@ msgstr "Tabblad \"Sessions\" is in v3.108.0 hernoemd naar \"Activities\" — dow
 msgid "Detailed %s"
 msgstr "Gedetailleerde %s"
 
+# v3.109.1 — #0083 deferred follow-ups: explorer Export CSV button
+
+msgid "Export CSV"
+msgstr "CSV exporteren"

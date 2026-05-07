@@ -4,6 +4,7 @@ namespace TT\Modules\Analytics\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Domain\Kpi;
+use TT\Modules\Analytics\Export\CsvExporter;
 use TT\Modules\Analytics\FactQuery;
 use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\KpiRegistry;
@@ -52,6 +53,12 @@ class FrontendExploreView extends FrontendViewBase {
     public static function render( int $user_id, bool $is_admin ): void {
         $kpi_key = isset( $_GET['kpi'] ) ? sanitize_key( (string) $_GET['kpi'] ) : '';
         $kpi     = KpiRegistry::find( $kpi_key );
+        $action  = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
+
+        if ( $action === 'export_csv' && $kpi !== null ) {
+            self::streamCsv( $kpi );
+            return;
+        }
 
         self::renderHeader( __( 'Explore', 'talenttrack' ) );
 
@@ -98,6 +105,21 @@ class FrontendExploreView extends FrontendViewBase {
         }
         echo '</div>';
 
+        // Export CSV link — preserves current KPI + filters + group-by.
+        $export_args = [
+            'tt_view' => 'explore',
+            'kpi'     => $kpi->key,
+            'action'  => 'export_csv',
+        ];
+        if ( $group_by !== '' ) $export_args['group_by'] = $group_by;
+        foreach ( $filters as $fk => $fv ) {
+            $export_args[ 'filter_' . $fk ] = is_array( $fv ) ? $fv : (string) $fv;
+        }
+        $export_url = add_query_arg( $export_args, WizardEntryPoint::dashboardBaseUrl() );
+        echo '<p style="margin:0 0 16px 0;"><a class="tt-button" href="' . esc_url( $export_url ) . '">'
+            . esc_html__( 'Export CSV', 'talenttrack' )
+            . '</a></p>';
+
         // Group-by selector.
         echo '<form method="get" action="" style="display:flex; gap:12px; align-items:center; margin:16px 0;">';
         // Carry forward the kpi + every active filter as hidden inputs so the
@@ -138,10 +160,43 @@ class FrontendExploreView extends FrontendViewBase {
         }
 
         echo '<div style="margin-top:32px; padding:12px 16px; background:#f0f6fc; border-left:4px solid #2271b1; max-width:760px; font-size:13px; color:#5b6e75;">'
-            . esc_html__( 'The dimension explorer is the first ship of #0083 Child 3. Time-series chart, drilldown to fact rows, and CSV / PDF export ship in follow-ups.', 'talenttrack' )
+            . esc_html__( 'The dimension explorer is the first ship of #0083 Child 3. Time-series chart, drilldown to fact rows, and PDF export ship in follow-ups.', 'talenttrack' )
             . '</div>';
 
         echo '</div>';
+    }
+
+    /**
+     * Emit the explorer view as a CSV download. Uses the same KPI +
+     * filters + group-by the on-screen view would render — sharing a
+     * link with `&action=export_csv` reproduces the export exactly.
+     *
+     * The dimension list is the active `group_by` (if set) plus the
+     * KPI's `exploreDimensions` so the exported CSV always carries
+     * the breakdown columns even when no group-by is picked.
+     */
+    private static function streamCsv( Kpi $kpi ): void {
+        $fact = FactRegistry::find( $kpi->factKey );
+        if ( $fact === null ) return;
+
+        $filters  = self::filtersFromRequest( $kpi );
+        $group_by = isset( $_GET['group_by'] ) ? sanitize_key( (string) $_GET['group_by'] ) : '';
+
+        $dim_keys = [];
+        if ( $group_by !== '' && $fact->dimension( $group_by ) !== null ) {
+            $dim_keys[] = $group_by;
+        }
+
+        $csv = CsvExporter::raw( $kpi->factKey, $dim_keys, [ $kpi->measureKey ], $filters, $kpi->label );
+        if ( $csv === '' ) return;
+
+        $filename = sanitize_file_name( $kpi->key . '-' . gmdate( 'Y-m-d' ) . '.csv' );
+        nocache_headers();
+        header( 'Content-Type: text/csv; charset=UTF-8' );
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+        header( 'Content-Length: ' . strlen( $csv ) );
+        echo $csv; // phpcs:ignore WordPress.Security.EscapeOutput
+        exit;
     }
 
     /**

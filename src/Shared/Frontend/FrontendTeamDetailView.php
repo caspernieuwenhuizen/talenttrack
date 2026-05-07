@@ -77,6 +77,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             self::renderTrialRoster( $trials );
             self::renderUpcomingActivities( $team_id );
             self::renderChemistryTeaser( $team_id );
+            self::renderAnalyticsTeaser( $team_id );
             ?>
         </article>
         <?php
@@ -270,6 +271,20 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">';
         echo esc_html__( 'Open the chemistry board', 'talenttrack' );
         echo '</a></p>';
+        echo '</section>';
+    }
+
+    /**
+     * #0083 Child 4 follow-up — team-scoped Analytics surface. Renders
+     * the KPI grid via `EntityAnalyticsTabRenderer`. Defensive against
+     * module-disable: when the Analytics module is off, the section
+     * disappears entirely rather than rendering an error.
+     */
+    private static function renderAnalyticsTeaser( int $team_id ): void {
+        if ( ! class_exists( '\\TT\\Modules\\Analytics\\Frontend\\EntityAnalyticsTabRenderer' ) ) return;
+        echo '<section class="tt-team-analytics" style="margin-top:24px;">';
+        echo '<h3>' . esc_html__( 'Analytics', 'talenttrack' ) . '</h3>';
+        \TT\Modules\Analytics\Frontend\EntityAnalyticsTabRenderer::render( 'team', $team_id );
         echo '</section>';
     }
 }
