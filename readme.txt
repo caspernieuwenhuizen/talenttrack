@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.6
+Stable tag: 3.110.7
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.7 — Fourth binary export use case: player one-pager A5 PDF (#0063 use case 13) =
+
+Fourth PDF use case in the family. Bespoke compact A5 layout for the "trial card" / "scout visit handout" deliverable — the spec's tight field set (photo, name, age, position, status, jersey, team) doesn't fit the multi-section eval-report shell, so this exporter ships a standalone layout while still using the v3.110.0 `PdfRenderer` pipeline. **`PlayerOnePagerPdfExporter`** (`exporter_key = player_onepager_pdf`). URL: `GET /wp-json/talenttrack/v1/exports/player_onepager_pdf?format=pdf&player_id=42`. **Filters**: `player_id` (required, tenant-scoped). **Cap**: `tt_view_players` (broader read group than the eval report; one-pager carries less sensitive data). **Fields**: photo (32mm rounded), name (large headline), team subtitle, DOB + computed age, primary position (first comma-separated value of `preferred_positions`), preferred foot, jersey number, translated status label, generated-date footer. **Layout**: A5 portrait, 12mm margins, inline CSS in document head (DomPDF can't follow external stylesheets reliably), DejaVu Sans default. **Deliberately compact**: no ratings, no goals, no contact details — those live in use case 1 (eval) and 14 (scouting). **Module wiring**: registered in `ExportModule::boot()` alongside the v3.105.0 / v3.109.0 / v3.110.0 / v3.110.4 / v3.110.5 / v3.110.6 entries — foundation now at 9 of 15 use cases live. **What's NOT in this PR**: brand-kit letterhead (filter exists; consumers can hook); per-club layout variants; async dispatch; the 6 remaining deferred use cases (4, 6, 8, 9, 10, 15). 8 new NL msgids (field labels + status set + footer format). No migrations; no composer changes.
 
 = 3.110.6 — Third binary export use case: scouting report PDF (#0063 use case 14) =
 
