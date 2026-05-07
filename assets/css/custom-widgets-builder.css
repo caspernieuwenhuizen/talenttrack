@@ -1,0 +1,215 @@
+/* Custom widget builder styles (#0078 Phase 3) — paired with
+   assets/js/custom-widgets-builder.js. Mobile-first per CLAUDE.md §2;
+   the builder lives in wp-admin so the floor is desktop, but the form
+   inputs honour 16px font-size + 48px touch-target rules. */
+
+.tt-cw-builder { max-width: 960px; }
+
+.tt-cw-stepper {
+    list-style: none;
+    margin: 16px 0 24px;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    counter-reset: tt-cw-step;
+}
+.tt-cw-stepper li {
+    flex: 1 1 auto;
+    min-width: 120px;
+    padding: 10px 14px;
+    background: #f6f7f7;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #5b6e75;
+    cursor: default;
+    user-select: none;
+    text-align: center;
+}
+.tt-cw-stepper li.is-active {
+    background: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
+    font-weight: 600;
+}
+.tt-cw-stepper li.is-done {
+    background: #ecf6ed;
+    border-color: #b6d7a8;
+    color: #2d5a36;
+}
+
+.tt-cw-step-body {
+    margin: 16px 0 24px;
+    padding: 20px 24px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    min-height: 240px;
+}
+
+.tt-cw-step-body h2 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+.tt-cw-step-body .tt-cw-step-help {
+    color: #5b6e75;
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+/* Source picker — radio cards. */
+.tt-cw-source-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+}
+.tt-cw-source-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 16px;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    min-height: 64px;
+    font-size: 14px;
+}
+.tt-cw-source-card.is-active {
+    background: #eff5fb;
+    border-color: #2271b1;
+}
+.tt-cw-source-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.tt-cw-source-card .tt-cw-source-id {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    color: #5b6e75;
+}
+
+/* Column / filter / aggregation grids. */
+.tt-cw-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px 12px;
+}
+.tt-cw-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    min-height: 48px;
+    font-size: 14px;
+}
+.tt-cw-option input[type="checkbox"] { min-width: 16px; }
+
+.tt-cw-filter-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 12px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+.tt-cw-filter-row label { font-weight: 600; }
+.tt-cw-filter-row input,
+.tt-cw-filter-row select {
+    padding: 8px 10px;
+    font-size: 16px;
+    min-height: 44px;
+}
+
+/* Chart-type cards. */
+.tt-cw-format-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.tt-cw-format-card {
+    padding: 18px 16px;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    min-height: 80px;
+}
+.tt-cw-format-card.is-active {
+    background: #eff5fb;
+    border-color: #2271b1;
+    font-weight: 600;
+}
+
+/* Preview surface. */
+.tt-cw-preview {
+    border: 1px dashed #b4b9be;
+    background: #fbfbfb;
+    border-radius: 6px;
+    padding: 16px;
+    margin-top: 12px;
+    min-height: 200px;
+}
+.tt-cw-preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.tt-cw-preview-table th,
+.tt-cw-preview-table td {
+    border: 1px solid #ddd;
+    padding: 6px 10px;
+    text-align: left;
+}
+.tt-cw-preview-table th { background: #f6f7f7; }
+.tt-cw-preview-kpi {
+    text-align: center;
+    padding: 32px 16px;
+}
+.tt-cw-preview-kpi .tt-cw-preview-value {
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 1;
+}
+.tt-cw-preview-kpi .tt-cw-preview-label {
+    font-size: 13px;
+    color: #5b6e75;
+    margin-top: 8px;
+}
+
+/* Save form. */
+.tt-cw-save-form { display: grid; gap: 12px; max-width: 500px; }
+.tt-cw-save-form label { display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+.tt-cw-save-form input[type="text"],
+.tt-cw-save-form input[type="number"] {
+    padding: 8px 10px;
+    font-size: 16px;
+    min-height: 44px;
+}
+
+.tt-cw-actions { display: flex; gap: 8px; }
+.tt-cw-status {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 4px;
+    min-height: 36px;
+    font-size: 14px;
+}
+.tt-cw-status.is-success { background: #ecf6ed; border: 1px solid #b6d7a8; color: #2d5a36; }
+.tt-cw-status.is-error   { background: #fbeaea; border: 1px solid #d9a4a4; color: #6e2222; }
+.tt-cw-status:empty { display: none; }
+
+/* Mobile (admin viewport ≤720px) — single-column step body, larger
+   inputs. The stepper wraps naturally. */
+@media (max-width: 720px) {
+    .tt-cw-step-body { padding: 16px; }
+    .tt-cw-filter-row { grid-template-columns: 1fr; }
+}

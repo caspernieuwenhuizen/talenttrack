@@ -13845,3 +13845,116 @@ msgstr "Gedetailleerde %s"
 
 msgid "Export CSV"
 msgstr "CSV exporteren"
+
+# v3.109.4 — #0078 Phase 3 custom widgets builder UI
+
+msgid "Custom widgets"
+msgstr "Aangepaste widgets"
+
+msgid "New custom widget"
+msgstr "Nieuwe aangepaste widget"
+
+msgid "No custom widgets yet. Build one to surface it on a persona dashboard."
+msgstr "Nog geen aangepaste widgets. Bouw er een om hem op een persona-dashboard te tonen."
+
+msgid "Chart type"
+msgstr "Grafiektype"
+
+msgid "Bar chart"
+msgstr "Staafdiagram"
+
+msgid "Line chart"
+msgstr "Lijndiagram"
+
+msgid "Edit custom widget — %s"
+msgstr "Aangepaste widget bewerken — %s"
+
+msgid "← Back to custom widgets"
+msgstr "← Terug naar aangepaste widgets"
+
+msgid "Builder steps"
+msgstr "Bouw-stappen"
+
+msgid "1. Source"
+msgstr "1. Bron"
+
+msgid "2. Columns"
+msgstr "2. Kolommen"
+
+msgid "3. Filters"
+msgstr "3. Filters"
+
+msgid "4. Format"
+msgstr "4. Opmaak"
+
+msgid "5. Preview"
+msgstr "5. Voorbeeld"
+
+msgid "6. Save"
+msgstr "6. Opslaan"
+
+msgid "Pick a data source"
+msgstr "Kies een gegevensbron"
+
+msgid "Pick columns to show"
+msgstr "Kies de kolommen om te tonen"
+
+msgid "Configure filters"
+msgstr "Filters instellen"
+
+msgid "Choose chart type"
+msgstr "Kies een grafiektype"
+
+msgid "Name and save"
+msgstr "Geef een naam en sla op"
+
+msgid "Save widget"
+msgstr "Widget opslaan"
+
+msgid "Widget saved."
+msgstr "Widget opgeslagen."
+
+msgid "Save failed:"
+msgstr "Opslaan mislukt:"
+
+msgid "Loading preview…"
+msgstr "Voorbeeld laden…"
+
+msgid "Could not load preview."
+msgstr "Voorbeeld kon niet geladen worden."
+
+msgid "No rows to show with the current filters."
+msgstr "Geen rijen om te tonen met de huidige filters."
+
+msgid "Give the widget a name before saving."
+msgstr "Geef de widget een naam voordat je opslaat."
+
+msgid "Pick a data source first."
+msgstr "Kies eerst een gegevensbron."
+
+msgid "Pick a chart type first."
+msgstr "Kies eerst een grafiektype."
+
+msgid "Pick at least one column for a table widget."
+msgstr "Kies ten minste één kolom voor een tabelwidget."
+
+msgid "KPI / bar / line widgets need an aggregation."
+msgstr "KPI- / staaf- / lijnwidgets hebben een aggregatie nodig."
+
+msgid "Cache TTL (minutes)"
+msgstr "Cache-houdbaarheid (minuten)"
+
+msgid "Aggregation"
+msgstr "Aggregatie"
+
+msgid "No aggregations available for this source."
+msgstr "Geen aggregaties beschikbaar voor deze bron."
+
+msgid "Compose your own dashboard widgets — pick a data source, choose columns and filters, drop them onto a persona dashboard."
+msgstr "Stel je eigen dashboardwidgets samen — kies een gegevensbron, kolommen en filters, en plaats ze op een persona-dashboard."
+
+msgid "Archive this widget? It will disappear from dashboards."
+msgstr "Deze widget archiveren? Hij verdwijnt dan van dashboards."
+
+msgid "How custom widgets work"
+msgstr "Hoe aangepaste widgets werken"
