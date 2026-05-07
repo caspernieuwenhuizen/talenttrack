@@ -1,9 +1,9 @@
 ---
 id: 0078
 type: epic
-status: ready
+status: shipped
 title: Custom widget builder — admin-authored persona-dashboard widgets backed by registered data sources
-shipped_in: ~
+shipped_in: v3.106.2 (Phase 1) → v3.109.3 (Phase 2) → v3.109.4 (Phase 3) → v3.109.5 (Phase 4) → v3.109.6 (Phase 5) → v3.109.7 (Phase 6, closes)
 ---
 
 # 0078 — Custom widget builder
