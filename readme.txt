@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.7
+Stable tag: 3.110.8
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.8 — Fifth binary export use case: full club-data backup ZIP (#0063 use case 9) =
+
+Per the #0063 spec — "delegates to #0013 (Backup & DR) rather than re-implementing; Export is the public surface, #0013 is the engine." Intentionally thin: reuses `BackupSerializer::snapshot()` + `toGzippedJson()` (the same engine the on-screen `?page=tt-backup` admin page uses) and packages the result through the v3.110.0 `ZipRenderer`. **`BackupZipExporter`** (`exporter_key = backup_zip`). URL: `GET /wp-json/talenttrack/v1/exports/backup_zip?format=zip&preset=standard`. **Filters**: `preset` (optional, allowlist `minimal` / `standard` / `thorough`, default `standard`; `custom` intentionally not exposed at the route — operators with custom selections drive from the admin page). **Cap**: `tt_manage_backups` (same gate as the on-screen Backup admin page). **Layout**: ZIP carries one entry — the gzipped-JSON snapshot, named per `BackupSerializer::filename( $preset )` so snapshots pulled via the export route are interchangeable with ones pulled via the admin page. The `ZipRenderer`'s `MANIFEST.json` carries snapshot metadata (preset, table list, schema version, plugin version, created-at, checksum) so downstream consumers can confirm contents without opening the gzip. **Foundation now at 10 of 15 use cases live.** **What's NOT in this PR**: `?page=tt-backup` admin page stays in place (additive); `custom` preset over the route; async dispatch (this exporter is the natural first consumer of the deferred Action-Scheduler pipeline if real-club snapshots grow); the 5 remaining deferred use cases (4, 6, 8, 10, 15). Zero new NL msgids; no migrations; no composer changes.
 
 = 3.110.7 — Fourth binary export use case: player one-pager A5 PDF (#0063 use case 13) =
 

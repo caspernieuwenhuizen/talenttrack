@@ -13,6 +13,7 @@ use TT\Modules\Export\Format\Renderers\PdfRenderer;
 use TT\Modules\Export\Format\Renderers\XlsxRenderer;
 use TT\Modules\Export\Format\Renderers\ZipRenderer;
 use TT\Modules\Export\Exporters\AttendanceRegisterCsvExporter;
+use TT\Modules\Export\Exporters\BackupZipExporter;
 use TT\Modules\Export\Exporters\FederationJsonExporter;
 use TT\Modules\Export\Exporters\GoalsCsvExporter;
 use TT\Modules\Export\Exporters\PdpPdfExporter;
@@ -83,6 +84,7 @@ class ExportModule implements ModuleInterface {
         ExporterRegistry::register( new PdpPdfExporter() );             // use case 2  (v3.110.5)
         ExporterRegistry::register( new ScoutingReportPdfExporter() );  // use case 14 (v3.110.6)
         ExporterRegistry::register( new PlayerOnePagerPdfExporter() );  // use case 13 (v3.110.7)
+        ExporterRegistry::register( new BackupZipExporter() );          // use case 9  (v3.110.8)
 
         ExportRestController::init();
     }
