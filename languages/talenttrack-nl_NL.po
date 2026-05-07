@@ -13842,3 +13842,8 @@ msgstr "Dit schema archiveren? Het stopt dan met uitvoeren."
 
 msgid "Sheet \"Sessions\" was renamed to \"Activities\" in v3.108.0 — re-download the demo-data template, or rename the sheet to \"Activities\" in your workbook."
 msgstr "Tabblad \"Sessions\" is in v3.108.0 hernoemd naar \"Activities\" — download het demo-databestand opnieuw, of hernoem het tabblad in je werkmap naar \"Activities\"."
+
+# v3.108.4 — A3 eval wizard subcategories disclosure
+msgid "Detailed %s"
+msgstr "Gedetailleerde %s"
+

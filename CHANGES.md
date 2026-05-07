@@ -1,49 +1,54 @@
-# TalentTrack v3.108.3 — Pilot-batch follow-up II: profile tab visual contrast + generic record-detail chrome (#0089 A5 + F3)
+# TalentTrack v3.108.4 — Pilot-batch follow-up III: PDP wizard player-context + eval subcategories rendering (#0089 F7 + A3)
 
-CSS-led follow-up to v3.108.2 covering two visual fixes from `ideas/0089`. The remaining items (F2 my-evaluations scores, F4 goal save error, F6 double-activity verification, F7 PDP wizard skip team, A3 eval subcategories, A4 team-overview HoD widget, A7 upgrade-to-Pro CTA, K1-K5 KPI/widget investigation) stay in `ideas/0089` for subsequent ships.
+Follow-up to v3.108.3. Two more items from `ideas/0089`.
 
 ## What landed
 
-### (1) A5 — Profile tab dt/dd visual contrast
+### (1) F7 — PDP creation form skips team-selection when launched from a player profile
 
-User complaint: "field names and values look too much the same" on `?tt_view=players&id=N` Profile tab. Affected every surface using `.tt-profile-dl`.
+The "+ New PDP" CTA on the player file passes `?tt_view=pdp&action=new&player_id=N`; the form previously still showed the team-filter dropdown as the first control even though the player was already determined.
 
-- `.tt-profile-dl dt` — bumped to 11px uppercase 600-weight tracking-wide (0.06em) muted. Reads as a label.
-- `.tt-profile-dl dd` — bumped to 1rem 600-weight ink (`var(--tt-profile-ink, #1a1d21)`). Reads as the value, dominant.
-- First-column width grew from 130px to 140px; row-gap from 6px to 10px so the rows breathe.
+`FrontendPdpManageView::renderForm()` now:
 
-Surfaces that pick this up automatically: `FrontendPlayerDetailView::renderProfileTab` (Identity + Academy columns), `FrontendTeammateView` (Playing details), `FrontendMyProfileView` (account info).
+- Reads `?player_id` from the URL (new `$preset_player`).
+- Suppresses `show_team_filter` on the `PlayerSearchPickerComponent` when the preset player is set.
+- Pre-selects the picker via the existing `selected` parameter.
 
-### (2) F3 — Generic record-detail card chrome
+The picker stays editable (the operator can still reassign), but the team-first ergonomic step is gone for the common entry path.
 
-Promoted the v3.92.5 `.tt-activity-detail*` block to a generic `.tt-record-detail*` set; the existing class names stay as aliases so existing markup keeps working.
+### (2) A3 — Evaluation wizard subcategories rendering
 
-```css
-.tt-record-detail        — outer card (white bg, 1px border, 10px radius, 18/20 padding)
-.tt-record-detail-meta   — top meta row (badges + chips, divider)
-.tt-record-detail-body   — content section (h3 + p with line-height 1.5)
-```
+The `tt_eval_categories` schema has supported a `parent_id` hierarchy since the initial eval-categories migration, and the seed ships ~21 subcategories across the 4 main categories (Technical / Tactical / Physical / Mental). The wizard just never rendered them.
 
-Applied to `FrontendMyGoalsView::renderDetail` (the goal-detail page reached from the My-card hero). Previously the detail was a bare `tt-goal-detail` wrapper with no card chrome and no separator between the meta row and the description. Now it matches the activity-detail card visual language.
+`RateActorsStep::render()` now:
 
-Other detail pages opt in by adding `tt-record-detail` to the article wrapper.
+- Pulls every active subcategory in one query, keyed by `parent_id`.
+- Renders an expandable `<details class="tt-rate-subs">` block under each main row with the subs as detailed sub-criteria (e.g. "↳ Passing accuracy" under "Technical").
+- Subs are collapsed by default so the quick-rate ergonomic stays primary.
+
+`validate()` already accepted any `(player_id, category_id)` tuple, so subcategory ratings persist into `tt_eval_ratings` through the existing flow with no schema or REST changes.
+
+CSS additions in `FrontendWizardView::enqueueWizardStyles()`:
+
+- `.tt-rate-subs` — left-rule + indent indicating the hierarchy.
+- `.tt-rate-subs-toggle` — disclosure summary, smaller + muted.
+- `.tt-rate-row--sub` — slightly de-emphasised label weight + size.
 
 ## Out of scope (still tracked in `ideas/0089-feat-pilot-batch-followups.md`)
 
 - F2 my-evaluations scores not displaying after wizard submit
-- F4 goal save error "goal does no longer exist" after admin wizard
+- F4 goal save error "goal does no longer exist"
 - F6 double-activity row verification
-- F7 PDP wizard from player profile should skip team-selection step
-- A3 evaluation subcategories rendering in `RateActorsStep`
 - A4 team-overview HoD widget (First/Last/Status/PDP/Attendance)
+- A5 broad detail-page visual refresh (most surfaces hit by v3.108.3 already)
 - A7 upgrade-to-Pro CTA discoverability
 - K1-K5 KPI / widget data investigation
 
 ## Affected files
 
-- `assets/css/frontend-profile.css` — Profile tab dt/dd contrast bump
-- `assets/css/public.css` — generic `.tt-record-detail*` block + activity-detail aliases
-- `src/Shared/Frontend/FrontendMyGoalsView.php` — goal detail wrapped in `tt-record-detail` card
+- `src/Modules/Pdp/Frontend/FrontendPdpManageView.php` — F7 player-context preselect
+- `src/Modules/Wizards/Evaluation/RateActorsStep.php` — A3 subcategory query + nested rendering
+- `src/Shared/Frontend/FrontendWizardView.php` — A3 CSS for `.tt-rate-subs*`
 - `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version + ship metadata
 
-CSS-only — no new translatable strings.
+1 new translatable string ("Detailed %s") for the subcategory disclosure summary.
