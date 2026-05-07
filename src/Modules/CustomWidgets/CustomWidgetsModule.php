@@ -10,6 +10,7 @@ use TT\Modules\CustomWidgets\DataSources\EvaluationsRecent;
 use TT\Modules\CustomWidgets\DataSources\GoalsOpen;
 use TT\Modules\CustomWidgets\DataSources\PdpFiles;
 use TT\Modules\CustomWidgets\DataSources\PlayersActive;
+use TT\Modules\CustomWidgets\Rest\CustomWidgetsRestController;
 
 /**
  * CustomWidgetsModule (#0078) — admin-authored persona-dashboard
@@ -50,6 +51,7 @@ class CustomWidgetsModule implements ModuleInterface {
         if ( ! self::isFeatureEnabled() ) return;
 
         self::registerInitialDataSources();
+        CustomWidgetsRestController::init();
     }
 
     /**
