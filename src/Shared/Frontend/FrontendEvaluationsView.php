@@ -25,7 +25,11 @@ class FrontendEvaluationsView extends FrontendViewBase {
 
         if ( $action === 'new' ) {
             self::renderHeader( __( 'New evaluation', 'talenttrack' ) );
-            CoachForms::renderEvalForm( $teams, $is_admin );
+            // v3.110.3 — when launched from a player profile's empty
+            // Evaluations tab, `?player_id=N` is in the URL; pre-fill
+            // the form so the picker step is skipped.
+            $preset_player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
+            CoachForms::renderEvalForm( $teams, $is_admin, $preset_player_id );
             return;
         }
 

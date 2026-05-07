@@ -31,8 +31,16 @@ class CoachForms {
 
     /**
      * @param object[] $teams
+     * @param int      $preset_player_id  v3.110.3 — when set, the form
+     *                                    pre-fills the team + player
+     *                                    pickers and hides them; the
+     *                                    operator only sees the rating
+     *                                    inputs. Used by the "Add
+     *                                    evaluation" CTA on the player
+     *                                    profile's empty Evaluations
+     *                                    tab.
      */
-    public static function renderEvalForm( array $teams, bool $is_admin ): void {
+    public static function renderEvalForm( array $teams, bool $is_admin, int $preset_player_id = 0 ): void {
         $categories = QueryHelpers::get_categories();
         $types      = QueryHelpers::get_eval_types();
         $rmin  = QueryHelpers::get_config( 'rating_min', '1' );
@@ -59,28 +67,50 @@ class CoachForms {
                 $players = array_merge( $players, QueryHelpers::get_players( (int) $t->id ) );
             }
         }
+
+        // v3.110.3 — preset path: the "Add evaluation" CTA on a player
+        // profile passes ?player_id=N. Look up the player's team_id and
+        // pre-fill both pickers; render hidden inputs in place of the
+        // dropdowns.
+        $preset_player = $preset_player_id > 0 ? QueryHelpers::get_player( $preset_player_id ) : null;
+        $preset_team_id = $preset_player ? (int) ( $preset_player->team_id ?? 0 ) : 0;
+        $hide_pickers = $preset_player !== null && $preset_team_id > 0;
         ?>
         <h3><?php esc_html_e( 'Submit Evaluation', 'talenttrack' ); ?></h3>
         <form id="tt-eval-form" class="tt-ajax-form" data-rest-path="evaluations" data-rest-method="POST" data-draft-key="eval-form" data-redirect-after-save="1">
-            <?php // F1 — team-first eval flow. Coach picks team first; player picker is filtered to that team. ?>
-            <div class="tt-field" data-tt-eval-team-wrap>
-                <?php echo TeamPickerComponent::render( [
-                    'name'     => 'eval_team_id',
-                    'label'    => __( 'Team', 'talenttrack' ),
-                    'required' => true,
-                    'teams'    => $teams,
-                    'placeholder' => __( '— Select team first —', 'talenttrack' ),
-                ] ); ?>
-            </div>
-            <div class="tt-field" data-tt-eval-player-wrap>
-                <?php echo PlayerSearchPickerComponent::render( [
-                    'name'     => 'player_id',
-                    'label'    => __( 'Player', 'talenttrack' ),
-                    'required' => true,
-                    'players'  => $players,
-                    'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
-                ] ); ?>
-            </div>
+            <?php if ( $hide_pickers ) : ?>
+                <input type="hidden" name="eval_team_id" value="<?php echo esc_attr( (string) $preset_team_id ); ?>" />
+                <input type="hidden" name="player_id"    value="<?php echo esc_attr( (string) $preset_player_id ); ?>" />
+                <p class="tt-muted" style="margin: 0 0 12px;">
+                    <?php
+                    /* translators: %s = player display name */
+                    printf(
+                        esc_html__( 'Recording evaluation for %s.', 'talenttrack' ),
+                        '<strong>' . esc_html( QueryHelpers::player_display_name( $preset_player ) ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — wrapper escapes the name
+                    );
+                    ?>
+                </p>
+            <?php else : ?>
+                <?php // F1 — team-first eval flow. Coach picks team first; player picker is filtered to that team. ?>
+                <div class="tt-field" data-tt-eval-team-wrap>
+                    <?php echo TeamPickerComponent::render( [
+                        'name'     => 'eval_team_id',
+                        'label'    => __( 'Team', 'talenttrack' ),
+                        'required' => true,
+                        'teams'    => $teams,
+                        'placeholder' => __( '— Select team first —', 'talenttrack' ),
+                    ] ); ?>
+                </div>
+                <div class="tt-field" data-tt-eval-player-wrap>
+                    <?php echo PlayerSearchPickerComponent::render( [
+                        'name'     => 'player_id',
+                        'label'    => __( 'Player', 'talenttrack' ),
+                        'required' => true,
+                        'players'  => $players,
+                        'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
+                    ] ); ?>
+                </div>
+            <?php endif; ?>
             <div class="tt-form-row"><label><?php esc_html_e( 'Type', 'talenttrack' ); ?> *</label><select name="eval_type_id" id="tt_fe_eval_type" required>
                 <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                 <?php foreach ( $types as $t ) : ?>

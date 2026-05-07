@@ -224,11 +224,59 @@
     margin: 0;
 }
 
+/* v3.110.3 — Profile-tab tables. Replaces the dl/dt/dd layout with a
+ * proper <table> per section so each row reads as a labelled record.
+ * Mobile-first: full-width, 14px field column / 16px value column,
+ * subtle row separators, and a section-name header row for context. */
+.tt-profile-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid var(--tt-line, #e3e6e8);
+    border-radius: 6px;
+    overflow: hidden;
+}
+.tt-profile-table thead th {
+    text-align: left;
+    padding: 8px 12px;
+    background: #f5f7f6;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tt-muted, #5b6e75);
+    border-bottom: 1px solid var(--tt-line, #e3e6e8);
+}
+.tt-profile-table tbody th,
+.tt-profile-table tbody td {
+    padding: 10px 12px;
+    border-top: 1px solid var(--tt-line, #eef0f1);
+    vertical-align: top;
+    font-size: 0.9375rem;
+    line-height: 1.35;
+}
+.tt-profile-table tbody tr:first-child th,
+.tt-profile-table tbody tr:first-child td {
+    border-top: 0;
+}
+.tt-profile-table tbody th {
+    text-align: left;
+    width: 40%;
+    color: var(--tt-muted, #5b6e75);
+    font-weight: 500;
+    background: #fbfcfc;
+}
+.tt-profile-table tbody td {
+    color: #1a1d21;
+    font-weight: 500;
+}
+
 @media (min-width: 768px) {
     .tt-player-profile-grid {
         grid-template-columns: 1fr 1fr;
         gap: 28px;
     }
+    .tt-profile-table tbody th { width: 38%; }
 }
 
 /* ---------- Empty-state card ---------- */

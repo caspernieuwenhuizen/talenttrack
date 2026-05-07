@@ -67,10 +67,14 @@ class AttendancePctRolling extends AbstractKpiDataSource {
         $start = gmdate( 'Y-m-d 00:00:00', strtotime( $from ) );
         $end   = $to === 'today' ? gmdate( 'Y-m-d 23:59:59' ) : gmdate( 'Y-m-d 00:00:00', strtotime( $to ) );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // v3.110.3 — `LOWER(a.status)='present'` to match both the
+        // seeded capitalised lookup values ('Present') and any legacy
+        // lowercase data from the v2.x present-int → status-string
+        // backfill in `Activator::installSchema`.
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS total,
-                SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) AS present
+                SUM(CASE WHEN LOWER(a.status) = 'present' THEN 1 ELSE 0 END) AS present
               FROM {$att_table} a
               JOIN {$act_table} act ON act.id = a.activity_id
              WHERE act.club_id = %d AND act.session_date >= %s AND act.session_date < %s",

@@ -1,63 +1,57 @@
-# TalentTrack v3.110.2 — URL-borne "Back to where you came from" navigation
+# TalentTrack v3.110.3 — Player profile polish: profile-tab table + tab-list bugs + analytics 30-day card + notes wiring
 
-Replaces the v3.108.2 referer-based back-link with a robust URL-encoded mechanism. Survives refresh, missing referers, and shared deep-links. Walks back through up to 5 hops. Renders an entity-aware "← Back to <X>" pill above the breadcrumb chain on every detail view.
+Pilot polish round on the player profile (`?tt_view=players&id=N`). Eight items shipped:
 
 ## What landed
 
-### `BackLink` component
+### Profile tab — proper table per section
 
-New `Shared\Frontend\Components\BackLink` class — three responsibilities:
+Replaced the `<dl>` / `<dt>` / `<dd>` two-column layout with a real `<table>` per section (Identity / Academy). Each table has a section-name `<thead>` row spanning both columns, then `<tbody>` rows with `<th scope="row">` field labels and `<td>` values. Visually distinct (white card with subtle border + zebra-striped row separators), semantically correct, and easier to read at a glance. Mobile-first CSS keeps the field column at ~40% and the value column dominant.
 
-- **`appendTo( $url )`** — appends `tt_back=<urlencoded current page URL>` to a target URL. Captures the current URL from `$_SERVER['REQUEST_URI']` in PHP rendering context, or from `$_SERVER['HTTP_REFERER']` in REST context (`REST_REQUEST` constant set).
-- **`renderPill()`** — emits `<a class="tt-back-link">← Back to <X></a>` when `$_GET['tt_back']` carries a valid same-origin URL; empty string otherwise.
-- **`captureCurrent()`** — returns the current request's full URL, suitable for embedding as the next page's `tt_back` value.
+### Goals + Evaluations CTA preserves player context
 
-Validation rejects cross-origin URLs and malformed strings. Output is `esc_url()`-escaped.
+The "Add first goal" and "Record first evaluation" CTAs on the player profile's empty Goals / Evaluations tabs already passed `?player_id=N`, but the receiving forms ignored it and still rendered a player picker. Now both forms detect the URL parameter, pre-fill the player (and the team for evaluations, derived from `tt_players.team_id`), and **hide the picker** entirely. The eval form replaces the dropdowns with a small "Recording evaluation for *Name*" headline so the operator stays oriented. Same shape as v3.108.4's PDP-form preset path.
 
-### 5-hop chain via URL nesting
+### Evaluations tab — list now matches the badge
 
-Every forward navigation captures the current page URL — which already carries any inherited `tt_back` — and embeds it as the next page's `tt_back`. The chain naturally nests via URL encoding. A user walking Teams → Team → Player → Activity → next ends up on a URL whose `tt_back` decodes to the previous page, whose own `tt_back` decodes to the page before that, up to 5 levels.
+The evaluations-tab query did `LEFT JOIN tt_eval_types et ON et.id = e.eval_type_id` to surface a type label, but `tt_eval_types` doesn't exist in the schema (eval typing moved to `tt_eval_categories` long ago). The JOIN errored silently and `wpdb->get_results()` returned empty — so the badge counted 1+ but the tab still rendered the "No evaluations yet" empty state. Dropped the JOIN and the type-label rendering; rows now show the eval date as the link label.
 
-`BackLink::truncateChain()` walks the nested chain on each push; when adding a sixth hop would exceed the cap, the deepest (oldest) `tt_back` is stripped, keeping URL length bounded (~3.7KB at 5 deep on typical academy URLs).
+### Activities tab — only completed activities
 
-### Entity-aware labels
+Filtering the activities tab list (and the matching badge count in `PlayerFileCounts::for()`) on `a.plan_state = 'completed'`. Attendance rows for scheduled / in-progress activities default to 'Present' on insert (the form's roster pre-fills every roster player), which made the tab read like the player attended every upcoming activity — confusing pilots who clicked into "Present" rows that hadn't actually happened. Tab and badge now agree on "real attendance history" instead of "every row that happens to exist in `tt_attendance`".
 
-New `BackLabelResolver` — given a back URL, parses `tt_view` and `id`, looks up the entity name in `tt_players` / `tt_teams` / `tt_activities` / `tt_goals` / `tt_pdp_files` / `tt_evaluations` / `tt_people` (always scoped to `CurrentClub::id()`), returns "Back to <name>". Falls back to a list-level label ("Back to Players") when the entity can't be resolved, and to "Back to Dashboard" when no `tt_view` is present.
+### Analytics tab — 30-day attendance card now returns data
 
-### Auto-render above the breadcrumb
+Two latent bugs in the Analytics fact registrations were silently zeroing out the 30-day attendance card on the player Analytics tab:
 
-`FrontendBreadcrumbs::render()` now prepends the back-pill output before the breadcrumb chain. Every view that renders breadcrumbs gets the pill for free — no per-view wiring needed. When `tt_back` is missing, `renderPill()` returns the empty string and the breadcrumbs render alone.
+- **Wrong time-column name.** The attendance + activities Facts referenced `a.start_at` / `f.start_at`, but the `tt_activities` table stores its scheduling timestamp as `session_date`. The 30-day filter (`date_after = -30 days`) couldn't bind, so the SELECT errored or returned nothing.
+- **Wrong status casing.** The `attendance_pct` measure compared `f.status = 'present'` (lowercase), but every write path stores capitalised values ('Present' / 'Absent' / 'Late' / 'Injured' / 'Excused' per the seeded `attendance_status` lookup). Even when the time filter worked, the AVG always returned 0.0%.
 
-### Call-site sweep
+Fixed both: time column → `session_date`, comparison → `LOWER(f.status) = 'present'` (defensive: matches both seeded capitalised values and any legacy lowercase data from the v2.x present-int → status-string backfill). Same `LOWER()` defensive normalisation applied to `Modules\PersonaDashboard\Kpis\AttendancePctRolling`'s rolling-28-day SQL so the HoD KPI strip's *Attendance %* card stops reading 0% on installs that rely on capitalised status values. Also corrected the `activity_type` dimension's column reference from the phantom `session_type` to the actual `activity_type_key`.
 
-- **`RecordLink::detailUrlForWithBack( $slug, $id )`** — drop-in replacement for `detailUrlFor()` that wraps the URL with `BackLink::appendTo()`. Used by every PHP frontend view that emits a list-to-detail or cross-entity link.
-- **PHP frontend views** swept (10 files): `FrontendTeamDetailView`, `FrontendPlayerDetailView`, `FrontendActivitiesManageView`, `FrontendGoalsManageView`, `FrontendEvaluationsView`, `FrontendPodiumView`, `FrontendPlayerStatusCaptureView`, `FrontendPdpManageView`, `FrontendPdpPlanningView`, `FrontendTrialsManageView` (the last via direct `BackLink::appendTo()` since it builds URLs raw).
-- **REST controllers** swept (5 files): `PlayersRestController`, `TeamsRestController`, `ActivitiesRestController`, `GoalsRestController`, `PeopleRestController`. The list-table cells (`name_link_html` / `team_link_html` / etc.) returned by these controllers now carry `tt_back` driven by the AJAX call's HTTP `Referer` (the page that initiated the call).
-- **Admin pages and form-save redirects** are intentionally NOT swept — admin contexts use the browser back button, and post-save redirects are forward navigations.
+### Notes — Save + Cancel after edit no longer dead
 
-### Mobile-first CSS
+`ensureSelfActions()` short-circuited when the message element already had a `.tt-thread-msg-actions` container, leaving the Save / Cancel buttons in place after a successful save. Their click handlers referenced a textarea that had been replaced with a static body div, so the buttons rendered but did nothing. Now `ensureSelfActions()` always removes any existing actions container before recreating Edit + Delete — the buttons reset cleanly after every edit transition.
 
-`.tt-back-link` styled as a 44-48px tappable pill: rounded border, white background with primary-coloured text, `touch-action: manipulation` to kill the 300ms tap delay, `prefers-reduced-motion` honored on the active-state translate. Renders inline-flex with the arrow glyph in a separate `<span>` so screen readers announce "Back to Team Ajax U17" as a single label.
+### Notes — Delete uses the in-app modal
 
-## What this is NOT
+`doDelete()` called `window.confirm()`, which felt out of place inside the otherwise app-styled thread surface. Now uses `window.ttConfirm()` (the existing in-app modal component, lazy-loaded by `FrontendThreadView::enqueueAssets()`) with a falls-back-to-`window.confirm` shim for installs that haven't enqueued `confirm.js` yet.
 
-- **Not a replacement for the browser back button.** The browser back is left alone — it walks the actual history stack including form posts and external auth round-trips. The pill is an in-page affordance, especially valuable on mobile where the browser back is small and unreliable after `wp_safe_redirect`.
-- **Not a session-state mechanism.** No transients, no cookies, no `wp_session`. The back chain lives entirely in the URL — share a deep-link and the recipient sees the same back target.
-- **Not retroactive.** Users on existing browser tabs without `tt_back` in the URL see no pill on detail views. Refreshing or re-navigating from a list view picks up the new behaviour.
+### Header card — age tier removed
+
+The "Age tier" pill was duplicated in both the header card AND the profile-tab Academy section. Removed from the header — the profile tab is its canonical home. Stripped the unused `$age_tier` / `$tier_label` locals from `renderHero()`.
 
 ## Affected files
 
-- `src/Shared/Frontend/Components/BackLink.php` — new component
-- `src/Shared/Frontend/Components/BackLabelResolver.php` — new component
-- `src/Shared/Frontend/Components/RecordLink.php` — `detailUrlForWithBack()` added
-- `src/Shared/Frontend/Components/FrontendBreadcrumbs.php` — auto-render pill in `render()`
-- `src/Shared/Frontend/Frontend{Team,Player}DetailView.php` — call-site sweep
-- `src/Shared/Frontend/Frontend{Activities,Goals,Evaluations,Podium,PlayerStatusCapture,Trials}*View.php` — call-site sweep
-- `src/Modules/Pdp/Frontend/FrontendPdp{Manage,Planning}View.php` — call-site sweep
-- `src/Infrastructure/REST/{Players,Teams,Activities,Goals,People}RestController.php` — call-site sweep
-- `assets/css/public.css` — `.tt-back-link` styles
-- `languages/talenttrack-nl_NL.po` — 23 new msgids
-- `docs/back-navigation.md` + `docs/nl_NL/back-navigation.md` — developer-facing pattern docs
+- `src/Shared/Frontend/FrontendPlayerDetailView.php` — profile-tab table conversion + activities-tab `plan_state` filter + evals-tab JOIN drop + hero age-tier removal
+- `src/Infrastructure/Query/PlayerFileCounts.php` — activities count badge mirrors the tab's `plan_state` filter
+- `src/Shared/Frontend/FrontendGoalsManageView.php` — goals form honours `?player_id=`
+- `src/Shared/Frontend/FrontendEvaluationsView.php` — passes `?player_id=` through to `CoachForms::renderEvalForm`
+- `src/Shared/Frontend/CoachForms.php` — `renderEvalForm` accepts `$preset_player_id`, hides team + player pickers when set
+- `src/Modules/Analytics/AnalyticsModule.php` — attendance + activities Facts use `session_date` / `activity_type_key` and case-insensitive status comparison
+- `src/Modules/PersonaDashboard/Kpis/AttendancePctRolling.php` — defensive `LOWER(status)='present'` for the rolling-28-day HoD card
+- `src/Shared/Frontend/Components/FrontendThreadView.php` — enqueues `tt-confirm` for the in-app delete modal
+- `assets/js/frontend-threads.js` — `ensureSelfActions` always resets; `doDelete` uses `ttConfirm`
+- `assets/css/frontend-player-detail.css` — `.tt-profile-table` styles
 - `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version + ship metadata
-
-Renumbered v3.110.0 → v3.110.2 across multiple rebases as parallel-agent ships took the v3.110.0 (#296 finish-deferred sweep) and v3.110.1 (#0086 session management) slots.
+- `languages/talenttrack-nl_NL.po` — 1 new msgid ("Recording evaluation for %s.")

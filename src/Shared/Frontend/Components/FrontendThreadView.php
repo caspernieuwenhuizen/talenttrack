@@ -136,10 +136,19 @@ final class FrontendThreadView {
             [ 'tt-public' ],
             TT_VERSION
         );
+        // v3.110.3 — ttConfirm modal so the per-message Delete button
+        // can use the in-app dialog instead of window.confirm().
+        wp_enqueue_script(
+            'tt-confirm',
+            TT_PLUGIN_URL . 'assets/js/components/confirm.js',
+            [],
+            TT_VERSION,
+            true
+        );
         wp_enqueue_script(
             'tt-frontend-threads',
             TT_PLUGIN_URL . 'assets/js/frontend-threads.js',
-            [],
+            [ 'tt-confirm' ],
             TT_VERSION,
             true
         );
