@@ -43,7 +43,7 @@ class FrontendPodiumView extends FrontendViewBase {
             echo '<h2 style="margin:0; font-size:16px;">';
             echo \TT\Shared\Frontend\Components\RecordLink::inline(
                 (string) $team->name,
-                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', (int) $team->id )
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', (int) $team->id )
             );
             echo '</h2>';
             if ( ! empty( $team->age_group ) ) {

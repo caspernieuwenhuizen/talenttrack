@@ -125,7 +125,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                     if ( $name === '' || $person_id <= 0 ) continue;
                     $role_key  = (string) $row['role_key'];
                     $role      = $role_key !== '' ? \TT\Infrastructure\Query\LabelTranslator::roleType( $role_key ) : '';
-                    $url       = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $person_id );
+                    $url       = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', $person_id );
                     ?>
                     <li>
                         <a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $name ); ?></a>
@@ -164,7 +164,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                 <tbody>
                     <?php foreach ( $players as $pl ) :
                         $name = QueryHelpers::player_display_name( $pl );
-                        $url  = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', (int) $pl->id );
+                        $url  = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', (int) $pl->id );
                         $positions = json_decode( (string) ( $pl->preferred_positions ?? '' ), true );
                         ?>
                         <tr>
@@ -222,7 +222,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         echo '<h3>' . esc_html__( 'Trial players', 'talenttrack' ) . '</h3>';
         echo '<ul class="tt-stack">';
         foreach ( $players as $pl ) {
-            $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', (int) $pl->id );
+            $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', (int) $pl->id );
             $name = QueryHelpers::player_display_name( $pl );
             echo '<li><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a>';
             echo ' <span class="tt-pill" style="background:#fff3e0; color:#a86322; font-size:11px; padding:2px 8px; border-radius:999px; margin-left:6px;">' . esc_html__( 'Trial', 'talenttrack' ) . '</span>';
@@ -251,7 +251,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             // v3.70.1 hotfix — use generic `activities` slug, not
             // `my-activities` (which is player-self-scope and gates
             // out academy admins / HoD opening from the team page).
-            $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', (int) $r->id );
+            $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'activities', (int) $r->id );
             echo '<li><a class="tt-record-link" href="' . esc_url( $url ) . '">';
             echo esc_html( (string) $r->session_date ) . ' &middot; ' . esc_html( (string) $r->title );
             echo '</a></li>';

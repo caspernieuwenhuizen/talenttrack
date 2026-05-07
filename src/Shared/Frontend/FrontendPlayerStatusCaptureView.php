@@ -201,7 +201,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                                 <?php if ( $related_activity_id > 0 ) : ?>
                                     <span class="tt-muted"> &middot;
                                         <?php
-                                        $act_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', $related_activity_id );
+                                        $act_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'activities', $related_activity_id );
                                         echo \TT\Shared\Frontend\Components\RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                                             __( 'View activity', 'talenttrack' ),
                                             $act_url

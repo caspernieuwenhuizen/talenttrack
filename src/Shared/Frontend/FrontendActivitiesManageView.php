@@ -157,7 +157,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             if ( $team_id > 0 ) {
                 echo \TT\Shared\Frontend\Components\RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                     $team_name,
-                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', $team_id )
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', $team_id )
                 );
             } else {
                 echo esc_html( $team_name );

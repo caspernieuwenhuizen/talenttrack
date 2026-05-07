@@ -191,14 +191,14 @@ class FrontendEvaluationsView extends FrontendViewBase {
                             // #0070 — player name links to player detail.
                             echo \TT\Shared\Frontend\Components\RecordLink::inline(
                                 $name,
-                                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', (int) $r->player_id )
+                                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', (int) $r->player_id )
                             );
                         ?></td>
                         <td><?php
                             if ( $team_id > 0 && $team_name !== '' ) {
                                 echo \TT\Shared\Frontend\Components\RecordLink::inline(
                                     $team_name,
-                                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', $team_id )
+                                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', $team_id )
                                 );
                             } else {
                                 echo esc_html( $team_name !== '' ? $team_name : '—' );
@@ -208,7 +208,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                             if ( $coach_name !== '' && $coach_pid > 0 ) {
                                 echo \TT\Shared\Frontend\Components\RecordLink::inline(
                                     $coach_name,
-                                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $coach_pid )
+                                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', $coach_pid )
                                 );
                             } else {
                                 echo esc_html( $coach_name !== '' ? $coach_name : '—' );

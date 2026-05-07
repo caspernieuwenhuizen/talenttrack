@@ -196,6 +196,46 @@
 .tt-breadcrumbs li[aria-current="page"] { color: #1a1d21; font-weight: 500; }
 .tt-breadcrumbs__sep { margin: 0 6px; color: var(--tt-line, #d8dcde); }
 
+/* Back-link pill (v3.110.0) — URL-borne "Back to where you came from"
+   navigation. Renders above the breadcrumb chain when the URL carries a
+   valid `tt_back` parameter. Mobile-first: 48px tap target, full-width
+   on phones, inline-block on tablet+. */
+.tt-back-link-wrap { margin: 8px 0 12px; }
+.tt-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 14px;
+    border: 1px solid var(--tt-line, #d8dcde);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--tt-primary, #0b3d2e);
+    font-size: .9375rem;
+    font-weight: 500;
+    text-decoration: none;
+    line-height: 1.2;
+    transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
+    touch-action: manipulation;
+}
+.tt-back-link:hover,
+.tt-back-link:focus-visible {
+    background: #f5f7f6;
+    border-color: var(--tt-primary, #0b3d2e);
+    color: var(--tt-primary, #0b3d2e);
+    text-decoration: none;
+}
+.tt-back-link:active { transform: translateX(-1px); }
+.tt-back-link__arrow {
+    font-size: 1.05rem;
+    line-height: 1;
+    color: var(--tt-primary, #0b3d2e);
+}
+@media (prefers-reduced-motion: reduce) {
+    .tt-back-link { transition: none; }
+    .tt-back-link:active { transform: none; }
+}
+
 /* Context-aware docs drawer (#0016 part B) */
 .tt-docs-drawer { position: fixed; inset: 0; z-index: 9999; }
 .tt-docs-drawer[hidden] { display: none; }

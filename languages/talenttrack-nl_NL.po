@@ -14077,3 +14077,77 @@ msgstr "Top bron-IPs"
 
 msgid "No automatic lockout in v1 — this view exists to surface volume so the operator can act when an unusual pattern emerges. Lockout is a v2 enhancement once real volume is observed."
 msgstr "Geen automatische blokkering in v1 — deze weergave is er om volume zichtbaar te maken zodat de operator kan handelen wanneer een ongebruikelijk patroon ontstaat. Blokkering is een v2-uitbreiding zodra er echt volume is."
+
+# v3.110.2 — URL-borne back-navigation pill ("Back to where you came from")
+
+msgid "Back to Dashboard"
+msgstr "Terug naar Dashboard"
+
+msgid "Back to Players"
+msgstr "Terug naar Spelers"
+
+msgid "Back to Teams"
+msgstr "Terug naar Teams"
+
+msgid "Back to People"
+msgstr "Terug naar Personen"
+
+msgid "Back to Activities"
+msgstr "Terug naar Activiteiten"
+
+msgid "Back to Goals"
+msgstr "Terug naar Doelen"
+
+msgid "Back to PDPs"
+msgstr "Terug naar OPP's"
+
+msgid "Back to Evaluations"
+msgstr "Terug naar Evaluaties"
+
+msgid "Back to Trial cases"
+msgstr "Terug naar Stagedossiers"
+
+msgid "Back to Reports"
+msgstr "Terug naar Rapportages"
+
+msgid "Back to Roles & rights"
+msgstr "Terug naar Rollen & rechten"
+
+msgid "Back to Configuration"
+msgstr "Terug naar Configuratie"
+
+msgid "Back to Audit log"
+msgstr "Terug naar Audit log"
+
+msgid "Back to My goals"
+msgstr "Terug naar Mijn doelen"
+
+msgid "Back to My activities"
+msgstr "Terug naar Mijn activiteiten"
+
+msgid "Back to My settings"
+msgstr "Terug naar Mijn instellingen"
+
+msgid "Back to Team blueprint"
+msgstr "Terug naar Teamblauwdruk"
+
+msgid "Back to PDP planning"
+msgstr "Terug naar OPP-planning"
+
+msgid "Back to Team planner"
+msgstr "Terug naar Teamplanner"
+
+msgid "Back"
+msgstr "Terug"
+
+#. translators: %s = entity display name (player, team, activity title, ...)
+msgid "Back to %s"
+msgstr "Terug naar %s"
+
+#. translators: %s = player display name
+msgid "%s's PDP"
+msgstr "OPP van %s"
+
+#. translators: 1: player name, 2: eval date
+msgid "Evaluation: %1$s (%2$s)"
+msgstr "Evaluatie: %1$s (%2$s)"

@@ -400,7 +400,7 @@ class TeamsRestController {
 
         $name_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $name !== '' ? $name : '#' . (int) $t->id,
-            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', (int) $t->id )
+            \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', (int) $t->id )
         );
 
         $coach_link_html = '';
@@ -413,7 +413,7 @@ class TeamsRestController {
                 if ( $hc_pid > 0 ) {
                     $links[] = \TT\Shared\Frontend\Components\RecordLink::inline(
                         (string) $hc_name,
-                        \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $hc_pid )
+                        \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', $hc_pid )
                     );
                 } else {
                     $links[] = esc_html( (string) $hc_name );
@@ -429,7 +429,7 @@ class TeamsRestController {
             if ( $legacy_name !== '' && $legacy_pid > 0 ) {
                 $coach_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
                     $legacy_name,
-                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $legacy_pid )
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', $legacy_pid )
                 );
             } elseif ( $legacy_name !== '' ) {
                 $coach_link_html = esc_html( $legacy_name );

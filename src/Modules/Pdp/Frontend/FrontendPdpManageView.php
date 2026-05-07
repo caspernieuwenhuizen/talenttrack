@@ -151,7 +151,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             $player_link = $player
                 ? \TT\Shared\Frontend\Components\RecordLink::inline(
                     $name,
-                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', (int) $player->id )
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', (int) $player->id )
                 )
                 : esc_html( $name );
             echo '<td>' . $player_link . '</td>';
@@ -765,7 +765,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             echo '<div style="flex:1; min-width:0;"><strong>'
                 . \TT\Shared\Frontend\Components\RecordLink::inline(
                     $title,
-                    \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'goals', (int) $g->id )
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'goals', (int) $g->id )
                 )
                 . '</strong>';
             if ( ! empty( $g->description ) ) {

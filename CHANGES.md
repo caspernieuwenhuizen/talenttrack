@@ -1,75 +1,63 @@
-# TalentTrack v3.110.1 — Session management UI + login-fail tracking (#0086 Workstream B Children 2 + 3)
+# TalentTrack v3.110.2 — URL-borne "Back to where you came from" navigation
 
-Two children of #0086 Workstream B bundled in one ship at user direction. Child 1 (TT-native MFA) shipped in v3.100.1 / v3.101.1 / v3.103.1. Child 4 (admin IP allowlist) is explicitly killed — see below.
+Replaces the v3.108.2 referer-based back-link with a robust URL-encoded mechanism. Survives refresh, missing referers, and shared deep-links. Walks back through up to 5 hops. Renders an entity-aware "← Back to <X>" pill above the breadcrumb chain on every detail view.
 
-This closes #0086 Workstream B except for Child 4 (killed). Workstream C (annual external audit by Securify or Computest) is the remaining work on the epic.
+## What landed
 
-Renumbered v3.109.0 → v3.110.1 across multiple rebases as 8 successive parallel-agent ships took the v3.109.x and v3.110.0 slots.
+### `BackLink` component
 
-## Child 2 — `?tt_view=my-sessions`
+New `Shared\Frontend\Components\BackLink` class — three responsibilities:
 
-Every logged-in user manages their own active WP sessions. The view reads `WP_Session_Tokens::get_for_user( $user_id )` directly — no parallel storage. Each session card surfaces a UA-derived device label (`Chrome on macOS`, `Safari on iPhone`, …), the IP address that started the session, sign-in time + expiry via `human_time_diff()`, and a *This session* badge on the cookie that authenticated this request.
+- **`appendTo( $url )`** — appends `tt_back=<urlencoded current page URL>` to a target URL. Captures the current URL from `$_SERVER['REQUEST_URI']` in PHP rendering context, or from `$_SERVER['HTTP_REFERER']` in REST context (`REST_REQUEST` constant set).
+- **`renderPill()`** — emits `<a class="tt-back-link">← Back to <X></a>` when `$_GET['tt_back']` carries a valid same-origin URL; empty string otherwise.
+- **`captureCurrent()`** — returns the current request's full URL, suitable for embedding as the next page's `tt_back` value.
 
-Per-session *Revoke* button on every session except the current one (revoking the current cookie would log the user out of the page that revoked it — they use the browser sign-out for that). *Revoke all other sessions* bulk button (only when 2+ sessions) calls `WP_Session_Tokens::destroy_others()` and keeps the current session.
+Validation rejects cross-origin URLs and malformed strings. Output is `esc_url()`-escaped.
 
-Every revocation writes a `tt_audit_log` row with action `session_revoked`, payload `mode = 'single' | 'all_others'`. Single-revoke payloads also carry a truncated token-id prefix for traceability without leaking the full SHA-256 hash.
+### 5-hop chain via URL nesting
 
-Wired in `DashboardShortcode::dispatchAccountView` alongside `my-settings`; new entry "My sessions" added to the user-menu dropdown next to "My settings". New admin-post endpoints `tt_my_sessions_revoke` + `tt_my_sessions_revoke_others` registered in `Kernel::boot()`.
+Every forward navigation captures the current page URL — which already carries any inherited `tt_back` — and embeds it as the next page's `tt_back`. The chain naturally nests via URL encoding. A user walking Teams → Team → Player → Activity → next ends up on a URL whose `tt_back` decodes to the previous page, whose own `tt_back` decodes to the page before that, up to 5 levels.
 
-Mobile-first per CLAUDE.md §2: ≥48px touch targets, native form POST works without JS, card layout uses `flex-wrap: wrap` so the *Revoke* button drops below the metadata block on phones.
+`BackLink::truncateChain()` walks the nested chain on each push; when adding a sixth hop would exceed the cap, the deepest (oldest) `tt_back` is stripped, keeping URL length bounded (~3.7KB at 5 deep on typical academy URLs).
 
-## Child 3 — login-fail tracking + Failed-logins tab
+### Entity-aware labels
 
-New `SecurityModule` registered in `config/modules.php`. `boot()` calls `LoginFailedSubscriber::init()`, which hooks `wp_login_failed` (priority 10, 2 args).
+New `BackLabelResolver` — given a back URL, parses `tt_view` and `id`, looks up the entity name in `tt_players` / `tt_teams` / `tt_activities` / `tt_goals` / `tt_pdp_files` / `tt_evaluations` / `tt_people` (always scoped to `CurrentClub::id()`), returns "Back to <name>". Falls back to a list-level label ("Back to Players") when the entity can't be resolved, and to "Back to Dashboard" when no `tt_view` is present.
 
-On every failed attempt: resolves the attempted username to a `wp_user.id` if it matches a real account (login OR email lookup); otherwise `user_id = 0`. Writes a `tt_audit_log` row with action `login_fail`, entity_type `auth`, entity_id = resolved user_id. Payload carries `username` (255-char), `user_agent` (255-char), and `error_code` from the `WP_Error` (`incorrect_password` / `invalid_username` / `invalidcombo` / etc.) so brute-force detection can distinguish account-targeted attacks from spray attempts. Source IP rides on the existing `ip_address` column.
+### Auto-render above the breadcrumb
 
-The audit-log surface (`?tt_view=audit-log`) gains a tab switcher at the top: **All entries** (the existing browser, default tab) / **Failed logins** (new aggregate view at `?tab=failed-logins`). The aggregate view shows last-7-day + last-30-day count cards, a daily breakdown table for the 30-day window, top-10 attempted usernames, and top-10 source IPs.
+`FrontendBreadcrumbs::render()` now prepends the back-pill output before the breadcrumb chain. Every view that renders breadcrumbs gets the pill for free — no per-view wiring needed. When `tt_back` is missing, `renderPill()` returns the empty string and the breadcrumbs render alone.
 
-The username-aggregation query uses `JSON_EXTRACT` against the `payload` column (MySQL 5.7+ / MariaDB 10.2.3+); on older hosts the username table is hidden gracefully and the daily breakdown + IP aggregate still work.
+### Call-site sweep
 
-**No automatic lockout in v1** per spec — visibility only; lockout is a v2 enhancement once real volume is observed.
+- **`RecordLink::detailUrlForWithBack( $slug, $id )`** — drop-in replacement for `detailUrlFor()` that wraps the URL with `BackLink::appendTo()`. Used by every PHP frontend view that emits a list-to-detail or cross-entity link.
+- **PHP frontend views** swept (10 files): `FrontendTeamDetailView`, `FrontendPlayerDetailView`, `FrontendActivitiesManageView`, `FrontendGoalsManageView`, `FrontendEvaluationsView`, `FrontendPodiumView`, `FrontendPlayerStatusCaptureView`, `FrontendPdpManageView`, `FrontendPdpPlanningView`, `FrontendTrialsManageView` (the last via direct `BackLink::appendTo()` since it builds URLs raw).
+- **REST controllers** swept (5 files): `PlayersRestController`, `TeamsRestController`, `ActivitiesRestController`, `GoalsRestController`, `PeopleRestController`. The list-table cells (`name_link_html` / `team_link_html` / etc.) returned by these controllers now carry `tt_back` driven by the AJAX call's HTTP `Referer` (the page that initiated the call).
+- **Admin pages and form-save redirects** are intentionally NOT swept — admin contexts use the browser back button, and post-save redirects are forward navigations.
 
-## Why Child 4 is killed
+### Mobile-first CSS
 
-Spec proposed `feat-admin-ip-whitelist` (~3-5 days, ~120 LOC, optional): per-club CIDR allowlist that returns 403 on admin / impersonation actions outside the list. Killed because (a) few academies have stable admin IPs — coaches and HoD log in from home, away matches, parent meetings, the academy itself, (b) MFA already covers the threat model — Workstream B Child 1 requires academy_admin + head_of_development to verify TOTP on every new session, (c) future SaaS migration moves IP gating to the platform (Cloudflare Access / Amazon WAF). The user direction `2a` made this decision explicit.
+`.tt-back-link` styled as a 44-48px tappable pill: rounded border, white background with primary-coloured text, `touch-action: manipulation` to kill the 300ms tap delay, `prefers-reduced-motion` honored on the active-state translate. Renders inline-flex with the arrow glyph in a separate `<span>` so screen readers announce "Back to Team Ajax U17" as a single label.
 
-## CI guard updates
+## What this is NOT
 
-`No legacy 'sessions' strings (#0035)` — three independent updates:
+- **Not a replacement for the browser back button.** The browser back is left alone — it walks the actual history stack including form posts and external auth round-trips. The pill is an in-page affordance, especially valuable on mobile where the browser back is small and unreliable after `wp_safe_redirect`.
+- **Not a session-state mechanism.** No transients, no cookies, no `wp_session`. The back chain lives entirely in the URL — share a deep-link and the recipient sees the same back target.
+- **Not retroactive.** Users on existing browser tabs without `tt_back` in the URL see no pill on detail views. Refreshing or re-navigating from a list view picks up the new behaviour.
 
-1. Removed `FrontendMySessionsView`, `tt-sessions`, and `my_sessions` from the forbidden-token list. Those names belong to the v3.110.1 WP-login-session feature, not the OLD training-session vocabulary the guard was put in place to protect. The remaining tokens still catch the OLD vocabulary regressions.
-2. Added `src/Shared/Admin/MySessionsActionHandlers.php` and `src/Shared/Frontend/FrontendMySessionsView.php` to the i18n-strings allow-list — both files legitimately use "session"/"sessions" in user-visible strings, all translated in the .po.
-3. Whitelisted `'my-sessions'` slug literal + `My sessions` user-menu label in the i18n-phrases allow-list — the shortcode dispatcher legitimately references the slug.
+## Affected files
 
-Also fixes two duplicate msgids (`Head coach` / `Team manager`) introduced by v3.108.1.
+- `src/Shared/Frontend/Components/BackLink.php` — new component
+- `src/Shared/Frontend/Components/BackLabelResolver.php` — new component
+- `src/Shared/Frontend/Components/RecordLink.php` — `detailUrlForWithBack()` added
+- `src/Shared/Frontend/Components/FrontendBreadcrumbs.php` — auto-render pill in `render()`
+- `src/Shared/Frontend/Frontend{Team,Player}DetailView.php` — call-site sweep
+- `src/Shared/Frontend/Frontend{Activities,Goals,Evaluations,Podium,PlayerStatusCapture,Trials}*View.php` — call-site sweep
+- `src/Modules/Pdp/Frontend/FrontendPdp{Manage,Planning}View.php` — call-site sweep
+- `src/Infrastructure/REST/{Players,Teams,Activities,Goals,People}RestController.php` — call-site sweep
+- `assets/css/public.css` — `.tt-back-link` styles
+- `languages/talenttrack-nl_NL.po` — 23 new msgids
+- `docs/back-navigation.md` + `docs/nl_NL/back-navigation.md` — developer-facing pattern docs
+- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version + ship metadata
 
-## Files
-
-### New
-- `src/Modules/Security/SecurityModule.php` — module registered in `config/modules.php`.
-- `src/Modules/Security/Hooks/LoginFailedSubscriber.php` — `wp_login_failed` → audit row.
-- `src/Shared/Frontend/FrontendMySessionsView.php` — `?tt_view=my-sessions` view.
-- `src/Shared/Admin/MySessionsActionHandlers.php` — admin-post endpoints.
-
-### Modified
-- `config/modules.php` — registers `SecurityModule`.
-- `src/Core/Kernel.php` — inits `MySessionsActionHandlers`.
-- `src/Shared/Frontend/DashboardShortcode.php` — `my-sessions` added to `$account_slugs` + dispatch arm + user-menu entry.
-- `src/Shared/Frontend/FrontendAuditLogView.php` — tab switcher + `Failed logins` aggregate view.
-- `.github/workflows/release.yml` — three CI guard updates per the section above.
-- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
-- `languages/talenttrack-nl_NL.po` — 9+ new msgids.
-- `docs/security-operator-guide.md` (EN+NL) — *Session management + login-fail tracking* section.
-
-## Translations
-
-9+ new NL msgids covering session labels (`This session`, `Signed in %s`, `Expires in %s`, `IP %s`, `Unknown device`), bulk + per-session button labels, the *Revoke all other sessions* confirm prompt, the tab switcher, and the four flash messages, plus failed-logins aggregate copy.
-
-## Player-centricity
-
-Indirect — sessions belong to user accounts, not players. But the threat this addresses is "a coach loses their phone with the academy account logged in"; the academy can lock out the device before sensitive player data is exposed. Closing the loop on the player-centricity-includes-protecting-the-player principle from CLAUDE.md §1.
-
-## SaaS-readiness
-
-The session-management surface is built against `WP_Session_Tokens` rather than direct `wp_user_meta` reads, so a future swap of the session backend (Redis-backed token store, JWT bearer tokens, etc.) only needs to honour the WP `WP_Session_Tokens` interface to keep the view working. The audit hook is portable — `wp_login_failed` is a stable WordPress hook; the SaaS migration will need to fire an equivalent signal on its own auth surface, but the consumer (audit row writer) doesn't care where the signal comes from.
+Renumbered v3.110.0 → v3.110.2 across multiple rebases as parallel-agent ships took the v3.110.0 (#296 finish-deferred sweep) and v3.110.1 (#0086 session management) slots.

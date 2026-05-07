@@ -82,6 +82,23 @@ final class RecordLink {
     }
 
     /**
+     * Same as `detailUrlFor()` but appends a `tt_back` query parameter
+     * carrying the current request's URL, so the destination view can
+     * render a "← Back to <X>" pill that returns the user to where
+     * they came from. Use from PHP frontend views that emit cross-
+     * entity links (team detail → player, players list → player, etc.).
+     *
+     * REST controllers should keep using `detailUrlFor()` — they emit
+     * URLs into JSON for JS consumers and don't have a meaningful
+     * "current request" to capture.
+     */
+    public static function detailUrlForWithBack( string $list_slug, int $id ): string {
+        $url = self::detailUrlFor( $list_slug, $id );
+        if ( $url === '' ) return '';
+        return BackLink::appendTo( $url );
+    }
+
+    /**
      * v3.70.1 hotfix — resolve the URL of the page hosting the
      * `[talenttrack_dashboard]` shortcode, so links built from REST /
      * admin contexts route through it instead of `home_url('/')`. Falls
