@@ -6,7 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Comms\Channel\Adapters\EmailChannelAdapter;
+use TT\Modules\Comms\Channel\Adapters\WhatsappLinkChannelAdapter;
 use TT\Modules\Comms\Channel\ChannelAdapterRegistry;
+use TT\Modules\Comms\Retention\CommsRetentionCron;
 
 /**
  * CommsModule (#0066) — central authority for outbound messages.
@@ -50,8 +52,17 @@ class CommsModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         // Register the default channel adapter. Per-use-case modules
-        // (push / sms / whatsapp_link / inapp) register theirs from
-        // their own module's boot() to keep module independence.
+        // (push / sms / inapp) register theirs from their own module's
+        // boot() to keep module independence; WhatsApp deep-link is a
+        // pure URL builder with no per-module dependency, so it lives
+        // here alongside Email.
         ChannelAdapterRegistry::register( new EmailChannelAdapter() );
+        ChannelAdapterRegistry::register( new WhatsappLinkChannelAdapter() );
+
+        // v3.109.0 — daily retention cron. Tombstones rows older than
+        // the per-club `comms_audit_retention_months` setting (default
+        // 18 per spec Q6 lean) by clearing `address_blob` + `subject`
+        // while keeping the row for safeguarding evidence.
+        CommsRetentionCron::init();
     }
 }

@@ -9,6 +9,9 @@ use TT\Modules\Export\Format\FormatRendererRegistry;
 use TT\Modules\Export\Format\Renderers\CsvRenderer;
 use TT\Modules\Export\Format\Renderers\IcsRenderer;
 use TT\Modules\Export\Format\Renderers\JsonRenderer;
+use TT\Modules\Export\Exporters\AttendanceRegisterCsvExporter;
+use TT\Modules\Export\Exporters\GoalsCsvExporter;
+use TT\Modules\Export\Exporters\PlayersListCsvExporter;
 use TT\Modules\Export\Exporters\TeamIcalExporter;
 use TT\Modules\Export\Rest\ExportRestController;
 
@@ -50,10 +53,24 @@ class ExportModule implements ModuleInterface {
         FormatRendererRegistry::register( new IcsRenderer() );
 
         // First v1 use case to prove the foundation end-to-end.
-        // Other use cases (player evaluation PDF, attendance CSV,
-        // GDPR ZIP, etc.) land in subsequent ships and register
-        // themselves from their owning modules.
+        // Other use cases (player evaluation PDF, GDPR ZIP, etc.)
+        // land in subsequent ships and register themselves from
+        // their owning modules.
         ExporterRegistry::register( new TeamIcalExporter() );
+
+        // v3.109.0 — three CSV use cases lifted from the spec's v1
+        // priority list (use cases 3, 5, 7). Pure-SQL exporters that
+        // exercise the existing `CsvRenderer` end-to-end and prove
+        // the foundation handles real production data shapes. They
+        // live here rather than in their owning Players / Activities /
+        // Goals modules because the readers are deliberately small
+        // and the registration line is cheaper than a six-line shell
+        // module update each. Future use cases that need owning-module
+        // state (e.g. cycle-aware PDP exports) will register from
+        // their owning module.
+        ExporterRegistry::register( new PlayersListCsvExporter() );
+        ExporterRegistry::register( new AttendanceRegisterCsvExporter() );
+        ExporterRegistry::register( new GoalsCsvExporter() );
 
         ExportRestController::init();
     }
