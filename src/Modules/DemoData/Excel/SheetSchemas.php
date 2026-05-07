@@ -122,7 +122,7 @@ final class SheetSchemas {
                 ],
             ],
             'sessions' => [
-                'sheet'   => 'Sessions',
+                'sheet'   => 'Activities',
                 'entity'  => 'activity',
                 'group'   => self::GROUP_TRANSACTIONAL,
                 'columns' => [

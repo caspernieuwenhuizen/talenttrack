@@ -60,6 +60,22 @@ final class ExcelImporter {
         $blockers = [];
         $warnings = [];
 
+        // v3.108.0 (#0080 Wave D) — the activities sheet renamed from
+        // "Sessions" to "Activities". Detect the legacy sheet name and
+        // emit a clear blocker; the importer reads the new name only.
+        if ( $book->getSheetByName( 'Sessions' ) !== null && $book->getSheetByName( 'Activities' ) === null ) {
+            $blockers[] = __( 'Sheet "Sessions" was renamed to "Activities" in v3.108.0 — re-download the demo-data template, or rename the sheet to "Activities" in your workbook.', 'talenttrack' );
+            return [
+                'ok'                  => false,
+                'blockers'            => $blockers,
+                'warnings'            => $warnings,
+                'imported'            => [],
+                'present_sheets'      => [],
+                'batch_id'            => null,
+                'generation_settings' => [],
+            ];
+        }
+
         // Read every importable sheet — empties become empty arrays,
         // tracked in `present_sheets` so the hybrid dispatcher knows
         // what to skip.
