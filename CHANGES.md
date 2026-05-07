@@ -1,51 +1,46 @@
-# TalentTrack v3.104.3 — Analytics dimension explorer: ?tt_view=explore (#0083 Child 3)
+# TalentTrack v3.104.4 — Analytics tab on player profile (#0083 Child 4)
 
-Third child of #0083 (Reporting framework). Ships the presentation layer that any KPI hands off to for drilldown — same UX everywhere. Reachable at `?tt_view=explore&kpi={key}`. Classified `desktop_only` per #0084 (dense filtering and chart interaction are desktop work — nobody analyses attendance trends on a phone).
+Fourth child of #0083 (Reporting framework). Adds the discovery surface that closes the "users have to know there's a separate Analytics page" gap from the spec problem statement: a coach looking at Lucas can now ask "how is Lucas doing on attendance" by clicking the new tab on the player file.
 
 ## What landed
 
-### `Modules\Analytics\Frontend\FrontendExploreView`
+### `Modules\Analytics\Frontend\EntityAnalyticsTabRenderer`
 
-Single view that drives the explorer surface.
+Reusable component that renders a KPI grid for `(scope, entity_id)`. Three pieces:
 
-- **Headline** — KPI's measure aggregated across the filtered rows. Computed via `FactQuery::run( $factKey, [], [$measureKey], $filters )`. Format honours the measure's `unit` (percent / minutes / rating) — crude v1; a shared formatter ships in a follow-up.
-- **Threshold flagging** — when the KPI declares `threshold` + `goalDirection`, the headline gets a "Below threshold — review with the team" sub-label when the value falls on the wrong side.
-- **Filter chips** — one input per KPI `exploreDimension`, plus the special `date_after` / `date_before` shortcuts for the time-column filter. Free-form text inputs in v1; a follow-up replaces them with combobox dropdowns over real dimension values.
-- **Group-by selector** — the user picks a dimension; the explorer re-runs the query with that dimension in the GROUP BY and renders a two-column table (dimension value + aggregated measure).
-- **URL state** — filter values + `group_by` round-trip via querystring. `?tt_view=explore&kpi=fact_player_attendance_pct_30d&filter_date_after=2026-01-01&filter_team_id_eq=12&group_by=team_id` fully describes the view; sharing a link reproduces it.
+1. **KPI selection** — `KpiRegistry::forEntity($scope)` returns every KPI scoped to that entity type, filtered to the persona's `context`:
+   - Parent on their child's profile → `PLAYER_PARENT` only.
+   - Coach (anyone with `tt_view_evaluations` or `tt_view_player_notes`) → `COACH` + `PLAYER_PARENT`.
+   - HoD / Admin (`tt_edit_settings`) → all three contexts.
+2. **Per-card value** — `KpiResolver::value( $kpi_key, [ <scope>_id_eq => $entity_id ] )` runs the KPI scoped to this entity. Threshold flagging: red headline when `goalDirection` + `threshold` apply and the value falls on the wrong side.
+3. **Click-through** — each card is a link to `?tt_view=explore&kpi={key}&filter_<scope>_id_eq={entity_id}`. The dimension explorer (Child 3) opens scoped to this entity automatically.
 
-### Dispatch wired
+CSS-grid layout (`auto-fit, minmax(220px, 1fr)`) wraps to single-column on phones and stretches to 5+ columns on wide desktops. Value formatting matches the explorer: percent / minutes / rating units render with their suffixes.
 
-`DashboardShortcode::render()` gets a new `analytics_explore_slugs = ['explore']` array dispatching to `FrontendExploreView::render()`. `CoreSurfaceRegistration::registerSlugOwnerships()` declares the slug owned by `Modules\Analytics\AnalyticsModule` so the module-disabled friendly notice fires when the module's flipped off.
+### Player detail view tab
 
-### `mobile_class = desktop_only`
+`FrontendPlayerDetailView::tabs()` adds an `'analytics'` entry. The tab list is only extended when the analytics renderer class is loadable (defensive against module-disable scenarios — if the Analytics module is disabled the tab disappears entirely rather than rendering an error page).
 
-`CoreSurfaceRegistration::registerMobileClasses()` adds `'explore'` to the `desktop_only` list. Phone-class user agents land on the #0084 Child 1 prompt page with the "Email me the link" affordance instead of a cramped explorer.
+The dispatch arm in `render()` calls `EntityAnalyticsTabRenderer::render( 'player', $player_id )`.
 
 ## What's NOT in this PR
 
-- **Chart.js time-series chart.** The spec mentions reusing #0077 M6's wiring — ships when the explorer earns it.
-- **Trend arrow + delta vs previous period** on the headline.
-- **Drilldown to underlying fact rows** (top 50, paginated). The drilldown is the third tier of the presentation; today the explorer goes "headline → grouped breakdown" and stops.
-- **Combobox dropdowns** over real dimension values. Today's filter chips are free-form text inputs — works for known integer ids and enum strings but not friendly for picking by name.
-- **Export CSV / PDF buttons** — Child 6 ships export across the whole framework.
-
-## Capability
-
-`read`. Per-KPI capability gating happens at the entry surfaces — Children 4 + 5 enforce the KPI's `context` (ACADEMY / COACH / PLAYER_PARENT) at the entity tab + the central analytics view. The explorer is reachable directly only via URL today; an unauthorised user typing the URL would see no data because the query auto-scopes to their `club_id` and the matrix gates upstream of REST limit what they can read.
+- **Team-detail and activity-detail tab integrations.** They need the same wiring on more complex page layouts; deferred to a follow-up so the player surface (the highest-leverage one) lands first.
+- **KPI count badges on the tab.** The existing `PlayerFileCounts::for()` infrastructure could light up an "alerts" count when threshold-flagged KPIs exist; deferred.
+- **Central analytics surface** at `?tt_view=analytics` — Child 5.
+- **Export + scheduled reports** — Child 6.
 
 ## Affected files
 
-- `src/Modules/Analytics/Frontend/FrontendExploreView.php` — new.
-- `src/Shared/Frontend/DashboardShortcode.php` — `analytics_explore_slugs` + dispatch.
-- `src/Shared/CoreSurfaceRegistration.php` — slug ownership + `mobile_class = desktop_only`.
-- `languages/talenttrack-nl_NL.po` — 12 new msgids.
+- `src/Modules/Analytics/Frontend/EntityAnalyticsTabRenderer.php` — new.
+- `src/Shared/Frontend/FrontendPlayerDetailView.php` — adds the `'analytics'` tab + dispatch arm.
+- `languages/talenttrack-nl_NL.po` — 1 new msgid.
 - `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
 
 ## Translations
 
-12 new translatable strings covering explorer copy.
+1 new translatable string ("No analytics available for this entity yet."). The tab label "Analytics" was already in the .po from earlier shipped surfaces. Every label inside the rendered KPI cards is wrapped in `__()` from the KPI registrations and surfaces here unchanged.
 
 ## Player-centricity
 
-The explorer is the answer to "every aggregation is one-off." A coach asking "how does my team's attendance compare across last three seasons" used to need a bespoke SQL query and bespoke filter UI; now they pick the attendance KPI from anywhere it surfaces, hit Explore, and pivot. The cost of the next analytical question drops to zero — same affordances every time.
+This child closes the discovery loop. Sprint 1's fact registry indexes "what we can ask"; Sprint 2's KPI platform answers "what's interesting to ask"; Sprint 3's explorer drills into specifics. Sprint 4 brings all of that to the surface where the user already is — the player profile. A coach reviewing Lucas's progress now has analytics one tap away. The cap-and-matrix gates that protect the player record extend automatically through the KPI's `context` field.

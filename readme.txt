@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.104.3
+Stable tag: 3.104.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.104.4 — Analytics tab on player profile (#0083 Child 4) =
+
+Fourth child of #0083. Adds the discovery surface — the analytics tab on the player profile that surfaces every player-scoped KPI from the platform. A coach looking at Lucas can now ask "how is Lucas doing on attendance" by clicking the new tab; they don't need to know there's a separate Analytics page. **(1) `Modules\Analytics\Frontend\EntityAnalyticsTabRenderer`** — reusable component that renders a KPI grid for `(scope, entity_id)`. Pulls `KpiRegistry::forEntity($scope)` filtered to the persona's `context` (`ACADEMY` / `COACH` / `PLAYER_PARENT`) — a parent on their child's profile sees only the curated `PLAYER_PARENT` subset; a coach sees `COACH` + `PLAYER_PARENT`; HoD / Admin see everything. Each card click-throughs to `?tt_view=explore&kpi={key}&filter_<scope>_id_eq={entity_id}` so the explorer (Child 3) opens scoped to the entity. **Card layout**: CSS-grid responsive (`auto-fit, minmax(220px, 1fr)`), headline value + label, threshold-flagged red when the KPI declares `goalDirection` + `threshold` and the value falls on the wrong side. **Value formatting** mirrors the explorer: percent / minutes / rating units render with their suffixes. **(2) Player detail view** at `?tt_view=players&id={n}` gains an `'analytics'` tab. The tab is only listed when the analytics renderer class is loadable (defensive against module-disable). **What's NOT in this PR**: the team-detail and activity-detail integrations (they need the same tab wiring; deferred to a follow-up because the team / activity detail views ship more complex layouts than the player detail's tab list); KPI count badges on the tab (the existing `PlayerFileCounts::for()` infrastructure could light up an "alerts" count when threshold-flagged KPIs exist; deferred); central analytics surface at `?tt_view=analytics` (Child 5); export + scheduled reports (Child 6). 1 new NL msgid (the tab label "Analytics"); the rest of the renderer's strings are already wrapped in `__()` from earlier shipped infrastructure.
 
 = 3.104.3 — Analytics dimension explorer: ?tt_view=explore (#0083 Child 3, desktop_only) =
 

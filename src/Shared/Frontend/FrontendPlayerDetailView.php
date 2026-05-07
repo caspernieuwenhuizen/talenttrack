@@ -67,6 +67,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( current_user_can( 'tt_view_player_notes' ) ) {
             $tabs['notes'] = __( 'Notes', 'talenttrack' );
         }
+        // #0083 Child 4 — Analytics tab. Discovery surface for the
+        // reporting framework: a coach looking at a player can ask
+        // "how is Lucas doing on attendance" without navigating to
+        // a separate Analytics page.
+        if ( class_exists( '\\TT\\Modules\\Analytics\\Frontend\\EntityAnalyticsTabRenderer' ) ) {
+            $tabs['analytics'] = __( 'Analytics', 'talenttrack' );
+        }
         return $tabs;
     }
 
@@ -147,6 +154,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     case 'pdp':         self::renderPdpTab( $player_id ); break;
                     case 'trials':      self::renderTrialsTab( $player_id ); break;
                     case 'notes':       self::renderNotesTab( $player_id, $user_id ); break;
+                    case 'analytics':
+                        // #0083 Child 4 — Analytics tab. Renders KPI grid
+                        // scoped to this player; cards click through to
+                        // the dimension explorer (#0083 Child 3).
+                        \TT\Modules\Analytics\Frontend\EntityAnalyticsTabRenderer::render( 'player', $player_id );
+                        break;
                     case 'profile':
                     default:            self::renderProfileTab( $player ); break;
                 }
