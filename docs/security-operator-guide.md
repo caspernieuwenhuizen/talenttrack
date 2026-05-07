@@ -69,6 +69,35 @@ What you're looking for in a healthy install: most rows are routine — login ev
 
 If you see something that doesn't match what you expect, take a screenshot, lock the suspect account (`wp-admin → Users → Edit user → set password to something random + remove all roles`), and contact MediaManiacs at the email below.
 
+### Failed-logins tab
+
+The audit log surface has two tabs at the top: **All entries** (the chronological browser above) and **Failed logins** (an aggregate view of `wp_login_failed` events). Open the Failed-logins tab to see:
+
+- **Last-7-day** and **last-30-day** total count of failed login attempts.
+- **Daily breakdown** of the last 30 days — useful for spotting a sudden spike.
+- **Top-10 attempted usernames** — surfaces account-targeted patterns (one user receiving lots of attempts).
+- **Top-10 source IPs** — surfaces spray patterns (one IP hammering many usernames).
+
+We do not auto-lock accounts on repeated failures in this version — the view is here to show you what's happening so you can decide. If you see an unusual pattern (an unfamiliar IP hitting an admin account dozens of times), reset the targeted user's password and rotate the academy's MFA-required-personas list to include that user.
+
+## My sessions — manage your own active devices
+
+Every logged-in user can open `?tt_view=my-sessions` (or click *My sessions* in the user-menu dropdown) to see their own active WordPress sessions. The view lists:
+
+- A friendly device label derived from the User-Agent (`Chrome on macOS`, `Safari on iPhone`, …).
+- The IP address that started the session.
+- When the session was created and when it expires.
+- A *This session* badge on the cookie that authenticated the current request.
+
+Two affordances:
+
+- **Revoke** (per-session, except your current one) — destroys that session token; the device using it will be signed out on its next request.
+- **Revoke all other sessions** — keeps your current session and destroys every other one. Useful when you're not sure where you're signed in, or when you suspect a compromise.
+
+Every revocation writes one `tt_audit_log` row (action `session_revoked`, payload `mode=single` or `mode=all_others`) so the operator's audit-log review picks it up.
+
+When to use this: a coach loses their phone with the academy account logged in. They open *My sessions* on a laptop, click *Revoke all other sessions*, and the lost phone is signed out before any sensitive player data is exposed.
+
 ## Impersonation — the operator's lens, not a back door
 
 The Academy Admin can switch into any user's session via [Impersonation](?page=tt-docs&topic=impersonation). This is intended for legitimate support and testing — not for spying. Three properties make it safer than a "share password" workaround:

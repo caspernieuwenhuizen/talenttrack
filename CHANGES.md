@@ -1,59 +1,75 @@
-# TalentTrack v3.110.0 — Finish-deferred sweep: 3 binary renderers + 3 channel adapters + RecipientResolver + federation JSON
+# TalentTrack v3.110.1 — Session management UI + login-fail tracking (#0086 Workstream B Children 2 + 3)
 
-Picks up the remaining infrastructure deferred by v3.105.0 (#0063 Export foundation) and v3.106.0 (#0066 Communication foundation). Ships the three binary renderers (PDF / XLSX / ZIP), the three remaining channel adapters (Push / SMS / In-app), the youth-contact `RecipientResolver` per #0042, and one more Export use case (federation JSON).
+Two children of #0086 Workstream B bundled in one ship at user direction. Child 1 (TT-native MFA) shipped in v3.100.1 / v3.101.1 / v3.103.1. Child 4 (admin IP allowlist) is explicitly killed — see below.
 
-## What landed
+This closes #0086 Workstream B except for Child 4 (killed). Workstream C (annual external audit by Securify or Computest) is the remaining work on the epic.
 
-### #0063 Export — three binary renderers + use case 11
+Renumbered v3.109.0 → v3.110.1 across multiple rebases as 8 successive parallel-agent ships took the v3.109.x and v3.110.0 slots.
 
-**`ZipRenderer`** (format `zip`) — pure PHP via the bundled `ZipArchive` extension. Bundles a payload of named entries into a single archive with an optional `MANIFEST.json` describing the archive (useful for GDPR exports where the receiving party benefits from a "what's in the box" file). Defensive: rejects `..` traversal in entry paths. Used by the future GDPR subject-access ZIP (use case 10) and full-club backup (use case 9 — delegates the data dump to #0013 Backup & DR).
+## Child 2 — `?tt_view=my-sessions`
 
-**`XlsxRenderer`** (format `xlsx`) — multi-sheet `.xlsx` via PhpSpreadsheet (already a production composer dep). Two payload shapes: single-sheet `[ headers, rows ]` (mirrors `CsvRenderer`'s contract; renderer puts both into a sheet named "Data") or multi-sheet `[ 'sheets' => [ 'Sheet name' => [ headers, rows ], ... ] ]`. Sheet names truncated to Excel's 31-char limit and stripped of `[]:*?\/`. Used by use case 6 (multi-sheet evaluations export) and use case 15 (round-tripped demo data).
+Every logged-in user manages their own active WP sessions. The view reads `WP_Session_Tokens::get_for_user( $user_id )` directly — no parallel storage. Each session card surfaces a UA-derived device label (`Chrome on macOS`, `Safari on iPhone`, …), the IP address that started the session, sign-in time + expiry via `human_time_diff()`, and a *This session* badge on the cookie that authenticated this request.
 
-**`PdfRenderer`** (format `pdf`) — DomPDF-backed, per spec Q1 lean (locked at v3.105.0: "DomPDF default + wkhtml escape hatch"). Adds `dompdf/dompdf ^2.0` to `composer.json` `require`. Two payload shapes: plain HTML string or `[ 'html' => ..., 'options' => [ 'paper' => 'A4', 'orientation' => 'portrait' ] ]`. Wraps body-only HTML in a minimal styled shell; full `<html>` documents pass through unchanged. `tt_pdf_render_html` filter lets brand-kit consumers prepend their letterhead. Self-gates on `Dompdf\Dompdf` class existence so a dev install that skipped composer install gets a clean `no_renderer` 500 instead of a fatal.
+Per-session *Revoke* button on every session except the current one (revoking the current cookie would log the user out of the page that revoked it — they use the browser sign-out for that). *Revoke all other sessions* bulk button (only when 2+ sessions) calls `WP_Session_Tokens::destroy_others()` and keeps the current session.
 
-**`FederationJsonExporter`** (`exporter_key = federation_json`, use case 11). Per spec Q5 lean ("v1 = single neutral envelope; v2 = per-federation adapters as clubs request them"). Joins `tt_players` × `tt_teams`, groups players by team, emits `{ club, teams: [ { id, name, age_group, players: [...] } ] }` shape inside `JsonRenderer`'s standard meta envelope. Filters: `team_id` (optional), `status` (active / archived / trial / all). Cap `tt_view_players`. Federation-specific adapters (KNVB / FA / DFB / NFF) ship as separate exporters per-club request rather than upfront.
+Every revocation writes a `tt_audit_log` row with action `session_revoked`, payload `mode = 'single' | 'all_others'`. Single-revoke payloads also carry a truncated token-id prefix for traceability without leaking the full SHA-256 hash.
 
-All three renderers and the new exporter are registered in `ExportModule::boot()` alongside the v3.105.0 / v3.109.0 entries. The "register from owning module" plan was reversed at v3.110.0 — keeping renderers and CSV/JSON exporters in this module is clearer for the dispatcher to reason about than scattering them across owning modules.
+Wired in `DashboardShortcode::dispatchAccountView` alongside `my-settings`; new entry "My sessions" added to the user-menu dropdown next to "My settings". New admin-post endpoints `tt_my_sessions_revoke` + `tt_my_sessions_revoke_others` registered in `Kernel::boot()`.
 
-### #0066 Communication — three remaining channel adapters + RecipientResolver
+Mobile-first per CLAUDE.md §2: ≥48px touch targets, native form POST works without JS, card layout uses `flex-wrap: wrap` so the *Revoke* button drops below the metadata block on phones.
 
-**`PushChannelAdapter`** (channel `push`) per spec Q4 lean ("extend existing Push module + register Push as a Comms channel adapter"). Wraps the existing `Modules\Push` infrastructure rather than re-implementing it: subscription lookup via `PushSubscriptionsRepository::activeForUser()`, dispatch via `WebPushSender::send()`, dead-subscription pruning on HTTP 410 Gone (mirrors the existing #0042 lifecycle rule). `tt_comms_push_send` filter lets alternative push backends or a queue-dispatch pattern short-circuit the default. Body strips HTML and truncates to 280 chars (Web Push 4KB ceiling). Reachability: at least one active subscription within the last 90 days.
+## Child 3 — login-fail tracking + Failed-logins tab
 
-**`SmsChannelAdapter`** (channel `sms`) per spec Q2 lean ("abstract from day one"). Provider-agnostic shell — does NOT pick a transport itself. Delivery via `tt_comms_sms_send` filter that a per-club provider plugin registers (Twilio, MessageBird, Infobip, etc.). No filter registered → `STATUS_FAILED` with `error_code = 'no_sms_provider'` so the audit trail records the miss cleanly. Phone normalisation: digits-only with optional leading `+` preserved for transports that require canonical E.164. Subject prepended to body when distinct; HTML stripped; truncated to 480 chars (~3 SMS segments).
+New `SecurityModule` registered in `config/modules.php`. `boot()` calls `LoginFailedSubscriber::init()`, which hooks `wp_login_failed` (priority 10, 2 args).
 
-**`InappChannelAdapter`** (channel `inapp`). Persists rendered messages into a new `tt_comms_inbox` table (migration `0076_comms_inbox`) keyed on `recipient_user_id` with `read_at` for first-view tracking. The persona-dashboard inbox surface lands separately; a future `GET /comms/inbox` REST endpoint backs the web-app variant. "Delivery" semantics: `STATUS_SENT` once the row hits the database; whether the recipient opens it is a delivery-receipt concern captured by `read_at`. Defensive short-circuit when the migration hasn't run yet. Emits `tt_comms_inapp_delivered` action on successful insert. Reachability: `userId > 0`.
+On every failed attempt: resolves the attempted username to a `wp_user.id` if it matches a real account (login OR email lookup); otherwise `user_id = 0`. Writes a `tt_audit_log` row with action `login_fail`, entity_type `auth`, entity_id = resolved user_id. Payload carries `username` (255-char), `user_agent` (255-char), and `error_code` from the `WP_Error` (`incorrect_password` / `invalid_username` / `invalidcombo` / etc.) so brute-force detection can distinguish account-targeted attacks from spray attempts. Source IP rides on the existing `ip_address` column.
 
-**Migration `0076_comms_inbox`** — `tt_comms_inbox` table. One row per recipient × message; columns mirror `tt_comms_log` plus `body`, `payload_json`, `read_at`. Indexes on `(recipient_user_id, read_at)` for the unread-count query, `(club_id, created_at)` for tenant-scoped pagination, `uuid` for cross-reference with the audit log. Coexists with v3.109.3's `0076_custom_widgets` migration — both files share the `0076_` prefix but are disambiguated by their `getName()` return values, mirroring the existing `0075_comms_log` + `0075_scheduled_reports` precedent.
+The audit-log surface (`?tt_view=audit-log`) gains a tab switcher at the top: **All entries** (the existing browser, default tab) / **Failed logins** (new aggregate view at `?tab=failed-logins`). The aggregate view shows last-7-day + last-30-day count cards, a daily breakdown table for the 30-day window, top-10 attempted usernames, and top-10 source IPs.
 
-**`RecipientResolver`** (#0042 enforcer, `Modules\Comms\Recipient\RecipientResolver`). Translates a "who is this message about" intent into the concrete `Recipient[]` the dispatcher delivers to. Rules per #0042's `AgeTier`:
+The username-aggregation query uses `JSON_EXTRACT` against the `payload` column (MySQL 5.7+ / MariaDB 10.2.3+); on older hosts the username table is hidden gracefully and the daily breakdown + IP aggregate still work.
 
-- **U8-U10**: parent only (no direct player surface).
-- **U11-U12**: player primary (push / phone) + parent fallback — both returned so the dispatcher's channel-resolver picks based on reachability.
-- **U12+**: player primary, parent NOT cc'd by default (the 16-17 cohort club-policy bit lands when the setting exists).
-- **Unknown** (no DOB): conservative default — both player and parents returned.
+**No automatic lockout in v1** per spec — visibility only; lockout is a v2 enhancement once real volume is observed.
 
-`forPlayer($playerId)` applies the rule. `forPlayerWithParents($playerId)` returns ALL linked parents regardless of tier — used by mass announcements and safeguarding broadcasts (use cases 14 / 15). Falls back to legacy `tt_players.guardian_email` / `tt_players.guardian_phone` when no `tt_player_parents` rows exist (older installs that haven't migrated).
+## Why Child 4 is killed
 
-`CommsModule::boot()` now registers all five channel adapters in one place (Email + WhatsApp + Push + SMS + In-app), reversing the original "register from owning module" plan — keeping the channel registry in one module is clearer for the dispatcher's channel-resolver and the thin-wrap adapters don't actually couple Comms to the wrapped modules' lifecycles.
+Spec proposed `feat-admin-ip-whitelist` (~3-5 days, ~120 LOC, optional): per-club CIDR allowlist that returns 403 on admin / impersonation actions outside the list. Killed because (a) few academies have stable admin IPs — coaches and HoD log in from home, away matches, parent meetings, the academy itself, (b) MFA already covers the threat model — Workstream B Child 1 requires academy_admin + head_of_development to verify TOTP on every new session, (c) future SaaS migration moves IP gating to the platform (Cloudflare Access / Amazon WAF). The user direction `2a` made this decision explicit.
 
-### Composer
+## CI guard updates
 
-- Adds `dompdf/dompdf ^2.0` to production `require`. Inflates the release ZIP by ~5MB; CI's `composer install --no-dev` resolves it automatically on tag push.
+`No legacy 'sessions' strings (#0035)` — three independent updates:
 
-## What's NOT in this PR (intentionally deferred)
+1. Removed `FrontendMySessionsView`, `tt-sessions`, and `my_sessions` from the forbidden-token list. Those names belong to the v3.110.1 WP-login-session feature, not the OLD training-session vocabulary the guard was put in place to protect. The remaining tokens still catch the OLD vocabulary regressions.
+2. Added `src/Shared/Admin/MySessionsActionHandlers.php` and `src/Shared/Frontend/FrontendMySessionsView.php` to the i18n-strings allow-list — both files legitimately use "session"/"sessions" in user-visible strings, all translated in the .po.
+3. Whitelisted `'my-sessions'` slug literal + `My sessions` user-menu label in the i18n-phrases allow-list — the shortcode dispatcher legitimately references the slug.
 
-- **The 14 remaining Comms use-case templates** — per the #0066 spec each lands "with its owning module's first send"; concrete copy + per-locale wording, not infrastructure.
-- **The 9 remaining #0063 use-case-specific binary exporters** (use cases 1, 2, 4, 6, 8, 9, 10, 13, 14) — each needs brand-kit + use-case-specific design.
-- **Async pipeline + Action Scheduler** (Q2) — major architectural change; lands with first big-export use case (likely GDPR ZIP).
-- **Brand-kit template inheritance for PDFs** (Q7) — `tt_pdf_render_html` filter lets per-use-case consumers prepend letterhead today; *automatic* inheritance lands when the PDF renderer earns it.
-- **Per-coach signed-token iCal subscription URLs** (Q4) — needs the "subscribe to this calendar" UI surface.
-- **Two-way inbound + auto-reply** (Q8) — separate epic; Comms is one-way in v1.
-- **Operator-facing opt-out preferences UI** — pure UI work; underlying `OptOutPolicy` already reads `wp_user_meta`.
-- **6 follow-up Playwright specs** — landing pass-or-skip stubs would create the appearance of coverage without delivering it; need iterative selector tuning against real CI per the v3.107.0 cadence.
+Also fixes two duplicate msgids (`Head coach` / `Team manager`) introduced by v3.108.1.
 
-## Notes
+## Files
 
-- Renumbered v3.109.1 → v3.110.0 mid-rebase against the parallel-agent #0078 ship train: v3.109.1 (Analytics tab follow-ups) + v3.109.2 (Seed review) + v3.109.3-7 (#0078 Phases 2–6, closing the Custom widget builder epic).
-- Zero new operator-facing strings — federation JSON exporter's label uses an existing `__()` pattern.
-- One new migration: `0076_comms_inbox`.
+### New
+- `src/Modules/Security/SecurityModule.php` — module registered in `config/modules.php`.
+- `src/Modules/Security/Hooks/LoginFailedSubscriber.php` — `wp_login_failed` → audit row.
+- `src/Shared/Frontend/FrontendMySessionsView.php` — `?tt_view=my-sessions` view.
+- `src/Shared/Admin/MySessionsActionHandlers.php` — admin-post endpoints.
+
+### Modified
+- `config/modules.php` — registers `SecurityModule`.
+- `src/Core/Kernel.php` — inits `MySessionsActionHandlers`.
+- `src/Shared/Frontend/DashboardShortcode.php` — `my-sessions` added to `$account_slugs` + dispatch arm + user-menu entry.
+- `src/Shared/Frontend/FrontendAuditLogView.php` — tab switcher + `Failed logins` aggregate view.
+- `.github/workflows/release.yml` — three CI guard updates per the section above.
+- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version bump + ship metadata.
+- `languages/talenttrack-nl_NL.po` — 9+ new msgids.
+- `docs/security-operator-guide.md` (EN+NL) — *Session management + login-fail tracking* section.
+
+## Translations
+
+9+ new NL msgids covering session labels (`This session`, `Signed in %s`, `Expires in %s`, `IP %s`, `Unknown device`), bulk + per-session button labels, the *Revoke all other sessions* confirm prompt, the tab switcher, and the four flash messages, plus failed-logins aggregate copy.
+
+## Player-centricity
+
+Indirect — sessions belong to user accounts, not players. But the threat this addresses is "a coach loses their phone with the academy account logged in"; the academy can lock out the device before sensitive player data is exposed. Closing the loop on the player-centricity-includes-protecting-the-player principle from CLAUDE.md §1.
+
+## SaaS-readiness
+
+The session-management surface is built against `WP_Session_Tokens` rather than direct `wp_user_meta` reads, so a future swap of the session backend (Redis-backed token store, JWT bearer tokens, etc.) only needs to honour the WP `WP_Session_Tokens` interface to keep the view working. The audit hook is portable — `wp_login_failed` is a stable WordPress hook; the SaaS migration will need to fire an equivalent signal on its own auth surface, but the consumer (audit row writer) doesn't care where the signal comes from.

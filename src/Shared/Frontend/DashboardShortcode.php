@@ -182,7 +182,11 @@ class DashboardShortcode {
         // linked to a player record" for coach/admin/scout users who
         // clicked it from the user-menu dropdown.
         $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'my-pdp', 'profile', 'my-journey' ];
-        $account_slugs   = [ 'my-settings' ];
+        // #0086 Workstream B Child 2 — `my-sessions` lists the user's
+        // active WP session tokens with per-session + revoke-all-others
+        // affordances. Like `my-settings` it's account-level: every
+        // logged-in user manages their own.
+        $account_slugs   = [ 'my-settings', 'my-sessions' ];
         $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'pdp-planning', 'player-status-methodology', 'player-status-capture', 'team-chemistry', 'team-blueprints', 'podium', 'methodology', 'player-journey', 'mail-compose' ];
         $analytics_slugs = [ 'rate-cards', 'compare', 'reports' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
@@ -485,6 +489,13 @@ class DashboardShortcode {
         switch ( $view ) {
             case 'my-settings':
                 FrontendMySettingsView::render();
+                break;
+            case 'my-sessions':
+                // #0086 Workstream B Child 2 — every logged-in user
+                // can manage their own active sessions; no separate
+                // capability beyond `read`, which the matrix-dispatch
+                // gate above already enforces.
+                FrontendMySessionsView::render();
                 break;
             default:
                 FrontendBackButton::render();
@@ -938,6 +949,13 @@ class DashboardShortcode {
         echo '<div class="tt-user-menu-dropdown" role="menu">';
         echo '<a href="' . esc_url( $profile_url ) . '" class="tt-user-menu-item" role="menuitem">';
         echo esc_html__( 'My settings', 'talenttrack' );
+        echo '</a>';
+        // #0086 Workstream B Child 2 — entry point to the active-sessions
+        // surface. Available to every logged-in user; the view scopes
+        // to current_user_id() server-side.
+        $sessions_url = add_query_arg( [ 'tt_view' => 'my-sessions' ], $base_url );
+        echo '<a href="' . esc_url( $sessions_url ) . '" class="tt-user-menu-item" role="menuitem">';
+        echo esc_html__( 'My sessions', 'talenttrack' );
         echo '</a>';
 
         // #0033 Sprint 4 — persona switcher. Visible only when the user

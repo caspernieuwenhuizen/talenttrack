@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.0
+Stable tag: 3.110.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.1 — Session management UI + login-fail tracking (#0086 Workstream B Children 2 + 3) =
+
+Two children of #0086 Workstream B bundled in one ship at user direction. Closes Children 2 + 3 (Child 1 — TT-native MFA — shipped in v3.100.1 / v3.101.1 / v3.103.1; Child 4 — admin IP allowlist — explicitly killed by user direction). **Child 2 — `?tt_view=my-sessions`**: every logged-in user sees their active WP sessions (device label derived from User-Agent, IP address, sign-in time, expiry), with a per-session *Revoke* button and a *Revoke all other sessions* bulk action. The bulk action keeps the current session and destroys the rest via `WP_Session_Tokens::destroy_others()`; per-session calls `destroy()`. The current session is marked with a *This session* badge and its *Revoke* button is intentionally absent. Audit-log every revocation under action `session_revoked` with `mode=single` or `mode=all_others` in the payload. New entry under the user-menu dropdown ("My sessions" next to "My settings"). Mobile-first per CLAUDE.md §2: ≥48px touch targets on every button + native form POST + JS-free fallback. **Child 3 — login-fail tracking + Failed-logins tab**: new `SecurityModule` registers a `LoginFailedSubscriber` that hooks `wp_login_failed`. Every failed attempt writes one `tt_audit_log` row with action `login_fail`; payload carries the attempted username, User-Agent, and the WP_Error code (`incorrect_password` / `invalid_username` / `invalidcombo` / etc.) so brute-force detection can distinguish account-targeted attacks from spray attempts. The audit-log surface gains a tab switcher: *All entries* / *Failed logins*. The aggregate view shows last-7-days + last-30-days totals, daily breakdown, top-10 attempted usernames, top-10 source IPs. **No automatic lockout in v1** per spec — visibility only. Per the Q1 spec lock, Child 4 (`feat-admin-ip-whitelist`) is killed: per-club CIDR allowlist on admin actions doesn't survive the cost/benefit analysis given how few academies have stable admin IPs. **What's NOT in this PR**: per-session geo-IP lookup; lockout policy; admin "browse another user's sessions" view; login-attempt rate limiting; IP allowlist (killed). **CI guard**: `No legacy 'sessions' strings (#0035)` updated — `FrontendMySessionsView`, `tt-sessions`, `my_sessions` removed from the forbidden list since they belong to this feature's WP-login-session namespace, not the OLD training-session vocabulary; `'my-sessions'` slug + `My sessions` user-menu label whitelisted in the i18n-strings guard. 9+ new NL msgids. `docs/security-operator-guide.md` (EN+NL) gets a "Session management + login-fail tracking" section. Closes #0086 Workstream B except for the deliberately-killed Child 4; Workstream C (external audit) is the remaining work. Renumbered v3.109.0 → v3.110.1 across multiple rebases as 8 successive parallel-agent ships took the v3.109.x and v3.110.0 slots. Also fixes two duplicate msgids (Head coach / Team manager) introduced by v3.108.1.
 
 = 3.110.0 — Finish-deferred sweep: 3 binary renderers + 3 channel adapters + RecipientResolver + federation JSON =
 
