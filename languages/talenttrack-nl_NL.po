@@ -13990,7 +13990,7 @@ msgstr "Je hebt geen toegang tot deze gegevens."
 msgid "You do not have permission to clear the cache."
 msgstr "Je hebt geen rechten om de cache te wissen."
 
-# v3.110.0 — #0086 Workstream B Child 2: session management UI
+# v3.110.1 — #0086 Workstream B Child 2: session management UI
 
 msgid "My sessions"
 msgstr "Mijn sessies"
@@ -14043,7 +14043,7 @@ msgstr "Kon de in te trekken sessie niet identificeren. Probeer opnieuw."
 msgid "That is your current session — use the browser sign-out, or use \"Revoke all other sessions\" first."
 msgstr "Dat is je huidige sessie — gebruik uitloggen in de browser, of gebruik eerst \"Alle andere sessies intrekken\"."
 
-# v3.110.0 — #0086 Workstream B Child 3: login-fail tracking + Failed-logins tab
+# v3.110.1 — #0086 Workstream B Child 3: login-fail tracking + Failed-logins tab
 
 msgid "All entries"
 msgstr "Alle items"
