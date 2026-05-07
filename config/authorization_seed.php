@@ -58,6 +58,7 @@ $mod_onboarding       = TT\Modules\Onboarding\OnboardingModule::class;
 $mod_demo             = TT\Modules\DemoData\DemoDataModule::class;
 $mod_pdp              = TT\Modules\Pdp\PdpModule::class;
 $mod_team_dev         = TT\Modules\TeamDevelopment\TeamDevelopmentModule::class;
+$mod_analytics        = TT\Modules\Analytics\AnalyticsModule::class;
 $mod_workflow         = TT\Modules\Workflow\WorkflowModule::class;
 $mod_development      = TT\Modules\Development\DevelopmentModule::class;
 $mod_trials           = class_exists( '\TT\Modules\Trials\TrialsModule' )           ? \TT\Modules\Trials\TrialsModule::class           : $mod_authorization;
@@ -429,6 +430,8 @@ return array_merge(
         'compare'                       => [ 'r',   'global', $mod_stats ],
         'usage_stats'                   => [ 'r',   'global', $mod_authorization ],
         'usage_stats_details'           => [ 'r',   'global', $mod_stats ],
+        // #0083 Child 5 — central analytics surface (R global).
+        'analytics'                     => [ 'r',   'global', $mod_analytics ],
         // bulk_import removed for HoD
         'evaluation_categories'         => [ 'r',   'global', $mod_evals ],
         'category_weights'              => [ 'r',   'global', $mod_evals ],
@@ -542,6 +545,8 @@ return array_merge(
         'compare'                       => [ 'r',   'global', $mod_stats ],
         'usage_stats'                   => [ 'r',   'global', $mod_authorization ],
         'usage_stats_details'           => [ 'r',   'global', $mod_stats ],
+        // #0083 Child 5 — central analytics surface (R global).
+        'analytics'                     => [ 'r',   'global', $mod_analytics ],
         'bulk_import'                   => [ 'c',   'global', $mod_players ],
         'custom_field_values'           => [ 'rcd', 'global', $mod_configuration ],
         'custom_field_definitions'      => [ 'rcd', 'global', $mod_configuration ],

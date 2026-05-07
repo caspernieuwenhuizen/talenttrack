@@ -215,6 +215,8 @@ class DashboardShortcode {
         $mobile_slugs = [ 'mobile-settings' ];
         // #0083 Child 3 — analytics dimension explorer.
         $analytics_explore_slugs = [ 'explore' ];
+        // #0083 Child 5 — central analytics surface.
+        $analytics_central_slugs = [ 'analytics' ];
 
         // #0084 Child 1 — desktop-only mobile gate. When the visitor is
         // a phone-class user agent, the requested view is classified
@@ -351,6 +353,8 @@ class DashboardShortcode {
             FrontendMobileSettingsView::render( $user_id, $is_admin );
         } elseif ( in_array( $view, $analytics_explore_slugs, true ) ) {
             \TT\Modules\Analytics\Frontend\FrontendExploreView::render( $user_id, $is_admin );
+        } elseif ( in_array( $view, $analytics_central_slugs, true ) ) {
+            \TT\Modules\Analytics\Frontend\FrontendAnalyticsView::render( $user_id, $is_admin );
         } else {
             FrontendBackButton::render();
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';

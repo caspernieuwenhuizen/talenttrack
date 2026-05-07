@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.104.4
+Stable tag: 3.104.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.104.5 — Central analytics surface + matrix entity (#0083 Child 5, desktop_only) =
+
+Fifth child of #0083. Adds the central exploration surface for users who think "I want to explore data" rather than "I want to look at a specific player." Reachable at `?tt_view=analytics`. Cap-gated; HoD + Admin by default. Coaches reach analytics through the per-entity tabs (Child 4) on the players + teams + activities they have access to. **(1) `Modules\Analytics\Frontend\FrontendAnalyticsView`** — renders an academy-wide KPI grid pulling every `ACADEMY`-context KPI from `KpiRegistry::byContext()`. Each card click-throughs to `?tt_view=explore&kpi={key}` (the dimension explorer from Child 3). Threshold flagging mirrors the entity tab (Child 4). Two-column layout with an entity selector on the left lands in a follow-up; today the page surfaces academy-wide KPIs only. **(2) New cap `tt_view_analytics`** in `LegacyCapMapper::MAPPING`, bridging to the new `analytics` matrix entity (`analytics:read`). HoD + Admin hold it via the seed; coaches do not. **(3) New matrix entity `analytics`** seeded in `config/authorization_seed.php` with `r[global]` for both head_of_development and academy_admin. **(4) `MatrixEntityCatalog`** registers the entity label so the operator-facing matrix admin surfaces "Analytics" as a row. **(5) Top-up migration `0074_authorization_seed_topup_analytics`** backfills existing installs with the two new tuples (mirrors the 0063/0064/0067/0069 pattern). Idempotent INSERT IGNORE; safe to re-run. **(6) `mobile_class = desktop_only`** registered — phone-class user agents see the polite "Open on desktop" page from #0084 Child 1. **(7) Slug ownership** `analytics` → `AnalyticsModule` registered in `CoreSurfaceRegistration` for the module-disabled friendly notice. **(8) Dispatch wired** in `DashboardShortcode::render()` (new `analytics_central_slugs = ['analytics']` array). **What's NOT in this PR**: two-column layout with entity selector tiles (player / team / activity / season / scout) on the left (follow-up); per-entity-instance picker (drill from "Player" tile to specific player); export + scheduled reports (Child 6). 3 new NL msgids covering the central-view copy.
 
 = 3.104.4 — Analytics tab on player profile (#0083 Child 4) =
 

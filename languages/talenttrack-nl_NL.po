@@ -13716,3 +13716,17 @@ msgstr "De dimensieverkenner is de eerste ship van #0083 Child 3. Tijdreeksgrafi
 
 msgid "No analytics available for this entity yet."
 msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
+
+# v3.104.5 — #0083 Child 5: central analytics surface
+
+msgid "You do not have permission to view central analytics."
+msgstr "Je hebt geen toegang om de centrale analyses te bekijken."
+
+msgid "No academy-wide KPIs registered yet. Per-entity KPIs are still reachable via the Analytics tab on player, team, and activity profiles."
+msgstr "Er zijn nog geen academiebrede KPI's geregistreerd. Per-entiteit-KPI's blijven bereikbaar via het Analytics-tabblad op speler-, team- en activiteitenpaginas."
+
+msgid "Academy-wide KPIs. Click any card to open the explorer with that KPI loaded; from there you can pivot, group, and filter. For per-entity analytics, open a player, team, or activity and use the Analytics tab on its detail page."
+msgstr "Academiebrede KPI's. Klik op een kaart om de verkenner met die KPI te openen; vanaf daar kun je pivoteren, groeperen en filteren. Voor per-entiteit-analyses open je een speler, team of activiteit en gebruik je het Analytics-tabblad op de detailpagina."
+
+msgid "The central analytics view is the first ship of #0083 Child 5. Two-column layout with an entity selector on the left lands in a follow-up; today the page surfaces academy-wide KPIs only."
+msgstr "De centrale-analytics-weergave is de eerste ship van #0083 Child 5. Een twee-koloms-indeling met een entiteit-selector links volgt later; vandaag toont de pagina alleen academiebrede KPI's."
