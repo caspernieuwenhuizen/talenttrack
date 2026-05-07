@@ -38,6 +38,9 @@ class AnalyticsModule implements ModuleInterface {
     public function boot( Container $container ): void {
         self::registerInitialFacts();
         self::registerInitialKpis();
+        // #0083 Child 6 — scheduled-reports admin-post handlers + daily cron.
+        \TT\Modules\Analytics\Admin\ScheduledReportsActionHandlers::init();
+        \TT\Modules\Analytics\Cron\ScheduledReportsRunner::init();
     }
 
     /**

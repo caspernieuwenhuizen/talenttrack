@@ -13730,3 +13730,97 @@ msgstr "Academiebrede KPI's. Klik op een kaart om de verkenner met die KPI te op
 
 msgid "The central analytics view is the first ship of #0083 Child 5. Two-column layout with an entity selector on the left lands in a follow-up; today the page surfaces academy-wide KPIs only."
 msgstr "De centrale-analytics-weergave is de eerste ship van #0083 Child 5. Een twee-koloms-indeling met een entiteit-selector links volgt later; vandaag toont de pagina alleen academiebrede KPI's."
+
+# v3.104.6 — #0083 Child 6: scheduled reports + CSV export
+
+msgid "Scheduled reports"
+msgstr "Geplande rapporten"
+
+msgid "Generated %s UTC"
+msgstr "Gegenereerd %s UTC"
+
+msgid "TalentTrack scheduled report: %1$s (%2$s)"
+msgstr "TalentTrack-gepland-rapport: %1$s (%2$s)"
+
+msgid "Your TalentTrack scheduled report is attached.\n\nSee the dashboard for the live view."
+msgstr "Je TalentTrack-gepland-rapport is bijgevoegd.\n\nGa naar het dashboard voor de live-weergave."
+
+msgid "You do not have permission to manage scheduled reports."
+msgstr "Je hebt geen toegang om geplande rapporten te beheren."
+
+msgid "Scheduled reports are part of the Standard plan and above."
+msgstr "Geplande rapporten horen bij het Standard-plan en hoger."
+
+msgid "Recurring email reports. Pick a KPI, a frequency, and recipients; the daily cron runs the export and emails it on schedule."
+msgstr "Terugkerende e-mailrapporten. Kies een KPI, een frequentie en ontvangers; de dagelijkse cron draait de export en mailt hem op schema."
+
+msgid "New schedule"
+msgstr "Nieuw schema"
+
+msgid "Schedule created."
+msgstr "Schema aangemaakt."
+
+msgid "Schedule paused."
+msgstr "Schema gepauzeerd."
+
+msgid "Schedule resumed."
+msgstr "Schema hervat."
+
+msgid "Schedule archived."
+msgstr "Schema gearchiveerd."
+
+msgid "e.g. Weekly attendance digest"
+msgstr "bijv. Wekelijkse aanwezigheidsdigest"
+
+
+msgid "— pick a KPI —"
+msgstr "— kies een KPI —"
+
+msgid "Frequency"
+msgstr "Frequentie"
+
+msgid "Weekly (Monday morning)"
+msgstr "Wekelijks (maandagochtend)"
+
+msgid "Monthly (first day)"
+msgstr "Maandelijks (eerste dag)"
+
+msgid "Season end (1 July)"
+msgstr "Seizoenseinde (1 juli)"
+
+msgid "Recipients"
+msgstr "Ontvangers"
+
+msgid "One per line — email addresses or WordPress role keys (e.g. tt_head_dev)."
+msgstr "Eén per regel — e-mailadressen of WordPress-rolkeys (bijv. tt_head_dev)."
+
+msgid "Create schedule"
+msgstr "Schema aanmaken"
+
+msgid "Active and paused schedules"
+msgstr "Actieve en gepauzeerde schemas"
+
+msgid "No schedules yet. Create one above."
+msgstr "Nog geen schemas. Maak er hierboven een."
+
+
+msgid "Next run"
+msgstr "Volgende uitvoer"
+
+msgid "Weekly (Monday)"
+msgstr "Wekelijks (maandag)"
+
+msgid "Monthly (1st)"
+msgstr "Maandelijks (1e)"
+
+msgid "Season end"
+msgstr "Seizoenseinde"
+
+msgid "Pause"
+msgstr "Pauzeren"
+
+msgid "Resume"
+msgstr "Hervatten"
+
+msgid "Archive this schedule? It will stop running."
+msgstr "Dit schema archiveren? Het stopt dan met uitvoeren."
