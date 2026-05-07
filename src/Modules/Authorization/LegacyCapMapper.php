@@ -176,6 +176,12 @@ final class LegacyCapMapper {
         'tt_edit_player_notes'           => [ 'player_notes',          'change' ],
         'tt_manage_player_notes'         => [ 'player_notes',          'create_delete' ],
 
+        // #0083 Child 5 — central analytics surface. Cap bridges to the
+        // new `analytics` matrix entity. Default seed grants HoD + Admin
+        // read globally; coaches reach analytics through per-entity tabs
+        // (Child 4) on the players + teams + activities they have access to.
+        'tt_view_analytics'              => [ 'analytics',             'read' ],
+
         // #0081 — Onboarding pipeline (children 2b + 4: late-stage
         // decision caps). Both bridge to `prospects.create_delete`
         // because deciding a test-training outcome or a trial-group

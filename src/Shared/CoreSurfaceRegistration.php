@@ -107,6 +107,8 @@ final class CoreSurfaceRegistration {
             'reports',            // wizard + multi-column tables.
             // #0083 Child 3 — analytics dimension explorer.
             'explore',
+            // #0083 Child 5 — central analytics surface.
+            'analytics',
         ];
         foreach ( $desktop_only as $slug ) {
             \TT\Shared\MobileSurfaceRegistry::register( $slug, \TT\Shared\MobileSurfaceRegistry::CLASS_DESKTOP_ONLY );
@@ -149,6 +151,8 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'team-planner', self::M_PLANNING );
         // #0083 Child 3 — dimension explorer (Analytics module).
         TileRegistry::registerSlugOwnership( 'explore', 'TT\\Modules\\Analytics\\AnalyticsModule' );
+        // #0083 Child 5 — central analytics surface (Analytics module).
+        TileRegistry::registerSlugOwnership( 'analytics', 'TT\\Modules\\Analytics\\AnalyticsModule' );
         // `accept-invite` and `audit-log` are intentionally absent —
         // the first must keep working for not-yet-registered
         // recipients, the second is infrastructure (no module owner).

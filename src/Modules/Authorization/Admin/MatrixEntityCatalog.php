@@ -106,6 +106,8 @@ final class MatrixEntityCatalog {
             'test_trainings'                => __( 'Test trainings', 'talenttrack' ),
             // #0085 — Player notes (staff-only running log).
             'player_notes'                  => __( 'Player notes', 'talenttrack' ),
+            // #0083 Child 5 — central analytics surface.
+            'analytics'                     => __( 'Analytics', 'talenttrack' ),
         ];
     }
 
