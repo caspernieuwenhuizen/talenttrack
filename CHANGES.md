@@ -1,48 +1,34 @@
-# TalentTrack v3.110.7 — Fourth binary export use case: player one-pager A5 PDF (#0063 use case 13)
+# TalentTrack v3.110.8 — Fifth binary export use case: full club-data backup ZIP (#0063 use case 9)
 
-Fourth PDF use case in the family started by v3.110.4 (player evaluation), v3.110.5 (PDP), v3.110.6 (scouting report). This one ships a bespoke compact A5 layout — the spec calls for a "trial card" / "scout visit handout" with a tight set of fields (photo, name, age, position, status, jersey, team), and the multi-section eval-report shell would overflow and crowd at A5. Built standalone instead of wrapping `PlayerReportRenderer`, while still using the v3.110.0 `PdfRenderer` pipeline.
+Per the #0063 spec: "delegates to #0013 (Backup & DR) rather than re-implementing — Export is the public surface; #0013 is the engine." This exporter is intentionally thin: it reuses `BackupSerializer::snapshot()` + `BackupSerializer::toGzippedJson()` (the same engine the on-screen `?page=tt-backup` operator dashboard uses) and packages the result through the v3.110.0 `ZipRenderer`.
 
 ## What landed
 
-### `PlayerOnePagerPdfExporter` (`exporter_key = player_onepager_pdf`, use case 13)
+### `BackupZipExporter` (`exporter_key = backup_zip`, use case 9)
 
 URL pattern:
-`GET /wp-json/talenttrack/v1/exports/player_onepager_pdf?format=pdf&player_id=42`
+`GET /wp-json/talenttrack/v1/exports/backup_zip?format=zip&preset=standard`
 
 **Filters**:
 
-- `player_id` (REQUIRED) — tenant-scoped via `QueryHelpers::get_player()`.
+- `preset` (optional) — `minimal` / `standard` / `thorough` (default: `standard`). The Backup module's `custom` preset is intentionally not exposed at the route — `custom` reads operator-saved selected-tables from `BackupSettings` and is best driven from the existing admin page; the export route accepts the three named presets and falls back to `standard` on any unrecognized value.
 
-**Cap**: `tt_view_players` — same gate as the squad-list export. The one-pager carries less data than the eval report and goes to trial / scout visits where a broader read group needs it.
+**Cap**: `tt_manage_backups` — same gate as the on-screen Backup admin page.
 
-**Fields surfaced** (per spec):
+**Layout**: the ZIP carries one entry: the gzipped-JSON snapshot, named per `BackupSerializer::filename( $preset )` so a snapshot pulled via the export route is interchangeable with one pulled via the Backup admin page — operators can restore through either surface without filename surprises. The `ZipRenderer` also emits a `MANIFEST.json` carrying the snapshot metadata (preset, table list, schema version, plugin version, created-at, checksum) so a downstream consumer can confirm what's in the box without opening the gzip.
 
-- Photo (rounded, 32mm × 32mm)
-- Name (large headline)
-- Team name (subtitle under name when set)
-- Date of birth + computed age in years
-- Primary position (first comma-separated value of `preferred_positions`)
-- Preferred foot
-- Jersey number
-- Status (translated label — `active` / `archived` / `trial` / `released` / `contracted` / `inactive`)
-- Generated date footer
-
-**Layout**: A5 portrait, 12mm margins, header row with photo + identity block, then a 5-row facts table. Self-contained CSS in the document `<head>` (DomPDF can't follow external stylesheet refs reliably; the inline approach keeps the artifact portable). DejaVu Sans font matches the v3.110.0 `PdfRenderer` default. Mobile-first concerns don't apply — this is a print artifact.
-
-**No ratings, no goals, no contact details**: those live in the eval report (use case 1) and the scouting report (use case 14) respectively. The one-pager is deliberately compact.
-
-**Module wiring**: registered in `ExportModule::boot()` alongside the v3.105.0 / v3.109.0 / v3.110.0 / v3.110.4 / v3.110.5 / v3.110.6 entries. Foundation now at 9 of 15 use cases live.
+**Module wiring**: registered in `ExportModule::boot()` alongside the v3.105.0 / v3.109.0 / v3.110.0 / v3.110.4 / v3.110.5 / v3.110.6 / v3.110.7 entries. Foundation now at 10 of 15 use cases live.
 
 ## What's NOT in this PR
 
-- **Brand-kit letterhead** — `tt_pdf_render_html` filter exists today; consumers can hook.
-- **Per-club layout variants** — the spec's field list is the v1 layout; per-club variants land if a customer asks.
-- **Async dispatch** — synchronous-only via the standard REST stream-and-exit path.
-- **The 6 remaining deferred Export use cases** (4, 6, 8, 9, 10, 15) — each lands behind its first consumer.
+- **The `?page=tt-backup` admin page stays in place** — this exporter is additive, opening the same artifact up to the central Export module so future surfaces (Comms attachment that emails the link, scheduled batch hook, external-system poll) can consume it through the standard pipeline.
+- **`custom` preset over the route** — operators who want fine-grained table selection use the admin page's settings + on-demand button; the export route is for the named presets.
+- **Async dispatch** — synchronous-only via the standard REST stream-and-exit. If a real club's full snapshot grows past the synchronous-export comfort zone, this exporter is the natural first consumer of the deferred Action-Scheduler async pipeline (per the v3.110.0 plan); for typical pilot-scale data the synchronous path fits comfortably under the 30-second request window.
+- **The 5 remaining deferred Export use cases** (4 match-day team sheet, 6 multi-sheet evaluations XLSX, 8 methodology session-plan PDF, 10 GDPR subject-access ZIP, 15 demo-data export Excel).
 
 ## Notes
 
-- 8 new operator-facing strings (the field labels: *Date of birth*, *Position*, *Preferred foot*, *Jersey*, *Status* + the status-label set + the "Generated %s" footer + the "%1$s (age %2$s)" DOB format). Most were already in other surfaces but a few were new for the compact-card context.
+- Zero new operator-facing strings — exporter label uses an existing `__()` pattern; the snapshot body is JSON-encoded data with no user-visible copy surface.
 - No new migrations.
 - No composer dependency changes.
-- Renumbered v3.110.7 against any parallel-agent ship that took a v3.110.x slot during build.
+- Renumbered v3.110.8 against any parallel-agent ship that took a v3.110.x slot during build.
