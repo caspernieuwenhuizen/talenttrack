@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.11
+Stable tag: 3.110.12
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.12 — Sixth Export use case: evaluations multi-sheet XLSX (#0063 use case 6) =
+
+Per user-direction shaping (2026-05-08): tabs partition by `(season × eval_type)` with season as the primary axis. **`EvaluationsXlsxExporter`** (`exporter_key = evaluations_xlsx`) — `tt_evaluations` joined to `tt_seasons` (season match by `eval_date BETWEEN start_date AND end_date`) and `tt_lookups` (eval_type via `eval_type_id`); `tt_eval_ratings` aggregated to per-main-category averages for column values. **URL**: `GET /wp-json/talenttrack/v1/exports/evaluations_xlsx?format=xlsx`. **Filters**: `team_id` (optional) + `date_from` / `date_to` (optional, auto-swap reversed ranges). **Cap**: `tt_view_evaluations`. **Tabs**: one per `(season, eval_type)` combination, format `<season name> — <eval type name>`; truncated to Excel's 31-char limit by `XlsxRenderer::cleanSheetName()`. Evaluations whose date doesn't fall in any seeded season → `_Unscoped` partition; evaluations with NULL `eval_type_id` → `_AnyType` partition. **Columns**: Date / Player / Coach / Opponent / Competition / Result / Minutes played + one column per main `tt_eval_categories` parent (Technical / Tactical / Physical / Mental — averaged across each evaluation's sub-category ratings via `tt_eval_ratings`). **What's NOT in this PR**: per-evaluation sub-category detail tabs (per-row averages cover the v1 use case); per-club column customization; eval-type filter at the route (use the `team_id` + date filters). Foundation now at 11 of 15 use cases live. Zero new NL msgids; no migrations; no composer changes.
 
 = 3.110.11 — Evaluations module polish: detail page + Open + Delete + average column + rateable-activities + single picker with team filter =
 
