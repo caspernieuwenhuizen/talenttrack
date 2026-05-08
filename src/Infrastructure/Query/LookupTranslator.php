@@ -3,21 +3,33 @@ namespace TT\Infrastructure\Query;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\I18n\TranslatableFieldRegistry;
+use TT\Modules\I18n\TranslationsRepository;
+
 /**
  * LookupTranslator — picks the right display text for a `tt_lookups` row
  * in the current user's locale.
  *
- * v3.6.0 introduces a `translations` JSON column on tt_lookups (see
- * migration 0014). The JSON is keyed by WP locale (e.g. `nl_NL`,
- * `de_DE`, `fr_FR`) and carries a `name` + optional `description` per
- * locale. Admin-added lookup values now translate cleanly without
- * forcing the developer to ship .po updates for every new row.
+ * Resolution chain (#0090 Phase 2 — v3.110.22):
+ *   1. `tt_translations` row for `(entity_type='lookup', entity_id, field, locale)`
+ *      — the canonical store going forward, populated by migration
+ *      0082 from the legacy JSON column and by future operator edits
+ *      via the per-entity Translations tab (Phase 5).
+ *   2. Legacy `tt_lookups.translations` JSON column — kept as a
+ *      transition fallback so installs that haven't run migration 0082
+ *      yet, or rows added between Phase 2 ship and the next admin
+ *      save, keep rendering correctly. Phase 6 cleanup drops the
+ *      column once `nl_NL.po` is also pruned.
+ *   3. `__( $lookup->name, 'talenttrack' )` — seeded English values
+ *      whose Dutch translation lives in `nl_NL.po`. Phase 6 prunes
+ *      these msgids after every install has been backfilled.
  *
- * Seeded lookups (position, foot_option, etc.) still work via the .po
- * because the translator falls back to `__($lookup->name, ...)` when
- * no matching translation is stored.
+ * The chain never returns empty — the canonical column on
+ * `tt_lookups` is the immovable backstop.
  */
 class LookupTranslator {
+
+    private static ?TranslationsRepository $repo = null;
 
     /**
      * Resolve the best display name for a lookup row.
@@ -28,6 +40,18 @@ class LookupTranslator {
         if ( ! $lookup ) return '';
         $raw = (string) ( $lookup->name ?? '' );
         if ( $raw === '' ) return '';
+
+        $id = (int) ( $lookup->id ?? 0 );
+        if ( $id > 0 ) {
+            $tx = self::repo()->translate(
+                TranslatableFieldRegistry::ENTITY_LOOKUP,
+                $id,
+                'name',
+                self::currentLocale(),
+                ''
+            );
+            if ( $tx !== '' ) return $tx;
+        }
 
         $stored = self::storedForCurrentLocale( $lookup, 'name' );
         if ( $stored !== null && $stored !== '' ) {
@@ -43,6 +67,18 @@ class LookupTranslator {
         if ( ! $lookup ) return '';
         $raw = (string) ( $lookup->description ?? '' );
         if ( $raw === '' ) return '';
+
+        $id = (int) ( $lookup->id ?? 0 );
+        if ( $id > 0 ) {
+            $tx = self::repo()->translate(
+                TranslatableFieldRegistry::ENTITY_LOOKUP,
+                $id,
+                'description',
+                self::currentLocale(),
+                ''
+            );
+            if ( $tx !== '' ) return $tx;
+        }
 
         $stored = self::storedForCurrentLocale( $lookup, 'description' );
         if ( $stored !== null && $stored !== '' ) {
@@ -149,9 +185,7 @@ class LookupTranslator {
         $all = self::decode( $lookup );
         if ( ! $all ) return null;
 
-        $locale = function_exists( 'determine_locale' )
-            ? (string) determine_locale()
-            : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
+        $locale = self::currentLocale();
 
         if ( isset( $all[ $locale ][ $field ] ) && $all[ $locale ][ $field ] !== '' ) {
             return (string) $all[ $locale ][ $field ];
@@ -167,5 +201,16 @@ class LookupTranslator {
             }
         }
         return null;
+    }
+
+    private static function currentLocale(): string {
+        if ( function_exists( 'determine_locale' ) ) return (string) determine_locale();
+        if ( function_exists( 'get_locale' ) ) return (string) get_locale();
+        return 'en_US';
+    }
+
+    private static function repo(): TranslationsRepository {
+        if ( self::$repo === null ) self::$repo = new TranslationsRepository();
+        return self::$repo;
     }
 }

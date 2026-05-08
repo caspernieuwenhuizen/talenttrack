@@ -152,6 +152,28 @@ final class TranslationsRepository {
     }
 
     /**
+     * Cascade-delete every translation row for an entity. Called when
+     * the source row itself is hard-deleted (e.g. lookup row, eval
+     * category) so `tt_translations` does not retain orphans pointing
+     * at vanished `entity_id`s.
+     */
+    public function deleteAllFor( string $entity_type, int $entity_id ): bool {
+        if ( $entity_id <= 0 ) return false;
+        global $wpdb;
+        $wpdb->delete(
+            $this->table(),
+            [
+                'club_id'     => CurrentClub::id(),
+                'entity_type' => $entity_type,
+                'entity_id'   => $entity_id,
+            ],
+            [ '%d', '%s', '%d' ]
+        );
+        $this->bumpVersion( $entity_type, $entity_id );
+        return true;
+    }
+
+    /**
      * Bulk read — returns every translation for the given entity,
      * grouped by (field, locale). Used by the per-entity admin
      * Translations tab to populate the edit grid. Bypasses the

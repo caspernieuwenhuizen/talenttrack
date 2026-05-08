@@ -8,6 +8,8 @@ use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\FeatureToggles\FeatureToggleService;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\I18n\TranslatableFieldRegistry;
+use TT\Modules\I18n\TranslationsRepository;
 use TT\Shared\Frontend\BrandFonts;
 
 /**
@@ -1038,21 +1040,24 @@ class ConfigurationPage {
         }
 
         // v3.6.0: per-locale translations posted as tt_i18n[<locale>][name|description].
-        // Stored as JSON in the new `translations` column so seeded .po translations
-        // keep working while admin-added values gain inline translation support.
+        // Stored as JSON in the legacy `translations` column AND as
+        // per-(field, locale) rows in `tt_translations` (#0090 Phase 2,
+        // v3.110.22). The JSON column is kept as a transition fallback
+        // until the Phase 6 cleanup; `LookupTranslator` reads
+        // `tt_translations` first.
+        $clean_i18n = [];
         if ( isset( $_POST['tt_i18n'] ) && is_array( $_POST['tt_i18n'] ) ) {
             $raw_i18n = wp_unslash( (array) $_POST['tt_i18n'] );
-            $clean = [];
             foreach ( $raw_i18n as $locale => $fields ) {
                 if ( ! is_string( $locale ) || ! is_array( $fields ) ) continue;
                 $locale_key = sanitize_text_field( (string) $locale );
                 if ( $locale_key === '' ) continue;
-                $clean[ $locale_key ] = [
+                $clean_i18n[ $locale_key ] = [
                     'name'        => isset( $fields['name'] ) ? sanitize_text_field( (string) $fields['name'] ) : '',
                     'description' => isset( $fields['description'] ) ? sanitize_text_field( (string) $fields['description'] ) : '',
                 ];
             }
-            $data['translations'] = \TT\Infrastructure\Query\LookupTranslator::encode( $clean );
+            $data['translations'] = \TT\Infrastructure\Query\LookupTranslator::encode( $clean_i18n );
         }
 
         if ( $id ) {
@@ -1060,6 +1065,27 @@ class ConfigurationPage {
         } else {
             $data['club_id'] = CurrentClub::id();
             $wpdb->insert( $wpdb->prefix . 'tt_lookups', $data );
+            $id = (int) $wpdb->insert_id;
+        }
+
+        // #0090 Phase 2 — mirror the per-locale payload into
+        // `tt_translations`. Empty values explicitly delete the
+        // corresponding row so clearing a translation in the form
+        // actually removes it.
+        if ( $id > 0 && $clean_i18n ) {
+            $repo    = new TranslationsRepository();
+            $entity  = TranslatableFieldRegistry::ENTITY_LOOKUP;
+            $user_id = (int) get_current_user_id();
+            foreach ( $clean_i18n as $locale_key => $fields ) {
+                foreach ( [ 'name', 'description' ] as $field ) {
+                    $value = (string) ( $fields[ $field ] ?? '' );
+                    if ( $value === '' ) {
+                        $repo->delete( $entity, $id, $field, $locale_key );
+                    } else {
+                        $repo->upsert( $entity, $id, $field, $locale_key, $value, $user_id );
+                    }
+                }
+            }
         }
         wp_safe_redirect( admin_url( "admin.php?page=tt-config&tab=$tab&tt_msg=saved" ) );
         exit;
@@ -1091,6 +1117,13 @@ class ConfigurationPage {
 
         global $wpdb;
         $wpdb->delete( $wpdb->prefix . 'tt_lookups', [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+
+        // #0090 Phase 2 — cascade-delete the lookup's `tt_translations`
+        // rows so the new store does not retain orphans.
+        if ( $id > 0 ) {
+            ( new TranslationsRepository() )->deleteAllFor( TranslatableFieldRegistry::ENTITY_LOOKUP, $id );
+        }
+
         wp_safe_redirect( admin_url( "admin.php?page=tt-config&tab=$tab&tt_msg=deleted" ) );
         exit;
     }

@@ -54,6 +54,17 @@ class I18nModule implements ModuleInterface {
         // + tt_head_dev so role-based callers (admin pages, REST
         // gates) work alongside the matrix layer.
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
+
+        // Phase 2 — register the `lookup` entity with `name` and
+        // `description` translatable fields. `LookupTranslator`
+        // consults `TranslationsRepository` first, then falls back to
+        // the legacy `tt_lookups.translations` JSON column, then to
+        // gettext. Phases 3-4 add `eval_category`, `role`,
+        // `functional_role` here as each entity migrates.
+        TranslatableFieldRegistry::register(
+            TranslatableFieldRegistry::ENTITY_LOOKUP,
+            [ 'name', 'description' ]
+        );
     }
 
     /**
