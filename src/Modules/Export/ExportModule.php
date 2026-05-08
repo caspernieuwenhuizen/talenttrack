@@ -14,6 +14,7 @@ use TT\Modules\Export\Format\Renderers\XlsxRenderer;
 use TT\Modules\Export\Format\Renderers\ZipRenderer;
 use TT\Modules\Export\Exporters\AttendanceRegisterCsvExporter;
 use TT\Modules\Export\Exporters\BackupZipExporter;
+use TT\Modules\Export\Exporters\DemoDataXlsxExporter;
 use TT\Modules\Export\Exporters\EvaluationsXlsxExporter;
 use TT\Modules\Export\Exporters\FederationJsonExporter;
 use TT\Modules\Export\Exporters\GdprSubjectAccessZipExporter;
@@ -91,6 +92,7 @@ class ExportModule implements ModuleInterface {
         ExporterRegistry::register( new EvaluationsXlsxExporter() );    // use case 6  (v3.110.12)
         ExporterRegistry::register( new ActivityBriefPdfExporter() );    // use case 8  (v3.110.14)
         ExporterRegistry::register( new GdprSubjectAccessZipExporter() ); // use case 10 (v3.110.15)
+        ExporterRegistry::register( new DemoDataXlsxExporter() );        // use case 15 (v3.110.16)
 
         ExportRestController::init();
     }

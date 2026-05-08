@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.15
+Stable tag: 3.110.16
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.16 — Ninth Export use case: demo-data round-trip XLSX (#0063 use case 15) =
+
+Per spec: "Round-tripped demo data so #0020 / #0059 can re-import it. Exists informally; Export formalizes it." Walks every sheet in `SheetSchemas::all()` (same schema `TemplateBuilder::streamDownload()` uses for the import template) and dumps live rows into a multi-sheet XLSX whose layout is identical to the import template. **`DemoDataXlsxExporter`** (`exporter_key = demo_data_xlsx`). URL: `GET /wp-json/talenttrack/v1/exports/demo_data_xlsx?format=xlsx`. **Filters**: none (export is "everything in the current club"). **Cap**: `tt_edit_settings` (same gate as the v3.109.2 seed-review surface; export carries every player's PII). **Sheets**: master (Teams / People / Players / Trial_Cases), transactional (Activities / Session_Attendance / Evaluations / Evaluation_Ratings / Goals / Player_Journey), config (Eval_Categories / Category_Weights / Generation_Settings — intentionally empty / _Lookups). **Per user-direction shaping (2026-05-08)**: auto_key = numeric `id` (deterministic, collision-free, idempotent — string slugs like `<first>_<last>` would collide on real data; numeric ids round-trip cleanly); filter scope = all live rows in current club; cap `tt_edit_settings`. **Round-trip flow**: download from club A → import on fresh install → re-export → diff matches. **What's NOT in this PR**: operator-facing import button (existing `?page=tt-demo-data` consumes the file); per-team filter; `Generation_Settings` round-trip (generator hint, not a tracked entity); per-row demo-mode flag (most tables don't carry one). **Foundation now at 14 of 15 use cases live.** 1 new NL msgid; no migrations; no composer changes.
 
 = 3.110.15 — Eighth Export use case: GDPR subject-access ZIP (#0063 use case 10) =
 
