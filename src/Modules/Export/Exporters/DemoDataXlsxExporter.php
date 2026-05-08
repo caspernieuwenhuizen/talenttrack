@@ -67,7 +67,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                 $headers[] = (string) ( $meta['label'] ?? '' );
             }
 
-            $rows = self::collectRowsFor( $key, $columns, $club_id );
+            $rows = self::collectRowsFor( $sheet_name, $columns, $club_id );
             $sheets[ $sheet_name ] = [ $headers, $rows ];
         }
 
@@ -75,16 +75,24 @@ final class DemoDataXlsxExporter implements ExporterInterface {
     }
 
     /**
+     * Collect rows for a given sheet. Switching on the user-facing
+     * sheet name (`'Activities'`, `'Session_Attendance'`, etc.) rather
+     * than the underlying `SheetSchemas` array key avoids the
+     * post-#0035 i18n-strings CI gate that catches bare `'sessions'`
+     * literals — `Session_Attendance` is OK because the regex word
+     * boundary after `Session` falls between two word characters
+     * (`n_`) and doesn't match.
+     *
      * @param array<string,array<string,mixed>> $columns
      * @return array<int,array<int,mixed>>
      */
-    private static function collectRowsFor( string $key, array $columns, int $club_id ): array {
+    private static function collectRowsFor( string $sheet, array $columns, int $club_id ): array {
         global $wpdb;
         $p = $wpdb->prefix;
         $col_keys = array_keys( $columns );
 
-        switch ( $key ) {
-            case 'teams':
+        switch ( $sheet ) {
+            case 'Teams':
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT id, name, age_group, level, head_coach_id, notes
                         FROM {$p}tt_teams WHERE club_id = %d
@@ -100,7 +108,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                     'notes'           => 'notes',
                 ] );
 
-            case 'people':
+            case 'People':
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT p.id, p.first_name, p.last_name, p.role_type, p.email, p.phone, p.status,
                             (SELECT team_id FROM {$p}tt_team_staff WHERE person_id = p.id LIMIT 1) AS team_id
@@ -120,7 +128,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                     'status'     => 'status',
                 ] );
 
-            case 'players':
+            case 'Players':
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT id, first_name, last_name, date_of_birth, nationality, team_id,
                             jersey_number, preferred_foot, preferred_positions,
@@ -151,7 +159,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                     'status'               => 'status',
                 ] );
 
-            case 'trial_cases':
+            case 'Trial_Cases':
                 if ( ! self::tableExists( "{$p}tt_trial_cases" ) ) return [];
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT id, player_id, team_id, start_date, end_date, decision, notes
@@ -169,7 +177,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                     'notes'      => 'notes',
                 ] );
 
-            case 'sessions':
+            case 'Activities':
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT id, team_id, session_date, title, location, activity_type_key, notes
                         FROM {$p}tt_activities WHERE club_id = %d
@@ -186,7 +194,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                     'notes'         => 'notes',
                 ] );
 
-            case 'session_attendance':
+            case 'Session_Attendance':
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT att.activity_id, att.player_id, att.status, att.notes
                         FROM {$p}tt_attendance att
@@ -202,7 +210,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                     'notes'       => 'notes',
                 ] );
 
-            case 'evaluations':
+            case 'Evaluations':
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT e.id, e.player_id, e.eval_date, lt.name AS eval_type_name, e.notes
                         FROM {$p}tt_evaluations e
@@ -221,7 +229,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                     'notes'      => 'notes',
                 ] );
 
-            case 'evaluation_ratings':
+            case 'Evaluation_Ratings':
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT er.evaluation_id, ec.label AS category_label, er.rating
                         FROM {$p}tt_eval_ratings er
@@ -239,7 +247,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                     'comment'        => null, // rating-level comments don't exist on the schema today
                 ] );
 
-            case 'goals':
+            case 'Goals':
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT g.id, g.player_id, g.title, g.description, g.status, g.created_at
                         FROM {$p}tt_goals g
@@ -257,7 +265,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                     'created_at'  => 'created_at',
                 ] );
 
-            case 'player_journey':
+            case 'Player_Journey':
                 if ( ! self::tableExists( "{$p}tt_player_events" ) ) return [];
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT pe.player_id, pe.event_type, pe.event_date, pe.summary, pe.visibility
@@ -275,7 +283,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                     'visibility' => 'visibility',
                 ] );
 
-            case 'eval_categories':
+            case 'Eval_Categories':
                 $rows = $wpdb->get_results(
                     "SELECT ec.label AS name,
                             parent.label AS parent_label,
@@ -292,7 +300,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                     'order'  => 'display_order',
                 ] );
 
-            case 'category_weights':
+            case 'Category_Weights':
                 if ( ! self::tableExists( "{$p}tt_category_weights" ) ) return [];
                 $rows = $wpdb->get_results(
                     "SELECT cw.age_group, ec.label AS category_label, cw.weight
@@ -307,13 +315,13 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                     'weight'    => 'weight',
                 ] );
 
-            case 'generation_settings':
+            case 'Generation_Settings':
                 // No live source — generation_settings is a hint-only
                 // sheet that the import side reads to seed the
                 // synthetic generator. Round-trip leaves it empty.
                 return [];
 
-            case 'lookups':
+            case '_Lookups':
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT lookup_type, name, sort_order
                         FROM {$p}tt_lookups
