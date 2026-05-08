@@ -1,49 +1,50 @@
-# TalentTrack v3.110.15 — Eighth Export use case: GDPR subject-access ZIP (#0063 use case 10)
+# TalentTrack v3.110.16 — Ninth Export use case: demo-data round-trip XLSX (#0063 use case 15)
 
-Required by EU GDPR Article 15 (Right of access by the data subject). Per user-direction shaping (2026-05-08): synchronous v1, JSON-per-domain inside the ZIP plus a rendered evaluation PDF for human readability, cap-gated on `tt_edit_settings` (academy admin only), audit-logged on every export.
+Per spec: "Round-tripped demo data so #0020 / #0059 can re-import it. Exists informally; Export formalizes it." Walks every sheet in `SheetSchemas::all()` (the same schema `TemplateBuilder::streamDownload()` uses for the import template) and dumps the matching live rows into a multi-sheet XLSX whose layout is identical to the import template — so an operator can download a snapshot from one club, hand it to a fresh install, and re-import without column-mapping work.
 
 ## What landed
 
-### `GdprSubjectAccessZipExporter` (`exporter_key = gdpr_subject_access_zip`, use case 10)
+### `DemoDataXlsxExporter` (`exporter_key = demo_data_xlsx`, use case 15)
 
 URL pattern:
-`GET /wp-json/talenttrack/v1/exports/gdpr_subject_access_zip?format=zip&player_id=42`
+`GET /wp-json/talenttrack/v1/exports/demo_data_xlsx?format=xlsx`
 
-**Filters**: `player_id` (REQUIRED) — tenant-scoped via `QueryHelpers::get_player()`.
+**Filters**: none at v1 — the export is "everything in the current club."
 
-**Cap**: `tt_edit_settings` — academy admin only. GDPR statute makes the academy the data controller; only the academy admin can extract a player's full record.
+**Cap**: `tt_edit_settings` — same gate as the v3.109.2 seed-review surface. The export carries every player's PII.
 
-### ZIP contents
+### Sheets
 
-- `profile.json` — `tt_players` row, pretty-printed JSON.
-- `evaluations.json` — `tt_evaluations` + `tt_eval_ratings` joined by evaluation_id, shape `{ evaluations: [...], ratings: [...] }`.
-- `goals.json` — `tt_goals` rows.
-- `attendance.json` — `tt_attendance` joined to `tt_activities` for date / title / location.
-- `comms_log.json` — `tt_comms_log` rows where `recipient_player_id = $player_id` (tombstoned rows kept — empty `address_blob` / `subject` reflect the GDPR retention design from #0066).
-- `parents.json` — `tt_player_parents` rows for the player.
-- `evaluation_report.pdf` — rendered via the v3.110.4 `PlayerEvaluationPdfExporter` + `PdfRenderer`.
-- `MANIFEST.json` — standard `ZipRenderer` envelope + GDPR-specific metadata (article, subject, requesting user, generated_at, entry counts, tombstones-note).
-- `README.txt` — plain-text "what's in this archive" guide for the data subject.
+Walks `SheetSchemas::all()` and emits one tab per schema entry, in schema-declared order:
 
-CSV deliberately skipped as redundant — JSON round-trips cleanly to any analytics tool.
+- **Master tier**: `Teams`, `People`, `Players`, `Trial_Cases`.
+- **Transactional tier**: `Activities` (post-#0027 rename — schema key still `sessions`), `Session_Attendance`, `Evaluations`, `Evaluation_Ratings`, `Goals`, `Player_Journey`.
+- **Config tier**: `Eval_Categories`, `Category_Weights`, `Generation_Settings` (intentionally empty — the import side reads it as a generator hint, not a tracked entity), `_Lookups`.
 
-### Audit trail
+### Round-trip design (per user-direction shaping 2026-05-08)
 
-Every successful export writes `gdpr.subject_access_export` to `tt_audit_log` carrying `(entity_type='player', entity_id=$player_id, payload={ requesting_user_id, generated_at, entry_count })`. Audit failures never block delivery — the data subject has a legal right to the export, but the academy needs the trail for its own compliance reporting.
+- **Q1 — `auto_key` strategy**: numeric `id`. Deterministic, collision-free, idempotent. "John_Doe" string slugs would collide on real data; numeric ids round-trip cleanly through the import → export → re-import path. The importer's existing numeric-id lookup handles the resolution.
+- **Q2 — filter scope**: every live row in the current club via `WHERE club_id = ?` (or via a join through `tt_players.club_id` for tables that scope through the player).
+- **Q3 — cap**: `tt_edit_settings` (admin only) — full PII surface; same gate as the seed-review export from v3.109.2.
+
+### FK columns
+
+The schema's `xxx_key` columns (`team_key`, `player_key`, `session_key`, `head_coach_key`, etc.) carry the FK target's numeric `id` directly. Sheets the importer doesn't yet consume (`Eval_Categories` / `Category_Weights` / `_Lookups`) are still emitted so a clean re-import recreates the same configuration alongside the data.
 
 ### Module wiring
 
-Registered in `ExportModule::boot()`. Foundation now at 13 of 15 use cases live.
+Registered in `ExportModule::boot()`. Foundation now at 14 of 15 use cases live.
 
 ## What's NOT in this PR
 
-- **Async dispatch** — synchronous-only via the standard REST stream-and-exit path. Spec Q6 originally leaned async; user-direction shaping locked synchronous v1 because typical pilot data (~1-5 MB per player) fits well under the 30s request window. This exporter remains the natural first consumer of the deferred Action-Scheduler async pipeline if a real-club extract ever exceeds that budget.
-- **A subject-access wizard** — spec Q4 (Wizard plan) suggests "audience → scope → confirm" wizard for big GDPR exports. Synchronous v1 is single-button-click via REST; the wizard lands when the operator-facing surface earns it.
-- **Encryption-at-rest of the produced ZIP** — the spec assumes the recipient takes custody at download time; the academy operator is responsible for transmitting the ZIP through a secure channel.
+- **Operator-facing import button** that takes the exported file as input — the existing demo-data importer admin page (`?page=tt-demo-data`) consumes the same file shape; that's the operator surface.
+- **Filtered-by-team export** — no per-team filter at v1; operators who want a subset filter post-export.
+- **Generation_Settings round-trip** — left empty by design; `Generation_Settings` is a generator hint (target counts per entity), not a tracked entity.
+- **Per-row demo-mode flag** — most tables don't carry a `is_demo` column; "everything in the current club" is the v1 scope.
 
 ## Notes
 
-- 6 new operator-facing strings (README header / generation timestamp / requesting-user line / GDPR-Article-15 attribution / player-not-found stub / tombstones-note).
+- 1 new operator-facing string (the exporter label "Demo-data round-trip (XLSX)"). All sheet names + column headers reuse the `SheetSchemas` strings already in `nl_NL.po`.
 - No new migrations.
 - No composer dependency changes.
-- Renumbered v3.110.15 against any parallel-agent ship that took a v3.110.x slot during build.
+- Renumbered v3.110.16 against any parallel-agent ship that took a v3.110.x slot during build.
