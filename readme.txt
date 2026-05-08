@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.16
+Stable tag: 3.110.17
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.17 — Tenth Export use case: match-day team sheet PDF (#0063 use case 4) — closes #0063 =
+
+Last of the 15 #0063 use cases. Per user-direction shaping (2026-05-08): adds the match-specific fields on `tt_activities` (opponent / home_away / kickoff_time / formation) plus per-row lineup-role + position-played fields on `tt_attendance` via migration `0079_match_day_fields`, then ships the team-sheet exporter on top. **Closes #0063**: 15 of 15 use cases live. Foundation epic complete. **Migration**: 6 additive columns, idempotent SHOW COLUMNS guards. **`MatchDayTeamSheetPdfExporter`** (`exporter_key = match_day_team_sheet`). URL: `GET /wp-json/talenttrack/v1/exports/match_day_team_sheet?format=pdf&activity_id=42`. **Filters**: `activity_id` (required, tenant-scoped). **Cap**: `tt_view_activities`. **Activity-type gate**: refuses to render for `activity_type_key !== 'match'`. **Layout**: A4 portrait, 14mm margins, header with title + `vs <opponent> (home/away)`, meta table (Team / Date / Kickoff / Location / Formation), per-section lineup tables (Starting XI from `lineup_role='start'` / Bench from `lineup_role='bench'`; NULL falls through to a "Squad" section so the sheet is useful before the operator splits the squad), signature lines for coach + referee. **Position resolution**: `tt_attendance.position_played` per-match override → falls back to `tt_players.preferred_positions[0]`. **What's NOT in this PR (deferred to follow-ups)**: form-UI to populate the new columns (operators populate via direct DB / REST PATCH at v1; tracked in class docblock); substitution tracking (snapshot-at-kickoff today); pitch diagram with formation (lands with same SVG follow-up as #0063 use case 8 field diagrams); brand-kit letterhead. **Foundation now at 15 of 15 use cases live — #0063 closed.** 11 new NL msgids; 1 new migration (0079); no composer changes.
 
 = 3.110.16 — Ninth Export use case: demo-data round-trip XLSX (#0063 use case 15) =
 
