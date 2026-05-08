@@ -21,6 +21,7 @@ use TT\Modules\Export\Exporters\PdpPdfExporter;
 use TT\Modules\Export\Exporters\PlayerEvaluationPdfExporter;
 use TT\Modules\Export\Exporters\PlayerOnePagerPdfExporter;
 use TT\Modules\Export\Exporters\ScoutingReportPdfExporter;
+use TT\Modules\Export\Exporters\ActivityBriefPdfExporter;
 use TT\Modules\Export\Exporters\PlayersListCsvExporter;
 use TT\Modules\Export\Exporters\TeamIcalExporter;
 use TT\Modules\Export\Rest\ExportRestController;
@@ -86,7 +87,8 @@ class ExportModule implements ModuleInterface {
         ExporterRegistry::register( new ScoutingReportPdfExporter() );  // use case 14 (v3.110.6)
         ExporterRegistry::register( new PlayerOnePagerPdfExporter() );  // use case 13 (v3.110.7)
         ExporterRegistry::register( new BackupZipExporter() );          // use case 9  (v3.110.8)
-        ExporterRegistry::register( new EvaluationsXlsxExporter() );    // use case 6  (v3.110.9)
+        ExporterRegistry::register( new EvaluationsXlsxExporter() );    // use case 6  (v3.110.12)
+        ExporterRegistry::register( new ActivityBriefPdfExporter() );    // use case 8  (v3.110.13)
 
         ExportRestController::init();
     }
