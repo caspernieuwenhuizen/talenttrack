@@ -4,6 +4,8 @@ namespace TT\Infrastructure\REST;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\I18n\TranslatableFieldRegistry;
+use TT\Modules\I18n\TranslationsRepository;
 use WP_REST_Request;
 
 /**
@@ -229,6 +231,12 @@ final class LookupsRestController extends BaseController {
         $ok = $wpdb->delete( $wpdb->prefix . 'tt_lookups', [ 'id' => $id, 'lookup_type' => $type, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             return RestResponse::error( 'lookup_delete_failed', __( 'Could not delete lookup value.', 'talenttrack' ), 500 );
+        }
+
+        // #0090 Phase 2 — cascade-delete `tt_translations` rows so the
+        // new store does not retain orphans pointing at a vanished id.
+        if ( $id > 0 && (int) $ok > 0 ) {
+            ( new TranslationsRepository() )->deleteAllFor( TranslatableFieldRegistry::ENTITY_LOOKUP, $id );
         }
         return RestResponse::success( [ 'deleted' => (int) $ok ] );
     }

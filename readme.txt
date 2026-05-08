@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.20
+Stable tag: 3.110.22
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.22 — Lookups migrate to `tt_translations` (#0090 Phase 2) =
+
+Second phase of #0090 (data-row internationalisation). Lookups (`tt_lookups`) become the first entity to read + write through the new `tt_translations` store seeded by Phase 1. No user-visible change: every Dutch label that rendered correctly before still renders correctly, and admin-added per-locale translations now persist through the new resolver. **(1) `I18nModule::boot()`** registers `(entity_type='lookup', fields=['name','description'])` with `TranslatableFieldRegistry` so `TranslationsRepository::translate()` accepts those tuples. **(2) Migration `0082_backfill_lookup_translations`** decodes every `tt_lookups.translations` JSON blob and `INSERT IGNORE`s one `tt_translations` row per `(field, locale)` pair into the unique `(club_id, entity_type, entity_id, field, locale)` index. Idempotent — re-runs are no-ops. Existing operator-edited translation rows are preserved. **(3) `LookupTranslator::name()` + `::description()`** consult `TranslationsRepository::translate('lookup', $id, $field, $locale, '')` first, then fall back to the legacy JSON column (transition window for installs that haven't run 0082 yet, or admin saves between phases), then to `__($lookup->name, 'talenttrack')` for `.po`-resolved seeded values. The fallback chain is preserved end-to-end so reverting Phase 2 only requires reverting the resolver. **(4) `ConfigurationPage::handle_save_lookup()`** now upserts the per-locale payload into `tt_translations` *and* keeps writing the legacy JSON column so the column stays consistent during the transition. Empty values explicitly delete the corresponding row so clearing a translation in the form actually removes it. **(5) `ConfigurationPage::handle_delete_lookup()` + `LookupsRestController::deleteValue()`** cascade-delete every `tt_translations` row for the deleted lookup id via the new `TranslationsRepository::deleteAllFor()` helper, so the new store does not retain orphans. **What's NOT in this PR (lands in Phases 3-8)**: Phase 3 — Eval categories migration. Phase 4 — Roles + functional roles. Phase 5 — seed-review Excel `<field>_<locale>` columns become editable + per-entity Translations admin tab. Phase 6 — `nl_NL.po` cleanup. Phase 7 — FR/DE/ES locale enablement. Phase 8 — docs + close. Zero new NL msgids — Phase 2 is internal plumbing; the legacy JSON column stays in place until Phase 6.
 
 = 3.110.20 — Data-row i18n foundation (#0090 Phase 1) =
 
