@@ -72,6 +72,12 @@ return [
     // sources. Phases 2-6 build the schema, REST, builder UI, rendering,
     // cap layer, and docs on top.
     TT\Modules\CustomWidgets\CustomWidgetsModule::class          => true,
+    // #0090 Phase 1 — data-row i18n foundation. Owns tt_translations
+    // table + TranslatableFieldRegistry + TranslationsRepository +
+    // tt_edit_translations cap + translations matrix entity. Phases
+    // 2-4 register specific entities (lookups, eval categories,
+    // roles, functional roles) from their owning modules.
+    TT\Modules\I18n\I18nModule::class                            => true,
     // #0089 follow-up — seed review (Excel export + edit + re-import
     // for tt_lookups, tt_eval_categories, tt_roles, tt_functional_roles).
     // Live-DB updates only; shipped seed PHP files unchanged.

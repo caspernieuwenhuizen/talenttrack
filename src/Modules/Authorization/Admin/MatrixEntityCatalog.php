@@ -110,6 +110,8 @@ final class MatrixEntityCatalog {
             'analytics'                     => __( 'Analytics', 'talenttrack' ),
             // #0078 Phase 5 — custom widget builder.
             'custom_widgets'                => __( 'Custom widgets', 'talenttrack' ),
+            // #0090 Phase 1 — data-row translations.
+            'translations'                  => __( 'Translations', 'talenttrack' ),
         ];
     }
 

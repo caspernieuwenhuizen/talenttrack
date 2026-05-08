@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.19
+Stable tag: 3.110.20
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.20 — Data-row i18n foundation (#0090 Phase 1) =
+
+First phase of #0090 (data-row internationalisation). Foundation only — no entity migrated yet, no user-visible change. Builds the persistence + resolver + cap + matrix entity that Phases 2-4 will use to migrate Lookups / Eval categories / Roles / Functional roles off `nl_NL.po` and into per-row, per-locale, per-club translation rows. UI strings (`__('Save')`, button labels, headings) continue to flow through `.po` / gettext unchanged. **(1) Migration `0080_translations`** — `tt_translations` table with `club_id` + `(entity_type VARCHAR(32), entity_id, field, locale, value)` shape per CLAUDE.md §4 SaaS-readiness. Idempotent dbDelta. **(2) `Modules\I18n\TranslatableFieldRegistry`** — software allowlist of `(entity_type, field)` pairs. `entity_type` is free-form `VARCHAR(32)` at the schema layer; this registry enforces the allowlist. Adding a new translatable entity is one `register()` call from the owning module's `boot()`. **(3) `Modules\I18n\TranslationsRepository`** — `translate( $entity_type, $entity_id, $field, $locale, $fallback )` with locale fallback chain `requested → en_US → fallback`. Never returns empty. 60-second wp_cache with versioned keys (mirrors #0078 Phase 5 pattern); save bumps the per-row version counter for O(1) invalidation. `upsert()` / `delete()` / `allFor()` write API. Every read + write scopes to `CurrentClub::id()`. **(4) `tt_edit_translations` cap** registered via `LegacyCapMapper` bridging to a new `translations` matrix entity. **(5) `MatrixEntityCatalog`** registers the entity label. **(6) `config/authorization_seed.php`** grants `head_of_development` rc[global], `academy_admin` rcd[global]. **(7) Top-up migration `0081_authorization_seed_topup_translations`** backfills existing installs (mirrors 0063/0064/0067/0069/0074/0077 pattern; idempotent INSERT IGNORE). **(8) `I18nModule::ensureCapabilities()`** seeds the bridging cap onto administrator + tt_club_admin + tt_head_dev. **(9) `REGISTERED_LOCALES = [ 'en_US', 'nl_NL' ]`** — the locale set the future per-entity translation editor + seed-review Excel will surface. Adding FR/DE/ES (#0010) = adding to this constant. **What's NOT in this PR (lands in Phases 2-8)**: Phase 2 — Lookups migration + admin Translations tab. Phase 3 — Eval categories. Phase 4 — Roles + functional roles. Phase 5 — seed-review Excel `<field>_<locale>` columns become editable. Phase 6 — `nl_NL.po` cleanup. Phase 7 — FR/DE/ES locale registration enablement. Phase 8 — docs + close. Zero new translatable strings — Phase 1 is internal infrastructure; the user-visible Translations tab labels ship in Phases 2-4.
 
 = 3.110.19 — Three navigation bug fixes: Team Planner + Team Blueprint links + Onboarding Pipeline dispatcher =
 

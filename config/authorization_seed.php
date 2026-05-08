@@ -72,6 +72,7 @@ $mod_custom_css       = class_exists( '\TT\Modules\CustomCss\CustomCssModule' ) 
 $mod_translations     = class_exists( '\TT\Modules\Translations\TranslationsModule' ) ? \TT\Modules\Translations\TranslationsModule::class : $mod_authorization;
 $mod_prospects        = class_exists( '\TT\Modules\Prospects\ProspectsModule' )       ? \TT\Modules\Prospects\ProspectsModule::class     : $mod_authorization;
 $mod_custom_widgets   = class_exists( '\TT\Modules\CustomWidgets\CustomWidgetsModule' ) ? \TT\Modules\CustomWidgets\CustomWidgetsModule::class : $mod_authorization;
+$mod_i18n             = class_exists( '\TT\Modules\I18n\I18nModule' )                     ? \TT\Modules\I18n\I18nModule::class                     : $mod_authorization;
 
 /**
  * Helper: build a rows[] array from a compact spec.
@@ -435,6 +436,8 @@ return array_merge(
         'analytics'                     => [ 'r',   'global', $mod_analytics ],
         // #0078 Phase 5 — custom widget builder (RC global; HoD can author).
         'custom_widgets'                => [ 'rc',  'global', $mod_custom_widgets ],
+        // #0090 Phase 1 — data-row translations (RC global; HoD can edit).
+        'translations'                  => [ 'rc',  'global', $mod_i18n ],
         // bulk_import removed for HoD
         'evaluation_categories'         => [ 'r',   'global', $mod_evals ],
         'category_weights'              => [ 'r',   'global', $mod_evals ],
@@ -552,6 +555,8 @@ return array_merge(
         'analytics'                     => [ 'r',   'global', $mod_analytics ],
         // #0078 Phase 5 — custom widget builder (RCD global; admin can author + delete).
         'custom_widgets'                => [ 'rcd', 'global', $mod_custom_widgets ],
+        // #0090 Phase 1 — data-row translations (RCD global; admin can edit + delete).
+        'translations'                  => [ 'rcd', 'global', $mod_i18n ],
         'bulk_import'                   => [ 'c',   'global', $mod_players ],
         'custom_field_values'           => [ 'rcd', 'global', $mod_configuration ],
         'custom_field_definitions'      => [ 'rcd', 'global', $mod_configuration ],
