@@ -8,7 +8,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendListTable;
-use TT\Shared\Frontend\Components\PlayerPickerComponent;
+use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
 
 /**
@@ -304,14 +304,24 @@ class FrontendGoalsManageView extends FrontendViewBase {
                 <?php if ( $hide_player_picker ) : ?>
                     <input type="hidden" name="player_id" value="<?php echo esc_attr( (string) $preset_player_id ); ?>" />
                 <?php else : ?>
-                    <?php echo PlayerPickerComponent::render( [
-                        'name'     => 'player_id',
-                        'label'    => __( 'Player', 'talenttrack' ),
-                        'required' => true,
-                        'user_id'  => $user_id,
-                        'is_admin' => $is_admin,
-                        'selected' => $selected_player,
-                    ] ); ?>
+                    <?php
+                    // v3.110.x — searchable player picker with embedded
+                    // team filter. Same shape as v3.110.11's
+                    // new-evaluation form: an "All teams" dropdown sits
+                    // above the search input; selecting a team filters
+                    // the player list, "All teams" (the default) shows
+                    // every player in the user's context. Replaces the
+                    // long flat select that PlayerPickerComponent rendered.
+                    echo PlayerSearchPickerComponent::render( [
+                        'name'             => 'player_id',
+                        'label'            => __( 'Player', 'talenttrack' ),
+                        'required'         => true,
+                        'user_id'          => $user_id,
+                        'is_admin'         => $is_admin,
+                        'selected'         => $selected_player,
+                        'show_team_filter' => true,
+                    ] );
+                    ?>
                 <?php endif; ?>
                 <?php echo DateInputComponent::render( [
                     'name'     => 'due_date',

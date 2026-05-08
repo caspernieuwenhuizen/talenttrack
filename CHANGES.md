@@ -1,43 +1,24 @@
-# TalentTrack v3.110.12 — Sixth Export use case: evaluations multi-sheet XLSX (#0063 use case 6)
+# TalentTrack v3.110.13 — Goals module polish: searchable player picker + methodology-link wizard fixes
 
-Per the user-direction shaping (2026-05-08): tabs partition by `(season × eval_type)` with season as the primary axis ("Season determines"). One row per evaluation, category-average columns rolled up from `tt_eval_ratings` sub-rows.
+Pilot polish round on the Goals module. Two items shipped:
 
 ## What landed
 
-### `EvaluationsXlsxExporter` (`exporter_key = evaluations_xlsx`, use case 6)
+### Searchable player picker on the new-goal form
 
-URL pattern:
-`GET /wp-json/talenttrack/v1/exports/evaluations_xlsx?format=xlsx`
+Replaced `PlayerPickerComponent` (a long flat select of every player) with `PlayerSearchPickerComponent` configured `show_team_filter=true`. The new picker renders an "All teams" dropdown above a search input; selecting a team filters the player list while "All teams" (the default) shows every player in the user's context. Same shape as v3.110.11's new-evaluation form, applied to the goals form for consistency. The v3.110.3 player-profile preset path (`?player_id=N` from the empty Goals tab CTA → hide picker, render hidden input) keeps working.
 
-**Filters**:
+### Methodology-link wizard step (LinkStep) — fixes + context-driven label + translations
 
-- `team_id` (optional) — restrict to one team via `tt_players.team_id`.
-- `date_from` / `date_to` (optional ISO dates) — auto-swap reversed ranges per the same convention as the v3.109.0 attendance-register CSV.
+Three layered fixes on the new-goal wizard's "Methodology link" step (`Modules\Wizards\Goal\LinkStep`):
 
-**Cap**: `tt_view_evaluations`.
+- **Position dropdown was empty.** The position + value queries did `WHERE lookup_type = %s AND archived_at IS NULL AND club_id = %d`, but `tt_lookups` has NO `archived_at` column — the initial schema (migration 0001) didn't include it (lookups use HARD delete via the lookups admin), so MySQL threw "Unknown column 'archived_at'" and the entire query failed. The second-select rendered empty for every install since the wizard shipped. Same root cause was already documented + fixed in `BasicsStep` (team wizard's age-group dropdown); this is the matching fix for the goals wizard. Dropped the bogus `archived_at IS NULL` clause from both the `position` and the `value` cases.
+- **Label was always "Pick the entity to link" regardless of chosen type.** Now context-driven: when the operator picks "Position", the second-select's label reads "Position"; for "Football action" it reads "Football action"; etc. New private helper `LinkStep::secondSelectLabel( $type )` reuses the same translatable strings as the first-select option labels in `self::types()` so there's no string duplication.
+- **English text on Dutch installs.** Three methodology-step strings were wrapped in `__()` but missing from `nl_NL.po` — the step label "Methodology link", the explanatory paragraph "Optionally link this goal to a methodology entity. …", and the "(no entries configured for this type)" empty-state. Added all three. The other methodology strings (`Linked principle`, `Linked football action`, `Optional. Anchor this goal to …`, `— no link —`, `— pick one —`, the four type labels) were already translated.
 
-**Tab partitioning**: one tab per `(season, eval_type)` combination. Tab name format: `<season name> — <eval type name>`, truncated to Excel's 31-char limit by `XlsxRenderer::cleanSheetName()`.
+## Affected files
 
-- **Season** comes from `tt_seasons` — match by `eval_date BETWEEN season.start_date AND season.end_date`. Evaluations whose date doesn't fall in any seeded season window go to a fallback `_Unscoped` partition. The query orders seasons by `start_date ASC` so the resulting tab order is chronological.
-- **Eval type** comes from `tt_lookups` where `lookup_type = 'eval_type'` (Match / Training / Tournament / etc.) — the same lookup the existing eval admin form populates. NULL `eval_type_id` lands in an `_AnyType` partition. The eval-type taxonomy is distinct from the Technical/Tactical/Physical/Mental main categories, which drive the row columns instead.
-
-**Row shape**: one row per evaluation. Columns: Date / Player / Coach / Opponent / Competition / Result / Minutes played + one column per main `tt_eval_categories` parent (Technical / Tactical / Physical / Mental — averaged across each evaluation's sub-category ratings via `tt_eval_ratings`).
-
-The per-main-category averages are computed in PHP after a single batched `WHERE evaluation_id IN (...)` query against `tt_eval_ratings`, so the multi-tab build is one SELECT against `tt_evaluations` + one SELECT against `tt_eval_ratings` regardless of evaluation count.
-
-**Tenancy**: `tt_evaluations` doesn't carry `club_id` directly today — the exporter scopes via the joined `tt_players.club_id` to stay tenant-safe.
-
-**Module wiring**: registered in `ExportModule::boot()` alongside the existing exporters. Foundation now at 11 of 15 use cases live.
-
-## What's NOT in this PR
-
-- **Per-evaluation sub-category detail tabs** — the per-row averages cover the typical "merge into our analytics" pilot use case; sub-row detail lands if a customer asks.
-- **Per-club column customization** — the column set is the v1 default; per-club picks are a v2 if needed.
-- **Eval-type filter at the route** — the partitioning already discriminates by eval type; clubs that want a single type, the date + team filters are sufficient at the route.
-
-## Notes
-
-- Zero new operator-facing strings — column headers reuse existing `__()` strings.
-- No new migrations.
-- No composer dependency changes.
-- Renumbered v3.110.9 → v3.110.12 mid-rebase against parallel-agent ships v3.110.5–v3.110.11.
+- `src/Shared/Frontend/FrontendGoalsManageView.php` — switch to `PlayerSearchPickerComponent` with embedded team filter
+- `src/Modules/Wizards/Goal/LinkStep.php` — drop bogus `archived_at` filter; context-driven `secondSelectLabel()` helper
+- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version + ship metadata
+- `languages/talenttrack-nl_NL.po` — 3 new translations (methodology-link wizard step strings)

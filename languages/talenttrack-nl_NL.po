@@ -14198,3 +14198,14 @@ msgstr "Evaluatie van %s"
 #. translators: %s = player name
 msgid "Evaluation — %s"
 msgstr "Evaluatie — %s"
+
+# v3.110.x — Goals module polish: methodology-link wizard step strings
+
+msgid "Methodology link"
+msgstr "Methodologie-koppeling"
+
+msgid "Optionally link this goal to a methodology entity. Pick a type and click Next to choose the specific entity, or leave on \"— no link —\" to skip."
+msgstr "Koppel dit doel optioneel aan een methodologie-entiteit. Kies een type en klik op Volgende om de specifieke entiteit te kiezen, of laat op \"— geen koppeling —\" staan om over te slaan."
+
+msgid "(no entries configured for this type)"
+msgstr "(geen items geconfigureerd voor dit type)"

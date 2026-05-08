@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.12
+Stable tag: 3.110.13
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.13 — Goals module polish: searchable player picker + methodology-link wizard fixes =
+
+Two items on the Goals module. **(1) Searchable player picker on the new-goal form.** Replaced `PlayerPickerComponent` (long flat select of every player) with `PlayerSearchPickerComponent` configured `show_team_filter=true` — All-teams dropdown above search input, selecting a team filters players, "All teams" (default) shows every player in user context. Same shape as v3.110.11's new-evaluation form. **(2) Methodology-link wizard step (`LinkStep`) — three layered fixes.** **Position dropdown was empty**: position + value queries did `WHERE archived_at IS NULL` against `tt_lookups`, but `tt_lookups` has no `archived_at` column (initial schema didn't include it; lookups use HARD delete). MySQL threw "Unknown column 'archived_at'" and the entire query failed silently — second-select rendered empty since the wizard shipped. Same root cause was already fixed in `BasicsStep` (team wizard age-group); matching fix here. **Context-driven label for second select**: was always "Pick the entity to link" regardless of chosen type — now reads "Principle" / "Football action" / "Position" / "Value" depending on the type the operator picked. New private helper `secondSelectLabel( $type )` reuses the same translatable strings from `self::types()` so no string duplication. **English text on Dutch installs**: three strings were wrapped in `__()` but missing from `nl_NL.po` — the step label, the explanatory paragraph, and the "(no entries configured for this type)" empty-state. Added all three. The v3.110.3 player-profile preset path (`?player_id=N` from the empty Goals tab CTA → hide picker) keeps working. Renumbered v3.110.12 → v3.110.13 mid-rebase against parallel-agent ship of #0063 use case 6 (evaluations multi-sheet XLSX) which took the v3.110.12 slot.
 
 = 3.110.12 — Sixth Export use case: evaluations multi-sheet XLSX (#0063 use case 6) =
 
