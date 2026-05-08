@@ -16,6 +16,7 @@ use TT\Modules\Export\Exporters\AttendanceRegisterCsvExporter;
 use TT\Modules\Export\Exporters\BackupZipExporter;
 use TT\Modules\Export\Exporters\EvaluationsXlsxExporter;
 use TT\Modules\Export\Exporters\FederationJsonExporter;
+use TT\Modules\Export\Exporters\GdprSubjectAccessZipExporter;
 use TT\Modules\Export\Exporters\GoalsCsvExporter;
 use TT\Modules\Export\Exporters\PdpPdfExporter;
 use TT\Modules\Export\Exporters\PlayerEvaluationPdfExporter;
@@ -88,7 +89,8 @@ class ExportModule implements ModuleInterface {
         ExporterRegistry::register( new PlayerOnePagerPdfExporter() );  // use case 13 (v3.110.7)
         ExporterRegistry::register( new BackupZipExporter() );          // use case 9  (v3.110.8)
         ExporterRegistry::register( new EvaluationsXlsxExporter() );    // use case 6  (v3.110.12)
-        ExporterRegistry::register( new ActivityBriefPdfExporter() );    // use case 8  (v3.110.13)
+        ExporterRegistry::register( new ActivityBriefPdfExporter() );    // use case 8  (v3.110.14)
+        ExporterRegistry::register( new GdprSubjectAccessZipExporter() ); // use case 10 (v3.110.15)
 
         ExportRestController::init();
     }

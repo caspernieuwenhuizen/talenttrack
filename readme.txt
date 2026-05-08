@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.14
+Stable tag: 3.110.15
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.15 — Eighth Export use case: GDPR subject-access ZIP (#0063 use case 10) =
+
+Required by EU GDPR Article 15 (Right of access). Per user-direction shaping (2026-05-08): synchronous v1, JSON-per-domain inside the ZIP plus a rendered evaluation PDF for human readability, cap-gated on `tt_edit_settings` (academy admin only), audit-logged on every export. **`GdprSubjectAccessZipExporter`** (`exporter_key = gdpr_subject_access_zip`). URL: `GET /wp-json/talenttrack/v1/exports/gdpr_subject_access_zip?format=zip&player_id=42`. **Filters**: `player_id` (required, tenant-scoped via `QueryHelpers::get_player()`). **Cap**: `tt_edit_settings` (academy admin only — GDPR makes the academy the data controller). **ZIP contents**: `profile.json` (tt_players row), `evaluations.json` (tt_evaluations + tt_eval_ratings joined), `goals.json`, `attendance.json` (joined to tt_activities for date/title/location), `comms_log.json` (tt_comms_log filtered on recipient_player_id; tombstoned rows kept — empty address_blob/subject reflect the #0066 GDPR retention design), `parents.json`, `evaluation_report.pdf` (rendered via the v3.110.4 PlayerEvaluationPdfExporter for human readability), `MANIFEST.json` (article reference + subject + requesting user + counts + tombstones-note), `README.txt` (data-subject guide). **Audit trail**: every export writes `gdpr.subject_access_export` to `tt_audit_log` with `(entity_type='player', entity_id=$player_id, payload={ requesting_user_id, generated_at, entry_count })`; failures non-fatal so the data subject's legal right is never blocked. **What's NOT in this PR**: async dispatch (sync v1 fits ~1-5 MB pilot data; this exporter is the natural first consumer of the deferred Action Scheduler pipeline if real data exceeds 30s); subject-access wizard (single-click via REST today); encryption-at-rest of the produced ZIP (operator transmits via secure channel). **Foundation now at 13 of 15 use cases live.** 6 new NL msgids; no migrations; no composer changes.
 
 = 3.110.14 — Seventh Export use case: activity brief PDF (#0063 use case 8) =
 

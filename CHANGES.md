@@ -1,43 +1,49 @@
-# TalentTrack v3.110.14 — Seventh Export use case: activity brief PDF (#0063 use case 8)
+# TalentTrack v3.110.15 — Eighth Export use case: GDPR subject-access ZIP (#0063 use case 10)
 
-Per user-direction shaping (2026-05-08): ship v1 without field diagrams (the spec's "A4 with field diagrams" — diagrams need a `tt_session_drills` sub-entity that doesn't exist today). v1 prints the activity meta + attendance roster, which covers the pitch-side "who's coming, what's the plan" use case.
+Required by EU GDPR Article 15 (Right of access by the data subject). Per user-direction shaping (2026-05-08): synchronous v1, JSON-per-domain inside the ZIP plus a rendered evaluation PDF for human readability, cap-gated on `tt_edit_settings` (academy admin only), audit-logged on every export.
 
 ## What landed
 
-### `ActivityBriefPdfExporter` (`exporter_key = activity_brief_pdf`, use case 8)
+### `GdprSubjectAccessZipExporter` (`exporter_key = gdpr_subject_access_zip`, use case 10)
 
 URL pattern:
-`GET /wp-json/talenttrack/v1/exports/activity_brief_pdf?format=pdf&activity_id=42`
-### Methodology-link wizard step (LinkStep) — fixes + context-driven label + translations
+`GET /wp-json/talenttrack/v1/exports/gdpr_subject_access_zip?format=zip&player_id=42`
 
-- `activity_id` (REQUIRED) — tenant-scoped via `WHERE club_id = %d` on `tt_activities`.
+**Filters**: `player_id` (REQUIRED) — tenant-scoped via `QueryHelpers::get_player()`.
 
-**Cap**: `tt_view_activities` — same gate as the on-screen activities admin.
+**Cap**: `tt_edit_settings` — academy admin only. GDPR statute makes the academy the data controller; only the academy admin can extract a player's full record.
 
-**Layout**: A4 portrait, 16mm margins. Sections:
+### ZIP contents
 
-- Header — activity title (large), date / team / location / type meta table.
-- Notes section — pre-formatted `white-space: pre-wrap` block (only rendered when notes exist).
-- Attendance roster table — Jersey / Player name / Primary position / Status / Notes columns; one row per `tt_attendance` row joined to `tt_players`.
-- Generated-date footer.
+- `profile.json` — `tt_players` row, pretty-printed JSON.
+- `evaluations.json` — `tt_evaluations` + `tt_eval_ratings` joined by evaluation_id, shape `{ evaluations: [...], ratings: [...] }`.
+- `goals.json` — `tt_goals` rows.
+- `attendance.json` — `tt_attendance` joined to `tt_activities` for date / title / location.
+- `comms_log.json` — `tt_comms_log` rows where `recipient_player_id = $player_id` (tombstoned rows kept — empty `address_blob` / `subject` reflect the GDPR retention design from #0066).
+- `parents.json` — `tt_player_parents` rows for the player.
+- `evaluation_report.pdf` — rendered via the v3.110.4 `PlayerEvaluationPdfExporter` + `PdfRenderer`.
+- `MANIFEST.json` — standard `ZipRenderer` envelope + GDPR-specific metadata (article, subject, requesting user, generated_at, entry counts, tombstones-note).
+- `README.txt` — plain-text "what's in this archive" guide for the data subject.
 
-**Layout choices**: inline CSS in the document `<head>` (DomPDF can't follow external stylesheets reliably); DejaVu Sans default; alternating-row striping on the roster for readability at A4.
+CSV deliberately skipped as redundant — JSON round-trips cleanly to any analytics tool.
 
-**Module wiring**: registered in `ExportModule::boot()` alongside the existing exporters. Foundation now at 12 of 15 use cases live.
+### Audit trail
 
-## What's NOT in this PR (deferred field-diagrams work)
+Every successful export writes `gdpr.subject_access_export` to `tt_audit_log` carrying `(entity_type='player', entity_id=$player_id, payload={ requesting_user_id, generated_at, entry_count })`. Audit failures never block delivery — the data subject has a legal right to the export, but the academy needs the trail for its own compliance reporting.
 
-Spec calls for "A4 with field diagrams" — this v1 ships the brief shape without diagrams. Field-diagram support requires:
+### Module wiring
 
-- A drills sub-entity (`tt_session_drills` with `title`, `duration`, `positions`, `notes`).
-- A position-grid widget shareable with the team-blueprint editor.
-- SVG output (DomPDF doesn't render `<canvas>` or execute JS).
+Registered in `ExportModule::boot()`. Foundation now at 13 of 15 use cases live.
 
-The deferred follow-up is tracked in `ActivityBriefPdfExporter`'s class docblock and surfaces at `?tt_view=activities`'s manage view when a drill editor lands. Until then, the pitch-side use case is well-served by the meta + roster brief.
+## What's NOT in this PR
+
+- **Async dispatch** — synchronous-only via the standard REST stream-and-exit path. Spec Q6 originally leaned async; user-direction shaping locked synchronous v1 because typical pilot data (~1-5 MB per player) fits well under the 30s request window. This exporter remains the natural first consumer of the deferred Action-Scheduler async pipeline if a real-club extract ever exceeds that budget.
+- **A subject-access wizard** — spec Q4 (Wizard plan) suggests "audience → scope → confirm" wizard for big GDPR exports. Synchronous v1 is single-button-click via REST; the wizard lands when the operator-facing surface earns it.
+- **Encryption-at-rest of the produced ZIP** — the spec assumes the recipient takes custody at download time; the academy operator is responsible for transmitting the ZIP through a secure channel.
 
 ## Notes
 
-- 5 new operator-facing strings: `Notes`, `Attendance roster`, `No attendance recorded.`, `Jersey`, `Position` — all translatable via `__()`.
+- 6 new operator-facing strings (README header / generation timestamp / requesting-user line / GDPR-Article-15 attribution / player-not-found stub / tombstones-note).
 - No new migrations.
 - No composer dependency changes.
-- Renumbered v3.110.14 against any parallel-agent ship that took a v3.110.x slot during build.
+- Renumbered v3.110.15 against any parallel-agent ship that took a v3.110.x slot during build.
