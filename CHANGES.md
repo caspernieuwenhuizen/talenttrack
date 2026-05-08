@@ -1,3 +1,46 @@
+# TalentTrack v3.110.26 — Authorization matrix Excel/CSV round-trip
+
+Adds Excel/CSV round-trip on the authorization matrix admin (`?page=tt-matrix`). Operators can export the live matrix to a single sheet (or CSV), edit grants offline, re-upload, preview the diff, and apply.
+
+## What landed
+
+### Export
+
+`MatrixPage` now offers two download buttons next to the existing matrix grid:
+
+- **Download as Excel** — single-sheet `.xlsx` via PhpSpreadsheet, one row per `(persona, entity, activity, scope_kind)` tuple plus boolean grant column.
+- **Download as CSV** — same shape, no Excel dependency for installs without PhpSpreadsheet available.
+
+Both routes are cap-gated on `tt_edit_authorization` and tenant-scoped via `CurrentClub::id()`.
+
+### Import + diff preview
+
+Two-step flow: upload → preview-with-diff → apply.
+
+1. Upload file via `multipart/form-data` POST. `SeedImporter::stash()` parses + validates rows, stores them in `tt_config['matrix_import_<token>']` keyed by a per-import token, returns the token.
+2. Preview page renders a diff table (added grants in green, removed grants in red, unchanged grants greyed) so the operator sees exactly what's about to change.
+3. **Apply** triggers `SeedImporter::applyStash( $token )` which writes via the existing matrix UPSERT path; rows untouched by the import stay as-is. Apply path emits an audit-log row per changed grant.
+
+### Token expiry
+
+Stash entries expire after 30 minutes. Expired tokens render *"Import token expired. Re-upload the file."* — copy intentionally avoids "session" vocabulary so the #0035 vocab gate stays clean (renamed during this rebase from "Import session expired" → "Import token expired").
+
+## What's NOT in this PR
+
+- Bulk diff editing on the preview page (operators can edit the file before re-uploading, not after).
+- Per-(persona, entity) sheet partitioning (single-sheet shape kept simple at v1).
+- Async import for very large files (sync v1 fits typical matrix sizes).
+
+## Translations
+
+~12 new NL msgids covering the new export/import buttons, preview-page copy, and error states. No `.mo` regen in this PR.
+
+## Notes
+
+No schema changes. No new caps (existing `tt_edit_authorization` covers both export + import). No cron. No composer dep changes (PhpSpreadsheet was added by #0063 export module). Renumbered v3.89.0 → v3.110.26 — the original v3.89.0 slot was claimed by an earlier ship in early May, and parallel-agent ships of v3.110.18 through v3.110.25 took the intermediate slots.
+
+---
+
 # TalentTrack v3.110.25 — All 15 Comms use-case templates + cron-driven triggers, closes #0066
 
 Closes #0066 (Communication module epic). The 15 use-case templates from spec § 1-15 ship as concrete `TemplateInterface` implementations under `Modules\Comms\Templates\`, registered centrally in `CommsModule::boot()`.

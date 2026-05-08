@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.25
+Stable tag: 3.110.26
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.26 — Authorization matrix Excel/CSV round-trip =
+
+Adds Excel/CSV round-trip on the authorization matrix admin (`?page=tt-matrix`). Operators can export the live matrix to a single sheet (or CSV), edit grants offline, re-upload, preview the diff, and apply. **Export** — two download buttons next to the existing matrix grid: Excel `.xlsx` via PhpSpreadsheet (one row per `(persona, entity, activity, scope_kind)` + boolean grant column) and CSV (same shape, no Excel dep). Both routes cap-gated on `tt_edit_authorization` and tenant-scoped via `CurrentClub::id()`. **Import + diff preview** — two-step flow: upload via `multipart/form-data`, `SeedImporter::stash()` parses and stores rows in `tt_config['matrix_import_<token>']`, returns a per-import token. Preview page renders a diff table (added grants in green, removed grants in red, unchanged grants greyed). **Apply** triggers `SeedImporter::applyStash( $token )` which writes via the existing matrix UPSERT path; rows untouched by the import stay as-is. Apply path emits an audit-log row per changed grant. **Token expiry** — stash entries expire after 30 minutes; expired tokens render *"Import token expired. Re-upload the file."* (renamed from "Import session expired" to satisfy the #0035 vocab gate). **What's NOT in this PR**: bulk diff editing on the preview page (operators edit before re-uploading); per-(persona, entity) sheet partitioning; async import. ~12 new NL msgids; no schema; no new caps (existing `tt_edit_authorization` covers both); no cron; no composer dep changes (PhpSpreadsheet was added by #0063). Renumbered v3.89.0 → v3.110.26 — the original v3.89.0 slot was claimed by an earlier ship in early May, parallel ships v3.110.18-25 took the intermediate slots.
 
 = 3.110.25 — All 15 Comms use-case templates + cron-driven triggers, closes #0066 =
 

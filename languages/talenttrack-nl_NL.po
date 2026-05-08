@@ -14229,3 +14229,136 @@ msgstr "Freemius-checkout staat op deze installatie niet aan — de knop opent d
 
 msgid "You can add your self-reflection up to 2 weeks before this meeting. Check back closer to the planned date."
 msgstr "Je kunt je zelfreflectie toevoegen tot 2 weken voor deze afspraak. Kom terug dichter bij de geplande datum."
+# v3.110.26 — matrix seed Excel/CSV round-trip
+
+msgid "Round-trip with a stakeholder (Excel / CSV)"
+msgstr "Heen-en-weer met een stakeholder (Excel / CSV)"
+
+msgid "Export the current matrix, edit it offline (Excel, Google Sheets, anything that handles CSV), then re-upload. A diff preview shows additions and removals before anything is committed. .xlsx is the cleaner format; .csv is universal — use it if your host blocks Office uploads."
+msgstr "Exporteer de huidige matrix, bewerk hem offline (Excel, Google Sheets, alles dat met CSV overweg kan) en upload het bestand opnieuw. Een diff-preview toont toevoegingen en verwijderingen voordat er iets wordt vastgelegd. .xlsx is het mooiste formaat; .csv is universeel — gebruik dat als je host Office-uploads blokkeert."
+
+msgid "Download .xlsx"
+msgstr "Download .xlsx"
+
+msgid "Download .csv"
+msgstr "Download .csv"
+
+msgid "Upload edited file"
+msgstr "Geüpload bestand"
+
+msgid "Preview changes"
+msgstr "Bekijk wijzigingen"
+
+msgid "The file is parsed in-memory; never written to wp-content/uploads. If your host rejects .xlsx, the .csv path bypasses the Office allowlist entirely."
+msgstr "Het bestand wordt in het geheugen verwerkt en nooit weggeschreven naar wp-content/uploads. Weigert je host .xlsx, dan omzeilt de .csv-route de Office-allowlist volledig."
+
+msgid "Apply changes"
+msgstr "Wijzigingen toepassen"
+
+msgid "Parsed %1$d rows from upload. Current matrix has %2$d. Adds: %3$d, removes: %4$d, unchanged: %5$d."
+msgstr "%1$d rijen uit de upload verwerkt. Huidige matrix heeft %2$d. Toevoegingen: %3$d, verwijderingen: %4$d, ongewijzigd: %5$d."
+
+msgid "Adds (%d)"
+msgstr "Toevoegingen (%d)"
+
+msgid "Removes (%d)"
+msgstr "Verwijderingen (%d)"
+
+msgid "Replace the live matrix with the uploaded set? Current rows not present in the upload will be removed."
+msgstr "De actieve matrix vervangen door de geüploade set? Huidige rijen die niet in de upload staan, worden verwijderd."
+
+msgid "persona"
+msgstr "persona"
+
+msgid "entity"
+msgstr "entiteit"
+
+msgid "activity"
+msgstr "activiteit"
+
+msgid "scope"
+msgstr "scope"
+
+msgid "Matrix imported — %d rows applied."
+msgstr "Matrix geïmporteerd — %d rijen toegepast."
+
+msgid "No file received. Your host may have rejected the upload before PHP saw it. Try the .csv format."
+msgstr "Geen bestand ontvangen. Je host heeft de upload mogelijk geweigerd voordat PHP het zag. Probeer het .csv-formaat."
+
+msgid "Could not parse the upload."
+msgstr "Kon de upload niet verwerken."
+
+msgid "Import session expired. Re-upload the file."
+msgstr "Importsessie verlopen. Upload het bestand opnieuw."
+
+msgid "Unsupported file type. Use .xlsx or .csv."
+msgstr "Bestandstype niet ondersteund. Gebruik .xlsx of .csv."
+
+msgid "Upload tmp file is not readable. Your host may have stripped the upload before PHP saw it. Try the CSV format."
+msgstr "Het tijdelijke uploadbestand kan niet worden gelezen. Je host heeft de upload mogelijk verwijderd voordat PHP het zag. Probeer het CSV-formaat."
+
+msgid "PhpSpreadsheet is not loaded — cannot parse .xlsx. Try the .csv format."
+msgstr "PhpSpreadsheet is niet geladen — kan geen .xlsx verwerken. Probeer het .csv-formaat."
+
+msgid "Could not parse .xlsx: %s. Try saving as .csv and uploading that instead."
+msgstr "Kon .xlsx niet verwerken: %s. Sla op als .csv en upload dat in plaats daarvan."
+
+msgid "Could not open uploaded file."
+msgstr "Kon het geüploade bestand niet openen."
+
+msgid "No data rows found. Did you delete every permission?"
+msgstr "Geen datarijen gevonden. Heb je elke permissie verwijderd?"
+
+msgid "Workbook contains no data."
+msgstr "Werkboek bevat geen gegevens."
+
+msgid "No data rows found in the Matrix sheet."
+msgstr "Geen datarijen gevonden op het Matrix-blad."
+
+msgid "Missing required column: %s. Expected: persona, entity, activity, scope_kind, module_class."
+msgstr "Vereiste kolom ontbreekt: %s. Verwacht: persona, entity, activity, scope_kind, module_class."
+
+msgid "Insert failed at row %s — rolled back."
+msgstr "Invoegen mislukt bij rij %s — teruggedraaid."
+
+msgid "TalentTrack — Authorization matrix seed"
+msgstr "TalentTrack — Autorisatie-matrix seed"
+
+msgid "How to use this file"
+msgstr "Hoe gebruik je dit bestand"
+
+msgid "Edit the Matrix sheet to grant or revoke permissions per persona. Save as .xlsx (or .csv) and re-upload via Authorization → Matrix → Import seed."
+msgstr "Bewerk het Matrix-blad om permissies per persona toe te kennen of in te trekken. Opslaan als .xlsx (of .csv) en opnieuw uploaden via Autorisatie → Matrix → Seed importeren."
+
+msgid "Columns"
+msgstr "Kolommen"
+
+msgid "persona — one of: player, parent, assistant_coach, head_coach, team_manager, scout, head_of_development, academy_admin"
+msgstr "persona — één van: player, parent, assistant_coach, head_coach, team_manager, scout, head_of_development, academy_admin"
+
+msgid "entity — the resource being permitted (e.g. players, audit_log, dev_ideas). See Authorization → Matrix in the app for the full list."
+msgstr "entity — de resource waarop rechten worden gezet (bijv. players, audit_log, dev_ideas). Zie Autorisatie → Matrix in de applicatie voor de volledige lijst."
+
+msgid "activity — one of: read, change, create_delete"
+msgstr "activity — één van: read, change, create_delete"
+
+msgid "scope_kind — one of: global, team, player, self"
+msgstr "scope_kind — één van: global, team, player, self"
+
+msgid "module_class — fully-qualified PHP class name of the owning module (e.g. TT\\Modules\\Players\\PlayersModule). Leave alone unless you know what you are doing."
+msgstr "module_class — fully-qualified PHP-klasse van de eigenaarmodule (bijv. TT\\Modules\\Players\\PlayersModule). Niet aanpassen tenzij je weet wat je doet."
+
+msgid "is_default — 1 = shipped default, 0 = admin-edited. Importer will mark every row as 0 (admin-edited) since the import IS the admin edit."
+msgstr "is_default — 1 = standaard, 0 = handmatig aangepast. De importer markeert elke rij als 0 (handmatig aangepast), omdat de import zélf de handmatige aanpassing is."
+
+msgid "Rules"
+msgstr "Regels"
+
+msgid "One row per granted permission. To revoke a permission, delete the row."
+msgstr "Eén rij per toegekende permissie. Om een permissie in te trekken, verwijder je de rij."
+
+msgid "Import REPLACES the matrix. Anything not in the upload is removed."
+msgstr "Importeren VERVANGT de matrix. Alles wat niet in de upload staat, wordt verwijderd."
+
+msgid "A diff preview shows you adds + removes before commit. Reset to defaults remains available to restore the shipped seed."
+msgstr "Een diff-preview toont toevoegingen + verwijderingen voor je toepast. Reset naar standaard blijft beschikbaar om de meegeleverde seed te herstellen."
