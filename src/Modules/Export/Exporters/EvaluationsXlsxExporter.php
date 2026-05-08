@@ -129,7 +129,7 @@ final class EvaluationsXlsxExporter implements ExporterInterface {
 
         $sql = "SELECT
                     e.id, e.eval_date, e.eval_type_id,
-                    e.opponent, e.competition, e.match_result,
+                    e.opponent, e.competition, e.game_result,
                     e.minutes_played, e.notes,
                     pl.id AS player_id, pl.first_name, pl.last_name,
                     u.display_name AS coach_name
@@ -211,7 +211,7 @@ final class EvaluationsXlsxExporter implements ExporterInterface {
                 (string) ( $e->coach_name ?? '' ),
                 (string) ( $e->opponent ?? '' ),
                 (string) ( $e->competition ?? '' ),
-                (string) ( $e->match_result ?? '' ),
+                (string) ( $e->game_result ?? '' ),
                 $e->minutes_played !== null ? (int) $e->minutes_played : '',
             ];
             foreach ( $main_cats as $cat ) {
