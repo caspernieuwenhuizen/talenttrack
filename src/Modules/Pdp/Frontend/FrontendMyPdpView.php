@@ -111,18 +111,35 @@ class FrontendMyPdpView extends FrontendViewBase {
         }
 
         // Editable self-reflection — player only, before sign-off.
+        //
+        // v3.110.x — gated to a 2-week pre-meeting window: the form
+        // opens 14 days before `scheduled_at` and stays open until
+        // the coach signs off. Earlier behaviour opened it as soon as
+        // the conversation existed, which surfaced an empty
+        // self-reflection input months ahead of the meeting and
+        // confused players ("am I supposed to write something now?").
+        // When the meeting hasn't been scheduled yet (`scheduled_at`
+        // empty) or it's > 2 weeks away, render an explainer line so
+        // the player understands when the prompt will reappear.
         if ( $is_self && ! $signed ) {
-            $rest_path = 'pdp-conversations/' . (int) $conv->id;
-            ?>
-            <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload" style="margin-top:8px;">
-                <label class="tt-field-label" for="tt-myrefl-<?php echo (int) $conv->id; ?>"><?php esc_html_e( 'Add or update your self-reflection', 'talenttrack' ); ?></label>
-                <textarea id="tt-myrefl-<?php echo (int) $conv->id; ?>" name="player_reflection" class="tt-input" rows="3"><?php echo esc_textarea( (string) ( $conv->player_reflection ?? '' ) ); ?></textarea>
-                <div class="tt-form-actions" style="margin-top:8px;">
-                    <button type="submit" class="tt-btn tt-btn-primary tt-btn-sm"><?php esc_html_e( 'Save reflection', 'talenttrack' ); ?></button>
-                </div>
-                <div class="tt-form-msg"></div>
-            </form>
-            <?php
+            $window_open = self::selfReflectionWindowOpen( $conv );
+            if ( $window_open ) {
+                $rest_path = 'pdp-conversations/' . (int) $conv->id;
+                ?>
+                <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload" style="margin-top:8px;">
+                    <label class="tt-field-label" for="tt-myrefl-<?php echo (int) $conv->id; ?>"><?php esc_html_e( 'Add or update your self-reflection', 'talenttrack' ); ?></label>
+                    <textarea id="tt-myrefl-<?php echo (int) $conv->id; ?>" name="player_reflection" class="tt-input" rows="3"><?php echo esc_textarea( (string) ( $conv->player_reflection ?? '' ) ); ?></textarea>
+                    <div class="tt-form-actions" style="margin-top:8px;">
+                        <button type="submit" class="tt-btn tt-btn-primary tt-btn-sm"><?php esc_html_e( 'Save reflection', 'talenttrack' ); ?></button>
+                    </div>
+                    <div class="tt-form-msg"></div>
+                </form>
+                <?php
+            } else {
+                echo '<p class="tt-muted" style="margin: 8px 0 0; font-size: 13px;">';
+                echo esc_html__( 'You can add your self-reflection up to 2 weeks before this meeting. Check back closer to the planned date.', 'talenttrack' );
+                echo '</p>';
+            }
         }
 
         // Acknowledge buttons — once the coach has signed off.
@@ -174,6 +191,30 @@ class FrontendMyPdpView extends FrontendViewBase {
             ) ) . '</em></p>';
         }
         echo '</div>';
+    }
+
+    /**
+     * v3.110.x — self-reflection editing window for the PDP player
+     * surface. Returns true when the conversation has a
+     * `scheduled_at` AND that scheduled time is at most 14 days
+     * away. Returns false when the meeting hasn't been scheduled yet
+     * OR it's more than 2 weeks out — those states show an explainer
+     * line instead of the form.
+     *
+     * Once the meeting passes, the form remains open (the gate is
+     * "no earlier than 2 weeks before") until the coach signs off,
+     * which is the existing close-condition the caller checks.
+     */
+    private static function selfReflectionWindowOpen( object $conv ): bool {
+        $scheduled = (string) ( $conv->scheduled_at ?? '' );
+        if ( $scheduled === '' ) return false;
+        $ts = strtotime( $scheduled );
+        if ( $ts === false ) return false;
+        $now    = (int) current_time( 'timestamp', true );
+        $window = 14 * DAY_IN_SECONDS;
+        // Open from (scheduled - 14 days) onwards. No upper bound here —
+        // the caller's `! $signed` check handles the close.
+        return ( $ts - $now ) <= $window;
     }
 
     private static function templateLabel( string $key ): string {

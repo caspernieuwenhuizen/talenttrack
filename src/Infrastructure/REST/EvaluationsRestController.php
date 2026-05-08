@@ -197,10 +197,22 @@ class EvaluationsRestController {
         global $wpdb; $p = $wpdb->prefix;
         $rmin = (float) QueryHelpers::get_config( 'rating_min', '1' );
         $rmax = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        // v3.110.x — every rating row carries `club_id` so the read-side
+        // queries (`QueryHelpers::get_evaluation`,
+        // `EvalRatingsRepository::overallRatingsForEvaluations`, the
+        // FrontendMyEvaluationsView category breakdown, the new
+        // FrontendEvaluationsView detail page) can filter by tenant
+        // safely. Migration 0038 added the column with `DEFAULT 1`, but
+        // strict-mode MySQL installs that didn't pick up the default
+        // ended up with rating rows at `club_id = 0` — invisible to
+        // every read scoped by `CurrentClub::id()`. Setting it
+        // explicitly here closes that hole going forward.
+        $club_id = \TT\Infrastructure\Tenancy\CurrentClub::id();
         $failures = [];
         foreach ( $ratings as $cid => $val ) {
             $clamped = max( $rmin, min( $rmax, (float) $val ) );
             $ok = $wpdb->insert( "{$p}tt_eval_ratings", [
+                'club_id'       => $club_id,
                 'evaluation_id' => $evaluation_id,
                 'category_id'   => absint( $cid ),
                 'rating'        => $clamped,
