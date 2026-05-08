@@ -1,53 +1,43 @@
-# TalentTrack v3.110.11 — Evaluations module polish: detail page + Open + Delete + average column + rateable-activities + single picker with team filter
+# TalentTrack v3.110.12 — Sixth Export use case: evaluations multi-sheet XLSX (#0063 use case 6)
 
-Pilot polish round on the Evaluations module (`?tt_view=evaluations`). Five items shipped:
+Per the user-direction shaping (2026-05-08): tabs partition by `(season × eval_type)` with season as the primary axis ("Season determines"). One row per evaluation, category-average columns rolled up from `tt_eval_ratings` sub-rows.
 
 ## What landed
 
-### Evaluation read-only detail page
+### `EvaluationsXlsxExporter` (`exporter_key = evaluations_xlsx`, use case 6)
 
-`?tt_view=evaluations&id=N` now renders a real detail page. Previously the URL was unhandled and the user landed back on the list — meaning every link from the list went to the player / team / coach detail and there was no way to actually open the evaluation itself.
+URL pattern:
+`GET /wp-json/talenttrack/v1/exports/evaluations_xlsx?format=xlsx`
 
-The new detail view shows:
+**Filters**:
 
-- Eval header: date, player (linked), team (linked), coach (linked when a `tt_people` row exists). When the evaluation captures a game (`opponent` / `competition` / `game_result` / `home_away` / `minutes_played` set), those fields are rendered alongside.
-- Ratings table grouped by main category, with subcategory ratings indented underneath. Pulls from `EvalRatingsRepository::getForEvaluation()` and uses `EvalCategoriesRepository::displayLabel()` for translated category labels. Subs whose parent main wasn't directly rated render at the top level so nothing gets dropped.
-- Notes section (when `notes` is non-empty), rendered with `white-space: pre-wrap` so multi-line coach notes preserve their formatting.
+- `team_id` (optional) — restrict to one team via `tt_players.team_id`.
+- `date_from` / `date_to` (optional ISO dates) — auto-swap reversed ranges per the same convention as the v3.109.0 attendance-register CSV.
 
-Wraps in `.tt-record-detail` so the v3.108.3 generic detail-card chrome applies.
+**Cap**: `tt_view_evaluations`.
 
-### Average column + Open + Delete on the evaluations list
+**Tab partitioning**: one tab per `(season, eval_type)` combination. Tab name format: `<season name> — <eval type name>`, truncated to Excel's 31-char limit by `XlsxRenderer::cleanSheetName()`.
 
-The list table gained two columns and an action set:
+- **Season** comes from `tt_seasons` — match by `eval_date BETWEEN season.start_date AND season.end_date`. Evaluations whose date doesn't fall in any seeded season window go to a fallback `_Unscoped` partition. The query orders seasons by `start_date ASC` so the resulting tab order is chronological.
+- **Eval type** comes from `tt_lookups` where `lookup_type = 'eval_type'` (Match / Training / Tournament / etc.) — the same lookup the existing eval admin form populates. NULL `eval_type_id` lands in an `_AnyType` partition. The eval-type taxonomy is distinct from the Technical/Tactical/Physical/Mental main categories, which drive the row columns instead.
 
-- **Average** — correlated subquery `SELECT AVG(r.rating) FROM tt_eval_ratings r WHERE r.evaluation_id = e.id AND r.club_id = e.club_id`. The cell renders the value to one decimal place and links to the eval detail page; this is the operator's primary way to open the evaluation from the list.
-- **Actions** — `Open` button (frontend link to the new detail page) + `Delete` button (uses the v3.108.2 `.tt-record-delete` generic handler with the existing `DELETE /evaluations/{id}` REST endpoint). Cap-gated on `tt_edit_evaluations`. Each row now carries `data-tt-row` so the JS row-fade-out works.
+**Row shape**: one row per evaluation. Columns: Date / Player / Coach / Opponent / Competition / Result / Minutes played + one column per main `tt_eval_categories` parent (Technical / Tactical / Physical / Mental — averaged across each evaluation's sub-category ratings via `tt_eval_ratings`).
 
-The previous list rendered Player / Team / Coach as `.tt-record-link` links to those entities — kept as-is so coaches can still drill into the related records, but the eval itself now has a clear way in.
+The per-main-category averages are computed in PHP after a single batched `WHERE evaluation_id IN (...)` query against `tt_eval_ratings`, so the multi-tab build is one SELECT against `tt_evaluations` + one SELECT against `tt_eval_ratings` regardless of evaluation count.
 
-### Recently-rateable activities now match the operator's mental model
+**Tenancy**: `tt_evaluations` doesn't carry `club_id` directly today — the exporter scopes via the joined `tt_players.club_id` to stay tenant-safe.
 
-Two bugs in the new-evaluation wizard's activity-picker step (`?tt_view=wizard&slug=new-evaluation`):
+**Module wiring**: registered in `ExportModule::boot()` alongside the existing exporters. Foundation now at 11 of 15 use cases live.
 
-- **30-day window was too tight.** Pilot cadences (one match every 2-3 weeks) regularly missed the cutoff; the activity they completed last week wouldn't appear because the previous match was 32 days ago and shifted the window. Bumped the default to 90 days, which lines up with a typical season half-block. The class now exports a `DEFAULT_DAYS = 90` constant rather than open-coding the literal in two places.
-- **No `plan_state = 'completed'` filter.** The query only filtered on date and team membership, so scheduled-but-not-played-yet activities also appeared in the picker. Filter added so only completed activities show — matching the operator's expectation that "rateable" means "the activity actually happened." Combined with the `plan_state = 'completed'` auto-transition that fires on attendance save (in `ActivitiesRestController::update_session`), marking an activity as completed via the frontend now correctly surfaces it in the picker.
+## What's NOT in this PR
 
-The empty-state copy and the explanatory paragraph were both rewritten to spell out the rules: "Pick a completed activity from the last 90 days … only appear here once they are marked completed and their type is rateable."
+- **Per-evaluation sub-category detail tabs** — the per-row averages cover the typical "merge into our analytics" pilot use case; sub-row detail lands if a customer asks.
+- **Per-club column customization** — the column set is the v1 default; per-club picks are a v2 if needed.
+- **Eval-type filter at the route** — the partitioning already discriminates by eval type; clubs that want a single type, the date + team filters are sufficient at the route.
 
-### New-evaluation form: single picker with embedded team filter
+## Notes
 
-The previous form had two stacked dropdowns: a `Team` picker that disabled the `Player` picker until a team was chosen, and the `Player` picker as a separate field below. That was friction for the common case of "I know the player by name, I don't care which team" — the user had to first remember the team in order to search the player.
-
-Replaced with one `PlayerSearchPickerComponent` configured with `show_team_filter=true`. The component renders an `All teams` dropdown above the search input. Selecting a team filters the player list; selecting `All teams` (the default) shows every player in the user's context. The player search remains the primary affordance.
-
-The separate `eval_team_id` form field is gone — the REST controller never read it (the team is always derived from the player record), it existed only to filter the picker, and the embedded team filter on the picker handles that natively. The `tt-eval-team-wrap` data attribute and the JS handler that bridged the team-select onto the picker via `tt-psp:set-team` are also gone — the picker hydrator handles its own team filter.
-
-The "Recording evaluation for *Name*" preset path (added in v3.110.3 for the player-profile CTA) keeps working — when `?player_id=N` is in the URL, the form renders the headline and a single hidden `player_id` input instead of the picker.
-
-## Affected files
-
-- `src/Shared/Frontend/FrontendEvaluationsView.php` — `?id=N` handling + `renderDetail()` + Open/Delete/Average columns
-- `src/Shared/Frontend/CoachForms.php` — single-picker form layout, drops `eval_team_id` + cross-filter JS
-- `src/Modules/Wizards/Evaluation/ActivityPickerStep.php` — 90-day default + `plan_state = 'completed'` filter + clearer empty-state copy
-- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version + ship metadata
-- `languages/talenttrack-nl_NL.po` — 3 new msgids (Average / Open / Actions column headers; eval-detail headings reuse existing strings)
+- Zero new operator-facing strings — column headers reuse existing `__()` strings.
+- No new migrations.
+- No composer dependency changes.
+- Renumbered v3.110.9 → v3.110.12 mid-rebase against parallel-agent ships v3.110.5–v3.110.11.
