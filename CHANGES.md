@@ -1,24 +1,43 @@
-# TalentTrack v3.110.13 — Goals module polish: searchable player picker + methodology-link wizard fixes
+# TalentTrack v3.110.14 — Seventh Export use case: activity brief PDF (#0063 use case 8)
 
-Pilot polish round on the Goals module. Two items shipped:
+Per user-direction shaping (2026-05-08): ship v1 without field diagrams (the spec's "A4 with field diagrams" — diagrams need a `tt_session_drills` sub-entity that doesn't exist today). v1 prints the activity meta + attendance roster, which covers the pitch-side "who's coming, what's the plan" use case.
 
 ## What landed
 
-### Searchable player picker on the new-goal form
+### `ActivityBriefPdfExporter` (`exporter_key = activity_brief_pdf`, use case 8)
 
-Replaced `PlayerPickerComponent` (a long flat select of every player) with `PlayerSearchPickerComponent` configured `show_team_filter=true`. The new picker renders an "All teams" dropdown above a search input; selecting a team filters the player list while "All teams" (the default) shows every player in the user's context. Same shape as v3.110.11's new-evaluation form, applied to the goals form for consistency. The v3.110.3 player-profile preset path (`?player_id=N` from the empty Goals tab CTA → hide picker, render hidden input) keeps working.
-
+URL pattern:
+`GET /wp-json/talenttrack/v1/exports/activity_brief_pdf?format=pdf&activity_id=42`
 ### Methodology-link wizard step (LinkStep) — fixes + context-driven label + translations
 
-Three layered fixes on the new-goal wizard's "Methodology link" step (`Modules\Wizards\Goal\LinkStep`):
+- `activity_id` (REQUIRED) — tenant-scoped via `WHERE club_id = %d` on `tt_activities`.
 
-- **Position dropdown was empty.** The position + value queries did `WHERE lookup_type = %s AND archived_at IS NULL AND club_id = %d`, but `tt_lookups` has NO `archived_at` column — the initial schema (migration 0001) didn't include it (lookups use HARD delete via the lookups admin), so MySQL threw "Unknown column 'archived_at'" and the entire query failed. The second-select rendered empty for every install since the wizard shipped. Same root cause was already documented + fixed in `BasicsStep` (team wizard's age-group dropdown); this is the matching fix for the goals wizard. Dropped the bogus `archived_at IS NULL` clause from both the `position` and the `value` cases.
-- **Label was always "Pick the entity to link" regardless of chosen type.** Now context-driven: when the operator picks "Position", the second-select's label reads "Position"; for "Football action" it reads "Football action"; etc. New private helper `LinkStep::secondSelectLabel( $type )` reuses the same translatable strings as the first-select option labels in `self::types()` so there's no string duplication.
-- **English text on Dutch installs.** Three methodology-step strings were wrapped in `__()` but missing from `nl_NL.po` — the step label "Methodology link", the explanatory paragraph "Optionally link this goal to a methodology entity. …", and the "(no entries configured for this type)" empty-state. Added all three. The other methodology strings (`Linked principle`, `Linked football action`, `Optional. Anchor this goal to …`, `— no link —`, `— pick one —`, the four type labels) were already translated.
+**Cap**: `tt_view_activities` — same gate as the on-screen activities admin.
 
-## Affected files
+**Layout**: A4 portrait, 16mm margins. Sections:
 
-- `src/Shared/Frontend/FrontendGoalsManageView.php` — switch to `PlayerSearchPickerComponent` with embedded team filter
-- `src/Modules/Wizards/Goal/LinkStep.php` — drop bogus `archived_at` filter; context-driven `secondSelectLabel()` helper
-- `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version + ship metadata
-- `languages/talenttrack-nl_NL.po` — 3 new translations (methodology-link wizard step strings)
+- Header — activity title (large), date / team / location / type meta table.
+- Notes section — pre-formatted `white-space: pre-wrap` block (only rendered when notes exist).
+- Attendance roster table — Jersey / Player name / Primary position / Status / Notes columns; one row per `tt_attendance` row joined to `tt_players`.
+- Generated-date footer.
+
+**Layout choices**: inline CSS in the document `<head>` (DomPDF can't follow external stylesheets reliably); DejaVu Sans default; alternating-row striping on the roster for readability at A4.
+
+**Module wiring**: registered in `ExportModule::boot()` alongside the existing exporters. Foundation now at 12 of 15 use cases live.
+
+## What's NOT in this PR (deferred field-diagrams work)
+
+Spec calls for "A4 with field diagrams" — this v1 ships the brief shape without diagrams. Field-diagram support requires:
+
+- A drills sub-entity (`tt_session_drills` with `title`, `duration`, `positions`, `notes`).
+- A position-grid widget shareable with the team-blueprint editor.
+- SVG output (DomPDF doesn't render `<canvas>` or execute JS).
+
+The deferred follow-up is tracked in `ActivityBriefPdfExporter`'s class docblock and surfaces at `?tt_view=activities`'s manage view when a drill editor lands. Until then, the pitch-side use case is well-served by the meta + roster brief.
+
+## Notes
+
+- 5 new operator-facing strings: `Notes`, `Attendance roster`, `No attendance recorded.`, `Jersey`, `Position` — all translatable via `__()`.
+- No new migrations.
+- No composer dependency changes.
+- Renumbered v3.110.14 against any parallel-agent ship that took a v3.110.x slot during build.

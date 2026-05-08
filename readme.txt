@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.13
+Stable tag: 3.110.14
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.14 — Seventh Export use case: activity brief PDF (#0063 use case 8) =
+
+Per user-direction shaping (2026-05-08): ship v1 without field diagrams (spec's "A4 with field diagrams" — diagrams need a `tt_session_drills` sub-entity that doesn't exist today). **`ActivityBriefPdfExporter`** (`exporter_key = activity_brief_pdf`). URL: `GET /wp-json/talenttrack/v1/exports/activity_brief_pdf?format=pdf&activity_id=42`. **Filters**: `activity_id` (required, tenant-scoped via `WHERE club_id = %d`). **Cap**: `tt_view_activities`. **Layout**: A4 portrait, 16mm margins, inline CSS in `<head>`. Sections: title headline, meta table (Date / Team / Location / Type), Notes block (only rendered when notes exist), attendance roster table (Jersey / Player / Position / Status / Notes columns) joined `tt_attendance` × `tt_players`, generated-date footer. **What's NOT in this PR (deferred)**: field diagrams — needs a drills sub-entity (`tt_session_drills` with title / duration / positions / notes), a position-grid widget shareable with the team-blueprint editor, and SVG output (DomPDF can't render canvas/JS). Tracked in `ActivityBriefPdfExporter`'s class docblock as a follow-up. **Foundation now at 12 of 15 use cases live.** 5 new NL msgids; no migrations; no composer changes.
 
 = 3.110.13 — Goals module polish: searchable player picker + methodology-link wizard fixes =
 
