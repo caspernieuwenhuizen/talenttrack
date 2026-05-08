@@ -6,13 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
- * Step 4 (v3.85.3) — Principles practiced. Optional multiselect.
+ * Step 4 — Connected principles. Optional multiselect.
  *
  * Closes the parity gap operator flagged: the activity edit form
- * (FrontendActivitiesManageView) has had a Principles practiced
- * multiselect since v3.79.0 (#0077 M2), but the create wizard never
- * picked it up. Operators couldn't tag a brand-new activity to a
- * methodology principle without first saving and then editing.
+ * (FrontendActivitiesManageView) has had this multiselect since
+ * v3.79.0 (#0077 M2), but the create wizard never picked it up.
+ * Operators couldn't tag a brand-new activity to a methodology
+ * principle without first saving and then editing.
  *
  * State key: `activity_principle_ids` — list<int> of principle row
  * ids. ReviewStep::submit reads this and writes through
@@ -23,7 +23,7 @@ use TT\Shared\Wizards\WizardStepInterface;
 final class PrinciplesStep implements WizardStepInterface {
 
     public function slug(): string { return 'principles'; }
-    public function label(): string { return __( 'Principles practiced', 'talenttrack' ); }
+    public function label(): string { return __( 'Connected principles', 'talenttrack' ); }
 
     public function render( array $state ): void {
         if ( ! class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrinciplesRepository' ) ) {
@@ -34,7 +34,7 @@ final class PrinciplesStep implements WizardStepInterface {
         $selected   = (array) ( $state['activity_principle_ids'] ?? [] );
         $selected   = array_map( 'intval', $selected );
 
-        echo '<p>' . esc_html__( 'Optionally pick the methodology principles this activity will practice. Hold Ctrl/Cmd to select multiple. Leave blank to skip.', 'talenttrack' ) . '</p>';
+        echo '<p>' . esc_html__( 'Optionally connect this activity to one or more methodology principles. Hold Ctrl/Cmd to select multiple. Leave blank to skip.', 'talenttrack' ) . '</p>';
 
         if ( empty( $principles ) ) {
             echo '<p><em>' . esc_html__( 'No principles configured yet. Skip this step or configure principles under Methodology first.', 'talenttrack' ) . '</em></p>';

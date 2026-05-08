@@ -353,7 +353,7 @@ class ActivitiesPage {
                             : [];
                         if ( ! empty( $all_principles ) ) : ?>
                             <tr>
-                                <th><?php esc_html_e( 'Principles practiced', 'talenttrack' ); ?></th>
+                                <th><?php esc_html_e( 'Connected principles', 'talenttrack' ); ?></th>
                                 <td>
                                     <select name="activity_principle_ids[]" multiple size="6" style="min-width:320px;">
                                         <?php foreach ( $all_principles as $pr ) :

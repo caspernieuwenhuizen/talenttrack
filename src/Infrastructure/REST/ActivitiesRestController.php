@@ -365,8 +365,17 @@ class ActivitiesRestController {
         // mistook the column for "no-one showed up" instead of "didn't
         // happen yet / won't happen".
         // #0061 — pct = present / roster, not recorded / roster.
+        // v3.110.x — clamp to 100. The denominator is the active-status
+        // roster; the numerator is every Present row regardless of
+        // whether the player is still on the team. A player who moved
+        // teams between activity creation and attendance recording
+        // still has their `tt_attendance` row counted, but their
+        // `tt_players.team_id` may have moved away from this activity's
+        // team — present_count > roster_size in that edge case, which
+        // produced > 100% values. Clamp so the % column never lies.
         if ( $roster > 0 && ! in_array( $status, [ 'planned', 'cancelled' ], true ) ) {
             $attendance_pct = (int) round( ( $present / $roster ) * 100 );
+            if ( $attendance_pct > 100 ) $attendance_pct = 100;
         }
 
         $type_key = (string) ( $row->activity_type_key ?? 'training' );

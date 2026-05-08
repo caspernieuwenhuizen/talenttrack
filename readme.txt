@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.17
+Stable tag: 3.110.18
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.18 — Activities module polish: present-% cap + wizard guest opt-in + connected-principles rename =
+
+Three items on the Activities module. **(1) Presence % capped at 100%.** `ActivitiesRestController::format_row()` was returning > 100% in the activities-list `Att. %` column when a player moved teams between activity creation and attendance recording (denominator is the active-status roster scoped to current team; numerator is every Present row regardless of player's current team). Hard-clamped to 100; the calculation stays correct for the normal case, the clamp only kicks in on the team-move edge. **(2) "Add a guest after creating" opt-in on the new-activity wizard.** The flat-form has shipped guest-on-create since #0037 (auto-save → redirect → modal re-open in one motion). The wizard previously redirected to the list, so coaches creating a friendly with a trial guest had to re-open the activity to add the guest. New checkbox on the Review step: **Add a guest player after creating (e.g. trial, friendly drop-in)**. When checked, post-submit redirect lands on `?tt_view=activities&id=N&action=edit&open_guest=1` so the existing guest-add modal pops open immediately. Default off. State key: `continue_to_guests` (bool). **(3) "Principles practiced" → "Connected principles".** Renamed in four places (frontend activity edit form label, wizard PrinciplesStep label, ReviewStep DT label, admin ActivitiesPage form label) to match the user's vocabulary and align with the goal-side **Linked principle** terminology. Step intro paragraph rewritten: "Optionally connect this activity to one or more methodology principles. Hold Ctrl/Cmd to select multiple. Leave blank to skip." Also surfaced the connected principles on the read-only activity detail page (was previously only visible on the edit form, so coaches landing on the detail view couldn't see what the activity was anchored to without clicking Edit). 3 new NL msgids.
 
 = 3.110.17 — Tenth Export use case: match-day team sheet PDF (#0063 use case 4) — closes #0063 =
 
