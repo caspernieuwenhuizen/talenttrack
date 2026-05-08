@@ -1,3 +1,58 @@
+# TalentTrack v3.110.25 — All 15 Comms use-case templates + cron-driven triggers, closes #0066
+
+Closes #0066 (Communication module epic). The 15 use-case templates from spec § 1-15 ship as concrete `TemplateInterface` implementations under `Modules\Comms\Templates\`, registered centrally in `CommsModule::boot()`.
+
+## What landed
+
+### `AbstractTemplate`
+
+Centralises locale fallback (recipient → request override → site), per-club override lookup for the 5 editable templates (`tt_config['comms_template_<key>_<locale>_<channel>_<subject|body>']`), and `{token}` substitution.
+
+### 15 templates with hardcoded EN + NL copy
+
+`TrainingCancelled` / `SelectionLetter` / `PdpReady` / `ParentMeetingInvite` / `TrialPlayerWelcome` / `GuestPlayerInvite` / `GoalNudge` / `AttendanceFlag` / `ScheduleChangeFromSpond` / `MethodologyDelivered` / `OnboardingNudgeInactive` / `StaffDevelopmentReminder` / `LetterDelivery` / `MassAnnouncement` / `SafeguardingBroadcast`.
+
+### `CommsDispatcher`
+
+Generic event-driven action hook:
+
+```php
+do_action( 'tt_comms_dispatch', $template_key, $payload, $recipients, $options );
+```
+
+Builds a `CommsRequest` and calls `CommsService::send()`. Non-blocking — owning modules can fire and forget.
+
+### `CommsScheduledCron`
+
+Daily wp-cron `tt_comms_scheduled_cron` detects and dispatches the 4 schedule-driven templates:
+
+- `goal_nudge` — 28-day-old goals.
+- `attendance_flag` — 3+ non-present rows in last 30 days.
+- `onboarding_nudge_inactive` — parents inactive 30+ days, frequency-capped at 60 days.
+- `staff_development_reminder` — reviews due ≤7 days out.
+
+Each detector swallows its own failures and writes to `tt_comms_log` via the standard audit path.
+
+## What's NOT in this PR
+
+- Use-case-9 Spond trigger — gated on #0062 shipping.
+- Use-case-14 mass-announcement wizard UI — template registered; wizard lands as a follow-up.
+- Per-template authoring UI — operators edit `tt_config` directly at v1.
+- Coach/HoD recipient resolver for `attendance_flag` — fires to club admins until a `CoachResolver` lands.
+- Trigger code in Activity/Trial/PDP/Methodology owning modules — each fires the dispatch action when ready.
+
+## Translations
+
+~80 new NL msgids (template subjects + bodies × 15 templates). No `.mo` regeneration in this PR — Translations CI step recompiles on merge.
+
+## Notes
+
+No migrations. No composer dep changes. Renumbered v3.110.18 → v3.110.25 across multiple rebases against parallel-agent ships of v3.110.18 (activities polish), v3.110.19 (nav fixes), v3.110.20 (#0090 Phase 1), v3.110.22 (#0090 Phase 2), v3.110.23 (upgrade button), and v3.110.24 (as-player polish).
+
+**Closes #0066.**
+
+---
+
 # TalentTrack v3.110.24 — As-player polish: My Evaluations breakdown + My Activities widened scope + My PDP self-reflection 2-week gate
 
 Three bug-fix items on the player-self surfaces.
