@@ -524,10 +524,20 @@ class AccountPage {
                 //
                 // Freemius checkout URL: when the SDK is configured
                 // it registers `?page=<plugin>-pricing` automatically.
-                // Fall back to the static features doc when not.
-                $upgrade_url = $configured
-                    ? admin_url( 'admin.php?page=' . self::SLUG . '-pricing' )
-                    : admin_url( 'admin.php?page=' . self::SLUG );
+                // Owner-side test installs that have wired the
+                // `TT_DEV_OVERRIDE_SECRET` constant get the dev-override
+                // page instead — same button label, the operator's
+                // local password-protected tier picker — so the CTA
+                // works on those installs without Freemius. Customer
+                // installs with neither configured fall back to the
+                // Account tab so the button doesn't 404.
+                if ( $configured ) {
+                    $upgrade_url = admin_url( 'admin.php?page=' . self::SLUG . '-pricing' );
+                } elseif ( DevOverride::isAvailable() ) {
+                    $upgrade_url = admin_url( 'admin.php?page=' . DevOverridePage::SLUG );
+                } else {
+                    $upgrade_url = admin_url( 'admin.php?page=' . self::SLUG );
+                }
                 ?>
                 <div class="tt-upgrade-card" style="margin-top:18px; padding:18px 20px; background:#fff8e1; border:1px solid #f0c36d; border-radius:8px; max-width:680px;">
                     <h3 style="margin-top:0;"><?php esc_html_e( 'Upgrade to Pro', 'talenttrack' ); ?></h3>
@@ -547,7 +557,11 @@ class AccountPage {
                             <?php esc_html_e( 'Upgrade to Pro', 'talenttrack' ); ?>
                         </a>
                     </p>
-                    <?php if ( ! $configured ) : ?>
+                    <?php if ( ! $configured && DevOverride::isAvailable() ) : ?>
+                        <p class="description" style="margin:10px 0 0;">
+                            <?php esc_html_e( 'Freemius checkout isn\'t wired on this install — the button opens the developer license-override page so you can flip the active tier locally for testing.', 'talenttrack' ); ?>
+                        </p>
+                    <?php elseif ( ! $configured ) : ?>
                         <p class="description" style="margin:10px 0 0;">
                             <?php esc_html_e( 'Freemius checkout isn\'t wired up on this install yet — the button drops you on the Account tab where the upgrade flow will surface once configured.', 'talenttrack' ); ?>
                         </p>

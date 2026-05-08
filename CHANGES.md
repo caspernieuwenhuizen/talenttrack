@@ -1,3 +1,35 @@
+# TalentTrack v3.110.23 — Account-page upgrade button routes to dev-license override on test installs
+
+Small fix to the v3.108.5 "Upgrade to Pro" CTA on the Account page. On installs where Freemius isn't wired but the owner-side `TT_DEV_OVERRIDE_SECRET` constant is set in `wp-config.php`, the button now routes to the existing hidden `?page=tt-dev-license` developer override page — operator can flip Standard → Pro (or any tier) locally for testing without spinning up Freemius. Customer installs with neither configured continue to fall back to the Account tab as before.
+
+Also ships `specs/0090-epic-data-row-i18n.md` (data-row i18n architecture spec). Doc only; the foundation Phase 1 ship landed at v3.110.20, Phase 2 at v3.110.22.
+
+## What landed
+
+`AccountPage.php` `$upgrade_url` resolution becomes a 3-way branch:
+
+```php
+if ( $configured ) {
+    $upgrade_url = admin_url( 'admin.php?page=' . self::SLUG . '-pricing' );
+} elseif ( DevOverride::isAvailable() ) {
+    $upgrade_url = admin_url( 'admin.php?page=' . DevOverridePage::SLUG );
+} else {
+    $upgrade_url = admin_url( 'admin.php?page=' . self::SLUG );
+}
+```
+
+Description copy below the button updates accordingly.
+
+## Translations
+
+1 new NL msgid covering the new description text on owner-side installs.
+
+## Notes
+
+No schema changes. No new caps. No cron. No license-tier flips. Renumbered v3.110.18 → v3.110.23 across multiple rebases after parallel-agent ships of v3.110.18 (activities polish), v3.110.19 (nav bug fixes), v3.110.20 (#0090 Phase 1 i18n foundation), and v3.110.22 (#0090 Phase 2 lookups) took those slots.
+
+---
+
 # TalentTrack v3.110.22 — Lookups migrate to `tt_translations` (#0090 Phase 2)
 
 Second phase of #0090 (data-row internationalisation). Lookups (`tt_lookups`) become the first entity to read + write through the new `tt_translations` store seeded by Phase 1. No user-visible change: every Dutch label that rendered correctly before still renders correctly, and admin-added per-locale translations now persist through the new resolver instead of through the legacy JSON column.
