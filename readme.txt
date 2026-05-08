@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.24
+Stable tag: 3.110.25
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.25 — All 15 Comms use-case templates + cron-driven triggers, closes #0066 =
+
+Closes #0066. The 15 use-case templates from spec § 1-15 ship as concrete `TemplateInterface` implementations under `Modules\Comms\Templates\`, registered centrally in `CommsModule::boot()`. **`AbstractTemplate`** centralises locale fallback (recipient → request override → site), per-club override lookup for the 5 editable templates (`tt_config['comms_template_<key>_<locale>_<channel>_<subject|body>']`) and `{token}` substitution. **15 templates** with hardcoded EN + NL copy: TrainingCancelled / SelectionLetter / PdpReady / ParentMeetingInvite / TrialPlayerWelcome / GuestPlayerInvite / GoalNudge / AttendanceFlag / ScheduleChangeFromSpond / MethodologyDelivered / OnboardingNudgeInactive / StaffDevelopmentReminder / LetterDelivery / MassAnnouncement / SafeguardingBroadcast. **`CommsDispatcher`** — generic event-driven action hook (`do_action('tt_comms_dispatch', $template_key, $payload, $recipients, $options)`) builds a `CommsRequest` + calls `CommsService::send()`. Non-blocking. **`CommsScheduledCron`** — daily wp-cron `tt_comms_scheduled_cron` detects + dispatches the 4 schedule-driven templates: goal_nudge (28-day-old goals); attendance_flag (3+ non-present in last 30 days); onboarding_nudge_inactive (parents inactive 30+ days, frequency-capped 60 days); staff_development_reminder (reviews due ≤7 days). Each detector swallows its own failures and writes to `tt_comms_log` via the standard audit path. **What's NOT in this PR**: use-case-9 Spond trigger (gated on #0062 shipping); use-case-14 mass-announcement wizard UI (template registered; wizard lands as follow-up); per-template authoring UI (operators edit `tt_config` directly at v1); coach/HoD recipient resolver for attendance-flag (fires to club admins until a CoachResolver lands); trigger code in Activity/Trial/PDP/Methodology owning modules (each fires the action when ready). ~80 new NL msgids; no migrations; no composer changes. Renumbered v3.110.18 → v3.110.25 across multiple rebases against parallel-agent ships of v3.110.18 (activities polish), v3.110.19 (nav fixes), v3.110.20 (#0090 Phase 1), v3.110.22 (#0090 Phase 2), v3.110.23 (upgrade button), and v3.110.24 (as-player polish). **Closes #0066 — Communication module epic complete.**
 
 = 3.110.24 — As-player polish: My Evaluations breakdown + My Activities widened scope + My PDP self-reflection 2-week gate =
 
