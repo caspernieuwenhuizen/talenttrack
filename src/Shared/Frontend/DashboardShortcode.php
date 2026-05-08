@@ -198,7 +198,13 @@ class DashboardShortcode {
         // again inside FrontendAuditLogView::render).
         $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details', 'audit-log', 'docs', 'cohort-transitions', 'custom-css' ];
         // #0022 Sprint 2/5 — workflow surfaces, each cap-gated in dispatch.
-        $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config' ];
+        // v3.110.x — `onboarding-pipeline` is owned by `dispatchWorkflowView`
+        // (case in switch at this method's body) but was missing from the
+        // slug allowlist, so the top-level routing never reached the case
+        // and every click on the Onboarding pipeline tile fell through to
+        // "Unknown section." Same root cause as the v3.110.10 team-planner
+        // dispatcher fix.
+        $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config', 'onboarding-pipeline' ];
         // #0009 — Development management slugs. Each view re-checks its
         // own capability so dispatching here is safe.
         $dev_slugs       = [ 'submit-idea', 'ideas-board', 'ideas-refine', 'ideas-approval', 'dev-tracks' ];

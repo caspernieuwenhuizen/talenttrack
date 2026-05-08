@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.18
+Stable tag: 3.110.19
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.19 — Three navigation bug fixes: Team Planner + Team Blueprint links + Onboarding Pipeline dispatcher =
+
+Three bug-fix items. **(1) Team Planner — links now reach the dashboard.** `FrontendTeamPlannerView` built every navigation URL with `home_url('/')` as the base — fine for installs where the `[talenttrack_dashboard]` shortcode lives on the homepage, broken for everyone else. Clicking *Schedule activity*, *Add* (empty-day), or any toolbar week-nav button took the operator to the WordPress site root instead of the TT dashboard. Switched all four `home_url('/')` call sites to `RecordLink::dashboardUrl()` — the shared helper that resolves the URL of the page hosting the `[talenttrack_dashboard]` shortcode. **(2) Team Blueprint — links now reach the dashboard.** Same root cause in `FrontendTeamBlueprintsView`: *+ New blueprint* button, *Open share link* anchor (the public read-only render at `?tt_view=team-blueprint-share`), and the post-rotation `wp_safe_redirect`. All three switched to `RecordLink::dashboardUrl()`. The share-link fix is the most user-visible: a coach generating a share link to send to a parent now produces a URL that actually opens the blueprint, not the WordPress homepage. **(3) Onboarding Pipeline — dispatcher routing fix.** `?tt_view=onboarding-pipeline` was throwing the *Unknown section* fallthrough error. Same root cause as the v3.110.10 team-planner dispatcher fix: the slug had a `case` branch in `dispatchWorkflowView`'s switch but was missing from `$workflow_slugs` — top-level routing never reached the case statement. Added `'onboarding-pipeline'` to the workflow-slugs allowlist; the standalone pipeline view (#0081 child 3) now reaches its dispatcher. Zero new translatable strings; no schema changes; no migrations; no composer changes.
 
 = 3.110.18 — Activities module polish: present-% cap + wizard guest opt-in + connected-principles rename =
 

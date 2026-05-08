@@ -1,31 +1,35 @@
-# TalentTrack v3.110.18 — Activities module polish: present-% cap + wizard guest opt-in + connected-principles rename
+# TalentTrack v3.110.19 — Three navigation bug fixes: Team Planner + Team Blueprint links + Onboarding Pipeline dispatcher
 
-Pilot polish round on the Activities module. Three items shipped:
+Three bug-fix items shipped:
 
-## What landed
+## Team Planner — links now reach the dashboard
 
-### Presence % capped at 100%
+`FrontendTeamPlannerView` built every navigation URL with `home_url('/')` as the base — fine for installs where the `[talenttrack_dashboard]` shortcode lives on the homepage, broken for everyone else. Clicking *Schedule activity*, *Add* (empty-day), or any toolbar week-nav button took the operator to the WordPress site root instead of the TT dashboard, which on a typical install renders a generic posts page or a blank theme template.
 
-`ActivitiesRestController::format_row()` was returning attendance percentages above 100% in the activities-list `Att. %` column. The denominator is the active-status roster (`tt_players WHERE team_id = activity.team_id AND status = 'active'`); the numerator is every `Present` row in `tt_attendance` regardless of the player's current team. A player who moved teams between activity creation and attendance recording still has their attendance row counted, but their `tt_players.team_id` may have shifted, so `present_count > roster_size` in that edge case. Hard-clamped to 100. The pct calculation itself stays correct for the "real" case (denom > num); the clamp only kicks in on the team-move edge.
+Switched all four `home_url('/')` call sites in `FrontendTeamPlannerView` to `RecordLink::dashboardUrl()` — the shared helper that resolves the URL of the page hosting the `[talenttrack_dashboard]` shortcode (config-driven via `dashboard_page_id`, with a self-healing scan fallback). Same helper every other frontend view in the plugin already uses.
 
-### "Add a guest after creating" opt-in on the new-activity wizard
+## Team Blueprint — links now reach the dashboard
 
-The flat-form (`FrontendActivitiesManageView::renderForm`) has shipped a guest section on create AND edit since #0037 — the "+ Add guest" button auto-saves the activity, redirects to the edit URL with `&open_guest=1`, and re-opens the modal so the coach can pick a guest in one motion. The wizard, however, redirected to the activities list after submit, so coaches creating a friendly with a trial guest had to re-open the activity to add the guest.
+Same root cause in `FrontendTeamBlueprintsView`. Three URLs affected:
 
-Added a checkbox at the bottom of the wizard's Review step: **Add a guest player after creating (e.g. trial, friendly drop-in).** When checked, the post-submit redirect lands on `?tt_view=activities&id=N&action=edit&open_guest=1` so the existing #0037 guest-add modal pops open immediately. Default off — most activities don't have guests. State key: `continue_to_guests` (bool); validated in `ReviewStep::validate()`.
+- *+ New blueprint* button (line 119)
+- *Open share link* anchor (line 335) — the public read-only render at `?tt_view=team-blueprint-share`
+- Post-rotation `wp_safe_redirect` after `tt_blueprint_rotate_share` (line 500)
 
-### "Principles practiced" → "Connected principles"
+All three switched to `RecordLink::dashboardUrl()`. The share link fix is the most user-visible: a coach generating a share link to send to a parent now produces a URL that actually opens the blueprint, not the WordPress homepage.
 
-The methodology multiselect was labelled **Principles practiced** in three places (frontend activity edit form, wizard PrinciplesStep, ReviewStep DT label, admin ActivitiesPage). Renamed to **Connected principles** to match the user's vocabulary and to align with the goal-side **Linked principle** terminology (singular vs plural is fine — goals link to one, activities can connect to multiple). Step explanatory paragraph also rewritten: "Optionally connect this activity to one or more methodology principles. Hold Ctrl/Cmd to select multiple. Leave blank to skip."
+## Onboarding Pipeline — dispatcher routing fix
 
-Also surfaced the connected principles on the read-only activity detail page (`renderDetail()`) — was previously only visible on the edit form, so coaches landing on the detail view couldn't see what the activity was anchored to without clicking Edit. Defensive: skipped when the Methodology module isn't loaded.
+`?tt_view=onboarding-pipeline` was throwing the *Unknown section* fallthrough error. Same root cause as the v3.110.10 team-planner dispatcher fix: the slug had a `case` branch in `dispatchWorkflowView`'s switch but was missing from `$workflow_slugs` — the top-level slug-group routing therefore never reached the case statement. Added `'onboarding-pipeline'` to the workflow-slugs allowlist; the standalone pipeline view (#0081 child 3) now reaches its dispatcher.
 
 ## Affected files
 
-- `src/Infrastructure/REST/ActivitiesRestController.php` — clamp `attendance_pct` to 100
-- `src/Modules/Wizards/Activity/ReviewStep.php` — `continue_to_guests` checkbox + validate + post-submit redirect branch
-- `src/Modules/Wizards/Activity/PrinciplesStep.php` — label rename + intro copy
-- `src/Shared/Frontend/FrontendActivitiesManageView.php` — label rename + linked principles in `renderDetail()`
-- `src/Modules/Activities/Admin/ActivitiesPage.php` — admin-form label rename
+- `src/Modules/Planning/Frontend/FrontendTeamPlannerView.php` — 4× `home_url('/')` → `RecordLink::dashboardUrl()` + `use` statement
+- `src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php` — 3× same swap + `use` statement
+- `src/Shared/Frontend/DashboardShortcode.php` — `'onboarding-pipeline'` added to `$workflow_slugs`
 - `talenttrack.php`, `readme.txt`, `CHANGES.md`, `SEQUENCE.md` — version + ship metadata
-- `languages/talenttrack-nl_NL.po` — 3 new translations
+
+## Notes
+
+- Zero new translatable strings — pure routing / URL-helper swap.
+- No schema changes; no migrations; no caps; no composer changes.
