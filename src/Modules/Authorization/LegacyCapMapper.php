@@ -151,6 +151,9 @@ final class LegacyCapMapper {
         // to the same matrix entity; HoD holds RC, academy_admin RCD.
         'tt_author_custom_widgets'       => [ 'custom_widgets',        'change' ],
         'tt_manage_custom_widgets'       => [ 'custom_widgets',        'create_delete' ],
+        // #0090 Phase 1 — data-row i18n. One cap covers per-club
+        // translation editing. Granted to HoD + admin via ensureCapabilities().
+        'tt_edit_translations'           => [ 'translations',          'change' ],
         'tt_generate_scout_report'       => [ 'scout_access',          'create_delete' ],
         'tt_view_pdp'                    => [ 'pdp_file',              'read' ],
         'tt_edit_pdp'                    => [ 'pdp_file',              'change' ],
