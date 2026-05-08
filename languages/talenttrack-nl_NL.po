@@ -14149,7 +14149,7 @@ msgstr "Evaluatie: %1$s (%2$s)"
 msgid "Recording evaluation for %s."
 msgstr "Evaluatie vastleggen voor %s."
 
-# v3.110.4 — #0068 Phases 3 + 4: blueprint discussion thread + share-link
+# v3.110.9 — #0068 Phases 3 + 4: blueprint discussion thread + share-link
 
 msgid "Lineup"
 msgstr "Opstelling"
@@ -14183,3 +14183,18 @@ msgstr "Je hebt geen rechten om de deelbare link te vernieuwen."
 
 msgid "Bad blueprint id."
 msgstr "Ongeldig blueprint-id."
+
+# v3.110.11 — Evaluations list table headers + eval detail "Evaluation of %s"
+# (Note: "Actions" already translated earlier in this file — only the
+# new strings are added here.)
+
+msgid "Average"
+msgstr "Gemiddelde"
+
+#. translators: %s = player display name
+msgid "Evaluation of %s"
+msgstr "Evaluatie van %s"
+
+#. translators: %s = player name
+msgid "Evaluation — %s"
+msgstr "Evaluatie — %s"

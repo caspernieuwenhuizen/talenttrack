@@ -20,6 +20,15 @@ use TT\Shared\Wizards\WizardStepInterface;
  */
 final class ActivityPickerStep implements WizardStepInterface {
 
+    /**
+     * v3.110.4 — bumped from 30 to 90 days. Pilots reported
+     * recently-completed games not appearing because their cadence
+     * (one match every 2-3 weeks) means a single missed login window
+     * already pushed the activity past the cutoff. 90 days lines up
+     * with a typical season half-block.
+     */
+    private const DEFAULT_DAYS = 90;
+
     public function slug(): string  { return 'activity-picker'; }
     public function label(): string { return __( 'Activity', 'talenttrack' ); }
 
@@ -35,15 +44,15 @@ final class ActivityPickerStep implements WizardStepInterface {
         if ( ! empty( $state['_path'] ) && $state['_path'] === 'player-first' ) return true;
 
         $user_id = get_current_user_id();
-        $rows = self::recentRateableActivities( $user_id, 30 );
+        $rows = self::recentRateableActivities( $user_id, self::DEFAULT_DAYS );
         return empty( $rows );
     }
 
     public function render( array $state ): void {
-        $rows = self::recentRateableActivities( get_current_user_id(), 30 );
+        $rows = self::recentRateableActivities( get_current_user_id(), self::DEFAULT_DAYS );
         ?>
         <p style="color:var(--tt-muted);max-width:60ch;">
-            <?php esc_html_e( 'Pick a recently-completed activity to rate the players who attended. Or rate a player directly without an activity context.', 'talenttrack' ); ?>
+            <?php esc_html_e( 'Pick a completed activity from the last 90 days to rate the players who attended, or rate a player directly without an activity context. Activities only appear here once they are marked completed and their type is rateable.', 'talenttrack' ); ?>
         </p>
 
         <p style="margin: var(--tt-sp-3) 0;">
@@ -53,7 +62,7 @@ final class ActivityPickerStep implements WizardStepInterface {
         </p>
 
         <?php if ( empty( $rows ) ) : ?>
-            <p class="tt-notice"><?php esc_html_e( 'No recent rateable activities. Pick a player to rate ad-hoc.', 'talenttrack' ); ?></p>
+            <p class="tt-notice"><?php esc_html_e( 'No completed rateable activities in the last 90 days. Mark an activity as completed (and use a rateable activity type) to see it here, or pick a player below to rate ad-hoc.', 'talenttrack' ); ?></p>
         <?php else : ?>
             <div role="radiogroup" class="tt-activity-picker">
                 <?php foreach ( $rows as $r ) :
@@ -95,10 +104,17 @@ final class ActivityPickerStep implements WizardStepInterface {
     public function submit( array $state ) { return null; }
 
     /**
-     * Activities the coach can evaluate against — past 30 days by
-     * default (extendable to 90 via `Show older` follow-up), on teams
-     * the coach is assigned to via `tt_team_people`, of an activity_type
-     * with `meta.rateable` true (or unset — defaults true).
+     * Activities the coach can evaluate against:
+     *
+     *   - Past `$days` days (default 90 since v3.110.4 — was 30, but
+     *     pilot cadences regularly missed two-week windows).
+     *   - `plan_state = 'completed'` (since v3.110.4) so the picker
+     *     shows activities that actually happened, not scheduled-but-
+     *     not-yet-played ones.
+     *   - On teams the coach is assigned to via `tt_team_people` (or
+     *     OR'd open for site administrators / HoD / club admins).
+     *   - Of an `activity_type` with `meta.rateable` true (or unset —
+     *     defaults true).
      *
      * @return list<object>
      */
@@ -121,6 +137,7 @@ final class ActivityPickerStep implements WizardStepInterface {
                INNER JOIN {$p}tt_teams t ON t.id = a.team_id AND t.club_id = a.club_id
               WHERE a.club_id = %d
                 AND a.archived_at IS NULL
+                AND a.plan_state = 'completed'
                 AND a.session_date < CURDATE() + INTERVAL 1 DAY
                 AND a.session_date >= CURDATE() - INTERVAL %d DAY
                 AND ( a.team_id IN (

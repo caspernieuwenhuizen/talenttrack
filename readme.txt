@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.10
+Stable tag: 3.110.11
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.11 — Evaluations module polish: detail page + Open + Delete + average column + rateable-activities + single picker with team filter =
+
+Five items on the Evaluations module. **(1) Evaluation read-only detail page.** `?tt_view=evaluations&id=N` now renders a real detail page (was unhandled before — every list-row link went to the player / team / coach with no way to open the eval itself). Header shows date + linked player / team / coach (game fields render when set: opponent / competition / result / home-away / minutes); ratings table is grouped by main category with subcategory rows indented underneath via `EvalRatingsRepository::getForEvaluation()`; notes are rendered with `white-space: pre-wrap`. **(2) Average column + Open + Delete on the list table.** New `Average` column computed via correlated subquery over `tt_eval_ratings`, value links to the new detail page (primary affordance for opening the eval). New `Actions` column with `Open` button + `Delete` button using the v3.108.2 `.tt-record-delete` handler against `DELETE /evaluations/{id}`. Delete cap-gated on `tt_edit_evaluations`; each row now carries `data-tt-row` for JS row fade-out. **(3) Recently-rateable activities now match the operator's mental model.** Two bugs in the new-evaluation wizard's activity-picker step: 30-day window was too tight for typical match cadences (~2-3 weeks between games) — bumped default to 90 days. AND no `plan_state = 'completed'` filter, so scheduled-but-not-played activities appeared too — added the filter. Empty-state copy rewritten to spell out the rules. Combined with the `plan_state = 'completed'` auto-transition on attendance save (existing v3.71.6 behaviour), marking an activity completed via the frontend now correctly surfaces it in the picker. **(4) New-evaluation form: single picker with embedded team filter.** Replaced the team-first two-dropdown flow (Team → Player chained) with one `PlayerSearchPickerComponent` configured `show_team_filter=true`: `All teams` dropdown sits above the search input, selecting a team filters players, "All teams" (default) shows every player in user context. Player search remains primary affordance. The separate `eval_team_id` form field is gone — REST never read it, embedded team filter handles the cross-filter natively, JS bridge dropped. **(5) `Recording evaluation for *Name*` preset path** (v3.110.3 player-profile CTA) keeps working: when `?player_id=N` is in the URL, form renders the headline + single hidden input. 3 new translatable strings (Average / Open / Actions column headers; eval-detail uses existing strings). Renumbered v3.110.4 → v3.110.11 across multiple rebases as parallel-agent ships took v3.110.5 / v3.110.6 / v3.110.7 / v3.110.8 / v3.110.9 / v3.110.10 (#0063 use cases 2/13/14/9 + #0068 Phases 3+4 + team-planner dispatcher hotfix).
 
 = 3.110.10 — Fix #0006 team-planner tile reached its dispatcher (was Unknown section) =
 

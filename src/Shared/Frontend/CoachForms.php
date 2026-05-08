@@ -8,7 +8,6 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
-use TT\Shared\Frontend\Components\TeamPickerComponent;
 
 /**
  * CoachForms — shared form-rendering helpers for coaching actions.
@@ -79,8 +78,7 @@ class CoachForms {
         <h3><?php esc_html_e( 'Submit Evaluation', 'talenttrack' ); ?></h3>
         <form id="tt-eval-form" class="tt-ajax-form" data-rest-path="evaluations" data-rest-method="POST" data-draft-key="eval-form" data-redirect-after-save="1">
             <?php if ( $hide_pickers ) : ?>
-                <input type="hidden" name="eval_team_id" value="<?php echo esc_attr( (string) $preset_team_id ); ?>" />
-                <input type="hidden" name="player_id"    value="<?php echo esc_attr( (string) $preset_player_id ); ?>" />
+                <input type="hidden" name="player_id" value="<?php echo esc_attr( (string) $preset_player_id ); ?>" />
                 <p class="tt-muted" style="margin: 0 0 12px;">
                     <?php
                     /* translators: %s = player display name */
@@ -91,23 +89,26 @@ class CoachForms {
                     ?>
                 </p>
             <?php else : ?>
-                <?php // F1 — team-first eval flow. Coach picks team first; player picker is filtered to that team. ?>
-                <div class="tt-field" data-tt-eval-team-wrap>
-                    <?php echo TeamPickerComponent::render( [
-                        'name'     => 'eval_team_id',
-                        'label'    => __( 'Team', 'talenttrack' ),
-                        'required' => true,
-                        'teams'    => $teams,
-                        'placeholder' => __( '— Select team first —', 'talenttrack' ),
-                    ] ); ?>
-                </div>
+                <?php
+                // v3.110.4 — single picker with embedded team filter.
+                // Replaces the previous team-first two-picker flow:
+                // PlayerSearchPickerComponent renders a built-in "All
+                // teams" team filter ABOVE the search input; selecting
+                // a team filters the player list, leaving "All teams"
+                // shows every player in the user's context. The
+                // separate `eval_team_id` picker is gone — it was only
+                // used as a player-list filter (REST never read it),
+                // and the embedded version handles that without the
+                // dead-end "select team first" placeholder.
+                ?>
                 <div class="tt-field" data-tt-eval-player-wrap>
                     <?php echo PlayerSearchPickerComponent::render( [
-                        'name'     => 'player_id',
-                        'label'    => __( 'Player', 'talenttrack' ),
-                        'required' => true,
-                        'players'  => $players,
-                        'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
+                        'name'             => 'player_id',
+                        'label'            => __( 'Player', 'talenttrack' ),
+                        'required'         => true,
+                        'players'          => $players,
+                        'placeholder'      => __( 'Type a name to search…', 'talenttrack' ),
+                        'show_team_filter' => true,
                     ] ); ?>
                 </div>
             <?php endif; ?>
@@ -161,19 +162,11 @@ class CoachForms {
             if (sel) sel.addEventListener('change', function(){
                 document.getElementById('tt-fe-match-fields').style.display = (typeMeta[this.value] == 1) ? 'block' : 'none';
             });
-            // F1 — when the team changes, refresh the player picker
-            // to show only players on that team.
+            // v3.110.4 — the F1 team→player wiring is gone now that
+            // the player picker carries its own embedded team filter
+            // (`show_team_filter=true`). The picker hydrator handles
+            // the cross-filter natively.
             var form = document.getElementById('tt-eval-form');
-            if (form) {
-                var teamSel = form.querySelector('select[name="eval_team_id"]');
-                var playerWrap = form.querySelector('[data-tt-eval-player-wrap] [data-tt-psp]');
-                if (teamSel && playerWrap) {
-                    teamSel.addEventListener('change', function(){
-                        var teamId = parseInt(teamSel.value, 10) || 0;
-                        playerWrap.dispatchEvent(new CustomEvent('tt-psp:set-team', { detail: { team_id: teamId } }));
-                    });
-                }
-            }
             // F6 — low-rating comment policy.
             var lowThreshold = <?php echo wp_json_encode( $low_threshold ); ?>;
             var lowMode      = <?php echo wp_json_encode( $low_mode ); ?>;
