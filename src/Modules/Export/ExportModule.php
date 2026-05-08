@@ -19,6 +19,7 @@ use TT\Modules\Export\Exporters\EvaluationsXlsxExporter;
 use TT\Modules\Export\Exporters\FederationJsonExporter;
 use TT\Modules\Export\Exporters\GdprSubjectAccessZipExporter;
 use TT\Modules\Export\Exporters\GoalsCsvExporter;
+use TT\Modules\Export\Exporters\MatchDayTeamSheetPdfExporter;
 use TT\Modules\Export\Exporters\PdpPdfExporter;
 use TT\Modules\Export\Exporters\PlayerEvaluationPdfExporter;
 use TT\Modules\Export\Exporters\PlayerOnePagerPdfExporter;
@@ -93,6 +94,7 @@ class ExportModule implements ModuleInterface {
         ExporterRegistry::register( new ActivityBriefPdfExporter() );    // use case 8  (v3.110.14)
         ExporterRegistry::register( new GdprSubjectAccessZipExporter() ); // use case 10 (v3.110.15)
         ExporterRegistry::register( new DemoDataXlsxExporter() );        // use case 15 (v3.110.16)
+        ExporterRegistry::register( new MatchDayTeamSheetPdfExporter() ); // use case 4 (v3.110.17)
 
         ExportRestController::init();
     }

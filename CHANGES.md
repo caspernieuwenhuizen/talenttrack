@@ -1,50 +1,57 @@
-# TalentTrack v3.110.16 — Ninth Export use case: demo-data round-trip XLSX (#0063 use case 15)
+# TalentTrack v3.110.17 — Tenth Export use case: match-day team sheet PDF (#0063 use case 4) — closes #0063
 
-Per spec: "Round-tripped demo data so #0020 / #0059 can re-import it. Exists informally; Export formalizes it." Walks every sheet in `SheetSchemas::all()` (the same schema `TemplateBuilder::streamDownload()` uses for the import template) and dumps the matching live rows into a multi-sheet XLSX whose layout is identical to the import template — so an operator can download a snapshot from one club, hand it to a fresh install, and re-import without column-mapping work.
+Last of the 15 #0063 use cases. Per user-direction shaping (2026-05-08): adds the match-specific fields on `tt_activities` (opponent / home_away / kickoff_time / formation) plus per-row lineup-role + position-played fields on `tt_attendance` via migration 0079, then ships the team-sheet exporter on top.
+
+**Closes #0063**: 15 of 15 use cases live. Foundation epic complete.
 
 ## What landed
 
-### `DemoDataXlsxExporter` (`exporter_key = demo_data_xlsx`, use case 15)
+### Migration `0079_match_day_fields`
+
+Adds six columns, additive-only, idempotent (SHOW COLUMNS guards):
+
+| Table | Column | Type | Purpose |
+| --- | --- | --- | --- |
+| `tt_activities` | `opponent` | `VARCHAR(255) DEFAULT NULL` | Opposing team name for match-type activities |
+| `tt_activities` | `home_away` | `VARCHAR(10) DEFAULT NULL` | `home` / `away` |
+| `tt_activities` | `kickoff_time` | `TIME DEFAULT NULL` | Match kickoff time |
+| `tt_activities` | `formation` | `VARCHAR(20) DEFAULT NULL` | Tactical formation, e.g. `4-3-3` |
+| `tt_attendance` | `lineup_role` | `VARCHAR(10) DEFAULT NULL` | `start` / `bench` for the team-sheet split |
+| `tt_attendance` | `position_played` | `VARCHAR(20) DEFAULT NULL` | Per-match override for the player's position |
+
+No backfill — existing match activities (if any) read NULL until edited for the first time.
+
+### `MatchDayTeamSheetPdfExporter` (`exporter_key = match_day_team_sheet`, use case 4)
 
 URL pattern:
-`GET /wp-json/talenttrack/v1/exports/demo_data_xlsx?format=xlsx`
+`GET /wp-json/talenttrack/v1/exports/match_day_team_sheet?format=pdf&activity_id=42`
 
-**Filters**: none at v1 — the export is "everything in the current club."
+**Filters**: `activity_id` (REQUIRED) — tenant-scoped via `WHERE club_id = %d`.
 
-**Cap**: `tt_edit_settings` — same gate as the v3.109.2 seed-review surface. The export carries every player's PII.
+**Cap**: `tt_view_activities`.
 
-### Sheets
+**Activity-type gate**: refuses to render for non-match activities (`activity_type_key !== 'match'`) — the team-sheet artifact only makes sense for matches.
 
-Walks `SheetSchemas::all()` and emits one tab per schema entry, in schema-declared order:
+**Layout**: A4 portrait, 14mm margins. Header with title + opponent (`vs <Name> (home/away)`), meta table (Team / Date / Kickoff / Location / Formation), per-section lineup tables (Starting XI / Bench), and signature lines for coach + referee.
 
-- **Master tier**: `Teams`, `People`, `Players`, `Trial_Cases`.
-- **Transactional tier**: `Activities` (post-#0027 rename — schema key still `sessions`), `Session_Attendance`, `Evaluations`, `Evaluation_Ratings`, `Goals`, `Player_Journey`.
-- **Config tier**: `Eval_Categories`, `Category_Weights`, `Generation_Settings` (intentionally empty — the import side reads it as a generator hint, not a tracked entity), `_Lookups`.
+**Lineup partition**: `tt_attendance.lineup_role = 'start'` → Starting XI; `'bench'` → Bench; NULL → falls through to a single "Squad" section if neither Start nor Bench has been populated yet (so the team sheet is useful even before the operator splits the squad).
 
-### Round-trip design (per user-direction shaping 2026-05-08)
+**Position resolution**: `tt_attendance.position_played` (per-match override) → falls back to `tt_players.preferred_positions[0]` → empty cell.
 
-- **Q1 — `auto_key` strategy**: numeric `id`. Deterministic, collision-free, idempotent. "John_Doe" string slugs would collide on real data; numeric ids round-trip cleanly through the import → export → re-import path. The importer's existing numeric-id lookup handles the resolution.
-- **Q2 — filter scope**: every live row in the current club via `WHERE club_id = ?` (or via a join through `tt_players.club_id` for tables that scope through the player).
-- **Q3 — cap**: `tt_edit_settings` (admin only) — full PII surface; same gate as the seed-review export from v3.109.2.
+**ORDER BY**: lineup_role (`start` < `bench` < other) → jersey number (NULL last) → last name. Matches the eyeball-readable ordering on a printed sheet.
 
-### FK columns
+**Module wiring**: registered in `ExportModule::boot()` as the 15th and final use-case exporter — **#0063 foundation now at 15 of 15 use cases live**.
 
-The schema's `xxx_key` columns (`team_key`, `player_key`, `session_key`, `head_coach_key`, etc.) carry the FK target's numeric `id` directly. Sheets the importer doesn't yet consume (`Eval_Categories` / `Category_Weights` / `_Lookups`) are still emitted so a clean re-import recreates the same configuration alongside the data.
+## What's NOT in this PR (deferred to follow-ups)
 
-### Module wiring
-
-Registered in `ExportModule::boot()`. Foundation now at 14 of 15 use cases live.
-
-## What's NOT in this PR
-
-- **Operator-facing import button** that takes the exported file as input — the existing demo-data importer admin page (`?page=tt-demo-data`) consumes the same file shape; that's the operator surface.
-- **Filtered-by-team export** — no per-team filter at v1; operators who want a subset filter post-export.
-- **Generation_Settings round-trip** — left empty by design; `Generation_Settings` is a generator hint (target counts per entity), not a tracked entity.
-- **Per-row demo-mode flag** — most tables don't carry a `is_demo` column; "everything in the current club" is the v1 scope.
+- **Form-UI to populate the new columns** — operators populate via direct DB write or REST PATCH at v1; an "If this activity is a match" section on the activities form is the natural follow-up. Tracked in the exporter's class docblock.
+- **Substitution tracking** — the team sheet is a snapshot at kickoff; mid-match substitutions don't update `lineup_role`. Sub-tracking is a v2 with its own data model.
+- **Pitch diagram with formation** — the formation column carries the string ("4-3-3") but there's no rendered pitch. Lands with the same SVG follow-up that activates field diagrams in #0063 use case 8.
+- **Brand-kit letterhead** — `tt_pdf_render_html` filter exists; consumers can hook today.
 
 ## Notes
 
-- 1 new operator-facing string (the exporter label "Demo-data round-trip (XLSX)"). All sheet names + column headers reuse the `SheetSchemas` strings already in `nl_NL.po`.
-- No new migrations.
+- 11 new operator-facing strings (Match-day team sheet label / vs %s (%s) format / home / away / Team / Kickoff / Formation / Starting XI / Bench / Squad / "Match-only" stub). All translatable via `__()`.
+- One new migration: `0079_match_day_fields`.
 - No composer dependency changes.
-- Renumbered v3.110.16 against any parallel-agent ship that took a v3.110.x slot during build.
+- **Closes #0063 (Export module)**: 15 of 15 use cases live. Foundation epic complete.
