@@ -14209,3 +14209,14 @@ msgstr "Koppel dit doel optioneel aan een methodologie-entiteit. Kies een type e
 
 msgid "(no entries configured for this type)"
 msgstr "(geen items geconfigureerd voor dit type)"
+
+# v3.110.x — Activities module polish: rename principles label + wizard guest opt-in
+
+msgid "Connected principles"
+msgstr "Verbonden principes"
+
+msgid "Add a guest player after creating (e.g. trial, friendly drop-in)."
+msgstr "Voeg na het aanmaken een gastspeler toe (bv. stage, vriendschappelijke trainer)."
+
+msgid "Optionally connect this activity to one or more methodology principles. Hold Ctrl/Cmd to select multiple. Leave blank to skip."
+msgstr "Verbind deze activiteit optioneel aan een of meer methodologie-principes. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren. Laat leeg om over te slaan."

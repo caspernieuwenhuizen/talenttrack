@@ -177,6 +177,36 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             echo '<dd style="white-space:pre-wrap;">' . esc_html( $notes ) . '</dd>';
         }
 
+        // v3.110.x — surface the methodology principles connected to
+        // this activity in the read-only detail page. Was previously
+        // only visible on the edit form, so coaches landing on the
+        // detail view couldn't see what the activity was anchored to
+        // without clicking Edit. Defensive: skipped when the
+        // Methodology module isn't loaded.
+        if ( class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrincipleLinksRepository' )
+             && class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrinciplesRepository' )
+        ) {
+            $linked_ids = ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )
+                ->principlesForActivity( (int) $session->id );
+            if ( ! empty( $linked_ids ) ) {
+                $repo  = new \TT\Modules\Methodology\Repositories\PrinciplesRepository();
+                $names = [];
+                foreach ( $linked_ids as $pid ) {
+                    $pr = $repo->find( (int) $pid );
+                    if ( ! $pr ) continue;
+                    $title = '';
+                    if ( class_exists( '\\TT\\Modules\\Methodology\\Helpers\\MultilingualField' ) ) {
+                        $title = (string) \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
+                    }
+                    $names[] = trim( (string) $pr->code . ( $title !== '' ? ' · ' . $title : '' ) );
+                }
+                if ( ! empty( $names ) ) {
+                    echo '<dt>' . esc_html__( 'Connected principles', 'talenttrack' ) . '</dt>';
+                    echo '<dd>' . esc_html( implode( ', ', $names ) ) . '</dd>';
+                }
+            }
+        }
+
         echo '</dl>';
 
         if ( current_user_can( 'tt_edit_activities' ) ) {
@@ -422,7 +452,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     : [];
                 if ( ! empty( $all_principles ) ) : ?>
                 <div class="tt-field">
-                    <label class="tt-field-label" for="tt-activity-principles"><?php esc_html_e( 'Principles practiced', 'talenttrack' ); ?></label>
+                    <label class="tt-field-label" for="tt-activity-principles"><?php esc_html_e( 'Connected principles', 'talenttrack' ); ?></label>
                     <select id="tt-activity-principles" class="tt-input" name="activity_principle_ids[]" multiple size="6">
                         <?php foreach ( $all_principles as $pr ) :
                             $title = \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );

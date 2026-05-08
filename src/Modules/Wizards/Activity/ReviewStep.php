@@ -25,6 +25,7 @@ final class ReviewStep implements WizardStepInterface {
     public function render( array $state ): void {
         $type   = (string) ( $state['activity_type_key'] ?? 'training' );
         $status = (string) ( $state['activity_status_key'] ?? 'planned' );
+        $continue_to_guests = ! empty( $state['continue_to_guests'] );
 
         echo '<p>' . esc_html__( 'Looks good? Create the activity to start logging attendance.', 'talenttrack' ) . '</p>';
         echo '<dl class="tt-wizard-review">';
@@ -79,12 +80,32 @@ final class ReviewStep implements WizardStepInterface {
                 }
                 $names[] = trim( (string) $pr->code . ( $title !== '' ? ' · ' . $title : '' ) );
             }
-            echo '<dt>' . esc_html__( 'Principles practiced', 'talenttrack' ) . '</dt><dd>' . esc_html( implode( ', ', $names ) ) . '</dd>';
+            echo '<dt>' . esc_html__( 'Connected principles', 'talenttrack' ) . '</dt><dd>' . esc_html( implode( ', ', $names ) ) . '</dd>';
         }
         echo '</dl>';
+
+        // v3.110.x — opt-in path to add guests right after creation.
+        // The flat-form (FrontendActivitiesManageView::renderForm) has
+        // shipped a guest section on create AND edit since #0037; the
+        // wizard previously redirected to the activities list, so coaches
+        // had to re-open the activity to add guests. Checking this box
+        // routes the post-submit redirect at the activity edit page with
+        // `&open_guest=1` so the existing guest-add modal pops open in
+        // one motion. Default off — most activities don't have guests.
+        echo '<div class="tt-field" style="margin-top:12px;">';
+        echo '<label style="display:flex; gap:8px; align-items:flex-start;">';
+        echo '<input type="checkbox" name="continue_to_guests" value="1"' . ( $continue_to_guests ? ' checked' : '' ) . ' />';
+        echo '<span>' . esc_html__( 'Add a guest player after creating (e.g. trial, friendly drop-in).', 'talenttrack' ) . '</span>';
+        echo '</label>';
+        echo '</div>';
     }
 
-    public function validate( array $post, array $state ) { return []; }
+    public function validate( array $post, array $state ) {
+        return [
+            'continue_to_guests' => ! empty( $post['continue_to_guests'] ),
+        ];
+    }
+
     public function nextStep( array $state ): ?string { return null; }
 
     public function submit( array $state ) {
@@ -163,6 +184,20 @@ final class ReviewStep implements WizardStepInterface {
         // to land on the activity LIST after creating, where the new
         // row is highlighted and the next-create button is one click
         // away. Dropped the `id` query arg.
+        //
+        // v3.110.x — opt-in alternative: when the operator ticked
+        // "Add a guest after creating" on the Review step, redirect
+        // to the activity edit page with `&open_guest=1` so the
+        // existing #0037 guest-add modal pops open in one motion
+        // (mirrors the flat-form's "+ Add guest" auto-save flow).
+        if ( ! empty( $state['continue_to_guests'] ) ) {
+            return [ 'redirect_url' => add_query_arg( [
+                'tt_view'    => 'activities',
+                'id'         => $activity_id,
+                'action'     => 'edit',
+                'open_guest' => '1',
+            ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) ];
+        }
         return [ 'redirect_url' => add_query_arg( [
             'tt_view' => 'activities',
         ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) ];
