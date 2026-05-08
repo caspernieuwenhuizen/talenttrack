@@ -8,7 +8,7 @@ use TT\Modules\Comms\Template\AbstractTemplate;
 /**
  * #0066 use case 8 — Attendance flag.
  *
- * "Player X has missed 3 sessions in a row" — internal coach-to-coach
+ * Player X missed 3 activities in a row — internal coach-to-coach
  * / coach-to-HoD escalation. Sender: system. Recipients: coach + HoD.
  *
  * Trigger: daily cron `tt_comms_attendance_flag_cron` checks every
