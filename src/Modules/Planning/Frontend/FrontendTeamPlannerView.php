@@ -7,6 +7,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Methodology\Repositories\PrincipleLinksRepository;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -112,7 +113,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                     'action'       => 'new',
                     'team_id'      => (int) $team->id,
                     'plan_state'   => 'scheduled',
-                ], home_url( '/' ) ) ); ?>">
+                ], RecordLink::dashboardUrl() ) ); ?>">
                     + <?php esc_html_e( 'Schedule activity', 'talenttrack' ); ?>
                 </a>
             <?php endif; ?>
@@ -154,7 +155,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                                     'team_id'      => $team_id,
                                     'session_date' => $day,
                                     'plan_state'   => 'scheduled',
-                                ], home_url( '/' ) ) ); ?>">
+                                ], RecordLink::dashboardUrl() ) ); ?>">
                                     + <?php esc_html_e( 'Add', 'talenttrack' ); ?>
                                 </a>
                             <?php else : ?>
@@ -182,7 +183,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             'tt_view' => 'activities',
             'action'  => 'edit',
             'id'      => (int) $a->id,
-        ], home_url( '/' ) );
+        ], RecordLink::dashboardUrl() );
 
         ob_start();
         ?>
@@ -289,7 +290,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             'tt_view'    => 'team-planner',
             'team_id'    => $team_id,
             'week_start' => $week_start,
-        ], home_url( '/' ) );
+        ], RecordLink::dashboardUrl() );
     }
 
     /** @return object[] */

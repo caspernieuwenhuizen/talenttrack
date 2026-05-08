@@ -9,6 +9,7 @@ use TT\Modules\TeamDevelopment\BlueprintShareToken;
 use TT\Modules\TeamDevelopment\Repositories\TeamBlueprintsRepository;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendThreadView;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -116,7 +117,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
                 'tt_view' => 'wizard',
                 'slug'    => 'new-team-blueprint',
                 'team_id' => (int) $team->id,
-            ], home_url( '/' ) );
+            ], RecordLink::dashboardUrl() );
             echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
                 . esc_html__( '+ New blueprint', 'talenttrack' ) . '</a>';
         }
@@ -332,7 +333,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             'tt_view' => 'team-blueprint-share',
             'id'      => (string) $bp['uuid'],
             'token'   => $token,
-        ], home_url( '/' ) );
+        ], RecordLink::dashboardUrl() );
         $rotate_url = wp_nonce_url(
             admin_url( 'admin-post.php?action=tt_blueprint_rotate_share&id=' . (int) $bp['id'] ),
             'tt_blueprint_rotate_share_' . (int) $bp['id']
@@ -497,7 +498,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             'tt_view' => 'team-blueprints',
             'id'      => $id,
             'tt_msg'  => 'share_rotated',
-        ], home_url( '/' ) ) );
+        ], RecordLink::dashboardUrl() ) );
         exit;
     }
 
