@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.23
+Stable tag: 3.110.24
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.24 — As-player polish: My Evaluations breakdown + My Activities widened scope + My PDP self-reflection 2-week gate =
+
+Three bug-fix items on the player-self surfaces. **(1) My Evaluations — category + subcategory breakdown now renders.** Every code path that wrote to `tt_eval_ratings` (REST `EvaluationsRestController::write_ratings()`, wizard helper `EvaluationInserter::insert()`, legacy `ReviewStep::submit()`) was missing `club_id` on the insert payload. Migration 0038 added the column with `DEFAULT 1` but a class of installs ended up with rating rows at `club_id = 0` — invisible to every read scoped by `CurrentClub::id()`, so the per-category pills + sub-category disclosure rendered empty even though the overall-rating badge appeared. Fixed in all three writer paths. New migration `0083_eval_ratings_club_id_backfill` patches existing data: `UPDATE tt_eval_ratings r JOIN tt_evaluations e ON e.id = r.evaluation_id SET r.club_id = e.club_id WHERE r.club_id = 0`. Idempotent + defensive. **(2) My Activities — list now includes upcoming and in-progress activities for the player's team.** `ActivitiesRestController::list_sessions()`'s `filter[player_id]` clause used `EXISTS (SELECT 1 FROM tt_attendance …)` — only matched activities where attendance was already recorded. Pre-completion activities don't have attendance rows yet, so they never appeared. Widened to also include activities scheduled for the player's current team via `s.team_id IN ( SELECT pl.team_id FROM tt_players pl WHERE pl.id = %d AND pl.club_id = s.club_id )`. **(3) My PDP — self-reflection editing gated to 14 days before the meeting.** `FrontendMyPdpView` was rendering the self-reflection textarea any time the conversation was unsigned — including months before scheduled meetings, prompting confused players to write reflections way too early. New helper `selfReflectionWindowOpen()` returns true when `scheduled_at` is set AND within 14 days from now. Textarea + "Save reflection" button only render inside that window; outside it, an explainer line appears: *"You can add your self-reflection up to 2 weeks before this meeting. Check back closer to the planned date."* Window has no upper bound — once the meeting passes, input stays open until coach sign-off (existing close condition). 1 new translatable string. 1 new migration (`0083_eval_ratings_club_id_backfill`). Renumbered v3.110.20 → v3.110.24 across multiple rebases after parallel-agent ships of v3.110.20 (#0090 Phase 1), v3.110.22 (#0090 Phase 2), and v3.110.23 (upgrade button) took those slots; the migration was renumbered 0080 → 0083 to clear the slot taken by Phase 1's `0080_translations`.
 
 = 3.110.23 — Account-page upgrade button routes to dev-license override on test installs =
 

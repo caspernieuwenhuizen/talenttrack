@@ -220,14 +220,26 @@ class ActivitiesRestController {
         // v3.92.7 — `filter[player_id]=N` scopes the list to activities
         // the player attended (real attendance row OR guest-attendance
         // row). Used by `?tt_view=my-activities` so the surface can
-        // consume `FrontendListTable::render()` instead of running its
-        // own custom $wpdb query. Cross-references both `player_id` and
-        // `guest_player_id` on `tt_attendance` because the trial flow
-        // can leave a duplicate row keyed under guest_player_id (per
-        // the existing comment in the legacy custom query).
+        // consume `FrontendListTable::render()`.
+        //
+        // v3.110.x — widened to also include activities scheduled for
+        // the player's CURRENT team that don't have an attendance row
+        // yet. The previous `EXISTS` clause only matched activities
+        // where attendance was already recorded, so the "My activities"
+        // surface rendered empty for any player whose team had only
+        // upcoming or in-progress (not-yet-completed) activities. The
+        // player's mental model is "what's on my schedule" — completed
+        // attendance is one slice of that, not the whole thing.
+        // Cross-references both `player_id` and `guest_player_id` on
+        // `tt_attendance` because the trial flow can leave a duplicate
+        // row keyed under guest_player_id.
         if ( ! empty( $filter['player_id'] ) ) {
             $pid = absint( $filter['player_id'] );
-            $where[]  = "EXISTS (SELECT 1 FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.club_id = s.club_id AND ( a.player_id = %d OR a.guest_player_id = %d ))";
+            $where[]  = "(
+                s.team_id IN ( SELECT pl.team_id FROM {$p}tt_players pl WHERE pl.id = %d AND pl.club_id = s.club_id )
+                OR EXISTS ( SELECT 1 FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.club_id = s.club_id AND ( a.player_id = %d OR a.guest_player_id = %d ) )
+            )";
+            $params[] = $pid;
             $params[] = $pid;
             $params[] = $pid;
         }

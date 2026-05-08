@@ -14220,7 +14220,12 @@ msgstr "Voeg na het aanmaken een gastspeler toe (bv. stage, vriendschappelijke t
 
 msgid "Optionally connect this activity to one or more methodology principles. Hold Ctrl/Cmd to select multiple. Leave blank to skip."
 msgstr "Verbind deze activiteit optioneel aan een of meer methodologie-principes. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren. Laat leeg om over te slaan."
-# v3.110.19 — Account-page upgrade button routes to dev-license override on test installs
+# v3.110.23 — Account-page upgrade button routes to dev-license override on test installs
 
 msgid "Freemius checkout isn't wired on this install — the button opens the developer license-override page so you can flip the active tier locally for testing."
 msgstr "Freemius-checkout staat op deze installatie niet aan — de knop opent de developer-licentie-overridepagina zodat je het actieve abonnement lokaal kunt wisselen voor tests."
+
+# v3.110.24 — My PDP self-reflection 2-week pre-meeting gate
+
+msgid "You can add your self-reflection up to 2 weeks before this meeting. Check back closer to the planned date."
+msgstr "Je kunt je zelfreflectie toevoegen tot 2 weken voor deze afspraak. Kom terug dichter bij de geplande datum."

@@ -59,11 +59,15 @@ final class EvaluationInserter {
             return new \WP_Error( 'insert_failed', __( 'Could not write evaluation row.', 'talenttrack' ) );
         }
 
+        // v3.110.x — every rating row carries `club_id` (see same fix in
+        // EvaluationsRestController::write_ratings).
+        $club_id = CurrentClub::id();
         $ratings = is_array( $row['ratings'] ?? null ) ? (array) $row['ratings'] : [];
         foreach ( $ratings as $cat_id => $val ) {
             $val = (int) $val;
             if ( $val <= 0 ) continue;
             $wpdb->insert( "{$p}tt_eval_ratings", [
+                'club_id'       => $club_id,
                 'evaluation_id' => $eval_id,
                 'category_id'   => (int) $cat_id,
                 'rating'        => $val,
