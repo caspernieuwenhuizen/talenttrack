@@ -43,7 +43,11 @@ final class LinkStep implements WizardStepInterface {
 
         $candidates = self::candidates( $type );
         $current_id = (int) ( $state['link_id'] ?? 0 );
-        echo '<label><span>' . esc_html__( 'Pick the entity to link', 'talenttrack' ) . '</span><select name="link_id">';
+        // v3.110.x — context-driven label per chosen type instead of
+        // generic "Pick the entity to link". The label maps to the
+        // type the operator just chose so the second select reads as
+        // a coherent question ("Position" / "Principle" / etc.).
+        echo '<label><span>' . esc_html( self::secondSelectLabel( $type ) ) . '</span><select name="link_id">';
         echo '<option value="0">' . esc_html__( '— pick one —', 'talenttrack' ) . '</option>';
         if ( empty( $candidates ) ) {
             echo '<option value="0" disabled>' . esc_html__( '(no entries configured for this type)', 'talenttrack' ) . '</option>';
@@ -52,6 +56,21 @@ final class LinkStep implements WizardStepInterface {
             echo '<option value="' . esc_attr( (string) $row['id'] ) . '" ' . selected( $current_id, (int) $row['id'], false ) . '>' . esc_html( (string) $row['label'] ) . '</option>';
         }
         echo '</select></label>';
+    }
+
+    /**
+     * v3.110.x — context-driven label for the second-select per
+     * chosen link type. Reuses the same translatable strings as the
+     * first-select option labels in {@see self::types()}.
+     */
+    private static function secondSelectLabel( string $type ): string {
+        switch ( $type ) {
+            case 'principle':       return __( 'Principle', 'talenttrack' );
+            case 'football_action': return __( 'Football action', 'talenttrack' );
+            case 'position':        return __( 'Position', 'talenttrack' );
+            case 'value':           return __( 'Value', 'talenttrack' );
+        }
+        return __( 'Pick the entity to link', 'talenttrack' );
     }
 
     public function validate( array $post, array $state ) {
@@ -135,17 +154,23 @@ final class LinkStep implements WizardStepInterface {
                 }
                 return $out;
             case 'position':
-                $rows = $wpdb->get_results( $wpdb->prepare(
-                    "SELECT id, name AS label FROM {$wpdb->prefix}tt_lookups
-                     WHERE lookup_type = %s AND archived_at IS NULL AND club_id = %d ORDER BY sort_order, name",
-                    'position', CurrentClub::id()
-                ) );
-                break;
             case 'value':
+                // v3.110.x — `tt_lookups` has NO `archived_at` column
+                // (initial schema in migration 0001 didn't include
+                // it; same root cause that BasicsStep::render
+                // documented for the team wizard's age-group
+                // dropdown). The previous WHERE clause referenced
+                // `archived_at IS NULL` which made MySQL throw
+                // "Unknown column 'archived_at'" so the entire
+                // query failed and the second-select rendered empty
+                // for every install since the wizard shipped.
+                // Lookups use HARD delete via the lookups admin so
+                // there is nothing to filter on here anyway.
+                $lookup_type = $type === 'position' ? 'position' : 'club_value';
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT id, name AS label FROM {$wpdb->prefix}tt_lookups
-                     WHERE lookup_type = %s AND archived_at IS NULL AND club_id = %d ORDER BY sort_order, name",
-                    'club_value', CurrentClub::id()
+                     WHERE lookup_type = %s AND club_id = %d ORDER BY sort_order, name",
+                    $lookup_type, CurrentClub::id()
                 ) );
                 break;
         }
