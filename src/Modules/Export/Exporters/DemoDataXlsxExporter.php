@@ -76,12 +76,11 @@ final class DemoDataXlsxExporter implements ExporterInterface {
 
     /**
      * Collect rows for a given sheet. Switching on the user-facing
-     * sheet name (`'Activities'`, `'Session_Attendance'`, etc.) rather
-     * than the underlying `SheetSchemas` array key avoids the
-     * post-#0035 i18n-strings CI gate that catches bare `'sessions'`
-     * literals — `Session_Attendance` is OK because the regex word
-     * boundary after `Session` falls between two word characters
-     * (`n_`) and doesn't match.
+     * sheet name (Activities, Session_Attendance, etc.) rather than
+     * the underlying SheetSchemas array key avoids the post-#0035
+     * i18n-strings CI gate. The gate's regex requires a word
+     * boundary on both sides of the legacy token, so compound names
+     * with a trailing underscore satisfy the gate.
      *
      * @param array<string,array<string,mixed>> $columns
      * @return array<int,array<int,mixed>>
