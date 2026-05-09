@@ -14302,6 +14302,11 @@ msgstr "Freemius-checkout staat op deze installatie niet aan — de knop opent d
 
 msgid "You can add your self-reflection up to 2 weeks before this meeting. Check back closer to the planned date."
 msgstr "Je kunt je zelfreflectie toevoegen tot 2 weken voor deze afspraak. Kom terug dichter bij de geplande datum."
+
+# v3.110.52 — REST-side enforcement of the same gate (defence in depth)
+
+msgid "You can add your self-reflection up to 2 weeks before the planned meeting. Check back closer to the planned date."
+msgstr "Je kunt je zelfreflectie toevoegen tot 2 weken vóór het geplande gesprek. Kom dichter bij de geplande datum terug."
 # v3.110.26 — matrix seed Excel/CSV round-trip
 
 msgid "Round-trip with a stakeholder (Excel / CSV)"

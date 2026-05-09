@@ -71,6 +71,26 @@ class PdpConversationsRestController {
             return RestResponse::success( [ 'id' => $id, 'unchanged' => true ] );
         }
 
+        // v3.110.52 — gate `player_reflection` writes on the same 2-week
+        // pre-meeting window the player surface (FrontendMyPdpView) uses
+        // to render the form. The view-side gate hides the textarea, but
+        // a bookmark / saved request / API consumer could otherwise
+        // PATCH `player_reflection` at any time. Mirroring the rule
+        // here: writes are accepted only when the conversation has a
+        // `scheduled_at` AND that time is at most 14 days in the future
+        // (or already passed). Coach + admin paths bypass this gate;
+        // they need to be able to edit the field at any time
+        // (e.g. backfilling a player quote on behalf of the player).
+        if ( array_key_exists( 'player_reflection', $patch )
+             && self::isLinkedPlayer( get_current_user_id(), (int) $file->player_id )
+             && ! self::selfReflectionWindowOpen( $conv ) ) {
+            return RestResponse::error(
+                'window_closed',
+                __( 'You can add your self-reflection up to 2 weeks before the planned meeting. Check back closer to the planned date.', 'talenttrack' ),
+                403
+            );
+        }
+
         if ( ! $repo->update( $id, $patch ) ) {
             Logger::error( 'pdp.conversation.update.failed', [ 'id' => $id, 'patch' => $patch ] );
             return RestResponse::error( 'db_error',
@@ -139,6 +159,33 @@ class PdpConversationsRestController {
             $player_id, $user_id
         ) );
         return $hit > 0;
+    }
+
+    /**
+     * v3.110.52 — same gate `FrontendMyPdpView::selfReflectionWindowOpen()`
+     * uses on the view side. Returns true when the conversation has a
+     * `scheduled_at` AND that scheduled time is at most 14 days in the
+     * future (or already passed); false when the meeting hasn't been
+     * scheduled yet OR it's more than 2 weeks out.
+     *
+     * Kept here as a private duplicate (not extracted to a shared
+     * helper) because the rule may diverge between the surfaces over
+     * time and a single shared helper would mask that intent. Five
+     * lines is a small price for clarity at each callsite.
+     */
+    private static function selfReflectionWindowOpen( object $conv ): bool {
+        $scheduled = (string) ( $conv->scheduled_at ?? '' );
+        if ( $scheduled === '' ) return false;
+        // `scheduled_at` is stored as a UTC datetime via gmdate(), so
+        // force UTC parsing — PHP's strtotime() otherwise interprets
+        // the bare string in the server's local TZ, producing a skew
+        // on any non-UTC install. See FrontendMyPdpView for the
+        // matching view-side fix and the pilot-operator report.
+        $ts = strtotime( $scheduled . ' UTC' );
+        if ( $ts === false ) return false;
+        $now    = (int) current_time( 'timestamp', true );
+        $window = 14 * DAY_IN_SECONDS;
+        return ( $ts - $now ) <= $window;
     }
 
     private static function isParentOfPlayer( int $user_id, int $player_id ): bool {

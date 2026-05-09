@@ -1,3 +1,31 @@
+# TalentTrack v3.110.60 — My PDP: self-reflection 2-week gate now timezone-correct + REST endpoint enforces same window
+
+The v3.110.24 release added a view-side gate that hid the player's self-reflection textarea until 14 days before the conversation's `scheduled_at`. The user reported the form still opened too early on their install. Two fixes — one user-visible (TZ bug), one defense-in-depth (REST hardening).
+
+## (1) Timezone bug — gate opened a few hours early on non-UTC servers
+
+`selfReflectionWindowOpen()` parsed `scheduled_at` (stored as a UTC datetime via `gmdate(...)`) with PHP's `strtotime()` — which interprets bare datetime strings in the **server's local TZ**. On any non-UTC install (the user is on Europe/Amsterdam, UTC+2 in summer), the parsed timestamp was offset by the TZ delta and the window opened earlier than the 14-day boundary intended.
+
+**Fix**: parse with an explicit `UTC` suffix.
+
+```php
+$ts = strtotime( $scheduled . ' UTC' );
+```
+
+Same one-line fix applied in both `FrontendMyPdpView::selfReflectionWindowOpen()` and the matching helper now in `PdpConversationsRestController` (see (2) below).
+
+## (2) REST endpoint enforces the same gate
+
+`PdpConversationsRestController::patch` accepted `player_reflection` writes whenever the linked player called the endpoint, regardless of timing. The view-side gate hid the textarea past the window, but a bookmarked POST or saved API request would still succeed. Added the same window check on the player path — returns 403 with `window_closed` when the conversation's `scheduled_at` is more than 14 days out (or unset). Coach + admin paths bypass the gate (they may legitimately backfill reflections on behalf of a player).
+
+The gate helper is duplicated between `FrontendMyPdpView` and the REST controller rather than extracted to a shared service. Five lines, two surfaces, deliberate — the rule may diverge over time and a single shared helper would mask that intent.
+
+## Translations
+
+One new NL msgid for the REST error wording. The view-side string from v3.110.24 stays unchanged.
+
+---
+
 # TalentTrack v3.110.59 — Onboarding pipeline: + New prospect now opens a wizard, kanban replaces count strip, fixed double-counting in Invited
 
 Three issues on `?tt_view=onboarding-pipeline` from a tile-by-tile pilot review.
