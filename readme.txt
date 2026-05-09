@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.36
+Stable tag: 3.110.37
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.37 — Activity-to-exercise linkage table + repository (#0016 Sprint 2a) =
+
+Sprint 2 of the photo-to-session capture epic, data-layer half. Sprint 1 (v3.110.35) shipped the exercise library + categories + vision provider scaffolding. Sprint 2a (this ship) links activities to specific exercise versions via `tt_activity_exercises` and the `ActivityExercisesRepository` that Sprint 4's AI extraction wizard will eventually call into. Sprint 2b (UI integration on the activity edit page) lands as a follow-up. **(1) Migration `0089_activity_exercises`** creates the linkage table with `(club_id, activity_id, exercise_id, order_index, actual_duration_minutes, notes, is_draft, created_at, updated_at)` shape. Pinning model: `exercise_id` references a specific `tt_exercises.id` row, NOT a logical exercise key — so `ExercisesRepository::editAsNewVersion()`'s versioning preserves historical activity rendering. Per CLAUDE.md §4: `club_id NOT NULL DEFAULT 1`; UNIQUE `(club_id, activity_id, order_index)` keeps ordering deterministic. Idempotent dbDelta. **(2) `ActivityExercisesRepository`** — `listForActivity( $activity_id )` joins `tt_exercises` so callers get the name + duration + diagram in one query; `listForExercise( $exercise_id )` powers the future exercise-history view (every activity that linked this drill); `append( $activity_id, $exercise_id, $data )` adds at the next free `order_index`; `update( $id, $patch )` handles re-order / duration adjustment / draft → final; `delete( $id )` and `deleteForActivity( $activity_id )` for cleanup; `replaceExercisesForActivity( $activity_id, $rows )` is the Sprint 4 review wizard's bulk-commit path. All reads + writes scope to `CurrentClub::id()`. **What's NOT in this PR (lands in Sprint 2b)**: activity-edit UI Exercises section (add/remove/reorder/edit-duration/notes), exercise-library picker (search + filter by category + filter by principle), exercise-history view (per-exercise list of using activities), REST controller, frontend renders. Sprint 2b is its own PR — substantial markup + JS work that benefits from a focused review. Zero new NL msgids — pure data-layer ship.
 
 = 3.110.36 — First-pass FR/DE/ES machine translations for high-frequency UI labels (#0010) =
 
