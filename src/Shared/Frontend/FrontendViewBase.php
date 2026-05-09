@@ -61,19 +61,21 @@ abstract class FrontendViewBase {
     }
 
     /**
-     * Render the view header: breadcrumbs (if declared) or back button +
-     * title. Sub-views call this at the top of their render() methods.
+     * Render the view header: breadcrumbs (when declared via the static
+     * override) and the page title.
      *
-     * Breadcrumbs override the back button — when a sub-view declares a
-     * breadcrumb chain via static::breadcrumbs(), the chain implicitly
-     * conveys "back" so the standalone back link is suppressed (#0077 F2).
+     * v3.110.41 — removed the FrontendBackButton fallback. Per
+     * docs/back-navigation.md the two canonical nav affordances are the
+     * tt_back-borne pill (auto-rendered above the breadcrumb chain by
+     * FrontendBreadcrumbs::render()) and the breadcrumb itself. Views
+     * that need a dynamic chain call FrontendBreadcrumbs::fromDashboard()
+     * directly before renderHeader(); views with a static chain override
+     * static::breadcrumbs() and let renderHeader emit it.
      */
     protected static function renderHeader( string $title ): void {
         $crumbs = static::breadcrumbs();
         if ( ! empty( $crumbs ) ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::render( $crumbs );
-        } else {
-            FrontendBackButton::render();
         }
         echo '<h1 class="tt-fview-title" style="margin:6px 0 18px; font-size:22px; color:#1a1d21;">'
             . esc_html( $title )
