@@ -113,7 +113,41 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // framing.
         /* translators: %s: player display name */
         $page_title = sprintf( __( 'Player file of %s', 'talenttrack' ), $name );
-        echo '<h1 class="tt-fview-title" style="margin:6px 0 14px; font-size:22px; color:#1a1d21;">' . esc_html( $page_title ) . '</h1>';
+
+        // v3.110.53 — Edit + Archive page-header actions. Edit becomes
+        // a FAB bottom-right on mobile via .tt-page-actions__primary;
+        // Archive is desktop-only via the secondary class. Archive
+        // wires through to REST DELETE players/{id} via the generic
+        // tt-frontend-archive-button.js handler, with a confirm()
+        // dialog and redirect to the players list on success.
+        $actions = [];
+        if ( current_user_can( 'tt_edit_players' ) ) {
+            $edit_url = add_query_arg(
+                [ 'tt_view' => 'players', 'id' => $player_id, 'action' => 'edit' ],
+                RecordLink::dashboardUrl()
+            );
+            $actions[] = [
+                'label'   => __( 'Edit', 'talenttrack' ),
+                'href'    => $edit_url,
+                'primary' => true,
+                'icon'    => '✎',
+            ];
+            $actions[] = [
+                'label'   => __( 'Archive', 'talenttrack' ),
+                'variant' => 'danger',
+                'data_attrs' => [
+                    'tt-archive-rest-path' => 'players/' . $player_id,
+                    'tt-archive-confirm'   => __( 'Archive this player? They can be restored later by a site admin.', 'talenttrack' ),
+                    'tt-archive-redirect'  => $players_url,
+                ],
+            ];
+        }
+        echo '<header class="tt-page-head" style="margin:6px 0 14px;">';
+        echo '<h1 class="tt-fview-title" style="font-size:22px; color:#1a1d21;">' . esc_html( $page_title ) . '</h1>';
+        if ( $actions ) {
+            echo '<div class="tt-page-actions">' . self::pageActionsHtml( $actions ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pageActionsHtml escapes per-action.
+        }
+        echo '</header>';
 
         $team       = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
         $team_url   = $team ? add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id ], RecordLink::dashboardUrl() ) : '';
