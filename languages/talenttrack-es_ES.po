@@ -138,7 +138,7 @@ msgid "Auto-generated from Label when blank. Lower-case, snake_case. Locked afte
 msgstr ""
 
 msgid "Away"
-msgstr ""
+msgstr "Visitante"
 
 msgid "Branding"
 msgstr ""
@@ -153,7 +153,7 @@ msgid "Checkbox"
 msgstr ""
 
 msgid "Clear"
-msgstr ""
+msgstr "Borrar"
 
 msgid "Club Admin"
 msgstr "Admin del club"
@@ -237,7 +237,7 @@ msgid "Diagnostic Information"
 msgstr ""
 
 msgid "Disabled"
-msgstr ""
+msgstr "Deshabilitado"
 
 msgid "Drag rows to reorder, then click Save Order."
 msgstr ""
@@ -288,7 +288,7 @@ msgid "Enable or disable specific TalentTrack features without code changes."
 msgstr ""
 
 msgid "Enabled"
-msgstr ""
+msgstr "Habilitado"
 
 msgid "End date"
 msgstr ""
@@ -357,7 +357,7 @@ msgid "Foot:"
 msgstr ""
 
 msgid "From"
-msgstr ""
+msgstr "Desde"
 
 msgid "Go to Admin"
 msgstr ""
@@ -420,7 +420,7 @@ msgid "High"
 msgstr ""
 
 msgid "Home"
-msgstr ""
+msgstr "Local"
 
 msgid "Home/Away"
 msgstr ""
@@ -444,13 +444,13 @@ msgid "Jersey Number"
 msgstr "Número de camiseta"
 
 msgid "Key"
-msgstr ""
+msgstr "Clave"
 
 msgid "Keys are locked once saved (changing a key would orphan existing values)."
 msgstr ""
 
 msgid "Label"
-msgstr ""
+msgstr "Etiqueta"
 
 msgid "Label is required."
 msgstr ""
@@ -483,7 +483,7 @@ msgid "Login redirect"
 msgstr ""
 
 msgid "Logo"
-msgstr ""
+msgstr "Logotipo"
 
 msgid "Lost your password?"
 msgstr ""
@@ -501,7 +501,7 @@ msgid "Match Details?"
 msgstr ""
 
 msgid "Maximum"
-msgstr ""
+msgstr "Máximo"
 
 msgid "Medium"
 msgstr ""
@@ -525,7 +525,7 @@ msgid "Migrations directory"
 msgstr ""
 
 msgid "Minimum"
-msgstr ""
+msgstr "Mínimo"
 
 msgid "Minutes Played"
 msgstr ""
@@ -633,7 +633,7 @@ msgid "Notes"
 msgstr "Notas"
 
 msgid "Number"
-msgstr ""
+msgstr "Número"
 
 msgid "On Hold"
 msgstr "En espera"
@@ -645,7 +645,7 @@ msgid "Only used for select-type fields."
 msgstr ""
 
 msgid "Opponent"
-msgstr ""
+msgstr "Rival"
 
 msgid "Option label"
 msgstr ""
@@ -657,7 +657,7 @@ msgid "Options"
 msgstr ""
 
 msgid "Order"
-msgstr ""
+msgstr "Orden"
 
 msgid "Other"
 msgstr "Otro"
@@ -672,7 +672,7 @@ msgid "Parent"
 msgstr "Padre / Madre"
 
 msgid "Password"
-msgstr ""
+msgstr "Contraseña"
 
 msgid "Payload"
 msgstr ""
@@ -699,7 +699,7 @@ msgid "Phone"
 msgstr "Teléfono"
 
 msgid "Photo"
-msgstr ""
+msgstr "Foto"
 
 msgid "Physio"
 msgstr "Fisioterapeuta"
@@ -822,7 +822,7 @@ msgid "Review and Apply"
 msgstr ""
 
 msgid "Role"
-msgstr ""
+msgstr "Rol"
 
 msgid "Role in team"
 msgstr ""
@@ -900,7 +900,7 @@ msgid "Shown for backward compatibility. Add as an explicit assignment below to 
 msgstr ""
 
 msgid "Sign in"
-msgstr ""
+msgstr "Iniciar sesión"
 
 msgid "Sign in to continue"
 msgstr ""
@@ -921,7 +921,7 @@ msgid "Start date"
 msgstr ""
 
 msgid "State"
-msgstr ""
+msgstr "Estado"
 
 msgid "Status"
 msgstr "Estado"
@@ -1107,7 +1107,7 @@ msgid "Use"
 msgstr ""
 
 msgid "User"
-msgstr ""
+msgstr "Usuario"
 
 msgid "User ID"
 msgstr ""
@@ -1116,7 +1116,7 @@ msgid "Username or email"
 msgstr ""
 
 msgid "Value"
-msgstr ""
+msgstr "Valor"
 
 msgid "Verbose logging"
 msgstr ""
@@ -1149,16 +1149,16 @@ msgid "vs %s (%s)"
 msgstr ""
 
 msgid "— All —"
-msgstr ""
+msgstr "— Todos —"
 
 msgid "— No Team —"
-msgstr ""
+msgstr "— Sin equipo —"
 
 msgid "— None —"
-msgstr ""
+msgstr "— Ninguno —"
 
 msgid "— Select —"
-msgstr ""
+msgstr "— Seleccionar —"
 
 msgid "← Back"
 msgstr ""
@@ -1199,7 +1199,7 @@ msgid "Open permission debugger"
 msgstr ""
 
 msgid "Permissions"
-msgstr ""
+msgstr "Permisos"
 
 msgid "Assignments"
 msgstr ""
@@ -1394,7 +1394,7 @@ msgid "Read-only access to own profile. Auto-derived from tt_players.wp_user_id 
 msgstr ""
 
 msgid "Functional Roles"
-msgstr ""
+msgstr "Roles funcionales"
 
 msgid "Functional role"
 msgstr ""
@@ -1520,7 +1520,7 @@ msgid "Choose where on the form this field appears. \"(at end)\" places it below
 msgstr ""
 
 msgid "Sort order"
-msgstr ""
+msgstr "Orden de clasificación"
 
 msgid "When multiple custom fields share the same \"Insert after\" slug, lower sort order renders first."
 msgstr ""
@@ -1674,7 +1674,7 @@ msgid "Optional. Not shown to coaches — for your own reference."
 msgstr ""
 
 msgid "Display order"
-msgstr ""
+msgstr "Orden de visualización"
 
 msgid "Lower numbers render first. Convention: increments of 10 so you have room to insert between items later."
 msgstr ""
@@ -1895,7 +1895,7 @@ msgid "Spond"
 msgstr ""
 
 msgid "Connected"
-msgstr ""
+msgstr "Conectado"
 
 msgid "Last sync"
 msgstr ""
@@ -2041,7 +2041,7 @@ msgid "— Select a player —"
 msgstr ""
 
 msgid "To"
-msgstr ""
+msgstr "Hasta"
 
 msgid "All types"
 msgstr ""
@@ -2135,7 +2135,7 @@ msgid "Not enough ranked players yet"
 msgstr ""
 
 msgid "My team"
-msgstr ""
+msgstr "Mi equipo"
 
 msgid "You are not on a team yet."
 msgstr ""
@@ -2213,7 +2213,7 @@ msgid "Select bulk action"
 msgstr ""
 
 msgid "Bulk actions"
-msgstr ""
+msgstr "Acciones masivas"
 
 msgid "Archive"
 msgstr "Archivar"
@@ -2344,7 +2344,7 @@ msgid "No inactive users — everyone has been active recently."
 msgstr ""
 
 msgid "Last login"
-msgstr ""
+msgstr "Último inicio de sesión"
 
 msgid "Your club at a glance. Tap any card or tile to jump straight into that section."
 msgstr ""
@@ -2503,10 +2503,10 @@ msgid "Target"
 msgstr ""
 
 msgid "First"
-msgstr ""
+msgstr "Primera"
 
 msgid "Last"
-msgstr ""
+msgstr "Última"
 
 msgid "Created"
 msgstr "Creado"
@@ -2727,7 +2727,7 @@ msgid "Your personal details and contact info."
 msgstr ""
 
 msgid "My teams"
-msgstr ""
+msgstr "Mis equipos"
 
 msgid "Teams you coach — roster, podium, evaluations."
 msgstr ""
@@ -2946,7 +2946,7 @@ msgid "Playing details are maintained by your coach. Contact them for correction
 msgstr ""
 
 msgid "Account"
-msgstr ""
+msgstr "Cuenta"
 
 msgid "Display name"
 msgstr ""
@@ -2963,7 +2963,7 @@ msgid "No players on this team yet."
 msgstr ""
 
 msgid "Roster"
-msgstr ""
+msgstr "Plantilla"
 
 msgid "No teams assigned — no players to show."
 msgstr ""
@@ -3207,7 +3207,7 @@ msgid "The evaluation was updated but some ratings failed."
 msgstr ""
 
 msgid "Retry"
-msgstr ""
+msgstr "Reintentar"
 
 msgid "Discard"
 msgstr ""
@@ -3294,7 +3294,7 @@ msgid "Inheritance applies to fonts, colors, and basic links/buttons. TalentTrac
 msgstr ""
 
 msgid "New activity"
-msgstr ""
+msgstr "Nueva actividad"
 
 msgid "Edit activity — %s"
 msgstr ""
@@ -3312,7 +3312,7 @@ msgid "Mark all present"
 msgstr ""
 
 msgid "Show all"
-msgstr ""
+msgstr "Mostrar todo"
 
 msgid "Show all (%d)"
 msgstr ""
@@ -3327,7 +3327,7 @@ msgid "Save activity"
 msgstr ""
 
 msgid "New goal"
-msgstr ""
+msgstr "Nuevo objetivo"
 
 msgid "Edit goal — %s"
 msgstr ""
@@ -3360,7 +3360,7 @@ msgid "Due to"
 msgstr ""
 
 msgid "New player"
-msgstr ""
+msgstr "Nuevo jugador"
 
 msgid "Edit player — %s"
 msgstr ""
@@ -3399,7 +3399,7 @@ msgid "Select photo"
 msgstr ""
 
 msgid "New team"
-msgstr ""
+msgstr "Nuevo equipo"
 
 msgid "Edit team — %s"
 msgstr ""
@@ -3492,7 +3492,7 @@ msgid "comma-separated"
 msgstr ""
 
 msgid "or"
-msgstr ""
+msgstr "o"
 
 msgid "Row"
 msgstr ""
@@ -3696,7 +3696,7 @@ msgid "Ignored for non-list field types."
 msgstr ""
 
 msgid "Required field"
-msgstr ""
+msgstr "Campo obligatorio"
 
 msgid "Active (uncheck to soft-disable without deleting stored values)"
 msgstr ""
@@ -4373,10 +4373,10 @@ msgid "Schedule"
 msgstr ""
 
 msgid "Daily"
-msgstr ""
+msgstr "Diario"
 
 msgid "Weekly"
-msgstr ""
+msgstr "Semanal"
 
 msgid "On demand"
 msgstr ""
@@ -4427,7 +4427,7 @@ msgid "Filename"
 msgstr ""
 
 msgid "Size"
-msgstr ""
+msgstr "Tamaño"
 
 msgid "Download"
 msgstr "Descargar"
@@ -4697,7 +4697,7 @@ msgid "Resource"
 msgstr ""
 
 msgid "In use"
-msgstr ""
+msgstr "En uso"
 
 msgid "Free cap"
 msgstr ""
@@ -4942,7 +4942,7 @@ msgid "Code or title"
 msgstr ""
 
 msgid "Code"
-msgstr ""
+msgstr "Código"
 
 msgid "No principles match these filters."
 msgstr ""
@@ -5095,7 +5095,7 @@ msgid "Defending tasks (EN — one per line)"
 msgstr ""
 
 msgid "Slug"
-msgstr ""
+msgstr "Identificador"
 
 msgid "Kind"
 msgstr ""
@@ -5684,7 +5684,7 @@ msgid "Idea not found."
 msgstr ""
 
 msgid "Body"
-msgstr ""
+msgstr "Cuerpo"
 
 msgid "auto from title if empty"
 msgstr ""
@@ -6521,7 +6521,7 @@ msgid "Father"
 msgstr ""
 
 msgid "Guardian"
-msgstr ""
+msgstr "Tutor"
 
 msgid "Invalid invitation kind."
 msgstr ""
@@ -6862,7 +6862,7 @@ msgid "Matrix reset to defaults."
 msgstr ""
 
 msgid "Reset to defaults"
-msgstr ""
+msgstr "Restablecer valores"
 
 msgid "Reseeds the matrix from the shipped seed file. Any admin-edited rows are lost. Logged in the changelog."
 msgstr ""
@@ -7002,7 +7002,7 @@ msgid "No differences. The picked users have identical effective capabilities ac
 msgstr ""
 
 msgid "Capability"
-msgstr ""
+msgstr "Capacidad"
 
 msgid "Matrix entity:activity"
 msgstr ""
@@ -7204,7 +7204,7 @@ msgstr ""
 # === #0040 — dashboard regroup + Configuration tile-landing + i18n cleanup ===
 
 msgid "My players"
-msgstr ""
+msgstr "Mis jugadores"
 
 msgid "Full academy roster."
 msgstr ""
@@ -7497,7 +7497,7 @@ msgid "That PDP file no longer exists."
 msgstr ""
 
 msgid "Access denied"
-msgstr ""
+msgstr "Acceso denegado"
 
 msgid "← Back to list"
 msgstr ""
@@ -7521,7 +7521,7 @@ msgid "Notes:"
 msgstr ""
 
 msgid "Conversations"
-msgstr ""
+msgstr "Conversaciones"
 
 msgid "Scheduled"
 msgstr "Programado"
@@ -7686,7 +7686,7 @@ msgid "Agenda"
 msgstr ""
 
 msgid "Self-reflection"
-msgstr ""
+msgstr "Autorreflexión"
 
 msgid "Add or update your self-reflection"
 msgstr ""
@@ -7707,7 +7707,7 @@ msgid "A parent acknowledged this conversation."
 msgstr ""
 
 msgid "Seasons"
-msgstr ""
+msgstr "Temporadas"
 
 msgid "You do not have permission to manage seasons."
 msgstr ""
@@ -7716,10 +7716,10 @@ msgid "Exactly one season can be marked current. PDP files are scoped to a seaso
 msgstr ""
 
 msgid "Start"
-msgstr ""
+msgstr "Inicio"
 
 msgid "End"
-msgstr ""
+msgstr "Fin"
 
 msgid "Current?"
 msgstr ""
@@ -8219,7 +8219,7 @@ msgstr "Perfil"
 
 
 msgid "Coach notes"
-msgstr ""
+msgstr "Notas del entrenador"
 
 msgid "Include contact details (guardian email/phone)"
 msgstr ""
@@ -8309,13 +8309,13 @@ msgid "No scout reports yet."
 msgstr ""
 
 msgid "Recipient"
-msgstr ""
+msgstr "Destinatario"
 
 msgid "Audience"
 msgstr ""
 
 msgid "Sent"
-msgstr ""
+msgstr "Enviado"
 
 
 
@@ -8832,7 +8832,7 @@ msgid "Wizard"
 msgstr ""
 
 msgid "New evaluation"
-msgstr ""
+msgstr "Nueva evaluación"
 
 msgid "Wizard not found"
 msgstr ""
@@ -9294,13 +9294,13 @@ msgid "No open tasks. "
 msgstr ""
 
 msgid "See all"
-msgstr ""
+msgstr "Ver todo"
 
 msgid "Trials needing decision"
 msgstr ""
 
 msgid "Day"
-msgstr ""
+msgstr "Día"
 
 
 msgid "No open trial cases."
@@ -9613,10 +9613,10 @@ msgid "Manual + scheduled database backups. Lives in wp-admin."
 msgstr ""
 
 msgid "Max"
-msgstr ""
+msgstr "Máx"
 
 msgid "Min"
-msgstr ""
+msgstr "Mín"
 
 msgid "Min, max and step for evaluation ratings."
 msgstr ""
@@ -9973,7 +9973,7 @@ msgstr ""
 # #0028 — Conversational goals (thread primitive + goal adapter)
 
 msgid "Conversation"
-msgstr ""
+msgstr "Conversación"
 
 msgid "Your message"
 msgstr ""
@@ -9982,7 +9982,7 @@ msgid "Write a message…"
 msgstr ""
 
 msgid "Send"
-msgstr ""
+msgstr "Enviar"
 
 msgid "Sending…"
 msgstr ""
@@ -11568,7 +11568,7 @@ msgid "Tables"
 msgstr ""
 
 msgid "Feedback"
-msgstr ""
+msgstr "Comentarios"
 
 msgid "Overlays"
 msgstr ""
@@ -11862,7 +11862,7 @@ msgid "Pick image"
 msgstr ""
 
 msgid "Image"
-msgstr ""
+msgstr "Imagen"
 
 msgid "Will be added on save"
 msgstr ""
@@ -12015,13 +12015,13 @@ msgid "Link underline"
 msgstr ""
 
 msgid "Always"
-msgstr ""
+msgstr "Siempre"
 
 msgid "On hover only"
 msgstr ""
 
 msgid "Never"
-msgstr ""
+msgstr "Nunca"
 
 msgid "Functional roles"
 msgstr ""
@@ -12342,7 +12342,7 @@ msgid "Trial synthesis"
 msgstr ""
 
 msgid "Threads"
-msgstr ""
+msgstr "Hilos"
 
 msgid "Player timeline"
 msgstr ""
@@ -13023,7 +13023,7 @@ msgid "Notes — %s"
 msgstr ""
 
 msgid "Player notes"
-msgstr ""
+msgstr "Notas del jugador"
 
 msgid "Notes are staff-only"
 msgstr ""
@@ -13090,7 +13090,7 @@ msgid "Shared"
 msgstr ""
 
 msgid "Locked"
-msgstr ""
+msgstr "Bloqueado"
 
 msgid "Available players"
 msgstr ""
@@ -13796,7 +13796,7 @@ msgid "Season end (1 July)"
 msgstr ""
 
 msgid "Recipients"
-msgstr ""
+msgstr "Destinatarios"
 
 msgid "One per line — email addresses or WordPress role keys (e.g. tt_head_dev)."
 msgstr ""
@@ -14152,10 +14152,10 @@ msgstr ""
 # v3.110.9 — #0068 Phases 3 + 4: blueprint discussion thread + share-link
 
 msgid "Lineup"
-msgstr ""
+msgstr "Alineación"
 
 msgid "Comments"
-msgstr ""
+msgstr "Comentarios"
 
 msgid "Open share link"
 msgstr ""

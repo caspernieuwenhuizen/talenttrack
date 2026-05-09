@@ -1,6 +1,13 @@
+---
+status: shipped
+shipped_in: v3.110.34 — v3.110.38 (code-side); native-speaker review + remaining 67 docs are calendar-time follow-ups
+---
+
 <!-- type: feat -->
 
 # Multi-language support — French, German, Spanish (Spain)
+
+> **Closing note (v3.110.38)**: Code-side infrastructure is fully shipped. FR/DE/ES locale skeletons (~4613 msgids each), `tools/apply-translations.php` round-trip tool, three locale dictionaries (~330 entries each — first-pass machine translation by an LLM), `docs/translator-brief.md`, DEVOPS POT-regen checklist. **Calendar-time remaining**: native-speaker review of the ~4280 unfilled msgids per locale (~15-25h per language per spec sizing), and translation of the 67 English docs into FR/DE/ES (~30-60h per language per spec). Both run as parallel work streams against the shipped infrastructure; neither blocks any product feature shipping (empty msgstrs fall back to English at runtime, and doc viewers fall back to the EN file when the localised counterpart is missing). The spec moved to `specs/shipped/` because the engineering work is complete; "shipped" here means "operators can author translations against the ready infrastructure", not "every string is in every language".
 
 ## Problem
 
