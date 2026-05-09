@@ -5,6 +5,70 @@
 URL-gedragen "← Terug naar waar je vandaan kwam" navigatie, geleverd
 in v3.110.0.
 
+## Het contract — twee navigatie-affordances, niet meer en niet minder
+
+**Elke routeerbare frontend-view (alles bereikbaar via
+`?tt_view=<slug>`) emitteert exact TWEE navigatie-affordances en
+niets anders:**
+
+1. **Broodkruimketen** — de canonieke hiërarchie eindigend bij
+   `Dashboard`. Wordt gerenderd via
+   `\TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard()`
+   (of `::render([...])` voor ad-hoc-ketens). De eerste kruimel is
+   altijd `Dashboard` en linkt terug naar de persona-dashboard-root.
+2. **Contextuele "← Terug naar …" pill** — `tt_back`-gedragen,
+   automatisch gerenderd door `FrontendBreadcrumbs::render()` BOVEN
+   de keten wanneer het bezoek een terug-doel heeft vastgelegd.
+   Het label is contextueel via `BackLabelResolver::labelFor()`
+   (bijv. `← Terug naar Ajax O17`, `← Terug naar Jan de Vries`,
+   `← Terug naar Proefcase: Lucas Smit`). Wanneer er geen terug-doel
+   in de URL zit, rendert de pill simpelweg niet — dat is bewust:
+   de broodkruimketen is dan het enige pad naar huis en dat is
+   genoeg.
+
+**Een derde affordance is nooit toegestaan.** Specifiek:
+
+- ❌ Geen "← Terug naar dashboard"-knop.
+- ❌ Geen "← Terug naar <lijst>"-knop (bijv. "Terug naar Spelers",
+  "Terug naar Doelen"). De broodkruimketen heeft de ouder-kruimel;
+  klik daarop.
+- ❌ Geen "← Annuleren"-link die als terug-affordance fungeert.
+  Annuleer-knoppen in formulieren zijn prima, maar dat zijn
+  formulier-acties, geen navigatie.
+- ❌ Geen `FrontendBackButton`-klasse (verwijderd in v3.110.41) of
+  enig analoog.
+- ❌ Geen per-view terug-link die `tt_back` reset, een doel-URL
+  hardcodeert, of de keten + pill anderszins omzeilt.
+
+Als een eigen-label-terug-link nodig voelt, is het juiste antwoord
+om te zorgen dat de broodkruimketen de juiste tussenliggende kruimel
+heeft. De ouder-kruimel ÍS de terug-naar-lijst-affordance.
+
+### Waarom precies twee
+
+Pilot-operator legde de duplicatie bloot: views die zowel een
+expliciete "Terug naar dashboard"-knop als de broodkruimketen
+emitteerden, stapelden vier overbodige nav-rijen boven de paginatitel.
+Twee affordances zijn voldoende — de pill beantwoordt "waar kwam ik
+vandaan?", de broodkruim beantwoordt "waar zit ik in de hiërarchie?".
+Een derde toevoegen is ruis.
+
+### Bewust zonder keten (uitzonderingen)
+
+Dit zijn de enige views die zonder broodkruimketen mogen:
+
+- De dashboard-root zelf (`PersonaLandingRenderer`) — dat IS de
+  bestemming waar de "Dashboard"-kruimel naar verwijst.
+- Pre-login-flows (`AcceptanceView`, login-formulier) — er is nog
+  geen ingelogd dashboard om naartoe te ketenen.
+- Component-renderers, sub-views die in andere views worden
+  samengesteld, interne containers (`FrontendThreadView`,
+  `FrontendTeammateView`, `FrontendMyProfileView`,
+  `CoachDashboardView`, `PlayerDashboardView`).
+
+Voeg je een nieuwe view toe en is het er geen van deze, dan MOET
+hij de keten + pill emitteren.
+
 ## Waarom
 
 Broodkruimels tonen waar een record in de canonieke hiërarchie staat

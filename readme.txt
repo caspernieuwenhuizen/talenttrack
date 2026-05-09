@@ -4,13 +4,29 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.45
+Stable tag: 3.110.46
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.46 — Document the two-nav-affordance contract + close residual violations =
+
+The "exactly two navigation affordances per routable view" rule (breadcrumb chain + `tt_back`-borne pill, nothing else) was applied across the codebase in v3.110.41 and v3.110.45 but was not explicitly written down anywhere. New views or refactors had no documented standard to follow, so anti-patterns kept creeping back. This release codifies the contract and closes the residual violations the doc-and-sweep surfaced.
+
+**(1) `docs/back-navigation.md` and `docs/nl_NL/back-navigation.md`** gain an explicit "The contract — two nav affordances, no more, no less" section at the top stating the rule, listing what's forbidden (no "Back to dashboard" button, no "Back to <list>" button, no `FrontendBackButton` analogue, no per-view back-link that sidesteps the chain + pill) and naming the small set of exempt views (the dashboard root itself, pre-login flows, sub-views composed into other views).
+
+**(2) `CLAUDE.md`** gains a new always-on principle "§ 5 — Two nav affordances per view, no more, no less" that summarizes the rule and points at the back-navigation doc. The Definition-of-done checklist gains three new items: confirm `FrontendBreadcrumbs::fromDashboard()` is called on every code path including permission-denied early-returns, confirm no hardcoded back-affordances, confirm cross-entity links use `RecordLink::detailUrlForWithBack()` so the destination view's back-pill renders. The mandatory-reading-by-task-type table gains a row pointing frontend-nav PRs at the doc.
+
+**(3) Residual violations cleaned up:** 8 hardcoded `← Back to <X>` anchor tags removed across `FrontendPdpManageView` (3 instances: list / file / file), `FrontendTeamBlueprintsView` (3 instances: team picker / blueprints / lineup view — the latter was a heatmap toggle masquerading as a back link; relabeled to `Show lineup view`), `FrontendTeamChemistryView` (1 instance: team picker), and `FrontendPlayersManageView` legacy `?tt_view=players&player_id=N` deep-link route (replaced with proper breadcrumb chain).
+
+**(4) `FrontendBreadcrumbs::fromDashboardWithBack()` deleted** along with its `sameOriginReferer()` helper. The two callers (`FrontendMyActivitiesView`, `FrontendMyGoalsView`) migrated to plain `fromDashboard()`. The `tt_back`-borne URL-pill auto-rendered by `FrontendBreadcrumbs::render()` is the canonical "back to where I came from" mechanism — referer-based fallback was a v3.108.2 stopgap that survived too long. Documentation already noted the deprecation since v3.110.0; this release completes the cut-over.
+
+The wp-admin-side `BackButton` class (separate from the deleted frontend `FrontendBackButton`) is unchanged. Wp-admin uses a different navigation paradigm and is explicitly out of scope for the back-navigation contract per the doc's "What is NOT swept" section.
+
+Zero new translatable strings introduced; one msgid removed (`← Back`, only emitted by the deleted `fromDashboardWithBack` method).
 
 = 3.110.45 — Breadcrumb sweep: every routable frontend view now has a chain back to the dashboard =
 

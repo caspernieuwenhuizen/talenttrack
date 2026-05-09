@@ -107,21 +107,18 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
 
         $can_manage = current_user_can( 'tt_manage_team_chemistry' );
         $base_url   = remove_query_arg( [ 'team_id', 'id', 'action' ] );
-        $back_url   = add_query_arg( [ 'tt_view' => 'team-blueprints' ], $base_url );
 
-        echo '<p style="margin:0 0 16px; display:flex; gap:8px; flex-wrap:wrap;">';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $back_url ) . '">'
-            . esc_html__( '← Back to team picker', 'talenttrack' ) . '</a>';
         if ( $can_manage ) {
             $new_url = add_query_arg( [
                 'tt_view' => 'wizard',
                 'slug'    => 'new-team-blueprint',
                 'team_id' => (int) $team->id,
             ], RecordLink::dashboardUrl() );
+            echo '<p style="margin:0 0 16px;">';
             echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
                 . esc_html__( '+ New blueprint', 'talenttrack' ) . '</a>';
+            echo '</p>';
         }
-        echo '</p>';
 
         if ( empty( $rows ) ) {
             echo '<p><em>' . esc_html__( 'No blueprints yet for this team. Click "+ New blueprint" to start one.', 'talenttrack' ) . '</em></p>';
@@ -195,10 +192,6 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         ) );
 
         $base_url = remove_query_arg( [ 'id', 'team_id', 'action' ] );
-        $list_url = add_query_arg( [
-            'tt_view' => 'team-blueprints',
-            'team_id' => (int) $bp['team_id'],
-        ], $base_url );
 
         // #0068 Phase 3 — tabbed editor (Lineup | Comments). The
         // Comments tab is gated on `tt_view_team_chemistry` (every
@@ -206,20 +199,18 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         $tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : 'lineup';
         if ( $tab !== 'comments' ) $tab = 'lineup';
 
-        echo '<p style="margin:0 0 12px;">';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $list_url ) . '">'
-            . esc_html__( '← Back to blueprints', 'talenttrack' ) . '</a>';
         if ( $is_squad && $tab === 'lineup' ) {
             $toggle_url = $heatmap
                 ? remove_query_arg( 'heatmap' )
                 : add_query_arg( 'heatmap', '1' );
             $toggle_label = $heatmap
-                ? __( '← Back to lineup view', 'talenttrack' )
+                ? __( 'Show lineup view', 'talenttrack' )
                 : __( 'Show coverage heatmap', 'talenttrack' );
-            echo ' <a class="tt-btn tt-btn-secondary" href="' . esc_url( $toggle_url ) . '">'
+            echo '<p style="margin:0 0 12px;">';
+            echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $toggle_url ) . '">'
                 . esc_html( $toggle_label ) . '</a>';
+            echo '</p>';
         }
-        echo '</p>';
 
         // Tab nav.
         $editor_url   = add_query_arg( [ 'tt_view' => 'team-blueprints', 'id' => (int) $bp['id'] ], $base_url );
