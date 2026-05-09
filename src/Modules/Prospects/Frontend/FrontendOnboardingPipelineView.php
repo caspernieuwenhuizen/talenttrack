@@ -33,6 +33,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             return;
         }
         self::enqueueAssets();
+        self::enqueueProspectLogScript();
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Onboarding pipeline', 'talenttrack' ) );
         self::renderHeader( __( 'Onboarding pipeline', 'talenttrack' ) );
 
@@ -41,15 +42,39 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         $ctx    = new RenderContext( $user_id, CurrentClub::id(), '', home_url( '/' ) );
         echo $widget->render( $slot, $ctx );
 
-        // CTA: log a new prospect — fires the chain via REST.
+        // CTA: log a new prospect — POSTs to the REST endpoint via JS,
+        // which dispatches the LogProspect chain and redirects the
+        // scout into the resulting task form.
         ?>
         <p style="margin-top: 18px;">
-            <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( rest_url( 'talenttrack/v1/prospects/log' ) ); ?>"
-               data-tt-prospect-log
-               style="display:inline-block;">
+            <button type="button" class="tt-btn tt-btn-primary"
+                    data-tt-prospect-log
+                    style="display:inline-block; min-height:48px;">
                 <?php esc_html_e( '+ New prospect', 'talenttrack' ); ?>
-            </a>
+            </button>
         </p>
         <?php
+    }
+
+    private static function enqueueProspectLogScript(): void {
+        wp_enqueue_script(
+            'tt-frontend-prospects-log',
+            TT_PLUGIN_URL . 'assets/js/frontend-prospects-log.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script(
+            'tt-frontend-prospects-log',
+            'TT_PROSPECT_LOG',
+            [
+                'rest_url' => esc_url_raw( rest_url( 'talenttrack/v1/prospects/log' ) ),
+                'nonce'    => wp_create_nonce( 'wp_rest' ),
+                'i18n'     => [
+                    'error'   => __( 'Could not start the prospect-logging flow. Please try again.', 'talenttrack' ),
+                    'network' => __( 'Network error. Please try again.', 'talenttrack' ),
+                ],
+            ]
+        );
     }
 }
