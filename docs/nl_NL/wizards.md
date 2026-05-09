@@ -54,7 +54,7 @@ De wizard maakt het doel direct aan. Heb je in stap 2 een link gekozen, dan word
 
 Beheerders gaan naar **Beheer → Wizards**. Iedere geregistreerde wizard staat als aanvinkbaar kaartje op de pagina, met label en slug; de hoofd-vink **Alle wizards inschakelen** bovenaan zet ze allemaal aan of uit in één klik. Klik onderaan op opslaan — er hoeft niets getypt te worden.
 
-Beschikbare slugs: `new-player`, `new-team`, `new-evaluation`, `new-goal`, `new-activity`.
+Beschikbare slugs: `new-player`, `new-team`, `new-evaluation`, `new-goal`, `new-activity`, `new-person`, `new-team-blueprint`, `new-prospect`.
 
 De `new-activity`-wizard voegt een vijfde flow toe: kies een team → kies type en status → vul datum, titel, locatie en notities in (plus de voorwaardelijke game-subtype- of overig-label-velden) → controleer → aanmaken. De "+ Nieuwe activiteit"-knop op de frontend-activiteitenpagina routeert via `WizardEntryPoint::urlFor()`; zet je `new-activity` op uit, dan landt de gebruiker weer op het oude single-page-formulier. De wizard biedt naast Annuleren ook een **Opslaan als concept**-knop: bij een klik wordt een activiteit met status `draft` aangemaakt die verborgen blijft in de gebruikersdropdowns en later vanuit de activiteitenlijst kan worden afgemaakt.
 

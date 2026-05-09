@@ -93,13 +93,28 @@ class OnboardingPipelineWidget extends AbstractWidget {
     }
 
     /**
-     * Run the per-stage counts. One pivot per stage; cached for 60s
-     * via WP object cache to keep the widget light on busy dashboards.
+     * Run the per-stage counts.
+     *
+     * v3.110.48 rewrite — counts are now `COUNT(DISTINCT prospect_id)`
+     * driven, classifying every prospect into exactly one stage per
+     * the same rules `FrontendOnboardingPipelineView::classifyProspect()`
+     * applies to the kanban. Previously the widget summed task rows
+     * across templates, so a single prospect with both an `invite_to_test_training`
+     * task open AND a `confirm_test_training` task open simultaneously
+     * (or any chain blip that left two tasks alive at once) showed as
+     * 2 in the Invited column. Counts now match what the user actually
+     * sees on the kanban.
+     *
+     * Trial group counts prospects with `promoted_to_trial_case_id`
+     * set rather than every `tt_trial_cases` row — the original "every
+     * trial case" count conflated the two lifecycles (some trial cases
+     * never came from a prospect) and confused operators looking at
+     * the funnel as a recruitment view.
      *
      * Scope filter: a scout sees only their own prospects; everyone
-     * else with the cap sees the full club view. The filter is applied
-     * at the SQL layer so a scout literally cannot see the HoD's
-     * wider data.
+     * else with the cap sees the full club view.
+     *
+     * Cached for 60s via WP object cache.
      *
      * @return list<array{key:string,label:string,count:int,stale:int}>
      */
@@ -109,112 +124,88 @@ class OnboardingPipelineWidget extends AbstractWidget {
         if ( is_array( $cached ) ) return $cached;
 
         $scout_only = self::isScoutOnly( $user_id );
-        $stale_cutoff = gmdate( 'Y-m-d H:i:s', time() - 30 * DAY_IN_SECONDS );
+        $stale_cutoff = time() - 30 * DAY_IN_SECONDS;
+        $joined_cutoff = time() - 90 * DAY_IN_SECONDS;
 
         global $wpdb;
         $prospects = $wpdb->prefix . 'tt_prospects';
         $tasks     = $wpdb->prefix . 'tt_workflow_tasks';
-        $cases     = $wpdb->prefix . 'tt_trial_cases';
-        $players   = $wpdb->prefix . 'tt_players';
 
-        $scout_pred_prospect = $scout_only
-            ? $wpdb->prepare( ' AND pr.discovered_by_user_id = %d', $user_id )
+        $where_scout = $scout_only
+            ? $wpdb->prepare( ' AND p.discovered_by_user_id = %d', $user_id )
             : '';
-        $scout_pred_task = ''; // tasks themselves don't carry the scout id; relies on the prospect-id join
 
-        $count_open_for_template = function ( string $template_key ) use ( $wpdb, $tasks, $prospects, $club_id, $scout_only, $user_id, $stale_cutoff ) {
-            if ( $scout_only ) {
-                $count = (int) $wpdb->get_var( $wpdb->prepare(
-                    "SELECT COUNT(*) FROM {$tasks} wt
-                       JOIN {$prospects} pr ON pr.id = wt.prospect_id
-                      WHERE wt.club_id = %d AND wt.template_key = %s
-                        AND wt.status IN ('open','in_progress','overdue')
-                        AND pr.discovered_by_user_id = %d",
-                    $club_id, $template_key, $user_id
-                ) );
-                $stale = (int) $wpdb->get_var( $wpdb->prepare(
-                    "SELECT COUNT(*) FROM {$tasks} wt
-                       JOIN {$prospects} pr ON pr.id = wt.prospect_id
-                      WHERE wt.club_id = %d AND wt.template_key = %s
-                        AND wt.status IN ('open','in_progress','overdue')
-                        AND wt.due_at < %s
-                        AND pr.discovered_by_user_id = %d",
-                    $club_id, $template_key, $stale_cutoff, $user_id
-                ) );
-            } else {
-                $count = (int) $wpdb->get_var( $wpdb->prepare(
-                    "SELECT COUNT(*) FROM {$tasks}
-                      WHERE club_id = %d AND template_key = %s
-                        AND status IN ('open','in_progress','overdue')",
-                    $club_id, $template_key
-                ) );
-                $stale = (int) $wpdb->get_var( $wpdb->prepare(
-                    "SELECT COUNT(*) FROM {$tasks}
-                      WHERE club_id = %d AND template_key = %s
-                        AND status IN ('open','in_progress','overdue')
-                        AND due_at < %s",
-                    $club_id, $template_key, $stale_cutoff
-                ) );
-            }
-            return [ 'count' => $count, 'stale' => $stale ];
-        };
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT
+                p.id,
+                p.promoted_to_player_id,
+                p.promoted_to_trial_case_id,
+                p.created_at,
+                MAX(CASE WHEN wt.template_key = 'log_prospect'                 AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_log,
+                MAX(CASE WHEN wt.template_key = 'invite_to_test_training'      AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_invite,
+                MAX(CASE WHEN wt.template_key = 'confirm_test_training'        AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_confirm,
+                MAX(CASE WHEN wt.template_key = 'record_test_training_outcome' AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_outcome,
+                MAX(CASE WHEN wt.template_key = 'await_team_offer_decision'    AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_offer,
+                MIN(CASE WHEN wt.status IN ('open','in_progress','overdue') THEN UNIX_TIMESTAMP(wt.due_at) ELSE NULL END) AS soonest_due_ts
+              FROM {$prospects} p
+              LEFT JOIN {$tasks} wt ON wt.prospect_id = p.id AND wt.club_id = %d
+             WHERE p.club_id = %d
+               AND p.archived_at IS NULL
+               {$where_scout}
+             GROUP BY p.id",
+            $club_id, $club_id
+        ) );
+        if ( ! is_array( $rows ) ) $rows = [];
 
-        // Prospects column — open LogProspect tasks (drafts).
-        $col_prospects = $count_open_for_template( 'log_prospect' );
-
-        // Invited column — open InviteToTestTraining + ConfirmTestTraining.
-        $col_invited_a = $count_open_for_template( 'invite_to_test_training' );
-        $col_invited_b = $count_open_for_template( 'confirm_test_training' );
-        $col_invited = [
-            'count' => $col_invited_a['count'] + $col_invited_b['count'],
-            'stale' => $col_invited_a['stale'] + $col_invited_b['stale'],
+        $tally = [
+            'prospects' => [ 'count' => 0, 'stale' => 0 ],
+            'invited'   => [ 'count' => 0, 'stale' => 0 ],
+            'test'      => [ 'count' => 0, 'stale' => 0 ],
+            'trial'     => [ 'count' => 0, 'stale' => 0 ],
+            'offer'     => [ 'count' => 0, 'stale' => 0 ],
+            'joined'    => [ 'count' => 0, 'stale' => 0 ],
         ];
 
-        // Test Training column — open RecordTestTrainingOutcome tasks.
-        $col_test = $count_open_for_template( 'record_test_training_outcome' );
-
-        // Trial Group column — trial cases with continue_in_trial_group
-        // decision (or null after admit but pre-review). Stale = open
-        // ReviewTrialGroupMembership tasks past due.
-        $tg_count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(DISTINCT player_id) FROM {$cases}
-              WHERE club_id = %d AND archived_at IS NULL
-                AND ( decision = %s OR decision IS NULL )",
-            $club_id, 'continue_in_trial_group'
-        ) );
-        $tg_stale = $count_open_for_template( 'review_trial_group_membership' )['stale'];
-        $col_trial = [ 'count' => $tg_count, 'stale' => $tg_stale ];
-
-        // Team Offer column — open AwaitTeamOfferDecision tasks.
-        $col_offer = $count_open_for_template( 'await_team_offer_decision' );
-
-        // Joined column — players promoted from a prospect within last 90d.
-        $joined_cutoff = gmdate( 'Y-m-d H:i:s', time() - 90 * DAY_IN_SECONDS );
-        if ( $scout_only ) {
-            $joined_count = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$prospects} pr
-                  WHERE pr.club_id = %d AND pr.promoted_to_player_id IS NOT NULL
-                    AND pr.created_at >= %s
-                    AND pr.discovered_by_user_id = %d",
-                $club_id, $joined_cutoff, $user_id
-            ) );
-        } else {
-            $joined_count = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$prospects}
-                  WHERE club_id = %d AND promoted_to_player_id IS NOT NULL
-                    AND created_at >= %s",
-                $club_id, $joined_cutoff
-            ) );
+        foreach ( $rows as $row ) {
+            // Joined: in the trailing 90-day window.
+            if ( ! empty( $row->promoted_to_player_id ) ) {
+                $created = strtotime( (string) ( $row->created_at ?? '' ) );
+                if ( $created !== false && $created >= $joined_cutoff ) $tally['joined']['count']++;
+                continue;
+            }
+            if ( ! empty( $row->open_offer ) ) {
+                $tally['offer']['count']++;
+                if ( ! empty( $row->soonest_due_ts ) && (int) $row->soonest_due_ts < $stale_cutoff ) $tally['offer']['stale']++;
+                continue;
+            }
+            if ( ! empty( $row->promoted_to_trial_case_id ) ) {
+                $tally['trial']['count']++;
+                continue;
+            }
+            if ( ! empty( $row->open_outcome ) ) {
+                $tally['test']['count']++;
+                if ( ! empty( $row->soonest_due_ts ) && (int) $row->soonest_due_ts < $stale_cutoff ) $tally['test']['stale']++;
+                continue;
+            }
+            if ( ! empty( $row->open_invite ) || ! empty( $row->open_confirm ) ) {
+                $tally['invited']['count']++;
+                if ( ! empty( $row->soonest_due_ts ) && (int) $row->soonest_due_ts < $stale_cutoff ) $tally['invited']['stale']++;
+                continue;
+            }
+            // No open task and not promoted → still in Prospects.
+            $tally['prospects']['count']++;
+            if ( ! empty( $row->open_log ) && ! empty( $row->soonest_due_ts ) && (int) $row->soonest_due_ts < $stale_cutoff ) {
+                $tally['prospects']['stale']++;
+            }
         }
-        $col_joined = [ 'count' => $joined_count, 'stale' => 0 ];
 
         $stages = [
-            [ 'key' => 'prospects', 'label' => __( 'Prospects',     'talenttrack' ), 'count' => $col_prospects['count'], 'stale' => $col_prospects['stale'] ],
-            [ 'key' => 'invited',   'label' => __( 'Invited',       'talenttrack' ), 'count' => $col_invited['count'],   'stale' => $col_invited['stale']   ],
-            [ 'key' => 'test',      'label' => __( 'Test training', 'talenttrack' ), 'count' => $col_test['count'],      'stale' => $col_test['stale']      ],
-            [ 'key' => 'trial',     'label' => __( 'Trial group',   'talenttrack' ), 'count' => $col_trial['count'],     'stale' => $col_trial['stale']     ],
-            [ 'key' => 'offer',     'label' => __( 'Team offer',    'talenttrack' ), 'count' => $col_offer['count'],     'stale' => $col_offer['stale']     ],
-            [ 'key' => 'joined',    'label' => __( 'Joined',        'talenttrack' ), 'count' => $col_joined['count'],    'stale' => $col_joined['stale']    ],
+            [ 'key' => 'prospects', 'label' => __( 'Prospects',     'talenttrack' ), 'count' => $tally['prospects']['count'], 'stale' => $tally['prospects']['stale'] ],
+            [ 'key' => 'invited',   'label' => __( 'Invited',       'talenttrack' ), 'count' => $tally['invited']['count'],   'stale' => $tally['invited']['stale']   ],
+            [ 'key' => 'test',      'label' => __( 'Test training', 'talenttrack' ), 'count' => $tally['test']['count'],      'stale' => $tally['test']['stale']      ],
+            [ 'key' => 'trial',     'label' => __( 'Trial group',   'talenttrack' ), 'count' => $tally['trial']['count'],     'stale' => $tally['trial']['stale']     ],
+            [ 'key' => 'offer',     'label' => __( 'Team offer',    'talenttrack' ), 'count' => $tally['offer']['count'],     'stale' => $tally['offer']['stale']     ],
+            [ 'key' => 'joined',    'label' => __( 'Joined',        'talenttrack' ), 'count' => $tally['joined']['count'],    'stale' => $tally['joined']['stale']    ],
         ];
 
         wp_cache_set( $cache_key, $stages, 'tt_persona_dashboard', 60 );
