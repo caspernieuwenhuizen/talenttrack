@@ -1,3 +1,73 @@
+# TalentTrack v3.110.30 — Drop the legacy `tt_lookups.translations` JSON column (#0090 Phase 6)
+
+Sixth phase of #0090 (data-row internationalisation). The legacy `tt_lookups.translations` JSON column — added in v3.6.0 (migration 0014) and superseded by `tt_translations` in Phase 2 — is dropped. Every value the column ever held is preserved in `tt_translations`.
+
+## What landed
+
+### Migration `0086_backfill_lookup_translations_gettext`
+
+Phase 2's migration 0082 backfilled `tt_translations` from the JSON column only. Lookups whose Dutch translation existed solely in `nl_NL.po` (no JSON entry) were missed. This second-pass migration catches them: walks every `tt_lookups` row, calls `__($name, 'talenttrack')` and `__($description, 'talenttrack')`, `INSERT IGNORE`s a `nl_NL` row whenever gettext returns a different string.
+
+Same shape as the Phase 3 + 4 backfills (migrations 0084 + 0085). Idempotent against the unique `(club_id, entity_type, entity_id, field, locale)` index — operator-edited rows from Phase 5's seed-review tab survive untouched.
+
+### Migration `0087_drop_lookup_translations_column`
+
+Performs the schema change:
+
+```sql
+ALTER TABLE tt_lookups DROP COLUMN translations
+```
+
+Defensive — `SHOW COLUMNS … LIKE 'translations'` short-circuits the migration if the column already vanished (fresh install, partial rollback). Idempotent.
+
+### `LookupTranslator` trims down
+
+Resolution chain becomes:
+
+1. `tt_translations(requested locale)` → `tt_translations(en_US)` (via `TranslationsRepository::translate()`)
+2. `__( $raw, 'talenttrack' )` — vestigial gettext path; fires only when migration 0086 hasn't run yet, or for brand-new lookup rows whose translations weren't authored
+3. `$raw` — canonical column on `tt_lookups`, immovable backstop
+
+Also removed (no longer used anywhere):
+- `LookupTranslator::decode()` — JSON column decoder
+- `LookupTranslator::encode()` — JSON column encoder
+- `LookupTranslator::storedForCurrentLocale()` — JSON column locale picker
+
+The class is ~50 lines smaller and one resolution step shorter.
+
+### `ConfigurationPage::handle_save_lookup()` — stop writing to the JSON column
+
+The legacy `$data['translations'] = LookupTranslator::encode( $clean_i18n )` line is gone. After migration 0087 runs, that column doesn't exist; the line would have fataled the save. The Phase 2 `TranslationsRepository::upsert()` / `delete()` block remains the canonical write path.
+
+### `ConfigurationPage::renderTranslationsSection()` — reshape, don't decode
+
+Form pre-fill now reads existing translations from `TranslationsRepository::allFor()` (which returns `field → locale → value`) and reshapes locally to the legacy `locale → [name, description]` shape the existing form template already consumes:
+
+```php
+foreach ( $by_field_locale as $field => $by_locale ) {
+    foreach ( $by_locale as $locale => $value ) {
+        $translations[ $locale ][ $field ] = $value;
+    }
+}
+```
+
+Zero markup change — operators see the same edit form they always have.
+
+## What's NOT in this PR
+
+- **Phase 7** — register FR/DE/ES in `REGISTERED_LOCALES` (the export/import gain those columns automatically; the Translations tab gets new locale rows).
+- **Phase 8** — `docs/i18n-architecture.md` (EN+NL) + spec close + optional `nl_NL.po` msgid pruning of the migrated entities.
+
+## Translations
+
+Zero new NL msgids — code-side cleanup. Existing translations continue to flow through `tt_translations` as written by Phases 2-5.
+
+## Notes
+
+The legacy column drop is irreversible at the schema level, but `tt_translations` is the immovable replacement — the same data lives in a more queryable shape, with cache invalidation and per-club tenancy already wired. Reverting Phase 6 would mean recreating the column and replaying the JSON encoding from `tt_translations`; `LookupTranslator::encode()` is gone but trivial to restore from git history if ever needed.
+
+---
+
 # TalentTrack v3.110.29 — Seed-review Excel: per-locale columns become editable (#0090 Phase 5)
 
 Fifth phase of #0090 (data-row internationalisation). The seed-review Excel exporter (originally shipped under #0089) gets first-class editable per-locale columns; the importer routes those edits into `tt_translations` instead of the source table. The four migrated entities — lookups, eval categories, roles, functional roles — all expose translation columns dynamically.

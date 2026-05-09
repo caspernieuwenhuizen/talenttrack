@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.29
+Stable tag: 3.110.30
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.30 — Drop the legacy `tt_lookups.translations` JSON column (#0090 Phase 6) =
+
+Sixth phase of #0090 (data-row internationalisation). The legacy `tt_lookups.translations` JSON column — added in v3.6.0 (migration 0014) and superseded by `tt_translations` in Phase 2 — is dropped. Every value the column ever held is preserved in `tt_translations`. **(1) Migration `0086_backfill_lookup_translations_gettext`** catches the .po-only lookup rows that Phase 2's migration 0082 missed (rows with no JSON entry whose Dutch came purely from `nl_NL.po`). Walks every `tt_lookups` row, calls `__($name, 'talenttrack')` + `__($description, 'talenttrack')`, INSERT IGNOREs a `nl_NL` row whenever gettext returns a different string. Same shape as 0084 (eval categories) and 0085 (roles + functional roles). Idempotent. **(2) Migration `0087_drop_lookup_translations_column`** does the actual `ALTER TABLE … DROP COLUMN translations`. Defensive: no-op when the column doesn't exist. **(3) `LookupTranslator`** trims down — the JSON-column-decode fallback step is gone. Resolution chain becomes `tt_translations(requested locale) → tt_translations(en_US) → __( $raw, 'talenttrack' ) → $raw`. Also removed: the now-unused `decode()`, `encode()`, and `storedForCurrentLocale()` helpers + their wrapper. The class is ~50 lines smaller. **(4) `ConfigurationPage::handle_save_lookup()`** stops writing to the legacy column (which would've fataled after migration 0087). The Phase 2 `TranslationsRepository::upsert()` / `delete()` block remains the canonical write path. **(5) `ConfigurationPage::renderTranslationsSection()`** now reads existing translations from `TranslationsRepository::allFor()` (`field → locale → value`) and reshapes to the legacy `locale → [name, description]` shape the existing form template already consumes — zero markup change. **What's NOT in this PR**: Phase 7 (register FR/DE/ES), Phase 8 (`docs/i18n-architecture.md` + spec close + optional `nl_NL.po` msgid pruning). Zero new NL msgids — code-side cleanup only.
 
 = 3.110.29 — Seed-review Excel: per-locale columns become editable (#0090 Phase 5) =
 
