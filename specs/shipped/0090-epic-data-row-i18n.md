@@ -1,9 +1,9 @@
 ---
 id: 0090
 type: epic
-status: ready
+status: shipped
 title: Data-row i18n — centralized tt_translations table for translatable seed + operator-authored data
-shipped_in: ~
+shipped_in: v3.110.20 — v3.110.32
 ---
 
 # 0090 — Data-row i18n

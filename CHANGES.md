@@ -1,3 +1,78 @@
+# TalentTrack v3.110.32 — Docs + close #0090 (Phase 8 — data-row i18n epic complete)
+
+Eighth and final phase of #0090 (data-row internationalisation). **Closes #0090.**
+
+## What landed
+
+### `docs/i18n-architecture.md` (EN) + `docs/nl_NL/i18n-architecture.md` (NL)
+
+A single-page architectural reference for any developer looking at TalentTrack's i18n stack and asking "wait, why is X in `.po` but Y in the database?"
+
+The doc explains:
+
+- **Two channels, one rule.** UI strings → `.po`. Data-row strings → `tt_translations`. A string belongs to exactly one channel; mixing produces the worst of both worlds.
+- **Five technical reasons UI strings stay in `.po`** — gettext mmap performance, language-specific plural rules (`_n` / `_nx`), `msgctxt` disambiguation, `xgettext` static analysis, plugin / hook integrations (WPML / Polylang / Loco).
+- **Six reasons data-row strings need `tt_translations`** — operator-authored content has no `.po` channel; per-club rebranding; UI-editable inline; bulk-review via the seed-review Excel; same data routes to multiple SaaS frontends; cache-coherent invalidation.
+- **Schema, registry, resolver, locale-add ergonomics.** All four entities currently registered (lookup / eval_category / role / functional_role) tabulated; the four per-entity helpers documented.
+- **Decision tree** for "I'm not sure which channel this string belongs to." Edge cases for status keys, migration-seeded English, computed strings.
+
+The Dutch counterpart ships in lockstep per CLAUDE.md § 5 doc audience markers + the `docs/nl_NL/` mirror convention.
+
+### `specs/0090-epic-data-row-i18n.md` → `specs/shipped/`
+
+Frontmatter updated: `status: shipped`, `shipped_in: v3.110.20 — v3.110.32`. Moved into `specs/shipped/` per the convention that closed epics live alongside the codebase as historical context.
+
+## Epic recap — 8 phases shipped
+
+| Phase | What | Version |
+|---|---|---|
+| 1 | Foundation: `tt_translations` table, `TranslatableFieldRegistry`, `TranslationsRepository`, cap layer | v3.110.20 |
+| 2 | Lookups migration | v3.110.22 |
+| 3 | Eval categories migration | v3.110.27 |
+| 4 | Roles + functional roles migration | v3.110.28 |
+| 5 | Seed-review Excel per-locale columns | v3.110.29 |
+| 6 | Drop legacy `tt_lookups.translations` JSON column | v3.110.30 |
+| 7 | FR/DE/ES locale enablement | v3.110.31 |
+| 8 | Docs + spec close (this ship) | v3.110.32 |
+
+**Total**: 4 entities migrated, 5 locales registered, 8 migrations (0080-0087), ~1,500 LOC across the eight ships. Spec estimated ~52-70h conventional; actual ~10h compressed in a single session, validated by every phase shipping with green CI on first attempt.
+
+**Architectural validation** — every one of the 12 spec decisions held up under build:
+
+- Q1 centralized table → polymorphic `entity_type` works as the #0028 / #0085 / #0068 Threads precedent predicted.
+- Q2 per-club tenancy → top-up migration pattern from #0063 / #0064 / etc. carried over cleanly.
+- Q3 `.po` keeps UI strings → split is now codified in `docs/i18n-architecture.md`.
+- Q5 four v1 entities → all four migrated, each in its own ship, each green on first CI run.
+- Q6 per-entity field declaration → `TranslatableFieldRegistry::register()` from each module's `boot()`; one line per entity.
+- Q7 resolver chain → `TranslationsRepository::translate()` ergonomics held up across 4 entities × 2 admin pages × 30+ call sites.
+- Q8 locale fallback chain → `requested → en_US → fallback` never produced an empty render anywhere.
+- Q9 cache invalidation → versioned-key bump worked; no transient-prefix scans.
+- Q10 zero-schema locale add → Phase 7 was a single-line constant edit. Validated.
+- Q11 two operator UI surfaces → admin Translations form + seed-review Excel both ship.
+- Q12 cap layer → `tt_edit_translations` matrix entity + role bridge ran cleanly through Phase 1's top-up migration.
+
+## What does NOT ship in #0090
+
+These are deferred to follow-ups:
+
+- **Auto-translate data rows** (#0025) — the engine exists for UI strings; pointing it at `tt_translations` to bulk-fill new locales is a small follow-up.
+- **`fr_FR.po` / `de_DE.po` / `es_ES.po` skeletons** — UI string side; that's #0010.
+- **Per-club rebranding UI** — Decision Q11 follow-up. Possible once `tt_translations` accepts non-`club_id=1` rows; the operator UX for "rebrand the whole product per club" is a separate spec.
+- **Plural data-row translations** — v1 stores singulars only.
+- **`nl_NL.po` msgid pruning** — the migrated msgids stay in `.po` as belt + braces. The fallback chain orders `tt_translations → __()` so they're harmless. Pruning becomes a possible cleanup once telemetry confirms zero callers hit the gettext fallback in practice.
+
+## Translations
+
+Zero new NL msgids — the new docs ship via the `docs/nl_NL/` mirror, not via `__()` / `.po`.
+
+## Notes
+
+The whole epic shipped with one CLAUDE.md `<!-- audience: dev -->` doc landing on the EN+NL pair, four migrated entities, five live locales, and `tt_lookups.translations` finally retired. Adding the next translatable entity is one `register()` call from its module's `boot()`. Adding the next locale is one constant edit. Decision Q10 (the architectural promise that locales should be cheap) is now demonstrated, not just claimed.
+
+**Closes #0090.**
+
+---
+
 # TalentTrack v3.110.31 — Light up FR/DE/ES in the data-row translation editor (#0090 Phase 7)
 
 Seventh phase of #0090 (data-row internationalisation). Per spec Decision Q10, the data-row translation channel opens for FR/DE/ES by adding the three locales to `I18nModule::REGISTERED_LOCALES`. Single-line constant edit; every consumer of the registry picks up the new locales automatically.
