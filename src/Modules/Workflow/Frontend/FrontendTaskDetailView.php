@@ -6,7 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\TaskStatus;
 use TT\Modules\Workflow\WorkflowModule;
-use TT\Shared\Frontend\FrontendBackButton;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**

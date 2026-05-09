@@ -9,7 +9,6 @@ use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
 use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
-use TT\Shared\Frontend\FrontendBackButton;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**

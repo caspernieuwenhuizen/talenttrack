@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Journey\EventTypeRegistry;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
-use TT\Shared\Frontend\FrontendBackButton;
 
 /**
  * FrontendCohortTransitionsView — HoD-facing cohort query.

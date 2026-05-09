@@ -8,7 +8,6 @@ use TT\Infrastructure\Journey\EventTypeRegistry;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
-use TT\Shared\Frontend\FrontendBackButton;
 
 /**
  * FrontendJourneyView — chronological journey for one player.

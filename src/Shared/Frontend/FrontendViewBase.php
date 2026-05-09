@@ -10,13 +10,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Each sub-view class (FrontendOverviewView, FrontendMyTeamView, …)
  * extends this to get:
  *
- *   - A page header with optional title + back button
+ *   - A page header with optional title + breadcrumb chain
  *   - Asset enqueueing (player-card CSS + mobile CSS, once per request)
  *   - Consistent wrap styling
  *
  * Sub-views don't render a tab bar — they're each one focused page.
- * The back button at the top returns to the tile landing page via
- * FrontendBackButton.
+ * Navigation is the breadcrumb chain (FrontendBreadcrumbs::fromDashboard)
+ * plus the tt_back-borne pill the breadcrumb component auto-renders
+ * above it. See docs/back-navigation.md.
  */
 abstract class FrontendViewBase {
 
@@ -83,10 +84,12 @@ abstract class FrontendViewBase {
     }
 
     /**
-     * Sub-views override this to declare a breadcrumb chain (#0077 F2).
-     * Each item: `[ 'label' => string, 'url' => ?string ]`. The last
-     * item is the current page and gets no link. List views return `[]`
-     * (default) so they keep using the standalone back button.
+     * Sub-views override this to declare a static breadcrumb chain
+     * (#0077 F2). Each item: `[ 'label' => string, 'url' => ?string ]`.
+     * The last item is the current page and gets no link. Empty array
+     * (default) means renderHeader() emits no breadcrumbs — the view
+     * is expected to call FrontendBreadcrumbs::fromDashboard() itself
+     * before calling renderHeader() (the dynamic-chain pattern).
      *
      * @return array<int,array{label:string,url?:?string}>
      */

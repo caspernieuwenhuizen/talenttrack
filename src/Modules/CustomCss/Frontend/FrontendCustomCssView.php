@@ -11,7 +11,6 @@ use TT\Modules\CustomCss\Sanitizer\CssSanitizer;
 use TT\Modules\CustomCss\Templates\StarterTemplates;
 use TT\Modules\CustomCss\VisualEditor;
 use TT\Shared\Frontend\BrandFonts;
-use TT\Shared\Frontend\FrontendBackButton;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
