@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Authorization\AuthorizationRepository;
 use TT\Infrastructure\Authorization\FunctionalRolesRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\I18n\TranslatableFieldRegistry;
+use TT\Modules\I18n\TranslationsRepository;
 
 /**
  * FunctionalRolesPage — admin UI at TalentTrack → Functional Roles.
@@ -92,7 +94,7 @@ class FunctionalRolesPage {
                     $mapped     = $repo->getAuthRolesForFunctionalRole( (int) $r->id );
                     ?>
                     <tr>
-                        <td><strong><a href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( self::roleLabel( (string) $r->role_key ) ); ?></a></strong></td>
+                        <td><strong><a href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( self::roleLabel( (string) $r->role_key, (int) $r->id ) ); ?></a></strong></td>
                         <td><code><?php echo esc_html( (string) $r->role_key ); ?></code></td>
                         <td><?php echo esc_html( self::roleDescription( (string) $r->role_key ) ); ?></td>
                         <td>
@@ -147,7 +149,7 @@ class FunctionalRolesPage {
         ?>
         <div class="wrap">
             <h1>
-                <?php echo esc_html( self::roleLabel( (string) $role->role_key ) ); ?>
+                <?php echo esc_html( self::roleLabel( (string) $role->role_key, (int) $role->id ) ); ?>
                 <code style="font-size:14px;color:#666;font-weight:normal;"><?php echo esc_html( (string) $role->role_key ); ?></code>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-functional-roles' ) ); ?>" class="page-title-action">
                     <?php esc_html_e( '← Back to all functional roles', 'talenttrack' ); ?>
@@ -297,7 +299,20 @@ class FunctionalRolesPage {
      * is seeded in English as a stable identifier; UI uses this method for
      * localized display. Matches the pattern from RolesPage::roleLabel().
      */
-    public static function roleLabel( string $role_key ): string {
+    public static function roleLabel( string $role_key, ?int $entity_id = null ): string {
+        // #0090 Phase 4 — when the caller passes the row id, consult
+        // tt_translations first. Resolver chain becomes:
+        //   tt_translations → __() switch → humanised-key fallback.
+        if ( $entity_id !== null && $entity_id > 0 ) {
+            $tx = ( new TranslationsRepository() )->translate(
+                TranslatableFieldRegistry::ENTITY_FUNCTIONAL_ROLE,
+                $entity_id,
+                'label',
+                self::currentLocale(),
+                ''
+            );
+            if ( $tx !== '' ) return $tx;
+        }
         switch ( $role_key ) {
             case 'head_coach':      return __( 'Head Coach', 'talenttrack' );
             case 'assistant_coach': return __( 'Assistant Coach', 'talenttrack' );
@@ -307,6 +322,12 @@ class FunctionalRolesPage {
         }
         // Fallback for any custom functional roles added via future UI.
         return ucwords( str_replace( '_', ' ', $role_key ) );
+    }
+
+    private static function currentLocale(): string {
+        if ( function_exists( 'determine_locale' ) ) return (string) determine_locale();
+        if ( function_exists( 'get_locale' ) ) return (string) get_locale();
+        return 'en_US';
     }
 
     public static function roleDescription( string $role_key ): string {

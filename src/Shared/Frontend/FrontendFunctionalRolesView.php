@@ -84,7 +84,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
 
         if ( $tab === 'types' && $id > 0 ) {
             $role = ( new FunctionalRolesRepository() )->findRole( $id );
-            $role_label = $role ? ( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $role->role_key ?? '' ) ) ?? (string) $role->label ) : '';
+            $role_label = $role ? ( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $role->role_key ?? '' ), (int) $role->id ) ?? (string) $role->label ) : '';
             self::renderHeader( $role ? sprintf( __( 'Edit role type — %s', 'talenttrack' ), $role_label ) : __( 'Role type not found', 'talenttrack' ) );
             if ( ! $role ) {
                 echo '<p class="tt-notice">' . esc_html__( 'That role type no longer exists.', 'talenttrack' ) . '</p>';
@@ -167,7 +167,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
                     <button type="button" class="tt-list-table-action" data-tt-fnrole-move="up"   <?php disabled( $is_first ); ?>>↑</button>
                     <button type="button" class="tt-list-table-action" data-tt-fnrole-move="down" <?php disabled( $is_last  ); ?>>↓</button>
                 </td>
-                <td><a href="<?php echo esc_url( $edit_url ); ?>"><?php echo esc_html( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $role->role_key ?? '' ) ) ?? (string) $role->label ); ?></a>
+                <td><a href="<?php echo esc_url( $edit_url ); ?>"><?php echo esc_html( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $role->role_key ?? '' ), (int) $role->id ) ?? (string) $role->label ); ?></a>
                     <?php if ( ! empty( $role->is_system ) ) : ?>
                         <span class="tt-badge" style="margin-left:6px; padding:1px 6px; background:var(--tt-bg-soft); border:1px solid var(--tt-line); border-radius:999px; font-size:var(--tt-fs-xs); color:var(--tt-muted);">
                             <?php esc_html_e( 'system', 'talenttrack' ); ?>
@@ -322,7 +322,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
                     <select id="tt-fnrole-assign-role" class="tt-input" name="functional_role_id" required>
                         <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                         <?php foreach ( $roles as $r ) :
-                            $r_translated = \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $r->role_key ?? '' ) );
+                            $r_translated = \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $r->role_key ?? '' ), (int) $r->id );
                             $r_label      = $r_translated !== null ? $r_translated : (string) $r->label;
                             ?>
                             <option value="<?php echo (int) $r->id; ?>"><?php echo esc_html( $r_label ); ?></option>

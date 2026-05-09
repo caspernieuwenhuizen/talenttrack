@@ -1,3 +1,66 @@
+# TalentTrack v3.110.28 — Roles + functional roles migrate to `tt_translations` (#0090 Phase 4)
+
+Fourth phase of #0090 (data-row internationalisation). Both `tt_roles` and `tt_functional_roles` now read + write through the new `tt_translations` store. Per the spec ("two small entities, one PR") they ship together since they share the same shape — `label` is the only translatable field on each (Decision Q6).
+
+## What landed
+
+### `I18nModule::boot()` — register both entities
+
+```php
+TranslatableFieldRegistry::register( TranslatableFieldRegistry::ENTITY_ROLE, [ 'label' ] );
+TranslatableFieldRegistry::register( TranslatableFieldRegistry::ENTITY_FUNCTIONAL_ROLE, [ 'label' ] );
+```
+
+### Migration `0085_backfill_role_translations`
+
+One migration covers both source tables. For each row in `tt_roles` and `tt_functional_roles`:
+
+1. Call `__( $label, 'talenttrack' )` to resolve the canonical Dutch translation through gettext.
+2. If the result differs from the input, `INSERT IGNORE` a `(club_id, '<entity>', $id, 'label', 'nl_NL', <translated>)` row into `tt_translations`.
+3. If gettext returns the input unchanged (operator-added custom roles with no `.po` match), skip — no row to insert.
+
+**Tenancy detection at runtime** — `tt_roles` doesn't carry a `club_id` column (it's a global authorization table); `tt_functional_roles` does. The migration runs `SHOW COLUMNS … LIKE 'club_id'` and adapts its SELECT accordingly so a single migration handles both shapes without per-table branching at the call site.
+
+Loads the textdomain explicitly via `load_plugin_textdomain()` so migrations running early in the plugin-activation lifecycle still resolve labels. Idempotent against the unique index; preserves operator-edited rows.
+
+### Resolver — admin pages and `LabelTranslator`
+
+- **`RolesPage::roleLabel( $key, ?int $entity_id = null )`** and **`FunctionalRolesPage::roleLabel( $key, ?int $entity_id = null )`** — optional second parameter unlocks the `tt_translations` read path. Chain: `tt_translations → __() switch → humanised-key fallback`. String-only callers continue to use the gettext switch — backward-compatible.
+- **`LabelTranslator::authRoleLabel( $key, ?int $entity_id = null )`** and **`LabelTranslator::functionalRoleLabel( $key, ?int $entity_id = null )`** — same optional parameter on the shared low-level helpers so frontend callers can also hit the new store with one call.
+
+### Call-site sweep (high-traffic only)
+
+Updated to pass `$row->id`:
+
+- `RolesPage` — admin role list + role-detail header.
+- `FunctionalRolesPage` — admin role list + role-detail header.
+- `FrontendFunctionalRolesView` — three call sites (edit-header, list link, assignment-form picker).
+- `FrontendPeopleManageView` — staff-assignment table.
+- `FrontendTeamsManageView` — grouped staff list.
+
+The remaining call sites (DebugPage, RoleGrantPanel, TeamStaffPanel) continue to work via the gettext fallback.
+
+### Cascade delete
+
+`FunctionalRolesRestController::delete_role_type()` calls `TranslationsRepository::deleteAllFor( 'functional_role', $id )` after the source row is deleted. `tt_roles` has no operator delete path — all 9 rows are `is_system=1` — so no cascade needed there.
+
+## What's NOT in this PR (lands in Phases 5-8)
+
+- **Phase 5** — Seed-review Excel `<field>_<locale>` columns + per-entity admin Translations tab.
+- **Phase 6** — `nl_NL.po` cleanup of migrated msgids + sweep remaining string-only callers.
+- **Phase 7** — FR/DE/ES locale enablement.
+- **Phase 8** — docs + close epic.
+
+## Translations
+
+Zero new NL msgids — internal plumbing. Existing `.po` entries for the 9 seeded auth-role labels and the 6 + 1 seeded functional-role labels are copied into `tt_translations` so future ships can drop the .po side cleanly.
+
+## Notes
+
+No user-visible change. Spec phase plan estimate "~4-6h"; actual ~45 min thanks to the Phase 3 migration template carrying over almost unchanged.
+
+---
+
 # TalentTrack v3.110.27 — Eval categories migrate to `tt_translations` (#0090 Phase 3)
 
 Third phase of #0090 (data-row internationalisation). Eval categories (`tt_eval_categories`) become the second entity to read + write through the new `tt_translations` store seeded by Phase 1 and exercised by Phase 2 (lookups). No user-visible change: every Dutch label that rendered correctly before still renders correctly.

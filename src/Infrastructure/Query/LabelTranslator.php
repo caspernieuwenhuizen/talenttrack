@@ -3,6 +3,9 @@ namespace TT\Infrastructure\Query;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\I18n\TranslatableFieldRegistry;
+use TT\Modules\I18n\TranslationsRepository;
+
 /**
  * LabelTranslator — convert internal status/priority codes into translated
  * human-readable labels.
@@ -102,7 +105,21 @@ class LabelTranslator {
      * Custom roles added by clubs render their typed name; only the
      * stable seeded labels resolve here.
      */
-    public static function authRoleLabel( string $key ): ?string {
+    public static function authRoleLabel( string $key, ?int $entity_id = null ): ?string {
+        // #0090 Phase 4 — consult tt_translations first when caller
+        // passes the row id. Falls through to the gettext switch for
+        // string-only callers and seeded keys without translations
+        // backfilled yet.
+        if ( $entity_id !== null && $entity_id > 0 ) {
+            $tx = ( new TranslationsRepository() )->translate(
+                TranslatableFieldRegistry::ENTITY_ROLE,
+                $entity_id,
+                'label',
+                self::currentLocale(),
+                ''
+            );
+            if ( $tx !== '' ) return $tx;
+        }
         switch ( strtolower( $key ) ) {
             case 'club_admin':          return __( 'Club Admin', 'talenttrack' );
             case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
@@ -123,7 +140,21 @@ class LabelTranslator {
      * Returns null for unknown keys so callers can fall back to the
      * row's typed `label` for custom roles a club has added.
      */
-    public static function functionalRoleLabel( string $key ): ?string {
+    public static function functionalRoleLabel( string $key, ?int $entity_id = null ): ?string {
+        // #0090 Phase 4 — consult tt_translations first when caller
+        // passes the row id. Falls through to the gettext switch for
+        // string-only callers and seeded keys without translations
+        // backfilled yet.
+        if ( $entity_id !== null && $entity_id > 0 ) {
+            $tx = ( new TranslationsRepository() )->translate(
+                TranslatableFieldRegistry::ENTITY_FUNCTIONAL_ROLE,
+                $entity_id,
+                'label',
+                self::currentLocale(),
+                ''
+            );
+            if ( $tx !== '' ) return $tx;
+        }
         switch ( strtolower( $key ) ) {
             case 'head_coach':          return __( 'Head Coach', 'talenttrack' );
             case 'assistant_coach':     return __( 'Assistant Coach', 'talenttrack' );
@@ -134,6 +165,12 @@ class LabelTranslator {
             case 'other':               return __( 'Other', 'talenttrack' );
             default:                    return null;
         }
+    }
+
+    private static function currentLocale(): string {
+        if ( function_exists( 'determine_locale' ) ) return (string) determine_locale();
+        if ( function_exists( 'get_locale' ) ) return (string) get_locale();
+        return 'en_US';
     }
 
     /**

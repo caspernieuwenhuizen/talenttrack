@@ -77,6 +77,21 @@ class I18nModule implements ModuleInterface {
             TranslatableFieldRegistry::ENTITY_EVAL_CATEGORY,
             [ 'label' ]
         );
+
+        // Phase 4 — register the `role` + `functional_role` entities
+        // (per spec Decision Q6: both translatable on `label` only).
+        // `RolesPage::roleLabel()` and `FunctionalRolesPage::roleLabel()`
+        // consult `TranslationsRepository::translate()` first when the
+        // caller passes an entity_id, then fall back to the existing
+        // gettext switch / humanised-key fallback.
+        TranslatableFieldRegistry::register(
+            TranslatableFieldRegistry::ENTITY_ROLE,
+            [ 'label' ]
+        );
+        TranslatableFieldRegistry::register(
+            TranslatableFieldRegistry::ENTITY_FUNCTIONAL_ROLE,
+            [ 'label' ]
+        );
     }
 
     /**
