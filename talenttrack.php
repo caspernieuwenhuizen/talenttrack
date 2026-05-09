@@ -3,7 +3,7 @@
  * Plugin Name: TalentTrack
  * Plugin URI:  https://github.com/caspernieuwenhuizen/talenttrack
  * Description: Frontend-first, modular youth football talent management system for a single club.
- * Version:     3.110.43
+ * Version:     3.110.44
  * Author:      Casper Nieuwenhuizen
  * Author URI:  https://github.com/caspernieuwenhuizen
  * License:     GPL-2.0+
@@ -19,11 +19,32 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'TT_VERSION',     '3.110.43' );
+define( 'TT_VERSION',     '3.110.44' );
 define( 'TT_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'TT_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );
 define( 'TT_PLUGIN_FILE', __FILE__ );
 define( 'TT_PLUGIN_SLUG', 'talenttrack' );
+
+// v3.110.44 — Commercial mode toggle.
+//
+// When TRUE: the License module enforces tiers — `LicenseGate::tier()`
+//   resolves through DevOverride → Trial → Freemius → Free, free-tier
+//   caps apply, the AccountPage renders the trial / upgrade UI, and
+//   non-Pro features are gated behind purchases. Freemius credentials
+//   (TT_FREEMIUS_PRODUCT_ID + TT_FREEMIUS_PUBLIC_KEY) need to be wired
+//   for actual checkout to work.
+//
+// When FALSE (default): the install is treated as a non-commercial
+//   test instance owned by the developer. Every feature is unlocked,
+//   free-tier caps don't apply, the trial / upgrade UI hides, and
+//   `LicenseGate::tier()` returns Pro. Trial state on disk is
+//   preserved but ignored at runtime.
+//
+// Flip this to TRUE the day a paying customer goes live (and wire
+// Freemius alongside). One-line switch, no other code changes
+// required to enter commercial mode.
+define( 'TT_COMMERCIAL_MODE', false );
+
 // v2.22.0 / v3.0.0 aliases used by newer classes (HelpTopics, SchemaStatus)
 // so they don't need to choose between TT_PLUGIN_DIR / TT_PLUGIN_FILE naming.
 define( 'TT_PATH', TT_PLUGIN_DIR );

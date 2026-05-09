@@ -8,6 +8,7 @@ use TT\Modules\License\FeatureMap;
 use TT\Modules\License\FreemiusAdapter;
 use TT\Modules\License\FreeTierCaps;
 use TT\Modules\License\LicenseGate;
+use TT\Modules\License\LicenseMode;
 use TT\Modules\License\TrialState;
 
 /**
@@ -400,6 +401,14 @@ class AccountPage {
             return;
         }
 
+        // v3.110.44 — non-commercial test instance: the trial /
+        // upgrade / Freemius UI is irrelevant. Render a single notice
+        // explaining the mode and bail out.
+        if ( ! LicenseMode::isCommercial() ) {
+            self::renderTestModeNotice();
+            return;
+        }
+
         $tier         = LicenseGate::tier();
         $eff_tier     = LicenseGate::effectiveTier();
         $in_trial     = LicenseGate::isInTrial();
@@ -666,6 +675,14 @@ class AccountPage {
      * a separate menu entry.
      */
     private static function renderPlanTab(): void {
+        // v3.110.44 — non-commercial test instance: same notice the
+        // Account tab shows. Plan / caps / feature matrix all moot
+        // because every feature is unlocked.
+        if ( ! LicenseMode::isCommercial() ) {
+            self::renderTestModeNotice();
+            return;
+        }
+
         $tier        = LicenseGate::tier();
         $tier_label  = FeatureMap::tierLabel( $tier );
         $effective   = LicenseGate::effectiveTier();
@@ -808,6 +825,39 @@ class AccountPage {
             'team_chemistry'    => __( 'Team chemistry', 'talenttrack' ),
             's3_backup'         => __( 'S3 backup', 'talenttrack' ),
         ];
+    }
+
+    /**
+     * v3.110.44 — render the "non-commercial test instance" notice used
+     * by both the Account and Plan tabs when `TT_COMMERCIAL_MODE` is
+     * false (or undefined). Single panel, no upgrade affordances, no
+     * trial UI.
+     */
+    private static function renderTestModeNotice(): void {
+        ?>
+        <div class="notice notice-info inline" style="margin: 12px 0; padding: 16px; max-width: 760px;">
+            <h2 style="margin-top:0;"><?php esc_html_e( 'Non-commercial test instance', 'talenttrack' ); ?></h2>
+            <p>
+                <?php
+                printf(
+                    /* translators: %s: PHP constant name */
+                    esc_html__( '%s is set to false in talenttrack.php. Every TalentTrack feature is unlocked, free-tier caps do not apply, and the trial / upgrade UI is hidden. Trial state on disk (if any) is preserved but ignored at runtime.', 'talenttrack' ),
+                    '<code>' . esc_html( LicenseMode::CONST_NAME ) . '</code>'
+                );
+                ?>
+            </p>
+            <p>
+                <strong><?php esc_html_e( 'Switching to commercial mode', 'talenttrack' ); ?></strong> &mdash;
+                <?php
+                printf(
+                    /* translators: %s: PHP constant name */
+                    esc_html__( 'flip %s to true in talenttrack.php and configure Freemius credentials (TT_FREEMIUS_PRODUCT_ID, TT_FREEMIUS_PUBLIC_KEY) so the upgrade flow can complete checkout. The existing License module machinery (DevOverride, TrialState, FreemiusAdapter) will then drive tier resolution and feature gating.', 'talenttrack' ),
+                    '<code>' . esc_html( LicenseMode::CONST_NAME ) . '</code>'
+                );
+                ?>
+            </p>
+        </div>
+        <?php
     }
 
     /**

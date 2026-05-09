@@ -33,6 +33,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LicenseGate {
 
     public static function tier(): string {
+        // v3.110.44 — non-commercial test instance: short-circuit to
+        // Pro so every feature is unlocked. The License module's tier
+        // resolution only matters once a paying customer goes live.
+        if ( ! LicenseMode::isCommercial() ) {
+            return FeatureMap::TIER_PRO;
+        }
+
         // 1. Developer override
         $override = DevOverride::active();
         if ( $override !== null ) {
@@ -55,14 +62,21 @@ class LicenseGate {
     }
 
     public static function can( string $feature ): bool {
+        // v3.110.44 — non-commercial test instance: every feature is
+        // available regardless of FeatureMap tier-membership.
+        if ( ! LicenseMode::isCommercial() ) {
+            return true;
+        }
         return FeatureMap::tierHas( self::tier(), $feature );
     }
 
     public static function isInTrial(): bool {
+        if ( ! LicenseMode::isCommercial() ) return false;
         return TrialState::isActive();
     }
 
     public static function isInGrace(): bool {
+        if ( ! LicenseMode::isCommercial() ) return false;
         return TrialState::isInGrace();
     }
 
@@ -82,6 +96,9 @@ class LicenseGate {
      * @param string $cap_type 'teams' | 'players'
      */
     public static function capsExceeded( string $cap_type ): bool {
+        // v3.110.44 — non-commercial test instance: caps don't apply.
+        if ( ! LicenseMode::isCommercial() ) return false;
+
         // If the License module itself is disabled, there's no cap
         // enforcement to apply — the Account page (where the operator
         // would start a trial or enter a license key) isn't even
