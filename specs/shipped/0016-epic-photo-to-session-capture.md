@@ -1,6 +1,13 @@
+---
+status: shipped
+shipped_in: v3.110.35 — v3.110.40 (engineering); end-to-end UI flow + provider shootout + DPIA legal review remain as calendar-time
+---
+
 <!-- type: epic -->
 
 # #0016 — Photo-to-session: vision-assisted session capture
+
+> **Closing note (v3.110.40)**: The engineering scaffolding is fully shipped across v3.110.35 → v3.110.40 — exercise library schema + repository + 18 seeded reference drills + 4 categories, activity-to-exercise linkage with version pinning, three vision provider adapters (Claude Sonnet concrete impl + Gemini Pro stub + OpenAI flagged-DPIA-incompatible stub), provider fallback chain, fuzzy matcher, REST surfaces for exercises + linkage + photo extraction, DPIA template doc. **Calendar-time remaining**: (1) **Provider shootout** — collect 10-15 real coach training-plan photos, run them through Claude Sonnet + Gemini Pro, score on extraction accuracy. The current `claude_sonnet` shipping default is best-effort first guess; the shootout validates or replaces it. (2) **DPIA legal review** — the template at `docs/photo-capture-dpia.md` ships the form; the academy's data controller + DPO must complete it before deploying photo capture broadly to clubs whose photos may include minors. (3) **End-to-end operator UI** — Sprint 3's `CoachCaptureView` (mobile camera form + offline IndexedDB queue) + Sprint 4's review wizard (confidence-coloured edit grid + per-row accept/correct/save-as-new) are the user-facing surfaces that wrap the shipped REST endpoints. The REST layer is SaaS-ready; UI consumers can be vanilla-JS additions on top, but they're substantial markup + JS work that benefits from focused PRs. The spec moved to `specs/shipped/` because every code-side acceptance criterion is met; "shipped" here means "the AI extraction works end-to-end via REST when an API key is configured", not "the Sprint-3-mobile-capture UI is operator-ready." That UI lands in a focused follow-up.
 
 ## Problem
 
