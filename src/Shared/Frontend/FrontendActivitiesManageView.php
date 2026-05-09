@@ -206,13 +206,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         echo '</dl>';
 
-        if ( current_user_can( 'tt_edit_activities' ) ) {
-            $edit_url = add_query_arg(
-                [ 'tt_view' => 'activities', 'id' => (int) $session->id, 'action' => 'edit' ],
-                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-            );
-            echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a></p>';
-        }
+        // v3.110.53 — Edit + Archive moved to the page-header actions
+        // slot rendered by render() before this method runs.
 
         // #0083 Child 4 follow-up — activity-scoped Analytics surface.
         // Renders the KPI grid via `EntityAnalyticsTabRenderer` for
