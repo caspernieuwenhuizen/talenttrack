@@ -48,7 +48,11 @@ class FrontendTeamsManageView extends FrontendViewBase {
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 
+        $teams_label  = __( 'Teams', 'talenttrack' );
+        $parent_crumb = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'teams', $teams_label ) ];
+
         if ( $action === 'new' ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'New team', 'talenttrack' ), $parent_crumb );
             self::renderHeader( __( 'New team', 'talenttrack' ) );
             self::renderForm( $user_id, $is_admin, null );
             return;
@@ -57,21 +61,28 @@ class FrontendTeamsManageView extends FrontendViewBase {
         if ( $id > 0 ) {
             $team = self::loadTeam( $id );
             if ( ! $team ) {
+                \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Team not found', 'talenttrack' ), $parent_crumb );
                 self::renderHeader( __( 'Team not found', 'talenttrack' ) );
                 echo '<p class="tt-notice">' . esc_html__( 'That team no longer exists.', 'talenttrack' ) . '</p>';
                 return;
             }
             if ( $action === 'edit' ) {
+                \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                    sprintf( __( 'Edit team — %s', 'talenttrack' ), (string) $team->name ),
+                    $parent_crumb
+                );
                 self::renderHeader( sprintf( __( 'Edit team — %s', 'talenttrack' ), (string) $team->name ) );
                 self::renderForm( $user_id, $is_admin, $team );
                 return;
             }
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( (string) $team->name, $parent_crumb );
             self::renderHeader( (string) $team->name );
             self::renderDetail( $user_id, $is_admin, $team );
             return;
         }
 
-        self::renderHeader( __( 'Teams', 'talenttrack' ) );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $teams_label );
+        self::renderHeader( $teams_label );
         self::renderList( $user_id, $is_admin );
     }
 

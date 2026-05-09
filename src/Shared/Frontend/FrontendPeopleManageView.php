@@ -38,7 +38,11 @@ class FrontendPeopleManageView extends FrontendViewBase {
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 
+        $people_label = __( 'People', 'talenttrack' );
+        $parent_crumb = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'people', $people_label ) ];
+
         if ( $action === 'new' ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'New person', 'talenttrack' ), $parent_crumb );
             self::renderHeader( __( 'New person', 'talenttrack' ) );
             self::renderForm( null );
             return;
@@ -46,7 +50,9 @@ class FrontendPeopleManageView extends FrontendViewBase {
 
         if ( $id > 0 ) {
             $person = ( new PeopleRepository() )->find( $id );
-            self::renderHeader( $person ? sprintf( __( 'Edit person — %s', 'talenttrack' ), trim( $person->first_name . ' ' . $person->last_name ) ) : __( 'Person not found', 'talenttrack' ) );
+            $title  = $person ? sprintf( __( 'Edit person — %s', 'talenttrack' ), trim( $person->first_name . ' ' . $person->last_name ) ) : __( 'Person not found', 'talenttrack' );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title, $parent_crumb );
+            self::renderHeader( $title );
             if ( ! $person ) {
                 echo '<p class="tt-notice">' . esc_html__( 'That person no longer exists.', 'talenttrack' ) . '</p>';
                 return;
@@ -55,7 +61,8 @@ class FrontendPeopleManageView extends FrontendViewBase {
             return;
         }
 
-        self::renderHeader( __( 'People', 'talenttrack' ) );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $people_label );
+        self::renderHeader( $people_label );
         self::renderList( $user_id, $is_admin );
     }
 

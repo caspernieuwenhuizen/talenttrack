@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.44
+Stable tag: 3.110.45
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.45 — Breadcrumb sweep: every routable frontend view now has a chain back to the dashboard =
+
+Pilot operator reported `?tt_view=team-chemistry` had no breadcrumb so they couldn't navigate back to the dashboard. Sweep across the codebase found 36 routable frontend views in the same state — coaching-group lists (Teams / Players / People / Podium / Compare / RateCards), Me-group tiles (Overview / MyTeam / MyEvaluations / MyPdp), Trial views (Trials / TrialCase / ParentMeeting / TracksEditor / LetterTemplatesEditor), Workflow surfaces (MyTasks / TasksDashboard / WorkflowConfig), Reports + Scout (ReportWizard / ScoutAccess / ScoutHistory / ScoutMyPlayers), Staff Development (StaffOverview + 4 my-staff-* views), Wizards / WizardsAdmin / MfaPrompt / Explore / PlayerStatusMethodology / Docs / MobileSettings / TeamChemistry. v3.110.41 fixed the dispatcher stubs and ~35 other views; this release closes the rest of the gap. Every routable `?tt_view=<slug>` now emits a `Dashboard / …` chain plus the `tt_back`-borne pill (when applicable) per the contract in `docs/back-navigation.md`. Permission-denied stubs now render `Dashboard / Not authorized`. Detail / nested views (e.g. trial-case under Trials, scout-access under Reports, explore under Analytics) get a parent crumb so navigating one click back reaches the parent surface. Three views are intentionally excluded: AcceptanceView (pre-login flow), FrontendMobilePromptView (gate screen for mobile users), and PersonaLandingRenderer (the dashboard root itself).
 
 = 3.110.44 — TT_COMMERCIAL_MODE: single switch between non-commercial test instance and commercial production =
 

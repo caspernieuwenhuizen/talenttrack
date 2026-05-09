@@ -31,11 +31,13 @@ class FrontendWizardView extends FrontendViewBase {
         $slug = isset( $_GET['slug'] ) ? sanitize_key( (string) $_GET['slug'] ) : '';
         $wizard = WizardRegistry::find( $slug );
         if ( ! $wizard ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Wizard not found', 'talenttrack' ) );
             self::renderHeader( __( 'Wizard not found', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'Unknown wizard.', 'talenttrack' ) . '</p>';
             return;
         }
         if ( ! WizardRegistry::isAvailable( $slug, $user_id ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $wizard->label() );
             self::renderHeader( $wizard->label() );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to use this wizard, or it is currently disabled.', 'talenttrack' ) . '</p>';
             return;
@@ -58,6 +60,7 @@ class FrontendWizardView extends FrontendViewBase {
         $current_slug = (string) $state['_step'];
         $current      = self::stepFor( $wizard, $current_slug ) ?: self::stepFor( $wizard, $wizard->firstStepSlug() );
         if ( ! $current ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $wizard->label() );
             self::renderHeader( $wizard->label() );
             echo '<p class="tt-notice">' . esc_html__( 'Wizard misconfigured (no steps).', 'talenttrack' ) . '</p>';
             return;
@@ -147,6 +150,7 @@ class FrontendWizardView extends FrontendViewBase {
             }
         }
 
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $wizard->label() );
         self::renderHeader( $wizard->label() );
         self::renderResumeBanner( $user_id, $slug, $state );
         self::renderProgress( $wizard, $current_slug, $state );
@@ -269,6 +273,7 @@ class FrontendWizardView extends FrontendViewBase {
         if ( $next_slug === null ) {
             $result = $current->submit( $state );
             if ( is_wp_error( $result ) ) {
+                \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $wizard->label() );
                 self::renderHeader( $wizard->label() );
                 echo '<div class="tt-notice tt-notice-error" role="alert">' . esc_html( $result->get_error_message() ) . '</div>';
                 return;

@@ -20,6 +20,10 @@ class FrontendScoutAccessView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            __( 'Scout access', 'talenttrack' ),
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
+        );
         self::renderHeader( __( 'Scout access', 'talenttrack' ) );
 
         if ( ! current_user_can( 'tt_generate_scout_report' ) ) {

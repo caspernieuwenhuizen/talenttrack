@@ -8,6 +8,7 @@ use TT\Modules\TeamDevelopment\BlueprintChemistryEngine;
 use TT\Modules\TeamDevelopment\ChemistryAggregator;
 use TT\Modules\TeamDevelopment\CompatibilityEngine;
 use TT\Modules\TeamDevelopment\Repositories\PairingsRepository;
+use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -56,12 +57,15 @@ use TT\Shared\Frontend\FrontendViewBase;
 class FrontendTeamChemistryView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        $chem_label = __( 'Team chemistry', 'talenttrack' );
+
         // v3.85.5 — Team chemistry is Pro-tier per FeatureMap.
         if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
              && ! \TT\Modules\License\LicenseGate::allows( 'team_chemistry' )
         ) {
-            self::renderHeader( __( 'Team chemistry', 'talenttrack' ) );
-            echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Team chemistry', 'talenttrack' ), 'pro' );
+            FrontendBreadcrumbs::fromDashboard( $chem_label );
+            self::renderHeader( $chem_label );
+            echo \TT\Modules\License\Admin\UpgradeNudge::inline( $chem_label, 'pro' );
             return;
         }
 
@@ -69,23 +73,36 @@ class FrontendTeamChemistryView extends FrontendViewBase {
 
         $team_id = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
         if ( $team_id <= 0 ) {
+            FrontendBreadcrumbs::fromDashboard( $chem_label );
             self::renderTeamPicker( $user_id, $is_admin );
             return;
         }
 
         $team = QueryHelpers::get_team( $team_id );
         if ( ! $team ) {
+            FrontendBreadcrumbs::fromDashboard(
+                __( 'Team not found', 'talenttrack' ),
+                [ FrontendBreadcrumbs::viewCrumb( 'team-chemistry', $chem_label ) ]
+            );
             self::renderHeader( __( 'Team not found', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'That team no longer exists.', 'talenttrack' ) . '</p>';
             return;
         }
 
         if ( ! $is_admin && ! self::userCoachesTeam( $user_id, $team_id ) ) {
+            FrontendBreadcrumbs::fromDashboard(
+                __( 'Access denied', 'talenttrack' ),
+                [ FrontendBreadcrumbs::viewCrumb( 'team-chemistry', $chem_label ) ]
+            );
             self::renderHeader( __( 'Access denied', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not coach this team.', 'talenttrack' ) . '</p>';
             return;
         }
 
+        FrontendBreadcrumbs::fromDashboard(
+            (string) $team->name,
+            [ FrontendBreadcrumbs::viewCrumb( 'team-chemistry', $chem_label ) ]
+        );
         self::renderBoard( $team, $user_id );
     }
 

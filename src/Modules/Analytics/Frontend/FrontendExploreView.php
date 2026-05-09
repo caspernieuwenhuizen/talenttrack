@@ -60,6 +60,10 @@ class FrontendExploreView extends FrontendViewBase {
             return;
         }
 
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            __( 'Explore', 'talenttrack' ),
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'analytics', __( 'Analytics', 'talenttrack' ) ) ]
+        );
         self::renderHeader( __( 'Explore', 'talenttrack' ) );
 
         if ( $kpi === null ) {

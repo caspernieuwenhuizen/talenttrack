@@ -17,6 +17,10 @@ class FrontendScoutHistoryView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            __( 'Scout reports history', 'talenttrack' ),
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
+        );
         self::renderHeader( __( 'Scout reports history', 'talenttrack' ) );
 
         // v3.85.5 — Scout access is Pro-tier per FeatureMap.

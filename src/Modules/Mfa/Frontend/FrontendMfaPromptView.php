@@ -55,8 +55,11 @@ class FrontendMfaPromptView extends FrontendViewBase {
     public const SLUG = 'mfa-prompt';
 
     public static function render( int $user_id, bool $is_admin ): void {
+        $title = __( 'Two-factor authentication', 'talenttrack' );
+
         if ( $user_id <= 0 ) {
-            self::renderHeader( __( 'Two-factor authentication', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
+            self::renderHeader( $title );
             echo '<p class="tt-notice">' . esc_html__( 'You must be logged in to verify a code.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -150,6 +153,7 @@ class FrontendMfaPromptView extends FrontendViewBase {
         $unused_backup = BackupCodesService::unusedCount( (array) ( $row['backup_codes'] ?? [] ) );
         $mode  = isset( $_GET['mode'] ) && (string) $_GET['mode'] === 'backup' ? 'backup' : 'totp';
 
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Two-factor authentication', 'talenttrack' ) );
         self::renderHeader( __( 'Two-factor authentication', 'talenttrack' ) );
 
         echo '<div style="max-width:480px; margin:0 auto;">';
@@ -238,6 +242,7 @@ class FrontendMfaPromptView extends FrontendViewBase {
 
     private static function renderLockout( int $seconds_remaining ): void {
         $minutes = max( 1, (int) ceil( $seconds_remaining / 60 ) );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Two-factor authentication', 'talenttrack' ) );
         self::renderHeader( __( 'Two-factor authentication', 'talenttrack' ) );
         echo '<div style="max-width:480px; margin:0 auto;">';
         echo '<div class="tt-notice tt-notice-error" role="alert" style="padding:16px;">';

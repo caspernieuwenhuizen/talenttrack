@@ -30,8 +30,11 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
     public const NONCE_FIELD  = '_tt_workflow_config_nonce';
 
     public static function render( int $user_id ): void {
+        $title = __( 'Workflow templates', 'talenttrack' );
+
         if ( ! current_user_can( 'tt_configure_workflow_templates' ) ) {
-            self::renderHeader( __( 'Workflow templates', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            self::renderHeader( $title );
             echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to workflow configuration.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -65,7 +68,8 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
             }
         }
 
-        self::renderHeader( __( 'Workflow templates', 'talenttrack' ) );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
+        self::renderHeader( $title );
 
         $templates = WorkflowModule::registry()->all();
         $config_repo = new TemplateConfigRepository();

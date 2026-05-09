@@ -14396,3 +14396,12 @@ msgstr "Schakelen naar commerciële modus"
 
 msgid "flip %s to true in talenttrack.php and configure Freemius credentials (TT_FREEMIUS_PRODUCT_ID, TT_FREEMIUS_PUBLIC_KEY) so the upgrade flow can complete checkout. The existing License module machinery (DevOverride, TrialState, FreemiusAdapter) will then drive tier resolution and feature gating."
 msgstr "zet %s op true in talenttrack.php en configureer Freemius-credentials (TT_FREEMIUS_PRODUCT_ID, TT_FREEMIUS_PUBLIC_KEY) zodat de upgrade-flow de checkout kan afronden. De bestaande License-module (DevOverride, TrialState, FreemiusAdapter) regelt vervolgens de tier-resolutie en feature-gating."
+
+msgid "My scouted players"
+msgstr "Mijn gescoute spelers"
+
+msgid "My staff goals"
+msgstr "Mijn personeelsdoelen"
+
+msgid "My staff evaluations"
+msgstr "Mijn personeelsevaluaties"

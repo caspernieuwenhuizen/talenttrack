@@ -26,6 +26,7 @@ class FrontendScoutMyPlayersView extends FrontendViewBase {
 
     public static function render( int $user_id ): void {
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My scouted players', 'talenttrack' ) );
         self::renderHeader( __( 'My players', 'talenttrack' ) );
 
         // v3.85.5 — Scout access is Pro-tier per FeatureMap.

@@ -40,6 +40,7 @@ class FrontendMyTasksView extends FrontendViewBase {
         // simple "load → render" flow and avoids redirect churn.
         $flash = self::handleSubmission( $user_id );
 
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My tasks', 'talenttrack' ) );
         self::renderHeader( __( 'My tasks', 'talenttrack' ) );
 
         $repo = new TasksRepository();

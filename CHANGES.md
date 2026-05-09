@@ -1,3 +1,66 @@
+# TalentTrack v3.110.45 — Breadcrumb sweep: every routable frontend view now has a chain back to the dashboard
+
+Pilot operator reported `?tt_view=team-chemistry` had no breadcrumb so they couldn't navigate back to the dashboard. Sweep across the codebase found **36 routable frontend views in the same state** — the v3.110.41 cleanup fixed the dispatcher stubs and ~35 of the most-visible views, but a long tail remained.
+
+This release closes the gap. Every routable `?tt_view=<slug>` now emits a `Dashboard / …` chain plus the `tt_back`-borne pill (when applicable) per the contract in `docs/back-navigation.md`.
+
+## Categories swept
+
+### Coaching-group lists (6 views)
+
+`?tt_view=teams`, `players`, `people`, `podium`, `compare`, `rate-cards`. The list/detail/edit/new branches each get a context-aware chain — e.g. for Teams: `Dashboard / Teams` (list), `Dashboard / Teams / New team`, `Dashboard / Teams / Edit team — Ajax U17`, `Dashboard / Teams / <name>` (detail).
+
+### Trial-group views (5 views)
+
+`?tt_view=trials`, `trial-case`, `trial-parent-meeting`, `trial-tracks-editor`, `trial-letter-templates-editor`. Detail / editor pages nest under `Dashboard / Trials / …` so one click in the breadcrumb chain reaches the case list.
+
+### Reports + Scout (4 views)
+
+`?tt_view=report-wizard`, `scout-access`, `scout-history`, `scout-my-players` — all nested under `Dashboard / Reports / …` (except scout-my-players, which is its own surface).
+
+### Workflow (3 views)
+
+`?tt_view=my-tasks`, `tasks-dashboard`, `workflow-config`.
+
+### Me-group tiles (4 views)
+
+`?tt_view=overview` (My card), `my-team`, `my-evaluations`, `my-pdp`. `?tt_view=profile` is a legacy slug folded into Overview; FrontendMyProfileView is a section renderer composed by Overview, not directly routable, so it's skipped.
+
+### Staff Development (5 views)
+
+`?tt_view=staff-overview`, `my-staff-pdp`, `my-staff-goals`, `my-staff-evaluations`, `my-staff-certifications`. The four "my-staff-*" tiles use distinct labels in the breadcrumb (`My PDP`, `My staff goals`, `My staff evaluations`, `My certifications`) to avoid colliding with the player-side "My evaluations / My goals" tiles.
+
+### Other (9 views)
+
+`?tt_view=team-chemistry` (the user-reported case — chain `Dashboard / Team chemistry` for the picker, `Dashboard / Team chemistry / <team name>` for the board), `docs`, `mobile-settings`, `wizard` (uses the wizard's own label), `wizards-admin`, `mfa-prompt`, `explore` (nested under `Analytics`), `player-status-methodology`.
+
+## Permission-denied stubs
+
+Every "you don't have permission" early-return inside these views now renders `Dashboard / Not authorized` instead of "no chain at all". Same pattern the v3.110.41 dispatcher cleanup established.
+
+## Skipped (false positives)
+
+- `AcceptanceView` — pre-login invitation-acceptance flow; intentionally chrome-free.
+- `FrontendMobilePromptView` — gate screen for mobile-first guard, not directly routable.
+- `PersonaLandingRenderer` — the dashboard root itself, no parent to chain back to.
+- `FrontendTeammateView` — sub-view rendered inside My team / Team detail context.
+- `FrontendThreadView`, `CoachDashboardView`, `PlayerDashboardView` — components / containers, not views.
+- `FrontendMyProfileView` — section renderer composed into FrontendOverviewView, not a tt_view target.
+
+## Translations
+
+Three new NL msgids that didn't exist before:
+
+| msgid | msgstr |
+|---|---|
+| `My scouted players` | `Mijn gescoute spelers` |
+| `My staff goals` | `Mijn personeelsdoelen` |
+| `My staff evaluations` | `Mijn personeelsevaluaties` |
+
+`Top performers`, `Player comparison`, `Rate cards`, `Help & Docs`, `Mobile experience`, `Wizards`, `Two-factor authentication`, `Explore`, `Player status methodology`, `Trial cases`, `Parent meeting`, `Trial tracks`, `Letter templates`, `My tasks`, `Tasks dashboard`, `Workflow templates`, `Staff overview`, `My PDP`, `My certifications`, `My card`, `My team`, `My evaluations`, `My development plan`, `Teams`, `Players`, `People`, `Team chemistry`, `Team not found`, `Access denied`, `Generate report`, `Scout access`, `Scout reports history`, `Trials`, `New trial case`, `Trial: %s`, `New team`, `Edit team — %s`, `New player`, `Edit player — %s`, `Player not found`, `New person`, `Edit person — %s`, `Person not found`, `Not authorized`, `Wizard not found` — all already in the .po.
+
+---
+
 # TalentTrack v3.110.44 — `TT_COMMERCIAL_MODE`: single switch between non-commercial test instance and commercial production
 
 The plugin's licensing machinery (DevOverride / TrialState / FreemiusAdapter / FeatureMap tier gating / free-tier caps / Upgrade-to-Pro UI) was already in place but didn't have a clean global on/off. Owner test-instances saw an "Upgrade to Pro" button that went nowhere because Freemius wasn't wired up. The owner is the only customer today (no commercial customers yet), so the right default is **everything unlocked**, with a single one-line flip to enter commercial mode the day the first paying customer goes live.

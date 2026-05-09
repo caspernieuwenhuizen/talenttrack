@@ -36,11 +36,15 @@ use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
 class FrontendTrialCaseView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        $trials_label = __( 'Trials', 'talenttrack' );
+        $parent_crumb = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'trials', $trials_label ) ];
+
         // v3.85.5 — Trials is Pro-tier; the case detail view inherits
         // the same gate as the manage view.
         if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
              && ! \TT\Modules\License\LicenseGate::allows( 'trial_module' )
         ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Trial case', 'talenttrack' ), $parent_crumb );
             self::renderHeader( __( 'Trial case', 'talenttrack' ) );
             echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Trial cases', 'talenttrack' ), 'pro' );
             return;
@@ -48,11 +52,13 @@ class FrontendTrialCaseView extends FrontendViewBase {
 
         $case_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $case_id <= 0 ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Trial case not found', 'talenttrack' ), $parent_crumb );
             self::renderHeader( __( 'Trial case not found', 'talenttrack' ) );
             return;
         }
 
         if ( ! TrialCaseAccessPolicy::canViewSynthesis( $user_id, $case_id ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ), $parent_crumb );
             self::renderHeader( __( 'Trial case', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You are not assigned to this case.', 'talenttrack' ) . '</p>';
             return;
@@ -64,12 +70,17 @@ class FrontendTrialCaseView extends FrontendViewBase {
         $cases  = new TrialCasesRepository();
         $case   = $cases->find( $case_id );
         if ( ! $case ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Trial case not found', 'talenttrack' ), $parent_crumb );
             self::renderHeader( __( 'Trial case not found', 'talenttrack' ) );
             return;
         }
 
         $player = QueryHelpers::get_player( (int) $case->player_id );
         $name   = $player ? QueryHelpers::player_display_name( $player ) : '#' . (int) $case->player_id;
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            sprintf( __( 'Trial: %s', 'talenttrack' ), $name ),
+            $parent_crumb
+        );
         self::renderHeader( sprintf( __( 'Trial: %s', 'talenttrack' ), $name ) );
 
         self::renderHeaderStrip( $case, $name );
