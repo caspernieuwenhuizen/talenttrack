@@ -32,4 +32,10 @@ Structure per spec file:
   ## Notes
   Architectural callouts, edge cases, decisions made during shaping.
 
-When the spec ships, move the file to `specs/shipped/NNNN-<type>-<slug>.md` (create that folder when needed). ID is preserved.
+## Folder layout
+
+- **`specs/`** — actively-implementable specs (Ready in SEQUENCE.md).
+- **`specs/parked/`** — fully-shaped specs whose trigger-to-start hasn't fired yet. Move out of `specs/` so the Ready folder really means "ready"; move back when a trigger fires.
+- **`specs/shipped/`** — closed specs. ID preserved.
+
+When the spec ships, move the file to `specs/shipped/NNNN-<type>-<slug>.md`. When a Ready spec gets parked because the trigger hasn't fired (or trigger conditions changed), move to `specs/parked/`. Move back to `specs/` if the trigger fires later.
