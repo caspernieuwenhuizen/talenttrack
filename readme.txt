@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.33
+Stable tag: 3.110.34
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.34 — FR/DE/ES locale skeletons + translator-brief + DEVOPS POT-regen checklist (#0010 code-side) =
+
+Code-side preparation for #0010 (Multi-language FR/DE/ES). The structural infrastructure for three new locales lands in this ship; the actual translation labor (per-locale native-speaker review of ~4600 msgids each) remains a calendar-time deliverable. **(1) `tools/generate-locale-skeletons.php`** — one-shot tool that seeds new-locale `.po` files from `talenttrack-nl_NL.po`. Reads the full ~4600 msgid set the Dutch `.po` has accumulated since v2.4.0 and writes empty-`msgstr` skeletons under fresh per-locale headers (Project-Id-Version, Language, Plural-Forms). Why nl_NL and not the POT? `talenttrack.pot` has been stale at ~246 msgids since v2.4.0; the Dutch `.po` is the canonical current source. POT regeneration is now a release-checklist step (see DEVOPS.md). **(2) `languages/talenttrack-fr_FR.po`, `talenttrack-de_DE.po`, `talenttrack-es_ES.po`** — generated skeletons. Empty msgstrs fall back to the English msgid at runtime per WordPress convention, so the locales render the UI in English until translators fill them in (no broken pages, no fatal errors). The `.mo` compilation lands automatically via `.github/workflows/translations.yml` on the merge to main. **(3) `docs/translator-brief.md`** — onboarding doc for any translator picking up the FR/DE/ES skeletons. Documents the mixed-formality tone (player surfaces use Tu/Du/tú; admin surfaces use Vous/Sie/usted; emails to parents use formal across the board), how to identify the surface from translator comments + source-file paths, plurals + placeholder + HTML rules, and the workflow (PR → `Validate .po syntax` CI gate → merge → auto-compile). **(4) `DEVOPS.md` § "Before tagging a release — POT regeneration check"** — release-hygiene checklist preventing future POT drift: regenerate via `wp i18n make-pot`, diff against the prior POT, sync new msgids into each active `.po`, treat the `Validate .po syntax` PR job as a hard gate. **What does NOT ship here**: actual translations (calendar-time, per-language ~15-25h native-speaker review), 19 docs translated × 3 locales (~30-60h), POT regeneration itself (requires wp-cli; ships in the next pre-release pass). #0010 spec stays open with these acceptance criteria pending. Zero new NL msgids — three new empty .po files only.
 
 = 3.110.33 — Playwright coverage v1: players + goal specs (#0076) =
 

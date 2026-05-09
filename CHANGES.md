@@ -1,3 +1,67 @@
+# TalentTrack v3.110.34 — FR/DE/ES locale skeletons + translator brief + DEVOPS POT-regen checklist (#0010 code-side)
+
+Code-side preparation for #0010 (Multi-language FR/DE/ES). The structural infrastructure for three new locales lands here; the actual translation labor (~15-25h per language native-speaker review of ~4600 msgids each) remains a calendar-time deliverable.
+
+## What landed
+
+### `tools/generate-locale-skeletons.php`
+
+One-shot tool that seeds new-locale `.po` files from `talenttrack-nl_NL.po`. Reads the full ~4600 msgid set the Dutch `.po` has accumulated since v2.4.0 and writes empty-`msgstr` skeletons under fresh per-locale headers (Project-Id-Version, Language, Plural-Forms tuned per locale).
+
+**Why nl_NL and not the POT?** `talenttrack.pot` has been stale at ~246 msgids since v2.4.0 (the source spec called this out: "the POT is badly stale"). The Dutch `.po` is the canonical current source today. POT regeneration ships separately as a release-checklist step (see DEVOPS update below).
+
+### Three new `.po` skeletons
+
+```
+languages/talenttrack-fr_FR.po   — French (Tu, Vous switches per surface)
+languages/talenttrack-de_DE.po   — German (Du, Sie switches per surface)
+languages/talenttrack-es_ES.po   — Spanish (tú default, usted reserved for formal letters)
+```
+
+Each carries the full msgid set with empty `msgstr ""` entries. Per WordPress convention, an empty msgstr falls back to the English msgid at runtime — so users with the WP profile language set to French / German / Spanish see the plugin UI in English until a translator fills the skeletons in. No broken pages, no fatal errors.
+
+The `.mo` compilation lands automatically via `.github/workflows/translations.yml` on the merge to main.
+
+### `docs/translator-brief.md`
+
+Onboarding doc for any translator picking up the FR/DE/ES skeletons. Documents:
+
+- **Mixed-formality tone** per surface — player + coach surfaces use Tu / Du / tú; admin / settings / system / parent-email surfaces use Vous / Sie / usted (with Spanish using `tú` as default and `usted` reserved for the most formal external-facing communications).
+- **How to identify a string's surface** — three signals: `/* translators: */` comments, `#: <source path>` references in the `.po`, and "lean formal when unsure".
+- **Names + proper nouns** — TalentTrack / Spond / WordPress / WhatsApp stay as-is; football vocabulary translates to local sports usage.
+- **Plurals** — `Plural-Forms:` headers shipped per locale; don't change.
+- **Placeholders + HTML** — keep `%s` / `%1$s` / `<a>` / `<strong>` intact; reorder via positional tokens when grammar requires.
+- **What does NOT belong in `.po` (since #0090 Phase 6)** — data-row strings (lookup labels, eval-category names, role labels) live in `tt_translations` now; see `docs/i18n-architecture.md` for the split.
+- **Workflow** — PR → `Validate .po syntax` CI gate → merge → auto-compile.
+
+### `DEVOPS.md` § "Before tagging a release — POT regeneration check"
+
+New release-hygiene checklist preventing future POT drift:
+
+1. Run `wp i18n make-pot . languages/talenttrack.pot` to regenerate.
+2. Diff against the previous POT — any new msgids?
+3. If yes, sync each active `.po` (`nl_NL`, `fr_FR`, `de_DE`, `es_ES`) — translate inline or leave the `msgstr` empty.
+4. Confirm `.po` validate + `.po` → `.mo` workflows green before tagging.
+5. Commit POT + POs in the same merge as the strings they describe.
+
+The `tools/generate-locale-skeletons.php` is documented as the fallback for adding a fresh locale, NOT a substitute for POT regeneration on each release.
+
+## What does NOT ship here (calendar-time follow-ups)
+
+- **Actual translations.** Per #0010 spec sizing: ~15-25h native-speaker review per language × 3 = ~45-75h of translation labor. Runs in parallel against the empty skeletons via the documented PR workflow; doesn't block any other code work.
+- **19 docs × 3 locales = 57 translated docs.** ~30-60h additional. Independent stream from the UI translation.
+- **POT regeneration itself.** Requires `wp-cli` on the local machine; folds into the next pre-release pass per the new DEVOPS checklist.
+
+## #0010 spec status
+
+Code-side acceptance criteria met (skeletons exist, runtime falls back cleanly, DEVOPS hygiene step shipped, translator brief documents tone + workflow). Spec stays in **Ready** with translation labor remaining as the calendar-time deliverable. The acceptance criteria "all msgids translated" + "Setting WP profile language to French/German/Spanish renders the plugin UI in that language" remain unchecked until translation work happens.
+
+## Translations
+
+Zero new NL msgids — three new empty `.po` files + a translator-brief markdown doc + a one-shot tool. The skeletons are valid `msgfmt` syntax (the `Validate .po syntax` CI job will confirm).
+
+---
+
 # TalentTrack v3.110.33 — Playwright coverage v1: players + goal specs (#0076)
 
 Two of the six remaining #0076 Playwright specs ship together. Each follows the established teams-crud / lookups-frontend pattern: navigate to wp-admin, fill form, submit, verify. Single-worker, Chromium-only, defensive `test.skip()` when the wp-env baseline is too sparse to exercise the flow.

@@ -136,6 +136,25 @@ define('TT_GITHUB_TOKEN', 'github_pat_...');
 
 The fine-grained PAT creation page is at https://github.com/settings/personal-access-tokens/new. Pick **Only select repositories** → talenttrack, **Repository permissions** → Contents: Read & write. Nothing else.
 
+## Before tagging a release — POT regeneration check
+
+For any ship that adds or modifies user-facing strings (`__()`, `_e()`, `esc_html__()`, `_n()`, `_x()`, etc.), regenerate `talenttrack.pot` so the canonical msgid set stays in sync with the codebase. Stale POT means new locale files (`fr_FR`, `de_DE`, `es_ES` per #0010) build against gaps.
+
+```
+wp i18n make-pot . languages/talenttrack.pot
+```
+
+Then:
+
+1. **Diff the regenerated POT against the previous one.** Any new msgids?
+2. **If yes**: each active `.po` file (`nl_NL`, `fr_FR`, `de_DE`, `es_ES`) now has new untranslated entries. Either translate them locally or leave the `msgstr` empty — at runtime, an empty msgstr falls back to the English msgid (no broken UI; just untranslated). Add a translator note (`/* translators: */`) on any new string whose tone or context isn't obvious from the msgid alone.
+3. **`.mo` compilation lands automatically** via `.github/workflows/translations.yml` on the push to main — no local `msgfmt` step needed. Confirm the workflow ran (green checkmark) before tagging the release.
+4. **Commit the regenerated POT + updated POs** in the same merge as the strings they describe.
+
+The `Validate .po syntax` job on every PR uses `msgfmt --check --statistics` so syntax errors fail loud before merge. Treat that gate the same as PHP-syntax-lint: don't merge with it red.
+
+If `wp-cli` isn't on your local path: machine extraction via [`wp i18n make-pot`](https://make.wordpress.org/cli/handbook/references/commands/i18n/make-pot/) is the canonical tool. The fallback `tools/generate-locale-skeletons.php` in the repo seeds new-locale `.po` files from the existing `nl_NL.po` (full msgid set + empty msgstrs) — useful when adding a fresh locale, not a substitute for POT regeneration on each release.
+
 ## Release — tag a version, automation takes over
 
 After merging, in Claude Code:
