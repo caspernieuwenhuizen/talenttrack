@@ -14362,3 +14362,15 @@ msgstr "Importeren VERVANGT de matrix. Alles wat niet in de upload staat, wordt 
 
 msgid "A diff preview shows you adds + removes before commit. Reset to defaults remains available to restore the shipped seed."
 msgstr "Een diff-preview toont toevoegingen + verwijderingen voor je toepast. Reset naar standaard blijft beschikbaar om de meegeleverde seed te herstellen."
+
+msgid "Not authorized"
+msgstr "Niet geautoriseerd"
+
+msgid "Section unavailable"
+msgstr "Sectie niet beschikbaar"
+
+msgid "Unknown section"
+msgstr "Onbekende sectie"
+
+msgid "Sign in required"
+msgstr "Inloggen vereist"

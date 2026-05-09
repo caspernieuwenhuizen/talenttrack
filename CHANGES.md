@@ -1,3 +1,84 @@
+# TalentTrack v3.110.41 — Frontend navigation cleanup: one back-pill + breadcrumb per view
+
+Pilot operator screenshot of the goal-detail page surfaced a long-standing duplication: every frontend detail view rendered up to four navigation affordances stacked above the content (the `tt_back`-borne pill, the breadcrumb chain, a "← Back to dashboard" button from `FrontendViewBase::renderHeader`'s fallback, AND a second explicit `FrontendBackButton::render()` call inside the view's own `renderDetail()`). Two of those four were redundant on every page they appeared.
+
+The contract per `docs/back-navigation.md` is exactly two affordances:
+
+- The auto-rendered `tt_back` pill above the breadcrumb chain (the "back to where you came from" path)
+- The breadcrumb chain itself (the canonical `Dashboard / Section / Page` hierarchy)
+
+This release enforces that contract everywhere.
+
+## What landed
+
+### Step 1 — `FrontendViewBase::renderHeader()` no longer falls back to a back button
+
+Previously, when `static::breadcrumbs()` returned `[]` (the default), `renderHeader()` would fall back to `FrontendBackButton::render()`. That fallback fired for every view that rendered breadcrumbs by calling `FrontendBreadcrumbs::fromDashboard()` directly (the dynamic-chain pattern most views use), because those views don't override the static `breadcrumbs()` method.
+
+After this release, `renderHeader()` either renders the static breadcrumb chain (if the view overrides `breadcrumbs()`) or nothing. Views that need a dynamic chain MUST call `FrontendBreadcrumbs::fromDashboard()` themselves before `renderHeader()`.
+
+### Step 2 — Explicit `FrontendBackButton::render()` calls deleted from 26 view classes
+
+Every duplicate-back-button case the screenshot revealed, plus its clones across detail, manage, and admin-tier surfaces:
+
+- `FrontendActivitiesManageView`, `FrontendAuditLogView`, `FrontendConfigurationView`, `FrontendCustomFieldsView`, `FrontendCustomCssView`, `FrontendCohortTransitionsView`, `FrontendEvalCategoriesView`, `FrontendFunctionalRolesView`, `FrontendGoalsManageView`, `FrontendJourneyView`, `FrontendMailComposeView`, `FrontendMigrationsView`, `FrontendMyGoalsView`, `FrontendMySessionsView`, `FrontendMySettingsView`, `FrontendPdpManageView`, `FrontendPersonDetailView`, `FrontendPlayerDetailView`, `FrontendPlayersCsvImportView`, `FrontendReportDetailView`, `FrontendReportsLauncherView`, `FrontendRolesView`, `FrontendTaskDetailView`, `FrontendTeamDetailView`, `FrontendUsageStatsDetailsView`, `FrontendUsageStatsView`.
+
+Permission-denied early-return stubs that previously emitted a back button now emit a `Dashboard / Not authorized` breadcrumb chain instead.
+
+### Step 3 — Nine "back-button only" views migrated to the breadcrumb pattern
+
+`TracksView`, `IdeaSubmitView`, `IdeasBoardView`, `IdeasRefineView` (nested under Ideas), `IdeasApprovalView`, `FrontendAnalyticsView`, `FrontendScheduledReportsView` (nested under Analytics), `MethodologyView`, `InvitationsConfigView` previously had no breadcrumb chain at all — just the bare back button. Now they get the full canonical pattern, including the `tt_back`-borne pill rendered automatically above the chain.
+
+### Step 4 — `DashboardShortcode` dispatcher stubs
+
+Roughly 20 `FrontendBackButton::render()` calls scattered through dispatcher stub branches (matrix-gate denial, missing-player Me-group fallback, account "sign in required", scout permission gates, team-chemistry / team-blueprints permission, player-journey "player not found", every per-group default arm, the module-disabled notice) all converted to `FrontendBreadcrumbs::fromDashboard()` with context-appropriate labels: `Not authorized` / `Player not found` / `Sign in required` / `Section unavailable` / `Unknown section`.
+
+The `pdp-planning` + `player-status-methodology` arms had a bonus duplicate-button (the dispatcher rendered one, then the view rendered its own breadcrumbs); the dispatcher's call is gone.
+
+### Step 5 — `FrontendBackButton` class deleted
+
+Once Steps 1–4 left zero callers, the class file was removed. Five module views still had stale `use TT\Shared\Frontend\FrontendBackButton;` imports — those were cleaned up too. The `FrontendViewBase` docblock was refreshed to describe the breadcrumbs-only navigation contract.
+
+## Net effect
+
+The pilot operator's screenshot now shows exactly the two affordances that were asked for:
+
+```
+[← Terug naar Doelen]                       (tt_back-borne pill)
+Dashboard / Doelen / Goal detail            (breadcrumb chain)
+```
+
+The two redundant `← TERUG NAAR DASHBOARD` buttons are gone. Same fix applies to ~30 other frontend views that had the same pattern.
+
+## Custom-label back buttons removed
+
+A few views had `FrontendBackButton::render('', 'Back to <thing>')` calls where the label was meaningful, not just "back to dashboard":
+
+- `FrontendUsageStatsDetailsView` had an explicit "← Back to usage statistics" button. Users now reach that view by clicking the "Application KPIs" parent crumb in the breadcrumb chain.
+- `FrontendGoalsManageView`, `FrontendActivitiesManageView`, `FrontendMailComposeView`, `FrontendPdpManageView` had similar parent-aware back buttons. The breadcrumb chain has the right intermediate parent in every case — affordance is one click in the chain instead of a dedicated button.
+
+This is an intentional UX trade for consistency. The breadcrumb chain is smaller text on mobile but matches the one pattern used everywhere else.
+
+## Risks & deferrals
+
+- **Legacy `FrontendBreadcrumbs::fromDashboardWithBack()` (referer-based first crumb)** is documented as already-deprecated by the URL-borne pill, but `FrontendMyActivitiesView` + `FrontendMyGoalsView` still call it. Migrating those to plain `fromDashboard()` is a separate, smaller PR; no functional change in this release.
+- **Test coverage**: no automated test asserts navigation-chrome count per page. A smoke test that loads each `?tt_view=…` route and asserts the rendered HTML has exactly one `nav.tt-breadcrumbs` and ≤ 1 `.tt-back-link-pill` would be cheap insurance against future re-introduction. Tracked as a follow-up.
+
+## Translations
+
+Four new NL msgids:
+
+| msgid | msgstr |
+|---|---|
+| `Not authorized` | `Niet geautoriseerd` |
+| `Section unavailable` | `Sectie niet beschikbaar` |
+| `Unknown section` | `Onbekende sectie` |
+| `Sign in required` | `Inloggen vereist` |
+
+`Player not found` was already translated.
+
+---
+
 # TalentTrack v3.110.40 — #0016 close — concrete vision extraction + fuzzy matcher + provider fallback + DPIA template + seeded library
 
 **Closes #0016 engineering.** The photo-to-session capture epic ships its concrete AI extraction layer, the fuzzy matcher that turns extracted text into library suggestions, automatic provider fallback, the DPIA template legal teams must complete before broad deployment, and an 18-drill seeded reference library.
