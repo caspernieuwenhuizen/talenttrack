@@ -7,6 +7,7 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Infrastructure\REST\ActivityExercisesRestController;
 use TT\Infrastructure\REST\ExercisesRestController;
+use TT\Infrastructure\REST\VisionExtractRestController;
 use TT\Modules\Exercises\Vision\ClaudeSonnetProvider;
 use TT\Modules\Exercises\Vision\GeminiProProvider;
 use TT\Modules\Exercises\Vision\OpenAiProvider;
@@ -55,6 +56,14 @@ class ExercisesModule implements ModuleInterface {
         // routes on `rest_api_init`.
         ExercisesRestController::init();
         ActivityExercisesRestController::init();
+
+        // #0016 Sprints 3-6 — vision extraction REST endpoint.
+        // POST /vision/extract orchestrates the photo-to-session
+        // flow: dispatches to the configured VisionProviderInterface
+        // (with provider fallback), runs each extracted exercise
+        // through the ExerciseFuzzyMatcher, returns the structured
+        // ExtractedSession + matcher-suggested library hits.
+        VisionExtractRestController::init();
     }
 
     /**
@@ -86,8 +95,9 @@ class ExercisesModule implements ModuleInterface {
      *   1. The `tt_vision_provider` filter — plugins / per-club
      *      overrides hook here to swap providers per request.
      *   2. The `TT_VISION_PROVIDER` wp-config constant.
-     *   3. Default: `claude_sonnet` (subject to change post-shootout
-     *      in Sprint 4).
+     *   3. Default: `claude_sonnet` (the Sprint 4 ship default;
+     *      revisit when the provider shootout completes against
+     *      real coach photos).
      *
      * Returns null when the chosen provider isn't registered or
      * isn't configured (no API key on this install). Sprint 4
@@ -106,6 +116,46 @@ class ExercisesModule implements ModuleInterface {
         $provider = $registry[ $key ];
         if ( ! $provider->isConfigured() ) return null;
         return $provider;
+    }
+
+    /**
+     * #0016 Sprint 6 — extract with automatic provider fallback.
+     *
+     * Tries the primary provider (per `resolveProvider()`); on any
+     * `RuntimeException` (transport error, quota exceeded, malformed
+     * response, throttle) tries the next configured provider in the
+     * registry. If every configured provider fails, throws a
+     * single `RuntimeException` summarising every attempt — Sprint 4's
+     * review wizard catches that and falls through to manual entry
+     * with a clear "we couldn't read this photo" notice.
+     *
+     * @param array<string,mixed> $context
+     */
+    public static function extractWithFallback( string $image_bytes, array $context = [] ): \TT\Modules\Exercises\Vision\ExtractedSession {
+        $primary = self::resolveProvider();
+        $errors  = [];
+        if ( $primary !== null ) {
+            try {
+                return $primary->extractSessionFromImage( $image_bytes, $context );
+            } catch ( \RuntimeException $e ) {
+                $errors[ $primary->key() ] = $e->getMessage();
+            }
+        }
+
+        foreach ( self::providers() as $key => $provider ) {
+            if ( $primary !== null && $key === $primary->key() ) continue;
+            if ( ! $provider->isConfigured() ) continue;
+            try {
+                return $provider->extractSessionFromImage( $image_bytes, $context );
+            } catch ( \RuntimeException $e ) {
+                $errors[ $key ] = $e->getMessage();
+            }
+        }
+
+        throw new \RuntimeException( sprintf(
+            'No vision provider succeeded. Attempts: %s',
+            $errors === [] ? 'no provider configured' : wp_json_encode( $errors )
+        ) );
     }
 
     /**

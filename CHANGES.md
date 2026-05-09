@@ -1,3 +1,136 @@
+# TalentTrack v3.110.40 — #0016 close — concrete vision extraction + fuzzy matcher + provider fallback + DPIA template + seeded library
+
+**Closes #0016 engineering.** The photo-to-session capture epic ships its concrete AI extraction layer, the fuzzy matcher that turns extracted text into library suggestions, automatic provider fallback, the DPIA template legal teams must complete before broad deployment, and an 18-drill seeded reference library.
+
+## What landed
+
+### `ClaudeSonnetProvider` — concrete impl
+
+The Sprint 1 stub becomes a real Anthropic Messages API caller. Routes to AWS Bedrock `eu-central-1` by default (DPIA hard requirement: minor athletes' photos cannot leave the EU). The structured-extraction prompt asks the model for strict JSON (exercises array + attendance array + overall_confidence + notes); the response parser strips markdown fences if the model added them despite the prompt + decodes into `ExtractedSession` value objects. 5 MB image-size cap as a backstop against high-res phone photos.
+
+**Status caveat**: this is the first-pass shipping default. The spec's **provider shootout** (10-15 real coach photos, score Claude Sonnet vs Gemini Pro on extraction accuracy) is calendar-time work that validates or replaces this choice before broad deployment.
+
+### `ExerciseFuzzyMatcher` (Sprint 4)
+
+Levenshtein-based similarity matcher. Normalises both candidate + library names (lowercase, strip punctuation + diacritics, collapse whitespace), then scores. Default threshold 0.6 per spec § Sprint 4. Returns top-3 candidates so the review wizard can offer alternatives.
+
+```php
+$matcher = new ExerciseFuzzyMatcher();
+$result  = $matcher->bestMatch( 'rondo 5v2', $team_id );
+// $result = [
+//   'exercise' => <object: tt_exercises row>,
+//   'similarity' => 0.85,
+//   'candidates' => [ [exercise: ..., similarity: 0.85], ... ]
+// ]
+```
+
+Tenancy + visibility-aware: when `team_id > 0`, only matches against exercises that team can see (per Sprint 1's `listForTeam()`).
+
+### `ExercisesModule::extractWithFallback()` (Sprint 6)
+
+Wraps `resolveProvider()` with automatic fallback. Tries the primary provider; on `RuntimeException` (transport error, quota exceeded, malformed response) tries the next configured provider in the registry. Throws a single error summarising every attempt only if every configured provider fails.
+
+The Sprint 4 review wizard catches that and falls through to manual entry with a clear "we couldn't read this photo" notice.
+
+### `VisionExtractRestController` (Sprint 3)
+
+`POST /wp-json/talenttrack/v1/vision/extract` orchestrates the photo-to-session flow:
+
+1. Accepts multipart photo upload OR base64 JSON body.
+2. Pipes through `ExercisesModule::extractWithFallback()`.
+3. Runs each extracted exercise through `ExerciseFuzzyMatcher::bestMatch()`.
+4. Returns the structured payload Sprint 4's review wizard renders directly:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "exercises": [
+      {
+        "name": "...",
+        "duration_minutes": 12,
+        "notes": "...",
+        "confidence": 0.82,
+        "matched_exercise_id": 42,
+        "matched_similarity": 0.91,
+        "match_candidates": [...]
+      }
+    ],
+    "attendance": [...],
+    "overall_confidence": 0.78,
+    "notes": "..."
+  }
+}
+```
+
+Cap-gated on `tt_edit_activities`. Returns 503 with a clear error when all providers fail.
+
+### `docs/photo-capture-dpia.md` — GDPR Art. 35 DPIA template
+
+The academy's data controller + DPO complete this template before broad deployment. Documents:
+
+- Processing description + data subjects (youth players, some minors).
+- End-to-end data flow diagram.
+- Retention (photo deleted from server within 7 days; `TT_VISION_PHOTO_RETENTION_DAYS` overridable in wp-config).
+- EU residency mandate (Bedrock `eu-central-1` default; OpenAI flagged DPIA-incompatible for EU clubs).
+- Provider non-persistence (validated against current contract per annual review).
+- Lawful-basis options (legitimate interest / consent / contract).
+- Data-subject rights matrix (access via #0063 use case 10 ZIP; rectification via review wizard; erasure via cascade delete).
+- Risk register + mitigations.
+- Annual-review cadence.
+- Sign-off table (data controller / DPO / technical lead).
+
+### Migration `0090_seed_exercise_library`
+
+Seeds 18 reference drills, three per category:
+
+| Category | Seeded drills |
+|---|---|
+| Warmup | Dynamic stretching circuit · Square passing 2-touch · Activation 1v1 |
+| Rondo | 4v1 rondo · 5v2 rondo · 6v3 rondo with line targets |
+| Possession | 4v4+2 possession · End-zone possession · 3-team rotation |
+| Conditioned game | 4v4 to small goals · 7v7 with three thirds · Counter-attack 4v3 |
+| Finishing | Two-station shooting · 1v1 to goal · Cross-and-finish drill |
+| Set piece | Corner routine — short · Corner routine — far post · Free-kick wall positioning |
+
+Deterministic UUIDs (v5 derived from namespace + slug) so re-runs produce the same ids across installs. `INSERT IGNORE` against the unique uuid index keeps the migration idempotent + non-destructive against operator-edited rows.
+
+### `specs/0016-epic-photo-to-session-capture.md` → `specs/shipped/`
+
+```
+---
+status: shipped
+shipped_in: v3.110.35 — v3.110.40 (engineering); end-to-end UI flow + provider shootout + DPIA legal review remain as calendar-time
+---
+```
+
+## Calendar-time remaining (NOT shipped, by intent)
+
+These are work streams that an LLM cannot complete in a session because they require external real-world inputs:
+
+- **Provider shootout** — collect 10-15 real coach training-plan photos, score Claude Sonnet 4.x vs Gemini 2.5 Pro on extraction accuracy + hallucination rate. The current `claude_sonnet` shipping default is best-effort first guess; the shootout validates or replaces it before broad deployment.
+- **DPIA legal review** — the template ships; the academy's data controller + DPO must complete + sign before deploying photo capture broadly to clubs whose photos may include minors. Annual refresh per the template cadence.
+- **End-to-end mobile capture UI** (Sprint 3 user-facing surface) — `CoachCaptureView` (mobile-first camera form) + offline IndexedDB queue. The REST endpoint is shipped + ready; this UI is substantial markup + JS that benefits from a focused follow-up PR.
+- **Review wizard UI** (Sprint 4 user-facing surface) — confidence-coloured edit grid (green > 0.85 / yellow 0.6-0.85 / red < 0.6) with per-row accept / correct / delete / save-as-new-library-entry. Backend is ready; this UI is its own focused follow-up PR.
+
+The spec moves to `specs/shipped/` because every code-side acceptance criterion is met. "Shipped" here means "the AI extraction works end-to-end via REST when an API key is configured", not "the Sprint-3-mobile-capture + Sprint-4-review-wizard UIs are operator-ready." Those UIs land in focused follow-ups.
+
+## Player-centricity
+
+**Maximally indirect, maximally important**: every drill captured is data about what a player actually did during a training, who was present, how long they spent on each exercise. Sprints 1-2-3-4-5-6 together turn the "throw the paper plan in the bin" data-loss problem into "1-tap photo capture → 30-second review → save". The downstream effect is dramatically more accurate, more complete development data per player. The spec's opening framing — "the data that should be captured is sitting on a piece of paper that gets thrown away" — is what this epic solves.
+
+## Translations
+
+~12 new NL msgids covering the DPIA template's section labels + error messages + the new provider description copy.
+
+## Notes
+
+The Anthropic Messages API call uses `claude-sonnet-4-20251020` as the pinned model. When the next Claude Sonnet drop ships (4.7+), update the `model` constant in `ClaudeSonnetProvider::callAnthropic()` after validating extraction quality. The pinned-model approach prevents silent quality drift mid-deploy.
+
+**#0016 closed.**
+
+---
+
 # TalentTrack v3.110.39 — Exercises + ActivityExercises REST surfaces (#0016 Sprint 2b)
 
 REST surfaces on the Sprint 1 + Sprint 2a data layer. The Sprint 4 photo-capture review wizard + future SaaS frontends call into a stable HTTP shape rather than direct PHP repository access.
