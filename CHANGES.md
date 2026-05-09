@@ -1,3 +1,39 @@
+# TalentTrack v3.110.33 — Playwright coverage v1: players + goal + activity specs (#0076)
+
+Three of the six remaining #0076 Playwright specs ship together. Each follows the established teams-crud / lookups-frontend pattern: navigate to wp-admin, fill form, submit, verify, edit, verify rename. Single-worker, Chromium-only, defensive `test.skip()` when the surface isn't available.
+
+## What landed
+
+| Spec | What it covers |
+|---|---|
+| `tests/e2e/players-crud.spec.js` | Create + edit a player through `?page=tt-players`. Smallest CRUD-shape flow; regression guard for the #0070 row-action routing fix and the v3.89.x archive-vs-status delete fix. |
+| `tests/e2e/goal.spec.js` | Create a goal against the first available demo player, edit its status to `in_progress`, verify the title persists. Regression guard for the #0070 detail-view click-through and the #28 goal-redirect-after-save fix. |
+| `tests/e2e/activity.spec.js` | Create an activity (auto-picks first available `activity_type_key`), edit its title, verify the rename. Regression guard for the v3.110.18 presence-percentage clamp + the v3.110.19 dispatcher-routing fix. |
+
+## Pattern (consistent with the two prior specs)
+
+- `test.use( { storageState: 'tests/e2e/.auth/admin.json' } )` — re-uses the cached admin auth from `globalSetup`.
+- `gotoAddNew()`, `uniqueName()` from `./helpers/admin` — same helpers as teams + lookups.
+- Selector strategy: `name="<field>"` for form inputs (stable across locales) + first-non-empty-option dropdowns (decoupled from seed order / operator-customised lookup rows).
+- Skips with a clear reason instead of failing when the seed install is too sparse to exercise the flow.
+- Each spec is independently runnable via `npm run test:e2e tests/e2e/<spec>.spec.js`.
+
+## What's NOT in this PR (lands in the follow-up #0076 PR)
+
+- `tests/e2e/evaluation.spec.js` — new-evaluation wizard end-to-end.
+- `tests/e2e/persona-dashboard-editor.spec.js` — drag-drop fragility (kept isolated per spec § Sequencing).
+- `tests/e2e/pdp-capture.spec.js` — depends on activities + behaviour ratings; lands once the simpler specs validate the pattern in CI.
+
+## Translations
+
+Zero new NL msgids — test fixtures only.
+
+## Notes
+
+Per spec § "After each PR, monitor 3+ CI runs for flakes before moving on" — this PR is the first batch; the second #0076 PR holds until these three pass cleanly across at least 3 CI runs. Single-worker concurrency keeps total CI time under the spec's 8-minute budget; the three new specs together add ~1-2 min wall-clock.
+
+---
+
 # TalentTrack v3.110.32 — Docs + close #0090 (Phase 8 — data-row i18n epic complete)
 
 Eighth and final phase of #0090 (data-row internationalisation). **Closes #0090.**

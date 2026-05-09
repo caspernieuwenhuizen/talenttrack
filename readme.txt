@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.32
+Stable tag: 3.110.33
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.33 — Playwright coverage v1: players + goal + activity specs (#0076) =
+
+Three of the six remaining `#0076` Playwright specs ship together. Each follows the established teams-crud / lookups-frontend pattern: navigate to wp-admin, fill form, submit, verify, edit, verify rename. Single-worker, Chromium-only, defensive `test.skip()` when the surface isn't available. **(1) `tests/e2e/players-crud.spec.js`** — create + edit a player through `?page=tt-players`. Smallest CRUD-shape flow; regression guard for the #0070 row-action routing fix and the v3.89.x archive-vs-status delete fix. **(2) `tests/e2e/goal.spec.js`** — create a goal against the first available demo player, edit its status to `in_progress`, verify the title persists. Regression guard for the #0070 detail-view click-through and the #28 goal-redirect-after-save fix. **(3) `tests/e2e/activity.spec.js`** — create an activity (auto-picks first available `activity_type_key`), edit its title, verify the rename. Regression guard for the v3.110.18 presence-percentage clamp + the v3.110.19 dispatcher-routing fix. **What's NOT in this PR (lands in the second #0076 PR)**: evaluation wizard, persona-dashboard-editor drag-drop, pdp-capture. Single-worker run keeps total CI time under the spec's 8-minute budget. Zero new NL msgids — test fixtures only.
 
 = 3.110.32 — Docs + close #0090 (Phase 8 — data-row i18n epic complete) =
 
