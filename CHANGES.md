@@ -49,15 +49,13 @@ Every "you don't have permission" early-return inside these views now renders `D
 
 ## Translations
 
-Three new NL msgids that didn't exist before:
+One new NL msgid:
 
 | msgid | msgstr |
 |---|---|
 | `My scouted players` | `Mijn gescoute spelers` |
-| `My staff goals` | `Mijn personeelsdoelen` |
-| `My staff evaluations` | `Mijn personeelsevaluaties` |
 
-`Top performers`, `Player comparison`, `Rate cards`, `Help & Docs`, `Mobile experience`, `Wizards`, `Two-factor authentication`, `Explore`, `Player status methodology`, `Trial cases`, `Parent meeting`, `Trial tracks`, `Letter templates`, `My tasks`, `Tasks dashboard`, `Workflow templates`, `Staff overview`, `My PDP`, `My certifications`, `My card`, `My team`, `My evaluations`, `My development plan`, `Teams`, `Players`, `People`, `Team chemistry`, `Team not found`, `Access denied`, `Generate report`, `Scout access`, `Scout reports history`, `Trials`, `New trial case`, `Trial: %s`, `New team`, `Edit team — %s`, `New player`, `Edit player — %s`, `Player not found`, `New person`, `Edit person — %s`, `Person not found`, `Not authorized`, `Wizard not found` — all already in the .po.
+`My staff goals` and `My staff evaluations` already existed in the NL .po (translated as `Mijn stafdoelen` / `Mijn stafevaluaties` from earlier sweeps); the breadcrumb code references the same msgid strings so the existing translations apply. Every other label the breadcrumb chains use (`Top performers`, `Player comparison`, `Rate cards`, `Help & Docs`, `Mobile experience`, `Wizards`, `Two-factor authentication`, `Explore`, `Player status methodology`, `Trial cases`, `Parent meeting`, `Trial tracks`, `Letter templates`, `My tasks`, `Tasks dashboard`, `Workflow templates`, `Staff overview`, `My PDP`, `My certifications`, `My card`, `My team`, `My evaluations`, `My development plan`, `Teams`, `Players`, `People`, `Team chemistry`, `Team not found`, `Access denied`, `Generate report`, `Scout access`, `Scout reports history`, `Trials`, `New trial case`, `Trial: %s`, `New team`, `Edit team — %s`, `New player`, `Edit player — %s`, `Player not found`, `New person`, `Edit person — %s`, `Person not found`, `Not authorized`, `Wizard not found`) was already in the .po.
 
 ---
 

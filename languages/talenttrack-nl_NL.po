@@ -14399,9 +14399,3 @@ msgstr "zet %s op true in talenttrack.php en configureer Freemius-credentials (T
 
 msgid "My scouted players"
 msgstr "Mijn gescoute spelers"
-
-msgid "My staff goals"
-msgstr "Mijn personeelsdoelen"
-
-msgid "My staff evaluations"
-msgstr "Mijn personeelsevaluaties"
