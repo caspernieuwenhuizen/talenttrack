@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.37
+Stable tag: 3.110.38
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.38 — Translation dictionaries batch 2 (#0010 close — code-side complete) =
+
+Closes #0010 code-side. Spec moved to `specs/shipped/` with frontmatter `status: shipped` and a clear "calendar-time follow-ups remaining" note. **(1) Dictionary expansion**: each of `tools/translations-fr_FR.php`, `translations-de_DE.php`, `translations-es_ES.php` extended by ~170 entries — common form labels (Field, Value, Code, Color, Image, File), date / time vocabulary (Day / Hour / Minute / Daily / Weekly / Monthly), navigation modifiers (View all / Show more / Read more / Add another), error states (Access denied / Session expired / Try again), authentication labels (Sign in / Sign out / Username / Password), notifications (Inbox / Sent / Reply / Forward), permissions vocabulary (Roles / Capabilities / Permission denied), pagination (Page %d of %d / Items per page / Previous page / Next page), match-day vocabulary (Roster / Squad / Lineup / Bench / Captain / Opponent / Home / Away / Win / Loss / Draw), discussion (Thread / Conversation / Comment / Feedback). **(2) Coverage now**: 245 non-empty msgstrs per locale (vs. 161 prior). Remaining ~4368 msgids stay empty (English fallback at runtime). **(3) Spec frontmatter**: `status: shipped`, `shipped_in: v3.110.34 — v3.110.38 (code-side); native-speaker review + remaining 67 docs are calendar-time follow-ups`. **What's NOT shipped (calendar-time)**: native-speaker review of the ~4280 unfilled msgids per locale (~15-25h per language per spec sizing), and 67 English docs × 3 locales = 201 translated markdown files (~30-60h per language). Both stream as parallel work against the shipped infrastructure — neither blocks any product feature. Empty msgstrs fall back to English at runtime; missing translated docs fall back to the EN file. The dictionaries (`tools/translations-<locale>.php`) are the supported extension point for translators — add entries + run `php tools/apply-translations.php <locale>` to merge into the `.po` without manual `.po` edits. Zero new NL msgids.
 
 = 3.110.37 — Activity-to-exercise linkage table + repository (#0016 Sprint 2a) =
 
