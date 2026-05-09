@@ -62,46 +62,33 @@ class FrontendPeopleManageView extends FrontendViewBase {
         }
 
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $people_label );
-        self::renderHeader( $people_label );
+
+        // v3.110.53 — page-header actions slot. Same pattern as Players.
+        $base_url = remove_query_arg( [ 'action', 'id' ] );
+        $page_actions = [];
+        if ( current_user_can( 'tt_edit_people' ) ) {
+            $page_actions[] = [
+                'label'   => __( 'New person', 'talenttrack' ),
+                'href'    => add_query_arg( [ 'tt_view' => 'people', 'action' => 'new' ], $base_url ),
+                'primary' => true,
+                'icon'    => '+',
+            ];
+        }
+        self::renderHeader( $people_label, self::pageActionsHtml( $page_actions ) );
         self::renderList( $user_id, $is_admin );
     }
 
     private static function renderList( int $user_id, bool $is_admin ): void {
         $base_url = remove_query_arg( [ 'action', 'id' ] );
-        $new_url  = add_query_arg( [ 'tt_view' => 'people', 'action' => 'new' ], $base_url );
-
-        echo '<p style="margin:0 0 var(--tt-sp-3, 12px);"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
-            . esc_html__( 'New person', 'talenttrack' )
-            . '</a></p>';
 
         $role_type_options = [];
         foreach ( PeopleRepository::ROLE_TYPES as $rt ) {
             $role_type_options[ $rt ] = self::humanRoleTypeLabel( $rt );
         }
 
-        $row_actions = [
-            // v3.110.48 — dropped redundant 'View' action. Clicking the
-            // name cell already routes to the detail view via
-            // RecordLink::detailUrlForWithBack (with tt_back capture).
-            'edit' => [
-                'label' => __( 'Edit', 'talenttrack' ),
-                // v3.91.2 — was `?tt_view=people&id={id}` which the
-                // dispatcher's `?id=N` shunt routed to PersonDetailView.
-                // Add `action=edit` so the manage view picks up the URL
-                // and renders the form (it ignores `action` but the
-                // dispatcher uses it to skip the detail-view shunt).
-                'href'  => add_query_arg( [ 'tt_view' => 'people', 'id' => '{id}', 'action' => 'edit' ], $base_url ),
-                'cap'   => 'tt_edit_people',
-            ],
-            'delete' => [
-                'label'       => __( 'Archive', 'talenttrack' ),
-                'rest_method' => 'DELETE',
-                'rest_path'   => 'people/{id}',
-                'confirm'     => __( 'Archive this person? They can be restored later by a site admin.', 'talenttrack' ),
-                'variant'     => 'danger',
-                'cap'         => 'tt_edit_people',
-            ],
-        ];
+        // v3.110.53 — list rows are scanning surfaces. Edit / Archive
+        // moved to the person detail page (FrontendPersonDetailView).
+        $row_actions = [];
 
         echo FrontendListTable::render( [
             'rest_path' => 'people',
