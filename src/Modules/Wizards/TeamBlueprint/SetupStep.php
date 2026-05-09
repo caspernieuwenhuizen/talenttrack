@@ -92,4 +92,17 @@ final class SetupStep implements WizardStepInterface {
     }
 
     public function nextStep( array $state ): ?string { return 'review'; }
+
+    /**
+     * Setup is the entry step, never the terminal one — `nextStep()`
+     * always returns `'review'`. The framework only calls `submit()`
+     * on the step whose `nextStep()` returns null, so this is a
+     * placeholder required by `WizardStepInterface`.
+     *
+     * Without it PHP fatals on instantiation with "Class SetupStep
+     * contains 1 abstract method and must therefore be declared
+     * abstract or implement the remaining methods", which is exactly
+     * the white-screen the user hit clicking "+ New blueprint".
+     */
+    public function submit( array $state ) { return null; }
 }

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.54
+Stable tag: 3.110.55
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.55 — Hotfix: + New blueprint white-screened on every install since v3.98.0 =
+
+The Team Blueprint wizard's first step (`SetupStep`) was missing the `submit()` method that `WizardStepInterface` requires. PHP refuses to instantiate the class with `Class TT\Modules\Wizards\TeamBlueprint\SetupStep contains 1 abstract method and must therefore be declared abstract or implement the remaining methods (TT\Shared\Wizards\WizardStepInterface::submit)` — which is the white-screen / 500 the user hit clicking "+ New blueprint" on `?tt_view=team-blueprints`. Bug has been there since v3.98.0 (`feat: Team Blueprint Phase 1 — drag-drop lineups`); only surfaced now because the wizard route was largely unused. Added a no-op `submit()` to `SetupStep` (the framework only calls `submit()` on the terminal step, which is `ReviewStep` — `SetupStep::submit()` exists solely to satisfy the interface). Other wizard steps in the codebase audited: every other `*Step.php` already implements `submit()`. Zero new translatable strings.
 
 = 3.110.54 — List-header actions slot: + New / Edit / Archive on the page-header (FAB on mobile), drop in-row Edit / Delete =
 

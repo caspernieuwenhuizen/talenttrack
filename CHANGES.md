@@ -1,3 +1,41 @@
+# TalentTrack v3.110.55 — Hotfix: `+ New blueprint` white-screened on every install since v3.98.0
+
+Pilot operator clicked **+ New blueprint** on `?tt_view=team-blueprints` and got a critical WP error / white screen instead of the wizard.
+
+## Root cause
+
+The Team Blueprint wizard's first step — `src/Modules/Wizards/TeamBlueprint/SetupStep.php` — was missing the `submit()` method that `WizardStepInterface` declares. PHP refuses to instantiate any concrete class with an unimplemented abstract method:
+
+```
+PHP Fatal error: Class TT\Modules\Wizards\TeamBlueprint\SetupStep contains 1 abstract method
+and must therefore be declared abstract or implement the remaining methods
+(TT\Shared\Wizards\WizardStepInterface::submit) in SetupStep.php on line 15
+```
+
+The fatal fires at the moment `NewTeamBlueprintWizard::steps()` returns the step list (the framework calls `new SetupStep()` to populate the array). The wizard view bails on construction; the user sees the WP critical-error template.
+
+The bug landed in **v3.98.0** (`feat(v3.98.0): Team Blueprint Phase 1 — drag-drop lineups`, PR #251), which introduced `SetupStep` without the `submit()` method — and stayed broken through v3.99.0 (Phase 2 added the squad-plan flavour but kept the missing method) until now. The wizard route stayed unused for ~12 releases because the team-blueprint surface was driven by the list page's "+ New blueprint" affordance, which only wired into the wizard route via `WizardEntryPoint::urlFor()`. The route's first real-world click is what surfaced the regression.
+
+## Fix
+
+Added a no-op `submit()` to `SetupStep`. The framework only calls `submit()` on the terminal step (the one whose `nextStep()` returns `null`) — `SetupStep::nextStep()` always returns `'review'`, so `submit()` is a placeholder required by the interface but never invoked. `ReviewStep::submit()` continues to do the actual `tt_team_blueprints` insert + the editor-redirect.
+
+```php
+public function nextStep( array $state ): ?string { return 'review'; }
+
+public function submit( array $state ) { return null; }
+```
+
+## Defensive sweep
+
+Audited every `*Step.php` under `src/Modules/Wizards/`: the seven other multi-step wizards in the codebase (`new-player`, `new-team`, `new-evaluation`, `new-goal`, `new-activity`, `new-person`, plus the `new-prospect` shipped in #351) all implement `submit()` on every step. `SetupStep` was the only offender.
+
+## Translations
+
+Zero new msgids.
+
+---
+
 # TalentTrack v3.110.54 — List-header actions slot: `+ New` / `Edit` / `Archive` on the page header, FAB on mobile, drop in-row Edit / Delete
 
 Pilot operator UX feedback on the list rows raised three things:
