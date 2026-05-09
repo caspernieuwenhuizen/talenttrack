@@ -1,3 +1,51 @@
+# TalentTrack v3.110.58 — My activities: empty-list bug for players + post-save redirect back to team planner
+
+Two issues on `?tt_view=my-activities` from a tile-by-tile pilot review.
+
+## (1) Empty-list bug — every logged-in player saw "No activities recorded for you yet."
+
+A player whose team had multiple active activities (Planned, Completed, all visible in the team planner) saw an empty list on `?tt_view=my-activities`.
+
+**Root cause** in `ActivitiesRestController::list_sessions`:
+
+1. The endpoint applies a coach-team scope filter: `WHERE s.team_id IN (<teams the caller head-coaches>)`.
+2. If the caller has zero head-coach teams AND isn't a global-read persona (scout / HoD / academy admin), the controller short-circuits with `return RestResponse::success(['rows' => [], 'total' => 0, ...])`.
+3. **A logged-in player has zero head-coach teams.** The early-return fires for every player on every my-activities call.
+4. The `filter[player_id]` predicate further down (which would correctly match `s.team_id IN (player's teams) OR EXISTS attendance row`) never gets a chance to execute.
+
+**Fix**: detect player-scoped requests up front and bypass the coach-team scope filter for them.
+
+```php
+$is_player_scoped = ! empty( $filter['player_id'] )
+    && self::callerCanReadAsPlayerOrParent( (int) $filter['player_id'] );
+
+if ( ! $is_player_scoped
+     && ! QueryHelpers::user_has_global_entity_read( get_current_user_id(), 'activities' ) ) {
+    // existing coach-team scope filter
+}
+```
+
+`callerCanReadAsPlayerOrParent()` mirrors the logic `can_view()` already uses: the caller is allowed if they ARE the linked player, OR if they're a registered parent of that player (`tt_player_parents` row exists).
+
+## (2) Post-save redirect — coach editing from team planner now lands back on the planner
+
+When a coach opened the activities form via the team planner — clicking "+ Schedule activity", "+ Add" on an empty day, or an activity card — and saved, they landed on the generic activities list (`?tt_view=activities`) instead of being returned to the planner. Lost context.
+
+The reusable `BackLink` infrastructure (`tt_back` URL parameter; `BackLink::appendTo($url)` and `BackLink::resolve()`) already exists for this. The activities form just wasn't wired in.
+
+**Fix:**
+
+- **Team planner** (`FrontendTeamPlannerView`): every activity-form URL now goes through `BackLink::appendTo()`, capturing the planner URL the user is on (`+ Schedule activity` toolbar, `+ Add` empty-day links, activity card click-through).
+- **Activities form** (`FrontendActivitiesManageView::renderForm`): reads `BackLink::resolve()` and, when a back-target is present, emits `data-redirect-after-save-url="<back URL>"` on the `<form>` element. The existing `public.js` save handler already honours this attribute (1.2s success delay, then `window.location.href = url`).
+
+When no `tt_back` is in the URL (i.e., the user opened the form directly from the activities list), the form falls back to its existing `data-redirect-after-save="list"` behaviour, so the activities-list-side flow is unchanged.
+
+## Translations
+
+Zero new msgids.
+
+---
+
 # TalentTrack v3.110.57 — Evaluations list/detail align with the v3.110.54 view-only-list / Edit+Archive-on-detail pattern
 
 A user audit of the application's list views found the **Evaluations** module out of sync with the rest of the dashboard. The Players, Teams, People, Goals, and Activities surfaces were brought into compliance in v3.110.54: list rows are click-through only, and Edit + Archive live on the record's detail page in a page-header actions slot (FAB on mobile, top-right buttons on desktop). Evaluations still had an inline ✕ delete button per row, no Edit affordance anywhere, and no Archive button on the detail page. This release closes those gaps.
@@ -152,10 +200,6 @@ public function submit( array $state ) { return null; }
 ## Defensive sweep
 
 Audited every `*Step.php` under `src/Modules/Wizards/`: the seven other multi-step wizards in the codebase (`new-player`, `new-team`, `new-evaluation`, `new-goal`, `new-activity`, `new-person`, plus the `new-prospect` shipped in #351) all implement `submit()` on every step. `SetupStep` was the only offender.
-
-## Translations
-
-Zero new msgids.
 
 ---
 

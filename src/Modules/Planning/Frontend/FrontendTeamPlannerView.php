@@ -156,12 +156,12 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             <?php endif; ?>
 
             <?php if ( $can_manage ) : ?>
-                <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( add_query_arg( [
+                <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [
                     'tt_view'      => 'activities',
                     'action'       => 'new',
                     'team_id'      => (int) $team->id,
                     'plan_state'   => 'scheduled',
-                ], RecordLink::dashboardUrl() ) ); ?>">
+                ], RecordLink::dashboardUrl() ) ) ); ?>">
                     + <?php esc_html_e( 'Schedule activity', 'talenttrack' ); ?>
                 </a>
             <?php endif; ?>
@@ -231,13 +231,13 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                     <div class="tt-planner-day-body">
                         <?php if ( empty( $items ) ) : ?>
                             <?php if ( $can_manage ) : ?>
-                                <a class="tt-planner-empty" href="<?php echo esc_url( add_query_arg( [
+                                <a class="tt-planner-empty" href="<?php echo esc_url( \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [
                                     'tt_view'      => 'activities',
                                     'action'       => 'new',
                                     'team_id'      => $team_id,
                                     'session_date' => $day,
                                     'plan_state'   => 'scheduled',
-                                ], RecordLink::dashboardUrl() ) ); ?>">
+                                ], RecordLink::dashboardUrl() ) ) ); ?>">
                                     + <?php esc_html_e( 'Add', 'talenttrack' ); ?>
                                 </a>
                             <?php else : ?>
@@ -258,6 +258,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
 
     /** @param array<int, object> $principles */
     private static function renderActivityCard( object $a, array $principles ): string {
+<<<<<<< HEAD
         // The status pill is driven by `activity_status_key` — the
         // lookup the user actually edits on the activities form. The
         // legacy `plan_state` column defaulted to `completed` on
@@ -268,10 +269,16 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         $status_key  = (string) ( $a->activity_status_key ?? 'planned' );
         $state_class = 'tt-planner-state-' . sanitize_html_class( $status_key );
         $url = add_query_arg( [
+=======
+        $state = (string) ( $a->plan_state ?? 'completed' );
+        $state_class = 'tt-planner-state-' . sanitize_html_class( $state );
+        $state_label = self::planStateLabel( $state );
+        $url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [
+>>>>>>> 1b1429f (fix(v3.110.51): My activities — empty list for players + post-save redirect to referring view)
             'tt_view' => 'activities',
             'action'  => 'edit',
             'id'      => (int) $a->id,
-        ], RecordLink::dashboardUrl() );
+        ], RecordLink::dashboardUrl() ) );
 
         ob_start();
         ?>
