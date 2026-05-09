@@ -1,3 +1,69 @@
+# TalentTrack v3.110.44 — `TT_COMMERCIAL_MODE`: single switch between non-commercial test instance and commercial production
+
+The plugin's licensing machinery (DevOverride / TrialState / FreemiusAdapter / FeatureMap tier gating / free-tier caps / Upgrade-to-Pro UI) was already in place but didn't have a clean global on/off. Owner test-instances saw an "Upgrade to Pro" button that went nowhere because Freemius wasn't wired up. The owner is the only customer today (no commercial customers yet), so the right default is **everything unlocked**, with a single one-line flip to enter commercial mode the day the first paying customer goes live.
+
+This release adds **`TT_COMMERCIAL_MODE`** as that single switch, defined in `talenttrack.php`. Defaults to `false` (non-commercial test instance).
+
+## Behaviour
+
+| Mode | `LicenseGate::tier()` | `can()` / `allows()` | `capsExceeded()` | `isInTrial()` / `isInGrace()` | AccountPage / PlanTab UI |
+|---|---|---|---|---|---|
+| Non-commercial (default) | Pro | true (every feature) | false (caps disabled) | false (trial ignored) | Single "Non-commercial test instance" notice |
+| Commercial | DevOverride → Trial → Freemius → Free | FeatureMap tier-membership | At-cap on Free, off on paid | TrialState | Existing trial countdown, tier label, Upgrade-to-Pro card, Freemius-not-wired caveat |
+
+Trial state on disk (the `tt_license_trial` option) is preserved across the toggle — when commercial mode is flipped on, an existing in-flight trial reappears in the UI. Same for DevOverride transients.
+
+## What landed
+
+### `src/Modules/License/LicenseMode.php` — new
+
+Single static helper `LicenseMode::isCommercial()` that returns `true` when the `TT_COMMERCIAL_MODE` constant is defined and truthy. Returns `false` otherwise (constant missing, set to `false`, set to `0`, etc.).
+
+### `src/Modules/License/LicenseGate.php` — short-circuits at the top of every public method
+
+- `tier()` returns `FeatureMap::TIER_PRO` when not commercial. Existing resolution order (DevOverride → Trial → Freemius → Free) only runs in commercial mode.
+- `can()` returns `true` when not commercial.
+- `capsExceeded()` returns `false` when not commercial. Existing module-disabled fallback stays for installs that turn off the License module via Authorization → Modules.
+- `isInTrial()` and `isInGrace()` return `false` when not commercial.
+- `effectiveTier()` cascades correctly via `tier()` and `isInGrace()`.
+- `allows()` cascades via `can()`.
+
+### `src/Modules/License/Admin/AccountPage.php` — `renderAccountTab()` and `renderPlanTab()` short-circuit
+
+When not commercial, both tabs render a single inline notice via the new `renderTestModeNotice()` helper. Notice explains:
+
+- `TT_COMMERCIAL_MODE` is `false`, every feature unlocked, caps off, trial / upgrade UI hidden.
+- How to switch to commercial mode (flip the constant + configure Freemius).
+
+### `talenttrack.php` — `TT_COMMERCIAL_MODE` constant declaration
+
+Defaults to `false`. Header comment documents the toggle and points at Freemius credentials as the second piece of the "go commercial" puzzle.
+
+## What this fixes
+
+- Pilot operator's "blue button does nothing" complaint on the License → Account tab. In test mode the button no longer renders at all; the notice tells them why.
+- Standard / Pro features were gated even on the owner's own test install. Now everything is unlocked by default until the day the toggle is flipped.
+
+## What this does NOT change
+
+- `DevOverride` mechanism stays available and still works in commercial mode for owner-side tier-flip testing.
+- Freemius integration is unchanged — wiring `TT_FREEMIUS_PRODUCT_ID` and `TT_FREEMIUS_PUBLIC_KEY` is still required for real checkout in commercial mode.
+- `LicenseModule::ensureCapabilities()` still grants caps to roles per the existing seed; the gate for whether those caps actually unlock features is the LicenseGate short-circuit.
+- The Plan tab's feature-matrix view (Free / Standard / Pro per-feature breakdown) is hidden in non-commercial mode along with the trial / upgrade UI. Reads-only, low risk to hide.
+
+## Translations
+
+Three new NL msgids:
+
+| msgid | msgstr |
+|---|---|
+| `Non-commercial test instance` | `Niet-commerciële testinstallatie` |
+| `%s is set to false in talenttrack.php. Every TalentTrack feature is unlocked, free-tier caps do not apply, and the trial / upgrade UI is hidden. Trial state on disk (if any) is preserved but ignored at runtime.` | `%s staat op false in talenttrack.php. Elke TalentTrack-functie is ontgrendeld, free-tier-limieten worden niet toegepast, en de proefperiode- / upgrade-interface is verborgen. Eventuele proefperiode-status op schijf blijft bewaard maar wordt tijdens runtime genegeerd.` |
+| `Switching to commercial mode` | `Schakelen naar commerciële modus` |
+| `flip %s to true in talenttrack.php and configure Freemius credentials (TT_FREEMIUS_PRODUCT_ID, TT_FREEMIUS_PUBLIC_KEY) so the upgrade flow can complete checkout. The existing License module machinery (DevOverride, TrialState, FreemiusAdapter) will then drive tier resolution and feature gating.` | `zet %s op true in talenttrack.php en configureer Freemius-credentials (TT_FREEMIUS_PRODUCT_ID, TT_FREEMIUS_PUBLIC_KEY) zodat de upgrade-flow de checkout kan afronden. De bestaande License-module (DevOverride, TrialState, FreemiusAdapter) regelt vervolgens de tier-resolutie en feature-gating.` |
+
+---
+
 # TalentTrack v3.110.43 — Free-tier customers mid-trial now see the "Upgrade to Pro" card
 
 Follow-up hotfix to the trial-period upgrade-button fix that shipped in v3.110.39. That earlier fix introduced the `$paid_tier` distinction so a Standard customer in an active trial would still see the upgrade card (because `LicenseGate::tier()` returns the trial-unlocked tier, not the underlying paid plan) and gated the Account-tab card on `$paid_tier === FeatureMap::TIER_STANDARD`.

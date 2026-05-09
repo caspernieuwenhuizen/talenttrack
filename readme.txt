@@ -4,13 +4,25 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.43
+Stable tag: 3.110.44
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.44 — TT_COMMERCIAL_MODE: single switch between non-commercial test instance and commercial production =
+
+The plugin's licensing machinery (DevOverride / TrialState / FreemiusAdapter / FeatureMap tier gating / free-tier caps / Upgrade-to-Pro UI) was already in place but didn't have a clean global on/off. Owner test-instances saw an "Upgrade to Pro" button that went nowhere because Freemius wasn't wired up. The owner is the only customer today (no commercial customers yet), so the right default is **everything unlocked**, with a single one-line flip to enter commercial mode the day the first paying customer goes live.
+
+This release adds **`TT_COMMERCIAL_MODE`** as that single switch, defined in `talenttrack.php`. Defaults to `false` (non-commercial test instance). When `false`: `LicenseGate::tier()` returns Pro, every feature is unlocked, `capsExceeded()` returns false, the AccountPage renders a single "Non-commercial test instance" notice in place of the trial / tier / upgrade UI, and trial state on disk is preserved but ignored at runtime. When `true`: existing behaviour kicks in (DevOverride / TrialState / Freemius drive tier resolution; AccountPage renders trial countdown, upgrade card, etc.).
+
+**The "one simple code change to commercialize"**: edit `define( 'TT_COMMERCIAL_MODE', false );` to `true` in talenttrack.php (and configure `TT_FREEMIUS_PRODUCT_ID` + `TT_FREEMIUS_PUBLIC_KEY` alongside, for actual checkout to work).
+
+**(1) `LicenseMode` class** at `src/Modules/License/LicenseMode.php` — single helper `LicenseMode::isCommercial()` that reads the constant. **(2) `LicenseGate` short-circuits** in `tier()` (returns Pro), `can()` (returns true), `capsExceeded()` (returns false), `isInTrial()` / `isInGrace()` (return false). The existing module-disabled fallbacks remain for installs that turn off the License module via Authorization → Modules. **(3) `AccountPage`** renders a single inline notice in both the Account and Plan tabs when not commercial — explains the mode and tells the operator what to do to enter commercial mode. **(4) `talenttrack.php`** declares the constant with the default value + a header comment documenting the toggle.
+
+Three new NL msgids: the test-mode panel heading, the body copy, and the "switching to commercial mode" instructions.
 
 = 3.110.43 — Free-tier customers mid-trial now see the "Upgrade to Pro" card =
 
