@@ -1,3 +1,73 @@
+# TalentTrack v3.110.27 — Eval categories migrate to `tt_translations` (#0090 Phase 3)
+
+Third phase of #0090 (data-row internationalisation). Eval categories (`tt_eval_categories`) become the second entity to read + write through the new `tt_translations` store seeded by Phase 1 and exercised by Phase 2 (lookups). No user-visible change: every Dutch label that rendered correctly before still renders correctly.
+
+## What landed
+
+### `I18nModule::boot()` — register the `eval_category` entity
+
+```php
+TranslatableFieldRegistry::register(
+    TranslatableFieldRegistry::ENTITY_EVAL_CATEGORY,
+    [ 'label' ]
+);
+```
+
+Per spec Decision Q6: lookups → `[name, description]`; eval_categories → `[label]`. Description is intentionally not translatable in v1 — operator-authored descriptions don't have `.po` entries to backfill from.
+
+### Migration `0084_backfill_eval_category_translations`
+
+`tt_eval_categories` has no legacy JSON column (unlike `tt_lookups`), so the backfill goes through `gettext` instead of decoding JSON:
+
+1. Iterate every row in `tt_eval_categories`.
+2. Call `__( $label, 'talenttrack' )` to resolve the canonical Dutch translation from `nl_NL.po`.
+3. If the result differs from the input, `INSERT IGNORE` a `(club_id, 'eval_category', $id, 'label', 'nl_NL', <translated>)` row into `tt_translations`.
+4. If gettext returns the input unchanged (operator-added labels with no `.po` match), skip — no row to insert.
+
+Loads the textdomain explicitly via `load_plugin_textdomain()` so migrations running early in the plugin-activation lifecycle still resolve labels. Idempotent against the unique index; preserves operator-edited rows that may have landed via a future Phase 5 Translations tab.
+
+### `EvalCategoriesRepository::displayLabel( $raw, ?int $entity_id = null )`
+
+The optional second parameter unlocks the `tt_translations` read path:
+
+- **Caller passes `$entity_id`** — chain is `tt_translations(requested locale) → tt_translations(en_US) → __( $raw ) → $raw`.
+- **Caller passes string only** — chain stays at the legacy `__( $raw ) → $raw` (gettext-resolved). Backward-compatible; the ~30 existing call sites keep working without code changes.
+
+Phase 6 cleanup will sweep the remaining string-only callers as part of dropping `nl_NL.po` msgids for migrated rows.
+
+### Call-site sweep (high-traffic paths only)
+
+Updated to pass `$cat->id` so they read from the new store on day one:
+
+- `EvaluationsPage` — admin tree (main + sub labels), radar chart, per-row results table.
+- `RateActorsStep` — evaluation wizard's main + sub rating grid.
+- `HybridDeepRateStep` — evaluation wizard's deep-rate path.
+- `FrontendEvalCategoriesView` — frontend admin's category list + edit header.
+
+The other ~25 call sites (CoachForms, FrontendComparisonView, PlayerReportRenderer, FrontendMyEvaluationsView, etc.) continue to use the gettext fallback.
+
+### Cascade delete on category removal
+
+`EvalCategoriesRestController::delete_category()` now calls `TranslationsRepository::deleteAllFor( 'eval_category', $id )` after the source row is deleted. Mirrors Phase 2's lookup cascade so the new store does not retain orphans pointing at vanished `entity_id`s.
+
+## What's NOT in this PR (lands in Phases 4-8)
+
+- **Phase 4** — Roles + functional roles migration.
+- **Phase 5** — Seed-review Excel `<field>_<locale>` columns become editable for migrated entities; per-entity admin Translations tab using `TranslationsRepository::allFor()`.
+- **Phase 6** — `nl_NL.po` cleanup of migrated msgids + sweep remaining string-only `displayLabel()` callers.
+- **Phase 7** — FR/DE/ES locale enablement.
+- **Phase 8** — docs + close epic.
+
+## Translations
+
+Zero new NL msgids — Phase 3 is internal plumbing. The 25 seeded category labels already have entries in `nl_NL.po`; the migration just copies those translations into `tt_translations` so future ships can drop the .po side cleanly.
+
+## Notes
+
+No user-visible change. The migration runs once on plugin update; from that point forward `tt_translations` is the source of truth for eval-category labels in non-en_US locales for the high-traffic call sites. The `nl_NL.po` entries remain in place until Phase 6 cleanup.
+
+---
+
 # TalentTrack v3.110.26 — Authorization matrix Excel/CSV round-trip
 
 Adds Excel/CSV round-trip on the authorization matrix admin (`?page=tt-matrix`). Operators can export the live matrix to a single sheet (or CSV), edit grants offline, re-upload, preview the diff, and apply.

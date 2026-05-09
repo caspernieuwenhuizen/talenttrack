@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.26
+Stable tag: 3.110.27
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.27 — Eval categories migrate to `tt_translations` (#0090 Phase 3) =
+
+Third phase of #0090 (data-row internationalisation). Eval categories (`tt_eval_categories`) become the second entity to read + write through the new `tt_translations` store seeded by Phase 1 and exercised by Phase 2 (lookups). No user-visible change: every Dutch label that rendered correctly before still renders correctly. **(1) `I18nModule::boot()`** registers `(entity_type='eval_category', fields=['label'])` per spec Decision Q6 (description intentionally not translatable in v1). **(2) Migration `0084_backfill_eval_category_translations`** walks every row in `tt_eval_categories`, calls `__($label, 'talenttrack')` to resolve the canonical Dutch translation through gettext, and `INSERT IGNORE`s a `nl_NL` row into `tt_translations` when the gettext result differs from the canonical column. Idempotent; defensive against missing tables; preserves operator-edited translations from a future Phase 5 Translations tab. Loads the textdomain explicitly so migrations running early in the activation lifecycle still resolve labels. **(3) `EvalCategoriesRepository::displayLabel( $raw, ?int $entity_id = null )`** — the optional second parameter unlocks the `tt_translations` read path. When the caller passes the row id, the resolver chain becomes `tt_translations → __() → fallback`. String-only callers (legacy code that has only the label) keep working through gettext, so the upgrade lands without breaking any of the ~30 existing call sites. **(4) Major call-site sweep** — `EvaluationsPage` (admin tree + radar + per-row table), `RateActorsStep` + `HybridDeepRateStep` (wizard), `FrontendEvalCategoriesView` (admin list + edit header) all now pass `$cat->id` so they read from the new store. The remaining string-only call sites continue to fall back to gettext until Phase 6 cleanup. **(5) `EvalCategoriesRestController::delete_category()`** cascade-deletes `tt_translations` rows for the deleted category id via `TranslationsRepository::deleteAllFor()` (mirrors Phase 2's lookup cascade). **What's NOT in this PR (lands in Phases 4-8)**: Phase 4 — Roles + functional roles. Phase 5 — seed-review Excel `<field>_<locale>` columns + per-entity admin Translations tab. Phase 6 — `nl_NL.po` cleanup of migrated msgids + sweep remaining string-only `displayLabel()` callers. Phase 7 — FR/DE/ES locale enablement. Phase 8 — docs + close. Zero new NL msgids — internal plumbing.
 
 = 3.110.26 — Authorization matrix Excel/CSV round-trip =
 
