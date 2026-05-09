@@ -683,16 +683,36 @@ class ConfigurationPage {
     }
 
     /**
-     * v3.6.0 — per-locale translations block shown on every lookup edit
-     * form. One row per installed site locale, with Name and (when
-     * applicable) Description inputs. Leave a field empty to fall back
-     * to the canonical name + the `.po` translation. Everything lives
-     * under the `tt_i18n[<locale>][name|description]` input namespace
-     * so handle_save_lookup() can reconstruct the JSON cleanly.
+     * v3.6.0 / #0090 Phase 6 (v3.110.30) — per-locale translations block
+     * shown on every lookup edit form. One row per installed site
+     * locale, with Name and (when applicable) Description inputs. Leave
+     * a field empty to fall back to the canonical name + the `.po`
+     * translation. Everything lives under the `tt_i18n[<locale>][name|description]`
+     * input namespace; `handle_save_lookup()` reconciles each cell
+     * against `tt_translations` via `TranslationsRepository::upsert()`
+     * / `delete()`.
+     *
+     * Phase 6 swap: existing values now come from `tt_translations` via
+     * `allFor()` instead of decoding the legacy `tt_lookups.translations`
+     * JSON column. The JSON column itself is dropped by migration 0087
+     * in this same ship.
      */
     private static function renderTranslationsSection( ?object $item, bool $show_desc ): void {
-        $translations = \TT\Infrastructure\Query\LookupTranslator::decode( $item );
-        $locales      = \TT\Infrastructure\Query\LookupTranslator::installedLocales();
+        $translations = [];
+        if ( $item && (int) ( $item->id ?? 0 ) > 0 ) {
+            $by_field_locale = ( new TranslationsRepository() )->allFor(
+                TranslatableFieldRegistry::ENTITY_LOOKUP,
+                (int) $item->id
+            );
+            // Reshape from `field => locale => value` to the legacy
+            // `locale => [name, description]` shape the form expects.
+            foreach ( $by_field_locale as $field => $by_locale ) {
+                foreach ( $by_locale as $locale => $value ) {
+                    $translations[ (string) $locale ][ (string) $field ] = (string) $value;
+                }
+            }
+        }
+        $locales = \TT\Infrastructure\Query\LookupTranslator::installedLocales();
         if ( ! $locales ) return;
         ?>
         <h3 style="margin-top:18px;"><?php esc_html_e( 'Translations', 'talenttrack' ); ?></h3>
@@ -1039,12 +1059,12 @@ class ConfigurationPage {
             $data['meta'] = wp_json_encode( $merged_meta );
         }
 
-        // v3.6.0: per-locale translations posted as tt_i18n[<locale>][name|description].
-        // Stored as JSON in the legacy `translations` column AND as
-        // per-(field, locale) rows in `tt_translations` (#0090 Phase 2,
-        // v3.110.22). The JSON column is kept as a transition fallback
-        // until the Phase 6 cleanup; `LookupTranslator` reads
-        // `tt_translations` first.
+        // v3.6.0 / #0090 Phase 6 (v3.110.30): per-locale translations
+        // posted as tt_i18n[<locale>][name|description] now flow
+        // exclusively through `tt_translations`. The legacy
+        // `tt_lookups.translations` JSON column was dropped by
+        // migration 0087 in this same ship — every value previously
+        // mirrored there is in `tt_translations` already.
         $clean_i18n = [];
         if ( isset( $_POST['tt_i18n'] ) && is_array( $_POST['tt_i18n'] ) ) {
             $raw_i18n = wp_unslash( (array) $_POST['tt_i18n'] );
@@ -1057,7 +1077,6 @@ class ConfigurationPage {
                     'description' => isset( $fields['description'] ) ? sanitize_text_field( (string) $fields['description'] ) : '',
                 ];
             }
-            $data['translations'] = \TT\Infrastructure\Query\LookupTranslator::encode( $clean_i18n );
         }
 
         if ( $id ) {

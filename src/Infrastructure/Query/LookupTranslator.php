@@ -10,19 +10,24 @@ use TT\Modules\I18n\TranslationsRepository;
  * LookupTranslator — picks the right display text for a `tt_lookups` row
  * in the current user's locale.
  *
- * Resolution chain (#0090 Phase 2 — v3.110.22):
+ * Resolution chain (#0090 Phase 6 — v3.110.30):
  *   1. `tt_translations` row for `(entity_type='lookup', entity_id, field, locale)`
- *      — the canonical store going forward, populated by migration
- *      0082 from the legacy JSON column and by future operator edits
- *      via the per-entity Translations tab (Phase 5).
- *   2. Legacy `tt_lookups.translations` JSON column — kept as a
- *      transition fallback so installs that haven't run migration 0082
- *      yet, or rows added between Phase 2 ship and the next admin
- *      save, keep rendering correctly. Phase 6 cleanup drops the
- *      column once `nl_NL.po` is also pruned.
- *   3. `__( $lookup->name, 'talenttrack' )` — seeded English values
- *      whose Dutch translation lives in `nl_NL.po`. Phase 6 prunes
- *      these msgids after every install has been backfilled.
+ *      — the canonical store, populated by migrations 0082 (JSON
+ *      backfill, Phase 2) and 0086 (gettext backfill, Phase 6) and
+ *      maintained by the seed-review Excel round-trip (Phase 5) +
+ *      `ConfigurationPage::handle_save_lookup()`.
+ *   2. `__( $lookup->name, 'talenttrack' )` — vestigial gettext path.
+ *      Migration 0086 backfilled every gettext-resolvable label into
+ *      `tt_translations`, so this fallback fires only when the
+ *      migration hasn't run yet (mid-deploy upgrade window) or when
+ *      a brand-new lookup row was just created in a session whose
+ *      cache hasn't bumped through the resolver yet. Phase 8 will
+ *      strip the migrated msgids from `nl_NL.po`; this fallback
+ *      remains for non-migrated msgids forever.
+ *
+ * The legacy `tt_lookups.translations` JSON column was dropped by
+ * migration 0087 in this same ship — its contents are fully
+ * preserved in `tt_translations`.
  *
  * The chain never returns empty — the canonical column on
  * `tt_lookups` is the immovable backstop.
@@ -53,10 +58,7 @@ class LookupTranslator {
             if ( $tx !== '' ) return $tx;
         }
 
-        $stored = self::storedForCurrentLocale( $lookup, 'name' );
-        if ( $stored !== null && $stored !== '' ) {
-            return $stored;
-        }
+        // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
         return (string) __( $raw, 'talenttrack' );
     }
 
@@ -80,58 +82,8 @@ class LookupTranslator {
             if ( $tx !== '' ) return $tx;
         }
 
-        $stored = self::storedForCurrentLocale( $lookup, 'description' );
-        if ( $stored !== null && $stored !== '' ) {
-            return $stored;
-        }
+        // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
         return (string) __( $raw, 'talenttrack' );
-    }
-
-    /**
-     * Decode the `translations` JSON blob into an associative array of
-     * locale => [name, description]. Safe on null / malformed input.
-     *
-     * @return array<string, array{name?:string,description?:string}>
-     */
-    public static function decode( ?object $lookup ): array {
-        if ( ! $lookup ) return [];
-        $raw = (string) ( $lookup->translations ?? '' );
-        if ( $raw === '' ) return [];
-        $decoded = json_decode( $raw, true );
-        if ( ! is_array( $decoded ) ) return [];
-        $out = [];
-        foreach ( $decoded as $locale => $fields ) {
-            if ( ! is_string( $locale ) || ! is_array( $fields ) ) continue;
-            $out[ $locale ] = [
-                'name'        => isset( $fields['name'] ) ? (string) $fields['name'] : '',
-                'description' => isset( $fields['description'] ) ? (string) $fields['description'] : '',
-            ];
-        }
-        return $out;
-    }
-
-    /**
-     * Encode translations back to JSON suitable for the `translations`
-     * column. Strips empty strings so partial entries don't bloat the
-     * blob. Returns null when the resulting set is empty so the DB
-     * column stores NULL.
-     *
-     * @param array<string, array{name?:string,description?:string}> $input
-     */
-    public static function encode( array $input ): ?string {
-        $clean = [];
-        foreach ( $input as $locale => $fields ) {
-            if ( ! is_string( $locale ) ) continue;
-            $name = isset( $fields['name'] ) ? trim( (string) $fields['name'] ) : '';
-            $desc = isset( $fields['description'] ) ? trim( (string) $fields['description'] ) : '';
-            if ( $name === '' && $desc === '' ) continue;
-            $entry = [];
-            if ( $name !== '' ) $entry['name'] = $name;
-            if ( $desc !== '' ) $entry['description'] = $desc;
-            $clean[ $locale ] = $entry;
-        }
-        if ( ! $clean ) return null;
-        return (string) wp_json_encode( $clean );
     }
 
     /**
@@ -157,6 +109,7 @@ class LookupTranslator {
             // Stored value doesn't match any current lookup row —
             // probably renamed. Best-effort: hand it to __() so the
             // .po can still translate seeded values.
+            // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
             return (string) __( $stored_name, 'talenttrack' );
         }
         return self::name( $row );
@@ -175,32 +128,6 @@ class LookupTranslator {
         $locales   = array_unique( array_filter( array_merge( [ 'en_US', $site ], $available ) ) );
         sort( $locales );
         return $locales;
-    }
-
-    /**
-     * Pick the value for the current request locale from a decoded
-     * translations blob, returning null if nothing matches.
-     */
-    private static function storedForCurrentLocale( object $lookup, string $field ): ?string {
-        $all = self::decode( $lookup );
-        if ( ! $all ) return null;
-
-        $locale = self::currentLocale();
-
-        if ( isset( $all[ $locale ][ $field ] ) && $all[ $locale ][ $field ] !== '' ) {
-            return (string) $all[ $locale ][ $field ];
-        }
-
-        // Try language-only match (e.g. 'nl_NL' → 'nl_BE', 'de_DE' → 'de_AT').
-        $lang = substr( $locale, 0, 2 );
-        if ( $lang !== '' ) {
-            foreach ( $all as $loc => $fields ) {
-                if ( substr( $loc, 0, 2 ) === $lang && isset( $fields[ $field ] ) && $fields[ $field ] !== '' ) {
-                    return (string) $fields[ $field ];
-                }
-            }
-        }
-        return null;
     }
 
     private static function currentLocale(): string {
