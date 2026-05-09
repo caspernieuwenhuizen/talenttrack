@@ -58,6 +58,19 @@ abstract class FrontendViewBase {
             ]
         );
 
+        // v3.110.53 — Archive-button handler for detail pages. Listens
+        // for clicks on [data-tt-archive-rest-path], runs window.confirm(),
+        // POSTs DELETE /wp-json/talenttrack/v1/<path>, redirects on
+        // success. No-op on pages without the data attribute, cheap
+        // to load once per request alongside table-tools.
+        wp_enqueue_script(
+            'tt-frontend-archive-button',
+            TT_PLUGIN_URL . 'assets/js/frontend-archive-button.js',
+            [ 'tt-public' ],
+            TT_VERSION,
+            true
+        );
+
         self::$assets_enqueued = true;
     }
 
@@ -73,14 +86,90 @@ abstract class FrontendViewBase {
      * directly before renderHeader(); views with a static chain override
      * static::breadcrumbs() and let renderHeader emit it.
      */
-    protected static function renderHeader( string $title ): void {
+    protected static function renderHeader( string $title, string $actions_html = '' ): void {
         $crumbs = static::breadcrumbs();
         if ( ! empty( $crumbs ) ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::render( $crumbs );
         }
+        if ( $actions_html !== '' ) {
+            echo '<header class="tt-page-head">';
+            echo '<h1 class="tt-fview-title" style="font-size:22px; color:#1a1d21;">'
+                . esc_html( $title )
+                . '</h1>';
+            echo '<div class="tt-page-actions">' . $actions_html . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pageActionsHtml escapes per-action.
+            echo '</header>';
+            return;
+        }
         echo '<h1 class="tt-fview-title" style="margin:6px 0 18px; font-size:22px; color:#1a1d21;">'
             . esc_html( $title )
             . '</h1>';
+    }
+
+    /**
+     * v3.110.53 — Build the HTML for a page-actions slot from a structured
+     * array. Pair with `renderHeader( $title, self::pageActionsHtml( $actions ) )`
+     * on list / detail views, or compose into a manual `<header class="tt-page-head">`
+     * on views that bypass renderHeader (e.g. FrontendPlayerDetailView).
+     *
+     * Each action accepts:
+     *   - 'label'      (required): visible button text.
+     *   - 'href'       (optional): target URL for `<a>` actions. Omit
+     *                   to render `<button type="button">` driven by
+     *                   `data_attrs` (e.g. archive REST DELETE).
+     *   - 'primary'    (optional, default false): true → main CTA,
+     *                   becomes FAB bottom-right on mobile via CSS.
+     *   - 'icon'       (optional): glyph (e.g. '+') shown on the FAB.
+     *                   Hidden on desktop.
+     *   - 'variant'    (optional): 'primary' | 'secondary' | 'danger'.
+     *                   Defaults to primary when 'primary' is true,
+     *                   else secondary. Use 'danger' for destructive.
+     *   - 'cap'        (optional): capability gate. Action is skipped
+     *                   if the current user lacks it.
+     *   - 'confirm'    (optional): native confirm() text. Cancels the
+     *                   navigation / submit if the user dismisses.
+     *   - 'data_attrs' (optional): map of `data-*` → value pairs for
+     *                   client-side hooks (e.g. archive button).
+     *
+     * @param array<int,array<string,mixed>> $actions
+     */
+    public static function pageActionsHtml( array $actions ): string {
+        if ( empty( $actions ) ) return '';
+        $html = '';
+        foreach ( $actions as $a ) {
+            if ( ! is_array( $a ) || empty( $a['label'] ) ) continue;
+            if ( ! empty( $a['cap'] ) && ! current_user_can( (string) $a['cap'] ) ) continue;
+            $is_primary = ! empty( $a['primary'] );
+            $href       = (string) ( $a['href'] ?? '' );
+            $label      = (string) $a['label'];
+            $icon       = (string) ( $a['icon'] ?? '' );
+            $confirm    = (string) ( $a['confirm'] ?? '' );
+            $variant    = ! empty( $a['variant'] ) ? (string) $a['variant'] : ( $is_primary ? 'primary' : 'secondary' );
+            $cls        = 'tt-btn tt-btn-' . sanitize_html_class( $variant );
+            $cls       .= $is_primary ? ' tt-page-actions__primary' : ' tt-page-actions__secondary';
+
+            $attr_html = '';
+            if ( ! empty( $a['data_attrs'] ) && is_array( $a['data_attrs'] ) ) {
+                foreach ( $a['data_attrs'] as $key => $value ) {
+                    $attr_html .= ' data-' . esc_attr( (string) $key ) . '="' . esc_attr( (string) $value ) . '"';
+                }
+            }
+            if ( $confirm !== '' ) {
+                $attr_html .= ' onclick="return confirm(' . esc_attr( wp_json_encode( $confirm ) ) . ')"';
+            }
+
+            $inner = '';
+            if ( $is_primary && $icon !== '' ) {
+                $inner .= '<span class="tt-page-actions__icon" aria-hidden="true">' . esc_html( $icon ) . '</span>';
+            }
+            $inner .= '<span class="tt-page-actions__label">' . esc_html( $label ) . '</span>';
+
+            if ( $href !== '' ) {
+                $html .= '<a href="' . esc_url( $href ) . '" class="' . esc_attr( $cls ) . '"' . $attr_html . '>' . $inner . '</a>';
+            } else {
+                $html .= '<button type="button" class="' . esc_attr( $cls ) . '"' . $attr_html . '>' . $inner . '</button>';
+            }
+        }
+        return $html;
     }
 
     /**

@@ -107,7 +107,35 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         if ( $id > 0 ) {
             $session = self::loadSession( $id );
-            self::renderHeader( $session ? (string) $session->title : __( 'Activity not found', 'talenttrack' ) );
+            // v3.110.53 — Edit + Archive page-header actions on the
+            // activity detail page.
+            $detail_actions = [];
+            if ( $session && current_user_can( 'tt_edit_activities' ) ) {
+                $activities_list_url = add_query_arg( [ 'tt_view' => 'activities' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+                $edit_url = add_query_arg(
+                    [ 'tt_view' => 'activities', 'id' => (int) $session->id, 'action' => 'edit' ],
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                );
+                $detail_actions[] = [
+                    'label'   => __( 'Edit', 'talenttrack' ),
+                    'href'    => $edit_url,
+                    'primary' => true,
+                    'icon'    => '✎',
+                ];
+                $detail_actions[] = [
+                    'label'   => __( 'Archive', 'talenttrack' ),
+                    'variant' => 'danger',
+                    'data_attrs' => [
+                        'tt-archive-rest-path' => 'activities/' . (int) $session->id,
+                        'tt-archive-confirm'   => __( 'Archive this activity? It will be hidden but the data is preserved.', 'talenttrack' ),
+                        'tt-archive-redirect'  => $activities_list_url,
+                    ],
+                ];
+            }
+            self::renderHeader(
+                $session ? (string) $session->title : __( 'Activity not found', 'talenttrack' ),
+                self::pageActionsHtml( $detail_actions )
+            );
             if ( ! $session ) {
                 echo '<p class="tt-notice">' . esc_html__( 'That activity no longer exists.', 'talenttrack' ) . '</p>';
                 return;
@@ -117,7 +145,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         }
 
         // Default: list view.
-        self::renderHeader( __( 'Activities', 'talenttrack' ) );
+        // v3.110.53 — header-actions slot for + New activity.
+        $list_base_url = remove_query_arg( [ 'action', 'id' ] );
+        $page_actions = [];
+        if ( current_user_can( 'tt_edit_activities' ) ) {
+            $flat_url = add_query_arg( [ 'tt_view' => 'activities', 'action' => 'new' ], $list_base_url );
+            $page_actions[] = [
+                'label'   => __( 'New activity', 'talenttrack' ),
+                'href'    => \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-activity', $flat_url ),
+                'primary' => true,
+                'icon'    => '+',
+            ];
+        }
+        self::renderHeader( __( 'Activities', 'talenttrack' ), self::pageActionsHtml( $page_actions ) );
         self::renderList( $user_id, $is_admin );
     }
 
@@ -206,13 +246,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         echo '</dl>';
 
-        if ( current_user_can( 'tt_edit_activities' ) ) {
-            $edit_url = add_query_arg(
-                [ 'tt_view' => 'activities', 'id' => (int) $session->id, 'action' => 'edit' ],
-                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-            );
-            echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a></p>';
-        }
+        // v3.110.53 — Edit + Archive moved to the page-header actions
+        // slot rendered by render() before this method runs.
 
         // #0083 Child 4 follow-up — activity-scoped Analytics surface.
         // Renders the KPI grid via `EntityAnalyticsTabRenderer` for
@@ -229,33 +264,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
     }
 
     /**
-     * List view — FrontendListTable + "Create" CTA.
+     * List view — FrontendListTable.
+     *
+     * v3.110.53 — `+ New activity` moved to the page-header actions
+     * slot rendered by render(). Row Edit / Delete dropped — the
+     * clickable activity title is the only row affordance; Edit /
+     * Archive live on the activity detail page.
      */
     private static function renderList( int $user_id, bool $is_admin ): void {
         $base_url = remove_query_arg( [ 'action', 'id' ] );
-        $flat_url = add_query_arg( [ 'tt_view' => 'activities', 'action' => 'new' ], $base_url );
-        $new_url  = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-activity', $flat_url );
 
-        echo '<p style="margin:0 0 var(--tt-sp-3, 12px);"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
-            . esc_html__( 'New activity', 'talenttrack' )
-            . '</a></p>';
-
-        $row_actions = [
-            // v3.70.1 hotfix — Edit row action carries `action=edit` so
-            // it routes to the form; bare `id=N` (from title clicks) goes
-            // to the read-only detail in render() above.
-            'edit' => [
-                'label' => __( 'Edit', 'talenttrack' ),
-                'href'  => add_query_arg( [ 'tt_view' => 'activities', 'id' => '{id}', 'action' => 'edit' ], $base_url ),
-            ],
-            'delete' => [
-                'label'       => __( 'Delete', 'talenttrack' ),
-                'rest_method' => 'DELETE',
-                'rest_path'   => 'activities/{id}',
-                'confirm'     => __( 'Delete this activity? It will be archived.', 'talenttrack' ),
-                'variant'     => 'danger',
-            ],
-        ];
+        $row_actions = [];
 
         echo FrontendListTable::render( [
             'rest_path' => 'activities',

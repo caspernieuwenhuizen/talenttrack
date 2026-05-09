@@ -46,7 +46,32 @@ final class FrontendPersonDetailView extends FrontendViewBase {
             $name,
             [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'people', $people_label ) ]
         );
-        self::renderHeader( $name );
+
+        // v3.110.53 — Edit + Archive page-header actions.
+        $actions    = [];
+        $people_url = add_query_arg( [ 'tt_view' => 'people' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+        if ( current_user_can( 'tt_edit_people' ) ) {
+            $edit_url = add_query_arg(
+                [ 'tt_view' => 'people', 'id' => $person_id, 'action' => 'edit' ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            );
+            $actions[] = [
+                'label'   => __( 'Edit', 'talenttrack' ),
+                'href'    => $edit_url,
+                'primary' => true,
+                'icon'    => '✎',
+            ];
+            $actions[] = [
+                'label'   => __( 'Archive', 'talenttrack' ),
+                'variant' => 'danger',
+                'data_attrs' => [
+                    'tt-archive-rest-path' => 'people/' . $person_id,
+                    'tt-archive-confirm'   => __( 'Archive this person? They can be restored later by a site admin.', 'talenttrack' ),
+                    'tt-archive-redirect'  => $people_url,
+                ],
+            ];
+        }
+        self::renderHeader( $name, self::pageActionsHtml( $actions ) );
 
         $teams = ( new PeopleRepository() )->getPersonTeams( $person_id );
         $email = (string) ( $person->email ?? '' );

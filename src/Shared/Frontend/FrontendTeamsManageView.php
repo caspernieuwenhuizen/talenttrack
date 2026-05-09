@@ -82,62 +82,52 @@ class FrontendTeamsManageView extends FrontendViewBase {
         }
 
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $teams_label );
-        self::renderHeader( $teams_label );
+
+        // v3.110.53 — page-header actions slot. Same pattern as Players.
+        $base_url = remove_query_arg( [ 'action', 'id' ] );
+        $at_team_cap = class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+            && \TT\Modules\License\LicenseGate::capsExceeded( 'teams' );
+        $page_actions = [];
+        if ( current_user_can( 'tt_edit_players' ) ) {
+            $page_actions[] = [
+                'label' => __( 'Import players from CSV', 'talenttrack' ),
+                'href'  => add_query_arg( [ 'tt_view' => 'players-import' ], $base_url ),
+            ];
+        }
+        if ( ! $at_team_cap ) {
+            $flat_url = add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url );
+            $page_actions[] = [
+                'label'   => __( 'New team', 'talenttrack' ),
+                'href'    => \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-team', $flat_url ),
+                'primary' => true,
+                'icon'    => '+',
+            ];
+        }
+        self::renderHeader( $teams_label, self::pageActionsHtml( $page_actions ) );
         self::renderList( $user_id, $is_admin );
     }
 
     private static function renderList( int $user_id, bool $is_admin ): void {
         $base_url = remove_query_arg( [ 'action', 'id' ] );
-        $flat_url = add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url );
-        $new_url  = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-team', $flat_url );
 
-        // v3.85.5 — hide "New team" + surface upgrade nudge when at
-        // the free-tier 1-team cap. Mirrors the players list pattern.
+        // v3.85.5 — surface the upgrade nudge above the list when at
+        // the free-tier 1-team cap. The `+ New team` action in the
+        // header is suppressed by the same check in render().
         $at_team_cap = class_exists( '\\TT\\Modules\\License\\LicenseGate' )
             && \TT\Modules\License\LicenseGate::capsExceeded( 'teams' );
-
-        $primary_actions = $at_team_cap
-            ? ''
-            : '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
-                . esc_html__( 'New team', 'talenttrack' )
-                . '</a>';
-
         if ( $at_team_cap ) {
             echo \TT\Modules\License\Admin\UpgradeNudge::capHit( 'teams' );
         }
-        // #0040 — bulk player import surfaces here too; replaces the
-        // dashboard tile that lived in the People group.
-        if ( current_user_can( 'tt_edit_players' ) ) {
-            $import_url = add_query_arg( [ 'tt_view' => 'players-import' ], $base_url );
-            $primary_actions .= ' <a class="tt-btn tt-btn-secondary" href="' . esc_url( $import_url ) . '">'
-                . esc_html__( 'Import players from CSV', 'talenttrack' )
-                . '</a>';
-        }
-        echo '<p style="margin:0 0 var(--tt-sp-3, 12px);">' . $primary_actions . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped above.
 
         $age_group_options = [];
         foreach ( QueryHelpers::get_lookup_names( 'age_group' ) as $ag ) {
             $age_group_options[ (string) $ag ] = (string) $ag;
         }
 
-        $row_actions = [
-            // v3.110.48 — dropped redundant 'View' action. Clicking the
-            // team name cell already routes to the detail view via
-            // RecordLink::detailUrlForWithBack (with tt_back capture).
-            'edit' => [
-                'label' => __( 'Edit', 'talenttrack' ),
-                'href'  => add_query_arg( [ 'tt_view' => 'teams', 'id' => '{id}', 'action' => 'edit' ], $base_url ),
-                'cap'   => 'tt_edit_teams',
-            ],
-            'delete' => [
-                'label'       => __( 'Delete', 'talenttrack' ),
-                'rest_method' => 'DELETE',
-                'rest_path'   => 'teams/{id}',
-                'confirm'     => __( 'Delete this team? It will be archived.', 'talenttrack' ),
-                'variant'     => 'danger',
-                'cap'         => 'tt_edit_teams',
-            ],
-        ];
+        // v3.110.53 — list rows are scanning surfaces. Edit / Delete
+        // moved to the team detail page (FrontendTeamDetailView). The
+        // clickable team name cell is the only row affordance.
+        $row_actions = [];
 
         echo FrontendListTable::render( [
             'rest_path' => 'teams',

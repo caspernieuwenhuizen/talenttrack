@@ -75,36 +75,50 @@ class FrontendPlayersManageView extends FrontendViewBase {
         }
 
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $players_label );
-        self::renderHeader( $players_label );
+
+        // v3.110.53 — page-header actions slot. Primary `+ New player`
+        // becomes a FAB bottom-right on mobile via .tt-page-actions__primary;
+        // `Import from CSV` is desktop-only via the secondary class.
+        $base_url = remove_query_arg( [ 'action', 'id', 'player_id' ] );
+        $at_player_cap = class_exists( '\\TT\\Modules\\License\\LicenseGate' )
+            && \TT\Modules\License\LicenseGate::capsExceeded( 'players' );
+        $page_actions = [];
+        if ( current_user_can( 'tt_edit_players' ) ) {
+            $page_actions[] = [
+                'label' => __( 'Import from CSV', 'talenttrack' ),
+                'href'  => add_query_arg( [ 'tt_view' => 'players-import' ], $base_url ),
+            ];
+        }
+        if ( ! $at_player_cap ) {
+            $flat_url = add_query_arg( [ 'tt_view' => 'players', 'action' => 'new' ], $base_url );
+            $page_actions[] = [
+                'label'   => __( 'New player', 'talenttrack' ),
+                'href'    => \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-player', $flat_url ),
+                'primary' => true,
+                'icon'    => '+',
+            ];
+        }
+        self::renderHeader( $players_label, self::pageActionsHtml( $page_actions ) );
         self::renderList( $user_id, $is_admin );
     }
 
     /**
      * List view — FrontendListTable with name/team/position/foot/age-group/archived filters.
+     *
+     * v3.110.53 — Primary CTAs (`+ New player`, `Import from CSV`)
+     * moved to the page-header actions slot rendered by render(). This
+     * method now focuses on the table itself + the empty-state for
+     * non-admins with no team assignments + the cap-hit nudge.
      */
     private static function renderList( int $user_id, bool $is_admin ): void {
         $base_url = remove_query_arg( [ 'action', 'id', 'player_id' ] );
-        $flat_url = add_query_arg( [ 'tt_view' => 'players', 'action' => 'new' ], $base_url );
-        $new_url  = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-player', $flat_url );
 
         // #0040 — non-admin "My players" empty state when the user
         // coaches no teams. Without it the FrontendListTable would
-        // render an empty grid with no explanation.
-        //
-        // The empty state only fires for users whose access to players
-        // is *team-scoped* (head_coach / assistant_coach). Personas
-        // with global-scope view of players (Academy Admin, Head of
-        // Development, Scout) hold `tt_view_reports` — the Analytics-
-        // gate cap from #0063, also granted to anyone with global
-        // oversight. So we treat presence of `tt_view_reports` as
-        // "this user is supposed to see everything, don't gate them
-        // on team assignments." The original `$is_admin` check
-        // (`current_user_can('tt_edit_settings')`) only covered
-        // Academy Admin after the #0071 sub-cap split — HoD and
-        // Scout fell through to the team-only branch and saw the
-        // misleading "ask an administrator" message even though
-        // their matrix grant on `players` is `[rcd, global]` /
-        // `[r, global]`.
+        // render an empty grid with no explanation. Personas with
+        // global-scope view of players (Academy Admin, Head of
+        // Development, Scout) hold `tt_view_reports` and bypass
+        // the team-assignment check.
         if ( ! $is_admin
              && ! current_user_can( 'tt_view_reports' )
              && empty( QueryHelpers::get_teams_for_coach( $user_id ) )
@@ -115,33 +129,14 @@ class FrontendPlayersManageView extends FrontendViewBase {
             return;
         }
 
-        // v3.85.5 — when at the free-tier 25-player cap, hide the
-        // "New player" button and surface the upgrade nudge above the
-        // list. wp-admin already enforced; the frontend create surface
-        // was silently letting operators click through to a wizard or
-        // form that would then 402 at submit time. Better UX: tell
-        // them up front that the cap is reached.
+        // v3.85.5 — surface the upgrade nudge above the list when at
+        // the free-tier 25-player cap. The `+ New player` action in
+        // the header is suppressed by the same check in render().
         $at_player_cap = class_exists( '\\TT\\Modules\\License\\LicenseGate' )
             && \TT\Modules\License\LicenseGate::capsExceeded( 'players' );
-
-        $primary_actions = $at_player_cap
-            ? ''
-            : '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
-                . esc_html__( 'New player', 'talenttrack' )
-                . '</a>';
-
         if ( $at_player_cap ) {
             echo \TT\Modules\License\Admin\UpgradeNudge::capHit( 'players' );
         }
-        // #0040 — bulk import shortcut surfaces above the list when
-        // the user has the cap, replacing the dashboard tile.
-        if ( current_user_can( 'tt_edit_players' ) ) {
-            $import_url = add_query_arg( [ 'tt_view' => 'players-import' ], $base_url );
-            $primary_actions .= ' <a class="tt-btn tt-btn-secondary" href="' . esc_url( $import_url ) . '">'
-                . esc_html__( 'Import from CSV', 'talenttrack' )
-                . '</a>';
-        }
-        echo '<p style="margin:0 0 var(--tt-sp-3, 12px);">' . $primary_actions . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped above.
 
         $position_options = [];
         foreach ( QueryHelpers::get_lookup_names( 'position' ) as $pos ) {
@@ -156,35 +151,19 @@ class FrontendPlayersManageView extends FrontendViewBase {
             $age_group_options[ (string) $ag ] = (string) $ag;
         }
 
+        // v3.110.53 — list rows are scanning surfaces. Edit / Delete
+        // moved to the player detail page (FrontendPlayerDetailView),
+        // where the user has full context and the destructive action
+        // is one tap away from the Edit button instead of one tap
+        // away in a cramped row. The clickable name cell remains the
+        // primary "view" affordance. `Rate card` is kept on the row
+        // because it's a *different* destination (legacy
+        // `?tt_view=players&player_id={id}` rate-card view), not the
+        // detail page.
         $row_actions = [
-            // v3.110.48 — dropped redundant 'View' action. Clicking the
-            // player name in the cell already routes to the detail
-            // view (and via RecordLink::detailUrlForWithBack appends
-            // tt_back so the detail page renders the contextual back-
-            // pill), so a second 'View' button was both visual noise
-            // and strictly worse UX (no tt_back capture).
-            'edit' => [
-                'label' => __( 'Edit', 'talenttrack' ),
-                // v3.91.2 — was `?tt_view=players&id={id}` which the
-                // dispatcher's `?id=N` shunt routed to PlayerDetailView,
-                // never reaching the manage view's edit form. Add
-                // `action=edit` so DashboardShortcode falls through to
-                // the manage view (which always renders the form when
-                // `id` is set).
-                'href'  => add_query_arg( [ 'tt_view' => 'players', 'id' => '{id}', 'action' => 'edit' ], $base_url ),
-                'cap'   => 'tt_edit_players',
-            ],
             'card' => [
                 'label' => __( 'Rate card', 'talenttrack' ),
                 'href'  => add_query_arg( [ 'tt_view' => 'players', 'player_id' => '{id}' ], $base_url ),
-            ],
-            'delete' => [
-                'label'       => __( 'Delete', 'talenttrack' ),
-                'rest_method' => 'DELETE',
-                'rest_path'   => 'players/{id}',
-                'confirm'     => __( 'Delete this player? They will be archived.', 'talenttrack' ),
-                'variant'     => 'danger',
-                'cap'         => 'tt_edit_players',
             ],
         ];
 
