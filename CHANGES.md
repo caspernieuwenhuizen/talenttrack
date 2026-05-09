@@ -1,3 +1,32 @@
+# TalentTrack v3.110.42 — Prospects pipeline "+ New prospect" button now actually starts the chain
+
+The standalone onboarding-pipeline view's "+ New prospect" CTA was rendered as `<a href="<rest_url>/prospects/log" data-tt-prospect-log>`. The `data-tt-prospect-log` attribute hinted at a click-handler that never shipped, so clicking the link navigated the browser straight to the REST endpoint with a GET request — the route is POST-only, so the scout landed on a 405 instead of a fresh task.
+
+This release ships the missing handler and converts the CTA to the right HTML element.
+
+## What landed
+
+### `assets/js/frontend-prospects-log.js`
+
+53-line click-handler enqueued only on the onboarding-pipeline view. POSTs to `/talenttrack/v1/prospects/log` with the WP REST nonce, reads `redirect_url` from the response (`?tt_view=my-tasks&task_id=<id>`), and navigates the browser there. Disables the button while pending; restores + alerts on transport failure or non-success body. Two i18n strings (chain-failed + network-failed) come through `wp_localize_script` so they translate via the standard `__()` pipeline.
+
+### `FrontendOnboardingPipelineView`
+
+The `<a>` becomes a `<button type="button">` with `min-height: 48px` so the touch target meets the mobile-first 48×48 floor (CLAUDE.md § 2). The view enqueues the new script alongside its existing assets via the new `enqueueProspectLogScript()` helper.
+
+## Translations
+
+Two new NL msgids:
+
+| msgid | msgstr |
+|---|---|
+| `Could not start the prospect-logging flow. Please try again.` | `Kan het vastleggen van een prospect niet starten. Probeer het opnieuw.` |
+| `Network error. Please try again.` | `Netwerkfout. Probeer het opnieuw.` |
+
+FR/DE/ES added with empty msgstrs (English fallback at runtime per #0010).
+
+---
+
 # TalentTrack v3.110.41 — Frontend navigation cleanup: one back-pill + breadcrumb per view
 
 Pilot operator screenshot of the goal-detail page surfaced a long-standing duplication: every frontend detail view rendered up to four navigation affordances stacked above the content (the `tt_back`-borne pill, the breadcrumb chain, a "← Back to dashboard" button from `FrontendViewBase::renderHeader`'s fallback, AND a second explicit `FrontendBackButton::render()` call inside the view's own `renderDetail()`). Two of those four were redundant on every page they appeared.

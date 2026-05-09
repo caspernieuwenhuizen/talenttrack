@@ -14374,3 +14374,10 @@ msgstr "Onbekende sectie"
 
 msgid "Sign in required"
 msgstr "Inloggen vereist"
+
+# v3.110.42 — prospects-log click handler (mobile-first button + JS)
+msgid "Could not start the prospect-logging flow. Please try again."
+msgstr "Kan het vastleggen van een prospect niet starten. Probeer het opnieuw."
+
+msgid "Network error. Please try again."
+msgstr "Netwerkfout. Probeer het opnieuw."

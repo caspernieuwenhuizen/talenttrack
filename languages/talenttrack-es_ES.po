@@ -14362,3 +14362,10 @@ msgstr ""
 
 msgid "A diff preview shows you adds + removes before commit. Reset to defaults remains available to restore the shipped seed."
 msgstr ""
+
+# v3.110.42 — prospects-log click handler (mobile-first button + JS)
+msgid "Could not start the prospect-logging flow. Please try again."
+msgstr ""
+
+msgid "Network error. Please try again."
+msgstr ""
