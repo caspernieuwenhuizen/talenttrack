@@ -1,10 +1,15 @@
 /*
- * Team planner (#0006) — week-view calendar.
+ * Team planner (#0006) — multi-week calendar.
  *
  * Mobile-first per CLAUDE.md §2: base layout stacks 7 days vertically;
- * ≥720px breakpoint flips to a 7-column grid. Activity cards keep
- * ≥48px tap targets. Plan-state colours via brand-style tokens with
- * hard-coded fallbacks for non-themed installs.
+ * ≥720px breakpoint flips each week into a 7-column grid. Multiple
+ * weeks (range = 2 / 4 / 8 weeks / season) stack vertically as
+ * separate week grids, each with a "Week of …" header.
+ *
+ * Status pill colour comes from `LookupPill::render('activity_status', …)`
+ * — the visible pill is the lookup pill, but the activity card also
+ * gets a `.tt-planner-state-{key}` border-left so the cards read as a
+ * status timeline at a glance.
  */
 
 .tt-planner-toolbar {
@@ -27,21 +32,46 @@
     flex-wrap: wrap;
 }
 
-.tt-planner-team-picker label {
+.tt-planner-team-picker label,
+.tt-planner-range-picker label {
     font-weight: 600;
+}
+
+.tt-planner-team-picker select,
+.tt-planner-range-picker select {
+    min-width: 8rem;
+    padding: 0.5rem;
+    font-size: 1rem;
 }
 
 .tt-planner-team-picker select {
     min-width: 12rem;
-    padding: 0.5rem;
-    font-size: 1rem;
+}
+
+.tt-planner-season-label {
+    font-weight: 600;
+    color: #5b6e75;
+    padding: 0.25rem 0.5rem;
+}
+
+.tt-planner-week-label {
+    margin: 1.25rem 0 0.5rem;
+    font-size: 0.95rem;
+    color: #5b6e75;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.tt-planner-week-label:first-child {
+    margin-top: 0;
 }
 
 .tt-planner-week {
     display: grid;
     grid-template-columns: 1fr;
     gap: 0.5rem;
-    margin: 0 0 1.5rem;
+    margin: 0 0 1rem;
 }
 
 @media ( min-width: 720px ) {
@@ -146,12 +176,14 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+    align-items: center;
     font-size: 0.75rem;
     color: #5b6e75;
 }
 
-.tt-planner-activity-state {
-    font-weight: 600;
+.tt-planner-activity-status {
+    display: inline-flex;
+    align-items: center;
 }
 
 .tt-planner-activity-principles {
@@ -171,23 +203,20 @@
     color: #1f4f8a;
 }
 
-.tt-planner-state-scheduled { border-left-color: #2271b1; }
-.tt-planner-state-scheduled .tt-planner-activity-state { color: #2271b1; }
-
-.tt-planner-state-in_progress { border-left-color: #c9962a; }
-.tt-planner-state-in_progress .tt-planner-activity-state { color: #c9962a; }
-
-.tt-planner-state-completed { border-left-color: #2c8a2c; }
-.tt-planner-state-completed .tt-planner-activity-state { color: #2c8a2c; }
-
+/*
+ * Border-left colour cue keyed on `activity_status_key`. Mirrors the
+ * `meta.color` seeded for the activity_status lookup (migration 0049):
+ * planned = #dba617 (yellow), completed = #137d1d (green),
+ * cancelled = #b32d2e (red). Cancelled rows are filtered out by the
+ * planner query, so the cancelled rule is defensive only.
+ */
+.tt-planner-state-planned   { border-left-color: #dba617; }
+.tt-planner-state-completed { border-left-color: #137d1d; }
 .tt-planner-state-cancelled {
     border-left-color: #b32d2e;
     opacity: 0.65;
     text-decoration: line-through;
 }
-
-.tt-planner-state-draft { border-left-color: #5b6e75; }
-.tt-planner-state-draft .tt-planner-activity-state { color: #5b6e75; }
 
 .tt-planner-coverage {
     background: #fff;

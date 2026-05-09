@@ -13192,6 +13192,37 @@ msgstr "Vorige week"
 msgid "Next week"
 msgstr "Volgende week"
 
+msgid "Previous %d week"
+msgid_plural "Previous %d weeks"
+msgstr[0] "Vorige %d week"
+msgstr[1] "Vorige %d weken"
+
+msgid "Next %d week"
+msgid_plural "Next %d weeks"
+msgstr[0] "Volgende %d week"
+msgstr[1] "Volgende %d weken"
+
+msgid "Show"
+msgstr "Toon"
+
+msgid "One week"
+msgstr "Eén week"
+
+msgid "Two weeks"
+msgstr "Twee weken"
+
+msgid "Four weeks"
+msgstr "Vier weken"
+
+msgid "Eight weeks"
+msgstr "Acht weken"
+
+msgid "Full season"
+msgstr "Volledig seizoen"
+
+msgid "Week of %1$s — %2$s"
+msgstr "Week van %1$s — %2$s"
+
 msgid "Schedule activity"
 msgstr "Activiteit plannen"
 

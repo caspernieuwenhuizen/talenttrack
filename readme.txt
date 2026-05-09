@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.55
+Stable tag: 3.110.56
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.56 — Team planner: status pill now reflects the activity's edited status; new range selector (1 / 2 / 4 / 8 weeks / full season) =
+
+Two issues on `?tt_view=team-planner`. **(1) Status bug.** Every activity card in the planner showed the same "Completed" pill regardless of what the coach set the status to in the activities form. The planner was reading the internal `plan_state` column (default `completed` on every row created via the non-planner activities form), instead of the user-facing `activity_status_key` lookup the coach actually edits. Fix: the activity card now renders `LookupPill::render('activity_status', …)` — the same colour-coded pill the activities list uses (planned = yellow, completed = green, cancelled = red). Cards keyed off the same field, so the planner and the activities list now agree. The card's left-border colour is keyed on `activity_status_key` for the same reason. The cancellation filter on the planner query also moved from `plan_state <> 'cancelled'` to `activity_status_key <> 'cancelled'` so a coach-cancelled activity actually drops out of the grid. **(2) Range selector.** The planner only ever showed one week. Coaches asked to see longer windows for actual planning work. The toolbar now has a *Show* dropdown with five options: One week (default, unchanged), Two weeks, Four weeks, Eight weeks, Full season. The 2/4/8 week ranges stack consecutive 7-column week grids vertically, each labelled "Week of …". The Full season range resolves the current `tt_seasons.is_current` row, snaps its start/end to whole weeks, and renders every week in between; the prev/next nav is replaced with the season name. For 2/4/8-week ranges, prev/next steps by the chosen window size (so "Next 4 weeks" actually advances four weeks, not seven days). The `range` URL parameter round-trips so a bookmarked planner URL reproduces the selected window. The bottom "Principles trained" panel now also gates on `activity_status_key = 'completed'` instead of `plan_state IN ('completed','in_progress')` for the same status-source-of-truth reason. Five new NL msgids (the range-option labels), plus four for the prev/next plural forms and the "Show" / "Season: %s" / "Week of %1$s — %2$s" labels. New `docs/team-planner.md` + `docs/nl_NL/team-planner.md` documenting the planner from scratch (no doc existed for it before this release).
 
 = 3.110.55 — Hotfix: + New blueprint white-screened on every install since v3.98.0 =
 
