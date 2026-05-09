@@ -244,7 +244,7 @@ class FrontendPeopleManageView extends FrontendViewBase {
         foreach ( $assignments as $a ) {
             $role = $a->functional_role_id ? $roles_repo->findRole( (int) $a->functional_role_id ) : null;
             $role_label = $role
-                ? ( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $role->role_key ?? '' ) ) ?? (string) $role->label )
+                ? ( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $role->role_key ?? '' ), (int) $role->id ) ?? (string) $role->label )
                 : (string) ( $a->role_in_team ?? '' );
             echo '<tr>';
             echo '<td>' . esc_html( (string) ( $a->team_name ?? '' ) ) . '</td>';

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.27
+Stable tag: 3.110.28
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.28 — Roles + functional roles migrate to `tt_translations` (#0090 Phase 4) =
+
+Fourth phase of #0090 (data-row internationalisation). Both `tt_roles` and `tt_functional_roles` now read + write through the new `tt_translations` store. Per the spec ("two small entities, one PR") they ship together since they share the same shape (`label` is the only translatable field on each). No user-visible change. **(1) `I18nModule::boot()`** registers `(entity_type='role', fields=['label'])` and `(entity_type='functional_role', fields=['label'])` per spec Decision Q6. **(2) Migration `0085_backfill_role_translations`** walks both source tables, calls `__($label, 'talenttrack')` to resolve Dutch through gettext, `INSERT IGNORE`s a `nl_NL` row when gettext returns a different string. Detects whether each source table has a `club_id` column at runtime — `tt_roles` is global today, `tt_functional_roles` is tenant-scoped. Loads the textdomain explicitly so early-lifecycle activations still resolve. Idempotent; preserves operator-edited rows. **(3) `RolesPage::roleLabel( $key, ?int $entity_id = null )`** + **`FunctionalRolesPage::roleLabel( $key, ?int $entity_id = null )`** — optional entity_id parameter unlocks the `tt_translations` read path (`tt_translations → __() switch → humanised-key fallback`). String-only callers keep working through the existing switch — backward-compatible across every existing call site. **(4) `LabelTranslator::authRoleLabel( $key, ?int $entity_id = null )`** + **`LabelTranslator::functionalRoleLabel( $key, ?int $entity_id = null )`** — the same optional parameter on the shared low-level helpers, so frontend callers (FrontendFunctionalRolesView, FrontendPeopleManageView, FrontendTeamsManageView) can also hit the new store. **(5) High-traffic call-site sweep**: admin role-list tables + role-detail headers (RolesPage + FunctionalRolesPage) and the three frontend functional-roles render paths now pass the row id. **(6) `FunctionalRolesRestController::delete_role_type()`** cascade-deletes `tt_translations` rows for the deleted functional-role id via `TranslationsRepository::deleteAllFor()` (mirrors Phase 2 + 3 cascades). `tt_roles` has no operator delete path — all 9 rows are `is_system=1` — so no cascade needed there. **What's NOT in this PR (lands in Phases 5-8)**: Phase 5 — seed-review Excel `<field>_<locale>` columns become editable + per-entity admin Translations tab. Phase 6 — `nl_NL.po` cleanup of migrated msgids + sweep remaining string-only callers. Phase 7 — FR/DE/ES locale enablement. Phase 8 — docs + close. Zero new NL msgids — internal plumbing.
 
 = 3.110.27 — Eval categories migrate to `tt_translations` (#0090 Phase 3) =
 

@@ -8,6 +8,8 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\I18n\TranslatableFieldRegistry;
+use TT\Modules\I18n\TranslationsRepository;
 
 /**
  * FunctionalRolesRestController — /wp-json/talenttrack/v1/functional-roles
@@ -196,6 +198,11 @@ class FunctionalRolesRestController {
             Logger::error( 'rest.functional_role.delete.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
             return RestResponse::error( 'db_error', __( 'The role type could not be deleted.', 'talenttrack' ), 500 );
         }
+
+        // #0090 Phase 4 — cascade-delete `tt_translations` rows so the
+        // new store does not retain orphans pointing at a vanished id.
+        ( new TranslationsRepository() )->deleteAllFor( TranslatableFieldRegistry::ENTITY_FUNCTIONAL_ROLE, $id );
+
         return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }
 
