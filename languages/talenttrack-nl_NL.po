@@ -14381,3 +14381,6 @@ msgstr "Kan het vastleggen van een prospect niet starten. Probeer het opnieuw."
 
 msgid "Network error. Please try again."
 msgstr "Netwerkfout. Probeer het opnieuw."
+
+msgid "Pro unlocks every TalentTrack feature — the ones your scouting and trial workflows depend on, plus the conveniences your coaches will ask for."
+msgstr "Pro ontgrendelt elke TalentTrack-functie — degene waar je scouting- en proeftrainingsflows op leunen, plus de gemakken waar je coaches om zullen vragen."

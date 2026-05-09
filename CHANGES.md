@@ -1,3 +1,53 @@
+# TalentTrack v3.110.43 — Free-tier customers mid-trial now see the "Upgrade to Pro" card
+
+Follow-up hotfix to the trial-period upgrade-button fix that shipped in v3.110.39. That earlier fix introduced the `$paid_tier` distinction so a Standard customer in an active trial would still see the upgrade card (because `LicenseGate::tier()` returns the trial-unlocked tier, not the underlying paid plan) and gated the Account-tab card on `$paid_tier === FeatureMap::TIER_STANDARD`.
+
+It missed one case: customers on **Free + active trial**. Their underlying paid tier is Free (no Freemius checkout completed yet), but the trial unlocks Standard or Pro features for the trial window. Pilot operator hit this exact case and reported the user-facing symptom as "There is a blue button but when clicking it nothing happens."
+
+## What was happening
+
+- Plan tab showed `Standard · 25 days left in trial` and a blue "Upgraden of proefperiode starten" button.
+- Plan-tab `$paid_tier !== PRO` evaluated true → the blue button rendered correctly and navigated to the Account tab.
+- On the Account tab, the elseif chain was:
+  - `$paid_tier === FREE && $trial_data === null` → false (trial exists)
+  - `$paid_tier === STANDARD` → false (paid tier is actually Free, only the trial unlock makes them look Standard)
+  - → no Upgrade-to-Pro card rendered
+- The Account tab showed only the "Trial: 25 days remaining" notice with no actionable next step. Hence "nothing happens."
+
+## Fix
+
+Broadened the Account-tab elseif from `=== TIER_STANDARD` to `!== TIER_PRO`. Any non-Pro paid tier now sees the upgrade card during/after a trial.
+
+| Underlying paid plan | Trial state | Card shown |
+|---|---|---|
+| Free, never used trial | inactive | Start-Trial form (unchanged) |
+| Free | trial active | **Now shown — was the bug** |
+| Free | grace | **Now shown** |
+| Standard | trial active | Shown (already worked) |
+| Standard | inactive | Shown (already worked) |
+| Pro | any | Hidden (correct) |
+
+## Card copy now context-aware
+
+The previous lead-in line said `You're on Standard. Pro adds the features your scouting and trial workflows depend on.` That's accurate for Standard customers, but lies to Free users. Two variants now:
+
+- **Standard customer**: same copy as before.
+- **Any other non-Pro tier (Free)**: `Pro unlocks every TalentTrack feature — the ones your scouting and trial workflows depend on, plus the conveniences your coaches will ask for.`
+
+The bullet-list of Pro features, the upgrade-button URL logic (Freemius pricing if configured, DevOverridePage if `TT_DEV_OVERRIDE_SECRET` defined, fallback to Account tab otherwise), and the "Freemius isn't wired up yet" caveat description below the button are all unchanged.
+
+## Translations
+
+One new NL msgid:
+
+| msgid | msgstr |
+|---|---|
+| `Pro unlocks every TalentTrack feature — the ones your scouting and trial workflows depend on, plus the conveniences your coaches will ask for.` | `Pro ontgrendelt elke TalentTrack-functie — degene waar je scouting- en proeftrainingsflows op leunen, plus de gemakken waar je coaches om zullen vragen.` |
+
+The existing Standard-specific lead-in is unchanged.
+
+---
+
 # TalentTrack v3.110.42 — Prospects pipeline "+ New prospect" button now actually starts the chain
 
 The standalone onboarding-pipeline view's "+ New prospect" CTA was rendered as `<a href="<rest_url>/prospects/log" data-tt-prospect-log>`. The `data-tt-prospect-log` attribute hinted at a click-handler that never shipped, so clicking the link navigated the browser straight to the REST endpoint with a GET request — the route is POST-only, so the scout landed on a 405 instead of a fresh task.

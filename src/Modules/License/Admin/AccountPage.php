@@ -533,7 +533,7 @@ class AccountPage {
                 <p class="description" style="margin-top:6px;">
                     <?php esc_html_e( 'Unlocks every Pro-tier feature for 30 days — trial cases, scout access, team chemistry, radar charts, the lot. After 30 days you get 14 days of read-only grace; then the install drops back to Free.', 'talenttrack' ); ?>
                 </p>
-            <?php elseif ( $paid_tier === FeatureMap::TIER_STANDARD ) : ?>
+            <?php elseif ( $paid_tier !== FeatureMap::TIER_PRO ) : ?>
                 <?php
                 // v3.108.5 — A7: Standard-tier installs had no visible
                 // "Upgrade to Pro" CTA; the only upgrade affordance
@@ -542,6 +542,14 @@ class AccountPage {
                 // accessed from a non-Pro install. Pilot operator on
                 // Standard reported "I do not see a button to further
                 // upgrade." Adding a deliberate upgrade card here.
+                //
+                // v3.110.43 — broadened from `=== STANDARD` to
+                // `!== PRO` so Free-tier customers mid-trial (whose
+                // paid tier is Free until they pick a plan) also see
+                // the card. Without it the Account tab showed only
+                // "Trial: X days remaining" with no actionable next
+                // step. The lead-in copy is now context-aware so it
+                // doesn't claim "You're on Standard" to a Free user.
                 //
                 // Freemius checkout URL: when the SDK is configured
                 // it registers `?page=<plugin>-pricing` automatically.
@@ -559,11 +567,18 @@ class AccountPage {
                 } else {
                     $upgrade_url = admin_url( 'admin.php?page=' . self::SLUG );
                 }
+                $is_standard = $paid_tier === FeatureMap::TIER_STANDARD;
                 ?>
                 <div class="tt-upgrade-card" style="margin-top:18px; padding:18px 20px; background:#fff8e1; border:1px solid #f0c36d; border-radius:8px; max-width:680px;">
                     <h3 style="margin-top:0;"><?php esc_html_e( 'Upgrade to Pro', 'talenttrack' ); ?></h3>
                     <p style="margin:0 0 12px;">
-                        <?php esc_html_e( 'You\'re on Standard. Pro adds the features your scouting and trial workflows depend on.', 'talenttrack' ); ?>
+                        <?php
+                        if ( $is_standard ) {
+                            esc_html_e( 'You\'re on Standard. Pro adds the features your scouting and trial workflows depend on.', 'talenttrack' );
+                        } else {
+                            esc_html_e( 'Pro unlocks every TalentTrack feature — the ones your scouting and trial workflows depend on, plus the conveniences your coaches will ask for.', 'talenttrack' );
+                        }
+                        ?>
                     </p>
                     <ul style="margin:0 0 14px 18px; padding:0; line-height:1.6;">
                         <li><?php esc_html_e( 'Trial cases — full intake → decision pipeline', 'talenttrack' ); ?></li>

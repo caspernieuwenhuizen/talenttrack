@@ -4,13 +4,21 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.41
+Stable tag: 3.110.43
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.43 — Free-tier customers mid-trial now see the "Upgrade to Pro" card =
+
+Follow-up hotfix to v3.110.39's trial-period upgrade-button fix. That fix shipped the `$paid_tier` distinction from `LicenseGate::tier()` (so a Standard customer mid-trial would still see the upgrade card despite `tier()` reporting Pro from the trial unlock) and changed the Account-tab condition to `$paid_tier === STANDARD`. **It missed one case**: customers on **Free + active trial**. Their underlying paid tier is Free (no Freemius checkout completed yet), but the trial unlocks Standard or Pro features for the trial window. The Account tab then showed only "Trial: X days remaining." with no actionable upgrade affordance — the Plan-tab "Upgrade or start a trial" button correctly navigated to the Account tab, but the Account tab had nothing to act on, hence the user-facing complaint "There is a blue button but when clicking it nothing happens." Fix: broaden the elseif condition from `$paid_tier === FeatureMap::TIER_STANDARD` to `$paid_tier !== FeatureMap::TIER_PRO` so any non-Pro paid tier sees the upgrade card. Card lead-in copy is now context-aware — Standard users still see "You're on Standard. Pro adds the features your scouting and trial workflows depend on.", Free users (and any other non-Pro / non-Standard) see "Pro unlocks every TalentTrack feature — the ones your scouting and trial workflows depend on, plus the conveniences your coaches will ask for." The button-destination logic and Freemius-not-wired-up caveat both unchanged. One new NL msgid for the Free-user copy.
+
+= 3.110.42 — Prospects pipeline "+ New prospect" button now starts the chain =
+
+Hotfix landed via PR #344 — see commit `cda4915`.
 
 = 3.110.41 — Frontend navigation cleanup: one back-pill + breadcrumb per view =
 
