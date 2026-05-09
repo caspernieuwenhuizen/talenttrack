@@ -77,7 +77,37 @@ class FrontendGoalsManageView extends FrontendViewBase {
 
         if ( $id > 0 ) {
             $goal = self::loadGoal( $id );
-            self::renderHeader( $goal ? (string) $goal->title : __( 'Goal not found', 'talenttrack' ) );
+            // v3.110.53 — Edit + Archive page-header actions on the
+            // goal detail page (replaces the inline Edit button that
+            // used to sit below the dl + the row Delete action that
+            // used to sit on the list).
+            $detail_actions = [];
+            if ( $goal && current_user_can( 'tt_edit_goals' ) ) {
+                $goals_list_url = add_query_arg( [ 'tt_view' => 'goals' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+                $edit_url = add_query_arg(
+                    [ 'tt_view' => 'goals', 'id' => (int) $goal->id, 'action' => 'edit' ],
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                );
+                $detail_actions[] = [
+                    'label'   => __( 'Edit', 'talenttrack' ),
+                    'href'    => $edit_url,
+                    'primary' => true,
+                    'icon'    => '✎',
+                ];
+                $detail_actions[] = [
+                    'label'   => __( 'Archive', 'talenttrack' ),
+                    'variant' => 'danger',
+                    'data_attrs' => [
+                        'tt-archive-rest-path' => 'goals/' . (int) $goal->id,
+                        'tt-archive-confirm'   => __( 'Archive this goal? It will be hidden but the data is preserved.', 'talenttrack' ),
+                        'tt-archive-redirect'  => $goals_list_url,
+                    ],
+                ];
+            }
+            self::renderHeader(
+                $goal ? (string) $goal->title : __( 'Goal not found', 'talenttrack' ),
+                self::pageActionsHtml( $detail_actions )
+            );
             if ( ! $goal ) {
                 echo '<p class="tt-notice">' . esc_html__( 'That goal no longer exists.', 'talenttrack' ) . '</p>';
                 return;
@@ -86,7 +116,19 @@ class FrontendGoalsManageView extends FrontendViewBase {
             return;
         }
 
-        self::renderHeader( __( 'Goals', 'talenttrack' ) );
+        // v3.110.53 — header-actions slot for + New goal.
+        $list_base_url = remove_query_arg( [ 'action', 'id' ] );
+        $page_actions = [];
+        if ( current_user_can( 'tt_edit_goals' ) ) {
+            $flat_url = add_query_arg( [ 'tt_view' => 'goals', 'action' => 'new' ], $list_base_url );
+            $page_actions[] = [
+                'label'   => __( 'New goal', 'talenttrack' ),
+                'href'    => \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-goal', $flat_url ),
+                'primary' => true,
+                'icon'    => '+',
+            ];
+        }
+        self::renderHeader( __( 'Goals', 'talenttrack' ), self::pageActionsHtml( $page_actions ) );
         self::renderList( $user_id, $is_admin );
     }
 
@@ -136,13 +178,8 @@ class FrontendGoalsManageView extends FrontendViewBase {
 
         echo '</dl>';
 
-        if ( current_user_can( 'tt_edit_goals' ) ) {
-            $edit_url = add_query_arg(
-                [ 'tt_view' => 'goals', 'id' => (int) $goal->id, 'action' => 'edit' ],
-                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-            );
-            echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a></p>';
-        }
+        // v3.110.53 — Edit + Archive moved to the page-header actions
+        // slot rendered by render() before this method runs.
 
         if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' ) ) {
             echo '<section class="tt-pde-section" style="margin-top:16px;">';
@@ -199,17 +236,9 @@ class FrontendGoalsManageView extends FrontendViewBase {
             // v3.70.1 hotfix — Edit row action carries `action=edit` so
             // it routes to the form; bare `id=N` (from title clicks) goes
             // to the read-only detail in render() above.
-            'edit' => [
-                'label' => __( 'Edit', 'talenttrack' ),
-                'href'  => add_query_arg( [ 'tt_view' => 'goals', 'id' => '{id}', 'action' => 'edit' ], $base_url ),
-            ],
-            'delete' => [
-                'label'       => __( 'Delete', 'talenttrack' ),
-                'rest_method' => 'DELETE',
-                'rest_path'   => 'goals/{id}',
-                'confirm'     => __( 'Delete this goal? It will be archived.', 'talenttrack' ),
-                'variant'     => 'danger',
-            ],
+            // v3.110.53 — Edit / Delete moved to the goal detail page
+            // (renderDetail() above). The clickable goal title is the
+            // only row affordance.
         ];
 
         echo FrontendListTable::render( [
