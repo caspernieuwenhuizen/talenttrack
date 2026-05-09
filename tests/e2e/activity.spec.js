@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require( '@playwright/test' );
-const { gotoAddNew, uniqueName } = require( './helpers/admin' );
+const { gotoAdminPage, gotoAddNew, uniqueName } = require( './helpers/admin' );
 
 /**
  * Activity e2e spec (#0076 v1, spec #6 in the sequencing).
@@ -53,6 +53,15 @@ test.describe( 'Activities CRUD', () => {
         await page.click( 'input[type="submit"], button[type="submit"]' );
         await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
 
+        // The save handler redirects to either the list page
+        // (?page=tt-activities&tt_msg=saved on the happy path) or
+        // back to the edit form (?action=edit&id=N when custom-field
+        // validation fires). On the edit form the title sits in an
+        // <input value="..."> which doesn't surface via toContainText.
+        // Navigate explicitly to the list view so the assertion lands
+        // on stable terrain regardless of which redirect path was
+        // taken.
+        await gotoAdminPage( page, 'tt-activities' );
         await expect( page.locator( 'body' ) ).toContainText( title, { timeout: 15000 } );
     } );
 } );
