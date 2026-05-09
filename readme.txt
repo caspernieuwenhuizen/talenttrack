@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.31
+Stable tag: 3.110.32
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.32 — Docs + close #0090 (Phase 8 — data-row i18n epic complete) =
+
+Eighth and final phase of #0090 (data-row internationalisation). **Closes #0090.** **(1) `docs/i18n-architecture.md`** (EN) — explains the two-channel split (`.po` for UI strings, `tt_translations` for data-row strings), the technical reasons for that split (gettext mmap performance + plural rules + msgctxt + xgettext extraction + WPML/Polylang hooks on one side; operator-authored content + per-club rebranding + UI editability + bulk Excel review + cache-coherent invalidation on the other), the schema, the registry, the resolver, the locale-add ergonomics, and a "when you're not sure which channel" decision tree. **(2) `docs/nl_NL/i18n-architecture.md`** — Dutch translation per CLAUDE.md ship-along rule for any user-visible documentation change. **(3) `specs/0090-epic-data-row-i18n.md`** moved to `specs/shipped/` with frontmatter `status: shipped` + `shipped_in: v3.110.20 — v3.110.32`. **What's done across the epic**: Phase 1 (foundation, v3.110.20), Phase 2 (lookups migration, v3.110.22), Phase 3 (eval categories, v3.110.27), Phase 4 (roles + functional roles, v3.110.28), Phase 5 (seed-review Excel per-locale columns, v3.110.29), Phase 6 (drop legacy JSON column, v3.110.30), Phase 7 (FR/DE/ES locale enablement, v3.110.31), Phase 8 (this ship — docs + close, v3.110.32). **Total**: 8 phases / 12 architectural decisions / 4 entities migrated / 5 locales registered / 8 migrations / ~1,500 LOC. Spec estimated 52-70h conventional; actual ~10h compressed in a single session. Zero new NL msgids — docs ship through their own EN+NL translation channel per the docs convention. **Closes #0090.**
 
 = 3.110.31 — Light up FR/DE/ES in the data-row translation editor (#0090 Phase 7) =
 
