@@ -58,6 +58,19 @@ abstract class FrontendViewBase {
             ]
         );
 
+        // v3.110.53 — Archive-button handler for detail pages. Listens
+        // for clicks on [data-tt-archive-rest-path], runs window.confirm(),
+        // POSTs DELETE /wp-json/talenttrack/v1/<path>, redirects on
+        // success. No-op on pages without the data attribute, cheap
+        // to load once per request alongside table-tools.
+        wp_enqueue_script(
+            'tt-frontend-archive-button',
+            TT_PLUGIN_URL . 'assets/js/frontend-archive-button.js',
+            [ 'tt-public' ],
+            TT_VERSION,
+            true
+        );
+
         self::$assets_enqueued = true;
     }
 
