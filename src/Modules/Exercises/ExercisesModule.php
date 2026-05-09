@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\REST\ActivityExercisesRestController;
+use TT\Infrastructure\REST\ExercisesRestController;
 use TT\Modules\Exercises\Vision\ClaudeSonnetProvider;
 use TT\Modules\Exercises\Vision\GeminiProProvider;
 use TT\Modules\Exercises\Vision\OpenAiProvider;
@@ -46,6 +48,13 @@ class ExercisesModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
+
+        // #0016 Sprint 2b — REST surfaces. ExercisesRestController
+        // wraps the library + categories; ActivityExercisesRestController
+        // wraps the per-activity linkage table. Both register their
+        // routes on `rest_api_init`.
+        ExercisesRestController::init();
+        ActivityExercisesRestController::init();
     }
 
     /**

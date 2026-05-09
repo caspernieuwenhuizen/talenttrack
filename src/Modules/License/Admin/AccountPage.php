@@ -409,6 +409,16 @@ class AccountPage {
         $configured   = FreemiusAdapter::isConfigured();
         $override     = DevOverride::active();
         $trial_data   = TrialState::read();
+
+        // Underlying paid tier — the operator's actual plan, ignoring
+        // any trial unlock. Used to decide which upgrade affordance to
+        // show: a Standard customer mid-trial sees Pro features through
+        // LicenseGate::tier() but their *paid* plan is still Standard,
+        // and they need a path to convert before the trial ends.
+        // DevOverride counts as the underlying tier for testing.
+        $paid_tier = $override !== null
+            ? FeatureMap::normalizeTier( $override['tier'] )
+            : FreemiusAdapter::tier();
         $teams_used   = FreeTierCaps::currentCount( FreeTierCaps::CAP_TEAMS );
         $players_used = FreeTierCaps::currentCount( FreeTierCaps::CAP_PLAYERS );
         $teams_cap    = FreeTierCaps::teamCap();
@@ -501,7 +511,18 @@ class AccountPage {
                         $grace_days
                     );
                 ?></p>
-            <?php elseif ( $tier === FeatureMap::TIER_FREE && $trial_data === null ) : ?>
+            <?php endif; ?>
+
+            <?php
+            // Action affordances. Independent of the trial/grace status
+            // notice above — a Standard customer in an active trial sees
+            // both "Trial: X days remaining" and the "Upgrade to Pro"
+            // card so they can convert their underlying Standard plan
+            // before the trial ends. Keyed off $paid_tier (the actual
+            // paid plan), not LicenseGate::tier() which would report Pro
+            // during a trial.
+            ?>
+            <?php if ( $paid_tier === FeatureMap::TIER_FREE && $trial_data === null ) : ?>
                 <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:12px;">
                     <?php wp_nonce_field( 'tt_license_start_trial', 'tt_license_nonce' ); ?>
                     <input type="hidden" name="action" value="tt_license_start_trial" />
@@ -512,7 +533,7 @@ class AccountPage {
                 <p class="description" style="margin-top:6px;">
                     <?php esc_html_e( 'Unlocks every Pro-tier feature for 30 days — trial cases, scout access, team chemistry, radar charts, the lot. After 30 days you get 14 days of read-only grace; then the install drops back to Free.', 'talenttrack' ); ?>
                 </p>
-            <?php elseif ( $tier === FeatureMap::TIER_STANDARD ) : ?>
+            <?php elseif ( $paid_tier === FeatureMap::TIER_STANDARD ) : ?>
                 <?php
                 // v3.108.5 — A7: Standard-tier installs had no visible
                 // "Upgrade to Pro" CTA; the only upgrade affordance
@@ -639,6 +660,13 @@ class AccountPage {
         $grace_days  = LicenseGate::graceDaysRemaining();
         $is_operator = current_user_can( self::CAP );
 
+        // Underlying paid tier — see renderAccountTab() for why we
+        // distinguish from LicenseGate::tier() during a trial.
+        $override    = DevOverride::active();
+        $paid_tier   = $override !== null
+            ? FeatureMap::normalizeTier( $override['tier'] )
+            : FreemiusAdapter::tier();
+
         echo '<p>' . esc_html__( "Everything that's locked or limited on your install, in one place. Caps come from the Free-tier policy; features come from the plan you're on.", 'talenttrack' ) . '</p>';
 
         // 1. Current tier
@@ -663,7 +691,7 @@ class AccountPage {
             ) . '</span>';
         }
         echo '</p>';
-        if ( $is_operator && $tier !== FeatureMap::TIER_PRO ) {
+        if ( $is_operator && $paid_tier !== FeatureMap::TIER_PRO ) {
             $url = admin_url( 'admin.php?page=' . self::SLUG . '&tab=' . self::TAB_ACCOUNT );
             echo '<p style="margin-top:12px;"><a class="button button-primary" href="' . esc_url( $url ) . '">'
                 . esc_html__( 'Upgrade or start a trial', 'talenttrack' )
