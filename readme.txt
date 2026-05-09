@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.46
+Stable tag: 3.110.48
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.48 — Drop redundant "View" row actions from Players / People / Teams list tables =
+
+Pilot operator pointed out that the player list's "View" row action does the same thing as clicking the player name in the cell — both route to `?tt_view=players&id={id}` (FrontendPlayerDetailView). The "View" button was visual noise and, worse, strictly worse UX than the name click: name click goes through `RecordLink::detailUrlForWithBack()` which appends `tt_back=<list URL>`, so the destination renders the contextual `← Back to Players` pill above the breadcrumb chain. The "View" row action used a plain `add_query_arg([])` so the destination got the breadcrumb but no pill. Same redundancy on People (`?tt_view=people&id={id}`) and Teams (`?tt_view=teams&id={id}`); same fix. Goals and Activities were already done correctly — title clicks handle view, only `edit` and `delete` row actions exist. After this release, all five list tables follow the same pattern: clickable name/title cell for view, row actions for edit and delete (and `Rate card` on Players, which routes to the legacy `?tt_view=players&player_id={id}` rate-card view — different destination, kept). Zero new translatable strings.
 
 = 3.110.46 — Document the two-nav-affordance contract + close residual violations =
 

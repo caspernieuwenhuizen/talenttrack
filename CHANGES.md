@@ -1,3 +1,33 @@
+# TalentTrack v3.110.48 — Drop redundant "View" row actions from Players / People / Teams list tables
+
+Pilot operator pointed out that the player list's "View" row action does the same thing as clicking the player name in the cell — both route to `?tt_view=players&id={id}` (FrontendPlayerDetailView). The "View" button was visual noise and, worse, strictly worse UX than the name click.
+
+## Why "View" was strictly worse
+
+| Path | URL | tt_back captured? | Destination renders |
+|---|---|---|---|
+| Click player name in cell | `?tt_view=players&id=N&tt_back=<list>` | Yes (via `RecordLink::detailUrlForWithBack`) | Breadcrumb chain + `← Back to Players` pill |
+| Click "View" row action | `?tt_view=players&id=N` | No (plain `add_query_arg`) | Breadcrumb chain only |
+
+Both land on the same detail view, but only the name click captures the back-target needed to render the contextual back-pill on the destination. Removing the "View" row action removes the duplicate AND nudges users into the better-UX path.
+
+## What landed
+
+Three list views had the redundant `view` row action:
+
+- `FrontendPlayersManageView` — dropped (kept `edit`, `card` for the legacy rate-card view, `delete`)
+- `FrontendPeopleManageView` — dropped (kept `edit`, `delete`)
+- `FrontendTeamsManageView` — dropped (kept `edit`, `delete`)
+
+Goals and Activities were already on the correct pattern — title clicks handle view, only `edit` and `delete` row actions exist. After this release, all five list tables follow the same convention.
+
+## What this does NOT change
+
+- The `Rate card` row action on the Players list. That's a different destination (`?tt_view=players&player_id={id}` → legacy `FrontendPlayersManageView::renderDetail`, not `FrontendPlayerDetailView`), so keeping it as a separate row action is correct.
+- Translatable strings — zero new msgids.
+
+---
+
 # TalentTrack v3.110.46 — Document the two-nav-affordance contract + close residual violations
 
 The "exactly two navigation affordances per routable view" rule — breadcrumb chain + `tt_back`-borne pill, nothing else — was applied across the codebase in v3.110.41 and v3.110.45 but was not explicitly written down anywhere. New views or refactors had no documented standard to follow, so anti-patterns kept creeping back. This release codifies the contract and closes the residual violations the doc-and-sweep surfaced.

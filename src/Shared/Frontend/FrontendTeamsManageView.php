@@ -121,10 +121,9 @@ class FrontendTeamsManageView extends FrontendViewBase {
         }
 
         $row_actions = [
-            'view' => [
-                'label' => __( 'View', 'talenttrack' ),
-                'href'  => add_query_arg( [ 'tt_view' => 'teams', 'id' => '{id}' ], $base_url ),
-            ],
+            // v3.110.48 — dropped redundant 'View' action. Clicking the
+            // team name cell already routes to the detail view via
+            // RecordLink::detailUrlForWithBack (with tt_back capture).
             'edit' => [
                 'label' => __( 'Edit', 'talenttrack' ),
                 'href'  => add_query_arg( [ 'tt_view' => 'teams', 'id' => '{id}', 'action' => 'edit' ], $base_url ),
