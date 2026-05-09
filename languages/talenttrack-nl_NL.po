@@ -14399,3 +14399,15 @@ msgstr "zet %s op true in talenttrack.php en configureer Freemius-credentials (T
 
 msgid "My scouted players"
 msgstr "Mijn gescoute spelers"
+
+msgid "Archive this player? They can be restored later by a site admin."
+msgstr "Deze speler archiveren? Een site-admin kan de speler later herstellen."
+
+msgid "Archive this team? It will be hidden but the data is preserved."
+msgstr "Dit team archiveren? Het wordt verborgen maar de data blijft bewaard."
+
+msgid "Archive this goal? It will be hidden but the data is preserved."
+msgstr "Dit doel archiveren? Het wordt verborgen maar de data blijft bewaard."
+
+msgid "Archive this activity? It will be hidden but the data is preserved."
+msgstr "Deze activiteit archiveren? Ze wordt verborgen maar de data blijft bewaard."

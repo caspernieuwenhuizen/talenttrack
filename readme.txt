@@ -4,13 +4,33 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.48
+Stable tag: 3.110.54
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.54 — List-header actions slot: + New / Edit / Archive on the page-header (FAB on mobile), drop in-row Edit / Delete =
+
+Pilot operator UX feedback on the list rows: in-row Edit / Delete buttons crowded mobile tables, put the destructive action one fat-finger away from Edit, and duplicated affordances better placed elsewhere. Per the user's question: "Is it not better practice to have an edit button on the display page? And, the 'New ...' button, could that not be a nice + on top right to save some space."
+
+This release ships the answer across all five list views (Players, Teams, People, Goals, Activities):
+
+**(1) New `.tt-page-head` + `.tt-page-actions` CSS slot** in `assets/css/public.css`. Desktop renders action buttons right-aligned next to the page H1; mobile (≤ 767px) lifts the primary action into a 56×56 floating action button bottom-right (`.tt-page-actions__primary`) and hides secondary actions (`.tt-page-actions__secondary`) to save space. New `.tt-btn-danger` variant for destructive actions like Archive (muted red on white at rest, solid red on hover). Touch-target compliant (≥ 48px), respects iOS safe-area inset, label is screen-reader-readable on mobile via sr-only positioning when the FAB shows icon-only.
+
+**(2) `FrontendViewBase::renderHeader()` extended** to accept optional pre-built actions HTML. When provided, renders the H1 + actions inside a `<header class="tt-page-head">`. New `FrontendViewBase::pageActionsHtml( $actions )` helper turns a structured array into the slot HTML. Each action accepts label / href / primary / icon / variant / cap / confirm / data_attrs.
+
+**(3) `assets/js/frontend-archive-button.js`** — small generic handler for Archive buttons on detail pages. Wires `[data-tt-archive-rest-path]` clicks to fetch DELETE `/wp-json/talenttrack/v1/<path>` with X-WP-Nonce, redirects on success. Enqueued via `FrontendViewBase::enqueueAssets()` so every dashboard page gets it; no-op on pages without an Archive button.
+
+**(4) Five list views refactored** — Players, Teams, People, Goals, Activities. In-row `Edit` and `Delete` actions removed from the row-action column. Primary CTA (`+ New <entity>`) moves from a top-of-page button row into the page-header actions slot (FAB on mobile). Secondary actions (e.g. `Import from CSV` on Players + Teams) are header-secondary on desktop, hidden on mobile. The clickable name / title cell remains the only row affordance; `Rate card` is kept as a row action on Players because it's a *different* destination (legacy `?tt_view=players&player_id={id}` rate-card view, distinct from the detail view).
+
+**(5) Five detail views gain `Edit` + `Archive` page-header actions** — `FrontendPlayerDetailView`, `FrontendTeamDetailView`, `FrontendPersonDetailView`, `FrontendGoalsManageView::renderDetail`, `FrontendActivitiesManageView::renderDetail`. Edit (primary, `✎` icon) becomes a FAB on mobile; Archive (danger variant, secondary class) is desktop-only and routes to REST DELETE `<entity>/{id}` via the new tt-frontend-archive-button.js handler with a confirm() dialog and redirect to the list URL on success. Cap-gated (`tt_edit_players` / `tt_edit_teams` / `tt_edit_people` / `tt_edit_goals` / `tt_edit_activities`).
+
+The pattern centralizes one shared CSS + one shared helper across all five entities so future detail pages can opt in with a one-liner. Goals + Activities `renderDetail()` previously rendered an inline `<a class="tt-btn">Edit</a>` below the dl — that's gone; Edit lives in the header alongside Archive.
+
+Four new NL msgids — the entity-specific Archive confirm messages: `Archive this player? They can be restored later by a site admin.`, `Archive this team? It will be hidden but the data is preserved.`, `Archive this goal? It will be hidden but the data is preserved.`, `Archive this activity? It will be hidden but the data is preserved.` Other labels (`Edit`, `Archive`, `New player`, `New team`, `New person`, `New goal`, `New activity`, `Import from CSV`, `Import players from CSV`, `Rate card`, `Archive this person? They can be restored later by a site admin.`) already in the `.po`.
 
 = 3.110.48 — Drop redundant "View" row actions from Players / People / Teams list tables =
 

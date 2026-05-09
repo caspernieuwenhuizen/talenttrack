@@ -1,3 +1,74 @@
+# TalentTrack v3.110.54 — List-header actions slot: `+ New` / `Edit` / `Archive` on the page header, FAB on mobile, drop in-row Edit / Delete
+
+Pilot operator UX feedback on the list rows raised three things:
+
+1. The in-row `Edit` / `Delete` buttons crowded mobile tables, put the destructive action one fat-finger away from Edit, and duplicated affordances better placed elsewhere.
+2. Edit belongs on the detail page, where the user has full context (current values, related fields), not on a scanning surface.
+3. The big `+ New …` button at the top of every list could be a discreet `+` icon, top-right on desktop, FAB bottom-right on mobile — saves vertical space and matches the iOS / Android convention plus the existing scout-mobile precedent in #0081.
+
+This release ships the full answer across all five list views — Players, Teams, People, Goals, Activities — and adds Edit + Archive to the matching detail pages.
+
+## What landed
+
+### `.tt-page-head` + `.tt-page-actions` CSS slot
+
+Desktop: action buttons right-aligned next to the page H1.
+
+Mobile (≤ 767px): primary action (`.tt-page-actions__primary`) lifts to a 56×56 FAB anchored bottom-right, label visually hidden but readable to screen readers, icon-only. Secondary actions (`.tt-page-actions__secondary`) hidden — they're reachable via the entity's dashboard tile or admin sub-route. Touch-target compliant (≥ 48px), respects `env(safe-area-inset-bottom)` so iOS users with a home indicator don't lose the button under the bar.
+
+New `.tt-btn-danger` variant for destructive actions: muted red on white at rest, solid red on hover.
+
+### `FrontendViewBase::renderHeader()` extended
+
+Accepts an optional second argument: pre-built actions HTML. When provided, the H1 + actions render inside a `<header class="tt-page-head">`. Otherwise unchanged. New `FrontendViewBase::pageActionsHtml( array $actions )` helper turns a structured action array into the slot HTML — each action accepts `label` / `href` / `primary` / `icon` / `variant` / `cap` / `confirm` / `data_attrs`.
+
+### `frontend-archive-button.js` — generic Archive handler
+
+Small JS file (~80 lines) wired up in `FrontendViewBase::enqueueAssets()`. Listens for clicks on `[data-tt-archive-rest-path]` elements, runs a `confirm()` dialog, fetches `DELETE /wp-json/talenttrack/v1/<rest_path>` with `X-WP-Nonce`, redirects to the list URL on success. No-op on pages that don't render an Archive button.
+
+### Five list views refactored
+
+`FrontendPlayersManageView`, `FrontendTeamsManageView`, `FrontendPeopleManageView`, `FrontendGoalsManageView`, `FrontendActivitiesManageView`.
+
+| List | Was | Now |
+|---|---|---|
+| Row actions | `Edit` / `Delete` (and `Rate card` on Players) | Empty (`Rate card` kept on Players — different destination) |
+| Primary CTA | `<p><a class="tt-btn-primary">+ New …</a></p>` above table | `+ New …` in page-header slot, FAB on mobile |
+| Secondary CTAs (Players, Teams) | Inline `<a>` next to primary | Header-secondary, desktop-only |
+
+The clickable name / title cell remains the only row affordance — and the right one, since it goes through `RecordLink::detailUrlForWithBack()` which captures `tt_back` so the destination shows the contextual back-pill above the breadcrumb.
+
+### Five detail views gain Edit + Archive
+
+`FrontendPlayerDetailView`, `FrontendTeamDetailView`, `FrontendPersonDetailView`, `FrontendGoalsManageView::renderDetail`, `FrontendActivitiesManageView::renderDetail`.
+
+- **Edit** (primary, `✎` icon): routes to the existing edit form (`?tt_view=…&id=N&action=edit`). FAB on mobile, top-right button on desktop. Cap-gated.
+- **Archive** (danger variant, secondary class): wires through `tt-frontend-archive-button.js` to REST DELETE `<entity>/{id}` with a contextual confirm() message and redirect to the list on success. Desktop-only on mobile (visible inline alongside Edit on tablet+ / desktop).
+
+Goals + Activities previously rendered an inline `<a class="tt-btn">Edit</a>` below the detail `<dl>` — that's gone; Edit lives in the header alongside Archive now.
+
+## What this does NOT change
+
+- The forms (`renderForm()` paths) are untouched. Saves still post to the same REST endpoints with the same redirect-after-save behavior.
+- The list table itself (`FrontendListTable::render()`) — only the row-actions array passed in shrinks. Filters, search, sort, pagination all unchanged.
+- Bulk operations — the codebase doesn't have multi-select / bulk-action affordances today; if power-user efficiency loss becomes a complaint, that's the right destination, not putting per-row actions back. Tracked as a follow-up if it surfaces.
+- Other detail views (PdpManage, ScoutAccess, etc.) keep their existing patterns; the `pageActionsHtml` helper is opt-in, not mandatory.
+
+## Translations
+
+Four new NL msgids — the entity-specific Archive confirm messages:
+
+| msgid | msgstr |
+|---|---|
+| `Archive this player? They can be restored later by a site admin.` | `Deze speler archiveren? Een site-admin kan de speler later herstellen.` |
+| `Archive this team? It will be hidden but the data is preserved.` | `Dit team archiveren? Het wordt verborgen maar de data blijft bewaard.` |
+| `Archive this goal? It will be hidden but the data is preserved.` | `Dit doel archiveren? Het wordt verborgen maar de data blijft bewaard.` |
+| `Archive this activity? It will be hidden but the data is preserved.` | `Deze activiteit archiveren? Ze wordt verborgen maar de data blijft bewaard.` |
+
+Other labels (`Edit`, `Archive`, `New player`, `New team`, `New person`, `New goal`, `New activity`, `Import from CSV`, `Import players from CSV`, `Rate card`, `Archive this person? They can be restored later by a site admin.`) already in the `.po` from prior list-view shipments.
+
+---
+
 # TalentTrack v3.110.48 — Drop redundant "View" row actions from Players / People / Teams list tables
 
 Pilot operator pointed out that the player list's "View" row action does the same thing as clicking the player name in the cell — both route to `?tt_view=players&id={id}` (FrontendPlayerDetailView). The "View" button was visual noise and, worse, strictly worse UX than the name click.
