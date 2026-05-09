@@ -40,7 +40,6 @@ class FrontendMySettingsView extends FrontendViewBase {
 
         $user_id = get_current_user_id();
         if ( $user_id <= 0 ) {
-            FrontendBackButton::render();
             echo '<p class="tt-notice">' . esc_html__( 'You need to be logged in to manage your settings.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -48,7 +47,6 @@ class FrontendMySettingsView extends FrontendViewBase {
         $messages = self::handlePost( $user_id );
         $user = get_userdata( $user_id );
         if ( ! $user ) {
-            FrontendBackButton::render();
             echo '<p class="tt-notice">' . esc_html__( 'Could not load your account.', 'talenttrack' ) . '</p>';
             return;
         }

@@ -50,7 +50,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         $can_manage_types = current_user_can( 'tt_manage_functional_roles' );
         $can_view_assign  = current_user_can( 'tt_view_people' ) || current_user_can( 'tt_edit_people' );
         if ( ! $can_manage_types && ! $can_view_assign ) {
-            FrontendBackButton::render();
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view this section.', 'talenttrack' ) . '</p>';
             return;
         }

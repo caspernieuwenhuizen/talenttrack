@@ -90,7 +90,7 @@ class FrontendCustomCssView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_admin_styling' ) ) {
-            FrontendBackButton::render();
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to manage custom styling.', 'talenttrack' ) . '</p>';
             return;
         }

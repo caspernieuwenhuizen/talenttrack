@@ -120,12 +120,6 @@ class FrontendMyGoalsView extends FrontendViewBase {
         ) );
 
         if ( ! $goal ) {
-            // v3.92.2 — was rendering FrontendBackButton::render() and
-            // then renderHeader() which renders ANOTHER back button via
-            // its built-in fallback. Pilot operator reported the
-            // duplicate. renderHeader's resolveTarget() strips `id`
-            // from the URL, so the default-arg back button lands on
-            // `?tt_view=my-goals` correctly without the explicit call.
             self::renderHeader( __( 'Goal not found', 'talenttrack' ) );
             echo '<p><em>' . esc_html__( 'That goal is no longer available, or it does not belong to your record.', 'talenttrack' ) . '</em></p>';
             return;

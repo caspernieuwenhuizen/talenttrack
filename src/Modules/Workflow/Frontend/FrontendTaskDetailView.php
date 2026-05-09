@@ -106,7 +106,6 @@ class FrontendTaskDetailView extends FrontendViewBase {
         }
         $is_completed = (string) $task['status'] === TaskStatus::COMPLETED;
 
-        FrontendBackButton::render();
         echo '<h1 class="tt-fview-title" style="margin:6px 0 18px; font-size:22px; color:#1a1d21;">'
             . esc_html( $template->name() )
             . '</h1>';

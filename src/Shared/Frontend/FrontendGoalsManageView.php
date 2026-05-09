@@ -97,9 +97,6 @@ class FrontendGoalsManageView extends FrontendViewBase {
      * @param object $goal goal row from `loadGoal`
      */
     private static function renderDetail( object $goal, int $user_id ): void {
-        $back_url = add_query_arg( [ 'tt_view' => 'goals' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
-        \TT\Shared\Frontend\FrontendBackButton::render( $back_url );
-
         $player_id = (int) ( $goal->player_id ?? 0 );
         $player    = $player_id > 0 ? QueryHelpers::get_player( $player_id ) : null;
         $status    = (string) ( $goal->status ?? '' );

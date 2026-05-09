@@ -28,7 +28,6 @@ class FrontendMySessionsView extends FrontendViewBase {
 
         $user_id = get_current_user_id();
         if ( $user_id <= 0 ) {
-            FrontendBackButton::render();
             echo '<p class="tt-notice">' . esc_html__( 'You need to be logged in to manage your sessions.', 'talenttrack' ) . '</p>';
             return;
         }

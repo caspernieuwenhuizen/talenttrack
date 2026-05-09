@@ -32,7 +32,7 @@ class FrontendCohortTransitionsView {
         // on `tt_edit_settings` + WP administrator so legacy admins
         // and matrix-dormant installs keep working.
         if ( ! \TT\Infrastructure\Query\QueryHelpers::user_has_global_entity_read( $user_id, 'cohort_transitions' ) ) {
-            FrontendBackButton::render();
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to cohort transitions.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -57,7 +57,6 @@ class FrontendCohortTransitionsView {
             );
         }
 
-        FrontendBackButton::render();
         ?>
         <section class="tt-cohort">
             <header>

@@ -29,7 +29,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_access_frontend_admin' ) ) {
-            FrontendBackButton::render();
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view this section.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -43,11 +43,6 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
             __( 'Usage detail', 'talenttrack' ),
             [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'usage-stats', __( 'Application KPIs', 'talenttrack' ) ) ]
         );
-
-        // v3.75.3 — FrontendBackButton signature now takes target_url
-        // first, label second. Pass empty target so it resolves to the
-        // dashboard, with the explicit label.
-        FrontendBackButton::render( '', __( '← Back to usage statistics', 'talenttrack' ) );
 
         switch ( $metric ) {
             case 'logins':         self::renderLogins( $days );       break;

@@ -29,7 +29,7 @@ final class FrontendMailComposeView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_send_email' ) ) {
-            FrontendBackButton::render();
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to send email through TalentTrack.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -57,7 +57,6 @@ final class FrontendMailComposeView extends FrontendViewBase {
         $back_url = $person_id > 0
             ? add_query_arg( [ 'tt_view' => 'people', 'id' => $person_id ], $dash )
             : add_query_arg( [ 'tt_view' => 'people' ], $dash );
-        FrontendBackButton::render( $back_url );
 
         if ( ! $person || empty( $person->email ) ) {
             self::renderHeader( __( 'Compose email', 'talenttrack' ) );

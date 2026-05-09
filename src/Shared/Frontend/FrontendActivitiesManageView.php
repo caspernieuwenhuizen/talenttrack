@@ -130,9 +130,6 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * @param object $session activity row from `loadSession`
      */
     private static function renderDetail( object $session, bool $is_admin ): void {
-        $back_url = add_query_arg( [ 'tt_view' => 'activities' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
-        \TT\Shared\Frontend\FrontendBackButton::render( $back_url );
-
         $team_id   = (int) ( $session->team_id ?? 0 );
         $team_name = (string) ( $session->team_name ?? '' );
         $type_key  = (string) ( $session->activity_type_key ?? 'training' );

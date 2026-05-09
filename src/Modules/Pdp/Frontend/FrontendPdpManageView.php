@@ -89,15 +89,6 @@ class FrontendPdpManageView extends FrontendViewBase {
         // surface a Back-to-Planning button so the user can return
         // to the matrix instead of jumping all the way to the
         // dashboard. The default browser-back hop landed too far.
-        $filter = isset( $_GET['filter'] ) && is_array( $_GET['filter'] ) ? $_GET['filter'] : [];
-        if ( ! empty( $filter['team_id'] ) || ! empty( $filter['block'] ) ) {
-            $planning_url = add_query_arg(
-                [ 'tt_view' => 'pdp-planning', 'season_id' => (int) ( $filter['season'] ?? 0 ) ],
-                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-            );
-            FrontendBackButton::render( $planning_url );
-        }
-
         self::renderHeader( __( 'Player Development Plans', 'talenttrack' ) );
 
         $seasons = new SeasonsRepository();

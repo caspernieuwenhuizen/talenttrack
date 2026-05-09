@@ -79,7 +79,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
 
     public static function render( int $player_id, int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_view_players' ) ) {
-            FrontendBackButton::render();
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view player details.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -87,7 +87,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $player = QueryHelpers::get_player( $player_id );
 
         if ( ! $player ) {
-            FrontendBackButton::render( remove_query_arg( [ 'id' ] ), __( '← Back to players', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Player not found', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'players', __( 'Players', 'talenttrack' ) ) ]
+            );
             self::renderHeader( __( 'Player not found', 'talenttrack' ) );
             echo '<p><em>' . esc_html__( 'That player is no longer available, or you do not have access.', 'talenttrack' ) . '</em></p>';
             return;

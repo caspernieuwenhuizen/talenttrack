@@ -21,7 +21,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_view_reports' ) ) {
-            FrontendBackButton::render();
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to reports.', 'talenttrack' ) . '</p>';
             return;
         }
