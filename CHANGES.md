@@ -1,3 +1,86 @@
+# TalentTrack v3.110.29 — Seed-review Excel: per-locale columns become editable (#0090 Phase 5)
+
+Fifth phase of #0090 (data-row internationalisation). The seed-review Excel exporter (originally shipped under #0089) gets first-class editable per-locale columns; the importer routes those edits into `tt_translations` instead of the source table. The four migrated entities — lookups, eval categories, roles, functional roles — all expose translation columns dynamically.
+
+## What landed
+
+### `SeedExporter` — drop `label_nl`, emit dynamic `<field>_<locale>` columns
+
+Every translatable entity now emits its translation columns by walking the registry × locales pair:
+
+```php
+foreach ( TranslatableFieldRegistry::fieldsFor( $entity_type ) as $field ) {
+    foreach ( I18nModule::REGISTERED_LOCALES as $locale ) {
+        $columns[] = $field . '_' . $locale;
+    }
+}
+```
+
+Today that produces:
+
+| Entity | Translation columns |
+|---|---|
+| `lookup` | `name_en_US`, `name_nl_NL`, `description_en_US`, `description_nl_NL` |
+| `eval_category` | `label_en_US`, `label_nl_NL` |
+| `role` | `label_en_US`, `label_nl_NL` |
+| `functional_role` | `label_en_US`, `label_nl_NL` |
+
+Adding FR/DE/ES (Phase 7 / #0010) costs zero exporter code — the columns appear automatically.
+
+Cells populate from `TranslationsRepository::allFor( $entity_type, $id )`, which returns `field → locale → value`. Empty cell means "no translation row exists" — operators can fill it to add one. The English canonical column on each source table (`name` / `label`) stays unchanged as the immovable backstop per spec Decision Q8.
+
+**Removed**: the read-only `label_nl` column, the `translateToNl()` helper that did `switch_to_locale('nl_NL')` + `__()`, and the `detectLanguage()` heuristic that guessed whether the stored string was English or Dutch. None of these survive the cutover — the per-locale columns answer all three questions explicitly.
+
+### `SeedImporter` — `applyTranslations()` writes through to `tt_translations`
+
+New private helper, called from every sheet handler:
+
+```php
+foreach ( TranslatableFieldRegistry::fieldsFor( $entity_type ) as $field ) {
+    foreach ( I18nModule::REGISTERED_LOCALES as $locale ) {
+        $col = strtolower( $field . '_' . $locale );
+        if ( ! array_key_exists( $col, $row ) ) continue;
+        // Cell present → reconcile against tt_translations:
+        //   non-empty + differs from existing → upsert
+        //   empty + existing row → delete
+    }
+}
+```
+
+Each sheet's `apply*Sheet()` method now treats source-table edits and translation edits as independent change vectors:
+
+- Translation-only edit → counts as `updated` instead of `skipped`; no source-table SQL fires.
+- Mixed edit → both halves write independently in their natural order.
+- No edits → still `skipped`.
+
+### Audit trail
+
+When translations were touched in a row, the `seed_review.row_updated` audit row's `columns` field carries a `__translations` marker so log readers can tell translation-edits from column-edits at a glance:
+
+```json
+{
+  "table": "tt_lookups",
+  "row_id": 42,
+  "columns": ["__translations"]
+}
+```
+
+## What's NOT in this PR (lands in Phases 6-8)
+
+- **Phase 6** — `nl_NL.po` cleanup of migrated msgids + sweep remaining string-only `displayLabel()` callers.
+- **Phase 7** — register FR/DE/ES in `REGISTERED_LOCALES` (the export/import gain those columns automatically).
+- **Phase 8** — docs + close epic.
+
+## Translations
+
+Zero new NL msgids — the changed strings are CSV column names, not user-facing text. Existing translations for the migrated entities continue to flow through `tt_translations` as written by Phases 2-4.
+
+## Notes
+
+The exporter no longer does a `switch_to_locale('nl_NL')` round-trip on each row, which was the slowest part of the previous shape. Each export now does one `allFor()` call per row instead. Net effect: faster exports + an editable round-trip + auto-support for new locales.
+
+---
+
 # TalentTrack v3.110.28 — Roles + functional roles migrate to `tt_translations` (#0090 Phase 4)
 
 Fourth phase of #0090 (data-row internationalisation). Both `tt_roles` and `tt_functional_roles` now read + write through the new `tt_translations` store. Per the spec ("two small entities, one PR") they ship together since they share the same shape — `label` is the only translatable field on each (Decision Q6).

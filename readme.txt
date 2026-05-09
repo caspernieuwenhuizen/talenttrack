@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.28
+Stable tag: 3.110.29
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.29 — Seed-review Excel: per-locale columns become editable (#0090 Phase 5) =
+
+Fifth phase of #0090 (data-row internationalisation). The seed-review Excel exporter (#0089) gets first-class editable per-locale columns instead of the old read-only `label_nl` column; the importer routes those edits straight into `tt_translations`. The four migrated entities — lookups, eval categories, roles, functional roles — all expose translation columns dynamically so adding FR/DE/ES (#0010 / Phase 7) costs zero exporter code. **(1) `SeedExporter`** — drops the read-only `label_nl` column + the `switch_to_locale('nl_NL') + __()` round-trip helper that produced it. Each translatable entity now emits one `<field>_<locale>` column per `(TranslatableFieldRegistry::fieldsFor() × I18nModule::REGISTERED_LOCALES)` pair. Cells populate from `TranslationsRepository::allFor()` so an empty cell means "no translation row exists" — operators can fill it to add one. The English canonical column on each source table (`name` / `label`) stays as the immovable backstop per spec Decision Q8. **(2) `SeedImporter`** — new shared `applyTranslations( $entity_type, $id, $row )` helper that walks each `<field>_<locale>` column for the entity, compares against the existing `tt_translations` row, and: upserts via `TranslationsRepository::upsert()` when the cell differs and is non-empty; deletes via `TranslationsRepository::delete()` when the cell is empty AND a translation row exists. Wired into all four sheet handlers (Lookups / Eval categories / Roles / Functional roles). **(3) Decoupled source-table + translations updates** — translation-only edits (no source-table change) now count as a successful row update instead of being skipped; mixed edits write both halves independently. **(4) Audit trail** — when translations were touched, the `seed_review.row_updated` audit row carries a `__translations` marker in its `columns` field so log readers can tell at a glance that the change wasn't a source-column edit. **What's NOT in this PR (lands in Phases 6-8)**: Phase 6 — `nl_NL.po` cleanup of migrated msgids + sweep remaining string-only `displayLabel()` callers. Phase 7 — register FR/DE/ES in `REGISTERED_LOCALES` (the export/import gain those columns automatically). Phase 8 — docs + close. Zero new NL msgids — the changed strings are CSV column names, not user-facing text.
 
 = 3.110.28 — Roles + functional roles migrate to `tt_translations` (#0090 Phase 4) =
 

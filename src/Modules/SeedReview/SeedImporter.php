@@ -4,6 +4,9 @@ namespace TT\Modules\SeedReview;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\I18n\I18nModule;
+use TT\Modules\I18n\TranslatableFieldRegistry;
+use TT\Modules\I18n\TranslationsRepository;
 
 /**
  * SeedImporter — accepts an edited seed-review .xlsx and applies the
@@ -122,15 +125,22 @@ final class SeedImporter {
                 $update['meta'] = $meta === [] ? null : (string) wp_json_encode( $meta );
             }
 
-            if ( empty( $update ) ) { $totals['skipped']++; continue; }
+            // #0090 Phase 5 — apply per-locale translations independently
+            // of the source-table update. Empty cell clears any existing
+            // translation row; non-empty upserts.
+            $tx_changed = self::applyTranslations( TranslatableFieldRegistry::ENTITY_LOOKUP, $id, $r );
 
-            $ok = $wpdb->update( $wpdb->prefix . 'tt_lookups', $update, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
-            if ( $ok === false ) {
-                $totals['errors'][] = sprintf( 'Lookups row %d: db error %s', $id, (string) $wpdb->last_error );
-                continue;
+            if ( empty( $update ) && ! $tx_changed ) { $totals['skipped']++; continue; }
+
+            if ( ! empty( $update ) ) {
+                $ok = $wpdb->update( $wpdb->prefix . 'tt_lookups', $update, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+                if ( $ok === false ) {
+                    $totals['errors'][] = sprintf( 'Lookups row %d: db error %s', $id, (string) $wpdb->last_error );
+                    continue;
+                }
             }
             $totals['updated']++;
-            self::audit( 'tt_lookups', $id, $update );
+            self::audit( 'tt_lookups', $id, $update + ( $tx_changed ? [ '__translations' => true ] : [] ) );
         }
     }
 
@@ -172,15 +182,19 @@ final class SeedImporter {
                 $update['meta'] = (string) $r['meta'];
             }
 
-            if ( empty( $update ) ) { $totals['skipped']++; continue; }
+            $tx_changed = self::applyTranslations( TranslatableFieldRegistry::ENTITY_EVAL_CATEGORY, $id, $r );
 
-            $ok = $wpdb->update( $tbl, $update, [ 'id' => $id ] );
-            if ( $ok === false ) {
-                $totals['errors'][] = sprintf( 'Eval categories row %d: db error %s', $id, (string) $wpdb->last_error );
-                continue;
+            if ( empty( $update ) && ! $tx_changed ) { $totals['skipped']++; continue; }
+
+            if ( ! empty( $update ) ) {
+                $ok = $wpdb->update( $tbl, $update, [ 'id' => $id ] );
+                if ( $ok === false ) {
+                    $totals['errors'][] = sprintf( 'Eval categories row %d: db error %s', $id, (string) $wpdb->last_error );
+                    continue;
+                }
             }
             $totals['updated']++;
-            self::audit( 'tt_eval_categories', $id, $update );
+            self::audit( 'tt_eval_categories', $id, $update + ( $tx_changed ? [ '__translations' => true ] : [] ) );
         }
     }
 
@@ -200,14 +214,20 @@ final class SeedImporter {
             if ( isset( $r['label'] ) && (string) $r['label'] !== (string) $existing->label ) {
                 $update['label'] = (string) $r['label'];
             }
-            if ( empty( $update ) ) { $totals['skipped']++; continue; }
-            $ok = $wpdb->update( $tbl, $update, [ 'id' => $id ] );
-            if ( $ok === false ) {
-                $totals['errors'][] = sprintf( 'Roles row %d: db error %s', $id, (string) $wpdb->last_error );
-                continue;
+
+            $tx_changed = self::applyTranslations( TranslatableFieldRegistry::ENTITY_ROLE, $id, $r );
+
+            if ( empty( $update ) && ! $tx_changed ) { $totals['skipped']++; continue; }
+
+            if ( ! empty( $update ) ) {
+                $ok = $wpdb->update( $tbl, $update, [ 'id' => $id ] );
+                if ( $ok === false ) {
+                    $totals['errors'][] = sprintf( 'Roles row %d: db error %s', $id, (string) $wpdb->last_error );
+                    continue;
+                }
             }
             $totals['updated']++;
-            self::audit( 'tt_roles', $id, $update );
+            self::audit( 'tt_roles', $id, $update + ( $tx_changed ? [ '__translations' => true ] : [] ) );
         }
     }
 
@@ -239,15 +259,74 @@ final class SeedImporter {
                     $update['is_active'] = $val;
                 }
             }
-            if ( empty( $update ) ) { $totals['skipped']++; continue; }
-            $ok = $wpdb->update( $tbl, $update, [ 'id' => $id ] );
-            if ( $ok === false ) {
-                $totals['errors'][] = sprintf( 'Functional roles row %d: db error %s', $id, (string) $wpdb->last_error );
-                continue;
+
+            $tx_changed = self::applyTranslations( TranslatableFieldRegistry::ENTITY_FUNCTIONAL_ROLE, $id, $r );
+
+            if ( empty( $update ) && ! $tx_changed ) { $totals['skipped']++; continue; }
+
+            if ( ! empty( $update ) ) {
+                $ok = $wpdb->update( $tbl, $update, [ 'id' => $id ] );
+                if ( $ok === false ) {
+                    $totals['errors'][] = sprintf( 'Functional roles row %d: db error %s', $id, (string) $wpdb->last_error );
+                    continue;
+                }
             }
             $totals['updated']++;
-            self::audit( 'tt_functional_roles', $id, $update );
+            self::audit( 'tt_functional_roles', $id, $update + ( $tx_changed ? [ '__translations' => true ] : [] ) );
         }
+    }
+
+    /**
+     * #0090 Phase 5 — apply per-locale translation cells from one row
+     * to `tt_translations`. Walks `(field × registered locale)` for the
+     * entity, looks for a `<field>_<locale>` cell in the import row,
+     * and:
+     *   - upserts when the cell is non-empty AND differs from the
+     *     existing translation row,
+     *   - deletes when the cell is empty AND a translation row exists.
+     *
+     * Returns true when at least one translation row was written or
+     * cleared, so the caller can count this towards the "updated"
+     * total even when the source-table update is empty.
+     *
+     * Cap-gating sits upstream on the `tt_edit_settings` upload route.
+     * The per-locale writes audit-log via the standard
+     * `tt_translations` channel (`bumpVersion()` invalidates the
+     * resolver cache; no additional log line per cell to stay quiet).
+     *
+     * @param array<string,string> $row
+     */
+    private static function applyTranslations( string $entity_type, int $entity_id, array $row ): bool {
+        if ( $entity_id <= 0 ) return false;
+        $fields  = TranslatableFieldRegistry::fieldsFor( $entity_type );
+        if ( empty( $fields ) ) return false;
+
+        $repo     = new TranslationsRepository();
+        $existing = $repo->allFor( $entity_type, $entity_id );
+        $user_id  = (int) ( function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0 );
+        $changed  = false;
+
+        foreach ( $fields as $field ) {
+            foreach ( I18nModule::REGISTERED_LOCALES as $locale ) {
+                $col = strtolower( $field . '_' . $locale );
+                if ( ! array_key_exists( $col, $row ) ) continue;
+                $new = trim( (string) $row[ $col ] );
+                $cur = isset( $existing[ $field ][ $locale ] ) ? (string) $existing[ $field ][ $locale ] : '';
+
+                if ( $new === $cur ) continue;
+
+                if ( $new === '' ) {
+                    if ( $cur !== '' ) {
+                        $repo->delete( $entity_type, $entity_id, $field, $locale );
+                        $changed = true;
+                    }
+                    continue;
+                }
+                $repo->upsert( $entity_type, $entity_id, $field, $locale, $new, $user_id );
+                $changed = true;
+            }
+        }
+        return $changed;
     }
 
     /**
