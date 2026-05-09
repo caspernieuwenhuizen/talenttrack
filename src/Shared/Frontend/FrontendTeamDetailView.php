@@ -47,7 +47,35 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             (string) $team->name,
             [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'teams', $teams_label ) ]
         );
-        self::renderHeader( (string) $team->name );
+
+        // v3.110.53 — Edit + Archive page-header actions. Same pattern
+        // as Player detail: Edit becomes a FAB on mobile, Archive
+        // (danger) is desktop-only and routes to REST DELETE
+        // teams/{id} via tt-frontend-archive-button.js.
+        $actions  = [];
+        $teams_url = add_query_arg( [ 'tt_view' => 'teams' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+        if ( current_user_can( 'tt_edit_teams' ) ) {
+            $edit_url = add_query_arg(
+                [ 'tt_view' => 'teams', 'id' => $team_id, 'action' => 'edit' ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            );
+            $actions[] = [
+                'label'   => __( 'Edit', 'talenttrack' ),
+                'href'    => $edit_url,
+                'primary' => true,
+                'icon'    => '✎',
+            ];
+            $actions[] = [
+                'label'   => __( 'Archive', 'talenttrack' ),
+                'variant' => 'danger',
+                'data_attrs' => [
+                    'tt-archive-rest-path' => 'teams/' . $team_id,
+                    'tt-archive-confirm'   => __( 'Archive this team? It will be hidden but the data is preserved.', 'talenttrack' ),
+                    'tt-archive-redirect'  => $teams_url,
+                ],
+            ];
+        }
+        self::renderHeader( (string) $team->name, self::pageActionsHtml( $actions ) );
 
         $roster = QueryHelpers::get_players( $team_id );
         $trials = self::loadTrialPlayers( $team_id );
