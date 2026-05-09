@@ -1,3 +1,72 @@
+# TalentTrack v3.110.56 — Team planner: status pill now reflects the activity's edited status; new range selector
+
+Two issues on `?tt_view=team-planner`. The pilot operator surfaced both during a tile-by-tile review of the dashboard.
+
+## (1) Status bug — every card showed "Completed"
+
+Every activity card on the planner showed the same "Completed" pill regardless of what the coach actually set the status to in the activities form (Planned / Completed / Cancelled).
+
+**Why**: the planner card was reading the internal `plan_state` column instead of the user-facing `activity_status_key` lookup. `plan_state` (added in migration 0073 for the planner) defaults to `'completed'` on every row created via the non-planner activities form. So unless the activity was created via the planner's own `+ Schedule activity` flow (which sets `plan_state='scheduled'`), the planner displayed "Completed" for it — even when the coach had explicitly set the form's *Status* to `Planned`.
+
+**Fix**: the activity card now renders `LookupPill::render('activity_status', …)` — the same colour-coded pill the activities list (`?tt_view=activities`) and the wp-admin Activities page already use. The planner and the activities list now share one source of truth for status: the `activity_status_key` value the coach sees and edits on the form.
+
+While there:
+
+- The planner's "exclude cancelled activities" filter moved from `WHERE plan_state <> 'cancelled'` to `WHERE activity_status_key <> 'cancelled'`. Coach-cancelled activities now actually drop out of the grid.
+- The bottom *"Principles trained — last 8 weeks"* panel filter moved from `plan_state IN ('completed','in_progress')` to `activity_status_key = 'completed'`. Same reason — gate on the field the coach sees and edits.
+- The card's left-border colour is keyed on `activity_status_key` (`tt-planner-state-{planned|completed|cancelled}`), mirroring the `meta.color` seeded for the `activity_status` lookup in migration 0049 (yellow / green / red).
+
+The legacy `plan_state` column stays on the row — the activities REST endpoint still accepts a `plan_state` filter, and the planner's `+ Schedule activity` flow still passes `plan_state=scheduled` through the create form. Nothing in the schema was removed.
+
+## (2) Range selector — coaches can plan more than one week at a time
+
+The planner only ever showed one week. Coaches asked to see longer windows — for working out a four-week training block, or eyeballing the whole season's coverage at once.
+
+The toolbar gains a **Show** dropdown with five options:
+
+| Option | Window | Prev/next steps by |
+|---|---|---|
+| One week (default) | 7 days from the resolved Monday | 7 days |
+| Two weeks | 14 days | 14 days |
+| Four weeks | 28 days | 28 days |
+| Eight weeks | 56 days | 56 days |
+| Full season | the current `tt_seasons.is_current` row, snapped to whole weeks | (no prev/next — replaced with the season name) |
+
+Multi-week ranges stack consecutive 7-column week grids vertically, each with a *"Week of Mon J — Sun K"* header. Mobile collapses each week to a one-column day stack as before.
+
+The full-season range:
+
+- Reads `SeasonsRepository::current()`.
+- Snaps the season's `start_date` back to the Monday of its containing week and the `end_date` forward to the Sunday of its containing week, so the rendered weeks line up cleanly.
+- Replaces the prev/next nav with the season name (`Season: 2025/2026`).
+- Falls back to a single-week view if no `is_current` season row exists.
+
+The `range` URL parameter round-trips, so a bookmarked planner URL like `?tt_view=team-planner&team_id=12&range=4weeks&week_start=2026-05-04` reproduces the same window when reopened.
+
+## Translations
+
+Nine new NL msgids:
+
+| msgid | msgstr |
+|---|---|
+| `Show` | `Toon` |
+| `One week` | `Eén week` |
+| `Two weeks` | `Twee weken` |
+| `Four weeks` | `Vier weken` |
+| `Eight weeks` | `Acht weken` |
+| `Full season` | `Volledig seizoen` |
+| `Previous %d week` (singular) / `Previous %d weeks` (plural) | `Vorige %d week` / `Vorige %d weken` |
+| `Next %d week` (singular) / `Next %d weeks` (plural) | `Volgende %d week` / `Volgende %d weken` |
+| `Week of %1$s — %2$s` | `Week van %1$s — %2$s` |
+
+`Season: %s` already existed in the NL .po (translated as `Seizoen: %s`); the planner reuses it.
+
+## Documentation
+
+`docs/team-planner.md` and `docs/nl_NL/team-planner.md` are new — the planner had no dedicated doc before this release. The Dutch version is a full translation, not a placeholder.
+
+---
+
 # TalentTrack v3.110.55 — Hotfix: `+ New blueprint` white-screened on every install since v3.98.0
 
 Pilot operator clicked **+ New blueprint** on `?tt_view=team-blueprints` and got a critical WP error / white screen instead of the wizard.
