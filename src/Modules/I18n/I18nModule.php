@@ -65,6 +65,18 @@ class I18nModule implements ModuleInterface {
             TranslatableFieldRegistry::ENTITY_LOOKUP,
             [ 'name', 'description' ]
         );
+
+        // Phase 3 — register the `eval_category` entity with the
+        // single translatable field `label` (per spec Decision Q6).
+        // `EvalCategoriesRepository::displayLabel()` consults
+        // `TranslationsRepository::translate()` first when the caller
+        // passes an entity_id, then falls back to gettext for legacy
+        // call sites that only have the raw string. Description is
+        // intentionally not translatable in v1.
+        TranslatableFieldRegistry::register(
+            TranslatableFieldRegistry::ENTITY_EVAL_CATEGORY,
+            [ 'label' ]
+        );
     }
 
     /**

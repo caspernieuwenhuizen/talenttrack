@@ -94,7 +94,7 @@ final class RateActorsStep implements WizardStepInterface {
                         $cid    = (int) $cat->id;
                         $val    = (int) ( $state['ratings'][ $pid ][ $cid ] ?? 0 );
                         $iid    = 'tt-rate-' . $pid . '-' . $cid;
-                        $label  = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label );
+                        $label  = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label, $cid );
                         $subs   = $sub_cats_by_parent[ $cid ] ?? [];
                     ?>
                         <div class="tt-rate-row">
@@ -124,7 +124,7 @@ final class RateActorsStep implements WizardStepInterface {
                                     $scid = (int) $sub->id;
                                     $sval = (int) ( $state['ratings'][ $pid ][ $scid ] ?? 0 );
                                     $siid = 'tt-rate-' . $pid . '-' . $scid;
-                                    $slabel = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $sub->label );
+                                    $slabel = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $sub->label, $scid );
                                 ?>
                                     <div class="tt-rate-row tt-rate-row--sub">
                                         <label class="tt-rate-label" for="<?php echo esc_attr( $siid ); ?>">↳ <?php echo esc_html( $slabel ); ?></label>

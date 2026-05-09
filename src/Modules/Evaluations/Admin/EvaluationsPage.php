@@ -434,7 +434,7 @@ class EvaluationsPage {
                                   data-mode="<?php echo esc_attr( $mode_default ); ?>"
                                   style="border:1px solid #dcdcde; padding:12px 16px; margin-bottom:10px; background:#fff;">
                             <legend style="font-weight:600; padding:0 6px;">
-                                <?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $main->label ) ); ?>
+                                <?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $main->label, $main_id ) ); ?>
                             </legend>
 
                             <input type="hidden" name="tt_rating_mode[<?php echo $main_id; ?>]"
@@ -474,7 +474,7 @@ class EvaluationsPage {
                                             <tr>
                                                 <td style="padding:4px 12px 4px 16px; color:#555; width:60%;">
                                                     <span style="color:#bbb;">↳</span>
-                                                    <?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $sub->label ) ); ?>
+                                                    <?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $sub->label, $sub_id ) ); ?>
                                                 </td>
                                                 <td style="padding:4px 0;">
                                                     <input type="number"
@@ -725,8 +725,8 @@ class EvaluationsPage {
         // translator so seeded category names display in the admin's locale.
         $radar_labels = [];
         $radar_values = [];
-        foreach ( $effective as $row ) {
-            $radar_labels[] = EvalCategoriesRepository::displayLabel( (string) $row['label'] );
+        foreach ( $effective as $main_id => $row ) {
+            $radar_labels[] = EvalCategoriesRepository::displayLabel( (string) $row['label'], (int) $main_id );
             $radar_values[] = $row['value'] !== null ? $row['value'] : 0;
         }
         ?>
@@ -787,7 +787,7 @@ class EvaluationsPage {
                                 $subs_here = $sub_ratings_by_main[ $main_id ] ?? [];
                                 ?>
                                 <tr style="background:#f6f7f7;">
-                                    <td><strong><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $row['label'] ) ); ?></strong>
+                                    <td><strong><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $row['label'], (int) $main_id ) ); ?></strong>
                                         <?php if ( $source === 'computed' ) : ?>
                                             <span style="color:#888; font-weight:400; font-size:12px; margin-left:8px;">
                                                 <?php printf(

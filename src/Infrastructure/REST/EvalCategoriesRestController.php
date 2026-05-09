@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\I18n\TranslatableFieldRegistry;
+use TT\Modules\I18n\TranslationsRepository;
 
 /**
  * EvalCategoriesRestController — /wp-json/talenttrack/v1/eval-categories
@@ -140,6 +142,11 @@ class EvalCategoriesRestController {
             Logger::error( 'rest.eval_category.delete.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
             return RestResponse::error( 'db_error', __( 'The category could not be deleted.', 'talenttrack' ), 500 );
         }
+
+        // #0090 Phase 3 — cascade-delete `tt_translations` rows so the
+        // new store does not retain orphans pointing at a vanished id.
+        ( new TranslationsRepository() )->deleteAllFor( TranslatableFieldRegistry::ENTITY_EVAL_CATEGORY, $id );
+
         return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }
 

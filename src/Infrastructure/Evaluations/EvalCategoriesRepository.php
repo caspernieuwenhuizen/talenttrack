@@ -4,6 +4,8 @@ namespace TT\Infrastructure\Evaluations;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\I18n\TranslatableFieldRegistry;
+use TT\Modules\I18n\TranslationsRepository;
 
 /**
  * EvalCategoriesRepository — data access for tt_eval_categories.
@@ -26,22 +28,43 @@ class EvalCategoriesRepository {
     }
 
     /**
-     * v2.12.2 — translate a stored category label at display time.
+     * Translate a stored category label at display time.
      *
-     * Seeded categories and subcategories store English source strings in
-     * `tt_eval_categories.label` (e.g. "Short pass", "Technical"). Each
-     * seeded string has a matching msgid entry in the .po files, so
-     * __() translates them automatically at render time. Admin-added
-     * labels that have no translation entry pass through unchanged —
-     * __() returns its input when the translator has no match.
+     * Resolution chain (#0090 Phase 3 — v3.110.27):
+     *   1. `tt_translations` row for `(entity_type='eval_category',
+     *      entity_id, field='label', locale)` — the canonical store
+     *      going forward, populated by migration 0084 from the
+     *      `nl_NL.po` backfill and by future operator edits via the
+     *      per-entity Translations tab (Phase 5). Only consulted when
+     *      the caller passes an `$entity_id`.
+     *   2. `__( $raw, 'talenttrack' )` — seeded English values whose
+     *      Dutch translation lives in `nl_NL.po`. Phase 6 prunes these
+     *      msgids after every install has been backfilled.
+     *
+     * Pass `$entity_id` from the row whenever it's available so the
+     * resolver can hit `tt_translations` (the going-forward path).
+     * String-only callers (legacy code that has the label but not the
+     * row) keep working through the gettext fallback.
      *
      * Call this wherever a category label is rendered to the user:
      * admin tree, evaluation form, detail view, radar chart legends.
      * Never call it inside data writes or queries — the DB stores the
      * source string, not the translation.
      */
-    public static function displayLabel( string $raw ): string {
+    public static function displayLabel( string $raw, ?int $entity_id = null ): string {
         if ( $raw === '' ) return '';
+
+        if ( $entity_id !== null && $entity_id > 0 ) {
+            $tx = ( new TranslationsRepository() )->translate(
+                TranslatableFieldRegistry::ENTITY_EVAL_CATEGORY,
+                $entity_id,
+                'label',
+                self::currentLocale(),
+                ''
+            );
+            if ( $tx !== '' ) return $tx;
+        }
+
         // The translator function is called with a dynamic argument
         // here. That's fine in our case because every seeded label is
         // registered as a msgid in talenttrack-nl_NL.po — the string
@@ -50,6 +73,12 @@ class EvalCategoriesRepository {
         // fall through unchanged.
         // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
         return __( $raw, 'talenttrack' );
+    }
+
+    private static function currentLocale(): string {
+        if ( function_exists( 'determine_locale' ) ) return (string) determine_locale();
+        if ( function_exists( 'get_locale' ) ) return (string) get_locale();
+        return 'en_US';
     }
 
     // Fetchers
