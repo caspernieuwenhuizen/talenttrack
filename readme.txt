@@ -4,13 +4,27 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.40
+Stable tag: 3.110.41
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.41 — Frontend navigation cleanup: one back-pill + breadcrumb per view =
+
+Pilot operator screenshot of the goal-detail page surfaced a long-standing duplication: every frontend detail view rendered up to **four** navigation affordances stacked above the content (the tt_back-borne pill, the breadcrumb chain, a "← Back to dashboard" button from `FrontendViewBase::renderHeader`'s fallback, AND a second explicit `FrontendBackButton::render()` call inside the view's own `renderDetail()`). Two of those four were redundant on every page they appeared. **The contract per `docs/back-navigation.md` is exactly two affordances: the auto-rendered tt_back pill above the breadcrumb chain (the "back to where you came from" path) plus the breadcrumb chain itself (the canonical "Dashboard / Section / Page" hierarchy).** This release enforces that contract everywhere.
+
+**(1) `FrontendViewBase::renderHeader()` no longer falls back to a back button** when `static::breadcrumbs()` returns empty. Views that need a dynamic chain (most do) call `FrontendBreadcrumbs::fromDashboard()` themselves before `renderHeader()`; views with a static chain override `static::breadcrumbs()` and let renderHeader emit it. **(2) Explicit `FrontendBackButton::render()` calls deleted from 26 view classes** — every duplicate-back-button case the screenshot revealed, plus its clones across detail, manage, and admin-tier surfaces (FrontendActivitiesManageView, FrontendAuditLogView, FrontendConfigurationView, FrontendCustomFieldsView, FrontendCustomCssView, FrontendCohortTransitionsView, FrontendEvalCategoriesView, FrontendFunctionalRolesView, FrontendGoalsManageView, FrontendJourneyView, FrontendMailComposeView, FrontendMigrationsView, FrontendMyGoalsView, FrontendMySessionsView, FrontendMySettingsView, FrontendPdpManageView, FrontendPersonDetailView, FrontendPlayerDetailView, FrontendPlayersCsvImportView, FrontendReportDetailView, FrontendReportsLauncherView, FrontendRolesView, FrontendTaskDetailView, FrontendTeamDetailView, FrontendUsageStatsDetailsView, FrontendUsageStatsView). **(3) Nine "back-button only" views migrated onto the breadcrumb pattern** — TracksView, IdeaSubmitView, IdeasBoardView, IdeasRefineView (nested under Ideas), IdeasApprovalView, FrontendAnalyticsView, FrontendScheduledReportsView (nested under Analytics), MethodologyView, InvitationsConfigView. They previously had no breadcrumb chain at all, just the bare back button; now they get the full canonical pattern including the tt_back-borne pill. **(4) `DashboardShortcode` dispatcher stubs** (matrix-gate denial, missing-player Me-group fallback, account "sign in required", scout permission gates, team-chemistry / team-blueprints permission, player-journey "player not found", every per-group default arm, the module-disabled notice) all converted to `FrontendBreadcrumbs::fromDashboard()` with context-appropriate labels. The pdp-planning + player-status-methodology arms had a bonus duplicate-button (the dispatcher rendered one, then the view rendered its own breadcrumbs); the dispatcher's call is gone. **(5) `FrontendBackButton` class deleted** along with the five module views that still imported it.
+
+**Net effect**: pilot operator's screenshot now shows exactly the two affordances the user asked for — `← Terug naar Doelen` pill + `Dashboard / Doelen / Goal detail` breadcrumb. The two redundant `← TERUG NAAR DASHBOARD` buttons are gone. Same fix applies to ~30 other frontend views that had the same pattern.
+
+**Custom-label back buttons that disappeared**: `FrontendUsageStatsDetailsView` had an explicit "← Back to usage statistics" button; users now reach it by clicking the "Application KPIs" parent crumb in the breadcrumb chain. Same applies to FrontendGoalsManageView, FrontendActivitiesManageView, FrontendMailComposeView, FrontendPdpManageView. The breadcrumb chain has the right intermediate parent in every case — the affordance is one click in the chain instead of a dedicated button. Acceptable trade for consistency.
+
+**Risks accepted**: legacy `FrontendBreadcrumbs::fromDashboardWithBack()` (referer-based first crumb) is documented as deprecated by the URL-borne pill but kept for backwards-compatibility on `FrontendMyActivitiesView` + `FrontendMyGoalsView`; no functional change to those views in this release.
+
+Four new NL translatable strings added: "Not authorized" → "Niet geautoriseerd", "Section unavailable" → "Sectie niet beschikbaar", "Unknown section" → "Onbekende sectie", "Sign in required" → "Inloggen vereist". "Player not found" was already translated.
 
 = 3.110.40 — #0016 close — concrete vision extraction + fuzzy matcher + provider fallback + DPIA template + seeded library =
 

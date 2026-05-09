@@ -8,7 +8,6 @@ use TT\Infrastructure\Journey\EventTypeRegistry;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
-use TT\Shared\Frontend\FrontendBackButton;
 
 /**
  * FrontendJourneyView — chronological journey for one player.
@@ -43,7 +42,7 @@ class FrontendJourneyView {
         $player_id = (int) $player->id;
 
         if ( ! AuthorizationService::canViewPlayer( $user_id, $player_id ) ) {
-            FrontendBackButton::render();
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this player.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -99,7 +98,6 @@ class FrontendJourneyView {
             $hidden = $result['hidden_count'];
         }
 
-        FrontendBackButton::render();
         ?>
         <section class="tt-journey">
             <header class="tt-journey-head">

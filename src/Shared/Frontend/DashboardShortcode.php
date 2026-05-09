@@ -7,6 +7,7 @@ use TT\Core\Kernel;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Auth\LoginForm;
 use TT\Modules\Auth\LogoutHandler;
+use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Tiles\TileRegistry;
 
 /**
@@ -313,7 +314,7 @@ class DashboardShortcode {
             // personas reach which surface, and the operator edits that
             // truth on the matrix admin page rather than memorising
             // which view class belongs to which class of users.
-            FrontendBackButton::render();
+            FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this surface.', 'talenttrack' ) . '</p>';
         } elseif ( in_array( $view, $me_slugs, true ) ) {
             // The `$player` check is a data prerequisite (the Me-group
@@ -322,7 +323,7 @@ class DashboardShortcode {
             if ( $player ) {
                 self::dispatchMeView( $view, $player );
             } else {
-                FrontendBackButton::render();
+                FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                 echo '<p class="tt-notice">' . esc_html__( 'This section is only available for users linked to a player record.', 'talenttrack' ) . '</p>';
             }
         } elseif ( in_array( $view, $account_slugs, true ) ) {
@@ -374,7 +375,7 @@ class DashboardShortcode {
         } elseif ( in_array( $view, $analytics_schedules_slugs, true ) ) {
             \TT\Modules\Analytics\Frontend\FrontendScheduledReportsView::render( $user_id, $is_admin );
         } else {
-            FrontendBackButton::render();
+            FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
 
@@ -477,7 +478,7 @@ class DashboardShortcode {
                 \TT\Modules\Journey\Frontend\FrontendJourneyView::render( $player );
                 break;
             default:
-                FrontendBackButton::render();
+                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
     }
@@ -492,7 +493,7 @@ class DashboardShortcode {
      */
     private static function dispatchAccountView( string $view, int $user_id ): void {
         if ( $user_id <= 0 ) {
-            FrontendBackButton::render();
+            FrontendBreadcrumbs::fromDashboard( __( 'Sign in required', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You need to be logged in to manage your settings.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -508,7 +509,7 @@ class DashboardShortcode {
                 FrontendMySessionsView::render();
                 break;
             default:
-                FrontendBackButton::render();
+                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
     }
@@ -522,7 +523,7 @@ class DashboardShortcode {
         switch ( $view ) {
             case 'my-tasks':
                 if ( ! current_user_can( 'tt_view_own_tasks' ) ) {
-                    FrontendBackButton::render();
+                    FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to tasks.', 'talenttrack' ) . '</p>';
                     return;
                 }
@@ -548,7 +549,7 @@ class DashboardShortcode {
                 \TT\Modules\Prospects\Frontend\FrontendOnboardingPipelineView::render( $user_id );
                 break;
             default:
-                FrontendBackButton::render();
+                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
     }
@@ -620,16 +621,14 @@ class DashboardShortcode {
                 \TT\Modules\Pdp\Frontend\FrontendPdpManageView::render( $user_id, $is_admin );
                 break;
             case 'pdp-planning':
-                FrontendBackButton::render();
                 \TT\Modules\Pdp\Frontend\FrontendPdpPlanningView::render( $user_id, $is_admin );
                 break;
             case 'player-status-methodology':
-                FrontendBackButton::render();
                 \TT\Modules\Players\Frontend\FrontendPlayerStatusMethodologyView::render( $user_id, $is_admin );
                 break;
             case 'team-chemistry':
                 if ( ! current_user_can( 'tt_view_team_chemistry' ) ) {
-                    FrontendBackButton::render();
+                    FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to team chemistry boards.', 'talenttrack' ) . '</p>';
                     break;
                 }
@@ -637,7 +636,7 @@ class DashboardShortcode {
                 break;
             case 'team-blueprints':
                 if ( ! current_user_can( 'tt_view_team_chemistry' ) ) {
-                    FrontendBackButton::render();
+                    FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to team blueprints.', 'talenttrack' ) . '</p>';
                     break;
                 }
@@ -665,14 +664,14 @@ class DashboardShortcode {
                 $journey_player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
                 $journey_player = $journey_player_id > 0 ? QueryHelpers::get_player( $journey_player_id ) : null;
                 if ( ! $journey_player ) {
-                    FrontendBackButton::render();
+                    FrontendBreadcrumbs::fromDashboard( __( 'Player not found', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'Player not found.', 'talenttrack' ) . '</p>';
                 } else {
                     \TT\Modules\Journey\Frontend\FrontendJourneyView::render( $journey_player );
                 }
                 break;
             default:
-                FrontendBackButton::render();
+                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
     }
@@ -701,7 +700,7 @@ class DashboardShortcode {
                 FrontendComparisonView::render();
                 break;
             default:
-                FrontendBackButton::render();
+                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
     }
@@ -747,7 +746,7 @@ class DashboardShortcode {
                 \TT\Modules\CustomCss\Frontend\FrontendCustomCssView::render( $user_id, $is_admin );
                 break;
             default:
-                FrontendBackButton::render();
+                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
     }
@@ -761,7 +760,7 @@ class DashboardShortcode {
                 \TT\Modules\Invitations\Frontend\InvitationsConfigView::render();
                 break;
             default:
-                FrontendBackButton::render();
+                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
     }
@@ -789,7 +788,7 @@ class DashboardShortcode {
                 \TT\Modules\Development\Frontend\TracksView::render();
                 break;
             default:
-                FrontendBackButton::render();
+                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
     }
@@ -805,7 +804,7 @@ class DashboardShortcode {
                 break;
             case 'scout-access':
                 if ( ! current_user_can( 'tt_generate_scout_report' ) ) {
-                    FrontendBackButton::render();
+                    FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'You need scout-management permission to view this page.', 'talenttrack' ) . '</p>';
                     return;
                 }
@@ -813,7 +812,7 @@ class DashboardShortcode {
                 break;
             case 'scout-history':
                 if ( ! current_user_can( 'tt_generate_scout_report' ) ) {
-                    FrontendBackButton::render();
+                    FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'You need scout-management permission to view this page.', 'talenttrack' ) . '</p>';
                     return;
                 }
@@ -821,14 +820,14 @@ class DashboardShortcode {
                 break;
             case 'scout-my-players':
                 if ( ! current_user_can( 'tt_view_scout_assignments' ) ) {
-                    FrontendBackButton::render();
+                    FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'This area is for scout users.', 'talenttrack' ) . '</p>';
                     return;
                 }
                 \TT\Modules\Reports\Frontend\FrontendScoutMyPlayersView::render( $user_id );
                 break;
             default:
-                FrontendBackButton::render();
+                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
     }
@@ -855,7 +854,7 @@ class DashboardShortcode {
                 FrontendTrialLetterTemplatesEditorView::render( $user_id, $is_admin );
                 break;
             default:
-                FrontendBackButton::render();
+                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
     }
@@ -881,7 +880,7 @@ class DashboardShortcode {
                 \TT\Modules\StaffDevelopment\Frontend\FrontendStaffOverviewView::render( $user_id, $is_admin );
                 break;
             default:
-                FrontendBackButton::render();
+                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
     }
@@ -893,7 +892,7 @@ class DashboardShortcode {
      * elsewhere in the dispatcher so the surface stays consistent.
      */
     private static function renderModuleDisabledNotice(): void {
-        FrontendBackButton::render();
+        FrontendBreadcrumbs::fromDashboard( __( 'Section unavailable', 'talenttrack' ) );
         echo '<div class="tt-notice" style="background:#fff7e6; border-left:4px solid #f0c890; padding:12px 16px; margin:8px 0 16px;">';
         echo '<p style="margin:0 0 6px; font-weight:600;">'
             . esc_html__( 'This section is currently unavailable.', 'talenttrack' )

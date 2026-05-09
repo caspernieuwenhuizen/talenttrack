@@ -20,7 +20,7 @@ final class FrontendPersonDetailView extends FrontendViewBase {
 
     public static function render( int $person_id, int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_view_people' ) ) {
-            FrontendBackButton::render();
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view this section.', 'talenttrack' ) . '</p>';
             return;
         }

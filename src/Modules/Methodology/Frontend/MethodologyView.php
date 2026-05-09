@@ -16,7 +16,7 @@ use TT\Modules\Methodology\Repositories\MethodologyVisionRepository;
 use TT\Modules\Methodology\Repositories\PhasesRepository;
 use TT\Modules\Methodology\Repositories\PrinciplesRepository;
 use TT\Modules\Methodology\Repositories\SetPiecesRepository;
-use TT\Shared\Frontend\FrontendBackButton;
+use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -39,12 +39,13 @@ class MethodologyView extends FrontendViewBase {
 
     public static function render(): void {
         if ( ! current_user_can( 'tt_view_methodology' ) ) {
-            FrontendBackButton::render();
+            FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view the methodology library.', 'talenttrack' ) . '</p>';
             return;
         }
 
         self::enqueueAssets();
+        FrontendBreadcrumbs::fromDashboard( __( 'Methodology', 'talenttrack' ) );
         self::renderHeader( __( 'Methodology', 'talenttrack' ) );
         self::renderInlineStyles();
 

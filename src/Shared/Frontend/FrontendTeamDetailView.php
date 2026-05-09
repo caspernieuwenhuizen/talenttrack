@@ -23,7 +23,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
 
     public static function render( int $team_id, int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_view_teams' ) ) {
-            FrontendBackButton::render();
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view team details.', 'talenttrack' ) . '</p>';
             return;
         }

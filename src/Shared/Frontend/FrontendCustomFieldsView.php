@@ -19,7 +19,7 @@ class FrontendCustomFieldsView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_access_frontend_admin' ) ) {
-            FrontendBackButton::render();
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view this section.', 'talenttrack' ) . '</p>';
             return;
         }

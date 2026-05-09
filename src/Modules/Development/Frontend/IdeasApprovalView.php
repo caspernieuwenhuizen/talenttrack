@@ -7,7 +7,7 @@ use TT\Modules\Development\GitHubPromoter;
 use TT\Modules\Development\IdeaRepository;
 use TT\Modules\Development\IdeaStatus;
 use TT\Modules\Development\IdeaType;
-use TT\Shared\Frontend\FrontendBackButton;
+use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -25,12 +25,13 @@ class IdeasApprovalView extends FrontendViewBase {
 
     public static function render(): void {
         if ( ! current_user_can( 'tt_promote_idea' ) ) {
-            FrontendBackButton::render();
+            FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'Only administrators can promote ideas.', 'talenttrack' ) . '</p>';
             return;
         }
 
         self::enqueueAssets();
+        FrontendBreadcrumbs::fromDashboard( __( 'Approval queue', 'talenttrack' ) );
         self::renderHeader( __( 'Approval queue', 'talenttrack' ) );
 
         $repo  = new IdeaRepository();

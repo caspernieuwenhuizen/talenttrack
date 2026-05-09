@@ -31,7 +31,7 @@ class FrontendPlayersCsvImportView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_edit_players' ) ) {
-            FrontendBackButton::render();
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to import players.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -46,7 +46,6 @@ class FrontendPlayersCsvImportView extends FrontendViewBase {
              && class_exists( '\TT\Modules\License\LicenseGate' )
              && ! \TT\Modules\License\LicenseGate::can( 'csv_import' )
         ) {
-            FrontendBackButton::render();
             echo \TT\Modules\License\Admin\UpgradeNudge::inline(
                 __( 'CSV bulk import', 'talenttrack' ),
                 'standard'
