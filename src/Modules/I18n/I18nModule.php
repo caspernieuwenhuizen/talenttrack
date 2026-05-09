@@ -40,9 +40,17 @@ class I18nModule implements ModuleInterface {
      * seed-review Excel — no schema change. The locale strings match
      * WordPress `WPLANG` codes.
      *
+     * Phase 7 (v3.110.31) added `fr_FR`, `de_DE`, `es_ES` per spec
+     * Decision Q10. The data-row channel is now ready for FR/DE/ES
+     * operators to author translations row-by-row via the admin form
+     * + the seed-review Excel; the actual `.po` rollout for UI
+     * strings (button labels, headings) is `#0010` territory and
+     * ships independently. The export/import/admin form pick up the
+     * new columns automatically.
+     *
      * @var list<string>
      */
-    public const REGISTERED_LOCALES = [ 'en_US', 'nl_NL' ];
+    public const REGISTERED_LOCALES = [ 'en_US', 'nl_NL', 'fr_FR', 'de_DE', 'es_ES' ];
 
     public function getName(): string { return 'i18n'; }
 
