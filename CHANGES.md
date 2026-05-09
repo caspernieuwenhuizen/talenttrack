@@ -1,3 +1,45 @@
+# TalentTrack v3.110.31 — Light up FR/DE/ES in the data-row translation editor (#0090 Phase 7)
+
+Seventh phase of #0090 (data-row internationalisation). Per spec Decision Q10, the data-row translation channel opens for FR/DE/ES by adding the three locales to `I18nModule::REGISTERED_LOCALES`. Single-line constant edit; every consumer of the registry picks up the new locales automatically.
+
+## What landed
+
+```php
+// Before
+public const REGISTERED_LOCALES = [ 'en_US', 'nl_NL' ];
+
+// After
+public const REGISTERED_LOCALES = [ 'en_US', 'nl_NL', 'fr_FR', 'de_DE', 'es_ES' ];
+```
+
+That's the entire functional change.
+
+## What now appears
+
+| Surface | New behaviour |
+|---|---|
+| **Lookups admin → Translations section** | Three new rows below `en_US` / `nl_NL` for `fr_FR`, `de_DE`, `es_ES`. Each row exposes Name + Description inputs; saving routes through `TranslationsRepository::upsert()` exactly like the existing locales. |
+| **Seed-review Excel (#0089 / Phase 5)** | Lookups sheet gains `name_fr_FR`, `name_de_DE`, `name_es_ES`, `description_fr_FR`, `description_de_DE`, `description_es_ES` columns. Eval categories / Roles / Functional roles sheets gain `label_fr_FR`, `label_de_DE`, `label_es_ES`. Cells start empty; operators fill on Excel round-trip. |
+| **`TranslationsRepository::translate()`** | When the request locale matches `fr_FR` / `de_DE` / `es_ES`, the resolver consults that row first. Fallback chain remains `requested → en_US → caller fallback`, so installs without French translations rendered for a French-locale user fall through to English (canonical). |
+
+## What does NOT ship here
+
+- **Data backfill** — the new columns are empty until operators author translations via the admin form or the Excel round-trip. The auto-translate engine (#0025) can be pointed at `tt_translations` to bulk-fill these as a follow-up.
+- **UI strings** — `__('Save')`, button labels, headings continue to flow through `.po` and remain English-only until `fr_FR.po` / `de_DE.po` / `es_ES.po` skeletons ship under #0010.
+- **Locale routing for non-translatable entities** — only the four migrated entities (lookup, eval_category, role, functional_role) pick up the new locales. Other tables wait until they're registered with `TranslatableFieldRegistry`.
+
+## Translations
+
+Zero new NL msgids — single-line constant edit, no user-visible labels added.
+
+## Notes
+
+The whole point of Decision Q10 was that adding a locale should be one line of code, not a migration sweep. This ship is the validation: every consumer of `REGISTERED_LOCALES` picks up FR/DE/ES the moment they read the constant. No schema change. No data backfill. No migrations. The data-row i18n architecture works as designed.
+
+Phase 8 (docs + close) is the only remaining phase of #0090.
+
+---
+
 # TalentTrack v3.110.30 — Drop the legacy `tt_lookups.translations` JSON column (#0090 Phase 6)
 
 Sixth phase of #0090 (data-row internationalisation). The legacy `tt_lookups.translations` JSON column — added in v3.6.0 (migration 0014) and superseded by `tt_translations` in Phase 2 — is dropped. Every value the column ever held is preserved in `tt_translations`.

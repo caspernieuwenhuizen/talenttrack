@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.30
+Stable tag: 3.110.31
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.31 — Light up FR/DE/ES in the data-row translation editor (#0090 Phase 7) =
+
+Seventh phase of #0090 (data-row internationalisation). Per spec Decision Q10, the data-row translation channel is opened for FR/DE/ES by adding the locales to `I18nModule::REGISTERED_LOCALES`. Single constant edit; every consumer of the registry picks up the new locales without further code changes. **What now appears**: the per-locale Translations form on the Lookups admin gains FR/DE/ES rows alongside EN + NL. The seed-review Excel (Phase 5) emits `name_fr_FR`, `name_de_DE`, `name_es_ES` columns for lookups (and `description_*`, plus the `label_*` columns for eval categories / roles / functional roles). The `TranslationsRepository::translate()` resolver consults FR/DE/ES rows when the request locale matches; chain remains `requested locale → en_US → fallback`. **What does NOT ship here**: data backfill — the new columns are empty until operators author translations via the admin form or the Excel round-trip, OR until the auto-translate engine (#0025) is asked to bulk-fill them. UI strings (`__('Save')`, button labels) continue to flow through `.po` and remain English-only until the `fr_FR.po` / `de_DE.po` / `es_ES.po` skeletons ship under #0010. **What's NOT in this PR**: Phase 8 (`docs/i18n-architecture.md` + spec frontmatter close + optional `nl_NL.po` msgid pruning of migrated entities). Zero new NL msgids — single-line constant edit.
 
 = 3.110.30 — Drop the legacy `tt_lookups.translations` JSON column (#0090 Phase 6) =
 
