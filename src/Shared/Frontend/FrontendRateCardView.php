@@ -31,6 +31,7 @@ class FrontendRateCardView extends FrontendViewBase {
         // view has an enqueue helper, reuse it.
         \TT\Modules\Stats\Admin\PlayerRateCardView::enqueueChartLibrary();
 
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Rate cards', 'talenttrack' ) );
         self::renderHeader( __( 'Rate cards', 'talenttrack' ) );
 
         // #0011 — feature gate. Full rate card analytics (trends + radar +

@@ -27,6 +27,7 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
 
     public static function render( object $player ): void {
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My evaluations', 'talenttrack' ) );
         self::renderHeader( __( 'My evaluations', 'talenttrack' ) );
 
         global $wpdb;

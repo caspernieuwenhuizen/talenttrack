@@ -42,6 +42,7 @@ class FrontendDocsView extends FrontendViewBase {
         }
         $topic = $topics[ $slug ] ?? null;
 
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Help & Docs', 'talenttrack' ) );
         self::renderHeader( __( 'Help & Docs', 'talenttrack' ) );
 
         if ( ! $topic ) {

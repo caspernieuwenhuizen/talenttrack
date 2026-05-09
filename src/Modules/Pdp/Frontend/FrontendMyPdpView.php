@@ -21,6 +21,7 @@ class FrontendMyPdpView extends FrontendViewBase {
 
     public static function render( object $player ): void {
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My development plan', 'talenttrack' ) );
         self::renderHeader( __( 'My development plan', 'talenttrack' ) );
 
         $current = ( new SeasonsRepository() )->current();

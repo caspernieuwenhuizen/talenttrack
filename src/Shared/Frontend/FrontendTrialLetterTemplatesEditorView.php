@@ -21,17 +21,22 @@ use TT\Modules\Trials\Repositories\TrialLetterTemplatesRepository;
 class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        $letters_label = __( 'Letter templates', 'talenttrack' );
+        $parent_crumb  = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'trials', __( 'Trials', 'talenttrack' ) ) ];
+
         // v3.85.5 — Trials Pro-tier gate.
         if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
              && ! \TT\Modules\License\LicenseGate::allows( 'trial_module' )
         ) {
-            self::renderHeader( __( 'Letter templates', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $letters_label, $parent_crumb );
+            self::renderHeader( $letters_label );
             echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Trial cases', 'talenttrack' ), 'pro' );
             return;
         }
 
         if ( ! current_user_can( 'tt_manage_trials' ) ) {
-            self::renderHeader( __( 'Letter templates', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $letters_label, $parent_crumb );
+            self::renderHeader( $letters_label );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to edit letter templates.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -43,13 +48,20 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
         $locale = isset( $_GET['locale'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['locale'] ) ) : ( get_locale() ?: 'en_US' );
 
         if ( $key === '' || ! in_array( $key, DefaultLetterTemplates::listKeys(), true ) ) {
-            self::renderHeader( __( 'Letter templates', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $letters_label, $parent_crumb );
+            self::renderHeader( $letters_label );
             self::renderList( $locale );
             self::renderSettings();
             return;
         }
 
-        self::renderHeader( sprintf( __( 'Edit letter — %s (%s)', 'talenttrack' ), $key, $locale ) );
+        $editor_chain = array_merge(
+            $parent_crumb,
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'trial-letter-templates-editor', $letters_label ) ]
+        );
+        $title = sprintf( __( 'Edit letter — %s (%s)', 'talenttrack' ), $key, $locale );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title, $editor_chain );
+        self::renderHeader( $title );
         self::renderEditor( $key, $locale );
     }
 

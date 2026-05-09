@@ -23,13 +23,17 @@ use TT\Shared\Frontend\FrontendViewBase;
 class FrontendTasksDashboardView extends FrontendViewBase {
 
     public static function render( int $user_id ): void {
+        $title = __( 'Tasks dashboard', 'talenttrack' );
+
         if ( ! current_user_can( 'tt_view_tasks_dashboard' ) ) {
-            self::renderHeader( __( 'Tasks dashboard', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            self::renderHeader( $title );
             echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to the tasks dashboard.', 'talenttrack' ) . '</p>';
             return;
         }
         self::enqueueAssets();
-        self::renderHeader( __( 'Tasks dashboard', 'talenttrack' ) );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
+        self::renderHeader( $title );
 
         $per_template = self::perTemplateStats();
         $per_coach    = self::perCoachStats();

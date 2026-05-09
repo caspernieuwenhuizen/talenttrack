@@ -22,15 +22,19 @@ use TT\Shared\Wizards\WizardRegistry;
 class FrontendWizardsAdminView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        $title = __( 'Wizards', 'talenttrack' );
+
         if ( ! current_user_can( 'tt_edit_settings' ) ) {
-            self::renderHeader( __( 'Wizards', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            self::renderHeader( $title );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to configure wizards.', 'talenttrack' ) . '</p>';
             return;
         }
 
         self::enqueueAssets();
         $saved = self::handlePost( $user_id );
-        self::renderHeader( __( 'Wizards', 'talenttrack' ) );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
+        self::renderHeader( $title );
 
         if ( $saved ) {
             echo '<div class="tt-notice tt-notice-success">' . esc_html__( 'Saved.', 'talenttrack' ) . '</div>';

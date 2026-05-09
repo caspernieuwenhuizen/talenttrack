@@ -51,7 +51,11 @@ class FrontendPlayersManageView extends FrontendViewBase {
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 
+        $players_label = $is_admin ? __( 'Players', 'talenttrack' ) : __( 'My players', 'talenttrack' );
+        $parent_crumb  = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'players', $players_label ) ];
+
         if ( $action === 'new' ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'New player', 'talenttrack' ), $parent_crumb );
             self::renderHeader( __( 'New player', 'talenttrack' ) );
             self::renderForm( $user_id, $is_admin, null );
             return;
@@ -59,7 +63,9 @@ class FrontendPlayersManageView extends FrontendViewBase {
 
         if ( $id > 0 ) {
             $player = self::loadPlayer( $id );
-            self::renderHeader( $player ? sprintf( __( 'Edit player — %s', 'talenttrack' ), QueryHelpers::player_display_name( $player ) ) : __( 'Player not found', 'talenttrack' ) );
+            $title  = $player ? sprintf( __( 'Edit player — %s', 'talenttrack' ), QueryHelpers::player_display_name( $player ) ) : __( 'Player not found', 'talenttrack' );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title, $parent_crumb );
+            self::renderHeader( $title );
             if ( ! $player ) {
                 echo '<p class="tt-notice">' . esc_html__( 'That player no longer exists.', 'talenttrack' ) . '</p>';
                 return;
@@ -68,7 +74,8 @@ class FrontendPlayersManageView extends FrontendViewBase {
             return;
         }
 
-        self::renderHeader( $is_admin ? __( 'Players', 'talenttrack' ) : __( 'My players', 'talenttrack' ) );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $players_label );
+        self::renderHeader( $players_label );
         self::renderList( $user_id, $is_admin );
     }
 

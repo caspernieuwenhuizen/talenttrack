@@ -24,8 +24,11 @@ use TT\Shared\Frontend\Components\StaffPickerComponent;
 class FrontendTrialsManageView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        $trials_label = __( 'Trials', 'talenttrack' );
+
         if ( ! current_user_can( 'tt_manage_trials' ) ) {
-            self::renderHeader( __( 'Trials', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            self::renderHeader( $trials_label );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to manage trial cases.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -38,7 +41,8 @@ class FrontendTrialsManageView extends FrontendViewBase {
         if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
              && ! \TT\Modules\License\LicenseGate::allows( 'trial_module' )
         ) {
-            self::renderHeader( __( 'Trials', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $trials_label );
+            self::renderHeader( $trials_label );
             echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Trial cases', 'talenttrack' ), 'pro' );
             return;
         }
@@ -48,11 +52,16 @@ class FrontendTrialsManageView extends FrontendViewBase {
 
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         if ( $action === 'new' ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'New trial case', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'trials', $trials_label ) ]
+            );
             self::renderHeader( __( 'New trial case', 'talenttrack' ) );
             self::renderCreateForm();
             return;
         }
 
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $trials_label );
         self::renderHeader( __( 'Trial cases', 'talenttrack' ) );
         self::renderList();
     }

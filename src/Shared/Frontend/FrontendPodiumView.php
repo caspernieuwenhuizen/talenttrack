@@ -17,6 +17,7 @@ class FrontendPodiumView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Top performers', 'talenttrack' ) );
         self::renderHeader( __( 'Top performers', 'talenttrack' ) );
 
         $teams = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );

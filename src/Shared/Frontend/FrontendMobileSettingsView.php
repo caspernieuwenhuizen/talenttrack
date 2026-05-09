@@ -25,8 +25,11 @@ use TT\Shared\Mobile\MobileSettings;
 class FrontendMobileSettingsView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        $title = __( 'Mobile experience', 'talenttrack' );
+
         if ( ! current_user_can( 'tt_edit_settings' ) ) {
-            self::renderHeader( __( 'Mobile experience', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            self::renderHeader( $title );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to manage mobile settings.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -35,7 +38,8 @@ class FrontendMobileSettingsView extends FrontendViewBase {
         $enabled  = $settings->isMobileGateEnabled();
         $tt_msg   = isset( $_GET['tt_msg'] ) ? sanitize_key( (string) $_GET['tt_msg'] ) : '';
 
-        self::renderHeader( __( 'Mobile experience', 'talenttrack' ) );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
+        self::renderHeader( $title );
 
         if ( $tt_msg === 'mobile_setting_saved' ) {
             echo '<div class="tt-notice tt-notice-success" role="status" style="margin-bottom:16px;">'

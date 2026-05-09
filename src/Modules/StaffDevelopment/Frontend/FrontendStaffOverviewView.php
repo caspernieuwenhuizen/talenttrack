@@ -20,14 +20,18 @@ use TT\Shared\Frontend\FrontendViewBase;
 class FrontendStaffOverviewView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        $title = __( 'Staff overview', 'talenttrack' );
+
         if ( ! current_user_can( 'tt_view_staff_certifications_expiry' ) ) {
-            self::renderHeader( __( 'Staff overview', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            self::renderHeader( $title );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
             return;
         }
 
         self::enqueueAssets();
-        self::renderHeader( __( 'Staff overview', 'talenttrack' ) );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
+        self::renderHeader( $title );
 
         global $wpdb;
         $club = CurrentClub::id();

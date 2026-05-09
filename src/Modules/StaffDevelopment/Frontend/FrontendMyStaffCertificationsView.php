@@ -17,21 +17,26 @@ use TT\Shared\Frontend\FrontendViewBase;
 class FrontendMyStaffCertificationsView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        $title = __( 'My certifications', 'talenttrack' );
+
         if ( ! current_user_can( 'tt_view_staff_development' ) ) {
-            self::renderHeader( __( 'My certifications', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            self::renderHeader( $title );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this section.', 'talenttrack' ) . '</p>';
             return;
         }
         $person = StaffPersonHelper::personForUser( $user_id );
         if ( ! $person ) {
-            self::renderHeader( __( 'My certifications', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
+            self::renderHeader( $title );
             echo '<p class="tt-notice">' . esc_html__( 'This section is only available for staff members linked to a People record.', 'talenttrack' ) . '</p>';
             return;
         }
 
         self::enqueueAssets();
         self::handlePost( (int) $person->id );
-        self::renderHeader( __( 'My certifications', 'talenttrack' ) );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
+        self::renderHeader( $title );
 
         $repo  = new StaffCertificationsRepository();
         $rows  = $repo->listForPerson( (int) $person->id );

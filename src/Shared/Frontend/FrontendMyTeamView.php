@@ -21,6 +21,7 @@ class FrontendMyTeamView extends FrontendViewBase {
 
     public static function render( object $player ): void {
         self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My team', 'talenttrack' ) );
         self::renderHeader( __( 'My team', 'talenttrack' ) );
 
         $team_id = isset( $player->team_id ) ? (int) $player->team_id : 0;

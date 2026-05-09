@@ -28,10 +28,15 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 final class FrontendPlayerStatusMethodologyView {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        $title = __( 'Player status methodology', 'talenttrack' );
+
         if ( ! current_user_can( 'tt_edit_settings' ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to edit the player-status methodology.', 'talenttrack' ) . '</p>';
             return;
         }
+
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
 
         // #0063 — handlePost now returns ['ok'=>bool, 'error'=>?string]
         // so a >100% sum produces an inline warning instead of a silent

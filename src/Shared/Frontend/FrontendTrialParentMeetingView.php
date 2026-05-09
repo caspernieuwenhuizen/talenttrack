@@ -23,18 +23,23 @@ use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
 class FrontendTrialParentMeetingView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        $parent_crumb = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'trials', __( 'Trials', 'talenttrack' ) ) ];
+        $meeting_label = __( 'Parent meeting', 'talenttrack' );
+
         // v3.85.5 — Trials Pro-tier gate.
         if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
              && ! \TT\Modules\License\LicenseGate::allows( 'trial_module' )
         ) {
-            self::renderHeader( __( 'Parent meeting', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $meeting_label, $parent_crumb );
+            self::renderHeader( $meeting_label );
             echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Trial cases', 'talenttrack' ), 'pro' );
             return;
         }
 
         $case_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $case_id <= 0 || ! TrialCaseAccessPolicy::isManager( $user_id ) ) {
-            self::renderHeader( __( 'Parent meeting', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $meeting_label, $parent_crumb );
+            self::renderHeader( $meeting_label );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to use parent-meeting mode.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -42,10 +47,13 @@ class FrontendTrialParentMeetingView extends FrontendViewBase {
         $cases = new TrialCasesRepository();
         $case  = $cases->find( $case_id );
         if ( ! $case || $case->status !== TrialCasesRepository::STATUS_DECIDED ) {
-            self::renderHeader( __( 'Parent meeting', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $meeting_label, $parent_crumb );
+            self::renderHeader( $meeting_label );
             echo '<p class="tt-notice">' . esc_html__( 'Parent-meeting mode is only available after a decision has been recorded.', 'talenttrack' ) . '</p>';
             return;
         }
+
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $meeting_label, $parent_crumb );
 
         $player = QueryHelpers::get_player( (int) $case->player_id );
         $name   = $player ? QueryHelpers::player_display_name( $player ) : '';

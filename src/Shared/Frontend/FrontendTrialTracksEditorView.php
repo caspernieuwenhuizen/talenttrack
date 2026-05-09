@@ -16,17 +16,22 @@ use TT\Modules\Trials\Repositories\TrialTracksRepository;
 class FrontendTrialTracksEditorView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        $tracks_label = __( 'Trial tracks', 'talenttrack' );
+        $parent_crumb = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'trials', __( 'Trials', 'talenttrack' ) ) ];
+
         // v3.85.5 — Trials Pro-tier gate.
         if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' )
              && ! \TT\Modules\License\LicenseGate::allows( 'trial_module' )
         ) {
-            self::renderHeader( __( 'Trial tracks', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $tracks_label, $parent_crumb );
+            self::renderHeader( $tracks_label );
             echo \TT\Modules\License\Admin\UpgradeNudge::inline( __( 'Trial cases', 'talenttrack' ), 'pro' );
             return;
         }
 
         if ( ! current_user_can( 'tt_manage_trials' ) ) {
-            self::renderHeader( __( 'Trial tracks', 'talenttrack' ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $tracks_label, $parent_crumb );
+            self::renderHeader( $tracks_label );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to edit trial tracks.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -38,7 +43,13 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
         $id     = isset( $_GET['id'] )     ? absint( $_GET['id'] )                    : 0;
         $repo   = new TrialTracksRepository();
 
+        $editor_chain = array_merge(
+            $parent_crumb,
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'trial-tracks-editor', $tracks_label ) ]
+        );
+
         if ( $action === 'new' ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'New trial track', 'talenttrack' ), $editor_chain );
             self::renderHeader( __( 'New trial track', 'talenttrack' ) );
             self::renderForm( null );
             return;
@@ -46,15 +57,19 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
         if ( $id > 0 ) {
             $track = $repo->find( $id );
             if ( ! $track ) {
+                \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Track not found', 'talenttrack' ), $editor_chain );
                 self::renderHeader( __( 'Track not found', 'talenttrack' ) );
                 return;
             }
-            self::renderHeader( sprintf( __( 'Edit track — %s', 'talenttrack' ), \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) ) );
+            $title = sprintf( __( 'Edit track — %s', 'talenttrack' ), \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) );
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title, $editor_chain );
+            self::renderHeader( $title );
             self::renderForm( $track );
             return;
         }
 
-        self::renderHeader( __( 'Trial tracks', 'talenttrack' ) );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $tracks_label, $parent_crumb );
+        self::renderHeader( $tracks_label );
         self::renderList( $repo );
     }
 

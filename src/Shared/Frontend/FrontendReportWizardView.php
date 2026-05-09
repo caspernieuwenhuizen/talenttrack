@@ -29,15 +29,19 @@ class FrontendReportWizardView extends FrontendViewBase {
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
 
+        $reports_crumb = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ];
+
         $player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
         $player    = $player_id > 0 ? QueryHelpers::get_player( $player_id ) : null;
         if ( ! $player ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Generate report', 'talenttrack' ), $reports_crumb );
             self::renderHeader( __( 'Generate report', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'Pick a player from their profile or rate-card page first.', 'talenttrack' ) . '</p>';
             return;
         }
 
         if ( ! self::canGenerateForPlayer( $user_id, $player, $is_admin ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ), $reports_crumb );
             self::renderHeader( __( 'Generate report', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( "You don't have permission to generate a report for this player.", 'talenttrack' ) . '</p>';
             return;
@@ -95,11 +99,13 @@ class FrontendReportWizardView extends FrontendViewBase {
             (string) ( $defaults['tone_variant'] ?? 'default' )
         );
 
-        self::renderHeader( sprintf(
+        $title = sprintf(
             /* translators: %s: player name */
             __( 'Generate report — %s', 'talenttrack' ),
             QueryHelpers::player_display_name( $player )
-        ) );
+        );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title, $reports_crumb );
+        self::renderHeader( $title );
 
         self::enqueueWizardStyles();
         self::renderForm( $player, $config, $scope, $date_from, $date_to );

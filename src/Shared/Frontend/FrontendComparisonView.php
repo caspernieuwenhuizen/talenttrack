@@ -48,6 +48,7 @@ class FrontendComparisonView extends FrontendViewBase {
             true
         );
 
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Player comparison', 'talenttrack' ) );
         self::renderHeader( __( 'Player comparison', 'talenttrack' ) );
 
         // #0011 — feature gate. Player comparison is a Standard-tier
