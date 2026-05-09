@@ -9,7 +9,7 @@ use TT\Modules\Invitations\InvitationKind;
 use TT\Modules\Invitations\InvitationService;
 use TT\Modules\Invitations\InvitationStatus;
 use TT\Modules\Invitations\InvitationsRepository;
-use TT\Shared\Frontend\FrontendBackButton;
+use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -27,12 +27,13 @@ class InvitationsConfigView extends FrontendViewBase {
 
     public static function render(): void {
         if ( ! current_user_can( 'tt_manage_invite_messages' ) ) {
-            FrontendBackButton::render();
+            FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to manage invitations.', 'talenttrack' ) . '</p>';
             return;
         }
 
         self::enqueueAssets();
+        FrontendBreadcrumbs::fromDashboard( __( 'Invitations', 'talenttrack' ) );
         self::renderHeader( __( 'Invitations', 'talenttrack' ) );
 
         $tab = isset( $_GET['inv_tab'] ) ? sanitize_key( (string) wp_unslash( $_GET['inv_tab'] ) ) : 'list';

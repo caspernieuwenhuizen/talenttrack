@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\KpiRegistry;
 use TT\Modules\Analytics\ScheduledReportsRepository;
-use TT\Shared\Frontend\FrontendBackButton;
+use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -37,7 +37,7 @@ class FrontendScheduledReportsView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_view_analytics' ) ) {
-            FrontendBackButton::render();
+            FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to manage scheduled reports.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -46,6 +46,10 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         $license_ok = ! class_exists( '\\TT\\Modules\\License\\LicenseGate' )
                    || \TT\Modules\License\LicenseGate::allows( 'scheduled_reports' );
 
+        FrontendBreadcrumbs::fromDashboard(
+            __( 'Scheduled reports', 'talenttrack' ),
+            [ FrontendBreadcrumbs::viewCrumb( 'analytics', __( 'Analytics', 'talenttrack' ) ) ]
+        );
         self::renderHeader( __( 'Scheduled reports', 'talenttrack' ) );
 
         if ( ! $license_ok ) {

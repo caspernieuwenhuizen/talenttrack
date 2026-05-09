@@ -7,7 +7,7 @@ use TT\Modules\Development\IdeaRepository;
 use TT\Modules\Development\IdeaStatus;
 use TT\Modules\Development\IdeaType;
 use TT\Modules\Development\TrackRepository;
-use TT\Shared\Frontend\FrontendBackButton;
+use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -20,15 +20,18 @@ use TT\Shared\Frontend\FrontendViewBase;
 class IdeasRefineView extends FrontendViewBase {
 
     public static function render(): void {
+        $ideas_label = __( 'Ideas', 'talenttrack' );
+        $ideas_crumb = [ FrontendBreadcrumbs::viewCrumb( 'ideas-board', $ideas_label ) ];
+
         if ( ! current_user_can( 'tt_refine_idea' ) ) {
-            FrontendBackButton::render();
+            FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ), $ideas_crumb );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to refine ideas.', 'talenttrack' ) . '</p>';
             return;
         }
 
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $id <= 0 ) {
-            FrontendBackButton::render();
+            FrontendBreadcrumbs::fromDashboard( __( 'Refine idea', 'talenttrack' ), $ideas_crumb );
             echo '<p>' . esc_html__( 'Idea id missing from URL.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -36,12 +39,13 @@ class IdeasRefineView extends FrontendViewBase {
         $repo = new IdeaRepository();
         $idea = $repo->find( $id );
         if ( ! $idea ) {
-            FrontendBackButton::render();
+            FrontendBreadcrumbs::fromDashboard( __( 'Idea not found', 'talenttrack' ), $ideas_crumb );
             echo '<p>' . esc_html__( 'Idea not found.', 'talenttrack' ) . '</p>';
             return;
         }
 
         self::enqueueAssets();
+        FrontendBreadcrumbs::fromDashboard( __( 'Refine idea', 'talenttrack' ), $ideas_crumb );
         self::renderHeader( __( 'Refine idea', 'talenttrack' ) );
 
         $tracks = ( new TrackRepository() )->listAll();
