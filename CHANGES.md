@@ -1,3 +1,88 @@
+# TalentTrack v3.110.37 — Activity-to-exercise linkage table + repository (#0016 Sprint 2a)
+
+Sprint 2 of the photo-to-session capture epic, data-layer half. Sprint 1 (v3.110.35) shipped the exercise library + categories + vision provider scaffolding. Sprint 2a (this ship) links activities to specific exercise versions via `tt_activity_exercises` and the `ActivityExercisesRepository` that Sprint 4's AI extraction wizard will eventually call into. Sprint 2b (UI integration on the activity edit page) lands as a follow-up.
+
+## What landed
+
+### Migration `0089_activity_exercises`
+
+```sql
+tt_activity_exercises (
+    id BIGINT PK,
+    club_id INT NOT NULL DEFAULT 1,
+    activity_id BIGINT NOT NULL,
+    exercise_id BIGINT NOT NULL,    -- FK to specific tt_exercises.id row (pinned version)
+    order_index SMALLINT NOT NULL DEFAULT 0,
+    actual_duration_minutes SMALLINT DEFAULT NULL,
+    notes TEXT NULL,
+    is_draft TINYINT NOT NULL DEFAULT 0,
+    created_at, updated_at,
+    UNIQUE (club_id, activity_id, order_index)
+)
+```
+
+**Pinning model**: `exercise_id` references a specific `tt_exercises.id` row, NOT a logical exercise key. When a coach edits an exercise, `ExercisesRepository::editAsNewVersion()` (Sprint 1) creates a new row at `version + 1` and points the old row's `superseded_by_id` at it; activities that linked the old row continue to render the original drill description, planned duration, and principles. Historical activities don't lie about what was actually run.
+
+Per CLAUDE.md §4 SaaS-readiness: `club_id NOT NULL DEFAULT 1`; the row inherits the club_id of the parent activity. Every read scopes by club_id.
+
+`UNIQUE (club_id, activity_id, order_index)` keeps the ordering deterministic — no two rows for the same activity share an `order_index`.
+
+### `ActivityExercisesRepository`
+
+```php
+$repo = new ActivityExercisesRepository();
+
+$repo->listForActivity( $activity_id );      // joins tt_exercises so callers get name + duration + diagram in one query
+$repo->listForExercise( $exercise_id );      // exercise-history view: every activity that linked this drill
+$repo->append( $activity_id, $exercise_id, [ 'actual_duration_minutes' => 18, 'notes' => '4v4 rondos' ] );
+$repo->update( $id, [ 'order_index' => 0 ] );
+$repo->delete( $id );
+$repo->deleteForActivity( $activity_id );
+
+// Sprint 4 bulk-commit path:
+$repo->replaceExercisesForActivity( $activity_id, [
+    [ 'exercise_id' => 12, 'actual_duration_minutes' => 8 ],
+    [ 'exercise_id' => 27, 'actual_duration_minutes' => 12, 'is_draft' => true ],
+    // …
+]);
+```
+
+`append()` reads `MAX(order_index)` for the activity and uses `+ 1`, so the caller doesn't need to know how many exercises are already linked.
+
+`is_draft = 1` is reserved for Sprint 6 — the AI-extraction review wizard surfaces low-confidence exercises as drafts that the coach confirms later. Sprint 2-5 always write 0.
+
+All reads + writes scope to `CurrentClub::id()`.
+
+## What's NOT in this PR (lands in Sprint 2b)
+
+- **Activity-edit UI** — Exercises section on the wp-admin + frontend activity-edit views (add / remove / reorder / edit-actual-duration / per-row notes).
+- **Exercise-library picker** — search bar + category filter + principle filter that reads from `ExercisesRepository::listForTeam()`.
+- **Exercise-history view** — per-exercise list of using activities; consumes `ActivityExercisesRepository::listForExercise()`.
+- **REST controller** — `/wp-json/talenttrack/v1/activities/{id}/exercises` for the future SaaS frontend (and Sprint 4 review wizard).
+- **Frontend renders** — exercise list on activity detail pages, on session-brief PDF (#0063 use case 8 follow-up), in coach dashboard summary.
+
+Sprint 2b is its own PR — substantial markup + JS work that benefits from a focused review.
+
+## What's still NOT in #0016 (subsequent sprints + calendar-time)
+
+- Sprint 2b — activity-edit UI integration (described above).
+- Sprint 3 — photo capture UI (`CoachCaptureView`) + offline IndexedDB queue.
+- Sprint 4 — actual AI extraction (concrete provider implementations) + fuzzy matcher + review wizard.
+- Sprint 5 — attendance extraction from photo annotations.
+- Sprint 6 — draft sessions + provider fallback chain.
+- Provider shootout (calendar-time, requires real coach photos).
+- DPIA documentation (calendar-time legal review).
+
+## Player-centricity
+
+Indirect — every linked exercise is data about what a player actually did during a training. Sprint 2a establishes the durable record so Sprint 2b's UI + Sprints 3-4's photo capture can populate it with low friction. The downstream effect is more accurate, more complete training data per player.
+
+## Translations
+
+Zero new NL msgids — pure data-layer ship.
+
+---
+
 # TalentTrack v3.110.36 — First-pass FR/DE/ES machine translations for high-frequency UI labels (#0010)
 
 Per #0010 spec § "Machine-translate as first draft. Human review and editing pass by a native speaker." — this ship lands machine-translated msgstrs for the highest-frequency UI labels across the three new locales. **161 translations per locale (~480 total)**, covering the labels operators see most often: action verbs, navigation, status pills, attendance, persona + role labels, football positions, foot preference, activity types, common form labels, confirmations.
