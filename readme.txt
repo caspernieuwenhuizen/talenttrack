@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.34
+Stable tag: 3.110.35
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.35 — Exercise library foundation + vision provider scaffolding (#0016 Sprint 1) =
+
+Foundation ship for #0016 (photo-to-session capture). Sprint 1 establishes the schema + repository + AI provider scaffolding; Sprints 2-6 build the session linkage, photo capture UI, AI extraction, and review wizard on top. **(1) Migration `0088_exercises_foundation`** creates `tt_exercises` (versioned via `superseded_by_id`; UUID + club_id per CLAUDE.md §4 SaaS-readiness), `tt_exercise_categories` (seeded with 8 default categories — warmup / rondo / possession / conditioned_game / finishing / set_piece / cooldown / individual; `is_system=1`), `tt_exercise_principles` (M2M to `tt_principles` from #0006), `tt_exercise_team_overrides` (per-team opt-out / opt-in for the visibility model). All idempotent dbDelta. **(2) `ExercisesRepository`** — `findById`, `findByUuid`, `listActive`, `listForTeam` (applies the visibility rules: club default visible / team opt-in / private to author + opted-in teams), `create`, `editAsNewVersion` (immutable history; new row at `version+1`, previous row's `superseded_by_id` updated), `archive`. All scoped to `CurrentClub::id()`. **(3) `VisionProviderInterface`** + `ExtractedSession` + `ExtractedExercise` value objects — the contract Sprint 4's AI extraction will deliver against. Three stub adapters ship: `ClaudeSonnetProvider` (Bedrock EU-Central default), `GeminiProProvider` (Vertex AI EU-West default), `OpenAiProvider` (US-only — flagged DPIA-incompatible for EU clubs). All three throw `RuntimeException` from `extractSessionFromImage()` until Sprint 4. **(4) Routing layer** — `ExercisesModule::resolveProvider()` consults the `tt_vision_provider` filter, then `TT_VISION_PROVIDER` wp-config constant, defaults to `claude_sonnet`. Returns null when no provider is configured (no API key). **(5) `tt_manage_exercises` capability** granted to administrator + tt_club_admin + tt_head_dev + tt_coach via `ExercisesModule::ensureCapabilities()`. **What does NOT ship in Sprint 1** (lands in subsequent sprints): admin CRUD UI for exercises (`AdminExercisesPage`), 15-20 seeded sample exercises, photo capture UI (`CoachCaptureView`, Sprint 3), AI extraction logic (Sprint 4), review wizard (Sprint 4), attendance extraction (Sprint 5), draft sessions + provider fallback (Sprint 6), provider shootout against real coach photos (calendar-time), DPIA documentation template (calendar-time legal review), `tt_activity_exercises` linkage table (Sprint 2). #0016 spec stays open with Sprint 1 ✅, Sprints 2-6 + calendar-time work pending. Zero new NL msgids — three small ones for stub provider labels.
 
 = 3.110.34 — FR/DE/ES locale skeletons + translator-brief + DEVOPS POT-regen checklist (#0010 code-side) =
 

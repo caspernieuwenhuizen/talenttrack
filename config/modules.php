@@ -87,4 +87,13 @@ return [
     // so the audit-log surface's new "Failed logins" tab can aggregate.
     // No automatic lockout in v1 — visibility only.
     TT\Modules\Security\SecurityModule::class                    => true,
+    // #0016 Sprint 1 — Exercises foundation. Owns tt_exercises +
+    // categories + principles M2M + team-overrides schema, the
+    // ExercisesRepository (versioning + visibility), and the
+    // VisionProviderInterface + 3 stub adapters (Claude Sonnet,
+    // Gemini Pro, OpenAI) that Sprints 3-4 wire up to the photo-
+    // capture flow. Sprint 1 ships foundation only — admin CRUD UI,
+    // session linkage, photo capture UI, and AI extraction logic
+    // land in Sprints 2-6.
+    TT\Modules\Exercises\ExercisesModule::class                  => true,
 ];

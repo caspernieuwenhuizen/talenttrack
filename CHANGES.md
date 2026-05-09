@@ -1,3 +1,115 @@
+# TalentTrack v3.110.35 — Exercise library foundation + vision provider scaffolding (#0016 Sprint 1)
+
+Foundation ship for #0016 (photo-to-session capture). Sprint 1 establishes the schema + repository + AI provider scaffolding; Sprints 2-6 build the session linkage, photo capture UI, AI extraction, and review wizard on top of this base.
+
+## What landed
+
+### Migration `0088_exercises_foundation`
+
+Four new tables, all idempotent via `dbDelta`:
+
+- **`tt_exercises`** — drill / exercise definitions with versioning (`superseded_by_id`), visibility (`'club' | 'team' | 'private'`), `uuid CHAR(36) UNIQUE` + `club_id` per CLAUDE.md §4. Edits create a new row at `version + 1`; sessions referencing the old `id` keep their historical rendering.
+- **`tt_exercise_categories`** — seeded with eight defaults: `warmup`, `rondo`, `possession`, `conditioned_game`, `finishing`, `set_piece`, `cooldown`, `individual`. `is_system=1` so the operator UI can refuse deletion (Sprint 4 AI prompts reference these slugs).
+- **`tt_exercise_principles`** — M2M between `tt_exercises` and `tt_principles` (the methodology table from #0006).
+- **`tt_exercise_team_overrides`** — per-team opt-out / opt-in for the visibility model. Default `visibility='club'` exercises are visible everywhere unless a row exists with `is_enabled=0`; `'team'` and `'private'` start hidden and require an `is_enabled=1` row to surface for that team.
+
+### `ExercisesRepository`
+
+Read + write API on the four tables. Scoped to `CurrentClub::id()` on every read + write.
+
+```php
+$repo = new ExercisesRepository();
+$repo->listCategories();
+$repo->findById( int $id );
+$repo->findByUuid( string $uuid );
+$repo->listActive();                                 // not archived, not superseded
+$repo->listForTeam( int $team_id, ?int $user_id );   // applies visibility rules
+$repo->create( array $data );                        // returns new id
+$repo->editAsNewVersion( int $id, array $patch );    // returns new version's id
+$repo->archive( int $id );
+```
+
+The visibility rules in `listForTeam()`:
+
+| visibility | default | team override `is_enabled=0` | team override `is_enabled=1` |
+|---|---|---|---|
+| `club` | visible | hidden | visible (no-op) |
+| `team` | hidden | hidden (no-op) | visible |
+| `private` | hidden (visible to author only) | hidden | visible |
+
+### Vision provider scaffolding
+
+The contract Sprint 4's AI extraction will deliver against. Sprint 1 ships the interface + value objects + three stub adapters; Sprint 4 lands the actual API calls + provider shootout.
+
+- **`VisionProviderInterface::extractSessionFromImage( string $image_bytes, array $context ): ExtractedSession`** — extract a structured session from a training-plan photo.
+- **`ExtractedSession`** value object — ordered list of exercises, attendance markings (Sprint 5), overall confidence, free-text notes.
+- **`ExtractedExercise`** value object — per-row name, duration, notes, confidence, and an optional `matched_exercise_id` populated by the Sprint 4 fuzzy matcher.
+
+Three stub adapters:
+
+| Provider | Default endpoint | Status |
+|---|---|---|
+| `ClaudeSonnetProvider` (`'claude_sonnet'`) | AWS Bedrock `eu-central-1` | Sprint 1 stub — throws on call |
+| `GeminiProProvider` (`'gemini_pro'`) | Vertex AI `europe-west` | Sprint 1 stub — throws on call |
+| `OpenAiProvider` (`'openai'`) | US — DPIA-incompatible for EU clubs | Sprint 1 stub — throws on call |
+
+All three extend `AbstractStubProvider` which throws `RuntimeException` from `extractSessionFromImage()` so callers don't silently no-op before Sprint 4.
+
+### Routing — `ExercisesModule::resolveProvider()`
+
+```php
+$provider = ExercisesModule::resolveProvider();  // VisionProviderInterface|null
+```
+
+Resolution order: `tt_vision_provider` filter → `TT_VISION_PROVIDER` wp-config constant → default `'claude_sonnet'`. Returns null when the chosen provider isn't configured (`TT_VISION_API_KEY` missing or constant value mismatched). Sprint 4 callers fall back to manual entry on null.
+
+Configuration via `wp-config.php`:
+
+```php
+define( 'TT_VISION_PROVIDER', 'claude_sonnet' );
+define( 'TT_VISION_API_KEY',  'your-key' );
+define( 'TT_VISION_ENDPOINT', 'https://eu-central-1.bedrock.amazonaws.com' );
+```
+
+### `tt_manage_exercises` capability
+
+Granted via `ExercisesModule::ensureCapabilities()` to administrator + tt_club_admin + tt_head_dev + tt_coach. Coaches need it because they author custom drills; head-of-development + club admin need it for cross-club library curation.
+
+## What does NOT ship in Sprint 1
+
+These are explicit deferrals to subsequent sprints and calendar-time work:
+
+- **Sprint 1 admin CRUD UI for exercises** (`AdminExercisesPage`) — the Repository is ready to consume; UI lands in a follow-up because it's substantial markup work that would balloon this PR.
+- **15-20 seeded sample exercises** — calendar-time copywriting; lands when the operator-facing library UI does.
+- **Sprint 2** — `tt_activity_exercises` linkage table, structured-exercise editor on the activity-edit page, exercise-history view.
+- **Sprint 3** — photo capture UI (`CoachCaptureView`), camera flow, offline IndexedDB queue.
+- **Sprint 4** — actual AI extraction (concrete provider implementations), fuzzy matcher, review wizard.
+- **Sprint 5** — attendance extraction from photo annotations.
+- **Sprint 6** — draft sessions, confirm-later UX, provider fallback chain.
+- **Provider shootout** — requires 10-15 real training-plan photos from 3-4 coaches; calendar-time data collection before Sprint 4 picks the production default.
+- **DPIA documentation template** — calendar-time legal review before Sprint 4 ships to any real EU club.
+
+#0016 spec stays open with Sprint 1 ✅ and Sprints 2-6 + calendar-time work explicitly pending.
+
+## Player-centricity
+
+Indirect — every drill an academy logs is in service of a player's development. Sprint 1 establishes the durable schema + provider routing that Sprints 2-6 will use to make session capture so frictionless coaches actually do it (vs. the current "throw the paper plan in the bin after training" failure mode). The downstream effect is more accurate, more complete development data per player.
+
+## Translations
+
+3 new NL msgids for the three stub provider labels:
+- "Claude Sonnet (via Bedrock, EU-Central)"
+- "Gemini Pro (via Vertex AI, EU-West)"
+- "OpenAI 4o (US — DPIA-incompatible for EU clubs)"
+
+These surface only in Sprint 4's settings panel; for v1 they sit in the .po waiting for the panel to land.
+
+## Notes
+
+The OpenAI adapter's `label()` text — "DPIA-incompatible for EU clubs" — is intentionally blunt. Per the spec's DPIA scope, minor athletes' photo data cannot leave the EU; until OpenAI ships an EU-resident inference endpoint, that adapter should never be the production default for an EU-resident club. Keeping it in tree as a forward-compatibility hook costs ~30 LOC and avoids a follow-up PR if OpenAI later qualifies.
+
+---
+
 # TalentTrack v3.110.34 — FR/DE/ES locale skeletons + translator brief + DEVOPS POT-regen checklist (#0010 code-side)
 
 Code-side preparation for #0010 (Multi-language FR/DE/ES). The structural infrastructure for three new locales lands here; the actual translation labor (~15-25h per language native-speaker review of ~4600 msgids each) remains a calendar-time deliverable.
