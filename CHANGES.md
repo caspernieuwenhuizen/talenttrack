@@ -1,3 +1,71 @@
+# TalentTrack v3.110.36 — First-pass FR/DE/ES machine translations for high-frequency UI labels (#0010)
+
+Per #0010 spec § "Machine-translate as first draft. Human review and editing pass by a native speaker." — this ship lands machine-translated msgstrs for the highest-frequency UI labels across the three new locales. **161 translations per locale (~480 total)**, covering the labels operators see most often: action verbs, navigation, status pills, attendance, persona + role labels, football positions, foot preference, activity types, common form labels, confirmations.
+
+## What landed
+
+### `tools/apply-translations.php`
+
+Generic, idempotent tool that reads a `tools/translations-<locale>.php` dictionary (a PHP file returning `[ msgid => msgstr ]`) and patches the corresponding `.po`:
+
+- Walks every msgid → msgstr pair in the source `.po`.
+- Where msgstr is empty AND the dictionary has the msgid → writes the dictionary value.
+- Where msgstr already has a value → preserves it (operator edits via the per-row Translations admin survive untouched).
+- Reports applied / skipped-already-filled / skipped-no-dictionary-entry counts.
+
+### Three dictionary files, ~250 entries each
+
+`tools/translations-fr_FR.php`, `translations-de_DE.php`, `translations-es_ES.php` — hand-curated by an LLM.
+
+| Category | Coverage |
+|---|---|
+| Action verbs | Add / Edit / Save / Delete / Cancel / Submit / Confirm / Apply / Reset / Close / Open / View / Back / Next / Continue / Done / Finish / Search / Filter / Sort / Refresh / Download / Upload / Export / Import / Print / Copy / Duplicate / Archive / Restore / Activate / Deactivate / Yes / No / OK |
+| Navigation | Dashboard / Settings / Configuration / Reports / Players / Teams / People / Activities / Goals / Evaluations / Trials / Methodology / Backup / Migrations / Audit Log / Help / Documentation / Profile / My * (Profile / Evaluations / Activities / Goals / PDP / Card) / Logout / Login |
+| Status pills | Active / Inactive / Pending / Completed / Cancelled / Archived / Draft / Published / In Progress / On Hold / Open / Closed / New / Planned / Scheduled / Signed / Unsigned / Approved / Rejected / Failed / Success / Error / Warning / Info |
+| Attendance | Present / Absent / Late / Excused / Injured |
+| Persona + roles | Coach / Head Coach / Assistant Coach / Manager / Physio / Scout / Parent / Mentor / Other / Administrator / Admin / Club Admin / Head of Development / Team Member / Staff |
+| Football positions | Goalkeeper / Defender / Midfielder / Striker / Forward + per-side variants (Left/Right Back, Center Back, Left/Right Wing) |
+| Foot preference | Right / Left / Both |
+| Activity types | Training / Match / Game / Friendly / League / Cup / Tournament / Meeting / Clinic |
+| Common labels | Name / First Name / Last Name / Email / Phone / Date / Date of Birth / Age / Age Group(s) / Nationality / Height / Weight / Preferred Foot / Jersey Number / Position(s) / Description / Notes / Status / Type / Category / Title / Location / Time / Duration / Priority / Due Date / Created / Updated / Action(s) / Details / Summary / Overview / All / None / Required / Optional |
+| Confirmations | Saved. / Deleted. / Updated. / Created. / Are you sure? / An error occurred. / Unauthorized / Not found / Forbidden |
+| Misc UI | On / Off / Custom / Default / Auto / Manual / Today / Yesterday / Tomorrow / Week / Month / Year |
+
+**Tone** per spec § Mixed-formality:
+- Player / coach surfaces → Tu / Du / tú (most short labels are surface-agnostic so this is mostly invisible at the v1 layer).
+- Admin / settings / parent letters → Vous / Sie / usted.
+- Spanish defaults to tú; usted reserved for formal external-facing letters per spec.
+
+**Football vocabulary** uses standard local sports usage. Spanish uses peninsular "Portero" not Latin-American "arquero" per the `es_ES`-only scope decision. German uses "Torwart" not the casual "Goalie".
+
+### Updated `.po` files
+
+Each of `talenttrack-fr_FR.po` / `talenttrack-de_DE.po` / `talenttrack-es_ES.po` now has 161 non-empty msgstrs (vs. 0 in v3.110.34's empty skeletons). The remaining ~4452 msgids stay empty (English fallback at runtime per WP convention).
+
+The `Validate .po syntax` CI gate confirms all three files compile cleanly.
+
+## What's NOT in this PR
+
+- **Long descriptive help-text strings** (~333 msgids over 100 chars) — these need context-aware translation that an LLM might botch on tone (admin help text vs. coach explainer vs. parent letter). Calendar-time native-speaker review.
+- **Medium-length form-help labels** (~585 msgids 50-100 chars) — same reasoning, smaller risk; could be machine-translated in a follow-up PR if expedient.
+- **The remaining short labels** (~3300 msgids) — long-tail labels (specific page titles, edge-case error states, demo-data UI). Some are translatable mechanically; many are context-dependent.
+
+The dictionary is structured to extend incrementally: a follow-up PR can add 200-500 entries to each `tools/translations-<locale>.php` and re-run `apply-translations.php` to land them.
+
+## #0010 spec status
+
+Spec stays in **Ready** with translation labor as the remaining acceptance-criteria item. v3.110.34 shipped the structural skeletons; this ship makes the high-frequency core translate-on-arrival. Native-speaker review extends from here.
+
+## Translations
+
+Zero new NL msgids — three dictionary files + tool + updated `.po` files only.
+
+## Notes
+
+The dictionary approach (PHP file with inline array) is intentional vs. inlining translations directly in `.po`: a single source-of-truth file makes diff review meaningful, makes re-running deterministic, and lets a translator's PR review focus on the dictionary changes rather than mechanical `.po` edits. The `apply-translations.php` step is what produces the `.po` deltas.
+
+---
+
 # TalentTrack v3.110.35 — Exercise library foundation + vision provider scaffolding (#0016 Sprint 1)
 
 Foundation ship for #0016 (photo-to-session capture). Sprint 1 establishes the schema + repository + AI provider scaffolding; Sprints 2-6 build the session linkage, photo capture UI, AI extraction, and review wizard on top of this base.

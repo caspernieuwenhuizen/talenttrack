@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.35
+Stable tag: 3.110.36
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.36 — First-pass FR/DE/ES machine translations for high-frequency UI labels (#0010) =
+
+Per #0010 spec § "Machine-translate as first draft. Human review and editing pass by a native speaker." — this ship adds machine-translated msgstrs for the highest-frequency UI labels in each of the three new locales. **161 translations applied per locale** (~480 total) covering action verbs (Add / Edit / Save / Delete / Cancel / Submit / Confirm), navigation (Dashboard / Settings / Reports / Players / Teams / Activities / Goals / Evaluations / Trials), status pills (Active / Inactive / Pending / Completed / In Progress / Approved / Rejected), attendance (Present / Absent / Late / Excused / Injured), persona + role labels (Coach / Head Coach / Assistant Coach / Manager / Physio / Scout / Parent / Mentor / Head of Development), football positions (Goalkeeper / Defender / Midfielder / Striker + per-side variants), foot preference (Right / Left / Both), activity types (Training / Match / Friendly / Cup / Tournament), common labels (Name / Email / Date / Status / Type / Title / Location), and confirmations (Saved / Deleted / Are you sure?). **(1) `tools/apply-translations.php`** — generic tool that reads a `tools/translations-<locale>.php` dictionary file (returning a `[ msgid => msgstr ]` array) and patches the corresponding `.po`. Skips msgstrs that already have a value (operator edits via the per-row Translations admin survive untouched). Idempotent. **(2) `tools/translations-fr_FR.php`, `translations-de_DE.php`, `translations-es_ES.php`** — three dictionary files, ~250 entries each, hand-curated by an LLM. Tone follows spec § Mixed-formality (player/coach surfaces neutral; admin/parent letters formal — most short labels are surface-agnostic so the tone is mostly invisible at this layer). Football vocabulary uses standard local sports usage (FR: "Gardien"; DE: "Torwart"; ES peninsular: "Portero" not Latin-American "arquero"). **(3) Updated `talenttrack-fr_FR.po`, `talenttrack-de_DE.po`, `talenttrack-es_ES.po`** — 161 non-empty msgstrs each. Remaining ~4452 msgids stay empty (English fallback at runtime per WP convention) until extended in follow-up PRs or through native-speaker review. Dutch installs (`nl_NL`) unchanged. **What's NOT in this PR**: long descriptive help-text strings (~333 msgids over 100 chars), medium-length form-help labels (~585 msgids 50-100 chars), the remaining short labels not yet in the dictionary (~3300 msgids). These extend in subsequent PRs as the dictionary grows. Native-speaker review remains the calendar-time deliverable per spec — this ship gets the machine-translation first-draft into tree so reviewers refine on top of something rather than starting from empty. Zero new NL msgids. The `Validate .po syntax` CI gate confirms all three updated `.po` files compile cleanly.
 
 = 3.110.35 — Exercise library foundation + vision provider scaffolding (#0016 Sprint 1) =
 

@@ -21,46 +21,46 @@ msgid "+ Add option"
 msgstr ""
 
 msgid "Absent"
-msgstr ""
+msgstr "Absent"
 
 msgid "Academy Name"
 msgstr ""
 
 msgid "Action"
-msgstr ""
+msgstr "Action"
 
 msgid "Action (e.g. player.saved)"
 msgstr ""
 
 msgid "Actions"
-msgstr ""
+msgstr "Actions"
 
 msgid "Activate"
-msgstr ""
+msgstr "Activer"
 
 msgid "Active"
-msgstr ""
+msgstr "Actif"
 
 msgid "Add"
-msgstr ""
+msgstr "Ajouter"
 
 msgid "Add Field"
-msgstr ""
+msgstr "Ajouter un champ"
 
 msgid "Add Goal"
-msgstr ""
+msgstr "Ajouter un objectif"
 
 msgid "Add New"
-msgstr ""
+msgstr "Ajouter"
 
 msgid "Add Person"
-msgstr ""
+msgstr "Ajouter une personne"
 
 msgid "Add Player"
-msgstr ""
+msgstr "Ajouter un joueur"
 
 msgid "Add Team"
-msgstr ""
+msgstr "Ajouter une équipe"
 
 msgid "Add a person first"
 msgstr ""
@@ -75,7 +75,7 @@ msgid "Additional Information"
 msgstr ""
 
 msgid "Admin"
-msgstr ""
+msgstr "Admin"
 
 msgid "Administrator Guide"
 msgstr ""
@@ -84,22 +84,22 @@ msgid "After login, redirect players and coaches to the TalentTrack dashboard pa
 msgstr ""
 
 msgid "Age Group"
-msgstr ""
+msgstr "Catégorie d'âge"
 
 msgid "Age Groups"
-msgstr ""
+msgstr "Catégories d'âge"
 
 msgid "All Migrations"
 msgstr ""
 
 msgid "All Teams"
-msgstr ""
+msgstr "Toutes les équipes"
 
 msgid "All statuses"
-msgstr ""
+msgstr "Tous les statuts"
 
 msgid "An error occurred."
-msgstr ""
+msgstr "Une erreur est survenue."
 
 msgid "Applied At"
 msgstr ""
@@ -126,7 +126,7 @@ msgid "Attendance Statuses"
 msgstr ""
 
 msgid "Audit Log"
-msgstr ""
+msgstr "Journal d'audit"
 
 msgid "Audit log"
 msgstr ""
@@ -144,7 +144,7 @@ msgid "Branding"
 msgstr ""
 
 msgid "Cancelled"
-msgstr ""
+msgstr "Annulé"
 
 msgid "Check your email for a password reset link."
 msgstr ""
@@ -156,10 +156,10 @@ msgid "Clear"
 msgstr ""
 
 msgid "Club Admin"
-msgstr ""
+msgstr "Admin du club"
 
 msgid "Coach"
-msgstr ""
+msgstr "Entraîneur"
 
 msgid "Coach Guide"
 msgstr ""
@@ -171,10 +171,10 @@ msgid "Competition"
 msgstr ""
 
 msgid "Completed"
-msgstr ""
+msgstr "Terminé"
 
 msgid "Configuration"
-msgstr ""
+msgstr "Configuration"
 
 msgid "Current Goals"
 msgstr ""
@@ -183,7 +183,7 @@ msgid "DOB"
 msgstr ""
 
 msgid "Dashboard"
-msgstr ""
+msgstr "Tableau de bord"
 
 msgid "Database Migrations"
 msgstr ""
@@ -192,16 +192,16 @@ msgid "Database is up to date."
 msgstr ""
 
 msgid "Date"
-msgstr ""
+msgstr "Date"
 
 msgid "Date Joined"
-msgstr ""
+msgstr "Date d'arrivée"
 
 msgid "Date of Birth"
-msgstr ""
+msgstr "Date de naissance"
 
 msgid "Deactivate"
-msgstr ""
+msgstr "Désactiver"
 
 msgid "Default role if this person isn't assigned to a specific team. Team assignments can override this per-team."
 msgstr ""
@@ -210,7 +210,7 @@ msgid "Define additional attributes you want to capture for each player. Fields 
 msgstr ""
 
 msgid "Delete"
-msgstr ""
+msgstr "Supprimer"
 
 msgid "Delete this goal?"
 msgstr ""
@@ -222,10 +222,10 @@ msgid "Deleted"
 msgstr ""
 
 msgid "Deleted."
-msgstr ""
+msgstr "Supprimé."
 
 msgid "Description"
-msgstr ""
+msgstr "Description"
 
 msgid "Development Over Time"
 msgstr ""
@@ -249,13 +249,13 @@ msgid "Due"
 msgstr ""
 
 msgid "Due Date"
-msgstr ""
+msgstr "Date d'échéance"
 
 msgid "Due:"
 msgstr ""
 
 msgid "Edit"
-msgstr ""
+msgstr "Modifier"
 
 msgid "Edit Custom Field"
 msgstr ""
@@ -282,7 +282,7 @@ msgid "Edit profile"
 msgstr ""
 
 msgid "Email"
-msgstr ""
+msgstr "E-mail"
 
 msgid "Enable or disable specific TalentTrack features without code changes."
 msgstr ""
@@ -303,7 +303,7 @@ msgid "Error."
 msgstr ""
 
 msgid "Evaluation"
-msgstr ""
+msgstr "Évaluation"
 
 msgid "Evaluation Categories"
 msgstr ""
@@ -321,10 +321,10 @@ msgid "Evaluation saved!"
 msgstr ""
 
 msgid "Evaluations"
-msgstr ""
+msgstr "Évaluations"
 
 msgid "Excused"
-msgstr ""
+msgstr "Excusé"
 
 msgid "Feature"
 msgstr ""
@@ -339,10 +339,10 @@ msgid "Field type is locked once saved."
 msgstr ""
 
 msgid "Filter"
-msgstr ""
+msgstr "Filtrer"
 
 msgid "First Name"
-msgstr ""
+msgstr "Prénom"
 
 msgid "First name"
 msgstr ""
@@ -363,7 +363,7 @@ msgid "Go to Admin"
 msgstr ""
 
 msgid "Goal"
-msgstr ""
+msgstr "Objectif"
 
 msgid "Goal Priorities"
 msgstr ""
@@ -387,7 +387,7 @@ msgid "Goal deleted."
 msgstr ""
 
 msgid "Goals"
-msgstr ""
+msgstr "Objectifs"
 
 msgid "Guardian Email"
 msgstr ""
@@ -399,19 +399,19 @@ msgid "Guardian Phone"
 msgstr ""
 
 msgid "Head Coach"
-msgstr ""
+msgstr "Entraîneur principal"
 
 msgid "Head coach"
 msgstr ""
 
 msgid "Head of Development"
-msgstr ""
+msgstr "Responsable du développement"
 
 msgid "Height (cm)"
-msgstr ""
+msgstr "Taille (cm)"
 
 msgid "Help"
-msgstr ""
+msgstr "Aide"
 
 msgid "Help & Docs"
 msgstr ""
@@ -432,16 +432,16 @@ msgid "IP"
 msgstr ""
 
 msgid "In Progress"
-msgstr ""
+msgstr "En cours"
 
 msgid "Inactive"
-msgstr ""
+msgstr "Inactif"
 
 msgid "Injured"
-msgstr ""
+msgstr "Blessé"
 
 msgid "Jersey Number"
-msgstr ""
+msgstr "Numéro de maillot"
 
 msgid "Key"
 msgstr ""
@@ -456,13 +456,13 @@ msgid "Label is required."
 msgstr ""
 
 msgid "Last Name"
-msgstr ""
+msgstr "Nom de famille"
 
 msgid "Last name"
 msgstr ""
 
 msgid "Late"
-msgstr ""
+msgstr "En retard"
 
 msgid "Legacy head_coach_id"
 msgstr ""
@@ -474,7 +474,7 @@ msgid "Linked WordPress user"
 msgstr ""
 
 msgid "Location"
-msgstr ""
+msgstr "Lieu"
 
 msgid "Log out"
 msgstr ""
@@ -495,7 +495,7 @@ msgid "Manage Goals"
 msgstr ""
 
 msgid "Manager"
-msgstr ""
+msgstr "Manager"
 
 msgid "Match Details?"
 msgstr ""
@@ -519,7 +519,7 @@ msgid "Migration %s was already applied."
 msgstr ""
 
 msgid "Migrations"
-msgstr ""
+msgstr "Migrations"
 
 msgid "Migrations directory"
 msgstr ""
@@ -540,10 +540,10 @@ msgid "My Team shows your players. New Evaluation submits training or match eval
 msgstr ""
 
 msgid "Name"
-msgstr ""
+msgstr "Nom"
 
 msgid "Nationality"
-msgstr ""
+msgstr "Nationalité"
 
 msgid "Network error."
 msgstr ""
@@ -558,7 +558,7 @@ msgid "New Activity"
 msgstr ""
 
 msgid "No"
-msgstr ""
+msgstr "Non"
 
 msgid "No active people exist yet."
 msgstr ""
@@ -630,13 +630,13 @@ msgid "Not found."
 msgstr ""
 
 msgid "Notes"
-msgstr ""
+msgstr "Notes"
 
 msgid "Number"
 msgstr ""
 
 msgid "On Hold"
-msgstr ""
+msgstr "En pause"
 
 msgid "Only staff (assigned to at least one team)"
 msgstr ""
@@ -660,16 +660,16 @@ msgid "Order"
 msgstr ""
 
 msgid "Other"
-msgstr ""
+msgstr "Autre"
 
 msgid "Overview"
-msgstr ""
+msgstr "Aperçu"
 
 msgid "Overview shows your profile and latest radar chart. Evaluations lists every evaluation your coaches have recorded. Goals shows your development goals. Attendance tracks your activities. Progress shows your trajectory."
 msgstr ""
 
 msgid "Parent"
-msgstr ""
+msgstr "Parent"
 
 msgid "Password"
 msgstr ""
@@ -678,16 +678,16 @@ msgid "Payload"
 msgstr ""
 
 msgid "Pending"
-msgstr ""
+msgstr "En attente"
 
 msgid "Pending migrations typically ship new schema changes required by recent features. Apply them to keep your database in sync with the plugin code."
 msgstr ""
 
 msgid "People"
-msgstr ""
+msgstr "Personnes"
 
 msgid "Person"
-msgstr ""
+msgstr "Personne"
 
 msgid "Person created."
 msgstr ""
@@ -696,16 +696,16 @@ msgid "Person not found."
 msgstr ""
 
 msgid "Phone"
-msgstr ""
+msgstr "Téléphone"
 
 msgid "Photo"
 msgstr ""
 
 msgid "Physio"
-msgstr ""
+msgstr "Kinésithérapeute"
 
 msgid "Player"
-msgstr ""
+msgstr "Joueur"
 
 msgid "Player Comparison"
 msgstr ""
@@ -729,7 +729,7 @@ msgid "Player(s)"
 msgstr ""
 
 msgid "Players"
-msgstr ""
+msgstr "Joueurs"
 
 msgid "Players cannot be saved without a value for this field."
 msgstr ""
@@ -744,22 +744,22 @@ msgid "Pos:"
 msgstr ""
 
 msgid "Position"
-msgstr ""
+msgstr "Poste"
 
 msgid "Position(s)"
 msgstr ""
 
 msgid "Positions"
-msgstr ""
+msgstr "Postes"
 
 msgid "Preferred Foot"
-msgstr ""
+msgstr "Pied préféré"
 
 msgid "Preferred Position(s)"
 msgstr ""
 
 msgid "Present"
-msgstr ""
+msgstr "Présent"
 
 msgid "Primary Color"
 msgstr ""
@@ -768,10 +768,10 @@ msgid "Primary role"
 msgstr ""
 
 msgid "Priority"
-msgstr ""
+msgstr "Priorité"
 
 msgid "Progress"
-msgstr ""
+msgstr "Progression"
 
 msgid "Prompts for opponent, competition, result, home/away, minutes played"
 msgstr ""
@@ -798,7 +798,7 @@ msgid "Remember me"
 msgstr ""
 
 msgid "Remove"
-msgstr ""
+msgstr "Retirer"
 
 msgid "Remove this staff assignment?"
 msgstr ""
@@ -807,16 +807,16 @@ msgid "Report Type"
 msgstr ""
 
 msgid "Reports"
-msgstr ""
+msgstr "Rapports"
 
 msgid "Required"
-msgstr ""
+msgstr "Requis"
 
 msgid "Requires Match Details"
 msgstr ""
 
 msgid "Result"
-msgstr ""
+msgstr "Résultat"
 
 msgid "Review and Apply"
 msgstr ""
@@ -837,7 +837,7 @@ msgid "Run Report"
 msgstr ""
 
 msgid "Save"
-msgstr ""
+msgstr "Enregistrer"
 
 msgid "Save Evaluation"
 msgstr ""
@@ -852,13 +852,13 @@ msgid "Save Toggles"
 msgstr ""
 
 msgid "Saved."
-msgstr ""
+msgstr "Enregistré."
 
 msgid "Saving..."
 msgstr ""
 
 msgid "Scout"
-msgstr ""
+msgstr "Recruteur"
 
 msgid "Search name or email"
 msgstr ""
@@ -885,13 +885,13 @@ msgid "Select-type fields require at least one option."
 msgstr ""
 
 msgid "Activity"
-msgstr ""
+msgstr "Activité"
 
 msgid "Activity saved!"
 msgstr ""
 
 msgid "Activities"
-msgstr ""
+msgstr "Activités"
 
 msgid "Set up your academy by visiting Configuration, adding Teams, creating Players, and linking WP user accounts to players."
 msgstr ""
@@ -915,7 +915,7 @@ msgid "Source"
 msgstr ""
 
 msgid "Staff"
-msgstr ""
+msgstr "Personnel"
 
 msgid "Start date"
 msgstr ""
@@ -924,7 +924,7 @@ msgid "State"
 msgstr ""
 
 msgid "Status"
-msgstr ""
+msgstr "Statut"
 
 msgid "Status update failed."
 msgstr ""
@@ -960,7 +960,7 @@ msgid "TalentTrack: database migrations pending."
 msgstr ""
 
 msgid "Team"
-msgstr ""
+msgstr "Équipe"
 
 msgid "Team Averages"
 msgstr ""
@@ -972,13 +972,13 @@ msgid "Team:"
 msgstr ""
 
 msgid "Teams"
-msgstr ""
+msgstr "Équipes"
 
 msgid "Edit team"
 msgstr ""
 
 msgid "View"
-msgstr ""
+msgstr "Voir"
 
 #. translators: %s is the head coach's display name.
 msgid "Head coach: %s"
@@ -1057,7 +1057,7 @@ msgid "This usually means migration files were deleted or never copied during ma
 msgstr ""
 
 msgid "Title"
-msgstr ""
+msgstr "Titre"
 
 msgid "To add new assignments, edit the team and use the Staff section there."
 msgstr ""
@@ -1068,16 +1068,16 @@ msgstr ""
 msgid "Tracking table does not exist yet."
 msgstr ""
 msgid "Trial"
-msgstr ""
+msgstr "Essai"
 
 msgid "Type"
-msgstr ""
+msgstr "Type"
 
 msgid "Unassign"
 msgstr ""
 
 msgid "Unauthorized"
-msgstr ""
+msgstr "Non autorisé"
 
 msgid "Unknown database error."
 msgstr ""
@@ -1086,7 +1086,7 @@ msgid "Until"
 msgstr ""
 
 msgid "Update"
-msgstr ""
+msgstr "Mettre à jour"
 
 msgid "Update Field"
 msgstr ""
@@ -1101,7 +1101,7 @@ msgid "Update Team"
 msgstr ""
 
 msgid "Upload"
-msgstr ""
+msgstr "Téléverser"
 
 msgid "Use"
 msgstr ""
@@ -1128,7 +1128,7 @@ msgid "Warning: migrations recorded as applied but missing from disk:"
 msgstr ""
 
 msgid "Weight (kg)"
-msgstr ""
+msgstr "Poids (kg)"
 
 msgid "When"
 msgstr ""
@@ -1137,7 +1137,7 @@ msgid "Write additional debug-level messages to the error log. Non-production en
 msgstr ""
 
 msgid "Yes"
-msgstr ""
+msgstr "Oui"
 
 msgid "You can only evaluate players in your team."
 msgstr ""
@@ -1241,10 +1241,10 @@ msgid "Revoke this role assignment? This cannot be undone."
 msgstr ""
 
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Annuler"
 
 msgid "Delete goal?"
 msgstr ""
@@ -1355,7 +1355,7 @@ msgstr ""
 # ─── v2.9.1 — Role labels & descriptions translated at display time ───
 
 msgid "Assistant Coach"
-msgstr ""
+msgstr "Entraîneur adjoint"
 
 msgid "Audit"
 msgstr ""
@@ -1463,7 +1463,7 @@ msgid "Indirect grants come from a functional role mapping. To remove one, eithe
 msgstr ""
 
 msgid "Team Member"
-msgstr ""
+msgstr "Membre de l'équipe"
 
 msgid "Minimal read-only access within assigned teams. Default authorization for the \"Other\" functional role — see only players and activities of the teams you are assigned to, nothing more."
 msgstr ""
@@ -1502,7 +1502,7 @@ msgid "Inserts after"
 msgstr ""
 
 msgid "Sort"
-msgstr ""
+msgstr "Trier"
 
 msgid "Insert after"
 msgstr ""
@@ -1876,7 +1876,7 @@ msgid "Save weights"
 msgstr ""
 
 msgid "Reset"
-msgstr ""
+msgstr "Réinitialiser"
 
 # #0061 follow-up — q2 polish gap
 msgid "Library"
@@ -2198,16 +2198,16 @@ msgstr ""
 # ===== v2.17.0 — Menu groups + bulk archive/delete + isolated print =====
 
 msgid "Performance"
-msgstr ""
+msgstr "Performance"
 
 msgid "Analytics"
 msgstr ""
 
 msgid "Archived"
-msgstr ""
+msgstr "Archivé"
 
 msgid "All"
-msgstr ""
+msgstr "Tous"
 
 msgid "Select bulk action"
 msgstr ""
@@ -2216,16 +2216,16 @@ msgid "Bulk actions"
 msgstr ""
 
 msgid "Archive"
-msgstr ""
+msgstr "Archiver"
 
 msgid "Restore"
-msgstr ""
+msgstr "Restaurer"
 
 msgid "Delete permanently"
 msgstr ""
 
 msgid "Apply"
-msgstr ""
+msgstr "Appliquer"
 
 msgid "Select row %d"
 msgstr ""
@@ -2267,7 +2267,7 @@ msgid "Download PDF"
 msgstr ""
 
 msgid "Back"
-msgstr ""
+msgstr "Retour"
 
 msgid "Generating…"
 msgstr ""
@@ -2509,7 +2509,7 @@ msgid "Last"
 msgstr ""
 
 msgid "Created"
-msgstr ""
+msgstr "Créé"
 
 msgid "Visits"
 msgstr ""
@@ -3007,7 +3007,7 @@ msgid "Date to"
 msgstr ""
 
 msgid "Category"
-msgstr ""
+msgstr "Catégorie"
 
 # ===== v3.6.0 — demo prep batch A (PR #11) =====
 
@@ -3015,10 +3015,10 @@ msgid "Close window"
 msgstr ""
 
 msgid "League"
-msgstr ""
+msgstr "Championnat"
 
 msgid "Cup"
-msgstr ""
+msgstr "Coupe"
 
 msgid "Teammate"
 msgstr ""
@@ -3219,7 +3219,7 @@ msgid "Unknown orderby column."
 msgstr ""
 
 msgid "Loading…"
-msgstr ""
+msgstr "Chargement…"
 
 msgid "Could not load — retry?"
 msgstr ""
@@ -3471,7 +3471,7 @@ msgid "2. Preview"
 msgstr ""
 
 msgid "Import"
-msgstr ""
+msgstr "Importer"
 
 msgid "Pick a different file"
 msgstr ""
@@ -4056,7 +4056,7 @@ msgid "Detailed"
 msgstr ""
 
 msgid "Summary"
-msgstr ""
+msgstr "Résumé"
 
 msgid "Detailed — show every subcategory rating"
 msgstr ""
@@ -4229,7 +4229,7 @@ msgid "Date format"
 msgstr ""
 
 msgid "Continue"
-msgstr ""
+msgstr "Continuer"
 
 msgid "First team"
 msgstr ""
@@ -4430,7 +4430,7 @@ msgid "Size"
 msgstr ""
 
 msgid "Download"
-msgstr ""
+msgstr "Télécharger"
 
 msgid "Delete this backup file?"
 msgstr ""
@@ -4494,7 +4494,7 @@ msgid "Thorough"
 msgstr ""
 
 msgid "Custom"
-msgstr ""
+msgstr "Personnalisé"
 
 # Backup preset descriptions — dynamically swapped client-side (#6).
 msgid "Core data only: players, teams, evaluations and ratings. Smallest archive, fastest to restore."
@@ -4837,7 +4837,7 @@ msgstr ""
 
 
 msgid "Methodology"
-msgstr ""
+msgstr "Méthodologie"
 
 msgid "Spelprincipes"
 msgstr ""
@@ -5496,7 +5496,7 @@ msgid "Ready for approval"
 msgstr ""
 
 msgid "Rejected"
-msgstr ""
+msgstr "Rejeté"
 
 msgid "Promoting…"
 msgstr ""
@@ -5511,7 +5511,7 @@ msgid "In progress"
 msgstr ""
 
 msgid "Done"
-msgstr ""
+msgstr "Terminé"
 
 msgid "In review"
 msgstr ""
@@ -5633,7 +5633,7 @@ msgid "A short summary of the idea"
 msgstr ""
 
 msgid "Details"
-msgstr ""
+msgstr "Détails"
 
 msgid "What's the problem, who is affected, what do you want to happen?"
 msgstr ""
@@ -5766,10 +5766,10 @@ msgid "No open tasks. You're all caught up."
 msgstr ""
 
 msgid "Open"
-msgstr ""
+msgstr "Ouvert"
 
 msgid "Submit"
-msgstr ""
+msgstr "Soumettre"
 
 msgid "Task completed."
 msgstr ""
@@ -6013,7 +6013,7 @@ msgid "Group ideas into a player-development roadmap."
 msgstr ""
 
 msgid "Development"
-msgstr ""
+msgstr "Développement"
 
 msgid "Development management"
 msgstr ""
@@ -6158,7 +6158,7 @@ msgid "Deadline offset"
 msgstr ""
 
 msgid "On"
-msgstr ""
+msgstr "Activé"
 
 msgid "Minors assignment policy"
 msgstr ""
@@ -6739,18 +6739,18 @@ msgstr ""
 msgid "Invite players, parents, and staff via shareable WhatsApp links — set passwords on first follow-through."
 msgstr ""
 msgid "Game"
-msgstr ""
+msgstr "Match"
 
 msgid "Games"
 msgstr ""
 
 msgid "Training"
-msgstr ""
+msgstr "Entraînement"
 
 msgid "Trainings"
 msgstr ""
 msgid "Friendly"
-msgstr ""
+msgstr "Amical"
 msgid "Game subtype"
 msgstr ""
 
@@ -6924,7 +6924,7 @@ msgstr ""
 msgid "Core module — cannot be disabled."
 msgstr ""
 msgid "Off"
-msgstr ""
+msgstr "Désactivé"
 
 msgid "Save module state"
 msgstr ""
@@ -7339,10 +7339,10 @@ msgid "No TalentTrack record needed. Fill in the basics; you can promote this gu
 msgstr ""
 
 msgid "Age"
-msgstr ""
+msgstr "Âge"
 
 msgid "Close"
-msgstr ""
+msgstr "Fermer"
 
 msgid "— Unknown —"
 msgstr ""
@@ -7446,7 +7446,7 @@ msgid "Per-season development files: conversations, goals, end-of-season verdict
 msgstr ""
 
 msgid "My PDP"
-msgstr ""
+msgstr "Mon PDP"
 
 msgid "Your development plan: conversations, reflections, end-of-season verdict."
 msgstr ""
@@ -7470,7 +7470,7 @@ msgid "Next conversation"
 msgstr ""
 
 msgid "Updated"
-msgstr ""
+msgstr "Mis à jour"
 
 msgid "Open file"
 msgstr ""
@@ -7524,7 +7524,7 @@ msgid "Conversations"
 msgstr ""
 
 msgid "Scheduled"
-msgstr ""
+msgstr "Programmé"
 
 msgid "Conducted"
 msgstr ""
@@ -7761,7 +7761,7 @@ msgid "PDP — %s"
 msgstr ""
 
 msgid "Print"
-msgstr ""
+msgstr "Imprimer"
 
 msgid "Re-render with evidence page"
 msgstr ""
@@ -8215,7 +8215,7 @@ msgid "Custom range"
 msgstr ""
 
 msgid "Profile"
-msgstr ""
+msgstr "Profil"
 
 
 msgid "Coach notes"
@@ -8419,7 +8419,7 @@ msgstr ""
 # #0017 — Trial player module
 
 msgid "Trials"
-msgstr ""
+msgstr "Essais"
 
 msgid "Trial cases"
 msgstr ""
@@ -8853,10 +8853,10 @@ msgid "Skip step"
 msgstr ""
 
 msgid "Next"
-msgstr ""
+msgstr "Suivant"
 
 msgid "Create"
-msgstr ""
+msgstr "Créer"
 
 msgid "Open the relevant help topic"
 msgstr ""
@@ -9062,7 +9062,7 @@ msgid "Milestone"
 msgstr ""
 
 msgid "Warning"
-msgstr ""
+msgstr "Avertissement"
 
 msgid "Retracted — replaced by a corrected entry."
 msgstr ""
@@ -9126,7 +9126,7 @@ msgid "Goal set: %s"
 msgstr ""
 
 msgid "Signed"
-msgstr ""
+msgstr "Signé"
 
 msgid "Graduated"
 msgstr ""
@@ -9589,7 +9589,7 @@ msgid "Activity types, positions, age groups, goal statuses, evaluation types �
 msgstr ""
 
 msgid "Administrator"
-msgstr ""
+msgstr "Administrateur"
 
 msgid "All configuration"
 msgstr ""
@@ -9834,10 +9834,10 @@ msgid "Your rate card fills in once your coach saves your first evaluation."
 msgstr ""
 
 msgid "Today"
-msgstr ""
+msgstr "Aujourd'hui"
 
 msgid "Tomorrow"
-msgstr ""
+msgstr "Demain"
 
 msgid "Up next · %s"
 msgstr ""
@@ -11265,7 +11265,7 @@ msgid "Focus ring"
 msgstr ""
 
 msgid "Success"
-msgstr ""
+msgstr "Succès"
 
 msgid "Success — subtle bg"
 msgstr ""
@@ -11280,7 +11280,7 @@ msgid "Danger — subtle bg"
 msgstr ""
 
 msgid "Info"
-msgstr ""
+msgstr "Info"
 
 msgid "Info — subtle bg"
 msgstr ""
@@ -11362,7 +11362,7 @@ msgid "Which player?"
 msgstr ""
 
 msgid "Rating"
-msgstr ""
+msgstr "Note"
 
 msgid "Add the activity context this evaluation is anchored to, then rate the categories that matter."
 msgstr ""
@@ -11666,7 +11666,7 @@ msgid "Autosave ready"
 msgstr ""
 
 msgid "Saving…"
-msgstr ""
+msgstr "Enregistrement…"
 
 msgid "Saved · "
 msgstr ""
@@ -11965,10 +11965,10 @@ msgstr ""
 # v3.82.0 / i18n audit (May 2026) Bundles 3 + 4 + 7 — stored content backfill via LabelTranslator + lookup translations
 
 msgid "Mentor"
-msgstr ""
+msgstr "Mentor"
 
 msgid "Goalkeeper"
-msgstr ""
+msgstr "Gardien de but"
 
 msgid "Neutral 4-3-3"
 msgstr ""
@@ -12324,7 +12324,7 @@ msgid "Functional roles (assignments)"
 msgstr ""
 
 msgid "Backup"
-msgstr ""
+msgstr "Sauvegarde"
 
 msgid "Workflow tasks"
 msgstr ""
@@ -12581,10 +12581,10 @@ msgid "No activities recorded for you yet."
 msgstr ""
 
 msgid "Match"
-msgstr ""
+msgstr "Match"
 
 msgid "Clinic"
-msgstr ""
+msgstr "Stage"
 
 msgid "Team meeting"
 msgstr ""
@@ -12599,7 +12599,7 @@ msgid "League match"
 msgstr ""
 
 msgid "Tournament"
-msgstr ""
+msgstr "Tournoi"
 msgid "No candidate for %s — roster is smaller than the formation needs."
 msgstr ""
 
@@ -12661,7 +12661,7 @@ msgid "Active roster player with no conversation in this block. Open their PDP f
 msgstr ""
 
 msgid "Planned"
-msgstr ""
+msgstr "Planifié"
 
 msgid "Missing"
 msgstr ""
@@ -13084,7 +13084,7 @@ msgid "Reopen"
 msgstr ""
 
 msgid "Draft"
-msgstr ""
+msgstr "Brouillon"
 
 msgid "Shared"
 msgstr ""
@@ -14189,7 +14189,7 @@ msgstr ""
 # new strings are added here.)
 
 msgid "Average"
-msgstr ""
+msgstr "Moyenne"
 
 #. translators: %s = player display name
 msgid "Evaluation of %s"
