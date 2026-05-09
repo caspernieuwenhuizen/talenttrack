@@ -308,7 +308,39 @@ A reviewer should be able to answer yes to all of:
 
 ---
 
-## 5. Mandatory reading by task type
+## 5. Always-on principle — Two nav affordances per view, no more, no less
+
+Every routable frontend view (anything reachable via
+`?tt_view=<slug>`) emits exactly **two** navigation affordances and
+nothing else:
+
+1. **Breadcrumb chain** ending at `Dashboard` — canonical hierarchy.
+   Rendered via
+   `\TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard()`.
+2. **Contextual `← Back to …` pill** — `tt_back`-borne, auto-rendered
+   above the chain when the entry URL captured a back-target. Label is
+   contextual ("Back to Ajax U17", "Back to John Doe"). Renders nothing
+   when no back-target is in the URL — that's intentional.
+
+**No third affordance is ever allowed.** No "Back to dashboard" button.
+No "Back to <list>" button. No `FrontendBackButton` (deleted in
+v3.110.41) or any analogue. If a custom-label back link feels
+necessary, fix the breadcrumb chain to have the right intermediate
+crumb — that crumb IS the back-to-list affordance.
+
+The only exempt views are the dashboard root itself
+(`PersonaLandingRenderer`), pre-login flows (`AcceptanceView`,
+login form), and component renderers / sub-views composed into
+other views (`FrontendThreadView`, `FrontendTeammateView`, etc.).
+
+Full mechanism + label resolver + `tt_back` validation rules in
+`docs/back-navigation.md`. Read it when adding a new view, when
+modifying an existing view's nav, or when reviewing a PR that
+touches frontend routing.
+
+---
+
+## 6. Mandatory reading by task type
 
 These are existing repo docs. Read them when the task type matches; don't
 duplicate their content here.
@@ -324,6 +356,7 @@ duplicate their content here.
 | Hooks / extension points        | `docs/hooks-and-filters.md`         |
 | New record-creation flow        | `docs/wizards.md` (framework, registry, entry-point gating) |
 | Driving the workflow            | `AGENTS.md` (one agent vs. two, parallel sessions, decision tree) |
+| Frontend nav / new view         | `docs/back-navigation.md` (two-affordance contract, `tt_back` mechanism, label resolver) |
 
 If a doc you'd expect doesn't exist, **say so before writing code** — don't
 guess at conventions. The lead developer would rather add a doc than have
@@ -331,7 +364,7 @@ Claude Code invent a pattern that conflicts with one already in use.
 
 ---
 
-## 6. Definition of done — checklist for every PR
+## 7. Definition of done — checklist for every PR
 
 A PR is not ready to merge until **all** of these hold:
 
@@ -359,6 +392,17 @@ A PR is not ready to merge until **all** of these hold:
 - [ ] Works with keyboard only (Tab, Enter, Escape).
 - [ ] No hover-only functionality.
 - [ ] CSS and JS are properly enqueued and prefixed.
+
+**Navigation contract (`CLAUDE.md` § 5 — every routable view):**
+- [ ] View calls `FrontendBreadcrumbs::fromDashboard()` (or a static
+      `breadcrumbs()` override on `FrontendViewBase`) on every code
+      path, including permission-denied early-returns.
+- [ ] No `FrontendBackButton`, no hardcoded "Back to dashboard" /
+      "Back to <list>" links, no custom back affordance that sidesteps
+      the chain + `tt_back` pill.
+- [ ] Cross-entity links use `RecordLink::detailUrlForWithBack()` (or
+      `BackLink::appendTo()` for raw URL builders) so the destination
+      view can render a contextual back-pill.
 
 **Wizard-first (`CLAUDE.md` § 3 — record creation):**
 - [ ] If this PR creates a new record-creation flow: a wizard exists for

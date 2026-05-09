@@ -275,8 +275,6 @@ class FrontendPdpManageView extends FrontendViewBase {
         $can_verdict = current_user_can( 'tt_edit_pdp_verdict' );
 
         echo '<div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( add_query_arg( [ 'tt_view' => 'pdp' ], $base_url ) ) . '">'
-            . esc_html__( '← Back to list', 'talenttrack' ) . '</a>';
         echo '<a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $print_url ) . '">'
             . esc_html__( 'Print / PDF', 'talenttrack' ) . '</a>';
         if ( $can_verdict && $verdict === null ) {
@@ -413,16 +411,13 @@ class FrontendPdpManageView extends FrontendViewBase {
         self::renderHeader( $title );
 
         $base_url = remove_query_arg( [ 'action', 'conv', 'player_id' ] );
-        echo '<p style="margin-bottom:12px;"><a class="tt-btn tt-btn-secondary" href="'
-            . esc_url( add_query_arg( [ 'tt_view' => 'pdp', 'id' => (int) $file->id ], $base_url ) ) . '">'
-            . esc_html__( '← Back to file', 'talenttrack' ) . '</a></p>';
 
         $is_signed = ! empty( $conv->coach_signoff_at );
         $rest_path = 'pdp-conversations/' . (int) $conv->id;
         // v3.92.5 — after save / sign, land back on the parent PDP file
-        // (same URL the "← Back to file" button points at). Public.js
-        // honours `data-redirect-after-save-url` and waits for the
-        // success toast before navigating.
+        // so the user sees their work in context. Public.js honours
+        // `data-redirect-after-save-url` and waits for the success
+        // toast before navigating.
         $back_to_file_url = add_query_arg( [ 'tt_view' => 'pdp', 'id' => (int) $file->id ], $base_url );
 
         // #0063 — switch from a cramped 1fr / 280px sidebar layout to a
@@ -541,11 +536,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         $title    = $existing ? __( 'Edit end-of-season verdict', 'talenttrack' ) : __( 'Record end-of-season verdict', 'talenttrack' );
         self::renderHeader( $title );
 
-        $base_url = remove_query_arg( [ 'action', 'conv', 'player_id' ] );
-        echo '<p style="margin-bottom:12px;"><a class="tt-btn tt-btn-secondary" href="'
-            . esc_url( add_query_arg( [ 'tt_view' => 'pdp', 'id' => (int) $file->id ], $base_url ) ) . '">'
-            . esc_html__( '← Back to file', 'talenttrack' ) . '</a></p>';
-
+        $base_url  = remove_query_arg( [ 'action', 'conv', 'player_id' ] );
         $rest_path = 'pdp-files/' . (int) $file->id . '/verdict';
         $decisions = [
             'promote'  => __( 'Promote to next age group', 'talenttrack' ),

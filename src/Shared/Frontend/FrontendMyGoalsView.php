@@ -19,16 +19,13 @@ class FrontendMyGoalsView extends FrontendViewBase {
     public static function render( object $player ): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $id > 0 ) {
-            // v3.92.1 — breadcrumb on the detail sub-view.
-            // v3.108.2 — `fromDashboardWithBack` adds a leading
-            // "← Back" crumb sourced from `wp_get_referer()` when the
-            // referer is same-origin and not the current page. The
-            // user surfaced that the static "Dashboard / My goals /
-            // Goal detail" chain didn't reflect the actual entry path
-            // (e.g. clicking a goal from the My-card hero brings you
-            // here from the dashboard, not from the goals list); this
-            // restores the obvious back-where-I-came-from move.
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboardWithBack(
+            // v3.110.46 — migrated from fromDashboardWithBack() (referer-
+            // based back crumb) to plain fromDashboard(). The
+            // tt_back-borne pill is now the canonical "back to where I
+            // came from" affordance per docs/back-navigation.md, and
+            // FrontendBreadcrumbs::render() auto-renders it above the
+            // chain when the entry URL captured a back-target.
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 __( 'Goal detail', 'talenttrack' ),
                 [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'my-goals', __( 'My goals', 'talenttrack' ) ) ]
             );

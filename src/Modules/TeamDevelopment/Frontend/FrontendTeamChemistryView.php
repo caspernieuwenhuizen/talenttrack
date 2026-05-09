@@ -140,10 +140,7 @@ class FrontendTeamChemistryView extends FrontendViewBase {
             [ 'tt_view' => 'docs', 'topic' => 'team-chemistry' ],
             home_url( '/' )
         );
-        echo '<p style="margin-bottom:16px; display:flex; gap:8px; flex-wrap:wrap;">';
-        echo '<a class="tt-btn tt-btn-secondary" href="'
-            . esc_url( add_query_arg( [ 'tt_view' => 'team-chemistry' ], $base_url ) ) . '">'
-            . esc_html__( '← Back to team picker', 'talenttrack' ) . '</a>';
+        echo '<p style="margin-bottom:16px;">';
         echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $help_url ) . '">'
             . esc_html__( 'How does this work?', 'talenttrack' ) . '</a>';
         echo '</p>';

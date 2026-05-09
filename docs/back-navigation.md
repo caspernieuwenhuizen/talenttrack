@@ -4,6 +4,37 @@
 
 URL-borne "← Back to where you came from" navigation, shipped in v3.110.0.
 
+## The contract — two nav affordances, no more, no less
+
+**Every routable frontend view (anything reachable via `?tt_view=<slug>`) emits exactly TWO navigation affordances and nothing else:**
+
+1. **Breadcrumb chain** — the canonical hierarchy ending at `Dashboard`. Rendered via `\TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard()` (or `::render([...])` for ad-hoc chains). The first crumb is always `Dashboard` and links back to the persona-dashboard root.
+2. **Contextual "← Back to …" pill** — `tt_back`-borne, rendered automatically by `FrontendBreadcrumbs::render()` ABOVE the chain when the visit captured a back-target. Label is contextual via `BackLabelResolver::labelFor()` (e.g. `← Back to Ajax U17`, `← Back to John Doe`, `← Back to Trial: Lucas Smith`). When no back-target is in the URL, the pill simply doesn't render — that's intentional, the breadcrumb chain is the user's only path home and that's enough.
+
+**No third affordance is ever allowed.** Specifically:
+
+- ❌ No "← Back to dashboard" button.
+- ❌ No "← Back to <list>" button (e.g. "Back to Players", "Back to Goals"). The breadcrumb chain has the parent crumb; click it.
+- ❌ No "← Cancel" link that doubles as a back affordance. Cancel buttons in forms are fine but they're form actions, not navigation.
+- ❌ No `FrontendBackButton` class (deleted in v3.110.41) or any analogue.
+- ❌ No per-view back-link that resets `tt_back`, hard-codes a target URL, or otherwise sidesteps the chain + pill.
+
+If a custom-label back link feels necessary, the right answer is to make sure the breadcrumb chain has the right intermediate crumb. The chain's parent crumb IS the back-to-list affordance.
+
+### Why exactly two
+
+Pilot operator surfaced the duplication: views that emitted both an explicit "Back to dashboard" button AND the breadcrumb chain stacked four redundant nav rows above the page title. Two affordances are sufficient — the pill answers "where did I come from?", the breadcrumb answers "where am I in the hierarchy?". Adding a third is noise.
+
+### Skipped (correctly without a chain)
+
+These are the only views allowed without breadcrumbs:
+
+- The dashboard root itself (`PersonaLandingRenderer`) — it IS the destination "Dashboard" crumb resolves to.
+- Pre-login flows (`AcceptanceView`, login form) — no logged-in dashboard to chain to yet.
+- Component renderers, sub-views composed into other views, internal containers (`FrontendThreadView`, `FrontendTeammateView`, `FrontendMyProfileView`, `CoachDashboardView`, `PlayerDashboardView`).
+
+If you're adding a new view and it isn't one of these, it MUST emit the chain + pill.
+
 ## Why
 
 Breadcrumbs show where a record sits in the canonical hierarchy

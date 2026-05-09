@@ -1,3 +1,57 @@
+# TalentTrack v3.110.46 — Document the two-nav-affordance contract + close residual violations
+
+The "exactly two navigation affordances per routable view" rule — breadcrumb chain + `tt_back`-borne pill, nothing else — was applied across the codebase in v3.110.41 and v3.110.45 but was not explicitly written down anywhere. New views or refactors had no documented standard to follow, so anti-patterns kept creeping back. This release codifies the contract and closes the residual violations the doc-and-sweep surfaced.
+
+## What landed
+
+### Documentation
+
+`docs/back-navigation.md` and `docs/nl_NL/back-navigation.md` gain an explicit **"The contract — two nav affordances, no more, no less"** section at the top:
+
+1. **Breadcrumb chain** ending at `Dashboard` — canonical hierarchy. Rendered via `FrontendBreadcrumbs::fromDashboard()` (or a static `breadcrumbs()` override on `FrontendViewBase`).
+2. **Contextual `← Back to …` pill** — `tt_back`-borne, auto-rendered above the chain when the entry URL captured a back-target. Renders nothing when there's no back-target — that's intentional, the breadcrumb chain is sufficient.
+
+The doc names what's forbidden (no `← Back to dashboard` button, no `← Back to <list>` button, no `FrontendBackButton` analogue, no per-view back-link that sidesteps the chain + pill) and the small set of exempt views (dashboard root itself, pre-login flows, sub-views composed into other views).
+
+### CLAUDE.md
+
+A new always-on principle at **§ 5 — Two nav affordances per view, no more, no less** summarizes the rule and points at the back-navigation doc. The Definition-of-done checklist gains three items:
+
+- Confirm `FrontendBreadcrumbs::fromDashboard()` is called on every code path, including permission-denied early-returns.
+- Confirm no hardcoded back-affordances (no `FrontendBackButton`, no "Back to dashboard"/"Back to &lt;list&gt;" anchor tags).
+- Confirm cross-entity links use `RecordLink::detailUrlForWithBack()` (or `BackLink::appendTo()` for raw URL builders) so the destination view's back-pill renders.
+
+The mandatory-reading-by-task-type table gains a row pointing frontend-nav PRs at the doc.
+
+### Residual violations cleaned up
+
+Eight hardcoded `← Back to <X>` anchor tags removed:
+
+| File | Removed labels |
+|---|---|
+| `FrontendPdpManageView` (3) | `← Back to list`, `← Back to file` (×2) |
+| `FrontendTeamBlueprintsView` (3) | `← Back to team picker`, `← Back to blueprints`, `← Back to lineup view` (the last was a heatmap toggle masquerading as a back link; relabeled to `Show lineup view`) |
+| `FrontendTeamChemistryView` (1) | `← Back to team picker` |
+| `FrontendPlayersManageView` (1) | `← Back to players` (legacy `?tt_view=players&player_id=N` deep-link route — replaced with proper breadcrumb chain) |
+
+In every case the parent crumb in the breadcrumb chain serves the same navigation function with one click.
+
+### `FrontendBreadcrumbs::fromDashboardWithBack()` deleted
+
+Along with its `sameOriginReferer()` helper. The two callers (`FrontendMyActivitiesView`, `FrontendMyGoalsView`) migrated to plain `fromDashboard()`. The `tt_back`-borne URL-pill auto-rendered by `FrontendBreadcrumbs::render()` is the canonical "back to where I came from" mechanism — referer-based fallback was a v3.108.2 stopgap that survived too long. Documentation has noted the deprecation since v3.110.0; this release completes the cut-over.
+
+## What this does NOT change
+
+- Wp-admin-side `BackButton` class (separate from the deleted frontend `FrontendBackButton`) is unchanged. Wp-admin uses a different navigation paradigm and is explicitly out of scope for the back-navigation contract per the doc's "What is NOT swept" section.
+- The exhaustive cross-entity-link sweep (every `add_query_arg` callsite that builds a detail URL) is too broad to do as a single PR. The CLAUDE.md checklist will catch new violations in future PRs; existing violations get fixed opportunistically as views get touched.
+- No behavior change for users who already use the breadcrumb + pill correctly — this release codifies what was already enforced in v3.110.41 / v3.110.45.
+
+## Translations
+
+Zero new msgids. One msgid removed (`← Back`, only emitted by the deleted `fromDashboardWithBack` method); the NL translation `← Terug` becomes obsolete but stays in the .po file as a no-op (no harm leaving it).
+
+---
+
 # TalentTrack v3.110.45 — Breadcrumb sweep: every routable frontend view now has a chain back to the dashboard
 
 Pilot operator reported `?tt_view=team-chemistry` had no breadcrumb so they couldn't navigate back to the dashboard. Sweep across the codebase found **36 routable frontend views in the same state** — the v3.110.41 cleanup fixed the dispatcher stubs and ~35 of the most-visible views, but a long tail remained.

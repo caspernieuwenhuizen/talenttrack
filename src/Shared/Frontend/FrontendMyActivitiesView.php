@@ -18,12 +18,13 @@ class FrontendMyActivitiesView extends FrontendViewBase {
     public static function render( object $player ): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $id > 0 ) {
-            // v3.108.2 — `fromDashboardWithBack` adds a leading "← Back"
-            // crumb when the referer is same-origin and distinct from
-            // the current page. Restores the obvious "go back to where
-            // I came from" move on entries that bypass the activities
-            // list (e.g. tapping an activity card from the dashboard).
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboardWithBack(
+            // v3.110.46 — migrated from fromDashboardWithBack() (referer-
+            // based back crumb) to plain fromDashboard(). The
+            // tt_back-borne pill is now the canonical "back to where I
+            // came from" affordance per docs/back-navigation.md, and
+            // FrontendBreadcrumbs::render() auto-renders it above the
+            // chain when the entry URL captured a back-target.
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 __( 'Activity detail', 'talenttrack' ),
                 [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'my-activities', __( 'My activities', 'talenttrack' ) ) ]
             );
