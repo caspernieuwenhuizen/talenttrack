@@ -157,10 +157,12 @@ class FrontendPlayersManageView extends FrontendViewBase {
         }
 
         $row_actions = [
-            'view' => [
-                'label' => __( 'View', 'talenttrack' ),
-                'href'  => add_query_arg( [ 'tt_view' => 'players', 'id' => '{id}' ], $base_url ),
-            ],
+            // v3.110.48 — dropped redundant 'View' action. Clicking the
+            // player name in the cell already routes to the detail
+            // view (and via RecordLink::detailUrlForWithBack appends
+            // tt_back so the detail page renders the contextual back-
+            // pill), so a second 'View' button was both visual noise
+            // and strictly worse UX (no tt_back capture).
             'edit' => [
                 'label' => __( 'Edit', 'talenttrack' ),
                 // v3.91.2 — was `?tt_view=players&id={id}` which the
