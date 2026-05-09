@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.60
+Stable tag: 3.110.61
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.61 — My evaluations: category + subcategory breakdown now shows on sub-only evaluations =
+
+The player's "My evaluations" tile (`?tt_view=my-evaluations`) renders a circular badge with the overall rating, plus inline pills for each main category (Technical, Tactical, Physical, Personality / whatever the academy seeded), and a "Show detail" toggle to reveal subcategory ratings. The user reported that on their evaluations only the overall badge was rendering — no main pills, no subcategory toggle. Root cause: the view walked `$full->ratings` directly and added a main pill only when the rating row had `category_parent_id IS NULL`. The plugin's evaluation model is "either/or" — the coach enters EITHER a direct main rating OR sub-category ratings under a main, not both — and when only subs were entered (the more common case for detailed evaluations), `$main_pills` stayed empty and the entire breakdown UI disappeared. Same bug also wiped the heading inside the detail toggle (the heading lookup keyed off `$main_pills`). Fix: switched the main-pill source from "walk rating rows" to `EvalRatingsRepository::effectiveMainRatingsFor( $eid )`, which returns one entry per active main category with its effective value (direct value OR rolled-up subcategory average) — same helper the coach-side admin view (`EvaluationsPage::render_view`) and the radar-chart consumers already use, so player and coach now agree on what shows. Sub-group walking still happens against `$full->ratings` so the per-sub values surface raw (not as the rollup average). Detail-toggle heading now reads from a separate `$main_labels` map seeded from the same `effectiveMainRatingsFor` call. Sub-category labels also pass entity_id to displayLabel() so academy-translated labels via tt_translations show up. Zero new translatable strings.
 
 = 3.110.60 — My PDP: self-reflection 2-week gate now timezone-correct + REST endpoint enforces same window =
 
