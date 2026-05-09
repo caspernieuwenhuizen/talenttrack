@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.38
+Stable tag: 3.110.39
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.39 — Exercises + ActivityExercises REST surfaces (#0016 Sprint 2b) =
+
+REST surfaces on the Sprint 1 + Sprint 2a data layer. Photo-capture review wizard (Sprint 4) + future SaaS frontends call into a stable HTTP shape rather than direct PHP repository access. **(1) `ExercisesRestController`** at `/wp-json/talenttrack/v1/exercises` — `GET /` (list active; optional `?team_id=N` applies the visibility rules), `GET /{id}` (single fetch), `GET /categories` (list `tt_exercise_categories`), `POST /` (create), `PUT /{id}` (edit-as-new-version per the Sprint 1 pinning model — returns the new version's id alongside the previous_id), `DELETE /{id}` (archive). Cap gate: `tt_view_activities` for reads; `tt_manage_exercises` for writes. **(2) `ActivityExercisesRestController`** at `/wp-json/talenttrack/v1/activities/{activity_id}/exercises` — `GET /` (list linked exercises, joined to `tt_exercises` so payloads carry `exercise_name` + `exercise_planned_duration` + `exercise_diagram_url` in one call), `POST /` (append at next free order_index), `PUT /{id}` (patch order/duration/notes/draft), `DELETE /{id}` (remove single link), `POST /replace` (Sprint 4 review-wizard's bulk-commit target — replaces the entire linked-exercise list for an activity in one call). Plus `GET /exercises/{exercise_id}/activities` for the exercise-history view (every activity that linked the drill, joined to `tt_activities` for `activity_title` + `activity_date` + `activity_team_id`). Cap gate: `tt_view_activities` for reads; `tt_edit_activities` for writes. **(3) Wired into `ExercisesModule::boot()`** — both controllers' `init()` runs at module-boot time so REST routes register on `rest_api_init`. **What's NOT in this PR (Sprint 2c follow-up)**: activity-edit UI Exercises section (markup + drag-reorder JS — substantial work that benefits from a focused review), library-picker UI (search + category filter + principle filter), exercise-history page UI. The data + REST layer is the SaaS-ready backbone; UI consumers can land on top without further repository refactor. **What's NOT in #0016 still**: Sprint 3 (photo capture + offline queue), Sprint 4 (concrete AI extraction), Sprint 5 (attendance), Sprint 6 (drafts + fallback), provider shootout (calendar-time), DPIA (calendar-time legal review). Zero new NL msgids — REST controller error messages reuse standard `'Exercise not found'`/`'A name is required'`/etc. patterns already translated.
 
 = 3.110.38 — Translation dictionaries batch 2 (#0010 close — code-side complete) =
 

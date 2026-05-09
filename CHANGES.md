@@ -1,3 +1,71 @@
+# TalentTrack v3.110.39 — Exercises + ActivityExercises REST surfaces (#0016 Sprint 2b)
+
+REST surfaces on the Sprint 1 + Sprint 2a data layer. The Sprint 4 photo-capture review wizard + future SaaS frontends call into a stable HTTP shape rather than direct PHP repository access.
+
+## What landed
+
+### `ExercisesRestController` — `/wp-json/talenttrack/v1/exercises`
+
+| Route | Method | Purpose |
+|---|---|---|
+| `/exercises` | GET | List active exercises. Optional `?team_id=N` applies the Sprint 1 visibility rules via `listForTeam()`. |
+| `/exercises/categories` | GET | List `tt_exercise_categories` rows. |
+| `/exercises/{id}` | GET | Fetch a single exercise by id. |
+| `/exercises` | POST | Create. |
+| `/exercises/{id}` | PUT | Edit-as-new-version per the Sprint 1 pinning model. Returns `{ id: <new>, previous_id: <old> }` so callers know the new version landed and can pin future activities to it. |
+| `/exercises/{id}` | DELETE | Archive (soft-delete; `archived_at = NOW()`). |
+
+Cap gate: `tt_view_activities` for reads; `tt_manage_exercises` for writes.
+
+### `ActivityExercisesRestController` — `/wp-json/talenttrack/v1/activities/{activity_id}/exercises`
+
+| Route | Method | Purpose |
+|---|---|---|
+| `…/exercises` | GET | List linked exercises for an activity, joined to `tt_exercises` so payloads carry `exercise_name`, `exercise_planned_duration`, `exercise_diagram_url`. |
+| `…/exercises` | POST | Append at the next free `order_index`. |
+| `…/exercises/{id}` | PUT | Patch one row: order/duration/notes/draft flag. |
+| `…/exercises/{id}` | DELETE | Remove a single link. |
+| `…/exercises/replace` | POST | **Sprint 4 review-wizard's bulk-commit target.** Replaces the entire linked-exercise list for an activity in one call. |
+| `/exercises/{exercise_id}/activities` | GET | Exercise-history view — every activity that linked the drill, joined to `tt_activities` for `activity_title` + `activity_date` + `activity_team_id`. |
+
+Cap gate: `tt_view_activities` for reads; `tt_edit_activities` for writes.
+
+### Wired into `ExercisesModule::boot()`
+
+Both controllers' `init()` runs at module-boot time so REST routes register on `rest_api_init`. No additional config / hook setup required.
+
+## What's NOT in this PR (Sprint 2c follow-up)
+
+The UI surfaces ride on top of these REST routes:
+
+- **Activity-edit UI Exercises section** — list of linked exercises with add / remove / reorder / edit-actual-duration / per-row notes. Markup + drag-reorder JS.
+- **Library-picker UI** — search bar + category filter + principle filter. Renders into a modal / sidebar that consumers can call into for "pick an exercise to attach."
+- **Exercise-history page UI** — per-exercise list of using activities (consumes the `/exercises/{id}/activities` endpoint).
+
+Sprint 2c is its own focused PR. The data + REST layer shipped in 2a + 2b is the SaaS-ready backbone; UI consumers can land on top without further repository refactor.
+
+## What's NOT in #0016 still
+
+- **Sprint 3** — photo capture UI + offline IndexedDB queue.
+- **Sprint 4** — concrete AI extraction (Claude Sonnet impl) + fuzzy matcher + review wizard.
+- **Sprint 5** — attendance extraction.
+- **Sprint 6** — draft sessions + provider fallback.
+- **Provider shootout** — calendar-time, requires real coach photos.
+- **DPIA template** — calendar-time legal review.
+
+## SaaS-readiness checklist
+
+- [x] Reachable through REST — both controllers register canonical routes.
+- [x] Business logic outside view files — Repositories own the domain logic; controllers just translate HTTP ↔ method calls.
+- [x] Auth via capabilities — `tt_view_activities` / `tt_edit_activities` / `tt_manage_exercises`, not role-string compare.
+- [x] Tenancy — Repositories already scope to `CurrentClub::id()`.
+
+## Translations
+
+Zero new NL msgids — REST error messages reuse standard `'Exercise not found'` / `'A name is required'` / `'No fields to update'` / etc. patterns already translated by other modules.
+
+---
+
 # TalentTrack v3.110.38 — Translation dictionaries batch 2 (#0010 close — code-side complete)
 
 **Closes #0010 code-side.** The spec moved to `specs/shipped/` with frontmatter `status: shipped` and an explicit "calendar-time follow-ups remaining" note. The engineering work — locale skeletons, the dictionary round-trip tool, mixed-formality tone documentation, the DEVOPS pre-release POT-regen checklist, three first-pass machine-translation dictionaries — is done. The native-speaker review of the long tail and the 67-docs translation are calendar-time work streams that run against the shipped infrastructure without blocking any product feature.
