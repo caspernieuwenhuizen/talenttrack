@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.65
+Stable tag: 3.110.66
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.66 — Evaluation edit: main-category ratings are now optional, and partial saves preserve subcategory ratings =
+
+When a coach reopens an existing evaluation for edit on `?tt_view=evaluations&action=edit&id=N`, every main-category rating input was marked `required` — the coach couldn't save changes (e.g. a notes-only edit) without backfilling a value into every category. Worse, the evaluation model is **either / or / neither** (per `EvalRatingsRepository` docblock — coach may rate a main directly, OR rate subs, OR neither): an eval originally saved with subcategory ratings only had no direct main values, so opening it forced the coach to invent main values they had deliberately not entered. **Fix on the form**: main-category inputs drop the `required` attribute in edit mode (create mode keeps it; clearing every category at create time would make a 0-ratings record). The `*` after each category label also goes away on edit so the UI matches the constraint. **Fix on the REST endpoint**: `EvaluationsRestController::update_eval` previously ran `DELETE FROM tt_eval_ratings WHERE evaluation_id = X` then re-inserted submitted rows — which (a) wiped subcategory ratings the form doesn't render, and (b) combined with the `required` drop, would have written `0`-clamped-to-`rating_min` (i.e., 1) into every blank input because `(float) ''` is 0. Rewrote to surgical per-category semantics: submitted category with non-empty value → upsert (delete then insert); submitted category with empty value → delete only (clears the rating); categories not in the submission → untouched (subcategory ratings preserved across edits). `write_ratings()` also hardened to skip empty / null / non-numeric values defensively. Zero new translatable strings.
 
 = 3.110.65 — Team detail: Upcoming activities filters out completed/cancelled; Status column dot now visible (CSS was missing) =
 

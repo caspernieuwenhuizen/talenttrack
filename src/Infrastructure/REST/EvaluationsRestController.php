@@ -129,8 +129,37 @@ class EvaluationsRestController {
         }
 
         if ( isset( $r['ratings'] ) ) {
-            $wpdb->delete( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id ] );
-            $rating_failures = self::write_ratings( $id, (array) $r['ratings'] );
+            // v3.110.66 — surgical per-category update. Was a blanket
+            // `DELETE FROM tt_eval_ratings WHERE evaluation_id = X`
+            // followed by re-insert of submitted rows, which had two
+            // problems:
+            //   1. Subcategory ratings (which `CoachForms::renderEvalForm`
+            //      doesn't render) got wiped on every save, even though
+            //      the coach didn't touch them.
+            //   2. Combined with the `required` drop on the form, an
+            //      unsaved category implicitly meant "set to 0" (because
+            //      `(float) ''` is 0, clamped to `rating_min`) — turning
+            //      every blank field into a 1-rating.
+            // New semantics:
+            //   - Submitted category with non-empty value → delete the
+            //     existing rating row for that category, then insert
+            //     the new value. Net effect: upsert.
+            //   - Submitted category with empty value → delete only,
+            //     no insert. Net effect: clear the rating.
+            //   - Categories NOT in the submission (e.g. subcategory
+            //     rows the form doesn't render) → untouched.
+            $ratings    = (array) $r['ratings'];
+            $club_id    = \TT\Infrastructure\Tenancy\CurrentClub::id();
+            foreach ( $ratings as $cid => $val ) {
+                $cid_int = absint( $cid );
+                if ( $cid_int <= 0 ) continue;
+                $wpdb->delete( "{$p}tt_eval_ratings", [
+                    'evaluation_id' => $id,
+                    'category_id'   => $cid_int,
+                    'club_id'       => $club_id,
+                ] );
+            }
+            $rating_failures = self::write_ratings( $id, $ratings );
             if ( $rating_failures ) {
                 Logger::error( 'rest.evaluation.ratings.update.failed', [ 'evaluation_id' => $id, 'failures' => $rating_failures ] );
                 return RestResponse::error(
@@ -222,6 +251,18 @@ class EvaluationsRestController {
         $club_id = \TT\Infrastructure\Tenancy\CurrentClub::id();
         $failures = [];
         foreach ( $ratings as $cid => $val ) {
+            // v3.110.66 — skip empty/null values. The form's main-
+            // category inputs no longer carry `required` in edit
+            // mode (so the coach can leave a category blank), and
+            // an empty number input POSTs as `''`. Without this
+            // guard, `(float) ''` would coerce to 0 and clamp up to
+            // `rating_min` (1), silently writing a 1-rating into
+            // every blank category. The caller (`update_eval`) has
+            // already deleted the prior row for these categories,
+            // so skipping the insert here is the "clear this
+            // rating" path.
+            if ( $val === '' || $val === null ) continue;
+            if ( ! is_numeric( $val ) ) continue;
             $clamped = max( $rmin, min( $rmax, (float) $val ) );
             $ok = $wpdb->insert( "{$p}tt_eval_ratings", [
                 'club_id'       => $club_id,

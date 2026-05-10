@@ -1,3 +1,75 @@
+# TalentTrack v3.110.66 — Evaluation edit: main-category ratings are now optional, and partial saves preserve subcategory ratings
+
+A coach reopening an existing evaluation for edit (`?tt_view=evaluations&action=edit&id=N`) had two pain points:
+
+1. Every main-category rating input was marked `required`, so a notes-only edit was impossible without backfilling a value into every category.
+2. Saving the form wiped any subcategory ratings the coach had previously entered through the wp-admin tool — they didn't show in the form, but `update_eval` was deleting them anyway.
+
+The user's report: *"during edit, not all categories should be mandatory for input."*
+
+## The model
+
+Per `EvalRatingsRepository` docblock:
+
+> "for any given (evaluation, main_category), the coach either entered a direct main rating, OR rated subcategories, OR did neither."
+
+So forcing every main rating to be filled fights the storage model. An eval saved with sub-only ratings has no direct main values; opening it for edit forced the coach to invent values they had deliberately not entered.
+
+## Fix — form side (`CoachForms::renderEvalForm`)
+
+- In edit mode, main-category number inputs drop the `required` attribute.
+- The `*` after each category label also goes away on edit so the UI matches the constraint.
+- Create mode keeps `required` — clearing every input at create time would produce a zero-ratings record, which is almost never the intent.
+
+## Fix — REST side (`EvaluationsRestController::update_eval`)
+
+The previous flow was a wipe-and-rewrite:
+
+```php
+$wpdb->delete( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id ] );  // nukes EVERYTHING
+$rating_failures = self::write_ratings( $id, (array) $r['ratings'] );
+```
+
+Two consequences once `required` came off the form:
+
+- Subcategory ratings (which `renderEvalForm` doesn't render) got wiped on every save, even though the coach didn't touch them.
+- A blank rating field `''` flowed into `write_ratings()`, where `(float) ''` is `0`, clamped to `rating_min` (typically 1). Net effect: blank input → silent 1-rating. Disaster.
+
+New flow is per-category surgical:
+
+```php
+foreach ( $ratings as $cid => $val ) {
+    // For each submitted category, drop its existing rating row.
+    $wpdb->delete( "{$p}tt_eval_ratings", [
+        'evaluation_id' => $id,
+        'category_id'   => absint( $cid ),
+        'club_id'       => $club_id,
+    ] );
+}
+$rating_failures = self::write_ratings( $id, $ratings );
+// write_ratings() now skips empty / null / non-numeric values
+```
+
+Semantics:
+
+- Submitted category, non-empty value → row deleted then re-inserted (upsert).
+- Submitted category, empty value → row deleted, no insert (clears the rating).
+- Category NOT in the submission (e.g. subcategory ratings the form doesn't render) → untouched.
+
+`write_ratings()` also hardened to skip empty / null / non-numeric values defensively, so any future caller that passes a partial array gets the same "blank means no row" behaviour.
+
+## What this does NOT change
+
+- Create flow keeps `required` on the form. A new evaluation with zero ratings would be a 0-rated record without an obvious recovery path; forcing at least the main values is fine for create. The REST `write_ratings()` skip-empty hardening still applies for any partial create payload from external integrations.
+- Soft-archive on delete (v3.110.55) is unchanged.
+- The detail-view rendering is unchanged — `EvalRatingsRepository::effectiveMainRatingsFor()` already handles the either-or-or-neither model on read.
+
+## Translations
+
+Zero new msgids.
+
+---
+
 # TalentTrack v3.110.65 — Team detail: Upcoming activities filters out completed/cancelled; Status column dot now actually renders (CSS was missing)
 
 Two user-reported bugs on the Team detail page (`?tt_view=teams&id=N`).

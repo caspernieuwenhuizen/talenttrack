@@ -187,12 +187,29 @@ class CoachForms {
                 <div class="tt-form-row"><label><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></label><input type="number" name="minutes_played" min="0" max="120" value="<?php echo esc_attr( $cur_minutes ); ?>" /></div>
             </div>
             <h4><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h4>
-            <?php foreach ( $categories as $cat ) :
+            <?php
+            // v3.110.66 — main-category rating inputs are NOT marked
+            // `required` in edit mode. The evaluation model is
+            // either-or-or-neither (per `EvalRatingsRepository` docblock:
+            // "for any given (evaluation, main_category), the coach
+            // either entered a direct main rating, OR rated
+            // subcategories, OR did neither"). An eval that was
+            // originally saved with subcategory ratings only (the
+            // common detailed-eval pattern) had no direct main values,
+            // so opening it for edit on this form forced the coach to
+            // backfill ratings they hadn't entered originally — turning
+            // a notes-only edit into a "fill in everything" chore.
+            // Create mode keeps `required` because there's no existing
+            // sub data to fall back on; clearing every category at
+            // create time would produce an evaluation with zero
+            // ratings, which is almost never the intent.
+            $rating_required = $is_edit ? '' : 'required';
+            foreach ( $categories as $cat ) :
                 $cid = (int) $cat->id;
                 $cur_rating = isset( $existing_ratings[ $cid ] ) ? (string) $existing_ratings[ $cid ] : '';
                 ?>
-                <div class="tt-form-row"><label><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $cat->name ) ); ?></label>
-                    <input type="number" name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" required style="width:80px" value="<?php echo esc_attr( $cur_rating ); ?>" />
+                <div class="tt-form-row"><label><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $cat->name ) ); ?><?php echo $is_edit ? '' : ' *'; ?></label>
+                    <input type="number" name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" <?php echo $rating_required; ?> style="width:80px" value="<?php echo esc_attr( $cur_rating ); ?>" />
                     <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span></div>
             <?php endforeach; ?>
             <div class="tt-form-row"><label><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label><textarea name="notes" rows="3" data-tt-low-rating-notes><?php echo esc_textarea( $cur_notes ); ?></textarea></div>
