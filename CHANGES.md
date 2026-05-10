@@ -1,3 +1,51 @@
+# TalentTrack v3.110.64 — Evaluations tile: missing top-level `Dashboard` breadcrumb on list / new / edit / not-found paths
+
+The Evaluations tile (`?tt_view=evaluations`) destination was missing the top-level `Dashboard` breadcrumb. The user clicked the tile, landed on the list, and had no obvious one-click route back to the dashboard — they had to use the browser back button or retype the URL.
+
+## Root cause
+
+`FrontendEvaluationsView::render()` has five code paths:
+
+1. `?tt_view=evaluations` — list view
+2. `?tt_view=evaluations&action=new` — new evaluation form
+3. `?tt_view=evaluations&action=edit&id=N` — edit form
+4. `?tt_view=evaluations&action=edit&id=N` (not found) — error stub
+5. `?tt_view=evaluations&id=N` — read-only detail (delegates to `renderDetail()`)
+
+Path 5's `renderDetail()` correctly calls `FrontendBreadcrumbs::fromDashboard( …, [ viewCrumb('evaluations', …) ] )` (added back in v3.110.4 / v3.110.55). Paths 1–4 went straight to `renderHeader()` without setting a breadcrumb chain.
+
+The miss likely happened during the v3.110.45 breadcrumb sweep — the file appeared compliant on a quick scan because the detail path's existing crumb is visible at lines 316/328, easy to assume the rest of the file followed suit. Subsequent refactors (v3.110.55 edit-mode, v3.110.57 list/detail compliance, v3.110.63 Cancel buttons) preserved the pattern of the surrounding code rather than adding the missing crumb.
+
+## Fix
+
+Every code path now calls `FrontendBreadcrumbs::fromDashboard()` with the appropriate label and `Evaluations` parent crumb before rendering:
+
+| Path | Chain |
+|---|---|
+| List | `Dashboard / Evaluations` |
+| New | `Dashboard / Evaluations / New evaluation` |
+| Edit | `Dashboard / Evaluations / Edit evaluation` |
+| Not found | `Dashboard / Evaluations / Evaluation not found` |
+| Detail | `Dashboard / Evaluations / Evaluation` (unchanged — was already correct) |
+
+Same shape every other tile destination uses. Per the two-affordance contract in `docs/back-navigation.md`: every routable `?tt_view=<slug>` emits the breadcrumb chain plus the `tt_back`-borne pill (when applicable) and nothing else.
+
+## Defensive sweep
+
+Audited every `src/**/Frontend*View.php` for files that have a `render` / `renderHeader` call but no `FrontendBreadcrumbs` reference. Three matches:
+
+- `FrontendMobilePromptView` — mobile-gate screen, intentionally chrome-free.
+- `FrontendMyProfileView` — section renderer composed into `FrontendOverviewView`, not directly routable.
+- `FrontendTeammateView` — sub-view rendered inside `FrontendMyTeamView`, not directly routable.
+
+All three are documented exemptions per `docs/back-navigation.md`. No other routable view is missing a breadcrumb.
+
+## Translations
+
+Zero new msgids. The labels (`Evaluations`, `New evaluation`, `Edit evaluation`, `Evaluation not found`, `Evaluation`) were already in the `.po`.
+
+---
+
 # TalentTrack v3.110.63 — Cancel button standard: every record-mutating form gets Cancel + Save through one helper
 
 A new always-on standard added to `CLAUDE.md` § 6: every form that creates or edits a record must offer a Cancel affordance alongside Save. A user who has started filling in a form and changes their mind needs an obvious one-click way out that doesn't discard their context — leaving them on a half-filled form with only a Save button is hostile UX.
