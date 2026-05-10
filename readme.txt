@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.63
+Stable tag: 3.110.64
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.64 — Evaluations tile: missing top-level `Dashboard` breadcrumb on list / new / edit / not-found paths =
+
+The Evaluations tile (`?tt_view=evaluations`) destination was missing the top-level `Dashboard` breadcrumb. The user clicked the tile, landed on the list, and had no obvious one-click route back to the dashboard. The detail path (`?tt_view=evaluations&id=N`) had been wired up correctly back in v3.110.4 / .55 (calls `FrontendBreadcrumbs::fromDashboard()` inside `renderDetail()`), but the four other code paths in `FrontendEvaluationsView::render()` — list / new / edit / not-found — went straight to `renderHeader()` without setting a chain. Likely missed in the v3.110.45 breadcrumb sweep because the detail path's existing crumb made the file appear compliant on a quick scan. Fix: every code path now calls `FrontendBreadcrumbs::fromDashboard()` with the appropriate label and `Evaluations` parent crumb before rendering, per the v3.110.46 two-affordance contract (`docs/back-navigation.md`). Chains: list → `Dashboard / Evaluations`; new → `Dashboard / Evaluations / New evaluation`; edit → `Dashboard / Evaluations / Edit evaluation`; not-found → `Dashboard / Evaluations / Evaluation not found`. Defensive sweep ran across every `Frontend*View.php`: only the documented exempt views (`FrontendMobilePromptView`, `FrontendMyProfileView`, `FrontendTeammateView`) lack a breadcrumb call — all genuinely routable views are now compliant. Zero new translatable strings.
 
 = 3.110.63 — Cancel button standard: every record-mutating form gets Cancel + Save through one helper =
 

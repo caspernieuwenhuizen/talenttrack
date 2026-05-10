@@ -28,7 +28,24 @@ class FrontendEvaluationsView extends FrontendViewBase {
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         $teams  = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
 
+        // v3.110.64 — every code path on this routable view now emits
+        // a `Dashboard / Evaluations / …` breadcrumb chain, per the
+        // two-affordance contract in `docs/back-navigation.md`. The
+        // list / new / edit / not-found paths previously called
+        // `renderHeader()` without a breadcrumb, so the user had no
+        // top-level link back to the dashboard. Detail path already
+        // sets its own crumb in `renderDetail()`; nothing changes
+        // there.
+        $eval_crumb = \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb(
+            'evaluations',
+            __( 'Evaluations', 'talenttrack' )
+        );
+
         if ( $action === 'new' ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'New evaluation', 'talenttrack' ),
+                [ $eval_crumb ]
+            );
             self::renderHeader( __( 'New evaluation', 'talenttrack' ) );
             // v3.110.3 — when launched from a player profile's empty
             // Evaluations tab, `?player_id=N` is in the URL; pre-fill
@@ -44,10 +61,18 @@ class FrontendEvaluationsView extends FrontendViewBase {
         if ( $action === 'edit' && $id > 0 && current_user_can( 'tt_edit_evaluations' ) ) {
             $existing = self::loadEvaluation( $id );
             if ( ! $existing ) {
+                \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                    __( 'Evaluation not found', 'talenttrack' ),
+                    [ $eval_crumb ]
+                );
                 self::renderHeader( __( 'Evaluation not found', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'That evaluation no longer exists, or you do not have access.', 'talenttrack' ) . '</em></p>';
                 return;
             }
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Edit evaluation', 'talenttrack' ),
+                [ $eval_crumb ]
+            );
             self::renderHeader( __( 'Edit evaluation', 'talenttrack' ) );
             CoachForms::renderEvalForm( $teams, $is_admin, 0, $existing );
             return;
@@ -62,6 +87,9 @@ class FrontendEvaluationsView extends FrontendViewBase {
             return;
         }
 
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            __( 'Evaluations', 'talenttrack' )
+        );
         self::renderHeader( __( 'Evaluations', 'talenttrack' ) );
 
         $base_url = remove_query_arg( [ 'action', 'id', 'f_team_id', 'f_player_id', 'f_date_from', 'f_date_to' ] );
