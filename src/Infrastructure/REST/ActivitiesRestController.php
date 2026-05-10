@@ -194,9 +194,30 @@ class ActivitiesRestController {
             $where[] = 's.archived_at IS NULL';
         }
 
+        // Filters — pulled early because the coach-scope guard below has
+        // to know whether the request is a player-scoped my-activities
+        // call before deciding to early-return on "no head-coach teams".
+        $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
+
+        // v3.110.51 — when the request is a player-scoped my-activities
+        // call (`filter[player_id]` matches the caller's linked player,
+        // already validated by `can_view`), the player → team-membership
+        // predicate further down is the correct scoping. Skip the
+        // coach-scope filter for these requests; otherwise a logged-in
+        // player calling `?tt_view=my-activities` got an empty list
+        // because they have zero head-coach teams and the early-return
+        // at "No accessible teams" fired before the player_id predicate
+        // was applied. Reported by a pilot player whose team had multiple
+        // active activities.
+        $is_player_scoped = ! empty( $filter['player_id'] )
+            && self::callerCanReadAsPlayerOrParent( (int) $filter['player_id'] );
+
         // v3.91.2 — bypass coach-scope filter for personas with matrix
         // `activities:r[global]` (scout, head_of_development, academy_admin).
-        if ( ! QueryHelpers::user_has_global_entity_read( get_current_user_id(), 'activities' ) ) {
+        // v3.110.51 — also bypass for player-scoped my-activities requests
+        // (see above).
+        if ( ! $is_player_scoped
+             && ! QueryHelpers::user_has_global_entity_read( get_current_user_id(), 'activities' ) ) {
             $coach_teams = QueryHelpers::get_teams_for_coach( get_current_user_id() );
             if ( ! $coach_teams ) {
                 // No accessible teams → empty list (don't expose sessions).
@@ -209,9 +230,6 @@ class ActivitiesRestController {
             $where[] = "s.team_id IN ($placeholders)";
             $params = array_merge( $params, $team_ids );
         }
-
-        // Filters.
-        $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
 
         if ( ! empty( $filter['team_id'] ) ) {
             $where[]  = 's.team_id = %d';
@@ -362,6 +380,39 @@ class ActivitiesRestController {
         $n = absint( $value );
         if ( ! in_array( $n, [ 10, 25, 50, 100 ], true ) ) return 25;
         return $n;
+    }
+
+    /**
+     * v3.110.51 — true when the calling user has a legitimate read
+     * relationship to the requested player_id: either the player IS
+     * the calling user, or the calling user is a registered parent
+     * of that player. Used by `list_sessions` to detect player-scoped
+     * my-activities calls (player or parent) and bypass the coach-team
+     * scope filter for them.
+     *
+     * Mirrors the logic in `can_view()` — the permission gate already
+     * validates this, so we re-derive the boolean here without
+     * re-running the permission checks.
+     */
+    private static function callerCanReadAsPlayerOrParent( int $player_id ): bool {
+        if ( $player_id <= 0 ) return false;
+        $uid = get_current_user_id();
+        if ( $uid <= 0 ) return false;
+        global $wpdb;
+        $linked = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND archived_at IS NULL LIMIT 1",
+            $uid
+        ) );
+        if ( $linked === $player_id ) return true;
+        $parents_table = $wpdb->prefix . 'tt_player_parents';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $parents_table ) ) === $parents_table ) {
+            $is_parent = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT player_id FROM {$parents_table} WHERE wp_user_id = %d AND player_id = %d LIMIT 1",
+                $uid, $player_id
+            ) );
+            if ( $is_parent > 0 ) return true;
+        }
+        return false;
     }
 
     /** Shape one row for the JSON response. */

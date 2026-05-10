@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.57
+Stable tag: 3.110.58
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.58 — My activities: empty-list bug for players, plus post-save redirect back to the team planner =
+
+Two issues on `?tt_view=my-activities`. **(1) Empty list bug.** A logged-in player whose team had multiple active activities saw "No activities recorded for you yet." regardless. Root cause: `ActivitiesRestController::list_sessions` runs a coach-team scope filter — if the calling user is not a global-read persona (scout / HoD / academy admin) and has no head-coach teams, it early-returns an empty list before applying the `filter[player_id]` predicate. A logged-in player has zero head-coach teams, so the early-return fired for every player on every my-activities call. The widening that v3.110.x added to the player_id WHERE clause (matching activities for the player's CURRENT team in addition to attendance rows) never got a chance to run. Fix: detect player-scoped my-activities calls (`filter[player_id]` matches the calling user's linked player, or the calling user is a registered parent of that player — same logic `can_view` already validates) and bypass the coach-team scope filter for those requests. The player_id predicate further down then scopes correctly to the player's team activities. **(2) Post-save redirect.** When a coach opened the activities form via the team planner ("+ Schedule activity" / "+ Add" / a card click) and saved, they landed on the activities list view instead of going back to the planner — losing context. Fix: the team planner now wraps every activity-form URL with `BackLink::appendTo()` so `tt_back=<planner URL>` is captured. The activities form reads it via `BackLink::resolve()` and sets `data-redirect-after-save-url` to the back URL on the `<form>`. The existing `public.js` save handler honours that attribute and navigates the browser to it on success. Falls back to the existing "land on the activities list" behaviour when no `tt_back` is present.
 
 = 3.110.57 — Evaluations list/detail align with the v3.110.54 view-only-list / Edit+Archive-on-detail pattern =
 

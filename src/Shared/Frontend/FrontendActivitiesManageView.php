@@ -367,8 +367,26 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $form_id   = 'tt-activity-form';
         $draft_key = $is_edit ? '' : 'activity-form'; // edit forms don't draft — the row is the source of truth
 
+        // v3.110.51 — when the form was reached via a link that captured
+        // the originating page (e.g. the team planner's "+ Schedule
+        // activity" or "+ Add" links pass `tt_back=<planner URL>`),
+        // redirect back there on save instead of falling through to the
+        // generic activities list. The user's mental model is "I came
+        // from the planner, take me back when I'm done." Falls back to
+        // the existing `data-redirect-after-save="list"` behaviour when
+        // no back-target is in the URL.
+        $back_resolved = \TT\Shared\Frontend\Components\BackLink::resolve();
+        $back_url      = is_array( $back_resolved ) ? (string) $back_resolved['url'] : '';
+
         ?>
-        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form tt-activity-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list"<?php if ( $draft_key !== '' ) : ?> data-draft-key="<?php echo esc_attr( $draft_key ); ?>"<?php endif; ?>>
+        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form tt-activity-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>"<?php
+            if ( $back_url !== '' ) :
+                ?> data-redirect-after-save-url="<?php echo esc_attr( $back_url ); ?>"<?php
+            else :
+                ?> data-redirect-after-save="list"<?php
+            endif;
+            if ( $draft_key !== '' ) : ?> data-draft-key="<?php echo esc_attr( $draft_key ); ?>"<?php endif;
+        ?>>
             <div class="tt-grid tt-grid-2">
                 <div class="tt-field">
                     <label class="tt-field-label tt-field-required" for="tt-activity-type"><?php esc_html_e( 'Type', 'talenttrack' ); ?></label>
