@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.59
+Stable tag: 3.110.60
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.60 — My PDP: self-reflection 2-week gate now timezone-correct + REST endpoint enforces same window =
+
+Two related fixes around the My PDP self-reflection editing window. The view-side gate was added in v3.110.24 ("the form opens 14 days before `scheduled_at` and stays open until the coach signs off"), but the user reported the form still opened too early on a non-UTC server. **(1) Timezone bug.** The gate computed the days-to-meeting using `strtotime( $scheduled )` against `current_time( 'timestamp', true )`. `scheduled_at` is stored as a UTC datetime via `gmdate('Y-m-d H:i:s', ...)`, but PHP's `strtotime()` parses bare datetime strings in the SERVER's local timezone — so on any non-UTC install (e.g. Europe/Amsterdam, UTC+2), the parsed timestamp was offset by the TZ delta and the window opened a few hours early. Fix: parse with an explicit `UTC` suffix (`strtotime( $scheduled . ' UTC' )`) so the comparison is apples-to-apples. **(2) REST endpoint hardening.** `PdpConversationsRestController::patch` accepted `player_reflection` writes whenever the linked player called the endpoint, regardless of timing. The view-side hid the form past the window, but a bookmark / saved POST / API consumer could still write at any time. Added the same window check in the REST controller — when the caller is the linked player and the conversation's `scheduled_at` is more than 14 days out (or unset), the PATCH returns 403 with a `window_closed` error code. Coach + admin paths bypass the gate (they may legitimately backfill reflections on behalf of a player).
 
 = 3.110.59 — Onboarding pipeline: + New prospect now opens a wizard, kanban replaces count strip, fixed double-counting in Invited =
 

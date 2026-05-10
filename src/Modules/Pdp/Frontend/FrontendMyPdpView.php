@@ -205,11 +205,20 @@ class FrontendMyPdpView extends FrontendViewBase {
      * Once the meeting passes, the form remains open (the gate is
      * "no earlier than 2 weeks before") until the coach signs off,
      * which is the existing close-condition the caller checks.
+     *
+     * v3.110.52 — `scheduled_at` is stored as a UTC datetime string
+     * (the repository writes via `gmdate('Y-m-d H:i:s', ...)`), so
+     * parse it with an explicit `UTC` suffix. Without that, PHP's
+     * `strtotime()` interprets the string in the server's local TZ,
+     * which on any non-UTC install (e.g. Europe/Amsterdam, UTC+2)
+     * produces a timestamp shifted by the TZ offset and opens the
+     * window a few hours earlier than the 14-day boundary. Reported
+     * by a pilot operator as "the form opens earlier than 2 weeks".
      */
     private static function selfReflectionWindowOpen( object $conv ): bool {
         $scheduled = (string) ( $conv->scheduled_at ?? '' );
         if ( $scheduled === '' ) return false;
-        $ts = strtotime( $scheduled );
+        $ts = strtotime( $scheduled . ' UTC' );
         if ( $ts === false ) return false;
         $now    = (int) current_time( 'timestamp', true );
         $window = 14 * DAY_IN_SECONDS;
