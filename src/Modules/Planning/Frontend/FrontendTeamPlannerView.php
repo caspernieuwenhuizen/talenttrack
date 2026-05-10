@@ -258,7 +258,6 @@ class FrontendTeamPlannerView extends FrontendViewBase {
 
     /** @param array<int, object> $principles */
     private static function renderActivityCard( object $a, array $principles ): string {
-<<<<<<< HEAD
         // The status pill is driven by `activity_status_key` — the
         // lookup the user actually edits on the activities form. The
         // legacy `plan_state` column defaulted to `completed` on
@@ -268,13 +267,10 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         // pill the activities list uses, so the two surfaces agree.
         $status_key  = (string) ( $a->activity_status_key ?? 'planned' );
         $state_class = 'tt-planner-state-' . sanitize_html_class( $status_key );
-        $url = add_query_arg( [
-=======
-        $state = (string) ( $a->plan_state ?? 'completed' );
-        $state_class = 'tt-planner-state-' . sanitize_html_class( $state );
-        $state_label = self::planStateLabel( $state );
+        // BackLink::appendTo so the post-save redirect on the activities
+        // form returns the user to the planner page they came from
+        // (v3.110.58).
         $url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [
->>>>>>> 1b1429f (fix(v3.110.51): My activities — empty list for players + post-save redirect to referring view)
             'tt_view' => 'activities',
             'action'  => 'edit',
             'id'      => (int) $a->id,

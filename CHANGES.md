@@ -1,3 +1,39 @@
+# TalentTrack v3.110.62 — Hotfix: stray conflict markers in `FrontendTeamPlannerView.php` from the v3.110.58 rebase
+
+The v3.110.58 PR (My activities — empty list for players + post-save redirect to referring view, #353) touched `src/Modules/Planning/Frontend/FrontendTeamPlannerView.php` to add `BackLink::appendTo()` on the activity-card click-through URL. That same file had been rewritten in PR #349 (v3.110.56 — team planner status pill + range selector) which merged earlier on the same day. The rebase of #353 onto post-#349 main produced a conflict in `renderActivityCard()` that didn't get resolved before the rebased commit was pushed and merged.
+
+## Symptom
+
+Every page load that touched the planning module fataled with:
+
+```
+PHP Parse error: syntax error, unexpected token "<<" in
+src/Modules/Planning/Frontend/FrontendTeamPlannerView.php on line 261
+```
+
+The lines starting at 261 were the `<<<<<<< HEAD` / `=======` / `>>>>>>> 1b1429f (...)` markers themselves, sitting in the middle of `renderActivityCard()`'s function body — PHP saw them as an unrecognised operator and bailed.
+
+## Knock-on impact (none externally)
+
+The `release.yml` workflow's `lint` job ran on the v3.110.58 / .59 / .60 / .61 main pushes and **failed** at the PHP-syntax-lint step every time. The `release` job is gated on `needs: [lint]` AND `if: startsWith(github.ref, 'refs/tags/v')`, so neither the build-ZIP step nor the GitHub Release creation ran. Net effect: the four releases merged into main but no release artifact ever existed for any of them. No customer install pulled a broken ZIP because no ZIP was published.
+
+The v3.110.61 tag pushed earlier today was about to produce the first broken ZIP — caught it before that completed. The release.yml run for that tag will fail at lint; this v3.110.62 supersedes it.
+
+## Fix
+
+Resolved the conflict by combining both intents:
+
+- **From v3.110.56 (PR #349)**: status pill driven by `activity_status_key` (the user-facing lookup) via `LookupPill::render('activity_status', …)` — the original v3.110.56 fix for "every card shows Completed".
+- **From v3.110.58 (PR #353)**: `BackLink::appendTo()` wraps the click-through URL so the activities form's post-save redirect can return to the planner — the original v3.110.58 fix for "coach edits from planner, lands on activities list".
+
+Both changes were intended; the merge just dropped one of them when the conflict markers were committed unresolved.
+
+## Translations
+
+Zero new msgids.
+
+---
+
 # TalentTrack v3.110.61 — My evaluations: category + subcategory breakdown now shows on sub-only evaluations
 
 The player's "My evaluations" tile (`?tt_view=my-evaluations`) is supposed to render, per evaluation:

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.61
+Stable tag: 3.110.62
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.62 — Hotfix: stray conflict markers in `FrontendTeamPlannerView.php` from the v3.110.58 rebase =
+
+The v3.110.58 PR (My activities) rebase resolved most of the conflict between PR #353 and PR #349 (team planner status pill rewrite), but the `renderActivityCard()` overlap was committed with unresolved `<<<<<<< HEAD` / `=======` / `>>>>>>>` markers still in the file. PHP fataled on every page load that touched the planner module: `Parse error: syntax error, unexpected token "<<" in src/Modules/Planning/Frontend/FrontendTeamPlannerView.php on line 261`. The release-build CI on every push to main since v3.110.58 (2026-05-10 09:33Z) failed at the PHP-syntax-lint step for the same reason, so v3.110.58 / .59 / .60 / .61 didn't actually produce release ZIPs — they merged but didn't ship. Resolution: use the v3.110.56 status-pill logic (`activity_status_key` + `LookupPill`) AS WELL AS the v3.110.58 `BackLink::appendTo()` URL wrapper on the activity-card click-through. Both intent preserved. Zero new translatable strings.
 
 = 3.110.61 — My evaluations: category + subcategory breakdown now shows on sub-only evaluations =
 
