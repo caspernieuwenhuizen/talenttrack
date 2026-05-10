@@ -1,3 +1,57 @@
+# TalentTrack v3.110.57 — Evaluations list/detail align with the v3.110.54 view-only-list / Edit+Archive-on-detail pattern
+
+A user audit of the application's list views found the **Evaluations** module out of sync with the rest of the dashboard. The Players, Teams, People, Goals, and Activities surfaces were brought into compliance in v3.110.54: list rows are click-through only, and Edit + Archive live on the record's detail page in a page-header actions slot (FAB on mobile, top-right buttons on desktop). Evaluations still had an inline ✕ delete button per row, no Edit affordance anywhere, and no Archive button on the detail page. This release closes those gaps.
+
+## What changed
+
+**Evaluations list (`?tt_view=evaluations`)**
+
+- The inline `✕` delete button is gone from every row — deletion now happens from the detail page's `Archive` action.
+- The redundant `Open` button is gone too. Every row cell is already a hyperlink: the Date now opens the eval detail (it was the only plain-text cell), Player / Team / Coach link to their respective detail pages, the Average rating opens the eval detail.
+
+**Evaluations detail (`?tt_view=evaluations&id=N`)**
+
+- The page header now carries an **Edit** action (primary, becomes a circular FAB bottom-right on mobile via `.tt-page-actions__primary`) and an **Archive** action (danger-styled secondary, hidden on mobile by the slot CSS).
+- Both actions are gated on `tt_edit_evaluations`. Users without the cap see the read-only detail unchanged.
+- Archive is wired through the generic `tt-frontend-archive-button.js` handler — same pattern used for Players, Teams, People, Goals, Activities. Confirm prompt → DELETE `evaluations/{id}` → redirect back to the list.
+
+**Edit mode (new — `?tt_view=evaluations&action=edit&id=N`)**
+
+- Reuses `CoachForms::renderEvalForm` with a new optional `?object $existing_eval` argument. When set, the form switches to PUT against `/evaluations/{id}`, every header field pre-fills from the row, every existing rating is pre-populated from `tt_eval_ratings`.
+- The player picker collapses to a hidden input + an `Editing evaluation of {Player}` caption — swapping the player mid-edit would silently re-attach the ratings to a different subject.
+- The form's "Save" label flips to "Save changes" so the user knows they're editing rather than creating.
+
+**REST — DELETE `/evaluations/{id}` is now a soft archive**
+
+- The endpoint sets `archived_at = NOW(MySQL)` + `archived_by = current_user_id` instead of hard-deleting the eval and its ratings. The read-side queries already filter `archived_at IS NULL`, so the eval simply disappears from list / detail without losing the row or the linked ratings.
+- The response payload changes from `{ deleted: true }` to `{ archived: true, id: N }`. The only consumer of this endpoint inside the plugin was the now-removed inline `✕` button, so no other UI changed.
+- This mirrors the shape of `delete_player` and `delete_team`, which were converted to soft-archive in v3.89.x.
+
+## What didn't change
+
+- The capability stays `tt_edit_evaluations`. The other modules use `tt_edit_*` for edit and Archive-on-archived-rows is admin-only, so we kept the cap consistent.
+- The audit also flagged inline action violations on **Development tracks**, **Custom CSS classes**, and **Analytics scheduled reports**, plus borderline cases on **Invitations** (revoke) and **Scout assignments** (remove). These are tracked for a follow-up — the inline actions there are *the entire purpose* of the surface (revoking an invite has no detail page; CSS classes are a single-page editor by design), so they may end up documented exemptions rather than retrofits.
+
+## Translations
+
+One new NL msgid:
+
+| msgid | msgstr |
+|---|---|
+| `Archive this evaluation? It will be hidden but the data is preserved.` | `Deze evaluatie archiveren? Ze wordt verborgen maar de data blijft bewaard.` |
+| `Editing evaluation of %s.` | `Evaluatie van %s aan het bewerken.` |
+| `Save changes` | `Wijzigingen opslaan` |
+| `Edit evaluation` | `Evaluatie bewerken` |
+
+## Files of note
+
+- `src/Infrastructure/REST/EvaluationsRestController.php` — `delete_eval` becomes a soft archive.
+- `src/Shared/Frontend/CoachForms.php` — `renderEvalForm()` gains the `$existing_eval` parameter and prefill logic.
+- `src/Shared/Frontend/FrontendEvaluationsView.php` — new edit route, dropped inline Delete + Open, Date cell click-through, page-header Edit + Archive on detail.
+- `languages/talenttrack-nl_NL.po` — four new msgids.
+
+---
+
 # TalentTrack v3.110.56 — Team planner: status pill now reflects the activity's edited status; new range selector
 
 Two issues on `?tt_view=team-planner`. The pilot operator surfaced both during a tile-by-tile review of the dashboard.

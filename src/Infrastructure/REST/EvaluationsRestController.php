@@ -154,17 +154,29 @@ class EvaluationsRestController {
     public static function delete_eval( \WP_REST_Request $r ) {
         global $wpdb; $p = $wpdb->prefix;
         $id = (int) $r['id'];
-        $wpdb->delete( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id ] );
-        $ok = $wpdb->delete( "{$p}tt_evaluations", [ 'id' => $id ] );
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid evaluation id.', 'talenttrack' ), 400 );
+        }
+
+        // v3.110.55 — soft-archive via `archived_at` + `archived_by`,
+        // mirroring `delete_player` / `delete_team`. Read-side queries
+        // already filter `e.archived_at IS NULL`, so the archived row
+        // simply disappears from list / detail views without losing the
+        // history. Restore is an admin operation.
+        $ok = $wpdb->update(
+            "{$p}tt_evaluations",
+            [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id() ],
+            [ 'id' => $id ]
+        );
         if ( $ok === false ) {
-            Logger::error( 'rest.evaluation.delete.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
+            Logger::error( 'rest.evaluation.archive.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
             return RestResponse::error(
                 'db_error',
-                __( 'The evaluation could not be deleted.', 'talenttrack' ),
+                __( 'The evaluation could not be archived.', 'talenttrack' ),
                 500
             );
         }
-        return RestResponse::success( [ 'deleted' => true ] );
+        return RestResponse::success( [ 'archived' => true, 'id' => $id ] );
     }
 
     /**

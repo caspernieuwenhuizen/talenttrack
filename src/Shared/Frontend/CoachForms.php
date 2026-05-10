@@ -29,17 +29,23 @@ use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
 class CoachForms {
 
     /**
-     * @param object[] $teams
-     * @param int      $preset_player_id  v3.110.3 — when set, the form
-     *                                    pre-fills the team + player
-     *                                    pickers and hides them; the
-     *                                    operator only sees the rating
-     *                                    inputs. Used by the "Add
-     *                                    evaluation" CTA on the player
-     *                                    profile's empty Evaluations
-     *                                    tab.
+     * @param object[]    $teams
+     * @param int         $preset_player_id  v3.110.3 — when set, the form
+     *                                       pre-fills the team + player
+     *                                       pickers and hides them; the
+     *                                       operator only sees the rating
+     *                                       inputs. Used by the "Add
+     *                                       evaluation" CTA on the player
+     *                                       profile's empty Evaluations
+     *                                       tab.
+     * @param object|null $existing_eval     v3.110.55 — when set, render
+     *                                       in EDIT mode: form posts PUT
+     *                                       to /evaluations/{id}, every
+     *                                       field is pre-filled from the
+     *                                       row, every existing rating is
+     *                                       pre-populated.
      */
-    public static function renderEvalForm( array $teams, bool $is_admin, int $preset_player_id = 0 ): void {
+    public static function renderEvalForm( array $teams, bool $is_admin, int $preset_player_id = 0, ?object $existing_eval = null ): void {
         $categories = QueryHelpers::get_categories();
         $types      = QueryHelpers::get_eval_types();
         $rmin  = QueryHelpers::get_config( 'rating_min', '1' );
@@ -74,18 +80,53 @@ class CoachForms {
         $preset_player = $preset_player_id > 0 ? QueryHelpers::get_player( $preset_player_id ) : null;
         $preset_team_id = $preset_player ? (int) ( $preset_player->team_id ?? 0 ) : 0;
         $hide_pickers = $preset_player !== null && $preset_team_id > 0;
+
+        // v3.110.55 — edit mode: the form switches to PUT against the
+        // existing eval, every field pre-fills from `$existing_eval`,
+        // and the player picker is replaced with a hidden input (a
+        // player swap mid-edit would invalidate ratings against the
+        // wrong player). Existing ratings are fetched once and merged
+        // into the inputs as `value="..."`.
+        $is_edit          = $existing_eval !== null;
+        $rest_path        = $is_edit ? 'evaluations/' . (int) $existing_eval->id : 'evaluations';
+        $rest_method      = $is_edit ? 'PUT' : 'POST';
+        $title_text       = $is_edit ? __( 'Edit evaluation', 'talenttrack' ) : __( 'Submit Evaluation', 'talenttrack' );
+        $submit_label     = $is_edit ? __( 'Save changes', 'talenttrack' ) : __( 'Save Evaluation', 'talenttrack' );
+        $existing_player  = $is_edit ? (int) $existing_eval->player_id : 0;
+        $existing_ratings = [];
+        if ( $is_edit ) {
+            $rating_rows = ( new \TT\Infrastructure\Evaluations\EvalRatingsRepository() )->getForEvaluation( (int) $existing_eval->id );
+            foreach ( $rating_rows as $rr ) {
+                $existing_ratings[ (int) $rr->category_id ] = (float) $rr->rating;
+            }
+        }
+        if ( $is_edit ) {
+            $hide_pickers = true;
+        }
         ?>
-        <h3><?php esc_html_e( 'Submit Evaluation', 'talenttrack' ); ?></h3>
-        <form id="tt-eval-form" class="tt-ajax-form" data-rest-path="evaluations" data-rest-method="POST" data-draft-key="eval-form" data-redirect-after-save="1">
-            <?php if ( $hide_pickers ) : ?>
-                <input type="hidden" name="player_id" value="<?php echo esc_attr( (string) $preset_player_id ); ?>" />
+        <h3><?php echo esc_html( $title_text ); ?></h3>
+        <form id="tt-eval-form" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_method ); ?>" data-draft-key="<?php echo esc_attr( $is_edit ? 'eval-form-edit-' . (int) $existing_eval->id : 'eval-form' ); ?>" data-redirect-after-save="1">
+            <?php if ( $hide_pickers ) :
+                $hidden_player_id = $is_edit ? $existing_player : $preset_player_id;
+                $hidden_player    = $is_edit ? QueryHelpers::get_player( $existing_player ) : $preset_player;
+                $hidden_player_label = $hidden_player ? QueryHelpers::player_display_name( $hidden_player ) : '#' . (int) $hidden_player_id;
+                ?>
+                <input type="hidden" name="player_id" value="<?php echo esc_attr( (string) $hidden_player_id ); ?>" />
                 <p class="tt-muted" style="margin: 0 0 12px;">
                     <?php
-                    /* translators: %s = player display name */
-                    printf(
-                        esc_html__( 'Recording evaluation for %s.', 'talenttrack' ),
-                        '<strong>' . esc_html( QueryHelpers::player_display_name( $preset_player ) ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — wrapper escapes the name
-                    );
+                    if ( $is_edit ) {
+                        /* translators: %s = player display name */
+                        printf(
+                            esc_html__( 'Editing evaluation of %s.', 'talenttrack' ),
+                            '<strong>' . esc_html( $hidden_player_label ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — wrapper escapes the name
+                        );
+                    } else {
+                        /* translators: %s = player display name */
+                        printf(
+                            esc_html__( 'Recording evaluation for %s.', 'talenttrack' ),
+                            '<strong>' . esc_html( $hidden_player_label ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — wrapper escapes the name
+                        );
+                    }
                     ?>
                 </p>
             <?php else : ?>
@@ -112,35 +153,49 @@ class CoachForms {
                     ] ); ?>
                 </div>
             <?php endif; ?>
+            <?php
+            $cur_type_id     = $is_edit ? (int) ( $existing_eval->eval_type_id ?? 0 ) : 0;
+            $cur_eval_date   = $is_edit ? (string) ( $existing_eval->eval_date ?? '' ) : current_time( 'Y-m-d' );
+            $cur_opponent    = $is_edit ? (string) ( $existing_eval->opponent ?? '' ) : '';
+            $cur_competition = $is_edit ? (string) ( $existing_eval->competition ?? '' ) : '';
+            $cur_result      = $is_edit ? (string) ( $existing_eval->game_result ?? '' ) : '';
+            $cur_home_away   = $is_edit ? (string) ( $existing_eval->home_away ?? '' ) : '';
+            $cur_minutes     = $is_edit ? (string) ( $existing_eval->minutes_played ?? '' ) : '';
+            $cur_notes       = $is_edit ? (string) ( $existing_eval->notes ?? '' ) : '';
+            $match_open      = $is_edit && $cur_type_id > 0 && ! empty( $type_meta[ $cur_type_id ] );
+            ?>
             <div class="tt-form-row"><label><?php esc_html_e( 'Type', 'talenttrack' ); ?> *</label><select name="eval_type_id" id="tt_fe_eval_type" required>
                 <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                 <?php foreach ( $types as $t ) : ?>
-                    <option value="<?php echo (int) $t->id; ?>" data-match="<?php echo (int) $type_meta[ (int) $t->id ]; ?>"><?php echo esc_html( (string) $t->name ); ?></option>
+                    <option value="<?php echo (int) $t->id; ?>" data-match="<?php echo (int) $type_meta[ (int) $t->id ]; ?>" <?php selected( $cur_type_id, (int) $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option>
                 <?php endforeach; ?>
             </select></div>
-            <div class="tt-form-row"><label><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" name="eval_date" value="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required /></div>
-            <div id="tt-fe-match-fields" style="display:none;">
-                <div class="tt-form-row"><label><?php esc_html_e( 'Opponent', 'talenttrack' ); ?></label><input type="text" name="opponent" /></div>
+            <div class="tt-form-row"><label><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" name="eval_date" value="<?php echo esc_attr( $cur_eval_date ); ?>" required /></div>
+            <div id="tt-fe-match-fields" style="display:<?php echo $match_open ? 'block' : 'none'; ?>;">
+                <div class="tt-form-row"><label><?php esc_html_e( 'Opponent', 'talenttrack' ); ?></label><input type="text" name="opponent" value="<?php echo esc_attr( $cur_opponent ); ?>" /></div>
                 <div class="tt-form-row">
                     <label><?php esc_html_e( 'Competition', 'talenttrack' ); ?></label>
                     <select name="competition">
                         <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                         <?php foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookups( 'game_subtype' ) as $tt_ct ) : ?>
-                            <option value="<?php echo esc_attr( (string) $tt_ct->name ); ?>"><?php echo esc_html( __( (string) $tt_ct->name, 'talenttrack' ) ); ?></option>
+                            <option value="<?php echo esc_attr( (string) $tt_ct->name ); ?>" <?php selected( $cur_competition, (string) $tt_ct->name ); ?>><?php echo esc_html( __( (string) $tt_ct->name, 'talenttrack' ) ); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="tt-form-row"><label><?php esc_html_e( 'Result', 'talenttrack' ); ?></label><input type="text" name="game_result" placeholder="2-1" style="width:80px" /></div>
-                <div class="tt-form-row"><label><?php esc_html_e( 'Home/Away', 'talenttrack' ); ?></label><select name="home_away"><option value="">—</option><option value="home"><?php esc_html_e( 'Home', 'talenttrack' ); ?></option><option value="away"><?php esc_html_e( 'Away', 'talenttrack' ); ?></option></select></div>
-                <div class="tt-form-row"><label><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></label><input type="number" name="minutes_played" min="0" max="120" /></div>
+                <div class="tt-form-row"><label><?php esc_html_e( 'Result', 'talenttrack' ); ?></label><input type="text" name="game_result" placeholder="2-1" style="width:80px" value="<?php echo esc_attr( $cur_result ); ?>" /></div>
+                <div class="tt-form-row"><label><?php esc_html_e( 'Home/Away', 'talenttrack' ); ?></label><select name="home_away"><option value="">—</option><option value="home" <?php selected( $cur_home_away, 'home' ); ?>><?php esc_html_e( 'Home', 'talenttrack' ); ?></option><option value="away" <?php selected( $cur_home_away, 'away' ); ?>><?php esc_html_e( 'Away', 'talenttrack' ); ?></option></select></div>
+                <div class="tt-form-row"><label><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></label><input type="number" name="minutes_played" min="0" max="120" value="<?php echo esc_attr( $cur_minutes ); ?>" /></div>
             </div>
             <h4><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h4>
-            <?php foreach ( $categories as $cat ) : ?>
+            <?php foreach ( $categories as $cat ) :
+                $cid = (int) $cat->id;
+                $cur_rating = isset( $existing_ratings[ $cid ] ) ? (string) $existing_ratings[ $cid ] : '';
+                ?>
                 <div class="tt-form-row"><label><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $cat->name ) ); ?></label>
-                    <input type="number" name="ratings[<?php echo (int) $cat->id; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" required style="width:80px" />
+                    <input type="number" name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" required style="width:80px" value="<?php echo esc_attr( $cur_rating ); ?>" />
                     <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span></div>
             <?php endforeach; ?>
-            <div class="tt-form-row"><label><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label><textarea name="notes" rows="3" data-tt-low-rating-notes></textarea></div>
+            <div class="tt-form-row"><label><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label><textarea name="notes" rows="3" data-tt-low-rating-notes><?php echo esc_textarea( $cur_notes ); ?></textarea></div>
             <div class="tt-form-row tt-low-rating-warning" data-tt-low-rating-warning hidden>
                 <span style="color:var(--tt-warning, #c9962a); font-size:13px;">
                     <?php
@@ -152,7 +207,7 @@ class CoachForms {
                     ?>
                 </span>
             </div>
-            <?php echo FormSaveButton::render( [ 'label' => __( 'Save Evaluation', 'talenttrack' ) ] ); ?>
+            <?php echo FormSaveButton::render( [ 'label' => $submit_label ] ); ?>
             <div class="tt-form-msg"></div>
         </form>
         <script>

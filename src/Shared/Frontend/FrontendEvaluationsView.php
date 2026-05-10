@@ -14,6 +14,10 @@ use TT\Infrastructure\Query\QueryHelpers;
  * Create mode (?action=new): shows the evaluation form via
  * CoachForms::renderEvalForm. After save the form's existing redirect
  * sends the user back to the list.
+ *
+ * Edit mode (?action=edit&id=N): shows the same form in PUT mode,
+ * prefilled from the existing eval row. Added in v3.110.55 alongside
+ * the page-header Edit + Archive affordances on the detail view.
  */
 class FrontendEvaluationsView extends FrontendViewBase {
 
@@ -31,6 +35,21 @@ class FrontendEvaluationsView extends FrontendViewBase {
             // the form so the picker step is skipped.
             $preset_player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
             CoachForms::renderEvalForm( $teams, $is_admin, $preset_player_id );
+            return;
+        }
+
+        // v3.110.55 — edit mode. Same form as create, switched to PUT
+        // and prefilled. Cap-gated; falls through to the read-only
+        // detail when the user can't edit.
+        if ( $action === 'edit' && $id > 0 && current_user_can( 'tt_edit_evaluations' ) ) {
+            $existing = self::loadEvaluation( $id );
+            if ( ! $existing ) {
+                self::renderHeader( __( 'Evaluation not found', 'talenttrack' ) );
+                echo '<p><em>' . esc_html__( 'That evaluation no longer exists, or you do not have access.', 'talenttrack' ) . '</em></p>';
+                return;
+            }
+            self::renderHeader( __( 'Edit evaluation', 'talenttrack' ) );
+            CoachForms::renderEvalForm( $teams, $is_admin, 0, $existing );
             return;
         }
 
@@ -187,8 +206,12 @@ class FrontendEvaluationsView extends FrontendViewBase {
             return;
         }
 
-        $can_delete = current_user_can( 'tt_edit_evaluations' );
-        $base_url   = add_query_arg( [ 'tt_view' => 'evaluations' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+        // v3.110.55 — list rows are view-only. The inline Delete (×) and
+        // the per-row Open button were removed: deletion now happens
+        // from the detail page's Archive action, and the row cells are
+        // already click-through (Date links to eval, Player/Team/Coach
+        // link to their respective detail pages, Average opens eval).
+        $base_url = add_query_arg( [ 'tt_view' => 'evaluations' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
         ?>
         <div class="tt-table-wrap" style="overflow-x:auto;">
             <table class="tt-table" style="width:100%;">
@@ -199,7 +222,6 @@ class FrontendEvaluationsView extends FrontendViewBase {
                     <th><?php esc_html_e( 'Coach', 'talenttrack' ); ?></th>
                     <th style="text-align:right;"><?php esc_html_e( 'Average', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
-                    <th style="white-space:nowrap;"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
                 </tr></thead>
                 <tbody>
                 <?php foreach ( $rows as $r ) :
@@ -217,7 +239,9 @@ class FrontendEvaluationsView extends FrontendViewBase {
                     $avg_text   = $avg === null ? '—' : number_format_i18n( $avg, 1 );
                     ?>
                     <tr data-tt-row>
-                        <td style="white-space:nowrap;"><?php echo esc_html( (string) $r->eval_date ); ?></td>
+                        <td style="white-space:nowrap;">
+                            <a class="tt-record-link" href="<?php echo esc_url( $eval_url ); ?>"><?php echo esc_html( (string) $r->eval_date ); ?></a>
+                        </td>
                         <td><?php
                             // #0070 — player name links to player detail.
                             echo \TT\Shared\Frontend\Components\RecordLink::inline(
@@ -253,16 +277,6 @@ class FrontendEvaluationsView extends FrontendViewBase {
                             <?php endif; ?>
                         </td>
                         <td style="max-width:300px; overflow-wrap:anywhere;"><?php echo esc_html( wp_trim_words( (string) ( $r->notes ?? '' ), 14 ) ); ?></td>
-                        <td style="white-space:nowrap;">
-                            <a class="tt-btn tt-btn-secondary tt-btn-small" href="<?php echo esc_url( $eval_url ); ?>"><?php esc_html_e( 'Open', 'talenttrack' ); ?></a>
-                            <?php if ( $can_delete ) : ?>
-                                <button type="button" class="tt-record-delete tt-btn-link"
-                                    data-rest-path="<?php echo esc_attr( 'evaluations/' . $eval_id ); ?>"
-                                    data-confirm-msg="<?php esc_attr_e( 'Delete this evaluation? This cannot be undone.', 'talenttrack' ); ?>"
-                                    data-deleted-msg="<?php esc_attr_e( 'Evaluation deleted.', 'talenttrack' ); ?>"
-                                    aria-label="<?php esc_attr_e( 'Delete evaluation', 'talenttrack' ); ?>">×</button>
-                            <?php endif; ?>
-                        </td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
@@ -318,7 +332,37 @@ class FrontendEvaluationsView extends FrontendViewBase {
 
         /* translators: %s = player display name */
         $page_title = sprintf( __( 'Evaluation of %s', 'talenttrack' ), $player_name );
-        self::renderHeader( $page_title );
+
+        // v3.110.55 — Edit + Archive in the page-header actions slot.
+        // Edit becomes a FAB bottom-right on mobile; Archive is a
+        // danger-styled secondary button (hidden on mobile by the slot
+        // CSS). Archive wires through the generic
+        // tt-frontend-archive-button.js handler — DELETE evaluations/{id}
+        // soft-archives the row and redirects back to the list.
+        $list_url    = add_query_arg( [ 'tt_view' => 'evaluations' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+        $actions     = [];
+        if ( current_user_can( 'tt_edit_evaluations' ) ) {
+            $edit_url = add_query_arg(
+                [ 'tt_view' => 'evaluations', 'id' => $eval_id, 'action' => 'edit' ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            );
+            $actions[] = [
+                'label'   => __( 'Edit', 'talenttrack' ),
+                'href'    => $edit_url,
+                'primary' => true,
+                'icon'    => '✎',
+            ];
+            $actions[] = [
+                'label'      => __( 'Archive', 'talenttrack' ),
+                'variant'    => 'danger',
+                'data_attrs' => [
+                    'tt-archive-rest-path' => 'evaluations/' . $eval_id,
+                    'tt-archive-confirm'   => __( 'Archive this evaluation? It will be hidden but the data is preserved.', 'talenttrack' ),
+                    'tt-archive-redirect'  => $list_url,
+                ],
+            ];
+        }
+        self::renderHeader( $page_title, $actions ? self::pageActionsHtml( $actions ) : '' );
 
         $ratings = ( new \TT\Infrastructure\Evaluations\EvalRatingsRepository() )->getForEvaluation( $eval_id );
 
@@ -448,5 +492,22 @@ class FrontendEvaluationsView extends FrontendViewBase {
         if ( $raw === '' ) return '';
         $d = \DateTime::createFromFormat( 'Y-m-d', $raw );
         return ( $d && $d->format( 'Y-m-d' ) === $raw ) ? $raw : '';
+    }
+
+    /**
+     * v3.110.55 — load a non-archived eval row for the edit form.
+     * Tenancy-scoped, so cross-club edits return null.
+     */
+    private static function loadEvaluation( int $eval_id ): ?object {
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, player_id, eval_type_id, eval_date, notes, opponent, competition, game_result, home_away, minutes_played
+               FROM {$p}tt_evaluations
+              WHERE id = %d AND club_id = %d AND archived_at IS NULL
+              LIMIT 1",
+            $eval_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) );
+        return $row ?: null;
     }
 }
