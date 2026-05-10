@@ -48,9 +48,10 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
             return;
         }
 
-        $max         = (float) QueryHelpers::get_config( 'rating_max', '5' );
-        $eval_ids    = array_map( fn( $e ) => (int) $e->id, $evals );
-        $overalls    = ( new EvalRatingsRepository() )->overallRatingsForEvaluations( $eval_ids );
+        $max          = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $eval_ids     = array_map( fn( $e ) => (int) $e->id, $evals );
+        $ratings_repo = new EvalRatingsRepository();
+        $overalls     = $ratings_repo->overallRatingsForEvaluations( $eval_ids );
         ?>
         <ol class="tt-mye-list" aria-label="<?php esc_attr_e( 'Evaluations, newest first', 'talenttrack' ); ?>">
             <?php foreach ( $evals as $ev ) :
@@ -60,18 +61,36 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                 $row_id        = 'tt-mye-row-' . $eid;
                 $detail_id     = $row_id . '-detail';
 
-                // Group ratings by parent so we can show main pills inline
-                // and tuck subcategories behind the toggle.
-                $main_pills = [];
+                // v3.110.53 — populate main pills via
+                // `effectiveMainRatingsFor()` so a main category whose
+                // value rolls up from subcategory ratings (the
+                // either-or storage model — coach may enter a direct
+                // main OR rate sub-categories, see EvalRatingsRepository
+                // docblock) still surfaces a pill on this surface.
+                // Previously we walked `$full->ratings` directly and
+                // only added a pill when the row had `parent_id IS NULL`,
+                // which silently hid every main on a sub-only
+                // evaluation — the user's report "only the total
+                // rating is shown, no category or subcategory
+                // breakdown is shown".
+                $main_pills  = [];
+                $main_labels = [];
+                $effective_mains = $ratings_repo->effectiveMainRatingsFor( $eid );
+                foreach ( $effective_mains as $main_id => $row ) {
+                    if ( $row['value'] === null ) continue;
+                    $label = EvalCategoriesRepository::displayLabel( (string) $row['label'], (int) $main_id );
+                    $main_pills[ (int) $main_id ]  = [ 'label' => $label, 'rating' => (float) $row['value'] ];
+                    $main_labels[ (int) $main_id ] = $label;
+                }
+
+                // Sub groups (still walked from the rating rows so we
+                // get the actual per-sub values, not the rollup average).
                 $sub_groups = [];
                 if ( $full && ! empty( $full->ratings ) ) {
                     foreach ( $full->ratings as $r ) {
-                        $label = EvalCategoriesRepository::displayLabel( (string) $r->category_name );
-                        if ( empty( $r->category_parent_id ) ) {
-                            $main_pills[ (int) $r->category_id ] = [ 'label' => $label, 'rating' => (float) $r->rating ];
-                        } else {
-                            $sub_groups[ (int) $r->category_parent_id ][] = [ 'label' => $label, 'rating' => (float) $r->rating ];
-                        }
+                        if ( empty( $r->category_parent_id ) ) continue;
+                        $label = EvalCategoriesRepository::displayLabel( (string) $r->category_name, (int) $r->category_id );
+                        $sub_groups[ (int) $r->category_parent_id ][] = [ 'label' => $label, 'rating' => (float) $r->rating ];
                     }
                 }
                 $has_detail = ! empty( $sub_groups );
@@ -127,7 +146,7 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                             </button>
                             <div class="tt-mye-detail" id="<?php echo esc_attr( $detail_id ); ?>" hidden>
                                 <?php foreach ( $sub_groups as $main_id => $subs ) :
-                                    $main_label = $main_pills[ $main_id ]['label'] ?? '';
+                                    $main_label = $main_labels[ $main_id ] ?? '';
                                     ?>
                                     <div class="tt-mye-detail-group">
                                         <?php if ( $main_label !== '' ) : ?>

@@ -1,3 +1,38 @@
+# TalentTrack v3.110.61 — My evaluations: category + subcategory breakdown now shows on sub-only evaluations
+
+The player's "My evaluations" tile (`?tt_view=my-evaluations`) is supposed to render, per evaluation:
+
+- A circular badge with the overall rating.
+- Inline pills for each main category (Technical / Tactical / Physical / Personality, or whatever the academy seeded).
+- A "Show detail" toggle that reveals subcategory ratings grouped by main.
+
+The user reported that on their evaluations only the overall badge rendered — no main pills, no toggle.
+
+## Root cause
+
+The view walked `$full->ratings` directly and added a main pill only when the rating row had `category_parent_id IS NULL`. The plugin's evaluation model is **either / or** (per `EvalRatingsRepository` docblock — *"for any given (evaluation, main_category), the coach either entered a direct main rating, OR rated subcategories, OR did neither"*). When the coach rated only subs — the common case for detailed evaluations — `$main_pills` stayed empty:
+
+- Inline pills row: empty → not rendered.
+- Detail toggle: rendered (because `$sub_groups` was non-empty), but the heading inside used `$main_pills[$main_id]['label']` which was `''`, so the "Technical" / "Tactical" / etc. headings disappeared too.
+
+End user saw an evaluation with just a circular badge and no breakdown anywhere.
+
+## Fix
+
+Switched the main-pill source from "walk rating rows" to `EvalRatingsRepository::effectiveMainRatingsFor( $eid )`, which returns one entry per active main category with its effective value (direct value OR rolled-up subcategory average — `null` only when neither was rated). Mirrors the pattern the coach-side admin view (`EvaluationsPage::render_view`) and the radar-chart consumers already use, so player-facing and coach-facing surfaces now agree on what shows.
+
+Sub-group walking still happens against `$full->ratings` so the per-sub values surface raw (not as the rollup average). Detail-toggle heading now reads from a separate `$main_labels` map seeded from the same `effectiveMainRatingsFor` call, so it always has the right label.
+
+## Knock-on improvements
+
+- Sub-category labels now go through `EvalCategoriesRepository::displayLabel( $name, $entity_id )` with the entity id (the second arg). Previously the label call passed only the name, which falls back to the gettext path. With the entity id it can hit `tt_translations` first — so academies that translated category labels via the translations layer (rather than by editing the seeded English) see their custom translations on this surface too.
+
+## Translations
+
+Zero new msgids.
+
+---
+
 # TalentTrack v3.110.60 — My PDP: self-reflection 2-week gate now timezone-correct + REST endpoint enforces same window
 
 The v3.110.24 release added a view-side gate that hid the player's self-reflection textarea until 14 days before the conversation's `scheduled_at`. The user reported the form still opened too early on their install. Two fixes — one user-visible (TZ bug), one defense-in-depth (REST hardening).
