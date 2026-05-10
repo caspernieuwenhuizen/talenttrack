@@ -447,12 +447,18 @@ class FrontendGoalsManageView extends FrontendViewBase {
                 </div>
             <?php endif; endif; ?>
 
-            <div class="tt-form-actions" style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => $is_edit ? __( 'Update goal', 'talenttrack' ) : __( 'Add goal', 'talenttrack' ) ] ); ?>
-                <a href="<?php echo esc_url( remove_query_arg( [ 'action', 'id' ] ) ); ?>" class="tt-btn tt-btn-secondary">
-                    <?php esc_html_e( 'Cancel', 'talenttrack' ); ?>
-                </a>
-            </div>
+            <?php
+            // v3.110.58 — CLAUDE.md § 6.
+            $dash_url   = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
+            $list_url   = add_query_arg( [ 'tt_view' => 'goals' ], $dash_url );
+            $detail_url = $is_edit ? add_query_arg( [ 'tt_view' => 'goals', 'id' => (int) $goal->id ], $dash_url ) : $list_url;
+            $back       = \TT\Shared\Frontend\Components\BackLink::resolve();
+            $cancel_url = $back !== null ? $back['url'] : ( $is_edit ? $detail_url : $list_url );
+            echo FormSaveButton::render( [
+                'label'      => $is_edit ? __( 'Update goal', 'talenttrack' ) : __( 'Add goal', 'talenttrack' ),
+                'cancel_url' => $cancel_url,
+            ] );
+            ?>
             <div class="tt-form-msg"></div>
         </form>
         <?php

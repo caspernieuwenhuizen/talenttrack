@@ -213,12 +213,18 @@ class FrontendTeamsManageView extends FrontendViewBase {
                 <textarea id="tt-team-notes" class="tt-input" name="notes" rows="2"><?php echo esc_textarea( (string) ( $team->notes ?? '' ) ); ?></textarea>
             </div>
 
-            <div class="tt-form-actions" style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => $is_edit ? __( 'Update team', 'talenttrack' ) : __( 'Save team', 'talenttrack' ) ] ); ?>
-                <a href="<?php echo esc_url( remove_query_arg( [ 'action', 'id' ] ) ); ?>" class="tt-btn tt-btn-secondary">
-                    <?php esc_html_e( 'Cancel', 'talenttrack' ); ?>
-                </a>
-            </div>
+            <?php
+            // v3.110.58 — CLAUDE.md § 6.
+            $dash_url   = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
+            $list_url   = add_query_arg( [ 'tt_view' => 'teams' ], $dash_url );
+            $detail_url = $is_edit ? add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id ], $dash_url ) : $list_url;
+            $back       = \TT\Shared\Frontend\Components\BackLink::resolve();
+            $cancel_url = $back !== null ? $back['url'] : ( $is_edit ? $detail_url : $list_url );
+            echo FormSaveButton::render( [
+                'label'      => $is_edit ? __( 'Update team', 'talenttrack' ) : __( 'Save team', 'talenttrack' ),
+                'cancel_url' => $cancel_url,
+            ] );
+            ?>
             <div class="tt-form-msg"></div>
         </form>
 

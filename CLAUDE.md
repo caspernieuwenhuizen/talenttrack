@@ -340,7 +340,72 @@ touches frontend routing.
 
 ---
 
-## 6. Mandatory reading by task type
+## 6. Always-on principle — Save + Cancel on every record-mutating form
+
+Every form that creates or edits a record **MUST** offer a Cancel
+affordance alongside Save. A user who has started filling in a form and
+changes their mind needs an obvious, one-click way out that doesn't
+discard their context — leaving them on a half-filled form with only
+a Save button is hostile UX.
+
+The contract:
+
+1. **Both create and edit forms** carry Cancel + Save side-by-side.
+   Not just edit. The user who hits "+ New player", types two
+   characters, and decides to back out should see Cancel right there.
+2. **Cancel is rendered via the shared helper.** Pass a `cancel_url`
+   to `\TT\Shared\Frontend\Components\FormSaveButton::render()`. The
+   helper wraps Save + Cancel in a `.tt-form-actions` flex container.
+   Don't hand-roll a back-link below the Save button — it'll drift
+   visually and miss the canonical CSS / Tab order.
+3. **Cancel target — edit mode**: the record's detail page
+   (`?tt_view=<slug>&id=N`). The user lands back where they were
+   before clicking Edit.
+4. **Cancel target — create mode**: the entity's list view
+   (`?tt_view=<slug>`). The user lands back on the list they were
+   browsing.
+5. **`tt_back` overrides both.** When the entry URL captured a
+   `tt_back` hint (the same mechanism § 5's pill uses), Cancel
+   should honour it: send the user back to where they came from,
+   not to a hard-coded list. Use
+   `\TT\Shared\Frontend\Components\BackLink::resolveBack()` (or
+   `BackLink::appendTo()` on the way out) to compute the URL.
+6. **DOM order is Cancel-then-Save.** Save renders right (where the
+   thumb finds the commit action on mobile) via flex `order` on the
+   wrapper. Tab order leads from Cancel → Save (least-committal
+   first), matching keyboard expectation.
+7. **Cancel uses the secondary variant.** `tt-btn-secondary` —
+   visually subordinate to the primary Save button, but still meeting
+   the 48×48 touch target.
+
+**Exemptions** are narrow:
+
+- (a) **Settings sub-forms** with multiple independent forms on one
+  page (`FrontendConfigurationView`, `FrontendCustomFieldsView`).
+  Cancel is meaningless there — the user isn't "editing a record",
+  they're toggling a config; "leaving without saving" is just
+  "navigate away". Save-only is fine.
+- (b) **Lookup / vocabulary inline editors** where the form lives
+  inline in a list (e.g. `FrontendEvalCategoriesView`). The list
+  itself is the cancel target — clicking another row or scrolling
+  away is the cancel.
+- (c) **Wizard steps** are exempt — they have their own
+  Previous / Next / Cancel chrome from `WizardChrome`, and adding
+  per-step cancel buttons would double-stack affordances.
+
+When in doubt, add Cancel. The cost of a Cancel button on a form
+that didn't strictly need one is zero; the cost of omitting one on
+a form that needed it is a frustrated user re-loading the page to
+escape.
+
+Reference implementation: `CoachForms::renderEvalForm` (eval edit
+form, v3.110.58 onward); `FrontendPlayersManageView::renderForm`;
+`FrontendTeamsManageView::renderForm`. The shared helper is
+`\TT\Shared\Frontend\Components\FormSaveButton`.
+
+---
+
+## 7. Mandatory reading by task type
 
 These are existing repo docs. Read them when the task type matches; don't
 duplicate their content here.
@@ -364,7 +429,7 @@ Claude Code invent a pattern that conflicts with one already in use.
 
 ---
 
-## 7. Definition of done — checklist for every PR
+## 8. Definition of done — checklist for every PR
 
 A PR is not ready to merge until **all** of these hold:
 
@@ -409,6 +474,14 @@ A PR is not ready to merge until **all** of these hold:
       it, registered in `WizardRegistry`.
 - [ ] If this PR is exempt: the exemption is justified in the spec's
       "Wizard plan" section.
+
+**Save + Cancel (`CLAUDE.md` § 6 — record-mutating forms):**
+- [ ] Every create or edit form for a record offers Cancel + Save via
+      `FormSaveButton::render()` with a `cancel_url` argument.
+- [ ] Cancel target: detail page in edit mode, list view in create
+      mode. `tt_back` overrides both when present.
+- [ ] If exempt (settings sub-form, inline lookup editor, wizard step):
+      exemption matches one of the categories in § 6.
 
 **SaaS-readiness (if any feature added):**
 - [ ] Feature is reachable through a REST endpoint, not only via PHP render.

@@ -415,12 +415,20 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 </div>
             </div>
 
-            <div class="tt-form-actions" style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => $is_edit ? __( 'Update player', 'talenttrack' ) : __( 'Save player', 'talenttrack' ) ] ); ?>
-                <a href="<?php echo esc_url( remove_query_arg( [ 'action', 'id', 'player_id' ] ) ); ?>" class="tt-btn tt-btn-secondary">
-                    <?php esc_html_e( 'Cancel', 'talenttrack' ); ?>
-                </a>
-            </div>
+            <?php
+            // v3.110.58 — CLAUDE.md § 6: Save + Cancel through the
+            // shared helper. Edit mode → player detail; create mode →
+            // players list. tt_back overrides both when present.
+            $dash_url   = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
+            $list_url   = add_query_arg( [ 'tt_view' => 'players' ], $dash_url );
+            $detail_url = $is_edit ? add_query_arg( [ 'tt_view' => 'players', 'id' => (int) $player->id ], $dash_url ) : $list_url;
+            $back       = \TT\Shared\Frontend\Components\BackLink::resolve();
+            $cancel_url = $back !== null ? $back['url'] : ( $is_edit ? $detail_url : $list_url );
+            echo FormSaveButton::render( [
+                'label'      => $is_edit ? __( 'Update player', 'talenttrack' ) : __( 'Save player', 'talenttrack' ),
+                'cancel_url' => $cancel_url,
+            ] );
+            ?>
             <div class="tt-form-msg"></div>
         </form>
 

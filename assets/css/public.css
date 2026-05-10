@@ -95,6 +95,16 @@
 .tt-login-form .tt-form-row label { flex: none; font-size: .72rem; }
 .tt-login-form input[type="text"], .tt-login-form input[type="password"] { width: 100%; }
 .tt-form-row-inline { display: flex; align-items: center; gap: .5rem; margin: .5rem 0 1rem; }
+
+/* v3.110.58 — Save + Cancel pair rendered by FormSaveButton when a
+ * `cancel_url` is passed. Cancel sits left, Save sits right; thumb on
+ * mobile lands naturally on the commit action. .tt-form-cancel is also
+ * available as a standalone class for forms that build their own
+ * action row (none today, but the hook is there). See CLAUDE.md § 6 —
+ * every record-mutating form must offer Cancel + Save. */
+.tt-form-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+.tt-form-actions .tt-save-btn { order: 2; }
+.tt-form-actions .tt-form-cancel { order: 1; }
 .tt-checkbox-label {
     display: flex !important; flex-direction: row !important; align-items: center; gap: 6px;
     font-size: .85rem; color: var(--tt-muted); text-transform: none !important; letter-spacing: 0 !important; font-weight: 400 !important;
