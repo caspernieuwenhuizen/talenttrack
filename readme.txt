@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.64
+Stable tag: 3.110.65
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.65 — Team detail: Upcoming activities filters out completed/cancelled; Status column dot now visible (CSS was missing) =
+
+Two issues on the Team detail page (`?tt_view=teams&id=N`). **(1) Upcoming activities also showed completed and cancelled.** The "Upcoming activities" panel filtered on `session_date >= CURDATE()` and excluded archived rows, but ignored the activity's status. So a coach who marked an activity as Completed or Cancelled still saw it listed under "Upcoming" until the date passed. Fix: added `AND activity_status_key NOT IN ('completed', 'cancelled')` to the query so only Planned activities (the default `activity_status_key` value) make the cut. Same source-of-truth field the team planner uses since v3.110.56 (the legacy `plan_state` column is ignored for the same reason). **(2) Status column was blank.** The roster's "Status" column called `PlayerStatusRenderer::dot()`, which emits `<span class="tt-status-dot tt-status-{green|amber|red|unknown}">…</span>`. The CSS that gives that span its 12×12 circle and traffic-light color (`assets/css/player-status.css`) was only enqueued by the wp-admin Team Players panel — the frontend Team detail view never loaded it. Net effect: the markup was on the page but invisible. Fix: added a static `PlayerStatusRenderer::enqueueStyles()` helper and called it from both consumer surfaces (frontend team detail roster + the existing wp-admin panel) so the wp_enqueue path is in one place. Future callers of `dot()` / `pill()` / `panel()` must invoke the helper or arrange equivalent enqueue. Zero new translatable strings.
 
 = 3.110.64 — Evaluations tile: missing top-level `Dashboard` breadcrumb on list / new / edit / not-found paths =
 

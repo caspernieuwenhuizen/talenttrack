@@ -16,6 +16,29 @@ use TT\Infrastructure\PlayerStatus\StatusVerdict;
  */
 final class PlayerStatusRenderer {
 
+    /**
+     * v3.110.65 — enqueue the traffic-light CSS. Idempotent. Callers
+     * that emit `dot()` / `pill()` / `panel()` markup must invoke this
+     * (or arrange for the stylesheet to be loaded another way) — the
+     * renderer otherwise emits a `<span class="tt-status-dot ...">`
+     * that has no visible width / height / color without the CSS, so
+     * the user sees nothing.
+     *
+     * Only the wp-admin Team Players panel was enqueueing this until
+     * now; the frontend Team detail view's roster Status column
+     * called `dot()` blind to the missing CSS, which is what the
+     * v3.110.65 user report surfaced ("Status column is not showing
+     * anything").
+     */
+    public static function enqueueStyles(): void {
+        wp_enqueue_style(
+            'tt-player-status',
+            plugins_url( 'assets/css/player-status.css', TT_PLUGIN_FILE ),
+            [],
+            (string) ( defined( 'TT_VERSION' ) ? TT_VERSION : '1' )
+        );
+    }
+
     public static function dot( string $color, bool $tappable = false ): string {
         $color_class = self::colorClass( $color );
         $extra       = $tappable ? ' tt-status-tappable' : '';

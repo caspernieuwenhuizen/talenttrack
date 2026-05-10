@@ -1,3 +1,54 @@
+# TalentTrack v3.110.65 — Team detail: Upcoming activities filters out completed/cancelled; Status column dot now actually renders (CSS was missing)
+
+Two user-reported bugs on the Team detail page (`?tt_view=teams&id=N`).
+
+## (1) "Upcoming activities" included rows the coach had finished or cancelled
+
+The panel filtered on `session_date >= CURDATE()` plus the archived guard but ignored the activity's status. A coach who marked an activity Completed or Cancelled still saw it listed as "Upcoming" until the calendar date passed. The user's expectation: *"Upcoming activities should only show activities today or later that are not completed or cancelled."*
+
+**Fix**: added `AND activity_status_key NOT IN ('completed', 'cancelled')` to the query. Only Planned activities (the default `activity_status_key`) flow through the panel.
+
+Filter source matches the team planner's status-pill source since v3.110.56 — both surfaces agree on what "this activity is done / cancelled" means by reading the same user-facing lookup the coach edits on the form. The legacy `plan_state` column is ignored here for the same reason it was retired from the planner card pill.
+
+## (2) Status column was blank — the CSS that draws the dot was never enqueued
+
+The roster table's `Status` column called `PlayerStatusRenderer::dot( $verdict->color )`, which emits:
+
+```html
+<span class="tt-status-dot tt-status-green" aria-label="On track" title="On track"></span>
+```
+
+That span gets its 12×12 circle and traffic-light fill from `assets/css/player-status.css`:
+
+```css
+.tt-status-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    …
+}
+.tt-status-dot.tt-status-green { background: #16a34a; }
+```
+
+But that stylesheet was only ever enqueued by `TeamPlayersPanel.php` (the wp-admin Teams panel). The frontend Team detail view didn't load it. Net effect: the markup was on the page, the colour-class was on the span, but the span had no `width` / `height` / `display` / `background` — nothing visible.
+
+The user's question: *"what is stopping the system from displaying status? In other words, what needs to be present to show the status for a player in this list?"* — answer was the player-status stylesheet, not enqueued.
+
+**Fix:**
+
+1. Added `PlayerStatusRenderer::enqueueStyles()` — a one-line idempotent `wp_enqueue_style()` for the player-status stylesheet. Centralises the enqueue path so future callers don't have to know the asset URL or registration handle.
+2. `FrontendTeamDetailView::renderRoster()` calls `PlayerStatusRenderer::enqueueStyles()` when the roster shows the Status column.
+3. `TeamPlayersPanel` (wp-admin) refactored to call the same helper instead of its inline `wp_enqueue_style()` — one source of truth for the asset path.
+
+Going forward: any view that emits `dot()` / `pill()` / `panel()` markup needs to invoke `enqueueStyles()` (or arrange for the stylesheet to be loaded another way). The renderer's docblock now says so explicitly.
+
+## Translations
+
+Zero new msgids.
+
+---
+
 # TalentTrack v3.110.64 — Evaluations tile: missing top-level `Dashboard` breadcrumb on list / new / edit / not-found paths
 
 The Evaluations tile (`?tt_view=evaluations`) destination was missing the top-level `Dashboard` breadcrumb. The user clicked the tile, landed on the list, and had no obvious one-click route back to the dashboard — they had to use the browser back button or retype the URL.
