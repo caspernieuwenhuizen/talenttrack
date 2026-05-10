@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.56
+Stable tag: 3.110.57
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.57 — Evaluations list/detail align with the v3.110.54 view-only-list / Edit+Archive-on-detail pattern =
+
+A user audit of the application's list views found the **Evaluations** module out of sync. Players / Teams / People / Goals / Activities were brought into compliance in v3.110.54: list rows are click-through only, Edit + Archive live on the detail page in a page-header actions slot (FAB on mobile, top-right buttons on desktop). Evaluations still had an inline `✕` delete button per row, no Edit affordance anywhere, and no Archive button on the detail page. This release closes those gaps. **List view (`?tt_view=evaluations`)**: the inline `✕` delete button is gone from every row — deletion now happens from the detail page's `Archive` action. The redundant `Open` button is gone too; every row cell is already a link (Date, Player, Team, Coach, Average all click through). The Date cell, previously plain text, now opens the eval detail. **Detail view (`?tt_view=evaluations&id=N`)**: the page header carries an `Edit` action (primary, FAB on mobile via `.tt-page-actions__primary`) and an `Archive` action (danger-styled secondary, hidden on mobile). Both gated on `tt_edit_evaluations`. Archive uses the same `tt-frontend-archive-button.js` handler as the v3.110.54 modules — confirm prompt → DELETE `evaluations/{id}` → redirect to list. **New edit mode (`?tt_view=evaluations&action=edit&id=N`)**: reuses `CoachForms::renderEvalForm` with a new optional `?object $existing_eval` argument. When set, the form switches to PUT against `/evaluations/{id}`, every header field pre-fills from the row, every existing rating is pre-populated from `tt_eval_ratings`. The player picker collapses to a hidden input + an `Editing evaluation of {Player}` caption — swapping the player mid-edit would silently re-attach the ratings to a different subject. **REST**: DELETE `/evaluations/{id}` becomes a soft archive — sets `archived_at = NOW()` + `archived_by = current_user_id` instead of hard-deleting. The read-side queries already filter `archived_at IS NULL` so the archived eval simply disappears without losing the row or the linked ratings; mirrors the soft-archive shape of `delete_player` / `delete_team`. The audit also flagged inline action violations on Development tracks, Custom CSS classes, and Analytics scheduled reports plus borderline cases on Invitations (revoke) and Scout assignments (remove); these are tracked for a follow-up since the inline actions there may warrant documented exemptions rather than retrofits. Four new NL msgids: `Archive this evaluation? It will be hidden but the data is preserved.` / `Editing evaluation of %s.` / `Save changes` / `Edit evaluation`.
 
 = 3.110.56 — Team planner: status pill now reflects the activity's edited status; new range selector (1 / 2 / 4 / 8 weeks / full season) =
 

@@ -14442,3 +14442,15 @@ msgstr "Dit doel archiveren? Het wordt verborgen maar de data blijft bewaard."
 
 msgid "Archive this activity? It will be hidden but the data is preserved."
 msgstr "Deze activiteit archiveren? Ze wordt verborgen maar de data blijft bewaard."
+
+# v3.110.57 — Evaluations Archive confirm + edit-mode strings.
+
+msgid "Archive this evaluation? It will be hidden but the data is preserved."
+msgstr "Deze evaluatie archiveren? Ze wordt verborgen maar de data blijft bewaard."
+
+#. translators: %s = player display name
+msgid "Editing evaluation of %s."
+msgstr "Evaluatie van %s aan het bewerken."
+
+msgid "Edit evaluation"
+msgstr "Evaluatie bewerken"
