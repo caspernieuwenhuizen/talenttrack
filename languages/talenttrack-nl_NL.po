@@ -12778,6 +12778,48 @@ msgstr "De ouder heeft toestemming gegeven dat de academie deze contactgegevens 
 msgid "I have checked the existing prospects list — this is a new entry"
 msgstr "Ik heb de bestaande prospectenlijst gecheckt — dit is een nieuwe prospect"
 
+msgid "e.g. Friendly vs. Sparta U13, 2 May"
+msgstr "bijv. oefenwedstrijd tegen Sparta O13, 2 mei"
+
+msgid "Add at least an email or a phone number so the HoD can reach the parent."
+msgstr "Voeg minimaal een e-mailadres of telefoonnummer toe zodat de HoD de ouder kan bereiken."
+
+msgid "Tick the consent box — the academy may only hold parent contact data with consent."
+msgstr "Vink het toestemmingsvakje aan — de academie mag oudercontactdata alleen bewaren met toestemming."
+
+msgid "Confirm and create the prospect:"
+msgstr "Bevestig en maak de prospect aan:"
+
+msgid "After saving, the Head of Development gets a task to invite this prospect to a test training."
+msgstr "Na opslaan krijgt de Hoofd Ontwikkeling een klus om deze prospect uit te nodigen voor een testtraining."
+
+msgid "Could not create the prospect record."
+msgstr "Kon het prospectrecord niet aanmaken."
+
+msgid "Discovered: %s"
+msgstr "Ontdekt: %s"
+
+msgid "Drafted, not yet handed to HoD"
+msgstr "Geconcept, nog niet doorgegeven aan HoD"
+
+msgid "Invitation in progress"
+msgstr "Uitnodiging in behandeling"
+
+msgid "Awaiting outcome"
+msgstr "Wachten op uitkomst"
+
+msgid "In trial group"
+msgstr "In trialgroep"
+
+msgid "Team offer pending"
+msgstr "Teamaanbod in afwachting"
+
+msgid "Promoted to academy"
+msgstr "Gepromoveerd naar academie"
+
+msgid "age %d"
+msgstr "leeftijd %d"
+
 msgid "First name is required."
 msgstr "Voornaam is verplicht."
 

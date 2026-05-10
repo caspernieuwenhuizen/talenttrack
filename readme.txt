@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.58
+Stable tag: 3.110.59
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.59 — Onboarding pipeline: + New prospect now opens a wizard, kanban replaces count strip, fixed double-counting in Invited =
+
+Three issues on `?tt_view=onboarding-pipeline`. **(1) `+ New prospect` button.** Clicking it POSTed to `/prospects/log`, which dispatched a `LogProspectTemplate` workflow task as a side-effect of the click and redirected the user into that task's form (parking them under "My tasks" in the breadcrumb). Replaced with a four-step wizard at `?tt_view=wizard&slug=new-prospect` (Identity / Discovery / Parent / Review). On review-step submit the wizard creates the prospect row directly and dispatches the next-stage `InviteToTestTrainingTemplate` task for the HoD — the chain effectively starts at "Invite" rather than at "LogProspect", because the wizard IS the form that LogProspect's task wrapped. The `LogProspectTemplate` and `/prospects/log` REST endpoint stay in place for backward compat (external integrations / parent self-confirmation token endpoint). The dead `assets/js/frontend-prospects-log.js` (53 lines) is deleted. Conforms to CLAUDE.md §3 (wizard-first record creation). **(2) "Basic list" display.** The standalone view rendered the dashboard widget at XL size — a six-column count strip with no per-prospect detail. Rebuilt as a kanban board: six columns, each with a count + a stack of prospect cards (name, age / current club, discovered date, context line per stage, click-through to the actionable surface for that stage — open task form, player profile for promoted ones). Pale-orange `stale` badge on cards whose open task is past its 30-day due cutoff. Mobile (≤720px) collapses to one column per row. New `assets/css/components/onboarding-pipeline.css`. The dashboard widget keeps its compact count-strip rendering for tile placement. **(3) "Prospects = 0, Invited = 2" double-count.** The widget summed task rows across `invite_to_test_training` AND `confirm_test_training` templates without deduplication, so a single prospect with both tasks open at once showed as 2 in the Invited column. Rewrote `OnboardingPipelineWidget::computeStageCounts()` to classify each prospect into exactly one stage (Joined > Team offer > Trial group > Test training > Invited > Prospects, in that priority order) — same classifier the new kanban view uses, so the dashboard widget and the standalone page now agree. The Trial-group count moved from "all `tt_trial_cases` rows" to "prospects with `promoted_to_trial_case_id` set". Eight new NL msgids (the kanban context lines + age-format string + stale badge label). New `docs/onboarding-pipeline.md` + `docs/nl_NL/onboarding-pipeline.md` documenting the pipeline from scratch.
 
 = 3.110.58 — My activities: empty-list bug for players, plus post-save redirect back to the team planner =
 

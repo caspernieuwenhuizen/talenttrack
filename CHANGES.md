@@ -1,3 +1,48 @@
+# TalentTrack v3.110.59 — Onboarding pipeline: + New prospect now opens a wizard, kanban replaces count strip, fixed double-counting in Invited
+
+Three issues on `?tt_view=onboarding-pipeline` from a tile-by-tile pilot review.
+
+## (1) "+ New prospect" no longer creates a task as a side-effect
+
+Clicking the button POSTed to `/prospects/log`, which dispatched a `LogProspectTemplate` workflow task and redirected the user into that task's form (parking them under "My tasks" in the breadcrumb).
+
+**Fix**: replaced with a four-step wizard at `?tt_view=wizard&slug=new-prospect`:
+
+1. **Identity** — first / last / DOB / current_club. Duplicate detection runs here.
+2. **Discovery** — `discovered_at_event` + `scouting_notes`.
+3. **Parent contact** — name / email / phone / consent. At least one of email/phone is required; consent checkbox is required when any contact data is captured.
+4. **Review** — confirm + create.
+
+On submit the review step inserts the `tt_prospects` row directly via `ProspectsRepository::create()`, dispatches `InviteToTestTrainingTemplate` for the HoD with the fresh `prospect_id` on the task context, and redirects back to `?tt_view=onboarding-pipeline`.
+
+The chain effectively starts at "Invite" rather than at "LogProspect" — the wizard IS the form that LogProspect's task wrapped, so creating that task to capture data the wizard already collected was a redundant detour.
+
+`LogProspectTemplate` and the `/prospects/log` REST endpoint stay in place for backward compat. The dead `assets/js/frontend-prospects-log.js` (53 lines) is deleted.
+
+This brings prospects into compliance with CLAUDE.md §3 (wizard-first record creation).
+
+## (2) Standalone view rebuilt as a kanban (was a count strip)
+
+`FrontendOnboardingPipelineView` rewrote to render its own kanban: six columns (Prospects / Invited / Test training / Trial group / Team offer / Joined), each with a count and a stack of prospect cards (name, age / current club, discovered date, stage-specific context line, click-through to the actionable surface). Stale badge for cards >30d past due. Mobile collapses the six columns into a vertical stack at <720px.
+
+New `assets/css/components/onboarding-pipeline.css`. The dashboard widget keeps its compact count-strip rendering for tile placement.
+
+## (3) "Prospects = 0, Invited = 2" — double-counting fixed
+
+The widget summed task rows across `invite_to_test_training` AND `confirm_test_training` templates without deduplication, so a single prospect with both tasks open at once showed as 2 in the Invited column.
+
+Rewrote `OnboardingPipelineWidget::computeStageCounts()` to classify every prospect into exactly one stage with a single SQL query. Stage priority (Joined > Team offer > Trial group > Test training > Invited > Prospects) matches `FrontendOnboardingPipelineView::classifyProspect()`, so the widget and the kanban now agree on every count. Trial-group count also moved from "every `tt_trial_cases` row" to "prospects with `promoted_to_trial_case_id` set".
+
+## Translations
+
+Eight new NL msgids: kanban context lines, age format, parent-step error / consent copy.
+
+## Documentation
+
+`docs/onboarding-pipeline.md` and `docs/nl_NL/onboarding-pipeline.md` are new. `docs/wizards.md` + Dutch counterpart updated — slug list now mentions `new-person`, `new-team-blueprint`, `new-prospect`.
+
+---
+
 # TalentTrack v3.110.58 — My activities: empty-list bug for players + post-save redirect back to team planner
 
 Two issues on `?tt_view=my-activities` from a tile-by-tile pilot review.

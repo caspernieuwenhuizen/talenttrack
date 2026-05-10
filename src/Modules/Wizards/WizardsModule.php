@@ -11,6 +11,7 @@ use TT\Modules\Wizards\Evaluation\NewEvaluationWizard;
 use TT\Modules\Wizards\Goal\NewGoalWizard;
 use TT\Modules\Wizards\Person\NewPersonWizard;
 use TT\Modules\Wizards\Player\NewPlayerWizard;
+use TT\Modules\Wizards\Prospect\NewProspectWizard;
 use TT\Modules\Wizards\Team\NewTeamWizard;
 use TT\Modules\Wizards\TeamBlueprint\NewTeamBlueprintWizard;
 use TT\Shared\Wizards\WizardDraftRestController;
@@ -44,6 +45,7 @@ class WizardsModule implements ModuleInterface {
         WizardRegistry::register( new NewActivityWizard() );
         WizardRegistry::register( new NewPersonWizard() );
         WizardRegistry::register( new NewTeamBlueprintWizard() );
+        WizardRegistry::register( new NewProspectWizard() );
 
         // #0072 — daily cron to prune stale `tt_wizard_drafts` rows.
         WizardDraftCleanupCron::init();
