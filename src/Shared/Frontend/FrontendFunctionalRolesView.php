@@ -236,12 +236,19 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
                 <textarea id="tt-fnrole-desc" class="tt-input" name="description" rows="3"><?php echo esc_textarea( (string) ( $role->description ?? '' ) ); ?></textarea>
             </div>
 
-            <div class="tt-form-actions" style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => $is_edit ? __( 'Update role type', 'talenttrack' ) : __( 'Save role type', 'talenttrack' ) ] ); ?>
-                <a href="<?php echo esc_url( add_query_arg( [ 'tt_view' => 'functional-roles', 'tab' => 'types' ], remove_query_arg( [ 'action', 'type_id' ] ) ) ); ?>" class="tt-btn tt-btn-secondary">
-                    <?php esc_html_e( 'Cancel', 'talenttrack' ); ?>
-                </a>
-            </div>
+            <?php
+            // v3.110.58 — CLAUDE.md § 6: Save + Cancel via shared helper.
+            // Lookup-vocabulary tab → list of types is the cancel target
+            // (§ 6 (b) — inline lookup editor, but standardise the CSS).
+            $cancel_url = add_query_arg(
+                [ 'tt_view' => 'functional-roles', 'tab' => 'types' ],
+                remove_query_arg( [ 'action', 'type_id' ] )
+            );
+            echo FormSaveButton::render( [
+                'label'      => $is_edit ? __( 'Update role type', 'talenttrack' ) : __( 'Save role type', 'talenttrack' ),
+                'cancel_url' => $cancel_url,
+            ] );
+            ?>
             <div class="tt-form-msg"></div>
         </form>
         <?php
@@ -347,12 +354,17 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
                 ] ); ?>
             </div>
 
-            <div class="tt-form-actions" style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => __( 'Save assignment', 'talenttrack' ) ] ); ?>
-                <a href="<?php echo esc_url( add_query_arg( [ 'tt_view' => 'functional-roles', 'tab' => 'assignments' ], remove_query_arg( [ 'action', 'id', 'team_id', 'person_id' ] ) ) ); ?>" class="tt-btn tt-btn-secondary">
-                    <?php esc_html_e( 'Cancel', 'talenttrack' ); ?>
-                </a>
-            </div>
+            <?php
+            // v3.110.58 — CLAUDE.md § 6.
+            $cancel_url = add_query_arg(
+                [ 'tt_view' => 'functional-roles', 'tab' => 'assignments' ],
+                remove_query_arg( [ 'action', 'id', 'team_id', 'person_id' ] )
+            );
+            echo FormSaveButton::render( [
+                'label'      => __( 'Save assignment', 'talenttrack' ),
+                'cancel_url' => $cancel_url,
+            ] );
+            ?>
             <div class="tt-form-msg"></div>
         </form>
         <?php

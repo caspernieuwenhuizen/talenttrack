@@ -207,7 +207,20 @@ class CoachForms {
                     ?>
                 </span>
             </div>
-            <?php echo FormSaveButton::render( [ 'label' => $submit_label ] ); ?>
+            <?php
+            // v3.110.58 — CLAUDE.md § 6: Save + Cancel on every
+            // record-mutating form. tt_back wins when the entry URL
+            // captured one; otherwise fall back to the eval detail in
+            // edit mode and the evaluations list in create mode.
+            $dash_url   = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
+            $list_url   = add_query_arg( [ 'tt_view' => 'evaluations' ], $dash_url );
+            $detail_url = $is_edit
+                ? add_query_arg( [ 'tt_view' => 'evaluations', 'id' => (int) $existing_eval->id ], $dash_url )
+                : $list_url;
+            $back       = \TT\Shared\Frontend\Components\BackLink::resolve();
+            $cancel_url = $back !== null ? $back['url'] : ( $is_edit ? $detail_url : $list_url );
+            echo FormSaveButton::render( [ 'label' => $submit_label, 'cancel_url' => $cancel_url ] );
+            ?>
             <div class="tt-form-msg"></div>
         </form>
         <script>
