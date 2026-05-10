@@ -47,7 +47,10 @@ class TeamPlayersPanel {
             // a 25-player team that's ~25 calculator runs per page
             // load. Acceptable for v1; a per-team batch query lands
             // when the read-model layer caches in v3.51+.
-            wp_enqueue_style( 'tt-player-status', plugins_url( 'assets/css/player-status.css', TT_PLUGIN_FILE ), [], (string) ( defined( 'TT_VERSION' ) ? TT_VERSION : '1' ) );
+            // v3.110.65 — was an inline `wp_enqueue_style()` call;
+            // unified with the frontend Team detail view through the
+            // shared `PlayerStatusRenderer::enqueueStyles()` helper.
+            \TT\Modules\Players\Frontend\PlayerStatusRenderer::enqueueStyles();
             $status_calc = new PlayerStatusCalculator();
             ?>
             <table class="widefat striped" style="max-width:900px;">

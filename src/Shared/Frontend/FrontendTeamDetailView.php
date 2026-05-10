@@ -176,6 +176,14 @@ final class FrontendTeamDetailView extends FrontendViewBase {
     private static function renderRoster( array $players ): void {
         if ( empty( $players ) ) return;
         $can_status = class_exists( '\TT\Modules\Players\Frontend\PlayerStatusRenderer' );
+        // v3.110.65 — load the player-status CSS. Without it, the
+        // `<span class="tt-status-dot">` markup `PlayerStatusRenderer::dot()`
+        // emits has no width / height / colour and the Status column
+        // appears blank. The wp-admin Teams panel was already
+        // enqueueing this; the frontend equivalent was not.
+        if ( $can_status ) {
+            \TT\Modules\Players\Frontend\PlayerStatusRenderer::enqueueStyles();
+        }
         ?>
         <section class="tt-pde-section">
             <h3><?php esc_html_e( 'Roster', 'talenttrack' ); ?></h3>
@@ -261,12 +269,21 @@ final class FrontendTeamDetailView extends FrontendViewBase {
 
     private static function renderUpcomingActivities( int $team_id ): void {
         global $wpdb;
+        // v3.110.65 — exclude activities the coach has already marked
+        // Completed or Cancelled. The "upcoming" panel should be the
+        // forward-looking schedule (planned activities from today
+        // onwards), not a historical log. Filters on
+        // `activity_status_key` (the user-facing lookup the coach
+        // edits on the activities form) — same source-of-truth field
+        // the team planner uses since v3.110.56. The legacy
+        // `plan_state` column is ignored here for the same reason.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, title, session_date
                FROM {$wpdb->prefix}tt_activities
               WHERE team_id = %d
                 AND ( archived_at IS NULL OR archived_at = '' )
                 AND session_date >= CURDATE()
+                AND activity_status_key NOT IN ('completed', 'cancelled')
               ORDER BY session_date ASC LIMIT 5",
             $team_id
         ) );
