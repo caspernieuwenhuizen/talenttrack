@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.62
+Stable tag: 3.110.63
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.63 — Cancel button standard: every record-mutating form gets Cancel + Save through one helper =
+
+A new always-on standard added to `CLAUDE.md` § 6: every form that creates or edits a record must offer Cancel alongside Save, rendered through the shared `FormSaveButton::render()` helper rather than hand-rolled. **Why**: a user who has started filling in a form and changes their mind needs an obvious one-click way out that doesn't discard their context — leaving them on a half-filled form with only a Save button is hostile UX. **The contract**: Both create AND edit forms get Cancel + Save side-by-side (not just edit). Cancel is rendered via `FormSaveButton::render( [ 'cancel_url' => $url, ... ] )` — pass a URL and the helper wraps the save button + a sibling `<a class="tt-btn tt-btn-secondary tt-form-cancel">` inside a new `.tt-form-actions` flex container. Cancel target — edit mode: the record's detail page (`?tt_view=<slug>&id=N`); create mode: the entity's list view (`?tt_view=<slug>`). `tt_back` overrides both via `BackLink::resolve()` when the entry URL captured one. **DOM order**: Cancel first, Save second; CSS reorders so Save sits right (where the thumb finds the commit action on mobile). Tab order leads from Cancel → Save (least-committal first), matching keyboard expectation. Cancel uses `tt-btn-secondary` — visually subordinate to Save, still meeting the 48×48 touch target. **Exemptions** are narrow: settings sub-forms (Cancel is meaningless when leaving without saving is just navigating away — `FrontendConfigurationView` keeps the bare-submit pattern), inline lookup-vocabulary editors (the list itself is the cancel target — `FrontendCustomFieldsView`, `FrontendEvalCategoriesView`), and wizard steps (they have their own Previous / Next / Cancel chrome from `WizardChrome`). When in doubt, add Cancel — the cost of a Cancel button on a form that didn't strictly need one is zero; the cost of omitting one on a form that needed it is a frustrated user reloading the page to escape. **Six record-mutating forms retrofitted** (Players / Teams / People / Goals / Activities / Evaluations); two functional-roles forms (role types + assignments) also routed through the helper for CSS consistency. Zero new translatable strings — `Cancel` and the various `Save` / `Update <entity>` labels were already in the `.po`. The DoD checklist gains a `Save + Cancel` subsection. Definition-of-Done principle moves from § 7 to § 8 to make room for the new § 6.
 
 = 3.110.62 — Hotfix: stray conflict markers in `FrontendTeamPlannerView.php` from the v3.110.58 rebase =
 

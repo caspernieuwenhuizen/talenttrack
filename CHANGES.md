@@ -1,3 +1,57 @@
+# TalentTrack v3.110.63 — Cancel button standard: every record-mutating form gets Cancel + Save through one helper
+
+A new always-on standard added to `CLAUDE.md` § 6: every form that creates or edits a record must offer a Cancel affordance alongside Save. A user who has started filling in a form and changes their mind needs an obvious one-click way out that doesn't discard their context — leaving them on a half-filled form with only a Save button is hostile UX.
+
+## What's new
+
+**`CLAUDE.md` § 6 — Save + Cancel on every record-mutating form.** The new section spells out the contract:
+
+- Both create AND edit forms get Cancel + Save side-by-side. Not just edit.
+- Cancel is rendered via the shared helper — pass `cancel_url` to `FormSaveButton::render()`. Don't hand-roll a sibling `<a>` below the save button (it'll drift visually, miss the canonical CSS, and break Tab order).
+- Cancel target — edit mode: the record's detail page (`?tt_view=<slug>&id=N`). Create mode: the entity's list view (`?tt_view=<slug>`). `tt_back` overrides both via `BackLink::resolve()` when the entry URL captured one.
+- DOM order: Cancel first, Save second. CSS reorders the visual layout so Save sits right (where the thumb finds the commit action on mobile). Tab order leads from Cancel → Save (least-committal first).
+- Cancel uses `tt-btn-secondary` — visually subordinate to Save, still meeting the 48×48 touch target.
+
+Three explicit exemptions: settings sub-forms (Cancel is meaningless when "leaving without saving" is just navigating away), inline lookup-vocabulary editors (the list itself is the cancel target), and wizard steps (they have their own Previous / Next / Cancel chrome).
+
+The Definition-of-Done checklist gains a "Save + Cancel" subsection. The DoD principle moved from § 7 to § 8; the new principle takes § 6, and "Mandatory reading by task type" shifts to § 7.
+
+**`FormSaveButton::render()` extended with `cancel_url` (and optional `cancel_label`).** When the parameter is set, the helper wraps the save button + a sibling `<a class="tt-btn tt-btn-secondary tt-form-cancel">` inside a new `.tt-form-actions` flex container. Without `cancel_url` the helper returns the bare submit button as before — back-compat for forms that don't mutate a single record.
+
+The new `.tt-form-actions` CSS in `assets/css/public.css` handles gap, alignment, and the flex `order` flip that puts Save on the right while keeping Tab order Cancel → Save.
+
+**Six record-mutating forms retrofitted.** Each now passes `cancel_url` to the helper instead of hand-rolling a Cancel link. Cancel target: `tt_back` wins when present, else the record's detail page in edit mode and the entity list in create mode.
+
+| Form | File |
+|---|---|
+| New / edit player | `FrontendPlayersManageView::renderForm` |
+| New / edit team | `FrontendTeamsManageView::renderForm` |
+| New / edit person | `FrontendPeopleManageView::renderForm` |
+| New / edit goal | `FrontendGoalsManageView::renderForm` |
+| New / edit activity | `FrontendActivitiesManageView::renderForm` |
+| New / edit evaluation | `CoachForms::renderEvalForm` |
+
+Two functional-roles forms (role types + assignments) were also routed through the helper. Per § 6 (b) they're exempt lookup-vocabulary editors, but standardising the rendering keeps the `.tt-form-actions` CSS / Tab order identical to the rest of the surface.
+
+## What didn't change
+
+- `FrontendConfigurationView` (5 sub-forms), `FrontendCustomFieldsView`, `FrontendEvalCategoriesView` — exempt per § 6 (a) / (b). They keep the bare-submit pattern.
+- The legacy `CoachForms::renderSessionForm` / `renderGoalForm` are reachable only from the dormant `CoachDashboardView` — left untouched.
+- Wizard chrome — wizard steps have their own Previous / Next / Cancel from `WizardChrome`, exempt by § 6 (c).
+
+## Translations
+
+No new strings — both `Cancel` and the various `Save` / `Update <entity>` labels were already in the `.po`.
+
+## Files of note
+
+- `src/Shared/Frontend/Components/FormSaveButton.php` — the shared helper.
+- `assets/css/public.css` — new `.tt-form-actions` rules.
+- `CLAUDE.md` § 6 — the new standard.
+- The six retrofitted view files listed above.
+
+---
+
 # TalentTrack v3.110.62 — Hotfix: stray conflict markers in `FrontendTeamPlannerView.php` from the v3.110.58 rebase
 
 The v3.110.58 PR (My activities — empty list for players + post-save redirect to referring view, #353) touched `src/Modules/Planning/Frontend/FrontendTeamPlannerView.php` to add `BackLink::appendTo()` on the activity-card click-through URL. That same file had been rewritten in PR #349 (v3.110.56 — team planner status pill + range selector) which merged earlier on the same day. The rebase of #353 onto post-#349 main produced a conflict in `renderActivityCard()` that didn't get resolved before the rebased commit was pushed and merged.
