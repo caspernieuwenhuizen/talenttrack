@@ -30,25 +30,20 @@ final class HybridDeepRateStep implements WizardStepInterface {
         );
         $max = (int) ( get_option( 'tt_rating_scale_max', 5 ) ?: 5 );
 
-        $settings = $wpdb->get_results( $wpdb->prepare(
-            "SELECT name FROM {$p}tt_lookups WHERE lookup_type = 'evaluation_setting' AND club_id = %d ORDER BY sort_order",
-            CurrentClub::id()
-        ) );
-        $setting_names = array_map( static fn( $r ) => (string) $r->name, (array) $settings );
-        if ( empty( $setting_names ) ) {
-            // Fallback when the lookup table is empty. Wrapping in __() so a
-            // Dutch install on a fresh seed sees Dutch in this dropdown.
-            $setting_names = [
-                __( 'training',    'talenttrack' ),
-                __( 'match',       'talenttrack' ),
-                __( 'tournament',  'talenttrack' ),
-                __( 'observation', 'talenttrack' ),
-                __( 'other',       'talenttrack' ),
-            ];
-        }
+        // v3.110.67 — unified on the `eval_type` lookup (the same one
+        // the flat / edit form uses). Was reading from the parallel
+        // `evaluation_setting` lookup, which had different values
+        // (training/match/tournament/observation/other) AND was never
+        // persisted to the row — picking "observation" in the wizard
+        // had zero effect on the saved evaluation, and reopening for
+        // edit showed a different list (Training/Match/Friendly) from
+        // `eval_type`. Migration 0091 extended `eval_type` with
+        // Tournament / Observation / Other so the wizard's value
+        // space is preserved.
+        $eval_types = \TT\Infrastructure\Query\QueryHelpers::get_eval_types();
 
         $date_val    = (string) ( $state['eval_date'] ?? gmdate( 'Y-m-d' ) );
-        $setting_val = (string) ( $state['eval_setting'] ?? '' );
+        $type_val    = (int)    ( $state['eval_type_id'] ?? 0 );
         $reason_val  = (string) ( $state['eval_reason'] ?? '' );
         ?>
         <p style="color:var(--tt-muted);max-width:60ch;">
@@ -60,12 +55,15 @@ final class HybridDeepRateStep implements WizardStepInterface {
                 <tr><th style="text-align:left;font-weight:normal;width:160px;"><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
                     <td><input type="date" name="eval_date" value="<?php echo esc_attr( $date_val ); ?>" /></td>
                 </tr>
-                <tr><th style="text-align:left;font-weight:normal;"><?php esc_html_e( 'Setting', 'talenttrack' ); ?></th>
+                <tr><th style="text-align:left;font-weight:normal;"><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
                     <td>
-                        <select name="eval_setting">
-                            <option value=""><?php esc_html_e( '— pick a setting —', 'talenttrack' ); ?></option>
-                            <?php foreach ( $setting_names as $n ) : ?>
-                                <option value="<?php echo esc_attr( $n ); ?>" <?php selected( $setting_val, $n ); ?>><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'evaluation_setting', (string) $n ) ); ?></option>
+                        <select name="eval_type_id">
+                            <option value="0"><?php esc_html_e( '— pick a type —', 'talenttrack' ); ?></option>
+                            <?php foreach ( $eval_types as $t ) :
+                                $tid   = (int) $t->id;
+                                $label = (string) \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'eval_type', (string) $t->name );
+                                ?>
+                                <option value="<?php echo (int) $tid; ?>" <?php selected( $type_val, $tid ); ?>><?php echo esc_html( $label ); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </td>
@@ -95,7 +93,9 @@ final class HybridDeepRateStep implements WizardStepInterface {
 
     public function validate( array $post, array $state ) {
         $date    = isset( $post['eval_date'] ) ? sanitize_text_field( wp_unslash( (string) $post['eval_date'] ) ) : '';
-        $setting = isset( $post['eval_setting'] ) ? sanitize_key( (string) $post['eval_setting'] ) : '';
+        // v3.110.67 — `eval_type_id` (FK into tt_lookups, lookup_type='eval_type')
+        // replaces the legacy `eval_setting` slug. See render() docblock.
+        $type_id = isset( $post['eval_type_id'] ) ? absint( $post['eval_type_id'] ) : 0;
         $reason  = isset( $post['eval_reason'] ) ? sanitize_textarea_field( wp_unslash( (string) $post['eval_reason'] ) ) : '';
 
         $ratings_raw = isset( $post['ratings_self'] ) && is_array( $post['ratings_self'] ) ? $post['ratings_self'] : [];
@@ -107,7 +107,7 @@ final class HybridDeepRateStep implements WizardStepInterface {
         }
         return [
             'eval_date'    => $date,
-            'eval_setting' => $setting,
+            'eval_type_id' => $type_id,
             'eval_reason'  => $reason,
             'ratings_self' => $clean,
         ];

@@ -1,3 +1,72 @@
+# TalentTrack v3.110.67 — Evaluation type unified: wizard's "Setting" picker now uses the same `eval_type` lookup as the edit form (and is actually saved)
+
+## The user's question
+
+> *"during eval creation in the wizard for a player I select a context, for example observation. However when editing I need to select a type. I expect the evaluation type to either show the same list of values or these values should be having an attribute to determine which to show, what would be best?"*
+
+## What was actually happening
+
+Two parallel taxonomies covering the same conceptual ground:
+
+| Lookup type | Values | Consumer | Storage |
+|---|---|---|---|
+| `eval_type` | Training, Match, Friendly | Flat / edit form | `tt_evaluations.eval_type_id` (FK) |
+| `evaluation_setting` | training, match, tournament, observation, other | Wizard (HybridDeepRateStep) | none — captured in wizard state, never written to a column |
+
+Two problems compounded:
+
+1. **Different value sets**. A coach who picked `observation` in the wizard saw a different list (Training / Match / Friendly) on edit because the lookups were independent. The user's mental model is one taxonomy; the system gave them two.
+2. **Wizard pick was silently dropped**. `ReviewStep::submitPlayerFirst()` inserted the `tt_evaluations` row without `eval_type_id` set. The wizard's "Setting" pick existed in session state but never reached the DB. Reopening the eval for edit showed the first row of `eval_type` because `eval_type_id = 0` falls back to nothing.
+
+## Why "same list" beats "attribute to filter"
+
+I considered the attribute approach (e.g. `meta.shows_in_wizard` boolean per lookup row, with each surface filtering on its own flag). It would let admins control which values appear where, but:
+
+- The user's confusion is the parallel lists themselves — adding a knob doesn't remove the underlying split.
+- Admins would have to remember to flag rows correctly when adding new types. Easy to forget; another source of mismatched lists.
+- One taxonomy mirrors the user's mental model: there's one classification of evaluations.
+
+So: unify on `eval_type` as the single source of truth.
+
+## Fix
+
+### Migration 0091 — extend `eval_type`
+
+Adds the three values the wizard offered that weren't in `eval_type`:
+
+- `Tournament` (`requires_match_details:true` — same shape as Match / Friendly)
+- `Observation` (`requires_match_details:false` — ad-hoc spotting, no game)
+- `Other` (`requires_match_details:false` — catch-all)
+
+Idempotent SELECT-then-INSERT-IF-MISSING. Existing `eval_type` rows untouched. The `evaluation_setting` lookup rows stay in place for backward compat (no consumer reads them after this release; a future cleanup migration can drop them).
+
+### Wizard form (`HybridDeepRateStep`)
+
+- Reads from `eval_type` via `QueryHelpers::get_eval_types()` — same source the edit form uses.
+- Renders `<select name="eval_type_id">` with `<option value="<id>">` (FK ids), not slug names.
+- Label changed from "Setting" to "Type" so the wizard and the edit form use the same word for the same field.
+
+### Wizard submit (`ReviewStep::submitPlayerFirst`)
+
+- Persists `eval_type_id` to `tt_evaluations` on the inserted row when the wizard captured one.
+- Falls back gracefully if the wizard didn't capture a type (legacy state, partial save).
+
+## What stays as-is
+
+The activity-first wizard path is unchanged — the activity itself implies the type, and the eval inherits its date already. That path's `eval_type_id` remains 0 by default and the coach can set it from the edit form when reopening. Could be wired to map `activity_type_key` → `eval_type` in a future pass; not in scope here since the user's report was specifically about the player-first path.
+
+## What this does NOT change
+
+- The flat / edit form is unchanged. It already used `eval_type`. The wizard now agrees with it.
+- `tt_evaluations.eval_type_id` schema is unchanged. Migration only seeds new lookup rows.
+- The `evaluation_setting` lookup type is no longer read but its rows stay in place for back-compat — anyone with a custom report or external tool that queried `lookup_type='evaluation_setting'` keeps working.
+
+## Translations
+
+Zero new translatable strings — `Type` was already in the `.po`. The three new `eval_type` row names (`Tournament`, `Observation`, `Other`) get the existing lookup-translation pipeline's coverage on next install / migration; admins can edit Dutch labels via the lookups admin if the defaults aren't right.
+
+---
+
 # TalentTrack v3.110.66 — Evaluation edit: main-category ratings are now optional, and partial saves preserve subcategory ratings
 
 A coach reopening an existing evaluation for edit (`?tt_view=evaluations&action=edit&id=N`) had two pain points:

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.66
+Stable tag: 3.110.67
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.67 — Evaluation type unified: wizard's "Setting" picker now uses the same `eval_type` lookup as the edit form (and is actually saved) =
+
+User report: *"during eval creation in the wizard for a player I select a context, for example observation. However when editing I need to select a type. I expect the evaluation type to either show the same list of values or these values should be having an attribute to determine which to show, what would be best?"* Two parallel lookups existed — `tt_lookups` `lookup_type='eval_type'` (3 values: Training / Match / Friendly, used by the flat / edit form) and `tt_lookups` `lookup_type='evaluation_setting'` (5 values: training / match / tournament / observation / other, used only by the wizard's HybridDeepRateStep). Worse, the wizard captured `eval_setting` in its session state but `ReviewStep::submitPlayerFirst()` never wrote it to `tt_evaluations.eval_type_id` — so the user's pick was silently discarded, and reopening the eval for edit showed a default value from the OTHER lookup. Resolution: unify on `eval_type` as the single source of truth (one taxonomy fits the user's mental model; an attribute-flag approach would just push the same confusion to a different layer). **Migration 0091** extends `eval_type` with `Tournament` (`requires_match_details:true`), `Observation` (`requires_match_details:false`), `Other` (`requires_match_details:false`) so the wizard's value space is preserved. Idempotent SELECT-IF-MISSING; existing rows untouched. **`HybridDeepRateStep`** now reads `eval_type` via `QueryHelpers::get_eval_types()` (same source the edit form uses) and renders the picker as `<select name="eval_type_id">` with FK ids instead of slug names. Form label changed from "Setting" to "Type" so the wizard and the edit form use the same word for the same field. **`ReviewStep::submitPlayerFirst()`** persists `eval_type_id` on the inserted `tt_evaluations` row when the wizard captured one. Net effect: a coach who picks "Observation" in the wizard sees "Observation" when reopening the eval for edit, and the underlying `tt_evaluations.eval_type_id` finally reflects the choice. The activity-first wizard path is unchanged — the activity itself implies the type and the eval inherits its date already; that path's `eval_type_id` remains 0 by default and the coach can set it from the edit form. The legacy `evaluation_setting` lookup rows stay in place for backward compat (no consumer reads them after this release); a future cleanup migration can drop them. Zero new translatable strings — `Type` was already in the .po; the new `eval_type` row names get the existing translation pipeline's coverage.
 
 = 3.110.66 — Evaluation edit: main-category ratings are now optional, and partial saves preserve subcategory ratings =
 

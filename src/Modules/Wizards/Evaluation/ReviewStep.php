@@ -219,18 +219,28 @@ final class ReviewStep implements WizardStepInterface {
         $ratings = (array) ( $state['ratings_self'] ?? [] );
         $date    = (string) ( $state['eval_date'] ?? current_time( 'Y-m-d' ) );
         $reason  = (string) ( $state['eval_reason'] ?? '' );
+        // v3.110.67 — persist `eval_type_id` (FK into tt_lookups,
+        // lookup_type='eval_type'). HybridDeepRateStep used to write
+        // a slug to `eval_setting` in wizard state but never carried
+        // it through to the row, so the wizard's type pick was
+        // discarded silently and reopening for edit showed a default
+        // type. Now the wizard captures `eval_type_id` and the
+        // insert below stores it on the row.
+        $type_id = (int) ( $state['eval_type_id'] ?? 0 );
 
         if ( $pid <= 0 ) {
             return new \WP_Error( 'no_player', __( 'No player selected.', 'talenttrack' ) );
         }
 
-        $wpdb->insert( "{$p}tt_evaluations", [
+        $insert_payload = [
             'club_id'   => CurrentClub::id(),
             'player_id' => $pid,
             'coach_id'  => get_current_user_id(),
             'eval_date' => $date,
             'notes'     => $reason,
-        ] );
+        ];
+        if ( $type_id > 0 ) $insert_payload['eval_type_id'] = $type_id;
+        $wpdb->insert( "{$p}tt_evaluations", $insert_payload );
         $eval_id = (int) $wpdb->insert_id;
 
         if ( $eval_id > 0 ) {
