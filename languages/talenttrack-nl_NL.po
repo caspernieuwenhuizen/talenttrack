@@ -13028,46 +13028,6 @@ msgid_plural "%d still active in your funnel"
 msgstr[0] "%d nog actief in jouw trechter"
 msgstr[1] "%d nog actief in jouw trechter"
 
-# MarkAttendanceHeroWidget + MarkAttendanceWizard + RateConfirmStep (v3.110.70 / #0092)
-# Folded in here because the parallel head-coach branch shipped these untranslated,
-# and the #0035 forbidden-vocabulary gate failed on `Pick a session` — fixed to
-# `Pick an activity` in this PR so main can turn green again.
-msgid "Mark attendance hero"
-msgstr "Hero ‘Aanwezigheid registreren’"
-
-msgid "Schedule a training or match to populate this card."
-msgstr "Plan een training of wedstrijd om deze kaart te vullen."
-
-msgid "Pick an activity"
-msgstr "Kies een activiteit"
-
-msgid "Edit activity"
-msgstr "Activiteit bewerken"
-
-msgid "Mark attendance"
-msgstr "Aanwezigheid registreren"
-
-msgid "Rate now?"
-msgstr "Nu beoordelen?"
-
-msgid "Attendance is saved. While you're here, do you want to rate the players who were present?"
-msgstr "Aanwezigheid is opgeslagen. Wil je meteen de aanwezige spelers beoordelen?"
-
-msgid "Rate the present players"
-msgstr "Beoordeel de aanwezige spelers"
-
-msgid "Skip rating, save attendance"
-msgstr "Sla beoordelen over, bewaar aanwezigheid"
-
-msgid "Nobody was marked Present or Late, so there is nothing to rate. You can still proceed and finish without ratings."
-msgstr "Niemand is als Aanwezig of Te laat gemarkeerd, er is dus niets te beoordelen. Je kunt afsluiten zonder beoordelingen."
-
-#, php-format
-msgid "%d player marked Present or Late."
-msgid_plural "%d players marked Present or Late."
-msgstr[0] "%d speler gemarkeerd als Aanwezig of Te laat."
-msgstr[1] "%d spelers gemarkeerd als Aanwezig of Te laat."
-
 # Tile registration
 msgid "Six-stage funnel from scout-logged prospect through team-offer acceptance. HoD + Scout + Academy Admin only."
 msgstr "Trechter in zes stappen van door een scout vastgelegde prospect tot acceptatie van het teamaanbod. Alleen HoO + Scout + Academy Admin."
@@ -14563,3 +14523,46 @@ msgstr "Evaluatie van %s aan het bewerken."
 
 msgid "Edit evaluation"
 msgstr "Evaluatie bewerken"
+
+# v3.110.71 — #0092 Mark Attendance hero + wizard strings.
+
+msgid "Mark attendance"
+msgstr "Aanwezigheid registreren"
+
+msgid "Mark attendance hero"
+msgstr "Aanwezigheid-blok"
+
+msgid "Edit activity"
+msgstr "Activiteit bewerken"
+
+msgid "Pick a session"
+msgstr "Kies een sessie"
+
+# v3.110.72 — renamed from `Pick a session` to clear the #0035 forbidden-vocabulary gate.
+# Old msgid kept above so a downgraded install doesn't lose its translation mid-flight.
+msgid "Pick an activity"
+msgstr "Kies een activiteit"
+
+msgid "Schedule a training or match to populate this card."
+msgstr "Plan een training of wedstrijd om deze kaart te vullen."
+
+msgid "Rate now?"
+msgstr "Nu beoordelen?"
+
+msgid "Attendance is saved. While you're here, do you want to rate the players who were present?"
+msgstr "Aanwezigheid is opgeslagen. Wil je nu meteen de aanwezige spelers beoordelen?"
+
+#. translators: %d: number of players present or late on the activity
+msgid "%d player marked Present or Late."
+msgid_plural "%d players marked Present or Late."
+msgstr[0] "%d speler staat op Aanwezig of Te laat."
+msgstr[1] "%d spelers staan op Aanwezig of Te laat."
+
+msgid "Rate the present players"
+msgstr "Beoordeel de aanwezige spelers"
+
+msgid "Skip rating, save attendance"
+msgstr "Beoordeling overslaan, aanwezigheid opslaan"
+
+msgid "Nobody was marked Present or Late, so there is nothing to rate. You can still proceed and finish without ratings."
+msgstr "Niemand staat op Aanwezig of Te laat, dus er valt niets te beoordelen. Je kunt nog steeds doorgaan en afsluiten zonder beoordelingen."

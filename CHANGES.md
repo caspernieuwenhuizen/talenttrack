@@ -1,10 +1,10 @@
-# TalentTrack v3.110.71 — Scout polish: new-prospect Review as table; NL i18n for scout hero; bundled gate fix unblocking main after v3.110.70
+# TalentTrack v3.110.72 — Scout polish: new-prospect Review as table; NL i18n for scout hero; gate fix for the v3.110.70 vocabulary regression
 
-Two scout-persona polish items, plus a bundled fix that unblocks main.
+Two scout-persona polish items, plus a follow-on fix for a vocabulary gate that v3.110.71's hotfix did not address.
 
 1. "the final step of new prospect wizard does not look pretty it should be a proper table" — scout dashboard, reported live.
 2. "I see a lot of English language which I do not expect as the site is in NL" — scout dashboard, reported live.
-3. **Bundled in by user direction**: v3.110.70's `MarkAttendanceHeroWidget` shipped with `__( 'Pick a session', 'talenttrack' )`, which trips the #0035 forbidden-vocabulary CI gate. Main's Build & Release has been red since the v3.110.70 merge, blocking this PR. Renamed the empty-state CTA to `Pick an activity` and added NL translations for every MarkAttendance / RateConfirmStep string the parallel branch left untranslated, so both the gate and the NL coverage on those strings land in the same release.
+3. **Gate fix**: v3.110.70's `MarkAttendanceHeroWidget` shipped with `__( 'Pick a session', 'talenttrack' )`, which trips the #0035 forbidden-vocabulary CI gate. v3.110.71 added the NL translation for that msgid but did not rename the source string, so the gate stayed red on main. This release renames the CTA to `Pick an activity` (the gate clears) and adds the matching NL `msgstr`.
 
 ## 1 — New-prospect wizard, Review step: real table
 
@@ -35,25 +35,91 @@ Added to `languages/talenttrack-nl_NL.po`:
 
 `.mo` regeneration runs automatically via the `translations.yml` workflow on the merge commit to main; no manual `msgfmt` step in this PR.
 
+## 3 — Gate fix for the v3.110.70 `Pick a session` vocabulary regression
+
+v3.110.70 introduced `__( 'Pick a session', 'talenttrack' )` on the empty-state path of `MarkAttendanceHeroWidget`. The #0035 CI gate (`No legacy 'sessions' strings`) treats user-visible `session`/`sessions` vocabulary as a regression of the pre-rename "training session" entity (now "activity"). The gate fired on the merge commit and Build & Release was red on main through the v3.110.71 hotfix release.
+
+v3.110.71 added the NL translation `Pick a session` → `Kies een sessie` to the .po, which **localises** the regression — it doesn't **eliminate** it. The gate ran on PHP source, found the forbidden token, stayed red.
+
+Fix in this release: rename the empty-state CTA in `MarkAttendanceHeroWidget` to `__( 'Pick an activity', 'talenttrack' )` and add the matching NL `msgstr` (`Kies een activiteit`) alongside (not replacing) the v3.110.71-shipped `Pick a session` entry. Old msgid stays in the .po so a downgraded install doesn't lose its translation mid-flight; the source string never references it.
+
 ## Why this exists as its own release
 
-Per CLAUDE.md DoD: "User-facing strings go through `__()` / `_e()` and `languages/talenttrack-nl_NL.po` updated in the same PR" — v3.110.68 violated this rule on the scout hero strings, and v3.110.70 violated it on the MarkAttendance feature. v3.110.71 closes both gaps. The wizard table fix lands in the same PR because all three changes touch the scout / coach dashboard surfaces and shipping them together avoids a churn-y bundle.
-
-## 3 — Folded-in fix for the #0035 forbidden-vocabulary gate (main was red)
-
-v3.110.70 introduced `__( 'Pick a session', 'talenttrack' )` on the empty-state path of `MarkAttendanceHeroWidget`. The #0035 CI gate (`No legacy 'sessions' strings`) treats user-visible `session`/`sessions` vocabulary as a regression of the pre-rename "training session" entity (now "activity"), since the .po only carries `activity` translations. The gate fired on the merge commit and has kept Build & Release red on main ever since.
-
-Fix: renamed the empty-state CTA to `__( 'Pick an activity', 'talenttrack' )`. Semantically the same — the scout doesn't pick a *type* of activity, they pick *an* activity — and aligns with the existing "Edit activity" / "Activity" / "No upcoming activity" vocabulary the rest of the widget already uses.
-
-NL coverage added for every other untranslated MarkAttendance string the parallel branch shipped — `Mark attendance hero`, `Schedule a training or match to populate this card.`, bare `Pick an activity`, bare `Edit activity`, `Mark attendance`, `Rate now?`, `Attendance is saved. While you're here, do you want to rate the players who were present?`, `Rate the present players`, `Skip rating, save attendance`, `Nobody was marked Present or Late, so there is nothing to rate. You can still proceed and finish without ratings.`, plus the plural `%d player marked Present or Late.`. The existing `Up next`, `Today`, `Tomorrow`, `Activity` (fallback title), and `No upcoming activity` already had NL.
-
-This bundling was directed by the user after I flagged the dependency.
+Per CLAUDE.md DoD: "User-facing strings go through `__()` / `_e()` and `languages/talenttrack-nl_NL.po` updated in the same PR" — v3.110.68 violated this rule on the scout hero strings, and v3.110.70 violated it on the MarkAttendance feature (caught by v3.110.71 in the .po, missed at source). v3.110.72 closes both gaps. The wizard table fix lands in the same PR because all three changes touch the scout dashboard surface.
 
 ## How to verify
 
-1. Refresh the plugin to v3.110.71 on the NL-locale install.
+1. Refresh the plugin to v3.110.72 on the NL-locale install.
 2. Scout dashboard hero now reads `Een nieuwe speler ontdekt` / `Leg een nieuwe prospect vast` / `X vastgelegd deze maand · Y nog actief in jouw trechter`.
 3. Click `+ Nieuwe prospect`, walk the wizard to the Review step. The summary renders as a clean two-column table with field names on the left, values on the right, alternating-row hover.
+4. On the head-coach dashboard with no upcoming activity scheduled, the empty-state CTA reads `Kies een activiteit` (was `Kies een sessie` in v3.110.71).
+5. Build & Release on main turns green again — the #0035 gate no longer fires.
+
+---
+
+# TalentTrack v3.110.71 — Hotfix: hero widget variant class was a mangled soup, suppressing the gradient + typography hierarchy on every persona-dashboard hero
+
+## The bug
+
+`AbstractWidget::wrap()` shipped this:
+
+```php
+$variant_cls = $variant !== '' ? ' tt-pd-variant-' . sanitize_html_class( $variant ) : '';
+```
+
+Every hero widget (`TodayUpNextHeroWidget` since v3.92, `AddProspectHeroWidget` from v3.110.68, `MarkAttendanceHeroWidget` from v3.110.70) calls it like:
+
+```php
+return $this->wrap( $slot, $inner, 'hero hero-mark-attendance' );
+```
+
+`sanitize_html_class()` strips anything outside `[A-Za-z0-9_-]` — including the space. So the variant string `'hero hero-mark-attendance'` collapsed to `'herohero-mark-attendance'`, and the wrapper emitted **one** class: `tt-pd-variant-herohero-mark-attendance`.
+
+The persona-dashboard stylesheet's hero rules are scoped to `.tt-pd-variant-hero`:
+
+```css
+.tt-pd-variant-hero { background: linear-gradient(135deg, …); color: #fff; }
+.tt-pd-variant-hero .tt-pd-hero-eyebrow { font-size: 0.6875rem; text-transform: uppercase; opacity: 0.7; }
+.tt-pd-variant-hero .tt-pd-hero-title { font-size: 1.625rem; font-weight: 700; }
+.tt-pd-variant-hero .tt-pd-hero-detail { font-size: 0.9375rem; opacity: 0.85; }
+```
+
+Because the emitted class was the mangled soup, none of those rules matched. Heroes rendered as flat white cards with three identical-weight lines stacked on top of each other. The CTA pill styling survived because `.tt-pd-cta-primary` / `.tt-pd-cta-ghost` are standalone rules (not scoped to the variant) — which is exactly why pilot screenshots showed the buttons styled correctly but the hero body collapsed into body text.
+
+## Why it took a year to surface
+
+The bug shipped silently with v3.92's `TodayUpNextHeroWidget` — but the head-coach landing wasn't a heavy-traffic surface during the early dashboard refactor (#0073 prioritised the HoD landing, scout came later). v3.110.68 reused the same `wrap('hero hero-add-prospect')` call for the scout hero and the same flat-card render slipped through review. v3.110.70 promoted `MarkAttendanceHeroWidget` to the **default** head-coach hero, and a pilot operator's screenshot the same day showed the flat rendering with three same-weight text lines. (The Dutch interface helped surface it — when the eyebrow reads "Eerstvolgende" and the title reads "Test activiteit" in the same body-text styling, the missing hierarchy is impossible to miss.)
+
+## The fix
+
+Tokenise the variant string on whitespace, sanitise each token independently, emit one `tt-pd-variant-<token>` class per token:
+
+```php
+$variant_cls = '';
+if ( $variant !== '' ) {
+    $tokens = preg_split( '/\s+/', trim( $variant ) ) ?: [];
+    foreach ( $tokens as $tok ) {
+        $clean = sanitize_html_class( $tok );
+        if ( $clean !== '' ) {
+            $variant_cls .= ' tt-pd-variant-' . $clean;
+        }
+    }
+}
+```
+
+`'hero hero-mark-attendance'` now yields ` tt-pd-variant-hero tt-pd-variant-hero-mark-attendance` — the shared `.tt-pd-variant-hero` rules match, plus the modifier class survives for any future per-hero CSS tweaks.
+
+Fixes all three heroes in one go: `today_up_next_hero`, `add_prospect_hero`, `mark_attendance_hero`. No widget or CSS changes; the existing CSS rules were correct, only the class string was broken.
+
+## Dutch translations for the v3.110.70 msgids
+
+Bonus in the same ship — the pilot operator's screenshot showed the buttons rendering English on an otherwise-localised Dutch hero card (`Mark attendance`, `Edit activity`). Per the CLAUDE.md §8 ship-along rule, the Dutch `.po` should have landed alongside the v3.110.70 PR — it didn't, flagged as a known follow-up in the PR description. This ship closes that gap with 11 new msgids covering the Mark attendance hero CTAs + the wizard's RateConfirmStep buttons + the empty-state line.
+
+## How to test
+
+1. Log in as a coach. Dashboard renders the Mark attendance hero with the **eyebrow uppercase + faded**, a **large bold title**, and a **smaller faded detail line**. Background is the navy-purple gradient from `--tt-pd-hero-start` / `--tt-pd-hero-end`. CTA pills look identical to before (yellow primary + ghost secondary).
+2. Same check on the scout dashboard (`add_prospect_hero` — should now show the hero-style hierarchy where it didn't before).
+3. With the WP site locale set to Dutch (`nl_NL`): the hero buttons read **Aanwezigheid registreren** and **Activiteit bewerken**. Open the wizard and the confirm-step buttons read **Beoordeel de aanwezige spelers** + **Beoordeling overslaan, aanwezigheid opslaan**. Empty-state hero reads **Kies een sessie** + `Plan een training of wedstrijd om deze kaart te vullen.` (v3.110.72 changes this to **Kies een activiteit**.)
 
 ---
 

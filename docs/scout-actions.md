@@ -93,7 +93,7 @@ Ordered by raw frequency (most-used first). Each action lists:
     prospects the line reads "0 logged this month · 0 still active
     in your funnel". User without `tt_edit_prospects` cap: the hero
     renders empty (cap-gated).
-  - **v3.110.71** — two polish items on this action's surface.
+  - **v3.110.72** — two polish items on this action's surface.
     (a) New-prospect wizard Review step rewritten from an
     unstyled `<dl class="tt-profile-dl">` (the stylesheet wasn't
     enqueued on the wizard view) to a proper
