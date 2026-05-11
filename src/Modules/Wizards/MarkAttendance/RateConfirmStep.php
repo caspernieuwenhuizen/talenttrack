@@ -86,6 +86,16 @@ final class RateConfirmStep implements WizardStepInterface {
      * @return array<string,mixed>
      */
     public function submit( array $state ) {
+        // v3.110.73 — respect `_done_redirect` from the wizard's initial
+        // state so the coach returns to where they started the flow
+        // (the dashboard hero, per MarkAttendanceWizard::initialState).
+        // Falls back to the activity detail page when the hint isn't
+        // set — keeps a sensible "see what you just saved" landing for
+        // any future caller that uses this step without the hint.
+        $override = isset( $state['_done_redirect'] ) ? (string) $state['_done_redirect'] : '';
+        if ( $override !== '' ) {
+            return [ 'redirect_url' => $override ];
+        }
         $aid = (int) ( $state['activity_id'] ?? 0 );
         $url = $aid > 0
             ? add_query_arg( [ 'tt_view' => 'activities', 'id' => $aid ], WizardEntryPoint::dashboardBaseUrl() )

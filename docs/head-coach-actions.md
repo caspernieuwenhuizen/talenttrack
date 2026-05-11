@@ -67,6 +67,54 @@ Each action lists:
   post-hoc edit surface.
 - **Player-centric framing:** *where now* (presence, engagement signal feeding rating + minutes)
 - **Shipped:**
+  - **v3.110.73** — six pilot-surfaced fixes for the mark-attendance
+    wizard flow.
+    (1) The roster step now ALWAYS renders in the mark-attendance
+    wizard, even when `tt_attendance` rows already exist — coach
+    clicked **Mark attendance** to mark/correct, not to skip to
+    rating.
+    (2) Roster pre-fills the radios from the existing `tt_attendance`
+    rows so the coach sees their previously-saved status per player
+    instead of a reset-to-Present default.
+    (3) Saving attendance auto-flips the activity to `completed`
+    (both `activity_status_key` and `plan_state`) so the attendance
+    section on the activity detail page becomes visible after the
+    wizard, instead of staying hidden behind the
+    `status === 'completed'` gate.
+    (4) Hero's **Edit activity** link now carries `tt_back` so the
+    activity edit form's Cancel button returns the coach to the
+    dashboard.
+    (5) Wizard completion (Skip rating AND rate-and-submit) returns
+    the coach to the dashboard via a new `_done_redirect` state
+    hint set by `MarkAttendanceWizard::initialState()`. The
+    `new-evaluation` wizard leaves it unset and keeps its
+    evaluations-list landing.
+    (6) `UpcomingActivityRepository::nextForCoach()` filters out
+    activities in `completed` or `cancelled` state. The hero is
+    "what needs your attention next", not "what's on your calendar
+    next" — once processed, an activity disappears from the hero.
+    *How to test:* enter the wizard from the hero for a `planned`
+    activity that already has some attendance rows (e.g. you marked
+    a few players then closed the tab). The roster renders — with
+    your previously-saved statuses pre-selected, not reset to
+    Present. Change one or two and hit Next. RateConfirmStep shows.
+    Pick **Skip rating, save attendance**: browser lands on the
+    dashboard (not the activity detail). Reload the dashboard — the
+    hero now shows the NEXT unprocessed activity (or the empty
+    state if there is none), not the one you just completed. Re-open
+    the activity from the activities list and confirm the Status
+    select shows `Completed` and the attendance roster is visible
+    with your saved values. Back on the dashboard, click **Edit
+    activity** on the hero (when it points to a still-planned
+    upcoming session) — the form opens. Click **Cancel** — returns
+    to the dashboard (not the activities list). Repeat the whole
+    flow but this time pick **Rate the present players** at the
+    confirm step, walk through rating + Review + Submit — browser
+    again lands on the dashboard (not the evaluations list). Sanity
+    check: the existing `+ New evaluation` activity-first wizard
+    still skips AttendanceStep when rows exist AND still lands on
+    `?tt_view=evaluations` after submit (force-render + done-redirect
+    flags are only set by the mark-attendance wizard).
   - **v3.110.71** — hotfix for the v3.110.70 hero render. `AbstractWidget::wrap()`
     fed `'hero hero-mark-attendance'` through one `sanitize_html_class()`
     call, stripping the space and emitting a mangled

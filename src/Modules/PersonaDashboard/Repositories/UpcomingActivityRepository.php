@@ -31,6 +31,15 @@ final class UpcomingActivityRepository {
         $has_club    = self::hasClubColumn( $table );
         $club_clause = $has_club ? ' AND club_id = ' . (int) $club_id : '';
 
+        // v3.110.73 — filter out activities the coach has already
+        // processed. An activity in `completed` or `cancelled` state is
+        // no longer "needs your attention next"; the hero should look
+        // past it to the soonest unhandled session. Pilot symptom:
+        // after marking attendance + ratings for tonight's training,
+        // the hero still showed the same activity with the Mark
+        // attendance CTA the next time the coach loaded the dashboard.
+        $status_clause = " AND ( activity_status_key IS NULL OR activity_status_key NOT IN ('completed','cancelled') )";
+
         if ( ! empty( $team_ids ) ) {
             $team_ids = array_values( array_unique( array_map( 'intval', $team_ids ) ) );
             $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
@@ -40,6 +49,7 @@ final class UpcomingActivityRepository {
                   WHERE session_date >= %s
                     AND team_id IN ({$placeholders})
                     {$club_clause}
+                    {$status_clause}
                   ORDER BY session_date ASC
                   LIMIT 1",
                 array_merge( [ $today ], $team_ids )
@@ -50,7 +60,7 @@ final class UpcomingActivityRepository {
         // No coached teams — fall back to any club-scoped upcoming activity.
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$table} WHERE session_date >= %s {$club_clause} ORDER BY session_date ASC LIMIT 1",
+            "SELECT * FROM {$table} WHERE session_date >= %s {$club_clause} {$status_clause} ORDER BY session_date ASC LIMIT 1",
             $today
         ) );
         return $row ?: null;
