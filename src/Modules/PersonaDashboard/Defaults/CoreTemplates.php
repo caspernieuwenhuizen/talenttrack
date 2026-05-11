@@ -127,10 +127,16 @@ final class CoreTemplates {
             'new_evaluation,new_goal,new_activity,new_player',
             Size::M, 0, 5, 1, 40
         ) );
+        // v3.110.69 (#0092) — hero is the new mark-attendance entry
+        // point. Replaces `today_up_next_hero` whose "Attendance" CTA
+        // dropped the coach on the activities list rather than the
+        // upcoming activity's roster. The old widget stays registered
+        // for back-compat so any custom template that pinned it
+        // explicitly keeps working.
         return new PersonaTemplate(
             'head_coach',
             $club_id,
-            new WidgetSlot( 'today_up_next_hero', '', Size::XL, 0, 0, 2, 1 ),
+            new WidgetSlot( 'mark_attendance_hero', '', Size::XL, 0, 0, 2, 1 ),
             null,
             $grid
         );

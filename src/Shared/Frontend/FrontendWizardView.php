@@ -55,6 +55,19 @@ class FrontendWizardView extends FrontendViewBase {
         if ( ! $state ) {
             $state = WizardState::start( $user_id, $slug, $wizard->firstStepSlug() );
             WizardAnalytics::recordStarted( $slug );
+
+            // #0092 — opt-in seed hook. Wizards that need to read URL
+            // params on first hit (e.g. `mark-attendance` taking an
+            // `activity_id` from the dashboard widget) implement
+            // `initialState( array $get ): array`. Returned values are
+            // merged into wizard state before the first step renders.
+            if ( method_exists( $wizard, 'initialState' ) ) {
+                $get_snapshot = is_array( $_GET ) ? $_GET : [];
+                $seed = $wizard->initialState( $get_snapshot );
+                if ( is_array( $seed ) && ! empty( $seed ) ) {
+                    $state = WizardState::merge( $user_id, $slug, $seed );
+                }
+            }
         }
 
         $current_slug = (string) $state['_step'];
@@ -148,6 +161,30 @@ class FrontendWizardView extends FrontendViewBase {
                     self::transitionOrSubmit( $wizard, $current, $next_slug, $state, $user_id );
                     return;
             }
+        }
+
+        // #0092 — auto-skip steps whose `notApplicableFor()` returns
+        // true. The eval wizard's comments referenced this since #0072
+        // ("framework auto-skips this step via notApplicableFor()");
+        // until now it only greyed the progress bar. Coaches landing
+        // on the mark-attendance wizard with `activity_id` pre-seeded
+        // would otherwise see the activity-picker step pointlessly.
+        // Bounded by the step count to prevent loops on a misconfigured
+        // chain.
+        $max_skips = count( $wizard->steps() ) + 1;
+        $skip_count = 0;
+        while ( $skip_count++ < $max_skips
+                && method_exists( $current, 'notApplicableFor' )
+                && (bool) $current->notApplicableFor( $state ) ) {
+            $next_slug = $current->nextStep( $state );
+            if ( $next_slug === null ) break;
+            WizardState::recordSkip( $user_id, $slug, $current->slug() );
+            WizardAnalytics::recordSkipped( $slug, $current->slug() );
+            $state = WizardState::setStep( $user_id, $slug, $next_slug );
+            $next_step = self::stepFor( $wizard, $next_slug );
+            if ( ! $next_step ) break;
+            $current = $next_step;
+            $current_slug = $next_slug;
         }
 
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $wizard->label() );

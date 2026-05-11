@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.69
+Stable tag: 3.110.70
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.70 — Head-coach dashboard: new `Mark attendance` hero + wizard, attendance-first with optional rating fork (#0092) =
+
+Replaces the head-coach hero with a one-tap path into a new attendance-first wizard. `MarkAttendanceHeroWidget` reads the soonest upcoming activity on a coach's teams and the primary CTA deep-links into the `mark-attendance` wizard with that activity pre-selected, skipping the activity-picker step. The wizard chains AttendanceStep → new RateConfirmStep (Yes/Skip fork) → optional RateActorsStep + ReviewStep so a coach who's done at the pitch can persist attendance alone in one motion, or continue into roster-style rating in the same flow. New `UpcomingActivityRepository` (single source of truth for next-activity), `RateConfirmStep` (Yes/Skip), `MarkAttendanceWizard` (orchestrates the chain). Small framework adds: `FrontendWizardView` learns an opt-in `initialState( $get )` hook for URL→state seeding, plus an auto-skip loop that walks past steps whose `notApplicableFor()` returns true (the eval wizard's #0072 comments referenced this — until now `notApplicableFor` only greyed the progress bar). `AttendanceStep::nextStep()` reads an optional `_attendance_next` routing hint with default `rate-actors` so the new-evaluation chain is unchanged. `ActivityPickerStep::notApplicableFor()` skips when `_path = activity-first` + `activity_id > 0` are pre-seeded. `today_up_next_hero` stays registered for back-compat. The previous hero's "Attendance" CTA dropped the coach on the activities *list* rather than the activity, costing 6–8 taps before the roster appeared; this hero drops the cost to one tap. Spec: `specs/0092-feat-mark-attendance-widget.md`. Driver doc: `docs/head-coach-actions.md` action #1.
 
 = 3.110.69 — Hotfix: missing `use` import made every page on a freshly installed v3.110.68 fatal =
 
