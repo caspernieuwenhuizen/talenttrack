@@ -66,7 +66,24 @@ abstract class AbstractWidget implements Widget {
     protected function wrap( WidgetSlot $slot, string $inner_html, string $variant = '' ): string {
         $size_cls = 'tt-pd-size-' . strtolower( $slot->size );
         $row_span = $slot->row_span > 1 ? ' tt-pd-rows-' . $slot->row_span : '';
-        $variant_cls = $variant !== '' ? ' tt-pd-variant-' . sanitize_html_class( $variant ) : '';
+        // v3.110.71 — variant accepts a whitespace-separated list of tokens
+        // (e.g. `'hero hero-mark-attendance'`). Emit one `tt-pd-variant-<token>`
+        // class per token so the shared `.tt-pd-variant-hero` typography +
+        // gradient rules in `persona-dashboard.css` match alongside the
+        // widget-specific modifier. Pre-v3.110.71 the whole string was fed
+        // through `sanitize_html_class()` once — which strips spaces, so the
+        // emitted class was a single `tt-pd-variant-herohero-mark-attendance`
+        // soup that matched no CSS rule.
+        $variant_cls = '';
+        if ( $variant !== '' ) {
+            $tokens = preg_split( '/\s+/', trim( $variant ) ) ?: [];
+            foreach ( $tokens as $tok ) {
+                $clean = sanitize_html_class( $tok );
+                if ( $clean !== '' ) {
+                    $variant_cls .= ' tt-pd-variant-' . $clean;
+                }
+            }
+        }
         $widget_id   = sanitize_html_class( $this->id() );
         $data_source = $slot->data_source !== '' ? ' data-tt-pd-data="' . esc_attr( $slot->data_source ) . '"' : '';
         return '<div class="tt-pd-widget tt-pd-widget-' . $widget_id . ' ' . $size_cls . $row_span . $variant_cls . '"'

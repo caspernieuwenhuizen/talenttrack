@@ -67,6 +67,33 @@ Each action lists:
   post-hoc edit surface.
 - **Player-centric framing:** *where now* (presence, engagement signal feeding rating + minutes)
 - **Shipped:**
+  - **v3.110.71** — hotfix for the v3.110.70 hero render. `AbstractWidget::wrap()`
+    fed `'hero hero-mark-attendance'` through one `sanitize_html_class()`
+    call, stripping the space and emitting a mangled
+    `tt-pd-variant-herohero-mark-attendance` class that matched none
+    of the `.tt-pd-variant-hero` typography + gradient rules. Fixed by
+    tokenising the variant string on whitespace and emitting one
+    `tt-pd-variant-<token>` per token. Same ship adds the Dutch
+    translations for the 11 v3.110.70 msgids that were rendering
+    English on an otherwise-localised hero card (Mark attendance →
+    Aanwezigheid registreren, Edit activity → Activiteit bewerken,
+    plus the wizard's confirm-step buttons + empty-state line).
+    *How to test:* log in as a coach on a Dutch (`nl_NL`) install with
+    at least one upcoming activity. The hero card renders with the
+    navy-purple gradient background, an uppercase faded eyebrow
+    ("Eerstvolgende · …"), a large bold title (the activity name),
+    and a smaller faded detail line (team · location) — no longer
+    three same-weight body-text lines. The primary CTA button reads
+    **Aanwezigheid registreren** (was "Mark attendance") and the
+    secondary link reads **Activiteit bewerken** (was "Edit activity").
+    Walk into the wizard, mark attendance, hit Next — the confirm
+    step's two buttons read **Beoordeel de aanwezige spelers** and
+    **Beoordeling overslaan, aanwezigheid opslaan**. With no upcoming
+    activity, the hero's primary CTA reads **Kies een sessie** and
+    the detail line reads "Plan een training of wedstrijd om deze
+    kaart te vullen." Also verify the scout dashboard's `+ New
+    prospect` hero now shows the same hierarchy (it had the same
+    silent bug since v3.110.68).
   - **v3.110.70** — `MarkAttendanceHeroWidget` replaces
     `today_up_next_hero` as the default coach-template hero. Primary
     CTA deep-links into the new `mark-attendance` wizard with the
