@@ -146,6 +146,20 @@ Ordered by raw frequency (most-used first). Each action lists:
     training / Trial group / Team offer / Joined — scoped to your
     `discovered_by_user_id`. Clicking through to the standalone
     kanban (`?tt_view=onboarding-pipeline`) shows the same numbers.
+  - **v3.110.75** — the count strip was the right placement but had
+    no CSS rules at all (`tt-pd-pipeline-*` classes were emitted by
+    the widget but never defined in `persona-dashboard.css`), so the
+    dashboard showed six unstyled stacked divs while the standalone
+    view at `?tt_view=onboarding-pipeline` looked correct. Added the
+    missing rules — compact six-column strip with stage labels in
+    small-caps, large bold counts, optional amber stale badges.
+    Mobile-first per CLAUDE.md §2: stacks below 720px, side-by-side
+    above.
+    *How to test:* desktop scout dashboard row 1 is now a real six-
+    column strip with card backgrounds and clear typography hierarchy
+    (was a bare-text stack). At 360–720px width it collapses to a
+    vertical list of cards; each card has the same label + count
+    layout. Hover not required — pure layout, no interactive state.
 - **Polish notes:**
 
 ### 3. Add a follow-up scouting note to an existing prospect
