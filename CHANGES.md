@@ -1,3 +1,49 @@
+# TalentTrack v3.110.74 — `OnboardingPipelineWidget` had no CSS rules — funnel rendered as six unstyled stacked divs on every dashboard surface
+
+## The bug
+
+`OnboardingPipelineWidget::render()` (shipped v3.110.48 under #0081 child 3) emits markup with these classes:
+
+```html
+<div class="tt-pd-pipeline-title">Onboarding pipeline</div>
+<div class="tt-pd-pipeline-cols">
+  <div class="tt-pd-pipeline-col">
+    <div class="tt-pd-pipeline-stage-label">Prospects</div>
+    <div class="tt-pd-pipeline-count">12</div>
+    <span class="tt-pd-pipeline-stale">(3 stale)</span>
+  </div>
+  …six columns total…
+</div>
+```
+
+`assets/css/persona-dashboard.css` defines 227 `tt-pd-*` rules but **zero** rules for `tt-pd-pipeline-*`. The widget rendered as six unstyled stacked `<div>`s — labels and counts piled vertically with no flex/grid container, no card backgrounds, no header treatment. On a scout dashboard pinning the widget at row 1 (per v3.110.68's scout template), the operator sees an ugly bare-text block with six pairs of label + number stacked on top of each other.
+
+The standalone view at `?tt_view=onboarding-pipeline` (the destination of the `onboarding-pipeline` tile) has its own kanban styling at `assets/css/components/onboarding-pipeline.css` using `tt-pipeline-*` classes (no `pd-` prefix) — that's why "from the tile it looks ok". Two parallel pipeline UIs, only one of them styled.
+
+## The fix
+
+One-way: add the missing `tt-pd-pipeline-*` rules to `persona-dashboard.css`. The PHP/HTML is correct; the gap is purely CSS.
+
+Visual target: a compact six-column count strip, distinct from the kanban (the widget never had cards — it's a glance-info hero, not the full board). Per CLAUDE.md §2 mobile-first:
+
+- Below 720px: columns stack vertically (`grid-template-columns: 1fr`).
+- 720px+: grid of six (`grid-template-columns: repeat(6, 1fr)`).
+- Each column has 8px border-radius, soft `#fafbfc` background, `#e5e7ea` border, 0.625rem 0.75rem padding, 4.5rem minimum height.
+- Stage label: 11px small-caps muted (`var(--tt-pd-muted)`), uppercase, letter-spaced.
+- Count: 1.5rem bold ink (`var(--tt-pd-ink)`).
+- Stale badge: 11px amber-on-soft-amber (`#b45309` on `#fef3c7`), 3px radius, inline at the bottom of the column.
+
+The widget can now be pinned on any dashboard surface and looks consistent with the surrounding KPI tiles + hero cards.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.74. Log in as a scout.
+2. Scout dashboard hero is the `+ New prospect` card (v3.110.68). Row 1 is the `onboarding_pipeline` widget — now renders as a six-column strip with the funnel counts.
+3. On mobile (≤ 720px width), the columns stack into a single column.
+4. The standalone `?tt_view=onboarding-pipeline` view is unchanged — that uses `tt-pipeline-*` classes with its own kanban CSS.
+
+---
+
 # TalentTrack v3.110.72 — Scout polish: new-prospect Review as table; NL i18n for scout hero; gate fix for the v3.110.70 vocabulary regression
 
 Two scout-persona polish items, plus a follow-on fix for a vocabulary gate that v3.110.71's hotfix did not address.

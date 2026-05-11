@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.72
+Stable tag: 3.110.74
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.74 — `OnboardingPipelineWidget` had no CSS rules, rendered as six unstyled stacked divs on every dashboard surface that pinned it =
+
+The widget shipped in v3.110.48 (#0081 child 3) emitted `tt-pd-pipeline-*` classes that no stylesheet defined. The standalone view at `?tt_view=onboarding-pipeline` has its own kanban styling in `assets/css/components/onboarding-pipeline.css`, which is why the funnel looked correct from the tile but ugly on the scout dashboard (and the HoD glance row, if any operator had pinned it there). **Fix**: added `tt-pd-pipeline-*` rules to `assets/css/persona-dashboard.css` — compact six-column count strip, mobile-first per CLAUDE.md §2 (stacks vertically below 720px, grid of six columns above). Each column has a small-caps stage label, a large bold count, and an optional amber-bg stale badge underneath. Visual language follows the existing `tt-pd-*` token vocabulary (`--tt-pd-muted`, `--tt-pd-ink`). No PHP / HTML / classname changes — the widget already emitted the right markup; the gap was the missing CSS.
 
 = 3.110.73 — Mark attendance wizard: roster always renders + pre-fills, auto-completes activity, Edit activity captures back-target, wizard completion returns to dashboard, hero hides processed activities (#0092) =
 
