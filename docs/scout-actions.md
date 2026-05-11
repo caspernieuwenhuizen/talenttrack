@@ -43,6 +43,9 @@ Ordered by raw frequency (most-used first). Each action lists:
 - **Player-centric framing** — which of the four §1 questions it answers
   (here adapted to *prospects*: "where in the funnel / where from /
   where to / what next")
+- **Shipped** — running log of versions that touched this action plus
+  the exact one-paragraph manual test for each shipped fix. Filled
+  as we ship, never erased.
 - **Polish notes** — left blank initially; we fill as we test
 
 ---
@@ -57,11 +60,39 @@ Ordered by raw frequency (most-used first). Each action lists:
   consent — in under two minutes, on a phone, with the wizard catching
   duplicates before the prospect is created
 - **Surface today:** `?tt_view=wizard&slug=new-prospect` (4-step wizard
-  Identity / Discovery / Parent / Review — v3.110.59); reachable from
-  the Onboarding pipeline tile's `+ New prospect` button
+  Identity / Discovery / Parent / Review — v3.110.59); from the scout
+  persona dashboard the wizard launches from the `+ New prospect`
+  hero tile (v3.110.68)
 - **Player-centric framing:** *where from* (discovery context anchors
   every later conversation) + *what next* (HoD picks it up via the
   auto-spawned invitation task)
+- **Shipped:**
+  - **v3.110.59** — replaced the legacy "click `+ New prospect` →
+    auto-create a `LogProspect` workflow task" flow with a proper
+    four-step wizard (Identity / Discovery / Parent / Review). On
+    submit the wizard creates the `tt_prospects` row directly and
+    dispatches `InviteToTestTrainingTemplate` for the HoD. Conforms
+    to CLAUDE.md §3 (wizard-first record creation).
+    *How to test:* go to `?tt_view=onboarding-pipeline`, click
+    `+ New prospect`. Walk through all 4 steps — duplicate detection
+    on Identity, optional fields on Discovery, "at least email or
+    phone" + consent required on Parent. On submit, the new prospect
+    appears in the **Invited** column of the kanban (not Prospects —
+    the HoD task spawns immediately) and the HoD has an
+    `InviteToTestTraining` task in their inbox.
+  - **v3.110.68** — added `AddProspectHeroWidget` as the scout
+    persona dashboard hero. One-tap path to the wizard; eyebrow
+    "Spot someone new", title "Log a new prospect", detail line
+    "X logged this month · Y still active in your funnel" scoped
+    to `discovered_by_user_id`.
+    *How to test:* log in as a user with persona=scout, land on the
+    dashboard. Hero is the launch tile. Click `+ New prospect` →
+    wizard opens at `?tt_view=wizard&slug=new-prospect`. Detail line
+    counts match your portfolio (logged this calendar month and
+    active non-terminal prospects). On a fresh account with zero
+    prospects the line reads "0 logged this month · 0 still active
+    in your funnel". User without `tt_edit_prospects` cap: the hero
+    renders empty (cap-gated).
 - **Polish notes:**
 
 ### 2. Glance at the onboarding pipeline
@@ -73,10 +104,32 @@ Ordered by raw frequency (most-used first). Each action lists:
   offer / Joined), which ones are stale, which ones moved since last
   check
 - **Surface today:** `?tt_view=onboarding-pipeline` (kanban view —
-  v3.110.59) + the dashboard's compact `OnboardingPipelineWidget` strip;
-  scout-scoped via `discovered_by_user_id`
+  v3.110.59) + the scout persona dashboard's row 1 (`OnboardingPipelineWidget`
+  count strip, placed by v3.110.68); scout-scoped via `discovered_by_user_id`
 - **Player-centric framing:** *where in the funnel* + *what next* (across
   the portfolio)
+- **Shipped:**
+  - **v3.110.59** — standalone `?tt_view=onboarding-pipeline` rebuilt
+    as a kanban (six columns × prospect cards). Dashboard widget kept
+    its compact count-strip rendering for tile placement. Also fixed
+    the "Prospects=0 / Invited=2" double-count bug by classifying
+    each prospect into exactly one stage (Joined > Team offer > Trial
+    group > Test training > Invited > Prospects priority).
+    *How to test:* visit `?tt_view=onboarding-pipeline`. See six
+    columns with counts + per-prospect cards (name, age / club,
+    discovered date, stage-specific context line). Counts should
+    match the dashboard widget's count strip. Mobile 360px collapses
+    to one column per stage.
+  - **v3.110.68** — moved the `OnboardingPipelineWidget` onto the
+    scout persona dashboard at row 1 (below the new `+ New prospect`
+    hero). Previously the widget was registered but not placed on
+    the scout's template; scouts had to navigate to the standalone
+    page to see it.
+    *How to test:* log in as scout, look at the dashboard. Below the
+    hero is a six-column count strip — Prospects / Invited / Test
+    training / Trial group / Team offer / Joined — scoped to your
+    `discovered_by_user_id`. Clicking through to the standalone
+    kanban (`?tt_view=onboarding-pipeline`) shows the same numbers.
 - **Polish notes:**
 
 ### 3. Add a follow-up scouting note to an existing prospect
@@ -109,6 +162,19 @@ Ordered by raw frequency (most-used first). Each action lists:
   page for trial-group ones)
 - **Player-centric framing:** *where in the funnel* + *where from*
   (correlate which discovery contexts produce the best progressions)
+- **Shipped:**
+  - **v3.110.59** — kanban view scoped to the calling user via
+    `discovered_by_user_id`. Cards click through to the right surface
+    per stage (open task form, player profile, trial-case page).
+    Pale-orange stale badge on cards whose soonest open task is
+    >30 days past due.
+    *How to test:* land on the kanban as a scout with at least one
+    prospect in each stage. Counts and cards match the
+    `OnboardingPipelineWidget` count strip on the dashboard. Click a
+    card in **Invited** → opens the HoD's `InviteToTestTraining`
+    task. Click a card in **Joined** → opens the promoted player's
+    profile. A prospect with an open task whose `due_at` is >30
+    days ago shows the stale badge with a pale-orange tint.
 - **Polish notes:**
 
 ### 5. Track a test-training outcome
@@ -223,6 +289,21 @@ Ordered by raw frequency (most-used first). Each action lists:
   whether it's a build-it or a wire-it-up.
 - High-frequency actions (#1–#4) get the most scrutiny — small friction
   at those frequencies compounds into hours per season per scout.
+
+## Shipped-section convention
+
+Every release that touches a scout-facing surface appends an entry to
+the relevant action's **Shipped** stanza, never edits an older one:
+
+```
+- **vX.Y.Z** — one-paragraph what changed.
+  *How to test:* one-paragraph manual repro recipe the next reader
+  can follow without re-reading the PR.
+```
+
+This keeps the doc a chronological record of what's been delivered
+*and* a self-contained test plan for the persona pass. The
+`docs/head-coach-actions.md` sibling follows the same convention.
 
 ## Out of scope for this pass
 
