@@ -1,3 +1,76 @@
+# TalentTrack v3.110.78 — Scout dashboard: "My recent scout reports" replaced by "My recent prospects" — fixes empty table + Show-all cap mismatch
+
+## What was wrong
+
+Scout persona dashboard row 2 shipped with `data_table` source `recent_scout_reports` (v3.110.68 scout template rebuild). The source itself is wired to `ScoutReportsRepository::listForGenerator()` — a record of PDF-export artifacts the academy generates to share prospect info externally — and the Show-all link points at `?tt_view=scout-history`, which is cap-gated on `tt_generate_scout_report` (mapped to the `scout_access.create_delete` matrix permission, an admin/manager concern).
+
+A working scout in v3.110.68 saw two symptoms:
+
+1. **The table was always empty** even after logging new prospects — different table, different feature.
+2. **Show All → "You need scout-management permission to view this page."** — the cap gate on `scout-history` doesn't grant to the default `tt_scout` role.
+
+Reported live: *"My recent scout reports widget does not seem to work? I just created a new prospect which I would expect is a scoutreport? Also, when clicking on the show all button I a you need scout admin rights to see this page; matrix related?"*
+
+The mental-model mismatch is real: in football-academy vocabulary, "I just logged a new prospect" IS the scout's contribution; the codebase split that into two concepts (prospects vs. PDF reports) before #0081 unified the funnel around prospects. The v3.110.68 scout-template rebuild fixed hero + pipeline placement but didn't touch the row-2 table — leftover from before the prospects funnel existed.
+
+## What landed
+
+### New TableRowSource — `MyRecentProspectsSource`
+
+`src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php`. Implements `TableRowSource::rowsFor()`:
+
+```php
+$repo = new ProspectsRepository();
+$rows = $repo->search( [
+    'discovered_by_user_id' => $user_id,
+    'include_archived'      => true,   // scout wants to see the rhythm, not just open work
+    'limit'                 => $limit,
+] );
+```
+
+Returns four columns: Date (formatted from `discovered_at`), Name (first + last), Status, Open link.
+
+Status is derived from `tt_prospects` columns alone — no workflow-task join, query stays single-table:
+
+```php
+if ( ! empty( $r->archived_at ) )                return __( 'Archived', 'talenttrack' );
+if ( ! empty( $r->promoted_to_player_id ) )      return __( 'Joined', 'talenttrack' );
+if ( ! empty( $r->promoted_to_trial_case_id ) )  return __( 'In trial', 'talenttrack' );
+return __( 'Active', 'talenttrack' );
+```
+
+The Open link goes to `?tt_view=onboarding-pipeline&prospect_id=<id>` — the pipeline view doesn't (yet) deep-link to a specific card, but the `prospect_id` arg is preserved for a future "scroll-to-card" enhancement. The user lands on their kanban and can find the prospect in seconds.
+
+### New `DataTableWidget` preset — `my_recent_prospects`
+
+- Title: **My recent prospects**
+- Columns: Date / Name / Status / (Open link)
+- See-all target: `onboarding-pipeline` (cap `tt_view_prospects`)
+- Empty message: *"You have not logged any prospects yet. Use the "+ New prospect" hero above to start."*
+
+### Scout template wiring
+
+`CoreTemplates::scout()` row 2 changed from `recent_scout_reports` → `my_recent_prospects`. Position / size / priority unchanged (XL, spans 2 rows, priority 20).
+
+The legacy `recent_scout_reports` source + preset stay registered. Any operator who customised their dashboard to pin it keeps it. Only the default scout template stops referencing it.
+
+## Why this exists as its own release
+
+The reported bug had two layers — empty table AND inaccessible Show-all — both rooted in the same mismatch between the legacy scout-report concept and the modern prospects funnel. Fixing only one would have left the other broken. Bundling them isolates the fix to scout-persona action #1's row-2 surface; no other dashboard is touched.
+
+Doc backfill: `docs/scout-actions.md` action #1 gets a v3.110.78 Shipped stanza.
+
+## How to verify
+
+1. Log in as a user with persona = scout.
+2. Scout dashboard row 2 reads **My recent prospects** (was **My recent reports**).
+3. With at least one prospect logged by this user: the table lists Date / Name / Status / Open for up to 5 rows, newest first.
+4. Without any prospects: the empty-state copy directs the scout back to the **+ New prospect** hero above.
+5. Click **See all** in the table header → lands on `?tt_view=onboarding-pipeline` (the kanban), not on the cap-gated scout-history page.
+6. Click **Open** on any row → lands on the kanban with `?prospect_id=<id>` in the URL (harmless if not deep-linked yet).
+
+---
+
 # TalentTrack v3.110.75 — `OnboardingPipelineWidget` had no CSS rules — funnel rendered as six unstyled stacked divs on every dashboard surface
 
 ## The bug

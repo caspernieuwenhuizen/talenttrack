@@ -7,6 +7,7 @@ use TT\Modules\PersonaDashboard\Registry\TableRowSourceRegistry;
 use TT\Modules\PersonaDashboard\Registry\WidgetRegistry;
 use TT\Modules\PersonaDashboard\TableSources\AuditLogRecentSource;
 use TT\Modules\PersonaDashboard\TableSources\GoalsByPrincipleSource;
+use TT\Modules\PersonaDashboard\TableSources\MyRecentProspectsSource;
 use TT\Modules\PersonaDashboard\TableSources\RecentScoutReportsSource;
 use TT\Modules\PersonaDashboard\TableSources\TrialsNeedingDecisionSource;
 use TT\Modules\PersonaDashboard\TableSources\UpcomingActivitiesSource;
@@ -79,6 +80,13 @@ final class CoreWidgets {
         TableRowSourceRegistry::register( 'upcoming_activities',     new UpcomingActivitiesSource() );
         TableRowSourceRegistry::register( 'trials_needing_decision', new TrialsNeedingDecisionSource() );
         TableRowSourceRegistry::register( 'recent_scout_reports',    new RecentScoutReportsSource() );
+        // v3.110.78 — scout-persona "my recent prospects" table source.
+        // Replaces `recent_scout_reports` on `CoreTemplates::scout()` row 2.
+        // Reports were a PDF-export artifact gated on a cap the working
+        // scout doesn't have; what they actually want at row 2 is "the
+        // prospects I just logged" with a Show-all link that lands on
+        // their kanban (cap `tt_view_prospects`).
+        TableRowSourceRegistry::register( 'my_recent_prospects',     new MyRecentProspectsSource() );
         TableRowSourceRegistry::register( 'audit_log_recent',        new AuditLogRecentSource() );
         // #0077 M3 — methodology coverage table for HoD.
         TableRowSourceRegistry::register( 'goals_by_principle',      new GoalsByPrincipleSource() );
