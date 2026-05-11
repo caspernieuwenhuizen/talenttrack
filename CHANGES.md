@@ -44,6 +44,72 @@ The widget can now be pinned on any dashboard surface and looks consistent with 
 
 ---
 
+# TalentTrack v3.110.76 — RateActorsStep: collapsed-roster + live status pill + sticky overall-progress strip (#0092)
+
+## The problem
+
+The rating step in the new-evaluation + mark-attendance wizards rendered every present/late player as a fully-expanded `<details class="tt-rate-player" open>` card. A 14-player squad with 4 main categories per player produced ~8 phone-screens of scroll on a 360px viewport before the coach reached the Submit button. The same card structure also nested sub-category `<details>` per main rating (collapsed) — but the player-level cards stayed open by default, so the page was a tall vertical list with no glance-able structure.
+
+Pilot operator surfaced it the moment they reached the step: *"when rating the players, the form is way too big. Needs to be done more cleverly. Taking into account the mobile standard but also making it easier to navigate through."*
+
+## The redesign — three pieces
+
+### (1) Collapsed cards by default
+
+`<details class="tt-rate-player">` drops the `open` attribute. Players render as a list of tappable rows. Tap a player → the card expands inline with the existing quick-rate inputs + sub-rate `<details>` + notes + skip. Tap the summary again → collapses. Native disclosure widget — keyboard-accessible by default, no JS required for the open/close behaviour itself.
+
+### (2) Live per-player status pill
+
+The summary now carries the player's name AND a status pill: **Not rated** / **Rating…** / **Rated** / **Skipped**. Pill state is recomputed client-side on every `input` / `change` event by a small script colocated with the step:
+
+```
+filled = count of quick-rate inputs with value > 0
+total  = number of main categories
+
+skip checked              → Skipped       (grey, strike-through)
+filled === 0              → Not rated     (grey)
+0 < filled < total        → Rating…       (amber)
+filled === total          → Rated         (green)
+```
+
+Pill colour vocabulary matches the wizard progress-dots (green = done, amber = in flight, grey = empty). Status updates without a page reload as the coach types.
+
+### (3) Sticky overall progress strip
+
+Top of the step renders `<div class="tt-rate-progress" aria-live="polite">0 of 14 players rated</div>` with `position: sticky; top: 0;` and `z-index: 30;` so the count stays in view while the coach scrolls. Counts "rated" = (complete OR skipped). `aria-live="polite"` so screen readers announce updates as the coach moves through the roster.
+
+The strip uses the same teal as the active wizard progress step so it visually belongs to the wizard chrome.
+
+## CSS notes
+
+- `.tt-rate-player-summary` is 56px min-height, `touch-action: manipulation` (kills the 300ms tap delay on Android), with a `▸` chevron that rotates 90° when the card opens.
+- Native `<summary>` markers (the default disclosure triangle) are hidden via `::-webkit-details-marker { display: none; }` + `::marker { content: ''; }` so the chevron is the only indicator.
+- Status pill is 4×10px padding, 999px border-radius (pill shape), 0.75rem font.
+- Collapsed cards have zero padding (only the summary clickable); open cards pad their content area normally.
+
+## Why not paginate or do one-player-at-a-time
+
+Considered. Rejected because (a) the coach often wants to see the spread across the roster ("everyone got 4 on technique tonight, that's weird") and (b) it adds a navigation pattern (Prev/Next within a wizard step) that doesn't exist elsewhere in the codebase. Collapsed cards keep the existing flow + DOM shape (same form names, same validate path) and just clean up the visual presentation.
+
+## Data model
+
+Unchanged. The same `tt_evaluations` + `tt_eval_ratings` writes happen in `ReviewStep`. Same form fields, same names. The new `<details>` opens are pure render-side.
+
+## Translations
+
+Six new NL msgids in `languages/talenttrack-nl_NL.po`:
+
+- `Not rated` → `Niet beoordeeld`
+- `Rating…` → `Bezig…`
+- `Rated` → `Beoordeeld`
+- `Skipped` → `Overgeslagen`
+- `%1$d of %2$d players rated` → `%1$d van %2$d spelers beoordeeld`
+- The updated step intro (`%d player ready to rate. Tap a player to expand…`) with NL counterpart.
+
+`.mo` regeneration happens automatically on tag push via the release workflow.
+
+---
+
 # TalentTrack v3.110.74 — Drop the mobile FAB on detail-page primary actions; secondary actions return to mobile too
 
 ## The pattern that's going away

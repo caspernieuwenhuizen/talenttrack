@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.75
+Stable tag: 3.110.76
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.76 — RateActorsStep: collapsed-roster + live status pill + sticky overall-progress strip (#0092) =
+
+The rating step previously rendered every present/late player as an expanded card on first load. A typical 14-player squad on a 360px viewport stretched the form to ~8 phone-screens of scroll. Pilot operator: "way too big, needs to be done more cleverly." This release collapses the per-player cards by default and surfaces progress / state inline so the coach can scan the roster like a list. **(1) Collapsed cards by default**: each `<details class="tt-rate-player">` now opens on tap. The summary shows the player's name + a status pill (Not rated / Rating… / Rated / Skipped). Tap to expand and rate; tap again to collapse. **(2) Live per-player status pill**: client-side script watches `input` + `change` events on the rate inputs + skip checkbox, recomputes per-player state (empty / partial / complete / skipped), updates the pill. Pill colour and label change live without page reload. **(3) Sticky overall progress strip**: top of the step shows "X of Y players rated" anchored to the viewport top, `aria-live` so screen readers announce updates. **(4) CSS treatment**: collapsed summaries are 56px-min tap targets with a chevron indicator (rotates 90° on expand). Status pills use the same colour vocabulary as the wizard progress dots (green for complete, amber for partial, grey for empty/skipped). **(5) Dutch translations** for the new strings (Not rated, Rating…, Rated, Skipped, "%1$d of %2$d players rated", plus the updated step intro). No data-model change; the same `tt_evaluations` / `tt_eval_ratings` writes happen in `ReviewStep`. The new evaluation activity-first path benefits from the same change — it shares the step.
 
 = 3.110.75 — `OnboardingPipelineWidget` had no CSS rules, rendered as six unstyled stacked divs on every dashboard surface that pinned it =
 
