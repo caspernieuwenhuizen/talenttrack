@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.67
+Stable tag: 3.110.68
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.68 — Scout dashboard rebuilt around the prospects funnel: hero is `+ New prospect`, pipeline strip below =
+
+Scout-persona polish pass (per `docs/scout-actions.md`). Action #1 by frequency is "log a new prospect" (5–15× per week during a season). Before this release the scout persona dashboard's hero was `assigned_players_grid` (a legacy surface from before the prospects funnel existed in #0081), the tile grid pointed at `scout-history` / `scout-my-players` (the old report model), and the new-prospect wizard + onboarding pipeline shipped in v3.110.59 weren't surfaced on the scout's persona dashboard at all. A scout logging in had to navigate to `?tt_view=onboarding-pipeline` first, then click `+ New prospect` — two taps for the #1 action. **Fix**: new `AddProspectHeroWidget` ships as the scout hero — a one-tap `+ New prospect` CTA that launches the `new-prospect` wizard (via `WizardEntryPoint::urlFor()` so installs that disabled the slug fall back gracefully), paired with a one-line context strip ("X logged this month · Y still active in your funnel") scoped to `discovered_by_user_id`. Cap-gated on `tt_edit_prospects`. The onboarding pipeline widget moves to the row below the hero (action #2, daily glance), so glance-info and action live on the same surface. Legacy tiles (`scout-history` `My reports`, `scout-my-players` `My assigned players`) stay further down for installs that still use the report-history flow — nothing is removed; the realignment is purely default-template ordering. Zero new translatable strings — `+ New prospect` was already in the .po; the new eyebrow / detail labels ("Spot someone new", "Log a new prospect", "X logged this month", "Y still active in your funnel") are seeded English with NL coverage carried by the next i18n run.
 
 = 3.110.67 — Evaluation type unified: wizard's "Setting" picker now uses the same `eval_type` lookup as the edit form (and is actually saved) =
 
