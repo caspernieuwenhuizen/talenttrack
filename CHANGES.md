@@ -57,6 +57,89 @@ Per CLAUDE.md DoD: "User-facing strings go through `__()` / `_e()` and `language
 
 ---
 
+# TalentTrack v3.110.73 — Mark attendance wizard: roster always renders + pre-fills, auto-completes activity, Edit activity captures back-target, wizard completion returns to dashboard, hero hides processed activities (#0092)
+
+Six pilot-operator-surfaced fixes after the v3.110.70 mark-attendance ship + v3.110.71 visual hotfix. The coach walked the flow end-to-end against a planned activity that already had attendance rows and reported:
+
+1. *"When I click Mark attendance, I do not get a list of players eligible for the activity but instead it jumps to 'attendance is saved, rate now?' step."*
+2. *"When I click on skip rating, it just jumps to the display activity page and says nothing about the attendance."*
+3. *"When I click on edit activity there is no way for me to cancel and go back to where I came from (the dashboard)."*
+4. *"When adding ratings and completing the wizard I am taken to the evaluation page. I should go back to the dashboard if I started the wizard from the widget."*
+5. *"The activity I just marked attendance for and added ratings for is still on my dashboard and I am still asked to process it."*
+
+## The six fixes
+
+### (1) Force the roster to render in the mark-attendance wizard
+
+The eval wizard's `AttendanceStep::notApplicableFor()` returns `true` when `tt_attendance` rows already exist for the picked activity — that's the *"you already did attendance, go straight to rating"* optimisation introduced in #0072. The v3.110.70 auto-skip loop in `FrontendWizardView` then walks past the step, and the coach lands on RateConfirmStep without ever seeing the roster they clicked **Mark attendance** to see.
+
+Correct for the eval wizard, wrong for the mark-attendance wizard. The coach who clicks **Mark attendance** explicitly wants the roster — they're marking or correcting it.
+
+`MarkAttendanceWizard::initialState()` now seeds `_attendance_force_render = 1`. `AttendanceStep::notApplicableFor()` short-circuits to `false` when the flag is set, regardless of whether rows exist. The eval wizard leaves the flag unset and keeps the original behaviour.
+
+### (2) Pre-fill the roster from existing `tt_attendance` rows
+
+Once the roster always renders, a coach re-entering the wizard for an already-processed activity would see the radios defaulted to `'present'` — losing their previously-saved status per player. `AttendanceStep::render()` now queries `tt_attendance` for the activity at the top of the render and uses it as the per-player fallback:
+
+```
+state['attendance'][player_id]   // in-flight wizard edits (highest precedence)
+  → tt_attendance.status         // previously-saved row
+  → 'present'                    // floor
+```
+
+Coach sees their current saved state and can edit it. Wizard-state still wins for in-flight edits within a single run.
+
+### (3) Auto-flip activity to `completed` on attendance save
+
+The activity edit form's attendance section is hidden whenever `activity_status_key !== 'completed'`:
+
+```php
+$attendance_visible = ( $current_status === 'completed' );
+```
+
+The hero deep-links into activities that are still `planned` (it picks the soonest upcoming session). Coach walks through the wizard, marks attendance, hits **Skip rating, save attendance**, lands on `?tt_view=activities&id=<id>` — and the section is hidden because `activity_status_key` is still `planned`. The page reads as if attendance was never saved.
+
+`AttendanceStep::validate()` now flips both `activity_status_key` AND `plan_state` to `'completed'` after writing the `tt_attendance` rows, unless the current state is already `completed` or `cancelled` (coach has been explicit and we shouldn't override). Recording attendance implies the activity happened — that's the same semantic the `ActivitiesRestController` already enforces (line 626-640), it just never fired when the wizard was the writer.
+
+Knock-on effects (all desirable):
+- The activity detail / edit page now shows the saved attendance immediately after the wizard exits.
+- The planner module's *"what happened this week"* query picks the row up.
+- The `tt_activity_completed` workflow hook fires via the standard REST update path on next edit, so post-game evaluation tasks still get spawned at the right point in the flow.
+
+### (4) `Edit activity` link captures the back-target
+
+`MarkAttendanceHeroWidget`'s secondary link rendered as `?tt_view=activities&id=N` with no `tt_back`. On the activity edit form, `Cancel` resolves to `BackLink::resolve()` first — which returned `null` for our link — then fell through to the activity detail/list, never the dashboard. Coach who clicked **Edit activity** from the hero couldn't get back to the hero in one tap.
+
+Now wraps the URL with `BackLink::appendTo( $edit_url, RecordLink::dashboardUrl() )` per the CLAUDE.md §5 convention. Cancel on the activity form returns the coach to the dashboard.
+
+### (5) Wizard completion returns to the dashboard
+
+After rating + Review, the eval-wizard's `ReviewStep::submitActivityFirst()` hard-coded a redirect to `?tt_view=evaluations&activity_id=<id>`. Fine for the `new-evaluation` wizard (where the coach explicitly went to write an evaluation and probably wants to land on the evaluations list), wrong for the mark-attendance wizard where the coach entered from the dashboard hero and expects to return there.
+
+New state hint `_done_redirect`: when set, both `ReviewStep::submitActivityFirst()` and `RateConfirmStep::submit()` redirect to that URL. Otherwise they keep their existing defaults (evaluations list for ReviewStep, activity detail for RateConfirmStep). `MarkAttendanceWizard::initialState()` sets the hint to `RecordLink::dashboardUrl()` so the coach returns to the dashboard whether they Skipped rating or rated through to completion.
+
+The eval-wizard leaves the hint unset and its landing is unchanged.
+
+### (6) Hero hides processed activities
+
+`UpcomingActivityRepository::nextForCoach()` previously selected the soonest activity on `session_date >= today` and returned it regardless of state. After a coach marked attendance + ratings for tonight's training, the hero kept showing the same activity with the **Mark attendance** CTA — implying the coach still had work to do. The right semantic is "what needs your attention next", not "what's on your calendar next".
+
+Added a status clause:
+
+```sql
+AND ( activity_status_key IS NULL OR activity_status_key NOT IN ('completed','cancelled') )
+```
+
+Once an activity transitions to `completed` (which v3.110.72's (3) above now does automatically when attendance saves), the hero looks past it to the next session that still needs attention. Cancelled activities are filtered the same way for symmetry.
+
+If a coach has no upcoming unprocessed activities, the hero shows its existing empty state (`No upcoming activity` + `Pick a session` CTA) — correct semantic: there's nothing pending.
+
+## Note on the eval wizard
+
+Three of the four changes are wizard-agnostic (touch `AttendanceStep` directly): the existing-row pre-fill (2) and the auto-completion (3) are strictly better defaults for the eval wizard too, even though the eval wizard rarely reaches them — its `ActivityPickerStep` already filters to `plan_state = 'completed'`. The force-render flag (1) is opt-in and only the mark-attendance wizard sets it.
+
+---
+
 # TalentTrack v3.110.71 — Hotfix: hero widget variant class was a mangled soup, suppressing the gradient + typography hierarchy on every persona-dashboard hero
 
 ## The bug

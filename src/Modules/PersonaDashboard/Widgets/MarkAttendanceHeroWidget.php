@@ -10,6 +10,8 @@ use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\Size;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
 use TT\Modules\PersonaDashboard\Repositories\UpcomingActivityRepository;
+use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Wizards\WizardEntryPoint;
 
 /**
@@ -81,10 +83,16 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
             $primary_url   = add_query_arg( [ 'activity_id' => $aid ], $wizard_base );
             $primary_label = __( 'Mark attendance', 'talenttrack' );
 
+            // v3.110.73 — attach `tt_back` pointing to the dashboard so
+            // the activity edit form's Cancel button returns the coach
+            // where they came from (the hero), not to the activities
+            // list. `BackLink::appendTo()` is the canonical way to wire
+            // cross-surface back-targets per CLAUDE.md §5.
             $edit_url = add_query_arg(
                 [ 'tt_view' => 'activities', 'id' => $aid ],
                 $ctx->viewUrl( 'activities' )
             );
+            $edit_url = BackLink::appendTo( $edit_url, RecordLink::dashboardUrl() );
             $secondary_html = '<a class="tt-pd-cta tt-pd-cta-ghost" href="' . esc_url( $edit_url ) . '">'
                 . esc_html__( 'Edit activity', 'talenttrack' )
                 . '</a>';

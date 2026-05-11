@@ -71,6 +71,24 @@ final class MarkAttendanceWizard implements WizardInterface {
         $seed = [
             '_path'             => 'activity-first',
             '_attendance_next'  => 'rate-confirm',
+            // v3.110.73 — the eval-wizard's AttendanceStep auto-skips when
+            // `tt_attendance` rows already exist (the "you've already done
+            // attendance, go straight to rating" optimisation). That logic
+            // is wrong for THIS wizard: the coach clicked Mark attendance
+            // because they want to mark/correct attendance — they expect
+            // the roster every time, pre-filled with existing values.
+            // This flag tells AttendanceStep to render even when rows
+            // exist; AttendanceStep.render pre-fills from `tt_attendance`
+            // so the coach sees their current saved state and can edit it.
+            '_attendance_force_render' => 1,
+            // v3.110.73 — return the coach to the dashboard on wizard
+            // completion (Skip path AND Yes-rate path), not to the
+            // evaluations list. The coach entered the wizard from the
+            // dashboard hero; returning them there matches their mental
+            // model. ReviewStep::submit honours this hint; RateConfirmStep
+            // already redirects to the activity detail on Skip — that's
+            // a different "I just confirmed status" landing and stays.
+            '_done_redirect'    => \TT\Shared\Frontend\Components\RecordLink::dashboardUrl(),
         ];
         $aid = isset( $url_params['activity_id'] ) ? absint( $url_params['activity_id'] ) : 0;
         if ( $aid > 0 ) {

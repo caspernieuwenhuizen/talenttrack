@@ -200,10 +200,18 @@ final class ReviewStep implements WizardStepInterface {
             if ( ! is_wp_error( $result ) ) $created++;
         }
 
-        $redirect = add_query_arg( [
-            'tt_view'     => 'evaluations',
-            'activity_id' => $aid,
-        ], WizardEntryPoint::dashboardBaseUrl() );
+        // v3.110.73 — wizards can override the post-submit redirect via
+        // `_done_redirect`. MarkAttendanceWizard sets the dashboard URL
+        // so the coach returns to where they started the flow; the
+        // new-evaluation wizard leaves it unset and keeps landing on
+        // the evaluations list scoped to the activity.
+        $override = isset( $state['_done_redirect'] ) ? (string) $state['_done_redirect'] : '';
+        $redirect = $override !== ''
+            ? $override
+            : add_query_arg( [
+                'tt_view'     => 'evaluations',
+                'activity_id' => $aid,
+            ], WizardEntryPoint::dashboardBaseUrl() );
 
         return [ 'redirect_url' => $redirect, 'created' => $created ];
     }

@@ -24,6 +24,11 @@ final class AttendanceStep implements WizardStepInterface {
         if ( ( $state['_path'] ?? '' ) !== 'activity-first' ) return true;
         $aid = (int) ( $state['activity_id'] ?? 0 );
         if ( $aid <= 0 ) return true;
+        // v3.110.73 — mark-attendance wizard sets this so the step always
+        // renders (coach explicitly wants the roster, even if rows exist).
+        // The eval wizard leaves it unset and keeps the original
+        // "skip when already recorded" optimisation.
+        if ( ! empty( $state['_attendance_force_render'] ) ) return false;
         return self::activityHasAttendance( $aid );
     }
 
@@ -50,6 +55,22 @@ final class AttendanceStep implements WizardStepInterface {
         ) );
         $names = array_map( static fn( $r ) => (string) $r->name, (array) $statuses );
         if ( empty( $names ) ) $names = [ 'present', 'late', 'absent', 'excused' ];
+
+        // v3.110.73 — pre-fill the radio matrix from existing `tt_attendance`
+        // rows so a coach who re-enters the mark-attendance wizard for an
+        // activity that's already been processed sees the current saved
+        // state, not a roster reset to "all present". Wizard state takes
+        // precedence (in-flight edits within the same wizard run); the
+        // existing rows are the fallback.
+        $existing_by_player = [];
+        $existing_rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT player_id, status FROM {$p}tt_attendance
+              WHERE activity_id = %d AND club_id = %d",
+            $aid, CurrentClub::id()
+        ) );
+        foreach ( (array) $existing_rows as $row ) {
+            $existing_by_player[ (int) $row->player_id ] = (string) $row->status;
+        }
         ?>
         <p style="color:var(--tt-muted);max-width:60ch;">
             <?php esc_html_e( 'Mark each player\'s attendance. Only present + late players will appear in the rating step. This step writes real attendance rows for the activity.', 'talenttrack' ); ?>
@@ -82,7 +103,14 @@ final class AttendanceStep implements WizardStepInterface {
             <thead><tr><th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th><?php foreach ( $names as $n ) : ?><th style="text-align:center;"><?php echo esc_html( \TT\Infrastructure\Query\LabelTranslator::attendanceStatus( ucfirst( $n ) ) ); ?></th><?php endforeach; ?></tr></thead>
             <tbody>
                 <?php foreach ( (array) $players as $pl ) :
-                    $row_default = (string) ( $state['attendance'][ (int) $pl->id ] ?? 'present' );
+                    // v3.110.73 — fallback chain: in-flight wizard state →
+                    // existing `tt_attendance` row → 'present' default.
+                    $pid_int = (int) $pl->id;
+                    $row_default = (string) (
+                        $state['attendance'][ $pid_int ]
+                        ?? $existing_by_player[ $pid_int ]
+                        ?? 'present'
+                    );
                     ?>
                     <tr>
                         <td><?php echo esc_html( trim( (string) $pl->first_name . ' ' . (string) $pl->last_name ) ); ?></td>
@@ -125,6 +153,32 @@ final class AttendanceStep implements WizardStepInterface {
                         'status'      => $status,
                     ] );
                 }
+            }
+
+            // v3.110.73 — recording attendance implies the activity
+            // happened. Flip `activity_status_key` and `plan_state` to
+            // 'completed' so:
+            //   - the activity edit form's attendance section is no
+            //     longer hidden (gated on `activity_status_key === 'completed'`)
+            //   - the planner module's "what happened this week" query
+            //     sees the row (mirrors the auto-transition in
+            //     `ActivitiesRestController` at line 626-640)
+            // Skip the flip if the activity is already `completed` or
+            // `cancelled` — coach has been explicit about the state and
+            // we shouldn't override.
+            $current_status = (string) $wpdb->get_var( $wpdb->prepare(
+                "SELECT activity_status_key FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+                $aid, CurrentClub::id()
+            ) );
+            if ( $current_status !== 'completed' && $current_status !== 'cancelled' ) {
+                $wpdb->update(
+                    "{$p}tt_activities",
+                    [
+                        'activity_status_key' => 'completed',
+                        'plan_state'          => 'completed',
+                    ],
+                    [ 'id' => $aid, 'club_id' => CurrentClub::id() ]
+                );
             }
         }
 
