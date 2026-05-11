@@ -417,6 +417,36 @@ Ships that affect the head-coach's daily flow but aren't tied to a
 single numbered action. Same `**vX.Y.Z** — what changed. *How to
 test:* …` format.
 
+- **v3.110.76** — `RateActorsStep` collapsed-roster redesign.
+  Player cards collapsed by default; tap to expand. Each player's
+  summary shows a live status pill (**Not rated** / **Rating…** /
+  **Rated** / **Skipped**) that recomputes client-side on every
+  input change. Sticky **X of Y players rated** strip at the top
+  of the step (aria-live for screen readers). Same data model and
+  same form fields — pure render redesign of the existing
+  `<details>` structure. Affects both the mark-attendance and
+  new-evaluation wizard's rating step. Six new NL msgids land
+  alongside.
+  *How to test:* mark attendance for a session with several
+  present players, pick **Rate the present players** at the
+  confirm step. The roster renders as a list of collapsed player
+  rows, each with **Niet beoordeeld** pill on the right (on a NL
+  install) and **0 van N spelers beoordeeld** strip at the top.
+  Tap one player to expand — the existing quick-rate inputs +
+  sub-rate `<details>` + notes + skip render normally. Enter a
+  rating in one input — pill flips to **Bezig…** (amber). Fill
+  every main category for that player — pill flips to
+  **Beoordeeld** (green) and the top strip increments to
+  **1 van N spelers beoordeeld**. Check the **Skip this player**
+  box — pill flips to **Overgeslagen** (grey, strike-through);
+  top strip still counts them as done. Scroll the roster on a
+  360px viewport — the top progress strip stays anchored to the
+  top of the viewport. Collapse a rated player and verify the
+  chevron rotates back. Submit via Review → ratings persist the
+  same way as before. Sanity: existing new-evaluation wizard's
+  rating step shows the same collapsed-roster behaviour (it
+  shares the step).
+
 - **v3.110.74** — dropped the mobile FAB on detail-page primary
   actions and restored secondary actions on mobile. Pre-v3.110.74,
   every detail page (Players, Teams, Activities, Evaluations,

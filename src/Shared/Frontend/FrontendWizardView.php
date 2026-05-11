@@ -442,9 +442,69 @@ class FrontendWizardView extends FrontendViewBase {
             .tt-pd-eval-progress-bar { width: 100%; height: 14px; }
             .tt-pd-eval-progress-status { margin: 6px 0 0; font-size: .875rem; color: #5f6368; }
 
-            /* #0080 Wave B4 — RateActorsStep mobile-first card stack. */
-            .tt-rate-player { margin: var(--tt-sp-3, 16px) 0; border: 1px solid var(--tt-line, #e0e0e0); border-radius: 8px; padding: var(--tt-sp-3, 16px); }
-            .tt-rate-player-name { font-weight: 600; cursor: pointer; font-size: 1.05rem; min-height: 48px; display: flex; align-items: center; }
+            /* #0080 Wave B4 — RateActorsStep mobile-first card stack.
+             * v3.110.75 — collapsed by default with status pill + sticky
+             * overall progress. Coach scrolls a list of player rows,
+             * taps to expand the one they want to rate. The status pill
+             * (Not rated / Rating… / Rated / Skipped) updates live as
+             * inputs change; the sticky progress strip at the top
+             * counts complete + skipped against the total. */
+            .tt-rate-progress {
+                position: sticky;
+                top: 0;
+                z-index: 30;
+                background: #1d7874;
+                color: #fff;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: .9rem;
+                font-weight: 600;
+                margin: 0 0 12px;
+                text-align: center;
+            }
+            .tt-rate-roster { display: block; }
+            .tt-rate-player { margin: 0 0 8px; border: 1px solid var(--tt-line, #e0e0e0); border-radius: 8px; padding: 0; background: #fff; }
+            .tt-rate-player[open] { padding: 0 var(--tt-sp-3, 16px) var(--tt-sp-3, 16px); }
+            .tt-rate-player-summary {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                min-height: 56px;
+                padding: 8px 14px;
+                cursor: pointer;
+                list-style: none;
+                font-weight: 600;
+                font-size: 1.05rem;
+                user-select: none;
+                touch-action: manipulation;
+            }
+            .tt-rate-player-summary::-webkit-details-marker { display: none; }
+            .tt-rate-player-summary::marker { content: ''; }
+            .tt-rate-player-summary::before {
+                content: '▸';
+                color: var(--tt-muted, #5f6368);
+                font-size: 1rem;
+                transition: transform 120ms ease;
+            }
+            .tt-rate-player[open] > .tt-rate-player-summary::before { transform: rotate(90deg); }
+            .tt-rate-player-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .tt-rate-player-status {
+                flex: 0 0 auto;
+                font-size: .75rem;
+                font-weight: 600;
+                letter-spacing: .02em;
+                padding: 4px 10px;
+                border-radius: 999px;
+                text-transform: uppercase;
+                background: #f1f3f4;
+                color: #5f6368;
+                white-space: nowrap;
+            }
+            .tt-rate-player-status--empty    { background: #f1f3f4; color: #5f6368; }
+            .tt-rate-player-status--partial  { background: #fff4d4; color: #92651b; }
+            .tt-rate-player-status--complete { background: #cfe7da; color: #137333; }
+            .tt-rate-player-status--skipped  { background: #e8e8e8; color: #8a8a8a; text-decoration: line-through; }
             .tt-rate-grid { display: grid; gap: 12px; margin-top: var(--tt-sp-2, 12px); }
             .tt-rate-row { display: grid; grid-template-columns: 1fr; gap: 6px; align-items: start; }
             .tt-rate-label { font-weight: 500; font-size: .95rem; }

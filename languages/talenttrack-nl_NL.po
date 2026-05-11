@@ -14566,3 +14566,27 @@ msgstr "Beoordeling overslaan, aanwezigheid opslaan"
 
 msgid "Nobody was marked Present or Late, so there is nothing to rate. You can still proceed and finish without ratings."
 msgstr "Niemand staat op Aanwezig of Te laat, dus er valt niets te beoordelen. Je kunt nog steeds doorgaan en afsluiten zonder beoordelingen."
+
+# v3.110.75 — #0092 RateActorsStep collapsed-roster + status pill + sticky progress.
+
+msgid "Not rated"
+msgstr "Niet beoordeeld"
+
+msgid "Rating…"
+msgstr "Bezig…"
+
+msgid "Rated"
+msgstr "Beoordeeld"
+
+msgid "Skipped"
+msgstr "Overgeslagen"
+
+#. translators: %1$d = number of players done (rated or skipped), %2$d = total players to rate.
+msgid "%1$d of %2$d players rated"
+msgstr "%1$d van %2$d spelers beoordeeld"
+
+#. translators: %d = player count.
+msgid "%d player ready to rate. Tap a player to expand and rate; tap again to collapse."
+msgid_plural "%d players ready to rate. Tap a player to expand and rate; tap again to collapse."
+msgstr[0] "%d speler klaar om te beoordelen. Tik op een speler om uit te klappen en te beoordelen; tik nogmaals om in te klappen."
+msgstr[1] "%d spelers klaar om te beoordelen. Tik op een speler om uit te klappen en te beoordelen; tik nogmaals om in te klappen."

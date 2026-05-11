@@ -76,18 +76,54 @@ final class RateActorsStep implements WizardStepInterface {
             <?php
             printf(
                 /* translators: %d: player count */
-                esc_html( _n( '%d player ready to rate. Quick-rate the categories below; deep-rate any player by expanding their row.', '%d players ready to rate. Quick-rate the categories below; deep-rate any player by expanding their row.', count( $players ), 'talenttrack' ) ),
+                esc_html( _n( '%d player ready to rate. Tap a player to expand and rate; tap again to collapse.', '%d players ready to rate. Tap a player to expand and rate; tap again to collapse.', count( $players ), 'talenttrack' ) ),
                 count( $players )
             );
             ?>
         </p>
 
+        <?php
+        // v3.110.75 — sticky overall progress at the top of the step.
+        // Renders an empty "0 of N rated" line server-side; the inline
+        // script below updates it as the coach rates / skips. aria-live
+        // so screen readers announce updates.
+        $main_cat_count = count( (array) $quick_cats );
+        ?>
+        <div class="tt-rate-progress" data-tt-rate-progress aria-live="polite"
+             data-i18n-template="<?php
+                 esc_attr_e(
+                     /* translators: %1$d = number of players done (rated or skipped), %2$d = total players to rate. */
+                     '%1$d of %2$d players rated',
+                     'talenttrack'
+                 );
+             ?>">
+            <?php
+            printf(
+                /* translators: %1$d = 0, %2$d = total. Initial server-rendered state before JS updates it. */
+                esc_html__( '%1$d of %2$d players rated', 'talenttrack' ),
+                0,
+                count( $players )
+            );
+            ?>
+        </div>
+
+        <div class="tt-rate-roster" data-tt-rate-roster data-main-cat-count="<?php echo (int) $main_cat_count; ?>"
+             data-i18n-not-rated="<?php esc_attr_e( 'Not rated', 'talenttrack' ); ?>"
+             data-i18n-rating="<?php esc_attr_e( 'Rating…', 'talenttrack' ); ?>"
+             data-i18n-rated="<?php esc_attr_e( 'Rated', 'talenttrack' ); ?>"
+             data-i18n-skipped="<?php esc_attr_e( 'Skipped', 'talenttrack' ); ?>">
+
         <?php foreach ( $players as $pl ) :
             $name = trim( (string) $pl->first_name . ' ' . (string) $pl->last_name );
             $pid  = (int) $pl->id;
             ?>
-            <details class="tt-rate-player" open>
-                <summary class="tt-rate-player-name"><?php echo esc_html( $name ); ?></summary>
+            <details class="tt-rate-player" data-tt-rate-player data-pid="<?php echo $pid; ?>">
+                <summary class="tt-rate-player-summary">
+                    <span class="tt-rate-player-name"><?php echo esc_html( $name ); ?></span>
+                    <span class="tt-rate-player-status tt-rate-player-status--empty" data-tt-rate-status>
+                        <?php esc_html_e( 'Not rated', 'talenttrack' ); ?>
+                    </span>
+                </summary>
 
                 <div class="tt-rate-grid">
                     <?php foreach ( (array) $quick_cats as $cat ) :
@@ -164,7 +200,92 @@ final class RateActorsStep implements WizardStepInterface {
                     </div>
                 </div>
             </details>
-        <?php endforeach;
+        <?php endforeach; ?>
+        </div><!-- /.tt-rate-roster -->
+
+        <script>
+        // v3.110.75 — per-player status pill + overall progress counter
+        // for the rate-actors step. Scoped to the roster on this page;
+        // safe to inline because the step renders only inside the
+        // wizard view (no risk of running twice).
+        (function () {
+            var roster = document.querySelector('[data-tt-rate-roster]');
+            if ( ! roster ) return;
+            var progress = document.querySelector('[data-tt-rate-progress]');
+            var i18n = {
+                empty:    roster.getAttribute('data-i18n-not-rated') || 'Not rated',
+                partial:  roster.getAttribute('data-i18n-rating')    || 'Rating…',
+                complete: roster.getAttribute('data-i18n-rated')     || 'Rated',
+                skipped:  roster.getAttribute('data-i18n-skipped')   || 'Skipped'
+            };
+            var template = progress ? ( progress.getAttribute('data-i18n-template') || '%1$d of %2$d players rated' ) : '';
+
+            function mainInputsFor( details ) {
+                // Quick-rate inputs only — exclude sub-category inputs
+                // nested inside `.tt-rate-subs` <details>.
+                var inputs = details.querySelectorAll( '.tt-rate-input' );
+                var main = [];
+                inputs.forEach( function ( input ) {
+                    if ( ! input.closest( '.tt-rate-subs' ) ) main.push( input );
+                } );
+                return main;
+            }
+
+            function updatePlayer( details ) {
+                var statusEl = details.querySelector( '[data-tt-rate-status]' );
+                if ( ! statusEl ) return;
+                var skipEl  = details.querySelector( 'input[name^="skip["]' );
+                var main    = mainInputsFor( details );
+                var filled  = 0;
+                main.forEach( function ( i ) { if ( parseInt( i.value, 10 ) > 0 ) filled++; } );
+
+                var state, text;
+                if ( skipEl && skipEl.checked ) {
+                    state = 'skipped'; text = i18n.skipped;
+                } else if ( filled === 0 ) {
+                    state = 'empty';   text = i18n.empty;
+                } else if ( filled >= main.length && main.length > 0 ) {
+                    state = 'complete'; text = i18n.complete;
+                } else {
+                    state = 'partial'; text = i18n.partial;
+                }
+                statusEl.textContent = text;
+                statusEl.className = 'tt-rate-player-status tt-rate-player-status--' + state;
+                details.setAttribute( 'data-tt-rate-state', state );
+            }
+
+            function updateOverall() {
+                if ( ! progress ) return;
+                var details = roster.querySelectorAll( '[data-tt-rate-player]' );
+                var done = 0;
+                details.forEach( function ( d ) {
+                    var s = d.getAttribute( 'data-tt-rate-state' ) || '';
+                    if ( s === 'complete' || s === 'skipped' ) done++;
+                } );
+                progress.textContent = template
+                    .replace( '%1$d', String( done ) )
+                    .replace( '%2$d', String( details.length ) );
+            }
+
+            // Initial paint — covers pre-filled wizard-state values.
+            var allDetails = roster.querySelectorAll( '[data-tt-rate-player]' );
+            allDetails.forEach( updatePlayer );
+            updateOverall();
+
+            // Delegate input + change events on the roster.
+            roster.addEventListener( 'input', function ( e ) {
+                if ( ! e.target ) return;
+                var details = e.target.closest( '[data-tt-rate-player]' );
+                if ( details ) { updatePlayer( details ); updateOverall(); }
+            } );
+            roster.addEventListener( 'change', function ( e ) {
+                if ( ! e.target ) return;
+                var details = e.target.closest( '[data-tt-rate-player]' );
+                if ( details ) { updatePlayer( details ); updateOverall(); }
+            } );
+        })();
+        </script>
+        <?php
     }
 
     public function validate( array $post, array $state ) {
