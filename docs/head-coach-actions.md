@@ -46,6 +46,10 @@ Each action lists:
 - **Surface today** — current TT route(s) that serve this action
 - **Player-centric framing** — which of the four §1 questions it answers
   ("where now / where from / where to / what next")
+- **Shipped** — running log of versions that touched this action plus
+  the exact one-paragraph manual test for each shipped fix. Filled
+  as we ship, never erased. Mirrors the convention in
+  `docs/scout-actions.md`.
 - **Polish notes** — left blank initially; we fill as we test
 
 ---
@@ -62,6 +66,46 @@ Each action lists:
   optional roster-style rating. Activity edit form survives as the
   post-hoc edit surface.
 - **Player-centric framing:** *where now* (presence, engagement signal feeding rating + minutes)
+- **Shipped:**
+  - **v3.110.70** — `MarkAttendanceHeroWidget` replaces
+    `today_up_next_hero` as the default coach-template hero. Primary
+    CTA deep-links into the new `mark-attendance` wizard with the
+    soonest upcoming activity preselected. Wizard chains
+    `ActivityPickerStep` (auto-skipped when preselected) →
+    `AttendanceStep` (auto-skipped when rows exist) →
+    new `RateConfirmStep` (Yes / Skip fork) → optional
+    `RateActorsStep` + `ReviewStep`. Skip exits with attendance
+    persisted, no eval rows; Yes runs the existing roster-style
+    rating UX. Framework adds: opt-in `initialState($get)` hook on
+    `WizardInterface` and a `notApplicableFor()` auto-skip loop in
+    `FrontendWizardView`. `AttendanceStep::nextStep()` reads an
+    optional `_attendance_next` state hint with default `'rate-actors'`
+    so the new-evaluation chain is unchanged. Spec:
+    `specs/0092-feat-mark-attendance-widget.md`.
+    *How to test:* log in as a coach with at least one upcoming
+    activity on a team they own. Dashboard shows the new **Mark
+    attendance** hero with Today / Tomorrow / Up next eyebrow + the
+    activity title + team · location. Tap **Mark attendance** — the
+    wizard opens straight at the attendance roster (picker step
+    auto-skipped). Mark a few statuses, hit Next; the
+    `tt_attendance` rows persist (verify by reopening the activity in
+    the edit form). RateConfirmStep shows two large buttons + the
+    present/late count. Pick **Skip rating, save attendance**: wizard
+    exits to the activity detail, no `tt_evaluations` rows written.
+    Repeat the flow and this time pick **Rate the present players**:
+    roster-style rating shows only present + late players; submit
+    via the Review step lands on `?tt_view=evaluations&activity_id=…`
+    and `tt_evaluations` + `tt_eval_ratings` rows exist. Reopen the
+    wizard for the same activity — picker and roster both auto-skip,
+    landing on the confirm step. With a coach who has no upcoming
+    activity, the hero shows **Pick a session** as primary CTA and
+    the wizard opens at the activity-picker step. The **Edit
+    activity** secondary link on the hero opens the activity edit
+    form. Existing `+ New evaluation` wizard activity-first path
+    still works end-to-end and ends at `rate-actors` (not
+    `rate-confirm`) — verifies the routing-hint default is intact.
+    Resize to 360px: hero is single-column, every CTA ≥ 48px,
+    RateConfirmStep buttons ≥ 56px.
 - **Polish notes:**
   - **Status:** primary friction tracked under
     [spec 0092](../specs/0092-feat-mark-attendance-widget.md) (new
@@ -291,6 +335,21 @@ falls back to gut feel and the captured data goes unused.
   test for whether the data captured by #1–#10 is *queryable* and not
   just *stored*. A polished capture flow that produces data the coach
   can't actually slice is half a feature.
+
+## Shipped-section convention
+
+Every release that touches a head-coach-facing surface appends an entry
+to the relevant action's **Shipped** stanza, never edits an older one:
+
+```
+- **vX.Y.Z** — one-paragraph what changed.
+  *How to test:* one-paragraph manual repro recipe the next reader
+  can follow without re-reading the PR.
+```
+
+This keeps the doc a chronological record of what's been delivered
+*and* a self-contained test plan for the persona pass. Mirrors the
+convention in `docs/scout-actions.md`.
 
 ## Out of scope for this pass
 
