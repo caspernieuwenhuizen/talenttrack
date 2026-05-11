@@ -131,7 +131,13 @@ final class AttendanceStep implements WizardStepInterface {
         return [ 'attendance' => $att ];
     }
 
-    public function nextStep( array $state ): ?string { return 'rate-actors'; }
+    public function nextStep( array $state ): ?string {
+        // #0092 — wizards using this step can route the next step via
+        // state. Default 'rate-actors' keeps the new-evaluation chain
+        // unchanged; mark-attendance sets `_attendance_next = 'rate-confirm'`.
+        $hint = isset( $state['_attendance_next'] ) ? (string) $state['_attendance_next'] : '';
+        return $hint !== '' ? $hint : 'rate-actors';
+    }
     public function submit( array $state ) { return null; }
 
     private static function activityHasAttendance( int $activity_id ): bool {

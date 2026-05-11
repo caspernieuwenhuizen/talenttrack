@@ -9,6 +9,7 @@ use TT\Modules\Wizards\Activity\NewActivityWizard;
 use TT\Modules\Wizards\Evaluation\EvaluationRowRestController;
 use TT\Modules\Wizards\Evaluation\NewEvaluationWizard;
 use TT\Modules\Wizards\Goal\NewGoalWizard;
+use TT\Modules\Wizards\MarkAttendance\MarkAttendanceWizard;
 use TT\Modules\Wizards\Person\NewPersonWizard;
 use TT\Modules\Wizards\Player\NewPlayerWizard;
 use TT\Modules\Wizards\Prospect\NewProspectWizard;
@@ -46,6 +47,12 @@ class WizardsModule implements ModuleInterface {
         WizardRegistry::register( new NewPersonWizard() );
         WizardRegistry::register( new NewTeamBlueprintWizard() );
         WizardRegistry::register( new NewProspectWizard() );
+
+        // #0092 (v3.110.69) — at-the-pitch attendance-first wizard.
+        // Same underlying steps as the new-evaluation activity-first
+        // path; the frame around them is the coach's "who showed up ·
+        // how did they do · save" loop, with rating optional.
+        WizardRegistry::register( new MarkAttendanceWizard() );
 
         // #0072 — daily cron to prune stale `tt_wizard_drafts` rows.
         WizardDraftCleanupCron::init();

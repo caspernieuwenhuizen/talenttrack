@@ -1,3 +1,90 @@
+# TalentTrack v3.110.70 — Head-coach dashboard: new `Mark attendance` hero + wizard, attendance-first with optional rating fork (#0092)
+
+Head-coach polish pass driven by `docs/head-coach-actions.md`. Action #1 by frequency is "record attendance for a session" — 4× / week during a regular football season (3 trainings + 1 match). The pre-#0092 path cost ~6–8 distinct taps before the coach reached the roster, and the previous hero's "Attendance" CTA misled the coach by dropping them on the activities list rather than the upcoming activity.
+
+## What was wrong
+
+The hero on the head-coach dashboard was `today_up_next_hero`. It rendered "Tonight — U17 vs Ajax · 19:00" with two CTAs labelled **Attendance** and **Evaluation**. Both linked to view-level lists (`?tt_view=activities`, `?tt_view=evaluations`), not the activity. The coach then had to scan, tap, scroll, flip the activity's status to `completed`, then find the roster — six to eight actions before the first attendance tap.
+
+A secondary symptom: two surfaces touch attendance writes today — the activity edit form (`FrontendActivitiesManageView`) and the eval-wizard's `AttendanceStep`. Both write the same `tt_attendance` table so no data duplication, but the coach has two muscle-memory patterns for one job and the dashboard didn't point clearly at either.
+
+## What landed
+
+### New hero — `MarkAttendanceHeroWidget`
+
+`src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php`. XL-only, coach-persona, cap-gated on `tt_edit_evaluations`. Reads the soonest upcoming activity on a team the coach owns via the new `UpcomingActivityRepository` and renders:
+
+- Eyebrow: "Today" / "Tomorrow" / "Up next · <date>" (localized via `wp_date`).
+- Title: the activity title.
+- Detail: team name · location.
+- Primary CTA: **Mark attendance** → opens the new `mark-attendance` wizard with `activity_id` pre-seeded.
+- Secondary link: **Edit activity** → the activity's edit form, the post-hoc attendance-correction surface (rename a player marked Absent who turned out to be Late, etc.).
+- Empty state (no upcoming activity): primary CTA becomes **Pick a session** and the wizard opens at the activity-picker step.
+
+`CoreTemplates::coach()` now slots `mark_attendance_hero` in place of `today_up_next_hero`. The older widget stays registered in `CoreWidgets` so any operator-customized template that pinned it explicitly keeps working.
+
+### New wizard — `mark-attendance`
+
+`src/Modules/Wizards/MarkAttendance/MarkAttendanceWizard.php`. Slug `mark-attendance`, cap `tt_edit_evaluations`, first step `activity-picker`. Reuses every step from the existing `new-evaluation` activity-first path:
+
+```
+ActivityPickerStep [auto-skipped when activity_id pre-seeded]
+    ↓
+AttendanceStep [auto-skipped when attendance already exists]
+    ↓
+RateConfirmStep   ← new — Yes / Skip fork
+    ↓ (yes)         ↘ (skip)
+RateActorsStep      submit, redirect to activity
+    ↓
+ReviewStep → submit, redirect to evaluations
+```
+
+`MarkAttendanceWizard::initialState( array $url_params )` seeds state from the entry URL: `_path = 'activity-first'`, `_attendance_next = 'rate-confirm'`, and `activity_id` from the query string when provided. The hint pattern lets the new wizard reuse `AttendanceStep` without forking it — see the `nextStep()` change below.
+
+### New step — `RateConfirmStep`
+
+`src/Modules/Wizards/MarkAttendance/RateConfirmStep.php`. Sits between attendance and rating. Renders two large buttons (≥ 56px) and the count of players present/late on the activity:
+
+- **Rate the present players** → `nextStep` returns `rate-actors`, into the existing roster-style rating UX.
+- **Skip rating, save attendance** → `nextStep` returns `null`, `submit()` redirects to the activity detail page. Attendance is already persisted from the prior step; no `tt_evaluations` rows are written.
+
+### Routing tweaks
+
+`AttendanceStep::nextStep()` now reads `_attendance_next` from state, defaulting to `'rate-actors'`. The `new-evaluation` wizard sets nothing so its chain is unchanged; `mark-attendance` sets `'rate-confirm'` and routes there.
+
+`ActivityPickerStep::notApplicableFor()` gains a clause: when `_path = 'activity-first'` and `activity_id > 0` are pre-seeded in state, the picker step is skipped — there's nothing to pick.
+
+### Framework — `initialState()` hook + auto-skip loop
+
+`FrontendWizardView::render()` learnt two small things:
+
+1. After `WizardState::start()`, if the wizard implements `initialState( array $get ): array`, the returned values are merged into state. This is how the new wizard reads `activity_id` from the URL on first hit.
+2. Before the step renders, the view now walks past steps whose `notApplicableFor( $state )` returns true — bounded by the step count to prevent infinite loops on a misconfigured chain. The eval-wizard's comments since #0072 referenced this auto-skip behavior; until now `notApplicableFor()` only greyed steps in the progress bar.
+
+Both changes are back-compat: wizards without `initialState()` keep their old behaviour, and steps without `notApplicableFor()` are never skipped.
+
+### Shared repository — `UpcomingActivityRepository`
+
+`src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php`. Extracted from `TodayUpNextHeroWidget::nextActivity()`. Single source of truth for "the soonest upcoming activity on a coach's teams" so the new hero and the legacy one can't drift on club-scoping or ordering. Carries the eyebrow formatter + team-name helper too. The legacy widget's inline query stays put for this release — no point churning a widget we just moved off the default template.
+
+## Player-centric
+
+The data model is unchanged. `tt_attendance` still keys on `activity_id + player_id`; `tt_evaluations` still keys on `activity_id + player_id`. The wizard just promotes the coach's verb ("Mark attendance") to the most prominent slot on the coach dashboard. Every screen shows the player's name next to the controls they own — no headerless row-of-statuses.
+
+## Mobile-first
+
+Hero renders single-column on 360px viewports; CTAs hit the 48px tap target floor with no hover gating. RateConfirmStep's two buttons are 56px to make the fork unmistakable mid-session. Attendance + rating roster UX is unchanged from the eval-wizard path — same mobile-first card reflow, same 48px touch targets.
+
+## What this unblocks
+
+- The 3-segment Present / Absent / Late toggle (instead of the per-row `<select>` dropdown) tracked in `docs/head-coach-actions.md` action #1 polish notes: high-value but independent change, can ship next.
+- "Mark all absent" inverse shortcut for rained-off sessions.
+- Server-side team-scoped roster filter — currently the form renders every coached team's players hidden via JS.
+
+Each is its own small PR. Splitting them out keeps `mark-attendance` a clean drop-in.
+
+---
+
 # TalentTrack v3.110.69 — Hotfix: missing `use` import made every page on a freshly installed v3.110.68 fatal
 
 ## The bug

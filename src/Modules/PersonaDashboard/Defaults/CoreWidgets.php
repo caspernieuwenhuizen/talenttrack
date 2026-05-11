@@ -18,6 +18,7 @@ use TT\Modules\PersonaDashboard\Widgets\DataTableWidget;
 use TT\Modules\PersonaDashboard\Widgets\InfoCardWidget;
 use TT\Modules\PersonaDashboard\Widgets\KpiCardWidget;
 use TT\Modules\PersonaDashboard\Widgets\KpiStripWidget;
+use TT\Modules\PersonaDashboard\Widgets\MarkAttendanceHeroWidget;
 use TT\Modules\PersonaDashboard\Widgets\MiniPlayerListWidget;
 use TT\Modules\PersonaDashboard\Widgets\NavigationTileWidget;
 use TT\Modules\PersonaDashboard\Widgets\OnboardingPipelineWidget;
@@ -67,6 +68,13 @@ final class CoreWidgets {
         // Replaces `assigned_players_grid` as the scout hero in
         // `CoreTemplates::scout()`.
         WidgetRegistry::register( new AddProspectHeroWidget() );
+
+        // v3.110.69 (#0092) — head-coach dashboard hero. One-tap entry
+        // into the new mark-attendance wizard with the next activity
+        // preselected. Replaces `today_up_next_hero` as the default
+        // coach hero in `CoreTemplates::coach()`; the older widget
+        // stays registered for back-compat with customized templates.
+        WidgetRegistry::register( new MarkAttendanceHeroWidget() );
 
         TableRowSourceRegistry::register( 'upcoming_activities',     new UpcomingActivitiesSource() );
         TableRowSourceRegistry::register( 'trials_needing_decision', new TrialsNeedingDecisionSource() );

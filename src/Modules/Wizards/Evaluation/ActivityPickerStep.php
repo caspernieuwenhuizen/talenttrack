@@ -43,6 +43,14 @@ final class ActivityPickerStep implements WizardStepInterface {
         // rateable activities.
         if ( ! empty( $state['_path'] ) && $state['_path'] === 'player-first' ) return true;
 
+        // #0092 — when the wizard was entered with `activity_id`
+        // pre-seeded (e.g. from the mark-attendance dashboard widget)
+        // the picker has nothing to add; skip straight to attendance.
+        if ( ( $state['_path'] ?? '' ) === 'activity-first'
+             && (int) ( $state['activity_id'] ?? 0 ) > 0 ) {
+            return true;
+        }
+
         $user_id = get_current_user_id();
         $rows = self::recentRateableActivities( $user_id, self::DEFAULT_DAYS );
         return empty( $rows );
