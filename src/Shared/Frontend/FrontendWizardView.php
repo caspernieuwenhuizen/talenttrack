@@ -480,9 +480,9 @@ class FrontendWizardView extends FrontendViewBase {
                 touch-action: manipulation;
             }
             .tt-rate-player-summary::-webkit-details-marker { display: none; }
-            .tt-rate-player-summary::marker { content: ''; }
+            .tt-rate-player-summary::marker { content: ""; }
             .tt-rate-player-summary::before {
-                content: '▸';
+                content: "▸";
                 color: var(--tt-muted, #5f6368);
                 font-size: 1rem;
                 transition: transform 120ms ease;

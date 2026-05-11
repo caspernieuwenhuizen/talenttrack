@@ -44,6 +44,60 @@ The widget can now be pinned on any dashboard surface and looks consistent with 
 
 ---
 
+# TalentTrack v3.110.77 — Hotfix: v3.110.76 introduced a PHP parse error in `FrontendWizardView::enqueueWizardStyles()`; no release ZIP was published
+
+## The bug
+
+v3.110.76's `RateActorsStep` collapsed-roster work added two CSS rules to the wizard view's inline stylesheet — the chevron indicator on the player summary, and a paranoid `::marker { content: '' }` belt-and-suspenders that hid the default disclosure triangle.
+
+The inline CSS in `FrontendWizardView::enqueueWizardStyles()` is a **PHP single-quoted string**:
+
+```php
+$css = '
+    .tt-wizard-form { ... }
+    ...
+';
+```
+
+The two new rules I added:
+
+```css
+.tt-rate-player-summary::marker { content: ''; }
+.tt-rate-player-summary::before { content: '▸'; ... }
+```
+
+Both used CSS single quotes for the `content:` value. Inside a PHP single-quoted string, `''` is the empty string literal followed by the start of a new string — the parser saw `';` after the first `''` and reported:
+
+```
+PHP Parse error:  syntax error, unexpected single-quoted string "; }" in src/Shared/Frontend/FrontendWizardView.php on line 485
+```
+
+The `PHP Syntax Lint` step in `.github/workflows/release.yml` caught it on tag push; `Build & Release ZIP` was skipped (it depends on lint passing). v3.110.76 has a git tag but **no published GitHub release**, so the plugin-update-checker can't deliver it to installs. The tag is functionally dead until this hotfix lands.
+
+## The fix
+
+Switch both `content:` values from single to double quotes:
+
+```css
+.tt-rate-player-summary::marker { content: ""; }
+.tt-rate-player-summary::before { content: "▸"; ... }
+```
+
+CSS treats `'` and `"` as equivalent string delimiters. Double quotes pass through a PHP single-quoted string verbatim — no escaping needed, no behaviour change in the rendered CSS. One-line equivalence per rule.
+
+## Why the bug shipped
+
+Local PHP wasn't available during the v3.110.76 commit to run `php -l` as a pre-push sanity check (the dev box's `php` wasn't on PATH). The CI lint caught it within seconds of tag push; the cost is one bonus version tag (v3.110.76 → v3.110.77).
+
+## How to verify
+
+1. Refresh the plugin to v3.110.77. WP admin loads — no fatal on `wp-settings.php`.
+2. `php -l src/Shared/Frontend/FrontendWizardView.php` (locally or in CI): "No syntax errors detected".
+3. Walk the mark-attendance wizard → rate step. Roster renders collapsed; chevron `▸` shows in each summary, rotates to `▾` on expand; default disclosure triangle hidden.
+4. GitHub release `v3.110.77` is visible at https://github.com/caspernieuwenhuizen/talenttrack/releases — the v3.110.76 release was never created, so the plugin-update-checker jumps straight from v3.110.75 to v3.110.77.
+
+---
+
 # TalentTrack v3.110.76 — RateActorsStep: collapsed-roster + live status pill + sticky overall-progress strip (#0092)
 
 ## The problem
