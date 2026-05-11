@@ -1,3 +1,50 @@
+# TalentTrack v3.110.69 — Hotfix: missing `use` import made every page on a freshly installed v3.110.68 fatal
+
+## The bug
+
+`CoreWidgets::register()` in v3.110.68 called `new AddProspectHeroWidget()` without importing its fully-qualified class name. Because the file lives in `namespace TT\Modules\PersonaDashboard\Defaults;`, PHP resolved the unqualified name in the current namespace as `TT\Modules\PersonaDashboard\Defaults\AddProspectHeroWidget` — which doesn't exist. The actual class is `TT\Modules\PersonaDashboard\Widgets\AddProspectHeroWidget`.
+
+Reported on a STRATO-hosted install the moment the user refreshed the plugin to v3.110.68:
+
+```
+Uncaught Error: Class "TT\Modules\PersonaDashboard\Defaults\AddProspectHeroWidget" not found
+  in src/Modules/PersonaDashboard/Defaults/CoreWidgets.php:68
+Stack:
+  CoreWidgets::register()
+  ← PersonaDashboardModule->boot()
+  ← ModuleRegistry->bootAll()
+  ← Kernel->boot()
+  ← wp-settings.php → wp-load.php → wp-admin/admin.php
+```
+
+Because the failure happens during `Kernel::boot()` on the `plugins_loaded` action, **every** WordPress request — frontend and admin — fataled the moment the plugin was active.
+
+## Why local probes missed it
+
+A parallel branch (head-coach persona — `MarkAttendanceHeroWidget`, unmerged) had already added its own `use TT\Modules\PersonaDashboard\Widgets\AddProspectHeroWidget;` line in the same import block alongside its own `MarkAttendanceHeroWidget` import. That import accidentally fixed the missing-use bug in the parallel branch's working tree. When that branch is rebased onto main, the bug will return unless the import is preserved — which it now is, because this hotfix lands on main first.
+
+The v3.110.68 release was cut from a clean main branch that didn't carry the parallel branch's masking edit.
+
+## The fix
+
+One-line change in `src/Modules/PersonaDashboard/Defaults/CoreWidgets.php`:
+
+```diff
+ use TT\Modules\PersonaDashboard\Widgets\ActionCardWidget;
++use TT\Modules\PersonaDashboard\Widgets\AddProspectHeroWidget;
+ use TT\Modules\PersonaDashboard\Widgets\AssignedPlayersGridWidget;
+```
+
+No behaviour changes, no schema changes, no string changes. The widget itself, the scout template wiring, the wizard CTA — all unchanged from v3.110.68 (and were correct in v3.110.68 — only the missing `use` made them unreachable).
+
+## How to verify
+
+1. Plugin loads with no fatal on the admin dashboard.
+2. Scout-persona dashboard renders the `Log a new prospect` hero card with the `+ New prospect` CTA.
+3. PHP CLI sanity check passes: `php -l src/Modules/PersonaDashboard/Defaults/CoreWidgets.php`.
+
+---
+
 # TalentTrack v3.110.68 — Scout dashboard rebuilt around the prospects funnel: hero is `+ New prospect`, pipeline strip below
 
 Scout-persona polish pass driven by `docs/scout-actions.md`. Action #1 by frequency is "log a new prospect" (5–15× per week during a season, peaking Sunday after weekend matches). The scout persona dashboard didn't surface that action — or the prospects funnel at all — until now.

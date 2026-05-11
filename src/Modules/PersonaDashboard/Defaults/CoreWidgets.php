@@ -11,6 +11,7 @@ use TT\Modules\PersonaDashboard\TableSources\RecentScoutReportsSource;
 use TT\Modules\PersonaDashboard\TableSources\TrialsNeedingDecisionSource;
 use TT\Modules\PersonaDashboard\TableSources\UpcomingActivitiesSource;
 use TT\Modules\PersonaDashboard\Widgets\ActionCardWidget;
+use TT\Modules\PersonaDashboard\Widgets\AddProspectHeroWidget;
 use TT\Modules\PersonaDashboard\Widgets\AssignedPlayersGridWidget;
 use TT\Modules\PersonaDashboard\Widgets\ChildSwitcherWithRecapWidget;
 use TT\Modules\PersonaDashboard\Widgets\DataTableWidget;

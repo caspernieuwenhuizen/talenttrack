@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.68
+Stable tag: 3.110.69
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.69 — Hotfix: missing `use` import made every page on a freshly installed v3.110.68 fatal =
+
+`CoreWidgets::register()` shipped in v3.110.68 instantiated `AddProspectHeroWidget` without importing its fully-qualified class name. Because the file lives in `namespace TT\Modules\PersonaDashboard\Defaults;`, PHP resolved `new AddProspectHeroWidget()` as `TT\Modules\PersonaDashboard\Defaults\AddProspectHeroWidget` (the wrong namespace — the class lives under `Widgets`) and threw `Uncaught Error: Class … not found` at `wp-settings.php` boot. Every WP request — frontend AND admin — fataled the moment the plugin loaded. **Fix**: one-line addition of `use TT\Modules\PersonaDashboard\Widgets\AddProspectHeroWidget;` at the top of `src/Modules/PersonaDashboard/Defaults/CoreWidgets.php`. No behavioural changes, no schema changes, no string changes. Confirmed clean boot via PHP CLI probe. (RCA: the bug existed locally too but was masked because the parallel head-coach branch had already added the import alongside its own widget registration — the v3.110.68 release was cut from a tree that didn't have that masking edit.)
 
 = 3.110.68 — Scout dashboard rebuilt around the prospects funnel: hero is `+ New prospect`, pipeline strip below =
 
