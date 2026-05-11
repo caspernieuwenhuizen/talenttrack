@@ -230,8 +230,13 @@ final class CoreTemplates {
         $grid->add( new WidgetSlot(
             'navigation_tile', 'scout-my-players', Size::S, 3, 1, 1, 11, true, __( 'My assigned players', 'talenttrack' )
         ) );
+        // v3.110.78 — was `recent_scout_reports` (PDF-export artifact,
+        // gated on `tt_generate_scout_report` which scouts don't have).
+        // Swapped to `my_recent_prospects` so the table reflects the
+        // scout's actual recent activity and Show-all lands on the
+        // pipeline they own.
         $grid->add( new WidgetSlot(
-            'data_table', 'recent_scout_reports', Size::XL, 0, 2, 2, 20
+            'data_table', 'my_recent_prospects', Size::XL, 0, 2, 2, 20
         ) );
         return new PersonaTemplate(
             'scout',

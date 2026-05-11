@@ -109,6 +109,26 @@ Ordered by raw frequency (most-used first). Each action lists:
     in Dutch. Click `+ Nieuwe prospect`, fill the wizard, reach
     Review — the summary is a tidy two-column table with hover
     rows, not a vertically-stacked label/value pile.
+  - **v3.110.78** — replaced the scout dashboard row 2 data table:
+    was `recent_scout_reports` (PDF-export artifact, gated on a cap
+    scouts don't have — Show-all returned "You need scout-management
+    permission to view this page"); now `my_recent_prospects` —
+    new `MyRecentProspectsSource` queries `tt_prospects` scoped to
+    `discovered_by_user_id = current user`, returns Date / Name /
+    Status / Open columns. Status derived from prospect-table
+    columns alone (Archived / Joined / In trial / Active). See-all
+    targets `?tt_view=onboarding-pipeline` (cap `tt_view_prospects`,
+    which every scout has). Resolves the live-reported "my recent
+    scout reports widget does not seem to work" + "Show All says I
+    need scout admin rights".
+    *How to test:* log in as scout, create a new prospect via the
+    hero. Refresh the dashboard — the new prospect appears in row 2
+    with today's date and **Active** status. Click **See all** →
+    lands on the onboarding-pipeline kanban (NOT on a permission-
+    denied page). Click **Open** on a row → lands on the kanban with
+    `?prospect_id=N` in the URL. Empty state (fresh scout, no
+    prospects yet) reads "You have not logged any prospects yet…"
+    and the hero CTA above is the obvious next action.
 - **Polish notes:**
 
 ### 2. Glance at the onboarding pipeline

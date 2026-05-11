@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.77
+Stable tag: 3.110.78
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.78 — Scout dashboard: "My recent scout reports" replaced by "My recent prospects" — fixes empty table + Show-all cap mismatch =
+
+The scout persona dashboard shipped in v3.110.68 with a `recent_scout_reports` table at row 2. That data source pulls from `ScoutReportsRepository::listForGenerator()` — a PDF-export sharing artifact, not the prospects funnel. Two problems: **(1)** A working scout creating a new prospect saw nothing appear in the table; they expected "I just discovered Jan, that's my scout report". **(2)** The Show-all link routed to `?tt_view=scout-history`, gated on `tt_generate_scout_report` — a cap the `tt_scout` role doesn't carry. Scouts got "You need scout-management permission to view this page." **Fix**: new `MyRecentProspectsSource` queries `tt_prospects` scoped to `discovered_by_user_id = current user`, returns Date / Name / Status / Open columns. Status is derived from `tt_prospects` columns alone (no workflow-task join, no extra query cost): `archived_at` → Archived; `promoted_to_player_id` → Joined; `promoted_to_trial_case_id` → In trial; else → Active. The Show-all link on this preset targets `?tt_view=onboarding-pipeline` (cap `tt_view_prospects`, which every scout has). The legacy `recent_scout_reports` source stays registered for installs that want the PDF-export log; only the scout default template stops referencing it.
 
 = 3.110.77 — Hotfix: v3.110.76 introduced a PHP parse error in `FrontendWizardView::enqueueWizardStyles()`; no release ZIP was published =
 

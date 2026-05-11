@@ -33,6 +33,7 @@ class DataTableWidget extends AbstractWidget {
         return [
             'trials_needing_decision' => __( 'Trials needing decision', 'talenttrack' ),
             'recent_scout_reports'    => __( 'My recent scout reports', 'talenttrack' ),
+            'my_recent_prospects'     => __( 'My recent prospects', 'talenttrack' ),
             'audit_log_recent'        => __( 'Recent audit events', 'talenttrack' ),
             'upcoming_activities'     => __( 'Upcoming activities', 'talenttrack' ),
             'goals_by_principle'      => __( 'Goals by principle', 'talenttrack' ),
@@ -79,6 +80,16 @@ class DataTableWidget extends AbstractWidget {
                 'columns'       => [ __( 'Date', 'talenttrack' ), __( 'Player', 'talenttrack' ), __( 'Status', 'talenttrack' ), '' ],
                 'see_all_view'  => 'scout-history',
                 'empty_message' => __( 'You have no scout reports yet.', 'talenttrack' ),
+            ],
+            // v3.110.78 — scout-persona "the prospects I just logged" table.
+            // Show-all targets onboarding-pipeline (cap `tt_view_prospects`,
+            // every scout has it), not `scout-history` which is gated on
+            // `tt_generate_scout_report`.
+            'my_recent_prospects' => [
+                'title'         => __( 'My recent prospects', 'talenttrack' ),
+                'columns'       => [ __( 'Date', 'talenttrack' ), __( 'Name', 'talenttrack' ), __( 'Status', 'talenttrack' ), '' ],
+                'see_all_view'  => 'onboarding-pipeline',
+                'empty_message' => __( 'You have not logged any prospects yet. Use the “+ New prospect” hero above to start.', 'talenttrack' ),
             ],
             'audit_log_recent' => [
                 'title'         => __( 'Recent audit events', 'talenttrack' ),
