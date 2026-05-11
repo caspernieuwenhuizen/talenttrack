@@ -60,6 +60,13 @@ final class CoreWidgets {
         // existing workflow-task + trial-case data; no new tables.
         WidgetRegistry::register( new OnboardingPipelineWidget() );
 
+        // v3.110.68 — scout-persona dashboard hero. One-tap path to
+        // the new-prospect wizard (action #1 in `docs/scout-actions.md`)
+        // plus glance stats (logged this month / active in funnel).
+        // Replaces `assigned_players_grid` as the scout hero in
+        // `CoreTemplates::scout()`.
+        WidgetRegistry::register( new AddProspectHeroWidget() );
+
         TableRowSourceRegistry::register( 'upcoming_activities',     new UpcomingActivitiesSource() );
         TableRowSourceRegistry::register( 'trials_needing_decision', new TrialsNeedingDecisionSource() );
         TableRowSourceRegistry::register( 'recent_scout_reports',    new RecentScoutReportsSource() );

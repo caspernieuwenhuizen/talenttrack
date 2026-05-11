@@ -199,22 +199,38 @@ final class CoreTemplates {
     }
 
     public static function scout( int $club_id ): PersonaTemplate {
-        // Scout's primary surface IS the assigned-players grid; tile grid
-        // only carries the report-history shortcut.
+        // v3.110.68 — rebuilt around the prospects funnel (#0081).
+        //
+        // Before: hero was `assigned_players_grid` (legacy from before
+        // the prospects funnel existed), tile grid pointed at
+        // `scout-history` and `scout-my-players` (old "report" model),
+        // and the new-prospect wizard / onboarding pipeline weren't
+        // surfaced anywhere on the scout's persona dashboard. Scouts
+        // had to navigate to `?tt_view=onboarding-pipeline` first,
+        // then click `+ New prospect`.
+        //
+        // After: hero is the `+ New prospect` launch tile (action #1
+        // per `docs/scout-actions.md`, 5–15× per week during a
+        // season). Row below is the onboarding pipeline (action #2,
+        // daily glance). Legacy tiles stay further down for installs
+        // that still use the report-history flow; nothing is removed.
         $grid = new GridLayout();
         $grid->add( new WidgetSlot(
-            'navigation_tile', 'scout-history', Size::S, 0, 0, 1, 10, true, __( 'My reports', 'talenttrack' )
+            'onboarding_pipeline', '', Size::XL, 0, 0, 3, 5
         ) );
         $grid->add( new WidgetSlot(
-            'navigation_tile', 'scout-my-players', Size::S, 3, 0, 1, 11, true, __( 'My assigned players', 'talenttrack' )
+            'navigation_tile', 'scout-history', Size::S, 0, 1, 1, 10, true, __( 'My reports', 'talenttrack' )
         ) );
         $grid->add( new WidgetSlot(
-            'data_table', 'recent_scout_reports', Size::XL, 0, 1, 2, 20
+            'navigation_tile', 'scout-my-players', Size::S, 3, 1, 1, 11, true, __( 'My assigned players', 'talenttrack' )
+        ) );
+        $grid->add( new WidgetSlot(
+            'data_table', 'recent_scout_reports', Size::XL, 0, 2, 2, 20
         ) );
         return new PersonaTemplate(
             'scout',
             $club_id,
-            new WidgetSlot( 'assigned_players_grid', '', Size::XL, 0, 0, 3, 1 ),
+            new WidgetSlot( 'add_prospect_hero', '', Size::XL, 0, 0, 3, 1 ),
             null,
             $grid
         );

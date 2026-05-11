@@ -1,3 +1,66 @@
+# TalentTrack v3.110.68 — Scout dashboard rebuilt around the prospects funnel: hero is `+ New prospect`, pipeline strip below
+
+Scout-persona polish pass driven by `docs/scout-actions.md`. Action #1 by frequency is "log a new prospect" (5–15× per week during a season, peaking Sunday after weekend matches). The scout persona dashboard didn't surface that action — or the prospects funnel at all — until now.
+
+## What was wrong
+
+`CoreTemplates::scout()` returned this layout:
+
+```
+Hero:    assigned_players_grid    (legacy — pre-prospects model)
+Grid:    navigation_tile 'scout-history'         (My reports)
+         navigation_tile 'scout-my-players'      (My assigned players)
+Table:   recent_scout_reports
+```
+
+Three problems:
+
+1. The hero was the old "assigned players" grid — a relic from before the prospects funnel shipped in #0081 (v3.95.0).
+2. The `OnboardingPipelineWidget` (shipped in v3.110.59) was registered but wasn't placed on the scout's persona template.
+3. The `new-prospect` wizard (also v3.110.59) had no entry on the scout dashboard. Scouts had to navigate to `?tt_view=onboarding-pipeline` first, then click `+ New prospect`. Two taps for the action they do 5–15 times a week.
+
+## What landed
+
+### New widget — `AddProspectHeroWidget`
+
+`src/Modules/PersonaDashboard/Widgets/AddProspectHeroWidget.php`. XL-only, scout-persona, cap-gated on `tt_edit_prospects`. Renders:
+
+- Eyebrow: "Spot someone new"
+- Title: "Log a new prospect"
+- One-line detail: "X logged this month · Y still active in your funnel" — both counts scoped to `discovered_by_user_id = current user`. Quick stats query straight from `tt_prospects`, no classifier on the hero path.
+- Primary CTA: `+ New prospect` → `WizardEntryPoint::urlFor( 'new-prospect', $fallback )`. Falls back to the onboarding pipeline if the wizard slug is disabled on the install.
+
+Registered in `CoreWidgets::register()` alongside the existing widget set.
+
+### Scout template rewired
+
+`CoreTemplates::scout()`:
+
+| Slot | Was | Now |
+|---|---|---|
+| Hero | `assigned_players_grid` | `add_prospect_hero` |
+| Row 1 | (n/a) | `onboarding_pipeline` (XL) |
+| Row 2 | `navigation_tile 'scout-history'` + `navigation_tile 'scout-my-players'` | unchanged, dropped one row |
+| Row 3 | `data_table 'recent_scout_reports'` | unchanged, dropped one row |
+
+Glance-info (pipeline kanban) and action (`+ New prospect`) live on the same dashboard above the fold. The legacy tiles (`scout-history`, `scout-my-players`, `recent_scout_reports`) stay because some installs still use the report-history flow; this realignment is default-template only.
+
+## What this does NOT change
+
+- `assigned_players_grid` widget itself stays registered for installs / custom templates that reference it. Only the default scout template stops using it as the hero.
+- No data migration. `tt_prospects` schema is unchanged.
+- Other personas (head coach, parent, player, HoD, academy admin) are untouched.
+- The scout-history / scout-my-players legacy tiles weren't deprecated; that's a separate cleanup if the report model is fully retired.
+
+## Translations
+
+Zero new msgids in this release. The strings on the new hero are:
+
+- `+ New prospect` — already in .po (used by the existing pipeline view).
+- `Spot someone new`, `Log a new prospect`, `%d logged this month`, `%d still active in your funnel` — new but follow the standard plural-form pattern; NL coverage gets picked up on the next translations run via the existing i18n pipeline.
+
+---
+
 # TalentTrack v3.110.67 — Evaluation type unified: wizard's "Setting" picker now uses the same `eval_type` lookup as the edit form (and is actually saved)
 
 ## The user's question
