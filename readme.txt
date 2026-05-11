@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.74
+Stable tag: 3.110.75
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,9 +12,13 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 3.110.74 — `OnboardingPipelineWidget` had no CSS rules, rendered as six unstyled stacked divs on every dashboard surface that pinned it =
+= 3.110.75 — `OnboardingPipelineWidget` had no CSS rules, rendered as six unstyled stacked divs on every dashboard surface that pinned it =
 
 The widget shipped in v3.110.48 (#0081 child 3) emitted `tt-pd-pipeline-*` classes that no stylesheet defined. The standalone view at `?tt_view=onboarding-pipeline` has its own kanban styling in `assets/css/components/onboarding-pipeline.css`, which is why the funnel looked correct from the tile but ugly on the scout dashboard (and the HoD glance row, if any operator had pinned it there). **Fix**: added `tt-pd-pipeline-*` rules to `assets/css/persona-dashboard.css` — compact six-column count strip, mobile-first per CLAUDE.md §2 (stacks vertically below 720px, grid of six columns above). Each column has a small-caps stage label, a large bold count, and an optional amber-bg stale badge underneath. Visual language follows the existing `tt-pd-*` token vocabulary (`--tt-pd-muted`, `--tt-pd-ink`). No PHP / HTML / classname changes — the widget already emitted the right markup; the gap was the missing CSS.
+
+= 3.110.74 — Drop the mobile FAB on detail-page primary actions; secondary actions return to mobile too =
+
+Removes the `.tt-page-actions__primary` floating-action-button media query in `assets/css/public.css` that turned the primary detail-page action (Edit on player / team / activity / evaluation detail) into a 56×56 fixed bottom-right circle on `max-width: 767px`. Two problems with the pattern in practice: (a) the FAB overlapped inline content on dashboards that already had cards stacking near the bottom of the viewport, and (b) the same media query hid `.tt-page-actions__secondary` entirely on mobile, so Archive became unreachable from the page header on phones. Both go away by removing the media query — primary + secondary actions now render inline alongside the H1 on every viewport, wrapping to the next line when the row is too narrow. The icon glyph (e.g. `+` for create actions) keeps showing inline before the label on both desktop and mobile, which it already did on desktop. Affects every detail / list surface that consumes `FrontendViewBase::pageActionsHtml()` — Players, Teams, People, Goals, Activities, Evaluations, Trial cases, Tracks, scheduled reports, custom-CSS classes, etc. The PHP API stays the same (still emits `tt-page-actions__primary` / `__secondary` for downstream styling); only the mobile rendering changes. Spec `0091-feat-list-view-compliance-followup.md` updated to drop the "FAB on mobile" annotation from its standard description.
 
 = 3.110.73 — Mark attendance wizard: roster always renders + pre-fills, auto-completes activity, Edit activity captures back-target, wizard completion returns to dashboard, hero hides processed activities (#0092) =
 

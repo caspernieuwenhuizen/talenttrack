@@ -146,7 +146,7 @@ Ordered by raw frequency (most-used first). Each action lists:
     training / Trial group / Team offer / Joined — scoped to your
     `discovered_by_user_id`. Clicking through to the standalone
     kanban (`?tt_view=onboarding-pipeline`) shows the same numbers.
-  - **v3.110.74** — the count strip was the right placement but had
+  - **v3.110.75** — the count strip was the right placement but had
     no CSS rules at all (`tt-pd-pipeline-*` classes were emitted by
     the widget but never defined in `persona-dashboard.css`), so the
     dashboard showed six unstyled stacked divs while the standalone

@@ -247,10 +247,16 @@
 }
 
 /* v3.110.53 — `.tt-page-head` + `.tt-page-actions` page-header slot for
-   primary / secondary action buttons next to the H1. Desktop renders
-   them right-aligned next to the title; mobile lifts the primary
-   action into a floating action button (FAB) bottom-right and hides
-   secondary actions to keep the page header compact. */
+   primary / secondary action buttons next to the H1. The H1 row wraps
+   on narrow viewports so primary + secondary actions drop to a new
+   line beneath the title — same controls on desktop and mobile, no
+   second-class affordances.
+
+   v3.110.74 — dropped the mobile FAB. Floating bottom-right primary
+   buttons were noisy on dashboards rich with content (the FAB sat on
+   top of inline cards / tiles) and hid the secondary action entirely
+   on mobile (`.tt-page-actions__secondary { display: none; }`). The
+   page header now renders inline buttons on every viewport. */
 .tt-page-head {
     display: flex;
     flex-wrap: wrap;
@@ -267,6 +273,7 @@
     display: flex;
     gap: 8px;
     align-items: center;
+    flex-wrap: wrap;
 }
 .tt-page-actions__icon {
     display: none;
@@ -275,47 +282,6 @@
     margin-right: 6px;
 }
 .tt-page-actions__primary .tt-page-actions__icon { display: inline-block; }
-
-@media (max-width: 767px) {
-    /* Primary action becomes a 56×56 FAB anchored bottom-right.
-       Touch-target safe (≥48px) and clear of iOS safe-area inset.
-       The label stays in the DOM for screen readers but is
-       visually hidden so the FAB is icon-only. */
-    .tt-page-actions__primary {
-        position: fixed;
-        bottom: max(16px, env(safe-area-inset-bottom));
-        right: max(16px, env(safe-area-inset-right));
-        z-index: 50;
-        width: 56px;
-        height: 56px;
-        min-height: 56px;
-        padding: 0;
-        border-radius: 28px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.18);
-        font-size: 0;
-    }
-    .tt-page-actions__primary .tt-page-actions__icon {
-        margin: 0;
-        font-size: 28px;
-    }
-    .tt-page-actions__primary .tt-page-actions__label {
-        position: absolute;
-        width: 1px; height: 1px;
-        margin: -1px;
-        padding: 0;
-        overflow: hidden;
-        clip: rect(0 0 0 0);
-        white-space: nowrap;
-        border: 0;
-    }
-    /* Secondary actions are hidden on mobile to save space. They're
-       reachable via the entity's dashboard tile or admin sub-route
-       (e.g. ?tt_view=players-import for CSV import). */
-    .tt-page-actions__secondary { display: none; }
-}
 
 /* v3.110.53 — destructive button variant for Archive / Delete actions
    on detail pages. Distinct from .tt-btn-secondary so the destructive
