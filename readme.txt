@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.72
+Stable tag: 3.110.74
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.74 — Drop the mobile FAB on detail-page primary actions; secondary actions return to mobile too =
+
+Removes the `.tt-page-actions__primary` floating-action-button media query in `assets/css/public.css` that turned the primary detail-page action (Edit on player / team / activity / evaluation detail) into a 56×56 fixed bottom-right circle on `max-width: 767px`. Two problems with the pattern in practice: (a) the FAB overlapped inline content on dashboards that already had cards stacking near the bottom of the viewport, and (b) the same media query hid `.tt-page-actions__secondary` entirely on mobile, so Archive became unreachable from the page header on phones. Both go away by removing the media query — primary + secondary actions now render inline alongside the H1 on every viewport, wrapping to the next line when the row is too narrow. The icon glyph (e.g. `+` for create actions) keeps showing inline before the label on both desktop and mobile, which it already did on desktop. Affects every detail / list surface that consumes `FrontendViewBase::pageActionsHtml()` — Players, Teams, People, Goals, Activities, Evaluations, Trial cases, Tracks, scheduled reports, custom-CSS classes, etc. The PHP API stays the same (still emits `tt-page-actions__primary` / `__secondary` for downstream styling); only the mobile rendering changes. Spec `0091-feat-list-view-compliance-followup.md` updated to drop the "FAB on mobile" annotation from its standard description.
 
 = 3.110.73 — Mark attendance wizard: roster always renders + pre-fills, auto-completes activity, Edit activity captures back-target, wizard completion returns to dashboard, hero hides processed activities (#0092) =
 

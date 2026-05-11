@@ -117,9 +117,14 @@ abstract class FrontendViewBase {
      *                   to render `<button type="button">` driven by
      *                   `data_attrs` (e.g. archive REST DELETE).
      *   - 'primary'    (optional, default false): true → main CTA,
-     *                   becomes FAB bottom-right on mobile via CSS.
-     *   - 'icon'       (optional): glyph (e.g. '+') shown on the FAB.
-     *                   Hidden on desktop.
+     *                   styled with the primary variant by default.
+     *                   (Pre-v3.110.74 this also turned the action into
+     *                   a floating bottom-right FAB on mobile; the FAB
+     *                   was dropped because it overlapped inline
+     *                   content and hid the secondary action entirely.)
+     *   - 'icon'       (optional): glyph (e.g. '+') prefixed before
+     *                   the label on primary actions, both desktop
+     *                   and mobile.
      *   - 'variant'    (optional): 'primary' | 'secondary' | 'danger'.
      *                   Defaults to primary when 'primary' is true,
      *                   else secondary. Use 'danger' for destructive.
