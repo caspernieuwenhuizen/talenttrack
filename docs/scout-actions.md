@@ -93,6 +93,22 @@ Ordered by raw frequency (most-used first). Each action lists:
     prospects the line reads "0 logged this month · 0 still active
     in your funnel". User without `tt_edit_prospects` cap: the hero
     renders empty (cap-gated).
+  - **v3.110.72** — two polish items on this action's surface.
+    (a) New-prospect wizard Review step rewritten from an
+    unstyled `<dl class="tt-profile-dl">` (the stylesheet wasn't
+    enqueued on the wizard view) to a proper
+    `<table class="tt-table tt-wizard-review-table">` inside
+    `tt-table-wrap` so the dashboard table style applies. Field
+    labels in `<th scope="row">` at 35% width, values in `<td>`,
+    rows for empty optional fields still drop out, notes still
+    `nl2br()`. (b) NL translations added for the hero strings
+    seeded English in v3.110.68 — `Spot someone new` →
+    `Een nieuwe speler ontdekt`, `Log a new prospect` →
+    `Leg een nieuwe prospect vast`, plural counters localized.
+    *How to test:* on an NL-locale install, the hero renders fully
+    in Dutch. Click `+ Nieuwe prospect`, fill the wizard, reach
+    Review — the summary is a tidy two-column table with hover
+    rows, not a vertically-stacked label/value pile.
 - **Polish notes:**
 
 ### 2. Glance at the onboarding pipeline

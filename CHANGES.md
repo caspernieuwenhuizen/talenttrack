@@ -1,3 +1,62 @@
+# TalentTrack v3.110.72 — Scout polish: new-prospect Review as table; NL i18n for scout hero; gate fix for the v3.110.70 vocabulary regression
+
+Two scout-persona polish items, plus a follow-on fix for a vocabulary gate that v3.110.71's hotfix did not address.
+
+1. "the final step of new prospect wizard does not look pretty it should be a proper table" — scout dashboard, reported live.
+2. "I see a lot of English language which I do not expect as the site is in NL" — scout dashboard, reported live.
+3. **Gate fix**: v3.110.70's `MarkAttendanceHeroWidget` shipped with `__( 'Pick a session', 'talenttrack' )`, which trips the #0035 forbidden-vocabulary CI gate. v3.110.71 added the NL translation for that msgid but did not rename the source string, so the gate stayed red on main. This release renames the CTA to `Pick an activity` (the gate clears) and adds the matching NL `msgstr`.
+
+## 1 — New-prospect wizard, Review step: real table
+
+`src/Modules/Wizards/Prospect/ReviewStep.php::render()` rendered the confirmation summary as a `<dl class="tt-profile-dl">` definition list. The class came from `frontend-profile.css`, which is enqueued only on the player-profile view — wizards inherit the dashboard frame but not that stylesheet. So on the wizard view the markup degraded to unstyled DT/DD pairs, with labels and values bunched into a single column.
+
+Fix: drop the `<dl>` entirely, render a real `<table class="tt-table tt-wizard-review-table">` inside a `<div class="tt-table-wrap">`. The `tt-table` class is already styled by `frontend-admin.css` (line 294) which IS enqueued on every dashboard surface including the wizard. Two columns:
+
+- `<th scope="row">` with the field label, fixed at `style="width:35%;"` so values dominate the row.
+- `<td>` with the value. Notes still use `nl2br( esc_html(...) )` for multi-line input; everything else is a single `esc_html()` call.
+
+Conditional behaviour preserved: rows for optional fields (DOB, current club, discovered-at event, notes, parent name/email/phone) still drop out when the field is empty, so the summary stays tight on incomplete entries. No `thead` — for a summary the column headers ("Field" / "Value") would be noise.
+
+The change is purely markup. Wizard flow, persistence path, redirect, and chain-task dispatch are all untouched.
+
+## 2 — Dutch translations for AddProspectHeroWidget
+
+v3.110.68 shipped the new scout dashboard hero with English seed labels and a note in `CHANGES.md` that NL coverage would "land in the next i18n run". This is that run.
+
+Added to `languages/talenttrack-nl_NL.po`:
+
+| msgid | msgstr |
+|---|---|
+| `Spot someone new` | `Een nieuwe speler ontdekt` |
+| `Log a new prospect` | `Leg een nieuwe prospect vast` |
+| `Add prospect hero` | `Hero ‘Prospect toevoegen’` |
+| `%d logged this month` (sg + pl) | `%d vastgelegd deze maand` |
+| `%d still active in your funnel` (sg + pl) | `%d nog actief in jouw trechter` |
+
+`.mo` regeneration runs automatically via the `translations.yml` workflow on the merge commit to main; no manual `msgfmt` step in this PR.
+
+## 3 — Gate fix for the v3.110.70 `Pick a session` vocabulary regression
+
+v3.110.70 introduced `__( 'Pick a session', 'talenttrack' )` on the empty-state path of `MarkAttendanceHeroWidget`. The #0035 CI gate (`No legacy 'sessions' strings`) treats user-visible `session`/`sessions` vocabulary as a regression of the pre-rename "training session" entity (now "activity"). The gate fired on the merge commit and Build & Release was red on main through the v3.110.71 hotfix release.
+
+v3.110.71 added the NL translation `Pick a session` → `Kies een sessie` to the .po, which **localises** the regression — it doesn't **eliminate** it. The gate ran on PHP source, found the forbidden token, stayed red.
+
+Fix in this release: rename the empty-state CTA in `MarkAttendanceHeroWidget` to `__( 'Pick an activity', 'talenttrack' )` and add the matching NL `msgstr` (`Kies een activiteit`) alongside (not replacing) the v3.110.71-shipped `Pick a session` entry. Old msgid stays in the .po so a downgraded install doesn't lose its translation mid-flight; the source string never references it.
+
+## Why this exists as its own release
+
+Per CLAUDE.md DoD: "User-facing strings go through `__()` / `_e()` and `languages/talenttrack-nl_NL.po` updated in the same PR" — v3.110.68 violated this rule on the scout hero strings, and v3.110.70 violated it on the MarkAttendance feature (caught by v3.110.71 in the .po, missed at source). v3.110.72 closes both gaps. The wizard table fix lands in the same PR because all three changes touch the scout dashboard surface.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.72 on the NL-locale install.
+2. Scout dashboard hero now reads `Een nieuwe speler ontdekt` / `Leg een nieuwe prospect vast` / `X vastgelegd deze maand · Y nog actief in jouw trechter`.
+3. Click `+ Nieuwe prospect`, walk the wizard to the Review step. The summary renders as a clean two-column table with field names on the left, values on the right, alternating-row hover.
+4. On the head-coach dashboard with no upcoming activity scheduled, the empty-state CTA reads `Kies een activiteit` (was `Kies een sessie` in v3.110.71).
+5. Build & Release on main turns green again — the #0035 gate no longer fires.
+
+---
+
 # TalentTrack v3.110.71 — Hotfix: hero widget variant class was a mangled soup, suppressing the gradient + typography hierarchy on every persona-dashboard hero
 
 ## The bug
@@ -60,7 +119,7 @@ Bonus in the same ship — the pilot operator's screenshot showed the buttons re
 
 1. Log in as a coach. Dashboard renders the Mark attendance hero with the **eyebrow uppercase + faded**, a **large bold title**, and a **smaller faded detail line**. Background is the navy-purple gradient from `--tt-pd-hero-start` / `--tt-pd-hero-end`. CTA pills look identical to before (yellow primary + ghost secondary).
 2. Same check on the scout dashboard (`add_prospect_hero` — should now show the hero-style hierarchy where it didn't before).
-3. With the WP site locale set to Dutch (`nl_NL`): the hero buttons read **Aanwezigheid registreren** and **Activiteit bewerken**. Open the wizard and the confirm-step buttons read **Beoordeel de aanwezige spelers** + **Beoordeling overslaan, aanwezigheid opslaan**. Empty-state hero reads **Kies een sessie** + `Plan een training of wedstrijd om deze kaart te vullen.`
+3. With the WP site locale set to Dutch (`nl_NL`): the hero buttons read **Aanwezigheid registreren** and **Activiteit bewerken**. Open the wizard and the confirm-step buttons read **Beoordeel de aanwezige spelers** + **Beoordeling overslaan, aanwezigheid opslaan**. Empty-state hero reads **Kies een sessie** + `Plan een training of wedstrijd om deze kaart te vullen.` (v3.110.72 changes this to **Kies een activiteit**.)
 
 ---
 
