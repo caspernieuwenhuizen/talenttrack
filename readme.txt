@@ -4,13 +4,23 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.76
+Stable tag: 3.110.77
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.77 — Hotfix: v3.110.76 introduced a PHP parse error in `FrontendWizardView::enqueueWizardStyles()`; no release ZIP was published =
+
+The v3.110.76 ship added two CSS rules with `content: ''` and `content: '▸'` inside the wizard view's inline `$css = '…'` PHP single-quoted heredoc. The embedded single quotes terminated the PHP string mid-CSS, breaking the file parse:
+
+```
+PHP Parse error:  syntax error, unexpected single-quoted string "; }" in src/Shared/Frontend/FrontendWizardView.php on line 485
+```
+
+The "PHP Syntax Lint" GH Action job caught it and the "Build & Release ZIP" job was skipped. v3.110.76 has a tag in git but no published release — the plugin-update-checker can't see it. **Fix**: switch the two CSS `content:` values to double-quoted strings (`""` and `"▸"`) — CSS treats both quote styles equivalently, and double quotes pass through the PHP single-quoted PHP string verbatim. One-line equivalence, no behaviour change. The collapsed-roster redesign from v3.110.76 lands properly with this release.
 
 = 3.110.76 — RateActorsStep: collapsed-roster + live status pill + sticky overall-progress strip (#0092) =
 
