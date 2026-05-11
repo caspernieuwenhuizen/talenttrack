@@ -40,40 +40,32 @@ final class ReviewStep implements WizardStepInterface {
         $pname  = (string) ( $state['parent_name']         ?? '' );
         $pmail  = (string) ( $state['parent_email']        ?? '' );
         $pphone = (string) ( $state['parent_phone']        ?? '' );
+
+        $rows = [
+            [ __( 'Name',          'talenttrack' ), trim( $first . ' ' . $last ), false ],
+            [ __( 'Date of birth', 'talenttrack' ), $dob,                          false ],
+            [ __( 'Current club',  'talenttrack' ), $club,                         false ],
+            [ __( 'Discovered at', 'talenttrack' ), $event,                        false ],
+            [ __( 'Notes',         'talenttrack' ), $notes,                        true  ],
+            [ __( 'Parent name',   'talenttrack' ), $pname,                        false ],
+            [ __( 'Parent email',  'talenttrack' ), $pmail,                        false ],
+            [ __( 'Parent phone',  'talenttrack' ), $pphone,                       false ],
+        ];
         ?>
         <p><?php esc_html_e( 'Confirm and create the prospect:', 'talenttrack' ); ?></p>
-        <dl class="tt-profile-dl">
-            <dt><?php esc_html_e( 'Name', 'talenttrack' ); ?></dt>
-            <dd><?php echo esc_html( trim( $first . ' ' . $last ) ); ?></dd>
-            <?php if ( $dob !== '' ) : ?>
-                <dt><?php esc_html_e( 'Date of birth', 'talenttrack' ); ?></dt>
-                <dd><?php echo esc_html( $dob ); ?></dd>
-            <?php endif; ?>
-            <?php if ( $club !== '' ) : ?>
-                <dt><?php esc_html_e( 'Current club', 'talenttrack' ); ?></dt>
-                <dd><?php echo esc_html( $club ); ?></dd>
-            <?php endif; ?>
-            <?php if ( $event !== '' ) : ?>
-                <dt><?php esc_html_e( 'Discovered at', 'talenttrack' ); ?></dt>
-                <dd><?php echo esc_html( $event ); ?></dd>
-            <?php endif; ?>
-            <?php if ( $notes !== '' ) : ?>
-                <dt><?php esc_html_e( 'Notes', 'talenttrack' ); ?></dt>
-                <dd><?php echo nl2br( esc_html( $notes ) ); ?></dd>
-            <?php endif; ?>
-            <?php if ( $pname !== '' ) : ?>
-                <dt><?php esc_html_e( 'Parent name', 'talenttrack' ); ?></dt>
-                <dd><?php echo esc_html( $pname ); ?></dd>
-            <?php endif; ?>
-            <?php if ( $pmail !== '' ) : ?>
-                <dt><?php esc_html_e( 'Parent email', 'talenttrack' ); ?></dt>
-                <dd><?php echo esc_html( $pmail ); ?></dd>
-            <?php endif; ?>
-            <?php if ( $pphone !== '' ) : ?>
-                <dt><?php esc_html_e( 'Parent phone', 'talenttrack' ); ?></dt>
-                <dd><?php echo esc_html( $pphone ); ?></dd>
-            <?php endif; ?>
-        </dl>
+        <div class="tt-table-wrap">
+            <table class="tt-table tt-wizard-review-table">
+                <tbody>
+                    <?php foreach ( $rows as [ $label, $value, $multiline ] ) :
+                        if ( $value === '' ) continue; ?>
+                        <tr>
+                            <th scope="row" style="width:35%;"><?php echo esc_html( $label ); ?></th>
+                            <td><?php echo $multiline ? nl2br( esc_html( $value ) ) : esc_html( $value ); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
         <p>
             <small>
                 <?php esc_html_e( 'After saving, the Head of Development gets a task to invite this prospect to a test training.', 'talenttrack' ); ?>

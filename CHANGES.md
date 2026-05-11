@@ -1,3 +1,51 @@
+# TalentTrack v3.110.71 — Scout polish: new-prospect Review step is now a proper table; Dutch translations for the scout dashboard hero
+
+Two narrow polish items on top of v3.110.68's scout dashboard surface. Both reported on a live site after refreshing the plugin to v3.110.69:
+
+1. "the final step of new prospect wizard does not look pretty it should be a proper table"
+2. "I see a lot of English language which I do not expect as the site is in NL"
+
+## 1 — New-prospect wizard, Review step: real table
+
+`src/Modules/Wizards/Prospect/ReviewStep.php::render()` rendered the confirmation summary as a `<dl class="tt-profile-dl">` definition list. The class came from `frontend-profile.css`, which is enqueued only on the player-profile view — wizards inherit the dashboard frame but not that stylesheet. So on the wizard view the markup degraded to unstyled DT/DD pairs, with labels and values bunched into a single column.
+
+Fix: drop the `<dl>` entirely, render a real `<table class="tt-table tt-wizard-review-table">` inside a `<div class="tt-table-wrap">`. The `tt-table` class is already styled by `frontend-admin.css` (line 294) which IS enqueued on every dashboard surface including the wizard. Two columns:
+
+- `<th scope="row">` with the field label, fixed at `style="width:35%;"` so values dominate the row.
+- `<td>` with the value. Notes still use `nl2br( esc_html(...) )` for multi-line input; everything else is a single `esc_html()` call.
+
+Conditional behaviour preserved: rows for optional fields (DOB, current club, discovered-at event, notes, parent name/email/phone) still drop out when the field is empty, so the summary stays tight on incomplete entries. No `thead` — for a summary the column headers ("Field" / "Value") would be noise.
+
+The change is purely markup. Wizard flow, persistence path, redirect, and chain-task dispatch are all untouched.
+
+## 2 — Dutch translations for AddProspectHeroWidget
+
+v3.110.68 shipped the new scout dashboard hero with English seed labels and a note in `CHANGES.md` that NL coverage would "land in the next i18n run". This is that run.
+
+Added to `languages/talenttrack-nl_NL.po`:
+
+| msgid | msgstr |
+|---|---|
+| `Spot someone new` | `Een nieuwe speler ontdekt` |
+| `Log a new prospect` | `Leg een nieuwe prospect vast` |
+| `Add prospect hero` | `Hero ‘Prospect toevoegen’` |
+| `%d logged this month` (sg + pl) | `%d vastgelegd deze maand` |
+| `%d still active in your funnel` (sg + pl) | `%d nog actief in jouw trechter` |
+
+`.mo` regeneration runs automatically via the `translations.yml` workflow on the merge commit to main; no manual `msgfmt` step in this PR.
+
+## Why this exists as its own release
+
+Per CLAUDE.md DoD: "User-facing strings go through `__()` / `_e()` and `languages/talenttrack-nl_NL.po` updated in the same PR" — v3.110.68 violated this rule. v3.110.71 closes the loop. The wizard table fix lands in the same PR because both touch the scout's `+ New prospect` surface and shipping them together avoids a churn-y bundle.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.71 on the NL-locale install.
+2. Scout dashboard hero now reads `Een nieuwe speler ontdekt` / `Leg een nieuwe prospect vast` / `X vastgelegd deze maand · Y nog actief in jouw trechter`.
+3. Click `+ Nieuwe prospect`, walk the wizard to the Review step. The summary renders as a clean two-column table with field names on the left, values on the right, alternating-row hover.
+
+---
+
 # TalentTrack v3.110.70 — Head-coach dashboard: new `Mark attendance` hero + wizard, attendance-first with optional rating fork (#0092)
 
 Head-coach polish pass driven by `docs/head-coach-actions.md`. Action #1 by frequency is "record attendance for a session" — 4× / week during a regular football season (3 trainings + 1 match). The pre-#0092 path cost ~6–8 distinct taps before the coach reached the roster, and the previous hero's "Attendance" CTA misled the coach by dropping them on the activities list rather than the upcoming activity.
