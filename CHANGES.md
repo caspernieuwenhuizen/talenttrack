@@ -1,9 +1,10 @@
-# TalentTrack v3.110.71 — Scout polish: new-prospect Review step is now a proper table; Dutch translations for the scout dashboard hero
+# TalentTrack v3.110.71 — Scout polish: new-prospect Review as table; NL i18n for scout hero; bundled gate fix unblocking main after v3.110.70
 
-Two narrow polish items on top of v3.110.68's scout dashboard surface. Both reported on a live site after refreshing the plugin to v3.110.69:
+Two scout-persona polish items, plus a bundled fix that unblocks main.
 
-1. "the final step of new prospect wizard does not look pretty it should be a proper table"
-2. "I see a lot of English language which I do not expect as the site is in NL"
+1. "the final step of new prospect wizard does not look pretty it should be a proper table" — scout dashboard, reported live.
+2. "I see a lot of English language which I do not expect as the site is in NL" — scout dashboard, reported live.
+3. **Bundled in by user direction**: v3.110.70's `MarkAttendanceHeroWidget` shipped with `__( 'Pick a session', 'talenttrack' )`, which trips the #0035 forbidden-vocabulary CI gate. Main's Build & Release has been red since the v3.110.70 merge, blocking this PR. Renamed the empty-state CTA to `Pick an activity` and added NL translations for every MarkAttendance / RateConfirmStep string the parallel branch left untranslated, so both the gate and the NL coverage on those strings land in the same release.
 
 ## 1 — New-prospect wizard, Review step: real table
 
@@ -36,7 +37,17 @@ Added to `languages/talenttrack-nl_NL.po`:
 
 ## Why this exists as its own release
 
-Per CLAUDE.md DoD: "User-facing strings go through `__()` / `_e()` and `languages/talenttrack-nl_NL.po` updated in the same PR" — v3.110.68 violated this rule. v3.110.71 closes the loop. The wizard table fix lands in the same PR because both touch the scout's `+ New prospect` surface and shipping them together avoids a churn-y bundle.
+Per CLAUDE.md DoD: "User-facing strings go through `__()` / `_e()` and `languages/talenttrack-nl_NL.po` updated in the same PR" — v3.110.68 violated this rule on the scout hero strings, and v3.110.70 violated it on the MarkAttendance feature. v3.110.71 closes both gaps. The wizard table fix lands in the same PR because all three changes touch the scout / coach dashboard surfaces and shipping them together avoids a churn-y bundle.
+
+## 3 — Folded-in fix for the #0035 forbidden-vocabulary gate (main was red)
+
+v3.110.70 introduced `__( 'Pick a session', 'talenttrack' )` on the empty-state path of `MarkAttendanceHeroWidget`. The #0035 CI gate (`No legacy 'sessions' strings`) treats user-visible `session`/`sessions` vocabulary as a regression of the pre-rename "training session" entity (now "activity"), since the .po only carries `activity` translations. The gate fired on the merge commit and has kept Build & Release red on main ever since.
+
+Fix: renamed the empty-state CTA to `__( 'Pick an activity', 'talenttrack' )`. Semantically the same — the scout doesn't pick a *type* of activity, they pick *an* activity — and aligns with the existing "Edit activity" / "Activity" / "No upcoming activity" vocabulary the rest of the widget already uses.
+
+NL coverage added for every other untranslated MarkAttendance string the parallel branch shipped — `Mark attendance hero`, `Schedule a training or match to populate this card.`, bare `Pick an activity`, bare `Edit activity`, `Mark attendance`, `Rate now?`, `Attendance is saved. While you're here, do you want to rate the players who were present?`, `Rate the present players`, `Skip rating, save attendance`, `Nobody was marked Present or Late, so there is nothing to rate. You can still proceed and finish without ratings.`, plus the plural `%d player marked Present or Late.`. The existing `Up next`, `Today`, `Tomorrow`, `Activity` (fallback title), and `No upcoming activity` already had NL.
+
+This bundling was directed by the user after I flagged the dependency.
 
 ## How to verify
 

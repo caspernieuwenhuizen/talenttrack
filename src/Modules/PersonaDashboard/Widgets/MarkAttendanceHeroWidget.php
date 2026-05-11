@@ -68,7 +68,7 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
             $eyebrow = __( 'Up next', 'talenttrack' );
             $title   = __( 'No upcoming activity', 'talenttrack' );
             $detail  = __( 'Schedule a training or match to populate this card.', 'talenttrack' );
-            $primary_label  = __( 'Pick a session', 'talenttrack' );
+            $primary_label  = __( 'Pick an activity', 'talenttrack' );
             $primary_url    = WizardEntryPoint::urlFor( 'mark-attendance', $ctx->viewUrl( 'activities' ) );
             $secondary_html = '';
         } else {
