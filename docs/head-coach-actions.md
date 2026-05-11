@@ -411,6 +411,35 @@ falls back to gut feel and the captured data goes unused.
   just *stored*. A polished capture flow that produces data the coach
   can't actually slice is half a feature.
 
+## Cross-cutting UI ships
+
+Ships that affect the head-coach's daily flow but aren't tied to a
+single numbered action. Same `**vX.Y.Z** — what changed. *How to
+test:* …` format.
+
+- **v3.110.74** — dropped the mobile FAB on detail-page primary
+  actions and restored secondary actions on mobile. Pre-v3.110.74,
+  every detail page (Players, Teams, Activities, Evaluations,
+  Goals, People, Trial cases) hoisted its primary **Edit** action
+  into a 56×56 floating circle bottom-right on phones, and hid
+  **Archive** entirely on mobile via the same media query. Removed
+  the `@media (max-width: 767px)` block in `assets/css/public.css`:
+  primary + secondary now render inline next to the H1 on every
+  viewport, wrapping under the title on narrow screens. PHP API
+  unchanged; only the CSS changes. Spec
+  `0091-feat-list-view-compliance-followup.md` updated to drop
+  the `FAB on mobile` annotation.
+  *How to test:* on a 360px viewport, open a player detail page
+  (`?tt_view=players&id=N`). The page header shows the title
+  followed by **Edit** (primary styling) + **Archive** (danger
+  styling, secondary), both inline, both ≥48px tap targets. No
+  floating bottom-right circle anywhere on the page. Scroll the
+  player's timeline — nothing overlaps inline content. Repeat the
+  check on team detail, activity detail, evaluation detail. On
+  list views (e.g. `?tt_view=players`), the **+ New player** CTA
+  also renders inline next to the H1 with its glyph + label
+  visible. On desktop the rendering is unchanged from v3.110.73.
+
 ## Shipped-section convention
 
 Every release that touches a head-coach-facing surface appends an entry

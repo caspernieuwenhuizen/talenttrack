@@ -1,3 +1,60 @@
+# TalentTrack v3.110.74 — Drop the mobile FAB on detail-page primary actions; secondary actions return to mobile too
+
+## The pattern that's going away
+
+`assets/css/public.css` carried a `@media (max-width: 767px)` block that turned every detail-page primary action (Edit on player / team / activity / evaluation detail) into a 56×56 floating action button anchored bottom-right:
+
+```css
+.tt-page-actions__primary {
+    position: fixed;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    right: max(16px, env(safe-area-inset-right));
+    z-index: 50;
+    width: 56px;
+    height: 56px;
+    border-radius: 28px;
+    /* + box-shadow, icon-only rendering, visually-hidden label, etc. */
+}
+.tt-page-actions__secondary { display: none; }
+```
+
+It was modelled on Material's floating-action-button — meant to surface the "one obvious action" on a phone without taking horizontal space next to the H1. In a TalentTrack context it didn't earn its keep:
+
+- **It overlapped inline content.** Detail pages aren't single-purpose Material layouts — they stack cards, timelines, rosters, and evaluation grids near the bottom of the viewport. The bottom-right circle frequently floated on top of a player's evaluation row or a roster cell, occluding the data the coach was trying to read.
+- **It hid the Archive button entirely on mobile.** The same media query set `.tt-page-actions__secondary { display: none; }`, removing the only mobile-reachable affordance for archive on detail pages. The CLAUDE.md §5 rule "two affordances per view" was technically met (breadcrumbs + tt_back pill), but the page-header *actions* slot lost its second occupant — coaches couldn't archive a player from the detail page on a phone without switching to a desktop session.
+- **It collided with the dashboard hero gradient on small viewports.** The v3.110.71 hero hierarchy fix made heroes visually heavier; the FAB sometimes landed on top of the hero card's CTA pill row.
+- **Discoverability myth.** A circle with a `+` icon doesn't say "edit player" — the affordance reads as "create new". The label was visually-hidden for screen readers but invisible to sighted users; a phone-side coach hit it expecting `+ Add observation` and got the player edit form.
+
+## The fix
+
+Remove the entire `@media (max-width: 767px)` block. Primary + secondary actions now render inline next to the H1 on every viewport. The flex container gets `flex-wrap: wrap` so on narrow viewports the action buttons drop to a new line beneath the title instead of overflowing horizontally.
+
+The PHP API — `FrontendViewBase::pageActionsHtml()` — is unchanged. It still emits `.tt-page-actions__primary` and `.tt-page-actions__secondary` for downstream styling. Only the mobile CSS changes. The icon glyph (e.g. `+` for create actions) keeps rendering inline before the label on both desktop and mobile, which it already did on desktop — so primary buttons now read `+ New player` on a phone the same way they read `+ New player` on a laptop.
+
+## Surfaces affected
+
+Every view that consumes `pageActionsHtml()` for its page-header actions:
+
+- **Detail surfaces with Edit + Archive**: Players, Teams, People, Goals, Activities, Evaluations, Trial cases (via the v3.110.54 / v3.110.57 list-view compliance ship).
+- **List surfaces with `+ New …`**: same entities' list views, plus Tracks, scheduled reports, custom-CSS classes, etc.
+
+All gain a visible inline secondary action on mobile that they previously didn't have. None lose anything — the primary action is still primary-styled, just no longer floating.
+
+## Spec update
+
+`specs/0091-feat-list-view-compliance-followup.md` line 8 dropped the `(primary, FAB on mobile)` annotation. The standard reads "primary (Edit) + secondary (Archive)" — variant styling, no mention of FAB rendering.
+
+## Why not redesign the FAB to fix the overlap
+
+A "smarter" FAB (collision avoidance, hide-on-scroll, anchored-to-section) was the obvious mid-path. Rejected for two reasons:
+
+1. **Operator feedback was unambiguous**: the pattern was making mobile worse, not better.
+2. **The page-header slot already exists** and the inline rendering works. A second mobile affordance pattern would mean carrying two parallel render paths plus their interaction logic. The simpler answer is "use the page-header slot consistently across viewports."
+
+If a future surface genuinely needs a floating CTA (e.g. an at-the-pitch capture action that should stay reachable while the coach scrolls a long roster), we'd build it as a deliberate `.tt-mobile-cta-bar` (the pattern already exists in `assets/css/mobile-patterns.css` and is used by the wizard action bar). The FAB-on-every-detail-view default was the wrong abstraction; a per-feature sticky-bar opt-in is the right one.
+
+---
+
 # TalentTrack v3.110.72 — Scout polish: new-prospect Review as table; NL i18n for scout hero; gate fix for the v3.110.70 vocabulary regression
 
 Two scout-persona polish items, plus a follow-on fix for a vocabulary gate that v3.110.71's hotfix did not address.

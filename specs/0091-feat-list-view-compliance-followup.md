@@ -5,7 +5,7 @@
 The v3.110.54 / v3.110.57 work brought the six top-level frontend list/detail surfaces (Players, Teams, People, Goals, Activities, Evaluations) into compliance with the standard documented in `CLAUDE.md` § 5 + § 7:
 
 - List rows are click-through only — no inline `Edit` / `Delete` / `Archive`.
-- Detail views carry `Edit` (primary, FAB on mobile) + `Archive` (danger, secondary) in the page-header actions slot.
+- Detail views carry `Edit` (primary) + `Archive` (danger, secondary) in the page-header actions slot. (Pre-v3.110.74 the primary action also rendered as a mobile FAB; that pattern was dropped because the floating button overlapped inline content and the same media query hid the secondary action entirely on mobile.)
 - Both detail-page actions are cap-gated.
 
 A second-pass audit of every `src/Modules/*/Frontend/` surface (run 2026-05-10 in conversation `2792aa4b`) found a long tail of secondary surfaces that still ship inline mutating actions on list rows. They were left out of v3.110.54 / v3.110.57 because they're either lower-traffic, or the inline action arguably *is* the surface's purpose. This spec captures what's left and the disposition for each.
