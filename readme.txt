@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.70
+Stable tag: 3.110.71
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.71 — Hotfix: hero widget variant class was a mangled soup, suppressing the gradient + typography hierarchy on every persona-dashboard hero =
+
+`AbstractWidget::wrap()` fed the entire variant string (e.g. `'hero hero-mark-attendance'`) through a single `sanitize_html_class()` call. That helper accepts only `[A-Za-z0-9_-]` — spaces are silently dropped — so the wrapper emitted a single mangled class like `tt-pd-variant-herohero-mark-attendance` that matched no CSS rule. The `.tt-pd-variant-hero` typography (font-size + weight hierarchy for the eyebrow / title / detail) and the gradient background were unreachable. Pre-existing bug: it affected `TodayUpNextHeroWidget` (v3.92), `AddProspectHeroWidget` (v3.110.68), and the new `MarkAttendanceHeroWidget` (v3.110.70). Only became visible to a pilot operator after v3.110.70 swapped the coach hero (the head-coach landing wasn't a heavy-traffic surface for the previous heroes). **Fix**: tokenise the variant string on whitespace, emit one `tt-pd-variant-<token>` class per token, sanitise each token independently. `'hero hero-mark-attendance'` now yields `tt-pd-variant-hero tt-pd-variant-hero-mark-attendance` — the shared rule matches, the modifier survives for any future widget-specific tweaks. **Bonus in the same ship**: Dutch translations for the v3.110.70 msgids (`Mark attendance`, `Edit activity`, `Pick a session`, `Rate now?`, `Rate the present players`, `Skip rating, save attendance`, attendance-confirm intro + empty-state + pluralised player count, and the `Schedule a training or match...` empty-state line). Confirmed against a pilot operator's Dutch interface where the buttons were still rendering English alongside an otherwise localised hero card.
 
 = 3.110.70 — Head-coach dashboard: new `Mark attendance` hero + wizard, attendance-first with optional rating fork (#0092) =
 

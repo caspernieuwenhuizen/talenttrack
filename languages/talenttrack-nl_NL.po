@@ -14501,3 +14501,41 @@ msgstr "Evaluatie van %s aan het bewerken."
 
 msgid "Edit evaluation"
 msgstr "Evaluatie bewerken"
+
+# v3.110.71 — #0092 Mark Attendance hero + wizard strings.
+
+msgid "Mark attendance"
+msgstr "Aanwezigheid registreren"
+
+msgid "Mark attendance hero"
+msgstr "Aanwezigheid-blok"
+
+msgid "Edit activity"
+msgstr "Activiteit bewerken"
+
+msgid "Pick a session"
+msgstr "Kies een sessie"
+
+msgid "Schedule a training or match to populate this card."
+msgstr "Plan een training of wedstrijd om deze kaart te vullen."
+
+msgid "Rate now?"
+msgstr "Nu beoordelen?"
+
+msgid "Attendance is saved. While you're here, do you want to rate the players who were present?"
+msgstr "Aanwezigheid is opgeslagen. Wil je nu meteen de aanwezige spelers beoordelen?"
+
+#. translators: %d: number of players present or late on the activity
+msgid "%d player marked Present or Late."
+msgid_plural "%d players marked Present or Late."
+msgstr[0] "%d speler staat op Aanwezig of Te laat."
+msgstr[1] "%d spelers staan op Aanwezig of Te laat."
+
+msgid "Rate the present players"
+msgstr "Beoordeel de aanwezige spelers"
+
+msgid "Skip rating, save attendance"
+msgstr "Beoordeling overslaan, aanwezigheid opslaan"
+
+msgid "Nobody was marked Present or Late, so there is nothing to rate. You can still proceed and finish without ratings."
+msgstr "Niemand staat op Aanwezig of Te laat, dus er valt niets te beoordelen. Je kunt nog steeds doorgaan en afsluiten zonder beoordelingen."
