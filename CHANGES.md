@@ -1,3 +1,50 @@
+# TalentTrack v3.110.92 — Dashboard editor — live drag preview, ghost projection, bolder drop targets, empty bands rendered as obvious drop zones
+
+## What changed for the operator
+
+Drag a widget from the library (or move one already on the canvas) and the existing slots now physically animate out of the way as you hover, snapping to where they will sit AFTER the drop. A translucent dashed-blue rectangle (the "ghost") follows the projected drop cell so you see exactly where the widget will land. Drop targets light up clearly the moment the cursor enters a band. Empty hero / task bands look like obvious drop zones with a dashed border and a visible "Add widget" label, not the thin italic ghost-text row they used to be.
+
+Net effect: the editor now feels like Trello / Notion / Figma — what you see while dragging IS what you get when you release.
+
+## Implementation
+
+`assets/js/persona-dashboard-editor.js` — added a `previewDragLayout(ev)` function that runs on every `dragover` over the canvas band:
+
+1. Builds a hypothetical preview grid by cloning `state.template.grid` and applying the drop the cursor would land on. For new-widget drags this means pushing a probe slot at the projected cell; for move drags it means updating the moved slot's coordinates in the clone.
+2. Runs the same two-step layout pass `placeNewSlot()` runs at drop time: `resolveCollisions(preview, probeId)` cascades collisions downward, then `compactGrid(preview)` closes the gaps. Pure functions on cloned data — no DOM mutation, no risk of corrupting state.
+3. For each slot in the preview, computes the delta from its current grid position in pixels and applies `transform: translate(dx, dy)`. The `.tt-pde-card` CSS transition (extended to `0.2s cubic-bezier(0.4, 0, 0.2, 1)` for this PR) animates the move.
+4. Renders a single `.tt-pde-drag-ghost` element at the probe's preview position via the existing CSS grid placement so it sits at the drop cell, sized to the dragged widget.
+5. Tracks `lastPreviewTransforms` per-slot so we only write `style.transform` when the value actually changes — `dragover` fires every ~16ms and unconditional style writes would thrash paint on larger grids.
+6. For move drags, skips transforming the dragged slot itself — the browser's drag image already follows the cursor; doubling the move with a transform on the source card would visually conflict.
+
+`clearPreviewTransforms()` cleans up: removes every card's transform, hides the ghost, resets the tracking dict. Wired into:
+
+- `dragleave` off the canvas band — cursor left the drop zone, revert.
+- `drop` on any band — re-render replaces transforms with real grid placements at the same positions, visually seamless.
+- A global `dragend` listener — covers Escape-to-cancel, drag-out-of-window, source-element disappears mid-drag.
+
+`assets/css/persona-dashboard-editor.css` — three visual upgrades:
+
+- **`.tt-pde-drag-ghost`** — translucent dashed-blue rect at projected drop cell. `pointer-events: none` so it never intercepts a drop. Sized via the same `grid-column: x / span N` CSS the placed cards use, so the ghost lines up exactly with where the widget will sit.
+- **`.tt-pde-band.is-drop-target` / `.tt-pde-canvas.is-drop-target`** — dashed accent border, 2px wide, 12% accent-tinted background (was 1px solid + 6% tint). Reads as "drop here" at a glance.
+- **`.tt-pde-band:empty`** — dashed border on the band itself + `#f8fafc` fill + larger 0.9375rem 500-weight label (was italic 0.8125rem). New operators recognise the area as droppable without having to read documentation.
+
+`.tt-pde-card` transition extended from `transform 0.06s ease` to `transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)` for the reflow animation, with `will-change: transform` so the browser promotes the cards to their own compositor layers during drag (no paint cost on every dragover frame). The 60ms `transform: scale(0.985)` press cue on `.is-dragging` still triggers visibly because the class lands before the transition reads the property.
+
+## What is not in this PR
+
+- **FLIP-animated compact on remove.** v3.110.91 fixed the structural bug — removing a widget now backfills the empty cell. The visual move happens instantly because changing `grid-column` / `grid-row` is a layout property, not transform, so CSS transitions don't apply there. Animating that would require wrapping `renderCanvas()` in a measure → mutate → measure → invert → play loop. Worthwhile polish but its own PR — touching the render path warrants more thought + testing than fits this slice.
+- **Inline resize handle.** `.tt-pde-card-resize` CSS exists but is currently inert. Drag-to-resize is a separate UX surface — not part of "drag-from-library + live reflow" which is what was asked for.
+
+## Files touched
+
+- `talenttrack.php` — version bump 3.110.91 → 3.110.92.
+- `readme.txt` — stable tag + changelog line.
+- `assets/js/persona-dashboard-editor.js` — `previewDragLayout`, `clearPreviewTransforms`, `showDragGhost`, `hideDragGhost`, wiring in the existing dragover / dragleave / drop / global dragend handlers.
+- `assets/css/persona-dashboard-editor.css` — `.tt-pde-drag-ghost`, beefier `.is-drop-target`, bolder empty-band styling, extended card `transform` transition.
+
+---
+
 # TalentTrack v3.110.91 — Dashboard editor compacts the grid on widget removal so deleting a widget no longer leaves a hole
 
 ## The symptom

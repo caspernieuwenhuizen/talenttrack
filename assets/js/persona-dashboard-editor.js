@@ -393,6 +393,147 @@
         if (guideOverlay) guideOverlay.innerHTML = '';
     }
 
+    // ─── Live drag preview (#0060 polish — v3.110.92) ────────────
+    //
+    // While dragging over the grid canvas, existing slots animate out
+    // of the way so the operator sees the final layout BEFORE releasing.
+    // Builds a hypothetical preview grid every dragover, runs the same
+    // collision/compact passes a real drop would run, then applies
+    // `transform: translate(dx, dy)` to each card based on the preview
+    // delta from its current grid position. CSS transition makes the
+    // movement smooth. On drop the transforms are cleared and the
+    // re-render places cards at the new grid positions — visually
+    // seamless because the transforms equalled the eventual positions.
+    //
+    // Lightweight: O(n²) for n ~= 30 slots per preview, plus per-card
+    // style writes only when the transform actually changes (tracked
+    // in lastPreviewTransforms).
+    var lastPreviewTransforms = {};
+
+    function previewDragLayout(ev) {
+        if (!state.template) return;
+        var dragKind = currentDragKind();
+        if (!dragKind) return;
+        var canvas = getCanvas();
+        if (!canvas) return;
+        var canvasRect = canvas.getBoundingClientRect();
+        if (canvasRect.width <= 0) return;
+        var sz = dragSize();
+        var coords = gridCellFromEvent(ev, sz);
+        if (!coords) return;
+
+        var colPx = canvasRect.width / 12;
+        var rowPx = 60;
+
+        var grid = state.template.grid || [];
+        var preview = clone(grid);
+        var probeId;
+
+        if (dragKind === 'move') {
+            probeId = window.__ttPdeDrag && window.__ttPdeDrag.slotId;
+            if (!probeId) return;
+            preview.forEach(function (s) {
+                if (s.__id === probeId) {
+                    s.x = coords.x;
+                    s.y = coords.y;
+                }
+            });
+        } else {
+            probeId = '__probe__';
+            preview.push({
+                __id: probeId,
+                widget: 'preview',
+                size: sz,
+                x: coords.x,
+                y: coords.y,
+                row_span: 1,
+                mobile_priority: 50,
+                mobile_visible: true,
+                persona_label: ''
+            });
+        }
+
+        resolveCollisions(preview, probeId);
+        compactGrid(preview);
+
+        var origById = {};
+        grid.forEach(function (s) { origById[s.__id] = s; });
+
+        // For move-drags, skip transforming the slot the user is dragging
+        // — the browser's drag image already follows the cursor, and
+        // double-moving the source card would visually conflict with it.
+        // Other slots still animate around it.
+        var skipId = (dragKind === 'move') ? probeId : null;
+        var seen = {};
+        preview.forEach(function (s) {
+            if (s.__id === '__probe__') return;
+            if (s.__id === skipId) return;
+            var orig = origById[s.__id];
+            if (!orig) return;
+            var dx = (s.x - orig.x) * colPx;
+            var dy = (s.y - orig.y) * rowPx;
+            var t = (dx !== 0 || dy !== 0)
+                ? 'translate(' + dx + 'px, ' + dy + 'px)'
+                : '';
+            seen[s.__id] = true;
+            if (lastPreviewTransforms[s.__id] !== t) {
+                var card = canvas.querySelector('[data-tt-pde-slot="' + s.__id + '"]');
+                if (card) card.style.transform = t;
+                lastPreviewTransforms[s.__id] = t;
+            }
+        });
+        // Clear stale transforms — slots that previously had a preview
+        // shift but no longer do.
+        Object.keys(lastPreviewTransforms).forEach(function (id) {
+            if (!seen[id]) {
+                var card = canvas.querySelector('[data-tt-pde-slot="' + id + '"]');
+                if (card) card.style.transform = '';
+                delete lastPreviewTransforms[id];
+            }
+        });
+
+        // Ghost at the probe's preview position (where the drop will land).
+        var probe = null;
+        for (var i = 0; i < preview.length; i++) {
+            if (preview[i].__id === probeId) { probe = preview[i]; break; }
+        }
+        if (probe) {
+            showDragGhost(probe.x, probe.y, sz);
+        }
+    }
+
+    function clearPreviewTransforms() {
+        var canvas = getCanvas();
+        if (canvas) {
+            canvas.querySelectorAll('.tt-pde-card').forEach(function (c) {
+                c.style.transform = '';
+            });
+        }
+        lastPreviewTransforms = {};
+        hideDragGhost();
+    }
+
+    function showDragGhost(x, y, size) {
+        var canvas = getCanvas();
+        if (!canvas) return;
+        var ghost = document.getElementById('tt-pde-drag-ghost');
+        if (!ghost) {
+            ghost = document.createElement('div');
+            ghost.id = 'tt-pde-drag-ghost';
+            ghost.className = 'tt-pde-drag-ghost';
+            ghost.setAttribute('aria-hidden', 'true');
+            canvas.appendChild(ghost);
+        }
+        ghost.style.gridColumn = (x + 1) + ' / span ' + colsForSize(size);
+        ghost.style.gridRow = (y + 1) + ' / span 1';
+        ghost.style.display = 'block';
+    }
+
+    function hideDragGhost() {
+        var ghost = document.getElementById('tt-pde-drag-ghost');
+        if (ghost) ghost.style.display = 'none';
+    }
+
     /**
      * Snap the projected (col, row) cell to the nearest aligned
      * column/row when guides are within tolerance. Mutates `coords`
@@ -761,23 +902,32 @@
                     var sz = dragSize();
                     var coords = gridCellFromEvent(e, sz);
                     if (coords) snapToGuides(coords, e, sz);
+                    // v3.110.92 — live preview reflow. Existing cards
+                    // animate to their post-drop positions BEFORE the
+                    // operator releases, so the layout is no surprise.
+                    previewDragLayout(e);
                 }
             });
             t.node.addEventListener('dragleave', function (e) {
                 if (e.target === t.node) t.node.classList.remove('is-drop-target');
-                if (t.kind === 'grid') clearAlignmentGuides();
+                if (t.kind === 'grid') {
+                    clearAlignmentGuides();
+                    clearPreviewTransforms();
+                }
             });
             t.node.addEventListener('drop', function (e) {
                 e.preventDefault();
                 t.node.classList.remove('is-drop-target');
                 clearAlignmentGuides();
+                clearPreviewTransforms();
                 handleDropOnBand(t.kind, e);
             });
         });
 
-        // Belt-and-braces: any dragend anywhere clears guides (covers
-        // Escape-to-cancel + drag-out-of-window cases).
+        // Belt-and-braces: any dragend anywhere clears guides + preview
+        // transforms (covers Escape-to-cancel + drag-out-of-window cases).
         document.addEventListener('dragend', clearAlignmentGuides);
+        document.addEventListener('dragend', clearPreviewTransforms);
     }
 
     function buildCard(slot, bandKind) {

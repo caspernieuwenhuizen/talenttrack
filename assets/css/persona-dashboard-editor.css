@@ -152,11 +152,29 @@
 body.tt-pde-dragging * {
     cursor: grabbing !important;
 }
+/* v3.110.92 — bolder drop-target visual: 2px dashed accent border + an
+ * accent-tinted background (12% alpha, up from 6%) so the operator sees
+ * the band light up clearly the moment they drag over it. */
 .tt-pde-band.is-drop-target,
 .tt-pde-canvas.is-drop-target {
-    background: rgba(11, 95, 255, 0.06);
+    background: rgba(11, 95, 255, 0.12);
     border-color: var(--pde-accent);
-    border-style: solid;
+    border-style: dashed;
+    border-width: 2px;
+}
+
+/* v3.110.92 — live drag-preview ghost. Translucent rect rendered at the
+ * projected drop cell while dragging over the grid canvas, sized to the
+ * dragged widget. Pointer-events: none so it doesn't intercept the drop
+ * itself. */
+.tt-pde-drag-ghost {
+    background: rgba(11, 95, 255, 0.16);
+    border: 2px dashed var(--pde-accent);
+    border-radius: 0.5rem;
+    pointer-events: none;
+    display: none;
+    box-shadow: 0 0 0 1px rgba(11, 95, 255, 0.1) inset;
+    transition: grid-column 0.12s ease, grid-row 0.12s ease;
 }
 
 /* ─── Palette ────────────────────────────────────────────────── */
@@ -290,6 +308,15 @@ body.tt-pde-dragging * {
     min-height: 4.5rem;
     padding: 0.5rem;
     position: relative;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+/* v3.110.92 — empty bands now look like obvious drop zones, not the
+ * thin italic ghost-text rows they used to. Dashed border + a soft
+ * tinted fill + a slightly larger label so a first-time operator
+ * recognises the area as droppable without reading docs. */
+.tt-pde-band:empty {
+    border-color: var(--pde-border);
+    background: #f8fafc;
 }
 .tt-pde-band:empty::before {
     content: attr(data-empty-label);
@@ -298,8 +325,9 @@ body.tt-pde-dragging * {
     display: grid;
     place-items: center;
     color: var(--pde-muted);
-    font-size: 0.8125rem;
-    font-style: italic;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
 }
 .tt-pde-band-hero { background: linear-gradient(0deg, transparent, #f7f9fb); border-color: var(--pde-border); }
 .tt-pde-band-task { background: #fcfdfe; border-color: var(--pde-border); }
@@ -354,7 +382,12 @@ body.tt-pde-dragging * {
     gap: 0.25rem;
     cursor: grab;
     min-height: 4rem;
-    transition: box-shadow 0.12s ease, transform 0.06s ease;
+    /* v3.110.92 — transform transition extended to 200ms with a soft
+     * ease so live drag preview reflows feel intentional rather than
+     * snappy. The is-dragging scale(0.985) cue still triggers visibly
+     * because the dragstart class lands before the transform is read. */
+    transition: box-shadow 0.12s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
 }
 .tt-pde-card:focus-visible,
 .tt-pde-card.is-selected {
