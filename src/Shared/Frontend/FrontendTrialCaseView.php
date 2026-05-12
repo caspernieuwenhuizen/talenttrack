@@ -81,7 +81,32 @@ class FrontendTrialCaseView extends FrontendViewBase {
             sprintf( __( 'Trial: %s', 'talenttrack' ), $name ),
             $parent_crumb
         );
-        self::renderHeader( sprintf( __( 'Trial: %s', 'talenttrack' ), $name ) );
+
+        // #0093 — lift "Close case" affordances to the header so operators
+        // don't have to scroll to the bottom of Overview to find them.
+        // "Record decision" is the normal close path; "Archive case" is
+        // the no-answer-needed close path. Both jump to the existing
+        // sections (form + nonce + confirm dialog live where they
+        // always have — only the entry point changes).
+        $header_actions = [];
+        if ( TrialCaseAccessPolicy::isManager( $user_id ) && $case->archived_at === null ) {
+            if ( empty( $case->decision ) ) {
+                $header_actions[] = [
+                    'label'   => __( 'Record decision', 'talenttrack' ),
+                    'href'    => '#tt-trial-decision',
+                    'primary' => true,
+                ];
+            }
+            $header_actions[] = [
+                'label'   => __( 'Archive case', 'talenttrack' ),
+                'href'    => '#tt-trial-archive-form',
+                'variant' => 'danger',
+            ];
+        }
+        self::renderHeader(
+            sprintf( __( 'Trial: %s', 'talenttrack' ), $name ),
+            $header_actions ? self::pageActionsHtml( $header_actions ) : ''
+        );
 
         self::renderHeaderStrip( $case, $name );
 
@@ -272,7 +297,9 @@ class FrontendTrialCaseView extends FrontendViewBase {
 
         if ( TrialCaseAccessPolicy::isManager( $user_id ) && $case->archived_at === null ) {
             $base = remove_query_arg( [ 'tab' ] );
-            echo '<form method="post" class="tt-trial-archive">';
+            // Anchor id `tt-trial-archive-form` is the jump target of the
+            // header-action "Archive case" link (#0093).
+            echo '<form method="post" id="tt-trial-archive-form" class="tt-trial-archive">';
             wp_nonce_field( 'tt_trial_archive_' . (int) $case->id, 'tt_trial_archive_nonce' );
             echo '<input type="hidden" name="tt_trial_action" value="archive">';
             echo '<button type="submit" class="tt-button tt-button-danger" onclick="return confirm(\'' . esc_js( __( 'Archive this case?', 'talenttrack' ) ) . '\');">' . esc_html__( 'Archive case', 'talenttrack' ) . '</button>';

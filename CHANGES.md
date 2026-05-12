@@ -1,3 +1,70 @@
+# TalentTrack v3.110.93 — My-tasks bug-bash: player-first task rows, translated task-detail breadcrumb, KPI / panel / page agree on "open", open-tasks pill on the actions row, trial-admitted players visible in demo mode
+
+## The symptom (six pilot reports rolled into one PR)
+
+1. **Breadcrumb shows a raw slug.** Open a task with template `record_test_training_outcome` and the breadcrumb crumb reads exactly that — never the Dutch translation. The slug leaks into every task-detail page; "Record test-training outcome" / "Confirm test-training" / etc. all looked like database keys to operators.
+2. **Hard to triage by player.** The my-tasks inbox titles the row by template name ("Record test-training outcome") and demotes the player to a sub-line. With a list of 20 open tasks the operator has to read each sub-line to find the player they care about. The player is the spine of the system (CLAUDE.md § 1) and should anchor the row.
+3. **"Open" button hardly readable.** The `.tt-mtasks-action a` rule painted white text on `#2271b1`, but the active theme's `a:visited` rule overrode `color`, so the link rendered with the visited colour — near-grey-on-blue, low contrast.
+4. **"Apply" button hover unreadable.** `.tt-btn-secondary:hover` from the global stylesheet inverts to white-on-light-grey when scoped under the filter bar; readable contrast collapses to near-nothing.
+5. **Open-tasks pill stacked on its own line.** `NotificationBell` injected its pill via the `tt_dashboard_data` filter, which prepended a separate `.tt-bell-wrap` row above the dashboard header. The DEMO pill, help icon, and user menu sat on the row below; visually the bell felt orphaned and ate a whole row of vertical space.
+6. **Dashboard panel + KPI count + my-tasks page disagreed on "open".** `TaskListPanelWidget::fetchRows()` was a Sprint-1 scaffold returning `[]` (so the panel always said "No open tasks"), `MyOpenWorkflowTasks::compute()` filtered on `status = 'open'` only (missing `in_progress` + `overdue`, missing club scope, missing snooze filter), and the my-tasks page itself used `IN ('open','in_progress','overdue')` with snooze hidden. A coach saw 0 / 0 / 1 across the three surfaces for the same inbox.
+7. **Trial-admitted player → "Player not found" in demo mode.** Click an admitted prospect in the pipeline → `?tt_view=players&id=70` returns "Player not found, that player is no longer available or you do not have access." `RecordTestTrainingOutcomeForm::ensurePromotedPlayer()` inserts the `tt_players` row but never tags it in `tt_demo_tags`. In `DemoMode::ON`, `apply_demo_scope` filters out every untagged player — so the player a demo-mode pipeline just created is invisible from the same demo-mode session.
+
+## The fix
+
+### 1 — Task-detail breadcrumb resolves the template's translated name
+
+`src/Modules/Workflow/Frontend/FrontendTaskDetailView.php` — the crumb builder used `(string) $task['template_key']` directly. Replaced with a registry lookup: pull the `TaskTemplate` and use `$tpl->name()`, which already routes through `__()`. The slug stays the routing key; the breadcrumb shows the Dutch / English label the rest of the surface uses. Fallback to `__( 'Task' )` when the template can't be resolved (deleted template, etc.) — never the raw slug.
+
+### 2 — Player name leads each row in the my-tasks inbox
+
+`src/Modules/Workflow/Frontend/FrontendMyTasksView.php` — `renderRow()` now constructs the title as "{Player name}" when the task carries a `player_id`, with the template name demoted to the first sub-line. Tasks without a player keep the previous behaviour (template name as title) so non-player workflow tasks aren't disrupted. `contextLabel()` grew an optional `$skip_player` argument so the player name doesn't double-print in the sub-line. Same fix carries into the persona dashboard's `TaskListPanelWidget` (see §6) — both surfaces now lead with "Lucas van der Berg — Record test-training outcome".
+
+### 3 + 4 — Open + Apply buttons forced readable on hover and visited states
+
+Same view, `<style>` block. `.tt-mtasks-action a` gains `:link, :visited` selectors and `color: #fff !important` (the only `!important` in the file — necessary to win the theme's `a:visited` override). `.tt-mtasks-filters button.tt-btn` gets its own rule that paints the Apply button blue (matching the Open pill) and overrides the global `.tt-btn-secondary:hover` so the hover stays high-contrast white-on-`#195a8e`.
+
+### 5 — Open-tasks pill lives in the dashboard actions row
+
+`src/Shared/Frontend/DashboardShortcode.php` — `renderHeader()` exposes a new filter `tt_dashboard_actions_html( $html, $user_id )` inside `.tt-dash-actions`, before the DEMO pill. Other modules can append pill-shaped affordances without DashboardShortcode knowing about them.
+
+`src/Modules/Workflow/Frontend/NotificationBell.php` — switched from the `tt_dashboard_data` prepend (which produced a separate `.tt-bell-wrap` row above the header) to the new actions hook. The pill now renders inline with DEMO / help / user menu, gaining the actions row's flex-gap spacing for free. Removed the `.tt-bell-wrap` wrapper div; the bell is a single `<a>` element.
+
+### 6 — KPI / panel / page lock in the same "actionable" definition
+
+`src/Modules/PersonaDashboard/Kpis/MyOpenWorkflowTasks.php` — `compute()` rewritten to use `IN ('open','in_progress','overdue')`, filter by `club_id`, and hide snoozed rows via `snoozed_until IS NULL OR snoozed_until <= NOW()`. Now matches `FrontendMyTasksView::openCountForUser()` and `TasksRepository::listActionableForUser()` exactly.
+
+`src/Modules/PersonaDashboard/Widgets/TaskListPanelWidget.php` — `fetchRows()` no longer returns `[]`. Calls `TasksRepository::listActionableForUser( $user_id )`, resolves each row's template via the workflow registry, prepends the player name (when applicable, see §2), formats the due date the same way the inbox does, and emits up to 5 rows linking to `?tt_view=my-tasks&task_id=N`. The "see all" pill still routes to the inbox.
+
+### 7 — Trial admit tags the new player in demo mode
+
+`src/Modules/Workflow/Forms/RecordTestTrainingOutcomeForm.php` — after `$wpdb->insert( ... tt_players ... )` in `ensurePromotedPlayer()`, call `\TT\Modules\DemoData\DemoMode::tagIfActive( 'player', $player_id )`. Mirrors the existing call in `FrontendTrialsManageView::handlePost()` (the inline-create path on the trials list, v3.76.2). With this in place, a demo-mode operator who admits a prospect to trial can immediately click through to the new player's file without the demo scope wiping the row from view.
+
+## What this does not address (proposed follow-ups, not in this PR)
+
+- **Analytics — group-by table shows raw dimension keys.** `FrontendExploreView::renderGroupByTable()` (and the entity-tab equivalent) renders `(string) $row->{ $group_by }` directly, so grouping by `player_id` prints player IDs (70, 72, …) instead of "Lucas van der Berg / Liam Janssen / …", and grouping by `activity_type` prints the raw enum. The fix needs a `Dimension::resolveLabel( $key ): string` hook so each dimension can map its value space to a human label — bigger than a one-file change because every Dimension implementation needs the resolver wired. **Proposed**: new ticket "Analytics — dimension value resolver" with player_id / team_id / activity_type / evaluator_id as the first four implementations.
+- **Trial → player pool / team-assignment gate.** Today an admitted trial's player row sits at `status='trial'`; on team-offer accept it flips to `status='active'` without any team assignment, so the player ends up in the players list with no `team_id`. The user's question — *"after a trial is admitted, what happens to the player? he should be added as player but in a kind of playerpool that still need to be assigned to a team?"* — is correct: there is no explicit pool surface today, just an implicit "active player with no team". **Proposed**: an "Unassigned players" tile / list view filtering on `status='active' AND no row in tt_team_players for the current season`, plus a "Assign to team" CTA on the player file. Out of scope for this bug-bash because it's a feature design, not a bug.
+- **How to close a trial case.** Today: open the trial case (`?tt_view=trial-case&id=N`), use the **Decision** tab to record `admit / decline_offered_position / no_offer_made` plus the ≥30-character justification — that triggers letter generation, flips the player's status, and stamps `decision_made_at`. If you don't want to record a decision (e.g. parent ghosted you), use the **Archive case** button at the bottom of the Overview tab — that closes the case without a decision. This is a documentation gap, not a code bug; the affordances exist on the trial-case detail page. **Proposed**: add a "Closing a trial case" section to `docs/trials.md` + `docs/nl_NL/trials.md` with the two paths spelled out, and consider a "Close case" header action on the trial-case page so the affordance isn't buried at the bottom of Overview.
+- **Broader breadcrumb audit.** Spot-checked every `FrontendBreadcrumbs::fromDashboard(` call site; the only one leaking a raw slug was the one this PR fixes. Other views all pass `__()`-wrapped strings or values resolved via `$wizard->label()` / `$template->name()` (both translatable). If the operator finds another, file a follow-up with the URL — there's no systemic gap left.
+
+## Files touched
+
+- `talenttrack.php` — version bump 3.110.92 → 3.110.93.
+- `readme.txt` — stable tag + changelog line.
+- `src/Modules/Workflow/Frontend/FrontendTaskDetailView.php` — breadcrumb resolves template name (§1).
+- `src/Modules/Workflow/Frontend/FrontendMyTasksView.php` — player-first row title; Open + Apply button readability (§2, §3, §4).
+- `src/Modules/Workflow/Frontend/NotificationBell.php` — switched filter to `tt_dashboard_actions_html` (§5).
+- `src/Shared/Frontend/DashboardShortcode.php` — new `tt_dashboard_actions_html` filter in the actions row (§5).
+- `src/Modules/PersonaDashboard/Kpis/MyOpenWorkflowTasks.php` — matches inbox status set + club + snooze (§6).
+- `src/Modules/PersonaDashboard/Widgets/TaskListPanelWidget.php` — wired to TasksRepository, player-first titles, real links (§6).
+- `src/Modules/Workflow/Forms/RecordTestTrainingOutcomeForm.php` — `DemoMode::tagIfActive('player')` on promotion (§7).
+
+## Translation status
+
+User-facing strings touched in this PR are reused from already-translated keys (`'Open'`, `'Apply'`, `'My tasks'`, template names like `'Record test-training outcome'`, etc.). No new `msgid` strings; the existing `languages/talenttrack-nl_NL.po` keys cover the changes. The breadcrumb fix in §1 stops the raw slug from rendering — the Dutch translation of the template name (`'Resultaat test-training vastleggen'` in the .po file) now surfaces where the slug used to.
+
+---
+
 # TalentTrack v3.110.92 — Dashboard editor — live drag preview, ghost projection, bolder drop targets, empty bands rendered as obvious drop zones
 
 ## What changed for the operator

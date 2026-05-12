@@ -931,6 +931,17 @@ class DashboardShortcode {
 
         echo '<div class="tt-dash-actions">';
 
+        // Filter point — other modules can inject pill-style affordances
+        // (open-task bell, etc.) into the actions row so they sit on the
+        // same line as the DEMO pill / help icon / user menu. The
+        // expected shape is HTML (already escaped). Hooks must wrap their
+        // markup in an inline-flex element so flex-gap on .tt-dash-actions
+        // spaces them.
+        $extras = (string) apply_filters( 'tt_dashboard_actions_html', '', (int) $user->ID );
+        if ( $extras !== '' ) {
+            echo $extras; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — hook contract: pre-escaped HTML.
+        }
+
         // DEMO indicator. Info-only span (not a link) — hover or focus
         // for the explanation. The wp-admin Tools page is reachable from
         // the user dropdown if an admin actually wants to manage demo

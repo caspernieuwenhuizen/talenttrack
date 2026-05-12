@@ -60,6 +60,26 @@ Trajecten zijn sjablonen die de standaard stageduur bepalen. Drie worden meegele
 
 Bij een aanbod kan de club een acceptatiestrook op pagina 2 van de brief meesturen. Onder **Briefsjablonen → Acceptatiestrook** zet je hem aan, kies je de antwoordtermijn (aantal dagen vanaf de briefdatum) en het retouradres. Komt de strook getekend retour, markeer dat dan op het tabblad **Beslissing**.
 
+## Een stagedossier afsluiten
+
+Een dossier blijft "open" — zichtbaar voor toegewezen staf, telt mee voor de werkvoorraad van de Hoofd Opleiding — totdat het ofwel **beslist** ofwel **gearchiveerd** is. Twee paden, twee verschillende bedoelingen:
+
+### Beslissen (het normale pad)
+
+Gebruik het tabblad **Beslissing** om een uitkomst vast te leggen (`Aannemen` / `Afwijzen (definitief)` / `Afwijzen (met aanmoediging)`) plus de verplichte motivatie van ≥ 30 tekens. Het vastleggen:
+
+- Verandert de status van de speler (Aannemen → Actief, Afwijzen → Gearchiveerd).
+- Genereert automatisch de bijpassende brief.
+- Stempelt `decision_made_at` + `decision_made_by` voor het audittrail.
+
+Gebruik dit altijd als je een inhoudelijk antwoord aan het gezin verschuldigd bent. De rest van het gesprek loopt via het tabblad Oudergesprek.
+
+### Archiveren (het "geen antwoord nodig" pad)
+
+Wanneer je het gezin geen formele beslissing schuldig bent — het gezin reageert niet meer, de speler is verhuisd, het dossier is per ongeluk geopend — sluit de actie **Dossier archiveren** het dossier zonder beslissingsregel en zonder brief te genereren. De actie staat in de pagina-koprij van de dossierpagina (rol manager / hoofd opleiding vereist). Het dossier blijft in de database staan (te vinden via de gearchiveerde-dossiers-lijst); het telt alleen niet meer als open werk.
+
+Archiveer je een dossier waar wél een beslissing bij hoorde en blijkt het gezin tóch te willen praten, dan kan een admin het dossier weer activeren via de wp-admin lijst met stagedossiers.
+
 ## Bewaartermijn
 
 Brieven worden bewaard met een vervaldatum van 2 jaar. Archiveren is de standaard — afwijzingsbrieven worden niet automatisch verwijderd omdat de club ze nodig kan hebben bij heroverwegingen of bezwaar. Een aparte AVG-verwijderfunctie regelt definitieve verwijdering op verzoek van de ouder.

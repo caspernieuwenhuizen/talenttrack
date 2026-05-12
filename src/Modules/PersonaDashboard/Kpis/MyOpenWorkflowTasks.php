@@ -18,10 +18,18 @@ class MyOpenWorkflowTasks extends AbstractKpiDataSource {
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
             return KpiValue::unavailable();
         }
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        // Stay in lock-step with FrontendMyTasksView::openCountForUser
+        // and TasksRepository::listActionableForUser: "actionable" =
+        // open / in_progress / overdue, club-scoped, snoozed rows hidden.
+        // Without this the dashboard KPI shows "0" while the inbox shows
+        // a task that's `in_progress` or `overdue`.
         $count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} WHERE assignee_user_id = %d AND status = 'open'",
-            $user_id
+            "SELECT COUNT(*) FROM {$table}
+              WHERE assignee_user_id = %d
+                AND club_id = %d
+                AND status IN ('open','in_progress','overdue')
+                AND (snoozed_until IS NULL OR snoozed_until <= %s)",
+            $user_id, $club_id, current_time( 'mysql' )
         ) );
         return KpiValue::of( (string) $count );
     }

@@ -65,15 +65,33 @@ class FrontendMyTasksView extends FrontendViewBase {
             .tt-mtasks-sub { font-size: 12px; color: #5b6e75; margin: 0; }
             .tt-mtasks-due { font-size: 12px; color: #444; white-space: nowrap; }
             .tt-mtasks-due.tt-overdue-text { color: #b32d2e; font-weight: 600; }
-            .tt-mtasks-action a, .tt-mtasks-snooze button {
+            .tt-mtasks-action a,
+            .tt-mtasks-action a:link,
+            .tt-mtasks-action a:visited,
+            .tt-mtasks-snooze button {
                 display: inline-block; padding: 6px 10px;
-                background: #2271b1; color: #fff; border-radius: 5px;
-                text-decoration: none; font-size: 12px;
+                background: #2271b1; color: #fff !important; border-radius: 5px;
+                text-decoration: none; font-size: 12px; font-weight: 600;
                 border: 0; cursor: pointer;
             }
-            .tt-mtasks-snooze button { background: #5b6e75; margin-left: 4px; }
-            .tt-mtasks-snooze button:hover { background: #444; }
-            .tt-mtasks-action a:hover { background: #195a8e; color: #fff; }
+            .tt-mtasks-snooze button { background: #5b6e75; color: #fff; margin-left: 4px; }
+            .tt-mtasks-snooze button:hover,
+            .tt-mtasks-snooze button:focus { background: #444; color: #fff; }
+            .tt-mtasks-action a:hover,
+            .tt-mtasks-action a:focus { background: #195a8e; color: #fff !important; text-decoration: none; }
+            /* Filter-bar Apply button — force readable hover; some themes
+               invert the contrast on `.tt-btn-secondary:hover` and the
+               white-on-light-grey result is unreadable. */
+            .tt-mtasks-filters button.tt-btn,
+            .tt-mtasks-filters button.tt-btn:link,
+            .tt-mtasks-filters button.tt-btn:visited {
+                background: #2271b1; color: #fff; border: 1px solid #2271b1;
+                padding: 6px 14px; border-radius: 5px; font-weight: 600; cursor: pointer;
+            }
+            .tt-mtasks-filters button.tt-btn:hover,
+            .tt-mtasks-filters button.tt-btn:focus {
+                background: #195a8e; color: #fff; border-color: #195a8e;
+            }
             .tt-mtasks-section-label {
                 font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
                 text-transform: uppercase; color: #8a9099;
@@ -163,7 +181,7 @@ class FrontendMyTasksView extends FrontendViewBase {
     /** @param array<string,mixed> $task */
     private static function renderRow( array $task, bool $completed ): void {
         $template = WorkflowModule::registry()->get( (string) ( $task['template_key'] ?? '' ) );
-        $title = $template ? $template->name() : (string) ( $task['template_key'] ?? '' );
+        $template_name = $template ? $template->name() : (string) ( $task['template_key'] ?? '' );
         $description = $template ? $template->description() : '';
         $due_at = (string) ( $task['due_at'] ?? '' );
         $due_ts = $due_at !== '' ? strtotime( $due_at ) : false;
@@ -174,7 +192,22 @@ class FrontendMyTasksView extends FrontendViewBase {
         if ( $completed ) $row_class .= ' tt-completed';
         elseif ( $is_overdue ) $row_class .= ' tt-overdue';
 
-        $context_label = self::contextLabel( $task );
+        // Player-centric (CLAUDE.md § 1): when the task targets a player,
+        // lead the row title with the player's name so the inbox is
+        // scannable. The template name becomes a subordinate line — the
+        // operator answers "who is this about" before "what is the task".
+        $player_name = ! empty( $task['player_id'] ) ? self::playerName( (int) $task['player_id'] ) : '';
+        $title = $player_name !== '' ? $player_name : $template_name;
+        $sub_lines = [];
+        if ( $player_name !== '' ) {
+            $sub_lines[] = $template_name;
+        }
+        $context_label = self::contextLabel( $task, /* skip_player */ true );
+        if ( $context_label !== '' ) {
+            $sub_lines[] = $context_label;
+        } elseif ( $player_name === '' && $description !== '' ) {
+            $sub_lines[] = $description;
+        }
         $task_id = (int) ( $task['id'] ?? 0 );
 
         ?>
@@ -186,11 +219,9 @@ class FrontendMyTasksView extends FrontendViewBase {
             <?php endif; ?>
             <div class="tt-mtasks-meta">
                 <p class="tt-mtasks-title"><?php echo esc_html( $title ); ?></p>
-                <?php if ( $context_label !== '' ) : ?>
-                    <p class="tt-mtasks-sub"><?php echo esc_html( $context_label ); ?></p>
-                <?php elseif ( $description !== '' ) : ?>
-                    <p class="tt-mtasks-sub"><?php echo esc_html( $description ); ?></p>
-                <?php endif; ?>
+                <?php foreach ( $sub_lines as $line ) : ?>
+                    <p class="tt-mtasks-sub"><?php echo esc_html( $line ); ?></p>
+                <?php endforeach; ?>
             </div>
             <?php if ( $due_at !== '' && ! $completed ) : ?>
                 <div class="tt-mtasks-due <?php echo $is_overdue ? 'tt-overdue-text' : ''; ?>">
@@ -378,9 +409,9 @@ class FrontendMyTasksView extends FrontendViewBase {
     }
 
     /** @param array<string,mixed> $task */
-    private static function contextLabel( array $task ): string {
+    private static function contextLabel( array $task, bool $skip_player = false ): string {
         $bits = [];
-        if ( ! empty( $task['player_id'] ) ) {
+        if ( ! $skip_player && ! empty( $task['player_id'] ) ) {
             $name = self::playerName( (int) $task['player_id'] );
             if ( $name !== '' ) $bits[] = $name;
         }
