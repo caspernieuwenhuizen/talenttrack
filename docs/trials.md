@@ -60,6 +60,26 @@ Tracks are templates that decide the default trial duration. Three ship with the
 
 For admit decisions, the club can include an acceptance slip on page 2 of the letter. **Letter templates → Acceptance slip** turns it on, sets the response deadline (in days from the letter date), and the return address. After the slip comes back signed, mark it received from the Decision tab.
 
+## Closing a trial case
+
+A case stays "open" — visible to the assigned staff, counting against the head of development's active workload — until it is either **decided** or **archived**. Two paths, two different intents:
+
+### Decide (the normal path)
+
+Use the **Decision** tab to record an outcome (`Admit` / `Decline (final)` / `Decline (with encouragement)`) plus the mandatory ≥ 30-character justification note. Recording the decision:
+
+- Flips the player's status (Admit → Active, Decline → Archived).
+- Generates the matching letter automatically.
+- Stamps `decision_made_at` + `decision_made_by` for the audit trail.
+
+Use this whenever you have a substantive answer for the family. The Parent meeting tab carries the rest of the conversation.
+
+### Archive (the "no answer needed" path)
+
+When you don't owe the family a formal decision — the family ghosted you, the player moved cities, the case was opened by mistake — the **Archive case** action closes the case without writing a decision row or generating a letter. It's available from the header action bar on the case page (manager / head-of-development cap required). The case stays in the database (you can still find it by searching archived cases); it just stops counting as open work.
+
+If you archive a case that should have had a decision and then realise the family is willing to talk after all, an admin can un-archive from the wp-admin trial-cases list.
+
 ## Retention
 
 Letters are persisted with a 2-year expiry. Archive is the default — denial letters are not deleted automatically because the club may need them as evidence for reconsiderations or appeals. A separate GDPR deletion flow handles permanent erasure on parent request.

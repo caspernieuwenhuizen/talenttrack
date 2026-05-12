@@ -28,12 +28,18 @@ class FrontendTaskDetailView extends FrontendViewBase {
         $repo = new TasksRepository();
         $task = $repo->find( $task_id );
 
-        // v3.92.1 — breadcrumb chain. Show the task title as the
-        // current crumb when the task loads; otherwise just the parent.
+        // Breadcrumb chain — resolve the template's translated name
+        // instead of leaking the raw `template_key` into the crumb (a
+        // technical slug like "record_test_training_outcome" is never
+        // a Dutch translation and confuses operators).
         $tasks_label = __( 'My tasks', 'talenttrack' );
-        $current_label = $task !== null && isset( $task['template_key'] )
-            ? (string) $task['template_key']
-            : __( 'Task', 'talenttrack' );
+        $current_label = __( 'Task', 'talenttrack' );
+        if ( $task !== null && ! empty( $task['template_key'] ) ) {
+            $tpl = WorkflowModule::registry()->get( (string) $task['template_key'] );
+            if ( $tpl !== null ) {
+                $current_label = $tpl->name();
+            }
+        }
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
             $current_label,
             [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'my-tasks', $tasks_label ) ]

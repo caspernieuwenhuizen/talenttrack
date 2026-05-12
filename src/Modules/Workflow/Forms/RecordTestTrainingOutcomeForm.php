@@ -176,7 +176,19 @@ class RecordTestTrainingOutcomeForm implements FormInterface {
             'status'        => 'trial',
             'uuid'          => wp_generate_uuid4(),
         ] );
-        return (int) $wpdb->insert_id;
+        $player_id = (int) $wpdb->insert_id;
+
+        // Auto-tag demo-on rows — mirror of FrontendTrialsManageView's
+        // inline-create path. Without this, a prospect admitted from a
+        // demo-mode pipeline produces a real (untagged) tt_players row
+        // that apply_demo_scope filters out, so ?tt_view=players&id=N
+        // returns "Player not found" from the same demo session that
+        // just promoted the prospect.
+        if ( $player_id > 0 && class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
+            \TT\Modules\DemoData\DemoMode::tagIfActive( 'player', $player_id );
+        }
+
+        return $player_id;
     }
 
     private static function defaultTrialTrackId(): int {
