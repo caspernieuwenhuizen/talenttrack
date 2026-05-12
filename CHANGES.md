@@ -1,3 +1,111 @@
+# TalentTrack v3.110.81 — Onboarding pipeline: stage classification driven by reached milestones, not assigned work
+
+## The reported bug
+
+Live pilot operator on v3.110.79:
+
+> "the prospect is a prospect and not an invited player until the email is actually send out, that means the task to do so is completed. I am not sure if the onboardingpipeline is correctly reflecting numbers. There have been 2 players invited (tasks completed by HoD) but still the onboarding pipeline shows 1 invited player. Do a proper review on this pipeline and all stages in it"
+
+Two complaints, same root cause:
+
+1. **Definition mismatch.** The Invited stage should mean "the email has been sent" — i.e., the `invite_to_test_training` task is *completed*. The pre-v3.110.81 code counted a prospect as Invited the moment that task was *created*, before any email had actually gone out.
+2. **Under-count.** Two HoD-completed invites only surfaced one Invited prospect, because once the invite task was completed AND the chain hadn't yet spawned the `confirm_test_training` task (or that completed too) the prospect fell through every "task open" check and landed back in Prospects.
+
+## Why the old logic was wrong
+
+`OnboardingPipelineWidget::computeStageCounts()` and `FrontendOnboardingPipelineView::classifyProspect()` BOTH used currently-open tasks as stage anchors:
+
+```php
+// pre-v3.110.81 — wrong
+if ( ! empty( $row->open_offer_task ) )   return 'offer';
+if ( ! empty( $row->promoted_to_trial_case_id ) ) return 'trial';
+if ( ! empty( $row->open_outcome_task ) ) return 'test';
+if ( ! empty( $row->open_invite_task ) || ! empty( $row->open_confirm_task ) ) return 'invited';
+return 'prospects';
+```
+
+This treats the funnel as "who has work assigned right now", not "where has the prospect reached". Two failure modes:
+
+- A fresh prospect with an open `invite_to_test_training` (HoD hasn't sent the email yet) gets classified as Invited. The operator expects Prospects.
+- A prospect whose invite has been completed AND whose confirm task was either completed too OR never spawned (chain blip) has nothing open → falls through to Prospects. The operator expects Invited or later.
+
+The pilot's "2 invited, only 1 shown" symptom is the second failure mode.
+
+## The fix
+
+Reframe: classify by the highest-reached milestone, with completed-task signals as the primary markers. Extract the rule set into a single class both consumers delegate to — no more two-place rules drifting on every change.
+
+### New class
+
+`src/Modules/Prospects/Domain/ProspectStageClassifier.php`
+
+```php
+public static function classify( object $row, int $joined_cutoff ): ?string {
+    if ( ! empty( $row->promoted_to_player_id ) ) {
+        $created = strtotime( (string) ( $row->created_at ?? '' ) );
+        return ( $created !== false && $created >= $joined_cutoff ) ? 'joined' : null;
+    }
+    if ( ! empty( $row->open_offer ) )                                                     return 'offer';
+    if ( ! empty( $row->promoted_to_trial_case_id ) )                                      return 'trial';
+    if ( ! empty( $row->open_outcome ) || ! empty( $row->done_outcome ) || ! empty( $row->done_confirm ) ) return 'test';
+    if ( ! empty( $row->open_confirm ) || ! empty( $row->done_invite ) )                   return 'invited';
+    return 'prospects';
+}
+```
+
+Key transitions, in operator language:
+
+| Trigger | Stage |
+|---|---|
+| Prospect logged, no chain task yet | Prospects |
+| `invite_to_test_training` open (HoD hasn't sent yet) | Prospects |
+| `invite_to_test_training` completed (email sent) | Invited |
+| `confirm_test_training` open (awaiting parent confirmation) | Invited |
+| `confirm_test_training` completed (parent confirmed) | Test training |
+| `record_test_training_outcome` open/completed | Test training |
+| `promoted_to_trial_case_id` set | Trial group |
+| `await_team_offer_decision` open | Team offer |
+| `promoted_to_player_id` (≤ 90d) | Joined |
+
+### Both consumers extended
+
+Each `MAX(CASE WHEN … status IN ('open','in_progress','overdue') …)` aggregation now has a companion `MAX(CASE WHEN … status = 'completed' …)` so the classifier sees both "task assigned" and "task done" per template. The widget aggregates 0/1; the kanban aggregates the task ID for deep-linking. The classifier checks via `!empty()` and tolerates either form.
+
+The kanban's `cardUrl()` was rewritten to deep-link sensibly under the new rules: Invited prospects link to the open confirm task (or the open invite as a fallback for legacy chain states); Prospects with an open invite link to that invite task (so HoD can act on it).
+
+### Cache invalidation
+
+`OnboardingPipelineWidget`'s cache key bumped from `tt_op_pipeline_%d_%d` to `tt_op_pipeline_v2_%d_%d`. Old cached counts (with the old rules) would survive the 60s TTL window on every `(club_id, user_id)` pair on the install; the version suffix forces a fresh compute on first read after the upgrade.
+
+### Context-line copy refresh
+
+The kanban cards' subtitle text now reflects the new semantics:
+
+- Prospects with `open_invite` set → "Awaiting HoD to send the invite" (was: "Drafted, not yet handed to HoD")
+- Invited → "Invitation sent, awaiting parent" (was: "Invitation in progress")
+
+## Why the bigger pilot symptom resolves
+
+Once the rules use *completed* tasks as the primary signal, the "2 completed invites, only 1 shown" disappears. Each prospect whose invite has been HoD-completed now matches the `done_invite OR open_confirm` clause and lands in Invited regardless of whether the chain has progressed further. If the chain DID progress to confirm-completed, the prospect moves to Test training — still visible, just one column further along. No prospect falls through to a column the operator doesn't expect.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.81. No DB migration needed — the rules read the same `tt_workflow_tasks` rows just with different SQL aggregations.
+2. Open the scout dashboard (or the standalone `?tt_view=onboarding-pipeline`). For any prospect whose `invite_to_test_training` task is OPEN: count appears in **Prospects**, not Invited.
+3. For any prospect whose `invite_to_test_training` is COMPLETED: count appears in **Invited** or further-right (Test training / Trial group / Team offer / Joined depending on chain progress).
+4. The Invited column count = the number of distinct prospects with `done_invite = 1` AND not yet promoted past test-training. No more under-count.
+5. On the kanban, the context-line under a Prospects card with an open invite reads "Awaiting HoD to send the invite". An Invited card reads "Invitation sent, awaiting parent".
+
+## Files touched
+
+- **New** `src/Modules/Prospects/Domain/ProspectStageClassifier.php`
+- `src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php` — added 3 done-task SQL columns, delegated classification, bumped cache key
+- `src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php` — same SQL extension; removed inline `classifyProspect()`; updated `cardUrl()` deep-link logic; updated `contextLine()` copy
+- `talenttrack.php` 3.110.80 → 3.110.81
+- `readme.txt`, `CHANGES.md` — changelog
+
+---
+
 # TalentTrack v3.110.79 — Migration 0092 auto-heals stale `recent_scout_reports` references in operator-published scout templates
 
 ## Why this exists

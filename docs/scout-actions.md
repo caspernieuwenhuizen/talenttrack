@@ -180,6 +180,23 @@ Ordered by raw frequency (most-used first). Each action lists:
     (was a bare-text stack). At 360–720px width it collapses to a
     vertical list of cards; each card has the same label + count
     layout. Hover not required — pure layout, no interactive state.
+  - **v3.110.81** — rewrote the stage-classification rules. Before:
+    a prospect was Invited the moment the `invite_to_test_training`
+    task was created (i.e., before any email actually went out).
+    After: Invited requires the invite task to be **completed**
+    (= email sent). Side-effect of the new rules: prospects whose
+    invite task completed and whose chain happened to be between
+    confirm/outcome states no longer fall back to Prospects; they
+    stay in their reached stage (Invited or further). Extracted the
+    rule set into one shared `ProspectStageClassifier` so the
+    dashboard widget and the standalone kanban can't drift.
+    *How to test:* on the kanban, log a new prospect — they land in
+    **Prospects** column with "Awaiting HoD to send the invite". HoD
+    completes the invite task → next refresh, the prospect appears in
+    **Invited** with "Invitation sent, awaiting parent". HoD
+    completes the confirm task → next refresh, prospect appears in
+    **Test training**. Counts in the dashboard widget match the
+    kanban exactly.
 - **Polish notes:**
 
 ### 3. Add a follow-up scouting note to an existing prospect

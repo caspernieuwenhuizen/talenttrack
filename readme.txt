@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.80
+Stable tag: 3.110.81
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.81 — Onboarding pipeline: stage classification driven by reached milestones, not assigned work — fixes Invited under-count =
+
+The onboarding pipeline classified a prospect as **Invited** the moment the `invite_to_test_training` task was *created* — i.e., before the HoD had actually sent the email. Operator's mental model is the opposite: a prospect stays in **Prospects** until the email goes out, and only then moves to **Invited**. Symptom on a live install: 2 invites completed by HoD but only 1 prospect shown in Invited; the others fell through to **Prospects** because no task happened to be open at classification time. **Fix**: rewrote the stage rules to use *completed* tasks as transition markers, not open tasks. Extracted the rule set into one shared class (`\TT\Modules\Prospects\Domain\ProspectStageClassifier::classify()`) so the widget on the dashboard and the kanban on the standalone view can't drift apart. Both consumers now SELECT additional `done_invite` / `done_confirm` / `done_outcome` columns from `tt_workflow_tasks` and delegate the per-row classification to the new class. New stage rules: `invite open → Prospects` (email not yet sent), `invite done OR confirm open → Invited` (email sent, awaiting parent), `confirm done OR outcome open/done → Test training`, `promoted_to_trial_case_id → Trial group`, `offer open → Team offer`, `promoted_to_player_id (90d window) → Joined`. Context-line copy on the kanban cards updated: Prospects with an open invite now reads "Awaiting HoD to send the invite"; Invited reads "Invitation sent, awaiting parent". Widget cache key bumped (`v2` suffix) so cached counts from the old rules don't survive the upgrade.
 
 = 3.110.80 — Mark-attendance + rate-actors polish: type-led hero title, lookup-resilient Mark-all-present + status counts, sub-cat → main-cat auto-calc (#0092) =
 

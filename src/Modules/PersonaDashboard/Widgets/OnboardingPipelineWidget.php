@@ -8,6 +8,7 @@ use TT\Modules\PersonaDashboard\Domain\PersonaContext;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\Size;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
+use TT\Modules\Prospects\Domain\ProspectStageClassifier;
 
 /**
  * OnboardingPipelineWidget (#0081 child 3) — the recruitment funnel
@@ -95,21 +96,24 @@ class OnboardingPipelineWidget extends AbstractWidget {
     /**
      * Run the per-stage counts.
      *
-     * v3.110.48 rewrite — counts are now `COUNT(DISTINCT prospect_id)`
-     * driven, classifying every prospect into exactly one stage per
-     * the same rules `FrontendOnboardingPipelineView::classifyProspect()`
-     * applies to the kanban. Previously the widget summed task rows
-     * across templates, so a single prospect with both an `invite_to_test_training`
-     * task open AND a `confirm_test_training` task open simultaneously
-     * (or any chain blip that left two tasks alive at once) showed as
-     * 2 in the Invited column. Counts now match what the user actually
-     * sees on the kanban.
+     * v3.110.48 rewrote this to be `COUNT(DISTINCT prospect_id)`-driven,
+     * classifying each prospect into exactly one stage. v3.110.81
+     * delegates the actual classification to
+     * `\TT\Modules\Prospects\Domain\ProspectStageClassifier` so the
+     * kanban view and this widget can't drift on rule changes; see
+     * that class for the full stage transitions.
+     *
+     * Key v3.110.81 rule change: a prospect with an OPEN
+     * `invite_to_test_training` task counts as Prospects (we haven't
+     * sent the email yet). It used to count as Invited based purely
+     * on task existence, which contradicted the operator's mental
+     * model and inflated the Invited column.
      *
      * Trial group counts prospects with `promoted_to_trial_case_id`
-     * set rather than every `tt_trial_cases` row — the original "every
-     * trial case" count conflated the two lifecycles (some trial cases
-     * never came from a prospect) and confused operators looking at
-     * the funnel as a recruitment view.
+     * set rather than every `tt_trial_cases` row — the original
+     * "every trial case" count conflated the two lifecycles (some
+     * trial cases never came from a prospect) and confused operators
+     * looking at the funnel as a recruitment view.
      *
      * Scope filter: a scout sees only their own prospects; everyone
      * else with the cap sees the full club view.
@@ -119,7 +123,11 @@ class OnboardingPipelineWidget extends AbstractWidget {
      * @return list<array{key:string,label:string,count:int,stale:int}>
      */
     public static function computeStageCounts( int $user_id, int $club_id ): array {
-        $cache_key = sprintf( 'tt_op_pipeline_%d_%d', $club_id, $user_id );
+        // v3.110.81 — cache key bumped (`v2` suffix) because the
+        // classification rules changed. Old cached counts would mis-
+        // attribute prospects with completed invites until the 60s TTL
+        // expired across every (club_id, user_id) pair on the install.
+        $cache_key = sprintf( 'tt_op_pipeline_v2_%d_%d', $club_id, $user_id );
         $cached    = wp_cache_get( $cache_key, 'tt_persona_dashboard' );
         if ( is_array( $cached ) ) return $cached;
 
@@ -135,6 +143,10 @@ class OnboardingPipelineWidget extends AbstractWidget {
             ? $wpdb->prepare( ' AND p.discovered_by_user_id = %d', $user_id )
             : '';
 
+        // v3.110.81 — extended row shape with done_* columns so the
+        // classifier can distinguish "task assigned" from "task done"
+        // (= milestone reached). See ProspectStageClassifier docblock
+        // for the full rule set.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT
                 p.id,
@@ -146,6 +158,9 @@ class OnboardingPipelineWidget extends AbstractWidget {
                 MAX(CASE WHEN wt.template_key = 'confirm_test_training'        AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_confirm,
                 MAX(CASE WHEN wt.template_key = 'record_test_training_outcome' AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_outcome,
                 MAX(CASE WHEN wt.template_key = 'await_team_offer_decision'    AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_offer,
+                MAX(CASE WHEN wt.template_key = 'invite_to_test_training'      AND wt.status = 'completed' THEN 1 ELSE 0 END) AS done_invite,
+                MAX(CASE WHEN wt.template_key = 'confirm_test_training'        AND wt.status = 'completed' THEN 1 ELSE 0 END) AS done_confirm,
+                MAX(CASE WHEN wt.template_key = 'record_test_training_outcome' AND wt.status = 'completed' THEN 1 ELSE 0 END) AS done_outcome,
                 MIN(CASE WHEN wt.status IN ('open','in_progress','overdue') THEN UNIX_TIMESTAMP(wt.due_at) ELSE NULL END) AS soonest_due_ts
               FROM {$prospects} p
               LEFT JOIN {$tasks} wt ON wt.prospect_id = p.id AND wt.club_id = %d
@@ -167,35 +182,17 @@ class OnboardingPipelineWidget extends AbstractWidget {
         ];
 
         foreach ( $rows as $row ) {
-            // Joined: in the trailing 90-day window.
-            if ( ! empty( $row->promoted_to_player_id ) ) {
-                $created = strtotime( (string) ( $row->created_at ?? '' ) );
-                if ( $created !== false && $created >= $joined_cutoff ) $tally['joined']['count']++;
-                continue;
-            }
-            if ( ! empty( $row->open_offer ) ) {
-                $tally['offer']['count']++;
-                if ( ! empty( $row->soonest_due_ts ) && (int) $row->soonest_due_ts < $stale_cutoff ) $tally['offer']['stale']++;
-                continue;
-            }
-            if ( ! empty( $row->promoted_to_trial_case_id ) ) {
-                $tally['trial']['count']++;
-                continue;
-            }
-            if ( ! empty( $row->open_outcome ) ) {
-                $tally['test']['count']++;
-                if ( ! empty( $row->soonest_due_ts ) && (int) $row->soonest_due_ts < $stale_cutoff ) $tally['test']['stale']++;
-                continue;
-            }
-            if ( ! empty( $row->open_invite ) || ! empty( $row->open_confirm ) ) {
-                $tally['invited']['count']++;
-                if ( ! empty( $row->soonest_due_ts ) && (int) $row->soonest_due_ts < $stale_cutoff ) $tally['invited']['stale']++;
-                continue;
-            }
-            // No open task and not promoted → still in Prospects.
-            $tally['prospects']['count']++;
-            if ( ! empty( $row->open_log ) && ! empty( $row->soonest_due_ts ) && (int) $row->soonest_due_ts < $stale_cutoff ) {
-                $tally['prospects']['stale']++;
+            $stage = ProspectStageClassifier::classify( $row, $joined_cutoff );
+            if ( $stage === null || ! isset( $tally[ $stage ] ) ) continue;
+            $tally[ $stage ]['count']++;
+            // Stale = the prospect's open task (the one that defines
+            // the stage's "waiting for…") has been overdue 30+ days.
+            // Only applies where there IS a current open task — Trial
+            // group and Joined are derived from prospect-table columns
+            // and have no waiting-task semantics.
+            if ( ! empty( $row->soonest_due_ts ) && (int) $row->soonest_due_ts < $stale_cutoff
+                 && in_array( $stage, [ 'prospects', 'invited', 'test', 'offer' ], true ) ) {
+                $tally[ $stage ]['stale']++;
             }
         }
 
