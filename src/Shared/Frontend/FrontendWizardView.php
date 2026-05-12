@@ -45,10 +45,34 @@ class FrontendWizardView extends FrontendViewBase {
 
         self::enqueueAssets();
         self::enqueueWizardStyles();
-        self::enqueueAutosaveScript( $slug );
+        // v3.110.84 — autosave runtime removed. The periodic POSTs were
+        // racing with `WizardState::clear()`: a Cancel or Submit would
+        // clear the transient + the `tt_wizard_drafts` row, then an
+        // in-flight autosave POST from a moment earlier would re-insert
+        // the row, and the next wizard load would resume from the
+        // resurrected draft (pilot symptom: "it keeps coming back at
+        // the check stage. Only if I click cancel a few times it
+        // clears"). Wizards that genuinely want a cross-session draft
+        // implement `SupportsCancelAsDraft` and surface an explicit
+        // "Save as draft" button — that path is unchanged.
 
         if ( ! empty( $_GET['restart'] ) ) {
             WizardState::clear( $user_id, $slug );
+        }
+
+        // v3.110.84 — defensive cleanup of any stale persistent draft
+        // row left behind by the pre-v3.110.84 autosave runtime. For
+        // wizards that don't explicitly support drafts via
+        // `SupportsCancelAsDraft` (e.g. `mark-attendance`,
+        // `new-evaluation`), the `tt_wizard_drafts` row should never
+        // exist after a Cancel / Submit — but rows from in-flight
+        // autosave POSTs that landed AFTER the v3.110.83 clear keep
+        // resurfacing the wizard at the step it was on. Wipe any
+        // persistent row on every render for non-draft wizards. The
+        // transient stays untouched so a real in-flight wizard run
+        // keeps its state through the wizard's own back/next chrome.
+        if ( ! ( $wizard instanceof SupportsCancelAsDraft ) ) {
+            WizardState::clearPersistentDraft( $user_id, $slug );
         }
 
         $state = WizardState::load( $user_id, $slug );
@@ -214,9 +238,10 @@ class FrontendWizardView extends FrontendViewBase {
 
         self::renderHelpSidebar( $wizard, $current );
 
-        echo '<div class="tt-wizard-autosave-status" data-tt-autosave-status data-state="idle" aria-live="polite">'
-            . esc_html__( 'Autosave ready', 'talenttrack' )
-            . '</div>';
+        // v3.110.84 — autosave status indicator removed alongside the
+        // runtime. Wizards that want a manual "Save as draft" button
+        // implement `SupportsCancelAsDraft`; the action bar below
+        // renders the button when present.
         echo '<div class="tt-wizard-actions">';
         // #0069 — Cancel must discard the run regardless of unfilled
         // required fields. Save-as-draft and Back already carry

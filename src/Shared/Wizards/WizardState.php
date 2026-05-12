@@ -91,6 +91,18 @@ final class WizardState {
         ) );
     }
 
+    /**
+     * v3.110.84 — public alias for `deleteFromTable()`, used by
+     * FrontendWizardView to wipe pre-v3.110.84 stale autosave rows
+     * that don't belong to any wizard implementing
+     * `SupportsCancelAsDraft`. Leaves the transient untouched so any
+     * in-flight wizard run keeps working — only the cross-session
+     * `tt_wizard_drafts` row is cleared.
+     */
+    public static function clearPersistentDraft( int $user_id, string $wizard_slug ): void {
+        self::deleteFromTable( $user_id, $wizard_slug );
+    }
+
     private static function deleteFromTable( int $user_id, string $wizard_slug ): void {
         global $wpdb;
         $tbl = $wpdb->prefix . 'tt_wizard_drafts';
