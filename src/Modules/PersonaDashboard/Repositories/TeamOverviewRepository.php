@@ -38,10 +38,17 @@ final class TeamOverviewRepository {
 
         // Per-team headline numbers in one query. Sub-selects keep the
         // window join-driven and avoid LEFT-JOIN row multiplication.
+        // v3.110.88 — read the age_group VARCHAR column directly instead
+        // of joining to tt_lookups via a non-existent `t.age_group_id`.
+        // The schema (Activator + migrations) carries age_group as a
+        // string on tt_teams; there is no FK column. The pre-fix join
+        // raised "Unknown column 't.age_group_id' in 'on clause'", which
+        // made wpdb->get_results() return false → empty array → widget
+        // empty state ("No teams with recent activity") on every render.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT t.id AS team_id,
                     t.name AS team_name,
-                    COALESCE(ag.name, '') AS age_group,
+                    COALESCE(t.age_group, '') AS age_group,
                     (
                         SELECT CONCAT_WS(' ', pe.first_name, pe.last_name)
                           FROM {$p}tt_team_people tp2
@@ -83,7 +90,6 @@ final class TeamOverviewRepository {
                          WHERE pl.team_id = t.id AND pl.club_id = t.club_id AND pl.status = 'active'
                     ) AS player_count
                FROM {$p}tt_teams t
-               LEFT JOIN {$p}tt_lookups ag ON ag.id = t.age_group_id AND ag.club_id = t.club_id AND ag.lookup_type = 'age_group'
               WHERE t.club_id = %d
               ORDER BY t.name ASC",
             $from, $to, $from, $to, $club_id

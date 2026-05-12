@@ -1,3 +1,56 @@
+# TalentTrack v3.110.88 — Team overview grid queries the existing `age_group` VARCHAR instead of a non-existent `age_group_id` FK; teams now render
+
+## The symptom
+
+On the HoD landing post-v3.110.82, the team-overview grid rendered an empty card with the message "Geen ploegen met recente activiteit." ("No teams with recent activity.") — even on installs with 3 active teams, players with recent attendance, and visible activities in the Upcoming Activities table beneath it.
+
+## The cause
+
+`TeamOverviewRepository::summariesFor()` joins `tt_teams t` against `tt_lookups ag` on `ag.id = t.age_group_id`. The column `tt_teams.age_group_id` **does not exist**: `Activator::ensureSchema()` at `src/Core/Activator.php:183-195` defines `tt_teams` with `age_group VARCHAR(100) DEFAULT ''` (a string), and no migration anywhere under `database/migrations/` adds an `age_group_id` FK column. The repository's SQL was written for a schema that was planned but never landed.
+
+`$wpdb->get_results()` returns `false` when MySQL raises "Unknown column 't.age_group_id' in 'on clause'". The repository's early-return guard `if ( ! is_array( $rows ) || $rows === [] ) return [];` then trips on the `false` and returns an empty array. The widget falls through to its empty-state branch — which makes no distinction between "wpdb error" and "no rows," so the misleading "no recent activity" message rendered on every page load.
+
+The empty-state copy is **also** misleading independent of the bug: the main `FROM tt_teams ... WHERE club_id = %d` clause does NOT filter by recent activity. Recent-activity is only a factor inside the per-team `attendance_pct` / `avg_rating` sub-selects; those return `NULL` when there's no recent data, but a row is still returned. So the empty card only fires when there are literally zero teams in the club. Copy is left untouched here — it'll be revisited when we redo the team-overview empty-state UX, since "no teams at all in your academy" is a state worth communicating in its own right.
+
+## The fix
+
+`TeamOverviewRepository.php` — replace the broken join with a direct read of the existing column:
+
+```php
+// before
+COALESCE(ag.name, '') AS age_group,
+...
+LEFT JOIN {$p}tt_lookups ag
+       ON ag.id = t.age_group_id
+      AND ag.club_id = t.club_id
+      AND ag.lookup_type = 'age_group'
+
+// after
+COALESCE(t.age_group, '') AS age_group,
+...
+(join removed)
+```
+
+One row per team, no spurious JOIN, no phantom column reference. The widget's `renderCard()` consumes `age_group` as a string (it's only ever displayed as `' · U13'` appended to the team name) so no downstream change is needed.
+
+## Not fixed in this PR
+
+The same broken reference appears in three other places that have been silently failing on the same "Unknown column" error:
+
+- `src/Infrastructure/Evaluations/EvalRatingsRepository.php:266` — `computeForEvalIds()` age-group resolution.
+- `src/Infrastructure/Evaluations/EvalRatingsRepository.php:358` — `resolveAgeGroupForEvaluation()`.
+- `src/Modules/Evaluations/Admin/EvaluationsPage.php:310` — admin batch age-group lookup.
+
+These power the weighted-rating computation. If they're returning empty data when the join breaks, every weighted rating in the system has been falling back to the unweighted average — possibly for months. That's a meaningful correctness issue and deserves its own investigation and fix, with the right test coverage to confirm the rating math before and after. Out of scope here; bug-tracked for next pass.
+
+## Files touched
+
+- `talenttrack.php` — version bump 3.110.87 → 3.110.88.
+- `readme.txt` — stable tag + changelog line.
+- `src/Modules/PersonaDashboard/Repositories/TeamOverviewRepository.php` — SQL rewrite + explanatory comment.
+
+---
+
 # TalentTrack v3.110.87 — KPI strip paints the dark hero gradient so its white-on-white text becomes visible
 
 ## The symptom
