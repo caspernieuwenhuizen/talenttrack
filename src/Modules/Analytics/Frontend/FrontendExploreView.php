@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Analytics\Domain\DimensionValueResolver;
 use TT\Modules\Analytics\Domain\Kpi;
 use TT\Modules\Analytics\Export\CsvExporter;
 use TT\Modules\Analytics\FactQuery;
@@ -312,10 +313,11 @@ class FrontendExploreView extends FrontendViewBase {
                 . '</td></tr>';
         } else {
             foreach ( $rows as $row ) {
-                $key   = (string) ( $row->{ $group_by } ?? '—' );
+                $raw   = $row->{ $group_by } ?? null;
+                $label = DimensionValueResolver::resolve( $dim, $raw );
                 $value = $row->{ $kpi->measureKey } ?? null;
                 echo '<tr>';
-                echo '<td>' . esc_html( $key ) . '</td>';
+                echo '<td>' . esc_html( $label ) . '</td>';
                 echo '<td style="text-align:right; font-variant-numeric:tabular-nums;">' . esc_html( self::formatHeadline( $kpi, $value ) ) . '</td>';
                 echo '</tr>';
             }

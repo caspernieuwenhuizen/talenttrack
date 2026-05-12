@@ -207,6 +207,17 @@ class FrontendPlayersManageView extends FrontendViewBase {
                         'archived' => __( 'Archived', 'talenttrack' ),
                     ],
                 ],
+                // #0093 — "Unassigned" lens. Surfaces active players who
+                // hold no team_id yet (typical residue of the trial →
+                // team-offer flow that flips status to active without
+                // placing the player on a team).
+                'assignment' => [
+                    'type'    => 'select',
+                    'label'   => __( 'Assignment', 'talenttrack' ),
+                    'options' => [
+                        'unassigned' => __( 'Unassigned (no team)', 'talenttrack' ),
+                    ],
+                ],
             ],
             'row_actions'  => $row_actions,
             'search'       => [ 'placeholder' => __( 'Search by name…', 'talenttrack' ) ],
