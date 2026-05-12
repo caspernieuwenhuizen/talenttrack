@@ -71,7 +71,13 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
             $title   = __( 'No upcoming activity', 'talenttrack' );
             $detail  = __( 'Schedule a training or match to populate this card.', 'talenttrack' );
             $primary_label  = __( 'Pick an activity', 'talenttrack' );
-            $primary_url    = WizardEntryPoint::urlFor( 'mark-attendance', $ctx->viewUrl( 'activities' ) );
+            // v3.110.84 — `restart=1` forces a fresh wizard run.
+            // Belt-and-suspenders alongside the autosave removal: even
+            // if a stale `tt_wizard_drafts` row somehow lingered, the
+            // hero entry CTA always nukes the wizard state before
+            // first render. Coaches expect the hero to start a new
+            // motion, not resume an abandoned one.
+            $primary_url    = add_query_arg( [ 'restart' => 1 ], WizardEntryPoint::urlFor( 'mark-attendance', $ctx->viewUrl( 'activities' ) ) );
             $secondary_html = '';
         } else {
             $aid     = (int) $next->id;
@@ -91,7 +97,14 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
             $detail     = self::buildDetail( $next, $type_label !== '' ? $user_title : '' );
 
             $wizard_base   = WizardEntryPoint::urlFor( 'mark-attendance', $ctx->viewUrl( 'activities' ) );
-            $primary_url   = add_query_arg( [ 'activity_id' => $aid ], $wizard_base );
+            // v3.110.84 — see empty-state branch above for the
+            // `restart=1` rationale. Hero entry CTA always starts
+            // fresh; any in-flight wizard state for this user is
+            // nuked before the first render.
+            $primary_url   = add_query_arg(
+                [ 'activity_id' => $aid, 'restart' => 1 ],
+                $wizard_base
+            );
             $primary_label = __( 'Mark attendance', 'talenttrack' );
 
             // v3.110.73 — attach `tt_back` pointing to the dashboard so

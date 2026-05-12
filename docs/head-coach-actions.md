@@ -67,6 +67,29 @@ Each action lists:
   post-hoc edit surface.
 - **Player-centric framing:** *where now* (presence, engagement signal feeding rating + minutes)
 - **Shipped:**
+  - **v3.110.86** — wizard autosave runtime removed. The autosave
+    (periodic POST writing wizard state to `tt_wizard_drafts` via
+    `WizardDraftRestController`) was racing with the terminal
+    `WizardState::clear()` on Cancel / Submit — in-flight POSTs
+    landed at the server AFTER the clear and re-created the
+    persistent draft row. Next wizard load resumed from the
+    resurrected draft, which is why the pilot saw the wizard
+    "keep coming back at the check stage. Only if I click cancel
+    a few times it clears." The autosave runtime is now gone:
+    no `wizard-autosave.js` enqueue, no status indicator. The
+    REST endpoint returns `{ saved_at: null, noop: true }` for any
+    stale browser cache that still tries to POST. Defensive
+    cleanup: every wizard render now wipes the persistent draft
+    row when the wizard doesn't implement
+    `SupportsCancelAsDraft` (mark-attendance + new-evaluation +
+    all currently shipped wizards). Hero CTAs add `restart=1` so
+    entering from the hero always starts fresh.
+    *How to test:* open the mark-attendance wizard, mark a few
+    players, hit Next, hit Cancel on the confirm step. Reload
+    the wizard URL — fresh start (was: resumed at the confirm
+    step). Network tab: no periodic POSTs to
+    `/wizards/mark-attendance/draft`. Direct POST to that
+    endpoint returns `{ noop: true }` and creates no row.
   - **v3.110.83** — two mid-flow lifecycle fixes.
     (1) The activity is no longer flipped to `completed` until the
     coach actually finishes the wizard. Pre-fix the auto-flip ran

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.85
+Stable tag: 3.110.86
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.86 — Wizard autosave runtime removed: kills the race that resurrected `tt_wizard_drafts` rows after Cancel / Submit and made the mark-attendance wizard "keep coming back at the check stage" (#0092) =
+
+v3.110.83 fixed the in-step lifecycle bug but pilot saw the wizard still resuming on the confirm step. Root cause: the autosave runtime enqueued by `FrontendWizardView::render()` (a periodic POST that wrote the wizard's current field map back to `WizardState::merge()`). The runtime debounced ~800ms; in-flight POSTs from the moment BEFORE a Cancel / Submit landed at the server AFTER the wizard's terminal `WizardState::clear()`, re-creating the `tt_wizard_drafts` row. The next wizard load (transient empty, table fallback hit) resumed from the resurrected draft — which is why the symptom was "it keeps coming back at the check stage. Only if I click cancel a few times it clears." (Each cancel raced against in-flight POSTs that took time to drain.) **Fix**: removed the autosave runtime entirely. `FrontendWizardView::render()` no longer enqueues `wizard-autosave.js`; the autosave-status `<div>` was dropped from the form. The REST endpoint `WizardDraftRestController::save()` was gutted to always return `{ saved_at: null, noop: true }` so any browser still running cached `wizard-autosave.js` from a prior page load gets a 200 with no DB side-effect. Defensive cleanup: `WizardState::clearPersistentDraft()` now runs on every render of a wizard that doesn't implement `SupportsCancelAsDraft` (which is all of the currently-shipped ones), wiping any stale rows from the pre-v3.110.86 autosave era — the transient stays untouched, so in-flight wizard runs work normally through the wizard's own back/next chrome. Belt-and-suspenders: `MarkAttendanceHeroWidget`'s primary CTAs now carry `restart=1` so the hero always starts a fresh wizard run; the coach's intent when clicking the hero is "begin", not "resume". Wizards that want a real cross-session draft implement `SupportsCancelAsDraft` and surface an explicit "Save as draft" button — a single user-triggered write, not a periodic background race.
 
 = 3.110.85 — Team-offer decision form: accept now promotes the player to `status='active'`, decline + no-response archive the prospect =
 

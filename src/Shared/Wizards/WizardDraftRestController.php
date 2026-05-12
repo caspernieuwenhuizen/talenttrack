@@ -39,32 +39,30 @@ final class WizardDraftRestController {
         );
     }
 
+    /**
+     * v3.110.84 — endpoint kept registered (so cached clients with the
+     * old `wizard-autosave.js` don't see 404s and surface error toasts)
+     * but the write path is gone. The handler now always responds 200
+     * with `noop: true` regardless of the payload. The autosave runtime
+     * is no longer enqueued; this method only ever runs against stale
+     * browser caches, and silently discarding their writes is the
+     * intended behaviour.
+     *
+     * Race condition that caused the gut: in-flight autosave POSTs
+     * landed milliseconds AFTER `WizardState::clear()` fired on Cancel
+     * / Submit and re-created the `tt_wizard_drafts` row. Next wizard
+     * load resumed from the resurrected draft, which is why pilots saw
+     * the wizard "keep coming back at the check stage. Only if I click
+     * cancel a few times it clears." Several stale POSTs eventually
+     * stop firing once the browser navigates off the wizard view.
+     *
+     * Wizards that want real cross-session drafts implement
+     * `SupportsCancelAsDraft` and use the explicit "Save as draft"
+     * button on the wizard chrome — a single user-triggered write,
+     * not a periodic background race.
+     */
     public static function save( WP_REST_Request $req ): WP_REST_Response {
-        $user_id = get_current_user_id();
-        $slug    = (string) $req->get_param( 'slug' );
-
-        $wizard = WizardRegistry::find( $slug );
-        if ( ! $wizard || ! WizardRegistry::isAvailable( $slug, $user_id ) ) {
-            return new WP_REST_Response(
-                [ 'error' => 'wizard_unavailable' ],
-                403
-            );
-        }
-
-        $body   = $req->get_json_params();
-        $fields = is_array( $body['fields'] ?? null ) ? (array) $body['fields'] : [];
-        if ( $fields === [] ) {
-            return new WP_REST_Response( [ 'saved_at' => null, 'noop' => true ], 200 );
-        }
-
-        $patch = self::sanitiseFields( $fields );
-        if ( $patch !== [] ) {
-            WizardState::merge( $user_id, $slug, $patch );
-        }
-
-        return new WP_REST_Response( [
-            'saved_at' => gmdate( 'c' ),
-        ], 200 );
+        return new WP_REST_Response( [ 'saved_at' => null, 'noop' => true ], 200 );
     }
 
     /**

@@ -175,6 +175,94 @@ Widget cache key bumped from `tt_op_pipeline_v2_*` to `tt_op_pipeline_v3_*` so s
 
 ---
 
+# TalentTrack v3.110.86 — Wizard autosave runtime removed: kills the race that resurrected `tt_wizard_drafts` rows after Cancel / Submit (#0092)
+
+## The bug
+
+Pilot operator on v3.110.83 reported: *"it does not work, it keeps coming back at the check stage. Only if I click cancel a few times it clears. Can this have to do with the auto saving and persistence? Perhaps better to have a real save as draft option and remove the auto save / persistence?"*
+
+Spot-on diagnosis. The wizard's autosave runtime (enqueued from `FrontendWizardView::render()` since the v3.110.59 `wizard-autosave.js` ship) does this:
+
+1. JS listens for `input` events on the wizard form.
+2. Debounces ~800ms.
+3. POSTs the current field map to `talenttrack/v1/wizards/{slug}/draft`.
+4. The REST handler calls `WizardState::merge( $user_id, $slug, $patch )` which writes to BOTH the transient AND the `tt_wizard_drafts` table.
+
+When the coach clicks **Cancel** or **Skip rating → Submit** on RateConfirmStep:
+
+1. Framework runs `WizardState::clear()` — wipes transient + table.
+2. Framework redirects to the dashboard.
+3. The coach navigates away. `wizard-autosave.js` unloads.
+
+But step 1 and step 3 are NOT atomic. An autosave POST from milliseconds before step 1 may still be in flight. The server processes it *after* the clear:
+
+```
+t=0    coach types last value
+t=800  autosave fires → POST in flight
+t=850  coach clicks Cancel → server clears state, returns redirect
+t=851  browser starts navigation
+t=900  in-flight autosave POST lands → WizardState::merge → tt_wizard_drafts row resurrected
+t=950  browser arrives at dashboard
+```
+
+Then on the next wizard load (transient gone, but table fallback hits the resurrected row), the wizard resumes at the step the autosave snapshotted — usually `RateConfirmStep`, since that's where the coach was when the POST went out. That's why the symptom was "it keeps coming back at the check stage. Only if I click cancel a few times it clears" — each cancel raced against any remaining in-flight POSTs until the runtime had no more pending requests to land.
+
+## The fix
+
+Kill the autosave runtime entirely. Coach gets fresh wizard state on every entry; wizards that want a real cross-session draft surface an explicit "Save as draft" button via `SupportsCancelAsDraft`.
+
+**Four changes:**
+
+### (1) `FrontendWizardView` no longer enqueues `wizard-autosave.js`
+
+The `enqueueAutosaveScript( $slug )` call in `render()` is gone. The `<div class="tt-wizard-autosave-status">` indicator is gone with it. Wizards still render normally; the chrome (Cancel / Back / Next / Save-as-draft when supported) is unchanged.
+
+The script file `assets/js/wizard-autosave.js` stays on disk (deleting an asset that may be cached client-side would 404 stale clients). It just isn't enqueued anymore.
+
+### (2) `WizardDraftRestController::save()` is gutted
+
+Endpoint kept registered (cached clients with the old script don't get 404s and surface error toasts), but the handler is now a one-liner:
+
+```php
+return new WP_REST_Response( [ 'saved_at' => null, 'noop' => true ], 200 );
+```
+
+Stale clients see a 200 OK and stop firing error events. The server side discards the payload silently — no `WizardState::merge`, no table write.
+
+### (3) `WizardState::clearPersistentDraft()` runs on every wizard render
+
+New public method exposes the previously-private `deleteFromTable()`. `FrontendWizardView::render()` calls it on every render of a wizard that doesn't implement `SupportsCancelAsDraft` — wipes any stale `tt_wizard_drafts` row left behind by the pre-v3.110.84 autosave era.
+
+The transient stays untouched, so an in-flight wizard run still works through the wizard's own back/next chrome (state lives in the transient between requests).
+
+### (4) `MarkAttendanceHeroWidget` CTAs add `restart=1`
+
+```php
+$primary_url = add_query_arg(
+    [ 'activity_id' => $aid, 'restart' => 1 ],
+    $wizard_base
+);
+```
+
+Belt-and-suspenders. Hero is the "begin" affordance, not "resume" — clicking it from the dashboard always starts a fresh wizard. Combined with the persistent-draft wipe in (3), no stale state can sneak in via any path the hero offers.
+
+## What stays
+
+- `tt_wizard_drafts` table (used by future opt-in drafts).
+- `WizardDraftCleanupCron` (daily 14-day prune; still useful).
+- `WizardState::saveToTable` (still writes on every `save()`, but the only callers now are step `validate()` / `submit()` which are user-triggered, not periodic).
+- `SupportsCancelAsDraft` interface — wizards that want explicit drafts still get the Save-as-draft button rendered.
+
+## How to verify
+
+1. Open the mark-attendance wizard from the hero. Mark a few players. Hit Next. On the confirm step, hit **Cancel**. Reload the wizard URL → fresh start, no resumed confirm step.
+2. Repeat without clicking Cancel — type a few values then navigate away (browser back). Reload the wizard URL → fresh start.
+3. Network tab on the wizard view: no periodic POST to `/wizards/mark-attendance/draft` (autosave never fires).
+4. Direct test of the REST endpoint: `POST talenttrack/v1/wizards/mark-attendance/draft` with any payload → response is `{ saved_at: null, noop: true }`. No `tt_wizard_drafts` row created.
+5. Sanity: `+ New evaluation` wizard still works end-to-end (no autosave, same chrome, same submit). Walk it from `Activities tile → + New evaluation` to the eval list.
+
+---
+
 # TalentTrack v3.110.83 — Mark-attendance wizard: activity stays in hero until wizard fully completes; "Pick a session" picker no longer drops the coach on the confirm step (#0092)
 
 Two mid-flow lifecycle bugs in the mark-attendance wizard surfaced by a pilot operator on v3.110.80.
