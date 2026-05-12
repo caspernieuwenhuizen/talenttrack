@@ -1,3 +1,98 @@
+# TalentTrack v3.110.84 — Onboarding pipeline: trial-admitted prospects classified Trial group (not Joined)
+
+## What was wrong
+
+v3.110.81 introduced `ProspectStageClassifier` so the dashboard widget and standalone kanban couldn't drift on stage rules. It fixed the open-vs-completed-task confusion that under-counted **Invited**. But it left a follow-on bug: the `admit_to_trial` path on `RecordTestTrainingOutcomeForm` sets BOTH `promoted_to_player_id` AND `promoted_to_trial_case_id` on the prospect, with the new `tt_players` row at `status='trial'`. The v3.110.81 rule checked `promoted_to_player_id` first, so trial-admitted prospects appeared in **Joined** (label "Accepted" on the NL install) instead of **Trial group**.
+
+Reported live:
+
+> "the test works but if the HOD promotes to trial group it add the player to accepted instead"
+
+## Root cause
+
+`RecordTestTrainingOutcomeForm::serializeResponse()` when `recommendation === 'admit_to_trial'`:
+
+```php
+( new ProspectsRepository() )->update( $prospect_id, [
+    'promoted_to_player_id'    => $player_id,        // ← fresh tt_players row at status='trial'
+    'promoted_to_trial_case_id' => $trial_case_id,
+] );
+```
+
+Both columns end up set on the prospect at the moment of trial admission. The pre-v3.110.84 classifier rule:
+
+```php
+if ( ! empty( $row->promoted_to_player_id ) ) return 'joined';  // ← wins
+if ( ! empty( $row->open_offer ) )            return 'offer';
+if ( ! empty( $row->promoted_to_trial_case_id ) ) return 'trial';
+```
+
+…fired the Joined branch before reaching Trial group. The pipeline misrepresented every trial-admitted prospect.
+
+## The fix
+
+**Joined now requires the player record to have graduated past `status='trial'`**. The trial-admit path creates the player at that status; the academy moves it forward (today, manually in the players UI) when the player is genuinely on the roster.
+
+New SQL: both consumers (`OnboardingPipelineWidget`, `FrontendOnboardingPipelineView`) added a LEFT JOIN against `tt_players` exposing `player_status`:
+
+```sql
+LEFT JOIN {$wpdb->prefix}tt_players pl
+       ON pl.id = p.promoted_to_player_id
+      AND pl.club_id = %d
+…
+SELECT MAX(pl.status) AS player_status, …
+```
+
+New classifier order:
+
+```php
+// Joined: player record exists AND graduated past trial.
+if ( $player_id > 0 && $player_status !== '' && $player_status !== 'trial' ) {
+    return 'joined';
+}
+
+// Open team-offer task wins over the trial-case row.
+if ( ! empty( $row->open_offer ) ) return 'offer';
+
+// Trial group: a trial case is on the prospect, player still status='trial'
+// (or no player row, defensive).
+if ( ! empty( $row->promoted_to_trial_case_id ) ) return 'trial';
+
+// Defensive fallback: player_id set but player row missing (deleted? rare).
+// Keep the prospect visible under Joined within the 90-day window.
+if ( $player_id > 0 && $player_status === '' ) return 'joined';
+
+// …test / invited / prospects unchanged…
+```
+
+`MyRecentProspectsSource::statusLabel()` aligned to the same precedence: trial-admitted prospects now read **In trial** on the scout dashboard row-2 table (was: **Joined**).
+
+Widget cache key bumped from `tt_op_pipeline_v2_*` to `tt_op_pipeline_v3_*` so stale counts from the old rule can't survive the upgrade.
+
+## Known follow-up
+
+`AwaitTeamOfferDecisionForm`'s docblock states: *"On accept, the trial case decision flips to `admit` and the player's status updates to `active`."* The current code only updates the trial-case `decision` and `status` — it does NOT update `tt_players.status`. So the player row stays at `status='trial'` even after the offer is accepted, and a prospect in this state would never move to **Joined** by the new classifier rule alone. Until that gap is closed, "Joined" is reached only via a manual player-status flip in the players UI — consistent with how operators have been working in practice. This is out of scope for v3.110.84; called out here so the discrepancy isn't a surprise next time someone hits it.
+
+## Files
+
+- `src/Modules/Prospects/Domain/ProspectStageClassifier.php` — rule reordered, player_status added to the required row shape, full docblock refresh
+- `src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php` — SQL adds `LEFT JOIN tt_players`, `MAX(pl.status) AS player_status`, cache key bumped to `v3`
+- `src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php` — same SQL extension
+- `src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php` — `statusLabel()` precedence flipped so trial wins over joined
+- `talenttrack.php` 3.110.83 → 3.110.84
+- `readme.txt`, `CHANGES.md`
+
+## How to verify
+
+1. Refresh the plugin to v3.110.84.
+2. Log a fresh prospect via the hero, walk through invite + confirm + outcome (admit_to_trial) on the workflow tasks.
+3. Refresh the onboarding pipeline. The prospect appears in **Trial group** (was: **Joined** / "Accepted" pre-fix).
+4. On the scout dashboard's row-2 **My recent prospects** table, the prospect's status reads **In trial**.
+5. Dashboard widget and standalone kanban Trial-group counts match.
+6. A separately-promoted player (status flipped to non-trial via the players UI) appears in **Joined** within the 90-day window.
+
+---
+
 # TalentTrack v3.110.83 — Mark-attendance wizard: activity stays in hero until wizard fully completes; "Pick a session" picker no longer drops the coach on the confirm step (#0092)
 
 Two mid-flow lifecycle bugs in the mark-attendance wizard surfaced by a pilot operator on v3.110.80.

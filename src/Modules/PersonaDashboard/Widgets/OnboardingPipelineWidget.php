@@ -123,11 +123,14 @@ class OnboardingPipelineWidget extends AbstractWidget {
      * @return list<array{key:string,label:string,count:int,stale:int}>
      */
     public static function computeStageCounts( int $user_id, int $club_id ): array {
-        // v3.110.81 — cache key bumped (`v2` suffix) because the
-        // classification rules changed. Old cached counts would mis-
-        // attribute prospects with completed invites until the 60s TTL
-        // expired across every (club_id, user_id) pair on the install.
-        $cache_key = sprintf( 'tt_op_pipeline_v2_%d_%d', $club_id, $user_id );
+        // v3.110.84 — cache key bumped again (`v3` suffix) because the
+        // classifier's Joined-vs-Trial-group rule changed. Trial-group
+        // prospects (admit_to_trial path sets both promoted_to_player_id
+        // AND promoted_to_trial_case_id) were mis-classified as Joined
+        // in v3.110.81-83 because the rule preferred player_id over
+        // trial_case_id. Joined now requires `player.status != 'trial'`,
+        // and the SQL needs the new player_status column to evaluate it.
+        $cache_key = sprintf( 'tt_op_pipeline_v3_%d_%d', $club_id, $user_id );
         $cached    = wp_cache_get( $cache_key, 'tt_persona_dashboard' );
         if ( is_array( $cached ) ) return $cached;
 
@@ -138,21 +141,24 @@ class OnboardingPipelineWidget extends AbstractWidget {
         global $wpdb;
         $prospects = $wpdb->prefix . 'tt_prospects';
         $tasks     = $wpdb->prefix . 'tt_workflow_tasks';
+        $players   = $wpdb->prefix . 'tt_players';
 
         $where_scout = $scout_only
             ? $wpdb->prepare( ' AND p.discovered_by_user_id = %d', $user_id )
             : '';
 
-        // v3.110.81 — extended row shape with done_* columns so the
-        // classifier can distinguish "task assigned" from "task done"
-        // (= milestone reached). See ProspectStageClassifier docblock
-        // for the full rule set.
+        // v3.110.84 — added `player_status` (LEFT JOIN tt_players on
+        // promoted_to_player_id) so the classifier can distinguish
+        // Trial group (player still at status='trial') from Joined
+        // (player graduated). MAX over player_status is safe because
+        // the join is 1:1 — one player record per promoted_to_player_id.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT
                 p.id,
                 p.promoted_to_player_id,
                 p.promoted_to_trial_case_id,
                 p.created_at,
+                MAX(pl.status) AS player_status,
                 MAX(CASE WHEN wt.template_key = 'log_prospect'                 AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_log,
                 MAX(CASE WHEN wt.template_key = 'invite_to_test_training'      AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_invite,
                 MAX(CASE WHEN wt.template_key = 'confirm_test_training'        AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_confirm,
@@ -163,12 +169,13 @@ class OnboardingPipelineWidget extends AbstractWidget {
                 MAX(CASE WHEN wt.template_key = 'record_test_training_outcome' AND wt.status = 'completed' THEN 1 ELSE 0 END) AS done_outcome,
                 MIN(CASE WHEN wt.status IN ('open','in_progress','overdue') THEN UNIX_TIMESTAMP(wt.due_at) ELSE NULL END) AS soonest_due_ts
               FROM {$prospects} p
-              LEFT JOIN {$tasks} wt ON wt.prospect_id = p.id AND wt.club_id = %d
+              LEFT JOIN {$tasks}   wt ON wt.prospect_id = p.id AND wt.club_id = %d
+              LEFT JOIN {$players} pl ON pl.id = p.promoted_to_player_id AND pl.club_id = %d
              WHERE p.club_id = %d
                AND p.archived_at IS NULL
                {$where_scout}
              GROUP BY p.id",
-            $club_id, $club_id
+            $club_id, $club_id, $club_id
         ) );
         if ( ! is_array( $rows ) ) $rows = [];
 
