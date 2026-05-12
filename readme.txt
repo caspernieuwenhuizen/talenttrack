@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.88
+Stable tag: 3.110.89
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.89 — Weighted-rating computation — resolve age_group_id via lookup name match instead of the phantom FK column; weighted rates now apply per-age-group weights =
 
 = 3.110.88 — Team overview grid — query the existing `age_group` VARCHAR instead of a non-existent `age_group_id` FK; teams now render =
 

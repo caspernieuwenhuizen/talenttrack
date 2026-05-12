@@ -306,8 +306,19 @@ class EvaluationsPage {
         }
 
         global $wpdb; $p = $wpdb->prefix;
+        // v3.110.89 — resolve age_group_id via tt_lookups by name match;
+        // there is no FK column `t.age_group_id` on tt_teams. See
+        // EvalRatingsRepository::computeForEvalIds() for the same fix.
         $player_age_rows = $wpdb->get_results(
-            "SELECT pl.id AS player_id, t.age_group_id AS age_group_id
+            "SELECT pl.id AS player_id,
+                    (
+                        SELECT ag.id
+                          FROM {$p}tt_lookups ag
+                         WHERE ag.lookup_type = 'age_group'
+                           AND ag.club_id = t.club_id
+                           AND ag.name = t.age_group
+                         LIMIT 1
+                    ) AS age_group_id
              FROM {$p}tt_players pl
              LEFT JOIN {$p}tt_teams t ON pl.team_id = t.id
              WHERE pl.status = 'active'"
