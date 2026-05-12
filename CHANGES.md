@@ -1,3 +1,49 @@
+# TalentTrack v3.110.87 — KPI strip paints the dark hero gradient so its white-on-white text becomes visible
+
+## The symptom
+
+After v3.110.82 reset the HoD landing to ship default, the KPI strip rendered as an empty white card at the top of the page. DOM inspection (pilot operator's screenshot) confirmed all 6 KPI cards were in the markup with correct labels and values — `Actieve spelers · 30`, `Evaluaties deze maand · 11`, `Aanwezigheid % · 97%`, etc. — but they were invisible.
+
+## The cause
+
+`KpiStripWidget::render()` wraps the cards with variant token `'kpi-strip'`, which `AbstractWidget::wrap()` turns into `tt-pd-variant-kpi-strip`. The per-card CSS in `assets/css/persona-dashboard.css` was authored assuming a dark hero backdrop:
+
+```css
+.tt-pd-strip-kpi {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+```
+
+The labels carry `opacity: 0.7` on top of `color: #fff`. The dark gradient that makes those colours readable only paints on `.tt-pd-variant-hero` — never on `.tt-pd-variant-kpi-strip`. So the strip kept its default white widget surface and white-on-white rendered as nothing.
+
+The bug shipped on v3.76.0 with the original HoD KPI strip. It went undetected because every published HoD override on every active install carried a different layout — either no `kpi_strip` at all, or one with an empty `data_source` that returned a no-op early. The pilot operator was the first to **Reset to standard** post-v3.110.82, which is when the default's KPI strip finally rendered with real data on a white widget shell.
+
+## The fix
+
+One CSS rule, three lines, targeting the kpi_strip widget regardless of band placement:
+
+```css
+.tt-pd-widget-kpi_strip {
+    background: linear-gradient(135deg, var(--tt-pd-hero-start) 0%, var(--tt-pd-hero-end) 100%);
+    color: #fff;
+}
+```
+
+Same gradient `.tt-pd-variant-hero` paints (`#0b1f3a → #1a3a5f`), applied via the widget-class selector so it follows the strip whether the dashboard editor places it as hero, in the grid, or in a band variant. The per-card translucent-white styling now sits on a navy backdrop the way the original design intended.
+
+Not used: changing `KpiStripWidget` to emit `'hero kpi-strip'` instead of `'kpi-strip'`. That works for the HoD hero case but would also apply `.tt-pd-variant-hero` typography rules (`.tt-pd-hero-eyebrow`, future hero-only modifiers) that don't target anything inside the strip today but could surprise a future contributor. The kpi_strip's *own* widget class is the stable hook.
+
+## Files touched
+
+- `talenttrack.php` — version bump 3.110.86 → 3.110.87.
+- `readme.txt` — stable tag + changelog line.
+- `assets/css/persona-dashboard.css` — 3-line CSS rule added next to the existing kpi-strip block.
+
+No PHP, no widget logic, no migrations. Safe to ship in isolation.
+
+---
+
 # TalentTrack v3.110.85 — Team-offer decision form: accept promotes player to `active`; decline + no-response archive the prospect
 
 ## What was wrong
