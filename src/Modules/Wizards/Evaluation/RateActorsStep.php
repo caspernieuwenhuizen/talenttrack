@@ -142,6 +142,7 @@ final class RateActorsStep implements WizardStepInterface {
                                        id="<?php echo esc_attr( $iid ); ?>"
                                        class="tt-rate-input"
                                        name="ratings[<?php echo $pid; ?>][<?php echo $cid; ?>]"
+                                       data-tt-rate-main="<?php echo (int) $cid; ?>"
                                        value="<?php echo $val > 0 ? (int) $val : ''; ?>" />
                                 <span class="tt-rate-max">
                                     / <?php echo (int) $max; ?>
@@ -171,6 +172,7 @@ final class RateActorsStep implements WizardStepInterface {
                                                    id="<?php echo esc_attr( $siid ); ?>"
                                                    class="tt-rate-input"
                                                    name="ratings[<?php echo $pid; ?>][<?php echo $scid; ?>]"
+                                                   data-tt-rate-sub-parent="<?php echo (int) $cid; ?>"
                                                    value="<?php echo $sval > 0 ? (int) $sval : ''; ?>" />
                                             <span class="tt-rate-max">
                                                 / <?php echo (int) $max; ?>
@@ -267,6 +269,37 @@ final class RateActorsStep implements WizardStepInterface {
                     .replace( '%2$d', String( details.length ) );
             }
 
+            // v3.110.78 — sub-cat → main-cat live calc. When a coach
+            // types a value in a sub-category input, recompute the
+            // main category as the rounded average of its non-zero
+            // subs and write it back to the main input. Triggers an
+            // `input` event so the per-player status pill picks it up
+            // through the normal listener chain. Skip if the input
+            // isn't a sub (has no `data-tt-rate-sub-parent`).
+            function recalcMainFromSubs( subInput ) {
+                var parentCatId = subInput.getAttribute( 'data-tt-rate-sub-parent' );
+                if ( ! parentCatId ) return;
+                var details = subInput.closest( '[data-tt-rate-player]' );
+                if ( ! details ) return;
+                var mainInput = details.querySelector( '[data-tt-rate-main="' + parentCatId + '"]' );
+                if ( ! mainInput ) return;
+                var subs = details.querySelectorAll( '[data-tt-rate-sub-parent="' + parentCatId + '"]' );
+                var sum = 0, count = 0;
+                subs.forEach( function ( s ) {
+                    var v = parseInt( s.value, 10 );
+                    if ( v > 0 ) { sum += v; count++; }
+                } );
+                if ( count > 0 ) {
+                    var avg = Math.round( sum / count );
+                    var max = parseInt( mainInput.getAttribute( 'max' ), 10 );
+                    if ( ! isNaN( max ) && avg > max ) avg = max;
+                    mainInput.value = String( avg );
+                    // Don't redispatch input here — the outer event
+                    // listener already calls updatePlayer + updateOverall
+                    // for the original sub-cat change.
+                }
+            }
+
             // Initial paint — covers pre-filled wizard-state values.
             var allDetails = roster.querySelectorAll( '[data-tt-rate-player]' );
             allDetails.forEach( updatePlayer );
@@ -275,11 +308,17 @@ final class RateActorsStep implements WizardStepInterface {
             // Delegate input + change events on the roster.
             roster.addEventListener( 'input', function ( e ) {
                 if ( ! e.target ) return;
+                if ( e.target.matches && e.target.matches( '[data-tt-rate-sub-parent]' ) ) {
+                    recalcMainFromSubs( e.target );
+                }
                 var details = e.target.closest( '[data-tt-rate-player]' );
                 if ( details ) { updatePlayer( details ); updateOverall(); }
             } );
             roster.addEventListener( 'change', function ( e ) {
                 if ( ! e.target ) return;
+                if ( e.target.matches && e.target.matches( '[data-tt-rate-sub-parent]' ) ) {
+                    recalcMainFromSubs( e.target );
+                }
                 var details = e.target.closest( '[data-tt-rate-player]' );
                 if ( details ) { updatePlayer( details ); updateOverall(); }
             } );
@@ -333,12 +372,20 @@ final class RateActorsStep implements WizardStepInterface {
         ) );
         if ( $team_id <= 0 ) return [];
 
+        // v3.110.78 — `LOWER(att.status)` so the query matches
+        // regardless of whether existing rows wrote the status
+        // capitalised (legacy form path before v3.110.4 normalisation)
+        // or via a localised lookup name. Pre-v3.110.78 this returned
+        // zero rows on installs whose `tt_attendance.status` values
+        // were 'Present' / 'Late' instead of lowercase — the rate
+        // step then showed "no players to rate" even though the
+        // attendance step had just persisted them.
         return (array) $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.id, pl.first_name, pl.last_name
                FROM {$p}tt_attendance att
                INNER JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.club_id = att.club_id
               WHERE att.activity_id = %d AND att.club_id = %d
-                AND att.status IN ( 'present', 'late' )
+                AND LOWER(att.status) IN ( 'present', 'late' )
               ORDER BY pl.last_name, pl.first_name",
             $activity_id, CurrentClub::id()
         ) );

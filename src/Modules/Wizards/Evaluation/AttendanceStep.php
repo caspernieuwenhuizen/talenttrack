@@ -88,14 +88,31 @@ final class AttendanceStep implements WizardStepInterface {
             </button>
         </p>
         <script>
+        // v3.110.78 — Mark-all-present must work regardless of how the
+        // `attendance_status` lookups are labelled. Previously the JS
+        // hardcoded `[value="present"]` which missed when a club had
+        // capitalised names (`Present`) or localised them (`Aanwezig`).
+        // Group every `attendance[N]` radio set, pick the FIRST radio
+        // (which is the present row by sort_order convention) and
+        // check it — also dispatches `change` so any other listeners
+        // see the update.
         (function () {
             var btn = document.querySelector( '[data-tt-mark-all-present]' );
             if ( ! btn ) return;
             btn.addEventListener( 'click', function () {
-                var radios = document.querySelectorAll( 'input[type=radio][name^="attendance["][value="present"]' );
-                for ( var i = 0; i < radios.length; i++ ) {
-                    radios[ i ].checked = true;
-                }
+                var groups = {};
+                document.querySelectorAll( 'input[type=radio][name^="attendance["]' ).forEach( function ( r ) {
+                    var key = r.name;
+                    if ( ! groups[ key ] ) groups[ key ] = [];
+                    groups[ key ].push( r );
+                } );
+                Object.keys( groups ).forEach( function ( k ) {
+                    var g = groups[ k ];
+                    if ( g.length > 0 ) {
+                        g[ 0 ].checked = true;
+                        g[ 0 ].dispatchEvent( new Event( 'change', { bubbles: true } ) );
+                    }
+                } );
             } );
         })();
         </script>
@@ -116,7 +133,7 @@ final class AttendanceStep implements WizardStepInterface {
                         <td><?php echo esc_html( trim( (string) $pl->first_name . ' ' . (string) $pl->last_name ) ); ?></td>
                         <?php foreach ( $names as $n ) : ?>
                             <td style="text-align:center;">
-                                <input type="radio" name="attendance[<?php echo (int) $pl->id; ?>]" value="<?php echo esc_attr( $n ); ?>" <?php checked( $row_default, $n ); ?> />
+                                <input type="radio" name="attendance[<?php echo (int) $pl->id; ?>]" value="<?php echo esc_attr( $n ); ?>" <?php checked( strtolower( $row_default ), strtolower( $n ) ); ?> />
                             </td>
                         <?php endforeach; ?>
                     </tr>

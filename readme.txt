@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.79
+Stable tag: 3.110.80
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.80 — Mark-attendance + rate-actors polish: type-led hero title, lookup-resilient Mark-all-present + status counts, sub-cat → main-cat auto-calc (#0092) =
+
+Pilot operator on v3.110.77 surfaced five issues walking the head-coach flow on a real squad: **(1)** the hero showed the user-supplied activity title (e.g. `Dinsdag`) which doesn't tell the coach whether tonight is a training or a match — surfaced the activity TYPE instead via the new `UpcomingActivityRepository::activityTypeLabel()` helper. Hero now reads `Training` / `Wedstrijd` / etc. as the bold title; the user-supplied title moves to the detail line alongside team + location. **(2)** Mark-all-present did nothing after the coach flipped a couple of radios — the JS hardcoded `[value="present"]` which silently missed any install whose `attendance_status` lookups had capitalised or localised names. Rewrote the handler to group every `attendance[N]` radio set and check the FIRST radio per group (the present row by `sort_order` convention) plus dispatch `change` so other listeners see the update. Robust to any future lookup renames. **(3)** RateConfirmStep's "X players marked Present or Late" count was zero even right after a roster save — same hardcoding bug, fixed with `LOWER(status) IN ('present','late')`. **(4)** RateActorsStep's `ratablePlayersForActivity()` had the same hardcoded status match — fixed identically; the rate step now actually finds the present + late roster regardless of how the lookups are seeded. **(5)** Sub-category ratings now auto-calc into their main category in `RateActorsStep`. New `data-tt-rate-main` / `data-tt-rate-sub-parent` data attributes on the inputs let a small JS handler watch sub-cat edits, average the non-zero subs (capped at the rating max), write the result to the main-cat input, and trigger the status-pill recalculation through the existing listener chain. Plus a defensive fix: AttendanceStep's `<input ... checked>` comparison now lowercases both sides so a roster pre-fill matches even when the legacy form path wrote rows in a different case. Investigation note for the "Next button sometimes does nothing" report — working theory is that case-mismatched pre-fill produced rosters with NO radio checked in some groups, so the form submitted but `validate()` saw an empty `attendance` array; both the case-insensitive `checked()` and the robust Mark-all-present should eliminate the underlying cause.
 
 = 3.110.79 — Migration 0092 auto-heals stale `recent_scout_reports` references in operator-published scout templates =
 
