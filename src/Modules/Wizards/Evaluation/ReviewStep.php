@@ -200,6 +200,19 @@ final class ReviewStep implements WizardStepInterface {
             if ( ! is_wp_error( $result ) ) $created++;
         }
 
+        // v3.110.81 — terminal completion for the rate-and-submit
+        // path. The activity flips to `completed` HERE, not in
+        // AttendanceStep::validate. The earlier placement made the
+        // activity disappear from the hero mid-wizard whenever the
+        // coach saved attendance then Cancelled. Idempotent — the
+        // helper short-circuits if the activity is already
+        // `completed` or `cancelled`. No-op when invoked from the
+        // new-evaluation wizard since its ActivityPicker filters to
+        // `plan_state = 'completed'`.
+        if ( $aid > 0 ) {
+            AttendanceStep::completeActivityIfNotTerminal( $aid );
+        }
+
         // v3.110.73 — wizards can override the post-submit redirect via
         // `_done_redirect`. MarkAttendanceWizard sets the dashboard URL
         // so the coach returns to where they started the flow; the

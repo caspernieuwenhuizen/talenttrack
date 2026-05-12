@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.82
+Stable tag: 3.110.83
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.83 — Mark-attendance wizard: activity stays in hero until wizard fully completes; "Pick a session" picker no longer drops the coach on the confirm step (#0092) =
+
+Two pilot-surfaced bugs with the mid-flow lifecycle of the mark-attendance wizard. **(1)** v3.110.73 put the activity auto-completion (status → `completed`) in `AttendanceStep::validate()` — the moment the coach hit Next on the attendance step. That fires *long* before wizard completion. A coach who marked attendance, hit Next, then Cancelled on the confirm step had their activity flipped to `completed` mid-flow, and the hero hid it on the next page load even though the wizard wasn't finished. Moved the auto-completion to the terminal step handlers: `RateConfirmStep::submit()` (Skip-rating exit) and `ReviewStep::submitActivityFirst()` (rate-and-submit exit). `AttendanceStep::validate()` now only persists the `tt_attendance` rows; status transition is deferred until the coach actually finishes. New public helper `AttendanceStep::completeActivityIfNotTerminal( $activity_id )` is the one place the flip lives; both terminal steps call it. Idempotent + safe for the new-evaluation wizard to call (the ActivityPicker pre-filters to `plan_state = 'completed'`, so it's a no-op there). **(2)** Coach completed the wizard, returned to the dashboard (now showing the empty `Pick a session` hero because no upcoming activities remained), clicked **Pick a session**, and was dropped on the confirm step of the just-completed run. Root cause: the auto-skip cascade in `FrontendWizardView`. With no `activity_id` in the URL and no recent rateable activities, `ActivityPickerStep::notApplicableFor()` returned true (the eval-wizard's "fall through to PlayerPicker" semantic), `AttendanceStep::notApplicableFor()` returned true (no `activity_id`), and the coach landed on `RateConfirmStep` with no context. **Fix**: in the mark-attendance context (detected via the `_attendance_force_render` flag set by `MarkAttendanceWizard::initialState()`), `ActivityPickerStep::notApplicableFor()` short-circuits to false — the picker renders even when empty. Plus the picker's render now branches its copy: in mark-attendance context it shows "No activities to mark attendance for. Schedule a training or match via the Activities tile, then come back here." instead of the eval-wizard's "rate a player directly" fallback (which has no PlayerPicker target in this wizard anyway). Eval-wizard path stays unchanged in both fixes.
 
 = 3.110.82 — HoD landing — onboarding pipeline strip + tile reorder so the funnel is one tap from the dashboard =
 

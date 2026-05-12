@@ -172,34 +172,53 @@ final class AttendanceStep implements WizardStepInterface {
                 }
             }
 
-            // v3.110.73 — recording attendance implies the activity
-            // happened. Flip `activity_status_key` and `plan_state` to
-            // 'completed' so:
-            //   - the activity edit form's attendance section is no
-            //     longer hidden (gated on `activity_status_key === 'completed'`)
-            //   - the planner module's "what happened this week" query
-            //     sees the row (mirrors the auto-transition in
-            //     `ActivitiesRestController` at line 626-640)
-            // Skip the flip if the activity is already `completed` or
-            // `cancelled` — coach has been explicit about the state and
-            // we shouldn't override.
-            $current_status = (string) $wpdb->get_var( $wpdb->prepare(
-                "SELECT activity_status_key FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
-                $aid, CurrentClub::id()
-            ) );
-            if ( $current_status !== 'completed' && $current_status !== 'cancelled' ) {
-                $wpdb->update(
-                    "{$p}tt_activities",
-                    [
-                        'activity_status_key' => 'completed',
-                        'plan_state'          => 'completed',
-                    ],
-                    [ 'id' => $aid, 'club_id' => CurrentClub::id() ]
-                );
-            }
+            // v3.110.81 — the auto-flip to `completed` used to fire
+            // here on every attendance save. That's wrong: a coach
+            // who marks attendance, hits Next, then Cancels on the
+            // confirm step had their activity flipped to completed
+            // mid-flow and the hero hid it on the next page load —
+            // even though the wizard wasn't finished. Moved the flip
+            // to the terminal step handlers
+            // (`RateConfirmStep::submit` on Skip + `ReviewStep::submitActivityFirst`
+            // on the rate-and-submit path) via the public helper
+            // below. AttendanceStep now only persists the
+            // `tt_attendance` rows; status transition is deferred.
         }
 
         return [ 'attendance' => $att ];
+    }
+
+    /**
+     * v3.110.81 — terminal-completion helper. Mark-attendance wizard's
+     * final steps (`RateConfirmStep::submit` for Skip, `ReviewStep::submitActivityFirst`
+     * for the rate-and-submit path) call this to flip the activity to
+     * `completed` AFTER the coach has actually finished the flow. Skips
+     * the flip if the activity is already `completed` or `cancelled` —
+     * the coach has been explicit and we shouldn't override.
+     *
+     * Mirrors the auto-transition in `ActivitiesRestController` (around
+     * line 626-640) which the wizard's direct DB writes bypassed.
+     * Idempotent and safe for the new-evaluation wizard to call too —
+     * its `ActivityPicker` filters to `plan_state = 'completed'` so the
+     * activity is already in terminal state and this is a no-op.
+     */
+    public static function completeActivityIfNotTerminal( int $activity_id ): void {
+        if ( $activity_id <= 0 ) return;
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $current = (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT activity_status_key FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+        if ( $current === 'completed' || $current === 'cancelled' ) return;
+        $wpdb->update(
+            "{$p}tt_activities",
+            [
+                'activity_status_key' => 'completed',
+                'plan_state'          => 'completed',
+            ],
+            [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        );
     }
 
     public function nextStep( array $state ): ?string {

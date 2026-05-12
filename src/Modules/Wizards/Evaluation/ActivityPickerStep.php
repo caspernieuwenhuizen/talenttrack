@@ -51,6 +51,21 @@ final class ActivityPickerStep implements WizardStepInterface {
             return true;
         }
 
+        // v3.110.83 — when entered from the mark-attendance wizard
+        // with no preselected activity, ALWAYS render the picker (or
+        // its empty-state notice) instead of falling through to the
+        // next step. The eval wizard's "auto-skip when empty →
+        // PlayerPicker fallback" only fits eval-style flows; the
+        // mark-attendance wizard has no PlayerPicker, so a fall-through
+        // would land the coach on RateConfirmStep with no context.
+        // Symptom (pilot): coach completed the wizard, returned to
+        // dashboard (now showing the empty hero), clicked **Pick a
+        // session**, was dropped on the confirm step of the
+        // already-finished run.
+        if ( ! empty( $state['_attendance_force_render'] ) ) {
+            return false;
+        }
+
         $user_id = get_current_user_id();
         $rows = self::recentRateableActivities( $user_id, self::DEFAULT_DAYS );
         return empty( $rows );
@@ -58,19 +73,36 @@ final class ActivityPickerStep implements WizardStepInterface {
 
     public function render( array $state ): void {
         $rows = self::recentRateableActivities( get_current_user_id(), self::DEFAULT_DAYS );
+        // v3.110.83 — render-time context check. When entered from
+        // the mark-attendance wizard, the eval-wizard's intro copy
+        // and the "Rate a player directly" escape hatch don't fit:
+        // there's no PlayerPicker in that wizard, and the coach is
+        // here to mark attendance, not to rate ad-hoc. Show a
+        // narrower intro + a context-specific empty state.
+        $is_mark_attendance = ! empty( $state['_attendance_force_render'] );
         ?>
-        <p style="color:var(--tt-muted);max-width:60ch;">
-            <?php esc_html_e( 'Pick a completed activity from the last 90 days to rate the players who attended, or rate a player directly without an activity context. Activities only appear here once they are marked completed and their type is rateable.', 'talenttrack' ); ?>
-        </p>
+        <?php if ( $is_mark_attendance ) : ?>
+            <p style="color:var(--tt-muted);max-width:60ch;">
+                <?php esc_html_e( 'Pick a completed activity from the last 90 days to mark attendance for. Activities only appear here once they are marked completed and their type is rateable.', 'talenttrack' ); ?>
+            </p>
+        <?php else : ?>
+            <p style="color:var(--tt-muted);max-width:60ch;">
+                <?php esc_html_e( 'Pick a completed activity from the last 90 days to rate the players who attended, or rate a player directly without an activity context. Activities only appear here once they are marked completed and their type is rateable.', 'talenttrack' ); ?>
+            </p>
 
-        <p style="margin: var(--tt-sp-3) 0;">
-            <button type="submit" name="_path" value="player-first" class="tt-button tt-button-secondary">
-                <?php esc_html_e( '→ Rate a player directly', 'talenttrack' ); ?>
-            </button>
-        </p>
+            <p style="margin: var(--tt-sp-3) 0;">
+                <button type="submit" name="_path" value="player-first" class="tt-button tt-button-secondary">
+                    <?php esc_html_e( '→ Rate a player directly', 'talenttrack' ); ?>
+                </button>
+            </p>
+        <?php endif; ?>
 
         <?php if ( empty( $rows ) ) : ?>
-            <p class="tt-notice"><?php esc_html_e( 'No completed rateable activities in the last 90 days. Mark an activity as completed (and use a rateable activity type) to see it here, or pick a player below to rate ad-hoc.', 'talenttrack' ); ?></p>
+            <?php if ( $is_mark_attendance ) : ?>
+                <p class="tt-notice"><?php esc_html_e( 'No activities to mark attendance for. Schedule a training or match via the Activities tile, then come back here.', 'talenttrack' ); ?></p>
+            <?php else : ?>
+                <p class="tt-notice"><?php esc_html_e( 'No completed rateable activities in the last 90 days. Mark an activity as completed (and use a rateable activity type) to see it here, or pick a player below to rate ad-hoc.', 'talenttrack' ); ?></p>
+            <?php endif; ?>
         <?php else : ?>
             <div role="radiogroup" class="tt-activity-picker">
                 <?php foreach ( $rows as $r ) :
