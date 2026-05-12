@@ -1,3 +1,76 @@
+# TalentTrack v3.110.83 — Mark-attendance wizard: activity stays in hero until wizard fully completes; "Pick a session" picker no longer drops the coach on the confirm step (#0092)
+
+Two mid-flow lifecycle bugs in the mark-attendance wizard surfaced by a pilot operator on v3.110.80.
+
+## (1) Activity disappeared from the hero mid-wizard if the coach cancelled after saving attendance
+
+v3.110.73 put the activity auto-completion in `AttendanceStep::validate()`:
+
+```php
+// in v3.110.73 (now removed)
+if ( $current_status !== 'completed' && $current_status !== 'cancelled' ) {
+    $wpdb->update(
+        "{$p}tt_activities",
+        [ 'activity_status_key' => 'completed', 'plan_state' => 'completed' ],
+        [ 'id' => $aid, 'club_id' => CurrentClub::id() ]
+    );
+}
+```
+
+That fires on Next from the attendance step — *long* before wizard completion. A coach who:
+
+1. tapped **Mark attendance** on the hero,
+2. marked who was there,
+3. hit Next,
+4. then hit Cancel on the RateConfirmStep…
+
+…had their activity flipped to `completed` at step 3. On the next dashboard load, the v3.110.73 hero filter (which hides `completed` activities) made it disappear — even though the coach hadn't finished the flow.
+
+**Fix**: extracted the flip into a public helper `AttendanceStep::completeActivityIfNotTerminal( $activity_id )`. `AttendanceStep::validate()` no longer calls it. The two terminal step handlers do:
+
+- `RateConfirmStep::submit()` (Skip-rating exit) → calls the helper.
+- `ReviewStep::submitActivityFirst()` (rate-and-submit exit) → calls the helper.
+
+The helper is idempotent (short-circuits if status is already `completed` or `cancelled`) and a no-op when invoked from the new-evaluation wizard (the `ActivityPicker` pre-filters to `plan_state = 'completed'` so the activity is already in terminal state).
+
+New flow:
+
+| Coach's action                                           | activity_status_key |
+| ---                                                      | --- |
+| Opens wizard                                             | `planned` (unchanged) |
+| Marks attendance, hits Next                              | `planned` (unchanged) ← was `completed` |
+| Cancels on confirm step                                  | `planned` (unchanged) |
+| Re-enters wizard, sees pre-filled roster, picks Skip     | `completed` |
+| OR re-enters, rates, Reviews + Submits                   | `completed` |
+
+If the coach hits Cancel mid-wizard, the `tt_attendance` rows from their first Next persist (real data, real write — Cancel doesn't roll back DB state), but the activity stays `planned` so the hero keeps showing it. On re-entry the roster pre-fills with the saved statuses (v3.110.73 (2) still applies) and the coach can finish the flow.
+
+## (2) "Pick a session" empty-state CTA dropped the coach on the just-completed confirm step
+
+Coach completed the mark-attendance wizard for tonight's training, returned to the dashboard. Hero now showed the empty state ("No upcoming activity" + **Pick a session** CTA) because there were no further planned activities. Clicked **Pick a session** — landed on RateConfirmStep of the already-finished run.
+
+Root cause: the auto-skip cascade in `FrontendWizardView` (added in v3.110.69). With no `activity_id` in the URL and no recent rateable activities:
+
+1. `ActivityPickerStep::notApplicableFor()` returned `true` (the eval-wizard semantic: "no completed activities to pick → fall through to PlayerPicker").
+2. `AttendanceStep::notApplicableFor()` returned `true` (no `activity_id`).
+3. Auto-skip loop landed the coach on `RateConfirmStep` — the first step with no `notApplicableFor()` check — out of context.
+
+**Fix**: `ActivityPickerStep::notApplicableFor()` now short-circuits to `false` when the `_attendance_force_render` flag is set (only `MarkAttendanceWizard::initialState()` sets it). The picker renders even when empty.
+
+Plus the picker's render now branches its copy on the same flag:
+
+- **Eval-wizard intro**: "Pick a completed activity … or rate a player directly without an activity context." + a "Rate a player directly" button that submits `_path=player-first` and routes to `PlayerPickerStep`.
+- **Mark-attendance intro**: "Pick a completed activity from the last 90 days to mark attendance for." — no "Rate a player directly" button (the mark-attendance wizard has no `PlayerPickerStep` to route to).
+
+And the empty state:
+
+- **Eval-wizard empty**: "No completed rateable activities in the last 90 days. Mark an activity as completed (and use a rateable activity type) to see it here, or pick a player below to rate ad-hoc."
+- **Mark-attendance empty**: "No activities to mark attendance for. Schedule a training or match via the Activities tile, then come back here."
+
+Eval-wizard behaviour is unchanged in both fixes.
+
+---
+
 # TalentTrack v3.110.82 — HoD landing carries the onboarding pipeline strip + tile reorder so the funnel is one tap from the dashboard
 
 ## Why this exists

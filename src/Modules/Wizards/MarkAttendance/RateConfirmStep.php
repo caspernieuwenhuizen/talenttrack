@@ -86,6 +86,18 @@ final class RateConfirmStep implements WizardStepInterface {
      * @return array<string,mixed>
      */
     public function submit( array $state ) {
+        $aid = (int) ( $state['activity_id'] ?? 0 );
+
+        // v3.110.81 — terminal completion. Flip the activity to
+        // `completed` HERE (the Skip-rating exit), not in
+        // AttendanceStep::validate. The earlier placement caused the
+        // activity to disappear from the hero mid-wizard whenever the
+        // coach saved attendance then Cancelled — they hadn't
+        // finished the flow but the auto-flip had already run.
+        if ( $aid > 0 ) {
+            \TT\Modules\Wizards\Evaluation\AttendanceStep::completeActivityIfNotTerminal( $aid );
+        }
+
         // v3.110.73 — respect `_done_redirect` from the wizard's initial
         // state so the coach returns to where they started the flow
         // (the dashboard hero, per MarkAttendanceWizard::initialState).
@@ -96,7 +108,6 @@ final class RateConfirmStep implements WizardStepInterface {
         if ( $override !== '' ) {
             return [ 'redirect_url' => $override ];
         }
-        $aid = (int) ( $state['activity_id'] ?? 0 );
         $url = $aid > 0
             ? add_query_arg( [ 'tt_view' => 'activities', 'id' => $aid ], WizardEntryPoint::dashboardBaseUrl() )
             : WizardEntryPoint::dashboardBaseUrl();

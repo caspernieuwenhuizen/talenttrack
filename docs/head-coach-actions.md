@@ -67,6 +67,42 @@ Each action lists:
   post-hoc edit surface.
 - **Player-centric framing:** *where now* (presence, engagement signal feeding rating + minutes)
 - **Shipped:**
+  - **v3.110.83** — two mid-flow lifecycle fixes.
+    (1) The activity is no longer flipped to `completed` until the
+    coach actually finishes the wizard. Pre-fix the auto-flip ran
+    inside `AttendanceStep::validate()` (on the first Next), so a
+    coach who marked attendance, hit Next, then Cancelled on the
+    confirm step had their activity disappear from the hero
+    mid-flow. Moved the flip to a public helper
+    `AttendanceStep::completeActivityIfNotTerminal()` called by
+    the two terminal step handlers — RateConfirmStep on Skip,
+    ReviewStep on rate-and-submit. Helper is idempotent and a
+    no-op for already-completed activities.
+    (2) The empty-state **Pick a session** hero CTA no longer
+    drops the coach on the confirm step of a previously-finished
+    run. Root cause: with no `activity_id` in the URL and no
+    rateable activities, the auto-skip cascade walked past
+    ActivityPicker (eval-wizard "fall through to PlayerPicker"
+    semantic) and AttendanceStep (no aid), landing on
+    RateConfirmStep with no context. Fix: ActivityPicker doesn't
+    auto-skip in the mark-attendance wizard
+    (`_attendance_force_render` flag short-circuits the empty-rows
+    branch). Plus the picker render now branches its copy and
+    hides the "Rate a player directly" escape hatch (which has no
+    target in this wizard) — empty state reads "No activities to
+    mark attendance for. Schedule a training or match via the
+    Activities tile, then come back here."
+    *How to test:* enter the wizard from the hero, mark a few
+    players, hit Next. On the confirm step click **Cancel**.
+    Browser lands on the dashboard. Reload — the hero **still
+    shows the same activity** (status stayed `planned`). Re-enter
+    the wizard; roster pre-fills with the statuses you saved on
+    your first pass; pick Skip → activity flips to `completed` →
+    hero now hides it. Also: complete the wizard for your last
+    upcoming activity, return to the dashboard. Hero shows the
+    empty **Kies een sessie** card. Click it — picker renders
+    "No activities to mark attendance for…" instead of the
+    confirm step of the previous run.
   - **v3.110.80** — five pilot-surfaced fixes for the mark-attendance
     + rate-actors flow on a real squad.
     (1) Hero title is now the **activity type** label
