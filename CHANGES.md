@@ -1,3 +1,79 @@
+# TalentTrack v3.110.82 — HoD landing carries the onboarding pipeline strip + tile reorder so the funnel is one tap from the dashboard
+
+## Why this exists
+
+The Head of Development (HoD) persona's day-to-day job in a 4-team academy splits into two parallel lenses:
+
+1. **Existing-squad pulse** — what's happening this week across the 4 teams (12 trainings + 4 matches, attendance, evaluations, PDP cadence).
+2. **Recruitment funnel** — what's moving through the prospect pipeline (5–15 new prospects logged by scouts per week, 1–3 test-trainings scheduled, trial-group reviews due, team-offer decisions).
+
+The v3.76.0 HoD landing handled lens 1 well — team-overview grid + concern_first sort + upcoming-activities + trials-needing-decision are all front-and-centre. Lens 2 was effectively invisible:
+
+- The `tasks-dashboard` tile (where invitation-task and test-training-outcome tasks land) was at priority **35**, four tile rows down.
+- No `onboarding-pipeline` tile at all on the HoD's default tile grid.
+- The `onboarding_pipeline` widget existed but was unplaced — HoDs had to know to add it via the dashboard editor.
+
+The cumulative friction: on every login, the HoD has to *remember* to open the inbox or the pipeline kanban to act on the 5–15 invitations and 1–3 outcomes that land each week. Action-frequency analysis in `docs/head-of-development-actions.md` puts sending invitations (#2) and recording outcomes (#3) immediately behind triaging the dashboard (#1) and just ahead of walking a player's timeline (#4). Surfaces should match frequencies.
+
+## The fix
+
+`CoreTemplates::headOfDevelopment()` — the default template for the `head_of_development` persona — is restructured so both lenses live on the same screen, without scrolling past tiles to find the funnel.
+
+New layout, top to bottom:
+
+```
+KPI STRIP (unchanged): active players · evals/mo · attendance % · open
+trials · PDP verdicts pending · goal completion %
+
+TEAM OVERVIEW GRID (rows 0-2, L, 9 cols)        |  + New trial
+(concern_first, 30d window)                     |  (S, right gutter)
+
+ONBOARDING PIPELINE STRIP (row 3, XL, NEW)
+Prospects · Invited · Test training · Trial group · Team offer · Joined
+
+UPCOMING ACTIVITIES (rows 4-5, XL)              (was rows 3-4)
+
+TRIALS NEEDING DECISION (rows 6-7, XL)          (was rows 5-6)
+
+TILES ROW 1: Onboarding pipeline · Tasks dashboard · Players · Teams
+TILES ROW 2: Trials · Evaluations · PDP · Activities
+TILES ROW 3: People · Goals · Methodology · PDP planning
+TILES ROW 4: Team chemistry · Podium · Rate cards · Compare players
+TILES ROW 5: Reports · Functional roles · Audit log
+```
+
+The two visible deltas:
+
+- **`onboarding_pipeline` widget** placed at row 3, full width, 1 row tall. Same widget the scout dashboard ships; cap-gated on `tt_view_prospects` which every HoD holds. The widget already supports the ≤720px column-stacking treatment (per its docblock), so the strip degrades gracefully on a phone.
+- **Tile grid reordered.** Top row now carries the four highest-frequency drill-downs:
+  - `onboarding-pipeline` (priority 20, was absent) — funnel kanban.
+  - `tasks-dashboard` (priority 21, was 35) — workflow inbox.
+  - `players` (priority 22, was 22) — canonical player drill-down.
+  - `teams` (priority 23, was 23) — cohort lens.
+
+Row 2 collects the cycle / record-keeping surfaces (Trials, Evaluations, PDP, Activities). The remaining 11 tiles keep their priority order so no operator's mental map breaks; only the top row + the inserted onboarding-pipeline tile shift.
+
+## What does **not** change
+
+- **KPI mix.** The six KPIs on the strip are unchanged. Pipeline-flavoured KPIs (`prospects_logged_this_month`, `prospects_stale_count`, `test_trainings_upcoming`, `trial_decisions_pending`) all exist in the registry and operators can swap them in via the dashboard editor — but rewriting the default KPI set is a separate judgement call from "make the funnel visible," and we wanted to scope this PR to layout only.
+- **No new widgets or KPIs.** Every widget placed on the new template is already shipped and tested. Risk surface = a config change to one function.
+- **No new translatable strings.** "Onboarding pipeline" already has a Dutch msgstr (line 12976 in `talenttrack-nl_NL.po`); every tile label was already used by either this template or a sibling template. POT regeneration unnecessary.
+- **No migration of operator-published overrides.** Operators who clicked **Publish** on a custom HoD template before v3.110.82 keep their layout — `PersonaTemplateRegistry::resolve()` returns the published override before falling through to the default, so the new layout reaches them only when they click **Reset to standard** in the editor. This is intentional; we won't silently rewrite published overrides for a layout-tier change (v3.110.79's migration 0092 rewrote a *broken* widget ref, which is a different category of correction).
+
+## Files touched
+
+- `talenttrack.php` — version bump 3.110.81 → 3.110.82.
+- `readme.txt` — stable tag bump + changelog line.
+- `src/Modules/PersonaDashboard/Defaults/CoreTemplates.php` — the layout change.
+- `docs/persona-dashboard.md` + `docs/nl_NL/persona-dashboard.md` — new "HoD landing — funnel + 4-team pulse side-by-side (v3.110.82)" section.
+- `docs/head-of-development-actions.md` — new working doc, the 10-actions reference that drives this restructure (sibling of `docs/head-coach-actions.md` and `docs/scout-actions.md`).
+
+## Where this came from
+
+`docs/head-of-development-actions.md` — the new HoD-persona top-10-actions doc. The 10 actions, in frequency order: triage inbox + pulse (daily); send invitation (5–15/wk); record outcome (1–3/wk); walk player timeline (2–5/wk); spot-check evaluations (3–8/wk in cycle); resolve team concern (1–3/wk); quarterly trial-group review (1–3/wk); cohort transition (1–2/wk); quarterly HoD review (4/quarter); plan next week's test-trainings (1/wk). Every action now has a one-tap surface from the dashboard. The doc carries empty **Polish notes:** fields per action — that's the next pass once the layout settles.
+
+---
+
 # TalentTrack v3.110.81 — Onboarding pipeline: stage classification driven by reached milestones, not assigned work
 
 ## The reported bug

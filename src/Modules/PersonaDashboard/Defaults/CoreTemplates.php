@@ -143,50 +143,57 @@ final class CoreTemplates {
     }
 
     public static function headOfDevelopment( int $club_id ): PersonaTemplate {
-        // #0073 — activity-first landing. KPI strip stays at the top; team
-        // overview grid takes the prime real estate; new-trial action sits
-        // in the right gutter; upcoming activities + trials-needing-decision
-        // tables stack below; navigation tiles drop to the bottom.
+        // #0073 — activity-first landing, expanded so the HoD's two parallel
+        // lenses (existing 4-team pulse + recruitment funnel) are both visible
+        // at-a-glance. Layout follows `docs/head-of-development-actions.md`:
+        // KPI strip → team overview + new-trial action → onboarding pipeline
+        // strip → upcoming activities → trials needing decision → tiles.
         $grid = new GridLayout();
         // Rows 0-2: team overview grid (L, 9 cols) + new-trial action (S, 3 cols, right gutter).
         $grid->add( new WidgetSlot( 'team_overview_grid', 'days=30,sort=concern_first', Size::L, 0, 0, 3, 5 ) );
         $grid->add( new WidgetSlot( 'action_card',        'new_trial',                  Size::S, 9, 0, 1, 6 ) );
-        // Row 3: upcoming activities table (XL, full width, 2 rows).
-        $grid->add( new WidgetSlot( 'data_table', 'upcoming_activities', Size::XL, 0, 3, 2, 8 ) );
-        // Row 5: trials needing decision (existing, moved down).
-        $grid->add( new WidgetSlot( 'data_table', 'trials_needing_decision', Size::XL, 0, 5, 2, 12 ) );
-        // Row 7+: navigation tiles. v3.80.1 — expanded the curated set
-        // after operator feedback that HoD only saw a handful. HoD holds
-        // caps on every tile listed here; classic-tile-grid mode shows
-        // the same set via TileRegistry filtering.
+        // Row 3: onboarding pipeline strip (XL, full width, 1 row). Six-stage
+        // funnel counts so invitations / outcomes / trial-group / team-offer
+        // backlog are visible without drilling into the kanban — drives
+        // actions #2, #3, #10 in the HoD-actions doc.
+        $grid->add( new WidgetSlot( 'onboarding_pipeline', '', Size::XL, 0, 3, 1, 7 ) );
+        // Rows 4-5: upcoming activities table (XL, full width, 2 rows).
+        $grid->add( new WidgetSlot( 'data_table', 'upcoming_activities', Size::XL, 0, 4, 2, 8 ) );
+        // Rows 6-7: trials needing decision.
+        $grid->add( new WidgetSlot( 'data_table', 'trials_needing_decision', Size::XL, 0, 6, 2, 12 ) );
+        // Row 8+: navigation tiles. Top row carries the HoD's four
+        // highest-frequency drill-downs (funnel, inbox, players, teams);
+        // second row carries the cycle / record-keeping surfaces; tail
+        // rows carry master-data, analytics, and governance.
         $tiles = [
-            // Day-to-day work (top row)
-            [ 'trials',         __( 'Trials',           'talenttrack' ), 20 ],
-            [ 'pdp',            __( 'PDP',              'talenttrack' ), 21 ],
-            [ 'players',        __( 'Players',          'talenttrack' ), 22 ],
-            [ 'teams',          __( 'Teams',            'talenttrack' ), 23 ],
-            // Master-data + analytics
-            [ 'people',         __( 'People',           'talenttrack' ), 24 ],
-            [ 'evaluations',    __( 'Evaluations',      'talenttrack' ), 25 ],
-            [ 'goals',          __( 'Goals',            'talenttrack' ), 26 ],
-            [ 'activities',     __( 'Activities',       'talenttrack' ), 27 ],
-            // Methodology + planning
-            [ 'methodology',    __( 'Methodology',      'talenttrack' ), 28 ],
-            [ 'pdp-planning',   __( 'PDP planning',     'talenttrack' ), 29 ],
-            [ 'team-chemistry', __( 'Team chemistry',   'talenttrack' ), 30 ],
-            [ 'podium',         __( 'Podium',           'talenttrack' ), 31 ],
-            // Reports + tooling
-            [ 'rate-cards',     __( 'Rate cards',       'talenttrack' ), 32 ],
-            [ 'compare',        __( 'Compare players',  'talenttrack' ), 33 ],
-            [ 'reports',        __( 'Reports',          'talenttrack' ), 34 ],
-            [ 'tasks-dashboard',__( 'Tasks dashboard',  'talenttrack' ), 35 ],
-            // Governance
-            [ 'functional-roles', __( 'Functional roles', 'talenttrack' ), 36 ],
-            [ 'audit-log',      __( 'Audit log',        'talenttrack' ), 37 ],
+            // Top row — primary HoD work
+            [ 'onboarding-pipeline', __( 'Onboarding pipeline', 'talenttrack' ), 20 ],
+            [ 'tasks-dashboard',     __( 'Tasks dashboard',     'talenttrack' ), 21 ],
+            [ 'players',             __( 'Players',             'talenttrack' ), 22 ],
+            [ 'teams',               __( 'Teams',               'talenttrack' ), 23 ],
+            // Cycle / record-keeping
+            [ 'trials',              __( 'Trials',              'talenttrack' ), 24 ],
+            [ 'evaluations',         __( 'Evaluations',         'talenttrack' ), 25 ],
+            [ 'pdp',                 __( 'PDP',                 'talenttrack' ), 26 ],
+            [ 'activities',          __( 'Activities',          'talenttrack' ), 27 ],
+            // Master-data + planning
+            [ 'people',              __( 'People',              'talenttrack' ), 28 ],
+            [ 'goals',               __( 'Goals',               'talenttrack' ), 29 ],
+            [ 'methodology',         __( 'Methodology',         'talenttrack' ), 30 ],
+            [ 'pdp-planning',        __( 'PDP planning',        'talenttrack' ), 31 ],
+            // Analytics + comparison
+            [ 'team-chemistry',      __( 'Team chemistry',      'talenttrack' ), 32 ],
+            [ 'podium',              __( 'Podium',              'talenttrack' ), 33 ],
+            [ 'rate-cards',          __( 'Rate cards',          'talenttrack' ), 34 ],
+            [ 'compare',             __( 'Compare players',     'talenttrack' ), 35 ],
+            // Reports + governance
+            [ 'reports',             __( 'Reports',             'talenttrack' ), 36 ],
+            [ 'functional-roles',    __( 'Functional roles',    'talenttrack' ), 37 ],
+            [ 'audit-log',           __( 'Audit log',           'talenttrack' ), 38 ],
         ];
         foreach ( $tiles as $i => [ $slug, $label, $priority ] ) {
             $col = ( $i % 4 ) * 3;
-            $row = 7 + (int) floor( $i / 4 );
+            $row = 8 + (int) floor( $i / 4 );
             $grid->add( new WidgetSlot(
                 'navigation_tile', $slug, Size::S, $col, $row, 1, $priority, true, $label
             ) );

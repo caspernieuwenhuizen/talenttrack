@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.81
+Stable tag: 3.110.82
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.82 — HoD landing — onboarding pipeline strip + tile reorder so the funnel is one tap from the dashboard =
 
 = 3.110.81 — Onboarding pipeline: stage classification driven by reached milestones, not assigned work — fixes Invited under-count =
 
