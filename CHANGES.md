@@ -1,3 +1,41 @@
+# TalentTrack v3.110.90 — KPI strip cards are clickable and route to the relevant list view per KPI
+
+## Why this exists
+
+After v3.110.87 made the KPI strip's hero gradient render correctly, the cards became visible — but plain `<div>`s, with no link, no hover state, no affordance to drill into the underlying data. A HoD looking at "Open trialdossiers · 0" or "Evaluaties deze maand · 11" naturally expects to tap the card and land on the list those numbers summarise.
+
+The infrastructure was already there: `AbstractKpiDataSource::linkView()` returns a `tt_view` slug per KPI id, and `KpiCardWidget` (the standalone variant) already wraps its body in `<a href>` when `linkView()` is non-empty. `KpiStripWidget` simply hadn't been updated to use the same hook.
+
+## The fix
+
+`KpiStripWidget::render()` — wrap each strip card body in `<a class="tt-pd-strip-kpi tt-pd-strip-link" href="…">` when the KPI's `linkView()` is non-empty; otherwise keep the plain `<div>` (preserves existing behaviour for any KPI without a declared target). Same pattern `KpiCardWidget::render()` already uses, so the two widgets stay consistent.
+
+`assets/css/persona-dashboard.css` — new `.tt-pd-strip-link` rule that strips link underline, inherits the parent's white-on-dark colour, lifts on hover (`translateY(-1px)`) + brightens the card background, and shows a 2px white outline on `:focus-visible`. The whole card is the tap target so the 48×48 mobile affordance is preserved.
+
+## What each card now links to
+
+Read from the existing `AbstractKpiDataSource::DEFAULT_LINK_VIEWS` map — six in play on the HoD strip:
+
+- `active_players_total` → `?tt_view=players`
+- `evaluations_this_month` → `?tt_view=evaluations`
+- `attendance_pct_rolling` → `?tt_view=activities`
+- `open_trial_cases` → `?tt_view=trials`
+- `pdp_verdicts_pending` → `?tt_view=pdp`
+- `goal_completion_pct` → `?tt_view=goals`
+
+The existing map already covers the academy-wide, coach-context, and player/parent KPIs (28 entries total) — every persona's strip benefits, not just HoD.
+
+## Files touched
+
+- `talenttrack.php` — version bump 3.110.89 → 3.110.90.
+- `readme.txt` — stable tag + changelog line.
+- `src/Modules/PersonaDashboard/Widgets/KpiStripWidget.php` — `<a>` wrap when `linkView()` non-empty.
+- `assets/css/persona-dashboard.css` — `.tt-pd-strip-link` hover + focus styling.
+
+No new translatable strings, no migrations, no widget-registry changes. Safe to ship in isolation.
+
+---
+
 # TalentTrack v3.110.89 — Weighted-rating computation resolves age_group_id via lookup name match instead of the phantom FK column; weighted rates now actually apply per-age-group weights
 
 ## Why this exists
