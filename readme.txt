@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.83
+Stable tag: 3.110.84
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.84 — Onboarding pipeline: trial-admitted prospects now classified Trial group (not Joined) =
+
+Follow-on to v3.110.81's classifier rewrite. Pilot operator surfaced: `admit_to_trial` (the test-outcome path that promotes a prospect into a trial group) sets BOTH `promoted_to_player_id` (a fresh `tt_players` row at `status='trial'`) AND `promoted_to_trial_case_id` on the prospect. v3.110.81's rule checked `promoted_to_player_id` first, so trial-admitted prospects skipped the Trial group column and landed in **Joined** ("Accepted" in the NL UI) — wrong. **Fix**: Joined now requires the player to have graduated past `status='trial'` (= the academy upgrade after the trial). Both consumers' SQL extended with a LEFT JOIN against `tt_players` exposing `player_status`; the classifier inspects it before applying the Joined rule. Trial-admit prospects now correctly land in **Trial group** with the `tt_trial_cases` row driving the stage. Widget cache key bumped to `v3` to invalidate stale counts. `MyRecentProspectsSource::statusLabel()` aligned to the same precedence so the scout-dashboard row-2 table no longer labels trial prospects "Joined". Known follow-up: `AwaitTeamOfferDecisionForm`'s docblock says accepted offers should update `tt_players.status` to `active`; the current code only updates the trial-case decision. Until that's wired, "Joined" is reached via a manual player-status flip in the players UI — consistent with current operator workflow.
 
 = 3.110.83 — Mark-attendance wizard: activity stays in hero until wizard fully completes; "Pick a session" picker no longer drops the coach on the confirm step (#0092) =
 

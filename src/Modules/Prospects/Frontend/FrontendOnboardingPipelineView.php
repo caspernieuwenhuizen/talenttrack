@@ -152,11 +152,15 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         $scout_only = self::isScoutOnly( $user_id );
         $prospects = $wpdb->prefix . 'tt_prospects';
         $tasks     = $wpdb->prefix . 'tt_workflow_tasks';
+        $players   = $wpdb->prefix . 'tt_players';
 
         // Pull every visible prospect with its most-relevant open task
         // (one row per prospect). MAX(CASE WHEN…) collapses parallel
         // open tasks across templates into one column per template so
         // we can decide stage in PHP without a second query.
+        // v3.110.84: also LEFT JOIN tt_players to expose player_status
+        // so the classifier can distinguish Trial group (player still
+        // at status='trial') from Joined (player graduated).
         $where_scout = $scout_only
             ? $wpdb->prepare( ' AND p.discovered_by_user_id = %d', $user_id )
             : '';
@@ -173,6 +177,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                 p.promoted_to_player_id    AS promoted_to_player_id,
                 p.promoted_to_trial_case_id AS promoted_to_trial_case_id,
                 p.created_at               AS created_at,
+                MAX(pl.status)             AS player_status,
                 MAX(CASE WHEN wt.template_key = 'log_prospect'                 AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_log,
                 MAX(CASE WHEN wt.template_key = 'invite_to_test_training'      AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_invite,
                 MAX(CASE WHEN wt.template_key = 'confirm_test_training'        AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_confirm,
@@ -183,9 +188,8 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                 MAX(CASE WHEN wt.template_key = 'record_test_training_outcome' AND wt.status = 'completed' THEN 1 ELSE 0 END) AS done_outcome,
                 MIN(CASE WHEN wt.status IN ('open','in_progress','overdue') THEN wt.due_at ELSE NULL END) AS soonest_due_at
             FROM {$prospects} p
-            LEFT JOIN {$tasks} wt
-                   ON wt.prospect_id = p.id
-                  AND wt.club_id = %d
+            LEFT JOIN {$tasks}   wt ON wt.prospect_id = p.id AND wt.club_id = %d
+            LEFT JOIN {$players} pl ON pl.id = p.promoted_to_player_id AND pl.club_id = %d
             WHERE p.club_id = %d
               AND p.archived_at IS NULL
               {$where_scout}
@@ -193,7 +197,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             ORDER BY p.discovered_at DESC, p.id DESC
         ";
 
-        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $club_id, $club_id ) );
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $club_id, $club_id, $club_id ) );
         if ( ! is_array( $rows ) ) $rows = [];
 
         $today = time();
