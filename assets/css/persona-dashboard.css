@@ -289,6 +289,10 @@
 .tt-pd-recap-body { font-size: 0.9375rem; opacity: 0.85; }
 
 /* KPI strip (HoD / Observer hero) */
+.tt-pd-widget-kpi_strip {
+    background: linear-gradient(135deg, var(--tt-pd-hero-start) 0%, var(--tt-pd-hero-end) 100%);
+    color: #fff;
+}
 .tt-pd-strip-track {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
