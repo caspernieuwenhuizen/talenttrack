@@ -1,3 +1,99 @@
+# TalentTrack v3.110.79 — Migration 0092 auto-heals stale `recent_scout_reports` references in operator-published scout templates
+
+## Why this exists
+
+v3.110.78 fixed the **ship default** for the scout persona dashboard — `CoreTemplates::scout()` row 2 now points at the new `my_recent_prospects` data-source. Live verification confirmed:
+
+- Tag `v3.110.78` carries the new code on `main`.
+- `talenttrack.zip` (33 MB) attached to the release.
+- A clean install renders **My recent prospects** in row 2 and Show-all lands on the onboarding pipeline.
+
+But the pilot operator reported the dashboard still rendering **My recent reports** after upgrading and clicking the dashboard editor's "Reset to standard" button. The reason is the override layer:
+
+```php
+// src/Modules/PersonaDashboard/Registry/PersonaTemplateRegistry.php
+public static function resolve( string $persona_slug, int $club_id ): PersonaTemplate {
+    $override = self::loadOverride( $persona_slug, PersonaTemplate::STATUS_PUBLISHED );
+    if ( $override !== null ) return $override;        // ← published override wins
+    if ( isset( self::$defaults[ $persona_slug ] ) ) {
+        return self::$defaults[ $persona_slug ]( $club_id );
+    }
+    return /* empty fallback */;
+}
+```
+
+Anyone who clicked **Publish** on the dashboard editor under v3.110.68 has a row in `tt_config` at `persona_dashboard.scout.published`. That JSON payload references `data_table:recent_scout_reports`. The v3.110.78 ship-default fix never reaches them because step 1 above short-circuits.
+
+The "Reset to standard" REST endpoint (`PersonaTemplateRestController::reset()`) writes an empty string to that config row, which `loadOverride()` correctly treats as "no override". On paper the reset works. In practice the pilot reported it didn't take — most likely a stale `ConfigService` cache (per-request) compounded by a persistent object cache layer between PHP and MySQL.
+
+## The fix — migration 0092
+
+`database/migrations/0092_rewrite_stale_recent_scout_reports.php`. One pass over the database that auto-patches the stale reference without operator action. Runs once via the migration runner (recorded in `tt_migrations`).
+
+```php
+// Find every persona-dashboard config row that mentions the legacy preset.
+$rows = $wpdb->get_results(
+    "SELECT club_id, config_key, config_value
+       FROM {$wpdb->prefix}tt_config
+      WHERE config_key LIKE 'persona_dashboard.%'
+        AND config_value LIKE '%recent_scout_reports%'"
+);
+
+foreach ( $rows as $row ) {
+    $payload = json_decode( $row->config_value, true );
+    if ( ! is_array( $payload ) ) continue;
+
+    $stale = 'data_table:recent_scout_reports';
+    $fresh = 'data_table:my_recent_prospects';
+    $touched = false;
+
+    // Hero or task can carry the widget ref too — patch both.
+    foreach ( [ 'hero', 'task' ] as $key ) {
+        if ( ( $payload[ $key ]['widget'] ?? '' ) === $stale ) {
+            $payload[ $key ]['widget'] = $fresh;
+            $touched = true;
+        }
+    }
+    // Grid slots live in a flat array at $payload['grid'].
+    foreach ( $payload['grid'] ?? [] as &$slot ) {
+        if ( ( $slot['widget'] ?? '' ) === $stale ) {
+            $slot['widget'] = $fresh;
+            $touched = true;
+        }
+    }
+    unset( $slot );
+
+    if ( $touched ) {
+        $wpdb->update(
+            $wpdb->prefix . 'tt_config',
+            [ 'config_value' => wp_json_encode( $payload ) ],
+            [ 'club_id' => $row->club_id, 'config_key' => $row->config_key ]
+        );
+    }
+}
+```
+
+The scope is intentionally surgical:
+
+- **Persona-dashboard rows only.** `LIKE 'persona_dashboard.%'` excludes every other `tt_config` row.
+- **Stale string only.** Only slots whose `widget` ref equals `data_table:recent_scout_reports` are rewritten. Operators who customised colours, ordering, OR pinned different widgets keep all of that. Only the broken data-source reference flips.
+- **Both `.published` AND `.draft` covered.** If an operator has a draft mid-edit, that's patched too — otherwise they'd publish a brand-new stale row over their fresh data when they click Publish next.
+- **Both `hero` AND `grid` slots.** `data_table` lives in `grid` by convention, but the migration also checks the hero/task slots in case some custom template put it there.
+
+## Cleanup intentionally not done
+
+- The `recent_scout_reports` preset + source stay registered in `CoreWidgets::register()`. An operator who genuinely wants the PDF-export log can re-add it through the editor; the migration only patches stale auto-shipped references, not deliberate ones.
+- `ConfigService`'s per-request cache and any persistent object cache are NOT explicitly flushed by the migration. The migration runs at plugin-init time; by the time the operator hits a page, it's a fresh request that reads the patched DB row.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.79. The migration auto-runs.
+2. Without touching the dashboard editor, log in as scout — row 2 now reads **My recent prospects** (was **My recent reports** on v3.110.78 on installs with a published override).
+3. Show-all goes to the onboarding pipeline.
+4. Anyone with no published override sees no change (the migration finds nothing to rewrite for them).
+
+---
+
 # TalentTrack v3.110.78 — Scout dashboard: "My recent scout reports" replaced by "My recent prospects" — fixes empty table + Show-all cap mismatch
 
 ## What was wrong
