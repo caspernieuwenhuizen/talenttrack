@@ -82,16 +82,34 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         $staff  = ( new PeopleRepository() )->getTeamStaff( $team_id );
         ?>
         <article class="tt-team-detail">
-            <dl class="tt-profile-dl">
-                <?php if ( ! empty( $team->age_group ) ) : ?>
-                    <dt><?php esc_html_e( 'Age group', 'talenttrack' ); ?></dt>
-                    <dd><?php echo esc_html( (string) $team->age_group ); ?></dd>
-                <?php endif; ?>
-                <?php if ( ! empty( $team->level ) ) : ?>
-                    <dt><?php esc_html_e( 'Level', 'talenttrack' ); ?></dt>
-                    <dd><?php echo esc_html( (string) $team->level ); ?></dd>
-                <?php endif; ?>
-            </dl>
+            <?php
+            // v3.110.95 — header attributes (age group, level) as a
+            // key/value table so the team page reads consistently with
+            // the staff / roster / activities tables below. Was a
+            // <dl class="tt-profile-dl"> definition list; operators
+            // asked for tables across the whole page.
+            $detail_rows = [];
+            if ( ! empty( $team->age_group ) ) {
+                $detail_rows[] = [ __( 'Age group', 'talenttrack' ), (string) $team->age_group ];
+            }
+            if ( ! empty( $team->level ) ) {
+                $detail_rows[] = [ __( 'Level', 'talenttrack' ), (string) $team->level ];
+            }
+            if ( $detail_rows !== [] ) :
+                ?>
+                <section class="tt-pde-section">
+                    <table class="tt-table tt-team-attrs-table">
+                        <tbody>
+                            <?php foreach ( $detail_rows as $row ) : ?>
+                                <tr>
+                                    <th scope="row" style="width:30%; text-align:left; font-weight:600;"><?php echo esc_html( (string) $row[0] ); ?></th>
+                                    <td><?php echo esc_html( (string) $row[1] ); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </section>
+            <?php endif; ?>
 
             <?php
             // #0063 — staff via tt_team_people, NOT the legacy
@@ -145,24 +163,32 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         ?>
         <section class="tt-pde-section">
             <h3><?php esc_html_e( 'Staff', 'talenttrack' ); ?></h3>
-            <ul class="tt-stack">
-                <?php foreach ( $rows as $row ) :
-                    $p = $row['person'];
-                    $person_id = (int) ( $p->id ?? 0 );
-                    $name      = trim( ( (string) ( $p->first_name ?? '' ) ) . ' ' . ( (string) ( $p->last_name ?? '' ) ) );
-                    if ( $name === '' || $person_id <= 0 ) continue;
-                    $role_key  = (string) $row['role_key'];
-                    $role      = $role_key !== '' ? \TT\Infrastructure\Query\LabelTranslator::roleType( $role_key ) : '';
-                    $url       = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', $person_id );
-                    ?>
-                    <li>
-                        <a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $name ); ?></a>
-                        <?php if ( $role !== '' ) : ?>
-                            <span class="tt-muted"> &middot; <?php echo esc_html( $role ); ?></span>
-                        <?php endif; ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
+            <table class="tt-table tt-team-staff-table">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Role', 'talenttrack' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ( $rows as $row ) :
+                        $p = $row['person'];
+                        $person_id = (int) ( $p->id ?? 0 );
+                        $name      = trim( ( (string) ( $p->first_name ?? '' ) ) . ' ' . ( (string) ( $p->last_name ?? '' ) ) );
+                        if ( $name === '' || $person_id <= 0 ) continue;
+                        $role_key  = (string) $row['role_key'];
+                        $role      = $role_key !== '' ? \TT\Infrastructure\Query\LabelTranslator::roleType( $role_key ) : '';
+                        $url       = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', $person_id );
+                        ?>
+                        <tr>
+                            <td>
+                                <a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $name ); ?></a>
+                            </td>
+                            <td><?php echo $role !== '' ? esc_html( $role ) : '—'; ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         </section>
         <?php
     }
@@ -251,20 +277,29 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         return is_array( $rows ) ? $rows : [];
     }
 
-    /** #0077 M4 — render trial-roster section. */
+    /**
+     * #0077 M4 — render trial-roster section.
+     * v3.110.95 — converted from <ul> to a table matching the roster
+     * shape (Name | Status pill) so the team page is consistent.
+     */
     private static function renderTrialRoster( array $players ): void {
         if ( empty( $players ) ) return;
         echo '<section class="tt-pde-section">';
         echo '<h3>' . esc_html__( 'Trial players', 'talenttrack' ) . '</h3>';
-        echo '<ul class="tt-stack">';
+        echo '<table class="tt-table tt-team-trial-table"><thead><tr>';
+        echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
         foreach ( $players as $pl ) {
             $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', (int) $pl->id );
             $name = QueryHelpers::player_display_name( $pl );
-            echo '<li><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a>';
-            echo ' <span class="tt-pill" style="background:#fff3e0; color:#a86322; font-size:11px; padding:2px 8px; border-radius:999px; margin-left:6px;">' . esc_html__( 'Trial', 'talenttrack' ) . '</span>';
-            echo '</li>';
+            echo '<tr>';
+            echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a></td>';
+            echo '<td><span class="tt-pill" style="background:#fff3e0; color:#a86322; font-size:11px; padding:2px 8px; border-radius:999px;">' . esc_html__( 'Trial', 'talenttrack' ) . '</span></td>';
+            echo '</tr>';
         }
-        echo '</ul></section>';
+        echo '</tbody></table>';
+        echo '</section>';
     }
 
     private static function renderUpcomingActivities( int $team_id ): void {
@@ -278,7 +313,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         // the team planner uses since v3.110.56. The legacy
         // `plan_state` column is ignored here for the same reason.
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, title, session_date
+            "SELECT id, title, session_date, activity_type_key, activity_status_key
                FROM {$wpdb->prefix}tt_activities
               WHERE team_id = %d
                 AND ( archived_at IS NULL OR archived_at = '' )
@@ -289,19 +324,38 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         ) );
         if ( empty( $rows ) ) return;
 
+        // v3.110.95 — render the upcoming activities as a table so the
+        // team page is consistent with the staff / roster / trial
+        // tables. Adds Type + Status columns (read from the same
+        // `activity_type_key` / `activity_status_key` lookup fields the
+        // coach edits on the activity form).
         echo '<section class="tt-pde-section">';
         echo '<h3>' . esc_html__( 'Upcoming activities', 'talenttrack' ) . '</h3>';
-        echo '<ul class="tt-stack">';
+        echo '<table class="tt-table tt-team-activities-table"><thead><tr>';
+        echo '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Title', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Type', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
         foreach ( $rows as $r ) {
             // v3.70.1 hotfix — use generic `activities` slug, not
             // `my-activities` (which is player-self-scope and gates
             // out academy admins / HoD opening from the team page).
             $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'activities', (int) $r->id );
-            echo '<li><a class="tt-record-link" href="' . esc_url( $url ) . '">';
-            echo esc_html( (string) $r->session_date ) . ' &middot; ' . esc_html( (string) $r->title );
-            echo '</a></li>';
+            $type_label   = \TT\Infrastructure\Query\LabelTranslator::activityType( (string) ( $r->activity_type_key ?? '' ) );
+            // Status lookup has no dedicated translator method — humanise
+            // the key inline (`in_progress` → `In progress`). When the
+            // lookup gains i18n coverage, swap this for a registry call.
+            $status_key   = (string) ( $r->activity_status_key ?? '' );
+            $status_label = $status_key !== '' ? ucfirst( str_replace( '_', ' ', $status_key ) ) : '';
+            echo '<tr>';
+            echo '<td>' . esc_html( (string) $r->session_date ) . '</td>';
+            echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) $r->title ) . '</a></td>';
+            echo '<td>' . ( $type_label !== '' ? esc_html( $type_label ) : '—' ) . '</td>';
+            echo '<td>' . ( $status_label !== '' ? esc_html( $status_label ) : '—' ) . '</td>';
+            echo '</tr>';
         }
-        echo '</ul>';
+        echo '</tbody></table>';
         echo '</section>';
     }
 

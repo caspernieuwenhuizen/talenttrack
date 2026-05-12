@@ -302,9 +302,30 @@ class ActivitiesRestController {
         // `present_count` is the actually-present-only count, fed into
         // attendance_pct so the column header "Att. %" reads as
         // presence-rate instead of form-completeness.
+        // v3.110.95 — the attendance counts now match what the operator
+        // sees in the per-player attendance form. Previously
+        // `present_count` and `attendance_count` aggregated EVERY
+        // attendance row for the activity, including rows for players
+        // who have since moved teams or been archived. The denominator
+        // (`roster_size`) only counts the CURRENT active roster — so a
+        // player who attended this activity but later moved teams was
+        // still in `present_count` but no longer in `roster_size`,
+        // pushing the percentage above 100 (clamp at 100 hid it) and
+        // never matching what the coach counted in the form. Both
+        // counts now JOIN on `tt_players` and filter by the activity's
+        // current team + `status = 'active'`, so the numerator and
+        // denominator share a player set — the list-view % equals the
+        // detail-page form's actual present/total ratio.
         $select_cols = "s.*, t.name AS team_name,
-            (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id) AS attendance_count,
-            (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id AND a.status = 'Present') AS present_count,
+            (SELECT COUNT(*) FROM {$p}tt_attendance a
+               INNER JOIN {$p}tt_players pl_a ON pl_a.id = a.player_id AND pl_a.club_id = a.club_id
+              WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
+                AND pl_a.team_id = s.team_id AND pl_a.status = 'active') AS attendance_count,
+            (SELECT COUNT(*) FROM {$p}tt_attendance a
+               INNER JOIN {$p}tt_players pl_b ON pl_b.id = a.player_id AND pl_b.club_id = a.club_id
+              WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
+                AND pl_b.team_id = s.team_id AND pl_b.status = 'active'
+                AND a.status = 'Present') AS present_count,
             (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active') AS roster_size";
 
         // v3.92.7 — when `filter[player_id]` is set (e.g. by
@@ -350,10 +371,15 @@ class ActivitiesRestController {
         // grouped result. With HAVING we wrap in a subquery so the
         // total reflects the post-HAVING row count.
         if ( $having !== '' ) {
+            // v3.110.95 — mirror the list_sql counts so the HAVING
+            // filter's row count agrees with what the user sees.
             $count_sql = "SELECT COUNT(*) FROM (
                 SELECT s.id,
-                    (SELECT COUNT(*) FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id) AS attendance_count,
-                    (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id) AS roster_size
+                    (SELECT COUNT(*) FROM {$p}tt_attendance a
+                       INNER JOIN {$p}tt_players pl_a ON pl_a.id = a.player_id AND pl_a.club_id = a.club_id
+                      WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
+                        AND pl_a.team_id = s.team_id AND pl_a.status = 'active') AS attendance_count,
+                    (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active') AS roster_size
                 FROM {$p}tt_activities s
                 LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
                 WHERE {$where_sql}
