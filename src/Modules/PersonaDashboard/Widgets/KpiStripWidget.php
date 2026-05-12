@@ -39,11 +39,20 @@ class KpiStripWidget extends AbstractWidget {
             $kpi    = $source !== null ? $source->compute( $ctx->user_id, $ctx->club_id ) : KpiValue::unavailable();
             $label  = $source !== null ? $source->label() : $id;
             $trend_cls = $kpi->trend !== null ? ' tt-pd-trend-' . sanitize_html_class( $kpi->trend ) : '';
-            $cards .= '<div class="tt-pd-strip-kpi">'
-                . '<div class="tt-pd-strip-label">' . esc_html( $label ) . '</div>'
+            $body = '<div class="tt-pd-strip-label">' . esc_html( $label ) . '</div>'
                 . '<div class="tt-pd-strip-current' . $trend_cls . '">' . esc_html( $kpi->current ) . '</div>'
-                . ( $kpi->delta !== null ? '<div class="tt-pd-strip-delta">' . esc_html( $kpi->delta ) . '</div>' : '' )
-                . '</div>';
+                . ( $kpi->delta !== null ? '<div class="tt-pd-strip-delta">' . esc_html( $kpi->delta ) . '</div>' : '' );
+            // Whole card becomes the tap target when the KPI declares a
+            // deep-link view (preserves the 48px-min mobile affordance and
+            // matches KpiCardWidget's pattern). KPIs without a linkView()
+            // stay inert as plain divs.
+            $link_view = ( $source !== null && method_exists( $source, 'linkView' ) ) ? $source->linkView() : '';
+            if ( $link_view !== '' ) {
+                $url = $ctx->viewUrl( $link_view );
+                $cards .= '<a class="tt-pd-strip-kpi tt-pd-strip-link" href="' . esc_url( $url ) . '">' . $body . '</a>';
+            } else {
+                $cards .= '<div class="tt-pd-strip-kpi">' . $body . '</div>';
+            }
         }
         return $this->wrap( $slot, '<div class="tt-pd-strip-track">' . $cards . '</div>', 'kpi-strip' );
     }

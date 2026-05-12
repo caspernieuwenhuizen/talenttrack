@@ -308,6 +308,23 @@
     padding: 0.75rem;
     color: #fff;
 }
+/* Clickable variant — whole card is the tap target, mobile-friendly. */
+.tt-pd-strip-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 120ms ease, background-color 120ms ease;
+}
+.tt-pd-strip-link:hover,
+.tt-pd-strip-link:focus {
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateY(-1px);
+    outline: none;
+}
+.tt-pd-strip-link:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
 .tt-pd-strip-label {
     font-size: 0.6875rem;
     text-transform: uppercase;
