@@ -95,6 +95,32 @@ final class UpcomingActivityRepository {
     }
 
     /**
+     * v3.110.78 — translated activity-type label (e.g. "Training" /
+     * "Wedstrijd") for the type key on a `tt_activities` row. Used by
+     * `MarkAttendanceHeroWidget` to show the activity TYPE as the
+     * primary hero title — the coach reads "what kind of activity is
+     * next?" at a glance, regardless of the title text the operator
+     * gave the row. Falls back to an empty string when the lookup
+     * row is missing; callers can use the user-supplied title as the
+     * fallback.
+     */
+    public static function activityTypeLabel( string $type_key ): string {
+        if ( $type_key === '' ) return '';
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT name, label, meta FROM {$wpdb->prefix}tt_lookups
+              WHERE lookup_type = 'activity_type' AND name = %s
+              LIMIT 1",
+            $type_key
+        ) );
+        if ( ! $row ) return '';
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            return (string) \TT\Infrastructure\Query\LookupTranslator::name( $row );
+        }
+        return (string) ( $row->label ?: $row->name );
+    }
+
+    /**
      * Team name lookup. Same trivial query both heroes need.
      */
     public static function teamName( int $team_id ): string {

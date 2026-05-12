@@ -107,10 +107,18 @@ final class RateConfirmStep implements WizardStepInterface {
         if ( $activity_id <= 0 ) return 0;
         global $wpdb;
         $p = $wpdb->prefix;
+        // v3.110.78 — case-insensitive status match. Pre-v3.110.78
+        // this hardcoded `status IN ('present', 'late')` and missed
+        // any row whose status had a different case (e.g. 'Present'
+        // from the legacy form path before the v3.110.4 normalisation
+        // hadn't yet run) or a localised value if a club ever renamed
+        // the lookups. Symptom: RateConfirmStep displayed
+        // "0 players marked Present or Late" right after the coach
+        // had just saved a roster of presents on the prior step.
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_attendance
               WHERE activity_id = %d AND club_id = %d
-                AND status IN ( 'present', 'late' )",
+                AND LOWER(status) IN ( 'present', 'late' )",
             $activity_id, CurrentClub::id()
         ) );
     }

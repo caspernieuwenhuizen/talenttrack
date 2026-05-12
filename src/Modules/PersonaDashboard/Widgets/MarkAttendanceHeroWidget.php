@@ -76,8 +76,19 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
         } else {
             $aid     = (int) $next->id;
             $eyebrow = UpcomingActivityRepository::eyebrowFor( (string) $next->session_date );
-            $title   = (string) ( $next->title ?? __( 'Activity', 'talenttrack' ) );
-            $detail  = self::buildDetail( $next );
+            // v3.110.78 — lead with the activity TYPE (Training /
+            // Wedstrijd / etc.) so the coach reads "what's next" at a
+            // glance, regardless of what they named the row. The
+            // user-supplied title (e.g. "Dinsdag") demotes to the
+            // detail line. Falls back to the user title if the type
+            // lookup is missing.
+            $type_key   = (string) ( $next->activity_type_key ?? '' );
+            $type_label = UpcomingActivityRepository::activityTypeLabel( $type_key );
+            $user_title = trim( (string) ( $next->title ?? '' ) );
+            $title      = $type_label !== ''
+                ? $type_label
+                : ( $user_title !== '' ? $user_title : __( 'Activity', 'talenttrack' ) );
+            $detail     = self::buildDetail( $next, $type_label !== '' ? $user_title : '' );
 
             $wizard_base   = WizardEntryPoint::urlFor( 'mark-attendance', $ctx->viewUrl( 'activities' ) );
             $primary_url   = add_query_arg( [ 'activity_id' => $aid ], $wizard_base );
@@ -110,8 +121,15 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
         return $this->wrap( $slot, $inner, 'hero hero-mark-attendance' );
     }
 
-    private static function buildDetail( object $row ): string {
+    /**
+     * Detail line: `<user title> · <team> · <location>`. The user
+     * title slot is only filled when the activity TYPE was used as the
+     * hero title — otherwise the user title is the hero title and we
+     * shouldn't repeat it.
+     */
+    private static function buildDetail( object $row, string $user_title = '' ): string {
         $bits = [];
+        if ( $user_title !== '' ) $bits[] = $user_title;
         $team_name = UpcomingActivityRepository::teamName( (int) ( $row->team_id ?? 0 ) );
         if ( $team_name !== '' ) $bits[] = $team_name;
         $location = (string) ( $row->location ?? '' );

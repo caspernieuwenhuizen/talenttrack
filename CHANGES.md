@@ -167,6 +167,73 @@ Doc backfill: `docs/scout-actions.md` action #1 gets a v3.110.78 Shipped stanza.
 
 ---
 
+# TalentTrack v3.110.80 — Mark-attendance + rate-actors polish: type-led hero title, lookup-resilient Mark-all-present + status counts, sub-cat → main-cat auto-calc (#0092)
+
+Pilot operator walked v3.110.77 end-to-end on a real squad and surfaced five issues. None were unique to v3.110.77 — most were latent bugs in the wizard path that the at-the-pitch motion finally exercised.
+
+## 1 — Hero title was the user-supplied activity title, not the activity type
+
+Coach screenshot showed an activity titled `Dinsdag` (Tuesday) rendered as the bold hero title. Useful naming for the coach's own calendar, useless for the dashboard hero — the coach reads the hero to know **what's next**, which means activity TYPE (training / match / etc.), not the operator's free-text label.
+
+**Fix**: new `UpcomingActivityRepository::activityTypeLabel( $type_key )` helper resolves the `activity_type_key` against `tt_lookups` and returns the translated label via `LookupTranslator::name()`. The hero now renders:
+
+```
+Eyebrow:  VANDAAG
+Title:    Training        ← activity type, translated
+Detail:   Dinsdag · Hedel JO13-1 · Hedel    ← user title + team + location
+```
+
+The user-supplied title moves to the detail line where it still surfaces but doesn't dominate. Falls back to the user title if the type lookup is missing (defensive).
+
+## 2 — Mark-all-present silently did nothing on case-mismatched lookups
+
+`AttendanceStep`'s inline script hardcoded `document.querySelectorAll('input[type=radio][name^="attendance["][value="present"]')`. That selector relies on the `attendance_status` lookup rows being seeded with the literal lowercase value `present`. The moment any install renamed the lookup (capitalised → `Present`, or localised → `Aanwezig`), the radio's `value` attribute changed, the selector matched zero elements, and clicking the button did nothing.
+
+**Fix**: don't depend on the value attribute at all. Group every `attendance[N]` radio set in JS, then check the FIRST radio per group — which is the present row by the `sort_order` convention every lookup table in the codebase follows. Also dispatches a `change` event so listeners that recompute counts / pills see the update.
+
+## 3 — RateConfirmStep's "X players marked Present or Late" count was zero after saving the roster
+
+Same root cause as (2). `countRatable()` hardcoded `status IN ('present', 'late')`. New rows that AttendanceStep wrote via `sanitize_key()` were lowercase and matched; legacy rows written by the activity-form path before the v3.110.4 normalisation could be `Present` / `Late` and silently missed.
+
+**Fix**: `LOWER(status) IN ('present', 'late')`. Matches regardless of how the column was written.
+
+## 4 — RateActorsStep returned no players on case-mismatched installs
+
+`RateActorsStep::ratablePlayersForActivity()` had the same hardcoded `att.status IN ('present', 'late')`. Same fix: `LOWER(att.status)`. The rate step now actually finds the present + late roster regardless of seed casing.
+
+## 5 — Sub-category ratings didn't auto-calculate into their main category
+
+When the coach expanded the Detailed-Technical sub-rate panel and rated each sub-category, the parent Technical input stayed empty until the coach manually typed a value. Pilot expected an inline calculation.
+
+**Fix**: render data attributes that link sub inputs to their parent main category:
+
+```html
+<input ... class="tt-rate-input" data-tt-rate-main="14" />     <!-- main cat -->
+<input ... class="tt-rate-input" data-tt-rate-sub-parent="14" /> <!-- sub of main 14 -->
+```
+
+The inline RateActorsStep script gained a `recalcMainFromSubs( subInput )` handler that:
+- finds the parent main input via `[data-tt-rate-main="<parentCatId>"]` scoped to the same `[data-tt-rate-player]`,
+- averages every non-zero `[data-tt-rate-sub-parent="<parentCatId>"]` value in that player's card,
+- rounds, caps at the rating max, writes back to the main input,
+- relies on the existing event chain to update the status pill + overall progress.
+
+The main field is still independently editable — if the coach types a manual value first, sub edits will overwrite it (that's the simplest "live calc" model; anything more sophisticated is a future polish if operators ask).
+
+## Defensive bonus — case-insensitive `checked()` on AttendanceStep pre-fill
+
+`<input ... <?php checked( $row_default, $n ); ?> />` does a strict string comparison. If `tt_attendance` stored `Present` from a legacy write but `$names` from the current lookup query returns `present`, no radio was pre-checked — the player's row rendered with all radios unchecked. The coach hit Next, `attendance` was empty in POST, `validate()` returned an empty array, and the step looked like it just didn't advance.
+
+Working theory: this is the underlying cause of the pilot's "Next button sometimes does nothing" report. Lowercasing both sides of `checked()` eliminates the mismatch:
+
+```php
+<?php checked( strtolower( $row_default ), strtolower( $n ) ); ?>
+```
+
+Re-test on v3.110.80 and surface again if Next still misbehaves.
+
+---
+
 # TalentTrack v3.110.75 — `OnboardingPipelineWidget` had no CSS rules — funnel rendered as six unstyled stacked divs on every dashboard surface
 
 ## The bug

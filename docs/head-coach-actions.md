@@ -67,6 +67,52 @@ Each action lists:
   post-hoc edit surface.
 - **Player-centric framing:** *where now* (presence, engagement signal feeding rating + minutes)
 - **Shipped:**
+  - **v3.110.80** — five pilot-surfaced fixes for the mark-attendance
+    + rate-actors flow on a real squad.
+    (1) Hero title is now the **activity type** label
+    (`Training` / `Wedstrijd` / …) instead of the user's free-text
+    title — the coach reads what kind of activity is next at a
+    glance. The user-supplied title moves to the detail line
+    alongside team + location.
+    (2) "Mark all present" works on every install, not just those
+    whose `attendance_status` lookups happened to be lowercase
+    English. The JS groups each `attendance[N]` radio set and
+    checks the FIRST radio per group (the present row by sort
+    order) rather than relying on `value="present"`.
+    (3) RateConfirmStep's "X players marked Present or Late" count
+    now uses `LOWER(status) IN ('present','late')` so it picks up
+    legacy rows written with different case.
+    (4) RateActorsStep finds the present + late roster the same
+    way — case-insensitive — so the rate step never shows "no
+    players to rate" on a successfully-marked attendance.
+    (5) Sub-category ratings now auto-calculate into their main
+    category. New `data-tt-rate-main` / `data-tt-rate-sub-parent`
+    data attributes link sub inputs to their parent; a small JS
+    handler averages non-zero subs (rounded, capped at the rating
+    max) and writes the result to the main input.
+    (Defensive bonus) AttendanceStep's `<input checked>` comparison
+    is now case-insensitive — likely the underlying cause of the
+    pilot's "Next button sometimes does nothing" report: a
+    case-mismatch between the pre-fill value and the radio's
+    value attribute left rosters with no radio checked, so Next
+    submitted empty POST data and the step looked like it didn't
+    advance.
+    *How to test:* fresh dashboard, hero now reads **Training**
+    (or **Wedstrijd**) as the bold title, with the user-supplied
+    title (e.g. **Dinsdag**) on the detail line alongside team and
+    location. Tap **Aanwezigheid registreren**. Roster renders
+    with every player on Present (or their previously-saved
+    status, if any). Flip 3 players to Absent. Hit **Markeer
+    iedereen als aanwezig** — all 3 flip back to Present. Hit
+    Next; RateConfirmStep shows the live count (e.g. **18 spelers
+    staan op Aanwezig of Te laat**) and it matches reality. Pick
+    **Beoordeel de aanwezige spelers**. Expand a player, open the
+    Detailed-Technical sub-panel, type a value in two sub-cats
+    (e.g. 4 and 2). The main **Technical** input auto-fills with
+    `3` (the rounded average). Type a third sub at 5 — main
+    flips to `4` (avg of 4,2,5). Status pill turns amber
+    (**Bezig…**) then green (**Beoordeeld**) once every main cat
+    is filled. Top sticky strip increments accordingly.
   - **v3.110.73** — six pilot-surfaced fixes for the mark-attendance
     wizard flow.
     (1) The roster step now ALWAYS renders in the mark-attendance
