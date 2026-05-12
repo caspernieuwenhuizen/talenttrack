@@ -79,12 +79,12 @@ final class ProspectStageClassifier {
         // `status='trial'`. The trial-admit path creates the player at
         // status='trial' so that condition alone is not enough; we need
         // to see the academy upgrade it before calling this prospect
-        // Joined. (See AwaitTeamOfferDecisionForm — accepted offers
-        // currently update the trial-case decision but not the player
-        // status; that's a known follow-up. Until it's wired, "Joined"
-        // is reached only via the manual player-status flip in the
-        // players UI, which is consistent with current operator
-        // workflow.)
+        // Joined. The upgrade fires in two paths:
+        //   - AwaitTeamOfferDecisionForm with outcome='accepted'
+        //     (v3.110.85 — closes the docblock-vs-code gap from the
+        //     #0081 child 4 ship).
+        //   - Manual flip in the players UI (admin path, has always
+        //     worked).
         $graduated = $player_id > 0
             && $player_status !== ''
             && $player_status !== 'trial';

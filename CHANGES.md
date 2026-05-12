@@ -1,3 +1,85 @@
+# TalentTrack v3.110.85 — Team-offer decision form: accept promotes player to `active`; decline + no-response archive the prospect
+
+## What was wrong
+
+`AwaitTeamOfferDecisionForm` ([#0081 child 4](src/Modules/Workflow/Forms/AwaitTeamOfferDecisionForm.php)) docblock has always claimed three side-effects per outcome:
+
+> *"On accept, the trial case decision flips to `admit` and the player's status updates to `active`. On decline, the trial case decision flips to `declined_offered_position` (terminal) and the prospect is archived. On no-response, the trial case is archived without a decision change."*
+
+Code only did the trial-case update. Player.status was never touched. Prospect was never archived on decline / no-response. The gap was called out in v3.110.84's CHANGES as "known follow-up". This release closes it.
+
+## Why it mattered (operator-visible symptoms)
+
+- **Accept**: prospect stays at `player.status='trial'` forever. The v3.110.84 classifier surfaces players in **Joined** only when `player.status != 'trial'`, so accepted prospects appeared stuck in **Trial group** even though the academy had taken them on. Operators had to remember to manually flip the player's status in the players UI.
+- **Decline**: prospect stays in the funnel. The trial case got the right decision, but the prospect card stayed visible in **Team offer** column (open task was completed, but no further state). Operator had to manually archive.
+- **No-response**: trial case archived (correct), but the prospect still showed in the kanban with no signal it was finished. Same archive-by-hand burden.
+
+## The fix
+
+After the existing trial-case update, run the three promised side-effects:
+
+```php
+$player_id   = (int) ( $task['player_id']   ?? 0 );
+$prospect_id = (int) ( $task['prospect_id'] ?? 0 );
+$actor       = (int) ( $task['assignee_user_id'] ?? get_current_user_id() );
+
+if ( $outcome === 'accepted' && $player_id > 0 ) {
+    global $wpdb;
+    $wpdb->update(
+        $wpdb->prefix . 'tt_players',
+        [ 'status' => 'active' ],
+        [ 'id' => $player_id, 'club_id' => CurrentClub::id() ]
+    );
+} elseif ( $outcome === 'declined' && $prospect_id > 0 ) {
+    ( new ProspectsRepository() )->archive(
+        $prospect_id,
+        ProspectsRepository::ARCHIVE_REASON_PARENT_WITHDREW,
+        $actor
+    );
+} elseif ( $outcome === 'no_response' && $prospect_id > 0 ) {
+    ( new ProspectsRepository() )->archive(
+        $prospect_id,
+        ProspectsRepository::ARCHIVE_REASON_NO_SHOW,
+        $actor
+    );
+}
+```
+
+Each branch is defensive: guards on the IDs in case the chain didn't carry them. The trial-case update still runs regardless (existing behaviour, unchanged).
+
+The no-response branch mirrors `ConfirmTestTrainingTemplate::onComplete()`'s treatment of the same outcome value (also archives the prospect as `no_show`). Consistent vocabulary across the workflow chain.
+
+## Classifier docblock refresh
+
+`ProspectStageClassifier`'s docblock previously called out the gap as a known follow-up. Now updated to record both paths into **Joined**:
+
+```
+The upgrade fires in two paths:
+  - AwaitTeamOfferDecisionForm with outcome='accepted'
+    (v3.110.85 — closes the docblock-vs-code gap from the #0081 child 4 ship).
+  - Manual flip in the players UI (admin path, has always worked).
+```
+
+## Files
+
+- `src/Modules/Workflow/Forms/AwaitTeamOfferDecisionForm.php` — three side-effect branches added after the existing trial-case update. Two new imports: `CurrentClub`, `ProspectsRepository`.
+- `src/Modules/Prospects/Domain/ProspectStageClassifier.php` — docblock notes the v3.110.85 path into Joined.
+- `talenttrack.php` 3.110.84 → 3.110.85.
+- `readme.txt`, `CHANGES.md`.
+
+No schema change. No migration. The existing widget cache key `v3` from v3.110.84 stays — the new code path produces correct classifications under the same SQL+classifier shape.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.85.
+2. Take a prospect through to **Team offer** column (admit_to_trial → complete the review-trial → review-trial dispatches `await_team_offer_decision`).
+3. Open the team-offer-decision task. Pick **Accepted**. Submit.
+4. Refresh the kanban. The prospect leaves **Team offer** and appears in **Joined** (within the 90-day window). The associated player record's status flipped from `trial` to `active` — verify on the player's detail page in the players UI.
+5. Repeat on a second prospect with **Declined**. After submit, refresh — the prospect disappears from the funnel (archived as `parent_withdrew`).
+6. Repeat on a third with **No response**. After submit — disappears from the funnel (archived as `no_show`), and the trial-case row shows `archived_at` set.
+
+---
+
 # TalentTrack v3.110.84 — Onboarding pipeline: trial-admitted prospects classified Trial group (not Joined)
 
 ## What was wrong
