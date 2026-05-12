@@ -1,3 +1,58 @@
+# TalentTrack v3.110.94 — Analytics — DimensionValueResolver maps raw IDs to human labels in the explorer + CSV; Players list — Unassigned filter + Assign-to-team CTA on the player file surfaces trial-admitted players in limbo
+
+## Why this exists
+
+Two of the four follow-ups flagged in v3.110.93's CHANGES turned out to be small enough to ship together:
+
+1. **Analytics group-by table + CSV showed raw IDs.** Grouping by `player_id` printed "70, 72, 84"; grouping by `activity_type` printed the raw enum key. Both consumers (`FrontendExploreView::renderGroupByTable()` and `CsvExporter`) rendered `(string) $row->{ $group_by }` directly — the dimension layer never had a `resolveLabel( $value )` hook.
+
+2. **No "Unassigned" surface for trial-admitted players.** After a team-offer accept, `tt_players.status` flips to `'active'` without setting `team_id` (the team assignment is a separate step). The player ends up in the players list with no team and no obvious next-step — invisible to coaches looking at their team roster, invisible in the dashboard's team-overview grid (no team to group under).
+
+## The fix
+
+### 1 — `DimensionValueResolver` (new class)
+
+`src/Modules/Analytics/Domain/DimensionValueResolver.php` — one place that takes a `Dimension` + raw `$value` and returns a display string. Strategy by dimension type:
+
+- `foreign_key` — resolves through the dimension's `foreignTable`: `tt_players` → `QueryHelpers::player_display_name()`; `tt_teams` → `tt_teams.name`; `tt_activities` → "{translated type} — {date}"; `wp_users` → `display_name` falling back to `user_login`. Missing rows render as `#70 (missing)` so the id stays visible for debugging.
+- `lookup` — routes `activity_type` through `LabelTranslator::activityType()`; other lookup types pass through as the stored `name`.
+- `enum` — built-in label map for the values surfaced today (`status:present`, `decision:admit`, `priority:high`, `event_type:promoted`, etc.); unknown values get humanised slugs (`no_offer_made` → `No offer made`).
+- `date_range` — passes through (SQL bucket expression already friendly).
+
+Per-request `$cache` keyed by `{dim_key}:{value}` so 30 rows on `player_id` = 30 unique lookups.
+
+### 2 — Wired into the two consumers
+
+`FrontendExploreView::renderGroupByTable()` and `CsvExporter` row-build loop both call `DimensionValueResolver::resolve()`. Operators round-trip explorer → CSV → spreadsheet and get matching names.
+
+### 3 — "Unassigned" filter + CTA on the players surface
+
+- `PlayersRestController::list()` accepts `assignment=unassigned` → adds `(p.team_id IS NULL OR p.team_id = 0)` to the WHERE.
+- `FrontendPlayersManageView` filter bar gains "Assignment → Unassigned (no team)".
+- `FrontendPlayerDetailView`: header **Assign to team** action when `team_id` is empty; jump-anchor `#tt-player-assign-team`; Academy section now renders an explicit "Unassigned" placeholder; inline `renderAssignTeamForm()` posts to the existing `PUT /players/{id}` endpoint via `tt-ajax-form`.
+
+## Translation
+
+New msgids: `'Unassigned'`, `'Unassigned (no team)'`, `'Assign to team'`, `'Assign this player to a team'`, "This player has no team yet…", `'Assignment'`, `'#%s (missing)'`, `'%1$s — %2$s'`. The enum label map adds Present / Absent / Excused / Late / In progress / Completed / Cancelled / Planned / High / Medium / Low / Admit / Decline / No offer made / Promoted / Age group change — most already in `nl_NL.po`; new entries will need a `.po` pass alongside the merge.
+
+## What this does not address
+
+- A dedicated "Unassigned" dashboard tile / widget — separate UX decision; the filter + CTA give operators a discoverable path today.
+- `Dimension::resolveLabel()` as a method on the Dimension class — standalone resolver class is the chosen single dispatch point.
+
+## Files touched
+
+- `talenttrack.php` — version bump 3.110.93 → 3.110.94.
+- `readme.txt` — stable tag + changelog line.
+- `src/Modules/Analytics/Domain/DimensionValueResolver.php` — new class.
+- `src/Modules/Analytics/Frontend/FrontendExploreView.php` — group-by table uses the resolver.
+- `src/Modules/Analytics/Export/CsvExporter.php` — CSV cells use the resolver.
+- `src/Infrastructure/REST/PlayersRestController.php` — `assignment=unassigned` filter.
+- `src/Shared/Frontend/FrontendPlayersManageView.php` — Assignment filter dropdown.
+- `src/Shared/Frontend/FrontendPlayerDetailView.php` — Assign-to-team action + inline form + Unassigned placeholder.
+
+---
+
 # TalentTrack v3.110.93 — My-tasks bug-bash: player-first task rows, translated task-detail breadcrumb, KPI / panel / page agree on "open", open-tasks pill on the actions row, trial-admitted players visible in demo mode
 
 ## The symptom (six pilot reports rolled into one PR)
@@ -40,12 +95,57 @@ Same view, `<style>` block. `.tt-mtasks-action a` gains `:link, :visited` select
 
 `src/Modules/Workflow/Forms/RecordTestTrainingOutcomeForm.php` — after `$wpdb->insert( ... tt_players ... )` in `ensurePromotedPlayer()`, call `\TT\Modules\DemoData\DemoMode::tagIfActive( 'player', $player_id )`. Mirrors the existing call in `FrontendTrialsManageView::handlePost()` (the inline-create path on the trials list, v3.76.2). With this in place, a demo-mode operator who admits a prospect to trial can immediately click through to the new player's file without the demo scope wiping the row from view.
 
-## What this does not address (proposed follow-ups, not in this PR)
+## Follow-ups shipped after review approval (a / b / c)
 
-- **Analytics — group-by table shows raw dimension keys.** `FrontendExploreView::renderGroupByTable()` (and the entity-tab equivalent) renders `(string) $row->{ $group_by }` directly, so grouping by `player_id` prints player IDs (70, 72, …) instead of "Lucas van der Berg / Liam Janssen / …", and grouping by `activity_type` prints the raw enum. The fix needs a `Dimension::resolveLabel( $key ): string` hook so each dimension can map its value space to a human label — bigger than a one-file change because every Dimension implementation needs the resolver wired. **Proposed**: new ticket "Analytics — dimension value resolver" with player_id / team_id / activity_type / evaluator_id as the first four implementations.
-- **Trial → player pool / team-assignment gate.** Today an admitted trial's player row sits at `status='trial'`; on team-offer accept it flips to `status='active'` without any team assignment, so the player ends up in the players list with no `team_id`. The user's question — *"after a trial is admitted, what happens to the player? he should be added as player but in a kind of playerpool that still need to be assigned to a team?"* — is correct: there is no explicit pool surface today, just an implicit "active player with no team". **Proposed**: an "Unassigned players" tile / list view filtering on `status='active' AND no row in tt_team_players for the current season`, plus a "Assign to team" CTA on the player file. Out of scope for this bug-bash because it's a feature design, not a bug.
-- **How to close a trial case.** Today: open the trial case (`?tt_view=trial-case&id=N`), use the **Decision** tab to record `admit / decline_offered_position / no_offer_made` plus the ≥30-character justification — that triggers letter generation, flips the player's status, and stamps `decision_made_at`. If you don't want to record a decision (e.g. parent ghosted you), use the **Archive case** button at the bottom of the Overview tab — that closes the case without a decision. This is a documentation gap, not a code bug; the affordances exist on the trial-case detail page. **Proposed**: add a "Closing a trial case" section to `docs/trials.md` + `docs/nl_NL/trials.md` with the two paths spelled out, and consider a "Close case" header action on the trial-case page so the affordance isn't buried at the bottom of Overview.
-- **Broader breadcrumb audit.** Spot-checked every `FrontendBreadcrumbs::fromDashboard(` call site; the only one leaking a raw slug was the one this PR fixes. Other views all pass `__()`-wrapped strings or values resolved via `$wizard->label()` / `$template->name()` (both translatable). If the operator finds another, file a follow-up with the URL — there's no systemic gap left.
+The bug-bash above was reviewed by the operator before merge with three explicit approvals on the proposed follow-ups. All three landed in this same PR rather than chasing them in a sequel.
+
+### 8 — Analytics dimension values are now humanised (proposed (a))
+
+`FrontendExploreView::renderGroupByTable()` was rendering `(string) $row->{ $group_by }` directly — grouping the attendance fact by `player_id` printed `"70 / 72 / 85"` instead of player names, grouping by `activity_type` printed the raw enum slug, and the CSV export had the same issue.
+
+New `src/Modules/Analytics/Domain/DimensionValueResolver.php` is the one place that decision lives now. `resolve( Dimension $dim, $value ): string` routes by `Dimension::type`:
+
+- `TYPE_FOREIGN_KEY` — looks at `Dimension::foreignTable` and resolves through the existing helpers (`QueryHelpers::get_player()` + `player_display_name`, `QueryHelpers::get_team()`, `tt_activities` row → activity_type + date, `get_user_by('id', ...)` for evaluator_id / discovered_by_user_id).
+- `TYPE_LOOKUP` — routes through `LabelTranslator::activityType()` for that vocabulary (already i18n-aware); other vocabularies pass through as the stored name (already human-readable in `tt_lookups`, just not translated).
+- `TYPE_ENUM` — small built-in label map for the high-traffic enums (status, plan_state, priority, decision, event_type). Unknown values get a slug-humaniser fallback (`no_offer_made` → `No offer made`).
+- `TYPE_DATE_RANGE` — passes the SQL bucket through (`'2026-04'` is already friendly).
+
+Per-request memoisation keyed by `"{dim_key}:{value}"` so a 30-row group-by table on `player_id` issues 30 unique lookups, not 30 cache misses.
+
+Wired into both consumers: `FrontendExploreView::renderGroupByTable()` and `CsvExporter::raw()`. Operators round-tripping between the on-screen explorer and the CSV export now see the same names in both.
+
+Foreign-key ids that don't resolve (deleted player, missing team) render as `#70 (missing)` rather than blanking — keeps the lookup key visible for debugging without pretending it's a label.
+
+### 9 — Player file: "Assign to team" affordance + Unassigned filter (proposed (b))
+
+The original report — *"after a trial is admitted, what happens to the player? he should be added as player but in a kind of playerpool that still need to be assigned to a team?"* — is correct: today an admitted trial's player row sits at `status='trial'`, then on team-offer accept it flips to `status='active'` without any team assignment, so the player ends up in the players list with `team_id = NULL`. There was no explicit "pool" surface for that bucket and no obvious next-step affordance.
+
+Two changes, minimum-viable:
+
+**Unassigned filter on the players list.** New `assignment` filter on `?tt_view=players` with one option `Unassigned (no team)`. Wired through `PlayersRestController::list_players` — when `filter[assignment] = 'unassigned'`, the WHERE clause adds `(p.team_id IS NULL OR p.team_id = 0)`. Existing status / team / age-group / position filters compose with it; the new option doesn't replace status, so an operator can still ask "active AND unassigned".
+
+**"Assign to team" CTA on the player file.** When the player has no team, two affordances surface:
+- Page-header action button "+ Assign to team" alongside Edit / Archive. Cap-gated on `tt_edit_players` (same as Edit). Anchors to the inline form below.
+- Inline form on the Profile tab inside an attention-coloured (`#fff7e6`) card titled "Assign this player to a team". Uses `TeamPickerComponent` (the same component the new-player form uses; respects coach scoping — admins see all teams, non-admin coaches see only teams they head-coach). Submits via the existing `PUT /players/{id}` endpoint with `data-rest-method="PUT"` + `data-redirect-after-save="reload"` — re-renders the page in place after save so the operator sees the team appear in the hero / academy table.
+
+The Academy table on the Profile tab now always emits the Team row; an unassigned player shows `<em class="tt-muted">Unassigned</em>` instead of being omitted, so the empty state is visible at a glance.
+
+The deeper question — "should this be a separate Player Pool tile / a `tt_player_pool` table / a season-scoped roster?" — stays open. Today's `tt_players.team_id` is the canonical primary-team field; `tt_player_team_history` already exists for season-scoped historical records. The MVP surfaces the bucket and lets operators clear it; richer pool semantics can land later without re-doing this.
+
+### 10 — Trial case "Close" affordances lifted to the header + docs (proposed (c))
+
+Two paths exist to close a trial case — they were just hard to find:
+
+- **Decide** (`Decision` section, anchor `#tt-trial-decision`). Records `admit / decline_offered_position / no_offer_made` + ≥30-character justification → letter generation + player status flip + `decision_made_at` stamp.
+- **Archive** (form at the bottom of Overview). Closes the case without a decision (for ghosted families, mistakes).
+
+Both moved into the page-header action row alongside the trial title. When `TrialCaseAccessPolicy::isManager()` and `archived_at IS NULL`:
+- "Record decision" (primary) — visible when no decision recorded yet; anchors to `#tt-trial-decision`.
+- "Archive case" (danger) — anchors to the existing form's new `id="tt-trial-archive-form"` so the existing nonce + confirm dialog still gate the actual submit.
+
+Neither action duplicates the underlying form — the header is a jump target. Existing in-page anchors continue to work.
+
+`docs/trials.md` + `docs/nl_NL/trials.md` gain a new "Closing a trial case" / "Een stagedossier afsluiten" section that spells out the two paths and when each applies. Doc edit covers the audience-marked user role; staff-developer-marked sections were already accurate.
 
 ## Files touched
 
@@ -58,10 +158,22 @@ Same view, `<style>` block. `.tt-mtasks-action a` gains `:link, :visited` select
 - `src/Modules/PersonaDashboard/Kpis/MyOpenWorkflowTasks.php` — matches inbox status set + club + snooze (§6).
 - `src/Modules/PersonaDashboard/Widgets/TaskListPanelWidget.php` — wired to TasksRepository, player-first titles, real links (§6).
 - `src/Modules/Workflow/Forms/RecordTestTrainingOutcomeForm.php` — `DemoMode::tagIfActive('player')` on promotion (§7).
+- **New** `src/Modules/Analytics/Domain/DimensionValueResolver.php` — single resolver for dimension values across foreign_key / lookup / enum / date_range types (§8).
+- `src/Modules/Analytics/Frontend/FrontendExploreView.php` — group-by table calls `DimensionValueResolver::resolve()` (§8).
+- `src/Modules/Analytics/Export/CsvExporter.php` — CSV body uses the same resolver as the on-screen view (§8).
+- `src/Infrastructure/REST/PlayersRestController.php` — new `filter[assignment]=unassigned` WHERE clause (§9).
+- `src/Shared/Frontend/FrontendPlayersManageView.php` — new `assignment` filter dropdown on the players list (§9).
+- `src/Shared/Frontend/FrontendPlayerDetailView.php` — "Assign to team" page-header action + inline form, plus `Unassigned` placeholder in the Academy table (§9).
+- `src/Shared/Frontend/FrontendTrialCaseView.php` — header actions "Record decision" + "Archive case"; archive form gains `id="tt-trial-archive-form"` (§10).
+- `docs/trials.md` — new "Closing a trial case" section (§10).
+- `docs/nl_NL/trials.md` — same section in Dutch (§10).
 
 ## Translation status
 
-User-facing strings touched in this PR are reused from already-translated keys (`'Open'`, `'Apply'`, `'My tasks'`, template names like `'Record test-training outcome'`, etc.). No new `msgid` strings; the existing `languages/talenttrack-nl_NL.po` keys cover the changes. The breadcrumb fix in §1 stops the raw slug from rendering — the Dutch translation of the template name (`'Resultaat test-training vastleggen'` in the .po file) now surfaces where the slug used to.
+User-facing strings touched in this PR fall into two groups:
+
+1. **Reused already-translated keys** (`'Open'`, `'Apply'`, `'My tasks'`, `'Team'`, `'Archive case'`, template names like `'Record test-training outcome'`, etc.). The existing `languages/talenttrack-nl_NL.po` keys cover these — no `msgid` work needed. The breadcrumb fix in §1 stops the raw slug from rendering, so the Dutch translation of the template name (`'Resultaat test-training vastleggen'`) now surfaces where the slug used to.
+2. **New strings** introduced in §8 / §9 / §10. The Dutch `trials.md` got its Closing section in this PR. The new English strings (`'Unassigned (no team)'`, `'Assign to team'`, `'Assign this player to a team'`, `'This player has no team yet — typical after a trial admission. Pick a team to place them on the roster.'`, `'Unassigned'`, `'Record decision'`, `'#%s (missing)'`, the analytics enum labels in `DimensionValueResolver::resolveEnum()`) need to be added to `languages/talenttrack-nl_NL.po` in a follow-up translation pass — they currently render in English on the Dutch surface. None of them gate functionality; they degrade gracefully when untranslated.
 
 ---
 

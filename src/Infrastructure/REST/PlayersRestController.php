@@ -159,6 +159,16 @@ class PlayersRestController {
             $where[]  = 'p.team_id = %d';
             $params[] = absint( $filter['team_id'] );
         }
+        // #0093 — "Unassigned" surface: active players sitting without a
+        // team. Reached two ways today — direct via the Status filter on
+        // the list, and indirect via the "Assign to team" CTA on the
+        // player file. The bucket exists because the trial → team-offer
+        // flow flips the player to `status='active'` without
+        // simultaneously setting `team_id`, so admitted players land in
+        // limbo until a coach picks them up.
+        if ( ! empty( $filter['assignment'] ) && (string) $filter['assignment'] === 'unassigned' ) {
+            $where[] = '(p.team_id IS NULL OR p.team_id = 0)';
+        }
         if ( ! empty( $filter['preferred_foot'] ) ) {
             $where[]  = 'p.preferred_foot = %s';
             $params[] = sanitize_text_field( (string) $filter['preferred_foot'] );

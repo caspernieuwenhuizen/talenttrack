@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Export;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Analytics\Domain\DimensionValueResolver;
 use TT\Modules\Analytics\FactQuery;
 use TT\Modules\Analytics\FactRegistry;
 use TT\Modules\Analytics\KpiRegistry;
@@ -87,7 +88,14 @@ final class CsvExporter {
         foreach ( $rows as $row ) {
             $line = [];
             foreach ( $dim_keys as $dk ) {
-                $line[] = (string) ( $row->{ $dk } ?? '' );
+                $dim = $fact->dimension( $dk );
+                $raw = $row->{ $dk } ?? null;
+                // Use the shared resolver so the CSV cells match what the
+                // on-screen group-by table prints — operators round-trip
+                // between explorer + export expecting the same names.
+                $line[] = $dim !== null
+                    ? DimensionValueResolver::resolve( $dim, $raw )
+                    : (string) ( $raw ?? '' );
             }
             foreach ( $measure_keys as $mk ) {
                 $val = $row->{ $mk } ?? '';

@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.93
+Stable tag: 3.110.94
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.94 — Analytics — DimensionValueResolver maps raw player_id / team_id / activity_type values to human labels in the explorer table and CSV export; players list — Unassigned filter + Assign-to-team CTA on the player file surfaces trial-admitted players in limbo =
 
 = 3.110.93 — My-tasks bug-bash: player name leads each task row, task-detail breadcrumb resolves the template's translated name, KPI strip + dashboard panel + my-tasks page all agree on what "open" means, open-tasks pill sits next to the DEMO pill, trial-admitted players become visible in demo mode =
 

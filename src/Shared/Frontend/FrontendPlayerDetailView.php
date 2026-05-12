@@ -132,6 +132,21 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 'primary' => true,
                 'icon'    => '✎',
             ];
+            // #0093 — surface "Assign to team" prominently when the player
+            // has no team yet. Trial-admit lands players in this state
+            // (status=active, team_id=NULL); the affordance jumps the
+            // operator to the inline picker on the Profile tab.
+            if ( empty( $player->team_id ) ) {
+                $assign_href = add_query_arg(
+                    [ 'tt_view' => 'players', 'id' => $player_id, 'tab' => 'profile' ],
+                    RecordLink::dashboardUrl()
+                ) . '#tt-player-assign-team';
+                $actions[] = [
+                    'label' => __( 'Assign to team', 'talenttrack' ),
+                    'href'  => $assign_href,
+                    'icon'  => '+',
+                ];
+            }
             $actions[] = [
                 'label'   => __( 'Archive', 'talenttrack' ),
                 'variant' => 'danger',
@@ -406,6 +421,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $academy_rows = [];
         if ( $team_html !== '' ) {
             $academy_rows[] = [ __( 'Team', 'talenttrack' ), $team_html ];
+        } else {
+            $academy_rows[] = [
+                __( 'Team', 'talenttrack' ),
+                '<em class="tt-muted">' . esc_html__( 'Unassigned', 'talenttrack' ) . '</em>',
+            ];
         }
         if ( $tier_label !== '' ) {
             $academy_rows[] = [ __( 'Age tier', 'talenttrack' ), esc_html( $tier_label ) ];
@@ -420,9 +440,50 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         </div>
 
         <?php
+        if ( empty( $player->team_id ) && current_user_can( 'tt_edit_players' ) ) {
+            self::renderAssignTeamForm( $player_id );
+        }
         if ( current_user_can( 'tt_edit_player_status' ) ) {
             self::renderBehaviourPotentialForm( $player_id );
         }
+    }
+
+    /**
+     * #0093 — inline "Assign to team" picker, surfaced on the player file
+     * when the player holds no team_id yet. Wires through the same PUT
+     * /players/{id} endpoint the edit form uses, so the existing
+     * permission_callback + payload validator govern; nothing
+     * authorization-shaped lives in the view.
+     *
+     * Anchor `#tt-player-assign-team` is the jump target of the page-
+     * header "Assign to team" action.
+     */
+    private static function renderAssignTeamForm( int $player_id ): void {
+        $user_id  = get_current_user_id();
+        $is_admin = current_user_can( 'tt_edit_settings' );
+        ?>
+        <section id="tt-player-assign-team" class="tt-player-assign-team-card" style="margin-top:20px; padding:16px 18px; background:#fff7e6; border:1px solid #f0c987; border-radius:8px;">
+            <h2 style="margin:0 0 8px; font-size:16px;">
+                <?php esc_html_e( 'Assign this player to a team', 'talenttrack' ); ?>
+            </h2>
+            <p style="margin:0 0 12px; color:#5b6e75; font-size:13px;">
+                <?php esc_html_e( 'This player has no team yet — typical after a trial admission. Pick a team to place them on the roster.', 'talenttrack' ); ?>
+            </p>
+            <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( 'players/' . $player_id ); ?>" data-rest-method="PUT" data-redirect-after-save="reload" style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap;">
+                <?php echo \TT\Shared\Frontend\Components\TeamPickerComponent::render( [
+                    'name'     => 'team_id',
+                    'label'    => __( 'Team', 'talenttrack' ),
+                    'required' => true,
+                    'user_id'  => $user_id,
+                    'is_admin' => $is_admin,
+                    'selected' => 0,
+                ] ); ?>
+                <button type="submit" class="tt-btn tt-btn-primary">
+                    <?php esc_html_e( 'Assign to team', 'talenttrack' ); ?>
+                </button>
+            </form>
+        </section>
+        <?php
     }
 
     /**
