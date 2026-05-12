@@ -246,6 +246,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         echo '</dl>';
 
+        // v3.110.95 — Attendance summary block. Surfaces the same
+        // figures the activity-list "Att. %" column shows (now that
+        // both queries share the "attendance row for player on
+        // current active roster" predicate). The percentage is a
+        // clickable link to the edit form, which IS the per-player
+        // attendance list with marks — exactly what the user asked
+        // for. Visible only on completed activities, since planned
+        // / cancelled rows have no meaningful attendance.
+        $status_key_for_att = (string) ( $session->activity_status_key ?? 'planned' );
+        if ( $status_key_for_att === 'completed' ) {
+            self::renderAttendanceSummary( $session );
+        }
+
         // v3.110.53 — Edit + Archive moved to the page-header actions
         // slot rendered by render() before this method runs.
 
@@ -261,6 +274,137 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         }
 
         echo '</div>';
+    }
+
+    /**
+     * v3.110.95 — Attendance summary on the read-only activity detail
+     * page. Renders a "X / Y (Z%) Present" line plus per-status counts.
+     * The percentage cell links to the edit form (`action=edit`), which
+     * is the per-player attendance list with status marks — what the
+     * user asked for.
+     *
+     * Uses the same predicate as the activities list-view SQL
+     * (`ActivitiesRestController::list_sessions`) so the % shown here
+     * matches the % in the list. Counts are grouped server-side in one
+     * query; only attendance rows whose player is still on this team's
+     * current active roster are included, mirroring v3.110.95's list-
+     * view fix.
+     */
+    private static function renderAttendanceSummary( object $session ): void {
+        global $wpdb;
+        $p          = $wpdb->prefix;
+        $activity_id = (int) ( $session->id ?? 0 );
+        $team_id     = (int) ( $session->team_id ?? 0 );
+        if ( $activity_id <= 0 || $team_id <= 0 ) return;
+
+        $club_id = \TT\Infrastructure\Tenancy\CurrentClub::id();
+        $roster_size = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_players
+              WHERE team_id = %d AND club_id = %d AND status = 'active'",
+            $team_id, $club_id
+        ) );
+        if ( $roster_size === 0 ) return;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.status, COUNT(*) AS cnt
+               FROM {$p}tt_attendance a
+               INNER JOIN {$p}tt_players pl ON pl.id = a.player_id AND pl.club_id = a.club_id
+              WHERE a.activity_id = %d AND a.is_guest = 0 AND a.club_id = %d
+                AND pl.team_id = %d AND pl.status = 'active'
+              GROUP BY a.status",
+            $activity_id, $club_id, $team_id
+        ) );
+
+        $by_status = [];
+        $total = 0;
+        foreach ( (array) $rows as $r ) {
+            $key = (string) ( $r->status ?? '' );
+            $cnt = (int) ( $r->cnt ?? 0 );
+            $by_status[ $key ] = $cnt;
+            $total += $cnt;
+        }
+        $present = (int) ( $by_status['Present'] ?? 0 );
+        $pct = (int) round( ( $present / $roster_size ) * 100 );
+        if ( $pct > 100 ) $pct = 100;
+
+        $can_edit = current_user_can( 'tt_edit_activities' );
+        $edit_url = '';
+        if ( $can_edit ) {
+            $edit_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                add_query_arg(
+                    [ 'tt_view' => 'activities', 'id' => $activity_id, 'action' => 'edit' ],
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                )
+            );
+        }
+
+        echo '<section class="tt-activity-attendance-summary" style="margin-top:20px; padding:16px 18px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">';
+        echo '<h3 style="margin:0 0 12px; font-size:16px;">' . esc_html__( 'Attendance', 'talenttrack' ) . '</h3>';
+
+        echo '<p style="margin:0 0 8px; font-size:14px;">';
+        $headline = sprintf(
+            /* translators: 1: present count, 2: roster size, 3: percentage 0-100 */
+            __( '%1$d / %2$d players (%3$d%% present)', 'talenttrack' ),
+            $present, $roster_size, $pct
+        );
+        if ( $edit_url !== '' ) {
+            echo '<a href="' . esc_url( $edit_url ) . '" class="tt-record-link" style="font-weight:600; font-size:16px;">'
+                . esc_html( $headline )
+                . '</a>';
+        } else {
+            echo '<strong>' . esc_html( $headline ) . '</strong>';
+        }
+        echo '</p>';
+
+        // Per-status breakdown — explicit, so the operator sees the
+        // composition without having to re-count manually. Hidden when
+        // no rows recorded yet (total = 0).
+        if ( $total > 0 ) {
+            $status_keys = [ 'Present', 'Absent', 'Late', 'Excused', 'Injured' ];
+            $parts = [];
+            foreach ( $status_keys as $sk ) {
+                $cnt = (int) ( $by_status[ $sk ] ?? 0 );
+                if ( $cnt === 0 ) continue;
+                $label = \TT\Infrastructure\Query\LabelTranslator::attendanceStatus( $sk );
+                $parts[] = '<span style="display:inline-block; margin-right:14px;">'
+                    . esc_html( $label ) . ': <strong>' . (int) $cnt . '</strong></span>';
+            }
+            // Any custom status admins added beyond the seeded set.
+            foreach ( $by_status as $sk => $cnt ) {
+                if ( in_array( $sk, $status_keys, true ) ) continue;
+                if ( $cnt === 0 || $sk === '' ) continue;
+                $parts[] = '<span style="display:inline-block; margin-right:14px;">'
+                    . esc_html( $sk ) . ': <strong>' . (int) $cnt . '</strong></span>';
+            }
+            if ( $parts !== [] ) {
+                echo '<p style="margin:0; font-size:13px; color:#475569;">'
+                    . implode( '', $parts )
+                    . '</p>';
+            }
+
+            // If recorded rows < current roster, surface the gap.
+            if ( $total < $roster_size ) {
+                $unrecorded = $roster_size - $total;
+                echo '<p style="margin:8px 0 0; font-size:12px; color:#92400e; font-style:italic;">'
+                    . esc_html( sprintf(
+                        /* translators: %d: number of players without an attendance row */
+                        _n(
+                            '%d player on the current roster has no attendance row yet.',
+                            '%d players on the current roster have no attendance row yet.',
+                            $unrecorded,
+                            'talenttrack'
+                        ),
+                        $unrecorded
+                    ) )
+                    . '</p>';
+            }
+        } else {
+            echo '<p style="margin:0; font-size:13px; color:#475569; font-style:italic;">'
+                . esc_html__( 'No attendance recorded yet.', 'talenttrack' )
+                . '</p>';
+        }
+
+        echo '</section>';
     }
 
     /**

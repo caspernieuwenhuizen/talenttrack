@@ -1,3 +1,66 @@
+# TalentTrack v3.110.95 — Team page tables (age-group + staff + activities); activity list-view attendance % now matches the per-player form; activity detail page gains a clickable Attendance summary
+
+## What changed
+
+Two pilot reports rolled into one PR — both touched-up presentation on adjacent surfaces:
+
+### 1. Team page (Ploeg-detail) — tables instead of mixed dl / bulleted lists
+
+`src/Shared/Frontend/FrontendTeamDetailView.php` — three sections that previously rendered as a `<dl class="tt-profile-dl">` definition list or `<ul class="tt-stack">` bulleted list now render as `<table class="tt-table">`:
+
+- **Header attributes** (Age group, Level) — key/value table at the top of the page. Was a definition list.
+- **Staff** — Name + Role table. Was a bulleted list with a middot separator.
+- **Trial players** — Player + Status pill table. Was a bulleted list with the trial pill appended inline.
+- **Upcoming activities** — Date + Title + Type + Status table. Was a bulleted list with "{date} · {title}" as the row text.
+
+Roster was already a table — no change there. The page now reads as a consistent stack of tables, which is what the pilot operator asked for.
+
+### 2. Activity attendance % consistency + clickable summary on detail
+
+**The bug.** The activities list-view "Att. %" column and the per-player attendance form on the edit page produced different percentages for the same activity. Pilot operator opening an activity, counting "11 of 15 marked Present in the form", and seeing "73%" in the list felt wrong — they expected 73% but saw 80% (or 100%, or 67%, depending on team movements).
+
+**The cause.** `ActivitiesRestController::list_sessions` computed the list-view counts via three correlated subqueries:
+
+```sql
+present_count := COUNT(*) FROM tt_attendance
+                 WHERE activity_id = X AND status = 'Present'
+roster_size   := COUNT(*) FROM tt_players
+                 WHERE team_id = activity.team_id AND status = 'active'
+attendance_count := COUNT(*) FROM tt_attendance
+                    WHERE activity_id = X
+```
+
+Numerator (`present_count`) counted every `'Present'` row for the activity. Denominator (`roster_size`) only counted players currently on the team. A player who attended the activity but later moved teams was still in `present_count` but no longer in `roster_size`, pushing the ratio above 100% (clamp at 100 masked it) and never matching the form's natural "10 present rows shown / 14 current roster" count. Same drift for archived players, late-joiners, etc.
+
+**The fix.** Both `attendance_count` and `present_count` now `INNER JOIN tt_players` and filter by `team_id = s.team_id AND status = 'active'`, so the numerator and denominator share a player set — the same set the attendance form iterates. The list-view % now equals what the operator counts in the form.
+
+Applied symmetrically to the HAVING-filter count subquery so the Complete / Partial / None list filters still reflect the corrected counts.
+
+### 3. Activity detail page — clickable Attendance summary
+
+`src/Shared/Frontend/FrontendActivitiesManageView.php::renderAttendanceSummary()` (new private method) — visible on completed activities only. Renders:
+
+- Headline: "X / Y players (Z% present)" — same calculation as the list-view %, by construction.
+- Per-status breakdown: "Present: 11 · Absent: 2 · Late: 1 · Excused: 1" for any non-zero statuses, including custom statuses the admin added beyond the seeded set.
+- Unrecorded-gap note when `recorded rows < current roster`: "N players on the current roster have no attendance row yet."
+- Empty-state when no rows recorded yet: "No attendance recorded yet."
+
+When the viewing user holds `tt_edit_activities`, the headline is a clickable link to the edit form (`?tt_view=activities&id=N&action=edit`) — the existing per-player attendance list with status marks the user asked for. Without the cap, the headline is plain text.
+
+## Files touched
+
+- `talenttrack.php` — version bump 3.110.94 → 3.110.95.
+- `readme.txt` — stable tag + changelog line.
+- `src/Shared/Frontend/FrontendTeamDetailView.php` — dl/ul → tables (4 sections).
+- `src/Infrastructure/REST/ActivitiesRestController.php` — list_sessions counts JOIN tt_players (numerator + HAVING-count subquery).
+- `src/Shared/Frontend/FrontendActivitiesManageView.php` — `renderAttendanceSummary()` on the detail page; called from `renderDetail()` for completed activities.
+
+## Translation
+
+New msgids: `'%1$d / %2$d players (%3$d%% present)'`, `'%d player on the current roster has no attendance row yet.'` / plural, `'No attendance recorded yet.'`. Headers / status labels reuse existing translated strings (`Attendance`, `Present`, `Absent`, `Late`, `Excused`, `Injured`, `Name`, `Role`, `Status`, `Title`, `Type`, `Date`, `Age group`, `Level`).
+
+---
+
 # TalentTrack v3.110.94 — Analytics — DimensionValueResolver maps raw IDs to human labels in the explorer + CSV; Players list — Unassigned filter + Assign-to-team CTA on the player file surfaces trial-admitted players in limbo
 
 ## Why this exists

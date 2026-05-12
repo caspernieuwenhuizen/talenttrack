@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.94
+Stable tag: 3.110.95
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.95 — Team page renders age-group / staff / activities as tables (was dl + bulleted lists); activity list-view attendance % now matches the per-player form (only counts present rows whose player is on the current active roster); activity detail page gains a clickable Attendance summary linking to the per-player marks =
 
 = 3.110.94 — Analytics — DimensionValueResolver maps raw player_id / team_id / activity_type values to human labels in the explorer table and CSV export; players list — Unassigned filter + Assign-to-team CTA on the player file surfaces trial-admitted players in limbo =
 
