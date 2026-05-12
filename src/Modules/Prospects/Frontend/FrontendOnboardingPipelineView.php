@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Prospects\Domain\ProspectStageClassifier;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -172,11 +173,14 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                 p.promoted_to_player_id    AS promoted_to_player_id,
                 p.promoted_to_trial_case_id AS promoted_to_trial_case_id,
                 p.created_at               AS created_at,
-                MAX(CASE WHEN wt.template_key = 'log_prospect'                 AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_log_task,
-                MAX(CASE WHEN wt.template_key = 'invite_to_test_training'      AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_invite_task,
-                MAX(CASE WHEN wt.template_key = 'confirm_test_training'        AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_confirm_task,
-                MAX(CASE WHEN wt.template_key = 'record_test_training_outcome' AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_outcome_task,
-                MAX(CASE WHEN wt.template_key = 'await_team_offer_decision'    AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_offer_task,
+                MAX(CASE WHEN wt.template_key = 'log_prospect'                 AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_log,
+                MAX(CASE WHEN wt.template_key = 'invite_to_test_training'      AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_invite,
+                MAX(CASE WHEN wt.template_key = 'confirm_test_training'        AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_confirm,
+                MAX(CASE WHEN wt.template_key = 'record_test_training_outcome' AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_outcome,
+                MAX(CASE WHEN wt.template_key = 'await_team_offer_decision'    AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_offer,
+                MAX(CASE WHEN wt.template_key = 'invite_to_test_training'      AND wt.status = 'completed' THEN 1 ELSE 0 END) AS done_invite,
+                MAX(CASE WHEN wt.template_key = 'confirm_test_training'        AND wt.status = 'completed' THEN 1 ELSE 0 END) AS done_confirm,
+                MAX(CASE WHEN wt.template_key = 'record_test_training_outcome' AND wt.status = 'completed' THEN 1 ELSE 0 END) AS done_outcome,
                 MIN(CASE WHEN wt.status IN ('open','in_progress','overdue') THEN wt.due_at ELSE NULL END) AS soonest_due_at
             FROM {$prospects} p
             LEFT JOIN {$tasks} wt
@@ -206,7 +210,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         ];
 
         foreach ( $rows as $row ) {
-            $stage = self::classifyProspect( $row, $joined_cutoff );
+            $stage = ProspectStageClassifier::classify( $row, $joined_cutoff );
             if ( $stage === null ) continue; // not visible (e.g. promoted >90d ago)
             $stages_init[ $stage ]['cards'][] = self::buildCard( $row, $stage, $stale_cutoff );
         }
@@ -218,30 +222,6 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             $out[] = $s;
         }
         return $out;
-    }
-
-    /**
-     * Mutually-exclusive stage classification. Returns one of
-     * prospects / invited / test / trial / offer / joined, or null
-     * when the prospect should not appear (e.g. promoted >90 days
-     * ago — they belong to the players surface now, not this funnel).
-     */
-    private static function classifyProspect( object $row, int $joined_cutoff ): ?string {
-        if ( ! empty( $row->promoted_to_player_id ) ) {
-            // Joined band is a 90-day rolling window so a long-promoted
-            // player doesn't sit in the funnel forever.
-            $created = strtotime( (string) ( $row->created_at ?? '' ) );
-            return ( $created !== false && $created >= $joined_cutoff ) ? 'joined' : null;
-        }
-        if ( ! empty( $row->open_offer_task ) )   return 'offer';
-        if ( ! empty( $row->promoted_to_trial_case_id ) ) return 'trial';
-        if ( ! empty( $row->open_outcome_task ) ) return 'test';
-        if ( ! empty( $row->open_invite_task ) || ! empty( $row->open_confirm_task ) ) return 'invited';
-        // No open tasks AND no promotion → still in Prospects (the
-        // column the wizard never sends new entries to, but legacy
-        // log_prospect drafts and orphaned/abandoned chains land
-        // here).
-        return 'prospects';
     }
 
     /** @return array<string,mixed> */
@@ -281,11 +261,20 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         $event = (string) ( $row->discovered_at_event ?? '' );
         switch ( $stage ) {
             case 'prospects':
+                // v3.110.81 — with the new "invite-completed = Invited"
+                // semantics, the Prospects column now ALSO holds
+                // prospects whose invite task is open (email not yet
+                // sent). Surface that distinction in the context line
+                // so the HoD knows what's blocked on them.
+                if ( ! empty( $row->open_invite ) ) {
+                    return __( 'Awaiting HoD to send the invite', 'talenttrack' );
+                }
                 return $event !== ''
                     ? sprintf( /* translators: %s: discovery event / match label. */ __( 'Discovered: %s', 'talenttrack' ), $event )
                     : __( 'Drafted, not yet handed to HoD', 'talenttrack' );
             case 'invited':
-                return __( 'Invitation in progress', 'talenttrack' );
+                // The email has gone out; awaiting parent confirmation.
+                return __( 'Invitation sent, awaiting parent', 'talenttrack' );
             case 'test':
                 return __( 'Awaiting outcome', 'talenttrack' );
             case 'trial':
@@ -308,14 +297,21 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
     private static function cardUrl( object $row, string $stage ): string {
         $task_id = 0;
         switch ( $stage ) {
-            case 'offer':   $task_id = (int) ( $row->open_offer_task   ?? 0 ); break;
-            case 'test':    $task_id = (int) ( $row->open_outcome_task ?? 0 ); break;
+            case 'offer':   $task_id = (int) ( $row->open_offer   ?? 0 ); break;
+            case 'test':    $task_id = (int) ( $row->open_outcome ?? 0 ); break;
             case 'invited':
-                $task_id = (int) ( $row->open_invite_task ?? 0 );
-                if ( $task_id === 0 ) $task_id = (int) ( $row->open_confirm_task ?? 0 );
+                // After v3.110.81 a prospect lands in Invited because
+                // (a) the invite task was completed (no open_invite to
+                // link to), OR (b) the confirm task is open. Deep-link
+                // to confirm first; fall back to invite for the legacy
+                // case where the chain stopped after invite without
+                // spawning confirm.
+                $task_id = (int) ( $row->open_confirm ?? 0 );
+                if ( $task_id === 0 ) $task_id = (int) ( $row->open_invite ?? 0 );
                 break;
             case 'prospects':
-                $task_id = (int) ( $row->open_log_task ?? 0 );
+                $task_id = (int) ( $row->open_log ?? 0 );
+                if ( $task_id === 0 ) $task_id = (int) ( $row->open_invite ?? 0 );
                 break;
             case 'joined':
                 $player_id = (int) ( $row->promoted_to_player_id ?? 0 );
