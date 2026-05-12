@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.78
+Stable tag: 3.110.79
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.79 — Migration 0092 auto-heals stale `recent_scout_reports` references in operator-published scout templates =
+
+v3.110.78's fix swapped the **ship default** scout template's row-2 data source from `recent_scout_reports` to `my_recent_prospects`. But operators who had previously published their scout template via the dashboard editor (under v3.110.68) carry a JSON payload in `tt_config` at key `persona_dashboard.scout.published` that still references the legacy preset. `PersonaTemplateRegistry::resolve()` checks the published override first and skips the ship default — so the v3.110.78 fix never reached operators with a published override. The dashboard editor's "Reset to standard" button clears that override but only if the operator finds it AND the cache layer cooperates; pilot users reported the reset not taking. **Fix**: new migration `0092_rewrite_stale_recent_scout_reports` walks every `persona_dashboard.*` row in `tt_config`, parses the JSON, and rewrites any slot whose `widget` string equals `data_table:recent_scout_reports` to `data_table:my_recent_prospects`. Idempotent (the runner records the migration and a second pass finds no matches anyway). Scoped to the specific stale string — operators who legitimately customised other parts of their scout template keep those customisations; only the broken data-source reference is patched. Reversible? Strictly no — the `recent_scout_reports` reference is lost. Anyone who genuinely wants the PDF-export log back can re-add it via the editor (the preset + source stay registered, the v3.110.78 fix was scoped to the default template only).
 
 = 3.110.78 — Scout dashboard: "My recent scout reports" replaced by "My recent prospects" — fixes empty table + Show-all cap mismatch =
 
