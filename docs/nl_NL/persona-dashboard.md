@@ -117,6 +117,21 @@ Tegel-iconen (de gekleurde één-letter-vierkantjes) en de gele plus-cirkel op a
 
 Clubs die sterker visueel onderscheid tussen tegels nodig hebben kunnen via de dashboard-editor een per-tegel-beschrijving toevoegen — typografie leest dan als "label + beschrijving" in plaats van "label + icoon".
 
+## HoD-landing — funnel + 4-ploegenpuls naast elkaar (v3.110.82)
+
+De standaard `head_of_development`-template toont nu de twee parallelle lenzen van de HoD op één scherm — de pols van de bestaande selecties bovenaan en de recruitment-funnel daar direct onder — zodat de meest voorkomende HoD-acties (testtraining-uitnodigingen versturen, uitkomsten registreren, volgende week plannen) met één tik bereikbaar zijn.
+
+Van boven naar onder op de standaardtemplate:
+
+1. **KPI-strip** — actieve spelers, evaluaties deze maand, lopende opkomst-%, open trial-cases, openstaande PDP-verdicten, doel-voltooiings-%.
+2. **Ploegoverzicht-grid + `+ Nieuw trial`-actiekaart** — 4 ploegkaarten, `concern_first`-sortering, 30-dagen-venster.
+3. **Onboarding-pipeline-strip** (XL, volle breedte) — tellingen voor de zes funneltrappen (Prospects · Uitgenodigd · Testtraining · Trialgroep · Teamaanbod · Aangesloten) met stale-badges. Nieuw in v3.110.82.
+4. **Komende activiteiten** — gegevens-tabel met de planning van de 4 ploegen.
+5. **Trials die een beslissing nodig hebben** — gegevens-tabel.
+6. **Navigatietegels** — bovenste rij bevat de vier hoogfrequente drill-downs (Onboarding-pipeline · Takendashboard · Spelers · Ploegen); tweede rij bevat de cyclus-/registratie-oppervlakken (Trials · Evaluaties · PDP · Activiteiten); rest ongewijzigd.
+
+Beheerders die vóór v3.110.82 een HoD-template-override hebben gepubliceerd, behouden hun aangepaste lay-out — de wijziging raakt alleen de standaard. Open de dashboard-editor en klik op **Terug naar standaard** om de nieuwe lay-out te zien.
+
 ## Ploegoverzicht-grid (HoD-landing, v3.76.0)
 
 Per-ploeg samenvattingskaarten in een responsief grid. Elke kaart toont ploegnaam, leeftijdscategorie, hoofdtrainer, en twee getallen: gemiddelde evaluatie-rating en opkomstpercentage over een instelbaar venster (standaard 30 dagen). Tikken op een kaart klapt hem inline open en toont de spelersuitsplitsing van die ploeg met opkomst % en rating per speler.

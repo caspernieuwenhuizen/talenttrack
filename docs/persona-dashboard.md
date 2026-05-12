@@ -135,6 +135,21 @@ Tile icons (the coloured one-letter squares) and the yellow plus-circle on actio
 
 Clubs that need stronger visual differentiation between tiles can add a per-tile description in the dashboard editor — typography reads as "label + description" instead of "label + icon."
 
+## HoD landing — funnel + 4-team pulse side-by-side (v3.110.82)
+
+The default `head_of_development` template now lays out the HoD's two parallel lenses on the same screen — existing-squad pulse on the left, recruitment funnel below it — so the most-frequent HoD actions (sending test-training invitations, recording outcomes, planning next week's test-trainings) are reachable in one tap.
+
+Top to bottom on the default template:
+
+1. **KPI strip** — active players, evaluations this month, rolling attendance %, open trial cases, PDP verdicts pending, goal completion %.
+2. **Team overview grid + `+ New trial` action card** — 4 team cards, `concern_first` sort, 30-day window.
+3. **Onboarding pipeline strip** (XL, full width) — six-stage funnel counts (Prospects · Invited · Test training · Trial group · Team offer · Joined) with stale badges. New in v3.110.82.
+4. **Upcoming activities** data table — 4 teams' forward schedule.
+5. **Trials needing decision** data table.
+6. **Navigation tiles** — top row carries the four highest-frequency drill-downs (Onboarding pipeline · Tasks dashboard · Players · Teams); second row carries cycle / record-keeping surfaces (Trials · Evaluations · PDP · Activities); rest unchanged.
+
+Operators who published a HoD template override before v3.110.82 keep their custom layout — the change updates the ship default only. To pick up the new layout, open the dashboard editor and click **Reset to standard**.
+
 ## Team overview grid (HoD landing, v3.76.0)
 
 Per-team summary cards arranged in a responsive grid. Each card shows team name, age group, head coach, and two headline numbers: average evaluation rating and attendance percentage over a configurable window (default 30 days). Tapping a card expands it inline to show the team's player breakdown with each player's attendance % and rating.
