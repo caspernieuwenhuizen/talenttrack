@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.84
+Stable tag: 3.110.85
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.85 — Team-offer decision form: accept now promotes the player to `status='active'`, decline + no-response archive the prospect =
+
+Closes the docblock-vs-code gap on `AwaitTeamOfferDecisionForm` that v3.110.84 called out as a known follow-up. The form's docblock has always promised three side-effects per outcome — accepted → player.status flips to `active`; declined → prospect archived as `parent_withdrew`; no-response → prospect archived as `no_show` plus the trial case archived. The code only ran the trial-case update; the player/prospect side-effects were never wired. **Effect of the gap**: accepted prospects stayed at `player.status='trial'` (so v3.110.84's classifier kept them in **Trial group** forever instead of promoting them to **Joined**), and declined / no-response prospects stayed visible in the funnel indefinitely (operators had to manually archive). **Fix**: added the three side-effects after the existing trial-case update. Accepted → `tt_players.status` flips to `active` for the player_id stamped on the task (the v3.110.84 classifier then surfaces them in **Joined** within the 90-day rolling window). Declined → `ProspectsRepository::archive($prospect_id, PARENT_WITHDREW, $actor)`. No-response → archive via `NO_SHOW`, mirroring `ConfirmTestTrainingTemplate::onComplete`'s no-response semantics. Classifier docblock updated to reflect the closed gap.
 
 = 3.110.84 — Onboarding pipeline: trial-admitted prospects now classified Trial group (not Joined) =
 

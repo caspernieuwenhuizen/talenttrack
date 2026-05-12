@@ -3,6 +3,8 @@ namespace TT\Modules\Workflow\Forms;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
@@ -88,11 +90,15 @@ class AwaitTeamOfferDecisionForm implements FormInterface {
         // and stamped onto the task's trial_case_id column when the
         // chain spawned this template.
         $trial_case_id = (int) ( $task['trial_case_id'] ?? 0 );
+        $player_id     = (int) ( $task['player_id']     ?? 0 );
+        $prospect_id   = (int) ( $task['prospect_id']   ?? 0 );
+        $actor         = (int) ( $task['assignee_user_id'] ?? get_current_user_id() );
+
         if ( $trial_case_id > 0 ) {
             $repo = new TrialCasesRepository();
             $patch = [
                 'decision_made_at' => current_time( 'mysql', true ),
-                'decision_made_by' => (int) ( $task['assignee_user_id'] ?? get_current_user_id() ),
+                'decision_made_by' => $actor,
                 'decision_notes'   => $notes,
             ];
             if ( $outcome === 'accepted' ) {
@@ -104,9 +110,41 @@ class AwaitTeamOfferDecisionForm implements FormInterface {
             } else {
                 // no_response → archive without decision change
                 $patch['archived_at'] = current_time( 'mysql', true );
-                $patch['archived_by'] = (int) ( $task['assignee_user_id'] ?? get_current_user_id() );
+                $patch['archived_by'] = $actor;
             }
             $repo->update( $trial_case_id, $patch );
+        }
+
+        // v3.110.85 — close the docblock gap. Pre-v3.110.85 only the
+        // trial-case row was updated; the docblock's promised
+        // player.status and prospect-archival side-effects never ran.
+        // Net effect: accepted prospects stayed at player.status='trial'
+        // (so the v3.110.84 classifier left them in Trial group instead
+        // of promoting to Joined), and declined / no_response prospects
+        // stayed visible in the funnel forever.
+        if ( $outcome === 'accepted' && $player_id > 0 ) {
+            global $wpdb;
+            $wpdb->update(
+                $wpdb->prefix . 'tt_players',
+                [ 'status' => 'active' ],
+                [ 'id' => $player_id, 'club_id' => CurrentClub::id() ]
+            );
+        } elseif ( $outcome === 'declined' && $prospect_id > 0 ) {
+            ( new ProspectsRepository() )->archive(
+                $prospect_id,
+                ProspectsRepository::ARCHIVE_REASON_PARENT_WITHDREW,
+                $actor
+            );
+        } elseif ( $outcome === 'no_response' && $prospect_id > 0 ) {
+            // Operator's UX label is "No response — close the case for
+            // now". Mirror ConfirmTestTrainingTemplate::onComplete's
+            // no_response treatment: archive the prospect with NO_SHOW
+            // so it drops off the funnel like other no-show prospects.
+            ( new ProspectsRepository() )->archive(
+                $prospect_id,
+                ProspectsRepository::ARCHIVE_REASON_NO_SHOW,
+                $actor
+            );
         }
 
         return [
