@@ -262,8 +262,22 @@ class EvalRatingsRepository {
         // Age groups for each evaluation (single roundtrip).
         $p = $wpdb->prefix;
         $placeholders = implode( ',', array_fill( 0, count( $clean ), '%d' ) );
+        // v3.110.89 — resolve age_group_id via tt_lookups by matching the
+        // team's age_group VARCHAR against lookups.name. There is no FK
+        // column `t.age_group_id` on tt_teams (Activator defines age_group
+        // as a string; no migration adds an FK). The pre-fix query raised
+        // "Unknown column" on every install, so this path silently returned
+        // no rows and weighted ratings fell back to equal-weight averages.
         $ag_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT e.id AS eval_id, t.age_group_id AS age_group_id
+            "SELECT e.id AS eval_id,
+                    (
+                        SELECT ag.id
+                          FROM {$p}tt_lookups ag
+                         WHERE ag.lookup_type = 'age_group'
+                           AND ag.club_id = t.club_id
+                           AND ag.name = t.age_group
+                         LIMIT 1
+                    ) AS age_group_id
              FROM {$p}tt_evaluations e
              LEFT JOIN {$p}tt_players pl ON e.player_id = pl.id AND pl.club_id = e.club_id
              LEFT JOIN {$p}tt_teams t ON pl.team_id = t.id AND t.club_id = e.club_id
@@ -354,8 +368,16 @@ class EvalRatingsRepository {
     private function resolveAgeGroupForEvaluation( int $eval_id ): int {
         global $wpdb;
         $p = $wpdb->prefix;
+        // v3.110.89 — see computeForEvalIds() above for context.
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT t.age_group_id AS age_group_id
+            "SELECT (
+                        SELECT ag.id
+                          FROM {$p}tt_lookups ag
+                         WHERE ag.lookup_type = 'age_group'
+                           AND ag.club_id = t.club_id
+                           AND ag.name = t.age_group
+                         LIMIT 1
+                    ) AS age_group_id
              FROM {$p}tt_evaluations e
              LEFT JOIN {$p}tt_players pl ON e.player_id = pl.id AND pl.club_id = e.club_id
              LEFT JOIN {$p}tt_teams t ON pl.team_id = t.id AND t.club_id = e.club_id

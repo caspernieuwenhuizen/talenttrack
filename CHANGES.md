@@ -1,3 +1,62 @@
+# TalentTrack v3.110.89 — Weighted-rating computation resolves age_group_id via lookup name match instead of the phantom FK column; weighted rates now actually apply per-age-group weights
+
+## Why this exists
+
+v3.110.88 fixed the team-overview-grid by replacing `tt_teams.age_group_id` (a column that doesn't exist in the schema) with the real `tt_teams.age_group VARCHAR` column. The CHANGES entry called out three other sites with the same broken reference:
+
+- `src/Infrastructure/Evaluations/EvalRatingsRepository.php:266` — bulk fetch age_group_id for many evals.
+- `src/Infrastructure/Evaluations/EvalRatingsRepository.php:358` — single-eval `resolveAgeGroupForEvaluation()`.
+- `src/Modules/Evaluations/Admin/EvaluationsPage.php:310` — per-player age_group resolution for the admin form's weight picker.
+
+Those three feed the weighted-rating computation. With the SQL failing on every install (MySQL "Unknown column 't.age_group_id'"), `$wpdb->get_results()` returned `false`, the calling code resolved `age_group_id = 0` for every evaluation / player, `CategoryWeightsRepository::getForAgeGroup(0)` returned `[]`, and the rating math fell back to `equal_fallback` — equal weight per main category.
+
+Net effect: **every weighted rating in this codebase has been silently degraded to an unweighted average** for as long as this bug has existed. Clubs that took time to configure per-age-group weights in the matrix admin saw none of that work reflected in their evaluation scores.
+
+## The fix
+
+Same pattern as the team-overview-grid fix in v3.110.88 — replace the phantom column reference with a sub-select that resolves the age_group's lookup id by matching the team's `age_group` VARCHAR against `tt_lookups.name`:
+
+```sql
+-- before
+SELECT ..., t.age_group_id AS age_group_id
+
+-- after
+SELECT ..., (
+    SELECT ag.id
+      FROM wp_tt_lookups ag
+     WHERE ag.lookup_type = 'age_group'
+       AND ag.club_id = t.club_id
+       AND ag.name = t.age_group
+     LIMIT 1
+) AS age_group_id
+```
+
+`LIMIT 1` keeps the sub-select deterministic if two lookup rows ever share a name. `ag.club_id = t.club_id` prevents a cross-tenant leak in the future SaaS shape — today it's a no-op because everything is `club_id = 1`. Applied uniformly to all three sites; no behaviour difference between the bulk and single-eval paths.
+
+The calling code is unchanged. Every callsite continues to read the `age_group_id` from the row and pass it to `CategoryWeightsRepository::getForAgeGroup()` — it just now gets back the actual id instead of `null`, and the weights lookup actually finds the configured row.
+
+## Behaviour change for operators with weights configured
+
+After this ships:
+
+- Evaluations of players on teams with a matched age_group lookup AND with configured per-age-group weights start using those weights.
+- Evaluations of players on teams with `age_group = ''` (empty), or whose `age_group` string doesn't match any `tt_lookups.name` row, continue using the equal-weight fallback. Same behaviour as today.
+- Existing evaluation `ratings.value` rows on disk are not rewritten; the change affects new computations only (the recompute paths in `CategoryWeightsRepository::recompute()` re-derive weighted totals on next save / read, depending on caller).
+
+## What this does not fix
+
+- The underlying schema mismatch (codebase wants an `age_group_id` FK column on `tt_teams`; schema has an `age_group` VARCHAR). A proper migration that adds the FK column and backfills it from the VARCHAR is the right long-term shape — it's faster (no per-row sub-select), it gates referential integrity, and it stops every new repo write from carrying the same name-matching workaround. Tracked separately; this PR is the surgical unblock.
+- `EvaluationsPage::renderForm()` runs `WHERE pl.status = 'active'` without a `pl.club_id = %d` scope. Pre-existing club-scoping gap, unrelated to this fix; the sub-select inside DOES scope on `ag.club_id = t.club_id` so age-group resolution is correct.
+
+## Files touched
+
+- `talenttrack.php` — version bump 3.110.88 → 3.110.89.
+- `readme.txt` — stable tag + changelog line.
+- `src/Infrastructure/Evaluations/EvalRatingsRepository.php` — sub-select for `age_group_id` in both queries.
+- `src/Modules/Evaluations/Admin/EvaluationsPage.php` — sub-select for `age_group_id` in the per-player query.
+
+---
+
 # TalentTrack v3.110.88 — Team overview grid queries the existing `age_group` VARCHAR instead of a non-existent `age_group_id` FK; teams now render
 
 ## The symptom
