@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.90
+Stable tag: 3.110.91
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.91 — Dashboard editor — compact the grid on widget removal so deleting a widget no longer leaves a hole =
 
 = 3.110.90 — KPI strip cards are now clickable; each lands on the KPI's most relevant list view via the existing AbstractKpiDataSource::linkView() mapping =
 

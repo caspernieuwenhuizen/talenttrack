@@ -1104,6 +1104,13 @@
         if (hit.band === 'task') state.template.task = null;
         if (hit.band === 'grid') {
             state.template.grid = (state.template.grid || []).filter(function (s) { return s.__id !== slotId; });
+            // v3.110.91 — backfill the empty cell. Every other mutation
+            // path (drop, keyboard nudge, persona switch, reset) calls
+            // compactGrid; removal silently skipped it, so deleting a
+            // widget left a visible hole and the layout below stayed
+            // pinned to its original y. Same compact pass tidies on
+            // remove now.
+            compactGrid(state.template.grid);
         }
         if (state.selectedSlotId === slotId) state.selectedSlotId = null;
         commit();

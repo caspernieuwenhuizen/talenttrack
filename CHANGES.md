@@ -1,3 +1,34 @@
+# TalentTrack v3.110.91 — Dashboard editor compacts the grid on widget removal so deleting a widget no longer leaves a hole
+
+## The symptom
+
+Operators editing a persona dashboard reported the canvas felt unresponsive after deleting widgets: the slot below the removed widget stayed pinned to its original y-coordinate, leaving a visible empty cell. Every other mutation (drop a new widget, keyboard nudge, persona switch, reset to default) compacted the grid; remove silently didn't.
+
+## The cause
+
+`removeSlot()` in `assets/js/persona-dashboard-editor.js` filtered the deleted slot out of `state.template.grid` and called `commit()` — but skipped the layout pass. The pass is two pure functions, `resolveCollisions(grid, droppedId)` + `compactGrid(grid)`, both already shipped and unit-equivalent of "lower every slot's y to the smallest value that still avoids collision." Drop, keyboard nudge, and persona-switch all call this pair; remove was the one code path that didn't.
+
+## The fix
+
+Three lines. `removeSlot()` now calls `compactGrid(state.template.grid)` after the slot filter, when the removed slot was a grid slot (hero and task are single-slot bands, no compact needed). The shipped CSS already animates `transform 150ms ease` on `.tt-pde-card`, so the backfill is smooth — slots below the removed widget visibly slide up into the empty cell.
+
+```js
+state.template.grid = state.template.grid.filter(...);
+compactGrid(state.template.grid);   // ← was missing
+```
+
+## What this does not address
+
+Operators have also flagged broader editor clunkiness — drop indicators feel subtle, no ghost preview shows where the dragged widget will actually land, and the empty drop zones look like content rows ("+ Widget toevoegen" between rows reads as a placed widget). Those are real UX gaps, but each is a design decision worth its own discussion + PR; this ship is the surgical fix for the missing-call bug.
+
+## Files touched
+
+- `talenttrack.php` — version bump 3.110.90 → 3.110.91.
+- `readme.txt` — stable tag + changelog line.
+- `assets/js/persona-dashboard-editor.js` — three-line addition to `removeSlot()`.
+
+---
+
 # TalentTrack v3.110.90 — KPI strip cards are clickable and route to the relevant list view per KPI
 
 ## Why this exists
