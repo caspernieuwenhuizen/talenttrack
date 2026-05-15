@@ -42,11 +42,84 @@ final class IdentityStep implements WizardStepInterface {
             <span><?php esc_html_e( 'Current club', 'talenttrack' ); ?></span>
             <input type="text" name="current_club" value="<?php echo esc_attr( $club ); ?>" />
         </label>
-        <label style="display:block; margin-top:12px;">
+        <?php self::renderExistingProspectsList(); ?>
+        <label style="display:block; margin-top:12px; min-height:48px; padding:12px 0;">
             <input type="checkbox" name="duplicate_override" value="1" <?php checked( ! empty( $state['duplicate_override'] ) ); ?> />
             <?php esc_html_e( 'I have checked the existing prospects list — this is a new entry', 'talenttrack' ); ?>
         </label>
         <?php
+    }
+
+    /**
+     * Render a collapsible list of existing (non-archived) prospects so
+     * the scout can verify they're not creating a duplicate before
+     * ticking the override checkbox (v3.110.98).
+     *
+     * Mobile-first per CLAUDE.md §2: `<summary>` is a 48px-min touch
+     * target; the table sits inside `.tt-table-wrap` so it scrolls
+     * horizontally at 360px without breaking layout. Sorted by
+     * last+first so a manual scan lands on the right name fast.
+     * Capped at 200 rows — past that this inline pattern stops being
+     * useful and we'd build a dedicated search view.
+     */
+    private static function renderExistingProspectsList(): void {
+        $repo = new ProspectsRepository();
+        $rows = $repo->search( [
+            'include_archived' => false,
+            'limit'            => 200,
+        ] );
+        if ( empty( $rows ) ) return;
+
+        usort( $rows, static function ( $a, $b ): int {
+            $la = strtolower( (string) ( $a->last_name  ?? '' ) );
+            $lb = strtolower( (string) ( $b->last_name  ?? '' ) );
+            if ( $la !== $lb ) return $la <=> $lb;
+            return strtolower( (string) ( $a->first_name ?? '' ) )
+               <=> strtolower( (string) ( $b->first_name ?? '' ) );
+        } );
+
+        $count = count( $rows );
+        ?>
+        <details class="tt-prospect-dedupe" style="margin: var(--tt-sp-3, 16px) 0; border:1px solid var(--tt-line, #e5e7ea); border-radius:8px; background:#fafbfc;">
+            <summary style="cursor:pointer; padding:14px 16px; min-height:48px; font-weight:600;">
+                <?php
+                printf(
+                    /* translators: %d: number of existing non-archived prospects in the club. */
+                    esc_html( _n( 'Show existing prospects (%d)', 'Show existing prospects (%d)', $count, 'talenttrack' ) ),
+                    (int) $count
+                );
+                ?>
+            </summary>
+            <div class="tt-table-wrap" style="padding:0 12px 12px;">
+                <table class="tt-table">
+                    <thead>
+                        <tr>
+                            <th scope="col"><?php esc_html_e( 'First name', 'talenttrack' ); ?></th>
+                            <th scope="col"><?php esc_html_e( 'Last name',  'talenttrack' ); ?></th>
+                            <th scope="col"><?php esc_html_e( 'Club',       'talenttrack' ); ?></th>
+                            <th scope="col"><?php esc_html_e( 'Status',     'talenttrack' ); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ( $rows as $r ) : ?>
+                        <tr>
+                            <td><?php echo esc_html( (string) ( $r->first_name   ?? '' ) ); ?></td>
+                            <td><?php echo esc_html( (string) ( $r->last_name    ?? '' ) ); ?></td>
+                            <td><?php echo esc_html( (string) ( $r->current_club ?? '' ) ); ?></td>
+                            <td><?php echo esc_html( self::statusLabel( $r ) ); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </details>
+        <?php
+    }
+
+    private static function statusLabel( object $r ): string {
+        if ( ! empty( $r->promoted_to_trial_case_id ) )  return __( 'In trial', 'talenttrack' );
+        if ( ! empty( $r->promoted_to_player_id ) )      return __( 'Joined',   'talenttrack' );
+        return __( 'Active', 'talenttrack' );
     }
 
     public function validate( array $post, array $state ) {

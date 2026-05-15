@@ -129,7 +129,18 @@ Ordered by raw frequency (most-used first). Each action lists:
     `?prospect_id=N` in the URL. Empty state (fresh scout, no
     prospects yet) reads "You have not logged any prospects yet…"
     and the hero CTA above is the obvious next action.
-- **Polish notes:**
+  - **v3.110.98** — `Identity` step gains an inline existing-prospects
+    list. Before: the "I have checked the existing prospects list"
+    checkbox had nothing to check against; scouts left the wizard
+    to see the kanban, losing in-flight state. After: a `<details>`
+    collapsible above the checkbox shows a 4-column table (First /
+    Last / Club / Status) of all non-archived prospects sorted by
+    last+first, capped at 200. Mobile-first: 48px summary tap target,
+    horizontal scroll at 360px, native `<details>` (no JS).
+    *How to test:* open `+ New prospect`. On Identity step click
+    "Show existing prospects (N)" → table expands inline. Sort is
+    alphabetic, status reads Active / In trial / Joined. Wizard
+    state survives the expansion; tick the checkbox and continue.
 
 ### 2. Glance at the onboarding pipeline
 
@@ -197,7 +208,22 @@ Ordered by raw frequency (most-used first). Each action lists:
     completes the confirm task → next refresh, prospect appears in
     **Test training**. Counts in the dashboard widget match the
     kanban exactly.
-- **Polish notes:**
+  - **v3.110.98** — fixes the kanban → task-detail flow. Before:
+    clicking an HoD-held task from the kanban dead-ended with
+    "This task is not assigned to you" and offered no back-pill.
+    After: every operator sees template name, description, assignee
+    display name, status, due date. The form renders with all
+    controls locked via `<fieldset disabled>` for non-assignees, no
+    Submit; the assignee path is unchanged. `cardUrl()` wraps every
+    outgoing URL in `BackLink::appendTo()` so the destination view
+    emits a `← Back to Onboarding pipeline` pill alongside the
+    breadcrumb chain (CLAUDE.md §5's second affordance).
+    *How to test:* click any kanban card whose underlying task is
+    held by someone else. Page shows the task facts, a "You can view
+    this task, but only the assignee can edit or complete it."
+    banner, the form is greyed-out, no Submit. Pill at top: "← Back
+    to Onboarding pipeline". Switch to the assignee account → form
+    becomes editable, Submit visible, banner gone, pill still there.
 
 ### 3. Add a follow-up scouting note to an existing prospect
 
