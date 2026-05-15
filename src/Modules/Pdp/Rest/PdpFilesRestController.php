@@ -441,7 +441,7 @@ class PdpFilesRestController {
     /**
      * #0080 Wave C3 — replacement for the legacy "is admin?" proxy
      * (`current_user_can('tt_edit_settings')`) used to bypass the
-     * coach-ownership ladder. Three sources, in order:
+     * coach-ownership ladder. Four sources, in order:
      *   1. Matrix grant: `pdp_file/<activity>/global` — the precise
      *      semantic ("user has unrestricted PDP access").
      *   2. WordPress site admin (`manage_options`) — portable fallback
@@ -450,6 +450,16 @@ class PdpFilesRestController {
      *      back-compat with v3.0 callers; the CapabilityAliases
      *      roll-up still grants this when the user holds every
      *      settings sub-cap.
+     *   4. v3.110.112 — global-reader personas. The HoD and academy
+     *      admin personas are designed to have academy-wide scope on
+     *      every player-development surface (PDP files, evaluations,
+     *      goals, etc.). On installs whose MatrixGate matrix is
+     *      dormant (no rows seeded), step 1 returns false and the HoD
+     *      drops through to coach-scoping — returning zero files
+     *      because the HoD isn't a coach. This step explicitly
+     *      recognises the persona instead of relying on the matrix.
+     *      Pilot symptom: "POP verdicts pending" KPI link landed on
+     *      an empty list for the HoD.
      *
      * @param string $activity 'read' | 'change'
      */
@@ -462,7 +472,20 @@ class PdpFilesRestController {
             }
         }
         if ( current_user_can( 'manage_options' ) ) return true;
-        return current_user_can( 'tt_edit_settings' );
+        if ( current_user_can( 'tt_edit_settings' ) ) return true;
+
+        // Persona-based fallback. `read` is granted to all global readers;
+        // `change` is restricted to HoD + academy_admin (Club Admin) —
+        // mirrors the FunctionalRoles seed which gives those personas
+        // PDP edit reach.
+        if ( $uid > 0 && class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) {
+            $personas = \TT\Modules\Authorization\PersonaResolver::personasFor( $uid );
+            $global_readers = [ 'head_of_development', 'academy_admin' ];
+            foreach ( $personas as $p ) {
+                if ( in_array( $p, $global_readers, true ) ) return true;
+            }
+        }
+        return false;
     }
 
     /** @return array<string,mixed> */
