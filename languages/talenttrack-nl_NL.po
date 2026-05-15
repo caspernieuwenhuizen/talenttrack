@@ -1627,7 +1627,7 @@ msgid "Activity date"
 msgstr "Activiteitdatum"
 
 msgid "Due date"
-msgstr "Vervaldatum"
+msgstr "Deadline"
 
 msgid "missing"
 msgstr "ontbreekt"
@@ -11969,6 +11969,39 @@ msgstr "Mentor"
 
 msgid "Goalkeeper"
 msgstr "Keeper"
+
+# v3.110.101 — football position long-form labels for tt_lookups.name codes
+# (Activator seeds GK/CB/LB/RB/CDM/CM/CAM/LW/RW/ST/CF; LabelTranslator::positionLabel
+# maps each to a localised long name surfaced in the new-goal wizard cascade).
+msgid "Centre back"
+msgstr "Centrale verdediger"
+
+msgid "Left back"
+msgstr "Linksback"
+
+msgid "Right back"
+msgstr "Rechtsback"
+
+msgid "Defensive midfielder"
+msgstr "Verdedigende middenvelder"
+
+msgid "Central midfielder"
+msgstr "Middenvelder"
+
+msgid "Attacking midfielder"
+msgstr "Aanvallende middenvelder"
+
+msgid "Left winger"
+msgstr "Linksbuiten"
+
+msgid "Right winger"
+msgstr "Rechtsbuiten"
+
+msgid "Striker"
+msgstr "Spits"
+
+msgid "Centre forward"
+msgstr "Centrumspits"
 
 msgid "Neutral 4-3-3"
 msgstr "Neutraal 4-3-3"

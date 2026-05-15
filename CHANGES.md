@@ -1,3 +1,146 @@
+# TalentTrack v3.110.101 — Goal wizard 7-item polish + adjacent fixes
+
+Seven pilot issues on the new-goal wizard + adjacent surfaces, reported in one operator round on the head-coach persona.
+
+## 1 — PlayerStep now uses `PlayerSearchPickerComponent`
+
+`src/Modules/Wizards/Goal/PlayerStep.php` was a hand-rolled club-wide `<select>` populated by raw `SELECT FROM tt_players WHERE club_id = …`. It ignored team scoping entirely.
+
+Pilot:
+> *"new goal wizard should use playerpicker and should limit to scope of the user (it does not do this it seems, logged on a headcoach with O13 assigned I could see O14 players)"*
+
+Rewrote the step to delegate to the existing `PlayerSearchPickerComponent` with `user_id` + `is_admin`. That component runs through `resolvePlayers()` which applies the same scope chain as every other player picker in the app:
+
+- Admin / HoD / scout-admin: full club roster.
+- Head-coach / assistant-coach: their assigned teams only.
+- Parent / player: their own player record only.
+
+Same component the new-evaluation wizard's PlayerPickerStep uses, so the behaviour is consistent across record-creation flows. Also: type-to-search instead of long select, embedded team filter (`show_team_filter => true`).
+
+## 2 — Link-type cascade auto-refreshes the candidate select
+
+`LinkStep` line 35 used a plain `<select name="link_type">`. The operator picked a type, the second select stayed empty, they clicked Next, *then* the candidates populated. Two clicks for one intent.
+
+v3.85.3 had previously removed an auto-submit handler that was advancing the wizard past Details on type change. The fix at that time was to neuter the cascade, but the underlying issue (premature advance) was resolved by making `nextStep()` return `self::slug` while `link_id` is still 0 — the framework now re-renders the same step. With that already in place, restoring the auto-submit is safe:
+
+```php
+echo '<select name="link_type" onchange="this.form.requestSubmit
+       ? this.form.requestSubmit()
+       : this.form.submit();">';
+```
+
+`requestSubmit()` is the modern path (fires submit events properly so any form-attached listeners see it); `submit()` is the fallback for old browsers.
+
+## 3 — Position dropdown shows the long localised name
+
+The position-link candidate select rendered the raw `tt_lookups.name` values seeded by the Activator: `GK`, `CB`, `LB`, etc. Pilot:
+> *"dropdown for position should be the long description in correct language"*
+
+New helper in `LabelTranslator`:
+
+```php
+public static function positionLabel( string $code ): string {
+    switch ( strtoupper( $code ) ) {
+        case 'GK':  return __( 'Goalkeeper',           'talenttrack' );
+        case 'CB':  return __( 'Centre back',          'talenttrack' );
+        case 'LB':  return __( 'Left back',            'talenttrack' );
+        case 'RB':  return __( 'Right back',           'talenttrack' );
+        case 'CDM': return __( 'Defensive midfielder', 'talenttrack' );
+        case 'CM':  return __( 'Central midfielder',   'talenttrack' );
+        case 'CAM': return __( 'Attacking midfielder', 'talenttrack' );
+        case 'LW':  return __( 'Left winger',          'talenttrack' );
+        case 'RW':  return __( 'Right winger',         'talenttrack' );
+        case 'ST':  return __( 'Striker',              'talenttrack' );
+        case 'CF':  return __( 'Centre forward',       'talenttrack' );
+    }
+    return $code;
+}
+```
+
+`LinkStep::candidates()`'s `position` branch now formats `"Long name (code)"` (e.g. `"Centre back (CB)"`) so the operator sees both the long name and the standard code. Unknown / custom codes fall through unchanged — admins who added their own positions keep their raw labels.
+
+11 new NL msgstrs added to `languages/talenttrack-nl_NL.po`: `Centre back → Centrale verdediger`, `Left back → Linksback`, etc. The `Goalkeeper → Keeper` mapping was already in the .po (from the trial-track system rows).
+
+## 4 — NL "Due date" → "Deadline" (not "Vervaldatum")
+
+Pilot:
+> *"dutch translation of deadline is not correct. Can stay deadline"*
+
+Changed the existing `msgstr "Vervaldatum"` to `msgstr "Deadline"`. The English loan word "Deadline" is what Dutch operators use in practice; `Vervaldatum` (literally "expiry date") reads like a financial term. Other deadline-adjacent strings (`Due`, `Due:`, `Due Date`) were already translated as `Deadline` — this was the lone outlier.
+
+## 5 — "That goal no longer exists" after wizard save
+
+Pilot:
+> *"when creating a goal from the wizard and saving, message 'this goal does no longer exist is shown'"*
+
+`DetailsStep::submit()` inserted into `tt_goals` and redirected to `?tt_view=goals&id=N`. `FrontendGoalsManageView::loadGoal()` applies `apply_demo_scope( 'g', 'goal' )` which filters out rows that aren't in `tt_demo_tags` when demo mode is ON. Fresh wizard rows weren't being tagged, so on demo-ON installs the redirect target found nothing → "That goal no longer exists" notice.
+
+Fix (mirrors v3.76.2 player-wizard fix):
+
+```php
+if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
+    \TT\Modules\DemoData\DemoMode::tagIfActive( 'goal', $goal_id );
+}
+```
+
+`DemoMode::tagIfActive()` is a no-op when demo mode is OFF, so neutral-mode installs are unaffected.
+
+## 6 — Duplicate "New goal" button
+
+Pilot:
+> *"goals page has 2 times new goal button"*
+
+`FrontendGoalsManageView::render()` line 122 builds a page-header action via `pageActionsHtml()` ("+ New goal" primary). `renderList()` line 203 emitted a SECOND inline `<p><a class="tt-btn tt-btn-primary">New goal</a></p>` above the table. The inline one was a leftover from before the page-header-actions slot existed (v3.110.53 added the slot but the older button wasn't removed).
+
+Removed the inline block. The page-header CTA is the single entry, matching every other list view (Players, Activities, etc.).
+
+## 7 — Sortable evaluations table
+
+Pilot:
+> *"There needs to be a standard for table display, the table used on goals page is sortable and this should be applied to other tables that list records, for example evaluations"*
+
+Goals already uses `FrontendListTable` which bakes in sort. Evaluations renders its own table at `src/Shared/Frontend/FrontendEvaluationsView.php:245`:
+
+```html
+<table class="tt-table" style="width:100%;">
+```
+
+Added `tt-table-sortable`:
+
+```html
+<table class="tt-table tt-table-sortable" style="width:100%;">
+```
+
+`FrontendViewBase::enqueueAssets()` auto-detects `.tt-table-sortable` elements and enqueues `assets/js/components/table-sort.js` once per request, so no JS-loading change is needed.
+
+Not in scope (would creep into a larger refactor): converting the evaluations view to a full `FrontendListTable` rendering (search / filter / pagination / REST-backed). The user's ask was "sortable", which this delivers; the rest can be a separate ship if needed.
+
+## Files
+
+- `src/Modules/Wizards/Goal/PlayerStep.php` — rewritten to use `PlayerSearchPickerComponent`
+- `src/Modules/Wizards/Goal/LinkStep.php` — auto-submit on type change; position labels via `LabelTranslator::positionLabel`; new import for the translator
+- `src/Modules/Wizards/Goal/DetailsStep.php` — `DemoMode::tagIfActive('goal', $goal_id)` after insert
+- `src/Infrastructure/Query/LabelTranslator.php` — new `positionLabel()` static
+- `src/Shared/Frontend/FrontendGoalsManageView.php` — removed duplicate "New goal" button
+- `src/Shared/Frontend/FrontendEvaluationsView.php` — table class adds `tt-table-sortable`
+- `languages/talenttrack-nl_NL.po` — `Due date` → `Deadline`; 10 new position long-name translations
+- `talenttrack.php` 3.110.100 → 3.110.101
+- `readme.txt`, `CHANGES.md`
+
+No schema. No migration. No new REST.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.101.
+2. Log in as a head-coach assigned only to O13. Click **+ New goal** in the goals page header. PlayerStep shows ONLY O13 players (was: club-wide).
+3. Advance to **Methodology link**. Pick **Position** in the first dropdown → the second select immediately populates (no Next click) with rows like "Goalkeeper (GK)", "Centre back (CB)", etc. On NL the long names are Dutch ("Centrale verdediger", "Linksback", …).
+4. Fill **Details** → submit. Lands on the goal detail page (not on "That goal no longer exists").
+5. Open the goals list. There is exactly ONE **+ New goal** button — in the page header. No inline duplicate above the table.
+6. NL install: every "Deadline" label across the goals UI (list header, goal detail dl, etc.) reads "Deadline". No more "Vervaldatum".
+7. Open **Evaluations** list. Column headers are now sortable — click "Date" / "Player" / etc. to reorder.
+
+---
+
 # TalentTrack v3.110.100 — New prospects-overview page (rich filtered list); kanban shows birth year not age; two missing NL kanban strings
 
 Three pilot fixes on the scout's prospect surfaces. Items 2 + 3 are small; item 1 builds a new page.

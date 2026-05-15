@@ -56,6 +56,16 @@ final class DetailsStep implements WizardStepInterface {
         if ( ! $ok ) return new \WP_Error( 'db_error', __( 'Could not create the goal.', 'talenttrack' ) );
         $goal_id = (int) $wpdb->insert_id;
 
+        // v3.110.101 — auto-tag the row when demo mode is on. Without
+        // this, demo-mode installs hit "That goal no longer exists"
+        // on the post-submit redirect because `FrontendGoalsManageView::loadGoal`
+        // applies `apply_demo_scope( 'g', 'goal' )` which filters out
+        // any untagged row when demo mode is ON. Same pattern as the
+        // v3.76.2 player-wizard fix.
+        if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
+            \TT\Modules\DemoData\DemoMode::tagIfActive( 'goal', $goal_id );
+        }
+
         // Optional methodology link.
         $link_type = (string) ( $state['link_type'] ?? '' );
         $link_id   = (int) ( $state['link_id'] ?? 0 );

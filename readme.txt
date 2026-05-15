@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.100
+Stable tag: 3.110.101
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.101 — Goal wizard polish (7 items): scoped player picker, cascading link select, position long-names, NL Deadline, demo tag, dedup New-goal button, sortable evaluations table =
+
+Seven pilot fixes on the new-goal wizard + adjacent surfaces. **(1) Goal wizard PlayerStep uses `PlayerSearchPickerComponent`** with `user_id` + `is_admin` args, so head-coaches now see only their team's roster (previously a club-wide select showed O14 players to an O13-only coach). **(2) Link-type cascade auto-refreshes** — `onchange="this.form.requestSubmit()"` on the first select; framework re-renders the step (nextStep returns self::slug while link_id is empty) so the second select populates with candidates for the chosen type without a manual Next click. **(3) Position dropdown shows the long localised name** — new `LabelTranslator::positionLabel($code)` maps `GK → Goalkeeper / Keeper`, `CB → Centre back / Centrale verdediger`, `LB → Left back / Linksback`, etc., for all 11 seeded codes. Label is "Long name (code)"; unknown custom codes fall through unchanged. **(4) NL translation of "Due date" fixed** — was `Vervaldatum`, now `Deadline` (English loan word, common in Dutch); operator-reported. **(5) "Goal no longer exists" after wizard save** — root cause was missing `DemoMode::tagIfActive('goal', $goal_id)` after insert; on demo-ON installs `loadGoal` filtered out the untagged row. Added the call, mirroring the v3.76.2 player-wizard fix. **(6) Duplicate "New goal" button** — the inline `<p><a class="tt-btn">` above the goals list was a leftover from before the page-header-actions slot existed. Removed; page-header CTA remains the single entry. **(7) Sortable evaluations table** — added `tt-table-sortable` class to `FrontendEvaluationsView`'s table. The sort JS is auto-enqueued by `FrontendViewBase::enqueueAssets()` whenever a sortable table is on the page, matching the goals / activities / players list pattern.
 
 = 3.110.100 — New `?tt_view=prospects-overview` rich list; kanban cards now show birth year; two missing NL kanban strings translated =
 

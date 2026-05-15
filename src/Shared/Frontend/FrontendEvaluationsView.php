@@ -242,7 +242,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
         $base_url = add_query_arg( [ 'tt_view' => 'evaluations' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
         ?>
         <div class="tt-table-wrap" style="overflow-x:auto;">
-            <table class="tt-table" style="width:100%;">
+            <table class="tt-table tt-table-sortable" style="width:100%;">
                 <thead><tr>
                     <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
