@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.95
+Stable tag: 3.110.96
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.96 — Wizard activity picker hides activities that already have evaluations — the just-rated activity no longer reappears in the picker (#0092) =
+
+Pilot symptom on v3.110.86: *"I just went into the wizard, picked an activity; marked players as present; rated one and saved the evaluation. I went back to the dashboard and click pick an activity and the same activity as I had just processed was there."* The picker step (`ActivityPickerStep::recentRateableActivities()`) filtered to `plan_state = 'completed'` within the last 90 days — which now includes activities the coach has just rated, because v3.110.83 auto-flips status to `completed` on the wizard's terminal step. The rated activity satisfied every other condition the picker checks, so it kept resurfacing. **Fix**: added a `NOT EXISTS` clause on `tt_evaluations` to the picker query. Once any eval row is written for an activity, the picker treats the run as done and stops surfacing it. The rule applies to BOTH wizards that consume this step (`mark-attendance` + `new-evaluation`) — once rated, an activity drops out of fresh-rating flows. Coaches who want to add more ratings to an already-rated activity use the player-first eval path (`+ New evaluation` → "Rate a player directly") or open the activity detail page and edit ratings there; the wizard picker is for fresh runs only.
 
 = 3.110.95 — Team page renders age-group / staff / activities as tables (was dl + bulleted lists); activity list-view attendance % now matches the per-player form (only counts present rows whose player is on the current active roster); activity detail page gains a clickable Attendance summary linking to the per-player marks =
 
