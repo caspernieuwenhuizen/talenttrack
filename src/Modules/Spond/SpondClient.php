@@ -51,7 +51,17 @@ final class SpondClient {
             return self::error( 'no_credentials', __( 'No Spond credentials configured.', 'talenttrack' ) );
         }
 
-        $response = wp_remote_post( self::BASE_URL . '/login', [
+        // v3.110.111 — fix the actual 404 the pilot reported. Spond's
+        // login endpoint is `auth2/login` (with the `2`), not `/login`.
+        // Verified against the Python `spond` library (Olen/Spond
+        // v1.2.1, 2026-05-14): `auth2/login` POST body
+        // `{ "email": ..., "password": ... }`, response includes
+        // `accessToken.token` (a nested object, not a flat
+        // `loginToken` field). The pre-v3.110.111 code POSTed to
+        // `/login` (always 404) and read `$json['loginToken']` (which
+        // doesn't exist), so every Spond sync failed at login. See
+        // SPOND-INTEGRATION-RCA in CHANGES.md.
+        $response = wp_remote_post( self::BASE_URL . '/auth2/login', [
             'timeout' => self::TIMEOUT_SECONDS,
             'headers' => [
                 'Content-Type' => 'application/json',
@@ -101,7 +111,20 @@ final class SpondClient {
             );
         }
 
-        $token = is_array( $json ) ? (string) ( $json['loginToken'] ?? '' ) : '';
+        // v3.110.111 — Spond returns
+        //   { "accessToken": { "token": "<jwt>", "expiration": "..." }, ... }
+        // and the JWT must be read from `accessToken.token`, not from
+        // a top-level `loginToken`. Defensive fallback to `loginToken`
+        // first then the new nested path keeps any non-canonical
+        // upstream behaviour we haven't seen working.
+        $token = '';
+        if ( is_array( $json ) ) {
+            if ( ! empty( $json['loginToken'] ) ) {
+                $token = (string) $json['loginToken'];
+            } elseif ( is_array( $json['accessToken'] ?? null ) && ! empty( $json['accessToken']['token'] ) ) {
+                $token = (string) $json['accessToken']['token'];
+            }
+        }
         if ( $token === '' ) {
             return self::error( 'no_token', __( 'Spond login did not return a token.', 'talenttrack' ), $code );
         }

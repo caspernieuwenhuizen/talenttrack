@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.109
+Stable tag: 3.110.111
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.111 — Spond integration: actual 404 root cause fixed — login endpoint was `/login`, should be `/auth2/login`; response field was `loginToken`, should be `accessToken.token` =
+
+Pairs with v3.110.108 (Spond URL configurable) which gave operators a UI to redirect to a new URL. This release fixes the actual login flow against the canonical `api.spond.com/core/v1` endpoint. Researched against the Python `spond` library on PyPI (Olen/Spond v1.2.1, 2026-05-14) — base URL is unchanged, but the login endpoint is `auth2/login` (not `/login`) and the response payload returns `{ "accessToken": { "token": "<jwt>", … } }` (not `{ "loginToken": "<jwt>" }`). Two pre-v3.110.111 bugs combined to produce the pilot's `404`: `SpondClient::login()` POSTed to `/login` (which 404s on every Spond install) and, even if a token had been returned, the parser read a `loginToken` field that doesn't exist. **Fix**: `wp_remote_post( self::BASE_URL . '/auth2/login', … )`. Token parser tries `accessToken.token` first (the documented current shape) and falls back to `loginToken` (back-compat with any installs reading a non-canonical body — defensive). Subsequent `authedGet` calls already use the right `Authorization: Bearer <token>` header pattern and the collection endpoints (`/groups/`, `/sponds/`) already have their trailing slashes. No URL constant change — the override-able `spond.api_base_url` config from v3.110.108 still works (default `https://api.spond.com/core/v1`).
 
 = 3.110.109 — Dashboard layout editor — drag-and-drop fix: "not allowed" cursor + silent drop rejection =
 

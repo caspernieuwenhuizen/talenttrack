@@ -1,3 +1,85 @@
+# TalentTrack v3.110.111 — Spond integration: real 404 root cause fixed (`/login` → `/auth2/login`; `loginToken` → `accessToken.token`)
+
+Pairs with v3.110.108 (Spond URL configurable from wp-admin, in flight as PR #407) which gave operators a UI to redirect to a new endpoint. This release fixes the actual underlying login bugs against the canonical `api.spond.com/core/v1` base URL.
+
+> *"in order to get spond integration working again, see if you can analyse/use this library: https://pypi.org/project/spond/"*
+
+## Research
+
+Cross-referenced our `SpondClient.php` against the Python `spond` library (Olen/Spond v1.2.1, released 2026-05-14) and the unofficial Swagger docs at martcl/spond. Findings:
+
+| Item | Python `spond` (canonical) | Our pre-v3.110.111 code |
+|---|---|---|
+| **Base URL** | `https://api.spond.com/core/v1/` | `https://api.spond.com/core/v1` ✓ |
+| **Login endpoint** | `POST /auth2/login` | `POST /login` ❌ → 404 |
+| **Login payload** | `{ "email": ..., "password": ... }` | `{ "email": ..., "password": ... }` ✓ |
+| **Token response field** | `accessToken.token` (nested) | `loginToken` (flat, doesn't exist) ❌ |
+| **Subsequent header** | `Authorization: Bearer <jwt>` | `Authorization: Bearer <jwt>` ✓ |
+| **Groups endpoint** | `GET /groups/` | `GET /groups/` ✓ |
+| **Events endpoint** | `GET /sponds/?groupId=…` | `GET /sponds/?groupId=…` ✓ |
+| **Members/subgroups** | Embedded in `/groups/` response | We walk `group["members"]` ✓ |
+
+Two bugs combined to produce the pilot-reported 404:
+
+1. **`/login` 404s.** The `auth2/` prefix is required. Spond returns a vanilla 404 with no body for the wrong path; our error handler reported it verbatim ("Spond login returned HTTP 404").
+2. **`loginToken` field doesn't exist.** Even if Spond did honour `/login` with a 200 (hypothetically — they don't), our parser would still fail at `if ( $token === '' )` and report `no_token` because we read `$json['loginToken']`. The canonical field is `$json['accessToken']['token']` (a JWT inside a nested object).
+
+## Fix
+
+### Login endpoint
+
+```php
+$response = wp_remote_post( self::BASE_URL . '/auth2/login', [ ... ] );
+```
+
+Headers unchanged. Body unchanged (Spond's payload was already correct: `{ "email": ..., "password": ... }`).
+
+### Token extraction (with defensive fallback)
+
+```php
+$token = '';
+if ( is_array( $json ) ) {
+    if ( ! empty( $json['loginToken'] ) ) {
+        // Defensive: if any install ever responded with a flat
+        // loginToken field, keep working there. Spond canonical
+        // is the nested accessToken.token below.
+        $token = (string) $json['loginToken'];
+    } elseif ( is_array( $json['accessToken'] ?? null ) && ! empty( $json['accessToken']['token'] ) ) {
+        $token = (string) $json['accessToken']['token'];
+    }
+}
+```
+
+`accessToken.token` is the documented current shape; `loginToken` fallback keeps the pre-v3.110.111 read path alive in case any operator's response carries both for back-compat.
+
+### What was NOT changed
+
+- Base URL constant — `https://api.spond.com/core/v1` is unchanged, verified against `spond` v1.2.1's `Spond.api_url` constant. The configurable override from v3.110.108 still applies (operator can still point at a private mock by setting `spond.api_base_url` in tt_config).
+- `authedGet` — already sends `Authorization: Bearer <token>`, already uses trailing slashes on `groups/` and `sponds/`, no change needed.
+- 2FA detection — Spond doesn't expose 2FA over the `auth2/login` endpoint; an account with 2FA enabled never returns a token. Our existing 2FA hint check (`verificationRequired`, `mfa`, `twoFactor`, `requires2FA`) catches the documented body shapes; if a different shape appears in the field, we'd need an operator report with a captured response body.
+
+## Files
+
+- `src/Modules/Spond/SpondClient.php` — login URL + token-parsing rewrite (two changes in `SpondClient::login()`)
+- `talenttrack.php` 3.110.109 → 3.110.111 (PR #407 + #409 + #411 in flight occupy 108, 109, 110)
+- `readme.txt`, `CHANGES.md`
+
+No schema, no migration, no admin-UI change. The v3.110.108 admin URL override stays — operator can leave it blank to use the now-working default `https://api.spond.com/core/v1`.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.111. Open Spond admin (Settings → Spond).
+2. Confirm the API endpoint shows `https://api.spond.com/core/v1 (default)` (leave the override blank).
+3. Click **Test connection** with valid Spond credentials → success flash ("Spond login successful — token cached").
+4. Verify on a team's row that the Spond group dropdown populates (was the secondary symptom — empty dropdown because `fetchGroups()` never got a valid token).
+5. Trigger a per-team sync. The 30/180-day window of activities pulls from `/sponds/` and shows up under team activities.
+
+## Why this took until v3.110.111 to surface
+
+The `/login` path probably worked on an earlier Spond API generation (the `auth2/` prefix is uncommon enough that it reads like a recent versioning move; the Python library's `Spond.api_url` was at `core/v1/auth2/login` from at least 2024). It's possible Spond removed the legacy `/login` endpoint mid-2025 — that would explain why pilot installs running unchanged TalentTrack code suddenly started 404'ing.
+
+---
+
 # TalentTrack v3.110.109 — Dashboard layout editor — drag-and-drop fix: "not allowed" cursor + silent drop rejection
 
 ## Pilot symptom
