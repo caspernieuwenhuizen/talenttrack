@@ -1,3 +1,78 @@
+# TalentTrack v3.110.106 — Player profile tabs as sortable tables; attendance status pills colour-coded
+
+Two operator-requested polish items on the player profile page.
+
+> *"player profile: all information in tabs should be listed in a table and not a bulleted list, for example activities."*
+> *"player profile: in the activities tab, color coding should be applied to the attendance status pill"*
+
+## 1 — Tabs converted to sortable tables
+
+All five tabbed lists on `FrontendPlayerDetailView` previously rendered as `<ul class="tt-stack">` with linkified `<li>` items. Operator wanted a tabular view — easier to scan, supports column sort, consistent with the goals / activities / evaluations list views.
+
+Converted each to `<div class="tt-table-wrap"><table class="tt-table tt-table-sortable">`:
+
+| Tab | Columns |
+|---|---|
+| Goals | Goal · Status (LookupPill) · Deadline |
+| Evaluations | Date · (Delete action if `tt_edit_evaluations`) |
+| Activities | Date · Activity · Attendance (LookupPill — see item 2) |
+| PDP files | Status · Created |
+| Trials | Status · Start · End |
+
+`tt-table-sortable` is the existing class — `FrontendViewBase::enqueueAssets()` auto-enqueues the sort JS whenever a sortable table is on the page, so no enqueue change. The wrapping `tt-table-wrap` gives horizontal scroll on small phones without breaking layout (mobile-first per CLAUDE.md §2).
+
+Empty-state cards (`EmptyStateCard::render(...)`) are unchanged — the table only renders when there are rows. The Evaluations tab's existing record-delete handler (`.tt-record-delete` with `data-tt-row`) continues to work because the `<tr>` still carries `data-tt-row`.
+
+## 2 — Attendance status pill colour-coded
+
+Migration `0093_seed_attendance_status_colors`. The Activities tab pill is rendered by `LookupPill::render( 'attendance_status', $status )`, which reads `meta.color` and falls back to neutral grey when missing. The `attendance_status` lookups have been seeded since v1 (`src/Core/Activator.php:856-858`) without any `meta` — so every status pill rendered the same grey, defeating the point of the pill.
+
+Migration backfills the canonical 5 statuses with conventional colours:
+
+```php
+$defaults = [
+    'Present' => '#16a34a',  // green
+    'Absent'  => '#dc2626',  // red
+    'Late'    => '#d97706',  // amber
+    'Injured' => '#7c3aed',  // purple
+    'Excused' => '#0284c7',  // blue
+];
+```
+
+Defensive:
+
+- Only writes `meta.color` when it's currently empty. Operators who customised colours via the lookups admin keep their values.
+- Only touches the 5 canonical status names. Custom statuses an admin added are untouched.
+- Walks every row regardless of `club_id`, so each tenant on a multi-club install gets the defaults independently.
+
+Idempotent — re-running finds `meta.color` already set on every row this would touch.
+
+## Why this lands together
+
+The activities pill colour-coding only pays off once the row actually surfaces the pill prominently. The table conversion places the **Attendance** column on its own column where the pill is the only content; the user immediately sees green/red/amber rows on scan. Splitting these into two releases would leave the Activities tab between states for one ship.
+
+## Files
+
+- `src/Shared/Frontend/FrontendPlayerDetailView.php` — 5 tab render methods rewritten (renderGoalsTab, renderEvaluationsTab, renderActivitiesTab, renderPdpTab, renderTrialsTab)
+- **New** `database/migrations/0093_seed_attendance_status_colors.php`
+- `talenttrack.php` 3.110.105 → 3.110.106 (renumbered twice after parallel ships took 3.110.104 and 3.110.105)
+- `readme.txt`, `CHANGES.md`
+
+No new caps. No new strings. The 5 attendance-status names (Present / Absent / Late / Injured / Excused) already have NL translations from migration 0060. Column headers (Goal / Status / Deadline / Activity / Attendance / Date / Created / Start / End) are common strings already in the .po.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.106. Migration 0093 runs once on activate.
+2. Open any player profile and click through the tabs:
+   - **Goals** — rendered as a 3-col sortable table (Goal / Status / Deadline). Click a column header to sort.
+   - **Evaluations** — 1- or 2-col sortable table (Date, plus a Delete column for users with `tt_edit_evaluations`). Delete still fades the row.
+   - **Activities** — 3-col sortable table (Date / Activity / Attendance). The Attendance column shows a coloured pill per status: green for Present, red for Absent, amber for Late, purple for Injured, blue for Excused.
+   - **PDP** — 2-col sortable table (Status / Created).
+   - **Trials** — 3-col sortable table (Status / Start / End).
+3. Operators with custom attendance statuses (e.g. "Probation", "Sick") see the canonical 5 coloured + their custom rows still grey (or whatever they set in the lookups admin).
+
+---
+
 # TalentTrack v3.110.105 — Evaluation edit form: Type pre-fills (with legacy back-fill from activity); sub-category ratings render and edit inline (#0092)
 
 Group 3 of the evaluation-flow polish pass. Two pilot-surfaced gaps on the edit form.

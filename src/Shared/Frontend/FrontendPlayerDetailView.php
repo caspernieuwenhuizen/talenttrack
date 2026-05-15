@@ -535,20 +535,23 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             ] );
             return;
         }
-        echo '<ul class="tt-stack">';
+        // v3.110.104 — bullet list `<ul class="tt-stack">` replaced
+        // with a sortable table per the player-profile-tables standard.
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%;">';
+        echo '<thead><tr>';
+        echo '<th>' . esc_html__( 'Goal',     'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Status',   'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Deadline', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
         foreach ( $rows as $g ) {
             $url = RecordLink::detailUrlForWithBack( 'goals', (int) $g->id );
-            echo '<li>';
-            echo '<a class="tt-record-link" href="' . esc_url( $url ) . '">';
-            echo '<strong>' . esc_html( (string) $g->title ) . '</strong> &middot; ';
-            echo LookupPill::render( 'goal_status', (string) $g->status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            if ( ! empty( $g->due_date ) ) {
-                echo ' <span class="tt-muted">&middot; ' . esc_html( (string) $g->due_date ) . '</span>';
-            }
-            echo '</a>';
-            echo '</li>';
+            echo '<tr>';
+            echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) $g->title ) . '</a></td>';
+            echo '<td>' . LookupPill::render( 'goal_status', (string) $g->status ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<td>' . ( ! empty( $g->due_date ) ? esc_html( (string) $g->due_date ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
+            echo '</tr>';
         }
-        echo '</ul>';
+        echo '</tbody></table></div>';
     }
 
     /** Evaluations tab — every evaluation, linkified (was a flat date list). */
@@ -587,25 +590,30 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             return;
         }
         $can_delete = current_user_can( 'tt_edit_evaluations' );
-        echo '<ul class="tt-stack">';
+        // v3.110.104 — bullet list → sortable table.
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%;">';
+        echo '<thead><tr>';
+        echo '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>';
+        if ( $can_delete ) {
+            echo '<th style="width:48px;"><span class="screen-reader-text">' . esc_html__( 'Actions', 'talenttrack' ) . '</span></th>';
+        }
+        echo '</tr></thead><tbody>';
         foreach ( $rows as $ev ) {
             $url = RecordLink::detailUrlForWithBack( 'evaluations', (int) $ev->id );
-            // Each row gets `data-tt-row` so the generic record-delete
-            // handler in public.js (`.tt-record-delete`) can fade and
-            // remove it without a full page reload on success.
-            echo '<li data-tt-row><a class="tt-record-link" href="' . esc_url( $url ) . '">';
-            echo '<strong>' . esc_html( (string) ( $ev->eval_date ?? '—' ) ) . '</strong>';
-            echo '</a>';
+            // `data-tt-row` so the public.js record-delete handler can
+            // fade + remove the row without a full page reload.
+            echo '<tr data-tt-row>';
+            echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) ( $ev->eval_date ?? '—' ) ) . '</a></td>';
             if ( $can_delete ) {
-                echo ' <button type="button" class="tt-record-delete tt-btn-link"'
+                echo '<td><button type="button" class="tt-record-delete tt-btn-link"'
                     . ' data-rest-path="' . esc_attr( 'evaluations/' . (int) $ev->id ) . '"'
                     . ' data-confirm-msg="' . esc_attr__( 'Delete this evaluation? This cannot be undone.', 'talenttrack' ) . '"'
                     . ' data-deleted-msg="' . esc_attr__( 'Evaluation deleted.', 'talenttrack' ) . '"'
-                    . ' aria-label="' . esc_attr__( 'Delete evaluation', 'talenttrack' ) . '">×</button>';
+                    . ' aria-label="' . esc_attr__( 'Delete evaluation', 'talenttrack' ) . '">×</button></td>';
             }
-            echo '</li>';
+            echo '</tr>';
         }
-        echo '</ul>';
+        echo '</tbody></table></div>';
     }
 
     /** Activities tab — recent activities the player attended.
@@ -653,20 +661,25 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             }
             return;
         }
-        echo '<ul class="tt-stack">';
+        // v3.110.104 — bullet list → sortable table. Attendance status
+        // pill is colour-coded via the v3.110.104 migration that backfills
+        // `meta.color` on the `attendance_status` lookups (green for
+        // Present, red for Absent, amber for Late, etc.).
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%;">';
+        echo '<thead><tr>';
+        echo '<th>' . esc_html__( 'Date',       'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Activity',   'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Attendance', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
         foreach ( $rows as $a ) {
             $url = RecordLink::detailUrlForWithBack( 'activities', (int) $a->id );
-            echo '<li><a class="tt-record-link" href="' . esc_url( $url ) . '">';
-            echo '<strong>' . esc_html( (string) ( $a->title ?? '—' ) ) . '</strong>';
-            if ( ! empty( $a->session_date ) ) {
-                echo ' <span class="tt-muted">&middot; ' . esc_html( (string) $a->session_date ) . '</span>';
-            }
-            if ( ! empty( $a->status ) ) {
-                echo ' &middot; ' . LookupPill::render( 'attendance_status', (string) $a->status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            }
-            echo '</a></li>';
+            echo '<tr>';
+            echo '<td>' . ( ! empty( $a->session_date ) ? esc_html( (string) $a->session_date ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
+            echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) ( $a->title ?? '—' ) ) . '</a></td>';
+            echo '<td>' . ( ! empty( $a->status ) ? LookupPill::render( 'attendance_status', (string) $a->status ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '</tr>';
         }
-        echo '</ul>';
+        echo '</tbody></table></div>';
     }
 
     /** PDP tab — files + recent conversations. */
@@ -691,12 +704,20 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             ] );
             return;
         }
-        echo '<h3>' . esc_html__( 'PDP files', 'talenttrack' ) . '</h3><ul class="tt-stack">';
+        echo '<h3>' . esc_html__( 'PDP files', 'talenttrack' ) . '</h3>';
+        // v3.110.104 — bullet list → sortable table.
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%;">';
+        echo '<thead><tr>';
+        echo '<th>' . esc_html__( 'Status',  'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Created', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
         foreach ( $files as $f ) {
-            echo '<li><strong>' . esc_html( (string) $f->status ) . '</strong>';
-            echo ' <span class="tt-muted">&middot; ' . esc_html( (string) $f->created_at ) . '</span></li>';
+            echo '<tr>';
+            echo '<td>' . esc_html( (string) $f->status ) . '</td>';
+            echo '<td>' . esc_html( (string) $f->created_at ) . '</td>';
+            echo '</tr>';
         }
-        echo '</ul>';
+        echo '</tbody></table></div>';
     }
 
     /** Trials tab — every trial case the player has been part of. */
@@ -733,19 +754,22 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             EmptyStateCard::render( $card );
             return;
         }
-        echo '<ul class="tt-stack">';
+        // v3.110.104 — bullet list → sortable table.
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%;">';
+        echo '<thead><tr>';
+        echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Start',  'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'End',    'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
         foreach ( $rows as $t ) {
             $url = add_query_arg( [ 'tt_view' => 'trial-case', 'id' => (int) $t->id ], RecordLink::dashboardUrl() );
-            echo '<li><a class="tt-record-link" href="' . esc_url( $url ) . '">';
-            echo '<strong>' . esc_html( (string) $t->status ) . '</strong>';
-            if ( ! empty( $t->start_date ) ) {
-                echo ' <span class="tt-muted">&middot; ' . esc_html( (string) $t->start_date );
-                if ( ! empty( $t->end_date ) ) echo ' → ' . esc_html( (string) $t->end_date );
-                echo '</span>';
-            }
-            echo '</a></li>';
+            echo '<tr>';
+            echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) $t->status ) . '</a></td>';
+            echo '<td>' . ( ! empty( $t->start_date ) ? esc_html( (string) $t->start_date ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
+            echo '<td>' . ( ! empty( $t->end_date )   ? esc_html( (string) $t->end_date )   : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
+            echo '</tr>';
         }
-        echo '</ul>';
+        echo '</tbody></table></div>';
     }
 
     /**
