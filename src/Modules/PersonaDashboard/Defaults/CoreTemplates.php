@@ -157,18 +157,29 @@ final class CoreTemplates {
         // KPI strip → team overview + new-trial action → onboarding pipeline
         // strip → upcoming activities → trials needing decision → tiles.
         $grid = new GridLayout();
-        // Rows 0-2: team overview grid (L, 9 cols) + new-trial action (S, 3 cols, right gutter).
+        // Rows 0-2: team overview grid (L, 9 cols × 3 rows) with two
+        // action cards stacked in the right gutter at x=9 — `new_trial`
+        // at y=0 and `new_test_training` at y=1 (v3.110.113 added the
+        // second card per pilot ask). Row 2 in the gutter stays empty
+        // so the team grid breathes.
         $grid->add( new WidgetSlot( 'team_overview_grid', 'days=30,sort=concern_first', Size::L, 0, 0, 3, 5 ) );
         $grid->add( new WidgetSlot( 'action_card',        'new_trial',                  Size::S, 9, 0, 1, 6 ) );
+        $grid->add( new WidgetSlot( 'action_card',        'new_test_training',          Size::S, 9, 1, 1, 7 ) );
         // Row 3: onboarding pipeline strip (XL, full width, 1 row). Six-stage
         // funnel counts so invitations / outcomes / trial-group / team-offer
         // backlog are visible without drilling into the kanban — drives
         // actions #2, #3, #10 in the HoD-actions doc.
-        $grid->add( new WidgetSlot( 'onboarding_pipeline', '', Size::XL, 0, 3, 1, 7 ) );
+        $grid->add( new WidgetSlot( 'onboarding_pipeline', '', Size::XL, 0, 3, 1, 9 ) );
         // Rows 4-5: upcoming activities table (XL, full width, 2 rows).
-        $grid->add( new WidgetSlot( 'data_table', 'upcoming_activities', Size::XL, 0, 4, 2, 8 ) );
+        $grid->add( new WidgetSlot( 'data_table', 'upcoming_activities', Size::XL, 0, 4, 2, 10 ) );
         // Rows 6-7: trials needing decision.
         $grid->add( new WidgetSlot( 'data_table', 'trials_needing_decision', Size::XL, 0, 6, 2, 12 ) );
+        // Row 8: recent comments & notes (v3.110.113 — pilot ask).
+        // M=6 cols on the left half of the row; the right half is left
+        // empty to give the list breathing room. Drops into the natural
+        // reading flow between the trials table and the navigation tile
+        // grid below. Cap-gated on `tt_view_threads` — HoD has it.
+        $grid->add( new WidgetSlot( 'recent_comments',    '',                            Size::M, 0, 8, 1, 14 ) );
         // Row 8+: navigation tiles. Top row carries the HoD's four
         // highest-frequency drill-downs (funnel, inbox, players, teams);
         // second row carries the cycle / record-keeping surfaces; tail
@@ -201,7 +212,9 @@ final class CoreTemplates {
         ];
         foreach ( $tiles as $i => [ $slug, $label, $priority ] ) {
             $col = ( $i % 4 ) * 3;
-            $row = 8 + (int) floor( $i / 4 );
+            // v3.110.113 — tiles shifted from y=8 to y=9 to make room
+            // for the new `recent_comments` widget on row 8.
+            $row = 9 + (int) floor( $i / 4 );
             $grid->add( new WidgetSlot(
                 'navigation_tile', $slug, Size::S, $col, $row, 1, $priority, true, $label
             ) );

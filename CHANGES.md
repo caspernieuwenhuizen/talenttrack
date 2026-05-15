@@ -1,6 +1,6 @@
-# TalentTrack v3.110.115 — Standard reports: Team + Player attendance statistics on the central Analytics surface
+# TalentTrack v3.110.116 — Standard reports: Team + Player attendance statistics on the central Analytics surface
 
-Second of three sequential ships from one operator round (v3.110.108 = Spond URL configurable + Analytics tile; v3.110.114 = Spond login URL + token field fix; widget library detail panel ships next).
+Sequential ship from one operator round (v3.110.108 = Spond URL configurable + Analytics tile; v3.110.114 = Spond login URL + token field fix; widget library detail panel ships next as v3.110.117).
 
 > *"in the analytics module I need a number of standard reports: team attendance statistics, player attendance statistics"* — pilot
 
@@ -44,20 +44,154 @@ New reports add an entry to the `$reports` array in `renderStandardReports()` �
 - `src/Modules/Analytics/Frontend/FrontendAnalyticsView.php` — `renderStandardReports()` added
 - `src/Shared/Frontend/DashboardShortcode.php` — two new dispatch cases
 - `src/Shared/Frontend/Components/BackLabelResolver.php` — three new back-pill labels
-- `talenttrack.php` 3.110.114 → 3.110.115
+- `talenttrack.php` 3.110.115 → 3.110.116
 - `readme.txt`, `CHANGES.md`
 
 No schema, no migration, no new REST.
 
 ## How to verify
 
-1. Refresh the plugin to v3.110.109 (after v3.110.108 lands).
+1. Refresh the plugin to v3.110.116.
 2. Log in as HoD / admin (anyone with `tt_view_analytics`).
 3. Open the Analytics tile (or `?tt_view=analytics`).
 4. Scroll past the KPI grid → **Standard reports** section with two cards.
 5. Click **Team attendance statistics** → table with one row per team, present/late/absent/excused/injured %s. Adjust the date range, click Apply, table re-renders.
 6. Back-pill at top reads "← Back to Analytics".
 7. Click **Player attendance statistics** from Analytics. Filter row has Team + From + To. Pick a team, narrow window, see the breakdown. Click a player name → lands on profile with "← Back to Player attendance" pill.
+
+---
+
+# TalentTrack v3.110.115 — HoD persona polish round 2: '+ New test training' action card + Recent comments & notes widget
+
+Two new HoD-dashboard features per pilot decisions. Originally drafted as v3.110.113 then v3.110.114; both slots taken by parallel Spond-integration ships. Renumbered to v3.110.115 on the second rebase.
+
+## (1) `+ New test training` action card
+
+Operator decision: keep `+ New trial` (creates `tt_trial_cases` — multi-week evaluation periods), add separate `+ New test training` (creates `tt_test_trainings` — one-off training sessions a prospect attends to be observed).
+
+Shipped:
+
+- **`FrontendTestTrainingsView`** — create-only minimal form. Fields: Date (defaults to next Saturday) / Location / Age group (from `age_group` lookup) / Notes. Coach defaults to current user. Cap `tt_edit_prospects` / `tt_manage_prospects`. Cancel honours `tt_back`.
+- **`TestTrainingsRestController`** — POST `/wp-json/talenttrack/v1/test-trainings`. Field surface mirrors `TestTrainingsRepository::create()`. Accepts both `Y-m-d` and `Y-m-d H:i:s` date input (date-only gets 18:00 default time).
+- **`?tt_view=test-trainings`** slug registered in `DashboardShortcode::dispatchTrialView()`.
+- **`new_test_training`** entry in `ActionCardWidget::ACTIONS`. Flat-form path (no wizard).
+- HoD template now stacks both action cards at x=9: `new_trial` y=0, `new_test_training` y=1.
+
+Deliberately omitted: list / edit views (still on the onboarding-pipeline) and the prospect-invite tied flow (stays in `InviteToTestTrainingForm`'s workflow task).
+
+## (2) Recent comments & notes widget
+
+Pilot ask: *"create new widget, 'recent comments & notes' that shows a short table (5 entries) with the most recents added notes and comments — entity, person posting the comment, date."* Data source per follow-up: `tt_thread_messages` only (#0028 polymorphic conversation primitive).
+
+`RecentCommentsWidget` runs:
+
+```sql
+SELECT tm.id, tm.thread_type, tm.thread_id, tm.author_user_id, tm.created_at,
+       u.display_name AS author_name
+  FROM tt_thread_messages tm
+  LEFT JOIN wp_users u ON u.ID = tm.author_user_id
+ WHERE tm.club_id = %d
+   AND tm.deleted_at IS NULL
+   AND tm.is_system = 0
+ ORDER BY tm.created_at DESC, tm.id DESC
+ LIMIT 5
+```
+
+Per row: entity (resolved per thread_type: goal → goal title, player → player name, trial_case → player on trial, pdp_conversation → player on PDP, blueprint → team name; fallback "<Type> #<id>"), author display name, relative date ("2h ago" / "3d ago" / localised date past 1 week).
+
+Cap-gated on `tt_view_threads`. Scope is `club_id` only — fully global. Slotted at y=8 on HoD template at Size::M (6 cols left half); nav tiles shifted from y=8 to y=9 to make room.
+
+## How to test
+
+- HoD dashboard right gutter shows two action cards: `+ New trial` + `+ New test training`. Click the new one → 4-field form. Submit → `tt_test_trainings` row created.
+- HoD dashboard y=8 shows "Recent comments & notes" widget with up to 5 most recent thread messages, entity + author + relative date per row.
+
+---
+
+# TalentTrack v3.110.114 — Spond integration: real 404 root cause fixed (`/login` → `/auth2/login`; `loginToken` → `accessToken.token`)
+
+Pairs with v3.110.108 (Spond URL configurable from wp-admin, in flight as PR #407) which gave operators a UI to redirect to a new endpoint. This release fixes the actual underlying login bugs against the canonical `api.spond.com/core/v1` base URL.
+
+> *"in order to get spond integration working again, see if you can analyse/use this library: https://pypi.org/project/spond/"*
+
+## Research
+
+Cross-referenced our `SpondClient.php` against the Python `spond` library (Olen/Spond v1.2.1, released 2026-05-14) and the unofficial Swagger docs at martcl/spond. Findings:
+
+| Item | Python `spond` (canonical) | Our pre-v3.110.111 code |
+|---|---|---|
+| **Base URL** | `https://api.spond.com/core/v1/` | `https://api.spond.com/core/v1` ✓ |
+| **Login endpoint** | `POST /auth2/login` | `POST /login` ❌ → 404 |
+| **Login payload** | `{ "email": ..., "password": ... }` | `{ "email": ..., "password": ... }` ✓ |
+| **Token response field** | `accessToken.token` (nested) | `loginToken` (flat, doesn't exist) ❌ |
+| **Subsequent header** | `Authorization: Bearer <jwt>` | `Authorization: Bearer <jwt>` ✓ |
+| **Groups endpoint** | `GET /groups/` | `GET /groups/` ✓ |
+| **Events endpoint** | `GET /sponds/?groupId=…` | `GET /sponds/?groupId=…` ✓ |
+| **Members/subgroups** | Embedded in `/groups/` response | We walk `group["members"]` ✓ |
+
+Two bugs combined to produce the pilot-reported 404:
+
+1. **`/login` 404s.** The `auth2/` prefix is required. Spond returns a vanilla 404 with no body for the wrong path; our error handler reported it verbatim ("Spond login returned HTTP 404").
+2. **`loginToken` field doesn't exist.** Even if Spond did honour `/login` with a 200 (hypothetically — they don't), our parser would still fail at `if ( $token === '' )` and report `no_token` because we read `$json['loginToken']`. The canonical field is `$json['accessToken']['token']` (a JWT inside a nested object).
+
+## Fix
+
+### Login endpoint
+
+```php
+$response = wp_remote_post( self::BASE_URL . '/auth2/login', [ ... ] );
+```
+
+Headers unchanged. Body unchanged (Spond's payload was already correct: `{ "email": ..., "password": ... }`).
+
+### Token extraction (with defensive fallback)
+
+```php
+$token = '';
+if ( is_array( $json ) ) {
+    if ( ! empty( $json['loginToken'] ) ) {
+        // Defensive: if any install ever responded with a flat
+        // loginToken field, keep working there. Spond canonical
+        // is the nested accessToken.token below.
+        $token = (string) $json['loginToken'];
+    } elseif ( is_array( $json['accessToken'] ?? null ) && ! empty( $json['accessToken']['token'] ) ) {
+        $token = (string) $json['accessToken']['token'];
+    }
+}
+```
+
+`accessToken.token` is the documented current shape; `loginToken` fallback keeps the pre-v3.110.111 read path alive in case any operator's response carries both for back-compat.
+
+### What was NOT changed
+
+- Base URL constant — `https://api.spond.com/core/v1` is unchanged, verified against `spond` v1.2.1's `Spond.api_url` constant. The configurable override from v3.110.108 still applies (operator can still point at a private mock by setting `spond.api_base_url` in tt_config).
+- `authedGet` — already sends `Authorization: Bearer <token>`, already uses trailing slashes on `groups/` and `sponds/`, no change needed.
+- 2FA detection — Spond doesn't expose 2FA over the `auth2/login` endpoint; an account with 2FA enabled never returns a token. Our existing 2FA hint check (`verificationRequired`, `mfa`, `twoFactor`, `requires2FA`) catches the documented body shapes; if a different shape appears in the field, we'd need an operator report with a captured response body.
+
+## Files
+
+- `src/Modules/Spond/SpondClient.php` — login URL + token-parsing rewrite (two changes in `SpondClient::login()`)
+- `talenttrack.php` 3.110.109 → 3.110.111 (PR #407 + #409 + #411 in flight occupy 108, 109, 110)
+- `readme.txt`, `CHANGES.md`
+
+No schema, no migration, no admin-UI change. The v3.110.108 admin URL override stays — operator can leave it blank to use the now-working default `https://api.spond.com/core/v1`.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.111. Open Spond admin (Settings → Spond).
+2. Confirm the API endpoint shows `https://api.spond.com/core/v1 (default)` (leave the override blank).
+3. Click **Test connection** with valid Spond credentials → success flash ("Spond login successful — token cached").
+4. Verify on a team's row that the Spond group dropdown populates (was the secondary symptom — empty dropdown because `fetchGroups()` never got a valid token).
+5. Trigger a per-team sync. The 30/180-day window of activities pulls from `/sponds/` and shows up under team activities.
+
+## Why this took until v3.110.111 to surface
+
+The `/login` path probably worked on an earlier Spond API generation (the `auth2/` prefix is uncommon enough that it reads like a recent versioning move; the Python library's `Spond.api_url` was at `core/v1/auth2/login` from at least 2024). It's possible Spond removed the legacy `/login` endpoint mid-2025 — that would explain why pilot installs running unchanged TalentTrack code suddenly started 404'ing.
+
+---
+
+# TalentTrack v3.110.109 — Dashboard layout editor — drag-and-drop fix: "not allowed" cursor + silent drop rejection
+
 ---
 
 # TalentTrack v3.110.113 — Spond API base URL configurable from wp-admin; central Analytics tile on the admin tile grid
@@ -440,7 +574,6 @@ Two polish items.
 3. Detail page status: rounded pill in `pdp_status` colour palette (not plain text).
 4. `+ Open new PDP file` (page header) → form shows **Team** dropdown side-by-side with **Player** dropdown. Pick a team → Player dropdown narrows to that team's roster. "All teams" → all eligible players visible.
 
-= 3.110.109 — Dashboard layout editor — drag-and-drop fix "not allowed" cursor + silent drop rejection
 
 ## Pilot symptom
 
