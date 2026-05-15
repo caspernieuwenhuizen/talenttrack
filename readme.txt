@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.98
+Stable tag: 3.110.99
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.99 — Activity detail page: attendance summary headline now shows the correct count (was always 0); Analytics section removed (moves to the central tile) (#0092) =
+
+Two pilot-surfaced issues on the activity detail page. **(1) Attendance headline always 0.** Coach screenshot showed `0 / 14 players (0% present)` with the breakdown directly underneath reading `excused: 1   present: 13`. Same case-sensitivity story as v3.110.78's `RateConfirmStep` + `ratablePlayersForActivity` fixes: `FrontendActivitiesManageView::renderAttendanceSummary()` grouped by `a.status` and read `$by_status['Present']` (capitalised), but rows are now stored lowercase via `sanitize_key()` in `AttendanceStep::validate()`. The headline lookup found `null`, the breakdown loop's `$status_keys = ['Present', …]` whitelist matched nothing either, so the rendered breakdown fell through to the "any custom status admins added" branch and printed the raw lowercase keys (which is why the breakdown read correctly while the headline showed zero). **Fix**: SQL now groups by `LOWER(a.status)`, PHP keys are normalised to lowercase, `LabelTranslator::attendanceStatus( ucfirst( $sk ) )` still resolves the localised label. Aggregates across legacy mixed-case rows and current lowercase rows into the same bucket. **(2) Analytics section removed.** The activity-scoped Analytics surface (#0083 Child 4 — `EntityAnalyticsTabRenderer::render('activity', $aid)`) is no longer rendered on the activity detail page. Operator decision: the detail page is a "what happened in this session" surface, not a stats deep-dive. Analytics access moves to the central Analytics tile on the dashboard where coaches slice across activities. The renderer and activity-scoped KPIs stay on disk so the central tile keeps consuming them.
 
 = 3.110.98 — New-prospect wizard gains an inline existing-prospects list; task detail view-only for non-assignees; kanban → task carries `tt_back` =
 
