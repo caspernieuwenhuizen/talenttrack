@@ -24,6 +24,15 @@ class AssignedPlayersGridWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Assigned players grid', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'Legacy scout-portfolio grid showing every player explicitly assigned to the viewing scout (pre-prospects funnel). Reads `tt_scout_assignments`. New scout dashboards lean on the onboarding pipeline + recent-prospects table instead; this widget stays registered for installs that still use the explicit-assignment workflow.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'scout' ];
+    }
+
     public function defaultSize(): string { return Size::XL; }
 
     /** @return list<string> */

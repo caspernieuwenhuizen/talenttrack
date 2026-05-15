@@ -45,6 +45,15 @@ class AddProspectHeroWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Add prospect hero', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'Scout hero card with a one-tap CTA to the new-prospect wizard. Includes a glance strip — "X logged this month · Y still active in your funnel" — scoped to the viewer\'s own discovered_by_user_id, sourced directly from tt_prospects.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'scout', 'head_of_development' ];
+    }
+
     public function defaultSize(): string { return Size::XL; }
 
     /** @return list<string> */

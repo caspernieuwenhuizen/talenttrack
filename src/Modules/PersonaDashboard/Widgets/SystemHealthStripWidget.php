@@ -24,6 +24,15 @@ class SystemHealthStripWidget extends AbstractWidget {
 
     public function label(): string { return __( 'System health strip', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'Admin landing strip: active-user count, last migration timestamp, license tier, Spond sync status, mail-queue depth. Useful for the academy admin\'s "is anything red" glance before they dig in. Sourced from `wp_users`, `tt_migrations`, license config, and the Spond per-team sync status.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'academy_admin' ];
+    }
+
     public function defaultSize(): string { return Size::XL; }
 
     /** @return list<string> */

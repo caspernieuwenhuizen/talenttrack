@@ -21,6 +21,15 @@ class QuickActionsPanelWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Quick actions panel', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'Compact stack of 2–5 secondary actions (+ New evaluation, + New goal, + New activity, + New player). The data-source is a comma-separated list of action IDs. Each entry inherits its label, icon, and capability gate from the registered action; admins without a cap see fewer entries.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'head_coach', 'assistant_coach', 'head_of_development' ];
+    }
+
     public function defaultSize(): string { return Size::M; }
 
     /** @return list<string> */

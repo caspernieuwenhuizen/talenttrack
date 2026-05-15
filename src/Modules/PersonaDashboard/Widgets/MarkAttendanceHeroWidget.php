@@ -50,6 +50,15 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Mark attendance hero', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'Head-coach landing card: reads the next un-processed activity on a team the coach owns, surfaces type / team / time, and exposes a one-tap CTA into the mark-attendance wizard with `activity_id` pre-seeded. Empty state ("no upcoming activity") shows a "Pick an activity" CTA into the wizard\'s activity picker. Reads upcoming activities via UpcomingActivityRepository.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'head_coach', 'assistant_coach' ];
+    }
+
     public function defaultSize(): string { return Size::XL; }
 
     /** @return list<string> */
