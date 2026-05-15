@@ -25,6 +25,7 @@ use TT\Modules\PersonaDashboard\Widgets\NavigationTileWidget;
 use TT\Modules\PersonaDashboard\Widgets\OnboardingPipelineWidget;
 use TT\Modules\PersonaDashboard\Widgets\QuickActionsPanelWidget;
 use TT\Modules\PersonaDashboard\Widgets\RateCardHeroWidget;
+use TT\Modules\PersonaDashboard\Widgets\RecentCommentsWidget;
 use TT\Modules\PersonaDashboard\Widgets\SystemHealthStripWidget;
 use TT\Modules\PersonaDashboard\Widgets\TaskListPanelWidget;
 use TT\Modules\PersonaDashboard\Widgets\TeamOverviewGridWidget;
@@ -76,6 +77,13 @@ final class CoreWidgets {
         // coach hero in `CoreTemplates::coach()`; the older widget
         // stays registered for back-compat with customized templates.
         WidgetRegistry::register( new MarkAttendanceHeroWidget() );
+
+        // v3.110.113 — academy-wide feed of operator-authored
+        // thread messages. Surfaces on the HoD dashboard as a
+        // "what's been talked about" pulse alongside the KPI strip.
+        // Five most recent non-deleted, non-system rows from
+        // `tt_thread_messages`. Cap-gated on `tt_view_threads`.
+        WidgetRegistry::register( new RecentCommentsWidget() );
 
         TableRowSourceRegistry::register( 'upcoming_activities',     new UpcomingActivitiesSource() );
         TableRowSourceRegistry::register( 'trials_needing_decision', new TrialsNeedingDecisionSource() );

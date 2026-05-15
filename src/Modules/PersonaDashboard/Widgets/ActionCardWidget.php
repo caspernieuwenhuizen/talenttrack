@@ -55,6 +55,12 @@ class ActionCardWidget extends AbstractWidget {
         // registered yet.
         'scout_report'   => [ 'label_key' => '+ New scout report', 'view' => 'scout-history','cap' => 'tt_generate_scout_report' ],
         'new_trial'      => [ 'label_key' => '+ New trial',        'view' => 'trials',       'cap' => 'tt_manage_trials' ],
+        // v3.110.113 — distinct from `new_trial` (which creates a
+        // multi-week `tt_trial_cases` row). Test trainings are one-off
+        // sessions a prospect is invited to so the academy can observe
+        // them. Routes to the create-only frontend view shipped in the
+        // same release.
+        'new_test_training' => [ 'label_key' => '+ New test training', 'view' => 'test-trainings', 'cap' => 'tt_edit_prospects' ],
     ];
 
     public function id(): string { return 'action_card'; }

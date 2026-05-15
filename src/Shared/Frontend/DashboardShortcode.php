@@ -215,7 +215,12 @@ class DashboardShortcode {
         // #0014 Sprints 4+5 — Reports wizard + scout flow.
         $report_slugs = [ 'report-wizard', 'scout-access', 'scout-history', 'scout-my-players' ];
         // #0017 — Trial player module surfaces.
-        $trial_slugs = [ 'trials', 'trial-case', 'trial-parent-meeting', 'trial-tracks-editor', 'trial-letter-templates-editor' ];
+        // v3.110.113 — `test-trainings` joins the family. Distinct from
+        // trial CASES (multi-week evaluation periods, `tt_trial_cases`);
+        // test trainings (`tt_test_trainings`) are one-off sessions a
+        // prospect attends to be observed. The frontend view ships
+        // create-only — listing stays on the onboarding-pipeline.
+        $trial_slugs = [ 'trials', 'trial-case', 'trial-parent-meeting', 'trial-tracks-editor', 'trial-letter-templates-editor', 'test-trainings' ];
         // #0039 — Staff development module surfaces.
         $staff_dev_slugs = [ 'my-staff-pdp', 'my-staff-goals', 'my-staff-evaluations', 'my-staff-certifications', 'staff-overview' ];
         // #0055 — Record-creation wizards. Single slug; the actual
@@ -856,6 +861,12 @@ class DashboardShortcode {
                 break;
             case 'trial-letter-templates-editor':
                 FrontendTrialLetterTemplatesEditorView::render( $user_id, $is_admin );
+                break;
+            case 'test-trainings':
+                // v3.110.113 — minimal create-only frontend for
+                // `tt_test_trainings`. Reached from the HoD dashboard's
+                // `+ New test training` action card.
+                FrontendTestTrainingsView::render( $user_id, $is_admin );
                 break;
             default:
                 FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );

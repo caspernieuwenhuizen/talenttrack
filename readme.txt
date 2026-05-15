@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.114
+Stable tag: 3.110.115
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.115 — HoD persona polish round 2: '+ New test training' action card (new frontend + REST), new 'Recent comments & notes' widget on HoD dashboard =
+
+Two new HoD-dashboard features per pilot ask. **(1) `+ New test training` action card.** The HoD dashboard had a `+ New trial` action card pointing at the trial-case create form (`tt_trial_cases` — multi-week evaluation periods). Pilot said: "the action card title is new_trial but the data source seems to aim at creating a new test training? ask me questions on what the name should be and what it should do." Operator decision: keep `+ New trial` AND add a separate `+ New test training` card. Test trainings (`tt_test_trainings`) are one-off training sessions a prospect is invited to so the academy can observe them in action — distinct from trial cases. Built in this ship: new `FrontendTestTrainingsView` (create-only minimal form: date / location / age_group / notes; coach defaults to current user); new `TestTrainingsRestController` (POST /talenttrack/v1/test-trainings, cap-gated on `tt_edit_prospects` / `tt_manage_prospects`); `?tt_view=test-trainings` slug registered in DashboardShortcode's trial-view dispatcher; new `new_test_training` entry added to `ActionCardWidget::ACTIONS` with cap `tt_edit_prospects`. The HoD template now stacks both action cards in the right-gutter at x=9: `new_trial` at y=0, `new_test_training` at y=1. Listing surface for test trainings stays on the onboarding-pipeline view; this ship adds a create surface only. **(2) Recent comments & notes widget.** New `RecentCommentsWidget` on the HoD dashboard. Fetches the 5 most recent non-deleted, non-system rows from `tt_thread_messages` (the #0028 polymorphic conversation primitive — covers goals / players / blueprints / trials / scout reports / PDPs). Each row renders: entity label (resolved via thread_type lookup: `goal` → goal title, `player` → player name, `trial_case` → player on trial, `pdp_conversation` → player on PDP, `blueprint` → team name; unknown types fall back to `<Type> #<id>`) + author display name + relative date ("2h ago" / "3d ago" / fallback to localised date past 1 week). The entity label links through to the entity's detail page when available, with `tt_back` appended. Cap-gated on `tt_view_threads`. Slotted at y=8 on the HoD template at Size::M (6 cols on the left half of a fresh row); navigation tiles previously starting at y=8 shifted down to y=9 to make room. **Auth note**: the widget reads `club_id` only — fully global. No coach-scoping. Other personas that opt-in to the widget via custom templates see the same academy-wide feed.
 
 = 3.110.114 — Spond integration: actual 404 root cause fixed — login endpoint was `/login`, should be `/auth2/login`; response field was `loginToken`, should be `accessToken.token` =
 
