@@ -41,6 +41,23 @@ abstract class AbstractKpiDataSource implements KpiDataSource {
     }
 
     /**
+     * v3.110.112 — overridable full URL builder for the KPI card. The
+     * default rebuilds the dashboard URL with the `linkView()` slug
+     * (back-compat with every shipped KPI). KPIs that want to deep-link
+     * with extra query args (e.g. prefiltering the destination list)
+     * override this method and return a fully-formed URL. Used by the
+     * `PdpVerdictsPending` card to land the HoD on
+     * `?tt_view=pdp&filter[status]=open`.
+     *
+     * Returning an empty string means "no link" — same contract as
+     * `linkView()` returning empty.
+     */
+    public function linkUrl( RenderContext $ctx ): string {
+        $view = $this->linkView();
+        return $view !== '' ? $ctx->viewUrl( $view ) : '';
+    }
+
+    /**
      * id → tt_view slug mapping. Empty here means the KPI isn't
      * clickable. Add new entries as KPIs ship.
      *
