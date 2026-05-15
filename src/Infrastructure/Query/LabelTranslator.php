@@ -233,6 +233,32 @@ class LabelTranslator {
     }
 
     /**
+     * v3.110.101 — translate `tt_lookups.name` for the 11 position
+     * codes seeded by the Activator (GK / CB / LB / RB / CDM / CM /
+     * CAM / LW / RW / ST / CF). The codes are stored uppercase; the
+     * long name is what operators want to read in dropdowns.
+     *
+     * Returns the long form. Unknown codes fall through unchanged
+     * (custom positions an admin added stay verbatim).
+     */
+    public static function positionLabel( string $code ): string {
+        switch ( strtoupper( $code ) ) {
+            case 'GK':  return __( 'Goalkeeper',             'talenttrack' );
+            case 'CB':  return __( 'Centre back',            'talenttrack' );
+            case 'LB':  return __( 'Left back',              'talenttrack' );
+            case 'RB':  return __( 'Right back',             'talenttrack' );
+            case 'CDM': return __( 'Defensive midfielder',   'talenttrack' );
+            case 'CM':  return __( 'Central midfielder',     'talenttrack' );
+            case 'CAM': return __( 'Attacking midfielder',   'talenttrack' );
+            case 'LW':  return __( 'Left winger',            'talenttrack' );
+            case 'RW':  return __( 'Right winger',           'talenttrack' );
+            case 'ST':  return __( 'Striker',                'talenttrack' );
+            case 'CF':  return __( 'Centre forward',         'talenttrack' );
+        }
+        return $code;
+    }
+
+    /**
      * Fallback: "in_progress" → "In Progress".
      */
     private static function humanise( string $code ): string {

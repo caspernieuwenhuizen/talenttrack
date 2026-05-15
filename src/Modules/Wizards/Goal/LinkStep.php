@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Goal;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -25,14 +26,16 @@ final class LinkStep implements WizardStepInterface {
         $type = (string) ( $state['link_type'] ?? '' );
         echo '<p>' . esc_html__( 'Optionally link this goal to a methodology entity. Pick a type and click Next to choose the specific entity, or leave on "— no link —" to skip.', 'talenttrack' ) . '</p>';
 
-        // v3.85.3 — was auto-clicking Next on type change, which made
-        // the cascade impossible to use: picking a type immediately
-        // advanced to the Details step before the operator could pick
-        // the candidate from the second select. Plain select now;
-        // operator clicks Next themselves and nextStep() decides
-        // whether to stay on this step (type set, link_id still 0)
-        // or advance to details.
-        echo '<label><span>' . esc_html__( 'Link type', 'talenttrack' ) . '</span><select name="link_type">';
+        // v3.110.101 — re-enabled the auto-submit-on-change. The
+        // v3.85.3 concern (auto-submit advancing past Details) was
+        // addressed by `nextStep()` returning self::slug when link_id
+        // is still 0; the framework now re-renders this same step so
+        // the second select shows candidates for the chosen type.
+        // Without the onchange, the operator had to click Next to see
+        // candidates, then Next again to advance — two clicks for one
+        // intent. `requestSubmit()` is the modern path; `submit()` is
+        // the fallback for older browsers.
+        echo '<label><span>' . esc_html__( 'Link type', 'talenttrack' ) . '</span><select name="link_type" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit();">';
         echo '<option value="">' . esc_html__( '— no link —', 'talenttrack' ) . '</option>';
         foreach ( self::types() as $key => $label ) {
             echo '<option value="' . esc_attr( $key ) . '" ' . selected( $type, $key, false ) . '>' . esc_html( $label ) . '</option>';
@@ -168,11 +171,27 @@ final class LinkStep implements WizardStepInterface {
                 // there is nothing to filter on here anyway.
                 $lookup_type = $type === 'position' ? 'position' : 'club_value';
                 $rows = $wpdb->get_results( $wpdb->prepare(
-                    "SELECT id, name AS label FROM {$wpdb->prefix}tt_lookups
+                    "SELECT id, name FROM {$wpdb->prefix}tt_lookups
                      WHERE lookup_type = %s AND club_id = %d ORDER BY sort_order, name",
                     $lookup_type, CurrentClub::id()
                 ) );
-                break;
+                // v3.110.101 — for positions, surface the long-form
+                // localised name (e.g. "GK" → "Goalkeeper" / "Keeper")
+                // with the code in parentheses for unambiguity.
+                // Values stay as their raw `name`.
+                $out = [];
+                foreach ( (array) $rows as $r ) {
+                    $code  = (string) ( $r->name ?? '' );
+                    $label = $code;
+                    if ( $type === 'position' && $code !== '' ) {
+                        $long = LabelTranslator::positionLabel( $code );
+                        $label = ( $long !== $code )
+                            ? $long . ' (' . $code . ')'
+                            : $code;
+                    }
+                    $out[] = [ 'id' => (int) $r->id, 'label' => $label ];
+                }
+                return $out;
         }
         $out = [];
         foreach ( (array) $rows as $r ) {

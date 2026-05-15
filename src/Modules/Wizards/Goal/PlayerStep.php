@@ -3,30 +3,42 @@ namespace TT\Modules\Wizards\Goal;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
 use TT\Shared\Wizards\WizardStepInterface;
 
+/**
+ * Step 1 — pick the player this goal is for.
+ *
+ * v3.110.101 — was a club-wide `<select>` of all players ordered by
+ * last name, which ignored team scoping. A head-coach assigned only
+ * to O13 saw O14 players in the dropdown. Replaced with
+ * `PlayerSearchPickerComponent`, which delegates to the
+ * `resolvePlayers( $user_id, $is_admin )` helper that the player
+ * picker uses elsewhere — head-coach scope is automatically applied
+ * via the same chain that drives the picker on the new-evaluation
+ * wizard, players list, etc. Admin / HoD see the full club;
+ * head-coach / assistant-coach see only their team's roster.
+ */
 final class PlayerStep implements WizardStepInterface {
 
     public function slug(): string { return 'player'; }
     public function label(): string { return __( 'Player', 'talenttrack' ); }
 
     public function render( array $state ): void {
-        global $wpdb;
-        $players = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, first_name, last_name FROM {$wpdb->prefix}tt_players
-             WHERE archived_at IS NULL AND status != 'archived' AND club_id = %d
-             ORDER BY last_name, first_name LIMIT 500",
-            CurrentClub::id()
-        ) );
-        $current = (int) ( $state['player_id'] ?? 0 );
-        echo '<label><span>' . esc_html__( 'Which player is this goal for?', 'talenttrack' ) . '</span><select name="player_id" required>';
-        echo '<option value="">' . esc_html__( '— pick a player —', 'talenttrack' ) . '</option>';
-        foreach ( $players as $p ) {
-            $name = trim( ( (string) ( $p->first_name ?? '' ) ) . ' ' . ( (string) ( $p->last_name ?? '' ) ) ) ?: '#' . (int) $p->id;
-            echo '<option value="' . esc_attr( (string) $p->id ) . '" ' . selected( $current, (int) $p->id, false ) . '>' . esc_html( $name ) . '</option>';
-        }
-        echo '</select></label>';
+        $user_id  = get_current_user_id();
+        $is_admin = current_user_can( 'tt_edit_settings' );
+        $current  = (int) ( $state['player_id'] ?? 0 );
+
+        echo PlayerSearchPickerComponent::render( [
+            'name'             => 'player_id',
+            'label'            => __( 'Which player is this goal for?', 'talenttrack' ),
+            'required'         => true,
+            'user_id'          => $user_id,
+            'is_admin'         => $is_admin,
+            'selected'         => $current,
+            'show_team_filter' => true,
+            'placeholder'      => __( 'Type a name to search…', 'talenttrack' ),
+        ] );
     }
 
     public function validate( array $post, array $state ) {

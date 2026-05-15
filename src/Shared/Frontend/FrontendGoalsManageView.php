@@ -196,13 +196,11 @@ class FrontendGoalsManageView extends FrontendViewBase {
      * deadline filters, inline status select, Edit/Delete row actions.
      */
     private static function renderList( int $user_id, bool $is_admin ): void {
-        $base_url = remove_query_arg( [ 'action', 'id' ] );
-        $flat_url = add_query_arg( [ 'tt_view' => 'goals', 'action' => 'new' ], $base_url );
-        $new_url  = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-goal', $flat_url );
-
-        echo '<p style="margin:0 0 var(--tt-sp-3, 12px);"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
-            . esc_html__( 'New goal', 'talenttrack' )
-            . '</a></p>';
+        // v3.110.101 — the inline `<p><a class="tt-btn">New goal</a></p>`
+        // button above the table was a duplicate of the page-header
+        // action rendered in the parent `render()`. Removed; the
+        // page-header action is the single CTA per the page-actions
+        // standard.
 
         // Build status / priority option maps from the lookup tables so
         // a club running custom statuses ("Achieved", "Cancelled", …)
