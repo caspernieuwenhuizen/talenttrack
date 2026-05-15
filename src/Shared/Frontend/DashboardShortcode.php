@@ -205,7 +205,9 @@ class DashboardShortcode {
         // and every click on the Onboarding pipeline tile fell through to
         // "Unknown section." Same root cause as the v3.110.10 team-planner
         // dispatcher fix.
-        $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config', 'onboarding-pipeline' ];
+        // v3.110.119 — `scouting-visits` (list/new/edit) and `scouting-visit` (singular detail)
+        // for the scouting-plan feature. Scout dashboard widget + Operations tile.
+        $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config', 'onboarding-pipeline', 'scouting-visits', 'scouting-visit' ];
         // #0009 — Development management slugs. Each view re-checks its
         // own capability so dispatching here is safe.
         $dev_slugs       = [ 'submit-idea', 'ideas-board', 'ideas-refine', 'ideas-approval', 'dev-tracks' ];
@@ -352,7 +354,7 @@ class DashboardShortcode {
             // own cap inside dispatch (my-tasks → tt_view_own_tasks,
             // tasks-dashboard → tt_view_tasks_dashboard, workflow-config
             // → tt_configure_workflow_templates).
-            self::dispatchWorkflowView( $view, $user_id );
+            self::dispatchWorkflowView( $view, $user_id, $is_admin );
         } elseif ( in_array( $view, $dev_slugs, true ) ) {
             self::dispatchDevView( $view );
         } elseif ( in_array( $view, $invitation_slugs, true ) ) {
@@ -524,7 +526,7 @@ class DashboardShortcode {
      * one slug (`my-tasks`); the inbox doubles as the task-detail
      * surface when `?task_id=N` is present.
      */
-    private static function dispatchWorkflowView( string $view, int $user_id ): void {
+    private static function dispatchWorkflowView( string $view, int $user_id, bool $is_admin = false ): void {
         switch ( $view ) {
             case 'my-tasks':
                 if ( ! current_user_can( 'tt_view_own_tasks' ) ) {
@@ -556,6 +558,13 @@ class DashboardShortcode {
             // v3.110.99 — rich prospects list (FrontendListTable).
             case 'prospects-overview':
                 \TT\Modules\Prospects\Frontend\FrontendProspectsOverviewView::render( $user_id );
+                break;
+            // v3.110.119 — scout's scouting-visit planner.
+            case 'scouting-visits':
+                \TT\Modules\Prospects\Frontend\FrontendScoutingPlanView::render( $user_id, $is_admin );
+                break;
+            case 'scouting-visit':
+                \TT\Modules\Prospects\Frontend\FrontendScoutingVisitDetailView::render( $user_id, $is_admin );
                 break;
             // v3.110.109 — standard attendance reports surfaced under
             // the Analytics module. Both cap-gated on `tt_view_analytics`

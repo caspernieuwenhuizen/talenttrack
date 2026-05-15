@@ -13060,6 +13060,93 @@ msgstr "Leg een nieuwe prospect vast"
 msgid "Add prospect hero"
 msgstr "Hero ‘Prospect toevoegen’"
 
+# v3.110.119 — Hero secondary link to the scouting-visits surface.
+msgid "Plan visits →"
+msgstr "Plan bezoeken →"
+
+# v3.110.119 — ScoutingPlanWidget + scouting-visits surfaces.
+msgid "My scouting plan"
+msgstr "Mijn scoutingsplanning"
+
+msgid "Scouting visits"
+msgstr "Scoutingbezoeken"
+
+msgid "Scouting visit"
+msgstr "Scoutingbezoek"
+
+msgid "Edit scouting visit"
+msgstr "Scoutingbezoek bewerken"
+
+msgid "Scouting visit not found"
+msgstr "Scoutingbezoek niet gevonden"
+
+msgid "You do not have access to scouting visits."
+msgstr "Je hebt geen toegang tot scoutingbezoeken."
+
+msgid "This scouting visit no longer exists or you do not have permission to edit it."
+msgstr "Dit scoutingbezoek bestaat niet meer of je hebt geen rechten om het te bewerken."
+
+msgid "This scouting visit does not exist or you do not have access."
+msgstr "Dit scoutingbezoek bestaat niet of je hebt er geen toegang toe."
+
+msgid "You can only view your own scouting visits."
+msgstr "Je kunt alleen je eigen scoutingbezoeken bekijken."
+
+msgid "You have not planned any scouting visits yet."
+msgstr "Je hebt nog geen scoutingbezoeken gepland."
+
+msgid "No scouting visits planned."
+msgstr "Er zijn geen scoutingbezoeken gepland."
+
+msgid "No upcoming visits planned. Plan your next scouting visit to keep your portfolio fresh."
+msgstr "Geen geplande bezoeken. Plan je volgende scoutingbezoek om je portfolio vers te houden."
+
+msgid "+ Plan visit"
+msgstr "+ Plan bezoek"
+
+msgid "Plan visit"
+msgstr "Bezoek plannen"
+
+msgid "Visit date"
+msgstr "Bezoekdatum"
+
+msgid "Time (optional)"
+msgstr "Tijd (optioneel)"
+
+msgid "Event description"
+msgstr "Beschrijving evenement"
+
+msgid "Age groups expected"
+msgstr "Verwachte leeftijdsgroepen"
+
+msgid "Edit visit"
+msgstr "Bezoek bewerken"
+
+msgid "Log scouting find"
+msgstr "Leg scoutingbevinding vast"
+
+#, php-format
+msgid "Visit on %1$s — %2$s"
+msgstr "Bezoek op %1$s — %2$s"
+
+msgid "Prospects logged from this visit"
+msgstr "Prospects vastgelegd vanuit dit bezoek"
+
+msgid "No prospects logged from this visit yet."
+msgstr "Nog geen prospects vastgelegd vanuit dit bezoek."
+
+msgid "Birth year"
+msgstr "Geboortejaar"
+
+msgid "Logged"
+msgstr "Vastgelegd"
+
+#, php-format
+msgid "%d prospect logged"
+msgid_plural "%d prospects logged"
+msgstr[0] "%d prospect vastgelegd"
+msgstr[1] "%d prospects vastgelegd"
+
 #, php-format
 msgid "%d logged this month"
 msgid_plural "%d logged this month"

@@ -1,3 +1,116 @@
+# TalentTrack v3.110.119 — Scout polish round B: scouting visits feature
+
+Second of the two-release scout polish pass (Release A = v3.110.118 — pipeline tiles clickable + hero CTA renamed). Adds a new entity for scouts to plan / record off-site visits where they spot prospects.
+
+## Pilot ask
+
+> *"Idea for a new widget, new scouting activity — let me plan a visit and log finds against it, then see what came out of it."*
+
+Operator decisions (via AskUserQuestion in the prior session):
+- **Naming**: "Scouting visit" (rejected alternatives: "Scouting trip", "Field visit", "Scouting outing")
+- **Entry points**: all three — dashboard widget + tile + hero secondary link
+- **Wizard step**: a new optional step between Identity and Discovery in the new-prospect wizard *(deferred to a follow-up release; see "Deferred" below)*
+
+Distinct from `tt_test_trainings` (one-off club-hosted training a *prospect* attends to be observed) — a scouting visit is **outbound** from the club to where prospects already are.
+
+## What landed
+
+### Schema — migration 0094
+
+`tt_scouting_plan_visits`:
+
+| Column              | Type                 | Notes                                              |
+|---------------------|----------------------|----------------------------------------------------|
+| id                  | BIGINT UNSIGNED      | primary key                                        |
+| uuid                | CHAR(36) UNIQUE      | SaaS-ready stable id                               |
+| club_id             | INT UNSIGNED         | tenant scope, default 1                            |
+| scout_user_id       | BIGINT UNSIGNED      | the planner / visitor                              |
+| visit_date          | DATE                 | required                                           |
+| visit_time          | TIME NULL            | optional                                           |
+| location            | VARCHAR(255)         | required                                           |
+| event_description   | VARCHAR(500) NULL    | "U13 regional tournament", etc.                    |
+| age_groups_csv      | VARCHAR(255) NULL    | comma-separated age-group lookup names; informational |
+| notes               | TEXT NULL            | free-text scout notes                              |
+| status              | VARCHAR(20)          | planned / completed / cancelled                    |
+| archived_at         | DATETIME NULL        | soft-delete                                        |
+| created_at, updated_at | DATETIME          | timestamps                                         |
+
+Plus `tt_prospects.scouting_visit_id BIGINT UNSIGNED NULL` (FK soft, indexed) — the link from a prospect to the visit they were observed at. Idempotent: re-running checks `INFORMATION_SCHEMA.COLUMNS` before `ALTER TABLE`.
+
+### Repository & REST
+
+- `Modules\Prospects\Repositories\ScoutingVisitsRepository` — `find`, `search`, `upcomingForScout`, `prospectCount`, `prospectsForVisit`, `create`, `update`, `archive`.
+- `Modules\Prospects\Rest\ScoutingVisitsRestController` — POST `/scouting-visits`, POST `/scouting-visits/{id}` (update), DELETE `/scouting-visits/{id}` (archive). Cap `tt_edit_prospects` for write; scope rule: scout edits only own visits, HoD / admin edit any.
+
+### Frontend views
+
+- `Modules\Prospects\Frontend\FrontendScoutingPlanView` at `?tt_view=scouting-visits`. Modes: list (default), `&action=new` (create form), `&action=edit&id=N` (edit form). Scope: scout sees only their own, HoD / admin see all. Status pill blue/green/red per planned/completed/cancelled.
+- `Modules\Prospects\Frontend\FrontendScoutingVisitDetailView` at `?tt_view=scouting-visit&id=N` (singular slug). Renders facts (date / time / location / event / age groups / status / scout / notes), and a sortable table of prospects linked via `scouting_visit_id`. Page actions: Edit visit + Log scouting find (the latter passes `from_visit=N` to the new-prospect wizard).
+
+### Dashboard widget
+
+- `Modules\PersonaDashboard\Widgets\ScoutingPlanWidget` — registered in `CoreWidgets::registerAll()`, placed on `CoreTemplates::scout()` at y=2 above the recent-prospects table (recent-prospects shifted y=2 → y=3). Renders the next 5 *planned* visits for the current scout (ordered by date asc), with a prospect-count badge.
+
+### Tile
+
+- Registered in `CoreSurfaceRegistration` under the Trials group at order=6 (next to onboarding-pipeline). Cap `tt_view_prospects`. Slug ownership added for both `scouting-visits` and `scouting-visit`.
+
+### Hero secondary link
+
+- `AddProspectHeroWidget::render()` now emits a "Plan visits →" `<a>` next to the primary CTA, linking to `?tt_view=scouting-visits`. New `.tt-pd-hero-secondary` CSS — underlined, readable on the hero backdrop, focus-visible-outlined, 40px min-height for touch.
+
+### i18n
+
+- `languages/talenttrack-nl_NL.po` gets 20+ new entries (visit forms, widget chrome, status labels, plural-aware "%d prospects logged"). Many common terms ("Status", "Location", "Notes", etc.) are reused from existing entries.
+
+### Docs
+
+- `docs/scout-actions.md` gets a new `### 2.1 Plan a scouting visit` section with full pilot framing + Shipped entry + how-to-test.
+
+## Files
+
+- **New** `database/migrations/0094_scouting_plan_visits.php`
+- **New** `src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php`
+- **New** `src/Modules/Prospects/Rest/ScoutingVisitsRestController.php`
+- **New** `src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php`
+- **New** `src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php`
+- **New** `src/Modules/PersonaDashboard/Widgets/ScoutingPlanWidget.php`
+- `src/Modules/Prospects/ProspectsModule.php` — register `ScoutingVisitsRestController::init()`
+- `src/Modules/PersonaDashboard/Defaults/CoreWidgets.php` — register `ScoutingPlanWidget`
+- `src/Modules/PersonaDashboard/Defaults/CoreTemplates.php` — place widget on scout template
+- `src/Modules/PersonaDashboard/Widgets/AddProspectHeroWidget.php` — "Plan visits →" secondary link
+- `src/Shared/CoreSurfaceRegistration.php` — tile + slug ownership for `scouting-visits` + `scouting-visit`
+- `src/Shared/Frontend/DashboardShortcode.php` — workflow slug allowlist + dispatch cases for both slugs, plumb `$is_admin` into `dispatchWorkflowView`
+- `assets/css/persona-dashboard.css` — `.tt-pd-hero-secondary` + `.tt-pd-cta-secondary` + scouting-list widget chrome
+- `languages/talenttrack-nl_NL.po` — 20+ NL entries
+- `docs/scout-actions.md` — action #2.1 Shipped entry
+- `talenttrack.php` 3.110.116 → 3.110.119 (skipping 117/118 which are queued PRs #411 + #417)
+- `readme.txt`, `CHANGES.md`
+
+## Deferred
+
+1. **Wizard step** — an optional `ScoutingVisitStep` between Identity and Discovery in the new-prospect wizard. The `from_visit=N` querystring already passes through the wizard chain, but the new-prospect REST POST does not yet consume it to write `scouting_visit_id` onto the new prospect row. Defer reason: touching the existing 4-step wizard during autonomous mode without a manual test pass is risky. Follow-up will:
+   - Add `scouting_visit_id` to `ProspectsRestController::insert` payload (write-allowed when `from_visit` is set + the current user owns the visit).
+   - Either add a real `ScoutingVisitStep` to `WizardEntryPoint::registerCanonical( 'new-prospect', ... )` *or* keep it as a pre-filled hidden field on the Identity step — operator decision.
+
+2. **FrontendListTable conversion** — the visits list view is currently hand-rolled `<table class="tt-table tt-table-sortable">`. Fits the small-N use case (a scout's visit count is in the dozens, not thousands), but for parity with goals / evaluations / PDP lists a follow-up could swap in `FrontendListTable` with a GET list endpoint on the REST controller.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.119; migration 0094 runs on next admin page load.
+2. Log in as a user with the scout persona (`tt_scout`).
+3. **Hero secondary link** — dashboard hero CTA row has "Plan visits →" to the right of the primary button.
+4. **Tile** — Operations / Trials group shows the "Scouting visits" tile.
+5. **Empty state** — open `?tt_view=scouting-visits` → empty-state copy "You have not planned any scouting visits yet."
+6. **Create form** — click "+ New scouting visit" → form has Date (required) / Time / Location (required) / Event / Age groups checkbox grid / Status / Notes. Save → returns to list. The new visit appears with status pill "Planned" (blue).
+7. **Detail view** — click the date cell → land on `?tt_view=scouting-visit&id=N`. See facts table + "No prospects logged from this visit yet." Page actions: Edit visit + Log scouting find.
+8. **Log scouting find** — click → opens the new-prospect wizard with `from_visit=N` in the URL. Walk through; on submit the prospect is created (linkage is logged manually until wizard step ships).
+9. **Dashboard widget** — refresh dashboard → "My scouting plan" widget at y=2 shows the upcoming visit. Click the item → land on detail page with breadcrumb + back-pill.
+10. **Edit + archive** — from detail page click Edit visit → modify any field → Save. Status can be set to "Completed" (green pill) or "Cancelled" (red pill). DELETE via REST archives.
+11. **NL locale** — every label is translated: "Scoutingbezoeken", "Plan bezoeken →", "Mijn scoutingsplanning", "Gepland" / "Voltooid" / "Geannuleerd", widget item count "%d prospects vastgelegd".
+
+---
+
 # TalentTrack v3.110.116 — Standard reports: Team + Player attendance statistics on the central Analytics surface
 
 Sequential ship from one operator round (v3.110.108 = Spond URL configurable + Analytics tile; v3.110.114 = Spond login URL + token field fix; widget library detail panel ships next as v3.110.117).

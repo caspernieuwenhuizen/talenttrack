@@ -149,6 +149,9 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'wizards-admin',      self::M_WIZARDS );
         // #0081 child 3 — standalone onboarding-pipeline view.
         TileRegistry::registerSlugOwnership( 'onboarding-pipeline', self::M_PROSPECTS );
+        // v3.110.119 — scouting visits list + detail.
+        TileRegistry::registerSlugOwnership( 'scouting-visits', self::M_PROSPECTS );
+        TileRegistry::registerSlugOwnership( 'scouting-visit', self::M_PROSPECTS );
         // #0006 — team-planning calendar.
         TileRegistry::registerSlugOwnership( 'team-planner', self::M_PLANNING );
         // #0083 Child 3 — dimension explorer (Analytics module).
@@ -607,6 +610,23 @@ final class CoreSurfaceRegistration {
             'label'        => __( 'Onboarding pipeline', 'talenttrack' ),
             'description'  => __( 'Six-stage funnel from scout-logged prospect through team-offer acceptance. HoD + Scout + Academy Admin only.', 'talenttrack' ),
             'icon'         => 'kanban',
+            'color'        => '#2271b1',
+            'cap'          => 'tt_view_prospects',
+        ]);
+        // v3.110.119 — Scouting visits tile. Outbound visits the scout
+        // plans / records to spot prospects in their natural context
+        // (matches, tournaments, training open days). Same group as
+        // the funnel — they feed each other.
+        TileRegistry::register([
+            'module_class' => self::M_PROSPECTS,
+            'view_slug'    => 'scouting-visits',
+            'entity'       => 'scouting_visits',
+            'group'        => $trials_group,
+            'kind'         => 'work',
+            'order'        => 6,
+            'label'        => __( 'Scouting visits', 'talenttrack' ),
+            'description'  => __( 'Plan and record off-site visits where scouts spot potential prospects (matches, tournaments, open days).', 'talenttrack' ),
+            'icon'         => 'calendar',
             'color'        => '#2271b1',
             'cap'          => 'tt_view_prospects',
         ]);

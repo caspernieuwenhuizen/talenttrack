@@ -4,13 +4,31 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.116
+Stable tag: 3.110.119
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.119 — Scout polish round B: scouting visits feature (new entity, list + detail views, dashboard widget, tile, hero link) =
+
+Pilot ask: a scout's calendar surface — "Idea for a new widget, new scouting activity… plan a visit, log finds against it, see what came out of it." Operator picked "Scouting visit" naming + all three entry points (widget + tile + hero secondary link). Distinct from `tt_test_trainings` (one-off club-hosted training a prospect attends) — a scouting visit is *outbound* from the club to where prospects already are.
+
+**New entity** — migration 0094 adds `tt_scouting_plan_visits` (scout_user_id / visit_date / visit_time / location / event_description / age_groups_csv / status (planned/completed/cancelled) / notes / uuid / club_id) + a nullable `tt_prospects.scouting_visit_id` foreign key. Idempotent. SaaS-ready: uuid + club_id columns per CLAUDE.md §4.
+
+**REST** — `ScoutingVisitsRestController` at `/wp-json/talenttrack/v1/scouting-visits` with POST + PATCH + DELETE (archive). Cap `tt_edit_prospects`; scope rule: a scout can edit only their own visits, HoD / admin can edit any.
+
+**Views** — `FrontendScoutingPlanView` at `?tt_view=scouting-visits` (list + new + edit forms) and `FrontendScoutingVisitDetailView` at `?tt_view=scouting-visit&id=N` (visit facts + linked prospects + "Log scouting find" CTA that passes `from_visit=N` to the new-prospect wizard).
+
+**Widget** — `ScoutingPlanWidget` on the scout dashboard at y=2 (above the recent-prospects table), showing the next 5 planned visits with date / location / event + prospect count badge.
+
+**Tile** — registered under Operations → Trials group at order=6 (next to onboarding-pipeline).
+
+**Hero secondary link** — `AddProspectHeroWidget` gains a "Plan visits →" secondary link to the right of the primary CTA.
+
+**Deferred to a follow-up** — the optional `ScoutingVisitStep` between Identity and Discovery in the new-prospect wizard, plus the new-prospect REST POST consuming the `from_visit=N` querystring to write `scouting_visit_id` onto the new prospect row. The visit↔prospect link is still recordable manually for now.
 
 = 3.110.116 — Standard reports: Team attendance + Player attendance statistics on the central Analytics surface =
 
