@@ -912,6 +912,23 @@
     gap: 0.25rem;
     min-height: 4.5rem;
 }
+a.tt-pd-pipeline-col--link {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+a.tt-pd-pipeline-col--link:hover {
+    background: #f1f4f7;
+    border-color: #cbd2d9;
+}
+a.tt-pd-pipeline-col--link:active {
+    transform: translateY(1px);
+}
+a.tt-pd-pipeline-col--link:focus-visible {
+    outline: 2px solid var(--tt-pd-accent, #2563eb);
+    outline-offset: 2px;
+}
 .tt-pd-pipeline-stage-label {
     font-size: 0.6875rem;
     font-weight: 600;

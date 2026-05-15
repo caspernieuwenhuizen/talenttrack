@@ -82,7 +82,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         ?>
         <div class="tt-pipeline-kanban" role="list">
             <?php foreach ( $stages as $stage ) : ?>
-                <section class="tt-pipeline-col" data-stage="<?php echo esc_attr( $stage['key'] ); ?>" role="listitem">
+                <section class="tt-pipeline-col" id="stage-<?php echo esc_attr( $stage['key'] ); ?>" data-stage="<?php echo esc_attr( $stage['key'] ); ?>" role="listitem">
                     <header class="tt-pipeline-col-head">
                         <span class="tt-pipeline-col-label"><?php echo esc_html( $stage['label'] ); ?></span>
                         <span class="tt-pipeline-col-count"><?php echo esc_html( (string) $stage['count'] ); ?></span>

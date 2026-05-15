@@ -1,3 +1,63 @@
+# TalentTrack v3.110.118 — Scout polish round A: onboarding pipeline tiles clickable, hero CTA renamed "Log a scouting find" / "+ Scouting find"
+
+Two pilot-surfaced scout-persona polish items. Release A of a two-release scout polish pass; Release B follows with the scouting-visits feature.
+
+## Pilot asks
+
+> *"the onboarding widget, the individual tiles are not clickable. they should be"*
+
+> *"the button 'add new prospect', the word 'prospect' does not feel right; provide a few alternatives"*
+
+Operator picked **"Log a scouting find" / "+ Scouting find"** from a shortlist.
+
+## (1) Onboarding pipeline tiles are clickable
+
+`OnboardingPipelineWidget::render()` rewrites each of the six stage tiles from a `<div class="tt-pd-pipeline-col">` to `<a class="tt-pd-pipeline-col tt-pd-pipeline-col--link" href="?tt_view=onboarding-pipeline#stage-<key>" aria-label="...">`.
+
+`FrontendOnboardingPipelineView::renderKanban()` gains an `id="stage-<key>"` attribute on each column `<section>`, so the browser scrolls the matching column into view when the scout clicks a tile from the dashboard.
+
+Aria-label is plural-aware and translatable:
+
+> Open *Test training* in the kanban view — 4 prospects
+
+CSS in `assets/css/persona-dashboard.css`:
+
+- `a.tt-pd-pipeline-col--link` strips link styling (color: inherit, text-decoration: none).
+- `:hover` lifts background from `#fafbfc` to `#f1f4f7`, borders darken slightly.
+- `:active` translates 1px down for tap feedback.
+- `:focus-visible` outline in the accent colour (CLAUDE.md §2 keyboard accessibility).
+
+## (2) Hero CTA renamed
+
+`AddProspectHeroWidget`:
+
+- Title: `Log a new prospect` → `Log a scouting find`
+- Button: `+ New prospect` → `+ Scouting find`
+- Eyebrow `Spot someone new` unchanged.
+
+Underlying slug (`new-prospect`), wizard slug, REST endpoint, and entity name (`tt_prospects`) all unchanged — this is a pure label rename.
+
+NL translations added to `languages/talenttrack-nl_NL.po`:
+
+| EN                    | NL                              |
+|-----------------------|---------------------------------|
+| Log a scouting find   | Leg een scoutingbevinding vast  |
+| + Scouting find       | + Scoutingbevinding             |
+
+Old `Log a new prospect` / `+ New prospect` `msgid` entries kept as dead translations (xgettext cleanup deferred).
+
+## Files
+
+- `src/Modules/PersonaDashboard/Widgets/AddProspectHeroWidget.php` — CTA + title label change
+- `src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php` — `<div>` tile → `<a>` link, aria-label, base URL via `$ctx->viewUrl()`
+- `src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php` — `id="stage-<key>"` on each kanban column
+- `assets/css/persona-dashboard.css` — `.tt-pd-pipeline-col--link` rules (hover, active, focus-visible)
+- `languages/talenttrack-nl_NL.po` — two new `msgid`s + plural-form aria-label
+- `docs/scout-actions.md` — Shipped entry under action #2 with how-to-test
+- `talenttrack.php` 3.110.117 → 3.110.118
+
+---
+
 # TalentTrack v3.110.117 — Dashboard editor: widget + KPI detail panel (description, data source/destination, intended personas)
 
 Sequential ship from one operator round. See v3.110.108 (Spond URL + Analytics tile), v3.110.114 (Spond login fix), and v3.110.116 (attendance reports) for the other three.
@@ -98,12 +158,24 @@ The framework supports KPI descriptions through `method_exists`. Backfilling all
 - `assets/js/persona-dashboard-editor.js` — `renderDetailBlock()` + properties-panel integration
 - `assets/css/persona-dashboard-editor.css` — `.tt-pde-properties-detail` + `.tt-pde-chip` styling
 - 19 widget files — `description()` + `intendedPersonas()` overrides
-- `talenttrack.php` 3.110.108 → 3.110.110
+- `talenttrack.php` 3.110.108 → 3.110.117
 - `readme.txt`, `CHANGES.md`
 
 No schema, no migration, no REST changes.
 
 ## How to verify
+
+### v3.110.118 (scout polish round A)
+
+1. Refresh the plugin to v3.110.118.
+2. Log in as a user with the scout persona.
+3. **Hero CTA**: the hero on the dashboard reads eyebrow "Spot someone new", title "Log a scouting find", button "+ Scouting find". Click the button → new-prospect wizard opens (unchanged behaviour).
+4. **Pipeline tile click**: click any tile in the onboarding pipeline widget below the hero. URL becomes `?tt_view=onboarding-pipeline#stage-<key>`; the matching column scrolls into view.
+5. **Keyboard**: Tab into the dashboard, focus reaches each pipeline tile in order. Focus ring visible (focus-visible outline). Enter activates the link.
+6. **Hover**: tile background lifts and border darkens on pointer-hover. Tap on mobile shows the `:active` press state (no hover required).
+7. **NL locale**: hero title "Leg een scoutingbevinding vast", button "+ Scoutingbevinding". Aria-label on tile reads "Open <stage> in de kanbanweergave — N prospects".
+
+### v3.110.117 (widget library detail panel)
 
 1. Refresh the plugin to v3.110.117.
 2. Open the dashboard editor (`wp-admin → Persona Dashboards`).

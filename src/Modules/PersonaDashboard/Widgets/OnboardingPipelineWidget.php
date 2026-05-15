@@ -79,6 +79,8 @@ class OnboardingPipelineWidget extends AbstractWidget {
             . esc_html__( 'Onboarding pipeline', 'talenttrack' )
             . '</div>';
 
+        $base_url = $ctx->viewUrl( 'onboarding-pipeline' );
+
         $cols = '';
         foreach ( $stages as $stage ) {
             $stale_html = '';
@@ -91,11 +93,20 @@ class OnboardingPipelineWidget extends AbstractWidget {
                     ) )
                     . '">' . esc_html( '(' . $stage['stale'] . ' ' . __( 'stale', 'talenttrack' ) . ')' ) . '</span>';
             }
-            $cols .= '<div class="tt-pd-pipeline-col">'
+            $stage_url = $base_url . '#stage-' . rawurlencode( $stage['key'] );
+            $aria      = sprintf(
+                /* translators: 1: stage label (e.g. "Test training"), 2: number of prospects in that stage. */
+                _n( 'Open %1$s in the kanban view — %2$d prospect', 'Open %1$s in the kanban view — %2$d prospects', (int) $stage['count'], 'talenttrack' ),
+                $stage['label'],
+                (int) $stage['count']
+            );
+            $cols .= '<a class="tt-pd-pipeline-col tt-pd-pipeline-col--link" '
+                . 'href="' . esc_url( $stage_url ) . '" '
+                . 'aria-label="' . esc_attr( $aria ) . '">'
                 . '<div class="tt-pd-pipeline-stage-label">' . esc_html( $stage['label'] ) . '</div>'
                 . '<div class="tt-pd-pipeline-count">' . esc_html( (string) $stage['count'] ) . '</div>'
                 . $stale_html
-                . '</div>';
+                . '</a>';
         }
 
         $body = $title . '<div class="tt-pd-pipeline-cols">' . $cols . '</div>';

@@ -238,6 +238,30 @@ Ordered by raw frequency (most-used first). Each action lists:
     card reads "geboren YYYY". Cards in **Prospects** with an open
     invite task show the Dutch context line; **Invited** cards show
     "Uitnodiging verstuurd, wacht op ouder".
+  - **v3.110.118** — pipeline tile clickability + CTA rename. Two
+    pilot-surfaced polish items on this surface. (a) `OnboardingPipelineWidget`
+    tiles are now `<a>` links — each tile navigates to
+    `?tt_view=onboarding-pipeline#stage-<key>` and the kanban view
+    gained an `id="stage-<key>"` anchor on each column so the
+    browser scrolls to the column the scout clicked from the
+    dashboard. Aria-label reads "Open <stage> in the kanban view —
+    N prospects" so screen readers announce the target. Hover lift
+    + focus-visible outline + `:active` press feedback added to
+    `.tt-pd-pipeline-col--link`. (b) Hero CTA renamed: "Log a new
+    prospect" → "Log a scouting find"; "+ New prospect" →
+    "+ Scouting find". Operator vocabulary: a scout *finds* a
+    player; "prospect" is what the academy calls them once the
+    discovery is logged. NL: "Leg een scoutingbevinding vast" /
+    "+ Scoutingbevinding".
+    *How to test:* (a) on the scout dashboard, click any pipeline
+    tile (Prospects / Invited / Test training / Trial group / Team
+    offer / Joined). Browser navigates to the kanban view and
+    scrolls the matching column into view. Tab into the tile from
+    the keyboard — focus ring visible. Hover → tile lifts. (b) the
+    hero block above reads eyebrow "Spot someone new" / title
+    "Log a scouting find" / button "+ Scouting find". On NL: the
+    eyebrow is "Een nieuwe speler ontdekt", title "Leg een
+    scoutingbevinding vast", button "+ Scoutingbevinding".
 
 ### 3. Add a follow-up scouting note to an existing prospect
 

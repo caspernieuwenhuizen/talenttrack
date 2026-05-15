@@ -13043,6 +13043,13 @@ msgid_plural "%d stale"
 msgstr[0] "%d vastgelopen"
 msgstr[1] "%d vastgelopen"
 
+# v3.110.118 — aria-label on the clickable pipeline tile
+#, php-format
+msgid "Open %1$s in the kanban view — %2$d prospect"
+msgid_plural "Open %1$s in the kanban view — %2$d prospects"
+msgstr[0] "Open %1$s in de kanbanweergave — %2$d prospect"
+msgstr[1] "Open %1$s in de kanbanweergave — %2$d prospects"
+
 # Standalone view
 msgid "You do not have access to the onboarding pipeline."
 msgstr "Je hebt geen toegang tot de instroompijplijn."
@@ -13050,12 +13057,15 @@ msgstr "Je hebt geen toegang tot de instroompijplijn."
 msgid "+ New prospect"
 msgstr "+ Nieuwe prospect"
 
-# AddProspectHeroWidget — scout dashboard hero (v3.110.68)
+# AddProspectHeroWidget — scout dashboard hero (v3.110.68; CTA renamed in v3.110.118)
 msgid "Spot someone new"
 msgstr "Een nieuwe speler ontdekt"
 
-msgid "Log a new prospect"
-msgstr "Leg een nieuwe prospect vast"
+msgid "Log a scouting find"
+msgstr "Leg een scoutingbevinding vast"
+
+msgid "+ Scouting find"
+msgstr "+ Scoutingbevinding"
 
 msgid "Add prospect hero"
 msgstr "Hero ‘Prospect toevoegen’"
