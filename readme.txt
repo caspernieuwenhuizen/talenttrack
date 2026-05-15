@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.112
+Stable tag: 3.110.113
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.113 — Spond API base URL configurable from wp-admin; central Analytics tile registered on the admin tile grid =
+
+Two operator-requested fixes. **(1) Spond API base URL configurable.** `SpondClient::BASE_URL` was a hard-coded constant — when Spond changes endpoints we ship code, the operator can't react. Replaced with a `SpondClient::baseUrl()` method that reads `tt_config[spond.api_base_url]` first and falls back to the new `DEFAULT_BASE_URL` constant (`https://api.spond.com/core/v1`). The constant `BASE_URL` stays as a deprecated alias so any third-party reading it keeps working. New "API endpoint" `<details>` section on the Spond admin page (above Account, collapsed by default) — operator pastes a URL, hits Save, every subsequent `login()` and request uses it. Empty input clears the override and reverts to the default. URL is `esc_url_raw()`-sanitised + regex-validated; invalid input shows an error flash and leaves the existing endpoint untouched. New admin-post handler `tt_spond_save_base_url`. **(2) Analytics tile in the admin tile grid.** `?tt_view=analytics` (FrontendAnalyticsView, #0083 Child 5) had its slug owned by AnalyticsModule but no entry in the tile registry; admin saw the slug but couldn't navigate to it from the tile grid. New `TileRegistry::register()` block in the Analytics group (order=5, top of group), cap `tt_view_analytics`, module class `TT\Modules\Analytics\AnalyticsModule`, description "Academy-wide KPIs and the dimension explorer."
 
 = 3.110.112 — HoD persona polish round 1: KPI strip hero alignment, open-trial KPI counts 'extended' status, Dutch trial→stage translation gaps, POP verdicts link routes to HoD-scoped open files, GoalCompletionPct docstring clarified =
 

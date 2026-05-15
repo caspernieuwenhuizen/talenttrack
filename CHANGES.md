@@ -1,3 +1,97 @@
+# TalentTrack v3.110.113 — Spond API base URL configurable from wp-admin; central Analytics tile on the admin tile grid
+
+First of three sequential ships from one operator round. Items 2 + 3 (this release): small, clear-cut. Item 4 (attendance reports) ships next as v3.110.109+; item 1 (widget library detail panel) lands after that.
+
+## 1 — Spond API base URL configurable
+
+`SpondClient::BASE_URL` was a hard-coded constant:
+
+```php
+public const BASE_URL = 'https://api.spond.com/core/v1';
+```
+
+Used directly in `login()` and the request method. When Spond changes endpoints — and they have — operators can't react without a code release. Pilot reported a 404 on every sync.
+
+Replaced with a `baseUrl()` method that reads an override from `tt_config`:
+
+```php
+public static function baseUrl(): string {
+    $override = trim( QueryHelpers::get_config( 'spond.api_base_url', '' ) );
+    return $override !== '' ? rtrim( $override, '/' ) : rtrim( self::DEFAULT_BASE_URL, '/' );
+}
+```
+
+Both call sites (`self::BASE_URL . '/login'`, `self::BASE_URL . $path . $query`) now read `self::baseUrl()`. The old `BASE_URL` constant stays as a deprecated alias (`public const BASE_URL = self::DEFAULT_BASE_URL`) so anything third-party reading it keeps working.
+
+### Admin UI
+
+New "API endpoint" section on `SpondOverviewPage`, rendered in a `<details>` (collapsed by default — operators rarely need it):
+
+```html
+<details>
+  <summary>API endpoint — https://api.spond.com/core/v1 (default)</summary>
+  <p>Override the Spond API base URL. Default is <code>https://api.spond.com/core/v1</code>.
+     Change only if Spond announces a new endpoint, or for testing against a private mock —
+     a wrong URL will cause every sync to fail.</p>
+  <form ...>
+    <label>API base URL</label>
+    <input type="url" name="api_base_url" inputmode="url" ... />
+    <button>Save endpoint</button>
+  </form>
+</details>
+```
+
+Empty input clears the override and reverts to the default. Input is `esc_url_raw()`-sanitised + regex-validated against `^https?://[^\s]+$`. Invalid input shows an error flash and leaves the existing endpoint untouched. New admin-post handler `tt_spond_save_base_url` + nonce-protected.
+
+### What this doesn't do
+
+Doesn't diagnose the specific 404. That needs the failing request URL/payload from `wp-content/debug.log` or the Spond response body. If you can share the failing call I can investigate as a follow-up. For now the operator-side unblock is the configurable URL.
+
+## 2 — Analytics tile on the admin tile grid
+
+`?tt_view=analytics` (the central FrontendAnalyticsView from #0083 Child 5) had its slug owned by AnalyticsModule (via `TileRegistry::registerSlugOwnership`) but no tile entry. Admin / HoD could reach the page only by direct URL.
+
+New tile in `CoreSurfaceRegistration::registerTiles()` Analytics group:
+
+```php
+TileRegistry::register([
+    'module_class' => 'TT\\Modules\\Analytics\\AnalyticsModule',
+    'view_slug'    => 'analytics',
+    'entity'       => 'analytics',
+    'group'        => $analytics_group,
+    'kind'         => 'work',
+    'order'        => 5,                     // top of the Analytics group
+    'label'        => __( 'Analytics', 'talenttrack' ),
+    'description'  => __( 'Academy-wide KPIs and the dimension explorer.', 'talenttrack' ),
+    'icon'         => 'reports',
+    'color'        => '#7c3aed',
+    'cap'          => 'tt_view_analytics',
+]);
+```
+
+Order=5 places it above the existing tiles (Rate cards at 10, Reports at 25, etc.) so the central surface is the obvious first stop.
+
+## Files
+
+- `src/Modules/Spond/SpondClient.php` — `BASE_URL` → `DEFAULT_BASE_URL` + `baseUrl()` static; both call sites use the method
+- `src/Modules/Spond/Admin/SpondOverviewPage.php` — new `<details>` form section + admin-post handler + 3 new flash labels
+- `src/Shared/CoreSurfaceRegistration.php` — Analytics tile registration
+- `talenttrack.php` 3.110.107 → 3.110.108
+- `readme.txt`, `CHANGES.md`
+
+No schema, no migration. Pre-v3.110.108 code reading `SpondClient::BASE_URL` keeps working — the constant value points at the same default.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.108.
+2. Open Spond admin (Settings → Spond). The "API endpoint" `<details>` row appears above Account.
+3. Expand it, paste a working URL (e.g. `https://api.spond.com/core/v1/`), Save → success flash. Re-expand: summary shows the new URL (no `(default)` suffix).
+4. Clear the field, Save → success flash, summary reverts to "https://api.spond.com/core/v1 (default)".
+5. Type garbage (e.g. `not-a-url`), Save → error flash; endpoint unchanged.
+6. Log in as admin / HoD on the frontend. The tile grid's Analytics group now shows an **Analytics** tile at the top of the group. Click → lands on `?tt_view=analytics` with the academy-wide KPI grid.
+
+---
+
 # TalentTrack v3.110.112 — HoD persona polish round 1 (5 of 8 items autonomous; 3 surfaced for feedback)
 
 The pilot reported 8 items on the HoD dashboard. Five are shipping here — the smallest, most certain fixes. Three need design / specification input before code lands: a general auth audit (which specific widgets show no data), the `new_trial` action card's destination, and the new "Recent comments & notes" widget's data sources.

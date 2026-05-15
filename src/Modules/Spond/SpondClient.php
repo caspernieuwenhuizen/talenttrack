@@ -27,9 +27,41 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 final class SpondClient {
 
-    public const BASE_URL        = 'https://api.spond.com/core/v1';
-    public const TIMEOUT_SECONDS = 15;
-    public const USER_AGENT      = 'TalentTrack/%s (+https://github.com/caspernieuwenhuizen/talenttrack)';
+    // v3.110.108 — kept as DEFAULT_BASE_URL. The effective base URL
+    // comes through `baseUrl()` which reads the `spond.api_base_url`
+    // override in `tt_config` first (set via Spond admin page) and
+    // falls back to this constant. Lets operators redirect to the
+    // current Spond endpoint without a code release if Spond moves
+    // the API.
+    public const DEFAULT_BASE_URL = 'https://api.spond.com/core/v1';
+    public const TIMEOUT_SECONDS  = 15;
+    public const USER_AGENT       = 'TalentTrack/%s (+https://github.com/caspernieuwenhuizen/talenttrack)';
+
+    /**
+     * @deprecated v3.110.108 — kept as an alias for back-compat. New
+     *             callers should use {@see self::baseUrl()}.
+     */
+    public const BASE_URL = self::DEFAULT_BASE_URL;
+
+    /**
+     * Effective Spond API base URL. Reads `tt_config[spond.api_base_url]`
+     * first (set by an operator on the Spond admin page) and falls back
+     * to {@see self::DEFAULT_BASE_URL}. Empty / whitespace-only overrides
+     * are ignored. Trailing slashes are stripped so callers can keep
+     * concatenating `/path` without producing `//path`.
+     */
+    public static function baseUrl(): string {
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\QueryHelpers' ) ) {
+            $override = trim( \TT\Infrastructure\Query\QueryHelpers::get_config(
+                'spond.api_base_url',
+                ''
+            ) );
+            if ( $override !== '' ) {
+                return rtrim( $override, '/' );
+            }
+        }
+        return rtrim( self::DEFAULT_BASE_URL, '/' );
+    }
 
     /**
      * Window the events query asks Spond for, in days. 30 days back +
@@ -51,7 +83,7 @@ final class SpondClient {
             return self::error( 'no_credentials', __( 'No Spond credentials configured.', 'talenttrack' ) );
         }
 
-        $response = wp_remote_post( self::BASE_URL . '/login', [
+        $response = wp_remote_post( self::baseUrl() . '/login', [
             'timeout' => self::TIMEOUT_SECONDS,
             'headers' => [
                 'Content-Type' => 'application/json',
@@ -217,7 +249,7 @@ final class SpondClient {
     private static function authedGet( string $path, array $params, string $token, bool $is_retry = false ): array {
         $query = $params ? '?' . http_build_query( $params ) : '';
 
-        $response = wp_remote_get( self::BASE_URL . $path . $query, [
+        $response = wp_remote_get( self::baseUrl() . $path . $query, [
             'timeout' => self::TIMEOUT_SECONDS,
             'headers' => [
                 'Accept'        => 'application/json',
