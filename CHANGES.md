@@ -1,4 +1,4 @@
-# TalentTrack v3.110.111 — Spond API base URL configurable from wp-admin; central Analytics tile on the admin tile grid
+# TalentTrack v3.110.112 — Spond API base URL configurable from wp-admin; central Analytics tile on the admin tile grid
 
 First of three sequential ships from one operator round. Items 2 + 3 (this release): small, clear-cut. Item 4 (attendance reports) ships next as v3.110.109+; item 1 (widget library detail panel) lands after that.
 
@@ -89,6 +89,40 @@ No schema, no migration. Pre-v3.110.108 code reading `SpondClient::BASE_URL` kee
 4. Clear the field, Save → success flash, summary reverts to "https://api.spond.com/core/v1 (default)".
 5. Type garbage (e.g. `not-a-url`), Save → error flash; endpoint unchanged.
 6. Log in as admin / HoD on the frontend. The tile grid's Analytics group now shows an **Analytics** tile at the top of the group. Click → lands on `?tt_view=analytics` with the academy-wide KPI grid.
+
+---
+
+# TalentTrack v3.110.111 — PDP list ack columns relabelled to "confirmation" (operator vocabulary)
+
+Tiny follow-up to v3.110.110. The new Parent ack / Player ack column headers (plus their aria-labels + tooltips) leaked the developer shorthand for the underlying `parent_ack_at` / `player_ack_at` timestamps into the user-facing label. The pilot's original ask used "confirmation" ("which **confirmation** has been received"); the columns should carry that vocabulary, not `ack`.
+
+## Diff
+
+`src/Modules/Pdp/Frontend/FrontendPdpManageView.php`:
+
+```diff
+-'parent_ack' => [ 'label' => __( 'Parent ack', 'talenttrack' ), ... ],
+-'player_ack' => [ 'label' => __( 'Player ack', 'talenttrack' ), ... ],
++'parent_ack' => [ 'label' => __( 'Parent confirmation', 'talenttrack' ), ... ],
++'player_ack' => [ 'label' => __( 'Player confirmation', 'talenttrack' ), ... ],
+```
+
+`src/Modules/Pdp/Rest/PdpFilesRestController.php`:
+
+```diff
+-$parent_ack_html = self::ack_checkmark( $parent_ack, __( 'Parent acknowledgement', 'talenttrack' ) );
+-$player_ack_html = self::ack_checkmark( $player_ack, __( 'Player acknowledgement', 'talenttrack' ) );
++$parent_ack_html = self::ack_checkmark( $parent_ack, __( 'Parent confirmation', 'talenttrack' ) );
++$player_ack_html = self::ack_checkmark( $player_ack, __( 'Player confirmation', 'talenttrack' ) );
+```
+
+The data model is untouched — `tt_pdp_conversations.parent_ack_at` / `player_ack_at` columns remain. The variable / method names in the REST controller (`$parent_ack`, `format_list_row()`'s `'parent_ack' =>`, `ack_checkmark()`) also stay as developer-side shorthand; only the **user-facing strings** (column labels, tooltip text, aria-labels) carry "confirmation".
+
+## How to test
+
+1. Visit `?tt_view=pdp`.
+2. Confirm the two columns read **Parent confirmation** and **Player confirmation** (not "Parent ack" / "Player ack").
+3. Hover the checkmark: tooltip / screen-reader label reads "Parent confirmation received" or "Parent confirmation not yet received" accordingly.
 
 ---
 

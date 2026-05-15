@@ -229,8 +229,8 @@ class PdpFilesRestController {
 
         $parent_ack = ! empty( $row->has_parent_ack );
         $player_ack = ! empty( $row->has_player_ack );
-        $parent_ack_html = self::ack_checkmark( $parent_ack, __( 'Parent acknowledgement', 'talenttrack' ) );
-        $player_ack_html = self::ack_checkmark( $player_ack, __( 'Player acknowledgement', 'talenttrack' ) );
+        $parent_ack_html = self::ack_checkmark( $parent_ack, __( 'Parent confirmation', 'talenttrack' ) );
+        $player_ack_html = self::ack_checkmark( $player_ack, __( 'Player confirmation', 'talenttrack' ) );
 
         return [
             'id'               => $file_id,
