@@ -47,6 +47,7 @@ final class BackLabelResolver {
             case 'players':            return __( 'Back to Players', 'talenttrack' );
             case 'teams':              return __( 'Back to Teams', 'talenttrack' );
             case 'onboarding-pipeline': return __( 'Back to Onboarding pipeline', 'talenttrack' );
+            case 'prospects-overview': return __( 'Back to Prospects', 'talenttrack' );
             case 'my-tasks':           return __( 'Back to My tasks', 'talenttrack' );
             case 'people':          return __( 'Back to People', 'talenttrack' );
             case 'activities':      return __( 'Back to Activities', 'talenttrack' );

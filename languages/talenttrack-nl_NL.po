@@ -12805,6 +12805,17 @@ msgstr "Geconcept, nog niet doorgegeven aan HoD"
 msgid "Invitation in progress"
 msgstr "Uitnodiging in behandeling"
 
+# v3.110.99 — kanban context lines added in v3.110.81 missed the NL run.
+msgid "Awaiting HoD to send the invite"
+msgstr "Wacht tot HoO de uitnodiging verstuurt"
+
+msgid "Invitation sent, awaiting parent"
+msgstr "Uitnodiging verstuurd, wacht op ouder"
+
+#, php-format
+msgid "born %s"
+msgstr "geboren %s"
+
 msgid "Awaiting outcome"
 msgstr "Wachten op uitkomst"
 

@@ -82,13 +82,14 @@ class DataTableWidget extends AbstractWidget {
                 'empty_message' => __( 'You have no scout reports yet.', 'talenttrack' ),
             ],
             // v3.110.78 — scout-persona "the prospects I just logged" table.
-            // Show-all targets onboarding-pipeline (cap `tt_view_prospects`,
-            // every scout has it), not `scout-history` which is gated on
-            // `tt_generate_scout_report`.
+            // v3.110.99 — Show-all targets the new prospects-overview
+            // (rich list with FrontendListTable filters), not the kanban.
+            // Pilot feedback: kanban is grouped by stage, scouts wanted
+            // a flat searchable list.
             'my_recent_prospects' => [
                 'title'         => __( 'My recent prospects', 'talenttrack' ),
                 'columns'       => [ __( 'Date', 'talenttrack' ), __( 'Name', 'talenttrack' ), __( 'Status', 'talenttrack' ), '' ],
-                'see_all_view'  => 'onboarding-pipeline',
+                'see_all_view'  => 'prospects-overview',
                 'empty_message' => __( 'You have not logged any prospects yet. Use the “+ New prospect” hero above to start.', 'talenttrack' ),
             ],
             'audit_log_recent' => [
