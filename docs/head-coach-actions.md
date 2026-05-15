@@ -619,6 +619,34 @@ Ships that affect the head-coach's daily flow but aren't tied to a
 single numbered action. Same `**vX.Y.Z** — what changed. *How to
 test:* …` format.
 
+- **v3.110.104** — evaluation detail page polish (Group 2 of the
+  evaluation flow pass).
+  (1) Edit + Archive in the page-header now render at the same
+  height. The `.tt-page-actions__icon` font-size 1.5rem was a
+  relic of the v3.110.53–v3.110.73 FAB rendering; dropped now
+  that the FAB itself was removed in v3.110.74.
+  (2) Archive's confirm prompt is now an app-style `<dialog>`
+  modal (white card, app chrome, focus on Cancel) instead of
+  `window.confirm()`. Strings localised; native dialog handles
+  focus trap + Escape + backdrop. Fallback to confirm() only
+  when HTMLDialogElement is unavailable.
+  (3) Detail page renders a **Type** row under Date — was
+  always missing despite `eval_type_id` being persisted on
+  every wizard-written eval since v3.110.67. SELECT extended
+  with `eval_type_id` + LEFT JOIN on `tt_lookups`; resolved via
+  `LookupTranslator` so the label is localised.
+  Global cross-cutting parts: (1) + (2) apply to every detail
+  surface using `pageActionsHtml()` + archive-button JS (player /
+  team / activity / goal). (3) is evaluation-specific.
+  *How to test:* open an evaluation detail page. Edit + Archive
+  buttons are the same height; the ✎ icon is inline with the
+  label, not oversized. Click Archive — app modal opens (not a
+  native confirm), Cancel is focused, Escape closes without
+  firing, clicking Archive in the modal performs the DELETE.
+  Detail page shows a **Type** row under Date for evals written
+  via the wizard. Same Archive modal behaviour verified on
+  player / team / activity / goal detail pages.
+
 - **v3.110.103** — wizard hygiene pass on the new-evaluation
   + mark-attendance wizard chrome. Four small fixes:
   (1) **Rate a player directly** escape hatch now submits.

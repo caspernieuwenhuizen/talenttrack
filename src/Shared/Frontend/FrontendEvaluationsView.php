@@ -336,17 +336,26 @@ class FrontendEvaluationsView extends FrontendViewBase {
         global $wpdb;
         $p = $wpdb->prefix;
 
+        // v3.110.104 — also fetch `eval_type_id` + a left join on
+        // `tt_lookups` for the localised label. Pre-fix the detail
+        // page didn't render the evaluation type at all, even though
+        // it's stored on every row written via the wizard (v3.110.67
+        // wired the eval_type_id persistence) and the edit form
+        // expects to pre-fill from it (v3.110.105 will).
         $eval = $wpdb->get_row( $wpdb->prepare(
             "SELECT e.id, e.eval_date, e.notes, e.player_id, e.coach_id, e.opponent, e.competition, e.game_result, e.home_away, e.minutes_played,
+                    e.eval_type_id,
                     pl.first_name, pl.last_name, pl.team_id,
                     t.name AS team_name,
                     u.display_name AS coach_name,
-                    coach_p.id AS coach_person_id
+                    coach_p.id AS coach_person_id,
+                    et.name AS eval_type_key, et.label AS eval_type_label, et.meta AS eval_type_meta
                FROM {$p}tt_evaluations e
                LEFT JOIN {$p}tt_players pl ON pl.id = e.player_id
                LEFT JOIN {$p}tt_teams   t  ON t.id  = pl.team_id
                LEFT JOIN {$wpdb->users} u  ON u.ID  = e.coach_id
                LEFT JOIN {$p}tt_people coach_p ON coach_p.wp_user_id = e.coach_id AND coach_p.club_id = e.club_id
+               LEFT JOIN {$p}tt_lookups et ON et.id = e.eval_type_id AND et.lookup_type = 'eval_type'
               WHERE e.id = %d AND e.club_id = %d AND e.archived_at IS NULL
               LIMIT 1",
             $eval_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
@@ -429,6 +438,28 @@ class FrontendEvaluationsView extends FrontendViewBase {
                 <dl class="tt-profile-dl" style="display:grid; grid-template-columns:auto 1fr; gap:6px 18px; margin:0 0 16px;">
                     <dt><?php esc_html_e( 'Date', 'talenttrack' ); ?></dt>
                     <dd><?php echo esc_html( (string) $eval->eval_date ); ?></dd>
+                    <?php
+                    // v3.110.104 — Type row. Resolves via LookupTranslator
+                    // when the join returned a row (full lookup, with the
+                    // `label` JSON honouring the current locale).
+                    $eval_type_label = '';
+                    if ( ! empty( $eval->eval_type_id ) ) {
+                        // Synthesise a lookup-shaped object so the
+                        // existing translator works without a second
+                        // query. LookupTranslator::name reads `label`
+                        // first, falls back to `name`.
+                        $lookup_row = (object) [
+                            'name'  => (string) ( $eval->eval_type_key ?? '' ),
+                            'label' => (string) ( $eval->eval_type_label ?? '' ),
+                            'meta'  => (string) ( $eval->eval_type_meta ?? '' ),
+                        ];
+                        $eval_type_label = (string) \TT\Infrastructure\Query\LookupTranslator::name( $lookup_row );
+                    }
+                    if ( $eval_type_label !== '' ) :
+                    ?>
+                        <dt><?php esc_html_e( 'Type', 'talenttrack' ); ?></dt>
+                        <dd><?php echo esc_html( $eval_type_label ); ?></dd>
+                    <?php endif; ?>
                     <dt><?php esc_html_e( 'Player', 'talenttrack' ); ?></dt>
                     <dd><?php echo \TT\Shared\Frontend\Components\RecordLink::inline(
                         $player_name,
