@@ -552,6 +552,15 @@ class DashboardShortcode {
             case 'prospects-overview':
                 \TT\Modules\Prospects\Frontend\FrontendProspectsOverviewView::render( $user_id );
                 break;
+            // v3.110.109 — standard attendance reports surfaced under
+            // the Analytics module. Both cap-gated on `tt_view_analytics`
+            // (HoD + Admin by default).
+            case 'attendance-report-team':
+                \TT\Modules\Analytics\Frontend\FrontendAttendanceTeamReportView::render( $user_id, $is_admin );
+                break;
+            case 'attendance-report-player':
+                \TT\Modules\Analytics\Frontend\FrontendAttendancePlayerReportView::render( $user_id, $is_admin );
+                break;
             default:
                 FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';

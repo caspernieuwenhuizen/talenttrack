@@ -75,9 +75,52 @@ class FrontendAnalyticsView extends FrontendViewBase {
         }
         echo '</div>';
 
+        // v3.110.109 — "Standard reports" section. Pre-built reports
+        // sit alongside the dimension explorer for operators who want
+        // the answer rather than the toolkit. New reports get added
+        // to the $standard_reports array below.
+        self::renderStandardReports();
+
         echo '<div style="margin-top:32px; padding:12px 16px; background:#f0f6fc; border-left:4px solid #2271b1; max-width:760px; font-size:13px; color:#5b6e75;">'
             . esc_html__( "The central analytics view is the first ship of #0083 Child 5. Two-column layout with an entity selector on the left lands in a follow-up; today the page surfaces academy-wide KPIs only.", 'talenttrack' )
             . '</div>';
+    }
+
+    /**
+     * v3.110.109 — render the "Standard reports" section.
+     *
+     * Each row is a labelled card linking to a dedicated report view.
+     * New reports add an entry here; the dispatcher in
+     * `DashboardShortcode` wires the corresponding view.
+     */
+    private static function renderStandardReports(): void {
+        $base = WizardEntryPoint::dashboardBaseUrl();
+        $reports = [
+            [
+                'label'       => __( 'Team attendance statistics', 'talenttrack' ),
+                'description' => __( 'Present / late / absent / excused / injured percentages per team over a configurable date range.', 'talenttrack' ),
+                'url'         => add_query_arg( [ 'tt_view' => 'attendance-report-team' ], $base ),
+            ],
+            [
+                'label'       => __( 'Player attendance statistics', 'talenttrack' ),
+                'description' => __( 'Same attendance percentages broken down per player, optionally narrowed to a single team.', 'talenttrack' ),
+                'url'         => add_query_arg( [ 'tt_view' => 'attendance-report-player' ], $base ),
+            ],
+        ];
+
+        echo '<h2 style="margin-top:32px;">' . esc_html__( 'Standard reports', 'talenttrack' ) . '</h2>';
+        echo '<p style="max-width:760px; color:#5b6e75;">'
+            . esc_html__( 'Pre-built answers to the most common analytics questions. For ad-hoc exploration use the KPI cards above.', 'talenttrack' )
+            . '</p>';
+        echo '<div class="tt-analytics-reports" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-top:8px;">';
+        foreach ( $reports as $r ) {
+            echo '<a class="tt-kpi-card" href="' . esc_url( $r['url'] ) . '" '
+                . 'style="display:block; padding:14px 16px; background:#ffffff; border:1px solid #ddd; border-radius:6px; text-decoration:none; color:inherit;">';
+            echo '<div style="font-weight:600; margin-bottom:4px; color:#1a1d21;">' . esc_html( $r['label'] ) . '</div>';
+            echo '<div style="font-size:12px; color:#5b6e75; line-height:1.4;">' . esc_html( $r['description'] ) . '</div>';
+            echo '</a>';
+        }
+        echo '</div>';
     }
 
     private static function renderCard( Kpi $kpi, ?float $value, string $explore_url ): void {
