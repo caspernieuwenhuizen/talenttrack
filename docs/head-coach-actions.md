@@ -67,6 +67,38 @@ Each action lists:
   post-hoc edit surface.
 - **Player-centric framing:** *where now* (presence, engagement signal feeding rating + minutes)
 - **Shipped:**
+  - **v3.110.97** — "Continue rating" CTA on the activity detail
+    page + rate step filters out already-rated players.
+    Closes the open follow-up from v3.110.96: that ship hid
+    already-rated activities from the wizard's ActivityPicker, but
+    left no clear path for a coach to add ratings to the remaining
+    un-rated players. The activity detail page's page-header now
+    carries a **Continue rating** action between Edit and Archive,
+    visible when the activity is `completed` and the coach has
+    `tt_edit_evaluations`. Click → deep-links into the
+    `mark-attendance` wizard with `activity_id` pre-seeded and
+    `restart=1`. Coach lands on AttendanceStep (roster pre-filled),
+    advances to RateConfirmStep, picks **Rate the present
+    players** → RateActorsStep now shows ONLY the players who
+    don't have an eval row yet (new `NOT EXISTS` clause on the
+    rate-step's roster query). Submit writes fresh evals for the
+    un-rated set; no duplicates with the previous run. First-run
+    flows are unaffected (NOT EXISTS is a no-op when no eval
+    rows exist).
+    *How to test:* mark attendance for 14 players, rate 5,
+    Submit. Activity flips to completed and disappears from the
+    hero + picker. Open the just-completed activity from the
+    activities list — page-header shows **Edit** + **Continue
+    rating** + **Archive**. Click **Continue rating** → wizard
+    opens at the attendance step with the 14 statuses pre-filled.
+    Next → RateConfirmStep says "9 players marked Present or
+    Late" (only the un-rated 9). Pick **Rate the present
+    players** → RateActorsStep lists ONLY the 9 un-rated
+    players. Rate 3 of them, Submit → tt_evaluations has 8
+    rows total (5 + 3, no duplicates). Click Continue rating
+    again — RateActorsStep now shows the remaining 6. Note:
+    correcting an existing rating still goes via the evaluation
+    list or player detail page; the wizard is for fresh ratings.
   - **v3.110.96** — wizard picker hides already-rated activities.
     Pilot symptom: coach completed the wizard end-to-end (attendance
     + rating + Submit), returned to the dashboard, clicked the

@@ -380,12 +380,27 @@ final class RateActorsStep implements WizardStepInterface {
         // were 'Present' / 'Late' instead of lowercase — the rate
         // step then showed "no players to rate" even though the
         // attendance step had just persisted them.
+        //
+        // v3.110.97 — `NOT EXISTS` on `tt_evaluations` so already-rated
+        // players are excluded from the rate roster. Pairs with the
+        // new "Continue rating" CTA on the activity detail page:
+        // a coach re-entering the wizard for an already-rated activity
+        // sees ONLY the players they haven't rated yet, so submit
+        // creates fresh eval rows for the un-rated set instead of
+        // duplicating evals for everyone. No-op on first runs (no
+        // eval rows yet).
         return (array) $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.id, pl.first_name, pl.last_name
                FROM {$p}tt_attendance att
                INNER JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.club_id = att.club_id
               WHERE att.activity_id = %d AND att.club_id = %d
                 AND LOWER(att.status) IN ( 'present', 'late' )
+                AND NOT EXISTS (
+                    SELECT 1 FROM {$p}tt_evaluations e
+                     WHERE e.activity_id = att.activity_id
+                       AND e.player_id   = pl.id
+                       AND e.club_id     = att.club_id
+                  )
               ORDER BY pl.last_name, pl.first_name",
             $activity_id, CurrentClub::id()
         ) );

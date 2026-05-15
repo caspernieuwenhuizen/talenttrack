@@ -109,6 +109,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $session = self::loadSession( $id );
             // v3.110.53 — Edit + Archive page-header actions on the
             // activity detail page.
+            // v3.110.97 — Continue rating action added. v3.110.96
+            // filtered already-rated activities out of the wizard's
+            // ActivityPicker (so the picker is for fresh runs only).
+            // Coaches who want to add ratings to an already-rated
+            // activity now use this CTA: deep-links into the
+            // mark-attendance wizard with `activity_id` pre-seeded,
+            // bypassing the picker and going straight through the
+            // attendance step (force-rendered, pre-filled with the
+            // saved roster) → confirm → rate-actors → review. The
+            // rate step filters out players who already have an
+            // eval row (see RateActorsStep::ratablePlayersForActivity)
+            // so re-entry shows only the unrated set; no duplicate
+            // eval rows.
             $detail_actions = [];
             if ( $session && current_user_can( 'tt_edit_activities' ) ) {
                 $activities_list_url = add_query_arg( [ 'tt_view' => 'activities' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
@@ -122,6 +135,26 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     'primary' => true,
                     'icon'    => '✎',
                 ];
+                // v3.110.97 — Continue rating. Only on completed
+                // activities (attendance + rating only make sense
+                // after the session happened). Cap-gated on the
+                // mark-attendance wizard's `tt_edit_evaluations`.
+                $is_completed = ( (string) ( $session->activity_status_key ?? '' ) === 'completed' );
+                if ( $is_completed && current_user_can( 'tt_edit_evaluations' ) ) {
+                    $rate_url = add_query_arg(
+                        [
+                            'tt_view'     => 'wizard',
+                            'slug'        => 'mark-attendance',
+                            'activity_id' => (int) $session->id,
+                            'restart'     => 1,
+                        ],
+                        \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                    );
+                    $detail_actions[] = [
+                        'label' => __( 'Continue rating', 'talenttrack' ),
+                        'href'  => $rate_url,
+                    ];
+                }
                 $detail_actions[] = [
                     'label'   => __( 'Archive', 'talenttrack' ),
                     'variant' => 'danger',
