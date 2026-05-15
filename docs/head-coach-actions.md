@@ -67,6 +67,25 @@ Each action lists:
   post-hoc edit surface.
 - **Player-centric framing:** *where now* (presence, engagement signal feeding rating + minutes)
 - **Shipped:**
+  - **v3.110.99** — activity detail page: attendance headline shows
+    the right count; Analytics section removed.
+    (1) `renderAttendanceSummary()` aggregated by raw stored case
+    and looked up `$by_status['Present']`; rows written via the
+    wizard's `AttendanceStep` are lowercase, so the headline read
+    `0 / N (0% present)` even when the breakdown directly
+    underneath said `present: 13`. Fix: `LOWER(a.status)` in the
+    SQL group + lowercase keys in PHP, mirroring v3.110.78's
+    case-handling fixes elsewhere. Aggregates legacy mixed-case
+    rows and current lowercase rows into the same bucket.
+    (2) The activity-scoped Analytics section is no longer
+    rendered on the detail page — operator wants analytics
+    accessed from the central tile, not per-activity. Renderer
+    + KPIs stay on disk so the central tile still consumes them.
+    *How to test:* open an activity detail page for a session
+    whose attendance was recorded with the wizard. Headline now
+    reads `N / total players (X% present)` matching the breakdown
+    line. Same page does NOT render an "Analytics" section
+    anywhere. Edit / Continue rating / Archive actions unchanged.
   - **v3.110.97** — "Continue rating" CTA on the activity detail
     page + rate step filters out already-rated players.
     Closes the open follow-up from v3.110.96: that ship hid

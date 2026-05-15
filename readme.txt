@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.99
+Stable tag: 3.110.100
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,9 +12,13 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 3.110.99 — New `?tt_view=prospects-overview` rich list; kanban cards now show birth year; two missing NL kanban strings translated =
+= 3.110.100 — New `?tt_view=prospects-overview` rich list; kanban cards now show birth year; two missing NL kanban strings translated =
 
 Three pilot fixes around the scout's prospect surfaces. **(1) New prospects-overview page:** the `my_recent_prospects` data-table widget's **See all** link used to dump the scout on the onboarding pipeline (kanban grouped by stage), which wasn't the "show me all prospects in one table" view operators wanted. Built a dedicated `?tt_view=prospects-overview` page via the standard `FrontendListTable` component with search, status filter (Active / In trial / Joined / Archived), discovered-by filter (only users who actually discovered prospects), sortable columns (Last name / First name / Club / Discovered), and pagination (10 / 25 / 50 / 100, default 25 — the project-wide list pattern). Backed by a new `GET /talenttrack/v1/prospects` REST endpoint (cap `tt_view_prospects`, scout-scoped server-side regardless of what the operator passes in). `DataTableWidget`'s `my_recent_prospects` preset now points its See-all at this page. New `BackLabelResolver` entry so the back-pill reads "Back to Prospects" on detail views reached from here. Extended `ProspectsRepository::search()` with `name_like` / `status` / `orderby` / `order` filters plus a new `count()` method for total-row reporting. **(2) Kanban cards now show birth year, not age:** `FrontendOnboardingPipelineView::buildCard()` used to render "age N" derived from `date_of_birth`. Pilot feedback: scouts scan for "the '08 striker" or "the '07 kid", not for age, and age changes mid-season which makes it a noisy handle. Replaced with "born YYYY". The new `birthYearFromDob()` helper replaces the old `ageFromDob()`. **(3) Two missing NL kanban translations:** the v3.110.81 strings `Awaiting HoD to send the invite` and `Invitation sent, awaiting parent` shipped without NL coverage. Added: `Wacht tot HoO de uitnodiging verstuurt` and `Uitnodiging verstuurd, wacht op ouder`. Plus the new `born %s` string → `geboren %s`.
+
+= 3.110.99 — Activity detail page: attendance summary headline now shows the correct count (was always 0); Analytics section removed (moves to the central tile) (#0092) =
+
+Two pilot-surfaced issues on the activity detail page. **(1) Attendance headline always 0.** Coach screenshot showed `0 / 14 players (0% present)` with the breakdown directly underneath reading `excused: 1   present: 13`. Same case-sensitivity story as v3.110.78's `RateConfirmStep` + `ratablePlayersForActivity` fixes: `FrontendActivitiesManageView::renderAttendanceSummary()` grouped by `a.status` and read `$by_status['Present']` (capitalised), but rows are now stored lowercase via `sanitize_key()` in `AttendanceStep::validate()`. The headline lookup found `null`, the breakdown loop's `$status_keys = ['Present', …]` whitelist matched nothing either, so the rendered breakdown fell through to the "any custom status admins added" branch and printed the raw lowercase keys (which is why the breakdown read correctly while the headline showed zero). **Fix**: SQL now groups by `LOWER(a.status)`, PHP keys are normalised to lowercase, `LabelTranslator::attendanceStatus( ucfirst( $sk ) )` still resolves the localised label. Aggregates across legacy mixed-case rows and current lowercase rows into the same bucket. **(2) Analytics section removed.** The activity-scoped Analytics surface (#0083 Child 4 — `EntityAnalyticsTabRenderer::render('activity', $aid)`) is no longer rendered on the activity detail page. Operator decision: the detail page is a "what happened in this session" surface, not a stats deep-dive. Analytics access moves to the central Analytics tile on the dashboard where coaches slice across activities. The renderer and activity-scoped KPIs stay on disk so the central tile keeps consuming them.
 
 = 3.110.98 — New-prospect wizard gains an inline existing-prospects list; task detail view-only for non-assignees; kanban → task carries `tt_back` =
 

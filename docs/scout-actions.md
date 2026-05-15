@@ -224,7 +224,7 @@ Ordered by raw frequency (most-used first). Each action lists:
     banner, the form is greyed-out, no Submit. Pill at top: "← Back
     to Onboarding pipeline". Switch to the assignee account → form
     becomes editable, Submit visible, banner gone, pill still there.
-  - **v3.110.99** — kanban card sub-line shows birth year instead of
+  - **v3.110.100** — kanban card sub-line shows birth year instead of
     age. Pilot: scouts scan rosters by year-of-birth ("the '08", "the
     '07"); age changes mid-season and adds noise. `ageFromDob()`
     replaced with `birthYearFromDob()`; copy is now "born YYYY"
@@ -282,7 +282,7 @@ Ordered by raw frequency (most-used first). Each action lists:
     task. Click a card in **Joined** → opens the promoted player's
     profile. A prospect with an open task whose `due_at` is >30
     days ago shows the stale badge with a pale-orange tint.
-  - **v3.110.99** — new dedicated `?tt_view=prospects-overview` page.
+  - **v3.110.100** — new dedicated `?tt_view=prospects-overview` page.
     Pilot reported the row-2 widget's See-all dumping them on the
     kanban; what they wanted was a flat searchable / filterable list.
     Built on the standard `FrontendListTable` component: search by

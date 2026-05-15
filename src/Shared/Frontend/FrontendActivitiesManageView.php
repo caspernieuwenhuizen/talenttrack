@@ -294,17 +294,15 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         // v3.110.53 — Edit + Archive moved to the page-header actions
         // slot rendered by render() before this method runs.
-
-        // #0083 Child 4 follow-up — activity-scoped Analytics surface.
-        // Renders the KPI grid via `EntityAnalyticsTabRenderer` for
-        // every activity-scoped KPI registered in `KpiRegistry`.
-        // Defensive: skipped when Analytics module is disabled.
-        if ( class_exists( '\\TT\\Modules\\Analytics\\Frontend\\EntityAnalyticsTabRenderer' ) ) {
-            echo '<section class="tt-activity-analytics" style="margin-top:24px;">';
-            echo '<h3>' . esc_html__( 'Analytics', 'talenttrack' ) . '</h3>';
-            \TT\Modules\Analytics\Frontend\EntityAnalyticsTabRenderer::render( 'activity', (int) $session->id );
-            echo '</section>';
-        }
+        //
+        // v3.110.98 — the activity-scoped Analytics section (#0083
+        // Child 4) is no longer rendered here. Operator decision: the
+        // detail page is a "what happened in this session" surface,
+        // not a stats deep-dive. Analytics moves to the central
+        // Analytics tile on the dashboard where coaches can slice
+        // across activities. The renderer + the registered
+        // activity-scoped KPIs stay on disk so the central tile
+        // continues to consume them.
 
         echo '</div>';
     }
@@ -338,25 +336,37 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         ) );
         if ( $roster_size === 0 ) return;
 
+        // v3.110.98 — `LOWER(a.status)` normalises the group key so
+        // legacy capitalised rows ('Present') and current lowercase
+        // rows ('present') aggregate into the same bucket. Pre-fix
+        // this counted by raw stored case, the PHP lookups asked for
+        // 'Present', and rosters whose rows had been written lowercase
+        // (the AttendanceStep::validate path via `sanitize_key()`)
+        // produced the headline "0 / N (0% present)" even when every
+        // player had a present row. The breakdown then fell through to
+        // the "custom status" branch and rendered the raw lowercase
+        // keys, which looked like a separate bug. Same case-handling
+        // story as v3.110.78's RateConfirmStep + ratablePlayersForActivity
+        // fixes.
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.status, COUNT(*) AS cnt
+            "SELECT LOWER(a.status) AS status, COUNT(*) AS cnt
                FROM {$p}tt_attendance a
                INNER JOIN {$p}tt_players pl ON pl.id = a.player_id AND pl.club_id = a.club_id
               WHERE a.activity_id = %d AND a.is_guest = 0 AND a.club_id = %d
                 AND pl.team_id = %d AND pl.status = 'active'
-              GROUP BY a.status",
+              GROUP BY LOWER(a.status)",
             $activity_id, $club_id, $team_id
         ) );
 
         $by_status = [];
         $total = 0;
         foreach ( (array) $rows as $r ) {
-            $key = (string) ( $r->status ?? '' );
+            $key = strtolower( (string) ( $r->status ?? '' ) );
             $cnt = (int) ( $r->cnt ?? 0 );
             $by_status[ $key ] = $cnt;
             $total += $cnt;
         }
-        $present = (int) ( $by_status['Present'] ?? 0 );
+        $present = (int) ( $by_status['present'] ?? 0 );
         $pct = (int) round( ( $present / $roster_size ) * 100 );
         if ( $pct > 100 ) $pct = 100;
 
@@ -391,14 +401,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         // Per-status breakdown — explicit, so the operator sees the
         // composition without having to re-count manually. Hidden when
-        // no rows recorded yet (total = 0).
+        // no rows recorded yet (total = 0). v3.110.98 — lowercase
+        // status keys so the lookup against `$by_status` (now keyed by
+        // `LOWER(a.status)`) matches. LabelTranslator handles the
+        // localised label via ucfirst.
         if ( $total > 0 ) {
-            $status_keys = [ 'Present', 'Absent', 'Late', 'Excused', 'Injured' ];
+            $status_keys = [ 'present', 'absent', 'late', 'excused', 'injured' ];
             $parts = [];
             foreach ( $status_keys as $sk ) {
                 $cnt = (int) ( $by_status[ $sk ] ?? 0 );
                 if ( $cnt === 0 ) continue;
-                $label = \TT\Infrastructure\Query\LabelTranslator::attendanceStatus( $sk );
+                $label = \TT\Infrastructure\Query\LabelTranslator::attendanceStatus( ucfirst( $sk ) );
                 $parts[] = '<span style="display:inline-block; margin-right:14px;">'
                     . esc_html( $label ) . ': <strong>' . (int) $cnt . '</strong></span>';
             }
@@ -407,7 +420,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 if ( in_array( $sk, $status_keys, true ) ) continue;
                 if ( $cnt === 0 || $sk === '' ) continue;
                 $parts[] = '<span style="display:inline-block; margin-right:14px;">'
-                    . esc_html( $sk ) . ': <strong>' . (int) $cnt . '</strong></span>';
+                    . esc_html( ucfirst( $sk ) ) . ': <strong>' . (int) $cnt . '</strong></span>';
             }
             if ( $parts !== [] ) {
                 echo '<p style="margin:0; font-size:13px; color:#475569;">'
