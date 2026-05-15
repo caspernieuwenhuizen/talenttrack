@@ -574,6 +574,45 @@
     font-variant-numeric: tabular-nums;
 }
 
+/* Recent comments & notes list — v3.110.113. Two-column row: entity
+   label on the left (wraps), author + relative date on the right
+   (compact, right-aligned). */
+.tt-pd-comments-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+.tt-pd-comments-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--tt-pd-divider);
+    min-height: 44px;
+}
+.tt-pd-comments-row:last-child { border-bottom: 0; }
+.tt-pd-comments-entity {
+    font-size: 0.875rem;
+    color: var(--tt-pd-text-primary);
+    flex: 1;
+    min-width: 0;
+}
+.tt-pd-comments-entity a { color: inherit; }
+.tt-pd-comments-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 0.75rem;
+    color: var(--tt-pd-text-muted);
+    flex-shrink: 0;
+    text-align: right;
+}
+.tt-pd-comments-author { font-weight: 500; }
+.tt-pd-comments-date { font-variant-numeric: tabular-nums; opacity: 0.85; }
+
 /* Data table */
 .tt-pd-table-wrap { overflow-x: auto; }
 .tt-pd-table {

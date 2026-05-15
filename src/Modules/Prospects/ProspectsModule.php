@@ -8,6 +8,7 @@ use TT\Core\ModuleInterface;
 use TT\Modules\Prospects\Cron\ProspectRetentionCron;
 use TT\Modules\Prospects\Rest\ParentConfirmationController;
 use TT\Modules\Prospects\Rest\ProspectsRestController;
+use TT\Modules\Prospects\Rest\TestTrainingsRestController;
 
 /**
  * ProspectsModule (#0081 child 1) — front half of the recruitment
@@ -37,5 +38,8 @@ class ProspectsModule implements ModuleInterface {
         ProspectRetentionCron::init();
         ProspectsRestController::init();
         ParentConfirmationController::init();
+        // v3.110.113 — POST /test-trainings endpoint for the new
+        // `+ New test training` action card on the HoD dashboard.
+        TestTrainingsRestController::init();
     }
 }
