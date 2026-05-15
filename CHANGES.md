@@ -1,3 +1,50 @@
+# TalentTrack v3.110.115 — HoD persona polish round 2: '+ New test training' action card + Recent comments & notes widget
+
+Two new HoD-dashboard features per pilot decisions. Originally drafted as v3.110.113 then v3.110.114; both slots taken by parallel Spond-integration ships. Renumbered to v3.110.115 on the second rebase.
+
+## (1) `+ New test training` action card
+
+Operator decision: keep `+ New trial` (creates `tt_trial_cases` — multi-week evaluation periods), add separate `+ New test training` (creates `tt_test_trainings` — one-off training sessions a prospect attends to be observed).
+
+Shipped:
+
+- **`FrontendTestTrainingsView`** — create-only minimal form. Fields: Date (defaults to next Saturday) / Location / Age group (from `age_group` lookup) / Notes. Coach defaults to current user. Cap `tt_edit_prospects` / `tt_manage_prospects`. Cancel honours `tt_back`.
+- **`TestTrainingsRestController`** — POST `/wp-json/talenttrack/v1/test-trainings`. Field surface mirrors `TestTrainingsRepository::create()`. Accepts both `Y-m-d` and `Y-m-d H:i:s` date input (date-only gets 18:00 default time).
+- **`?tt_view=test-trainings`** slug registered in `DashboardShortcode::dispatchTrialView()`.
+- **`new_test_training`** entry in `ActionCardWidget::ACTIONS`. Flat-form path (no wizard).
+- HoD template now stacks both action cards at x=9: `new_trial` y=0, `new_test_training` y=1.
+
+Deliberately omitted: list / edit views (still on the onboarding-pipeline) and the prospect-invite tied flow (stays in `InviteToTestTrainingForm`'s workflow task).
+
+## (2) Recent comments & notes widget
+
+Pilot ask: *"create new widget, 'recent comments & notes' that shows a short table (5 entries) with the most recents added notes and comments — entity, person posting the comment, date."* Data source per follow-up: `tt_thread_messages` only (#0028 polymorphic conversation primitive).
+
+`RecentCommentsWidget` runs:
+
+```sql
+SELECT tm.id, tm.thread_type, tm.thread_id, tm.author_user_id, tm.created_at,
+       u.display_name AS author_name
+  FROM tt_thread_messages tm
+  LEFT JOIN wp_users u ON u.ID = tm.author_user_id
+ WHERE tm.club_id = %d
+   AND tm.deleted_at IS NULL
+   AND tm.is_system = 0
+ ORDER BY tm.created_at DESC, tm.id DESC
+ LIMIT 5
+```
+
+Per row: entity (resolved per thread_type: goal → goal title, player → player name, trial_case → player on trial, pdp_conversation → player on PDP, blueprint → team name; fallback "<Type> #<id>"), author display name, relative date ("2h ago" / "3d ago" / localised date past 1 week).
+
+Cap-gated on `tt_view_threads`. Scope is `club_id` only — fully global. Slotted at y=8 on HoD template at Size::M (6 cols left half); nav tiles shifted from y=8 to y=9 to make room.
+
+## How to test
+
+- HoD dashboard right gutter shows two action cards: `+ New trial` + `+ New test training`. Click the new one → 4-field form. Submit → `tt_test_trainings` row created.
+- HoD dashboard y=8 shows "Recent comments & notes" widget with up to 5 most recent thread messages, entity + author + relative date per row.
+
+---
+
 # TalentTrack v3.110.114 — Spond integration: real 404 root cause fixed (`/login` → `/auth2/login`; `loginToken` → `accessToken.token`)
 
 Pairs with v3.110.108 (Spond URL configurable from wp-admin, in flight as PR #407) which gave operators a UI to redirect to a new endpoint. This release fixes the actual underlying login bugs against the canonical `api.spond.com/core/v1` base URL.
