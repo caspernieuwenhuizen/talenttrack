@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.116
+Stable tag: 3.110.118
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.118 — Scout polish: pipeline tiles clickable, hero CTA renamed "Log a scouting find" / "+ Scouting find" =
+
+Two pilot-surfaced scout-persona polish items. **(1) `OnboardingPipelineWidget` tiles are clickable.** Each of the six tiles (Prospects / Invited / Test training / Trial group / Team offer / Joined) now renders as an `<a>` link to `?tt_view=onboarding-pipeline#stage-<key>`, with a matching `id="stage-<key>"` anchor on each column in `FrontendOnboardingPipelineView::renderKanban()` so the browser scrolls the clicked column into view. Aria-label localised, plural-aware ("Open Test training in the kanban view — 4 prospects"). Hover lift + `:focus-visible` outline + `:active` press feedback added to `.tt-pd-pipeline-col--link` in `persona-dashboard.css`. **(2) Hero CTA renamed.** `AddProspectHeroWidget` title `Log a new prospect` → `Log a scouting find`; button `+ New prospect` → `+ Scouting find`. The operator vocabulary distinction: a scout *finds* a player; "prospect" is what the academy calls the record once the discovery is logged. NL: `Leg een scoutingbevinding vast` / `+ Scoutingbevinding`. Slug `new-prospect` and entity name `tt_prospects` unchanged — pure label rename.
 
 = 3.110.116 — Standard reports: Team attendance + Player attendance statistics on the central Analytics surface =
 
