@@ -43,30 +43,25 @@ class ProspectsRepository {
      *   discovered_by_user_id?: int,
      *   include_archived?: bool,
      *   age_group_lookup_id?: int,
+     *   status?: string,
+     *   name_like?: string,
+     *   orderby?: string,
+     *   order?: string,
      *   limit?: int,
      *   offset?: int
      * } $filters
      * @return object[]
      */
     public function search( array $filters = [] ): array {
-        $where  = [ 'club_id = %d' ];
-        $params = [ CurrentClub::id() ];
+        [ $where, $params ] = $this->buildWhere( $filters );
 
-        if ( ! empty( $filters['discovered_by_user_id'] ) ) {
-            $where[]  = 'discovered_by_user_id = %d';
-            $params[] = (int) $filters['discovered_by_user_id'];
-        }
-        if ( ! empty( $filters['age_group_lookup_id'] ) ) {
-            $where[]  = 'age_group_lookup_id = %d';
-            $params[] = (int) $filters['age_group_lookup_id'];
-        }
-        if ( empty( $filters['include_archived'] ) ) {
-            $where[] = 'archived_at IS NULL';
-        }
+        $orderby_key = (string) ( $filters['orderby'] ?? 'discovered_at' );
+        $order_dir   = strtolower( (string) ( $filters['order'] ?? 'desc' ) ) === 'asc' ? 'ASC' : 'DESC';
+        $orderby_sql = $this->orderByClause( $orderby_key, $order_dir );
 
         $sql = "SELECT * FROM {$this->table}
                 WHERE " . implode( ' AND ', $where ) . "
-                ORDER BY discovered_at DESC, id DESC";
+                {$orderby_sql}";
 
         if ( ! empty( $filters['limit'] ) ) {
             $sql     .= ' LIMIT %d OFFSET %d';
@@ -78,6 +73,86 @@ class ProspectsRepository {
         $prepared = $this->wpdb->prepare( $sql, ...$params );
         $rows = $this->wpdb->get_results( $prepared );
         return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * Same filters as `search()`, returns the matching count for
+     * pagination. Skips orderby / limit / offset by design.
+     *
+     * @param array<string,mixed> $filters
+     */
+    public function count( array $filters = [] ): int {
+        [ $where, $params ] = $this->buildWhere( $filters );
+        $sql = "SELECT COUNT(*) FROM {$this->table}
+                WHERE " . implode( ' AND ', $where );
+        /** @var string $prepared */
+        $prepared = $this->wpdb->prepare( $sql, ...$params );
+        return (int) $this->wpdb->get_var( $prepared );
+    }
+
+    /**
+     * @param array<string,mixed> $filters
+     * @return array{0:list<string>,1:list<mixed>}
+     */
+    private function buildWhere( array $filters ): array {
+        $where  = [ 'club_id = %d' ];
+        $params = [ CurrentClub::id() ];
+
+        if ( ! empty( $filters['discovered_by_user_id'] ) ) {
+            $where[]  = 'discovered_by_user_id = %d';
+            $params[] = (int) $filters['discovered_by_user_id'];
+        }
+        if ( ! empty( $filters['age_group_lookup_id'] ) ) {
+            $where[]  = 'age_group_lookup_id = %d';
+            $params[] = (int) $filters['age_group_lookup_id'];
+        }
+        // Computed-status filter. Mirrors the kanban classifier's terminal
+        // states (Active / In trial / Joined / Archived) without joining
+        // tt_workflow_tasks — the cheap "where is this prospect right
+        // now" projection.
+        if ( ! empty( $filters['status'] ) ) {
+            switch ( (string) $filters['status'] ) {
+                case 'archived':
+                    $where[] = 'archived_at IS NOT NULL';
+                    break;
+                case 'joined':
+                    $where[] = 'archived_at IS NULL';
+                    $where[] = 'promoted_to_player_id IS NOT NULL';
+                    $where[] = '( promoted_to_trial_case_id IS NULL )';
+                    break;
+                case 'trial':
+                    $where[] = 'archived_at IS NULL';
+                    $where[] = 'promoted_to_trial_case_id IS NOT NULL';
+                    break;
+                case 'active':
+                    $where[] = 'archived_at IS NULL';
+                    $where[] = 'promoted_to_player_id IS NULL';
+                    $where[] = 'promoted_to_trial_case_id IS NULL';
+                    break;
+            }
+        } elseif ( empty( $filters['include_archived'] ) ) {
+            $where[] = 'archived_at IS NULL';
+        }
+        if ( ! empty( $filters['name_like'] ) ) {
+            $like     = '%' . $this->wpdb->esc_like( (string) $filters['name_like'] ) . '%';
+            $where[]  = '( first_name LIKE %s OR last_name LIKE %s )';
+            $params[] = $like;
+            $params[] = $like;
+        }
+
+        return [ $where, $params ];
+    }
+
+    private function orderByClause( string $key, string $dir ): string {
+        $allowed = [
+            'last_name'     => 'last_name',
+            'first_name'    => 'first_name',
+            'discovered_at' => 'discovered_at',
+            'current_club'  => 'current_club',
+            'date_of_birth' => 'date_of_birth',
+        ];
+        $col = $allowed[ $key ] ?? 'discovered_at';
+        return "ORDER BY {$col} {$dir}, id DESC";
     }
 
     /**

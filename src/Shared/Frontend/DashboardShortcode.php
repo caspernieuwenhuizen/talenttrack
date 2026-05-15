@@ -548,6 +548,10 @@ class DashboardShortcode {
             case 'onboarding-pipeline':
                 \TT\Modules\Prospects\Frontend\FrontendOnboardingPipelineView::render( $user_id );
                 break;
+            // v3.110.99 — rich prospects list (FrontendListTable).
+            case 'prospects-overview':
+                \TT\Modules\Prospects\Frontend\FrontendProspectsOverviewView::render( $user_id );
+                break;
             default:
                 FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';

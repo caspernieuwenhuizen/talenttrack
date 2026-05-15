@@ -224,6 +224,20 @@ Ordered by raw frequency (most-used first). Each action lists:
     banner, the form is greyed-out, no Submit. Pill at top: "← Back
     to Onboarding pipeline". Switch to the assignee account → form
     becomes editable, Submit visible, banner gone, pill still there.
+  - **v3.110.99** — kanban card sub-line shows birth year instead of
+    age. Pilot: scouts scan rosters by year-of-birth ("the '08", "the
+    '07"); age changes mid-season and adds noise. `ageFromDob()`
+    replaced with `birthYearFromDob()`; copy is now "born YYYY"
+    ("geboren JJJJ" on NL). Also added the missing NL translations
+    for the v3.110.81 context strings "Awaiting HoD to send the
+    invite" → "Wacht tot HoO de uitnodiging verstuurt" and
+    "Invitation sent, awaiting parent" → "Uitnodiging verstuurd,
+    wacht op ouder".
+    *How to test:* on the kanban each card under a row reads
+    "born YYYY" alongside the club name (not "age N"). On NL: each
+    card reads "geboren YYYY". Cards in **Prospects** with an open
+    invite task show the Dutch context line; **Invited** cards show
+    "Uitnodiging verstuurd, wacht op ouder".
 
 ### 3. Add a follow-up scouting note to an existing prospect
 
@@ -268,6 +282,21 @@ Ordered by raw frequency (most-used first). Each action lists:
     task. Click a card in **Joined** → opens the promoted player's
     profile. A prospect with an open task whose `due_at` is >30
     days ago shows the stale badge with a pale-orange tint.
+  - **v3.110.99** — new dedicated `?tt_view=prospects-overview` page.
+    Pilot reported the row-2 widget's See-all dumping them on the
+    kanban; what they wanted was a flat searchable / filterable list.
+    Built on the standard `FrontendListTable` component: search by
+    name, status filter (Active / In trial / Joined / Archived),
+    discovered-by filter, sortable Last / First / Club / Discovered
+    columns, per-page 10/25/50/100 (default 25). Backed by new
+    `GET /prospects` REST endpoint (`tt_view_prospects` cap, scout-
+    scoped server-side). DataTableWidget's `my_recent_prospects`
+    See-all now points here.
+    *How to test:* on the scout dashboard click **See all** in the
+    "My recent prospects" widget. Lands on the new page with a full
+    filterable list. Try the search (name LIKE), the status filter,
+    the per-page selector. As a scout you see only your own; as HoD
+    you see the whole club and the Discovered-by filter is useful.
 - **Polish notes:**
 
 ### 5. Track a test-training outcome

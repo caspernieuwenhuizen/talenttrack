@@ -240,8 +240,12 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         $sub_parts = [];
         if ( $club !== '' ) $sub_parts[] = $club;
         if ( $dob !== '' ) {
-            $age = self::ageFromDob( $dob );
-            if ( $age !== null ) $sub_parts[] = sprintf( /* translators: %d: age in years. */ __( 'age %d', 'talenttrack' ), $age );
+            // v3.110.99 — show birth year, not derived age. Operator
+            // feedback: a scout scans for "the '08 striker" or "the
+            // '07 kid", not for age. Year is also stable; age would
+            // flip mid-season and confuse the kanban scan.
+            $year = self::birthYearFromDob( $dob );
+            if ( $year !== '' ) $sub_parts[] = sprintf( /* translators: %s: 4-digit birth year. */ __( 'born %s', 'talenttrack' ), $year );
         }
 
         $context_line = self::contextLine( $row, $stage );
@@ -351,14 +355,13 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         return '';
     }
 
-    private static function ageFromDob( string $dob ): ?int {
+    private static function birthYearFromDob( string $dob ): string {
         $ts = strtotime( $dob );
-        if ( $ts === false ) return null;
-        $now = time();
-        if ( $ts >= $now ) return null;
-        $diff_secs = $now - $ts;
-        $age = (int) floor( $diff_secs / ( 365.25 * DAY_IN_SECONDS ) );
-        return $age >= 0 && $age < 100 ? $age : null;
+        if ( $ts === false ) return '';
+        $year = (int) date( 'Y', $ts );
+        // Guard against obviously-bad inputs (year 0 / pre-1900 / future).
+        if ( $year < 1900 || $year > (int) date( 'Y' ) ) return '';
+        return (string) $year;
     }
 
     private static function isScoutOnly( int $user_id ): bool {

@@ -1,3 +1,105 @@
+# TalentTrack v3.110.99 — New prospects-overview page (rich filtered list); kanban shows birth year not age; two missing NL kanban strings
+
+Three pilot fixes on the scout's prospect surfaces. Items 2 + 3 are small; item 1 builds a new page.
+
+## 1 — New `?tt_view=prospects-overview` rich list
+
+The `my_recent_prospects` data-table widget's **See all** used to route to `?tt_view=onboarding-pipeline` — the kanban grouped by stage. Pilot operator wanted a flat searchable / filterable list:
+
+> *"my recent prospects widget, show all is now just showing the on-boarding pipeline. That is not fine. It should show a page with a table with all prospects. The page should have the default rich filtering options"*
+
+> *"pagination should be a standard patterns, standard display = 25 but can be changed by user. I think that is already in use?"*
+
+It is — `FrontendListTable` (`src/Shared/Frontend/Components/FrontendListTable.php`) is the project-wide pattern with search, filters, sortable columns, REST-backed pagination + selectable per-page (10 / 25 / 50 / 100, default 25). Used by Players, Goals, Activities, etc. The new prospects view plugs into it.
+
+### New file: `FrontendProspectsOverviewView`
+
+`src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php`. Cap-gates on `tt_view_prospects`, renders the breadcrumb chain `Dashboard > Prospects`, and hands off to `FrontendListTable::render()` with:
+
+- **REST path**: `prospects`
+- **Search**: text input matching first OR last name (LIKE)
+- **Filters**:
+  - **Status** — All / Active / In trial / Joined / Archived
+  - **Discovered by** — every user who has discovered ≥1 non-archived prospect on this club, sorted by display name
+- **Columns** (all sortable except `discovered_by` and `status_label`):
+  - Last name, First name, Born (4-digit birth year), Club, Discovered (date), Discovered by, Status
+- **Default sort**: last_name ASC
+- **Per-page**: 10 / 25 / 50 / 100, default 25
+
+### New REST endpoint: `GET /talenttrack/v1/prospects`
+
+`ProspectsRestController::list_prospects()`. Cap-gated on `tt_view_prospects`. Filter params via `?filter[…]=`, search via `?search=`, sort via `?orderby=&order=`, paginate via `?page=&per_page=`.
+
+Critical: **scout-scope is enforced at the REST layer**. If the current user is a `tt_scout` (and not also HoD / admin), the controller force-sets `discovered_by_user_id = $current_user_id` regardless of what the client passes — operators can't widen their view by manipulating the request. HoD / academy-admin sees the whole club.
+
+Response shape matches what `FrontendListTable` already consumes — `{ rows: [...], total, page, per_page }`. Each row is pre-formatted server-side: `birth_year` (4-digit, defensive against weird DOBs), `discovered_by` resolved to a `display_name`, `status` + `status_label` derived from prospect columns alone (no workflow-task join, cheap query).
+
+### Extended `ProspectsRepository::search()`
+
+New filter keys: `name_like` (LIKE across first/last), `status` (active / trial / joined / archived; mirrors the kanban classifier's terminal states without a tt_workflow_tasks join), `orderby` + `order` (whitelisted to last_name / first_name / discovered_at / current_club / date_of_birth).
+
+New `ProspectsRepository::count()` method runs the same WHERE clause without orderby / limit / offset, returning the total-row count for pagination.
+
+The new `buildWhere()` private helper extracts the WHERE assembly so `search()` and `count()` can't drift.
+
+### Wire-up
+
+- `DashboardShortcode::render()` — new dispatch `case 'prospects-overview' → FrontendProspectsOverviewView::render()`.
+- `DataTableWidget::presetConfig()` — `my_recent_prospects` preset's `see_all_view` flipped from `onboarding-pipeline` to `prospects-overview`.
+- `BackLabelResolver::listLabel()` — new `case 'prospects-overview' → "Back to Prospects"` so detail surfaces reached from here render the correct pill label.
+
+### What's intentionally NOT in scope
+
+- **No CSV export** — separate ship if operators want it; pattern already exists in other list views.
+- **No bulk archive** — single-row action per the project's standard list pattern.
+- **No stage filter** — would require joining `tt_workflow_tasks`; the kanban serves that view already. The cheap status (Active / Trial / Joined / Archived) suffices for a flat list.
+
+## 2 — Kanban cards: birth year instead of age
+
+`FrontendOnboardingPipelineView::buildCard()` rendered "age N" derived from DOB. Pilot:
+
+> *"displayed age should be displayed birthyear"*
+
+Replaced the `ageFromDob( $dob )` helper with a new `birthYearFromDob( $dob )` that returns the 4-digit year (defensive: empty string for invalid DOBs, year < 1900, or future years). The card sub-line now reads "born YYYY" instead of "age N".
+
+`age %d` translation stays in the .po (no orphan), and a new `born %s` msgid replaces it on the rendered card.
+
+## 3 — Two missing NL kanban strings
+
+The v3.110.81 classifier rewrite added two new operator-facing strings on the kanban cards but missed the NL run:
+
+- `Awaiting HoD to send the invite` → `Wacht tot HoO de uitnodiging verstuurt`
+- `Invitation sent, awaiting parent` → `Uitnodiging verstuurd, wacht op ouder`
+
+Plus the new `born %s` from item 2 → `geboren %s`.
+
+## Files
+
+- **New** `src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php`
+- `src/Modules/Prospects/Rest/ProspectsRestController.php` — new `GET /prospects` route + `list_prospects`, `can_view`, `statusLabelFor`, `isScoutOnly`, `clamp_per_page` helpers
+- `src/Modules/Prospects/Repositories/ProspectsRepository.php` — `search()` extended (name_like / status / orderby / order); new `count()` and `buildWhere()` / `orderByClause()` helpers
+- `src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php` — `ageFromDob` → `birthYearFromDob`; sub_parts copy changed
+- `src/Modules/PersonaDashboard/Widgets/DataTableWidget.php` — preset see-all flipped
+- `src/Shared/Frontend/DashboardShortcode.php` — dispatch case added
+- `src/Shared/Frontend/Components/BackLabelResolver.php` — new list label
+- `languages/talenttrack-nl_NL.po` — three new msgstrs
+- `talenttrack.php` 3.110.98 → 3.110.99
+- `readme.txt`, `CHANGES.md`
+
+No schema, no migration. The new REST endpoint sits alongside the existing `POST /prospects/log`; old consumers are unaffected.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.99. Log in as scout.
+2. Dashboard row-2 **My recent prospects** widget → click **See all** → lands on the new `?tt_view=prospects-overview` page with a full filterable list (not the kanban any more).
+3. Search by name → typing filters rows; status filter narrows; per-page selector lets you pick 10 / 25 / 50 / 100 (default 25); column headers click-to-sort on last name / first name / club / discovered.
+4. As scout, the list shows only your own prospects regardless of what the filter row says (server-clamped).
+5. As HoD / admin, the list shows the full club; filtering by "Discovered by" narrows.
+6. On the kanban (`?tt_view=onboarding-pipeline`), cards now read **"born 2008"** instead of **"age 17"**. On an NL install, the same card reads **"geboren 2008"**.
+7. NL install kanban context lines now read **"Wacht tot HoO de uitnodiging verstuurt"** for Prospects with an open invite task, and **"Uitnodiging verstuurd, wacht op ouder"** for Invited cards.
+
+---
+
 # TalentTrack v3.110.98 — Prospect dedup helper inline in the wizard; task detail view-only for non-assignees; kanban→task back-pill
 
 Three live-pilot fixes around the prospect-discovery / kanban-to-task flow. All three reported in one round of polish on the scout persona surface.
