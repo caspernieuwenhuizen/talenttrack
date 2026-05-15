@@ -52,12 +52,21 @@ class KpiStripWidget extends AbstractWidget {
                 . '<div class="tt-pd-strip-current' . $trend_cls . '">' . esc_html( $kpi->current ) . '</div>'
                 . ( $kpi->delta !== null ? '<div class="tt-pd-strip-delta">' . esc_html( $kpi->delta ) . '</div>' : '' );
             // Whole card becomes the tap target when the KPI declares a
-            // deep-link view (preserves the 48px-min mobile affordance and
-            // matches KpiCardWidget's pattern). KPIs without a linkView()
-            // stay inert as plain divs.
-            $link_view = ( $source !== null && method_exists( $source, 'linkView' ) ) ? $source->linkView() : '';
-            if ( $link_view !== '' ) {
-                $url = $ctx->viewUrl( $link_view );
+            // deep-link URL (preserves the 48px-min mobile affordance and
+            // matches KpiCardWidget's pattern). v3.110.112 — prefer the
+            // newer `linkUrl( $ctx )` builder over `linkView()` so KPIs
+            // can deep-link with filter querystrings; falls back to the
+            // legacy view-only builder for KPIs that haven't migrated.
+            $url = '';
+            if ( $source !== null ) {
+                if ( method_exists( $source, 'linkUrl' ) ) {
+                    $url = $source->linkUrl( $ctx );
+                } elseif ( method_exists( $source, 'linkView' ) ) {
+                    $v = $source->linkView();
+                    if ( $v !== '' ) $url = $ctx->viewUrl( $v );
+                }
+            }
+            if ( $url !== '' ) {
                 $cards .= '<a class="tt-pd-strip-kpi tt-pd-strip-link" href="' . esc_url( $url ) . '">' . $body . '</a>';
             } else {
                 $cards .= '<div class="tt-pd-strip-kpi">' . $body . '</div>';

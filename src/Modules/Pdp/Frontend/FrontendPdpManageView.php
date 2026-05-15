@@ -8,7 +8,8 @@ use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
-use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
+use TT\Shared\Frontend\Components\FrontendListTable;
+use TT\Shared\Frontend\Components\TeamPickerComponent;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -83,19 +84,32 @@ class FrontendPdpManageView extends FrontendViewBase {
     }
 
     private static function renderList( int $user_id, bool $is_admin ): void {
-        // #0063 — when the list was reached by drilling into a PDP
-        // planning cell (`?filter[team_id]=...&filter[block]=...`),
-        // surface a Back-to-Planning button so the user can return
-        // to the matrix instead of jumping all the way to the
-        // dashboard. The default browser-back hop landed too far.
-        self::renderHeader( __( 'Player Development Plans', 'talenttrack' ) );
-
-        $seasons = new SeasonsRepository();
-        $current = $seasons->current();
+        $current = ( new SeasonsRepository() )->current();
         if ( ! $current ) {
+            self::renderHeader( __( 'Player Development Plans', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'No current season is set. Configure a season under Configuration → Seasons before creating PDP files.', 'talenttrack' ) . '</p>';
             return;
         }
+
+        // v3.110.110 — page-header CTA + FrontendListTable parity with
+        // the goals + evaluations pages (per pilot ask: "the table list
+        // POP is not using the same formatting as the standard used in
+        // goals list page"). Filter bar: Team / Player / Status. Search
+        // matches player name. Sortable columns. Pagination + per-page
+        // selector. Parent/player ack columns surface grey/green
+        // checkmarks rolled up from the file's conversations.
+        $base_url = remove_query_arg( [ 'action', 'id', 'conv', 'player_id' ] );
+        $new_url  = add_query_arg( [ 'tt_view' => 'pdp', 'action' => 'new' ], $base_url );
+        $page_actions = [];
+        if ( current_user_can( 'tt_edit_pdp' ) ) {
+            $page_actions[] = [
+                'label'   => __( 'Open new PDP file', 'talenttrack' ),
+                'href'    => $new_url,
+                'primary' => true,
+                'icon'    => '+',
+            ];
+        }
+        self::renderHeader( __( 'Player Development Plans', 'talenttrack' ), self::pageActionsHtml( $page_actions ) );
 
         echo '<p style="color:#5b6e75; margin-bottom:12px;">' . esc_html( sprintf(
             /* translators: %s = season name */
@@ -103,59 +117,59 @@ class FrontendPdpManageView extends FrontendViewBase {
             (string) $current->name
         ) ) . '</p>';
 
-        $files_repo = new PdpFilesRepository();
-        $rows = $is_admin
-            ? $files_repo->listForSeason( (int) $current->id )
-            : $files_repo->listForCoach( $user_id, (int) $current->id );
-
-        // CTA — pick a player to start a file.
-        $base_url = remove_query_arg( [ 'action', 'id', 'conv', 'player_id' ] );
-        $new_url  = add_query_arg( [ 'tt_view' => 'pdp', 'action' => 'new' ], $base_url );
-        echo '<p style="margin:0 0 var(--tt-sp-3, 12px);"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
-            . esc_html__( 'Open new PDP file', 'talenttrack' ) . '</a></p>';
-
-        if ( empty( $rows ) ) {
-            echo '<p><em>' . esc_html__( 'No PDP files in this season yet. Open one above for any player you coach.', 'talenttrack' ) . '</em></p>';
-            return;
+        // Player + team filter options scoped the same way the REST
+        // endpoint scopes (admins see everything; coaches see their
+        // own teams' rosters).
+        $player_options = [];
+        if ( $is_admin ) {
+            foreach ( QueryHelpers::get_players() as $pl ) {
+                $player_options[ (int) $pl->id ] = QueryHelpers::player_display_name( $pl );
+            }
+        } else {
+            foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
+                foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) {
+                    $player_options[ (int) $pl->id ] = QueryHelpers::player_display_name( $pl );
+                }
+            }
         }
+        $status_options = [
+            'open'      => __( 'Open',      'talenttrack' ),
+            'completed' => __( 'Completed', 'talenttrack' ),
+            'archived'  => __( 'Archived',  'talenttrack' ),
+        ];
 
-        $convs_repo = new PdpConversationsRepository();
-        echo '<table class="tt-list-table-table tt-table-sortable">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Cycle', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Next conversation', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Updated', 'talenttrack' ) . '</th>';
-        echo '<th></th>';
-        echo '</tr></thead><tbody>';
-        foreach ( $rows as $row ) {
-            $player = QueryHelpers::get_player( (int) $row->player_id );
-            $name   = $player ? QueryHelpers::player_display_name( $player ) : '—';
-            $next   = self::nextConversation( $convs_repo, (int) $row->id );
-            $detail_url = add_query_arg( [ 'tt_view' => 'pdp', 'id' => (int) $row->id ], $base_url );
-            $status_label = self::statusLabel( (string) $row->status );
-
-            echo '<tr>';
-            // #0063 — player name links to frontend player detail.
-            $player_link = $player
-                ? \TT\Shared\Frontend\Components\RecordLink::inline(
-                    $name,
-                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', (int) $player->id )
-                )
-                : esc_html( $name );
-            echo '<td>' . $player_link . '</td>';
-            // #0063 — converge onto LookupPill so PDP status renders
-            // with the same colour vocabulary as activity + goals.
-            echo '<td>' . \TT\Infrastructure\Query\LookupPill::render( 'pdp_status', (string) $row->status, $status_label ) . '</td>';
-            echo '<td>' . (int) ( $row->cycle_size ?? 0 ) . '</td>';
-            echo '<td>' . esc_html( $next ) . '</td>';
-            echo '<td>' . esc_html( (string) ( $row->updated_at ?? '' ) ) . '</td>';
-            echo '<td><a class="tt-btn tt-btn-secondary tt-btn-sm" href="' . esc_url( $detail_url ) . '">'
-                . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
-            echo '</tr>';
-        }
-        echo '</tbody></table>';
+        echo FrontendListTable::render( [
+            'rest_path' => 'pdp-files',
+            'columns' => [
+                'player_name' => [ 'label' => __( 'Player', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html' ],
+                'team_name'   => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
+                'status'      => [ 'label' => __( 'Status', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'status_pill_html' ],
+                'cycle_size'  => [ 'label' => __( 'Cycle',  'talenttrack' ), 'sortable' => true ],
+                'parent_ack'  => [ 'label' => __( 'Parent confirmation', 'talenttrack' ), 'render' => 'html', 'value_key' => 'parent_ack_html' ],
+                'player_ack'  => [ 'label' => __( 'Player confirmation', 'talenttrack' ), 'render' => 'html', 'value_key' => 'player_ack_html' ],
+                'updated_at'  => [ 'label' => __( 'Updated', 'talenttrack' ), 'sortable' => true, 'render' => 'date' ],
+            ],
+            'filters' => [
+                'team_id' => [
+                    'type'    => 'select',
+                    'label'   => __( 'Team', 'talenttrack' ),
+                    'options' => TeamPickerComponent::filterOptions( $user_id, $is_admin ),
+                ],
+                'player_id' => [
+                    'type'    => 'select',
+                    'label'   => __( 'Player', 'talenttrack' ),
+                    'options' => $player_options,
+                ],
+                'status' => [
+                    'type'    => 'select',
+                    'label'   => __( 'Status', 'talenttrack' ),
+                    'options' => $status_options,
+                ],
+            ],
+            'search'       => [ 'placeholder' => __( 'Search player…', 'talenttrack' ) ],
+            'default_sort' => [ 'orderby' => 'updated_at', 'order' => 'desc' ],
+            'empty_state'  => __( 'No PDP files match your filters.', 'talenttrack' ),
+        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
     }
 
     private static function renderCreateForm( int $user_id, bool $is_admin ): void {
@@ -167,11 +181,9 @@ class FrontendPdpManageView extends FrontendViewBase {
             return;
         }
 
-        // Resolve the player roster the picker can search across.
-        // PlayerSearchPickerComponent does its own autocomplete client-
-        // side; passing the full player list lets it filter by name +
-        // team without REST round-trips. Coach scope is enforced
-        // upstream by `eligiblePlayers()`.
+        // Resolve the player roster, scoped to the coach's teams
+        // (admins see every player). Used to populate the player
+        // dropdown that filters client-side on team change.
         $players = self::eligiblePlayerObjects( $user_id, $is_admin );
         if ( empty( $players ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'No players available. Coaches can only open PDP files for players on their own teams.', 'talenttrack' ) . '</p>';
@@ -179,39 +191,98 @@ class FrontendPdpManageView extends FrontendViewBase {
         }
 
         // Pre-fill team filter when the user landed here from a team
-        // page (?team_id=N).
-        $preset_team = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
-        // v3.108.4 — F7: when the operator landed here from a player
-        // file (`?tt_view=pdp&action=new&player_id=N`), the player is
-        // already known. The form previously still showed the team
-        // filter dropdown as the FIRST control and the player picker
-        // below it, even though both were redundant. Now the team
-        // filter is suppressed and the picker is preselected to the
-        // given player. The picker stays editable in case the
-        // operator wants to reassign — but the default workflow
-        // skips straight to the conversation-count + notes fields.
+        // page (?team_id=N). Pre-fill player when entered from a
+        // player profile (?player_id=N).
+        $preset_team   = isset( $_GET['team_id'] )   ? absint( $_GET['team_id'] )   : 0;
         $preset_player = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
+
+        // v3.110.110 — pilot ask: replace the search-as-you-type
+        // picker with a classic two-dropdown cascade. Team dropdown
+        // narrows the player dropdown to its roster; an "All teams"
+        // selection shows every player the coach has access to. The
+        // search picker (PlayerSearchPickerComponent) is still the
+        // right choice for surfaces with hundreds of options (admin
+        // scout pages, comparison view); on the PDP create form the
+        // coach's eligible-player roster is typically small (a single
+        // team's worth) and the dropdown is faster than typing.
+        //
+        // If `?player_id=N` was passed (entered from a player file),
+        // the team dropdown is preselected to that player's team and
+        // the player is preselected; the operator can still change
+        // either. Coach-scope enforcement happens server-side in the
+        // REST controller — the dropdown is convenience, not a
+        // security boundary.
+        $teams_for_filter = [];
+        foreach ( $players as $pl ) {
+            $tid = (int) ( $pl->team_id ?? 0 );
+            if ( $tid <= 0 || isset( $teams_for_filter[ $tid ] ) ) continue;
+            $t = QueryHelpers::get_team( $tid );
+            if ( $t ) $teams_for_filter[ $tid ] = (string) $t->name;
+        }
+        asort( $teams_for_filter, SORT_NATURAL | SORT_FLAG_CASE );
+
+        // Resolve the preselected team — explicit `?team_id=N`, else
+        // derived from `?player_id=N`'s team membership.
+        $selected_team = $preset_team;
+        if ( $selected_team === 0 && $preset_player > 0 && isset( $players[ $preset_player ] ) ) {
+            $selected_team = (int) ( $players[ $preset_player ]->team_id ?? 0 );
+        }
         ?>
         <form class="tt-ajax-form" data-rest-path="pdp-files" data-rest-method="POST" data-redirect-after-save="list">
-            <?php
-            // Fuzzy-search picker with built-in team filter dropdown.
-            // The "team_id" filter is purely UI — only player_id posts.
-            echo PlayerSearchPickerComponent::render( [
-                'name'             => 'player_id',
-                'label'            => __( 'Player', 'talenttrack' ),
-                'required'         => true,
-                'players'          => $players,
-                'team_id'          => $preset_team,
-                // F7: suppress the team-filter dropdown when we already
-                // know which player the operator is opening this for.
-                // The picker still shows so the operator can change
-                // their mind, but the team-first ergonomic step is
-                // gone.
-                'show_team_filter' => $preset_player <= 0,
-                'selected'         => $preset_player,
-                'placeholder'      => __( 'Type a player name…', 'talenttrack' ),
-            ] );
-            ?>
+            <div class="tt-grid tt-grid-2">
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-pdp-team-filter"><?php esc_html_e( 'Team', 'talenttrack' ); ?></label>
+                    <select id="tt-pdp-team-filter" class="tt-input" data-tt-pdp-team-filter>
+                        <option value="0"><?php esc_html_e( 'All teams', 'talenttrack' ); ?></option>
+                        <?php foreach ( $teams_for_filter as $tid => $tname ) : ?>
+                            <option value="<?php echo (int) $tid; ?>" <?php selected( $selected_team, (int) $tid ); ?>><?php echo esc_html( $tname ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="tt-field">
+                    <label class="tt-field-label tt-field-required" for="tt-pdp-player-picker"><?php esc_html_e( 'Player', 'talenttrack' ); ?></label>
+                    <select id="tt-pdp-player-picker" name="player_id" class="tt-input" required data-tt-pdp-player-picker>
+                        <option value=""><?php esc_html_e( '— Select a player —', 'talenttrack' ); ?></option>
+                        <?php foreach ( $players as $pl ) :
+                            $pid     = (int) $pl->id;
+                            $pteam   = (int) ( $pl->team_id ?? 0 );
+                            $pname   = QueryHelpers::player_display_name( $pl );
+                            ?>
+                            <option value="<?php echo $pid; ?>"
+                                    data-team-id="<?php echo $pteam; ?>"
+                                    <?php selected( $preset_player, $pid ); ?>>
+                                <?php echo esc_html( $pname ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <script>
+                (function () {
+                    // v3.110.110 — team-dropdown filters player-dropdown
+                    // options. Player options carry data-team-id so the
+                    // filter is fully client-side; "All teams" (value 0)
+                    // unhides everything. The select keeps its current
+                    // value when valid; otherwise resets to placeholder
+                    // so the form's `required` re-applies.
+                    var team = document.getElementById('tt-pdp-team-filter');
+                    var player = document.getElementById('tt-pdp-player-picker');
+                    if (!team || !player) return;
+                    function apply() {
+                        var tid = parseInt(team.value, 10) || 0;
+                        var currentValid = false;
+                        Array.prototype.forEach.call(player.options, function (opt) {
+                            if (!opt.value) { opt.hidden = false; return; }
+                            var show = tid === 0 || parseInt(opt.dataset.teamId, 10) === tid;
+                            opt.hidden = !show;
+                            if (show && opt.value === player.value) currentValid = true;
+                        });
+                        if (!currentValid) player.value = '';
+                    }
+                    team.addEventListener('change', apply);
+                    apply();
+                })();
+            </script>
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-pdp-cycle"><?php esc_html_e( 'Conversations this season', 'talenttrack' ); ?></label>
                 <select id="tt-pdp-cycle" name="cycle_size" class="tt-input">
@@ -299,8 +370,12 @@ class FrontendPdpManageView extends FrontendViewBase {
         // Summary card
         echo '<div class="tt-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:16px; margin-bottom:16px;">';
         echo '<p style="margin:0 0 6px; display:flex; align-items:center; gap:8px;">';
+        // v3.110.110 — converge onto LookupPill so the status uses the
+        // same rounded-pill chrome as the list view + every other
+        // status in the app (pilot ask: "the status pill does not have
+        // rounded edges like all other pills").
         echo '<strong>' . esc_html__( 'Status:', 'talenttrack' ) . '</strong> '
-            . esc_html( self::statusLabel( (string) $file->status ) );
+            . \TT\Infrastructure\Query\LookupPill::render( 'pdp_status', (string) $file->status, self::statusLabel( (string) $file->status ) );
         // #0077 F1 — context-sensitive help drawer entry.
         \TT\Shared\Frontend\Components\HelpDrawer::button( 'pdp' );
         echo '</p>';
@@ -910,15 +985,6 @@ class FrontendPdpManageView extends FrontendViewBase {
     private static function canSeeFile( object $file, int $user_id, bool $is_admin ): bool {
         if ( $is_admin ) return true;
         return QueryHelpers::coach_owns_player( $user_id, (int) $file->player_id );
-    }
-
-    private static function nextConversation( PdpConversationsRepository $repo, int $file_id ): string {
-        foreach ( $repo->listForFile( $file_id ) as $c ) {
-            if ( empty( $c->coach_signoff_at ) ) {
-                return self::shortDate( $c->scheduled_at );
-            }
-        }
-        return __( '— complete —', 'talenttrack' );
     }
 
     private static function previousConversationDate( object $conv ): ?string {

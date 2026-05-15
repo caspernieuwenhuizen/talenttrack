@@ -887,9 +887,38 @@
             { node: canvas,   kind: 'grid' }
         ].forEach(function (t) {
             t.node.addEventListener('dragover', function (e) {
-                if (currentDragKind() == null) return;
+                // v3.110.109 — two cooperating fixes to the
+                // "cursor shows not-allowed, drop fires never"
+                // symptom pilot-surfaced on the layout editor.
+                //
+                // (1) preventDefault FIRST, then branch on the drag
+                //     kind. The pre-fix early-return path
+                //     (`if (kind == null) return`) skipped
+                //     preventDefault, which the browser interprets
+                //     as "this target rejects the drop." Any frame
+                //     where the global `__ttPdeDrag` was unset (a
+                //     stale state from a missed `dragend`, a drag
+                //     re-entered from outside the editor, browsers
+                //     that fire one dragover before our dragstart
+                //     handler completes) ended in a rejected drop.
+                //
+                // (2) dropEffect MUST match the source's
+                //     `effectAllowed` or the browser cancels the
+                //     drop and shows the not-allowed cursor —
+                //     even though preventDefault was called.
+                //     Palette items declare `effectAllowed = 'copy'`
+                //     (placing a new slot is conceptually a copy);
+                //     existing canvas cards declare `'move'`
+                //     (relocating an existing slot is a move). The
+                //     pre-fix code hardcoded `dropEffect = 'move'`,
+                //     which mismatched every palette → canvas drop
+                //     and made the dominant use case of the editor
+                //     (adding widgets from the palette) fail
+                //     silently.
                 e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
+                var kind = currentDragKind();
+                if (kind == null) return;
+                e.dataTransfer.dropEffect = (kind === 'move') ? 'move' : 'copy';
                 t.node.classList.add('is-drop-target');
 
                 // #0088 — alignment guides on the grid band only.
