@@ -123,7 +123,11 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             self::renderTrialRoster( $trials );
             self::renderUpcomingActivities( $team_id );
             self::renderChemistryTeaser( $team_id );
-            self::renderAnalyticsTeaser( $team_id );
+            // v3.110.100 — team-scoped Analytics section removed from
+            // the detail page, mirroring v3.110.99's activity-detail
+            // change. Operator wants analytics from the central tile,
+            // not per-team. The renderer + team-scoped KPIs stay on
+            // disk so the central tile keeps consuming them.
             ?>
         </article>
         <?php
@@ -210,14 +214,31 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         if ( $can_status ) {
             \TT\Modules\Players\Frontend\PlayerStatusRenderer::enqueueStyles();
         }
+
+        // v3.110.100 — sort the roster by jersey number ascending,
+        // players without a jersey number drop to the end alphabetised
+        // by last/first name. Operator request: positions were
+        // optional and rarely filled so the column was always '—';
+        // jersey numbers are the natural ordering on team sheets.
+        // get_players() returns alpha-sorted by last_name; re-sort
+        // locally so the change is scoped to this view (other callers
+        // depend on the alpha default).
+        usort( $players, static function ( $a, $b ): int {
+            $an = isset( $a->jersey_number ) && (int) $a->jersey_number > 0 ? (int) $a->jersey_number : PHP_INT_MAX;
+            $bn = isset( $b->jersey_number ) && (int) $b->jersey_number > 0 ? (int) $b->jersey_number : PHP_INT_MAX;
+            if ( $an !== $bn ) return $an <=> $bn;
+            $cmp = strcasecmp( (string) ( $a->last_name ?? '' ), (string) ( $b->last_name ?? '' ) );
+            if ( $cmp !== 0 ) return $cmp;
+            return strcasecmp( (string) ( $a->first_name ?? '' ), (string) ( $b->first_name ?? '' ) );
+        } );
         ?>
         <section class="tt-pde-section">
             <h3><?php esc_html_e( 'Roster', 'talenttrack' ); ?></h3>
             <table class="tt-table">
                 <thead>
                     <tr>
+                        <th style="width:80px;"><?php esc_html_e( 'Jersey #', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Position', 'talenttrack' ); ?></th>
                         <?php if ( $can_status ) : ?>
                             <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
                         <?php endif; ?>
@@ -227,15 +248,17 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                     <?php foreach ( $players as $pl ) :
                         $name = QueryHelpers::player_display_name( $pl );
                         $url  = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', (int) $pl->id );
-                        $positions = json_decode( (string) ( $pl->preferred_positions ?? '' ), true );
+                        $jersey = isset( $pl->jersey_number ) && (int) $pl->jersey_number > 0
+                            ? (int) $pl->jersey_number
+                            : null;
                         ?>
                         <tr>
+                            <td><?php echo $jersey !== null ? (int) $jersey : '<span style="color:var(--tt-muted,#5f6368);">—</span>'; ?></td>
                             <td>
                                 <a class="tt-record-link" href="<?php echo esc_url( $url ); ?>">
                                     <?php echo esc_html( $name ); ?>
                                 </a>
                             </td>
-                            <td><?php echo is_array( $positions ) ? esc_html( implode( ', ', array_map( 'strval', $positions ) ) ) : '—'; ?></td>
                             <?php if ( $can_status ) : ?>
                                 <td><?php
                                     // Traffic-light dot via PlayerStatusCalculator +
@@ -373,17 +396,10 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         echo '</section>';
     }
 
-    /**
-     * #0083 Child 4 follow-up — team-scoped Analytics surface. Renders
-     * the KPI grid via `EntityAnalyticsTabRenderer`. Defensive against
-     * module-disable: when the Analytics module is off, the section
-     * disappears entirely rather than rendering an error.
-     */
-    private static function renderAnalyticsTeaser( int $team_id ): void {
-        if ( ! class_exists( '\\TT\\Modules\\Analytics\\Frontend\\EntityAnalyticsTabRenderer' ) ) return;
-        echo '<section class="tt-team-analytics" style="margin-top:24px;">';
-        echo '<h3>' . esc_html__( 'Analytics', 'talenttrack' ) . '</h3>';
-        \TT\Modules\Analytics\Frontend\EntityAnalyticsTabRenderer::render( 'team', $team_id );
-        echo '</section>';
-    }
+    // v3.110.100 — renderAnalyticsTeaser removed. The team-scoped
+    // Analytics surface (#0083 Child 4) is no longer rendered on the
+    // team detail page; coaches access analytics through the central
+    // tile. EntityAnalyticsTabRenderer + the team-scoped KPIs in
+    // KpiRegistry are unchanged — re-instate by adding a call back
+    // to render() if the operator changes their mind.
 }
