@@ -619,6 +619,45 @@ Ships that affect the head-coach's daily flow but aren't tied to a
 single numbered action. Same `**vX.Y.Z** — what changed. *How to
 test:* …` format.
 
+- **v3.110.107** — evaluation list page rich filter block (Group 4
+  / final group of the evaluation flow pass). The hand-rolled
+  `FrontendEvaluationsView` filter form + table is gone; the list
+  view now delegates to `FrontendListTable::render()` — same
+  component the goals page uses. Filters: **Team** / **Player** /
+  **Type** (eval_type lookup) / **Date range** + a free-text
+  **Search** that matches player name + notes. Sortable columns
+  (Date / Player / Team / Coach / Average); default sort
+  `eval_date desc`. Pagination via the standard per-page selector
+  (10 / 25 / 50 / 100, default 25). The 100-row hard limit on the
+  previous hand-rolled table is gone. **New evaluation** CTA
+  moved into the page-header actions slot for parity with goals.
+  REST end: `EvaluationsRestController::list_evals` rewritten to
+  accept `filter[…]` / `search` / `orderby` / `order` / `page` /
+  `per_page` and return the standard `{rows, total, page,
+  per_page}` envelope. Coach-scoping preserved. Legacy
+  `?player_id=N` callers still work (folded into the filter map
+  server-side).
+  *How to test:*
+  1. Visit `?tt_view=evaluations`. Filter bar shows Team /
+     Player / Type / From / To + a search input — same layout as
+     `?tt_view=goals`. **New evaluation** CTA is in the page
+     header (top-right desktop, FAB-shape mobile).
+  2. Pick a Team — list narrows to that team's evals only.
+  3. Pick a Player — list narrows to one player.
+  4. Pick a Type (e.g. Training, then Game) — list narrows by
+     the eval_type lookup.
+  5. Set From = 1 month ago, To = today — older evals drop out.
+  6. Type part of a player's surname into Search — matching rows
+     surface. Type a phrase from a notes excerpt — that row
+     surfaces.
+  7. Click each sortable column header — order flips
+     asc/desc. Notes column is intentionally not sortable.
+  8. Change Per-page to 10 — pager appears, click Next, page 2
+     loads. Refresh the URL — the filtered/sorted/paginated
+     state restores.
+  9. Apply filters that match nothing — empty state reads
+     "No evaluations match your filters."
+
 - **v3.110.105** — evaluation edit form: Type pre-fills (with
   legacy back-fill from activity); sub-cat ratings render and
   edit inline (Group 3 of the evaluation flow pass).

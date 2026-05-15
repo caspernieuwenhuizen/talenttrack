@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.106
+Stable tag: 3.110.107
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.107 — Evaluation list page rich filter block: parity with the goals page (team / player / type / date range + search), pagination, sortable headers via FrontendListTable (#0092) =
+
+Group 4 of the evaluation-flow polish pass. The evaluation list view was hand-rolled — three filter inputs (team / from / to), a 100-row hard limit, no search, no pagination, no per-page selector. Pilot ask: *"the evaluation list page should have the same rich filter block as the goals page and the table should have sortable headers."* Sortable headers landed in parallel ship v3.110.102; this ship retrofits the rest. **Front end**: `FrontendEvaluationsView::render()`'s list path now delegates to `FrontendListTable::render()` with the same shape the goals page uses — `team_id` / `player_id` / `eval_type_id` selects, a `date_range` filter, free-text search (player name + notes LIKE), default sort `eval_date desc`, per-page selector (10 / 25 / 50 / 100, default 25), and the "New evaluation" CTA moved into the page-header actions slot for parity. **REST end**: `EvaluationsRestController::list_evals()` rewritten to accept the FrontendListTable contract — `filter[…]` map, `search`, `orderby` (whitelisted columns: `eval_date`, `player_name`, `team_name`, `coach_name`, `avg_rating`), `order`, `page`, `per_page` — returns the standard `{rows, total, page, per_page}` envelope. Rows are pre-formatted with HTML link cells (player / team / coach / date / average all click-through, same as the v3.110.55 hand-rolled rendering) so the table renders identically while gaining filter/sort/paginate semantics for free. Coach-scoping preserved (non-admins see only evals for players on their own teams); legacy top-level `?player_id=N` callers (the v3.0 contract) keep working — the parameter is folded into the filter map server-side. Hand-rolled `renderFilters()` / `renderTable()` / `parseDate()` / `filtersFromQuery()` methods deleted (~200 lines).
 
 = 3.110.106 — Player profile tabs render as sortable tables; attendance status pills colour-coded =
 
