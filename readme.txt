@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.108
+Stable tag: 3.110.109
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.109 — Dashboard layout editor — drag-and-drop fix: "not allowed" cursor + silent drop rejection =
+
+Pilot: *"Draggable items can be picked up successfully. The drop canvas visually reacts/highlights during drag. But the cursor shows a red 'not allowed' circle icon when hovering over the canvas. The item cannot actually be dropped."* The canonical HTML5 DnD failure mode — two cooperating bugs in the `dragover` handler on the editor's drop canvas (`assets/js/persona-dashboard-editor.js` around line 889). **Bug (1): early return before preventDefault.** Pre-fix code was `if (currentDragKind() == null) return; e.preventDefault();` — every dragover frame where the global `__ttPdeDrag` state was unset bailed BEFORE preventDefault. Per the HTML5 spec a dragover target that doesn't `preventDefault()` is interpreted as "I reject this drop" and the browser cancels the subsequent drop event. Any state desync — a stale `__ttPdeDrag = null` from a previous interrupted drag, a missed `dragend`, a drag re-entered from outside the editor, browser timing where one dragover frame fires before our dragstart handler completes — left the drop permanently broken. **Bug (2): dropEffect / effectAllowed mismatch.** Palette items declare `dataTransfer.effectAllowed = 'copy'` (`onPaletteDragStart`, line 1038) — creating a new slot from a palette item is conceptually a copy. Existing canvas cards declare `effectAllowed = 'move'` (`buildCard`'s dragstart, line 987) — relocating an existing slot is a move. The canvas dragover handler hardcoded `dropEffect = 'move'` for everything. Per the HTML5 spec, a `move` dropEffect on a `copy`-only effectAllowed source is rejected by the browser — cursor shows "not allowed", drop event is blocked — **even though preventDefault was called.** This was the primary symptom for the palette → canvas drop (the dominant use case of the editor). Existing-card moves didn't trigger this because their effectAllowed matched. **Fix**: (1) preventDefault is called unconditionally at the top of the dragover handler; (2) `dropEffect` is computed from `currentDragKind()` — `'move'` for card-relocate, `'copy'` for everything else (palette additions). The side-effects gated on the drag kind (alignment guides + live preview reflow) keep their pre-fix gating; only the preventDefault and dropEffect-matching moved earlier. Pre-fix Firefox / older Chromium versions had partial mitigations via v3.71.5's `<button>` → `<div role="button">` palette item swap (which fixed the dragstart-doesn't-fire variant of the same family of bugs); this ship hardens the dragover side so the same family of state desyncs can't break drops again.
 
 = 3.110.108 — Head-coach dashboard polish round 1: persona label, hero CTA, tasklist count, recent evaluations query, grid widths, quick actions caps + wizard routing (#0092) =
 
