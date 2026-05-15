@@ -275,11 +275,17 @@
     align-items: center;
     flex-wrap: wrap;
 }
+/* v3.110.104 — icon glyph now renders at text-size next to the
+   label so primary + secondary actions in the page-header slot are
+   the same height. Pre-fix the icon was 1.5rem which made the
+   primary action visibly taller than its siblings; that sizing only
+   ever made sense for the v3.110.53–v3.110.73 FAB rendering on
+   mobile, and the FAB itself was dropped in v3.110.74 (see public.css
+   comment above). */
 .tt-page-actions__icon {
     display: none;
-    font-size: 1.5rem;
     line-height: 1;
-    margin-right: 6px;
+    margin-right: 4px;
 }
 .tt-page-actions__primary .tt-page-actions__icon { display: inline-block; }
 
@@ -297,6 +303,53 @@
     background: #b32d2e;
     color: #fff;
     border-color: #b32d2e;
+}
+
+/* v3.110.104 — app-style confirm modal used by
+   frontend-archive-button.js. Replaces the native window.confirm()
+   prompt with a `<dialog>`-backed card that matches the rest of the
+   plugin's chrome. Native dialog gives us a free focus trap,
+   Escape-to-close, and an automatic `::backdrop`. The CSS is scoped
+   to `.tt-modal` so other dialogs in the codebase (if any get
+   added) can opt in without inheriting archive-specific bits. */
+dialog.tt-modal {
+    border: none;
+    border-radius: 10px;
+    padding: 0;
+    max-width: 480px;
+    width: calc(100% - 32px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    color: inherit;
+    background: #fff;
+}
+dialog.tt-modal::backdrop {
+    background: rgba(14, 26, 20, 0.45);
+}
+.tt-modal-form {
+    padding: 20px 22px;
+    margin: 0;
+}
+.tt-modal-title {
+    margin: 0 0 10px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1a1d21;
+}
+.tt-modal-message {
+    margin: 0 0 20px;
+    color: #475569;
+    line-height: 1.45;
+}
+.tt-modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+.tt-modal-actions .tt-btn { min-height: 44px; }
+@media (max-width: 480px) {
+    .tt-modal-actions { justify-content: stretch; }
+    .tt-modal-actions .tt-btn { flex: 1 1 100%; }
 }
 
 /* Context-aware docs drawer (#0016 part B) */

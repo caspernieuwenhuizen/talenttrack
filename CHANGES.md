@@ -1,4 +1,4 @@
-# TalentTrack v3.110.104 — Player profile tabs as sortable tables; attendance status pills colour-coded
+# TalentTrack v3.110.105 — Player profile tabs as sortable tables; attendance status pills colour-coded
 
 Two operator-requested polish items on the player profile page.
 
@@ -55,14 +55,14 @@ The activities pill colour-coding only pays off once the row actually surfaces t
 
 - `src/Shared/Frontend/FrontendPlayerDetailView.php` — 5 tab render methods rewritten (renderGoalsTab, renderEvaluationsTab, renderActivitiesTab, renderPdpTab, renderTrialsTab)
 - **New** `database/migrations/0093_seed_attendance_status_colors.php`
-- `talenttrack.php` 3.110.103 → 3.110.104
+- `talenttrack.php` 3.110.104 → 3.110.105 (renumbered after parallel ship took 3.110.104)
 - `readme.txt`, `CHANGES.md`
 
 No new caps. No new strings. The 5 attendance-status names (Present / Absent / Late / Injured / Excused) already have NL translations from migration 0060. Column headers (Goal / Status / Deadline / Activity / Attendance / Date / Created / Start / End) are common strings already in the .po.
 
 ## How to verify
 
-1. Refresh the plugin to v3.110.104. Migration 0093 runs once on activate.
+1. Refresh the plugin to v3.110.105. Migration 0093 runs once on activate.
 2. Open any player profile and click through the tabs:
    - **Goals** — rendered as a 3-col sortable table (Goal / Status / Deadline). Click a column header to sort.
    - **Evaluations** — 1- or 2-col sortable table (Date, plus a Delete column for users with `tt_edit_evaluations`). Delete still fades the row.
@@ -70,6 +70,69 @@ No new caps. No new strings. The 5 attendance-status names (Present / Absent / L
    - **PDP** — 2-col sortable table (Status / Created).
    - **Trials** — 3-col sortable table (Status / Start / End).
 3. Operators with custom attendance statuses (e.g. "Probation", "Sick") see the canonical 5 coloured + their custom rows still grey (or whatever they set in the lookups admin).
+
+---
+
+# TalentTrack v3.110.104 — Evaluation detail page: Edit + Archive balanced, Archive uses app modal, Type row added (#0092)
+
+Group 2 of the evaluation-flow polish pass.
+
+## (1) Edit button bigger than Archive — icon font-size 1.5rem was a FAB relic
+
+Pilot: *"on the display evaluation details page, the edit button is bigger then the archive button."* Page-header actions slot rendered the Edit action with `icon => '✎'` which prepended a `<span class="tt-page-actions__icon">` styled at `font-size: 1.5rem` — that made the primary action visibly taller than its sibling Archive.
+
+The 1.5rem sizing was a relic of the v3.110.53–v3.110.73 FAB rendering where the icon WAS the entire button on mobile (label was visually-hidden behind a clip rect). v3.110.74 removed the FAB but the oversized icon never got resized.
+
+**Fix**: drop the explicit `font-size` on `.tt-page-actions__icon` so it inherits the button's text size; reduce `margin-right` from 6px to 4px so it sits tightly before the label. Edit and Archive now render as the same-sized buttons. Global change — applies to every detail surface that uses `FrontendViewBase::pageActionsHtml()`.
+
+## (2) Archive triggered a native `window.confirm()`
+
+Pilot: *"the archive button triggers a browser notification instead of a application notification."* `assets/js/frontend-archive-button.js` ran `window.confirm( msg )` to prompt for destructive action. Browser confirms can't be styled, don't match the app's chrome, and on Chrome desktop appear at the top of the viewport, visually disconnected from the button the coach clicked.
+
+**Fix**: replaced with a `<dialog>`-backed app modal injected once per page:
+
+```html
+<dialog id="tt-archive-confirm-dialog" class="tt-modal tt-modal--archive">
+  <form method="dialog" class="tt-modal-form">
+    <h2 class="tt-modal-title">Archive record</h2>
+    <p class="tt-modal-message">Archive this evaluation? …</p>
+    <div class="tt-modal-actions">
+      <button type="submit" value="cancel"  class="tt-btn tt-btn-secondary">Cancel</button>
+      <button type="submit" value="confirm" class="tt-btn tt-btn-danger">Archive</button>
+    </div>
+  </form>
+</dialog>
+```
+
+Native dialog handles the focus trap, Escape-to-close, and `::backdrop` for free. Cancel receives focus on open so a stray Enter doesn't accidentally confirm a destructive action. Buttons reuse the existing `.tt-btn-secondary` / `.tt-btn-danger` variants so the modal matches the rest of the chrome.
+
+Strings localised via `wp_localize_script( 'TT_ArchiveI18n', [ 'title', 'cancel', 'confirm' ] )` — NL installs read "Archiveren" / "Annuleren". The per-button `data-tt-archive-confirm` message (e.g. *"Archive this evaluation? It will be hidden but the data is preserved."*) is still set via the data attribute by each detail view; the modal just renders whatever the button passes in.
+
+Fallback to `window.confirm()` only when `HTMLDialogElement` isn't available (effectively never on the browsers TalentTrack targets).
+
+Error paths (REST failure, network failure) still use `window.alert` because they're rare edge cases and out of scope of the pilot's report — worth a follow-up if those become noisy in practice.
+
+## (3) Type field missing from evaluation display
+
+The detail render queried `eval_date`, `notes`, `player_id`, `coach_id`, match facts (opponent / competition / game_result / home_away / minutes_played), but never `eval_type_id` — even though every wizard-written eval row carries one since v3.110.67. The Type label rendered nowhere on the detail page.
+
+**Fix**: added `e.eval_type_id` to the SELECT plus:
+
+```sql
+LEFT JOIN {$p}tt_lookups et ON et.id = e.eval_type_id
+                            AND et.lookup_type = 'eval_type'
+```
+
+Detail render gets a new **Type** row right under **Date**, resolved via `LookupTranslator::name()` so it reads localised. Hidden when the eval has no `eval_type_id` (legacy rows written before v3.110.67).
+
+## How to verify
+
+1. Open any evaluation detail page (`?tt_view=evaluations&id=N`). Page-header shows **Edit** + **Archive** at the same height; the `✎` icon on Edit is now inline with the label rather than oversized.
+2. Click **Archive**. App modal opens with the existing confirm message styled in app chrome (white card, navy backdrop, focus on Cancel). NO native browser confirm.
+3. Hit Escape → modal closes, no DELETE fires.
+4. Re-open, click **Archive** in the modal → DELETE goes through and you land on the eval list.
+5. Detail page now shows a **Type** row (e.g. `Match performance` / `Training session` / your locale's label) right under Date for evals written via the wizard. Legacy rows without `eval_type_id` skip the row gracefully.
+6. Sanity: the same icon-size + modal fixes are visible on player / team / activity / goal detail pages (any surface that uses `pageActionsHtml` + the archive button).
 
 ---
 

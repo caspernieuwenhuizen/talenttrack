@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.104
+Stable tag: 3.110.105
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,9 +12,13 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 3.110.104 — Player profile tabs render as sortable tables; attendance status pills colour-coded =
+= 3.110.105 — Player profile tabs render as sortable tables; attendance status pills colour-coded =
 
 Two operator-requested fixes on the player profile. **(1) All five tabbed lists (Goals / Evaluations / Activities / PDP / Trials) converted from `<ul class="tt-stack">` to `<table class="tt-table tt-table-sortable">`** wrapped in `tt-table-wrap` for mobile scroll. Each tab now has named column headers (e.g. Activities: Date / Activity / Attendance) and click-to-sort. Empty-state cards unchanged; the table only renders when rows exist. Per the v3.110.102 evaluations standard — the sort JS auto-enqueues on any page with a `.tt-table-sortable` element so no enqueue plumbing changed. **(2) Attendance status pill colour-coded** via migration 0093 `seed_attendance_status_colors`. The `tt_lookups` rows for `attendance_status` shipped without `meta.color` since v1, so `LookupPill` fell back to neutral grey for every status. Migration backfills the 5 canonical statuses with conventional colours: **Present** → green (#16a34a), **Absent** → red (#dc2626), **Late** → amber (#d97706), **Injured** → purple (#7c3aed), **Excused** → blue (#0284c7). Idempotent + defensive: only writes `meta.color` when the field is currently empty, so operator-customised colours via the lookups admin are preserved; custom statuses an admin added are untouched. Walks all clubs on a multi-tenant install. The pills now visually scan instantly on the Activities tab: green = attended, red = missed.
+
+= 3.110.104 — Evaluation detail page: Edit + Archive now visually balanced; Archive uses an app modal (not `window.confirm`); Type row surfaced on the display (#0092) =
+
+Group 2 of the evaluation-flow polish pass. Three pilot-surfaced detail-page issues. **(1) Edit button bigger than Archive.** The page-header actions slot rendered Edit with `icon => '✎'` which inserted a `<span class="tt-page-actions__icon">` styled `font-size: 1.5rem`. That made the primary action visibly taller than its sibling Archive. The 1.5rem sizing was a relic of the v3.110.53–v3.110.73 FAB rendering (where the icon WAS the entire button on mobile); the FAB itself was removed in v3.110.74 and the oversized icon never got resized. **Fix**: drop the explicit font-size on `.tt-page-actions__icon` so it inherits the button text size; reduce its right-margin from 6px to 4px. Edit and Archive now read as the same-sized buttons. The change is global — applies to every detail surface that uses `pageActionsHtml()`. **(2) Archive triggered a browser confirm.** `assets/js/frontend-archive-button.js` used `window.confirm()` for the destructive-action prompt. Native browser confirms can't be styled, don't match the app's chrome, and on Chrome desktop they appear at the top of the page (visually disconnected from the button the user clicked). Replaced with a `<dialog>`-backed app modal: white card, app-style typography, Cancel + Archive buttons styled with the same `tt-btn-secondary` / `tt-btn-danger` variants used everywhere else, native `::backdrop` for the overlay. Cancel button receives focus by default so a stray Enter doesn't accidentally confirm a destructive action. Strings localised via `wp_localize_script( 'TT_ArchiveI18n', … )` so NL installs read "Archiveren" / "Annuleren". Fallback to `window.confirm()` only when `HTMLDialogElement` isn't available (effectively never on the browsers TalentTrack targets). **(3) Type field missing from the evaluation display.** The detail render queried `eval_date`, `notes`, `player_id`, `coach_id`, `opponent`, `competition`, `game_result`, `home_away`, `minutes_played` — but never `eval_type_id`, even though it's stored on every wizard-written row since v3.110.67 wired it. Added the column to the SELECT plus a `LEFT JOIN tt_lookups et ON et.id = e.eval_type_id AND et.lookup_type = 'eval_type'`. The detail page now renders a **Type** row right under **Date**, resolved via `LookupTranslator::name()` so it reads localised. Hidden when the eval has no type (legacy rows from before v3.110.67).
 
 = 3.110.103 — Wizard hygiene: "Rate a player directly" no longer blocked by required-radios; NL translations for picker copy; wizard progress steps show ✓ for done + stronger contrast; Cancel honours `tt_back` (#0092) =
 

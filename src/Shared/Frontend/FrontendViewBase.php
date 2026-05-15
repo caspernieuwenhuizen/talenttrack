@@ -59,16 +59,29 @@ abstract class FrontendViewBase {
         );
 
         // v3.110.53 — Archive-button handler for detail pages. Listens
-        // for clicks on [data-tt-archive-rest-path], runs window.confirm(),
+        // for clicks on [data-tt-archive-rest-path], shows the modal,
         // POSTs DELETE /wp-json/talenttrack/v1/<path>, redirects on
         // success. No-op on pages without the data attribute, cheap
         // to load once per request alongside table-tools.
+        // v3.110.104 — confirm path moved from `window.confirm()` to a
+        // <dialog>-backed app modal; localised strings get passed via
+        // `wp_localize_script` below so screen readers + non-English
+        // installs read the modal in the coach's language.
         wp_enqueue_script(
             'tt-frontend-archive-button',
             TT_PLUGIN_URL . 'assets/js/frontend-archive-button.js',
             [ 'tt-public' ],
             TT_VERSION,
             true
+        );
+        wp_localize_script(
+            'tt-frontend-archive-button',
+            'TT_ArchiveI18n',
+            [
+                'title'   => __( 'Archive record', 'talenttrack' ),
+                'cancel'  => __( 'Cancel', 'talenttrack' ),
+                'confirm' => __( 'Archive', 'talenttrack' ),
+            ]
         );
 
         self::$assets_enqueued = true;
