@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.103
+Stable tag: 3.110.104
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.104 — Player profile tabs render as sortable tables; attendance status pills colour-coded =
+
+Two operator-requested fixes on the player profile. **(1) All five tabbed lists (Goals / Evaluations / Activities / PDP / Trials) converted from `<ul class="tt-stack">` to `<table class="tt-table tt-table-sortable">`** wrapped in `tt-table-wrap` for mobile scroll. Each tab now has named column headers (e.g. Activities: Date / Activity / Attendance) and click-to-sort. Empty-state cards unchanged; the table only renders when rows exist. Per the v3.110.102 evaluations standard — the sort JS auto-enqueues on any page with a `.tt-table-sortable` element so no enqueue plumbing changed. **(2) Attendance status pill colour-coded** via migration 0093 `seed_attendance_status_colors`. The `tt_lookups` rows for `attendance_status` shipped without `meta.color` since v1, so `LookupPill` fell back to neutral grey for every status. Migration backfills the 5 canonical statuses with conventional colours: **Present** → green (#16a34a), **Absent** → red (#dc2626), **Late** → amber (#d97706), **Injured** → purple (#7c3aed), **Excused** → blue (#0284c7). Idempotent + defensive: only writes `meta.color` when the field is currently empty, so operator-customised colours via the lookups admin are preserved; custom statuses an admin added are untouched. Walks all clubs on a multi-tenant install. The pills now visually scan instantly on the Activities tab: green = attended, red = missed.
 
 = 3.110.103 — Wizard hygiene: "Rate a player directly" no longer blocked by required-radios; NL translations for picker copy; wizard progress steps show ✓ for done + stronger contrast; Cancel honours `tt_back` (#0092) =
 
