@@ -1327,6 +1327,13 @@
             '<h3 class="tt-pde-properties-title">' + escape((w && w.label) || ref[0]) + '</h3>';
         form.appendChild(head);
 
+        // v3.110.110 — widget detail block. Description + intended
+        // personas + KPI-specific description when the slot is a
+        // kpi_card. Helps an admin pick the right widget out of the
+        // library without leaving the editor.
+        var detail = renderDetailBlock(ref[0], ref[1]);
+        if (detail) form.appendChild(detail);
+
         // Size — segmented control (band slots are XL only)
         if (hit.band === 'grid') {
             form.appendChild(field(I18N.size || 'Size', sizeSegmented(slot, allowedSizes)));
@@ -1357,6 +1364,59 @@
 
         pane.innerHTML = '';
         pane.appendChild(form);
+    }
+
+    function renderDetailBlock(widgetId, dataSource) {
+        var w = widgetById(widgetId);
+        if (!w) return null;
+        var box = document.createElement('section');
+        box.className = 'tt-pde-properties-detail';
+
+        var lines = [];
+
+        // Widget-level description
+        if (w.description) {
+            lines.push('<p class="tt-pde-detail-desc">' + escape(w.description) + '</p>');
+        }
+        // For kpi_card, surface the KPI's own description in addition.
+        if (widgetId === 'kpi_card' && dataSource) {
+            var kpi = kpiById(dataSource);
+            if (kpi && kpi.description) {
+                lines.push('<p class="tt-pde-detail-desc"><strong>' +
+                    escape(I18N.kpi_label || 'KPI') + ':</strong> ' +
+                    escape(kpi.description) + '</p>');
+            }
+        }
+        // Intended personas — chips. Falls back to persona_context as
+        // a single tag when intendedPersonas is empty.
+        var personas = (w.intended_personas && w.intended_personas.length)
+            ? w.intended_personas
+            : (w.persona_context ? [w.persona_context] : []);
+        if (personas.length) {
+            var chips = personas.map(function (slug) {
+                var label = (BOOT.persona_labels || {})[slug] || slug;
+                return '<span class="tt-pde-chip">' + escape(label) + '</span>';
+            }).join('');
+            lines.push(
+                '<div class="tt-pde-detail-personas">' +
+                '<span class="tt-pde-detail-label">' + escape(I18N.intended_for || 'Intended for') + ':</span>' +
+                chips +
+                '</div>'
+            );
+        }
+        // Cap required (always shown, since admins need to know who'll
+        // actually see the widget after save).
+        if (w.cap_required) {
+            lines.push(
+                '<div class="tt-pde-detail-cap"><span class="tt-pde-detail-label">' +
+                escape(I18N.cap_required || 'Capability required') + ':</span> <code>' +
+                escape(w.cap_required) + '</code></div>'
+            );
+        }
+
+        if (lines.length === 0) return null;
+        box.innerHTML = lines.join('');
+        return box;
     }
 
     function field(labelText, body, helpText) {

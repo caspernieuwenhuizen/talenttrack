@@ -38,6 +38,15 @@ class TeamRosterTableWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Team roster table', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'Single-team roster: jersey # / player / status pill / latest PDP / rolling attendance %. Pick the team via the data-source field (`team_id`). Reads tt_players + tt_attendance scoped to that team. Distinct from the multi-team team_overview_grid: this one is for a coach who runs one squad.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'head_coach', 'assistant_coach', 'team_manager' ];
+    }
+
     public function defaultSize(): string { return Size::L; }
 
     /** @return list<string> */

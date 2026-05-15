@@ -25,6 +25,15 @@ class TodayUpNextHeroWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Today / Up next hero', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'Pre-v3.110.70 head-coach landing hero: shows tonight\'s match / training with Attendance + Evaluation CTAs. Replaced by `mark_attendance_hero` (v3.110.70) on the default head-coach template but kept registered so custom templates that pinned it explicitly keep working. Reads upcoming activities via UpcomingActivityRepository.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'head_coach', 'assistant_coach', 'team_manager' ];
+    }
+
     public function defaultSize(): string { return Size::XL; }
 
     /** @return list<string> */

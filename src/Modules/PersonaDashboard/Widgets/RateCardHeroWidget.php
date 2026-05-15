@@ -24,6 +24,15 @@ class RateCardHeroWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Rate card hero', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'Player landing card showing the player\'s own rate card: 6-axis radar of latest category averages, headline overall rating, link to the full profile. Sourced from tt_evaluations + tt_eval_ratings scoped to the viewing player.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'player' ];
+    }
+
     public function defaultSize(): string { return Size::XL; }
 
     /** @return list<string> */

@@ -43,6 +43,32 @@ abstract class AbstractWidget implements Widget {
     }
 
     /**
+     * v3.110.110 — long-form description shown in the editor's right
+     * panel. Should explain: what the widget surfaces, where the data
+     * comes from (or goes to for action widgets), and what an operator
+     * sees on screen. Empty default — concrete widgets override.
+     */
+    public function description(): string {
+        return '';
+    }
+
+    /**
+     * v3.110.110 — list of persona slugs this widget is typically
+     * shipped for. Distinct from `personaContext()` (which is the
+     * data-scope grouping used to filter the editor pickers):
+     * `intendedPersonas()` is the recommendation surface — "this
+     * widget makes sense on these dashboards".
+     *
+     * Empty default → the editor falls back to surfacing
+     * `personaContext()` as a single tag.
+     *
+     * @return list<string>  e.g. `[ 'head_coach', 'assistant_coach' ]`
+     */
+    public function intendedPersonas(): array {
+        return [];
+    }
+
+    /**
      * Persona-dashboard editor catalogue of valid `data_source` values
      * for this widget (#0077 M1). Returns `[ id => human label ]` pairs.
      * Empty default → editor falls back to a free-text input. Widgets

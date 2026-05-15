@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.116
+Stable tag: 3.110.117
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,6 +12,9 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
+= 3.110.117 — Dashboard editor: widget + KPI detail panel — description, data source/destination, intended personas =
+
+Third of three sequential ships from one operator round. **(1) Framework.** Two new optional methods on the widget contract: `description(): string` and `intendedPersonas(): list<string>`. Both default to empty on `AbstractWidget`; concrete widgets override. Same `method_exists()`-driven pattern applied to KPIs (no interface change, so existing implementations keep working). `EditorPage::buildBootstrap` publishes them into the editor's `BOOT.widgets` payload. **(2) Editor right-panel.** New `renderDetailBlock()` in `persona-dashboard-editor.js` inserts a detail section between the title and the editable fields. Renders the widget description as a sentence, the KPI description (when a kpi_card data-source is picked), the intended-persona chips (falls back to `persona_context` when `intended_personas` is empty), and the capability required as a code-styled tag. New `.tt-pde-properties-detail` CSS — soft divider, chip styling, mono code badge. **(3) Widget backfill.** All 19 registered widgets received concise descriptions covering what the widget does, what data it pulls (or writes to), and which personas it's intended for. KPI backfill ships per-KPI in follow-ups — the framework supports it from this release. The right panel now reads as a meaningful catalogue rather than just a settings sheet.
 = 3.110.116 — Standard reports: Team attendance + Player attendance statistics on the central Analytics surface =
 
 Second of three sequential ships from one operator round. **(1) Two new standard reports** under the central Analytics module: **Team attendance statistics** (`?tt_view=attendance-report-team`) — one row per team in the selected date range with activity count and present / late / absent / excused / injured percentages; **Player attendance statistics** (`?tt_view=attendance-report-player`) — same percentages broken down per player, optionally narrowed to a single team. Both date-range-filtered (default last 90 days, `<input type="date">` for from/to), cap-gated on `tt_view_analytics`, status percentages use `LOWER(att.status)` so legacy mixed-case rows aggregate into the same bucket as v3.110.78-onward lowercase rows. Click-through on player names goes to the player profile with `tt_back` set. **(2) Standard reports section on `FrontendAnalyticsView`.** New section below the KPI grid lists the two reports as cards alongside (not replacing) the dimension explorer. Future standard reports add an entry to the `$reports` array in `renderStandardReports()`; the dispatcher wires the matching view slug. Three new `BackLabelResolver` entries (`analytics`, `attendance-report-team`, `attendance-report-player`) so the back-pill labels read in operator language on detail surfaces reached from these reports.
