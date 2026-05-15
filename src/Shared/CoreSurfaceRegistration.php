@@ -644,6 +644,22 @@ final class CoreSurfaceRegistration {
 
         // ── Analytics group ──
         $analytics_group = __( 'Analytics', 'talenttrack' );
+        // v3.110.108 — central Analytics tile pointing at the
+        // FrontendAnalyticsView (#0083 Child 5). Was reachable only
+        // via direct URL; admin / HoD now see it in the tile grid.
+        TileRegistry::register([
+            'module_class' => 'TT\\Modules\\Analytics\\AnalyticsModule',
+            'view_slug'    => 'analytics',
+            'entity'       => 'analytics',
+            'group'        => $analytics_group,
+            'kind'         => 'work',
+            'order'        => 5,
+            'label'        => __( 'Analytics', 'talenttrack' ),
+            'description'  => __( 'Academy-wide KPIs and the dimension explorer.', 'talenttrack' ),
+            'icon'         => 'reports',
+            'color'        => '#7c3aed',
+            'cap'          => 'tt_view_analytics',
+        ]);
         TileRegistry::register([
             'module_class' => self::M_STATS,
             'view_slug'    => 'rate-cards',

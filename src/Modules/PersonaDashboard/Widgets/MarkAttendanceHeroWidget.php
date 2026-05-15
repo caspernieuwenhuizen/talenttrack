@@ -70,7 +70,13 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
             $eyebrow = __( 'Up next', 'talenttrack' );
             $title   = __( 'No upcoming activity', 'talenttrack' );
             $detail  = __( 'Schedule a training or match to populate this card.', 'talenttrack' );
-            $primary_label  = __( 'Pick an activity', 'talenttrack' );
+            // v3.110.108 — pilot ask: the hero button on this dashboard
+            // is the coach's entry point into both "mark attendance" and
+            // the rate-confirm fork. Naming it for the destination action
+            // ("evaluate") rather than the first wizard step reads more
+            // accurately. Single label for both the empty-state and
+            // populated-state CTAs so the affordance is consistent.
+            $primary_label  = __( 'Select completed activity to evaluate', 'talenttrack' );
             // v3.110.84 — `restart=1` forces a fresh wizard run.
             // Belt-and-suspenders alongside the autosave removal: even
             // if a stale `tt_wizard_drafts` row somehow lingered, the
@@ -105,7 +111,7 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
                 [ 'activity_id' => $aid, 'restart' => 1 ],
                 $wizard_base
             );
-            $primary_label = __( 'Mark attendance', 'talenttrack' );
+            $primary_label = __( 'Select completed activity to evaluate', 'talenttrack' );
 
             // v3.110.73 — attach `tt_back` pointing to the dashboard so
             // the activity edit form's Cancel button returns the coach

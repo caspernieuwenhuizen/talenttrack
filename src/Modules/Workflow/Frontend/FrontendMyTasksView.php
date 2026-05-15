@@ -45,8 +45,16 @@ class FrontendMyTasksView extends FrontendViewBase {
 
         $repo = new TasksRepository();
         $filters = self::filtersFromQuery();
+        // v3.110.110 — when the status filter is set to "completed" the
+        // inbox switches into a read-only "history" view: rows render
+        // with no checkbox / snooze / open buttons, the bulk-action bar
+        // is suppressed, and the bottom-of-page "Recently completed"
+        // section is folded into the main list (the filter IS the
+        // history view). Repo allows COMPLETED through its status
+        // whitelist as of v3.110.110.
+        $is_completed_view = ( $filters['status'] ?? [] ) === [ 'completed' ];
         $actionable = $repo->listActionableForUser( $user_id, $filters );
-        $recent_done = self::recentlyCompletedForUser( $user_id, 5 );
+        $recent_done = $is_completed_view ? [] : self::recentlyCompletedForUser( $user_id, 5 );
         $template_keys = $repo->templateKeysForUser( $user_id );
 
         ?>
@@ -123,31 +131,41 @@ class FrontendMyTasksView extends FrontendViewBase {
 
         self::renderFilters( $template_keys, $filters );
 
-        echo '<form method="post" data-tt-mtasks-form="1">';
-        wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD );
-        // Preserve filter state through the bulk submit.
-        foreach ( self::passThroughFilters( $filters ) as $k => $v ) {
-            printf( '<input type="hidden" name="%s" value="%s" />', esc_attr( $k ), esc_attr( $v ) );
+        if ( ! $is_completed_view ) {
+            echo '<form method="post" data-tt-mtasks-form="1">';
+            wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD );
+            // Preserve filter state through the bulk submit.
+            foreach ( self::passThroughFilters( $filters ) as $k => $v ) {
+                printf( '<input type="hidden" name="%s" value="%s" />', esc_attr( $k ), esc_attr( $v ) );
+            }
+            echo '<div class="tt-mtasks-bulkbar" data-tt-mtasks-bulkbar="1">';
+            echo '<span data-tt-mtasks-count="0" style="font-size:13px; color:#5b6e75;">0 ' . esc_html__( 'selected', 'talenttrack' ) . '</span>';
+            echo '<button type="submit" name="tt_inbox_action" value="bulk_skip" class="tt-btn tt-btn-secondary tt-btn-sm" onclick="return confirm(\'' . esc_js( __( 'Skip the selected tasks? They will be marked as no-longer-applicable.', 'talenttrack' ) ) . '\')">' . esc_html__( 'Skip selected', 'talenttrack' ) . '</button>';
+            echo '<button type="submit" name="tt_inbox_action" value="bulk_snooze_1d" class="tt-btn tt-btn-secondary tt-btn-sm">' . esc_html__( 'Snooze 1 day', 'talenttrack' ) . '</button>';
+            echo '<button type="submit" name="tt_inbox_action" value="bulk_snooze_7d" class="tt-btn tt-btn-secondary tt-btn-sm">' . esc_html__( 'Snooze 7 days', 'talenttrack' ) . '</button>';
+            echo '</div>';
         }
-        echo '<div class="tt-mtasks-bulkbar" data-tt-mtasks-bulkbar="1">';
-        echo '<span data-tt-mtasks-count="0" style="font-size:13px; color:#5b6e75;">0 ' . esc_html__( 'selected', 'talenttrack' ) . '</span>';
-        echo '<button type="submit" name="tt_inbox_action" value="bulk_skip" class="tt-btn tt-btn-secondary tt-btn-sm" onclick="return confirm(\'' . esc_js( __( 'Skip the selected tasks? They will be marked as no-longer-applicable.', 'talenttrack' ) ) . '\')">' . esc_html__( 'Skip selected', 'talenttrack' ) . '</button>';
-        echo '<button type="submit" name="tt_inbox_action" value="bulk_snooze_1d" class="tt-btn tt-btn-secondary tt-btn-sm">' . esc_html__( 'Snooze 1 day', 'talenttrack' ) . '</button>';
-        echo '<button type="submit" name="tt_inbox_action" value="bulk_snooze_7d" class="tt-btn tt-btn-secondary tt-btn-sm">' . esc_html__( 'Snooze 7 days', 'talenttrack' ) . '</button>';
-        echo '</div>';
 
-        echo '<div class="tt-mtasks-section-label">' . esc_html__( 'Open and in progress', 'talenttrack' ) . '</div>';
+        $section_label = $is_completed_view
+            ? __( 'Completed', 'talenttrack' )
+            : __( 'Open and in progress', 'talenttrack' );
+        $empty_label = $is_completed_view
+            ? __( 'No completed tasks in your history yet.', 'talenttrack' )
+            : __( 'No open tasks. You\'re all caught up.', 'talenttrack' );
+        echo '<div class="tt-mtasks-section-label">' . esc_html( $section_label ) . '</div>';
         if ( empty( $actionable ) ) {
-            echo '<p class="tt-mtasks-empty">' . esc_html__( 'No open tasks. You\'re all caught up.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-mtasks-empty">' . esc_html( $empty_label ) . '</p>';
         } else {
             echo '<ul class="tt-mtasks-list">';
             foreach ( $actionable as $task ) {
-                self::renderRow( $task, false );
+                self::renderRow( $task, $is_completed_view );
             }
             echo '</ul>';
         }
 
-        echo '</form>';
+        if ( ! $is_completed_view ) {
+            echo '</form>';
+        }
 
         if ( ! empty( $recent_done ) ) {
             echo '<div class="tt-mtasks-section-label">' . esc_html__( 'Recently completed', 'talenttrack' ) . '</div>';
@@ -272,6 +290,7 @@ class FrontendMyTasksView extends FrontendViewBase {
                     <option value="open" <?php selected( implode( ',', $filters['status'] ?? [] ), 'open' ); ?>><?php esc_html_e( 'Open', 'talenttrack' ); ?></option>
                     <option value="in_progress" <?php selected( implode( ',', $filters['status'] ?? [] ), 'in_progress' ); ?>><?php esc_html_e( 'In progress', 'talenttrack' ); ?></option>
                     <option value="overdue" <?php selected( implode( ',', $filters['status'] ?? [] ), 'overdue' ); ?>><?php esc_html_e( 'Overdue', 'talenttrack' ); ?></option>
+                    <option value="completed" <?php selected( implode( ',', $filters['status'] ?? [] ), 'completed' ); ?>><?php esc_html_e( 'Completed (read-only)', 'talenttrack' ); ?></option>
                 </select>
             </label>
             <label>

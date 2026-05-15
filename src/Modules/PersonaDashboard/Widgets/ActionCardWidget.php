@@ -7,6 +7,7 @@ use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\Size;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
+use TT\Shared\Wizards\WizardEntryPoint;
 
 /**
  * ActionCardWidget — single CTA button.
@@ -18,15 +19,40 @@ use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
  * #0074 dropped the decorative `tt-pd-action-icon` yellow circle. The
  * "+" affordance lives inside the translated label string so the cue
  * is preserved without the extra DOM node and without the colour.
+ *
+ * v3.110.108 — two pilot-surfaced bugs on the quick-actions panel:
+ *
+ *   1. **Wrong cap names.** `tt_create_evaluations` and
+ *      `tt_create_goals` do not exist in the cap system — only
+ *      `tt_edit_*` caps are granted. `current_user_can()` therefore
+ *      returned false for every coach on the New evaluation + New
+ *      goal cards, hiding 2 of the 4 quick-action buttons and
+ *      leaving the dashboard with a single CTA. Fixed to use the
+ *      `tt_edit_*` caps that actually exist.
+ *   2. **Flat-form URLs instead of wizard URLs.** "+ New activity"
+ *      sent the coach to `?tt_view=activities` (the list view) —
+ *      `?action=new` on the flat path renders the form, but only
+ *      when the user lands directly there. From the dashboard a
+ *      route through `WizardEntryPoint::urlFor()` is required so
+ *      the wizards-enabled gate lifts the user into the multi-step
+ *      flow. Same pattern `FrontendEvaluationsView::render()` uses
+ *      for its page-header CTA.
  */
 class ActionCardWidget extends AbstractWidget {
 
     private const ACTIONS = [
-        'new_evaluation' => [ 'label_key' => '+ New evaluation',   'view' => 'evaluations',  'cap' => 'tt_create_evaluations' ],
-        'new_goal'       => [ 'label_key' => '+ New goal',         'view' => 'goals',        'cap' => 'tt_create_goals' ],
-        'new_activity'   => [ 'label_key' => '+ New activity',     'view' => 'activities',   'cap' => 'tt_edit_activities' ],
-        'new_player'     => [ 'label_key' => '+ Add player',       'view' => 'players',      'cap' => 'tt_edit_players' ],
-        'new_team'       => [ 'label_key' => '+ Add team',         'view' => 'teams',        'cap' => 'tt_edit_teams' ],
+        // 'wizard' key maps to a registered slug in WizardRegistry
+        // (see src/Modules/Wizards/*/New*Wizard.php). When set, the
+        // CTA routes through WizardEntryPoint::urlFor() with an
+        // action=new fallback URL so installs that flip
+        // `tt_wizards_enabled` off keep working.
+        'new_evaluation' => [ 'label_key' => '+ New evaluation',   'view' => 'evaluations',  'cap' => 'tt_edit_evaluations', 'wizard' => 'new-evaluation' ],
+        'new_goal'       => [ 'label_key' => '+ New goal',         'view' => 'goals',        'cap' => 'tt_edit_goals',       'wizard' => 'new-goal' ],
+        'new_activity'   => [ 'label_key' => '+ New activity',     'view' => 'activities',   'cap' => 'tt_edit_activities',  'wizard' => 'new-activity' ],
+        'new_player'     => [ 'label_key' => '+ Add player',       'view' => 'players',      'cap' => 'tt_edit_players',     'wizard' => 'new-player' ],
+        'new_team'       => [ 'label_key' => '+ Add team',         'view' => 'teams',        'cap' => 'tt_edit_teams',       'wizard' => 'new-team' ],
+        // scout_report + new_trial keep the flat path — no wizard
+        // registered yet.
         'scout_report'   => [ 'label_key' => '+ New scout report', 'view' => 'scout-history','cap' => 'tt_generate_scout_report' ],
         'new_trial'      => [ 'label_key' => '+ New trial',        'view' => 'trials',       'cap' => 'tt_manage_trials' ],
     ];
@@ -60,7 +86,16 @@ class ActionCardWidget extends AbstractWidget {
         $label = $slot->persona_label !== ''
             ? $slot->persona_label
             : __( $action['label_key'], 'talenttrack' );
-        $url = $ctx->viewUrl( (string) $action['view'] );
+
+        // Build the URL — wizard-routed when the action has a `wizard`
+        // slug registered, flat-form otherwise.
+        $flat_url = add_query_arg(
+            [ 'tt_view' => (string) $action['view'], 'action' => 'new' ],
+            $ctx->viewUrl( (string) $action['view'] )
+        );
+        $url = ! empty( $action['wizard'] ) && class_exists( WizardEntryPoint::class )
+            ? WizardEntryPoint::urlFor( (string) $action['wizard'], $flat_url )
+            : $flat_url;
 
         $inner = '<a class="tt-pd-action-link" href="' . esc_url( $url ) . '">'
             . '<span class="tt-pd-action-label">' . esc_html( $label ) . '</span>'

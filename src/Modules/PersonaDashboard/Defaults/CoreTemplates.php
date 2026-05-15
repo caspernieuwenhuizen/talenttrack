@@ -90,9 +90,17 @@ final class CoreTemplates {
 
     public static function coach( int $club_id ): PersonaTemplate {
         $grid = new GridLayout();
-        // Row 0: workflow tasks (L) + recent evaluations rail (M).
-        $grid->add( new WidgetSlot( 'task_list_panel',  '',                     Size::L, 0, 0, 2, 10 ) );
-        $grid->add( new WidgetSlot( 'mini_player_list', 'recent_evaluations',   Size::M, 9, 0, 2, 15 ) );
+        // Row 0: workflow tasks + recent evaluations rail.
+        // v3.110.108 — both widgets now span 6 cols (was task L=9 +
+        // mini M=6, which summed to 15 and overflowed the 12-col grid,
+        // forcing the mini rail to wrap onto a new row at uneven
+        // widths). The total of row 0 now matches the KPI row below
+        // (4× S=3 = 12 cols), so the dashboard reads as two equal-
+        // width columns above a four-card strip. Pilot symptom:
+        // "the total width of the kpi cards rows is not the same as
+        // the total width of the above widgets rows."
+        $grid->add( new WidgetSlot( 'task_list_panel',  '',                     Size::M, 0, 0, 2, 10 ) );
+        $grid->add( new WidgetSlot( 'mini_player_list', 'recent_evaluations',   Size::M, 6, 0, 2, 15 ) );
         // Row 1: my evals KPI + my open tasks KPI + my team attendance KPI + my team rating KPI.
         $coach_kpis = [
             'my_evaluations_this_week',

@@ -39,7 +39,9 @@ class TaskListPanelWidget extends AbstractWidget {
     public function capRequired(): string { return 'tt_view_own_tasks'; }
 
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
-        $rows = $this->fetchRows( $ctx->user_id );
+        $fetched = $this->fetchRows( $ctx->user_id );
+        $rows    = $fetched['rows'];
+        $total   = $fetched['total'];
         $title = $slot->persona_label !== '' ? $slot->persona_label : __( 'My tasks', 'talenttrack' );
         $see_all = $ctx->viewUrl( 'my-tasks' );
 
@@ -56,31 +58,44 @@ class TaskListPanelWidget extends AbstractWidget {
                     . '<span class="tt-pd-task-due">' . esc_html( $due ) . '</span>';
                 $items .= '<li class="tt-pd-task-row">'
                     . ( $href !== ''
-                        ? '<a href="' . esc_url( $href ) . '" style="display:flex; justify-content:space-between; gap:12px; text-decoration:none; color:inherit;">' . $row_html . '</a>'
+                        ? '<a href="' . esc_url( $href ) . '">' . $row_html . '</a>'
                         : $row_html )
                     . '</li>';
             }
             $body = '<ul class="tt-pd-task-list">' . $items . '</ul>';
         }
 
+        // v3.110.108 — "See all" gets a count suffix so the coach can
+        // gauge at a glance whether the 5 shown are the whole picture or
+        // the tip of a bigger backlog. Pilot ask: "show all (total
+        // number of open tasks) link."
+        $see_all_label = $total > 0
+            ? sprintf(
+                /* translators: %d = total number of open tasks */
+                __( 'Show all (%d open)', 'talenttrack' ),
+                $total
+            )
+            : __( 'Show all', 'talenttrack' );
+
         $inner = '<div class="tt-pd-panel-head">'
             . '<span class="tt-pd-panel-title">' . esc_html( $title ) . '</span>'
-            . '<a class="tt-pd-panel-more" href="' . esc_url( $see_all ) . '">' . esc_html__( 'See all', 'talenttrack' ) . '</a>'
+            . '<a class="tt-pd-panel-more" href="' . esc_url( $see_all ) . '">' . esc_html( $see_all_label ) . '</a>'
             . '</div>'
             . $body;
         return $this->wrap( $slot, $inner, 'panel' );
     }
 
     /**
-     * @return list<array<string,mixed>>
+     * @return array{ rows: list<array<string,mixed>>, total: int }
      */
     private function fetchRows( int $user_id ): array {
-        if ( $user_id <= 0 ) return [];
-        if ( ! class_exists( TasksRepository::class ) ) return [];
+        if ( $user_id <= 0 ) return [ 'rows' => [], 'total' => 0 ];
+        if ( ! class_exists( TasksRepository::class ) ) return [ 'rows' => [], 'total' => 0 ];
 
         $repo = new TasksRepository();
-        $rows = $repo->listActionableForUser( $user_id );
-        if ( empty( $rows ) ) return [];
+        $all  = $repo->listActionableForUser( $user_id );
+        $total = is_array( $all ) ? count( $all ) : 0;
+        if ( $total === 0 ) return [ 'rows' => [], 'total' => 0 ];
 
         $registry = class_exists( WorkflowModule::class ) ? WorkflowModule::registry() : null;
         $base_url = home_url( '/' );
@@ -92,7 +107,7 @@ class TaskListPanelWidget extends AbstractWidget {
 
         $out = [];
         $limit = 5;
-        foreach ( $rows as $r ) {
+        foreach ( $all as $r ) {
             if ( count( $out ) >= $limit ) break;
             $template_key = (string) ( $r['template_key'] ?? '' );
             $tpl = $registry !== null ? $registry->get( $template_key ) : null;
@@ -114,7 +129,7 @@ class TaskListPanelWidget extends AbstractWidget {
                     : '',
             ];
         }
-        return $out;
+        return [ 'rows' => $out, 'total' => $total ];
     }
 
     private static function playerName( int $player_id ): string {
