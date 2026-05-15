@@ -14238,7 +14238,7 @@ msgid "Back to Goals"
 msgstr "Terug naar Doelen"
 
 msgid "Back to PDPs"
-msgstr "Terug naar OPP's"
+msgstr "Terug naar POP's"
 
 msgid "Back to Evaluations"
 msgstr "Terug naar Evaluaties"
@@ -14265,7 +14265,7 @@ msgid "Back to Team blueprint"
 msgstr "Terug naar Teamblauwdruk"
 
 msgid "Back to PDP planning"
-msgstr "Terug naar OPP-planning"
+msgstr "Terug naar POP-planning"
 
 msgid "Back to Team planner"
 msgstr "Terug naar Teamplanner"
@@ -14276,7 +14276,7 @@ msgstr "Terug naar %s"
 
 #. translators: %s = player display name
 msgid "%s's PDP"
-msgstr "OPP van %s"
+msgstr "POP van %s"
 
 #. translators: 1: player name, 2: eval date
 msgid "Evaluation: %1$s (%2$s)"

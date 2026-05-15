@@ -170,13 +170,18 @@ class FrontendPlayersManageView extends FrontendViewBase {
         echo FrontendListTable::render( [
             'rest_path' => 'players',
             'columns' => [
-                // #0070 — name / team / parent rendered as clickable cells
-                // via pre-built RecordLink HTML from the REST controller.
-                'last_name'      => [ 'label' => __( 'Name',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'name_link_html' ],
-                'team_name'      => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
-                'parent_name'    => [ 'label' => __( 'Parent', 'talenttrack' ), 'render' => 'html', 'value_key' => 'parent_link_html' ],
-                'jersey_number'  => [ 'label' => __( '#',      'talenttrack' ), 'sortable' => true ],
-                'preferred_foot' => [ 'label' => __( 'Foot',   'talenttrack' ), 'render' => 'html', 'value_key' => 'preferred_foot_pill_html' ],
+                // #0070 — name / team rendered as clickable cells via
+                // pre-built RecordLink HTML from the REST controller.
+                // v3.110.110 — Parent column dropped per pilot ask;
+                // parent contact is already reachable via the player
+                // detail page (Family tab) where it has full context
+                // (parent name + role + relationship), so duplicating
+                // it as a single-name truncated cell in the list was
+                // noise.
+                'last_name'      => [ 'label' => __( 'Name', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'name_link_html' ],
+                'team_name'      => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
+                'jersey_number'  => [ 'label' => __( '#',    'talenttrack' ), 'sortable' => true ],
+                'preferred_foot' => [ 'label' => __( 'Foot', 'talenttrack' ), 'render' => 'html', 'value_key' => 'preferred_foot_pill_html' ],
             ],
             'filters' => [
                 'team_id' => [

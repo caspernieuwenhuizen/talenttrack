@@ -124,7 +124,14 @@ class TasksRepository {
             $clean = [];
             foreach ( $statuses as $s ) {
                 $s = (string) $s;
-                if ( in_array( $s, [ TaskStatus::OPEN, TaskStatus::IN_PROGRESS, TaskStatus::OVERDUE ], true ) ) {
+                // v3.110.110 — COMPLETED added to the whitelist so the
+                // inbox's status filter can surface completed tasks
+                // alongside the existing actionable trio (open /
+                // in_progress / overdue). Completed rows are rendered
+                // read-only by the view; nothing here changes their
+                // mutability — the form-render path is skipped at view
+                // time for completed status.
+                if ( in_array( $s, [ TaskStatus::OPEN, TaskStatus::IN_PROGRESS, TaskStatus::OVERDUE, TaskStatus::COMPLETED ], true ) ) {
                     $clean[] = $s;
                 }
             }
