@@ -1,3 +1,108 @@
+# TalentTrack v3.110.98 — Prospect dedup helper inline in the wizard; task detail view-only for non-assignees; kanban→task back-pill
+
+Three live-pilot fixes around the prospect-discovery / kanban-to-task flow. All three reported in one round of polish on the scout persona surface.
+
+## 1 — Identity step: inline existing-prospects list
+
+`IdentityStep` carries a checkbox: *"I have checked the existing prospects list — this is a new entry"*. The wizard never offered a way to actually see that list — scouts had to leave the wizard (losing in-flight state) and navigate to the kanban, which groups by stage rather than name.
+
+**Fix**: render a `<details>` collapsible above the checkbox:
+
+```html
+<details class="tt-prospect-dedupe">
+  <summary>Show existing prospects (N)</summary>
+  <div class="tt-table-wrap">
+    <table class="tt-table">
+      <thead>
+        <tr><th>First name</th><th>Last name</th><th>Club</th><th>Status</th></tr>
+      </thead>
+      <tbody>…all non-archived prospects, sorted by last+first, capped at 200…</tbody>
+    </table>
+  </div>
+</details>
+```
+
+Mobile-first per CLAUDE.md §2:
+
+- `<summary>` styled at 48px min-height + 14/16px padding = comfortable touch target.
+- `<div class="tt-table-wrap">` gives horizontal scroll at 360px without breaking layout.
+- `.tt-table` is already enqueued on the dashboard wrap that contains the wizard.
+- Native `<details>` handles tap interaction with no JS.
+
+Status column reuses the same simple precedence as `MyRecentProspectsSource::statusLabel()` — `promoted_to_trial_case_id` → **In trial**; `promoted_to_player_id` → **Joined**; otherwise **Active**.
+
+200-row cap is a UX choice, not a perf limit. Past that the inline pattern stops being useful and we'd build a dedicated search view (out of scope here).
+
+## 2 — Task detail view-only for non-assignees
+
+`FrontendTaskDetailView::render()` used to early-return with *"This task is not assigned to you."* whenever `$task['assignee_user_id'] !== $user_id`. Reported live: clicking an HoD-held task from the scout kanban dead-ended the user with no context.
+
+**Fix**: split assignee-vs-viewer paths. Everyone gets:
+
+- `<h1>` template name.
+- Template description.
+- `<dl class="tt-task-facts">` — three labelled facts:
+  - **Assigned to** → resolved via `get_userdata( $assignee_user_id )->display_name`. Falls back to *"unassigned"*.
+  - **Status** → Open / In progress / Overdue / Completed / Cancelled.
+  - **Due** → `wp_date( get_option('date_format'), strtotime($task['due_at']) )`.
+- Form rendered by the template's `FormInterface::render()` — same surface the assignee sees.
+
+Non-assignees additionally get:
+
+- An amber banner: *"You can view this task, but only the assignee can edit or complete it."*
+- The form wrapped in `<fieldset disabled>` so every interactive control is locked (native HTML, no JS).
+- No Submit button.
+- POST handler short-circuits — `$is_assignee && $_SERVER['REQUEST_METHOD'] === 'POST'` is the gate.
+
+Assignee path unchanged: form + Submit + POST handler as before.
+
+## 3 — Kanban → task carries `tt_back`
+
+`FrontendOnboardingPipelineView::cardUrl()` returned bare `?tt_view=my-tasks&task_id=N` (and equivalents for players / trial-case targets) with no `tt_back` parameter. The destination view's `← Back to Onboarding pipeline` pill never rendered — operator had only the breadcrumb chain to navigate back. CLAUDE.md §5's two-affordance contract was missing its second leg.
+
+**Fix**: every URL `cardUrl()` returns is now wrapped in `BackLink::appendTo()`:
+
+```php
+return BackLink::appendTo( add_query_arg(
+    [ 'tt_view' => 'my-tasks', 'task_id' => $task_id ],
+    RecordLink::dashboardUrl()
+) );
+```
+
+`BackLink::appendTo()` reads the current request URL and stamps it as `tt_back=<urlencoded>` on the outgoing link. The destination view's standard back-pill renderer (`BackLink::renderPill()`) picks it up and emits the pill.
+
+Two new entries in `BackLabelResolver::listLabel()`:
+
+- `onboarding-pipeline` → *"Back to Onboarding pipeline"*
+- `my-tasks` → *"Back to My tasks"*
+
+Without these the pill would have fallen back to the generic *"Back"* label.
+
+Scoped intentionally to the kanban. The dashboard `TaskListPanelWidget` (line 113) routes to the same task detail but its destination already shows a *"Dashboard > My tasks > Task"* breadcrumb chain — adding a redundant *"Back to Dashboard"* pill would clutter the surface. If we hit the same gap from that surface later, we can revisit.
+
+## Files
+
+- `src/Modules/Wizards/Prospect/IdentityStep.php` — new `renderExistingProspectsList()` + `statusLabel()` static helpers; checkbox label spacing increased to a 48px tap row
+- `src/Modules/Workflow/Frontend/FrontendTaskDetailView.php` — non-assignee branch removed; `$is_assignee` gate threaded through POST handling, form-wrap, and submit-button render; new `renderTaskFacts()` helper
+- `src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php` — `BackLink::appendTo()` wraps all 4 `cardUrl()` return paths; import added
+- `src/Shared/Frontend/Components/BackLabelResolver.php` — two new list labels (onboarding-pipeline, my-tasks)
+- `talenttrack.php` 3.110.97 → 3.110.98
+- `readme.txt`, `CHANGES.md`
+
+No schema. No migration. No new caps. No NL string sweep beyond the new strings the helpers emit (`Show existing prospects`, table headers, *"You can view this task…"*, assignee fact labels) — those land in the next i18n run per the auto-compile workflow.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.98.
+2. Open the new-prospect wizard from the scout hero. Identity step renders an *"Show existing prospects (N)"* expandable above the checkbox. Click → table shows all non-archived prospects sorted by last name.
+3. On a 360px-wide phone the same expandable opens; the table scrolls horizontally without breaking the wizard layout.
+4. Log out, log in as a scout. Open the onboarding-pipeline kanban. Click any card whose underlying task is assigned to the HoD.
+5. Task detail page shows template name, description, **Assigned to: <HoD name>**, status, due date. Form fields are visible but greyed out / non-interactive. Amber banner: *"You can view this task, but only the assignee can edit or complete it."* No Submit button.
+6. At the top of the page: breadcrumb *"Dashboard > Onboarding pipeline > <Task name>"* (Onboarding pipeline is clickable). Above it, *"← Back to Onboarding pipeline"* pill clickable.
+7. Log in as the HoD on the same task → form is editable, Submit visible, banner gone. Pill still shows because the kanban put `tt_back` in the URL.
+
+---
+
 # TalentTrack v3.110.97 — Activity detail page gains a "Continue rating" CTA; rate step filters out already-rated players (#0092)
 
 ## Why this exists

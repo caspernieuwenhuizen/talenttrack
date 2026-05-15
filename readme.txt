@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.97
+Stable tag: 3.110.98
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.98 — New-prospect wizard gains an inline existing-prospects list; task detail view-only for non-assignees; kanban → task carries `tt_back` =
+
+Three live-pilot fixes around the prospect-discovery flow. **(1) Wizard dedup helper:** the `Identity` step's "I have checked the existing prospects list" checkbox had nothing to check against — scouts had to leave the wizard and visit the kanban (losing wizard state) to look. Added a `<details>` collapsible above the checkbox with a four-column table (First / Last / Club / Status) of every non-archived prospect on the club, sorted alphabetically. Mobile-first per CLAUDE.md §2: `<summary>` is a 48px-min touch target, `.tt-table-wrap` gives horizontal scroll at 360px, capped at 200 rows. Status labels match the kanban (Active / In trial / Joined). **(2) Task detail view-only for non-assignees:** clicking a kanban card whose underlying task is held by someone else (typical scout-clicks-HoD-task case) used to hard-fail with "This task is not assigned to you." `FrontendTaskDetailView` now renders the task's facts (template name, description, assignee display name, status, due date) for everyone, and the form for the assignee only. A `<fieldset disabled>` wrap locks every form control for viewers; the Submit button + POST handler are skipped. Banner: "You can view this task, but only the assignee can edit or complete it." **(3) Kanban → task carries `tt_back`:** `FrontendOnboardingPipelineView::cardUrl()` wrapped every outgoing URL in `BackLink::appendTo()` so the destination view emits the `← Back to Onboarding pipeline` pill (CLAUDE.md §5's second affordance). New entries in `BackLabelResolver::listLabel()` for the `onboarding-pipeline` and `my-tasks` views so the pill reads in operator language.
 
 = 3.110.97 — Activity detail page gains a "Continue rating" CTA; rate step now filters out already-rated players to avoid duplicate eval rows (#0092) =
 
