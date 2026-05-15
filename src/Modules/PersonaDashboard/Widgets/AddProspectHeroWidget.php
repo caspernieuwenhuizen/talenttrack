@@ -77,12 +77,17 @@ class AddProspectHeroWidget extends AbstractWidget {
         $title   = __( 'Log a scouting find', 'talenttrack' );
         $detail  = self::detailLine( $stats );
 
+        $visits_url = $ctx->viewUrl( 'scouting-visits' );
+
         $inner = '<div class="tt-pd-hero-eyebrow">' . esc_html( $eyebrow ) . '</div>'
             . '<div class="tt-pd-hero-title">' . esc_html( $title ) . '</div>'
             . '<div class="tt-pd-hero-detail">' . esc_html( $detail ) . '</div>'
             . '<div class="tt-pd-hero-cta-row">'
             . '<a class="tt-pd-cta tt-pd-cta-primary" href="' . esc_url( $wizard_url ) . '">'
             . esc_html__( '+ Scouting find', 'talenttrack' )
+            . '</a>'
+            . '<a class="tt-pd-hero-secondary" href="' . esc_url( $visits_url ) . '">'
+            . esc_html__( 'Plan visits →', 'talenttrack' )
             . '</a>'
             . '</div>';
         return $this->wrap( $slot, $inner, 'hero hero-add-prospect' );

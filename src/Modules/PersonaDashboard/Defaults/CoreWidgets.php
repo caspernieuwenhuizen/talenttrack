@@ -24,6 +24,7 @@ use TT\Modules\PersonaDashboard\Widgets\MiniPlayerListWidget;
 use TT\Modules\PersonaDashboard\Widgets\NavigationTileWidget;
 use TT\Modules\PersonaDashboard\Widgets\OnboardingPipelineWidget;
 use TT\Modules\PersonaDashboard\Widgets\QuickActionsPanelWidget;
+use TT\Modules\PersonaDashboard\Widgets\ScoutingPlanWidget;
 use TT\Modules\PersonaDashboard\Widgets\RateCardHeroWidget;
 use TT\Modules\PersonaDashboard\Widgets\RecentCommentsWidget;
 use TT\Modules\PersonaDashboard\Widgets\SystemHealthStripWidget;
@@ -70,6 +71,11 @@ final class CoreWidgets {
         // Replaces `assigned_players_grid` as the scout hero in
         // `CoreTemplates::scout()`.
         WidgetRegistry::register( new AddProspectHeroWidget() );
+
+        // v3.110.119 — scouting plan widget. Shows the next 5 planned
+        // scouting visits for the current scout. Pairs with the new
+        // `?tt_view=scouting-visits` list / detail surfaces.
+        WidgetRegistry::register( new ScoutingPlanWidget() );
 
         // v3.110.69 (#0092) — head-coach dashboard hero. One-tap entry
         // into the new mark-attendance wizard with the next activity

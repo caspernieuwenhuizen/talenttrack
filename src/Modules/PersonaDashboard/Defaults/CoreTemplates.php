@@ -258,13 +258,20 @@ final class CoreTemplates {
         $grid->add( new WidgetSlot(
             'navigation_tile', 'scout-my-players', Size::S, 3, 1, 1, 11, true, __( 'My assigned players', 'talenttrack' )
         ) );
+        // v3.110.119 — scouting plan widget. Surfaces the next 5
+        // planned scouting visits so the scout can land on the
+        // dashboard and immediately see what's coming up.
+        $grid->add( new WidgetSlot(
+            'scouting_plan', '', Size::XL, 0, 2, 2, 18
+        ) );
         // v3.110.78 — was `recent_scout_reports` (PDF-export artifact,
         // gated on `tt_generate_scout_report` which scouts don't have).
         // Swapped to `my_recent_prospects` so the table reflects the
         // scout's actual recent activity and Show-all lands on the
-        // pipeline they own.
+        // pipeline they own. Shifted to y=3 in v3.110.119 to make room
+        // for scouting_plan above.
         $grid->add( new WidgetSlot(
-            'data_table', 'my_recent_prospects', Size::XL, 0, 2, 2, 20
+            'data_table', 'my_recent_prospects', Size::XL, 0, 3, 2, 20
         ) );
         return new PersonaTemplate(
             'scout',
