@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.110
+Stable tag: 3.110.111
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.111 — PDP list ack columns relabelled to "confirmation" (operator vocabulary) =
+
+Follow-up to v3.110.110. The "Parent ack" / "Player ack" column headers (plus aria-labels + tooltips) leaked the developer shorthand for `parent_ack_at` / `player_ack_at` into the user-facing label. The pilot's original ask used "confirmation" — that's the vocabulary the columns should carry. Renamed both columns + their accessibility strings. No data model change; underlying field names remain `parent_ack_at` / `player_ack_at` in `tt_pdp_conversations`.
 
 = 3.110.110 — Cross-cutting polish round 2: My Tasks completed filter, PDP wizard player picker + list FrontendListTable + ack columns + back pill + status pill + Dutch typos, players list parent column removed =
 

@@ -1,3 +1,37 @@
+# TalentTrack v3.110.111 — PDP list ack columns relabelled to "confirmation" (operator vocabulary)
+
+Tiny follow-up to v3.110.110. The new Parent ack / Player ack column headers (plus their aria-labels + tooltips) leaked the developer shorthand for the underlying `parent_ack_at` / `player_ack_at` timestamps into the user-facing label. The pilot's original ask used "confirmation" ("which **confirmation** has been received"); the columns should carry that vocabulary, not `ack`.
+
+## Diff
+
+`src/Modules/Pdp/Frontend/FrontendPdpManageView.php`:
+
+```diff
+-'parent_ack' => [ 'label' => __( 'Parent ack', 'talenttrack' ), ... ],
+-'player_ack' => [ 'label' => __( 'Player ack', 'talenttrack' ), ... ],
++'parent_ack' => [ 'label' => __( 'Parent confirmation', 'talenttrack' ), ... ],
++'player_ack' => [ 'label' => __( 'Player confirmation', 'talenttrack' ), ... ],
+```
+
+`src/Modules/Pdp/Rest/PdpFilesRestController.php`:
+
+```diff
+-$parent_ack_html = self::ack_checkmark( $parent_ack, __( 'Parent acknowledgement', 'talenttrack' ) );
+-$player_ack_html = self::ack_checkmark( $player_ack, __( 'Player acknowledgement', 'talenttrack' ) );
++$parent_ack_html = self::ack_checkmark( $parent_ack, __( 'Parent confirmation', 'talenttrack' ) );
++$player_ack_html = self::ack_checkmark( $player_ack, __( 'Player confirmation', 'talenttrack' ) );
+```
+
+The data model is untouched — `tt_pdp_conversations.parent_ack_at` / `player_ack_at` columns remain. The variable / method names in the REST controller (`$parent_ack`, `format_list_row()`'s `'parent_ack' =>`, `ack_checkmark()`) also stay as developer-side shorthand; only the **user-facing strings** (column labels, tooltip text, aria-labels) carry "confirmation".
+
+## How to test
+
+1. Visit `?tt_view=pdp`.
+2. Confirm the two columns read **Parent confirmation** and **Player confirmation** (not "Parent ack" / "Player ack").
+3. Hover the checkmark: tooltip / screen-reader label reads "Parent confirmation received" or "Parent confirmation not yet received" accordingly.
+
+---
+
 # TalentTrack v3.110.110 — Cross-cutting polish round 2: My Tasks completed filter, PDP wizard player picker + list FrontendListTable + ack columns + back pill + status pill + Dutch typos, players list parent column removed
 
 Seven pilot-surfaced items across four surfaces. Bundled in one ship because each surface is independently testable — splitting into 7 ships would force 7 verification cycles where the surfaces don't share code.
