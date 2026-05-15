@@ -1,4 +1,142 @@
-# TalentTrack v3.110.109 — Dashboard layout editor — drag-and-drop fix: "not allowed" cursor + silent drop rejection
+# TalentTrack v3.110.110 — Cross-cutting polish round 2: My Tasks completed filter, PDP wizard player picker + list FrontendListTable + ack columns + back pill + status pill + Dutch typos, players list parent column removed
+
+Seven pilot-surfaced items across four surfaces. Bundled in one ship because each surface is independently testable — splitting into 7 ships would force 7 verification cycles where the surfaces don't share code.
+
+## (1) Dutch translation typos — 3× `OPP` → `POP`
+
+`languages/talenttrack-nl_NL.po` — every PDP-related `msgstr` in the file translates the term as "POP" (Persoonlijk Ontwikkelings Plan) — except three:
+
+```diff
+ msgid "Back to PDPs"
+-msgstr "Terug naar OPP's"
++msgstr "Terug naar POP's"
+
+ msgid "Back to PDP planning"
+-msgstr "Terug naar OPP-planning"
++msgstr "Terug naar POP-planning"
+
+ msgid "%s's PDP"
+-msgstr "OPP van %s"
++msgstr "POP van %s"
+```
+
+The third one was the specific entry the pilot flagged ("terug naar OPP van speler"). Search now returns zero `OPP` occurrences in the Dutch .po file.
+
+## (2) Players list — Parent column dropped
+
+`FrontendPlayersManageView::renderList()` — the Parent column rendered a truncated single-name cell that duplicated data already reachable via the player detail page's Family tab (where it has full context: parent name + role + relationship). Pilot ask: "Parent column in table can be removed." Removed from the `FrontendListTable` columns config; REST endpoint unchanged.
+
+## (3) My Tasks — Completed filter option
+
+`FrontendMyTasksView::renderFilters()` gained a `Completed (read-only)` option in the status dropdown. When picked, the inbox flips into history view:
+
+- Rows render with no checkbox / snooze / open buttons (the existing `renderRow($task, true)` read-only branch).
+- Bulk-action bar suppressed (no `<form>` wrapper around the list).
+- The bottom-of-page "Recently completed" section is folded into the main list — the filter IS the history view.
+
+`TasksRepository::listActionableForUser()`'s status whitelist extended to allow `TaskStatus::COMPLETED`. The view detects `$filters['status'] === ['completed']` and switches modes accordingly.
+
+## (4) PDP create form — team + player dropdown cascade
+
+Pilot ask: "new POP wizard does not have the right playerpicker component. It shows a team dropdown, that is correct but it should also show a player dropdown that gets updated by the selected team in the team dropdown."
+
+`FrontendPdpManageView::renderCreateForm()` used `PlayerSearchPickerComponent` (type-to-search input + result list). Replaced with two side-by-side `<select>` dropdowns:
+
+```html
+<select id="tt-pdp-team-filter" data-tt-pdp-team-filter>
+    <option value="0">All teams</option>
+    ... per team
+</select>
+<select id="tt-pdp-player-picker" name="player_id" required data-tt-pdp-player-picker>
+    <option value="">— Select a player —</option>
+    <option value="123" data-team-id="45">Jane Smith</option>
+    ...
+</select>
+<script>
+    // On team change → hide player options whose data-team-id doesn't match.
+    // "All teams" (value 0) unhides everything. Current selection preserved
+    // when valid; otherwise reset to placeholder.
+</script>
+```
+
+The search picker remains the right call for surfaces with hundreds of options (scout pages, FrontendComparisonView, FrontendRateCardsView) — the PDP create form's eligible-player roster is typically small (a single team's worth) and a dropdown is faster than typing.
+
+Pre-fills preserved: `?team_id=N` selects the team dropdown; `?player_id=N` selects the player dropdown AND back-fills the team filter from the player's team membership.
+
+## (5) PDP list table — FrontendListTable parity
+
+Pilot ask: "The table list POP is not using the same formatting as the standard used in goals list page."
+
+`FrontendPdpManageView::renderList()` — hand-rolled `<table class="tt-list-table-table tt-table-sortable">` replaced with `FrontendListTable::render()`:
+
+```php
+FrontendListTable::render( [
+    'rest_path' => 'pdp-files',
+    'columns' => [
+        'player_name' => [ ..., 'render' => 'html', 'value_key' => 'player_link_html' ],
+        'team_name'   => [ ..., 'render' => 'html', 'value_key' => 'team_link_html' ],
+        'status'      => [ ..., 'render' => 'html', 'value_key' => 'status_pill_html' ],
+        'cycle_size'  => [ ..., 'sortable' => true ],
+        'parent_ack'  => [ ..., 'render' => 'html', 'value_key' => 'parent_ack_html' ],
+        'player_ack'  => [ ..., 'render' => 'html', 'value_key' => 'player_ack_html' ],
+        'updated_at'  => [ ..., 'render' => 'date' ],
+    ],
+    'filters' => [
+        'team_id'   => [ 'type' => 'select', ... ],
+        'player_id' => [ 'type' => 'select', ... ],
+        'status'    => [ 'type' => 'select', 'options' => [open/completed/archived] ],
+    ],
+    'search'       => [ 'placeholder' => __( 'Search player…', ... ) ],
+    'default_sort' => [ 'orderby' => 'updated_at', 'order' => 'desc' ],
+] );
+```
+
+REST end — `PdpFilesRestController::list()` rewritten to the FrontendListTable contract (matches `GoalsRestController` / `EvaluationsRestController`):
+
+- Reads `filter[team_id]`, `filter[player_id]`, `filter[status]`, `search`, `orderby` (whitelisted: `player_name | team_name | status | cycle_size | updated_at`), `order`, `page`, `per_page`.
+- Returns the standard `{rows, total, page, per_page}` envelope.
+- Each row is pre-formatted with HTML link cells + checkmark HTML for the ack columns.
+- Coach-scoping preserved (non-global users see only their own owner_coach_id files); legacy `?season_id=N` still honoured.
+
+"+ Open new PDP file" CTA moved into the page-header actions slot for parity with the goals + evaluations pages.
+
+## (6) PDP list — parent / player ack checkmark columns
+
+Pilot ask: "in the table list it should be more clear which confirmation has been received. Use a grey checkmark if not received and a green checkmark when received."
+
+Two new columns on the list: **Parent ack** and **Player ack**. Each cell renders a 16×16 inline SVG checkmark:
+
+- Slate-grey (`#94a3b8`) when not received.
+- Green (`#16a34a`) when received.
+
+Roll-up rule: "received" = at least one conversation in the file has the corresponding `*_ack_at` timestamp set. Computed via correlated subqueries on `tt_pdp_conversations` in the REST list query, so no N+1. Per-conversation acks remain visible on the file detail page (where they retain the per-row 👤/⚽ glyphs alongside conversation context).
+
+The SVG uses `currentColor` for the path fill with a per-state inline `color:` so it respects user dark/light themes; `aria-label` + `title` carry the localised "Parent acknowledgement received" / "not yet received" message for screen readers.
+
+## (7) PDP file detail — status pill + back pill
+
+Two polish items.
+
+**Status pill rounded edges.** The status row on the summary card rendered as plain text (`Status: Open`). Converged onto `LookupPill::render( 'pdp_status', $file->status, $label )` — same rounded-pill chrome as the list view, same colour vocabulary every other status in the app uses (activity status, goal status, attendance status).
+
+**Back-pill standard compliance.** Pilot ask: "There is no back button as defined in standards." The breadcrumb chain (`Dashboard / PDP / PDP file detail`) was already correct, but the `tt_back` pill above it didn't render because the list-row "Open" buttons that previously linked to the detail did NOT append `tt_back`. With the FrontendListTable refactor (item 5), the row navigation now goes through `BackLink::appendTo()` in `PdpFilesRestController::format_list_row()`, so the destination URL carries `tt_back=<list URL>` and `FrontendBreadcrumbs::fromDashboard()` auto-renders the `← Back to PDP` pill above the breadcrumb chain (per CLAUDE.md §5).
+
+## How to test
+
+**Players list** (`?tt_view=players`):
+- Confirm: no **Parent** column. Other columns unchanged.
+
+**My Tasks** (`?tt_view=my-tasks`):
+- Status filter dropdown now includes a `Completed (read-only)` option.
+- Pick it → page shows completed tasks only, no checkboxes, no snooze, no Open buttons, no bulk-action bar.
+
+**PDP** (`?tt_view=pdp`):
+1. Pilot's Dutch typo: navigate to a PDP detail page from a player profile (or any page that carries `tt_back` with the "PDP" label). Back-pill reads `← Terug naar POP's` (not "OPP's"). Page title reads `POP van <name>` (not "OPP").
+2. List page (`?tt_view=pdp`): shows filters Team / Player / Status / search input above a sortable / paginated table. **Parent ack** + **Player ack** columns visible — grey checkmark when nothing has been ack'd in the file, green when at least one conversation has been ack'd. Click column headers → re-sort. Click a row → detail page; back-pill `← Back to PDP` visible.
+3. Detail page status: rounded pill in `pdp_status` colour palette (not plain text).
+4. `+ Open new PDP file` (page header) → form shows **Team** dropdown side-by-side with **Player** dropdown. Pick a team → Player dropdown narrows to that team's roster. "All teams" → all eligible players visible.
+
+= 3.110.109 — Dashboard layout editor — drag-and-drop fix "not allowed" cursor + silent drop rejection
 
 ## Pilot symptom
 

@@ -63,28 +63,211 @@ class PdpFilesRestController {
         return current_user_can( 'tt_edit_pdp' );
     }
 
-    /** GET /pdp-files — coach sees own players' files; admin sees all. */
+    /**
+     * Whitelist for the `orderby` query param. v3.110.110 — added so
+     * FrontendListTable's clickable sort headers can request a column.
+     */
+    private const ORDERBY_WHITELIST = [
+        'player_name'  => 'pl.last_name',
+        'team_name'    => 't.name',
+        'status'       => 'f.status',
+        'cycle_size'   => 'f.cycle_size',
+        'updated_at'   => 'f.updated_at',
+    ];
+
+    /**
+     * GET /pdp-files — coach sees own players' files; admin sees all.
+     *
+     * v3.110.110 — rewritten to the FrontendListTable contract (matches
+     * GoalsRestController / EvaluationsRestController). Accepts
+     * `filter[team_id]`, `filter[player_id]`, `filter[status]`,
+     * `search`, `orderby`, `order`, `page`, `per_page`. Returns the
+     * standard `{rows, total, page, per_page}` envelope. Rows are
+     * pre-formatted with HTML link cells (player / team click-through)
+     * and per-file parent/player ack rollups for the FrontendPdpManageView
+     * list table. Coach-scoping preserved via the `listForCoach` /
+     * `listForSeason` repository methods replaced by a unified SQL
+     * query here (the repo methods returned raw rows; FrontendListTable
+     * needs paginated joined output).
+     */
     public static function list( \WP_REST_Request $r ): \WP_REST_Response {
+        global $wpdb; $p = $wpdb->prefix;
+
         $season_id = absint( $r['season_id'] ?? 0 );
         if ( $season_id <= 0 ) {
             $current = ( new SeasonsRepository() )->current();
             $season_id = $current ? (int) $current->id : 0;
         }
         if ( $season_id <= 0 ) {
-            return RestResponse::success( [ 'rows' => [], 'season_id' => 0 ] );
+            return RestResponse::success( [ 'rows' => [], 'total' => 0, 'page' => 1, 'per_page' => 25 ] );
         }
 
-        $repo = new PdpFilesRepository();
-        if ( self::hasGlobalPdpAccess( 'read' ) ) {
-            $rows = $repo->listForSeason( $season_id );
-        } else {
-            $rows = $repo->listForCoach( get_current_user_id(), $season_id );
+        $page     = max( 1, absint( $r['page'] ?? 1 ) );
+        $per_page = self::clamp_per_page( $r['per_page'] ?? 25 );
+        $offset   = ( $page - 1 ) * $per_page;
+
+        $orderby_key = sanitize_key( (string) ( $r['orderby'] ?? 'updated_at' ) );
+        if ( ! isset( self::ORDERBY_WHITELIST[ $orderby_key ] ) ) $orderby_key = 'updated_at';
+        $orderby = self::ORDERBY_WHITELIST[ $orderby_key ];
+        $order   = strtolower( (string) ( $r['order'] ?? ( $orderby_key === 'updated_at' ? 'desc' : 'asc' ) ) );
+        if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'desc';
+
+        $where  = [ 'f.club_id = %d', 'f.season_id = %d' ];
+        $params = [ \TT\Infrastructure\Tenancy\CurrentClub::id(), $season_id ];
+
+        if ( ! self::hasGlobalPdpAccess( 'read' ) ) {
+            $where[]  = 'f.owner_coach_id = %d';
+            $params[] = get_current_user_id();
         }
+
+        $filter = is_array( $r['filter'] ?? null ) ? (array) $r['filter'] : [];
+        if ( ! empty( $filter['team_id'] ) ) {
+            $where[]  = 'pl.team_id = %d';
+            $params[] = absint( $filter['team_id'] );
+        }
+        if ( ! empty( $filter['player_id'] ) ) {
+            $where[]  = 'f.player_id = %d';
+            $params[] = absint( $filter['player_id'] );
+        }
+        if ( ! empty( $filter['status'] ) ) {
+            $where[]  = 'f.status = %s';
+            $params[] = sanitize_text_field( (string) $filter['status'] );
+        }
+        if ( ! empty( $r['search'] ) ) {
+            $like     = '%' . $wpdb->esc_like( (string) $r['search'] ) . '%';
+            $where[]  = '(pl.first_name LIKE %s OR pl.last_name LIKE %s)';
+            $params[] = $like; $params[] = $like;
+        }
+
+        $where_sql = implode( ' AND ', $where );
+
+        // Aggregate parent/player ack across the file's conversations.
+        // The list view renders one rollup checkmark per file —
+        // "received" = at least one conversation has the ack set.
+        // Per-conversation acks remain visible on the file detail page.
+        $list_sql = "SELECT f.id, f.player_id, f.season_id, f.owner_coach_id, f.cycle_size, f.status, f.notes, f.updated_at,
+                            pl.first_name, pl.last_name, pl.team_id,
+                            t.name AS team_name,
+                            (SELECT MAX(c.parent_ack_at IS NOT NULL)
+                               FROM {$p}tt_pdp_conversations c
+                              WHERE c.pdp_file_id = f.id) AS has_parent_ack,
+                            (SELECT MAX(c.player_ack_at IS NOT NULL)
+                               FROM {$p}tt_pdp_conversations c
+                              WHERE c.pdp_file_id = f.id) AS has_player_ack
+                       FROM {$p}tt_pdp_files f
+                       LEFT JOIN {$p}tt_players pl ON pl.id = f.player_id
+                       LEFT JOIN {$p}tt_teams   t  ON t.id  = pl.team_id
+                      WHERE {$where_sql}
+                      ORDER BY {$orderby} {$order}, f.id DESC
+                      LIMIT %d OFFSET %d";
+
+        $list_params = array_merge( $params, [ $per_page, $offset ] );
+        $rows        = $wpdb->get_results( $wpdb->prepare( $list_sql, ...$list_params ) );
+
+        $count_sql = "SELECT COUNT(*)
+                        FROM {$p}tt_pdp_files f
+                        LEFT JOIN {$p}tt_players pl ON pl.id = f.player_id
+                        LEFT JOIN {$p}tt_teams   t  ON t.id  = pl.team_id
+                       WHERE {$where_sql}";
+        $total = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) );
 
         return RestResponse::success( [
-            'rows'      => array_map( [ __CLASS__, 'format_file' ], $rows ),
+            'rows'      => array_map( [ __CLASS__, 'format_list_row' ], $rows ?: [] ),
+            'total'     => $total,
+            'page'      => $page,
+            'per_page'  => $per_page,
             'season_id' => $season_id,
         ] );
+    }
+
+    private static function clamp_per_page( $value ): int {
+        $n = absint( $value );
+        if ( ! in_array( $n, [ 10, 25, 50, 100 ], true ) ) return 25;
+        return $n;
+    }
+
+    /**
+     * v3.110.110 — list-row shape for FrontendListTable. Includes
+     * pre-rendered link HTML for player/team cells and grey/green
+     * checkmark HTML for the parent/player ack columns (pilot ask:
+     * "use a grey checkmark if not received and a green checkmark
+     * when received").
+     *
+     * @param object $row joined query result
+     * @return array<string,mixed>
+     */
+    private static function format_list_row( $row ): array {
+        $file_id   = (int) $row->id;
+        $player_id = (int) $row->player_id;
+        $team_id   = (int) ( $row->team_id ?? 0 );
+        $first     = (string) ( $row->first_name ?? '' );
+        $last      = (string) ( $row->last_name ?? '' );
+        $player_name = trim( $first . ' ' . $last );
+        if ( $player_name === '' ) $player_name = '#' . $player_id;
+        $team_name = (string) ( $row->team_name ?? '' );
+
+        $detail_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+            [ 'tt_view' => 'pdp', 'id' => $file_id ],
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+        ) );
+
+        $player_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+            $player_name,
+            \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', $player_id )
+        );
+
+        $team_link_html = '—';
+        if ( $team_id > 0 && $team_name !== '' ) {
+            $team_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+                $team_name,
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', $team_id )
+            );
+        }
+
+        $status        = (string) ( $row->status ?? '' );
+        $status_pill_html = \TT\Infrastructure\Query\LookupPill::render( 'pdp_status', $status );
+
+        $parent_ack = ! empty( $row->has_parent_ack );
+        $player_ack = ! empty( $row->has_player_ack );
+        $parent_ack_html = self::ack_checkmark( $parent_ack, __( 'Parent acknowledgement', 'talenttrack' ) );
+        $player_ack_html = self::ack_checkmark( $player_ack, __( 'Player acknowledgement', 'talenttrack' ) );
+
+        return [
+            'id'               => $file_id,
+            'player_id'        => $player_id,
+            'player_name'      => $player_name,
+            'player_link_html' => $player_link_html,
+            'team_id'          => $team_id,
+            'team_name'        => $team_name,
+            'team_link_html'   => $team_link_html,
+            'status'           => $status,
+            'status_pill_html' => $status_pill_html,
+            'cycle_size'       => $row->cycle_size !== null ? (int) $row->cycle_size : null,
+            'parent_ack'       => $parent_ack,
+            'parent_ack_html'  => $parent_ack_html,
+            'player_ack'       => $player_ack,
+            'player_ack_html'  => $player_ack_html,
+            'updated_at'       => (string) ( $row->updated_at ?? '' ),
+            'detail_url'       => $detail_url,
+        ];
+    }
+
+    /**
+     * v3.110.110 — checkmark glyph for the ack columns. Grey when not
+     * received, green when received. Single inline-SVG so it renders
+     * accessibly without a webfont and respects user dark/light themes
+     * via `currentColor`.
+     */
+    private static function ack_checkmark( bool $received, string $aria_label ): string {
+        $colour = $received ? '#16a34a' : '#94a3b8'; // green-600 / slate-400
+        $title  = $received
+            ? sprintf( /* translators: %s = parent / player */ __( '%s received', 'talenttrack' ), $aria_label )
+            : sprintf( /* translators: %s = parent / player */ __( '%s not yet received', 'talenttrack' ), $aria_label );
+        return '<span title="' . esc_attr( $title ) . '" aria-label="' . esc_attr( $title ) . '" style="display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px;">'
+             . '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" style="color:' . esc_attr( $colour ) . ';">'
+             . '<path fill="currentColor" d="M6.173 11.207 3.207 8.241l1.06-1.06 1.906 1.905 4.56-4.56 1.06 1.06z"/>'
+             . '</svg>'
+             . '</span>';
     }
 
     /**
