@@ -145,8 +145,8 @@ class FrontendPdpManageView extends FrontendViewBase {
                 'team_name'   => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
                 'status'      => [ 'label' => __( 'Status', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'status_pill_html' ],
                 'cycle_size'  => [ 'label' => __( 'Cycle',  'talenttrack' ), 'sortable' => true ],
-                'parent_ack'  => [ 'label' => __( 'Parent ack', 'talenttrack' ), 'render' => 'html', 'value_key' => 'parent_ack_html' ],
-                'player_ack'  => [ 'label' => __( 'Player ack', 'talenttrack' ), 'render' => 'html', 'value_key' => 'player_ack_html' ],
+                'parent_ack'  => [ 'label' => __( 'Parent confirmation', 'talenttrack' ), 'render' => 'html', 'value_key' => 'parent_ack_html' ],
+                'player_ack'  => [ 'label' => __( 'Player confirmation', 'talenttrack' ), 'render' => 'html', 'value_key' => 'player_ack_html' ],
                 'updated_at'  => [ 'label' => __( 'Updated', 'talenttrack' ), 'sortable' => true, 'render' => 'date' ],
             ],
             'filters' => [
