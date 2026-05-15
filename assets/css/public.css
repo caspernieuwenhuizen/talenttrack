@@ -683,6 +683,23 @@ body.tt-docs-drawer-open { overflow: hidden; }
 .tt-form-row input:focus, .tt-form-row select:focus, .tt-form-row textarea:focus { outline: none; border-color: var(--tt-primary, #0b3d2e); }
 .tt-range-hint { color: var(--tt-muted); font-size: 0.8rem; font-family: "Helvetica Neue", Arial, sans-serif; }
 
+/* v3.110.105 — sub-category form row (used in CoachForms::renderEvalForm
+   when an evaluation category has sub-categories). Indents the row
+   below its main, dims the label so the hierarchy reads at a glance.
+   Mirrors the wizard's `.tt-rate-row--sub` treatment in the inline
+   FrontendWizardView stylesheet. */
+.tt-form-row.tt-form-row--sub {
+    margin-bottom: 0.55rem;
+}
+.tt-form-row.tt-form-row--sub label {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    color: var(--tt-muted, #5f6368);
+    padding-left: 16px;
+}
+
 /* #0056 — site-wide `touch-action: manipulation` for the most-tapped
    classes. Kills the 300ms tap delay + accidental double-tap zoom. */
 .tt-btn, .tt-btn-sm, .tt-tab, .tt-tile, .tt-pager-link,

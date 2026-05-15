@@ -1,4 +1,4 @@
-# TalentTrack v3.110.105 — Player profile tabs as sortable tables; attendance status pills colour-coded
+# TalentTrack v3.110.106 — Player profile tabs as sortable tables; attendance status pills colour-coded
 
 Two operator-requested polish items on the player profile page.
 
@@ -55,14 +55,14 @@ The activities pill colour-coding only pays off once the row actually surfaces t
 
 - `src/Shared/Frontend/FrontendPlayerDetailView.php` — 5 tab render methods rewritten (renderGoalsTab, renderEvaluationsTab, renderActivitiesTab, renderPdpTab, renderTrialsTab)
 - **New** `database/migrations/0093_seed_attendance_status_colors.php`
-- `talenttrack.php` 3.110.104 → 3.110.105 (renumbered after parallel ship took 3.110.104)
+- `talenttrack.php` 3.110.105 → 3.110.106 (renumbered twice after parallel ships took 3.110.104 and 3.110.105)
 - `readme.txt`, `CHANGES.md`
 
 No new caps. No new strings. The 5 attendance-status names (Present / Absent / Late / Injured / Excused) already have NL translations from migration 0060. Column headers (Goal / Status / Deadline / Activity / Attendance / Date / Created / Start / End) are common strings already in the .po.
 
 ## How to verify
 
-1. Refresh the plugin to v3.110.105. Migration 0093 runs once on activate.
+1. Refresh the plugin to v3.110.106. Migration 0093 runs once on activate.
 2. Open any player profile and click through the tabs:
    - **Goals** — rendered as a 3-col sortable table (Goal / Status / Deadline). Click a column header to sort.
    - **Evaluations** — 1- or 2-col sortable table (Date, plus a Delete column for users with `tt_edit_evaluations`). Delete still fades the row.
@@ -70,6 +70,87 @@ No new caps. No new strings. The 5 attendance-status names (Present / Absent / L
    - **PDP** — 2-col sortable table (Status / Created).
    - **Trials** — 3-col sortable table (Status / Start / End).
 3. Operators with custom attendance statuses (e.g. "Probation", "Sick") see the canonical 5 coloured + their custom rows still grey (or whatever they set in the lookups admin).
+
+---
+
+# TalentTrack v3.110.105 — Evaluation edit form: Type pre-fills (with legacy back-fill from activity); sub-category ratings render and edit inline (#0092)
+
+Group 3 of the evaluation-flow polish pass. Two pilot-surfaced gaps on the edit form.
+
+## (1) Type dropdown always rendered blank
+
+Pilot: *"when clicking the edit button, the type is empty. This should not be the case and if the evaluation is triggered from the mark attendance (and rating) for activity widget/wizard it should be filled with the activity type from that context."*
+
+The edit form already read `$existing_eval->eval_type_id` for its `<option selected>` lookup — but every evaluation written by the mark-attendance wizard's `RateActorsStep` → `ReviewStep` → `EvaluationInserter::insert()` chain landed in `tt_evaluations` with `eval_type_id = NULL`, because the inserter never accepted nor derived the field. So opening any wizard-written eval for edit showed Type as blank.
+
+### Fix on the write path
+
+`EvaluationInserter::insert()` now reads `eval_type_id` from the payload and writes it to the row when present. When the caller doesn't supply one AND there's an `activity_id`, the inserter derives the type from the activity's `activity_type_key`:
+
+```php
+public static function evalTypeIdForActivity( int $activity_id ): int {
+    // SELECT activity_type_key FROM tt_activities WHERE id = ?
+    // SELECT id FROM tt_lookups
+    //  WHERE lookup_type='eval_type' AND name=<activity_type_key>
+    // Returns the eval_type lookup id, or 0 if no match.
+}
+```
+
+The two lookup vocabularies (`activity_type` and `eval_type`) are seeded with overlapping names (`training` / `game` / etc.), so when an operator has both set up the auto-attach Just Works. When the vocabularies don't line up the column stays null — same end state as today, no regression.
+
+### Fix on the read path (legacy back-fill)
+
+`CoachForms::renderEvalForm` calls the same helper when the existing row has `eval_type_id = 0` but `activity_id > 0`:
+
+```php
+if ( $is_edit && $cur_type_id <= 0 ) {
+    $existing_aid = (int) ( $existing_eval->activity_id ?? 0 );
+    if ( $existing_aid > 0 ) {
+        $cur_type_id = EvaluationInserter::evalTypeIdForActivity( $existing_aid );
+    }
+}
+```
+
+The dropdown pre-selects the derived type; if the coach hits Save without changing anything, the value persists. Closes the loop on every legacy mark-attendance-wizard eval. `loadEvaluation` extended to also return `activity_id` for this path.
+
+## (2) Sub-category ratings invisible on edit
+
+The form's ratings section iterated `QueryHelpers::get_categories()` — which returns the legacy flat shape (mains only). Sub-category ratings written by the wizard's `RateActorsStep` deep-rate inputs (each carries `data-tt-rate-sub-parent`) were persisted to `tt_eval_ratings` keyed by their own `category_id`, but the edit form had no way to surface them: no input rendered → no value to read → coach couldn't see or update the sub ratings.
+
+**Fix**: after each main-category row, the form calls `EvalCategoriesRepository::getChildren( $cat_id )` and renders each sub as a sibling `<div class="tt-form-row tt-form-row--sub">` with the same numeric input the main row uses. Pre-fill comes from `$existing_ratings` which already keys by `category_id` (mains + subs in one map).
+
+Markup:
+
+```html
+<div class="tt-form-row">
+  <label>Technical *</label>
+  <input type="number" name="ratings[1]" value="4" />
+  <span class="tt-range-hint">(1–5)</span>
+</div>
+<div class="tt-form-row tt-form-row--sub">
+  <label>↳ Short pass</label>
+  <input type="number" name="ratings[5]" value="3" />
+  <span class="tt-range-hint">(1–5)</span>
+</div>
+<div class="tt-form-row tt-form-row--sub">
+  <label>↳ Long pass</label>
+  <input type="number" name="ratings[6]" value="" />
+  <span class="tt-range-hint">(1–5)</span>
+</div>
+```
+
+`.tt-form-row--sub` in `public.css` indents the label 16px, drops the bold/uppercase treatment, and shrinks the font to `0.72rem` so the hierarchy reads at a glance. Same visual language as the wizard's `.tt-rate-row--sub`.
+
+REST side unchanged — `EvaluationsRestController::write_ratings()` already accepts any valid `category_id` in the `ratings[]` array, so sub IDs round-trip fine. Sub rows are non-required (`required` only applied to mains, and only in create mode — preserves the v3.110.66 either-or-neither model).
+
+## How to verify
+
+1. Open an evaluation that was created via the mark-attendance wizard (has `activity_id` but no `eval_type_id` on disk). Click Edit.
+2. Type dropdown is pre-selected with the activity's matching eval-type (e.g. `Training` for a training activity, `Match performance` for a `game`). Was blank pre-v3.110.105.
+3. Hit Save without changing anything → re-open → Type stays populated (the back-fill persisted via the form submit).
+4. Below each main-category rating input there are now sub-category inputs labeled `↳ <sub name>`. Existing sub ratings show their saved values; un-rated subs show empty.
+5. Type a value in a sub input, hit Save → reload Edit → value persists.
+6. Sanity: a fresh evaluation created via `+ New evaluation` shows blank Type initially (no activity context to derive from); coach picks one. Sub-cat inputs render but stay empty until the coach types.
 
 ---
 
