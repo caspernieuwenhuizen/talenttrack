@@ -238,9 +238,80 @@ Ordered by raw frequency (most-used first). Each action lists:
     card reads "geboren YYYY". Cards in **Prospects** with an open
     invite task show the Dutch context line; **Invited** cards show
     "Uitnodiging verstuurd, wacht op ouder".
-  - **v3.110.119** — pipeline tile clickability + scouting plan
-    entry-points reach. See action #2.1 below for the scouting-plan
-    widget on the dashboard.
+  - **v3.110.118** — pipeline tile clickability + CTA rename. Two
+    pilot-surfaced polish items on this surface. (a) `OnboardingPipelineWidget`
+    tiles are now `<a>` links — each tile navigates to
+    `?tt_view=onboarding-pipeline#stage-<key>` and the kanban view
+    gained an `id="stage-<key>"` anchor on each column so the
+    browser scrolls to the column the scout clicked from the
+    dashboard. Aria-label reads "Open <stage> in the kanban view —
+    N prospects" so screen readers announce the target. Hover lift
+    + focus-visible outline + `:active` press feedback added to
+    `.tt-pd-pipeline-col--link`. (b) Hero CTA renamed: "Log a new
+    prospect" → "Log a scouting find"; "+ New prospect" →
+    "+ Scouting find". Operator vocabulary: a scout *finds* a
+    player; "prospect" is what the academy calls them once the
+    discovery is logged. NL: "Leg een scoutingbevinding vast" /
+    "+ Scoutingbevinding".
+    *How to test:* (a) on the scout dashboard, click any pipeline
+    tile (Prospects / Invited / Test training / Trial group / Team
+    offer / Joined). Browser navigates to the kanban view and
+    scrolls the matching column into view. Tab into the tile from
+    the keyboard — focus ring visible. Hover → tile lifts. (b) the
+    hero block above reads eyebrow "Spot someone new" / title
+    "Log a scouting find" / button "+ Scouting find". On NL: the
+    eyebrow is "Een nieuwe speler ontdekt", title "Leg een
+    scoutingbevinding vast", button "+ Scoutingbevinding".
+  - **v3.110.119** — scouting plan feature reaches this action via
+    Release B. See action #2.1 below for the scouting-plan widget
+    on the dashboard.
+
+### 2.1 Plan a scouting visit
+
+- **Frequency:** 1–4 / week (typically Sunday evening — sets up the
+  next 7 days of away matches / tournaments / open trainings)
+- **When:** as the scout sees a fixture list, gets an invitation from
+  a contact, or hears about an event worth attending
+- **Scout needs to:** capture date / location / event / age groups
+  expected in under 60 seconds, then revisit the visit detail page
+  after the event to log finds against it
+- **Surface today:** `?tt_view=scouting-visits` list + new/edit form,
+  `?tt_view=scouting-visit&id=N` detail with linked prospects; widget
+  `scouting_plan` on the scout dashboard at y=2; tile in the
+  Operations / Trials group; hero secondary link "Plan visits →"
+- **Player-centric framing:** every visit is a *cohort discovery
+  event* — the visit-prospect link (`tt_prospects.scouting_visit_id`)
+  lets the HoD trace "where did this player come from" back to the
+  original observation context
+- **Shipped:**
+  - **v3.110.119** — new `tt_scouting_plan_visits` table +
+    `tt_prospects.scouting_visit_id` column. Repository, REST
+    controller (POST / PATCH / DELETE), list view + new/edit form
+    (`FrontendScoutingPlanView`), detail view
+    (`FrontendScoutingVisitDetailView`) with linked-prospects table
+    and a "Log scouting find" CTA that passes `from_visit=N` to the
+    new-prospect wizard. Dashboard widget `ScoutingPlanWidget`
+    surfaces the next 5 planned visits; tile registered under
+    Operations → Trials group at order=6; hero `AddProspectHeroWidget`
+    gains a secondary "Plan visits →" link in the CTA row.
+    *Wizard step* (an optional ScoutingVisitStep between Identity
+    and Discovery in the new-prospect wizard) is **deferred** to a
+    follow-up release. The `from_visit=N` querystring already
+    passes through the wizard chain — the new-prospect REST POST
+    will need a small change to consume it (write the
+    `scouting_visit_id` onto the new prospect row). Until then,
+    the linkage is logged only when the scout enters it manually.
+    *How to test:* (a) on the scout dashboard, the hero CTA row
+    has a "Plan visits →" link to the right of the primary button.
+    Click → lands on the scouting-visits list. (b) Empty state
+    nudges "Plan your next scouting visit". Click "+ New scouting
+    visit" → fill date / location / event / age groups / notes →
+    Save. (c) The new visit appears in the list. Status pill is
+    blue "Planned". (d) Refresh the dashboard → the visit appears
+    in the "My scouting plan" widget below the pipeline. Click the
+    item → lands on the visit detail page with breadcrumb +
+    back-pill. (e) From the detail page click "Log scouting find"
+    → new-prospect wizard opens with `from_visit=N` in the URL.
 
 ### 2.1 Plan a scouting visit
 

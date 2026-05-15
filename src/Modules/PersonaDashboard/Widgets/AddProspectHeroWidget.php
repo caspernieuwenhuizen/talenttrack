@@ -74,7 +74,7 @@ class AddProspectHeroWidget extends AbstractWidget {
         $stats = self::quickStats( $ctx->user_id, $ctx->club_id );
 
         $eyebrow = __( 'Spot someone new', 'talenttrack' );
-        $title   = __( 'Log a new prospect', 'talenttrack' );
+        $title   = __( 'Log a scouting find', 'talenttrack' );
         $detail  = self::detailLine( $stats );
 
         $visits_url = $ctx->viewUrl( 'scouting-visits' );
@@ -84,7 +84,7 @@ class AddProspectHeroWidget extends AbstractWidget {
             . '<div class="tt-pd-hero-detail">' . esc_html( $detail ) . '</div>'
             . '<div class="tt-pd-hero-cta-row">'
             . '<a class="tt-pd-cta tt-pd-cta-primary" href="' . esc_url( $wizard_url ) . '">'
-            . esc_html__( '+ New prospect', 'talenttrack' )
+            . esc_html__( '+ Scouting find', 'talenttrack' )
             . '</a>'
             . '<a class="tt-pd-hero-secondary" href="' . esc_url( $visits_url ) . '">'
             . esc_html__( 'Plan visits →', 'talenttrack' )
