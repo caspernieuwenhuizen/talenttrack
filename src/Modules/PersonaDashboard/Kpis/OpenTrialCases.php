@@ -23,8 +23,20 @@ class OpenTrialCases extends AbstractKpiDataSource {
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
             return KpiValue::unavailable();
         }
+        // v3.110.112 — was `status = 'open'` only. `tt_trial_cases.status`
+        // moves to `'extended'` when a case is extended past its
+        // original end_date (see TrialCasesRepository::STATUS_OPEN +
+        // STATUS_EXTENDED; the repo's own `findActiveByPlayer` /
+        // active-cases-by-date queries already use
+        // `status IN ('open','extended')`). The KPI was undercounting
+        // every extended trial. Pilot symptom: "count is not correct,
+        // there is an open trial case but count = 0" — the trial in
+        // question had been extended.
         $count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} WHERE status = 'open' AND club_id = %d AND archived_at IS NULL",
+            "SELECT COUNT(*) FROM {$table}
+              WHERE status IN ('open','extended')
+                AND club_id = %d
+                AND archived_at IS NULL",
             $club_id
         ) );
         return KpiValue::of( (string) $count );

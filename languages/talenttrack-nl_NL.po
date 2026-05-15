@@ -9297,14 +9297,14 @@ msgid "See all"
 msgstr "Toon alle"
 
 msgid "Trials needing decision"
-msgstr "Trials die een besluit nodig hebben"
+msgstr "Stagedossiers die een besluit nodig hebben"
 
 msgid "Day"
 msgstr "Dag"
 
 
 msgid "No open trial cases."
-msgstr "Geen open trialdossiers."
+msgstr "Geen open stagedossiers."
 
 msgid "My recent reports"
 msgstr "Mijn recente rapporten"
@@ -9404,7 +9404,7 @@ msgid "Attendance % (4-week)"
 msgstr "Aanwezigheid % (4 weken)"
 
 msgid "Open trial cases"
-msgstr "Open trialdossiers"
+msgstr "Open stagedossiers"
 
 msgid "PDP verdicts pending"
 msgstr "Openstaande POP-verdicten"

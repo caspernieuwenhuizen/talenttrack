@@ -14,14 +14,21 @@ class GoalCompletionPct extends AbstractKpiDataSource {
 
     /**
      * Percentage of all goals (across the club, all players, all
-     * statuses) currently in `completed` state. Hardcoded `unavailable`
-     * stub through v3.108.4 — implemented in v3.108.5 so the HoD KPI
-     * strip stops rendering "—" for this slot.
+     * statuses) currently in `completed` state. The denominator is
+     * EVERY goal row for the club regardless of status (open / in
+     * progress / blocked / completed / cancelled / archived); the
+     * numerator is goals where `status = 'completed'`. So a club
+     * with 100 goals total of which 23 are completed reports 23 %.
      *
-     * Pilot complaint: "the KPI strip for HoD is completely empty."
-     * Two of the six HoD KPIs (this one and `pdp_verdicts_pending`)
-     * were `unavailable()` stubs; the other four had `club_id`
-     * filters missing or wrong table names.
+     * Scope is `club_id` only — already global for the HoD. There is
+     * no coach-scoping on this KPI; HoD and Academy Admin see the same
+     * number a Club Admin would.
+     *
+     * Hardcoded `unavailable` stub through v3.108.4 — implemented in
+     * v3.108.5 so the HoD KPI strip stops rendering "—" for this slot.
+     *
+     * v3.110.112 — docblock clarification only (pilot question: "not
+     * sure what this KPI actually does"). No behaviour change.
      */
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;

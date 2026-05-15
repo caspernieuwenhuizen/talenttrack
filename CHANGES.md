@@ -1,3 +1,117 @@
+# TalentTrack v3.110.112 — HoD persona polish round 1 (5 of 8 items autonomous; 3 surfaced for feedback)
+
+The pilot reported 8 items on the HoD dashboard. Five are shipping here — the smallest, most certain fixes. Three need design / specification input before code lands: a general auth audit (which specific widgets show no data), the `new_trial` action card's destination, and the new "Recent comments & notes" widget's data sources.
+
+## (1) KPI strip CSS aligned to scout/coach hero chrome
+
+Pilot: *"the CSS of the KPI strip is not very clear nor in line with the main hero of the scout and coach. Review and align the HoD one."*
+
+The HoD's KPI strip sits in the hero band slot (same row the coach's Mark Attendance hero and the scout's Add Prospect hero use) but its typography read as "compact strip", not "hero". Bumped to hero-feel rhythm:
+
+| Property | Before | After |
+|---|---|---|
+| `.tt-pd-widget-kpi_strip` padding | inherit (1rem) | 1.25rem × 1.5rem |
+| `.tt-pd-strip-track` gap (mobile) | 0.75rem | 1rem |
+| `.tt-pd-strip-track` gap (tablet+) | 0.75rem | 1.25rem |
+| `.tt-pd-strip-kpi` padding | 0.75rem | 1rem |
+| `.tt-pd-strip-kpi` min-height | — | 88px |
+| `.tt-pd-strip-kpi` border-radius | 0.625rem | 0.75rem |
+| `.tt-pd-strip-label` font-size | 0.6875rem | 0.75rem |
+| `.tt-pd-strip-label` letter-spacing | 0.08em | 0.1em |
+| `.tt-pd-strip-label` opacity | 0.7 | 0.78 |
+| `.tt-pd-strip-current` font-size | 1.5rem | 1.875rem |
+| `.tt-pd-strip-delta` font-size | 0.75rem | 0.8125rem |
+| `.tt-pd-strip-link:hover` bg opacity | 0.18 | 0.22 |
+
+The result reads as a hero block at the same visual weight as the coach/scout hero gradients. Cards now have a clear vertical rhythm (label up top, big number, delta beneath) instead of a tight 3-line stack.
+
+## (2) OpenTrialCases KPI: count includes `extended` status
+
+Pilot: *"count is not correct, there is an open trial case but count = 0."*
+
+`tt_trial_cases.status` can be `'open'` (initial state), `'extended'` (when extended past original end_date), `'decided'` (after a decision is recorded), or `'archived'`. The KPI counted `status = 'open'` only, so any trial case that had been extended was invisible to the KPI.
+
+Other code paths in the same module already use the broader filter — `TrialCasesRepository::findActiveByPlayer()` uses `status IN ('open','extended')`, and the same union is in the "ending soon" date-range query. The KPI now matches:
+
+```diff
+-WHERE status = 'open'
++WHERE status IN ('open','extended')
+```
+
+## (3) Dutch translations — 3× `trial` / `trialdossiers` → `stage` / `stagedossiers`
+
+Pilot: *"trialfiles is not fully translated while in other places trial = stage in dutch."*
+
+Every player-trial-related string in the Dutch .po translates as "Stage" / "Stagedossier" — except three:
+
+```diff
+ msgid "Open trial cases"
+-msgstr "Open trialdossiers"
++msgstr "Open stagedossiers"
+
+ msgid "No open trial cases."
+-msgstr "Geen open trialdossiers."
++msgstr "Geen open stagedossiers."
+
+ msgid "Trials needing decision"
+-msgstr "Trials die een besluit nodig hebben"
++msgstr "Stagedossiers die een besluit nodig hebben"
+```
+
+The license-trial strings (lines 4653-6323 of `nl_NL.po`) intentionally remain as "trial" — they refer to the SaaS commercial trial period (Freemius free-tier), a different concept from a player trial.
+
+## (4) "PDP verdicts pending" KPI — HoD-scoped link prefiltered to open files
+
+Pilot: *"goes to POP for players that I coach but for a HoD that should not be the list. Should be the list of all the POPs and in this case prefiltered on those who are open."*
+
+Two cooperating fixes:
+
+### (4a) KPI link adds `filter[status]=open`
+
+New overridable `linkUrl( RenderContext $ctx ): string` method on `AbstractKpiDataSource`. Default behaviour: returns `$ctx->viewUrl( $this->linkView() )` (matches every shipped KPI, full back-compat). KPIs that want filter querystrings override:
+
+```php
+public function linkUrl( RenderContext $ctx ): string {
+    return add_query_arg( [ 'filter' => [ 'status' => 'open' ] ], $ctx->viewUrl( 'pdp' ) );
+}
+```
+
+`KpiStripWidget::render()` prefers `linkUrl( $ctx )` when defined, falls back to the legacy `linkView()` slug-only builder. `KpiCardWidget` keeps using `linkView()` for now — the strip is where the HoD needs the filter.
+
+### (4b) PdpFilesRestController::hasGlobalPdpAccess recognises HoD persona
+
+On installs where the MatrixGate matrix is dormant (no rows seeded — which the pilot's install is), `MatrixGate::can( $uid, 'pdp_file', 'read', 'global' )` returns false. The HoD then dropped through to coach-scoping (`f.owner_coach_id = $uid`), returning zero files because the HoD isn't the owner of any PDP file.
+
+Added a persona-based fallback below the three existing rungs (matrix → manage_options → tt_edit_settings). When none of those grant access, check whether the user holds the `head_of_development` or `academy_admin` persona via `PersonaResolver::personasFor()`. If yes, grant global scope on PDP files.
+
+This is matrix-dormant-install insurance — once the matrix is seeded with `pdp_file/read/global` for both personas, the first check covers them and the persona fallback never fires.
+
+## (5) GoalCompletionPct — docstring clarification
+
+Pilot: *"not sure if a proper KPI but if it is, it should show all the goals of all the players as the HoD has a global scope. Not sure if this is properly working. Or is it configured to only show completed goals?"*
+
+The query already behaves correctly:
+
+```sql
+SELECT
+    COUNT(*) AS total,
+    SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS done
+  FROM tt_goals
+  WHERE club_id = %d
+```
+
+Denominator: every goal row for the club regardless of status (open / in progress / completed / cancelled / archived). Numerator: goals with `status = 'completed'`. A club with 100 goals of which 23 are completed reports 23%. Scope is `club_id` only — already global; no coach-scoping. Docblock updated to make this explicit so future readers don't second-guess the math.
+
+## How to test
+
+1. **KPI strip visual**: HoD dashboard — KPI strip cards now have larger numbers, more padding, and read as a hero block at the same visual weight as the coach/scout hero gradients.
+2. **Open trial cases**: extend an open trial case (move its `end_date` past the original via the trials UI). KPI count should NOT decrease. Previously: extending dropped the case from the count.
+3. **Dutch translations**: switch site language to NL. KPI label reads `Open stagedossiers` (not "Open trialdossiers"). Empty-state copy: `Geen open stagedossiers.` Data table title: `Stagedossiers die een besluit nodig hebben`.
+4. **POP verdicts link**: click the "PDP verdicts pending" KPI card. Lands on `?tt_view=pdp&filter[status]=open` with the Status filter prefilled to "Open". As HoD, the list shows ALL open PDP files in the club (not just those owned by the HoD as a coach). Pre-fix: empty list because HoD owned 0 files.
+5. **Goal completion KPI**: review the docblock in `GoalCompletionPct.php` — the math description matches what the KPI shows.
+
+---
+
 # TalentTrack v3.110.111 — PDP list ack columns relabelled to "confirmation" (operator vocabulary)
 
 Tiny follow-up to v3.110.110. The new Parent ack / Player ack column headers (plus their aria-labels + tooltips) leaked the developer shorthand for the underlying `parent_ack_at` / `player_ack_at` timestamps into the user-facing label. The pilot's original ask used "confirmation" ("which **confirmation** has been received"); the columns should carry that vocabulary, not `ack`.
