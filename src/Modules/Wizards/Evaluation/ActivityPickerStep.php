@@ -151,6 +151,13 @@ final class ActivityPickerStep implements WizardStepInterface {
      *   - `plan_state = 'completed'` (since v3.110.4) so the picker
      *     shows activities that actually happened, not scheduled-but-
      *     not-yet-played ones.
+     *   - **NOT already evaluated** (v3.110.87) — `NOT EXISTS` on
+     *     `tt_evaluations` for the activity. Once the wizard has
+     *     written any eval row for the activity, the picker treats
+     *     the run as done and stops surfacing it. Coaches who want
+     *     to add more ratings to an already-rated activity use the
+     *     player-first eval path or the activity detail page; the
+     *     picker is for fresh runs only.
      *   - On teams the coach is assigned to via `tt_team_people` (or
      *     OR'd open for site administrators / HoD / club admins).
      *   - Of an `activity_type` with `meta.rateable` true (or unset —
@@ -171,6 +178,19 @@ final class ActivityPickerStep implements WizardStepInterface {
         // team case multiplying the row set during planner evaluation.
         // Grouping by the primary key collapses duplicates regardless of
         // which OR branch fired.
+        // v3.110.87 — exclude activities that already carry at least
+        // one `tt_evaluations` row. Pilot symptom: coach completed the
+        // mark-attendance wizard (attendance + rating + Submit) for
+        // tonight's training, returned to the dashboard, clicked the
+        // empty-state **Pick an activity** CTA, and the picker still
+        // listed the activity they'd just finished. The picker treats
+        // "completed activity in the last 90 days" as eligible without
+        // checking evaluation-completion, so freshly-rated rows kept
+        // surfacing. The NOT EXISTS filter checks for ANY eval on the
+        // activity — same rule for both wizards (eval + mark-attendance).
+        // Coach who wants to add more ratings to an already-rated
+        // activity can use the player-first eval path or the activity
+        // detail page; the wizard picker is for fresh runs.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id, a.title, a.session_date, a.activity_type_key, t.name AS team_name
                FROM {$p}tt_activities a
@@ -180,6 +200,10 @@ final class ActivityPickerStep implements WizardStepInterface {
                 AND a.plan_state = 'completed'
                 AND a.session_date < CURDATE() + INTERVAL 1 DAY
                 AND a.session_date >= CURDATE() - INTERVAL %d DAY
+                AND NOT EXISTS (
+                    SELECT 1 FROM {$p}tt_evaluations e
+                     WHERE e.activity_id = a.id AND e.club_id = a.club_id
+                  )
                 AND ( a.team_id IN (
                     SELECT tp.team_id FROM {$p}tt_team_people tp
                      INNER JOIN {$p}tt_people pe ON pe.id = tp.person_id

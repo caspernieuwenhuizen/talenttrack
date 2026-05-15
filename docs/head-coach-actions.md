@@ -67,6 +67,29 @@ Each action lists:
   post-hoc edit surface.
 - **Player-centric framing:** *where now* (presence, engagement signal feeding rating + minutes)
 - **Shipped:**
+  - **v3.110.96** — wizard picker hides already-rated activities.
+    Pilot symptom: coach completed the wizard end-to-end (attendance
+    + rating + Submit), returned to the dashboard, clicked the
+    empty-state **Pick an activity** CTA, and the picker step
+    listed the same activity they'd just finished. Root cause:
+    `ActivityPickerStep::recentRateableActivities()` filtered to
+    `plan_state='completed'` within the last 90 days but didn't
+    check for existing `tt_evaluations` rows. Combined with v3.110.83's
+    auto-flip-to-completed-on-submit, freshly-rated activities
+    satisfied every picker condition AND already had evals.
+    **Fix**: added `NOT EXISTS` on `tt_evaluations` to the picker
+    query. Once any eval row is written for an activity, the picker
+    treats the run as done. Rule applies to both wizards that share
+    the step (mark-attendance + new-evaluation). Coaches who want
+    to add more ratings to an already-rated activity use the
+    player-first eval path (`+ New evaluation` → "Rate a player
+    directly") or open the activity detail page directly.
+    *How to test:* mark attendance + rate one player + Submit for a
+    planned activity. Return to dashboard. Click the empty-state
+    **Pick an activity** CTA. The activity you just rated should
+    NOT appear in the picker list. Other completed-but-unrated
+    activities still appear. Same check via `+ New evaluation`
+    wizard.
   - **v3.110.86** — wizard autosave runtime removed. The autosave
     (periodic POST writing wizard state to `tt_wizard_drafts` via
     `WizardDraftRestController`) was racing with the terminal

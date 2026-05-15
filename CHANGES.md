@@ -1,3 +1,54 @@
+# TalentTrack v3.110.96 — Wizard activity picker hides activities that already have evaluations (#0092)
+
+## The bug
+
+Pilot operator on v3.110.86: *"I just went into the wizard, picked an activity; marked players as present; rated one and saved the evaluation. I went back to the dashboard and click pick an activity and the same activity as I had just processed was there."*
+
+The wizard's `ActivityPickerStep::recentRateableActivities()` filters to:
+
+- `plan_state = 'completed'`
+- session date within last 90 days
+- coach is assigned to the team (or is admin / HoD)
+- activity type is rateable
+
+It does NOT check whether the activity has any `tt_evaluations` rows. Pre-v3.110.83 the only path to `plan_state = 'completed'` was the manual status flip in the activity edit form, so the "completed but unrated" set was small. Since v3.110.83 the mark-attendance wizard's terminal step auto-flips status to `completed` on Submit, so freshly-rated activities now satisfy every picker condition AND already have evals. The coach who just finished the wizard for tonight's training sees it right back in the picker list.
+
+## The fix
+
+Added a `NOT EXISTS` clause on `tt_evaluations` to the picker query:
+
+```sql
+AND NOT EXISTS (
+    SELECT 1 FROM {$p}tt_evaluations e
+     WHERE e.activity_id = a.id AND e.club_id = a.club_id
+)
+```
+
+Once any eval row is written for an activity, the picker treats the run as done and stops surfacing it. Same rule for both wizards that share `ActivityPickerStep` — the new `mark-attendance` wizard and the existing `new-evaluation` wizard. The wizard picker is for fresh rating runs only.
+
+## Edge cases
+
+**Add more ratings to an already-rated activity.** A coach who rated 5 of 14 players, then comes back to rate the remaining 9, can no longer enter via the wizard picker (the activity has at least one eval row, so it's hidden). Two alternative paths stay open:
+
+- **Player-first eval**: `+ New evaluation` → "Rate a player directly" — bypasses the picker, lets the coach rate one player at a time without an activity context.
+- **Activity detail page**: open the activity, scroll to the attendance section, click into individual players to add their evals.
+
+If pilots surface this as friction we can either (a) relax the rule to "no eval row by THIS coach" (per-user instead of per-activity) or (b) add a "Continue rating" CTA on the activity detail page that re-enters the wizard with `_skip_attendance_check=1`. Not in this ship — the fresh-run case is the dominant flow and the alternatives cover the long tail.
+
+## Doc + test plan
+
+Docblock on `recentRateableActivities()` updated to spell out the new condition.
+
+How to verify:
+
+1. Walk the mark-attendance wizard for a planned activity. Mark attendance, rate at least one player, hit Submit.
+2. Return to the dashboard. Click the empty-state **Pick an activity** CTA.
+3. The activity picker no longer lists the activity from step (1). Other completed-but-unrated activities still appear.
+4. Open the eval wizard (`+ New evaluation` → activity-first). Same behaviour — already-rated activities are filtered out; only fresh-run candidates listed.
+5. Sanity: open a previously-rated activity's detail page directly — it still loads correctly, the attendance section + the rating slots are still editable via the normal forms.
+
+---
+
 # TalentTrack v3.110.95 — Team page tables (age-group + staff + activities); activity list-view attendance % now matches the per-player form; activity detail page gains a clickable Attendance summary
 
 ## What changed
