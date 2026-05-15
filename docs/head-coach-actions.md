@@ -619,6 +619,63 @@ Ships that affect the head-coach's daily flow but aren't tied to a
 single numbered action. Same `**vX.Y.Z** — what changed. *How to
 test:* …` format.
 
+- **v3.110.108** — head-coach dashboard polish round 1 — six
+  pilot-surfaced issues fixed in one ship.
+  **(1) Persona label.** `PersonaResolver::resolveCoachPersona()`
+  now honours `tt_teams.head_coach_id` (the legacy team-form
+  assignment path) alongside `tt_team_people.is_head_coach`.
+  Coaches assigned via the operator-facing team form's Head coach
+  dropdown were silently mis-classified as `assistant_coach`
+  because path 2 had no matching row; fixed by unioning both
+  assignment paths. The dashboard header now reads "Head coach"
+  for someone who is a head coach anywhere they're assigned.
+  **(2) Mark Attendance hero CTA text** — both states now read
+  "Select completed activity to evaluate" (was "Mark attendance"
+  / "Pick an activity"). Matches the destination action better.
+  **(3) Tasklist `Show all (N open)`** — the panel head's link
+  carries the total open-tasks count. `fetchRows()` now returns
+  `{ rows, total }` so the total survives the 5-row slice. Task
+  rows tightened in CSS (anchor IS the row, 44px touch target).
+  **(4) Recent evaluations widget query.** `MiniPlayerListWidget`'s
+  `recent_evaluations` preset had no fetch logic — the Sprint-1
+  scaffolding never got the Sprint-3 wiring. Implemented:
+  5 most recent non-archived evals for any player on a team the
+  coach owns, rendered as `<player>  ·  <date> · <avg>` click-
+  through rows. Same coach-scope shape as the evaluations list.
+  **(5) Row-0 grid widths.** Was `task L (9) + mini M (6 at x=9)`
+  = 15 cols overflowing the 12-col grid. Now both widgets are M
+  (6 cols each at x=0 and x=6), summing to 12 — matches the KPI
+  row width below.
+  **(6) Quick actions panel.** Two distinct bugs: (a) caps
+  `tt_create_evaluations` / `tt_create_goals` referenced in
+  `ActionCardWidget::ACTIONS` don't exist anywhere in the cap
+  system, so 2 of the 4 cards silently hid on every coach. Fixed
+  to `tt_edit_*`. (b) Action URLs went to `?tt_view=<view>` (the
+  flat list) instead of routing through
+  `WizardEntryPoint::urlFor()`. Coach clicking "+ New activity"
+  landed on the activity list, not the wizard. Added a `'wizard'`
+  key to the ACTIONS table for the 5 action types that have
+  registered wizards; URL builder routes wizard-first with the
+  flat `?action=new` fallback.
+  *How to test:*
+  1. Log in as a coach assigned as head coach (via the team
+     edit form's Head coach dropdown). Dashboard header reads
+     **Head coach**.
+  2. The Mark Attendance hero's primary button reads **Select
+     completed activity to evaluate**.
+  3. My tasks widget's "Show all" link reads **Show all (N open)**
+     with N = total open tasks. 5 task rows visible; clicking
+     anywhere on a row navigates to the task detail.
+  4. Recent evaluations widget shows up to 5 evals for players
+     on your teams. Each row click → evaluation detail page.
+  5. Row 0 widgets (My tasks + Recent evaluations) sit side by
+     side at equal width; the KPI strip below has 4 equal-width
+     cards. Total widths of the two rows match visually at
+     1024px+.
+  6. Quick actions panel shows **4 cards** — New evaluation,
+     New goal, New activity, New player. Each opens the
+     corresponding wizard (URL contains `tt_view=wizard&slug=…`).
+
 - **v3.110.107** — evaluation list page rich filter block (Group 4
   / final group of the evaluation flow pass). The hand-rolled
   `FrontendEvaluationsView` filter form + table is gone; the list

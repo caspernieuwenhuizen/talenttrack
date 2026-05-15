@@ -1,3 +1,135 @@
+# TalentTrack v3.110.108 — Head-coach dashboard polish round 1: persona label, hero CTA, tasklist count, recent evaluations query, grid widths, quick actions caps + wizard routing (#0092)
+
+Six pilot-surfaced issues on the head-coach dashboard, all landing in one ship since they're all visible on the same surface and a six-ship cadence would force the pilot through six verification cycles on the same screen.
+
+## (1) Persona greeting mis-labels head coach as "Assistant coach"
+
+Pilot: *"I have someone assigned as headcoach but when he logs in, the dashboard header is 'assistant coach'. That is clearly incorrect because he is not even assigned the assistant coach role anywhere."*
+
+`PersonaResolver::resolveCoachPersona()` only consulted `tt_team_people.is_head_coach` to split the `tt_coach` WP role into `head_coach` vs `assistant_coach`. But the codebase has TWO active assignment paths for head coach:
+
+1. **Legacy team form** writes `tt_teams.head_coach_id` (the v2.x path used by `Modules/Wizards/Team/ReviewStep.php`, `TeamsRestController`, and the operator-facing team edit form's "Head coach" dropdown).
+2. **Sprint 7 join table** writes `tt_team_people.is_head_coach` per row.
+
+A coach assigned via path 1 only — with no matching `is_head_coach=1` row on path 2 — fell through to the `assistant_coach` branch (or the defensive default), and the dashboard rendered "Assistant coach" as their persona label.
+
+### Fix
+
+`resolveCoachPersona()` now unions both paths:
+
+- **Path 1**: `SELECT COUNT(*) FROM tt_teams WHERE head_coach_id = $user_id AND archived_at IS NULL` > 0 → user holds the `head_coach` persona, full stop.
+- **Path 2**: scan `tt_team_people` for `is_head_coach` aggregates as before. Adds `head_coach` when any row has flag = 1; adds `assistant_coach` when any row has flag = 0.
+- Defensive default `head_coach` when neither path has rows (matrix-bridge dormant phase fallback, unchanged).
+
+A coach with `head_coach_id` on team A and `is_head_coach=0` on team B's `tt_team_people` row holds both personas (multi-team coach) — same as before, but now the path-1 assignment alone is enough for `head_coach` to be in the set.
+
+`activePersona()` keeps validating against the available set, so a stored `tt_active_persona = 'assistant_coach'` for a user who no longer has that persona is ignored and `resolvePersona()` falls through to the first available (`head_coach`).
+
+## (2) Mark Attendance hero CTA text
+
+Pilot copy ask. Both states of the hero CTA (populated with an upcoming activity, empty when there's no upcoming) now read **"Select completed activity to evaluate"** — matches the actual destination (the wizard's first step is activity selection; the destination is the rate-confirm fork). Single label for affordance consistency.
+
+## (3) Tasklist widget — count suffix + tighter rows
+
+Pilot: *"the tasklist widget should be less tall, it should be able to list 5 tasks and a show all (total number of open tasks) link."*
+
+`TaskListPanelWidget::fetchRows()` returns `{ rows, total }` now — the total comes from the unfiltered repository call before the 5-row slice. The panel head's link reads `Show all (12 open)` when `$total > 0`, falling back to `Show all` when the list is empty.
+
+CSS tightened: anchor IS the row (was a nested anchor inside an `<li>` flex container with inline `style="display:flex"` — the click target was the text span, not the row). The row now has padding `0.5rem 0`, min-height 44px (one notch below the 48px button floor since these are content rows, not button-equivalents — still well within accessibility guidance for hyperlinks).
+
+The widget's grid `row_span` stays at 2 (matches the recent-evaluations panel next to it; see fix #5 below). Less wasted vertical space because the rows render denser.
+
+## (4) Recent evaluations widget shows no data
+
+Pilot: *"Recent evaluations shows no data while players of the coach have been rated."*
+
+`MiniPlayerListWidget::render()` was a Sprint-1 scaffold — it always returned the empty state for every preset including `recent_evaluations`. The data fetch was deferred to "Sprint 3" per the class docblock and never landed.
+
+### Fix
+
+New private `fetchRecentEvaluations( $user_id, $club_id )` runs:
+
+```sql
+SELECT e.id, e.eval_date, pl.first_name, pl.last_name,
+       (SELECT AVG(r.rating) FROM tt_eval_ratings r
+         WHERE r.evaluation_id = e.id AND r.club_id = e.club_id) AS avg_rating
+  FROM tt_evaluations e
+  LEFT JOIN tt_players pl ON pl.id = e.player_id
+ WHERE e.club_id = %d
+   AND e.archived_at IS NULL
+   AND pl.team_id IN (<teams the coach owns>)
+ ORDER BY e.eval_date DESC, e.id DESC
+ LIMIT 5
+```
+
+The team scope comes from `QueryHelpers::get_teams_for_coach()` — same shape `FrontendEvaluationsView` and `EvaluationsRestController` use, so the widget surfaces a subset of what the evaluations list page would show. Each rendered row: player name (bold) + eval_date · average rating. Clicks land on the evaluation detail page with `tt_back` appended.
+
+New CSS for `.tt-pd-mini-list` / `.tt-pd-mini-list-row` / `.tt-pd-mini-list-name` / `.tt-pd-mini-list-meta` mirroring the task-list pattern: anchor-as-row, 44px min-height, tabular-nums on the meta.
+
+## (5) Dashboard grid: row-0 width ≠ KPI row width
+
+Pilot: *"on dashboard; the total width of the kpi cards rows is not the same as the total width of the above widgets rows."*
+
+Row 0 in `CoreTemplates::coach()`:
+
+```php
+$grid->add( new WidgetSlot( 'task_list_panel',  '',                   Size::L, 0, 0, 2, 10 ) );
+$grid->add( new WidgetSlot( 'mini_player_list', 'recent_evaluations', Size::M, 9, 0, 2, 15 ) );
+```
+
+- `Size::L` = 9 cols at x=0 (spans cols 1-9).
+- `Size::M` = 6 cols at x=9 (would span cols 10-15).
+
+Total: 15 cols on a 12-col grid → CSS grid wraps `mini_player_list` to a new row at uneven width.
+
+Row 2 (KPI strip) is 4× `Size::S` = 12 cols exactly. Visual mismatch: the widget row was either 9 cols visible (mini wrapped) or 15 cols of overflow; the KPI row was the full 12.
+
+### Fix
+
+Both row-0 widgets shrunk to `Size::M` (6 cols each) at x=0 and x=6. Row 0 sums to 12 cols. Dashboard reads as two equal-width columns (My tasks · Recent evaluations) above a four-card KPI strip. `task_list_panel`'s `allowedSizes` already include M.
+
+## (6) Quick actions widget — 1 button instead of 4 + flat URL instead of wizard
+
+Pilot: *"the quick action widget only shows 1 action and actually does not open the new activity wizard but just display the activity list."*
+
+Two distinct bugs landed in the same widget.
+
+### (6a) Wrong cap names
+
+```php
+private const ACTIONS = [
+    'new_evaluation' => [ …, 'cap' => 'tt_create_evaluations' ],
+    'new_goal'       => [ …, 'cap' => 'tt_create_goals' ],
+    …
+];
+```
+
+`tt_create_evaluations` and `tt_create_goals` don't exist anywhere in `LegacyCapMapper::CAP_MAP` or the granted-roles tables. `current_user_can()` returned false for both cards on every user, hiding 2 of the 4 quick actions. Fixed to `tt_edit_evaluations` and `tt_edit_goals` (the actual granted caps).
+
+### (6b) Flat URL instead of wizard URL
+
+The url builder: `$ctx->viewUrl( 'activities' )` → `?tt_view=activities`, the flat LIST view. The flat form path is `?tt_view=activities&action=new`, but the dashboard CTA was missing the `action=new` query arg AND wasn't routing through the wizards-enabled gate. Result: coach clicks "+ New activity", lands on the activities list, has to click "+ New activity" again to actually get into the form.
+
+The other surfaces on the codebase that link into wizards (FrontendEvaluationsView, FrontendGoalsManageView, FrontendActivitiesManageView, …) all use:
+
+```php
+$flat_url = add_query_arg( [ 'tt_view' => '<view>', 'action' => 'new' ], $base_url );
+$url      = WizardEntryPoint::urlFor( '<wizard-slug>', $flat_url );
+```
+
+ActionCardWidget now uses the same pattern. Added a `'wizard'` key to the ACTIONS table for the five action types that have registered wizards (`new-evaluation`, `new-goal`, `new-activity`, `new-player`, `new-team`). The URL builder routes through `WizardEntryPoint::urlFor()` when `'wizard'` is set, falls back to the flat `?tt_view=<view>&action=new` path otherwise. `scout_report` and `new_trial` keep the flat path — no wizard registered for those yet.
+
+## How to test
+
+1. **Persona label**: log in as a coach assigned as head coach on at least one team (via the team edit form's Head coach dropdown). Dashboard header reads **"Head coach"**, not "Assistant coach". Multi-team coaches who head one team and assist another see "Head coach" (the resolver picks the first available persona for the greeting).
+2. **Mark Attendance hero CTA**: the primary button reads **"Select completed activity to evaluate"** in both states (with or without an upcoming activity).
+3. **Tasklist count**: the panel head's link reads **"Show all (N open)"** where N is the total count of actionable tasks for the coach (open / in_progress / overdue, snoozed excluded). Click → `?tt_view=my-tasks`. With 0 tasks the widget shows "No open tasks." and the link reads "Show all".
+4. **Recent evaluations**: the widget shows up to 5 rows, each `<player name>  ·  <eval_date> · <avg>`. Click any row → evaluation detail page. With 0 evals it shows "No evaluations yet." Empty state when the coach has no teams.
+5. **Grid widths**: on a 1024px+ viewport, the top two widgets (My tasks, Recent evaluations) sit side-by-side at equal widths. The KPI strip below has 4 equal-width cards. The total width of (My tasks + gap + Recent evaluations) matches the total width of (4 KPI cards + 3 gaps).
+6. **Quick actions**: the panel shows **4 cards** — New evaluation, New goal, New activity, New player. Each opens the corresponding wizard (not the flat list). Click "+ New activity" — the URL is `?tt_view=wizard&slug=new-activity&return_to=<list URL with action=new>`, not the activity list.
+
+---
+
 # TalentTrack v3.110.107 — Evaluation list page rich filter block: parity with the goals page (team / player / type / date range + search), pagination, sortable headers via FrontendListTable (#0092)
 
 Group 4 (and the final group) of the evaluation-flow polish pass kicked off in v3.110.103. Sortable headers landed in parallel ship v3.110.102 (#401). This ship retrofits the rest of the list view to the rich-filter pattern the goals page already uses.
