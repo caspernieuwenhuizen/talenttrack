@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.104
+Stable tag: 3.110.105
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.105 — Evaluation edit form: Type pre-fills (and auto-derives from activity when missing); sub-category ratings render inline and editable (#0092) =
+
+Group 3 of the evaluation-flow polish pass. **(1) Type field pre-fills correctly.** Edit form already read `$existing_eval->eval_type_id`, but evals created by the mark-attendance wizard / `EvaluationInserter` never had one persisted, so the Type dropdown always rendered blank. **Fix on the write path**: `EvaluationInserter::insert()` now accepts `eval_type_id` in the payload and auto-derives it from the activity's `activity_type_key` when not supplied. New static helper `EvaluationInserter::evalTypeIdForActivity( $activity_id )` looks up the matching `tt_lookups[eval_type]` row by name (the activity-type and eval-type vocabularies are seeded with overlapping keys — `training` / `game` / etc. — so when they line up the auto-attach Just Works). Returns 0 when there's no match, and the inserter then leaves the column null. **Fix on the read path (legacy back-fill)**: `CoachForms::renderEvalForm` calls the same helper for evals whose `eval_type_id` is 0 but whose `activity_id` is set — pre-fills the Type dropdown with the derived type for display, and if the coach hits Save the value persists (closing the loop on rows from before v3.110.105). `loadEvaluation` extended to also return `activity_id` for this path. **(2) Sub-category ratings now render and pre-fill in the edit form.** Pre-fix the ratings section iterated `QueryHelpers::get_categories()` which returns main rows only — sub-category ratings written by the wizard's `RateActorsStep` (deep-rate path) were stored but invisible on edit, and the coach couldn't add subs after the fact. **Fix**: after each main-category input, the form now calls `EvalCategoriesRepository::getChildren( $cat_id )` and renders each sub as a `tt-form-row tt-form-row--sub` (indented, muted label, same numeric input). Existing values pre-fill from `$existing_ratings` which already keyed by `category_id` (mains + subs). On save, the existing REST `write_ratings` already accepts any valid `category_id`, so no controller change needed. New `.tt-form-row--sub` CSS in `public.css` for the indent + muted-label treatment, mirroring the wizard's `.tt-rate-row--sub`.
 
 = 3.110.104 — Evaluation detail page: Edit + Archive now visually balanced; Archive uses an app modal (not `window.confirm`); Type row surfaced on the display (#0092) =
 
