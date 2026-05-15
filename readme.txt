@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.102
+Stable tag: 3.110.103
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.103 — Wizard hygiene: "Rate a player directly" no longer blocked by required-radios; NL translations for picker copy; wizard progress steps show ✓ for done + stronger contrast; Cancel honours `tt_back` (#0092) =
+
+Group 1 of an evaluation-flow polish pass. Four wizard-surface fixes in one ship. **(1) "Rate a player directly" escape hatch fixed.** `ActivityPickerStep`'s render placed the player-first submit button below a list of `<input type="radio" required>` activity rows. The browser's HTML5 form validation ran on every submit and refused to proceed because none of the required radios was checked — clicking the escape-hatch button looked like a no-op. Added `formnovalidate` to the player-first button so the browser skips validation for THIS submit. Same pattern the wizard chrome already uses for Cancel / Back / Save-as-draft. **(2) Dutch translations for the picker copy.** Four English strings under `ActivityPickerStep`'s mark-attendance / eval-wizard branches and empty states were untranslated since v3.110.83 / v3.110.96 ("Pick a completed activity from the last 90 days …" / "No activities to mark attendance for …" / "No completed rateable activities in the last 90 days …" plus the mark-attendance-specific variant of the first). All four now have NL `msgstr` entries in `languages/talenttrack-nl_NL.po`. **(3) Wizard progress indicator contrast pass.** Pilot: *"the visual display of which steps are done and which step is active is not clear apart from the numbering."* Done steps now show `✓` instead of the number, on a solid green pill with white text. Current step keeps the dark teal but gains a 2px outer ring + bolder font-weight so it pops. Pending step background lightened with dimmer text. Marker circle's interior contrast bumped so the number reads on every state. Aria-label added per step so screen readers announce `Step 2: Rate players (Current)` etc. **(4) Wizard's Cancel target honours `tt_back`.** `FrontendWizardView::render()` now reads `tt_back` as a fallback for `return_to` when computing the Cancel button's destination — unifies the back-target semantics with every other surface that uses `tt_back` (CLAUDE.md §5). Plus `FrontendEvaluationsView`'s **New evaluation** CTA emits `tt_back=<evaluations-list URL>` so the breadcrumb pill at the top reads `← Back to evaluations` AND Cancel routes there.
 
 = 3.110.102 — Goal wizard polish (7 items): scoped player picker, cascading link select, position long-names, NL Deadline, demo tag, dedup New-goal button, sortable evaluations table =
 

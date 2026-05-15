@@ -619,6 +619,38 @@ Ships that affect the head-coach's daily flow but aren't tied to a
 single numbered action. Same `**vX.Y.Z** — what changed. *How to
 test:* …` format.
 
+- **v3.110.103** — wizard hygiene pass on the new-evaluation
+  + mark-attendance wizard chrome. Four small fixes:
+  (1) **Rate a player directly** escape hatch now submits.
+  Previously the button was blocked by HTML5 `required` on the
+  picker's activity radios — added `formnovalidate` to bypass
+  validation on this specific submit.
+  (2) **Dutch translations** for the four picker copy strings
+  (mark-attendance + eval-wizard intros + empty-state notices)
+  that shipped under v3.110.83 / v3.110.96 without NL coverage.
+  (3) **Progress indicator contrast**: done steps render `✓` on
+  solid green, current step gains a 2px ring + bold weight,
+  pending steps dim noticeably; aria-label per step for screen
+  readers.
+  (4) **Cancel honours `tt_back`**: wizard view reads `tt_back`
+  as a fallback for `return_to` when computing the Cancel
+  target. The evaluations tile's **New evaluation** CTA now
+  emits `tt_back=<eval list URL>` so the `← Back to evaluations`
+  pill renders at the top of the wizard AND Cancel routes back
+  to the eval list.
+  *How to test:* on a NL install, click **Nieuwe evaluatie**
+  from the evaluations tile. Top of the wizard shows a `← Terug
+  naar evaluaties` pill. ActivityPicker intro reads Dutch. Click
+  the player-first escape-hatch button — wizard advances to
+  PlayerPickerStep without a "select a radio" browser prompt.
+  Walk a few steps and verify the progress strip: done steps
+  show `✓` on green, current step has a visible ring, pending
+  steps look obviously inactive. Hit Cancel — lands on the
+  evaluations list, not the dashboard. Sanity: the
+  mark-attendance wizard's hero-entry path still routes its
+  Cancel via `_done_redirect` unchanged (it doesn't set
+  `tt_back`).
+
 - **v3.110.76** — `RateActorsStep` collapsed-roster redesign.
   Player cards collapsed by default; tap to expand. Each player's
   summary shows a live status pill (**Not rated** / **Rating…** /

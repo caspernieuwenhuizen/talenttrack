@@ -14634,3 +14634,17 @@ msgid "%d player ready to rate. Tap a player to expand and rate; tap again to co
 msgid_plural "%d players ready to rate. Tap a player to expand and rate; tap again to collapse."
 msgstr[0] "%d speler klaar om te beoordelen. Tik op een speler om uit te klappen en te beoordelen; tik nogmaals om in te klappen."
 msgstr[1] "%d spelers klaar om te beoordelen. Tik op een speler om uit te klappen en te beoordelen; tik nogmaals om in te klappen."
+
+# v3.110.102 — #0092 ActivityPickerStep intro + empty-state copy NL coverage.
+
+msgid "Pick a completed activity from the last 90 days to mark attendance for. Activities only appear here once they are marked completed and their type is rateable."
+msgstr "Kies een afgeronde activiteit van de laatste 90 dagen om aanwezigheid voor te registreren. Activiteiten verschijnen hier pas als ze als afgerond gemarkeerd zijn en hun type beoordeelbaar is."
+
+msgid "Pick a completed activity from the last 90 days to rate the players who attended, or rate a player directly without an activity context. Activities only appear here once they are marked completed and their type is rateable."
+msgstr "Kies een afgeronde activiteit van de laatste 90 dagen om de aanwezige spelers te beoordelen, of beoordeel direct een speler zonder activiteitscontext. Activiteiten verschijnen hier pas als ze als afgerond gemarkeerd zijn en hun type beoordeelbaar is."
+
+msgid "No activities to mark attendance for. Schedule a training or match via the Activities tile, then come back here."
+msgstr "Geen activiteiten om aanwezigheid voor te registreren. Plan een training of wedstrijd via de Activiteiten-tegel en kom dan terug."
+
+msgid "No completed rateable activities in the last 90 days. Mark an activity as completed (and use a rateable activity type) to see it here, or pick a player below to rate ad-hoc."
+msgstr "Geen afgeronde, beoordeelbare activiteiten in de laatste 90 dagen. Markeer een activiteit als afgerond (met een beoordeelbaar activiteitstype) om hier te verschijnen, of kies hieronder een speler om ad hoc te beoordelen."

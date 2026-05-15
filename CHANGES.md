@@ -141,6 +141,63 @@ No schema. No migration. No new REST.
 
 ---
 
+# TalentTrack v3.110.103 — Wizard hygiene pass: rate-a-player escape hatch fixed, NL picker copy, progress contrast, Cancel honours `tt_back` (#0092)
+
+Group 1 of an evaluation-flow polish pass driven by pilot feedback on the new-evaluation wizard surface. Four small fixes in one ship — they share the same files so bundling is cleaner than four separate ships.
+
+## (1) "Rate a player directly" escape hatch was silently blocked
+
+`ActivityPickerStep::render()` lists the coach's recent rateable activities as `<input type="radio" required>` rows. Below the list sits the player-first escape-hatch button (`<button type="submit" name="_path" value="player-first">`). Pilot symptom: *"when trying to click the button to evaluate a player directly instead of an activity it does not allow and asks to select one of the radio buttons in front of eligible activities."*
+
+The browser's HTML5 form validation ran on every submit — including the player-first one — and refused to proceed because none of the required radios was checked. The button looked like a no-op.
+
+**Fix**: add `formnovalidate` to the player-first button so the browser skips validation for THIS submit. Same pattern the wizard chrome already uses on Cancel / Back / Save-as-draft.
+
+## (2) Dutch translations for picker copy
+
+Four strings in `ActivityPickerStep` shipped under v3.110.83 / v3.110.96 without NL counterparts and rendered English on a Dutch install:
+
+- `Pick a completed activity from the last 90 days to mark attendance for. …`
+- `Pick a completed activity from the last 90 days to rate the players who attended, or rate a player directly without an activity context. …`
+- `No activities to mark attendance for. Schedule a training or match via the Activities tile, then come back here.`
+- `No completed rateable activities in the last 90 days. Mark an activity as completed (and use a rateable activity type) to see it here, or pick a player below to rate ad-hoc.`
+
+All four now have `msgstr` entries in `languages/talenttrack-nl_NL.po`. `.mo` regeneration auto-fires on the release workflow.
+
+## (3) Wizard progress indicator contrast pass
+
+Pilot: *"the visual display of which steps are done and which step is active is not clear apart from the numbering."* The states were colour-coded but the palette was subtle — light green vs dark teal vs light grey, all three pills similar lightness on small screens.
+
+**Changes** (all in the inline CSS in `FrontendWizardView::enqueueWizardStyles()`):
+
+- **Done state** renders `✓` instead of the step number; solid green (`#137333`) background with white text.
+- **Current state** keeps the dark teal but gains a 2px outer ring (`box-shadow: 0 0 0 2px rgba(29, 120, 116, 0.30)`) and `font-weight: 700`.
+- **Pending state** background lightened (`#eef0f2`) with dimmer text (`#9ca3af`) so it reads as obviously inactive.
+- **Marker circle** filled to `rgba(255, 255, 255, 0.85)` so the digit / checkmark reads cleanly on every state.
+
+`renderProgress()` now also emits an `aria-label` per `<li>` so screen readers announce `Step 2: Rate players (Current)` style instead of just the bare label.
+
+## (4) Cancel button honours `tt_back`
+
+CLAUDE.md §5 makes `tt_back` the canonical back-target across every routable surface. The wizard view previously only honoured `return_to` for the Cancel button's destination. Pilot symptom: *"from evaluation tile and in the new evaluation wizard, there is no back button. This back button should take me to where I came from which is the list of evaluations."*
+
+**Fix**:
+
+- `FrontendWizardView::render()` reads `tt_back` as a fallback for `return_to` when computing `_cancel_url`. Wizards entered via `tt_back=<url>` cancel back to that URL.
+- `FrontendEvaluationsView::render()`'s **New evaluation** CTA now wraps its href in `tt_back=<evaluations-list URL>`. Two affordances kick in together: `FrontendBreadcrumbs::fromDashboard()` emits the `← Back to evaluations` pill at the top of the wizard surface (per CLAUDE.md §5), AND Cancel routes back to the same place.
+
+## How to verify
+
+1. NL install, log in as a coach. Open the evaluations tile (`?tt_view=evaluations`). Click **Nieuwe evaluatie**.
+2. Top of the wizard surface shows a `← Terug naar evaluaties` pill (or equivalent label from your locale).
+3. ActivityPicker intro copy reads Dutch (not English).
+4. Click **→ Rate a player directly** (or the localised label) — wizard advances to `PlayerPickerStep`. No "select a radio button" browser prompt.
+5. Hit **Cancel** at any step — browser lands back on `?tt_view=evaluations`, not the dashboard.
+6. Walk through the wizard normally and watch the progress strip at the top: done steps show `✓` on solid green, current step has a visible ring + bold text, pending steps look noticeably dimmer.
+7. Sanity: the `mark-attendance` wizard entered from the dashboard hero still works end-to-end (it doesn't set `tt_back`, so Cancel routes to its existing `_done_redirect` flow — unchanged).
+
+---
+
 # TalentTrack v3.110.100 — New prospects-overview page (rich filtered list); kanban shows birth year not age; two missing NL kanban strings
 
 Three pilot fixes on the scout's prospect surfaces. Items 2 + 3 are small; item 1 builds a new page.

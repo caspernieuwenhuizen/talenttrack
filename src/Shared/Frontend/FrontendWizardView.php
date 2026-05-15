@@ -226,6 +226,18 @@ class FrontendWizardView extends FrontendViewBase {
         // referrer was preserved; the user wants to go back to where they
         // were before opening the wizard.
         $return_to = isset( $_GET['return_to'] ) ? esc_url_raw( wp_unslash( (string) $_GET['return_to'] ) ) : '';
+        // v3.110.102 — `tt_back` is the canonical back-target across
+        // every frontend surface (per CLAUDE.md §5). The wizard
+        // historically only honoured `return_to`; honouring `tt_back`
+        // as a fallback means every entry CTA can use the same
+        // `tt_back` URL param it would on any other surface and Cancel
+        // routes correctly. Pilot symptom: clicking **New evaluation**
+        // from the evaluations list, then **Cancel** in the wizard,
+        // dropped the coach on the dashboard instead of back on the
+        // evaluations list.
+        if ( $return_to === '' && isset( $_GET['tt_back'] ) ) {
+            $return_to = esc_url_raw( wp_unslash( (string) $_GET['tt_back'] ) );
+        }
         $referer   = wp_get_referer();
         $cancel_url = $return_to !== ''
             ? $return_to
@@ -378,7 +390,28 @@ class FrontendWizardView extends FrontendViewBase {
             } else {
                 $cls = $is_current ? 'tt-wizard-progress-current' : ( ! $found_current ? 'tt-wizard-progress-done' : 'tt-wizard-progress-pending' );
             }
-            echo '<li class="' . esc_attr( $cls ) . '"><span class="tt-wizard-progress-num">' . (int) ( $i + 1 ) . '</span> ' . esc_html( $step->label() ) . '</li>';
+            // v3.110.102 — done steps render a `✓` instead of the
+            // number. Combined with the v3.110.102 CSS tightening
+            // (stronger contrast on `--current`, more obvious dim on
+            // `--pending`) this makes the at-a-glance state read
+            // without having to compare colour codes. Aria-label still
+            // includes the index so screen readers announce step
+            // number + label normally.
+            $is_done = ( $cls === 'tt-wizard-progress-done' );
+            $marker  = $is_done ? '✓' : (string) ( $i + 1 );
+            $aria    = sprintf(
+                /* translators: 1: step number, 2: step label, 3: state (Completed / Current / Pending / Skipped) */
+                __( 'Step %1$d: %2$s (%3$s)', 'talenttrack' ),
+                (int) ( $i + 1 ),
+                (string) $step->label(),
+                $is_done    ? __( 'Completed', 'talenttrack' )
+                : ( $is_current ? __( 'Current',  'talenttrack' )
+                : ( $not_applicable ? __( 'Skipped', 'talenttrack' ) : __( 'Pending', 'talenttrack' ) ) )
+            );
+            echo '<li class="' . esc_attr( $cls ) . '" aria-label="' . esc_attr( $aria ) . '">'
+                . '<span class="tt-wizard-progress-num" aria-hidden="true">' . esc_html( $marker ) . '</span> '
+                . esc_html( $step->label() )
+                . '</li>';
         }
         echo '</ol>';
     }
@@ -440,11 +473,63 @@ class FrontendWizardView extends FrontendViewBase {
         $css = '
             .tt-wizard-form { max-width: 640px; margin: 0 auto; }
             .tt-wizard-progress { display: flex; gap: 8px; padding: 0; margin: 0 0 24px; list-style: none; flex-wrap: wrap; }
-            .tt-wizard-progress li { flex: 1 1 auto; padding: 8px 12px; border-radius: 6px; background: #f1f3f4; color: #5f6368; font-size: .9rem; }
-            .tt-wizard-progress-current { background: #1d7874; color: #fff; }
-            .tt-wizard-progress-done { background: #cfe7da; color: #137333; }
-            .tt-wizard-progress-na { background: #f6f7f8; color: #b0b3b6; opacity: 0.5; text-decoration: line-through; }
-            .tt-wizard-progress-num { display: inline-block; width: 22px; height: 22px; line-height: 22px; border-radius: 50%; background: rgba(255,255,255,.5); color: inherit; text-align: center; margin-right: 6px; font-weight: 600; }
+            /* v3.110.102 — progress-step contrast pass. Done = solid
+               green + checkmark; Current = primary teal with a 2px
+               outer ring so it pops; Pending = noticeably dimmer; NA
+               keeps its line-through. The marker circle is filled with
+               more contrast (rgba 0.85 white) so the digit / checkmark
+               reads on every state. */
+            .tt-wizard-progress li {
+                flex: 1 1 auto;
+                padding: 8px 12px;
+                border-radius: 6px;
+                background: #eef0f2;
+                color: #6b7280;
+                font-size: .9rem;
+                font-weight: 500;
+                transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+            }
+            .tt-wizard-progress-current {
+                background: #1d7874;
+                color: #fff;
+                font-weight: 700;
+                box-shadow: 0 0 0 2px rgba(29, 120, 116, 0.30);
+            }
+            .tt-wizard-progress-done {
+                background: #137333;
+                color: #fff;
+                font-weight: 600;
+            }
+            .tt-wizard-progress-pending {
+                background: #eef0f2;
+                color: #9ca3af;
+            }
+            .tt-wizard-progress-na {
+                background: #f6f7f8;
+                color: #b0b3b6;
+                opacity: 0.55;
+                text-decoration: line-through;
+            }
+            .tt-wizard-progress-num {
+                display: inline-block;
+                width: 22px;
+                height: 22px;
+                line-height: 22px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.85);
+                color: inherit;
+                text-align: center;
+                margin-right: 6px;
+                font-weight: 700;
+            }
+            .tt-wizard-progress-done .tt-wizard-progress-num,
+            .tt-wizard-progress-current .tt-wizard-progress-num {
+                color: #1a1a1a;
+            }
+            .tt-wizard-progress-pending .tt-wizard-progress-num {
+                background: rgba(255, 255, 255, 0.65);
+                color: #9ca3af;
+            }
             .tt-wizard-step-title { font-size: 1.4rem; margin: 0 0 16px; }
             .tt-wizard-form label { display: block; margin-bottom: 14px; }
             .tt-wizard-form label span { display: block; font-weight: 600; margin-bottom: 4px; }
