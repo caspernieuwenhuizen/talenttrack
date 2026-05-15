@@ -1,3 +1,77 @@
+# TalentTrack v3.110.107 — Evaluation list page rich filter block: parity with the goals page (team / player / type / date range + search), pagination, sortable headers via FrontendListTable (#0092)
+
+Group 4 (and the final group) of the evaluation-flow polish pass kicked off in v3.110.103. Sortable headers landed in parallel ship v3.110.102 (#401). This ship retrofits the rest of the list view to the rich-filter pattern the goals page already uses.
+
+## Pilot ask
+
+> "the evaluation list page should have the same rich filter block as the goals page and the table should have sortable headers."
+
+Before: three filter inputs (team / from / to), a hard `LIMIT 100`, no search, no pagination, no per-page control. After: the same component the goals page uses, the same paging behaviour every other rich list view in the app provides.
+
+## Front end — `FrontendEvaluationsView`
+
+`render()`'s list path is now eight lines: a permission-gated **New evaluation** action in the page-header slot (parity with goals), then `self::renderList(…)`. `renderList()` is a single `FrontendListTable::render()` call.
+
+```php
+echo FrontendListTable::render( [
+    'rest_path' => 'evaluations',
+    'columns'   => [
+        'eval_date'   => [ 'label' => __('Date',    'talenttrack'), 'sortable' => true, 'render' => 'html', 'value_key' => 'date_link_html' ],
+        'player_name' => [ 'label' => __('Player',  'talenttrack'), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html' ],
+        'team_name'   => [ 'label' => __('Team',    'talenttrack'), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
+        'coach_name'  => [ 'label' => __('Coach',   'talenttrack'), 'sortable' => true, 'render' => 'html', 'value_key' => 'coach_link_html' ],
+        'avg_rating'  => [ 'label' => __('Average', 'talenttrack'), 'sortable' => true, 'render' => 'html', 'value_key' => 'avg_link_html' ],
+        'notes'       => [ 'label' => __('Notes',   'talenttrack'),                       'render' => 'text', 'value_key' => 'notes_excerpt' ],
+    ],
+    'filters' => [
+        'team_id'      => [ 'type' => 'select',     'label' => __('Team',   'talenttrack'), 'options' => TeamPickerComponent::filterOptions( $user_id, $is_admin ) ],
+        'player_id'    => [ 'type' => 'select',     'label' => __('Player', 'talenttrack'), 'options' => $player_options ],
+        'eval_type_id' => [ 'type' => 'select',     'label' => __('Type',   'talenttrack'), 'options' => $type_options ],
+        'date'         => [ 'type' => 'date_range', 'param_from' => 'date_from', 'param_to' => 'date_to',
+                            'label_from' => __('From', 'talenttrack'), 'label_to' => __('To', 'talenttrack') ],
+    ],
+    'search'       => [ 'placeholder' => __('Search player, notes…', 'talenttrack') ],
+    'default_sort' => [ 'orderby' => 'eval_date', 'order' => 'desc' ],
+    'empty_state'  => __('No evaluations match your filters.', 'talenttrack'),
+] );
+```
+
+Player options scope the way the goals page scopes — admins see every player, coaches see players on their own teams. Type options come from the `eval_type` lookup vocabulary via `QueryHelpers::get_eval_types()`, resolved through `LookupTranslator::name()` so the labels honour locale. Cells render pre-formatted HTML links served by the REST endpoint, so click-through behaviour is unchanged from the hand-rolled table.
+
+## REST end — `EvaluationsRestController::list_evals`
+
+Rewritten to the FrontendListTable contract (matches `GoalsRestController::list_goals`):
+
+- Reads `filter[team_id]`, `filter[player_id]`, `filter[eval_type_id]`, `filter[date_from]`, `filter[date_to]`, `search`, `orderby`, `order`, `page`, `per_page`.
+- Whitelists `orderby` to `eval_date | player_name | team_name | coach_name | avg_rating` (any other value silently coerces to `eval_date`).
+- Defaults: `eval_date desc`, page 1, 25 per page.
+- Coach-scoping preserved — non-admins see only evals for players on teams they head-coach (returns an empty payload, not a 403, when the coach has zero teams).
+- Returns the standard `{rows, total, page, per_page}` envelope.
+- Each row is pre-formatted with `date_link_html`, `player_link_html`, `team_link_html`, `coach_link_html`, `avg_link_html`, `notes_excerpt`, plus the raw scalars for sort/filter use.
+
+### Backward-compatibility
+
+Legacy callers that hit `GET /evaluations?player_id=N` (the v3.0 contract — the only pre-existing external shape) keep working: the top-level `player_id` is folded into the filter map server-side before the WHERE clauses are assembled. New callers should use `filter[player_id]=N` for consistency with the rest of the v1 API.
+
+## Cleanup
+
+The hand-rolled `filtersFromQuery()`, `renderFilters()`, `renderTable()`, `parseDate()` methods on `FrontendEvaluationsView` are deleted (~200 lines). One filter form, one rendering path, one REST endpoint feeding both the FrontendListTable hydrator AND any non-WordPress front end that wants the same data (CLAUDE.md §4 SaaS-readiness).
+
+## How to test
+
+1. Visit `?tt_view=evaluations` as the head coach. **Confirm**: the filter bar shows Team, Player, Type, From, To, and a search input — same layout as the goals page. The **New evaluation** CTA sits in the page header (top-right on desktop, FAB-like on mobile).
+2. **Filter by Team** — pick one team from the dropdown, confirm only evals for players in that team are listed.
+3. **Filter by Player** — pick a single player from the dropdown, confirm only that player's evals are listed.
+4. **Filter by Type** — pick `Training`, then `Game` — confirm the list narrows accordingly. Empty types render the empty state.
+5. **Date range** — set From = 1 month ago, To = today. Confirm older evals drop out.
+6. **Search** — type a player's surname, confirm matching rows. Type a phrase that appears in a notes field, confirm the row containing that note surfaces.
+7. **Sort** — click each column header (Date, Player, Team, Coach, Average) and confirm the order flips. Notes is intentionally not sortable.
+8. **Pagination** — change Per-page to 10. Confirm a 10-row page renders + the pager shows `Page 1 of N`. Click Next to load the next page.
+9. **URL persistence** — apply some filters + sort, copy the URL, open in a new tab. Confirm the filtered/sorted state is restored.
+10. **Empty state** — apply filters that match nothing (e.g. an unlikely date range). Confirm `No evaluations match your filters.` is shown.
+
+---
+
 # TalentTrack v3.110.106 — Player profile tabs as sortable tables; attendance status pills colour-coded
 
 Two operator-requested polish items on the player profile page.

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * EvaluationsRestController — /wp-json/talenttrack/v1/evaluations
@@ -42,15 +43,238 @@ class EvaluationsRestController {
         ]);
     }
 
+    /** Whitelist of columns the `orderby` query param accepts (v3.110.106). */
+    private const ORDERBY_WHITELIST = [
+        'eval_date'   => 'e.eval_date',
+        'player_name' => 'pl.last_name',
+        'team_name'   => 't.name',
+        'coach_name'  => 'u.display_name',
+        'avg_rating'  => 'avg_rating',
+    ];
+
+    /**
+     * GET /evaluations — paginated list with search, filters, sort.
+     *
+     * v3.110.106 — rewritten to support the FrontendListTable contract
+     * used by `FrontendEvaluationsView` (and matching the goals page
+     * pattern): pagination, filter[…], search, orderby/order, returns
+     * `{rows, total, page, per_page}` shape.
+     *
+     * Backward-compat: a top-level `?player_id=N` (no `filter[…]`
+     * wrapping, the legacy shape) is still honoured by folding it into
+     * the filter map. Callers that just want a player's evaluations
+     * keep working without code changes.
+     *
+     * Query params:
+     *   ?search=<text>                 — player name / notes LIKE
+     *   ?filter[team_id]=<int>         — via player → team join
+     *   ?filter[player_id]=<int>
+     *   ?filter[eval_type_id]=<int>
+     *   ?filter[date_from]=<YYYY-MM-DD>
+     *   ?filter[date_to]=<YYYY-MM-DD>
+     *   ?orderby=eval_date|player_name|team_name|coach_name|avg_rating
+     *   ?order=asc|desc                                  (default desc on eval_date)
+     *   ?page=<int>                                      (default 1)
+     *   ?per_page=10|25|50|100                           (default 25)
+     */
     public static function list_evals( \WP_REST_Request $r ) {
         global $wpdb; $p = $wpdb->prefix;
-        $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
-        if ( $r['player_id'] ) {
-            $rows = $wpdb->get_results( $wpdb->prepare( "SELECT e.* FROM {$p}tt_evaluations e WHERE e.player_id=%d {$scope} ORDER BY e.eval_date DESC LIMIT 100", absint( $r['player_id'] ) ) );
-        } else {
-            $rows = $wpdb->get_results( "SELECT e.* FROM {$p}tt_evaluations e WHERE 1=1 {$scope} ORDER BY e.eval_date DESC LIMIT 100" );
+
+        $page     = max( 1, absint( $r['page'] ?? 1 ) );
+        $per_page = self::clamp_per_page( $r['per_page'] ?? 25 );
+        $offset   = ( $page - 1 ) * $per_page;
+
+        $orderby_key = sanitize_key( (string) ( $r['orderby'] ?? 'eval_date' ) );
+        if ( ! isset( self::ORDERBY_WHITELIST[ $orderby_key ] ) ) {
+            $orderby_key = 'eval_date';
         }
-        return RestResponse::success( array_map( function ( $e ) { return (array) $e; }, $rows ) );
+        $orderby = self::ORDERBY_WHITELIST[ $orderby_key ];
+        $order   = strtolower( (string) ( $r['order'] ?? ( $orderby_key === 'eval_date' ? 'desc' : 'asc' ) ) );
+        if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'desc';
+
+        $where  = [ 'e.club_id = %d', 'e.archived_at IS NULL' ];
+        $params = [ CurrentClub::id() ];
+
+        $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
+
+        // Coach-scoping: non-admins only see evals for players on teams
+        // they head-coach. Matches the v3.110.105 hand-rolled view.
+        if ( ! current_user_can( 'tt_edit_settings' ) ) {
+            $coach_teams = QueryHelpers::get_teams_for_coach( get_current_user_id() );
+            if ( ! $coach_teams ) {
+                return RestResponse::success( [
+                    'rows' => [], 'total' => 0, 'page' => $page, 'per_page' => $per_page,
+                ] );
+            }
+            $team_ids     = array_map( static fn( $t ) => (int) $t->id, $coach_teams );
+            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+            $where[]      = "pl.team_id IN ($placeholders)";
+            $params       = array_merge( $params, $team_ids );
+        }
+
+        $filter = is_array( $r['filter'] ?? null ) ? (array) $r['filter'] : [];
+
+        // Legacy top-level `?player_id=N` callers (pre-v3.110.106 contract).
+        if ( ! empty( $r['player_id'] ) && empty( $filter['player_id'] ) ) {
+            $filter['player_id'] = absint( $r['player_id'] );
+        }
+
+        if ( ! empty( $filter['team_id'] ) ) {
+            $where[]  = 'pl.team_id = %d';
+            $params[] = absint( $filter['team_id'] );
+        }
+        if ( ! empty( $filter['player_id'] ) ) {
+            $where[]  = 'e.player_id = %d';
+            $params[] = absint( $filter['player_id'] );
+        }
+        if ( ! empty( $filter['eval_type_id'] ) ) {
+            $where[]  = 'e.eval_type_id = %d';
+            $params[] = absint( $filter['eval_type_id'] );
+        }
+        if ( ! empty( $filter['date_from'] ) ) {
+            $where[]  = 'e.eval_date >= %s';
+            $params[] = sanitize_text_field( (string) $filter['date_from'] );
+        }
+        if ( ! empty( $filter['date_to'] ) ) {
+            $where[]  = 'e.eval_date <= %s';
+            $params[] = sanitize_text_field( (string) $filter['date_to'] );
+        }
+
+        if ( ! empty( $r['search'] ) ) {
+            $like     = '%' . $wpdb->esc_like( (string) $r['search'] ) . '%';
+            $where[]  = "(pl.first_name LIKE %s OR pl.last_name LIKE %s OR e.notes LIKE %s)";
+            $params[] = $like; $params[] = $like; $params[] = $like;
+        }
+
+        $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
+
+        $list_sql = "SELECT e.id, e.eval_date, e.notes, e.player_id, e.coach_id, e.eval_type_id,
+                            pl.first_name, pl.last_name, pl.team_id,
+                            t.name AS team_name,
+                            u.display_name AS coach_name,
+                            coach_p.id AS coach_person_id,
+                            et.name  AS eval_type_key,
+                            et.label AS eval_type_label,
+                            et.meta  AS eval_type_meta,
+                            (SELECT AVG(r.rating) FROM {$p}tt_eval_ratings r
+                              WHERE r.evaluation_id = e.id AND r.club_id = e.club_id) AS avg_rating
+                       FROM {$p}tt_evaluations e
+                       LEFT JOIN {$p}tt_players pl     ON pl.id = e.player_id
+                       LEFT JOIN {$p}tt_teams   t      ON t.id  = pl.team_id
+                       LEFT JOIN {$wpdb->users} u      ON u.ID  = e.coach_id
+                       LEFT JOIN {$p}tt_people  coach_p ON coach_p.wp_user_id = e.coach_id AND coach_p.club_id = e.club_id
+                       LEFT JOIN {$p}tt_lookups et     ON et.id = e.eval_type_id AND et.lookup_type = 'eval_type'
+                      WHERE {$where_sql}
+                      ORDER BY {$orderby} {$order}, e.id DESC
+                      LIMIT %d OFFSET %d";
+
+        $list_params = array_merge( $params, [ $per_page, $offset ] );
+        $rows        = $wpdb->get_results( $wpdb->prepare( $list_sql, ...$list_params ) );
+
+        $count_sql = "SELECT COUNT(*) FROM {$p}tt_evaluations e
+                       LEFT JOIN {$p}tt_players pl ON pl.id = e.player_id
+                       LEFT JOIN {$p}tt_teams   t  ON t.id  = pl.team_id
+                       LEFT JOIN {$wpdb->users} u  ON u.ID  = e.coach_id
+                      WHERE {$where_sql}";
+        $total = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) );
+
+        return RestResponse::success( [
+            'rows'     => array_map( [ __CLASS__, 'format_row' ], $rows ?: [] ),
+            'total'    => $total,
+            'page'     => $page,
+            'per_page' => $per_page,
+        ] );
+    }
+
+    private static function clamp_per_page( $value ): int {
+        $n = absint( $value );
+        if ( ! in_array( $n, [ 10, 25, 50, 100 ], true ) ) return 25;
+        return $n;
+    }
+
+    /**
+     * @param object $row evaluations row joined with player / team / coach / eval_type
+     * @return array<string,mixed>
+     */
+    private static function format_row( $row ): array {
+        $first       = (string) ( $row->first_name ?? '' );
+        $last        = (string) ( $row->last_name ?? '' );
+        $player_name = trim( $first . ' ' . $last );
+        if ( $player_name === '' ) $player_name = '#' . (int) $row->player_id;
+        $player_id  = (int) $row->player_id;
+        $team_id    = (int) ( $row->team_id ?? 0 );
+        $team_name  = (string) ( $row->team_name ?? '' );
+        $coach_name = (string) ( $row->coach_name ?? '' );
+        $coach_pid  = (int) ( $row->coach_person_id ?? 0 );
+        $eval_id    = (int) $row->id;
+        $avg        = $row->avg_rating !== null ? round( (float) $row->avg_rating, 1 ) : null;
+
+        $eval_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
+            add_query_arg(
+                [ 'tt_view' => 'evaluations', 'id' => $eval_id ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            )
+        );
+
+        // Pre-rendered link HTML so FrontendListTable can render cells via render: html.
+        $date_link_html = '<a class="tt-record-link" href="' . esc_url( $eval_url ) . '">'
+                        . esc_html( (string) $row->eval_date ) . '</a>';
+
+        $player_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+            $player_name,
+            \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', $player_id )
+        );
+
+        $team_link_html = '—';
+        if ( $team_id > 0 && $team_name !== '' ) {
+            $team_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+                $team_name,
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', $team_id )
+            );
+        } elseif ( $team_name !== '' ) {
+            $team_link_html = esc_html( $team_name );
+        }
+
+        $coach_link_html = $coach_name !== '' ? esc_html( $coach_name ) : '—';
+        if ( $coach_name !== '' && $coach_pid > 0 ) {
+            $coach_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+                $coach_name,
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', $coach_pid )
+            );
+        }
+
+        $avg_text     = $avg === null ? '—' : number_format_i18n( $avg, 1 );
+        $avg_link_html = $avg === null
+            ? '<span class="tt-muted">—</span>'
+            : '<a class="tt-record-link" href="' . esc_url( $eval_url ) . '"><strong>' . esc_html( $avg_text ) . '</strong></a>';
+
+        $eval_type_label = '';
+        if ( ! empty( $row->eval_type_id ) ) {
+            $eval_type_label = (string) \TT\Infrastructure\Query\LookupTranslator::name( (object) [
+                'name'  => (string) ( $row->eval_type_key ?? '' ),
+                'label' => (string) ( $row->eval_type_label ?? '' ),
+                'meta'  => (string) ( $row->eval_type_meta ?? '' ),
+            ] );
+        }
+
+        return [
+            'id'              => $eval_id,
+            'eval_date'       => (string) $row->eval_date,
+            'date_link_html'  => $date_link_html,
+            'player_id'       => $player_id,
+            'player_name'     => $player_name,
+            'player_link_html'=> $player_link_html,
+            'team_id'         => $team_id,
+            'team_name'       => $team_name,
+            'team_link_html'  => $team_link_html,
+            'coach_name'      => $coach_name,
+            'coach_link_html' => $coach_link_html,
+            'eval_type_id'    => (int) ( $row->eval_type_id ?? 0 ),
+            'eval_type_label' => $eval_type_label,
+            'avg_rating'      => $avg,
+            'avg_link_html'   => $avg_link_html,
+            'notes_excerpt'   => esc_html( wp_trim_words( (string) ( $row->notes ?? '' ), 14 ) ),
+        ];
     }
 
     public static function get_eval( \WP_REST_Request $r ) {

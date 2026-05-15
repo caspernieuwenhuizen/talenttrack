@@ -3,7 +3,10 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Shared\Frontend\Components\FrontendListTable;
+use TT\Shared\Frontend\Components\TeamPickerComponent;
 
 /**
  * FrontendEvaluationsView — coach-tier evaluations surface.
@@ -90,239 +93,97 @@ class FrontendEvaluationsView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
             __( 'Evaluations', 'talenttrack' )
         );
-        self::renderHeader( __( 'Evaluations', 'talenttrack' ) );
 
-        $base_url = remove_query_arg( [ 'action', 'id', 'f_team_id', 'f_player_id', 'f_date_from', 'f_date_to' ] );
-        $flat_url = add_query_arg( [ 'tt_view' => 'evaluations', 'action' => 'new' ], $base_url );
-        $new_url  = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-evaluation', $flat_url );
-
-        // v3.110.102 — pass `tt_back` pointing back at the
-        // evaluations list. The wizard view now honours tt_back as
-        // the Cancel target (alongside the existing `return_to`
-        // mechanism) AND `FrontendBreadcrumbs::fromDashboard` emits
-        // the `← Back to evaluations` pill at the top of the wizard
-        // surface. Two affordances, both routed back to where the
-        // coach came from. Pilot symptom: entering the wizard from
-        // the evaluations tile and clicking Cancel dropped them on
-        // the dashboard, not back on the list.
+        // v3.110.106 — "New evaluation" CTA moves into the page-header
+        // actions slot for parity with the goals page (which is what
+        // this list view's filter block was just retrofitted to match).
+        $base_url      = remove_query_arg( [ 'action', 'id', 'f_team_id', 'f_player_id', 'f_date_from', 'f_date_to' ] );
+        $flat_url      = add_query_arg( [ 'tt_view' => 'evaluations', 'action' => 'new' ], $base_url );
+        $new_url       = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-evaluation', $flat_url );
         $eval_list_url = add_query_arg( [ 'tt_view' => 'evaluations' ], $base_url );
         $new_url       = add_query_arg( [ 'tt_back' => rawurlencode( $eval_list_url ) ], $new_url );
 
-        echo '<p style="margin:0 0 12px;"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
-            . esc_html__( 'New evaluation', 'talenttrack' )
-            . '</a></p>';
+        $page_actions = [];
+        if ( current_user_can( 'tt_edit_evaluations' ) ) {
+            $page_actions[] = [
+                'label'   => __( 'New evaluation', 'talenttrack' ),
+                'href'    => $new_url,
+                'primary' => true,
+                'icon'    => '+',
+            ];
+        }
+        self::renderHeader( __( 'Evaluations', 'talenttrack' ), self::pageActionsHtml( $page_actions ) );
 
-        $filters = self::filtersFromQuery();
-        self::renderFilters( $filters, $teams );
-        self::renderTable( $user_id, $is_admin, $filters );
-    }
-
-    /** @return array<string, mixed> */
-    private static function filtersFromQuery(): array {
-        $f = [];
-        if ( ! empty( $_GET['f_team_id'] ) )   $f['team_id']   = absint( $_GET['f_team_id'] );
-        if ( ! empty( $_GET['f_player_id'] ) ) $f['player_id'] = absint( $_GET['f_player_id'] );
-        if ( ! empty( $_GET['f_date_from'] ) ) $f['date_from'] = sanitize_text_field( wp_unslash( (string) $_GET['f_date_from'] ) );
-        if ( ! empty( $_GET['f_date_to'] ) )   $f['date_to']   = sanitize_text_field( wp_unslash( (string) $_GET['f_date_to'] ) );
-        return $f;
+        self::renderList( $user_id, $is_admin );
     }
 
     /**
-     * @param array<string,mixed> $filters
-     * @param object[]            $teams
+     * v3.110.106 — declarative list using FrontendListTable. Filters
+     * mirror the goals page (team / player / type / date range +
+     * search), sortable columns + pagination handled by the shared
+     * component, REST shape served by EvaluationsRestController.
      */
-    private static function renderFilters( array $filters, array $teams ): void {
-        $sel_team   = (int) ( $filters['team_id']   ?? 0 );
-        $sel_player = (int) ( $filters['player_id'] ?? 0 );
-        $sel_from   = (string) ( $filters['date_from'] ?? '' );
-        $sel_to     = (string) ( $filters['date_to']   ?? '' );
-        ?>
-        <form method="get" style="display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end; margin-bottom:12px;">
-            <input type="hidden" name="tt_view" value="evaluations" />
-
-            <div class="tt-field" style="flex:1 1 200px;">
-                <label class="tt-field-label" for="tt-eval-f-team"><?php esc_html_e( 'Team', 'talenttrack' ); ?></label>
-                <select id="tt-eval-f-team" name="f_team_id" class="tt-input">
-                    <option value="0"><?php esc_html_e( 'All teams', 'talenttrack' ); ?></option>
-                    <?php foreach ( $teams as $t ) : ?>
-                        <option value="<?php echo (int) $t->id; ?>" <?php selected( $sel_team, (int) $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="tt-field" style="flex:0 0 140px;">
-                <label class="tt-field-label" for="tt-eval-f-from"><?php esc_html_e( 'From', 'talenttrack' ); ?></label>
-                <input id="tt-eval-f-from" type="date" name="f_date_from" value="<?php echo esc_attr( $sel_from ); ?>" class="tt-input" />
-            </div>
-            <div class="tt-field" style="flex:0 0 140px;">
-                <label class="tt-field-label" for="tt-eval-f-to"><?php esc_html_e( 'To', 'talenttrack' ); ?></label>
-                <input id="tt-eval-f-to" type="date" name="f_date_to" value="<?php echo esc_attr( $sel_to ); ?>" class="tt-input" />
-            </div>
-            <div class="tt-field" style="flex:0 0 auto; align-self:flex-end;">
-                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Filter', 'talenttrack' ); ?></button>
-                <a href="<?php echo esc_url( remove_query_arg( [ 'f_team_id', 'f_player_id', 'f_date_from', 'f_date_to' ] ) ); ?>" class="tt-btn tt-btn-secondary"><?php esc_html_e( 'Clear', 'talenttrack' ); ?></a>
-            </div>
-        </form>
-        <?php
-    }
-
-    /**
-     * @param array<string,mixed> $filters
-     */
-    private static function renderTable( int $user_id, bool $is_admin, array $filters ): void {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        // Scope to the coach's teams when not admin. Joins to player +
-        // team for display columns and so the team filter actually
-        // filters by the player's team rather than a denormalised one.
-        $where  = '1=1';
-        $params = [];
-
-        if ( ! $is_admin ) {
-            $teams = QueryHelpers::get_teams_for_coach( $user_id );
-            $team_ids = array_map( static fn( $t ) => (int) $t->id, $teams );
-            if ( empty( $team_ids ) ) {
-                echo '<p><em>' . esc_html__( 'You are not assigned to any teams yet.', 'talenttrack' ) . '</em></p>';
-                return;
+    private static function renderList( int $user_id, bool $is_admin ): void {
+        // Player options — admins see everyone, coaches see players on
+        // their own teams. Same scoping as the goals page.
+        $player_options = [];
+        if ( $is_admin ) {
+            foreach ( QueryHelpers::get_players() as $pl ) {
+                $player_options[ (int) $pl->id ] = QueryHelpers::player_display_name( $pl );
             }
-            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
-            $where  .= " AND pl.team_id IN ($placeholders)";
-            $params = array_merge( $params, $team_ids );
-        }
-
-        if ( ! empty( $filters['team_id'] ) ) {
-            $where   .= ' AND pl.team_id = %d';
-            $params[] = (int) $filters['team_id'];
-        }
-        if ( ! empty( $filters['player_id'] ) ) {
-            $where   .= ' AND e.player_id = %d';
-            $params[] = (int) $filters['player_id'];
-        }
-        if ( ! empty( $filters['date_from'] ) ) {
-            $df = self::parseDate( (string) $filters['date_from'] );
-            if ( $df !== '' ) {
-                $where   .= ' AND e.eval_date >= %s';
-                $params[] = $df;
-            }
-        }
-        if ( ! empty( $filters['date_to'] ) ) {
-            $dt = self::parseDate( (string) $filters['date_to'] );
-            if ( $dt !== '' ) {
-                $where   .= ' AND e.eval_date <= %s';
-                $params[] = $dt;
+        } else {
+            foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
+                foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) {
+                    $player_options[ (int) $pl->id ] = QueryHelpers::player_display_name( $pl );
+                }
             }
         }
 
-        // #0070 — also resolve the coach's tt_people.id so the trainer
-        // cell can link to the person detail. Same pattern as the
-        // admin EvaluationsPage uses for its trainer column.
-        //
-        // v3.110.4 — average rating per eval as a correlated subquery
-        // over `tt_eval_ratings`. Read by `renderTable()` to render an
-        // Average column whose value links to the eval detail page,
-        // giving operators a way to open the eval itself (the other
-        // cell links go to the player / team / coach).
-        $sql = "SELECT e.id, e.eval_date, e.notes, e.player_id, e.coach_id,
-                       pl.first_name, pl.last_name, pl.team_id,
-                       t.name AS team_name,
-                       u.display_name AS coach_name,
-                       coach_p.id AS coach_person_id,
-                       (SELECT AVG(r.rating) FROM {$p}tt_eval_ratings r WHERE r.evaluation_id = e.id AND r.club_id = e.club_id) AS avg_rating
-                  FROM {$p}tt_evaluations e
-                  LEFT JOIN {$p}tt_players pl ON pl.id = e.player_id
-                  LEFT JOIN {$p}tt_teams   t  ON t.id  = pl.team_id
-                  LEFT JOIN {$wpdb->users} u  ON u.ID  = e.coach_id
-                  LEFT JOIN {$p}tt_people coach_p ON coach_p.wp_user_id = e.coach_id AND coach_p.club_id = e.club_id
-                 WHERE $where AND e.archived_at IS NULL
-                 ORDER BY e.eval_date DESC, e.id DESC
-                 LIMIT 100";
-
-        $rows = $params
-            ? $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) )
-            : $wpdb->get_results( $sql );
-
-        if ( empty( $rows ) ) {
-            echo '<p class="tt-notice">' . esc_html__( 'No evaluations match these filters yet.', 'talenttrack' ) . '</p>';
-            return;
+        // Evaluation-type options from the eval_type lookup vocabulary,
+        // resolved through LookupTranslator so the label honours locale.
+        $type_options = [];
+        foreach ( QueryHelpers::get_eval_types() as $lk ) {
+            $type_options[ (int) $lk->id ] = (string) LookupTranslator::name( $lk );
         }
 
-        // v3.110.55 — list rows are view-only. The inline Delete (×) and
-        // the per-row Open button were removed: deletion now happens
-        // from the detail page's Archive action, and the row cells are
-        // already click-through (Date links to eval, Player/Team/Coach
-        // link to their respective detail pages, Average opens eval).
-        $base_url = add_query_arg( [ 'tt_view' => 'evaluations' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
-        ?>
-        <div class="tt-table-wrap" style="overflow-x:auto;">
-            <table class="tt-table tt-table-sortable" style="width:100%;">
-                <thead><tr>
-                    <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Coach', 'talenttrack' ); ?></th>
-                    <th style="text-align:right;"><?php esc_html_e( 'Average', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
-                </tr></thead>
-                <tbody>
-                <?php foreach ( $rows as $r ) :
-                    $name = trim( ( $r->first_name ?? '' ) . ' ' . ( $r->last_name ?? '' ) );
-                    if ( $name === '' ) $name = '#' . (int) $r->player_id;
-                    $team_id    = (int) ( $r->team_id ?? 0 );
-                    $team_name  = (string) ( $r->team_name ?? '' );
-                    $coach_name = (string) ( $r->coach_name ?? '' );
-                    $coach_pid  = (int) ( $r->coach_person_id ?? 0 );
-                    $eval_id    = (int) $r->id;
-                    $eval_url   = \TT\Shared\Frontend\Components\BackLink::appendTo(
-                        add_query_arg( [ 'tt_view' => 'evaluations', 'id' => $eval_id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() )
-                    );
-                    $avg        = $r->avg_rating !== null ? round( (float) $r->avg_rating, 1 ) : null;
-                    $avg_text   = $avg === null ? '—' : number_format_i18n( $avg, 1 );
-                    ?>
-                    <tr data-tt-row>
-                        <td style="white-space:nowrap;">
-                            <a class="tt-record-link" href="<?php echo esc_url( $eval_url ); ?>"><?php echo esc_html( (string) $r->eval_date ); ?></a>
-                        </td>
-                        <td><?php
-                            // #0070 — player name links to player detail.
-                            echo \TT\Shared\Frontend\Components\RecordLink::inline(
-                                $name,
-                                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', (int) $r->player_id )
-                            );
-                        ?></td>
-                        <td><?php
-                            if ( $team_id > 0 && $team_name !== '' ) {
-                                echo \TT\Shared\Frontend\Components\RecordLink::inline(
-                                    $team_name,
-                                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', $team_id )
-                                );
-                            } else {
-                                echo esc_html( $team_name !== '' ? $team_name : '—' );
-                            }
-                        ?></td>
-                        <td><?php
-                            if ( $coach_name !== '' && $coach_pid > 0 ) {
-                                echo \TT\Shared\Frontend\Components\RecordLink::inline(
-                                    $coach_name,
-                                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', $coach_pid )
-                                );
-                            } else {
-                                echo esc_html( $coach_name !== '' ? $coach_name : '—' );
-                            }
-                        ?></td>
-                        <td style="text-align:right; font-variant-numeric:tabular-nums;">
-                            <?php if ( $avg !== null ) : ?>
-                                <a class="tt-record-link" href="<?php echo esc_url( $eval_url ); ?>"><strong><?php echo esc_html( $avg_text ); ?></strong></a>
-                            <?php else : ?>
-                                <span class="tt-muted">—</span>
-                            <?php endif; ?>
-                        </td>
-                        <td style="max-width:300px; overflow-wrap:anywhere;"><?php echo esc_html( wp_trim_words( (string) ( $r->notes ?? '' ), 14 ) ); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php
+        echo FrontendListTable::render( [
+            'rest_path' => 'evaluations',
+            'columns'   => [
+                'eval_date'  => [ 'label' => __( 'Date',    'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'date_link_html' ],
+                'player_name'=> [ 'label' => __( 'Player',  'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html' ],
+                'team_name'  => [ 'label' => __( 'Team',    'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
+                'coach_name' => [ 'label' => __( 'Coach',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'coach_link_html' ],
+                'avg_rating' => [ 'label' => __( 'Average', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'avg_link_html' ],
+                'notes'      => [ 'label' => __( 'Notes',   'talenttrack' ),                       'render' => 'text', 'value_key' => 'notes_excerpt' ],
+            ],
+            'filters' => [
+                'team_id' => [
+                    'type'    => 'select',
+                    'label'   => __( 'Team', 'talenttrack' ),
+                    'options' => TeamPickerComponent::filterOptions( $user_id, $is_admin ),
+                ],
+                'player_id' => [
+                    'type'    => 'select',
+                    'label'   => __( 'Player', 'talenttrack' ),
+                    'options' => $player_options,
+                ],
+                'eval_type_id' => [
+                    'type'    => 'select',
+                    'label'   => __( 'Type', 'talenttrack' ),
+                    'options' => $type_options,
+                ],
+                'date' => [
+                    'type'       => 'date_range',
+                    'param_from' => 'date_from',
+                    'param_to'   => 'date_to',
+                    'label_from' => __( 'From', 'talenttrack' ),
+                    'label_to'   => __( 'To',   'talenttrack' ),
+                ],
+            ],
+            'search'       => [ 'placeholder' => __( 'Search player, notes…', 'talenttrack' ) ],
+            'default_sort' => [ 'orderby' => 'eval_date', 'order' => 'desc' ],
+            'empty_state'  => __( 'No evaluations match your filters.', 'talenttrack' ),
+        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
     }
 
     /**
@@ -556,13 +417,6 @@ class FrontendEvaluationsView extends FrontendViewBase {
             </div>
         </section>
         <?php
-    }
-
-    private static function parseDate( string $raw ): string {
-        $raw = trim( $raw );
-        if ( $raw === '' ) return '';
-        $d = \DateTime::createFromFormat( 'Y-m-d', $raw );
-        return ( $d && $d->format( 'Y-m-d' ) === $raw ) ? $raw : '';
     }
 
     /**
