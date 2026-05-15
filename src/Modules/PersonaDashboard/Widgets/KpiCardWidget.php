@@ -22,6 +22,15 @@ class KpiCardWidget extends AbstractWidget {
 
     public function label(): string { return __( 'KPI card', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'A single KPI tile: headline number, trend arrow, optional sparkline. Pick the KPI in the data-source dropdown — the widget calls that KPI\'s `compute()` and renders the live value scoped to the viewing user + their club. Unavailable values render a dash.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'head_coach', 'assistant_coach', 'head_of_development', 'academy_admin', 'player', 'parent', 'scout' ];
+    }
+
     public function defaultSize(): string { return Size::M; }
 
     /** @return list<string> */

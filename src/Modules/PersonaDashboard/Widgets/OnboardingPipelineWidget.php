@@ -50,6 +50,15 @@ class OnboardingPipelineWidget extends AbstractWidget {
         return __( 'Onboarding pipeline', 'talenttrack' );
     }
 
+    public function description(): string {
+        return __( 'Six-stage count strip — Prospects / Invited / Test training / Trial group / Team offer / Joined — sourced from tt_prospects and tt_workflow_tasks via ProspectStageClassifier. Each stage shows count + an amber stale badge when any task in that stage is >30 days overdue. Scout-scoped (own discovered_by) for scouts; full-club for HoD / admin.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'scout', 'head_of_development', 'academy_admin' ];
+    }
+
     public function defaultSize(): string { return Size::L; }
 
     /** @return list<string> */

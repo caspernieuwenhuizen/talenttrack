@@ -139,9 +139,23 @@ final class EditorPage {
         $widgets = [];
         $data_sources_by_widget = [];
         foreach ( WidgetRegistry::all() as $w ) {
+            // v3.110.110 — description + intended_personas. Methods are
+            // defaulted to empty on AbstractWidget; concrete widgets
+            // override when they want to surface rich detail. KPIs go
+            // through the same `method_exists` pattern below to stay
+            // backwards compatible with existing implementations that
+            // don't declare the new optional methods.
+            $description = method_exists( $w, 'description' )
+                ? (string) $w->description()
+                : '';
+            $intended_personas = method_exists( $w, 'intendedPersonas' )
+                ? (array) $w->intendedPersonas()
+                : [];
             $widgets[] = [
                 'id'                  => $w->id(),
                 'label'               => $w->label(),
+                'description'         => $description,
+                'intended_personas'   => array_values( array_map( 'strval', $intended_personas ) ),
                 'default_size'        => $w->defaultSize(),
                 'allowed_sizes'       => $w->allowedSizes(),
                 'persona_context'     => $w->personaContext(),
@@ -162,9 +176,13 @@ final class EditorPage {
             PersonaContext::PLAYER_PARENT => [],
         ];
         foreach ( KpiDataSourceRegistry::all() as $k ) {
+            $kpi_description = method_exists( $k, 'description' )
+                ? (string) $k->description()
+                : '';
             $kpis_by_context[ $k->context() ][] = [
-                'id'    => $k->id(),
-                'label' => $k->label(),
+                'id'          => $k->id(),
+                'label'       => $k->label(),
+                'description' => $kpi_description,
             ];
         }
 
@@ -278,6 +296,10 @@ final class EditorPage {
             'kpi_context_academy'     => __( 'Academy-wide', 'talenttrack' ),
             'kpi_context_coach'       => __( 'Coach', 'talenttrack' ),
             'kpi_context_player'      => __( 'Player / parent', 'talenttrack' ),
+            // v3.110.110 — properties-panel detail block.
+            'intended_for'            => __( 'Intended for', 'talenttrack' ),
+            'cap_required'            => __( 'Capability required', 'talenttrack' ),
+            'kpi_label'               => __( 'KPI', 'talenttrack' ),
             'persona_label_placeholder' => __( 'Use widget default', 'talenttrack' ),
             'mobile_preview_label'    => __( 'Mobile preview · 360 px', 'talenttrack' ),
             'desktop_label'           => __( 'Desktop · 12 columns', 'talenttrack' ),

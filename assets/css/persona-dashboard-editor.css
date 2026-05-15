@@ -504,6 +504,53 @@ body.tt-pde-dragging * {
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
+
+/* v3.110.110 — widget/KPI detail block. Sits between the title and
+   the editable fields, separated by a soft rule. */
+.tt-pde-properties-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.625rem 0 0.875rem;
+    border-bottom: 1px solid var(--pde-line, #e5e7ea);
+    margin-bottom: 0.5rem;
+}
+.tt-pde-detail-desc {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--pde-text, #1a1d21);
+}
+.tt-pde-detail-personas,
+.tt-pde-detail-cap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+}
+.tt-pde-detail-label {
+    font-weight: 600;
+    color: var(--pde-muted, #5b6e75);
+}
+.tt-pde-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    background: #f0f4f7;
+    border: 1px solid #d3dce0;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: #1a1d21;
+}
+.tt-pde-detail-cap code {
+    font-size: 0.6875rem;
+    background: #f8f9fa;
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    color: var(--pde-muted, #5b6e75);
+}
 .tt-pde-field {
     display: flex;
     flex-direction: column;

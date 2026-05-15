@@ -67,6 +67,15 @@ class ActionCardWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Action card', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'A primary call-to-action tile (e.g. "+ New trial", "+ New evaluation"). The data-source field picks the action; the card renders the action\'s registered label, icon, and gates on its capability — admins without the cap see no card.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'head_coach', 'assistant_coach', 'head_of_development', 'scout' ];
+    }
+
     /** @return array<string,string> */
     public function dataSourceCatalogue(): array {
         $out = [];
