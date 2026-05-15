@@ -1,3 +1,58 @@
+# TalentTrack v3.110.97 — Activity detail page gains a "Continue rating" CTA; rate step filters out already-rated players (#0092)
+
+## Why this exists
+
+v3.110.96 hid already-rated activities from the wizard's `ActivityPicker` — correct for the fresh-rating use case but it cut off the path for a coach who legitimately wanted to add ratings to the remaining players. The v3.110.96 changelog flagged the trade-off as an open follow-up: either relax the picker rule, or add a dedicated re-entry point on the activity detail page. This ship picks the second option (cleaner UX — the activity detail page is already the canonical "what about this activity?" surface).
+
+## The two changes
+
+### (1) "Continue rating" action on the activity detail page
+
+`FrontendActivitiesManageView::render()` builds `$detail_actions` for the page-header actions slot. Pre-v3.110.97 the slot held Edit + Archive. v3.110.97 inserts **Continue rating** between them, gated on:
+
+- `activity_status_key === 'completed'` (rating only makes sense for sessions that happened)
+- `current_user_can( 'tt_edit_evaluations' )` (same cap the `mark-attendance` wizard requires)
+
+The button's href is:
+
+```
+?tt_view=wizard&slug=mark-attendance&activity_id=<id>&restart=1
+```
+
+The `restart=1` forces a fresh wizard run (matches the hero CTAs introduced in v3.110.86). The `activity_id` pre-seeds the wizard via `MarkAttendanceWizard::initialState()` so `ActivityPickerStep::notApplicableFor()` auto-skips and the coach lands on `AttendanceStep` with the existing roster pre-filled.
+
+From there the flow is identical to a fresh run: AttendanceStep → RateConfirmStep → (Yes →) RateActorsStep → ReviewStep → Submit.
+
+### (2) Rate step filters out already-rated players
+
+`RateActorsStep::ratablePlayersForActivity()` previously returned every player marked Present or Late. On re-entry to an already-rated activity that would surface ALL of them again — coach risks creating duplicate eval rows on Submit. Now adds:
+
+```sql
+AND NOT EXISTS (
+    SELECT 1 FROM {$p}tt_evaluations e
+     WHERE e.activity_id = att.activity_id
+       AND e.player_id   = pl.id
+       AND e.club_id     = att.club_id
+)
+```
+
+Re-entry shows ONLY the players who don't have an eval row yet. Submit writes fresh evals for the un-rated set; nobody gets a duplicate. First-run flows are unaffected — the filter is a no-op when no eval rows exist.
+
+## What this doesn't fix
+
+**Updating an existing eval.** A coach who wants to CORRECT a rating they already submitted can't go through the wizard (the player is filtered out of the rate step). The current paths for that are the evaluation list (`?tt_view=evaluations`) and the player detail page. Out of scope for this ship — the wizard is for fresh ratings; corrections are an evaluation-list concern.
+
+## How to verify
+
+1. Walk the wizard end-to-end for a planned activity: mark attendance for 14 players, rate 5 of them, Submit. Activity flips to `completed`, hero hides it, `tt_evaluations` has 5 rows.
+2. Open the just-completed activity from the activities list. Page-header now shows **Edit** + **Continue rating** + **Archive**.
+3. Click **Continue rating**. Wizard opens at the attendance step with the 14 saved statuses pre-filled. Hit Next → RateConfirmStep shows `9 players marked Present or Late.` (only the un-rated ones, even though the original Present count was 14). Pick **Rate the present players**. RateActorsStep lists ONLY the 9 un-rated players; the 5 you already rated are absent.
+4. Rate 3 of the 9, hit Review + Submit. `tt_evaluations` now has 8 rows (5 from the first pass + 3 new). No duplicates.
+5. Click **Continue rating** again. Wizard re-opens; RateActorsStep now shows 6 players (= 9 − 3 just rated).
+6. Sanity: an activity with NO evals yet still flows through the wizard normally — the `NOT EXISTS` is a no-op when no eval rows exist.
+
+---
+
 # TalentTrack v3.110.96 — Wizard activity picker hides activities that already have evaluations (#0092)
 
 ## The bug

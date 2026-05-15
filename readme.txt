@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.96
+Stable tag: 3.110.97
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.97 — Activity detail page gains a "Continue rating" CTA; rate step now filters out already-rated players to avoid duplicate eval rows (#0092) =
+
+v3.110.96 hid already-rated activities from the wizard's `ActivityPicker` (correct for fresh runs), but left coaches who wanted to add ratings to remaining players without a clear entry point. **Fix**: new **Continue rating** action in the activity detail page-header actions slot (`FrontendActivitiesManageView::render()`), placed between **Edit** and **Archive**. Visible when `activity_status_key === 'completed'` AND the coach has `tt_edit_evaluations`. Deep-links into the `mark-attendance` wizard with `activity_id` pre-seeded plus `restart=1` so the wizard always starts fresh — coach lands on AttendanceStep (existing roster pre-filled, can confirm or adjust), advances to RateConfirmStep, picks **Rate the present players**, and the rate-actors step now shows ONLY the players who don't yet have an eval row for this activity. The `RateActorsStep::ratablePlayersForActivity()` query gained a `NOT EXISTS` clause on `tt_evaluations` so re-entry surfaces the un-rated set; first-run flows are unaffected (no eval rows yet means the filter is a no-op). On Submit, fresh eval rows are written for the players the coach rated this pass — no duplicates with the previous run.
 
 = 3.110.96 — Wizard activity picker hides activities that already have evaluations — the just-rated activity no longer reappears in the picker (#0092) =
 
