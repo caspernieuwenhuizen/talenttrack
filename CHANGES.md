@@ -114,6 +114,69 @@ No schema, no migration, no REST changes.
 
 ---
 
+# TalentTrack v3.110.116 — Standard reports: Team + Player attendance statistics on the central Analytics surface
+
+Sequential ship from one operator round (v3.110.108 = Spond URL configurable + Analytics tile; v3.110.114 = Spond login URL + token field fix; widget library detail panel ships next as v3.110.117).
+
+> *"in the analytics module I need a number of standard reports: team attendance statistics, player attendance statistics"* — pilot
+
+## What landed
+
+### New: `?tt_view=attendance-report-team`
+
+`FrontendAttendanceTeamReportView`. One row per team in the date range, columns:
+
+| Team | Activities | Present % | Late % | Absent % | Excused % | Injured % |
+
+Date filter via GET `?from=YYYY-MM-DD&to=YYYY-MM-DD`, defaults to last 90 days. Query joins `tt_teams`, `tt_activities` (filtered to `plan_state='completed'`, archived rows excluded), `tt_attendance` (`is_guest = 0`). Status percentages use `LOWER(att.status)` to aggregate legacy mixed-case rows and v3.110.78-onward lowercase rows into the same bucket. Team name click-throughs to `?tt_view=teams&id=N` with `tt_back` set.
+
+### New: `?tt_view=attendance-report-player`
+
+`FrontendAttendancePlayerReportView`. Same five percentage columns, with **Team** and **Player** columns added. GET filters: `team_id` (default 0 = all teams), `from`, `to`. Team filter dropdown lists every non-archived club team. Player name click-throughs to `?tt_view=players&id=N` with `tt_back`.
+
+### Standard reports section on `FrontendAnalyticsView`
+
+New `renderStandardReports()` method renders a section below the KPI grid:
+
+```
+Standard reports
+[Card: Team attendance statistics — Present/late/absent/… per team]
+[Card: Player attendance statistics — Same percentages per player]
+```
+
+Pre-built reports sit alongside (not replacing) the dimension explorer. The user's stated intent: standard reports give the answer; the explorer is for ad-hoc questions. Both surfaces stay.
+
+New reports add an entry to the `$reports` array in `renderStandardReports()` — title, description, URL — and a matching dispatch case in `DashboardShortcode::render()`.
+
+### Wire-up
+
+- `DashboardShortcode::render()` — two new dispatch cases for `attendance-report-team` and `attendance-report-player`.
+- `BackLabelResolver::listLabel()` — three new entries (`analytics`, `attendance-report-team`, `attendance-report-player`) so the back-pill reads in operator language on detail surfaces reached from these reports.
+
+## Files
+
+- **New** `src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php`
+- **New** `src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php`
+- `src/Modules/Analytics/Frontend/FrontendAnalyticsView.php` — `renderStandardReports()` added
+- `src/Shared/Frontend/DashboardShortcode.php` — two new dispatch cases
+- `src/Shared/Frontend/Components/BackLabelResolver.php` — three new back-pill labels
+- `talenttrack.php` 3.110.115 → 3.110.116
+- `readme.txt`, `CHANGES.md`
+
+No schema, no migration, no new REST.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.116.
+2. Log in as HoD / admin (anyone with `tt_view_analytics`).
+3. Open the Analytics tile (or `?tt_view=analytics`).
+4. Scroll past the KPI grid → **Standard reports** section with two cards.
+5. Click **Team attendance statistics** → table with one row per team, present/late/absent/excused/injured %s. Adjust the date range, click Apply, table re-renders.
+6. Back-pill at top reads "← Back to Analytics".
+7. Click **Player attendance statistics** from Analytics. Filter row has Team + From + To. Pick a team, narrow window, see the breakdown. Click a player name → lands on profile with "← Back to Player attendance" pill.
+
+---
+
 # TalentTrack v3.110.115 — HoD persona polish round 2: '+ New test training' action card + Recent comments & notes widget
 
 Two new HoD-dashboard features per pilot decisions. Originally drafted as v3.110.113 then v3.110.114; both slots taken by parallel Spond-integration ships. Renumbered to v3.110.115 on the second rebase.
