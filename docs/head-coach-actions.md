@@ -67,6 +67,29 @@ Each action lists:
   post-hoc edit surface.
 - **Player-centric framing:** *where now* (presence, engagement signal feeding rating + minutes)
 - **Shipped:**
+  - **v3.110.101** — team detail page: roster columns + sort changed,
+    Analytics section removed.
+    (1) Dropped the Position column from the roster (it read
+    `preferred_positions` JSON, almost always rendered `—`).
+    Added a Jersey # column at the leftmost slot (80px width).
+    Sort changed from alphabetical to `jersey_number` ASC, with
+    players who have no jersey number falling to the end
+    alphabetised. Scoped to this view via `usort()` in
+    `renderRoster()` — `QueryHelpers::get_players()` still
+    returns alpha-sorted for every other caller (lineup picker,
+    attendance roster, etc.).
+    (2) Team-scoped Analytics section removed, mirroring v3.110.99's
+    activity-detail change. Operator wants analytics from the
+    central tile, not per-team. `EntityAnalyticsTabRenderer` +
+    team KPIs stay on disk for the central tile.
+    *How to test:* open `?tt_view=teams&id=N`. Roster table renders
+    `Jersey # | Player | Status` and rows sort numerically by
+    jersey number; players without a number fall to the end with
+    an em-dash in the Jersey # cell. No "Analytics" section
+    anywhere on the page. Trial roster + upcoming activities +
+    chemistry teaser still render. Other surfaces (lineup,
+    attendance) still see the alpha sort — only the team-detail
+    roster sorts by jersey number.
   - **v3.110.99** — activity detail page: attendance headline shows
     the right count; Analytics section removed.
     (1) `renderAttendanceSummary()` aggregated by raw stored case

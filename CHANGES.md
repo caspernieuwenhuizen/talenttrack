@@ -100,6 +100,70 @@ No schema, no migration. The new REST endpoint sits alongside the existing `POST
 
 ---
 
+# TalentTrack v3.110.101 — Team detail: roster column-set + sort changed; Analytics section removed (#0092)
+
+Two operator-requested polish items on the team detail page (`?tt_view=teams&id=N`). Both came in one message after the v3.110.99 ship — same shape of feedback as the activity-detail pass: drop the per-entity analytics, tighten the table the coach actually uses.
+
+## (1) Roster column rework
+
+The roster table on `FrontendTeamDetailView::renderRoster()` rendered:
+
+```
+| Player              | Position | Status |
+|---------------------|----------|--------|
+| Janssen, Mo         | —        |   🟢   |
+| Van Dijk, Sam       | —        |   🟢   |
+| …                                       |
+```
+
+`Position` read `tt_players.preferred_positions` (a JSON column populated by an optional field on the new-player wizard / edit form). Pilot's observation: *"selection table has a column called position, not required so can be removed. Instead add jersey number and sort by it on default."* In practice the Position cell was almost always `—` because positions get tracked in the line-up tooling, not on the player record.
+
+**Fix**:
+
+- Drop the Position column.
+- Add a Jersey # column at the leftmost slot (fixed width 80px so player names dominate at every viewport).
+- Sort the roster by `jersey_number` ASC; players without a number (`NULL` or `0`) drop to the end alphabetised by last/first name.
+
+```
+| Jersey # | Player              | Status |
+|----------|---------------------|--------|
+|     1    | Van Dijk, Sam       |   🟢   |
+|     7    | Janssen, Mo         |   🟢   |
+|     —    | New, Player         |   🟢   |  ← falls to the end
+```
+
+Implementation: `renderRoster()` runs a local `usort()` on the array it receives from `QueryHelpers::get_players()` (which still defaults to alpha for the rest of the codebase). The change is scoped to this view — other callers of `get_players()` see no behavioural change.
+
+```php
+usort( $players, static function ( $a, $b ): int {
+    $an = isset( $a->jersey_number ) && (int) $a->jersey_number > 0 ? (int) $a->jersey_number : PHP_INT_MAX;
+    $bn = isset( $b->jersey_number ) && (int) $b->jersey_number > 0 ? (int) $b->jersey_number : PHP_INT_MAX;
+    if ( $an !== $bn ) return $an <=> $bn;
+    $cmp = strcasecmp( (string) ( $a->last_name ?? '' ), (string) ( $b->last_name ?? '' ) );
+    if ( $cmp !== 0 ) return $cmp;
+    return strcasecmp( (string) ( $a->first_name ?? '' ), (string) ( $b->first_name ?? '' ) );
+} );
+```
+
+Jersey number 0 is treated the same as NULL (both go to the end). Empty cell renders an em-dash in muted grey.
+
+## (2) Analytics section removed
+
+Mirrors v3.110.99's activity-detail change. `renderAnalyticsTeaser()` is no longer called and the method itself is deleted from `FrontendTeamDetailView`. `EntityAnalyticsTabRenderer` and the team-scoped KPIs registered in `KpiRegistry` are unchanged — the central Analytics tile on the dashboard keeps consuming them, so coaches still have access to team analytics, just not embedded in the detail page.
+
+Re-instate the section by adding `\TT\Modules\Analytics\Frontend\EntityAnalyticsTabRenderer::render( 'team', $team_id )` back to the render chain if the operator changes their mind.
+
+## How to verify
+
+1. Open `?tt_view=teams&id=N` for a team with players that have jersey numbers and some without. Roster table now shows `Jersey # | Player | Status` (was `Player | Position | Status`).
+2. Players sort numerically by jersey number ascending. The two with `NULL` jersey numbers appear at the bottom, alphabetised between them.
+3. Empty jersey cells render as a muted em-dash.
+4. No "Analytics" section anywhere on the page.
+5. Trial roster + upcoming activities + chemistry teaser still render normally (only the analytics block was removed).
+6. Other surfaces that call `QueryHelpers::get_players()` (player tile, attendance roster, lineup picker) still get the alpha-sorted result — the jersey sort is local to this view.
+
+---
+
 # TalentTrack v3.110.98 — Prospect dedup helper inline in the wizard; task detail view-only for non-assignees; kanban→task back-pill
 
 Three live-pilot fixes around the prospect-discovery / kanban-to-task flow. All three reported in one round of polish on the scout persona surface.
