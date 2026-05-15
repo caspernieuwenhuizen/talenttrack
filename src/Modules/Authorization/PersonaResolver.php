@@ -84,10 +84,33 @@ class PersonaResolver {
 
     /**
      * #0033 Sprint 7: split a `tt_coach` WP role into head_coach and/or
-     * assistant_coach personas based on the `tt_team_people.is_head_coach`
-     * flag. A coach with no tt_team_people rows still gets head_coach
-     * (defensive default — better to over-grant than to lock them out
-     * during the matrix bridge's dormant phase).
+     * assistant_coach personas. v3.110.108 — derivation now considers
+     * BOTH assignment paths in use today, in this order:
+     *
+     *   1. **Legacy team form**: `tt_teams.head_coach_id = user_id`.
+     *      The team wizard's `ReviewStep` and `TeamsRestController`
+     *      write here; the operator-facing team edit form's "Head
+     *      coach" dropdown writes here. If the user is the
+     *      `head_coach_id` on any team, they are a head coach —
+     *      period.
+     *
+     *   2. **Sprint 7 join table**: `tt_team_people.is_head_coach`
+     *      per row. A user with multiple team assignments may be
+     *      head of one team and assistant on another; both personas
+     *      get added.
+     *
+     * Before v3.110.108 only the join-table path was consulted. A
+     * coach assigned via the team edit form (path 1) without a
+     * matching `is_head_coach=1` row in path 2 was silently
+     * mis-classified as `assistant_coach`. The dashboard greeting
+     * read "Assistant coach" for someone who is a head coach
+     * everywhere they're assigned. Pilot-surfaced fix: union both
+     * paths so the head-coach status is honoured regardless of
+     * which assignment surface wrote it.
+     *
+     * A coach with no assignments via either path still gets
+     * `head_coach` (defensive default — better to over-grant than
+     * to lock them out during the matrix bridge's dormant phase).
      *
      * @return string[]
      */
@@ -95,45 +118,48 @@ class PersonaResolver {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        // Find the person record(s) linked to this WP user.
+        // Path 1 (legacy) — `tt_teams.head_coach_id` direct assignment.
+        $is_team_head = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_teams WHERE head_coach_id = %d AND archived_at IS NULL",
+            $user_id
+        ) ) > 0;
+
+        // Path 2 (Sprint 7) — `tt_team_people.is_head_coach` per row.
+        $has_head      = $is_team_head; // path 1 wins for the head flag
+        $has_assistant = false;
+
         $person_ids = $wpdb->get_col( $wpdb->prepare(
             "SELECT id FROM {$p}tt_people WHERE wp_user_id = %d",
             $user_id
         ) );
-        if ( empty( $person_ids ) ) {
-            return [ 'head_coach' ]; // defensive default
+        if ( ! empty( $person_ids ) ) {
+            $tp_table = "{$p}tt_team_people";
+            if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tp_table ) ) === $tp_table ) {
+                // Check the is_head_coach column exists (guarded for
+                // installs where Sprint 7's migration hasn't run).
+                $col = $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'is_head_coach'",
+                    $tp_table
+                ) );
+                if ( $col !== null ) {
+                    $placeholders = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    $rows = $wpdb->get_results( $wpdb->prepare(
+                        "SELECT is_head_coach, COUNT(*) AS n
+                           FROM {$tp_table}
+                          WHERE person_id IN ({$placeholders})
+                          GROUP BY is_head_coach",
+                        $person_ids
+                    ) );
+                    foreach ( (array) $rows as $r ) {
+                        if ( (int) $r->is_head_coach === 1 && (int) $r->n > 0 ) $has_head = true;
+                        if ( (int) $r->is_head_coach === 0 && (int) $r->n > 0 ) $has_assistant = true;
+                    }
+                }
+            }
         }
 
-        $tp_table = "{$p}tt_team_people";
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tp_table ) ) !== $tp_table ) {
-            return [ 'head_coach' ];
-        }
-
-        // Check if the is_head_coach column even exists yet (guarded for
-        // installs where Sprint 7's migration hasn't run).
-        $col = $wpdb->get_var( $wpdb->prepare(
-            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'is_head_coach'",
-            $tp_table
-        ) );
-        if ( $col === null ) return [ 'head_coach' ];
-
-        $placeholders = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT is_head_coach, COUNT(*) AS n
-               FROM {$tp_table}
-              WHERE person_id IN ({$placeholders})
-              GROUP BY is_head_coach",
-            $person_ids
-        ) );
-
-        $has_head = false;
-        $has_assistant = false;
-        foreach ( (array) $rows as $r ) {
-            if ( (int) $r->is_head_coach === 1 && (int) $r->n > 0 ) $has_head = true;
-            if ( (int) $r->is_head_coach === 0 && (int) $r->n > 0 ) $has_assistant = true;
-        }
         $out = [];
         if ( $has_head )      $out[] = 'head_coach';
         if ( $has_assistant ) $out[] = 'assistant_coach';

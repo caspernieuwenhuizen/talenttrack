@@ -504,20 +504,65 @@
 }
 .tt-pd-task-row {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.625rem 0;
     border-bottom: 1px solid var(--tt-pd-divider);
-    min-height: 48px;
 }
 .tt-pd-task-row:last-child { border-bottom: 0; }
+/* v3.110.108 — anchor IS the row, so the full 48px touch target is the
+   clickable area (not just the text span). */
+.tt-pd-task-row > a,
+.tt-pd-task-row > span.tt-pd-task-title {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 0.5rem 0;
+    min-height: 44px;
+    text-decoration: none;
+    color: inherit;
+}
 .tt-pd-task-empty,
 .tt-pd-mini-list-empty,
 .tt-pd-assigned-empty {
     font-size: 0.875rem;
     color: var(--tt-pd-text-muted);
 }
-.tt-pd-task-due { font-size: 0.75rem; color: var(--tt-pd-text-muted); }
+.tt-pd-task-due { font-size: 0.75rem; color: var(--tt-pd-text-muted); flex-shrink: 0; }
+
+/* Mini list (recent evaluations rail, etc.) — v3.110.108 */
+.tt-pd-mini-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+.tt-pd-mini-list-row {
+    display: flex;
+    border-bottom: 1px solid var(--tt-pd-divider);
+}
+.tt-pd-mini-list-row:last-child { border-bottom: 0; }
+.tt-pd-mini-list-row > a {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 0.5rem 0;
+    min-height: 44px;
+    text-decoration: none;
+    color: inherit;
+}
+.tt-pd-mini-list-name {
+    font-weight: 600;
+    color: var(--tt-pd-text-primary);
+}
+.tt-pd-mini-list-meta {
+    font-size: 0.75rem;
+    color: var(--tt-pd-text-muted);
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+}
 
 /* Data table */
 .tt-pd-table-wrap { overflow-x: auto; }
