@@ -1,3 +1,117 @@
+# TalentTrack v3.110.109 — Dashboard layout editor — drag-and-drop fix: "not allowed" cursor + silent drop rejection
+
+## Pilot symptom
+
+> *"Draggable items can be picked up successfully. The drop canvas visually reacts/highlights during drag. But the cursor shows a red 'not allowed' circle icon when hovering over the canvas. The item cannot actually be dropped."*
+
+The canonical HTML5 DnD failure mode. The "drop visually highlights but cursor shows not-allowed and drop event never fires" trio almost always points at one of two cooperating bugs in the dragover handler. Both were present.
+
+## Root cause
+
+`assets/js/persona-dashboard-editor.js` around line 889 — the dragover handler wired on the three drop-target bands (hero band, task band, grid canvas):
+
+```javascript
+// Pre-fix (broken)
+t.node.addEventListener('dragover', function (e) {
+    if (currentDragKind() == null) return;       // (1) early-return SKIPS preventDefault
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';           // (2) hardcoded 'move' regardless of source
+    t.node.classList.add('is-drop-target');
+    ...
+});
+```
+
+### Bug 1 — Early return before preventDefault
+
+Per the HTML5 spec, a `dragover` target is responsible for telling the browser "I accept this drop" by calling `event.preventDefault()`. A target that doesn't `preventDefault()` on dragover is interpreted as "I reject this drop" — the browser shows the not-allowed cursor and cancels the subsequent `drop` event entirely.
+
+The pre-fix code reads `window.__ttPdeDrag.kind` via `currentDragKind()` and bails out when it's null. That happens any time the drag's state isn't initialised:
+
+- A drag interrupted previously and `dragend` was missed (browser quirk; happens when the drag ends outside the window).
+- A drag re-entered from outside the editor (file drag, OS-level drag).
+- Browsers / browser-versions where one dragover frame fires before our dragstart handler completes setting `__ttPdeDrag`.
+
+Once any single dragover frame returns without `preventDefault`, the drop is permanently rejected for the rest of that gesture.
+
+The existing code knew about a related variant of this bug — see the v3.71.5 comment in `renderWidgetPalette()` lines 786–794, which moved palette items from `<button>` to `<div role="button">` because some browsers don't fire dragstart on form-element buttons. That fix addressed the dragstart side; this ship hardens the dragover side.
+
+### Bug 2 — dropEffect / effectAllowed mismatch
+
+Palette items declare:
+
+```javascript
+// onPaletteDragStart, line 1038
+e.dataTransfer.effectAllowed = 'copy';
+```
+
+Existing canvas cards declare:
+
+```javascript
+// buildCard's dragstart, line 987
+e.dataTransfer.effectAllowed = 'move';
+```
+
+The canvas dragover hardcoded:
+
+```javascript
+e.dataTransfer.dropEffect = 'move';
+```
+
+Per the HTML5 DnD spec, the browser computes the effective operation as the intersection of source's `effectAllowed` and target's `dropEffect`. When the source allows only `copy` but the target requests `move`, the intersection is empty — **the browser cancels the drop and shows the not-allowed cursor even though `preventDefault()` was called.**
+
+This is the primary symptom for the palette → canvas drop (the dominant use case — adding widgets from the left-rail palette is what the editor exists for). Existing-card moves don't trigger Bug 2 because their effectAllowed already matched.
+
+## Fix
+
+```javascript
+// Post-fix
+t.node.addEventListener('dragover', function (e) {
+    e.preventDefault();                                              // (1) always
+    var kind = currentDragKind();
+    if (kind == null) return;
+    e.dataTransfer.dropEffect = (kind === 'move') ? 'move' : 'copy';  // (2) match source
+    t.node.classList.add('is-drop-target');
+    ...
+});
+```
+
+The visual side-effects (`is-drop-target` highlight, alignment guides, live preview reflow) still gate on `currentDragKind()` returning non-null — there's no point computing alignment guides for a drag the editor doesn't own. Only `preventDefault()` and `dropEffect` moved up before the gate.
+
+`dropEffect` is now `'move'` when the drag started from an existing canvas card (relocating a slot) and `'copy'` for everything else (currently both palette-add paths: `add-widget` and `add-kpi`). The cursor now matches what the operator is doing — a `+` icon for adds, the move icon for relocations.
+
+## Diff
+
+`assets/js/persona-dashboard-editor.js`:
+
+```diff
+ t.node.addEventListener('dragover', function (e) {
+-    if (currentDragKind() == null) return;
+     e.preventDefault();
+-    e.dataTransfer.dropEffect = 'move';
++    var kind = currentDragKind();
++    if (kind == null) return;
++    e.dataTransfer.dropEffect = (kind === 'move') ? 'move' : 'copy';
+     t.node.classList.add('is-drop-target');
+     ...
+ });
+```
+
+Plus a long inline comment explaining the two bugs so the trap doesn't get re-introduced on the next refactor.
+
+## How to test
+
+1. Open the persona dashboard editor (`?tt_view=dashboard-editor` or similar).
+2. **Palette → canvas (the previously broken path)**: drag a widget from the left rail onto the grid canvas. **Confirm**: cursor shows the `+` (copy) icon on the canvas, not the not-allowed icon. Release. **Confirm**: the widget is placed at the cursor's grid cell.
+3. **Card move (the previously working path — regression check)**: drag an existing widget card to a different grid position. **Confirm**: cursor shows the move icon. Release. **Confirm**: the card is repositioned.
+4. **Hero / task bands**: drag any widget over the hero band and the task band. **Confirm**: both bands accept the drop with the correct cursor.
+5. **Interrupted drag recovery**: start a drag, press Escape mid-drag, then start a new drag. **Confirm**: the new drag works (would previously break if `__ttPdeDrag` was left stale).
+
+## More-robust architecture suggestion (deferred, not in this ship)
+
+The editor relies on a global `window.__ttPdeDrag` to ferry state between `dragstart` and `dragover`/`drop`. The HTML5 DnD `dataTransfer` is itself a state-carrying mechanism — drag kind and payload could be encoded into `dataTransfer.types` via `setData( 'application/x-tt-pde-drag', JSON.stringify({...}) )` at dragstart, and inspected from `dataTransfer.types` in dragover (without needing the contents). Browsers expose `types` during dragover; only the `getData()` payload itself is guarded until drop. This removes the global-state failure mode entirely and makes the editor's DnD survive across iframes / cross-document drags. Worth a follow-up if the editor sees more bugs in this area; not necessary to ship now.
+
+---
+
 # TalentTrack v3.110.108 — Head-coach dashboard polish round 1: persona label, hero CTA, tasklist count, recent evaluations query, grid widths, quick actions caps + wizard routing (#0092)
 
 Six pilot-surfaced issues on the head-coach dashboard, all landing in one ship since they're all visible on the same surface and a six-ship cadence would force the pilot through six verification cycles on the same screen.
