@@ -155,6 +155,21 @@ class CoachForms {
             <?php endif; ?>
             <?php
             $cur_type_id     = $is_edit ? (int) ( $existing_eval->eval_type_id ?? 0 ) : 0;
+            // v3.110.105 — back-fill the Type dropdown when the
+            // existing row has an `activity_id` but no
+            // `eval_type_id` (legacy mark-attendance wizard rows
+            // written before the inserter started persisting type).
+            // Same helper the inserter uses on the write side, so
+            // the dropdown defaults match what would be saved if the
+            // coach re-submitted without changing anything.
+            if ( $is_edit && $cur_type_id <= 0 ) {
+                $existing_aid = (int) ( $existing_eval->activity_id ?? 0 );
+                if ( $existing_aid > 0
+                     && class_exists( '\\TT\\Modules\\Wizards\\Evaluation\\EvaluationInserter' )
+                ) {
+                    $cur_type_id = \TT\Modules\Wizards\Evaluation\EvaluationInserter::evalTypeIdForActivity( $existing_aid );
+                }
+            }
             $cur_eval_date   = $is_edit ? (string) ( $existing_eval->eval_date ?? '' ) : current_time( 'Y-m-d' );
             $cur_opponent    = $is_edit ? (string) ( $existing_eval->opponent ?? '' ) : '';
             $cur_competition = $is_edit ? (string) ( $existing_eval->competition ?? '' ) : '';
@@ -204,6 +219,19 @@ class CoachForms {
             // create time would produce an evaluation with zero
             // ratings, which is almost never the intent.
             $rating_required = $is_edit ? '' : 'required';
+            // v3.110.105 — render sub-category inputs nested under
+            // each main category. Pre-fill from `$existing_ratings`
+            // (keyed by category_id), which already includes sub
+            // rows when present. Subs use `tt_form-row--sub` for the
+            // indent + muted label treatment; the input itself is
+            // identical to the main row so the REST layer doesn't
+            // need to distinguish them on save. Pulled from the
+            // EvalCategoriesRepository directly so we don't depend
+            // on `get_categories()`'s legacy-shape filter (which
+            // only returns main rows).
+            $cat_repo = class_exists( '\\TT\\Infrastructure\\Evaluations\\EvalCategoriesRepository' )
+                ? new \TT\Infrastructure\Evaluations\EvalCategoriesRepository()
+                : null;
             foreach ( $categories as $cat ) :
                 $cid = (int) $cat->id;
                 $cur_rating = isset( $existing_ratings[ $cid ] ) ? (string) $existing_ratings[ $cid ] : '';
@@ -211,7 +239,23 @@ class CoachForms {
                 <div class="tt-form-row"><label><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $cat->name ) ); ?><?php echo $is_edit ? '' : ' *'; ?></label>
                     <input type="number" name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" <?php echo $rating_required; ?> style="width:80px" value="<?php echo esc_attr( $cur_rating ); ?>" />
                     <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span></div>
-            <?php endforeach; ?>
+                <?php
+                if ( $cat_repo === null ) continue;
+                $sub_cats = $cat_repo->getChildren( $cid );
+                foreach ( (array) $sub_cats as $sub ) :
+                    $scid = (int) $sub->id;
+                    if ( $scid <= 0 ) continue;
+                    $sub_rating = isset( $existing_ratings[ $scid ] ) ? (string) $existing_ratings[ $scid ] : '';
+                    $sub_label  = EvalCategoriesRepository::displayLabel( (string) ( $sub->label ?? $sub->name ?? '' ), $scid );
+                    ?>
+                    <div class="tt-form-row tt-form-row--sub">
+                        <label>↳ <?php echo esc_html( $sub_label ); ?></label>
+                        <input type="number" name="ratings[<?php echo $scid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" style="width:80px" value="<?php echo esc_attr( $sub_rating ); ?>" />
+                        <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span>
+                    </div>
+                <?php
+                endforeach;
+            endforeach; ?>
             <div class="tt-form-row"><label><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label><textarea name="notes" rows="3" data-tt-low-rating-notes><?php echo esc_textarea( $cur_notes ); ?></textarea></div>
             <div class="tt-form-row tt-low-rating-warning" data-tt-low-rating-warning hidden>
                 <span style="color:var(--tt-warning, #c9962a); font-size:13px;">

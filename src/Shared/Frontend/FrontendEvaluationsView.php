@@ -572,8 +572,13 @@ class FrontendEvaluationsView extends FrontendViewBase {
     private static function loadEvaluation( int $eval_id ): ?object {
         global $wpdb;
         $p   = $wpdb->prefix;
+        // v3.110.105 — also fetch `activity_id` so the edit form's
+        // Type pre-fill can back-fill from the activity's type when
+        // the eval row itself doesn't carry an `eval_type_id` (legacy
+        // mark-attendance wizard rows written before v3.110.105's
+        // EvaluationInserter started persisting the type).
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT id, player_id, eval_type_id, eval_date, notes, opponent, competition, game_result, home_away, minutes_played
+            "SELECT id, player_id, eval_type_id, eval_date, notes, opponent, competition, game_result, home_away, minutes_played, activity_id
                FROM {$p}tt_evaluations
               WHERE id = %d AND club_id = %d AND archived_at IS NULL
               LIMIT 1",

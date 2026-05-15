@@ -619,6 +619,34 @@ Ships that affect the head-coach's daily flow but aren't tied to a
 single numbered action. Same `**vX.Y.Z** — what changed. *How to
 test:* …` format.
 
+- **v3.110.105** — evaluation edit form: Type pre-fills (with
+  legacy back-fill from activity); sub-cat ratings render and
+  edit inline (Group 3 of the evaluation flow pass).
+  (1) Type dropdown now pre-fills from `$existing_eval->eval_type_id`
+  AND back-fills from the activity context when the row was
+  written by the mark-attendance wizard before this ship.
+  `EvaluationInserter::insert()` accepts `eval_type_id` and
+  auto-derives from the activity's `activity_type_key` when
+  not supplied. Same helper used in the form's pre-fill so
+  legacy rows show the right type AND persist it on the next
+  save. The two lookup vocabularies (activity_type vs eval_type)
+  align by name on the seeded set — when an operator hasn't
+  customised them, derivation Just Works.
+  (2) Sub-category ratings render inline under each main on the
+  edit form. `EvalCategoriesRepository::getChildren()` per main,
+  pre-fill from `$existing_ratings`, indented + muted via
+  `.tt-form-row--sub`. REST side unchanged (already accepts any
+  cat_id on save).
+  *How to test:* open an evaluation created via the mark-attendance
+  wizard. Click Edit. Type dropdown pre-selects the matching
+  eval-type (e.g. Training for a training activity). Below each
+  main-category rating there are sub-category inputs labeled
+  `↳ <name>`. Existing sub ratings show saved values; un-rated
+  subs are empty. Type a value, hit Save → re-open Edit → value
+  persists. Sanity: a fresh `+ New evaluation` shows blank Type
+  (no activity context to derive from); sub inputs render but
+  stay empty until the coach types.
+
 - **v3.110.104** — evaluation detail page polish (Group 2 of the
   evaluation flow pass).
   (1) Edit + Archive in the page-header now render at the same
