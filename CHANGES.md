@@ -1,4 +1,4 @@
-# TalentTrack v3.110.111 — Spond integration: real 404 root cause fixed (`/login` → `/auth2/login`; `loginToken` → `accessToken.token`)
+# TalentTrack v3.110.114 — Spond integration: real 404 root cause fixed (`/login` → `/auth2/login`; `loginToken` → `accessToken.token`)
 
 Pairs with v3.110.108 (Spond URL configurable from wp-admin, in flight as PR #407) which gave operators a UI to redirect to a new endpoint. This release fixes the actual underlying login bugs against the canonical `api.spond.com/core/v1` base URL.
 
@@ -81,6 +81,389 @@ The `/login` path probably worked on an earlier Spond API generation (the `auth2
 ---
 
 # TalentTrack v3.110.109 — Dashboard layout editor — drag-and-drop fix: "not allowed" cursor + silent drop rejection
+
+---
+
+# TalentTrack v3.110.113 — Spond API base URL configurable from wp-admin; central Analytics tile on the admin tile grid
+
+First of three sequential ships from one operator round. Items 2 + 3 (this release): small, clear-cut. Item 4 (attendance reports) ships next as v3.110.109+; item 1 (widget library detail panel) lands after that.
+
+## 1 — Spond API base URL configurable
+
+`SpondClient::BASE_URL` was a hard-coded constant:
+
+```php
+public const BASE_URL = 'https://api.spond.com/core/v1';
+```
+
+Used directly in `login()` and the request method. When Spond changes endpoints — and they have — operators can't react without a code release. Pilot reported a 404 on every sync.
+
+Replaced with a `baseUrl()` method that reads an override from `tt_config`:
+
+```php
+public static function baseUrl(): string {
+    $override = trim( QueryHelpers::get_config( 'spond.api_base_url', '' ) );
+    return $override !== '' ? rtrim( $override, '/' ) : rtrim( self::DEFAULT_BASE_URL, '/' );
+}
+```
+
+Both call sites (`self::BASE_URL . '/login'`, `self::BASE_URL . $path . $query`) now read `self::baseUrl()`. The old `BASE_URL` constant stays as a deprecated alias (`public const BASE_URL = self::DEFAULT_BASE_URL`) so anything third-party reading it keeps working.
+
+### Admin UI
+
+New "API endpoint" section on `SpondOverviewPage`, rendered in a `<details>` (collapsed by default — operators rarely need it):
+
+```html
+<details>
+  <summary>API endpoint — https://api.spond.com/core/v1 (default)</summary>
+  <p>Override the Spond API base URL. Default is <code>https://api.spond.com/core/v1</code>.
+     Change only if Spond announces a new endpoint, or for testing against a private mock —
+     a wrong URL will cause every sync to fail.</p>
+  <form ...>
+    <label>API base URL</label>
+    <input type="url" name="api_base_url" inputmode="url" ... />
+    <button>Save endpoint</button>
+  </form>
+</details>
+```
+
+Empty input clears the override and reverts to the default. Input is `esc_url_raw()`-sanitised + regex-validated against `^https?://[^\s]+$`. Invalid input shows an error flash and leaves the existing endpoint untouched. New admin-post handler `tt_spond_save_base_url` + nonce-protected.
+
+### What this doesn't do
+
+Doesn't diagnose the specific 404. That needs the failing request URL/payload from `wp-content/debug.log` or the Spond response body. If you can share the failing call I can investigate as a follow-up. For now the operator-side unblock is the configurable URL.
+
+## 2 — Analytics tile on the admin tile grid
+
+`?tt_view=analytics` (the central FrontendAnalyticsView from #0083 Child 5) had its slug owned by AnalyticsModule (via `TileRegistry::registerSlugOwnership`) but no tile entry. Admin / HoD could reach the page only by direct URL.
+
+New tile in `CoreSurfaceRegistration::registerTiles()` Analytics group:
+
+```php
+TileRegistry::register([
+    'module_class' => 'TT\\Modules\\Analytics\\AnalyticsModule',
+    'view_slug'    => 'analytics',
+    'entity'       => 'analytics',
+    'group'        => $analytics_group,
+    'kind'         => 'work',
+    'order'        => 5,                     // top of the Analytics group
+    'label'        => __( 'Analytics', 'talenttrack' ),
+    'description'  => __( 'Academy-wide KPIs and the dimension explorer.', 'talenttrack' ),
+    'icon'         => 'reports',
+    'color'        => '#7c3aed',
+    'cap'          => 'tt_view_analytics',
+]);
+```
+
+Order=5 places it above the existing tiles (Rate cards at 10, Reports at 25, etc.) so the central surface is the obvious first stop.
+
+## Files
+
+- `src/Modules/Spond/SpondClient.php` — `BASE_URL` → `DEFAULT_BASE_URL` + `baseUrl()` static; both call sites use the method
+- `src/Modules/Spond/Admin/SpondOverviewPage.php` — new `<details>` form section + admin-post handler + 3 new flash labels
+- `src/Shared/CoreSurfaceRegistration.php` — Analytics tile registration
+- `talenttrack.php` 3.110.107 → 3.110.108
+- `readme.txt`, `CHANGES.md`
+
+No schema, no migration. Pre-v3.110.108 code reading `SpondClient::BASE_URL` keeps working — the constant value points at the same default.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.108.
+2. Open Spond admin (Settings → Spond). The "API endpoint" `<details>` row appears above Account.
+3. Expand it, paste a working URL (e.g. `https://api.spond.com/core/v1/`), Save → success flash. Re-expand: summary shows the new URL (no `(default)` suffix).
+4. Clear the field, Save → success flash, summary reverts to "https://api.spond.com/core/v1 (default)".
+5. Type garbage (e.g. `not-a-url`), Save → error flash; endpoint unchanged.
+6. Log in as admin / HoD on the frontend. The tile grid's Analytics group now shows an **Analytics** tile at the top of the group. Click → lands on `?tt_view=analytics` with the academy-wide KPI grid.
+
+---
+
+# TalentTrack v3.110.112 — HoD persona polish round 1 (5 of 8 items autonomous; 3 surfaced for feedback)
+
+The pilot reported 8 items on the HoD dashboard. Five are shipping here — the smallest, most certain fixes. Three need design / specification input before code lands: a general auth audit (which specific widgets show no data), the `new_trial` action card's destination, and the new "Recent comments & notes" widget's data sources.
+
+## (1) KPI strip CSS aligned to scout/coach hero chrome
+
+Pilot: *"the CSS of the KPI strip is not very clear nor in line with the main hero of the scout and coach. Review and align the HoD one."*
+
+The HoD's KPI strip sits in the hero band slot (same row the coach's Mark Attendance hero and the scout's Add Prospect hero use) but its typography read as "compact strip", not "hero". Bumped to hero-feel rhythm:
+
+| Property | Before | After |
+|---|---|---|
+| `.tt-pd-widget-kpi_strip` padding | inherit (1rem) | 1.25rem × 1.5rem |
+| `.tt-pd-strip-track` gap (mobile) | 0.75rem | 1rem |
+| `.tt-pd-strip-track` gap (tablet+) | 0.75rem | 1.25rem |
+| `.tt-pd-strip-kpi` padding | 0.75rem | 1rem |
+| `.tt-pd-strip-kpi` min-height | — | 88px |
+| `.tt-pd-strip-kpi` border-radius | 0.625rem | 0.75rem |
+| `.tt-pd-strip-label` font-size | 0.6875rem | 0.75rem |
+| `.tt-pd-strip-label` letter-spacing | 0.08em | 0.1em |
+| `.tt-pd-strip-label` opacity | 0.7 | 0.78 |
+| `.tt-pd-strip-current` font-size | 1.5rem | 1.875rem |
+| `.tt-pd-strip-delta` font-size | 0.75rem | 0.8125rem |
+| `.tt-pd-strip-link:hover` bg opacity | 0.18 | 0.22 |
+
+The result reads as a hero block at the same visual weight as the coach/scout hero gradients. Cards now have a clear vertical rhythm (label up top, big number, delta beneath) instead of a tight 3-line stack.
+
+## (2) OpenTrialCases KPI: count includes `extended` status
+
+Pilot: *"count is not correct, there is an open trial case but count = 0."*
+
+`tt_trial_cases.status` can be `'open'` (initial state), `'extended'` (when extended past original end_date), `'decided'` (after a decision is recorded), or `'archived'`. The KPI counted `status = 'open'` only, so any trial case that had been extended was invisible to the KPI.
+
+Other code paths in the same module already use the broader filter — `TrialCasesRepository::findActiveByPlayer()` uses `status IN ('open','extended')`, and the same union is in the "ending soon" date-range query. The KPI now matches:
+
+```diff
+-WHERE status = 'open'
++WHERE status IN ('open','extended')
+```
+
+## (3) Dutch translations — 3× `trial` / `trialdossiers` → `stage` / `stagedossiers`
+
+Pilot: *"trialfiles is not fully translated while in other places trial = stage in dutch."*
+
+Every player-trial-related string in the Dutch .po translates as "Stage" / "Stagedossier" — except three:
+
+```diff
+ msgid "Open trial cases"
+-msgstr "Open trialdossiers"
++msgstr "Open stagedossiers"
+
+ msgid "No open trial cases."
+-msgstr "Geen open trialdossiers."
++msgstr "Geen open stagedossiers."
+
+ msgid "Trials needing decision"
+-msgstr "Trials die een besluit nodig hebben"
++msgstr "Stagedossiers die een besluit nodig hebben"
+```
+
+The license-trial strings (lines 4653-6323 of `nl_NL.po`) intentionally remain as "trial" — they refer to the SaaS commercial trial period (Freemius free-tier), a different concept from a player trial.
+
+## (4) "PDP verdicts pending" KPI — HoD-scoped link prefiltered to open files
+
+Pilot: *"goes to POP for players that I coach but for a HoD that should not be the list. Should be the list of all the POPs and in this case prefiltered on those who are open."*
+
+Two cooperating fixes:
+
+### (4a) KPI link adds `filter[status]=open`
+
+New overridable `linkUrl( RenderContext $ctx ): string` method on `AbstractKpiDataSource`. Default behaviour: returns `$ctx->viewUrl( $this->linkView() )` (matches every shipped KPI, full back-compat). KPIs that want filter querystrings override:
+
+```php
+public function linkUrl( RenderContext $ctx ): string {
+    return add_query_arg( [ 'filter' => [ 'status' => 'open' ] ], $ctx->viewUrl( 'pdp' ) );
+}
+```
+
+`KpiStripWidget::render()` prefers `linkUrl( $ctx )` when defined, falls back to the legacy `linkView()` slug-only builder. `KpiCardWidget` keeps using `linkView()` for now — the strip is where the HoD needs the filter.
+
+### (4b) PdpFilesRestController::hasGlobalPdpAccess recognises HoD persona
+
+On installs where the MatrixGate matrix is dormant (no rows seeded — which the pilot's install is), `MatrixGate::can( $uid, 'pdp_file', 'read', 'global' )` returns false. The HoD then dropped through to coach-scoping (`f.owner_coach_id = $uid`), returning zero files because the HoD isn't the owner of any PDP file.
+
+Added a persona-based fallback below the three existing rungs (matrix → manage_options → tt_edit_settings). When none of those grant access, check whether the user holds the `head_of_development` or `academy_admin` persona via `PersonaResolver::personasFor()`. If yes, grant global scope on PDP files.
+
+This is matrix-dormant-install insurance — once the matrix is seeded with `pdp_file/read/global` for both personas, the first check covers them and the persona fallback never fires.
+
+## (5) GoalCompletionPct — docstring clarification
+
+Pilot: *"not sure if a proper KPI but if it is, it should show all the goals of all the players as the HoD has a global scope. Not sure if this is properly working. Or is it configured to only show completed goals?"*
+
+The query already behaves correctly:
+
+```sql
+SELECT
+    COUNT(*) AS total,
+    SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS done
+  FROM tt_goals
+  WHERE club_id = %d
+```
+
+Denominator: every goal row for the club regardless of status (open / in progress / completed / cancelled / archived). Numerator: goals with `status = 'completed'`. A club with 100 goals of which 23 are completed reports 23%. Scope is `club_id` only — already global; no coach-scoping. Docblock updated to make this explicit so future readers don't second-guess the math.
+
+## How to test
+
+1. **KPI strip visual**: HoD dashboard — KPI strip cards now have larger numbers, more padding, and read as a hero block at the same visual weight as the coach/scout hero gradients.
+2. **Open trial cases**: extend an open trial case (move its `end_date` past the original via the trials UI). KPI count should NOT decrease. Previously: extending dropped the case from the count.
+3. **Dutch translations**: switch site language to NL. KPI label reads `Open stagedossiers` (not "Open trialdossiers"). Empty-state copy: `Geen open stagedossiers.` Data table title: `Stagedossiers die een besluit nodig hebben`.
+4. **POP verdicts link**: click the "PDP verdicts pending" KPI card. Lands on `?tt_view=pdp&filter[status]=open` with the Status filter prefilled to "Open". As HoD, the list shows ALL open PDP files in the club (not just those owned by the HoD as a coach). Pre-fix: empty list because HoD owned 0 files.
+5. **Goal completion KPI**: review the docblock in `GoalCompletionPct.php` — the math description matches what the KPI shows.
+
+---
+
+# TalentTrack v3.110.111 — PDP list ack columns relabelled to "confirmation" (operator vocabulary)
+
+Tiny follow-up to v3.110.110. The new Parent ack / Player ack column headers (plus their aria-labels + tooltips) leaked the developer shorthand for the underlying `parent_ack_at` / `player_ack_at` timestamps into the user-facing label. The pilot's original ask used "confirmation" ("which **confirmation** has been received"); the columns should carry that vocabulary, not `ack`.
+
+## Diff
+
+`src/Modules/Pdp/Frontend/FrontendPdpManageView.php`:
+
+```diff
+-'parent_ack' => [ 'label' => __( 'Parent ack', 'talenttrack' ), ... ],
+-'player_ack' => [ 'label' => __( 'Player ack', 'talenttrack' ), ... ],
++'parent_ack' => [ 'label' => __( 'Parent confirmation', 'talenttrack' ), ... ],
++'player_ack' => [ 'label' => __( 'Player confirmation', 'talenttrack' ), ... ],
+```
+
+`src/Modules/Pdp/Rest/PdpFilesRestController.php`:
+
+```diff
+-$parent_ack_html = self::ack_checkmark( $parent_ack, __( 'Parent acknowledgement', 'talenttrack' ) );
+-$player_ack_html = self::ack_checkmark( $player_ack, __( 'Player acknowledgement', 'talenttrack' ) );
++$parent_ack_html = self::ack_checkmark( $parent_ack, __( 'Parent confirmation', 'talenttrack' ) );
++$player_ack_html = self::ack_checkmark( $player_ack, __( 'Player confirmation', 'talenttrack' ) );
+```
+
+The data model is untouched — `tt_pdp_conversations.parent_ack_at` / `player_ack_at` columns remain. The variable / method names in the REST controller (`$parent_ack`, `format_list_row()`'s `'parent_ack' =>`, `ack_checkmark()`) also stay as developer-side shorthand; only the **user-facing strings** (column labels, tooltip text, aria-labels) carry "confirmation".
+
+## How to test
+
+1. Visit `?tt_view=pdp`.
+2. Confirm the two columns read **Parent confirmation** and **Player confirmation** (not "Parent ack" / "Player ack").
+3. Hover the checkmark: tooltip / screen-reader label reads "Parent confirmation received" or "Parent confirmation not yet received" accordingly.
+
+---
+
+# TalentTrack v3.110.110 — Cross-cutting polish round 2: My Tasks completed filter, PDP wizard player picker + list FrontendListTable + ack columns + back pill + status pill + Dutch typos, players list parent column removed
+
+Seven pilot-surfaced items across four surfaces. Bundled in one ship because each surface is independently testable — splitting into 7 ships would force 7 verification cycles where the surfaces don't share code.
+
+## (1) Dutch translation typos — 3× `OPP` → `POP`
+
+`languages/talenttrack-nl_NL.po` — every PDP-related `msgstr` in the file translates the term as "POP" (Persoonlijk Ontwikkelings Plan) — except three:
+
+```diff
+ msgid "Back to PDPs"
+-msgstr "Terug naar OPP's"
++msgstr "Terug naar POP's"
+
+ msgid "Back to PDP planning"
+-msgstr "Terug naar OPP-planning"
++msgstr "Terug naar POP-planning"
+
+ msgid "%s's PDP"
+-msgstr "OPP van %s"
++msgstr "POP van %s"
+```
+
+The third one was the specific entry the pilot flagged ("terug naar OPP van speler"). Search now returns zero `OPP` occurrences in the Dutch .po file.
+
+## (2) Players list — Parent column dropped
+
+`FrontendPlayersManageView::renderList()` — the Parent column rendered a truncated single-name cell that duplicated data already reachable via the player detail page's Family tab (where it has full context: parent name + role + relationship). Pilot ask: "Parent column in table can be removed." Removed from the `FrontendListTable` columns config; REST endpoint unchanged.
+
+## (3) My Tasks — Completed filter option
+
+`FrontendMyTasksView::renderFilters()` gained a `Completed (read-only)` option in the status dropdown. When picked, the inbox flips into history view:
+
+- Rows render with no checkbox / snooze / open buttons (the existing `renderRow($task, true)` read-only branch).
+- Bulk-action bar suppressed (no `<form>` wrapper around the list).
+- The bottom-of-page "Recently completed" section is folded into the main list — the filter IS the history view.
+
+`TasksRepository::listActionableForUser()`'s status whitelist extended to allow `TaskStatus::COMPLETED`. The view detects `$filters['status'] === ['completed']` and switches modes accordingly.
+
+## (4) PDP create form — team + player dropdown cascade
+
+Pilot ask: "new POP wizard does not have the right playerpicker component. It shows a team dropdown, that is correct but it should also show a player dropdown that gets updated by the selected team in the team dropdown."
+
+`FrontendPdpManageView::renderCreateForm()` used `PlayerSearchPickerComponent` (type-to-search input + result list). Replaced with two side-by-side `<select>` dropdowns:
+
+```html
+<select id="tt-pdp-team-filter" data-tt-pdp-team-filter>
+    <option value="0">All teams</option>
+    ... per team
+</select>
+<select id="tt-pdp-player-picker" name="player_id" required data-tt-pdp-player-picker>
+    <option value="">— Select a player —</option>
+    <option value="123" data-team-id="45">Jane Smith</option>
+    ...
+</select>
+<script>
+    // On team change → hide player options whose data-team-id doesn't match.
+    // "All teams" (value 0) unhides everything. Current selection preserved
+    // when valid; otherwise reset to placeholder.
+</script>
+```
+
+The search picker remains the right call for surfaces with hundreds of options (scout pages, FrontendComparisonView, FrontendRateCardsView) — the PDP create form's eligible-player roster is typically small (a single team's worth) and a dropdown is faster than typing.
+
+Pre-fills preserved: `?team_id=N` selects the team dropdown; `?player_id=N` selects the player dropdown AND back-fills the team filter from the player's team membership.
+
+## (5) PDP list table — FrontendListTable parity
+
+Pilot ask: "The table list POP is not using the same formatting as the standard used in goals list page."
+
+`FrontendPdpManageView::renderList()` — hand-rolled `<table class="tt-list-table-table tt-table-sortable">` replaced with `FrontendListTable::render()`:
+
+```php
+FrontendListTable::render( [
+    'rest_path' => 'pdp-files',
+    'columns' => [
+        'player_name' => [ ..., 'render' => 'html', 'value_key' => 'player_link_html' ],
+        'team_name'   => [ ..., 'render' => 'html', 'value_key' => 'team_link_html' ],
+        'status'      => [ ..., 'render' => 'html', 'value_key' => 'status_pill_html' ],
+        'cycle_size'  => [ ..., 'sortable' => true ],
+        'parent_ack'  => [ ..., 'render' => 'html', 'value_key' => 'parent_ack_html' ],
+        'player_ack'  => [ ..., 'render' => 'html', 'value_key' => 'player_ack_html' ],
+        'updated_at'  => [ ..., 'render' => 'date' ],
+    ],
+    'filters' => [
+        'team_id'   => [ 'type' => 'select', ... ],
+        'player_id' => [ 'type' => 'select', ... ],
+        'status'    => [ 'type' => 'select', 'options' => [open/completed/archived] ],
+    ],
+    'search'       => [ 'placeholder' => __( 'Search player…', ... ) ],
+    'default_sort' => [ 'orderby' => 'updated_at', 'order' => 'desc' ],
+] );
+```
+
+REST end — `PdpFilesRestController::list()` rewritten to the FrontendListTable contract (matches `GoalsRestController` / `EvaluationsRestController`):
+
+- Reads `filter[team_id]`, `filter[player_id]`, `filter[status]`, `search`, `orderby` (whitelisted: `player_name | team_name | status | cycle_size | updated_at`), `order`, `page`, `per_page`.
+- Returns the standard `{rows, total, page, per_page}` envelope.
+- Each row is pre-formatted with HTML link cells + checkmark HTML for the ack columns.
+- Coach-scoping preserved (non-global users see only their own owner_coach_id files); legacy `?season_id=N` still honoured.
+
+"+ Open new PDP file" CTA moved into the page-header actions slot for parity with the goals + evaluations pages.
+
+## (6) PDP list — parent / player ack checkmark columns
+
+Pilot ask: "in the table list it should be more clear which confirmation has been received. Use a grey checkmark if not received and a green checkmark when received."
+
+Two new columns on the list: **Parent ack** and **Player ack**. Each cell renders a 16×16 inline SVG checkmark:
+
+- Slate-grey (`#94a3b8`) when not received.
+- Green (`#16a34a`) when received.
+
+Roll-up rule: "received" = at least one conversation in the file has the corresponding `*_ack_at` timestamp set. Computed via correlated subqueries on `tt_pdp_conversations` in the REST list query, so no N+1. Per-conversation acks remain visible on the file detail page (where they retain the per-row 👤/⚽ glyphs alongside conversation context).
+
+The SVG uses `currentColor` for the path fill with a per-state inline `color:` so it respects user dark/light themes; `aria-label` + `title` carry the localised "Parent acknowledgement received" / "not yet received" message for screen readers.
+
+## (7) PDP file detail — status pill + back pill
+
+Two polish items.
+
+**Status pill rounded edges.** The status row on the summary card rendered as plain text (`Status: Open`). Converged onto `LookupPill::render( 'pdp_status', $file->status, $label )` — same rounded-pill chrome as the list view, same colour vocabulary every other status in the app uses (activity status, goal status, attendance status).
+
+**Back-pill standard compliance.** Pilot ask: "There is no back button as defined in standards." The breadcrumb chain (`Dashboard / PDP / PDP file detail`) was already correct, but the `tt_back` pill above it didn't render because the list-row "Open" buttons that previously linked to the detail did NOT append `tt_back`. With the FrontendListTable refactor (item 5), the row navigation now goes through `BackLink::appendTo()` in `PdpFilesRestController::format_list_row()`, so the destination URL carries `tt_back=<list URL>` and `FrontendBreadcrumbs::fromDashboard()` auto-renders the `← Back to PDP` pill above the breadcrumb chain (per CLAUDE.md §5).
+
+## How to test
+
+**Players list** (`?tt_view=players`):
+- Confirm: no **Parent** column. Other columns unchanged.
+
+**My Tasks** (`?tt_view=my-tasks`):
+- Status filter dropdown now includes a `Completed (read-only)` option.
+- Pick it → page shows completed tasks only, no checkboxes, no snooze, no Open buttons, no bulk-action bar.
+
+**PDP** (`?tt_view=pdp`):
+1. Pilot's Dutch typo: navigate to a PDP detail page from a player profile (or any page that carries `tt_back` with the "PDP" label). Back-pill reads `← Terug naar POP's` (not "OPP's"). Page title reads `POP van <name>` (not "OPP").
+2. List page (`?tt_view=pdp`): shows filters Team / Player / Status / search input above a sortable / paginated table. **Parent ack** + **Player ack** columns visible — grey checkmark when nothing has been ack'd in the file, green when at least one conversation has been ack'd. Click column headers → re-sort. Click a row → detail page; back-pill `← Back to PDP` visible.
+3. Detail page status: rounded pill in `pdp_status` colour palette (not plain text).
+4. `+ Open new PDP file` (page header) → form shows **Team** dropdown side-by-side with **Player** dropdown. Pick a team → Player dropdown narrows to that team's roster. "All teams" → all eligible players visible.
+
 
 ## Pilot symptom
 

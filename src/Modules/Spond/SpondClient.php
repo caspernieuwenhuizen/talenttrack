@@ -27,9 +27,41 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 final class SpondClient {
 
-    public const BASE_URL        = 'https://api.spond.com/core/v1';
-    public const TIMEOUT_SECONDS = 15;
-    public const USER_AGENT      = 'TalentTrack/%s (+https://github.com/caspernieuwenhuizen/talenttrack)';
+    // v3.110.108 — kept as DEFAULT_BASE_URL. The effective base URL
+    // comes through `baseUrl()` which reads the `spond.api_base_url`
+    // override in `tt_config` first (set via Spond admin page) and
+    // falls back to this constant. Lets operators redirect to the
+    // current Spond endpoint without a code release if Spond moves
+    // the API.
+    public const DEFAULT_BASE_URL = 'https://api.spond.com/core/v1';
+    public const TIMEOUT_SECONDS  = 15;
+    public const USER_AGENT       = 'TalentTrack/%s (+https://github.com/caspernieuwenhuizen/talenttrack)';
+
+    /**
+     * @deprecated v3.110.108 — kept as an alias for back-compat. New
+     *             callers should use {@see self::baseUrl()}.
+     */
+    public const BASE_URL = self::DEFAULT_BASE_URL;
+
+    /**
+     * Effective Spond API base URL. Reads `tt_config[spond.api_base_url]`
+     * first (set by an operator on the Spond admin page) and falls back
+     * to {@see self::DEFAULT_BASE_URL}. Empty / whitespace-only overrides
+     * are ignored. Trailing slashes are stripped so callers can keep
+     * concatenating `/path` without producing `//path`.
+     */
+    public static function baseUrl(): string {
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\QueryHelpers' ) ) {
+            $override = trim( \TT\Infrastructure\Query\QueryHelpers::get_config(
+                'spond.api_base_url',
+                ''
+            ) );
+            if ( $override !== '' ) {
+                return rtrim( $override, '/' );
+            }
+        }
+        return rtrim( self::DEFAULT_BASE_URL, '/' );
+    }
 
     /**
      * Window the events query asks Spond for, in days. 30 days back +
@@ -51,17 +83,18 @@ final class SpondClient {
             return self::error( 'no_credentials', __( 'No Spond credentials configured.', 'talenttrack' ) );
         }
 
-        // v3.110.111 — fix the actual 404 the pilot reported. Spond's
+        // v3.110.114 — fix the actual 404 the pilot reported. Spond's
         // login endpoint is `auth2/login` (with the `2`), not `/login`.
         // Verified against the Python `spond` library (Olen/Spond
         // v1.2.1, 2026-05-14): `auth2/login` POST body
         // `{ "email": ..., "password": ... }`, response includes
         // `accessToken.token` (a nested object, not a flat
-        // `loginToken` field). The pre-v3.110.111 code POSTed to
+        // `loginToken` field). The pre-v3.110.114 code POSTed to
         // `/login` (always 404) and read `$json['loginToken']` (which
-        // doesn't exist), so every Spond sync failed at login. See
-        // SPOND-INTEGRATION-RCA in CHANGES.md.
-        $response = wp_remote_post( self::BASE_URL . '/auth2/login', [
+        // doesn't exist), so every Spond sync failed at login.
+        // Reads via self::baseUrl() so the v3.110.113 admin override
+        // still applies.
+        $response = wp_remote_post( self::baseUrl() . '/auth2/login', [
             'timeout' => self::TIMEOUT_SECONDS,
             'headers' => [
                 'Content-Type' => 'application/json',
@@ -240,7 +273,7 @@ final class SpondClient {
     private static function authedGet( string $path, array $params, string $token, bool $is_retry = false ): array {
         $query = $params ? '?' . http_build_query( $params ) : '';
 
-        $response = wp_remote_get( self::BASE_URL . $path . $query, [
+        $response = wp_remote_get( self::baseUrl() . $path . $query, [
             'timeout' => self::TIMEOUT_SECONDS,
             'headers' => [
                 'Accept'        => 'application/json',

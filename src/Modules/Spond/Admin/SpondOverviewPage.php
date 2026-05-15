@@ -40,6 +40,9 @@ final class SpondOverviewPage {
         add_action( 'admin_post_tt_spond_save_credentials', [ self::class, 'handleSaveCredentials' ] );
         add_action( 'admin_post_tt_spond_test_connection', [ self::class, 'handleTestConnection' ] );
         add_action( 'admin_post_tt_spond_clear_credentials', [ self::class, 'handleClearCredentials' ] );
+        // v3.110.108 — API base URL override so operators can redirect
+        // to a new Spond endpoint without a code release.
+        add_action( 'admin_post_tt_spond_save_base_url', [ self::class, 'handleSaveBaseUrl' ] );
     }
 
     public static function render(): void {
@@ -88,6 +91,52 @@ final class SpondOverviewPage {
             <h1><?php esc_html_e( 'Spond integration', 'talenttrack' ); ?></h1>
 
             <?php self::renderFlash( $flash, $flash_msg ); ?>
+
+            <?php
+            // v3.110.108 — API base URL override. Hidden in a <details>
+            // so it doesn't compete with the Account section visually;
+            // operators rarely need it, but when Spond moves the endpoint
+            // they need a way to redirect without a code release.
+            $current_base = \TT\Modules\Spond\SpondClient::baseUrl();
+            $default_base = rtrim( \TT\Modules\Spond\SpondClient::DEFAULT_BASE_URL, '/' );
+            $override     = \TT\Infrastructure\Query\QueryHelpers::get_config( 'spond.api_base_url', '' );
+            ?>
+            <details style="margin-top:18px; border:1px solid #e5e7ea; border-radius:6px; padding:10px 14px; background:#fafbfc;">
+                <summary style="cursor:pointer; font-weight:600;">
+                    <?php esc_html_e( 'API endpoint', 'talenttrack' ); ?>
+                    <span style="font-weight:normal; color:#5b6e75; font-size:12px;">
+                        — <?php echo esc_html( $current_base ); ?><?php if ( $override === '' ) echo ' ' . esc_html__( '(default)', 'talenttrack' ); ?>
+                    </span>
+                </summary>
+                <p style="color:#5b6e75; margin-top:10px; max-width:60em;">
+                    <?php
+                    printf(
+                        /* translators: %s: default Spond API URL the plugin ships with. */
+                        esc_html__( 'Override the Spond API base URL. Default is %s. Change only if Spond announces a new endpoint, or for testing against a private mock — a wrong URL will cause every sync to fail.', 'talenttrack' ),
+                        '<code>' . esc_html( $default_base ) . '</code>'
+                    );
+                    ?>
+                </p>
+                <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                    <?php wp_nonce_field( self::NONCE_KEY, self::NONCE_NAME ); ?>
+                    <input type="hidden" name="action" value="tt_spond_save_base_url" />
+                    <p>
+                        <label for="tt_spond_base_url" style="display:block; margin-bottom:4px;"><?php esc_html_e( 'API base URL', 'talenttrack' ); ?></label>
+                        <input type="url" id="tt_spond_base_url" name="api_base_url" class="regular-text code" style="width:520px;"
+                               value="<?php echo esc_attr( $override ); ?>"
+                               placeholder="<?php echo esc_attr( $default_base ); ?>"
+                               inputmode="url" autocomplete="off" />
+                    </p>
+                    <p>
+                        <button type="submit" class="button button-secondary"><?php esc_html_e( 'Save endpoint', 'talenttrack' ); ?></button>
+                        <?php if ( $override !== '' ) : ?>
+                            <span style="margin-left:8px; color:#5b6e75; font-size:12px;">
+                                <?php esc_html_e( 'Leave blank and save to revert to the default.', 'talenttrack' ); ?>
+                            </span>
+                        <?php endif; ?>
+                    </p>
+                </form>
+            </details>
 
             <h2 style="margin-top:18px;"><?php esc_html_e( 'Account', 'talenttrack' ); ?></h2>
             <p style="color:#5b6e75; max-width:60em;">
@@ -312,6 +361,34 @@ final class SpondOverviewPage {
         exit;
     }
 
+    /**
+     * v3.110.108 — save/clear the Spond API base URL override stored
+     * in `tt_config[spond.api_base_url]`. Empty input clears the
+     * override and reverts to the constant default.
+     */
+    public static function handleSaveBaseUrl(): void {
+        if ( ! current_user_can( 'tt_edit_teams' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        check_admin_referer( self::NONCE_KEY, self::NONCE_NAME );
+
+        $raw = isset( $_POST['api_base_url'] ) ? trim( (string) wp_unslash( $_POST['api_base_url'] ) ) : '';
+        $sanitised = $raw === '' ? '' : esc_url_raw( $raw );
+        // Sanity: reject anything that isn't a plausible https/http URL.
+        if ( $sanitised !== '' && ! preg_match( '#^https?://[^\s]+$#i', $sanitised ) ) {
+            $url = add_query_arg(
+                [ 'tt_spond_msg' => 'base_url_invalid', 'tt_spond_detail' => $raw ],
+                admin_url( 'admin.php?page=' . self::SLUG )
+            );
+            wp_safe_redirect( $url );
+            exit;
+        }
+
+        \TT\Infrastructure\Query\QueryHelpers::set_config( 'spond.api_base_url', $sanitised );
+
+        $msg = $sanitised === '' ? 'base_url_cleared' : 'base_url_saved';
+        wp_safe_redirect( add_query_arg( 'tt_spond_msg', $msg, admin_url( 'admin.php?page=' . self::SLUG ) ) );
+        exit;
+    }
+
     private static function renderFlash( string $flash, string $detail ): void {
         if ( $flash === '' ) return;
         $msg   = '';
@@ -336,6 +413,16 @@ final class SpondOverviewPage {
             case 'test_failed':
                 $msg   = __( 'Spond login failed.', 'talenttrack' )
                     . ( $detail !== '' ? ' (' . $detail . ')' : '' );
+                $class = 'notice-error';
+                break;
+            case 'base_url_saved':
+                $msg = __( 'Spond API endpoint saved.', 'talenttrack' );
+                break;
+            case 'base_url_cleared':
+                $msg = __( 'Spond API endpoint reverted to the default.', 'talenttrack' );
+                break;
+            case 'base_url_invalid':
+                $msg = __( 'That URL does not look like a valid http(s) endpoint. Endpoint left unchanged.', 'talenttrack' );
                 $class = 'notice-error';
                 break;
             default:
