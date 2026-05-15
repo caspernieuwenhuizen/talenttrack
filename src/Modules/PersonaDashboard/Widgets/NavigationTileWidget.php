@@ -29,6 +29,15 @@ class NavigationTileWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Navigation tile', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'A click-target that opens a TalentTrack view (Players, Activities, etc.). The data-source field is the destination view\'s slug; the tile reuses the slug\'s registered icon, label, and permission gate so disabled modules and persona-aware caps are honoured automatically.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'head_coach', 'assistant_coach', 'head_of_development', 'academy_admin', 'player', 'parent', 'scout', 'team_manager' ];
+    }
+
     /**
      * #0077 M1 — runtime catalogue from TileRegistry. Pulls every tile
      * registered for the current admin (the editor user) so the persona-

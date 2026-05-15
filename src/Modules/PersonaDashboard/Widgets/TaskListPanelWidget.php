@@ -27,6 +27,15 @@ class TaskListPanelWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Task list panel', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'The viewer\'s open workflow tasks (up to 5), ordered by due date. Player-name-first row layout so the panel is scannable by who the task is about. Each row links to the task detail. Sourced from tt_workflow_tasks scoped to assignee_user_id = current user.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'head_coach', 'assistant_coach', 'head_of_development', 'scout', 'parent' ];
+    }
+
     public function defaultSize(): string { return Size::L; }
 
     /** @return list<string> */

@@ -34,6 +34,15 @@ class MiniPlayerListWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Mini player list', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'Short scrollable list of players keyed by a preset (e.g. `recent_evaluations` = the last 5 players a coach evaluated). Each row is a click-target into the player profile. Use for "what was I working on recently" surfaces, not for browsing the full roster.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'head_coach', 'assistant_coach', 'head_of_development' ];
+    }
+
     /** @return array<string,string> */
     public function dataSourceCatalogue(): array {
         return [

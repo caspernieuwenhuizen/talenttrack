@@ -28,6 +28,15 @@ class DataTableWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Data table', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'Compact tabular surface for "recent X" lists with a See-all link. Pick one of the registered presets in the data-source dropdown (upcoming activities, trials needing decision, my recent prospects, recent audit events, etc.). Rows come from a TableRowSource implementation scoped to the viewer + their club; See-all routes to the matching full list view.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'head_of_development', 'academy_admin', 'scout', 'head_coach', 'assistant_coach' ];
+    }
+
     /** @return array<string,string> */
     public function dataSourceCatalogue(): array {
         return [

@@ -1,3 +1,119 @@
+# TalentTrack v3.110.110 — Dashboard editor: widget + KPI detail panel (description, data source/destination, intended personas)
+
+Third of three sequential ships from one operator round. See v3.110.108 (Spond URL + Analytics tile) and v3.110.109 (attendance reports) for the other two.
+
+> *"for all widget and KPI in dashboard layout library, add a lot more detail in the panel on the right side on what the item does, where the data comes from / goes to and which persona it is typically meant for (could be multiple)."*
+
+## Framework changes
+
+### New widget contract methods
+
+Two optional methods added to `AbstractWidget`:
+
+```php
+public function description(): string {
+    return '';
+}
+
+/** @return list<string> */
+public function intendedPersonas(): array {
+    return [];
+}
+```
+
+Defaults are empty. Concrete widgets override when they want to surface rich detail. Implementing class doesn't NEED to override — the published bootstrap simply gets empty strings/arrays.
+
+### KPI parity via method_exists
+
+KPIs implement the `KpiDataSource` interface, which is implemented by ~30 concrete classes. Adding interface methods would force a change to every implementation. Instead `EditorPage::buildBootstrap` uses `method_exists( $k, 'description' )` — KPIs that declare the method get their description published; those that don't get an empty string. Backwards compatible.
+
+### Editor bootstrap publishes new fields
+
+`EditorPage::buildBootstrap` adds two keys to each widget payload (`description`, `intended_personas`) and one to each KPI payload (`description`).
+
+## Editor right-panel — new detail block
+
+`renderDetailBlock()` in `assets/js/persona-dashboard-editor.js` inserts a new section between the title and the editable fields. Renders:
+
+- **Description** — full sentence(s) explaining what the widget surfaces, where data comes from (or goes to for action widgets), and what an operator sees.
+- **KPI description** (when slot is a `kpi_card` with a KPI selected) — the KPI's own description in addition to the widget-level one.
+- **Intended personas** — chips, one per slug. Falls back to surfacing `persona_context` as a single chip when `intended_personas` is empty.
+- **Capability required** — code-styled tag so admins know which cap will filter the widget after save.
+
+New CSS section in `assets/css/persona-dashboard-editor.css`:
+
+```css
+.tt-pde-properties-detail {
+    padding: 0.625rem 0 0.875rem;
+    border-bottom: 1px solid var(--pde-line);
+    margin-bottom: 0.5rem;
+}
+.tt-pde-chip {
+    display: inline-flex;
+    padding: 0.125rem 0.5rem;
+    background: #f0f4f7;
+    border: 1px solid #d3dce0;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    /* ... */
+}
+```
+
+Three new i18n strings for the panel: `intended_for`, `cap_required`, `kpi_label`.
+
+## Widget backfill (19 widgets)
+
+Every registered widget received a description + `intendedPersonas` list:
+
+- **ActionCardWidget** — primary CTA tile (HoD, scout, coach).
+- **AddProspectHeroWidget** — scout one-tap to new-prospect wizard (scout, HoD).
+- **AssignedPlayersGridWidget** — legacy explicit-assignment grid (scout).
+- **ChildSwitcherWithRecapWidget** — parent picker + weekly recap (parent).
+- **DataTableWidget** — preset-driven "recent X" tables (HoD, admin, scout, coach).
+- **InfoCardWidget** — pre-written nudges, hides when empty (player, parent, coach).
+- **KpiCardWidget** — single KPI tile (every persona).
+- **KpiStripWidget** — horizontal row of up to 6 KPI tiles (HoD, admin).
+- **MarkAttendanceHeroWidget** — head-coach mark-attendance entry point (head-coach, asst).
+- **MiniPlayerListWidget** — short scrollable list of players (coach, HoD).
+- **NavigationTileWidget** — click-target into a TalentTrack view (every persona).
+- **OnboardingPipelineWidget** — six-stage count strip (scout, HoD, admin).
+- **QuickActionsPanelWidget** — compact stack of secondary actions (coach, HoD).
+- **RateCardHeroWidget** — player's own rate card (player).
+- **SystemHealthStripWidget** — admin landing strip (academy admin).
+- **TaskListPanelWidget** — viewer's open workflow tasks (coach, HoD, scout, parent).
+- **TeamOverviewGridWidget** — HoD cross-team snapshot (HoD, admin).
+- **TeamRosterTableWidget** — single-team roster (head-coach, asst, team manager).
+- **TodayUpNextHeroWidget** — pre-#0092 head-coach hero, kept for back-compat (head-coach, asst, team manager).
+
+Each description states what the widget shows, what data it reads, and (for action widgets) what it writes to.
+
+## KPI backfill — deferred
+
+The framework supports KPI descriptions through `method_exists`. Backfilling all ~30 KPIs would balloon this ship; the descriptions ship per-KPI in subsequent releases (next round of the persona polish pass picks them up by area — coach KPIs together, player KPIs together, etc.).
+
+## Files
+
+- `src/Modules/PersonaDashboard/Domain/AbstractWidget.php` — two new methods
+- `src/Modules/PersonaDashboard/Admin/EditorPage.php` — bootstrap publishes new fields + 3 new i18n strings
+- `assets/js/persona-dashboard-editor.js` — `renderDetailBlock()` + properties-panel integration
+- `assets/css/persona-dashboard-editor.css` — `.tt-pde-properties-detail` + `.tt-pde-chip` styling
+- 19 widget files — `description()` + `intendedPersonas()` overrides
+- `talenttrack.php` 3.110.108 → 3.110.110
+- `readme.txt`, `CHANGES.md`
+
+No schema, no migration, no REST changes.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.110.
+2. Open the dashboard editor (`wp-admin → Persona Dashboards`).
+3. Drag any widget to the canvas. Click it to select.
+4. Right panel now shows: title, meta slug, then a **detail block** with description, intended-persona chips, and a `tt_view_xxx`-style capability code. Then the editable fields (size, data source, etc.) below.
+5. For a `kpi_card` with a KPI picked, the detail block additionally shows the KPI description after a "KPI:" prefix.
+6. Hover the persona chips — readable. Default-template personas covered: head_coach, assistant_coach, head_of_development, academy_admin, player, parent, scout, team_manager.
+
+---
+
 # TalentTrack v3.110.108 — Head-coach dashboard polish round 1: persona label, hero CTA, tasklist count, recent evaluations query, grid widths, quick actions caps + wizard routing (#0092)
 
 Six pilot-surfaced issues on the head-coach dashboard, all landing in one ship since they're all visible on the same surface and a six-ship cadence would force the pilot through six verification cycles on the same screen.

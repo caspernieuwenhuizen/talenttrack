@@ -22,6 +22,15 @@ class KpiStripWidget extends AbstractWidget {
 
     public function label(): string { return __( 'KPI strip', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'A horizontal row of up to 6 KPI tiles for a hero-band placement. The data-source is a comma-separated list of KPI IDs. Each tile renders the same way a standalone KPI card does — headline, trend, sparkline. Use this for the HoD top-strip "season at a glance" placement.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'head_of_development', 'academy_admin' ];
+    }
+
     public function defaultSize(): string { return Size::XL; }
 
     /** @return list<string> */

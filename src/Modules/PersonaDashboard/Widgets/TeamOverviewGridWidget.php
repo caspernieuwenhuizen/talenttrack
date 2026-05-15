@@ -35,6 +35,15 @@ class TeamOverviewGridWidget extends AbstractWidget {
 
     public function label(): string { return __( 'Team overview grid', 'talenttrack' ); }
 
+    public function description(): string {
+        return __( 'Cross-team snapshot for the HoD: one card per team in the club with last activity date, evaluation count in the configured window, and a concern flag (no activity in N days). Configurable via the data-source string: `days=30,sort=concern_first` orders teams with the longest silence at the front.', 'talenttrack' );
+    }
+
+    /** @return list<string> */
+    public function intendedPersonas(): array {
+        return [ 'head_of_development', 'academy_admin' ];
+    }
+
     public function defaultSize(): string { return Size::XL; }
 
     /** @return list<string> */
