@@ -103,6 +103,70 @@ No schema. No migration. No new caps. No NL string sweep beyond the new strings 
 
 ---
 
+# TalentTrack v3.110.99 — Activity detail page: attendance summary headline counts the right rows; Analytics section removed (#0092)
+
+Two pilot-surfaced issues on the read-only activity detail page (`?tt_view=activities&id=N`).
+
+## (1) Attendance headline showed `0 / N (0% present)` even when players were actually present
+
+Coach screenshot:
+
+```
+Aanwezigheid
+0 / 14 players (0% present)
+excused: 1   present: 13
+```
+
+The headline says zero. The breakdown directly underneath says 13 present + 1 excused. Two contradictory numbers from the same render. Worth a long look at the data flow.
+
+### Root cause — case-sensitivity, identical to v3.110.78
+
+`renderAttendanceSummary()` runs `SELECT a.status, COUNT(*) GROUP BY a.status` against `tt_attendance`, then PHP looks up `$by_status['Present']`. **But `tt_attendance.status` rows written via the wizard's `AttendanceStep::validate()` path are normalised lowercase via `sanitize_key()`.** So:
+
+- `$by_status` after the query: `[ 'present' => 13, 'excused' => 1 ]`
+- `$by_status['Present']` (capitalised): `null` → `$present = 0`
+- Headline: `0 / 14 players (0% present)`
+
+The breakdown loop then iterates a whitelist `[ 'Present', 'Absent', 'Late', 'Excused', 'Injured' ]` to render localised labels. None of those capitalised keys hit `$by_status`, so nothing emits from that branch. The next loop (`foreach ( $by_status as $sk => $cnt )` — "any custom status admins added beyond the seeded set") matches the actual lowercase keys and renders `present: 13   excused: 1`. Which is correct data but rendered as if `present` and `excused` were custom statuses, not seeded ones.
+
+Same story as the v3.110.78 cascade of fixes (`RateConfirmStep::countRatable` + `RateActorsStep::ratablePlayersForActivity` + `AttendanceStep`'s `checked()` comparison). The summary was the last surface still keying by capitalised name.
+
+### Fix
+
+```diff
+-  "SELECT a.status, COUNT(*) AS cnt … GROUP BY a.status"
++  "SELECT LOWER(a.status) AS status, COUNT(*) AS cnt … GROUP BY LOWER(a.status)"
+
+-  $present = (int) ( $by_status['Present'] ?? 0 );
++  $present = (int) ( $by_status['present'] ?? 0 );
+
+-  $status_keys = [ 'Present', 'Absent', 'Late', 'Excused', 'Injured' ];
++  $status_keys = [ 'present', 'absent', 'late', 'excused', 'injured' ];
+   foreach ( $status_keys as $sk ) {
+       $cnt = (int) ( $by_status[ $sk ] ?? 0 );
+       if ( $cnt === 0 ) continue;
+-      $label = LabelTranslator::attendanceStatus( $sk );
++      $label = LabelTranslator::attendanceStatus( ucfirst( $sk ) );
+       …
+   }
+```
+
+Aggregates across legacy mixed-case rows AND current lowercase rows into the same bucket. Headline + per-status breakdown now match.
+
+## (2) Analytics section removed from activity detail
+
+The activity-scoped Analytics block (#0083 Child 4) rendered `EntityAnalyticsTabRenderer::render( 'activity', $aid )` at the bottom of the detail page. Pilot decision: *"remove the analysis content from this page for now, I want to access the analytics from the central tile mostly for the time being."*
+
+The block is gone from `renderDetail()`. The renderer + activity-scoped KPIs stay on disk so the central Analytics tile keeps consuming them. Re-instate by uncommenting in `renderDetail` if pilots want it back later (no data-layer change needed).
+
+## How to verify
+
+1. Open the activity detail page for a session whose attendance is recorded with the wizard (lowercase rows). Headline reads `13 / 14 players (93% present)` (or whatever your roster + present count). Breakdown reads `Aanwezig: 13   Geëxcuseerd: 1` (or your locale's labels).
+2. Same page does NOT render an "Analytics" section anywhere on the detail. The Edit / Continue rating / Archive page-header actions are unchanged.
+3. Sanity: any historical attendance rows written by the legacy form path (mixed case) aggregate into the same buckets as the wizard rows.
+
+---
+
 # TalentTrack v3.110.97 — Activity detail page gains a "Continue rating" CTA; rate step filters out already-rated players (#0092)
 
 ## Why this exists
