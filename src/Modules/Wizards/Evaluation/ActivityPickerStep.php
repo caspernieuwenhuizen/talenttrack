@@ -91,7 +91,18 @@ final class ActivityPickerStep implements WizardStepInterface {
             </p>
 
             <p style="margin: var(--tt-sp-3) 0;">
-                <button type="submit" name="_path" value="player-first" class="tt-button tt-button-secondary">
+                <?php
+                // v3.110.102 — `formnovalidate` skips HTML5 validation
+                // when this submit fires. Without it, the `<input
+                // type="radio" required>` on the activity list above
+                // blocked the player-first escape hatch: clicking the
+                // button submitted the form, the browser ran the
+                // required-radio check, saw no activity selected, and
+                // refused to submit — looking like a broken button.
+                // formnovalidate is the standard HTML5 pattern for
+                // "this submit is intentional, skip validation".
+                ?>
+                <button type="submit" name="_path" value="player-first" class="tt-button tt-button-secondary" formnovalidate>
                     <?php esc_html_e( '→ Rate a player directly', 'talenttrack' ); ?>
                 </button>
             </p>

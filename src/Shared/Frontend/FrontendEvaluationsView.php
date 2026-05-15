@@ -96,6 +96,18 @@ class FrontendEvaluationsView extends FrontendViewBase {
         $flat_url = add_query_arg( [ 'tt_view' => 'evaluations', 'action' => 'new' ], $base_url );
         $new_url  = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-evaluation', $flat_url );
 
+        // v3.110.102 — pass `tt_back` pointing back at the
+        // evaluations list. The wizard view now honours tt_back as
+        // the Cancel target (alongside the existing `return_to`
+        // mechanism) AND `FrontendBreadcrumbs::fromDashboard` emits
+        // the `← Back to evaluations` pill at the top of the wizard
+        // surface. Two affordances, both routed back to where the
+        // coach came from. Pilot symptom: entering the wizard from
+        // the evaluations tile and clicking Cancel dropped them on
+        // the dashboard, not back on the list.
+        $eval_list_url = add_query_arg( [ 'tt_view' => 'evaluations' ], $base_url );
+        $new_url       = add_query_arg( [ 'tt_back' => rawurlencode( $eval_list_url ) ], $new_url );
+
         echo '<p style="margin:0 0 12px;"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
             . esc_html__( 'New evaluation', 'talenttrack' )
             . '</a></p>';
