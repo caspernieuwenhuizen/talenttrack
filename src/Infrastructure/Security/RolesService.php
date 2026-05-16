@@ -180,6 +180,19 @@ class RolesService {
         'tt_manage_player_notes',
     ];
 
+    /**
+     * #0093 — Tournament planner. v1 ships ADMIN-ONLY: caps live on
+     * `administrator` (auto-granted via ensureCapabilities below) and
+     * `tt_club_admin` (granted explicitly in roleDefinitions). Not in
+     * VIEW_CAPS / EDIT_CAPS because those propagate to HoD via
+     * `allViewCapsTrue()`; tournaments must NOT auto-flow to HoD or
+     * Coach until the persona-expansion follow-up ships.
+     */
+    public const TOURNAMENTS_CAPS = [
+        'tt_view_tournaments',
+        'tt_edit_tournaments',
+    ];
+
     /** @return array<string, array<string, string|array<string,bool>>> */
     public function roleDefinitions(): array {
         return [
@@ -234,6 +247,7 @@ class RolesService {
                     array_fill_keys( self::SETTINGS_SUBCAPS, true ),  // #0071: full per-area control
                     array_fill_keys( self::COVERAGE_CAPS,    true ),
                     array_fill_keys( self::IMPERSONATION_CAPS, true ),// #0071: only admin + club_admin
+                    array_fill_keys( self::TOURNAMENTS_CAPS, true ),  // #0093: admin-only v1
                     [
                         'tt_edit_teams'      => true,
                         'tt_edit_players'    => true,
@@ -391,6 +405,7 @@ class RolesService {
             self::COVERAGE_CAPS,
             self::IMPERSONATION_CAPS,
             self::PLAYER_NOTES_CAPS,
+            self::TOURNAMENTS_CAPS,
             [ 'tt_view_reports', 'tt_access_frontend_admin' ]
         );
 
