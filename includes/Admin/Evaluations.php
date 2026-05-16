@@ -52,8 +52,8 @@ class Evaluations {
         $players    = Helpers::get_players();
         $categories = Helpers::get_categories();
         $types      = Helpers::get_eval_types();
-        $rmin  = (float) Helpers::get_config( 'rating_min', 1 );
-        $rmax  = (float) Helpers::get_config( 'rating_max', 5 );
+        $rmin  = (float) Helpers::get_config( 'rating_min', 5 );
+        $rmax  = (float) Helpers::get_config( 'rating_max', 10 );
         $rstep = (float) Helpers::get_config( 'rating_step', 0.5 );
         $existing = [];
         if ( $eval && ! empty( $eval->ratings ) ) {
@@ -129,7 +129,7 @@ class Evaluations {
         $eval = Helpers::get_evaluation( $id );
         if ( ! $eval ) { echo '<div class="wrap"><p>Not found.</p></div>'; return; }
         $player = Helpers::get_player( $eval->player_id );
-        $max    = (float) Helpers::get_config( 'rating_max', 5 );
+        $max    = (float) Helpers::get_config( 'rating_max', 10 );
         $labels = []; $values = [];
         if ( ! empty( $eval->ratings ) ) {
             foreach ( $eval->ratings as $r ) { $labels[] = $r->category_name; $values[] = (float) $r->rating; }
@@ -188,8 +188,8 @@ class Evaluations {
             $wpdb->insert( "{$p}tt_evaluations", $header );
             $id = $wpdb->insert_id;
         }
-        $rmin = (float) Helpers::get_config( 'rating_min', 1 );
-        $rmax = (float) Helpers::get_config( 'rating_max', 5 );
+        $rmin = (float) Helpers::get_config( 'rating_min', 5 );
+        $rmax = (float) Helpers::get_config( 'rating_max', 10 );
         foreach ( $_POST['ratings'] ?? [] as $cat_id => $rating ) {
             $rating = max( $rmin, min( $rmax, floatval( $rating ) ) );
             $wpdb->insert( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id, 'category_id' => absint( $cat_id ), 'rating' => $rating ] );

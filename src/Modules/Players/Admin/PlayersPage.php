@@ -427,7 +427,7 @@ class PlayersPage {
         if ( ! $player ) { echo '<div class="wrap"><p>' . esc_html__( 'Not found.', 'talenttrack' ) . '</p></div>'; return; }
         $team  = $player->team_id ? QueryHelpers::get_team( (int) $player->team_id ) : null;
         $radar = QueryHelpers::player_radar_datasets( $id );
-        $max   = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $max   = (float) QueryHelpers::get_config( 'rating_max', '10' );
         $pos   = json_decode( (string) $player->preferred_positions, true );
         ?>
         <div class="wrap">

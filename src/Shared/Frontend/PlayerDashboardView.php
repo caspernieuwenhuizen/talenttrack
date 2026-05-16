@@ -14,7 +14,7 @@ class PlayerDashboardView {
 
     public function render( object $player ): void {
         global $wpdb; $p = $wpdb->prefix;
-        $max  = QueryHelpers::get_config( 'rating_max', '5' );
+        $max  = QueryHelpers::get_config( 'rating_max', '10' );
         $view = isset( $_GET['tt_view'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tt_view'] ) ) : 'overview';
 
         // v2.15.0: enqueue the player-card stylesheet for this request.

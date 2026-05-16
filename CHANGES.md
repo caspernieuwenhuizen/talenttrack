@@ -77,6 +77,120 @@ No schema, no migration, no REST changes.
 13. **Keyboard**: Tab into the roster; each pill / chip / button is focusable in DOM order. Focus ring visible via `:focus-visible`. Space / Enter activates.
 14. **NL locale**: every label translated ("Aanwezig" / "Afwezig" / "+ Markeer als te laat" / "Reden (optioneel):" / "🛡 Geoorloofd" / "🩹 Geblesseerd"). Badges + chip text all Dutch.
 15. **Custom-status install** (optional): manually add a non-canonical row to `tt_lookups[attendance_status]` (e.g. `partial`). Re-render the AttendanceStep — falls back to the legacy radio matrix (now wrapped in `.tt-table-wrap` for horizontal scroll on mobile, but still the old layout). No status silently dropped.
+---
+# TalentTrack v3.110.121 — Rating scale flipped from 1–5 to 5–10 (Dutch academic 6-point) with linear data remap + ~15 hardcoded-scale fixes
+
+Drafted as v3.110.116. Renumbered to v3.110.121 after five parallel ships (v3.110.116 Standard reports, v3.110.117 dashboard editor detail panel, v3.110.118 scout polish A, v3.110.119 scout polish B) took the v3.110.116–v3.110.119 slots. Migration filename also renumbered from `0094` to `0095` after v3.110.119 took the `0094_scouting_plan_visits` slot.
+
+## Operator decision
+
+> "I want to change the rating scale from 1-5 to 5-10."
+
+After follow-up questions: target is **floor 5, ceiling 10** (Dutch academic 6-point); existing data gets a **linear remap** (1 → 5, 5 → 10).
+
+## Migration 0095
+
+`database/migrations/0095_rating_scale_5_to_10.php` runs two atomic phases:
+
+### Phase 1 — remap existing data
+
+```sql
+UPDATE tt_eval_ratings
+   SET rating = 5 + ( rating - 1 ) * 1.25
+ WHERE rating BETWEEN 1 AND 5;
+```
+
+The same UPDATE runs against three tables that share the global rating scale:
+
+| Table | Column | Source |
+|---|---|---|
+| `tt_eval_ratings` | `rating` | Main evaluation ratings (most rows). |
+| `tt_player_behaviour_ratings` | `rating` | #0057 behaviour ratings (1-5 per spec). |
+| `tt_trial_cases` | `overall_rating` | Trial-case overall (DECIMAL(3,2); hardcoded 1-5 in the staff-input form pre-v3.110.120). |
+
+Tables that don't exist on a given install are skipped via per-table `SHOW TABLES LIKE` checks.
+
+### Phase 2 — config flip
+
+```sql
+UPDATE tt_config SET config_value = '5'  WHERE config_key = 'rating_min';
+UPDATE tt_config SET config_value = '10' WHERE config_key = 'rating_max';
+```
+
+### Idempotency
+
+The migration reads `rating_max` BEFORE phase 1; if the value is already > 5, both phases are skipped. So:
+
+- Fresh installs: 0001 seed already places 5/10; 0095 short-circuits.
+- Existing installs: 0095 runs once on the next migration pass; re-runs are no-ops.
+- Installs where an operator hand-flipped to 5/10 without remapping data: 0095 short-circuits — the operator's hand-fix is preserved as-is.
+
+### Remap math
+
+| Old (1–5) | New (5–10) |
+|---|---|
+| 1.0 | 5.000 |
+| 1.5 | 5.625 |
+| 2.0 | 6.250 |
+| 2.5 | 6.875 |
+| 3.0 | 7.500 |
+| 3.5 | 8.125 |
+| 4.0 | 8.750 |
+| 4.5 | 9.375 |
+| 5.0 | 10.000 |
+
+Relative ranking is preserved exactly.
+
+## ~15 hardcoded-scale fixes
+
+These broke immediately if `rating_max` flipped from 5 → 10:
+
+### Critical
+
+- **`PlayerStatusRestController::createBehaviourRating`** — was `if ( $rating < 1.0 || $rating > 5.0 )`. Now reads min/max from config; error message templated with the dynamic values.
+- **`PlayerStatusCalculator`** — two hardcoded divisors:
+  - Behaviour: `( $behaviour_avg / 5 ) * 100` → `( $behaviour_avg / $rating_max ) * 100`
+  - Ratings: `round( $value * 10, 1 )` → `round( ( $value / $rating_max ) * 100, 1 )`
+- **`CompatibilityEngine` fit-score clamp** — `max( 0.0, min( 5.0, $score ) )` → `max( 0.0, min( $rating_max, $score ) )`.
+- **`ExcelImporter` row-filter** — was `if ( $rating < 1 || $rating > 5 ) continue` (silently skipping legitimate imports). Now reads min/max from config.
+- **`EvaluationGenerator` (demo data)** — kept the `archetypeRating()` internal 1–5 logic, but added a `$remap` closure that linearly maps the output into the configured `[rmin, rmax]` range before the clamp.
+
+### Medium (visual / classifier)
+
+- **`RatingPillComponent::tierFor` + `pill()` + `chip()` + `badge()`** — `$max` default was hardcoded `5.0` (broke tier classification on a 10-max scale: every rating registered as "strong" because the normalised value ≥ 4.0). Restated thresholds as percentages (strong ≥ 80%, developing ≥ 50%, attention < 50%); `$max` default is now `null` and resolves from config at call time.
+- **`QueryHelpers::radar_chart_svg`** — ring count was hardcoded to 5 (`for ( $ring = 1; $ring <= 5; $ring++ )`), labelled 1–5 regardless of the `$max` argument. Now generates rings from `$ring_step` (1 for max ≤ 10, 2 for larger scales) up to `$max_int`, labelled with the actual ring number. `$max` default also resolves from config when null.
+- **`FrontendPlayerStatusMethodologyView` behaviour-floor input** — `min="0" max="5"` hardcoded; default value 3.0. Now min/max attrs follow `rating_min` / `rating_max` config; default value is `(rmin + rmax) / 2`.
+
+### Low (labels / inputs)
+
+- **`FrontendTrialCaseView`** — `"Overall rating (1–5)"` literal label and `min="1" max="5"` attrs. Now both follow config.
+- **`FrontendTeamChemistryView`** — `"Team chemistry: %s / 5"` hardcoded. Now `"%s / <rating_max>"`.
+- **`RateActorsStep` + `HybridDeepRateStep`** — were reading a stale `wp_options[tt_rating_scale_max]` key with hardcoded 5 fallback. Now read `tt_config[rating_max]` consistently.
+- **`FrontendReportWizardView` privacy-threshold input** — `max="5"` → `max="<rating_max>"`.
+
+### Fallback defaults (~30 callsites)
+
+Every `get_config( 'rating_min', '1' )` → `get_config( 'rating_min', '5' )` and `get_config( 'rating_max', '5' )` → `get_config( 'rating_max', '10' )` across `src/` and `includes/`.
+
+## Tier-classifier note
+
+On the new 5–10 scale, the lowest possible rating (5) sits at the developing/attention boundary (50% of max). So "attention" tier rarely surfaces unless an operator widens the scale floor below 5. By design — a coach in the Dutch academic convention rarely uses ratings below 5 in practice; the new "developing" tier captures the bottom half of the 5–10 range.
+
+## How to test
+
+1. **Migration**: refresh the plugin. Migration 0095 runs once on activation. Verify:
+   - `tt_config[rating_min]` = `'5'`
+   - `tt_config[rating_max]` = `'10'`
+   - A `tt_eval_ratings` row previously `3` is now `7.5`. A row that was `5` is now `10`.
+2. **Config UI**: Settings → Configuration. Rating min/max inputs show 5 and 10.
+3. **Eval form**: open the new-evaluation wizard. Rating input min/max attrs are 5/10.
+4. **Rate-card / radar**: open a player's rate card. Radar chart has 10 concentric rings; axis labels match.
+5. **Pill tiers**: a 7 should render as "developing" (yellow); an 8 as "strong" (green). A 5 as "developing".
+6. **Trial case staff input**: label reads "Overall rating (5–10)"; min/max attrs match.
+7. **Team chemistry**: header reads "Team chemistry: X / 10".
+8. **Behaviour rating**: POST a 7 to `players/{id}/behaviour-ratings` — succeeds. POST a 12 — rejected with new error message.
+9. **Idempotency**: re-run migrations — 0095 short-circuits.
+
 
 ---
 

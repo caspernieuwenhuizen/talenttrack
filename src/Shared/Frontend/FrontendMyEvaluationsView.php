@@ -48,7 +48,7 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
             return;
         }
 
-        $max          = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $max          = (float) QueryHelpers::get_config( 'rating_max', '10' );
         $eval_ids     = array_map( fn( $e ) => (int) $e->id, $evals );
         $ratings_repo = new EvalRatingsRepository();
         $overalls     = $ratings_repo->overallRatingsForEvaluations( $eval_ids );

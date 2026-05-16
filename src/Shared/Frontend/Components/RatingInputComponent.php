@@ -35,8 +35,8 @@ class RatingInputComponent {
         $label    = (string) ( $args['label'] ?? __( 'Rating', 'talenttrack' ) );
         $required = ! empty( $args['required'] );
 
-        $min  = isset( $args['min'] )  ? (float) $args['min']  : (float) QueryHelpers::get_config( 'rating_min',  '1' );
-        $max  = isset( $args['max'] )  ? (float) $args['max']  : (float) QueryHelpers::get_config( 'rating_max',  '5' );
+        $min  = isset( $args['min'] )  ? (float) $args['min']  : (float) QueryHelpers::get_config( 'rating_min',  '5' );
+        $max  = isset( $args['max'] )  ? (float) $args['max']  : (float) QueryHelpers::get_config( 'rating_max',  '10' );
         $step = isset( $args['step'] ) ? (float) $args['step'] : (float) QueryHelpers::get_config( 'rating_step', '0.5' );
         $value = isset( $args['value'] ) ? (string) $args['value'] : '';
 

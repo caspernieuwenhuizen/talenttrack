@@ -26,8 +26,8 @@ class Config_Controller {
 
     public static function get_config() {
         return rest_ensure_response( [
-            'rating_min'      => (float) Helpers::get_config( 'rating_min', 1 ),
-            'rating_max'      => (float) Helpers::get_config( 'rating_max', 5 ),
+            'rating_min'      => (float) Helpers::get_config( 'rating_min', 5 ),
+            'rating_max'      => (float) Helpers::get_config( 'rating_max', 10 ),
             'rating_step'     => (float) Helpers::get_config( 'rating_step', '0.5' ),
             'categories'      => Helpers::get_categories(),
             'eval_types'      => Helpers::get_eval_types(),

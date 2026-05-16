@@ -64,8 +64,14 @@ final class RateActorsStep implements WizardStepInterface {
             $sub_cats_by_parent[ $pid ][] = $sc;
         }
 
-        $rating = $wpdb->get_var( "SELECT rating_max FROM {$p}tt_eval_categories LIMIT 0" );
-        $max = (int) ( get_option( 'tt_rating_scale_max', 5 ) ?: 5 );
+        // v3.110.116 — was reading `wp_options[tt_rating_scale_max]`
+        // (a stale key that never got written by the modern config UI)
+        // with a hardcoded `5` fallback. Reads `tt_config[rating_max]`
+        // / `rating_min` instead so the wizard input bounds track the
+        // active scale (5–10 default post-migration). The dead SELECT
+        // on tt_eval_categories also removed — never read.
+        $min = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' ) );
+        $max = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' ) );
 
         if ( empty( $players ) ) :
             ?><p class="tt-notice"><?php esc_html_e( 'No players to rate. Mark attendance first or pick another activity.', 'talenttrack' ); ?></p><?php
@@ -136,7 +142,7 @@ final class RateActorsStep implements WizardStepInterface {
                         <div class="tt-rate-row">
                             <label class="tt-rate-label" for="<?php echo esc_attr( $iid ); ?>"><?php echo esc_html( $label ); ?></label>
                             <div class="tt-rate-control">
-                                <input type="number" min="0" max="<?php echo (int) $max; ?>"
+                                <input type="number" min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>"
                                        step="1"
                                        inputmode="numeric"
                                        id="<?php echo esc_attr( $iid ); ?>"
@@ -166,7 +172,7 @@ final class RateActorsStep implements WizardStepInterface {
                                     <div class="tt-rate-row tt-rate-row--sub">
                                         <label class="tt-rate-label" for="<?php echo esc_attr( $siid ); ?>">↳ <?php echo esc_html( $slabel ); ?></label>
                                         <div class="tt-rate-control">
-                                            <input type="number" min="0" max="<?php echo (int) $max; ?>"
+                                            <input type="number" min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>"
                                                    step="1"
                                                    inputmode="numeric"
                                                    id="<?php echo esc_attr( $siid ); ?>"

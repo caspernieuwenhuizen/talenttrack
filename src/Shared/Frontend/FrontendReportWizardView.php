@@ -236,9 +236,13 @@ class FrontendReportWizardView extends FrontendViewBase {
                         <input type="checkbox" name="privacy[include_coach_notes]" value="1" <?php checked( $config->privacy->include_coach_notes ); ?> />
                         <?php esc_html_e( 'Include coach free-text notes', 'talenttrack' ); ?>
                     </label>
+                    <?php
+                    // v3.110.116 — bounds follow `tt_config` rating scale.
+                    $rwz_rmax = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+                    ?>
                     <label class="tt-rwz-check tt-rwz-check--inline">
                         <span><?php esc_html_e( 'Hide ratings below', 'talenttrack' ); ?></span>
-                        <input type="number" step="0.1" min="0" max="5" name="privacy[min_rating_threshold]" value="<?php echo esc_attr( (string) $config->privacy->min_rating_threshold ); ?>" />
+                        <input type="number" step="0.1" min="0" max="<?php echo esc_attr( (string) $rwz_rmax ); ?>" name="privacy[min_rating_threshold]" value="<?php echo esc_attr( (string) $config->privacy->min_rating_threshold ); ?>" />
                     </label>
                 </div>
             </fieldset>

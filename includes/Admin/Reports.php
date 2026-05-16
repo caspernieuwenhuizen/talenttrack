@@ -68,7 +68,7 @@ class Reports {
     private static function run_report( $type, $pids, $tids, $etype, $from, $to ) {
         global $wpdb; $p = $wpdb->prefix;
         $categories = Helpers::get_categories();
-        $max = (float) Helpers::get_config( 'rating_max', 5 );
+        $max = (float) Helpers::get_config( 'rating_max', 10 );
         $labels  = wp_list_pluck( $categories, 'name' );
         $cat_ids = wp_list_pluck( $categories, 'id' );
 
