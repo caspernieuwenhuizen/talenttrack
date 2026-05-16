@@ -85,6 +85,27 @@ final class SpondSync {
             ) );
         }
 
+        // v3.110.123 — log the page count so a pilot can see proof
+        // of pagination working in the logs. Pre-fix a successful
+        // sync reported "OK" but silently dropped events past the
+        // first 100; the page count makes a multi-page sync
+        // observable. Warning level when the safety cap (20 pages)
+        // is hit, otherwise info.
+        $pages_drawn = (int) ( $fetch['pages'] ?? 1 );
+        $event_count = is_array( $fetch['events'] ?? null ) ? count( $fetch['events'] ) : 0;
+        $log_payload = [
+            'team_id'    => $team_id,
+            'group_id'   => $group_id,
+            'pages'      => $pages_drawn,
+            'events'     => $event_count,
+            'http_code'  => $fetch['http_code'] ?? 200,
+        ];
+        if ( $pages_drawn >= 20 ) {
+            Logger::warning( 'spond.fetch.safety_cap_hit', $log_payload );
+        } else {
+            Logger::info( 'spond.fetch.ok', $log_payload );
+        }
+
         $events = SpondParser::parse( $fetch['events'] );
         if ( empty( $events ) ) {
             return self::persistAndReturn( $team_id, self::summary(
