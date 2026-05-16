@@ -14794,3 +14794,104 @@ msgstr "Geen activiteiten om aanwezigheid voor te registreren. Plan een training
 
 msgid "No completed rateable activities in the last 90 days. Mark an activity as completed (and use a rateable activity type) to see it here, or pick a player below to rate ad-hoc."
 msgstr "Geen afgeronde, beoordeelbare activiteiten in de laatste 90 dagen. Markeer een activiteit als afgerond (met een beoordeelbaar activiteitstype) om hier te verschijnen, of kies hieronder een speler om ad hoc te beoordelen."
+
+# v3.110.131+ — #0093 Tournament planner
+
+msgid "Tournaments"
+msgstr "Toernooien"
+
+msgid "Tournament name"
+msgstr "Toernooinaam"
+
+msgid "New tournament"
+msgstr "Nieuw toernooi"
+
+msgid "Anchor team"
+msgstr "Anker-team"
+
+msgid "Default formation"
+msgstr "Standaardformatie"
+
+msgid "Open planner grid"
+msgstr "Open planner grid"
+
+msgid "Auto-balance"
+msgstr "Auto-balanceren"
+
+msgid "Kick off"
+msgstr "Aftrap"
+
+msgid "Complete match"
+msgstr "Wedstrijd afsluiten"
+
+msgid "Open"
+msgstr "Open"
+
+msgid "No tournaments yet."
+msgstr "Nog geen toernooien."
+
+msgid "Tournament not found"
+msgstr "Toernooi niet gevonden"
+
+msgid "That tournament no longer exists."
+msgstr "Dit toernooi bestaat niet meer."
+
+msgid "Your role does not have access to tournaments."
+msgstr "Jouw rol heeft geen toegang tot toernooien."
+
+msgid "Your role cannot create tournaments."
+msgstr "Jouw rol kan geen toernooien aanmaken."
+
+msgid "Your role cannot edit tournaments."
+msgstr "Jouw rol kan geen toernooien bewerken."
+
+msgid "Squad"
+msgstr "Selectie"
+
+msgid "Matches"
+msgstr "Wedstrijden"
+
+msgid "No matches yet."
+msgstr "Nog geen wedstrijden."
+
+msgid "No players in the squad yet."
+msgstr "Nog geen spelers in de selectie."
+
+msgid "(no positions set)"
+msgstr "(geen posities ingesteld)"
+
+msgid "Pick at least one player for the squad."
+msgstr "Kies minstens één speler voor de selectie."
+
+msgid "Add at least one match."
+msgstr "Voeg minstens één wedstrijd toe."
+
+msgid "Tournament basics are incomplete. Go back and fill in name, team, and start date."
+msgstr "De basisgegevens van het toernooi zijn onvolledig. Ga terug en vul naam, team en startdatum in."
+
+msgid "Add at least one match before creating the tournament."
+msgstr "Voeg minstens één wedstrijd toe vóór het aanmaken van het toernooi."
+
+msgid "Minutes"
+msgstr "Minuten"
+
+msgid "Fewest minutes"
+msgstr "Minste minuten"
+
+msgid "Fewest starts"
+msgstr "Minste basisplaatsen"
+
+msgid "No full matches"
+msgstr "Geen volledige wedstrijd"
+
+msgid "Minutes ticker"
+msgstr "Speeltijd-ticker"
+
+msgid "Basics"
+msgstr "Basis"
+
+msgid "Formation"
+msgstr "Formatie"
+
+msgid "Review"
+msgstr "Bevestigen"
