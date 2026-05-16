@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.205
+Stable tag: 3.110.206
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.206 — Mobile readiness audit follow-up (#423): three waves of mechanical retrofits. Wave 1 — wrapped bare `<table class="tt-table">` in `<div class="tt-table-wrap">` across audit log, comparison, evaluations, functional roles, migrations, people, team detail (5 tables), teams manage (2), trial case (5), report detail (2) — 17 tables total so they scroll horizontally as their own region at 360px instead of crushing columns. Wave 2 — added the right `inputmode` to 6 numeric inputs (players manage jersey/height/weight → `numeric`, report wizard min-rating-threshold → `decimal`, trial case overall_rating → `decimal`, invitation accept jersey → `numeric`, ideas refine player/team IDs → `numeric`). Wave 3 — Activity wizard PrinciplesStep multi-select now `width:100%; min-width:0` (fits 360px viewports); Team wizard RosterStep checkbox-label `min-height: 48px` (CLAUDE.md §2 tap floor). No PHP logic change, no CSS change (`.tt-table-wrap` was already defined), no JS, no schema, no REST. Two conflict regions in the rebase were merged-in: the Configuration → Lookups `<table>` was already replaced by the master-detail rewrite (#830) so the table-wrap retrofit on that view is now a no-op (dropped); the report-wizard min-rating-threshold input kept HEAD's dynamic-bounds and gained the PR's `inputmode="decimal"`. (closes #423) =
 
 = 3.110.205 — InvitationStatus moves to `tt_lookups` + `tt_translations`: the four invitation status labels (Pending / Accepted / Expired / Revoked) are now operator-editable per academy and translatable per locale through the frontend lookups admin. Stored keys (`pending`, `accepted`, `expired`, `revoked`) stay sacred — they remain `InvitationStatus::*` PHP constants and the `tt_invitations.status` contract is unchanged. `InvitationStatus::label()` now delegates to `LookupTranslator::byTypeAndName()` with a switch-statement fallback for pre-migration installs. New "Invitation statuses" tile on the Lookups admin grid; migration 0110 seeds 4 lookup rows + 20 `tt_translations` rows (4 × 5 locales). First conversion from the #803 audit punch list. (closes #808, #803 partial) =
 
