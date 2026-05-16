@@ -88,7 +88,20 @@ Eight personas ship in the seed:
 
 A user can hold multiple personas simultaneously (a parent who's also a head coach). The matrix uses the **union** by default — any persona that grants permission wins. The persona switcher in the user menu lets multi-persona users temporarily lens the dashboard to one persona's view; that's a UI lens, not an authorization restriction.
 
+## Tournaments — admin-only in v1 (#0093)
+
+The Tournament planner ships with two new capabilities — `tt_view_tournaments` and `tt_edit_tournaments`. v1 maps both to `administrator` + `tt_club_admin` only. No other persona (Coach, HoD, Scout, Player, Parent) holds either cap until the persona-expansion follow-up.
+
+The caps are intentionally **not** in `RolesService::VIEW_CAPS` / `EDIT_CAPS` so they don't auto-propagate to HoD via `allViewCapsTrue()`. They live in their own `TOURNAMENTS_CAPS` constant; `ensureCapabilities()` grants them to WP `administrator` and the role definition for `tt_club_admin` lists them explicitly.
+
+When the persona-expansion ship lands:
+
+1. Map `tt_view_tournaments` → Coach + HoD + Scout, `tt_edit_tournaments` → Coach (own tournaments) + HoD.
+2. Build `AuthorizationService::canViewTournament` / `canEditTournament` with creator / team-coach / global-staff logic (currently they defer to the cap check).
+3. Swap REST `permission_callback`s from cap-only to per-entity checks.
+
 ## See also
 
 - [Access control](access-control.md) — the broader role + capability model.
 - [Modules](modules.md) — disabling a module short-circuits its matrix rows.
+- [Tournaments](tournaments.md) — user-facing guide for the planner.
