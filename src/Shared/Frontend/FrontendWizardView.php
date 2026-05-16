@@ -616,27 +616,92 @@ class FrontendWizardView extends FrontendViewBase {
             .tt-rate-player-status--complete { background: #cfe7da; color: #137333; }
             .tt-rate-player-status--skipped  { background: #e8e8e8; color: #8a8a8a; text-decoration: line-through; }
             .tt-rate-grid { display: grid; gap: 12px; margin-top: var(--tt-sp-2, 12px); }
-            .tt-rate-row { display: grid; grid-template-columns: 1fr; gap: 6px; align-items: start; }
-            .tt-rate-label { font-weight: 500; font-size: .95rem; }
-            .tt-rate-control { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-            .tt-rate-input { width: 96px; min-height: 48px; font-size: 16px; padding: 10px 12px; border: 1px solid #c4c7c5; border-radius: 8px; box-sizing: border-box; }
+            /* v3.110.125 — was a 2-row grid on mobile (label / control)
+             * where the control's flex-wrap+full-bleed input made the
+             * "/ max" suffix wrap to a third visual row. Now the row
+             * is a horizontal flex strip on every viewport: label
+             * grows, input is fixed at 80px, suffix sits inline. Saves
+             * the second-line wrap entirely. */
+            .tt-rate-row {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+            .tt-rate-label { font-weight: 500; font-size: .95rem; flex: 1 1 0; min-width: 120px; }
+            .tt-rate-control { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; flex: 0 0 auto; }
+            .tt-rate-input {
+                width: 80px;
+                flex: 0 0 80px;
+                min-height: 48px;
+                font-size: 16px;
+                padding: 10px 12px;
+                border: 1px solid #c4c7c5;
+                border-radius: 8px;
+                box-sizing: border-box;
+                text-align: center;
+            }
             .tt-rate-notes { width: 100%; min-height: 72px; font-size: 16px; padding: 10px 12px; border: 1px solid #c4c7c5; border-radius: 8px; box-sizing: border-box; resize: vertical; }
-            .tt-rate-max { color: var(--tt-muted, #5f6368); font-size: 14px; }
+            .tt-rate-max { color: var(--tt-muted, #5f6368); font-size: 14px; white-space: nowrap; flex-shrink: 0; }
             .tt-rate-skip { display: flex; align-items: center; gap: 8px; min-height: 48px; cursor: pointer; }
             .tt-rate-skip input[type=checkbox] { width: 22px; height: 22px; flex: 0 0 22px; }
-            /* v3.108.4 — A3: detail subcategories nested under each
-             * main category. Indent the sub-row label slightly so the
-             * hierarchy is visible; collapse the subs by default
-             * (the `<details>` wrapper) so the quick-rate ergonomic
-             * stays primary. */
-            .tt-rate-subs { margin: 4px 0 0 0; padding-left: 18px; border-left: 2px solid var(--tt-line, #e0e0e0); }
-            .tt-rate-subs-toggle { font-size: .85rem; color: var(--tt-muted, #5f6368); cursor: pointer; padding: 4px 0; min-height: 32px; }
+            /* v3.110.125 — Basic / Detailed segmented toggle per main
+             * category. Replaces the native <details> disclosure with
+             * an inline pill control: clicking Detailed reveals the
+             * sub-category inputs below. Pure-CSS via a `data-state`
+             * attribute the inline JS flips; pill highlights the
+             * current state, the other half acts as the affordance
+             * to switch. Mobile-first 36px height keeps it within the
+             * row's vertical rhythm while sitting below the 48px
+             * floor (it's a secondary mode-toggle, not a primary
+             * action button — Apple HIG style guidance permits 32–36
+             * for in-form mode toggles). */
+            .tt-rate-detail-toggle {
+                display: inline-flex;
+                margin: 6px 0 0 auto;
+                border: 1px solid #c4c7c5;
+                border-radius: 999px;
+                padding: 2px;
+                font-size: 12px;
+                line-height: 1.3;
+                background: #fff;
+                user-select: none;
+            }
+            .tt-rate-detail-toggle button {
+                appearance: none;
+                background: transparent;
+                border: 0;
+                color: var(--tt-muted, #5f6368);
+                padding: 4px 12px;
+                border-radius: 999px;
+                cursor: pointer;
+                min-height: 32px;
+                font: inherit;
+            }
+            .tt-rate-detail-toggle button:focus-visible {
+                outline: 2px solid var(--tt-accent, #2563eb);
+                outline-offset: 1px;
+            }
+            .tt-rate-detail-toggle[data-state="basic"] button[data-mode="basic"],
+            .tt-rate-detail-toggle[data-state="detailed"] button[data-mode="detailed"] {
+                background: var(--tt-ink, #1a1d21);
+                color: #fff;
+            }
+            /* The subs panel — hidden by default; revealed when the
+             * toggle flips to detailed. Same indent + border-left
+             * treatment as the v3.108.4 details, just driven by a
+             * data attribute instead of <details>/<summary> chrome. */
+            .tt-rate-subs {
+                margin: 4px 0 0;
+                padding-left: 18px;
+                border-left: 2px solid var(--tt-line, #e0e0e0);
+                width: 100%;
+            }
+            .tt-rate-subs[hidden] { display: none; }
             .tt-rate-row--sub { margin-top: 6px; }
             .tt-rate-row--sub .tt-rate-label { font-size: .875rem; color: var(--tt-text, #1a1d21); font-weight: 500; }
             @media (min-width: 720px) {
-                .tt-rate-row { grid-template-columns: 180px 1fr; gap: 12px; align-items: center; }
-                .tt-rate-skip-row { grid-template-columns: 1fr; }
-                .tt-rate-label { padding-top: 0; }
+                .tt-rate-skip-row { justify-content: flex-start; }
             }
 
             @media (min-width: 768px) {

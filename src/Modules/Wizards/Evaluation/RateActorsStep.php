@@ -155,14 +155,34 @@ final class RateActorsStep implements WizardStepInterface {
                                 </span>
                             </div>
                         </div>
-                        <?php if ( ! empty( $subs ) ) : ?>
-                            <details class="tt-rate-subs">
-                                <summary class="tt-rate-subs-toggle">
-                                    <?php
-                                    /* translators: %s: main category label (Technical / Tactical / Physical / Mental) */
-                                    echo esc_html( sprintf( __( 'Detailed %s', 'talenttrack' ), $label ) );
-                                    ?>
-                                </summary>
+                        <?php if ( ! empty( $subs ) ) :
+                            // v3.110.125 — was a native <details>/<summary>
+                            // disclosure ("Detailed Technical") with the
+                            // browser's default chevron + indent chrome.
+                            // Replaced with a Basic/Detailed segmented
+                            // pill toggle that flips a `data-state` on
+                            // the subs panel; default state is Basic
+                            // (subs hidden). Same DOM input names —
+                            // values still POST when the operator never
+                            // expanded Detailed (form values persist
+                            // across toggle flips because the inputs
+                            // stay in the DOM, just hidden).
+                            $detail_btn_basic = __( 'Basic', 'talenttrack' );
+                            $detail_btn_more  = __( 'Detailed', 'talenttrack' );
+                            ?>
+                            <div class="tt-rate-detail-toggle"
+                                 data-tt-rate-detail-toggle
+                                 data-state="basic"
+                                 role="tablist"
+                                 aria-label="<?php echo esc_attr( sprintf(
+                                     /* translators: %s: main category label */
+                                     __( '%s detail mode', 'talenttrack' ),
+                                     $label
+                                 ) ); ?>">
+                                <button type="button" data-mode="basic"    role="tab" aria-selected="true"><?php echo esc_html( $detail_btn_basic ); ?></button>
+                                <button type="button" data-mode="detailed" role="tab" aria-selected="false"><?php echo esc_html( $detail_btn_more ); ?></button>
+                            </div>
+                            <div class="tt-rate-subs" data-tt-rate-subs hidden>
                                 <?php foreach ( $subs as $sub ) :
                                     $scid = (int) $sub->id;
                                     $sval = (int) ( $state['ratings'][ $pid ][ $scid ] ?? 0 );
@@ -186,7 +206,7 @@ final class RateActorsStep implements WizardStepInterface {
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
-                            </details>
+                            </div>
                         <?php endif; ?>
                     <?php endforeach; ?>
                     <div class="tt-rate-row">
@@ -327,6 +347,35 @@ final class RateActorsStep implements WizardStepInterface {
                 }
                 var details = e.target.closest( '[data-tt-rate-player]' );
                 if ( details ) { updatePlayer( details ); updateOverall(); }
+            } );
+
+            // v3.110.125 — per-category Basic/Detailed pill toggle.
+            // Click delegated on the roster so the handler picks up
+            // every category across every player without per-element
+            // wiring. State flips on the wrapper's `data-state`; the
+            // sibling `.tt-rate-subs` panel toggles `hidden`. Form
+            // values inside the subs persist across mode flips —
+            // hiding doesn't unmount the inputs.
+            roster.addEventListener( 'click', function ( e ) {
+                var btn = e.target && e.target.closest ? e.target.closest( '.tt-rate-detail-toggle button' ) : null;
+                if ( ! btn ) return;
+                var wrap = btn.closest( '.tt-rate-detail-toggle' );
+                if ( ! wrap ) return;
+                var mode = btn.getAttribute( 'data-mode' );
+                wrap.setAttribute( 'data-state', mode );
+                var btns = wrap.querySelectorAll( 'button' );
+                btns.forEach( function ( b ) {
+                    b.setAttribute( 'aria-selected', b === btn ? 'true' : 'false' );
+                } );
+                // Next sibling is the subs panel.
+                var panel = wrap.nextElementSibling;
+                if ( panel && panel.matches( '[data-tt-rate-subs]' ) ) {
+                    if ( mode === 'detailed' ) {
+                        panel.removeAttribute( 'hidden' );
+                    } else {
+                        panel.setAttribute( 'hidden', '' );
+                    }
+                }
             } );
         })();
         </script>
