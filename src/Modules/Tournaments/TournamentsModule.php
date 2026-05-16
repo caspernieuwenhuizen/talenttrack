@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Infrastructure\REST\TournamentsRestController;
+use TT\Modules\Tournaments\Wizard\NewTournamentWizard;
+use TT\Shared\Wizards\WizardRegistry;
 
 /**
  * TournamentsModule (#0093) — fair-share planner for multi-match
@@ -50,6 +52,13 @@ class TournamentsModule implements ModuleInterface {
         // tt_view_tournaments / tt_edit_tournaments, which are
         // admin-only in v1.
         TournamentsRestController::init();
+
+        // #0093 chunk 4 — new-tournament wizard. Five steps: basics →
+        // formation → squad → matches → review. Gated on
+        // tt_edit_tournaments (admin-only in v1).
+        if ( class_exists( WizardRegistry::class ) ) {
+            WizardRegistry::register( new NewTournamentWizard() );
+        }
     }
 
     /**
