@@ -69,6 +69,23 @@ class RestResponse {
     }
 
     /**
+     * Build a 404 envelope. Shortcut for the common "entity not found"
+     * shape used by detail / update / delete routes. Fixes a latent bug
+     * where `PlayersRestController` already called this method (lines
+     * 376 + 424) before it was defined.
+     *
+     * @param string              $code    Domain-specific snake_case code (default "not_found").
+     * @param string              $message Human-readable message (default localised "Not found.").
+     * @param array<string,mixed> $details Optional extra context.
+     */
+    public static function notFound( string $code = 'not_found', string $message = '', array $details = [] ): WP_REST_Response {
+        if ( $message === '' ) {
+            $message = function_exists( '__' ) ? __( 'Not found.', 'talenttrack' ) : 'Not found.';
+        }
+        return self::error( $code, $message, 404, $details );
+    }
+
+    /**
      * Build an error envelope with multiple error entries (e.g. validation errors
      * across several fields).
      *

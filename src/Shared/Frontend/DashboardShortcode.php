@@ -644,6 +644,13 @@ class DashboardShortcode {
             case 'goals':
                 FrontendGoalsManageView::render( $user_id, $is_admin );
                 break;
+            // #0093 — Tournament planner. Admin-only in v1: the view
+            // itself gates on tt_view_tournaments (mapped to admin +
+            // tt_club_admin only) and surfaces a "not authorized"
+            // notice for everyone else.
+            case 'tournaments':
+                FrontendTournamentsManageView::render( $user_id, $is_admin );
+                break;
             case 'pdp':
                 \TT\Modules\Pdp\Frontend\FrontendPdpManageView::render( $user_id, $is_admin );
                 break;

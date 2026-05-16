@@ -1,3 +1,54 @@
+# TalentTrack v3.110.132 — #0093 Tournament planner (admin-only v1)
+
+First-class **Tournament** entity for planning playing time across a multi-match tournament weekend. A coach plans 5 matches × 20 minutes with configurable substitution windows + opponent level + per-match formation override, picks a squad with per-player eligible position TYPES, and works the planner grid (or hits Auto-balance) with a sticky minutes ticker always visible at the bottom of the screen showing every player's played + scheduled minutes vs the equal-share target. On match completion, the lineup syncs to attendance + the player journey via the existing `tt_activities` infrastructure.
+
+**v1 is admin-only.** Caps `tt_view_tournaments` + `tt_edit_tournaments` mapped to `administrator` + `tt_club_admin` only. Coach / HoD / Scout / Player / Parent personas don't see the feature until a persona-expansion follow-up ships.
+
+## What landed
+
+Nine chunked PRs (#433-#441) into the integration branch `feat/0093-tournament-planner`, squashed into a single ship to `main`:
+
+| Chunk | Scope | Files |
+| --- | --- | --- |
+| 1 | Foundation: 4 schema tables + 2 lookup vocabularies + module bootstrap + caps | migrations 0097-0098, `TournamentsModule.php`, `RolesService.php` |
+| 2 | REST CRUD: 12 endpoints + `RestResponse::notFound()` bug fix + `AuthorizationService::canViewTournament`/`canEditTournament` | `TournamentsRestController.php` (skeleton) |
+| 3 | List + detail + flat-form CRUD view; dispatcher routing | `FrontendTournamentsManageView.php`, `DashboardShortcode.php` |
+| 4 | `new-tournament` wizard with 5 steps (basics → formation → squad → matches → review) | `src/Modules/Tournaments/Wizard/*.php` (6 files) |
+| 5 | Per-match planner grid with click-to-swap; 2 new REST endpoints (`/planner`, `PATCH /assignments`) | `tournament-planner.{js,css}` |
+| 6 | Sticky minutes ticker (bottom strip mobile / right sidebar desktop) | `tournament-ticker.{js,css}` |
+| 7 | Greedy `POST /auto-plan` algorithm + JS button + cross-match rollup | `TournamentsRestController.php` (auto_plan), `tournament-planner.js` (button wire) |
+| 8 | `POST /kickoff` + `POST /complete` lifecycle + `tt_attendance` sync | match-card buttons + `tournament-planner.js` action handler |
+| 9 | Docs (EN + NL) + Dutch `.po` strings + rest-api/authorization-matrix doc updates | `docs/tournaments.md`, `docs/nl_NL/tournaments.md`, etc. |
+
+## Headline pilot-facing surfaces
+
+- **The sticky minutes ticker.** Always visible on every tournament screen. Each player gets a card with a green/amber/red bar (scheduled / target), a ⚡ starts counter, a 🏆 full-matches counter. Sort dropdown lets the coach surface under-served players. Updates live as the planner grid mutates.
+- **Click-to-swap planner grid.** Tap a chip → it highlights yellow → tap another → they swap. Bench row at the bottom of each period column collects un-assigned squad. Eligibility violations render an amber dot (warning, not a block).
+- **Auto-balance button per match.** One tap fills the grid based on (target − expected) DESC + period-0 starts ASC + no-back-to-back-bench. Coach overrides win.
+- **5-step wizard.** Wizard chrome handles Previous / Next / Cancel; squad step auto-seeds position TYPES from each player's preferred positions; matches step is a repeatable mini-form with a JS clone-row button.
+- **Hybrid match storage.** Tournament matches stay in their own table during planning. Kickoff promotes them to `tt_activities` rows of type `match`; Complete syncs `tt_attendance` rows (period-0 non-bench = `start`, else `bench`). The existing match-day team-sheet exporter + player-journey rollup light up automatically.
+
+## What v1 deliberately doesn't do
+
+- Cross-team squad picks from the wizard (anchor team's roster only)
+- Constraint solver beyond greedy ("Casper must play GK every match"…)
+- Auto-weight by opponent level (data shown, judgment manual)
+- Uneven substitution-window splits (assumes even split)
+- Slot-specific position eligibility (type buckets only)
+- Per-player profile tab — tracked as follow-up idea #0094
+- Tournament-wide team-sheet PDF
+- Non-admin persona access — separate persona-expansion ship
+
+## Schema notes
+
+All four new tables carry `club_id NOT NULL DEFAULT 1` per CLAUDE.md § 4 SaaS-readiness. `tt_tournaments` carries `uuid CHAR(36) UNIQUE` for the SaaS port. `tt_tournament_matches.substitution_windows` is JSON — the canonical period-count source: `N windows → N+1 periods`. `tt_tournament_assignments` has a UNIQUE on `(match_id, period_index, player_id)` so the planner can't double-book a player.
+
+## Bug fix bundled
+
+`RestResponse::notFound()` now exists. `PlayersRestController` had called it at lines 376 + 424 since v3.85.5 — pre-existing latent fatal-error on a missing player. Fixed here because tournaments needed the same method.
+
+---
+
 # TalentTrack v3.110.131 — Disable-registration toggle + active-player pill renders green by default
 
 *This work was originally numbered v3.110.129. While the PR was open, v3.110.130 (eval-wizard demo-tagging fix + parse-error hotfixes) shipped on `main` first; on rebase, this PR was renumbered to v3.110.131 to keep the version stack monotonically increasing. Content is unchanged from the v3.110.129 draft.*

@@ -96,4 +96,10 @@ return [
     // session linkage, photo capture UI, and AI extraction logic
     // land in Sprints 2-6.
     TT\Modules\Exercises\ExercisesModule::class                  => true,
+    // #0093 — Tournament planner. v1 ships admin-only (caps mapped
+    // to administrator + tt_club_admin only). Foundation ship lands
+    // schema (migration 0097) + lookup seeds (migration 0098) +
+    // capability grant. Subsequent chunks add REST + views + wizard
+    // + planner grid + minutes ticker + auto-balance.
+    TT\Modules\Tournaments\TournamentsModule::class              => true,
 ];
