@@ -1,4 +1,4 @@
-# TalentTrack v3.110.124 — Mobile readiness audit fixes (three waves)
+# TalentTrack v3.110.125 — Mobile readiness audit fixes (three waves)
 
 After the v3.110.120 AttendanceStep fix, the pilot asked: *"I need all wizards and front end views to be audited against mobile readiness. Do a proper analysis."* A codebase-wide audit covered 33 wizard steps + 76 frontend views and identified 17 actionable defects across three categories. This ship resolves them.
 
@@ -58,19 +58,55 @@ Added `inputmode="numeric"` or `inputmode="decimal"` to numeric inputs that were
 
 - 11 frontend view files (Wave 1) — wrapped tables only
 - 5 view + 2 wizard step files (Wave 2 + 3)
-- `talenttrack.php` 3.110.120 → 3.110.121
+- `talenttrack.php` 3.110.124 → 3.110.125
 - `readme.txt`, `CHANGES.md`
 
 No PHP logic change. No CSS change (the `.tt-table-wrap` class was already defined). No JS change. No NL translation change (structural HTML only). Pure mobile-readiness retrofit.
 
 ## How to verify
 
-1. Refresh the plugin to v3.110.121.
+1. Refresh the plugin to v3.110.125.
 2. On a 360px viewport (Chrome DevTools "Moto G5+" or a real phone), visit each Wave-1 view in turn. The page-level layout should fit horizontally without scroll; the data tables should show their own horizontal scrollbar when content exceeds viewport width.
 3. On the Wave-2 inputs (Players manage form, Report wizard privacy step, Trial case rating, Invitation accept, Ideas refine), tap into each numeric field — confirm the mobile keyboard that pops up is the numeric / decimal one (digits-only, with decimal point where applicable), not the full alphabetic keyboard.
 4. Wave-3 wizard steps: open the new-activity wizard's Principles step on a 360px phone — the `<select multiple>` should fit inside the viewport without horizontal scroll. Open the new-team wizard's Roster step on a phone — each player-checkbox row should feel comfortably tappable (48px floor).
 5. Smoke test on desktop ≥1024px: nothing should look different. The table wraps are no-ops when there's enough viewport room.
+---
 
+# TalentTrack v3.110.124 — NotificationBell compact: `🔔 N open tasks` → `🔔 (N)`
+
+## Pilot ask
+
+> "tekst for open tasks is too big, should probably be an Icon with number in brackets behind it (3)."
+
+## Change
+
+`NotificationBell` (the pill in the dashboard actions row, top-right of the chrome) renders just the bell glyph + the parenthesised count. The full plural-aware label moves to `aria-label` + `title`:
+
+```diff
+-<a href="..." class="tt-dash-bell-pill">
+-    <span aria-hidden="true">🔔</span>
+-    <span>3 open tasks</span>
+-</a>
++<a href="..." class="tt-dash-bell-pill"
++   aria-label="3 open tasks"
++   title="3 open tasks">
++    <span aria-hidden="true">🔔</span>
++    <span class="tt-dash-bell-count">(3)</span>
++</a>
+```
+
+- **Visible chrome**: `🔔 (3)` — bell + bracketed count.
+- **Screen reader**: announces "3 open tasks, link" via `aria-label`.
+- **Desktop hover**: `title="3 open tasks"` shows the long form on tooltip.
+- **Count = 0** (only renders when on the inbox view): visible chrome is just `🔔` — no `(0)`.
+- Background colour unchanged (red `#b32d2e` for count > 0, grey `#5b6e75` for zero-on-inbox).
+
+## How to test
+
+1. Open the dashboard with ≥ 1 open task assigned to you. Top-right of the actions row shows `🔔 (N)` on a red pill instead of `🔔 N open tasks`.
+2. Hover the pill on desktop → tooltip reads `3 open tasks` (plural-aware, locale-aware).
+3. Tab to the pill → screen reader announces `3 open tasks, link`.
+4. Visit `?tt_view=my-tasks` with zero open tasks → pill shows just `🔔` on a grey background.
 ---
 
 # TalentTrack v3.110.123 — Spond sync: cursor-based pagination over `/sponds/` so >100-event groups don't silently drop everything past page 1

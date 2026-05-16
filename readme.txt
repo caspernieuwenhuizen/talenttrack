@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.124
+Stable tag: 3.110.125
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 3.110.124 — Mobile readiness audit fixes: 12 bare tables wrapped for horizontal scroll, 6 numeric inputs gain inputmode, 2 wizard step nits =
+= 3.110.125 — Mobile readiness audit fixes: 12 bare tables wrapped for horizontal scroll, 6 numeric inputs gain inputmode, 2 wizard step nits =
 
 Follow-up to v3.110.120's AttendanceStep mobile fix — a codebase-wide audit identified 17 surfaces with mobile-readiness defects. This ship resolves the actionable findings in three waves:
 
@@ -23,6 +23,10 @@ Follow-up to v3.110.120's AttendanceStep mobile fix — a codebase-wide audit id
 **Wave 3 — wizard step polish.** `Activity/PrinciplesStep`: replaced `min-width:320px` on the multi-select with `width:100%; min-width:0; max-width:100%; box-sizing:border-box` so the select can shrink under 320px viewports instead of overflowing horizontally. `Team/RosterStep`: bumped checkbox label `min-height` from 32px to 48px (CLAUDE.md §2 tap-target floor) and added matching `gap`/`padding` for breathing room. `MarkAttendance/RateConfirmStep` reviewed: inline `min-height:56px` is above the 48px floor and acceptable as-is.
 
 No schema, no migration, no REST changes. ~30 file edits, all structural. Visual regression check at 360px should show no horizontal scroll on page bodies that don't intentionally scroll, while data tables show their own scrollbar when their content exceeds viewport width.
+
+= 3.110.124 — NotificationBell compact: `🔔 N open tasks` → `🔔 (N)` per pilot ask =
+
+Pilot: *"tekst for open tasks is too big, should probably be an Icon with number in brackets behind it (3)."* The `NotificationBell` pill in the dashboard actions row (top-right of the chrome) rendered the bell glyph + the full `N open task / N open tasks` label, which on a phone took the whole right edge. Visible chrome now reads `🔔 (3)` — bell glyph + parenthesised count. The full text (`3 open tasks` / `1 open task`) moves to `aria-label` + `title` so screen readers still announce it and a hover tooltip carries the long form on desktop. Background colour rule unchanged (red `#b32d2e` when count > 0, grey `#5b6e75` when zero on the inbox view). At count = 0, the visible chrome is just `🔔` — no `(0)`, matching the existing "hide on zero unless on inbox" gate. Plural-aware `_n()` translation kept in the aria-label.
 
 = 3.110.123 — Spond sync: cursor-based pagination over `/sponds/` so >100-event groups don't silently drop everything past page 1 =
 
