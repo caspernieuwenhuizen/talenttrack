@@ -706,11 +706,11 @@ class FrontendConfigurationView extends FrontendViewBase {
                 <div class="tt-grid tt-grid-3">
                     <div class="tt-field">
                         <label class="tt-field-label" for="tt-cfg-rating-min"><?php esc_html_e( 'Min', 'talenttrack' ); ?></label>
-                        <input type="number" inputmode="decimal" id="tt-cfg-rating-min" class="tt-input" name="config[rating_min]" min="0" max="10" step="0.5" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_min', '1' ) ); ?>" />
+                        <input type="number" inputmode="decimal" id="tt-cfg-rating-min" class="tt-input" name="config[rating_min]" min="0" max="10" step="0.5" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_min', '5' ) ); ?>" />
                     </div>
                     <div class="tt-field">
                         <label class="tt-field-label" for="tt-cfg-rating-max"><?php esc_html_e( 'Max', 'talenttrack' ); ?></label>
-                        <input type="number" inputmode="decimal" id="tt-cfg-rating-max" class="tt-input" name="config[rating_max]" min="1" max="20" step="0.5" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_max', '5' ) ); ?>" />
+                        <input type="number" inputmode="decimal" id="tt-cfg-rating-max" class="tt-input" name="config[rating_max]" min="1" max="20" step="0.5" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_max', '10' ) ); ?>" />
                     </div>
                     <div class="tt-field">
                         <label class="tt-field-label" for="tt-cfg-rating-step"><?php esc_html_e( 'Step', 'talenttrack' ); ?></label>

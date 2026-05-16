@@ -250,10 +250,20 @@ final class FrontendPlayerStatusMethodologyView {
                     ?>
                 </p>
 
+                <?php
+                // v3.110.116 — input bounds + default behaviour-floor
+                // value follow the configured rating scale (was
+                // hardcoded `min="0" max="5"` and default `3.0`).
+                // Pick the new scale's midpoint as the default
+                // (e.g. 7.5 for a 5–10 scale).
+                $rmax_cfg = (float) QueryHelpers::get_config( 'rating_max', '10' );
+                $rmin_cfg = (float) QueryHelpers::get_config( 'rating_min', '5' );
+                $floor_default = ( $rmin_cfg + $rmax_cfg ) / 2;
+                ?>
                 <h4 style="margin:0 0 8px;"><?php esc_html_e( 'Behaviour floor', 'talenttrack' ); ?></h4>
                 <p style="margin:0 0 14px;">
                     <label><?php esc_html_e( 'Cap status at amber when behaviour is below', 'talenttrack' ); ?>
-                        <input type="number" name="behaviour_floor" value="<?php echo esc_attr( (string) $get( $config, 'floor_rules.behaviour_floor_below', 3.0 ) ); ?>" min="0" max="5" step="0.1" inputmode="decimal" style="width:80px;" />
+                        <input type="number" name="behaviour_floor" value="<?php echo esc_attr( (string) $get( $config, 'floor_rules.behaviour_floor_below', $floor_default ) ); ?>" min="0" max="<?php echo esc_attr( (string) $rmax_cfg ); ?>" step="0.1" inputmode="decimal" style="width:80px;" />
                     </label>
                     <small style="display:block;color:#5b6e75;margin-top:4px;"><?php esc_html_e( '0 disables the floor rule.', 'talenttrack' ); ?></small>
                 </p>

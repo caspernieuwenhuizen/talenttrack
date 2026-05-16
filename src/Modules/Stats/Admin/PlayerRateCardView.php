@@ -80,7 +80,7 @@ class PlayerRateCardView {
 
         self::renderHeadline( $headline );
         self::renderMainBreakdown( $mains, $subs );
-        self::renderCharts( $trend, $radar, (float) QueryHelpers::get_config( 'rating_max', '5' ) );
+        self::renderCharts( $trend, $radar, (float) QueryHelpers::get_config( 'rating_max', '10' ) );
     }
 
     private static function renderViewToggle( string $current, string $base_url, int $player_id ): void {

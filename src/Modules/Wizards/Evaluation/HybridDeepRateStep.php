@@ -28,7 +28,11 @@ final class HybridDeepRateStep implements WizardStepInterface {
         $cats = $wpdb->get_results(
             "SELECT id, label FROM {$p}tt_eval_categories WHERE parent_id IS NULL AND is_active = 1 ORDER BY display_order, label"
         );
-        $max = (int) ( get_option( 'tt_rating_scale_max', 5 ) ?: 5 );
+        // v3.110.116 — was reading the stale `wp_options[tt_rating_scale_max]`
+        // key. Reads `tt_config[rating_max]` instead so the input
+        // bounds track the active scale.
+        $max = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' ) );
+        $min = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' ) );
 
         // v3.110.67 — unified on the `eval_type` lookup (the same one
         // the flat / edit form uses). Was reading from the parallel
@@ -78,7 +82,7 @@ final class HybridDeepRateStep implements WizardStepInterface {
                     <tr>
                         <th style="text-align:left;font-weight:normal;"><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label, (int) $cat->id ) ); ?></th>
                         <td>
-                            <input type="number" min="0" max="<?php echo (int) $max; ?>" step="1" inputmode="numeric"
+                            <input type="number" min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>" step="1" inputmode="numeric"
                                 name="ratings_self[<?php echo (int) $cat->id; ?>]"
                                 value="<?php echo $val > 0 ? (int) $val : ''; ?>"
                                 style="width:60px;" />

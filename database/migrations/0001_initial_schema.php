@@ -220,7 +220,10 @@ return new class extends Migration {
         }
 
         $defaults = [
-            'rating_min' => '1', 'rating_max' => '5', 'rating_step' => '0.5',
+            // v3.110.116 — seeded at the new 5-10 scale. Existing
+            // installs that ran 0001 with the old 1-5 defaults are
+            // re-flipped by migration 0095 in the same release.
+            'rating_min' => '5', 'rating_max' => '10', 'rating_step' => '0.5',
             'season_label' => '2025/2026', 'academy_name' => 'Soccer Academy',
             'footer_text' => '', 'date_format' => 'Y-m-d',
             'default_report_range' => '3', 'composite_weights' => '{}',

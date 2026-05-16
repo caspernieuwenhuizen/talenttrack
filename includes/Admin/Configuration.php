@@ -226,8 +226,8 @@ class Configuration {
             <input type="hidden" name="action" value="tt_save_config" />
             <input type="hidden" name="tab" value="rating" />
             <table class="form-table">
-                <tr><th>Minimum</th><td><input type="number" name="cfg[rating_min]" value="<?php echo esc_attr( Helpers::get_config( 'rating_min', 1 ) ); ?>" min="0" max="10" step="0.5" /></td></tr>
-                <tr><th>Maximum</th><td><input type="number" name="cfg[rating_max]" value="<?php echo esc_attr( Helpers::get_config( 'rating_max', 5 ) ); ?>" min="1" max="100" step="0.5" /></td></tr>
+                <tr><th>Minimum</th><td><input type="number" name="cfg[rating_min]" value="<?php echo esc_attr( Helpers::get_config( 'rating_min', 5 ) ); ?>" min="0" max="10" step="0.5" /></td></tr>
+                <tr><th>Maximum</th><td><input type="number" name="cfg[rating_max]" value="<?php echo esc_attr( Helpers::get_config( 'rating_max', 10 ) ); ?>" min="1" max="100" step="0.5" /></td></tr>
                 <tr><th>Step</th><td><input type="number" name="cfg[rating_step]" value="<?php echo esc_attr( Helpers::get_config( 'rating_step', '0.5' ) ); ?>" min="0.1" max="1" step="0.1" /></td></tr>
             </table>
             <?php submit_button( 'Save Scale' ); ?>

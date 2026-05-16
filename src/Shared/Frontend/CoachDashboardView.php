@@ -14,7 +14,7 @@ class CoachDashboardView {
     public function render( int $user_id, bool $is_admin ): void {
         global $wpdb; $p = $wpdb->prefix;
         $view = isset( $_GET['tt_view'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tt_view'] ) ) : 'roster';
-        $max  = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $max  = (float) QueryHelpers::get_config( 'rating_max', '10' );
         $teams = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
 
         // v2.15.0: enqueue card stylesheet for the podium + player detail card.
@@ -164,8 +164,8 @@ class CoachDashboardView {
     private function renderEvalForm( array $teams, bool $is_admin ): void {
         $categories = QueryHelpers::get_categories();
         $types      = QueryHelpers::get_eval_types();
-        $rmin  = QueryHelpers::get_config( 'rating_min', '1' );
-        $rmax  = QueryHelpers::get_config( 'rating_max', '5' );
+        $rmin  = QueryHelpers::get_config( 'rating_min', '5' );
+        $rmax  = QueryHelpers::get_config( 'rating_max', '10' );
         $rstep = QueryHelpers::get_config( 'rating_step', '0.5' );
 
         $type_meta = [];

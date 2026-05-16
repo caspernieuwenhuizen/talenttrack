@@ -1,4 +1,4 @@
-# TalentTrack v3.110.121 — Mobile readiness audit fixes (three waves)
+# TalentTrack v3.110.123 — Mobile readiness audit fixes (three waves)
 
 After the v3.110.120 AttendanceStep fix, the pilot asked: *"I need all wizards and front end views to be audited against mobile readiness. Do a proper analysis."* A codebase-wide audit covered 33 wizard steps + 76 frontend views and identified 17 actionable defects across three categories. This ship resolves them.
 
@@ -70,6 +70,84 @@ No PHP logic change. No CSS change (the `.tt-table-wrap` class was already defin
 3. On the Wave-2 inputs (Players manage form, Report wizard privacy step, Trial case rating, Invitation accept, Ideas refine), tap into each numeric field — confirm the mobile keyboard that pops up is the numeric / decimal one (digits-only, with decimal point where applicable), not the full alphabetic keyboard.
 4. Wave-3 wizard steps: open the new-activity wizard's Principles step on a 360px phone — the `<select multiple>` should fit inside the viewport without horizontal scroll. Open the new-team wizard's Roster step on a phone — each player-checkbox row should feel comfortably tappable (48px floor).
 5. Smoke test on desktop ≥1024px: nothing should look different. The table wraps are no-ops when there's enough viewport room.
+
+---
+
+# TalentTrack v3.110.122 — Page-header action buttons: icon-only 48×48 circles on mobile (Tier 1: New / Edit / Archive)
+
+## Pilot ask
+
+> "NEW / EDIT / ARCHIVE buttons can be smaller and just be an icon in a circle. On mobile it is taking a lot of space. Make a list of all buttons and propose which can be more minimalistic."
+
+## Audit
+
+All 22 page-header action button slots across the app route through `FrontendViewBase::pageActionsHtml()`. Three label families dominate:
+
+| Family | Count | Current icon | Mobile decision |
+|---|---|---|---|
+| `+ New X` | 10 | `+` | Icon-only on mobile |
+| `✎ Edit` | 8 | `✎` | Icon-only on mobile |
+| `Archive` / `Archive case` | 8 | none → new bin SVG | Icon-only on mobile |
+| `Continue rating`, `Log scouting find`, `Record decision` | 3 | none | Keep label (no universal glyph) |
+| `Import from CSV` | 2 | none | Keep label (no universal glyph) |
+
+Operator decision (via AskUserQuestion): **Tier 1** (New / Edit / Archive only); **48 × 48 px** touch target; **bin SVG icon** for Archive (operator: "Archive should be a bin icon, not an X").
+
+## Implementation
+
+### `pageActionsHtml` extension (`FrontendViewBase`)
+
+1. **SVG icon pass-through** — single-character icons (`+`, `✎`) keep getting escaped; strings starting with `<` pass through as raw HTML.
+2. **Default bin icon on danger-variant** — when a danger-variant action doesn't supply an explicit `icon`, the helper injects a 16×16 inline bin SVG (`currentColor` fill). All 8 Archive callsites get the icon centrally; no per-callsite edits.
+3. **`aria-label` + `is-icon` class** — every button gets `aria-label="<label>"` on the wrapper so the mobile icon-only rendering stays accessible. The `is-icon` class is the CSS hook that decides whether the button collapses to a circle on mobile (no icon → keep label).
+
+```php
+if ( $icon === '' && $variant === 'danger' ) {
+    $icon = self::BIN_ICON_SVG;
+}
+```
+
+### Mobile media query (`public.css`)
+
+```css
+@media (max-width: 767px) {
+    .tt-page-actions .tt-btn.is-icon {
+        width: 48px;
+        height: 48px;
+        padding: 0;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .tt-page-actions .tt-btn.is-icon .tt-page-actions__label {
+        position: absolute; width: 1px; height: 1px; padding: 0;
+        margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+        white-space: nowrap; border: 0;
+    }
+}
+```
+
+48×48 matches CLAUDE.md §2's touch-target floor.
+
+## Buttons that keep their label on mobile
+
+By design — no universally-readable glyph:
+
+- **Import from CSV** (Players + Teams list)
+- **Continue rating** (Activity detail)
+- **Log scouting find** (Scouting visit detail)
+- **Record decision** (Trial case detail)
+
+These render with their full label at every viewport.
+
+## How to test
+
+1. **Desktop (≥ 768px)**: every page-header button renders with `[icon] + label` as before. No visual change.
+2. **Mobile (< 768px)** — open `?tt_view=evaluations` then `&id=N` for detail; the `+ New evaluation` button is a circle on the right of the H1; on detail page, `✎ Edit` + bin-SVG `Archive` are two circles. Same on goals / activities / players / teams / people / PDP / scouting-visits.
+3. **Accessibility**: tab through. Screen reader announces "New evaluation, link" / "Edit, link" / "Archive, button" via `aria-label`.
+4. **Backwards compat**: callers that pass an explicit `icon` (e.g. `'icon' => '✎'`) keep rendering the same glyph; only the danger-no-icon path auto-injects the bin.
+5. **Archive confirm modal**: clicking an Archive circle on mobile opens the v3.110.104 `<dialog>` modal unchanged.
 
 ---
 
@@ -152,6 +230,120 @@ No schema, no migration, no REST changes.
 13. **Keyboard**: Tab into the roster; each pill / chip / button is focusable in DOM order. Focus ring visible via `:focus-visible`. Space / Enter activates.
 14. **NL locale**: every label translated ("Aanwezig" / "Afwezig" / "+ Markeer als te laat" / "Reden (optioneel):" / "🛡 Geoorloofd" / "🩹 Geblesseerd"). Badges + chip text all Dutch.
 15. **Custom-status install** (optional): manually add a non-canonical row to `tt_lookups[attendance_status]` (e.g. `partial`). Re-render the AttendanceStep — falls back to the legacy radio matrix (now wrapped in `.tt-table-wrap` for horizontal scroll on mobile, but still the old layout). No status silently dropped.
+---
+# TalentTrack v3.110.121 — Rating scale flipped from 1–5 to 5–10 (Dutch academic 6-point) with linear data remap + ~15 hardcoded-scale fixes
+
+Drafted as v3.110.116. Renumbered to v3.110.121 after five parallel ships (v3.110.116 Standard reports, v3.110.117 dashboard editor detail panel, v3.110.118 scout polish A, v3.110.119 scout polish B) took the v3.110.116–v3.110.119 slots. Migration filename also renumbered from `0094` to `0095` after v3.110.119 took the `0094_scouting_plan_visits` slot.
+
+## Operator decision
+
+> "I want to change the rating scale from 1-5 to 5-10."
+
+After follow-up questions: target is **floor 5, ceiling 10** (Dutch academic 6-point); existing data gets a **linear remap** (1 → 5, 5 → 10).
+
+## Migration 0095
+
+`database/migrations/0095_rating_scale_5_to_10.php` runs two atomic phases:
+
+### Phase 1 — remap existing data
+
+```sql
+UPDATE tt_eval_ratings
+   SET rating = 5 + ( rating - 1 ) * 1.25
+ WHERE rating BETWEEN 1 AND 5;
+```
+
+The same UPDATE runs against three tables that share the global rating scale:
+
+| Table | Column | Source |
+|---|---|---|
+| `tt_eval_ratings` | `rating` | Main evaluation ratings (most rows). |
+| `tt_player_behaviour_ratings` | `rating` | #0057 behaviour ratings (1-5 per spec). |
+| `tt_trial_cases` | `overall_rating` | Trial-case overall (DECIMAL(3,2); hardcoded 1-5 in the staff-input form pre-v3.110.120). |
+
+Tables that don't exist on a given install are skipped via per-table `SHOW TABLES LIKE` checks.
+
+### Phase 2 — config flip
+
+```sql
+UPDATE tt_config SET config_value = '5'  WHERE config_key = 'rating_min';
+UPDATE tt_config SET config_value = '10' WHERE config_key = 'rating_max';
+```
+
+### Idempotency
+
+The migration reads `rating_max` BEFORE phase 1; if the value is already > 5, both phases are skipped. So:
+
+- Fresh installs: 0001 seed already places 5/10; 0095 short-circuits.
+- Existing installs: 0095 runs once on the next migration pass; re-runs are no-ops.
+- Installs where an operator hand-flipped to 5/10 without remapping data: 0095 short-circuits — the operator's hand-fix is preserved as-is.
+
+### Remap math
+
+| Old (1–5) | New (5–10) |
+|---|---|
+| 1.0 | 5.000 |
+| 1.5 | 5.625 |
+| 2.0 | 6.250 |
+| 2.5 | 6.875 |
+| 3.0 | 7.500 |
+| 3.5 | 8.125 |
+| 4.0 | 8.750 |
+| 4.5 | 9.375 |
+| 5.0 | 10.000 |
+
+Relative ranking is preserved exactly.
+
+## ~15 hardcoded-scale fixes
+
+These broke immediately if `rating_max` flipped from 5 → 10:
+
+### Critical
+
+- **`PlayerStatusRestController::createBehaviourRating`** — was `if ( $rating < 1.0 || $rating > 5.0 )`. Now reads min/max from config; error message templated with the dynamic values.
+- **`PlayerStatusCalculator`** — two hardcoded divisors:
+  - Behaviour: `( $behaviour_avg / 5 ) * 100` → `( $behaviour_avg / $rating_max ) * 100`
+  - Ratings: `round( $value * 10, 1 )` → `round( ( $value / $rating_max ) * 100, 1 )`
+- **`CompatibilityEngine` fit-score clamp** — `max( 0.0, min( 5.0, $score ) )` → `max( 0.0, min( $rating_max, $score ) )`.
+- **`ExcelImporter` row-filter** — was `if ( $rating < 1 || $rating > 5 ) continue` (silently skipping legitimate imports). Now reads min/max from config.
+- **`EvaluationGenerator` (demo data)** — kept the `archetypeRating()` internal 1–5 logic, but added a `$remap` closure that linearly maps the output into the configured `[rmin, rmax]` range before the clamp.
+
+### Medium (visual / classifier)
+
+- **`RatingPillComponent::tierFor` + `pill()` + `chip()` + `badge()`** — `$max` default was hardcoded `5.0` (broke tier classification on a 10-max scale: every rating registered as "strong" because the normalised value ≥ 4.0). Restated thresholds as percentages (strong ≥ 80%, developing ≥ 50%, attention < 50%); `$max` default is now `null` and resolves from config at call time.
+- **`QueryHelpers::radar_chart_svg`** — ring count was hardcoded to 5 (`for ( $ring = 1; $ring <= 5; $ring++ )`), labelled 1–5 regardless of the `$max` argument. Now generates rings from `$ring_step` (1 for max ≤ 10, 2 for larger scales) up to `$max_int`, labelled with the actual ring number. `$max` default also resolves from config when null.
+- **`FrontendPlayerStatusMethodologyView` behaviour-floor input** — `min="0" max="5"` hardcoded; default value 3.0. Now min/max attrs follow `rating_min` / `rating_max` config; default value is `(rmin + rmax) / 2`.
+
+### Low (labels / inputs)
+
+- **`FrontendTrialCaseView`** — `"Overall rating (1–5)"` literal label and `min="1" max="5"` attrs. Now both follow config.
+- **`FrontendTeamChemistryView`** — `"Team chemistry: %s / 5"` hardcoded. Now `"%s / <rating_max>"`.
+- **`RateActorsStep` + `HybridDeepRateStep`** — were reading a stale `wp_options[tt_rating_scale_max]` key with hardcoded 5 fallback. Now read `tt_config[rating_max]` consistently.
+- **`FrontendReportWizardView` privacy-threshold input** — `max="5"` → `max="<rating_max>"`.
+
+### Fallback defaults (~30 callsites)
+
+Every `get_config( 'rating_min', '1' )` → `get_config( 'rating_min', '5' )` and `get_config( 'rating_max', '5' )` → `get_config( 'rating_max', '10' )` across `src/` and `includes/`.
+
+## Tier-classifier note
+
+On the new 5–10 scale, the lowest possible rating (5) sits at the developing/attention boundary (50% of max). So "attention" tier rarely surfaces unless an operator widens the scale floor below 5. By design — a coach in the Dutch academic convention rarely uses ratings below 5 in practice; the new "developing" tier captures the bottom half of the 5–10 range.
+
+## How to test
+
+1. **Migration**: refresh the plugin. Migration 0095 runs once on activation. Verify:
+   - `tt_config[rating_min]` = `'5'`
+   - `tt_config[rating_max]` = `'10'`
+   - A `tt_eval_ratings` row previously `3` is now `7.5`. A row that was `5` is now `10`.
+2. **Config UI**: Settings → Configuration. Rating min/max inputs show 5 and 10.
+3. **Eval form**: open the new-evaluation wizard. Rating input min/max attrs are 5/10.
+4. **Rate-card / radar**: open a player's rate card. Radar chart has 10 concentric rings; axis labels match.
+5. **Pill tiers**: a 7 should render as "developing" (yellow); an 8 as "strong" (green). A 5 as "developing".
+6. **Trial case staff input**: label reads "Overall rating (5–10)"; min/max attrs match.
+7. **Team chemistry**: header reads "Team chemistry: X / 10".
+8. **Behaviour rating**: POST a 7 to `players/{id}/behaviour-ratings` — succeeds. POST a 12 — rejected with new error message.
+9. **Idempotency**: re-run migrations — 0095 short-circuits.
+
 
 ---
 

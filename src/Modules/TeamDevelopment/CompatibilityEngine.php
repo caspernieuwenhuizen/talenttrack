@@ -135,7 +135,13 @@ class CompatibilityEngine {
         }
 
         $modifier = $this->sideModifier( $player_id, (string) ( $slot['side'] ?? 'center' ) );
-        $score = max( 0.0, min( 5.0, $score + $modifier ) );
+        // v3.110.116 — was hardcoded `min( 5.0, ... )`. Fit scores
+        // share the global rating scale, so the clamp reads from
+        // config. Lower bound stays at 0 because fit scores can
+        // legitimately read "absent / no signal" (below the rating
+        // floor), distinct from a rated value.
+        $rmax = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+        $score = max( 0.0, min( $rmax, $score + $modifier ) );
 
         $rationale = self::buildRationale( $breakdown, $modifier, (string) ( $slot['label'] ?? '' ) );
         return new FitResult( $score, $breakdown, $rationale, $modifier, $has_data );

@@ -257,8 +257,8 @@ class EvaluationsPage {
         $eval = $eval_id ? QueryHelpers::get_evaluation( $eval_id ) : null;
         $players    = QueryHelpers::get_players();
         $types      = QueryHelpers::get_eval_types();
-        $rmin  = (float) QueryHelpers::get_config( 'rating_min',  '1' );
-        $rmax  = (float) QueryHelpers::get_config( 'rating_max',  '5' );
+        $rmin  = (float) QueryHelpers::get_config( 'rating_min',  '5' );
+        $rmax  = (float) QueryHelpers::get_config( 'rating_max',  '10' );
         $rstep = (float) QueryHelpers::get_config( 'rating_step', '0.5' );
 
         // Load the full category tree (mains + their subs) for the ratings UI.
@@ -709,7 +709,7 @@ class EvaluationsPage {
         $eval = QueryHelpers::get_evaluation( $id );
         if ( ! $eval ) { echo '<div class="wrap"><p>' . esc_html__( 'Not found.', 'talenttrack' ) . '</p></div>'; return; }
         $player = QueryHelpers::get_player( (int) $eval->player_id );
-        $max    = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $max    = (float) QueryHelpers::get_config( 'rating_max', '10' );
 
         // Compute effective rating per main category (direct value OR
         // subcategory rollup). Also collect per-main subcategory ratings
@@ -909,8 +909,8 @@ class EvaluationsPage {
         // Categories not represented in tt_rating_mode are handled as "direct"
         // for back-compat (e.g. if an admin created a main with no subs, or
         // JS failed to load and the fallback is the direct input).
-        $rmin = (float) QueryHelpers::get_config( 'rating_min', '1' );
-        $rmax = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $rmin = (float) QueryHelpers::get_config( 'rating_min', '5' );
+        $rmax = (float) QueryHelpers::get_config( 'rating_max', '10' );
 
         $ratings_repo = new EvalRatingsRepository();
         $cats_repo    = new EvalCategoriesRepository();

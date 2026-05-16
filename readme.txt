@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.121
+Stable tag: 3.110.123
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 3.110.121 — Mobile readiness audit fixes: 12 bare tables wrapped for horizontal scroll, 6 numeric inputs gain inputmode, 2 wizard step nits =
+= 3.110.123 — Mobile readiness audit fixes: 12 bare tables wrapped for horizontal scroll, 6 numeric inputs gain inputmode, 2 wizard step nits =
 
 Follow-up to v3.110.120's AttendanceStep mobile fix — a codebase-wide audit identified 17 surfaces with mobile-readiness defects. This ship resolves the actionable findings in three waves:
 
@@ -23,6 +23,14 @@ Follow-up to v3.110.120's AttendanceStep mobile fix — a codebase-wide audit id
 **Wave 3 — wizard step polish.** `Activity/PrinciplesStep`: replaced `min-width:320px` on the multi-select with `width:100%; min-width:0; max-width:100%; box-sizing:border-box` so the select can shrink under 320px viewports instead of overflowing horizontally. `Team/RosterStep`: bumped checkbox label `min-height` from 32px to 48px (CLAUDE.md §2 tap-target floor) and added matching `gap`/`padding` for breathing room. `MarkAttendance/RateConfirmStep` reviewed: inline `min-height:56px` is above the 48px floor and acceptable as-is.
 
 No schema, no migration, no REST changes. ~30 file edits, all structural. Visual regression check at 360px should show no horizontal scroll on page bodies that don't intentionally scroll, while data tables show their own scrollbar when their content exceeds viewport width.
+
+= 3.110.122 — Page-header action buttons collapse to icon-only 48×48 circles on mobile (Tier 1: New / Edit / Archive) =
+
+Pilot ask: "NEW / EDIT / ARCHIVE buttons can be smaller and just be an icon in a circle. On mobile it is taking a lot of space." After an audit of all 22 page-header action button slots, three label families dominate: **+ New X** (10 buttons), **✎ Edit** (8 buttons), **Archive** (8 buttons). All three are universally recognised by their glyphs — they're the Tier 1 candidates for icon-only mobile rendering. Three changes ship together. **(1) `pageActionsHtml` extension.** SVG icons now pass through (was: escaped). Default bin SVG icon injected on danger-variant buttons that don't supply one (so the 8 Archive callsites don't each need editing). `aria-label` mirrors the visible label on every button so the icon-only mobile rendering stays accessible (screen readers + keyboard users get the full action text). New `is-icon` class on every button that carries an icon — drives the mobile rendering. **(2) Mobile media query.** At ≤ 767px, `.tt-page-actions .tt-btn.is-icon` collapses to a 48 × 48 px circle showing only the glyph (matches CLAUDE.md §2 touch-target floor). The label hides via the standard visually-hidden pattern (kept in the DOM + `aria-label` on the button). Buttons that don't carry an icon — "Import from CSV", "Continue rating", "Log scouting find", "Record decision" — keep their full label since there's no universally-readable glyph for them. **(3) Icon coverage.** All 10 New buttons already carry `+`; all 8 Edit buttons already carry `✎`; all 8 Archive buttons now carry the new bin SVG. Three 48 × 48 px circles fit beside the H1 on a 360px viewport — the previous v3.110.74 wrap-to-row-2 layout no longer kicks in for the New / Edit / Archive family.
+
+= 3.110.121 — Rating scale flipped from 1–5 to 5–10 (Dutch academic 6-point) with linear data remap + ~15 hardcoded-scale fixes =
+
+Operator decision: the global evaluation rating scale moves from a 1–5 point scale to a 5–10 Dutch academic 6-point scale (floor 5, ceiling 10). Migration 0095 atomically (1) flips `tt_config[rating_min]` from 1 → 5 and `tt_config[rating_max]` from 5 → 10, and (2) linearly remaps every existing rating row on `tt_eval_ratings`, `tt_player_behaviour_ratings`, and `tt_trial_cases.overall_rating` using `new = 5 + (old − 1) × 1.25` — so 1→5, 2→6.25, 3→7.5, 4→8.75, 5→10 (and the 0.5-step intermediates land on .625 / .875 / .125 / .375). Idempotency guard: the migration short-circuits when `rating_max` already reads > 5, so re-running on an already-flipped install is a no-op. Both the Activator seed and the migration 0001 seed are updated for fresh installs. **~15 hardcoded-scale fixes** ship alongside — `PlayerStatusRestController::createBehaviourRating`, `PlayerStatusCalculator`, `CompatibilityEngine`, `ExcelImporter`, `EvaluationGenerator`, `RatingPillComponent`, `QueryHelpers::radar_chart_svg`, `FrontendPlayerStatusMethodologyView` behaviour-floor input, `FrontendTrialCaseView` label + bounds, `FrontendTeamChemistryView` "/ 5" header, `RateActorsStep` + `HybridDeepRateStep` wizard inputs, `FrontendReportWizardView` privacy threshold. Plus **~30 `get_config()` fallback defaults** mass-updated. Renumbered from v3.110.116 to v3.110.121 after five parallel ships took the v3.110.116–v3.110.120 slots.
 
 = 3.110.120 — Mark-attendance wizard mobile bug fix: AttendanceStep rewritten as card-per-player toggle UI (was an untappable 5-column radio matrix on phones) =
 

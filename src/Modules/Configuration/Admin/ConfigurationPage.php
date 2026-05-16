@@ -816,8 +816,8 @@ class ConfigurationPage {
             <?php wp_nonce_field( 'tt_save_config', 'tt_nonce' ); ?>
             <input type="hidden" name="action" value="tt_save_config" /><input type="hidden" name="tab" value="rating" />
             <table class="form-table">
-                <tr><th><?php esc_html_e( 'Minimum', 'talenttrack' ); ?></th><td><input type="number" name="cfg[rating_min]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_min', '1' ) ); ?>" min="0" max="10" step="0.5" /></td></tr>
-                <tr><th><?php esc_html_e( 'Maximum', 'talenttrack' ); ?></th><td><input type="number" name="cfg[rating_max]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_max', '5' ) ); ?>" min="1" max="100" step="0.5" /></td></tr>
+                <tr><th><?php esc_html_e( 'Minimum', 'talenttrack' ); ?></th><td><input type="number" name="cfg[rating_min]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_min', '5' ) ); ?>" min="0" max="10" step="0.5" /></td></tr>
+                <tr><th><?php esc_html_e( 'Maximum', 'talenttrack' ); ?></th><td><input type="number" name="cfg[rating_max]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_max', '10' ) ); ?>" min="1" max="100" step="0.5" /></td></tr>
                 <tr><th><?php esc_html_e( 'Step', 'talenttrack' ); ?></th><td><input type="number" name="cfg[rating_step]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_step', '0.5' ) ); ?>" min="0.1" max="1" step="0.1" /></td></tr>
                 <tr>
                     <th><?php esc_html_e( 'Evaluation display', 'talenttrack' ); ?></th>

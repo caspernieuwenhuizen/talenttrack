@@ -553,7 +553,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
         </div>
 
         <?php
-        $max = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $max = (float) QueryHelpers::get_config( 'rating_max', '10' );
         ?>
         <div style="display:flex; gap:30px; flex-wrap:wrap; align-items:flex-start;">
             <div>

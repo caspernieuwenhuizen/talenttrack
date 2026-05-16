@@ -876,7 +876,10 @@ class Activator {
         }
 
         $defaults = [
-            'rating_min' => '1', 'rating_max' => '5', 'rating_step' => '0.5',
+            // v3.110.116 — flipped from 1-5 → 5-10 (Dutch academic
+            // 6-point scale). Migration 0095 remaps existing installs'
+            // data with the linear transform new = 5 + (old-1) × 1.25.
+            'rating_min' => '5', 'rating_max' => '10', 'rating_step' => '0.5',
             'season_label' => '2025/2026', 'academy_name' => 'Soccer Academy',
             'footer_text' => '', 'date_format' => 'Y-m-d',
             'default_report_range' => '3', 'composite_weights' => '{}',

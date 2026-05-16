@@ -3,6 +3,7 @@ namespace TT\Infrastructure\PlayerStatus;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
@@ -16,9 +17,14 @@ use TT\Modules\Players\Repositories\PlayerPotentialRepository;
  *
  * Inputs and weights come from the methodology config. Each input is
  * normalised to a 0-100 sub-score before weighting:
- *   - ratings:    average eval rating (0-10 scale) → ×10
- *   - behaviour:  average behaviour (1-5 scale) → ×20
+ *   - ratings:    average eval rating × ( 100 / rating_max )
+ *   - behaviour:  average behaviour × ( 100 / rating_max )
  *   - attendance: already 0-100
+ *
+ * v3.110.116 — ratings + behaviour normalisation reads `rating_max`
+ * from `tt_config` so the calculator stays correct after the
+ * 1–5 → 5–10 scale flip. Previously hardcoded `×10` (ratings) and
+ * `÷ 5 × 100` (behaviour) which both assumed the legacy scale.
  *   - potential:  banded (first_team=100 / professional_elsewhere=80 /
  *                 semi_pro=60 / top_amateur=40 / recreational=20)
  *
@@ -74,9 +80,11 @@ final class PlayerStatusCalculator {
         ];
         if ( $rating_score['value'] === null ) $reasons[] = __( 'No evaluations in the last 90 days.', 'talenttrack' );
 
-        // Behaviour: avg in window, 1-5 scaled to 0-100.
+        // Behaviour: avg in window, scaled to 0-100 against the
+        // configured rating_max (v3.110.116 — was hardcoded `/ 5`).
+        $rating_max = max( 1.0, (float) QueryHelpers::get_config( 'rating_max', '10' ) );
         $behaviour_avg = $this->behaviourRepo->averageInWindow( $player_id, $window_from . ' 00:00:00', $window_to . ' 23:59:59' );
-        $behaviour_score = $behaviour_avg !== null ? round( ( $behaviour_avg / 5 ) * 100, 1 ) : null;
+        $behaviour_score = $behaviour_avg !== null ? round( ( $behaviour_avg / $rating_max ) * 100, 1 ) : null;
         $inputs['behaviour'] = [
             'value'  => $behaviour_avg,
             'weight' => (int) ( $methodology['inputs']['behaviour']['weight'] ?? 0 ),
@@ -178,6 +186,10 @@ final class PlayerStatusCalculator {
         ) );
         if ( $avg === null ) return [ 'value' => null, 'score' => null ];
         $value = round( (float) $avg, 2 );
-        return [ 'value' => $value, 'score' => round( $value * 10, 1 ) ];
+        // v3.110.116 — was hardcoded `× 10` (assumed 0–10 scale). Now
+        // reads `rating_max` from config so the 0–100 normalisation
+        // matches the configured scale (5–10 default post-migration).
+        $rating_max = max( 1.0, (float) QueryHelpers::get_config( 'rating_max', '10' ) );
+        return [ 'value' => $value, 'score' => round( ( $value / $rating_max ) * 100, 1 ) ];
     }
 }
