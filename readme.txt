@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.133
+Stable tag: 3.110.134
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.134 — hotfix: remove duplicate msgid entries in talenttrack-nl_NL.po that crashed the v3.110.133 release ZIP build =
+
+The v3.110.133 release ZIP build failed at the `msgfmt` step because the Dutch `.po` file added in v3.110.132 chunk 9 (tournament planner i18n) introduced five duplicate `msgid` entries — strings that were already translated earlier in the file: **"Default formation"** (line 5070 prior), **"Open"** (line 5807 prior), **"Basics"** (line 2789 prior), **"Formation"** (line 3473 prior), and **"Review"** (line 11429 prior). `msgfmt` fails the whole file when any duplicate is present, so the `.mo` never compiled, the release ZIP never assembled, and the tag-driven release didn't publish — v3.110.133 was tagged but never had a release asset attached. This ship removes those five duplicate entries from the appended block; the original earlier translations remain authoritative. No code changes; only `languages/talenttrack-nl_NL.po`, `talenttrack.php` version bump, `readme.txt` Stable tag bump. v3.110.133's tournament-substitution-visualization features are unaffected — they ship as part of this release once the workflow succeeds.
 
 = 3.110.133 — #0093 Tournament planner: visualize substitutions on the grid + per-window swap summary =
 

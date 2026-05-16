@@ -1,3 +1,57 @@
+# TalentTrack v3.110.134 — hotfix: remove duplicate msgid entries in talenttrack-nl_NL.po
+
+## What broke
+
+The v3.110.133 release ZIP build failed at the `msgfmt` step. From the GitHub Actions log:
+
+```
+languages/talenttrack-nl_NL.po:14812: duplicate message definition...
+languages/talenttrack-nl_NL.po:5070: ...this is the location of the first definition
+languages/talenttrack-nl_NL.po:14827: duplicate message definition...
+languages/talenttrack-nl_NL.po:5807: ...this is the location of the first definition
+languages/talenttrack-nl_NL.po:14890: duplicate message definition...
+languages/talenttrack-nl_NL.po:2789: ...this is the location of the first definition
+languages/talenttrack-nl_NL.po:14893: duplicate message definition...
+languages/talenttrack-nl_NL.po:3473: ...this is the location of the first definition
+languages/talenttrack-nl_NL.po:14896: duplicate message definition...
+languages/talenttrack-nl_NL.po:11429: ...this is the location of the first definition
+msgfmt: found 5 fatal errors
+```
+
+`msgfmt` is strict: a single duplicate `msgid` kills the whole file. The `.mo` never compiled, the release ZIP never assembled, and the v3.110.133 tag-driven release didn't publish — the tag exists but there's no asset attached, so the plugin-update-checker can't offer the upgrade.
+
+## Root cause
+
+In #0093 chunk 9 (v3.110.132), I appended a block of Dutch translations for the tournament planner's new user-visible strings. Five of those strings were already translated earlier in the file from previous ships:
+
+| `msgid` | Prior location | Appended duplicate |
+|---|---|---|
+| `Default formation` | line 5070 | line 14812 |
+| `Open` | line 5807 | line 14827 |
+| `Basics` | line 2789 | line 14890 |
+| `Formation` | line 3473 | line 14893 |
+| `Review` | line 11429 | line 14896 |
+
+I should have grepped the file first; lesson logged in feedback memory for future i18n appends.
+
+## Fix
+
+Remove the five duplicate entries from the appended block. The earlier translations remain authoritative — they're identical in meaning to what I would have written, so no string is lost.
+
+## What didn't change
+
+- v3.110.133's tournament-substitution visualization features (per-row arrows, window minute markers, per-window summary panel, changed-cell highlights) are unaffected. They ship as part of this release once the workflow succeeds.
+- No code changes. Only the `.po` file, version bump, and ship-along docs.
+
+## Files
+
+- `languages/talenttrack-nl_NL.po` — remove 5 duplicate `msgid` blocks.
+- `talenttrack.php` — 3.110.133 → 3.110.134.
+- `readme.txt` — Stable tag bump + changelog stanza.
+- `CHANGES.md` — this entry.
+
+---
+
 # TalentTrack v3.110.133 — Tournament planner: visualize substitutions on the grid + per-window swap summary
 
 Pilot follow-up to v3.110.132's tournament planner, taken verbatim from chat:
