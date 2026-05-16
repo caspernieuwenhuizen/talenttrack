@@ -4,6 +4,7 @@ namespace TT\Modules\Invitations;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Config\ConfigService;
+use TT\Infrastructure\FeatureToggles\FeatureToggleService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -62,6 +63,10 @@ class InvitationService {
         $userId = get_current_user_id();
         if ( $userId <= 0 ) {
             return [ 'ok' => false, 'id' => null, 'token' => null, 'error' => __( 'Not logged in.', 'talenttrack' ), 'cap_exceeded' => false ];
+        }
+
+        if ( ! ( new FeatureToggleService( $this->config ) )->isEnabled( 'allow_registration' ) ) {
+            return [ 'ok' => false, 'id' => null, 'token' => null, 'error' => __( 'New user registration is currently disabled.', 'talenttrack' ), 'cap_exceeded' => false ];
         }
 
         // Rate limit. Filter lets hosts permanently bump the cap; the
@@ -156,6 +161,9 @@ class InvitationService {
      * @return array{ok:bool, user_id:?int, error:?string}
      */
     public function accept( object $invitation, array $payload ): array {
+        if ( ! ( new FeatureToggleService( $this->config ) )->isEnabled( 'allow_registration' ) ) {
+            return [ 'ok' => false, 'user_id' => null, 'error' => __( 'New user registration is currently disabled.', 'talenttrack' ) ];
+        }
         if ( (string) $invitation->status !== InvitationStatus::PENDING ) {
             return [ 'ok' => false, 'user_id' => null, 'error' => __( 'This invitation is no longer pending.', 'talenttrack' ) ];
         }

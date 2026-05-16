@@ -17,6 +17,18 @@ final class LookupPill {
     private const FALLBACK_COLOR = '#5b6e75';
 
     /**
+     * Semantic default colours keyed by `lookup_type/normalised_name`.
+     * Used when no `tt_lookups` row matches or the matched row has no
+     * `meta.color`. Operator-seeded `meta.color` still wins. The map
+     * exists to give common statuses a sensible default rather than the
+     * neutral grey fallback when the lookup vocabulary hasn't been
+     * customised — e.g. an active player should read as green.
+     */
+    private const SEMANTIC_DEFAULTS = [
+        'player_status/active' => '#16a34a',
+    ];
+
+    /**
      * Render a pill for `(lookup_type, stored_name)`. Optional fallback
      * label is used when the lookup row has been removed (e.g. row was
      * deleted but rows still reference it).
@@ -31,7 +43,8 @@ final class LookupPill {
         $row   = self::resolveRow( $lookup_type, $stored_name );
         $label = $row ? LookupTranslator::name( $row )
                       : ( $fallback_label !== '' ? $fallback_label : $stored_name );
-        $color = $row ? self::colorFromMeta( $row ) : self::FALLBACK_COLOR;
+        $color = $row ? self::colorFromMeta( $row, $lookup_type, $stored_name )
+                      : self::defaultColor( $lookup_type, $stored_name );
 
         return sprintf(
             '<span class="tt-pill" style="display:inline-block;padding:2px 10px;border-radius:999px;background:%s;color:#fff;font-size:11px;font-weight:600;line-height:1.6;letter-spacing:0.02em;">%s</span>',
@@ -81,12 +94,17 @@ final class LookupPill {
         return trim( preg_replace( '/\s+/', ' ', $n ) );
     }
 
-    private static function colorFromMeta( object $row ): string {
+    private static function colorFromMeta( object $row, string $lookup_type, string $stored_name ): string {
         $meta_raw = $row->meta ?? '';
         $meta     = is_string( $meta_raw ) && $meta_raw !== ''
             ? (array) json_decode( $meta_raw, true )
             : [];
         $color    = is_string( $meta['color'] ?? null ) ? trim( (string) $meta['color'] ) : '';
-        return $color !== '' ? $color : self::FALLBACK_COLOR;
+        return $color !== '' ? $color : self::defaultColor( $lookup_type, $stored_name );
+    }
+
+    private static function defaultColor( string $lookup_type, string $stored_name ): string {
+        $key = $lookup_type . '/' . self::normaliseName( $stored_name );
+        return self::SEMANTIC_DEFAULTS[ $key ] ?? self::FALLBACK_COLOR;
     }
 }
