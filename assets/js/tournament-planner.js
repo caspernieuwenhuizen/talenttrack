@@ -234,13 +234,27 @@
         var playerById = {};
         squad.forEach( function ( s ) { playerById[ s.player_id ] = s; } );
 
-        // Build column headers.
-        var html = '<div class="tt-planner-grid" style="overflow-x:auto;">';
+        // Per-window substitution summary — computed from the
+        // per-row transitions. Surfaces ABOVE the grid so the coach
+        // sees the planned swaps at a glance ("at 10': Lukas in for
+        // Pim at RB") without having to scan each row visually.
+        var subsSummaryHtml = renderSubsSummary( idx, minutesPerPeriod, periods, playerById, slotLabels );
+
+        // Build column headers — with a narrow "transition" column
+        // between adjacent period columns so each row can render an
+        // arrow when the player changes between periods.
+        var html = subsSummaryHtml;
+        html += '<div class="tt-planner-grid" style="overflow-x:auto;">';
         html += '<table class="tt-planner-table"><thead><tr><th></th>';
         for ( var p = 0; p < periods; p++ ) {
             var pStart = p * minutesPerPeriod;
             var pEnd   = ( p + 1 ) * minutesPerPeriod;
             html += '<th>P' + ( p + 1 ) + ' <small>(' + pStart + "–" + pEnd + "')</small></th>";
+            if ( p < periods - 1 ) {
+                // Narrow column header above the transition arrow.
+                // Carries the substitution window minute marker.
+                html += '<th class="tt-planner-transition-head"><span class="tt-planner-sub-marker">@' + pEnd + "'</span></th>";
+            }
         }
         html += '</tr></thead><tbody>';
 
@@ -251,8 +265,12 @@
             line.forEach( function ( code ) { flatSlots.push( code ); } );
         } );
 
+        // colspan accounts for the slot-label column + every period
+        // column + every transition column between periods.
+        var totalColspan = 1 + periods + Math.max( 0, periods - 1 );
+
         if ( flatSlots.length === 0 ) {
-            html += '<tr><td colspan="' + ( periods + 1 ) + '" class="tt-muted">';
+            html += '<tr><td colspan="' + totalColspan + '" class="tt-muted">';
             html += 'No formation set on this match. Edit the match to pick a formation.';
             html += '</td></tr>';
         }
@@ -261,7 +279,18 @@
             html += '<tr><th class="tt-planner-slot-label">' + escapeHtml( code ) + '</th>';
             for ( var p = 0; p < periods; p++ ) {
                 var pid = idx.slots[ p + '|' + code ];
-                html += renderCell( p, code, pid, playerById );
+                // Mark the cell as "changed" when the previous period
+                // held a different player at the same slot — visual
+                // signal that a substitution lands here.
+                var prevPid = p > 0 ? idx.slots[ ( p - 1 ) + '|' + code ] : undefined;
+                var changed = p > 0 && prevPid !== pid;
+                html += renderCell( p, code, pid, playerById, changed );
+                if ( p < periods - 1 ) {
+                    // Transition column: arrow when the next period
+                    // holds a different player; blank dash when same.
+                    var nextPid = idx.slots[ ( p + 1 ) + '|' + code ];
+                    html += renderTransition( pid, nextPid );
+                }
             }
             html += '</tr>';
         } );
@@ -287,18 +316,105 @@
                 html += '<button type="button" class="tt-planner-chip tt-planner-chip-bench" data-player-id="' + pid + '" data-period="' + p + '" data-position="BENCH">' + escapeHtml( pl.full_name ) + '</button>';
             } );
             html += '</td>';
+            if ( p < periods - 1 ) {
+                // Bench row's transition column is blank (subs are
+                // visible row-by-row at the position level above).
+                html += '<td class="tt-planner-transition"></td>';
+            }
         }
         html += '</tr>';
 
         html += '</tbody></table></div>';
-        html += '<p class="tt-muted" style="font-size:12px;margin-top:6px;">Click a player chip, then click another cell to swap. Click the same chip again to deselect.</p>';
+        html += '<p class="tt-muted" style="font-size:12px;margin-top:6px;">Click a player chip, then click another cell to swap. Click the same chip again to deselect. Arrows mark substitutions.</p>';
         body.innerHTML = html;
 
         wireInteractions( body );
     }
 
-    function renderCell( period, code, playerId, playerById ) {
-        var html = '<td class="tt-planner-cell" data-period="' + period + '" data-position="' + escapeHtml( code ) + '">';
+    /**
+     * Render the per-substitution-window summary panel that sits
+     * above the grid. For each window between periods, list every
+     * IN/OUT swap that happens at that minute, grouped by position.
+     *
+     * Visual: one collapsible block per window, with the minute
+     * marker as the header (e.g. "Substitutions at 10'"), and the
+     * swaps listed below as "Pim → Lukas (RB)" lines.
+     *
+     * Returns an empty string when there's only one period (no
+     * substitution windows on this match).
+     */
+    function renderSubsSummary( idx, minutesPerPeriod, periods, playerById, slotLabels ) {
+        if ( periods < 2 ) return '';
+
+        var flatSlots = [];
+        slotLabels.forEach( function ( line ) {
+            line.forEach( function ( code ) { flatSlots.push( code ); } );
+        } );
+
+        var blocks = [];
+        for ( var p = 0; p < periods - 1; p++ ) {
+            var windowMin = ( p + 1 ) * minutesPerPeriod;
+            var swaps = [];
+            flatSlots.forEach( function ( code ) {
+                var fromPid = idx.slots[ p + '|' + code ];
+                var toPid   = idx.slots[ ( p + 1 ) + '|' + code ];
+                if ( fromPid === toPid ) return;
+                var fromName = fromPid ? ( playerById[ fromPid ] ? playerById[ fromPid ].full_name : 'Player #' + fromPid ) : '—';
+                var toName   = toPid   ? ( playerById[ toPid ]   ? playerById[ toPid ].full_name   : 'Player #' + toPid )   : '—';
+                swaps.push( {
+                    code: code,
+                    from_name: fromName,
+                    to_name: toName,
+                } );
+            } );
+            blocks.push( {
+                window_min: windowMin,
+                swaps: swaps,
+            } );
+        }
+
+        var html = '<div class="tt-planner-subs-summary">';
+        html += '<h4 class="tt-planner-subs-title">Planned substitutions</h4>';
+        blocks.forEach( function ( b ) {
+            html += '<div class="tt-planner-subs-window">';
+            html += '<header><strong>@' + b.window_min + "'</strong> ";
+            html += '<span class="tt-muted">(' + ( b.swaps.length === 0 ? 'no changes' : b.swaps.length + ' change' + ( b.swaps.length === 1 ? '' : 's' ) ) + ')</span>';
+            html += '</header>';
+            if ( b.swaps.length ) {
+                html += '<ul class="tt-planner-subs-list">';
+                b.swaps.forEach( function ( s ) {
+                    html += '<li>';
+                    html += '<span class="tt-planner-subs-pos">' + escapeHtml( s.code ) + '</span> ';
+                    html += '<span class="tt-planner-subs-from">' + escapeHtml( s.from_name ) + '</span>';
+                    html += ' <span class="tt-planner-subs-arrow">→</span> ';
+                    html += '<span class="tt-planner-subs-to">' + escapeHtml( s.to_name ) + '</span>';
+                    html += '</li>';
+                } );
+                html += '</ul>';
+            }
+            html += '</div>';
+        } );
+        html += '</div>';
+        return html;
+    }
+
+    /**
+     * Transition cell between adjacent period cells in the same
+     * row. Arrow when the next-period player is different; faint
+     * dash when the player stays.
+     */
+    function renderTransition( fromPid, toPid ) {
+        var same = ( fromPid || 0 ) === ( toPid || 0 );
+        if ( same ) {
+            return '<td class="tt-planner-transition tt-planner-transition--same" aria-hidden="true">·</td>';
+        }
+        return '<td class="tt-planner-transition tt-planner-transition--swap" title="Substitution" aria-label="Substitution"><span class="tt-planner-transition-arrow">→</span></td>';
+    }
+
+    function renderCell( period, code, playerId, playerById, changed ) {
+        var cls = 'tt-planner-cell';
+        if ( changed ) cls += ' tt-planner-cell--changed';
+        var html = '<td class="' + cls + '" data-period="' + period + '" data-position="' + escapeHtml( code ) + '">';
         if ( playerId ) {
             var pl = playerById[ playerId ];
             var name = pl ? pl.full_name : ( 'Player #' + playerId );

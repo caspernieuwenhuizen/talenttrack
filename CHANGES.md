@@ -1,3 +1,67 @@
+# TalentTrack v3.110.133 — Tournament planner: visualize substitutions on the grid + per-window swap summary
+
+Pilot follow-up to v3.110.132's tournament planner, taken verbatim from chat:
+
+> *"I want to see the starter on a position and who will play on that position after the substitution. I want to be able to plan the substitutions."*
+
+The v3.110.132 grid already encoded all the data — each row is a position, each column is a period, the player chip in each cell tells you who's on at that time. But the substitution chain wasn't visually obvious: a coach reading "RB: Pim, Lukas" across the columns had to mentally compute "ah, sub at minute 10." This ship makes the substitution explicit at three levels.
+
+## Visual changes
+
+### Per-row transition cells
+
+A new narrow column between adjacent period columns. Each row's transition cell shows:
+
+- **Yellow-tinted `→` arrow** when the player on this position changes between periods (i.e. a substitution lands here). Hover tooltip: "Substitution".
+- **Faint dot** when the player stays.
+
+So the "RB" row reads as `[Pim] → [Lukas]` at a glance — same as before, just with the substitution made visually explicit.
+
+### Window minute markers in column headers
+
+Above each transition column, a small `@10'` pill carrying the minute the substitution happens. The yellow tint ties visually to the transition arrows below it. Coach reads each swap as a timed event, not just as a column boundary.
+
+### Per-window substitution summary panel
+
+A new panel above the grid. For each substitution window, lists every IN/OUT swap:
+
+```
+Planned substitutions
+
+@10'  3 changes
+   RB    Pim    →   Lukas
+   CB    Lukas  →   Alex
+   LM    Sven   →   Niels
+```
+
+Position code in a monospace badge, outgoing player struck-through, incoming player bold. A "no changes" pill when a window has no swaps (e.g. you only rotated the front line).
+
+### Subtle highlight on changed cells
+
+Cells where a substitution lands (period > 0 AND player differs from previous period) get a soft yellow background. Same yellow family as the arrows + window markers — visual consistency.
+
+## What didn't change
+
+- The data model. Assignments per period stay as they are; this is pure visualization.
+- The click-to-swap UX. Tap a chip, tap another, swap — same as v3.110.132.
+- REST endpoints. No new routes.
+- The planner's mobile / desktop layouts. Just additional visual elements within the existing grid.
+
+## Files
+
+- `assets/js/tournament-planner.js` — adds `renderSubsSummary()`, `renderTransition()`, threads a `changed` flag through `renderCell()`, updates colspan math for the new transition columns.
+- `assets/css/tournament-planner.css` — new style block for `.tt-planner-transition*`, `.tt-planner-sub-marker`, `.tt-planner-cell--changed`, `.tt-planner-subs-summary` + children.
+
+## How to verify
+
+1. Open a tournament with at least one multi-period match.
+2. Expand the match's planner grid.
+3. Confirm the **Planned substitutions** panel renders above the grid with one block per substitution window.
+4. Run **Auto-balance** (or do a manual swap). Confirm the arrow column between adjacent periods now shows `→` arrows on the rows where the swap landed, and the per-window panel updates to list the swap.
+5. On a row where the player stays the same across periods (e.g. GK usually), confirm the transition cell shows a faint dot, not an arrow.
+
+---
+
 # TalentTrack v3.110.132 — #0093 Tournament planner (admin-only v1)
 
 First-class **Tournament** entity for planning playing time across a multi-match tournament weekend. A coach plans 5 matches × 20 minutes with configurable substitution windows + opponent level + per-match formation override, picks a squad with per-player eligible position TYPES, and works the planner grid (or hits Auto-balance) with a sticky minutes ticker always visible at the bottom of the screen showing every player's played + scheduled minutes vs the equal-share target. On match completion, the lineup syncs to attendance + the player journey via the existing `tt_activities` infrastructure.
