@@ -232,7 +232,6 @@ class CoachForms {
             $cat_repo = class_exists( '\\TT\\Infrastructure\\Evaluations\\EvalCategoriesRepository' )
                 ? new \TT\Infrastructure\Evaluations\EvalCategoriesRepository()
                 : null;
-            <?php
             // v3.110.125 — Basic / Detailed segmented toggle per main
             // category. Pre-fix all sub-categories were always
             // visible, doubling the form length on installs with the

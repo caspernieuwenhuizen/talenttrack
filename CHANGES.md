@@ -1,4 +1,4 @@
-# TalentTrack v3.110.130 — Evaluation wizard demo-tagging fix + backfill migration
+# TalentTrack v3.110.130 — Evaluation wizard demo-tagging fix + backfill migration + main parse-error hotfixes
 
 ## Pilot report
 
@@ -66,11 +66,22 @@ SELECT e.club_id,
 
 Pilot confirmed this is their case: *"there are no real evaluations that can be a problem. I am running in demo mode and everything created so far should rightfully be demo tagged."* The migration was designed around that explicit confirmation.
 
+## Bundled hotfix — main was failing PHP lint since v3.110.125
+
+CI's PHP Syntax Lint job has been failing on every PR since v3.110.125 (rating-form polish) shipped a few hours ago. Two pre-existing parse errors on `main` that have nothing to do with this PR but need to clear for the release ZIP to build:
+
+- `src/Shared/Frontend/CoachForms.php:235` — a stray `<?php` opener appeared inside an already-open PHP block (the `$cat_repo = …;` assignment is PHP, then line 235 redundantly opens PHP again). Fix: remove the duplicate `<?php` tag.
+- `src/Shared/Frontend/FrontendWizardView.php` — three apostrophes (`control's` line 620, `row's` line 655, `it's` line 656) sit inside the `$css = '…'` single-quoted heredoc-style string that opens at line 473. PHP's single-quoted strings terminate on the first unescaped `'`, so the first apostrophe closed the string mid-CSS-comment and everything after parsed as PHP gibberish. Fix: escape each as `\'` — CSS comment readers don't care.
+
+Without these hotfixes the release-build CI step (which depends on lint passing) would skip and no v3.110.130 ZIP would be produced — the same incident that occurred on v3.110.58–.61 (documented in that ship's CHANGES.md entry). Bundling here rather than separate PR because release is blocked on this PR's own merge.
+
 ## Files
 
 - `src/Modules/Wizards/Evaluation/ReviewStep.php` — 1-line `tagIfActive` call.
 - `src/Modules/Wizards/Evaluation/EvaluationInserter.php` — 1-line `tagIfActive` call.
 - `database/migrations/0096_backfill_evaluation_demo_tags.php` — new one-shot backfill migration.
+- `src/Shared/Frontend/CoachForms.php` — remove stray `<?php` at line 235 (bundled hotfix).
+- `src/Shared/Frontend/FrontendWizardView.php` — escape three apostrophes inside `$css` literal (bundled hotfix).
 - `talenttrack.php` 3.110.127 → 3.110.130 (.128 reserved for row-link standard PR, .129 reserved for allow-registration + active-pill PR — both still open).
 - `readme.txt`, `CHANGES.md`.
 
