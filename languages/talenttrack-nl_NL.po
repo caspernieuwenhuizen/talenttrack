@@ -14809,9 +14809,6 @@ msgstr "Nieuw toernooi"
 msgid "Anchor team"
 msgstr "Anker-team"
 
-msgid "Default formation"
-msgstr "Standaardformatie"
-
 msgid "Open planner grid"
 msgstr "Open planner grid"
 
@@ -14823,9 +14820,6 @@ msgstr "Aftrap"
 
 msgid "Complete match"
 msgstr "Wedstrijd afsluiten"
-
-msgid "Open"
-msgstr "Open"
 
 msgid "No tournaments yet."
 msgstr "Nog geen toernooien."
@@ -14886,12 +14880,3 @@ msgstr "Geen volledige wedstrijd"
 
 msgid "Minutes ticker"
 msgstr "Speeltijd-ticker"
-
-msgid "Basics"
-msgstr "Basis"
-
-msgid "Formation"
-msgstr "Formatie"
-
-msgid "Review"
-msgstr "Bevestigen"
