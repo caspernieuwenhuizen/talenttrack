@@ -281,13 +281,24 @@
    primary action visibly taller than its siblings; that sizing only
    ever made sense for the v3.110.53–v3.110.73 FAB rendering on
    mobile, and the FAB itself was dropped in v3.110.74 (see public.css
-   comment above). */
+   comment above).
+
+   v3.110.122 — icon now shows on ANY variant carrying one (was:
+   primary only), so danger-variant Archive buttons render with their
+   bin SVG glyph. The icon-span emits on every button via
+   `pageActionsHtml`; this stylesheet decides when to show it. */
 .tt-page-actions__icon {
-    display: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     line-height: 1;
     margin-right: 4px;
 }
-.tt-page-actions__primary .tt-page-actions__icon { display: inline-block; }
+.tt-page-actions__icon svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
 
 /* v3.110.53 — destructive button variant for Archive / Delete actions
    on detail pages. Distinct from .tt-btn-secondary so the destructive
@@ -303,6 +314,61 @@
     background: #b32d2e;
     color: #fff;
     border-color: #b32d2e;
+}
+
+/* v3.110.122 — mobile icon-only rendering. On viewports ≤ 767px,
+   buttons in the page-header actions slot that carry an icon
+   (`is-icon`) collapse to a 48×48 circle showing only the glyph;
+   the label hides via `display:none` but stays in the DOM (and the
+   button has an `aria-label`) so screen readers + keyboard users
+   still announce the full action. Buttons without an icon —
+   "Import from CSV", "Continue rating", "Log scouting find",
+   "Record decision" — keep their full label since there's no
+   universally-readable glyph for them.
+
+   Saves a large amount of horizontal space on phones: the previous
+   v3.110.74 wrap-to-row-2 left the title in column-A, the
+   "+ New evaluation" / "✎ Edit" / "Archive" buttons in column-B,
+   and the buttons frequently wrapped to a second row of their own,
+   pushing the H1 down further. Three 48px circles fit beside the
+   H1 on most phones at 360px width. */
+@media (max-width: 767px) {
+    .tt-page-head { gap: 8px; }
+    .tt-page-actions { gap: 6px; }
+    .tt-page-actions .tt-btn.is-icon {
+        width: 48px;
+        height: 48px;
+        min-height: 48px;
+        padding: 0;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+    .tt-page-actions .tt-btn.is-icon .tt-page-actions__icon {
+        margin: 0;
+        font-size: 1.125rem;
+        line-height: 1;
+    }
+    .tt-page-actions .tt-btn.is-icon .tt-page-actions__icon svg {
+        width: 18px;
+        height: 18px;
+    }
+    .tt-page-actions .tt-btn.is-icon .tt-page-actions__label {
+        /* Hidden visually but kept in the DOM for legacy CSS that
+           might query the label; aria-label on the button covers
+           screen readers. */
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0,0,0,0);
+        white-space: nowrap;
+        border: 0;
+    }
 }
 
 /* v3.110.104 — app-style confirm modal used by

@@ -1,3 +1,81 @@
+# TalentTrack v3.110.122 — Page-header action buttons: icon-only 48×48 circles on mobile (Tier 1: New / Edit / Archive)
+
+## Pilot ask
+
+> "NEW / EDIT / ARCHIVE buttons can be smaller and just be an icon in a circle. On mobile it is taking a lot of space. Make a list of all buttons and propose which can be more minimalistic."
+
+## Audit
+
+All 22 page-header action button slots across the app route through `FrontendViewBase::pageActionsHtml()`. Three label families dominate:
+
+| Family | Count | Current icon | Mobile decision |
+|---|---|---|---|
+| `+ New X` | 10 | `+` | Icon-only on mobile |
+| `✎ Edit` | 8 | `✎` | Icon-only on mobile |
+| `Archive` / `Archive case` | 8 | none → new bin SVG | Icon-only on mobile |
+| `Continue rating`, `Log scouting find`, `Record decision` | 3 | none | Keep label (no universal glyph) |
+| `Import from CSV` | 2 | none | Keep label (no universal glyph) |
+
+Operator decision (via AskUserQuestion): **Tier 1** (New / Edit / Archive only); **48 × 48 px** touch target; **bin SVG icon** for Archive (operator: "Archive should be a bin icon, not an X").
+
+## Implementation
+
+### `pageActionsHtml` extension (`FrontendViewBase`)
+
+1. **SVG icon pass-through** — single-character icons (`+`, `✎`) keep getting escaped; strings starting with `<` pass through as raw HTML.
+2. **Default bin icon on danger-variant** — when a danger-variant action doesn't supply an explicit `icon`, the helper injects a 16×16 inline bin SVG (`currentColor` fill). All 8 Archive callsites get the icon centrally; no per-callsite edits.
+3. **`aria-label` + `is-icon` class** — every button gets `aria-label="<label>"` on the wrapper so the mobile icon-only rendering stays accessible. The `is-icon` class is the CSS hook that decides whether the button collapses to a circle on mobile (no icon → keep label).
+
+```php
+if ( $icon === '' && $variant === 'danger' ) {
+    $icon = self::BIN_ICON_SVG;
+}
+```
+
+### Mobile media query (`public.css`)
+
+```css
+@media (max-width: 767px) {
+    .tt-page-actions .tt-btn.is-icon {
+        width: 48px;
+        height: 48px;
+        padding: 0;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .tt-page-actions .tt-btn.is-icon .tt-page-actions__label {
+        position: absolute; width: 1px; height: 1px; padding: 0;
+        margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+        white-space: nowrap; border: 0;
+    }
+}
+```
+
+48×48 matches CLAUDE.md §2's touch-target floor.
+
+## Buttons that keep their label on mobile
+
+By design — no universally-readable glyph:
+
+- **Import from CSV** (Players + Teams list)
+- **Continue rating** (Activity detail)
+- **Log scouting find** (Scouting visit detail)
+- **Record decision** (Trial case detail)
+
+These render with their full label at every viewport.
+
+## How to test
+
+1. **Desktop (≥ 768px)**: every page-header button renders with `[icon] + label` as before. No visual change.
+2. **Mobile (< 768px)** — open `?tt_view=evaluations` then `&id=N` for detail; the `+ New evaluation` button is a circle on the right of the H1; on detail page, `✎ Edit` + bin-SVG `Archive` are two circles. Same on goals / activities / players / teams / people / PDP / scouting-visits.
+3. **Accessibility**: tab through. Screen reader announces "New evaluation, link" / "Edit, link" / "Archive, button" via `aria-label`.
+4. **Backwards compat**: callers that pass an explicit `icon` (e.g. `'icon' => '✎'`) keep rendering the same glyph; only the danger-no-icon path auto-injects the bin.
+5. **Archive confirm modal**: clicking an Archive circle on mobile opens the v3.110.104 `<dialog>` modal unchanged.
+
+---
+
 # TalentTrack v3.110.120 — Mark-attendance wizard mobile bug fix: card-per-player toggle UI (replaces untappable 5-column radio matrix on phones)
 
 ## Pilot report

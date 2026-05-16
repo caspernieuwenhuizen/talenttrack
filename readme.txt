@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.121
+Stable tag: 3.110.122
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.122 — Page-header action buttons collapse to icon-only 48×48 circles on mobile (Tier 1: New / Edit / Archive) =
+
+Pilot ask: "NEW / EDIT / ARCHIVE buttons can be smaller and just be an icon in a circle. On mobile it is taking a lot of space." After an audit of all 22 page-header action button slots, three label families dominate: **+ New X** (10 buttons), **✎ Edit** (8 buttons), **Archive** (8 buttons). All three are universally recognised by their glyphs — they're the Tier 1 candidates for icon-only mobile rendering. Three changes ship together. **(1) `pageActionsHtml` extension.** SVG icons now pass through (was: escaped). Default bin SVG icon injected on danger-variant buttons that don't supply one (so the 8 Archive callsites don't each need editing). `aria-label` mirrors the visible label on every button so the icon-only mobile rendering stays accessible (screen readers + keyboard users get the full action text). New `is-icon` class on every button that carries an icon — drives the mobile rendering. **(2) Mobile media query.** At ≤ 767px, `.tt-page-actions .tt-btn.is-icon` collapses to a 48 × 48 px circle showing only the glyph (matches CLAUDE.md §2 touch-target floor). The label hides via the standard visually-hidden pattern (kept in the DOM + `aria-label` on the button). Buttons that don't carry an icon — "Import from CSV", "Continue rating", "Log scouting find", "Record decision" — keep their full label since there's no universally-readable glyph for them. **(3) Icon coverage.** All 10 New buttons already carry `+`; all 8 Edit buttons already carry `✎`; all 8 Archive buttons now carry the new bin SVG. Three 48 × 48 px circles fit beside the H1 on a 360px viewport — the previous v3.110.74 wrap-to-row-2 layout no longer kicks in for the New / Edit / Archive family.
 
 = 3.110.121 — Rating scale flipped from 1–5 to 5–10 (Dutch academic 6-point) with linear data remap + ~15 hardcoded-scale fixes =
 

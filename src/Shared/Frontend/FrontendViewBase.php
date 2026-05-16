@@ -162,8 +162,23 @@ abstract class FrontendViewBase {
             $icon       = (string) ( $a['icon'] ?? '' );
             $confirm    = (string) ( $a['confirm'] ?? '' );
             $variant    = ! empty( $a['variant'] ) ? (string) $a['variant'] : ( $is_primary ? 'primary' : 'secondary' );
-            $cls        = 'tt-btn tt-btn-' . sanitize_html_class( $variant );
-            $cls       .= $is_primary ? ' tt-page-actions__primary' : ' tt-page-actions__secondary';
+
+            // v3.110.122 — default a bin SVG icon on danger-variant
+            // actions when the caller didn't supply one. Archive is
+            // the canonical danger action across every detail surface;
+            // adding the icon centrally avoids 8 callsite edits and
+            // gives the icon-only mobile rendering a glyph to show.
+            if ( $icon === '' && $variant === 'danger' ) {
+                $icon = self::BIN_ICON_SVG;
+            }
+
+            $cls = 'tt-btn tt-btn-' . sanitize_html_class( $variant );
+            $cls .= $is_primary ? ' tt-page-actions__primary' : ' tt-page-actions__secondary';
+            // v3.110.122 — `is-icon` flag on buttons that carry an icon
+            // (any variant, not just primary). Drives the mobile
+            // icon-only rendering — see persona-dashboard.css's
+            // `.tt-page-actions__primary.is-icon`, etc.
+            if ( $icon !== '' ) $cls .= ' is-icon';
 
             $attr_html = '';
             if ( ! empty( $a['data_attrs'] ) && is_array( $a['data_attrs'] ) ) {
@@ -174,10 +189,22 @@ abstract class FrontendViewBase {
             if ( $confirm !== '' ) {
                 $attr_html .= ' onclick="return confirm(' . esc_attr( wp_json_encode( $confirm ) ) . ')"';
             }
+            // v3.110.122 — `aria-label` mirrors the visible label so the
+            // mobile icon-only rendering stays accessible (the label
+            // span hides at ≤767px; screen readers fall through to
+            // aria-label).
+            $attr_html .= ' aria-label="' . esc_attr( $label ) . '"';
 
             $inner = '';
-            if ( $is_primary && $icon !== '' ) {
-                $inner .= '<span class="tt-page-actions__icon" aria-hidden="true">' . esc_html( $icon ) . '</span>';
+            if ( $icon !== '' ) {
+                // SVG icons (start with `<`) pass through as-is; single
+                // characters / short text get escaped. Icon span is now
+                // emitted on EVERY variant (was: primary only) so
+                // danger buttons render with their bin glyph too.
+                $is_svg = ( $icon !== '' && $icon[0] === '<' );
+                $inner .= '<span class="tt-page-actions__icon" aria-hidden="true">'
+                       . ( $is_svg ? $icon : esc_html( $icon ) )
+                       . '</span>';
             }
             $inner .= '<span class="tt-page-actions__label">' . esc_html( $label ) . '</span>';
 
@@ -189,6 +216,14 @@ abstract class FrontendViewBase {
         }
         return $html;
     }
+
+    /**
+     * v3.110.122 — inline SVG bin icon for danger-variant
+     * page-actions. Sized at 16×16 with `currentColor` so it picks
+     * up the button's text colour at every state (rest red, hover
+     * white-on-red).
+     */
+    private const BIN_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path fill="currentColor" d="M6.5 1.75a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 .75.75V3h3.25a.75.75 0 0 1 0 1.5h-.628l-.55 8.252A2.25 2.25 0 0 1 9.327 14.75H6.673a2.25 2.25 0 0 1-2.246-2.998L3.878 4.5H3.25a.75.75 0 0 1 0-1.5H6.5V1.75zM5.382 4.5l.544 8.156a.75.75 0 0 0 .748.594h2.654a.75.75 0 0 0 .748-.594L10.618 4.5H5.382z"/></svg>';
 
     /**
      * Sub-views override this to declare a static breadcrumb chain
