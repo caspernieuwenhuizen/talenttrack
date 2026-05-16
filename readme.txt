@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.125
+Stable tag: 3.110.126
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 3.110.125 — Mobile readiness audit fixes: 12 bare tables wrapped for horizontal scroll, 6 numeric inputs gain inputmode, 2 wizard step nits =
+= 3.110.126 — Mobile readiness audit fixes: 12 bare tables wrapped for horizontal scroll, 6 numeric inputs gain inputmode, 2 wizard step nits =
 
 Follow-up to v3.110.120's AttendanceStep mobile fix — a codebase-wide audit identified 17 surfaces with mobile-readiness defects. This ship resolves the actionable findings in three waves:
 
@@ -23,6 +23,10 @@ Follow-up to v3.110.120's AttendanceStep mobile fix — a codebase-wide audit id
 **Wave 3 — wizard step polish.** `Activity/PrinciplesStep`: replaced `min-width:320px` on the multi-select with `width:100%; min-width:0; max-width:100%; box-sizing:border-box` so the select can shrink under 320px viewports instead of overflowing horizontally. `Team/RosterStep`: bumped checkbox label `min-height` from 32px to 48px (CLAUDE.md §2 tap-target floor) and added matching `gap`/`padding` for breathing room. `MarkAttendance/RateConfirmStep` reviewed: inline `min-height:56px` is above the 48px floor and acceptable as-is.
 
 No schema, no migration, no REST changes. ~30 file edits, all structural. Visual regression check at 360px should show no horizontal scroll on page bodies that don't intentionally scroll, while data tables show their own scrollbar when their content exceeds viewport width.
+
+= 3.110.125 — Rating form polish: compact input row + per-category Basic/Detailed pill toggle =
+
+Two pilot-surfaced gripes on the rating form. **(1) Rating input was full-width on mobile.** Pre-fix the generic `.tt-form-row input { flex: 1 }` rule + mobile's `flex-direction: column; align-items: stretch` stretched the rating number input to fill the row, pushing the "(5–10)" range hint to a third visual row. Pilot: "the width of the input field for the rating number spans complete width on mobile which pushes the rest to a second row, that is wasting space." Fix: new `.tt-form-row--rating` modifier that constrains the input to a fixed 80 px (`flex: 0 0 80px`) and keeps the hint inline. Sub-category rows inherit the same constraint. The wizard's `RateActorsStep` had the same issue but with its own inline CSS — flipped the `.tt-rate-row` from a 2-row grid to a horizontal flex on every viewport so the label + 80 px input + "/ max" suffix stay on one line. **(2) Per-category Basic / Detailed pill toggle.** Pre-fix the wizard showed sub-categories behind a native `<details>` disclosure ("Detailed Technical") with the browser's default chevron + indent chrome; the flat eval form (`CoachForms::renderEvalForm`) showed every sub-category inline at all times. Pilot: "the rating form should have a toggle per category to switch between basic and detailed. I do not like the way how it is done now." Replaced both with the same segmented pill control — **[ Basic | Detailed ]** sitting under each main category's input row. Default state: Basic (subs hidden). Click Detailed → subs slide in. Form values inside the panel persist across mode flips (hiding doesn't unmount the inputs). On the flat form's edit mode, an auto-default kicks in: when any existing sub-cat rating is non-empty, the toggle starts in Detailed so re-opening a previously sub-rated evaluation doesn't appear to lose data. CSS for the toggle is shared between the wizard (inline copy in `FrontendWizardView`) and the flat form (`public.css`).
 
 = 3.110.124 — NotificationBell compact: `🔔 N open tasks` → `🔔 (N)` per pilot ask =
 

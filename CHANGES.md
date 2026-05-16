@@ -1,4 +1,4 @@
-# TalentTrack v3.110.125 — Mobile readiness audit fixes (three waves)
+# TalentTrack v3.110.126 — Mobile readiness audit fixes (three waves)
 
 After the v3.110.120 AttendanceStep fix, the pilot asked: *"I need all wizards and front end views to be audited against mobile readiness. Do a proper analysis."* A codebase-wide audit covered 33 wizard steps + 76 frontend views and identified 17 actionable defects across three categories. This ship resolves them.
 
@@ -58,18 +58,189 @@ Added `inputmode="numeric"` or `inputmode="decimal"` to numeric inputs that were
 
 - 11 frontend view files (Wave 1) — wrapped tables only
 - 5 view + 2 wizard step files (Wave 2 + 3)
-- `talenttrack.php` 3.110.124 → 3.110.125
+- `talenttrack.php` 3.110.125 → 3.110.126
 - `readme.txt`, `CHANGES.md`
 
 No PHP logic change. No CSS change (the `.tt-table-wrap` class was already defined). No JS change. No NL translation change (structural HTML only). Pure mobile-readiness retrofit.
 
 ## How to verify
 
-1. Refresh the plugin to v3.110.125.
+1. Refresh the plugin to v3.110.126.
 2. On a 360px viewport (Chrome DevTools "Moto G5+" or a real phone), visit each Wave-1 view in turn. The page-level layout should fit horizontally without scroll; the data tables should show their own horizontal scrollbar when content exceeds viewport width.
 3. On the Wave-2 inputs (Players manage form, Report wizard privacy step, Trial case rating, Invitation accept, Ideas refine), tap into each numeric field — confirm the mobile keyboard that pops up is the numeric / decimal one (digits-only, with decimal point where applicable), not the full alphabetic keyboard.
 4. Wave-3 wizard steps: open the new-activity wizard's Principles step on a 360px phone — the `<select multiple>` should fit inside the viewport without horizontal scroll. Open the new-team wizard's Roster step on a phone — each player-checkbox row should feel comfortably tappable (48px floor).
 5. Smoke test on desktop ≥1024px: nothing should look different. The table wraps are no-ops when there's enough viewport room.
+---
+
+# TalentTrack v3.110.125 — Rating form polish: compact input row + per-category Basic / Detailed pill toggle
+
+## Pilot reports
+
+> "The rating form is not nice, the width of the input field for the rating number spans complete width on mobile which pushes the rest to a second row, that is wasting space."
+
+> "The rating form should have a toggle per category to switch between basic and detailed. I do not like the way how it is done now."
+
+## (1) Compact rating input row
+
+### Root cause
+
+`assets/css/public.css` line 747:
+
+```css
+.tt-form-row input, .tt-form-row select, .tt-form-row textarea {
+    flex: 1;
+    ...
+}
+```
+
+The generic flex-grow on every input in a `.tt-form-row` overrode the rating input's inline `style="width:80px"`. On mobile, line 811:
+
+```css
+@media (max-width: 700px) {
+    .tt-form-row { flex-direction: column; align-items: stretch; }
+}
+```
+
+Column layout + stretch alignment made the input fill the entire row width. The `(5–10)` range hint span got pushed below, wasting a full row of vertical space per rating.
+
+### Fix
+
+New `.tt-form-row--rating` modifier on the eval form's rating rows:
+
+```css
+.tt-form-row.tt-form-row--rating input.tt-rating-num {
+    flex: 0 0 80px;
+    width: 80px;
+    text-align: center;
+    align-self: center;
+}
+@media (max-width: 700px) {
+    .tt-form-row.tt-form-row--rating {
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+    }
+}
+```
+
+Sub-category rows inherit via `.tt-form-row--rating.tt-form-row--sub` (both classes applied).
+
+### Wizard step
+
+`RateActorsStep`'s rating row had the same shape problem in the inline CSS in `FrontendWizardView`:
+
+```diff
+-.tt-rate-row { display: grid; grid-template-columns: 1fr; gap: 6px; }
+-.tt-rate-control { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+-.tt-rate-input { width: 96px; ... }
++.tt-rate-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
++.tt-rate-control { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; flex: 0 0 auto; }
++.tt-rate-input { width: 80px; flex: 0 0 80px; ... }
++.tt-rate-max { white-space: nowrap; flex-shrink: 0; }
+```
+
+Single horizontal flex strip on every viewport — label grows, input fixed 80 px, suffix inline. No second-line wrap.
+
+## (2) Basic / Detailed pill toggle per category
+
+### Old chrome (wizard)
+
+```html
+<details class="tt-rate-subs">
+    <summary>Detailed Technical</summary>
+    <div class="tt-rate-row--sub">...</div>
+    ...
+</details>
+```
+
+Native disclosure with the browser's chevron. The flat form had no toggle at all — every sub-category was always visible, doubling the form length on the full vocabulary.
+
+### New chrome (both surfaces)
+
+```html
+<div class="tt-rate-detail-toggle"
+     data-tt-rate-detail-toggle
+     data-state="basic"
+     role="tablist"
+     aria-label="Technical detail mode">
+    <button type="button" data-mode="basic"    role="tab" aria-selected="true">Basic</button>
+    <button type="button" data-mode="detailed" role="tab" aria-selected="false">Detailed</button>
+</div>
+<div class="tt-rate-subs" data-tt-rate-subs hidden>
+    <!-- sub-cat rating rows -->
+</div>
+```
+
+A segmented pill control. Clicking the inactive half flips the wrapper's `data-state` and toggles `hidden` on the next-sibling sub panel. CSS rule:
+
+```css
+.tt-rate-detail-toggle[data-state="basic"]    button[data-mode="basic"],
+.tt-rate-detail-toggle[data-state="detailed"] button[data-mode="detailed"] {
+    background: var(--tt-ink, #1a1d21);
+    color: #fff;
+}
+```
+
+So the active half lights up; the other half is the affordance to switch.
+
+### Click delegation
+
+Both surfaces add a single click listener at the form / roster root:
+
+```js
+form.addEventListener('click', function (e) {
+    var btn = e.target.closest('.tt-rate-detail-toggle button');
+    if (!btn) return;
+    var wrap = btn.closest('.tt-rate-detail-toggle');
+    var mode = btn.getAttribute('data-mode');
+    wrap.setAttribute('data-state', mode);
+    // toggle aria-selected + sibling panel's hidden attr
+});
+```
+
+### Auto-default to Detailed in edit mode
+
+When the flat form opens an existing evaluation with non-zero sub-category ratings, the toggle starts in Detailed so the operator immediately sees the values they previously recorded. Otherwise (no sub values, or create mode), it starts in Basic.
+
+```php
+$has_sub_values = false;
+foreach ( (array) $sub_cats as $sub_check ) {
+    if ( ! empty( $existing_ratings[ (int) $sub_check->id ] ) ) {
+        $has_sub_values = true;
+        break;
+    }
+}
+$initial_state = $has_sub_values ? 'detailed' : 'basic';
+```
+
+The wizard step always starts in Basic — it's a quick-rate flow; the coach explicitly opts in to detailed for each player + category.
+
+### Form values persist across mode flips
+
+Hiding doesn't unmount the inputs — `<input>` elements inside the `.tt-rate-subs` panel keep their values. Toggling Detailed → Basic → Detailed again brings back what was typed. POST submits include every input that has a value, regardless of toggle state.
+
+## Files
+
+- `src/Modules/Wizards/Evaluation/RateActorsStep.php` — replaced `<details>` with the toggle + sibling subs panel; added click delegation to the existing inline JS block.
+- `src/Shared/Frontend/CoachForms.php` — wrapped sub rows in a toggleable panel; added click delegation to the existing inline JS block.
+- `src/Shared/Frontend/FrontendWizardView.php` — inline CSS for `.tt-rate-detail-toggle` + the compact row.
+- `assets/css/public.css` — `.tt-form-row--rating` modifier + shared `.tt-rate-detail-toggle` rules for the flat form.
+
+## How to test
+
+**Wizard** (mark-attendance → rate players):
+1. Open the wizard on a phone (≤ 720 px). Each rating row shows `Label    [80px input] / 10` on a single line — no wrap.
+2. Each main category shows a `[ Basic | Detailed ]` pill under its row. Default state Basic.
+3. Click Detailed → subs slide in below; click Basic → subs hide. Values entered in subs persist across flips.
+
+**Flat eval form** (`?tt_view=evaluations&action=new` and `…&action=edit`):
+1. Phone view: rating row is single-line — label + 80 px input + `(5–10)` hint.
+2. Per category, a Basic / Detailed pill toggle.
+3. **Create mode**: defaults to Basic.
+4. **Edit mode**: if the eval has any saved sub-cat values, the toggle starts Detailed so the operator sees the data immediately. Otherwise Basic.
+5. Toggle subs in/out, type a sub value, toggle out, toggle back — value still there.
+6. Submit → all rating values POST regardless of toggle state.
+
 ---
 
 # TalentTrack v3.110.124 — NotificationBell compact: `🔔 N open tasks` → `🔔 (N)`
