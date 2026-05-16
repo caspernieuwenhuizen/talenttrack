@@ -4,13 +4,25 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.120
+Stable tag: 3.110.121
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.121 — Mobile readiness audit fixes: 12 bare tables wrapped for horizontal scroll, 6 numeric inputs gain inputmode, 2 wizard step nits =
+
+Follow-up to v3.110.120's AttendanceStep mobile fix — a codebase-wide audit identified 17 surfaces with mobile-readiness defects. This ship resolves the actionable findings in three waves:
+
+**Wave 1 — table-wrap retrofit (12 surfaces, 17 tables).** Wrapped every bare `<table class="tt-table">` in `<div class="tt-table-wrap">` so the table can horizontally scroll on viewports narrower than its column count. Before: at 360px these tables compressed each column to ~40-60px and became illegible. After: the page-level layout stays mobile-friendly and the data table scrolls as its own region. Surfaces fixed: `FrontendAuditLogView` (3 nested tables — daily breakdown, top usernames, top IPs), `FrontendComparisonView` (player comparison upgraded from inline `overflow-x:auto` div to `.tt-table-wrap` for consistency), `FrontendConfigurationView` (lookups editor + per-persona override), `FrontendEvaluationsView` (rating breakdown), `FrontendFunctionalRolesView` (roles table), `FrontendMigrationsView` (applied + pending), `FrontendPeopleManageView` (assignments), `FrontendTeamDetailView` (attributes / staff / roster / trial players / upcoming activities — 5 tables), `FrontendTeamsManageView` (roster + staff), `FrontendTrialCaseView` (extensions / activities / evaluations / goals / letter history — 5 tables), `FrontendReportDetailView` (per-team breakdown + methodology assessment).
+
+**Wave 2 — `inputmode` retrofit (#0056 continuation).** Added `inputmode="numeric"` or `inputmode="decimal"` to numeric inputs that were missing it: `FrontendPlayersManageView` (jersey / height / weight), `FrontendReportWizardView` (privacy rating threshold), `FrontendTrialCaseView` (overall rating), `Invitations/AcceptanceView` (jersey number), `IdeasRefineView` (player ID + team ID). Wrong mobile keyboard was popping up before; correct one now. `HybridDeepRateStep` was already compliant (audit was off-by-one).
+
+**Wave 3 — wizard step polish.** `Activity/PrinciplesStep`: replaced `min-width:320px` on the multi-select with `width:100%; min-width:0; max-width:100%; box-sizing:border-box` so the select can shrink under 320px viewports instead of overflowing horizontally. `Team/RosterStep`: bumped checkbox label `min-height` from 32px to 48px (CLAUDE.md §2 tap-target floor) and added matching `gap`/`padding` for breathing room. `MarkAttendance/RateConfirmStep` reviewed: inline `min-height:56px` is above the 48px floor and acceptable as-is.
+
+No schema, no migration, no REST changes. ~30 file edits, all structural. Visual regression check at 360px should show no horizontal scroll on page bodies that don't intentionally scroll, while data tables show their own scrollbar when their content exceeds viewport width.
 
 = 3.110.120 — Mark-attendance wizard mobile bug fix: AttendanceStep rewritten as card-per-player toggle UI (was an untappable 5-column radio matrix on phones) =
 

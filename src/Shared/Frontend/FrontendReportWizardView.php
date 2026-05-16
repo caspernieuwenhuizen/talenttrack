@@ -238,7 +238,7 @@ class FrontendReportWizardView extends FrontendViewBase {
                     </label>
                     <label class="tt-rwz-check tt-rwz-check--inline">
                         <span><?php esc_html_e( 'Hide ratings below', 'talenttrack' ); ?></span>
-                        <input type="number" step="0.1" min="0" max="5" name="privacy[min_rating_threshold]" value="<?php echo esc_attr( (string) $config->privacy->min_rating_threshold ); ?>" />
+                        <input type="number" step="0.1" min="0" max="5" inputmode="decimal" name="privacy[min_rating_threshold]" value="<?php echo esc_attr( (string) $config->privacy->min_rating_threshold ); ?>" />
                     </label>
                 </div>
             </fieldset>

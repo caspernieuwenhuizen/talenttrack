@@ -370,6 +370,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                 <?php if ( empty( $mains ) && empty( $by_parent ) ) : ?>
                     <p class="tt-muted"><?php esc_html_e( 'No ratings recorded for this evaluation.', 'talenttrack' ); ?></p>
                 <?php else : ?>
+                    <div class="tt-table-wrap">
                     <table class="tt-table" style="width:100%; max-width:520px;">
                         <thead><tr>
                             <th><?php esc_html_e( 'Category', 'talenttrack' ); ?></th>
@@ -408,6 +409,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                             endforeach; ?>
                         </tbody>
                     </table>
+                    </div>
                 <?php endif; ?>
 
                 <?php if ( ! empty( $eval->notes ) ) : ?>

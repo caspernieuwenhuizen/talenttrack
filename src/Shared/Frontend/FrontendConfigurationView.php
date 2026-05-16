@@ -238,6 +238,7 @@ class FrontendConfigurationView extends FrontendViewBase {
         $base = remove_query_arg( [ 'edit' ] );
         ?>
         <div class="tt-panel" data-tt-lookups-editor data-lookup-type="<?php echo esc_attr( $type ); ?>" data-show-desc="<?php echo $meta['show_desc'] ? '1' : '0'; ?>" data-show-color="<?php echo $meta['show_color'] ? '1' : '0'; ?>">
+            <div class="tt-table-wrap">
             <table class="tt-table tt-sortable-table" style="width:100%; margin-bottom: var(--tt-sp-4);">
                 <thead><tr>
                     <th style="width:30px;"></th>
@@ -278,6 +279,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                     <?php endforeach; endif; ?>
                 </tbody>
             </table>
+            </div>
             <?php
             // #0080 Wave B5 — drag-reorder for the frontend lookup
             // editor. Reuses `DragReorder::renderScript()` from
@@ -808,6 +810,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                 <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted); font-size: 13px;">
                     <?php esc_html_e( "Optional. Force a specific dashboard for a single persona — useful for testing one persona at a time on a real install without flipping the whole site. \"Inherit\" follows the global default above.", 'talenttrack' ); ?>
                 </p>
+                <div class="tt-table-wrap">
                 <table class="tt-table" style="width:100%; max-width: 520px;">
                     <thead>
                         <tr>
@@ -833,6 +836,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             </div>
 
             <div class="tt-form-actions" style="margin-top:16px;">

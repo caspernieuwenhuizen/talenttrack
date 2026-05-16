@@ -79,6 +79,7 @@ class FrontendMigrationsView extends FrontendViewBase {
         <?php if ( ! $applied ) : ?>
             <p><em><?php esc_html_e( 'None applied yet.', 'talenttrack' ); ?></em></p>
         <?php else : ?>
+            <div class="tt-table-wrap">
             <table class="tt-table">
                 <thead><tr>
                     <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
@@ -96,12 +97,14 @@ class FrontendMigrationsView extends FrontendViewBase {
                 <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
         <?php endif; ?>
 
         <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Pending migrations', 'talenttrack' ); ?></h3>
         <?php if ( ! $pending ) : ?>
             <p><em><?php esc_html_e( 'None pending.', 'talenttrack' ); ?></em></p>
         <?php else : ?>
+            <div class="tt-table-wrap">
             <table class="tt-table">
                 <thead><tr><th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th></tr></thead>
                 <tbody>
@@ -110,6 +113,7 @@ class FrontendMigrationsView extends FrontendViewBase {
                 <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
             <p style="margin-top:12px;">
                 <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( $admin_url ); ?>">
                     <?php esc_html_e( 'Open wp-admin to run pending migrations', 'talenttrack' ); ?>
