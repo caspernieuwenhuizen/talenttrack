@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.122
+Stable tag: 3.110.123
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.123 — Spond sync: cursor-based pagination over `/sponds/` so >100-event groups don't silently drop everything past page 1 =
+
+Pilot: *"I do not see certain events that are in Spond and should be replicated. The integration is running and gives an OK but I only see events until end of June."* Root cause: `SpondClient::fetchEvents()` issued a single GET against `/sponds/` with no `max` (Spond defaults to 100 per page) and read the response array once — no pagination loop. Any Spond group with > 100 events in the 210-day window (30 days back + 180 forward) silently lost everything past position 100 in ascending start-time order. For an academy with a team training twice a week, 100 events lands at roughly week 12-13 from now — end of June for a mid-March pilot run. Worse: the sync's "no longer in feed → archive" step then soft-archived the surviving July/August events on the next run, so events never recovered without manual DB intervention. **Fix**: `fetchEvents()` now walks the window in pages of 250 (Spond's documented per-page ceiling) using a cursor: send `max=250`, take the last event's `startTimestamp` as the next request's `minStartTimestamp`, repeat until a short page (`< 250`) comes back. Dedupe ring keeps events that straddle the cursor boundary from being double-counted (Spond may include same-timestamp events on both pages). Safety cap of 20 pages = 5000 events / group / sync, log-warned if hit. **Observability**: `SpondSync` now logs `spond.fetch.ok` with `pages` + `events` count on every successful fetch, so the pilot's debug log shows e.g. `{"pages":3,"events":612}` instead of just an opaque "OK". `spond.fetch.safety_cap_hit` warning fires when the loop terminates at the 20-page ceiling. No schema change; no config flip needed.
 
 = 3.110.122 — Page-header action buttons collapse to icon-only 48×48 circles on mobile (Tier 1: New / Edit / Archive) =
 
