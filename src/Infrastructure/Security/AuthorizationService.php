@@ -174,6 +174,29 @@ class AuthorizationService {
     }
 
     /**
+     * #0093 Tournament view check. v1 is admin-only — the per-entity
+     * check just verifies the user holds `tt_view_tournaments`, which
+     * is mapped to administrator + tt_club_admin only by the role
+     * registrar. The persona-expansion follow-up swaps this for the
+     * proper creator/team-coach/global-staff logic without changing
+     * the REST permission_callback signatures.
+     */
+    public static function canViewTournament( int $user_id, int $tournament_id ): bool {
+        return self::decide( 'view_tournament', $user_id, 'tournament', $tournament_id, function () use ( $user_id ) {
+            return user_can( $user_id, 'tt_view_tournaments' );
+        } );
+    }
+
+    /**
+     * #0093 Tournament edit check. v1 is admin-only — see canViewTournament.
+     */
+    public static function canEditTournament( int $user_id, int $tournament_id ): bool {
+        return self::decide( 'edit_tournament', $user_id, 'tournament', $tournament_id, function () use ( $user_id ) {
+            return user_can( $user_id, 'tt_edit_tournaments' );
+        } );
+    }
+
+    /**
      * #0077 M10 — true if the user is the head coach of the team the
      * given player belongs to. Joins tt_players → tt_people → tt_team_people
      * with is_head_coach = 1. Used as the approval gate for player-created
