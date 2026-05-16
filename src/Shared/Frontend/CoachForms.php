@@ -232,29 +232,73 @@ class CoachForms {
             $cat_repo = class_exists( '\\TT\\Infrastructure\\Evaluations\\EvalCategoriesRepository' )
                 ? new \TT\Infrastructure\Evaluations\EvalCategoriesRepository()
                 : null;
+            <?php
+            // v3.110.125 — Basic / Detailed segmented toggle per main
+            // category. Pre-fix all sub-categories were always
+            // visible, doubling the form length on installs with the
+            // full 4×3 sub vocabulary. New default is Basic (subs
+            // hidden); the toggle flips to Detailed to reveal them.
+            // Edit mode auto-defaults to Detailed when any existing
+            // sub-cat already has a value, so re-opening a previously-
+            // sub-rated eval doesn't appear to lose data.
+            $toggle_basic_label = __( 'Basic', 'talenttrack' );
+            $toggle_detail_label = __( 'Detailed', 'talenttrack' );
             foreach ( $categories as $cat ) :
                 $cid = (int) $cat->id;
                 $cur_rating = isset( $existing_ratings[ $cid ] ) ? (string) $existing_ratings[ $cid ] : '';
+                $cat_label  = EvalCategoriesRepository::displayLabel( (string) $cat->name );
+                $sub_cats   = $cat_repo !== null ? $cat_repo->getChildren( $cid ) : [];
+
+                // Auto-default: Detailed when any sub for this main
+                // has a stored value (edit case); Basic otherwise.
+                $has_sub_values = false;
+                foreach ( (array) $sub_cats as $sub_check ) {
+                    $scid_check = (int) $sub_check->id;
+                    if ( $scid_check > 0 && ! empty( $existing_ratings[ $scid_check ] ) ) {
+                        $has_sub_values = true;
+                        break;
+                    }
+                }
+                $initial_state = $has_sub_values ? 'detailed' : 'basic';
                 ?>
-                <div class="tt-form-row"><label><?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $cat->name ) ); ?><?php echo $is_edit ? '' : ' *'; ?></label>
-                    <input type="number" name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" <?php echo $rating_required; ?> style="width:80px" value="<?php echo esc_attr( $cur_rating ); ?>" />
+                <div class="tt-form-row tt-form-row--rating"><label><?php echo esc_html( $cat_label ); ?><?php echo $is_edit ? '' : ' *'; ?></label>
+                    <input type="number" class="tt-rating-num" name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" <?php echo $rating_required; ?> value="<?php echo esc_attr( $cur_rating ); ?>" />
                     <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span></div>
                 <?php
-                if ( $cat_repo === null ) continue;
-                $sub_cats = $cat_repo->getChildren( $cid );
+                if ( $cat_repo === null || empty( $sub_cats ) ) continue;
+                ?>
+                <div class="tt-form-row tt-form-row--toggle">
+                    <div class="tt-rate-detail-toggle"
+                         data-tt-rate-detail-toggle
+                         data-state="<?php echo esc_attr( $initial_state ); ?>"
+                         role="tablist"
+                         aria-label="<?php echo esc_attr( sprintf(
+                             /* translators: %s: main category label */
+                             __( '%s detail mode', 'talenttrack' ),
+                             $cat_label
+                         ) ); ?>">
+                        <button type="button" data-mode="basic"    role="tab" aria-selected="<?php echo $initial_state === 'basic' ? 'true' : 'false'; ?>"><?php echo esc_html( $toggle_basic_label ); ?></button>
+                        <button type="button" data-mode="detailed" role="tab" aria-selected="<?php echo $initial_state === 'detailed' ? 'true' : 'false'; ?>"><?php echo esc_html( $toggle_detail_label ); ?></button>
+                    </div>
+                </div>
+                <div class="tt-rate-subs" data-tt-rate-subs <?php echo $initial_state === 'basic' ? 'hidden' : ''; ?>>
+                <?php
                 foreach ( (array) $sub_cats as $sub ) :
                     $scid = (int) $sub->id;
                     if ( $scid <= 0 ) continue;
                     $sub_rating = isset( $existing_ratings[ $scid ] ) ? (string) $existing_ratings[ $scid ] : '';
                     $sub_label  = EvalCategoriesRepository::displayLabel( (string) ( $sub->label ?? $sub->name ?? '' ), $scid );
                     ?>
-                    <div class="tt-form-row tt-form-row--sub">
+                    <div class="tt-form-row tt-form-row--rating tt-form-row--sub">
                         <label>↳ <?php echo esc_html( $sub_label ); ?></label>
-                        <input type="number" name="ratings[<?php echo $scid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" style="width:80px" value="<?php echo esc_attr( $sub_rating ); ?>" />
+                        <input type="number" class="tt-rating-num" name="ratings[<?php echo $scid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" value="<?php echo esc_attr( $sub_rating ); ?>" />
                         <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span>
                     </div>
                 <?php
                 endforeach;
+                ?>
+                </div>
+                <?php
             endforeach; ?>
             <div class="tt-form-row"><label><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label><textarea name="notes" rows="3" data-tt-low-rating-notes><?php echo esc_textarea( $cur_notes ); ?></textarea></div>
             <div class="tt-form-row tt-low-rating-warning" data-tt-low-rating-warning hidden>
@@ -323,6 +367,35 @@ class CoachForms {
                         }
                     }, true);
                 }
+
+                // v3.110.125 — Basic/Detailed pill toggle per main
+                // category. Click delegated on the form so every
+                // toggle row hooks up without per-element wiring.
+                // Form values inside the subs panel persist across
+                // mode flips (hiding doesn't unmount inputs).
+                form.addEventListener('click', function (e) {
+                    var btn = e.target && e.target.closest ? e.target.closest('.tt-rate-detail-toggle button') : null;
+                    if (!btn) return;
+                    var wrap = btn.closest('.tt-rate-detail-toggle');
+                    if (!wrap) return;
+                    var mode = btn.getAttribute('data-mode');
+                    wrap.setAttribute('data-state', mode);
+                    var btns = wrap.querySelectorAll('button');
+                    btns.forEach(function (b) {
+                        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+                    });
+                    // The subs panel is the next sibling of the
+                    // `.tt-form-row--toggle` wrapper.
+                    var row = wrap.closest('.tt-form-row--toggle');
+                    var panel = row && row.nextElementSibling;
+                    if (panel && panel.matches('[data-tt-rate-subs]')) {
+                        if (mode === 'detailed') {
+                            panel.removeAttribute('hidden');
+                        } else {
+                            panel.setAttribute('hidden', '');
+                        }
+                    }
+                });
             }
         })();
         </script>
