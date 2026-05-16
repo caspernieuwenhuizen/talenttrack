@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.119
+Stable tag: 3.110.120
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.120 — Mark-attendance wizard mobile bug fix: AttendanceStep rewritten as card-per-player toggle UI (was an untappable 5-column radio matrix on phones) =
+
+Pilot: opened the mark-attendance wizard on mobile, the attendance step's radio buttons were unusable. Diagnosed: bare `<input type="radio">` rendering at ~13×13 px in a 5-column squeezed table with no `<label>` wrap — far below CLAUDE.md §2's 48×48 tap-target floor. **Rewrite**: each player renders as a card with a Present ↔ Absent toggle (≥48px each side). Present branch surfaces a "+ Mark late" chip that flips status to `late`. Absent branch surfaces optional "🛡 Excused" / "🩹 Injured" reason chips. Status badge in the card-head corner surfaces non-default rows. Card border tints with the status colour (amber=late, red=absent, blue=excused, purple=injured). Same `attendance[N]=<status>` POST contract — `validate()` unchanged. Mobile-first: single column at 360px, 2-col grid at ≥768px, same markup at every breakpoint. "Mark all present" bulk toolbar preserved. Custom-status installs (lookups vocabulary outside the canonical 5-value set) fall back to the legacy radio matrix so no status is silently dropped. NL translations added for all new labels.
 
 = 3.110.119 — Scout polish round B: scouting visits feature (new entity, list + detail views, dashboard widget, tile, hero link) =
 

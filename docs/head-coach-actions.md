@@ -67,6 +67,48 @@ Each action lists:
   post-hoc edit surface.
 - **Player-centric framing:** *where now* (presence, engagement signal feeding rating + minutes)
 - **Shipped:**
+  - **v3.110.120** — mark-attendance wizard: AttendanceStep rewritten
+    from a 5-column radio matrix (untappable on a 360px phone — bare
+    `<input type="radio">` ~13px tap targets, no `<label>` wraps, no
+    `tt-table-wrap` scroll container) to a card-per-player layout.
+    Each player card has a Present ↔ Absent toggle (each ≥48px tap
+    target). Present branch: "+ Mark late" chip flips status to
+    `late`; "× Revert" undoes. Absent branch: optional "🛡 Excused"
+    / "🩹 Injured" reason chips (tap once to set, tap again to
+    revert to plain absent). Status badge in the card-head corner
+    surfaces non-default rows so the roster scans at a glance.
+    Mobile-first per CLAUDE.md §2: single column at 360px, 2-col
+    grid at ≥768px, same markup. Per-card border tints with the
+    status colour (amber=late, red=absent, blue=excused, purple=
+    injured). Database-side unchanged — UI still posts
+    `attendance[N] = <status>` with the same canonical 5-value
+    vocabulary. Legacy radio matrix kept as a fallback for installs
+    whose `attendance_status` lookup contains values outside the
+    canonical [present, late, absent, excused, injured] set so
+    custom statuses aren't dropped silently. "Mark all present"
+    bulk affordance preserved. NL translations added for every new
+    label.
+    *How to test:* (a) on a phone, open mark-attendance wizard,
+    reach attendance step. Each player renders as a card; the
+    Present pill is highlighted by default. Tap the Absent side —
+    pill flips, reason chips appear, card border turns red. Tap
+    "🛡 Excused" — chip activates, badge in card-head updates to
+    "🛡 EXCUSED", card border turns blue. Tap Excused again — chip
+    deactivates, status back to plain absent, badge back to
+    "✕ ABSENT". (b) From present state, tap "+ Mark late" — status
+    flips to `late`, badge shows "⏰ LATE", border amber, "✓ Late"
+    chip + "× Revert" button replace the "+ Mark late" button. Tap
+    "× Revert" — back to plain present, badge hidden. (c) Tap
+    "Mark all present" toolbar button — every card resets to
+    plain present; badges all hide; reason chips collapse.
+    (d) Submit — `tt_attendance` rows save with the right statuses
+    (verify against the activity detail page's attendance roster).
+    (e) Re-enter the wizard for the same activity — saved statuses
+    pre-fill correctly (late, absent, excused, injured all visible
+    as the right card state). (f) ≥768px viewport — cards render
+    in a 2-column grid. (g) Custom-status install (lookups table
+    contains a value like 'partial') — falls back to the legacy
+    radio matrix, no card UI.
   - **v3.110.101** — team detail page: roster columns + sort changed,
     Analytics section removed.
     (1) Dropped the Position column from the roster (it read

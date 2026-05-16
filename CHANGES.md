@@ -1,3 +1,85 @@
+# TalentTrack v3.110.120 — Mark-attendance wizard mobile bug fix: card-per-player toggle UI (replaces untappable 5-column radio matrix on phones)
+
+## Pilot report
+
+Pilot opened the mark-attendance wizard on mobile, the attendance step's radio buttons did not work — meaning the bare `<input type="radio">` controls were essentially untappable. Diagnosed:
+
+- 5 status columns (`present | late | absent | excused | injured`) squeezed into a `<table style="width:100%">` on a 360px viewport → each radio column got ~50-60px wide
+- Default browser `<input type="radio">` renders at ~13×13 px — far below CLAUDE.md §2's 48×48 tap-target floor
+- No `<label>` wraps around the radios, so the surrounding `<td>` padding wasn't tappable either
+- No `tt-table-wrap` scroll container, so the table just compressed instead of horizontally scrolling
+
+Not a bug in any one line of code — a design mismatch. The radio-matrix pattern is dense and fine on a laptop but unusable on a phone.
+
+## The new UI
+
+Per-player card layout. Each card:
+
+```
+┌──────────────────────────────────────────┐
+│ #7  Lucas van Dijk          ⏰ LATE     │  ← status badge top-right
+│                                          │
+│  ┌─────────────────────────────────┐     │
+│  │ Present  ●━━━━━━━━━  Absent     │     │  ← ≥48px each side
+│  └─────────────────────────────────┘     │
+│                                          │
+│  [ ✓ Late ]  [ × Revert to on-time ]    │  ← present-branch sub-control
+└──────────────────────────────────────────┘
+```
+
+**Two-state primary toggle**: Present ↔ Absent. Both halves ≥48px tap target. Default is Present (matches the operator's mental model — most players are present, mark the exceptions).
+
+**Present branch sub-controls**: a "+ Mark late" ghost button. Tap → status flips to `late`, button is replaced by a "✓ Late" chip + a "× Revert to on-time" button. Tap revert → back to plain present.
+
+**Absent branch sub-controls**: a "Reason (optional):" row with "🛡 Excused" / "🩹 Injured" chips. Tap a chip to set the status; tap the active chip again to revert to plain `absent`.
+
+**Status badge in card-head**: only renders for non-default rows (late / absent / excused / injured). Present rows show no badge so the eye scans past them.
+
+**Card border tint**: amber=late, red=absent, blue=excused, purple=injured. Matches the existing `attendance_status` colour vocabulary from migration 0093 (v3.110.106).
+
+## Responsive
+
+Single column at 360px (mobile). At ≥768px, the same cards render in a 2-column grid — `.tt-att-roster` switches from `flex-direction: column` to `display: grid; grid-template-columns: repeat(2, minmax(0, 1fr))`. Same markup, no per-breakpoint duplication.
+
+## DB contract
+
+Unchanged. Each card emits a `<input type="hidden" name="attendance[N]" value="<status>">` element whose value is mirrored from the card's `data-tt-att-status` attribute by the inline JS. `AttendanceStep::validate()` reads `$_POST['attendance']` exactly as before; canonical 5-value vocabulary (`present | late | absent | excused | injured`) preserved end-to-end.
+
+## Fallback
+
+Clubs whose `attendance_status` lookup contains values outside the canonical 5-value set (e.g. a custom `partial` status) fall back to the legacy radio matrix — the card UI can't represent custom statuses without an editor-side concept of "which branch does this belong to?". Detection: `render()` walks the loaded status names against the canonical list; if any deviates, `renderLegacyMatrix()` takes over. Verified path on first load — no regression for customized installs.
+
+## Files
+
+- `src/Modules/Wizards/Evaluation/AttendanceStep.php` — `render()` rewritten + `renderLegacyMatrix()` extracted; query gains `jersey_number` for the card head
+- **New** `assets/css/attendance-cards.css` — mobile-first card / toggle / chip / badge styles (~210 lines)
+- `languages/talenttrack-nl_NL.po` — 12 new `msgid`s + plural-aware aria-label
+- `docs/head-coach-actions.md` — Shipped entry under action #1 with how-to-test
+- `talenttrack.php` 3.110.119 → 3.110.120
+- `readme.txt`, `CHANGES.md`
+
+No schema, no migration, no REST changes.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.120.
+2. **Mobile (Chrome DevTools "Moto G5+" or a real phone)**: open the mark-attendance wizard from the coach dashboard hero. Reach the AttendanceStep.
+3. **Initial state**: each player renders as a card; Present pill highlighted by default; no badges visible; card border is the default grey.
+4. **Toggle to Absent**: tap the Absent half of the toggle pill. Card border turns red; "✕ ABSENT" badge appears top-right; reason chips appear underneath ("🛡 Excused" / "🩹 Injured").
+5. **Pick a reason**: tap "🛡 Excused". Chip activates; badge in card-head updates to "🛡 EXCUSED"; border turns blue.
+6. **Revert reason**: tap the active Excused chip again. Reason clears; badge reverts to "✕ ABSENT"; border red.
+7. **Toggle back to Present**: tap the Present half. Reason chips collapse; "+ Mark late" appears; badge hidden; border default grey.
+8. **Mark late**: tap "+ Mark late". Status flips to `late`. Badge shows "⏰ LATE"; border amber; "✓ Late" chip + "× Revert to on-time" replace the "+ Mark late" button.
+9. **Revert late**: tap "× Revert to on-time". Back to plain Present.
+10. **Mark all present**: from any mixed state, tap the "Mark all present" toolbar button. Every card resets to plain present; badges all hide; reason chips collapse.
+11. **Submit + revisit**: complete the wizard. Re-enter the same activity's mark-attendance flow — saved statuses pre-fill correctly (late, absent, excused, injured all visible as the right card state).
+12. **Tablet ≥768px**: viewport at 768px+ — cards render in a 2-column grid.
+13. **Keyboard**: Tab into the roster; each pill / chip / button is focusable in DOM order. Focus ring visible via `:focus-visible`. Space / Enter activates.
+14. **NL locale**: every label translated ("Aanwezig" / "Afwezig" / "+ Markeer als te laat" / "Reden (optioneel):" / "🛡 Geoorloofd" / "🩹 Geblesseerd"). Badges + chip text all Dutch.
+15. **Custom-status install** (optional): manually add a non-canonical row to `tt_lookups[attendance_status]` (e.g. `partial`). Re-render the AttendanceStep — falls back to the legacy radio matrix (now wrapped in `.tt-table-wrap` for horizontal scroll on mobile, but still the old layout). No status silently dropped.
+
+---
+
 # TalentTrack v3.110.119 — Scout polish round B: scouting visits feature
 
 Second of the two-release scout polish pass (Release A = v3.110.118 — pipeline tiles clickable + hero CTA renamed). Adds a new entity for scouts to plan / record off-site visits where they spot prospects.

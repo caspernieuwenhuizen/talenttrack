@@ -1,0 +1,281 @@
+/*
+ * attendance-cards.css (v3.110.120)
+ *
+ * Mobile-first replacement for the legacy 5-column radio matrix on the
+ * mark-attendance wizard. Each player renders as a card with:
+ *
+ *   - Status badge (top-right corner) — only visible for non-default
+ *     statuses (late / absent / excused / injured). Present rows show no
+ *     badge so the eye can scan past them.
+ *   - Two-state toggle: Present <-> Absent (≥48px tap target each).
+ *   - On the Present branch: a "+ Mark late" chip; tapping it flips the
+ *     status to `late` and surfaces a "✓ Late" + "× Revert" pair.
+ *   - On the Absent branch: optional "🛡 Excused" / "🩹 Injured" reason
+ *     chips; tapping toggles between plain `absent` and the chosen
+ *     reason.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target 360px width, the
+ * 768px breakpoint switches to a two-column grid for tablet/desktop.
+ *
+ * Colour vocabulary matches the v3.110.106 attendance-status seed
+ * (migration 0093): present=green, late=amber, absent=red,
+ * excused=blue, injured=purple.
+ */
+
+/* ===== Intro + toolbar ===== */
+
+.tt-att-intro {
+    color: var(--tt-muted, #6b7280);
+    max-width: 60ch;
+    margin: 0 0 0.75rem;
+    font-size: 0.9375rem;
+    line-height: 1.4;
+}
+
+.tt-att-toolbar {
+    margin: 0 0 0.875rem;
+}
+
+/* ===== Roster (single column on mobile, 2-col grid on tablet+) ===== */
+
+.tt-att-roster {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+@media (min-width: 768px) {
+    .tt-att-roster {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+}
+
+/* ===== Card ===== */
+
+.tt-att-card {
+    background: #fff;
+    border: 1px solid var(--tt-line, #e5e7ea);
+    border-radius: 12px;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.tt-att-card[data-tt-att-status="late"]    { border-color: #fcd34d; box-shadow: 0 0 0 1px #fcd34d inset; }
+.tt-att-card[data-tt-att-status="absent"]  { border-color: #fca5a5; box-shadow: 0 0 0 1px #fca5a5 inset; }
+.tt-att-card[data-tt-att-status="excused"] { border-color: #93c5fd; box-shadow: 0 0 0 1px #93c5fd inset; }
+.tt-att-card[data-tt-att-status="injured"] { border-color: #c4b5fd; box-shadow: 0 0 0 1px #c4b5fd inset; }
+
+/* ===== Card head ===== */
+
+.tt-att-card-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.tt-att-jersey {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 1.75rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background: #f1f4f7;
+    color: var(--tt-ink, #1a1d21);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.tt-att-name {
+    flex: 1 1 auto;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--tt-ink, #1a1d21);
+    line-height: 1.2;
+}
+
+.tt-att-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: #fff;
+}
+
+.tt-att-badge-late    { background: #d97706; }
+.tt-att-badge-absent  { background: #dc2626; }
+.tt-att-badge-excused { background: #0284c7; }
+.tt-att-badge-injured { background: #7c3aed; }
+
+.tt-att-badge[hidden] { display: none; }
+
+/* ===== Present/Absent toggle ===== */
+
+.tt-att-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background: #f1f4f7;
+    border-radius: 999px;
+    padding: 0.25rem;
+    position: relative;
+}
+
+.tt-att-toggle-btn {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--tt-ink, #1a1d21);
+    min-height: 48px;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    border-radius: 999px;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background-color 120ms ease, color 120ms ease, font-weight 120ms ease;
+}
+
+.tt-att-toggle-btn.is-active {
+    background: #fff;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* When the absent side is active, tint the active pill red so the
+   status is obvious from across the room. Present-active is white
+   (neutral) to keep the default unremarkable. */
+.tt-att-card[data-tt-att-status="absent"]  .tt-att-toggle-btn[data-tt-att-toggle="absent"].is-active,
+.tt-att-card[data-tt-att-status="excused"] .tt-att-toggle-btn[data-tt-att-toggle="absent"].is-active,
+.tt-att-card[data-tt-att-status="injured"] .tt-att-toggle-btn[data-tt-att-toggle="absent"].is-active {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.tt-att-toggle-btn:focus-visible {
+    outline: 2px solid var(--tt-accent, #2563eb);
+    outline-offset: 2px;
+}
+
+/* ===== Late row (present-branch sub-control) ===== */
+
+.tt-att-late-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tt-att-late-row[hidden] { display: none; }
+
+.tt-att-late-btn,
+.tt-att-late-chip,
+.tt-att-late-revert {
+    appearance: none;
+    border: 1px solid var(--tt-line, #d1d5db);
+    background: #fff;
+    color: var(--tt-ink, #1a1d21);
+    min-height: 44px;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-att-late-btn {
+    color: var(--tt-muted, #6b7280);
+    border-style: dashed;
+}
+.tt-att-late-btn:hover { color: var(--tt-ink, #1a1d21); border-style: solid; }
+
+.tt-att-late-chip {
+    background: #fffbeb;
+    border-color: #fcd34d;
+    color: #92400e;
+    font-weight: 600;
+    cursor: default;
+}
+
+.tt-att-late-revert {
+    color: var(--tt-muted, #6b7280);
+}
+.tt-att-late-revert:hover { color: var(--tt-ink, #1a1d21); }
+
+.tt-att-late-btn[hidden],
+.tt-att-late-chip[hidden],
+.tt-att-late-revert[hidden] { display: none; }
+
+/* ===== Reason row (absent-branch sub-control) ===== */
+
+.tt-att-reason-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tt-att-reason-row[hidden] { display: none; }
+
+.tt-att-reason-label {
+    font-size: 0.8125rem;
+    color: var(--tt-muted, #6b7280);
+    margin-right: 0.25rem;
+    flex: 0 0 100%;
+}
+
+@media (min-width: 480px) {
+    .tt-att-reason-label { flex: 0 0 auto; }
+}
+
+.tt-att-reason-btn {
+    appearance: none;
+    border: 1px solid var(--tt-line, #d1d5db);
+    background: #fff;
+    color: var(--tt-ink, #1a1d21);
+    min-height: 44px;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.tt-att-reason-btn:hover {
+    background: #f8fafc;
+}
+
+.tt-att-reason-btn.is-active[data-tt-att-reason="excused"] {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1e40af;
+    font-weight: 600;
+}
+
+.tt-att-reason-btn.is-active[data-tt-att-reason="injured"] {
+    background: #f5f3ff;
+    border-color: #c4b5fd;
+    color: #5b21b6;
+    font-weight: 600;
+}
+
+.tt-att-reason-btn:focus-visible {
+    outline: 2px solid var(--tt-accent, #2563eb);
+    outline-offset: 2px;
+}
