@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\REST\TournamentsRestController;
 
 /**
  * TournamentsModule (#0093) — fair-share planner for multi-match
@@ -45,7 +46,10 @@ class TournamentsModule implements ModuleInterface {
         // API is available.
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
 
-        // REST controller registration lands in chunk 2 of #0093.
+        // REST controller — every permission_callback gates on
+        // tt_view_tournaments / tt_edit_tournaments, which are
+        // admin-only in v1.
+        TournamentsRestController::init();
     }
 
     /**
