@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.130
+Stable tag: 3.110.131
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.131 — Disable-registration toggle + active-player pill renders green by default =
+
+Two operator-facing tweaks. **(1) `feature.allow_registration` toggle.** New entry in `FeatureToggleService::definitions()` (default ON), surfaces automatically in the Configuration UI under "Allow new user registration". When flipped OFF, `InvitationService::create()` refuses to issue new invitations and `InvitationService::accept()` refuses to mint a WP user from a pending token — both return a user-visible "New user registration is currently disabled." error. The silent-link path (when an invitee is already logged in with the matching email and just gets their existing WP user linked to a TalentTrack record) is unaffected, since it doesn't create a new account. **(2) Active-player pill is green.** `LookupPill::render('player_status', 'active')` previously fell back to grey `#5b6e75` because no `tt_lookups` row of type `player_status` was ever seeded. New `SEMANTIC_DEFAULTS` map inside `LookupPill` provides per-`(lookup_type, normalised_name)` colour defaults — initial entry `player_status/active → #16a34a` (the same green the plugin already uses for `--tt-color-success` and signed-off PDPs). Operator-seeded `meta.color` on a real `tt_lookups` row still wins; this is only a sensible fallback. Touches `FrontendPlayerDetailView` + `TeamRosterTableWidget` pills automatically since both go through `LookupPill`. *(Originally numbered v3.110.129; renumbered at merge because v3.110.130 took the next slot first.)*
 
 = 3.110.130 — Evaluation wizard demo-tagging fix + backfill migration + main hotfixes for two parse errors =
 

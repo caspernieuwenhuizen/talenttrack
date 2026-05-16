@@ -61,6 +61,11 @@ class FeatureToggleService {
                 'description' => __( 'When enabled, players see their own status colour and parents see their child\'s. When disabled, the status dot is staff-only (coaches, scouts, Head of Development, Academy Admin). The detailed breakdown remains staff-only regardless. Note: a status change can still be inferred indirectly if other surfaces (e.g. evaluations) reveal it; this toggle hides the explicit dot, not the underlying judgement.', 'talenttrack' ),
                 'default'     => false,
             ],
+            'allow_registration' => [
+                'label'       => __( 'Allow new user registration', 'talenttrack' ),
+                'description' => __( 'When enabled, staff can send invitations and invitees can create accounts. Disable to stop all new user creation — new invitations cannot be issued and pending invitations cannot be accepted while disabled. Linking an already-existing WordPress user to a TalentTrack record (silent link when an invitee is already logged in with the matching email) is unaffected.', 'talenttrack' ),
+                'default'     => true,
+            ],
         ];
     }
 

@@ -11247,6 +11247,17 @@ msgstr "Toon spelerstatus aan spelers en ouders"
 msgid "When enabled, players see their own status colour and parents see their child's. When disabled, the status dot is staff-only (coaches, scouts, Head of Development, Academy Admin). The detailed breakdown remains staff-only regardless. Note: a status change can still be inferred indirectly if other surfaces (e.g. evaluations) reveal it; this toggle hides the explicit dot, not the underlying judgement."
 msgstr "Wanneer ingeschakeld zien spelers hun eigen status-kleur en zien ouders die van hun kind. Wanneer uitgeschakeld is het status-bolletje alleen voor staff (coaches, scouts, Head of Development, Academy Admin). De gedetailleerde uitsplitsing blijft hoe dan ook alleen voor staff. Let op: een status-wijziging kan nog steeds indirect af te leiden zijn als andere oppervlakken (bv. evaluaties) het tonen; deze toggle verbergt het expliciete bolletje, niet het onderliggende oordeel."
 
+# v3.110.131 — Disable-registration toggle (originally drafted as v3.110.129; renumbered on rebase)
+
+msgid "Allow new user registration"
+msgstr "Nieuwe gebruikersregistratie toestaan"
+
+msgid "When enabled, staff can send invitations and invitees can create accounts. Disable to stop all new user creation — new invitations cannot be issued and pending invitations cannot be accepted while disabled. Linking an already-existing WordPress user to a TalentTrack record (silent link when an invitee is already logged in with the matching email) is unaffected."
+msgstr "Wanneer ingeschakeld kan staff uitnodigingen versturen en kunnen genodigden accounts aanmaken. Schakel uit om alle nieuwe gebruikersaanmaak te stoppen — er kunnen geen nieuwe uitnodigingen worden verstuurd en openstaande uitnodigingen kunnen niet meer worden geaccepteerd zolang uitgeschakeld. Het koppelen van een al bestaande WordPress-gebruiker aan een TalentTrack-record (stille koppeling wanneer een genodigde al is ingelogd met het overeenkomstige e-mailadres) wordt niet beïnvloed."
+
+msgid "New user registration is currently disabled."
+msgstr "Nieuwe gebruikersregistratie is momenteel uitgeschakeld."
+
 msgid "Impersonating %s. Every action is logged."
 msgstr "Impersoneert %s. Elke actie wordt gelogd."
 

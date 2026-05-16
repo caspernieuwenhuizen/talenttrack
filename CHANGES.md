@@ -1,3 +1,119 @@
+# TalentTrack v3.110.131 — Disable-registration toggle + active-player pill renders green by default
+
+*This work was originally numbered v3.110.129. While the PR was open, v3.110.130 (eval-wizard demo-tagging fix + parse-error hotfixes) shipped on `main` first; on rebase, this PR was renumbered to v3.110.131 to keep the version stack monotonically increasing. Content is unchanged from the v3.110.129 draft.*
+
+Two operator-facing tweaks. Both small, independent of each other.
+
+## (1) `feature.allow_registration` toggle
+
+### Pilot ask
+
+> "User creation should be configurable. I should be able to disable registration."
+
+### Diagnosis
+
+The plugin's canonical user-creation path is the Invitations module (`src/Modules/Invitations/`). Staff with `tt_send_invitation` cap can issue invitations; an invitee landing on `?tt_view=accept-invite&token=…` enters a password and `InvitationService::accept()` calls `wp_insert_user(...)` to mint a new WP user, then links them to the right `tt_players` / `tt_people` row.
+
+There was **no operator-level kill switch**: as long as someone had the cap, they could keep creating users. WordPress's native `users_can_register` option isn't used anywhere in the plugin codebase.
+
+### Fix
+
+New feature toggle `allow_registration` (default ON for backwards compatibility) added to `FeatureToggleService::definitions()`. It surfaces automatically in the Configuration frontend view (`?tt_view=configuration`) under "Allow new user registration" since the UI iterates `definitions()`.
+
+Two gates added inside `InvitationService`:
+
+```php
+// At the top of create(), after the kind/userId checks:
+if ( ! ( new FeatureToggleService( $this->config ) )->isEnabled( 'allow_registration' ) ) {
+    return [ 'ok' => false, 'id' => null, 'token' => null,
+             'error' => __( 'New user registration is currently disabled.', 'talenttrack' ),
+             'cap_exceeded' => false ];
+}
+
+// At the top of accept():
+if ( ! ( new FeatureToggleService( $this->config ) )->isEnabled( 'allow_registration' ) ) {
+    return [ 'ok' => false, 'user_id' => null,
+             'error' => __( 'New user registration is currently disabled.', 'talenttrack' ) ];
+}
+```
+
+Gating `accept()` (not just `create()`) means that pre-issued pending invitations also cannot be redeemed while the toggle is off — otherwise the operator would flip the toggle and someone using a yesterday-issued link would still get an account.
+
+### What stays unaffected
+
+`silentLink()` is **not** gated. That's the path where an invitee is already logged in with the email matching the invitation's `prefill_email` — `runLinking()` attaches the invitation's target (player / person row) to their already-existing WP user. No new account is created, so the "registration" framing doesn't apply.
+
+`revoke()` is also unaffected — letting staff clean up stale pending invites is independent of whether new users can be created.
+
+### Files
+
+- `src/Infrastructure/FeatureToggles/FeatureToggleService.php` — toggle definition.
+- `src/Modules/Invitations/InvitationService.php` — `use` import + two early returns.
+
+## (2) Active-player pill is green, not grey
+
+### Pilot ask
+
+> "Player active pill should be green, not grey."
+
+### Diagnosis
+
+`FrontendPlayerDetailView` and `TeamRosterTableWidget` render the player's status as `LookupPill::render('player_status', $player->status)`. The `LookupPill` helper looks up a row in `tt_lookups` matching `(lookup_type='player_status', name='active')` and renders the pill with the row's `meta.color`. If no row matches, it falls back to a hardcoded grey `#5b6e75`.
+
+The pill is grey because **no `player_status` lookup rows have ever been seeded** — there's no migration that creates them and the Activator doesn't seed them. So every active-player pill takes the fallback grey.
+
+### Fix
+
+New per-`(lookup_type, normalised_name)` semantic defaults inside `LookupPill`:
+
+```php
+private const SEMANTIC_DEFAULTS = [
+    'player_status/active' => '#16a34a',
+];
+
+private static function defaultColor( string $lookup_type, string $stored_name ): string {
+    $key = $lookup_type . '/' . self::normaliseName( $stored_name );
+    return self::SEMANTIC_DEFAULTS[ $key ] ?? self::FALLBACK_COLOR;
+}
+```
+
+`render()` and `colorFromMeta()` both call `defaultColor()` instead of `FALLBACK_COLOR` directly. An operator who later seeds a real `tt_lookups` row with `meta.color` still wins (the row's colour is used). The map is the sensible default for the un-customised case.
+
+`#16a34a` is the green the plugin already uses elsewhere — `--tt-color-success` fallback in `public.css`, the signed-off PDP indicator, the `tt-status-signed_off` badge background. Same green for the active pill keeps the visual vocabulary consistent.
+
+### Other entities that share the path
+
+Both surfaces that render the active player pill — `FrontendPlayerDetailView` (player profile, line ~255) and `TeamRosterTableWidget` (HoD dashboard widget, line ~132) — pick up the green automatically since they both go through `LookupPill::render`. Other `player_status` values (`archived`, `trial`) still fall through to the neutral grey — pilot asked specifically for active = green; other statuses are not in scope.
+
+Other `lookup_type` callers (goal_status, activity_status, …) are unaffected — the map only contains `player_status/active`.
+
+### Files
+
+- `src/Infrastructure/Query/LookupPill.php` — `SEMANTIC_DEFAULTS` const + new `defaultColor()` private method; `colorFromMeta()` signature gains `$lookup_type` and `$stored_name` so it can compute a sensible fallback.
+
+## Ship metadata
+
+- `talenttrack.php` 3.110.130 → 3.110.131.
+- `readme.txt`, `CHANGES.md`.
+- `languages/talenttrack-nl_NL.po` — Dutch strings for the new toggle label + description + error message.
+
+## How to verify
+
+**Disable-registration toggle**
+1. Visit `?tt_view=configuration`, find the new "Allow new user registration" toggle, flip it OFF, save.
+2. As a coach with `tt_send_invitation`, try to send an invitation from a player's detail view → the modal returns the error "New user registration is currently disabled.", no `tt_invitations` row is written.
+3. With the toggle OFF, paste a pre-existing pending invitation URL (`?tt_view=accept-invite&token=…`) into a logged-out browser, fill in the password form, submit → response shows the same error; no `wp_users` row is created.
+4. With the toggle OFF, log into an existing WP user account whose email matches a pending invitation's `prefill_email`, visit the same accept-invite URL → silent-link succeeds (the existing user gets linked to the player/person row). No new user created.
+5. Flip the toggle back ON → all three flows work again.
+
+**Active player pill green**
+1. On a fresh install (or any install where `tt_lookups` has no rows of type `player_status`), open any player's profile (`?tt_view=player&id=N`) — the status pill below the name reads "active" on a **green** background, not grey.
+2. Open the HoD dashboard "Team roster" widget if you have one configured — active players' status pills in the table are green.
+3. Players whose status is `archived` or `trial` still show on a grey pill (not in scope for this ship).
+4. **Operator override**: if you seed a row into `tt_lookups` with `lookup_type='player_status'`, `name='active'`, `meta='{"color":"#0066cc"}'`, the pill switches to that blue — confirming the seeded colour wins over the semantic default.
+
+---
+
 # TalentTrack v3.110.130 — Evaluation wizard demo-tagging fix + backfill migration + main parse-error hotfixes
 
 ## Pilot report
