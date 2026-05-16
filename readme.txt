@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.125
+Stable tag: 3.110.126
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.126 — Pilot fix round: sticky wizard buttons removed, HoD upcoming-activities window 14→30 days, evaluation list scoping broadened, MyTeam* KPI cards no longer link to "not authorized" views, tasks page mobile layout =
+
+Five pilot-surfaced fixes in one ship. **(1) Sticky wizard buttons removed.** `FrontendWizardView` pinned Previous / Next / Submit to the bottom of the viewport on phones (`position: sticky; bottom: 0`) since #0084 Child 3. Pilot: "the bottom sticky buttons I do not like." The CSS rule is dropped; buttons now scroll with the form. The 48px touch-target floor stays via `min-height: 48px`. **(2) HoD upcoming activities default window 14 → 30 days.** `UpcomingActivitiesSource::rowsFor()` defaulted to `days=14`. Pilot: "upcoming activities does not show anything" — the actual activities were scheduled 3+ weeks out. Bumped default to 30 days (still capped at 90 via the per-call `config['days']` override). **(3) Evaluation list scoping broadened.** `EvaluationsRestController::list_evals()` scoped non-admin readers to `pl.team_id IN (coach's teams)` only. Result: an evaluation the coach personally wrote for a player who has since moved teams (or whose team was reassigned) disappeared from their list. Pilot: "evaluation widget gives no matches but evaluations are entered." Three changes: (a) global-read bypass extended to honour the head_of_development + academy_admin personas via a new `hasGlobalEvaluationsAccess()` helper (mirrors the v3.110.112 PDP pattern); (b) coach-scope WHERE expanded from `team_id IN (...)` to `(team_id IN (...) OR e.coach_id = current_user)` so the coach's own authored evals always surface; (c) the no-teams short-circuit no longer fires — coaches with zero teams still see their own authored evals. **(4) MyTeamAttendance/Rating KPI cards no longer 401.** Both KPIs are unimplemented stubs returning `KpiValue::unavailable()`, but the default `DEFAULT_LINK_VIEWS` mapping routed clicks to `my-activities` / `my-team` — which are PLAYER-only views and reject coaches with "not authorized" via `dispatchMeView`'s gate. Pilot: "clicking the presence of my team widget gives a not authorized message." Both KPIs now override `linkView()` to return empty so the card stays inert until they get real `compute()` implementations + coach-appropriate destinations. **(5) Tasks page mobile layout.** `FrontendMyTasksView`'s task row was a single flex strip (checkbox + title + sub + due + Open button + snooze buttons) that ran out of horizontal room on 360px viewports — pilot: "the mobile view of the task table is completely off". Added a `@media (max-width: 767px)` block: rows wrap to a 2-row layout (meta + due on row 1, action toolbar right-aligned on row 2), action buttons get 36-44 px min-height, filter selects go single-column at full width with 40 px min-height.
 
 = 3.110.125 — Rating form polish: compact input row + per-category Basic/Detailed pill toggle =
 

@@ -122,6 +122,71 @@ class FrontendMyTasksView extends FrontendViewBase {
                 background:#e9f5e9; border-left:4px solid #2c8a2c; padding:8px 12px;
                 margin: 0 0 12px; font-size: 13px;
             }
+
+            /* v3.110.126 — mobile rewrite. Pre-fix the row was a
+               single flex strip (checkbox + title + sub + due +
+               action + snooze) that ran out of horizontal room on
+               360px viewports: the Open button + snooze buttons
+               wrapped messily, the title got truncated awkwardly,
+               and the filter dropdowns stacked at full width.
+               Pilot: "the mobile view of the task table is
+               completely off". Now: row flexes to a 2-row layout
+               on phones — meta (title + sub + due) takes row 1
+               full width; the action toolbar (Open + 1d + 7d)
+               sits beneath at row 2 aligned right. The filter
+               bar's selects also go single-column at full width
+               so they're tappable. */
+            @media (max-width: 767px) {
+                .tt-mtasks-row {
+                    flex-wrap: wrap;
+                    align-items: flex-start;
+                    padding: 12px 12px;
+                    gap: 10px;
+                }
+                .tt-mtasks-checkbox { order: 1; }
+                .tt-mtasks-meta { order: 2; flex: 1 1 auto; min-width: 0; }
+                .tt-mtasks-due { order: 3; flex: 0 0 auto; align-self: center; }
+                .tt-mtasks-action {
+                    order: 4;
+                    flex: 1 1 100%;
+                    display: flex;
+                    justify-content: flex-end;
+                }
+                .tt-mtasks-snooze {
+                    order: 5;
+                    flex: 0 0 auto;
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                }
+                .tt-mtasks-action a {
+                    min-height: 36px;
+                    padding: 8px 14px;
+                    display: inline-flex;
+                    align-items: center;
+                }
+                .tt-mtasks-snooze button {
+                    min-height: 36px;
+                    padding: 8px 12px;
+                }
+                .tt-mtasks-filters {
+                    flex-direction: column;
+                    align-items: stretch;
+                    gap: 8px;
+                }
+                .tt-mtasks-filters label {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+                .tt-mtasks-filters select {
+                    width: 100%;
+                    min-height: 40px;
+                    font-size: 14px;
+                    padding: 8px 10px;
+                }
+                .tt-mtasks-filters button.tt-btn { min-height: 44px; }
+            }
         </style>
         <?php
 

@@ -97,19 +97,42 @@ class EvaluationsRestController {
 
         $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
 
-        // Coach-scoping: non-admins only see evals for players on teams
-        // they head-coach. Matches the v3.110.105 hand-rolled view.
-        if ( ! current_user_can( 'tt_edit_settings' ) ) {
-            $coach_teams = QueryHelpers::get_teams_for_coach( get_current_user_id() );
-            if ( ! $coach_teams ) {
-                return RestResponse::success( [
-                    'rows' => [], 'total' => 0, 'page' => $page, 'per_page' => $per_page,
-                ] );
+        // Coach-scoping: non-global-readers see evals for players on
+        // teams they head-coach OR evaluations they personally wrote
+        // (so an eval the coach authored for a player who has since
+        // moved teams still surfaces in their list — fixes the pilot
+        // symptom "evaluation widget gives no matches but evaluations
+        // are entered").
+        //
+        // v3.110.126 — three changes from v3.110.107:
+        //   1. Global-read bypass now honours the academy_admin /
+        //      head_of_development / club_admin personas (was just
+        //      `tt_edit_settings`). Same pattern as
+        //      `PdpFilesRestController::hasGlobalPdpAccess()` shipped
+        //      in v3.110.112.
+        //   2. The WHERE expands from `team_id IN (...)` to
+        //      `(team_id IN (...) OR e.coach_id = current_user)` —
+        //      the coach's own evaluations always surface regardless
+        //      of player team movement.
+        //   3. No-teams short-circuit only fires when the coach has
+        //      ALSO authored zero evaluations (caught by counting
+        //      `e.coach_id = current_user` rows separately).
+        if ( ! self::hasGlobalEvaluationsAccess() ) {
+            $uid         = get_current_user_id();
+            $coach_teams = QueryHelpers::get_teams_for_coach( $uid );
+            $team_ids    = array_map( static fn( $t ) => (int) $t->id, $coach_teams );
+            if ( empty( $team_ids ) ) {
+                // Still surface the coach's own authored evals even
+                // when they own zero teams (newly assigned coach, or
+                // legacy assignment via `head_coach_id` not yet
+                // mirrored into `tt_user_role_scopes`).
+                $where[]  = 'e.coach_id = %d';
+                $params[] = $uid;
+            } else {
+                $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+                $where[]      = "( pl.team_id IN ($placeholders) OR e.coach_id = %d )";
+                $params       = array_merge( $params, $team_ids, [ $uid ] );
             }
-            $team_ids     = array_map( static fn( $t ) => (int) $t->id, $coach_teams );
-            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
-            $where[]      = "pl.team_id IN ($placeholders)";
-            $params       = array_merge( $params, $team_ids );
         }
 
         $filter = is_array( $r['filter'] ?? null ) ? (array) $r['filter'] : [];
@@ -275,6 +298,35 @@ class EvaluationsRestController {
             'avg_link_html'   => $avg_link_html,
             'notes_excerpt'   => esc_html( wp_trim_words( (string) ( $row->notes ?? '' ), 14 ) ),
         ];
+    }
+
+    /**
+     * v3.110.126 — global-read bypass for evaluations list. Mirrors
+     * `PdpFilesRestController::hasGlobalPdpAccess()` from v3.110.112.
+     * Four rungs in order:
+     *
+     *   1. `tt_edit_settings` cap (legacy umbrella).
+     *   2. WP site admin (`manage_options`).
+     *   3. global-reader personas (head_of_development / academy_admin).
+     *      Matrix-dormant installs need the explicit persona check
+     *      because the matrix is empty.
+     *
+     * When false, the caller scopes to coach-owned teams + coach's
+     * own authored rows.
+     */
+    private static function hasGlobalEvaluationsAccess(): bool {
+        if ( current_user_can( 'tt_edit_settings' ) ) return true;
+        if ( current_user_can( 'manage_options' ) ) return true;
+        $uid = get_current_user_id();
+        if ( $uid > 0 && class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) {
+            $personas = \TT\Modules\Authorization\PersonaResolver::personasFor( $uid );
+            foreach ( $personas as $p ) {
+                if ( $p === 'head_of_development' || $p === 'academy_admin' ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public static function get_eval( \WP_REST_Request $r ) {
