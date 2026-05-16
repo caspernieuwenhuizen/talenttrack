@@ -19,8 +19,8 @@ class PlayerSelfEvaluationForm implements FormInterface {
 
     public function render( array $task ): string {
         $existing = self::decodeResponse( $task );
-        $rating_max = (float) QueryHelpers::get_config( 'rating_max', '5' );
-        $rating_min = (float) QueryHelpers::get_config( 'rating_min', '1' );
+        $rating_max = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $rating_min = (float) QueryHelpers::get_config( 'rating_min', '5' );
 
         ob_start();
         ?>
@@ -77,8 +77,8 @@ class PlayerSelfEvaluationForm implements FormInterface {
 
     public function validate( array $raw, array $task ): array {
         $errors = [];
-        $rating_min = (float) QueryHelpers::get_config( 'rating_min', '1' );
-        $rating_max = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $rating_min = (float) QueryHelpers::get_config( 'rating_min', '5' );
+        $rating_max = (float) QueryHelpers::get_config( 'rating_max', '10' );
         $rating = isset( $raw['overall_rating'] ) ? (float) $raw['overall_rating'] : 0.0;
         if ( $rating < $rating_min || $rating > $rating_max ) {
             $errors['overall_rating'] = __( 'Rating is outside the configured range.', 'talenttrack' );

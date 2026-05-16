@@ -152,10 +152,23 @@ class EvaluationGenerator {
                 // `tt_player_events` empty for this category.
                 do_action( 'tt_evaluation_saved', (int) $p->id, $eval_id );
 
+                // v3.110.116 — was hardcoded 1.0–5.0 clamp. Reads
+                // configured min/max so demo data lands inside the
+                // active rating scale (5–10 by default). Archetype
+                // base outputs stay 1–5 internally; we linearly
+                // remap to the configured range before clamping so
+                // the relative "rising star vs steady solid" shape
+                // is preserved across any scale.
+                $rmin = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' );
+                $rmax = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+                $remap = static function ( float $x ) use ( $rmin, $rmax ): float {
+                    // map 1..5 → rmin..rmax linearly
+                    return $rmin + ( $x - 1 ) * ( $rmax - $rmin ) / 4.0;
+                };
                 foreach ( $categories as $cat ) {
                     $bias       = self::CATEGORY_BIASES[ $cat->name ] ?? 0.0;
                     $main_base  = $this->archetypeRating( $archetype, $t ) + $bias;
-                    $main_value = max( 1.0, min( 5.0, round( $main_base + ( mt_rand( -30, 30 ) / 100 ), 1 ) ) );
+                    $main_value = max( $rmin, min( $rmax, round( $remap( $main_base + ( mt_rand( -30, 30 ) / 100 ) ), 1 ) ) );
 
                     $wpdb->insert( "{$wpdb->prefix}tt_eval_ratings", [
                         'club_id'       => CurrentClub::id(),
@@ -176,7 +189,7 @@ class EvaluationGenerator {
                     // with the main rating but the detail drill-in shows
                     // plausible variation.
                     foreach ( $this->subcategoriesFor( (int) $cat->id ) as $sub ) {
-                        $sub_value = max( 1.0, min( 5.0, round( $main_base + ( mt_rand( -40, 40 ) / 100 ), 1 ) ) );
+                        $sub_value = max( $rmin, min( $rmax, round( $remap( $main_base + ( mt_rand( -40, 40 ) / 100 ) ), 1 ) ) );
                         $wpdb->insert( "{$wpdb->prefix}tt_eval_ratings", [
                             'club_id'       => CurrentClub::id(),
                             'evaluation_id' => $eval_id,

@@ -177,7 +177,7 @@ class ReportsPage {
     private static function runLegacy( string $type, array $player_ids ): void {
         global $wpdb; $p = $wpdb->prefix;
         $categories = QueryHelpers::get_categories();
-        $max = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $max = (float) QueryHelpers::get_config( 'rating_max', '10' );
         $labels = wp_list_pluck( $categories, 'name' );
         $cat_ids = wp_list_pluck( $categories, 'id' );
         echo '<div style="margin-top:30px;padding:20px;background:#fff;border:1px solid #ddd;border-radius:6px;">';

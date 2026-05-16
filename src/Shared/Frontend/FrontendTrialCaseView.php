@@ -490,7 +490,16 @@ class FrontendTrialCaseView extends FrontendViewBase {
         wp_nonce_field( 'tt_trial_input_' . $case_id, 'tt_trial_input_nonce' );
         echo '<input type="hidden" name="tt_trial_action" value="save_input">';
 
-        echo '<label>' . esc_html__( 'Overall rating (1–5)', 'talenttrack' ) . ' <input type="number" step="0.1" min="1" max="5" name="overall_rating" value="' . esc_attr( $existing && $existing->overall_rating !== null ? (string) $existing->overall_rating : '' ) . '"></label>';
+        // v3.110.116 — bounds + label follow `tt_config` rating scale.
+        $tt_rmin = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' );
+        $tt_rmax = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+        $tt_label = sprintf(
+            /* translators: 1: rating min, 2: rating max */
+            __( 'Overall rating (%1$s–%2$s)', 'talenttrack' ),
+            (string) $tt_rmin,
+            (string) $tt_rmax
+        );
+        echo '<label>' . esc_html( $tt_label ) . ' <input type="number" step="0.1" min="' . esc_attr( (string) $tt_rmin ) . '" max="' . esc_attr( (string) $tt_rmax ) . '" name="overall_rating" value="' . esc_attr( $existing && $existing->overall_rating !== null ? (string) $existing->overall_rating : '' ) . '"></label>';
         echo '<label>' . esc_html__( 'Notes', 'talenttrack' ) . ' <textarea name="free_text_notes" rows="4">' . esc_textarea( $existing ? (string) $existing->free_text_notes : '' ) . '</textarea></label>';
         echo '<div class="tt-form-actions">';
         echo '<button type="submit" name="submit_action" value="draft" class="tt-button">' . esc_html__( 'Save draft', 'talenttrack' ) . '</button> ';

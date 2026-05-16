@@ -28,7 +28,7 @@ class FrontendOverviewView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My card', 'talenttrack' ) );
         self::renderHeader( __( 'My card', 'talenttrack' ) );
 
-        $max     = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $max     = (float) QueryHelpers::get_config( 'rating_max', '10' );
         $service = new PlayerStatsService();
         $heads   = $service->getHeadlineNumbers( (int) $player->id, [], 5 );
         $rolling = isset( $heads['rolling'] ) && $heads['rolling'] !== null ? (float) $heads['rolling'] : null;

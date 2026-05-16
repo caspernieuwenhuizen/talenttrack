@@ -4,6 +4,7 @@ namespace TT\Infrastructure\REST;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\PlayerStatus\PlayerStatusCalculator;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
@@ -55,8 +56,24 @@ final class PlayerStatusRestController {
     public static function createBehaviourRating( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = (int) $r['id'];
         $rating    = isset( $r['rating'] ) ? (float) $r['rating'] : 0.0;
-        if ( $player_id <= 0 || $rating < 1.0 || $rating > 5.0 ) {
-            return RestResponse::error( 'bad_input', __( 'Player and rating (1-5) are required.', 'talenttrack' ), 400 );
+        // v3.110.116 — was hardcoded 1.0–5.0. Reads the configured
+        // scale so the validator stays in sync with the operator's
+        // configured min/max. New default is 5–10 (Dutch academic
+        // 6-point scale); installs that customise rating_min /
+        // rating_max in tt_config are honoured.
+        $rmin = (float) QueryHelpers::get_config( 'rating_min', '5' );
+        $rmax = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        if ( $player_id <= 0 || $rating < $rmin || $rating > $rmax ) {
+            return RestResponse::error(
+                'bad_input',
+                sprintf(
+                    /* translators: 1: rating min, 2: rating max */
+                    __( 'Player and rating (%1$s–%2$s) are required.', 'talenttrack' ),
+                    (string) $rmin,
+                    (string) $rmax
+                ),
+                400
+            );
         }
         $id = ( new PlayerBehaviourRatingsRepository() )->create( [
             'player_id'           => $player_id,

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.120
+Stable tag: 3.110.121
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.121 — Rating scale flipped from 1–5 to 5–10 (Dutch academic 6-point) with linear data remap + ~15 hardcoded-scale fixes =
+
+Operator decision: the global evaluation rating scale moves from a 1–5 point scale to a 5–10 Dutch academic 6-point scale (floor 5, ceiling 10). Migration 0095 atomically (1) flips `tt_config[rating_min]` from 1 → 5 and `tt_config[rating_max]` from 5 → 10, and (2) linearly remaps every existing rating row on `tt_eval_ratings`, `tt_player_behaviour_ratings`, and `tt_trial_cases.overall_rating` using `new = 5 + (old − 1) × 1.25` — so 1→5, 2→6.25, 3→7.5, 4→8.75, 5→10 (and the 0.5-step intermediates land on .625 / .875 / .125 / .375). Idempotency guard: the migration short-circuits when `rating_max` already reads > 5, so re-running on an already-flipped install is a no-op. Both the Activator seed and the migration 0001 seed are updated for fresh installs. **~15 hardcoded-scale fixes** ship alongside — `PlayerStatusRestController::createBehaviourRating`, `PlayerStatusCalculator`, `CompatibilityEngine`, `ExcelImporter`, `EvaluationGenerator`, `RatingPillComponent`, `QueryHelpers::radar_chart_svg`, `FrontendPlayerStatusMethodologyView` behaviour-floor input, `FrontendTrialCaseView` label + bounds, `FrontendTeamChemistryView` "/ 5" header, `RateActorsStep` + `HybridDeepRateStep` wizard inputs, `FrontendReportWizardView` privacy threshold. Plus **~30 `get_config()` fallback defaults** mass-updated. Renumbered from v3.110.116 to v3.110.121 after five parallel ships took the v3.110.116–v3.110.120 slots.
 
 = 3.110.120 — Mark-attendance wizard mobile bug fix: AttendanceStep rewritten as card-per-player toggle UI (was an untappable 5-column radio matrix on phones) =
 

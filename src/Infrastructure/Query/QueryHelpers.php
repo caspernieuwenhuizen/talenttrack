@@ -477,7 +477,10 @@ class QueryHelpers {
      * @param string[] $labels
      * @param array<int, array{label:string, values:array<int,float|int>}> $datasets
      */
-    public static function radar_chart_svg( array $labels, array $datasets, float $max = 5.0 ): string {
+    public static function radar_chart_svg( array $labels, array $datasets, ?float $max = null ): string {
+        // v3.110.116 — `$max` default now resolved from config when
+        // null (was hardcoded `5.0`).
+        $max = $max ?? (float) self::get_config( 'rating_max', '10' );
         // #0080 Wave A — radar charts are a Standard+ feature. Free
         // tier sees the upgrade nudge inline at every consumer site
         // (rate-card, comparison view, persona dashboard, reports,
@@ -536,20 +539,30 @@ class QueryHelpers {
 
         // Concentric rings — softened from the previous solid greys.
         // Outer ring keeps a touch more emphasis to anchor the chart.
-        for ( $ring = 1; $ring <= 5; $ring++ ) {
-            $r = $radius * ( $ring / 5 );
+        //
+        // v3.110.116 — ring count + labels now follow the `$max`
+        // argument (which the caller resolves from `rating_max` config).
+        // Previously hardcoded to 5 rings labelled 1..5; on the new
+        // 5–10 scale the rings rendered too dense (10 increments
+        // squashed into 5 rings) and labels showed 1..5 even when the
+        // axis ran to 10. Picks a sensible step (1 for max ≤ 10, 2 for
+        // larger scales) so the ring count stays readable.
+        $max_int = max( 1, (int) round( $max ) );
+        $ring_step = $max_int <= 10 ? 1 : 2;
+        for ( $ring = $ring_step; $ring <= $max_int; $ring += $ring_step ) {
+            $r = $radius * ( $ring / $max_int );
             $pts = [];
             for ( $i = 0; $i < $n; $i++ ) {
                 $a = -M_PI / 2 + $i * $step;
                 $pts[] = round( $cx + $r * cos( $a ), 2 ) . ',' . round( $cy + $r * sin( $a ), 2 );
             }
-            $is_outer = $ring === 5;
+            $is_outer = $ring === $max_int;
             $stroke_var = $is_outer
                 ? 'var(--tt-line-strong, #b8bec6)'
                 : 'var(--tt-line, #e1e4e8)';
             $width = $is_outer ? 0.85 : 0.55;
             $svg .= '<polygon points="' . implode( ' ', $pts ) . '" fill="none" style="stroke:' . $stroke_var . ';stroke-width:' . $width . '"/>';
-            if ( $ring > 1 ) {
+            if ( $ring > $ring_step ) {
                 $ring_label_y = round( $cy - $r + 2, 2 );
                 $svg .= '<text x="' . ( $cx + 4 ) . '" y="' . $ring_label_y . '" font-size="8" style="fill:var(--tt-ink-muted, #a0a6ae)">' . (int) $ring . '</text>';
             }

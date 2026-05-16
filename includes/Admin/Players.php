@@ -94,7 +94,7 @@ class Players {
         if ( ! $player ) { echo '<div class="wrap"><p>Not found.</p></div>'; return; }
         $team  = $player->team_id ? Helpers::get_team( $player->team_id ) : null;
         $radar = Helpers::player_radar_datasets( $id );
-        $max   = (float) Helpers::get_config( 'rating_max', 5 );
+        $max   = (float) Helpers::get_config( 'rating_max', 10 );
         $pos   = json_decode( $player->preferred_positions, true );
         global $wpdb; $p = $wpdb->prefix;
         $evals = $wpdb->get_results( $wpdb->prepare( "SELECT e.*, lt.name AS type_name, u.display_name AS coach_name FROM {$p}tt_evaluations e LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id=lt.id LEFT JOIN {$wpdb->users} u ON e.coach_id=u.ID WHERE e.player_id=%d ORDER BY e.eval_date DESC LIMIT 20", $id ) );

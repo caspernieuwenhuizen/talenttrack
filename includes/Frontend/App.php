@@ -57,7 +57,7 @@ class App {
 
     private static function render_player_dashboard( $player ) {
         global $wpdb; $p = $wpdb->prefix;
-        $max  = (float) Helpers::get_config( 'rating_max', 5 );
+        $max  = (float) Helpers::get_config( 'rating_max', 10 );
         $view = sanitize_text_field( $_GET['tt_view'] ?? 'overview' );
 
         echo '<div class="tt-tabs">';
@@ -146,7 +146,7 @@ class App {
     private static function render_coach_dashboard( $user_id, $is_admin ) {
         global $wpdb; $p = $wpdb->prefix;
         $view = sanitize_text_field( $_GET['tt_view'] ?? 'roster' );
-        $max  = (float) Helpers::get_config( 'rating_max', 5 );
+        $max  = (float) Helpers::get_config( 'rating_max', 10 );
         $teams = $is_admin ? Helpers::get_teams() : Helpers::get_teams_for_coach( $user_id );
 
         $tabs = [ 'roster' => 'My Team', 'evaluate' => 'New Evaluation', 'session' => 'New Session', 'goals' => 'Manage Goals', 'player' => 'Player Detail', 'help' => 'Help' ];
@@ -219,8 +219,8 @@ class App {
     private static function render_coach_eval_form( $teams, $is_admin ) {
         $categories = Helpers::get_categories();
         $types      = Helpers::get_eval_types();
-        $rmin = Helpers::get_config( 'rating_min', 1 );
-        $rmax = Helpers::get_config( 'rating_max', 5 );
+        $rmin = Helpers::get_config( 'rating_min', 5 );
+        $rmax = Helpers::get_config( 'rating_max', 10 );
         $rstep = Helpers::get_config( 'rating_step', '0.5' );
 
         $type_meta = [];

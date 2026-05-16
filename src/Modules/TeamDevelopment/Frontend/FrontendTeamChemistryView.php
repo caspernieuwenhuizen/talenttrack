@@ -389,15 +389,25 @@ class FrontendTeamChemistryView extends FrontendViewBase {
             [ 'label' => __( 'Paired bonus',  'talenttrack' ), 'value' => $chem['paired_chemistry'] ?? 0.0 ],
         ];
         ?>
+        <?php
+        // v3.110.116 — was hardcoded `/ 5`. Read the rating_max from
+        // config so the denominator matches the active rating scale.
+        $tc_rmax = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+        ?>
         <div class="tt-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:16px; margin-bottom:16px;">
             <h2 style="margin:0 0 8px; font-size:18px;"><?php
                 if ( $composite === null ) {
-                    esc_html_e( 'Team chemistry: ? / 5', 'talenttrack' );
+                    echo esc_html( sprintf(
+                        /* translators: %s = rating max */
+                        __( 'Team chemistry: ? / %s', 'talenttrack' ),
+                        number_format_i18n( $tc_rmax, 0 )
+                    ) );
                 } else {
                     echo esc_html( sprintf(
-                        /* translators: %s = composite score */
-                        __( 'Team chemistry: %s / 5', 'talenttrack' ),
-                        number_format_i18n( (float) $composite, 2 )
+                        /* translators: 1: composite score, 2: rating max */
+                        __( 'Team chemistry: %1$s / %2$s', 'talenttrack' ),
+                        number_format_i18n( (float) $composite, 2 ),
+                        number_format_i18n( $tc_rmax, 0 )
                     ) );
                 }
             ?></h2>

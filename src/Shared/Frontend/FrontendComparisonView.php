@@ -474,7 +474,7 @@ class FrontendComparisonView extends FrontendViewBase {
             ];
         }
 
-        $rating_max = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $rating_max = (float) QueryHelpers::get_config( 'rating_max', '10' );
         ?>
         <script>
         (function(){

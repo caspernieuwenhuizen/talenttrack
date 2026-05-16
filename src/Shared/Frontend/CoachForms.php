@@ -48,8 +48,8 @@ class CoachForms {
     public static function renderEvalForm( array $teams, bool $is_admin, int $preset_player_id = 0, ?object $existing_eval = null ): void {
         $categories = QueryHelpers::get_categories();
         $types      = QueryHelpers::get_eval_types();
-        $rmin  = QueryHelpers::get_config( 'rating_min', '1' );
-        $rmax  = QueryHelpers::get_config( 'rating_max', '5' );
+        $rmin  = QueryHelpers::get_config( 'rating_min', '5' );
+        $rmax  = QueryHelpers::get_config( 'rating_max', '10' );
         $rstep = QueryHelpers::get_config( 'rating_step', '0.5' );
 
         $type_meta = [];

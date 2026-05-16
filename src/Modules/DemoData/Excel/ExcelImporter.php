@@ -412,12 +412,17 @@ final class ExcelImporter {
         $counts['evaluations'] = count( $eval_id_by_key );
 
         // Evaluation ratings.
+        // v3.110.116 — was hardcoded 1–5. Reads the configured scale
+        // so installs with a non-default range don't silently skip
+        // valid ratings outside the legacy bounds.
+        $rmin = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' );
+        $rmax = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
         $counts['eval_ratings'] = 0;
         foreach ( $rows['evaluation_ratings'] ?? [] as $r ) {
             $eval_id = $eval_id_by_key[ (string) ( $r['evaluation_key'] ?? '' ) ] ?? 0;
             if ( $eval_id <= 0 ) continue;
-            $rating  = (int) ( $r['rating'] ?? 0 );
-            if ( $rating < 1 || $rating > 5 ) continue;
+            $rating  = (float) ( $r['rating'] ?? 0 );
+            if ( $rating < $rmin || $rating > $rmax ) continue;
             $wpdb->insert( "{$p}tt_eval_ratings", [
                 'club_id'       => CurrentClub::id(),
                 'evaluation_id' => $eval_id,

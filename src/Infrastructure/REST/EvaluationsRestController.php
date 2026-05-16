@@ -460,8 +460,8 @@ class EvaluationsRestController {
      */
     private static function write_ratings( int $evaluation_id, array $ratings ): array {
         global $wpdb; $p = $wpdb->prefix;
-        $rmin = (float) QueryHelpers::get_config( 'rating_min', '1' );
-        $rmax = (float) QueryHelpers::get_config( 'rating_max', '5' );
+        $rmin = (float) QueryHelpers::get_config( 'rating_min', '5' );
+        $rmax = (float) QueryHelpers::get_config( 'rating_max', '10' );
         // v3.110.x — every rating row carries `club_id` so the read-side
         // queries (`QueryHelpers::get_evaluation`,
         // `EvalRatingsRepository::overallRatingsForEvaluations`, the
