@@ -29,7 +29,15 @@ class NotificationBell {
         if ( $count <= 0 && ! $on_inbox ) return $html;
 
         $url = self::inboxUrl();
-        $label = $count > 0
+
+        // v3.110.124 — pilot: "text for open tasks is too big, should
+        // probably be an Icon with number in brackets behind it (3)".
+        // Visible chrome is now `🔔 (3)` instead of `🔔 3 open tasks`;
+        // full label moves to `aria-label` so screen readers still
+        // announce "3 open tasks, link". On the inbox itself with zero
+        // tasks, the visible chrome is just `🔔` (no parenthesised 0).
+        $count_visual = $count > 0 ? '(' . (int) $count . ')' : '';
+        $aria_label   = $count > 0
             ? sprintf(
                 /* translators: %d: number of open tasks */
                 _n( '%d open task', '%d open tasks', $count, 'talenttrack' ),
@@ -37,14 +45,19 @@ class NotificationBell {
             )
             : __( 'No open tasks', 'talenttrack' );
 
+        $count_html = $count_visual !== ''
+            ? '<span class="tt-dash-bell-count">' . esc_html( $count_visual ) . '</span>'
+            : '';
+
         $bell = sprintf(
-            '<a href="%s" class="tt-dash-bell-pill" style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:%s; color:#fff; border-radius:999px; text-decoration:none; font-size:12px; font-weight:600; line-height:1.6;">'
+            '<a href="%1$s" class="tt-dash-bell-pill" aria-label="%2$s" title="%2$s" style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:%3$s; color:#fff; border-radius:999px; text-decoration:none; font-size:12px; font-weight:600; line-height:1.6;">'
                 . '<span aria-hidden="true">🔔</span>'
-                . '<span>%s</span>'
+                . '%4$s'
             . '</a>',
             esc_url( $url ),
+            esc_attr( $aria_label ),
             $count > 0 ? '#b32d2e' : '#5b6e75',
-            esc_html( $label )
+            $count_html
         );
 
         return $html . $bell;

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.123
+Stable tag: 3.110.124
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.124 — NotificationBell compact: `🔔 N open tasks` → `🔔 (N)` per pilot ask =
+
+Pilot: *"tekst for open tasks is too big, should probably be an Icon with number in brackets behind it (3)."* The `NotificationBell` pill in the dashboard actions row (top-right of the chrome) rendered the bell glyph + the full `N open task / N open tasks` label, which on a phone took the whole right edge. Visible chrome now reads `🔔 (3)` — bell glyph + parenthesised count. The full text (`3 open tasks` / `1 open task`) moves to `aria-label` + `title` so screen readers still announce it and a hover tooltip carries the long form on desktop. Background colour rule unchanged (red `#b32d2e` when count > 0, grey `#5b6e75` when zero on the inbox view). At count = 0, the visible chrome is just `🔔` — no `(0)`, matching the existing "hide on zero unless on inbox" gate. Plural-aware `_n()` translation kept in the aria-label.
 
 = 3.110.123 — Spond sync: cursor-based pagination over `/sponds/` so >100-event groups don't silently drop everything past page 1 =
 
