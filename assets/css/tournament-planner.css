@@ -115,9 +115,154 @@
     border-style: solid;
 }
 
+/* v3.110.133 — substitution visualization.
+ *
+ * Three visual additions to the planner grid:
+ *
+ *  1. Per-row transition cell between adjacent period columns. Shows
+ *     an arrow when the player changes between periods, a faint dot
+ *     when the player stays. The arrow is the visual cue that says
+ *     "substitution lands here". Hover/focus opens a tooltip.
+ *
+ *  2. Substitution-window column header carrying the minute marker
+ *     (e.g. "@10'") so the coach reads the swap as an event at a
+ *     specific time, not just a column transition.
+ *
+ *  3. Per-window summary panel above the grid. For each window,
+ *     lists every IN/OUT swap (position + from-name → to-name).
+ *     Surfaces the substitution plan as a coach-facing checklist.
+ */
+
+.tt-dashboard .tt-planner-transition {
+    width: 36px;
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+    color: var(--tt-muted, #94a3b8);
+    font-weight: 600;
+    background: transparent;
+    border-top: 1px solid var(--tt-line, #e2e8f0);
+    border-bottom: 1px solid var(--tt-line, #e2e8f0);
+}
+.tt-dashboard .tt-planner-transition--same {
+    color: rgba( 148, 163, 184, 0.5 );
+    font-size: 18px;
+    line-height: 1;
+}
+.tt-dashboard .tt-planner-transition--swap {
+    background: #fef3c7;            /* same yellow family as the selection state */
+    color: #b45309;
+}
+.tt-dashboard .tt-planner-transition-arrow {
+    font-size: 16px;
+    line-height: 1;
+}
+.tt-dashboard .tt-planner-transition-head {
+    width: 36px;
+    padding: 4px 0;
+    text-align: center;
+    background: transparent;
+    border-bottom: 1px solid var(--tt-line, #e2e8f0);
+    color: var(--tt-muted, #475569);
+    font-size: 11px;
+    font-weight: 600;
+}
+.tt-dashboard .tt-planner-sub-marker {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 99px;
+    background: #fef3c7;
+    color: #b45309;
+    font-size: 11px;
+    font-weight: 700;
+}
+.tt-dashboard .tt-planner-cell--changed {
+    background: rgba( 254, 243, 199, 0.35 );
+}
+
+.tt-dashboard .tt-planner-subs-summary {
+    margin-bottom: 12px;
+    padding: 10px;
+    background: var(--tt-bg-soft, #f8fafc);
+    border: 1px solid var(--tt-line, #e2e8f0);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.tt-dashboard .tt-planner-subs-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tt-muted, #475569);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.tt-dashboard .tt-planner-subs-window {
+    padding: 8px 10px;
+    background: #fff;
+    border: 1px solid var(--tt-line, #e2e8f0);
+    border-radius: 4px;
+}
+.tt-dashboard .tt-planner-subs-window header {
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+.tt-dashboard .tt-planner-subs-window header strong {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 99px;
+    background: #fef3c7;
+    color: #b45309;
+    margin-right: 4px;
+}
+.tt-dashboard .tt-planner-subs-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+}
+.tt-dashboard .tt-planner-subs-list li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    background: var(--tt-bg-soft, #f8fafc);
+    border-radius: 3px;
+}
+.tt-dashboard .tt-planner-subs-pos {
+    flex: 0 0 auto;
+    min-width: 36px;
+    padding: 2px 6px;
+    background: var(--tt-line, #e2e8f0);
+    color: var(--tt-fg, #0f172a);
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    text-align: center;
+}
+.tt-dashboard .tt-planner-subs-from {
+    color: var(--tt-muted, #475569);
+    text-decoration: line-through;
+}
+.tt-dashboard .tt-planner-subs-arrow {
+    color: #b45309;
+    font-weight: 700;
+}
+.tt-dashboard .tt-planner-subs-to {
+    color: var(--tt-fg, #0f172a);
+    font-weight: 600;
+}
+
 @media (max-width: 639px) {
     .tt-dashboard .tt-planner-table { font-size: 12px; }
     .tt-dashboard .tt-planner-cell { min-width: 96px; padding: 3px; }
     .tt-dashboard .tt-planner-chip { padding: 4px 6px; }
     .tt-dashboard .tt-planner-slot-label { min-width: 44px; }
+    .tt-dashboard .tt-planner-transition,
+    .tt-dashboard .tt-planner-transition-head { width: 28px; }
 }

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.132
+Stable tag: 3.110.133
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.133 — #0093 Tournament planner: visualize substitutions on the grid + per-window swap summary =
+
+Pilot follow-up to v3.110.132's tournament planner: *"I want to see the starter on a position and who will play on that position after the substitution. I want to be able to plan the substitutions."* Three visual additions to the per-match planner grid, **no data-model change** — the period-column layout from v3.110.132 already encoded who plays when, but the substitution chain wasn't visually obvious. **(1) Per-row transition cell** between adjacent period columns. When the player on the same position changes between periods, the transition cell shows a yellow-tinted "→" arrow with a hover tooltip "Substitution". When the player stays, the cell shows a faint dot. The arrow is the visual cue that says "a substitution lands here". **(2) Substitution-window column header** above each transition column, carrying the minute marker (e.g. "@10'") so the coach reads the swap as an event at a specific time, not just as a column boundary. The yellow-tinted pill ties visually to the transition arrow below it. **(3) Per-window substitution summary panel** above the grid. For each window between periods, the panel lists every IN/OUT swap as `RB · Pim ⟶ Lukas`, with the position code in a monospace badge, the outgoing player struck-through, and the incoming player bold. A "no changes" badge when a window has no swaps. **(4) Subtle highlight on changed cells** — cells where a substitution lands (period > 0 + player differs from previous period) get a soft yellow background so they're easy to scan. Together the four changes make the substitution chain readable both as a grid AND as an event-list. The existing click-to-swap planning UX is unchanged: tap a chip, tap another, swap. The arrows just visualize the result. CSS hooks: `.tt-planner-transition--swap`, `.tt-planner-transition-head`, `.tt-planner-sub-marker`, `.tt-planner-cell--changed`, `.tt-planner-subs-summary` (and its children). Files: `assets/js/tournament-planner.js` (renderSubsSummary + renderTransition + colspan recalc), `assets/css/tournament-planner.css` (new style block).
 
 = 3.110.132 — #0093 Tournament planner (admin-only v1): schema + REST + wizard + planner grid + minutes ticker + auto-balance + lifecycle + docs =
 
