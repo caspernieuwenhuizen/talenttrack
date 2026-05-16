@@ -156,6 +156,36 @@ class TournamentsRestController {
             ],
         ] );
 
+        // Kick off — creates the linked tt_activities row of type
+        // 'match', sets kicked_off_at on the tournament match.
+        register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/kickoff', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'kickoff_match' ],
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    return AuthorizationService::canEditTournament(
+                        get_current_user_id(),
+                        (int) $r['id']
+                    );
+                },
+            ],
+        ] );
+
+        // Complete — sets completed_at, locks lineup (override via
+        // PATCH assignments?force=1), syncs starts to tt_attendance.
+        register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/complete', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'complete_match' ],
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    return AuthorizationService::canEditTournament(
+                        get_current_user_id(),
+                        (int) $r['id']
+                    );
+                },
+            ],
+        ] );
+
         // Greedy auto-balance — wipes the match's assignments and
         // fills the grid based on eligibility + equal-share + starts
         // distribution + no-back-to-back-bench heuristic.
@@ -550,6 +580,213 @@ class TournamentsRestController {
         return RestResponse::success( [
             'match_id' => $match_id,
             'totals'   => self::computeTotals( $tournament_id ),
+        ] );
+    }
+
+    /**
+     * POST /tournaments/{id}/matches/{m_id}/kickoff — promotes the
+     * tournament match to a "real" event by creating a tt_activities
+     * row of type 'match' and linking it via activity_id. The
+     * activity carries opponent + formation + kickoff_time so the
+     * existing match-day team sheet + player-journey rollups light
+     * up automatically.
+     *
+     * Idempotent: a match already linked to an activity returns the
+     * existing activity_id without creating a duplicate.
+     */
+    public static function kickoff_match( \WP_REST_Request $r ) {
+        $tournament_id = (int) $r['id'];
+        $match_id      = (int) $r['match_id'];
+
+        $tournament = self::fetchTournamentRow( $tournament_id );
+        if ( ! $tournament ) return RestResponse::notFound( 'tournament_not_found' );
+
+        $match = self::fetchMatch( $match_id );
+        if ( ! $match || (int) $match['tournament_id'] !== $tournament_id ) {
+            return RestResponse::notFound( 'match_not_found' );
+        }
+
+        global $wpdb; $p = $wpdb->prefix;
+
+        // Idempotent: if already linked, just return.
+        if ( ! empty( $match['activity_id'] ) ) {
+            return RestResponse::success( [
+                'match_id'    => $match_id,
+                'activity_id' => (int) $match['activity_id'],
+                'already_kicked_off' => true,
+            ] );
+        }
+
+        // Compose the activity row. session_date pulls from the
+        // tournament's scheduled_at OR start_date. Opponent + formation
+        // come straight from the tournament match row.
+        $session_date = $match['scheduled_at']
+            ? substr( (string) $match['scheduled_at'], 0, 10 )
+            : (string) $tournament->start_date;
+        $effective_formation = $match['formation'] !== ''
+            ? $match['formation']
+            : (string) ( $tournament->default_formation ?? '' );
+
+        $title = $match['label'] !== ''
+            ? (string) $match['label']
+            : ( $match['opponent_name'] !== '' ? 'vs ' . $match['opponent_name'] : 'Match' );
+
+        $activity_data = [
+            'club_id'             => CurrentClub::id(),
+            'team_id'             => (int) $tournament->team_id,
+            'session_date'        => $session_date,
+            'title'               => $title,
+            'notes'               => sprintf(
+                /* translators: %s is the tournament name */
+                __( 'Tournament match — %s', 'talenttrack' ),
+                (string) $tournament->name
+            ),
+            'activity_type_key'   => 'match',
+            'activity_status_key' => 'planned',
+            'activity_source_key' => 'tournament',
+            'coach_id'            => get_current_user_id(),
+            'opponent'            => (string) ( $match['opponent_name'] ?? '' ),
+            'formation'           => $effective_formation,
+            'kickoff_time'        => $match['scheduled_at']
+                ? substr( (string) $match['scheduled_at'], 11, 5 )
+                : null,
+        ];
+
+        $ok = $wpdb->insert( "{$p}tt_activities", $activity_data );
+        if ( $ok === false ) {
+            Logger::error( 'rest.tournament.kickoff.failed', [ 'match_id' => $match_id, 'db_error' => (string) $wpdb->last_error ] );
+            return RestResponse::error( 'db_error', __( 'Could not create the match activity.', 'talenttrack' ), 500 );
+        }
+        $activity_id = (int) $wpdb->insert_id;
+
+        // Tag demo-on rows so they remain visible to demo-scoped queries.
+        if ( class_exists( '\\TT\\Modules\\DemoData\\DemoMode' ) ) {
+            \TT\Modules\DemoData\DemoMode::tagIfActive( 'activity', $activity_id );
+        }
+
+        $wpdb->update(
+            "{$p}tt_tournament_matches",
+            [
+                'activity_id'   => $activity_id,
+                'kicked_off_at' => current_time( 'mysql' ),
+            ],
+            [ 'id' => $match_id, 'club_id' => CurrentClub::id() ]
+        );
+
+        do_action( 'tt_tournament_match_kicked_off', $tournament_id, $match_id, $activity_id );
+
+        return RestResponse::success( [
+            'match_id'    => $match_id,
+            'activity_id' => $activity_id,
+        ] );
+    }
+
+    /**
+     * POST /tournaments/{id}/matches/{m_id}/complete — sets
+     * completed_at on the tournament match and syncs the period-0
+     * starting lineup to tt_attendance rows on the linked activity:
+     *
+     *   - Players in period 0 with position_code != 'BENCH' →
+     *     lineup_role='start', position_played=position_code.
+     *   - Other squad members → lineup_role='bench', position_played
+     *     pulled from their first non-bench assignment (if any) or
+     *     left NULL.
+     *
+     * Idempotent: re-running re-syncs attendance.
+     */
+    public static function complete_match( \WP_REST_Request $r ) {
+        $tournament_id = (int) $r['id'];
+        $match_id      = (int) $r['match_id'];
+
+        $tournament = self::fetchTournamentRow( $tournament_id );
+        if ( ! $tournament ) return RestResponse::notFound( 'tournament_not_found' );
+
+        $match = self::fetchMatch( $match_id );
+        if ( ! $match || (int) $match['tournament_id'] !== $tournament_id ) {
+            return RestResponse::notFound( 'match_not_found' );
+        }
+
+        global $wpdb; $p = $wpdb->prefix;
+
+        // Auto-kickoff if not already linked, so the player journey
+        // surfaces the match without the coach having to tap kickoff
+        // separately.
+        if ( empty( $match['activity_id'] ) ) {
+            $kickoff = self::kickoff_match( $r );
+            // Refresh match data.
+            $match = self::fetchMatch( $match_id );
+            if ( ! $match || empty( $match['activity_id'] ) ) {
+                return RestResponse::error( 'kickoff_failed', __( 'Could not promote match to activity.', 'talenttrack' ), 500 );
+            }
+        }
+        $activity_id = (int) $match['activity_id'];
+
+        // Fetch assignments.
+        $assignments = $wpdb->get_results( $wpdb->prepare(
+            "SELECT period_index, player_id, position_code
+               FROM {$p}tt_tournament_assignments
+              WHERE match_id = %d AND club_id = %d",
+            $match_id, CurrentClub::id()
+        ), ARRAY_A ) ?: [];
+
+        // Per-player aggregates: did they ever start (period 0
+        // non-bench)? what's their position_played (first non-bench
+        // slot in any period)?
+        $per_player = [];
+        foreach ( $assignments as $a ) {
+            $pid = (int) $a['player_id'];
+            if ( ! isset( $per_player[ $pid ] ) ) {
+                $per_player[ $pid ] = [ 'started' => false, 'position_played' => null ];
+            }
+            if ( (int) $a['period_index'] === 0 && (string) $a['position_code'] !== 'BENCH' ) {
+                $per_player[ $pid ]['started'] = true;
+            }
+            if ( $per_player[ $pid ]['position_played'] === null && (string) $a['position_code'] !== 'BENCH' ) {
+                $per_player[ $pid ]['position_played'] = (string) $a['position_code'];
+            }
+        }
+
+        // Sync to tt_attendance. Wipe existing rows for this activity
+        // first — idempotent re-sync.
+        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'club_id' => CurrentClub::id() ] );
+
+        // Pull the full squad so benched-with-no-assignment players
+        // also get attendance rows.
+        $squad = self::fetchSquad( $tournament_id );
+        foreach ( $squad as $sq ) {
+            $pid = (int) $sq['player_id'];
+            $row = $per_player[ $pid ] ?? [ 'started' => false, 'position_played' => null ];
+            $wpdb->insert( "{$p}tt_attendance", [
+                'club_id'         => CurrentClub::id(),
+                'activity_id'     => $activity_id,
+                'player_id'       => $pid,
+                'status'          => 'present',
+                'lineup_role'     => $row['started'] ? 'start' : 'bench',
+                'position_played' => $row['position_played'],
+            ] );
+        }
+
+        $wpdb->update(
+            "{$p}tt_tournament_matches",
+            [ 'completed_at' => current_time( 'mysql' ) ],
+            [ 'id' => $match_id, 'club_id' => CurrentClub::id() ]
+        );
+
+        // Mark the activity completed so the existing list-view query
+        // picks it up.
+        $wpdb->update(
+            "{$p}tt_activities",
+            [ 'activity_status_key' => 'completed' ],
+            [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        );
+
+        do_action( 'tt_tournament_match_completed', $tournament_id, $match_id, $activity_id );
+
+        return RestResponse::success( [
+            'match_id'    => $match_id,
+            'activity_id' => $activity_id,
+            'attendance_rows' => count( $squad ),
+            'totals'      => self::computeTotals( $tournament_id ),
         ] );
     }
 

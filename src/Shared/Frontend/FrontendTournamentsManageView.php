@@ -333,6 +333,14 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                                     <?php esc_html_e( 'Auto-balance', 'talenttrack' ); ?>
                                 </button>
                             <?php endif; ?>
+                            <?php if ( current_user_can( 'tt_edit_tournaments' ) ) : ?>
+                                <?php if ( empty( $m->kicked_off_at ) && empty( $m->completed_at ) ) : ?>
+                                    <button type="button" class="tt-btn tt-btn-secondary" data-tt-match-action="kickoff"><?php esc_html_e( 'Kick off', 'talenttrack' ); ?></button>
+                                <?php endif; ?>
+                                <?php if ( empty( $m->completed_at ) ) : ?>
+                                    <button type="button" class="tt-btn tt-btn-primary" data-tt-match-action="complete"><?php esc_html_e( 'Complete match', 'talenttrack' ); ?></button>
+                                <?php endif; ?>
+                            <?php endif; ?>
                         </div>
                         <div class="tt-planner-body" data-tt-planner-body="1" hidden></div>
                     </li>

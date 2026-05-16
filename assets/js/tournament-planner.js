@@ -74,6 +74,39 @@
                 } );
             }
 
+            // Lifecycle action buttons (Kick off / Complete).
+            var actionBtns = root.querySelectorAll( '[data-tt-match-action]' );
+            actionBtns.forEach( function ( btn ) {
+                btn.addEventListener( 'click', function () {
+                    var action = btn.getAttribute( 'data-tt-match-action' );
+                    if ( ! action ) return;
+                    var confirmMsg = action === 'complete'
+                        ? 'Mark this match as completed? Attendance will be written for every squad member.'
+                        : null;
+                    if ( confirmMsg && ! window.confirm( confirmMsg ) ) return;
+                    btn.disabled = true;
+                    var prev = btn.textContent;
+                    btn.textContent = '…';
+                    api( 'POST', 'tournaments/' + tournamentId + '/matches/' + matchId + '/' + action, {} )
+                        .then( function ( res ) {
+                            if ( res.ok ) {
+                                // Reload the page so server-side state (badges, button
+                                // visibility, etc.) refreshes correctly.
+                                window.location.reload();
+                            } else {
+                                btn.disabled = false;
+                                btn.textContent = prev;
+                                var msg = ( res.json && res.json.errors && res.json.errors[0] ) ? res.json.errors[0].message : 'Action failed.';
+                                window.alert( msg );
+                            }
+                        } )
+                        .catch( function () {
+                            btn.disabled = false;
+                            btn.textContent = prev;
+                        } );
+                } );
+            } );
+
             // Auto-balance button.
             var auto = root.querySelector( '[data-tt-planner-auto="1"]' );
             if ( auto && body ) {
