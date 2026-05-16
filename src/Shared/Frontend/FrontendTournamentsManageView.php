@@ -324,9 +324,16 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                             ?>
                         </div>
 
-                        <button type="button" class="tt-planner-toggle" data-tt-planner-toggle="1" aria-expanded="false">
-                            <?php esc_html_e( 'Open planner grid', 'talenttrack' ); ?>
-                        </button>
+                        <div class="tt-planner-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                            <button type="button" class="tt-planner-toggle" data-tt-planner-toggle="1" aria-expanded="false">
+                                <?php esc_html_e( 'Open planner grid', 'talenttrack' ); ?>
+                            </button>
+                            <?php if ( current_user_can( 'tt_edit_tournaments' ) && empty( $m->completed_at ) ) : ?>
+                                <button type="button" class="tt-btn tt-btn-secondary tt-planner-auto" data-tt-planner-auto="1">
+                                    <?php esc_html_e( 'Auto-balance', 'talenttrack' ); ?>
+                                </button>
+                            <?php endif; ?>
+                        </div>
                         <div class="tt-planner-body" data-tt-planner-body="1" hidden></div>
                     </li>
                 <?php endforeach; ?>

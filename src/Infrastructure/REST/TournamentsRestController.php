@@ -156,6 +156,22 @@ class TournamentsRestController {
             ],
         ] );
 
+        // Greedy auto-balance — wipes the match's assignments and
+        // fills the grid based on eligibility + equal-share + starts
+        // distribution + no-back-to-back-bench heuristic.
+        register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/auto-plan', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'auto_plan' ],
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    return AuthorizationService::canEditTournament(
+                        get_current_user_id(),
+                        (int) $r['id']
+                    );
+                },
+            ],
+        ] );
+
         // Planner write — bulk-replace assignments for one match.
         // Click-to-swap on the grid PATCHes the full new state here
         // each interaction. Idempotent.
@@ -535,6 +551,252 @@ class TournamentsRestController {
             'match_id' => $match_id,
             'totals'   => self::computeTotals( $tournament_id ),
         ] );
+    }
+
+    /**
+     * POST /tournaments/{id}/matches/{m_id}/auto-plan — greedy
+     * assignment. Wipes existing assignments for the match and fills
+     * the grid per the spec's algorithm:
+     *
+     *   For each period p:
+     *     For each formation slot s:
+     *       candidates = squad where:
+     *         position_type(s) IN player.eligible_positions
+     *         AND player NOT already assigned in this period
+     *       rank by:
+     *         1. (target - expected_minutes) DESC   -- under-served first
+     *         2. (if p == 0) starts ASC             -- fewer starts first for openers
+     *         3. (player not benched in p-1)         -- avoid back-to-back bench
+     *       assign top candidate to slot
+     *     remaining squad members → BENCH for period p
+     *
+     * No backtracking. Coach manually fixes corner cases via the
+     * planner grid.
+     */
+    public static function auto_plan( \WP_REST_Request $r ) {
+        $tournament_id = (int) $r['id'];
+        $match_id      = (int) $r['match_id'];
+
+        $tournament = self::fetchTournamentRow( $tournament_id );
+        if ( ! $tournament ) return RestResponse::notFound( 'tournament_not_found' );
+
+        $match = self::fetchMatch( $match_id );
+        if ( ! $match || (int) $match['tournament_id'] !== $tournament_id ) {
+            return RestResponse::notFound( 'match_not_found' );
+        }
+        if ( ! empty( $match['completed_at'] ) ) {
+            return RestResponse::error( 'match_completed', __( 'Cannot auto-plan a completed match.', 'talenttrack' ), 409 );
+        }
+
+        $effective_formation = $match['formation'] !== ''
+            ? $match['formation']
+            : (string) ( $tournament->default_formation ?? '' );
+        $slot_labels = self::lookupSlotLabels( $effective_formation );
+        if ( ! $slot_labels ) {
+            return RestResponse::error( 'no_formation', __( 'Match has no formation. Set a formation on the match or tournament before auto-planning.', 'talenttrack' ), 422 );
+        }
+
+        $squad = self::fetchSquad( $tournament_id );
+        if ( ! $squad ) {
+            return RestResponse::error( 'empty_squad', __( 'Add players to the squad before auto-planning.', 'talenttrack' ), 422 );
+        }
+
+        $period_count = count( $match['substitution_windows'] ) + 1;
+
+        // Pre-compute starts + expected-so-far across the tournament
+        // (excluding this match — we're about to overwrite it).
+        $rollup = self::rollupForOtherMatches( $tournament_id, $match_id );
+
+        $target_default = self::computeDefaultTarget( $tournament_id );
+
+        // Working state: per-player accumulator that mutates as we
+        // assign slots in this match.
+        $state = [];
+        foreach ( $squad as $sq ) {
+            $pid = (int) $sq['player_id'];
+            $state[ $pid ] = [
+                'eligible_positions' => is_array( $sq['eligible_positions'] ?? null ) ? $sq['eligible_positions'] : [],
+                'target'             => $sq['target_minutes'] ?? $target_default,
+                'starts'             => $rollup[ $pid ]['starts']   ?? 0,
+                'expected'           => $rollup[ $pid ]['expected'] ?? 0,
+                'last_benched'       => false, // updated as we walk periods
+            ];
+        }
+
+        $minutes_per_period = self::minutesPerPeriod( (int) $match['duration_min'], count( $match['substitution_windows'] ) );
+
+        // Flatten the formation into (line_index, slot_code) tuples
+        // so we know which position TYPE bucket each slot belongs to.
+        $line_count = count( $slot_labels );
+        $flat_slots = [];
+        foreach ( $slot_labels as $line_idx => $line ) {
+            $position_type = self::positionTypeForLine( $line_idx, $line_count );
+            foreach ( $line as $code ) {
+                $flat_slots[] = [ 'code' => $code, 'type' => $position_type ];
+            }
+        }
+
+        $assignments = [];
+        for ( $p = 0; $p < $period_count; $p++ ) {
+            $assigned_this_period = [];
+            // Track this period's bench candidates as we go — used for
+            // the next period's last_benched flag computation.
+            foreach ( $flat_slots as $slot ) {
+                $candidates = [];
+                foreach ( $state as $pid => $s ) {
+                    if ( in_array( $pid, $assigned_this_period, true ) ) continue;
+                    if ( ! in_array( $slot['type'], $s['eligible_positions'], true ) && $slot['type'] !== 'GK' ) {
+                        // GK is special — only GK-eligible players play GK,
+                        // and a GK-only player has type GK. Filter strictly.
+                        continue;
+                    }
+                    if ( $slot['type'] === 'GK' && ! in_array( 'GK', $s['eligible_positions'], true ) ) continue;
+                    $candidates[] = $pid;
+                }
+                if ( ! $candidates ) {
+                    // No eligible player — leave the slot empty. The grid
+                    // will render this with a "+" empty chip.
+                    continue;
+                }
+                // Rank.
+                usort( $candidates, function ( $a, $b ) use ( $state, $p ) {
+                    $sa = $state[ $a ]; $sb = $state[ $b ];
+                    $gapA = (int) $sa['target'] - (int) $sa['expected'];
+                    $gapB = (int) $sb['target'] - (int) $sb['expected'];
+                    if ( $gapA !== $gapB ) return $gapB <=> $gapA; // under-served first
+
+                    if ( $p === 0 ) {
+                        if ( $sa['starts'] !== $sb['starts'] ) {
+                            return $sa['starts'] <=> $sb['starts']; // fewer starts first
+                        }
+                    }
+                    // Avoid back-to-back bench: penalise a player who was
+                    // benched in p-1 by ranking them BEHIND a player who
+                    // wasn't.
+                    $aPen = $sa['last_benched'] ? 1 : 0;
+                    $bPen = $sb['last_benched'] ? 1 : 0;
+                    if ( $aPen !== $bPen ) return $aPen <=> $bPen;
+                    return 0;
+                } );
+                $winner = $candidates[0];
+                $assignments[] = [
+                    'period_index'  => $p,
+                    'player_id'     => $winner,
+                    'position_code' => $slot['code'],
+                ];
+                $assigned_this_period[] = $winner;
+                $state[ $winner ]['expected']     += $minutes_per_period;
+                $state[ $winner ]['last_benched']  = false;
+                if ( $p === 0 ) $state[ $winner ]['starts']++;
+            }
+            // Mark un-assigned squad members as benched this period.
+            foreach ( $state as $pid => $s ) {
+                if ( in_array( $pid, $assigned_this_period, true ) ) continue;
+                $assignments[] = [
+                    'period_index'  => $p,
+                    'player_id'     => $pid,
+                    'position_code' => 'BENCH',
+                ];
+                $state[ $pid ]['last_benched'] = true;
+            }
+        }
+
+        // Commit.
+        global $wpdb; $p = $wpdb->prefix;
+        $wpdb->delete( "{$p}tt_tournament_assignments", [ 'match_id' => $match_id, 'club_id' => CurrentClub::id() ] );
+        foreach ( $assignments as $a ) {
+            $wpdb->insert( "{$p}tt_tournament_assignments", [
+                'match_id'      => $match_id,
+                'club_id'       => CurrentClub::id(),
+                'period_index'  => (int) $a['period_index'],
+                'player_id'     => (int) $a['player_id'],
+                'position_code' => (string) $a['position_code'],
+            ] );
+        }
+
+        do_action( 'tt_tournament_auto_planned', $tournament_id, $match_id );
+
+        return RestResponse::success( [
+            'match_id'    => $match_id,
+            'assignments' => $assignments,
+            'totals'      => self::computeTotals( $tournament_id ),
+        ] );
+    }
+
+    /**
+     * Map a formation-line index to a position TYPE bucket. Used by
+     * the auto-planner to know which eligible-position type matches
+     * each slot.
+     *
+     * Convention for v1 seeded formations:
+     *   Line 0           → GK
+     *   Last line        → FWD
+     *   Line 1           → DEF
+     *   Intermediate     → MID
+     *
+     * Operator-added custom formations follow the same convention as
+     * long as line 0 is the goalkeeper and the last line is the
+     * forwards — which is the standard football notation.
+     */
+    private static function positionTypeForLine( int $line_idx, int $line_count ): string {
+        if ( $line_idx === 0 ) return 'GK';
+        if ( $line_idx === $line_count - 1 ) return 'FWD';
+        if ( $line_idx === 1 ) return 'DEF';
+        return 'MID';
+    }
+
+    /**
+     * Aggregate played-minutes + expected-minutes + starts per player
+     * across every match in a tournament EXCEPT the one being
+     * auto-planned. The auto-planner uses this as the baseline so
+     * under-served players bubble up first.
+     *
+     * @return array<int, array{starts:int, expected:int}>
+     */
+    private static function rollupForOtherMatches( int $tournament_id, int $exclude_match_id ): array {
+        global $wpdb; $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.player_id, a.match_id, a.period_index, a.position_code,
+                    m.duration_min, m.substitution_windows
+               FROM {$p}tt_tournament_assignments a
+               JOIN {$p}tt_tournament_matches m ON m.id = a.match_id
+              WHERE m.tournament_id = %d
+                AND a.match_id <> %d
+                AND a.club_id = %d",
+            $tournament_id, $exclude_match_id, CurrentClub::id()
+        ), ARRAY_A ) ?: [];
+
+        $out = [];
+        foreach ( $rows as $row ) {
+            $pid = (int) $row['player_id'];
+            if ( ! isset( $out[ $pid ] ) ) {
+                $out[ $pid ] = [ 'starts' => 0, 'expected' => 0 ];
+            }
+            $windows = json_decode( (string) $row['substitution_windows'], true ) ?: [];
+            $per = self::minutesPerPeriod( (int) $row['duration_min'], count( $windows ) );
+            if ( (string) $row['position_code'] !== 'BENCH' ) {
+                $out[ $pid ]['expected'] += $per;
+            }
+            if ( (int) $row['period_index'] === 0 && (string) $row['position_code'] !== 'BENCH' ) {
+                $out[ $pid ]['starts']++;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Compute the default equal-share target for a tournament — sum
+     * of every match's duration_min, used when a squad row has no
+     * per-player target_minutes override.
+     */
+    private static function computeDefaultTarget( int $tournament_id ): int {
+        global $wpdb; $p = $wpdb->prefix;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COALESCE(SUM(duration_min), 0)
+               FROM {$p}tt_tournament_matches
+              WHERE tournament_id = %d AND club_id = %d",
+            $tournament_id, CurrentClub::id()
+        ) );
     }
 
     public static function update_match( \WP_REST_Request $r ) {
