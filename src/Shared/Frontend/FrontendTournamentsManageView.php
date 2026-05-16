@@ -52,9 +52,22 @@ class FrontendTournamentsManageView extends FrontendViewBase {
             [ 'tt-frontend-admin' ],
             TT_VERSION
         );
+        wp_enqueue_style(
+            'tt-tournament-ticker',
+            TT_PLUGIN_URL . 'assets/css/tournament-ticker.css',
+            [ 'tt-frontend-admin' ],
+            TT_VERSION
+        );
         wp_enqueue_script(
             'tt-tournament-planner',
             TT_PLUGIN_URL . 'assets/js/tournament-planner.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_enqueue_script(
+            'tt-tournament-ticker',
+            TT_PLUGIN_URL . 'assets/js/tournament-ticker.js',
             [],
             TT_VERSION,
             true
@@ -243,8 +256,10 @@ class FrontendTournamentsManageView extends FrontendViewBase {
             (int) $tournament->id, CurrentClub::id()
         ) ) ?: [];
 
-        // Tournament facts strip.
+        // Tournament facts strip. Wrapping div lets the desktop
+        // sidebar ticker reserve right-edge padding via CSS.
         ?>
+        <div class="tt-tournament-detail">
         <div class="tt-tournament-facts" style="display:flex;flex-wrap:wrap;gap:var(--tt-sp-3, 12px);margin-bottom:var(--tt-sp-4, 16px);">
             <div class="tt-fact">
                 <strong><?php esc_html_e( 'Team', 'talenttrack' ); ?>:</strong>
@@ -339,6 +354,32 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
+
+        </div><!-- /.tt-tournament-detail -->
+
+        <!-- Vertical space below the content on mobile, so the sticky
+             bottom-strip ticker doesn't overlap the squad list. The
+             desktop sidebar variant hides this spacer. -->
+        <div class="tt-tournament-detail-spacer"></div>
+
+        <!-- Minutes ticker. Hydrated by tournament-ticker.js. -->
+        <aside class="tt-minutes-ticker" data-tt-minutes-ticker="1" data-tournament-id="<?php echo (int) $tournament->id; ?>" aria-label="<?php esc_attr_e( 'Minutes ticker', 'talenttrack' ); ?>">
+            <div class="tt-ticker-header">
+                <strong><?php esc_html_e( 'Minutes', 'talenttrack' ); ?></strong>
+                <label>
+                    <span class="screen-reader-text"><?php esc_html_e( 'Sort', 'talenttrack' ); ?></span>
+                    <select data-tt-ticker-sort="1">
+                        <option value="default"><?php esc_html_e( 'Default', 'talenttrack' ); ?></option>
+                        <option value="minutes_asc"><?php esc_html_e( 'Fewest minutes', 'talenttrack' ); ?></option>
+                        <option value="starts_asc"><?php esc_html_e( 'Fewest starts', 'talenttrack' ); ?></option>
+                        <option value="no_full"><?php esc_html_e( 'No full matches', 'talenttrack' ); ?></option>
+                    </select>
+                </label>
+            </div>
+            <div class="tt-ticker-strip" data-tt-ticker-strip="1">
+                <p class="tt-muted" style="padding:8px;font-size:12px;"><?php esc_html_e( 'Loading…', 'talenttrack' ); ?></p>
+            </div>
+        </aside>
         <?php
     }
 
