@@ -73,6 +73,28 @@
                     }
                 } );
             }
+
+            // Auto-balance button.
+            var auto = root.querySelector( '[data-tt-planner-auto="1"]' );
+            if ( auto && body ) {
+                auto.addEventListener( 'click', function () {
+                    // Expand the body if it's collapsed so the user
+                    // sees the new grid.
+                    if ( body.hasAttribute( 'hidden' ) ) {
+                        body.removeAttribute( 'hidden' );
+                        if ( toggle ) toggle.setAttribute( 'aria-expanded', 'true' );
+                    }
+                    if ( ! body.dataset.loaded ) {
+                        // First load fetches the slot_labels + squad
+                        // first, then auto-balance.
+                        loadPlanner( tournamentId, matchId, body );
+                        body.dataset.loaded = '1';
+                        setTimeout( function () { autoBalance( tournamentId, matchId, body, auto ); }, 250 );
+                    } else {
+                        autoBalance( tournamentId, matchId, body, auto );
+                    }
+                } );
+            }
         } );
     }
 
@@ -105,6 +127,45 @@
         body.dataset.minutesPerPeriod = String( data.minutes_per_period || 0 );
 
         repaint( body );
+    }
+
+    /**
+     * #0093 chunk 7 — auto-balance trigger. Wired from the match
+     * card's "Auto-balance" button. POSTs to /auto-plan, replaces the
+     * grid's local state with the response's assignments, repaints.
+     */
+    function autoBalance( tournamentId, matchId, body, button ) {
+        if ( button ) {
+            button.disabled = true;
+            button.textContent = 'Balancing…';
+        }
+        api( 'POST', 'tournaments/' + tournamentId + '/matches/' + matchId + '/auto-plan', {} )
+            .then( function ( res ) {
+                if ( button ) {
+                    button.disabled = false;
+                    button.textContent = 'Auto-balance';
+                }
+                if ( ! res.ok ) {
+                    var msg = ( res.json && res.json.errors && res.json.errors[0] ) ? res.json.errors[0].message : 'Could not auto-balance.';
+                    if ( body ) body.insertAdjacentHTML( 'afterbegin', '<p class="tt-notice tt-notice-error">' + escapeHtml( msg ) + '</p>' );
+                    return;
+                }
+                if ( res.json && res.json.data && res.json.data.assignments && body ) {
+                    body.dataset.assignments = JSON.stringify( res.json.data.assignments );
+                    repaint( body );
+                    if ( res.json.data.totals ) {
+                        document.dispatchEvent( new CustomEvent( 'tt-tournament-totals-changed', {
+                            detail: { tournament_id: tournamentId, totals: res.json.data.totals },
+                        } ) );
+                    }
+                }
+            } )
+            .catch( function () {
+                if ( button ) {
+                    button.disabled = false;
+                    button.textContent = 'Auto-balance';
+                }
+            } );
     }
 
     /**
