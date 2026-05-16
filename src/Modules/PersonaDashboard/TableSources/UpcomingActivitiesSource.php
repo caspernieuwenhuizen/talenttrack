@@ -24,7 +24,11 @@ final class UpcomingActivitiesSource implements TableRowSource {
     public function rowsFor( int $user_id, array $config ): array {
         global $wpdb;
         $p       = $wpdb->prefix;
-        $days    = max( 1, min( 90, (int) ( $config['days'] ?? 14 ) ) );
+        // v3.110.126 — default window bumped from 14 → 30 days per
+        // pilot ask ("upcoming activities does not show anything"
+        // — the actual activities were scheduled 3+ weeks out). The
+        // `config['days']` override remains, capped at 90 days.
+        $days    = max( 1, min( 90, (int) ( $config['days'] ?? 30 ) ) );
         $limit   = max( 1, min( 50, (int) ( $config['limit'] ?? 15 ) ) );
         $club_id = CurrentClub::id();
 

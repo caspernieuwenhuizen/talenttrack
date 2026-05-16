@@ -1,3 +1,125 @@
+# TalentTrack v3.110.126 — Pilot fix round: sticky wizard buttons, upcoming-activities window, evaluation list scoping, MyTeam* KPI cards, tasks mobile layout
+
+Five pilot-surfaced fixes in one focused round.
+
+## (1) Sticky wizard bottom buttons removed
+
+Pilot: *"the bottom sticky buttons I do not like."*
+
+`FrontendWizardView` pinned the action bar (Previous / Next / Submit) to the bottom of the viewport on phones since #0084 Child 3:
+
+```css
+@media (max-width: 720px) {
+    .tt-wizard-form .tt-wizard-actions {
+        position: sticky;
+        bottom: 0;
+        ...
+    }
+}
+```
+
+Removed. Buttons now scroll with the form. The 48px touch-target floor stays via `min-height: 48px`.
+
+## (2) HoD upcoming activities default window 14 → 30 days
+
+Pilot: *"upcoming activities does not show anything. What is the filter on this widget?"*
+
+`UpcomingActivitiesSource::rowsFor()` defaulted to a 14-day forward window. Pilot's data: activities scheduled 3+ weeks out. Bumped default to 30 days (the `config['days']` override per call still works, capped at 90).
+
+## (3) Evaluation list scoping broadened
+
+Pilot: *"clicking the evaluation widget gives a 'no evaluation matches your filters' but there are various evaluations entered."*
+
+`EvaluationsRestController::list_evals()` scoped non-admin readers to `pl.team_id IN (coach's teams)`. Result: an evaluation the coach personally wrote for a player who has since moved teams disappeared from their list.
+
+Three changes:
+
+```diff
+-if ( ! current_user_can( 'tt_edit_settings' ) ) {
+-    $coach_teams = QueryHelpers::get_teams_for_coach( get_current_user_id() );
+-    if ( ! $coach_teams ) {
+-        return RestResponse::success( [ 'rows' => [], 'total' => 0, ... ] );
+-    }
+-    $team_ids = array_map( ..., $coach_teams );
+-    $where[]  = "pl.team_id IN ($placeholders)";
+-    $params   = array_merge( $params, $team_ids );
+-}
++if ( ! self::hasGlobalEvaluationsAccess() ) {
++    $uid = get_current_user_id();
++    $coach_teams = QueryHelpers::get_teams_for_coach( $uid );
++    $team_ids = array_map( ..., $coach_teams );
++    if ( empty( $team_ids ) ) {
++        // Still surface coach's own authored evals when they own zero teams.
++        $where[]  = 'e.coach_id = %d';
++        $params[] = $uid;
++    } else {
++        $where[]  = "( pl.team_id IN ($placeholders) OR e.coach_id = %d )";
++        $params   = array_merge( $params, $team_ids, [ $uid ] );
++    }
++}
+```
+
+`hasGlobalEvaluationsAccess()` mirrors the v3.110.112 PDP pattern — recognises `tt_edit_settings`, `manage_options`, and the `head_of_development` / `academy_admin` personas.
+
+## (4) MyTeamAttendance/Rating KPI cards no longer 401
+
+Pilot: *"clicking the presence of my team widget gives a not authorized message. Clicking the rating of my team widget gives a not authorized message."*
+
+`MyTeamAttendancePct` + `MyTeamAvgRating` are unimplemented stubs (`compute()` returns `KpiValue::unavailable()`). The base class's `DEFAULT_LINK_VIEWS` mapped them to `my-activities` / `my-team` — PLAYER-only views that reject coaches via `DashboardShortcode::dispatchMeView`'s gate ("called only when the user has a player record").
+
+Both KPIs now override `linkView()` to return empty:
+
+```php
+public function linkView(): string { return ''; }
+```
+
+`KpiCardWidget` / `KpiStripWidget` already handle empty linkView: card stays inert (no `<a>` wrapper, no click target). Once the compute() implementations land + coach-appropriate destination views exist, the override is removed.
+
+## (5) Tasks page mobile layout rewritten
+
+Pilot: *"the mobile view of the task table is completely off, review the table."*
+
+Root cause: `FrontendMyTasksView`'s task row was a single flex strip (checkbox + title + sub + due + Open button + snooze) that ran out of room at 360px. Filter dropdowns stacked at full width but selects had no min-height, so they were hard to tap.
+
+Added `@media (max-width: 767px)`:
+
+```css
+.tt-mtasks-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+.tt-mtasks-meta { order: 2; flex: 1 1 auto; min-width: 0; }
+.tt-mtasks-due  { order: 3; align-self: center; }
+.tt-mtasks-action {
+    order: 4;
+    flex: 1 1 100%;
+    justify-content: flex-end;
+}
+.tt-mtasks-snooze { order: 5; gap: 4px; }
+.tt-mtasks-filters select { min-height: 40px; }
+```
+
+Row 1: checkbox + title/sub + due. Row 2: Open + 1d + 7d buttons right-aligned. Filter selects get min-height for thumb taps.
+
+## How to test
+
+1. **Wizard buttons**: open any wizard on mobile. Previous/Next stays inline at the bottom of the form (scrolls with content); no longer pinned.
+2. **Upcoming activities**: HoD dashboard. Widget now shows up to 30 days out.
+3. **Evaluation list**: as a head coach, click the Recent evaluations widget's "Show all" link. Your authored evaluations appear — including ones for players who moved teams.
+4. **MyTeam KPIs**: on coach dashboard, click the My team attendance / My team avg rating cards. They're no longer clickable (no hover indicator, no `<a>`). The numeric value still renders as `—`.
+5. **Tasks mobile**: `?tt_view=my-tasks` on a phone. Row layout reflows to 2 rows (meta on top, action toolbar bottom-right). Filter selects are full-width and easy to tap.
+
+## Items NOT in this ship (need design input)
+
+Surfaced to the user after this ship lands:
+
+- **Players list mobile + row-link standard** — design call: should rows be entirely clickable to the row's main entity? Affects every list view in the app.
+- **Mobile credentials / "remember me"** — investigation needed; bounded by WP auth_cookie + browser cookie persistence rules.
+- **HoD KPI strip "still not nice"** — needs specifics from pilot on what's visually off (v3.110.112 already shipped the hero-alignment pass).
+- **Open-task scheduling** — schema change (`tt_workflow_tasks.available_at` column + filter); plus per-template decision on which tasks defer until their target date.
+
+---
+
 # TalentTrack v3.110.125 — Rating form polish: compact input row + per-category Basic / Detailed pill toggle
 
 ## Pilot reports

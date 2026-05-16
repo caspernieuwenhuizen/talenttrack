@@ -708,30 +708,21 @@ class FrontendWizardView extends FrontendViewBase {
                 .tt-wizard-actions { padding-top: 18px; }
             }
 
-            /* #0084 Child 3 — wizard action bar becomes a sticky CTA on
-               phones, mirroring the `.tt-mobile-cta-bar` component
-               registered in `assets/css/mobile-patterns.css`. The wizard
-               aggregator slug is classified `native` so the pattern
-               library is enqueued — but the rule below applies even
-               without it because wizards stand alone in this stylesheet.
-               Submit / Next stays visible while the coach scrolls long
-               forms (closes the v3.78.0 RateActorsStep deferred polish
-               from #0072). */
+            /* v3.110.126 — sticky-on-mobile wizard action bar removed
+               per pilot ask ("the bottom sticky buttons I do not like").
+               Pre-fix #0084 Child 3 pinned Previous / Next / Submit to
+               the bottom of the viewport via `position: sticky` on
+               phones. Pilot prefers them to scroll with the form. The
+               buttons still stretch to full width via the existing
+               flex layout but no longer hover over the form content.
+               Tablet/desktop padding rule kept (it was already non-
+               sticky there). */
             @media (max-width: 720px) {
                 .tt-wizard-form .tt-wizard-actions {
-                    position: sticky;
-                    bottom: 0;
-                    background: #fff;
-                    margin: 16px -12px 0;
-                    padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0)) 12px;
-                    border-top: 1px solid #e0e0e0;
-                    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
-                    z-index: 50;
-                    justify-content: stretch;
+                    margin-top: 16px;
                 }
                 .tt-wizard-form .tt-wizard-actions .tt-button[type="submit"],
                 .tt-wizard-form .tt-wizard-actions button[type="submit"] {
-                    flex: 1 1 100%;
                     min-height: 48px;
                 }
             }
