@@ -1,3 +1,77 @@
+# TalentTrack v3.110.126 — Mobile readiness audit fixes (three waves)
+
+After the v3.110.120 AttendanceStep fix, the pilot asked: *"I need all wizards and front end views to be audited against mobile readiness. Do a proper analysis."* A codebase-wide audit covered 33 wizard steps + 76 frontend views and identified 17 actionable defects across three categories. This ship resolves them.
+
+## Audit findings & resolution
+
+The audit (Explore agent, full report in chat history) flagged:
+
+- 🔴 Blocking: 1 — the AttendanceStep radio matrix, **already fixed** in v3.110.120.
+- 🟠 Poor: 8 — bare `<table class="tt-table">` without horizontal-scroll wrappers.
+- 🟡 Minor: 6 — missing `inputmode` on numeric/decimal inputs + 2 wizard step nits.
+
+This ship handles Waves 1-3 below.
+
+## Wave 1 — Table-wrap retrofit (12 surfaces, 17 tables)
+
+Wrapped every bare `<table class="tt-table">` in `<div class="tt-table-wrap">` so the table scrolls horizontally on viewports narrower than its column count. The `.tt-table-wrap` class (defined in `frontend-admin.css:293` as `overflow-x: auto; -webkit-overflow-scrolling: touch;`) was already in use on several surfaces — this retrofit brings the rest in line.
+
+**Before**: at 360px these tables compressed each column to ~40-60px, making cells illegible. **After**: page-level layout stays mobile-friendly; the data table scrolls as its own region with a touch-friendly momentum scroll.
+
+| Surface | File | Tables wrapped |
+|---|---|---|
+| Audit log | `src/Shared/Frontend/FrontendAuditLogView.php` | 3 (daily breakdown, top usernames, top IPs) |
+| Player comparison | `src/Shared/Frontend/FrontendComparisonView.php` | 1 (upgraded inline `overflow-x:auto` to `.tt-table-wrap`) |
+| Configuration | `src/Shared/Frontend/FrontendConfigurationView.php` | 2 (lookups editor + per-persona override) |
+| Evaluation detail | `src/Shared/Frontend/FrontendEvaluationsView.php` | 1 (rating breakdown) |
+| Functional roles | `src/Shared/Frontend/FrontendFunctionalRolesView.php` | 1 |
+| Migrations | `src/Shared/Frontend/FrontendMigrationsView.php` | 2 (applied + pending) |
+| People manage | `src/Shared/Frontend/FrontendPeopleManageView.php` | 1 (assignments) |
+| Team detail | `src/Shared/Frontend/FrontendTeamDetailView.php` | 5 (attrs / staff / roster / trial / activities) |
+| Teams manage | `src/Shared/Frontend/FrontendTeamsManageView.php` | 2 (roster + staff) |
+| Trial case | `src/Shared/Frontend/FrontendTrialCaseView.php` | 5 (extensions / activities / evals / goals / letter history) |
+| Report detail | `src/Shared/Frontend/FrontendReportDetailView.php` | 2 (per-team + methodology) |
+
+## Wave 2 — `inputmode` retrofit (#0056 continuation)
+
+Added `inputmode="numeric"` or `inputmode="decimal"` to numeric inputs that were missing it. Each one was previously popping up the wrong mobile keyboard.
+
+| Surface | File | Inputs |
+|---|---|---|
+| Players manage form | `src/Shared/Frontend/FrontendPlayersManageView.php` | jersey_number, height_cm, weight_kg → `numeric` |
+| Report wizard | `src/Shared/Frontend/FrontendReportWizardView.php` | `privacy[min_rating_threshold]` → `decimal` |
+| Trial case rating | `src/Shared/Frontend/FrontendTrialCaseView.php` | `overall_rating` → `decimal` |
+| Invitation accept | `src/Modules/Invitations/Frontend/AcceptanceView.php` | `jersey_number` → `numeric` |
+| Ideas refine | `src/Modules/Development/Frontend/IdeasRefineView.php` | `player_id`, `team_id` → `numeric` |
+
+`HybridDeepRateStep` (rating inputs) was already compliant — the audit was off-by-one on that line.
+
+## Wave 3 — Wizard step polish
+
+| Step | File | Change |
+|---|---|---|
+| Activity / Principles | `src/Modules/Wizards/Activity/PrinciplesStep.php` | `<select multiple style="min-width:320px;">` was forcing horizontal scroll on 360px viewports. Changed to `width:100%; min-width:0; max-width:100%; box-sizing:border-box` so the select shrinks to fit instead of overflowing. |
+| Team / Roster | `src/Modules/Wizards/Team/RosterStep.php` | Checkbox-label `min-height` was 32px (below CLAUDE.md §2's 48px tap-target floor). Bumped to 48px and matched `gap`/`padding` for breathing room. |
+| MarkAttendance / RateConfirm | `src/Modules/Wizards/MarkAttendance/RateConfirmStep.php` | Audit flagged inline `min-height:56px` as non-standard. Reviewed: 56px is above the 48px floor and the buttons are functional — kept as-is. No-op. |
+
+## Files
+
+- 11 frontend view files (Wave 1) — wrapped tables only
+- 5 view + 2 wizard step files (Wave 2 + 3)
+- `talenttrack.php` 3.110.125 → 3.110.126
+- `readme.txt`, `CHANGES.md`
+
+No PHP logic change. No CSS change (the `.tt-table-wrap` class was already defined). No JS change. No NL translation change (structural HTML only). Pure mobile-readiness retrofit.
+
+## How to verify
+
+1. Refresh the plugin to v3.110.126.
+2. On a 360px viewport (Chrome DevTools "Moto G5+" or a real phone), visit each Wave-1 view in turn. The page-level layout should fit horizontally without scroll; the data tables should show their own horizontal scrollbar when content exceeds viewport width.
+3. On the Wave-2 inputs (Players manage form, Report wizard privacy step, Trial case rating, Invitation accept, Ideas refine), tap into each numeric field — confirm the mobile keyboard that pops up is the numeric / decimal one (digits-only, with decimal point where applicable), not the full alphabetic keyboard.
+4. Wave-3 wizard steps: open the new-activity wizard's Principles step on a 360px phone — the `<select multiple>` should fit inside the viewport without horizontal scroll. Open the new-team wizard's Roster step on a phone — each player-checkbox row should feel comfortably tappable (48px floor).
+5. Smoke test on desktop ≥1024px: nothing should look different. The table wraps are no-ops when there's enough viewport room.
+---
+
 # TalentTrack v3.110.125 — Rating form polish: compact input row + per-category Basic / Detailed pill toggle
 
 ## Pilot reports
@@ -204,7 +278,6 @@ Hiding doesn't unmount the inputs — `<input>` elements inside the `.tt-rate-su
 2. Hover the pill on desktop → tooltip reads `3 open tasks` (plural-aware, locale-aware).
 3. Tab to the pill → screen reader announces `3 open tasks, link`.
 4. Visit `?tt_view=my-tasks` with zero open tasks → pill shows just `🔔` on a grey background.
-
 ---
 
 # TalentTrack v3.110.123 — Spond sync: cursor-based pagination over `/sponds/` so >100-event groups don't silently drop everything past page 1

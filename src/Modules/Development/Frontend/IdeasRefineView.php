@@ -117,11 +117,11 @@ class IdeasRefineView extends FrontendViewBase {
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <p>
                     <label style="display:block; font-weight:600;"><?php esc_html_e( 'Player ID (optional)', 'talenttrack' ); ?></label>
-                    <input type="number" name="player_id" value="<?php echo esc_attr( (string) ( $idea->player_id ?? '' ) ); ?>" min="0" style="width:100%; padding:8px;" />
+                    <input type="number" name="player_id" value="<?php echo esc_attr( (string) ( $idea->player_id ?? '' ) ); ?>" min="0" inputmode="numeric" style="width:100%; padding:8px;" />
                 </p>
                 <p>
                     <label style="display:block; font-weight:600;"><?php esc_html_e( 'Team ID (optional)', 'talenttrack' ); ?></label>
-                    <input type="number" name="team_id" value="<?php echo esc_attr( (string) ( $idea->team_id ?? '' ) ); ?>" min="0" style="width:100%; padding:8px;" />
+                    <input type="number" name="team_id" value="<?php echo esc_attr( (string) ( $idea->team_id ?? '' ) ); ?>" min="0" inputmode="numeric" style="width:100%; padding:8px;" />
                 </p>
             </div>
 

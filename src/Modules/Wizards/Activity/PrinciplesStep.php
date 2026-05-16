@@ -42,7 +42,7 @@ final class PrinciplesStep implements WizardStepInterface {
         }
 
         echo '<label><span>' . esc_html__( 'Principles', 'talenttrack' ) . '</span>';
-        echo '<select name="activity_principle_ids[]" multiple size="6" style="min-width:320px;">';
+        echo '<select name="activity_principle_ids[]" multiple size="6" style="width:100%; min-width:0; max-width:100%; box-sizing:border-box;">';
         foreach ( $principles as $pr ) {
             $title = '';
             if ( class_exists( '\\TT\\Modules\\Methodology\\Helpers\\MultilingualField' ) ) {

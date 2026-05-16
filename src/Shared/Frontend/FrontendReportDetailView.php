@@ -90,7 +90,7 @@ final class FrontendReportDetailView extends FrontendViewBase {
             return;
         }
 
-        echo '<div style="overflow-x:auto;"><table class="tt-table" style="width:100%; background:#fff; border:1px solid #e5e7ea;"><thead><tr>';
+        echo '<div class="tt-table-wrap"><table class="tt-table" style="width:100%; background:#fff; border:1px solid #e5e7ea;"><thead><tr>';
         echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
         foreach ( $categories as $cat ) {
             echo '<th>' . esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->name ) ) . '</th>';
@@ -174,6 +174,7 @@ final class FrontendReportDetailView extends FrontendViewBase {
             return;
         }
 
+        echo '<div class="tt-table-wrap">';
         echo '<table class="tt-table" style="max-width:800px; background:#fff; border:1px solid #e5e7ea;"><thead><tr>';
         echo '<th>' . esc_html__( 'Coach', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th>';
@@ -187,5 +188,6 @@ final class FrontendReportDetailView extends FrontendViewBase {
             echo '<td>' . esc_html( (string) $r->last_eval ) . '</td></tr>';
         }
         echo '</tbody></table>';
+        echo '</div>';
     }
 }

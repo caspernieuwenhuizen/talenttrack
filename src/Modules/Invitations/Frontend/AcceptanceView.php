@@ -132,7 +132,7 @@ class AcceptanceView {
                             <label style="display:block; font-weight:500;">
                                 <?php esc_html_e( 'Jersey number (optional)', 'talenttrack' ); ?>
                             </label>
-                            <input type="number" name="jersey_number" min="0" max="999" style="width:120px; padding:8px;" />
+                            <input type="number" name="jersey_number" min="0" max="999" inputmode="numeric" style="width:120px; padding:8px;" />
                         </p>
                         <p style="color:#777; font-size:12px; margin:0;">
                             <?php

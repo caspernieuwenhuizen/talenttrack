@@ -284,11 +284,13 @@ class FrontendTrialCaseView extends FrontendViewBase {
         if ( ! $extensions ) {
             echo '<p>' . esc_html__( 'No extensions yet.', 'talenttrack' ) . '</p>';
         } else {
+            echo '<div class="tt-table-wrap">';
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Extended at', 'talenttrack' ) . '</th><th>' . esc_html__( 'Previous end', 'talenttrack' ) . '</th><th>' . esc_html__( 'New end', 'talenttrack' ) . '</th><th>' . esc_html__( 'Justification', 'talenttrack' ) . '</th></tr></thead><tbody>';
             foreach ( $extensions as $e ) {
                 echo '<tr><td>' . esc_html( (string) $e->extended_at ) . '</td><td>' . esc_html( (string) $e->previous_end_date ) . '</td><td>' . esc_html( (string) $e->new_end_date ) . '</td><td>' . esc_html( (string) $e->justification ) . '</td></tr>';
             }
             echo '</tbody></table>';
+            echo '</div>';
         }
         if ( TrialCaseAccessPolicy::isManager( $user_id ) && in_array( $case->status, [ 'open', 'extended' ], true ) ) {
             self::renderExtensionForm( (int) $case->id, (string) $case->end_date );
@@ -368,11 +370,13 @@ class FrontendTrialCaseView extends FrontendViewBase {
         if ( ! $activities ) {
             echo '<p>' . esc_html__( 'No activities yet during this trial period.', 'talenttrack' ) . '</p>';
         } else {
+            echo '<div class="tt-table-wrap">';
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Type', 'talenttrack' ) . '</th><th>' . esc_html__( 'Attendance', 'talenttrack' ) . '</th></tr></thead><tbody>';
             foreach ( $activities as $a ) {
                 echo '<tr><td>' . esc_html( (string) $a->activity_date ) . '</td><td>' . esc_html( (string) $a->activity_type_key ) . '</td><td>' . esc_html( (string) ( $a->attendance ?? '—' ) ) . '</td></tr>';
             }
             echo '</tbody></table>';
+            echo '</div>';
         }
         echo '</section>';
 
@@ -387,12 +391,14 @@ class FrontendTrialCaseView extends FrontendViewBase {
         if ( ! $evals ) {
             echo '<p>' . esc_html__( 'No evaluations yet during this trial period.', 'talenttrack' ) . '</p>';
         } else {
+            echo '<div class="tt-table-wrap">';
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Evaluator', 'talenttrack' ) . '</th></tr></thead><tbody>';
             foreach ( $evals as $e ) {
                 $u = get_userdata( (int) $e->evaluator_user_id );
                 echo '<tr><td>' . esc_html( (string) $e->eval_date ) . '</td><td>' . esc_html( $u ? (string) $u->display_name : '#' . (int) $e->evaluator_user_id ) . '</td></tr>';
             }
             echo '</tbody></table>';
+            echo '</div>';
         }
         echo '</section>';
 
@@ -412,11 +418,13 @@ class FrontendTrialCaseView extends FrontendViewBase {
         if ( ! $goals ) {
             echo '<p>' . esc_html__( 'No goals yet during this trial period.', 'talenttrack' ) . '</p>';
         } else {
+            echo '<div class="tt-table-wrap">';
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Title', 'talenttrack' ) . '</th><th>' . esc_html__( 'Status', 'talenttrack' ) . '</th><th>' . esc_html__( 'Priority', 'talenttrack' ) . '</th><th>' . esc_html__( 'Updated', 'talenttrack' ) . '</th></tr></thead><tbody>';
             foreach ( $goals as $g ) {
                 echo '<tr><td>' . esc_html( (string) $g->title ) . '</td><td>' . esc_html( (string) $g->status ) . '</td><td>' . esc_html( (string) $g->priority ) . '</td><td>' . esc_html( (string) $g->updated_at ) . '</td></tr>';
             }
             echo '</tbody></table>';
+            echo '</div>';
         }
         echo '</section>';
     }
@@ -491,6 +499,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
         echo '<input type="hidden" name="tt_trial_action" value="save_input">';
 
         // v3.110.116 — bounds + label follow `tt_config` rating scale.
+        // v3.110.123 — added inputmode="decimal" so mobile keyboards open the right layout.
         $tt_rmin = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' );
         $tt_rmax = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
         $tt_label = sprintf(
@@ -499,7 +508,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
             (string) $tt_rmin,
             (string) $tt_rmax
         );
-        echo '<label>' . esc_html( $tt_label ) . ' <input type="number" step="0.1" min="' . esc_attr( (string) $tt_rmin ) . '" max="' . esc_attr( (string) $tt_rmax ) . '" name="overall_rating" value="' . esc_attr( $existing && $existing->overall_rating !== null ? (string) $existing->overall_rating : '' ) . '"></label>';
+        echo '<label>' . esc_html( $tt_label ) . ' <input type="number" step="0.1" inputmode="decimal" min="' . esc_attr( (string) $tt_rmin ) . '" max="' . esc_attr( (string) $tt_rmax ) . '" name="overall_rating" value="' . esc_attr( $existing && $existing->overall_rating !== null ? (string) $existing->overall_rating : '' ) . '"></label>';
         echo '<label>' . esc_html__( 'Notes', 'talenttrack' ) . ' <textarea name="free_text_notes" rows="4">' . esc_textarea( $existing ? (string) $existing->free_text_notes : '' ) . '</textarea></label>';
         echo '<div class="tt-form-actions">';
         echo '<button type="submit" name="submit_action" value="draft" class="tt-button">' . esc_html__( 'Save draft', 'talenttrack' ) . '</button> ';
@@ -589,12 +598,14 @@ class FrontendTrialCaseView extends FrontendViewBase {
         $history = $svc->listForCase( (int) $case->id );
         if ( $history ) {
             echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Letter history', 'talenttrack' ) . '</h2>';
+            echo '<div class="tt-table-wrap">';
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Generated at', 'talenttrack' ) . '</th><th>' . esc_html__( 'Audience', 'talenttrack' ) . '</th><th>' . esc_html__( 'Status', 'talenttrack' ) . '</th></tr></thead><tbody>';
             foreach ( $history as $row ) {
                 $status = $row->revoked_at ? __( 'Revoked', 'talenttrack' ) : __( 'Active', 'talenttrack' );
                 echo '<tr><td>' . esc_html( (string) $row->created_at ) . '</td><td>' . esc_html( (string) $row->audience ) . '</td><td>' . esc_html( $status ) . '</td></tr>';
             }
-            echo '</tbody></table></section>';
+            echo '</tbody></table>';
+            echo '</div></section>';
         }
     }
 

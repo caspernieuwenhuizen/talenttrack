@@ -606,7 +606,7 @@ class FrontendComparisonView extends FrontendViewBase {
             return;
         }
         ?>
-        <div style="overflow-x:auto;">
+        <div class="tt-table-wrap">
             <table class="tt-table" style="width:100%; background:#fff;">
                 <thead>
                     <tr>

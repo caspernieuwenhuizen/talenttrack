@@ -303,7 +303,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 ] ); ?>
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-player-jersey"><?php esc_html_e( 'Jersey number', 'talenttrack' ); ?></label>
-                    <input type="number" id="tt-player-jersey" class="tt-input" name="jersey_number" min="1" max="999" value="<?php echo esc_attr( (string) ( $player->jersey_number ?? '' ) ); ?>" />
+                    <input type="number" id="tt-player-jersey" class="tt-input" name="jersey_number" min="1" max="999" inputmode="numeric" value="<?php echo esc_attr( (string) ( $player->jersey_number ?? '' ) ); ?>" />
                 </div>
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-player-foot"><?php esc_html_e( 'Preferred foot', 'talenttrack' ); ?></label>
@@ -316,11 +316,11 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 </div>
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-player-height"><?php esc_html_e( 'Height (cm)', 'talenttrack' ); ?></label>
-                    <input type="number" id="tt-player-height" class="tt-input" name="height_cm" min="100" max="250" value="<?php echo esc_attr( (string) ( $player->height_cm ?? '' ) ); ?>" />
+                    <input type="number" id="tt-player-height" class="tt-input" name="height_cm" min="100" max="250" inputmode="numeric" value="<?php echo esc_attr( (string) ( $player->height_cm ?? '' ) ); ?>" />
                 </div>
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-player-weight"><?php esc_html_e( 'Weight (kg)', 'talenttrack' ); ?></label>
-                    <input type="number" id="tt-player-weight" class="tt-input" name="weight_kg" min="20" max="200" value="<?php echo esc_attr( (string) ( $player->weight_kg ?? '' ) ); ?>" />
+                    <input type="number" id="tt-player-weight" class="tt-input" name="weight_kg" min="20" max="200" inputmode="numeric" value="<?php echo esc_attr( (string) ( $player->weight_kg ?? '' ) ); ?>" />
                 </div>
             </div>
 

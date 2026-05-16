@@ -54,7 +54,7 @@ final class RosterStep implements WizardStepInterface {
                     $team_name = (string) ( $pl->team_name ?? '' );
                     $checked   = in_array( (int) $pl->id, $picked, true );
                     ?>
-                    <label style="display:flex; align-items:center; gap:8px; padding:4px 0; min-height:32px;">
+                    <label style="display:flex; align-items:center; gap:12px; padding:8px 0; min-height:48px;">
                         <input type="checkbox" name="roster_player_ids[]" value="<?php echo (int) $pl->id; ?>" <?php checked( $checked ); ?> />
                         <span><?php echo esc_html( $name ); ?></span>
                         <?php if ( $team_name !== '' ) : ?>

@@ -234,6 +234,7 @@ class FrontendPeopleManageView extends FrontendViewBase {
             return;
         }
 
+        echo '<div class="tt-table-wrap">';
         echo '<table class="tt-table"><thead><tr>';
         echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Role', 'talenttrack' ) . '</th>';
@@ -253,6 +254,7 @@ class FrontendPeopleManageView extends FrontendViewBase {
             echo '</tr>';
         }
         echo '</tbody></table>';
+        echo '</div>';
 
         echo '<p style="margin-top:8px;"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $manage_url ) . '">'
             . esc_html__( 'Manage assignments', 'talenttrack' )
