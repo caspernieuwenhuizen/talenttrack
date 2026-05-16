@@ -148,6 +148,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         }
 
         echo '<div class="tt-fnrole-types" data-tt-fnrole-types="1">';
+        echo '<div class="tt-table-wrap">';
         echo '<table class="tt-table"><thead><tr>';
         echo '<th></th>';
         echo '<th>' . esc_html__( 'Label',       'talenttrack' ) . '</th>';
@@ -204,6 +205,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
             <?php
         }
         echo '</tbody></table>';
+        echo '</div>';
         echo '<p class="tt-form-msg" data-tt-fnrole-msg="1" style="margin-top:8px;"></p>';
         echo '</div>';
     }

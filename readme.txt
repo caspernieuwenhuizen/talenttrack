@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.203
+Stable tag: 3.110.206
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.206 — Mobile readiness audit follow-up (#423): three waves of mechanical retrofits. Wave 1 — wrapped bare `<table class="tt-table">` in `<div class="tt-table-wrap">` across audit log, comparison, evaluations, functional roles, migrations, people, team detail (5 tables), teams manage (2), trial case (5), report detail (2) — 17 tables total so they scroll horizontally as their own region at 360px instead of crushing columns. Wave 2 — added the right `inputmode` to 6 numeric inputs (players manage jersey/height/weight → `numeric`, report wizard min-rating-threshold → `decimal`, trial case overall_rating → `decimal`, invitation accept jersey → `numeric`, ideas refine player/team IDs → `numeric`). Wave 3 — Activity wizard PrinciplesStep multi-select now `width:100%; min-width:0` (fits 360px viewports); Team wizard RosterStep checkbox-label `min-height: 48px` (CLAUDE.md §2 tap floor). No PHP logic change, no CSS change (`.tt-table-wrap` was already defined), no JS, no schema, no REST. Two conflict regions in the rebase were merged-in: the Configuration → Lookups `<table>` was already replaced by the master-detail rewrite (#830) so the table-wrap retrofit on that view is now a no-op (dropped); the report-wizard min-rating-threshold input kept HEAD's dynamic-bounds and gained the PR's `inputmode="decimal"`. (closes #423) =
 
 = 3.110.203 — Configuration → Lookups editor now uses a mobile-collapsible master-detail layout: a left rail lists every row, a right pane holds the edit-or-add form. Above 768px the two render side by side so the form is always visible; below 768px they stack and selecting a row reveals the form with a "← Back to list" pill. Row clicks populate the form in place (no page navigation) — translations for every row are bulk-loaded in one SELECT and baked into the rail as `data-row-*` attributes. Save / Cancel via the shared `FormSaveButton::render()` helper per CLAUDE.md § 6; the footer pins to the bottom of the pane. Drag-reorder, per-locale translate engine, and the row-delete flow are unchanged. (closes #830) =
 

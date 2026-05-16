@@ -1,67 +1,67 @@
-# TalentTrack v3.110.203 — Lookup editor switches to a mobile-collapsible master-detail layout (closes #830)
+# TalentTrack v3.110.206 — Mobile readiness audit follow-up: table-wrap retrofit, inputmode retrofit, wizard step nits (closes #423)
 
 ## Why
 
-Before this release, the Configuration → Lookups editor for a single category rendered linearly:
+Follow-up to v3.110.120 (AttendanceStep card UI), originally opened in late 2026-05 and held until rebase appetite returned. The audit identified three classes of mobile-readiness gaps still present on the dashboard at 360px:
 
-1. Table of rows at the top.
-2. Add/Edit form stacked underneath.
-3. Editing a row reloaded the page with `?edit=N` and scrolled the form into view.
+1. Bare `<table class="tt-table">` elements were crushed into unreadable cells on narrow viewports because they were missing the `.tt-table-wrap` scroll container.
+2. Numeric `<input type="number">` elements were missing the matching `inputmode` attribute, so mobile keyboards popped up alphabetic-first instead of numeric/decimal.
+3. Two wizard steps had unfriendly mobile defaults — multi-select forced 320px min-width and a checkbox row sat below the 48×48 tap floor.
 
-On a category with ~5+ rows plus the six-locale translation block (which expands to ~12 inputs per row when `show_desc=true`), the form sat 1.5–2 screens down. An academy operator had to scroll to discover the editor existed, then scroll up to confirm a save took effect, then scroll back down to edit the next row. Pilot report (2026-05-20): *"the form is too far down to be useful when I'm working through a dozen rows."*
+CLAUDE.md §2 codifies the standard. This release closes the remaining offenders found by the audit.
 
-## What changed
+## Wave 1 — table-wrap retrofit (17 tables across 12 surfaces)
 
-`FrontendConfigurationView::renderLookupCategoryEditor()` is rewritten as a two-pane layout:
+Wrapped every offender:
 
-- **Left rail (`.tt-lookup-md-rail`)**: lists every row. Drag-handle, optional colour swatch, name, sort order, delete pill. Selected row highlighted. "+ Add new" button sticky at the top of the rail.
-- **Right pane (`.tt-lookup-md-pane`)**: the edit-or-add form. Same fields as before (name, sort_order, optional description, optional pill colour, per-locale translations block). Save / Cancel pinned to the bottom of the pane via `FormSaveButton::render()` with a `cancel_url` per CLAUDE.md § 6.
+- `FrontendAuditLogView`
+- `FrontendComparisonView`
+- `FrontendEvaluationsView`
+- `FrontendFunctionalRolesView`
+- `FrontendMigrationsView`
+- `FrontendPeopleManageView`
+- `FrontendTeamDetailView` (5 tables)
+- `FrontendTeamsManageView` (2 tables)
+- `FrontendTrialCaseView` (5 tables)
+- `FrontendReportDetailView` (2 tables)
 
-Layout breakpoint: 768px. Above → two-column grid (`minmax(0, 2fr) minmax(0, 3fr)`). Below → stacked. On mobile a row tap reveals the pane and hides the rail; a `← Back to list` pill in the pane header returns to the rail. `?edit=N` deep-links also open the pane on initial load.
+`.tt-table-wrap` was already defined in `public.css` (the AttendanceStep card retrofit shipped it). Each table now scrolls horizontally inside its own region instead of pushing the surrounding page layout.
 
-## Row click = in-place form populate, no page reload
+**Lookups admin (`FrontendConfigurationView::renderLookupCategoryEditor`) intentionally dropped from the retrofit on rebase**: the master-detail layout that landed in v3.110.203 (#830) replaced the table with a `<ul class="tt-lookup-md-list">` rail — the table-wrap retrofit is no longer applicable to that view.
 
-Each rail row carries its full payload as `data-row-*` attributes:
+## Wave 2 — `inputmode` retrofit (6 numeric inputs)
 
-- `data-row-name`, `data-row-sort`, `data-row-desc`, `data-row-color`, `data-row-locked`
-- `data-row-tx` — JSON blob of every translation (`locale → field → value`) for that row.
+| Surface | Field | inputmode |
+|---|---|---|
+| `FrontendPlayersManageView` | jersey | `numeric` |
+| `FrontendPlayersManageView` | height_cm | `numeric` |
+| `FrontendPlayersManageView` | weight_kg | `numeric` |
+| `FrontendReportWizardView` | privacy.min_rating_threshold | `decimal` |
+| `FrontendTrialCaseView` | overall_rating | `decimal` |
+| `Invitations/Frontend/AcceptanceView` | jersey | `numeric` |
+| `Development/Frontend/IdeasRefineView` | player_id / team_id | `numeric` |
 
-A small JS handler reads those attributes on click and writes them into the form's inputs by name selector + the existing `[data-tt-tx-locale][data-tt-tx-field]` per-locale selectors. The URL is updated via `history.replaceState` so a refresh keeps the selected row, but there's no full navigation.
+Two of these conflicted with main on rebase. Resolution kept HEAD's dynamic bounds (read from `tt_config rating_min/rating_max` so they track the academy's configured scale) and added the PR's `inputmode="decimal"`. The hardcoded `min="1" max="5"` from the original PR is gone — it would have regressed v3.110.116's rating-scale work.
 
-## Translations bulk-load
+## Wave 3 — wizard step nits
 
-To make in-place populate fast and keep the page render cheap, a new private helper `loadTranslationsForLookupIds()` does **one** `SELECT entity_id, field, locale, value FROM tt_translations WHERE entity_type='lookup' AND entity_id IN (…)` per page render, regardless of how many rows are in the rail. The result is keyed `id → locale → field → value` and shared between the server-side render path (currently-editing row) and the JSON blob baked into the rail rows.
-
-This replaces N+1 calls to `TranslationsRepository::allFor()` (one per row) that would have made the new layout O(rows × locales) at render time.
-
-## Acceptance ticked
-
-- [x] Two-pane layout on ≥768px, stacked on <768px
-- [x] Row click loads form values in-place (no full page reload)
-- [x] Translation block scrolls inside the right pane (`max-height: 70vh; overflow-y: auto`), not the whole page
-- [x] Drag-reorder (`DragReorder::renderScript`) still works in the rail — same `data-tt-sortable` hook
-- [x] Save/Cancel pinned at the bottom of the right pane via `FormSaveButton::render()` with `cancel_url`
-- [x] All 18 currently-registered categories render correctly (10 original + 8 from v3.110.201) with both `show_desc=true` and `show_color=true` variants
-- [x] No regression on the Translate engine button (still calls `/translations/preview` and fills the per-locale fields)
+- `Activity/PrinciplesStep`: multi-select gains `width:100%; min-width:0; max-width:100%; box-sizing:border-box; font-size:16px` so it fits 360px viewports and doesn't trigger iOS auto-zoom on focus.
+- `Team/RosterStep`: checkbox-label `min-height: 48px` bumped from 32px so the row meets the §2 tap floor.
 
 ## What's unchanged
 
-- REST contract (`/lookups/<type>` POST / `/lookups/<type>/<id>` PUT / DELETE).
-- Cap gate (`tt_edit_settings`).
-- Validation, sanitisation, audit logging — all repository-side.
-- The `?edit=N` URL pattern as a deep-link entry point.
-- Drag-reorder endpoint + wp-admin caller (the same `DragReorder::renderScript` wires it up).
+- No PHP logic. No CSS file changes (`.tt-table-wrap` was already defined). No JS. No schema, no migration, no REST. Pure structural retrofit.
+- The wp-admin admin surfaces are out of scope (they're not part of the mobile-first standard).
+- The CSV/JSON exporters render machine-readable tables and are intentionally not wrapped.
 
 ## How to test
 
-1. Open Configuration → Lookups → any category (try *Evaluation types* — 6 rows × 6 locales × 2 fields is a heavy case).
-2. ≥768px: two-pane layout. Click any row → form on the right populates immediately, no flash, no reload. URL gains `?edit=<id>`. Translation inputs show the row's per-locale values.
-3. Click "+ Add new" → form blanks; URL drops `?edit`; Save button label changes to "Add row".
-4. <768px (DevTools mobile preset, 360px): rail fills the viewport. Tap a row → rail hides, pane fills the viewport with a "← Back to list" pill. Tap Back → rail returns.
-5. Save / Cancel — Save lands; Cancel returns to the base category URL (drops `?edit`). Both pinned at the bottom of the pane footer.
-6. Drag-reorder: grab a row's `⋮⋮` handle, drop in a new position. Server save fires (same path as before); reload preserves the new order.
-7. Delete: click the row's red `×`. Confirmation prompt. On confirm, reload, row gone.
+- [ ] At 360px DevTools viewport, visit each Wave-1 view; data tables show their own horizontal scrollbar when wide, page layout stays put.
+- [ ] Tap into each Wave-2 input on a real phone; numeric/decimal keyboard pops up (not full alphabetic).
+- [ ] Open new-activity wizard's Principles step on 360px phone — `<select multiple>` fits inside viewport, no horizontal scroll, focusing doesn't trigger iOS auto-zoom.
+- [ ] Open new-team wizard's Roster step on phone — checkbox rows feel comfortably tappable (48px min).
+- [ ] Desktop ≥1024px smoke test: nothing should look different.
 
-## Effort
+## Rebase notes
 
-~120 lines of PHP delta, ~110 lines of inline CSS, ~80 lines of JS for the row-click / blank-form / mobile pane-toggle handlers. One new private helper. Single file touched (`FrontendConfigurationView.php`).
+This PR sat open for ~5 days while v3.110.200 → v3.110.203 shipped. The rebase had eight conflicts; six were trivial (version bump, changelog header, side-by-side `inputmode` additions). Two were structural: the lookups admin's `<table>` is gone (master-detail rewrite) and the report-wizard input merged correctly with the dynamic-bounds work from v3.110.116.

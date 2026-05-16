@@ -98,6 +98,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             if ( $detail_rows !== [] ) :
                 ?>
                 <section class="tt-pde-section">
+                    <div class="tt-table-wrap">
                     <table class="tt-table tt-team-attrs-table">
                         <tbody>
                             <?php foreach ( $detail_rows as $row ) : ?>
@@ -108,6 +109,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+                    </div>
                 </section>
             <?php endif; ?>
 
@@ -167,6 +169,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         ?>
         <section class="tt-pde-section">
             <h3><?php esc_html_e( 'Staff', 'talenttrack' ); ?></h3>
+            <div class="tt-table-wrap">
             <table class="tt-table tt-team-staff-table">
                 <thead>
                     <tr>
@@ -193,6 +196,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
         </section>
         <?php
     }
@@ -234,6 +238,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         ?>
         <section class="tt-pde-section">
             <h3><?php esc_html_e( 'Roster', 'talenttrack' ); ?></h3>
+            <div class="tt-table-wrap">
             <table class="tt-table">
                 <thead>
                     <tr>
@@ -275,6 +280,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
         </section>
         <?php
     }
@@ -309,6 +315,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         if ( empty( $players ) ) return;
         echo '<section class="tt-pde-section">';
         echo '<h3>' . esc_html__( 'Trial players', 'talenttrack' ) . '</h3>';
+        echo '<div class="tt-table-wrap">';
         echo '<table class="tt-table tt-team-trial-table"><thead><tr>';
         echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
@@ -322,6 +329,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             echo '</tr>';
         }
         echo '</tbody></table>';
+        echo '</div>';
         echo '</section>';
     }
 
@@ -354,6 +362,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         // coach edits on the activity form).
         echo '<section class="tt-pde-section">';
         echo '<h3>' . esc_html__( 'Upcoming activities', 'talenttrack' ) . '</h3>';
+        echo '<div class="tt-table-wrap">';
         echo '<table class="tt-table tt-team-activities-table"><thead><tr>';
         echo '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Title', 'talenttrack' ) . '</th>';
@@ -379,6 +388,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             echo '</tr>';
         }
         echo '</tbody></table>';
+        echo '</div>';
         echo '</section>';
     }
 
