@@ -140,6 +140,38 @@ class TournamentsRestController {
             ],
         ] );
 
+        // Planner hydrate — single fetch returning everything the
+        // grid needs (formation slot_labels + squad + current
+        // assignments).
+        register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/planner', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_planner' ],
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    return AuthorizationService::canViewTournament(
+                        get_current_user_id(),
+                        (int) $r['id']
+                    );
+                },
+            ],
+        ] );
+
+        // Planner write — bulk-replace assignments for one match.
+        // Click-to-swap on the grid PATCHes the full new state here
+        // each interaction. Idempotent.
+        register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/assignments', [
+            [
+                'methods'             => 'PATCH',
+                'callback'            => [ __CLASS__, 'update_assignments' ],
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    return AuthorizationService::canEditTournament(
+                        get_current_user_id(),
+                        (int) $r['id']
+                    );
+                },
+            ],
+        ] );
+
         // Squad bulk replace.
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/squad', [
             [
@@ -393,6 +425,118 @@ class TournamentsRestController {
         return RestResponse::success( self::fetchMatch( $match_id ) );
     }
 
+    /**
+     * GET /tournaments/{id}/matches/{m_id}/planner — single fetch
+     * bundle for the planner grid. Returns the formation's slot
+     * labels (so the JS doesn't need to round-trip the lookup table),
+     * the current squad, and the existing assignments for this match.
+     */
+    public static function get_planner( \WP_REST_Request $r ) {
+        $tournament_id = (int) $r['id'];
+        $match_id      = (int) $r['match_id'];
+
+        $tournament = self::fetchTournamentRow( $tournament_id );
+        if ( ! $tournament ) return RestResponse::notFound( 'tournament_not_found' );
+
+        $match = self::fetchMatch( $match_id );
+        if ( ! $match || (int) $match['tournament_id'] !== $tournament_id ) {
+            return RestResponse::notFound( 'match_not_found' );
+        }
+
+        $effective_formation = $match['formation'] !== ''
+            ? $match['formation']
+            : (string) ( $tournament->default_formation ?? '' );
+
+        $slot_labels = self::lookupSlotLabels( $effective_formation );
+
+        global $wpdb; $p = $wpdb->prefix;
+        $assignments = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, period_index, player_id, position_code
+               FROM {$p}tt_tournament_assignments
+              WHERE match_id = %d AND club_id = %d",
+            $match_id, CurrentClub::id()
+        ), ARRAY_A ) ?: [];
+
+        return RestResponse::success( [
+            'match'        => $match,
+            'formation'    => [
+                'name'        => $effective_formation,
+                'slot_labels' => $slot_labels,
+            ],
+            'squad'        => self::fetchSquad( $tournament_id ),
+            'periods'      => count( $match['substitution_windows'] ) + 1,
+            'minutes_per_period' => self::minutesPerPeriod( (int) $match['duration_min'], count( $match['substitution_windows'] ) ),
+            'assignments'  => array_map( static function ( $a ) {
+                return [
+                    'period_index'  => (int) $a['period_index'],
+                    'player_id'     => (int) $a['player_id'],
+                    'position_code' => (string) $a['position_code'],
+                ];
+            }, $assignments ),
+        ] );
+    }
+
+    /**
+     * PATCH /tournaments/{id}/matches/{m_id}/assignments — wipe and
+     * replace the assignments for one match. Payload shape:
+     *
+     *   { assignments: [
+     *       { period_index, player_id, position_code },
+     *       ...
+     *     ] }
+     *
+     * Idempotent. Click-to-swap on the grid sends the full new state
+     * every interaction (small payloads: a 7v7 match × 2 periods is
+     * 14 rows, ~600 bytes JSON).
+     */
+    public static function update_assignments( \WP_REST_Request $r ) {
+        $tournament_id = (int) $r['id'];
+        $match_id      = (int) $r['match_id'];
+
+        $match = self::fetchMatch( $match_id );
+        if ( ! $match || (int) $match['tournament_id'] !== $tournament_id ) {
+            return RestResponse::notFound( 'match_not_found' );
+        }
+        if ( ! empty( $match['completed_at'] ) && ! $r->get_param( 'force' ) ) {
+            return RestResponse::error( 'match_completed', __( 'Match already completed. Pass force=1 to edit a locked lineup.', 'talenttrack' ), 409 );
+        }
+
+        $payload = $r->get_param( 'assignments' );
+        if ( ! is_array( $payload ) ) {
+            return RestResponse::error( 'invalid_payload', __( 'Assignments payload must be an array.', 'talenttrack' ), 422 );
+        }
+
+        global $wpdb; $p = $wpdb->prefix;
+        $wpdb->delete( "{$p}tt_tournament_assignments", [ 'match_id' => $match_id, 'club_id' => CurrentClub::id() ] );
+
+        $period_count = count( $match['substitution_windows'] ) + 1;
+        $seen = []; // dedup (period, player) within the payload
+        foreach ( $payload as $row ) {
+            $period   = isset( $row['period_index'] ) ? (int) $row['period_index'] : -1;
+            $player   = isset( $row['player_id'] ) ? (int) $row['player_id'] : 0;
+            $position = isset( $row['position_code'] ) ? strtoupper( sanitize_key( (string) $row['position_code'] ) ) : '';
+            if ( $period < 0 || $period >= $period_count ) continue;
+            if ( $player <= 0 ) continue;
+            $key = $period . '|' . $player;
+            if ( isset( $seen[ $key ] ) ) continue;
+            $seen[ $key ] = true;
+            $wpdb->insert( "{$p}tt_tournament_assignments", [
+                'match_id'      => $match_id,
+                'club_id'       => CurrentClub::id(),
+                'period_index'  => $period,
+                'player_id'     => $player,
+                'position_code' => $position !== '' ? $position : 'BENCH',
+            ] );
+        }
+
+        do_action( 'tt_tournament_assignments_updated', $tournament_id, $match_id );
+
+        return RestResponse::success( [
+            'match_id' => $match_id,
+            'totals'   => self::computeTotals( $tournament_id ),
+        ] );
+    }
+
     public static function update_match( \WP_REST_Request $r ) {
         global $wpdb; $p = $wpdb->prefix;
         $tournament_id = (int) $r['id'];
@@ -528,6 +672,41 @@ class TournamentsRestController {
     }
 
     // ---- helpers ------------------------------------------------------------
+
+    /**
+     * Fetch a formation's `slot_labels` from the tt_lookups row.
+     * Returns a list-of-lists shape: each outer entry is a formation
+     * line (GK / DEF / MID / FWD), each inner entry is the slot
+     * codes for that line (e.g. ["RB","CB","LB"]).
+     *
+     * Returns an empty array when the formation isn't seeded or
+     * when meta.slot_labels is missing.
+     *
+     * @return array<int, array<int, string>>
+     */
+    private static function lookupSlotLabels( string $formation_name ): array {
+        if ( $formation_name === '' ) return [];
+        global $wpdb; $p = $wpdb->prefix;
+        $meta_raw = (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT meta FROM {$p}tt_lookups WHERE lookup_type = %s AND name = %s LIMIT 1",
+            'tournament_formation',
+            $formation_name
+        ) );
+        if ( $meta_raw === '' ) return [];
+        $meta = json_decode( $meta_raw, true );
+        if ( ! is_array( $meta ) ) return [];
+        $labels = $meta['slot_labels'] ?? [];
+        if ( ! is_array( $labels ) ) return [];
+        return $labels;
+    }
+
+    /**
+     * Minutes per period assuming even splits. `N windows → N+1 periods`.
+     */
+    private static function minutesPerPeriod( int $duration_min, int $windows_count ): int {
+        $periods = max( 1, $windows_count + 1 );
+        return (int) round( $duration_min / $periods );
+    }
 
     private static function clampPerPage( $value ): int {
         $n = absint( $value );

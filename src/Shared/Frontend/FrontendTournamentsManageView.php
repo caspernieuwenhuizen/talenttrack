@@ -38,6 +38,30 @@ use TT\Shared\Frontend\Components\FrontendListTable;
  */
 class FrontendTournamentsManageView extends FrontendViewBase {
 
+    private static bool $planner_assets_enqueued = false;
+
+    /**
+     * Lazy-enqueue the planner JS + CSS only on the detail view.
+     * The list view doesn't need them; the form view doesn't either.
+     */
+    private static function enqueuePlannerAssets(): void {
+        if ( self::$planner_assets_enqueued ) return;
+        wp_enqueue_style(
+            'tt-tournament-planner',
+            TT_PLUGIN_URL . 'assets/css/tournament-planner.css',
+            [ 'tt-frontend-admin' ],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-tournament-planner',
+            TT_PLUGIN_URL . 'assets/js/tournament-planner.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        self::$planner_assets_enqueued = true;
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
 
@@ -180,6 +204,9 @@ class FrontendTournamentsManageView extends FrontendViewBase {
      * read-only stacks so CRUD can be exercised end-to-end.
      */
     private static function renderDetail( object $tournament, int $user_id, bool $is_admin ): void {
+        // Planner JS + CSS lazy-loaded only on the detail view.
+        self::enqueuePlannerAssets();
+
         $base_url = remove_query_arg( [ 'action', 'id' ] );
         $edit_url = add_query_arg( [ 'tt_view' => 'tournaments', 'id' => (int) $tournament->id, 'action' => 'edit' ], $base_url );
 
@@ -247,17 +274,13 @@ class FrontendTournamentsManageView extends FrontendViewBase {
             </div>
         </div>
 
-        <p class="tt-notice tt-notice-info">
-            <?php esc_html_e( 'The interactive planner grid + minutes ticker land in a follow-up. For now, the matches and squad are listed below.', 'talenttrack' ); ?>
-        </p>
-
         <h3><?php esc_html_e( 'Matches', 'talenttrack' ); ?></h3>
         <?php if ( ! $matches ) : ?>
             <p class="tt-muted"><?php esc_html_e( 'No matches yet.', 'talenttrack' ); ?></p>
         <?php else : ?>
             <ol class="tt-tournament-matches" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:var(--tt-sp-3, 12px);">
                 <?php foreach ( $matches as $m ) : ?>
-                    <li class="tt-card" style="padding:var(--tt-sp-3, 12px);border:1px solid var(--tt-line, #e2e8f0);border-radius:var(--tt-r-md, 8px);">
+                    <li class="tt-card" data-tt-tournament-planner="1" data-tournament-id="<?php echo (int) $tournament->id; ?>" data-match-id="<?php echo (int) $m->id; ?>" style="padding:var(--tt-sp-3, 12px);border:1px solid var(--tt-line, #e2e8f0);border-radius:var(--tt-r-md, 8px);">
                         <strong>
                             <?php
                             $label = (string) ( $m->label ?? '' );
@@ -285,6 +308,11 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                             echo esc_html( implode( ' · ', $bits ) );
                             ?>
                         </div>
+
+                        <button type="button" class="tt-planner-toggle" data-tt-planner-toggle="1" aria-expanded="false">
+                            <?php esc_html_e( 'Open planner grid', 'talenttrack' ); ?>
+                        </button>
+                        <div class="tt-planner-body" data-tt-planner-body="1" hidden></div>
                     </li>
                 <?php endforeach; ?>
             </ol>

@@ -1,0 +1,123 @@
+/* #0093 chunk 5 — tournament planner grid.
+ *
+ * Mobile-first layout. The grid wraps in a horizontal-scroll
+ * container; columns stay legible at 360px. Cells are tap-targets:
+ * min 44px tall on mobile, 36px on desktop.
+ */
+
+.tt-dashboard .tt-planner-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: var(--tt-bg-soft, #f1f5f9);
+    border: 1px solid var(--tt-line, #e2e8f0);
+    border-radius: 4px;
+    color: var(--tt-primary, #0f172a);
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    min-height: 44px;
+}
+.tt-dashboard .tt-planner-toggle:hover {
+    background: #fff;
+    border-color: var(--tt-primary, #0f172a);
+}
+.tt-dashboard .tt-planner-toggle[aria-expanded="true"]::before { content: "▾ "; }
+.tt-dashboard .tt-planner-toggle[aria-expanded="false"]::before { content: "▸ "; }
+
+.tt-dashboard .tt-planner-body {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--tt-line, #e2e8f0);
+}
+
+.tt-dashboard .tt-planner-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.tt-dashboard .tt-planner-table thead th {
+    text-align: left;
+    padding: 6px 8px;
+    font-weight: 600;
+    color: var(--tt-muted, #475569);
+    border-bottom: 1px solid var(--tt-line, #e2e8f0);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-planner-table tbody th {
+    text-align: left;
+    padding: 6px 8px;
+    font-weight: 600;
+    color: var(--tt-fg, #0f172a);
+    background: var(--tt-bg-soft, #f1f5f9);
+    border-right: 1px solid var(--tt-line, #e2e8f0);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-planner-slot-label {
+    width: 1%;
+    min-width: 60px;
+}
+
+.tt-dashboard .tt-planner-cell {
+    padding: 4px;
+    border: 1px solid var(--tt-line, #e2e8f0);
+    vertical-align: top;
+    min-width: 110px;
+}
+
+/* Player chip — the click target. Bench cells can contain many. */
+.tt-dashboard .tt-planner-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 6px 8px;
+    background: #fff;
+    border: 1px solid var(--tt-line, #e2e8f0);
+    border-radius: 4px;
+    color: var(--tt-fg, #0f172a);
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.1s ease, border-color 0.1s ease;
+}
+.tt-dashboard .tt-planner-chip:hover {
+    border-color: var(--tt-primary, #0f172a);
+}
+.tt-dashboard .tt-planner-chip.is-selected {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 2px rgba( 245, 158, 11, 0.3 );
+}
+.tt-dashboard .tt-planner-chip-empty {
+    color: var(--tt-muted, #94a3b8);
+    background: transparent;
+    border-style: dashed;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.tt-dashboard .tt-planner-bench-row .tt-planner-cell {
+    background: var(--tt-bg-soft, #f8fafc);
+}
+.tt-dashboard .tt-planner-bench {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 110px;
+}
+.tt-dashboard .tt-planner-bench .tt-planner-chip {
+    width: 100%;
+    min-height: 36px;
+    background: #fff;
+    border-style: solid;
+}
+
+@media (max-width: 639px) {
+    .tt-dashboard .tt-planner-table { font-size: 12px; }
+    .tt-dashboard .tt-planner-cell { min-width: 96px; padding: 3px; }
+    .tt-dashboard .tt-planner-chip { padding: 4px 6px; }
+    .tt-dashboard .tt-planner-slot-label { min-width: 44px; }
+}
