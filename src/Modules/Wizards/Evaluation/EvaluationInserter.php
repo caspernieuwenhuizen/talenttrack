@@ -72,6 +72,8 @@ final class EvaluationInserter {
             return new \WP_Error( 'insert_failed', __( 'Could not write evaluation row.', 'talenttrack' ) );
         }
 
+        \TT\Modules\DemoData\DemoMode::tagIfActive( 'evaluation', $eval_id );
+
         // v3.110.x — every rating row carries `club_id` (see same fix in
         // EvaluationsRestController::write_ratings).
         $club_id = CurrentClub::id();

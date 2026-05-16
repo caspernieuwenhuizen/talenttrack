@@ -265,6 +265,8 @@ final class ReviewStep implements WizardStepInterface {
         $eval_id = (int) $wpdb->insert_id;
 
         if ( $eval_id > 0 ) {
+            \TT\Modules\DemoData\DemoMode::tagIfActive( 'evaluation', $eval_id );
+
             // v3.110.x — every rating row carries `club_id` (see same
             // fix in EvaluationsRestController::write_ratings +
             // EvaluationInserter::insert).

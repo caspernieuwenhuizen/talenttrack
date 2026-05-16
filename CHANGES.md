@@ -1,3 +1,103 @@
+# TalentTrack v3.110.130 — Evaluation wizard demo-tagging fix + backfill migration + main parse-error hotfixes
+
+## Pilot report
+
+> "What happened to all evaluations? None of them are visible anymore. Does this have to do with the rating scale change?"
+
+Investigation: not the rating scale change. The wp-admin evaluations list still showed every row, but clicking View said *"Not found."* — and the frontend evaluations tile was empty too. Demo mode was set to **ON**, and `apply_demo_scope` was filtering out every evaluation because none of them had a corresponding `tt_demo_tags` row.
+
+## Root cause
+
+The new evaluation wizard's two write paths — `Modules/Wizards/Evaluation/ReviewStep::submit()` and the shared `Modules/Wizards/Evaluation/EvaluationInserter::insert()` — wrote into `tt_evaluations` via `$wpdb->insert(...)` but never followed up with `\TT\Modules\DemoData\DemoMode::tagIfActive('evaluation', $id)`.
+
+Every other writer for `tt_evaluations` tagged correctly:
+
+| Path | File:line | Tags? |
+|---|---|---|
+| REST POST `/evaluations` | `EvaluationsRestController.php:366` | ✅ Yes |
+| wp-admin "+ New" form | `EvaluationsPage.php:880` | ✅ Yes |
+| **Wizard ReviewStep** | `ReviewStep.php:264` | ❌ **Missing** |
+| **Wizard EvaluationInserter** | `EvaluationInserter.php:66` | ❌ **Missing** |
+| Demo generator | `EvaluationGenerator.php:142` | ✅ Yes (via `$registry->tag`) |
+| Excel demo importer | `ExcelImporter.php:409` | ✅ Yes (via `$registry->tag`) |
+
+The omission has been latent since the wizard shipped (#0072), but only surfaces in demo-ON mode because in OFF mode the demo filter is `e.id NOT IN tt_demo_tags` — untagged rows pass that filter and stay visible.
+
+`tagIfActive` was added in v3.76.2 *after* the wizard already existed; the new helper was wired into the REST and wp-admin paths but the two wizard call sites were missed in that refactor.
+
+## Why "wp-admin list shows them but View says not found"
+
+`Modules/Evaluations/Admin/EvaluationsPage::render_list()` builds its own SQL (lines 53–78) without applying `apply_demo_scope`, so the list query sees every row regardless of demo state. The View action at the same file's `render_view()` (line 708) routes through `QueryHelpers::get_evaluation()` which **does** apply the demo scope. Same data, two filter paths: the list is permissive, the detail-fetch is not. Hence the asymmetric symptom.
+
+The pilot's diagnostic question — "does this have to do with the rating scale change?" — was a reasonable hypothesis (v3.110.121 and the disappearance were temporally adjacent) but the diff doesn't support it: migration 0095 only `UPDATE`s rating-value columns (`tt_eval_ratings.rating`, `tt_player_behaviour_ratings.rating`, `tt_trial_cases.overall_rating`) plus `tt_config[rating_min|max]`. It never touches `tt_evaluations`, `tt_demo_tags`, or any tagging code. The other files v3.110.121 changed (`EvaluationsPage`, `EvaluationGenerator`, `ExcelImporter`) were rating-scale clamp adjustments — also no tagging touched.
+
+## Fix
+
+**Going-forward — two one-liner additions:**
+
+```php
+// Modules/Wizards/Evaluation/ReviewStep.php — inside the `if ( $eval_id > 0 )` block
+\TT\Modules\DemoData\DemoMode::tagIfActive( 'evaluation', $eval_id );
+
+// Modules/Wizards/Evaluation/EvaluationInserter.php — right after the insert succeeds
+\TT\Modules\DemoData\DemoMode::tagIfActive( 'evaluation', $eval_id );
+```
+
+`tagIfActive` is fire-and-forget — it self-gates on `DemoMode::effective() === ON` and is idempotent on already-tagged rows. Calling it on every save path is the documented contract for new entities.
+
+**Data recovery — new migration 0096:**
+
+```sql
+-- Pseudocode for what migration 0096 runs (gated on DemoMode::ON):
+INSERT INTO wp_tt_demo_tags (club_id, batch_id, entity_type, entity_id, extra_json)
+SELECT e.club_id,
+       'wizard-untagged-recovery-v3.110.130',
+       'evaluation',
+       e.id,
+       NULL
+  FROM wp_tt_evaluations e
+ WHERE NOT EXISTS (
+     SELECT 1 FROM wp_tt_demo_tags t
+      WHERE t.entity_type = 'evaluation' AND t.entity_id = e.id
+ );
+```
+
+**The `DemoMode::ON` gate matters.** Backfilling demo tags onto an install that has a mix of real and demo evaluations would wrongly tag the real ones — they'd disappear the next time someone flips demo mode to OFF. Gating the migration on the install being currently in demo-ON state limits the backfill to installs where "every evaluation is demo" is the operator's intent.
+
+Pilot confirmed this is their case: *"there are no real evaluations that can be a problem. I am running in demo mode and everything created so far should rightfully be demo tagged."* The migration was designed around that explicit confirmation.
+
+## Bundled hotfix — main was failing PHP lint since v3.110.125
+
+CI's PHP Syntax Lint job has been failing on every PR since v3.110.125 (rating-form polish) shipped a few hours ago. Two pre-existing parse errors on `main` that have nothing to do with this PR but need to clear for the release ZIP to build:
+
+- `src/Shared/Frontend/CoachForms.php:235` — a stray `<?php` opener appeared inside an already-open PHP block (the `$cat_repo = …;` assignment is PHP, then line 235 redundantly opens PHP again). Fix: remove the duplicate `<?php` tag.
+- `src/Shared/Frontend/FrontendWizardView.php` — three apostrophes (`control's` line 620, `row's` line 655, `it's` line 656) sit inside the `$css = '…'` single-quoted heredoc-style string that opens at line 473. PHP's single-quoted strings terminate on the first unescaped `'`, so the first apostrophe closed the string mid-CSS-comment and everything after parsed as PHP gibberish. Fix: escape each as `\'` — CSS comment readers don't care.
+
+Without these hotfixes the release-build CI step (which depends on lint passing) would skip and no v3.110.130 ZIP would be produced — the same incident that occurred on v3.110.58–.61 (documented in that ship's CHANGES.md entry). Bundling here rather than separate PR because release is blocked on this PR's own merge.
+
+## Files
+
+- `src/Modules/Wizards/Evaluation/ReviewStep.php` — 1-line `tagIfActive` call.
+- `src/Modules/Wizards/Evaluation/EvaluationInserter.php` — 1-line `tagIfActive` call.
+- `database/migrations/0096_backfill_evaluation_demo_tags.php` — new one-shot backfill migration.
+- `src/Shared/Frontend/CoachForms.php` — remove stray `<?php` at line 235 (bundled hotfix).
+- `src/Shared/Frontend/FrontendWizardView.php` — escape three apostrophes inside `$css` literal (bundled hotfix).
+- `talenttrack.php` 3.110.127 → 3.110.130 (.128 reserved for row-link standard PR, .129 reserved for allow-registration + active-pill PR — both still open).
+- `readme.txt`, `CHANGES.md`.
+
+No new translatable strings — no `.po` update needed.
+
+## How to verify
+
+1. **Before upgrade**: confirm the symptom. As WP admin in demo-ON mode, open `?tt_view=evaluations` → empty list. Open wp-admin → TalentTrack → Evaluations → see rows. Click View on any row → "Not found."
+2. **Upgrade to v3.110.130**. Migration runner picks up 0096 on next page load.
+3. **Reload the evaluations tile** → every evaluation is now visible. Click any row → detail page renders fine.
+4. **Create a new evaluation via the wizard while still in demo-ON mode.** Save, reload the list — the new evaluation appears (proving the going-forward fix wired the tag).
+5. **Verify the migration is idempotent**: hit the schema status admin page or just reload — no re-application, no duplicate tag rows. (The `NOT EXISTS` clause guarantees this.)
+6. **Verify the gate**: on a separate install in demo-OFF mode, the migration is a no-op (early return). Already-tagged rows stay tagged; un-tagged rows stay un-tagged. Nothing is wrongly cross-tagged.
+
+---
+
 # TalentTrack v3.110.127 — HoD KPI strip readability pass 2: yellow numeric values + 3-col tablet layout + explicit white labels
 
 ## Pilot screenshot

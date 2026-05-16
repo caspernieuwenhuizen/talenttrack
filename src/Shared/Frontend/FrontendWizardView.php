@@ -617,7 +617,7 @@ class FrontendWizardView extends FrontendViewBase {
             .tt-rate-player-status--skipped  { background: #e8e8e8; color: #8a8a8a; text-decoration: line-through; }
             .tt-rate-grid { display: grid; gap: 12px; margin-top: var(--tt-sp-2, 12px); }
             /* v3.110.125 — was a 2-row grid on mobile (label / control)
-             * where the control's flex-wrap+full-bleed input made the
+             * where the control\'s flex-wrap+full-bleed input made the
              * "/ max" suffix wrap to a third visual row. Now the row
              * is a horizontal flex strip on every viewport: label
              * grows, input is fixed at 80px, suffix sits inline. Saves
@@ -652,8 +652,8 @@ class FrontendWizardView extends FrontendViewBase {
              * attribute the inline JS flips; pill highlights the
              * current state, the other half acts as the affordance
              * to switch. Mobile-first 36px height keeps it within the
-             * row's vertical rhythm while sitting below the 48px
-             * floor (it's a secondary mode-toggle, not a primary
+             * row\'s vertical rhythm while sitting below the 48px
+             * floor (it\'s a secondary mode-toggle, not a primary
              * action button — Apple HIG style guidance permits 32–36
              * for in-form mode toggles). */
             .tt-rate-detail-toggle {
