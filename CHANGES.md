@@ -1,3 +1,76 @@
+# TalentTrack v3.110.127 — HoD KPI strip readability pass 2: yellow numeric values + 3-col tablet layout + explicit white labels
+
+## Pilot screenshot
+
+Side-by-side: scout hero (white text on navy gradient + yellow CTA button) vs HoD KPI strip (blue text on navy gradient, truncated labels, low contrast). Pilot ask: *"the tiles are not very readable, use the yellow in some way?"*
+
+## Diagnosis
+
+Three CSS bugs visible:
+
+1. **Numbers in accent-blue, not white.** Cards are `<a class="tt-pd-strip-link">` elements. The v3.110.112 rule was `.tt-pd-strip-link { color: inherit }` — but a WP-theme `a { color: #2563eb }` won the specificity battle, so the inherited white never reached the text.
+
+2. **Label truncation at desktop.** Grid went from 2 cols at < 768px straight to 6 cols at ≥ 768px. The longest Dutch labels (`DOELVOLTOOIING %`, `OPENSTAANDE POP-VERDICTEN`) need more horizontal room than 16% of the viewport allows.
+
+3. **Cards washed out.** rgba(255,255,255,0.14) background was too subtle on the dark gradient; no border; cards faded together.
+
+## Fix
+
+```css
+/* (1) Explicit colors with !important — beats WP-theme a-tag rules. */
+.tt-pd-strip-link,
+.tt-pd-strip-link:link,
+.tt-pd-strip-link:visited {
+    color: #fff !important;
+    ...
+}
+.tt-pd-strip-label   { color: rgba(255, 255, 255, 0.82) !important; }
+.tt-pd-strip-current { color: var(--tt-pd-hero-cta, #facc15) !important; }
+.tt-pd-strip-delta   { color: rgba(255, 255, 255, 0.78) !important; }
+
+/* (2) Three-tier responsive grid. */
+.tt-pd-strip-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }     /* mobile */
+@media (min-width: 768px)  { .tt-pd-strip-track { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1280px) { .tt-pd-strip-track { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+
+/* (3) Card chrome: more contrast, structure. */
+.tt-pd-strip-kpi {
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 1rem 1.125rem;
+    min-height: 100px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.tt-pd-strip-link:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.24);
+}
+.tt-pd-strip-link:focus-visible {
+    outline: 2px solid var(--tt-pd-hero-cta, #facc15);
+}
+.tt-pd-strip-label { white-space: normal; overflow-wrap: break-word; }
+```
+
+The yellow on the numeric values is the same `--tt-pd-hero-cta` token (#facc15) the scout hero uses for its `+ Scoutingbevinding` CTA button. Visual rhyme: yellow is the "primary signal" colour across the dashboard chrome.
+
+## How to test
+
+1. Reload the HoD dashboard. The 6 KPI numbers should now render in **yellow** on the navy gradient.
+2. At desktop ≥ 1280px: 6 cards in one row (same as before).
+3. At tablet 768-1279px: 3 cards × 2 rows. Long NL labels like "DOELVOLTOOIING %" wrap to 2 lines instead of being clipped.
+4. At mobile < 768px: 2 cards × 3 rows.
+5. Hover a card: background lifts; border brightens. Focus ring is yellow.
+
+## Items deferred from this round
+
+Still pending from the prior pilot batch:
+
+- **Player list / row-link standard** — whole row → main entity, secondary entities as chips. Next ship.
+- **WebAuthn / passkey login** — ~500 LOC + dependency. After the row-link ship.
+- **Open-task scheduling** — `available_at` column + per-template rules. Branch already started; deferred behind the screenshot-driven items.
+
+---
+
 # TalentTrack v3.110.126 — Pilot fix round: sticky wizard buttons, upcoming-activities window, evaluation list scoping, MyTeam* KPI cards, tasks mobile layout
 
 Five pilot-surfaced fixes in one focused round.

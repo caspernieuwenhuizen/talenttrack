@@ -387,11 +387,19 @@
 }
 .tt-pd-recap-body { font-size: 0.9375rem; opacity: 0.85; }
 
-/* KPI strip (HoD / Observer hero) — v3.110.112 aligned with the
-   scout/coach hero chrome (`.tt-pd-variant-hero`). Same gradient + same
-   typography rhythm so the HoD's hero band reads as a hero, not as a
-   compressed widget. Wider gap between cards, bigger numbers, brighter
-   labels. */
+/* KPI strip (HoD / Observer hero).
+   v3.110.127 — readability pass: pilot screenshot showed numbers
+   rendering in accent-blue (NOT white) because the cards are
+   `<a>` elements and the browser / theme `a { color: blue }`
+   default won the specificity battle over `color: inherit` on
+   `.tt-pd-strip-link`. Fix: explicit colors on every text node
+   AND use the `--tt-pd-hero-cta` token (yellow, the scout hero's
+   CTA colour) for the big numeric values so they pop against the
+   navy gradient and rhyme with the scout dashboard's primary
+   action. Tablet grid drops from 6 cols → 3 cols × 2 rows so the
+   longest NL labels ("DOELVOLTOOIING %", "OPENSTAANDE
+   POP-VERDICTEN") have room instead of truncating; the 6-col
+   single-row layout only kicks in at ≥ 1280 px where it fits. */
 .tt-pd-widget-kpi_strip {
     background: linear-gradient(135deg, var(--tt-pd-hero-start) 0%, var(--tt-pd-hero-end) 100%);
     color: #fff;
@@ -404,53 +412,70 @@
     margin-top: 0.75rem;
 }
 @media (min-width: 768px) {
-    .tt-pd-strip-track { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1.25rem; }
+    .tt-pd-strip-track { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+}
+@media (min-width: 1280px) {
+    .tt-pd-strip-track { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; }
 }
 .tt-pd-strip-kpi {
-    background: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 0.75rem;
-    padding: 1rem;
+    padding: 1rem 1.125rem;
     color: #fff;
-    min-height: 88px;
+    min-height: 100px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
-/* Clickable variant — whole card is the tap target, mobile-friendly. */
-.tt-pd-strip-link {
+/* Clickable variant — whole card is the tap target. Explicit
+   `color: #fff` here overrides the browser/theme `<a>` default
+   that v3.110.112's `color: inherit` lost to. */
+.tt-pd-strip-link,
+.tt-pd-strip-link:link,
+.tt-pd-strip-link:visited {
+    color: #fff !important;
     text-decoration: none;
-    color: inherit;
-    transition: transform 120ms ease, background-color 120ms ease;
+    transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
 }
 .tt-pd-strip-link:hover,
 .tt-pd-strip-link:focus {
-    background: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.24);
     transform: translateY(-1px);
     outline: none;
 }
 .tt-pd-strip-link:focus-visible {
-    outline: 2px solid #fff;
+    outline: 2px solid var(--tt-pd-hero-cta, #facc15);
     outline-offset: 2px;
 }
 .tt-pd-strip-label {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    opacity: 0.78;
     line-height: 1.3;
+    color: rgba(255, 255, 255, 0.82) !important;
+    /* Allow the longer NL labels to wrap rather than truncate. */
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 .tt-pd-strip-current {
-    font-size: 1.875rem;
+    font-size: 2rem;
     font-weight: 700;
     margin-top: 0.5rem;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
     line-height: 1.1;
+    /* Pilot ask: "use the yellow in some way". The scout hero's
+       primary CTA uses --tt-pd-hero-cta (#facc15); echoing it here
+       gives the strip its primary signal on the dark gradient. */
+    color: var(--tt-pd-hero-cta, #facc15) !important;
 }
 .tt-pd-strip-delta {
     font-size: 0.8125rem;
-    opacity: 0.85;
     margin-top: 0.25rem;
+    color: rgba(255, 255, 255, 0.78) !important;
 }
 
 /* System health strip (Admin hero) */

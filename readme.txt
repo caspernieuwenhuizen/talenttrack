@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.126
+Stable tag: 3.110.127
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.127 — HoD KPI strip readability pass 2: yellow numeric values + 3-col tablet layout + explicit white labels =
+
+Pilot sent a screenshot of the HoD KPI strip alongside the scout hero. Three problems visible: (1) numeric values rendering in **accent-blue** instead of white (because the strip cards are `<a>` elements and the browser / theme `a { color: blue }` default beat `.tt-pd-strip-link { color: inherit }` from v3.110.112's pass); (2) labels were **truncating** at 6-cols on desktop because the longest Dutch labels ("DOELVOLTOOIING %", "OPENSTAANDE POP-VERDICTEN") need more width than ~16% of the viewport; (3) cards looked **washed-out**, lacking the visual signal the scout hero gets from its yellow CTA button. Pilot ask: "the tiles are not very readable, use the yellow in some way?" Fix in three CSS changes. **(1) Explicit colors with `!important`** on `.tt-pd-strip-link / :link / :visited` (white), `.tt-pd-strip-label` (rgba white 0.82), `.tt-pd-strip-current` (yellow `--tt-pd-hero-cta` token — the same #facc15 the scout hero uses for its `+ Scoutingbevinding` button), and `.tt-pd-strip-delta` (rgba white 0.78). The `!important` is necessary to override the WP theme's `a { color }` rule which previously won the cascade. **(2) Grid breakpoints**: was 2 cols at < 768px → 6 cols at ≥ 768px (jumped from 2 → 6 at tablet width, hence the truncation). Now 2 cols (mobile) → 3 cols × 2 rows (768-1279px) → 6 cols × 1 row (≥ 1280px). The tablet layout gives every label two lines of room. **(3) Card chrome bump**: card padding 1rem → 1rem 1.125rem; min-height 88px → 100px; background rgba(255,255,255,0.14 → 0.10) with a new 1px white-12 border + inset highlight so the card has structure on the dark gradient instead of fading into it. Hover state lifts background to 0.18 and brightens the border. Focus ring uses the yellow CTA colour. Labels keep `white-space: normal` so multi-word labels wrap instead of clipping.
 
 = 3.110.126 — Pilot fix round: sticky wizard buttons removed, HoD upcoming-activities window 14→30 days, evaluation list scoping broadened, MyTeam* KPI cards no longer link to "not authorized" views, tasks page mobile layout =
 
