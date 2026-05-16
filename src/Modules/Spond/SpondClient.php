@@ -214,25 +214,86 @@ final class SpondClient {
             return [ 'ok' => false, 'events' => [] ] + $token;
         }
 
-        $now    = time();
-        $params = [
-            'groupId'            => $group_id,
-            'minStartTimestamp'  => gmdate( 'Y-m-d\TH:i:s.000\Z', $now - ( self::WINDOW_PAST_DAYS   * DAY_IN_SECONDS ) ),
-            'maxStartTimestamp'  => gmdate( 'Y-m-d\TH:i:s.000\Z', $now + ( self::WINDOW_FUTURE_DAYS * DAY_IN_SECONDS ) ),
-            'includeHidden'      => 'true',
-            'order'              => 'asc',
+        $now           = time();
+        $window_start  = gmdate( 'Y-m-d\TH:i:s.000\Z', $now - ( self::WINDOW_PAST_DAYS   * DAY_IN_SECONDS ) );
+        $window_end    = gmdate( 'Y-m-d\TH:i:s.000\Z', $now + ( self::WINDOW_FUTURE_DAYS * DAY_IN_SECONDS ) );
+
+        // v3.110.123 — cursor-style pagination over Spond's `/sponds/`
+        // endpoint. Pre-fix the code issued a single GET with no
+        // explicit `max` (Spond's default page size is 100) and read
+        // the response array once. Any group with >100 events in the
+        // 210-day window silently dropped events past position 100 in
+        // ascending start-time order — pilot symptom was "I only see
+        // events until end of June" (about 12-13 weeks of 2× weekly
+        // sessions = 100 rows). Fix: page through the window using
+        // the last event's `startTimestamp` as the next page's
+        // `minStartTimestamp`. Continue until a short page comes
+        // back (< max), the cursor crosses `maxStartTimestamp`, or
+        // the safety cap hits. `max=250` is Spond's documented
+        // ceiling per page; bumping from 100 → 250 reduces the
+        // expected request count by 60% for typical academies.
+        $page_size   = 250;
+        $max_pages   = 20;     // safety cap: 20 × 250 = 5000 events max
+        $cursor      = $window_start;
+        $events      = [];
+        $seen_ids    = [];     // dedupe across pages (cursor overlap)
+        $pages_drawn = 0;
+        $last_http   = 200;
+
+        while ( $pages_drawn < $max_pages ) {
+            $params = [
+                'groupId'           => $group_id,
+                'minStartTimestamp' => $cursor,
+                'maxStartTimestamp' => $window_end,
+                'includeHidden'     => 'true',
+                'order'             => 'asc',
+                'max'               => (string) $page_size,
+            ];
+            $result = self::authedGet( '/sponds/', $params, $token );
+            if ( ! $result['ok'] ) {
+                return [ 'ok' => false, 'events' => [] ] + $result;
+            }
+            $last_http = $result['http_code'] ?? 200;
+            $page = is_array( $result['data'] ?? null ) ? $result['data'] : [];
+            $pages_drawn++;
+
+            $page_count = 0;
+            $last_start = '';
+            foreach ( $page as $e ) {
+                if ( ! is_array( $e ) ) continue;
+                $eid = (string) ( $e['id'] ?? '' );
+                // Dedupe: when we advance the cursor by the last
+                // event's `startTimestamp` and refetch, Spond may
+                // re-include events that share that exact timestamp
+                // (multi-team training at the same hour). Skip the
+                // ones we already collected.
+                if ( $eid !== '' && isset( $seen_ids[ $eid ] ) ) continue;
+                if ( $eid !== '' ) $seen_ids[ $eid ] = true;
+                $events[] = $e;
+                $page_count++;
+                if ( isset( $e['startTimestamp'] ) ) {
+                    $last_start = (string) $e['startTimestamp'];
+                }
+            }
+
+            // Short page → no more results in the window.
+            if ( $page_count < $page_size ) break;
+            // Couldn't advance the cursor (no `startTimestamp` on the
+            // last event) — break to avoid an infinite loop.
+            if ( $last_start === '' || $last_start === $cursor ) break;
+            // Advance cursor to the last event's start time. The next
+            // page's first row may be the same event again (same
+            // timestamp); the `$seen_ids` dedupe above handles that.
+            $cursor = $last_start;
+        }
+
+        return [
+            'ok'         => true,
+            'events'     => $events,
+            'http_code'  => $last_http,
+            'pages'      => $pages_drawn,
+            'page_size'  => $page_size,
         ];
-
-        $result = self::authedGet( '/sponds/', $params, $token );
-        if ( ! $result['ok'] ) {
-            return [ 'ok' => false, 'events' => [] ] + $result;
-        }
-
-        $events = [];
-        foreach ( (array) $result['data'] as $e ) {
-            if ( is_array( $e ) ) $events[] = $e;
-        }
-        return [ 'ok' => true, 'events' => $events, 'http_code' => $result['http_code'] ?? 200 ];
     }
 
     // -----------------------------------------------------------------

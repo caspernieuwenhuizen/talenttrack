@@ -1,3 +1,128 @@
+# TalentTrack v3.110.123 — Spond sync: cursor-based pagination over `/sponds/` so >100-event groups don't silently drop everything past page 1
+
+## Pilot symptom
+
+> "I do not see certain events that are in Spond and should be replicated. The integration is running and gives an OK but I only see events until end of June."
+
+## Root cause
+
+`SpondClient::fetchEvents()` (pre-v3.110.123):
+
+```php
+$params = [
+    'groupId'           => $group_id,
+    'minStartTimestamp' => /* now - 30d */,
+    'maxStartTimestamp' => /* now + 180d */,
+    'includeHidden'     => 'true',
+    'order'             => 'asc',
+];
+$result = self::authedGet( '/sponds/', $params, $token );
+foreach ( (array) $result['data'] as $e ) {
+    if ( is_array( $e ) ) $events[] = $e;
+}
+```
+
+Three things converge to lose events:
+
+1. **No `max` parameter** — Spond's `/sponds/` defaults to **100 events per page** (verified against the Olen/Spond Python library 1.2.1).
+2. **No pagination loop** — the code reads `$result['data']` once and returns.
+3. **`order=asc`** — earliest events come back first.
+
+Result: any group with > 100 events in the 210-day window keeps only the first 100 chronologically; everything past position 100 silently disappears.
+
+For an academy team training twice a week, 100 events ≈ 12–13 weeks. A mid-March pilot run sees events through ~end of June, with July+ invisible.
+
+### Compounding damage
+
+`SpondSync::sync()` runs a "soft-archive anything not in the current feed" pass (lines 152–167). On the next sync, July/August events that briefly appeared (or events from a smaller previous batch) get archived because they're not in the truncated feed. The pilot couldn't recover the events without manual DB intervention even if they were fetched once.
+
+## Fix
+
+`fetchEvents()` rewritten to walk the date window in pages of 250 using a `minStartTimestamp` cursor:
+
+```php
+$page_size   = 250;
+$max_pages   = 20;
+$cursor      = $window_start;
+$events      = [];
+$seen_ids    = [];
+$pages_drawn = 0;
+
+while ( $pages_drawn < $max_pages ) {
+    $params = [
+        'groupId'           => $group_id,
+        'minStartTimestamp' => $cursor,
+        'maxStartTimestamp' => $window_end,
+        'includeHidden'     => 'true',
+        'order'             => 'asc',
+        'max'               => '250',
+    ];
+    $result = self::authedGet( '/sponds/', $params, $token );
+    if ( ! $result['ok'] ) return [ 'ok' => false, ... ];
+    $pages_drawn++;
+
+    $page_count = 0;
+    $last_start = '';
+    foreach ( $result['data'] as $e ) {
+        $eid = (string) ( $e['id'] ?? '' );
+        if ( isset( $seen_ids[ $eid ] ) ) continue;  // dedupe cursor boundary
+        $seen_ids[ $eid ] = true;
+        $events[] = $e;
+        $page_count++;
+        $last_start = (string) ( $e['startTimestamp'] ?? '' );
+    }
+
+    if ( $page_count < $page_size ) break;       // last page
+    if ( $last_start === '' || $last_start === $cursor ) break;  // no advance
+    $cursor = $last_start;                       // advance cursor
+}
+```
+
+Notes:
+
+- **`max=250`** is Spond's documented per-page ceiling. Bumping from 100 → 250 cuts the typical request count by 60%.
+- **Cursor advance** uses the last event's `startTimestamp` as the next page's `minStartTimestamp`. The next page's first row will be the same event (same timestamp), but the **`seen_ids` dedupe** keeps it out of the result set.
+- **Safety cap**: 20 pages × 250 = 5000 events per group per sync. Logged as a warning when hit.
+- **No infinite loop guarantee**: if Spond doesn't include `startTimestamp` on an event, or the last event's timestamp equals the current cursor (no advance possible), the loop breaks.
+
+## Observability (`SpondSync`)
+
+`SpondSync::sync()` now logs every successful fetch:
+
+```php
+Logger::info( 'spond.fetch.ok', [
+    'team_id'   => $team_id,
+    'group_id'  => $group_id,
+    'pages'     => $pages_drawn,
+    'events'    => count( $events ),
+    'http_code' => $http_code,
+] );
+```
+
+When the safety cap fires:
+
+```php
+Logger::warning( 'spond.fetch.safety_cap_hit', [ ... ] );
+```
+
+Pre-fix the sync reported `status=ok` with the post-parse event count; the operator had no signal that 100 was the actual ceiling.
+
+## How to test
+
+1. Trigger a Spond sync (`tt_spond_hourly` cron tick or the admin button).
+2. Open the Logger output (`?tt_view=audit-log` or whatever surface the install uses). Look for `spond.fetch.ok` rows — they now carry `pages` + `events`.
+3. With a small group (< 250 events in the window): `pages=1, events=<actual count>`.
+4. With a large group (> 250 events): `pages=2+, events=<actual count>`. Events visible in `?tt_view=activities` should now extend through November / end of the window.
+5. After the first paginated sync, the soft-archive pass should leave the previously-truncated future events alone (they're now in `$seen`).
+6. Multi-team install: each team gets a separate log row with its own `pages` count.
+
+## Files
+
+- `src/Modules/Spond/SpondClient.php` — `fetchEvents()` rewritten with cursor pagination.
+- `src/Modules/Spond/SpondSync.php` — `Logger::info/warning` calls added after the fetch.
+
+---
+
 # TalentTrack v3.110.122 — Page-header action buttons: icon-only 48×48 circles on mobile (Tier 1: New / Edit / Archive)
 
 ## Pilot ask
