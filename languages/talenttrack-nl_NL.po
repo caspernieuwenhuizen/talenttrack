@@ -3311,6 +3311,44 @@ msgstr "Deze activiteit verwijderen? De activiteit wordt gearchiveerd."
 msgid "Mark all present"
 msgstr "Iedereen aanwezig"
 
+# v3.110.120 — attendance card UI (AttendanceStep)
+msgid "Mark each player's attendance. Present is the default — tap a card only if it differs. Only present + late players appear in the rating step."
+msgstr "Markeer de aanwezigheid per speler. Aanwezig is de standaard — tik alleen op een kaart als die afwijkt. Alleen aanwezig + te-laat-spelers verschijnen in de beoordelingsstap."
+
+msgid "+ Mark late"
+msgstr "+ Markeer als te laat"
+
+msgid "✓ Late"
+msgstr "✓ Te laat"
+
+msgid "× Revert to on-time"
+msgstr "× Terug naar op tijd"
+
+msgid "Reason (optional):"
+msgstr "Reden (optioneel):"
+
+msgid "🛡 Excused"
+msgstr "🛡 Geoorloofd"
+
+msgid "🩹 Injured"
+msgstr "🩹 Geblesseerd"
+
+msgid "⏰ LATE"
+msgstr "⏰ TE LAAT"
+
+msgid "✕ ABSENT"
+msgstr "✕ AFWEZIG"
+
+msgid "🛡 EXCUSED"
+msgstr "🛡 GEOORLOOFD"
+
+msgid "🩹 INJURED"
+msgstr "🩹 GEBLESSEERD"
+
+#, php-format
+msgid "Attendance for %s"
+msgstr "Aanwezigheid voor %s"
+
 msgid "Show all"
 msgstr "Toon alles"
 
