@@ -1,3 +1,102 @@
+# TalentTrack v3.110.156 — `demo_only_install` flag closes the recurring demo-tag backfill loop
+
+## Background — the loop we keep shipping counter-fixes for
+
+Since v3.110.130 the pilot install has sat at the centre of a recurring fix-counter-fix cycle:
+
+| Version | Migration | What it did | What broke |
+|---|---|---|---|
+| v3.110.130 | 0096 | Backfill demo tags on every untagged eval, gated on demo-ON | Tagged real evals on installs that were ON for unrelated reasons |
+| v3.110.136 | 0099 | Re-run the backfill so installs that toggled ON after upgrade catch up | Same trade-off as 0096 |
+| v3.110.148 | 0102 | Un-tag exactly the rows 0096 + 0099 inserted | Hid pre-v3.110.130 wizard-created demo evals from pure-demo installs |
+| v3.110.154 | 0103 | Re-backfill, gated on demo-ON | Same trade-off again — would break a mixed-data install in demo-ON |
+
+The migrations are individually correct. The loop comes from the **gate**: `DemoMode::current() === ON` is a runtime toggle state, not operator intent. It can flip OFF tomorrow; an install with the flag ON for a single test run is treated identically to a pure pilot demo.
+
+## Fix — operator intent as a separate signal
+
+New feature toggle `feature.demo_only_install` (default OFF). The label is *"This is a demo-only install"*. When the operator flips it ON, the rest of the system treats the install as permanently in demo mode regardless of the runtime toggle.
+
+### Code change — `DemoMode::effective()`
+
+```diff
+ public static function effective(): string {
+-    return self::$request_override ?? self::current();
++    if ( self::$request_override !== null ) {
++        return self::$request_override;
++    }
++    if ( self::isDemoOnlyInstall() ) {
++        return self::ON;
++    }
++    return self::current();
+ }
+
++public static function isDemoOnlyInstall(): bool {
++    if ( ! class_exists( '\\TT\\Infrastructure\\FeatureToggles\\FeatureToggleService' )
++      || ! class_exists( '\\TT\\Infrastructure\\Config\\ConfigService' ) ) {
++        return false;
++    }
++    $service = new \TT\Infrastructure\FeatureToggles\FeatureToggleService(
++        new \TT\Infrastructure\Config\ConfigService()
++    );
++    return $service->isEnabled( 'demo_only_install' );
++}
+```
+
+Request override still wins — the Demo Data admin page can keep using `overrideForRequest( NEUTRAL )` to see the full population for its own rendering, regardless of the flag.
+
+### What this changes downstream — zero refactors needed
+
+The cascade flows from `effective()`:
+
+- **`tagIfActive($entity_type, $entity_id)`** at `DemoMode.php:82` already gates on `self::effective() !== self::ON`. With the flag ON, every write that calls `tagIfActive` tags the new row. The going-forward wizard tagging from v3.110.130 (`ReviewStep::submit` + `EvaluationInserter::insert`) keeps working without modification.
+- **`QueryHelpers::apply_demo_scope($alias, $entity_type)`** at `QueryHelpers.php:229` calls `DemoMode::effective()`. With the flag ON, every read path that applies demo-scope filters to "id IN (tagged)" — the demo-on behaviour, regardless of the runtime toggle.
+- **The runtime mode toggle on Demo Data admin page** still flips the `tt_demo_mode` option, but the option is now ignored on demo-only installs (the flag overrides). The toggle still appears in the UI so non-demo-only installs can use it.
+
+### UI surfacing
+
+The toggle appears automatically in the Configuration view (`?tt_view=configuration`) — `FrontendConfigurationView` iterates `FeatureToggleService::definitions()` and renders every entry. No additional admin-page changes.
+
+## Migration plan — none ships with this
+
+The flag is forward-acting only. For the pilot install specifically:
+
+1. Their 12 evaluations are already tagged (migration 0103, shipped v3.110.154).
+2. After upgrading to v3.110.156, the operator flips the new "This is a demo-only install" toggle ON in Configuration.
+3. Future writes via the wizard auto-tag (the existing v3.110.130 tagging code, gated on `effective() === ON`).
+4. Future reads filter via the demo-scope helper (also using `effective()`).
+5. If a future counter-migration analogue to 0102 ships and inspects the runtime toggle, it'd still be wrong on a flag-ON install — but the *correct* fix going forward is for migrations to use `effective()` (or the new `isDemoOnlyInstall()` helper) instead of `current()`. The DemoMode docblock now documents this.
+
+## Outcomes by install state
+
+| Install state | Behaviour before this ship | Behaviour after, with `demo_only_install` ON |
+|---|---|---|
+| Pilot / training / demo-only | Toggle ON works; toggle OFF accidentally hides every wizard-created eval | Toggle state ignored; all writes auto-tag; all reads pass tagged rows |
+| Mixed-data production | Toggle controls visibility correctly; backfill migrations can mis-tag | Flag OFF (default); no behaviour change — identical to before |
+| Operator wants temporary demo mode on a production install | Toggle ON / OFF as needed | Don't enable the flag; toggle controls behaviour as before |
+
+## Files
+
+- `src/Modules/DemoData/DemoMode.php` — `effective()` gains the new override branch; new `isDemoOnlyInstall()` static helper. ~30 lines added including the docblock comment.
+- `src/Infrastructure/FeatureToggles/FeatureToggleService.php` — `demo_only_install` toggle definition (label + description + default false).
+- `languages/talenttrack-nl_NL.po` — 2 new entries: *"This is a demo-only install" → "Dit is een demo-only installatie"*; the long description.
+- `talenttrack.php` 3.110.155 → 3.110.156.
+- `readme.txt`, `CHANGES.md`.
+
+No PHP class signature changes — `effective()` keeps its existing string return shape. No migration. No REST API change. No view change.
+
+## How to verify
+
+1. Upgrade to v3.110.156.
+2. Visit `?tt_view=configuration` — the new toggle *"This is a demo-only install"* appears under Feature toggles, OFF by default.
+3. Flip it ON. Save.
+4. Reload `?tt_view=evaluations` — your 12 evals still show (they were already tagged from migration 0103, and the demo-scope filter is now permanently ON regardless of `tt_demo_mode`).
+5. As a smoke test, flip the runtime Demo Data toggle (in Tools → Demo Data) from ON to OFF. Reload `?tt_view=evaluations` — evals STILL show, because `effective()` is overridden to ON by the new flag.
+6. Flip the new flag OFF. Reload evaluations with `tt_demo_mode = off` — evals disappear (the demo-scope filter is now `NOT IN (tagged)`, correctly hiding tagged rows).
+7. Restore `tt_demo_mode = on`. Re-enable the flag. Steady state.
+
+---
+
 # TalentTrack v3.110.154 — Migration 0103 re-applies the evaluation demo-tag backfill 0102 un-applied for pure-demo installs
 
 ## Pilot report
