@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.150
+Stable tag: 3.110.151
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.151 — Analytics: two-column entity selector — the deferred Child 5 backlog from #0083 =
+
+The Analytics view at `?tt_view=analytics` now renders the two-column layout the spec called for. **Left rail** — five `<details>` sections (Players / Teams / Activities / Scouts / Seasons), each expanding to show the first 25 instances of that entity type. Counts in the section headers; per-instance meta line (team name for players, age group for teams, date for activities). Clicking an instance navigates to that entity's detail page — where the Analytics tab (`EntityAnalyticsTabRenderer`, shipped with #0083 Child 4) renders the entity-scoped KPIs. The Player detail page already has the Analytics tab wired; Team / Activity / Scout / Season detail pages land on their regular detail surface for now (the Analytics tab on those entities is a separate Child 4 ship). **Right rail** — academy-wide KPI grid + the Standard reports section, unchanged from v3.110.150. **Desktop ≥ 1024px**: two-column grid (rail 280px / main 1fr), rail sticky to the viewport top so the entity browser stays visible while the main column scrolls through KPIs and reports. **Mobile / tablet < 1024px**: single-column stack — rail above the main content. **Native `<details>` for progressive disclosure** — no JavaScript state machine needed; the browser handles expansion / collapse. Inline CSS in the view (one `<style>` block) so the persona-dashboard stylesheet doesn't grow for this single-page treatment. Instance lists scoped to the current `club_id`; capped at 25 rows server-side (operators with more entries use the relevant tile's main list view). Cap-gate unchanged (`tt_view_analytics` → admin + tt_club_admin). Dutch translations added for the new strings (*Browse by entity*, *Scouts*, *No entries.*). Net effect: the Analytics tile now matches the spec's intended layout; operators have a single screen to discover both academy-wide KPIs and entity-scoped analytics from one place.
 
 = 3.110.150 — Analytics tile complete: dev banner removed, missing Dutch report-table translations added =
 

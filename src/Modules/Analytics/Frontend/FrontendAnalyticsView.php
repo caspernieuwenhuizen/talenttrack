@@ -49,42 +49,302 @@ class FrontendAnalyticsView extends FrontendViewBase {
             return;
         }
 
+        self::enqueueLayoutStyles();
+
         FrontendBreadcrumbs::fromDashboard( __( 'Analytics', 'talenttrack' ) );
         self::renderHeader( __( 'Analytics', 'talenttrack' ) );
 
+        // v3.110.151 — two-column layout: entity selector on the left,
+        // academy KPIs + standard reports on the right. Each entity
+        // tile expands to show instances; clicking an instance
+        // navigates to that entity's detail page (where the Analytics
+        // tab renders the entity-scoped KPIs via
+        // `EntityAnalyticsTabRenderer`). Per spec #0083 Child 5.
+        echo '<div class="tt-analytics-shell">';
+
+        echo '<aside class="tt-analytics-rail">';
+        echo '<h2 class="tt-analytics-rail-title">' . esc_html__( 'Browse by entity', 'talenttrack' ) . '</h2>';
+        self::renderEntitySelector( $user_id );
+        echo '</aside>';
+
+        echo '<section class="tt-analytics-main">';
         $academy_kpis = KpiRegistry::byContext( Kpi::CONTEXT_ACADEMY );
         if ( empty( $academy_kpis ) ) {
             echo '<p class="tt-notice">'
                 . esc_html__( 'No academy-wide KPIs registered yet. Per-entity KPIs are still reachable via the Analytics tab on player, team, and activity profiles.', 'talenttrack' )
                 . '</p>';
-            return;
+        } else {
+            echo '<p style="max-width:760px; color:#5b6e75;">'
+                . esc_html__( 'Academy-wide KPIs. Click any card to open the explorer with that KPI loaded; from there you can pivot, group, and filter. For per-entity analytics, open a player, team, or activity and use the Analytics tab on its detail page.', 'talenttrack' )
+                . '</p>';
+
+            echo '<div class="tt-analytics-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-top:16px;">';
+            foreach ( $academy_kpis as $key => $kpi ) {
+                $value = KpiResolver::value( $key );
+                $explore_url = add_query_arg(
+                    [ 'tt_view' => 'explore', 'kpi' => $key ],
+                    WizardEntryPoint::dashboardBaseUrl()
+                );
+                self::renderCard( $kpi, $value, $explore_url );
+            }
+            echo '</div>';
         }
 
-        echo '<p style="max-width:760px; color:#5b6e75;">'
-            . esc_html__( 'Academy-wide KPIs. Click any card to open the explorer with that KPI loaded; from there you can pivot, group, and filter. For per-entity analytics, open a player, team, or activity and use the Analytics tab on its detail page.', 'talenttrack' )
-            . '</p>';
-
-        echo '<div class="tt-analytics-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-top:16px;">';
-        foreach ( $academy_kpis as $key => $kpi ) {
-            $value = KpiResolver::value( $key );
-            $explore_url = add_query_arg(
-                [ 'tt_view' => 'explore', 'kpi' => $key ],
-                WizardEntryPoint::dashboardBaseUrl()
-            );
-            self::renderCard( $kpi, $value, $explore_url );
-        }
-        echo '</div>';
-
-        // v3.110.109 — "Standard reports" section. Pre-built reports
-        // sit alongside the dimension explorer for operators who want
-        // the answer rather than the toolkit. New reports get added
-        // to the $standard_reports array below.
         self::renderStandardReports();
+        echo '</section>';
 
-        // v3.110.150 — dev-facing "lands in a follow-up" / "#0083 Child 5"
-        // banner removed entirely. The Analytics tile is the
-        // operator's analytics surface; it shouldn't surface its own
-        // backlog notes. Future roadmap lives in the spec docs.
+        echo '</div>'; // /.tt-analytics-shell
+    }
+
+    /**
+     * v3.110.151 — left-rail entity selector. Five entity-type
+     * sections (Player / Team / Activity / Season / Scout) rendered
+     * as native `<details>` disclosures so progressive expansion
+     * doesn't need a JS state machine. Each section lists the
+     * accessible instances; clicking an instance links to that
+     * entity's detail page where the Analytics tab takes over.
+     *
+     * Instance lists scoped to the current tenant (`club_id`).
+     * Player + Team + Activity + Season + Scout each capped at 25
+     * rows server-side; an operator with more rows uses the relevant
+     * tile's main list view via the dashboard.
+     */
+    private static function renderEntitySelector( int $user_id ): void {
+        $base = WizardEntryPoint::dashboardBaseUrl();
+
+        self::renderEntitySection(
+            'player',
+            __( 'Players', 'talenttrack' ),
+            self::fetchInstancePlayers(),
+            $base,
+            'players'
+        );
+        self::renderEntitySection(
+            'team',
+            __( 'Teams', 'talenttrack' ),
+            self::fetchInstanceTeams(),
+            $base,
+            'teams'
+        );
+        self::renderEntitySection(
+            'activity',
+            __( 'Activities', 'talenttrack' ),
+            self::fetchInstanceActivities(),
+            $base,
+            'activities'
+        );
+        self::renderEntitySection(
+            'scout',
+            __( 'Scouts', 'talenttrack' ),
+            self::fetchInstanceScouts(),
+            $base,
+            'people'
+        );
+        self::renderEntitySection(
+            'season',
+            __( 'Seasons', 'talenttrack' ),
+            self::fetchInstanceSeasons(),
+            $base,
+            '' // no detail-view slug for seasons yet — rendered as plain text rows
+        );
+    }
+
+    /**
+     * Render one entity section in the left rail.
+     *
+     * @param list<array{id:int,label:string,meta?:string}> $instances
+     */
+    private static function renderEntitySection( string $entity_type, string $heading, array $instances, string $base, string $detail_slug ): void {
+        $count = count( $instances );
+        echo '<details class="tt-analytics-entity" data-entity-type="' . esc_attr( $entity_type ) . '">';
+        echo '<summary class="tt-analytics-entity-summary">';
+        echo '<span>' . esc_html( $heading ) . '</span>';
+        echo '<span class="tt-analytics-entity-count">' . (int) $count . '</span>';
+        echo '</summary>';
+        if ( $count === 0 ) {
+            echo '<p class="tt-analytics-entity-empty">' . esc_html__( 'No entries.', 'talenttrack' ) . '</p>';
+        } else {
+            echo '<ul class="tt-analytics-entity-list">';
+            foreach ( $instances as $row ) {
+                $id    = (int) $row['id'];
+                $label = (string) ( $row['label'] ?? '#' . $id );
+                $meta  = (string) ( $row['meta'] ?? '' );
+                if ( $detail_slug !== '' ) {
+                    $url = add_query_arg( [ 'tt_view' => $detail_slug, 'id' => $id ], $base );
+                    echo '<li><a href="' . esc_url( $url ) . '">';
+                    echo '<span class="tt-analytics-entity-label">' . esc_html( $label ) . '</span>';
+                    if ( $meta !== '' ) echo '<span class="tt-analytics-entity-meta">' . esc_html( $meta ) . '</span>';
+                    echo '</a></li>';
+                } else {
+                    echo '<li>';
+                    echo '<span class="tt-analytics-entity-label">' . esc_html( $label ) . '</span>';
+                    if ( $meta !== '' ) echo '<span class="tt-analytics-entity-meta">' . esc_html( $meta ) . '</span>';
+                    echo '</li>';
+                }
+            }
+            echo '</ul>';
+        }
+        echo '</details>';
+    }
+
+    /** @return list<array{id:int,label:string,meta?:string}> */
+    private static function fetchInstancePlayers(): array {
+        global $wpdb; $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT pl.id, pl.first_name, pl.last_name, t.name AS team_name
+               FROM {$p}tt_players pl
+          LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
+              WHERE pl.club_id = %d AND pl.archived_at IS NULL
+           ORDER BY pl.last_name ASC, pl.first_name ASC
+              LIMIT 25",
+            \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) ) ?: [];
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $name = trim( ( (string) ( $r->first_name ?? '' ) ) . ' ' . ( (string) ( $r->last_name ?? '' ) ) );
+            if ( $name === '' ) $name = '#' . (int) $r->id;
+            $out[] = [
+                'id'    => (int) $r->id,
+                'label' => $name,
+                'meta'  => (string) ( $r->team_name ?? '' ),
+            ];
+        }
+        return $out;
+    }
+
+    /** @return list<array{id:int,label:string,meta?:string}> */
+    private static function fetchInstanceTeams(): array {
+        global $wpdb; $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, name, age_group FROM {$p}tt_teams
+              WHERE club_id = %d AND archived_at IS NULL
+           ORDER BY name ASC
+              LIMIT 25",
+            \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) ) ?: [];
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $out[] = [
+                'id'    => (int) $r->id,
+                'label' => (string) $r->name,
+                'meta'  => (string) ( $r->age_group ?? '' ),
+            ];
+        }
+        return $out;
+    }
+
+    /** @return list<array{id:int,label:string,meta?:string}> */
+    private static function fetchInstanceActivities(): array {
+        global $wpdb; $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.id, a.title, a.session_date, t.name AS team_name
+               FROM {$p}tt_activities a
+          LEFT JOIN {$p}tt_teams t ON t.id = a.team_id AND t.club_id = a.club_id
+              WHERE a.club_id = %d AND a.archived_at IS NULL
+           ORDER BY a.session_date DESC, a.id DESC
+              LIMIT 25",
+            \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) ) ?: [];
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $title = (string) ( $r->title ?? '' );
+            if ( $title === '' ) $title = '#' . (int) $r->id;
+            $out[] = [
+                'id'    => (int) $r->id,
+                'label' => $title,
+                'meta'  => trim( ( (string) ( $r->team_name ?? '' ) ) . ( ! empty( $r->session_date ) ? ' · ' . (string) $r->session_date : '' ), ' ·' ),
+            ];
+        }
+        return $out;
+    }
+
+    /** @return list<array{id:int,label:string,meta?:string}> */
+    private static function fetchInstanceScouts(): array {
+        global $wpdb; $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, first_name, last_name FROM {$p}tt_people
+              WHERE club_id = %d AND role_type = 'scout' AND archived_at IS NULL
+           ORDER BY last_name ASC, first_name ASC
+              LIMIT 25",
+            \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) ) ?: [];
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $name = trim( ( (string) ( $r->first_name ?? '' ) ) . ' ' . ( (string) ( $r->last_name ?? '' ) ) );
+            if ( $name === '' ) $name = '#' . (int) $r->id;
+            $out[] = [
+                'id'    => (int) $r->id,
+                'label' => $name,
+            ];
+        }
+        return $out;
+    }
+
+    /** @return list<array{id:int,label:string,meta?:string}> */
+    private static function fetchInstanceSeasons(): array {
+        global $wpdb; $p = $wpdb->prefix;
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $p . 'tt_seasons' ) ) !== $p . 'tt_seasons' ) {
+            return [];
+        }
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, name, start_date, end_date FROM {$p}tt_seasons
+              WHERE club_id = %d
+           ORDER BY start_date DESC
+              LIMIT 25",
+            \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) ) ?: [];
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $name = (string) ( $r->name ?? '' );
+            if ( $name === '' ) $name = '#' . (int) $r->id;
+            $meta = '';
+            if ( ! empty( $r->start_date ) || ! empty( $r->end_date ) ) {
+                $meta = trim( (string) ( $r->start_date ?? '' ) . ' – ' . (string) ( $r->end_date ?? '' ), ' –' );
+            }
+            $out[] = [
+                'id'    => (int) $r->id,
+                'label' => $name,
+                'meta'  => $meta,
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * v3.110.151 — inline-CSS for the two-column shell + entity rail.
+     * Inline because the persona-dashboard CSS file is shared across
+     * surfaces and bloating it for one view is overkill. ≥1024px:
+     * two-column grid (rail 280px / main 1fr). <1024px: rail collapses
+     * above the main content. The rail uses `<details>` for native
+     * progressive disclosure — no JS needed.
+     */
+    private static function enqueueLayoutStyles(): void {
+        echo '<style>
+            .tt-analytics-shell { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 16px; }
+            .tt-analytics-rail { background: var(--tt-bg-soft, #f8fafc); border: 1px solid var(--tt-line, #e2e8f0); border-radius: 6px; padding: 12px; }
+            .tt-analytics-rail-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--tt-muted, #475569); margin: 0 0 8px; }
+            .tt-analytics-entity { border-bottom: 1px solid var(--tt-line, #e2e8f0); padding: 6px 0; }
+            .tt-analytics-entity:last-child { border-bottom: none; }
+            .tt-analytics-entity-summary { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 4px 0; font-weight: 600; color: var(--tt-fg, #0f172a); min-height: 36px; }
+            .tt-analytics-entity-summary::-webkit-details-marker { display: none; }
+            .tt-analytics-entity-summary::marker { content: ""; }
+            .tt-analytics-entity-summary::before { content: "▸ "; color: var(--tt-muted, #94a3b8); display: inline-block; width: 14px; transition: transform 0.1s ease; }
+            .tt-analytics-entity[open] .tt-analytics-entity-summary::before { content: "▾ "; }
+            .tt-analytics-entity-count { display: inline-block; padding: 1px 8px; background: var(--tt-line, #e2e8f0); color: var(--tt-fg, #0f172a); border-radius: 999px; font-size: 11px; font-weight: 700; min-width: 24px; text-align: center; }
+            .tt-analytics-entity-list { list-style: none; margin: 4px 0 8px; padding: 0; }
+            .tt-analytics-entity-list li { padding: 0; }
+            .tt-analytics-entity-list a { display: block; padding: 6px 8px; border-radius: 4px; color: var(--tt-fg, #0f172a); text-decoration: none; min-height: 36px; }
+            .tt-analytics-entity-list a:hover { background: #fff; }
+            .tt-analytics-entity-list li > span { display: block; padding: 6px 8px; }
+            .tt-analytics-entity-label { display: block; font-size: 13px; }
+            .tt-analytics-entity-meta { display: block; font-size: 11px; color: var(--tt-muted, #475569); margin-top: 2px; }
+            .tt-analytics-entity-empty { margin: 4px 0 8px; padding: 6px 8px; font-size: 12px; color: var(--tt-muted, #475569); font-style: italic; }
+            .tt-analytics-main { min-width: 0; }
+            @media (min-width: 1024px) {
+                .tt-analytics-shell { grid-template-columns: 280px minmax(0, 1fr); }
+                .tt-analytics-rail { position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
+            }
+        </style>';
     }
 
     /**
