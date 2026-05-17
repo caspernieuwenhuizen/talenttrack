@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.148
+Stable tag: 3.110.149
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.149 — Player profile's evaluations table drops the inline `×` per-row delete button (pilot: "should not be an inline option") =
+
+Pilot: *"The list of evaluations now shows an X inline that allows deletion/archiving. That should not be an inline option."* The list in question is the **player profile**'s Evaluations table (`FrontendPlayerDetailView::renderEvaluationsTable`) — each evaluation row had a danger-coloured `×` button next to the date that fired the `tt-record-delete` handler, prompting a `window.confirm` then issuing `DELETE /wp-json/talenttrack/v1/evaluations/{id}` (which is itself a soft-archive — sets `archived_at`). Per pilot ask, this surface drops the per-row destructive control entirely: the table now has a single Date column linking to the evaluation detail page. **Archiving is unaffected** — it lives where it already did, as the danger-styled Archive button in the page-header actions slot on the evaluation detail view (`FrontendEvaluationsView::renderDetail` since v3.110.55). Same pattern as Goals and Players: destructive actions live on the detail surface, never per-row on a list. The list itself is just the index. NO functional regression — the `DELETE /evaluations/{id}` REST endpoint stays unchanged so the detail-page archive button keeps working, and any third party calling that endpoint sees no change. Files: `src/Shared/Frontend/FrontendPlayerDetailView.php` — removed the `$can_delete` cap check + the conditional Actions column + the per-row `<button class="tt-record-delete">`; kept the date-linking column. No string changes — the strings the X button used to register (`Delete this evaluation? This cannot be undone.`, `Evaluation deleted.`, `Delete evaluation` aria-label) are dropped at the call site but stay defined elsewhere via the detail-page archive helper for the moment; they fall off as dead code on the next cleanup pass.
 
 = 3.110.148 — root-cause fix for "evaluations missing": migration 0102 un-tags the indiscriminate backfill batches written by 0096 + 0099 =
 

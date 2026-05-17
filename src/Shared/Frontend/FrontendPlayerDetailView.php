@@ -589,28 +589,24 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             ] );
             return;
         }
-        $can_delete = current_user_can( 'tt_edit_evaluations' );
         // v3.110.104 — bullet list → sortable table.
+        // v3.110.148 — inline `×` (delete/archive) per row removed per
+        // pilot: "the list of evaluations now shows an X inline that
+        // allows deletion/archiving. That should not be an inline
+        // option." Archiving an evaluation lives on the evaluation
+        // detail page (the danger-styled Archive button in its
+        // page-header actions) — same pattern Goals / Players /
+        // Teams use, and what § 5 / § 6 of CLAUDE.md push toward:
+        // destructive actions live on the detail surface, not on
+        // every row of a list.
         echo '<div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%;">';
         echo '<thead><tr>';
         echo '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>';
-        if ( $can_delete ) {
-            echo '<th style="width:48px;"><span class="screen-reader-text">' . esc_html__( 'Actions', 'talenttrack' ) . '</span></th>';
-        }
         echo '</tr></thead><tbody>';
         foreach ( $rows as $ev ) {
             $url = RecordLink::detailUrlForWithBack( 'evaluations', (int) $ev->id );
-            // `data-tt-row` so the public.js record-delete handler can
-            // fade + remove the row without a full page reload.
-            echo '<tr data-tt-row>';
+            echo '<tr>';
             echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) ( $ev->eval_date ?? '—' ) ) . '</a></td>';
-            if ( $can_delete ) {
-                echo '<td><button type="button" class="tt-record-delete tt-btn-link"'
-                    . ' data-rest-path="' . esc_attr( 'evaluations/' . (int) $ev->id ) . '"'
-                    . ' data-confirm-msg="' . esc_attr__( 'Delete this evaluation? This cannot be undone.', 'talenttrack' ) . '"'
-                    . ' data-deleted-msg="' . esc_attr__( 'Evaluation deleted.', 'talenttrack' ) . '"'
-                    . ' aria-label="' . esc_attr__( 'Delete evaluation', 'talenttrack' ) . '">×</button></td>';
-            }
             echo '</tr>';
         }
         echo '</tbody></table></div>';
