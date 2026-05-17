@@ -1,3 +1,98 @@
+# TalentTrack v3.110.158 — Add-guest "Column 'player_id' cannot be null" — third migration attempt + defensive code fallback
+
+## Pilot report
+
+Screenshots show "Gast toevoegen" → "Anonieme gast" tab filled in (Naam: yasin, Leeftijd: 12, Positie: ST) → Toevoegen → red error: *"The guest could not be added (database error: Column 'player_id' cannot be null)."* Same error on the "Gekoppelde speler" tab even with no selection.
+
+## Root cause
+
+`tt_attendance.player_id` was created `BIGINT UNSIGNED NOT NULL` in migration 0001. Migration 0020 (v3.26-ish) added the guest columns and was supposed to relax the existing `player_id` to NULL behind a `SELECT IS_NULLABLE` gate. Some installs saw the gate evaluate to the wrong branch and the ALTER never ran. Migration 0101 (v3.110.145) re-ran unconditionally:
+
+```php
+$wpdb->query( "ALTER TABLE {$table} MODIFY COLUMN player_id BIGINT UNSIGNED NULL" );
+```
+
+`$wpdb->query()` returns false on error but doesn't propagate it. If the ALTER silently failed — most likely cause on shared hosting: the WP DB user account lacks `ALTER` privileges on the database — 0101 was still marked applied and the column stayed NOT NULL. That's the state the pilot is in now: 0101 says applied, column says NOT NULL, every Add-Guest INSERT fails.
+
+## Fix — two tracks
+
+### (1) Migration 0105 — verified ALTER with logging
+
+```php
+$pre = SELECT IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = $table
+          AND COLUMN_NAME = 'player_id';
+if ( $pre === 'YES' ) return; // True no-op on installs where 0101 worked.
+
+$wpdb->query( "ALTER TABLE `{$table}` MODIFY COLUMN `player_id` BIGINT UNSIGNED NULL DEFAULT NULL" );
+$alter_error = (string) $wpdb->last_error;
+
+$post = SELECT IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS …;
+if ( $post === 'YES' ) return; // ALTER took.
+
+// Schema didn't change. Log it so the operator can see why.
+Logger::error( 'migration.0105.alter_failed', [
+    'table'            => $table,
+    'pre_is_nullable'  => $pre,
+    'post_is_nullable' => $post,
+    'db_error'         => $alter_error,
+]);
+```
+
+Three improvements over 0101: (a) pre-state check skips the ALTER entirely when the column is already nullable; (b) post-state verification catches silent failure; (c) the failure is logged with the captured `$wpdb->last_error` so the operator can act on it (typically: paste the error into a hosting support ticket asking for `ALTER` privilege).
+
+### (2) `add_guest` REST handler — `player_id = 0` sentinel fallback
+
+If migration 0105 also fails to make the column nullable (privilege issue is structural — no migration can solve it), the Add Guest surface still has to work. The REST handler now catches the specific "Column 'player_id' cannot be null" error and retries with `player_id = 0`:
+
+```php
+$ok = $wpdb->insert( "{$p}tt_attendance", $row );
+if ( $ok === false ) {
+    $err = (string) $wpdb->last_error;
+    if ( stripos( $err, "Column 'player_id' cannot be null" ) !== false ) {
+        $row['player_id'] = 0;
+        $ok = $wpdb->insert( "{$p}tt_attendance", $row );
+        if ( $ok !== false ) {
+            Logger::warning( 'attendance.guest.add.player_id_zero_fallback', […] );
+        }
+    }
+}
+```
+
+`player_id = 0` is a safe sentinel for "no player on this guest row":
+
+- `tt_players.id` is `BIGINT UNSIGNED AUTO_INCREMENT` starting from 1, so 0 cannot match a real player.
+- Downstream attendance reads filter on `is_guest = 1` to identify guest rows; they never JOIN `tt_players` on `att.player_id` for guests (linked guests reference via `att.guest_player_id`, anonymous guests have no player at all).
+- `BIGINT UNSIGNED` includes 0 in range, so writes are accepted by any column definition.
+
+The fallback fires only when the ALTER hasn't taken AND the specific error matches. It logs every time it fires (Logger::warning) so the operator can see it's happening and the migration log entry from (1) tells them why.
+
+## Why both tracks ship together
+
+(1) alone wouldn't help if the install structurally can't ALTER. (2) alone leaves the schema permanently broken, which would bite future writes and any other code that assumes nullable. Together they cover both failure modes: the migration tries to make the schema right, and the code keeps working if the schema can't be fixed.
+
+## Files
+
+- `database/migrations/0105_attendance_player_id_nullable_force.php` — new defensive migration.
+- `src/Infrastructure/REST/ActivitiesRestController.php` — `add_guest` REST handler gains the sentinel-fallback retry path.
+- `talenttrack.php` 3.110.157 → 3.110.158.
+- `readme.txt`, `CHANGES.md`.
+
+No new translatable strings. No view, JS, or REST API contract changes.
+
+## How to verify
+
+1. Upgrade to v3.110.158.
+2. Migration 0105 runs on next page load.
+3. Run `SELECT IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'a0ft_tt_attendance' AND COLUMN_NAME = 'player_id'`:
+   - Returns `YES` → schema is fixed, fallback never needed, Add-Guest works via the normal NULL path.
+   - Returns `NO` → check the error log for `migration.0105.alter_failed` to see the captured `db_error`. Add-Guest still works via the sentinel fallback.
+4. In either case, open an activity → "Add guest" → fill in the anonymous tab or pick a linked player → Toevoegen → row writes successfully; the modal closes; the guest appears in the attendance list.
+5. Run `SELECT id, is_guest, player_id, guest_player_id, guest_name FROM a0ft_tt_attendance WHERE is_guest = 1 ORDER BY id DESC LIMIT 5` — guest rows have `is_guest=1`, `player_id` is either NULL (schema fixed) or 0 (sentinel fallback), and `guest_player_id` / `guest_name` carry the real per-row data.
+
+---
+
 # TalentTrack v3.110.156 — `demo_only_install` flag closes the recurring demo-tag backfill loop
 
 ## Background — the loop we keep shipping counter-fixes for

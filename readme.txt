@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.157
+Stable tag: 3.110.158
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.158 — Add-guest "Column 'player_id' cannot be null" — third migration attempt + defensive code fallback =
+
+Pilot screenshot: *"The guest could not be added (database error: Column 'player_id' cannot be null)"* on both tabs of the Add Guest modal (linked + anonymous). Migrations 0020 (v3.26-ish) and 0101 (v3.110.145) were supposed to relax `tt_attendance.player_id` from NOT NULL to NULL. 0101's unconditional `ALTER TABLE … MODIFY COLUMN` runs through `$wpdb->query()` which returns false on error but doesn't propagate it; if the ALTER silently failed (most likely cause on shared hosting: WP DB user lacks ALTER privileges), the migration is marked applied and the schema stays NOT NULL. **Two-track fix.** **(1) Migration 0105**: reads `IS_NULLABLE` from `INFORMATION_SCHEMA.COLUMNS` BEFORE the ALTER (true no-op if 0101 actually worked); runs the ALTER with explicit `DEFAULT NULL`; reads `IS_NULLABLE` AFTER; if the post-state is still NO, logs the pre-state, post-state, and `$wpdb->last_error` to `Logger::error` (or `error_log` as fallback) so the operator finally has a diagnostic when the ALTER continues to fail silently. **(2) `add_guest` REST handler defensive fallback**: when the INSERT fails with "Column 'player_id' cannot be null", retries the same INSERT with `player_id = 0` (sentinel for "no player on this guest row" — real `tt_players.id` auto-increments from 1, so 0 is unambiguous; downstream reads filter on `is_guest = 1` and never JOIN guest rows on player_id). Logs a `Logger::warning` when the fallback fires so the operator can see it's happening. Net effect: installs that can ALTER get a clean nullable column; installs that can't continue working via the sentinel write. Pilot's "Add Guest" surface starts working on next page load regardless of which side of the schema split they're on.
 
 = 3.110.157 — wizard Next button now gives click feedback + nonce-fail surfaces a visible notice (was silent fall-through) =
 

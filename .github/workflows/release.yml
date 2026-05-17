@@ -181,7 +181,10 @@ jobs:
           # label) are part of v3.109.3's WP-login-session feature; the
           # FrontendMySessionsView file is whitelisted above, but the
           # shortcode dispatcher legitimately references the slug.
-          allow_phrases="earlier session|active sessions|browser session|possession|Possession|migrated from sessions|Activities \(Sessions\)|Sessions referencing|FrontendListTable\.php|sprintf|^\s*\*|impersonation session|My sessions\" tile destination|tt-report-sessions|sessions\.(view|manage)|session\.[a-z_]+|'sessions'\s+=>|, +'sessions' \],?\$|'my-sessions'|My sessions"
+          # v3.110.158 — `session expired` allows the v3.110.157 nonce-
+          # fail notice in `FrontendWizardView` (a WP-nonce / HTTP
+          # session concern, not the training-session entity).
+          allow_phrases="earlier session|active sessions|browser session|session expired|possession|Possession|migrated from sessions|Activities \(Sessions\)|Sessions referencing|FrontendListTable\.php|sprintf|^\s*\*|impersonation session|My sessions\" tile destination|tt-report-sessions|sessions\.(view|manage)|session\.[a-z_]+|'sessions'\s+=>|, +'sessions' \],?\$|'my-sessions'|My sessions"
           i18n_hits=$(grep -rnE "$i18n_pattern" --include='*.php' src/ 2>/dev/null \
             | grep -vE "$allow_files" \
             | grep -vE "$allow_phrases" \
