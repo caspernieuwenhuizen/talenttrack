@@ -242,7 +242,28 @@ class FrontendWizardView extends FrontendViewBase {
         $cancel_url = $return_to !== ''
             ? $return_to
             : ( $referer ?: \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
-        echo '<form method="post" class="tt-wizard-form">';
+        // v3.110.137 — `novalidate` disables the browser's native
+        // HTML5 form validation across every wizard step. Reasons:
+        //   - Steps already have their own server-side validate()
+        //     methods that are the source of truth.
+        //   - Native validation jumps focus to the first invalid input
+        //     on submit attempts. When that input lives inside a
+        //     collapsed `<details>` (e.g. an un-expanded player card
+        //     in RateActorsStep) or a hidden `[hidden]` panel (e.g.
+        //     the Basic/Detailed subs panel from v3.110.125), the
+        //     validation tooltip can't render against the hidden
+        //     parent. Result: the page silently "jumps" to nowhere
+        //     visible with no error message — exactly the symptom
+        //     the rate-actors step exhibited when a typed number fell
+        //     outside [min, max] anywhere in the form (pilot: "I
+        //     cannot click when in rating step. It seems to jump back
+        //     to an input field but without message and actually
+        //     seemingly without proper reason").
+        //   - The Cancel / Back / Save-as-draft buttons below already
+        //     carry `formnovalidate`; only Next lacked it, and that's
+        //     the only path that triggered the bug. Adding `novalidate`
+        //     on the form is the global fix.
+        echo '<form method="post" class="tt-wizard-form" novalidate>';
         wp_nonce_field( 'tt_wizard_' . $slug . '_' . $current->slug(), 'tt_wizard_nonce' );
 
         echo '<h2 class="tt-wizard-step-title">' . esc_html( $current->label() ) . '</h2>';
