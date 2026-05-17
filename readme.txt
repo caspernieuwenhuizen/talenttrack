@@ -4,13 +4,25 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.152
+Stable tag: 3.110.153
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.153 — Analytics: entity KPIs now render inline in the right rail (no entity-detail-page round-trip) =
+
+Pilot correction on v3.110.151: *"I do not want analytics to be added to the entities. I want the analytics for those entities available in the analytics tile."* v3.110.151's entity selector linked OUT to entity detail pages; the pilot wants entity-scoped KPIs to render INSIDE the Analytics tile when an instance is selected. Reworked.
+
+Now: clicking an instance in the left rail re-renders the page as `?tt_view=analytics&entity_type=X&entity_id=N`. The right rail switches from the academy-overview view (KPI grid + Standard reports) to an entity view — entity header (type pill + name + ← Academy view link) plus that entity's KPI grid via the existing `EntityAnalyticsTabRenderer` (already filters by entity scope + persona context). The selected `<details>` section in the rail stays expanded; the current row is highlighted with a primary-coloured left border (`li.is-current`). Breadcrumb chain switches from `Dashboard › Analytics` to `Dashboard › Analytics › <entity name>` so the operator sees where they are.
+
+Player / Team / Activity scopes route through the existing renderer which already handles them. Scout / Season scopes don't have KPIs registered yet — they show an honest empty state ("No analytics registered for this entity type yet.") inside the tile, not a redirect. No analytics tab is added to any entity detail page — that's the pilot's explicit ask.
+
+URL state is the only state. No JS. The browser-native `<details>` keeps the rail's expansion state across re-renders by reading the URL's `entity_type` and setting `[open]` on the matching section. Refreshing or bookmarking a specific entity's analytics view works correctly. The ← Academy view link drops both query params and lands back on the default overview.
+
+Cap-gate unchanged (`tt_view_analytics` → admin + tt_club_admin). Dutch translations added for the new strings: *Player*, *Team*, *Activity*, *Scout*, *Season* (header labels), *← Academy view*, *No analytics registered for this entity type yet.* Net effect: pick an entity from the left rail → see its analytics in place. One screen, no navigation.
 
 = 3.110.152 — Tournaments tile registered (was reachable only via direct URL since v3.110.132) =
 
