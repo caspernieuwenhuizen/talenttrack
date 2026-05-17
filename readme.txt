@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.143
+Stable tag: 3.110.144
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.144 — notification bell site-wide via WP admin bar; self-hides when zero open tasks =
+
+Pilot: *"Task notification bell needs to be revised. It should only show when there are open tasks but then it should be shown on all pages and it should be clickable and lead to the my task pane filtered on open and active tasks only."* Two pieces. **(1) Site-wide via the WP admin bar.** The bell previously only injected into `.tt-dash-actions` inside the `[talenttrack_dashboard]` shortcode — visible on dashboard pages, missing everywhere else. Added a second injection point on `admin_bar_menu` (priority 100) that appends a top-level bell node to the toolbar. The toolbar renders on every wp-admin page + every front-end page where `show_admin_bar=true` (default for logged-in users) — so the bell follows the user across the whole site. **(2) Self-hides when count = 0.** Both injection points already gate on `$count > 0`; the admin-bar variant additionally skips registration entirely when there are no open tasks (no "(0)" pill cluttering the bar on a clean inbox). The dashboard-actions variant keeps its existing "show on inbox page even with 0" behaviour so the inbox itself remains discoverable. **(3) URL helper canonicalised.** `inboxUrl()` was REQUEST_URI-relative — broke when the bell rendered on a wp-admin page (link bounced back to wp-admin). Now routes through `WizardEntryPoint::dashboardBaseUrl()` to land on the front-end dashboard from any page context. **Filter target**: the link points at `?tt_view=my-tasks` with no explicit status filter — the My Tasks view's default lens already shows actionable tasks (open + in_progress + overdue, excludes completed). Pilot can flip the filter dropdown to a tighter slice from there.
 
 = 3.110.143 — add-guest: lowercase status default + bubble real DB error into the user-visible message so we can diagnose recurring failures =
 
