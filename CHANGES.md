@@ -1,3 +1,102 @@
+# TalentTrack v3.110.154 — Migration 0103 re-applies the evaluation demo-tag backfill 0102 un-applied for pure-demo installs
+
+## Pilot report
+
+> "The evaluations problem is still not solved. Which DB query should I run so you can better analyse the problem of evaluations not showing up on the evaluation tile."
+
+## Diagnostic snapshot (pilot install, 2026-05-17)
+
+```
+-- Query 1: rows per club / archive state
+club_id=1, active_rows=12, archived_rows=0
+
+-- Query 2: demo mode
+tt_demo_mode = 'on'
+
+-- Query 3: demo-tag coverage on evaluations
+(zero rows)
+
+-- Query 7: migrations applied
+0096_backfill_evaluation_demo_tags          2026-05-17 13:50:04
+0099_backfill_evaluation_demo_tags_redo     2026-05-17 14:48:41
+0102_untag_evaluation_backfill_batches      2026-05-17 18:12:13
+```
+
+12 active evals, demo-ON mode, **zero demo tags on those 12 evals**. REST list applies `apply_demo_scope` → `id IN (zero ids)` → empty result.
+
+## Reconstruction
+
+| Time | Migration | Effect |
+|---|---|---|
+| 13:50 | `0096_backfill_evaluation_demo_tags` | Tagged all 12 evals with batch `wizard-untagged-recovery-v3.110.130` |
+| 14:48 | `0099_backfill_evaluation_demo_tags_redo` | No-op (everything already tagged by 0096) |
+| 18:12 | `0102_untag_evaluation_backfill_batches` (v3.110.148) | Deleted both batch_ids above → tag count to zero |
+
+Migration 0102's code is correct as designed — it deletes exactly the rows from `wizard-untagged-recovery-v3.110.130` and `eval-retag-v3.110.136`. The bug is in the **trade-off** baked into 0102. Its docblock acknowledges this exact failure mode:
+
+> *"Residual risk: pre-v3.110.130 wizard-created evals (the population the backfill was trying to recover) become invisible again in demo-ON mode. Small window, small population; operator can re-rate or manually tag any surfacing."*
+
+That's the pilot's whole population. 0102 traded "real evals invisible in demo-OFF mode" (a concern for mixed-data installs) for "all wizard-created evals invisible in demo-ON mode" (the pilot's symptom). Operator explicitly stated upthread:
+
+> *"there are no real evaluations that can be a problem. I am running in demo mode and everything created so far should rightfully be demo tagged."*
+
+The trade-off was wrong for this install.
+
+## Fix
+
+New migration `0103_backfill_evaluation_demo_tags_after_untag`. Same idempotent shape as 0099 with a fresh `getName()` so the runner picks it up as new:
+
+```php
+public function up(): void {
+    if ( DemoMode::current() !== DemoMode::ON ) return;
+
+    $wpdb->query( $wpdb->prepare(
+        "INSERT INTO {$tags_table} (club_id, batch_id, entity_type, entity_id, extra_json)
+         SELECT e.club_id, %s, 'evaluation', e.id, NULL
+           FROM {$evals_table} e
+          WHERE NOT EXISTS (
+              SELECT 1 FROM {$tags_table} t
+               WHERE t.entity_type = 'evaluation' AND t.entity_id = e.id
+          )",
+        'eval-retag-v3.110.154'
+    ) );
+}
+```
+
+### Three outcomes by install state
+
+- **Pilot's case** (demo-ON, untagged evals from 0102's un-tag): every untagged eval gets the `eval-retag-v3.110.154` tag → demo filter passes them → list shows.
+- **Mixed-data install in demo-OFF**: gate returns early. Real production data stays untagged.
+- **Install where everything is already tagged** (0096/0099 ran successfully, 0102 didn't apply, or manual SQL backfill): `NOT EXISTS` filters the SELECT to empty. No rows inserted. No-op.
+
+### About the 0096 → 0099 → 0102 → 0103 loop
+
+Each migration runs at most once per install. The runner tracks applied migrations by `getName()`. The loop isn't a bug per se — every step was a reasonable response to the previous step's failure mode. The underlying tension:
+
+- **Demo-only installs** want every eval tagged (so demo-ON filter shows them).
+- **Mixed-data installs** want only seeded-demo evals tagged (so demo-OFF filter shows real evals).
+
+The `DemoMode::current() === ON` gate is a proxy for "this install is demo-only" but isn't a reliable signal — an install can flip ON and OFF over its lifetime. The proper fix is a per-install operator flag ("this is a pilot/demo-only install — auto-tag everything"). That's a separate, larger design decision. For now: pilot's intent is "tag everything"; this migration honours it.
+
+## Files
+
+- `database/migrations/0103_backfill_evaluation_demo_tags_after_untag.php` — new one-shot backfill migration.
+- `talenttrack.php` 3.110.153 → 3.110.154.
+- `readme.txt`, `CHANGES.md`.
+
+No string changes. No PHP class / REST / view changes. Pure data fix.
+
+## How to verify
+
+1. **Before upgrade** (pilot's current state): `?tt_view=evaluations` empty; coach dashboard's recent-evals widget empty; My Recent Evals widget on player profile empty.
+2. **Upgrade to v3.110.154**. Migration runner picks up 0103 on next page load.
+3. Run query `SELECT COUNT(*) FROM a0ft_tt_demo_tags WHERE entity_type='evaluation' AND batch_id='eval-retag-v3.110.154'` → returns 12.
+4. Reload `?tt_view=evaluations` → all 12 evaluations now listed.
+5. **Re-running migration 0103** (force a fresh page load): no-op. Tag count stays at 12; no duplicates.
+6. **Toggling demo mode OFF** post-fix: demo-OFF filter is `id NOT IN (tagged)`, so the 12 demo-tagged evals correctly disappear from the demo-OFF view. That's the intended behaviour — demo-tagged data is hidden in non-demo mode.
+
+---
+
 # TalentTrack v3.110.152 — Tournaments tile registered
 
 ## Pilot report

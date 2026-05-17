@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.153
+Stable tag: 3.110.154
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.154 — Migration 0103 re-applies the evaluation demo-tag backfill that v3.110.148's 0102 un-applied for pure-demo installs =
+
+Pilot DB diagnostic on 2026-05-17 confirmed: install in demo-ON mode, 12 active evaluations, zero rows in `tt_demo_tags WHERE entity_type='evaluation'`. Migrations 0096 + 0099 + 0102 all applied. Reconstruction: 0096 tagged the 12 evals (batch `wizard-untagged-recovery-v3.110.130`); 0099 was a no-op (already tagged); 0102 (shipped v3.110.148) deleted exactly those rows. 0102's own docblock acknowledged the trade-off — *"pre-v3.110.130 wizard-created evals (the population the backfill was trying to recover) become invisible again in demo-ON mode. Small window, small population; operator can re-rate or manually tag any surfacing"* — but that trade-off is wrong for the pilot's install, which is purely demo-data per the operator's explicit statement: *"there are no real evaluations that can be a problem. I am running in demo mode and everything created so far should rightfully be demo tagged."* **Fix**: new migration 0103, same idempotent `INSERT … WHERE NOT EXISTS` shape as 0099 with a fresh `getName()`, gated on `DemoMode::current() === ON`. Tags every currently-untagged evaluation with batch_id `eval-retag-v3.110.154`. Three outcomes: (a) pilot's install — 12 evals get tagged, demo-ON filter passes them, list shows. (b) installs that toggled demo-OFF after a previous backfill — migration's demo-ON gate returns early, real production data stays untagged. (c) re-running 0103 on an install where everything is already tagged is a no-op (`NOT EXISTS` filters the SELECT to empty). The recurring 0096 → 0099 → 0102 → 0103 loop is fully aware: each migration runs at most once on each install. The fundamental design conflict (demo-only installs want everything tagged; mixed-data installs want only true demo tagged) is addressable only by a per-install operator flag — out of scope for this fix. For now: pilot's intent is "tag everything", this migration honours it.
 
 = 3.110.153 — Analytics: entity KPIs now render inline in the right rail (no entity-detail-page round-trip) =
 
