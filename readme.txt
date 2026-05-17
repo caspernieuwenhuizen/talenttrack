@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.151
+Stable tag: 3.110.152
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.152 — Tournaments tile registered (was reachable only via direct URL since v3.110.132) =
+
+Pilot: *"Where on the admin tile page do I find the tournament functionality?"* The Tournaments feature (#0093) shipped end-to-end in v3.110.132–.134 — schema, REST, view, wizard, all working — but `TournamentsModule::boot()` never called `TileRegistry::register()`, so no entry appeared in the admin dashboard's tile grid and the wp-admin menu had no item. The view was reachable only by hand-typing `?tt_view=tournaments`. Fixed: TournamentsModule now registers the tile in its `boot()` method, in the Performance group at order 28 (right after Team planner / before Goals — adjacent to the other forward-looking match-scheduling surface). Tile carries `cap => 'tt_view_tournaments'` which is admin-only in v1 (administrator + tt_club_admin only — same gating the view itself enforces), so the tile auto-hides for every other persona. Icon: `kanban`; colour: teal `#0d9488`. Two new translatable strings (the tile label and description) added to `talenttrack-nl_NL.po` with Dutch translations. No code change to the view, REST controller, schema, or wizard — pure surfacing fix.
 
 = 3.110.151 — Analytics: two-column entity selector — the deferred Child 5 backlog from #0083 =
 
