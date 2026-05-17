@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.140
+Stable tag: 3.110.141
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.141 — Dutch translation for "Select completed activity to evaluate" =
+
+Pilot: *"Text on activity/mark attendance wizard is only in English 'Select completed activity to evaluate'. Should be translated into site language."* Verified the source: `MarkAttendanceHeroWidget` already wraps the string in `__( …, 'talenttrack' )` (lines 88 + 123) — the bug is the missing Dutch translation, not a missing translation hook. Added one entry to `languages/talenttrack-nl_NL.po`: `msgstr "Kies een afgeronde activiteit om te beoordelen"`. Will appear after the build pipeline regenerates the `.mo` file on the release ZIP step.
 
 = 3.110.140 — quick-actions panel grid auto-fits to the number of actions registered =
 

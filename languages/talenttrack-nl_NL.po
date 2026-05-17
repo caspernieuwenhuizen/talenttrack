@@ -14880,3 +14880,6 @@ msgstr "Geen volledige wedstrijd"
 
 msgid "Minutes ticker"
 msgstr "Speeltijd-ticker"
+
+msgid "Select completed activity to evaluate"
+msgstr "Kies een afgeronde activiteit om te beoordelen"
