@@ -878,7 +878,15 @@ class ActivitiesRestController {
         $age_raw   = $r['guest_age'] ?? '';
         $age       = ( $age_raw === '' || $age_raw === null ) ? null : max( 0, min( 99, absint( $age_raw ) ) );
         $position  = sanitize_text_field( (string) ( $r['guest_position'] ?? '' ) );
-        $status    = sanitize_text_field( (string) ( $r['status'] ?? 'Present' ) );
+        // v3.110.143 — was `'Present'` (capitalised). Every other write
+        // path in the codebase normalises to lowercase since v3.110.4,
+        // and downstream reads use `LOWER(status) IN (…)` since
+        // v3.110.78. Send the lowercase canonical value so the row
+        // matches the picker / widget queries without surprises.
+        $status    = sanitize_text_field( (string) ( $r['status'] ?? 'present' ) );
+        if ( $status !== '' ) {
+            $status = strtolower( $status );
+        }
         $g_notes   = sanitize_textarea_field( (string) ( $r['guest_notes'] ?? '' ) );
 
         if ( $linked_id > 0 && $name !== '' ) {
@@ -915,8 +923,19 @@ class ActivitiesRestController {
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'attendance.guest.add.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
-            return RestResponse::error( 'db_error',
-                __( 'The guest could not be added.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
+            // v3.110.143 — surface the actual db_error in the
+            // user-visible message. Previously the message was
+            // generic ("The guest could not be added.") and the
+            // diagnostic db_error was buried in `details`, which
+            // the JS doesn't surface. Pilot reported the failure
+            // recurring with no diagnostic; bubbling the error lets
+            // them paste it back so the root cause is identifiable.
+            // The install is admin-only / pilot-stage so leaking
+            // SQL-level error text to operators is acceptable.
+            $msg = $err !== ''
+                ? sprintf( __( 'The guest could not be added (database error: %s).', 'talenttrack' ), $err )
+                : __( 'The guest could not be added.', 'talenttrack' );
+            return RestResponse::error( 'db_error', $msg, 500, [ 'db_error' => $err ] );
         }
         $id = (int) $wpdb->insert_id;
         return RestResponse::success( [ 'id' => $id ] + self::format_guest_row( self::find_attendance( $id ) ) );
