@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.146
+Stable tag: 3.110.147
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.147 — Scout dashboard polish: hero "Plan visits" link → ghost button + matrix-aware auth + show-all routes correctly + widget trimmed to 5 rows (no scrollbar) =
+
+Four pilot-surfaced bugs on the scout dashboard, all small. **(1) Hero "Plan visits →" gives "Not authorized".** `FrontendScoutingPlanView::render()` line 40 used `current_user_can('tt_view_prospects')`, which on matrix-enabled installs skipped the matrix grant layer and rejected scouts whose `tt_view_prospects` cap came from the matrix rather than the WP role. Replaced with `AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' )` — same pattern the sibling `FrontendOnboardingPipelineView` already uses on the same resource (its access check has been working correctly; the inconsistency was purely on this one view). **(2) Same link is text, should be a button.** `AddProspectHeroWidget` rendered the secondary CTA with class `tt-pd-hero-secondary` — an underlined text link variant. Replaced with `tt-pd-cta tt-pd-cta-ghost` so it picks up the standard CTA button shape with the translucent-white ghost colour treatment (sits on the hero's dark gradient without competing with the primary yellow CTA). **(3) "Show all" on My Recent Prospects → "Unknown section."** The dashboard widget's See-all link targets `?tt_view=prospects-overview` and `DashboardShortcode::dispatchWorkflowView()` has a `case 'prospects-overview'` (added v3.110.99), but `prospects-overview` was missing from the `$workflow_slugs` allowlist at the top-level routing. Every click on See-all fell through to the "Unknown section" default. Same root cause as the v3.110.3 team-planner and v3.110.146 attendance-report dispatcher fixes — case added without updating the slug allowlist. Fixed by adding `'prospects-overview'` to the `$workflow_slugs` array. **(4) Widget has a scrollbar.** `DataTableWidget::rowsHtml()` hardcoded `'limit' => 15` for every preset. The widget slot is XL (2-row tall), which fits ~5 rows of body content cleanly — 15 rows forced a vertical scrollbar inside the widget on the scout dashboard. Pilot wanted no scrollbar. Made the limit per-preset configurable: `my_recent_prospects` now declares `'limit' => 5`; other presets keep the historical default 15 by not setting one (back-compat). The Show-all link is right there for anyone wanting the full list.
 
 = 3.110.146 — Analytics: route standard reports correctly, soften dev-internal placeholder, add Dutch translations =
 

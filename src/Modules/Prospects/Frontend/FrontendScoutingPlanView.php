@@ -4,6 +4,7 @@ namespace TT\Modules\Prospects\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\DateInputComponent;
@@ -37,7 +38,14 @@ use TT\Shared\Frontend\FrontendViewBase;
 class FrontendScoutingPlanView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
-        if ( ! current_user_can( 'tt_view_prospects' ) && ! $is_admin ) {
+        // v3.110.147 — was `current_user_can`, which on matrix-enabled
+        // installs skipped the matrix grant layer and rejected scouts
+        // whose `tt_view_prospects` cap came from the matrix rather
+        // than the WP role. `userCanOrMatrix` mirrors what
+        // `FrontendOnboardingPipelineView` already uses on the same
+        // resource, fixing the "not authorized" page the pilot saw
+        // when clicking "Plan visits →" from the scout hero.
+        if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' ) && ! $is_admin ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             self::renderHeader( __( 'Scouting visits', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to scouting visits.', 'talenttrack' ) . '</p>';

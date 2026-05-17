@@ -100,6 +100,12 @@ class DataTableWidget extends AbstractWidget {
                 'columns'       => [ __( 'Date', 'talenttrack' ), __( 'Name', 'talenttrack' ), __( 'Status', 'talenttrack' ), '' ],
                 'see_all_view'  => 'prospects-overview',
                 'empty_message' => __( 'You have not logged any prospects yet. Use the “+ New prospect” hero above to start.', 'talenttrack' ),
+                // v3.110.147 — XL widget slot fits ~5 rows of body
+                // content cleanly. Pre-fix the rowsHtml default 15
+                // forced a vertical scrollbar inside the widget; pilot
+                // wanted no scrollbar. Show-all is right there for
+                // anyone wanting the full list.
+                'limit'         => 5,
             ],
             'audit_log_recent' => [
                 'title'         => __( 'Recent audit events', 'talenttrack' ),
@@ -134,7 +140,14 @@ class DataTableWidget extends AbstractWidget {
         if ( $source === null ) {
             return $this->emptyRow( $col_count, (string) $config['empty_message'] );
         }
-        $rows = $source->rowsFor( $user_id, [ 'days' => 14, 'limit' => 15 ] );
+        // v3.110.147 — per-preset `limit` override falls through to the
+        // historical 15 default when a preset doesn't set one. The
+        // widget slot only renders ~5 rows of body content cleanly;
+        // presets that want a scrollable backlog can keep 15, but the
+        // scout-dashboard "my recent prospects" intentionally cuts to
+        // 5 so the widget renders without a vertical scrollbar.
+        $limit = isset( $config['limit'] ) ? max( 1, (int) $config['limit'] ) : 15;
+        $rows = $source->rowsFor( $user_id, [ 'days' => 14, 'limit' => $limit ] );
         if ( $rows === [] ) {
             return $this->emptyRow( $col_count, (string) $config['empty_message'] );
         }

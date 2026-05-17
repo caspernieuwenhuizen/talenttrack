@@ -1,3 +1,150 @@
+# TalentTrack v3.110.147 — Scout dashboard polish: hero "Plan visits" button + matrix-aware auth + show-all routes correctly + widget trimmed to 5 rows
+
+## Pilot report
+
+> "The link to the planning of scouting activities in the Hero on the dashboard gives a not authorized. Also, the link should be a button. Show all on my recent prospects shows unknown part. There is a scrollbar on the widget. That should not happen — adjust the height of the rows or amount of records shown so that there is no scrollbar needed."
+
+Four bugs on the scout dashboard, all small, all unrelated except by surface.
+
+## (1) Hero "Plan visits →" — "Not authorized"
+
+### Root cause
+
+`src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:40` used the WP-only capability check:
+
+```php
+if ( ! current_user_can( 'tt_view_prospects' ) && ! $is_admin ) {
+    // → renders "Not authorized"
+}
+```
+
+On a matrix-enabled install, `tt_view_prospects` for the scout persona comes through `AuthorizationService` rather than the legacy WP role. `current_user_can()` doesn't consult the matrix grant layer, so scouts whose cap exists only in the matrix get the not-authorized page.
+
+The sibling `FrontendOnboardingPipelineView::render()` at line 45 already uses the right pattern:
+
+```php
+if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' ) ) {
+    // …
+}
+```
+
+That view works for the scout — same install, same user, same cap. The bug was purely the inconsistent check on `FrontendScoutingPlanView`.
+
+### Fix
+
+```diff
+-        if ( ! current_user_can( 'tt_view_prospects' ) && ! $is_admin ) {
++        if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' ) && ! $is_admin ) {
+```
+
+Plus `use TT\Infrastructure\Security\AuthorizationService;` at the top of the file. The `&& ! $is_admin` short-circuit stays as a defensive escape hatch for true WP admins.
+
+## (2) Hero "Plan visits →" — should be a button, not a text link
+
+### Root cause
+
+`src/Modules/PersonaDashboard/Widgets/AddProspectHeroWidget.php:89` rendered the secondary CTA with `class="tt-pd-hero-secondary"` — a CSS class that styles the element as `text-decoration: underline` over the hero's dark gradient. Visually it reads as a text link sitting beside the primary yellow CTA button, which is exactly the inconsistency pilot flagged.
+
+### Fix
+
+Replace the class with the standard CTA pair:
+
+```diff
+-            . '<a class="tt-pd-hero-secondary" href="' . esc_url( $visits_url ) . '">'
++            . '<a class="tt-pd-cta tt-pd-cta-ghost" href="' . esc_url( $visits_url ) . '">'
+```
+
+`tt-pd-cta` (persona-dashboard.css:224-236) gives the button shape: 0.625rem 1.125rem padding, 0.625rem border-radius, weight 600, touch-action manipulation. `tt-pd-cta-ghost` (line 238) layers on the translucent-white treatment (`background: rgba(255, 255, 255, 0.15); color: #fff`) that sits readably on the dark hero gradient without competing with the primary yellow CTA. The hero-secondary class itself stays defined in CSS — other surfaces might still use it — but the AddProspectHero widget no longer references it.
+
+## (3) "Show all" on My Recent Prospects → "Unknown section."
+
+### Root cause
+
+`MiniPlayerListWidget` and the relevant `DataTableWidget` preset both target `?tt_view=prospects-overview` for the See-all link (set in `DataTableWidget::presetConfig()` for the `my_recent_prospects` preset, line 101).
+
+`DashboardShortcode::dispatchWorkflowView()` has a case for `prospects-overview` at line 576 that calls `FrontendProspectsOverviewView::render( $user_id )`. **But** the top-level routing at line 210 has a `$workflow_slugs` array that gates which slugs reach `dispatchWorkflowView` in the first place:
+
+```php
+$workflow_slugs = [ 'my-tasks', 'tasks-dashboard', 'workflow-config', 'onboarding-pipeline', 'scouting-visits', 'scouting-visit' ];
+//                                                                                            ↑
+//                                                                                            'prospects-overview' missing
+```
+
+Without that membership, the slug falls through every other branch and lands on the final default at line 593-594:
+
+```php
+default:
+    FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
+    echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+```
+
+(The pilot's "Onbekend onderdeel" / "Unknown part" was this exact fallback page in Dutch.)
+
+Same root cause as the v3.110.10 team-planner dispatcher fix and the v3.110.146 attendance-report fix: case added to the switch without updating the outer slug allowlist.
+
+### Fix
+
+```diff
+-        $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config', 'onboarding-pipeline', 'scouting-visits', 'scouting-visit' ];
++        $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config', 'onboarding-pipeline', 'prospects-overview', 'scouting-visits', 'scouting-visit' ];
+```
+
+One-line allowlist addition.
+
+## (4) Widget shows a scrollbar — should fit without scroll
+
+### Root cause
+
+`DataTableWidget::rowsHtml()` at line 137 fetched a hardcoded 15 rows for every preset:
+
+```php
+$rows = $source->rowsFor( $user_id, [ 'days' => 14, 'limit' => 15 ] );
+```
+
+The XL widget slot fits ~5 rows of body content cleanly. 15 rows overflow → vertical scrollbar appears inside the widget. Pilot didn't want a scrollbar — they wanted either fewer rows or shorter rows.
+
+### Fix
+
+Per-preset `limit` config, default 15 (back-compat). For `my_recent_prospects`, override to 5:
+
+```diff
+ 'my_recent_prospects' => [
+     'title'         => __( 'My recent prospects', 'talenttrack' ),
+     'columns'       => [ … ],
+     'see_all_view'  => 'prospects-overview',
+     'empty_message' => __( 'You have not logged any prospects yet. …', 'talenttrack' ),
++    'limit'         => 5,
+ ],
+```
+
+```diff
+-        $rows = $source->rowsFor( $user_id, [ 'days' => 14, 'limit' => 15 ] );
++        $limit = isset( $config['limit'] ) ? max( 1, (int) $config['limit'] ) : 15;
++        $rows = $source->rowsFor( $user_id, [ 'days' => 14, 'limit' => $limit ] );
+```
+
+The Show-all link is right there for anyone wanting the full list — that's the canonical UX for "widget shows a slice, See-all shows everything". Other DataTableWidget presets (trials-needing-decision, recent-scout-reports, audit-log-recent, upcoming-activities, goals-by-principle) keep the historical 15-row default by not setting a `'limit'` key. They can opt into a lower limit individually if pilot reports their widgets also scroll.
+
+## Files
+
+- `src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php` — `AuthorizationService` import + line 40 cap check switched to `userCanOrMatrix`.
+- `src/Modules/PersonaDashboard/Widgets/AddProspectHeroWidget.php` — class swap on the Plan visits link.
+- `src/Shared/Frontend/DashboardShortcode.php` — `'prospects-overview'` added to `$workflow_slugs`.
+- `src/Modules/PersonaDashboard/Widgets/DataTableWidget.php` — per-preset `'limit'` config + `my_recent_prospects` set to 5.
+- `talenttrack.php` 3.110.146 → 3.110.147.
+- `readme.txt`, `CHANGES.md`.
+
+No new translatable strings — the only string change ("Plan visits →") is unchanged.
+
+## How to verify
+
+1. **Bug 1**: as a scout (or any user whose `tt_view_prospects` cap comes from the matrix), click "Plan visits →" on the dashboard hero → the scouting-visits planner loads instead of "Not authorized".
+2. **Bug 2**: the "Plan visits →" element on the scout hero now renders as a translucent-white button matching the primary yellow CTA's button shape, not an underlined text link.
+3. **Bug 3**: on the scout dashboard, the My Recent Prospects widget's "See all" link → opens `?tt_view=prospects-overview` and renders the full prospects list (search, filter, sortable columns) instead of "Unknown section."
+4. **Bug 4**: the My Recent Prospects widget shows at most 5 rows. No vertical scrollbar inside the widget body. Older prospects past the 5 most recent are reachable via See-all.
+
+---
+
 # TalentTrack v3.110.137 — wizard fix: native HTML5 validation now off, stops focus from jumping into hidden inputs with no error message
 
 ## Pilot report

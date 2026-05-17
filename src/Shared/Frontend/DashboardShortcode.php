@@ -207,7 +207,7 @@ class DashboardShortcode {
         // dispatcher fix.
         // v3.110.119 — `scouting-visits` (list/new/edit) and `scouting-visit` (singular detail)
         // for the scouting-plan feature. Scout dashboard widget + Operations tile.
-        $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config', 'onboarding-pipeline', 'scouting-visits', 'scouting-visit' ];
+        $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config', 'onboarding-pipeline', 'prospects-overview', 'scouting-visits', 'scouting-visit' ];
         // #0009 — Development management slugs. Each view re-checks its
         // own capability so dispatching here is safe.
         $dev_slugs       = [ 'submit-idea', 'ideas-board', 'ideas-refine', 'ideas-approval', 'dev-tracks' ];
