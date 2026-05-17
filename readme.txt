@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.138
+Stable tag: 3.110.139
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.139 — recent-evaluations widget overflow fix: row cap 5→4, name truncates with ellipsis, list scrolls on overflow =
+
+Pilot: *"Recent evaluation widget, texts overruns the height of the widget, either decrease row height or show less rows."* The widget rendered up to 5 rows, each row's player name wrapped to 2 lines when long, and the meta column (date + average) also wrapped, so a single long-named player on a tight panel overran the bottom edge. **Three fixes**: (1) SQL `LIMIT 5` → `LIMIT 4` on `MiniPlayerListWidget::fetchRecentEvaluations` — one less row by default, baseline lower. (2) `.tt-pd-mini-list-name` gets `overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0` so long names truncate with `…` instead of wrapping. (3) `.tt-pd-mini-list-meta` gets `white-space:nowrap` so date + average stays on one line. (4) `.tt-pd-mini-list` gets `max-height:220px; overflow-y:auto` as a safety net — if a future row variant runs taller, the list scrolls within its container instead of pushing the panel. Touch-target floor (44px row height per CLAUDE.md mobile-first) preserved.
 
 = 3.110.138 — mark-attendance "Skip rating" splits into two: "rate later" vs "no rating needed" (closes the rating queue) =
 
