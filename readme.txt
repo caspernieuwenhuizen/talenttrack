@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.155
+Stable tag: 3.110.156
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.156 — New operator flag `demo_only_install` closes the recurring demo-tag backfill loop =
+
+Architectural fix for the recurring loop **0096 → 0099 → 0102 → 0103** seen on the pilot install since v3.110.130. The underlying conflict: demo-only installs (pilot, training, ephemeral demos) want every record auto-tagged so demo-mode reads show them; mixed-data installs (any future production install) want only seeded-demo tagged so flipping demo OFF doesn't hide real data. The `DemoMode::current() === ON` migration gate was a weak proxy for "this install is demo-only" — it captured a point-in-time toggle state, not operator intent. Every backfill that fired on a runtime-ON install accidentally tagged real production data; every counter-migration that un-tagged then accidentally hid pre-fix demo data. **Fix**: new feature toggle `feature.demo_only_install` (default OFF) flipped on per install. When ON, `DemoMode::effective()` returns ON regardless of the runtime mode toggle, so demo-scoped reads always show tagged rows and every write through `DemoMode::tagIfActive()` auto-tags the new row. The runtime toggle is overridden but stays callable from request scope (admin Demo Data page still uses `overrideForRequest( NEUTRAL )` so the operator can always see the full population). Toggle surfaces automatically in the Configuration UI (`?tt_view=configuration`) — operator flips it ON on pilot / training installs once, and the loop closes for that install. Untagged rows on disk are preserved; flipping the flag OFF later restores standard mixed-mode behaviour. Two new translatable strings (label + description) added to `talenttrack-nl_NL.po` with Dutch translations. No migration ships with this — the flag is forward-acting only; the pilot's 12 existing evals are already tagged from migration 0103 (v3.110.154), and going-forward writes will tag automatically once the operator flips the flag.
 
 = 3.110.155 — Scout × prospects scope changes from `self` to `global` so scouts working the same pool can see each other's prospects =
 

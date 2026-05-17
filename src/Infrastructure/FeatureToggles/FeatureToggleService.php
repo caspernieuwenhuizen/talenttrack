@@ -66,6 +66,28 @@ class FeatureToggleService {
                 'description' => __( 'When enabled, staff can send invitations and invitees can create accounts. Disable to stop all new user creation — new invitations cannot be issued and pending invitations cannot be accepted while disabled. Linking an already-existing WordPress user to a TalentTrack record (silent link when an invitee is already logged in with the matching email) is unaffected.', 'talenttrack' ),
                 'default'     => true,
             ],
+            // v3.110.156 — operator flag for "this install only ever
+            // holds demo data" (pilot installs, training instances,
+            // ephemeral demos). When enabled, DemoMode::effective()
+            // returns ON regardless of the runtime mode toggle, so
+            // demo-scoped reads always show tagged rows and every
+            // write through `tagIfActive` tags the new row. Closes the
+            // 0096 → 0099 → 0102 → 0103 backfill loop by giving the
+            // operator an explicit "always tag, never hide" signal
+            // that's independent of the runtime mode flip.
+            //
+            // Only flip this ON on installs where you are CERTAIN no
+            // real production data will ever live. With this on, a
+            // demo-tagged row in `tt_demo_tags` is the visibility
+            // gate for every read path, and an untagged row stays
+            // invisible to every reader. Untagged rows on disk are
+            // still preserved — flipping this OFF later restores the
+            // standard mixed-mode behaviour (mode toggle in charge).
+            'demo_only_install' => [
+                'label'       => __( 'This is a demo-only install', 'talenttrack' ),
+                'description' => __( 'Enable on pilot / training / ephemeral demo installs where every record is demo data. With this on, demo mode is permanently active: all newly created records auto-tag as demo, demo filtering always shows the tagged set, and the runtime mode toggle is overridden. Disable for production installs where some records are real club data.', 'talenttrack' ),
+                'default'     => false,
+            ],
         ];
     }
 

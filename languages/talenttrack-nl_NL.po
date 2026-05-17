@@ -11258,6 +11258,14 @@ msgstr "Wanneer ingeschakeld kan staff uitnodigingen versturen en kunnen genodig
 msgid "New user registration is currently disabled."
 msgstr "Nieuwe gebruikersregistratie is momenteel uitgeschakeld."
 
+# v3.110.156 — demo_only_install operator flag
+
+msgid "This is a demo-only install"
+msgstr "Dit is een demo-only installatie"
+
+msgid "Enable on pilot / training / ephemeral demo installs where every record is demo data. With this on, demo mode is permanently active: all newly created records auto-tag as demo, demo filtering always shows the tagged set, and the runtime mode toggle is overridden. Disable for production installs where some records are real club data."
+msgstr "Inschakelen op pilot- / trainings- / tijdelijke demo-installaties waar elk record demogegevens is. Met deze schakelaar aan is demo-modus permanent actief: alle nieuwe records krijgen automatisch een demo-tag, demo-filtering toont altijd de getagde set en de runtime-modus-schakelaar wordt overschreven. Schakel uit op productie-installaties waar sommige records echte clubgegevens zijn."
+
 msgid "Impersonating %s. Every action is logged."
 msgstr "Impersoneert %s. Elke actie wordt gelogd."
 

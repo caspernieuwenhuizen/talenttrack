@@ -58,7 +58,38 @@ class DemoMode {
     }
 
     public static function effective(): string {
-        return self::$request_override ?? self::current();
+        if ( self::$request_override !== null ) {
+            return self::$request_override;
+        }
+        // v3.110.156 — `demo_only_install` operator flag overrides the
+        // runtime mode toggle. When set, every read path treats the
+        // install as demo-ON (filter passes only tagged rows) and
+        // every write through `tagIfActive` tags the row. Closes the
+        // recurring backfill-then-untag migration loop by giving
+        // operators an explicit per-install "this is demo data only"
+        // signal that's independent of accidental toggle flips.
+        if ( self::isDemoOnlyInstall() ) {
+            return self::ON;
+        }
+        return self::current();
+    }
+
+    /**
+     * v3.110.156 — read the `feature.demo_only_install` toggle.
+     * Self-gated on the FeatureToggleService class existing so very
+     * early boot paths (or installs missing the feature module) don't
+     * fatal — returns false in that case, preserving the historic
+     * runtime-toggle-only behaviour.
+     */
+    public static function isDemoOnlyInstall(): bool {
+        if ( ! class_exists( '\\TT\\Infrastructure\\FeatureToggles\\FeatureToggleService' )
+          || ! class_exists( '\\TT\\Infrastructure\\Config\\ConfigService' ) ) {
+            return false;
+        }
+        $service = new \TT\Infrastructure\FeatureToggles\FeatureToggleService(
+            new \TT\Infrastructure\Config\ConfigService()
+        );
+        return $service->isEnabled( 'demo_only_install' );
     }
 
     /**
