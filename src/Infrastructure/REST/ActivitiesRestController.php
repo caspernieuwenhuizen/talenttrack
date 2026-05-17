@@ -920,6 +920,36 @@ class ActivitiesRestController {
             'guest_notes'     => $linked_id > 0 ? null : ( $g_notes !== '' ? $g_notes : null ),
         ];
         $ok = $wpdb->insert( "{$p}tt_attendance", $row );
+
+        // v3.110.158 — defensive fallback for installs where
+        // `tt_attendance.player_id` is still NOT NULL despite
+        // migrations 0020 / 0101 / 0105 attempting to relax it.
+        // Pilot symptom: "Column 'player_id' cannot be null". Some
+        // shared-hosting installs lack ALTER privileges on the WP
+        // DB user, so the schema change never lands. Guest rows
+        // are identified by `is_guest = 1` regardless; downstream
+        // reads filter on that flag and never JOIN on player_id
+        // for guests (linked guests use `guest_player_id`, anon
+        // guests use `guest_name`). Writing `player_id = 0` for
+        // guests is safe: BIGINT UNSIGNED has 0 in range, real
+        // players auto-increment from 1, no row ever has 0 as a
+        // real `tt_players.id`. The 0 is unambiguous sentinel for
+        // "no player on this guest row" on installs stuck NOT NULL.
+        if ( $ok === false ) {
+            $err = (string) $wpdb->last_error;
+            if ( stripos( $err, "Column 'player_id' cannot be null" ) !== false
+              || stripos( $err, 'player_id' ) !== false && stripos( $err, 'null' ) !== false ) {
+                $row['player_id'] = 0;
+                $ok = $wpdb->insert( "{$p}tt_attendance", $row );
+                if ( $ok !== false ) {
+                    Logger::warning( 'attendance.guest.add.player_id_zero_fallback', [
+                        'activity_id'      => $activity_id,
+                        'original_db_error'=> $err,
+                    ] );
+                }
+            }
+        }
+
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
             Logger::error( 'attendance.guest.add.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
