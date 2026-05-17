@@ -28,8 +28,15 @@ final class ReviewStep implements WizardStepInterface {
         $continue_to_guests = ! empty( $state['continue_to_guests'] );
 
         echo '<p>' . esc_html__( 'Looks good? Create the activity to start logging attendance.', 'talenttrack' ) . '</p>';
-        echo '<dl class="tt-wizard-review">';
 
+        // v3.110.142 — was a `<dl class="tt-wizard-review">` with
+        // `<dt>` / `<dd>` pairs, which the dashboard's default CSS
+        // rendered as an indented bullet-style list. Pilot: "the final
+        // step before saving does not show a nice table but a
+        // bulleted list, that needs to change." Switched to the same
+        // `<table class="tt-table tt-wizard-review-table">` markup
+        // the Prospect wizard's ReviewStep already uses — keeps the
+        // visual language consistent across wizards.
         $team_name = '—';
         $tid = (int) ( $state['team_id'] ?? 0 );
         if ( $tid > 0 ) {
@@ -43,25 +50,25 @@ final class ReviewStep implements WizardStepInterface {
                 if ( ! empty( $row->age_group ) ) $team_name .= ' (' . $row->age_group . ')';
             }
         }
-        echo '<dt>' . esc_html__( 'Team', 'talenttrack' ) . '</dt><dd>' . esc_html( $team_name ) . '</dd>';
+        $loc   = (string) ( $state['location'] ?? '' );
+        $notes = (string) ( $state['notes'] ?? '' );
 
-        echo '<dt>' . esc_html__( 'Type', 'talenttrack' ) . '</dt><dd>' . esc_html( self::translateLookup( 'activity_type', $type ) ) . '</dd>';
-        echo '<dt>' . esc_html__( 'Status', 'talenttrack' ) . '</dt><dd>' . esc_html( self::translateLookup( 'activity_status', $status ) ) . '</dd>';
-
+        $rows = [
+            [ __( 'Team',   'talenttrack' ), $team_name, false ],
+            [ __( 'Type',   'talenttrack' ), self::translateLookup( 'activity_type',   $type   ), false ],
+            [ __( 'Status', 'talenttrack' ), self::translateLookup( 'activity_status', $status ), false ],
+        ];
         if ( $type === 'game' && ! empty( $state['game_subtype_key'] ) ) {
-            echo '<dt>' . esc_html__( 'Game subtype', 'talenttrack' ) . '</dt><dd>' . esc_html( (string) $state['game_subtype_key'] ) . '</dd>';
+            $rows[] = [ __( 'Game subtype', 'talenttrack' ), (string) $state['game_subtype_key'], false ];
         }
         if ( $type === 'other' && ! empty( $state['other_label'] ) ) {
-            echo '<dt>' . esc_html__( 'Other label', 'talenttrack' ) . '</dt><dd>' . esc_html( (string) $state['other_label'] ) . '</dd>';
+            $rows[] = [ __( 'Other label', 'talenttrack' ), (string) $state['other_label'], false ];
         }
-
-        echo '<dt>' . esc_html__( 'Title', 'talenttrack' ) . '</dt><dd>' . esc_html( (string) ( $state['title'] ?? '' ) ) . '</dd>';
-        echo '<dt>' . esc_html__( 'Date', 'talenttrack' ) . '</dt><dd>' . esc_html( (string) ( $state['session_date'] ?? '' ) ) . '</dd>';
-        $loc = (string) ( $state['location'] ?? '' );
-        echo '<dt>' . esc_html__( 'Location', 'talenttrack' ) . '</dt><dd>' . esc_html( $loc !== '' ? $loc : '—' ) . '</dd>';
-        $notes = (string) ( $state['notes'] ?? '' );
+        $rows[] = [ __( 'Title',    'talenttrack' ), (string) ( $state['title'] ?? '' ),       false ];
+        $rows[] = [ __( 'Date',     'talenttrack' ), (string) ( $state['session_date'] ?? '' ), false ];
+        $rows[] = [ __( 'Location', 'talenttrack' ), $loc !== '' ? $loc : '—', false ];
         if ( $notes !== '' ) {
-            echo '<dt>' . esc_html__( 'Notes', 'talenttrack' ) . '</dt><dd>' . esc_html( $notes ) . '</dd>';
+            $rows[] = [ __( 'Notes', 'talenttrack' ), $notes, true ];
         }
 
         // v3.85.3 — show the principles the operator picked in the
@@ -80,9 +87,20 @@ final class ReviewStep implements WizardStepInterface {
                 }
                 $names[] = trim( (string) $pr->code . ( $title !== '' ? ' · ' . $title : '' ) );
             }
-            echo '<dt>' . esc_html__( 'Connected principles', 'talenttrack' ) . '</dt><dd>' . esc_html( implode( ', ', $names ) ) . '</dd>';
+            if ( ! empty( $names ) ) {
+                $rows[] = [ __( 'Connected principles', 'talenttrack' ), implode( ', ', $names ), false ];
+            }
         }
-        echo '</dl>';
+
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-wizard-review-table"><tbody>';
+        foreach ( $rows as [ $label, $value, $multiline ] ) {
+            if ( $value === '' ) continue;
+            echo '<tr>';
+            echo '<th scope="row" style="width:35%;">' . esc_html( $label ) . '</th>';
+            echo '<td>' . ( $multiline ? nl2br( esc_html( $value ) ) : esc_html( $value ) ) . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table></div>';
 
         // v3.110.x — opt-in path to add guests right after creation.
         // The flat-form (FrontendActivitiesManageView::renderForm) has

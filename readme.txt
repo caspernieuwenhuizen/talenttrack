@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.141
+Stable tag: 3.110.142
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.142 — activity wizard review step renders as a proper table (was a dl that styled like a bulleted list) =
+
+Pilot: *"During activity wizard, the final step before saving does not show a nice table but a bulleted list, that needs to change."* The Activity wizard's `ReviewStep` rendered its summary as a `<dl class="tt-wizard-review">` with `<dt>` / `<dd>` pairs. The dashboard's default `dl` styling indents `dd` children, which on a narrow viewport reads as a bullet-style list. **Fix**: swap to `<table class="tt-table tt-wizard-review-table">` with `<th scope="row">` label + `<td>` value — the same markup the Prospect wizard's review step has used since #0081. Visual language now consistent across wizards: every review step is a clear two-column key/value table. Conditional rows (game subtype, other label, notes, connected principles) only render when present. The `nl2br()` treatment for notes is preserved so multi-line input still wraps correctly.
 
 = 3.110.141 — Dutch translation for "Select completed activity to evaluate" =
 
