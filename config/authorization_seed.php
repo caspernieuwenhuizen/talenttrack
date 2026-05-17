@@ -388,11 +388,19 @@ return array_merge(
         'my_person'                  => [ 'rc',  'self',   $mod_people ],
         'player_status'              => [ 'r',   'global', $mod_players ],
         'scout_my_players'           => [ 'r',   'self',   $mod_reports ],
-        // #0081 — Scout sees only their own prospects. The "self" scope
-        // is enforced at the SQL layer in ProspectsRepository, not at
-        // the rendering layer. test_trainings R global so a scout can
-        // see the upcoming session their prospect was invited to.
-        'prospects'                  => [ 'rcd', 'self',   $mod_prospects ],
+        // v3.110.154 — Scout × prospects now R/C/D global. Two scouts
+        // working the same age group / regional pool need to see each
+        // other's prospects so they don't duplicate visits or step on
+        // each other's outreach. Personal dashboard widgets
+        // (`MyRecentProspectsSource`, `MyProspects*` KPIs,
+        // `AddProspectHeroWidget`) stay scoped to
+        // `discovered_by_user_id = self` because those answer "what's
+        // in MY funnel" — list/overview surfaces show all per the new
+        // policy. test_trainings was already global.
+        // Previous policy (#0081): `'rcd', 'self'`. Migration 0104
+        // upgrades existing matrix rows in-place where the operator
+        // hasn't customised them.
+        'prospects'                  => [ 'rcd', 'global', $mod_prospects ],
         'test_trainings'             => [ 'r',   'global', $mod_prospects ],
         // #0085 — scouts write notes about players they observe across
         // the academy (cross-team scouting workflow), so RC[global].

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.154
+Stable tag: 3.110.155
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.155 — Scout × prospects scope changes from `self` to `global` so scouts working the same pool can see each other's prospects =
+
+Pilot: *"I want every scout to see all prospects as they might be scouting for the same team. Wasn't the scout scope global on prospects?"* No — the original #0081 design (v3.95.x) deliberately scoped scout × prospects to `self`: each scout saw only the prospects they themselves discovered. The comment in `authorization_seed.php` at the time read *"Scout sees only their own prospects."* Pilot operating two scouts on the same age-group pool needs cross-visibility so they don't book the same family twice or miss handoff opportunities. **Policy flip**: scout × prospects R/C/D goes from `self` to `global`. Three changes: **(1)** `config/authorization_seed.php` line ~395 — new default `'rcd', 'global'`. **(2)** New migration `0104_scout_prospects_scope_to_global` walks existing installs and upgrades the three matrix rows (`scout × prospects × {r,c,d}`) in-place — UPDATE gated on `is_default = 1` so any operator who manually narrowed the scope (e.g. back to `self` for a particular club) keeps their override. **(3)** Runtime clamp `ProspectsRestController::isScoutOnly()` was forcing `discovered_by_user_id = $uid` on every scout request, overriding even the matrix. That clamp removed; the helper method itself stays callable for any future caller that wants the discriminator. After v3.110.155 + the migration run, the **Prospects overview** (`?tt_view=prospects-overview`) and the **list REST endpoint** both surface every prospect to every scout. **Personal-funnel views stay personal**: `MyRecentProspectsSource` (the dashboard table widget), `MyProspectsActive` / `MyProspectsPromoted` (KPIs), and `AddProspectHeroWidget` (the "X logged this month / Y still active in your funnel" hero card) keep their existing `discovered_by_user_id = $user_id` filters because those answer "what's in MY funnel" — they're personal metrics by definition, not population views. Net effect: scouts see all prospects on the list/overview, still see their own in the My-funnel widgets. Idempotent migration; no UI changes needed.
 
 = 3.110.154 — Migration 0103 re-applies the evaluation demo-tag backfill that v3.110.148's 0102 un-applied for pure-demo installs =
 

@@ -105,11 +105,20 @@ class ProspectsRestController {
             $search_args['name_like'] = sanitize_text_field( (string) $r['search'] );
         }
 
-        // Scout-scope clamp — scouts see only their own. Any wider
-        // discovered_by_user_id filter is replaced with their own ID.
-        if ( self::isScoutOnly( $uid ) ) {
-            $search_args['discovered_by_user_id'] = $uid;
-        }
+        // v3.110.154 — scout-scope clamp removed. Policy changed:
+        // scouts now read all prospects (matrix entity now `global`
+        // per #0081 follow-up — two scouts on the same pool need
+        // collaboration). Personal-funnel views (MyRecentProspectsSource,
+        // MyProspects* KPIs, AddProspectHeroWidget) still scope to
+        // `discovered_by_user_id = $user_id` at the query level and
+        // aren't affected.
+        //
+        // The `isScoutOnly()` helper was retained for any other call
+        // site that might still want the discriminator, but the REST
+        // list deliberately leaves the filter untouched so an explicit
+        // `?filter[discovered_by_user_id]=N` from the client (e.g. a
+        // "show only my prospects" toggle on the overview page)
+        // still works.
 
         $repo  = new ProspectsRepository();
         $rows  = $repo->search( $search_args );
