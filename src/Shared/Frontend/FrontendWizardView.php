@@ -104,10 +104,25 @@ class FrontendWizardView extends FrontendViewBase {
         }
 
         $error = null;
-        if ( $_SERVER['REQUEST_METHOD'] === 'POST'
-             && isset( $_POST['tt_wizard_nonce'] )
-             && wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_wizard_nonce'] ) ), 'tt_wizard_' . $slug . '_' . $current->slug() )
-        ) {
+        // v3.110.156 — surface nonce failure instead of falling
+        // through silently. Pilot symptom (mark-attendance wizard):
+        // "Next button does not seem to do anything." Root cause is
+        // typically nonce expiration after a long-idle session — the
+        // POST handler below was guarded by both the request method
+        // AND the nonce check, and a failed nonce slipped through
+        // both into the GET render path with no visible feedback.
+        // Now: log the failure + surface a "session expired" notice
+        // so the operator knows to reload.
+        $nonce_present = isset( $_POST['tt_wizard_nonce'] );
+        $nonce_valid   = $nonce_present && wp_verify_nonce(
+            sanitize_text_field( wp_unslash( (string) $_POST['tt_wizard_nonce'] ) ),
+            'tt_wizard_' . $slug . '_' . $current->slug()
+        );
+        if ( $_SERVER['REQUEST_METHOD'] === 'POST' && $nonce_present && ! $nonce_valid ) {
+            $error = __( 'Your session expired while this step was open. Please reload the page and try again — your edits on this step will need to be re-entered.', 'talenttrack' );
+        }
+
+        if ( $_SERVER['REQUEST_METHOD'] === 'POST' && $nonce_valid ) {
             $action = isset( $_POST['tt_wizard_action'] ) ? sanitize_key( (string) $_POST['tt_wizard_action'] ) : 'next';
             switch ( $action ) {
                 case 'cancel':
@@ -302,11 +317,39 @@ class FrontendWizardView extends FrontendViewBase {
         // without a clear contract for what got persisted.
         $is_last = $current->nextStep( $state ) === null;
         $label   = $is_last ? __( 'Create', 'talenttrack' ) : __( 'Next', 'talenttrack' );
-        echo '<button type="submit" name="tt_wizard_action" value="next" class="tt-button tt-button-primary">' . esc_html( $label ) . '</button>';
+        $loading_label = $is_last ? __( 'Creating…', 'talenttrack' ) : __( 'Loading…', 'talenttrack' );
+        echo '<button type="submit" name="tt_wizard_action" value="next" class="tt-button tt-button-primary" data-tt-wizard-next data-loading-label="' . esc_attr( $loading_label ) . '">' . esc_html( $label ) . '</button>';
         echo '</div>';
 
         echo '<input type="hidden" name="_cancel_url" value="' . esc_attr( $cancel_url ) . '">';
         echo '</form>';
+
+        // v3.110.156 — visible click feedback on Next. When the
+        // operator clicks, the button disables and swaps label to
+        // "Loading…" so the click registers visually even if the
+        // POST takes a moment (or fails silently). Cancel / Back /
+        // Save-as-draft don't need this; their behaviour is
+        // immediate (no validate + persist round-trip).
+        ?>
+        <script>
+        (function () {
+            var form = document.querySelector( '.tt-wizard-form' );
+            if ( ! form ) return;
+            var next = form.querySelector( '[data-tt-wizard-next]' );
+            if ( ! next ) return;
+            form.addEventListener( 'submit', function ( e ) {
+                // Only intercept when Next was the submitter (browser
+                // sets `e.submitter` per the modern spec; falls back
+                // to document.activeElement on older browsers).
+                var submitter = e.submitter || document.activeElement;
+                if ( ! submitter || submitter !== next ) return;
+                var label = next.getAttribute( 'data-loading-label' ) || 'Loading…';
+                next.disabled = true;
+                next.textContent = label;
+            } );
+        })();
+        </script>
+        <?php
     }
 
     /**

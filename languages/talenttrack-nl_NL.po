@@ -14955,3 +14955,9 @@ msgstr "← Academy-weergave"
 
 msgid "No analytics registered for this entity type yet."
 msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
+
+msgid "Your session expired while this step was open. Please reload the page and try again — your edits on this step will need to be re-entered."
+msgstr "Je sessie is verlopen terwijl deze stap open was. Herlaad de pagina en probeer opnieuw — wijzigingen op deze stap moeten opnieuw worden ingevuld."
+
+msgid "Creating…"
+msgstr "Aanmaken…"
