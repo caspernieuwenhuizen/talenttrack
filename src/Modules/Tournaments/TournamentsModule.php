@@ -7,6 +7,7 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Infrastructure\REST\TournamentsRestController;
 use TT\Modules\Tournaments\Wizard\NewTournamentWizard;
+use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Wizards\WizardRegistry;
 
 /**
@@ -58,6 +59,36 @@ class TournamentsModule implements ModuleInterface {
         // tt_edit_tournaments (admin-only in v1).
         if ( class_exists( WizardRegistry::class ) ) {
             WizardRegistry::register( new NewTournamentWizard() );
+        }
+
+        // v3.110.152 — tile registration. Pre-fix the feature shipped
+        // in v3.110.132 / .133 was reachable only by direct URL
+        // (?tt_view=tournaments). The dashboard tile grid had no entry
+        // for it, so the academy admin couldn't find the planner from
+        // the admin tile page. Cap gating on tt_view_tournaments is
+        // already admin-only (administrator + tt_club_admin), so the
+        // tile auto-hides for every other persona.
+        //
+        // Lives in the Performance group at order 28 — right after
+        // Team planner (25), before Goals (30). Tournaments planner
+        // is the forward-looking match-scheduling surface for
+        // tournament weekends; sits naturally next to Team planner
+        // (forward-looking training schedule) and Activities
+        // (backward log).
+        if ( class_exists( TileRegistry::class ) ) {
+            TileRegistry::register([
+                'module_class' => self::class,
+                'view_slug'    => 'tournaments',
+                'entity'       => 'tournament',
+                'group'        => __( 'Performance', 'talenttrack' ),
+                'kind'         => 'work',
+                'order'        => 28,
+                'label'        => __( 'Tournaments', 'talenttrack' ),
+                'description'  => __( 'Plan tournament weekends: build a squad, fix formation per match, balance minutes across the day.', 'talenttrack' ),
+                'icon'         => 'kanban',
+                'color'        => '#0d9488',
+                'cap'          => 'tt_view_tournaments',
+            ]);
         }
     }
 

@@ -1,3 +1,82 @@
+# TalentTrack v3.110.152 — Tournaments tile registered
+
+## Pilot report
+
+> "Where on the admin tile page do I find the tournament functionality?"
+
+Answer: nowhere, until now.
+
+## Diagnosis
+
+The Tournaments feature (#0093) shipped over v3.110.132–.134 with:
+
+- Schema migration 0097 (4 tables: `tt_tournaments`, `tt_tournament_matches`, `tt_tournament_squad`, `tt_tournament_assignments`)
+- Lookup seed migration 0098 (vocabularies `tournament_formation`, `tournament_opponent_level`)
+- Capability grants on `administrator` + `tt_club_admin` (`tt_view_tournaments`, `tt_edit_tournaments`)
+- 5-step `new-tournament` wizard
+- `TournamentsRestController` (REST CRUD)
+- `FrontendTournamentsManageView` (list + planner detail)
+- Per-match planner grid + minutes ticker + auto-balance algorithm
+- Kickoff / complete lifecycle endpoints with attendance sync
+
+All of it functional. **But `TournamentsModule::boot()` never called `TileRegistry::register()`**, and there's no `add_menu_page` for tournaments either. The dashboard tile grid had no tile; the wp-admin menu had no item. The view dispatcher (`DashboardShortcode::dispatchCoachingView` line 665) handles `?tt_view=tournaments`, but you could only reach the feature by hand-typing that URL.
+
+## Fix
+
+Added a `TileRegistry::register()` call to `TournamentsModule::boot()`:
+
+```php
+TileRegistry::register([
+    'module_class' => self::class,
+    'view_slug'    => 'tournaments',
+    'entity'       => 'tournament',
+    'group'        => __( 'Performance', 'talenttrack' ),
+    'kind'         => 'work',
+    'order'        => 28,
+    'label'        => __( 'Tournaments', 'talenttrack' ),
+    'description'  => __( 'Plan tournament weekends: build a squad, fix formation per match, balance minutes across the day.', 'talenttrack' ),
+    'icon'         => 'kanban',
+    'color'        => '#0d9488',
+    'cap'          => 'tt_view_tournaments',
+]);
+```
+
+Wrapped in a `class_exists( TileRegistry::class )` guard, matching the WizardRegistry pattern already used in the same `boot()`. Won't fatal on installs where `Shared\Tiles\TileRegistry` somehow isn't loaded.
+
+### Group + order rationale
+
+Performance group sits next to Team planner (order 25), Goals (30). Tournaments lands at **28** — between Team planner and Goals — because it's the forward-looking match-scheduling surface (Team planner is forward-looking training scheduling). The two read as a pair: plan training during the week, plan a tournament when the weekend hits.
+
+### Cap gating
+
+The tile inherits `cap => 'tt_view_tournaments'`. That cap is granted only to `administrator` and `tt_club_admin` (v1 admin-only — see TournamentsModule docblock for the persona-expansion follow-up). The tile auto-hides for every other persona without any extra `hide_for_personas` config. When a coach / HoD / scout views the dashboard, they see no Tournaments tile.
+
+### Icon + colour
+
+`kanban` icon (same as Team planner — both forward-planning grid surfaces). Colour `#0d9488` (teal) — distinct from the Team planner blue `#2271b1` so they sit next to each other without visually colliding.
+
+## Files
+
+- `src/Modules/Tournaments/TournamentsModule.php` — `TileRegistry` import + the registration block in `boot()`. ~22 lines added including the comment block explaining the v3.110.152 rationale.
+- `languages/talenttrack-nl_NL.po` — 2 new entries: the tile label *Tournaments → Toernooien*; description *Plan tournament weekends: build a squad, fix formation per match, balance minutes across the day → Plan toernooi-weekenden: stel een selectie samen, kies een opstelling per wedstrijd, verdeel speeltijd evenredig over de dag.*
+- `talenttrack.php` 3.110.151 → 3.110.152.
+- `readme.txt`, `CHANGES.md`.
+
+## What's still missing
+
+- **wp-admin menu entry** — not in scope for this ship. Pilot asked about the dashboard tile page; that's where the discoverability gap was. The wp-admin menu surface for tournaments would be a separate ship if/when needed.
+- **Coach / HoD visibility** — out of scope; the persona-expansion follow-up the TournamentsModule docblock mentions is its own ship.
+
+## How to verify
+
+1. Log in as an academy admin (or any user with the `tt_club_admin` role, or WP super-admin).
+2. Navigate to the dashboard. In the Performance group, between Team planner and Goals, a new **Tournaments** tile appears with the teal colour + kanban icon.
+3. Click the tile → `?tt_view=tournaments` loads `FrontendTournamentsManageView`. List of tournaments + the "+ New tournament" CTA that launches the 5-step wizard.
+4. Log in as a coach / HoD / scout / player / parent (any non-admin persona). Navigate to the dashboard. The Tournaments tile does NOT appear (cap-gated).
+5. As a non-admin, hand-typing `?tt_view=tournaments` still lands on the "Not authorized" page (view-level gate, unchanged from v3.110.132).
+
+---
+
 # TalentTrack v3.110.149 — Player profile's evaluations table drops the inline `×` per-row delete
 
 ## Pilot report

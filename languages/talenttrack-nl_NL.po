@@ -14800,6 +14800,10 @@ msgstr "Geen afgeronde, beoordeelbare activiteiten in de laatste 90 dagen. Marke
 msgid "Tournaments"
 msgstr "Toernooien"
 
+# v3.110.152 — Tournaments tile registration
+msgid "Plan tournament weekends: build a squad, fix formation per match, balance minutes across the day."
+msgstr "Plan toernooi-weekenden: stel een selectie samen, kies een opstelling per wedstrijd, verdeel speeltijd evenredig over de dag."
+
 msgid "Tournament name"
 msgstr "Toernooinaam"
 
