@@ -4,6 +4,7 @@ namespace TT\Modules\Analytics\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Domain\Kpi;
+use TT\Modules\Analytics\Frontend\EntityAnalyticsTabRenderer;
 use TT\Modules\Analytics\KpiRegistry;
 use TT\Modules\Analytics\KpiResolver;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
@@ -51,31 +52,68 @@ class FrontendAnalyticsView extends FrontendViewBase {
 
         self::enqueueLayoutStyles();
 
-        FrontendBreadcrumbs::fromDashboard( __( 'Analytics', 'talenttrack' ) );
+        // v3.110.152 — entity selection lives in the URL as
+        // `?tt_view=analytics&entity_type=X&entity_id=N`. When set, the
+        // right rail renders that entity's KPIs in-place; when unset,
+        // it renders the academy-wide KPI grid + Standard reports.
+        // Entity analytics are NOT surfaced on entity detail pages —
+        // operator-only, central by design.
+        [ $selected_type, $selected_id ] = self::selectedEntity();
+        $entity_label = self::labelForSelection( $selected_type, $selected_id );
+
+        FrontendBreadcrumbs::fromDashboard(
+            $entity_label !== '' ? $entity_label : __( 'Analytics', 'talenttrack' ),
+            $entity_label !== '' ? [ FrontendBreadcrumbs::viewCrumb( 'analytics', __( 'Analytics', 'talenttrack' ) ) ] : []
+        );
         self::renderHeader( __( 'Analytics', 'talenttrack' ) );
 
-        // v3.110.151 — two-column layout: entity selector on the left,
-        // academy KPIs + standard reports on the right. Each entity
-        // tile expands to show instances; clicking an instance
-        // navigates to that entity's detail page (where the Analytics
-        // tab renders the entity-scoped KPIs via
-        // `EntityAnalyticsTabRenderer`). Per spec #0083 Child 5.
         echo '<div class="tt-analytics-shell">';
 
         echo '<aside class="tt-analytics-rail">';
         echo '<h2 class="tt-analytics-rail-title">' . esc_html__( 'Browse by entity', 'talenttrack' ) . '</h2>';
-        self::renderEntitySelector( $user_id );
+        self::renderEntitySelector( $selected_type, $selected_id );
         echo '</aside>';
 
         echo '<section class="tt-analytics-main">';
+        if ( $selected_type !== '' && $selected_id > 0 ) {
+            self::renderEntityAnalytics( $selected_type, $selected_id, $entity_label );
+        } else {
+            self::renderAcademyOverview();
+        }
+        echo '</section>';
+
+        echo '</div>'; // /.tt-analytics-shell
+    }
+
+    /**
+     * Read + sanitise the entity-selection query params. Returns
+     * `[type, id]` where type is one of player/team/activity/scout/season
+     * (or '' when no/invalid type) and id is the absint of the
+     * provided id (or 0).
+     *
+     * @return array{0:string,1:int}
+     */
+    private static function selectedEntity(): array {
+        $type = isset( $_GET['entity_type'] ) ? sanitize_key( (string) $_GET['entity_type'] ) : '';
+        $id   = isset( $_GET['entity_id'] )   ? absint( $_GET['entity_id'] )                  : 0;
+        $valid = [ 'player', 'team', 'activity', 'scout', 'season' ];
+        if ( ! in_array( $type, $valid, true ) ) $type = '';
+        if ( $type === '' || $id <= 0 ) return [ '', 0 ];
+        return [ $type, $id ];
+    }
+
+    /**
+     * Render the academy-wide overview (default right-rail content).
+     */
+    private static function renderAcademyOverview(): void {
         $academy_kpis = KpiRegistry::byContext( Kpi::CONTEXT_ACADEMY );
         if ( empty( $academy_kpis ) ) {
             echo '<p class="tt-notice">'
-                . esc_html__( 'No academy-wide KPIs registered yet. Per-entity KPIs are still reachable via the Analytics tab on player, team, and activity profiles.', 'talenttrack' )
+                . esc_html__( 'No academy-wide KPIs registered yet. Pick an entity from the left to see its analytics.', 'talenttrack' )
                 . '</p>';
         } else {
             echo '<p style="max-width:760px; color:#5b6e75;">'
-                . esc_html__( 'Academy-wide KPIs. Click any card to open the explorer with that KPI loaded; from there you can pivot, group, and filter. For per-entity analytics, open a player, team, or activity and use the Analytics tab on its detail page.', 'talenttrack' )
+                . esc_html__( 'Academy-wide KPIs. Click any card to open the explorer with that KPI loaded; from there you can pivot, group, and filter. Pick an entity from the left rail to switch to its analytics in place.', 'talenttrack' )
                 . '</p>';
 
             echo '<div class="tt-analytics-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-top:16px;">';
@@ -91,9 +129,40 @@ class FrontendAnalyticsView extends FrontendViewBase {
         }
 
         self::renderStandardReports();
-        echo '</section>';
+    }
 
-        echo '</div>'; // /.tt-analytics-shell
+    /**
+     * Render the right rail when an entity instance is selected.
+     * Shows a small entity header (type + name + "back to academy view"
+     * link) followed by the entity's KPI grid.
+     *
+     * Player / Team / Activity scopes route through the existing
+     * `EntityAnalyticsTabRenderer` which already filters KPIs by
+     * `entityScope` + persona `context`. Scout / Season have no
+     * registered KPIs yet — they render an honest empty state.
+     */
+    private static function renderEntityAnalytics( string $type, int $id, string $entity_label ): void {
+        $back_url = add_query_arg(
+            [ 'tt_view' => 'analytics' ],
+            WizardEntryPoint::dashboardBaseUrl()
+        );
+        $type_label = self::labelForType( $type );
+
+        echo '<div class="tt-analytics-entity-header">';
+        echo '<div>';
+        echo '<div class="tt-analytics-entity-header-type">' . esc_html( $type_label ) . '</div>';
+        echo '<div class="tt-analytics-entity-header-name">' . esc_html( $entity_label !== '' ? $entity_label : ( '#' . (int) $id ) ) . '</div>';
+        echo '</div>';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $back_url ) . '">'
+             . esc_html__( '← Academy view', 'talenttrack' ) . '</a>';
+        echo '</div>';
+
+        if ( in_array( $type, [ 'player', 'team', 'activity' ], true ) ) {
+            EntityAnalyticsTabRenderer::render( $type, $id );
+        } else {
+            // Scout / Season — no KPIs registered for these scopes yet.
+            echo '<p class="tt-notice">' . esc_html__( 'No analytics registered for this entity type yet.', 'talenttrack' ) . '</p>';
+        }
     }
 
     /**
@@ -109,54 +178,27 @@ class FrontendAnalyticsView extends FrontendViewBase {
      * rows server-side; an operator with more rows uses the relevant
      * tile's main list view via the dashboard.
      */
-    private static function renderEntitySelector( int $user_id ): void {
+    private static function renderEntitySelector( string $selected_type, int $selected_id ): void {
         $base = WizardEntryPoint::dashboardBaseUrl();
 
-        self::renderEntitySection(
-            'player',
-            __( 'Players', 'talenttrack' ),
-            self::fetchInstancePlayers(),
-            $base,
-            'players'
-        );
-        self::renderEntitySection(
-            'team',
-            __( 'Teams', 'talenttrack' ),
-            self::fetchInstanceTeams(),
-            $base,
-            'teams'
-        );
-        self::renderEntitySection(
-            'activity',
-            __( 'Activities', 'talenttrack' ),
-            self::fetchInstanceActivities(),
-            $base,
-            'activities'
-        );
-        self::renderEntitySection(
-            'scout',
-            __( 'Scouts', 'talenttrack' ),
-            self::fetchInstanceScouts(),
-            $base,
-            'people'
-        );
-        self::renderEntitySection(
-            'season',
-            __( 'Seasons', 'talenttrack' ),
-            self::fetchInstanceSeasons(),
-            $base,
-            '' // no detail-view slug for seasons yet — rendered as plain text rows
-        );
+        self::renderEntitySection( 'player',   __( 'Players',    'talenttrack' ), self::fetchInstancePlayers(),    $base, $selected_type, $selected_id );
+        self::renderEntitySection( 'team',     __( 'Teams',      'talenttrack' ), self::fetchInstanceTeams(),      $base, $selected_type, $selected_id );
+        self::renderEntitySection( 'activity', __( 'Activities', 'talenttrack' ), self::fetchInstanceActivities(), $base, $selected_type, $selected_id );
+        self::renderEntitySection( 'scout',    __( 'Scouts',     'talenttrack' ), self::fetchInstanceScouts(),     $base, $selected_type, $selected_id );
+        self::renderEntitySection( 'season',   __( 'Seasons',    'talenttrack' ), self::fetchInstanceSeasons(),    $base, $selected_type, $selected_id );
     }
 
     /**
-     * Render one entity section in the left rail.
+     * Render one entity section in the left rail. Each instance link
+     * is an in-page nav back to `?tt_view=analytics&entity_type=…&entity_id=…`
+     * — the right rail re-renders with that entity's KPIs.
      *
      * @param list<array{id:int,label:string,meta?:string}> $instances
      */
-    private static function renderEntitySection( string $entity_type, string $heading, array $instances, string $base, string $detail_slug ): void {
-        $count = count( $instances );
-        echo '<details class="tt-analytics-entity" data-entity-type="' . esc_attr( $entity_type ) . '">';
+    private static function renderEntitySection( string $entity_type, string $heading, array $instances, string $base, string $selected_type, int $selected_id ): void {
+        $count   = count( $instances );
+        $is_open = $selected_type === $entity_type;
+        echo '<details class="tt-analytics-entity" data-entity-type="' . esc_attr( $entity_type ) . '"' . ( $is_open ? ' open' : '' ) . '>';
         echo '<summary class="tt-analytics-entity-summary">';
         echo '<span>' . esc_html( $heading ) . '</span>';
         echo '<span class="tt-analytics-entity-count">' . (int) $count . '</span>';
@@ -169,22 +211,76 @@ class FrontendAnalyticsView extends FrontendViewBase {
                 $id    = (int) $row['id'];
                 $label = (string) ( $row['label'] ?? '#' . $id );
                 $meta  = (string) ( $row['meta'] ?? '' );
-                if ( $detail_slug !== '' ) {
-                    $url = add_query_arg( [ 'tt_view' => $detail_slug, 'id' => $id ], $base );
-                    echo '<li><a href="' . esc_url( $url ) . '">';
-                    echo '<span class="tt-analytics-entity-label">' . esc_html( $label ) . '</span>';
-                    if ( $meta !== '' ) echo '<span class="tt-analytics-entity-meta">' . esc_html( $meta ) . '</span>';
-                    echo '</a></li>';
-                } else {
-                    echo '<li>';
-                    echo '<span class="tt-analytics-entity-label">' . esc_html( $label ) . '</span>';
-                    if ( $meta !== '' ) echo '<span class="tt-analytics-entity-meta">' . esc_html( $meta ) . '</span>';
-                    echo '</li>';
-                }
+                $url   = add_query_arg(
+                    [ 'tt_view' => 'analytics', 'entity_type' => $entity_type, 'entity_id' => $id ],
+                    $base
+                );
+                $is_current = $is_open && $selected_id === $id;
+                echo '<li' . ( $is_current ? ' class="is-current"' : '' ) . '>';
+                echo '<a href="' . esc_url( $url ) . '"' . ( $is_current ? ' aria-current="page"' : '' ) . '>';
+                echo '<span class="tt-analytics-entity-label">' . esc_html( $label ) . '</span>';
+                if ( $meta !== '' ) echo '<span class="tt-analytics-entity-meta">' . esc_html( $meta ) . '</span>';
+                echo '</a></li>';
             }
             echo '</ul>';
         }
         echo '</details>';
+    }
+
+    private static function labelForType( string $type ): string {
+        switch ( $type ) {
+            case 'player':   return __( 'Player',   'talenttrack' );
+            case 'team':     return __( 'Team',     'talenttrack' );
+            case 'activity': return __( 'Activity', 'talenttrack' );
+            case 'scout':    return __( 'Scout',    'talenttrack' );
+            case 'season':   return __( 'Season',   'talenttrack' );
+            default:         return '';
+        }
+    }
+
+    /**
+     * Resolve the entity instance's display name for the header / breadcrumb.
+     * Returns '' when type+id don't resolve to a row.
+     */
+    private static function labelForSelection( string $type, int $id ): string {
+        if ( $type === '' || $id <= 0 ) return '';
+        global $wpdb; $p = $wpdb->prefix;
+        switch ( $type ) {
+            case 'player':
+                $r = $wpdb->get_row( $wpdb->prepare(
+                    "SELECT first_name, last_name FROM {$p}tt_players WHERE id = %d AND club_id = %d",
+                    $id, \TT\Infrastructure\Tenancy\CurrentClub::id()
+                ) );
+                if ( ! $r ) return '';
+                return trim( ( (string) $r->first_name ) . ' ' . ( (string) $r->last_name ) ) ?: ( '#' . $id );
+            case 'team':
+                $name = (string) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT name FROM {$p}tt_teams WHERE id = %d AND club_id = %d",
+                    $id, \TT\Infrastructure\Tenancy\CurrentClub::id()
+                ) );
+                return $name !== '' ? $name : ( '#' . $id );
+            case 'activity':
+                $title = (string) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT title FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+                    $id, \TT\Infrastructure\Tenancy\CurrentClub::id()
+                ) );
+                return $title !== '' ? $title : ( '#' . $id );
+            case 'scout':
+                $r = $wpdb->get_row( $wpdb->prepare(
+                    "SELECT first_name, last_name FROM {$p}tt_people WHERE id = %d AND club_id = %d",
+                    $id, \TT\Infrastructure\Tenancy\CurrentClub::id()
+                ) );
+                if ( ! $r ) return '';
+                return trim( ( (string) $r->first_name ) . ' ' . ( (string) $r->last_name ) ) ?: ( '#' . $id );
+            case 'season':
+                $name = (string) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT name FROM {$p}tt_seasons WHERE id = %d AND club_id = %d",
+                    $id, \TT\Infrastructure\Tenancy\CurrentClub::id()
+                ) );
+                return $name !== '' ? $name : ( '#' . $id );
+            default:
+                return '';
+        }
     }
 
     /** @return list<array{id:int,label:string,meta?:string}> */
@@ -335,9 +431,13 @@ class FrontendAnalyticsView extends FrontendViewBase {
             .tt-analytics-entity-list li { padding: 0; }
             .tt-analytics-entity-list a { display: block; padding: 6px 8px; border-radius: 4px; color: var(--tt-fg, #0f172a); text-decoration: none; min-height: 36px; }
             .tt-analytics-entity-list a:hover { background: #fff; }
+            .tt-analytics-entity-list li.is-current > a { background: #fff; border-left: 3px solid var(--tt-primary, #0f172a); padding-left: 5px; }
             .tt-analytics-entity-list li > span { display: block; padding: 6px 8px; }
             .tt-analytics-entity-label { display: block; font-size: 13px; }
             .tt-analytics-entity-meta { display: block; font-size: 11px; color: var(--tt-muted, #475569); margin-top: 2px; }
+            .tt-analytics-entity-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: var(--tt-bg-soft, #f8fafc); border: 1px solid var(--tt-line, #e2e8f0); border-radius: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+            .tt-analytics-entity-header-type { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--tt-muted, #475569); }
+            .tt-analytics-entity-header-name { font-size: 18px; font-weight: 600; color: var(--tt-fg, #0f172a); margin-top: 2px; }
             .tt-analytics-entity-empty { margin: 4px 0 8px; padding: 6px 8px; font-size: 12px; color: var(--tt-muted, #475569); font-style: italic; }
             .tt-analytics-main { min-width: 0; }
             @media (min-width: 1024px) {

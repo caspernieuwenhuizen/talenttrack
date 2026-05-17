@@ -14938,3 +14938,12 @@ msgstr "Scouts"
 
 msgid "No entries."
 msgstr "Geen vermeldingen."
+
+msgid "Season"
+msgstr "Seizoen"
+
+msgid "← Academy view"
+msgstr "← Academy-weergave"
+
+msgid "No analytics registered for this entity type yet."
+msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
