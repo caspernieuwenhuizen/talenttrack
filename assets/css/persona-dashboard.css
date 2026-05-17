@@ -593,7 +593,16 @@
 /* Quick actions panel */
 .tt-pd-panel-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    /* v3.110.140 — was `repeat(2, minmax(0, 1fr))` which hard-coded
+     * a 2-column layout. Pilot: a quick-actions panel with 3 actions
+     * placed the 3rd action outside the panel's background because
+     * the 3rd cell of a 2-col grid landed on row 2 column 1 but the
+     * panel was sized to a single row. `auto-fit` + `minmax(120px,
+     * 1fr)` lets the grid grow to fit however many actions are
+     * registered, wrapping cleanly within the panel width. 120px
+     * lower bound keeps each tile tappable (above the 48px floor +
+     * room for an icon + 1-line label). */
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 0.5rem;
 }
 

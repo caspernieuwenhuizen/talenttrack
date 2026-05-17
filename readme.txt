@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.139
+Stable tag: 3.110.140
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.140 — quick-actions panel grid auto-fits to the number of actions registered =
+
+Pilot: *"Quick action widget does not auto scale based on number of actions, there are 3 quick actions but the width only covers two so the third is outside the back ground panel."* The `.tt-pd-panel-grid` class (used by `QuickActionsPanelWidget` to lay out registered action cards) was hard-coded to `grid-template-columns: repeat(2, minmax(0, 1fr))`. A panel with 3 actions wrapped the 3rd card onto row 2 column 1, but the panel's background only spanned row 1 — so the 3rd card sat outside the panel. **Fix**: swap the grid template to `repeat(auto-fit, minmax(120px, 1fr))`. Auto-fit grows the column count to the number of available 120px slots within the container width; 3 actions on a wide panel render as 3 columns, 3 actions on a narrow panel wrap cleanly to 2+1 within the panel's bounds, and 2 actions still render as 2 columns. 120px lower bound keeps each tile tappable (icon + 1-line label clears the 48px touch-target floor + comfortable spacing).
 
 = 3.110.139 — recent-evaluations widget overflow fix: row cap 5→4, name truncates with ellipsis, list scrolls on overflow =
 
