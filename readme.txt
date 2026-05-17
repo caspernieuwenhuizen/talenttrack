@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.144
+Stable tag: 3.110.145
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.145 — guest-add fix: migration 0101 re-applies tt_attendance.player_id NULL on installs where 0020 didn't take =
+
+Pilot reproduced the guest-add failure after v3.110.143's bubbled diagnostic. The actual database error: *"Column 'player_id' cannot be null."* The REST handler's INSERT correctly sets `player_id => null` for guest rows (linked guests reference via `guest_player_id`, anonymous guests have no player at all) — but the column was still `NOT NULL` on the pilot's database. Migration 0020 (v3.26-ish, the original guest-attendance ship) introduced a gated `MODIFY COLUMN player_id BIGINT UNSIGNED NULL`, but the gate (`$is_nullable === 'NO'` after a `SELECT IS_NULLABLE`) didn't fire on this install — most plausible cause is a case / whitespace / driver variance on the INFORMATION_SCHEMA read, with 0020 marked applied while the ALTER silently did nothing. A backup/restore cycle is a second candidate. **Fix**: new migration 0101 unconditionally runs `ALTER TABLE tt_attendance MODIFY COLUMN player_id BIGINT UNSIGNED NULL`. MySQL accepts the ALTER even when the column is already nullable — no-op on healthy installs, fix on broken ones. Tracked as a fresh entry in `tt_migrations` so the runner picks it up regardless of 0020's status. Idempotent re-run is safe. After the install pulls v3.110.145 + the migration runs on next admin page-load, both guest-add tabs (linked + anonymous) succeed.
 
 = 3.110.144 — notification bell site-wide via WP admin bar; self-hides when zero open tasks =
 
