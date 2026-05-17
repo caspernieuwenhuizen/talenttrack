@@ -1,3 +1,78 @@
+# TalentTrack v3.110.149 — Player profile's evaluations table drops the inline `×` per-row delete
+
+## Pilot report
+
+> "The list of evaluations now shows an X inline that allows deletion/archiving. That should not be an inline option."
+
+## Diagnosis
+
+The list in question isn't `?tt_view=evaluations` (which has no row actions). It's the **player profile's Evaluations tab** — `FrontendPlayerDetailView::renderEvaluationsTable`. Each row carried a `×` button bound to the `tt-record-delete` handler in `public.js`:
+
+```php
+echo '<button type="button" class="tt-record-delete tt-btn-link"'
+    . ' data-rest-path="' . esc_attr( 'evaluations/' . (int) $ev->id ) . '"'
+    . ' data-confirm-msg="…"'
+    . ' data-deleted-msg="…"'
+    . ' aria-label="' . esc_attr__( 'Delete evaluation', 'talenttrack' ) . '">×</button>';
+```
+
+Click → `window.confirm` → `DELETE /wp-json/talenttrack/v1/evaluations/{id}` (soft-archive: sets `archived_at`) → row fades and is removed via the `data-tt-row` marker.
+
+It was easy to miss-tap on a phone — pilot's point: destructive actions don't belong as per-row controls on a list. The detail-page Archive button (`FrontendEvaluationsView::renderDetail`, shipped v3.110.55 as part of the eval-list/detail compliance pass) is the canonical home for this; same pattern as Goals / Players / Teams.
+
+## Fix
+
+`FrontendPlayerDetailView::renderEvaluationsTable` now renders a single-column Date table — no `$can_delete` cap probe, no Actions column, no per-row `×` button. The row's date links to the evaluation detail page as before; the user archives from there if they need to.
+
+```diff
+-        $can_delete = current_user_can( 'tt_edit_evaluations' );
+         echo '<div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%;">';
+         echo '<thead><tr>';
+         echo '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>';
+-        if ( $can_delete ) {
+-            echo '<th style="width:48px;"><span class="screen-reader-text">' . esc_html__( 'Actions', 'talenttrack' ) . '</span></th>';
+-        }
+         echo '</tr></thead><tbody>';
+         foreach ( $rows as $ev ) {
+             $url = RecordLink::detailUrlForWithBack( 'evaluations', (int) $ev->id );
+-            echo '<tr data-tt-row>';
++            echo '<tr>';
+             echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) ( $ev->eval_date ?? '—' ) ) . '</a></td>';
+-            if ( $can_delete ) {
+-                echo '<td><button type="button" class="tt-record-delete tt-btn-link"…>×</button></td>';
+-            }
+             echo '</tr>';
+         }
+         echo '</tbody></table></div>';
+```
+
+The `data-tt-row` marker on the `<tr>` is also dropped — it only existed so the `tt-record-delete` handler could fade-out the deleted row.
+
+## What stays unaffected
+
+- `DELETE /wp-json/talenttrack/v1/evaluations/{id}` is unchanged. The detail-page Archive button keeps working; any integration calling the endpoint sees no change.
+- `FrontendEvaluationsView::renderDetail` already renders an Archive button in the page-header actions slot (danger-styled, `tt-frontend-archive-button.js` handler with app-modal confirm).
+- The evaluations LIST view (`?tt_view=evaluations`) is unaffected — it never had row actions in the first place.
+- Other players' / coaches' surfaces that list evaluations (e.g. the Coach dashboard's recent-evaluations widget, the MyEvaluations player surface) don't carry the `×` button — only the player profile's table did.
+
+## Files
+
+- `src/Shared/Frontend/FrontendPlayerDetailView.php` — removed cap probe, Actions column header + body, `data-tt-row` marker. Comment block added explaining the v3.110.149 rationale.
+- `talenttrack.php` 3.110.148 → 3.110.149.
+- `readme.txt`, `CHANGES.md`.
+
+No new translatable strings. The three strings the deleted button used to register (`Delete this evaluation? This cannot be undone.`, `Evaluation deleted.`, `Delete evaluation` aria-label) are dropped at the call site here, but stay defined elsewhere via the detail-page archive helper. They fall off as dead code on the next i18n cleanup pass — not blocking this ship.
+
+## How to verify
+
+1. As a coach with `tt_edit_evaluations`, open a player profile (`?tt_view=players&id=N`).
+2. Scroll to the Evaluations table — each row now shows just a date (no `×` next to it).
+3. Click the date → evaluation detail page renders.
+4. On the detail page, the page-header still has the danger-styled Archive button (`Archive` + bin icon on desktop, icon-only on mobile per v3.110.122). That still works — clicks open the app-modal confirm and archive on confirm, redirect back to the list.
+5. As a coach **without** `tt_edit_evaluations`, the table looks identical — no controls either way.
+
+---
+
 # TalentTrack v3.110.147 — Scout dashboard polish: hero "Plan visits" button + matrix-aware auth + show-all routes correctly + widget trimmed to 5 rows
 
 ## Pilot report
