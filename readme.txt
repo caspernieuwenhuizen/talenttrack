@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.134
+Stable tag: 3.110.135
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.135 — hotfix: migration 0098 writes Dutch translations to tt_translations instead of the dropped tt_lookups.translations column =
+
+Pilot screenshot: *"Migratie 0098_tournament_lookups_seed is mislukt. Unknown column 'translations' in 'INSERT INTO'."* The 0098 seed migration (from v3.110.132 chunk 1 of #0093 Tournament planner) was modelled after the v3.6.0 era 0033 activity-type seed, which wrote Dutch labels to `tt_lookups.translations` (a JSON blob column). That column was **dropped** by migration 0087 (#0090 Phase 6, v3.105.x ish) when the translation system moved to a dedicated `tt_translations` table. Every install reaching migration 0098 had already run 0087 — so 0098's INSERT failed with "Unknown column 'translations'" on every install, the migration ran but didn't apply, and the lookup rows for `tournament_formation` + `tournament_opponent_level` never seeded. Net effect on pilot install: the tournament wizard's formation step had no formations to pick, the matches step's opponent-level dropdown had no levels, and the planner grid's slot_labels lookup returned empty. **Fix in two parts.** **(1)** The INSERTs now skip the `translations` field — the lookup row writes cleanly against the post-0087 schema. **(2)** Immediately after each lookup INSERT, the migration writes a single `tt_translations` row with `entity_type='lookup'`, `entity_id=<new lookup id>`, `field='name'`, `locale='nl_NL'`, `value=<Dutch label>` — same shape `tt_translations` uses for every other entity's translations. Defensive: a `SHOW TABLES LIKE 'tt_translations'` check skips the translation write if the table isn't present (impossible if migration 0080 ran, but belt-and-braces). The migration runner doesn't mark failed migrations applied, so every install that hit the "Unknown column" error retries the corrected version on next page load — automatic recovery, no manual intervention needed. Idempotent: re-running is a no-op because the lookup seed checks `WHERE lookup_type = ? AND name = ?` before inserting, and the translation write uses `INSERT IGNORE` on the natural key.
 
 = 3.110.134 — hotfix: remove duplicate msgid entries in talenttrack-nl_NL.po that crashed the v3.110.133 release ZIP build =
 
