@@ -211,6 +211,7 @@ final class ActivityPickerStep implements WizardStepInterface {
                 AND a.plan_state = 'completed'
                 AND a.session_date < CURDATE() + INTERVAL 1 DAY
                 AND a.session_date >= CURDATE() - INTERVAL %d DAY
+                AND COALESCE(a.evaluation_skipped, 0) = 0
                 AND NOT EXISTS (
                     SELECT 1 FROM {$p}tt_evaluations e
                      WHERE e.activity_id = a.id AND e.club_id = a.club_id

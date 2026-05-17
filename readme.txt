@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.137
+Stable tag: 3.110.138
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.138 — mark-attendance "Skip rating" splits into two: "rate later" vs "no rating needed" (closes the rating queue) =
+
+Pilot: *"Still activities that are marked for attendance and for which the trainer decides to skip the rating and record attendance shows up in pick completed activity. I think we need two opens during marking attendance wizard."* The single "Skip rating, save attendance" button became three buttons on the rate-confirm step: **Rate the present players** / **Skip rating — I'll rate later** / **Skip rating — no rating needed**. The "rate later" branch is unchanged from the prior skip behaviour (activity gets `plan_state='completed'` so it's available for the eval wizard's picker later). The "no rating needed" branch sets a new boolean column `tt_activities.evaluation_skipped=1` (migration 0100, idempotent ALTER) which the eval-wizard's `ActivityPickerStep::recentRateableActivities()` filters out: `AND COALESCE(a.evaluation_skipped, 0) = 0`. So a coach who chose the "no rating needed" exit no longer sees the activity in the picker. **Reversible**: a "Re-open for rating" button surfaces on the activity detail view (cap-gated on `tt_edit_activities`) when `evaluation_skipped=1` — POSTs to the new `PATCH /activities/{id}/evaluation-skipped` endpoint to flip the flag back to 0. The state pill on the activity detail view shows "Rating skipped — this activity won't appear in the rating picker" alongside the button. Schema: `evaluation_skipped` is a boolean (TINYINT(1) DEFAULT 0) tracked as an orthogonal concern from `activity_status_key` — the status enum stays clean (planning lifecycle: planned/in_progress/completed/cancelled), the new flag tracks the rating decision. Why not mix into the status_key? A "completed activity that needs no rating" is a real combination; collapsing them into one enum forces awkward filter SQL everywhere.
 
 = 3.110.137 — wizard fix: native HTML5 validation now off, stops focus from jumping into hidden inputs with no error message =
 
