@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.135
+Stable tag: 3.110.136
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.136 — recent-evaluations widget now applies demo-scope (was inconsistent with the "show all" list) + retag-redo migration =
+
+Pilot: *"On the coach dashboard, the recent-evaluations widget shows a list of evaluations but clicking 'show all' gives an empty list."* Diagnosed: the widget's SQL (`MiniPlayerListWidget::fetchRecentEvaluations()`) bypassed `QueryHelpers::apply_demo_scope('e','evaluation')` while `EvaluationsRestController::list_evals()` (which backs the "show all" page) applies it. In demo-ON mode the list correctly filters to `e.id IN (SELECT … FROM tt_demo_tags)` and any eval missing a tag silently disappears — while the widget happily shows the same untagged rows. **Fix in two parts.** **(1)** The widget query now appends the same `apply_demo_scope` fragment the REST endpoint uses, so widget and list agree on every visible row. **(2)** Migration 0099 re-runs the v3.110.130 evaluation demo-tag backfill. The earlier 0096 gated on `DemoMode::current() === ON` and ran exactly once — if the operator toggled demo mode ON *after* upgrading to v3.110.130, that one run saw demo OFF, skipped, and the migration runner never gave it another chance (migrations are tracked by name). 0099 is a fresh entry with the same idempotent `INSERT … WHERE NOT EXISTS` shape. Also broadened the widget's WHERE from `pl.team_id IN (coach_teams)` to `(pl.team_id IN (coach_teams) OR e.coach_id = current_user)` — matching the v3.110.126 REST-side broadening so a coach's own authored evaluations for players who have since moved teams stay visible in the widget too. Migration 0099 is a no-op on installs where 0096 already tagged everything (NOT EXISTS clause filters every row out of the SELECT) and a no-op on installs in demo-OFF mode (gate returns early so real production data stays un-tagged).
 
 = 3.110.135 — hotfix: migration 0098 writes Dutch translations to tt_translations instead of the dropped tt_lookups.translations column =
 

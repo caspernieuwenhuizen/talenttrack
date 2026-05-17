@@ -114,6 +114,17 @@ class MiniPlayerListWidget extends AbstractWidget {
      * shape used by `FrontendEvaluationsView` / `EvaluationsRestController`
      * so the same evals surface here as on the evaluations list.
      *
+     * v3.110.136 — also applies `apply_demo_scope('e','evaluation')` so
+     * the widget and the REST list agree on which rows are visible in
+     * demo-ON / demo-OFF mode. Pre-fix the widget bypassed the demo
+     * filter, surfacing rows the "show all" page couldn't open (pilot:
+     * "I see the list of evaluations in the widget but show all is
+     * empty"). The widget also expands its team-only WHERE to
+     * `(pl.team_id IN (...) OR e.coach_id = current_user)` matching
+     * the v3.110.126 broadened REST scope, so a coach's own authored
+     * evals for players who have since moved teams stay visible here
+     * too.
+     *
      * @return list<array{eval_id:int, player_name:string, eval_date:string, avg:?float}>
      */
     private function fetchRecentEvaluations( int $user_id, int $club_id ): array {
@@ -121,11 +132,21 @@ class MiniPlayerListWidget extends AbstractWidget {
         $p = $wpdb->prefix;
 
         $teams = QueryHelpers::get_teams_for_coach( $user_id );
-        if ( empty( $teams ) ) return [];
         $team_ids = array_map( static fn( $t ): int => (int) $t->id, $teams );
-        if ( empty( $team_ids ) ) return [];
 
-        $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+        $effective_club = $club_id > 0 ? $club_id : CurrentClub::id();
+        $scope          = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
+
+        if ( empty( $team_ids ) ) {
+            // Coach with zero teams still sees their own authored evals.
+            $where_team = 'e.coach_id = %d';
+            $where_params = [ $user_id ];
+        } else {
+            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+            $where_team = "( pl.team_id IN ($placeholders) OR e.coach_id = %d )";
+            $where_params = array_merge( $team_ids, [ $user_id ] );
+        }
+
         $sql = "SELECT e.id, e.eval_date,
                        pl.first_name, pl.last_name,
                        (SELECT AVG(r.rating) FROM {$p}tt_eval_ratings r
@@ -134,12 +155,13 @@ class MiniPlayerListWidget extends AbstractWidget {
                   LEFT JOIN {$p}tt_players pl ON pl.id = e.player_id
                  WHERE e.club_id = %d
                    AND e.archived_at IS NULL
-                   AND pl.team_id IN ($placeholders)
+                   AND {$where_team}
+                   {$scope}
                  ORDER BY e.eval_date DESC, e.id DESC
                  LIMIT 5";
 
-        $params = array_merge( [ $club_id > 0 ? $club_id : CurrentClub::id() ], $team_ids );
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — placeholders built from int array.
+        $params = array_merge( [ $effective_club ], $where_params );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — placeholders built from int array; $scope produced by trusted QueryHelpers::apply_demo_scope.
         $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
         $out  = [];
         foreach ( (array) $rows as $r ) {

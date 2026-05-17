@@ -1,3 +1,115 @@
+# TalentTrack v3.110.136 — recent-evaluations widget applies demo-scope; retag-redo migration for installs that toggled demo ON after the v3.110.130 upgrade
+
+## Pilot report
+
+> "Something is still off for evaluations. When checking the dashboard as a coach and looking at the recent evaluations widget I do see a list of evaluation but when clicking on show all I get an empty list. There must be something determining this."
+
+Right. There was.
+
+## Root cause — two filters out of sync
+
+Two code paths surface evaluations to a coach. They disagreed on demo-scope:
+
+| Surface | File:line | Demo-scope? | Coach-scope shape |
+|---|---|---|---|
+| **Recent-evaluations widget** (coach dashboard) | `MiniPlayerListWidget.php:119-139` | ❌ No | `pl.team_id IN (coach_teams)` only |
+| **"Show all" full list** (REST `/evaluations`) | `EvaluationsRestController.php:95-172` | ✅ Yes (`apply_demo_scope('e','evaluation')`) | `(pl.team_id IN (...) OR e.coach_id = uid)` |
+
+In demo-ON mode the REST endpoint correctly filters to `e.id IN (SELECT entity_id FROM tt_demo_tags WHERE entity_type='evaluation')`. Any eval missing a row in `tt_demo_tags` is invisible to the list. The widget never applied that filter, so the same untagged rows showed up there. Pilot saw evals in the widget, zero on the page they were trying to open.
+
+## Why some rows weren't tagged after v3.110.130
+
+v3.110.130 shipped:
+
+1. A going-forward fix in `ReviewStep::submit()` + `EvaluationInserter::insert()` so newly-saved wizard evals always call `DemoMode::tagIfActive('evaluation', $id)`.
+2. Migration 0096 to backfill `tt_demo_tags` for every untagged `tt_evaluations` row on installs currently in demo-ON mode.
+
+Migration 0096 has a gate: it returns early when `DemoMode::current() !== ON`. The migration runner tracks applied migrations by `getName()` and **never re-executes** a migration after its first run.
+
+Failure mode this leaves: install upgrades to v3.110.130 while demo mode is OFF (or the option hasn't been written yet). 0096 runs, sees demo OFF, returns. The runner marks 0096 applied. The operator then toggles demo ON. The data still needs tagging, but 0096 will never run again on this install.
+
+That's exactly what we saw on the pilot install.
+
+## Fix
+
+### (1) Widget consistency — apply demo-scope
+
+`MiniPlayerListWidget::fetchRecentEvaluations()` now:
+
+```diff
+-        $sql = "SELECT e.id, e.eval_date, …
+-                  FROM {$p}tt_evaluations e
+-                  LEFT JOIN {$p}tt_players pl ON pl.id = e.player_id
+-                 WHERE e.club_id = %d
+-                   AND e.archived_at IS NULL
+-                   AND pl.team_id IN ($placeholders)
+-                 ORDER BY e.eval_date DESC, e.id DESC
+-                 LIMIT 5";
++        $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
++        $sql = "SELECT e.id, e.eval_date, …
++                  FROM {$p}tt_evaluations e
++                  LEFT JOIN {$p}tt_players pl ON pl.id = e.player_id
++                 WHERE e.club_id = %d
++                   AND e.archived_at IS NULL
++                   AND ( pl.team_id IN ($placeholders) OR e.coach_id = %d )
++                   {$scope}
++                 ORDER BY e.eval_date DESC, e.id DESC
++                 LIMIT 5";
+```
+
+Two changes:
+
+- Demo-scope fragment appended — widget and REST list now filter identically on demo membership.
+- Team WHERE expanded from `team_id IN (...)` to `(team_id IN (...) OR coach_id = current_user)` — matches the v3.110.126 broadening on the REST side so a coach's own authored evals for players who moved teams stay visible in the widget too.
+
+Also: a coach with zero teams used to short-circuit to `return []`. They now fall through to `e.coach_id = %d`, so a newly-assigned coach with no team rows yet still sees their own authored evals — same shape as REST `list_evals()`.
+
+### (2) Data — migration 0099 re-runs the backfill
+
+```php
+// migration 0099_backfill_evaluation_demo_tags_redo
+public function up(): void {
+    if ( DemoMode::current() !== DemoMode::ON ) return;
+
+    $wpdb->query( $wpdb->prepare(
+        "INSERT INTO {$tags_table} (club_id, batch_id, entity_type, entity_id, extra_json)
+         SELECT e.club_id, %s, 'evaluation', e.id, NULL
+           FROM {$evals_table} e
+          WHERE NOT EXISTS (
+              SELECT 1 FROM {$tags_table} t
+               WHERE t.entity_type = 'evaluation' AND t.entity_id = e.id
+          )",
+        'eval-retag-v3.110.136'
+    ) );
+}
+```
+
+Same idempotent shape as 0096. New `getName()` so the migration runner treats it as a fresh migration even if 0096 already ran. Three outcomes:
+
+- **Install previously hit the demo-toggled-after-upgrade gap** (the pilot's case): 0099 picks up every untagged eval, tags it, problem fixed.
+- **Install already had every eval tagged** (0096 ran successfully with demo ON, or operator manually backfilled): `NOT EXISTS` filters every row out of the SELECT, no rows inserted, no-op.
+- **Install in demo-OFF mode**: gate returns early, untagged real production data stays untagged.
+
+## Files
+
+- `src/Modules/PersonaDashboard/Widgets/MiniPlayerListWidget.php` — apply `apply_demo_scope`, broaden team WHERE, allow zero-teams coaches to see own-authored evals.
+- `database/migrations/0099_backfill_evaluation_demo_tags_redo.php` — new one-shot backfill migration.
+- `talenttrack.php` 3.110.135 → 3.110.136.
+- `readme.txt`, `CHANGES.md`.
+
+No new translatable strings — no `.po` update needed.
+
+## How to verify
+
+1. **Before upgrade**, in demo-ON mode as a coach: dashboard widget shows N evaluations, click "show all" → empty list. (Reproduces the pilot report.)
+2. **Upgrade to v3.110.136**. Migration 0099 runs on next page load.
+3. **As the same coach**: the widget still shows the same N evaluations, click "show all" → the list now matches (or shows more, including coach's own authored evals for players who moved teams).
+4. **Create a new evaluation via the wizard** in demo-ON mode — it's tagged correctly (the v3.110.130 going-forward fix), shows up in both widget and list immediately.
+5. **Re-running migration 0099** is a no-op (every row already tagged).
+6. **In demo-OFF mode**, neither change tags any real production data — the gate and the widget's demo-scope fragment are both NOOPs.
+
+---
+
 # TalentTrack v3.110.135 — hotfix: migration 0098 writes Dutch translations to `tt_translations`, not the dropped `tt_lookups.translations` column
 
 ## Pilot screenshot
