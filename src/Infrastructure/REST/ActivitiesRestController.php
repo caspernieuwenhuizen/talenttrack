@@ -67,6 +67,18 @@ class ActivitiesRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+        // v3.110.138 — toggle the per-activity "evaluation skipped"
+        // flag. POST body: `{ skipped: 0|1 }`. The mark-attendance
+        // wizard's "Skip rating — no rating needed" branch sets this
+        // to 1; the activity detail view exposes a "Re-open for
+        // rating" button that flips it back to 0.
+        register_rest_route( self::NS, '/activities/(?P<id>\d+)/evaluation-skipped', [
+            [
+                'methods'             => 'PATCH',
+                'callback'            => [ __CLASS__, 'patch_evaluation_skipped' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
         register_rest_route( self::NS, '/attendance/(?P<id>\d+)', [
             [
                 'methods'             => 'PATCH',
@@ -908,6 +920,28 @@ class ActivitiesRestController {
         }
         $id = (int) $wpdb->insert_id;
         return RestResponse::success( [ 'id' => $id ] + self::format_guest_row( self::find_attendance( $id ) ) );
+    }
+
+    /**
+     * PATCH /activities/{id}/evaluation-skipped — toggle the
+     * "evaluation skipped" flag introduced by v3.110.138's two-button
+     * skip flow. Body: `{ skipped: 0|1 }`. Idempotent.
+     */
+    public static function patch_evaluation_skipped( \WP_REST_Request $r ) {
+        global $wpdb; $p = $wpdb->prefix;
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        $skipped = (int) (bool) $r['skipped'];
+        $ok = $wpdb->update(
+            "{$p}tt_activities",
+            [ 'evaluation_skipped' => $skipped ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
+        if ( $ok === false ) {
+            return RestResponse::error( 'db_error', __( 'Could not update the activity.', 'talenttrack' ), 500 );
+        }
+        do_action( 'tt_activity_evaluation_skipped_changed', $id, $skipped );
+        return RestResponse::success( [ 'id' => $id, 'evaluation_skipped' => $skipped ] );
     }
 
     /**

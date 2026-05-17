@@ -55,9 +55,15 @@ final class RateConfirmStep implements WizardStepInterface {
             <button type="submit" name="_rate_choice" value="yes" class="tt-button tt-button-primary" style="min-height:56px; font-size:1.05rem;">
                 <?php esc_html_e( 'Rate the present players', 'talenttrack' ); ?>
             </button>
-            <button type="submit" name="_rate_choice" value="skip" class="tt-button tt-button-secondary" style="min-height:56px;" formnovalidate>
-                <?php esc_html_e( 'Skip rating, save attendance', 'talenttrack' ); ?>
+            <button type="submit" name="_rate_choice" value="skip_open" class="tt-button tt-button-secondary" style="min-height:56px;" formnovalidate>
+                <?php esc_html_e( "Skip rating — I'll rate later", 'talenttrack' ); ?>
             </button>
+            <button type="submit" name="_rate_choice" value="skip_closed" class="tt-button tt-button-secondary" style="min-height:56px;" formnovalidate>
+                <?php esc_html_e( 'Skip rating — no rating needed', 'talenttrack' ); ?>
+            </button>
+            <p class="tt-muted" style="font-size:13px;margin:0;">
+                <?php esc_html_e( "I'll rate later: activity stays available for rating from the eval wizard. No rating needed: activity is closed and won't appear in the rating picker anymore (can be re-opened from the activity detail).", 'talenttrack' ); ?>
+            </p>
         </div>
         <?php if ( $present === 0 ) : ?>
             <p class="tt-notice" role="status">
@@ -68,8 +74,17 @@ final class RateConfirmStep implements WizardStepInterface {
 
     public function validate( array $post, array $state ) {
         $choice = isset( $post['_rate_choice'] ) ? sanitize_key( (string) $post['_rate_choice'] ) : '';
+        // v3.110.138 — three-way choice (was binary). The "skip_closed"
+        // branch sets `evaluation_skipped=1` on the activity so the
+        // eval-wizard's picker filters it out. The "skip_open" branch
+        // keeps the activity rateable; the coach can return to it via
+        // the picker later. "yes" advances to the rating step.
+        $closed = $choice === 'skip_closed';
         $skip   = $choice !== 'yes';
-        return [ '_skip_rating' => $skip ? 1 : 0 ];
+        return [
+            '_skip_rating'        => $skip ? 1 : 0,
+            '_skip_closes_rating' => $closed ? 1 : 0,
+        ];
     }
 
     public function nextStep( array $state ): ?string {
@@ -96,6 +111,19 @@ final class RateConfirmStep implements WizardStepInterface {
         // finished the flow but the auto-flip had already run.
         if ( $aid > 0 ) {
             \TT\Modules\Wizards\Evaluation\AttendanceStep::completeActivityIfNotTerminal( $aid );
+
+            // v3.110.138 — when the coach chose "Skip rating — no
+            // rating needed", flip `evaluation_skipped=1` so the
+            // eval-wizard's activity picker filters this row out.
+            // Reversible from the activity detail view.
+            if ( ! empty( $state['_skip_closes_rating'] ) ) {
+                global $wpdb;
+                $wpdb->update(
+                    $wpdb->prefix . 'tt_activities',
+                    [ 'evaluation_skipped' => 1 ],
+                    [ 'id' => $aid, 'club_id' => \TT\Infrastructure\Tenancy\CurrentClub::id() ]
+                );
+            }
         }
 
         // v3.110.73 — respect `_done_redirect` from the wizard's initial

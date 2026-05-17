@@ -279,6 +279,50 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         echo '</dl>';
 
+        // v3.110.138 — when the coach marked attendance and chose
+        // "Skip rating — no rating needed", this activity carries
+        // `evaluation_skipped=1` and is filtered out of the eval-
+        // wizard's picker. Surface the state + an explicit "Re-open
+        // for rating" button so the coach can put it back on the
+        // rating queue if they change their mind. Gated on
+        // `tt_edit_activities`; defensive when the column doesn't
+        // exist on this install (pre-migration-0100 fallback).
+        $eval_skipped = (int) ( $session->evaluation_skipped ?? 0 );
+        if ( $eval_skipped === 1 ) {
+            echo '<div class="tt-notice tt-notice-info" style="margin:0 0 8px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">';
+            echo '<span>' . esc_html__( 'Rating skipped — this activity won\'t appear in the rating picker.', 'talenttrack' ) . '</span>';
+            if ( current_user_can( 'tt_edit_activities' ) ) {
+                $aid = (int) $session->id;
+                echo '<button type="button" class="tt-button tt-button-secondary" data-tt-reopen-rating="' . esc_attr( (string) $aid ) . '" data-tt-rest-path="activities/' . (int) $aid . '/evaluation-skipped">';
+                echo esc_html__( 'Re-open for rating', 'talenttrack' );
+                echo '</button>';
+            }
+            echo '</div>';
+            ?>
+            <script>
+            (function () {
+                var btn = document.querySelector('[data-tt-reopen-rating]');
+                if ( ! btn ) return;
+                btn.addEventListener('click', function () {
+                    var path = btn.getAttribute('data-tt-rest-path');
+                    btn.disabled = true;
+                    var tt = window.TT || {};
+                    var url = ( tt.rest_url || '/wp-json/talenttrack/v1/' ).replace(/\/+$/, '/') + path;
+                    fetch(url, {
+                        method: 'PATCH',
+                        credentials: 'same-origin',
+                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': tt.rest_nonce || '' },
+                        body: JSON.stringify({ skipped: 0 })
+                    }).then(function (r) {
+                        if ( r.ok ) window.location.reload();
+                        else { btn.disabled = false; btn.textContent = 'Retry'; }
+                    }).catch(function () { btn.disabled = false; });
+                });
+            })();
+            </script>
+            <?php
+        }
+
         // v3.110.95 — Attendance summary block. Surfaces the same
         // figures the activity-list "Att. %" column shows (now that
         // both queries share the "attendance row for player on
