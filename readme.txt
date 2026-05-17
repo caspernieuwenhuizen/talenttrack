@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.142
+Stable tag: 3.110.143
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.143 — add-guest: lowercase status default + bubble real DB error into the user-visible message so we can diagnose recurring failures =
+
+Pilot: *"Adding a guest to an activity still does not work. It gives message 'guest could not be added'."* Two changes. **(1)** Status default lowercased from `'Present'` to `'present'` — every other write path in the codebase has been on lowercase since v3.110.4, and downstream reads (`RateActorsStep::ratablePlayersForActivity`, recent-evaluations widget, etc.) use `LOWER(status)` since v3.110.78. The guest-add path was the outlier; sending `'Present'` (capitalised) didn't break the insert, but downstream pickers may have missed those guest rows. **(2)** When `wpdb->insert` returns false, the **actual `wpdb->last_error`** is now bubbled into the user-visible error message (e.g. *"The guest could not be added (database error: Unknown column 'is_guest' in 'INSERT INTO')."*) instead of just the generic *"The guest could not be added."* Previously the diagnostic was buried in `errors[0].details.db_error` which the modal's UI doesn't surface, so pilot couldn't tell us the root cause. The install is single-tenant / admin-only at this stage; leaking the SQL-layer error to operators is acceptable in exchange for actionable diagnostics. If the next reproduction surfaces a specific column-missing or constraint-violation error, the fix lands as a follow-up migration. The Logger::error sidelog also stays so server-side debugging keeps the same trail.
 
 = 3.110.142 — activity wizard review step renders as a proper table (was a dl that styled like a bulleted list) =
 
