@@ -81,14 +81,10 @@ class FrontendAnalyticsView extends FrontendViewBase {
         // to the $standard_reports array below.
         self::renderStandardReports();
 
-        // v3.110.146 — dev-internal "#0083 Child 5" reference removed
-        // from the pilot-facing banner. The full epic and remaining
-        // children are documented in `specs/shipped/0083-epic-reporting-framework.md`
-        // for anyone who wants to know what else is planned. The
-        // banner now just sets expectations on what's available today.
-        echo '<div style="margin-top:32px; padding:12px 16px; background:#f0f6fc; border-left:4px solid #2271b1; max-width:760px; font-size:13px; color:#5b6e75;">'
-            . esc_html__( "Today the page surfaces academy-wide KPIs and the standard reports above. The two-column entity-selector layout (player / team / activity / season) lands in a follow-up.", 'talenttrack' )
-            . '</div>';
+        // v3.110.150 — dev-facing "lands in a follow-up" / "#0083 Child 5"
+        // banner removed entirely. The Analytics tile is the
+        // operator's analytics surface; it shouldn't surface its own
+        // backlog notes. Future roadmap lives in the spec docs.
     }
 
     /**
