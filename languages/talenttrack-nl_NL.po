@@ -14925,3 +14925,12 @@ msgstr "Verontschuldigd %"
 
 msgid "Injured %"
 msgstr "Geblesseerd %"
+
+msgid "Browse by entity"
+msgstr "Bladeren per entiteit"
+
+msgid "Scouts"
+msgstr "Scouts"
+
+msgid "No entries."
+msgstr "Geen vermeldingen."
