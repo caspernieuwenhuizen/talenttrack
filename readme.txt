@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.145
+Stable tag: 3.110.146
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.146 — Analytics: route standard reports correctly, soften dev-internal placeholder, add Dutch translations =
+
+Four-item pilot batch on the Analytics tile. **(1) Standard reports now actually open.** Clicking "Team attendance statistics" or "Player attendance statistics" from the Analytics tile hit `?tt_view=attendance-report-team` (or `-player`), but the slugs weren't in any allowlist in `DashboardShortcode`'s top-level routing — the dispatch cases sat inside `dispatchWorkflowView`'s switch, which was never reached because the slugs weren't in `$workflow_slugs`. Every click fell through to "Unknown section." Same root cause as the v3.110.3 team-planner fix. Fixed: new `$analytics_reports_slugs = ['attendance-report-team', 'attendance-report-player']` array, branch added to the top-level routing that dispatches to the right view per slug. The duplicate cases in `dispatchWorkflowView` removed (they were dead code anyway). Both report views already call `FrontendBreadcrumbs::fromDashboard()` correctly, so once routing reaches them the breadcrumb chain shows up automatically — which also addresses the pilot's "no Back button" complaint (the breadcrumb chain IS the canonical back-to-dashboard affordance per CLAUDE.md § 5; the report views were never reachable to render it). **(2) Placeholder banner softened.** The Analytics view's footer banner referenced `#0083 Child 5` — a dev-internal epic-children id that's meaningless to a pilot. Rewritten to a pilot-friendly note: *"Today the page surfaces academy-wide KPIs and the standard reports above. The two-column entity-selector layout (player / team / activity / season) lands in a follow-up."* The full epic is documented in `specs/shipped/0083-epic-reporting-framework.md` for anyone who wants the developer-facing roadmap. **(3) Dutch translations.** Eight new entries in `talenttrack-nl_NL.po` for: Standard reports, the analytics intro copy, the two report titles + descriptions, the no-KPIs notice, the not-authorized notice, and the new placeholder banner string. *"Analytics"* itself was already translated ("Analyses"). **(4) Back button** — the analytics views already call `FrontendBreadcrumbs::fromDashboard()`; once routing fix (1) lands, the breadcrumb chain renders correctly on every Analytics surface. No additional code needed; CLAUDE.md § 5 explicitly forbids an explicit "Back to dashboard" button — the breadcrumb chain is the canonical mechanism.
 
 = 3.110.145 — guest-add fix: migration 0101 re-applies tt_attendance.player_id NULL on installs where 0020 didn't take =
 
