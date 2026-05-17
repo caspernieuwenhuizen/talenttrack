@@ -18,6 +18,14 @@
  * an 8v8 shape we didn't seed can add their own without code changes.
  *
  * Idempotent. Skips rows whose (lookup_type, name) already exists.
+ *
+ * v3.110.135 — translations now write to `tt_translations` rather
+ * than the legacy `tt_lookups.translations` JSON column (which #0090
+ * Phase 6 / migration 0087 dropped). The original 0098 wrote to the
+ * dropped column and failed on every install with "Unknown column
+ * 'translations'". Migration runner doesn't mark failed migrations
+ * applied, so editing in place is safe — every install that hit the
+ * error retries the corrected version on next page load.
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -162,15 +170,16 @@ return new class extends Migration {
             if ( $existing > 0 ) continue;
 
             $wpdb->insert( "{$p}tt_lookups", [
-                'lookup_type'  => 'tournament_formation',
-                'name'         => $row['name'],
-                'description'  => '',
-                'meta'         => (string) wp_json_encode( $row['meta'] ),
-                'translations' => (string) wp_json_encode( [
-                    'nl_NL' => [ 'name' => $row['nl_label'], 'description' => '' ],
-                ] ),
-                'sort_order'   => $row['sort_order'],
+                'lookup_type' => 'tournament_formation',
+                'name'        => $row['name'],
+                'description' => '',
+                'meta'        => (string) wp_json_encode( $row['meta'] ),
+                'sort_order'  => $row['sort_order'],
             ] );
+            $lookup_id = (int) $wpdb->insert_id;
+            if ( $lookup_id > 0 ) {
+                self::upsertTranslation( $lookup_id, 'nl_NL', $row['nl_label'] );
+            }
         }
 
         $levels = [
@@ -209,15 +218,49 @@ return new class extends Migration {
             if ( $existing > 0 ) continue;
 
             $wpdb->insert( "{$p}tt_lookups", [
-                'lookup_type'  => 'tournament_opponent_level',
-                'name'         => $row['name'],
-                'description'  => '',
-                'meta'         => (string) wp_json_encode( $row['meta'] ),
-                'translations' => (string) wp_json_encode( [
-                    'nl_NL' => [ 'name' => $row['nl_label'], 'description' => '' ],
-                ] ),
-                'sort_order'   => $row['sort_order'],
+                'lookup_type' => 'tournament_opponent_level',
+                'name'        => $row['name'],
+                'description' => '',
+                'meta'        => (string) wp_json_encode( $row['meta'] ),
+                'sort_order'  => $row['sort_order'],
             ] );
+            $lookup_id = (int) $wpdb->insert_id;
+            if ( $lookup_id > 0 ) {
+                self::upsertTranslation( $lookup_id, 'nl_NL', $row['nl_label'] );
+            }
         }
+    }
+
+    /**
+     * v3.110.135 — write a single (lookup, name, locale) translation
+     * row into `tt_translations`. Uses INSERT IGNORE on the natural
+     * key so re-runs are no-ops (the table's UNIQUE constraint covers
+     * the (club_id, entity_type, entity_id, field, locale) tuple).
+     *
+     * Defensive: if `tt_translations` doesn't exist on this install
+     * (impossible if migration 0080 ran, but belt-and-braces), the
+     * write is silently skipped. The lookup row itself still seeds,
+     * so the planner UI works; the Dutch label just falls back to
+     * the English `name`.
+     */
+    private static function upsertTranslation( int $lookup_id, string $locale, string $name ): void {
+        if ( $lookup_id <= 0 || $locale === '' || $name === '' ) return;
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $tt = "{$p}tt_translations";
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tt ) ) !== $tt ) return;
+
+        $wpdb->query( $wpdb->prepare(
+            "INSERT IGNORE INTO {$tt}
+               (club_id, entity_type, entity_id, field, locale, value, updated_at)
+             VALUES (%d, %s, %d, %s, %s, %s, %s)",
+            1, // club_id — single-tenant in v1; lookups carry club_id=1
+            'lookup',
+            $lookup_id,
+            'name',
+            $locale,
+            $name,
+            current_time( 'mysql', true )
+        ) );
     }
 };

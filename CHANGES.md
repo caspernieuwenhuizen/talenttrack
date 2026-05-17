@@ -1,3 +1,86 @@
+# TalentTrack v3.110.135 — hotfix: migration 0098 writes Dutch translations to `tt_translations`, not the dropped `tt_lookups.translations` column
+
+## Pilot screenshot
+
+> *Migratie `0098_tournament_lookups_seed` is mislukt.*
+> *Unknown column 'translations' in 'INSERT INTO'*
+
+## Root cause
+
+When I wrote `0098_tournament_lookups_seed.php` in chunk 1 of #0093 (v3.110.132), I patterned the seed INSERT after `0033_activity_type_lookup.php`:
+
+```php
+$wpdb->insert( "{$p}tt_lookups", [
+    'lookup_type'  => 'tournament_formation',
+    'name'         => $row['name'],
+    'description'  => '',
+    'meta'         => (string) wp_json_encode( $row['meta'] ),
+    'translations' => (string) wp_json_encode( [
+        'nl_NL' => [ 'name' => $row['nl_label'], 'description' => '' ],
+    ] ),
+    'sort_order'   => $row['sort_order'],
+] );
+```
+
+`tt_lookups.translations` was a JSON column added in migration 0014 (v3.6.0). But migration 0087 (#0090 Phase 6) **dropped** that column when the translation system was lifted into a dedicated `tt_translations` table. By the time any install reaches 0098, 0087 has already run — so 0098's INSERT fails with "Unknown column 'translations'".
+
+The migration runner does NOT mark a failed migration applied, so 0098 retries on every page load — and fails the same way each time. The lookup rows for `tournament_formation` (8 shapes) and `tournament_opponent_level` (4 tiers) never seed. Downstream effects on the pilot install:
+
+- Wizard formation step: empty radio list (no formations to pick).
+- Wizard matches step: empty opponent-level dropdown.
+- Planner grid's `lookupSlotLabels()` returns `[]` → grid renders "No formation set on this match."
+- Auto-balance fails with `'no_formation'` 422.
+
+## Fix
+
+The INSERT now writes against the post-0087 schema (no `translations` field), and the migration writes a separate `tt_translations` row for the Dutch label:
+
+```php
+$wpdb->insert( "{$p}tt_lookups", [
+    'lookup_type' => 'tournament_formation',
+    'name'        => $row['name'],
+    'description' => '',
+    'meta'        => (string) wp_json_encode( $row['meta'] ),
+    'sort_order'  => $row['sort_order'],
+] );
+$lookup_id = (int) $wpdb->insert_id;
+if ( $lookup_id > 0 ) {
+    self::upsertTranslation( $lookup_id, 'nl_NL', $row['nl_label'] );
+}
+```
+
+The new `upsertTranslation()` helper uses the same shape every other entity's translations use:
+
+```sql
+INSERT IGNORE INTO tt_translations
+  (club_id, entity_type, entity_id, field, locale, value, updated_at)
+VALUES (1, 'lookup', <new id>, 'name', 'nl_NL', <Dutch label>, <now>)
+```
+
+Defensive: a `SHOW TABLES LIKE 'tt_translations'` check skips the translation write if the table isn't there (impossible if migration 0080 ran, but belt-and-braces). If it ever does miss, the lookup row still seeds — the Dutch label just falls back to the English `name`.
+
+## Automatic recovery on the pilot install
+
+The migration runner re-runs failed migrations on every page load. Pilot doesn't need to do anything beyond pulling v3.110.135 — the next admin page-load will retry 0098 against the corrected code, succeed, seed the lookups, and the wizard / planner light up.
+
+## Idempotent
+
+- Lookup seed checks `WHERE lookup_type = ? AND name = ?` before inserting — re-runs skip existing rows.
+- Translation write uses `INSERT IGNORE` on `tt_translations`'s natural-key UNIQUE (`club_id, entity_type, entity_id, field, locale`) — re-runs skip existing rows.
+
+## Files
+
+- `database/migrations/0098_tournament_lookups_seed.php` — drop `translations` from the two INSERT arrays; add `upsertTranslation()` helper; call it after each insert.
+- `talenttrack.php` 3.110.134 → 3.110.135.
+- `readme.txt` Stable tag + changelog stanza.
+- `CHANGES.md` this entry.
+
+## Lesson logged
+
+Saved to feedback memory: when seeding `tt_lookups` rows in a new migration, write translations to `tt_translations` (post-0087 system), not the dropped JSON column. The 0033-era pattern is legacy.
+
+---
+
 # TalentTrack v3.110.134 — hotfix: remove duplicate msgid entries in talenttrack-nl_NL.po
 
 ## What broke
