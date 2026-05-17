@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.156
+Stable tag: 3.110.157
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.157 — wizard Next button now gives click feedback + nonce-fail surfaces a visible notice (was silent fall-through) =
+
+Pilot: *"The attendance marker does not work, present next button in wizard after marking peoples presence does not seem to do anything."* Traced exhaustively: form structure correct, hidden inputs in the right place, `validate()` and `transitionOrSubmit()` paths look right. Two non-reproducible silent-fail modes remained that the user-facing UI gave zero signal about: **(1) nonce expiration.** `FrontendWizardView::render` gated the entire POST-handler block on `wp_verify_nonce`. A failed nonce slipped through both the request-method check AND the nonce check straight into the GET render path with no notice. Long-idle sessions, multi-tab edits, or any browser fingerprint change between page load and submit produced exactly the symptom the pilot reports: "Next does nothing." **(2) No click feedback.** The Next button just sat there — if the POST took >100ms or failed silently, the operator had no idea the click registered. **Fix**: **(1)** Nonce check teased apart from the request-method check. When the method is POST + nonce present + nonce invalid, the wizard now sets `$error = __( 'Your session expired while this step was open. Please reload the page and try again — your edits on this step will need to be re-entered.', 'talenttrack' )` which renders as a top-of-step error notice (existing notice slot at FrontendWizardView line 233-234). **(2)** Next button gets `data-tt-wizard-next` + a `data-loading-label`. New inline `<script>` after the form intercepts the form's `submit` event, checks if Next was the submitter, disables it + swaps label to "Loading…" (or "Creating…" on the final step). Cancel / Back / Save-as-draft skip the loading state — they're immediate-redirect actions and the existing flow handles them. Net effect on pilot's recurring symptom: if the cause is nonce expiration, they now see a clear "Session expired" notice instead of a dead button. If the cause is something else (slow POST, network blip), they at least see the button transition to disabled+Loading so they know the click registered.
 
 = 3.110.156 — New operator flag `demo_only_install` closes the recurring demo-tag backfill loop =
 
