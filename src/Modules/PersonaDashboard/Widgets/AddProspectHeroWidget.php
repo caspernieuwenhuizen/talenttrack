@@ -86,7 +86,14 @@ class AddProspectHeroWidget extends AbstractWidget {
             . '<a class="tt-pd-cta tt-pd-cta-primary" href="' . esc_url( $wizard_url ) . '">'
             . esc_html__( '+ Scouting find', 'talenttrack' )
             . '</a>'
-            . '<a class="tt-pd-hero-secondary" href="' . esc_url( $visits_url ) . '">'
+            // v3.110.147 — secondary hero link rendered as a ghost
+            // button (translucent white on the dark gradient) rather
+            // than the previous underlined text link. Pilot ask: the
+            // link should be a button. Class pair `tt-pd-cta
+            // tt-pd-cta-ghost` matches the primary CTA's button
+            // shape, with the ghost variant providing the alternate
+            // colour treatment that reads on dark.
+            . '<a class="tt-pd-cta tt-pd-cta-ghost" href="' . esc_url( $visits_url ) . '">'
             . esc_html__( 'Plan visits →', 'talenttrack' )
             . '</a>'
             . '</div>';
