@@ -14883,3 +14883,24 @@ msgstr "Speeltijd-ticker"
 
 msgid "Select completed activity to evaluate"
 msgstr "Kies een afgeronde activiteit om te beoordelen"
+
+msgid "Standard reports"
+msgstr "Standaardrapporten"
+
+msgid "Pre-built answers to the most common analytics questions. For ad-hoc exploration use the KPI cards above."
+msgstr "Vooraf gebouwde antwoorden op de meest gestelde analysevragen. Voor ad-hoc verkenning gebruik je de KPI-kaarten hierboven."
+
+msgid "Team attendance statistics"
+msgstr "Aanwezigheidsstatistieken per team"
+
+msgid "Present / late / absent / excused / injured percentages per team over a configurable date range."
+msgstr "Percentages aanwezig / te laat / afwezig / verontschuldigd / geblesseerd per team over een instelbaar datumbereik."
+
+msgid "Player attendance statistics"
+msgstr "Aanwezigheidsstatistieken per speler"
+
+msgid "Same attendance percentages broken down per player, optionally narrowed to a single team."
+msgstr "Dezelfde aanwezigheidspercentages uitgesplitst per speler, eventueel beperkt tot één team."
+
+msgid "Today the page surfaces academy-wide KPIs and the standard reports above. The two-column entity-selector layout (player / team / activity / season) lands in a follow-up."
+msgstr "Vandaag toont deze pagina academy-brede KPI's en de standaardrapporten hierboven. De twee-koloms entiteitskiezer-indeling (speler / team / activiteit / seizoen) volgt in een vervolgrelease."

@@ -237,6 +237,14 @@ class DashboardShortcode {
         $mobile_slugs = [ 'mobile-settings' ];
         // #0083 Child 3 — analytics dimension explorer.
         $analytics_explore_slugs = [ 'explore' ];
+        // v3.110.146 — `attendance-report-team` + `-player` standard
+        // report slugs. Their dispatch cases used to sit inside
+        // `dispatchWorkflowView` but the slugs weren't in
+        // `$workflow_slugs` so the routing never reached them, and
+        // clicking either link from the Analytics tile fell through
+        // to "Unknown section." Same root cause as the v3.110.3
+        // team-planner fix.
+        $analytics_reports_slugs = [ 'attendance-report-team', 'attendance-report-player' ];
         // #0083 Child 5 — central analytics surface.
         $analytics_central_slugs = [ 'analytics' ];
         // #0083 Child 6 — scheduled reports management.
@@ -379,6 +387,15 @@ class DashboardShortcode {
             \TT\Modules\Analytics\Frontend\FrontendExploreView::render( $user_id, $is_admin );
         } elseif ( in_array( $view, $analytics_central_slugs, true ) ) {
             \TT\Modules\Analytics\Frontend\FrontendAnalyticsView::render( $user_id, $is_admin );
+        } elseif ( in_array( $view, $analytics_reports_slugs, true ) ) {
+            // v3.110.146 — standard report dispatchers. Each view
+            // checks `tt_view_analytics` itself + renders its own
+            // breadcrumb chain.
+            if ( $view === 'attendance-report-team' ) {
+                \TT\Modules\Analytics\Frontend\FrontendAttendanceTeamReportView::render( $user_id, $is_admin );
+            } else {
+                \TT\Modules\Analytics\Frontend\FrontendAttendancePlayerReportView::render( $user_id, $is_admin );
+            }
         } elseif ( in_array( $view, $analytics_schedules_slugs, true ) ) {
             \TT\Modules\Analytics\Frontend\FrontendScheduledReportsView::render( $user_id, $is_admin );
         } else {
@@ -566,15 +583,12 @@ class DashboardShortcode {
             case 'scouting-visit':
                 \TT\Modules\Prospects\Frontend\FrontendScoutingVisitDetailView::render( $user_id, $is_admin );
                 break;
-            // v3.110.109 — standard attendance reports surfaced under
-            // the Analytics module. Both cap-gated on `tt_view_analytics`
-            // (HoD + Admin by default).
-            case 'attendance-report-team':
-                \TT\Modules\Analytics\Frontend\FrontendAttendanceTeamReportView::render( $user_id, $is_admin );
-                break;
-            case 'attendance-report-player':
-                \TT\Modules\Analytics\Frontend\FrontendAttendancePlayerReportView::render( $user_id, $is_admin );
-                break;
+            // v3.110.146 — `attendance-report-team` + `-player` cases
+            // moved to the top-level routing under `$analytics_reports_slugs`.
+            // The dispatch cases used to live here but the slugs were
+            // never in `$workflow_slugs`, so this switch never received
+            // them — every click fell through to "Unknown section."
+            // Cleanly routed via the central-analytics elseif now.
             default:
                 FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
                 echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
