@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.147
+Stable tag: 3.110.148
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.148 — root-cause fix for "evaluations missing": migration 0102 un-tags the indiscriminate backfill batches written by 0096 + 0099 =
+
+Pilot: *"The problem with evaluations missing is not solved yet even after uploading new version. Do a proper analysis."* Traced both query paths (widget + REST list) and confirmed they're identical post-v3.110.136 — same WHERE, same `apply_demo_scope`, same broadened coach-scope. The widget-vs-list mismatch IS fixed. The issue is the **demo-scope filter itself** dropping real evals. Migrations 0096 (`batch_id = 'wizard-untagged-recovery-v3.110.130'`) and 0099 (`batch_id = 'eval-retag-v3.110.136'`) indiscriminately tag every untagged eval when run with demo mode ON. That conflates "wizard-created in demo-ON pre-v3.110.130 — should be tagged" with "real eval created in demo-OFF — should NOT be tagged." The moment the operator toggles demo mode OFF, `apply_demo_scope` becomes `id NOT IN (tagged)` and every wrongly-tagged real eval becomes invisible. **Fix**: migration 0102 deletes the rows the two offending backfills inserted, identified by their distinctive `batch_id`s. Seeded demo evals (`EvaluationGenerator`, `ExcelImporter`) use different batch_ids and stay tagged; new evals tagged going forward via `DemoMode::tagIfActive` use `user-created` and stay too. **Residual risk**: pre-v3.110.130 wizard-created evals (the population the backfill was trying to recover) become invisible again in demo-ON mode. That window is short, the row count small, and the failure mode is "specific old eval missing" rather than "all evals missing." Operator can re-rate or manually tag any surface. Better failure mode than the prior all-evals-invisible. The original v3.110.130 going-forward fix (wizard's `ReviewStep::submit` + `EvaluationInserter::insert` calling `DemoMode::tagIfActive`) is unchanged; new wizard-created evals continue to tag correctly in demo-ON mode.
 
 = 3.110.147 — Scout dashboard polish: hero "Plan visits" link → ghost button + matrix-aware auth + show-all routes correctly + widget trimmed to 5 rows (no scrollbar) =
 
