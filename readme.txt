@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.149
+Stable tag: 3.110.150
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.150 — Analytics tile complete: dev banner removed, missing Dutch report-table translations added =
+
+Pilot follow-up to v3.110.146: *"It needs to be a complete functionality. The standard reports should work and there should be no dev notes; lets finish the work."* Two changes. **(1) Placeholder banner removed entirely.** The "Today the page surfaces … lands in a follow-up" banner I softened in v3.110.146 was still a dev-facing note. The Analytics tile is the operator's analytics surface; it shouldn't surface its own backlog. The remaining `#0083` roadmap stays in `specs/shipped/0083-epic-reporting-framework.md` where it belongs. **(2) Missing Dutch translations.** Verified both standard report views (`FrontendAttendanceTeamReportView` + `FrontendAttendancePlayerReportView`) are fully functional in code — cap-gate works, breadcrumb chain renders (with `Analytics` intermediate crumb), date-range form posts back, SQL aggregates correctly with `LOWER(att.status)` case-insensitive matching, percentages render locale-aware, click-through to team / player detail. The only gap was untranslated column headers and a few notices. Added 7 entries to `talenttrack-nl_NL.po`: *"No attendance recorded in the selected window."*, *"You do not have permission to view this report."*, *"Present %"*, *"Late %"*, *"Absent %"*, *"Excused %"*, *"Injured %"*. After the build pipeline regenerates the `.mo`, the report tables render fully Dutch on a Dutch site. Net effect: Analytics tile is complete-functionality. Operator opens `?tt_view=analytics` → sees KPI cards + Standard reports section → clicks either report → gets a working filter form + an attendance percentage table per team or per player → breadcrumb chain navigates back. No dev notes anywhere.
 
 = 3.110.149 — Player profile's evaluations table drops the inline `×` per-row delete button (pilot: "should not be an inline option") =
 

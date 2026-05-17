@@ -14904,3 +14904,24 @@ msgstr "Dezelfde aanwezigheidspercentages uitgesplitst per speler, eventueel bep
 
 msgid "Today the page surfaces academy-wide KPIs and the standard reports above. The two-column entity-selector layout (player / team / activity / season) lands in a follow-up."
 msgstr "Vandaag toont deze pagina academy-brede KPI's en de standaardrapporten hierboven. De twee-koloms entiteitskiezer-indeling (speler / team / activiteit / seizoen) volgt in een vervolgrelease."
+
+msgid "No attendance recorded in the selected window."
+msgstr "Geen aanwezigheid geregistreerd in het gekozen tijdvenster."
+
+msgid "You do not have permission to view this report."
+msgstr "Je hebt geen rechten om dit rapport te bekijken."
+
+msgid "Present %"
+msgstr "Aanwezig %"
+
+msgid "Late %"
+msgstr "Te laat %"
+
+msgid "Absent %"
+msgstr "Afwezig %"
+
+msgid "Excused %"
+msgstr "Verontschuldigd %"
+
+msgid "Injured %"
+msgstr "Geblesseerd %"
