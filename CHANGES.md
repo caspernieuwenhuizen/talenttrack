@@ -1,3 +1,89 @@
+# TalentTrack v3.110.137 — wizard fix: native HTML5 validation now off, stops focus from jumping into hidden inputs with no error message
+
+## Pilot report
+
+> *"The activity rating wizard seems broken. I cannot click when in rating step. It seems to jump back to an input field but without message and actually seemingly without proper reason."*
+
+## Diagnosis
+
+The wizard's main `<form>` was opened without `novalidate`:
+
+```php
+// FrontendWizardView.php:245 (pre-fix)
+echo '<form method="post" class="tt-wizard-form">';
+```
+
+And the **Next** button in the chrome did not carry `formnovalidate` — Cancel / Back / Save-as-draft all did, Next was the outlier:
+
+```php
+// FrontendWizardView.php:267-284 (pre-fix)
+<button … formnovalidate>Cancel</button>
+<button … formnovalidate>Save as draft</button>     // when supported
+<button … formnovalidate>Back</button>              // when history exists
+<button …>Next</button>                              // no formnovalidate
+```
+
+So every Next-click triggered the browser's native HTML5 form validation across every input in the form. In `RateActorsStep` (the rating step the pilot was on), each rating input renders as:
+
+```html
+<input type="number" min="5" max="10" step="1" inputmode="numeric" …>
+```
+
+These inputs live inside:
+- A `<details>` element per player (collapsed unless the coach has expanded that player's card)
+- A `[hidden]` `.tt-rate-subs` panel per category (the Detailed mode panel from v3.110.125, hidden unless the coach flipped Basic → Detailed)
+
+When the coach typed a value outside `[5, 10]` (a typo like `5.5`, `55`, or `0`) anywhere in the form — even on a player card that was now collapsed — the browser walked the form on Next-click, found the invalid input, focused it, and tried to show the validation tooltip. **But the tooltip can't render against a hidden parent**: a `<details>` that's collapsed makes its children inaccessible to layout, and `[hidden]` panels are display:none. The browser focused the input, the page may have scrolled to bring it into view, but the tooltip never appeared.
+
+Net effect from the coach's perspective:
+- Click Next → nothing visible happens
+- Page silently jumps to "somewhere" (the off-screen invalid input)
+- No error message, no obvious reason
+- Try again → same result, looks broken
+
+Matches the pilot's wording almost exactly: *"jump back to an input field but without message and actually seemingly without proper reason."*
+
+## Fix
+
+One-word change: add `novalidate` to the wizard `<form>` opening tag.
+
+```php
+// FrontendWizardView.php:245 (post-fix)
+echo '<form method="post" class="tt-wizard-form" novalidate>';
+```
+
+This disables HTML5 validation globally for every step of every wizard. Server-side `WizardStepInterface::validate()` per step is the source of truth — it returns a `WP_Error` or a clean state array, and the wizard view renders proper error messages above the step. Native HTML5 validation was redundant noise, and as the pilot demonstrated, actively harmful when validation targets are hidden behind disclosure widgets.
+
+## Side benefits
+
+- Typos in number inputs (`5.5`, `55`, `0`) no longer trap the user on submit. The step's server-side validate() returns a clean message rendered in the wizard's standard error panel.
+- Required-field handling — the only other place native validation kicked in — was already worked around with `formnovalidate` on every other button (Cancel / Back / Save-as-draft). Adding `novalidate` consolidates this into a single attribute and removes the inconsistency that made Next the trap.
+
+## Why not just add `formnovalidate` to the Next button?
+
+That would fix this specific path but leave native validation lurking on:
+- Pressing Enter in any text input (some browsers submit on Enter, which validates)
+- Any future submit button added to the wizard
+- Browser-specific edge cases around `<details>` and `[hidden]`
+
+`novalidate` on the form is the cleaner global fix and removes the inconsistency where Cancel/Back/Save-as-draft each had to remember `formnovalidate`.
+
+## Files
+
+- `src/Shared/Frontend/FrontendWizardView.php` — add `novalidate` to the form opening tag (with an explanatory comment block above).
+- `talenttrack.php` 3.110.136 → 3.110.137.
+- `readme.txt` Stable tag + changelog stanza.
+- `CHANGES.md` this entry.
+
+## How to verify
+
+1. As an Academy Admin / coach with the `mark-attendance` or `new-evaluation` wizard, walk to the rate-actors step.
+2. Type a value outside [5, 10] in any rating input — e.g. `55`.
+3. Click Next. **Before the fix**: page silently jumps to the invalid input; no message. **After the fix**: form submits to the server; the step's validate() either accepts the value (since it only filters `> 0`) or returns a server-rendered error above the step.
+4. Same test inside an un-expanded `<details>` player card and inside a Basic-mode sub-category panel — same result both ways.
+
+---
+
 # TalentTrack v3.110.136 — recent-evaluations widget applies demo-scope; retag-redo migration for installs that toggled demo ON after the v3.110.130 upgrade
 
 ## Pilot report

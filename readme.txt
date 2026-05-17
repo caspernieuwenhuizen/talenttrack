@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.136
+Stable tag: 3.110.137
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.137 — wizard fix: native HTML5 validation now off, stops focus from jumping into hidden inputs with no error message =
+
+Pilot: *"The activity rating wizard seems broken. I cannot click when in rating step. It seems to jump back to an input field but without message and actually seemingly without proper reason."* Root cause: the wizard's main `<form>` did not carry `novalidate`, and the **Next** button in the wizard chrome (FrontendWizardView line 284) did not carry `formnovalidate` — Cancel / Back / Save-as-draft all do, Next was the outlier. So every Next-click triggered the browser's native HTML5 form validation across every input in the form, including `<input type="number" min="5" max="10" step="1">` controls inside collapsed `<details>` (un-expanded player cards in RateActorsStep) and `[hidden]` panels (Basic/Detailed subs panels from v3.110.125). When the user typed any value outside the [min, max] range or with a non-integer step, the browser walked the form on submit, found the invalid input, focused it, and tried to show the validation tooltip — but the tooltip can't render against a hidden parent. **Result**: the page silently jumped to an off-screen input with no error message and no visible reason. Matches the pilot's symptom exactly. **Fix**: one-word change — add `novalidate` to the wizard `<form>` so the browser's HTML5 validation stays off across every step of every wizard. Server-side `WizardStepInterface::validate()` is the source of truth and renders proper error messages above the step. Side benefit: number-input typos like `5.5` or `55` no longer trap users on submit; the step's server-side validate() returns a clean error message instead.
 
 = 3.110.136 — recent-evaluations widget now applies demo-scope (was inconsistent with the "show all" list) + retag-redo migration =
 
