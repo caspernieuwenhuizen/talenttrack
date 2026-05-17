@@ -663,13 +663,22 @@
 }
 .tt-pd-task-due { font-size: 0.75rem; color: var(--tt-pd-text-muted); flex-shrink: 0; }
 
-/* Mini list (recent evaluations rail, etc.) — v3.110.108 */
+/* Mini list (recent evaluations rail, etc.) — v3.110.108
+ * v3.110.139 — overflow guard. Pilot reported text overrunning
+ * widget height when a long player name or meta string wrapped to
+ * two lines. Two fixes: (1) truncate the name with ellipsis so each
+ * row stays one line; (2) cap the list with `max-height` +
+ * `overflow-y:auto` as belt-and-braces. Row count also dropped
+ * from 5 → 4 in the SQL.
+ */
 .tt-pd-mini-list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
+    max-height: 220px;
+    overflow-y: auto;
 }
 .tt-pd-mini-list-row {
     display: flex;
@@ -690,12 +699,17 @@
 .tt-pd-mini-list-name {
     font-weight: 600;
     color: var(--tt-pd-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
 }
 .tt-pd-mini-list-meta {
     font-size: 0.75rem;
     color: var(--tt-pd-text-muted);
     flex-shrink: 0;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 
 /* Recent comments & notes list — v3.110.113. Two-column row: entity

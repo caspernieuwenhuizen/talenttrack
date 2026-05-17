@@ -158,7 +158,7 @@ class MiniPlayerListWidget extends AbstractWidget {
                    AND {$where_team}
                    {$scope}
                  ORDER BY e.eval_date DESC, e.id DESC
-                 LIMIT 5";
+                 LIMIT 4";
 
         $params = array_merge( [ $effective_club ], $where_params );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — placeholders built from int array; $scope produced by trusted QueryHelpers::apply_demo_scope.
