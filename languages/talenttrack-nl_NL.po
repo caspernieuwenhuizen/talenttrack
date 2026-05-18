@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-18T18:38:51+00:00\n"
+"POT-Creation-Date: 2026-05-18T18:43:26+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -17320,11 +17320,11 @@ msgstr "Mijn succesvolle scoutings"
 msgid "My rating trend"
 msgstr "Mijn rating-trend"
 
-#: src/Modules/PersonaDashboard/Kpis/MyTeamAttendancePct.php:12
+#: src/Modules/PersonaDashboard/Kpis/MyTeamAttendancePct.php:13
 msgid "My team attendance %"
 msgstr "Aanwezigheid % van mijn team"
 
-#: src/Modules/PersonaDashboard/Kpis/MyTeamAvgRating.php:12
+#: src/Modules/PersonaDashboard/Kpis/MyTeamAvgRating.php:13
 msgid "My team average rating"
 msgstr "Gemiddelde rating van mijn team"
 
