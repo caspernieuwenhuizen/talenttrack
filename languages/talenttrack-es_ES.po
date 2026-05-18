@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-18T18:43:26+00:00\n"
+"POT-Creation-Date: 2026-05-18T18:49:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -19847,7 +19847,7 @@ msgid "No players on this team yet."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:597
-#: src/Modules/Wizards/Player/PathStep.php:28
+#: src/Modules/Wizards/Player/PathStep.php:32
 #: src/Modules/Wizards/Player/ReviewStep.php:30
 msgid "Trial player"
 msgstr ""
@@ -21547,20 +21547,20 @@ msgstr ""
 msgid "Choose one"
 msgstr ""
 
-#: src/Modules/Wizards/Player/PathStep.php:27
+#: src/Modules/Wizards/Player/PathStep.php:31
 #: src/Modules/Wizards/Player/ReviewStep.php:30
 msgid "Roster player"
 msgstr ""
 
-#: src/Modules/Wizards/Player/PathStep.php:27
+#: src/Modules/Wizards/Player/PathStep.php:31
 msgid "has been signed and is joining a team."
 msgstr ""
 
-#: src/Modules/Wizards/Player/PathStep.php:28
+#: src/Modules/Wizards/Player/PathStep.php:32
 msgid "is coming in for a 2 to 6 week look."
 msgstr ""
 
-#: src/Modules/Wizards/Player/PathStep.php:35
+#: src/Modules/Wizards/Player/PathStep.php:39
 msgid "Please choose roster or trial."
 msgstr ""
 

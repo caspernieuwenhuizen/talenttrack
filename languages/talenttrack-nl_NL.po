@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-18T18:43:26+00:00\n"
+"POT-Creation-Date: 2026-05-18T18:49:34+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -21079,7 +21079,7 @@ msgid "No players on this team yet."
 msgstr "Nog geen spelers in dit team."
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:597
-#: src/Modules/Wizards/Player/PathStep.php:28
+#: src/Modules/Wizards/Player/PathStep.php:32
 #: src/Modules/Wizards/Player/ReviewStep.php:30
 msgid "Trial player"
 msgstr "Stage-speler"
@@ -22924,20 +22924,20 @@ msgstr ""
 msgid "Choose one"
 msgstr "Kies één"
 
-#: src/Modules/Wizards/Player/PathStep.php:27
+#: src/Modules/Wizards/Player/PathStep.php:31
 #: src/Modules/Wizards/Player/ReviewStep.php:30
 msgid "Roster player"
 msgstr "Selectiespeler"
 
-#: src/Modules/Wizards/Player/PathStep.php:27
+#: src/Modules/Wizards/Player/PathStep.php:31
 msgid "has been signed and is joining a team."
 msgstr "is gecontracteerd en sluit aan bij een team."
 
-#: src/Modules/Wizards/Player/PathStep.php:28
+#: src/Modules/Wizards/Player/PathStep.php:32
 msgid "is coming in for a 2 to 6 week look."
 msgstr "komt 2 tot 6 weken meedoen."
 
-#: src/Modules/Wizards/Player/PathStep.php:35
+#: src/Modules/Wizards/Player/PathStep.php:39
 msgid "Please choose roster or trial."
 msgstr "Kies selectie of stage."
 
