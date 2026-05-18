@@ -1108,7 +1108,7 @@ msgstr "Gekoppelde speler bestaat niet."
 #: src/Infrastructure/REST/ActivitiesRestController.php:966
 #, php-format
 msgid "The guest could not be added (database error: %s)."
-msgstr ""
+msgstr "De gast kon niet worden toegevoegd (databasefout: %s)."
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:967
 msgid "The guest could not be added."
@@ -1116,7 +1116,7 @@ msgstr "De gast kon niet worden toegevoegd."
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:990
 msgid "Could not update the activity."
-msgstr ""
+msgstr "De activiteit kon niet worden bijgewerkt."
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:1005
 #: src/Infrastructure/REST/ActivitiesRestController.php:1041
@@ -1137,11 +1137,11 @@ msgstr "De aanwezigheidsregel kon niet worden verwijderd."
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:100
 msgid "An exercise_id is required."
-msgstr ""
+msgstr "Een exercise_id is verplicht."
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:112
 msgid "The exercise could not be linked."
-msgstr ""
+msgstr "De oefening kon niet worden gekoppeld."
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:127
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:165
@@ -1153,42 +1153,42 @@ msgstr "Geen velden om bij te werken."
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:131
 msgid "The exercise link could not be updated."
-msgstr ""
+msgstr "De oefeningskoppeling kon niet worden bijgewerkt."
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:140
 msgid "The exercise link could not be removed."
-msgstr ""
+msgstr "De oefeningskoppeling kon niet worden verwijderd."
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:164
 msgid "The exercise list could not be replaced."
-msgstr ""
+msgstr "De oefeningenlijst kon niet worden vervangen."
 
 #: src/Infrastructure/REST/ConfigRestController.php:134
 msgid "Expected an object under `config`."
-msgstr ""
+msgstr "Verwacht een object onder `config`."
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:69
 #: src/Infrastructure/REST/CustomFieldsRestController.php:229
 msgid "Unknown entity type."
-msgstr ""
+msgstr "Onbekend entiteitstype."
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:106
 #: src/Infrastructure/REST/CustomFieldsRestController.php:127
 msgid "The submitted field is invalid."
-msgstr ""
+msgstr "Het ingediende veld is ongeldig."
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:116
 msgid "The field could not be created."
-msgstr ""
+msgstr "Het veld kon niet worden aangemaakt."
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:123
 #: src/Infrastructure/REST/CustomFieldsRestController.php:141
 msgid "Invalid field id."
-msgstr ""
+msgstr "Ongeldig veld-id."
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:133
 msgid "The field could not be updated."
-msgstr ""
+msgstr "Het veld kon niet worden bijgewerkt."
 
 #. translators: %d: number of stored values
 #: src/Infrastructure/REST/CustomFieldsRestController.php:150
@@ -1197,60 +1197,62 @@ msgid ""
 "This field has %d stored value(s). Deactivate the field instead so the "
 "values are preserved."
 msgstr ""
+"Dit veld heeft %d opgeslagen waarde(n). Deactiveer het veld in plaats "
+"daarvan zodat de waarden behouden blijven."
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:158
 msgid "The field could not be deleted."
-msgstr ""
+msgstr "Het veld kon niet worden verwijderd."
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:168
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:158
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:218
 msgid "Invalid move parameters."
-msgstr ""
+msgstr "Ongeldige verplaatsingsparameters."
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:171
 msgid "Field not found."
-msgstr ""
+msgstr "Veld niet gevonden."
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:223
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:76
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:154
 msgid "A label is required."
-msgstr ""
+msgstr "Een label is verplicht."
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:226
 msgid "An entity type is required."
-msgstr ""
+msgstr "Een entiteitstype is verplicht."
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:232
 msgid "Unknown field type."
-msgstr ""
+msgstr "Onbekend veldtype."
 
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:86
 msgid "The category could not be created."
-msgstr ""
+msgstr "De categorie kon niet worden aangemaakt."
 
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:93
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:110
 msgid "Invalid category id."
-msgstr ""
+msgstr "Ongeldig categorie-id."
 
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:102
 msgid "The category could not be updated."
-msgstr ""
+msgstr "De categorie kon niet worden bijgewerkt."
 
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:113
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:161
 msgid "Category not found."
-msgstr ""
+msgstr "Categorie niet gevonden."
 
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:115
 msgid "System categories cannot be deleted."
-msgstr ""
+msgstr "Systeemcategorieën kunnen niet worden verwijderd."
 
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:124
 msgid "This category has subcategories. Delete or reparent them first."
-msgstr ""
+msgstr "Deze categorie heeft subcategorieën. Verwijder ze of verplaats ze eerst."
 
 #. translators: %d: number of ratings stored
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:134
@@ -1259,10 +1261,12 @@ msgid ""
 "This category has %d rating(s) recorded against it. Deactivate the category "
 "instead so the data is preserved."
 msgstr ""
+"Deze categorie heeft %d beoordeling(en). Deactiveer de categorie in plaats "
+"daarvan zodat de gegevens behouden blijven."
 
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:143
 msgid "The category could not be deleted."
-msgstr ""
+msgstr "De categorie kon niet worden verwijderd."
 
 #: src/Infrastructure/REST/EvaluationsRestController.php:334
 msgid "Evaluation not found."
@@ -1302,49 +1306,49 @@ msgstr ""
 
 #: src/Infrastructure/REST/EvaluationsRestController.php:480
 msgid "The evaluation could not be archived."
-msgstr ""
+msgstr "De evaluatie kon niet worden gearchiveerd."
 
 #: src/Infrastructure/REST/ExercisesRestController.php:95
 msgid "Exercise not found."
-msgstr ""
+msgstr "Oefening niet gevonden."
 
 #: src/Infrastructure/REST/ExercisesRestController.php:102
 msgid "A name is required."
-msgstr ""
+msgstr "Een naam is verplicht."
 
 #: src/Infrastructure/REST/ExercisesRestController.php:107
 msgid "The exercise could not be created."
-msgstr ""
+msgstr "De oefening kon niet worden aangemaakt."
 
 #: src/Infrastructure/REST/ExercisesRestController.php:114
 #: src/Infrastructure/REST/ExercisesRestController.php:129
 msgid "Invalid exercise id."
-msgstr ""
+msgstr "Ongeldig oefening-id."
 
 #: src/Infrastructure/REST/ExercisesRestController.php:118
 msgid "The exercise could not be updated."
-msgstr ""
+msgstr "De oefening kon niet worden bijgewerkt."
 
 #: src/Infrastructure/REST/ExercisesRestController.php:132
 msgid "The exercise could not be archived."
-msgstr ""
+msgstr "De oefening kon niet worden gearchiveerd."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:121
 msgid "A role key and label are required."
-msgstr ""
+msgstr "Een rol-sleutel en label zijn verplicht."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:124
 msgid "A role with this key already exists."
-msgstr ""
+msgstr "Een rol met deze sleutel bestaat al."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:138
 msgid "The role type could not be created."
-msgstr ""
+msgstr "Het roltype kon niet worden aangemaakt."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:146
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:178
 msgid "Invalid role id."
-msgstr ""
+msgstr "Ongeldig rol-id."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:148
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:180
@@ -1355,39 +1359,43 @@ msgstr "Rol niet gevonden."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:170
 msgid "The role type could not be updated."
-msgstr ""
+msgstr "Het roltype kon niet worden bijgewerkt."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:182
 msgid "System role types cannot be deleted."
-msgstr ""
+msgstr "Systeem-roltypes kunnen niet worden verwijderd."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:191
 msgid ""
 "This role type is in use by current assignments. Reassign or remove those "
 "first."
 msgstr ""
+"Dit roltype wordt gebruikt door huidige toewijzingen. Wijs ze opnieuw toe "
+"of verwijder ze eerst."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:199
 msgid "The role type could not be deleted."
-msgstr ""
+msgstr "Het roltype kon niet worden verwijderd."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:338
 msgid "Team, person, and functional role are all required."
-msgstr ""
+msgstr "Team, persoon en functionele rol zijn allemaal verplicht."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:352
 msgid ""
 "Could not create the assignment. The person may already hold this role on "
 "this team."
 msgstr ""
+"De toewijzing kon niet worden aangemaakt. De persoon heeft mogelijk al "
+"deze rol in dit team."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:362
 msgid "Invalid assignment id."
-msgstr ""
+msgstr "Ongeldig toewijzings-id."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:367
 msgid "The assignment could not be removed."
-msgstr ""
+msgstr "De toewijzing kon niet worden verwijderd."
 
 #: src/Infrastructure/REST/GoalsRestController.php:298
 msgid "Player and title are required."
@@ -1449,17 +1457,19 @@ msgstr "Uitnodiging kon niet worden ingetrokken."
 
 #: src/Infrastructure/REST/LookupsRestController.php:102
 msgid "Text is required."
-msgstr ""
+msgstr "Tekst is verplicht."
 
 #: src/Infrastructure/REST/LookupsRestController.php:107
 msgid "Translations module is not enabled."
-msgstr ""
+msgstr "Vertaalmodule is niet ingeschakeld."
 
 #: src/Infrastructure/REST/LookupsRestController.php:110
 msgid ""
 "Auto-translate is disabled. Configure an engine + API key under "
 "Configuration → Translations first."
 msgstr ""
+"Automatisch vertalen is uitgeschakeld. Configureer eerst een engine + "
+"API-sleutel onder Configuratie → Vertalingen."
 
 # #0052 PR-B/PR-C — REST gap closure + auth portability + asset/cron/openapi
 #: src/Infrastructure/REST/LookupsRestController.php:206
@@ -1481,24 +1491,24 @@ msgstr "Persoon niet gevonden."
 
 #: src/Infrastructure/REST/PeopleRestController.php:175
 msgid "First name and last name are required."
-msgstr ""
+msgstr "Voornaam en achternaam zijn verplicht."
 
 #: src/Infrastructure/REST/PeopleRestController.php:181
 msgid "The person could not be created."
-msgstr ""
+msgstr "De persoon kon niet worden aangemaakt."
 
 #: src/Infrastructure/REST/PeopleRestController.php:188
 #: src/Infrastructure/REST/PeopleRestController.php:205
 msgid "Invalid person id."
-msgstr ""
+msgstr "Ongeldig persoon-id."
 
 #: src/Infrastructure/REST/PeopleRestController.php:194
 msgid "The person could not be updated."
-msgstr ""
+msgstr "De persoon kon niet worden bijgewerkt."
 
 #: src/Infrastructure/REST/PeopleRestController.php:213
 msgid "The person could not be archived."
-msgstr ""
+msgstr "De persoon kon niet worden gearchiveerd."
 
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:113
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:133
@@ -1549,23 +1559,23 @@ msgstr "Blessure niet gevonden."
 
 #: src/Infrastructure/REST/PlayersRestController.php:270
 msgid "No CSV file uploaded."
-msgstr ""
+msgstr "Geen CSV-bestand geüpload."
 
 #: src/Infrastructure/REST/PlayersRestController.php:274
 msgid "The upload failed."
-msgstr ""
+msgstr "De upload is mislukt."
 
 #: src/Infrastructure/REST/PlayersRestController.php:277
 msgid "CSV files larger than 5MB are not accepted."
-msgstr ""
+msgstr "CSV-bestanden groter dan 5MB worden niet geaccepteerd."
 
 #: src/Infrastructure/REST/PlayersRestController.php:280
 msgid "Uploaded file could not be read."
-msgstr ""
+msgstr "Het geüploade bestand kon niet worden gelezen."
 
 #: src/Infrastructure/REST/PlayersRestController.php:284
 msgid "Only .csv files are accepted."
-msgstr ""
+msgstr "Alleen .csv-bestanden worden geaccepteerd."
 
 #: src/Infrastructure/REST/PlayersRestController.php:402
 msgid "The player could not be created."
@@ -1583,7 +1593,7 @@ msgstr "De speler kon niet worden verwijderd."
 #: src/Infrastructure/REST/PlayerStatusRestController.php:71
 #, php-format
 msgid "Player and rating (%1$s–%2$s) are required."
-msgstr ""
+msgstr "Speler en beoordeling (%1$s–%2$s) zijn verplicht."
 
 #: src/Infrastructure/REST/PlayerStatusRestController.php:93
 msgid "Player and a valid potential band are required."
@@ -1628,128 +1638,134 @@ msgstr "Teamnaam is verplicht."
 
 #: src/Infrastructure/REST/TeamsRestController.php:291
 msgid "The team could not be created."
-msgstr ""
+msgstr "Het team kon niet worden aangemaakt."
 
 #: src/Infrastructure/REST/TeamsRestController.php:302
 #: src/Infrastructure/REST/TeamsRestController.php:324
 msgid "Invalid team id."
-msgstr ""
+msgstr "Ongeldig team-id."
 
 #: src/Infrastructure/REST/TeamsRestController.php:311
 msgid "The team could not be updated."
-msgstr ""
+msgstr "Het team kon niet worden bijgewerkt."
 
 #: src/Infrastructure/REST/TeamsRestController.php:333
 msgid "The team could not be archived."
-msgstr ""
+msgstr "Het team kon niet worden gearchiveerd."
 
 #: src/Infrastructure/REST/TeamsRestController.php:343
 #: src/Infrastructure/REST/TeamsRestController.php:359
 msgid "Invalid team or player id."
-msgstr ""
+msgstr "Ongeldig team- of speler-id."
 
 #: src/Infrastructure/REST/TeamsRestController.php:349
 msgid "The player could not be added to the team."
-msgstr ""
+msgstr "De speler kon niet aan het team worden toegevoegd."
 
 #: src/Infrastructure/REST/TeamsRestController.php:366
 msgid "The player could not be removed from the team."
-msgstr ""
+msgstr "De speler kon niet uit het team worden verwijderd."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:333
 #: src/Infrastructure/REST/TournamentsRestController.php:396
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:50
 msgid "Tournament name is required."
-msgstr ""
+msgstr "Toernooinaam is verplicht."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:336
 msgid "An anchor team is required."
-msgstr ""
+msgstr "Een anker-team is verplicht."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:339
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:58
 msgid "Start date is required."
-msgstr ""
+msgstr "Startdatum is verplicht."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:349
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:91
 msgid "The tournament could not be created."
-msgstr ""
+msgstr "Het toernooi kon niet worden aangemaakt."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:406
 msgid "The tournament could not be updated."
-msgstr ""
+msgstr "Het toernooi kon niet worden bijgewerkt."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:431
 msgid "The tournament could not be archived."
-msgstr ""
+msgstr "Het toernooi kon niet worden gearchiveerd."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:468
 msgid "The match could not be created."
-msgstr ""
+msgstr "De wedstrijd kon niet worden aangemaakt."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:547
 msgid "Match already completed. Pass force=1 to edit a locked lineup."
-msgstr ""
+msgstr "Wedstrijd is al afgerond. Geef force=1 mee om een vergrendelde opstelling te bewerken."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:552
 msgid "Assignments payload must be an array."
-msgstr ""
+msgstr "Assignments-payload moet een array zijn."
 
 #. translators: %s is the tournament name
 #: src/Infrastructure/REST/TournamentsRestController.php:641
 #, php-format
 msgid "Tournament match — %s"
-msgstr ""
+msgstr "Toernooiwedstrijd — %s"
 
 #: src/Infrastructure/REST/TournamentsRestController.php:658
 msgid "Could not create the match activity."
-msgstr ""
+msgstr "De wedstrijdactiviteit kon niet worden aangemaakt."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:719
 msgid "Could not promote match to activity."
-msgstr ""
+msgstr "De wedstrijd kon niet worden gepromoveerd tot activiteit."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:825
 msgid "Cannot auto-plan a completed match."
-msgstr ""
+msgstr "Een afgeronde wedstrijd kan niet automatisch worden gepland."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:833
 msgid ""
 "Match has no formation. Set a formation on the match or tournament before "
 "auto-planning."
 msgstr ""
+"Wedstrijd heeft geen opstelling. Stel een opstelling in op de wedstrijd of "
+"het toernooi voordat je automatisch plant."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:838
 msgid "Add players to the squad before auto-planning."
-msgstr ""
+msgstr "Voeg spelers toe aan de selectie voordat je automatisch plant."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:1060
 msgid "The match could not be updated."
-msgstr ""
+msgstr "De wedstrijd kon niet worden bijgewerkt."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:1081
 msgid "The match could not be deleted."
-msgstr ""
+msgstr "De wedstrijd kon niet worden verwijderd."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:1101
 msgid "Squad payload must be an array."
-msgstr ""
+msgstr "Selectie-payload moet een array zijn."
 
 #: src/Infrastructure/REST/TournamentsRestController.php:1167
 msgid "The squad member could not be removed."
-msgstr ""
+msgstr "Het selectielid kon niet worden verwijderd."
 
 #: src/Infrastructure/REST/VisionExtractRestController.php:76
 msgid ""
 "No image was uploaded. Attach a photo via the `photo` file field or "
 "`photo_base64` body field."
 msgstr ""
+"Er is geen afbeelding geüpload. Voeg een foto toe via het `photo`-"
+"bestandsveld of het `photo_base64`-bodyveld."
 
 #: src/Infrastructure/REST/VisionExtractRestController.php:93
 msgid ""
 "The vision provider could not read this photo. Use the manual flow instead."
 msgstr ""
+"De vision-provider kon deze foto niet lezen. Gebruik in plaats daarvan de "
+"handmatige flow."
 
 # ===== v2.21.0 — Tile-based frontend + Read-Only Observer role =====
 #: src/Infrastructure/Security/RolesService.php:363
