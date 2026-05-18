@@ -234,10 +234,8 @@ class GoalsRestController {
         // scope) to the generic `goals` so cross-persona viewers land on
         // the read-only goal detail rendered by FrontendGoalsManageView,
         // not the player-only my-goals page.
-        $title_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
-            $title,
-            \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'goals', $goal_id )
-        );
+        $title_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'goals', $goal_id );
+        $title_link_html = \TT\Shared\Frontend\Components\RecordLink::inline( $title, $title_url );
         $status_pill_html = \TT\Infrastructure\Query\LookupPill::render( 'goal_status', (string) ( $row->status ?? '' ) );
 
         return [
@@ -257,6 +255,9 @@ class GoalsRestController {
             'created_at'        => $row->created_at,
             'created_by'        => (int) ( $row->created_by ?? 0 ),
             'archived_at'       => $row->archived_at ?? null,
+            // v3.110.170 — row-link standard (#758). Same URL the title
+            // cell already links to.
+            'detail_url'        => $title_url,
         ];
     }
 

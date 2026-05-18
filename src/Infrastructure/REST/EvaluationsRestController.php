@@ -297,6 +297,11 @@ class EvaluationsRestController {
             'avg_rating'      => $avg,
             'avg_link_html'   => $avg_link_html,
             'notes_excerpt'   => esc_html( wp_trim_words( (string) ( $row->notes ?? '' ), 14 ) ),
+            // v3.110.170 — row-link standard (#758). Same URL the inline
+            // date / avg links use; now exposed as a top-level field so
+            // FrontendListTable's `row_url_key` config can pick it up
+            // and make the whole row clickable.
+            'detail_url'      => $eval_url,
         ];
     }
 

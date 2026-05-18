@@ -71,6 +71,10 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search title, location, team…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'session_date', 'order' => 'desc' ],
             'empty_state'  => __( 'No activities recorded for you yet.', 'talenttrack' ),
+            // v3.110.170 — row-link standard. Same destination as the
+            // title cell (`?tt_view=activities&id=N` — see the slug-
+            // selection note in ActivitiesRestController::format_row).
+            'row_url_key'  => 'detail_url',
         ] );
     }
 

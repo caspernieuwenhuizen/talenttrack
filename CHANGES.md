@@ -1,137 +1,134 @@
-# TalentTrack v3.110.169 — Row-link standard for `FrontendListTable`: whole-row click → detail page (closes #758)
+# TalentTrack v3.110.170 — Row-link standard rolled out to 7 more list views
 
 ## Pilot ask
 
 Chat 2026-05-18:
 
-> The list of PDP files does not have an option to actually open the file. Suggest a best way that would work both on desktop as well as mobile. Would it make sense to make the whole row the link to detail page?
+> it works, apply to other, similar table lists
 
-Yes — and worth establishing as a **standard** for every list view in the app, not a one-off for PDP. This ship lands the standard plus the first consumer (PDP files); other list views adopt the pattern in follow-up ships.
+v3.110.169 landed the row-link standard + first consumer (PDP files). Pilot validated it on the PDP list, now wants every comparable list view to pick the standard up.
 
-## The standard
+## Audit
 
-A list preset can opt in by declaring:
+Surveyed every `FrontendListTable::render([...])` call site (14 files). Each view falls into one of three buckets:
 
-```php
-FrontendListTable::render( [
-    // …
-    'row_url_key' => 'detail_url',
-] );
-```
+| Bucket | Views | Action |
+| --- | --- | --- |
+| **Wired in v3.110.169** | PDP files | None |
+| **REST already emits `detail_url`** | Tournaments | View-side opt-in only |
+| **REST builds detail URL internally but doesn't expose it** | Evaluations | Add `detail_url` field + view opt-in |
+| **No detail URL anywhere yet** | Activities, My Activities, Goals, Players, Teams, People | Add `detail_url` field + view opt-in |
+| **Skip** (settings / inline-edit / out-of-scope) | Functional Roles, Custom Fields, Prospects Overview | None |
 
-`row_url_key` names a key on every REST row that holds the row's detail-page URL. By convention, REST controllers prepare it as:
+## Each REST controller emits `detail_url` the same way
 
-```php
-$detail_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
-    [ 'tt_view' => 'pdp', 'id' => $file_id ],
-    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-) );
-// …
-return [ /* …other fields… */, 'detail_url' => $detail_url ];
-```
-
-The `BackLink::appendTo()` wrap means the destination view automatically renders the contextual "← Back to …" pill from CLAUDE.md §5 — the user can always retrace their step back to the list.
-
-## What the JS does
-
-`assets/js/components/frontend-list-table.js`:
-
-**`renderRow()`** — when `config.row_url_key` is set and the row carries that key, the `<tr>` is stamped with:
-- `data-row-href="<the URL>"`
-- `class="is-row-link"`
-- `role="link"`
-- `tabindex="0"`
-
-**`bindRowLinks(root)`** (new) — delegated handlers on the tbody:
-
-| Interaction                    | Behaviour                                       |
-| ---                            | ---                                             |
-| Primary-button click           | `window.location.href = href`                   |
-| Middle-click / auxclick btn=1  | `window.open(href, '_blank', 'noopener')`       |
-| Cmd-click / Ctrl-click         | New tab                                         |
-| Keyboard Enter / Space         | Activate (Cmd/Ctrl modifier → new tab)          |
-| Click on interactive descendant| **Skip** — let the link / button do its thing  |
-| Click during text selection    | **Skip** — selection > navigation               |
-
-**Interactive descendants** are detected by walking up from the click target to the row, looking for `A`, `BUTTON`, `INPUT`, `SELECT`, `TEXTAREA`, `LABEL`, or `[role="button"]`. If any of those is on the ancestor path, the row navigation does NOT fire — so per-column cross-entity links (player name → player detail, team name → team detail) keep working exactly as before. The whole-row click only fires on "dead space" cells (status pill, ack icons, updated-at column, padding).
-
-**Text selection** is preserved by checking `window.getSelection()` before navigating. If the user has actively selected text inside the row (e.g. copying a player name), the click on mouseup is suppressed.
-
-## What the CSS does
-
-`assets/css/frontend-admin.css`:
-
-```css
-.tt-dashboard .tt-list-table-table tbody tr.is-row-link { cursor: pointer; }
-.tt-dashboard .tt-list-table-table tbody tr.is-row-link:hover { background: var(--tt-bg-soft); }
-.tt-dashboard .tt-list-table-table tbody tr.is-row-link:focus-visible {
-    outline: 2px solid var(--tt-primary);
-    outline-offset: -2px;
-    background: var(--tt-bg-soft);
-}
-```
-
-Three signals — cursor, hover, focus — tell the user the row is clickable. The `:focus-visible` outline is keyboard-only (no mouse-click outline noise), and `outline-offset: -2px` keeps the ring inside the cell border so it doesn't bleed into adjacent rows.
-
-## What the PHP does
-
-`src/Shared/Frontend/Components/FrontendListTable.php`:
+The pattern is one variable extraction + one return-array key. Example from `GoalsRestController::format_row()`:
 
 ```php
-$row_url_key = isset( $config['row_url_key'] )
-    ? sanitize_key( (string) $config['row_url_key'] )
-    : '';
-// …
-$js_config = [
-    // …
-    'row_url_key' => $row_url_key,
-];
+// Before
+$title_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+    $title,
+    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'goals', $goal_id )
+);
+
+// After
+$title_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'goals', $goal_id );
+$title_link_html = \TT\Shared\Frontend\Components\RecordLink::inline( $title, $title_url );
+// …and in the returned array:
+'detail_url' => $title_url,
 ```
 
-The PHP shell passes the config key through to the JS hydrator. No server-side row markup change — the PHP shell renders an empty `<tbody>` placeholder; the first row payload comes from the JS hydrator's REST fetch on hydrate.
+Reusing the variable keeps the URL definition single-sourced — the inline-cell link and the whole-row link always point at the same place, even when the URL builder changes.
 
-## First consumer — PDP files list
+Six controllers received this change:
 
-`src/Modules/Pdp/Frontend/FrontendPdpManageView.php` line 175:
+| REST controller | Method | Slug |
+| --- | --- | --- |
+| `ActivitiesRestController` | `format_row` | `activities` |
+| `EvaluationsRestController` | `format_row` | `evaluations` |
+| `GoalsRestController` | `format_row` | `goals` |
+| `PlayersRestController` | `fmtRow` | `players` |
+| `TeamsRestController` | `fmtTeamRow` | `teams` |
+| `PeopleRestController` | `format_row` | `people` |
+
+Tournaments' REST controller (`TournamentsRestController::fmtTournamentRow`) already emitted `detail_url` since the planner-foundation ship — no change needed there.
+
+## Each view declares `row_url_key`
+
+One config line in each `FrontendListTable::render()` call:
 
 ```php
 'row_url_key' => 'detail_url',
 ```
 
-`src/Modules/Pdp/Rest/PdpFilesRestController.php::format_list_row()` already emitted `detail_url` (since v3.110.110, when it was added for an earlier feature). No REST controller change needed for PDP — the field shape was already there.
+Eight views opted in:
 
-## Try it
+| View | File | Slug |
+| --- | --- | --- |
+| Activities | `FrontendActivitiesManageView.php` | `activities` |
+| My Activities | `FrontendMyActivitiesView.php` | `my-activities` (REST → `activities`) |
+| Tournaments | `FrontendTournamentsManageView.php` | `tournaments` |
+| Evaluations | `FrontendEvaluationsView.php` | `evaluations` |
+| Goals | `FrontendGoalsManageView.php` | `goals` |
+| Players | `FrontendPlayersManageView.php` | `players` |
+| Teams | `FrontendTeamsManageView.php` | `teams` |
+| People | `FrontendPeopleManageView.php` | `people` |
 
-`?tt_view=pdp` on the pilot install:
+## What's skipped and why
 
-- Click anywhere on a row (status pill, ack icons, the updated-at column) → lands on the PDP file detail page with a "← Back to Player Development Plans" pill above the breadcrumb.
-- Click the player name → still routes to the player detail (cross-entity link cell preserved).
-- Click the team name → still routes to the team detail.
-- Middle-click anywhere on dead space → new tab with the PDP detail.
-- Cmd-click (Mac) / Ctrl-click (Windows) → new tab.
-- Tab to the row, press Enter → navigates.
+**`FrontendFunctionalRolesView`** — the assignments tab is an inline-edit list, not a "list of records with detail pages". Rows are read-only and editing happens inline on the same view; row-click navigation doesn't apply.
 
-## Follow-up
+**`FrontendCustomFieldsView`** — same shape as functional roles. Settings/admin list with edit-on-same-view via `?id=N` query param. No separate detail page.
 
-The pilot will roll the standard out to other list views themselves:
-- Players list (`?tt_view=players`)
-- Teams list (`?tt_view=teams`)
-- Evaluations list (`?tt_view=evaluations`)
-- Goals list (`?tt_view=goals`)
-- Activities list (`?tt_view=activities`)
-- People list (`?tt_view=people`)
+**`FrontendProspectsOverviewView`** — prospects DO have a detail page, but the REST list doesn't yet emit a navigation URL. Adding it touches the prospect data model + the scout-facing view scoping, which is tracked separately (out-of-scope for this row-link rollout).
 
-For each, the recipe is two lines:
-1. In the REST controller's `format_list_row()` (or equivalent), emit `'detail_url' => BackLink::appendTo( … )`.
-2. In the view's `FrontendListTable::render()` call, add `'row_url_key' => 'detail_url'`.
+## Per-column links keep working — the standard's design holds
+
+Important: every list now has multiple click destinations from one row.
+
+On the Goals list, for example:
+- Click the **player name cell** → goes to that player's detail page
+- Click the **goal title cell** → goes to that goal's detail page
+- Click **dead space** (priority column, status pill, due date, padding) → goes to that goal's detail page
+
+The JS hydrator's `bindRowLinks()` interactive-target detection (`A`, `BUTTON`, `INPUT`, `SELECT`, `TEXTAREA`, `LABEL`, `role=button`) skips the row-link when the click target is itself a link or button. Per-column cross-entity navigation is preserved exactly as it was.
+
+On every list view the *whole row* picks the same target as the **primary identifier cell** (Title for activities/tournaments/goals, Name for players/teams/people, Date for evaluations) — that's what a user would expect.
+
+## Try it on the pilot install
+
+After upgrading to v3.110.170, every list view supports:
+- Click anywhere on row dead space → that row's detail page
+- Click a cross-entity link cell (player name on a goal row, team name on an activity row, etc.) → that entity's detail page
+- Middle-click → new tab
+- Cmd-click (Mac) / Ctrl-click (Windows) → new tab
+- Keyboard: Tab to row, Enter or Space → navigate
+
+Existing column header sorts, filters, pagination, per-page selector — all unchanged.
 
 ## Files touched
 
-- `assets/js/components/frontend-list-table.js` — `renderRow()` stamps `<tr>`; new `bindRowLinks()` function; `hydrate()` calls it.
-- `src/Shared/Frontend/Components/FrontendListTable.php` — accept `row_url_key` config, pass through to JS.
-- `src/Modules/Pdp/Frontend/FrontendPdpManageView.php` — `'row_url_key' => 'detail_url'` on the PDP list preset.
-- `assets/css/frontend-admin.css` — `tr.is-row-link` rules.
-- `talenttrack.php` — version 3.110.167 → 3.110.168.
-- `readme.txt` — Stable tag + changelog entry.
+REST controllers (6):
+- `src/Infrastructure/REST/ActivitiesRestController.php`
+- `src/Infrastructure/REST/EvaluationsRestController.php`
+- `src/Infrastructure/REST/GoalsRestController.php`
+- `src/Infrastructure/REST/PlayersRestController.php`
+- `src/Infrastructure/REST/TeamsRestController.php`
+- `src/Infrastructure/REST/PeopleRestController.php`
 
-No DB migration, no REST shape change (PDP controller's `detail_url` field already existed), no new i18n strings, no auth change.
+Views (8):
+- `src/Shared/Frontend/FrontendActivitiesManageView.php`
+- `src/Shared/Frontend/FrontendMyActivitiesView.php`
+- `src/Shared/Frontend/FrontendTournamentsManageView.php`
+- `src/Shared/Frontend/FrontendEvaluationsView.php`
+- `src/Shared/Frontend/FrontendGoalsManageView.php`
+- `src/Shared/Frontend/FrontendPlayersManageView.php`
+- `src/Shared/Frontend/FrontendTeamsManageView.php`
+- `src/Shared/Frontend/FrontendPeopleManageView.php`
+
+Version + changelog:
+- `talenttrack.php` — 3.110.169 → 3.110.170
+- `readme.txt` — Stable tag + changelog entry
+- `CHANGES.md` — this file
+
+No DB migration, no REST shape break (all changes are additive — `detail_url` is a new field; existing fields untouched), no new i18n strings, no auth change.

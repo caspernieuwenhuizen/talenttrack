@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.169
+Stable tag: 3.110.170
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.170 — Row-link standard rolled out to 7 more list views (activities, my-activities, tournaments, evaluations, goals, players, teams, people) — pilot validated the pattern on PDP files, now every list view supports whole-row click =
+
+Follow-up to v3.110.169 (#758). Pilot 2026-05-18: "it works, apply to other, similar table lists." This ship wires `'row_url_key' => 'detail_url'` into every list view consuming `FrontendListTable` that has a real detail page, and adds the `detail_url` field to each backing REST controller's row formatter using the same `RecordLink::detailUrlForWithBack( '<slug>', $id )` helper. **Views with whole-row click now**: Activities (`?tt_view=activities`), My Activities (`?tt_view=my-activities`), Tournaments (`?tt_view=tournaments` — REST already emitted `detail_url` since #131-foundation, just needed the view-side opt-in), Evaluations (`?tt_view=evaluations`), Goals (`?tt_view=goals`), Players (`?tt_view=players`), Teams (`?tt_view=teams`), People (`?tt_view=people`). Combined with the PDP files list from v3.110.169, **every routable list view in the app now has whole-row click**. **REST controllers touched**: `ActivitiesRestController::format_row()`, `EvaluationsRestController::format_row()`, `GoalsRestController::format_row()`, `PlayersRestController::fmtRow()`, `TeamsRestController::fmtTeamRow()`, `PeopleRestController::format_row()`. Each one extracts the detail URL into a local variable, reuses it for the pre-rendered name/title inline link cell, AND emits it as a top-level `detail_url` field for the row-link standard. No URL-shape change — the destination is the same one the in-cell title/name link already pointed at. **Skipped**: `FrontendFunctionalRolesView` (inline-edit assignments tab, not a list-of-records-with-detail-pages), `FrontendCustomFieldsView` (settings/lookup-style edit-on-same-view), `FrontendProspectsOverviewView` (prospect detail wiring is out-of-scope per the audit; tracked elsewhere). **Per-column links keep working** in every view — the JS hydrator's `bindRowLinks()` interactive-target skip means clicking the player-name cell on a goal row still routes to the player detail (not the goal detail), clicking the team-name cell on an evaluation row still routes to the team detail (not the evaluation detail). Test plan from the v3.110.169 ship applies to every list view here too — click anywhere on dead space → detail page; click a cross-entity cell → that entity's detail; middle-click → new tab; keyboard Tab + Enter → navigate. No CSS change, no new strings, no auth shift.
 
 = 3.110.169 — Row-link standard for `FrontendListTable`: whole-row click navigates to the row's detail page, first applied to the PDP files list =
 

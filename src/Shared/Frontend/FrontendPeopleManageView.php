@@ -124,6 +124,8 @@ class FrontendPeopleManageView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search name or email…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'last_name', 'order' => 'asc' ],
             'empty_state'  => __( 'No people match your filters.', 'talenttrack' ),
+            // v3.110.170 — row-link standard.
+            'row_url_key'  => 'detail_url',
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
     }
 

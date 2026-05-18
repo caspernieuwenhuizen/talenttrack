@@ -183,6 +183,10 @@ class FrontendEvaluationsView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search player, notes…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'eval_date', 'order' => 'desc' ],
             'empty_state'  => __( 'No evaluations match your filters.', 'talenttrack' ),
+            // v3.110.170 — row-link standard. EvaluationsRestController
+            // emits `detail_url` (same URL the inline date/avg cells use)
+            // so dead-space clicks on the row open the evaluation detail.
+            'row_url_key'  => 'detail_url',
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
     }
 

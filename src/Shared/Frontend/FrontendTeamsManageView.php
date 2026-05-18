@@ -158,6 +158,8 @@ class FrontendTeamsManageView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search team name or age group…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'name', 'order' => 'asc' ],
             'empty_state'  => __( 'No teams match your filters.', 'talenttrack' ),
+            // v3.110.170 — row-link standard.
+            'row_url_key'  => 'detail_url',
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
     }
 

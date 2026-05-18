@@ -318,9 +318,10 @@ class PlayersRestController {
 
         // #0070 — pre-render link HTML for name / team / parent so the
         // frontend list table can show clickable cells via render: html.
+        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', (int) $pl->id );
         $name_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $name !== '' ? $name : '#' . (int) $pl->id,
-            \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', (int) $pl->id )
+            $detail_url
         );
 
         $team_link_html = '';
@@ -368,6 +369,8 @@ class PlayersRestController {
             'date_of_birth'    => $pl->date_of_birth ?: null,
             'archived_at'      => $pl->archived_at ?? null,
             'status'           => (string) ( $pl->status ?? 'active' ),
+            // v3.110.170 — row-link standard (#758).
+            'detail_url'       => $detail_url,
         ];
     }
 
