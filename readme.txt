@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.162
+Stable tag: 3.110.163
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.163 — Player values: fix wizard lookup-type typo + rich admin surface in Configuration → Lookups + 7-string Dutch closeout =
+
+Lookup-translation audit closeout — three threads in one ship. **(1) Goal-wizard `LinkStep` bug**: the wizard's "Methodology link" step has offered four link types since #0044 (principle / football_action / position / value), but the `value` branch was reading `lookup_type = 'club_value'` while migration 0031 (and `Activator.php`) seed it as `'player_value'`. Result: the "Value" picker has been silently empty on every install since the wizard shipped — operators saw "(no entries configured for this type)" and never linked a PDP goal to one of the 8 seeded values. Fixed by aligning `LinkStep.php` with spec #0044 (`player_value` is canonical, confirmed in `specs/shipped/0044-epic-pdp-cycle.md` lines 38, 118, 135). **(2) Rich admin surface**: `player_value` is now a first-class tile on the Configuration → Lookups index — appearing alongside Evaluation types / Activity types / Positions / Age groups / etc. The new editor reuses the same generic CRUD scaffold every other lookup category gets (name + sort_order + description + per-locale translations + drag-reorder + REST-backed save/delete + audit logging) by adding two registry entries in `FrontendConfigurationView` (`lookupCategoryMeta` + `renderLookupsIndex` cards). Description column is on so the operator can write a one-line gloss per value ("Commitment — turning up on time and ready to train") that surfaces wherever the value is shown. No new REST endpoint required — `LookupsRestController` already accepts arbitrary `lookup_type` slugs. **(3) Seven missing Dutch translations** added to `talenttrack-nl_NL.po` (the audit gap reported in the lookup-translations findings): `Observation` → *Observatie*, `Pending Approval` → *Wacht op goedkeuring*, plus the five untranslated `player_value` rows: `Commitment` → *Toewijding*, `Communication` → *Communicatie*, `Work ethic` → *Werkethos*, `Fair play` → *Fair play* (loanword used unchanged in Dutch football), `Ambition` → *Ambitie*. The other three player_values (Coachability, Leadership, Resilience) already resolve via existing gettext entries — those English words appear as methodology eval-category names in migration 0008, so the gettext fallback path was already hitting translated msgids. Net effect: opening Configuration → Lookups now shows a Player values tile that's editable end-to-end; the Goal wizard's value picker actually returns the 8 seeded values; and the Dutch UI no longer leaks English words for the seven previously-untranslated lookup names.
 
 = 3.110.162 — Dutch translations chunk 3: 52 multi-line strings via improved msgmerge-aware awk + closeout =
 

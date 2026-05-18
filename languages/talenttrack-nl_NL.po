@@ -28989,6 +28989,38 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. v3.110.163 — lookup-vocabulary audit closeout. These seven names are
+#. emitted by `LookupTranslator::name()` for tt_lookups rows whose
+#. `tt_translations` is empty, falling back to gettext. Without these
+#. entries the Dutch UI would render the raw English seed names.
+#: database/migrations/0091_extend_eval_type_lookup.php
+msgid "Observation"
+msgstr "Observatie"
+
+#: database/migrations/0058_player_goal_approval.php
+msgid "Pending Approval"
+msgstr "Wacht op goedkeuring"
+
+#: database/migrations/0031_pdp_cycle.php
+msgid "Commitment"
+msgstr "Toewijding"
+
+#: database/migrations/0031_pdp_cycle.php
+msgid "Communication"
+msgstr "Communicatie"
+
+#: database/migrations/0031_pdp_cycle.php
+msgid "Work ethic"
+msgstr "Werkethos"
+
+#: database/migrations/0031_pdp_cycle.php
+msgid "Fair play"
+msgstr "Fair play"
+
+#: database/migrations/0031_pdp_cycle.php
+msgid "Ambition"
+msgstr "Ambitie"
+
 #~ msgid "Add some"
 #~ msgstr "Voeg enkele toe"
 
