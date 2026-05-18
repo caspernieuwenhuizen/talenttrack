@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.158
+Stable tag: 3.110.159
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.159 — i18n foundation: auto-regenerate .pot from source + msgmerge into .po + WARN-only PR check for untranslated msgstr entries =
+
+Pilot ask: *"Conduct a thorough sweep of the application regarding English strings that are not translated when the site is in Dutch. I have the feeling that lately I see more and more of these."* Sweep found ~570 user-visible strings that are wrapped in `__()` correctly in PHP but have no matching msgid in `talenttrack-nl_NL.po`, so gettext falls back to English on Dutch installs. Root cause: the .pot template at `languages/talenttrack.pot` was last regenerated **2026-04-20**. Four weeks of shipping later (entire Tournaments module #0093, expanded REST validation messages, Prospects + PersonaDashboard polish) added the strings via `__()` calls but the .pot was never refreshed and the .po never grew the corresponding msgids. **Fix in two parts.** **(1) New workflow `i18n-sync.yml`** — on every push to main that touches PHP (or via manual workflow_dispatch), regenerates `talenttrack.pot` via `wp i18n make-pot`, then `msgmerge --update` each `.po` so missing msgids appear with empty `msgstr ""` for translators to fill in. Auto-commit back to main (same pattern the existing `.mo` regeneration uses), with a guard that ignores POT-Creation-Date-only churn so the commit fires only on real string changes. Closes the structural gap that was letting the .pot drift behind source. **(2) WARN-only check** added to the existing `translations.yml` validate job — counts `msgstr ""` entries on every PR and annotates the GitHub UI with a count if any are untranslated. Informational only for now (doesn't block merges) because the bulk-translate ship hasn't landed yet and `main` would be permanently red. Once Dutch translations for the ~570-entry backlog land in a follow-up ship, this step flips from `::warning::` to `exit 1` and becomes the enforcing guardrail. **What changes immediately when this merges**: on the first run after merge, the workflow regenerates the .pot, msgmerges into the .po (the .po grows by ~570 empty-msgstr entries), and commits the result. Runtime behaviour is unchanged — gettext still falls back to English for the missing entries — but every one of those entries is now visible in the .po file ready for a translator (human or scripted) to fill in. The follow-up translation ship is the next step.
 
 = 3.110.158 — Add-guest "Column 'player_id' cannot be null" — third migration attempt + defensive code fallback =
 

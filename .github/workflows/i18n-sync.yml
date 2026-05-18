@@ -1,0 +1,107 @@
+name: i18n sync (.pot → .po)
+
+# Regenerate `talenttrack.pot` from PHP source on every push to main
+# that touches PHP, then `msgmerge` it into every `.po` so missing
+# entries appear (with empty `msgstr`) and translators see the gap.
+#
+# Why this exists: the .pot template at `languages/talenttrack.pot`
+# was last regenerated 2026-04-20. Four weeks of shipping later
+# (entire Tournaments module, expanded REST validation messages,
+# Prospects + PersonaDashboard polish) added ~570 user-visible
+# strings via `__()` / `esc_html__()` / `_e()` that were never
+# captured in the .pot, so the .po never grew the corresponding
+# msgids, so the Dutch site falls back to English for all of them.
+#
+# This workflow keeps the gap from re-opening: every PHP-touching
+# merge to main re-extracts strings, msgmerges into .po, and
+# commits the result. The compile step in translations.yml then
+# regenerates the .mo from the updated .po on the next push.
+#
+# Manual trigger: workflow_dispatch button on the Actions page,
+# for explicit re-syncs (e.g. after a translation backfill PR
+# merges and we want to re-baseline).
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**/*.php'
+      - 'includes/**/*.php'
+      - 'talenttrack.php'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-pot:
+    name: Regenerate .pot + msgmerge into .po
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: wp-cli
+
+      - name: Install gettext (for msgmerge)
+        run: sudo apt-get update && sudo apt-get install -y gettext
+
+      # `wp i18n make-pot` is WordPress's official .pot generator —
+      # it understands the gettext keyword conventions
+      # (__/_e/_n/_x/esc_html__/esc_attr__/etc.) and filters by
+      # text-domain natively, so non-talenttrack-domain strings
+      # don't bleed in. `--skip-audit` skips its lint pass; we
+      # have our own lint in release.yml.
+      - name: Regenerate .pot from PHP source
+        run: |
+          wp i18n make-pot . languages/talenttrack.pot --slug=talenttrack --skip-audit
+
+      # msgmerge -U: update each .po in place to match the new .pot.
+      # New msgids appear with empty msgstr; obsoleted ones are
+      # commented out with `#~`. `--no-fuzzy-matching` prevents
+      # auto-fuzzy-matching new strings against renamed old ones,
+      # which is brittle.
+      - name: msgmerge .pot into every .po
+        run: |
+          for po in languages/*.po; do
+            echo "Merging $po"
+            msgmerge --update --backup=none --no-fuzzy-matching "$po" languages/talenttrack.pot
+          done
+
+      # Stable header: `wp i18n make-pot` rewrites POT-Creation-Date
+      # on every run, which would produce a noisy auto-commit even
+      # when no strings changed. Strip the volatile header lines
+      # before checking for real changes.
+      - name: Commit if real string changes
+        run: |
+          # Compute a content hash of the .pot ignoring the volatile
+          # POT-Creation-Date line. If only the date changed, treat
+          # as no-op.
+          if [ -n "$(git status --porcelain languages/)" ]; then
+            # Are there .po changes? They're the meaningful signal.
+            po_changed=$(git status --porcelain languages/*.po 2>/dev/null | wc -l)
+            pot_real_change=$(git diff --unified=0 -- languages/talenttrack.pot 2>/dev/null \
+              | grep -E '^[-+]' \
+              | grep -vE '^[-+]"POT-Creation-Date|^[-+]{3}' \
+              | wc -l)
+
+            if [ "$po_changed" -gt 0 ] || [ "$pot_real_change" -gt 0 ]; then
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+              git add languages/talenttrack.pot languages/*.po
+              git commit -m "chore(i18n): sync .pot from PHP source + msgmerge into .po"
+              git push
+              echo "Committed i18n sync."
+            else
+              echo "Only POT-Creation-Date changed; skipping commit."
+              git checkout -- languages/
+            fi
+          else
+            echo "No translation file changes; skipping commit."
+          fi
