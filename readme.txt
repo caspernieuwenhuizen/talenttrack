@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.165
+Stable tag: 3.110.166
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.166 — Wizards mobile-first audit round 2: 5 critical 48px touch-target fixes across RosterStep, PrinciplesStep, RoleStep, PathStep, ActivityPickerStep =
+
+Issue #482 from the pilot bug list. Round-2 audit of every `src/Modules/Wizards/**/*.php` step file for CLAUDE.md §2 violations (48×48px touch-target floor, 16px input font-size to prevent iOS auto-zoom). Round 1 (v3.110.121) caught the most-egregious; this round catches the **5 remaining critical sites** where checkboxes / radios rendered without sufficient tap area. **(1) `Team/RosterStep.php:57`** — roster-player checkbox label had `min-height:32px` (16px below the floor); bumped to `min-height:48px` + `padding:12px 0` for breathing room. The v3.110.121 audit reported this fixed but the change didn't land cleanly — caught and re-applied here. **(2) `Activity/PrinciplesStep.php:45`** — multi-select had `min-width:320px` which forced horizontal scroll on 360px viewports (v3.110.121 also reported fixing this; regression). Replaced with `width:100%; min-width:0; max-width:100%; box-sizing:border-box; font-size:16px` so the select shrinks to fit AND the iOS keyboard doesn't auto-zoom on focus. **(3) `Person/RoleStep.php:40`** — role radio labels were `display:block` with no min-height; tap area was just the radio dot. Replaced with `display:flex; align-items:center; gap:8px; min-height:48px; padding:8px 0` so the whole row is a 48px tap target. **(4) `Player/PathStep.php:27-28`** — Roster/Trial radio labels bare without sizing; same flex+48px pattern applied. **(5) `Evaluation/ActivityPickerStep.php:124`** — activity-picker rows had `padding:8px` and unbounded height; bumped padding to 12px + added `min-height:48px`. Same step's metadata subtext bumped from `font-size:13px` to `font-size:14px` (still below the 16px input floor but `13px` is sub-readable on phones — Tier-2 audit will sweep all the 13px metadata in another round). No backend code changes; no REST shape changes; no i18n changes. The audit's Tier-2 (12 medium-severity findings) and Tier-3 (6+ minor polish) ship as separate rounds — operator can validate Tier 1 on the pilot install first before greenlighting deeper work.
 
 = 3.110.165 — Head-coach KPI wire-up: MyTeamAttendancePct + MyTeamAvgRating compute() implementations + click destinations =
 

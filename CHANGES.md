@@ -1,3 +1,56 @@
+# TalentTrack v3.110.166 — Wizards mobile-first audit round 2: 5 critical 48px touch-target fixes
+
+Closes issue #482 from the pilot bug list. Round-2 sweep of every wizard step file under `src/Modules/Wizards/` for CLAUDE.md §2 violations (48×48px touch-target floor, 16px input font-size).
+
+Round 1 (v3.110.121) caught the most-egregious cases. This round catches **5 remaining critical sites** plus one Tier-2 font-size bump that landed in the same patch because it was inside the same file.
+
+## Findings + fixes (Tier 1 critical)
+
+| # | File:line | Before | After |
+|---|---|---|---|
+| 1 | `Team/RosterStep.php:57` | `min-height:32px; padding:4px 0` | `min-height:48px; padding:12px 0` |
+| 2 | `Activity/PrinciplesStep.php:45` | `min-width:320px` (forces 360px horizontal scroll) | `width:100%; min-width:0; max-width:100%; box-sizing:border-box; font-size:16px` |
+| 3 | `Person/RoleStep.php:40` | `display:block` (tap area = radio dot only) | `display:flex; align-items:center; gap:8px; min-height:48px; padding:8px 0` |
+| 4 | `Player/PathStep.php:27-28` | Bare `<label><input radio>...` with no sizing | Wrapped in `display:flex; min-height:48px; padding:8px 0` + inner `<span>` for the text |
+| 5 | `Evaluation/ActivityPickerStep.php:124` | `padding:8px`, no min-height; subtext at 13px | `padding:12px; min-height:48px`; subtext at 14px |
+
+## Why the v3.110.121 audit missed (or regressed) two of these
+
+The v3.110.121 changelog claimed RosterStep and PrinciplesStep were retrofitted, but both turned up in this audit with the old values. Either the v3.110.121 changes didn't land cleanly (PR merge conflict) or a later edit reverted them. Either way: re-applied here and the regression-or-miss is captured in the issue comment trail.
+
+## What's not in this ship
+
+The audit identified **2 more tiers** the operator can pull the trigger on after validating Tier 1:
+
+- **Tier 2 (🟠 Important, ~12 findings)**: 13px metadata text across multiple wizard steps (ReviewStep, ActivityPickerStep, TypeStatusStep), `<table>`-based layouts in HybridDeepRateStep that don't reflow at 360px, inline `min-height:56px` on RateConfirmStep buttons that overrides CSS.
+- **Tier 3 (🟡 Minor, ~6 findings)**: spacing tightening (12px → 16px margins), `pattern="[0-9]*"` on numeric inputs, focus-ring polish.
+
+These are queued in the issue thread; ship as their own retrofit rounds once Tier 1 validates on the pilot install.
+
+## Files
+
+- `src/Modules/Wizards/Team/RosterStep.php` — line 57 checkbox label sizing.
+- `src/Modules/Wizards/Activity/PrinciplesStep.php` — line 45 multi-select width + font-size.
+- `src/Modules/Wizards/Person/RoleStep.php` — line 40 radio label sizing.
+- `src/Modules/Wizards/Player/PathStep.php` — lines 27-28 radio label sizing.
+- `src/Modules/Wizards/Evaluation/ActivityPickerStep.php` — lines 124, 128 row sizing + metadata font-size.
+- `talenttrack.php` 3.110.165 → 3.110.166.
+- `readme.txt`, `CHANGES.md`.
+
+No backend / REST / i18n changes. Pure inline-CSS retrofit.
+
+## How to verify
+
+On a 360px viewport (Chrome DevTools → Toggle device toolbar → Moto G5+ preset):
+
+1. **New-team wizard → Roster step**: each player-checkbox row is comfortably tappable (≥48px tall). No more pinching to land on a 32px row.
+2. **New-activity wizard → Principles step**: the multi-select fits inside the viewport — no horizontal scroll on the page level. Focus on the select does not auto-zoom on iOS.
+3. **New-person wizard → Role step**: each role radio is a full-row tap target. Whole label is clickable, not just the dot.
+4. **New-player wizard → Path step**: same — Roster player / Trial player rows are 48px each.
+5. **New-evaluation wizard → Activity picker step**: each candidate-activity row is 48px tall and the metadata subtext (`— team · date`) reads at 14px instead of 13px.
+
+---
+
 # TalentTrack v3.110.165 — Head-coach KPI wire-up: MyTeamAttendancePct + MyTeamAvgRating compute() + click destinations
 
 Issues #476 and #477 from the pilot bug list. Both KPIs were scaffolded scaffolds with `compute()` returning `KpiValue::unavailable()` and `linkView()` set empty since v3.110.126 (so the cards stayed inert and didn't route to player-only views that rejected coaches with "not authorized").

@@ -37,7 +37,7 @@ final class RoleStep implements WizardStepInterface {
             <?php foreach ( PeopleRepository::ROLE_TYPES as $code ) :
                 $label = LabelTranslator::roleType( $code );
                 ?>
-                <label style="display:block;">
+                <label style="display:flex; align-items:center; gap:8px; min-height:48px; padding:8px 0;">
                     <input type="radio" name="role_type" value="<?php echo esc_attr( $code ); ?>" <?php checked( $current === $code ); ?> />
                     <?php echo esc_html( $label ); ?>
                 </label>

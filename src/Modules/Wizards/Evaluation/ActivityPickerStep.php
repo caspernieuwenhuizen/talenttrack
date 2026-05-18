@@ -121,11 +121,11 @@ final class ActivityPickerStep implements WizardStepInterface {
                     $when_pretty = $when !== '' ? date_i18n( get_option( 'date_format', 'Y-m-d' ), strtotime( $when ) ) : '';
                     $checked = (int) ( $state['activity_id'] ?? 0 ) === (int) $r->id;
                     ?>
-                    <label class="tt-activity-row" style="display:flex;align-items:center;gap:8px;padding:8px;border:1px solid var(--tt-line);border-radius:6px;margin-bottom:6px;cursor:pointer;">
+                    <label class="tt-activity-row" style="display:flex;align-items:center;gap:8px;padding:12px;border:1px solid var(--tt-line);border-radius:6px;margin-bottom:6px;cursor:pointer;min-height:48px;">
                         <input type="radio" name="activity_id" value="<?php echo (int) $r->id; ?>" <?php checked( $checked ); ?> required />
                         <span>
                             <strong><?php echo esc_html( (string) $r->title ); ?></strong>
-                            <span style="color:var(--tt-muted);font-size:13px;">— <?php echo esc_html( (string) $r->team_name ); ?> · <?php echo esc_html( $when_pretty ); ?></span>
+                            <span style="color:var(--tt-muted);font-size:14px;">— <?php echo esc_html( (string) $r->team_name ); ?> · <?php echo esc_html( $when_pretty ); ?></span>
                         </span>
                     </label>
                 <?php endforeach; ?>
