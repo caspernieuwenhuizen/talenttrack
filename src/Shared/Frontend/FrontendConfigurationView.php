@@ -136,6 +136,11 @@ class FrontendConfigurationView extends FrontendViewBase {
             [ __( 'Goal statuses',      'talenttrack' ), __( 'Open / in progress / done / cancelled. Drives the goals KPI.',     'talenttrack' ), 'goal_statuses',   'goals' ],
             [ __( 'Goal priorities',    'talenttrack' ), __( 'Low / medium / high. Sorts the my-goals list.',                     'talenttrack' ), 'goal_priorities', 'goals' ],
             [ __( 'Attendance statuses', 'talenttrack' ), __( 'Present / absent / excused / late. Drives the attendance KPI.',  'talenttrack' ), 'att_statuses',    'inbox' ],
+            // v3.110.163 — surface `player_value` as a first-class lookup
+            // tile. The Goal wizard's LinkStep already exposes a "Value"
+            // picker that reads this vocabulary; it just had no maintenance
+            // surface beyond wp-admin. Seeded with 8 starters by #0044.
+            [ __( 'Player values',      'talenttrack' ), __( 'Player virtues used as PDP goal links: Commitment, Coachability, Resilience, etc.', 'talenttrack' ), 'player_values',   'lightbulb' ],
             [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
         ];
 
@@ -178,6 +183,11 @@ class FrontendConfigurationView extends FrontendViewBase {
             'goal_statuses'   => [ 'label' => __( 'Goal statuses',       'talenttrack' ), 'type' => 'goal_status',       'show_desc' => false, 'show_color' => true  ],
             'goal_priorities' => [ 'label' => __( 'Goal priorities',     'talenttrack' ), 'type' => 'goal_priority',     'show_desc' => false, 'show_color' => false ],
             'att_statuses'    => [ 'label' => __( 'Attendance statuses', 'talenttrack' ), 'type' => 'attendance_status', 'show_desc' => false, 'show_color' => true  ],
+            // v3.110.163 — player virtues used as PDP goal-link target.
+            // Description column is on so the operator can write a short
+            // gloss for each value ("Commitment — turning up on time and
+            // ready to train") that surfaces wherever the value is shown.
+            'player_values'   => [ 'label' => __( 'Player values',       'talenttrack' ), 'type' => 'player_value',      'show_desc' => true,  'show_color' => false ],
         ];
         if ( ! isset( $registry[ $slug ] ) ) return null;
         $meta = $registry[ $slug ];

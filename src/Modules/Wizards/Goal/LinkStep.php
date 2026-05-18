@@ -169,7 +169,13 @@ final class LinkStep implements WizardStepInterface {
                 // for every install since the wizard shipped.
                 // Lookups use HARD delete via the lookups admin so
                 // there is nothing to filter on here anyway.
-                $lookup_type = $type === 'position' ? 'position' : 'club_value';
+                // v3.110.163 — was reading `club_value`, but the seed
+                // (migration 0031, Activator) writes `player_value`. The
+                // mismatch meant the "Value" branch of this picker has
+                // returned zero rows on every install since the wizard
+                // shipped. Spec #0044 confirms `player_value` is the
+                // canonical lookup type.
+                $lookup_type = $type === 'position' ? 'position' : 'player_value';
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT id, name FROM {$wpdb->prefix}tt_lookups
                      WHERE lookup_type = %s AND club_id = %d ORDER BY sort_order, name",
