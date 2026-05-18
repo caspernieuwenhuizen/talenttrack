@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.159
+Stable tag: 3.110.160
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.160 — Dutch translations chunk 1: all 89 REST controller error messages now translate on `nl_NL` =
+
+Follow-up to v3.110.159's i18n foundation. The msgmerge brought 1,469 untranslated entries into the Dutch .po; this ship clears the **REST controller error messages** subset — every `__()` call surfaced from `src/Infrastructure/REST/*.php`. That covers the highest-impact bucket: API responses the user sees as red error notices on every CRUD failure (guest add, evaluation save, custom-field create, role assignment, tournament wizard validation, people CSV import, scout-photo OCR, etc.). 89 strings translated, terminology aligned with the existing .po vocabulary (*activiteit*, *speler*, *team*, *evaluatie*, *beoordeling*) plus new Tournament-domain terms (*toernooi*, *opstelling*, *selectie*, *anker-team*, *wedstrijd*, *afgerond*, *automatisch plannen*). Multi-line msgids handled with multi-line msgstr continuation to keep the .po line-wrapping clean. Net effect on the Dutch install: every REST validation error and DB-failure message that previously read in English (*"Tournament name is required"*, *"The guest could not be added"*, *"System role types cannot be deleted"*) now renders in Dutch. Verified: 0 REST controller msgids remain with empty msgstr. **Backlog after this ship**: ≈1,380 strings remaining across Prospects (~200), PersonaDashboard (~180), Shared/Frontend views, plus older legacy strings the audit surfaced. Next chunks ship by area to keep terminology consistent within each domain.
 
 = 3.110.159 — i18n foundation: auto-regenerate .pot from source + msgmerge into .po + WARN-only PR check for untranslated msgstr entries =
 

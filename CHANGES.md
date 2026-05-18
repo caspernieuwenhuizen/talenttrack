@@ -1,3 +1,104 @@
+# TalentTrack v3.110.160 — Dutch translations chunk 1: all 89 REST controller error messages
+
+## Context
+
+v3.110.159 shipped the i18n foundation (auto-regenerate `.pot` + msgmerge into `.po`). The first sync after that merge brought **1,469 untranslated msgids** into `talenttrack-nl_NL.po` (every `__()` call that had drifted untranslated since the .pot was last regenerated 2026-04-20).
+
+This ship is **chunk 1** of the backlog clearance: the **REST controller error messages**. Picked first because:
+
+- Highest user-impact-per-string. REST error notices show up as red banners on every CRUD failure — they're the friction surface for the operator.
+- Self-contained vocabulary. REST validation messages share a small vocabulary (*required*, *invalid*, *not found*, *cannot be deleted*) that's straightforward to translate consistently.
+- 89 strings — sized for one reviewable PR.
+
+## What changed
+
+| Translated | English | Dutch |
+|---|---|---|
+| (89 entries — sample) | "Tournament name is required." | "Toernooinaam is verplicht." |
+| | "An anchor team is required." | "Een anker-team is verplicht." |
+| | "Match already completed. Pass force=1 to edit a locked lineup." | "Wedstrijd is al afgerond. Geef force=1 mee om een vergrendelde opstelling te bewerken." |
+| | "Cannot auto-plan a completed match." | "Een afgeronde wedstrijd kan niet automatisch worden gepland." |
+| | "Match has no formation. Set a formation on the match or tournament before auto-planning." | "Wedstrijd heeft geen opstelling. Stel een opstelling in op de wedstrijd of het toernooi voordat je automatisch plant." |
+| | "Add players to the squad before auto-planning." | "Voeg spelers toe aan de selectie voordat je automatisch plant." |
+| | "The guest could not be added (database error: %s)." | "De gast kon niet worden toegevoegd (databasefout: %s)." |
+| | "A guest is either linked OR anonymous, not both." | (existing translation, already present) |
+| | "The evaluation could not be archived." | "De evaluatie kon niet worden gearchiveerd." |
+| | "This category has subcategories. Delete or reparent them first." | "Deze categorie heeft subcategorieën. Verwijder ze of verplaats ze eerst." |
+| | "System role types cannot be deleted." | "Systeem-roltypes kunnen niet worden verwijderd." |
+| | "This role type is in use by current assignments. Reassign or remove those first." | "Dit roltype wordt gebruikt door huidige toewijzingen. Wijs ze opnieuw toe of verwijder ze eerst." |
+| | "Auto-translate is disabled. Configure an engine + API key under Configuration → Translations first." | "Automatisch vertalen is uitgeschakeld. Configureer eerst een engine + API-sleutel onder Configuratie → Vertalingen." |
+| | "CSV files larger than 5MB are not accepted." | "CSV-bestanden groter dan 5MB worden niet geaccepteerd." |
+| | "The vision provider could not read this photo. Use the manual flow instead." | "De vision-provider kon deze foto niet lezen. Gebruik in plaats daarvan de handmatige flow." |
+
+(Full set of 89 entries in the `.po` diff; abridged here.)
+
+## Terminology decisions
+
+The Tournaments module shipped a wave of new vocabulary that didn't have settled Dutch translations. Locking in:
+
+| English | Dutch | Rationale |
+|---|---|---|
+| anchor team | anker-team | Loanword pattern matches existing *team* in the .po; *vaste tegenstander* is more idiomatic but loses the technical specificity |
+| auto-plan | automatisch plannen | Verb form; consistent with existing *automatisch* prefix in NL UI |
+| lineup | opstelling | Already established in the .po (TeamFormation translations) |
+| squad | selectie | Football-domain Dutch (*kader* is military / older usage) |
+| kickoff | aftrap | (not in this batch — flagged for Tournament lifecycle chunk) |
+| complete a match | wedstrijd afronden | More idiomatic than *voltooien* in match context |
+
+All other terms used existing .po vocabulary (*speler*, *team*, *activiteit*, *evaluatie*, *beoordeling*, *categorie*, *toewijzing*, *rol*, *persoon*).
+
+## Verification
+
+Counted untranslated REST controller msgids before/after:
+
+```
+Before (after v3.110.159 msgmerge): 89 REST msgids with empty msgstr
+After this ship:                     0 REST msgids with empty msgstr
+```
+
+Method: walk the .po with awk, emit msgids where the msgstr is empty (handles single-line and multi-line msgstr forms), intersect with the set of msgids quoted in `src/Infrastructure/REST/*.php`.
+
+## Multi-line entries
+
+8 of the 89 entries were stored in the .po as multi-line msgids (long strings that `wp i18n make-pot` wraps at ~76 chars). Translated as matching multi-line msgstr continuations to keep the file line-wrapping consistent:
+
+```po
+msgid ""
+"This field has %d stored value(s). Deactivate the field instead so the "
+"values are preserved."
+msgstr ""
+"Dit veld heeft %d opgeslagen waarde(n). Deactiveer het veld in plaats "
+"daarvan zodat de waarden behouden blijven."
+```
+
+## Files
+
+- `languages/talenttrack-nl_NL.po` — 89 msgstr entries filled in with Dutch translations.
+- `talenttrack.php` 3.110.159 → 3.110.160.
+- `readme.txt`, `CHANGES.md`.
+
+No PHP code changes. `.mo` regeneration happens automatically via the existing `translations.yml` compile job on next push to main.
+
+## Backlog after this ship
+
+≈1,380 strings remain across:
+
+- **Prospects** (~200 strings) — scouting flows, prospects pipeline UI, scouting-visit feature
+- **PersonaDashboard** (~180) — widget labels, KPI strip, persona templates
+- **Shared/Frontend views** (~30–50) — assorted view labels
+- **Legacy strings** (~900+) — older parts of the codebase the audit surfaced
+
+Each chunk will ship as its own version bump to keep PRs reviewable. The terminology decisions locked here (squad → selectie, lineup → opstelling, anchor team → anker-team, etc.) carry forward.
+
+## How to verify
+
+1. On the Dutch install, trigger a REST validation failure — e.g., open the Tournament wizard, leave the name blank, submit. Error notice now reads *"Toernooinaam is verplicht."* instead of *"Tournament name is required."*
+2. Try to add a guest with no name AND no linked player. Error reads *"Kies een speler of voer een naam in voor de gast."* (this one was already translated; including for cross-check).
+3. Try to delete a system role type. Error reads *"Systeem-roltypes kunnen niet worden verwijderd."*
+4. Trigger any failing CRUD endpoint with malformed payload — the error notice surfaces in Dutch.
+
+---
+
 # TalentTrack v3.110.159 — i18n foundation: auto-regenerate .pot from source + msgmerge into .po + WARN-only PR check for untranslated msgstr entries
 
 ## Pilot ask
