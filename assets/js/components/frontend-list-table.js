@@ -126,7 +126,22 @@
         if (Object.keys(config.row_actions).length) {
             tds += '<td class="tt-list-table-actions" data-label="">' + renderRowActions(config.row_actions, row) + '</td>';
         }
-        return '<tr data-row-id="' + escapeHtml(row.id == null ? '' : row.id) + '">' + tds + '</tr>';
+        // v3.110.169 (#758) — row-link standard. When the preset
+        // declares `row_url_key` and the row carries that key, stamp
+        // the <tr> with data-row-href + is-row-link + role=link +
+        // tabindex=0 so the whole row is a click / Enter / Space
+        // target. bindRowLinks() below wires the click handler,
+        // skipping interactive descendants (links, buttons, inputs)
+        // so per-column links keep working.
+        var rowAttrs = ' data-row-id="' + escapeHtml(row.id == null ? '' : row.id) + '"';
+        var rowClass = '';
+        var rowUrlKey = config.row_url_key;
+        if (rowUrlKey && row[rowUrlKey]) {
+            rowAttrs += ' data-row-href="' + escapeHtml(String(row[rowUrlKey])) + '"';
+            rowAttrs += ' role="link" tabindex="0"';
+            rowClass = ' class="is-row-link"';
+        }
+        return '<tr' + rowClass + rowAttrs + '>' + tds + '</tr>';
     }
 
     function syncUrl(state) {
@@ -428,9 +443,77 @@
 
         bindRowActions(root);
         bindInlineSelects(root);
+        bindRowLinks(root);
 
         // First fetch.
         refresh(root);
+    }
+
+    // v3.110.169 (#758) — row-link delegated click handler. Navigates
+    // to row.dataset.rowHref on click / Enter / Space, except when
+    // the actual click target is interactive (link, button, input,
+    // select, label, textarea, anything with role="button"). Middle-
+    // click + cmd/ctrl-click open in a new tab. Text-selection drags
+    // are ignored — if the user is actively selecting, the click
+    // event doesn't fire on mouseup.
+    function bindRowLinks(root) {
+        var tbody = root.querySelector('[data-tt-list-body="1"]');
+        if (!tbody) return;
+
+        function targetIsInteractive(el) {
+            // Walk up from the click target to the row, looking for
+            // any interactive element. If we hit one, skip navigation.
+            while (el && el !== tbody) {
+                if (el.tagName === 'A' || el.tagName === 'BUTTON' ||
+                    el.tagName === 'INPUT' || el.tagName === 'SELECT' ||
+                    el.tagName === 'TEXTAREA' || el.tagName === 'LABEL') {
+                    return true;
+                }
+                if (el.getAttribute && el.getAttribute('role') === 'button') return true;
+                el = el.parentNode;
+            }
+            return false;
+        }
+
+        function navigate(href, newTab) {
+            if (!href) return;
+            if (newTab) {
+                window.open(href, '_blank', 'noopener');
+            } else {
+                window.location.href = href;
+            }
+        }
+
+        tbody.addEventListener('click', function(e) {
+            var tr = e.target.closest && e.target.closest('tr.is-row-link');
+            if (!tr || !tbody.contains(tr)) return;
+            if (targetIsInteractive(e.target)) return;
+            // Don't navigate on text-selection drags.
+            var sel = window.getSelection && window.getSelection();
+            if (sel && sel.toString && sel.toString().length > 0 && sel.containsNode && sel.containsNode(tr, true)) return;
+            var href = tr.getAttribute('data-row-href');
+            navigate(href, e.metaKey || e.ctrlKey || e.button === 1);
+        });
+
+        // Middle-click on a row (auxclick fires for non-primary buttons).
+        tbody.addEventListener('auxclick', function(e) {
+            if (e.button !== 1) return; // middle button only
+            var tr = e.target.closest && e.target.closest('tr.is-row-link');
+            if (!tr || !tbody.contains(tr)) return;
+            if (targetIsInteractive(e.target)) return;
+            e.preventDefault();
+            navigate(tr.getAttribute('data-row-href'), true);
+        });
+
+        // Enter / Space on a focused row activates the link.
+        tbody.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            var tr = e.target.closest && e.target.closest('tr.is-row-link');
+            if (!tr || !tbody.contains(tr)) return;
+            if (targetIsInteractive(e.target)) return;
+            e.preventDefault();
+            navigate(tr.getAttribute('data-row-href'), e.metaKey || e.ctrlKey);
+        });
     }
 
     document.addEventListener('DOMContentLoaded', function() {

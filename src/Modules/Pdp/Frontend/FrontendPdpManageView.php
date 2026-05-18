@@ -169,6 +169,12 @@ class FrontendPdpManageView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search player…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'updated_at', 'order' => 'desc' ],
             'empty_state'  => __( 'No PDP files match your filters.', 'talenttrack' ),
+            // v3.110.169 — whole-row click navigates to the PDP file detail
+            // page. Inline links to player / team cells keep working
+            // (cross-entity links override the row link). Standard
+            // applied here first; other list views will adopt the same
+            // `row_url_key` config + REST `detail_url` field pattern.
+            'row_url_key'  => 'detail_url',
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
     }
 
