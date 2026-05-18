@@ -254,9 +254,10 @@ class PeopleRestController {
         // in-product mail composer (?tt_view=mail-compose&person_id=N)
         // — same surface the People admin page already targets — rather
         // than a raw mailto:, so the send is captured in the audit log.
+        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', (int) $row->id );
         $name_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $name !== '' ? $name : '#' . (int) $row->id,
-            \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', (int) $row->id )
+            $detail_url
         );
 
         $email_link_html = '';
@@ -286,6 +287,8 @@ class PeopleRestController {
             'archived_at'     => $row->archived_at ?? null,
             'team_count'      => isset( $row->team_count ) ? (int) $row->team_count : count( $assignments ),
             'current_roles'   => implode( ' · ', array_filter( $parts ) ),
+            // v3.110.170 — row-link standard (#758).
+            'detail_url'      => $detail_url,
         ];
     }
 

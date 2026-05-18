@@ -398,9 +398,10 @@ class TeamsRestController {
         $hc_names      = $hc_names_raw !== '' ? explode( '||', $hc_names_raw ) : [];
         $hc_person_ids = $hc_person_ids_raw !== '' ? array_map( 'intval', explode( ',', $hc_person_ids_raw ) ) : [];
 
+        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', (int) $t->id );
         $name_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $name !== '' ? $name : '#' . (int) $t->id,
-            \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', (int) $t->id )
+            $detail_url
         );
 
         $coach_link_html = '';
@@ -450,6 +451,8 @@ class TeamsRestController {
             'notes'           => (string) ( $t->notes ?? '' ),
             'player_count'    => isset( $t->player_count ) ? (int) $t->player_count : null,
             'archived_at'     => $t->archived_at ?? null,
+            // v3.110.170 — row-link standard (#758).
+            'detail_url'      => $detail_url,
         ];
     }
 }

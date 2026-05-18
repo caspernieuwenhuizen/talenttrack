@@ -538,6 +538,10 @@ class ActivitiesRestController {
                 ? \TT\Infrastructure\Query\LookupPill::render( 'attendance_status', (string) $row->your_attendance_status )
                 : '',
             'archived_at'              => $row->archived_at ?? null,
+            // v3.110.170 — row-link standard (#758). Same URL the title
+            // cell links to; exposed as a top-level field so FrontendListTable's
+            // `row_url_key` config can navigate the whole row.
+            'detail_url'               => $title_url,
         ];
     }
 

@@ -207,6 +207,10 @@ class FrontendTournamentsManageView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search by name…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'start_date', 'order' => 'desc' ],
             'empty_state'  => __( 'No tournaments yet.', 'talenttrack' ),
+            // v3.110.170 — row-link standard. REST controller already
+            // emitted `detail_url` (since #131-foundation), just wires
+            // it up here so the whole row navigates.
+            'row_url_key'  => 'detail_url',
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
     }
 

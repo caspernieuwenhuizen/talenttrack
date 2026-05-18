@@ -295,6 +295,8 @@ class FrontendGoalsManageView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search title, description, player…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'due_date', 'order' => 'asc' ],
             'empty_state'  => __( 'No goals match your filters.', 'talenttrack' ),
+            // v3.110.170 — row-link standard.
+            'row_url_key'  => 'detail_url',
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
     }
 

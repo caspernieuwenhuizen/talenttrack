@@ -228,6 +228,8 @@ class FrontendPlayersManageView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search by name…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'last_name', 'order' => 'asc' ],
             'empty_state'  => __( 'No players match your filters.', 'talenttrack' ),
+            // v3.110.170 — row-link standard.
+            'row_url_key'  => 'detail_url',
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
     }
 
