@@ -1,3 +1,82 @@
+# TalentTrack v3.110.165 — Head-coach KPI wire-up: MyTeamAttendancePct + MyTeamAvgRating compute() + click destinations
+
+Issues #476 and #477 from the pilot bug list. Both KPIs were scaffolded scaffolds with `compute()` returning `KpiValue::unavailable()` and `linkView()` set empty since v3.110.126 (so the cards stayed inert and didn't route to player-only views that rejected coaches with "not authorized").
+
+This ship implements both `compute()` methods and wires `linkView()` to coach-accessible destinations.
+
+## #476 — MyTeamAttendancePct
+
+Real implementation:
+
+```php
+SELECT
+    COUNT(*) AS total,
+    SUM( CASE WHEN LOWER(a.status) = 'present' THEN 1 ELSE 0 END ) AS present
+FROM tt_attendance a
+JOIN tt_activities act ON act.id = a.activity_id
+JOIN tt_players    pl  ON pl.id  = a.player_id
+WHERE act.club_id   = $club_id
+  AND pl.team_id   IN ($coach_teams)
+  AND act.session_date BETWEEN '$today - 28 days' AND '$today'
+```
+
+Returns the rolling 4-week present-rate. Numerator: `LOWER(status)='present'` (matches both seeded `'Present'` and legacy lowercase data — same pattern `AttendancePctRolling` uses). Denominator: every attendance row in the window — i.e. "expected" = "what's been recorded". Activities the coach hasn't marked yet don't contribute. Same shape as the academy-wide `AttendancePctRolling`.
+
+Output: locale-formatted integer percentage (`"82%"`).
+
+`linkView()` returns `'activities'`. The list's coach-scoping already filters to the coach's teams, so clicking lands on the list feeding the percentage.
+
+## #477 — MyTeamAvgRating
+
+Real implementation:
+
+```php
+SELECT AVG(rat.rating)
+FROM tt_eval_ratings rat
+JOIN tt_evaluations  e  ON e.id  = rat.evaluation_id
+JOIN tt_players      pl ON pl.id = e.player_id
+WHERE e.club_id      = $club_id
+  AND e.archived_at IS NULL
+  AND pl.team_id    IN ($coach_teams)
+  AND e.eval_date  >= '$today - 90 days'
+```
+
+90-day window: matches the head-coach assessment-cycle rhythm. 1–2 month per-player evals → 90 days captures roughly two cycles, so the average is stable enough to be meaningful without being so old it ignores recent improvement.
+
+Output: locale-formatted decimal to 1 digit (`"7.8"`).
+
+`linkView()` returns `'evaluations'`. The list's coach-scoping (`pl.team_id IN coach_teams OR e.coach_id = current_user`, since v3.110.126) aligns with this KPI's scope.
+
+## Empty states
+
+Both KPIs return `KpiValue::unavailable()` when:
+- The user has no head-coached teams (`get_teams_for_coach($user_id)` empty).
+- The user has teams but zero qualifying rows in the window.
+
+The KPI card renders the `—` placeholder and (with `linkView()` set) still routes to the relevant list — which will also be empty, but the operator sees the empty list rather than a "not authorized" page.
+
+## Why this is not a "not authorized" anymore
+
+Before: `linkView()` returned `''` (v3.110.126's stopgap), so the card was inert; the DEFAULT_LINK_VIEWS mapping had `'my-activities'` and `'my-team'` which are player-only views via `dispatchMeView` and bounced coaches with "not authorized". This ship sets `linkView()` to real values that route into `dispatchCoachingView` instead — coach-accessible.
+
+## Files
+
+- `src/Modules/PersonaDashboard/Kpis/MyTeamAttendancePct.php` — full rewrite (compute + linkView).
+- `src/Modules/PersonaDashboard/Kpis/MyTeamAvgRating.php` — full rewrite (compute + linkView).
+- `talenttrack.php` 3.110.164 → 3.110.165.
+- `readme.txt`, `CHANGES.md`.
+
+No new translatable strings. The i18n-sync workflow on next push handles any extracted docblock entries.
+
+## How to verify
+
+1. Log in as a head coach with at least one team that has activities + evaluations in the last 28 / 90 days.
+2. The "My team attendance %" KPI shows a percentage (not `—`). Click → activities list filtered to your team's activities.
+3. The "My team average rating" KPI shows a decimal (not `—`). Click → evaluations list filtered to your team.
+4. Log in as a coach with no head-coached teams. Both KPIs render `—` (unavailable). Clicking still routes but lists are empty.
+
+---
+
 # TalentTrack v3.110.164 — Pilot batch quick fixes: scout matrix-auth + active-player KPI demo-scope + upcoming-activities Show-all pre-filter + PDP-verdicts label + tasks back-pill
 
 Five small fixes batched from the pilot bug list. Tracked on the new "TalentTrack pilot issues" GitHub project (https://github.com/users/caspernieuwenhuizen/projects/2). Issues #475, #478, #480, #481, #483.
