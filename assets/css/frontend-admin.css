@@ -508,6 +508,20 @@
 }
 .tt-dashboard .tt-list-table-table tbody tr:hover { background: var(--tt-bg-soft); }
 
+/* v3.110.169 (#758) — row-link standard. When a list preset declares
+   `row_url_key`, the JS hydrator stamps each <tr> with `.is-row-link`
+   + role=link + tabindex=0. The cursor + hover background + focus
+   outline communicate "this whole row is clickable" without
+   overriding per-column links (which remain clickable thanks to
+   bindRowLinks' interactive-target skip). */
+.tt-dashboard .tt-list-table-table tbody tr.is-row-link { cursor: pointer; }
+.tt-dashboard .tt-list-table-table tbody tr.is-row-link:hover { background: var(--tt-bg-soft); }
+.tt-dashboard .tt-list-table-table tbody tr.is-row-link:focus-visible {
+    outline: 2px solid var(--tt-primary);
+    outline-offset: -2px;
+    background: var(--tt-bg-soft);
+}
+
 .tt-dashboard .tt-list-table-actions { white-space: nowrap; text-align: right; }
 .tt-dashboard .tt-list-table-action {
     display: inline-block;

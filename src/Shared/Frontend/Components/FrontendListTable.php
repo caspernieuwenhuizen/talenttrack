@@ -82,6 +82,14 @@ class FrontendListTable {
         // as a UI control. Merged into the request `filter[…]` payload
         // by the JS hydrator at fetch time.
         $static_filters = is_array( $config['static_filters'] ?? null ) ? $config['static_filters'] : [];
+        // v3.110.169 (#758) — row-link standard. When set, the JS
+        // hydrator stamps each <tr> with `data-row-href` + class
+        // `is-row-link` + role/tabindex from the row's value at this
+        // key (a REST controller field, typically `'detail_url'`).
+        // The delegated click handler navigates the row UNLESS the
+        // click target is an interactive descendant (link, button,
+        // input, select, etc.), preserving per-column links.
+        $row_url_key = isset( $config['row_url_key'] ) ? sanitize_key( (string) $config['row_url_key'] ) : '';
 
         if ( $rest_path === '' || ! $columns ) return '';
 
@@ -95,6 +103,7 @@ class FrontendListTable {
             'filters'          => self::filtersForJs( $filters ),
             'static_filters'   => self::sanitizeStaticFilters( $static_filters ),
             'row_actions'      => self::rowActionsForJs( $row_actions ),
+            'row_url_key'      => $row_url_key,
             'per_page_options' => array_values( $per_page_opts ),
             'default_sort'     => [
                 'orderby' => (string) ( $default_sort['orderby'] ?? '' ),

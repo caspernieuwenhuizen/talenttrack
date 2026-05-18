@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.168
+Stable tag: 3.110.169
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.169 — Row-link standard for `FrontendListTable`: whole-row click navigates to the row's detail page, first applied to the PDP files list =
+
+Pilot ask (chat 2026-05-18): "The list of PDP files does not have an option to actually open the file. Suggest a best way that would work both on desktop as well as mobile. Would it make sense to make the whole row the link to detail page?" Yes — and worth standardising so every list view picks it up the same way. **Tracked in issue #758.** **The standard** — a list preset can declare `'row_url_key' => '<field>'`, where `<field>` names a key on every REST row that holds the row's detail-page URL (typically `'detail_url'`, prepared server-side with `BackLink::appendTo()` so the destination renders the breadcrumb back-pill from §5). The JS hydrator (`assets/js/components/frontend-list-table.js`) stamps each `<tr>` with `data-row-href`, the `is-row-link` class, `role="link"`, and `tabindex="0"`. A delegated click handler navigates the row when clicked; middle-click (auxclick button 1) and cmd/ctrl-click open in a new tab; keyboard Enter / Space activates the focused row. **Per-column links keep working** — the handler walks the click target's ancestors, and skips the row navigation when the actual target is `<a>`, `<button>`, `<input>`, `<select>`, `<textarea>`, `<label>`, or anything with `role="button"`. So on the PDP list, clicking the player name still routes to the player detail (the cross-entity link cell), clicking the team name still routes to the team detail, but clicking anywhere else on the row (status pill, cycle, ack icons, updated-at, dead space) routes to the PDP file detail. **Text-selection drags are ignored** — if the user is highlighting text, the active selection is checked before navigation. **CSS** — `tr.is-row-link` gets `cursor: pointer`, `:hover` background, and `:focus-visible` outline. The existing tbody-tr hover stays in place for plain rows. **First consumer — PDP files list** (`?tt_view=pdp`). `PdpFilesRestController::format_list_row` already emits `detail_url` (v3.110.110), so the wire-up is one line in `FrontendPdpManageView::renderList()`: `'row_url_key' => 'detail_url'` in the FrontendListTable config. Other list views (players, teams, evaluations, goals, etc.) will adopt the same pattern in follow-up ships — pilot validates here first, then runs the rollout themselves with the standard now in place.
 
 = 3.110.168 — Scout hero "Plan bezoeken" CTA: broaden the destination's auth gate so matrix-granted scouts no longer hit a "Niet geautoriseerd" wall (#756) =
 
