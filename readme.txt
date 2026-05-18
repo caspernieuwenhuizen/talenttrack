@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.164
+Stable tag: 3.110.165
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.165 — Head-coach KPI wire-up: MyTeamAttendancePct + MyTeamAvgRating compute() implementations + click destinations =
+
+Issues #476 and #477 from the pilot bug list. Both KPIs were scaffolded in #0080 Wave B with `compute()` returning `KpiValue::unavailable()` and `linkView()` set empty (v3.110.126) so the cards stayed inert and didn't route to the player-only views (`my-activities`, `my-team`) the default mapping pointed at. **#476 — `MyTeamAttendancePct`**: real compute() returns the rolling 4-week present-rate across attendance rows for players on teams the coach head-coaches (numerator `LOWER(status)='present'`, denominator total rows in window — same shape as the academy-wide `AttendancePctRolling` KPI). 28-day window, club-scoped via `act.club_id`, team-scoped via `pl.team_id IN (coach_teams)`. Output as locale-formatted percentage. **#477 — `MyTeamAvgRating`**: real compute() returns the average rating across `tt_eval_ratings` for the coach's teams' players in the last 90 days. 90-day window picked to match the head-coach assessment-cycle rhythm (1–2 month per-player evals = roughly two cycles). Skips archived evals. Output as locale-formatted decimal. **Click destinations**: `MyTeamAttendancePct.linkView()` now returns `'activities'` and `MyTeamAvgRating.linkView()` returns `'evaluations'` — the list views' coach-scoping (added in v3.110.126 for evaluations; v3.110.x's `pl.team_id IN coach_teams` for activities) already aligns with the KPI's compute() scope, so clicking lands on a list of exactly the rows feeding the number. No more "not authorized" — both destinations are coach-accessible. **Empty states**: coach with no teams → `unavailable()` (KPI doesn't apply). Coach with teams but zero rows in window → `unavailable()` (cards render the `—` placeholder). New translatable strings: none (labels unchanged). The i18n-sync workflow will pick up the updated source PHP on next push and msgmerge any new context comments.
 
 = 3.110.164 — Pilot batch quick fixes: scout matrix-auth on page-header action + active-player KPI demo-scope + upcoming-activities See-all pre-filter + PDP-verdicts label clarity + tasks back-pill =
 
